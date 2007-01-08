@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932232AbXAHIte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932206AbXAHIue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbXAHIte (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbXAHIte
+	id S932206AbXAHIue (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbXAHIue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:49:34 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:60223 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932232AbXAHIte (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:49:34 -0500
-X-Originating-Ip: 74.109.98.176
-Date: Mon, 8 Jan 2007 03:44:01 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Sumit Narayan <talk2sumit@gmail.com>
-cc: Amit Choudhary <amit2030@yahoo.com>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Hua Zhong <hzhong@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-In-Reply-To: <1458d9610701080039m50d63d82w59cd917691edcb03@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0701080342090.26841@localhost.localdomain>
-References: <84144f020701080000v460a9f3aja9570e72fa457934@mail.gmail.com> 
- <810563.91187.qm@web55604.mail.re4.yahoo.com>
- <1458d9610701080039m50d63d82w59cd917691edcb03@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Mon, 8 Jan 2007 03:50:34 -0500
+Received: from nat-132.atmel.no ([80.232.32.132]:65409 "EHLO relay.atmel.no"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932206AbXAHIud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 03:50:33 -0500
+X-Greylist: delayed 1448 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 03:50:32 EST
+Date: Mon, 8 Jan 2007 09:26:19 +0100
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove a couple final references to obsolete
+ verify_area().
+Message-ID: <20070108092619.3efb86f8@dhcp-252-105.norway.atmel.com>
+In-Reply-To: <Pine.LNX.4.64.0701071839560.18341@localhost.localdomain>
+References: <Pine.LNX.4.64.0701071839560.18341@localhost.localdomain>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007, Sumit Narayan wrote:
+On Sun, 7 Jan 2007 18:43:41 -0500 (EST)
+"Robert P. J. Day" <rpjday@mindspring.com> wrote:
 
-> Asking for KFREE is as silly as asking for a macro to check if
-> kmalloc succeeded for a pointer, else return ENOMEM.
->
-> #define CKMALLOC(p,x) \
->   do {   \
->       p = kmalloc(x, GFP_KERNEL); \
->       if(!p) return -ENOMEM; \
->    } while(0)
+> 
+>   Remove a couple final references to the obsolete verify_area() call,
+> which was long ago replaced by access_ok().
+> 
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-oooooooh ... cool.  i'll whip up a patch for that right away.
+Acked-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-rday
+>   it *appears* that these last two references can be removed, unless
+> there's something really strange i'm not seeing here.
 
-p.s.  i'm *kidding*, for god's sake.  um ... what are you doing?  and
-where did you get that tire iron?  no, wait ...
+The kernel builds and boots fine after applying this patch, so I think
+verify_area is indeed unused. If it breaks something outside of
+mainline, I guess it's about time we get it fixed.
+
+Thanks,
+
+Haavard

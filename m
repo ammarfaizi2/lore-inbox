@@ -1,156 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751489AbXAHMQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161252AbXAHMWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbXAHMQP (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 07:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbXAHMQP
+	id S1161252AbXAHMWN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 07:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbXAHMWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 07:16:15 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59722 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751489AbXAHMQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 07:16:14 -0500
-Date: Mon, 8 Jan 2007 12:26:59 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: [PATCH] sata_via: PATA support, resubmit
-Message-ID: <20070108122659.00c22754@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Jan 2007 07:22:13 -0500
+Received: from mail.icabo.tv.br ([200.220.202.3]:36151 "EHLO mail.icabo.tv.br"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751491AbXAHMWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 07:22:12 -0500
+Message-ID: <45A2376D.5060905@fliagreco.com.ar>
+Date: Mon, 08 Jan 2007 09:22:05 -0300
+From: Pablo Sebastian Greco <lkml@fliagreco.com.ar>
+User-Agent: Thunderbird 3.0a1 (Windows/20070107)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA problems
+References: <459A674B.3060304@fliagreco.com.ar> <459B9F91.9070908@gmail.com> <459BC703.9000207@fliagreco.com.ar> <459C8A5E.5010206@gmail.com> <459CFE7B.6090306@fliagreco.com.ar> <459DC2EE.1090307@fliagreco.com.ar> <45A1AB3F.1080408@gmail.com>
+In-Reply-To: <45A1AB3F.1080408@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ICABO-MailScanner-Information: Please contact the ISP for more information
+X-ICABO-MailScanner: Sem Virus encontrado
+X-MailScanner-From: lkml@fliagreco.com.ar
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a clean version of the PATA support for the sata_via hardware.
-I'm resubmitting it since nothing has happened since the last submission
-despite promises of libata core changes. Given users actually need to use
-this stuff today and the code is clean it should get merged irrespective
-of any longer term plans for per channel operations structs and the like.
+Tejun Heo wrote:
+> Pablo Sebastian Greco wrote:
+>   
+>> After an uptime of  13:34 under heavy load and no errors, I'm pretty
+>> sure your patch is correct. Is there a way to backport this to 2.6.18.x?
+>>     
+>
+> I forgot this (even though I implemented it) but you can turn off NCQ by
+> doing the following.
+>
+> # echo 1 > /sys/block/sdX/device/queue_depth
+>
+> Can you put the seagate drive under load to verify that it's the samsung
+> drive's problem not the controller's?
+>
+>   
+>> Just an off topic question, does anyone know why I get so uneven IRQ
+>> handling on 2.6.19-20 and almost perfect on 2.6.20-rc2-mm1?
+>>     
+>
+> I dunno.  You have much better chance of getting a useful answer by
+> asking it on a separate thread with proper subject line.  People usualyl
+> screen threads by subject.  There are just too many message in LKML for
+> anyone to follow all the message.
+>
+> Thanks.
+>
+>   
+Guess I spoke too soon :(
+Today I found this
+Jan  8 04:01:40 squid kernel: ata2.00: exception Emask 0x0 SAct 0x0 SErr 
+0x0 action 0x2 frozen
+Jan  8 04:01:40 squid kernel: ata2.00: cmd 
+25/00:08:49:ee:e8/00:00:16:00:00/e0 tag 0 cdb 0x0 data 4096 in
+Jan  8 04:01:40 squid kernel:          res 
+40/00:00:00:4f:c2/00:00:00:00:00/00 Emask 0x4 (timeout)
+Jan  8 04:01:40 squid kernel: ata2: soft resetting port
+Jan  8 04:01:40 squid kernel: ata2: softreset failed (port busy but CLO 
+unavailable)
+Jan  8 04:01:40 squid kernel: ata2: softreset failed, retrying in 5 secs
+Jan  8 04:01:45 squid kernel: ata2: hard resetting port
+Jan  8 04:01:53 squid kernel: ata2: port is slow to respond, please be 
+patient (Status 0x80)
+Jan  8 04:02:16 squid kernel: ata2: port failed to respond (30 secs, 
+Status 0x80)
+Jan  8 04:02:16 squid kernel: ata2: COMRESET failed (device not ready)
+Jan  8 04:02:16 squid kernel: ata2: hardreset failed, retrying in 5 secs
+Jan  8 04:02:21 squid kernel: ata2: hard resetting port
+Jan  8 04:02:21 squid kernel: ata2: SATA link up 3.0 Gbps (SStatus 123 
+SControl 300)
+Jan  8 04:02:21 squid kernel: ata2.00: configured for UDMA/133
+Jan  8 04:02:21 squid kernel: ata2: EH complete
+Jan  8 04:02:21 squid kernel: SCSI device sdb: 488397168 512-byte hdwr 
+sectors (250059 MB)
+Jan  8 04:02:21 squid kernel: sdb: Write Protect is off
+Jan  8 04:02:21 squid kernel: SCSI device sdb: write cache: enabled, 
+read cache: enabled, doesn't support DPO or FUA
+#uptime
+ 10:10:12 up 3 days, 22:48,  1 user,  load average: 0.22, 0.19, 0.18
+4 am is the lowest load ever, so I don't get it.
+I've found two differences with older errors
+    SAct is now 0x0 when before was 0x7fffffff
+    And the cmd/res used to be really long, now it's just one command
+About heavy loading the seagate, I've tested as suggested on other 
+thread dd if=<drive> of=/dev/null
+for all 4 drives simultaneously, on top of usual load, and all was 
+perfect with current kernel (2.6.20-rc3 + blacklist).
+Don't know what to do to help
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.20-rc3-mm1/drivers/ata/sata_via.c linux-2.6.20-rc3-mm1/drivers/ata/sata_via.c
---- linux.vanilla-2.6.20-rc3-mm1/drivers/ata/sata_via.c	2007-01-05 13:09:36.000000000 +0000
-+++ linux-2.6.20-rc3-mm1/drivers/ata/sata_via.c	2007-01-05 14:11:36.000000000 +0000
-@@ -59,11 +59,14 @@
- 	SATA_INT_GATE		= 0x41, /* SATA interrupt gating */
- 	SATA_NATIVE_MODE	= 0x42, /* Native mode enable */
- 	SATA_PATA_SHARING	= 0x49, /* PATA/SATA sharing func ctrl */
--
-+	PATA_UDMA_TIMING	= 0xB3, /* PATA timing for DMA/ cable detect */
-+	PATA_PIO_TIMING		= 0xAB, /* PATA timing register */
-+	
- 	PORT0			= (1 << 1),
- 	PORT1			= (1 << 0),
- 	ALL_PORTS		= PORT0 | PORT1,
--	N_PORTS			= 2,
-+	PATA_PORT		= 2,	/* PATA is port 2 */
-+	N_PORTS			= 3,
- 
- 	NATIVE_MODE_ALL		= (1 << 7) | (1 << 6) | (1 << 5) | (1 << 4),
- 
-@@ -75,6 +78,10 @@
- static u32 svia_scr_read (struct ata_port *ap, unsigned int sc_reg);
- static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- static void vt6420_error_handler(struct ata_port *ap);
-+static void vt6421_error_handler(struct ata_port *ap);
-+static void vt6421_set_pio_mode(struct ata_port *ap, struct ata_device *adev);
-+static void vt6421_set_dma_mode(struct ata_port *ap, struct ata_device *adev);
-+static unsigned long vt6421_mode_filter(const struct ata_port *ap, struct ata_device *adev, unsigned long modes);
- 
- static const struct pci_device_id svia_pci_tbl[] = {
- 	{ PCI_VDEVICE(VIA, 0x0591), vt6420 },
-@@ -140,8 +147,12 @@
- 	.host_stop		= ata_host_stop,
- };
- 
--static const struct ata_port_operations vt6421_sata_ops = {
-+static const struct ata_port_operations vt6421_ata_ops = {
- 	.port_disable		= ata_port_disable,
-+	
-+	.set_piomode		= vt6421_set_pio_mode,
-+	.set_dmamode		= vt6421_set_dma_mode,
-+	.mode_filter		= vt6421_mode_filter,
- 
- 	.tf_load		= ata_tf_load,
- 	.tf_read		= ata_tf_read,
-@@ -160,7 +171,7 @@
- 
- 	.freeze			= ata_bmdma_freeze,
- 	.thaw			= ata_bmdma_thaw,
--	.error_handler		= ata_bmdma_error_handler,
-+	.error_handler		= vt6421_error_handler,
- 	.post_internal_cmd	= ata_bmdma_post_internal_cmd,
- 
- 	.irq_handler		= ata_interrupt,
-@@ -278,6 +289,55 @@
- 				  NULL, ata_std_postreset);
- }
- 
-+static int vt6421_prereset(struct ata_port *ap)
-+{
-+	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
-+	u8 tmp;
-+	
-+	if (ap->port_no != PATA_PORT) {
-+		ap->cbl = ATA_CBL_SATA;
-+		return 0;
-+	}
-+	pci_read_config_byte(pdev, PATA_UDMA_TIMING, &tmp);
-+	
-+	if (tmp & 0x10)
-+		ap->cbl = ATA_CBL_PATA40;
-+	else
-+		ap->cbl = ATA_CBL_PATA80;
-+	return 0;
-+}
-+
-+static void vt6421_error_handler(struct ata_port *ap)
-+{
-+	return ata_bmdma_drive_eh(ap, vt6421_prereset, ata_std_softreset,
-+				  NULL, ata_std_postreset);
-+}
-+
-+static void vt6421_set_pio_mode(struct ata_port *ap, struct ata_device *adev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
-+	static const u8 pio_bits[] = { 0xA8, 0x65, 0x65, 0x31, 0x20 };
-+	if (ap->port_no == PATA_PORT)
-+		pci_write_config_byte(pdev, PATA_PIO_TIMING, pio_bits[adev->pio_mode - XFER_PIO_0]);
-+}
-+
-+static void vt6421_set_dma_mode(struct ata_port *ap, struct ata_device *adev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
-+	static const u8 udma_bits[] = { 0xEE, 0xE8, 0xE6, 0xE4, 0xE2, 0xE1, 0xE0, 0xE0 };
-+	if (ap->port_no == PATA_PORT)
-+		pci_write_config_byte(pdev, PATA_UDMA_TIMING, udma_bits[adev->pio_mode - XFER_UDMA_0]);
-+}
-+
-+static unsigned long vt6421_mode_filter(const struct ata_port *ap, struct ata_device *adev, unsigned long modes)
-+{
-+	if(ap->port_no == PATA_PORT) {
-+		modes &= ~ATA_MASK_MWDMA;	/* No MWDMA support */
-+		modes &= ~ (0x40 << ATA_SHIFT_UDMA);  /* UDMA 133 limited */
-+	}
-+	return modes;
-+}
-+
- static const unsigned int svia_bar_sizes[] = {
- 	8, 4, 8, 4, 16, 256
- };
-@@ -348,7 +408,7 @@
- 
- 	probe_ent->sht		= &svia_sht;
- 	probe_ent->port_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY;
--	probe_ent->port_ops	= &vt6421_sata_ops;
-+	probe_ent->port_ops	= &vt6421_ata_ops;
- 	probe_ent->n_ports	= N_PORTS;
- 	probe_ent->irq		= pdev->irq;
- 	probe_ent->irq_flags	= IRQF_SHARED;
-@@ -500,4 +560,3 @@
- 
- module_init(svia_init);
- module_exit(svia_exit);
--
+Thanks.
+Pablo.

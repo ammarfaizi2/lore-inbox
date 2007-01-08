@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965304AbXAHUkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932657AbXAHUlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965304AbXAHUkh (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbXAHUkh
+	id S932657AbXAHUlS (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbXAHUlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:40:37 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:48265 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932659AbXAHUkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:40:36 -0500
-Date: Mon, 8 Jan 2007 21:39:05 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jay Vaughan <jv@access-music.de>
-cc: Dirk <d_i_r_k_@gmx.net>, Trent Waddington <trent.waddington@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Gaming Interface
-In-Reply-To: <a06230924c1c7d795429a@[192.168.2.101]>
-Message-ID: <Pine.LNX.4.61.0701082138050.23737@yvahk01.tjqt.qr>
-References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com>
- <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]>
+	Mon, 8 Jan 2007 15:41:18 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53382 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932657AbXAHUlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:41:17 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
+       "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when check_timer fails.
+References: <5986589C150B2F49A46483AC44C7BCA4907361@ssvlexmb2.amd.com>
+Date: Mon, 08 Jan 2007 13:39:58 -0700
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907361@ssvlexmb2.amd.com>
+	(Yinghai Lu's message of "Mon, 8 Jan 2007 09:41:18 -0800")
+Message-ID: <m14pr1i76p.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Lu, Yinghai" <yinghai.lu@amd.com> writes:
 
-On Jan 8 2007 12:17, Jay Vaughan wrote:
-> At 13:13 +0100 8/1/07, Dirk wrote:
->> Trent Waddington wrote:
->> > Call me crazy, but game manufacturers want directx right?  You aint
->> > running that in the kernel.
->>
->> They want something like DirectX that changes it's API less frequent
->> than DirectX and that compiles as a module because you don't want to run
->> it in the kernel.
+>>+static int check_timer_pin(int apic, int pin)
+>>+{
+>>+	int irq, idx;
+>>+	/* 
+>>+	 * Test the architecture default i8254 timer pin
+>>+	 * of apic 0 pin 2.
+>>+	 */
 >
-> Whats wrong with just using SDL/OpenGL?
+> Comments need to be updated.
 
-SDL is slow, at least for software rendering (not that I advocate it 
-being put into the kernel):
+Probably.   Although this is all I have this doing in my patch.
 
-http://forum.zdoom.org/potato.php?t=1913 (hope you can decipher the html table)
+>>+
+>>+
+>>+	/* If the apic pin pair is in use by another irq fail */
+>>+	irq = irq_from_pin(apic, pin);
+             ^^^^^^^^^^^^^^^^^^
+>>+	if ((irq != -1) && (irq != 0)) {
+>>+		apic_printk(APIC_VERBOSE,KERN_INFO "...apic %d pin % in
+> use by irq %d\n",
+>>+			apic, pin, irq);
+>>+		return 0; 
+>>+	}
+>>+
+>>+	/* Add an entry in mp_irqs for irq 0 */
+>>+	idx = update_irq0_entry(apic, pin);
+>>+
+>>+	/* Add an entry in irq_to_pin */
+>>+	add_pin_to_irq(0, apic, pin);
+>>+
+>>+	/* Now setup the irq */
+>>+	setup_IO_APIC_irq(apic, pin, idx, 0);
+>>+
+>>+	/* And finally check to see if the irq works */
+>>+	return do_check_timer_pin(apic, pin);
+>>+}
+>>+
+>
+> Did you miss to call irq_from_pin before add_pin_to_irq? You defined
+> irq_from_pin in PATCH 2/4.
 
+No see above.
 
-	-`J'
--- 
+Eric
+

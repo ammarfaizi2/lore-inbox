@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161267AbXAHMgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161281AbXAHNAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbXAHMgz (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 07:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbXAHMgz
+	id S1161281AbXAHNAm (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbXAHNAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 07:36:55 -0500
-Received: from amsfep20-int.chello.nl ([62.179.120.15]:46478 "EHLO
-	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161267AbXAHMgy (ORCPT
+	Mon, 8 Jan 2007 08:00:42 -0500
+Received: from homer.mvista.com ([63.81.120.158]:53221 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1161281AbXAHNAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 07:36:54 -0500
+	Mon, 8 Jan 2007 08:00:42 -0500
 Subject: Re: [PATCH -rt] scheduling while atomic in remove_proc_entry()
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Daniel Walker <dwalker@mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20061229211237.690413000@mvista.com>
+In-Reply-To: <1168258802.6235.18.camel@twins>
 References: <20061229211237.690413000@mvista.com>
+	 <1168258802.6235.18.camel@twins>
 Content-Type: text/plain
-Date: Mon, 08 Jan 2007 13:20:02 +0100
-Message-Id: <1168258802.6235.18.camel@twins>
+Date: Mon, 08 Jan 2007 04:59:37 -0800
+Message-Id: <1168261177.26086.284.camel@imap.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-29 at 13:12 -0800, Daniel Walker wrote:
+On Mon, 2007-01-08 at 13:20 +0100, Peter Zijlstra wrote:
 
 > 
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
-> 
-> ---
->  fs/proc/generic.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6.19/fs/proc/generic.c
-> ===================================================================
-> --- linux-2.6.19.orig/fs/proc/generic.c
-> +++ linux-2.6.19/fs/proc/generic.c
-> @@ -555,7 +555,6 @@ static void proc_kill_inodes(struct proc
->  	/*
->  	 * Actually it's a partial revoke().
->  	 */
-> -	filevec_add_drain_all();
->  	lock_list_for_each_entry(filp, &sb->s_files, f_u.fu_llist) {
->  		struct dentry * dentry = filp->f_path.dentry;
->  		struct inode * inode;
-> @@ -738,6 +737,8 @@ void remove_proc_entry(const char *name,
->  		break;
->  	}
->  	spin_unlock(&proc_subdir_lock);
-> +
-> +	filevec_add_drain_all();
->  out:
->  	return;
->  }
+> Well, no. Draining after the inspect 'all' loop doesn't make sense, but
+> looking at 2.6.20-rc3-rt0 remove_proc_entry() looks sane.
 
-Well, no. Draining after the inspect 'all' loop doesn't make sense, but
-looking at 2.6.20-rc3-rt0 remove_proc_entry() looks sane.
+When it was inside the loop it drained every iteration . So it made more
+sense to put it after the loop. But I don't have a clue what the drain
+is doing (might be good to add liberal comments, if you haven't
+already).
+
+Daniel
 

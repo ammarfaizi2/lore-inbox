@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932667AbXAHU7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932675AbXAHVDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932667AbXAHU7K (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbXAHU7K
+	id S932675AbXAHVDa (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbXAHVDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:59:10 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:42404 "EHLO e6.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932667AbXAHU7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:59:09 -0500
-Message-ID: <45A2B099.5010701@linux.vnet.ibm.com>
-Date: Mon, 08 Jan 2007 14:59:05 -0600
-From: Anthony Liguori <aliguori@linux.vnet.ibm.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20070103)
-MIME-Version: 1.0
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: KVM ... bypass BIOS check for VT?
-References: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
-In-Reply-To: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 16:03:30 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:34491 "EHLO
+	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932664AbXAHVD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:03:29 -0500
+Date: Mon, 8 Jan 2007 22:01:12 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Dmitriy Monakhov <dmonakhov@sw.ru>
+Cc: linux-kernel@vger.kernel.org, zambrano@broadcom.com
+Subject: Re: [PATCH] Broadcom 4400 resume small fix
+Message-ID: <20070108210112.GB28440@electric-eye.fr.zoreil.com>
+References: <87lkkdv61q.fsf@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lkkdv61q.fsf@sw.ru>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
-> I'm resending this under KVM as a subject and hope to get response.
-> 
-> kvm: disabled by bios
-> 
-> I know this has been asked before and the answer was no. Does it still
-> stand or is there a way to bypass the bios? I'm using Lenovo X60s and
-> there's no option to enable VT in the BIOS setup.
+Dmitriy Monakhov <dmonakhov@sw.ru> :
+> Return value  of 'pci_enable_device' was ignored in b44_resume().
+> We can't ingore it because it can fail.
 
-There are two MSR bits involved in enabling VT.  The first bit 
-enables/disables VT.  The second bit prevents the first bit from being 
-changed until the next power up.
+- Please Cc: netdev@vger.kernel.org, jeff@garzik.org and the maintainer
+  of the driver (Gary Zambrano <zambrano@broadcom.com> as per MAINTAINERS
+  file and the log of the driveri).
+- the dev_err() message fits completely on a 80 columns line.
+- request-irq is not checked a few lines below either.
 
-If the BIOS is setting the second bit while disabling the first bit, 
-there's nothing that can be done to work around it.
+It would be nice to avoid the free_irq/pci_disable_device dance altogether.
 
-Sorry.  Contact Lenovo and ask for a BIOS update.
-
-Regards,
-
-Anthony Liguori
-
-> /proc/cpuinfo shows "VMX".
-> 
-> 
-> Another question ... how to enable "mouse" in KVM?
-> 
-> 
-> Thanks,
-> Jeff.
-
+-- 
+Ueimor

@@ -1,143 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030463AbXAHCuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030458AbXAHDCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030463AbXAHCuU (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 21:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbXAHCuT
+	id S1030458AbXAHDCv (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 22:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbXAHDCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 21:50:19 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:64873 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030465AbXAHCuR (ORCPT
+	Sun, 7 Jan 2007 22:02:49 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:37324 "EHLO
+	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030458AbXAHDCr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 21:50:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=Vv4FaKVXXtkuDAad+B2MU489mB+y+ygk5/sgpTyr4rNuiaSEuQWYg7pFoKB5XHnvJ+2tOzokCuBzDicxxDkiY65Edryqq3nPxXsQpTVVAHdeSwO6e6wSli6bJyFKx5I9EVQaj1f02mg4kKmH+v0Kjznrdxb0+9xxuMm8rLqqINE=
-Message-ID: <45A1B10B.5080005@gmail.com>
-Date: Mon, 08 Jan 2007 03:48:43 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>
-CC: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] romsignature/checksum cleanup
-References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain> <459310A3.4060706@vmware.com> <459ABA2F.6070907@gmail.com> <459EDDD1.6060208@goop.org> <459F1B82.6000808@gmail.com> <45A0B660.4060505@goop.org> <45A0B71F.1080704@gmail.com> <45A0C977.4070800@goop.org> <45A0CFC6.3030707@gmail.com> <45A136CC.60007@goop.org>
-In-Reply-To: <45A136CC.60007@goop.org>
-Content-Type: multipart/mixed;
- boundary="------------080503020204050402010005"
+	Sun, 7 Jan 2007 22:02:47 -0500
+Date: Mon, 8 Jan 2007 08:35:55 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Willy Tarreau <w@1wt.eu>, Linus Torvalds <torvalds@osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070108030555.GA7289@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070107011542.3496bc76.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080503020204050402010005
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 01/07/2007 07:07 PM, Jeremy Fitzhardinge wrote:
-
-> Rene Herman wrote:
-
->> Doing the set_fs() and pagefault_{disable,enable} calls for every
->> single byte during the checksum seems rather silly.
+On Sun, Jan 07, 2007 at 01:15:42AM -0800, Andrew Morton wrote:
+> On Sun, 7 Jan 2007 09:55:26 +0100
+> Willy Tarreau <w@1wt.eu> wrote:
 > 
-> Why?
+> > On Sat, Jan 06, 2007 at 09:39:42PM -0800, Linus Torvalds wrote:
+> > >
+> > >
+> > > On Sat, 6 Jan 2007, H. Peter Anvin wrote:
+> > > >
+> > > > During extremely high load, it appears that what slows kernel.org down more
+> > > > than anything else is the time that each individual getdents() call takes.
+> > > > When I've looked this I've observed times from 200 ms to almost 2 seconds!
+> > > > Since an unpacked *OR* unpruned git tree adds 256 directories to a cleanly
+> > > > packed tree, you can do the math yourself.
+> > >
+> > > "getdents()" is totally serialized by the inode semaphore. It's one of the
+> > > most expensive system calls in Linux, partly because of that, and partly
+> > > because it has to call all the way down into the filesystem in a way that
+> > > almost no other common system call has to (99% of all filesystem calls can
+> > > be handled basically at the VFS layer with generic caches - but not
+> > > getdents()).
+> > >
+> > > So if there are concurrent readdirs on the same directory, they get
+> > > serialized. If there is any file creation/deletion activity in the
+> > > directory, it serializes getdents().
+> > >
+> > > To make matters worse, I don't think it has any read-ahead at all when you
+> > > use hashed directory entries. So if you have cold-cache case, you'll read
+> > > every single block totally individually, and serialized. One block at a
+> > > time (I think the non-hashed case is likely also suspect, but that's a
+> > > separate issue)
+> > >
+> > > In other words, I'm not at all surprised it hits on filldir time.
+> > > Especially on ext3.
+> >
+> > At work, we had the same problem on a file server with ext3. We use rsync
+> > to make backups to a local IDE disk, and we noticed that getdents() took
+> > about the same time as Peter reports (0.2 to 2 seconds), especially in
+> > maildir directories. We tried many things to fix it with no result,
+> > including enabling dirindexes. Finally, we made a full backup, and switched
+> > over to XFS and the problem totally disappeared. So it seems that the
+> > filesystem matters a lot here when there are lots of entries in a
+> > directory, and that ext3 is not suitable for usages with thousands
+> > of entries in directories with millions of files on disk. I'm not
+> > certain it would be that easy to try other filesystems on kernel.org
+> > though :-/
+> >
+> 
+> Yeah, slowly-growing directories will get splattered all over the disk.
+> 
+> Possible short-term fixes would be to just allocate up to (say) eight
+> blocks when we grow a directory by one block.  Or teach the
+> directory-growth code to use ext3 reservations.
+> 
+> Longer-term people are talking about things like on-disk rerservations.
+> But I expect directories are being forgotten about in all of that.
 
-Because it makes for dumb code. But oh well, given that it all compiles 
-to basically nothing I guess I'll stop objecting.
+By on-disk reservations, do you mean persistent file preallocation ? (that
+is explicit preallocation of blocks to a given file) If so, you are
+right, we haven't really given any thought to the possibility of directories
+needing that feature.
 
-Andrew: The attached removes the assumption that if the first page of an 
-ISA ROM is mapped, it'll all be mapped. This'll also stop people reading 
-this code from wondering if they're looking at a bug.
+Regards
+Suparna
 
-This replaces "romsignature-checksum-cleanup.patch" in current -mm.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ext4" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Signed-off-by: Rene Herman <rene.herman@gmail.com>
-Not-strongly-objected-to-by: Jeremy Fitzhardinge <jeremy@goop.org>
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-Rene.
-
---------------080503020204050402010005
-Content-Type: text/plain;
- name="probe_kernel_address.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="probe_kernel_address.diff"
-
-diff --git a/arch/i386/kernel/e820.c b/arch/i386/kernel/e820.c
-index f391abc..8b8741f 100644
---- a/arch/i386/kernel/e820.c
-+++ b/arch/i386/kernel/e820.c
-@@ -156,29 +156,31 @@ static struct resource standard_io_resou
- 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
- } };
- 
--static int romsignature(const unsigned char *x)
-+#define ROMSIGNATURE 0xaa55
-+
-+static int __init romsignature(const unsigned char *rom)
- {
-+	const unsigned short * const ptr = (const unsigned short *)rom;
- 	unsigned short sig;
--	int ret = 0;
--	if (probe_kernel_address((const unsigned short *)x, sig) == 0)
--		ret = (sig == 0xaa55);
--	return ret;
-+	
-+	return probe_kernel_address(ptr, sig) == 0 && sig == ROMSIGNATURE;
- }
- 
--static int __init romchecksum(unsigned char *rom, unsigned long length)
-+static int __init romchecksum(const unsigned char *rom, unsigned long length)
- {
--	unsigned char *p, sum = 0;
-+	unsigned char sum, c;
- 
--	for (p = rom; p < rom + length; p++)
--		sum += *p;
--	return sum == 0;
-+	for (sum = 0; length && probe_kernel_address(rom++, c) == 0; length--)
-+		sum += c;
-+	return !length && !sum;
- }
- 
- static void __init probe_roms(void)
- {
-+	const unsigned char *rom;
- 	unsigned long start, length, upper;
--	unsigned char *rom;
--	int	      i;
-+	unsigned char c;
-+	int i;
- 
- 	/* video rom */
- 	upper = adapter_rom_resources[0].start;
-@@ -189,8 +191,11 @@ static void __init probe_roms(void)
- 
- 		video_rom_resource.start = start;
- 
-+		if (probe_kernel_address(rom + 2, c) != 0)
-+			continue;
-+
- 		/* 0 < length <= 0x7f * 512, historically */
--		length = rom[2] * 512;
-+		length = c * 512;
- 
- 		/* if checksum okay, trust length byte */
- 		if (length && romchecksum(rom, length))
-@@ -224,8 +229,11 @@ static void __init probe_roms(void)
- 		if (!romsignature(rom))
- 			continue;
- 
-+		if (probe_kernel_address(rom + 2, c) != 0)
-+			continue;
-+
- 		/* 0 < length <= 0x7f * 512, historically */
--		length = rom[2] * 512;
-+		length = c * 512;
- 
- 		/* but accept any length that fits if checksum okay */
- 		if (!length || start + length > upper || !romchecksum(rom, length))
-
---------------080503020204050402010005--

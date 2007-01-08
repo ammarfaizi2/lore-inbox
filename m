@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422747AbXAHUrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422751AbXAHUro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422747AbXAHUrl (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:47:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbXAHUrM
+	id S1422751AbXAHUro (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422741AbXAHUrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:47:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48062 "EHLO mx1.redhat.com"
+	Mon, 8 Jan 2007 15:47:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48111 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422739AbXAHUrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:47:10 -0500
-Date: Mon, 8 Jan 2007 15:47:07 -0500
-Message-Id: <200701082047.l08Kl7mh001917@dantu.rdu.redhat.com>
+	id S932666AbXAHUrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:47:20 -0500
+Date: Mon, 8 Jan 2007 15:47:13 -0500
+Message-Id: <200701082047.l08KlDCa001921@dantu.rdu.redhat.com>
 From: Jeff Layton <jlayton@redhat.com>
 To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: esandeen@redhat.com, aviro@redhat.com
-Subject: [PATCH 1/3] make static counters in new_inode and iunique be 32 bits
+Subject: [PATCH 2/3] change libfs sb creation routines to avoid collisions with their root inodes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a 32-bit program that was not compiled with large file offsets does a
-stat and gets a st_ino value back that won't fit in the 32 bit field, glibc
-(correctly) generates an EOVERFLOW error. We can't do anything about fs's
-with larger permanent inode numbers, but when we generate them on the fly,
-we ought to try and have them fit within a 32 bit field.
-
-This patch takes the first step toward this by making the static counters in
-these two functions be 32 bits.
+This changes the superblock creation routines that call new_inode to take steps
+to avoid later collisions with other inodes that get created. I took the
+approach here of not hashing things unless is was strictly necessary, though
+that does mean that filesystem authors need to be careful to avoid collisions
+by calling iunique properly.
 
 Signed-off-by: Jeff Layton <jlayton@redhat.com>
 
-diff --git a/fs/inode.c b/fs/inode.c
-index bf21dc6..23fc1fd 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -524,7 +524,8 @@ repeat:
-  */
- struct inode *new_inode(struct super_block *sb)
- {
--	static unsigned long last_ino;
-+	/* 32 bits for compatability mode stat calls */
-+	static unsigned int last_ino;
- 	struct inode * inode;
- 
- 	spin_lock_prefetch(&inode_lock);
-@@ -683,7 +684,8 @@ static unsigned long hash(struct super_block *sb, unsigned long hashval)
-  */
- ino_t iunique(struct super_block *sb, ino_t max_reserved)
- {
--	static ino_t counter;
-+	/* 32 bits for compatability mode stat calls */
-+	static unsigned int counter;
- 	struct inode *inode;
- 	struct hlist_head * head;
- 	ino_t res;
+diff --git a/fs/libfs.c b/fs/libfs.c
+index 503898d..5bdaf00 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -217,6 +217,12 @@ int get_sb_pseudo(struct file_system_type *fs_type, char *name,
+ 	root = new_inode(s);
+ 	if (!root)
+ 		goto Enomem;
++	/*
++	 * since this is the first inode, make it number 1. New inodes created
++         * after this must take care not to collide with it (by passing
++	 * max_reserved of 1 to iunique).
++	 */
++	root->i_ino = 1;
+ 	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+ 	root->i_uid = root->i_gid = 0;
+ 	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
+@@ -373,6 +379,9 @@ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files
+ 	inode = new_inode(s);
+ 	if (!inode)
+ 		return -ENOMEM;
++	/* set to high value to try and avoid collisions with loop below */
++	inode->i_ino = 0xffffffff;
++	insert_inode_hash(inode);
+ 	inode->i_mode = S_IFDIR | 0755;
+ 	inode->i_uid = inode->i_gid = 0;
+ 	inode->i_blocks = 0;
+@@ -399,6 +408,11 @@ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		inode->i_fop = files->ops;
++		/*
++		 * no need to hash these, but you need to make sure that any
++		 * calls to iunique on this mount call it with a max_reserved
++		 * value high enough to avoid collisions with these inodes.
++		 */
+ 		inode->i_ino = i;
+ 		d_add(dentry, inode);
+ 	}

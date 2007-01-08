@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750991AbXAHVUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751003AbXAHVWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbXAHVUo (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbXAHVUo
+	id S1751003AbXAHVWt (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbXAHVWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:20:44 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:3991 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750987AbXAHVUn (ORCPT
+	Mon, 8 Jan 2007 16:22:48 -0500
+Received: from outbound-mail-75.bluehost.com ([69.89.20.10]:52583 "HELO
+	outbound-mail-75.bluehost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751002AbXAHVWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:20:43 -0500
-Date: Mon, 8 Jan 2007 22:20:45 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "J.H." <warthog9@kernel.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com, webmaster@kernel.org
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-Message-Id: <20070108222045.644ec0be.khali@linux-fr.org>
-In-Reply-To: <1166297434.26330.34.camel@localhost.localdomain>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	<20061216094421.416a271e.randy.dunlap@oracle.com>
-	<20061216095702.3e6f1d1f.akpm@osdl.org>
-	<458434B0.4090506@oracle.com>
-	<1166297434.26330.34.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Jan 2007 16:22:48 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: [PATCH] update MMConfig patches w/915 support
+Date: Mon, 8 Jan 2007 13:22:46 -0800
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+References: <200701071142.09428.jbarnes@virtuousgeek.org> <20070108203212.GA15481@dspnet.fr.eu.org>
+In-Reply-To: <20070108203212.GA15481@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701081322.47481.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi JH,
+On Monday, January 8, 2007 12:32 pm, Olivier Galibert wrote:
+> > The routines could probably be consolidated into a single
+> > probe_intel_9xx routine or something, but I really looked at that
+> > yet (though there are many similarities between the 91[05], 945 and
+> > 965 families, they may not be enough that the code would actually
+> > be simpler if shared.
+>
+> The individual functions are so simple, it's probably way better for
+> maintainance simplicity to keep them separate, at least for now.
 
-On Sat, 16 Dec 2006 11:30:34 -0800, J.H. wrote:
-> The root cause boils down to with git, gitweb and the normal mirroring
-> on the frontend machines our basic working set no longer stays resident
-> in memory, which is forcing more and more to actively go to disk causing
-> a much higher I/O load.  You have the added problem that one of the
-> frontend machines is getting hit harder than the other due to several
-> factors: various DNS servers not round robining, people explicitly
-> hitting [git|mirrors|www|etc]1 instead of 2 for whatever reason and
+Yeah, sounds good.
 
-I am trying to be a good citizen by explicitely asking for
-www2.kernel.org, unfortunately I notice that many links on the main
-page point to www.kernel.org rather than www2.kernel.org. Check the
-location, patchtype, full source, patch, view patch, and changeset
-links for example. Fixing these links would let people really use www2
-if they want to, that might help.
+> > +	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
+> > +
+> > +	/* No enable bit or size field, so assume 256M range is enabled.
+> > */ +	len = 0x10000000U;
+> > +	pci_mmcfg_config_num = 1;
+> > +
+> > +	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]),
+> > GFP_KERNEL); +	pci_mmcfg_config[0].base_address = pciexbar;
+>
+> Hmmm, I'd mask out the reserved bits if I were you.  Paranoia :-)
 
-BTW, I'm no DNS expert, but isn't it possible to favor one host in the
-round robin mechanism? E.g. by listing the server 2 twice, so that it
-gets 2/3 of the load? This could also help if server 1 otherwise gets
-more load.
+Wouldn't hurt I suppose, want me to post a new patch?
 
-> So we know the problem is there, and we are working on it - we are
-> getting e-mails about it if not daily than every other day or so.  If
-> there are suggestions we are willing to hear them - but the general
-> feeling with the admins is that we are probably hitting the biggest
-> problems already.
-
-I have a few suggestions although I realize that the other things
-you're working on are likely to be much more helpful:
-
-* Shorten the www.kernel.org main page. I guess that 99% of the hits on
-this page are by people who just want to know the latest versions, and
-possibly download a patch or access Linus' git tree through gitweb. All
-the rest could be moved to a separate page, or if you think it's
-better to keep all the general info on the main page, move the array
-with the versions to a separate page, which developers can bookmark.
-Splitting the dynamic content (top) from the essentially static content
-(bottom) of this page should help with caching, BTW.
-
-* Drop the bandwidth graphs. Most visitors certainly do not care, and
-their presence generates traffic on all web servers regardless of the
-one the visitor is using, as each graph is generated by the respective
-server. If you really like these graphs, just move them to a separate
-page for people who want to watch them. As far as I am concerned, I
-find them rather confusing and uninformative - from a quick look you
-just can't tell if the servers are loaded or not, you have to look at
-the numbers, so what's the point of drawing a graph...
-
-Of course the interest of these proposals directly depends on how much
-the www.kernel.org/index page accounts in the total load of the servers.
-
--- 
-Jean Delvare
+Thanks,
+Jesse

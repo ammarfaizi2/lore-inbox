@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932599AbXAHILf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932627AbXAHILl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbXAHILf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbXAHILe
+	id S932627AbXAHILl (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbXAHILg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:11:34 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:58984 "EHLO e2.ny.us.ibm.com"
+	Mon, 8 Jan 2007 03:11:36 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:42076 "EHLO e4.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932599AbXAHIL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:11:26 -0500
-Date: Mon, 8 Jan 2007 13:41:22 +0530
+	id S932583AbXAHILR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 03:11:17 -0500
+Date: Mon, 8 Jan 2007 13:41:13 +0530
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
        Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Greg KH <gregkh@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4/4] Make noirqdebug_setup function non init to fix modpost warning
-Message-ID: <20070108081122.GF7889@in.ibm.com>
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 3/4] i386: sched_clock using init data tsc_disable fix
+Message-ID: <20070108081113.GE7889@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,33 +28,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-o noirqdebug_setup() is __init but it is being called by
-  quirk_intel_irqbalance() which if of type __devinit. If CONFIG_HOTPLUG=y,
-  quirk_intel_irqbalance() is put into text section and it is wrong to
-  call a function in __init section.
+o sched_clock() a non-init function is using init data tsc_disable. This
+  is flagged by MODPOST on i386 if CONFIG_RELOCATABLE=y 
 
-o MODPOST flags this on i386 if CONFIG_RELOCATABLE=y
-
-WARNING: vmlinux - Section mismatch: reference to .init.text:noirqdebug_setup from .text between 'quirk_intel_irqbalance' (at offset 0xc010969e) and 'i8237A_suspend'
-
-o Make noirqdebug_setup() non-init. 
+WARNING: vmlinux - Section mismatch: reference to .init.data:tsc_disable from .text between 'sched_clock' (at offset 0xc0109d58) and 'tsc_update_callback'
 
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- kernel/irq/spurious.c |    2 +-
+ arch/i386/kernel/tsc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN kernel/irq/spurious.c~make-noirqdebug_setup-function-non-init kernel/irq/spurious.c
---- linux-2.6.20-rc2-mm1-reloc/kernel/irq/spurious.c~make-noirqdebug_setup-function-non-init	2007-01-08 09:49:47.000000000 +0530
-+++ linux-2.6.20-rc2-mm1-reloc-root/kernel/irq/spurious.c	2007-01-08 09:50:12.000000000 +0530
-@@ -176,7 +176,7 @@ void note_interrupt(unsigned int irq, st
+diff -puN arch/i386/kernel/tsc.c~sched_clock-using-init-data-tsc_disable-fix arch/i386/kernel/tsc.c
+--- linux-2.6.20-rc2-mm1-reloc/arch/i386/kernel/tsc.c~sched_clock-using-init-data-tsc_disable-fix	2007-01-08 09:23:13.000000000 +0530
++++ linux-2.6.20-rc2-mm1-reloc-root/arch/i386/kernel/tsc.c	2007-01-08 09:23:48.000000000 +0530
+@@ -26,7 +26,7 @@
+ unsigned int tsc_khz;
+ unsigned long long (*custom_sched_clock)(void);
  
- int noirqdebug __read_mostly;
+-int tsc_disable __cpuinitdata = 0;
++int tsc_disable = 0;
  
--int __init noirqdebug_setup(char *str)
-+int noirqdebug_setup(char *str)
- {
- 	noirqdebug = 1;
- 	printk(KERN_INFO "IRQ lockup detection disabled\n");
+ #ifdef CONFIG_X86_TSC
+ static int __init tsc_setup(char *str)
 _

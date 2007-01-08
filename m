@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030378AbXAHBkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030379AbXAHBlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030378AbXAHBkP (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 20:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbXAHBkP
+	id S1030379AbXAHBlB (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 20:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbXAHBlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 20:40:15 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:46511 "EHLO inti.inf.utfsm.cl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030378AbXAHBkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 20:40:13 -0500
-Message-Id: <200701080140.l081e8Tc024779@laptop13.inf.utfsm.cl>
-To: Alan <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-       Tilman Schmidt <tilman@imap.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4) 
-In-Reply-To: Message from Russell King <rmk+lkml@arm.linux.org.uk> 
-   of "Sun, 07 Jan 2007 19:17:30 -0000." <20070107191730.GD21133@flint.arm.linux.org.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Sun, 07 Jan 2007 22:40:08 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Delayed for 00:02:41 by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 07 Jan 2007 22:40:09 -0300 (CLST)
+	Sun, 7 Jan 2007 20:41:01 -0500
+Received: from s233-64-196-242.try.wideopenwest.com ([64.233.242.196]:53502
+	"EHLO echohome.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030379AbXAHBlA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 20:41:00 -0500
+Reply-To: <Erik@echohome.org>
+From: "Erik Ohrnberger" <Erik@echohome.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: System / libata IDE controller woes (long)
+Date: Sun, 7 Jan 2007 20:41:01 -0500
+Organization: EchoHome.org
+Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAASPhcTp3AFGoVU+FXAXe2wBAAAAAA==@EchoHome.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <Pine.LNX.4.64.0612261442120.19760@p34.internal.lan>
+Thread-Index: AccpJhmybUONOclCRtC4k/j1aiGcEQDCyngQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Well, after more mucking about, and copying data off of the production LVM
+on to the backup LVM, I noticed that no matter where I put this one Seagate
+drive, it caused dma_timer_expiry errors.  Once I replaced this drive,
+everything settled down again, and has been running normally.
 
-[...]
+So it's not the old IDE driver code can't handle that many controllers, it
+can.  It's also no problem for libata in a similar configuration.  Both work
+and work well.
 
-> All that UTF-8 has done is added to the "which charset is this data"
-> problem rather than actually solving any proper real life problem.
+I have to admit that it sure took me a long time to figure out that the
+drive was the problem.  I guess that sort of thing should move higher in the
+diagnosis decision tree.  You live, you learn.
 
-It solves real-world problems, the pain is that it is not (yet) universally
-used. The charset problems today are much more visible today than, say, 15
-years back, that is all.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+Thanks for everyone's patience and help in this.  It helped me keep my
+sanity through all this.
+
+Cheers,
+	Erik.
+

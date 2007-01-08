@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750724AbXAHX2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750723AbXAHX2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbXAHX2H (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbXAHX2H
+	id S1750723AbXAHX2K (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbXAHX2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:28:07 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:51484 "EHLO ogre.sisk.pl"
+	Mon, 8 Jan 2007 18:28:10 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:40038 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750724AbXAHX2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:28:06 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Tino Keitel <tino.keitel@tikei.de>
-Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
-Date: Tue, 9 Jan 2007 00:29:25 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20070107151744.GA9799@dose.home.local> <20070108161718.GB2208@elf.ucw.cz> <20070108220238.GA16799@dose.home.local>
-In-Reply-To: <20070108220238.GA16799@dose.home.local>
+	id S1750723AbXAHX2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:28:09 -0500
+Date: Tue, 9 Jan 2007 00:21:59 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: =?UTF-8?Q?Eberhard_M=C3=B6nkeberg?= <emoenke@gwdg.de>
+cc: Alan <alan@lxorguk.ukuu.org.uk>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>, Tilman Schmidt <tilman@imap.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ken Moffat <zarniwhoop@ntlworld.com>
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+In-Reply-To: <20070108220000.GA27950@deepthought>
+Message-ID: <Pine.LNX.4.61.0701090017320.20773@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
+ <20070107114439.GC21613@flint.arm.linux.org.uk> <45A0F060.9090207@imap.cc>
+ <1168182838.14763.24.camel@shinybook.infradead.org>
+ <20070107153833.GA21133@flint.arm.linux.org.uk> <20070107182151.7cc544f3@localhost.localdomain>
+ <Pine.LNX.4.61.0701072011510.4365@yvahk01.tjqt.qr>
+ <20070107223055.1dc7de54@localhost.localdomain> <Pine.LNX.4.61.0701080221500.28861@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0701082010230.23737@yvahk01.tjqt.qr> <20070108220000.GA27950@deepthought>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701090029.25324.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 8 January 2007 23:02, Tino Keitel wrote:
-> On Mon, Jan 08, 2007 at 17:17:19 +0100, Pavel Machek wrote:
-> > On Sun 2007-01-07 23:27:06, Tino Keitel wrote:
-> > > On Sun, Jan 07, 2007 at 21:04:53 +0100, Tino Keitel wrote:
-> > > > On Sun, Jan 07, 2007 at 13:23:13 -0500, Lee Revell wrote:
-> > > > > On Sun, 2007-01-07 at 16:17 +0100, Tino Keitel wrote:
-> > > > > > No information about the device/driver that refuses to resume.
-> > > > > 
-> > > > > You should be able to identify the problematic driver by removing each
-> > > > > driver manually before suspending.
-> > > > 
-> > > > I can not reproduce it anymore, resume now works. I really hope that it
-> > > > will stay so.
-> > > 
-> > > It didn't. It looks like it is unusable, becuase it isn't reliable in
-> > > 2.6.20-rc3.
-> > 
-> > What was last working version? Can you pinpoint driver breaking it?
-> 
-> I just used 2.6.18.2 with a manual driven suspend/resume loop and fully
-> loaded userspace for ca. 40 minutes, without a failure.
-> 
-> I tried to pinpoint the driver with pm_trace, without success (see my
-> original posting).
 
-Could you please verify if the issue is reproducible when you boot with
-init=/bin/bash and suspend with the minimal list of modules loaded?
+On Jan 8 2007 22:00, Ken Moffat wrote:
 
-Rafael
+> Looks nicely done, but I query the postal address changes in
+>Documentation/cdrom/sbpcd - that seems to be a change of address
+>(without anything to explain it).
 
+Eberhard [cc], please attach an Acked-by: YourName <emailaddress>
+keep Ccs, thanks ;-)
 
+[thread/patch: http://lkml.org/lkml/2007/1/8/222 ]
+
+	-`J'
 -- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King

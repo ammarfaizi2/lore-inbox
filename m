@@ -1,61 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161220AbXAHKfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161201AbXAHKnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161220AbXAHKfL (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 05:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbXAHKfL
+	id S1161201AbXAHKnn (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161218AbXAHKnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 05:35:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:58592 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1161220AbXAHKfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 05:35:10 -0500
-X-Authenticated: #9872103
-Message-ID: <45A22D69.3010905@gmx.net>
-Date: Mon, 08 Jan 2007 12:39:21 +0100
-From: Dirk <d_i_r_k_@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2pre) Gecko/20070104 SeaMonkey/1.1
+	Mon, 8 Jan 2007 05:43:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:59661 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161201AbXAHKnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 05:43:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p4xESRQifZGKQs6WtwUNay+byZYH12QV3d+iZuLTA/5P3Fr7heW3YmdfqFlLAKn4OSw9U4kTMykzivEwahexHrI0HC3+c73LjPKCWwtR38WWP1STZD4idCvGQioW0k1vaH2OEXcHhI8lc4xnSbcU7/uzeiwX0UqhXeTqsLHBh1w=
+Message-ID: <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com>
+Date: Mon, 8 Jan 2007 20:43:41 +1000
+From: "Trent Waddington" <trent.waddington@gmail.com>
+To: Dirk <d_i_r_k_@gmx.net>
+Subject: Re: Gaming Interface
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45A22D69.3010905@gmx.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Gaming Interface
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <45A22D69.3010905@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nice day, everyone!
+Call me crazy, but game manufacturers want directx right?  You aint
+running that in the kernel.
 
-How about having a simple Game API like SDL included in the Kernel and
-officially announce the promise to change it only once every couple of
-years?
-
-I guess that will make it a lot easier for Game producers to calculate
-the costs of porting things to Linux and people won't have to waste time
-with win32 interfaces anymore that need more time to get working than it
-would take to install win32 on a 2nd partition and run Linux from VMware
-or something (After trying WoW, CS and others I know exactly what I'm
-talking about).
-
-I believe Game producers are pretty confused and need someone good
-looking to talk to them on a presentation or so and tell them: "Here,
-LOOK! A interface for Video, Sound, 3D and events in the kernel and it
-will not change before 2.8.x. (Or for at least 5 years)."
-
-I think that would help! Simple decision makers need such promises.
-
-Linux Gamers can finally sit in the 1st row and leave all that 08/15
-crap and waste of time behind.
-
-That interface could should be (optional) compiled as module of course.
-And it should put Audio, Video and Events _together_ in _one_ interface.
-Pointing people at ALSA, Device Drivers, etc doesn't work since those
-are 2+ interfaces instead of one and people will lean back and be like:
-"Uhhhh... if they had all that in only one interface..."
-
-It would also be a correct place to nclude the binary only drivers from
-nVIDIA and ATI somehow, since only gaming folks really need those.
-
-
-I know I'm wrong but the currect solutions suck so much... they made me
-subscribe here,
-Dirk
+Trent

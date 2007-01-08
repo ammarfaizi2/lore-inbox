@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161329AbXAHQEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161330AbXAHQGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161329AbXAHQEm (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 11:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbXAHQEm
+	id S1161330AbXAHQGq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 11:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161333AbXAHQGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 11:04:42 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:4204 "EHLO ra.tuxdriver.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161329AbXAHQEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 11:04:41 -0500
-Date: Mon, 8 Jan 2007 10:32:36 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>
-Subject: Re: [patch 09/50] Revert "[PATCH] zd1211rw: Removed unneeded packed attributes"
-Message-ID: <20070108153220.GE22498@tuxdriver.com>
-References: <20070106022753.334962000@sous-sol.org> <20070106023028.655317000@sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070106023028.655317000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+	Mon, 8 Jan 2007 11:06:46 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:57838 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1161330AbXAHQGp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 11:06:45 -0500
+Date: Mon, 8 Jan 2007 11:06:44 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@novell.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Driver core: fix refcounting bug
+Message-ID: <Pine.LNX.4.44L0.0701081103530.4249-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 06:28:02PM -0800, Chris Wright wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> 
-> From: John W. Linville <linville@tuxdriver.com>
-> 
-> This reverts commit 4e1bbd846d00a245dcf78b6b331d8a9afed8e6d7.
-> 
-> Quoth Daniel Drake <dsd@gentoo.org>:
-> 
-> "A user reported that commit 4e1bbd846d00a245dcf78b6b331d8a9afed8e6d7
-> (Remove unneeded packed attributes) breaks the zd1211rw driver on ARM."
-> 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+This patch (as832) fixes a newly-introduced bug in the driver core.
+When a kobject is assigned to a kset, it must acquire a reference to
+the kset.
 
-ACK
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
--- 
-John W. Linville
-linville@tuxdriver.com
+---
+
+The bug was introduced in Kay's "unify /sys/class and /sys/bus at 
+/sys/subsystem" patch.
+
+I left the assignment of class_dev->kobj.parent as it was, although it is 
+not needed.  The following call to kobject_add() will end up doing the 
+same thing.
+
+Alan Stern
+
+P.S.: Tracking down refcounting bugs is a real pain!  I spent an entire 
+afternoon on this one...  :-(
+
+
+Index: usb-2.6/drivers/base/class.c
+===================================================================
+--- usb-2.6.orig/drivers/base/class.c
++++ usb-2.6/drivers/base/class.c
+@@ -648,7 +648,7 @@ int class_device_add(struct class_device
+ 		class_dev->kobj.parent = &parent_class_dev->kobj;
+ 	else {
+ 		/* assign parent kset for uevent hook */
+-		class_dev->kobj.kset = &parent_class->devices_dir;
++		class_dev->kobj.kset = kset_get(&parent_class->devices_dir);
+ 		/* the device directory in /sys/subsystem/<name>/devices */
+ 		class_dev->kobj.parent = &parent_class->devices_dir.kobj;
+ 	}
+

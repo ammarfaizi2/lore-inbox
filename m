@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932673AbXAHVEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932674AbXAHVEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932673AbXAHVEb (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbXAHVEa
+	id S932674AbXAHVEs (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbXAHVEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:04:30 -0500
-Received: from eazy.amigager.de ([213.239.192.238]:55275 "EHLO
-	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932673AbXAHVEa (ORCPT
+	Mon, 8 Jan 2007 16:04:47 -0500
+Received: from out5.smtp.messagingengine.com ([66.111.4.29]:34835 "EHLO
+	out5.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932677AbXAHVEq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:04:30 -0500
-Date: Mon, 8 Jan 2007 22:04:28 +0100
-From: Tino Keitel <tino.keitel@tikei.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
-Message-ID: <20070108210428.GA7199@dose.home.local>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-References: <20070107151744.GA9799@dose.home.local> <1168194194.18788.63.camel@mindpipe> <20070107200453.GA3227@thinkpad.home.local> <20070107222706.GA6092@thinkpad.home.local> <20070107234445.GM20714@stusta.de>
+	Mon, 8 Jan 2007 16:04:46 -0500
+X-Sasl-enc: NRvF+6uslb1xVb898WWuE4DsFr2FthfA8992AGohUECd 1168290077
+Message-ID: <45A2B2E8.5040505@imap.cc>
+Date: Mon, 08 Jan 2007 22:08:56 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.9) Gecko/20061211 SeaMonkey/1.0.7 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107234445.GM20714@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+CC: Jonas Svensson <jonass@lysator.liu.se>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: trouble loading self compiled vanilla kernel
+References: <Pine.GSO.4.51L2.0701081054010.27141@nema.lysator.liu.se>	 <45A228CC.5020004@imap.cc>	 <Pine.GSO.4.51L2.0701081301520.27141@nema.lysator.liu.se>	 <45A2611A.7040900@imap.cc>	 <Pine.GSO.4.51L2.0701081644110.27141@nema.lysator.liu.se> <1168278054.3330.4.camel@impinj-lt-0046>
+In-Reply-To: <1168278054.3330.4.camel@impinj-lt-0046>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4CD9DCC468D82556A7767526"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 00:44:45 +0100, Adrian Bunk wrote:
-> On Sun, Jan 07, 2007 at 11:27:06PM +0100, Tino Keitel wrote:
-> > On Sun, Jan 07, 2007 at 21:04:53 +0100, Tino Keitel wrote:
-> > > On Sun, Jan 07, 2007 at 13:23:13 -0500, Lee Revell wrote:
-> > > > On Sun, 2007-01-07 at 16:17 +0100, Tino Keitel wrote:
-> > > > > No information about the device/driver that refuses to resume.
-> > > > 
-> > > > You should be able to identify the problematic driver by removing each
-> > > > driver manually before suspending.
-> > > 
-> > > I can not reproduce it anymore, resume now works. I really hope that it
-> > > will stay so.
-> > 
-> > It didn't. It looks like it is unusable, becuase it isn't reliable in
-> > 2.6.20-rc3.
-> 
-> Is this issue still present in -rc4?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4CD9DCC468D82556A7767526
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I used 2.6.20-rc4 in single user mode, and applied 2 patches from
-netdev to get wake on LAN support. This way I was able to set up an
-automatic suspend/resume loop. It looked good, but after e.g. 20
-minutes, the resume hang. So it is reproduceable with 2.6.20-rc4.
-Unfortunately, I can not test the same with 2.6.18, as the wake on LAN
-patches need 2.6.20-rc.
+Am 08.01.2007 18:40 schrieb Vadim Lobanov:
+> In my experience on openSUSE, the following sequence of commands
+> installs both the kernel and the initrd:
+> 	make *config*
+> 	make
+> 	make modules_install
+> 	make install
+> However, if the order of the last two make invocations is switched, the=
+n
+> the initrd does not get generated (correctly or at all).
 
-Regards,
-Tino
+Cool! So that explains why it never worked for me. I always ran
+"make install" before "make modules_install". It just appeared
+more logical.
+
+Thanks a lot for that hint - I'll try it on the next occasion.
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enig4CD9DCC468D82556A7767526
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFForLvMdB4Whm86/kRAsAdAKCCf1d4P34gPvRl9RZQdXFq0paaeQCePIac
+ZKtMOFFQOJoPBZseYMxdbt4=
+=SxM4
+-----END PGP SIGNATURE-----
+
+--------------enig4CD9DCC468D82556A7767526--

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030537AbXAHEYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030519AbXAHEY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030537AbXAHEYW (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbXAHESg
+	id S1030519AbXAHEY4 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbXAHEY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:18:36 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50412 "EHLO
+	Sun, 7 Jan 2007 23:24:26 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50428 "EHLO
 	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030512AbXAHESU (ORCPT
+	with ESMTP id S1030511AbXAHESf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:18:20 -0500
+	Sun, 7 Jan 2007 23:18:35 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
@@ -17,9 +17,9 @@ Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
        David Quigley <dquigley@fsl.cs.sunysb.edu>,
        Erez Zadok <ezk@cs.sunysb.edu>
-Subject: [PATCH 18/24] Unionfs: Superblock operations
-Date: Sun,  7 Jan 2007 23:13:10 -0500
-Message-Id: <11682295992885-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 24/24] Unionfs: Extended Attributes support
+Date: Sun,  7 Jan 2007 23:13:16 -0500
+Message-Id: <11682296002141-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.4.2
 In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
 References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
@@ -28,21 +28,209 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains the superblock operations for Unionfs.
+Extended attribute support.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/super.c |  346 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 346 insertions(+), 0 deletions(-)
+ fs/Kconfig          |    9 ++++
+ fs/unionfs/Makefile |    2 +
+ fs/unionfs/copyup.c |   75 +++++++++++++++++++++++++++++++
+ fs/unionfs/inode.c  |   12 +++++
+ fs/unionfs/union.h  |   15 ++++++
+ fs/unionfs/xattr.c  |  123 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 236 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/super.c b/fs/unionfs/super.c
+diff --git a/fs/Kconfig b/fs/Kconfig
+index 2e519f4..cf46c71 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1564,6 +1564,15 @@ config UNION_FS
+ 
+ 	  See <http://www.unionfs.org> for details
+ 
++config UNION_FS_XATTR
++	bool "Unionfs extended attributes"
++	depends on UNION_FS
++	help
++	  Extended attributes are name:value pairs associated with inodes by
++	  the kernel or by users (see the attr(5) manual page).
++
++	  If unsure, say N.
++
+ endmenu
+ 
+ menu "Network File Systems"
+diff --git a/fs/unionfs/Makefile b/fs/unionfs/Makefile
+index 25dd78f..7c98325 100644
+--- a/fs/unionfs/Makefile
++++ b/fs/unionfs/Makefile
+@@ -3,3 +3,5 @@ obj-$(CONFIG_UNION_FS) += unionfs.o
+ unionfs-y := subr.o dentry.o file.o inode.o main.o super.o \
+ 	stale_inode.o branchman.o rdstate.o copyup.o dirhelper.o \
+ 	rename.o unlink.o lookup.o commonfops.o dirfops.o sioq.o
++
++unionfs-$(CONFIG_UNION_FS_XATTR) += xattr.o
+diff --git a/fs/unionfs/copyup.c b/fs/unionfs/copyup.c
+index ad70b24..1d59ff3 100644
+--- a/fs/unionfs/copyup.c
++++ b/fs/unionfs/copyup.c
+@@ -18,6 +18,75 @@
+ 
+ #include "union.h"
+ 
++#ifdef CONFIG_UNION_FS_XATTR
++/* copyup all extended attrs for a given dentry */
++static int copyup_xattrs(struct dentry *old_hidden_dentry,
++			 struct dentry *new_hidden_dentry)
++{
++	int err = 0;
++	ssize_t list_size = -1;
++	char *name_list = NULL;
++	char *attr_value = NULL;
++	char *name_list_orig = NULL;
++
++	list_size = vfs_listxattr(old_hidden_dentry, NULL, 0);
++
++	if (list_size <= 0) {
++		err = list_size;
++		goto out;
++	}
++
++	name_list = unionfs_xattr_alloc(list_size + 1, XATTR_LIST_MAX);
++	if (!name_list || IS_ERR(name_list)) {
++		err = PTR_ERR(name_list);
++		goto out;
++	}
++	list_size = vfs_listxattr(old_hidden_dentry, name_list, list_size);
++	attr_value = unionfs_xattr_alloc(XATTR_SIZE_MAX, XATTR_SIZE_MAX);
++	if (!attr_value || IS_ERR(attr_value)) {
++		err = PTR_ERR(name_list);
++		goto out;
++	}
++	name_list_orig = name_list;
++	while (*name_list) {
++		ssize_t size;
++
++		/* Lock here since vfs_getxattr doesn't lock for us */
++		mutex_lock(&old_hidden_dentry->d_inode->i_mutex);
++		size = vfs_getxattr(old_hidden_dentry, name_list,
++				    attr_value, XATTR_SIZE_MAX);
++		mutex_unlock(&old_hidden_dentry->d_inode->i_mutex);
++		if (size < 0) {
++			err = size;
++			goto out;
++		}
++
++		if (size > XATTR_SIZE_MAX) {
++			err = -E2BIG;
++			goto out;
++		}
++		/* Don't lock here since vfs_setxattr does it for us. */
++		err = vfs_setxattr(new_hidden_dentry, name_list, attr_value,
++				   size, 0);
++
++		if (err < 0)
++			goto out;
++		name_list += strlen(name_list) + 1;
++	}
++      out:
++	name_list = name_list_orig;
++
++	if (name_list)
++		unionfs_xattr_free(name_list, list_size + 1);
++	if (attr_value)
++		unionfs_xattr_free(attr_value, XATTR_SIZE_MAX);
++	/* It is no big deal if this fails, we just roll with the punches. */
++	if (err == -ENOTSUPP || err == -EOPNOTSUPP)
++		err = 0;
++	return err;
++}
++#endif /* CONFIG_UNION_FS_XATTR */
++
+ /* Determine the mode based on the copyup flags, and the existing dentry. */
+ static int copyup_permissions(struct super_block *sb,
+ 			      struct dentry *old_hidden_dentry,
+@@ -344,6 +413,12 @@ int copyup_named_dentry(struct inode *dir, struct dentry *dentry,
+ 	if ((err = copyup_permissions(sb, old_hidden_dentry, new_hidden_dentry)))
+ 		goto out_unlink;
+ 
++#ifdef CONFIG_UNION_FS_XATTR
++	/* Selinux uses extended attributes for permissions. */
++	if ((err = copyup_xattrs(old_hidden_dentry, new_hidden_dentry)))
++		goto out_unlink;
++#endif
++
+ 	/* do not allow files getting deleted to be reinterposed */
+ 	if (!d_deleted(dentry))
+ 		unionfs_reinterpose(dentry);
+diff --git a/fs/unionfs/inode.c b/fs/unionfs/inode.c
+index 1bbef1c..36f2660 100644
+--- a/fs/unionfs/inode.c
++++ b/fs/unionfs/inode.c
+@@ -930,10 +930,22 @@ struct inode_operations unionfs_dir_iops = {
+ 	.rename		= unionfs_rename,
+ 	.permission	= unionfs_permission,
+ 	.setattr	= unionfs_setattr,
++#ifdef CONFIG_UNION_FS_XATTR
++	.setxattr	= unionfs_setxattr,
++	.getxattr	= unionfs_getxattr,
++	.removexattr	= unionfs_removexattr,
++	.listxattr	= unionfs_listxattr,
++#endif
+ };
+ 
+ struct inode_operations unionfs_main_iops = {
+ 	.permission	= unionfs_permission,
+ 	.setattr	= unionfs_setattr,
++#ifdef CONFIG_UNION_FS_XATTR
++	.setxattr	= unionfs_setxattr,
++	.getxattr	= unionfs_getxattr,
++	.removexattr	= unionfs_removexattr,
++	.listxattr	= unionfs_listxattr,
++#endif
+ };
+ 
+diff --git a/fs/unionfs/union.h b/fs/unionfs/union.h
+index 624132b..f08eb75 100644
+--- a/fs/unionfs/union.h
++++ b/fs/unionfs/union.h
+@@ -38,6 +38,7 @@
+ #include <linux/string.h>
+ #include <linux/vmalloc.h>
+ #include <linux/writeback.h>
++#include <linux/xattr.h>
+ #include <linux/fs_stack.h>
+ #include <linux/magic.h>
+ 
+@@ -327,6 +328,20 @@ int unionfs_ioctl_queryfile(struct file *file, unsigned int cmd,
+ /* Verify that a branch is valid. */
+ int check_branch(struct nameidata *nd);
+ 
++#ifdef CONFIG_UNION_FS_XATTR
++/* Extended attribute functions. */
++extern void *unionfs_xattr_alloc(size_t size, size_t limit);
++extern void unionfs_xattr_free(void *ptr, size_t size);
++
++extern ssize_t unionfs_getxattr(struct dentry *dentry, const char *name,
++		void *value, size_t size);
++extern int unionfs_removexattr(struct dentry *dentry, const char *name);
++extern ssize_t unionfs_listxattr(struct dentry *dentry, char *list,
++		size_t size);
++extern int unionfs_setxattr(struct dentry *dentry, const char *name,
++		const void *value, size_t size, int flags);
++#endif /* CONFIG_UNION_FS_XATTR */
++
+ /* The root directory is unhashed, but isn't deleted. */
+ static inline int d_deleted(struct dentry *d)
+ {
+diff --git a/fs/unionfs/xattr.c b/fs/unionfs/xattr.c
 new file mode 100644
-index 0000000..25085bf
+index 0000000..881a05d
 --- /dev/null
-+++ b/fs/unionfs/super.c
-@@ -0,0 +1,346 @@
++++ b/fs/unionfs/xattr.c
+@@ -0,0 +1,123 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -54,7 +242,7 @@ index 0000000..25085bf
 + * Copyright (c) 2003      Puja Gupta
 + * Copyright (c) 2003      Harikesavan Krishnan
 + * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York*
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
@@ -63,331 +251,108 @@ index 0000000..25085bf
 +
 +#include "union.h"
 +
-+/* The inode cache is used with alloc_inode for both our inode info and the
-+ * vfs inode.
-+ */
-+static struct kmem_cache *unionfs_inode_cachep;
-+
-+static void unionfs_read_inode(struct inode *inode)
++/* This is lifted from fs/xattr.c */
++void *unionfs_xattr_alloc(size_t size, size_t limit)
 +{
-+	static struct address_space_operations unionfs_empty_aops;
-+	int size;
-+	struct unionfs_inode_info *info = UNIONFS_I(inode);
++	void *ptr;
 +
-+	if (!info) {
-+		printk(KERN_ERR "No kernel memory when allocating inode "
-+				"private data!\n");
-+		BUG();
-+	}
++	if (size > limit)
++		return ERR_PTR(-E2BIG);
 +
-+	memset(info, 0, offsetof(struct unionfs_inode_info, vfs_inode));
-+	info->bstart = -1;
-+	info->bend = -1;
-+	atomic_set(&info->generation,
-+		   atomic_read(&UNIONFS_SB(inode->i_sb)->generation));
-+	spin_lock_init(&info->rdlock);
-+	info->rdcount = 1;
-+	info->hashsize = -1;
-+	INIT_LIST_HEAD(&info->readdircache);
-+
-+	size = sbmax(inode->i_sb) * sizeof(struct inode *);
-+	info->lower_inodes = kzalloc(size, GFP_KERNEL);
-+	if (!info->lower_inodes) {
-+		printk(KERN_ERR "No kernel memory when allocating lower-"
-+				"pointer array!\n");
-+		BUG();
-+	}
-+
-+	inode->i_version++;
-+	inode->i_op = &unionfs_main_iops;
-+	inode->i_fop = &unionfs_main_fops;
-+
-+	/* I don't think ->a_ops is ever allowed to be NULL */
-+	inode->i_mapping->a_ops = &unionfs_empty_aops;
-+}
-+
-+static void unionfs_put_inode(struct inode *inode)
-+{
-+	/*
-+	 * This is really funky stuff:
-+	 * Basically, if i_count == 1, iput will then decrement it and this
-+	 * inode will be destroyed.  It is currently holding a reference to the
-+	 * hidden inode.  Therefore, it needs to release that reference by
-+	 * calling iput on the hidden inode.  iput() _will_ do it for us (by
-+	 * calling our clear_inode), but _only_ if i_nlink == 0.  The problem
-+	 * is, NFS keeps i_nlink == 1 for silly_rename'd files.  So we must for
-+	 * our i_nlink to 0 here to trick iput() into calling our clear_inode.
-+	 */
-+
-+	if (atomic_read(&inode->i_count) == 1)
-+		inode->i_nlink = 0;
-+}
-+
-+/*
-+ * we now define delete_inode, because there are two VFS paths that may
-+ * destroy an inode: one of them calls clear inode before doing everything
-+ * else that's needed, and the other is fine.  This way we truncate the inode
-+ * size (and its pages) and then clear our own inode, which will do an iput
-+ * on our and the lower inode.
-+ */
-+static void unionfs_delete_inode(struct inode *inode)
-+{
-+	inode->i_size = 0;	/* every f/s seems to do that */
-+
-+	clear_inode(inode);
-+}
-+
-+/* final actions when unmounting a file system */
-+static void unionfs_put_super(struct super_block *sb)
-+{
-+	int bindex, bstart, bend;
-+	struct unionfs_sb_info *spd;
-+
-+	spd = UNIONFS_SB(sb);
-+	if (!spd)
-+		return;
-+		
-+	bstart = sbstart(sb);
-+	bend = sbend(sb);
-+
-+	/* Make sure we have no leaks of branchget/branchput. */
-+	for (bindex = bstart; bindex <= bend; bindex++)
-+		BUG_ON(branch_count(sb, bindex) != 0);
-+
-+	kfree(spd->data);
-+	kfree(spd);
-+	sb->s_fs_info = NULL;
-+}
-+
-+/* Since people use this to answer the "How big of a file can I write?"
-+ * question, we report the size of the highest priority branch as the size of
-+ * the union.
-+ */
-+static int unionfs_statfs(struct dentry *dentry, struct kstatfs *buf)
-+{
-+	int err	= 0;
-+	struct super_block *sb, *hidden_sb;
-+
-+	sb = dentry->d_sb;
-+
-+	hidden_sb = unionfs_lower_super_idx(sb, sbstart(sb));
-+	err = vfs_statfs(hidden_sb->s_root, buf);
-+
-+	buf->f_type = UNIONFS_SUPER_MAGIC;
-+	buf->f_namelen -= UNIONFS_WHLEN;
-+
-+	memset(&buf->f_fsid, 0, sizeof(__kernel_fsid_t));
-+	memset(&buf->f_spare, 0, sizeof(buf->f_spare));
-+
-+	return err;
-+}
-+
-+/* We don't support a standard text remount. Eventually it would be nice to
-+ * support a full-on remount, so that you can have all of the directories
-+ * change at once, but that would require some pretty complicated matching
-+ * code.
-+ */
-+static int unionfs_remount_fs(struct super_block *sb, int *flags, char *data)
-+{
-+	return -ENOSYS;
-+}
-+
-+/*
-+ * Called by iput() when the inode reference count reached zero
-+ * and the inode is not hashed anywhere.  Used to clear anything
-+ * that needs to be, before the inode is completely destroyed and put
-+ * on the inode free list.
-+ */
-+static void unionfs_clear_inode(struct inode *inode)
-+{
-+	int bindex, bstart, bend;
-+	struct inode *hidden_inode;
-+	struct list_head *pos, *n;
-+	struct unionfs_dir_state *rdstate;
-+
-+	list_for_each_safe(pos, n, &UNIONFS_I(inode)->readdircache) {
-+		rdstate = list_entry(pos, struct unionfs_dir_state, cache);
-+		list_del(&rdstate->cache);
-+		free_rdstate(rdstate);
-+	}
-+
-+	/* Decrement a reference to a hidden_inode, which was incremented
-+	 * by our read_inode when it was created initially.
-+	 */
-+	bstart = ibstart(inode);
-+	bend = ibend(inode);
-+	if (bstart >= 0) {
-+		for (bindex = bstart; bindex <= bend; bindex++) {
-+			hidden_inode = unionfs_lower_inode_idx(inode, bindex);
-+			if (!hidden_inode)
-+				continue;
-+			iput(hidden_inode);
-+		}
-+	}
-+
-+	kfree(UNIONFS_I(inode)->lower_inodes);
-+	UNIONFS_I(inode)->lower_inodes = NULL;
-+}
-+
-+static struct inode *unionfs_alloc_inode(struct super_block *sb)
-+{
-+	struct unionfs_inode_info *i;
-+
-+	i = kmem_cache_alloc(unionfs_inode_cachep, GFP_KERNEL);
-+	if (!i)
++	if (!size)		/* size request, no buffer is needed */
 +		return NULL;
-+
-+	/* memset everything up to the inode to 0 */
-+	memset(i, 0, offsetof(struct unionfs_inode_info, vfs_inode));
-+
-+	i->vfs_inode.i_version = 1;
-+	return &i->vfs_inode;
++	else if (size <= PAGE_SIZE)
++		ptr = kmalloc(size, GFP_KERNEL);
++	else
++		ptr = vmalloc(size);
++	if (!ptr)
++		return ERR_PTR(-ENOMEM);
++	return ptr;
 +}
 +
-+static void unionfs_destroy_inode(struct inode *inode)
++void unionfs_xattr_free(void *ptr, size_t size)
 +{
-+	kmem_cache_free(unionfs_inode_cachep, UNIONFS_I(inode));
++	if (!size)		/* size request, no buffer was needed */
++		return;
++	else if (size <= PAGE_SIZE)
++		kfree(ptr);
++	else
++		vfree(ptr);
 +}
 +
-+/* unionfs inode cache constructor */
-+static void init_once(void *v, struct kmem_cache * cachep, unsigned long flags)
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++ssize_t unionfs_getxattr(struct dentry * dentry, const char *name, void *value,
++		size_t size)
 +{
-+	struct unionfs_inode_info *i = v;
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
 +
-+	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
-+	    SLAB_CTOR_CONSTRUCTOR)
-+		inode_init_once(&i->vfs_inode);
-+}
++	lock_dentry(dentry);
 +
-+int unionfs_init_inode_cache(void)
-+{
-+	int err = 0;
++	hidden_dentry = unionfs_lower_dentry(dentry);
 +
-+	unionfs_inode_cachep =
-+	    kmem_cache_create("unionfs_inode_cache",
-+			      sizeof(struct unionfs_inode_info), 0,
-+			      SLAB_RECLAIM_ACCOUNT, init_once, NULL);
-+	if (!unionfs_inode_cachep)
-+		err = -ENOMEM;
++	err = vfs_getxattr(hidden_dentry, (char*) name, value, size);
++
++	unlock_dentry(dentry);
 +	return err;
 +}
 +
-+void unionfs_destroy_inode_cache(void)
-+{
-+	if (unionfs_inode_cachep)
-+		kmem_cache_destroy(unionfs_inode_cachep);
-+}
-+
-+/* Called when we have a dirty inode, right here we only throw out
-+ * parts of our readdir list that are too old.
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
 + */
-+static int unionfs_write_inode(struct inode *inode, int sync)
++int unionfs_setxattr(struct dentry *dentry, const char *name, const void *value,
++		size_t size, int flags)
 +{
-+	struct list_head *pos, *n;
-+	struct unionfs_dir_state *rdstate;
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
 +
-+	spin_lock(&UNIONFS_I(inode)->rdlock);
-+	list_for_each_safe(pos, n, &UNIONFS_I(inode)->readdircache) {
-+		rdstate = list_entry(pos, struct unionfs_dir_state, cache);
-+		/* We keep this list in LRU order. */
-+		if ((rdstate->access + RDCACHE_JIFFIES) > jiffies)
-+			break;
-+		UNIONFS_I(inode)->rdcount--;
-+		list_del(&rdstate->cache);
-+		free_rdstate(rdstate);
-+	}
-+	spin_unlock(&UNIONFS_I(inode)->rdlock);
++	lock_dentry(dentry);
++	hidden_dentry = unionfs_lower_dentry(dentry);
 +
-+	return 0;
++	err = vfs_setxattr(hidden_dentry, (char*) name, (void*) value, size, flags);
++
++	unlock_dentry(dentry);
++	return err;
 +}
 +
-+/*
-+ * Used only in nfs, to kill any pending RPC tasks, so that subsequent
-+ * code can actually succeed and won't leave tasks that need handling.
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
 + */
-+static void unionfs_umount_begin(struct vfsmount *mnt, int flags)
++int unionfs_removexattr(struct dentry *dentry, const char *name)
 +{
-+	struct super_block *sb, *hidden_sb;
-+	struct vfsmount *hidden_mnt;
-+	int bindex, bstart, bend;
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
 +
-+	if (!(flags & MNT_FORCE))
-+		/* we are not being MNT_FORCEd, therefore we should emulate
-+		 * old behaviour
-+		 */
-+		return;
++	lock_dentry(dentry);
++	hidden_dentry = unionfs_lower_dentry(dentry);
 +
-+	sb = mnt->mnt_sb;
++	err = vfs_removexattr(hidden_dentry, (char*) name);
 +
-+	bstart = sbstart(sb);
-+	bend = sbend(sb);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_mnt = unionfs_lower_mnt_idx(sb->s_root, bindex);
-+		hidden_sb = unionfs_lower_super_idx(sb, bindex);
-+
-+		if (hidden_mnt && hidden_sb && hidden_sb->s_op &&
-+		    hidden_sb->s_op->umount_begin)
-+			hidden_sb->s_op->umount_begin(hidden_mnt, flags);
-+	}
++	unlock_dentry(dentry);
++	return err;
 +}
 +
-+static int unionfs_show_options(struct seq_file *m, struct vfsmount *mnt)
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++ssize_t unionfs_listxattr(struct dentry * dentry, char *list, size_t size)
 +{
-+	struct super_block *sb = mnt->mnt_sb;
-+	int ret = 0;
-+	char *tmp_page;
-+	char *path;
-+	int bindex, bstart, bend;
-+	int perms;
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
++	char *encoded_list = NULL;
 +
-+	lock_dentry(sb->s_root);
++	lock_dentry(dentry);
 +
-+	tmp_page = (char*) __get_free_page(GFP_KERNEL);
-+	if (!tmp_page) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
++	hidden_dentry = unionfs_lower_dentry(dentry);
 +
-+	bstart = sbstart(sb);
-+	bend = sbend(sb);
++	encoded_list = list;
++	err = vfs_listxattr(hidden_dentry, encoded_list, size);
 +
-+	seq_printf(m, ",dirs=");
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		path = d_path(unionfs_lower_dentry_idx(sb->s_root, bindex),
-+			   unionfs_lower_mnt_idx(sb->s_root, bindex), tmp_page,
-+			   PAGE_SIZE);
-+		perms = branchperms(sb, bindex);
-+
-+		seq_printf(m, "%s=%s", path,
-+			   perms & MAY_WRITE ? "rw" : "ro");
-+		if (bindex != bend) {
-+			seq_printf(m, ":");
-+		}
-+	}
-+
-+out:
-+	if (tmp_page)
-+		free_page((unsigned long) tmp_page);
-+
-+	unlock_dentry(sb->s_root);
-+
-+	return ret;
++	unlock_dentry(dentry);
++	return err;
 +}
-+
-+struct super_operations unionfs_sops = {
-+	.read_inode	= unionfs_read_inode,
-+	.put_inode	= unionfs_put_inode,
-+	.delete_inode	= unionfs_delete_inode,
-+	.put_super	= unionfs_put_super,
-+	.statfs		= unionfs_statfs,
-+	.remount_fs	= unionfs_remount_fs,
-+	.clear_inode	= unionfs_clear_inode,
-+	.umount_begin	= unionfs_umount_begin,
-+	.show_options	= unionfs_show_options,
-+	.write_inode	= unionfs_write_inode,
-+	.alloc_inode	= unionfs_alloc_inode,
-+	.destroy_inode	= unionfs_destroy_inode,
-+};
 +
 -- 
 1.4.4.2

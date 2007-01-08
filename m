@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932071AbXAHU3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932651AbXAHUcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbXAHU3S (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbXAHU3S
+	id S932651AbXAHUcP (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbXAHUcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:29:18 -0500
-Received: from nlpi043.sbcis.sbc.com ([207.115.36.72]:4224 "EHLO
-	nlpi043.sbcis.sbc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932071AbXAHU3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:29:18 -0500
-X-ORBL: [67.117.73.34]
-Date: Mon, 8 Jan 2007 12:28:59 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Ram <vshrirama@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compilation - errors
-Message-ID: <20070108202858.GA28406@atomide.com>
-References: <8bf247760701080518s3f58f5aax4250bca4a43e9d59@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 8 Jan 2007 15:32:15 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:2469 "EHLO dspnet.fr.eu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932651AbXAHUcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:32:14 -0500
+Date: Mon, 8 Jan 2007 21:32:12 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] update MMConfig patches w/915 support
+Message-ID: <20070108203212.GA15481@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Jesse Barnes <jbarnes@virtuousgeek.org>,
+	linux-kernel@vger.kernel.org,
+	Arjan van de Ven <arjan@infradead.org>
+References: <200701071142.09428.jbarnes@virtuousgeek.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8bf247760701080518s3f58f5aax4250bca4a43e9d59@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <200701071142.09428.jbarnes@virtuousgeek.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 07, 2007 at 11:42:09AM -0800, Jesse Barnes wrote:
+> This patch updates Oliver's MMConfig bridge detection patches with support
+> for 915G bridges.  It seems to work ok on my 915GM laptop.
 
-* Ram <vshrirama@gmail.com> [070108 05:18]:
-> Hi,
->   Im using linux-2.6.14-omap2430.
-> 
->   Im using TI omap 2430 SDP.
-> 
->   When i compile it with the eldk toolchain.
-> 
->   I get an error listed at the end of this mail.
-> 
->  The error is simple - case values should be constants, However, the
-> toolchain gcc 4.0
->  is complaining that case values are not constant.
-> 
->  Actually, the some of the case values are defined as -
-> 
->  case (u32)&CM_ICLKEN_WKUP:
->  case (u32)&CM_FCLKEN_WKUP:
-> 
-> However, the same code compiles with some other compilers (lower
-> versions of gcc).
-> 
->  I think all compilers should give the same error
-> 
->  Why the difference in behaviour?.
-> 
-> Not sure, if the source located at linux.omap.com/pub is broken.
-> Couldnt find the sources of linux kernel for omap2430 with higher
-> versions of the linux kernel higher than 2.6.14.
+Looks ok to me.
 
-Sounds like you're using TI's tree. In that case please contact TI for
-support.
 
-If you want to use the current git tree, please see:
+> I also tried adding 965 support, but it doesn't work (at least not on my
+> G965 box).  When I enable MMConfig support when the register value is
+> 0xf00000003 (should be a 256M enabled window at 0xf0000000) the box hangs
+> at boot, so I'm not sure what I'm doing wrong...
+> 
+> The routines could probably be consolidated into a single probe_intel_9xx
+> routine or something, but I really looked at that yet (though there are
+> many similarities between the 91[05], 945 and 965 families, they may not
+> be enough that the code would actually be simpler if shared.
 
-http://www.kernel.org/git/?p=linux/kernel/git/tmlind/linux-omap-2.6.git;a=summary
+The individual functions are so simple, it's probably way better for
+maintainance simplicity to keep them separate, at least for now.
 
-and
 
-http://muru.com/linux/omap
+> +	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
+> +
+> +	/* No enable bit or size field, so assume 256M range is enabled. */
+> +	len = 0x10000000U;
+> +	pci_mmcfg_config_num = 1;
+> +
+> +	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]), GFP_KERNEL);
+> +	pci_mmcfg_config[0].base_address = pciexbar;
 
-Only minimal 2340 code is currently merged in the linux-omap git tree,
-so YMMV.
+Hmmm, I'd mask out the reserved bits if I were you.  Paranoia :-)
 
-Regards,
-
-Tony
+  OG.

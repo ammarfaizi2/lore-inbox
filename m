@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161223AbXAHLOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161229AbXAHLRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161223AbXAHLOO (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 06:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbXAHLOO
+	id S1161229AbXAHLRY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 06:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161230AbXAHLRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 06:14:14 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:37305 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161223AbXAHLON (ORCPT
+	Mon, 8 Jan 2007 06:17:24 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:62504 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161229AbXAHLRX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 06:14:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=R9YSDdUiAymfH4JsLYPbc4EC/INdiAskxq8DvxhkvVXQ4xeBcj5Ok8F5MrDhZEojHb74mU2VTx7UyqzyVqGMU6QK1zcUBaIIqgk3TzM4VBxM+pjbJwljK/lGtAeRgsK/8EFAn5WkRrPEYhP1R+aHD1+gYfPEOVVtoqMzAV1ric4=
-Message-ID: <47ed01bd0701080314u39cda8f8g18dbff7747c0ed14@mail.gmail.com>
-Date: Mon, 8 Jan 2007 06:14:11 -0500
-From: "Dylan Taft" <d13f00l@gmail.com>
-To: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001/001] USB MASS STORAGE: US_FL_IGNORE_RESIDUE needed for Aiptek MP3 Player
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 8 Jan 2007 06:17:23 -0500
+Mime-Version: 1.0
+Message-Id: <a06230924c1c7d795429a@[192.168.2.101]>
+In-Reply-To: <45A2356B.5050208@gmx.net>
+References: <45A22D69.3010905@gmx.net>
+ <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com>
+ <45A2356B.5050208@gmx.net>
+Date: Mon, 8 Jan 2007 12:17:20 +0100
+To: Dirk <d_i_r_k_@gmx.net>, Trent Waddington <trent.waddington@gmail.com>
+From: Jay Vaughan <jv@access-music.de>
+Subject: Re: Gaming Interface
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:5cf4d1416b705699c92259bb5d2086df
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dylan Taft <d13f00l@gmail.com>
+At 13:13 +0100 8/1/07, Dirk wrote:
+>Trent Waddington wrote:
+>  > Call me crazy, but game manufacturers want directx right?  You aint
+>  > running that in the kernel.
+>They want something like DirectX that changes it's API less frequent
+>than DirectX and that compiles as a module because you don't want to run
+>it in the kernel.
+>
 
-Device will not work as a mass storage device without US_FL_IGNORE_RESIDUE.
+Whats wrong with just using SDL/OpenGL?  Thousands of games are made 
+with SDL/OpenGL, and there are realms of Linux usage where this works 
+just fine, especially for games (GP2X, etc).  In case you didn't 
+notice, plenty of pro Game Developers use SDL/OpenGL just fine for 
+their needs, and get the job done without grumbling and groaning 
+about needing to have their hands held through the process.
 
-Signed-off-by: Dylan Taft <
-d13f00l@gmail.com>
----
-I bought this mp3 player that takes SD cards here
+I fail to see the reason this requirement has to be a 'kernel' 
+interface, other than pure sheer laziness and inability to grok on 
+the part of the so-called professional Game Developers.  Gaming is 
+only *one* kind of application for the Linux kernel - shall we burden 
+the kernel with everything everyone wants just because people fail to 
+understand the proper way to assemble a Linux-based kit for their 
+specific application needs?  (Hint: work with the distro builders.)
 
-http://www.aiptek.com/Merchant2/merchant.mvc?Screen=PROD&Product_Code=AX4&Category_Code=MP3&Store_Code=AS
+Just my .2c, but anyone suggesting that API's be crowbar'ed into the 
+kernel "just to make it easier to get what you want from a single 
+source" is probably not as familiar with the underlying technology, 
+nor the reasons for its structured organization, as they ought to be 
+before making such suggestions ..
 
-I can provide the errors in dmesg, if necessary, but this flag was
-determined as necessary by doing a quick google on the errors
+-- 
 
-that were shown in dmesg.
-I've been sitting on this patch for a while.  Formally submitting
-patches seems daunting. I hope I did this right.
+;
 
-This patch is against vanilla 2.6.19, although it should work fine for
-any newer kernel.  Thanks!
+Jay Vaughan
 
-
---- ./drivers/usb/storage/unusual_devs.bak      2006-12-09 20:50:33.000000000
- -0500
-
-+++ ./drivers/usb/storage/unusual
-_devs.h        2007-01-07 22:17:13.000000000  -0500
-@@ -1075,6 +1075,15 @@ UNUSUAL_DEV(  0x08bd, 0x1100, 0x0000, 0x
-                US_SC_DEVICE, US_PR_DEVICE, NULL,
-                 US_FL_SINGLE_LUN),
-
-+/* Submitted by Dylan Taft <d13f00l@gmail.com>
-+ * US_FL_IGNORE_RESIDUE Needed
-+ */
-+UNUSUAL_DEV(  0x08ca, 0x3103, 0x0100, 0x0100,
-+                "AIPTEK",
-+                "Aiptek USB Keychain MP3 Player",
-+                US_SC_DEVICE, US_PR_DEVICE, NULL,
-+                US_FL_IGNORE_RESIDUE),
-+
- /* Entry needed for flags. Moreover, all devices with this ID use
-  * bulk-only transport, but _some_ falsely report Control/Bulk instead.
-  * One example is "Trumpion Digital Research MYMP3".

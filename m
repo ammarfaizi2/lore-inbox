@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030257AbXAHW4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161028AbXAHW5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbXAHW4e (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbXAHW4e
+	id S1161028AbXAHW5S (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:57:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbXAHW5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:56:34 -0500
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:37507 "EHLO
-	outbound4-fra-R.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030448AbXAHW4d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:56:33 -0500
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 8 Jan 2007 17:57:18 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:4007 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161028AbXAHW5R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:57:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=POtCK5ffq0/GIhMHSOWzLtW8c77FY+puQnTBX/LPUM4Oe5ALeTEZ/65ujZ6ogHsKOkYZGvhr9eH70wPvesL/NQnHL2MSmf6mmHhG9NzLOhTGDSK1oST/N02nn+NhPCGQsXLh9IOiQlzvKp50OBy36lFCHMHkA8CeE1J6lk1ikTg=
+Date: Mon, 8 Jan 2007 22:55:07 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Sumit Narayan <talk2sumit@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] sleeping function called from invalid context at kernel/sched.c
+Message-ID: <20070108225506.GE15292@slug>
+References: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
 MIME-Version: 1.0
-Subject: RE: [PATCH] x86_64 ioapic: check_timer_pin Don't add_pin_to_irq
- if it is already there.
-Date: Mon, 8 Jan 2007 14:56:21 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA490736E@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64 ioapic: check_timer_pin Don't
- add_pin_to_irq if it is already there.
-Thread-Index: Acczd3ScdL7iLk1GQdCgnoYfcO2EhwAACsQA
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: ebiederm@xmission.com, "Andrew Morton" <akpm@osdl.org>
-cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
-       "Adrian Bunk" <bunk@stusta.de>, "Andi Kleen" <ak@suse.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2007 22:56:22.0499 (UTC)
- FILETIME=[37959330:01C73378]
-X-WSS-ID: 69BC139C1WC4159580-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
-Sent: Monday, January 08, 2007 2:50 PM
-To: Andrew Morton
-Cc: Linus Torvalds; Tobias Diedrich; Adrian Bunk; Andi Kleen; Linux
-Kernel Mailing List; Lu, Yinghai
-Subject: [PATCH] x86_64 ioapic: check_timer_pin Don't add_pin_to_irq if
-it is already there.
+On Mon, Jan 08, 2007 at 04:27:32PM -0500, Sumit Narayan wrote:
+> Hi,
+> 
+> I am trying to do file write operations in a thread (filewrite())
+> initiated from a jprobe (fs_vfs_write()) set on kernel function
+> (vfs_write()). Although the write operation succeed, I get this on my
+> log:
+> 
+> BUG: sleeping function called from invalid context at kernel/sched.c:3678
+> in_atomic():0, irqs_disabled():1
+> [<c011a65b>] __might_sleep+0xa5/0xab
+> [<c0343a00>] wait_for_completion+0x1a/0xc9
+> [<c0118480>] __wake_up+0x32/0x43
+> [<c012b33a>] __queue_work+0x42/0x4f
+> [<c012e0f7>] kthread_create+0x9b/0xd3
+> [<c012e00a>] keventd_create_kthread+0x0/0x52
+> [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
+> [<c03464b9>] do_page_fault+0x31f/0x5c5
+> [<f8a561da>] fs_vfs_write+0x57/0x9e [fsTrace]
+> [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
+> [<c015f396>] sys_write+0x41/0x67
+> [<c01034d1>] sysenter_past_esp+0x56/0x79
+> =======================
+kprobe disables interrupts, and you're not supposed to sleep with
+interrupts disabled. But you call keventd_create_kthread which sleeps,
+and that issues this message.
 
->Yep.  My oversight.  Here is the trivial patch to fix it.  I don't
->see how we could hit this case but if we are going to allow for it
->we should handle it correctly.
-
-Yes, in your check_timer calling sequence, at that point irq can not be
-0.
-( remove_irq_to_pin already remove that entry).
-
-Or in check_timer_pin
-
-+	if ((irq != -1) && (irq != 0)) {
-
-==>
-
-+	if (irq != -1) {
-
-YH
-
-
-
+Regards,
+Frederik

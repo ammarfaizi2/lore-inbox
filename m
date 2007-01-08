@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751561AbXAHOqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751565AbXAHOrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751561AbXAHOqn (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 09:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbXAHOqn
+	id S1751565AbXAHOrD (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 09:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751567AbXAHOrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 09:46:43 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:58188 "EHLO
-	relais.videotron.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751558AbXAHOqm (ORCPT
+	Mon, 8 Jan 2007 09:47:03 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:1983 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751565AbXAHOrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 09:46:42 -0500
-Date: Mon, 08 Jan 2007 09:46:41 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: How git affects kernel.org performance
-In-reply-to: <20070107203120.GA4970@spearce.org>
-X-X-Sender: nico@xanadu.home
-To: "Shawn O. Pearce" <spearce@spearce.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, nigel@nigel.suspend2.net,
-       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
-Message-id: <Pine.LNX.4.64.0701080943191.4964@xanadu.home>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20061216094421.416a271e.randy.dunlap@oracle.com>
- <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
- <1166297434.26330.34.camel@localhost.localdomain>
- <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
- <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
- <45A083F2.5000000@zytor.com> <m3odpazxit.fsf@defiant.localdomain>
- <20070107203120.GA4970@spearce.org>
+	Mon, 8 Jan 2007 09:47:01 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Dirk <d_i_r_k_@gmx.net>
+Subject: Re: Gaming Interface
+Date: Mon, 8 Jan 2007 14:47:28 +0000
+User-Agent: KMail/1.9.5
+Cc: Jay Vaughan <jv@access-music.de>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <45A22D69.3010905@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]> <45A24176.9080107@gmx.net>
+In-Reply-To: <45A24176.9080107@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701081447.28569.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2007, Shawn O. Pearce wrote:
+On Monday 08 January 2007 13:04, Dirk wrote:
+> But I don't see top titles ported to SDL/OpenGL.
 
-> Krzysztof Halasa <khc@pm.waw.pl> wrote:
-> > Hmm... Perhaps it should be possible to push git updates as a pack
-> > file only? I mean, the pack file would stay packed = never individual
-> > files and never 256 directories?
-> 
-> Latest Git does this.  If the server is later than 1.4.3.3 then
-> the receive-pack process can actually store the pack file rather
-> than unpacking it into loose objects.  The downside is that it will
-> copy any missing base objects onto the end of a thin pack to make
-> it not-thin.
+This is because you're not looking very hard. If you look at Ryan's ports over 
+at http://icculus.org/ many of the games (some he's _paid_ to port) use SDL 
+statically linked in. There's no legal or technical problem with this.
 
-No.  There are no thin packs for pushes.  And IMHO it should stay that 
-way exactly to avoid this little inconvenience on servers.
+Really, what you're talking about already exists. If anything, you need to 
+convince the SDL guys (not the kernel guys) to make SDL more comprehensive OR 
+write your own multimedia library, perhaps based on or backending to SDL.
 
-The fetch case is a different story of course.
+As noted elsewhere in this thread, most games use 3D hardware exclusively, and 
+only really care about the OS for initialising a video mode and playing 
+sound.
 
+Most ports probably suffer the worst from the lack of DirectX APIs on Linux, 
+something which the WINE project is trying to solve. Using libwine, one will 
+eventually be able to write native Linux applications that use the DirectX 
+APIs. Porting should then be very much easier.
 
-Nicolas
+Of course, vendors using OpenGL gain Macintosh portability amongst other 
+things, and most of the really big titles do have OpenGL render modes, which 
+are already largely portable.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932105AbXAHU5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932667AbXAHU7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbXAHU5G (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbXAHU5F
+	id S932667AbXAHU7K (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbXAHU7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:57:05 -0500
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:6292 "EHLO
-	outbound2-cpk-R.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932105AbXAHU5D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:57:03 -0500
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 8 Jan 2007 15:59:10 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:42404 "EHLO e6.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932667AbXAHU7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:59:09 -0500
+Message-ID: <45A2B099.5010701@linux.vnet.ibm.com>
+Date: Mon, 08 Jan 2007 14:59:05 -0600
+From: Anthony Liguori <aliguori@linux.vnet.ibm.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070103)
 MIME-Version: 1.0
-Subject: RE: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when
- check_timer fails.
-Date: Mon, 8 Jan 2007 12:53:39 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA490736A@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when
- check_timer fails.
-Thread-Index: AcczZm/qGipzI8nwTpKIPAtiYi6UngAAGmJw
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: ebiederm@xmission.com
-cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
-       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
-       "Andi Kleen" <ak@suse.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2007 20:53:39.0895 (UTC)
- FILETIME=[13215C70:01C73367]
-X-WSS-ID: 69BC70D91WC4151554-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: KVM ... bypass BIOS check for VT?
+References: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
+In-Reply-To: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
-Sent: Monday, January 08, 2007 12:47 PM
-To: Lu, Yinghai
-Cc: Linus Torvalds; Tobias Diedrich; Andrew Morton; Adrian Bunk; Andi
-Kleen; Linux Kernel Mailing List
-Subject: Re: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when
-check_timer fails.
+Jeff Chua wrote:
+> I'm resending this under KVM as a subject and hope to get response.
+> 
+> kvm: disabled by bios
+> 
+> I know this has been asked before and the answer was no. Does it still
+> stand or is there a way to bypass the bios? I'm using Lenovo X60s and
+> there's no option to enable VT in the BIOS setup.
 
+There are two MSR bits involved in enabling VT.  The first bit 
+enables/disables VT.  The second bit prevents the first bit from being 
+changed until the next power up.
 
->So that doesn't invalidate the generic test.  I'm going to go dig
->out what little information I have and see if I can stair at the
->register definition.
+If the BIOS is setting the second bit while disabling the first bit, 
+there's nothing that can be done to work around it.
 
-Someone said we can that info about that reg in Kernel. And only
-firmware can use that.
+Sorry.  Contact Lenovo and ask for a BIOS update.
 
-YH
+Regards,
 
+Anthony Liguori
+
+> /proc/cpuinfo shows "VMX".
+> 
+> 
+> Another question ... how to enable "mouse" in KVM?
+> 
+> 
+> Thanks,
+> Jeff.
 

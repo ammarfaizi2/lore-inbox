@@ -1,31 +1,30 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161297AbXAHNth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161303AbXAHNtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161297AbXAHNth (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161303AbXAHNth
+	id S1161303AbXAHNtj (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161304AbXAHNtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:49:37 -0500
-Received: from 3a.49.1343.static.theplanet.com ([67.19.73.58]:53460 "EHLO
+	Mon, 8 Jan 2007 08:49:39 -0500
+Received: from 3a.49.1343.static.theplanet.com ([67.19.73.58]:53497 "EHLO
 	pug.o-hand.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161297AbXAHNta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:49:30 -0500
-Subject: [PATCH 2/4] swap: Add ability to mark swap pages bad
+	id S1161301AbXAHNth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 08:49:37 -0500
+Subject: [PATCH 3/4] swap: Add try_to_unuse_page_entry()
 From: Richard Purdie <richard@openedhand.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
        kernel list <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 08 Jan 2007 13:48:57 +0000
-Message-Id: <1168264138.5605.68.camel@localhost.localdomain>
+Date: Mon, 08 Jan 2007 13:49:04 +0000
+Message-Id: <1168264144.5605.69.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add swap_free_markbad(), equivalent to swap_free but marks the swap page
-as bad. Update try_to_unuse_entry() and shmem_unuse() to call the new
-function when working on pages with errors.
+Add try_to_unuse_page_entry(). As this function takes a already locked page, 
+the locking and refcounting within try_to_unuse_entry() needs to be rearranged.
 
 These patches are a based on a patch by Nick Piggin and some of my own
 patches/bugfixes as discussed on LKML.
@@ -33,140 +32,124 @@ patches/bugfixes as discussed on LKML.
 Signed-off-by: Richard Purdie <rpurdie@openedhand.com>
 
 ---
- include/linux/swap.h |    1 +
- mm/shmem.c           |   17 ++++++++++-------
- mm/swap_state.c      |    2 ++
- mm/swapfile.c        |   38 +++++++++++++++++++++++++++++---------
- 4 files changed, 42 insertions(+), 16 deletions(-)
+ include/linux/swap.h |    1 
+ mm/swapfile.c        |   52 ++++++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 40 insertions(+), 13 deletions(-)
 
 Index: git/include/linux/swap.h
 ===================================================================
---- git.orig/include/linux/swap.h	2007-01-07 21:39:26.000000000 +0000
-+++ git/include/linux/swap.h	2007-01-08 11:39:36.000000000 +0000
-@@ -244,6 +244,7 @@ extern swp_entry_t get_swap_page_of_type
- extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
-+extern void swap_free_markbad(swp_entry_t);
- extern void free_swap_and_cache(swp_entry_t);
- extern int swap_type_of(dev_t, sector_t, struct block_device **);
- extern unsigned int count_swap_pages(int, int);
-Index: git/mm/shmem.c
-===================================================================
---- git.orig/mm/shmem.c	2007-01-07 21:39:29.000000000 +0000
-+++ git/mm/shmem.c	2007-01-08 11:39:36.000000000 +0000
-@@ -734,7 +734,7 @@ static int shmem_unuse_inode(struct shme
- 	struct page **dir;
- 	struct page *subdir;
- 	swp_entry_t *ptr;
--	int offset;
-+	int offset, moved, error;
+--- git.orig/include/linux/swap.h	2007-01-08 11:39:36.000000000 +0000
++++ git/include/linux/swap.h	2007-01-08 11:39:42.000000000 +0000
+@@ -253,6 +253,7 @@ extern sector_t swapdev_block(int, pgoff
+ extern struct swap_info_struct *get_swap_info_struct(unsigned);
+ extern int can_share_swap_page(struct page *);
+ extern int remove_exclusive_swap_page(struct page *);
++extern void try_to_unuse_page_entry(struct page *page);
+ struct backing_dev_info;
  
- 	idx = 0;
- 	ptr = info->i_direct;
-@@ -792,17 +792,20 @@ lost2:
- found:
- 	idx += offset;
- 	inode = &info->vfs_inode;
--	if (move_from_swap_cache(page, idx, inode->i_mapping) == 0) {
-+	error = PageError(page);
-+	moved = (move_from_swap_cache(page, idx, inode->i_mapping) == 0);
-+	if (moved) {
- 		info->flags |= SHMEM_PAGEIN;
- 		shmem_swp_set(info, ptr + offset, 0);
- 	}
- 	shmem_swp_unmap(ptr);
- 	spin_unlock(&info->lock);
--	/*
--	 * Decrement swap count even when the entry is left behind:
--	 * try_to_unuse will skip over mms, then reincrement count.
--	 */
--	swap_free(entry);
-+	if (moved) {
-+		if (!error)
-+			swap_free(entry);
-+		else
-+			swap_free_markbad(entry);
-+	}
- 	return 1;
- }
- 
+ extern spinlock_t swap_lock;
 Index: git/mm/swapfile.c
 ===================================================================
---- git.orig/mm/swapfile.c	2007-01-08 11:39:27.000000000 +0000
-+++ git/mm/swapfile.c	2007-01-08 11:39:36.000000000 +0000
-@@ -304,6 +304,23 @@ void swap_free(swp_entry_t entry)
- 	}
+--- git.orig/mm/swapfile.c	2007-01-08 11:39:36.000000000 +0000
++++ git/mm/swapfile.c	2007-01-08 12:19:08.000000000 +0000
+@@ -656,12 +656,13 @@ static int unuse_mm(struct mm_struct *mm
  }
  
-+void swap_free_markbad(swp_entry_t entry)
-+{
-+	struct swap_info_struct * p;
-+
-+	p = swap_info_get(entry);
-+	if (p) {
-+		unsigned long offset = swp_offset(entry);
-+		if (swap_entry_free(p, offset) == 0) {
-+			p->swap_map[offset] = SWAP_MAP_BAD;
-+			p->pages--;
-+			nr_swap_pages--;
-+			total_swap_pages--;
-+		}
-+		spin_unlock(&swap_lock);
+ static int try_to_unuse_entry(swp_entry_t entry, unsigned short *swap_map,
+-			struct page *page, struct mm_struct **start_mm_p)
++			struct page *page, struct mm_struct **start_mm_p,
++			int initial_locked)
+ {
+ 	struct mm_struct *start_mm;
+ 	unsigned short swcount;
+ 	int retval = 0;
+-	int shmem;
++	int shmem, locked = initial_locked;
+ 
+ 	if (start_mm_p)
+ 		start_mm = *start_mm_p;
+@@ -686,12 +687,13 @@ static int try_to_unuse_entry(swp_entry_
+ 	 * lets try_to_unuse defer to do_swap_page in such a case - in some
+ 	 * tests, do_swap_page and try_to_unuse repeatedly compete.
+ 	 */
+-
+-	wait_on_page_locked(page);
+-	wait_on_page_writeback(page);
+-	lock_page(page);
+-	wait_on_page_writeback(page);
+ retry:
++	if (!locked) {
++		wait_on_page_locked(page);
++		wait_on_page_writeback(page);
++		lock_page(page);
 +	}
++	wait_on_page_writeback(page);
+ 
+ 	/*
+ 	 * Remove all references to entry.
+@@ -789,8 +791,7 @@ retry:
+ 			};
+ 
+ 			swap_writepage(page, &wbc);
+-			lock_page(page);
+-			wait_on_page_writeback(page);
++			locked = 0;
+ 			goto retry;
+ 		}
+ 		if (!shmem) {
+@@ -815,9 +816,8 @@ retry:
+ 	 */
+ 	SetPageDirty(page);
+ unuse_err:
+-	unlock_page(page);
+-	page_cache_release(page);
+-
++	if (!initial_locked)
++		unlock_page(page);
+ 	if (start_mm_p)
+ 		*start_mm_p = start_mm;
+ 	else
+@@ -826,6 +826,31 @@ unuse_err:
+ 	return retval;
+ }
+ 
++void try_to_unuse_page_entry(struct page *page)
++{
++	struct swap_info_struct *si;
++	unsigned short *swap_map;
++	swp_entry_t entry;
++
++	BUG_ON(!PageLocked(page));
++	BUG_ON(!PageSwapCache(page));
++	BUG_ON(PageWriteback(page));
++	BUG_ON(PagePrivate(page));
++
++	entry.val = page_private(page);
++	si = swap_info_get(entry);
++	if (!si) {
++		WARN_ON(1);
++		return;
++	}
++	swap_map = &si->swap_map[swp_offset(entry)];
++	spin_unlock(&swap_lock);
++
++	BUG_ON(*swap_map == SWAP_MAP_BAD);
++
++	try_to_unuse_entry(entry, swap_map, page, NULL, 1);
 +}
 +
  /*
-  * How many references to page are currently swapped out?
-  */
-@@ -764,11 +781,6 @@ retry:
- 	 * remains (rarer), it will be read from disk into another page.
- 	 * Splitting into two pages would be incorrect if swap supported
- 	 * "shared private" pages, but they are handled by tmpfs files.
--	 *
--	 * Note shmem_unuse already deleted a swappage from the swap cache,
--	 * unless the move to filepage failed: in which case it left swappage
--	 * in cache, lowered its swap count to pass quickly through the loops
--	 * above, and now we must reincrement count to try again later.
- 	 */
- 	if (PageSwapCache(page)) {
- 		if ((*swap_map > 1) && PageDirty(page)) {
-@@ -781,11 +793,19 @@ retry:
- 			wait_on_page_writeback(page);
- 			goto retry;
+  * Scan swap_map from current position to next entry still in use.
+  * Recycle to start on reaching the end, returning 0 when empty.
+@@ -929,7 +954,8 @@ static int try_to_unuse(unsigned int typ
+ 			break;
  		}
-+		if (!shmem) {
-+			int error = PageError(page);
  
--		if (shmem)
--			swap_duplicate(entry);
--		else
--			delete_from_swap_cache(page);
-+			write_lock_irq(&swapper_space.tree_lock);
-+			__delete_from_swap_cache(page);
-+			write_unlock_irq(&swapper_space.tree_lock);
-+			page_cache_release(page); /* the swapcache ref */
-+
-+			if (!error)
-+				swap_free(entry);
-+			else
-+				swap_free_markbad(entry);
-+		}
- 	}
+-		retval = try_to_unuse_entry(entry, swap_map, page, &start_mm);
++		retval = try_to_unuse_entry(entry, swap_map, page, &start_mm, 0);
++		page_cache_release(page);
  
- 	/*
-Index: git/mm/swap_state.c
-===================================================================
---- git.orig/mm/swap_state.c	2007-01-07 21:39:29.000000000 +0000
-+++ git/mm/swap_state.c	2007-01-08 11:39:36.000000000 +0000
-@@ -131,6 +131,8 @@ void __delete_from_swap_cache(struct pag
- 	radix_tree_delete(&swapper_space.page_tree, page_private(page));
- 	set_page_private(page, 0);
- 	ClearPageSwapCache(page);
-+	if (unlikely(PageError(page)))
-+		ClearPageError(page);
- 	total_swapcache_pages--;
- 	__dec_zone_page_state(page, NR_FILE_PAGES);
- 	INC_CACHE_INFO(del_total);
+ 		if (retval)
+ 			break;
 
 

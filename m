@@ -1,60 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751018AbXAHV1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932078AbXAHV2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbXAHV1g (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbXAHV1g
+	id S932078AbXAHV2n (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbXAHV2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:27:36 -0500
-Received: from wr-out-0506.google.com ([64.233.184.233]:24531 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751037AbXAHV1f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:27:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZW2FL0cza0y8nXV3OyYvogWDTH/uuclxCd5OX8GXugLHqTiWOGLpPrBr9iA7BN7InXNEw/sg311eD4kY6+mLT+iaL8YipXCBtIJiXogvyRdu0vZpN5Qyoz73ZW0kvJ2luHNS/AV4DvT3CbO++zzVsdi1vv0PjF6TlDzqncISXEU=
-Message-ID: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
-Date: Mon, 8 Jan 2007 16:27:32 -0500
-From: "Sumit Narayan" <talk2sumit@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: [BUG] sleeping function called from invalid context at kernel/sched.c
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 8 Jan 2007 16:28:43 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:44791 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751037AbXAHV2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:28:42 -0500
+Date: Mon, 8 Jan 2007 13:27:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 15/24] Unionfs: Privileged operations workqueue
+Message-Id: <20070108132755.41c27142.akpm@osdl.org>
+In-Reply-To: <1168229598972-git-send-email-jsipek@cs.sunysb.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	<1168229598972-git-send-email-jsipek@cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun,  7 Jan 2007 23:13:07 -0500
+"Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
 
-I am trying to do file write operations in a thread (filewrite())
-initiated from a jprobe (fs_vfs_write()) set on kernel function
-(vfs_write()). Although the write operation succeed, I get this on my
-log:
+> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> 
+> Workqueue & helper functions used to perform privileged operations on
+> behalf of the user process.
+> 
+> Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+> Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
+> +
+>
+> ...
+>
+> +#include "union.h"
+> +
+> +/* Super-user IO work Queue - sometimes we need to perform actions which
+> + * would fail due to the unix permissions on the parent directory (e.g.,
+> + * rmdir a directory which appears empty, but in reality contains
+> + * whiteouts).
+> + */
+> +
+> +struct workqueue_struct *sioq;
 
-BUG: sleeping function called from invalid context at kernel/sched.c:3678
-in_atomic():0, irqs_disabled():1
- [<c011a65b>] __might_sleep+0xa5/0xab
- [<c0343a00>] wait_for_completion+0x1a/0xc9
- [<c0118480>] __wake_up+0x32/0x43
- [<c012b33a>] __queue_work+0x42/0x4f
- [<c012e0f7>] kthread_create+0x9b/0xd3
- [<c012e00a>] keventd_create_kthread+0x0/0x52
- [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
- [<c03464b9>] do_page_fault+0x31f/0x5c5
- [<f8a561da>] fs_vfs_write+0x57/0x9e [fsTrace]
- [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
- [<c015f396>] sys_write+0x41/0x67
- [<c01034d1>] sysenter_past_esp+0x56/0x79
- =======================
+Rather a terse identifier for a global symbol.
 
-$ uname -a
-Linux cluster3 2.6.19.1 #1 SMP Thu Dec 21 14:03:57 EST 2006 i686
-athlon i386 GNU/Linux
+> +int __init init_sioq(void)
+> +{
+> +	int err;
+> +
+> +	sioq = create_workqueue("unionfs_siod");
+> +	if (!IS_ERR(sioq))
+> +		return 0;
+> +
+> +	err = PTR_ERR(sioq);
+> +	printk(KERN_ERR "create_workqueue failed %d\n", err);
+> +	sioq = NULL;
+> +	return err;
+> +}
+> +
+> +void __exit stop_sioq(void)
+> +{
+> +	if (sioq)
+> +		destroy_workqueue(sioq);
+> +}
+> +
+> +void run_sioq(work_func_t func, struct sioq_args *args)
+> +{
+> +	INIT_WORK(&args->work, func);
+> +
+> +	init_completion(&args->comp);
+> +	while (!queue_work(sioq, &args->work)) {
+> +		/* TODO: do accounting if needed */
+> +		schedule();
+> +	}
 
-I remember seeing something similar here on LKML, but am unable to
-trace it right now. Any idea what's going wrong?
+That's a busywait.
 
-Thanks,
-Sumit
+> +	wait_for_completion(&args->comp);
+> +}
+> +
+>
+> ...
+>
+> +void __delete_whiteouts(struct work_struct *work) {
+
+Misplaced brace.
+
+

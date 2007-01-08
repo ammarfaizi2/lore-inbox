@@ -1,52 +1,135 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751577AbXAHPMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751581AbXAHPM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751577AbXAHPMN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbXAHPMN
+	id S1751581AbXAHPM6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbXAHPM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:12:13 -0500
-Received: from vsmtp14.tin.it ([212.216.176.118]:61214 "EHLO vsmtp14.tin.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751518AbXAHPMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:12:12 -0500
-Date: Mon, 8 Jan 2007 16:11:53 +0100 (CET)
-From: l.genoni@oltrelinux.com
-X-X-Sender: venom@Phoenix.oltrelinux.com
-To: Dirk <d_i_r_k_@gmx.net>
-cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Jay Vaughan <jv@access-music.de>,
-       Trent Waddington <trent.waddington@gmail.com>,
-       linux-kernel@vger.kernel.org, l.genoni@sns.it
-Subject: Re: Gaming Interface
-In-Reply-To: <45A264E1.3080603@gmx.net>
-Message-ID: <Pine.LNX.4.64.0701081608250.2922@Phoenix.oltrelinux.com>
-References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com>
- <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]>
- <45A24176.9080107@gmx.net> <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Jan 2007 10:12:58 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41692 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751580AbXAHPM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 10:12:57 -0500
+Date: Mon, 8 Jan 2007 15:23:43 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] z85230: spinlock logic
+Message-ID: <20070108152343.40f1ee97@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007, Dirk wrote:
+At some point someone added a spin_lock(&dev->lock) to the IRQ handler
+for the Z85230 driver. This actually correctly fixes a bug but the
+neccessary changes to remove the chan->lock calls in the event handlers
+were not made (c->lock is the same lock).
 
->
-> Alright. I came to discuss an idea I had because I realized that installing 
-> Windows and running Linux in VMware is the only _fun_ way to play "real" 
-> Games and have Linux at the same time.
->
-> And everyone who says I'm a troll doesn't like Games or simple things.
->
->
-> Dirk
+Simona Dascenzo reported the problem with the driver and this patch should
+fix the problem he found.
 
-Please, don't think so. The point is simpler. Linux has its own standard, 
-which is a Unix one, openGL on X11 and then SDL. There is a kernel 
-component to get 3d acceleration with openGL, which is DRM.
-This standard is nice, and openGL is available also on windows, where 
-doom3, quake4 and the like use it happily.
-There is no point to introduce something different and to change this 
-standard.
 
-Luigi
 
+--- linux.vanilla-2.6.20-rc4/drivers/net/wan/z85230.c	2007-01-01 21:41:27.000000000 +0000
++++ linux-2.6.20-rc4/drivers/net/wan/z85230.c	2007-01-08 14:50:15.860939112 +0000
+@@ -331,8 +331,7 @@
+ static void z8530_rx(struct z8530_channel *c)
+ {
+ 	u8 ch,stat;
+-	spin_lock(c->lock);
+- 
++
+ 	while(1)
+ 	{
+ 		/* FIFO empty ? */
+@@ -390,7 +389,6 @@
+ 	 */
+ 	write_zsctrl(c, ERR_RES);
+ 	write_zsctrl(c, RES_H_IUS);
+-	spin_unlock(c->lock);
+ }
+ 
+ 
+@@ -406,7 +404,6 @@
+  
+ static void z8530_tx(struct z8530_channel *c)
+ {
+-	spin_lock(c->lock);
+ 	while(c->txcount) {
+ 		/* FIFO full ? */
+ 		if(!(read_zsreg(c, R0)&4))
+@@ -434,7 +431,6 @@
+ 
+ 	z8530_tx_done(c);	 
+ 	write_zsctrl(c, RES_H_IUS);
+-	spin_unlock(c->lock);
+ }
+ 
+ /**
+@@ -452,7 +448,6 @@
+ {
+ 	u8 status, altered;
+ 
+-	spin_lock(chan->lock);
+ 	status=read_zsreg(chan, R0);
+ 	altered=chan->status^status;
+ 	
+@@ -487,7 +482,6 @@
+ 	}	
+ 	write_zsctrl(chan, RES_EXT_INT);
+ 	write_zsctrl(chan, RES_H_IUS);
+-	spin_unlock(chan->lock);
+ }
+ 
+ struct z8530_irqhandler z8530_sync=
+@@ -511,7 +505,6 @@
+  
+ static void z8530_dma_rx(struct z8530_channel *chan)
+ {
+-	spin_lock(chan->lock);
+ 	if(chan->rxdma_on)
+ 	{
+ 		/* Special condition check only */
+@@ -534,7 +527,6 @@
+ 		/* DMA is off right now, drain the slow way */
+ 		z8530_rx(chan);
+ 	}	
+-	spin_unlock(chan->lock);
+ }
+ 
+ /**
+@@ -547,7 +539,6 @@
+  
+ static void z8530_dma_tx(struct z8530_channel *chan)
+ {
+-	spin_lock(chan->lock);
+ 	if(!chan->dma_tx)
+ 	{
+ 		printk(KERN_WARNING "Hey who turned the DMA off?\n");
+@@ -557,7 +548,6 @@
+ 	/* This shouldnt occur in DMA mode */
+ 	printk(KERN_ERR "DMA tx - bogus event!\n");
+ 	z8530_tx(chan);
+-	spin_unlock(chan->lock);
+ }
+ 
+ /**
+@@ -596,7 +586,6 @@
+ 		}
+ 	}
+ 
+-	spin_lock(chan->lock);
+ 	if(altered&chan->dcdcheck)
+ 	{
+ 		if(status&chan->dcdcheck)
+@@ -618,7 +607,6 @@
+ 
+ 	write_zsctrl(chan, RES_EXT_INT);
+ 	write_zsctrl(chan, RES_H_IUS);
+-	spin_unlock(chan->lock);
+ }
+ 
+ struct z8530_irqhandler z8530_dma_sync=
+ 

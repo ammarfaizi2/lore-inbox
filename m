@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161202AbXAHKYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161205AbXAHKZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161202AbXAHKYf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 05:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbXAHKYf
+	id S1161205AbXAHKZF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbXAHKZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 05:24:35 -0500
-Received: from mx.laposte.net ([81.255.54.11]:9770 "EHLO mx.laposte.net"
+	Mon, 8 Jan 2007 05:25:05 -0500
+Received: from mail.macqel.be ([194.78.208.39]:26149 "EHLO mail.macqel.be"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161202AbXAHKYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 05:24:35 -0500
-Message-ID: <6575.192.54.193.51.1168251859.squirrel@rousalka.dyndns.org>
-Date: Mon, 8 Jan 2007 11:24:19 +0100 (CET)
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: "Willy Tarreau" <w@1wt.eu>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.8-2.fc6
-MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	id S1161205AbXAHKZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 05:25:04 -0500
+Date: Mon, 8 Jan 2007 11:25:01 +0100
+From: Philippe De Muyter <phdm@macqel.be>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: RTC subsystem and fractions of seconds
+Message-ID: <20070108102501.GA11993@ingate.macqel.be>
+References: <200701051949.00662.david-b@pacbell.net> <20070107101449.GA24163@ingate.macqel.be> <200701071810.30310.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701071810.30310.david-b@pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> How would you do this technically in a way that it's significantely
->> easier than simply finishing the UTF=8 transition?
+On Sun, Jan 07, 2007 at 06:10:30PM -0800, David Brownell wrote:
 
-> In how many decades do you think the transition will be finished ?
+> > One usefull addition for my needs and with a m41t81 is the support of
+> > the calibration of the rtc.  However this can perhaps be hidden in the
+> > .set_mmss function.
+> 
+> Doesn't seem like an set_mmss() mechanism at all.  Some drivers give
+> sysfs access to an oscillator "trim" mechanism.  What tools do you
+> have which track how far off that crystal is?
 
-Right now it looks like it will be finished way earlier than app bother
-supporting the later 8-bit encodings such as iso-8859-15
+ntp, either from network or from a radio-clock
 
-(case in point: Russel's system. I was ROTFL when he proudly announced he
-was running a full iso-8859-1 system after dissing UTF-8. Last I've seen
-the official 8bit EU encoding was iso-8859-15, and UK is part of the EU)
+and using set_mmss for that purpose seems not so disgusting, because :
 
--- 
-Nicolas Mailhot
+- writing to the clock (the expected work of set_mmss) must be disabled when
+we observe the clock drift
+- set_mmss is always called with a very good precision, so one could
+use the time given to set_mmss to compare it to the time given by the RTC
+over a long enough period of time (more than 11 minutes) to compute the RTC's
+drift and the necessary adjustment.
 
+Of course, if we want something that is not based on ntp, then we may not
+overload set_mmss.
+
+Philippe

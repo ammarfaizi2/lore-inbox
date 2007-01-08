@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750919AbXAHV1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751018AbXAHV1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbXAHV1M (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbXAHV1M
+	id S1751018AbXAHV1g (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbXAHV1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:27:12 -0500
-Received: from outbound-mail-55.bluehost.com ([69.89.20.35]:48581 "HELO
-	outbound-mail-55.bluehost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750919AbXAHV1L (ORCPT
+	Mon, 8 Jan 2007 16:27:36 -0500
+Received: from wr-out-0506.google.com ([64.233.184.233]:24531 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751037AbXAHV1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:27:11 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Olivier Galibert <galibert@pobox.com>
-Subject: Re: [PATCH] update MMConfig patches w/915 support
-Date: Mon, 8 Jan 2007 13:27:15 -0800
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-References: <200701071142.09428.jbarnes@virtuousgeek.org> <200701071144.16045.jbarnes@virtuousgeek.org> <20070108204520.GB15481@dspnet.fr.eu.org>
-In-Reply-To: <20070108204520.GB15481@dspnet.fr.eu.org>
+	Mon, 8 Jan 2007 16:27:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ZW2FL0cza0y8nXV3OyYvogWDTH/uuclxCd5OX8GXugLHqTiWOGLpPrBr9iA7BN7InXNEw/sg311eD4kY6+mLT+iaL8YipXCBtIJiXogvyRdu0vZpN5Qyoz73ZW0kvJ2luHNS/AV4DvT3CbO++zzVsdi1vv0PjF6TlDzqncISXEU=
+Message-ID: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
+Date: Mon, 8 Jan 2007 16:27:32 -0500
+From: "Sumit Narayan" <talk2sumit@gmail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: [BUG] sleeping function called from invalid context at kernel/sched.c
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701081327.16019.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, January 8, 2007 12:45 pm, Olivier Galibert wrote:
-> On Sun, Jan 07, 2007 at 11:44:16AM -0800, Jesse Barnes wrote:
-> > For reference, here's the probe routine I tried for 965, probably
-> > something dumb wrong with it that I'm not seeing atm.
->
-> It shouldn't have mattered in your case, but base_address is limited
-> to 32bits.  There is a 32 bits reserved zone after it so hope is not
-> to be lost, but in any case the current code can't handle over-4G
-> base addresses at that point.
->
-> Does the bios or your '965 give a correct acpi mmconfig entry?
+Hi,
 
-I should have captured the debug printk I put in while testing.  I think 
-the base address specified in the register was 0xf0000000, with a size 
-of 256M marked enabled.  Arjan points out that this likely conflicts 
-with other BIOS mappings, which is probably why I saw my machine hang 
-when I tried to use it.
+I am trying to do file write operations in a thread (filewrite())
+initiated from a jprobe (fs_vfs_write()) set on kernel function
+(vfs_write()). Although the write operation succeed, I get this on my
+log:
 
-As for ACPI, I assume you mean the MCFG table?  I haven't looked at it, 
-but the stock kernel complains about a lack of the MCFG range in the 
-e820 table and subsequently disables mmconfig.
+BUG: sleeping function called from invalid context at kernel/sched.c:3678
+in_atomic():0, irqs_disabled():1
+ [<c011a65b>] __might_sleep+0xa5/0xab
+ [<c0343a00>] wait_for_completion+0x1a/0xc9
+ [<c0118480>] __wake_up+0x32/0x43
+ [<c012b33a>] __queue_work+0x42/0x4f
+ [<c012e0f7>] kthread_create+0x9b/0xd3
+ [<c012e00a>] keventd_create_kthread+0x0/0x52
+ [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
+ [<c03464b9>] do_page_fault+0x31f/0x5c5
+ [<f8a561da>] fs_vfs_write+0x57/0x9e [fsTrace]
+ [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
+ [<c015f396>] sys_write+0x41/0x67
+ [<c01034d1>] sysenter_past_esp+0x56/0x79
+ =======================
 
-But won't the bridge register value control what actually gets decoded?  
-If so, it sounds like this BIOS is buggy wrt mmconfig mapping in 
-general; good thing I'm not using any PCIe devices I guess...
+$ uname -a
+Linux cluster3 2.6.19.1 #1 SMP Thu Dec 21 14:03:57 EST 2006 i686
+athlon i386 GNU/Linux
+
+I remember seeing something similar here on LKML, but am unable to
+trace it right now. Any idea what's going wrong?
 
 Thanks,
-Jesse
+Sumit

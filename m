@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030530AbXAHETW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030527AbXAHEUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030530AbXAHETW (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbXAHESs
+	id S1030527AbXAHEUA (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbXAHETi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:18:48 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50384 "EHLO
+	Sun, 7 Jan 2007 23:19:38 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50441 "EHLO
 	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030505AbXAHER6 (ORCPT
+	with ESMTP id S1030492AbXAHES6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:17:58 -0500
+	Sun, 7 Jan 2007 23:18:58 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
@@ -17,9 +17,9 @@ Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
        David Quigley <dquigley@fsl.cs.sunysb.edu>,
        Erez Zadok <ezk@cs.sunysb.edu>
-Subject: [PATCH 19/24] Unionfs: Helper macros/inlines
-Date: Sun,  7 Jan 2007 23:13:11 -0500
-Message-Id: <11682295994056-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 06/24] Unionfs: Dentry operations
+Date: Sun,  7 Jan 2007 23:12:58 -0500
+Message-Id: <11682295974095-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.4.2
 In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
 References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
@@ -28,25 +28,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains many macros and inline functions used thoughout Unionfs.
+This patch contains the dentry operations for Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/fanout.h |  177 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 177 insertions(+), 0 deletions(-)
+ fs/unionfs/dentry.c |  243 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 243 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/fanout.h b/fs/unionfs/fanout.h
+diff --git a/fs/unionfs/dentry.c b/fs/unionfs/dentry.c
 new file mode 100644
-index 0000000..ab3bf2c
+index 0000000..740c000
 --- /dev/null
-+++ b/fs/unionfs/fanout.h
-@@ -0,0 +1,177 @@
++++ b/fs/unionfs/dentry.c
+@@ -0,0 +1,243 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef Sipek
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
 + * Copyright (c) 2005      Arun M. Krishnakumar
 + * Copyright (c) 2004-2006 David P. Quigley
 + * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
@@ -60,166 +61,231 @@ index 0000000..ab3bf2c
 + * published by the Free Software Foundation.
 + */
 +
-+#ifndef _FANOUT_H_
-+#define _FANOUT_H_
++#include "union.h"
 +
-+/* Inode to private data */
-+static inline struct unionfs_inode_info *UNIONFS_I(const struct inode *inode)
++/* declarations added for "sparse" */
++extern int unionfs_d_revalidate_wrap(struct dentry *dentry,
++				     struct nameidata *nd);
++extern void unionfs_d_release(struct dentry *dentry);
++extern void unionfs_d_iput(struct dentry *dentry, struct inode *inode);
++
++/*
++ * returns 1 if valid, 0 otherwise.
++ */
++int unionfs_d_revalidate(struct dentry *dentry, struct nameidata *nd)
 +{
-+	return container_of(inode, struct unionfs_inode_info, vfs_inode);
++	int valid = 1;		/* default is valid (1); invalid is 0. */
++	struct dentry *hidden_dentry;
++	int bindex, bstart, bend;
++	int sbgen, dgen;
++	int positive = 0;
++	int locked = 0;
++	int restart = 0;
++	int interpose_flag;
++
++	struct nameidata lowernd; /* TODO: be gentler to the stack */
++
++	if (nd)
++		memcpy(&lowernd, nd, sizeof(struct nameidata));
++	else
++		memset(&lowernd, 0, sizeof(struct nameidata));
++
++restart:
++	verify_locked(dentry);
++
++	/* if the dentry is unhashed, do NOT revalidate */
++	if (d_deleted(dentry)) {
++		printk(KERN_DEBUG "unhashed dentry being revalidated: %*s\n",
++		       dentry->d_name.len, dentry->d_name.name);
++		goto out;
++	}
++
++	BUG_ON(dbstart(dentry) == -1);
++	if (dentry->d_inode)
++		positive = 1;
++	dgen = atomic_read(&UNIONFS_D(dentry)->generation);
++	sbgen = atomic_read(&UNIONFS_SB(dentry->d_sb)->generation);
++	/* If we are working on an unconnected dentry, then there is no
++	 * revalidation to be done, because this file does not exist within the
++	 * namespace, and Unionfs operates on the namespace, not data.
++	 */
++	if (sbgen != dgen) {
++		struct dentry *result;
++		int pdgen;
++
++		unionfs_read_lock(dentry->d_sb);
++		locked = 1;
++
++		/* The root entry should always be valid */
++		BUG_ON(IS_ROOT(dentry));
++
++		/* We can't work correctly if our parent isn't valid. */
++		pdgen = atomic_read(&UNIONFS_D(dentry->d_parent)->generation);
++		if (!restart && (pdgen != sbgen)) {
++			unionfs_read_unlock(dentry->d_sb);
++			locked = 0;
++			/* We must be locked before our parent. */
++			if (!
++			    (dentry->d_parent->d_op->
++			     d_revalidate(dentry->d_parent, nd))) {
++				valid = 0;
++				goto out;
++			}
++			restart = 1;
++			goto restart;
++		}
++		BUG_ON(pdgen != sbgen);
++
++		/* Free the pointers for our inodes and this dentry. */
++		bstart = dbstart(dentry);
++		bend = dbend(dentry);
++		if (bstart >= 0) {
++			struct dentry *hidden_dentry;
++			for (bindex = bstart; bindex <= bend; bindex++) {
++				hidden_dentry =
++				    unionfs_lower_dentry_idx(dentry, bindex);
++				dput(hidden_dentry);
++			}
++		}
++		set_dbstart(dentry, -1);
++		set_dbend(dentry, -1);
++
++		interpose_flag = INTERPOSE_REVAL_NEG;
++		if (positive) {
++			interpose_flag = INTERPOSE_REVAL;
++			mutex_lock(&dentry->d_inode->i_mutex);
++			bstart = ibstart(dentry->d_inode);
++			bend = ibend(dentry->d_inode);
++			if (bstart >= 0) {
++				struct inode *hidden_inode;
++				for (bindex = bstart; bindex <= bend; bindex++) {
++					hidden_inode =
++					    unionfs_lower_inode_idx(dentry->d_inode,
++							bindex);
++					iput(hidden_inode);
++				}
++			}
++			kfree(UNIONFS_I(dentry->d_inode)->lower_inodes);
++			UNIONFS_I(dentry->d_inode)->lower_inodes = NULL;
++			ibstart(dentry->d_inode) = -1;
++			ibend(dentry->d_inode) = -1;
++			mutex_unlock(&dentry->d_inode->i_mutex);
++		}
++
++		result = unionfs_lookup_backend(dentry, &lowernd, interpose_flag);
++		if (result) {
++			if (IS_ERR(result)) {
++				valid = 0;
++				goto out;
++			}
++			/* current unionfs_lookup_backend() doesn't return
++			 * a valid dentry
++			 */
++			dput(dentry);
++			dentry = result;
++		}
++
++		if (positive && UNIONFS_I(dentry->d_inode)->stale) {
++			make_stale_inode(dentry->d_inode);
++			d_drop(dentry);
++			valid = 0;
++			goto out;
++		}
++		goto out;
++	}
++
++	/* The revalidation must occur across all branches */
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
++	BUG_ON(bstart == -1);
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
++		if (!hidden_dentry || !hidden_dentry->d_op
++		    || !hidden_dentry->d_op->d_revalidate)
++			continue;
++
++		if (!hidden_dentry->d_op->d_revalidate(hidden_dentry, nd))
++			valid = 0;
++	}
++
++	if (!dentry->d_inode)
++		valid = 0;
++
++	if (valid) {
++		fsstack_copy_attr_all(dentry->d_inode,
++				unionfs_lower_inode(dentry->d_inode),
++				unionfs_get_nlinks);
++		fsstack_copy_inode_size(dentry->d_inode,
++				unionfs_lower_inode(dentry->d_inode));
++	}
++
++out:
++	if (locked)
++		unionfs_read_unlock(dentry->d_sb);
++	return valid;
 +}
 +
-+#define ibstart(ino) (UNIONFS_I(ino)->bstart)
-+#define ibend(ino) (UNIONFS_I(ino)->bend)
-+
-+/* Superblock to private data */
-+#define UNIONFS_SB(super) ((struct unionfs_sb_info *)(super)->s_fs_info)
-+#define sbstart(sb) 0
-+#define sbend(sb) (UNIONFS_SB(sb)->bend)
-+#define sbmax(sb) (UNIONFS_SB(sb)->bend + 1)
-+
-+/* File to private Data */
-+#define UNIONFS_F(file) ((struct unionfs_file_info *)((file)->private_data))
-+#define fbstart(file) (UNIONFS_F(file)->bstart)
-+#define fbend(file) (UNIONFS_F(file)->bend)
-+
-+/* File to lower file. */
-+static inline struct file *unionfs_lower_file(const struct file *f)
++int unionfs_d_revalidate_wrap(struct dentry *dentry, struct nameidata *nd)
 +{
-+	return UNIONFS_F(f)->lower_files[fbstart(f)];
++	int err;
++
++	lock_dentry(dentry);
++	err = unionfs_d_revalidate(dentry, nd);
++	unlock_dentry(dentry);
++
++	return err;
 +}
 +
-+static inline struct file *unionfs_lower_file_idx(const struct file *f, int index)
++void unionfs_d_release(struct dentry *dentry)
 +{
-+	return UNIONFS_F(f)->lower_files[index];
++	int bindex, bstart, bend;
++
++	/* There is no reason to lock the dentry, because we have the only
++	 * reference, but the printing functions verify that we have a lock
++	 * on the dentry before calling dbstart, etc.
++	 */
++	lock_dentry(dentry);
++
++	/* this could be a negative dentry, so check first */
++	if (!UNIONFS_D(dentry)) {
++		printk(KERN_DEBUG "dentry without private data: %.*s",
++		       dentry->d_name.len, dentry->d_name.name);
++		goto out;
++	} else if (dbstart(dentry) < 0) {
++		/* this is due to a failed lookup */
++		printk(KERN_DEBUG "dentry without hidden dentries : %.*s",
++		       dentry->d_name.len, dentry->d_name.name);
++		goto out_free;
++	}
++
++	/* Release all the hidden dentries */
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		dput(unionfs_lower_dentry_idx(dentry, bindex));
++		mntput(unionfs_lower_mnt_idx(dentry, bindex));
++
++		unionfs_set_lower_dentry_idx(dentry, bindex, NULL);
++		unionfs_set_lower_mnt_idx(dentry, bindex, NULL);
++	}
++	/* free private data (unionfs_dentry_info) here */
++	kfree(UNIONFS_D(dentry)->lower_paths);
++	UNIONFS_D(dentry)->lower_paths = NULL;
++
++out_free:
++	/* No need to unlock it, because it is disappeared. */
++	free_dentry_private_data(UNIONFS_D(dentry));
++	dentry->d_fsdata = NULL;	/* just to be safe */
++
++out:
++	return;
 +}
 +
-+static inline void unionfs_set_lower_file_idx(struct file *f, int index, struct file *val)
-+{
-+	UNIONFS_F(f)->lower_files[index] = val;
-+}
++struct dentry_operations unionfs_dops = {
++	.d_revalidate	= unionfs_d_revalidate_wrap,
++	.d_release	= unionfs_d_release,
++};
 +
-+static inline void unionfs_set_lower_file(struct file *f, struct file *val)
-+{
-+	UNIONFS_F(f)->lower_files[fbstart(f)] = val;
-+}
-+
-+/* Inode to lower inode. */
-+static inline struct inode *unionfs_lower_inode(const struct inode *i)
-+{
-+	return UNIONFS_I(i)->lower_inodes[ibstart(i)];
-+}
-+
-+static inline struct inode *unionfs_lower_inode_idx(const struct inode *i, int index)
-+{
-+	return UNIONFS_I(i)->lower_inodes[index];
-+}
-+
-+static inline void unionfs_set_lower_inode_idx(struct inode *i, int index,
-+				   struct inode *val)
-+{
-+	UNIONFS_I(i)->lower_inodes[index] = val;
-+}
-+
-+static inline void unionfs_set_lower_inode(struct inode *i, struct inode *val)
-+{
-+	UNIONFS_I(i)->lower_inodes[ibstart(i)] = val;
-+}
-+
-+/* Superblock to lower superblock. */
-+static inline struct super_block *unionfs_lower_super(const struct super_block *sb)
-+{
-+	return UNIONFS_SB(sb)->data[sbstart(sb)].sb;
-+}
-+
-+static inline struct super_block *unionfs_lower_super_idx(const struct super_block *sb, int index)
-+{
-+	return UNIONFS_SB(sb)->data[index].sb;
-+}
-+
-+static inline void unionfs_set_lower_super_idx(struct super_block *sb, int index,
-+				   struct super_block *val)
-+{
-+	UNIONFS_SB(sb)->data[index].sb = val;
-+}
-+
-+static inline void unionfs_set_lower_super(struct super_block *sb, struct super_block *val)
-+{
-+	UNIONFS_SB(sb)->data[sbstart(sb)].sb = val;
-+}
-+
-+/* Branch count macros. */
-+static inline int branch_count(const struct super_block *sb, int index)
-+{
-+	return atomic_read(&UNIONFS_SB(sb)->data[index].sbcount);
-+}
-+
-+static inline void set_branch_count(struct super_block *sb, int index, int val)
-+{
-+	atomic_set(&UNIONFS_SB(sb)->data[index].sbcount, val);
-+}
-+
-+static inline void branchget(struct super_block *sb, int index)
-+{
-+	atomic_inc(&UNIONFS_SB(sb)->data[index].sbcount);
-+}
-+
-+static inline void branchput(struct super_block *sb, int index)
-+{
-+	atomic_dec(&UNIONFS_SB(sb)->data[index].sbcount);
-+}
-+
-+/* Dentry macros */
-+static inline struct unionfs_dentry_info *UNIONFS_D(const struct dentry *dent)
-+{
-+	return dent->d_fsdata;
-+}
-+
-+#define dbstart(dent) (UNIONFS_D(dent)->bstart)
-+#define set_dbstart(dent, val) do { UNIONFS_D(dent)->bstart = val; } while(0)
-+#define dbend(dent) (UNIONFS_D(dent)->bend)
-+#define set_dbend(dent, val) do { UNIONFS_D(dent)->bend = val; } while(0)
-+#define dbopaque(dent) (UNIONFS_D(dent)->bopaque)
-+#define set_dbopaque(dent, val) do { UNIONFS_D(dent)->bopaque = val; } while (0)
-+
-+static inline void unionfs_set_lower_dentry_idx(struct dentry *dent, int index,
-+				   struct dentry *val)
-+{
-+	UNIONFS_D(dent)->lower_paths[index].dentry = val;
-+}
-+
-+static inline struct dentry *unionfs_lower_dentry_idx(const struct dentry *dent, int index)
-+{
-+	return UNIONFS_D(dent)->lower_paths[index].dentry;
-+}
-+
-+static inline struct dentry *unionfs_lower_dentry(const struct dentry *dent)
-+{
-+	return unionfs_lower_dentry_idx(dent, dbstart(dent));
-+}
-+
-+static inline void unionfs_set_lower_mnt_idx(struct dentry *dent, int index,
-+				   struct vfsmount *mnt)
-+{
-+	UNIONFS_D(dent)->lower_paths[index].mnt = mnt;
-+}
-+
-+static inline struct vfsmount *unionfs_lower_mnt_idx(const struct dentry *dent, int index)
-+{
-+	return UNIONFS_D(dent)->lower_paths[index].mnt;
-+}
-+
-+static inline struct vfsmount *unionfs_lower_mnt(const struct dentry *dent)
-+{
-+	return unionfs_lower_mnt_idx(dent,dbstart(dent));
-+}
-+
-+/* Macros for locking a dentry. */
-+#define lock_dentry(d)		down(&UNIONFS_D(d)->sem)
-+#define unlock_dentry(d)	up(&UNIONFS_D(d)->sem)
-+#define verify_locked(d)
-+
-+#endif	/* _FANOUT_H */
 -- 
 1.4.4.2
 

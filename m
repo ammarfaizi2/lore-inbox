@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932559AbXAHI4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932636AbXAHI50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbXAHI4Y (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbXAHI4X
+	id S932636AbXAHI50 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbXAHI50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:56:23 -0500
-Received: from web55614.mail.re4.yahoo.com ([206.190.58.238]:39602 "HELO
-	web55614.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932559AbXAHI4X (ORCPT
+	Mon, 8 Jan 2007 03:57:26 -0500
+Received: from wx-out-0506.google.com ([66.249.82.233]:60056 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161201AbXAHI5Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:56:23 -0500
+	Mon, 8 Jan 2007 03:57:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=q/kMbqp1lJXymv0vZZj1BPzhnhqw6a2/no8aHLQYOpgBkP1dwTET61c5FCybwXFI7JOBGnwWVEYT1rpPKTYFP9e4QVI6ANluWQdNz/6qfTEzXvhSbS2KCfFmGanQfk0Oo/GqxzTsQTR/owxPps+YJDQugfrE1c5y0GGKFqCLDFc=;
-X-YMail-OSG: nWR.yuwVM1n5LBKilg1anfYN9G4KjN.ef5gdW8YRgNwqdlIp2SQZRwBx_M053LtgBQ--
-Date: Mon, 8 Jan 2007 00:56:22 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Sumit Narayan <talk2sumit@gmail.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Hua Zhong <hzhong@gmail.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1458d9610701080039m50d63d82w59cd917691edcb03@mail.gmail.com>
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
+        b=HNAJ+/TK9TlwBtFtvcKln6GVFrvCULCyFCWJoA5sBNV5L/adNieY9882JQTfRPoTSho/DkT59TmrocGRiEqW3XcPpKgqUEccpOBzIKXEJZjz+IKFVMBbCaFqYI9J50z9Uht+txdEJ8lV5wd+pzqDmrVSbOXxkZ64vY9c5dh2nQ0=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Amit Choudhary'" <amit2030@yahoo.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] include/linux/slab.h: new KFREE() macro.
+Date: Mon, 8 Jan 2007 00:57:27 -0800
+Message-ID: <000901c73303$08fec020$0200a8c0@nuitysystems.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <21977.67702.qm@web55614.mail.re4.yahoo.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <110013.54208.qm@web55614.mail.re4.yahoo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+Thread-Index: Accy+9XjbMzJyTfwSU+z+/pm9NNttQABfniw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Sumit Narayan <talk2sumit@gmail.com> wrote:
-
-> Asking for KFREE is as silly as asking for a macro to check if kmalloc
-> succeeded for a pointer, else return ENOMEM.
+> --- Hua Zhong <hzhong@gmail.com> wrote:
 > 
-> #define CKMALLOC(p,x) \
->    do {   \
->        p = kmalloc(x, GFP_KERNEL); \
->        if(!p) return -ENOMEM; \
->     } while(0)
+> > > Any strong reason why not? x has some value that does not 
+> > > make sense and can create only problems.
+> > 
+> > By the same logic, you should memset the buffer to zero 
+> before freeing it too.
+> > 
 > 
+> How does this help?
 
-There are bugs with this approach. This introduces error path leaks. If you have allocated some
-memory earlier, then you got to free them.
+It doesn't. I thought that was my point?
+ 
+> > > And as I explained, it can result in longer code too. So, why 
+> > > keep this value around. Why not re-initialize it to NULL.
+> > 
+> > Because initialization increases code size.
+> 
+> Then why use kzalloc()? Let's remove _ALL_ the initialization 
+> code from the kernel.
 
--Amit
+You initialize before use, not after.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> Attached is some code from the kernel. Expanded KFREE() has 
+> been used atleast 1000 times in the
+> kernel. By your logic, everyone is stupid in doing so. 
+> Something has been done atleast 1000 times
+> in the kernel, that looks okay. But consolidating it at one 
+> place does not look okay. I am listing
+> some of the 1000 places where KFREE() has been used. All this 
+> code have been written by atleast 50
+> different people. From your logic they were doing "silly" things.
+
+Maybe you should first each one of them and see why they do it. 
+And if there is no purpose than "better be safe than sorry", 
+maybe you can then submit a patch to fix it.
+

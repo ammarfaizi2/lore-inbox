@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030381AbXAHWi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932067AbXAHWni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbXAHWi1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbXAHWi1
+	id S932067AbXAHWni (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbXAHWni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:38:27 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:48929 "EHLO e4.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964982AbXAHWi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:38:26 -0500
-In-Reply-To: <20070108134152.GA19811@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@watson.ibm.com
-MIME-Version: 1.0
-Subject: Re: mprotect abuse in slim
-X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
-Message-ID: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
-From: Mimi Zohar <zohar@us.ibm.com>
-Date: Mon, 8 Jan 2007 17:38:25 -0500
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
- 01/08/2007 17:38:25,
-	Serialize complete at 01/08/2007 17:38:25
-Content-Type: text/plain; charset="US-ASCII"
+	Mon, 8 Jan 2007 17:43:38 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:47201 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932067AbXAHWnh (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:43:37 -0500
+Message-Id: <200701082243.l08Mh8UR007559@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Hua Zhong <hzhong@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+In-Reply-To: Your message of "Mon, 08 Jan 2007 01:06:12 PST."
+             <552712.75479.qm@web55603.mail.re4.yahoo.com>
+From: Valdis.Kletnieks@vt.edu
+References: <552712.75479.qm@web55603.mail.re4.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1168296188_3596P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 08 Jan 2007 17:43:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SLIM implements dynamic process labels, so when a process
-is demoted, we must be able to revoke write access to some
-resources to which it has previously valid handles.
-For example, if a shell reads an untrusted file, the
-shell is demoted, and write access to more trusted files
-revoked. Based on previous comments on lkml, we understand
-that this is not really possible in general, so SLIM only
-attempts to revoke access in certain simple cases.
+--==_Exmh_1168296188_3596P
+Content-Type: text/plain; charset=us-ascii
 
-Starting with the fdtable, would it help if we move the 
-fdtable tweaking out of slim itself and into helpers?  Or
-can you recommend another way to implement this functionality.
+On Mon, 08 Jan 2007 01:06:12 PST, Amit Choudhary said:
+> I do not see how a double free can result in _logical_wrong_behaviour_ of the program and the
+> program keeps on running (like an incoming packet being dropped because of double free). Double
+> free will _only_and_only_ result in system crash that can be solved by setting 'x' to NULL.
 
-Mimi Zohar
+The problem is that very rarely is there a second free() with no intervening
+use - what actually *happens* usually is:
 
+1) You alloc the memory
+2) You use the memory
+3) You take a reference on the memory, so you know where it is.
+4) You free the memory
+5) You use the memory via the reference you took in (3)
+6) You free it again - at which point you finally know for sure that
+everything in step 5 was doing a fandango on core....
 
+--==_Exmh_1168296188_3596P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFosj8cC3lWbTT17ARAlBTAKCelSAqIAou2lUckNZ3/zXQ9cmU2wCgx2O2
+GURlwSzlQ87in8vPMFzIpY0=
+=xaqx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1168296188_3596P--

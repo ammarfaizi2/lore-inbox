@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161207AbXAHKNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161215AbXAHKTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161207AbXAHKNy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 05:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbXAHKNy
+	id S1161215AbXAHKTm (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161213AbXAHKTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 05:13:54 -0500
-Received: from mx.laposte.net ([81.255.54.11]:38102 "EHLO mx.laposte.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161207AbXAHKNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 05:13:53 -0500
-Message-ID: <19480.192.54.193.51.1168251206.squirrel@rousalka.dyndns.org>
-Date: Mon, 8 Jan 2007 11:13:26 +0100 (CET)
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Cc: "Russell King" <rmk+lkml@arm.linux.org.uk>
-User-Agent: SquirrelMail/1.4.8-2.fc6
-MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 8 Jan 2007 05:19:42 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47335 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161212AbXAHKTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 05:19:41 -0500
+Date: Mon, 8 Jan 2007 10:30:26 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH libata #promise-sata-pata] sata_promise: 2037x PATAPI
+ support
+Message-ID: <20070108103026.230470a8@localhost.localdomain>
+In-Reply-To: <45A1A2B7.8000601@garzik.org>
+References: <200701072239.l07Mdju7028895@harpo.it.uu.se>
+	<45A1A2B7.8000601@garzik.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> elinks is one such program.  It now assumes UTF-8 _only_ displays.
-> That's no better than programs which assume ISO-8859-1 only or US-ASCII
-> only.
+> IMO creating a new check_atapi_dma function for first-gen chips would be 
+> the preferred way to add this check.
 
-That's way better than programs:
-- which assume an encoding you can't write most world languages in (BTW
-ISO-8859-1 & US-ASCII are broken by design for Western Europe since at
-least the Euro creation)
-- which perpetuate the myth local 8-bit encodings are manageable (they
-aren't, people spent decades trying to limp along with them, unicode &
-UTF-8 where not created just to make your life miserable)
-
-Show me one program that spurns Unicode I'll show you one that "passed on"
-iso-8859-15 (typically, though it's the easiest non-iso-8859-1 to do)
-
-The only reason you have the UTF-8 big stick approach nowadays is people
-have tried for years to get app writers manage 8-bit locales properly to
-dismal results. The old system was only working for en_US users (and
-perhaps to .uk people)
-
--- 
-Nicolas Mailhot
-
+A mode filter would be even better, that will mean the list of modes on
+the device is correct and ATAPI devices are shown as PIO on such a
+controller.

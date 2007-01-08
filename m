@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965309AbXAHJ7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965310AbXAHKBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965309AbXAHJ7P (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 04:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbXAHJ7O
+	id S965310AbXAHKBy (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbXAHKBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 04:59:14 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:58789 "EHLO
-	calculon.skynet.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965309AbXAHJ7O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 04:59:14 -0500
-Date: Mon, 8 Jan 2007 09:59:12 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet.skynet.ie
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: [git pull] drm patch for 2.6.20-rc4
-Message-ID: <Pine.LNX.4.64.0701080958220.13751@skynet.skynet.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Jan 2007 05:01:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43047 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965310AbXAHKBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 05:01:53 -0500
+Date: Mon, 8 Jan 2007 05:01:51 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: linux-kernel@vger.kernel.org, robbat2@gentoo.org
+Subject: Re: Intel Core Duo/Duo2 T2300/E6400 - Hyper-Threading (the absence of)
+Message-ID: <20070108100151.GK29911@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20070108094432.GF5276@curie-int.orbis-terrarum.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070108094432.GF5276@curie-int.orbis-terrarum.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 08, 2007 at 01:44:32AM -0800, Robin H. Johnson wrote:
+> (Please CC me, I am not subscribed to LKML [I have set the
+> Mail-Followup-To header accordingly]).
+> 
+> On two of my new machines, with Intel Core Duo T2300 and Core2 Duo E6400
+> chips respectively, I noticed some weirdness in how many CPUs are
+> present. 
+> 
+> If the hyper-threading bit is present in the CPU info, should there
+> always be a an extra CPU presented to the system per physical core?
 
-Hi Linus,
+No.  The ht flag just says whether HT reporting via CPUID is supported.
+Core2 Duo E6400 is AFAIK not hyper-threaded, you just have 2 real sibling
+CPUs (except that they share L2 cache).
 
-Can you please pull the 'drm-patches' branch from
-git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git drm-patches
-
-It only contains one fix for an error printout that was unwise.
-
-Dave.
-
-drivers/char/drm/i915_irq.c |    2 +-
-  1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit eac681b3aec226c83f52d307254d88393aab5eb9
-Author: =?utf-8?q?Michel_D=C3=A4nzer?= <michel@tungstengraphics.com>
-Date:   Mon Jan 8 20:38:34 2007 +1100
-
-     i915: Fix a DRM_ERROR that should be DRM_DEBUG.
-
-     It would clutter up the kernel output in a situation which is legitimate before
-     X.org 7.2 and handled correctly by the 3D driver.
-
-     Signed-off-by: Dave Airlie <airlied@linux.ie>
+	Jakub

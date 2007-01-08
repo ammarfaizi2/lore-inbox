@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161046AbXAHXA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161082AbXAHXAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbXAHXA2 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbXAHXA2
+	id S1161082AbXAHXAw (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161111AbXAHXAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:00:28 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:51354 "EHLO smtp.osdl.org"
+	Mon, 8 Jan 2007 18:00:51 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:39193 "EHLO ns2.lanforge.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161046AbXAHXA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:00:27 -0500
-Date: Mon, 8 Jan 2007 15:00:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>, Andi Kleen <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 2/4] make initkmem_list3 non init data to fix modpost
- warning
-Message-Id: <20070108150009.65798531.akpm@osdl.org>
-In-Reply-To: <20070108081104.GD7889@in.ibm.com>
-References: <20070108081104.GD7889@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1161082AbXAHXAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:00:48 -0500
+Message-ID: <45A2CD0A.3010405@candelatech.com>
+Date: Mon, 08 Jan 2007 15:00:26 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@mit.edu>, Ben Greear <greearb@candelatech.com>,
+       Alan <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 file system went read-only in 2.6.18.2 (plus hacks)
+References: <45A2B9DA.20104@candelatech.com> <20070108220544.0febd10b@localhost.localdomain> <45A2C32D.4080101@candelatech.com> <20070108225324.GA16474@thunk.org>
+In-Reply-To: <20070108225324.GA16474@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007 13:41:04 +0530
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+Theodore Tso wrote:
+> Well, the filesystem obviously got corrupted.  The only question is
+> *why* it got corrupted.  It could be memory corruption, or a bug in
+> your propietary kernel patches, or some kind of hardware issue with
+> the CF device.  There's really no way to say for sure.
 
-> o Somebody who knows this code well needs to review and ack.
+Ok.  I certainly can't guarantee my code is not somehow causing
+the problem.
 
-eh.  Moving stuff from __initdata into .data is always safe.  If it
-fixes the warning, it's correct ;)
+> Were there any error messages in the system log from the device
+> driver?
 
-I'll scoot all four of these into 2.6.20, thanks.
+I looked and did not see anything obvious.  The file system
+was not overly full (49MB free, not counting the reserved
+space for the root user.)
+
+I appreciate you looking at the report.  If we see it again or
+manage to find some way to reliably reproduce this on other
+hardware, I will of course let you know.
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

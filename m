@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161321AbXAHPuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161325AbXAHPvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161321AbXAHPuw (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161322AbXAHPuw
+	id S1161325AbXAHPvs (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161324AbXAHPvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:50:52 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:22395 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161321AbXAHPuu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:50:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DFdP+LsXcHSMBIQOfeeJfiGKuGm5XsZak4YuVHvVrtqArskXLM+D1o8ApNGDDoQNGl8Dwr1Izvd4+sL5T/PfxAOB74axCxnIey+s6ygXhBfFdzebYYllU9yTGCZTYXAheFkrxbgdtEfO6FFRXcb6OrFwl1evo2NSpgfRmFjYEU8=
-Message-ID: <d120d5000701080750w142e1a1w5c2ff2dd586331eb@mail.gmail.com>
-Date: Mon, 8 Jan 2007 10:50:48 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Peter Osterlund" <petero2@telia.com>,
-       "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Linux 2.6.20-rc4
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       kaber@trash.net
-In-Reply-To: <m33b6mr1kt.fsf@telia.com>
+	Mon, 8 Jan 2007 10:51:48 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:55337 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161323AbXAHPvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 10:51:47 -0500
+Message-ID: <45A2688E.3080503@pobox.com>
+Date: Mon, 08 Jan 2007 10:51:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sata_via: PATA support, resubmit
+References: <20070108122659.00c22754@localhost.localdomain>	<45A24159.7060001@pobox.com> <20070108154249.6d8f5697@localhost.localdomain>
+In-Reply-To: <20070108154249.6d8f5697@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	 <m37ivyr1v6.fsf@telia.com> <m33b6mr1kt.fsf@telia.com>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Jan 2007 22:04:02 +0100, Peter Osterlund <petero2@telia.com> wrote:
-> Peter Osterlund <petero2@telia.com> writes:
->
-> > Linus Torvalds <torvalds@osdl.org> writes:
-> >
-> > > Patrick McHardy (2):
-> > >       [NETFILTER]: New connection tracking is not EXPERIMENTAL anymore
-> >
-> > I get kernel panics when doing large ethernet transfers. A loop doing
->
-> I also see an annoying side effect of this bug. When the panic
-> happens, the caps lock LED starts to blink, and the kernel prints this
-> on the console once every second (or more often, don't know exactly):
->
->        printk(KERN_WARNING "atkbd.c: Spurious %s on %s. "
->               "Some program might be trying access hardware directly.\n",
->               data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
->
-> This makes the actual crash information disappear before you have a
-> chance to read it.
->
+Alan wrote:
+>> The problem you need to fix or work around is ata_probe_ent, which 
+>> doesn't properly fill in ata_port info for this situation.  Tejun has 
+>> posted patches that kill ata_probe_ent, which you were pointed to. 
+> 
+> And which are not yet in the main tree leaving many users unable to
+> install Linux.
 
-I believe I have a fix for this in my tree. I even asked Linus to pull
-from it but it is a good thing he did not as I need to revert one
-patch to lifebook driver...
+The controllers affected by your patch have been around for well over a 
+year.  I doubt a huge amount of suffering will be caused by pausing to 
+get it right...  especially when you have been pointed at two working 
+code examples that already get it right.
 
-Linus, did you not pull because you considered changes to ads7848 and
-a new driver gpio-keys unappropriate for this stage or you just missed
-my request?
 
--- 
-Dmitry
+> This isn't the way to get stuff done. When you've got the
+> new patches in the driver can use them if its worth it (which, see below,
+> I question).
+
+In Linux, we work /with/ the subsystem, not around it.
+
+Your current approach is fundamentally flawed.  You can see this because 
+e.g. a call to vt6421_ops::scr_read() will immediately oops, after your 
+patch.
+
+Just separate PATA and SATA operations.  That way everything works as 
+expected, and you don't unintentionally add lovely oopses all over the 
+place.
+
+	Jeff
+
+

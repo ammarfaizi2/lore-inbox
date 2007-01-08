@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161299AbXAHNnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161295AbXAHNtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161299AbXAHNnQ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161298AbXAHNnQ
+	id S1161295AbXAHNtM (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161300AbXAHNtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:43:16 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:54682 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161291AbXAHNnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:43:15 -0500
-Message-ID: <45A24A65.1070706@garzik.org>
-Date: Mon, 08 Jan 2007 08:43:01 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, nigel@nigel.suspend2.net,
-       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: How git affects kernel.org performance
-References: <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org>
-In-Reply-To: <20070108125819.GA32756@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 8 Jan 2007 08:49:12 -0500
+Received: from 3a.49.1343.static.theplanet.com ([67.19.73.58]:53452 "EHLO
+	pug.o-hand.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161295AbXAHNtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 08:49:11 -0500
+Subject: [PATCH 0/4] Improve swap page error handling
+From: Richard Purdie <richard@openedhand.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 08 Jan 2007 13:48:43 +0000
+Message-Id: <1168264124.5605.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> The fastest and probably most important thing to add is some readahead
-> smarts to directories --- both to the htree and non-htree cases.  If
-> you're using some kind of b-tree structure, such as XFS does for
-> directories, preallocation doesn't help you much.  Delayed allocation
-> can save you if your delayed allocator knows how to structure disk
-> blocks so that a btree-traversal is efficient, but I'm guessing the
-> biggest reason why we are losing is because we don't have sufficient
-> readahead.  This also has the advantage that it will help without
-> needing to doing a backup/restore to improve layout.
+Improve the error handling when writes fail to a swap page. 
 
+Currently, the kernel will repeatedly retry the write which is unlikely
+to ever succeed. Instead we allow the pages to be unused and then marked
+as bad at which prevents reuse. It should hopefully be suitable for
+testing in -mm.
 
-Something I just thought of:  ATA and SCSI hard disks do their own 
-read-ahead.  Seeking all over the place to pick up bits of directory 
-will hurt even more with the disk reading and throwing away data (albeit 
-in its internal elevator and cache).
+These patches are a based on a patch by Nick Piggin and some of my own
+patches/bugfixes as discussed on LKML.
 
-	Jeff
-
+Richard
 

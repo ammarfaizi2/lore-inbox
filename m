@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030510AbXAHERz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030509AbXAHESo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030510AbXAHERz (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030505AbXAHERz
+	id S1030509AbXAHESo (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030518AbXAHESn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:17:55 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50352 "EHLO
+	Sun, 7 Jan 2007 23:18:43 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50405 "EHLO
 	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030504AbXAHERt (ORCPT
+	with ESMTP id S1030508AbXAHESL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:17:49 -0500
+	Sun, 7 Jan 2007 23:18:11 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
@@ -17,9 +17,9 @@ Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
        David Quigley <dquigley@fsl.cs.sunysb.edu>,
        Erez Zadok <ezk@cs.sunysb.edu>
-Subject: [PATCH 01/24] Unionfs: Documentation
-Date: Sun,  7 Jan 2007 23:12:53 -0500
-Message-Id: <1168229596875-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 22/24] Unionfs: Unlink
+Date: Sun,  7 Jan 2007 23:13:14 -0500
+Message-Id: <1168229600570-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.4.2
 In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
 References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
@@ -28,207 +28,182 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains documentation for Unionfs. You will find several files
-outlining basic unification concepts and rename semantics.
+This patch provides unlink functionality for Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- Documentation/filesystems/00-INDEX             |    2 +
- Documentation/filesystems/unionfs/00-INDEX     |    8 +++
- Documentation/filesystems/unionfs/concepts.txt |   70 ++++++++++++++++++++++++
- Documentation/filesystems/unionfs/rename.txt   |   31 +++++++++++
- Documentation/filesystems/unionfs/usage.txt    |   42 ++++++++++++++
- 5 files changed, 153 insertions(+), 0 deletions(-)
+ fs/unionfs/unlink.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 162 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/filesystems/00-INDEX b/Documentation/filesystems/00-INDEX
-index 4dc28cc..c737e3e 100644
---- a/Documentation/filesystems/00-INDEX
-+++ b/Documentation/filesystems/00-INDEX
-@@ -82,6 +82,8 @@ udf.txt
- 	- info and mount options for the UDF filesystem.
- ufs.txt
- 	- info on the ufs filesystem.
-+unionfs/
-+	- info on the unionfs filesystem
- v9fs.txt
- 	- v9fs is a Unix implementation of the Plan 9 9p remote fs protocol.
- vfat.txt
-diff --git a/Documentation/filesystems/unionfs/00-INDEX b/Documentation/filesystems/unionfs/00-INDEX
+diff --git a/fs/unionfs/unlink.c b/fs/unionfs/unlink.c
 new file mode 100644
-index 0000000..32e96f2
+index 0000000..844835f
 --- /dev/null
-+++ b/Documentation/filesystems/unionfs/00-INDEX
-@@ -0,0 +1,8 @@
-+00-INDEX
-+	- this file.
-+concepts.txt
-+	- A brief introduction of concepts
-+rename.txt
-+	- Information regarding rename operations
-+usage.txt
-+	- Usage and known limitations
-diff --git a/Documentation/filesystems/unionfs/concepts.txt b/Documentation/filesystems/unionfs/concepts.txt
-new file mode 100644
-index 0000000..d417576
---- /dev/null
-+++ b/Documentation/filesystems/unionfs/concepts.txt
-@@ -0,0 +1,70 @@
-+This file describes the concepts needed by a namespace unification file
-+system.
++++ b/fs/unionfs/unlink.c
+@@ -0,0 +1,162 @@
++/*
++ * Copyright (c) 2003-2006 Erez Zadok
++ * Copyright (c) 2003-2006 Charles P. Wright
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005      Arun M. Krishnakumar
++ * Copyright (c) 2004-2006 David P. Quigley
++ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
++ * Copyright (c) 2003      Puja Gupta
++ * Copyright (c) 2003      Harikesavan Krishnan
++ * Copyright (c) 2003-2006 Stony Brook University
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
 +
-+Branch Priority:
-+================
++#include "union.h"
 +
-+Each branch is assigned a unique priority - starting from 0 (highest
-+priority).  No two branches can have the same priority.
++/* unlink a file by creating a whiteout */
++static int unionfs_unlink_whiteout(struct inode *dir, struct dentry *dentry)
++{
++	struct dentry *hidden_dentry;
++	struct dentry *hidden_dir_dentry;
++	int bindex;
++	int err = 0;
 +
++	if ((err = unionfs_partial_lookup(dentry)))
++		goto out;
 +
-+Branch Mode:
-+============
++	bindex = dbstart(dentry);
 +
-+Each branch is assigned a mode - read-write or read-only. This allows
-+directories on media mounted read-write to be used in a read-only manner.
++	hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
++	if (!hidden_dentry)
++		goto out;
 +
++	hidden_dir_dentry = lock_parent(hidden_dentry);
 +
-+Whiteouts:
-+==========
++	/* avoid destroying the hidden inode if the file is in use */
++	dget(hidden_dentry);
++	if (!(err = is_robranch_super(dentry->d_sb, bindex)))
++		err = vfs_unlink(hidden_dir_dentry->d_inode, hidden_dentry);
++	dput(hidden_dentry);
++	fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
++	unlock_dir(hidden_dir_dentry);
 +
-+A whiteout removes a file name from the namespace. Whiteouts are needed when
-+one attempts to remove a file on a read-only branch.
++	if (err && !IS_COPYUP_ERR(err))
++		goto out;
 +
-+Suppose we have a two-branch union, where branch 0 is read-write and branch
-+1 is read-only. And a file 'foo' on branch 1:
++	if (err) {
++		if (dbstart(dentry) == 0)
++			goto out;
 +
-+./b0/
-+./b1/
-+./b1/foo
++		err = create_whiteout(dentry, dbstart(dentry) - 1);
++	} else if (dbopaque(dentry) != -1)
++		/* There is a hidden lower-priority file with the same name. */
++		err = create_whiteout(dentry, dbopaque(dentry));
++	else
++		err = create_whiteout(dentry, dbstart(dentry));
 +
-+The unified view would simply be:
++out:
++	if (!err)
++		dentry->d_inode->i_nlink--;
 +
-+./union/
-+./union/foo
++	/* We don't want to leave negative leftover dentries for revalidate. */
++	if (!err && (dbopaque(dentry) != -1))
++		update_bstart(dentry);
 +
-+Since 'foo' is stored on a read-only branch, it cannot be removed. A
-+whiteout is used to remove the name 'foo' from the unified namespace. Again,
-+since branch 1 is read-only, the whiteout cannot be created there. So, we
-+try on a higher priority (lower numerically) branch and create the whiteout
-+there.
++	return err;
++}
 +
-+./b0/
-+./b0/.wh.foo
-+./b1/
-+./b1/foo
++int unionfs_unlink(struct inode *dir, struct dentry *dentry)
++{
++	int err = 0;
 +
-+Later, when Unionfs traverses branches (due to lookup or readdir), it
-+eliminate 'foo' from the namespace (as well as the whiteout itself.)
++	lock_dentry(dentry);
 +
++	err = unionfs_unlink_whiteout(dir, dentry);
++	/* call d_drop so the system "forgets" about us */
++	if (!err)
++		d_drop(dentry);
 +
-+Duplicate Elimination:
-+======================
++	unlock_dentry(dentry);
++	return err;
++}
 +
-+It is possible for files on different branches to have the same name.
-+Unionfs then has to select which instance of the file to show to the user.
-+Given the fact that each branch has a priority associated with it, the
-+simplest solution is to take the instance from the highest priority
-+(numerically lowest value) and "hide" the others.
++static int unionfs_rmdir_first(struct inode *dir, struct dentry *dentry,
++			       struct unionfs_dir_state *namelist)
++{
++	int err;
++	struct dentry *hidden_dentry;
++	struct dentry *hidden_dir_dentry = NULL;
 +
++	/* Here we need to remove whiteout entries. */
++	err = delete_whiteouts(dentry, dbstart(dentry), namelist);
++	if (err)
++		goto out;
 +
-+Copyup:
-+=======
++	hidden_dentry = unionfs_lower_dentry(dentry);
 +
-+When a change is made to the contents of a file's data or meta-data, they
-+have to be stored somewhere. The best way is to create a copy of the
-+original file on a branch that is writable, and then redirect the write
-+though to this copy. The copy must be made on a higher priority branch so
-+that lookup and readdir return this newer "version" of the file rather than
-+the original (see duplicate elimination).
++	hidden_dir_dentry = lock_parent(hidden_dentry);
 +
-diff --git a/Documentation/filesystems/unionfs/rename.txt b/Documentation/filesystems/unionfs/rename.txt
-new file mode 100644
-index 0000000..e20bb82
---- /dev/null
-+++ b/Documentation/filesystems/unionfs/rename.txt
-@@ -0,0 +1,31 @@
-+Rename is a complex beast. The following table shows which rename(2) operations
-+should succeed and which should fail.
++	/* avoid destroying the hidden inode if the file is in use */
++	dget(hidden_dentry);
++	if (!(err = is_robranch(dentry)))
++		err = vfs_rmdir(hidden_dir_dentry->d_inode, hidden_dentry);
++	dput(hidden_dentry);
 +
-+o: success
-+E: error (either unionfs or vfs)
-+X: EXDEV
++	fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
++	/* propagate number of hard-links */
++	dentry->d_inode->i_nlink = unionfs_get_nlinks(dentry->d_inode);
 +
-+none = file does not exist
-+file = file is a file
-+dir  = file is a empty directory
-+child= file is a non-empty directory
-+wh   = file is a directory containing only whiteouts; this makes it logically
-+		empty
++out:
++	if (hidden_dir_dentry)
++		unlock_dir(hidden_dir_dentry);
++	return err;
++}
 +
-+                      none    file    dir     child   wh
-+file                  o       o       E       E       E
-+dir                   o       E       o       E       o
-+child                 X       E       X       E       X
-+wh                    o       E       o       E       o
++int unionfs_rmdir(struct inode *dir, struct dentry *dentry)
++{
++	int err = 0;
++	struct unionfs_dir_state *namelist = NULL;
 +
++	lock_dentry(dentry);
 +
-+Renaming directories:
-+=====================
++	/* check if this unionfs directory is empty or not */
++	err = check_empty(dentry, &namelist);
++	if (err)
++		goto out;
 +
-+Whenever a empty (either physically or logically) directory is being renamed,
-+the following sequence of events should take place:
++	err = unionfs_rmdir_first(dir, dentry, namelist);
++	/* create whiteout */
++	if (!err)
++		err = create_whiteout(dentry, dbstart(dentry));
++	else {
++		int new_err;
 +
-+1) Remove whiteouts from both source and destination directory
-+2) Rename source to destination
-+3) Make destination opaque to prevent anything under it from showing up
++		if (dbstart(dentry) == 0)
++			goto out;
 +
-diff --git a/Documentation/filesystems/unionfs/usage.txt b/Documentation/filesystems/unionfs/usage.txt
-new file mode 100644
-index 0000000..3968c9e
---- /dev/null
-+++ b/Documentation/filesystems/unionfs/usage.txt
-@@ -0,0 +1,42 @@
-+Unionfs is a stackable unification file system, which can appear to merge
-+the contents of several directories (branches), while keeping their physical
-+content separate. Unionfs is useful for unified source tree management,
-+merged contents of split CD-ROM, merged separate software package
-+directories, data grids, and more. Unionfs allows any mix of read-only and
-+read-write branches, as well as insertion and deletion of branches anywhere
-+in the fan-out. To maintain unix semantics, Unionfs handles elimination of
-+duplicates, partial-error conditions, and more.
++		/* exit if the error returned was NOT -EROFS */
++		if (!IS_COPYUP_ERR(err))
++			goto out;
 +
-+mount -t unionfs -o branch-option[,union-options[,...]] none MOUNTPOINT
++		new_err = create_whiteout(dentry, dbstart(dentry) - 1);
++		if (new_err != -EEXIST)
++			err = new_err;
++	}
 +
-+The available branch-option for the mount command is:
++out:
++	/* call d_drop so the system "forgets" about us */
++	if (!err)
++		d_drop(dentry);
 +
-+dirs=branch[=ro|=rw][:...]
-+specifies a separated list of which directories compose the union.
-+Directories that come earlier in the list have a higher precedence than
-+those which come later. Additionally, read-only or read-write permissions of
-+the branch can be specified by appending =ro or =rw (default) to each
-+directory.
++	if (namelist)
++		free_rdstate(namelist);
 +
-+Syntax:
-+dirs=/branch1[=ro|=rw]:/branch2[=ro|=rw]:...:/branchN[=ro|=rw]
-+
-+Example:
-+dirs=/writable_branch=rw:/read-only_branch=ro
-+
-+
-+KNOWN ISSUES:
-+=============
-+
-+The NFS server returns -EACCES for read-only exports, instead of -EROFS.
-+This means we can't reliably detect a read-only NFS export.
-+
-+Modifying a Unionfs branch directly, while the union is mounted, is
-+currently unsupported.  Any such change can cause Unionfs to oops, or stay
-+silent and even RESULT IN DATA LOSS.
-+
-+Unionfs should not use lookup_one_len() on the underlying fs as it confuses
-+NFS. Currently, unionfs_lookup() passes lookup intents to the lower
-+filesystem, this eliminates part of the problem. The remaining calls to
-+lookup_one_len may need to be changed to pass an intent.
++	unlock_dentry(dentry);
++	return err;
++}
 +
 -- 
 1.4.4.2

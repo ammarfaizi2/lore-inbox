@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932637AbXAHIzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932559AbXAHI4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbXAHIzi (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbXAHIzi
+	id S932559AbXAHI4Y (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbXAHI4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:55:38 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:51660 "EHLO aun.it.uu.se"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932633AbXAHIzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:55:37 -0500
-Date: Mon, 8 Jan 2007 09:55:26 +0100 (MET)
-Message-Id: <200701080855.l088tQ6w001683@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: jeff@garzik.org
-Subject: Re: [PATCH 2.6.20-rc3] sata_promise: ATAPI support
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+	Mon, 8 Jan 2007 03:56:23 -0500
+Received: from web55614.mail.re4.yahoo.com ([206.190.58.238]:39602 "HELO
+	web55614.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932559AbXAHI4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 03:56:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=q/kMbqp1lJXymv0vZZj1BPzhnhqw6a2/no8aHLQYOpgBkP1dwTET61c5FCybwXFI7JOBGnwWVEYT1rpPKTYFP9e4QVI6ANluWQdNz/6qfTEzXvhSbS2KCfFmGanQfk0Oo/GqxzTsQTR/owxPps+YJDQugfrE1c5y0GGKFqCLDFc=;
+X-YMail-OSG: nWR.yuwVM1n5LBKilg1anfYN9G4KjN.ef5gdW8YRgNwqdlIp2SQZRwBx_M053LtgBQ--
+Date: Mon, 8 Jan 2007 00:56:22 -0800 (PST)
+From: Amit Choudhary <amit2030@yahoo.com>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+To: Sumit Narayan <talk2sumit@gmail.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Hua Zhong <hzhong@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1458d9610701080039m50d63d82w59cd917691edcb03@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <21977.67702.qm@web55614.mail.re4.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Jan 2007 20:50:48 -0500, Jeff Garzik wrote:
-> > With this patch ATAPI will work on SATA ports on second-generation
-> > chips, and on the first-generation PATA-only 20619. ATAPI on the
-> > 2057x' PATA port will work automatically when #promise-sata-pata
-> > is updated. ATAPI on the 2037x' PATA port is enabled by a followup
-> > patch for the #promise-sata-pata branch.
-> > 
-> > Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+
+--- Sumit Narayan <talk2sumit@gmail.com> wrote:
+
+> Asking for KFREE is as silly as asking for a macro to check if kmalloc
+> succeeded for a pointer, else return ENOMEM.
 > 
-> No objections, minor revision requests follow.
+> #define CKMALLOC(p,x) \
+>    do {   \
+>        p = kmalloc(x, GFP_KERNEL); \
+>        if(!p) return -ENOMEM; \
+>     } while(0)
 > 
-> * general comment:  please combine the 'make first gen SATAPI work' 
-> patch with this one.
 
-Will do.
+There are bugs with this approach. This introduces error path leaks. If you have allocated some
+memory earlier, then you got to free them.
 
-> > +static unsigned int pdc_wait_for_drq(struct ata_port *ap)
-> > +{ 
-> > +	void __iomem *port_mmio = (void __iomem *) ap->ioaddr.cmd_addr;
-> > +	unsigned int i;
-> > +	unsigned int status;
-> > +
-> > +	/* Following pdc-ultra's WaitForDrq() we loop here until BSY
-> > +	 * is clear and DRQ is set in altstatus. We could possibly call
-> > +	 * ata_busy_wait() and loop until DRQ is set, but since we don't
-> > +	 * know how much time a call to ata_busy_wait() took, we don't
-> > +	 * know when to time out the outer loop.
-> > +	 */
-> > +	for(i = 0; i < 1000; ++i) {
-> > +		status = readb(port_mmio + 0x38); /* altstatus */
-> > +		if (status == 0xFF)
-> > +			break;
-> > +		if (status & ATA_BUSY)
-> > +			;
-> > +		else if (status & (ATA_DRQ | ATA_ERR))
-> > +			break;
-> > +		mdelay(1);
-> > +	}
-> 
-> This really hurts to do this with spinlocks held.  Long term, ponder 
-> ways to move this to a kernel thread that can sleep [if it takes too long?]
+-Amit
 
-On the TODO list for a later update.
-
-> > +static void pdc_issue_atapi_pkt_cmd(struct ata_queued_cmd *qc)
-> > +{
-> > +	struct ata_port *ap = qc->ap;
-> > +	void __iomem *port_mmio = (void __iomem *) ap->ioaddr.cmd_addr;
-> > +	void __iomem *host_mmio = ap->host->mmio_base;
-> > +	unsigned int nbytes;
-> > +	unsigned int tmp;
-> > +
-> > +	/* disable INTA here, it will be re-enable when CAM use SEQ 0 for packets */
-> 
-> cut-n-pasted comment?  This is not CAM :)
-
-Indeed :-) Will fix.
-
-> > +	writeb(0x00, port_mmio + PDC_CTLSTAT); /* that the drive INT pass to SEQ 0*/
-> > +	writeb(0x20, host_mmio + 0); /* but mask SEQ 0 INT */
-> 
-> please create named constants for these magic numbers
-
-Will do (for this and the other places you pointed out).
-
-/Mikael
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

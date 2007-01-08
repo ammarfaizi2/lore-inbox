@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750978AbXAHVTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750991AbXAHVUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbXAHVTp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbXAHVTp
+	id S1750991AbXAHVUo (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbXAHVUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:19:45 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35931 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750976AbXAHVTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:19:44 -0500
-Subject: Re: 2.6.20-rc3-mm1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20070108203258.751aa353@gondolin.boeblingen.de.ibm.com>
-References: <20070104220200.ae4e9a46.akpm@osdl.org>
-	 <200701051723.08112.m.kozlowski@tuxland.pl>
-	 <1168030536.22458.28.camel@localhost.localdomain>
-	 <20070105131516.bd9d8f45.akpm@osdl.org>
-	 <1168032284.22458.33.camel@localhost.localdomain>
-	 <20070108203258.751aa353@gondolin.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Tue, 09 Jan 2007 08:19:18 +1100
-Message-Id: <1168291158.22458.224.camel@localhost.localdomain>
+	Mon, 8 Jan 2007 16:20:44 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:3991 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750987AbXAHVUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:20:43 -0500
+Date: Mon, 8 Jan 2007 22:20:45 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "J.H." <warthog9@kernel.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       hpa@zytor.com, webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+Message-Id: <20070108222045.644ec0be.khali@linux-fr.org>
+In-Reply-To: <1166297434.26330.34.camel@localhost.localdomain>
+References: <20061214223718.GA3816@elf.ucw.cz>
+	<20061216094421.416a271e.randy.dunlap@oracle.com>
+	<20061216095702.3e6f1d1f.akpm@osdl.org>
+	<458434B0.4090506@oracle.com>
+	<1166297434.26330.34.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi JH,
 
-> The idea behind this is to have a probing thread for each device that
-> does the actual work (call probe for the matching drivers) so that
-> multiple devices can be probed in parallel. The decision to do this can
-> only be made at the bus level.
-> 
-> Previously, the code made it possible to have a probing thread for each
-> matching driver for the same device in parallel. I didn't see any
-> benefit in that, but maybe I'm just dense...
+On Sat, 16 Dec 2006 11:30:34 -0800, J.H. wrote:
+> The root cause boils down to with git, gitweb and the normal mirroring
+> on the frontend machines our basic working set no longer stays resident
+> in memory, which is forcing more and more to actively go to disk causing
+> a much higher I/O load.  You have the added problem that one of the
+> frontend machines is getting hit harder than the other due to several
+> factors: various DNS servers not round robining, people explicitly
+> hitting [git|mirrors|www|etc]1 instead of 2 for whatever reason and
 
-Hrm... I see. Well, I was using it from the driver because I have a
-driver that needs to wait in it's probe() routing for another driver to
-show up for another device (they are linked in some ways, but that is
-not expressed via bus bindings).
+I am trying to be a good citizen by explicitely asking for
+www2.kernel.org, unfortunately I notice that many links on the main
+page point to www.kernel.org rather than www2.kernel.org. Check the
+location, patchtype, full source, patch, view patch, and changeset
+links for example. Fixing these links would let people really use www2
+if they want to, that might help.
 
-I suppose I'll just have probe() fire off a kthread instead.
+BTW, I'm no DNS expert, but isn't it possible to favor one host in the
+round robin mechanism? E.g. by listing the server 2 twice, so that it
+gets 2/3 of the load? This could also help if server 1 otherwise gets
+more load.
 
-Cheers,
-Ben.
+> So we know the problem is there, and we are working on it - we are
+> getting e-mails about it if not daily than every other day or so.  If
+> there are suggestions we are willing to hear them - but the general
+> feeling with the admins is that we are probably hitting the biggest
+> problems already.
 
+I have a few suggestions although I realize that the other things
+you're working on are likely to be much more helpful:
 
+* Shorten the www.kernel.org main page. I guess that 99% of the hits on
+this page are by people who just want to know the latest versions, and
+possibly download a patch or access Linus' git tree through gitweb. All
+the rest could be moved to a separate page, or if you think it's
+better to keep all the general info on the main page, move the array
+with the versions to a separate page, which developers can bookmark.
+Splitting the dynamic content (top) from the essentially static content
+(bottom) of this page should help with caching, BTW.
+
+* Drop the bandwidth graphs. Most visitors certainly do not care, and
+their presence generates traffic on all web servers regardless of the
+one the visitor is using, as each graph is generated by the respective
+server. If you really like these graphs, just move them to a separate
+page for people who want to watch them. As far as I am concerned, I
+find them rather confusing and uninformative - from a quick look you
+just can't tell if the servers are loaded or not, you have to look at
+the numbers, so what's the point of drawing a graph...
+
+Of course the interest of these proposals directly depends on how much
+the www.kernel.org/index page accounts in the total load of the servers.
+
+-- 
+Jean Delvare

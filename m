@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964925AbXAHV6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbXAHWAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964925AbXAHV6j (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbXAHV6j
+	id S964947AbXAHWAH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbXAHWAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:58:39 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:55409 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964910AbXAHV6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:58:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=XiqhMOZMlv+9qn7J2RrQBQVUcg/zmXqNDaglYd8sLn5X+AjLi29uXwQM54kGdhH2KJ2qBh9CwZ0/WBwz1Qqab+qhC2S1VDY0oMZFHh+XJaFSkbAqEYk9oNImC8xHr8kbZMwV71wXMNBv4iPSrnGm3gc4+EE72Efhl967yaEZOeg=
-Date: Mon, 8 Jan 2007 21:56:32 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Greg KH <gregkh@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, haveblue@us.ibm.com
-Subject: Re: kobject.c changes in -mm
-Message-ID: <20070108215632.GD15292@slug>
-References: <20070108133747.GA19692@infradead.org> <20070108190942.GA23629@suse.de> <20070108192507.GC15292@slug> <20070108203156.GA26919@suse.de>
+	Mon, 8 Jan 2007 17:00:06 -0500
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:17725 "EHLO
+	mtaout03-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964947AbXAHWAE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:00:04 -0500
+Date: Mon, 8 Jan 2007 22:00:00 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>, Tilman Schmidt <tilman@imap.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+Message-ID: <20070108220000.GA27950@deepthought>
+References: <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr> <20070107114439.GC21613@flint.arm.linux.org.uk> <45A0F060.9090207@imap.cc> <1168182838.14763.24.camel@shinybook.infradead.org> <20070107153833.GA21133@flint.arm.linux.org.uk> <20070107182151.7cc544f3@localhost.localdomain> <Pine.LNX.4.61.0701072011510.4365@yvahk01.tjqt.qr> <20070107223055.1dc7de54@localhost.localdomain> <Pine.LNX.4.61.0701080221500.28861@yvahk01.tjqt.qr> <Pine.LNX.4.61.0701082010230.23737@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20070108203156.GA26919@suse.de>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <Pine.LNX.4.61.0701082010230.23737@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 12:31:56PM -0800, Greg KH wrote:
-> On Mon, Jan 08, 2007 at 07:25:07PM +0000, Frederik Deweerdt wrote:
-> > On Mon, Jan 08, 2007 at 11:09:42AM -0800, Greg KH wrote:
-> > > On Mon, Jan 08, 2007 at 01:37:47PM +0000, Christoph Hellwig wrote:
-> > > > --- linux-2.6.20-rc3/lib/kobject.c      2007-01-01 23:04:49.000000000 -0800
-> > > > +++ devel/lib/kobject.c 2007-01-04 21:13:21.000000000 -0800
-> > > > @@ -15,6 +15,8 @@
-> > > >  #include <linux/module.h>
-> > > >  #include <linux/stat.h>
-> > > >  #include <linux/slab.h>
-> > > > +#include <linux/kallsyms.h>
-> > > > +#include <asm-generic/sections.h>
-> > > > 
-> > > > +#ifdef CONFIG_X86_32
-> > > > +static int ptr_in_range(void *ptr, void *start, void *end)
-> > > > +{
-> > > > +       /*
-> > > > +        * This should hopefully get rid of causing warnings
-> > > > +        * if the architecture did not set one of the section
-> > > > +        * variables up.
-> > > > +        */ 
-> > > > +       if (start >= end)
-> > > > +               return 0;
-> > > > +
-> > > > +       if ((ptr >= start) && (ptr < end))
-> > > > +               return 1;
-> > > > +       return 0;
-> > > > +}      
-> > > > 
-> > > > 
-> > > > Can anyone explain WTF is going on here?  Including asm-generic headers
-> > > > in core code definitly is not okay.  As are random CONFIG_X86_32 ifdefs
-> > > > in said code.
-> > > 
-> > > It's a hack for debugging.  See the full patch at:
-> > > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/warn-when-statically-allocated-kobjects-are-used.patch
-> > > 
-> > > It is never going to go to mainline, due to the arch-specific hacks as
-> > > you have noted.  But is good to have for debugging and getting error
-> > > reports from users of -mm.
-> > > 
-> > Could a CONFIG_{MM,HACK}  option be added for this kind of hacks? It could
-> > help clarify what the aim of the code is.
+On Mon, Jan 08, 2007 at 09:17:06PM +0100, Jan Engelhardt wrote:
 > 
-> How would that help here?  I don't think we want to #ifdef all patches
-> in the -mm tree that are of this type, that would be a bit nasty.
-I see how this would be messy, but this could help advertising the fact
-that the patch is not going to mainline, if only because mainline wouldn't
-have that CONFIG_HACK thing.
-Another alternative would a mm-only- prefix to the name of the patches,
-a simple grep in broken-out would the be enough...
+> On Jan 8 2007 02:22, Jan Engelhardt wrote:
+> >On Jan 7 2007 22:30, Alan wrote:
+> >>
+> >>> >The kernel maintainers/help/config pretty consistently use UTF8
+> >>> 
+> >>> I've seen a lot of places that don't do so. Want a patch?
+> >>
+> >>I think that would be a good idea - and add it to the coding/docs specs
+> >>that documentation is UTF-8. Code should IMHO say 7bit though.
+> 
+> Most memorable issues:
+> 
+> * "don<decimal-180>t" (standalone accent aigu) rather than "don't" (apostrophe)
+> * "<decimal-160>", non breaking spaces
+> * cp437 encoding in some files (heh, heh, DOS!)
+> * iso8859-1/utf-8 mixed in some files
+ Looks nicely done, but I query the postal address changes in
+Documentation/cdrom/sbpcd - that seems to be a change of address
+(without anything to explain it).  Everything else seems to be just
+character-set conversion or the occasional translation of comments
+into English.  (And no, I didn't attempt to review the character-set
+changes, even it there is an occasional error it will be better than
+where we are now, and easy to patch.)
+> 
+> My compose key is hot now...
+ I prefer the AltGr dead keys in X (they seem to work more reliably
+for me), but I guess I'm straying OT.
+> 
+> None of you people screw that patch with your buggy MUAs! I'll pack
+> it up into a .bz2 to get it marked as application/octet-stream to
+> not even give your MUA the chance to. ;-) [and because it's 221 K 
+> uncompressed and I am not sure if splitting it up makes much sense for 
+> such 'trivial' changes, or not?]
+> 
+> Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+> 
+> 
+> 	-`J'
+> -- 
 
-Regards,
-Frederik
-> thanks,
-> 
-> greg k-h
-> 
+ Thanks for doing this, I hope it wasn't in vain.
+
+Ken
+-- 
+das eine Mal als Tragödie, das andere Mal als Farce

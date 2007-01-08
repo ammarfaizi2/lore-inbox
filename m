@@ -1,115 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030453AbXAHCfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030462AbXAHCtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030453AbXAHCfj (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 21:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbXAHCfj
+	id S1030462AbXAHCtc (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 21:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbXAHCtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 21:35:39 -0500
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:53842 "EHLO
-	mail4.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030453AbXAHCfi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 21:35:38 -0500
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Amit Choudhary <amit2030@yahoo.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <261558.33282.qm@web55609.mail.re4.yahoo.com>
-References: <261558.33282.qm@web55609.mail.re4.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 18:35:34 -0800
-Message-Id: <1168223734.5259.12.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+	Sun, 7 Jan 2007 21:49:32 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:51751 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030462AbXAHCtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 21:49:31 -0500
+Message-ID: <45A1B137.9070306@garzik.org>
+Date: Sun, 07 Jan 2007 21:49:27 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Pablo Sebastian Greco <lkml@fliagreco.com.ar>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SATA problems
+References: <459A674B.3060304@fliagreco.com.ar> <459B9F91.9070908@gmail.com> <459BC703.9000207@fliagreco.com.ar> <459C8A5E.5010206@gmail.com> <459CFE7B.6090306@fliagreco.com.ar> <459DC2EE.1090307@fliagreco.com.ar> <45A1AB3F.1080408@gmail.com>
+In-Reply-To: <45A1AB3F.1080408@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2007-01-07 at 16:02 -0800, Amit Choudhary wrote:
-> That's where KFREE(ptr) comes in so that the code doesn't look ugly and still the purpose is
-> achieved.
-
-Shoving it into a macro makes it no better.
-
-> > Reading code like that makes me say "wtf?", simply because 'ptr' is not
-> > used thereafter,
+Tejun Heo wrote:
+> Pablo Sebastian Greco wrote:
+>> After an uptime of  13:34 under heavy load and no errors, I'm pretty
+>> sure your patch is correct. Is there a way to backport this to 2.6.18.x?
 > 
-> Really? Then why do we have all the debugging options to catch re-use of the memory that has been
-> freed. So many debugging options has been implemented, so much effort has gone into them, partly
-> because programmers sometimes miss correct programming.
+> I forgot this (even though I implemented it) but you can turn off NCQ by
+> doing the following.
+> 
+> # echo 1 > /sys/block/sdX/device/queue_depth
 
-Which is exactly why we should continue to let programmers focus on
-trying to get their code correct and letting the existing safety tools
-catch thinkos, instead of distracting them with confusing and completely
-pointless variable assignments.
+Thanks, I had forgotten this, too :)
 
-> I do not know what you are talking about here. You are saying that a function does not need three
-> different arrays with different names. How can you say that? How do you know what is the
-> requirement?
+Added to the libata FAQ: http://linux-ata.org/faq.html
 
-What I said was that your example proves something entirely different
-than what you think: rather than proving the need for your KFREE()
-macro, it instead proves the need to design the code correctly from the
-start, so as to avoid even thinking about this crud.
-
-If you insist, here's your example function, trivially rewritten without
-any NULL assignments. (I used two arrays, not three, to save space. The
-basic idea works by-design for any random number of arrays, each of any
-arbitrary size.)
-
-struct type1 {
-	/* something */
-};
-
-struct type2 {
-	/* something */
-};
-
-#define COUNT 10
-
-void function1(struct type1 **a1, struct type2 **a2, unsigned int sz);
-
-void function2(void)
-{
-	struct type1 *arr1[COUNT];
-	struct type2 *arr2[COUNT];
-	int i;
-
-	/* init */
-	for (i = 0; i < COUNT; i++) {
-		arr1[i] = kmalloc(sizeof(struct type1), ...);
-		if (!arr1[i])
-			goto free_1;
-	}
-	for (i = 0; i < COUNT; i++) {
-		arr2[i] = kmalloc(sizeof(struct type2), ...);
-		if (!arr2[i])
-			goto free_2;
-	}
-
-	/* work */
-	function1(arr1, arr2, COUNT);
-
-	/* fini */
-	i = COUNT;
-free_2:
-	for (i--; i >= 0; i--) {
-		kfree(arr2[i]);
-	}
-	i = COUNT;
-free_1:
-	for (i--; i >= 0; i--) {
-		kfree(arr1[i]);
-	}
-}
-
-In most cases, though, the above code design would be brain-damaged from
-the start: unless the sizes involved are prohibitively large, the
-function should be allocating all the memory in a single pass.
-
-So, where's the demonstrated need for KFREE()?
-
--- Vadim Lobanov
+	Jeff
 
 

@@ -1,103 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932635AbXAHJIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932643AbXAHJJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbXAHJIf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 04:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbXAHJIf
+	id S932643AbXAHJJc (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 04:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbXAHJJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 04:08:35 -0500
-Received: from mis011.exch011.intermedia.net ([64.78.21.10]:6859 "EHLO
-	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932635AbXAHJIe (ORCPT
+	Mon, 8 Jan 2007 04:09:32 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37408 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932643AbXAHJJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 04:08:34 -0500
-Message-ID: <45A20A0A.70403@qumranet.com>
-Date: Mon, 08 Jan 2007 11:08:26 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] KVM paravirtualization for Linux
-References: <20070105215223.GA5361@elte.hu> <45A0E586.50806@qumranet.com> <20070107174416.GA14607@elte.hu> <45A1FF4E.1020106@qumranet.com> <20070108083935.GB18259@elte.hu>
-In-Reply-To: <20070108083935.GB18259@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jan 2007 09:08:34.0384 (UTC) FILETIME=[9314AD00:01C73304]
+	Mon, 8 Jan 2007 04:09:31 -0500
+Date: Mon, 8 Jan 2007 09:09:26 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+Message-ID: <20070108090926.GF17561@ftp.linux.org.uk>
+References: <1168244100.9034.2.camel@dsl081-166-245.sea1.dsl.speakeasy.net> <20070108084707.48375.qmail@web55605.mail.re4.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070108084707.48375.qmail@web55605.mail.re4.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Avi Kivity <avi@qumranet.com> wrote:
->
->   
->>> the cache is zapped upon pagefaults anyway, so unpinning ought to be 
->>> possible. Which one would you prefer?
->>>       
->> It's zapped by the equivalent of mmu_free_roots(), right?  That's 
->> effectively unpinning it (by zeroing ->root_count).
->>     
->
-> no, right now only the guest-visible cache is zapped - the roots are 
-> zapped by natural rotation. I guess they should be zapped in 
-> kvm_cr3_cache_clear() - but i wanted to keep that function an invariant 
-> to the other MMU state, to make it easier to call it from whatever mmu 
-> codepath.
->
->   
+On Mon, Jan 08, 2007 at 12:47:07AM -0800, Amit Choudhary wrote:
+ 
+> Let's try to apply the same logic to my explanation:
+> 
+> KFREE() macro has __actually__ been used at atleast 1000 places in the kernel by atleast 50
+> different people. Doesn't that lend enough credibility to what I am saying.
 
-Ok.  Some mechanism is then needed to unpin the pages in case they are 
-recycled by the guest.
+No.  Simple "it happens a lot of times" is _not_ enough to establish
+credibility of "it should be done that way".  It is a good reason to
+research the rationale in each case.
+ 
+> People did something like this 1000 times: kfree(x), x = NULL. I simply proposed the KFREE() macro
+> that does the same thing. Resistance to something that is already being done in the kernel. I
+> really do not care whether it goes in the kernel or not. There are lots of other places where I
+> can contribute. But I do not understand the resistance.
+> 
+> It is already being done in the kernel.
 
->> However, kvm takes pagefaults even for silly things like setting (in 
->> hardware) or clearing (in software) the dirty bit.
->>     
->
-> yeah. I think it also does some TLB flushes that are not needed. For 
-> example in rmap_write_protect() we do this:
->
->                 rmap_remove(vcpu, spte);
->                 kvm_arch_ops->tlb_flush(vcpu);
->
-> but AFAICS rmap_write_protect() is only ever called if we write a new 
-> cr3 - hence a TLB flush will happen anyway, because we do a 
-> vmcs_writel(GUEST_CR3, new_cr3). Am i missing something? 
+And each instance either has a reason for doing it that way or is useless
+or is a bug.  Reasons, where they actually exist, very likely are not
+uniform.
 
-No, rmap_write_protect() is called whenever we shadow a new guest page 
-table (the mechanism used to maintain coherency is write faults on page 
-tables).
-
-> I didnt want to 
-> remove it as part of the cr3 patches (to keep things simpler), but that 
-> flush looks quite unnecessary to me. The patch below seems to work in 
-> light testing.
->
-> 	Ingo
->
-> Index: linux/drivers/kvm/mmu.c
-> ===================================================================
-> --- linux.orig/drivers/kvm/mmu.c
-> +++ linux/drivers/kvm/mmu.c
-> @@ -404,7 +404,11 @@ static void rmap_write_protect(struct kv
->  		BUG_ON(!(*spte & PT_WRITABLE_MASK));
->  		rmap_printk("rmap_write_protect: spte %p %llx\n", spte, *spte);
->  		rmap_remove(vcpu, spte);
-> -		kvm_arch_ops->tlb_flush(vcpu);
-> +		/*
-> +		 * While we removed a mapping there's no need to explicitly
-> +		 * flush the TLB here, because this codepath only triggers
-> +		 * if we write a new cr3 - which will flush the TLB anyway.
-> +		 */
->  		*spte &= ~(u64)PT_WRITABLE_MASK;
->  	}
->  }
->   
-
-This will kill svm.
-
-I don't think the tlb flushes are really necessary on today's Intel 
-machines, as they probably flush the tlb on each vmx switch.  But AMD 
-keeps the TLB, and the flushes are critical there.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Blind copying of patterns without understanding what and why they are
+doing is a Very Bad Thing(tm).  That's how the bugs are created and
+propagated, BTW.

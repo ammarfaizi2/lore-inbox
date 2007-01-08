@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751465AbXAHHER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAHHY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbXAHHER (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 02:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbXAHHER
+	id S1751472AbXAHHY1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 02:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbXAHHY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 02:04:17 -0500
-Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:43702 "EHLO
-	mail6.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751465AbXAHHEQ (ORCPT
+	Mon, 8 Jan 2007 02:24:26 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:57052 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469AbXAHHYZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 02:04:16 -0500
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Amit Choudhary <amit2030@yahoo.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <60237.99836.qm@web55612.mail.re4.yahoo.com>
-References: <60237.99836.qm@web55612.mail.re4.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 23:04:12 -0800
-Message-Id: <1168239852.6202.15.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 02:24:25 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH] Common compat_sys_sysinfo (v2)
+Date: Mon, 8 Jan 2007 06:54:26 +0100
+User-Agent: KMail/1.9.5
+Cc: Kyle McMartin <kyle@parisc-linux.org>,
+       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org
+References: <20070107144850.GB3207@athena.road.mcmartin.ca> <20070107154045.GD3207@athena.road.mcmartin.ca> <20070108104347.83a004aa.sfr@canb.auug.org.au>
+In-Reply-To: <20070108104347.83a004aa.sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701080654.27100.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2007-01-07 at 20:09 -0800, Amit Choudhary wrote:
-> I have already explained it earlier. I will try again. You will not need free_2: and free_1: with
-> KFREE(). You will only need one free: with KFREE.
+On Monday 08 January 2007 00:43, Stephen Rothwell wrote:
+> > +asmlinkage long sys_sysinfo(struct sysinfo __user *info)
+> > +{
+> > +     struct sysinfo val;
+> > +
+> > +     do_sysinfo(&val);
+> >
+> > - out:
+> >       if (copy_to_user(info, &val, sizeof(struct sysinfo)))
+> >               return -EFAULT;
+> 
+> People have complined before that this adds a whole stack frame to the
+> "normal" syscall path.  Personally I don't care, but it has been
+> mentioned.
 
-So, to rephrase, your stated goal is to get rid of any non-singular goto
-labels in function error handling paths? Aside from sounding trippy in a
-non-conformist kind of way, what benefits will this give to the kernel?
+It might be a concern for something like 'read' which is called frequently
+and in strange ways, but for 'sysinfo' this really should not matter.
 
-I ask this because there's already one easy-to-spot downside: you'll end
-up calling kfree(NULL) a bunch of times that can be, and should be,
-avoided. Whereas turning my computer into a better space-heater using
-noops (like repeated kfree(NULL) calls) may be a noble goal, I'd much
-rather not waste this planet's limited resources unnecessarily.
-
-> Also, let's say that count is different for each array? Then how do you propose that memory be
-> allocated in one pass?
-
-The parameters to a '+' operator need not be equivalent.
-
-> I have scanned the whole kernel to check whether people are checking for return values of kmalloc,
-> I found that at many places they don't and have sent patches for them. Now, this too is brain
-> damaged code. And during the scan I saw examples of what I described earlier.
-
-These cases should be fixed independently of any particular KFREE()
-agenda.
-
-> KFREE() can fix some of those cases.
-
-I am curious as to how a KFREE() macro can fix cases where people don't
-check the kmalloc() return value.
-
-> Below are some examples where people are doing KFREE() kind of stuff:
-
-I glanced at one instance, and...
-
-> arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c:				kfree(acpi_perf_data[j]);
-> arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c-				acpi_perf_data[j] = NULL;
-
-'acpi_perf_data' is a global and persistent data structure, where a NULL
-value actually has a specific and distinct meaning (as in
-acpi_cpufreq_cpu_init()). How you think this helps your argument with
-setting a local pointer to NULL after free is beyond me.
-
--- Vadim Lobanov
-
-
+	Arnd <><

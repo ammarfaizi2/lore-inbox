@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932129AbXAHVeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932137AbXAHVeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbXAHVeF (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbXAHVeF
+	id S932137AbXAHVeK (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbXAHVeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:34:05 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:45173 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932118AbXAHVeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:34:02 -0500
-Date: Mon, 8 Jan 2007 13:29:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 05/24] Unionfs: Copyup Functionality
-Message-Id: <20070108132947.6a8f9cf4.akpm@osdl.org>
-In-Reply-To: <11682295971184-git-send-email-jsipek@cs.sunysb.edu>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-	<11682295971184-git-send-email-jsipek@cs.sunysb.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 16:34:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60461 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932137AbXAHVeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:34:08 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
+       "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when check_timer fails.
+References: <5986589C150B2F49A46483AC44C7BCA490736A@ssvlexmb2.amd.com>
+Date: Mon, 08 Jan 2007 14:33:47 -0700
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA490736A@ssvlexmb2.amd.com>
+	(Yinghai Lu's message of "Mon, 8 Jan 2007 12:53:39 -0800")
+Message-ID: <m1lkkdgq4k.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun,  7 Jan 2007 23:12:57 -0500
-"Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
+"Lu, Yinghai" <yinghai.lu@amd.com> writes:
 
-> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> 
-> This patch contains the functions used to perform copyup operations in unionfs.
+>>So that doesn't invalidate the generic test.  I'm going to go dig
+>>out what little information I have and see if I can stair at the
+>>register definition.
+>
+> Someone said we can that info about that reg in Kernel. And only
+> firmware can use that.
 
-What is a copyup operation and why does it exist?
+We can do all kinds of things when firmware gets it wrong, and in this
+case I just want a deeper understanding.  Once I understand that mess
+I will decide what to do about it.
 
-It seems to be copying the entire contents of certain files.  That's not a
-thing I'd have expected to see in a union filesystem.  Explain it all,
-please?  (Somewhere where the info will be retained for posterity - a
-random email is good, but not sufficient...)
+Eric

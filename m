@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932583AbXAHINF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932622AbXAHIPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbXAHINF (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbXAHINF
+	id S932622AbXAHIPG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbXAHIPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:13:05 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:56158 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932626AbXAHIND (ORCPT
+	Mon, 8 Jan 2007 03:15:06 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:51966 "EHLO
+	mail4.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932626AbXAHIPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:13:03 -0500
-Date: Mon, 8 Jan 2007 08:12:59 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Amit Choudhary <amit2030@yahoo.com>
-Cc: Hua Zhong <hzhong@gmail.com>, "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+	Mon, 8 Jan 2007 03:15:04 -0500
 Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-Message-ID: <20070108081259.GD17561@ftp.linux.org.uk>
-References: <000501c732f9$7e3386a0$0200a8c0@nuitysystems.com> <110013.54208.qm@web55614.mail.re4.yahoo.com>
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <150027.90187.qm@web55610.mail.re4.yahoo.com>
+References: <150027.90187.qm@web55610.mail.re4.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 08 Jan 2007 00:15:00 -0800
+Message-Id: <1168244100.9034.2.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <110013.54208.qm@web55614.mail.re4.yahoo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 12:05:59AM -0800, Amit Choudhary wrote:
- 
-> Attached is some code from the kernel. Expanded KFREE() has been used atleast 1000 times in the
-> kernel. By your logic, everyone is stupid in doing so. Something has been done atleast 1000 times
-> in the kernel, that looks okay. But consolidating it at one place does not look okay. I am listing
-> some of the 1000 places where KFREE() has been used. All this code have been written by atleast 50
-> different people. From your logic they were doing "silly" things.
+On Sun, 2007-01-07 at 23:29 -0800, Amit Choudhary wrote:
+> I do not want to write this but I think that you are arguing just for the heck of it. Please be
+> sane.
 
-Very likely.  Some of that is a cargo-cult programming, some is explicit
-logics controlling cleanup later on, some is outright racy (== everything
-that leaves kfree()'d pointer in shared data structure for a while).
+No, I'm merely trying to demonstrate, on a logical basis, why the
+proposed patch does not (in my opinion) belong within the kernel. The
+fact that I'm not alone in voicing such disagreement should mean
+something.
+
+-- Vadim Lobanov
+
+

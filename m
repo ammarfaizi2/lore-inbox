@@ -1,90 +1,198 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751588AbXAHRIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751595AbXAHRSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbXAHRIE (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 12:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbXAHRIE
+	id S1751595AbXAHRSR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 12:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbXAHRSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 12:08:04 -0500
-Received: from mail.screens.ru ([213.234.233.54]:45433 "EHLO mail.screens.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751588AbXAHRID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 12:08:03 -0500
-Date: Mon, 8 Jan 2007 20:06:35 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
-Message-ID: <20070108170635.GA448@tv-sign.ru>
-References: <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org> <20070107215103.GA7960@tv-sign.ru> <20070108152211.GA31263@in.ibm.com> <20070108155638.GA156@tv-sign.ru> <20070108163140.GC31263@in.ibm.com>
+	Mon, 8 Jan 2007 12:18:17 -0500
+Received: from CHOKECHERRY.SRV.CS.CMU.EDU ([128.2.185.41]:48819 "EHLO
+	chokecherry.srv.cs.cmu.edu" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751596AbXAHRSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 12:18:16 -0500
+X-Greylist: delayed 655 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 12:18:16 EST
+Date: Mon, 8 Jan 2007 12:07:19 -0500
+From: Benjamin Gilbert <bgilbert@cs.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Failure to release lock after CPU hot-unplug canceled
+Message-Id: <20070108120719.16d4674e.bgilbert@cs.cmu.edu>
+Organization: Carnegie Mellon University
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070108163140.GC31263@in.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/08, Srivatsa Vaddagiri wrote:
->
-> On Mon, Jan 08, 2007 at 06:56:38PM +0300, Oleg Nesterov wrote:
-> > > 2.
-> > >
-> > > CPU_DEAD->cleanup_workqueue_thread->(cwq->thread = NULL)->kthread_stop() ..
-> > > 				    ^^^^^^^^^^^^^^^^^^^^
-> > > 						|___ Problematic
-> > 
-> > Hmm... This should not be possible? cwq->thread != NULL on CPU_DEAD event.
-> 
-> sure, cwq->thread != NULL at CPU_DEAD event. However
-> cleanup_workqueue_thread() will set it to NULL and block in
-> kthread_stop(), waiting for the kthread to finish run_workqueue and
-> exit.
+If a module returns NOTIFY_BAD to a CPU_DOWN_PREPARE callback, subsequent
+attempts to take a CPU down cause the write into sysfs to wedge.
 
-Ah, missed you point, thanks. Yet another old problem which was not introduced
-by recent changes. And yet another indication we should avoid kthread_stop()
-on CPU_DEAD event :) I believe this is easy to fix, but need to think more.
+This is reproducible in 2.6.20-rc4, but was originally found in 2.6.18.5.
 
-> > > A lock_cpu_hotplug(), or any other ability to block concurrent hotplug
-> > > operations from happening, in run_workqueue would have avoided both the above
-> > > races.
-> > 
-> > I still don't think this is a good idea. We also need
-> > 	is_cpu_down_waits_for_lock_cpu_hotplug()
-> > 
-> > helper, otherwise we have a deadlock if work->func() sleeps and re-queues itself.
-> 
-> Can you elaborate this a bit?
+Steps to reproduce:
 
-If work->func() re-queues itself, run_workqueue() never returns because
-->worklist is never empty. This means we should somehow check and detect
-that cpu-hotplug blocked because we hold lock_cpu_hotplug(). In that case
-run_workqueue() should return, and drop the lock. This will complicate
-worker_thread/run_workqueue further.
+1.  Load the test module included below
+2.  Run the following shell commands as root:
 
-	run_workqueue:
+echo 0 > /sys/devices/system/cpu/cpu1/online
+echo 0 > /sys/devices/system/cpu/cpu1/online
 
-		while (!list_empty(&cwq->worklist)) {
-			...
-			// We hold lock_cpu_hotplug(), cpu event can't make
-			// progress. 
-			...
-		}
+The second echo command hangs in uninterruptible sleep during the write()
+call, and the following appears in dmesg:
 
-> > Yes, http://marc.theaimsgroup.com/?l=linux-kernel&m=116818097927685, I believe
-> > we can do this later. This way workqueue will have almost zero interaction
-> > with cpu-hotplug, and cpu UP/DOWN event won't be delayed by sleeping work.func().
-> > take_over_work() can go away, this also allows us to simplify things.
-> 
-> I agree it minimizes the interactions. Maybe worth attempting. However I
-> suspect it may not be as simple as it appears :)
+=======================================================
+[ INFO: possible circular locking dependency detected ]
+2.6.20-rc4-686 #1
+-------------------------------------------------------
+bash/1699 is trying to acquire lock:
+ (cpu_add_remove_lock){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
 
-Yes, that is why this patch only does the first step: flush_workqueue() checks
-the dead CPUs as well, this change is minimal.
+but task is already holding lock:
+ (workqueue_mutex){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
 
-Do you see any problems this patch adds?
+which lock already depends on the new lock.
 
-Oleg.
 
+the existing dependency chain (in reverse order) is:
+
+-> #2 (workqueue_mutex){--..}:
+       [<c01374b9>] __lock_acquire+0x912/0xa34
+       [<c01378f6>] lock_acquire+0x67/0x8a
+       [<c037900d>] __mutex_lock_slowpath+0xf6/0x2b8
+       [<c03791eb>] mutex_lock+0x1c/0x1f
+       [<c012dc27>] workqueue_cpu_callback+0x10b/0x20c
+       [<c037c687>] notifier_call_chain+0x20/0x31
+       [<c012a907>] raw_notifier_call_chain+0x8/0xa
+       [<c013aa10>] _cpu_down+0x47/0x1f8
+       [<c013abe7>] cpu_down+0x26/0x38
+       [<c0296462>] store_online+0x27/0x5a
+       [<c02935f4>] sysdev_store+0x20/0x25
+       [<c0190da1>] sysfs_write_file+0xb3/0xdb
+       [<c01602d9>] vfs_write+0xaf/0x163
+       [<c0160925>] sys_write+0x3d/0x61
+       [<c0102d88>] syscall_call+0x7/0xb
+       [<ffffffff>] 0xffffffff
+
+-> #1 (cache_chain_mutex){--..}:
+       [<c01374b9>] __lock_acquire+0x912/0xa34
+       [<c01378f6>] lock_acquire+0x67/0x8a
+       [<c037900d>] __mutex_lock_slowpath+0xf6/0x2b8
+       [<c03791eb>] mutex_lock+0x1c/0x1f
+       [<c015dc0d>] cpuup_callback+0x29/0x2d3
+       [<c037c687>] notifier_call_chain+0x20/0x31
+       [<c012a907>] raw_notifier_call_chain+0x8/0xa
+       [<c013a869>] _cpu_up+0x3d/0xbf
+       [<c013a911>] cpu_up+0x26/0x38
+       [<c010045e>] init+0x7d/0x2d9
+       [<c0103a3f>] kernel_thread_helper+0x7/0x10
+       [<ffffffff>] 0xffffffff
+
+-> #0 (cpu_add_remove_lock){--..}:
+       [<c01373ba>] __lock_acquire+0x813/0xa34
+       [<c01378f6>] lock_acquire+0x67/0x8a
+       [<c037900d>] __mutex_lock_slowpath+0xf6/0x2b8
+       [<c03791eb>] mutex_lock+0x1c/0x1f
+       [<c013abd2>] cpu_down+0x11/0x38
+       [<c0296462>] store_online+0x27/0x5a
+       [<c02935f4>] sysdev_store+0x20/0x25
+       [<c0190da1>] sysfs_write_file+0xb3/0xdb
+       [<c01602d9>] vfs_write+0xaf/0x163
+       [<c0160925>] sys_write+0x3d/0x61
+       [<c0102d88>] syscall_call+0x7/0xb
+       [<ffffffff>] 0xffffffff
+
+other info that might help us debug this:
+
+2 locks held by bash/1699:
+ #0:  (cache_chain_mutex){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
+ #1:  (workqueue_mutex){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
+
+stack backtrace:
+ [<c0103dcd>] show_trace_log_lvl+0x1a/0x2f
+ [<c01043f4>] show_trace+0x12/0x14
+ [<c01044a6>] dump_stack+0x16/0x18
+ [<c0135c99>] print_circular_bug_tail+0x5f/0x68
+ [<c01373ba>] __lock_acquire+0x813/0xa34
+ [<c01378f6>] lock_acquire+0x67/0x8a
+ [<c037900d>] __mutex_lock_slowpath+0xf6/0x2b8
+ [<c03791eb>] mutex_lock+0x1c/0x1f
+ [<c013abd2>] cpu_down+0x11/0x38
+ [<c0296462>] store_online+0x27/0x5a
+ [<c02935f4>] sysdev_store+0x20/0x25
+ [<c0190da1>] sysfs_write_file+0xb3/0xdb
+ [<c01602d9>] vfs_write+0xaf/0x163
+ [<c0160925>] sys_write+0x3d/0x61
+ [<c0102d88>] syscall_call+0x7/0xb
+ =======================
+
+Exiting the bash process after the first echo command instead results in
+the following:
+
+=====================================
+[ BUG: lock held at task exit time! ]
+-------------------------------------
+bash/1547 is exiting with locks still held!
+2 locks held by bash/1547:
+ #0:  (cache_chain_mutex){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
+ #1:  (workqueue_mutex){--..}, at: [<c03791eb>] mutex_lock+0x1c/0x1f
+
+stack backtrace:
+ [<c0103dcd>] show_trace_log_lvl+0x1a/0x2f
+ [<c01043f4>] show_trace+0x12/0x14
+ [<c01044a6>] dump_stack+0x16/0x18
+ [<c01358ba>] debug_check_no_locks_held+0x80/0x86
+ [<c01217ed>] do_exit+0x6bf/0x6f5
+ [<c0121893>] sys_exit_group+0x0/0x11
+ [<c01218a2>] sys_exit_group+0xf/0x11
+ [<c0102d88>] syscall_call+0x7/0xb
+ =======================
+
+If I can provide any other information to help track this down, please let
+me know.
+
+--Benjamin Gilbert
+
+8<---------------------------------------------------------->8
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/cpu.h>
+
+static int cpu_callback(struct notifier_block *nb, unsigned long action,
+			void *data)
+{
+	int cpu=(int)data;
+	
+	switch (action) {
+	case CPU_DOWN_PREPARE:
+		printk(KERN_DEBUG "Refusing shutdown of CPU %d\n", cpu);
+		return NOTIFY_BAD;
+	case CPU_DEAD:
+		printk(KERN_DEBUG "CPU %d down\n", cpu);
+		break;
+	}
+	return NOTIFY_OK;
+}
+
+static struct notifier_block cpu_notifier = {
+	.notifier_call = cpu_callback
+};
+
+int __init mod_start(void)
+{
+	int err;
+	
+	err=register_cpu_notifier(&cpu_notifier);
+	if (err)
+		return err;
+	return 0;
+}
+module_init(mod_start);
+
+void __exit mod_shutdown(void)
+{
+	unregister_cpu_notifier(&cpu_notifier);
+}
+module_exit(mod_shutdown);
+
+MODULE_LICENSE("GPL");

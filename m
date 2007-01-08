@@ -1,63 +1,156 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932066AbXAHVb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932080AbXAHVcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbXAHVb0 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbXAHVb0
+	id S932080AbXAHVcd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbXAHVcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:31:26 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56918 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750864AbXAHVbZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:31:25 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
-       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
-       "Andi Kleen" <ak@suse.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/4] x86_64 io_apic: Implement remove_pin_to_irq
-References: <5986589C150B2F49A46483AC44C7BCA490736C@ssvlexmb2.amd.com>
-Date: Mon, 08 Jan 2007 14:30:53 -0700
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA490736C@ssvlexmb2.amd.com>
-	(Yinghai Lu's message of "Mon, 8 Jan 2007 13:09:19 -0800")
-Message-ID: <m1ps9pgq9e.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Jan 2007 16:32:33 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:45013 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750864AbXAHVcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:32:32 -0500
+Date: Mon, 8 Jan 2007 13:28:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 04/24] Unionfs: Common file operations
+Message-Id: <20070108132841.944e53f2.akpm@osdl.org>
+In-Reply-To: <11682295972786-git-send-email-jsipek@cs.sunysb.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	<11682295972786-git-send-email-jsipek@cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lu, Yinghai" <yinghai.lu@amd.com> writes:
+On Sun,  7 Jan 2007 23:12:56 -0500
+"Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
 
-> -----Original Message-----
-> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
-> Sent: Monday, January 08, 2007 7:50 AM
-> To: Linus Torvalds
-> Cc: Tobias Diedrich; Lu, Yinghai; Andrew Morton; Adrian Bunk; Andi
-> Kleen; Linux Kernel Mailing List
-> Subject: [PATCH 1/4] x86_64 io_apic: Implement remove_pin_to_irq
+> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> 
+> This patch contains helper functions used through the rest of the code which
+> pertains to files.
+> 
+> Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+> Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 >
-> +static void remove_pin_to_irq(unsigned int irq, int apic, int pin)
+> ...
+>
+> +#include "union.h"
+> +
+> +/* 1) Copyup the file
+> + * 2) Rename the file to '.unionfs<original inode#><counter>' - obviously
+> + * stolen from NFS's silly rename
+> + */
+> +static int copyup_deleted_file(struct file *file, struct dentry *dentry,
+> +			       int bstart, int bindex)
 > +{
-> +	struct irq_pin_list *entry = irq_2_pin + irq;
->
-> You may need to update add_pin_to_irq to avoid multi entries for irq 0.
+> +	static unsigned int counter;
+> +	const int i_inosize = sizeof(dentry->d_inode->i_ino) * 2;
+> +	const int countersize = sizeof(counter) * 2;
+> +	const int nlen = sizeof(".unionfs") + i_inosize + countersize - 1;
+> +	char name[nlen + 1];
+> +
+> +	int err;
+> +	struct dentry *tmp_dentry = NULL;
+> +	struct dentry *hidden_dentry = NULL;
+> +	struct dentry *hidden_dir_dentry = NULL;
+> +
+> +	hidden_dentry = unionfs_lower_dentry_idx(dentry, bstart);
 
-Any updates to add_pin_to_irq are wrong.  It works fine.  If there
-is something wrong we need to fix remove_pin_to_irq.
+Slightly strange to initialise a variable twice in a row like this.
 
-What is the problem you see?  Sorry I'm dense at the moment.
+> +	sprintf(name, ".unionfs%*.*lx",
+> +			i_inosize, i_inosize, hidden_dentry->d_inode->i_ino);
+> +
+> +	tmp_dentry = NULL;
+> +	do {
+> +		char *suffix = name + nlen - countersize;
+> +
+> +		dput(tmp_dentry);
+> +		counter++;
+> +		sprintf(suffix, "%*.*x", countersize, countersize, counter);
+> +
+> +		printk(KERN_DEBUG "unionfs: trying to rename %s to %s\n",
+> +				dentry->d_name.name, name);
+> +
+> +		tmp_dentry = lookup_one_len(name, hidden_dentry->d_parent,
+> +					    UNIONFS_TMPNAM_LEN);
+> +		if (IS_ERR(tmp_dentry)) {
+> +			err = PTR_ERR(tmp_dentry);
+> +			goto out;
+> +		}
+> +	} while (tmp_dentry->d_inode != NULL);	/* need negative dentry */
+> +
+> +	err = copyup_named_file(dentry->d_parent->d_inode, file, name, bstart,
+> +				bindex, file->f_dentry->d_inode->i_size);
+> +	if (err)
+> +		goto out;
+> +
+> +	/* bring it to the same state as an unlinked file */
+> +	hidden_dentry = unionfs_lower_dentry_idx(dentry, dbstart(dentry));
+> +	hidden_dir_dentry = lock_parent(hidden_dentry);
+> +	err = vfs_unlink(hidden_dir_dentry->d_inode, hidden_dentry);
+> +	unlock_dir(hidden_dir_dentry);
+> +
+> +out:
+> +	return err;
+> +}
+> +
+> +/* put all references held by upper struct file and free lower file pointer
+> + * array
+> + */
 
-I preserve the invariant that irq_2_pin + irq is always the first
-entry in the chain.  I do this when I delete a multi chain entry
-by copying the next entry over the current entry, and then freeing
-(and leaking) the second entry in the chain.
+Where in this patchset would the reader go to understand what an "upper
+file" is, what a "lower file" is?  The relationship between them, lifecycle
+management, locking, etc?
 
-Is there something wrong with that?  I came within an inch of deleting
-this multiple apic, pin to irq mapping code but the comments said it
-is needed for some ioapic case.  So in resurrecting this variant I may
-have goofed somewhere.
+<looks at the data structures in union.h>
 
-Eric
+That's the place.  It would be useful to describe things in there a lot
+better.  For example, bstart, bend and bindev could do with help.
+
+unionfs_get_nlinks() is huge.  it has twelve callsites and two out-of-line
+copies are generated.  Suggest that it not be inlined ;)
+
+alloc_whname() should be out-of-line.
+
+lock_parent() and unlock_dir() are poorly named.
+
+> +long unionfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+> +{
+> +	long err;
+> +
+> +	if ((err = unionfs_file_revalidate(file, 1)))
+> +		goto out;
+> +
+> +	/* check if asked for local commands */
+> +	switch (cmd) {
+> +		case UNIONFS_IOCTL_INCGEN:
+> +			/* Increment the superblock generation count */
+> +			err = -EACCES;
+> +			if (!capable(CAP_SYS_ADMIN))
+> +				goto out;
+> +			err = unionfs_ioctl_incgen(file, cmd, arg);
+> +			break;
+> +
+> +		case UNIONFS_IOCTL_QUERYFILE:
+> +			/* Return list of branches containing the given file */
+> +			err = unionfs_ioctl_queryfile(file, cmd, arg);
+> +			break;
+> +
+> +		default:
+> +			/* pass the ioctl down */
+> +			err = do_ioctl(file, cmd, arg);
+> +			break;
+> +	}
+
+We normally use one tabstop less than this.
+
+

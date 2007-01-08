@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161028AbXAHW5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161045AbXAHXAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbXAHW5S (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbXAHW5S
+	id S1161045AbXAHXAY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161064AbXAHXAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:57:18 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:4007 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161028AbXAHW5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:57:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=POtCK5ffq0/GIhMHSOWzLtW8c77FY+puQnTBX/LPUM4Oe5ALeTEZ/65ujZ6ogHsKOkYZGvhr9eH70wPvesL/NQnHL2MSmf6mmHhG9NzLOhTGDSK1oST/N02nn+NhPCGQsXLh9IOiQlzvKp50OBy36lFCHMHkA8CeE1J6lk1ikTg=
-Date: Mon, 8 Jan 2007 22:55:07 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Sumit Narayan <talk2sumit@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] sleeping function called from invalid context at kernel/sched.c
-Message-ID: <20070108225506.GE15292@slug>
-References: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 8 Jan 2007 18:00:24 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:60809 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161045AbXAHXAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:00:22 -0500
+Date: Mon, 8 Jan 2007 17:00:18 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Erez Zadok <ezk@cs.sunysb.edu>
+Cc: Andrew Morton <akpm@osdl.org>, "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       David Quigley <dquigley@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070108230018.GB3756@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1458d9610701081327sb9de173qc5b7d99558ed22ae@mail.gmail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 04:27:32PM -0500, Sumit Narayan wrote:
-> Hi,
-> 
-> I am trying to do file write operations in a thread (filewrite())
-> initiated from a jprobe (fs_vfs_write()) set on kernel function
-> (vfs_write()). Although the write operation succeed, I get this on my
-> log:
-> 
-> BUG: sleeping function called from invalid context at kernel/sched.c:3678
-> in_atomic():0, irqs_disabled():1
-> [<c011a65b>] __might_sleep+0xa5/0xab
-> [<c0343a00>] wait_for_completion+0x1a/0xc9
-> [<c0118480>] __wake_up+0x32/0x43
-> [<c012b33a>] __queue_work+0x42/0x4f
-> [<c012e0f7>] kthread_create+0x9b/0xd3
-> [<c012e00a>] keventd_create_kthread+0x0/0x52
-> [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
-> [<c03464b9>] do_page_fault+0x31f/0x5c5
-> [<f8a561da>] fs_vfs_write+0x57/0x9e [fsTrace]
-> [<f8a560d4>] filewrite+0x0/0xaf [fsTrace]
-> [<c015f396>] sys_write+0x41/0x67
-> [<c01034d1>] sysenter_past_esp+0x56/0x79
-> =======================
-kprobe disables interrupts, and you're not supposed to sleep with
-interrupts disabled. But you call keventd_create_kthread which sleeps,
-and that issues this message.
+On Mon, Jan 08, 2007 at 03:51:31PM -0500, Erez Zadok wrote:
+> BTW, this is a problem with all stackable file systems, including
+> ecryptfs.  To be fair, our Unionfs users have come up against this
+> problem, usually for the first time they use Unionfs :-).
 
-Regards,
-Frederik
+I suspect that the only reason why this has not yet surfaced as a
+major issue in eCryptfs is because nobody is bothering to manipulate
+the eCryptfs-encrypted lower files. The only code out there right now
+that can make sense of the files is in the eCryptfs kernel module.
+
+> Now, we've discussed a number of possible solutions.  Thanks to
+> suggestions we got at OLS, we discussed a way to hide the lower
+> namespace, or make it readonly, using existing kernel facilities.
+> But my understanding is that even it'd work, it'd only address new
+> processes: if an existing process has an open fd in a lower branch
+> before we "lock up" the lower branch's name space, that process may
+> still be able to make lower-level changes.
+
+Again, eCryptfs is fortunate in that the vast majority of users who
+access the lower eCryptfs files will only want to read the encrypted
+files (to do backups, for instance). I do not know of any userspace
+utilities that can write correct eCryptfs lower file content.
+
+> Detecting such processes may not be easy.  What to do with them,
+> once detected, is also unclear.  We welcome suggestions.
+
+My first instinct is to say that stacked filesystem should not even
+begin to open the file if it is already opened by something other than
+the stacked filesystem (-EPERM with a message in the syslog about the
+problem). In the case when a stacked filesystem wants to open a file
+that is already opened by something other than the stacked filesystem,
+the stacked filesystem loses. Once the process closes the file, the
+process is hitherto prevented from accessing the file again (via the
+before-mentioned mechanism of hiding the lower namespace).
+
+> Another possibility is that after, hopefully, both Unionfs and
+> ecryptfs are in, and some more user experience has been accumulated,
+> that we'll look into addressing this page-cache consistency problem
+> for all stacked f/s.
+
+Unionfs and eCryptfs share almost exactly the same namespace
+issues. Unionfs happens to be impacted by them more than eCryptfs
+because of the differences in how people actually access the files
+under the two filesystems.
+
+> Jeff, I don't think it's acceptable to OOPS.
+
+For now, stacked filesystems just need to stay on their toes. There
+are several places where assumptions need to be checked.
+
+Mike

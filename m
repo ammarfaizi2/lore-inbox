@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030437AbXAHBqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030441AbXAHBri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbXAHBqQ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 20:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbXAHBqQ
+	id S1030441AbXAHBri (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 20:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbXAHBri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 20:46:16 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:51497 "EHLO mail.dvmed.net"
+	Sun, 7 Jan 2007 20:47:38 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:51518 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030430AbXAHBqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 20:46:15 -0500
-Message-ID: <45A1A265.20504@garzik.org>
-Date: Sun, 07 Jan 2007 20:46:13 -0500
+	id S1030431AbXAHBrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 20:47:37 -0500
+Message-ID: <45A1A2B7.8000601@garzik.org>
+Date: Sun, 07 Jan 2007 20:47:35 -0500
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
 To: Mikael Pettersson <mikpe@it.uu.se>
 CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH libata #promise-sata-pata] sata_promise: unbreak 20619
-References: <200701062031.l06KV64q022234@harpo.it.uu.se>
-In-Reply-To: <200701062031.l06KV64q022234@harpo.it.uu.se>
+Subject: Re: [PATCH libata #promise-sata-pata] sata_promise: 2037x PATAPI
+ support
+References: <200701072239.l07Mdju7028895@harpo.it.uu.se>
+In-Reply-To: <200701072239.l07Mdju7028895@harpo.it.uu.se>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -28,30 +29,26 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Mikael Pettersson wrote:
-> The PATA support patch for sata_promise appears, from
-> code inspection, to break the PATA-only 20619 chip.
-> 
-> The patch removes the SATA flag from the TX2plus SATA+PATA
-> boards' common flags, with the intention of adding it back
-> via the _port_flags[] entries for those boards' SATA ports.
-> 
-> However, it unconditionally marks ports 0 and 1 as SATA
-> for all boards. This causes the 20619 (TX4000) to announce
-> its first two PATA ports as SATA | ATA_FLAG_SLAVE_POSS.
-> 
-> I don't have a TX4000 so I don't know what the actual
-> consequences of this bug are, but surely this isn't Ok.
-> 
-> Fixed by moving the port 0 and 1 settings as SATA into
-> the TX4 and TX2plus specific initialisation code.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+> @@ -789,8 +789,14 @@ static void pdc_exec_command_mmio(struct
+>  static int pdc_check_atapi_dma(struct ata_queued_cmd *qc)
+>  {
+>  	u8 *scsicmd = qc->scsicmd->cmnd;
+> +	struct ata_port *ap = qc->ap;
+> +	struct pdc_host_priv *hp = ap->host->private_data;
+>  	int pio = 1; /* atapi dma off by default */
+>  
+> +	/* First generation chips cannot use ATAPI DMA on SATA ports */
+> +	if (!(hp->flags & PDC_FLAG_GEN_II) && sata_scr_valid(ap))
+> +		return 1;
+> +
+>  	/* Whitelist commands that may use DMA. */
+>  	switch (scsicmd[0]) {
+>  	case WRITE_12:
 
-Given that I agree with your RFC, this means I can drop all these 
-#promise-sata-pata patches, and kill the #promise-sata-pata branch soon, 
-right?
+
+IMO creating a new check_atapi_dma function for first-gen chips would be 
+the preferred way to add this check.
 
 	Jeff
-
 
 

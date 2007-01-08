@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932142AbXAHVih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932162AbXAHVi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbXAHVih (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXAHVih
+	id S932162AbXAHVi4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXAHVi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:38:37 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:47568 "EHLO ns2.lanforge.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932142AbXAHVig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:38:36 -0500
-Message-ID: <45A2B9DA.20104@candelatech.com>
-Date: Mon, 08 Jan 2007 13:38:34 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 8 Jan 2007 16:38:56 -0500
+Received: from neopsis.com ([213.239.204.14]:51045 "EHLO
+	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S932160AbXAHViz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:38:55 -0500
+Message-ID: <45A2BE4C.7030109@dbservice.com>
+Date: Mon, 08 Jan 2007 22:57:32 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Thunderbird 2.0b1 (X11/20061212)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ext3 file system went read-only in 2.6.18.2 (plus hacks)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dirk <d_i_r_k_@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Gaming Interface
+References: <45A22D69.3010905@gmx.net>
+In-Reply-To: <45A22D69.3010905@gmx.net>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
+X-Neopsis-MailScanner: Found to be clean
+X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.357,
+	required 5, autolearn=spam, AWL 0.24, BAYES_00 -2.60)
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, this kernel is tainted by one of my proprietary patches
-and also has my other non-proprietary patches applied, so please
-ignore as you wish.  My patches do not (purposefully) affect the file-system.
+Dirk wrote:
+> 
+> How about having a simple Game API like SDL included in the Kernel and
+> officially announce the promise to change it only once every couple of
+> years?
+> 
 
-The system is a via/c3 system running a fairly stripped down FC5
-installation on a 1GB CF disk.  We've been using this platform
-for over a year and this is the first file system error we've
-seen.  It could easily be that the CF is funky, but I thought
-I'd post the message in case it proves to be something else.
+A new API would be counter-productive! There's X11/OpenGL for graphics
+and OpenAL for sound, both APIs widespread even in the windows world and
+also on BSD and all other flavors of UNIX. X11/OpenGL hasn't changed for
+years (X11R6 has been released around 1985 IIRC).
+The whole point of X11 is that anyone can implement a server, the spec
+is open to anyone, and once you write a X11-compliant client it will run
+on any UNIX/Linux computer.
 
+Now if you introduce a special API for the Linux kernel, the game
+developers would have to create two versions, one for Linux and one for
+all other UNIXes. But more realistically, they'd just stick with the
+plain old X11/OpenGL/OpenAL design because not everyone will have this
+new kernel and they'd still have to release two versions for Linux: one
+for the new kernel and one for the older computers.
 
-eth1: Promiscuous mode enabled.
-eth1: Promiscuous mode enabled.
-EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99247: rec_len % 4 1
-Aborting journal on device hda1.
-EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99254: rec_len % 4 1
-ext3_abort called.
-EXT3-fs error (device hda1): ext3_journal_start_sb: Detected aborted journal
-Remounting filesystem read-only
-EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99048: rec_len % 4 1
-EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99041: directory en1
-   syslogd: /var/log/messages: Read-only file system
-   syslogd: /var/log/secure: Read-only file system
-   syslogd: /var/log/maillog: Read-only file system
-   syslogd: /var/log/cron: Read-only file system
-   syslogd: /var/log/spooler: Read-only file system
-   syslogd: /var/log/boot.log: Read-only file system
-   syslogd: /var/log/messages: Read-only file system
-   syslogd: /var/log/secure: Read-only file system
-   syslogd: /var/log/maillog: Read-only file system
-   syslogd: /var/log/cron: Read-only file system
-   syslogd: /var/log/spooler: Read-only file system
-   syslogd: /var/log/boot.log: Read-only file system
-pktgen: pktgen_mark_device marking eth0#5 for removal
-pktgen: pktgen_mark_device marking eth0#0 for removal
-.....
+Linus already stated several times that the kernel ABI is not stable! It
+will change, and it's the responsibility of userspace tools/libraries to
+provide a stable API.
 
-After restarting and a manual fsck, the system appears to
-be back to normal.
+So, to answer your question: We already have a simple API. One that has
+been stable for 10+ years now and won't be changing anytime soon.
 
-Thanks,
-Ben
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+tom

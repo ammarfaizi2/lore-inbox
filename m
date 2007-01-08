@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161279AbXAHXSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161269AbXAHXTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161279AbXAHXSK (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbXAHXSK
+	id S1161269AbXAHXTH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161288AbXAHXTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:18:10 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:51869 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161266AbXAHXSI (ORCPT
+	Mon, 8 Jan 2007 18:19:07 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46320 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161271AbXAHXTE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:18:08 -0500
-Date: Mon, 8 Jan 2007 18:15:24 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       torvalds@osdl.org, mhalcrow@us.ibm.com,
-       David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-ID: <20070108231524.GA1269@filer.fsl.cs.sunysb.edu>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu> <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 8 Jan 2007 18:19:04 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+       Yinghai Lu <yinghai.lu@amd.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com, discuss@x86-64.org
+Subject: Re: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when check_timer fails.
+References: <5986589C150B2F49A46483AC44C7BCA490733F@ssvlexmb2.amd.com>
+	<86802c440701022223q418bd141qf4de8ab149bf144b@mail.gmail.com>
+	<20070108005556.GA2542@melchior.yamamaya.is-a-geek.org>
+	<Pine.LNX.4.64.0701071708240.3661@woody.osdl.org>
+	<m1lkkdikmn.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1hcv1ikfj.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1d55pikbc.fsf_-_@ebiederm.dsl.xmission.com>
+	<m18xgdijmb.fsf_-_@ebiederm.dsl.xmission.com>
+	<20070108202105.GB6167@stusta.de>
+	<m1k5zxgplv.fsf@ebiederm.dsl.xmission.com>
+	<20070108223355.GI6167@stusta.de>
+Date: Mon, 08 Jan 2007 16:18:33 -0700
+In-Reply-To: <20070108223355.GI6167@stusta.de> (Adrian Bunk's message of "Mon,
+	8 Jan 2007 23:33:55 +0100")
+Message-ID: <m1bql9gl9y.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070108111852.ee156a90.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 11:18:52AM -0800, Andrew Morton wrote:
-> On Sun,  7 Jan 2007 23:12:53 -0500
-> "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
-> 
-> > +Modifying a Unionfs branch directly, while the union is mounted, is
-> > +currently unsupported.
-> 
-> Does this mean that if I have /a/b/ and /c/d/ unionised under /mnt/union, I
-> am not allowed to alter anything under /a/b/ and /c/d/?  That I may only
-> alter stuff under /mnt/union?
- 
-That's correct.
- 
-> If so, that sounds like a significant limitation.
+Adrian Bunk <bunk@stusta.de> writes:
 
-It is significant, and I am trying to figure out a nice clean way to allow
-_all_ stackable filesystems (yes, ecryptfs which is in vanilla has the same
-problem too) to have data modified under them without any cache incoherence.
+> On Mon, Jan 08, 2007 at 02:45:00PM -0700, Eric W. Biederman wrote:
+>> Adrian Bunk <bunk@stusta.de> writes:
+>
+> We just got a completely different bug reported that was confirmed to be 
+> caused by Andi's patch:
+>    AMD64/ATI : timer is running twice as fast as it should [1]
 
-> > Any such change can cause Unionfs to oops, or stay
-> > silent and even RESULT IN DATA LOSS.
-> 
-> With a rather rough user interface ;)
+Odd. I didn't think Andi's code worked well enough that we could hit
+anything but the default trust the BIOS case.  I guess someone had
+the right hardware to perform that miracle.
 
-That statement is meant to scare people away from modifying the lower fs :)
-I tortured unionfs quite a bit, and it can oops but it takes some effort.
+>> I really don't care how we do it, or in what timeframe.  But what I have
+>> posted is the only way I can see of making it better, than what we had
+>> in 2.6.19.
+>>...
+>
+> My whole point is that for 2.6.20, we can live with simply reverting 
+> Andi's commit.
+>
+> What to do for 2.6.21 is a completely different story.
 
-> Also, is it possible to add new branches to an existing union mount?  And
-> to take old ones away?
+That is where I figured we were when we first hit this bug.
 
-Not in the code in the 20-odd patches, it is a minimal version of the code,
-maade to be as clean as possible. I hope to   port the  more complex
-features into this code when things like lower branch manipulation are fixed
-in a real way - there have been suggestions of (ab)using inotify to keep
-track of the lower files, but I would prefer to find a real solution.
+I have always found the ways of stable tree maintainers to be
+mysterious.  Sometimes holding back code with minimal risk sometimes
+insisting we cleanup things instead of reverting things.
 
-Josef "Jeff" Sipek.
+So I have just decided to write the code and let other people figure
+out when it should be merged :)  And of course when my code has
+problems to address them.
 
--- 
-Research, n.:
-  Consider Columbus:
-    He didn't know where he was going.
-    When he got there he didn't know where he was.
-    When he got back he didn't know where he had been.
-    And he did it all on someone else's money.
+Eric

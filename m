@@ -1,63 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964784AbXAHJGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932635AbXAHJIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbXAHJGP (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 04:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbXAHJGP
+	id S932635AbXAHJIf (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 04:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbXAHJIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 04:06:15 -0500
-Received: from web55603.mail.re4.yahoo.com ([206.190.58.227]:39507 "HELO
-	web55603.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932635AbXAHJGN (ORCPT
+	Mon, 8 Jan 2007 04:08:35 -0500
+Received: from mis011.exch011.intermedia.net ([64.78.21.10]:6859 "EHLO
+	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932635AbXAHJIe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 04:06:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=cH8aXkfv4qkXhcs4ODpozTJLtHuFy6LBiDfk3DxLgLFoHU3L+uatBbdj/PVW9YswkyHjFecHJd0k1zuXFKil4d1XweOboBKMqql2U2u4P6j5F0ywEnJKT/FM055uzIJO98w9GJ2QV2HV4r0w9mn7toG94W17oKPdF5sY5WUsmPc=;
-X-YMail-OSG: K8DZ4TMVM1kcbrUbZq6lg0rOQZapKxgJNJ0GML692XvSRWa9.1i4oEdeHyu00C51pIO.hYcee9QAVH4N7GMLEQwcaQgjLaJ0S6ZmeKuxvmUfCIkzwAHyptcqs2ZkHBLsMTqFnghw3X7RPzxRfyAAEB4GeA--
-Date: Mon, 8 Jan 2007 01:06:12 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Hua Zhong <hzhong@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <84144f020701080045x52b1b9a3u8caf8b88856ceb@mail.gmail.com>
+	Mon, 8 Jan 2007 04:08:34 -0500
+Message-ID: <45A20A0A.70403@qumranet.com>
+Date: Mon, 08 Jan 2007 11:08:26 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <552712.75479.qm@web55603.mail.re4.yahoo.com>
+To: Ingo Molnar <mingo@elte.hu>
+CC: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] KVM paravirtualization for Linux
+References: <20070105215223.GA5361@elte.hu> <45A0E586.50806@qumranet.com> <20070107174416.GA14607@elte.hu> <45A1FF4E.1020106@qumranet.com> <20070108083935.GB18259@elte.hu>
+In-Reply-To: <20070108083935.GB18259@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jan 2007 09:08:34.0384 (UTC) FILETIME=[9314AD00:01C73304]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Avi Kivity <avi@qumranet.com> wrote:
+>
+>   
+>>> the cache is zapped upon pagefaults anyway, so unpinning ought to be 
+>>> possible. Which one would you prefer?
+>>>       
+>> It's zapped by the equivalent of mmu_free_roots(), right?  That's 
+>> effectively unpinning it (by zeroing ->root_count).
+>>     
+>
+> no, right now only the guest-visible cache is zapped - the roots are 
+> zapped by natural rotation. I guess they should be zapped in 
+> kvm_cr3_cache_clear() - but i wanted to keep that function an invariant 
+> to the other MMU state, to make it easier to call it from whatever mmu 
+> codepath.
+>
+>   
 
---- Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+Ok.  Some mechanism is then needed to unpin the pages in case they are 
+recycled by the guest.
 
-> Hi Amit,
-> 
-> On 1/8/07, Amit Choudhary <amit2030@yahoo.com> wrote:
-> > Man, doesn't make sense to me.
-> 
-> Well, man, double-free is a programming error and papering over it
-> with NULL initializations bloats the kernel and makes the code
-> confusing.
-> 
-> Clear enough for you?
-> 
+>> However, kvm takes pagefaults even for silly things like setting (in 
+>> hardware) or clearing (in software) the dirty bit.
+>>     
+>
+> yeah. I think it also does some TLB flushes that are not needed. For 
+> example in rmap_write_protect() we do this:
+>
+>                 rmap_remove(vcpu, spte);
+>                 kvm_arch_ops->tlb_flush(vcpu);
+>
+> but AFAICS rmap_write_protect() is only ever called if we write a new 
+> cr3 - hence a TLB flush will happen anyway, because we do a 
+> vmcs_writel(GUEST_CR3, new_cr3). Am i missing something? 
 
-It is a programming error because the underlying code cannot handle it. If, from the beginning of
-time, double free would have been handled properly then we wouldn't have thought twice about it.
+No, rmap_write_protect() is called whenever we shadow a new guest page 
+table (the mechanism used to maintain coherency is write faults on page 
+tables).
 
-You want to catch double frees. What if double frees are no-ops?
+> I didnt want to 
+> remove it as part of the cr3 patches (to keep things simpler), but that 
+> flush looks quite unnecessary to me. The patch below seems to work in 
+> light testing.
+>
+> 	Ingo
+>
+> Index: linux/drivers/kvm/mmu.c
+> ===================================================================
+> --- linux.orig/drivers/kvm/mmu.c
+> +++ linux/drivers/kvm/mmu.c
+> @@ -404,7 +404,11 @@ static void rmap_write_protect(struct kv
+>  		BUG_ON(!(*spte & PT_WRITABLE_MASK));
+>  		rmap_printk("rmap_write_protect: spte %p %llx\n", spte, *spte);
+>  		rmap_remove(vcpu, spte);
+> -		kvm_arch_ops->tlb_flush(vcpu);
+> +		/*
+> +		 * While we removed a mapping there's no need to explicitly
+> +		 * flush the TLB here, because this codepath only triggers
+> +		 * if we write a new cr3 - which will flush the TLB anyway.
+> +		 */
+>  		*spte &= ~(u64)PT_WRITABLE_MASK;
+>  	}
+>  }
+>   
 
-I do not see how a double free can result in _logical_wrong_behaviour_ of the program and the
-program keeps on running (like an incoming packet being dropped because of double free). Double
-free will _only_and_only_ result in system crash that can be solved by setting 'x' to NULL.
+This will kill svm.
 
--Amit
+I don't think the tlb flushes are really necessary on today's Intel 
+machines, as they probably flush the tlb on each vmx switch.  But AMD 
+keeps the TLB, and the flushes are critical there.
 
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161315AbXAHPhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161319AbXAHPuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161315AbXAHPhg (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161317AbXAHPhg
+	id S1161319AbXAHPuh (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbXAHPuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:37:36 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:47298 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161315AbXAHPhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:37:35 -0500
-Date: Mon, 8 Jan 2007 21:07:26 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
-Message-ID: <20070108153726.GB31263@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 8 Jan 2007 10:50:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36382 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161319AbXAHPug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 10:50:36 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+       Yinghai Lu <yinghai.lu@amd.com>, Andrew Morton <akpm@osdl.org>,
+       Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/4] x86_64 io_apic: Implement remove_pin_to_irq
+References: <5986589C150B2F49A46483AC44C7BCA490733F@ssvlexmb2.amd.com>
+	<86802c440701022223q418bd141qf4de8ab149bf144b@mail.gmail.com>
+	<20070108005556.GA2542@melchior.yamamaya.is-a-geek.org>
+	<Pine.LNX.4.64.0701071708240.3661@woody.osdl.org>
+Date: Mon, 08 Jan 2007 08:49:36 -0700
+In-Reply-To: <Pine.LNX.4.64.0701071708240.3661@woody.osdl.org> (Linus
+	Torvalds's message of "Sun, 7 Jan 2007 17:09:17 -0800 (PST)")
+Message-ID: <m1lkkdikmn.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107115957.6080aa08.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 11:59:57AM -0800, Andrew Morton wrote:
-> > How would this provide a stable access to cpu_online_map in functions
-> > that need to block while accessing it (as flush_workqueue requires)?
-> 
-> If a thread simply blocks, that will not permit a cpu plug/unplug to proceed.
-> 
-> The thread had to explicitly call try_to_freeze().  CPU plug/unplug will
-> not occur (and cpu_online_map will not change) until every process in the
-> machine has called try_to_freeze()).
 
-Maybe my misunderstanding of the code, but:
+To try different irq routing combinations so we can make an informed
+guess as to how to route irqs when the BIOS gets it wrong we need
+the ability to modify our irq routing data structures.
 
-Looking at the code, it seems to me that try_to_freeze() will be called very 
-likely from the signal-delivery path (get_signal_to_deliver()). Isnt
-that correct? If so, consider a thread as below:
+This adds remove_pin_to_irq which removes the mapping from and apic pin
+to an irq.
 
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ arch/x86_64/kernel/io_apic.c |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
 
- Thread1 :
-	for_each_online_cpu() { online_map = 0x1111 at this point }
-		do_some_thing();
-			kmalloc(); <- blocks
-
-
-Can't Thread1 be frozen in the above blocking state w/o it voluntarily 
-calling try_to_freeze?  If so, online_map can change when it returns
-from kmalloc() ..
-
-> So the problem which you're referring to will only occur if a workqueue
-> callback function calls try_to_freeze(), which would be mad.
-> 
-> 
-> Plus flush_workqueue() is on the way out.  We're slowly edging towards a
-> working cancel_work() which will only block if the work which you're trying
-> to cancel is presently running.  With that, pretty much all the
-> flush_workqueue() calls go away, and all these accidental rarely-occurring
-> deadlocks go away too.
-
-Fundamentally, I think it is important to give the ability to block
-concurrent hotplug operations from happening ..
-
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 2a1dcd5..7365f5f 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -286,6 +286,29 @@ static void add_pin_to_irq(unsigned int irq, int apic, int pin)
+ 	entry->pin = pin;
+ }
+ 
++static void remove_pin_to_irq(unsigned int irq, int apic, int pin)
++{
++	struct irq_pin_list *entry = irq_2_pin + irq;
++
++	BUG_ON(irq >= NR_IRQS);
++
++	while (entry->next && ((entry->apic != apic) || (entry->pin != pin)))
++		entry = irq_2_pin + entry->next;
++
++	if (entry->pin == apic && entry->pin == pin) {
++		if (entry->next) {
++			struct irq_pin_list *next = irq_2_pin + entry->next;
++			*entry = *next;
++			next->pin = -1;
++			next->apic = -1;
++			next->next = 0;
++		} else {
++			entry->pin = -1;
++			entry->apic = -1;
++		}
++	}
++}
++
+ 
+ #define DO_ACTION(name,R,ACTION, FINAL)					\
+ 									\
 -- 
-Regards,
-vatsa
+1.4.4.1.g278f
+

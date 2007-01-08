@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751053AbXAHV3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932066AbXAHVb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbXAHV3K (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbXAHV3K
+	id S932066AbXAHVb0 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbXAHVb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:29:10 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:44813 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751050AbXAHV3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:29:08 -0500
-Date: Mon, 8 Jan 2007 13:28:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 19/24] Unionfs: Helper macros/inlines
-Message-Id: <20070108132817.5c9a30d6.akpm@osdl.org>
-In-Reply-To: <11682295994056-git-send-email-jsipek@cs.sunysb.edu>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-	<11682295994056-git-send-email-jsipek@cs.sunysb.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 16:31:26 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56918 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750864AbXAHVbZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:31:25 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
+       "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] x86_64 io_apic: Implement remove_pin_to_irq
+References: <5986589C150B2F49A46483AC44C7BCA490736C@ssvlexmb2.amd.com>
+Date: Mon, 08 Jan 2007 14:30:53 -0700
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA490736C@ssvlexmb2.amd.com>
+	(Yinghai Lu's message of "Mon, 8 Jan 2007 13:09:19 -0800")
+Message-ID: <m1ps9pgq9e.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun,  7 Jan 2007 23:13:11 -0500
-"Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
+"Lu, Yinghai" <yinghai.lu@amd.com> writes:
 
-> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> 
-> This patch contains many macros and inline functions used thoughout Unionfs.
-> 
-> ..
+> -----Original Message-----
+> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
+> Sent: Monday, January 08, 2007 7:50 AM
+> To: Linus Torvalds
+> Cc: Tobias Diedrich; Lu, Yinghai; Andrew Morton; Adrian Bunk; Andi
+> Kleen; Linux Kernel Mailing List
+> Subject: [PATCH 1/4] x86_64 io_apic: Implement remove_pin_to_irq
 >
-> +#define ibstart(ino) (UNIONFS_I(ino)->bstart)
-> +#define ibend(ino) (UNIONFS_I(ino)->bend)
-> +
-> +/* Superblock to private data */
-> +#define UNIONFS_SB(super) ((struct unionfs_sb_info *)(super)->s_fs_info)
-> +#define sbstart(sb) 0
-> +#define sbend(sb) (UNIONFS_SB(sb)->bend)
-> +#define sbmax(sb) (UNIONFS_SB(sb)->bend + 1)
-> +
-> +/* File to private Data */
-> +#define UNIONFS_F(file) ((struct unionfs_file_info *)((file)->private_data))
-> +#define fbstart(file) (UNIONFS_F(file)->bstart)
-> +#define fbend(file) (UNIONFS_F(file)->bend)
+> +static void remove_pin_to_irq(unsigned int irq, int apic, int pin)
+> +{
+> +	struct irq_pin_list *entry = irq_2_pin + irq;
 >
-> ...
->
-> +#define dbstart(dent) (UNIONFS_D(dent)->bstart)
-> +#define set_dbstart(dent, val) do { UNIONFS_D(dent)->bstart = val; } while(0)
-> +#define dbend(dent) (UNIONFS_D(dent)->bend)
-> +#define set_dbend(dent, val) do { UNIONFS_D(dent)->bend = val; } while(0)
-> +#define dbopaque(dent) (UNIONFS_D(dent)->bopaque)
-> +#define set_dbopaque(dent, val) do { UNIONFS_D(dent)->bopaque = val; } while (0)
+> You may need to update add_pin_to_irq to avoid multi entries for irq 0.
 
-Please prefer to use inlined C fucntions.  Macros should only be used if
-there is some reason why an inlined fucntion will not work.
+Any updates to add_pin_to_irq are wrong.  It works fine.  If there
+is something wrong we need to fix remove_pin_to_irq.
 
-> +#define lock_dentry(d)		down(&UNIONFS_D(d)->sem)
-> +#define unlock_dentry(d)	up(&UNIONFS_D(d)->sem)
-> +#define verify_locked(d)
+What is the problem you see?  Sorry I'm dense at the moment.
 
-Ditto.
+I preserve the invariant that irq_2_pin + irq is always the first
+entry in the chain.  I do this when I delete a multi chain entry
+by copying the next entry over the current entry, and then freeing
+(and leaking) the second entry in the chain.
 
-Please use mutexes where possible.  Semaphores should only be used when
-their counting feature is employed.  And, arguably, in situations where a
-lock is locked and unlocked from different threads, because this presently
-triggers mutex debugging warnings, although we should find a way of fixing
-this in the mutex code.
+Is there something wrong with that?  I came within an inch of deleting
+this multiple apic, pin to irq mapping code but the comments said it
+is needed for some ioapic case.  So in resurrecting this variant I may
+have goofed somewhere.
 
-I can't say I like the name "lock_dentry" much.  It sounds like a VFS
-function and we may well gain a generic lock_dentry() at some time in the
-future.  unionfs_lock_dentry() would be a better choice.
+Eric

@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751514AbXAHNIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751515AbXAHNPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbXAHNIP (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161268AbXAHNIP
+	id S1751515AbXAHNPL (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:15:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbXAHNPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:08:15 -0500
-Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:44384 "EHLO
-	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751514AbXAHNIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:08:14 -0500
-X-Greylist: delayed 4194 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 08:08:14 EST
-Date: Mon, 8 Jan 2007 13:58:17 +0200
-From: Sami Farin <safari-xfs@safari.iki.fi>
-To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, David Chinner <dgc@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: BUG: warning at mm/truncate.c:60/cancel_dirty_page()
-Message-ID: <20070108115816.GB3803@m.safari.iki.fi>
-Mail-Followup-To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, David Chinner <dgc@sgi.com>,
-	Hugh Dickins <hugh@veritas.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20070106023907.GA7766@m.safari.iki.fi> <Pine.LNX.4.64.0701062051570.24997@blonde.wat.veritas.com> <20070107222341.GT33919298@melbourne.sgi.com> <20070107144812.96357ff9.akpm@osdl.org> <20070107230436.GU33919298@melbourne.sgi.com>
+	Mon, 8 Jan 2007 08:15:11 -0500
+Received: from thunk.org ([69.25.196.29]:48941 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751515AbXAHNPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 08:15:08 -0500
+Date: Mon, 8 Jan 2007 07:58:19 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       git@vger.kernel.org, nigel@nigel.suspend2.net,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070108125819.GA32756@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070107230436.GU33919298@melbourne.sgi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070108030555.GA7289@in.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 10:04:36 +1100, David Chinner wrote:
-> On Sun, Jan 07, 2007 at 02:48:12PM -0800, Andrew Morton wrote:
-> > On Mon, 8 Jan 2007 09:23:41 +1100
-> > David Chinner <dgc@sgi.com> wrote:
+On Mon, Jan 08, 2007 at 08:35:55AM +0530, Suparna Bhattacharya wrote:
+> > Yeah, slowly-growing directories will get splattered all over the disk.
 > > 
-> > > How are you supposed to invalidate a range of pages in a mapping for
-> > > this case, then? invalidate_mapping_pages() would appear to be the
-> > > candidate (the generic code uses this), but it _skips_ pages that
-> > > are already mapped.
+> > Possible short-term fixes would be to just allocate up to (say) eight
+> > blocks when we grow a directory by one block.  Or teach the
+> > directory-growth code to use ext3 reservations.
 > > 
-> > unmap_mapping_range()?
+> > Longer-term people are talking about things like on-disk rerservations.
+> > But I expect directories are being forgotten about in all of that.
 > 
-> /me looks at how it's used in invalidate_inode_pages2_range() and
-> decides it's easier not to call this directly.
-> 
-> > > So, am I correct in assuming we should be calling invalidate_inode_pages2_range()
-> > > instead of truncate_inode_pages()?
-> > 
-> > That would be conventional.
-> 
-> .... in that case the following patch should fix the warning:
+> By on-disk reservations, do you mean persistent file preallocation ? (that
+> is explicit preallocation of blocks to a given file) If so, you are
+> right, we haven't really given any thought to the possibility of directories
+> needing that feature.
 
-I tried dt+strace+cinfo with this patch applied and got no warnings.
-Thanks for quick fix.
+The fastest and probably most important thing to add is some readahead
+smarts to directories --- both to the htree and non-htree cases.  If
+you're using some kind of b-tree structure, such as XFS does for
+directories, preallocation doesn't help you much.  Delayed allocation
+can save you if your delayed allocator knows how to structure disk
+blocks so that a btree-traversal is efficient, but I'm guessing the
+biggest reason why we are losing is because we don't have sufficient
+readahead.  This also has the advantage that it will help without
+needing to doing a backup/restore to improve layout.
 
--- 
-Do what you love because life is too short for anything else.
+Allocating some number of empty blocks when we grow the directory
+would be a quick hack that I'd probably do as a 2nd priority.  It
+won't help pre-existing directories, but combined with readahead
+logic, should help us out greatly in the non-btree case.  
 
+						- Ted

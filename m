@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161357AbXAHTbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422715AbXAHTcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161357AbXAHTbo (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 14:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161363AbXAHTbo
+	id S1422715AbXAHTcG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 14:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbXAHTcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 14:31:44 -0500
-Received: from mga09.intel.com ([134.134.136.24]:8433 "EHLO mga09.intel.com"
+	Mon, 8 Jan 2007 14:32:05 -0500
+Received: from mail.trixing.net ([87.230.125.58]:55952 "EHLO mail.trixing.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161357AbXAHTbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 14:31:42 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,160,1167638400"; 
-   d="scan'208"; a="34094042:sNHT19219068"
-Message-ID: <45A29C09.8050901@linux.intel.com>
-Date: Mon, 08 Jan 2007 22:31:21 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	id S1422707AbXAHTby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 14:31:54 -0500
+Message-ID: <45A29C13.10304@l4x.org>
+Date: Mon, 08 Jan 2007 20:31:31 +0100
+From: Jan Dittmer <jdi@l4x.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.9) Gecko/20061220 Thunderbird/1.5.0.9 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-To: Berthold Cogel <cogel@rrz.uni-koeln.de>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: Regression in kernel linux-2.6.20-rc1/2: Problems with poweroff
-References: <459069AA.20809@rrz.uni-koeln.de> <20061228221616.GI20714@stusta.de> <45999C47.40204@rrz.uni-koeln.de> <459D5079.70605@linux.intel.com> <459EE89F.1010505@rrz.uni-koeln.de> <459F6366.5080609@linux.intel.com> <45A13DF8.2030207@rrz.uni-koeln.de>
-In-Reply-To: <45A13DF8.2030207@rrz.uni-koeln.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dirk <d_i_r_k_@gmx.net>
+CC: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Jay Vaughan <jv@access-music.de>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com> <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]> <45A24176.9080107@gmx.net> <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net>
+In-Reply-To: <45A264E1.3080603@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.1.37
+X-SA-Exim-Mail-From: jdi@l4x.org
+Subject: Re: Gaming Interface
+X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 14:12:04 +0200)
+X-SA-Exim-Scanned: Yes (on mail.trixing.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Berthold Cogel wrote:
-> Alexey Starikovskiy schrieb:
->
->   
->>> Hello Alex,
->>>
->>> I still get the same diffs. Except the yenta part of course. And the
->>> system is still rebooting.
->>>
->>> Berthold
->>>   
->>>       
->> Good, yenta is cleared :) Could you replace /drivers/acpi/ec.c with the
->> version from 2.6.19.x and try again?
->>
->> Regards,
->>    Alex.
->>     
->
-> Hi Alex!
->
-> I did what you suggested. First I replaced ec.c in linux-2.6.20-rc2 (see
-> attached dmesg-2.6.20-rc2.ec.txt) with the version from linux-2.6.19.1
-> and in a second step I also replaced i2c_ec.c and i2c_ec.h
-> (dmesg-2.6.20-rc2.i2c_ec.txt).
->
-> In both cases the only result I can see is the absence of the 'ACPI: EC:
-> evaluating' messages in the logs. The system is still rebooting instead
-> of doing a clean shutdown.
->
-> Regards,
-> Berthold
->
->   
-Excellent, ACPI printing of queries is cleared as well :)
-There are two ways to debug further... git-bisect and unloading modules 
-before shutdown (or not loading them)...
-While second is easier and could isolate a module, the first could be 
-way more productive:
-http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
+Dirk wrote:
+> Alright. I came to discuss an idea I had because I realized that 
+> installing Windows and running Linux in VMware is the only _fun_ way to 
+> play "real" Games and have Linux at the same time.
+> 
+> And everyone who says I'm a troll doesn't like Games or simple things.
 
-Thanks in advance,
-    Alex.
- 
+That's not true, see wine/cedega for a linux direct-x implementation.
+Works wonders with most of the current games and copy protections.
+
+Jan

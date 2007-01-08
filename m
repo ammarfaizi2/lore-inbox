@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161217AbXAHKch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161219AbXAHKd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161217AbXAHKch (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 05:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161219AbXAHKch
+	id S1161219AbXAHKd1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbXAHKd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 05:32:37 -0500
-Received: from a80-100-32-23.adsl.xs4all.nl ([80.100.32.23]:50756 "EHLO
-	mail.vanvergehaald.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161217AbXAHKcg (ORCPT
+	Mon, 8 Jan 2007 05:33:27 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53632 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161219AbXAHKd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 05:32:36 -0500
-X-Greylist: delayed 1403 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 05:32:36 EST
-Date: Mon, 8 Jan 2007 11:09:11 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
-Message-ID: <20070108100910.GA1967@shuttle.vanvergehaald.nl>
-References: <20070106131725.GB19020@Ahmed>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070106131725.GB19020@Ahmed>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 8 Jan 2007 05:33:26 -0500
+Date: Mon, 8 Jan 2007 10:44:18 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+Cc: "Willy Tarreau" <w@1wt.eu>, linux-kernel@vger.kernel.org
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+Message-ID: <20070108104418.152eaaa2@localhost.localdomain>
+In-Reply-To: <6575.192.54.193.51.1168251859.squirrel@rousalka.dyndns.org>
+References: <6575.192.54.193.51.1168251859.squirrel@rousalka.dyndns.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 03:17:25PM +0200, Ahmed S. Darwish wrote:
-> Hi all,
-> I'm not able to find the DAC960 block driver maintainer.
-> If someones knows please reply :).
+> (case in point: Russel's system. I was ROTFL when he proudly announced he
+> was running a full iso-8859-1 system after dissing UTF-8. Last I've seen
+> the official 8bit EU encoding was iso-8859-15, and UK is part of the EU)
 
-After Leonard Zubkoff unfortunately died in a helicopter accident
-Dave Olien <dmo@osdl.org> did some great work on the driver.
-Maybe he's still around?
+There is no correct UK encoding. You need -14 or -15 depending upon
+language and can come horribly unstuck the moment a name is involved.
 
-Regards,
-Toon.
+Alan

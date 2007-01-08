@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964901AbXAHVwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964906AbXAHVy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbXAHVwH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbXAHVwG
+	id S964906AbXAHVy6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbXAHVy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:52:06 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:53445
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S964901AbXAHVwF (ORCPT
+	Mon, 8 Jan 2007 16:54:58 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44288 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964906AbXAHVy5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:52:05 -0500
-Date: Mon, 08 Jan 2007 13:52:05 -0800 (PST)
-Message-Id: <20070108.135205.98420473.davem@davemloft.net>
-To: petero2@telia.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, kaber@trash.net
-Subject: Re: Linux 2.6.20-rc4
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <m3tzz1p7l8.fsf@telia.com>
-References: <Pine.LNX.4.64.0701071442580.3661@woody.osdl.org>
-	<20070107.170056.76564352.davem@davemloft.net>
-	<m3tzz1p7l8.fsf@telia.com>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 8 Jan 2007 16:54:57 -0500
+Date: Mon, 8 Jan 2007 22:05:44 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 file system went read-only in 2.6.18.2 (plus hacks)
+Message-ID: <20070108220544.0febd10b@localhost.localdomain>
+In-Reply-To: <45A2B9DA.20104@candelatech.com>
+References: <45A2B9DA.20104@candelatech.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Osterlund <petero2@telia.com>
-Date: 08 Jan 2007 21:49:23 +0100
+> pktgen: pktgen_mark_device marking eth0#5 for removal
+> pktgen: pktgen_mark_device marking eth0#0 for removal
+> .....
+> 
+> After restarting and a manual fsck, the system appears to
+> be back to normal.
 
-> The first crash was with gcc 4.1.1, but now I recompiled the kernel
-> with "gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-56.fc5)" and I
-> can still reproduce the same crash. The backtrace looks the same,
-
-Thanks for performing this test.
+Did the fsck find any errors ?

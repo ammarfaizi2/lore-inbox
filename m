@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161054AbXAHXBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161134AbXAHXCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161054AbXAHXBq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161098AbXAHXBq
+	id S1161134AbXAHXCj (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161098AbXAHXCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:01:46 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:51469 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161064AbXAHXBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:01:41 -0500
-Date: Mon, 8 Jan 2007 14:57:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Tobias Diedrich <ranma+kernel@tdiedrich.de>,
-       Yinghai Lu <yinghai.lu@amd.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>,
+	Mon, 8 Jan 2007 18:02:38 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:33113 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161083AbXAHXCh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:02:37 -0500
+To: Patrick McHardy <kaber@trash.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mingo@redhat.com, discuss@x86-64.org
-Subject: Re: [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when
- check_timer fails.
-In-Reply-To: <20070108223355.GI6167@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701081454240.3661@woody.osdl.org>
-References: <5986589C150B2F49A46483AC44C7BCA490733F@ssvlexmb2.amd.com>
- <86802c440701022223q418bd141qf4de8ab149bf144b@mail.gmail.com>
- <20070108005556.GA2542@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0701071708240.3661@woody.osdl.org> <m1lkkdikmn.fsf_-_@ebiederm.dsl.xmission.com>
- <m1hcv1ikfj.fsf_-_@ebiederm.dsl.xmission.com> <m1d55pikbc.fsf_-_@ebiederm.dsl.xmission.com>
- <m18xgdijmb.fsf_-_@ebiederm.dsl.xmission.com> <20070108202105.GB6167@stusta.de>
- <m1k5zxgplv.fsf@ebiederm.dsl.xmission.com> <20070108223355.GI6167@stusta.de>
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Linux 2.6.20-rc4
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	<m37ivyr1v6.fsf@telia.com>
+	<Pine.LNX.4.64.0701071442580.3661@woody.osdl.org>
+	<45A2C6AE.5080400@trash.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 09 Jan 2007 00:02:30 +0100
+In-Reply-To: <45A2C6AE.5080400@trash.net>
+Message-ID: <m3ps9pp1fd.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patrick McHardy <kaber@trash.net> writes:
 
+> Linus Torvalds wrote:
+> > On Sun, 7 Jan 2007, Peter Osterlund wrote:
+> > 
+> >>I get kernel panics when doing large ethernet transfers. A loop doing
 
-On Mon, 8 Jan 2007, Adrian Bunk wrote:
+> >>  EFALLGS: 00010206 (2.6.20-rc4 #13)
+> >>  EIP is at ipv4_conntrack_help+0x6b/0x83
+> >>  eax: c0475e44 ebx: 9f5cea37 ecx: d1dcebb0 edx: 00000014
+> >>  esi: d1dcebb0 edi: c0475e44 ebp: c0475dd8 esp: c0475dc4
+> > 
+> > which is ipv4_conntrack_help():
+> > 
+> > 	return help->helper->help(pskb,
+> > 		(*pskb)->nh.raw - (*pskb)->data
+> > 				+ (*pskb)->nh.iph->ihl*4,
+> > 		ct, ctinfo);
+> > 
+> > and that call instruction is the one that oopses because "help->helper" is 
+> > corrupt (it's 0x9f5cea37 - not a valid kernel pointer).
 > 
-> We just got a completely different bug reported that was confirmed to be 
-> caused by Andi's patch:
->    AMD64/ATI : timer is running twice as fast as it should [1]
+> I guess its because of an uninitialized helper field in struct
+> nf_conntrack_expect, which is then copied from the expectation to
+> the conntrack entry.
+> 
+> Peter, do you have locally generated netbios ns queries on the machine
+> running nf_conntrack?
 
-Yeah. I have to say, that with my main goal for 2.6.20 being a stability 
-release, and the APIC setup scaring me too, I'm starting to strongly lean 
-towards just reverting the thing, and then having this whole thing 
-re-introduced early during the 2.6.21 cycle with the new information we 
-have (ie the clues about exactly why the dang thing broke in the first 
-place).
+I have samba running on both machines. I guess that generates some
+netbios traffic even though it isn't currently in active use.
 
-After all, the only reason I didn't want to revert the commit initially 
-was that it did clean things up, and I wanted to understand why it didn't 
-work. I think we understand why it caused problems, and I think we can fix 
-them, but on the other hand, we're already deep into -rc4 with this, so 
-let's just revert for now and then clean it up correctly after the 2.6.20 
-release.
+> If so, please try this patch.
 
-		Linus
+Thanks, the patch appears to help. The kernel has now survived much
+longer with this patch than it used to do without it.
+
+I will recompile with gcc 4.1.1 too just to make sure, but if you
+don't hear anything more from me, consider the case closed. :)
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751473AbXAHH3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751475AbXAHH3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751473AbXAHH3W (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 02:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbXAHH3W
+	id S1751475AbXAHH3u (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 02:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbXAHH3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 02:29:22 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:41992 "EHLO smtps.tip.net.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751473AbXAHH3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 02:29:21 -0500
-Date: Mon, 8 Jan 2007 18:29:33 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Kyle McMartin <kyle@parisc-linux.org>,
-       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [PATCH] Common compat_sys_sysinfo (v2)
-Message-Id: <20070108182933.b8153945.sfr@canb.auug.org.au>
-In-Reply-To: <200701080654.27100.arnd@arndb.de>
-References: <20070107144850.GB3207@athena.road.mcmartin.ca>
-	<20070107154045.GD3207@athena.road.mcmartin.ca>
-	<20070108104347.83a004aa.sfr@canb.auug.org.au>
-	<200701080654.27100.arnd@arndb.de>
-X-Mailer: Sylpheed version 2.3.0beta5 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__8_Jan_2007_18_29_33_+1100_bWnQA1q=iCU4iHvx"
+	Mon, 8 Jan 2007 02:29:49 -0500
+Received: from web55610.mail.re4.yahoo.com ([206.190.58.234]:20974 "HELO
+	web55610.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751475AbXAHH3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 02:29:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=Pgn7Pt8qoURz5YuPjxPQ3YPOvBBAwcf+7e7pkduX/YsyfN+zGi9ljvRmXhdCqtjmf2ZouDgfpJ8UYZUiblRQO6bt+tiHN1vlKnVu5EQ8lN9EPU7RTHFTvWp/G3kJxHwUIAUtQEc6X0oCPECb8I1tei65URlrGD2CNR+ttgqoKno=;
+X-YMail-OSG: 7fQ6sR8VM1nAWltbvlnDm.tJdr0pFJa3WMia7d3wQobXvz25GXG9OluocHgJ8mbedUaM3bDc2VXfneObNUGpRDvyqe8QRovyWZ9Lwb38594fjxKwrUIMlQ--
+Date: Sun, 7 Jan 2007 23:29:47 -0800 (PST)
+From: Amit Choudhary <amit2030@yahoo.com>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1168239852.6202.15.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <150027.90187.qm@web55610.mail.re4.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__8_Jan_2007_18_29_33_+1100_bWnQA1q=iCU4iHvx
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 8 Jan 2007 06:54:26 +0100 Arnd Bergmann <arnd@arndb.de> wrote:
->
-> > People have complined before that this adds a whole stack frame to the
-> > "normal" syscall path. =A0Personally I don't care, but it has been
-> > mentioned.
->
-> It might be a concern for something like 'read' which is called frequently
-> and in strange ways, but for 'sysinfo' this really should not matter.
+--- Vadim Lobanov <vlobanov@speakeasy.net> wrote:
 
-Absolutely true.
+> On Sun, 2007-01-07 at 20:09 -0800, Amit Choudhary wrote:
+> > I have already explained it earlier. I will try again. You will not need free_2: and free_1:
+> with
+> > KFREE(). You will only need one free: with KFREE.
+> 
 
---
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I do not want to write this but I think that you are arguing just for the heck of it. Please be
+sane.
 
---Signature=_Mon__8_Jan_2007_18_29_33_+1100_bWnQA1q=iCU4iHvx
-Content-Type: application/pgp-signature
+-Amit
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFFofLdFdBgD/zoJvwRAq3sAJ95UYU7B9QntiOwuoCpeSqQyn4/KACgkx4h
-bp1COzzonDn88eiRhxqHf8Y=
-=4qXW
------END PGP SIGNATURE-----
-
---Signature=_Mon__8_Jan_2007_18_29_33_+1100_bWnQA1q=iCU4iHvx--
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

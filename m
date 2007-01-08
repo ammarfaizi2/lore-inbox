@@ -1,55 +1,115 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030455AbXAHCba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030453AbXAHCfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030455AbXAHCba (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 21:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbXAHCba
+	id S1030453AbXAHCfj (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 21:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbXAHCfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 21:31:30 -0500
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:46696 "HELO
-	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030455AbXAHCb3 (ORCPT
+	Sun, 7 Jan 2007 21:35:39 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:53842 "EHLO
+	mail4.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030453AbXAHCfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 21:31:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=pM4+1oZRz8ZEa+RnPIikXRxc4yf5UhigmczS8KICw8uMldxqabtXBIdQH7W1WteHkQF48eWRfAu9MBc0RwTjjXribQGy+OWULdNLGkJ5MujUvEOI0Lk+K9GTqdTLyZB9hE+1w9ScflAANgWlEI2jKkIdLt+pVBsYKb2SNC5RWak=  ;
-X-YMail-OSG: J0idOdAVM1ksGIGuaToQGL9IzSM1mx9U4kjGgX1tDm1HpOhePDlPR75sVBqXS0DZyNl4sSo0eer.UfXI8f6aNBbS49mIyMyzjgrLQjP1QEhSyVTvOpA8dQ.Fy63DJmEmFBdE8Vvk3hPfR1iKLgs7e7O9KquypiWJU.SAl6_vFP9R.cfSjofTqDaURgpj
-From: David Brownell <david-b@pacbell.net>
-To: Philippe De Muyter <phdm@macqel.be>
-Subject: Re: RTC subsystem and fractions of seconds
-Date: Sun, 7 Jan 2007 18:10:30 -0800
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
-References: <200701051949.00662.david-b@pacbell.net> <20070107101449.GA24163@ingate.macqel.be>
-In-Reply-To: <20070107101449.GA24163@ingate.macqel.be>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 7 Jan 2007 21:35:38 -0500
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <261558.33282.qm@web55609.mail.re4.yahoo.com>
+References: <261558.33282.qm@web55609.mail.re4.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 18:35:34 -0800
+Message-Id: <1168223734.5259.12.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701071810.30310.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 January 2007 2:14 am, Philippe De Muyter wrote:
-> On Fri, Jan 05, 2007 at 07:49:00PM -0800, David Brownell wrote:
-> > >  	Those rtc's actually have a 1/100th of second
-> > > register.  Should the generic rtc interface not support that?
-> > 
-> > Are you implying a new userspace API, or just an in-kernel update?
-> > 
-> > Either way, that raises the question of what other features should
-> > be included.  What sub-second precision?  Multiple alarms?  Ways
-> > to manage output clocks?  Sub-HZ periodic alarms?
+On Sun, 2007-01-07 at 16:02 -0800, Amit Choudhary wrote:
+> That's where KFREE(ptr) comes in so that the code doesn't look ugly and still the purpose is
+> achieved.
+
+Shoving it into a macro makes it no better.
+
+> > Reading code like that makes me say "wtf?", simply because 'ptr' is not
+> > used thereafter,
 > 
-> One usefull addition for my needs and with a m41t81 is the support of
-> the calibration of the rtc.  However this can perhaps be hidden in the
-> .set_mmss function.
+> Really? Then why do we have all the debugging options to catch re-use of the memory that has been
+> freed. So many debugging options has been implemented, so much effort has gone into them, partly
+> because programmers sometimes miss correct programming.
 
-Doesn't seem like an set_mmss() mechanism at all.  Some drivers give
-sysfs access to an oscillator "trim" mechanism.  What tools do you
-have which track how far off that crystal is?
+Which is exactly why we should continue to let programmers focus on
+trying to get their code correct and letting the existing safety tools
+catch thinkos, instead of distracting them with confusing and completely
+pointless variable assignments.
 
-- Dave
+> I do not know what you are talking about here. You are saying that a function does not need three
+> different arrays with different names. How can you say that? How do you know what is the
+> requirement?
+
+What I said was that your example proves something entirely different
+than what you think: rather than proving the need for your KFREE()
+macro, it instead proves the need to design the code correctly from the
+start, so as to avoid even thinking about this crud.
+
+If you insist, here's your example function, trivially rewritten without
+any NULL assignments. (I used two arrays, not three, to save space. The
+basic idea works by-design for any random number of arrays, each of any
+arbitrary size.)
+
+struct type1 {
+	/* something */
+};
+
+struct type2 {
+	/* something */
+};
+
+#define COUNT 10
+
+void function1(struct type1 **a1, struct type2 **a2, unsigned int sz);
+
+void function2(void)
+{
+	struct type1 *arr1[COUNT];
+	struct type2 *arr2[COUNT];
+	int i;
+
+	/* init */
+	for (i = 0; i < COUNT; i++) {
+		arr1[i] = kmalloc(sizeof(struct type1), ...);
+		if (!arr1[i])
+			goto free_1;
+	}
+	for (i = 0; i < COUNT; i++) {
+		arr2[i] = kmalloc(sizeof(struct type2), ...);
+		if (!arr2[i])
+			goto free_2;
+	}
+
+	/* work */
+	function1(arr1, arr2, COUNT);
+
+	/* fini */
+	i = COUNT;
+free_2:
+	for (i--; i >= 0; i--) {
+		kfree(arr2[i]);
+	}
+	i = COUNT;
+free_1:
+	for (i--; i >= 0; i--) {
+		kfree(arr1[i]);
+	}
+}
+
+In most cases, though, the above code design would be brain-damaged from
+the start: unless the sizes involved are prohibitively large, the
+function should be allocating all the memory in a single pass.
+
+So, where's the demonstrated need for KFREE()?
+
+-- Vadim Lobanov
+
+

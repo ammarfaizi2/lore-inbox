@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161244AbXAHLuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751466AbXAHL5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbXAHLuH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 06:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161245AbXAHLuH
+	id S1751466AbXAHL5c (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 06:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbXAHL5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 06:50:07 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:24044 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161244AbXAHLuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 06:50:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=R5Cx/Wsz7f9HfHiN0bsRiNi38C0oui6y/x6tYz1dg5HeZW4APblQL+IUnXw7ZptCReZ8i/q2V+NRBTAG1T6bDTxzoSgijlttLmNsjKlZpNBC8HBP6JTOQh4M/ricyCpD1X/vX4AFrZodFf1cEwax2g3cwl/W7iQXr2sNLyV6rwI=
-Message-ID: <47ed01bd0701080350w2a10fedei6e1724268905453d@mail.gmail.com>
-Date: Mon, 8 Jan 2007 06:50:04 -0500
-From: "Dylan Taft" <d13f00l@gmail.com>
-To: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001/001] USB MASS STORAGE: US_FL_IGNORE_RESIDUE needed for Aiptek MP3 Player - retry
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 8 Jan 2007 06:57:32 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:60695 "EHLO lxorguk.ukuu.org.uk"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751466AbXAHL5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 06:57:31 -0500
+Date: Mon, 8 Jan 2007 12:07:25 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] ahci: Remove jmicron fixup
+Message-ID: <20070108120725.5a9d63fa@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dylan Taft <d13f00l@gmail.com>
+The AHCI set up is handled properly along with the other bits in the
+JMICRON quirk. Remove the code whacking it in ahci.c as its un-needed and
+also blindly fiddles with bits it doesn't own.
 
-Device will not work as a mass storage device without US_FL_IGNORE_RESIDUE.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Signed-off-by: Dylan Taft <d13f00l@gmail.com>
----
---- ./drivers/usb/storage/unusual_devs.bak      2006-12-09
-20:50:33.000000000 -0500
-+++ ./drivers/usb/storage/unusual_devs.h        2007-01-07
-22:17:13.000000000 -0500
-@@ -1075,6 +1075,15 @@ UNUSUAL_DEV(  0x08bd, 0x1100, 0x0000, 0x
-                US_SC_DEVICE, US_PR_DEVICE, NULL,
-                US_FL_SINGLE_LUN),
-
-+/* Submitted by Dylan Taft <d13f00l@gmail.com>
-+ * US_FL_IGNORE_RESIDUE Needed
-+ */
-+UNUSUAL_DEV(  0x08ca, 0x3103, 0x0100, 0x0100,
-+                "AIPTEK",
-+                "Aiptek USB Keychain MP3 Player",
-+                US_SC_DEVICE, US_PR_DEVICE, NULL,
-+                US_FL_IGNORE_RESIDUE),
-+
- /* Entry needed for flags. Moreover, all devices with this ID use
-  * bulk-only transport, but _some_ falsely report Control/Bulk instead.
-  * One example is "Trumpion Digital Research MYMP3".
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.20-rc3-mm1/drivers/ata/ahci.c linux-2.6.20-rc3-mm1/drivers/ata/ahci.c
+--- linux.vanilla-2.6.20-rc3-mm1/drivers/ata/ahci.c	2007-01-05 13:09:36.000000000 +0000
++++ linux-2.6.20-rc3-mm1/drivers/ata/ahci.c	2007-01-05 14:02:58.000000000 +0000
+@@ -1659,13 +1659,9 @@
+ 	if (!printed_version++)
+ 		dev_printk(KERN_DEBUG, &pdev->dev, "version " DRV_VERSION "\n");
+ 
+-	/* JMicron-specific fixup: make sure we're in AHCI mode */
+-	/* This is protected from races with ata_jmicron by the pci probe
+-	   locking */
+ 	if (pdev->vendor == PCI_VENDOR_ID_JMICRON) {
+-		/* AHCI enable, AHCI on function 0 */
+-		pci_write_config_byte(pdev, 0x41, 0xa1);
+-		/* Function 1 is the PATA controller */
++		/* Function 1 is the PATA controller except on the 368, where
++		   we are not AHCI anyway */
+ 		if (PCI_FUNC(pdev->devfn))
+ 			return -ENODEV;
+ 	}

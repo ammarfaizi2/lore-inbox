@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030471AbXAHD0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030475AbXAHDaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbXAHD0T (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 22:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbXAHD0T
+	id S1030475AbXAHDaw (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 22:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbXAHDaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 22:26:19 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:62354 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030469AbXAHD0T convert rfc822-to-8bit (ORCPT
+	Sun, 7 Jan 2007 22:30:52 -0500
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:32861 "EHLO
+	fed1rmmtao06.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030470AbXAHDav (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 22:26:19 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] Fix sparsemem on Cell (take 3)
-Date: Sun, 7 Jan 2007 13:07:50 +0100
-User-Agent: KMail/1.9.5
-Cc: John Rose <johnrose@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       External List <linuxppc-dev@ozlabs.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>, hch@infradead.org,
-       linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>,
-       mkravetz@us.ibm.com, gone@us.ibm.com
-References: <20061215165335.61D9F775@localhost.localdomain> <1168059162.23226.1.camel@sinatra.austin.ibm.com> <1168160307.6740.9.camel@localhost.localdomain>
-In-Reply-To: <1168160307.6740.9.camel@localhost.localdomain>
+	Sun, 7 Jan 2007 22:30:51 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.4.4.4
+cc: linux-kernel@vger.kernel.org
+Date: Sun, 07 Jan 2007 19:30:50 -0800
+Message-ID: <7v7ivyyz2t.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200701071307.52632.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 January 2007 09:58, Dave Hansen wrote:
-> The following patch fixes an oops experienced on the Cell architecture
-> when init-time functions, early_*(), are called at runtime.  It alters
-> the call paths to make sure that the callers explicitly say whether the
-> call is being made on behalf of a hotplug even, or happening at
-> boot-time. 
-> 
-> It has been compile tested on ia64, s390, i386 and x86_64.
+The latest maintenance release GIT 1.4.4.4 is available at the
+usual places:
 
-I can't test it here, since I'm travelling at the moment, but
-this version looks good to me. Thanks for picking it up again!
+  http://www.kernel.org/pub/software/scm/git/
 
-> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+  git-1.4.4.4.tar.{gz,bz2}			(tarball)
+  git-htmldocs-1.4.4.4.tar.{gz,bz2}		(preformatted docs)
+  git-manpages-1.4.4.4.tar.{gz,bz2}		(preformatted docs)
+  RPMS/$arch/git-*-1.4.4.4-1.$arch.rpm	(RPM)
 
-Acked-by: Arnd Bergmann <arndb@de.ibm.com>
+This is to push out a handful bugfixes since 1.4.4.3.
+
+On the 'master' development front, the stabilization for v1.5.0
+will start soonish.
+
+----------------------------------------------------------------
+
+Changes since v1.4.4.3 are as follows:
+
+Johannes Schindelin (1):
+      diff --check: fix off by one error
+
+Junio C Hamano (3):
+      spurious .sp in manpages
+      Fix infinite loop when deleting multiple packed refs.
+      pack-check.c::verify_packfile(): don't run SHA-1 update on huge data
+
+
+

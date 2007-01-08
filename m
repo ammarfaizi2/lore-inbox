@@ -1,75 +1,142 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751515AbXAHNPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751524AbXAHNSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751515AbXAHNPL (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbXAHNPL
+	id S1751524AbXAHNSZ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbXAHNSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:15:11 -0500
-Received: from thunk.org ([69.25.196.29]:48941 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751515AbXAHNPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:15:08 -0500
-Date: Mon, 8 Jan 2007 07:58:19 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, nigel@nigel.suspend2.net,
-       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: How git affects kernel.org performance
-Message-ID: <20070108125819.GA32756@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Suparna Bhattacharya <suparna@in.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
-	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-References: <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com>
+	Mon, 8 Jan 2007 08:18:25 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:63228 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750771AbXAHNSZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 08:18:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RKGd8IsofzYKnZNsJlhP469snDM328m8xS7QdwprvgMJRjyNSmK9JjaGroaAtiRDcUkmgZFlIwyuQmSAzdILsC79NYIS9hr3oYHmd+Ms/F2VyJroCDyoNmUF/skNmWU/PprSoR6CMuK8h+ml6oiGTaUdXKUZNLW/reTi7Gu41b4=
+Message-ID: <8bf247760701080518s3f58f5aax4250bca4a43e9d59@mail.gmail.com>
+Date: Mon, 8 Jan 2007 18:48:23 +0530
+From: Ram <vshrirama@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel compilation - errors
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070108030555.GA7289@in.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 08:35:55AM +0530, Suparna Bhattacharya wrote:
-> > Yeah, slowly-growing directories will get splattered all over the disk.
-> > 
-> > Possible short-term fixes would be to just allocate up to (say) eight
-> > blocks when we grow a directory by one block.  Or teach the
-> > directory-growth code to use ext3 reservations.
-> > 
-> > Longer-term people are talking about things like on-disk rerservations.
-> > But I expect directories are being forgotten about in all of that.
-> 
-> By on-disk reservations, do you mean persistent file preallocation ? (that
-> is explicit preallocation of blocks to a given file) If so, you are
-> right, we haven't really given any thought to the possibility of directories
-> needing that feature.
+Hi,
+   Im using linux-2.6.14-omap2430.
 
-The fastest and probably most important thing to add is some readahead
-smarts to directories --- both to the htree and non-htree cases.  If
-you're using some kind of b-tree structure, such as XFS does for
-directories, preallocation doesn't help you much.  Delayed allocation
-can save you if your delayed allocator knows how to structure disk
-blocks so that a btree-traversal is efficient, but I'm guessing the
-biggest reason why we are losing is because we don't have sufficient
-readahead.  This also has the advantage that it will help without
-needing to doing a backup/restore to improve layout.
+   Im using TI omap 2430 SDP.
 
-Allocating some number of empty blocks when we grow the directory
-would be a quick hack that I'd probably do as a 2nd priority.  It
-won't help pre-existing directories, but combined with readahead
-logic, should help us out greatly in the non-btree case.  
+   When i compile it with the eldk toolchain.
 
-						- Ted
+   I get an error listed at the end of this mail.
+
+  The error is simple - case values should be constants, However, the
+toolchain gcc 4.0
+  is complaining that case values are not constant.
+
+  Actually, the some of the case values are defined as -
+
+  case (u32)&CM_ICLKEN_WKUP:
+  case (u32)&CM_FCLKEN_WKUP:
+
+ However, the same code compiles with some other compilers (lower
+versions of gcc).
+
+  I think all compilers should give the same error
+
+  Why the difference in behaviour?.
+
+Not sure, if the source located at linux.omap.com/pub is broken.
+Couldnt find the sources of linux kernel for omap2430 with higher
+versions of the linux kernel higher than 2.6.14.
+
+
+Please advice,
+
+
+Regards,
+sriram
+
+Error:
+
+    CHK     include/linux/version.h
+make[1]: `include/asm-arm/mach-types.h' is up to date.
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  CC      arch/arm/mach-omap2/clock24xx.o
+arch/arm/mach-omap2/clock24xx.c:47: error: static declaration of
+'clockfw_lock' follows non-static declaration
+include/asm/arch/clock.h:53: error: previous declaration of
+'clockfw_lock' was here
+arch/arm/mach-omap2/clock24xx.c: In function 'do_omap_set_performance':
+arch/arm/mach-omap2/clock24xx.c:579: warning: no return statement in
+function returning non-void
+arch/arm/mach-omap2/clock24xx.c: In function 'clk_safe':
+arch/arm/mach-omap2/clock24xx.c:1223: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1224: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1228: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1229: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1236: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1237: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1241: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1242: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1246: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1250: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1254: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1255: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1259: error: case label does not
+reduce to an integer constant
+arch/arm/mach-omap2/clock24xx.c:1260: error: case label does not
+reduce to an integer constant
+make[1]: *** [arch/arm/mach-omap2/clock24xx.o] Error 1
+make: *** [arch/arm/mach-omap2] Error 2
+
+
+code is :
+ switch((u32)(clk->enable_reg)){
+                case (u32)&CM_ICLKEN_MDM:
+                case (u32)&CM_FCLKEN_MDM:
+                        pReg = &CM_IDLEST_MDM;
+                        off = 0x0;
+                        break;
+                case (u32)&CM_ICLKEN_DSP:
+                case (u32)&CM_FCLKEN_DSP:
+                        pReg = &CM_IDLEST_DSP;
+                        if(enbit == 1)
+                                off = 0;
+                        else
+                                off = enbit;
+                        break;
+                case (u32)&CM_ICLKEN_WKUP:
+                case (u32)&CM_FCLKEN_WKUP:
+                        pReg = &CM_IDLEST_WKUP;
+                        off = enbit;
+                        break;
+                case (u32)&CM_ICLKEN_GFX:
+                case (u32)&CM_FCLKEN_GFX:
+                        pReg = &CM_IDLEST_GFX;
+                        off = 0x0;
+                        break;
+                case (u32)&CM_ICLKEN4_CORE:
+                         pReg = &CM_IDLEST4_CORE;
+                         off = enbit;
+                         break;
+                case (u32)&CM_ICLKEN3_CORE:
+                         pReg = &CM_IDLEST3_CORE;

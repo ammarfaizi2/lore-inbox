@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030490AbXAHERv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030510AbXAHERz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030490AbXAHERv (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbXAHERu
+	id S1030510AbXAHERz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030505AbXAHERz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:17:50 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50334 "EHLO
+	Sun, 7 Jan 2007 23:17:55 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50352 "EHLO
 	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030490AbXAHERa (ORCPT
+	with ESMTP id S1030504AbXAHERt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:17:30 -0500
+	Sun, 7 Jan 2007 23:17:49 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
@@ -17,9 +17,9 @@ Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
        David Quigley <dquigley@fsl.cs.sunysb.edu>,
        Erez Zadok <ezk@cs.sunysb.edu>
-Subject: [PATCH 13/24] Unionfs: Readdir state
-Date: Sun,  7 Jan 2007 23:13:05 -0500
-Message-Id: <1168229598756-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 01/24] Unionfs: Documentation
+Date: Sun,  7 Jan 2007 23:12:53 -0500
+Message-Id: <1168229596875-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.4.2
 In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
 References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
@@ -28,308 +28,207 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This file contains the routines for maintaining readdir state.
+This patch contains documentation for Unionfs. You will find several files
+outlining basic unification concepts and rename semantics.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/rdstate.c |  288 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 288 insertions(+), 0 deletions(-)
+ Documentation/filesystems/00-INDEX             |    2 +
+ Documentation/filesystems/unionfs/00-INDEX     |    8 +++
+ Documentation/filesystems/unionfs/concepts.txt |   70 ++++++++++++++++++++++++
+ Documentation/filesystems/unionfs/rename.txt   |   31 +++++++++++
+ Documentation/filesystems/unionfs/usage.txt    |   42 ++++++++++++++
+ 5 files changed, 153 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/rdstate.c b/fs/unionfs/rdstate.c
+diff --git a/Documentation/filesystems/00-INDEX b/Documentation/filesystems/00-INDEX
+index 4dc28cc..c737e3e 100644
+--- a/Documentation/filesystems/00-INDEX
++++ b/Documentation/filesystems/00-INDEX
+@@ -82,6 +82,8 @@ udf.txt
+ 	- info and mount options for the UDF filesystem.
+ ufs.txt
+ 	- info on the ufs filesystem.
++unionfs/
++	- info on the unionfs filesystem
+ v9fs.txt
+ 	- v9fs is a Unix implementation of the Plan 9 9p remote fs protocol.
+ vfat.txt
+diff --git a/Documentation/filesystems/unionfs/00-INDEX b/Documentation/filesystems/unionfs/00-INDEX
 new file mode 100644
-index 0000000..a970346
+index 0000000..32e96f2
 --- /dev/null
-+++ b/fs/unionfs/rdstate.c
-@@ -0,0 +1,288 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
++++ b/Documentation/filesystems/unionfs/00-INDEX
+@@ -0,0 +1,8 @@
++00-INDEX
++	- this file.
++concepts.txt
++	- A brief introduction of concepts
++rename.txt
++	- Information regarding rename operations
++usage.txt
++	- Usage and known limitations
+diff --git a/Documentation/filesystems/unionfs/concepts.txt b/Documentation/filesystems/unionfs/concepts.txt
+new file mode 100644
+index 0000000..d417576
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/concepts.txt
+@@ -0,0 +1,70 @@
++This file describes the concepts needed by a namespace unification file
++system.
 +
-+#include "union.h"
++Branch Priority:
++================
 +
-+/* This file contains the routines for maintaining readdir state. */
++Each branch is assigned a unique priority - starting from 0 (highest
++priority).  No two branches can have the same priority.
 +
-+/* There are two structures here, rdstate which is a hash table
-+ * of the second structure which is a filldir_node.
-+ */
 +
-+/* This is a struct kmem_cache for filldir nodes, because we allocate a lot
-+ * of them and they shouldn't waste memory.  If the node has a small name
-+ * (as defined by the dentry structure), then we use an inline name to
-+ * preserve kmalloc space.
-+ */
-+static struct kmem_cache *unionfs_filldir_cachep;
++Branch Mode:
++============
 +
-+int unionfs_init_filldir_cache(void)
-+{
-+	unionfs_filldir_cachep =
-+	    kmem_cache_create("unionfs_filldir", sizeof(struct filldir_node), 0,
-+			      SLAB_RECLAIM_ACCOUNT, NULL, NULL);
++Each branch is assigned a mode - read-write or read-only. This allows
++directories on media mounted read-write to be used in a read-only manner.
 +
-+	return (unionfs_filldir_cachep ? 0 : -ENOMEM);
-+}
 +
-+void unionfs_destroy_filldir_cache(void)
-+{
-+	if (unionfs_filldir_cachep)
-+		kmem_cache_destroy(unionfs_filldir_cachep);
-+}
++Whiteouts:
++==========
 +
-+/* This is a tuning parameter that tells us roughly how big to make the
-+ * hash table in directory entries per page.  This isn't perfect, but
-+ * at least we get a hash table size that shouldn't be too overloaded.
-+ * The following averages are based on my home directory.
-+ * 14.44693	Overall
-+ * 12.29	Single Page Directories
-+ * 117.93	Multi-page directories
-+ */
-+#define DENTPAGE 4096
-+#define DENTPERONEPAGE 12
-+#define DENTPERPAGE 118
-+#define MINHASHSIZE 1
-+static int guesstimate_hash_size(struct inode *inode)
-+{
-+	struct inode *hidden_inode;
-+	int bindex;
-+	int hashsize = MINHASHSIZE;
++A whiteout removes a file name from the namespace. Whiteouts are needed when
++one attempts to remove a file on a read-only branch.
 +
-+	if (UNIONFS_I(inode)->hashsize > 0)
-+		return UNIONFS_I(inode)->hashsize;
++Suppose we have a two-branch union, where branch 0 is read-write and branch
++1 is read-only. And a file 'foo' on branch 1:
 +
-+	for (bindex = ibstart(inode); bindex <= ibend(inode); bindex++) {
-+		if (!(hidden_inode = unionfs_lower_inode_idx(inode, bindex)))
-+			continue;
++./b0/
++./b1/
++./b1/foo
 +
-+		if (hidden_inode->i_size == DENTPAGE)
-+			hashsize += DENTPERONEPAGE;
-+		else
-+			hashsize += (hidden_inode->i_size / DENTPAGE) * DENTPERPAGE;
-+	}
++The unified view would simply be:
 +
-+	return hashsize;
-+}
++./union/
++./union/foo
 +
-+int init_rdstate(struct file *file)
-+{
-+	BUG_ON(sizeof(loff_t) != (sizeof(unsigned int) + sizeof(unsigned int)));
-+	BUG_ON(UNIONFS_F(file)->rdstate != NULL);
++Since 'foo' is stored on a read-only branch, it cannot be removed. A
++whiteout is used to remove the name 'foo' from the unified namespace. Again,
++since branch 1 is read-only, the whiteout cannot be created there. So, we
++try on a higher priority (lower numerically) branch and create the whiteout
++there.
 +
-+	UNIONFS_F(file)->rdstate = alloc_rdstate(file->f_dentry->d_inode,
-+						 fbstart(file));
-+	
-+	return (UNIONFS_F(file)->rdstate ? 0 : -ENOMEM);
-+}
++./b0/
++./b0/.wh.foo
++./b1/
++./b1/foo
 +
-+struct unionfs_dir_state *find_rdstate(struct inode *inode, loff_t fpos)
-+{
-+	struct unionfs_dir_state *rdstate = NULL;
-+	struct list_head *pos;
++Later, when Unionfs traverses branches (due to lookup or readdir), it
++eliminate 'foo' from the namespace (as well as the whiteout itself.)
 +
-+	spin_lock(&UNIONFS_I(inode)->rdlock);
-+	list_for_each(pos, &UNIONFS_I(inode)->readdircache) {
-+		struct unionfs_dir_state *r =
-+		    list_entry(pos, struct unionfs_dir_state, cache);
-+		if (fpos == rdstate2offset(r)) {
-+			UNIONFS_I(inode)->rdcount--;
-+			list_del(&r->cache);
-+			rdstate = r;
-+			break;
-+		}
-+	}
-+	spin_unlock(&UNIONFS_I(inode)->rdlock);
-+	return rdstate;
-+}
 +
-+struct unionfs_dir_state *alloc_rdstate(struct inode *inode, int bindex)
-+{
-+	int i = 0;
-+	int hashsize;
-+	int mallocsize = sizeof(struct unionfs_dir_state);
-+	struct unionfs_dir_state *rdstate;
++Duplicate Elimination:
++======================
 +
-+	hashsize = guesstimate_hash_size(inode);
-+	mallocsize += hashsize * sizeof(struct list_head);
-+	/* Round it up to the next highest power of two. */
-+	mallocsize--;
-+	mallocsize |= mallocsize >> 1;
-+	mallocsize |= mallocsize >> 2;
-+	mallocsize |= mallocsize >> 4;
-+	mallocsize |= mallocsize >> 8;
-+	mallocsize |= mallocsize >> 16;
-+	mallocsize++;
++It is possible for files on different branches to have the same name.
++Unionfs then has to select which instance of the file to show to the user.
++Given the fact that each branch has a priority associated with it, the
++simplest solution is to take the instance from the highest priority
++(numerically lowest value) and "hide" the others.
 +
-+	/* This should give us about 500 entries anyway. */
-+	if (mallocsize > PAGE_SIZE)
-+		mallocsize = PAGE_SIZE;
 +
-+	hashsize = (mallocsize -
-+	     sizeof(struct unionfs_dir_state)) / sizeof(struct list_head);
++Copyup:
++=======
 +
-+	rdstate = kmalloc(mallocsize, GFP_KERNEL);
-+	if (!rdstate)
-+		return NULL;
++When a change is made to the contents of a file's data or meta-data, they
++have to be stored somewhere. The best way is to create a copy of the
++original file on a branch that is writable, and then redirect the write
++though to this copy. The copy must be made on a higher priority branch so
++that lookup and readdir return this newer "version" of the file rather than
++the original (see duplicate elimination).
 +
-+	spin_lock(&UNIONFS_I(inode)->rdlock);
-+	if (UNIONFS_I(inode)->cookie >= (MAXRDCOOKIE - 1))
-+		UNIONFS_I(inode)->cookie = 1;
-+	else
-+		UNIONFS_I(inode)->cookie++;
+diff --git a/Documentation/filesystems/unionfs/rename.txt b/Documentation/filesystems/unionfs/rename.txt
+new file mode 100644
+index 0000000..e20bb82
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/rename.txt
+@@ -0,0 +1,31 @@
++Rename is a complex beast. The following table shows which rename(2) operations
++should succeed and which should fail.
 +
-+	rdstate->cookie = UNIONFS_I(inode)->cookie;
-+	spin_unlock(&UNIONFS_I(inode)->rdlock);
-+	rdstate->offset = 1;
-+	rdstate->access = jiffies;
-+	rdstate->bindex = bindex;
-+	rdstate->dirpos = 0;
-+	rdstate->hashentries = 0;
-+	rdstate->size = hashsize;
-+	for (i = 0; i < rdstate->size; i++)
-+		INIT_LIST_HEAD(&rdstate->list[i]);
++o: success
++E: error (either unionfs or vfs)
++X: EXDEV
 +
-+	return rdstate;
-+}
++none = file does not exist
++file = file is a file
++dir  = file is a empty directory
++child= file is a non-empty directory
++wh   = file is a directory containing only whiteouts; this makes it logically
++		empty
 +
-+static void free_filldir_node(struct filldir_node *node)
-+{
-+	if (node->namelen >= DNAME_INLINE_LEN_MIN)
-+		kfree(node->name);
-+	kmem_cache_free(unionfs_filldir_cachep, node);
-+}
++                      none    file    dir     child   wh
++file                  o       o       E       E       E
++dir                   o       E       o       E       o
++child                 X       E       X       E       X
++wh                    o       E       o       E       o
 +
-+void free_rdstate(struct unionfs_dir_state *state)
-+{
-+	struct filldir_node *tmp;
-+	int i;
 +
-+	for (i = 0; i < state->size; i++) {
-+		struct list_head *head = &(state->list[i]);
-+		struct list_head *pos, *n;
++Renaming directories:
++=====================
 +
-+		/* traverse the list and deallocate space */
-+		list_for_each_safe(pos, n, head) {
-+			tmp = list_entry(pos, struct filldir_node, file_list);
-+			list_del(&tmp->file_list);
-+			free_filldir_node(tmp);
-+		}
-+	}
++Whenever a empty (either physically or logically) directory is being renamed,
++the following sequence of events should take place:
 +
-+	kfree(state);
-+}
++1) Remove whiteouts from both source and destination directory
++2) Rename source to destination
++3) Make destination opaque to prevent anything under it from showing up
 +
-+struct filldir_node *find_filldir_node(struct unionfs_dir_state *rdstate,
-+				       const char *name, int namelen)
-+{
-+	int index;
-+	unsigned int hash;
-+	struct list_head *head;
-+	struct list_head *pos;
-+	struct filldir_node *cursor = NULL;
-+	int found = 0;
+diff --git a/Documentation/filesystems/unionfs/usage.txt b/Documentation/filesystems/unionfs/usage.txt
+new file mode 100644
+index 0000000..3968c9e
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/usage.txt
+@@ -0,0 +1,42 @@
++Unionfs is a stackable unification file system, which can appear to merge
++the contents of several directories (branches), while keeping their physical
++content separate. Unionfs is useful for unified source tree management,
++merged contents of split CD-ROM, merged separate software package
++directories, data grids, and more. Unionfs allows any mix of read-only and
++read-write branches, as well as insertion and deletion of branches anywhere
++in the fan-out. To maintain unix semantics, Unionfs handles elimination of
++duplicates, partial-error conditions, and more.
 +
-+	BUG_ON(namelen <= 0);
++mount -t unionfs -o branch-option[,union-options[,...]] none MOUNTPOINT
 +
-+	hash = full_name_hash(name, namelen);
-+	index = hash % rdstate->size;
++The available branch-option for the mount command is:
 +
-+	head = &(rdstate->list[index]);
-+	list_for_each(pos, head) {
-+		cursor = list_entry(pos, struct filldir_node, file_list);
++dirs=branch[=ro|=rw][:...]
++specifies a separated list of which directories compose the union.
++Directories that come earlier in the list have a higher precedence than
++those which come later. Additionally, read-only or read-write permissions of
++the branch can be specified by appending =ro or =rw (default) to each
++directory.
 +
-+		if (cursor->namelen == namelen && cursor->hash == hash &&
-+		    !strncmp(cursor->name, name, namelen)) {
-+			/* a duplicate exists, and hence no need to create
-+			 * entry to the list
-+			 */
-+			found = 1;
++Syntax:
++dirs=/branch1[=ro|=rw]:/branch2[=ro|=rw]:...:/branchN[=ro|=rw]
 +
-+			/* if the duplicate is in this branch, then the file
-+			 * system is corrupted.
-+			 */
-+			if (cursor->bindex == rdstate->bindex) {
-+				printk(KERN_DEBUG "Possible I/O error "
-+					"unionfs_filldir: a file is duplicated "
-+					"in the same branch %d: %s\n",
-+					rdstate->bindex, cursor->name);
-+			}
-+			break;
-+		}
-+	}
++Example:
++dirs=/writable_branch=rw:/read-only_branch=ro
 +
-+	if (!found)
-+		cursor = NULL;
 +
-+	return cursor;
-+}
++KNOWN ISSUES:
++=============
 +
-+inline struct filldir_node *alloc_filldir_node(const char *name, int namelen,
-+					       unsigned int hash, int bindex)
-+{
-+	return kmem_cache_alloc(unionfs_filldir_cachep, GFP_KERNEL);
-+}
++The NFS server returns -EACCES for read-only exports, instead of -EROFS.
++This means we can't reliably detect a read-only NFS export.
 +
-+int add_filldir_node(struct unionfs_dir_state *rdstate, const char *name,
-+		     int namelen, int bindex, int whiteout)
-+{
-+	struct filldir_node *new;
-+	unsigned int hash;
-+	int index;
-+	int err = 0;
-+	struct list_head *head;
++Modifying a Unionfs branch directly, while the union is mounted, is
++currently unsupported.  Any such change can cause Unionfs to oops, or stay
++silent and even RESULT IN DATA LOSS.
 +
-+	BUG_ON(namelen <= 0);
-+
-+	hash = full_name_hash(name, namelen);
-+	index = hash % rdstate->size;
-+	head = &(rdstate->list[index]);
-+
-+	new = alloc_filldir_node(name, namelen, hash, bindex);
-+	if (!new) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	INIT_LIST_HEAD(&new->file_list);
-+	new->namelen = namelen;
-+	new->hash = hash;
-+	new->bindex = bindex;
-+	new->whiteout = whiteout;
-+
-+	if (namelen < DNAME_INLINE_LEN_MIN)
-+		new->name = new->iname;
-+	else {
-+		new->name = kmalloc(namelen + 1, GFP_KERNEL);
-+		if (!new->name) {
-+			kmem_cache_free(unionfs_filldir_cachep, new);
-+			new = NULL;
-+			goto out;
-+		}
-+	}
-+
-+	memcpy(new->name, name, namelen);
-+	new->name[namelen] = '\0';
-+
-+	rdstate->hashentries++;
-+
-+	list_add(&(new->file_list), head);
-+out:
-+	return err;
-+}
++Unionfs should not use lookup_one_len() on the underlying fs as it confuses
++NFS. Currently, unionfs_lookup() passes lookup intents to the lower
++filesystem, this eliminates part of the problem. The remaining calls to
++lookup_one_len may need to be changed to pass an intent.
 +
 -- 
 1.4.4.2

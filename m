@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751539AbXAHN4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751540AbXAHN5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751539AbXAHN4V (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbXAHN4V
+	id S1751540AbXAHN5t (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbXAHN5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:56:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:35788 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750776AbXAHN4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:56:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=h1Grl3udHiD9BKWg2WfBHe4kR6xL88VxzjwbYPsvWR8d6s8sH9NQILSZeH+qrMnFaOJylrws001fATbh9FuKoSWzP1UJUpAJgbWNSP6hJMhLa/aGezoRA/NUNm7grULKxT2iiqhiZ57lpKoe+9WKhVHzuD6cu1x/rU7LrHLUHCU=
-Message-ID: <45A24D1A.7020004@gmail.com>
-Date: Mon, 08 Jan 2007 14:54:34 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Mon, 8 Jan 2007 08:57:48 -0500
+Received: from thunk.org ([69.25.196.29]:58635 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751540AbXAHN5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 08:57:47 -0500
+Date: Mon, 8 Jan 2007 08:56:22 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Willy Tarreau <w@1wt.eu>, Linus Torvalds <torvalds@osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070108135622.GD32756@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Johannes Stezenbach <js@linuxtv.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org> <20070108134147.GB5291@linuxtv.org>
 MIME-Version: 1.0
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-CC: "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH UPDATED 2.6.20-rc3] Remove all the unneeded k[mzc]alloc
- casts
-References: <20070105102623.GB382@Ahmed> <200701081310.46547.eike-kernel@sf-tec.de>
-In-Reply-To: <200701081310.46547.eike-kernel@sf-tec.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070108134147.GB5291@linuxtv.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/08/2007 01:10 PM, Rolf Eike Beer wrote:
-
-> Ahmed S. Darwish wrote:
-
->> -		struct intmem_allocation* alloc =
->> -		  (struct intmem_allocation*)kmalloc(sizeof *alloc, GFP_KERNEL);
->> +		struct intmem_allocation* alloc = kmalloc(sizeof *alloc,
->> +							  GFP_KERNEL);
+On Mon, Jan 08, 2007 at 02:41:47PM +0100, Johannes Stezenbach wrote:
 > 
-> sizeof(*alloc) (see Documentation/CodingStyle)
+> Would e2fsck -D help? What kind of optimization
+> does it perform?
 
-Please do not advice that. The CodingStyle document only says "are 
-usually used with parentheses in Linux, although they are not required 
-in the language", nothing more. While for the most part a personal style 
-issue, there are reasons for using "sizeof *ptr":
+It will help a little; e2fsck -D compresses the logical view of the
+directory, but it doesn't optimize the physical layout on disk at all,
+and of course, it won't help with the lack of readahead logic.  It's
+possible to improve how e2fsck -D works, at the moment, it's not
+trying to make the directory be contiguous on disk.  What it should
+probably do is to pull a list of all of the blocks used by the
+directory, sort them, and then try to see if it can improve on the
+list by allocating some new blocks that would make the directory more
+contiguous on disk.  I suspect any improvements that would be seen by
+doing this would be second order effects at most, though.
 
--- sizeof is not a function but an operator: you don't write
-    "if (!(i))" or -(5) either.
-
--- it's usually "better" to sizeof the variable then it is to sizeof the
-    type since it makes the code resistant to type changes (for
-    instance foo_t -> struct foo changes)
-
-Since you _do_ need the parens with a type, getting used to writing 
-"sizeof foo" without them will then alert you and reader to the fact 
-that something special is happening when you do see/use them.
-
-If not enough of a reason to make "sizeof foo" the rule, please leave 
-this up to personal preference.
-
-Rene.
-
+						- Ted

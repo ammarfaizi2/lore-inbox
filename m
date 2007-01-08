@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161212AbXAHXNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161216AbXAHXO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbXAHXNJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbXAHXNJ
+	id S1161216AbXAHXO6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161242AbXAHXO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:13:09 -0500
-Received: from twinlark.arctic.org ([207.29.250.54]:53563 "EHLO
-	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161212AbXAHXNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:13:08 -0500
-Date: Mon, 8 Jan 2007 15:13:07 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] All Transmeta CPUs have constant TSCs
-In-Reply-To: <45A2AEE0.4090707@zytor.com>
-Message-ID: <Pine.LNX.4.64.0701081506330.12282@twinlark.arctic.org>
-References: <200701050148.l051mHGM005275@terminus.zytor.com>
- <Pine.LNX.4.61.0701051524440.7813@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0701072358010.26307@twinlark.arctic.org>
- <Pine.LNX.4.61.0701082118370.23737@yvahk01.tjqt.qr> <45A2AEE0.4090707@zytor.com>
+	Mon, 8 Jan 2007 18:14:58 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38009 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161216AbXAHXO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:14:57 -0500
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [PATCH 4/4] x86_64 ioapic: Improve the heuristics for when check_timer fails.
+Date: Tue, 9 Jan 2007 00:14:41 +0100
+User-Agent: KMail/1.9.5
+Cc: Adrian Bunk <bunk@stusta.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Yinghai Lu <yinghai.lu@amd.com>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@redhat.com, Tobias Diedrich <ranma+kernel@tdiedrich.de>
+References: <5986589C150B2F49A46483AC44C7BCA490733F@ssvlexmb2.amd.com> <m1k5zxgplv.fsf@ebiederm.dsl.xmission.com> <20070108223355.GI6167@stusta.de>
+In-Reply-To: <20070108223355.GI6167@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701090014.42144.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007, H. Peter Anvin wrote:
 
-> I *definitely* support the concept that RDPMC 0 should could CPU cycles by
-> convention in Linux.
+> We just got a completely different bug reported that was confirmed to be 
+> caused by Andi's patch:
+>    AMD64/ATI : timer is running twice as fast as it should [1]
 
-unfortunately that'd be very limiting and annoying on core2 processors 
-which have dedicated perf counters for clocks unhalted (actual vs. 
-nominal), but only 2 configurable perf counters.  i forget what ecx value 
-gets you the dedicated counters... but a solution which might work would 
-be a syscall to return the perf counter number...
+I have such a machine that showed this problem and when I wrote the patch I 
+tested it on it (and on a couple of others of course). No twice as fast on 
+my testing.
 
-or we could just merge perfmon ;)
+In fact there are two types of ATI machines: ones that have a BIOS workaround
+for the original Linux issue and ones that don't. Keeping both
+happy is not easy.
 
--dean
+So I'm somewhat dubious on that. Where is that report?
+
+> 
+> My whole point is that for 2.6.20, we can live with simply reverting 
+> Andi's commit.
+
+I agree. It's more problematical than I expected. Reverting is 
+the best option right now.
+
+-Andi

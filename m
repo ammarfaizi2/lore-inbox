@@ -1,121 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932154AbXAHVfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932142AbXAHVih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbXAHVfY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXAHVfW
+	id S932142AbXAHVih (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXAHVih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:35:22 -0500
-Received: from shards.monkeyblade.net ([192.83.249.58]:50179 "EHLO
-	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932142AbXAHVfV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:35:21 -0500
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-From: "J.H." <warthog9@kernel.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com, webmaster@kernel.org
-In-Reply-To: <20070108222045.644ec0be.khali@linux-fr.org>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	 <20061216094421.416a271e.randy.dunlap@oracle.com>
-	 <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
-	 <1166297434.26330.34.camel@localhost.localdomain>
-	 <20070108222045.644ec0be.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Mon, 08 Jan 2007 13:33:04 -0800
-Message-Id: <1168291984.14963.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Mon, 8 Jan 2007 16:38:37 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:47568 "EHLO ns2.lanforge.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932142AbXAHVig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:38:36 -0500
+Message-ID: <45A2B9DA.20104@candelatech.com>
+Date: Mon, 08 Jan 2007 13:38:34 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ext3 file system went read-only in 2.6.18.2 (plus hacks)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-08 at 22:20 +0100, Jean Delvare wrote:
-> Hi JH,
-> 
-> On Sat, 16 Dec 2006 11:30:34 -0800, J.H. wrote:
-> > The root cause boils down to with git, gitweb and the normal mirroring
-> > on the frontend machines our basic working set no longer stays resident
-> > in memory, which is forcing more and more to actively go to disk causing
-> > a much higher I/O load.  You have the added problem that one of the
-> > frontend machines is getting hit harder than the other due to several
-> > factors: various DNS servers not round robining, people explicitly
-> > hitting [git|mirrors|www|etc]1 instead of 2 for whatever reason and
-> 
-> I am trying to be a good citizen by explicitely asking for
-> www2.kernel.org, unfortunately I notice that many links on the main
-> page point to www.kernel.org rather than www2.kernel.org. Check the
-> location, patchtype, full source, patch, view patch, and changeset
-> links for example. Fixing these links would let people really use www2
-> if they want to, that might help.
+First, this kernel is tainted by one of my proprietary patches
+and also has my other non-proprietary patches applied, so please
+ignore as you wish.  My patches do not (purposefully) affect the file-system.
 
-True - however if you look at the underlying link for those you'll
-notice that most of the links will continue to use www2 instead of www.
-The ones that explicitly point to www probably have a good reason for
-doing so, but I'll have to check on that.  Regardless the kernel.org
-webpages need some work and it's on my todo list (maybe I should post
-that somewhere...)
+The system is a via/c3 system running a fairly stripped down FC5
+installation on a 1GB CF disk.  We've been using this platform
+for over a year and this is the first file system error we've
+seen.  It could easily be that the CF is funky, but I thought
+I'd post the message in case it proves to be something else.
 
-> 
-> BTW, I'm no DNS expert, but isn't it possible to favor one host in the
-> round robin mechanism? E.g. by listing the server 2 twice, so that it
-> gets 2/3 of the load? This could also help if server 1 otherwise gets
-> more load.
 
-Could, but the bigger problem seems to be people explicitly pointing
-rsync at 1 instead of the generic name or 2.  Beyond that traffic seems
-to distribute as we are expecting.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99247: rec_len % 4 1
+Aborting journal on device hda1.
+EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99254: rec_len % 4 1
+ext3_abort called.
+EXT3-fs error (device hda1): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
+EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99048: rec_len % 4 1
+EXT3-fs error (device hda1): ext3_find_entry: bad entry in directory #99041: directory en1
+   syslogd: /var/log/messages: Read-only file system
+   syslogd: /var/log/secure: Read-only file system
+   syslogd: /var/log/maillog: Read-only file system
+   syslogd: /var/log/cron: Read-only file system
+   syslogd: /var/log/spooler: Read-only file system
+   syslogd: /var/log/boot.log: Read-only file system
+   syslogd: /var/log/messages: Read-only file system
+   syslogd: /var/log/secure: Read-only file system
+   syslogd: /var/log/maillog: Read-only file system
+   syslogd: /var/log/cron: Read-only file system
+   syslogd: /var/log/spooler: Read-only file system
+   syslogd: /var/log/boot.log: Read-only file system
+pktgen: pktgen_mark_device marking eth0#5 for removal
+pktgen: pktgen_mark_device marking eth0#0 for removal
+.....
 
-> 
-> > So we know the problem is there, and we are working on it - we are
-> > getting e-mails about it if not daily than every other day or so.  If
-> > there are suggestions we are willing to hear them - but the general
-> > feeling with the admins is that we are probably hitting the biggest
-> > problems already.
-> 
-> I have a few suggestions although I realize that the other things
-> you're working on are likely to be much more helpful:
-> 
-> * Shorten the www.kernel.org main page. I guess that 99% of the hits on
-> this page are by people who just want to know the latest versions, and
-> possibly download a patch or access Linus' git tree through gitweb. All
-> the rest could be moved to a separate page, or if you think it's
-> better to keep all the general info on the main page, move the array
-> with the versions to a separate page, which developers can bookmark.
-> Splitting the dynamic content (top) from the essentially static content
-> (bottom) of this page should help with caching, BTW.
+After restarting and a manual fsck, the system appears to
+be back to normal.
 
-The frontpage itself cache's pretty nicely and the upper 'dynamic'
-content isn't constantly being generated on every page request so by and
-large this caches and we don't have any real issue with it.
+Thanks,
+Ben
 
-> 
-> * Drop the bandwidth graphs. Most visitors certainly do not care, and
-> their presence generates traffic on all web servers regardless of the
-> one the visitor is using, as each graph is generated by the respective
-> server. If you really like these graphs, just move them to a separate
-> page for people who want to watch them. As far as I am concerned, I
-> find them rather confusing and uninformative - from a quick look you
-> just can't tell if the servers are loaded or not, you have to look at
-> the numbers, so what's the point of drawing a graph...
 
-While I agree that most users don't care, they are useful.  If someone
-notices that 1 has an incredibly high load and moving lots of traffic in
-comparison to 2, than they can manually redirect to 2 for better &
-faster service on their own.  Since these images aren't particularly big
-they cache just fine and it's not that big of a deal, and there are much
-longer poles in the tent right now.
-
-> 
-> Of course the interest of these proposals directly depends on how much
-> the www.kernel.org/index page accounts in the total load of the servers.
-> 
-
-Honestly - negligible at best.  We have bigger issues from trying to
-service 200 seperate rsync processes on top of http, ftp, git, gitweb,
-etc than worying about a couple of small, 90% static pages.
-
-- John 'Warthog9' Hawley
-Kernel.org Admin
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

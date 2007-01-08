@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751003AbXAHVWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751002AbXAHVYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbXAHVWt (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbXAHVWs
+	id S1751002AbXAHVYV (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbXAHVYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:22:48 -0500
-Received: from outbound-mail-75.bluehost.com ([69.89.20.10]:52583 "HELO
-	outbound-mail-75.bluehost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751002AbXAHVWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:22:48 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Olivier Galibert <galibert@pobox.com>
-Subject: Re: [PATCH] update MMConfig patches w/915 support
-Date: Mon, 8 Jan 2007 13:22:46 -0800
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-References: <200701071142.09428.jbarnes@virtuousgeek.org> <20070108203212.GA15481@dspnet.fr.eu.org>
-In-Reply-To: <20070108203212.GA15481@dspnet.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 8 Jan 2007 16:24:21 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:44596 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751002AbXAHVYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:24:20 -0500
+Date: Mon, 8 Jan 2007 13:19:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
+       torvalds@osdl.org, mhalcrow@us.ibm.com,
+       David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-Id: <20070108131957.cbaf6736.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	<1168229596875-git-send-email-jsipek@cs.sunysb.edu>
+	<20070108111852.ee156a90.akpm@osdl.org>
+	<Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701081322.47481.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, January 8, 2007 12:32 pm, Olivier Galibert wrote:
-> > The routines could probably be consolidated into a single
-> > probe_intel_9xx routine or something, but I really looked at that
-> > yet (though there are many similarities between the 91[05], 945 and
-> > 965 families, they may not be enough that the code would actually
-> > be simpler if shared.
->
-> The individual functions are so simple, it's probably way better for
-> maintainance simplicity to keep them separate, at least for now.
+On Mon, 8 Jan 2007 14:43:39 -0500 (EST)
+Shaya Potter <spotter@cs.columbia.edu> wrote:
 
-Yeah, sounds good.
+> On Mon, 8 Jan 2007, Andrew Morton wrote:
+> 
+> > On Sun,  7 Jan 2007 23:12:53 -0500
+> > "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
+> >
+> >> +Modifying a Unionfs branch directly, while the union is mounted, is
+> >> +currently unsupported.
+> >
+> > Does this mean that if I have /a/b/ and /c/d/ unionised under /mnt/union, I
+> > am not allowed to alter anything under /a/b/ and /c/d/?  That I may only
+> > alter stuff under /mnt/union?
+> >
+> > If so, that sounds like a significant limitation.
+> 
+> haven't we been through this?
 
-> > +	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
-> > +
-> > +	/* No enable bit or size field, so assume 256M range is enabled.
-> > */ +	len = 0x10000000U;
-> > +	pci_mmcfg_config_num = 1;
-> > +
-> > +	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]),
-> > GFP_KERNEL); +	pci_mmcfg_config[0].base_address = pciexbar;
->
-> Hmmm, I'd mask out the reserved bits if I were you.  Paranoia :-)
+If it's not in the changelog or the documentation, it doesn't exist.  It's
+useful for the developers to keep track of obvious and frequently-asked
+questions such as this and to address them completely in the changelog
+and/or documentation.  Otherwise things just come around again and again,
+as we see here.
 
-Wouldn't hurt I suppose, want me to post a new patch?
+>  It's the same thing as modifying a block 
+> device while a file system is using it.  Now, when unionfs gets confused, 
+> it shouldn't oops, but would one expect ext3 to allow one to modify its 
+> backing store while its using it?
 
-Thanks,
-Jesse
+There's no such problem with bind mounts.  It's surprising to see such a
+restriction with union mounts.
+

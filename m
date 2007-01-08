@@ -1,105 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030545AbXAHEZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030502AbXAHE1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030545AbXAHEZE (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbXAHESb
+	id S1030502AbXAHE1c (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbXAHE1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:18:31 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50416 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030498AbXAHESZ (ORCPT
+	Sun, 7 Jan 2007 23:27:32 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:38701 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030502AbXAHE1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:18:25 -0500
-From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       torvalds@osdl.org, akpm@osdl.org, mhalcrow@us.ibm.com,
-       Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
-       David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: [PATCH 23/24] Unionfs: Kconfig and Makefile
-Date: Sun,  7 Jan 2007 23:13:15 -0500
-Message-Id: <11682296001876-git-send-email-jsipek@cs.sunysb.edu>
-X-Mailer: git-send-email 1.4.4.2
-In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	Sun, 7 Jan 2007 23:27:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=Q/rJzrrFie8jy2B5248JOcqc10QNVWCH6jznB6L/UODosXQrXAAhxUsZCVayK3leb4dB7k+/yW7rYBEx/KpvGnt9SXNLKqprWENvUbOawrKhj1cm+GlHtd1oZ9DA/k5BZ/aRZRY4zK6y/jc8ShnSbapr+E+JfhG1oB+NdEvoQPI=
+Date: Mon, 8 Jan 2007 06:26:57 +0200
+To: Li Yang-r58472 <LeoLi@freescale.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] UCC Ether driver: kmalloc casting cleanups
+Message-ID: <20070108042657.GA18610@Ahmed>
+Mail-Followup-To: Li Yang-r58472 <LeoLi@freescale.com>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20070106131832.GE19020@Ahmed> <989B956029373F45A0B8AF029708189006134E@zch01exm26.fsl.freescale.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <989B956029373F45A0B8AF029708189006134E@zch01exm26.fsl.freescale.net>
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+On Mon, Jan 08, 2007 at 11:12:28AM +0800, Li Yang-r58472 wrote:
+> > From: Ahmed S. Darwish [mailto:darwish.07@gmail.com]
+> > 
+> > Hi,
+> > A kmalloc casting cleanup patch.
+> > Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
 
-This patch contains the changes to fs Kconfig file, Makefiles, and Maintainers
-file for Unionfs.
+[..]
 
-Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
----
- MAINTAINERS         |    7 +++++++
- fs/Kconfig          |   10 ++++++++++
- fs/Makefile         |    1 +
- fs/unionfs/Makefile |    5 +++++
- 4 files changed, 23 insertions(+), 0 deletions(-)
+> > -				(u32) (kmalloc((u32) (length + align),
+> > -				GFP_KERNEL));
+> > +				kmalloc((u32) (length + align), GFP_KERNEL);
+> > +
+> >  			if (ugeth->tx_bd_ring_offset[j] != 0)
+> >  				ugeth->p_tx_bd_ring[j] =
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2bd34ef..33dc1b7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3241,6 +3241,13 @@ L:	linux-kernel@vger.kernel.org
- W:	http://www.kernel.dk
- S:	Maintained
- 
-+UNIONFS
-+P:	Josef "Jeff" Sipek
-+M:	jsipek@cs.sunysb.edu
-+L:	unionfs@filesystems.org
-+W:	http://www.unionfs.org
-+S:	Maintained
-+
- USB ACM DRIVER
- P:	Oliver Neukum
- M:	oliver@neukum.name
-diff --git a/fs/Kconfig b/fs/Kconfig
-index 8cd2417..2e519f4 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1554,6 +1554,16 @@ config UFS_DEBUG
- 	  Y here.  This will result in _many_ additional debugging messages to be
- 	  written to the system log.
- 
-+config UNION_FS
-+	tristate "Union file system (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	help
-+	  Unionfs is a stackable unification file system, which appears to
-+	  merge the contents of several directories (branches), while keeping
-+	  their physical content separate.
-+
-+	  See <http://www.unionfs.org> for details
-+
- endmenu
- 
- menu "Network File Systems"
-diff --git a/fs/Makefile b/fs/Makefile
-index b9ffa63..76c6acc 100644
---- a/fs/Makefile
-+++ b/fs/Makefile
-@@ -115,3 +115,4 @@ obj-$(CONFIG_HPPFS)		+= hppfs/
- obj-$(CONFIG_DEBUG_FS)		+= debugfs/
- obj-$(CONFIG_OCFS2_FS)		+= ocfs2/
- obj-$(CONFIG_GFS2_FS)           += gfs2/
-+obj-$(CONFIG_UNION_FS)		+= unionfs/
-diff --git a/fs/unionfs/Makefile b/fs/unionfs/Makefile
-new file mode 100644
-index 0000000..25dd78f
---- /dev/null
-+++ b/fs/unionfs/Makefile
-@@ -0,0 +1,5 @@
-+obj-$(CONFIG_UNION_FS) += unionfs.o
-+
-+unionfs-y := subr.o dentry.o file.o inode.o main.o super.o \
-+	stale_inode.o branchman.o rdstate.o copyup.o dirhelper.o \
-+	rename.o unlink.o lookup.o commonfops.o dirfops.o sioq.o
+[..]
+
+> > -			    (u32) (kmalloc((u32) (length + align), GFP_KERNEL));
+> > +				kmalloc((u32) (length + align), GFP_KERNEL);
+> 
+> NACK about the 2 clean-ups above.  Cast from pointer to integer is
+> required here.
+
+Are the casts from pointer to integer just needed to suppress gcc 
+warnings or there's something technically important about them ?
+
+I'll send the modified patch without the NACKed parts in minutes ..
+
 -- 
-1.4.4.2
-
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

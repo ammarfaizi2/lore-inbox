@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964831AbXAHVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964893AbXAHVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbXAHVtK (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 16:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbXAHVtK
+	id S964893AbXAHVtv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 16:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbXAHVtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 16:49:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3436 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964831AbXAHVtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 16:49:09 -0500
-Date: Mon, 8 Jan 2007 22:49:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.37
-Message-ID: <20070108214910.GD6167@stusta.de>
-References: <200701070337_MC3-1-D79B-2928@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701070337_MC3-1-D79B-2928@compuserve.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 8 Jan 2007 16:49:51 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:46054 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964893AbXAHVtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 16:49:50 -0500
+Date: Mon, 8 Jan 2007 13:29:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 06/24] Unionfs: Dentry operations
+Message-Id: <20070108132953.b24339e6.akpm@osdl.org>
+In-Reply-To: <11682295974095-git-send-email-jsipek@cs.sunysb.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	<11682295974095-git-send-email-jsipek@cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 03:35:21AM -0500, Chuck Ebbert wrote:
-> In-Reply-To: <20070104222517.GL20714@stusta.de>
+On Sun,  7 Jan 2007 23:12:58 -0500
+"Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
+
+> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 > 
-> On Thu, 4 Jan 2007 23:25:17 +0100, Adrian Bunk wrote:
+> This patch contains the dentry operations for Unionfs.
 > 
-> > There's already a CVE number for
-> > "i386: save/restore eflags in context switch".
-> > 
-> > Are there also CVE numbers for the equivalent x86_64 patch and
-> > "x86_64: fix ia32 syscall count"?
-> 
-> Sorry, my Web access is broken for now so I can't check, but I believe
-> that CVE number is for a different, older problem.
-> 
-> So AFAIK there are no CVE numbers for anything I sent (but there
-> probably should be.)  Generic Linux kernel developers don't have
-> a CVE representative, so we depend on vendors to assign numbers
-> and sometimes they don't.
+> +/* declarations added for "sparse" */
+> +extern int unionfs_d_revalidate_wrap(struct dentry *dentry,
+> +				     struct nameidata *nd);
+> +extern void unionfs_d_release(struct dentry *dentry);
+> +extern void unionfs_d_iput(struct dentry *dentry, struct inode *inode);
 
-I asked on vendor-sec and got CVE-2006-5755 for the x86_64 equivalent of 
-CVE-2006-5173, but none for the syscall count issue.
-
-The latter is IMHO OK since "local user can spam syslog" is really 
-borderline - there are simply too many DoS possibilities for local 
-users.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+No, declarations go in header files, visible to the definition and to all
+callers.  (Ditto all the other places where this is done)

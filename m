@@ -1,142 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751524AbXAHNSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751528AbXAHNU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbXAHNSZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbXAHNSZ
+	id S1751528AbXAHNU5 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbXAHNU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:18:25 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:63228 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750771AbXAHNSZ (ORCPT
+	Mon, 8 Jan 2007 08:20:57 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:9763 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751528AbXAHNU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:18:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RKGd8IsofzYKnZNsJlhP469snDM328m8xS7QdwprvgMJRjyNSmK9JjaGroaAtiRDcUkmgZFlIwyuQmSAzdILsC79NYIS9hr3oYHmd+Ms/F2VyJroCDyoNmUF/skNmWU/PprSoR6CMuK8h+ml6oiGTaUdXKUZNLW/reTi7Gu41b4=
-Message-ID: <8bf247760701080518s3f58f5aax4250bca4a43e9d59@mail.gmail.com>
-Date: Mon, 8 Jan 2007 18:48:23 +0530
-From: Ram <vshrirama@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel compilation - errors
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 8 Jan 2007 08:20:56 -0500
+Date: Mon, 8 Jan 2007 14:21:48 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 32/36] driver core: Introduce device_move(): move a
+ device to a new parent.
+Message-ID: <20070108142148.675a0976@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <1165332371.2756.23.camel@localhost>
+References: <11650154123942-git-send-email-greg@kroah.com>
+	<1165015415131-git-send-email-greg@kroah.com>
+	<11650154181661-git-send-email-greg@kroah.com>
+	<11650154221716-git-send-email-greg@kroah.com>
+	<11650154251022-git-send-email-greg@kroah.com>
+	<11650154282911-git-send-email-greg@kroah.com>
+	<11650154311175-git-send-email-greg@kroah.com>
+	<1165163163.19590.62.camel@localhost>
+	<20061204195859.GB29637@kroah.com>
+	<1165266903.12640.35.camel@localhost>
+	<20061204230511.GA9382@kroah.com>
+	<1165332371.2756.23.camel@localhost>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Im using linux-2.6.14-omap2430.
+On Tue, 05 Dec 2006 16:26:11 +0100,
+Marcel Holtmann <marcel@holtmann.org> wrote:
 
-   Im using TI omap 2430 SDP.
+[sorry about the late reply, but I've been on vacation & offline]
 
-   When i compile it with the eldk toolchain.
+> I was checking why device_move() fails and it seems that the check for
+> is_registered is the problem here.
+> 
+>         if (!device_is_registered(dev)) {
+>                 error = -EINVAL;
+>                 goto out;
+>         }
+> 
+> The ACL link has been attached to the Bluetooth bus, but for some reason
+> it still thinks that it is unregistered. Is this check really needed. I
+> think it should be possible to also move devices that are not part of a
+> bus, yet. And removing that check makes it work for me.
 
-   I get an error listed at the end of this mail.
+Hm, device_is_registered() is always false for devices not belonging to
+a bus. I'll remove that check.
 
-  The error is simple - case values should be constants, However, the
-toolchain gcc 4.0
-  is complaining that case values are not constant.
+> > > > > And shouldn't device_move(dev, NULL) re-attach it to the virtual device
+> > > > > tree instead of failing?
+> > > >
+> > > > Yes, that would be good to have.
+> > >
+> > > Cornelia, please fix this, because otherwise we can't detach a device
+> > > from its parent. Storing the current virtual parent looks racy to me.
+> >
+> > You can always restore the previous "virtual" parent from the
+> > information given to you in the device itself.  That is what the code
+> > does when it first registers the device.
+> >
+> > And yes, I too think it should be fixed.
+> 
+> My knowledge of the driver model is still limited. Can you fix that
+> quickly. This is really needed.
 
-  Actually, the some of the case values are defined as -
+I'm currently working on a patch. Sorry for the delay, I hope I can get
+it out today.
 
-  case (u32)&CM_ICLKEN_WKUP:
-  case (u32)&CM_FCLKEN_WKUP:
-
- However, the same code compiles with some other compilers (lower
-versions of gcc).
-
-  I think all compilers should give the same error
-
-  Why the difference in behaviour?.
-
-Not sure, if the source located at linux.omap.com/pub is broken.
-Couldnt find the sources of linux kernel for omap2430 with higher
-versions of the linux kernel higher than 2.6.14.
-
-
-Please advice,
-
-
-Regards,
-sriram
-
-Error:
-
-    CHK     include/linux/version.h
-make[1]: `include/asm-arm/mach-types.h' is up to date.
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  CC      arch/arm/mach-omap2/clock24xx.o
-arch/arm/mach-omap2/clock24xx.c:47: error: static declaration of
-'clockfw_lock' follows non-static declaration
-include/asm/arch/clock.h:53: error: previous declaration of
-'clockfw_lock' was here
-arch/arm/mach-omap2/clock24xx.c: In function 'do_omap_set_performance':
-arch/arm/mach-omap2/clock24xx.c:579: warning: no return statement in
-function returning non-void
-arch/arm/mach-omap2/clock24xx.c: In function 'clk_safe':
-arch/arm/mach-omap2/clock24xx.c:1223: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1224: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1228: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1229: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1236: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1237: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1241: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1242: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1246: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1250: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1254: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1255: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1259: error: case label does not
-reduce to an integer constant
-arch/arm/mach-omap2/clock24xx.c:1260: error: case label does not
-reduce to an integer constant
-make[1]: *** [arch/arm/mach-omap2/clock24xx.o] Error 1
-make: *** [arch/arm/mach-omap2] Error 2
-
-
-code is :
- switch((u32)(clk->enable_reg)){
-                case (u32)&CM_ICLKEN_MDM:
-                case (u32)&CM_FCLKEN_MDM:
-                        pReg = &CM_IDLEST_MDM;
-                        off = 0x0;
-                        break;
-                case (u32)&CM_ICLKEN_DSP:
-                case (u32)&CM_FCLKEN_DSP:
-                        pReg = &CM_IDLEST_DSP;
-                        if(enbit == 1)
-                                off = 0;
-                        else
-                                off = enbit;
-                        break;
-                case (u32)&CM_ICLKEN_WKUP:
-                case (u32)&CM_FCLKEN_WKUP:
-                        pReg = &CM_IDLEST_WKUP;
-                        off = enbit;
-                        break;
-                case (u32)&CM_ICLKEN_GFX:
-                case (u32)&CM_FCLKEN_GFX:
-                        pReg = &CM_IDLEST_GFX;
-                        off = 0x0;
-                        break;
-                case (u32)&CM_ICLKEN4_CORE:
-                         pReg = &CM_IDLEST4_CORE;
-                         off = enbit;
-                         break;
-                case (u32)&CM_ICLKEN3_CORE:
-                         pReg = &CM_IDLEST3_CORE;
+-- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

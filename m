@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751535AbXAHN2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161282AbXAHN3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbXAHN2l (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 08:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbXAHN2k
+	id S1161282AbXAHN3q (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 08:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbXAHN3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 08:28:40 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25622
+	Mon, 8 Jan 2007 08:29:46 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25670
 	"EHLO public.id2-vpn.continvity.gns.novell.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751535AbXAHN2k (ORCPT
+	by vger.kernel.org with ESMTP id S1161282AbXAHN3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 08:28:40 -0500
-Message-Id: <45A2556B.76E4.0078.0@novell.com>
+	Mon, 8 Jan 2007 08:29:45 -0500
+Message-Id: <45A255AF.76E4.0078.0@novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 08 Jan 2007 13:30:03 +0000
+Date: Mon, 08 Jan 2007 13:31:11 +0000
 From: "Jan Beulich" <jbeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386: adjustments to page table dump during oops
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <patches@x86-64.org>
+Subject: [PATCH] x86: simplify notify_page_fault()
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -23,99 +24,101 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- make the page table contents printing PAE capable
-- make sure the address stored in current->thread.cr2 is unmodified from
-  what was read from CR2
-- don't call oops_may_print() multiple times, when one time suffices
+Remove all parameters from this function that aren't really variable.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
 --- linux-2.6.20-rc4/arch/i386/mm/fault.c	2007-01-08 09:57:20.000000000 +0100
-+++ 2.6.20-rc4-x86-page-fault-dump/arch/i386/mm/fault.c	2007-01-05 13:38:28.000000000 +0100
-@@ -327,7 +327,6 @@ fastcall void __kprobes do_page_fault(st
- 	struct mm_struct *mm;
- 	struct vm_area_struct * vma;
- 	unsigned long address;
--	unsigned long page;
- 	int write, si_code;
++++ 2.6.20-rc4-x86-simplify-notify_page_fault/arch/i386/mm/fault.c	2007-01-08 10:32:45.000000000 +0100
+@@ -46,17 +46,17 @@ int unregister_page_fault_notifier(struc
+ }
+ EXPORT_SYMBOL_GPL(unregister_page_fault_notifier);
  
- 	/* get the address */
-@@ -538,7 +537,12 @@ no_context:
- 	bust_spinlocks(1);
+-static inline int notify_page_fault(enum die_val val, const char *str,
+-			struct pt_regs *regs, long err, int trap, int sig)
++static inline int notify_page_fault(struct pt_regs *regs, long err)
+ {
+ 	struct die_args args = {
+ 		.regs = regs,
+-		.str = str,
++		.str = "page fault",
+ 		.err = err,
+-		.trapnr = trap,
+-		.signr = sig
++		.trapnr = 14,
++		.signr = SIGSEGV
+ 	};
+-	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
++	return atomic_notifier_call_chain(&notify_page_fault_chain,
++	                                  DIE_PAGE_FAULT, &args);
+ }
  
- 	if (oops_may_print()) {
--	#ifdef CONFIG_X86_PAE
-+		unsigned long page;
-+#ifndef CONFIG_X86_PAE
-+		typedef unsigned long pgt_t;
-+#else
-+		typedef unsigned long long pgt_t;
-+
- 		if (error_code & 16) {
- 			pte_t *pte = lookup_address(address);
+ /*
+@@ -353,8 +353,7 @@ fastcall void __kprobes do_page_fault(st
+ 	if (unlikely(address >= TASK_SIZE)) {
+ 		if (!(error_code & 0x0000000d) && vmalloc_fault(address) >= 0)
+ 			return;
+-		if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+-						SIGSEGV) == NOTIFY_STOP)
++		if (notify_page_fault(regs, error_code) == NOTIFY_STOP)
+ 			return;
+ 		/*
+ 		 * Don't take the mm semaphore here. If we fixup a prefetch
+@@ -363,8 +362,7 @@ fastcall void __kprobes do_page_fault(st
+ 		goto bad_area_nosemaphore;
+ 	}
  
-@@ -547,7 +551,7 @@ no_context:
- 					"NX-protected page - exploit attempt? "
- 					"(uid: %d)\n", current->uid);
+-	if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+-					SIGSEGV) == NOTIFY_STOP)
++	if (notify_page_fault(regs, error_code) == NOTIFY_STOP)
+ 		return;
+ 
+ 	/* It's safe to allow irq's after cr2 has been saved and the vmalloc
+--- linux-2.6.20-rc4/arch/x86_64/mm/fault.c	2007-01-08 09:57:27.000000000 +0100
++++ 2.6.20-rc4-x86-simplify-notify_page_fault/arch/x86_64/mm/fault.c	2007-01-08 10:33:11.000000000 +0100
+@@ -56,17 +56,17 @@ int unregister_page_fault_notifier(struc
+ }
+ EXPORT_SYMBOL_GPL(unregister_page_fault_notifier);
+ 
+-static inline int notify_page_fault(enum die_val val, const char *str,
+-			struct pt_regs *regs, long err, int trap, int sig)
++static inline int notify_page_fault(struct pt_regs *regs, long err)
+ {
+ 	struct die_args args = {
+ 		.regs = regs,
+-		.str = str,
++		.str = "page fault",
+ 		.err = err,
+-		.trapnr = trap,
+-		.signr = sig
++		.trapnr = 14,
++		.signr = SIGSEGV
+ 	};
+-	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
++	return atomic_notifier_call_chain(&notify_page_fault_chain,
++	                                  DIE_PAGE_FAULT, &args);
+ }
+ 
+ void bust_spinlocks(int yes)
+@@ -376,8 +376,7 @@ asmlinkage void __kprobes do_page_fault(
+ 			if (vmalloc_fault(address) >= 0)
+ 				return;
  		}
--	#endif
-+#endif
- 		if (address < PAGE_SIZE)
- 			printk(KERN_ALERT "BUG: unable to handle kernel NULL "
- 					"pointer dereference");
-@@ -557,25 +561,37 @@ no_context:
- 		printk(" at virtual address %08lx\n",address);
- 		printk(KERN_ALERT " printing eip:\n");
- 		printk("%08lx\n", regs->eip);
--	}
--	page = read_cr3();
--	page = ((unsigned long *) __va(page))[address >> 22];
--	if (oops_may_print())
-+
-+		page = read_cr3();
-+		page = ((pgt_t *) __va(page))[address >> PGDIR_SHIFT];
-+#ifdef CONFIG_X86_PAE
-+		printk(KERN_ALERT "*pdpt = %08lx\n", page);
-+		if (page & 1) {
-+			page &= PAGE_MASK;
-+			page = ((pgt_t *) __va(page))[(address >> PMD_SHIFT)
-+			                              & (PTRS_PER_PMD - 1)];
-+			printk(KERN_ALERT "*pde = %08lx\n", page);
-+		}
-+#else
- 		printk(KERN_ALERT "*pde = %08lx\n", page);
--	/*
--	 * We must not directly access the pte in the highpte
--	 * case, the page table might be allocated in highmem.
--	 * And lets rather not kmap-atomic the pte, just in case
--	 * it's allocated already.
--	 */
-+#endif
-+
-+		/*
-+		 * We must not directly access the pte in the highpte
-+		 * case, the page table might be allocated in highmem.
-+		 * And lets rather not kmap-atomic the pte, just in case
-+		 * it's allocated already.
-+		 */
- #ifndef CONFIG_HIGHPTE
--	if ((page & 1) && oops_may_print()) {
--		page &= PAGE_MASK;
--		address &= 0x003ff000;
--		page = ((unsigned long *) __va(page))[address >> PAGE_SHIFT];
--		printk(KERN_ALERT "*pte = %08lx\n", page);
--	}
-+		if (page & 1) {
-+			page &= PAGE_MASK;
-+			page = ((pgt_t *) __va(page))[(address >> PAGE_SHIFT)
-+			                              & (PTRS_PER_PTE - 1)];
-+			printk(KERN_ALERT "*pte = %08lx\n", page);
-+		}
- #endif
-+	}
-+
- 	tsk->thread.cr2 = address;
- 	tsk->thread.trap_no = 14;
- 	tsk->thread.error_code = error_code;
+-		if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+-						SIGSEGV) == NOTIFY_STOP)
++		if (notify_page_fault(regs, error_code) == NOTIFY_STOP)
+ 			return;
+ 		/*
+ 		 * Don't take the mm semaphore here. If we fixup a prefetch
+@@ -386,8 +385,7 @@ asmlinkage void __kprobes do_page_fault(
+ 		goto bad_area_nosemaphore;
+ 	}
+ 
+-	if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+-					SIGSEGV) == NOTIFY_STOP)
++	if (notify_page_fault(regs, error_code) == NOTIFY_STOP)
+ 		return;
+ 
+ 	if (likely(regs->eflags & X86_EFLAGS_IF))
 
 

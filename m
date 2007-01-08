@@ -1,95 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965259AbXAHACD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965266AbXAHAWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965259AbXAHACD (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 19:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbXAHACD
+	id S965266AbXAHAWO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 19:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965271AbXAHAWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 19:02:03 -0500
-Received: from web55609.mail.re4.yahoo.com ([206.190.58.233]:31582 "HELO
-	web55609.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965259AbXAHACB (ORCPT
+	Sun, 7 Jan 2007 19:22:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2886 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S965266AbXAHAWG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 19:02:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=noFM2uBk0Bc5pfwYOrz5j86srDtOMnPPWfPP7hddTro7TJ4DAzAjG/1TvwXdC4nZTbshixGQv6gNiajsU0sWpCUBW48MhwC/EHV2fp6oWSP86iRiewmRCKFvzwAbg3qXUERG9YeKSOrDaNi2/v6lQd7XgQYwcCXummfjlBZ5ZKw=;
-X-YMail-OSG: AXo83p4VM1k_eBG_ePsJYqKw91aBCOo78Tjt1JuX4Wg92Ad64sPW_cL.jYjwmZvZuIde.pl4aQH05l59f4586RUeoYXVD.WkEUYJ2gAV3.rTH0NP5U4.O5TCIR3eaDJSqlgWG1Q91vAl8bo-
-Date: Sun, 7 Jan 2007 16:02:00 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1168212133.2744.17.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
+	Sun, 7 Jan 2007 19:22:06 -0500
+Date: Mon, 8 Jan 2007 01:22:08 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
+       Bernhard Schmidt <berni@birkenwald.de>,
+       Peter Osterlund <petero2@telia.com>,
+       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org,
+       Komuro <komurojun-mbn@nifty.com>,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
+       Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>, ttb@tentacle.dhs.org,
+       rml@novell.com, Jon Smirl <jonsmirl@gmail.com>,
+       Damien Wyart <damien.wyart@free.fr>,
+       Aaron Sethman <androsyn@ratbox.org>, alan@lxorguk.ukuu.org.uk,
+       linux-ide@vger.kernel.org, Uwe Bugla <uwe.bugla@gmx.de>,
+       Tobias Diedrich <ranma+kernel@tdiedrich.de>, Andi Kleen <ak@suse.de>,
+       Yinghai Lu <yinghai.lu@amd.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, mingo@redhat.com,
+       discuss@x86-64.org, Florin Iucha <florin@iucha.net>,
+       Berthold Cogel <cogel@rrz.uni-koeln.de>,
+       Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
+       linux-acpi@vger.kernel.org
+Subject: 2.6.20-rc4: known unfixed regressions
+Message-ID: <20070108002208.GO20714@stusta.de>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <261558.33282.qm@web55609.mail.re4.yahoo.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19.
 
---- Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-> On Sun, 2007-01-07 at 14:43 -0800, Amit Choudhary wrote:
-> > Any strong reason why not? x has some value that does not make sense and can create only
-> problems.
-> > And as I explained, it can result in longer code too. So, why keep this value around. Why not
-> > re-initialize it to NULL.
-> 
-> Because it looks really STRANGE(tm). Consider the following function,
-> which is essentially what you're proposing in macro-ized form:
-> 	void foobar(void)
-> 	{
-> 		void *ptr;
-> 
-> 		ptr = kmalloc(...);
-> 		// actual work here
-> 		kfree(ptr);
-> 		ptr = NULL;
-> 	}
-
-That's where KFREE(ptr) comes in so that the code doesn't look ugly and still the purpose is
-achieved.
-
-"I still do not know of a single good reason as to why we should not do this."
-
-And if all programmers did the right thing always then why do we have all the debugging options in
-the first place.
-
-> Reading code like that makes me say "wtf?", simply because 'ptr' is not
-> used thereafter,
-
-Really? Then why do we have all the debugging options to catch re-use of the memory that has been
-freed. So many debugging options has been implemented, so much effort has gone into them, partly
-because programmers sometimes miss correct programming.
-
-> so setting it to NULL is both pointless and confusing
-> (it looks out-of-place, and therefore makes me wonder if there's
-> something stupidly tricky going on).
-> 
-> Also, arguably, your demonstration of why the lack of the proposed
-> KFREE() macro results in longer code is invalid. Whereas you wrote:
-> 	pointer *arr_x[size_x];
-> 	pointer *arr_y[size_y];
-> 	pointer *arr_z[size_z];
-> That really should have been:
-> 	pointer *arr[size_x + size_y + size_z];
-> or:
-> 	pointer **arr[3] = { arr_x, arr_y, arr_z };
-> In which case, the you only need one path in the function to handle
-> allocation failures, rather than the three that you were arguing for.
-> 
-
-I do not know what you are talking about here. You are saying that a function does not need three
-different arrays with different names. How can you say that? How do you know what is the
-requirement?
-
--Amit
+Due to the huge amount of recipients, please trim the Cc when answering.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()
+References : http://lkml.org/lkml/2007/1/7/117
+Submitter  : Malte Schröder <MalteSch@gmx.de>
+Status     : unknown
+
+
+Subject    : netfilter conntrack Oopses
+References : http://lkml.org/lkml/2007/1/4/156
+             http://lkml.org/lkml/2007/1/7/188
+Submitter  : Bernhard Schmidt <berni@birkenwald.de>
+             Peter Osterlund <petero2@telia.com>
+Status     : unknown
+
+
+Subject    : ftp: get or put stops during file-transfer
+References : http://lkml.org/lkml/2006/12/16/174
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
+Handled-By : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Status     : problem is being debugged
+
+
+Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
+Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
+Status     : unknown
+
+
+Subject    : BUG: scheduling while atomic: hald-addon-stor/...
+             cdrom_{open,release,ioctl} in trace
+References : http://lkml.org/lkml/2006/12/26/105
+             http://lkml.org/lkml/2006/12/29/22
+             http://lkml.org/lkml/2006/12/31/133
+Submitter  : Jon Smirl <jonsmirl@gmail.com>
+             Damien Wyart <damien.wyart@free.fr>
+             Aaron Sethman <androsyn@ratbox.org>
+Status     : unknown
+
+
+Subject    : problems with CD burning
+References : http://www.spinics.net/lists/linux-ide/msg06545.html
+Submitter  : Uwe Bugla <uwe.bugla@gmx.de>
+Status     : unknown
+
+
+Subject    : x86_64 boot failure: "IO-APIC + timer doesn't work"
+References : http://lkml.org/lkml/2006/12/16/101
+             http://lkml.org/lkml/2007/1/3/9
+Submitter  : Tobias Diedrich <ranma+kernel@tdiedrich.de>
+Caused-By  : Andi Kleen <ak@suse.de>
+             commit b026872601976f666bae77b609dc490d1834bf77
+Handled-By : Yinghai Lu <yinghai.lu@amd.com>
+             Eric W. Biederman <ebiederm@xmission.com>
+Status     : patches are being discussed
+
+
+Subject    : USB keyboard unresponsive after some time
+References : http://lkml.org/lkml/2006/12/25/35
+             http://lkml.org/lkml/2006/12/26/106
+Submitter  : Florin Iucha <florin@iucha.net>
+Status     : unknown
+
+
+Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
+References : http://lkml.org/lkml/2006/12/25/40
+Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
+Handled-By : Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Status     : problem is being debugged

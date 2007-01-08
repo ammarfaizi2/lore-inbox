@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161322AbXAHPxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750854AbXAHPyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161322AbXAHPxG (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbXAHPxF
+	id S1750854AbXAHPyU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbXAHPyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:53:05 -0500
-Received: from mail.lysator.liu.se ([130.236.254.3]:39009 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161322AbXAHPxE (ORCPT
+	Mon, 8 Jan 2007 10:54:20 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59592 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750854AbXAHPyT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:53:04 -0500
-Date: Mon, 8 Jan 2007 16:52:59 +0100 (MET)
-From: Jonas Svensson <jonass@lysator.liu.se>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: trouble loading self compiled vanilla kernel
-In-Reply-To: <45A2611A.7040900@imap.cc>
-Message-ID: <Pine.GSO.4.51L2.0701081644110.27141@nema.lysator.liu.se>
-References: <Pine.GSO.4.51L2.0701081054010.27141@nema.lysator.liu.se>
- <45A228CC.5020004@imap.cc> <Pine.GSO.4.51L2.0701081301520.27141@nema.lysator.liu.se>
- <45A2611A.7040900@imap.cc>
+	Mon, 8 Jan 2007 10:54:19 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+       Yinghai Lu <yinghai.lu@amd.com>, Andrew Morton <akpm@osdl.org>,
+       Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PATCH 2/4] x86_64 io_apic: Implement irq_from_pin
+References: <5986589C150B2F49A46483AC44C7BCA490733F@ssvlexmb2.amd.com>
+	<86802c440701022223q418bd141qf4de8ab149bf144b@mail.gmail.com>
+	<20070108005556.GA2542@melchior.yamamaya.is-a-geek.org>
+	<Pine.LNX.4.64.0701071708240.3661@woody.osdl.org>
+	<m1lkkdikmn.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Mon, 08 Jan 2007 08:53:52 -0700
+In-Reply-To: <m1lkkdikmn.fsf_-_@ebiederm.dsl.xmission.com> (Eric
+	W. Biederman's message of "Mon, 08 Jan 2007 08:49:36 -0700")
+Message-ID: <m1hcv1ikfj.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007, Tilman Schmidt wrote:
 
-> Jonas Svensson schrieb:
-> > On Mon, 8 Jan 2007, Tilman Schmidt wrote:
-> >
-> >> Jonas Svensson schrieb:
-> >> [...]
-> >> > All results in the same problem: the booting stops about when grub is
-> >> > finished and the kernel should continue. I get the
-> >> > message about loading initrd but not the line of "Uncompressing
-> >> > Linux... Ok, booting the kernel". Instead I get a blank screen with a
-> >> > flashing cursor at top left. Thats all, nothing more happens. Any
-> >> > suggestions on what could be wrong or what I should do?
-> >>
-> >> Did you build a new initrd to go with your new kernel?
-> >
-> > I beleive make install does that in CentOS. There were a new initrd
-> > installed and it was not identical to the one supplied by CentOS.
->
-> That's surprising. On SuSE I always have to build it separately
-> with mkinitrd, and the kernel makefiles are the same, after all.
-> Anyway, your symptoms definitely look like a bad initrd, so you
-> may want to have a closer look in that area. Perhaps build a
-> kernel you can boot without initrd for testing, ie. with the
-> drivers for the root disk and filesystem built in.
+Another helper needed for guessing the routing of the timer
+irq.
 
-I have done a kernel without support for modules and what I beleive is
-sane settings regarding drivers. I installed it and removed the initrd
-from grub.config but still got the same error.
+irq_from_pin looks at the irq_2_pin mapping and figures
+out which irq is connected to a given apic and pin combination.
 
-I will try it again, maybe I missed something. I will also try to read
-more on initrd and see if I am wrong to assume that make install does it
-for me.
+We need to know this to avoid guessing an apic pin that is already
+in use by another irq.
 
-Thanks for trying to help.
+Despite the nested loops this is O(N) walk through the irq_2_pin
+data structure.
+
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ arch/x86_64/kernel/io_apic.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
+
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 7365f5f..5ad210f 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -262,6 +262,20 @@ static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
+ }
+ #endif
+ 
++static int irq_from_pin(int apic, int pin)
++{
++	int irq;
++	for (irq = 0; irq < NR_IRQS; irq++) {
++		struct irq_pin_list *entry = irq_2_pin + irq;
++		while (entry->next && ((entry->apic != apic) || (entry->pin != pin)))
++			entry = irq_2_pin + entry->next;
++
++		if ((entry->pin == pin) && (entry->apic == apic))
++			return irq;
++	}
++	return -1;
++}
++
+ /*
+  * The common case is 1:1 IRQ<->pin mappings. Sometimes there are
+  * shared ISA-space IRQs, so we have to support them. We are super
+-- 
+1.4.4.1.g278f
 

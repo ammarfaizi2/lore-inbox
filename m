@@ -1,102 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161228AbXAHLK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161223AbXAHLOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbXAHLK5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 06:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbXAHLK5
+	id S1161223AbXAHLOO (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 06:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbXAHLOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 06:10:57 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:3873 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161228AbXAHLK4 (ORCPT
+	Mon, 8 Jan 2007 06:14:14 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:37305 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161223AbXAHLON (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 06:10:56 -0500
-Date: Mon, 8 Jan 2007 12:10:55 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: Adrian Bunk <bunk@stusta.de>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
-Message-Id: <20070108121055.d25c8ffa.khali@linux-fr.org>
-In-Reply-To: <20070107154441.GB22558@jupiter.solarsys.private>
-References: <20061219041315.GE6993@stusta.de>
-	<20070105095233.4ce72e7e.khali@linux-fr.org>
-	<20070107154441.GB22558@jupiter.solarsys.private>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Jan 2007 06:14:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=R9YSDdUiAymfH4JsLYPbc4EC/INdiAskxq8DvxhkvVXQ4xeBcj5Ok8F5MrDhZEojHb74mU2VTx7UyqzyVqGMU6QK1zcUBaIIqgk3TzM4VBxM+pjbJwljK/lGtAeRgsK/8EFAn5WkRrPEYhP1R+aHD1+gYfPEOVVtoqMzAV1ric4=
+Message-ID: <47ed01bd0701080314u39cda8f8g18dbff7747c0ed14@mail.gmail.com>
+Date: Mon, 8 Jan 2007 06:14:11 -0500
+From: "Dylan Taft" <d13f00l@gmail.com>
+To: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 001/001] USB MASS STORAGE: US_FL_IGNORE_RESIDUE needed for Aiptek MP3 Player
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+From: Dylan Taft <d13f00l@gmail.com>
 
-On Sun, 7 Jan 2007 10:44:41 -0500, Mark M. Hoffman wrote:
-> Hi Jean, Adrian:
-> 
-> > On Tue, 19 Dec 2006 05:13:15 +0100, Adrian Bunk wrote:
-> > > @@ -1122,6 +1123,14 @@ static void quirk_sis_96x_smbus(struct p
-> > >  	pci_write_config_byte(dev, 0x77, val & ~0x10);
-> > >  	pci_read_config_byte(dev, 0x77, &val);
-> > >  }
-> > > +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
-> > > +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
-> > >  
-> > >  /*
-> > >   * ... This is further complicated by the fact that some SiS96x south
-> > > @@ -1158,6 +1167,8 @@ static void quirk_sis_503(struct pci_dev
-> > >  	 */
-> > >  	dev->device = devid;
-> > >  }
-> > > +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
-> > > +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
-> 
-> * Jean Delvare <khali@linux-fr.org> [2007-01-05 09:52:33 +0100]:
-> > Was this patch tested on the SiS-based boards which need these quirks?
-> > I think you broke them. If I remember correctly, quirk_sis_503() must
-> > be called before quirk_sis_96x_smbus() for some boards to work
-> > properly, and we currently rely on the linking order to guarantee that.
-> > Likewise, quirk_sis_96x_compatible() should be called before
-> > quirk_sis_503() otherwise the warning message in quirk_sis_503() will
-> > no longer be correct.
-> > 
-> > So if you want to put the calls right after the quirk functions, you
-> > need to reorder the functions themselves as well. Feel free to add a
-> > comment explaining the order requirement so that nobody breaks it
-> > accidentally again in the future.
-> 
-> It is fragile for this code to depend on link order; Adrian's obvious and
-> trivial cleanups broke it.  Not only that, but some FC kernels had/have the
-> link order reversed such that this quirk is broken anyway.
+Device will not work as a mass storage device without US_FL_IGNORE_RESIDUE.
 
-The former problem would be addressed just fine by a proper ordering
-(as Adrian's patch was attempting to bring) and a comment explaining
-the dependency.
+Signed-off-by: Dylan Taft <
+d13f00l@gmail.com>
+---
+I bought this mp3 player that takes SD cards here
 
-> I sent a patch for this back in May:
-> http://lists.lm-sensors.org/pipermail/lm-sensors/2006-May/016113.html
-> 
-> There was some discussion on the linux-pci mailing list as well; can't seem to
-> find an archive of that though.  Basically, it was not understood how the FC
-> kernels could have a reversed link order.  I never followed up on it, my bad.
+http://www.aiptek.com/Merchant2/merchant.mvc?Screen=PROD&Product_Code=AX4&Category_Code=MP3&Store_Code=AS
 
-As long as it isn't explained, I call it a compiler bug in FC.
+I can provide the errors in dmesg, if necessary, but this flag was
+determined as necessary by doing a quick google on the errors
 
-> At any rate, can we please get the patch above applied?  I will send a new one
-> if necessary.
+that were shown in dmesg.
+I've been sitting on this patch for a while.  Formally submitting
+patches seems daunting. I hope I did this right.
 
-This is a PCI patch, so I'm not the one picking it. I seem to remember
-Greg was fine with the patch except for the comment about the linking
-order.
+This patch is against vanilla 2.6.19, although it should work fine for
+any newer kernel.  Thanks!
 
-BTW, the Intel (Asus) SMBus unhiding quirk also depends on the linking
-order if I'm not mistaking, and quite frankly I don't see a way to
-"fix" it if we decide to no longer trust the linking order.
 
--- 
-Jean Delvare
+--- ./drivers/usb/storage/unusual_devs.bak      2006-12-09 20:50:33.000000000
+ -0500
+
++++ ./drivers/usb/storage/unusual
+_devs.h        2007-01-07 22:17:13.000000000  -0500
+@@ -1075,6 +1075,15 @@ UNUSUAL_DEV(  0x08bd, 0x1100, 0x0000, 0x
+                US_SC_DEVICE, US_PR_DEVICE, NULL,
+                 US_FL_SINGLE_LUN),
+
++/* Submitted by Dylan Taft <d13f00l@gmail.com>
++ * US_FL_IGNORE_RESIDUE Needed
++ */
++UNUSUAL_DEV(  0x08ca, 0x3103, 0x0100, 0x0100,
++                "AIPTEK",
++                "Aiptek USB Keychain MP3 Player",
++                US_SC_DEVICE, US_PR_DEVICE, NULL,
++                US_FL_IGNORE_RESIDUE),
++
+ /* Entry needed for flags. Moreover, all devices with this ID use
+  * bulk-only transport, but _some_ falsely report Control/Bulk instead.
+  * One example is "Trumpion Digital Research MYMP3".

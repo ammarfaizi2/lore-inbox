@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422734AbXAHUtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422745AbXAHUwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbXAHUtf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbXAHUte
+	id S1422745AbXAHUwI (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbXAHUwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:49:34 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:55177 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422734AbXAHUtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:49:33 -0500
-Date: Mon, 8 Jan 2007 21:24:57 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Shaya Potter <spotter@cs.columbia.edu>
-cc: Andrew Morton <akpm@osdl.org>, "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-In-Reply-To: <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.61.0701082122460.23737@yvahk01.tjqt.qr>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
- <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org>
- <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
+	Mon, 8 Jan 2007 15:52:08 -0500
+Received: from zcars04e.nortel.com ([47.129.242.56]:34737 "EHLO
+	zcars04e.nortel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422745AbXAHUwH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:52:07 -0500
+Message-ID: <45A2AED3.8070609@nortel.com>
+Date: Mon, 08 Jan 2007 14:51:31 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: dean gaudet <dean@arctic.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] All Transmeta CPUs have constant TSCs
+References: <200701050148.l051mHGM005275@terminus.zytor.com> <Pine.LNX.4.61.0701051524440.7813@yvahk01.tjqt.qr> <Pine.LNX.4.64.0701072358010.26307@twinlark.arctic.org> <Pine.LNX.4.61.0701082118370.23737@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0701082118370.23737@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jan 2007 20:51:36.0171 (UTC) FILETIME=[C96293B0:01C73366]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
+> On Jan 8 2007 00:02, dean gaudet wrote:
 
-On Jan 8 2007 14:43, Shaya Potter wrote:
-> On Mon, 8 Jan 2007, Andrew Morton wrote:
->> On Sun,  7 Jan 2007 23:12:53 -0500
->> "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
->> 
->> > +Modifying a Unionfs branch directly, while the union is
->> > +mounted, is currently unsupported.
->> 
->> Does this mean that if I have /a/b/ and /c/d/ unionised under
->> /mnt/union, I am not allowed to alter anything under /a/b/
->> and /c/d/?  That I may only alter stuff under /mnt/union?
->> 
->> If so, that sounds like a significant limitation.
->
-> haven't we been through this?  It's the same thing as
-> modifying a block device while a file system is using it. 
-> Now, when unionfs gets confused, it shouldn't oops, but would
-> one expect ext3 to allow one to modify its backing store while
-> its using it?
+>>transmeta decided years before intel and amd that a constant rate tsc 
+>>(unaffected by P-state) was the only sane choice.  on transmeta cpus the 
+>>tsc increments at the maximum cpu frequency no matter what the P-state 
+>>(and no matter what longrun is doing behind the kernel's back).
 
-(Blunt counter-example: Modifying the underlying filesystem of
-an NFS import does not break. But I agree with Shaya.)
+> Well it defeats the purpose of TSC. I mean, they could have kept the "TSC" and
+> instead added a second TSC ticker, constant_tsc.
 
-Well it was suggested to make /a/b and /c/d read-only while the
-union is mounted, using a ro bind mount, what about it? (To
-catch unwanted tampering with the lowlevels)
+Given that the name is "time stamp counter" then it makes sense to me to 
+have a constant frequency.
 
-	-`J'
--- 
+For performance monitoring it would be useful to have a "cpu cycle 
+counter" that counts clock cycles, and varies (and possibly stops) with 
+the cpu itself.
+
+Chris
+
+
+

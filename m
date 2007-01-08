@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932666AbXAHUta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422734AbXAHUtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbXAHUta (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 15:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbXAHUt3
+	id S1422734AbXAHUtf (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 15:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbXAHUte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 15:49:29 -0500
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:50969 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932666AbXAHUt2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 15:49:28 -0500
-To: David Miller <davem@davemloft.net>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, kaber@trash.net
-Subject: Re: Linux 2.6.20-rc4
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	<m37ivyr1v6.fsf@telia.com>
-	<Pine.LNX.4.64.0701071442580.3661@woody.osdl.org>
-	<20070107.170056.76564352.davem@davemloft.net>
-From: Peter Osterlund <petero2@telia.com>
-Date: 08 Jan 2007 21:49:23 +0100
-In-Reply-To: <20070107.170056.76564352.davem@davemloft.net>
-Message-ID: <m3tzz1p7l8.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Mon, 8 Jan 2007 15:49:34 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:55177 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422734AbXAHUtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 15:49:33 -0500
+Date: Mon, 8 Jan 2007 21:24:57 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Shaya Potter <spotter@cs.columbia.edu>
+cc: Andrew Morton <akpm@osdl.org>, "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+In-Reply-To: <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.61.0701082122460.23737@yvahk01.tjqt.qr>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+ <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org>
+ <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller <davem@davemloft.net> writes:
 
-> From: Linus Torvalds <torvalds@osdl.org>
-> Date: Sun, 7 Jan 2007 14:50:15 -0800 (PST)
-> 
-> > David, there really *is* something screwy in netfilter. 
-> 
-> Sure, but from what I can see this bug appears unrelated to the one in
-> kernel bugzilla #7781 that we've been discussing the past few days.
-> 
-> First of all, the nf conntrack paths won't be used by normal
-> users until 2.6.20-rc1 or so.  The bz #7781 report is against
-> 2.6.19 and all those backtraces have IP conntrack in them, not
-> nf conntrack.
-> 
-> So what are we compiling with here btw, gcc-4.1?
-> 
-> I want to rule the compiler out in this and the bz #7781 case
-> so that we can look at the code seriously.
+On Jan 8 2007 14:43, Shaya Potter wrote:
+> On Mon, 8 Jan 2007, Andrew Morton wrote:
+>> On Sun,  7 Jan 2007 23:12:53 -0500
+>> "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
+>> 
+>> > +Modifying a Unionfs branch directly, while the union is
+>> > +mounted, is currently unsupported.
+>> 
+>> Does this mean that if I have /a/b/ and /c/d/ unionised under
+>> /mnt/union, I am not allowed to alter anything under /a/b/
+>> and /c/d/?  That I may only alter stuff under /mnt/union?
+>> 
+>> If so, that sounds like a significant limitation.
+>
+> haven't we been through this?  It's the same thing as
+> modifying a block device while a file system is using it. 
+> Now, when unionfs gets confused, it shouldn't oops, but would
+> one expect ext3 to allow one to modify its backing store while
+> its using it?
 
-The first crash was with gcc 4.1.1, but now I recompiled the kernel
-with "gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-56.fc5)" and I
-can still reproduce the same crash. The backtrace looks the same,
-although the addresses are obviously different. Some hand copied data
-from the oops:
+(Blunt counter-example: Modifying the underlying filesystem of
+an NFS import does not break. But I agree with Shaya.)
 
-BUG: unable to handle kernel paging request at virtual address 1d075089
-eax: cc671e5c ebx: d58569a0 ecx: d58569a0 edx: 00000014
-esi: 1d075021 edi: 00000001 ebp: cc671df0 esp: cc671ddc
-ds: 007b es: 007b ss: 0068
-EIP: ipv4_conntrack_help+0x8e/0x93
+Well it was suggested to make /a/b and /c/d read-only while the
+union is mounted, using a ro bind mount, what about it? (To
+catch unwanted tampering with the lowlevels)
 
+	-`J'
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

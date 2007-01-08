@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751589AbXAHPcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161305AbXAHPfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751589AbXAHPcM (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbXAHPcM
+	id S1161305AbXAHPfF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161273AbXAHPfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:32:12 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57198 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751588AbXAHPcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:32:11 -0500
-Date: Mon, 8 Jan 2007 15:42:49 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sata_via: PATA support, resubmit
-Message-ID: <20070108154249.6d8f5697@localhost.localdomain>
-In-Reply-To: <45A24159.7060001@pobox.com>
-References: <20070108122659.00c22754@localhost.localdomain>
-	<45A24159.7060001@pobox.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+	Mon, 8 Jan 2007 10:35:05 -0500
+Received: from ra.tuxdriver.com ([70.61.120.52]:2656 "EHLO ra.tuxdriver.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161305AbXAHPfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 10:35:03 -0500
+Date: Mon, 8 Jan 2007 10:14:45 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       Ulrich Kunitz <kune@deine-taler.de>
+Subject: Re: [patch 28/50] softmac: Fixed handling of deassociation from AP
+Message-ID: <20070108151424.GB22498@tuxdriver.com>
+References: <20070106022753.334962000@sous-sol.org> <20070106023408.591445000@sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070106023408.591445000@sous-sol.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem you need to fix or work around is ata_probe_ent, which 
-> doesn't properly fill in ata_port info for this situation.  Tejun has 
-> posted patches that kill ata_probe_ent, which you were pointed to. 
+On Fri, Jan 05, 2007 at 06:28:21PM -0800, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> From: Ulrich Kunitz <kune@deine-taler.de>
+> 
+> In 2.6.19 a deauthentication from the AP doesn't start a
+> reassociation by the softmac code. It appears that
+> mac->associnfo.associating must be set and the
+> ieee80211softmac_assoc_work function must be scheduled. This patch
+> fixes that.
+> 
+> Signed-off-by: Ulrich Kunitz <kune@deine-taler.de>
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-And which are not yet in the main tree leaving many users unable to
-install Linux. This isn't the way to get stuff done. When you've got the
-new patches in the driver can use them if its worth it (which, see below,
-I question).
+ACK
 
-> If you get the setup right, you don't bloat each hook with "is this port 
-> PATA?" tests.  At present, your sata_via patch introduces these needless 
-> tests.
-
-Which I might note are actually smaller than the extra structs and on a
-code path usually executed twice per boot. So the needless tests are more
-efficient and not on a hot path and are shorter than the elegant
-not-present solution and let users actually install Linux on current VIA
-systems, which right now the generally cannot do.
-
-Out of boredom I'll also note that clock timings say that if the extra
-port info stuff causes a single extra L1 cache miss its also faster to do
-the tests.
-
-Alan
+-- 
+John W. Linville
+linville@tuxdriver.com

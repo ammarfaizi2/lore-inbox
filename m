@@ -1,109 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030445AbXAHWuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932103AbXAHWuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030445AbXAHWuS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbXAHWuR
+	id S932103AbXAHWuv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbXAHWuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:50:17 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55063 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1030438AbXAHWuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:50:16 -0500
-Date: Tue, 9 Jan 2007 09:49:32 +1100
-From: David Chinner <dgc@sgi.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Make BH_Unwritten a first class bufferhead flag
-Message-ID: <20070108224932.GZ33919298@melbourne.sgi.com>
-Mime-Version: 1.0
+	Mon, 8 Jan 2007 17:50:51 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41214 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932103AbXAHWuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:50:50 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Adrian Bunk" <bunk@stusta.de>, "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Lu, Yinghai" <yinghai.lu@amd.com>
+Subject: [PATCH] x86_64 ioapic: check_timer_pin Don't add_pin_to_irq if it is already there.
+References: <5986589C150B2F49A46483AC44C7BCA490736D@ssvlexmb2.amd.com>
+Date: Mon, 08 Jan 2007 15:50:14 -0700
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA490736D@ssvlexmb2.amd.com>
+	(Yinghai Lu's message of "Mon, 8 Jan 2007 13:46:49 -0800")
+Message-ID: <m1fyalgml5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Lu, Yinghai" <yinghai.lu@amd.com> writes:
 
-Currently, XFS uses BH_PrivateStart for flagging unwritten
-extent state in a bufferhead. Recently, i found the long standing
-mmap/unwritten extent conversion bug, and it was to do with
-partial page invalidation not clearing the unwritten flag from
-bufferheads attached to the page but beyond EOF. See here
-for a full explaination:
+>>Any updates to add_pin_to_irq are wrong.  It works fine.  If there
+>>is something wrong we need to fix remove_pin_to_irq.
+>
+>>What is the problem you see?  Sorry I'm dense at the moment.
 
-http://oss.sgi.com/archives/xfs/2006-12/msg00196.html
+> In the check_timer_pin, irq_from_pin could return 0, it mean some entry
+> is for IRQ0 already.
+> The add_pin_to_irq could add another same entry for it again.
 
-The solution I have checked into the XFS dev tree involves
-duplicating code from block_invalidatepage to clear the
-unwritten flag from the bufferhead(s), and then calling
-block_invalidatepage() to do the rest.
+Yep.  My oversight.  Here is the trivial patch to fix it.  I don't
+see how we could hit this case but if we are going to allow for it
+we should handle it correctly.
 
-Christoph suggested that this would be better solved by
-pushing the unwritten flag into the common buffer head flags
-and just adding the call to discard_buffer():
-
-http://oss.sgi.com/archives/xfs/2006-12/msg00239.html
-
-The following patch makes BH_Unwritten a first class citizen.
-Patch against 2.6.20-rc3.
-
-Signed-Off-By: Dave Chinner <dgc@sgi.com>
-
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- fs/buffer.c                  |    1 +
- fs/xfs/linux-2.6/xfs_linux.h |   10 ----------
- include/linux/buffer_head.h  |    2 ++
- 3 files changed, 3 insertions(+), 10 deletions(-)
+ arch/x86_64/kernel/io_apic.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Index: linux/fs/buffer.c
-===================================================================
---- linux.orig/fs/buffer.c	2007-01-08 17:19:49.039465038 +1100
-+++ linux/fs/buffer.c	2007-01-08 17:20:43.547898480 +1100
-@@ -1439,6 +1439,7 @@ static void discard_buffer(struct buffer
- 	clear_buffer_req(bh);
- 	clear_buffer_new(bh);
- 	clear_buffer_delay(bh);
-+	clear_buffer_unwritten(bh);
- 	unlock_buffer(bh);
- }
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 4891959..cc8e9a4 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -1687,7 +1687,8 @@ static int check_timer_pin(int apic, int pin)
+ 	idx = update_irq0_entry(apic, pin);
  
-Index: linux/fs/xfs/linux-2.6/xfs_linux.h
-===================================================================
---- linux.orig/fs/xfs/linux-2.6/xfs_linux.h	2007-01-08 17:19:32.703335135 +1100
-+++ linux/fs/xfs/linux-2.6/xfs_linux.h	2007-01-08 17:19:36.271363508 +1100
-@@ -109,16 +109,6 @@
- #undef  HAVE_PERCPU_SB	/* per cpu superblock counters are a 2.6 feature */
- #endif
+ 	/* Add an entry in irq_to_pin */
+-	add_pin_to_irq(0, apic, pin);
++	if (irq != 0)
++		add_pin_to_irq(0, apic, pin);
  
--/*
-- * State flag for unwritten extent buffers.
-- *
-- * We need to be able to distinguish between these and delayed
-- * allocate buffers within XFS.  The generic IO path code does
-- * not need to distinguish - we use the BH_Delay flag for both
-- * delalloc and these ondisk-uninitialised buffers.
-- */
--BUFFER_FNS(PrivateStart, unwritten);
--
- #define restricted_chown	xfs_params.restrict_chown.val
- #define irix_sgid_inherit	xfs_params.sgid_inherit.val
- #define irix_symlink_mode	xfs_params.symlink_mode.val
-Index: linux/include/linux/buffer_head.h
-===================================================================
---- linux.orig/include/linux/buffer_head.h	2007-01-08 17:17:15.118241081 +1100
-+++ linux/include/linux/buffer_head.h	2007-01-08 17:18:25.714802453 +1100
-@@ -34,6 +34,7 @@ enum bh_state_bits {
- 	BH_Write_EIO,	/* I/O error on write */
- 	BH_Ordered,	/* ordered write */
- 	BH_Eopnotsupp,	/* operation not supported (barrier) */
-+	BH_Unwritten,	/* Buffer is allocated on disk but not written */
- 
- 	BH_PrivateStart,/* not a state bit, but the first bit available
- 			 * for private allocation by other entities
-@@ -126,6 +127,7 @@ BUFFER_FNS(Boundary, boundary)
- BUFFER_FNS(Write_EIO, write_io_error)
- BUFFER_FNS(Ordered, ordered)
- BUFFER_FNS(Eopnotsupp, eopnotsupp)
-+BUFFER_FNS(Unwritten, unwritten)
- 
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
- #define touch_buffer(bh)	mark_page_accessed(bh->b_page)
+ 	/* Now setup the irq */
+ 	setup_IO_APIC_irq(apic, pin, idx, 0);
+-- 
+1.4.4.1.g278f
+
+

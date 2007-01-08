@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030254AbXAHWHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030273AbXAHWKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbXAHWHy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbXAHWHy
+	id S1030273AbXAHWKl (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbXAHWKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:07:54 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:47248 "EHLO smtp.osdl.org"
+	Mon, 8 Jan 2007 17:10:41 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:49818 "EHLO cs.columbia.edu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030254AbXAHWHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:07:52 -0500
-Date: Mon, 8 Jan 2007 14:02:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Shaya Potter <spotter@cs.columbia.edu>
+	id S1030247AbXAHWKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:10:40 -0500
+Subject: Re: [PATCH 05/24] Unionfs: Copyup Functionality
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Andrew Morton <akpm@osdl.org>
 Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
        linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
        torvalds@osdl.org, mhalcrow@us.ibm.com,
        David Quigley <dquigley@fsl.cs.sunysb.edu>,
        Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-Id: <20070108140224.3a814b7d.akpm@osdl.org>
-In-Reply-To: <1168291848.9853.1.camel@localhost.localdomain>
+In-Reply-To: <20070108132947.6a8f9cf4.akpm@osdl.org>
 References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-	<1168229596875-git-send-email-jsipek@cs.sunysb.edu>
-	<20070108111852.ee156a90.akpm@osdl.org>
-	<Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu>
-	<20070108131957.cbaf6736.akpm@osdl.org>
-	<1168291848.9853.1.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	 <11682295971184-git-send-email-jsipek@cs.sunysb.edu>
+	 <20070108132947.6a8f9cf4.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 08 Jan 2007 17:00:15 -0500
+Message-Id: <1168293615.9853.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.9.4 
 Content-Transfer-Encoding: 7bit
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter2.cs.columbia.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 08 Jan 2007 16:30:48 -0500
-Shaya Potter <spotter@cs.columbia.edu> wrote:
-
-> On Mon, 2007-01-08 at 13:19 -0800, Andrew Morton wrote:
-> > On Mon, 8 Jan 2007 14:43:39 -0500 (EST) Shaya Potter <spotter@cs.columbia.edu> wrote:
-> > >  It's the same thing as modifying a block 
-> > > device while a file system is using it.  Now, when unionfs gets confused, 
-> > > it shouldn't oops, but would one expect ext3 to allow one to modify its 
-> > > backing store while its using it?
-> > 
-> > There's no such problem with bind mounts.  It's surprising to see such a
-> > restriction with union mounts.
+On Mon, 2007-01-08 at 13:29 -0800, Andrew Morton wrote:
+> On Sun,  7 Jan 2007 23:12:57 -0500
+> "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
 > 
-> the difference is bind mounts are a vfs construct, while unionfs is a
-> file system.
+> > From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> > 
+> > This patch contains the functions used to perform copyup operations in unionfs.
+> 
+> What is a copyup operation and why does it exist?
+> 
+> It seems to be copying the entire contents of certain files.  That's not a
+> thing I'd have expected to see in a union filesystem.  Explain it all,
+> please?  (Somewhere where the info will be retained for posterity - a
+> random email is good, but not sufficient...)
 
-Well yes.  So the top-level question is "is this the correct way of doing
-unionisation?".
+to do the random e-mail, it's because it just doesn't union
+"directories", but lets you assign read-write, read-only properties to
+them.
 
-I suspect not, in which case unionfs is at best a stopgap until someone
-comes along and implements unionisation at the VFS level, at which time
-unionfs goes away.
+If you try to modify a file on a read-only layer, it will be copied to
+the top most layer (has to be read-write) and then modified.  It can be
+slow though (imagine modifying a 1GB file).
 
-That could take a long time.  The questions we're left to ponder over are
-things like
-
-a) is unionfs a sufficiently useful stopgap to justify a merge and
-
-b) would an interim merge of unionfs increase or decrease the motivation
-   for someone to do a VFS implementation?
-
-I suspect the answer to b) is "increase": if unionfs proves to be useful
-then people will be motivated to produce more robust implementations of the
-same functionality.  If it proves to not be very useful then nobody will
-bother doing anything, which in a way would be a useful service.
-
-
-Is there vendor interest in unionfs?

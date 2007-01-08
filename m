@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161200AbXAHKDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161207AbXAHKNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161200AbXAHKDx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 05:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbXAHKDx
+	id S1161207AbXAHKNy (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 05:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbXAHKNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 05:03:53 -0500
-Received: from wx-out-0506.google.com ([66.249.82.226]:26528 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161200AbXAHKDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 05:03:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G4vO78c9RUABJBEJm3ak10Xk7i+slw7ep/xk9WgWKS0va3lYMejDIWYi4CAkDQ5Cxy/54v9SujsuHGh3/B3aGvkHXeQ2ZEozxs0S2Wp7mr5+msFeAuB6u4XO57eOh4xwyETYbQrJF8CrOCprDBFDTWeOyJysatkWv5DXa7UJ30s=
-Message-ID: <9a8748490701080203m383c99f0h1a2f32214a5e386e@mail.gmail.com>
-Date: Mon, 8 Jan 2007 11:03:52 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Subject: Re: [PATCH] Remove a couple final references to obsolete verify_area().
-Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       hskinnemoen@atmel.com
-In-Reply-To: <Pine.LNX.4.64.0701071839560.18341@localhost.localdomain>
+	Mon, 8 Jan 2007 05:13:54 -0500
+Received: from mx.laposte.net ([81.255.54.11]:38102 "EHLO mx.laposte.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161207AbXAHKNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 05:13:53 -0500
+Message-ID: <19480.192.54.193.51.1168251206.squirrel@rousalka.dyndns.org>
+Date: Mon, 8 Jan 2007 11:13:26 +0100 (CET)
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: linux-kernel@vger.kernel.org
+Cc: "Russell King" <rmk+lkml@arm.linux.org.uk>
+User-Agent: SquirrelMail/1.4.8-2.fc6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0701071839560.18341@localhost.localdomain>
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/01/07, Robert P. J. Day <rpjday@mindspring.com> wrote:
->
->   Remove a couple final references to the obsolete verify_area() call,
-> which was long ago replaced by access_ok().
->
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
->
-> ---
->
->   it *appears* that these last two references can be removed, unless
-> there's something really strange i'm not seeing here.
->
+> elinks is one such program.  It now assumes UTF-8 _only_ displays.
+> That's no better than programs which assume ISO-8859-1 only or US-ASCII
+> only.
 
-The AVR32 code went in roughly a month after I did the last
-verify_area() cleanup patch, so I missed these bits.
-The patch looks sane to me, so feel free to add
+That's way better than programs:
+- which assume an encoding you can't write most world languages in (BTW
+ISO-8859-1 & US-ASCII are broken by design for Western Europe since at
+least the Euro creation)
+- which perpetuate the myth local 8-bit encodings are manageable (they
+aren't, people spent decades trying to limp along with them, unicode &
+UTF-8 where not created just to make your life miserable)
 
-Acked-by: Jesper Juhl <jesper.juhl@gmail.com>
+Show me one program that spurns Unicode I'll show you one that "passed on"
+iso-8859-15 (typically, though it's the easiest non-iso-8859-1 to do)
+
+The only reason you have the UTF-8 big stick approach nowadays is people
+have tried for years to get app writers manage 8-bit locales properly to
+dismal results. The old system was only working for en_US users (and
+perhaps to .uk people)
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Nicolas Mailhot
+

@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030259AbXAHWRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030287AbXAHWSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbXAHWRJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 17:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbXAHWRI
+	id S1030287AbXAHWSN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 17:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbXAHWSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 17:17:08 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:16333 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030259AbXAHWRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 17:17:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sOVAf1R7eYKCNvvRJ+aoMRNlKXPm+nVj66HbWj2icz/+xI2yH0xHjvhYcTF1LPDp9FKm56GtxW+wz5zpRfwNuP/VlUBwpOUMeou22TPk4vW2UyGWtDEO4VoE5xrd8Qd6eM262Mf1PewEIqHqXf3Wo64o0l8vwPsyp1maEWEq4W8=
-Message-ID: <eada2a070701081417s3d3d0b3es655211335c00b4e4@mail.gmail.com>
-Date: Mon, 8 Jan 2007 14:17:05 -0800
-From: "Tim Pepper" <tpepper@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-Cc: Alan <alan@lxorguk.ukuu.org.uk>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Tilman Schmidt" <tilman@imap.cc>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20070108161425.GA2208@elf.ucw.cz>
+	Mon, 8 Jan 2007 17:18:13 -0500
+Received: from mx2.suse.de ([195.135.220.15]:35377 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030287AbXAHWSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 17:18:12 -0500
+Date: Mon, 8 Jan 2007 14:17:24 -0800
+From: Greg KH <gregkh@suse.de>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, haveblue@us.ibm.com
+Subject: Re: kobject.c changes in -mm
+Message-ID: <20070108221724.GA29960@suse.de>
+References: <20070108133747.GA19692@infradead.org> <20070108190942.GA23629@suse.de> <20070108192507.GC15292@slug> <20070108203156.GA26919@suse.de> <20070108215632.GD15292@slug>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	 <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
-	 <20070107114439.GC21613@flint.arm.linux.org.uk>
-	 <45A0F060.9090207@imap.cc>
-	 <1168182838.14763.24.camel@shinybook.infradead.org>
-	 <20070107153833.GA21133@flint.arm.linux.org.uk>
-	 <20070107182151.7cc544f3@localhost.localdomain>
-	 <Pine.LNX.4.61.0701072011510.4365@yvahk01.tjqt.qr>
-	 <20070107223055.1dc7de54@localhost.localdomain>
-	 <20070108161425.GA2208@elf.ucw.cz>
+In-Reply-To: <20070108215632.GD15292@slug>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/8/07, Pavel Machek <pavel@ucw.cz> wrote:
-> On Sun 2007-01-07 22:30:55, Alan wrote:
-> > I think that would be a good idea - and add it to the coding/docs specs
-> > that documentation is UTF-8. Code should IMHO say 7bit though.
->
-> Yes, yes, please.
->
-> I have been flamed when someone tried to do 8bit patch, and I was
-> trying to NAK it...
+On Mon, Jan 08, 2007 at 09:56:32PM +0000, Frederik Deweerdt wrote:
+> On Mon, Jan 08, 2007 at 12:31:56PM -0800, Greg KH wrote:
+> > On Mon, Jan 08, 2007 at 07:25:07PM +0000, Frederik Deweerdt wrote:
+> > > On Mon, Jan 08, 2007 at 11:09:42AM -0800, Greg KH wrote:
+> > > > On Mon, Jan 08, 2007 at 01:37:47PM +0000, Christoph Hellwig wrote:
+> > > > > --- linux-2.6.20-rc3/lib/kobject.c      2007-01-01 23:04:49.000000000 -0800
+> > > > > +++ devel/lib/kobject.c 2007-01-04 21:13:21.000000000 -0800
+> > > > > @@ -15,6 +15,8 @@
+> > > > >  #include <linux/module.h>
+> > > > >  #include <linux/stat.h>
+> > > > >  #include <linux/slab.h>
+> > > > > +#include <linux/kallsyms.h>
+> > > > > +#include <asm-generic/sections.h>
+> > > > > 
+> > > > > +#ifdef CONFIG_X86_32
+> > > > > +static int ptr_in_range(void *ptr, void *start, void *end)
+> > > > > +{
+> > > > > +       /*
+> > > > > +        * This should hopefully get rid of causing warnings
+> > > > > +        * if the architecture did not set one of the section
+> > > > > +        * variables up.
+> > > > > +        */ 
+> > > > > +       if (start >= end)
+> > > > > +               return 0;
+> > > > > +
+> > > > > +       if ((ptr >= start) && (ptr < end))
+> > > > > +               return 1;
+> > > > > +       return 0;
+> > > > > +}      
+> > > > > 
+> > > > > 
+> > > > > Can anyone explain WTF is going on here?  Including asm-generic headers
+> > > > > in core code definitly is not okay.  As are random CONFIG_X86_32 ifdefs
+> > > > > in said code.
+> > > > 
+> > > > It's a hack for debugging.  See the full patch at:
+> > > > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/warn-when-statically-allocated-kobjects-are-used.patch
+> > > > 
+> > > > It is never going to go to mainline, due to the arch-specific hacks as
+> > > > you have noted.  But is good to have for debugging and getting error
+> > > > reports from users of -mm.
+> > > > 
+> > > Could a CONFIG_{MM,HACK}  option be added for this kind of hacks? It could
+> > > help clarify what the aim of the code is.
+> > 
+> > How would that help here?  I don't think we want to #ifdef all patches
+> > in the -mm tree that are of this type, that would be a bit nasty.
+> I see how this would be messy, but this could help advertising the fact
+> that the patch is not going to mainline, if only because mainline wouldn't
+> have that CONFIG_HACK thing.
+> Another alternative would a mm-only- prefix to the name of the patches,
+> a simple grep in broken-out would the be enough...
 
-Could this get put in Documentation/CodingStyle?  And an item added to
-the kernel janitors' list to fix up 8bit files?  Last I looked trying
-to decided if there was a standard here I found a mish-mash of
-encodings based output of file vs Linus' git tree.
+That's a good idea, I can rename some of these patches...
+
+thanks,
+
+greg k-h

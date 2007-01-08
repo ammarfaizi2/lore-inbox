@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751567AbXAHPD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751577AbXAHPMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbXAHPD1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 10:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbXAHPD1
+	id S1751577AbXAHPMN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 10:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbXAHPMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 10:03:27 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:1904 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751567AbXAHPD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 10:03:27 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Sylvain Munaut <tnt@246tnt.com>
-Subject: Re: Linux 2.6.20-rc4
-Date: Mon, 8 Jan 2007 16:03:40 +0100
-User-Agent: KMail/1.9.5
-Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
-       Greg KH <gregkh@suse.de>, paulus@samba.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <200701081550.27748.m.kozlowski@tuxland.pl> <45A25C17.5070606@246tNt.com>
-In-Reply-To: <45A25C17.5070606@246tNt.com>
+	Mon, 8 Jan 2007 10:12:13 -0500
+Received: from vsmtp14.tin.it ([212.216.176.118]:61214 "EHLO vsmtp14.tin.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751518AbXAHPMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 10:12:12 -0500
+Date: Mon, 8 Jan 2007 16:11:53 +0100 (CET)
+From: l.genoni@oltrelinux.com
+X-X-Sender: venom@Phoenix.oltrelinux.com
+To: Dirk <d_i_r_k_@gmx.net>
+cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Jay Vaughan <jv@access-music.de>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       linux-kernel@vger.kernel.org, l.genoni@sns.it
+Subject: Re: Gaming Interface
+In-Reply-To: <45A264E1.3080603@gmx.net>
+Message-ID: <Pine.LNX.4.64.0701081608250.2922@Phoenix.oltrelinux.com>
+References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com>
+ <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]>
+ <45A24176.9080107@gmx.net> <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701081603.40971.m.kozlowski@tuxland.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 8 Jan 2007, Dirk wrote:
 
-> Don't build ohci as module for now.
-> A fix for that is already in gregkh usb tree for 2.6.21
+>
+> Alright. I came to discuss an idea I had because I realized that installing 
+> Windows and running Linux in VMware is the only _fun_ way to play "real" 
+> Games and have Linux at the same time.
+>
+> And everyone who says I'm a troll doesn't like Games or simple things.
+>
+>
+> Dirk
 
-Ok. Thanks.
+Please, don't think so. The point is simpler. Linux has its own standard, 
+which is a Unix one, openGL on X11 and then SDL. There is a kernel 
+component to get 3d acceleration with openGL, which is DRM.
+This standard is nice, and openGL is available also on windows, where 
+doom3, quake4 and the like use it happily.
+There is no point to introduce something different and to change this 
+standard.
 
--- 
-Regards,
+Luigi
 
-	Mariusz Kozlowski

@@ -1,238 +1,220 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030488AbXAHEKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030483AbXAHEQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbXAHEKA (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 23:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbXAHEJ7
+	id S1030483AbXAHEQd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 23:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbXAHEQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 23:09:59 -0500
-Received: from web55612.mail.re4.yahoo.com ([206.190.58.236]:26944 "HELO
-	web55612.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030488AbXAHEJ7 (ORCPT
+	Sun, 7 Jan 2007 23:16:33 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50261 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030483AbXAHEQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 23:09:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=U8Ym0Q9uUt0mOat9uc2og9PtBiKW2wdLSiroaEOTa3ZkMb3fCTwMcHh+KaeC75bgbvFPau8unnmIzQBWkDZCIhsnqM+fq7HXqocOw/wCtq8Hq3jPgNhuwLvzIyjUW97bojwGaad31dSTA+JnqKUqiZvDgFXMyZNqcXA4pzZ5Hl0=;
-X-YMail-OSG: pFUroKoVM1lDNODEvAiCrHotOdJyx2Vxq2FRkoXn2a.AUG7.n5yRQH_2yxEu6Q1SnYo.YA3N5eP8SnsSlQ36lm.N.eGb6nbsdwIIqaR3htGwIJQBqSs3X0i6yyrMqJ3VpR3NLjjX.hQOj_Q-
-Date: Sun, 7 Jan 2007 20:09:58 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1168223734.5259.12.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <60237.99836.qm@web55612.mail.re4.yahoo.com>
+	Sun, 7 Jan 2007 23:16:32 -0500
+From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
+       torvalds@osdl.org, akpm@osdl.org, mhalcrow@us.ibm.com,
+       Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>,
+       David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: [PATCH 17/24] Unionfs: Miscellaneous helper functions
+Date: Sun,  7 Jan 2007 23:13:09 -0500
+Message-Id: <116822959930-git-send-email-jsipek@cs.sunysb.edu>
+X-Mailer: git-send-email 1.4.4.2
+In-Reply-To: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
---- Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+This patch contains miscellaneous helper functions used thoughout Unionfs.
 
-> 
-> struct type1 {
-> 	/* something */
-> };
-> 
-> struct type2 {
-> 	/* something */
-> };
-> 
-> #define COUNT 10
-> 
-> void function1(struct type1 **a1, struct type2 **a2, unsigned int sz);
-> 
-> void function2(void)
-> {
-> 	struct type1 *arr1[COUNT];
-> 	struct type2 *arr2[COUNT];
-> 	int i;
-> 
-> 	/* init */
-> 	for (i = 0; i < COUNT; i++) {
-> 		arr1[i] = kmalloc(sizeof(struct type1), ...);
-> 		if (!arr1[i])
-> 			goto free_1;
-> 	}
-> 	for (i = 0; i < COUNT; i++) {
-> 		arr2[i] = kmalloc(sizeof(struct type2), ...);
-> 		if (!arr2[i])
-> 			goto free_2;
-> 	}
-> 
-> 	/* work */
-> 	function1(arr1, arr2, COUNT);
-> 
-> 	/* fini */
-> 	i = COUNT;
-> free_2:
-> 	for (i--; i >= 0; i--) {
-> 		kfree(arr2[i]);
-> 	}
-> 	i = COUNT;
-> free_1:
-> 	for (i--; i >= 0; i--) {
-> 		kfree(arr1[i]);
-> 	}
-> }
-> 
-> In most cases, though, the above code design would be brain-damaged from
-> the start: unless the sizes involved are prohibitively large, the
-> function should be allocating all the memory in a single pass.
-> 
-> So, where's the demonstrated need for KFREE()?
+Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
+---
+ fs/unionfs/subr.c |  172 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 172 insertions(+), 0 deletions(-)
 
-I have already explained it earlier. I will try again. You will not need free_2: and free_1: with
-KFREE(). You will only need one free: with KFREE.
+diff --git a/fs/unionfs/subr.c b/fs/unionfs/subr.c
+new file mode 100644
+index 0000000..6734776
+--- /dev/null
++++ b/fs/unionfs/subr.c
+@@ -0,0 +1,172 @@
++/*
++ * Copyright (c) 2003-2006 Erez Zadok
++ * Copyright (c) 2003-2006 Charles P. Wright
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005      Arun M. Krishnakumar
++ * Copyright (c) 2004-2006 David P. Quigley
++ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
++ * Copyright (c) 2003      Puja Gupta
++ * Copyright (c) 2003      Harikesavan Krishnan
++ * Copyright (c) 2003-2006 Stony Brook University
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "union.h"
++
++/* Pass an unionfs dentry and an index.  It will try to create a whiteout
++ * for the filename in dentry, and will try in branch 'index'.  On error,
++ * it will proceed to a branch to the left.
++ */
++int create_whiteout(struct dentry *dentry, int start)
++{
++	int bstart, bend, bindex;
++	struct dentry *hidden_dir_dentry;
++	struct dentry *hidden_dentry;
++	struct dentry *hidden_wh_dentry;
++	char *name = NULL;
++	int err = -EINVAL;
++
++	verify_locked(dentry);
++
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
++
++	/* create dentry's whiteout equivalent */
++	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
++	if (IS_ERR(name)) {
++		err = PTR_ERR(name);
++		goto out;
++	}
++
++	for (bindex = start; bindex >= 0; bindex--) {
++		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
++
++		if (!hidden_dentry) {
++			/* if hidden dentry is not present, create the entire
++			 * hidden dentry directory structure and go ahead.
++			 * Since we want to just create whiteout, we only want
++			 * the parent dentry, and hence get rid of this dentry.
++			 */
++			hidden_dentry = create_parents(dentry->d_inode,
++						       dentry, bindex);
++			if (!hidden_dentry || IS_ERR(hidden_dentry)) {
++				printk(KERN_DEBUG "create_parents failed for "
++						"bindex = %d\n", bindex);
++				continue;
++			}
++		}
++
++		hidden_wh_dentry = lookup_one_len(name, hidden_dentry->d_parent,
++					dentry->d_name.len + UNIONFS_WHLEN);
++		if (IS_ERR(hidden_wh_dentry))
++			continue;
++
++		/* The whiteout already exists. This used to be impossible, but
++		 * now is possible because of opaqueness.
++		 */
++		if (hidden_wh_dentry->d_inode) {
++			dput(hidden_wh_dentry);
++			err = 0;
++			goto out;
++		}
++
++		hidden_dir_dentry = lock_parent(hidden_wh_dentry);
++		if (!(err = is_robranch_super(dentry->d_sb, bindex))) {
++			err = vfs_create(hidden_dir_dentry->d_inode,
++				       hidden_wh_dentry,
++				       ~current->fs->umask & S_IRWXUGO, NULL);
++
++		}
++		unlock_dir(hidden_dir_dentry);
++		dput(hidden_wh_dentry);
++
++		if (!err || !IS_COPYUP_ERR(err))
++			break;
++	}
++
++	/* set dbopaque  so that lookup will not proceed after this branch */
++	if (!err)
++		set_dbopaque(dentry, bindex);
++
++out:
++	kfree(name);
++	return err;
++}
++
++/* This is a helper function for rename, which ends up with hosed over dentries
++ * when it needs to revert.
++ */
++int unionfs_refresh_hidden_dentry(struct dentry *dentry, int bindex)
++{
++	struct dentry *hidden_dentry;
++	struct dentry *hidden_parent;
++	int err = 0;
++
++	verify_locked(dentry);
++
++	lock_dentry(dentry->d_parent);
++	hidden_parent = unionfs_lower_dentry_idx(dentry->d_parent, bindex);
++	unlock_dentry(dentry->d_parent);
++
++	BUG_ON(!S_ISDIR(hidden_parent->d_inode->i_mode));
++
++	hidden_dentry = lookup_one_len(dentry->d_name.name, hidden_parent,
++				dentry->d_name.len);
++	if (IS_ERR(hidden_dentry)) {
++		err = PTR_ERR(hidden_dentry);
++		goto out;
++	}
++
++	dput(unionfs_lower_dentry_idx(dentry, bindex));
++	iput(unionfs_lower_inode_idx(dentry->d_inode, bindex));
++	unionfs_set_lower_inode_idx(dentry->d_inode, bindex, NULL);
++
++	if (!hidden_dentry->d_inode) {
++		dput(hidden_dentry);
++		unionfs_set_lower_dentry_idx(dentry, bindex, NULL);
++	} else {
++		unionfs_set_lower_dentry_idx(dentry, bindex, hidden_dentry);
++		unionfs_set_lower_inode_idx(dentry->d_inode, bindex,
++				igrab(hidden_dentry->d_inode));
++	}
++
++out:
++	return err;
++}
++
++int make_dir_opaque(struct dentry *dentry, int bindex)
++{
++	int err = 0;
++	struct dentry *hidden_dentry, *diropq;
++	struct inode *hidden_dir;
++
++	hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
++	hidden_dir = hidden_dentry->d_inode;
++	BUG_ON(!S_ISDIR(dentry->d_inode->i_mode) ||
++	       !S_ISDIR(hidden_dir->i_mode));
++
++	mutex_lock(&hidden_dir->i_mutex);
++	diropq = lookup_one_len(UNIONFS_DIR_OPAQUE, hidden_dentry,
++				sizeof(UNIONFS_DIR_OPAQUE) - 1);
++	if (IS_ERR(diropq)) {
++		err = PTR_ERR(diropq);
++		goto out;
++	}
++
++	if (!diropq->d_inode)
++		err = vfs_create(hidden_dir, diropq, S_IRUGO, NULL);
++	if (!err)
++		set_dbopaque(dentry, bindex);
++
++	dput(diropq);
++
++out:
++	mutex_unlock(&hidden_dir->i_mutex);
++	return err;
++}
++
+-- 
+1.4.4.2
 
-Also, let's say that count is different for each array? Then how do you propose that memory be
-allocated in one pass?
-
->In most cases, though, the above code design would be brain-damaged from
->the start: unless the sizes involved are prohibitively large, the
->function should be allocating all the memory in a single pass.
-
-Well, only if everything would be fine and correct, we would not be needing anything. If you think
-this kind of code is brain-damaged then the linux kernel has couple of these.
-
-I have scanned the whole kernel to check whether people are checking for return values of kmalloc,
-I found that at many places they don't and have sent patches for them. Now, this too is brain
-damaged code. And during the scan I saw examples of what I described earlier.
-
-KFREE() can fix some of those cases.
-
-Consider this as the proof of what I explained earlier. This fucntion was broken but I fixed it
-and then realized why KFREE() is needed. 2 kmallocs and 1 usb_alloc_urb(). Well, I can only give
-examples why KFREE() is needed. If you do not agree, I cannot force you to agree with me. And if
-you really do not want to agree then even my examples will fail. Also, if you think that people
-are not doing KFREE() kind of stuff then you should scan the kernel and you will see it for
-yourself.
-
-
-Below are some examples where people are doing KFREE() kind of stuff:
-
---
-arch/ppc/kernel/smp-tbsync.c:	kfree( tbsync );
-arch/ppc/kernel/smp-tbsync.c-	tbsync = NULL;
---
-arch/ppc/8260_io/fcc_enet.c:			dev_kfree_skb(fep->tx_skbuff[i]);
-arch/ppc/8260_io/fcc_enet.c-			fep->tx_skbuff[i] = NULL;
---
-arch/ppc/8xx_io/cs4218_tdm.c:			kfree (sound_buffers);
-arch/ppc/8xx_io/cs4218_tdm.c-			sound_buffers = 0;
---
-arch/ia64/kernel/topology.c:	kfree(all_cpu_cache_info[cpu].cache_leaves);
-arch/ia64/kernel/topology.c-	all_cpu_cache_info[cpu].cache_leaves = NULL;
---
-arch/ia64/kernel/acpi.c:	kfree(buffer.pointer);
-arch/ia64/kernel/acpi.c-	buffer.pointer = NULL;
---
-arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c:				kfree(acpi_perf_data[j]);
-arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c-				acpi_perf_data[j] = NULL;
---
-
-There are many more and you can scan the kernel yourself.
-
-Below is where memory is allocated in different arrays with different counts:
-
-static int stv680_start_stream (struct usb_stv *stv680)
-{
-	struct urb *urb;
-	int err = 0, i;
-
-	stv680->streaming = 1;
-
-	/* Do some memory allocation */
-	for (i = 0; i < STV680_NUMFRAMES; i++) {
-		stv680->frame[i].data = stv680->fbuf + i * stv680->maxframesize;
-		stv680->frame[i].curpix = 0;
-	}
-	/* packet size = 4096  */
-	for (i = 0; i < STV680_NUMSBUF; i++) {
-		stv680->sbuf[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
-		if (stv680->sbuf[i].data == NULL) {
-			PDEBUG (0, "STV(e): Could not kmalloc raw data buffer %i", i);
-			goto nomem_err;
-		}
-	}
-
-	stv680->scratch_next = 0;
-	stv680->scratch_use = 0;
-	stv680->scratch_overflow = 0;
-	for (i = 0; i < STV680_NUMSCRATCH; i++) {
-		stv680->scratch[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
-		if (stv680->scratch[i].data == NULL) {
-			PDEBUG (0, "STV(e): Could not kmalloc raw scratch buffer %i", i);
-			goto nomem_err;
-		}
-		stv680->scratch[i].state = BUFFER_UNUSED;
-	}
-
-	for (i = 0; i < STV680_NUMSBUF; i++) {
-		urb = usb_alloc_urb (0, GFP_KERNEL);
-		if (!urb)
-			goto nomem_err;
-
-		/* sbuf is urb->transfer_buffer, later gets memcpyed to scratch */
-		usb_fill_bulk_urb (urb, stv680->udev,
-				   usb_rcvbulkpipe (stv680->udev, stv680->bulk_in_endpointAddr),
-				   stv680->sbuf[i].data, stv680->rawbufsize,
-				   stv680_video_irq, stv680);
-		stv680->urb[i] = urb;
-		err = usb_submit_urb (stv680->urb[i], GFP_KERNEL);
-		if (err)
-			PDEBUG (0, "STV(e): urb burned down in start stream");
-	}			/* i STV680_NUMSBUF */
-
-	stv680->framecount = 0;
-	return 0;
-
- nomem_err:
-	for (i = 0; i < STV680_NUMSCRATCH; i++) {
-		kfree(stv680->scratch[i].data);
-		stv680->scratch[i].data = NULL;
-	}
-	for (i = 0; i < STV680_NUMSBUF; i++) {
-		usb_kill_urb(stv680->urb[i]);
-		usb_free_urb(stv680->urb[i]);
-		stv680->urb[i] = NULL;
-		kfree(stv680->sbuf[i].data);
-		stv680->sbuf[i].data = NULL;
-	}
-	return -ENOMEM;
-
-}
-
-static int stv680_stop_stream (struct usb_stv *stv680)
-{
-	int i;
-
-	if (!stv680->streaming || !stv680->udev)
-		return 1;
-
-	stv680->streaming = 0;
-
-	for (i = 0; i < STV680_NUMSBUF; i++)
-		if (stv680->urb[i]) {
-			usb_kill_urb (stv680->urb[i]);
-			usb_free_urb (stv680->urb[i]);
-			stv680->urb[i] = NULL;
-			kfree(stv680->sbuf[i].data);
-		}
-	for (i = 0; i < STV680_NUMSCRATCH; i++) {
-		kfree(stv680->scratch[i].data);
-		stv680->scratch[i].data = NULL;
-	}
-
-	return 0;
-}
-
--Amit
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

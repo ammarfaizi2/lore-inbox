@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750946AbXAICqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750743AbXAICzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbXAICqe (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 21:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbXAICqe
+	id S1750743AbXAICzR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 21:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbXAICzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 21:46:34 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:56404 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750817AbXAICqe (ORCPT
+	Mon, 8 Jan 2007 21:55:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4154 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750743AbXAICzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 21:46:34 -0500
-Date: Mon, 8 Jan 2007 18:45:14 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-pcmcia@lists.infradead.org
-Subject: Re: [PATCH] Remove useless FIND_FIRST_BIT() macro from cardbus.c.
-Message-Id: <20070108184514.6034ccb5.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0701082015270.3951@localhost.localdomain>
-References: <Pine.LNX.4.64.0701082015270.3951@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
+	Mon, 8 Jan 2007 21:55:16 -0500
+Date: Tue, 9 Jan 2007 03:55:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ak@suse.de
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       "Steven M. Christey" <coley@mitre.org>
+Subject: [2.6 patch] x86_64: re-add a newline to RESTORE_CONTEXT
+Message-ID: <20070109025516.GC25007@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007 20:20:28 -0500 (EST) Robert P. J. Day wrote:
+RESTORE_CONTEXT lost a newline in 
+commit 658fdbef66e5e9be79b457edc2cbbb3add840aa9:
+http://www.mail-archive.com/kgdb-bugreport@lists.sourceforge.net/msg00559.html
 
-> 
->   Delete the definition of the unused FIND_FIRST_BIT() macro.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   this macro seems safely deletable, given that there is no other
-> reference to that macro anywhere in the entire source tree and,
-> besides, one should use find_first_bit() anyway.
-> 
->   it's not clear who the official maintainer is for this subsystem
-> these days.
+Reported by Steven M. Christey.
 
-I believe that it should go to (from MAINTAINERS):
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-PCMCIA SUBSYSTEM
-P:	Linux PCMCIA Team
-L:	linux-pcmcia@lists.infradead.org
-L:	http://lists.infradead.org/mailman/listinfo/linux-pcmcia
-T:	git kernel.org:/pub/scm/linux/kernel/git/brodo/pcmcia-2.6.git
-S:	Maintained
-
-> diff --git a/drivers/pcmcia/cardbus.c b/drivers/pcmcia/cardbus.c
-> index 2d7effe..a1bd763 100644
-> --- a/drivers/pcmcia/cardbus.c
-> +++ b/drivers/pcmcia/cardbus.c
-> @@ -40,8 +40,6 @@
-> 
->  /*====================================================================*/
-> 
-> -#define FIND_FIRST_BIT(n)	((n) - ((n) & ((n)-1)))
-> -
->  /* Offsets in the Expansion ROM Image Header */
->  #define ROM_SIGNATURE		0x0000	/* 2 bytes */
->  #define ROM_DATA_PTR		0x0018	/* 2 bytes */
-> -
-
----
-~Randy
+--- a/include/asm-x86_64/system.h
++++ b/include/asm-x86_64/system.h
+@@ -21,7 +21,7 @@
+ 
+ /* frame pointer must be last for get_wchan */
+ #define SAVE_CONTEXT    "pushf ; pushq %%rbp ; movq %%rsi,%%rbp\n\t"
+-#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\t"
++#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\n\t"
+ 
+ #define __EXTRA_CLOBBER  \
+ 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"

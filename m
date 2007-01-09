@@ -1,65 +1,110 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbXAIVtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932374AbXAIVzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbXAIVtH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 16:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbXAIVtH
+	id S932374AbXAIVzb (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 16:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbXAIVza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 16:49:07 -0500
-Received: from mga06.intel.com ([134.134.136.21]:9009 "EHLO
-	orsmga101.jf.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932371AbXAIVtG (ORCPT
+	Tue, 9 Jan 2007 16:55:30 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:24556 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932374AbXAIVza (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 16:49:06 -0500
-X-Greylist: delayed 586 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 16:49:06 EST
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,164,1167638400"; 
-   d="scan'208"; a="183263870:sNHT33833233"
-Message-ID: <45A40B83.2060009@foo-projects.org>
-Date: Tue, 09 Jan 2007 13:39:15 -0800
-From: Auke Kok <sofar@foo-projects.org>
-User-Agent: Mail/News 1.5.0.9 (X11/20061228)
+	Tue, 9 Jan 2007 16:55:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=A2XN9udD6QUDgl0/42idj9YYTAZgLTzSLdde91H+7R47RkrdEMJj3net5HstzZUh1S9RPgxB7zP0iRCDyItVT9G43E1WGe4ahB7oR0UX3kJh+hq4utCdmthlUvoHVW+I49/PcW2+RTJL9oYMBllJTNH712uHbXkHlChN3ptuOqc=
+Date: Tue, 9 Jan 2007 22:55:27 +0100
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai@germaschewski.name>,
+       linux-kernel@vger.kernel.org
+Subject: Re: .version keeps being updated
+Message-ID: <20070109215527.GA24318@dreamland.darkstar.lan>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
- IDE chip under 2.6.18
-References: <45A3FF32.1030905@wolfmountaingroup.com> <45A4003A.3080403@wolfmountaingroup.com>
-In-Reply-To: <45A4003A.3080403@wolfmountaingroup.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jan 2007 21:39:15.0514 (UTC) FILETIME=[9C1971A0:01C73436]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109102057.c684cc78.khali@linux-fr.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> Jeff V. Merkey wrote:
+Jean Delvare <khali@linux-fr.org> ha scritto:
+> Hi all,
+
+Hi Jean,
+
+> Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
+> an incremented version number, whether there has actually been any
+> change done to the code or configuration or not. This increases the
+> build time quite a bit.
 > 
-> root=/dev/hda2 is what was passed to the kernel from grub.
-> 
-> Jeff
-> 
->>
->> I just finished pulling out a melted IDE flash drive out of a Shuttle 
->> motherboard with the intel 945 chipset which claims to support
->> SATA and IDE drives concurrently under Linux 2.6.18.
->>
->> The chip worked for about 30 seconds before liquifying in the 
->> chassis.  I note that the 945 chipset in the shuttle PC had some serious
->> issues recognizing 2 x SATA devices and a IDE device concurrently.   
->> Are there known problems with the Linux drivers
->> with these newer chipsets.
->>
->> One other disturbing issue was the IDE flash drive was configured (and 
->> recognized) as /dev/hda during bootup, but when
->> it got to the root mountint, even with root=/dev/hda set, it still 
->> kept thinking the drive was at scsi (ATA) device (08,13)
->> and kept crashing with VFS cannot find root FS errors.
+> I've tracked it down to include/linux/compile.h always being updated,
+> and this is because .version is updated. I couldn't find what is
+> causing .version to be updated each time though. Can anybody help
+> there? Was this change made on purpose or is this a bug which we should
+> fix?
 
-it sounds like someone switched the BIOS IDE setting from ide-compatible/legacy to AHCI 
-or similar, a not uncommon option in the sata controllers on those boards.
+kronos:~/src/linux-2.6.git$ cat ../linux-build-git/include/linux/compile.h
+/* This file is auto generated, version 14 */
+/* SMP PREEMPT */
+#define UTS_MACHINE "i386"
+#define UTS_VERSION "#14 SMP PREEMPT Tue Jan 9 22:45:18 CET 2007"
+#define LINUX_COMPILE_TIME "22:45:18"
+#define LINUX_COMPILE_BY "kronos"
+#define LINUX_COMPILE_HOST "dreamland.darkstar.lan"
+#define LINUX_COMPILE_DOMAIN "darkstar.lan"
+#define LINUX_COMPILER "gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-20)"
 
-None of that would explain the melting of anything of course.
+LINUX_COMPILE_TIME and UTS_VERSION differs at each rebuild. UTS_VERSION
+is responsible of rebuilding fs/proc/proc_misc.o; init/main.o uses just
+about everything, init/version.o requires UTS_VERSION.
 
-Cheers,
+I don't think it's a regression from earlier kernels though, is it?
 
-Auke
+kronos:~/src/linux-2.6.git$ make -j3 V=2 O=../linux-build-git/
+  GEN     /home/kronos/src/linux-build-git/Makefile
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  CHK     include/linux/utsrelease.h
+  Using /home/kronos/src/linux-2.6.git as source for kernel
+  UPD     include/linux/compile.h
+  CC      init/main.o - due to: include/linux/compile.h
+  CC      init/version.o - due to: include/linux/compile.h
+  LD      init/built-in.o - due to: init/main.o init/version.o
+  CC      fs/proc/proc_misc.o - due to: include/linux/compile.h
+  LD      fs/proc/proc.o - due to: fs/proc/proc_misc.o
+  LD      fs/proc/built-in.o - due to: fs/proc/proc.o
+  LD      fs/built-in.o - due to: fs/proc/built-in.o
+  GEN     .version - due to: init/built-in.o fs/built-in.o
+  LD      .tmp_vmlinux1 - due to: init/built-in.o fs/built-in.o
+  KSYM    .tmp_kallsyms1.S - due to: .tmp_vmlinux1
+  AS      .tmp_kallsyms1.o - due to: .tmp_kallsyms1.S
+  LD      .tmp_vmlinux2 - due to: init/built-in.o fs/built-in.o .tmp_kallsyms1.o
+  KSYM    .tmp_kallsyms2.S - due to: .tmp_vmlinux2
+  AS      .tmp_kallsyms2.o - due to: .tmp_kallsyms2.S
+  LD      vmlinux - due to: init/built-in.o fs/built-in.o .tmp_kallsyms2.o
+  SYSMAP  System.map
+  SYSMAP  .tmp_System.map
+  MODPOST vmlinux - due to vmlinux not in $(targets)
+  Building modules, stage 2.
+  AS      arch/i386/boot/setup.o - due to: include/linux/compile.h
+  OBJCOPY arch/i386/boot/compressed/vmlinux.bin - due to: vmlinux
+  GZIP    arch/i386/boot/compressed/vmlinux.bin.gz - due to: arch/i386/boot/compressed/vmlinux.bin
+  MODPOST 130 modules - due to target is PHONY
+  LD      arch/i386/boot/compressed/piggy.o - due to: arch/i386/boot/compressed/vmlinux.bin.gz
+  LD      arch/i386/boot/compressed/vmlinux - due to: arch/i386/boot/compressed/piggy.o
+  LD      arch/i386/boot/setup - due to: arch/i386/boot/setup.o
+  OBJCOPY arch/i386/boot/vmlinux.bin - due to: arch/i386/boot/compressed/vmlinux
+  BUILD   arch/i386/boot/bzImage - due to: arch/i386/boot/setup arch/i386/boot/vmlinux.bin
+Root device is (254, 0)
+Boot sector 512 bytes.
+Setup is 6959 bytes.
+System is 1567 kB
+Kernel: arch/i386/boot/bzImage is ready  (#16)
+
+Luca
+-- 
+La somma dell'intelligenza sulla terra e` una costante.
+La popolazione e` in aumento.

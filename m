@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932096AbXAIT0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932098AbXAIT25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbXAIT0a (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 14:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbXAIT0a
+	id S932098AbXAIT25 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 14:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbXAIT25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 14:26:30 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:25999 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932096AbXAIT03 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 14:26:29 -0500
-Date: Tue, 9 Jan 2007 11:24:16 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Auke Kok <auke-jan.h.kok@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, NetDev <netdev@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: [PATCH -MM] e1000: rewrite hardware initialization code
-Message-Id: <20070109112416.266efb84.randy.dunlap@oracle.com>
-In-Reply-To: <m3fyakau44.fsf@defiant.localdomain>
-References: <45A3D29D.1000202@intel.com>
-	<m3fyakau44.fsf@defiant.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 9 Jan 2007 14:28:57 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:38686 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932098AbXAIT24 (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 14:28:56 -0500
+Message-Id: <200701091927.l09JRJXM021563@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Mimi Zohar <zohar@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@watson.ibm.com
+Subject: Re: mprotect abuse in slim
+In-Reply-To: Your message of "Mon, 08 Jan 2007 17:38:25 EST."
+             <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
+From: Valdis.Kletnieks@vt.edu
+References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1168370839_17810P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
+Date: Tue, 09 Jan 2007 14:27:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 Jan 2007 20:16:27 +0100 Krzysztof Halasa wrote:
+--==_Exmh_1168370839_17810P
+Content-Type: text/plain; charset=us-ascii
 
-> Auke Kok <auke-jan.h.kok@intel.com> writes:
-> 
-> >  drivers/net/e1000/Makefile            |   19
-> >  drivers/net/e1000/e1000.h             |   95
-> >  drivers/net/e1000/e1000_80003es2lan.c | 1330 +++++
-> >  drivers/net/e1000/e1000_80003es2lan.h |   89
-> >  drivers/net/e1000/e1000_82540.c       |  586 ++
-> >  drivers/net/e1000/e1000_82541.c       | 1164 ++++
-> >  drivers/net/e1000/e1000_82541.h       |   86
-> >  drivers/net/e1000/e1000_82542.c       |  466 ++
-> >  drivers/net/e1000/e1000_82543.c       | 1397 +++++
-> >  drivers/net/e1000/e1000_82543.h       |   45
-> >  drivers/net/e1000/e1000_82571.c       | 1132 ++++
-> >  drivers/net/e1000/e1000_82571.h       |   42
-> 
-> Perhaps the "e1000_" prefix could be dropped as redundant?
-> -- 
+On Mon, 08 Jan 2007 17:38:25 EST, Mimi Zohar said:
 
-Yes, that suggestion would agree with what Linus told us about
-usb file names 7 years ago.  (huh?  that long?)
+> revoked. Based on previous comments on lkml, we understand
+> that this is not really possible in general, so SLIM only
+> attempts to revoke access in certain simple cases.
 
----
-~Randy
+Which, unfortunately, creates incredibly brittle code when some attacker
+reads the SLIM source code and finds a way to force the non-simple case
+you ignore.
+
+This is an area where you really need to do it *right*, or not at all.
+
+--==_Exmh_1168370839_17810P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFo+yXcC3lWbTT17ARAhA0AJ4uJL60Ecda2iyVSBGBKP7qFblerQCgqb4E
+vk14vrHqBPH/rhx1CsR3L6g=
+=tvSG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1168370839_17810P--

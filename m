@@ -1,151 +1,156 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932186AbXAIUoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932231AbXAIUob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbXAIUoY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 15:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbXAIUoX
+	id S932231AbXAIUob (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 15:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbXAIUob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 15:44:23 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:3227 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932186AbXAIUoX (ORCPT
+	Tue, 9 Jan 2007 15:44:31 -0500
+Received: from extu-mxob-2.symantec.com ([216.10.194.135]:11106 "EHLO
+	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932231AbXAIUoa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 15:44:23 -0500
-Date: Tue, 9 Jan 2007 21:44:21 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrey Borzenkov <arvidjaar@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>
-Subject: Re: .version keeps being updated
-Message-Id: <20070109214421.281ff564.khali@linux-fr.org>
-In-Reply-To: <20070109170550.AFEF460C343@tzec.mtu.ru>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109170550.AFEF460C343@tzec.mtu.ru>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Jan 2007 15:44:30 -0500
+X-AuditID: d80ac287-9eed1bb000002536-3c-45a3ffcacc8d 
+Date: Tue, 9 Jan 2007 20:44:43 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Hua Zhong <hzhong@gmail.com>
+cc: linux-kernel@vger.kernel.org, hch@infradead.org, kenneth.w.chen@intel.com,
+       akpm@osdl.org, torvalds@osdl.org, mjt@tls.msk.ru
+Subject: Re: [PATCH] support O_DIRECT in tmpfs/ramfs
+In-Reply-To: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0701092002350.21638@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2007 20:44:29.0033 (UTC) FILETIME=[F5343D90:01C7342E]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrey,
+On Mon, 8 Jan 2007, Hua Zhong wrote:
+> A while ago there was a discussion about supporting direct-io on tmpfs.
 
-On Tue, 09 Jan 2007 20:05:49 +0300, Andrey Borzenkov wrote:
-> Jean Delvare wrote:
-> > Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
-> > an incremented version number, whether there has actually been any
-> > change done to the code or configuration or not. This increases the
-> > build time quite a bit.
-> > 
-> > I've tracked it down to include/linux/compile.h always being updated,
-> > and this is because .version is updated. I couldn't find what is
-> > causing .version to be updated each time though. Can anybody help
-> > there? Was this change made on purpose or is this a bug which we should
-> > fix? 
+Ah, I think I can just about remember that... ;)
+
 > 
-> I have been bitten by this as well; I have tracked it down to defining
-> CONFIG_KALLSYMS:
+> Here is a simple patch that does it.
+
+Looks more likely to work than Ken's - which I didn't try,
+but I couldn't see what magic prevented it from just going BUG.
+
+But I have to say, having seen the ensuing requests for this to impose
+the same constraints as other implementations of O_DIRECT (though NFS
+does not), I've veered right back to my original position: this all
+just seems silly to me.  O_DIRECT is and always has been rather an
+awkward hack (Linus described it in stronger terms!), supported by
+many but not all filesystems: shall we just leave it at that?
+
+In particular, having now looked into the code, I'm amused to be
+reminded that one of its particular effects is to invalidate the
+pagecache for the area directly written.  Well, it's hardly going
+to be worth replicating that behaviour with tmpfs or ramfs; yet
+if we don't, then we stand accused of it behaving misleadingly
+differently on them.
+
+I think Michael, who started off this discussion, did just the right
+thing: used a direct_IO filesystem on a loop device on a tmpfs file.
+
 > 
-> define rule_vmlinux__
->         :
->         $(if $(CONFIG_KALLSYMS),,+$(call cmd,vmlinux_version))
+> 1. A new fs flag FS_RAM_BASED is added and the O_DIRECT flag is ignored
+>    if this flag is set (suggestions on a better name?)
 > 
-> quiet_cmd_vmlinux_version = GEN     .version
->       cmd_vmlinux_version = set -e;                     \
->         if [ ! -r .version ]; then                      \
->           rm -f .version;                               \
->           echo 1 >.version;                             \
->         else                                            \
->           mv .version .old_version;                     \
->           expr 0$$(cat .old_version) + 1 >.version;     \
->         fi;                                             \
->         $(MAKE) $(build)=init
+> 2. Specify FS_RAM_BASED for tmpfs and ramfs.
+
+If this is pursued (not my preference, but let me stand aside now),
+you'd want to add in at least hugetlbfs and tiny-shmem.c.  And set
+your (renamed) FS_RAM_BASED flag in ext2_aops_xip: that seems to
+be what they're wanting, then you can remove that strange test
+for f->f_mapping->a_ops->get_xip_page from __dentry_open.
+
 > 
+> 3. When EINVAL is returned only a fput is done. I changed it to go
+>    through cleanup_all. But there is still a cleanup problem:
+
+Is that change correct?  Are you saying that the existing code leaks
+some structures?  If so, please do send a patch to fix just that as
+soon as you can.  But are you sure?
+
 > 
->  Pondering about it, this may be a feature not a bug. Let's assume you have
-> changed a single function name anywhere - you need to rebuild kallsyms
-> (ergo vmlinux) for that.
+>   If a new file is created and then EINVAL is returned due to O_DIRECT,
+>   the file is still left on the disk. I am not exactly sure how to fix
+>   it other than adding another fs flag so we could check O_DIRECT
+>   support at a much earlier stage. Comments on how to fix it?
+
+None from me, sorry.  It's untidy, but not a new issue you have to fix.
+
+Hugh
+
 > 
-> OTOH I do not know if kallsyms include also symbols from modules; if no,
-> this is indeed a bug.
-
-I don't think this is the problem here. The kernel keeps being
-recompiled even when _nothing_ has changed. This wasn't the case up to
-2.6.19, while the code above has been there untouched since 2.6.14.
-
-I tried a git bisect to find out what commit was reponsible for it, and
-the winner is...
-
-8993780a6e44fb4e7ed34e33458506a775356c6e is first bad commit
-commit 8993780a6e44fb4e7ed34e33458506a775356c6e
-Author: Linus Torvalds <torvalds@woody.osdl.org>
-Date:   Mon Dec 11 09:28:46 2006 -0800
-
-    Make SLES9 "get_kernel_version" work on the kernel binary again
-    
-    As reported by Andy Whitcroft, at least the SLES9 initrd build process
-    depends on getting the kernel version from the kernel binary.  It does
-    that by simply trawling the binary and looking for the signature of the
-    "linux_banner" string (the string "Linux version " to be exact. Which
-    is really broken in itself, but whatever..)
-    
-    That got broken when the string was changed to allow /proc/version to
-    change the UTS release information dynamically, and "get_kernel_version"
-    thus returned "%s" (see commit a2ee8649ba6d71416712e798276bf7c40b64e6e5:
-    "[PATCH] Fix linux banner utsname information").
-    
-    This just restores "linux_banner" as a static string, which should fix
-    the version finding.  And /proc/version simply uses a different string.
-    
-    To avoid wasting even that miniscule amount of memory, the early boot
-    string should really be marked __initdata, but that just causes the same
-    bug in SLES9 to re-appear, since it will then find other occurrences of
-    "Linux version " first.
-    
-    Cc: Andy Whitcroft <apw@shadowen.org>
-    Acked-by: Herbert Poetzl <herbert@13thfloor.at>
-    Cc: Andi Kleen <ak@suse.de>
-    Cc: Andrew Morton <akpm@osdl.org>
-    Cc: Steve Fox <drfickle@us.ibm.com>
-    Acked-by: Olaf Hering <olaf@aepfle.de>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 1dfdf42f80828c413baba65a1ce8b460c9712ded cdb83fd26232860493d9e993af467e1dff77da83 M      fs
-:040000 040000 94ad8c94d5ce333ad8febdc508a37de768736a98 12bc13def90d15921d41d2b285854b3e157a970f M      include
-:040000 040000 991e9baa5a61b998a0e4833e142d5c4f72d61729 5673719c3f6b47b329cfc9554c112077634a9b19 M      init
-
-Reverting this from 2.6.20-rc1 made the build behave again, however I
-found that reverting it from 2.6.20-rc2 did _not_ fix the problem. I
-also had to revert the following patch to make things work as before
-again:
-
-commit ef129412b4cbd6686d0749612cb9b76e207271f4
-Author: Andrew Morton <akpm@osdl.org>
-Date:   Fri Dec 22 01:12:01 2006 -0800
-
-    [PATCH] build compile.h earlier
-    
-    compile.h is created super-late in the build.  But proc_misc.c want to include
-    it, and it's generally not sane to have a header file in include/linux be
-    created at the end of the build: it's either not present or, worse, wrong for
-    most of the build.
-    
-    So the patch arranges for compile.h to be built at the start of the build
-    process.  It also consolidates the compile.h rules with those for version.h
-    and utsname.h, so they all get built together.
-    
-    I hope.  My chances of having got this right are about 2%.
-    
-    Cc: Sam Ravnborg <sam@ravnborg.org>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-I can only second Andrew's commit's last sentence ;)
-
-So, Linus, Andrew, can you please take a look and revert or fix what
-needs to be? This new behavior of the kernel build system is likely to
-make developers angry pretty quickly.
-
-Thanks,
--- 
-Jean Delvare
+> Signed-off-by: Hua Zhong <hzhong@gmail.com>
+> 
+> diff --git a/fs/open.c b/fs/open.c
+> index c989fb4..c03285f 100644
+> --- a/fs/open.c
+> +++ b/fs/open.c
+> @@ -708,11 +708,13 @@ static struct file *__dentry_open(struct
+>  
+>  	/* NB: we're sure to have correct a_ops only after f_op->open */
+>  	if (f->f_flags & O_DIRECT) {
+> -		if (!f->f_mapping->a_ops ||
+> -		    ((!f->f_mapping->a_ops->direct_IO) &&
+> -		    (!f->f_mapping->a_ops->get_xip_page))) {
+> -			fput(f);
+> -			f = ERR_PTR(-EINVAL);
+> +		if (dentry->d_sb->s_type->fs_flags & FS_RAM_BASED)
+> +			f->f_flags &= ~O_DIRECT;
+> +		else if (!f->f_mapping->a_ops ||
+> +			 ((!f->f_mapping->a_ops->direct_IO) &&
+> +			  (!f->f_mapping->a_ops->get_xip_page))) {
+> +			error = -EINVAL;
+> +			goto cleanup_all;
+>  		}
+>  	}
+>  
+> diff --git a/fs/ramfs/inode.c b/fs/ramfs/inode.c
+> index 2faf4cd..0d4bebc 100644
+> --- a/fs/ramfs/inode.c
+> +++ b/fs/ramfs/inode.c
+> @@ -199,11 +199,13 @@ static int rootfs_get_sb(struct file_sys
+>  
+>  static struct file_system_type ramfs_fs_type = {
+>  	.name		= "ramfs",
+> +	.fs_flags	= FS_RAM_BASED,
+>  	.get_sb		= ramfs_get_sb,
+>  	.kill_sb	= kill_litter_super,
+>  };
+>  static struct file_system_type rootfs_fs_type = {
+>  	.name		= "rootfs",
+> +	.fs_flags	= FS_RAM_BASED,	
+>  	.get_sb		= rootfs_get_sb,
+>  	.kill_sb	= kill_litter_super,
+>  };
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 186da81..0d95988 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -91,6 +91,7 @@ extern int dir_notify_enable;
+>  /* public flags for file_system_type */
+>  #define FS_REQUIRES_DEV 1 
+>  #define FS_BINARY_MOUNTDATA 2
+> +#define FS_RAM_BASED	8192	/* Ignore O_DIRECT */
+>  #define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
+>  #define FS_RENAME_DOES_D_MOVE	32768	/* FS will handle d_move()
+>  					 * during rename() internally.
+> diff --git a/mm/shmem.c b/mm/shmem.c
+> index 70da7a0..5d23e8a 100644
+> --- a/mm/shmem.c
+> +++ b/mm/shmem.c
+> @@ -2413,6 +2413,7 @@ static int shmem_get_sb(struct file_syst
+>  static struct file_system_type tmpfs_fs_type = {
+>  	.owner		= THIS_MODULE,
+>  	.name		= "tmpfs",
+> +	.fs_flags	= FS_RAM_BASED,
+>  	.get_sb		= shmem_get_sb,
+>  	.kill_sb	= kill_litter_super,
+>  };

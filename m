@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750772AbXAIAVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXAIAZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbXAIAVu (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 19:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbXAIAVs
+	id S1750773AbXAIAZH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 19:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbXAIAZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 19:21:48 -0500
-Received: from mga09.intel.com ([134.134.136.24]:28825 "EHLO mga09.intel.com"
+	Mon, 8 Jan 2007 19:25:07 -0500
+Received: from main.gmane.org ([80.91.229.2]:36258 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750772AbXAIAVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 19:21:32 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,161,1167638400"; 
-   d="scan'208"; a="34185909:sNHT25860609"
-Date: Mon, 8 Jan 2007 16:21:16 -0800
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: lenb@kernel.org
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@jikos.cz,
-       akpm@osdl.org, Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Subject: [patch 2/2] ACPI: Make bay depend on dock
-Message-Id: <20070108162116.6736afc2.kristen.c.accardi@intel.com>
-In-Reply-To: <20070108233740.155026806@localhost.localdomain>
-References: <20070108233740.155026806@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+	id S1750774AbXAIAZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 19:25:06 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Date: Tue, 9 Jan 2007 01:19:48 +0100
+Message-ID: <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
+References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-221-49-157.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
+Cc: linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since the bay driver depends on the dock driver for proper notification,
-make this driver depend on the dock driver. 
+On Mon, 8 Jan 2007 15:51:31 -0500, Erez Zadok wrote:
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
----
- drivers/acpi/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+> Now, we've discussed a number of possible solutions.  Thanks to suggestions
+> we got at OLS, we discussed a way to hide the lower namespace, or make it
+> readonly, using existing kernel facilities.  But my understanding is that
+> even it'd work, it'd only address new processes: if an existing process has
+> an open fd in a lower branch before we "lock up" the lower branch's name
+> space, that process may still be able to make lower-level changes.
+> Detecting such processes may not be easy.  What to do with them, once
+> detected, is also unclear.  We welcome suggestions.
 
---- 2.6-mm.orig/drivers/acpi/Kconfig
-+++ 2.6-mm/drivers/acpi/Kconfig
-@@ -133,6 +133,7 @@ config ACPI_DOCK
- config ACPI_BAY
- 	tristate "Removable Drive Bay"
- 	depends on EXPERIMENTAL
-+	depends on ACPI_DOCK
- 	help
- 	  This driver adds support for ACPI controlled removable drive
- 	  bays such as the IBM ultrabay or the Dell Module Bay.
+As a simple user without much knowledge of kernel internals, much less
+so filesystems, couldn't something based on the same principle of
+lsof+fam be used to handle these situations? lsof, if I'm not
+mistaken, can tell a user if someone (and who) has fd opened on a file
+system; and fam can notify other processes that a particular file has
+been modified. Unionfs could use something like lsof (or som similar
+ad hoc solution) to see if something has anything opened on a
+filesystem, and it could use something like fam to detect changes in
+the underlying filesystem and flush caches as appropriate.
 
---
+Of course, this wouldn't solve "concurrent changes" problems, but this
+could be made possible by having a system to synchronize locks across
+filesystems.
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+[W]hat country can preserve its liberties, if its rulers are not
+warned from time to time that [the] people preserve the spirit of
+resistance? Let them take arms...The tree of liberty must be
+refreshed from time to time, with the blood of patriots and
+tyrants.
+	-- Thomas Jefferson, letter to Col. William S. Smith, 1787
+

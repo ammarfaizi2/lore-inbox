@@ -1,84 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751376AbXAIM2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751375AbXAIMs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbXAIM2J (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 07:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbXAIM2J
+	id S1751375AbXAIMs4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 07:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbXAIMs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 07:28:09 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3069 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751371AbXAIM2H (ORCPT
+	Tue, 9 Jan 2007 07:48:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:59226 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751375AbXAIMsz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 07:28:07 -0500
-Date: Tue, 9 Jan 2007 12:27:53 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dmitriy Monakhov <dmonakhov@openvz.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       devel@openvz.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       netdev@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 5/5] fixing errors handling during pci_driver resume stage [serial]
-Message-ID: <20070109122752.GA26337@flint.arm.linux.org.uk>
-Mail-Followup-To: Dmitriy Monakhov <dmonakhov@openvz.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	devel@openvz.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	netdev@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <87ps9omv3t.fsf@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Jan 2007 07:48:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ftPyfSQSbaEDHwfOX5Cg59nilGsgWNSU3Fos1RhPaAe9qFuCllU6YHOs30birGwT230F4RZeW4qk24bJOH+u9GuLxGMWxRB+RaAwtm6zYZ4dAGSV1JdCgdLW++ZV96M4Fi6+dQnJXVX3K/Zj8pRm+kSLoRv3C8nSCopOKj+PbDU=
+Message-ID: <5767b9100701090448h1d9dc37erc9bbf9c3202f7389@mail.gmail.com>
+Date: Tue, 9 Jan 2007 20:48:53 +0800
+From: "Conke Hu" <conke.hu@gmail.com>
+To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+Subject: Re: [PATCH 2/3] atiixp.c: sb600 ide only has one channel
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <58cb370e0701061814g7d37578cj6edab7f15e630348@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <87ps9omv3t.fsf@sw.ru>
-User-Agent: Mutt/1.4.2.1i
+References: <5767b9100701060414j2e2385a8xcbab477bedca34b3@mail.gmail.com>
+	 <58cb370e0701061814g7d37578cj6edab7f15e630348@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 12:01:58PM +0300, Dmitriy Monakhov wrote:
-> serial pci drivers have to return correct error code during resume stage in
-> case of errors.
+On 1/7/07, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> On 1/6/07, Conke Hu <conke.hu@gmail.com> wrote:
+> > AMD/ATI SB600 IDE/PATA controller only has one channel.
+> >
+> > Signed-off-by: Conke Hu <conke.hu@amd.com>
+>
+> Acked-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+>
+> [ but the patch is line wrapped ]
+>
 
-Sigh.  *hate* *hate* *hate*.
+Hi Bart,
+    Thank you!
+    I've re-created the patch based on 2.6.20-rc4, pls see below.
+    I've sent out 3 patches for the same file atiixp.c, pls apply it
+after the [patch 1/3] :)
+-------------------
+--- linux-2.6.20-rc4/drivers/ide/pci/atiixp.c.2	2007-01-09
+15:21:29.000000000 +0800
++++ linux-2.6.20-rc4/drivers/ide/pci/atiixp.c	2007-01-09
+15:25:15.000000000 +0800
+@@ -328,7 +328,14 @@ static ide_pci_device_t atiixp_pci_info[
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x48,0x01,0x00}, {0x48,0x08,0x00}},
+ 		.bootable	= ON_BOARD,
+-	},
++	},{	/* 1 */
++		.name		= "SB600_PATA",
++		.init_hwif	= init_hwif_atiixp,
++		.channels	= 1,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x48,0x01,0x00}, {0x00,0x00,0x00}},
++ 		.bootable	= ON_BOARD,
++ 	},
+ };
 
-> diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
-> index 52e2e64..e26e4a6 100644
-> --- a/drivers/serial/8250_pci.c
-> +++ b/drivers/serial/8250_pci.c
-> @@ -1805,6 +1805,7 @@ static int pciserial_suspend_one(struct
->  static int pciserial_resume_one(struct pci_dev *dev)
->  {
->  	struct serial_private *priv = pci_get_drvdata(dev);
-> +	int err;
->  
->  	pci_set_power_state(dev, PCI_D0);
->  	pci_restore_state(dev);
-> @@ -1813,7 +1814,12 @@ static int pciserial_resume_one(struct p
->  		/*
->  		 * The device may have been disabled.  Re-enable it.
->  		 */
-> -		pci_enable_device(dev);
-> +		err = pci_enable_device(dev);
-> +		if (err) {
-> +			dev_err(&dev->dev, "Cannot enable PCI device, "
-> +				"aborting.\n");
-> +			return err;
-> +		}
->  
->  		pciserial_resume_ports(priv);
->  	}
-
-So if pci_enable_device() fails, what do we do with the still suspended
-serial port?  Does it clean up that state?  Probably not.
-
-Look, merely going around bunging this stupid "oh lets propagate the
-error" crap into the kernel doesn't actually fix _anything_.  In fact
-it potentially _hides_ the warnings produced by __must_check which
-give a hint that _something_ needs to be done to _properly_ fix the
-problem.
-
-And by "properly", I mean not just merely propagating the error.
-
-In this particular case, the above may result in resources not being
-freed.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+ /**
+@@ -349,7 +356,7 @@ static struct pci_device_id atiixp_pci_t
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP200_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+-	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 1},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, atiixp_pci_tbl);

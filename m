@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932461AbXAITCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750896AbXAITLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbXAITCh (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 14:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbXAITCh
+	id S1750896AbXAITLN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 14:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAITLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 14:02:37 -0500
-Received: from web55602.mail.re4.yahoo.com ([206.190.58.226]:38394 "HELO
-	web55602.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932449AbXAITCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 14:02:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=rd5F73yTk80aD4ExvnWDMI399rUsBwe8C5PpUKMZqBfEmy87Iq6G8OUDO8978j/HKyWQPxVArIDardlyCKZITn6EVYdH1ZJ7wYDmPCQt09XmPWskwRTR1HxmU625sTbWk3yZThGD4jT1qJa3xyvifaU3EVkS/9ErpKq5voTJQJs=;
-X-YMail-OSG: Zg5dMkAVM1ntSq9awGODccDH2cmJPeW_PjRyFowNuw6M6y1Rw95WVbxkZQJdqxf6zA--
-Date: Tue, 9 Jan 2007 11:02:35 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Valdis.Kletnieks@vt.edu
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Hua Zhong <hzhong@gmail.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200701082243.l08Mh8UR007559@turing-police.cc.vt.edu>
+	Tue, 9 Jan 2007 14:11:13 -0500
+Received: from mga02.intel.com ([134.134.136.20]:21749 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750707AbXAITLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 14:11:12 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,164,1167638400"; 
+   d="scan'208"; a="183208846:sNHT1752285773"
+Message-ID: <45A3E8BF.8080401@intel.com>
+Date: Tue, 09 Jan 2007 11:10:55 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.9 (X11/20061228)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <88063.16727.qm@web55602.mail.re4.yahoo.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: Auke Kok <auke-jan.h.kok@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       NetDev <netdev@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [PATCH -MM] e1000: rewrite hardware initialization code
+References: <45A3D29D.1000202@intel.com> <20070109104525.b0f17316.akpm@osdl.org>
+In-Reply-To: <20070109104525.b0f17316.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jan 2007 19:10:56.0137 (UTC) FILETIME=[E3A84790:01C73421]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Valdis.Kletnieks@vt.edu wrote:
-
-> On Mon, 08 Jan 2007 01:06:12 PST, Amit Choudhary said:
-> > I do not see how a double free can result in _logical_wrong_behaviour_ of the program and the
-> > program keeps on running (like an incoming packet being dropped because of double free).
-> Double
-> > free will _only_and_only_ result in system crash that can be solved by setting 'x' to NULL.
+Andrew Morton wrote:
+> On Tue, 09 Jan 2007 09:36:29 -0800
+> Auke Kok <auke-jan.h.kok@intel.com> wrote:
 > 
-> The problem is that very rarely is there a second free() with no intervening
-> use - what actually *happens* usually is:
+>>      git-pull git://lost.foo-projects.org/~ahkok/git/linux-2.6 e1000
 > 
-> 1) You alloc the memory
-> 2) You use the memory
-> 3) You take a reference on the memory, so you know where it is.
-> 4) You free the memory
-> 5) You use the memory via the reference you took in (3)
-> 6) You free it again - at which point you finally know for sure that
-> everything in step 5 was doing a fandango on core....
+> That tree appears to be based on the -mm git tree?
 > 
+> That's a somewhat unusual thing to do - a tree which is based on current
+> Linus mainline would be preferred, please.  Or on Jeff's netdev tree.
 
-Correct. And doing kfree(x); x=NULL; is not hiding that. These issues can still be debugged by
-using the slab debugging options. One other benefit of doing this is that if someone tries to
-access the same memory again using the variable 'x', then he will get an immediate crash. And the
-problem can be solved immediately, without using the slab debugging options. I do not yet
-understand how doing this hides the bugs, obfuscates the code, etc. because I haven't seen an
-example yet, but only blanket statements.
+those are not in sync atm, but I'll get you one against Jeff's upstream tree, that'll 
+take a minute, or five.
 
-But now I know better, since I haven't heard anything in support of this case, I have concluded
-that doing kfree(x); x=NULL; is _not_needed_ in the "linux kernel". I hope that no one does it in
-the future. And since people vehemently opposed this, I think its better to add another item on
-the kernel janitor's list to remove all the (x=NULL) statements where people are doing "kfree(x);
-x=NULL".
-
--Amit
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Auke

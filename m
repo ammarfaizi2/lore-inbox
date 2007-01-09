@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750774AbXAIAbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750791AbXAIAdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbXAIAbQ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 19:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbXAIAbQ
+	id S1750791AbXAIAdY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 19:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAIAdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 19:31:16 -0500
-Received: from smtp106.biz.mail.mud.yahoo.com ([68.142.200.254]:43658 "HELO
-	smtp106.biz.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750774AbXAIAbP (ORCPT
+	Mon, 8 Jan 2007 19:33:24 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54299 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750712AbXAIAdX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 19:31:15 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 19:31:15 EST
-X-YMail-OSG: cEFeg8oVM1kRnwi8RwUtHD7RaX6TjsCHZbZLi.HtoRsLFeigCFf_Rrl2qpWPCYgFdlwA0ZZ.piU5J0.3WbLq4pcCL_q260J8u_afg4l2jge4lAdpsJ03nhTIa5hUSFT27nK0Cel9VdX1ANHoQnnNUGCbKjFT.w8L33FZYP99HD.TZDUb6WBOupOZzE_a
-Message-ID: <45A2E19F.4070307@metricsystems.com>
-Date: Mon, 08 Jan 2007 16:28:15 -0800
-From: John Clark <jclark@metricsystems.com>
-Organization: Metric Systems, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Strange ethN numbering problem.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 19:33:23 -0500
+Date: Mon, 8 Jan 2007 19:33:18 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070109003230.GD5418@filer.fsl.cs.sunysb.edu>
+References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu> <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a system which has one Intel Ethernet 1 Gb interface, and 4 'Marvel', 
-interfaces,
-during kernel initialization the interfaces indicate they have 'normal' 
-ethernet ethN names,
-ie, eth0, eth1, eth2, eth3, eth4, eth5 are reported from the 'dmesg' output.
+On Tue, Jan 09, 2007 at 01:19:48AM +0100, Giuseppe Bilotta wrote:
+> As a simple user without much knowledge of kernel internals, much less
+> so filesystems, couldn't something based on the same principle of
+> lsof+fam be used to handle these situations?
 
-However, when the system comes up and attempt to do an ifconfig, the 
-'ethN' numbers
-have changed to a some what intermengled seriese starting with eth6... 
-eth10.
+Using inotify has been suggested before. That let the upper filesystem
+know when something changed on the lower filesystem.
 
-I have never seen this sort of problem before, and so I have no clue 
-what is causing
-the later changes in the numbering scheme.
+I think that, while it would work, it is not the right solution.
 
-Does anyone have any idea where to look.
+Josef "Jeff" Sipek.
 
-Thanks
-John Clark
-
+-- 
+Intellectuals solve problems; geniuses prevent them
+		- Albert Einstein

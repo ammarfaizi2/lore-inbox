@@ -1,70 +1,129 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751248AbXAIKJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751261AbXAIKK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbXAIKJj (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 05:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbXAIKJj
+	id S1751261AbXAIKK0 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 05:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbXAIKK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 05:09:39 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:59319 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751248AbXAIKJi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 05:09:38 -0500
-Date: Tue, 9 Jan 2007 15:39:26 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
-Message-ID: <20070109100925.GA22080@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org> <20070107210139.GA2332@tv-sign.ru> <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109093302.GE589@in.ibm.com> <20070109015152.d5021254.akpm@osdl.org>
+	Tue, 9 Jan 2007 05:10:26 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:55203 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751261AbXAIKKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 05:10:24 -0500
+Date: Tue, 9 Jan 2007 02:10:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - RFC] allow setting vm_dirty below 1% for large memory
+ machines
+Message-Id: <20070109021017.447b682d.akpm@osdl.org>
+In-Reply-To: <17827.22798.625018.673326@notabene.brown>
+References: <17827.22798.625018.673326@notabene.brown>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109015152.d5021254.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 01:51:52AM -0800, Andrew Morton wrote:
-> > This thread makes absolutely -no- calls to try_to_freeze() in its lifetime.
-> 
-> Looks like a bug to me.  powerpc does appear to try to support the freezer.
-> 
-> > 1. Does this mean that the thread can't be frozen? (lets say that the
-> >    thread's PF_NOFREEZE is not set)
-> 
-> yup.  I'd expect the freeze_processes() call would fail if this thread is
-> running.
-
-ok.
+On Tue, 9 Jan 2007 19:57:50 +1100
+Neil Brown <neilb@suse.de> wrote:
 
 > 
-> >    AFAICS it can still be frozen by sending it a signal and have the signal
-> >    delivery code call try_to_freeze() ..
+> Imagine a machine with lots of memory - say 100Gig.
 > 
-> kernel threads don't take signals in the same manner as userspace.  A
-> kernel thread needs to explicitly poll, via
+> Suppose there is one (largish) filesystem that is ext3 (or maybe
+> reiser) with the default data=ordered.
 > 
-> 	if (signal_pending(current))
-> 		do_something()
-
-Thanks for the education! I feel much better about the use of process
-freezer now ..
-
-> > 2. If the thread can be frozen at any arbitrary point of its execution, then I
-> >    dont see what prevents cpu_online_map from changing under the feet of rtasd
-> >    thread,
+> Suppose this filesystem is being written to steadily so that the
+> maximum amount of memory is always dirty.  With the default
+> vm.dirty_ratio of 40%, this could be 40Gig.
 > 
-> It cannot.
+> When the journal triggers a commit, all the dirty data needs to be
+> flushed out in order to adhere to the "data=ordered" semantics.
+> This can take a while.
+> 
+> While this is happening, some small updates such as 'atime' update can
+> block waiting for the journal to be unlocked again after the flush.
 
-Excellent ..
+Actually, ext3 doesn't work that way.  The atime update will go into the
+"running transaction", which is an instance of journal_t which is separate
+from the committing transaction.
 
-I just hope the latency of freeze_processes() is tolerable ..
+But there are situations (ie; journal free-space exhaustion) where things
+can go synchronous.  They're more likely to occur during metadata storms
+though, and perhaps indicate an undersized journal.
 
--- 
-Regards,
-vatsa
+But yeah, overall point agreed with.
+
+> Waiting for 40gig to flush for an atime update to complete is clearly
+> unsatisfactory. 
+> 
+> We can reduce the amount of dirty memory by setting vm.dirty_ratio
+> down to 1 still allows 1Gig of dirty data which can cause unpleasant
+> pauses (and this was on a kernel where '1' still meant something.  In
+> current kernels, '5' is the effective minimum).
+> 
+> So this patch removes the minimum of '5' and introduces a new tunable
+> 'vm.dirty_kb' which sets an upper limit in Kibibytes.
+
+kibibytes?  We're feeding the kernel catfood now?
+
+> This allows the amount of dirty memory to be limited to - say - 50M
+> which should flush fast enough.
+> 
+> So: is this patch acceptable?  And should a lower default value for
+> vm_dirty_kb be used?
+> 
+> 
+> Some of the details in the above description might not be 100%
+> accurate (I'm not sure of the exact connection between atime updates
+> and journal commits).  The symptoms are:
+>   While generating constant write traffic on a machine with > 20Gig
+>   of RAM, performing assorted read-only operations can sometimes
+>   produces a pause of 10s of seconds.
+>   The pause can be removed by:
+>     - mounting noatime
+>     - mounting data=writeback
+>     - setting vm.dirty_kb to 1000 with this patch.
+
+Could be IO scheduler borkage, could be ext3 borkage.  A well-timed sysrq-T
+will tell us, and is worth doing (please).
+
+Does increasing the journal size help?
+
+> @@ -149,15 +154,21 @@ get_dirty_limits(long *pbackground, long
+>  	if (dirty_ratio > unmapped_ratio / 2)
+>  		dirty_ratio = unmapped_ratio / 2;
+>  
+> -	if (dirty_ratio < 5)
+> -		dirty_ratio = 5;
+> -
+>  	background_ratio = dirty_background_ratio;
+>  	if (background_ratio >= dirty_ratio)
+>  		background_ratio = dirty_ratio / 2;
+> +	if (dirty_background_ratio && !background_ratio)
+> +		background_ratio = 1;
+>  
+> -	background = (background_ratio * available_memory) / 100;
+>  	dirty = (dirty_ratio * available_memory) / 100;
+> +	if (dirty > vm_dirty_kb / (PAGE_SIZE/1024))
+> +		dirty = vm_dirty_kb / (PAGE_SIZE/1024);
+> +	if (dirty_ratio == 0)
+> +		background = 0;
+> +	else if (background_ratio >= dirty_ratio)
+> +		background = dirty / 2;
+> +	else
+> +		background = dirty * background_ratio / dirty_ratio;
+>  	tsk = current;
+>  	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
+>  		background += background / 4;
+
+It would be better if we can avoid creating the second global variable.  Is
+it not possible to remove dirty_ratio?  Make everything work off
+vm_dirty_kb and do arithmetricks at the /proc/sys/vm/dirty_ratio interface?
+
+We should perform the same conversion to dirty_background_ratio, I suspect.
+
+And these guys should be `long', not `int'.  Otherwise things will go
+pearshaped at 2 tabbybytes.
+

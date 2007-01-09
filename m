@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932337AbXAIVI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932209AbXAIVLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbXAIVI6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 16:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbXAIVI6
+	id S932209AbXAIVLp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 16:11:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAIVLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 16:08:58 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:25248 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932337AbXAIVI5 (ORCPT
+	Tue, 9 Jan 2007 16:11:45 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:54799 "EHLO
+	rwcrmhc11.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932209AbXAIVLo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 16:08:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:sender;
-        b=VpAw+z2DhVyN8/JJFsB4S/rZQW0A2MR/TE44A9irLgDvfNaA7nNtolclYMMj/jt/iq4qlrqYtTD2X29g4HDeUxrb41NsZw9f8Qslb6ea2medldm17aNnYHrNDFk85VqKU5/3h9OK9x2b6rplycirL203mqkJsiqKhlygrKIAdVE=
-Date: Tue, 9 Jan 2007 21:06:50 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Maciej Rutecki <maciej.rutecki@gmail.com>
-Cc: Frederik Deweerdt <frederik.deweerdt@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Re: 2.6.20-rc3-mm1] BUG: at kernel/sched.c:3415 sub_preempt_count()
-Message-ID: <20070109210649.GC13656@slug>
-References: <20070104220200.ae4e9a46.akpm@osdl.org> <45A3A96B.7090802@gmail.com> <20070109152757.GB13656@slug> <45A4000C.2060502@gmail.com>
+	Tue, 9 Jan 2007 16:11:44 -0500
+Message-ID: <45A3FF32.1030905@wolfmountaingroup.com>
+Date: Tue, 09 Jan 2007 13:46:42 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45A4000C.2060502@gmail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 09:50:20PM +0100, Maciej Rutecki wrote:
-> Frederik Deweerdt napisał(a):
-> 
-> > See:
-> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/hot-fixes/
-> > This should fix it.
-> > Regards,
-> > Frederik
-> >>
-> 
-> I don't use reiser4 or cpufreq, see my .config.
-The generic_sync_sb_inodes() function which gets fixed by the
-reiser4-sb_sync_inodes-fix patch isn't only used by reiser4. The
-spinlock unbalance is most likely responsible for the preempt_count
-mismatch.
 
-Regards,
-Frederik
-> 
-> -- 
-> Maciej Rutecki <maciej.rutecki@gmail.com>
-> http://www.unixy.pl
-> LTG - Linux Testers Group
-> (http://www.stardust.webpages.pl/ltg/wiki/)
-> 
+I just finished pulling out a melted IDE flash drive out of a Shuttle 
+motherboard with the intel 945 chipset which claims to support
+SATA and IDE drives concurrently under Linux 2.6.18.
 
+The chip worked for about 30 seconds before liquifying in the chassis.  
+I note that the 945 chipset in the shuttle PC had some serious
+issues recognizing 2 x SATA devices and a IDE device concurrently.   Are 
+there known problems with the Linux drivers
+with these newer chipsets.
 
+One other disturbing issue was the IDE flash drive was configured (and 
+recognized) as /dev/hda during bootup, but when
+it got to the root mountint, even with root=/dev/hda set, it still kept 
+thinking the drive was at scsi (ATA) device (08,13)
+and kept crashing with VFS cannot find root FS errors.
+
+Jeff

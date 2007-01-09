@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751195AbXAIJdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751236AbXAIJms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbXAIJdc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 04:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbXAIJdc
+	id S1751236AbXAIJms (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 04:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbXAIJmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 04:33:32 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:14828 "EHLO
-	vms042pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751195AbXAIJdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 04:33:31 -0500
-Date: Tue, 09 Jan 2007 04:32:54 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: .version keeps being updated
-In-reply-to: <20070109102057.c684cc78.khali@linux-fr.org>
-To: linux-kernel@vger.kernel.org
-Cc: Jean Delvare <khali@linux-fr.org>,
-       Kai Germaschewski <kai@germaschewski.name>,
-       Sam Ravnborg <sam@ravnborg.org>
-Message-id: <200701090432.54225.gene.heskett@verizon.net>
-Organization: Not detectable
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-User-Agent: KMail/1.9.5
+	Tue, 9 Jan 2007 04:42:47 -0500
+Received: from pxy2nd.nifty.com ([202.248.175.14]:28302 "HELO pxy2nd.nifty.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751236AbXAIJmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 04:42:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=pxy2nd-default; d=mbf.nifty.com;
+  b=Uus65zLS3DNCdYDb0gXnN1RkKL/Rdr9HiMamp5ui1I/hBWOcM3SgcckVgT78con0HhNHC+PgrPxPC1nuTz/abg==  ;
+Date: Tue, 09 Jan 2007 18:41:56 +0900 (JST)
+Message-Id: <20070109.184156.260789378.takada@mbf.nifty.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: fix typo in geode_configre()@cyrix.c
+From: takada <takada@mbf.nifty.com>
+X-Mailer: Mew version 5.1 on Emacs 22.0.92 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 January 2007 04:20, Jean Delvare wrote:
->Hi all,
->
->Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
->an incremented version number, whether there has actually been any
->change done to the code or configuration or not. This increases the
->build time quite a bit.
->
->I've tracked it down to include/linux/compile.h always being updated,
->and this is because .version is updated. I couldn't find what is
->causing .version to be updated each time though. Can anybody help
->there? Was this change made on purpose or is this a bug which we should
->fix?
->
->Thanks,
 
-I've not seen that here, Jean.  But then my 'makeit' script doesn't use a 
-plain 'make' anyplace, always 'make bzimage' or 'make modules' & 'make 
-modules install', etc.
+In kernel 2.6, write back wrong register when configure Geode processor.
+Instead of storing to CCR4, it stores to CCR3.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2007 by Maurice Eugene Heskett, all rights reserved.
+--- linux-2.6.19/arch/i386/kernel/cpu/cyrix.c.orig	2007-01-09 16:45:21.000000000 +0900
++++ linux-2.6.19/arch/i386/kernel/cpu/cyrix.c	2007-01-09 17:10:13.000000000 +0900
+@@ -173,7 +173,7 @@ static void __cpuinit geode_configure(vo
+ 	ccr4 = getCx86(CX86_CCR4);
+ 	ccr4 |= 0x38;		/* FPU fast, DTE cache, Mem bypass */
+ 	
+-	setCx86(CX86_CCR3, ccr3);
++	setCx86(CX86_CCR4, ccr4);
+ 	
+ 	set_cx86_memwb();
+ 	set_cx86_reorder();	

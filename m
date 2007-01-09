@@ -1,104 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932321AbXAISIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932331AbXAISJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbXAISIr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbXAISIr
+	id S932331AbXAISJB (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbXAISI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:08:47 -0500
-Received: from mail.gmx.net ([213.165.64.20]:47332 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932321AbXAISIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:08:46 -0500
-X-Authenticated: #815327
-From: Malte =?iso-8859-15?q?Schr=F6der?= <MalteSch@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v2)
-Date: Tue, 9 Jan 2007 19:08:40 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       reiserfs-dev@namesys.com
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <20070109052510.GG25007@stusta.de> <Pine.LNX.4.64.0701090944070.3594@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701090944070.3594@woody.osdl.org>
+	Tue, 9 Jan 2007 13:08:59 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:41926 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932331AbXAISI7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 13:08:59 -0500
+Message-ID: <45A3DA39.70604@s5r6.in-berlin.de>
+Date: Tue, 09 Jan 2007 19:08:57 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1567743.4G1ty5onrD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Akula2 <akula2.shark@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Jumping into Kernel development: About -rc kernels...
+References: <8355959a0701090733l74d03792q16b3022d949c7ae1@mail.gmail.com>
+In-Reply-To: <8355959a0701090733l74d03792q16b3022d949c7ae1@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200701091908.44576.MalteSch@gmx.de>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1567743.4G1ty5onrD
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Akula2 wrote:
+> Should I start compile/test/debug one-after-one in this fashion:-
+> 
+> 2.6.19 source + patch-2.6.20-rc1
+> 2.6.19 source + patch-2.6.20-rc2
+> 2.6.19 source + patch-2.6.20-rc3
+> 2.6.19 source + patch-2.6.20-rc4
 
-On Tuesday 09 January 2007 18:58, Linus Torvalds wrote:
-> On Tue, 9 Jan 2007, Adrian Bunk wrote:
-> > Subject : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs)
-> > References : http://lkml.org/lkml/2007/1/7/117
-> > Submitter : Malte Schr=F6der <MalteSch@gmx.de>
-> > Status : unknown
->
-> Adrian, this is also available as
->
-> 	http://lkml.org/lkml/2007/1/5/308
->
-> But, at worst, I don't think this is a show-stopper (oh, well: I actually
-> liked it better when "WARN_ON()" said _warning_, not BUG, since it
-> separates out the two cases visually much better, but others disagreed.
-> Crud).
+Or
 
-=2D-8<--
+linux-2.6.19 + testing/patch-2.6.20-rc1 = linux-2.6.20-rc1
+linux-2.6.20-rc1 + testing/incr/patch-2.6.20-rc1-rc2 = linux-2.6.20-rc2
+linux-2.6.20-rc2 + testing/incr/patch-2.6.20-rc2-rc3 = linux-2.6.20-rc3
 
-> So something interesting is definitely going on, but I don't know exactly
-> what it is. Why does reiserfs do the truncate as part of a close, if the
-> same inode is actually mapped somewhere else? And if it's a race with two
-> different CPU's (one doing a "munmap()" and the other doing a "close()",
-> then the unmap should _still_ have actually unmapped the pages before it
-> actually did _its_ "release()" call.
+and so on.
 
-This was on a single core. But with CONFIG_PREEMPT_VOLUNTARY=3Dy.
-It didn't happen again since then.=20
+> OR
+> 
+> Pick the latest release number?
 
->
-> In general, a filesystem should never do a truncate at "release()" time
-> _anyway_. It should do it at "drop_inode" time.
->
-> So I think this does show some confusion in reiserfs, but it's not
-> anything new. The only new thing is that the _message_ happens.
->
-> So I don't personally consider this a regression. Just a sign of old and
-> preexisting confusion that is now uncovered by new code (and it will print
-> out the scary message at most four times, and then stop complaining about
-> it. So apart from the scary message, nothing new and bad has really
-> happened).
-
-I also didn't reboot the machine afterwards and did not notice any problems=
-=20
-beside that one message.
-
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
-
-
---nextPart1567743.4G1ty5onrD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBFo9os4q3E2oMjYtURAkSZAJ9Il7806Vk5C3c81kjVra4MYBKvsQCgooF5
-rdRRxcOgHLIeoEzBxQVRUDA=
-=QxGe
------END PGP SIGNATURE-----
-
---nextPart1567743.4G1ty5onrD--
+Or this. Or use git as was suggested by others, to track kernel changes
+in a finer-grained manner. Or try the -mm patchset which has --- how
+shall I call it --- pre-release code. Or track some subsystem-specific
+or architecture-specific development trees if you are especially
+interested in a platform or driver subsystem. See the MAINTAINERS file
+for their development repositories. These repos do not always carry
+self-contained source trees though, and what purposes they serve for the
+maintainers and how they can be used by others than the maintainers
+differs from repo to repo.
+-- 
+Stefan Richter
+-=====-=-=== ---= -=--=
+http://arcgraph.de/sr/

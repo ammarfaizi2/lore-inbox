@@ -1,95 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751066AbXAIFZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751057AbXAIFaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbXAIFZM (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 00:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbXAIFZM
+	id S1751057AbXAIFaL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 00:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbXAIFaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 00:25:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4383 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751058AbXAIFZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 00:25:09 -0500
-Date: Tue, 9 Jan 2007 06:25:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
-       reiserfs-dev@namesys.com, Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>,
-       ttb@tentacle.dhs.org, rml@novell.com, Jon Smirl <jonsmirl@gmail.com>,
-       Damien Wyart <damien.wyart@free.fr>,
-       Aaron Sethman <androsyn@ratbox.org>, alan@lxorguk.ukuu.org.uk,
-       linux-ide@vger.kernel.org, Uwe Bugla <uwe.bugla@gmx.de>,
-       Florin Iucha <florin@iucha.net>, Jiri Kosina <jkosina@suse.cz>,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       Berthold Cogel <cogel@rrz.uni-koeln.de>,
-       Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org
-Subject: 2.6.20-rc4: known unfixed regressions (v2)
-Message-ID: <20070109052510.GG25007@stusta.de>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 9 Jan 2007 00:30:11 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:42471 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751057AbXAIFaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 00:30:09 -0500
+Date: Mon, 8 Jan 2007 21:26:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-Id: <20070108212656.ca77a3ba.akpm@osdl.org>
+In-Reply-To: <20070109050417.GC589@in.ibm.com>
+References: <20070104091850.c1feee76.akpm@osdl.org>
+	<20070106151036.GA951@tv-sign.ru>
+	<20070106154506.GC24274@in.ibm.com>
+	<20070106163035.GA2948@tv-sign.ru>
+	<20070106163851.GA13579@in.ibm.com>
+	<20070106111117.54bb2307.akpm@osdl.org>
+	<20070107110013.GD13579@in.ibm.com>
+	<20070107115957.6080aa08.akpm@osdl.org>
+	<20070107210139.GA2332@tv-sign.ru>
+	<20070108155428.d76f3b73.akpm@osdl.org>
+	<20070109050417.GC589@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
-that are not yet fixed in Linus' tree.
+On Tue, 9 Jan 2007 10:34:17 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+> On Mon, Jan 08, 2007 at 03:54:28PM -0800, Andrew Morton wrote:
+> > Furthermore I don't know which of these need to be tossed overboard if/when
+> > we get around to using the task freezer for CPU hotplug synchronisation.
+> > Hopefully, a lot of them.  I don't really understand why we're continuing
+> > to struggle with the existing approach before that question is settled.
+> 
+> Good point!
+> 
+> Fundamentally, I think we need to answer this question:
+> 
+> "Do we provide *some* mechanism to block concurrent hotplug operations
+> from happening? By hotplug operations I mean both changes to the bitmap
+> and execution of all baclbacks in CPU_DEAD/ONLINE etc"
+> 
+> If NO, then IMHO we will be forever fixing races
+> 
+> If YES, then what is that mechanism? freeze_processes()? or a magical
+> lock?
+> 
+> freeze_processes() cant be that mechanism, if my understanding of it is
+> correct - see http://lkml.org/lkml/2007/1/8/149
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+That's not correct.  freeze_processes() will freeze *all* processes.  All
+of them are forced to enter refrigerator().  With the mysterious exception
+of some I/O-related kernel threads, which might need some thought.
 
+> and 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=116817460726058.
 
-Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs)
-References : http://lkml.org/lkml/2007/1/7/117
-Submitter  : Malte Schröder <MalteSch@gmx.de>
-Status     : unknown
+Am not sure how that's related.
 
+> I would be happy to be corrected if the above impression of
+> freeze_processes() is corrected ..
 
-Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
-Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
-Status     : unknown
-
-
-Subject    : BUG: scheduling while atomic: hald-addon-stor/...
-             cdrom_{open,release,ioctl} in trace
-References : http://lkml.org/lkml/2006/12/26/105
-             http://lkml.org/lkml/2006/12/29/22
-             http://lkml.org/lkml/2006/12/31/133
-Submitter  : Jon Smirl <jonsmirl@gmail.com>
-             Damien Wyart <damien.wyart@free.fr>
-             Aaron Sethman <androsyn@ratbox.org>
-Status     : unknown
-
-
-Subject    : problems with CD burning
-References : http://www.spinics.net/lists/linux-ide/msg06545.html
-Submitter  : Uwe Bugla <uwe.bugla@gmx.de>
-Status     : unknown
-
-
-Subject    : USB keyboard unresponsive after some time
-References : http://lkml.org/lkml/2006/12/25/35
-             http://lkml.org/lkml/2006/12/26/106
-Submitter  : Florin Iucha <florin@iucha.net>
-Handled-By : Jiri Kosina <jkosina@suse.cz>
-Status     : problem is being debugged
-
-
-Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
-References : http://lkml.org/lkml/2006/12/25/40
-Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
-Handled-By : Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-Status     : problem is being debugged
-
+It could be that the freezer needs a bit of work for this application. 
+Obviously we're not interested in the handling of disk I/O, so we'd really
+like to do a simple
+try_to_freeze_tasks(FREEZER_USER_SPACE|FREEZER_KERNEL_THREADS), but the
+code isn't set up to do that (it should be).  The other non-swsusp callers
+probably want this change as well.  But that's all a minor matter.
 

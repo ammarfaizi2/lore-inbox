@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750917AbXAIDiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750968AbXAIDmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbXAIDiJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 22:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbXAIDiI
+	id S1750968AbXAIDmu (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 22:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbXAIDmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 22:38:08 -0500
-Received: from sandeen.net ([209.173.210.139]:23826 "EHLO sandeen.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750790AbXAIDiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 22:38:07 -0500
-Message-ID: <45A30E1D.4030401@sandeen.net>
-Date: Mon, 08 Jan 2007 21:38:05 -0600
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.9 (Macintosh/20061207)
+	Mon, 8 Jan 2007 22:42:50 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4221 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750965AbXAIDmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 22:42:49 -0500
+Date: Tue, 9 Jan 2007 04:42:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Osterlund <petero2@telia.com>, Patrick McHardy <kaber@trash.net>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Linux 2.6.20-rc4
+Message-ID: <20070109034253.GD25007@stusta.de>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <m37ivyr1v6.fsf@telia.com> <Pine.LNX.4.64.0701071442580.3661@woody.osdl.org> <45A2C6AE.5080400@trash.net> <m3ps9pp1fd.fsf@telia.com> <Pine.LNX.4.64.0701081511340.3661@woody.osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: David Chinner <dgc@sgi.com>,
-       linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: bd_mount_mutex -> bd_mount_sem (was Re: xfs_file_ioctl / xfs_freeze:
- BUG: warning at kernel/mutex-debug.c:80/debug_mutex_unlock())
-References: <20070104001420.GA32440@m.safari.iki.fi>	<20070107213734.GS44411608@melbourne.sgi.com>	<20070108110323.GA3803@m.safari.iki.fi>	<45A27416.8030600@sandeen.net>	<20070108234728.GC33919298@melbourne.sgi.com>	<20070108161917.73a4c2c6.akpm@osdl.org>	<45A30828.6000508@sandeen.net> <20070108191800.9d83ff5e.akpm@osdl.org>
-In-Reply-To: <20070108191800.9d83ff5e.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701081511340.3661@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 08 Jan 2007 21:12:40 -0600
-> Eric Sandeen <sandeen@sandeen.net> wrote:
+On Mon, Jan 08, 2007 at 03:12:08PM -0800, Linus Torvalds wrote:
 > 
->> Andrew Morton wrote:
->>> On Tue, 9 Jan 2007 10:47:28 +1100
->>> David Chinner <dgc@sgi.com> wrote:
->>>
->>>> On Mon, Jan 08, 2007 at 10:40:54AM -0600, Eric Sandeen wrote:
->>>>> Sami Farin wrote:
->>>>>> On Mon, Jan 08, 2007 at 08:37:34 +1100, David Chinner wrote:
->>>>>> ...
->>>>>>>> fstab was there just fine after -u.
->>>>>>> Oh, that still hasn't been fixed?
->>>>>> Looked like it =)
->>>>> Hm, it was proposed upstream a while ago:
->>>>>
->>>>> http://lkml.org/lkml/2006/9/27/137
->>>>>
->>>>> I guess it got lost?
->>>> Seems like it. Andrew, did this ever get queued for merge?
->>> Seems not.  I think people were hoping that various nasties in there
->>> would go away.  We return to userspace with a kernel lock held??
->> Is a semaphore any worse than the current mutex in this respect?  At 
->> least unlocking from another thread doesn't violate semaphore rules.  :)
 > 
-> I assume that if we weren't returning to userspace with a lock held, this
-> mutex problem would simply go away.
+> On Mon, 9 Jan 2007, Peter Osterlund wrote:
+> > 
+> > Thanks, the patch appears to help. The kernel has now survived much
+> > longer with this patch than it used to do without it.
+> > 
+> > I will recompile with gcc 4.1.1 too just to make sure, but if you
+> > don't hear anything more from me, consider the case closed. :)
 > 
+> David - I assume I'll get this patch through you, and I can just forget 
+> about this issue and go about my normal mindless ways?
 
-Well nobody's asserting that the filesystem must always be locked & 
-unlocked by the same thread, are they?  That'd be a strange rule to 
-enforce upon the userspace doing the filesystem management wouldn't it? 
-  Or am I thinking about this wrong...
+I'll keep reminding him until it's in your tree.  ;-)
 
--Eric
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

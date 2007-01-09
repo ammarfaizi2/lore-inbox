@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932491AbXAIW4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932402AbXAIW5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbXAIW4I (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 17:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbXAIW4H
+	id S932402AbXAIW5v (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 17:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbXAIW5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 17:56:07 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:50829 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932492AbXAIW4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 17:56:06 -0500
-Date: Tue, 9 Jan 2007 14:52:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, "Steven M. Christey" <coley@mitre.org>
-Subject: Re: [2.6 patch] x86_64: re-add a newline to RESTORE_CONTEXT
-Message-Id: <20070109145247.1ffc0cd3.akpm@osdl.org>
-In-Reply-To: <200701092343.01112.ak@suse.de>
-References: <20070109025516.GC25007@stusta.de>
-	<200701091201.21146.ak@suse.de>
-	<20070109140424.5f96de69.akpm@osdl.org>
-	<200701092343.01112.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 9 Jan 2007 17:57:51 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:51946 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932402AbXAIW5u (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 17:57:50 -0500
+Message-Id: <200701092257.l09MvM82029636@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Hua Zhong <hzhong@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+In-Reply-To: Your message of "Tue, 09 Jan 2007 11:02:35 PST."
+             <88063.16727.qm@web55602.mail.re4.yahoo.com>
+From: Valdis.Kletnieks@vt.edu
+References: <88063.16727.qm@web55602.mail.re4.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1168383442_27952P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 09 Jan 2007 17:57:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2007 23:43:00 +0100
-Andi Kleen <ak@suse.de> wrote:
+--==_Exmh_1168383442_27952P
+Content-Type: text/plain; charset=us-ascii
 
-> 
-> > 
-> > But the patch is a bugfix.  Without it, you cannot do
-> > 
-> > 	RESTORE_CONTEXT	\
-> > 	.globl ...	\
-> > 
-> > Was the addition of this restriction to RESTORE_CONTEXT deliberate, or
-> > mistaken?
-> 
-> RESTORE_CONTEXT is a private macro and I don't see why we should
-> support out of tree usages for that. As long as it works as it is 
-> in the tree it is fine.
-> 
+On Tue, 09 Jan 2007 11:02:35 PST, Amit Choudhary said:
+> Correct. And doing kfree(x); x=NULL; is not hiding that. These issues can still be debugged by
+> using the slab debugging options. One other benefit of doing this is that if someone tries to
+> access the same memory again using the variable 'x', then he will get an immediate crash. And the
+> problem can be solved immediately, without using the slab debugging options. I do not yet
+> understand how doing this hides the bugs, obfuscates the code, etc. because I haven't seen an
+> example yet, but only blanket statements.
 
-In other words we'll leave it in its present buggy form so that it will
-explode next time someone tries to use it for something new, rather than a)
-fixing that potential problem and b) fixing a real problem with a popular
-external GPLed product.
+char *broken() {
+	char *x, *y;
+	x = kmalloc(100);
+	y = x;
+	kfree(x);
+	x = NULL;
+	return y;
+}
 
-Unfathomable.
+Setting x to NULL doesn't do anything to fix the *real* bug here, because
+the problematic reference is held in y, not x.  So you never get a crash
+because somebody dereferences x.
+
+
+--==_Exmh_1168383442_27952P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFpB3ScC3lWbTT17ARAnfZAKCxg004s3VdvPUl9+hc+BrDKzCHQQCgznxz
+sW0ND/XWul1s1vS3BL2T2bg=
+=2XLS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1168383442_27952P--

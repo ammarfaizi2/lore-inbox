@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750716AbXAIBP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750880AbXAIBRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbXAIBP6 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 20:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbXAIBP6
+	id S1750880AbXAIBRd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 20:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbXAIBRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 20:15:58 -0500
-Received: from quechua.inka.de ([193.197.184.2]:39574 "EHLO mail.inka.de"
+	Mon, 8 Jan 2007 20:17:33 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:34023 "EHLO mail0.lsil.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750716AbXAIBP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 20:15:57 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Strange ethN numbering problem.
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <45A2E19F.4070307@metricsystems.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1H45al-0002Xj-00@calista.eckenfels.net>
-Date: Tue, 09 Jan 2007 02:15:55 +0100
+	id S1750726AbXAIBRc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 20:17:32 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PROBLEM: LSIFC909 mpt card fails to recognize devices
+Date: Mon, 8 Jan 2007 18:16:37 -0700
+Message-ID: <664A4EBB07F29743873A87CF62C26D704E90EF@NAMAIL4.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROBLEM: LSIFC909 mpt card fails to recognize devices
+Thread-Index: AccziKGU77J69WsjQO2rMVobZczSWQAAv15A
+From: "Moore, Eric" <Eric.Moore@lsi.com>
+To: "Justin Rosander" <myrddinemrys@neo.rr.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 09 Jan 2007 01:16:38.0398 (UTC) FILETIME=[CFD9D9E0:01C7338B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <45A2E19F.4070307@metricsystems.com> you wrote:
-> However, when the system comes up and attempt to do an ifconfig, the 
-> 'ethN' numbers
-> have changed to a some what intermengled seriese starting with eth6... 
-> eth10.
+Justin wrote:
 
-maybe a system startup script is renaming them (in order to give them well
-known numbers)? 
+> Success! Here you are
 
-What kind of distribution is that? is this a new problem? Have a look in
-/etc/mactab.
+Can you send the dmesg, boot.log, or messages from /var/log ?
 
-Gruss
-Bernd
+It appears you've sent me lspci output instead.
+
+Eric.

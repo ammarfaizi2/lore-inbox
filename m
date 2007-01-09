@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932544AbXAIXkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932523AbXAIXnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbXAIXkH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 18:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbXAIXkH
+	id S932523AbXAIXnz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 18:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbXAIXnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 18:40:07 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53999 "EHLO mx2.suse.de"
+	Tue, 9 Jan 2007 18:43:55 -0500
+Received: from mail.suse.de ([195.135.220.2]:36084 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932544AbXAIXkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 18:40:05 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jean Delvare <khali@linux-fr.org>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>,
-       torvalds@osdl.org
-Subject: Re: .version keeps being updated
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109170550.AFEF460C343@tzec.mtu.ru>
-	<20070109214421.281ff564.khali@linux-fr.org>
-	<20070109133121.194f3261.akpm@osdl.org>
-	<Pine.LNX.4.64.0701091520280.3594@woody.osdl.org>
-	<20070109152534.ebfa5aa8.akpm@osdl.org>
+	id S932523AbXAIXny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 18:43:54 -0500
 From: Andi Kleen <ak@suse.de>
-Date: 10 Jan 2007 00:39:40 +0100
-In-Reply-To: <20070109152534.ebfa5aa8.akpm@osdl.org>
-Message-ID: <p7364bfkbwj.fsf@bingen.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] x86_64: re-add a newline to RESTORE_CONTEXT
+Date: Wed, 10 Jan 2007 00:43:48 +0100
+User-Agent: KMail/1.9.5
+Cc: Adrian Bunk <bunk@stusta.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, "Steven M. Christey" <coley@mitre.org>
+References: <20070109025516.GC25007@stusta.de> <200701092343.01112.ak@suse.de> <20070109145247.1ffc0cd3.akpm@osdl.org>
+In-Reply-To: <20070109145247.1ffc0cd3.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701100043.49092.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> On Tue, 9 Jan 2007 15:21:51 -0800 (PST)
-> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> > 
-> > 
-> > On Tue, 9 Jan 2007, Andrew Morton wrote:
-> > > 
-> > > > This new behavior of the kernel build system is likely to
-> > > > make developers angry pretty quickly.
-> > > 
-> > > That might motivate them to fix it ;)
-> > 
-> > Actually, how about just removing the incrementing version count entirely?
-> 
-> I use it pretty commonly to answer the question "did I remember to install
-> that new kernel I just built before I rebooted"?  By comparing `uname -a'
-> with $TOPDIR/.version.
+> In other words we'll leave it in its present buggy form so that it will
+> explode next time someone tries to use it for something new, rather than a)
 
-I even have scripts that require this to identify kernels. Please don't
-remove it.
+It shouldn't be used for anything new. It's really a private macro
+in the context switch code, nothing that any other code is supposed
+to use.
+
+> fixing that potential problem and b) fixing a real problem with a popular
+> external GPLed product.
+
+kgdb shouldn't need any patches to core kernel I had it some time ago running fine
+just by hooking it into the die hooks (and minor changes to the serial layer,
+with netpoll these shouldn't be even needed anymore) 
+
+If the kgdb people need more changes they should submit them.
+
+But I suspect if they change RESTORE_CONTEXT they're doing something wrong
+anyways and they just need to fix their code properly.
 
 -Andi

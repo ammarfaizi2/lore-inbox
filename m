@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751351AbXAILB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751119AbXAILLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbXAILB2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 06:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbXAILB2
+	id S1751119AbXAILLd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 06:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbXAILLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 06:01:28 -0500
-Received: from ns.suse.de ([195.135.220.2]:38276 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751351AbXAILB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 06:01:27 -0500
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] x86_64: re-add a newline to RESTORE_CONTEXT
-Date: Tue, 9 Jan 2007 12:01:21 +0100
-User-Agent: KMail/1.9.5
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       "Steven M. Christey" <coley@mitre.org>
-References: <20070109025516.GC25007@stusta.de>
-In-Reply-To: <20070109025516.GC25007@stusta.de>
+	Tue, 9 Jan 2007 06:11:33 -0500
+Received: from wr-out-0506.google.com ([64.233.184.239]:4402 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751119AbXAILLc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 06:11:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cKfKcwJmWGVaIJaiFY269K3b3RYsDJ7nJAp96dIVTcd8mab+C0WDsbjp/cAv8jumCqJ0pyMHKzgNBgPHBB8PbVmiHkEdbs4/Cs2TSvUFS496VPZb+e952exuOJ0sAqWWkcjx2OOP3HULet+jIsBxrWv9sVgwSAABlQGELVjhusk=
+Message-ID: <6f61137b0701090311gb82f392l626973b11d8911e9@mail.gmail.com>
+Date: Tue, 9 Jan 2007 12:11:31 +0100
+From: "Maarten Vanraes" <maarten.vanraes@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AHCI IDENTIFY problem only on x86_64
+Cc: "Jeff Garzik" <jeff@garzik.org>
+In-Reply-To: <45A37497.6020505@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701091201.21146.ak@suse.de>
+References: <6f61137b0701090235g2ea3f4a2j2d5e985ef70b142a@mail.gmail.com>
+	 <45A371E3.9090103@garzik.org>
+	 <6f61137b0701090247l6077cbb8k91eec388779c33cd@mail.gmail.com>
+	 <45A37497.6020505@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 January 2007 03:55, Adrian Bunk wrote:
-> RESTORE_CONTEXT lost a newline in 
-> commit 658fdbef66e5e9be79b457edc2cbbb3add840aa9:
-> http://www.mail-archive.com/kgdb-bugreport@lists.sourceforge.net/msg00559.html
+so, the problem is already solved then? at what minimal kernel version
+was that problem solved?
 
-I don't think we should add such changes for external patchkits.
+i didn't see it in the changelogs, but i may not have seen them all...
 
-In general kgdb shouldn't add any patches at all. If the existing 
-hooks are not enough they should submit their changes needed so
-that it can just work.
+If i know the version, i can submit the info to them...
+
+2007/1/9, Jeff Garzik <jeff@garzik.org>:
+> Maarten Vanraes wrote:
+> > i don't think so, but i cannot test it... i don't have an x86_64
+> > system, and i cannot install on my disk, cause it's not detected.
+> > unless i can install an x86_64 kernel on a i586 system, i donno how to
+> > further test this.
+>
+> If you are stopped at the initial install, just grab a distro that
+> already works on this hardware, like Fedora Core 6 (x86-64).
+>
+>         Jeff
+>
+>
+>
+>
 
 
--Andi
+-- 
+Alien is my name and head-biting is my game

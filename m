@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751202AbXAIJJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750840AbXAIJLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbXAIJJ1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 04:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbXAIJJ1
+	id S1750840AbXAIJLU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 04:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbXAIJLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 04:09:27 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:58310 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751202AbXAIJJ0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 04:09:26 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: mutex ownership (was: Re: [PATCH 19/24] Unionfs: Helper macros/inlines)
-Date: Tue, 9 Jan 2007 10:09:29 +0100
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       arjan <arjan@infradead.org>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu> <20070108132817.5c9a30d6.akpm@osdl.org> <1168333376.12503.22.camel@twins>
-In-Reply-To: <1168333376.12503.22.camel@twins>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200701091009.30063.oliver@neukum.org>
+	Tue, 9 Jan 2007 04:11:20 -0500
+Received: from gate.crashing.org ([63.228.1.57]:34776 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750855AbXAIJLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 04:11:19 -0500
+Subject: Re: Linux 2.6.20-rc4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Sylvain Munaut <tnt@246tNt.com>, Greg KH <gregkh@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
+       paulus@samba.org
+In-Reply-To: <1168327701.14763.324.camel@shinybook.infradead.org>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	 <200701081550.27748.m.kozlowski@tuxland.pl> <45A25C17.5070606@246tNt.com>
+	 <1168303139.22458.246.camel@localhost.localdomain>
+	 <20070109005624.GA598@suse.de>
+	 <1168308323.22458.254.camel@localhost.localdomain>
+	 <45A340E4.5030702@246tNt.com>
+	 <1168327701.14763.324.camel@shinybook.infradead.org>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 20:08:54 +1100
+Message-Id: <1168333734.22458.269.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 9. Januar 2007 10:02 schrieb Peter Zijlstra:
-> On Mon, 2007-01-08 at 13:28 -0800, Andrew Morton wrote:
+On Tue, 2007-01-09 at 15:28 +0800, David Woodhouse wrote:
+> On Tue, 2007-01-09 at 08:14 +0100, Sylvain Munaut wrote:
+> > But maybe the question we should ask is why would it build
+> > drivers/usb/host/ohci-ppc-soc.c for an iMac G3 ... Because that problem
+> > (ohci multiple glue in module) is there since a long time, just never
+> > spotted before.
 > 
-> > Please use mutexes where possible.  Semaphores should only be used when
-> > their counting feature is employed.  And, arguably, in situations where a
-> > lock is locked and unlocked from different threads, because this presently
-> > triggers mutex debugging warnings, although we should find a way of fixing
-> > this in the mutex code.
-> 
-> Its a fundamental property of a mutex, not a shortcoming. A mutex has an
-> owner, the one that takes and releases the resource. This allows things
-> such as Priority Inheritance to boost owners.
-> 
-> 'fixing' this takes away much of what a mutex is.
-> 
-> That said, it seems some folks really want this to happen, weird as it
-> may be. I'm not sure if all these cases are because of wrong designs. A
-> possible extension to the mutex interface might be something like this:
-> 
->   mutex_pass_owner(struct task_struct *task);
-> 
-> which would be an atomic unlock/lock pair where the current task
-> releases the resource and the indicated task gains it. However it must
-> be understood that from the POV of 'current' this should be treated as
-> an unlock action.
+> Are you suggesting that distributions must choose to support OHCI from
+> _either_ PCI or OF but not both?
 
-This won't help if I want to release from an interrupt handler or tasklet.
+I think not. What he meant I suppose is that in -addition- to the
+problem that needs to be fixed, there is another one where efika support
+defaults to y in Kconfig, thus gets enabled for pmac32_defconfig etc...
 
-	Regards
-		Oliver
+Ben.
+
+

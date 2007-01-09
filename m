@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750886AbXAIBYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750888AbXAIB07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbXAIBYI (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 20:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbXAIBYI
+	id S1750888AbXAIB07 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 20:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbXAIB07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 20:24:08 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:45315 "EHLO
-	yue.st-paulia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750881AbXAIBYG (ORCPT
+	Mon, 8 Jan 2007 20:26:59 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:47258 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750888AbXAIB06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 20:24:06 -0500
-Date: Tue, 09 Jan 2007 10:24:53 +0900 (JST)
-Message-Id: <20070109.102453.32711440.yoshfuji@linux-ipv6.org>
-To: craig@codefountain.com
-Cc: komurojun-mbn@nifty.com, bunk@stusta.de, jgarzik@pobox.com,
-       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, davem@davemloft.net, yoshfuji@linux-ipv6.org
-Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
- file-transfer
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20070104122330.GA2233@craigdell.detnet.com>
-References: <20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-	<20070105054546.953196e5.komurojun-mbn@nifty.com>
-	<20070104122330.GA2233@craigdell.detnet.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 3.3 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Jan 2007 20:26:58 -0500
+X-Originating-Ip: 74.109.71.198
+Date: Mon, 8 Jan 2007 20:20:28 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Remove useless FIND_FIRST_BIT() macro from cardbus.c.
+Message-ID: <Pine.LNX.4.64.0701082015270.3951@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20070104122330.GA2233@craigdell.detnet.com> (at Thu, 4 Jan 2007 14:23:30 +0200), Craig Schlenter <craig@codefountain.com> says:
 
-> On Fri, Jan 05, 2007 at 05:45:46AM +0900, Komuro wrote:
-> > Hi,
-> > 
-> > I made a patch below.
-> > With this patch, the ftp-transfer-stop problem does not happen.
-> > Therefore, I think this is not a problem of vsftpd.
-> > 
-> > Mr.YOSHIFUJI san, why did you set TCPOLEN_TSTAMP_ALIGNED
-> > to iov_len?
-> > 
-> > 
-> > 
-> > --- linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c.orig	2007-01-03 11:50:04.000000000 +0900
-> > +++ linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c	2007-01-03 15:30:44.000000000 +0900
-> > @@ -648,7 +648,7 @@ static void tcp_v4_send_ack(struct tcp_t
-> >  				   TCPOLEN_TIMESTAMP);
-> >  		rep.opt[1] = htonl(tcp_time_stamp);
-> >  		rep.opt[2] = htonl(ts);
-> > -		arg.iov[0].iov_len = TCPOLEN_TSTAMP_ALIGNED;
-> > +		arg.iov[0].iov_len = sizeof(rep);
-> 
-> Perhaps this was supposed to be
->                 arg.iov[0].iov_len += TCPOLEN_TSTAMP_ALIGNED;
-> 
-> That's what the ipv6 stuff does in places.
+  Delete the definition of the unused FIND_FIRST_BIT() macro.
 
-Good catch! I agree.
-Craig, please provide a patch for us, please.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-Thank you again.
+---
 
---yoshfuji
+  this macro seems safely deletable, given that there is no other
+reference to that macro anywhere in the entire source tree and,
+besides, one should use find_first_bit() anyway.
+
+  it's not clear who the official maintainer is for this subsystem
+these days.
+
+diff --git a/drivers/pcmcia/cardbus.c b/drivers/pcmcia/cardbus.c
+index 2d7effe..a1bd763 100644
+--- a/drivers/pcmcia/cardbus.c
++++ b/drivers/pcmcia/cardbus.c
+@@ -40,8 +40,6 @@
+
+ /*====================================================================*/
+
+-#define FIND_FIRST_BIT(n)	((n) - ((n) & ((n)-1)))
+-
+ /* Offsets in the Expansion ROM Image Header */
+ #define ROM_SIGNATURE		0x0000	/* 2 bytes */
+ #define ROM_DATA_PTR		0x0018	/* 2 bytes */

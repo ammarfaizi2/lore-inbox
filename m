@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751316AbXAIKnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751310AbXAIKnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbXAIKnD (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 05:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbXAIKnB
+	id S1751310AbXAIKnt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 05:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbXAIKnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 05:43:01 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:42142 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751316AbXAIKm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 05:42:59 -0500
-Date: Tue, 9 Jan 2007 05:36:59 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Shaya Potter <spotter@cs.columbia.edu>,
-       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, torvalds@osdl.org, mhalcrow@us.ibm.com,
-       David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-ID: <20070109103659.GB25438@filer.fsl.cs.sunysb.edu>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu> <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org> <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu> <20070108131957.cbaf6736.akpm@osdl.org> <20070108232516.GB1269@filer.fsl.cs.sunysb.edu> <20070109094935.GA12406@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109094935.GA12406@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 9 Jan 2007 05:43:49 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:33664 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751310AbXAIKnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 05:43:49 -0500
+Message-ID: <45A371E3.9090103@garzik.org>
+Date: Tue, 09 Jan 2007 05:43:47 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Maarten Vanraes <maarten.vanraes@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AHCI IDENTIFY problem only on x86_64
+References: <6f61137b0701090235g2ea3f4a2j2d5e985ef70b142a@mail.gmail.com>
+In-Reply-To: <6f61137b0701090235g2ea3f4a2j2d5e985ef70b142a@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 09:49:35AM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 08, 2007 at 06:25:16PM -0500, Josef Sipek wrote:
-> > > There's no such problem with bind mounts.  It's surprising to see such a
-> > > restriction with union mounts.
-> > 
-> > Bind mounts are a purely VFS level construct. Unionfs is, as the name
-> > implies, a filesystem. Last year at OLS, it seemed that a lot of people
-> > agreed that unioning is neither purely a fs construct, nor purely a vfs
-> > construct.
-> > 
-> > I'm using Unionfs (and ecryptfs) as guinea pigs to make linux fs stacking
-> > friendly - a topic to be discussed at LSF in about a month.
+Maarten Vanraes wrote:
+> I would like to be CC'ed as i'm not on the list.
 > 
-> And unionfs is the wrong thing do use for this.  Unioning is a complex
-> namespace operation and needs to be implemented in the VFS or at least
-> needs a lot of help from the VFS.  Getting namespace cache coherency
-> and especially locking right is imposisble with out that.
+> kernel 2.16.17.13: in 32bit the disk is detected everything ok, in
+> x86_64, it gives a Failed to IDENTIFY for both drives, it does not
+> give a FAILED to IDENTIFY on the ones where the link is down.
+> 
+> any idea what the problem is?
 
-What I meant was that I use them as an example for a linear and fanout
-stacking examples. While unioning itself is a complex operation, the general
-idea of one set of vfs objects (dentry, inode, etc.) pointing to several
-lower ones is very generic and applies to all fan-out stackable fs.
+May we presume that 2.6.20-rc4 works?
 
-Josef "Jeff" Sipek.
+	Jeff
 
--- 
-Linux, n.:
-  Generous programmers from around the world all join forces to help
-  you shoot yourself in the foot for free. 
+
+

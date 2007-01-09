@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932243AbXAIRFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932222AbXAIRHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbXAIRFz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 12:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbXAIRFz
+	id S932222AbXAIRHL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 12:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbXAIRHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 12:05:55 -0500
-Received: from tzec.mtu.ru ([195.34.34.228]:2760 "EHLO tzec.mtu.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932247AbXAIRFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 12:05:54 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: .version keeps being updated
-To: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org
-Date: Tue, 09 Jan 2007 20:05:49 +0300
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-User-Agent: KNode/0.10.4
+	Tue, 9 Jan 2007 12:07:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:46052 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932222AbXAIRHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 12:07:09 -0500
+Date: Tue, 9 Jan 2007 17:05:55 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Luming Yu <luming.yu@gmail.com>
+cc: Richard Purdie <rpurdie@rpsys.net>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
+       Matt Domsch <Matt_Domsch@dell.com>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
+       Richard Hughes <hughsient@gmail.com>
+Subject: Re: [patch 1/5] video sysfs support - take 2: Add dev argument for
+ backlight_device_register.
+In-Reply-To: <3877989d0701090709n32f57048o495274849cbbf127@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0701091705030.17932@pentafluge.infradead.org>
+References: <200611080033.56035.luming.yu@gmail.com> 
+ <1167492935.5626.12.camel@localhost.localdomain>
+ <3877989d0701090709n32f57048o495274849cbbf127@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20070109170550.AFEF460C343@tzec.mtu.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
 
-> Hi all,
+> > To top it off, someone noticed some of the failures and fixed them but
+> > nobody thought to fix the drivers in drivers/video/backlight itself and
+> > a mac reference seems to have escaped too.
 > 
-> Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
-> an incremented version number, whether there has actually been any
-> change done to the code or configuration or not. This increases the
-> build time quite a bit.
-> 
-> I've tracked it down to include/linux/compile.h always being updated,
-> and this is because .version is updated. I couldn't find what is
-> causing .version to be updated each time though. Can anybody help
-> there? Was this change made on purpose or is this a bug which we should
-> fix? 
+> If my memory serves me well,  there is a patch for mac in mm.
+> Not sure other drivers in video/backlight. But I should have sent it
+> to some place.
+> Need to check.
 
-I have been bitten by this as well; I have tracked it down to defining
-CONFIG_KALLSYMS:
-
-define rule_vmlinux__
-        :
-        $(if $(CONFIG_KALLSYMS),,+$(call cmd,vmlinux_version))
-
-quiet_cmd_vmlinux_version = GEN     .version
-      cmd_vmlinux_version = set -e;                     \
-        if [ ! -r .version ]; then                      \
-          rm -f .version;                               \
-          echo 1 >.version;                             \
-        else                                            \
-          mv .version .old_version;                     \
-          expr 0$$(cat .old_version) + 1 >.version;     \
-        fi;                                             \
-        $(MAKE) $(build)=init
-
-
- Pondering about it, this may be a feature not a bug. Let's assume you have
-changed a single function name anywhere - you need to rebuild kallsyms
-(ergo vmlinux) for that.
-
-OTOH I do not know if kallsyms include also symbols from modules; if no,
-this is indeed a bug.
-
--andrey
+I sent a patch some time ago to Andrew Morton for the fbdev drivers in 
+the video directory. I belive that patch is main stream now.
 

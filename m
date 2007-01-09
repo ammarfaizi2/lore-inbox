@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932447AbXAIVcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932270AbXAIVpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbXAIVcJ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 16:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbXAIVcJ
+	id S932270AbXAIVpw (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 16:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbXAIVpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 16:32:09 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:45649 "EHLO smtp.osdl.org"
+	Tue, 9 Jan 2007 16:45:52 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:44355 "EHLO e4.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932443AbXAIVcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 16:32:08 -0500
-Date: Tue, 9 Jan 2007 13:31:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>
-Subject: Re: .version keeps being updated
-Message-Id: <20070109133121.194f3261.akpm@osdl.org>
-In-Reply-To: <20070109214421.281ff564.khali@linux-fr.org>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109170550.AFEF460C343@tzec.mtu.ru>
-	<20070109214421.281ff564.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S932270AbXAIVpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 16:45:52 -0500
+In-Reply-To: <200701091927.l09JRJXM021563@turing-police.cc.vt.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@watson.ibm.com
+MIME-Version: 1.0
+Subject: Re: mprotect abuse in slim
+X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
+Message-ID: <OF7B947612.0655A2A9-ON8525725E.00763EE0-8525725E.00785BD0@us.ibm.com>
+From: Mimi Zohar <zohar@us.ibm.com>
+Date: Tue, 9 Jan 2007 16:45:51 -0500
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
+ 01/09/2007 16:45:51,
+	Serialize complete at 01/09/2007 16:45:51
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2007 21:44:21 +0100
-Jean Delvare <khali@linux-fr.org> wrote:
+Valdis.Kletnieks@vt.edu wrote on 01/09/2007 02:27:19 PM:
 
-> So, Linus, Andrew, can you please take a look and revert or fix what
-> needs to be?
+>Which, unfortunately, creates incredibly brittle code when some attacker
+>reads the SLIM source code and finds a way to force the non-simple case
+>you ignore.
+> 
+>This is an area where you really need to do it *right*, or not at all.
 
-Am afraid to touch it.  Sam should be back on deck soon and will hopefully
-have time to fix this stuff up.
+For the non-simple case, it isn't that we 'ignore' the revocation,
+but we prevent the cause for demotion to occur.  The current status is
+that for those cases we can revoke, we demote the process and do the
+revocation, and for those cases which we can't revoke, we prevent the 
+process from being demoted.
 
-> This new behavior of the kernel build system is likely to
-> make developers angry pretty quickly.
-
-That might motivate them to fix it ;)
+Mimi Zohar

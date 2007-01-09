@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932547AbXAIXoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932546AbXAIXpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbXAIXoU (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 18:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbXAIXoU
+	id S932546AbXAIXpY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 18:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbXAIXpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 18:44:20 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:50951 "EHLO
-	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932547AbXAIXoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 18:44:19 -0500
-Date: Tue, 9 Jan 2007 17:44:18 -0600
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, tshighla@us.ibm.com, theotso@us.ibm.com
-Subject: Re: [PATCH 3/3] eCryptfs: Encrypted passthrough
-Message-ID: <20070109234418.GB32343@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20070109222107.GC16578@us.ibm.com> <20070109222337.GF16578@us.ibm.com> <20070109144203.ce1ed092.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 9 Jan 2007 18:45:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55843 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932546AbXAIXpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 18:45:22 -0500
+Date: Wed, 10 Jan 2007 00:45:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] local_t : Documentation - update
+Message-ID: <20070109234511.GB7798@elf.ucw.cz>
+References: <20061221001545.GP28643@Krystal> <20061223093358.GF3960@ucw.cz> <20070109031446.GA29426@Krystal> <20070109224100.GB6555@elf.ucw.cz> <20070109232155.GA25387@Krystal>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070109144203.ce1ed092.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20070109232155.GA25387@Krystal>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 02:42:03PM -0800, Andrew Morton wrote:
-> On Tue, 9 Jan 2007 16:23:37 -0600
-> Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Hi!
+
+> > AFAICT this fails to mention... Is local_t as big as int? As big as
+> > long? Or perhaps smaller because high bits may be needed for locking?
 > 
-> > +				page_virt = (char *)kmap(page);
+> Hi Pavel,
 > 
-> Do we _have_ to use kmap here?  It's slow and theoretically deadlocky.
-> kmap_atomic() is much preferred.
+> Here is an update that adds the information you mentionned in this reply and the
+> one to Andrew. Thanks for the comments.
 > 
-> Can the other kmap() calls in ecryptfs be converted?
-
-We will look into doing this.
-
-> We'd actually like to remove kmap() one day.  Not much chance of that, but
-> it's an objective.
+> Mathieu
 > 
-> > +				if (!page_virt) {
-> > +					rc = -ENOMEM;
-> > +					printk(KERN_ERR "Error mapping page\n");
-> > +					goto out;
-> > +				}
-> > +				memset(page_virt, 0, PAGE_CACHE_SIZE);
-> > +				if (page->index == 0) {
-> > +					rc = ecryptfs_read_xattr_region(
-> > +						page_virt, file->f_path.dentry);
 > 
-> Are we assured that ecryptfs_read_xattr_region() cannot overrun the
-> page?
+> index dfeec94..bd854b3 100644
+> --- a/Documentation/local_ops.txt
+> +++ b/Documentation/local_ops.txt
+> @@ -22,6 +22,13 @@ require disabling interrupts to protect from interrupt handlers and it permits
+>  coherent counters in NMI handlers. It is especially useful for tracing purposes
+>  and for various performance monitoring counters.
+>  
+> +Local atomic operations only guarantee variable modification atomicity wrt the
+> +CPU which owns the data. Therefore, care must taken to make sure that only one
+> +CPU writes to the local_t data. This is done by using per cpu data and making
+> +sure that we modify it from within a preemption safe context. It is however
+> +permitted to read local_t data from any CPU : it will then appear to be written
+> +out of order wrt other memory writes on the owner CPU.
 
-Yes:
+So it is "one cpu may write, other cpus may read", and as big as
+long. Are you sure obscure architectures (sparc?) can implement this
+in useful way? ... maybe yes, unless obscure architecture exists where
+second other cpu can see garbage data when first cpu writes into long
+...?
 
----
-int ecryptfs_read_xattr_region(char *page_virt, struct dentry*ecryptfs_dentry)
-{
-	ssize_t size;
-	int rc = 0;
 
-	size = ecryptfs_getxattr(ecryptfs_dentry, ECRYPTFS_XATTR_NAME,
-				 page_virt, ECRYPTFS_DEFAULT_EXTENT_SIZE);
----
-
-That winds up calling the lower filesystem's getxattr with
-ECRYPTFS_DEFAULT_EXTENT_SIZE as the size parameter. eCryptfs validates
-this value against PAGE_CACHE_SIZE in main.c::ecryptfs_init().
-
-> > +					set_header_info(page_virt, crypt_stat);
-> > +				}
-> 
-> The kernel must always run flush_dcache_page() after modifying a pagecache
-> page by hand.  Please review all of ecryptfs for this.
-
-We will work on some patches to address these issues.
-
-Mike
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

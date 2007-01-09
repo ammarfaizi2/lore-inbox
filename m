@@ -1,28 +1,33 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751386AbXAINRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751391AbXAINgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbXAINRR (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 08:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbXAINRR
+	id S1751391AbXAINgE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 08:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbXAINgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 08:17:17 -0500
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:4566 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751386AbXAINRR (ORCPT
+	Tue, 9 Jan 2007 08:36:04 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:3609 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751391AbXAINgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 08:17:17 -0500
-Date: Tue, 9 Jan 2007 14:17:21 +0100
+	Tue, 9 Jan 2007 08:36:03 -0500
+Date: Tue, 9 Jan 2007 14:36:05 +0100
 From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: Adrian Bunk <bunk@stusta.de>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
-Message-Id: <20070109141721.b823187c.khali@linux-fr.org>
-In-Reply-To: <20070109030226.GA2408@jupiter.solarsys.private>
-References: <20061219041315.GE6993@stusta.de>
-	<20070105095233.4ce72e7e.khali@linux-fr.org>
-	<20070107154441.GB22558@jupiter.solarsys.private>
-	<20070108121055.d25c8ffa.khali@linux-fr.org>
-	<20070109030226.GA2408@jupiter.solarsys.private>
+To: "J.H." <warthog9@kernel.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       hpa@zytor.com, webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+Message-Id: <20070109143605.b33e508e.khali@linux-fr.org>
+In-Reply-To: <1168327518.14963.38.camel@localhost.localdomain>
+References: <20061214223718.GA3816@elf.ucw.cz>
+	<20061216094421.416a271e.randy.dunlap@oracle.com>
+	<20061216095702.3e6f1d1f.akpm@osdl.org>
+	<458434B0.4090506@oracle.com>
+	<1166297434.26330.34.camel@localhost.localdomain>
+	<20070108222045.644ec0be.khali@linux-fr.org>
+	<1168291984.14963.25.camel@localhost.localdomain>
+	<20070109080115.d7314b7a.khali@linux-fr.org>
+	<1168327518.14963.38.camel@localhost.localdomain>
 X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,61 +35,31 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+Hi J.H.,
 
-On Mon, 8 Jan 2007 22:02:26 -0500, Mark M. Hoffman wrote:
-> Jean:
-> 
-> * Jean Delvare <khali@linux-fr.org> [2007-01-08 12:10:55 +0100]:
-> > Hi Mark,
+On Mon, 08 Jan 2007 23:25:18 -0800, J.H. wrote:
+> On Tue, 2007-01-09 at 08:01 +0100, Jean Delvare wrote:
+> > > they cache just fine and it's not that big of a deal, and there are much
+> > > longer poles in the tent right now.
 > > 
-> > On Sun, 7 Jan 2007 10:44:41 -0500, Mark M. Hoffman wrote:
-> > > It is fragile for this code to depend on link order; Adrian's obvious and
-> > > trivial cleanups broke it.  Not only that, but some FC kernels had/have the
-> > > link order reversed such that this quirk is broken anyway.
-> > 
-> > The former problem would be addressed just fine by a proper ordering
-> > (as Adrian's patch was attempting to bring) and a comment explaining
-> > the dependency.
+> > The images are being regenerated every other minute or so, so I doubt
+> > they can actually be cached.
 > 
-> That's still fragile.  Someone is bound to reorder the stupid things by
-> mistake (again).  I'm tired of screwing around with this quirk already.
-> The patch that I sent last May would have fixed it permanently.  And the
-> funny part is that *you* suggested the fix. ;)
+> Considering how many times the front page of kernel.org is viewed, yes
+> they are cached and sitting in ram on the kernel.org boxes.
 
-I seem to remember I suggested an improvement to make your fix better,
-but the fix was originally yours. Not that it really matters, anyway.
+This is client-side caching (or lack thereof) I was thinking about, to
+limit the number of requests received by the web server.
 
-> > > I sent a patch for this back in May:
-> > > http://lists.lm-sensors.org/pipermail/lm-sensors/2006-May/016113.html
-> > > 
-> > > There was some discussion on the linux-pci mailing list as well; can't seem to
-> > > find an archive of that though.  Basically, it was not understood how the FC
-> > > kernels could have a reversed link order.  I never followed up on it, my bad.
-> > 
-> > As long as it isn't explained, I call it a compiler bug in FC.
-> 
-> 1) What standard specifies the link order of objects in a module?  I have seen
-> other compilers reorder objects this way.
+> Realistically - we are arguing over something that barely even registers
+> as a blip within the entirety of the load on kernel.org, and we have
+> bigger things to worry about than a restructuring of our front page when
+> it won't greatly affect our loads.
 
-I can't say, sorry, I'm no compilation expert. It just sounded logical
-to me that the compiler should keep the code in the same order it found
-it in the sources, but it looks like this quirks code is very special.
-
-> 2) So what if it was a compiler bug?  I guess we don't allow patches to work
-> around compiler bugs.
-
-Depends, as far as I remember, workarounds for mainline gcc are OK, but
-workarounds for distro-specific gcc are not. But one may argue that
-your patch isn't adding a workaround but cleaning up the code, then it
-no longer matters.
-
-> 3) I've just confirmed that this quirk is still broken on recent FC6 kernels.
-> Perhaps they should have picked my patch out of their bugzilla, but they didn't.
-
-I am worried about the Intel/Asus SMBus quirk then, which affects many
-more users than the SiS SMBus one, and would suffer from a reordering as
-well.
+You will know better, I was only suggesting things based on my limited
+user experience. You have the actual numbers, you know where your
+time and energy will be best used. And thank you for taking care of
+it! :)
 
 -- 
 Jean Delvare

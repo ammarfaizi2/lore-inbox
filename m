@@ -1,130 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932330AbXAIVVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932431AbXAIV1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbXAIVVx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 16:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbXAIVVw
+	id S932431AbXAIV1K (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 16:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbXAIV1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 16:21:52 -0500
-Received: from iona.labri.fr ([147.210.8.143]:32963 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932330AbXAIVVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 16:21:52 -0500
-X-Greylist: delayed 1421 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 16:21:51 EST
-Date: Tue, 9 Jan 2007 21:57:58 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Sascha Sommer <saschasommer@freenet.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, rmk+mmc@arm.linux.org.uk
-Subject: Re: Experimental driver for Ricoh Bay1Controller SD Card readers
-Message-ID: <20070109205758.GA6643@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Sascha Sommer <saschasommer@freenet.de>,
-	LKML <linux-kernel@vger.kernel.org>, rmk+mmc@arm.linux.org.uk
-References: <200701070032.27234.saschasommer@freenet.de>
+	Tue, 9 Jan 2007 16:27:10 -0500
+Received: from mis011.exch011.intermedia.net ([64.78.21.10]:38344 "EHLO
+	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932431AbXAIV1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 16:27:09 -0500
+Message-ID: <45A40898.4040307@qumranet.com>
+Date: Tue, 09 Jan 2007 23:26:48 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="envbJBWh7q8WU6mo"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200701070032.27234.saschasommer@freenet.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Roland Dreier <rdreier@cisco.com>
+CC: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [kvm-devel] guest crash on 2.6.20-rc4
+References: <ada4pr1mqz2.fsf@cisco.com>
+In-Reply-To: <ada4pr1mqz2.fsf@cisco.com>
+Content-Type: multipart/mixed;
+ boundary="------------020502030200070109080303"
+X-OriginalArrivalTime: 09 Jan 2007 21:27:01.0235 (UTC) FILETIME=[E66F5C30:01C73434]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020502030200070109080303
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Roland Dreier wrote:
+> I'm running a 64-bit Fedora 6 install as a guest on a host running
+> 2.6.20-rc4 with the kvm-10 userspace release.  The CPU is a Xeon 5160
+> and I have 6 GB of RAM.  The guest is given 512 MB of memory.  I left
+> the guest idle overnight, and the makewhatis cron job seems to have
+> triggered this:
+>
+>     Unable to handle kernel paging request at ffff81000ba04000 RIP:
+>      [<ffffffff8025f402>] clear_page+0x16/0x44
+>   
 
-Hi,
+I've managed to reproduce a bug with similar characteristics: a write 
+fault into a present, writable kernel page.  The attached patch should 
+fix it.
 
-Sascha Sommer, le Sun 07 Jan 2007 00:32:26 +0100, a écrit :
-> Attached is a very experimental driver for a Ricoh SD Card reader that can be 
-> found in some notebooks like the Samsung P35.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-Yehaaaw! That reader can be found on DELL X300 too. It works almost fine
-for me, see attached dmesg. These I/O errors didn't prevent me from
-mounting a card, though.
 
-> In order to write this driver I hacked qemu to have access to the cardbus 
-> bridge containing this card. I then logged the register accesses of the 
-> windows xp driver and tryed to analyse them.
+--------------020502030200070109080303
+Content-Type: text/x-patch;
+ name="spurious-page-fault.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="spurious-page-fault.patch"
 
-Great to see people brave enough to do such tedious work :D
+Index: b/drivers/kvm/paging_tmpl.h
+===================================================================
+--- a/drivers/kvm/paging_tmpl.h	(revision 4270)
++++ b/drivers/kvm/paging_tmpl.h	(working copy)
+@@ -274,7 +274,7 @@
+ 	struct kvm_mmu_page *page;
+ 
+ 	if (is_writeble_pte(*shadow_ent))
+-		return 0;
++		return 1;
+ 
+ 	writable_shadow = *shadow_ent & PT_SHADOW_WRITABLE_MASK;
+ 	if (user) {
 
-> - I only tested with a 128 MB SD card, no idea what would be needed to support
->   other card types
-
-Unfortunately, I don't have other cards either.
-
-> - only tested with kernel 2.6.18
-
-Tested with 2.6.19 without source change.
-
-> apart from all these problems reading an image from my sd card seems to have 
-> worked ;) 
-
-The IO errors make dd stop on my box. I tried to set TIMEOUT to 1000
-(this is a slow card) without better results. Tell me if there are
-things I can test.
-
-I'm not subscribed to linux-kernel, so please remember to Cc me when
-posting updates, etc. so I can test them.
-
-Samuel
-
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=dmesg
-
-pccard: PCMCIA card inserted into slot 0
-pcmcia: registering new device pcmcia0.0
-sdricoh_cs: no version for "struct_module" found: kernel tainted.
-mmcblk0: mmc0:b370 SD128 123008KiB (ro)
- mmcblk0: p1
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-mmcblk0: error 1 sending read/write command
-end_request: I/O error, dev mmcblk0, sector 32
-Buffer I/O error on device mmcblk0, logical block 4
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-mmcblk0: error 1 sending read/write command
-end_request: I/O error, dev mmcblk0, sector 56
-Buffer I/O error on device mmcblk0, logical block 7
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-mmcblk0: error 1 sending read/write command
-end_request: I/O error, dev mmcblk0, sector 80
-Buffer I/O error on device mmcblk0, logical block 10
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-sdricoh_cs: timeout waiting for data
-mmcblk0: error 1 sending read/write command
-end_request: I/O error, dev mmcblk0, sector 112
-Buffer I/O error on device mmcblk0, logical block 14
-pccard: card ejected from slot 0
-
---envbJBWh7q8WU6mo--
+--------------020502030200070109080303--

@@ -1,70 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932546AbXAIXpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932526AbXAIX7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbXAIXpY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 18:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbXAIXpY
+	id S932526AbXAIX7V (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 18:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbXAIX7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 18:45:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55843 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932546AbXAIXpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 18:45:22 -0500
-Date: Wed, 10 Jan 2007 00:45:11 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] local_t : Documentation - update
-Message-ID: <20070109234511.GB7798@elf.ucw.cz>
-References: <20061221001545.GP28643@Krystal> <20061223093358.GF3960@ucw.cz> <20070109031446.GA29426@Krystal> <20070109224100.GB6555@elf.ucw.cz> <20070109232155.GA25387@Krystal>
+	Tue, 9 Jan 2007 18:59:21 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:64976 "EHLO
+	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932526AbXAIX7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 18:59:20 -0500
+Message-ID: <45A42670.703@wolfmountaingroup.com>
+Date: Tue, 09 Jan 2007 16:34:08 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109232155.GA25387@Krystal>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Jeff Garzik <jeff@garzik.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+References: <45A3FF32.1030905@wolfmountaingroup.com> <45A42385.7090904@garzik.org>
+In-Reply-To: <45A42385.7090904@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jeff Garzik wrote:
 
-> > AFAICT this fails to mention... Is local_t as big as int? As big as
-> > long? Or perhaps smaller because high bits may be needed for locking?
-> 
-> Hi Pavel,
-> 
-> Here is an update that adds the information you mentionned in this reply and the
-> one to Andrew. Thanks for the comments.
-> 
-> Mathieu
-> 
-> 
-> index dfeec94..bd854b3 100644
-> --- a/Documentation/local_ops.txt
-> +++ b/Documentation/local_ops.txt
-> @@ -22,6 +22,13 @@ require disabling interrupts to protect from interrupt handlers and it permits
->  coherent counters in NMI handlers. It is especially useful for tracing purposes
->  and for various performance monitoring counters.
->  
-> +Local atomic operations only guarantee variable modification atomicity wrt the
-> +CPU which owns the data. Therefore, care must taken to make sure that only one
-> +CPU writes to the local_t data. This is done by using per cpu data and making
-> +sure that we modify it from within a preemption safe context. It is however
-> +permitted to read local_t data from any CPU : it will then appear to be written
-> +out of order wrt other memory writes on the owner CPU.
-
-So it is "one cpu may write, other cpus may read", and as big as
-long. Are you sure obscure architectures (sparc?) can implement this
-in useful way? ... maybe yes, unless obscure architecture exists where
-second other cpu can see garbage data when first cpu writes into long
-...?
+> Jeff V. Merkey wrote:
+>
+>>
+>> I just finished pulling out a melted IDE flash drive out of a Shuttle 
+>> motherboard with the intel 945 chipset which claims to support
+>> SATA and IDE drives concurrently under Linux 2.6.18.
+>>
+>> The chip worked for about 30 seconds before liquifying in the 
+>> chassis.  I note that the 945 chipset in the shuttle PC had some serious
+>> issues recognizing 2 x SATA devices and a IDE device concurrently.   
+>> Are there known problems with the Linux drivers
+>> with these newer chipsets.
+>>
+>> One other disturbing issue was the IDE flash drive was configured 
+>> (and recognized) as /dev/hda during bootup, but when
+>> it got to the root mountint, even with root=/dev/hda set, it still 
+>> kept thinking the drive was at scsi (ATA) device (08,13)
+>> and kept crashing with VFS cannot find root FS errors.
+>
+>
+> We have two sets of ATA drivers now, and Intel motherboards support 
+> bazillion annoying IDE modes, so you will need to provide more info 
+> than this.
+>
+> Is the motherboard in combined mode?
 
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Yes.  "Enhanced mode" is how it is listed in the BIOS.
+
+> native mode?  AHCI or RAID mode?
+
+No RAID, just enhanced mode (SATA 3.0 + IDE)
+
+> What driver set did you pick?  
+
+
+Standard build = standard IDE + Intel PIIX + SATA + Intel ICP
+
+> is drivers/ide built in, modular, or disabled?  is drivers/ata built 
+> in, modular, or disabled?
+
+built in in all cases.
+
+>
+> The cannot-find-root-FS errors are definitely caused by driver and/or 
+> initrd misconfiguration.  The melted flash, I dunno, maybe you managed 
+> to get two drivers fighting over the same hardware.
+
+No.  Seems related to the chipset problems.  If I say "root=/dev/hda2" I 
+have better not be getting errors claiming device 08:13 could not mount 
+as root.  memory corruption?
+
+The melted flash seems power related (like pin 20 was live for some 
+reason on a standard IDE).
+
+Jeff
+
+>
+>     Jeff
+>
+>
+>
+>
+

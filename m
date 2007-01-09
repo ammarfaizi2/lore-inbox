@@ -1,214 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932174AbXAIQD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932178AbXAIQEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbXAIQD6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 11:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbXAIQD6
+	id S932178AbXAIQEq (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 11:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbXAIQEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 11:03:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2043 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932174AbXAIQD5 (ORCPT
+	Tue, 9 Jan 2007 11:04:46 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:44919 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932178AbXAIQEp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 11:03:57 -0500
-Date: Tue, 9 Jan 2007 17:04:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.38-rc1
-Message-ID: <20070109160401.GL25007@stusta.de>
-MIME-Version: 1.0
+	Tue, 9 Jan 2007 11:04:45 -0500
+Date: Tue, 9 Jan 2007 11:04:44 -0500
+To: Dirk <d_i_r_k_@gmx.net>
+Cc: Kasper Sandberg <lkml@metanurb.dk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Jay Vaughan <jv@access-music.de>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Gaming Interface
+Message-ID: <20070109160444.GC17269@csclub.uwaterloo.ca>
+References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com> <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]> <45A24176.9080107@gmx.net> <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net> <1168317631.3013.7.camel@localhost> <45A342AC.9080507@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45A342AC.9080507@gmx.net>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.37:
-- CVE-2006-4814: Fix incorrect user space access locking in mincore()
-- CVE-2006-5173: i386: save/restore eflags in context switch
-- CVE-2006-5749: Call init_timer() for ISDN PPP CCP reset state timer
-- CVE-2006-5755: x86_64: Don't leak NT bit into next task
-- CVE-2006-5757/CVE-2006-6060: grow_buffers() infinite loop fix
-- CVE-2006-5823: corrupted cramfs filesystems cause kernel oops
-- CVE-2006-6053: handle ext3 directory corruption better
-- CVE-2006-6054: ext2: skip pages past number of blocks in ext2_find_entry
-- CVE-2006-6056: hfs_fill_super returns success even if no root inode
-- CVE-2006-6106: Bluetooth: Add packet size checks for CAPI messages
+On Tue, Jan 09, 2007 at 08:22:20AM +0100, Dirk wrote:
+> If there is no problem with Linux gaming I should shut the hell up and 
+> start buying all these Linux games I keep hearing about and seeing in 
+> those TV commercials.
 
+There is no problem with linux gaming.  There is a problem with game
+development companies and their marketing decisions.  Unless you somehow
+make linux have 100% compatible directx and able to natively execute
+windows code, the game companies aren't going to give a @#$#.  They have
+a limited budget and for them it is more important to aim for 99% of the
+market than 100% of the market if it means saving 20 or 30% in
+development costs.  Even if it saves 5% in development cost, it makes
+sense financially.
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+Some companies of course realize that the installation base does not
+always equal the gamer installation base and write portable code in the
+first place using abstraction layers where needed, and stick to opengl
+and such.  This is why quake, and other titles from ID are ported to
+linux and mac and such.  Some companies believe the hype from microsoft
+about directx and write for that instead, which makes the games not
+portable to mac or linux or anything else.
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+The problem is not that linux doesn't have any decent stable api for
+games.  The problem is that it isn't directx which is what a lot of
+companies believe they want to use.
 
+I play neverwinters nights on my linux system.  I have never seen it on
+windows.  Linux uses opengl, while I have no idea if the windows version
+is opengl or directx or maybe lets you pick (some games offer a choice
+of rendering engine).  I do know the game runs great for the most part
+even though my hardware is below the minimum specs if I was running on
+windows (at least according to the box for the game).
 
-Changes since 2.6.16.37:
-
-Adrian Bunk (4):
-      fix the UML compilation
-      USB_RTL8150 must select MII to avoid link errors.
-      x86_64: re-add a newline to RESTORE_CONTEXT
-      Linux 2.6.16.38-rc1
-
-Andi Kleen (1):
-      x86_64: Don't leak NT bit into next task (CVE-2006-5755)
-
-Andrew Morton (2):
-      grow_buffers() infinite loop fix (CVE-2006-5757/CVE-2006-6060)
-      ibmtr section fixes
-
-Andrey Mirkin (1):
-      skip data conversion in compat_sys_mount when data_page is NULL
-
-Arnaud Patard (1):
-      ALSA: emu10k1: Fix outl() in snd_emu10k1_resume_regs()
-
-Badari Pulavarty (1):
-      Fix for shmem_truncate_range() BUG_ON()
-
-Chuck Ebbert (2):
-      x86_64: fix ia32 syscall count
-      ebtables: check struct type before computing gap
-
-Chuck Short (1):
-      drm: allow detection of new VIA chipsets
-
-Clemens Ladisch (1):
-      ALSA: snd_rtctimer: handle RTC interrupts with a tasklet
-
-Dave Airlie (1):
-      drm: Add the P4VM800PRO PCI ID.
-
-David Brownell (1):
-      SPI/MTD: mtd_dataflash oops prevention
-
-David L Stevens (1):
-      [IPV4/IPV6]: Fix inet{,6} device initialization order.
-
-David S. Miller (1):
-      [SOUND] Sparc CS4231: Use 64 for period_bytes_min
-
-Dirk Eibach (1):
-      i2c: fix broken ds1337 initialization
-
-Eric Sandeen (3):
-      hfs_fill_super returns success even if no root inode (CVE-2006-6056)
-      ext2: skip pages past number of blocks in ext2_find_entry (CVE-2006-6054)
-      handle ext3 directory corruption better (CVE-2006-6053)
-
-Fabrice Knevez (1):
-      [SUNKBD]: Fix sunkbd_enable(sunkbd, 0); obvious.
-
-Georg Chini (1):
-      [SOUND] Sparc CS4231: Fix IRQ return value and initialization.
-
-Jason Gaston (2):
-      PCI: irq: irq and pci_ids patch for Intel ICH9
-      i2c-i801: SMBus patch for Intel ICH9
-
-Jean Delvare (1):
-      V4L: cx88: Fix leadtek_eeprom tagging
-
-John Heffner (1):
-      TCP: Fix and simplify microsecond rtt sampling
-
-Linus Torvalds (2):
-      Fix incorrect user space access locking in mincore() (CVE-2006-4814)
-      i386: save/restore eflags in context switch (CVE-2006-5173)
-
-Marcel Holtmann (2):
-      Call init_timer() for ISDN PPP CCP reset state timer (CVE-2006-5749)
-      Bluetooth: Add packet size checks for CAPI messages (CVE-2006-6106)
-
-Maxime Bizon (1):
-      i2c-mv64xxx: Fix random oops at boot
-
-Mikael Pettersson (1):
-      USB: Fix alignment of buffer passed down to ->hub_control()
-
-Miklos Szeredi (1):
-      fuse: fix hang on SMP
-
-Paolo 'Blaisorblade' Giarrusso (1):
-      uml: fix processor selection
-
-Patrick McHardy (1):
-      NET_SCHED: Fix fallout from dev->qdisc RCU change
-
-Peter Zijlstra (1):
-      rtc: lockdep fix/workaround
-
-Phillip Lougher (1):
-      corrupted cramfs filesystems cause kernel oops (CVE-2006-5823)
-
-Robert Olsson (1):
-      [PKTGEN]: Fix module load/unload races.
-
-Rudolf Marek (1):
-      i2c-viapro: Add support for the VT8237A and VT8251
-
-Takashi Iwai (1):
-      ALSA: Fix initiailization of user-space controls
-
-Willy Tarreau (1):
-      rio: typo in bitwise AND expression.
-
-
- Documentation/i2c/busses/i2c-viapro   |    7 
- Makefile                              |    2 
- arch/i386/Kconfig.cpu                 |    3 
- arch/i386/kernel/entry.S              |    2 
- arch/i386/pci/irq.c                   |    6 
- arch/um/os-Linux/process.c            |    5 
- arch/um/os-Linux/skas/process.c       |    1 
- arch/um/sys-i386/unmap.c              |   11 -
- arch/um/sys-x86_64/unmap.c            |   11 -
- arch/x86_64/kernel/entry.S            |    4 
- arch/x86_64/kernel/setup64.c          |    4 
- drivers/char/drm/drm_pciids.h         |    4 
- drivers/char/rio/rio_linux.c          |    2 
- drivers/char/rtc.c                    |    5 
- drivers/i2c/busses/Kconfig            |   19 +-
- drivers/i2c/busses/i2c-i801.c         |    2 
- drivers/i2c/busses/i2c-mv64xxx.c      |    4 
- drivers/i2c/busses/i2c-viapro.c       |    8 +
- drivers/i2c/chips/ds1337.c            |    8 -
- drivers/input/keyboard/sunkbd.c       |    2 
- drivers/isdn/i4l/isdn_ppp.c           |    1 
- drivers/media/video/cx88/cx88-cards.c |    2 
- drivers/mtd/devices/mtd_dataflash.c   |    2 
- drivers/net/tokenring/ibmtr.c         |    4 
- drivers/usb/core/hcd.c                |    3 
- drivers/usb/net/Kconfig               |    1 
- fs/buffer.c                           |   21 ++
- fs/compat.c                           |    2 
- fs/cramfs/inode.c                     |    2 
- fs/ext2/dir.c                         |    8 +
- fs/ext3/dir.c                         |    3 
- fs/ext3/namei.c                       |    9 +
- fs/fuse/dir.c                         |   29 ++--
- fs/fuse/file.c                        |   12 +
- fs/fuse/inode.c                       |    4 
- fs/hfs/super.c                        |    2 
- include/asm-i386/system.h             |    8 -
- include/asm-x86_64/ia32_unistd.h      |    2 
- include/asm-x86_64/system.h           |   22 ++-
- include/linux/pci_ids.h               |    7 
- mm/mincore.c                          |  183 +++++++++++---------------
- mm/shmem.c                            |    7 
- net/bluetooth/cmtp/capi.c             |   39 ++++-
- net/bridge/netfilter/ebtables.c       |    3 
- net/core/dev.c                        |   14 +
- net/core/pktgen.c                     |   20 ++
- net/ipv4/devinet.c                    |    5 
- net/ipv4/tcp_input.c                  |   16 +-
- net/ipv6/addrconf.c                   |    8 -
- net/sched/cls_api.c                   |    4 
- net/sched/sch_api.c                   |   16 +-
- net/sched/sch_generic.c               |   66 ++-------
- sound/core/control.c                  |    1 
- sound/core/rtctimer.c                 |   17 +-
- sound/pci/emu10k1/emu10k1_main.c      |    4 
- sound/sparc/cs4231.c                  |   26 +--
- 56 files changed, 413 insertions(+), 270 deletions(-)
-
+--
+Len Sorensen

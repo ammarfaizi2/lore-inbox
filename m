@@ -1,102 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751089AbXAIFu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751091AbXAIFwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbXAIFu7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 00:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbXAIFu7
+	id S1751091AbXAIFwE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 00:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbXAIFwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 00:50:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4451 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751089AbXAIFu6 (ORCPT
+	Tue, 9 Jan 2007 00:52:03 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:58199 "EHLO
+	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751091AbXAIFwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 00:50:58 -0500
-Date: Tue, 9 Jan 2007 06:51:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sami Farin <7atbggg02@sneakemail.com>, David Chinner <dgc@sgi.com>,
-       xfs-masters@oss.sgi.com, Pavel Machek <pavel@ucw.cz>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       bluez-devel@lists.sourceforge.net, netdev@vger.kernel.org,
-       Komuro <komurojun-mbn@nifty.com>,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
-       Craig Schlenter <craig@codefountain.com>,
-       Peter Osterlund <petero2@telia.com>, Patrick McHardy <kaber@trash.net>,
-       netfilter-devel@lists.netfilter.org, Michael Reske <micha@gmx.com>,
-       Ayaz Abdulla <aabdulla@nvidia.com>, jgarzik@pobox.com,
-       Brice Goglin <brice@myri.com>, Robert Hancock <hancockr@shaw.ca>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: 2.6.20-rc4: known regressions with patches (v2)
-Message-ID: <20070109055101.GH25007@stusta.de>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 9 Jan 2007 00:52:01 -0500
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+From: Nigel Cunningham <nigel@nigel.suspend2.net>
+Reply-To: nigel@nigel.suspend2.net
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+In-Reply-To: <20070109050918.GE25007@stusta.de>
+References: <20061214223718.GA3816@elf.ucw.cz>
+	 <20061216094421.416a271e.randy.dunlap@oracle.com>
+	 <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
+	 <1166297434.26330.34.camel@localhost.localdomain>
+	 <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
+	 <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
+	 <1168316975.6948.2.camel@nigel.suspend2.net>
+	 <20070109050918.GE25007@stusta.de>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 16:51:59 +1100
+Message-Id: <1168321919.6948.22.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
-with patches available.
+Hi again.
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+On Tue, 2007-01-09 at 06:09 +0100, Adrian Bunk wrote:
+> On Tue, Jan 09, 2007 at 03:29:35PM +1100, Nigel Cunningham wrote:
+> > Hi again.
+> > 
+> > On Sat, 2007-01-06 at 21:17 -0800, H. Peter Anvin wrote:
+> > > Nigel Cunningham wrote:
+> > > > On Tue, 2006-12-26 at 08:49 -0800, H. Peter Anvin wrote:
+> > > >> The two things git users can do to help is:
+> > > >>
+> > > >> 1. Make sure your alternatives file is set up correctly;
+> > > >> 2. Keep your trees packed and pruned, to keep the file count down.
+> > > >>
+> > > >> If you do this, the load imposed by a single git tree is fairly negible.
+> > > > 
+> > > > Sorry for the slow reply, and the ignorance... what's an alternatives
+> > > > file? I've never heard of them before.
+> > > > 
+> > > 
+> > > Just a minor correction; it's the "alternates" file 
+> > > (objects/info/alternates).
+> > 
+> > I went looking for documentation on how to use the alternates feature,
+> > and found an email from September 2005
+> > (http://www.ussg.iu.edu/hypermail/linux/kernel/0509.1/2860.html) that
+> > says:
+> > 
+> > <quote>
+> > /pub/scm/linux/kernel/git/$u/$tree
+> > 
+> > Of course, you may have more than one such $tree. The
+> > suggestion by Linus was to do (please do not do this yet -- that
+> > is what this message is about):
+> > 
+> > $ cd /pub/scm/linux/kernel/git/$u/$tree
+> > $ cat /pub/scm/linux/kernel/git/torvalds/linux-2.6/objects \
+> > >objects/info/alternates
+> > $ GIT_DIR=. git prune
+> > </quote>
+> > 
+> > Are these instructions still correct in the case of master.kernel.org?
+> 
+> It works for me (instead of "git prune" I was using 
+> "git-repack -a -d -l -f").
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+There's a typo in the above commands. It should be echo instead of cat.
+In addition, just typing "git prune" didn't save much. When I did
+git-prune -a -l -d, however, all of my trees shrunk to just a couple of
+megs (just my deltas, I assume).
 
+Maybe this will be helpful to someone else.
 
-Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
-References : http://lkml.org/lkml/2007/1/5/308
-Submitter  : Sami Farin <7atbggg02@sneakemail.com>
-Handled-By : David Chinner <dgc@sgi.com>
-Patch      : http://lkml.org/lkml/2007/1/7/201
-Status     : patch available
+Regards,
 
+Nigel
 
-Subject    : bluetooth oopses because of multiple kobject_add()
-References : http://lkml.org/lkml/2007/1/2/101
-Submitter  : Pavel Machek <pavel@ucw.cz>
-Handled-By : Marcel Holtmann <marcel@holtmann.org>
-Patch      : http://lkml.org/lkml/2007/1/2/147
-Status     : patch available
-
-
-Subject    : ftp: get or put stops during file-transfer
-References : http://lkml.org/lkml/2006/12/16/174
-Submitter  : Komuro <komurojun-mbn@nifty.com>
-Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
-Handled-By : Craig Schlenter <craig@codefountain.com>
-             YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Patch      : http://lkml.org/lkml/2007/1/9/5
-Status     : patch available
-
-
-Subject    : nf_conntrack_netbios_ns.c causes Oops
-References : http://lkml.org/lkml/2007/1/7/188
-Submitter  : Peter Osterlund <petero2@telia.com>
-Caused-By  : Patrick McHardy <kaber@trash.net>
-             commit 92703eee4ccde3c55ee067a89c373e8a51a8adf9
-Handled-By : Patrick McHardy <kaber@trash.net>
-Patch      : http://lkml.org/lkml/2007/1/8/290
-Status     : patch available
-
-
-Subject    : forcedeth.c 0.59: problem with sideband managment
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7684
-Submitter  : Michael Reske <micha@gmx.com>
-Handled-By : Ayaz Abdulla <aabdulla@nvidia.com>
-Patch      : http://bugzilla.kernel.org/show_bug.cgi?id=7684
-Status     : patch available
-
-
-Subject    : nVidia CK804 chipset: not detecting HT MSI capabilities
-References : http://lkml.org/lkml/2007/1/5/215
-Submitter  : Brice Goglin <brice@myri.com>
-             Robert Hancock <hancockr@shaw.ca>
-Handled-By : Brice Goglin <brice@myri.com>
-Patch      : http://lkml.org/lkml/2007/1/5/215
-Status     : patch available

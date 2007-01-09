@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750906AbXAICFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750908AbXAICHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbXAICFs (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 21:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbXAICFs
+	id S1750908AbXAICHc (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 21:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbXAICHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 21:05:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57175 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750905AbXAICFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 21:05:47 -0500
-Subject: Re: Linux 2.6.20-rc4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Sylvain Munaut <tnt@246tNt.com>,
-       Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linuxppc-dev@ozlabs.org,
-       Linus Torvalds <torvalds@osdl.org>, paulus@samba.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20070109005624.GA598@suse.de>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	 <200701081550.27748.m.kozlowski@tuxland.pl> <45A25C17.5070606@246tNt.com>
-	 <1168303139.22458.246.camel@localhost.localdomain>
-	 <20070109005624.GA598@suse.de>
-Content-Type: text/plain
-Date: Tue, 09 Jan 2007 13:05:23 +1100
-Message-Id: <1168308323.22458.254.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 8 Jan 2007 21:07:32 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:2693 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750908AbXAICHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 21:07:31 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Intel Core Duo/Duo2 T2300/E6400 - Hyper-Threading (the absence of)
+Date: Mon, 8 Jan 2007 18:06:20 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEOGAMAC.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20070108094432.GF5276@curie-int.orbis-terrarum.net>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 08 Jan 2007 19:09:13 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 08 Jan 2007 19:09:13 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-08 at 16:56 -0800, Greg KH wrote:
-> On Tue, Jan 09, 2007 at 11:38:59AM +1100, Benjamin Herrenschmidt wrote:
-> > On Mon, 2007-01-08 at 15:58 +0100, Sylvain Munaut wrote:
-> > > Don't build ohci as module for now.
-> > > A fix for that is already in gregkh usb tree for 2.6.21
-> > 
-> > Do you mean that as-is, powerpc defconfigs cannot build USB as a module
-> > in 2.6.20 ? That is unacceptable as a regression. We need a fix in
-> > 2.6.20.
-> > 
-> > Greg, what is the status there ?
-> 
-> Hm, for some reason I thought your patches were not needed until 2.6.21.
 
-My endian patches aren't, but Sylvain' are based on mines so ... Maybe
-if Sylvain rebases his ?
+> On two of my new machines, with Intel Core Duo T2300 and Core2 Duo E6400
+> chips respectively, I noticed some weirdness in how many CPUs are
+> present.
+>
+> If the hyper-threading bit is present in the CPU info, should there
+> always be a an extra CPU presented to the system per physical core?
 
-> Should I forward them on to Linus now for 2.6.20?  Are they required for
-> ppc to build?
+No. That just means the CPU supports hyper-threading technology. That
+doesn't mean it actually has an extra CPU per physical core, or that even if
+it did, that that core was enabled.
 
-Sylvain fixes are. My endian patches are for ps3 and toshiba celleb,
-none of which is fully merged in 2.6.20 so they are fine to wait. It's
-mostly a matter of being a PITA to rebase Sylvain stuff to apply before
-mine and rebase mine on top of his I suppose :-)
+> Both the Core1 and Core2 chips I have the ht bit set, but present only
+> their two physical cores to the system. No access to the hyper-threading
+> capabilities at all. I also see no configuration options in the BIOS to
+> enable or disable hyper-threading. That is, /proc/cpuinfo and all
+> topology data only shows 2 CPUs present, and that they are not the HT
+> pair.
+> (CONFIG_NR_CPUS=8 is set).
 
-Ben.
+Intel considers multiple physical cores on a chip to be hyper-threading too.
+HT is a marketing term, not a technical one.
+
+> (This was originally triggered by somebody else's code that read the CPU
+> flags, saw hyper-threading, and decided there were 2x cpus for each
+> physical core. Said code has already been taken out back and shot
+> repeatedly).
+
+Yeah, that's wrong for many reasons. Even if the CPU does support an extra
+logical core per physical core, it may or may not be enabled and in use.
+Basically, the HT bit being set tells you that you should continue to
+determine the number of logical and physical cores present. It's just a step
+in the detection sequence.
+
+DS
+
 

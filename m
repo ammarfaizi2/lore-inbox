@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXAIAZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750778AbXAIA0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbXAIAZH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 19:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbXAIAZH
+	id S1750778AbXAIA0F (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 19:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbXAIA0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 19:25:07 -0500
-Received: from main.gmane.org ([80.91.229.2]:36258 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750774AbXAIAZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 19:25:06 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Date: Tue, 9 Jan 2007 01:19:48 +0100
-Message-ID: <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
-References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-221-49-157.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
-Cc: linux-fsdevel@vger.kernel.org
+	Mon, 8 Jan 2007 19:26:05 -0500
+Received: from twinlark.arctic.org ([207.29.250.54]:36882 "EHLO
+	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750778AbXAIA0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 19:26:04 -0500
+Date: Mon, 8 Jan 2007 16:26:02 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: ak@muc.de, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch] faster vgetcpu using sidt
+In-Reply-To: <Pine.LNX.4.64.0701061807530.26307@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.64.0701081622270.12282@twinlark.arctic.org>
+References: <Pine.LNX.4.64.0701061807530.26307@twinlark.arctic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2007 15:51:31 -0500, Erez Zadok wrote:
+On Sat, 6 Jan 2007, dean gaudet wrote:
 
-> Now, we've discussed a number of possible solutions.  Thanks to suggestions
-> we got at OLS, we discussed a way to hide the lower namespace, or make it
-> readonly, using existing kernel facilities.  But my understanding is that
-> even it'd work, it'd only address new processes: if an existing process has
-> an open fd in a lower branch before we "lock up" the lower branch's name
-> space, that process may still be able to make lower-level changes.
-> Detecting such processes may not be easy.  What to do with them, once
-> detected, is also unclear.  We welcome suggestions.
+> below is a patch which improves vgetcpu latency on all x86_64 
+> implementations i've tested.
+> 
+> Nathan Laredo pointed out the sgdt/sidt/sldt instructions are 
+> userland-accessible and we could use their limit fields to tuck away a few 
+> bits of per-cpu information.
+...
 
-As a simple user without much knowledge of kernel internals, much less
-so filesystems, couldn't something based on the same principle of
-lsof+fam be used to handle these situations? lsof, if I'm not
-mistaken, can tell a user if someone (and who) has fd opened on a file
-system; and fam can notify other processes that a particular file has
-been modified. Unionfs could use something like lsof (or som similar
-ad hoc solution) to see if something has anything opened on a
-filesystem, and it could use something like fam to detect changes in
-the underlying filesystem and flush caches as appropriate.
+i got a hold of a p4 (model 4) and ran the timings there:
 
-Of course, this wouldn't solve "concurrent changes" problems, but this
-could be made possible by having a system to synchronize locks across
-filesystems.
+                        baseline        patched
+                no cache        cache
+k8 pre-revF        21             14      16
+k8 revF            31             14      17
+core2              38             12      17
+p4                 49             24      37
 
--- 
-Giuseppe "Oblomov" Bilotta
+not as good as i hoped... i'll have to put the cache back in just for the 
+p4... so i'll respin my patch with the cache back in place.
 
-[W]hat country can preserve its liberties, if its rulers are not
-warned from time to time that [the] people preserve the spirit of
-resistance? Let them take arms...The tree of liberty must be
-refreshed from time to time, with the blood of patriots and
-tyrants.
-	-- Thomas Jefferson, letter to Col. William S. Smith, 1787
+another thought occured to me -- 64-bit processes can't actually use their 
+LDT can they?  in that case i could probably use sldt (faster than sidt) 
+for 64-bit procs and fallback to sidt for 32-bit emulation (which doesn't 
+exist for this vsyscall yet anyhow).
 
+let me know if you have any other feedback.
+
+thanks
+-dean

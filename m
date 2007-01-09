@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932207AbXAIQ2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932214AbXAIQ3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbXAIQ2S (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 11:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAIQ2S
+	id S932214AbXAIQ3Q (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 11:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAIQ3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 11:28:18 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:51343 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932204AbXAIQ2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 11:28:16 -0500
-Date: Tue, 9 Jan 2007 08:23:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-cc: Theodore Tso <tytso@mit.edu>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: How git affects kernel.org performance
-In-Reply-To: <368329554.17014@ustc.edu.cn>
-Message-ID: <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
-References: <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
- <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
- <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
- <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org>
- <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org>
- <368329554.17014@ustc.edu.cn>
+	Tue, 9 Jan 2007 11:29:16 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:4641 "EHLO
+	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932208AbXAIQ3O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 11:29:14 -0500
+X-IronPort-AV: i="4.13,164,1167638400"; 
+   d="scan'208"; a="758647403:sNHT77563234"
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Divy Le Ray <divy@chelsio.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
+Subject: Re: [PATCH 1/10] cxgb3 - main header files
+X-Message-Flag: Warning: May contain useful information
+References: <20061220124125.6286.17148.stgit@localhost.localdomain>
+	<45918CA4.3020601@garzik.org> <45A36C22.6010009@chelsio.com>
+	<45A36E59.30500@garzik.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 09 Jan 2007 08:28:59 -0800
+In-Reply-To: <45A36E59.30500@garzik.org> (Jeff Garzik's message of "Tue, 09 Jan 2007 05:28:41 -0500")
+Message-ID: <adamz4scgfo.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 Jan 2007 16:29:02.0557 (UTC) FILETIME=[45E998D0:01C7340B]
+Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim3002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > > You can grab the monolithic patch at this URL:
+ > > http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+ > 
+ > this is in my queue, thanks.  Sorry I didn't indicate that earlier.
 
+When do you plan to merge it?  For 2.6.20 or .21?
 
-On Tue, 9 Jan 2007, Fengguang Wu wrote:
-> > 
-> > The fastest and probably most important thing to add is some readahead
-> > smarts to directories --- both to the htree and non-htree cases.  If
-> 
-> Here's is a quick hack to practice the directory readahead idea.
-> Comments are welcome, it's a freshman's work :)
+I'm trying to understand when the RDMA stuff that depends on the
+ethernet driver can be merged.
 
-Well, I'd probably have done it differently, but more important is whether 
-this actually makes a difference performance-wise. Have you benchmarked it 
-at all?
-
-Doing an
-
-	echo 3 > /proc/sys/vm/drop_caches
-
-is your friend for testing things like this, to force cold-cache 
-behaviour..
-
-		Linus
+Thanks,
+  Roland

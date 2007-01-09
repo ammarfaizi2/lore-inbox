@@ -1,71 +1,126 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751177AbXAIL2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751245AbXAIL2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbXAIL2e (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 06:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbXAIL2e
+	id S1751245AbXAIL2n (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 06:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbXAIL2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 06:28:34 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:7124 "EHLO
+	Tue, 9 Jan 2007 06:28:42 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:8282 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751177AbXAIL2e (ORCPT
+	with ESMTP id S1751253AbXAIL2l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 06:28:34 -0500
+	Tue, 9 Jan 2007 06:28:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bB4lHKINCYSck3qpQjwJQxhEFZeNvelu9nHIjg2iLOWE5FqS6eCIzfNgJZlf1le1mBgk7QsnuTBhfBPvIEjy7nxvb1JoAkRQaX5sTF45ftfTb8gbaJjywibncEVzUtjxXmVjQiqn5zdFQKlR3vIZnpbHA9yjrH/slL4vtsnJKL4=
-Message-ID: <6f61137b0701090328r1a99db06s7c687b1a40e40bdd@mail.gmail.com>
-Date: Tue, 9 Jan 2007 12:28:32 +0100
-From: "Maarten Vanraes" <maarten.vanraes@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: AHCI IDENTIFY problem only on x86_64
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45A37A9B.2000505@garzik.org>
+        b=Kt6K2qN/6CFP39tAr+VjN3EFFrgquOY91Ycn0LKbncMTyOloZvCE6mw/46dWDWpJvsVbi1eBkyGC2zcNW2i34EUkoNpVzTpjgJ3P9eIoyboy2JTMZcuAAD0dpjyhBFmI5TGev/5KQF9XmzfPraWAA62JYapCysvFV4mGwNt0gSM=
+Message-ID: <5767b9100701090328o4b78fd4x2b18a42a996608d9@mail.gmail.com>
+Date: Tue, 9 Jan 2007 19:28:40 +0800
+From: "Conke Hu" <conke.hu@gmail.com>
+To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+Subject: Re: [PATCH 1/3] atiixp.c: remove unused code
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <58cb370e0701061812s49c4b1f5p5c5e99e5eea3bb89@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <6f61137b0701090235g2ea3f4a2j2d5e985ef70b142a@mail.gmail.com>
-	 <45A371E3.9090103@garzik.org>
-	 <6f61137b0701090247l6077cbb8k91eec388779c33cd@mail.gmail.com>
-	 <45A37497.6020505@garzik.org>
-	 <6f61137b0701090311gb82f392l626973b11d8911e9@mail.gmail.com>
-	 <45A37A9B.2000505@garzik.org>
+References: <5767b9100701060411h13324086uf6552a5166641534@mail.gmail.com>
+	 <58cb370e0701061812s49c4b1f5p5c5e99e5eea3bb89@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, fine, but it is fixed, you are sure?
+On 1/7/07, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> On 1/6/07, Conke Hu <conke.hu@gmail.com> wrote:
+> > A previous patch to atiixp.c was removed but some code has not been
+>
+> This one?
+>
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ab17443a3df35abe4b7529e83511a591aa7384f3
+>
+> Doesn't it break existing setups without giving ANY warning?
+>
+> theoretical (I don't have hardware in question) scenario:
+> - user uses atiixp and has modular libata/ahci (or no libata/ahci et all)
+> - user does kernel upgrade
+> - boot fails
+> - ...
+>
+> If this is true please add something like
+>
+> printk(KERN_WARNING "PCI: setting SB600 SATA to AHCI mode"
+> " (please use ahci driver instead of atiixp)\n");
+>
+> to quirk_sb600_sata() so people will at least know what is wrong...
+>
+> > cleaned. Now we remove these code sine they are no use any longer.
+>
+> Acked-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+>
+> [ but the patch is line wrapped and unfortunately doesn't apply ]
+>
+> PS: please always cc: linux-ide@vger.kernel.org on PATA/SATA patches
+>
+> Thanks,
+> Bart
+>
 
-i'll mention it to the people then.
 
-thanks
+Hi Bart,
+    I've tried to access the following link to make sure which it is,
+but failed. The internet here   is almost broken.
+    http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ab17443a3df35abe4b7529e83511a591aa7384f3
 
-2007/1/9, Jeff Garzik <jeff@garzik.org>:
-> Maarten Vanraes wrote:
-> > so, the problem is already solved then? at what minimal kernel version
-> > was that problem solved?
-> >
-> > i didn't see it in the changelogs, but i may not have seen them all...
-> >
-> > If i know the version, i can submit the info to them...
->
-> The SATA drivers have seen /hundreds/ of changes since your kernel was
-> released, and the problem you describe is a symptom of /multiple/
-> problems that were fixed in the following kernels.
->
-> It's unfortunately your task, and the task of the 2.6.16.* maintainer,
-> to track this down further if you care.  Most developers concentrate on
-> the current kernel, otherwise we wind up fixing the same bugs over and
-> over again.
->
-> That's what distros pay people to do, care about older kernels...
->
->         Jeff
->
->
->
->
+   I sent out 2 patches for the same SB600 legacy IDE issue. the later
+(sb600 pci qurik) is better so we should clean the previous patch
+which was applied to atiixp.c. -- that is what this patch does.
 
+    BTW, I re-create and re-send the patch (see below) based on
+2.6.20-rc4, in last patch I fogot to rename atiixp.c.1 to atiixp.c
+which may lead to patch fail, nothing else different.
+    And maybe no need to re-ACK if last one is accepted:)
+    Thanks!
 
--- 
-Alien is my name and head-biting is my game
+--------------------
+--- linux-2.6.20-rc4/drivers/ide/pci/atiixp.c.1	2007-01-09
+15:19:05.000000000 +0800
++++ linux-2.6.20-rc4/drivers/ide/pci/atiixp.c	2007-01-09
+15:17:54.000000000 +0800
+@@ -320,20 +320,6 @@ static void __devinit init_hwif_atiixp(i
+ 	hwif->drives[0].autodma = hwif->autodma;
+ }
+
+-static void __devinit init_hwif_sb600_legacy(ide_hwif_t *hwif)
+-{
+-
+-	hwif->atapi_dma = 1;
+-	hwif->ultra_mask = 0x7f;
+-	hwif->mwdma_mask = 0x07;
+-	hwif->swdma_mask = 0x07;
+-
+-	if (!noautodma)
+-		hwif->autodma = 1;
+-	hwif->drives[0].autodma = hwif->autodma;
+-	hwif->drives[1].autodma = hwif->autodma;
+-}
+-
+ static ide_pci_device_t atiixp_pci_info[] __devinitdata = {
+ 	{	/* 0 */
+ 		.name		= "ATIIXP",
+@@ -342,13 +328,7 @@ static ide_pci_device_t atiixp_pci_info[
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x48,0x01,0x00}, {0x48,0x08,0x00}},
+ 		.bootable	= ON_BOARD,
+-	},{	/* 1 */
+-		.name		= "ATI SB600 SATA Legacy IDE",
+-		.init_hwif	= init_hwif_sb600_legacy,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	}
++	},
+ };
+
+ /**

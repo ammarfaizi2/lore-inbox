@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751178AbXAIOjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932111AbXAIOkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbXAIOjf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 09:39:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbXAIOjf
+	id S932111AbXAIOkW (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 09:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbXAIOkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 09:39:35 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58630 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751178AbXAIOje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 09:39:34 -0500
-Date: Tue, 9 Jan 2007 15:39:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Kawai, Hidehiro" <hidehiro.kawai.ez@hitachi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, james.bottomley@steeleye.com,
-       Satoshi OSHIMA <soshima@redhat.com>,
-       "Hideo AOKI@redhat" <haoki@redhat.com>,
-       sugita <yumiko.sugita.yf@hitachi.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] binfmt_elf: core dump masking support
-Message-ID: <20070109143912.GC19787@elf.ucw.cz>
-References: <457FA840.5000107@hitachi.com> <20061213132358.ddcaaaf4.akpm@osdl.org> <20061220154056.GA4261@ucw.cz> <45A2EADF.3030807@hitachi.com>
-MIME-Version: 1.0
+	Tue, 9 Jan 2007 09:40:22 -0500
+Received: from main.gmane.org ([80.91.229.2]:56929 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751187AbXAIOkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 09:40:20 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: pierre Tardy <tardyp@gmail.com>
+Subject: Re: [RFC] New MMC driver model
+Date: Tue, 9 Jan 2007 14:25:37 +0000 (UTC)
+Message-ID: <loom.20070109T150821-717@post.gmane.org>
+References: <449553E5.9030004@drzeus.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45A2EADF.3030807@hitachi.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 192.88.166.35 (Mozilla/5.0 (X11; U; Linux i686; fr; rv:1.8.1.1) Gecko/20061208 Firefox/2.0.0.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pierre Ossman <drzeus-list <at> drzeus.cx> writes:
 
-> > > When a new process is created, the process inherits the coremask
-> > > setting from its parent. It is useful to set the coremask before
-> > > the program runs. For example:
-> > > 
-> > >   $ echo 1 > /proc/self/coremask
-> > >   $ ./some_program
-> >
-> > User can already ulimit -c 0 on himself, perhaps we want to use same
-> > interface here? ulimit -cmask=(bitmask)?
+>
+> Register functions
+> ==================
 > 
-> Are you saying that 1) it is good to change ulimit (shell programs)
-> so that shell programs will read/write /proc/self/coremask when
-> the -cmask option is given to ulimit?
-> Or, 2) it is good to change ulimit and get/setrlimit so that shell
-> programs will invoke get/setrlimit with new parameter?
+> I also intend to write a couple of register functions (sdio_read[bwl])
+> so that card drivers doesn't have to deal with MMC requests more than
+> necessary.
 
-I'm trying to say 2).
+Good idea. Another need may be a sdio_read[bwl]_sync, which will poll for the
+end of the cmd52s, instead of waiting for the irq. This polling is faster than
+wait_for_completion/irq/tasklet/complete mechanism, which involve several
+context switches. 
 
-> If the changes are acceptable to bash or other shell community, I think
-> the first approach is nice.
-> But the second approach is problematic because the bitmask doesn't
-> conform to the usage of setrlimit.  You know, setrlimit controls amount
-> of resources the system can use by the soft limit and hard limit.
-> These limitations don't suit for the bitmask.
+>  Endianness can also be handled there (SDIO are always LE).
+I dont remember sdio spec forcing HW registers to be LE. Function 0 registers
+are (BLKSZ for ex), but Function 1-7 register may be BE if the designers found
+an advantage to it..
 
-Well, you can have it as set of 0-1 "limits"...
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+
+

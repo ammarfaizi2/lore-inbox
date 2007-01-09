@@ -1,50 +1,32 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932434AbXAIWEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932436AbXAIWFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbXAIWEz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 17:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbXAIWEz
+	id S932436AbXAIWFA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 17:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbXAIWFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 17:04:55 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:47400 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932434AbXAIWEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 17:04:54 -0500
-Date: Tue, 9 Jan 2007 14:04:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, "Steven M. Christey" <coley@mitre.org>
-Subject: Re: [2.6 patch] x86_64: re-add a newline to RESTORE_CONTEXT
-Message-Id: <20070109140424.5f96de69.akpm@osdl.org>
-In-Reply-To: <200701091201.21146.ak@suse.de>
-References: <20070109025516.GC25007@stusta.de>
-	<200701091201.21146.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Jan 2007 17:05:00 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:48428 "EHLO
+	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932436AbXAIWE6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 17:04:58 -0500
+To: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
+Cc: rolandd@cisco.com, openib-general@openib.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 2.6.20] ehca: use proper flag for get_zeroed_page() to prevent BUG:scheduling while atomic...
+X-Message-Flag: Warning: May contain useful information
+References: <200701091804.14297.hnguyen@linux.vnet.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 09 Jan 2007 14:04:54 -0800
+In-Reply-To: <200701091804.14297.hnguyen@linux.vnet.ibm.com> (Hoang-Nam Nguyen's message of "Tue, 9 Jan 2007 18:04:14 +0100")
+Message-ID: <adazm8r3lh5.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 Jan 2007 22:04:55.0227 (UTC) FILETIME=[31D700B0:01C7343A]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2007 12:01:21 +0100
-Andi Kleen <ak@suse.de> wrote:
-
-> On Tuesday 09 January 2007 03:55, Adrian Bunk wrote:
-> > RESTORE_CONTEXT lost a newline in 
-> > commit 658fdbef66e5e9be79b457edc2cbbb3add840aa9:
-> > http://www.mail-archive.com/kgdb-bugreport@lists.sourceforge.net/msg00559.html
-> 
-> I don't think we should add such changes for external patchkits.
-> 
-> In general kgdb shouldn't add any patches at all. If the existing 
-> hooks are not enough they should submit their changes needed so
-> that it can just work.
-> 
-
-But the patch is a bugfix.  Without it, you cannot do
-
-	RESTORE_CONTEXT	\
-	.globl ...	\
-
-Was the addition of this restriction to RESTORE_CONTEXT deliberate, or
-mistaken?
+Thanks, applied.

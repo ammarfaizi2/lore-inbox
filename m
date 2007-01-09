@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932219AbXAIQfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932224AbXAIQhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbXAIQfN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 11:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbXAIQfN
+	id S932224AbXAIQhY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 11:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbXAIQhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 11:35:13 -0500
-Received: from CHOKECHERRY.SRV.CS.CMU.EDU ([128.2.185.41]:60627 "EHLO
-	chokecherry.srv.cs.cmu.edu" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932219AbXAIQfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 11:35:11 -0500
-Message-ID: <45A3C420.8010708@cs.cmu.edu>
-Date: Tue, 09 Jan 2007 11:34:40 -0500
-From: Benjamin Gilbert <bgilbert@cs.cmu.edu>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060916)
+	Tue, 9 Jan 2007 11:37:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35741 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932220AbXAIQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 11:37:23 -0500
+Message-ID: <45A3C3F1.6020305@redhat.com>
+Date: Tue, 09 Jan 2007 08:33:53 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Srivatsa Vaddagiri <vatsa@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Gautham shenoy <ego@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Failure to release lock after CPU hot-unplug canceled
-References: <20070108120719.16d4674e.bgilbert@cs.cmu.edu> <20070109121738.GC9563@osiris.boeblingen.de.ibm.com> <20070109122740.GC22080@in.ibm.com> <20070109150351.GD9563@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20070109150351.GD9563@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+CC: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, Jakub Jelinek <jakub@redhat.com>,
+       Darren Hart <dvhltc@us.ibm.com>,
+       =?UTF-8?B?U8OpYmFzdGllbiBEdWd1w6k=?= <sebastien.dugue@bull.net>
+Subject: Re: [PATCH 2.6.20-rc4 3/4] futex_requeue_pi optimization
+References: <45A3B330.9000104@bull.net> <45A3C0CF.4020802@bull.net>
+In-Reply-To: <45A3C0CF.4020802@bull.net>
+X-Enigmail-Version: 0.94.1.2.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig75DDE5C81F1F4FE4157E9323"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens wrote:
-> On Tue, Jan 09, 2007 at 05:57:40PM +0530, Srivatsa Vaddagiri wrote:
->> On Tue, Jan 09, 2007 at 01:17:38PM +0100, Heiko Carstens wrote:
->>> The workqueue code grabs a lock on CPU_[UP|DOWN]_PREPARE and releases it
->>> again on CPU_DOWN_FAILED/CPU_UP_CANCELED. If something in the callchain
->>> returns NOTIFY_BAD the rest of the entries in the callchain won't be
->>> called anymore. But DOWN_FAILED/UP_CANCELED will be called for every
->>> entry.
->>> So we might even end up with a mutex_unlock(&workqueue_mutex) even if
->>> mutex_lock(&workqueue_mutex) hasn't been called...
- >>
->> This is a known problem. Gautham had sent out patches to address them
->>
->> http://lkml.org/lkml/2006/11/14/93
->>
->> Looks like they are in latest mm tree. Perhaps the testcase should be
->> retried against latest mm.
- >
-> Ah, nice! Wasn't aware of that. But I still think we should have a
-> CPU_DOWN_FAILED in case CPU_DOWN_PREPARED failed.
-> Also the slab cache code hasn't been changed to make use of the of the
-> new CPU_LOCK_[ACQUIRE|RELEASE] stuff. I'm going to send patches in reply
-> to this mail.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig75DDE5C81F1F4FE4157E9323
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-2.6.20-rc3-mm1 plus your patches fixes it for me.
+Pierre Peiffer wrote:
+> This provides an optimization, already used for (normal) futexes, to be=
 
-Thanks
---Benjamin Gilbert
+> used for
+> PI-futexes.
 
+So, this patch implements requeuing from a non-PI futex to a PI futex?
+That's the bare minimum needed.  What about PI to PI?
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig75DDE5C81F1F4FE4157E9323
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFo8Px2ijCOnn/RHQRAq0gAKCbl5p00e6eBRbFYmm/6SuxNNgfJACeJm2K
+PYjQUK2vTXsxUVCu+nKBN7Q=
+=ZSht
+-----END PGP SIGNATURE-----
+
+--------------enig75DDE5C81F1F4FE4157E9323--

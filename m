@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932153AbXAIPbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932156AbXAIPe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbXAIPbF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 10:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbXAIPbE
+	id S932156AbXAIPe2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 10:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbXAIPe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 10:31:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46259 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932153AbXAIPbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 10:31:02 -0500
-Message-ID: <45A3B529.80402@redhat.com>
-Date: Tue, 09 Jan 2007 10:30:49 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
+	Tue, 9 Jan 2007 10:34:28 -0500
+Received: from wr-out-0506.google.com ([64.233.184.233]:43818 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932156AbXAIPe1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 10:34:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=CVM9qB71ugFCgpO7BfSLRXI2VJrnZFAa4zEn7/sTsNTFwM+/tKFErBMfU6GQjkyJXl3av8cbjrnCKfMMGsYPRKXnvmLepXmYcU+3C/Djxo4Aq4bi/+E3BVbYe09GwP8ujbEo4dpytDpXoympR0FtTxBfG+ESDgKLb/q2GDeaWRY=
+Message-ID: <8355959a0701090733l74d03792q16b3022d949c7ae1@mail.gmail.com>
+Date: Tue, 9 Jan 2007 21:03:58 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Jumping into Kernel development: About -rc kernels...
 MIME-Version: 1.0
-To: Hua Zhong <hzhong@gmail.com>
-CC: linux-kernel@vger.kernel.org, hugh@veritas.com, hch@infradead.com,
-       kenneth.w.chen@intel.com, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] support O_DIRECT in tmpfs/ramfs
-References: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hua Zhong wrote:
-> Hi,
->
-> A while ago there was a discussion about supporting direct-io on tmpfs.
->
-> Here is a simple patch that does it.
->
-> 1. A new fs flag FS_RAM_BASED is added and the O_DIRECT flag is ignored
->    if this flag is set (suggestions on a better name?)
->
-> 2. Specify FS_RAM_BASED for tmpfs and ramfs.
->
-> 3. When EINVAL is returned only a fput is done. I changed it to go
->    through cleanup_all. But there is still a cleanup problem:
->
->   If a new file is created and then EINVAL is returned due to O_DIRECT,
->   the file is still left on the disk. I am not exactly sure how to fix
->   it other than adding another fs flag so we could check O_DIRECT
->   support at a much earlier stage. Comments on how to fix it?
+Hello All,
 
-This would seem to create two different sets of O_DIRECT semantics,
-wouldn't it?  I think that it would be possible to develop an application
-using one of these FS_RAM_BASED file systems as the testbed, but then be
-surprised when the application failed to work on other file systems such
-as ext3.
+This question might sound dumb for many, and to some annoying too ;-)
 
-       ps
+Am enterting into -rc Kernel (testing & analysis) & involvement with
+the kernel (contributing to patches). I have this doubt. I did refer
+to applying-patches in the kernel documentation, this is what I got:-
+
+> These are the base stable releases released by Linus. The highest numbered
+> release is the most recent.
+
+> If regressions or other serious flaws are found, then a -stable fix patch
+> will be released (see below) on top of this base. Once a new 2.6.x base
+> kernel is released, a patch is made available that is a delta between the
+> previous 2.6.x kernel and the new one.
+
+> To apply a patch moving from 2.6.11 to 2.6.12, you'd do the following (note
+> that such patches do *NOT* apply on top of 2.6.x.y kernels but on top of the
+> base 2.6.x kernel -- if you need to move from 2.6.x.y to 2.6.x+1 you need to
+> first revert the 2.6.x.y patch).
+
+I did understand till here. Should I start compile/test/debug
+one-after-one in this fashion:-
+
+2.6.19 source + patch-2.6.20-rc1
+2.6.19 source + patch-2.6.20-rc2
+2.6.19 source + patch-2.6.20-rc3
+2.6.19 source + patch-2.6.20-rc4
+
+OR
+
+Pick the latest release number?
+
+Note:
+
+Am working for different requirements in the Labs with Linux
+(Telecom/Embedded). This activity starting as an independant activity
+in my home/sometimes in Labs. So, I wanted to jump into kernel
+development (mainly as compile/test/debug/patch). Hope I get enough
+encouragement ;-)
+
+~Akula2

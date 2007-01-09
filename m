@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932166AbXAIPz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932173AbXAIP7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbXAIPz5 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 10:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbXAIPz5
+	id S932173AbXAIP7w (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 10:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbXAIP7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 10:55:57 -0500
-Received: from mail.screens.ru ([213.234.233.54]:47357 "EHLO mail.screens.ru"
+	Tue, 9 Jan 2007 10:59:52 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:54428 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932166AbXAIPz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 10:55:56 -0500
-Date: Tue, 9 Jan 2007 18:55:04 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Gautham R Shenoy <ego@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] reimplement flush_workqueue()
-Message-ID: <20070109155504.GA183@tv-sign.ru>
-References: <20061229171827.GA158@tv-sign.ru> <20070109050104.GA29119@in.ibm.com>
+	id S932173AbXAIP7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 10:59:51 -0500
+Date: Tue, 9 Jan 2007 21:29:08 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070109155908.GD22080@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org> <20070107210139.GA2332@tv-sign.ru> <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070109050104.GA29119@in.ibm.com>
+In-Reply-To: <20070109150755.GB89@tv-sign.ru>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/09, Srivatsa Vaddagiri wrote:
+On Tue, Jan 09, 2007 at 06:07:55PM +0300, Oleg Nesterov wrote:
+> but at some point we should thaw processes, including cwq->thread which
+> should die.
+
+I am presuming we will thaw processes after all CPU_DEAD handlers have
+run.
+
+> So we are doing things like take_over_work() and this is the
+> source of races, because the dead CPU is not on cpu_online_map.
 >
-> On Fri, Dec 29, 2006 at 08:18:27PM +0300, Oleg Nesterov wrote:
-> > Remove ->remove_sequence, ->insert_sequence, and ->work_done from struct
-> > cpu_workqueue_struct. To implement flush_workqueue() we can queue a barrier
-> > work on each CPU and wait for its completition.
-> 
-> Oleg,
-> 	Because of this change, was curious to know if this is possible:
-> 
-> 
-> CPU0					CPU1
-> (Thread0)
-> 
-> flush_workqueue()
-> 					queue_work(W1)	
->   flush_cpu_workqueue(cpu1)
->     insert_barrier(B1)
->       wait_on_completion();
-> 	
-> 					run_workqueue()
-> 					   W1.func();
-> 					     flush_workqueue();
-> 						B1.func(); <- wakes Thread0
-> 
-> The intention of barrier B1 was to wait untill W1 was -complete-. If
-> W1.func()->....->something() were to call flush_workqueue on the same
-> workqueue, then we would be returning from the barrier prematurely.
+> flush_workqueue() doesn't use any locks now. If we use freezer to implement
+> cpu-hotplug nothing will change, we still have races.
 
-But there is nothing new?
+We have races -if- CPU_DEAD handling can run concurrently with a ongoing
+flush_workqueue. From my recent understanding of process freezer, this
+is not possible. In other words, flush_workqueue() can be its old
+implementation as below w/o any races:
 
-insert_sequence = remove_sequence = 0.
+	some_thread:
 
-queue_work(W1) sets insert_sequence = 1.
+	for_each_online_cpu(i)
+		flush_cpu_workqueue(i);
 
-flush_cpu_workqueue(cpu1):  wait until remove_sequence >= 1
+As long as this loop is running, cpu_down/up will not proceed. This means, 
+cpu_online_map is stable even if flush_cpu_workqueue blocks ..
 
-Now suppose antother thread adds a work to cpu1 before W1.func()
-calls flush_cpu_workqueue(cpu1). insert_sequence == 2.
+Once this loop is complete and all threads have called try_to_freeze,
+cpu_down will proceed to change the bit map and run CPU_DEAD handlers
+of everyone. I am presuimg we will thaw processes only after all
+CPU_DEAD/ONLINE handlers have run (dont know if that is a problem).
+In that case do you still see races?  Yes, this would require some
+changes in worker_thread to check for kthread_should_stop() after
+try_to_freeze returns ...
 
-When W1.func() does flush_workqueue(), run_workqueue() fires
-that work, increments remove_sequence to 1 and wakes up Thread0.
 
-In other words: currently flush_cpu_workqueue() waits until N
-works form the queue will be flushed. If some work also does
-flush_workqueue()->run_workqueue(), it just needs to execute one
-"extra" work to confuse the first flush_cpu_workqueue().
-
-Oleg.
-
+-- 
+Regards,
+vatsa

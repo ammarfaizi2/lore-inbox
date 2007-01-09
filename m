@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751243AbXAIJtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751244AbXAIJuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbXAIJtu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 04:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbXAIJtu
+	id S1751244AbXAIJuF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 04:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbXAIJuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 04:49:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42144 "EHLO
+	Tue, 9 Jan 2007 04:50:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42150 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751241AbXAIJtt (ORCPT
+	with ESMTP id S1751244AbXAIJuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 04:49:49 -0500
-Date: Tue, 9 Jan 2007 09:46:25 +0000
+	Tue, 9 Jan 2007 04:50:00 -0500
+Date: Tue, 9 Jan 2007 09:49:35 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Mimi Zohar <zohar@us.ibm.com>, Christoph Hellwig <hch@infradead.org>,
-       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@watson.ibm.com
-Subject: Re: mprotect abuse in slim
-Message-ID: <20070109094625.GA11918@infradead.org>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: Andrew Morton <akpm@osdl.org>, Shaya Potter <spotter@cs.columbia.edu>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070109094935.GA12406@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Mimi Zohar <zohar@us.ibm.com>, akpm@osdl.org,
-	kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-	safford@watson.ibm.com
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org>
+	Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+	Andrew Morton <akpm@osdl.org>,
+	Shaya Potter <spotter@cs.columbia.edu>,
+	Josef 'Jeff' Sipek <jsipek@cs.sunysb.edu>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	viro@ftp.linux.org.uk, torvalds@osdl.org, mhalcrow@us.ibm.com,
+	David Quigley <dquigley@fsl.cs.sunysb.edu>,
+	Erez Zadok <ezk@cs.sunysb.edu>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu> <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org> <Pine.LNX.4.63.0701081442230.19059@razor.cs.columbia.edu> <20070108131957.cbaf6736.akpm@osdl.org> <20070108232516.GB1269@filer.fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1168312045.3180.140.camel@laptopd505.fenrus.org>
+In-Reply-To: <20070108232516.GB1269@filer.fsl.cs.sunysb.edu>
 User-Agent: Mutt/1.4.2.2i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 07:07:25PM -0800, Arjan van de Ven wrote:
+On Mon, Jan 08, 2007 at 06:25:16PM -0500, Josef Sipek wrote:
+> > There's no such problem with bind mounts.  It's surprising to see such a
+> > restriction with union mounts.
 > 
-> > Starting with the fdtable, would it help if we move the 
-> > fdtable tweaking out of slim itself and into helpers?  Or
-> > can you recommend another way to implement this functionality.
+> Bind mounts are a purely VFS level construct. Unionfs is, as the name
+> implies, a filesystem. Last year at OLS, it seemed that a lot of people
+> agreed that unioning is neither purely a fs construct, nor purely a vfs
+> construct.
 > 
-> Hi,
-> 
-> maybe this is a silly question, but do you revoke not only the current
-> fd entries, but also the ones that are pending in UNIX domain sockets
-> and that are already being sent to the process? If not.. then you might
-> as well not bother ;)
+> I'm using Unionfs (and ecryptfs) as guinea pigs to make linux fs stacking
+> friendly - a topic to be discussed at LSF in about a month.
 
-Exactly.  What these folks want is revoke (maybe more fine grained, but
-that's not the point).  And guess what folks, revoke is not trivial,
-otherwise we'd have it.  If you want to volunteer to implement a full-blown
-revoke that's fine, but
-
-  a) it belongs into core code
-  b) needs to be done right
+And unionfs is the wrong thing do use for this.  Unioning is a complex
+namespace operation and needs to be implemented in the VFS or at least
+needs a lot of help from the VFS.  Getting namespace cache coherency
+and especially locking right is imposisble with out that.
 

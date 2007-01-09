@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932156AbXAIPe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932159AbXAIPjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbXAIPe2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 10:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbXAIPe2
+	id S932159AbXAIPjE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 10:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbXAIPjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 10:34:28 -0500
-Received: from wr-out-0506.google.com ([64.233.184.233]:43818 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932156AbXAIPe1 (ORCPT
+	Tue, 9 Jan 2007 10:39:04 -0500
+Received: from smtp161.iad.emailsrvr.com ([207.97.245.161]:45363 "EHLO
+	smtp161.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932159AbXAIPjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 10:34:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=CVM9qB71ugFCgpO7BfSLRXI2VJrnZFAa4zEn7/sTsNTFwM+/tKFErBMfU6GQjkyJXl3av8cbjrnCKfMMGsYPRKXnvmLepXmYcU+3C/Djxo4Aq4bi/+E3BVbYe09GwP8ujbEo4dpytDpXoympR0FtTxBfG+ESDgKLb/q2GDeaWRY=
-Message-ID: <8355959a0701090733l74d03792q16b3022d949c7ae1@mail.gmail.com>
-Date: Tue, 9 Jan 2007 21:03:58 +0530
-From: Akula2 <akula2.shark@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Jumping into Kernel development: About -rc kernels...
+	Tue, 9 Jan 2007 10:39:01 -0500
+Message-ID: <45A3B78D.5040408@gentoo.org>
+Date: Tue, 09 Jan 2007 10:41:01 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 2.0b1 (X11/20061221)
 MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: minix-v3-support.patch
+References: <45A39D95.90702@gmail.com>
+In-Reply-To: <45A39D95.90702@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+Daniel Aragonés wrote:
+> 
+> 
+> On Mon, Jan 08, 2007 at 04:06:53PM -0800, Andrew Morton wrote:
+> 
+>>> Daniel, it'd be good if you could review and test these changes please.
+>>>
+>>> Also, a signed-off-by from yourself and from Andries, please...
+> 
+> Thanks a lot to Andries! The patch looks much more elegant now than 
+> before. And
+> it continues performing well, as before.
+> 
+> Signed-off-by: Daniel Aragones <danarag@gmail.com>
 
-This question might sound dumb for many, and to some annoying too ;-)
+While you guys are hacking on minix stuff, is anyone interested in 
+looking at http://bugzilla.kernel.org/show_bug.cgi?id=7758 ?
 
-Am enterting into -rc Kernel (testing & analysis) & involvement with
-the kernel (contributing to patches). I have this doubt. I did refer
-to applying-patches in the kernel documentation, this is what I got:-
+Thanks,
+Daniel
 
-> These are the base stable releases released by Linus. The highest numbered
-> release is the most recent.
-
-> If regressions or other serious flaws are found, then a -stable fix patch
-> will be released (see below) on top of this base. Once a new 2.6.x base
-> kernel is released, a patch is made available that is a delta between the
-> previous 2.6.x kernel and the new one.
-
-> To apply a patch moving from 2.6.11 to 2.6.12, you'd do the following (note
-> that such patches do *NOT* apply on top of 2.6.x.y kernels but on top of the
-> base 2.6.x kernel -- if you need to move from 2.6.x.y to 2.6.x+1 you need to
-> first revert the 2.6.x.y patch).
-
-I did understand till here. Should I start compile/test/debug
-one-after-one in this fashion:-
-
-2.6.19 source + patch-2.6.20-rc1
-2.6.19 source + patch-2.6.20-rc2
-2.6.19 source + patch-2.6.20-rc3
-2.6.19 source + patch-2.6.20-rc4
-
-OR
-
-Pick the latest release number?
-
-Note:
-
-Am working for different requirements in the Labs with Linux
-(Telecom/Embedded). This activity starting as an independant activity
-in my home/sometimes in Labs. So, I wanted to jump into kernel
-development (mainly as compile/test/debug/patch). Hope I get enough
-encouragement ;-)
-
-~Akula2

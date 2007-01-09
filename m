@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751295AbXAIKh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751296AbXAIKjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbXAIKh2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 05:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbXAIKh2
+	id S1751296AbXAIKjL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 05:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbXAIKjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 05:37:28 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:33532 "EHLO mail.dvmed.net"
+	Tue, 9 Jan 2007 05:39:11 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:33548 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751295AbXAIKh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 05:37:28 -0500
-Message-ID: <45A37065.10207@pobox.com>
-Date: Tue, 09 Jan 2007 05:37:25 -0500
+	id S1751296AbXAIKjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 05:39:09 -0500
+Message-ID: <45A370C9.2060404@pobox.com>
+Date: Tue, 09 Jan 2007 05:39:05 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
 To: Alan <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, uwe.koziolek@gmx.net
-Subject: Re: [PATCH] sata_sis: Support for PATA supports
-References: <20070108161107.121f196b@localhost.localdomain>
-In-Reply-To: <20070108161107.121f196b@localhost.localdomain>
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sata_via: PATA support, resubmit
+References: <20070108122659.00c22754@localhost.localdomain>	<45A24159.7060001@pobox.com>	<20070108154249.6d8f5697@localhost.localdomain>	<45A2688E.3080503@pobox.com>	<20070108164050.60633505@localhost.localdomain>	<45A27278.9000007@pobox.com> <20070108171113.6c5d7985@localhost.localdomain>
+In-Reply-To: <20070108171113.6c5d7985@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -28,38 +28,35 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan wrote:
-> This is quick rework of the patch Uwe proposed but using Kconfig not
-> ifdefs and user selection to sort out PATA support. Instead of ifdefs and
-> requiring the user to select both drivers the SATA driver selects the
-> PATA one.
+>>> Signed-off-by: Alan Cox <alan@redhat.com>
+>> Looks good to me, modulo minor comments below...
 > 
-> For neatness I've also moved the extern into the function that uses it.
+> New revision below
 > 
-> Two questions really
-> 1.	Do you want the extern in a header file
-> 2.	Is this now neat enough to keep you happy Jeff or shall I do
-> the library split anyway ?
-> 
-> Please let me know so I can fire off new versions and try and get
-> this one submitted for good today.
-> 
-> Signed-off-by: Alan Cox
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-I ACK this patch, as mentioned earlier, but the description and sign-off 
-leave something to be desired.
+applied, thanks for your patience :)
 
-Would you rather resend this patch without all the commentary, so that 
-it may be automatically snarfed, or just resend a proper description and 
-sign-off?
+Two procedural notes:
 
-Note that (as stated in Documentation/SubmittingPatches) the standard 
-way to include commentary is to include it after the patch description 
-and "---" separator.  Anything after "---" is automatically snipped.
+* you should include the patch description in each resend, so that 
+scripts can automatically suck it into git changelog.
 
-This applies to patches sent to Linus, me, and anyone else who uses git 
-to import patches.  (as well as being the patch format standard)
+* yet again you added whitespace:
 
-	Jeff
 
+[jgarzik@pretzel libata-dev]$ git-am --signoff --utf8 /g/tmp/mbox
+
+Applying 'sata_via: PATA support'
+
+Adds trailing whitespace.
+.dotest/patch:11:
+Adds trailing whitespace.
+.dotest/patch:40:
+Adds trailing whitespace.
+.dotest/patch:74:
+warning: 3 lines add trailing whitespaces.
+Wrote tree 76aff322aa7259d077e20f61b7405e3b16423a2e
+Committed: 2041f6a9e6c927512023621413c6333ee104e6d5
 
 

@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751361AbXAIMxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751392AbXAINCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbXAIMxM (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 07:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbXAIMxL
+	id S1751392AbXAINCL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 08:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbXAINCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 07:53:11 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:3765 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751361AbXAIMxK (ORCPT
+	Tue, 9 Jan 2007 08:02:11 -0500
+Received: from userg501.nifty.com ([202.248.238.81]:17947 "EHLO
+	userg501.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751387AbXAINCJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 07:53:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XE4ylp1i5eB38Y5POR6+2CeMNyBHXv6dE8mwNZc7kniCSkjrJ7VpwAKEEo10qfcF3xzuurWDNluGnEQuKjUAhWrNi2JpdUL6uFJthxeqJYfhMARR5pCJ5Ra60dmmfIcSDNvejS2fdblFGsjO3klvvG9I0hN7i+iC/QkDTPQi6QU=
-Message-ID: <5767b9100701090453g51448661td14e4c05a4eceb2a@mail.gmail.com>
-Date: Tue, 9 Jan 2007 20:53:09 +0800
-From: "Conke Hu" <conke.hu@gmail.com>
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-Subject: Re: [PATCH 3/3] atiixp.c: add cable detection support for ATI IDE
-Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <58cb370e0701061816s308155abw719a00d499f504ea@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 9 Jan 2007 08:02:09 -0500
+DomainKey-Signature: a=rsa-sha1; s=userg501; d=nifty.com; c=simple; q=dns;
+	b=pjr6FgIEhtrz2XiPzXv7tAJXi2LVyP1M7yULCO/Xu83kci9SA7M55zO5beu2A8X2s
+	i8qyi+5fr5+Dq77U+mAXg==
+Date: Wed, 10 Jan 2007 07:01:27 +0900
+From: Komuro <komurojun-mbn@nifty.com>
+To: Craig Schlenter <craig@codefountain.com>
+Cc: YOSHIFUJI Hideaki / =?ISO-2022-JP?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>,
+       bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
+ file-transfer
+Message-Id: <20070110070127.350d6742.komurojun-mbn@nifty.com>
+In-Reply-To: <20070104122330.GA2233@craigdell.detnet.com>
+References: <20061230185043.d31d2104.komurojun-mbn@nifty.com>
+	<20061230.102358.106876516.yoshfuji@linux-ipv6.org>
+	<20061230205931.9e430173.komurojun-mbn@nifty.com>
+	<20061230.231952.16573563.yoshfuji@linux-ipv6.org>
+	<20070105054546.953196e5.komurojun-mbn@nifty.com>
+	<20070104122330.GA2233@craigdell.detnet.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5767b9100701060422p1abd1d21x606b758220815551@mail.gmail.com>
-	 <58cb370e0701061816s308155abw719a00d499f504ea@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/7/07, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> On 1/6/07, Conke Hu <conke.hu@gmail.com> wrote:
-> > IDE HDD does not work if it uses a 40-pin PATA cable on ATI chipset.
-> > This patch fixes the bug.
-> >
-> > Signed-off-by: Conke Hu <conke.hu@amd.com>
->
-> Acked-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
->
-> [ the one is also line wrapped, please resend them ]
->
+On Thu, 4 Jan 2007 14:23:30 +0200
+Craig Schlenter <craig@codefountain.com> wrote:
 
-re-created.
-pls apply it after the [patch 1/3] and [patch 2/3] :)
-------------------------
---- linux-2.6.20-rc4/drivers/ide/pci/atiixp.c.3	2007-01-09
-15:37:42.000000000 +0800
-+++ linux-2.6.20-rc4/drivers/ide/pci/atiixp.c	2007-01-09
-15:40:08.000000000 +0800
-@@ -291,8 +291,12 @@ fast_ata_pio:
 
- static void __devinit init_hwif_atiixp(ide_hwif_t *hwif)
- {
-+	u8 udma_mode = 0;
-+	u8 ch = hwif->channel;
-+	struct pci_dev *pdev = hwif->pci_dev;
-+
- 	if (!hwif->irq)
--		hwif->irq = hwif->channel ? 15 : 14;
-+		hwif->irq = ch ? 15 : 14;
+> > --- linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c.orig	2007-01-03 11:50:04.000000000 +0900
+> > +++ linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c	2007-01-03 15:30:44.000000000 +0900
+> > @@ -648,7 +648,7 @@ static void tcp_v4_send_ack(struct tcp_t
+> >  				   TCPOLEN_TIMESTAMP);
+> >  		rep.opt[1] = htonl(tcp_time_stamp);
+> >  		rep.opt[2] = htonl(ts);
+> > -		arg.iov[0].iov_len = TCPOLEN_TSTAMP_ALIGNED;
+> > +		arg.iov[0].iov_len = sizeof(rep);
+> 
+> Perhaps this was supposed to be
+>                 arg.iov[0].iov_len += TCPOLEN_TSTAMP_ALIGNED;
+> 
+> That's what the ipv6 stuff does in places.
 
- 	hwif->autodma = 0;
- 	hwif->tuneproc = &atiixp_tuneproc;
-@@ -308,8 +312,12 @@ static void __devinit init_hwif_atiixp(i
- 	hwif->mwdma_mask = 0x06;
- 	hwif->swdma_mask = 0x04;
+It works properly.
+Thanks!
 
--	/* FIXME: proper cable detection needed */
--	hwif->udma_four = 1;
-+	pci_read_config_byte(pdev, ATIIXP_IDE_UDMA_MODE + ch, &udma_mode);
-+	if ((udma_mode & 0x07) >= 0x04 || (udma_mode & 0x70) >= 0x40)
-+		hwif->udma_four = 1;
-+	else
-+		hwif->udma_four = 0;
-+
- 	hwif->ide_dma_host_on = &atiixp_ide_dma_host_on;
- 	hwif->ide_dma_host_off = &atiixp_ide_dma_host_off;
- 	hwif->ide_dma_check = &atiixp_dma_check;
+
+Best Regards
+Komuro
+

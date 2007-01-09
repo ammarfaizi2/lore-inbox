@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932414AbXAIXOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932482AbXAIXVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbXAIXOz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 18:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbXAIXOz
+	id S932482AbXAIXVo (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 18:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbXAIXVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 18:14:55 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38485 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932414AbXAIXOy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 18:14:54 -0500
-Date: Tue, 9 Jan 2007 17:14:49 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Mimi Zohar <zohar@us.ibm.com>,
-       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@watson.ibm.com, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: mprotect abuse in slim
-Message-ID: <20070109231449.GA4547@sergelap.austin.ibm.com>
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org> <20070109094625.GA11918@infradead.org>
+	Tue, 9 Jan 2007 18:21:43 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:38685 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932482AbXAIXVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 18:21:43 -0500
+Message-ID: <45A42385.7090904@garzik.org>
+Date: Tue, 09 Jan 2007 18:21:41 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109094625.GA11918@infradead.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+References: <45A3FF32.1030905@wolfmountaingroup.com>
+In-Reply-To: <45A3FF32.1030905@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Christoph Hellwig (hch@infradead.org):
-> On Mon, Jan 08, 2007 at 07:07:25PM -0800, Arjan van de Ven wrote:
-> >
-> > > Starting with the fdtable, would it help if we move the
-> > > fdtable tweaking out of slim itself and into helpers?  Or
-> > > can you recommend another way to implement this functionality.
-> >
-> > Hi,
-> >
-> > maybe this is a silly question, but do you revoke not only the current
-> > fd entries, but also the ones that are pending in UNIX domain sockets
-> > and that are already being sent to the process? If not.. then you might
-> > as well not bother ;)
+Jeff V. Merkey wrote:
 > 
-> Exactly.  What these folks want is revoke (maybe more fine grained, but
-> that's not the point).  And guess what folks, revoke is not trivial,
-> otherwise we'd have it.  If you want to volunteer to implement a full-blown
-> revoke that's fine, but
+> I just finished pulling out a melted IDE flash drive out of a Shuttle 
+> motherboard with the intel 945 chipset which claims to support
+> SATA and IDE drives concurrently under Linux 2.6.18.
 > 
->   a) it belongs into core code
->   b) needs to be done right
+> The chip worked for about 30 seconds before liquifying in the chassis.  
+> I note that the 945 chipset in the shuttle PC had some serious
+> issues recognizing 2 x SATA devices and a IDE device concurrently.   Are 
+> there known problems with the Linux drivers
+> with these newer chipsets.
+> 
+> One other disturbing issue was the IDE flash drive was configured (and 
+> recognized) as /dev/hda during bootup, but when
+> it got to the root mountint, even with root=/dev/hda set, it still kept 
+> thinking the drive was at scsi (ATA) device (08,13)
+> and kept crashing with VFS cannot find root FS errors.
 
-Whatever happened with Pekka's revoke submissions?  Did you lose
-interest after
-http://www.kernel.org/pub/linux/kernel/people/penberg/patches/revoke/2.6.19-rc1/revoke-2.6.19-rc1,
-or was it decided that the approach was unworkable?
+We have two sets of ATA drivers now, and Intel motherboards support 
+bazillion annoying IDE modes, so you will need to provide more info than 
+this.
 
-Now, what slim needs isn't "revoke all files for this inode",
-but "revoke this task's write access to this fd".  So two functions
-which could be useful are
+Is the motherboard in combined mode?  native mode?  AHCI or RAID mode?
+What driver set did you pick?  is drivers/ide built in, modular, or 
+disabled?  is drivers/ata built in, modular, or disabled?
 
-	int fd_revoke_write(struct task_struct *tsk, int fd)
-	int fd_revoke_write_iter(struct task_struct *tsk,
-			(int *)need_revoke(struct task_struct *tsk, int fd))
+The cannot-find-root-FS errors are definitely caused by driver and/or 
+initrd misconfiguration.  The melted flash, I dunno, maybe you managed 
+to get two drivers fighting over the same hardware.
 
-Anyway I'll get going on rebasing Pekka's latest patch (pending
-his reply) and providing the above two functions on top of that.
+	Jeff
 
--serge
+
+

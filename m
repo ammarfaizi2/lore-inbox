@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750791AbXAIAdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750725AbXAIAj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbXAIAdY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 19:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAIAdY
+	id S1750725AbXAIAj1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 19:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbXAIAj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 19:33:24 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54299 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750712AbXAIAdX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 19:33:23 -0500
-Date: Mon, 8 Jan 2007 19:33:18 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-ID: <20070109003230.GD5418@filer.fsl.cs.sunysb.edu>
-References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu> <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
+	Mon, 8 Jan 2007 19:39:27 -0500
+Received: from gate.crashing.org ([63.228.1.57]:34602 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750725AbXAIAj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 19:39:26 -0500
+Subject: Re: Linux 2.6.20-rc4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Sylvain Munaut <tnt@246tNt.com>
+Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linuxppc-dev@ozlabs.org,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       paulus@samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <45A25C17.5070606@246tNt.com>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	 <200701081550.27748.m.kozlowski@tuxland.pl>  <45A25C17.5070606@246tNt.com>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 11:38:59 +1100
+Message-Id: <1168303139.22458.246.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1pw35070vgjt0.vkrm8bjemedb$.dlg@40tude.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 01:19:48AM +0100, Giuseppe Bilotta wrote:
-> As a simple user without much knowledge of kernel internals, much less
-> so filesystems, couldn't something based on the same principle of
-> lsof+fam be used to handle these situations?
+On Mon, 2007-01-08 at 15:58 +0100, Sylvain Munaut wrote:
+> Don't build ohci as module for now.
+> A fix for that is already in gregkh usb tree for 2.6.21
 
-Using inotify has been suggested before. That let the upper filesystem
-know when something changed on the lower filesystem.
+Do you mean that as-is, powerpc defconfigs cannot build USB as a module
+in 2.6.20 ? That is unacceptable as a regression. We need a fix in
+2.6.20.
 
-I think that, while it would work, it is not the right solution.
+Greg, what is the status there ?
 
-Josef "Jeff" Sipek.
+Ben.
 
--- 
-Intellectuals solve problems; geniuses prevent them
-		- Albert Einstein
+

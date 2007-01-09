@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932250AbXAIWfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932382AbXAIWfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbXAIWfY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 17:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAIWfY
+	id S932382AbXAIWfi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 17:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAIWfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 17:35:24 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:49113 "EHLO smtp.osdl.org"
+	Tue, 9 Jan 2007 17:35:38 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:49127 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932250AbXAIWfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 17:35:23 -0500
-Date: Tue, 9 Jan 2007 14:35:19 -0800
+	id S932382AbXAIWfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 17:35:37 -0500
+Date: Tue, 9 Jan 2007 14:31:15 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Michael Halcrow <mhalcrow@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org, tshighla@us.ibm.com, theotso@us.ibm.com
-Subject: Re: [PATCH 0/3] eCryptfs: Support metadata in xattr
-Message-Id: <20070109143519.dce0ed8b.akpm@osdl.org>
-In-Reply-To: <20070109222107.GC16578@us.ibm.com>
+Subject: Re: [PATCH 2/3] eCryptfs: Generalize metadata read/write
+Message-Id: <20070109143115.b264f825.akpm@osdl.org>
+In-Reply-To: <20070109222255.GE16578@us.ibm.com>
 References: <20070109222107.GC16578@us.ibm.com>
+	<20070109222255.GE16578@us.ibm.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,31 +25,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2007 16:21:07 -0600
+On Tue, 9 Jan 2007 16:22:55 -0600
 Michael Halcrow <mhalcrow@us.ibm.com> wrote:
 
-> This patch set introduces the ability to store cryptographic metadata
-> into an lower file extended attribute rather than the lower file
-> header region.
-> 
-> This patch set implements two new mount options:
-> 
-> ecryptfs_xattr_metadata
->  - When set, newly created files will have their cryptographic
->    metadata stored in the extended attribute region of the file rather
->    than the header.
+> +		lower_file->f_op->write(lower_file, (char __user *)page_virt,
+> +					PAGE_CACHE_SIZE, &lower_file->f_pos);
 
-Why is this useful?
+hm.  sys_write() takes a local copy of f_pos and writes that back into the
+struct file.  It does this so that two concurrent write() callers don't
+make a mess of f_pos, and of the file contents.
 
-> ecryptfs_encrypted_view
->  - When set, this option causes eCryptfs to present applications a
->    view of encrypted files as if the cryptographic metadata were
->    stored in the file header, whether the metadata is actually stored
->    in the header or in the extended attributes.
+Perhaps ecryptfs should be calling vfs_write()?
 
-Sounds kludgy.  "This mode of operation is useful for applications like
-incremental backup utilities that do not preserve the extended attributes
-when directly accessing the lower files.".  Wouldn't it be better to lean
-on people to use better backup tools, and to fix existing ones?
-
+That way we'd also get the fsnotify notifications, which ecryptfs presently
+appears to have subverted.
 

@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751027AbXAIERf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751034AbXAIEYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbXAIERf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 23:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbXAIERf
+	id S1751034AbXAIEYH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 23:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbXAIEYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 23:17:35 -0500
-Received: from web50802.mail.yahoo.com ([206.190.38.111]:41692 "HELO
-	web50802.mail.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750712AbXAIERe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 23:17:34 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 23:17:34 EST
-Message-ID: <20070109041054.85826.qmail@web50802.mail.yahoo.com>
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=ILJo2nTEPPm4KNghvUyRrqMvm4KOvaDtJzc1R9Ukg7V50MU/3fDFUE5agkOh8CX60yTLfzXH8BKiWwuSYBSH8tNNIDFk5g49BxfuBCobcs0Ui8XrtsZLWPS2CmzmHTIUEKZEQ4bS7SlcpG6JHg7d65CT/LHFDDPpmoy4qMXeBkI=;
-X-YMail-OSG: tt2l7mgVM1kjTfTviN2TwH8Xlz44dUr2k_SkFxNWuaIdQPZGac8EMnFSstAPq5ZlQDiT2p2jDonQbJSoM2L.rvX3.K.KrxasIKpdnqigC5hUgvU9awumCUuDAjGtebDruG0tLYIXQZeGnRY2R2WZvAoHPA--
-Date: Mon, 8 Jan 2007 20:10:54 -0800 (PST)
-From: Robert Hirsh <rkhirsh@yahoo.com>
-Subject: Keyspan USA-49WLC driver broken in 2.6.18, 4.6.19, and  2.6.20 kernels
-To: linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-userss@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 8 Jan 2007 23:24:07 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:39749 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751034AbXAIEYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 23:24:06 -0500
+Date: Mon, 8 Jan 2007 20:23:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@novell.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Driver core: fix refcounting bug
+Message-Id: <20070108202359.1e7a6670.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0701081103530.4249-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0701081103530.4249-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem: Keyspan USA-49WLC driver broken in 2.6.18,
-4.6.19, and  2.6.20 kernels
+On Mon, 8 Jan 2007 11:06:44 -0500 (EST)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-Description: The Keyspan USB driver module
-(CONFIG_USB_SERIAL_KEYSPAN_USA49WLC) that is part of
-the 2.4.18,2.4.19, and 2.4.20 kernels does not work on
-the Keyspan USA-49WLC (USB->4 serial port device).
-Specifically, the driver allows the USA-49WLC to send
-serial data, but it is unable to read any serial data
-back on the port. I have connected 2 of the ports
-together (using a null-modem) and opened 2 “minicom”
-windows (one for each of the ports). Under kernel
-2.4.17 (and earlier), I get the expected behavior, and
-whatever I type in one window shows up in the other
-window. However for the newer kernels, I get nothing.
-The green led on the device flashes on the
-“transmitting” port every time I hit a key, however
-the “receiving” one does not flash (like it does when
-the device is working properly). When I use an older
-kernel (or even windows), both lights flash as would
-be expected.
+> This patch (as832) fixes a newly-introduced bug in the driver core.
+> When a kobject is assigned to a kset, it must acquire a reference to
+> the kset.
+> 
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> 
+> ---
+> 
+> The bug was introduced in Kay's "unify /sys/class and /sys/bus at 
+> /sys/subsystem" patch.
+> 
+> I left the assignment of class_dev->kobj.parent as it was, although it is 
+> not needed.  The following call to kobject_add() will end up doing the 
+> same thing.
+> 
+> Alan Stern
+> 
+> P.S.: Tracking down refcounting bugs is a real pain!  I spent an entire 
+> afternoon on this one...  :-(
+> 
+> 
+> Index: usb-2.6/drivers/base/class.c
+> ===================================================================
+> --- usb-2.6.orig/drivers/base/class.c
+> +++ usb-2.6/drivers/base/class.c
+> @@ -648,7 +648,7 @@ int class_device_add(struct class_device
+>  		class_dev->kobj.parent = &parent_class_dev->kobj;
+>  	else {
+>  		/* assign parent kset for uevent hook */
+> -		class_dev->kobj.kset = &parent_class->devices_dir;
+> +		class_dev->kobj.kset = kset_get(&parent_class->devices_dir);
+>  		/* the device directory in /sys/subsystem/<name>/devices */
+>  		class_dev->kobj.parent = &parent_class->devices_dir.kobj;
+>  	}
 
-  NOTE:  Actually, the first time a character is sent
-to the port, it will blink a single time, but only the
-first one, and it will not blink again unless the USB
-device is unplugged/replugged. After the replug, it
-will once again blink exactly once on the receive
-side. 
+OK, I give up.  What kernel is this against?
 
-
-    The transmitted serial data seems to be OK, since
-when I connect the USA-WLC to a standard serial port,
-I can see the outgoing data properly. However, the
-USA-WLC still cannot receive any data, even when
-connected to a standard serial port. 
-
-Keywords: USB to serial, Keyspan USA-49WLC, 2.6.19,
-2.6.20, 2.6.18, CONFIG_USB_SERIAL,
-CONFIG_USB_SERIAL_KEYSPAN_USA49WLC
-
-Kernel versions: 2.6.18, 2.6.19, 2.6.20
-
-Thanks for any help/advice you can give!
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+More importantly: does 2.6.20-rc4 need fixing?

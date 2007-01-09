@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932092AbXAIOAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932095AbXAIOC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbXAIOAG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 09:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbXAIOAG
+	id S932095AbXAIOC5 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 09:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbXAIOC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 09:00:06 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:36992 "EHLO
-	dev.mellanox.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932092AbXAIOAE (ORCPT
+	Tue, 9 Jan 2007 09:02:57 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:48145 "EHLO
+	mail4.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932095AbXAIOC4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 09:00:04 -0500
-Date: Tue, 9 Jan 2007 15:57:25 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       openib-general <openib-general@openib.org>,
-       linux-kernel@vger.kernel.org, Divy Le Ray <divy@chelsio.com>
-Subject: Re: [PATCH 1/10] cxgb3 - main header files
-Message-ID: <20070109135725.GF16107@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061220124125.6286.17148.stgit@localhost.localdomain> <45918CA4.3020601@garzik.org> <45A36C22.6010009@chelsio.com> <45A36E59.30500@garzik.org> <1168349908.4628.3.camel@stevo-desktop>
+	Tue, 9 Jan 2007 09:02:56 -0500
+Date: Tue, 9 Jan 2007 09:02:53 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Jeff Garzik <jeff@garzik.org>
+cc: Avi Kivity <avi@qumranet.com>, kvm-devel <kvm-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [kvm-devel] [RFC] Stable kvm userspace interface
+In-Reply-To: <45A39D0D.7090007@garzik.org>
+Message-ID: <Pine.LNX.4.64.0701090901490.29287@d.namei>
+References: <45A39A97.5060807@qumranet.com> <45A39D0D.7090007@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1168349908.4628.3.camel@stevo-desktop>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We also need to decide on the ib_req_notify_cq() issue.  
+On Tue, 9 Jan 2007, Jeff Garzik wrote:
 
-Let's clarify - do you oppose doing copy_from_user from a fixed
-address passed in during setup?
+> Can we please avoid adding a ton of new ioctls?  ioctls inevitably 
+> require 64-bit compat code for certain architectures, whereas 
+> sysfs/procfs does not.
 
-If OK with you, this seems the best way as it is the least controversial
-and least disruptive one.
+I guess ioctl is not as important now if the API is now always talking to 
+one VM.
 
+
+- James
 -- 
-MST
+James Morris
+<jmorris@namei.org>

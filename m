@@ -1,102 +1,157 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932179AbXAITgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932193AbXAITjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbXAITgc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 14:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbXAITgb
+	id S932193AbXAITjX (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 14:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbXAITjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 14:36:31 -0500
-Received: from vs02.svr02.mucip.net ([83.170.6.69]:56407 "EHLO mx01.mucip.net"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932179AbXAITgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 14:36:31 -0500
-Date: Tue, 9 Jan 2007 20:36:24 +0100
-From: Bernhard Schmidt <berni@birkenwald.de>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [IPv6] PROBLEM? Network unreachable despite correct route
-Message-ID: <20070109193624.GA27718@obelix.birkenwald.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 9 Jan 2007 14:39:23 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46598 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932170AbXAITjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 14:39:21 -0500
+Subject: Re: [openib-general] [PATCH 1/10] cxgb3 - main header files
+From: Steve Wise <swise@opengridcomputing.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
+       Divy Le Ray <divy@chelsio.com>, linux-kernel@vger.kernel.org,
+       openib-general <openib-general@openib.org>
+In-Reply-To: <1168354013.4628.14.camel@stevo-desktop>
+References: <20061220124125.6286.17148.stgit@localhost.localdomain>
+	 <45918CA4.3020601@garzik.org> <45A36C22.6010009@chelsio.com>
+	 <45A36E59.30500@garzik.org> <1168349908.4628.3.camel@stevo-desktop>
+	 <20070109135725.GF16107@mellanox.co.il>
+	 <1168354013.4628.14.camel@stevo-desktop>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 13:39:22 -0600
+Message-Id: <1168371562.17406.3.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm having a really ugly problem I'm trying to pinpoint, but failed so
-far. I'm neither completely convinced it is not related to my local
-setup(s), nor do I have any clue how this might be caused.
+> 
+> In the interest of expediting this I'll go implement it...
+> 
+> Steve.
+> 
 
-I have several boxes with native IPv6 connectivity at various places.
-Some of them show symptoms of a lost default route for small periods of
-time (10-15 seconds several times a day). By symptoms I mean
+Here it is.  I think this is the correct way to solve the issue (now
+that I've implemented it :).  This is a delta from the driver patch
+series just for reviewing purposes.
 
-- traceroute6 from the affected box to any other host dies immediately
-  (the network unreachable does not come from the first hop (the
-  upstream router), but from the local stack itself)
 
-- a local running OpenVPN 2.1_rc1b with UDPv6 transport patched in shows
-  the following output in the syslog file
+commit e6053f2aee764b21e28cbb19f52995cb413cf733
+Author: Steve Wise <swise@opengridcomputing.com>
+Date:   Tue Jan 9 13:06:13 2007 -0600
 
-  Tue Jan  9 16:48:28 2007 write UDPv6 []: Network is unreachable
-  (code=101)
+    Chelsio-specific solution for copying in the user cq_index.
+    
+    - at cq_create time, user lib passes in the address of its cq rptr u32.
+    - kernel saves this address in the iwch_cq struct.
+    - kernel copies in the rptr value in iwch_req_notify_cq().
+    
+    Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 
-- mtr from the outside to the machine shows that the affected box does
-  not respond anymore, while the hop before (the router) is clean.
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_provider.c b/drivers/infiniband/hw/cxgb3/iwch_provider.c
+index ab99202..28be418 100644
+--- a/drivers/infiniband/hw/cxgb3/iwch_provider.c
++++ b/drivers/infiniband/hw/cxgb3/iwch_provider.c
+@@ -143,6 +143,7 @@ static struct ib_cq *iwch_create_cq(stru
+ 	struct iwch_dev *rhp;
+ 	struct iwch_cq *chp;
+ 	struct iwch_create_cq_resp uresp;
++	struct iwch_create_cq_req ureq;
+ 
+ 	PDBG("%s ib_dev %p entries %d\n", __FUNCTION__, ibdev, entries);
+ 	rhp = to_iwch_dev(ibdev);
+@@ -150,6 +151,14 @@ static struct ib_cq *iwch_create_cq(stru
+ 	if (!chp)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	if (context) {
++		if (ib_copy_from_udata(&ureq, udata, sizeof (ureq))) {
++			kfree(chp);
++			return ERR_PTR(-EFAULT);
++		}
++		chp->user_rptr_addr = (u32 *)(unsigned long)ureq.user_rptr_addr;
++	}
++
+ 	if (t3a_device(rhp)) {
+ 
+ 		/*
+@@ -269,15 +278,14 @@ static int iwch_resize_cq(struct ib_cq *
+ 	return ret;
+ }
+ 
+-static int iwch_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
+-		       struct ib_udata *udata)
++static int iwch_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
+ {
+ 	struct iwch_dev *rhp;
+ 	struct iwch_cq *chp;
+ 	enum t3_cq_opcode cq_op;
+ 	int err;
+ 	unsigned long flag;
+-	struct iwch_req_notify_cq ucmd;
++	u32 rptr;
+ 
+ 	chp = to_iwch_cq(ibcq);
+ 	rhp = chp->rhp;
+@@ -285,11 +293,11 @@ static int iwch_arm_cq(struct ib_cq *ibc
+ 		cq_op = CQ_ARM_SE;
+ 	else
+ 		cq_op = CQ_ARM_AN;
+-	if (udata && t3b_device(rhp)) {
+-		if (ib_copy_from_udata(&ucmd, udata, sizeof ucmd))
++	if (chp->user_rptr_addr) {
++		if (get_user(rptr, chp->user_rptr_addr))
+ 			return -EFAULT;
+ 		spin_lock_irqsave(&chp->lock, flag);
+-		chp->cq.rptr = ucmd.rptr;
++		chp->cq.rptr = rptr;
+ 	} else
+ 		spin_lock_irqsave(&chp->lock, flag);
+ 	PDBG("%s rptr 0x%x\n", __FUNCTION__, chp->cq.rptr);
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_provider.h b/drivers/infiniband/hw/cxgb3/iwch_provider.h
+index f339427..d9d94e3 100644
+--- a/drivers/infiniband/hw/cxgb3/iwch_provider.h
++++ b/drivers/infiniband/hw/cxgb3/iwch_provider.h
+@@ -105,6 +105,7 @@ struct iwch_cq {
+ 	spinlock_t lock;
+ 	atomic_t refcnt;
+ 	wait_queue_head_t wait;
++	u32 *user_rptr_addr;
+ };
+ 
+ static inline struct iwch_cq *to_iwch_cq(struct ib_cq *ibcq)
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_user.h b/drivers/infiniband/hw/cxgb3/iwch_user.h
+index 4e4b9c9..e8ff061 100644
+--- a/drivers/infiniband/hw/cxgb3/iwch_user.h
++++ b/drivers/infiniband/hw/cxgb3/iwch_user.h
+@@ -42,6 +42,9 @@ #define IWCH_UVERBS_ABI_VERSION	1
+  * In particular do not use pointer types -- pass pointers in __u64
+  * instead.
+  */
++struct iwch_create_cq_req {
++	__u64 user_rptr_addr;
++};
+ 
+ struct iwch_create_cq_resp {
+ 	__u64 physaddr;		
+@@ -61,8 +64,4 @@ struct iwch_create_qp_resp {
+ struct iwch_reg_user_mr_resp {
+ 	__u32 pbl_addr;
+ };
+-
+-struct iwch_req_notify_cq {
+-	__u32 rptr;
+-};
+ #endif
 
-- new connects to the box (e.g. ssh) from the outside are stuck (packets
-  get lost, since I'm running my client with tcp_retries=1 I get a
-  timeout
 
-At the same time, established ssh connections to the box work fine. I
-can do "ip -6 route" and it shows the default route, both preferred and
-valid lifetime not exceeded (far from that). 
 
-The systems I'm observing this are:
 
-- Dell PowerEdge 750 (P4 with HT), Debian Etch, self compiled kernel
-  2.6.17.11, connected (e1000) to two upstream Cisco 7200, default route
-  is learned from RIPng (Quagga), static addresses
 
-- Dell OptiPlex GX<something> (P4 with HT, Single Core), SuSE 10.2,
-  distribution kernel 2.6.18.5-3-default, connected (tg3) to one
-  upstream Cisco 6500/Sup720, default route learned through stateless
-  autoconfiguration (RA)
-
-- self built AMD Athlon64 (x86_64), Ubuntu Edgy, Distribution kernel
-  2.6.17-10-generic, connected (forcedeth) to an upstream Linux box
-  (2.6.20-rc3), default route learned through stateless
-  autoconfiguration (RA) as well.
-
-My current believe is that this is an regression introduced in 2.6.17.
-I have searched for several weeks now why box #1 (the PowerEdge) shows
-signs of unreachability in the monitoring, but could not find any clue
-(or verify any reachability problems when I got the monitoring alert).
-At the same time, a sibling (same hardware, same switch, same network
-segment, route also learned through Quagga, but different kernel (2.6.16))
-of this box did not show any symptoms, so I ruled out the local network.
-
-Also, I upgraded box #2 from SuSE 10.1 (distribution kernel
-2.6.16-something) to SuSE 10.2 yesterday. While it was running the
-OpenVPN/UDPv6 daemon the whole time, there has been exactly _one_
-occurence of the "Network is unreachable" message in the past two weeks
-before the upgrade (and I can correlate this message with network
-maintainance where the VPN endpoint was indeed unreachable). Since the
-upgrade, I have at least 50 lines of that sort in syslog (in about a
-day).
-
-It is pretty hard to trace this. It seems to appear very seldom, it is
-not long and I cannot predict the time where it happens by doing more
-network load or anything else on that machine. IPv4 is fine and without
-loss in all cases. All network components are dual-stacked, so if there
-was an L2 issue between the router and the host it would affect IPv4 as
-well.
-
-Is anyone aware of any issue which might cause this? I've upgraded the
-PowerEdge to 2.6.19.1 now, but it is too early to tell whether this
-problem still exists. Does anyone recall a bugreport and maybe a fix for
-it? A patch or a link to a changeset would be even better, so I could
-report that to SuSE and Ubuntu to have it included in future kernels. 
-
-Thanks,
-Bernhard

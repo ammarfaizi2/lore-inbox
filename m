@@ -1,53 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751061AbXAIFcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751089AbXAIFu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbXAIFcr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 00:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbXAIFcr
+	id S1751089AbXAIFu7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 00:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbXAIFu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 00:32:47 -0500
-Received: from ozlabs.org ([203.10.76.45]:47014 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751061AbXAIFcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 00:32:46 -0500
+	Tue, 9 Jan 2007 00:50:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4451 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751089AbXAIFu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 00:50:58 -0500
+Date: Tue, 9 Jan 2007 06:51:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sami Farin <7atbggg02@sneakemail.com>, David Chinner <dgc@sgi.com>,
+       xfs-masters@oss.sgi.com, Pavel Machek <pavel@ucw.cz>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       bluez-devel@lists.sourceforge.net, netdev@vger.kernel.org,
+       Komuro <komurojun-mbn@nifty.com>,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
+       Craig Schlenter <craig@codefountain.com>,
+       Peter Osterlund <petero2@telia.com>, Patrick McHardy <kaber@trash.net>,
+       netfilter-devel@lists.netfilter.org, Michael Reske <micha@gmx.com>,
+       Ayaz Abdulla <aabdulla@nvidia.com>, jgarzik@pobox.com,
+       Brice Goglin <brice@myri.com>, Robert Hancock <hancockr@shaw.ca>,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: 2.6.20-rc4: known regressions with patches (v2)
+Message-ID: <20070109055101.GH25007@stusta.de>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17827.8109.461427.191194@cargo.ozlabs.ibm.com>
-Date: Tue, 9 Jan 2007 15:53:01 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc: cpm2_pic of_node_get cleanup
-In-Reply-To: <200701021236.20697.m.kozlowski@tuxland.pl>
-References: <200701021236.20697.m.kozlowski@tuxland.pl>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Kozlowski writes:
+This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
+with patches available.
 
-> 	This patch removes redundant argument check for of_node_get().
-> 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> 
->  arch/powerpc/sysdev/cpm2_pic.c |    4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff -upr linux-2.6.20-rc2-mm1-a/arch/powerpc/sysdev/cpm2_pic.c linux-2.6.20-rc2-mm1-b/arch/powerpc/sysdev/cpm2_pic.c
-> --- linux-2.6.20-rc2-mm1-a/arch/powerpc/sysdev/cpm2_pic.c	2006-12-24 05:00:32.000000000 +0100
-> +++ linux-2.6.20-rc2-mm1-b/arch/powerpc/sysdev/cpm2_pic.c	2007-01-02 02:04:25.000000000 +0100
-> @@ -245,9 +245,7 @@ void cpm2_pic_init(struct device_node *n
->  	cpm2_intctl->ic_scprrl = 0x05309770;
->  
->  	/* create a legacy host */
-> -	if (node)
-> -		cpm2_pic_node = of_node_get(node);
-> -
-> +	cpm2_pic_node = of_node_get(node);
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-This is actually a semantic change, in that cpm2_pic_node always gets
-assigned now, whereas previously it didn't if node == NULL.  Are you
-sure that is OK?  If so, you need to add something to the patch
-description explaining why it is OK.
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-Paul.
+
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
+References : http://lkml.org/lkml/2007/1/5/308
+Submitter  : Sami Farin <7atbggg02@sneakemail.com>
+Handled-By : David Chinner <dgc@sgi.com>
+Patch      : http://lkml.org/lkml/2007/1/7/201
+Status     : patch available
+
+
+Subject    : bluetooth oopses because of multiple kobject_add()
+References : http://lkml.org/lkml/2007/1/2/101
+Submitter  : Pavel Machek <pavel@ucw.cz>
+Handled-By : Marcel Holtmann <marcel@holtmann.org>
+Patch      : http://lkml.org/lkml/2007/1/2/147
+Status     : patch available
+
+
+Subject    : ftp: get or put stops during file-transfer
+References : http://lkml.org/lkml/2006/12/16/174
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
+Handled-By : Craig Schlenter <craig@codefountain.com>
+             YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Patch      : http://lkml.org/lkml/2007/1/9/5
+Status     : patch available
+
+
+Subject    : nf_conntrack_netbios_ns.c causes Oops
+References : http://lkml.org/lkml/2007/1/7/188
+Submitter  : Peter Osterlund <petero2@telia.com>
+Caused-By  : Patrick McHardy <kaber@trash.net>
+             commit 92703eee4ccde3c55ee067a89c373e8a51a8adf9
+Handled-By : Patrick McHardy <kaber@trash.net>
+Patch      : http://lkml.org/lkml/2007/1/8/290
+Status     : patch available
+
+
+Subject    : forcedeth.c 0.59: problem with sideband managment
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7684
+Submitter  : Michael Reske <micha@gmx.com>
+Handled-By : Ayaz Abdulla <aabdulla@nvidia.com>
+Patch      : http://bugzilla.kernel.org/show_bug.cgi?id=7684
+Status     : patch available
+
+
+Subject    : nVidia CK804 chipset: not detecting HT MSI capabilities
+References : http://lkml.org/lkml/2007/1/5/215
+Submitter  : Brice Goglin <brice@myri.com>
+             Robert Hancock <hancockr@shaw.ca>
+Handled-By : Brice Goglin <brice@myri.com>
+Patch      : http://lkml.org/lkml/2007/1/5/215
+Status     : patch available

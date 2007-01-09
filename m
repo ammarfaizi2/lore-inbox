@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbXAISSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932217AbXAISY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbXAISSf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbXAISSf
+	id S932217AbXAISY2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbXAISY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:18:35 -0500
-Received: from smtp101.biz.mail.mud.yahoo.com ([68.142.200.236]:32432 "HELO
-	smtp101.biz.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932338AbXAISSb (ORCPT
+	Tue, 9 Jan 2007 13:24:28 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:56161 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932217AbXAISY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:18:31 -0500
-X-YMail-OSG: melBUvwVM1kq7rZccKLPDfOFytsYIzRc5EDue8Aqya3FPDVI.AGifhkpi3v0I1yCDS093ewB8xopz1gDYNx0n6MJ4cqBDHxm8ibRka4sfgQmUUbTxfMtis9sRohFyrv0wzCoy.OJ0NJxRat5LIIZKn4t0G6B3qrLuQKBhqYbJcHrXwcDJz74cqREOUd9
-Message-ID: <45A3DD50.7040302@metricsystems.com>
-Date: Tue, 09 Jan 2007 10:22:08 -0800
-From: John Clark <jclark@metricsystems.com>
-Organization: Metric Systems, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange ethN numbering problem.
-References: <E1H45al-0002Xj-00@calista.eckenfels.net> <45A2F218.8010608@metricsystems.com> <20070109040616.ED8C460BE75@tzec.mtu.ru>
-In-Reply-To: <20070109040616.ED8C460BE75@tzec.mtu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Jan 2007 13:24:27 -0500
+Date: Tue, 9 Jan 2007 13:24:18 -0500
+Message-Id: <200701091824.l09IOICE010721@agora.fsl.cs.sunysb.edu>
+From: Erez Zadok <ezk@cs.sunysb.edu>
+To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+Cc: "Erez Zadok" <ezk@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       kolya@cs.sunysb.edu
+Subject: Re: [PATCH 01/24] Unionfs: Documentation 
+In-reply-to: Your message of "Tue, 09 Jan 2007 20:03:15 +0200."
+             <5d96567b0701091003i6a98f8fep60d1a0b9c6c586d1@mail.gmail.com> 
+X-MailKey: Erez_Zadok
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov schrieb:
-> John Clark wrote:
->
->   
->
-> Then quite likely it remembered lower numbers for "old" interfaces and
-> starts renaming with next available.
->
->   
->> The kernel is 2.6.19.1 the at-that-moment current linux kernel.
->>
->> What should I look for in terms of interface renaming.
->>     
->
-> I guess in udev rules; look also if you have /etc/iftab. The best you can do
-> is asking in lists/groups dedicated to your distribution.
->
-> -andrey
+In message <5d96567b0701091003i6a98f8fep60d1a0b9c6c586d1@mail.gmail.com>, "Raz Ben-Jehuda(caro)" writes:
+> On 1/9/07, Erez Zadok <ezk@cs.sunysb.edu> wrote:
+> > In message <20070109095345.GB12406@infradead.org>, Christoph Hellwig writes:
+> > > On Mon, Jan 08, 2007 at 07:03:35PM -0500, Erez Zadok wrote:
+> > > > However, I must caution that a file system like ecryptfs is very different
+> > > > from Unionfs, the latter being a fan-out file system---and both have very
+> > > > different goals.  The common code between the two file systems, at this
+> > > > stage, is not much (and we've already extracted some of it into the "stackfs
+> > > > layer").
+> > >
+> > > I think that's an very important point.  We have a chance to get that
+> > > non-fanout filesystems right quite easily - something I wished that would
+> > > have been done before the ecryptfs merge - while getting fan-out stackable
+> > > filesystems is a really hard task.  In addition to that I know exactly
+> > > one fan-out stackable filesystem that is posisbly useful, which is unionfs.
+> >
+> > Christoph, on our Unionfs mailing list, we've been asked numerous times for
+> > additional functionality.  People asked for load balancing based on CPU
+> > time, rtt, latency, space available, etc.  People asked for replication
+> > functionality.  People asked for failover.  And more.  Some users have
+> > become so motivated, that they developed and maintain their own Unionfs
+> > patches to support rudimentary load-balancing and replication.
+> >
+> > Our answer had always been the same: those features are nice, but have no
+> > place in Unionfs.  That's why we've created RAIF, exactly to give all those
+> 
+> Erez hello
+> my name is raz.
+> Just for my better understanding , raifs stands for raided file system ?
+> what sort of raids do they have ?
+> thank you
+> raz
 
-Thanks.
+To start with, see <http://www.fsl.cs.sunysb.edu/project-raif.html> for
+software and documentation.  RAIF is storage virtualization at the file
+level.  It can do levels 0, 1, 2, 4, 5, 6, and several combos.  It's
+designed such that you could easily plugin a new RAID policy/level that you
+invent.  We've got LB functionality too (RR and proportional share).  And
+you can configure stuff on a per file, per dir, or per file-type basis.
 
-It was 'udev rules' that were messing things up, left over from using 
-the disk on a different
-piece of hardware. To date I've been making only 'embedded'  systems 
-using busybox, and other
-similarly limited root environments and never really dealt with a  
-pretty much full up distribution
-outside of my host development systems. Hence, never really had gotten 
-in to 'udev'. I've been
-using devfs mostly till recently... However, in anticipation of large 
-capacity flash systems, I've moved
-to making my embedded systems almost as full up as most host systems.
+BTW, the lkml forum may not be the best forum to discuss it: better divert
+future discussions to fsdevel or one of our lists (which you can get to from
+the RAIF project URL above).
 
-Is there some startup command line option for the linux kernel to force 
-the 'udev' management
-program to basically 'ignore and refresh' device names?
-
-
-John Clark.
-
-
+Cheers,
+Erez.

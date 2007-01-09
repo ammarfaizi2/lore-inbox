@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932117AbXAIOvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932122AbXAIOxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbXAIOvH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 09:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbXAIOvG
+	id S932122AbXAIOxo (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 09:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbXAIOxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 09:51:06 -0500
-Received: from wr-out-0506.google.com ([64.233.184.229]:24460 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932117AbXAIOvF (ORCPT
+	Tue, 9 Jan 2007 09:53:44 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:42927 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932122AbXAIOxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 09:51:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Dwc4iekP/sg9+BKbL1UsHsJn16oC8Om2YM78sviuTd/olONppaXnXkKKx4+uaTjDKqg+C35Q0bqyvDUDE+mOETUXlfcaGCgVP8BXfee3cyu3VeicMlvI+sRBRnqZ1vC39L8+7fx9s2QOPrpP8DmbDv1DcTZQXn/R9SigG3+A6aU=
-Message-ID: <3877989d0701090651m84d7f41v5d06e1638a7eb31d@mail.gmail.com>
-Date: Tue, 9 Jan 2007 22:51:04 +0800
-From: "Luming Yu" <luming.yu@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Lee Revell" <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
-In-Reply-To: <20070108210428.GA7199@dose.home.local>
+	Tue, 9 Jan 2007 09:53:44 -0500
+Date: Tue, 9 Jan 2007 09:53:43 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@novell.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Driver core: fix refcounting bug
+In-Reply-To: <20070109071321.GA5679@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0701090952240.3102-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070107151744.GA9799@dose.home.local>
-	 <1168194194.18788.63.camel@mindpipe>
-	 <20070107200453.GA3227@thinkpad.home.local>
-	 <20070107222706.GA6092@thinkpad.home.local>
-	 <20070107234445.GM20714@stusta.de>
-	 <20070108210428.GA7199@dose.home.local>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > It didn't. It looks like it is unusable, becuase it isn't reliable in
-> > > 2.6.20-rc3.
-> >
-> > Is this issue still present in -rc4?
->
-> I used 2.6.20-rc4 in single user mode, and applied 2 patches from
-> netdev to get wake on LAN support. This way I was able to set up an
-> automatic suspend/resume loop. It looked good, but after e.g. 20
-> minutes, the resume hang. So it is reproduceable with 2.6.20-rc4.
-> Unfortunately, I can not test the same with 2.6.18, as the wake on LAN
-> patches need 2.6.20-rc.
+On Mon, 8 Jan 2007, Greg KH wrote:
 
-Hmm, do you mean this is the first time of this kind of testing?
-Is this issue related to LAN driver?
-I guess you should be able to set up an automatic suspend/resume loop
-with /proc/acpi/alarm, and test similar with 2.6.18.
+> On Mon, Jan 08, 2007 at 08:23:59PM -0800, Andrew Morton wrote:
+> > On Mon, 8 Jan 2007 11:06:44 -0500 (EST)
+> > Alan Stern <stern@rowland.harvard.edu> wrote:
+> > 
+> > > This patch (as832) fixes a newly-introduced bug in the driver core.
+> > > When a kobject is assigned to a kset, it must acquire a reference to
+> > > the kset.
 
---Luming
+> > OK, I give up.  What kernel is this against?
+> 
+> I think this is against my private tree, with the "driver-class" patches
+> that are not in -mm (for good reason at this point in time.)  Right
+> Alan?
+
+That's exactly right.  And it's also why I didn't CC: Andrew on the 
+original patch submission.
+
+Alan Stern
+

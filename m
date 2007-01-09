@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751228AbXAIJUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751231AbXAIJ00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbXAIJUy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 04:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbXAIJUy
+	id S1751231AbXAIJ00 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 04:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbXAIJ00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 04:20:54 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:2133 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751228AbXAIJUx (ORCPT
+	Tue, 9 Jan 2007 04:26:26 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:46663 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751231AbXAIJ0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 04:20:53 -0500
-Date: Tue, 9 Jan 2007 10:20:57 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Kai Germaschewski <kai@germaschewski.name>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: .version keeps being updated
-Message-Id: <20070109102057.c684cc78.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Jan 2007 04:26:25 -0500
+Date: Tue, 9 Jan 2007 10:26:26 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, cborntra@de.ibm.com
+Subject: [S390] locking problem with __cpcmd.
+Message-ID: <20070109092626.GA767@skybase>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
-an incremented version number, whether there has actually been any
-change done to the code or configuration or not. This increases the
-build time quite a bit.
+[S390] locking problem with __cpcmd.
 
-I've tracked it down to include/linux/compile.h always being updated,
-and this is because .version is updated. I couldn't find what is
-causing .version to be updated each time though. Can anybody help
-there? Was this change made on purpose or is this a bug which we should
-fix?
+Changeset 740b5706b9c4b3767f597b3ea76654c6f2a800b2 moved the protecting
+spinlock from __cpcmd to cpcmd. Therefore vmcp can no longer use __cpcmd,
+instead we have to use cpcmd.
 
-Thanks,
--- 
-Jean Delvare
+Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ drivers/s390/char/vmcp.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -urpN linux-2.6/drivers/s390/char/vmcp.c linux-2.6-patched/drivers/s390/char/vmcp.c
+--- linux-2.6/drivers/s390/char/vmcp.c	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/vmcp.c	2007-01-09 10:08:02.000000000 +0100
+@@ -117,7 +117,7 @@ vmcp_write(struct file *file, const char
+ 		return -ENOMEM;
+ 	}
+ 	debug_text_event(vmcp_debug, 1, cmd);
+-	session->resp_size = __cpcmd(cmd, session->response,
++	session->resp_size = cpcmd(cmd, session->response,
+ 				     session->bufsize,
+ 				     &session->resp_code);
+ 	up(&session->mutex);

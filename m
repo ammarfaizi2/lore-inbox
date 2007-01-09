@@ -1,78 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932268AbXAIRRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932283AbXAIR2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbXAIRRc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 12:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbXAIRRc
+	id S932283AbXAIR2z (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 12:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbXAIR2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 12:17:32 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40175 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932268AbXAIRRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 12:17:30 -0500
-Message-ID: <45A3CE24.7080706@sgi.com>
-Date: Tue, 09 Jan 2007 11:17:24 -0600
-From: Michael Reed <mdr@sgi.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
+	Tue, 9 Jan 2007 12:28:55 -0500
+Received: from out5.smtp.messagingengine.com ([66.111.4.29]:38406 "EHLO
+	out5.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932242AbXAIR2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 12:28:53 -0500
+X-Sasl-enc: n4MZOcKC+ciHIJlN/DDKPl2a9C+dm/XDVoxfODqHeZzQ 1168363515
+Date: Tue, 9 Jan 2007 15:28:45 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Adrian Bunk <bunk@stusta.de>, Len Brown <lenb@kernel.org>
+Cc: linux-acpi@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6.20-rc4 regression] ibm-acpi: bay support disabled
+Message-ID: <20070109172845.GA3528@khazad-dum.debian.net>
 MIME-Version: 1.0
-To: Peter Staubach <staubach@redhat.com>
-CC: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, hch@infradead.com, kenneth.w.chen@intel.com,
-       akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] support O_DIRECT in tmpfs/ramfs
-References: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain> <45A3B529.80402@redhat.com>
-In-Reply-To: <45A3B529.80402@redhat.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A new one for you, it exists since 2.6.20-rc2.
 
+Subject      : ThinkPad removable bay support disabled unconditionally
+References   : http://marc.theaimsgroup.com/?l=linux-acpi&m=116750681901208&w=2
+Caused-By    : Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Handled-By   : Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Status       : patch attached
 
-Peter Staubach wrote:
-> Hua Zhong wrote:
->> Hi,
->>
->> A while ago there was a discussion about supporting direct-io on tmpfs.
->>
->> Here is a simple patch that does it.
->>
->> 1. A new fs flag FS_RAM_BASED is added and the O_DIRECT flag is ignored
->>    if this flag is set (suggestions on a better name?)
->>
->> 2. Specify FS_RAM_BASED for tmpfs and ramfs.
->>
->> 3. When EINVAL is returned only a fput is done. I changed it to go
->>    through cleanup_all. But there is still a cleanup problem:
->>
->>   If a new file is created and then EINVAL is returned due to O_DIRECT,
->>   the file is still left on the disk. I am not exactly sure how to fix
->>   it other than adding another fs flag so we could check O_DIRECT
->>   support at a much earlier stage. Comments on how to fix it?
-> 
-> This would seem to create two different sets of O_DIRECT semantics,
-> wouldn't it?  I think that it would be possible to develop an application
-> using one of these FS_RAM_BASED file systems as the testbed, but then be
-> surprised when the application failed to work on other file systems such
-> as ext3.
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh
 
-As I'm ignorant with regard to what is needed for "compliant"
-support of O_DIRECT on tmpfs, what are the issues with actually implementing
-the proper semantics, including the alignment and any transfer length
-restrictions?
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-My $.02 is that the implementation should be fully compliant with the
-current semantics or it shouldn't be implemented.  And I think it should
-be implemented.
+ACPI: ibm-acpi: fix Kconfig entries for ibm-acpi bay and dock
 
-Mike
+Support for ACPI_BAY has not been merged in mainline yet.  Usage of
+"depends on FOO=n" fails if FOO is undefined, thus ibm-acpi support
+for bay was being made non-available in a kernel that has no other
+sort of bay support.
 
-> 
->       ps
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Fix it to use "depends on ! FOO" instead, that does the right thing
+when FOO is undefined.  Fix ACPI_IBM_DOCK accordingly as well while
+at it, and also improve the help text.
+
+Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+---
+ drivers/acpi/Kconfig |   17 ++++++++++-------
+ 1 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index 1639998..34cc8d5 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -215,26 +215,29 @@ config ACPI_IBM
+ config ACPI_IBM_DOCK
+ 	bool "Legacy Docking Station Support"
+ 	depends on ACPI_IBM
+-	depends on ACPI_DOCK=n
+-	default n
++	depends on ! ACPI_DOCK
++	default y
+ 	---help---
+ 	  Allows the ibm_acpi driver to handle docking station events.
+ 	  This support is obsoleted by CONFIG_HOTPLUG_PCI_ACPI.  It will
+ 	  allow locking and removing the laptop from the docking station,
+ 	  but will not properly connect PCI devices.
+ 
+-	  If you are not sure, say N here.
++	  If you are not sure, select ACPI_DOCK instead.
+ 
+ config ACPI_IBM_BAY
+ 	bool "Legacy Removable Bay Support"
+ 	depends on ACPI_IBM
+-	depends on ACPI_BAY=n
+-	default n
++	depends on ! ACPI_BAY
++	default y
+ 	---help---
+ 	  Allows the ibm_acpi driver to handle removable bays.
+-	  This support is obsoleted by CONFIG_ACPI_BAY.
++	  This support is obsoleted by CONFIG_ACPI_BAY.  It will allow
++	  enabling and disabling devices in the removable bays, but it
++	  will not properly add or remove the devices from the kernel,
++	  which must be done manually by userspace scripts.
+ 
+-	  If you are not sure, say N here.
++	  If you are not sure, select ACPI_BAY instead if it is available.
+ 
+ config ACPI_TOSHIBA
+ 	tristate "Toshiba Laptop Extras"
+-- 
+1.4.4.3
+

@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932214AbXAIQ3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932208AbXAIQaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbXAIQ3Q (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 11:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAIQ3Q
+	id S932208AbXAIQaG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 11:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbXAIQaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 11:29:16 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:4641 "EHLO
-	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932208AbXAIQ3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 11:29:14 -0500
-X-IronPort-AV: i="4.13,164,1167638400"; 
-   d="scan'208"; a="758647403:sNHT77563234"
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Divy Le Ray <divy@chelsio.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
-Subject: Re: [PATCH 1/10] cxgb3 - main header files
-X-Message-Flag: Warning: May contain useful information
-References: <20061220124125.6286.17148.stgit@localhost.localdomain>
-	<45918CA4.3020601@garzik.org> <45A36C22.6010009@chelsio.com>
-	<45A36E59.30500@garzik.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 09 Jan 2007 08:28:59 -0800
-In-Reply-To: <45A36E59.30500@garzik.org> (Jeff Garzik's message of "Tue, 09 Jan 2007 05:28:41 -0500")
-Message-ID: <adamz4scgfo.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 9 Jan 2007 11:30:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33633 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932208AbXAIQaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 11:30:04 -0500
+Message-ID: <45A3C2CE.7070500@redhat.com>
+Date: Tue, 09 Jan 2007 08:29:02 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Jan 2007 16:29:02.0557 (UTC) FILETIME=[45E998D0:01C7340B]
-Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim3002 verified; ); 
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+CC: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, Jakub Jelinek <jakub@redhat.com>,
+       Darren Hart <dvhltc@us.ibm.com>,
+       =?UTF-8?B?U8OpYmFzdGllbiBEdWd1w6k=?= <sebastien.dugue@bull.net>
+Subject: Re: [PATCH 2.6.20-rc4 1/4] futex priority based wakeup
+References: <45A3B330.9000104@bull.net> <45A3BFC8.1030104@bull.net>
+In-Reply-To: <45A3BFC8.1030104@bull.net>
+X-Enigmail-Version: 0.94.1.2.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig095198DC409F14AB98C812B2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > You can grab the monolithic patch at this URL:
- > > http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
- > 
- > this is in my queue, thanks.  Sorry I didn't indicate that earlier.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig095198DC409F14AB98C812B2
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-When do you plan to merge it?  For 2.6.20 or .21?
+Pierre Peiffer wrote:
+> This patch makes use of plist (pirotity ordered lists) instead of simpl=
+e
+> list in
+> futex_hash_bucket.
 
-I'm trying to understand when the RDMA stuff that depends on the
-ethernet driver can be merged.
+I have never seen performance numbers for this.  If it is punishing
+existing code in a measurable way I think it's not anacceptable default
+behavior.
 
-Thanks,
-  Roland
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig095198DC409F14AB98C812B2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFo8LO2ijCOnn/RHQRAjKJAKCRTuVGuyI/cZpTdIbpBsjt24x+JwCfRw71
+BMdRCtzRfzHkl/pD35IRRVc=
+=JzLq
+-----END PGP SIGNATURE-----
+
+--------------enig095198DC409F14AB98C812B2--

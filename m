@@ -1,107 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932315AbXAISBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932316AbXAISDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbXAISBu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:01:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbXAISBu
+	id S932316AbXAISDR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbXAISDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:01:50 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:57672 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932315AbXAISBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:01:48 -0500
-Date: Tue, 9 Jan 2007 09:58:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>,
-       reiserfs-dev@namesys.com
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v2)
-In-Reply-To: <20070109052510.GG25007@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701090944070.3594@woody.osdl.org>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
- <20070109052510.GG25007@stusta.de>
+	Tue, 9 Jan 2007 13:03:17 -0500
+Received: from nz-out-0506.google.com ([64.233.162.235]:12957 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932316AbXAISDQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 13:03:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Orfo7K2zD2lQqoJWlAKmkxKl8vB4AuGhyT1M7ANm1z9WcWeUjSVYqGFHvlrgFP7Hrbw1fojmVO8zQSkFwa8pbiOv7iRiATwYBfq3RutNMzkhWrgIAG9Lisy24klJW3BhbKUM0F2gzIni4Uu4tZib6xw3fdemogbnJ6m1tiPY4DM=
+Message-ID: <5d96567b0701091003i6a98f8fep60d1a0b9c6c586d1@mail.gmail.com>
+Date: Tue, 9 Jan 2007 20:03:15 +0200
+From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+To: "Erez Zadok" <ezk@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200701091728.l09HSxQI009160@agora.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463790079-559746376-1168365499=:3594"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20070109095345.GB12406@infradead.org>
+	 <200701091728.l09HSxQI009160@agora.fsl.cs.sunysb.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 1/9/07, Erez Zadok <ezk@cs.sunysb.edu> wrote:
+> In message <20070109095345.GB12406@infradead.org>, Christoph Hellwig writes:
+> > On Mon, Jan 08, 2007 at 07:03:35PM -0500, Erez Zadok wrote:
+> > > However, I must caution that a file system like ecryptfs is very different
+> > > from Unionfs, the latter being a fan-out file system---and both have very
+> > > different goals.  The common code between the two file systems, at this
+> > > stage, is not much (and we've already extracted some of it into the "stackfs
+> > > layer").
+> >
+> > I think that's an very important point.  We have a chance to get that
+> > non-fanout filesystems right quite easily - something I wished that would
+> > have been done before the ecryptfs merge - while getting fan-out stackable
+> > filesystems is a really hard task.  In addition to that I know exactly
+> > one fan-out stackable filesystem that is posisbly useful, which is unionfs.
+>
+> Christoph, on our Unionfs mailing list, we've been asked numerous times for
+> additional functionality.  People asked for load balancing based on CPU
+> time, rtt, latency, space available, etc.  People asked for replication
+> functionality.  People asked for failover.  And more.  Some users have
+> become so motivated, that they developed and maintain their own Unionfs
+> patches to support rudimentary load-balancing and replication.
+>
+> Our answer had always been the same: those features are nice, but have no
+> place in Unionfs.  That's why we've created RAIF, exactly to give all those
 
----1463790079-559746376-1168365499=:3594
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Erez hello
+my name is raz.
+Just for my better understanding , raifs stands for raided file system ?
+what sort of raids do they have ?
+thank you
+raz
 
 
 
-On Tue, 9 Jan 2007, Adrian Bunk wrote:
-> 
-> Subject : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs) 
-> References : http://lkml.org/lkml/2007/1/7/117
-> Submitter : Malte Schröder <MalteSch@gmx.de>
-> Status : unknown
 
-Adrian, this is also available as
+> who wanted "just one more thing added to Unionfs" another f/s to play with.
+> Who knows, maybe one day, some of those features may wind up in a Unionfs-NG
+> or as composable VFS plugins.  But for now, we've given the community RAIF
+> so they can play with it, experiment, enhance, whatever.  RAIF is newer
+> than Unionfs and for now we're just accumulating experience with it.
+>
+> In other words, I think there are other fan-out file systems of use other
+> than Unionfs.  If and when Unionfs made it into mainline, I'll guarantee you
+> that you'll have users asking for other fan-out functionality.  That is why I
+> think it is prudent to wait and gather more experience with stackable file
+> systems in Linux, before embarking on a more generic functionality layer,
+> which would support non-fanout as well as fanout extensions.
+>
+> > Because of that I'm much more inclined to add VFS asistance for this
+> > particular problem (unioning) instead of adding complex infrastructure
+> > to solve a general problem that people don't benefit from.
+>
+> I'd love to see VFS assistance for Unioning in particular and for stacking
+> in general.  But again, I prefer to gather some practical experience first,
+> and then try to generalize any new VFS-level helper functionality.
+>
+> Sincerely,
+> Erez.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	http://lkml.org/lkml/2007/1/5/308
 
-But, at worst, I don't think this is a show-stopper (oh, well: I actually 
-liked it better when "WARN_ON()" said _warning_, not BUG, since it 
-separates out the two cases visually much better, but others disagreed. 
-Crud).
-
-It does show that something is wrong in reiserfs-land, although probably 
-not any worse than it ever was before, so in that sense this is not a 
-"regression", it's actually an _improvement_. Now it warns about reiserfs 
-trying to clear the dirty bit on a page cache that is still mapped (and 
-that _may_ be dirty in the page tables, although it almost certainly isn't 
-in practice).
-
-That warning just didn't exist before.
-
-Now, that said, the call stack is interestign:
-
-	BUG: at mm/truncate.c:60 cancel_dirty_page()
-	  [<c0137371>] cancel_dirty_page+0x45/0x7b
-	  [<df944b18>] reiserfs_cut_from_item+0x7cc/0x7fd [reiserfs]
-	  [<c01e5eba>] __kfree_skb+0x9b/0xf7
-	  [<df9316a0>] make_cpu_key+0x3f/0x46 [reiserfs]
-	  [<df944efa>] reiserfs_do_truncate+0x3b1/0x515 [reiserfs]
-	  [<df949901>] journal_begin+0x3f/0xd0 [reiserfs]
-	  [<df9322fc>] reiserfs_truncate_file+0x1c1/0x2ad [reiserfs]
-	  [<df938172>] reiserfs_file_release+0x35f/0x379 [reiserfs]
-	  [<c013be42>] free_pgtables+0x70/0x7c
-	  [<c01491f1>] __fput+0xa5/0x14d
-	  [<c0146e7a>] filp_close+0x51/0x58
-	  [<c0147de8>] sys_close+0x55/0x8a
-	  [<c0102ab2>] sysenter_past_esp+0x5f/0x85
-
-in that a final "sys_close()" that releases the file and causes it to be 
-truncated (which is apparently what is going on) should NOT have any 
-mappings of that file active any more!
-
-If there are mappings active, the reiserfs_truncate_file() thing should 
-have been delayed until the mappins are gone!
-
-So something interesting is definitely going on, but I don't know exactly 
-what it is. Why does reiserfs do the truncate as part of a close, if the 
-same inode is actually mapped somewhere else? And if it's a race with two 
-different CPU's (one doing a "munmap()" and the other doing a "close()", 
-then the unmap should _still_ have actually unmapped the pages before it 
-actually did _its_ "release()" call.
-
-In general, a filesystem should never do a truncate at "release()" time 
-_anyway_. It should do it at "drop_inode" time.
-
-So I think this does show some confusion in reiserfs, but it's not 
-anything new. The only new thing is that the _message_ happens.
-
-So I don't personally consider this a regression. Just a sign of old and 
-preexisting confusion that is now uncovered by new code (and it will print 
-out the scary message at most four times, and then stop complaining about 
-it. So apart from the scary message, nothing new and bad has really 
-happened).
-
-		Linus
----1463790079-559746376-1168365499=:3594--
+-- 
+Raz

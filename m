@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750904AbXAIB4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750906AbXAICFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbXAIB4d (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 20:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbXAIB4d
+	id S1750906AbXAICFs (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 21:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbXAICFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 20:56:33 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:43681 "EHLO tmailer.gwdg.de"
+	Mon, 8 Jan 2007 21:05:48 -0500
+Received: from gate.crashing.org ([63.228.1.57]:57175 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750722AbXAIB4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 20:56:33 -0500
-Date: Tue, 9 Jan 2007 02:51:56 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hua Zhong <hzhong@gmail.com>
-cc: linux-kernel@vger.kernel.org, hugh@veritas.com, hch@infradead.com,
-       kenneth.w.chen@intel.com, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] support O_DIRECT in tmpfs/ramfs
-In-Reply-To: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0701090249360.20773@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0701081729100.2747@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1750905AbXAICFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 21:05:47 -0500
+Subject: Re: Linux 2.6.20-rc4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Sylvain Munaut <tnt@246tNt.com>,
+       Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linuxppc-dev@ozlabs.org,
+       Linus Torvalds <torvalds@osdl.org>, paulus@samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20070109005624.GA598@suse.de>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	 <200701081550.27748.m.kozlowski@tuxland.pl> <45A25C17.5070606@246tNt.com>
+	 <1168303139.22458.246.camel@localhost.localdomain>
+	 <20070109005624.GA598@suse.de>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 13:05:23 +1100
+Message-Id: <1168308323.22458.254.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2007-01-08 at 16:56 -0800, Greg KH wrote:
+> On Tue, Jan 09, 2007 at 11:38:59AM +1100, Benjamin Herrenschmidt wrote:
+> > On Mon, 2007-01-08 at 15:58 +0100, Sylvain Munaut wrote:
+> > > Don't build ohci as module for now.
+> > > A fix for that is already in gregkh usb tree for 2.6.21
+> > 
+> > Do you mean that as-is, powerpc defconfigs cannot build USB as a module
+> > in 2.6.20 ? That is unacceptable as a regression. We need a fix in
+> > 2.6.20.
+> > 
+> > Greg, what is the status there ?
+> 
+> Hm, for some reason I thought your patches were not needed until 2.6.21.
 
+My endian patches aren't, but Sylvain' are based on mines so ... Maybe
+if Sylvain rebases his ?
 
-On Jan 8 2007 17:43, Hua Zhong wrote:
->
->1. A new fs flag FS_RAM_BASED is added and the O_DIRECT flag is ignored
->   if this flag is set (suggestions on a better name?)
+> Should I forward them on to Linus now for 2.6.20?  Are they required for
+> ppc to build?
 
-FS_IGNORE_DIRECT. Somehow I think this flag is not only useful for
-RAM-based filesystems, but also possibly virtual filesystems (procfs,
-sysfs, etc.) Maybe even more such as fuse and unionfs.
+Sylvain fixes are. My endian patches are for ps3 and toshiba celleb,
+none of which is fully merged in 2.6.20 so they are fine to wait. It's
+mostly a matter of being a PITA to rebase Sylvain stuff to apply before
+mine and rebase mine on top of his I suppose :-)
 
+Ben.
 
-	-`J'
--- 

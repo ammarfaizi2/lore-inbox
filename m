@@ -1,122 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751145AbXAIH73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751143AbXAIIHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbXAIH73 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 02:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbXAIH73
+	id S1751143AbXAIIHk (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 03:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbXAIIHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 02:59:29 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:43420 "HELO ustc.edu.cn"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1751145AbXAIH72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 02:59:28 -0500
-Message-ID: <368329554.17014@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Tue, 9 Jan 2007 15:59:46 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Theodore Tso <tytso@mit.edu>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, nigel@nigel.suspend2.net,
-       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: How git affects kernel.org performance
-Message-ID: <20070109075945.GA8799@mail.ustc.edu.cn>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Suparna Bhattacharya <suparna@in.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
-	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-References: <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org>
+	Tue, 9 Jan 2007 03:07:40 -0500
+Received: from maxwell.spina.si ([193.77.104.223]:51670 "EHLO maxwell.spina.si"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751143AbXAIIHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 03:07:39 -0500
+Message-ID: <45A34DC5.4030706@kanardia.eu>
+Date: Tue, 09 Jan 2007 09:09:41 +0100
+From: Rok Markovic <kernel@kanardia.eu>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070108125819.GA32756@thunk.org>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Trent Waddington <trent.waddington@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Accelerated driver for linux 2.6
+References: <45A34517.2030102@kanardia.eu>	 <3d57814d0701082333i6d9eefcdibd1d6438246de726@mail.gmail.com>	 <45A348C4.7060304@kanardia.eu> <3d57814d0701082355k3f96c48dh3cf88339d3a9a6e3@mail.gmail.com>
+In-Reply-To: <3d57814d0701082355k3f96c48dh3cf88339d3a9a6e3@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 07:58:19AM -0500, Theodore Tso wrote:
-> On Mon, Jan 08, 2007 at 08:35:55AM +0530, Suparna Bhattacharya wrote:
-> > > Yeah, slowly-growing directories will get splattered all over the disk.
-> > > 
-> > > Possible short-term fixes would be to just allocate up to (say) eight
-> > > blocks when we grow a directory by one block.  Or teach the
-> > > directory-growth code to use ext3 reservations.
-> > > 
-> > > Longer-term people are talking about things like on-disk rerservations.
-> > > But I expect directories are being forgotten about in all of that.
-> > 
-> > By on-disk reservations, do you mean persistent file preallocation ? (that
-> > is explicit preallocation of blocks to a given file) If so, you are
-> > right, we haven't really given any thought to the possibility of directories
-> > needing that feature.
+Trent Waddington wrote:
+> On 1/9/07, Rok Markovic <kernel@kanardia.eu> wrote:
+>> Oh, I am not sure if I can? .... but It is Marathon (2700G3) from intel
+>> which has
+>> core licenced from PowerVR.
 > 
-> The fastest and probably most important thing to add is some readahead
-> smarts to directories --- both to the htree and non-htree cases.  If
+> So I get this strange feeling that you're not going to be writing an
+> open source accelerated driver?
+> 
+> Trent
+> 
+> 
 
-Here's is a quick hack to practice the directory readahead idea.
-Comments are welcome, it's a freshman's work :)
+I want to write open source driver. BUT I don't know if i am allowed to
+do this. Our company is small, just a few researchers, and most of software
+written is published under GPL licence (not all, but that is firmware for uC),
+all of the communication protocols are public and API is well documented, 
+because we all agreed that we are selling hardware not software.
 
-Regards,
-Wu
----
- fs/ext3/dir.c   |   22 ++++++++++++++++++++++
- fs/ext3/inode.c |    2 +-
- 2 files changed, 23 insertions(+), 1 deletion(-)
+Some lawyer should review licence, and then I could tell you more.
 
---- linux.orig/fs/ext3/dir.c
-+++ linux/fs/ext3/dir.c
-@@ -94,6 +94,25 @@ int ext3_check_dir_entry (const char * f
- 	return error_msg == NULL ? 1 : 0;
- }
- 
-+int ext3_get_block(struct inode *inode, sector_t iblock,
-+			struct buffer_head *bh_result, int create);
-+
-+static void ext3_dir_readahead(struct file * filp)
-+{
-+	struct inode *inode = filp->f_path.dentry->d_inode;
-+	struct address_space *mapping = inode->i_sb->s_bdev->bd_inode->i_mapping;
-+	unsigned long sector;
-+	unsigned long blk;
-+	pgoff_t offset;
-+
-+	for (blk = 0; blk < inode->i_blocks; blk++) {
-+		sector = blk << (inode->i_blkbits - 9);
-+		sector = generic_block_bmap(inode->i_mapping, sector, ext3_get_block);
-+		offset = sector >> (PAGE_CACHE_SHIFT - 9);
-+		do_page_cache_readahead(mapping, filp, offset, 1);
-+	}
-+}
-+
- static int ext3_readdir(struct file * filp,
- 			 void * dirent, filldir_t filldir)
- {
-@@ -108,6 +127,9 @@ static int ext3_readdir(struct file * fi
- 
- 	sb = inode->i_sb;
- 
-+	if (!filp->f_pos)
-+		ext3_dir_readahead(filp);
-+
- #ifdef CONFIG_EXT3_INDEX
- 	if (EXT3_HAS_COMPAT_FEATURE(inode->i_sb,
- 				    EXT3_FEATURE_COMPAT_DIR_INDEX) &&
---- linux.orig/fs/ext3/inode.c
-+++ linux/fs/ext3/inode.c
-@@ -945,7 +945,7 @@ out:
- 
- #define DIO_CREDITS (EXT3_RESERVE_TRANS_BLOCKS + 32)
- 
--static int ext3_get_block(struct inode *inode, sector_t iblock,
-+int ext3_get_block(struct inode *inode, sector_t iblock,
- 			struct buffer_head *bh_result, int create)
- {
- 	handle_t *handle = journal_current_handle();
+Rok
+

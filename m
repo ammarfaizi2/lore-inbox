@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751123AbXAIHK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751126AbXAIHN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbXAIHK3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 02:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbXAIHK2
+	id S1751126AbXAIHN6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 02:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbXAIHN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 02:10:28 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:38230 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751123AbXAIHK2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 02:10:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Dz9KvUaeKwsNBY6fKKdduNKW0s/yxRY6pZlHXn1pXW7u0h7SldYTDtA9Rbz7ZL9J3Kyjro0IQqkbaSRR/u4dBZuy/k/8sh+nOdW2tpKOE5m94YYlqbCCAIid+LyDjyQVBNN7OUj4VnWY7oYZyWPuETIfh50DbWmJkEgtC4xNuzs=
-Message-ID: <3d57814d0701082310q7cca789bnb89b0689184ca264@mail.gmail.com>
-Date: Tue, 9 Jan 2007 17:10:26 +1000
-From: "Trent Waddington" <trent.waddington@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: Gaming Interface
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070109070724.GK25007@stusta.de>
+	Tue, 9 Jan 2007 02:13:57 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:55731 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751126AbXAIHN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 02:13:57 -0500
+Date: Mon, 8 Jan 2007 23:13:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kay Sievers <kay.sievers@novell.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Driver core: fix refcounting bug
+Message-ID: <20070109071321.GA5679@kroah.com>
+References: <Pine.LNX.4.44L0.0701081103530.4249-100000@iolanthe.rowland.org> <20070108202359.1e7a6670.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <45A22D69.3010905@gmx.net> <45A2356B.5050208@gmx.net>
-	 <a06230924c1c7d795429a@192.168.2.101> <45A24176.9080107@gmx.net>
-	 <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net>
-	 <45A29C13.10304@l4x.org> <45A340C5.3060904@gmx.net>
-	 <3d57814d0701082216hbe12916v66462104b49bdf30@mail.gmail.com>
-	 <20070109070724.GK25007@stusta.de>
+In-Reply-To: <20070108202359.1e7a6670.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/07, Adrian Bunk <bunk@stusta.de> wrote:
-> It does already exist:
->   http://winehq.org/site/docs/winelib-guide/index
->
+On Mon, Jan 08, 2007 at 08:23:59PM -0800, Andrew Morton wrote:
+> On Mon, 8 Jan 2007 11:06:44 -0500 (EST)
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> 
+> > This patch (as832) fixes a newly-introduced bug in the driver core.
+> > When a kobject is assigned to a kset, it must acquire a reference to
+> > the kset.
+> > 
+> > Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> > 
+> > ---
+> > 
+> > The bug was introduced in Kay's "unify /sys/class and /sys/bus at 
+> > /sys/subsystem" patch.
+> > 
+> > I left the assignment of class_dev->kobj.parent as it was, although it is 
+> > not needed.  The following call to kobject_add() will end up doing the 
+> > same thing.
+> > 
+> > Alan Stern
+> > 
+> > P.S.: Tracking down refcounting bugs is a real pain!  I spent an entire 
+> > afternoon on this one...  :-(
+> > 
+> > 
+> > Index: usb-2.6/drivers/base/class.c
+> > ===================================================================
+> > --- usb-2.6.orig/drivers/base/class.c
+> > +++ usb-2.6/drivers/base/class.c
+> > @@ -648,7 +648,7 @@ int class_device_add(struct class_device
+> >  		class_dev->kobj.parent = &parent_class_dev->kobj;
+> >  	else {
+> >  		/* assign parent kset for uevent hook */
+> > -		class_dev->kobj.kset = &parent_class->devices_dir;
+> > +		class_dev->kobj.kset = kset_get(&parent_class->devices_dir);
+> >  		/* the device directory in /sys/subsystem/<name>/devices */
+> >  		class_dev->kobj.parent = &parent_class->devices_dir.kobj;
+> >  	}
+> 
+> OK, I give up.  What kernel is this against?
 
-That's half the guide I recommended Dirk write.. and could do with
-some updating.  The other half is how exactly you go about using
-DirectX with winelib.  I've seen no guide to *that*.
+I think this is against my private tree, with the "driver-class" patches
+that are not in -mm (for good reason at this point in time.)  Right
+Alan?
 
-Trent
+thanks,
+
+greg k-h

@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932431AbXAIV1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932440AbXAIVa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbXAIV1K (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 16:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbXAIV1K
+	id S932440AbXAIVa4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 16:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbXAIVa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 16:27:10 -0500
-Received: from mis011.exch011.intermedia.net ([64.78.21.10]:38344 "EHLO
-	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932431AbXAIV1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 16:27:09 -0500
-Message-ID: <45A40898.4040307@qumranet.com>
-Date: Tue, 09 Jan 2007 23:26:48 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Tue, 9 Jan 2007 16:30:56 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:52477 "EHLO e1.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932440AbXAIVaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 16:30:55 -0500
+In-Reply-To: <1168312045.3180.140.camel@laptopd505.fenrus.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@watson.ibm.com
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [kvm-devel] guest crash on 2.6.20-rc4
-References: <ada4pr1mqz2.fsf@cisco.com>
-In-Reply-To: <ada4pr1mqz2.fsf@cisco.com>
-Content-Type: multipart/mixed;
- boundary="------------020502030200070109080303"
-X-OriginalArrivalTime: 09 Jan 2007 21:27:01.0235 (UTC) FILETIME=[E66F5C30:01C73434]
+Subject: Re: mprotect abuse in slim
+X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
+Message-ID: <OFCB9A1329.F623D1AA-ON8525725E.0075A270-8525725E.0076FD7E@us.ibm.com>
+From: Mimi Zohar <zohar@us.ibm.com>
+Date: Tue, 9 Jan 2007 16:30:54 -0500
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
+ 01/09/2007 16:30:55,
+	Serialize complete at 01/09/2007 16:30:55
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020502030200070109080303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Arjan van de Ven <arjan@infradead.org> wrote on 01/08/2007 10:07:25 PM:
 
-Roland Dreier wrote:
-> I'm running a 64-bit Fedora 6 install as a guest on a host running
-> 2.6.20-rc4 with the kvm-10 userspace release.  The CPU is a Xeon 5160
-> and I have 6 GB of RAM.  The guest is given 512 MB of memory.  I left
-> the guest idle overnight, and the makewhatis cron job seems to have
-> triggered this:
->
->     Unable to handle kernel paging request at ffff81000ba04000 RIP:
->      [<ffffffff8025f402>] clear_page+0x16/0x44
->   
+> Hi,
+> 
+>maybe this is a silly question, but do you revoke not only the current
+>fd entries, but also the ones that are pending in UNIX domain sockets
+>and that are already being sent to the process? If not.. then you might
+>as well not bother ;)
+> 
+>Greetings,
+>   Arjan van de Ven
 
-I've managed to reproduce a bug with similar characteristics: a write 
-fault into a present, writable kernel page.  The attached patch should 
-fix it.
+In the new slim code, which we haven't sent out but will soon, we added
+the unix_may_send and unix_stream_connect hooks. The unix_may_send hook
+prevents a demoted process from sending data on a higher integrity
+socket; and the unix_may_connect hook prevents a process from
+connecting to a lower integrity socket.  The integrity level of the
+socket is based on the integrity of the file associated with the Unix
+domain socket.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+The bottom line is that although we don't demote the pending socket
+and would allow it to connect at the higher integrity, we simply don't
+allow anything of lesser integrity to be sent over it.
 
-
---------------020502030200070109080303
-Content-Type: text/x-patch;
- name="spurious-page-fault.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="spurious-page-fault.patch"
-
-Index: b/drivers/kvm/paging_tmpl.h
-===================================================================
---- a/drivers/kvm/paging_tmpl.h	(revision 4270)
-+++ b/drivers/kvm/paging_tmpl.h	(working copy)
-@@ -274,7 +274,7 @@
- 	struct kvm_mmu_page *page;
- 
- 	if (is_writeble_pte(*shadow_ent))
--		return 0;
-+		return 1;
- 
- 	writable_shadow = *shadow_ent & PT_SHADOW_WRITABLE_MASK;
- 	if (user) {
-
---------------020502030200070109080303--
+Mimi Zohar

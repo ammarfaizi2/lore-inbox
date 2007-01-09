@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750825AbXAIA4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750845AbXAIA5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbXAIA4Y (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 19:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbXAIA4Y
+	id S1750845AbXAIA5G (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 19:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbXAIA5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 19:56:24 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:28239 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750825AbXAIA4Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 19:56:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mRBOYzQxl7QBwX4MYroJTwoQeq9/S32WBGzqPy7OhlTPz4DupMisGk51u9Y6paF66Fnieetv+q/CEfFhFHuBhUViYDOi7aiFdkakjAnNmbSbxXhIZULhlLW/bI+EWuNLvQk0w1WGbh1WTiUvskxdVd5Qup/E2i2++X9qyWCskdQ=
-Message-ID: <215036450701081656u189774ffv46440f50031668eb@mail.gmail.com>
-Date: Tue, 9 Jan 2007 08:56:22 +0800
-From: "Joe Jin" <lkmaillist@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: BUG: sleeping function called from invalid context at kernel/rwsem.c:20
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
-       "Arjan van de Ven" <arjan@linux.intel.com>
-In-Reply-To: <20070106024139.GM20714@stusta.de>
+	Mon, 8 Jan 2007 19:57:05 -0500
+Received: from mx2.suse.de ([195.135.220.15]:42339 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750841AbXAIA5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 19:57:04 -0500
+Date: Mon, 8 Jan 2007 16:56:24 -0800
+From: Greg KH <gregkh@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Sylvain Munaut <tnt@246tNt.com>,
+       Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linuxppc-dev@ozlabs.org,
+       Linus Torvalds <torvalds@osdl.org>, paulus@samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.20-rc4
+Message-ID: <20070109005624.GA598@suse.de>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <200701081550.27748.m.kozlowski@tuxland.pl> <45A25C17.5070606@246tNt.com> <1168303139.22458.246.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <215036450612201907p1b7b1eddg42014578bd4db33e@mail.gmail.com>
-	 <20070106024139.GM20714@stusta.de>
+In-Reply-To: <1168303139.22458.246.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/07, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Dec 21, 2006 at 11:07:27AM +0800, Joe Jin wrote:
-> Thanks for your report.
->
-> Is this issue still present in kernel 2.6.20-rc3?
-> And was it already present in kernel 2.6.19?
+On Tue, Jan 09, 2007 at 11:38:59AM +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2007-01-08 at 15:58 +0100, Sylvain Munaut wrote:
+> > Don't build ohci as module for now.
+> > A fix for that is already in gregkh usb tree for 2.6.21
+> 
+> Do you mean that as-is, powerpc defconfigs cannot build USB as a module
+> in 2.6.20 ? That is unacceptable as a regression. We need a fix in
+> 2.6.20.
+> 
+> Greg, what is the status there ?
 
-It is not  occur again, just appeared this time.
-At 2.6.19 never found it.
-and now I'm running 2.6.20-rc3, dont occur to now
+Hm, for some reason I thought your patches were not needed until 2.6.21.
+Should I forward them on to Linus now for 2.6.20?  Are they required for
+ppc to build?
 
-Thanks
+thanks,
 
--- 
-Regards,
-Joe Jin
+greg k-h

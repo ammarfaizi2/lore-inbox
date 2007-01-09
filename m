@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932240AbXAIRES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932245AbXAIRE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbXAIRES (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 12:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbXAIRES
+	id S932245AbXAIRE3 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 12:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbXAIRE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 12:04:18 -0500
-Received: from pat.uio.no ([129.240.10.15]:57800 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932240AbXAIRER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 12:04:17 -0500
+	Tue, 9 Jan 2007 12:04:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50935 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932245AbXAIRE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 12:04:27 -0500
+Date: Tue, 9 Jan 2007 18:04:26 +0100
+From: Jan Kara <jack@suse.cz>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Erez Zadok <ezk@cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
 Subject: Re: [PATCH 01/24] Unionfs: Documentation
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Shaya Potter <spotter@cs.columbia.edu>
-Cc: Jan Kara <jack@suse.cz>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       torvalds@osdl.org, mhalcrow@us.ibm.com,
-       David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-In-Reply-To: <1168360893.5024.38.camel@localhost.localdomain>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-	 <1168229596875-git-send-email-jsipek@cs.sunysb.edu>
-	 <20070108111852.ee156a90.akpm@osdl.org>
-	 <20070108231524.GA1269@filer.fsl.cs.sunysb.edu>
-	 <20070109121552.GA1260@atrey.karlin.mff.cuni.cz>
-	 <1168360219.6054.14.camel@lade.trondhjem.org>
-	 <1168360893.5024.38.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 09 Jan 2007 12:03:51 -0500
-Message-Id: <1168362231.6054.38.camel@lade.trondhjem.org>
+Message-ID: <20070109170426.GB23174@atrey.karlin.mff.cuni.cz>
+References: <20070108111852.ee156a90.akpm@osdl.org> <200701082051.l08KpV8b011212@agora.fsl.cs.sunysb.edu> <20070109122644.GB1260@atrey.karlin.mff.cuni.cz> <1168360778.6054.26.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=disabled, UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: DE54CD7666AED1B9C775EF206B62639DABF5471E
-X-UiO-SPAM-Test: 69.241.229.183 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1168360778.6054.26.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-09 at 11:41 -0500, Shaya Potter wrote:
-> On Tue, 2007-01-09 at 11:30 -0500, Trond Myklebust wrote:
-> > You mean somebody like, say, a perfectly innocent process working on the
-> > NFS server or some other client that is oblivious to the existence of
-> > unionfs stacks on your particular machine?
-> > To me, this has always sounded like a showstopper for using unionfs with
-> > a remote filesystem.
+> On Tue, 2007-01-09 at 13:26 +0100, Jan Kara wrote:
+> >   Yes, making fs readonly at VFS level would not work for already opened
+> > files. But you if you create new union, you could lock down the
+> > filesystems you are unioning (via s_umount semaphore), go through lists
+> > of all open fd's on those filesystems and check whether they are open
+> > for write or not. If some fd is open for writing, you simply fail to
+> > create the union (and it's upto user to solve the problem). Otherwise
+> > you mark filesystems as RO and safely proceed with creating the union.
+> > I guess you must have come up with this solution. So what is the problem
+> > with it?
 > 
-> Again, what about fibre channel support?  Imagine I have multiple blades
-> connected to a SAN.  For whatever reason I format the san w/ ext3 (I've
-> actually done this when we didn't need sharing, just needed a huge disk,
-> for instance for doing benchmarks where I needed a large data set that
-> was bigger than the 40GB disk that the blades came with).  I better not
-> touch that disk from any of the other blades.
-> 
-> All you are saying is unionfs should always make sure its data is sane,
-> never make assumptions about it being correct.
-> 
-> Put it this way, imagine I have an ext3 fs on a SAN, I can only use it
-> frm one machine.  Lets say I want to be smart and mount the FS read-only
-> from another machine,  should I have any expectation that it will work?
-> Nope.  
-> 
-> Now, under what conditions can one expect unionfs to work?  Basically,
-> where the underlying FS isn't being modified (though possible others).
-> Is that a reasonable condition.  I believe so.  If you disobey the
-> condition, the machine shouldn't oops, but it should detect it and tell
-> you and shut down usage of the FS.
+> Aside from the fact that this is racy (s_umount doesn't protect you
+> against a process opening a new file while you are busy running through
+> the open fds to see if you can reset the MS_RDONLY flag) all you will
+  Ok, but if we first set MS_RDONLY and then check, we should be safe
+against new open's.
 
-I'm saying that at the very least it should not Oops in these
-situations. As to whether or not they are something you want to handle
-more gracefully, that is up to you, but Oopses are definitely a
-showstopper.
+> have achieved is ensure that your client won't write to the file. You
+> will still be able to Oops.
+  But once you have MS_RDONLY set, there should be no modifications of
+the underlying filesystem, should they? And I have understood that the
+only problem is modifying the filesystem underneath unionfs. But maybe
+I'm missing something.
 
-Trond
-
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,114 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751210AbXAIJCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751184AbXAIJDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbXAIJCa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 04:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbXAIJC0
+	id S1751184AbXAIJDU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 04:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbXAIJDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 04:02:26 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:35402 "EHLO relay.sw.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751194AbXAIJBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 04:01:53 -0500
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, devel@openvz.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: [PATCH 5/5] fixing errors handling during pci_driver resume stage [serial]
-From: Dmitriy Monakhov <dmonakhov@openvz.org>
-Date: Tue, 09 Jan 2007 12:01:58 +0300
-Message-ID: <87ps9omv3t.fsf@sw.ru>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Tue, 9 Jan 2007 04:03:19 -0500
+Received: from [213.46.243.15] ([213.46.243.15]:9563 "EHLO
+	amsfep14-int.chello.nl" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751224AbXAIJDQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 04:03:16 -0500
+Subject: mutex ownership (was: Re: [PATCH 19/24] Unionfs: Helper
+	macros/inlines)
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, arjan <arjan@infradead.org>
+In-Reply-To: <20070108132817.5c9a30d6.akpm@osdl.org>
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
+	 <11682295994056-git-send-email-jsipek@cs.sunysb.edu>
+	 <20070108132817.5c9a30d6.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 09 Jan 2007 10:02:56 +0100
+Message-Id: <1168333376.12503.22.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, 2007-01-08 at 13:28 -0800, Andrew Morton wrote:
 
-serial pci drivers have to return correct error code during resume stage in
-case of errors.
-Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
------
+> Please use mutexes where possible.  Semaphores should only be used when
+> their counting feature is employed.  And, arguably, in situations where a
+> lock is locked and unlocked from different threads, because this presently
+> triggers mutex debugging warnings, although we should find a way of fixing
+> this in the mutex code.
 
---=-=-=
-Content-Disposition: inline; filename=diff-pci-serial
+Its a fundamental property of a mutex, not a shortcoming. A mutex has an
+owner, the one that takes and releases the resource. This allows things
+such as Priority Inheritance to boost owners.
 
-diff --git a/drivers/parport/parport_serial.c b/drivers/parport/parport_serial.c
-index 78c0a26..1e14906 100644
---- a/drivers/parport/parport_serial.c
-+++ b/drivers/parport/parport_serial.c
-@@ -392,6 +392,7 @@ static int parport_serial_pci_suspend(st
- static int parport_serial_pci_resume(struct pci_dev *dev)
- {
- 	struct parport_serial_private *priv = pci_get_drvdata(dev);
-+	int err;
- 
- 	pci_set_power_state(dev, PCI_D0);
- 	pci_restore_state(dev);
-@@ -399,7 +400,11 @@ static int parport_serial_pci_resume(str
- 	/*
- 	 * The device may have been disabled.  Re-enable it.
- 	 */
--	pci_enable_device(dev);
-+	err = pci_enable_device(dev);
-+	if (err) {
-+		dev_err(&dev->dev, "Cannot enable PCI device, aborting.\n");
-+		return err;
-+	}
- 
- 	if (priv->serial)
- 		pciserial_resume_ports(priv->serial);
-diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
-index 52e2e64..e26e4a6 100644
---- a/drivers/serial/8250_pci.c
-+++ b/drivers/serial/8250_pci.c
-@@ -1805,6 +1805,7 @@ static int pciserial_suspend_one(struct
- static int pciserial_resume_one(struct pci_dev *dev)
- {
- 	struct serial_private *priv = pci_get_drvdata(dev);
-+	int err;
- 
- 	pci_set_power_state(dev, PCI_D0);
- 	pci_restore_state(dev);
-@@ -1813,7 +1814,12 @@ static int pciserial_resume_one(struct p
- 		/*
- 		 * The device may have been disabled.  Re-enable it.
- 		 */
--		pci_enable_device(dev);
-+		err = pci_enable_device(dev);
-+		if (err) {
-+			dev_err(&dev->dev, "Cannot enable PCI device, "
-+				"aborting.\n");
-+			return err;
-+		}
- 
- 		pciserial_resume_ports(priv);
- 	}
-diff --git a/drivers/serial/serial_txx9.c b/drivers/serial/serial_txx9.c
-index 7186a82..583cdc8 100644
---- a/drivers/serial/serial_txx9.c
-+++ b/drivers/serial/serial_txx9.c
-@@ -1132,12 +1132,19 @@ static int pciserial_txx9_suspend_one(st
- static int pciserial_txx9_resume_one(struct pci_dev *dev)
- {
- 	int line = (int)(long)pci_get_drvdata(dev);
-+	int err;
- 
- 	pci_set_power_state(dev, PCI_D0);
- 	pci_restore_state(dev);
- 
- 	if (line) {
--		pci_enable_device(dev);
-+		err = pci_enable_device(dev);
-+		if (err) {
-+			dev_err(&dev->dev, "Cannot enable PCI device, "
-+				"aborting.\n");
-+			return err;
-+		}
-+
- 		serial_txx9_resume_port(line);
- 	}
- 	return 0;
+'fixing' this takes away much of what a mutex is.
 
---=-=-=--
+That said, it seems some folks really want this to happen, weird as it
+may be. I'm not sure if all these cases are because of wrong designs. A
+possible extension to the mutex interface might be something like this:
+
+  mutex_pass_owner(struct task_struct *task);
+
+which would be an atomic unlock/lock pair where the current task
+releases the resource and the indicated task gains it. However it must
+be understood that from the POV of 'current' this should be treated as
+an unlock action.
+
+Ingo, I'd much rather see something like this than the proposed
+
+  mutex_unlock_dont_warn_if_a_different_task_did_it()
+
+wart. Esp. since it preserves the mutex semantics and properties.
+
+
 

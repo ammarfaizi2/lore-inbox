@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751325AbXAIKsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751326AbXAIKsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbXAIKsO (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 05:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbXAIKsO
+	id S1751326AbXAIKsY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 05:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbXAIKsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 05:48:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53731 "EHLO
+	Tue, 9 Jan 2007 05:48:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:53738 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751325AbXAIKsM (ORCPT
+	with ESMTP id S1751326AbXAIKsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 05:48:12 -0500
-Date: Tue, 9 Jan 2007 10:47:57 +0000
+	Tue, 9 Jan 2007 05:48:23 -0500
+Date: Tue, 9 Jan 2007 10:48:15 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
 Cc: Christoph Hellwig <hch@infradead.org>, Erez Zadok <ezk@cs.sunysb.edu>,
@@ -20,7 +20,7 @@ Cc: Christoph Hellwig <hch@infradead.org>, Erez Zadok <ezk@cs.sunysb.edu>,
        viro@ftp.linux.org.uk, torvalds@osdl.org, mhalcrow@us.ibm.com,
        David Quigley <dquigley@cs.sunysb.edu>
 Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-ID: <20070109104757.GA22227@infradead.org>
+Message-ID: <20070109104815.GB22227@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
 	Erez Zadok <ezk@cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
@@ -41,9 +41,11 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Jan 09, 2007 at 05:43:33AM -0500, Josef Sipek wrote:
-> RAIF is another fan-out stackable fs with much more complex logic. (Just the
-> other day, I saw an announcement for a new version on fsdevel.)
+> > I think that's an very important point.  We have a chance to get that
+> > non-fanout filesystems right quite easily - something I wished that would
+> > have been done before the ecryptfs merge - while getting fan-out stackable
+> > filesystems is a really hard task.
+> 
+> Hard or harder?
 
-I didn't say none exist, but rather none is useful.  While RAIF is
-definitly an excellent 	exercise in academic masturbation it is not in
-any remote way practically useful.
+Hard as in really hard.

@@ -1,101 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932356AbXAISsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAIStg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbXAISsk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXAISsk
+	id S932359AbXAIStg (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXAIStg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:48:40 -0500
-Received: from mga02.intel.com ([134.134.136.20]:19749 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932356AbXAISsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:48:39 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,164,1167638400"; 
-   d="scan'208"; a="183199984:sNHT20600986"
-Message-ID: <45A3E380.2050709@intel.com>
-Date: Tue, 09 Jan 2007 10:48:32 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.9 (X11/20061228)
+	Tue, 9 Jan 2007 13:49:36 -0500
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:40331 "EHLO
+	moving-picture.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932359AbXAIStf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 13:49:35 -0500
+X-Greylist: delayed 3351 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 13:49:35 EST
+Message-ID: <45A3D6A5.6080302@moving-picture.com>
+Date: Tue, 09 Jan 2007 17:53:41 +0000
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       NetDev <netdev@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: [PATCH -MM] e1000: rewrite hardware initialization code
-References: <45A3D29D.1000202@intel.com> <20070109103309.0b872a53@freekitty>
-In-Reply-To: <20070109103309.0b872a53@freekitty>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Understanding cpufreq?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jan 2007 18:48:32.0947 (UTC) FILETIME=[C30DC030:01C7341E]
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Tue, 09 Jan 2007 09:36:29 -0800
-> Auke Kok <auke-jan.h.kok@intel.com> wrote:
-> 
->> Andrew, All,
->>
->> This patch contains a major rewrite to the e1000 driver that groups and separates e1000 
->> hardware by chipset family. It abstracts the hardware specific code into an API that 
->> will allow us to continue to maintain the complex e1000 driver and add new hardware 
->> support to it without touching code that affects older chipsets. 
-> 
-> Thats good. but:
-> 
->>   drivers/net/e1000/Makefile            |   19
->>   drivers/net/e1000/e1000.h             |   95
->>   drivers/net/e1000/e1000_80003es2lan.c | 1330 +++++
->>   drivers/net/e1000/e1000_80003es2lan.h |   89
->>   drivers/net/e1000/e1000_82540.c       |  586 ++
->>   drivers/net/e1000/e1000_82541.c       | 1164 ++++
->>   drivers/net/e1000/e1000_82541.h       |   86
->>   drivers/net/e1000/e1000_82542.c       |  466 ++
->>   drivers/net/e1000/e1000_82543.c       | 1397 +++++
->>   drivers/net/e1000/e1000_82543.h       |   45
->>   drivers/net/e1000/e1000_82571.c       | 1132 ++++
->>   drivers/net/e1000/e1000_82571.h       |   42
->>   drivers/net/e1000/e1000_api.c         | 1077 ++++
->>   drivers/net/e1000/e1000_api.h         |  159 +
->>   drivers/net/e1000/e1000_defines.h     | 1289 +++++
->>   drivers/net/e1000/e1000_ethtool.c     |  470 +-
->>   drivers/net/e1000/e1000_hw.c          | 9038 ---------------------------------
->>   drivers/net/e1000/e1000_hw.h          | 3859 ++------------
->>   drivers/net/e1000/e1000_ich8lan.c     | 2353 +++++++++
->>   drivers/net/e1000/e1000_ich8lan.h     |  108
->>   drivers/net/e1000/e1000_mac.c         | 1921 +++++++
->>   drivers/net/e1000/e1000_mac.h         |   84
->>   drivers/net/e1000/e1000_main.c        | 1002 ++--
->>   drivers/net/e1000/e1000_manage.c      |  387 +
->>   drivers/net/e1000/e1000_manage.h      |   83
->>   drivers/net/e1000/e1000_nvm.c         |  860 +++
->>   drivers/net/e1000/e1000_nvm.h         |   61
->>   drivers/net/e1000/e1000_osdep.h       |   56
->>   drivers/net/e1000/e1000_param.c       |  115
->>   drivers/net/e1000/e1000_phy.c         | 1932 +++++++
->>   drivers/net/e1000/e1000_phy.h         |  157 +
->>   drivers/net/e1000/e1000_regs.h        |  236 +
->>   32 files changed, 18538 insertions(+), 13160 deletions(-)
-> 
-> Is lots of little files really progress?
-> 
+I have a number of dual CPU and dual CPU/dual core Opteron systems that 
+are used as compute servers. In an effort to reduce power consumption 
+and reduce heat output, I would like to make use of the PowerNow! 
+capabilities to clock back the CPUs when the machines are idle.
 
-I can think of a few files that we could merge myself, but we really wanted to get away 
-from the two large (e1000_hw) files that we had, which was far worse.
+These machines are running a 2.6.9-42 RHEL4 kernel with the powernow-k8 
+module loaded - which I believe have backported cpufreq support from 
+more recent mainline kernels.
 
-We're open to suggestions as to reduce the amount of files, but since e1000 has it's own 
-subdirectory, and supports a large amount of files, I think we're in the right direction 
-with the amount. We approached it this from a rather superfluous amount of files 
-standpoint knowing we can merge some later anyway.
+In trying to achieve what I want, I've become rather confused as to how 
+cpufreq in a multi-CPU environment works:
 
-One thing we've contemplated ourselves was to merge the smaller .h files into the .c 
-files where applicable, so your comment goes duly noted
+There is a directory under /sys/devices/system/cpu/cpu*/cpufreq for each 
+CPU, which seems to imply that each CPU speed can be controlled 
+separately - can this really be the case? Can separate CPU cores run at 
+different speeds?
 
-Thanks,
+e.g. I can echo 4 different governor names to the scaling_governor file 
+in each /sys/devices/system/cpu/cpu[0-3]/cpufreq directory on a 4 core 
+machine - and the resulting scaling_cur_freq file can contain a 
+different value.
 
-Auke
+However, the "cpu MHz" fields in /proc/cpuinfo are all the same for each 
+each CPU - I assume the values in /proc/cpuinfo are the 'correct' values ??
 
+Also, if I set all the governors to userspace, and then set each CPU's 
+speed via scaling_setspeed to a different (allowed) value, then it 
+appears quite random as to which value is then reflected in 
+/proc/cpuinfo i.e. sometimes it will take the value given to CPU 0, 
+other times it will be CPU 1 etc.
 
+If I set all the governors to ondemand, the CPUs will from time to time, 
+clock back their speed in situations where one or more CPUs are being 
+heavily used. i.e it appears that each CPU is treated separately, and if 
+one CPU is deemed to be idle enough by its given metrics, then it can 
+reduce the speed of all CPUs, regardless of other CPUs being 'busy' ...
 
+I've also tried a couple of userspace daemons (cpuspeed and powernowd) - 
+again, these treat each CPU separately and will also reduce the speed of 
+an 'idle' CPU - and hence reduce the speed of all the CPUs, again, 
+regardless of other CPUs being 'busy'.
 
+Essentially what I want to achieve is something like: if _any_ CPU is 
+'busy' (usage over some threshold over some sampling period), then run 
+at full speed and if _all_ CPUs are 'idle' (all below some threshold 
+over some sampling period) then clock back the CPUs.
+
+Is there something/some setting(s) that can do this in a multi-CPU machine?
+
+Thanks
+
+James Pearson

@@ -1,79 +1,142 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932300AbXAIRgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932308AbXAIRgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbXAIRgR (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 12:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbXAIRgR
+	id S932308AbXAIRgl (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 12:36:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbXAIRgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 12:36:17 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54634 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932293AbXAIRgQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 12:36:16 -0500
-Date: Tue, 9 Jan 2007 12:34:27 -0500
-Message-Id: <200701091734.l09HYRHB009290@agora.fsl.cs.sunysb.edu>
-From: Erez Zadok <ezk@cs.sunysb.edu>
-To: Jan Kara <jack@suse.cz>
-Cc: Erez Zadok <ezk@cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
-       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation 
-In-reply-to: Your message of "Tue, 09 Jan 2007 13:26:45 +0100."
-             <20070109122644.GB1260@atrey.karlin.mff.cuni.cz> 
-X-MailKey: Erez_Zadok
+	Tue, 9 Jan 2007 12:36:41 -0500
+Received: from mga01.intel.com ([192.55.52.88]:19105 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932302AbXAIRgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 12:36:40 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,164,1167638400"; 
+   d="scan'208"; a="186219574:sNHT2841778247"
+Message-ID: <45A3D29D.1000202@intel.com>
+Date: Tue, 09 Jan 2007 09:36:29 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.9 (X11/20061228)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, NetDev <netdev@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: [PATCH -MM] e1000: rewrite hardware initialization code
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jan 2007 17:36:30.0017 (UTC) FILETIME=[B262FB10:01C73414]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20070109122644.GB1260@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
-> > In message <20070108111852.ee156a90.akpm@osdl.org>, Andrew Morton writes:
-> > > On Sun,  7 Jan 2007 23:12:53 -0500
-> > > "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
-> > > 
-> > > > +Modifying a Unionfs branch directly, while the union is mounted, is
-> > > > +currently unsupported.
-> > > 
-> > > Does this mean that if I have /a/b/ and /c/d/ unionised under /mnt/union, I
-> > > am not allowed to alter anything under /a/b/ and /c/d/?  That I may only
-> > > alter stuff under /mnt/union?
-> > > 
-> > > If so, that sounds like a significant limitation.
->   <snip>
-> > Now, we've discussed a number of possible solutions.  Thanks to suggestions
-> > we got at OLS, we discussed a way to hide the lower namespace, or make it
-> > readonly, using existing kernel facilities.  But my understanding is that
-> > even it'd work, it'd only address new processes: if an existing process has
-> > an open fd in a lower branch before we "lock up" the lower branch's name
-> > space, that process may still be able to make lower-level changes.
-> > Detecting such processes may not be easy.  What to do with them, once
-> > detected, is also unclear.  We welcome suggestions.
->   Yes, making fs readonly at VFS level would not work for already opened
-> files. But you if you create new union, you could lock down the
-> filesystems you are unioning (via s_umount semaphore), go through lists
-> of all open fd's on those filesystems and check whether they are open
-> for write or not. If some fd is open for writing, you simply fail to
-> create the union (and it's upto user to solve the problem). Otherwise
-> you mark filesystems as RO and safely proceed with creating the union.
-> I guess you must have come up with this solution. So what is the problem
-> with it?
 
-Jan, all of it is duable: we can downgrade the f/s to readonly, grab various
-locks, search through various lists looking for open fd's and such, then
-decide if to allow the mount or not.  And hopefully all of that can be done
-in a non-racy manner.  But it feels just rather hacky and ugly to me.  If
-this community will endorse such a solution, we'll be happy to develop it.
-But right now my impression is that if we posted such patches today, some
-people will have to wipe the vomit off of their monitors... :-)
+Andrew, All,
 
-Seriously, can someone suggest a step-by-step procedure to handling this
-issue, maybe even sprinkle some pseudo code there?  Is there a procedure
-that is clean and acceptable to all?  We'd love to hear it.
+This patch contains a major rewrite to the e1000 driver that groups and separates e1000 
+hardware by chipset family. It abstracts the hardware specific code into an API that 
+will allow us to continue to maintain the complex e1000 driver and add new hardware 
+support to it without touching code that affects older chipsets. It de-complexifies a 
+significant part of the e1000 driver.
 
-> 								Honza
-> -- 
-> Jan Kara <jack@suse.cz>
-> SuSE CR Labs
+This is the first and largest part of e1000 changes that have been long overdue. Thanks 
+to Jeb Cramer working on this, as well as our validation team, this code is getting 
+ready for general consumption. We hope to get started on adding a better way of handling 
+feature flags and workarounds to the complex e1000 driver quickly.
 
-Thanks,
-Erez.
+We're submitting this code to -mm for obvious reasons: we are still testing the code and 
+want the community feedback on this large change, while giving the linux community an 
+early chance to test and use the new driver before it goes mainstream.
+
+The patch addresses the following issues:
+
+* separates hardware-specific code by chipset family and provides a single API for all 
+chipsets (effectively a lib-e1000)
+* maintains a single driver for the user, no external changes
+* will allow the user in the future to select specific hardware support instead of all
+
+Some cosmetic changes were also made. This driver adds more header and code files to 
+separate the new parts of the code (chipsets, api, nvm, mac & phy layers). All 
+whitespace was changed to linux indentation and integer data types were converted to 
+{u,s}{8,16,32,64} types instead of uintNN_t types.
+
+The total size of the patch is 1.2mb plaintext, and too large to post to any of the 
+lists. I've provided several ways of receiving the patch:
+
+(1)
+     git-pull git://lost.foo-projects.org/~ahkok/git/linux-2.6 e1000
+
+The patch here applies against 2.6.20-rc3-mm1.
+
+(2)
+     http://foo-projects.org/~sofar/e1000_hw_init_layer_rewrite.patch     (1.2mb)
+or
+     http://foo-projects.org/~sofar/e1000_hw_init_layer_rewrite.patch.bz2  (162k)
+
+
+I'll gladly e-mail the patch to anyone who wishes to receive it by e-mail.
+
+Andrew, please pull from our git tree listed above to receive the patch. I expect in the 
+coming few weeks to provide updates to this patch as issues that come up are resolved.
+
+Cheers,
+
+Auke
+
+
+
+---
+e1000: rewrite of HW code library
+
+From: Jeb Cramer <cramerj@intel.com>
+
+This rewrite of the hardware initialization code splits up the driver
+low-level initialization code per chipset family. Several families exist
+with different initialization code per chipset, revision, and this allows
+us later to select only enable certain devices in the driver. The current
+code enables all previous drivers and thus doesn't change anything to the
+user, but is radically different internally.
+
+Mac and phy layers are also split, and everything is grouped in an API
+layer that the driver uses to interface the hardware.
+
+Support was added for a PCI-e 4-port Fibre version of the PRO/1000 PT quad
+port adapter (device 0x10a5). MTU changes on a downed interface require
+a phy commit to enact the new size immediately.
+
+Signed-off-by: Jeb Cramer <cramerj@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
+---
+
+  drivers/net/e1000/Makefile            |   19
+  drivers/net/e1000/e1000.h             |   95
+  drivers/net/e1000/e1000_80003es2lan.c | 1330 +++++
+  drivers/net/e1000/e1000_80003es2lan.h |   89
+  drivers/net/e1000/e1000_82540.c       |  586 ++
+  drivers/net/e1000/e1000_82541.c       | 1164 ++++
+  drivers/net/e1000/e1000_82541.h       |   86
+  drivers/net/e1000/e1000_82542.c       |  466 ++
+  drivers/net/e1000/e1000_82543.c       | 1397 +++++
+  drivers/net/e1000/e1000_82543.h       |   45
+  drivers/net/e1000/e1000_82571.c       | 1132 ++++
+  drivers/net/e1000/e1000_82571.h       |   42
+  drivers/net/e1000/e1000_api.c         | 1077 ++++
+  drivers/net/e1000/e1000_api.h         |  159 +
+  drivers/net/e1000/e1000_defines.h     | 1289 +++++
+  drivers/net/e1000/e1000_ethtool.c     |  470 +-
+  drivers/net/e1000/e1000_hw.c          | 9038 ---------------------------------
+  drivers/net/e1000/e1000_hw.h          | 3859 ++------------
+  drivers/net/e1000/e1000_ich8lan.c     | 2353 +++++++++
+  drivers/net/e1000/e1000_ich8lan.h     |  108
+  drivers/net/e1000/e1000_mac.c         | 1921 +++++++
+  drivers/net/e1000/e1000_mac.h         |   84
+  drivers/net/e1000/e1000_main.c        | 1002 ++--
+  drivers/net/e1000/e1000_manage.c      |  387 +
+  drivers/net/e1000/e1000_manage.h      |   83
+  drivers/net/e1000/e1000_nvm.c         |  860 +++
+  drivers/net/e1000/e1000_nvm.h         |   61
+  drivers/net/e1000/e1000_osdep.h       |   56
+  drivers/net/e1000/e1000_param.c       |  115
+  drivers/net/e1000/e1000_phy.c         | 1932 +++++++
+  drivers/net/e1000/e1000_phy.h         |  157 +
+  drivers/net/e1000/e1000_regs.h        |  236 +
+  32 files changed, 18538 insertions(+), 13160 deletions(-)

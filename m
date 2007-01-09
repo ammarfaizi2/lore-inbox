@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751209AbXAITVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932085AbXAITXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbXAITVo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 14:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbXAITVo
+	id S932085AbXAITXG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 14:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbXAITXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 14:21:44 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:23787 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751209AbXAITVn (ORCPT
+	Tue, 9 Jan 2007 14:23:05 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:2344 "EHLO
+	odyssey.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932085AbXAITXE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 14:21:43 -0500
-Date: Tue, 9 Jan 2007 11:19:55 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Amit Choudhary <amit2030@yahoo.com>
-Cc: Valdis.Kletnieks@vt.edu, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Hua Zhong <hzhong@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-Message-Id: <20070109111955.85496022.randy.dunlap@oracle.com>
-In-Reply-To: <88063.16727.qm@web55602.mail.re4.yahoo.com>
-References: <200701082243.l08Mh8UR007559@turing-police.cc.vt.edu>
-	<88063.16727.qm@web55602.mail.re4.yahoo.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Tue, 9 Jan 2007 14:23:04 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 09 Jan 2007 19:23:02.0212 (UTC) FILETIME=[946E8840:01C73423]
+Content-class: urn:content-classes:message
+Subject: Re: macros:  "do-while" versus "({ })" and a compile-time error
+Date: Tue, 9 Jan 2007 14:23:01 -0500
+Message-ID: <Pine.LNX.4.61.0701091415200.12545@chaos.analogic.com>
+In-Reply-To: <45A3D1DF.4020205@s5r6.in-berlin.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: macros:  "do-while" versus "({ })" and a compile-time error
+Thread-Index: Acc0I5SUJVZddknhTaa+cd5/NsLL0w==
+References: <Pine.LNX.4.64.0701081347410.32420@localhost.localdomain> <45A3D1DF.4020205@s5r6.in-berlin.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2007 11:02:35 -0800 (PST) Amit Choudhary wrote:
 
-> 
-> --- Valdis.Kletnieks@vt.edu wrote:
-> 
-> > On Mon, 08 Jan 2007 01:06:12 PST, Amit Choudhary said:
-> > > I do not see how a double free can result in _logical_wrong_behaviour_ of the program and the
-> > > program keeps on running (like an incoming packet being dropped because of double free).
-> > Double
-> > > free will _only_and_only_ result in system crash that can be solved by setting 'x' to NULL.
-> > 
-> > The problem is that very rarely is there a second free() with no intervening
-> > use - what actually *happens* usually is:
-> > 
-> > 1) You alloc the memory
-> > 2) You use the memory
-> > 3) You take a reference on the memory, so you know where it is.
-> > 4) You free the memory
-> > 5) You use the memory via the reference you took in (3)
-> > 6) You free it again - at which point you finally know for sure that
-> > everything in step 5 was doing a fandango on core....
-> > 
-> 
-> Correct. And doing kfree(x); x=NULL; is not hiding that. These issues can still be debugged by
-> using the slab debugging options. One other benefit of doing this is that if someone tries to
-> access the same memory again using the variable 'x', then he will get an immediate crash. And the
-> problem can be solved immediately, without using the slab debugging options. I do not yet
-> understand how doing this hides the bugs, obfuscates the code, etc. because I haven't seen an
-> example yet, but only blanket statements.
-> 
-> But now I know better, since I haven't heard anything in support of this case, I have concluded
-> that doing kfree(x); x=NULL; is _not_needed_ in the "linux kernel". I hope that no one does it in
-> the future. And since people vehemently opposed this, I think its better to add another item on
-> the kernel janitor's list to remove all the (x=NULL) statements where people are doing "kfree(x);
-> x=NULL".
+On Tue, 9 Jan 2007, Stefan Richter wrote:
 
-No thanks.  If a driver author wants to maintain driver state
-that way, it's OK, but that doesn't make it a global requirement.
+> Robert P. J. Day wrote:
+>>   just to stir the pot a bit regarding the discussion of the two
+>> different ways to define macros,
+>
+> You mean function-like macros, right?
+>
+>> i've just noticed that the "({ })"
+>> notation is not universally acceptable.  i've seen examples where
+>> using that notation causes gcc to produce:
+>>
+>>   error: braced-group within expression allowed only inside a function
+>
+> And function calls and macros which expand to "do { expr; } while (0)"
+> won't work anywhere outside of functions either.
+>
+>> i wasn't aware that there were limits on this notation.  can someone
+>> clarify this?  under what circumstances *can't* you use that notation?
+>> thanks.
+>
+> The limitations are certainly highly compiler-specific.
 
----
-~Randy
+I don't think so. You certainly couldn't write working 'C' code like
+this:
+
+ 	do { a = 1; } while(0);
+
+This _needs_ to be inside a function. In fact any runtime operations
+need to be inside functions. It's only in assembly that you could
+'roll your own' code like:
+
+main:
+ 	ret 0
+
+
+Most of these errors come about as a result of changes where a macro
+used to define a constant. Later on, it was no longer a constant in
+code that didn't actually get compiled during the testing.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

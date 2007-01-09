@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751091AbXAIFwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751095AbXAIF7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbXAIFwE (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 00:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbXAIFwD
+	id S1751095AbXAIF7Z (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 00:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbXAIF7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 00:52:03 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:58199 "EHLO
-	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751091AbXAIFwB (ORCPT
+	Tue, 9 Jan 2007 00:59:25 -0500
+Received: from mail.app.aconex.com ([203.89.192.138]:54782 "EHLO
+	postoffice.aconex.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751095AbXAIF7Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 00:52:01 -0500
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-From: Nigel Cunningham <nigel@nigel.suspend2.net>
-Reply-To: nigel@nigel.suspend2.net
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, "J.H." <warthog9@kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org
-In-Reply-To: <20070109050918.GE25007@stusta.de>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	 <20061216094421.416a271e.randy.dunlap@oracle.com>
-	 <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
-	 <1166297434.26330.34.camel@localhost.localdomain>
-	 <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
-	 <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
-	 <1168316975.6948.2.camel@nigel.suspend2.net>
-	 <20070109050918.GE25007@stusta.de>
+	Tue, 9 Jan 2007 00:59:24 -0500
+Subject: Re: [**BULK SPAM**]  Re: bd_mount_mutex -> bd_mount_sem (was Re:
+	xfs_file_ioctl / xfs_freeze: BUG: warning at
+	kernel/mutex-debug.c:80/debug_mutex_unlock())
+From: Nathan Scott <nscott@aconex.com>
+Reply-To: nscott@aconex.com
+To: David Chinner <dgc@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@sandeen.net>,
+       linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+In-Reply-To: <20070109044907.GH33919298@melbourne.sgi.com>
+References: <20070107213734.GS44411608@melbourne.sgi.com>
+	 <20070108110323.GA3803@m.safari.iki.fi> <45A27416.8030600@sandeen.net>
+	 <20070108234728.GC33919298@melbourne.sgi.com>
+	 <20070108161917.73a4c2c6.akpm@osdl.org> <45A30828.6000508@sandeen.net>
+	 <20070108191800.9d83ff5e.akpm@osdl.org> <45A30E1D.4030401@sandeen.net>
+	 <20070108195127.67fe86b8.akpm@osdl.org> <1168316223.32113.83.camel@edge>
+	 <20070109044907.GH33919298@melbourne.sgi.com>
 Content-Type: text/plain
-Date: Tue, 09 Jan 2007 16:51:59 +1100
-Message-Id: <1168321919.6948.22.camel@nigel.suspend2.net>
+Organization: Aconex
+Date: Tue, 09 Jan 2007 17:02:53 +1100
+Message-Id: <1168322573.32113.86.camel@edge>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
-
-On Tue, 2007-01-09 at 06:09 +0100, Adrian Bunk wrote:
-> On Tue, Jan 09, 2007 at 03:29:35PM +1100, Nigel Cunningham wrote:
-> > Hi again.
+On Tue, 2007-01-09 at 15:49 +1100, David Chinner wrote:
+> On Tue, Jan 09, 2007 at 03:17:03PM +1100, Nathan Scott wrote:
+> > On Mon, 2007-01-08 at 19:51 -0800, Andrew Morton wrote:
+> > > If that's not true, then what _is_ happening in there?
 > > 
-> > On Sat, 2007-01-06 at 21:17 -0800, H. Peter Anvin wrote:
-> > > Nigel Cunningham wrote:
-> > > > On Tue, 2006-12-26 at 08:49 -0800, H. Peter Anvin wrote:
-> > > >> The two things git users can do to help is:
-> > > >>
-> > > >> 1. Make sure your alternatives file is set up correctly;
-> > > >> 2. Keep your trees packed and pruned, to keep the file count down.
-> > > >>
-> > > >> If you do this, the load imposed by a single git tree is fairly negible.
-> > > > 
-> > > > Sorry for the slow reply, and the ignorance... what's an alternatives
-> > > > file? I've never heard of them before.
-> > > > 
-> > > 
-> > > Just a minor correction; it's the "alternates" file 
-> > > (objects/info/alternates).
-> > 
-> > I went looking for documentation on how to use the alternates feature,
-> > and found an email from September 2005
-> > (http://www.ussg.iu.edu/hypermail/linux/kernel/0509.1/2860.html) that
-> > says:
-> > 
-> > <quote>
-> > /pub/scm/linux/kernel/git/$u/$tree
-> > 
-> > Of course, you may have more than one such $tree. The
-> > suggestion by Linus was to do (please do not do this yet -- that
-> > is what this message is about):
-> > 
-> > $ cd /pub/scm/linux/kernel/git/$u/$tree
-> > $ cat /pub/scm/linux/kernel/git/torvalds/linux-2.6/objects \
-> > >objects/info/alternates
-> > $ GIT_DIR=. git prune
-> > </quote>
-> > 
-> > Are these instructions still correct in the case of master.kernel.org?
+> > This particular case was a device mapper stack trace, hence the
+> > confusion, I think.  Both XFS and DM are making the same generic
+> > block layer call here though (freeze_bdev).
 > 
-> It works for me (instead of "git prune" I was using 
-> "git-repack -a -d -l -f").
+> Yup. it's the freeze_bdev/thaw_bdev use of the bd_mount_mutex()
+> that's the problem. I fail to see _why_ we need to hold a lock
+> across the freeze/thaw - the only reason i can think of is to
+> hold out new calls to sget() (via get_sb_bdev()) while the
+> filesystem is frozen though I'm not sure why you'd need to
+> do that. Can someone explain why we are holding the lock from
+> freeze to thaw?
 
-There's a typo in the above commands. It should be echo instead of cat.
-In addition, just typing "git prune" didn't save much. When I did
-git-prune -a -l -d, however, all of my trees shrunk to just a couple of
-megs (just my deltas, I assume).
+Not me.  If it's really not needed, then...
 
-Maybe this will be helpful to someone else.
+> > > If that _is_ true then, well, that sucks a bit.
+> > 
+> > Indeed, its a fairly ordinary interface, but thats too late to go
+> > fix now I guess (since its exposed to userspace already). 
+> 
+> Userspace knows nothing about that lock, so we can change that without
+> changing the the userspace API.
 
-Regards,
+...that would be true, AFAICS.
 
-Nigel
+cheers.
+
+-- 
+Nathan
 

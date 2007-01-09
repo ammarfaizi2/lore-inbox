@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932341AbXAISgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932353AbXAIShN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbXAISgh (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbXAISgh
+	id S932353AbXAIShN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbXAIShN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:36:37 -0500
-Received: from mms3.broadcom.com ([216.31.210.19]:1843 "EHLO MMS3.broadcom.com"
+	Tue, 9 Jan 2007 13:37:13 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:60086 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932341AbXAISgg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:36:36 -0500
-X-Greylist: delayed 412 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 13:36:36 EST
-X-Server-Uuid: 9206F490-5C8F-4575-BE70-2AAA8A3D4853
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [openib-general] [PATCH 1/10] cxgb3 - main header files
-Date: Tue, 9 Jan 2007 10:29:12 -0800
-Message-ID: <54AD0F12E08D1541B826BE97C98F99F1EE6B67@NT-SJCA-0751.brcm.ad.broadcom.com>
-In-Reply-To: <20070109135725.GF16107@mellanox.co.il>
-Thread-Topic: [openib-general] [PATCH 1/10] cxgb3 - main header files
-Thread-Index: Accz9o/MJZCtcLMBQNmxA1maERaxmQAJK+pw
-From: "Caitlin Bestler" <caitlinb@broadcom.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       "Steve Wise" <swise@opengridcomputing.com>
-cc: netdev@vger.kernel.org, "Roland Dreier" <rdreier@cisco.com>,
-       "Divy Le Ray" <divy@chelsio.com>, linux-kernel@vger.kernel.org,
-       "openib-general" <openib-general@openib.org>
-X-WSS-ID: 69BD00852CC18761823-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id S932351AbXAIShK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 13:37:10 -0500
+Date: Tue, 9 Jan 2007 10:33:09 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       NetDev <netdev@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [PATCH -MM] e1000: rewrite hardware initialization code
+Message-ID: <20070109103309.0b872a53@freekitty>
+In-Reply-To: <45A3D29D.1000202@intel.com>
+References: <45A3D29D.1000202@intel.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Tue, 09 Jan 2007 09:36:29 -0800
+Auke Kok <auke-jan.h.kok@intel.com> wrote:
 
-> -----Original Message-----
-> From: openib-general-bounces@openib.org 
-> [mailto:openib-general-bounces@openib.org] On Behalf Of 
-> Michael S. Tsirkin
-> Sent: Tuesday, January 09, 2007 5:57 AM
-> To: Steve Wise
-> Cc: netdev@vger.kernel.org; Roland Dreier; Divy Le Ray; 
-> linux-kernel@vger.kernel.org; openib-general
-> Subject: Re: [openib-general] [PATCH 1/10] cxgb3 - main header files
 > 
-> > We also need to decide on the ib_req_notify_cq() issue.  
+> Andrew, All,
 > 
-> Let's clarify - do you oppose doing copy_from_user from a 
-> fixed address passed in during setup?
-> 
-> If OK with you, this seems the best way as it is the least 
-> controversial and least disruptive one.
-> 
-To clarfiy my understanding of this issue:
+> This patch contains a major rewrite to the e1000 driver that groups and separates e1000 
+> hardware by chipset family. It abstracts the hardware specific code into an API that 
+> will allow us to continue to maintain the complex e1000 driver and add new hardware 
+> support to it without touching code that affects older chipsets. 
 
-A device MAY implement ib_req_notify_cq by updating
-a location directly from user mode. Any of the techniques
-that apply to other user allocated objects, such as 
-the Send Queue, can be applied here.
+Thats good. but:
 
-Even those the proposed changes would be about as
-low impact and benign as possible, the fact that there
-are valid solutions without an API changes leans heavily
-towards using those solutions.
+>   drivers/net/e1000/Makefile            |   19
+>   drivers/net/e1000/e1000.h             |   95
+>   drivers/net/e1000/e1000_80003es2lan.c | 1330 +++++
+>   drivers/net/e1000/e1000_80003es2lan.h |   89
+>   drivers/net/e1000/e1000_82540.c       |  586 ++
+>   drivers/net/e1000/e1000_82541.c       | 1164 ++++
+>   drivers/net/e1000/e1000_82541.h       |   86
+>   drivers/net/e1000/e1000_82542.c       |  466 ++
+>   drivers/net/e1000/e1000_82543.c       | 1397 +++++
+>   drivers/net/e1000/e1000_82543.h       |   45
+>   drivers/net/e1000/e1000_82571.c       | 1132 ++++
+>   drivers/net/e1000/e1000_82571.h       |   42
+>   drivers/net/e1000/e1000_api.c         | 1077 ++++
+>   drivers/net/e1000/e1000_api.h         |  159 +
+>   drivers/net/e1000/e1000_defines.h     | 1289 +++++
+>   drivers/net/e1000/e1000_ethtool.c     |  470 +-
+>   drivers/net/e1000/e1000_hw.c          | 9038 ---------------------------------
+>   drivers/net/e1000/e1000_hw.h          | 3859 ++------------
+>   drivers/net/e1000/e1000_ich8lan.c     | 2353 +++++++++
+>   drivers/net/e1000/e1000_ich8lan.h     |  108
+>   drivers/net/e1000/e1000_mac.c         | 1921 +++++++
+>   drivers/net/e1000/e1000_mac.h         |   84
+>   drivers/net/e1000/e1000_main.c        | 1002 ++--
+>   drivers/net/e1000/e1000_manage.c      |  387 +
+>   drivers/net/e1000/e1000_manage.h      |   83
+>   drivers/net/e1000/e1000_nvm.c         |  860 +++
+>   drivers/net/e1000/e1000_nvm.h         |   61
+>   drivers/net/e1000/e1000_osdep.h       |   56
+>   drivers/net/e1000/e1000_param.c       |  115
+>   drivers/net/e1000/e1000_phy.c         | 1932 +++++++
+>   drivers/net/e1000/e1000_phy.h         |  157 +
+>   drivers/net/e1000/e1000_regs.h        |  236 +
+>   32 files changed, 18538 insertions(+), 13160 deletions(-)
 
+Is lots of little files really progress?
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>

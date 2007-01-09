@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932218AbXAIQbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932219AbXAIQfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbXAIQbc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 11:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbXAIQbc
+	id S932219AbXAIQfN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 11:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbXAIQfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 11:31:32 -0500
-Received: from pat.uio.no ([129.240.10.15]:35284 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932209AbXAIQbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 11:31:31 -0500
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jan Kara <jack@suse.cz>
-Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
-       Erez Zadok <ezk@cs.sunysb.edu>
-In-Reply-To: <20070109121552.GA1260@atrey.karlin.mff.cuni.cz>
-References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu>
-	 <1168229596875-git-send-email-jsipek@cs.sunysb.edu>
-	 <20070108111852.ee156a90.akpm@osdl.org>
-	 <20070108231524.GA1269@filer.fsl.cs.sunysb.edu>
-	 <20070109121552.GA1260@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Date: Tue, 09 Jan 2007 11:30:19 -0500
-Message-Id: <1168360219.6054.14.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 9 Jan 2007 11:35:13 -0500
+Received: from CHOKECHERRY.SRV.CS.CMU.EDU ([128.2.185.41]:60627 "EHLO
+	chokecherry.srv.cs.cmu.edu" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932219AbXAIQfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 11:35:11 -0500
+Message-ID: <45A3C420.8010708@cs.cmu.edu>
+Date: Tue, 09 Jan 2007 11:34:40 -0500
+From: Benjamin Gilbert <bgilbert@cs.cmu.edu>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060916)
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Srivatsa Vaddagiri <vatsa@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Gautham shenoy <ego@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Failure to release lock after CPU hot-unplug canceled
+References: <20070108120719.16d4674e.bgilbert@cs.cmu.edu> <20070109121738.GC9563@osiris.boeblingen.de.ibm.com> <20070109122740.GC22080@in.ibm.com> <20070109150351.GD9563@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20070109150351.GD9563@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=disabled, UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: 25975AF9CCF03BA82A88B4F15AD462734792B184
-X-UiO-SPAM-Test: 69.241.229.183 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-09 at 13:15 +0100, Jan Kara wrote:
-> > On Mon, Jan 08, 2007 at 11:18:52AM -0800, Andrew Morton wrote:
-> > > On Sun,  7 Jan 2007 23:12:53 -0500
-> > > "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu> wrote:
-> > > 
->   <snip>
-> 
-> > > > Any such change can cause Unionfs to oops, or stay
-> > > > silent and even RESULT IN DATA LOSS.
-> > > 
-> > > With a rather rough user interface ;)
-> > 
-> > That statement is meant to scare people away from modifying the lower fs :)
-> > I tortured unionfs quite a bit, and it can oops but it takes some effort.
->   But isn't it then potential DOS? If you happen to union two filesystems
-> and an untrusted user has write access to both original filesystem and
-> the union, then you say he'd be able to produce oops? That does not
-> sound very secure to me... And if any secure use of unionfs requires
-> limitting access to the original trees, then I think it's a good reason
-> to implement it in unionfs itself. Just my 2 cents.
+Heiko Carstens wrote:
+> On Tue, Jan 09, 2007 at 05:57:40PM +0530, Srivatsa Vaddagiri wrote:
+>> On Tue, Jan 09, 2007 at 01:17:38PM +0100, Heiko Carstens wrote:
+>>> The workqueue code grabs a lock on CPU_[UP|DOWN]_PREPARE and releases it
+>>> again on CPU_DOWN_FAILED/CPU_UP_CANCELED. If something in the callchain
+>>> returns NOTIFY_BAD the rest of the entries in the callchain won't be
+>>> called anymore. But DOWN_FAILED/UP_CANCELED will be called for every
+>>> entry.
+>>> So we might even end up with a mutex_unlock(&workqueue_mutex) even if
+>>> mutex_lock(&workqueue_mutex) hasn't been called...
+ >>
+>> This is a known problem. Gautham had sent out patches to address them
+>>
+>> http://lkml.org/lkml/2006/11/14/93
+>>
+>> Looks like they are in latest mm tree. Perhaps the testcase should be
+>> retried against latest mm.
+ >
+> Ah, nice! Wasn't aware of that. But I still think we should have a
+> CPU_DOWN_FAILED in case CPU_DOWN_PREPARED failed.
+> Also the slab cache code hasn't been changed to make use of the of the
+> new CPU_LOCK_[ACQUIRE|RELEASE] stuff. I'm going to send patches in reply
+> to this mail.
 
-You mean somebody like, say, a perfectly innocent process working on the
-NFS server or some other client that is oblivious to the existence of
-unionfs stacks on your particular machine?
-To me, this has always sounded like a showstopper for using unionfs with
-a remote filesystem.
+2.6.20-rc3-mm1 plus your patches fixes it for me.
 
-  Trond
+Thanks
+--Benjamin Gilbert
 

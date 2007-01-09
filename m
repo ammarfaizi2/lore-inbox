@@ -1,98 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751112AbXAIHAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751115AbXAIHBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbXAIHAS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 02:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbXAIHAS
+	id S1751115AbXAIHBP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 02:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbXAIHBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 02:00:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4556 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751112AbXAIHAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 02:00:16 -0500
-Date: Tue, 9 Jan 2007 08:00:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dirk <d_i_r_k_@gmx.net>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Jay Vaughan <jv@access-music.de>,
-       Trent Waddington <trent.waddington@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Gaming Interface
-Message-ID: <20070109070019.GJ25007@stusta.de>
-References: <45A22D69.3010905@gmx.net> <3d57814d0701080243n745fcddg8eaace0093e88a38@mail.gmail.com> <45A2356B.5050208@gmx.net> <a06230924c1c7d795429a@[192.168.2.101]> <45A24176.9080107@gmx.net> <45A2509F.3000901@aitel.hist.no> <45A264E1.3080603@gmx.net> <20070108195714.GA6167@stusta.de> <45A34146.3000709@gmx.net>
-MIME-Version: 1.0
+	Tue, 9 Jan 2007 02:01:15 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:43958 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751115AbXAIHBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 02:01:13 -0500
+Date: Tue, 9 Jan 2007 07:56:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070109065633.GB8115@elte.hu>
+References: <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org> <20070107210139.GA2332@tv-sign.ru> <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45A34146.3000709@gmx.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070108212656.ca77a3ba.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 08:16:22AM +0100, Dirk wrote:
-> Adrian Bunk wrote:
-> >On Mon, Jan 08, 2007 at 04:36:01PM +0100, Dirk wrote:
-> >>Helge Hafting wrote:
-> >>...
-> >>>Either _you_ code your game interface yourself, or you fund
-> >>>some developers to do it for you. It is that simple.  You can
-> >>>of course come here and ask advice about how to do it
-> >>>and what parts will be accepted into the kernel and what parts
-> >>>must stay outside it.
-> >>>
-> >>>This is not the place to post an idea and then expect someone
-> >>>to actually program it.  This is the place where you may discuss
-> >>>an idea, and then find out if Linus might accept your patch - or not!
-> >>>
-> >>>Helge Hafting
-> >>Alright. I came to discuss an idea I had
-> >
-> >Open source does not work by telling about some seemingly good idea you 
-> >had and expecting other people to implement your idea.
-> >
-> >Open source works by you implementing your idea.
-> >
-> >Try it yourself, and you will see the technical problems of your idea
-> >(e.g. porting userrspace code to the stack-limited kernel or crashing 
-> >the whole computer with bugs in the libraries) yourself.
-> >
-> >>because I realized that 
-> >>installing Windows and running Linux in VMware is the only _fun_ way to 
-> >>play "real" Games and have Linux at the same time.
-> >>
-> >>And everyone who says I'm a troll doesn't like Games or simple things.
-> >
-> >You talk as if you knew everything about games on Windows, but you seem 
-> >to not even have heard of Wine or Cedega?
+
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > I would be happy to be corrected if the above impression of 
+> > freeze_processes() is corrected ..
 > 
-> I tried to get WoW installed with Cedega 5.2.9 for two days now.
+> It could be that the freezer needs a bit of work for this application. 
+> Obviously we're not interested in the handling of disk I/O, so we'd 
+> really like to do a simple 
+> try_to_freeze_tasks(FREEZER_USER_SPACE|FREEZER_KERNEL_THREADS), but 
+> the code isn't set up to do that (it should be).  The other non-swsusp 
+> callers probably want this change as well.  But that's all a minor 
+> matter.
 
-There are many reports that WoW runs fine under Wine [1].
+yes. The freezer does the fundamentally right thing: it stops all tasks 
+in user-space or waits for them to return back to user-space to stop 
+them there, or if it's a pure kernel-space task it waits until that 
+kernel-space task voluntarily stop.
 
-> Cedega is not a replacement for ports. And it does not encourage ports.
->...
+Once the system is in such a state, and all processing has been stopped, 
+all of the kernel's data structures are completely 'unused', and we can:
 
-And what should encourage ports?
-It's not that all people developing software for Windows were idiots who 
-don't know what technologies Linux offers.
+- patch the kernel freely (kprobes)
 
-Remember Loki as an example that the market for games under Linux isn't 
-big enough.
+- save+stop the kernel (sw-suspend) 
 
-And remember Picasa as a success story for Wine - exactly because a port 
-would have required too much effort for developers that were busy with 
-other things.
+- remove a CPU (CPU hotplug and suspend)
 
-> Dirk
+- (We could also use this mechanism to live-migrate the kernel to 
+   another system btw., possibly useful for containers)
 
-cu
-Adrian
+- (We could also use this mechanism to create a live snapshot of a 
+   running kernel, together with an LVM snapshot of filesystem state, 
+   for possible restore point later on.)
 
-[1] http://appdb.winehq.org/appview.php?iAppId=1922
+It is a very powerful mechanism that has really nice properties - we 
+should work on this one shared infrastructure instead of adding zillions 
+of per-subsystem CPU hotplug locks.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

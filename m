@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932090AbXAITZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932096AbXAIT0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbXAITZ3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 14:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbXAITZ3
+	id S932096AbXAIT0a (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 14:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbXAIT0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 14:25:29 -0500
-Received: from mga07.intel.com ([143.182.124.22]:44657 "EHLO
-	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932090AbXAITZ2 (ORCPT
+	Tue, 9 Jan 2007 14:26:30 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:25999 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932096AbXAIT03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 14:25:28 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,164,1167638400"; 
-   d="scan'208"; a="167027380:sNHT20832322"
-Date: Tue, 9 Jan 2007 10:52:31 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/3] Handle 32 bit PerfMon Counter writes cleanly in oprofile
-Message-ID: <20070109105230.C20238@unix-os.sc.intel.com>
+	Tue, 9 Jan 2007 14:26:29 -0500
+Date: Tue, 9 Jan 2007 11:24:16 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Auke Kok <auke-jan.h.kok@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, NetDev <netdev@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [PATCH -MM] e1000: rewrite hardware initialization code
+Message-Id: <20070109112416.266efb84.randy.dunlap@oracle.com>
+In-Reply-To: <m3fyakau44.fsf@defiant.localdomain>
+References: <45A3D29D.1000202@intel.com>
+	<m3fyakau44.fsf@defiant.localdomain>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 09 Jan 2007 20:16:27 +0100 Krzysztof Halasa wrote:
 
-Handle these 32 bit perfmon counter MSR writes cleanly in oprofile.
+> Auke Kok <auke-jan.h.kok@intel.com> writes:
+> 
+> >  drivers/net/e1000/Makefile            |   19
+> >  drivers/net/e1000/e1000.h             |   95
+> >  drivers/net/e1000/e1000_80003es2lan.c | 1330 +++++
+> >  drivers/net/e1000/e1000_80003es2lan.h |   89
+> >  drivers/net/e1000/e1000_82540.c       |  586 ++
+> >  drivers/net/e1000/e1000_82541.c       | 1164 ++++
+> >  drivers/net/e1000/e1000_82541.h       |   86
+> >  drivers/net/e1000/e1000_82542.c       |  466 ++
+> >  drivers/net/e1000/e1000_82543.c       | 1397 +++++
+> >  drivers/net/e1000/e1000_82543.h       |   45
+> >  drivers/net/e1000/e1000_82571.c       | 1132 ++++
+> >  drivers/net/e1000/e1000_82571.h       |   42
+> 
+> Perhaps the "e1000_" prefix could be dropped as redundant?
+> -- 
 
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Yes, that suggestion would agree with what Linus told us about
+usb file names 7 years ago.  (huh?  that long?)
 
-Index: linux-2.6.20-rc-mm/arch/i386/oprofile/op_model_ppro.c
-===================================================================
---- linux-2.6.20-rc-mm.orig/arch/i386/oprofile/op_model_ppro.c
-+++ linux-2.6.20-rc-mm/arch/i386/oprofile/op_model_ppro.c
-@@ -24,7 +24,8 @@
- 
- #define CTR_IS_RESERVED(msrs,c) (msrs->counters[(c)].addr ? 1 : 0)
- #define CTR_READ(l,h,msrs,c) do {rdmsr(msrs->counters[(c)].addr, (l), (h));} while (0)
--#define CTR_WRITE(l,msrs,c) do {wrmsr(msrs->counters[(c)].addr, -(u32)(l), -1);} while (0)
-+#define CTR_32BIT_WRITE(l,msrs,c)	\
-+	do {wrmsr(msrs->counters[(c)].addr, -(u32)(l), 0);} while (0)
- #define CTR_OVERFLOWED(n) (!((n) & (1U<<31)))
- 
- #define CTRL_IS_RESERVED(msrs,c) (msrs->controls[(c)].addr ? 1 : 0)
-@@ -79,7 +80,7 @@ static void ppro_setup_ctrs(struct op_ms
- 	for (i = 0; i < NUM_COUNTERS; ++i) {
- 		if (unlikely(!CTR_IS_RESERVED(msrs,i)))
- 			continue;
--		CTR_WRITE(1, msrs, i);
-+		CTR_32BIT_WRITE(1, msrs, i);
- 	}
- 
- 	/* enable active counters */
-@@ -87,7 +88,7 @@ static void ppro_setup_ctrs(struct op_ms
- 		if ((counter_config[i].enabled) && (CTR_IS_RESERVED(msrs,i))) {
- 			reset_value[i] = counter_config[i].count;
- 
--			CTR_WRITE(counter_config[i].count, msrs, i);
-+			CTR_32BIT_WRITE(counter_config[i].count, msrs, i);
- 
- 			CTRL_READ(low, high, msrs, i);
- 			CTRL_CLEAR(low);
-@@ -116,7 +117,7 @@ static int ppro_check_ctrs(struct pt_reg
- 		CTR_READ(low, high, msrs, i);
- 		if (CTR_OVERFLOWED(low)) {
- 			oprofile_add_sample(regs, i);
--			CTR_WRITE(reset_value[i], msrs, i);
-+			CTR_32BIT_WRITE(reset_value[i], msrs, i);
- 		}
- 	}
- 
+---
+~Randy

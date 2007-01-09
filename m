@@ -1,123 +1,171 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932405AbXAIUuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932435AbXAIUw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbXAIUuZ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 15:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbXAIUuZ
+	id S932435AbXAIUw4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 15:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbXAIUw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 15:50:25 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:62813 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932405AbXAIUuY (ORCPT
+	Tue, 9 Jan 2007 15:52:56 -0500
+Received: from master.altlinux.org ([62.118.250.235]:4556 "EHLO
+	master.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932435AbXAIUwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 15:50:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=tdQHqRKcJpCBuhd2wqhHW7Kb+Lk/icTnH5E28BxxFnYa0I7+D+13il0HHFPghixREJn9eRF5Hqcb6BdpCAdSckdkPNSeigc1EL8cXf0NDPanaBqu1CCVnENhWu9ySChtEnZKfEIFqR6mBwtzDFAEqb1JjHEt4oP/mxkyJkC0zrU=
-Message-ID: <45A4000C.2060502@gmail.com>
-Date: Tue, 09 Jan 2007 21:50:20 +0100
-From: Maciej Rutecki <maciej.rutecki@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Re: 2.6.20-rc3-mm1] BUG: at kernel/sched.c:3415 sub_preempt_count()
-References: <20070104220200.ae4e9a46.akpm@osdl.org> <45A3A96B.7090802@gmail.com> <20070109152757.GB13656@slug>
-In-Reply-To: <20070109152757.GB13656@slug>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020704030705060301020206"
+	Tue, 9 Jan 2007 15:52:55 -0500
+Date: Tue, 9 Jan 2007 23:52:49 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: NTFS deadlock on 2.6.18.6
+Message-ID: <20070109205249.GA3802@procyon.home>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
 
---------------ms020704030705060301020206
-Content-Type: text/plain; charset=UTF-8
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Frederik Deweerdt napisa=C5=82(a):
+Hello!
 
-> See:
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-r=
-c3/2.6.20-rc3-mm1/hot-fixes/
-> This should fix it.
-> Regards,
-> Frederik
->>
+I have encountered a deadlock in the NTFS filesystem on a
+2.6.18.6-based kernel (x86_64, CONFIG_SMP set, but the machine has
+only one CPU (Athlon64 3200+), no PREEMPT).
 
-I don't use reiser4 or cpufreq, see my .config.
+The kswapd0 and mklocatedb processes were apparently involved in the
+deadlock:
+
+kswapd0       D ffff810005dea304     0   163      7           164   162 (L-=
+TLB)
+ ffff81003fd6bcc8 0000000000000046 0000000000000020 00000000021aaac0
+ 000000000000000a ffff81003fe93820 ffff81003fb157a0 0000027894893008
+ 00000000000308da ffff81003fe93a20 ffff810000000000 ffff810001641670
+Call Trace:
+ [<ffffffff8025e4cf>] __mutex_lock_slowpath+0x5d/0x98
+ [<ffffffff8025e50f>] .text.lock.mutex+0x5/0x14
+DWARF2 unwinder stuck at .text.lock.mutex+0x5/0x14
+Leftover inexact backtrace:
+ [<ffffffff881b58d2>] :ntfs:ntfs_put_inode+0x38/0x7a
+ [<ffffffff80229987>] iput+0x3b/0x84
+ [<ffffffff881b5a1b>] :ntfs:ntfs_clear_big_inode+0x107/0x121
+ [<ffffffff802215f6>] clear_inode+0xc5/0xf6
+ [<ffffffff8023362a>] dispose_list+0x56/0xf6
+ [<ffffffff8022c47e>] shrink_icache_memory+0x1d4/0x203
+ [<ffffffff8023de38>] shrink_slab+0xdc/0x154
+ [<ffffffff802545e8>] kswapd+0x320/0x424
+ [<ffffffff802921ca>] autoremove_wake_function+0x0/0x2e
+ [<ffffffff80292007>] keventd_create_kthread+0x0/0x61
+ [<ffffffff802542c8>] kswapd+0x0/0x424
+ [<ffffffff80292007>] keventd_create_kthread+0x0/0x61
+ [<ffffffff802312d8>] kthread+0xd4/0x107
+ [<ffffffff80259d60>] child_rip+0xa/0x12
+ [<ffffffff80292007>] keventd_create_kthread+0x0/0x61
+ [<ffffffff80231204>] kthread+0x0/0x107
+ [<ffffffff80259d56>] child_rip+0x0/0x12
+
+mklocatedb    D ffff810001e0d400     0  4586   4585                     (NO=
+TLB)
+ ffff810021fd5c48 0000000000000082 0000000000000000 0000000000000000
+ 000000000000000a ffff81002728f7e0 ffffffff8048b3c0 000002789a2349cf
+ 00000000000025c4 ffff81002728f9e0 ffff810000000000 0000000000000000
+Call Trace:
+ [<ffffffff8024d781>] __wait_on_freeing_inode+0x82/0xa0
+ [<ffffffff8024be5e>] find_inode+0x3d/0x6c
+ [<ffffffff80256b8c>] ifind+0x34/0x91
+ [<ffffffff802cbe81>] iget5_locked+0x6c/0x1a9
+ [<ffffffff881b3aea>] :ntfs:ntfs_attr_iget+0x5a/0x5eb
+ [<ffffffff881ae308>] :ntfs:ntfs_readdir+0x3f1/0xce1
+ [<ffffffff802339d9>] vfs_readdir+0x77/0xa9
+ [<ffffffff80237247>] sys_getdents+0x75/0xbd
+ [<ffffffff80258ed6>] system_call+0x7e/0x83
+DWARF2 unwinder stuck at system_call+0x7e/0x83
+Leftover inexact backtrace:
+
+There were some other processes stuck in the D state, but that seems
+to be just a result of the above deadlock:
+
+linuxdcpp     D ffff810001e0d400     0  4912   4910          4914  4911 (NO=
+TLB)
+ ffff8100283d1bf0 0000000000000082 ffff81000181cf38 ffff8100283d1b98
+ 0000000000000007 ffff81002ca0c0c0 ffffffff8048b3c0 00000279f4c0a091
+ 0000000000026b39 ffff81002ca0c2c0 ffffffff00000000 0000000000000000
+Call Trace:
+ [<ffffffff8025e4cf>] __mutex_lock_slowpath+0x5d/0x98
+ [<ffffffff8025e50f>] .text.lock.mutex+0x5/0x14
+DWARF2 unwinder stuck at .text.lock.mutex+0x5/0x14
+Leftover inexact backtrace:
+ [<ffffffff8022c2ea>] shrink_icache_memory+0x40/0x203
+ [<ffffffff8023de38>] shrink_slab+0xdc/0x154
+ [<ffffffff802b0e1c>] try_to_free_pages+0x179/0x254
+ [<ffffffff8020df64>] __alloc_pages+0x1a8/0x2a9
+ [<ffffffff80211077>] __do_page_cache_readahead+0x95/0x206
+ [<ffffffff802af5a1>] force_page_cache_readahead+0x5f/0x81
+ [<ffffffff802b1f06>] sys_madvise+0x2f7/0x3ec
+ [<ffffffff80258ed6>] system_call+0x7e/0x83
+
+(apparently waiting for kswapd0 to release iprune_mutex; this path
+does not seem to have any FS-related locking, but sys_madvise() has
+taken ->mm->mmap_sem for write.)
+
+Other linuxdcpp threads and several ps processes then were stuck
+waiting on its ->mm->mmap_sem taken by sys_madvise() above.
+
+So the deadlock seems to be between kswapd0 and mklocatedb.  Note that
+vfs_readdir() invoked by mklocatedb has taken i_mutex for the
+directory, and kswapd0 is waiting on some i_mutex...
+
+I suspect the following scenario:
+
+ 1) kswapd0 runs shrink_icache_memory() (and prune_icache(), which
+    apparently was inlined there); prune_icache() notices that some
+    attribute inode (probably the index bitmap) for the directory is
+    unused, marks that attribute inode with I_FREEING and subsequently
+    invokes dispose_list() to free marked inodes.
+
+ 2) mklocatedb invokes sys_readdir() on the directory, which grabs
+    i_mutex of the directory and proceeds to call the filesystem
+    readdir method - ntfs_readdir(), which then finds that it needs
+    the bitmap inode and invokes ntfs_attr_iget() to find it.
+    ntfs_attr_iget() proceeds down to find_inode(), which notices that
+    the inode has I_FREEING set and goes to __wait_on_freeing_inode().
+
+ 3) kswapd0 proceeds to call clear_inode() on the attribute inode.
+    ntfs_clear_big_inode() calls iput(VFS_I(ni->ext.base_ntfs_ino)) to
+    put the base inode (the directory).
+
+ 4) iput() calls ntfs_put_inode() for the directory.  At this point
+    the directory by chance has exactly two references accounted for
+    in ->i_count - one from the file descriptor open by mklocatedb,
+    another from the attribute inode (which that iput() is dropping
+    now), so ntfs_put_inode() goes to the path which releases
+    ni->itype.index.bmp_ino - but it needs to grab ->i_mutex for the
+    directory, and that mutex is held by mklocatedb.
+
+ 5) Now kswapd0 is waiting for mklocatedb to release ->i_mutex for the
+    directory, and mklocatedb is waiting for kswapd0 to finish freeing
+    of the attribute inode - deadlock.
+
+Seems that grabbing i_mutex in ntfs_put_inode() is not safe after all
+(and lockdep cannot see this deadlock possibility, because one of
+waits is __wait_on_freeing_inode - not a standard locking primitive).
 
 --=20
-Maciej Rutecki <maciej.rutecki@gmail.com>
-http://www.unixy.pl
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Sergey Vlasov
 
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---------------ms020704030705060301020206
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJHzCC
-AuowggJToAMCAQICEE6xoJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA2MDgyODEyMzAwNloX
-DTA3MDgyODEyMzAwNlowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUG
-CSqGSIb3DQEJARYYbWFjaWVqLnJ1dGVja2lAZ21haWwuY29tMIIBIjANBgkqhkiG9w0BAQEF
-AAOCAQ8AMIIBCgKCAQEAxmrZ/vMNBQsTG+9oNg9WeFTNtluscxhg5oBwudmsZhsoDdtQYPlK
-ZsRSZnkKTdEWR9w8dwi0JBxmq1XHumBA6/rFfAfhbOV1SBH3ktZ9foamMjpJTjO3+3gF9ocT
-wj1GzfReeGZuPgr4qVVvOT5FfD/PkAJzvur7fyLnviiZokQz8R3c+VhJlW3HurhlOlK0ItUu
-UuVtCdJosQRepYdPQ6H3Mvn74UxVttDeVxWNlQ2DaS7cy8wTmtc5CTNMVctbJkzFz0a/7wCJ
-JHdmqKTgjMBm+ry/IC50jvwkLKAumSJBLWhoIB+LxkJlMwgn69jc0KJkrdkpsUjPdo+zDgff
-iQIDAQABozUwMzAjBgNVHREEHDAagRhtYWNpZWoucnV0ZWNraUBnbWFpbC5jb20wDAYDVR0T
-AQH/BAIwADANBgkqhkiG9w0BAQUFAAOBgQC2O4xAuM7DplCDsgJuaMKz3uR25rq9ucMqVtCW
-CAfCyORrFaxN8LFF9KcYx6M4AK1fQ36JVPtMER2VzGMF74gXgrFQ4A9tno6rKzi/QpzwWoPE
-4I1hcOKz/YxOK0sRjSDR3p5s2XrKVxgUe+TEeJ6/y1iv52o41oYVmilsUovvHzCCAuowggJT
-oAMCAQICEE6xoJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UEBhMCWkEx
-JTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0
-ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA2MDgyODEyMzAwNloXDTA3MDgy
-ODEyMzAwNlowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3
-DQEJARYYbWFjaWVqLnJ1dGVja2lAZ21haWwuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
-MIIBCgKCAQEAxmrZ/vMNBQsTG+9oNg9WeFTNtluscxhg5oBwudmsZhsoDdtQYPlKZsRSZnkK
-TdEWR9w8dwi0JBxmq1XHumBA6/rFfAfhbOV1SBH3ktZ9foamMjpJTjO3+3gF9ocTwj1GzfRe
-eGZuPgr4qVVvOT5FfD/PkAJzvur7fyLnviiZokQz8R3c+VhJlW3HurhlOlK0ItUuUuVtCdJo
-sQRepYdPQ6H3Mvn74UxVttDeVxWNlQ2DaS7cy8wTmtc5CTNMVctbJkzFz0a/7wCJJHdmqKTg
-jMBm+ry/IC50jvwkLKAumSJBLWhoIB+LxkJlMwgn69jc0KJkrdkpsUjPdo+zDgffiQIDAQAB
-ozUwMzAjBgNVHREEHDAagRhtYWNpZWoucnV0ZWNraUBnbWFpbC5jb20wDAYDVR0TAQH/BAIw
-ADANBgkqhkiG9w0BAQUFAAOBgQC2O4xAuM7DplCDsgJuaMKz3uR25rq9ucMqVtCWCAfCyORr
-FaxN8LFF9KcYx6M4AK1fQ36JVPtMER2VzGMF74gXgrFQ4A9tno6rKzi/QpzwWoPE4I1hcOKz
-/YxOK0sRjSDR3p5s2XrKVxgUe+TEeJ6/y1iv52o41oYVmilsUovvHzCCAz8wggKooAMCAQIC
-AQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENh
-cGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAm
-BgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0
-ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
-aWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNV
-BAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQD
-EyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzANBgkqhkiG9w0BAQEF
-AAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B
-1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOCdz0Dviv+uxg+B79A
-gAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCBkTASBgNVHRMBAf8E
-CDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3
-dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAgpB4wHDEa
-MBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPqCy7M
-DaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk1
-3iSx0x1G/11fZU8xggNkMIIDYAIBATB2MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3
-dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJl
-ZW1haWwgSXNzdWluZyBDQQIQTrGgkxzJbnibsa3oUSMXezAJBgUrDgMCGgUAoIIBwzAYBgkq
-hkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNzAxMDkyMDUwMjBaMCMG
-CSqGSIb3DQEJBDEWBBRqL9P2VyQFjQRnncNx5W/+YpraBDBSBgkqhkiG9w0BCQ8xRTBDMAoG
-CCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDCBhQYJKwYBBAGCNxAEMXgwdjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMc
-VGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFs
-IEZyZWVtYWlsIElzc3VpbmcgQ0ECEE6xoJMcyW54m7Gt6FEjF3swgYcGCyqGSIb3DQEJEAIL
-MXigdjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
-THRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECEE6x
-oJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEBBQAEggEAI5FLAf0plhA2sKl0RtJNwja9S++S
-gYkBe6IullBt3ESkNmSuncnpxrQ7E+WN12AxfoREVHGzXRKIx3q0yRUyH07Izz3RP7G3Fr/i
-dJzTKaDkprkpwOpZyK2YRXpRxqRS62THh64xwkdlGp/qE+XExhLLWeuNPjEMMxvOTF5nX0WJ
-64Q8G31rcoY0CNxqtFeJel/cE2P+7yq1V59IspULZbkszojb+yrihZHlrQ8jk4F73ktUl0+B
-htT+hqg9gV9ZikCTY0Tsb1cb34B50rtNtKr88jF+SYA6r5BQkjsbv7kPDTZSZhLXk5rCkP9r
-vYHrPBTpNe1kTzpR589sVkf+kAAAAAAAAA==
---------------ms020704030705060301020206--
+iD8DBQFFpAChW82GfkQfsqIRAhLeAKCK5ikYreaH50SDnDmqc1S3kqamlwCfXin0
+eSqf7Q2H6Kv12xfL1/opcGk=
+=X92x
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

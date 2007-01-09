@@ -1,90 +1,205 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAIStg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932379AbXAISyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbXAIStg (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 13:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXAIStg
+	id S932379AbXAISyd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 13:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbXAISyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 13:49:36 -0500
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:40331 "EHLO
-	moving-picture.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932359AbXAIStf (ORCPT
+	Tue, 9 Jan 2007 13:54:33 -0500
+Received: from out5.smtp.messagingengine.com ([66.111.4.29]:54155 "EHLO
+	out5.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932374AbXAISyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 13:49:35 -0500
-X-Greylist: delayed 3351 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 13:49:35 EST
-Message-ID: <45A3D6A5.6080302@moving-picture.com>
-Date: Tue, 09 Jan 2007 17:53:41 +0000
-From: James Pearson <james-p@moving-picture.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
-X-Accept-Language: en-us, en
+	Tue, 9 Jan 2007 13:54:31 -0500
+X-Sasl-enc: riHwMz/IgHN9ercNhqJ3Y3FEixZ6yQ5viPSxHPd4QHdY 1168368652
+Date: Tue, 9 Jan 2007 16:54:23 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org,
+       ibm-acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.20-rc4 regression] ibm-acpi: bay support disabled
+Message-ID: <20070109185422.GB3528@khazad-dum.debian.net>
+References: <20070109172845.GA3528@khazad-dum.debian.net> <20070109174534.GN25007@stusta.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Understanding cpufreq?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109174534.GN25007@stusta.de>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a number of dual CPU and dual CPU/dual core Opteron systems that 
-are used as compute servers. In an effort to reduce power consumption 
-and reduce heat output, I would like to make use of the PowerNow! 
-capabilities to clock back the CPUs when the machines are idle.
+On Tue, 09 Jan 2007, Adrian Bunk wrote:
+> > diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> > index 1639998..34cc8d5 100644
+> > --- a/drivers/acpi/Kconfig
+> > +++ b/drivers/acpi/Kconfig
+> > @@ -215,26 +215,29 @@ config ACPI_IBM
+> >  config ACPI_IBM_DOCK
+> >  	bool "Legacy Docking Station Support"
+> >  	depends on ACPI_IBM
+> > -	depends on ACPI_DOCK=n
+> > -	default n
+> > +	depends on ! ACPI_DOCK
+> > +	default y
+> >...
+> 
+> !ACPI_DOCK is wrong if the intention was ACPI_DOCK=n (since ACPI_DOCK is 
+> a tristate).
 
-These machines are running a 2.6.9-42 RHEL4 kernel with the powernow-k8 
-module loaded - which I believe have backported cpufreq support from 
-more recent mainline kernels.
+Actually, the intention is to give a sensible default AND to avoid
+ACPI_DOCK=y && ACPI_IBM_DOCK=y.  The same goes for ACPI_BAY.  An user is
+certainly entitled to have both as modules (e.g. to see if ACPI_DOCK or
+ACPI_BAY works in his ThinkPad).
 
-In trying to achieve what I want, I've become rather confused as to how 
-cpufreq in a multi-CPU environment works:
+Even better would be to detect it at runtime, and disable the specific
+support in ibm-acpi if the generic support is loaded.  But that's something
+to try in -mm and target 2.6.21 or 2.6.22.
 
-There is a directory under /sys/devices/system/cpu/cpu*/cpufreq for each 
-CPU, which seems to imply that each CPU speed can be controlled 
-separately - can this really be the case? Can separate CPU cores run at 
-different speeds?
+> I'd say the right fix is to remove the negative dependencies on unmerged 
+> options and reintroduce them once these options themselves got merged.
 
-e.g. I can echo 4 different governor names to the scaling_governor file 
-in each /sys/devices/system/cpu/cpu[0-3]/cpufreq directory on a 4 core 
-machine - and the resulting scaling_cur_freq file can contain a 
-different value.
+Well, as long as the regression is fixed, I am happy.  Here is an
+alternative patch, that reverts the problematic commit,
+2df910b4c3edcce9a0c12394db6f5f4a6e69c712.
 
-However, the "cpu MHz" fields in /proc/cpuinfo are all the same for each 
-each CPU - I assume the values in /proc/cpuinfo are the 'correct' values ??
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh
 
-Also, if I set all the governors to userspace, and then set each CPU's 
-speed via scaling_setspeed to a different (allowed) value, then it 
-appears quite random as to which value is then reflected in 
-/proc/cpuinfo i.e. sometimes it will take the value given to CPU 0, 
-other times it will be CPU 1 etc.
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-If I set all the governors to ondemand, the CPUs will from time to time, 
-clock back their speed in situations where one or more CPUs are being 
-heavily used. i.e it appears that each CPU is treated separately, and if 
-one CPU is deemed to be idle enough by its given metrics, then it can 
-reduce the speed of all CPUs, regardless of other CPUs being 'busy' ...
+ACPI: ibm-acpi: allow bay support to work in mainline
 
-I've also tried a couple of userspace daemons (cpuspeed and powernowd) - 
-again, these treat each CPU separately and will also reduce the speed of 
-an 'idle' CPU - and hence reduce the speed of all the CPUs, again, 
-regardless of other CPUs being 'busy'.
+This patch reverts commit 2df910b4c3edcce9a0c12394db6f5f4a6e69c712.
 
-Essentially what I want to achieve is something like: if _any_ CPU is 
-'busy' (usage over some threshold over some sampling period), then run 
-at full speed and if _all_ CPUs are 'idle' (all below some threshold 
-over some sampling period) then clock back the CPUs.
+ACPI_BAY has not been merged into mainline yet, so the changes to ibm-acpi
+related Kconfig entries that depend on ACPI_BAY were permanently disabling
+ibm-acpi bay support.  This is a serious regression for ThinkPad users.
 
-Is there something/some setting(s) that can do this in a multi-CPU machine?
+Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+---
+ drivers/acpi/Kconfig    |   11 -----------
+ drivers/acpi/ibm_acpi.c |   13 +------------
+ 2 files changed, 1 insertions(+), 23 deletions(-)
 
-Thanks
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index 1639998..f4f000a 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -225,17 +225,6 @@ config ACPI_IBM_DOCK
+ 
+ 	  If you are not sure, say N here.
+ 
+-config ACPI_IBM_BAY
+-	bool "Legacy Removable Bay Support"
+-	depends on ACPI_IBM
+-	depends on ACPI_BAY=n
+-	default n
+-	---help---
+-	  Allows the ibm_acpi driver to handle removable bays.
+-	  This support is obsoleted by CONFIG_ACPI_BAY.
+-
+-	  If you are not sure, say N here.
+-
+ config ACPI_TOSHIBA
+ 	tristate "Toshiba Laptop Extras"
+ 	depends on X86
+diff --git a/drivers/acpi/ibm_acpi.c b/drivers/acpi/ibm_acpi.c
+index b72d13d..c6144ca 100644
+--- a/drivers/acpi/ibm_acpi.c
++++ b/drivers/acpi/ibm_acpi.c
+@@ -157,7 +157,6 @@ IBM_HANDLE(dock, root, "\\_SB.GDCK",	/* X30, X31, X40 */
+ 	   "\\_SB.PCI.ISA.SLCE",	/* 570 */
+     );				/* A21e,G4x,R30,R31,R32,R40,R40e,R50e */
+ #endif
+-#ifdef CONFIG_ACPI_IBM_BAY
+ IBM_HANDLE(bay, root, "\\_SB.PCI.IDE.SECN.MAST",	/* 570 */
+ 	   "\\_SB.PCI0.IDE0.IDES.IDSM",	/* 600e/x, 770e, 770x */
+ 	   "\\_SB.PCI0.SATA.SCND.MSTR",	/* T60, X60, Z60 */ 
+@@ -175,7 +174,6 @@ IBM_HANDLE(bay2, root, "\\_SB.PCI0.IDE0.PRIM.SLAV",	/* A3x, R32 */
+ IBM_HANDLE(bay2_ej, bay2, "_EJ3",	/* 600e/x, 770e, A3x */
+ 	   "_EJ0",		/* 770x */
+     );				/* all others */
+-#endif
+ 
+ /* don't list other alternatives as we install a notify handler on the 570 */
+ IBM_HANDLE(pci, root, "\\_SB.PCI");	/* 570 */
+@@ -1042,7 +1040,6 @@ static int light_write(char *buf)
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_ACPI_IBM_DOCK) || defined(CONFIG_ACPI_IBM_BAY)
+ static int _sta(acpi_handle handle)
+ {
+ 	int status;
+@@ -1052,7 +1049,7 @@ static int _sta(acpi_handle handle)
+ 
+ 	return status;
+ }
+-#endif
++
+ #ifdef CONFIG_ACPI_IBM_DOCK
+ #define dock_docked() (_sta(dock_handle) & 1)
+ 
+@@ -1118,7 +1115,6 @@ static void dock_notify(struct ibm_struct *ibm, u32 event)
+ }
+ #endif
+ 
+-#ifdef CONFIG_ACPI_IBM_BAY
+ static int bay_status_supported;
+ static int bay_status2_supported;
+ static int bay_eject_supported;
+@@ -1194,7 +1190,6 @@ static void bay_notify(struct ibm_struct *ibm, u32 event)
+ {
+ 	acpi_bus_generate_event(ibm->device, event, 0);
+ }
+-#endif
+ 
+ static int cmos_read(char *p)
+ {
+@@ -2354,7 +2349,6 @@ static struct ibm_struct ibms[] = {
+ 	 .type = ACPI_SYSTEM_NOTIFY,
+ 	 },
+ #endif
+-#ifdef CONFIG_ACPI_IBM_BAY
+ 	{
+ 	 .name = "bay",
+ 	 .init = bay_init,
+@@ -2364,7 +2358,6 @@ static struct ibm_struct ibms[] = {
+ 	 .handle = &bay_handle,
+ 	 .type = ACPI_SYSTEM_NOTIFY,
+ 	 },
+-#endif
+ 	{
+ 	 .name = "cmos",
+ 	 .read = cmos_read,
+@@ -2650,9 +2643,7 @@ IBM_PARAM(light);
+ #ifdef CONFIG_ACPI_IBM_DOCK
+ IBM_PARAM(dock);
+ #endif
+-#ifdef CONFIG_ACPI_IBM_BAY
+ IBM_PARAM(bay);
+-#endif
+ IBM_PARAM(cmos);
+ IBM_PARAM(led);
+ IBM_PARAM(beep);
+@@ -2735,14 +2726,12 @@ static int __init acpi_ibm_init(void)
+ 	IBM_HANDLE_INIT(dock);
+ #endif
+ 	IBM_HANDLE_INIT(pci);
+-#ifdef CONFIG_ACPI_IBM_BAY
+ 	IBM_HANDLE_INIT(bay);
+ 	if (bay_handle)
+ 		IBM_HANDLE_INIT(bay_ej);
+ 	IBM_HANDLE_INIT(bay2);
+ 	if (bay2_handle)
+ 		IBM_HANDLE_INIT(bay2_ej);
+-#endif
+ 	IBM_HANDLE_INIT(beep);
+ 	IBM_HANDLE_INIT(ecrd);
+ 	IBM_HANDLE_INIT(ecwr);
+-- 
+1.4.4.3
 
-James Pearson

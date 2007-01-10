@@ -1,87 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbXAJB5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932613AbXAJCUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbXAJB5d (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 20:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbXAJB5c
+	id S932613AbXAJCUQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 21:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbXAJCUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 20:57:32 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:58521 "HELO ustc.edu.cn"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S932653AbXAJB5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 20:57:31 -0500
-Message-ID: <368394226.19365@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Wed, 10 Jan 2007 09:57:39 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Theodore Tso <tytso@mit.edu>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: How git affects kernel.org performance
-Message-ID: <20070110015739.GA26978@mail.ustc.edu.cn>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Theodore Tso <tytso@mit.edu>,
-	Suparna Bhattacharya <suparna@in.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
-	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
-	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-References: <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org> <368329554.17014@ustc.edu.cn> <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
+	Tue, 9 Jan 2007 21:20:16 -0500
+Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:53287 "EHLO
+	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932613AbXAJCUO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 21:20:14 -0500
+X-Greylist: delayed 4179 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 21:20:14 EST
+Date: Wed, 10 Jan 2007 03:10:19 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Jeb Cramer <cramerj@intel.com>, John Ronciak <john.ronciak@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+       Auke Kok <auke-jan.h.kok@intel.com>
+Subject: Re: e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+Message-ID: <20070110011019.GD3803@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Jeb Cramer <cramerj@intel.com>,
+	John Ronciak <john.ronciak@intel.com>,
+	Jesse Brandeburg <jesse.brandeburg@intel.com>,
+	Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+	Auke Kok <auke-jan.h.kok@intel.com>
+References: <20070109222708.GA15510@m.safari.iki.fi> <45A42C62.2030309@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
+In-Reply-To: <45A42C62.2030309@intel.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 08:23:32AM -0800, Linus Torvalds wrote:
->
->
-> On Tue, 9 Jan 2007, Fengguang Wu wrote:
-> > >
-> > > The fastest and probably most important thing to add is some readahead
-> > > smarts to directories --- both to the htree and non-htree cases.  If
-> >
-> > Here's is a quick hack to practice the directory readahead idea.
-> > Comments are welcome, it's a freshman's work :)
->
-> Well, I'd probably have done it differently, but more important is whether
-> this actually makes a difference performance-wise. Have you benchmarked it
-> at all?
+On Tue, Jan 09, 2007 at 15:59:30 -0800, Auke Kok wrote:
+> Sami Farin wrote:
+...
+> >I do "ethtool -K eth0 tso off" now and check if I get the hang again. =)
+> 
+> I'm unsure whether v7.2.x already automatically disables TSO for 100mbit 
+> speed link, probably not. It should.
 
-Yes, a trivial test shows a marginal improvement, on a minimal debian system:
+It disabled it but I enabled it just for fun.
+ 
+> Please try our updated driver from http://e1000.sf.net/ (7.3.20) against 
+> the same kernel. There are some changes with regard to the ich8/TSO driver 
+> that might affect this, so re-testing is worth it for us.
 
-# find / | wc -l
-13641
+I now run 7.3.20-NAPI.
 
-# time find / > /dev/null
+BTW. the Makefile is buggy: it does not get CC from kernel's Makefile.
+Using wrong compiler can cause for example a reboot when loading the module.
+(At least that's what happened with gcc-2.95.3 vs 3.x.x some years ago...)
+ 
+> also, please always include the full dmesg output. Feel free to CC 
+> e1000-devel@lists.sourceforge.net on this.
 
-real    0m10.000s
-user    0m0.210s
-sys     0m4.370s
+I enabled TSO again.  I write again if TSO causes problems.
+Why shouldn't it work with 100 Mbps?  Not that it would help a lot,
+but I ask this on principle.
 
-# time find / > /dev/null
+  /* disable TSO for pcie and 10/100 speeds, to avoid
+   * some hardware issues */
 
-real    0m9.890s
-user    0m0.160s
-sys     0m3.270s
+Issues on the motherboard or the NIC?
 
-> Doing an
->
-> 	echo 3 > /proc/sys/vm/drop_caches
->
-> is your friend for testing things like this, to force cold-cache
-> behaviour..
+2007-01-10 02:39:51.889908500 <6>ACPI: PCI interrupt for device 0000:00:19.0 disabled
+2007-01-10 02:39:54.545194500 <6>Intel(R) PRO/1000 Network Driver - version 7.3.20-NAPI
+2007-01-10 02:39:54.545198500 <6>Copyright (c) 1999-2006 Intel Corporation.
+2007-01-10 02:39:54.545395500 <6>ACPI: PCI Interrupt 0000:00:19.0[A] -> GSI 20 (level, low) -> IRQ 22
+2007-01-10 02:39:54.545435500 <7>PCI: Setting latency timer of device 0000:00:19.0 to 64
+2007-01-10 02:39:54.562905500 <6>e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1) 00:19:d1:00:5f:01
+2007-01-10 02:39:54.638093500 <6>e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+2007-01-10 02:40:07.513619500 <6>ADDRCONF(NETDEV_UP): eth0: link is not ready
+2007-01-10 02:40:07.614768500 <6>e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex, Flow Control: None
+2007-01-10 02:40:07.614770500 <6>e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
+2007-01-10 02:40:07.614771500 <6>ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+2007-01-10 02:40:09.271631500 <3>e1000: eth0: e1000_reset: Hardware Error
+2007-01-10 02:40:10.930000500 <6>e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex, Flow Control: None
+2007-01-10 02:40:10.930049500 <6>e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
 
-Thanks, I'll work out numbers on large/concurrent dir accesses soon.
+PS. please do not delete Mail-Followup-To header field.
 
-Regards,
-Wu
+-- 

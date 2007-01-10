@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932498AbXAJGBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932629AbXAJGZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbXAJGBp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 01:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbXAJGBp
+	id S932629AbXAJGZr (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 01:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbXAJGZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 01:01:45 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:40754 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932498AbXAJGBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 01:01:44 -0500
-From: Neil Brown <neilb@suse.de>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-Date: Wed, 10 Jan 2007 17:01:23 +1100
+	Wed, 10 Jan 2007 01:25:47 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:32950 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932629AbXAJGZq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 01:25:46 -0500
+X-Originating-Ip: 74.109.98.176
+Date: Wed, 10 Jan 2007 01:20:31 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: macros:  "do-while" versus "({ })" and a compile-time error
+In-Reply-To: <Pine.LNX.4.61.0701091415200.12545@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0701100116420.10133@localhost.localdomain>
+References: <Pine.LNX.4.64.0701081347410.32420@localhost.localdomain>
+ <45A3D1DF.4020205@s5r6.in-berlin.de> <Pine.LNX.4.61.0701091415200.12545@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17828.33075.145986.404400@notabene.brown>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-In-Reply-To: message from Fengguang Wu on Friday January 5
-References: <367964923.02447@ustc.edu.cn>
-	<20070105024226.GA6076@mail.ustc.edu.cn>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday January 5, fengguang.wu@gmail.com wrote:
-> Hi Neil,
-> 
-> NFS mounting succeeded, but the kernel gives a warning.
-> I'm running 2.6.20-rc2-mm1.
-> 
-> # mount -o vers=3 localhost:/suse /mnt
-> [  689.651606] svc: unknown version (3)
-> # mount | grep suse
-> localhost:/suse on /mnt type nfs (rw,nfsvers=3,addr=127.0.0.1)
-> 
-> Any clues about it?
+On Tue, 9 Jan 2007, linux-os (Dick Johnson) wrote:
 
-Weird.
+>
+> On Tue, 9 Jan 2007, Stefan Richter wrote:
+>
+> > Robert P. J. Day wrote:
+> >>   just to stir the pot a bit regarding the discussion of the two
+> >> different ways to define macros,
+> >
+> > You mean function-like macros, right?
+> >
+> >> i've just noticed that the "({ })"
+> >> notation is not universally acceptable.  i've seen examples where
+> >> using that notation causes gcc to produce:
+> >>
+> >>   error: braced-group within expression allowed only inside a function
+> >
+> > And function calls and macros which expand to "do { expr; } while (0)"
+> > won't work anywhere outside of functions either.
+> >
+> >> i wasn't aware that there were limits on this notation.  can someone
+> >> clarify this?  under what circumstances *can't* you use that notation?
+> >> thanks.
+> >
+> > The limitations are certainly highly compiler-specific.
+>
+> I don't think so. You certainly couldn't write working 'C' code like
+> this:
+>
+>  	do { a = 1; } while(0);
+>
+> This _needs_ to be inside a function. In fact any runtime operations
+> need to be inside functions. It's only in assembly that you could
+> 'roll your own' code like:
+>
+> main:
+>  	ret 0
+>
+>
+> Most of these errors come about as a result of changes where a macro
+> used to define a constant. Later on, it was no longer a constant in
+> code that didn't actually get compiled during the testing.
 
-Please try this patch.  It should provide more useful information.
+just FYI, the reason i brought this up in the first place is that i
+noticed that the ALIGN() macro in kernel.h didn't verify that the
+alignment value was a power of 2, so i thought -- hmmm, i wonder if
+there are any invocations where that's not true, so i (temporarily)
+rewrote ALIGN to incorporate that check, and the build blew up
+including include/net/neighbour.h, which contains the out-of-function
+declaration:
 
-NeilBrown
+struct neighbour
+{
+        ...
+        unsigned char           ha[ALIGN(MAX_ADDR_LEN, sizeof(unsigned long))];
+        ...
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+so it's not a big deal, it was just me goofing around and breaking
+things.
 
-### Diffstat output
- ./net/sunrpc/svc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff .prev/net/sunrpc/svc.c ./net/sunrpc/svc.c
---- .prev/net/sunrpc/svc.c	2007-01-10 16:58:14.000000000 +1100
-+++ ./net/sunrpc/svc.c	2007-01-10 16:59:55.000000000 +1100
-@@ -910,7 +910,8 @@ err_bad_prog:
- 
- err_bad_vers:
- #ifdef RPC_PARANOIA
--	printk("svc: unknown version (%d)\n", vers);
-+	printk("svc: unknown version (%d for prog %d, %s)\n", 
-+	       vers, prog, progp->pg_name);
- #endif
- 	serv->sv_stats->rpcbadfmt++;
- 	svc_putnl(resv, RPC_PROG_MISMATCH);
+rday

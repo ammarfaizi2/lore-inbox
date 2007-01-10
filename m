@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965120AbXAJVYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965121AbXAJV1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965120AbXAJVYy (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 16:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbXAJVYy
+	id S965121AbXAJV1r (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 16:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbXAJV1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 16:24:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37006 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965115AbXAJVYx (ORCPT
+	Wed, 10 Jan 2007 16:27:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45408 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965115AbXAJV1q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 16:24:53 -0500
-Date: Wed, 10 Jan 2007 21:24:48 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Layton <jlayton@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       esandeen@redhat.com, aviro@redhat.com, haveblue@us.ibm.com
-Subject: Re: [PATCH 3/3] have pipefs ensure i_ino uniqueness by calling iunique and hashing the inode
-Message-ID: <20070110212448.GA4656@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, esandeen@redhat.com, aviro@redhat.com,
-	haveblue@us.ibm.com
-References: <200701082047.l08KlHwK001925@dantu.rdu.redhat.com>
+	Wed, 10 Jan 2007 16:27:46 -0500
+Date: Wed, 10 Jan 2007 22:27:45 +0100
+From: Jan Kara <jack@suse.cz>
+To: Erez Zadok <ezk@cs.sunysb.edu>
+Cc: Andrew Morton <akpm@osdl.org>, "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070110212744.GD12654@atrey.karlin.mff.cuni.cz>
+References: <20070110161215.GB12654@atrey.karlin.mff.cuni.cz> <200701102015.l0AKFOQu028764@agora.fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200701082047.l08KlHwK001925@dantu.rdu.redhat.com>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200701102015.l0AKFOQu028764@agora.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 03:47:17PM -0500, Jeff Layton wrote:
-> This converts pipefs to use the new scheme. Here we're calling iunique to get
-> a unique i_ino value for the new inode, and then hashing it afterward. We
-> call iunique with a max_reserved value of 1 to avoid collision with the root
-> inode.  Since the inode is now hashed, we need to take care that we end up in
-> generic_delete_inode rather than generic_forget_inode or we'll create a nasty
-> leak, so we clear_nlink when we destroy the pipe info.
+> In message <20070110161215.GB12654@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
+> > > In message <20070109122644.GB1260@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
+> [...]
+> > > Jan, all of it is duable: we can downgrade the f/s to readonly, grab various
+> > > locks, search through various lists looking for open fd's and such, then
+> > > decide if to allow the mount or not.  And hopefully all of that can be done
+> > > in a non-racy manner.  But it feels just rather hacky and ugly to me.  If
+> > > this community will endorse such a solution, we'll be happy to develop it.
+> > > But right now my impression is that if we posted such patches today, some
+> > > people will have to wipe the vomit off of their monitors... :-)
+> >   I see :). To me it just sounds as if you want to do remount-read-only
+> > for source filesystems, which is operation we support perfectly fine,
+> > and after that create union mount. But I agree you cannot do quite that
+> > since you need to have write access later from your union mount. So
+> > maybe it's not so easy as I thought.
+> >   On the other hand, there was some effort to support read-only bind-mounts of
+> > read-write filesystems (there were even some patches floating around but
+> > I don't think they got merged) and that should be even closer to what
+> > you'd need...
 > 
-> I'm not certain that this is the right place to add the clear_nlink, though
-> it does seem to work. I'm open to suggestions on a better place to put
-> this, or of a better way to make sure that we end up with i_nlink == 0 at
-> iput time.
+> I didn't know about those patches, but yes, they do sound useful.  I'm
+> curious who needed such functionality before and why.  If someone can point
+> me to those patches, we can look into using them for Unionfs.  Thanks.
+  Dave Hansen writes them. One of recent submissions starts for example at
+http://openvz.org/pipermail/devel/2006-December/002543.html.
 
-You should Cc Dave Hansen as he's did the nlink helpers and works on
-the per-mount readonly code that requires them.
+									Honza
 
-> Signed-off-by: Jeff Layton <jlayton@redhat.com>
-> 
-> diff --git a/fs/pipe.c b/fs/pipe.c
-> index 68090e8..1d44ff0 100644
-> --- a/fs/pipe.c
-> +++ b/fs/pipe.c
-> @@ -825,6 +825,7 @@ void free_pipe_info(struct inode *inode)
->  {
->  	__free_pipe_info(inode->i_pipe);
->  	inode->i_pipe = NULL;
-> +	clear_nlink(inode);
->  }
->  
->  static struct vfsmount *pipe_mnt __read_mostly;
-> @@ -871,6 +872,8 @@ static struct inode * get_pipe_inode(void)
->  	inode->i_uid = current->fsuid;
->  	inode->i_gid = current->fsgid;
->  	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-> +	inode->i_ino = iunique(pipe_mnt->mnt_sb, 1);
-> +	insert_inode_hash(inode);
->  
->  	return inode;
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
----end quoted text---
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

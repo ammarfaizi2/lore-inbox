@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964952AbXAJSP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964954AbXAJSRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbXAJSP5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 13:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbXAJSP5
+	id S964954AbXAJSRZ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 13:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbXAJSRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 13:15:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45099 "EHLO mx1.redhat.com"
+	Wed, 10 Jan 2007 13:17:24 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:44837 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964952AbXAJSP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 13:15:56 -0500
-Message-ID: <45A52D2A.2030300@redhat.com>
-Date: Wed, 10 Jan 2007 10:15:06 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
+	id S964954AbXAJSRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 13:17:24 -0500
+Message-ID: <45A52DB1.30306@garzik.org>
+Date: Wed, 10 Jan 2007 13:17:21 -0500
+From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-CC: Jakub Jelinek <jakub@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
-       Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
-       Sebastien Dugue <sebastien.dugue@bull.net>
-Subject: Re: [PATCH 2.6.20-rc4 1/4] futex priority based wakeup
-References: <45A3B330.9000104@bull.net> <45A3BFC8.1030104@bull.net> <45A3C2CE.7070500@redhat.com> <45A4D249.8080904@bull.net> <20070110125416.GW29911@devserv.devel.redhat.com> <45A500CC.3030408@bull.net>
-In-Reply-To: <45A500CC.3030408@bull.net>
-X-Enigmail-Version: 0.94.1.2.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5581E770121F0DA7897A3615"
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Prakash Punnoor <prakash@punnoor.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+References: <45A3FF32.1030905@wolfmountaingroup.com> <45A4325C.9060902@garzik.org> <20070110143919.GH17269@csclub.uwaterloo.ca> <200701101829.32369.prakash@punnoor.de> <20070110174710.GL17267@csclub.uwaterloo.ca> <45A521A0.9050205@wolfmountaingroup.com>
+In-Reply-To: <45A521A0.9050205@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5581E770121F0DA7897A3615
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Jeff V. Merkey wrote:
+> No doubt part of the Wintel (intel + Microsoft) strategy to perpetually 
+> break non-windows platforms with new incompatible
+> hardware like the switch over from the e1000 MT adapters to e1000 GT 
+> which are not backward compatible with the older chipsets.
 
-Pierre Peiffer wrote:
-> But there can be a performance impact when several processes use
-> different futexes which have the same hash key.
-> In fact, the plist contains all waiters _of_all_futexes_ having the sam=
-e
-> hash key, not only the waiters of a given futex. This can be more a
-> problem,
+I presume you mean breaking /windows/ platforms?
 
-s/can be/is/
+As I noted, Linux often supports the hardware from the "big" hardware 
+vendors before Windows does.
 
-There are systems with thousands of active futexes, maybe tens of
-thousands.  Not only is hash collision likely, it's also a matter of
-using and administering the plist.  We have to make futexes less
-connected, not more.  Now I definitely want to see real world tests first=
-=2E
+They use Linux as a "rabbit" to push Microsoft into supporting 
+something, with the "Linux supports it already" argument.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+	Jeff
 
 
---------------enig5581E770121F0DA7897A3615
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFFpS0q2ijCOnn/RHQRAucdAJ0XWtfzlus7pk3nGFG7IlqMNX3HHACeOtIz
-jWR6oFWxteCcqzYXpnW0JDo=
-=1EE6
------END PGP SIGNATURE-----
-
---------------enig5581E770121F0DA7897A3615--

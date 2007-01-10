@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965109AbXAJWK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965114AbXAJWRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbXAJWK2 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 17:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbXAJWK2
+	id S965114AbXAJWRL (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 17:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbXAJWRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 17:10:28 -0500
-Received: from mail.tmr.com ([64.65.253.246]:40532 "EHLO gaimboi.tmr.com"
+	Wed, 10 Jan 2007 17:17:11 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:58441 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965109AbXAJWK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 17:10:27 -0500
-Message-ID: <45A56453.9060707@tmr.com>
-Date: Wed, 10 Jan 2007 17:10:27 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	id S965114AbXAJWRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 17:17:09 -0500
+Date: Wed, 10 Jan 2007 14:16:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@zeniv.linux.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [PATCH] mm: pagefault_{disable,enable}()
+In-Reply-To: <Pine.LNX.4.64.0701102256410.4331@anakin>
+Message-ID: <Pine.LNX.4.64.0701101413130.3594@woody.osdl.org>
+References: <200612071659.kB7GxGHa030259@hera.kernel.org>
+ <Pine.LNX.4.64.0701102256410.4331@anakin>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: bunk@stusta.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netfilter@lists.netfilter.org, netfilter-devel@lists.netfilter.org
-Subject: Re: 2.6.20-rc4: regression: iptables failed to load rules
-References: <5157576d0701082329o1875911j20f6679e2d35bb17@mail.gmail.com> <Pine.LNX.4.64.0701090929160.3594@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701090929160.3594@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 9 Jan 2007, Tomasz Kvarsin wrote:
->> During boot into 2.6.20-rc4 iptables says
->> iptables-restore: line 15 failed.
->> And works fine with my default kernel: 2.6.18.x
-> 
-> I bet you enabled the new transport-agnostic netfilter, and didn't enable 
-> some of the actual rules needed for your iptables setup (they have new 
-> config names).
-> 
-> I do think that the netfilter team has been very irritating in changing 
-> the config names, even if it "is logical". 
-> 
-> Somebody should stop the madness, and tell people what config options they 
-> need for a regular iptables setup like this. Rather than say "just compile 
-> everything". There's about a million different filters, and they all 
-> depend on one infrastructure or another.
-> 
-> And then the networking people should F*NG STOP that config name changing 
-> madness! The config names should match the _usage_, not some 
-> implementation detail. And failing that, leave the config options named 
-> something illogical, as long as people don't have to change their config 
-> file all the time and answer millions of questions that they don't care 
-> about!
 
-This could apply to some other things, like PAE support. Instead of 
-having to know what memory models set what option which impact 
-virtualization, set the option if the feature is needed for any config 
-option choice. This probably hits people wanting virtualization on small 
-memory machines more than others.
+
+On Wed, 10 Jan 2007, Geert Uytterhoeven wrote:
+> 
+> This change causes lots of compile errors of the following form on m68k:
+> 
+> | linux-2.6.20-rc4/include/linux/uaccess.h: In function `pagefault_disable':
+> | linux-2.6.20-rc4/include/linux/uaccess.h:18: error: dereferencing pointer to incomplete type
+> | linux-2.6.20-rc4/include/linux/uaccess.h: In function `pagefault_enable':
+> | linux-2.6.20-rc4/include/linux/uaccess.h:33: error: dereferencing pointer to incomplete type
+
+Ouch. However, I think your patch is bogus.
+
+You're fixing somethign that doesn't need fixing: <linux/uaccess.h> 
+already includes <linux/preempt.h> for the preemption functions.
+
+The REAL problem seems to be that the m68k preempt.h (or rather, to be 
+exact, asm/thread_info.h) doesn't do things right, and while it exposes 
+"inc_preempt_count()", it doesn't expose enough information to actually 
+use it.
+
+I think your "current_thread_info()" is broken.
+
+		Linus

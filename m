@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964983AbXAJSTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964926AbXAJSVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbXAJSTp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 13:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbXAJSTo
+	id S964926AbXAJSVb (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 13:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbXAJSVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 13:19:44 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:44855 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964983AbXAJSTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 13:19:44 -0500
-Message-ID: <45A52E3D.20005@garzik.org>
-Date: Wed, 10 Jan 2007 13:19:41 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Wed, 10 Jan 2007 13:21:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58049 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964926AbXAJSVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 13:21:30 -0500
+Date: Wed, 10 Jan 2007 10:20:28 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Benjamin Gilbert <bgilbert@cs.cmu.edu>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Gautham shenoy <ego@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [patch -mm] slab: use CPU_LOCK_[ACQUIRE|RELEASE]
+In-Reply-To: <20070109150615.GF9563@osiris.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.64.0701101012460.21379@schroedinger.engr.sgi.com>
+References: <20070108120719.16d4674e.bgilbert@cs.cmu.edu>
+ <20070109121738.GC9563@osiris.boeblingen.de.ibm.com> <20070109122740.GC22080@in.ibm.com>
+ <20070109150351.GD9563@osiris.boeblingen.de.ibm.com>
+ <20070109150615.GF9563@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: Prakash Punnoor <prakash@punnoor.de>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
- IDE chip under 2.6.18
-References: <45A3FF32.1030905@wolfmountaingroup.com> <200701101829.32369.prakash@punnoor.de> <20070110174710.GL17267@csclub.uwaterloo.ca> <200701101856.07137.prakash@punnoor.de>
-In-Reply-To: <200701101856.07137.prakash@punnoor.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash Punnoor wrote:
-> Am Mittwoch 10 Januar 2007 18:47 schrieb Lennart Sorensen:
->> On Wed, Jan 10, 2007 at 06:29:28PM +0100, Prakash Punnoor wrote:
->>> You can install the Intel Matrix driver after "adjusting" the inf file...
->> Hmm, I guess a good question is: Why should I have to edit the inf file?
->> Is it an issue of them making it only install if your hardware is
->> already set to ahci mode?  But how am I supposed to boot and install the
->> driver until I have the driver installed then.  Well I might try that
->> next time I go there.  How stupid of intel.
-> 
-> Intel wants you to buy hw with ICH8R. ICH8 isn't get the advanced features for 
-> free....
+On Tue, 9 Jan 2007, Heiko Carstens wrote:
 
-What advanced features do you claim are missing from ICH8?
+> -	case CPU_UP_PREPARE:
+> +	case CPU_LOCK_ACQUIRE:
+>  		mutex_lock(&cache_chain_mutex);
+> +		break;
 
-The 'R' indicates software RAID, provided by BIOS and a software driver. 
-  Which uses the standard AHCI programming interface.  ICH8 provides 
-AHCI, just like ICH8R does.
+I have got a bad feeling about upcoming deadlock problems when looking at 
+the mutex_lock / unlock code in cpuup_callback in slab.c. Branches 
+that just obtain a lock or release a lock? I hope there is some 
+control of  what happens between lock acquisition and release?
 
-	Jeff
-
-
-
+You are aware that this lock is taken for cache shrinking/destroy, tuning 
+of cpu cache sizes, proc output and cache creation? Any of those run on 
+the same processor should cause a deadlock.

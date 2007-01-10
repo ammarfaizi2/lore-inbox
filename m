@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932684AbXAJCvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932688AbXAJCyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbXAJCvf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 21:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbXAJCvf
+	id S932688AbXAJCyN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 21:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbXAJCyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 21:51:35 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:49983 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932684AbXAJCvc (ORCPT
+	Tue, 9 Jan 2007 21:54:13 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:16037 "EHLO
+	pd3mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932688AbXAJCyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 21:51:32 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iNuOIKH71Hc5FpvyRx/SHL5vc108gq1KKYLX4gjTpDEb2QEIPIPMxb3my19UClreb2cPNawnqVMNPS6EZ4Hk9gTr4+8FhjEUewBYIUeLLLy4Sk9YQ3sKbt65asJG+rkOlOOjnNZttFL1vCJHZljwI5DQeLqN7gSbK9Ewgh83d8A=
-Message-ID: <4df04b840701091851o3439e0ffnec9368e0ed54aa59@mail.gmail.com>
-Date: Wed, 10 Jan 2007 10:51:30 +0800
-From: "yunfeng zhang" <zyf.zeroos@gmail.com>
-To: "Al Boldi" <a1426z@gawab.com>
-Subject: Re: [PATCH 2.6.16.29 1/1] memory: enhance Linux swap subsystem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200701092047.43248.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200701092047.43248.a1426z@gawab.com>
+	Tue, 9 Jan 2007 21:54:12 -0500
+Date: Tue, 09 Jan 2007 20:53:57 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: PCI BIOS Bug messages
+In-reply-to: <fa.Qx7aDKdds0Jcb7QVB09RiurSBYo@ifi.uio.no>
+To: Vasudevan S <savasude@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <45A45545.2040002@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.Qx7aDKdds0Jcb7QVB09RiurSBYo@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I can't be online regularly, that is, can't synchronize Linux CVS, so
-only work on a fixed kernel version. Documentation/vm_pps.txt isn't only a patch
-overview but also a changelog.
+Vasudevan S wrote:
+> I run Fedora Core 6 on the 'compaq nc6320' laptop. I am using the
+> '2.6.19.1' kernel.
+> 
+> While booting the kernel, I noticed the following error message:
+> 
+> PCI: BIOS Bug: MCFG area at f8000000 is not E820-reserved
+> PCI: Not using MMCONFIG.
+> 
+> After some search, I commented out the 'e820_all_mapped()' check in
+> the 'pci_mmcfg_init()' function. I no longer see this message and MMCONFIG
+> method seems to be used now.
+> 
+> Is this the right thing to do?
 
->
-> Great!
->
-> Do you have patch against 2.6.19?
->
->
-> Thanks!
->
-> --
-> Al
->
->
+Maybe on that box you can get away with it, but I believe the purpose of 
+the check is to weed out BIOSes that have totally broken MCFG tables. I 
+think there is some work going on to be able to check and/or bash the 
+chipset registers manually on various chipsets to reduce our reliance on 
+the BIOS getting this right..
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

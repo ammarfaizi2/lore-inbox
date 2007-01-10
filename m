@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964978AbXAJR1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964981AbXAJR1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbXAJR1K (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 12:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbXAJR1K
+	id S964981AbXAJR1d (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 12:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbXAJR1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 12:27:10 -0500
-Received: from neopsis.com ([213.239.204.14]:33310 "EHLO
-	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S964978AbXAJR1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 12:27:09 -0500
-Message-ID: <45A5264D.9040201@dbservice.com>
-Date: Wed, 10 Jan 2007 18:45:49 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Thunderbird 2.0b1 (X11/20061212)
+	Wed, 10 Jan 2007 12:27:33 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:44467 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964981AbXAJR1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 12:27:32 -0500
+Message-ID: <45A521FD.7060303@pobox.com>
+Date: Wed, 10 Jan 2007 12:27:25 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Gert Vervoort <gert.vervoort@hccnet.nl>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oprofile broken on 2.6.19
-References: <45A3FF3E.7060109@hccnet.nl>
-In-Reply-To: <45A3FF3E.7060109@hccnet.nl>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=UTF-8
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] libata: PIIX3 support
+References: <20070110171338.5cd555b1@localhost.localdomain>
+In-Reply-To: <20070110171338.5cd555b1@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
-X-Neopsis-MailScanner: Found to be clean
-X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.364,
-	required 5, autolearn=spam, AWL 0.23, BAYES_00 -2.60)
-X-MailScanner-From: tom@dbservice.com
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gert Vervoort wrote:
-> 
-> When I try to use oprofile on 2.6.19, it does not seem to work:
-> 
-> [gert@apollo tmp]$ sudo opcontrol --no-vmlinux
-> [gert@apollo tmp]$  sudo opcontrol --start
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/enabled: No such file or
-> directory/usr/bin/opcontrol: line 911: /dev/oprofile/0/event: No such
-> file or directory
+Alan wrote:
+> @@ -786,7 +797,8 @@
+>  			    { 2, 3 }, };
+>  
+>  	pci_read_config_word(dev, master_port, &master_data);
+> -	pci_read_config_byte(dev, 0x48, &udma_enable);
+> +	if (ap->udma_mask)
+> +		pci_read_config_byte(dev, 0x48, &udma_enable);
+>  
+>  	if (speed >= XFER_UDMA_0) {
+>  		unsigned int udma = adev->dma_mode - XFER_UDMA_0;
 
-oh.. and next time please first try google ;)
-http://www.google.ch/search?q=%2Fdev%2Foprofile%2F0%2Fevent
+This creates a situation where the code modifies an uninitialized 
+variable.  Ultimately irrelevant, but please init udma_enable to zero so 
+that at least it is valid C code.
 
-tom
+Otherwise ACK.
+
+	Jeff
+
+

@@ -1,87 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932613AbXAJCUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932663AbXAJCZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932613AbXAJCUQ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 21:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbXAJCUQ
+	id S932663AbXAJCZT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 21:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932664AbXAJCZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 21:20:16 -0500
-Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:53287 "EHLO
-	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932613AbXAJCUO (ORCPT
+	Tue, 9 Jan 2007 21:25:18 -0500
+Received: from wx-out-0506.google.com ([66.249.82.232]:62278 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932663AbXAJCZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 21:20:14 -0500
-X-Greylist: delayed 4179 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jan 2007 21:20:14 EST
-Date: Wed, 10 Jan 2007 03:10:19 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jeb Cramer <cramerj@intel.com>, John Ronciak <john.ronciak@intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-       Auke Kok <auke-jan.h.kok@intel.com>
-Subject: Re: e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-Message-ID: <20070110011019.GD3803@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Jeb Cramer <cramerj@intel.com>,
-	John Ronciak <john.ronciak@intel.com>,
-	Jesse Brandeburg <jesse.brandeburg@intel.com>,
-	Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-	Auke Kok <auke-jan.h.kok@intel.com>
-References: <20070109222708.GA15510@m.safari.iki.fi> <45A42C62.2030309@intel.com>
+	Tue, 9 Jan 2007 21:25:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=a/sufKLZRx4jV8HW0dPZHsxIvvwMgbfCn8youFw7Zm3vQtWqPKZQeDRTl7LTKe3xKH59Ki2sAogVXdCpGss8KhQB/VUgnIQjGsaYw2MZ1SyFQ+yDHOcVOuXScV+Y2Np9hz4ZgeLUPrwQC1dsJloJbE+zoZjAPkH6D8CCUzdRn6w=
+Message-ID: <d49e924d0701091825i7c4d7aa8h88dfec01141b3171@mail.gmail.com>
+Date: Tue, 9 Jan 2007 18:25:16 -0800
+From: "Vasudevan S" <savasude@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: PCI BIOS Bug messages
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A42C62.2030309@intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 15:59:30 -0800, Auke Kok wrote:
-> Sami Farin wrote:
-...
-> >I do "ethtool -K eth0 tso off" now and check if I get the hang again. =)
-> 
-> I'm unsure whether v7.2.x already automatically disables TSO for 100mbit 
-> speed link, probably not. It should.
+I run Fedora Core 6 on the 'compaq nc6320' laptop. I am using the
+'2.6.19.1' kernel.
 
-It disabled it but I enabled it just for fun.
- 
-> Please try our updated driver from http://e1000.sf.net/ (7.3.20) against 
-> the same kernel. There are some changes with regard to the ich8/TSO driver 
-> that might affect this, so re-testing is worth it for us.
+While booting the kernel, I noticed the following error message:
 
-I now run 7.3.20-NAPI.
+PCI: BIOS Bug: MCFG area at f8000000 is not E820-reserved
+PCI: Not using MMCONFIG.
 
-BTW. the Makefile is buggy: it does not get CC from kernel's Makefile.
-Using wrong compiler can cause for example a reboot when loading the module.
-(At least that's what happened with gcc-2.95.3 vs 3.x.x some years ago...)
- 
-> also, please always include the full dmesg output. Feel free to CC 
-> e1000-devel@lists.sourceforge.net on this.
+After some search, I commented out the 'e820_all_mapped()' check in
+the 'pci_mmcfg_init()' function. I no longer see this message and MMCONFIG
+method seems to be used now.
 
-I enabled TSO again.  I write again if TSO causes problems.
-Why shouldn't it work with 100 Mbps?  Not that it would help a lot,
-but I ask this on principle.
+Is this the right thing to do?
 
-  /* disable TSO for pcie and 10/100 speeds, to avoid
-   * some hardware issues */
+Thanks,
+--Vasu
 
-Issues on the motherboard or the NIC?
+lspci output on this laptop:
 
-2007-01-10 02:39:51.889908500 <6>ACPI: PCI interrupt for device 0000:00:19.0 disabled
-2007-01-10 02:39:54.545194500 <6>Intel(R) PRO/1000 Network Driver - version 7.3.20-NAPI
-2007-01-10 02:39:54.545198500 <6>Copyright (c) 1999-2006 Intel Corporation.
-2007-01-10 02:39:54.545395500 <6>ACPI: PCI Interrupt 0000:00:19.0[A] -> GSI 20 (level, low) -> IRQ 22
-2007-01-10 02:39:54.545435500 <7>PCI: Setting latency timer of device 0000:00:19.0 to 64
-2007-01-10 02:39:54.562905500 <6>e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1) 00:19:d1:00:5f:01
-2007-01-10 02:39:54.638093500 <6>e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-2007-01-10 02:40:07.513619500 <6>ADDRCONF(NETDEV_UP): eth0: link is not ready
-2007-01-10 02:40:07.614768500 <6>e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex, Flow Control: None
-2007-01-10 02:40:07.614770500 <6>e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
-2007-01-10 02:40:07.614771500 <6>ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-2007-01-10 02:40:09.271631500 <3>e1000: eth0: e1000_reset: Hardware Error
-2007-01-10 02:40:10.930000500 <6>e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex, Flow Control: None
-2007-01-10 02:40:10.930049500 <6>e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
-
-PS. please do not delete Mail-Followup-To header field.
-
--- 
+00:00.0 Host bridge: Intel Corporation Mobile 945GM/PM/GMS/940GML and
+945GT Express Memory Controller Hub (rev 03)
+00:02.0 VGA compatible controller: Intel Corporation Mobile
+945GM/GMS/940GML Express Integrated Graphics Controller (rev 03)
+00:02.1 Display controller: Intel Corporation Mobile 945GM/GMS/940GML
+Express Integrated Graphics Controller (rev 03)
+00:1b.0 Audio device: Intel Corporation 82801G (ICH7 Family) High
+Definition Audio Controller (rev 01)
+00:1c.0 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express
+Port 1 (rev 01)
+00:1c.2 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express
+Port 3 (rev 01)
+00:1c.3 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express
+Port 4 (rev 01)
+00:1d.0 USB Controller: Intel Corporation 82801G (ICH7 Family) USB
+UHCI #1 (rev 01)
+00:1d.1 USB Controller: Intel Corporation 82801G (ICH7 Family) USB
+UHCI #2 (rev 01)
+00:1d.2 USB Controller: Intel Corporation 82801G (ICH7 Family) USB
+UHCI #3 (rev 01)
+00:1d.3 USB Controller: Intel Corporation 82801G (ICH7 Family) USB
+UHCI #4 (rev 01)
+00:1d.7 USB Controller: Intel Corporation 82801G (ICH7 Family) USB2
+EHCI Controller (rev 01)
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev e1)
+00:1f.0 ISA bridge: Intel Corporation 82801GBM (ICH7-M) LPC Interface
+Bridge (rev 01)
+00:1f.1 IDE interface: Intel Corporation 82801G (ICH7 Family) IDE
+Controller (rev 01)
+00:1f.2 SATA controller: Intel Corporation 82801GBM/GHM (ICH7 Family)
+Serial ATA Storage Controller AHCI (rev 01)
+01:00.0 Network controller: Broadcom Corporation Dell Wireless 1390
+WLAN Mini-PCI Card (rev 01)
+04:06.0 CardBus bridge: Texas Instruments PCIxx12 Cardbus Controller
+04:06.1 FireWire (IEEE 1394): Texas Instruments PCIxx12 OHCI Compliant
+IEEE 1394 Host Controller
+04:06.2 Mass storage controller: Texas Instruments 5-in-1 Multimedia
+Card Reader (SD/MMC/MS/MS PRO/xD)
+04:06.3 Class 0805: Texas Instruments PCIxx12 SDA Standard Compliant
+SD Host Controller
+04:06.4 Communication controller: Texas Instruments PCIxx12 GemCore
+based SmartCard controller
+04:0e.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5788
+Gigabit Ethernet (rev 03)

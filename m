@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932727AbXAJFhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932664AbXAJFgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbXAJFhJ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 00:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbXAJFgH
+	id S932664AbXAJFgA (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 00:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbXAJFfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 00:36:07 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:12120 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932609AbXAJFfx (ORCPT
+	Wed, 10 Jan 2007 00:35:54 -0500
+Received: from nz-out-0506.google.com ([64.233.162.234]:4116 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932577AbXAJFfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 00:35:53 -0500
+	Wed, 10 Jan 2007 00:35:48 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=Icvr3PLgpmMLTqD1seTzsQG5nfHANQmnP4UkWtWweeKQ9W4GKU72H22g1wE/kQpseHo301vyqRdXUznp4SoYka/rhqEZbMlA8rHGpK15zfSpVaFObBhsBoNeIuh7jgKXq+YO5BNhbea6F91vIrCIZ0F8xdqHICji2LfENABf0BA=
+        b=mI9xuteL8y6/dMvcGI3zavgw4GqPa+VpNZguElwRkbdlA56lgsVpJFCyCxHEgAFIscLdNcmsx6eAx5O5kHF3UCEAuNx2VTT4uejbgcLnFsZ0Y3k+EmD92Ab+iQv/RMw71dnu9QvJuPD+xM3i5xnaSBXN7BqLsD26Bn5owchJiXU=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 5/13] devres: implement managed PCI interface
+Subject: [PATCH 2/13] devres: implement managed IO region interface
 In-Reply-To: <11684073353213-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
-Date: Wed, 10 Jan 2007 14:35:37 +0900
-Message-Id: <1168407337830-git-send-email-htejun@gmail.com>
+Date: Wed, 10 Jan 2007 14:35:36 +0900
+Message-Id: <11684073361953-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -31,240 +31,126 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement managed PCI interface - pcim_enable_device(),
-pcim_pin_device() and pci_is_managed().  pcim_enable_device() is
-equivalent to pci_enable_device() except that it makes the PCI device
-managed.  After pcim_enable_device(), PCI resources such as
-enabledness, msi/msix/intx status and BAR regions become managed.
-
-pcim_pin_device() is used by device drivers to ask PCI devres not to
-disable the device on driver detach.  This function is to handle cases
-where a driver finds out that a device is otherwise busy and thus
-shouldn't be disabled on probe failure or driver detach.
+Implement managed IO region interface - devm_request_region() and
+devm_release_region().  Except for the first @dev argument and being
+managed, these take the same arguments and have the same effect as
+non-managed coutnerparts.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 ---
- drivers/pci/pci.c   |  127 ++++++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/pci.h |    9 ++++
- 2 files changed, 135 insertions(+), 1 deletions(-)
+ include/linux/ioport.h |   20 +++++++++++++++
+ kernel/resource.c      |   62 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 82 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 6bfb942..2ab2f8a 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -744,6 +744,104 @@ int pci_enable_device(struct pci_dev *dev)
- 	return result;
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index 15228d7..6859a3b 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -137,4 +137,24 @@ static inline int __deprecated check_region(resource_size_t s,
+ {
+ 	return __check_region(&ioport_resource, s, n);
  }
++
++/* Wrappers for managed devices */
++struct device;
++#define devm_request_region(dev,start,n,name) \
++	__devm_request_region(dev, &ioport_resource, (start), (n), (name))
++#define devm_request_mem_region(dev,start,n,name) \
++	__devm_request_region(dev, &iomem_resource, (start), (n), (name))
++
++extern struct resource * __devm_request_region(struct device *dev,
++				struct resource *parent, resource_size_t start,
++				resource_size_t n, const char *name);
++
++#define devm_release_region(start,n) \
++	__devm_release_region(dev, &ioport_resource, (start), (n))
++#define devm_release_mem_region(start,n) \
++	__devm_release_region(dev, &iomem_resource, (start), (n))
++
++extern void __devm_release_region(struct device *dev, struct resource *parent,
++				  resource_size_t start, resource_size_t n);
++
+ #endif	/* _LINUX_IOPORT_H */
+diff --git a/kernel/resource.c b/kernel/resource.c
+index 7b9a497..2a3f886 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -17,6 +17,7 @@
+ #include <linux/fs.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
++#include <linux/device.h>
+ #include <asm/io.h>
  
-+/*
-+ * Managed PCI resources.  This manages device on/off, intx/msi/msix
-+ * on/off and BAR regions.  pci_dev itself records msi/msix status, so
-+ * there's no need to track it separately.  pci_devres is initialized
-+ * when a device is enabled using managed PCI device enable interface.
+ 
+@@ -618,6 +619,67 @@ void __release_region(struct resource *parent, resource_size_t start,
+ EXPORT_SYMBOL(__release_region);
+ 
+ /*
++ * Managed region resource
 + */
-+struct pci_devres {
-+	unsigned int disable:1;
-+	unsigned int orig_intx:1;
-+	unsigned int restore_intx:1;
-+	u32 region_mask;
++struct region_devres {
++	struct resource *parent;
++	resource_size_t start;
++	resource_size_t n;
 +};
 +
-+static void pcim_release(struct device *gendev, void *res)
++static void devm_region_release(struct device *dev, void *res)
 +{
-+	struct pci_dev *dev = container_of(gendev, struct pci_dev, dev);
-+	struct pci_devres *this = res;
-+	int i;
++	struct region_devres *this = res;
 +
-+	if (dev->msi_enabled)
-+		pci_disable_msi(dev);
-+	if (dev->msix_enabled)
-+		pci_disable_msix(dev);
-+
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++)
-+		if (this->region_mask & (1 << i))
-+			pci_release_region(dev, i);
-+
-+	if (this->restore_intx)
-+		pci_intx(dev, this->orig_intx);
-+
-+	if (this->disable)
-+		pci_disable_device(dev);
++	__release_region(this->parent, this->start, this->n);
 +}
 +
-+static struct pci_devres * get_pci_dr(struct pci_dev *pdev)
++static int devm_region_match(struct device *dev, void *res, void *match_data)
 +{
-+	struct pci_devres *dr, *new_dr;
++	struct region_devres *this = res, *match = match_data;
 +
-+	dr = devres_find(&pdev->dev, pcim_release, NULL, NULL);
-+	if (dr)
-+		return dr;
++	return this->parent == match->parent &&
++		this->start == match->start && this->n == match->n;
++}
 +
-+	new_dr = devres_alloc(pcim_release, sizeof(*new_dr), GFP_KERNEL);
-+	if (!new_dr)
++struct resource * __devm_request_region(struct device *dev,
++				struct resource *parent, resource_size_t start,
++				resource_size_t n, const char *name)
++{
++	struct region_devres *dr = NULL;
++	struct resource *res;
++
++	dr = devres_alloc(devm_region_release, sizeof(struct region_devres),
++			  GFP_KERNEL);
++	if (!dr)
 +		return NULL;
-+	return devres_get(&pdev->dev, new_dr, NULL, NULL);
-+}
 +
-+static struct pci_devres * find_pci_dr(struct pci_dev *pdev)
++	dr->parent = parent;
++	dr->start = start;
++	dr->n = n;
++
++	res = __request_region(parent, start, n, name);
++	if (res)
++		devres_add(dev, dr);
++	else
++		devres_free(dr);
++
++	return res;
++}
++EXPORT_SYMBOL(__devm_request_region);
++
++void __devm_release_region(struct device *dev, struct resource *parent,
++			   resource_size_t start, resource_size_t n)
 +{
-+	if (pci_is_managed(pdev))
-+		return devres_find(&pdev->dev, pcim_release, NULL, NULL);
-+	return NULL;
++	struct region_devres match_data = { parent, start, n };
++
++	__release_region(parent, start, n);
++	WARN_ON(devres_destroy(dev, devm_region_release, devm_region_match,
++			       &match_data));
 +}
++EXPORT_SYMBOL(__devm_release_region);
 +
-+/**
-+ * pcim_enable_device - Managed pci_enable_device()
-+ * @pdev: PCI device to be initialized
-+ *
-+ * Managed pci_enable_device().
-+ */
-+int pcim_enable_device(struct pci_dev *pdev)
-+{
-+	struct pci_devres *dr;
-+	int rc;
-+
-+	dr = get_pci_dr(pdev);
-+	if (unlikely(!dr))
-+		return -ENOMEM;
-+	WARN_ON(!!dr->disable);
-+
-+	rc = pci_enable_device(pdev);
-+	if (!rc) {
-+		pdev->is_managed = 1;
-+		dr->disable = 1;
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * pcim_pin_device - Pin managed PCI device
-+ * @pdev: PCI device to pin
-+ *
-+ * Pin managed PCI device @pdev.  Pinned device won't be disabled on
-+ * driver detach.  @pdev must have been enabled with
-+ * pcim_enable_device().
-+ */
-+void pcim_pin_device(struct pci_dev *pdev)
-+{
-+	struct pci_devres *dr;
-+
-+	dr = find_pci_dr(pdev);
-+	WARN_ON(!dr || !dr->disable);
-+	if (dr)
-+		dr->disable = 0;
-+}
-+
- /**
-  * pcibios_disable_device - disable arch specific PCI resources for device dev
-  * @dev: the PCI device to disable
-@@ -767,8 +865,13 @@ void __attribute__ ((weak)) pcibios_disable_device (struct pci_dev *dev) {}
- void
- pci_disable_device(struct pci_dev *dev)
- {
-+	struct pci_devres *dr;
- 	u16 pci_command;
- 
-+	dr = find_pci_dr(dev);
-+	if (dr)
-+		dr->disable = 0;
-+
- 	if (atomic_sub_return(1, &dev->enable_cnt) != 0)
- 		return;
- 
-@@ -867,6 +970,8 @@ pci_get_interrupt_pin(struct pci_dev *dev, struct pci_dev **bridge)
++/*
+  * Called from init/main.c to reserve IO ports.
   */
- void pci_release_region(struct pci_dev *pdev, int bar)
- {
-+	struct pci_devres *dr;
-+
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return;
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO)
-@@ -875,6 +980,10 @@ void pci_release_region(struct pci_dev *pdev, int bar)
- 	else if (pci_resource_flags(pdev, bar) & IORESOURCE_MEM)
- 		release_mem_region(pci_resource_start(pdev, bar),
- 				pci_resource_len(pdev, bar));
-+
-+	dr = find_pci_dr(pdev);
-+	if (dr)
-+		dr->region_mask &= ~(1 << bar);
- }
- 
- /**
-@@ -893,6 +1002,8 @@ void pci_release_region(struct pci_dev *pdev, int bar)
-  */
- int pci_request_region(struct pci_dev *pdev, int bar, const char *res_name)
- {
-+	struct pci_devres *dr;
-+
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return 0;
- 		
-@@ -906,7 +1017,11 @@ int pci_request_region(struct pci_dev *pdev, int bar, const char *res_name)
- 				        pci_resource_len(pdev, bar), res_name))
- 			goto err_out;
- 	}
--	
-+
-+	dr = find_pci_dr(pdev);
-+	if (dr)
-+		dr->region_mask |= 1 << bar;
-+
- 	return 0;
- 
- err_out:
-@@ -1117,7 +1232,15 @@ pci_intx(struct pci_dev *pdev, int enable)
- 	}
- 
- 	if (new != pci_command) {
-+		struct pci_devres *dr;
-+
- 		pci_write_config_word(pdev, PCI_COMMAND, new);
-+
-+		dr = find_pci_dr(pdev);
-+		if (dr && !dr->restore_intx) {
-+			dr->restore_intx = 1;
-+			dr->orig_intx = !enable;
-+		}
- 	}
- }
- 
-@@ -1189,6 +1312,8 @@ EXPORT_SYMBOL(isa_bridge);
- EXPORT_SYMBOL_GPL(pci_restore_bars);
- EXPORT_SYMBOL(pci_enable_device_bars);
- EXPORT_SYMBOL(pci_enable_device);
-+EXPORT_SYMBOL(pcim_enable_device);
-+EXPORT_SYMBOL(pcim_pin_device);
- EXPORT_SYMBOL(pci_disable_device);
- EXPORT_SYMBOL(pci_find_capability);
- EXPORT_SYMBOL(pci_bus_find_capability);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index f3c617e..1f82eb9 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -167,6 +167,7 @@ struct pci_dev {
- 	unsigned int	broken_parity_status:1;	/* Device generates false positive parity */
- 	unsigned int 	msi_enabled:1;
- 	unsigned int	msix_enabled:1;
-+	unsigned int	is_managed:1;
- 	atomic_t	enable_cnt;	/* pci_enable_device has been called */
- 
- 	u32		saved_config_space[16]; /* config space saved at suspend time */
-@@ -521,6 +522,14 @@ static inline int pci_write_config_dword(struct pci_dev *dev, int where, u32 val
- 
- int __must_check pci_enable_device(struct pci_dev *dev);
- int __must_check pci_enable_device_bars(struct pci_dev *dev, int mask);
-+int __must_check pcim_enable_device(struct pci_dev *pdev);
-+void pcim_pin_device(struct pci_dev *pdev);
-+
-+static inline int pci_is_managed(struct pci_dev *pdev)
-+{
-+	return pdev->is_managed;
-+}
-+
- void pci_disable_device(struct pci_dev *dev);
- void pci_set_master(struct pci_dev *dev);
- #define HAVE_PCI_SET_MWI
+ #define MAXRESERVE 4
 -- 
 1.4.4.3
 

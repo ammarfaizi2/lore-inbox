@@ -1,304 +1,159 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbXAJIUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964783AbXAJIVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbXAJIUR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 03:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbXAJITr
+	id S964783AbXAJIVI (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 03:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbXAJIVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 03:19:47 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:37770 "EHLO
-	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932723AbXAJISz convert rfc822-to-8bit (ORCPT
+	Wed, 10 Jan 2007 03:21:06 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:33621 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964794AbXAJIUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 03:18:55 -0500
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>,
-       Ingo Molnar <mingo@elte.hu>, linux-fsdevel@vger.kernel.org
-Subject: [take32 1/10] kevent: Description.
-In-Reply-To: <11684170003907@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 10 Jan 2007 11:16:40 +0300
-Message-Id: <11684170002211@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Wed, 10 Jan 2007 03:20:55 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xc6jhqcfozPOlpyHfUnM2HLN7WBKqZVbBzeAi1PrvuSEuUP+rhpy6JbnXuKyqpBOfWCJXbbzpKiRcX1MZVFV+GNOQ5tJcH4QIRNaNsTHzgIEyEUh/6Z3VnoCZIo2yYPIk4OmvYCuGBSZnQ0LwApeZaI6KeeXBu2LR3d+lTcKVFQ=
+Message-ID: <6d6a94c50701100020x3dfeae91k5e78ce2793593e26@mail.gmail.com>
+Date: Wed, 10 Jan 2007 16:20:53 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Hua Zhong" <hzhong@gmail.com>
+Subject: Re: [PATCH] support O_DIRECT in tmpfs/ramfs
+Cc: "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       torvalds@osdl.org, mjt@tls.msk.ru
+In-Reply-To: <000901c73439$297f3050$6721100a@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0701092002350.21638@blonde.wat.veritas.com>
+	 <000901c73439$297f3050$6721100a@nuitysystems.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Hua Zhong,
 
-Description.
+Maybe I misunderstand your patch, but when I tried it on my blackfin
+uClinux platform, I can't change anything. See below:
+================================
+root:/var> mount
+/dev/mtdblock0 on / type ext2 (rw)
+/proc on /proc type proc (rw)
+ramfs on /var type ramfs (rw)
+sysfs on /sys type sysfs (rw)
+devpts on /dev/pts type devpts (rw)
+root:/var> ./t_direct
+Error open t.bin to read
+================================
+Error is because O_DIRECT flag was set when call open(). If I remove this flag,
+the test program can work ok.
 
+Any suggestions?
 
-diff --git a/Documentation/kevent.txt b/Documentation/kevent.txt
-new file mode 100644
-index 0000000..325204f
---- /dev/null
-+++ b/Documentation/kevent.txt
-@@ -0,0 +1,259 @@
-+Description.
-+
-+int kevent_init(struct kevent_ring *ring, unsigned int ring_size, 
-+	unsigned int flags);
-+
-+num - size of the ring buffer in events 
-+ring - pointer to allocated ring buffer
-+flags - various flags, see KEVENT_FLAGS_* definitions.
-+
-+Return value: kevent control file descriptor or negative error value.
-+
-+ struct kevent_ring
-+ {
-+   unsigned int ring_kidx, ring_over;
-+   struct ukevent event[0];
-+ }
-+
-+ring_kidx - index in the ring buffer where kernel will put new events 
-+		when kevent_wait() or kevent_get_events() is called 
-+ring_over - number of overflows of ring_uidx happend from the start.
-+	Overflow counter is used to prevent situation when two threads 
-+	are going to free the same events, but one of them was scheduled 
-+	away for too long, so ring indexes were wrapped, so when that 
-+	thread will be awakened, it will free not those events, which 
-+	it suppose to free.
-+
-+Example userspace code (ring_buffer.c) can be found on project's homepage.
-+
-+Each kevent syscall can be so called cancellation point in glibc, i.e. when 
-+thread has been cancelled in kevent syscall, thread can be safely removed 
-+and no events will be lost, since each syscall (kevent_wait() or 
-+kevent_get_events()) will copy event into special ring buffer, accessible 
-+from other threads or even processes (if shared memory is used).
-+
-+When kevent is removed (not dequeued when it is ready, but just removed), 
-+even if it was ready, it is not copied into ring buffer, since if it is 
-+removed, no one cares about it (otherwise user would wait until it becomes 
-+ready and got it through usual way using kevent_get_events() or kevent_wait()) 
-+and thus no need to copy it to the ring buffer.
-+
-+-------------------------------------------------------------------------------
-+
-+
-+int kevent_ctl(int fd, unsigned int cmd, unsigned int num, struct ukevent *arg);
-+
-+fd - is the file descriptor referring to the kevent queue to manipulate. 
-+It is created by opening "/dev/kevent" char device, which is created with 
-+dynamic minor number and major number assigned for misc devices. 
-+
-+cmd - is the requested operation. It can be one of the following:
-+    KEVENT_CTL_ADD - add event notification 
-+    KEVENT_CTL_REMOVE - remove event notification 
-+    KEVENT_CTL_MODIFY - modify existing notification 
-+    KEVENT_CTL_READY - mark existing events as ready, if number of events is zero,
-+    	it just wakes up parked in syscall thread
-+
-+num - number of struct ukevent in the array pointed to by arg 
-+arg - array of struct ukevent
-+
-+Return value: 
-+ number of events processed or negative error value.
-+
-+When called, kevent_ctl will carry out the operation specified in the 
-+cmd parameter.
-+-------------------------------------------------------------------------------
-+
-+ int kevent_get_events(int ctl_fd, unsigned int min_nr, unsigned int max_nr, 
-+ 		struct timespec timeout, struct ukevent *buf, unsigned flags);
-+
-+ctl_fd - file descriptor referring to the kevent queue 
-+min_nr - minimum number of completed events that kevent_get_events will block 
-+	 waiting for 
-+max_nr - number of struct ukevent in buf 
-+timeout - time to wait before returning less than min_nr 
-+	  events. If this is -1, then wait forever. 
-+buf - pointer to an array of struct ukevent. 
-+flags - various flags, see KEVENT_FLAGS_* definitions.
-+
-+Return value:
-+ number of events copied or negative error value.
-+
-+kevent_get_events will wait timeout milliseconds for at least min_nr completed 
-+events, copying completed struct ukevents to buf and deleting any 
-+KEVENT_REQ_ONESHOT event requests. In nonblocking mode it returns as many 
-+events as possible, but not more than max_nr. In blocking mode it waits until 
-+timeout or if at least min_nr events are ready.
-+
-+This function copies event into ring buffer if it was initialized, if ring buffer
-+is full, KEVENT_RET_COPY_FAILED flag is set in ret_flags field.
-+-------------------------------------------------------------------------------
-+
-+ int kevent_wait(int ctl_fd, unsigned int num, unsigned int old_uidx, 
-+ 	struct timespec timeout, unsigned int flags);
-+
-+ctl_fd - file descriptor referring to the kevent queue 
-+num - number of processed kevents 
-+old_uidx - the last index user is aware of
-+timeout - time to wait until there is free space in kevent queue
-+flags - various flags, see KEVENT_FLAGS_* definitions.
-+
-+Return value:
-+ number of events copied into ring buffer or negative error value.
-+
-+This syscall waits until either timeout expires or at least one event becomes 
-+ready. It also copies events into special ring buffer. If ring buffer is full,
-+it waits until there are ready events and then return.
-+If kevent is one-shot kevent it is removed in this syscall.
-+If kevent is edge-triggered (KEVENT_REQ_ET flag is set in 'req_flags') it is 
-+requeued in this syscall for performance reasons.
-+-------------------------------------------------------------------------------
-+
-+ int kevent_commit(int ctl_fd, unsigned int new_idx, unsigned int over);
-+
-+ctl_fd - file descriptor referring to the kevent queue 
-+new_uidx - the last committed kevent
-+over - overflow count for given $new_idx value
-+
-+Return value:
-+ number of committed kevents or negative error value.
-+
-+This function commits, i.e. marks as empty, slots in the ring buffer, so
-+they can be reused when userspace completes that entries processing.
-+
-+Overflow counter is used to prevent situation when two threads are going 
-+to free the same events, but one of them was scheduled away for too long, 
-+so ring indexes were wrapped, so when that thread will be awakened, it 
-+will free not those events, which it suppose to free.
-+
-+It is possible that returned number of committed events will be smaller than
-+requested number - it is possible when several threads try to commit the
-+same events.
-+-------------------------------------------------------------------------------
-+
-+long aio_sendfile(int kevent_fd, int sock_fd, int in_fd, off_t offset, size_t count);
-+
-+kevent_fd - file descriptor referring to the kevent queue
-+sock_fd - destination socket file descriptor
-+in_fd - source file descriptor
-+offset - offset from the beginning of the source file
-+count - number of bytes to transfer
-+
-+Async sendfile implementation.
-+Returned coockie can be used to determine which entry has been returned by
-+kevent_get_events() - it will be stored in event.ptr.
-+event.ret_data will contain number of bytes actually transferred.
-+-------------------------------------------------------------------------------
-+
-+
-+The bulk of the interface is entirely done through the ukevent struct. 
-+It is used to add event requests, modify existing event requests, 
-+specify which event requests to remove, and return completed events.
-+
-+struct ukevent contains the following members:
-+
-+struct kevent_id id
-+    Id of this request, e.g. socket number, file descriptor and so on 
-+__u32 type
-+    Event type, e.g. KEVENT_SOCK, KEVENT_INODE, KEVENT_TIMER and so on 
-+__u32 event
-+    Event itself, e.g. SOCK_ACCEPT, INODE_CREATED, TIMER_FIRED 
-+__u32 req_flags
-+    Per-event request flags,
-+
-+    KEVENT_REQ_ONESHOT
-+        event will be removed when it is ready 
-+
-+    KEVENT_REQ_WAKEUP_ALL
-+        Kevent wakes up only first thread interested in given event, 
-+	or all threads if this flag is set.
-+
-+    KEVENT_REQ_ET
-+        Edge Triggered behaviour. It is an optimisation which allows to move 
-+	ready and dequeued (i.e. copied to userspace) event to move into set 
-+	of interest for given storage (socket, inode and so on) again. It is 
-+	very usefull for cases when the same event should be used many times 
-+	(like reading from pipe). It is similar to epoll()'s EPOLLET flag. 
-+
-+    KEVENT_REQ_LAST_CHECK
-+        if set allows to perform the last check on kevent (call appropriate 
-+	callback) when kevent is marked as ready and has been removed from 
-+	ready queue. If it will be confirmed that kevent is ready 
-+	(k->callbacks.callback(k) returns true) then kevent will be copied 
-+	to userspace, otherwise it will be requeued back to storage. 
-+	Second (checking) call is performed with this bit cleared, so callback 
-+	can detect when it was called from kevent_storage_ready() - bit is set, 
-+	or kevent_dequeue_ready() - bit is cleared. If kevent will be requeued, 
-+	bit will be set again.
-+
-+   KEVENT_REQ_ALWAYS_QUEUE
-+        If this flag is set kevent will be queued into ready queue if it is 
-+	ready at enqueue time, otherwise it will be copied back to userspace
-+	and will not be queued into the storage.
-+
-+   KEVENT_REQ_READY
-+   	If this flag is set, kevent will be marked as ready immediately at enqueue
-+	time.
-+
-+__u32 ret_flags
-+    Per-event return flags
-+
-+    KEVENT_RET_BROKEN
-+        Kevent is broken 
-+
-+    KEVENT_RET_DONE
-+        Kevent processing was finished successfully 
-+
-+    KEVENT_RET_COPY_FAILED
-+        Kevent was not copied into ring buffer due to some error conditions. 
-+
-+__u32 ret_data
-+    Event return data. Event originator fills it with anything it likes 
-+    (for example timer notifications put number of milliseconds when timer 
-+    has fired 
-+union { __u32 user[2]; void *ptr; }
-+    User's data. It is not used, just copied to/from user. The whole structure 
-+    is aligned to 8 bytes already, so the last union is aligned properly. 
-+
-+-------------------------------------------------------------------------------
-+
-+Kevent waiting syscall flags.
-+
-+KEVENT_FLAGS_ABSTIME - provided timespec parameter contains absolute time, 
-+	for example Aug 27, 2194, or time(NULL) + 10.
-+
-+-------------------------------------------------------------------------------
-+
-+Usage
-+
-+For KEVENT_CTL_ADD, all fields relevant to the event type must be filled 
-+(id, type, event, req_flags). 
-+After kevent_ctl(..., KEVENT_CTL_ADD, ...) returns each struct's ret_flags 
-+should be checked to see if the event is already broken or done.
-+
-+For KEVENT_CTL_MODIFY, the id, req_flags, and user and event fields must be 
-+set and an existing kevent request must have matching id and user fields. If 
-+match is found, req_flags and event are replaced with the newly supplied 
-+values and requeueing is started, so modified kevent can be checked and 
-+probably marked as ready immediately. If a match can't be found, the 
-+passed in ukevent's ret_flags has KEVENT_RET_BROKEN set. KEVENT_RET_DONE is 
-+always set.
-+
-+For KEVENT_CTL_REMOVE, the id and user fields must be set and an existing 
-+kevent request must have matching id and user fields. If a match is found, 
-+the kevent request is removed. If a match can't be found, the passed in 
-+ukevent's ret_flags has KEVENT_RET_BROKEN set. KEVENT_RET_DONE is always set.
-+
-+For kevent_get_events, the entire structure is returned.
-+
-+-------------------------------------------------------------------------------
-+
-+Usage cases
-+
-+kevent_timer
-+struct ukevent should contain following fields:
-+    type - KEVENT_TIMER 
-+    event - KEVENT_TIMER_FIRED 
-+    req_flags - KEVENT_REQ_ONESHOT if you want to fire that timer only once 
-+    id.raw[0] - number of seconds after commit when this timer shout expire 
-+    id.raw[0] - additional to number of seconds number of nanoseconds 
+Thanks,
+-Aubrey
 
+On 1/10/07, Hua Zhong <hzhong@gmail.com> wrote:
+> > > Here is a simple patch that does it.
+> >
+> > Looks more likely to work than Ken's - which I didn't try,
+> > but I couldn't see what magic prevented it from just going BUG.
+> >
+> > But I have to say, having seen the ensuing requests for this
+> > to impose the same constraints as other implementations of
+> > O_DIRECT (though NFS does not), I've veered right back to my
+> > original position: this all just seems silly to me.  O_DIRECT
+> > is and always has been rather an awkward hack (Linus
+> > described it in stronger terms!), supported by many but not
+> > all filesystems: shall we just leave it at that?
+>
+> So I take your word that NFS does not impose this restraint,
+> which means filesystems could choose their own alignment
+> requirement that makes sense. So it would not be too horrible
+> if tmpfs chooses to be liberal.
+>
+> In fact, in the O_DIRECT man page it says:
+>
+>  O_DIRECT
+>               [....]  Under Linux 2.4 transfer sizes, and the  alignment  of
+>               user  buffer and file offset must all be multiples of the logi-
+>               cal block size of the file system. Under Linux 2.6 alignment to
+>               512-byte boundaries suffices.
+>
+> So even Linux 2.4 and 2.6 are different - 2.6 is less restrictive.
+>
+> My point is that as long as we don't put more restrictions, it should
+> not cause real problems.
+>
+> And about Linus..let's put his comment aside because O_DIRECT
+> is there to stay. :-) In fact, since O_DIRECT is not the most
+> beaufitul piece of code in the kernel, what I try to do is just to
+> make software developer's life easier by making filesystem
+> behavior as close to each other as possible with the minimal
+> effort.
+>
+> > In particular, having now looked into the code, I'm amused to
+> > be reminded that one of its particular effects is to
+> > invalidate the pagecache for the area directly written.
+> > Well, it's hardly going to be worth replicating that
+> > behaviour with tmpfs or ramfs; yet if we don't, then we stand
+> > accused of it behaving misleadingly differently on them.
+> >
+> > I think Michael, who started off this discussion, did just the right
+> > thing: used a direct_IO filesystem on a loop device on a tmpfs file.
+>
+> That's a rather heavy-weight workaround don't you think?
+>
+> > > 1. A new fs flag FS_RAM_BASED is added and the O_DIRECT
+> > flag is ignored
+> > >    if this flag is set (suggestions on a better name?)
+> > >
+> > > 2. Specify FS_RAM_BASED for tmpfs and ramfs.
+> >
+> > If this is pursued (not my preference, but let me stand aside
+> > now), you'd want to add in at least hugetlbfs and
+> > tiny-shmem.c.  And set your (renamed) FS_RAM_BASED flag in
+> > ext2_aops_xip: that seems to be what they're wanting, then
+> > you can remove that strange test for
+> > f->f_mapping->a_ops->get_xip_page from __dentry_open.
+> >
+> > >
+> > > 3. When EINVAL is returned only a fput is done. I changed it to go
+> > >    through cleanup_all. But there is still a cleanup problem:
+> >
+> > Is that change correct?  Are you saying that the existing
+> > code leaks some structures?  If so, please do send a patch to
+> > fix just that as soon as you can.  But are you sure?
+>
+> Having looked at the code more closely, the change is probably
+> not correct. fput(f) apparently does everything cleanup_all does,
+> and more, despite it's a single call. I guess those names are
+> a bit confusing at first glance. :-)
+>
+> > > If a new file is created and then EINVAL is returned due to
+> > > O_DIRECT, the file is still left on the disk. I am not exactly
+> > > sure how to fix it other than adding another fs flag so we
+> > > could check O_DIRECT support at a much earlier stage.
+> > > Comments on how to fix it?
+> >
+> > None from me, sorry.  It's untidy, but not a new issue you
+> > have to fix.
+>
+> Well, looks like people are not in consensus to add the tmpfs
+> direct-io support, but since I've looked at the code, it would be
+> nice to fix this bug though.
+>
+> The get_xip_page thing you mentioned makes it a bit more
+> complicated since XIP support is a mount option, not a
+> register_filesystem time option. If we ought to add a flag somewhere,
+> where is the right place? vfsmount?
+>
+> I can cook up a patch for this bug if people think it's worth fixing.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

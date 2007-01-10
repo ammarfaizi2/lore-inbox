@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932718AbXAJHeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932734AbXAJH46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932718AbXAJHeo (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 02:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbXAJHeo
+	id S932734AbXAJH46 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 02:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932735AbXAJH46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 02:34:44 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:1150 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932718AbXAJHen (ORCPT
+	Wed, 10 Jan 2007 02:56:58 -0500
+Received: from stinky.trash.net ([213.144.137.162]:61371 "EHLO
+	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932734AbXAJH45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 02:34:43 -0500
-Date: Wed, 10 Jan 2007 08:34:45 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Luca Tettamanti <kronos.it@gmail.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai@germaschewski.name>,
-       linux-kernel@vger.kernel.org
-Subject: Re: .version keeps being updated
-Message-Id: <20070110083445.31b79bab.khali@linux-fr.org>
-In-Reply-To: <20070109215527.GA24318@dreamland.darkstar.lan>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109215527.GA24318@dreamland.darkstar.lan>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Jan 2007 02:56:57 -0500
+Message-ID: <45A49C47.6080407@trash.net>
+Date: Wed, 10 Jan 2007 08:56:55 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Tomasz Kvarsin <kvarsin@gmail.com>,
+       "David S. Miller" <davem@davemloft.net>, bunk@stusta.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netfilter@lists.netfilter.org, netfilter-devel@lists.netfilter.org
+Subject: Re: 2.6.20-rc4: regression: iptables failed to load rules
+References: <5157576d0701082329o1875911j20f6679e2d35bb17@mail.gmail.com> <Pine.LNX.4.64.0701090929160.3594@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701090929160.3594@woody.osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Luca,
-
-On Tue, 9 Jan 2007 22:55:27 +0100, Luca Tettamanti wrote:
-> Jean Delvare <khali@linux-fr.org> ha scritto:
-> > Since 2.6.20-rc1 or so, running "make" always builds a new kernel with
-> > an incremented version number, whether there has actually been any
-> > change done to the code or configuration or not. This increases the
-> > build time quite a bit.
-> > 
-> > I've tracked it down to include/linux/compile.h always being updated,
-> > and this is because .version is updated. I couldn't find what is
-> > causing .version to be updated each time though. Can anybody help
-> > there? Was this change made on purpose or is this a bug which we should
-> > fix?
+Linus Torvalds wrote:
 > 
-> kronos:~/src/linux-2.6.git$ cat ../linux-build-git/include/linux/compile.h
-> /* This file is auto generated, version 14 */
-> /* SMP PREEMPT */
-> #define UTS_MACHINE "i386"
-> #define UTS_VERSION "#14 SMP PREEMPT Tue Jan 9 22:45:18 CET 2007"
-> #define LINUX_COMPILE_TIME "22:45:18"
-> #define LINUX_COMPILE_BY "kronos"
-> #define LINUX_COMPILE_HOST "dreamland.darkstar.lan"
-> #define LINUX_COMPILE_DOMAIN "darkstar.lan"
-> #define LINUX_COMPILER "gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-20)"
+> On Tue, 9 Jan 2007, Tomasz Kvarsin wrote:
 > 
-> LINUX_COMPILE_TIME and UTS_VERSION differs at each rebuild. UTS_VERSION
-> is responsible of rebuilding fs/proc/proc_misc.o; init/main.o uses just
-> about everything, init/version.o requires UTS_VERSION.
+>>During boot into 2.6.20-rc4 iptables says
+>>iptables-restore: line 15 failed.
+>>And works fine with my default kernel: 2.6.18.x
+> 
+> 
+> I bet you enabled the new transport-agnostic netfilter, and didn't enable 
+> some of the actual rules needed for your iptables setup (they have new 
+> config names).
+> 
+> I do think that the netfilter team has been very irritating in changing 
+> the config names, even if it "is logical". 
+> 
+> Somebody should stop the madness, and tell people what config options they 
+> need for a regular iptables setup like this. Rather than say "just compile 
+> everything". There's about a million different filters, and they all 
+> depend on one infrastructure or another.
+> 
+> And then the networking people should F*NG STOP that config name changing 
+> madness! The config names should match the _usage_, not some 
+> implementation detail. And failing that, leave the config options named 
+> something illogical, as long as people don't have to change their config 
+> file all the time and answer millions of questions that they don't care 
+> about!
 
-That's not quite true, LINUX_COMPILE_TIME and UTS_VERSION are
-explicitely excluded from the comparison when checking whether
-linux/compile.h changed. This is done in scripts/mkcompile_h, and I
-believe this part works properly. This script wasn't modified recently.
 
-> I don't think it's a regression from earlier kernels though, is it?
+In the x_tables case it really caused a lot of unnecessary confusion,
+the recent connection tracking changes however needed new config
+options since we're keeping the old implementation around for a few more
+releases. Unfortunately when switching between the two implementations,
+Kconfig deselects all options depending on either one, even though the
+dependencies are still fulfilled (f.e. NETFILTER_XT_MATCH_CONNTRACK:
+depends on IP_NF_CONNTRACK || NF_CONNTRACK), which means you have
+to select all those options again.
 
-It definitely is, which is why I am reporting it and am asking for it
-to be fixed. I isolated the two responsible commits elsewhere in the
-thread.
+It probably won't be necessary anymore to make changes like this in
+the future, but in case it is I'll make sure to at least provide
+compatibility options for a few releases.
 
-Thanks,
--- 
-Jean Delvare

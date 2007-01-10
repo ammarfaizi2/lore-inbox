@@ -1,101 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932338AbXAJLvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932780AbXAJL47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbXAJLvT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 06:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbXAJLvS
+	id S932780AbXAJL47 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 06:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbXAJL47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 06:51:18 -0500
-Received: from mga05.intel.com ([192.55.52.89]:9168 "EHLO
-	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932338AbXAJLvS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 06:51:18 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,166,1167638400"; 
-   d="scan'208"; a="186569578:sNHT18465972"
-Message-ID: <45A4D333.4090109@linux.intel.com>
-Date: Wed, 10 Jan 2007 14:51:15 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Wed, 10 Jan 2007 06:56:59 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:42652 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932754AbXAJL46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 06:56:58 -0500
+Message-ID: <45A4D478.2030200@garzik.org>
+Date: Wed, 10 Jan 2007 06:56:40 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Berthold Cogel <cogel@rrz.uni-koeln.de>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: Regression in kernel linux-2.6.20-rc1/2: Problems with poweroff
-References: <459069AA.20809@rrz.uni-koeln.de> <20061228221616.GI20714@stusta.de> <45999C47.40204@rrz.uni-koeln.de> <459D5079.70605@linux.intel.com> <459EE89F.1010505@rrz.uni-koeln.de> <459F6366.5080609@linux.intel.com> <45A13DF8.2030207@rrz.uni-koeln.de> <45A29C09.8050901@linux.intel.com> <45A4391E.7080805@rrz.uni-koeln.de>
-In-Reply-To: <45A4391E.7080805@rrz.uni-koeln.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Ingo Molnar <mingo@elte.hu>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [take32 0/10] kevent: Generic event handling mechanism.
+References: <11684170003907@2ka.mipt.ru> <45A4C9DE.8020605@garzik.org> <20070110113051.GA4950@2ka.mipt.ru>
+In-Reply-To: <20070110113051.GA4950@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Berthold Cogel wrote:
-> Alexey Starikovskiy schrieb:
->   
->> Berthold Cogel wrote:
->>     
->>> Alexey Starikovskiy schrieb:
->>>
->>>  
->>>       
->>>>> Hello Alex,
->>>>>
->>>>> I still get the same diffs. Except the yenta part of course. And the
->>>>> system is still rebooting.
->>>>>
->>>>> Berthold
->>>>>         
->>>>>           
->>>> Good, yenta is cleared :) Could you replace /drivers/acpi/ec.c with the
->>>> version from 2.6.19.x and try again?
->>>>
->>>> Regards,
->>>>    Alex.
->>>>     
->>>>         
->>> Hi Alex!
->>>
->>> I did what you suggested. First I replaced ec.c in linux-2.6.20-rc2 (see
->>> attached dmesg-2.6.20-rc2.ec.txt) with the version from linux-2.6.19.1
->>> and in a second step I also replaced i2c_ec.c and i2c_ec.h
->>> (dmesg-2.6.20-rc2.i2c_ec.txt).
->>>
->>> In both cases the only result I can see is the absence of the 'ACPI: EC:
->>> evaluating' messages in the logs. The system is still rebooting instead
->>> of doing a clean shutdown.
->>>
->>> Regards,
->>> Berthold
->>>
->>>   
->>>       
->> Excellent, ACPI printing of queries is cleared as well :)
->> There are two ways to debug further... git-bisect and unloading modules
->> before shutdown (or not loading them)...
->> While second is easier and could isolate a module, the first could be
->> way more productive:
->> http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
->>
->>
->> Thanks in advance,
->>    Alex.
->>
->>     
->
-> Hi Alex!
->
-> I will have to set up git first for the bisect way. So I decided to give
-> the second way a try.
->
-> The module in question is ehci_hcd. After blacklisting it, 'shutdown -h
-> now' worked fine.
->
->   
-Hi Berthold,
+Evgeniy Polyakov wrote:
+> On Wed, Jan 10, 2007 at 06:11:26AM -0500, Jeff Garzik (jeff@garzik.org) wrote:
+>> Once the rate of change slows, Andrew should IMO definitely pick this up.
+> 
+> There are _tons_ of ideas to implement with kevent - so if we want, rate
+> will not slow down. As you can see, from take26 I only send new
+> features: signals, posix timers, AIO, userspace notifications, various
+> flags and the like. I test it on my machines (recently one them died, so
+> only amd64 right now (running kernel) and i386 compile-only)
+> and some bug-fixes withoout any additioanl feature requests (almost,
+> Ingo asked for AIO before New Year), but broader testing is welcome
+> indeed.
 
-That is good news, but with ehci_hcd you basically disable the whole USB 
-subsystem. Please try to locate more
-by turning off USB options in your kernel config, starting with USB suspend.
-Probably, USB maintainers could give you some more hints on there to look.
+If the rate doesn't slow (if only artificially), people are discouraged 
+from reviewing, because it becomes a moving target.
 
-Regards,
-    Alex.
+
+>> If you wanted to make this process automatic, create a git branch that 
+>> Andrew and others can pull.
+> 
+> Exported git tree would be good, but I do not have enough disk space on
+
+Request an account on http://www.foo-projects.org/ which supports git. 
+The Intel guys use it to send me e1000/ixgb changes, for example.
+
+
+> web-site, and do you really want to read comments written in bad english
+> with russian transliterated indecent words?
+
+The only thing exported to -mm is the code changes, as a patch.  git 
+merely automates the process, so that Andrew doesn't have to spend time 
+[that he doesn't have] tracking a project with a high rate of change.
+
+
+>> I like the direction so far, and think it should be in -mm for wider 
+>> testing and review.
+> 
+> It was there, but Andrew dropped it somewhere about take25 :)
+
+Probably because it was a moving target with a high rate of change, 
+requiring time that Andrew did not have just to keep in sync and fix 
+build conflicts with other -mm patches.
+
+	Jeff
+
+

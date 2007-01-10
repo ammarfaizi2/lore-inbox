@@ -1,76 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965161AbXAJXfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750837AbXAJXfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965161AbXAJXfX (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 18:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbXAJXfX
+	id S1750837AbXAJXfY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 18:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbXAJXfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 18:35:23 -0500
-Received: from mga09.intel.com ([134.134.136.24]:44737 "EHLO mga09.intel.com"
+	Wed, 10 Jan 2007 18:35:24 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46456 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750975AbXAJXfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 18:35:22 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,169,1167638400"; 
-   d="scan'208"; a="34994437:sNHT20075337"
-Date: Wed, 10 Jan 2007 15:05:10 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, dzickus@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Revert nmi_known_cpu() check during boot option parsing
-Message-ID: <20070110150510.A28311@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id S965239AbXAJXfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 18:35:23 -0500
+In-Reply-To: <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
+References: <20070109102057.c684cc78.khali@linux-fr.org> <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org> <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org> <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org> <20070110193136.GA30486@aepfle.de> <20070110200249.GA30676@aepfle.de> <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andy Whitcroft <apw@shadowen.org>,
+       Andrew Morton <akpm@osdl.org>, Olaf Hering <olaf@aepfle.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Jean Delvare <khali@linux-fr.org>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: .version keeps being updated
+Date: Thu, 11 Jan 2007 00:35:06 +0100
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> With such a change, you would not need to grep for it. You could use
+> binutils on it. `objdump -sj .rodata.uts vmlinux` would be a start.
+> Maybe not the prettiest output, but guaranteed to contain only the
+> banner.
 
-The patch 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f2802e7f571c05f9a901b1f5bd144aa730ccc88e
-and another subsequent patch adds nmi_known_cpu() check while parsing boot
-options in x86_64 and i386. With that, "nmi_watchdog=2" stops working for me
-on Intel Core 2 CPU based system.
+objcopy -j .rodata.uts -O binary vmlinux >(the-checker-script)
 
-The problem is, setup_nmi_watchdog is called while parsing the boot option
-and identify_cpu is not done yet. So, the return value of nmi_known_cpu()
-is not valid at this point.
 
-Revert that check. Should not have any adverse effect as nmi_known_cpu() check
-is done again later in enable_lapic_nmi_watchdog().
+Segher
 
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-
-Index: linux-2.6.20-rc-mm/arch/i386/kernel/nmi.c
-===================================================================
---- linux-2.6.20-rc-mm.orig/arch/i386/kernel/nmi.c
-+++ linux-2.6.20-rc-mm/arch/i386/kernel/nmi.c
-@@ -325,13 +325,7 @@ static int __init setup_nmi_watchdog(cha
- 
- 	if ((nmi >= NMI_INVALID) || (nmi < NMI_NONE))
- 		return 0;
--	/*
--	 * If any other x86 CPU has a local APIC, then
--	 * please test the NMI stuff there and send me the
--	 * missing bits. Right now Intel P6/P4 and AMD K7 only.
--	 */
--	if ((nmi == NMI_LOCAL_APIC) && (nmi_known_cpu() == 0))
--		return 0;  /* no lapic support */
-+
- 	nmi_watchdog = nmi;
- 	return 1;
- }
-Index: linux-2.6.20-rc-mm/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux-2.6.20-rc-mm.orig/arch/x86_64/kernel/nmi.c
-+++ linux-2.6.20-rc-mm/arch/x86_64/kernel/nmi.c
-@@ -310,8 +310,6 @@ int __init setup_nmi_watchdog(char *str)
- 	if ((nmi >= NMI_INVALID) || (nmi < NMI_NONE))
- 		return 0;
- 
--	if ((nmi == NMI_LOCAL_APIC) && (nmi_known_cpu() == 0))
--		return 0;  /* no lapic support */
- 	nmi_watchdog = nmi;
- 	return 1;
- }

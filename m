@@ -1,978 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbXAJAQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932587AbXAJAX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbXAJAQr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 19:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbXAJAQr
+	id S932587AbXAJAX7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 19:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbXAJAX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 19:16:47 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:42128 "HELO
-	smtp104.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932573AbXAJAQp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 19:16:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Message-Id;
-  b=ZUDuc29sZqFrLjvdIBlD8HRf3TrU1wOcsw1b2ccNERcU8eJi1axHwk0OdXca1SsHzCrGSGTdFmrVe9Pip0QGcEV8X/zuDExPNA3fo1TaoiiHtGDLMO6aFZ+kxI85zZU4PadBKae7GHlGsJdzip/gDkdBNxmS31Bt//HO1kde0jg=  ;
-X-YMail-OSG: vY7YLagVM1l0mJ0paWmSN7wuATu.QoAHtVlUxaVfRTgJ.O3pmKMy5tvXo9etBZLscj17mEVHOW66U4BcKkeOwzKjHnkygMl5ok0BGDEuXB0Dw05KErqWslkWChmXWovNYQfbp75_tVH8Z3YmwwTsrEJjHjo82qiA3KHrhjXCQ8B_e.kJ5teUpjh5J4Yb
-From: David Brownell <david-b@pacbell.net>
-To: Woody Suwalski <woodys@xandros.com>
-Subject: Re: [patch 2.6.20-rc3 1/3] rtc-cmos driver
-Date: Tue, 9 Jan 2007 16:01:51 -0800
-User-Agent: KMail/1.7.1
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       rtc-linux@googlegroups.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200701051001.58472.david-b@pacbell.net> <45A3C4C5.5080405@xandros.com>
-In-Reply-To: <45A3C4C5.5080405@xandros.com>
+	Tue, 9 Jan 2007 19:23:58 -0500
+Received: from vs02.svr02.mucip.net ([83.170.6.69]:57448 "EHLO mx01.mucip.net"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932585AbXAJAX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 19:23:57 -0500
+Date: Wed, 10 Jan 2007 01:23:52 +0100
+From: Bernhard Schmidt <berni@birkenwald.de>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [IPv6] PROBLEM? Network unreachable despite correct route
+Message-ID: <20070110002352.GA31743@obelix.birkenwald.de>
+References: <20070109193624.GA27718@obelix.birkenwald.de>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_vzCpFHOXPojCtG6"
-Message-Id: <200701091601.51830.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109193624.GA27718@obelix.birkenwald.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_vzCpFHOXPojCtG6
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Jan 09, 2007 at 08:36:24PM +0100, Bernhard Schmidt wrote:
 
-On Tuesday 09 January 2007 8:37 am, Woody Suwalski wrote:
+Hi,
 
-> As to the patch: applied to 2.6.20-rc4, both on PC and ARM, commented 
-> out "EXPERIMENTAL"...
-> 
-> To build your new patch for ARM I have modified the line "depends on 
-> RTC_CLASS && (X86_PC || ACPI || ARM)"...
-> 
-> On Netwinder ARM - can not build (see: rtc_build.log)
+I did some additional testing
 
-Heh, so it's a good thing I disabled the build there.  :)
+> I'm having a really ugly problem I'm trying to pinpoint, but failed so
+> far. I'm neither completely convinced it is not related to my local
+> setup(s), nor do I have any clue how this might be caused.
+[...]
+> - Dell OptiPlex GX<something> (P4 with HT, Single Core), SuSE 10.2,
+>   distribution kernel 2.6.18.5-3-default, connected (tg3) to one
+>   upstream Cisco 6500/Sup720, default route learned through stateless
+>   autoconfiguration (RA)
 
+Running tcpdump on this (target) box shows that ICMPv6 echo requests
+(which is what mtr sends to the target box) are received by the box, but
+not replied to
 
-> OK, changed the include/asm/rtc.h to look like i386 == include 
-> asm-generic/rtc.h
+01:02:09.884692 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 54173, length 64
+01:02:09.884706 IP6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy > 2001:a60:f001:1:218:f3ff:fe66:xxxx: ICMP6, echo reply, seq 54173, length 64
+01:02:10.428063 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 55453, length 64
+01:02:11.056871 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 56733, length 64
+01:02:11.700772 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 58013, length 64
+[...]
+01:02:17.301169 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 3998, length 64
+01:02:17.941020 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 5278, length 64
+01:02:18.581037 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 6558, length 64
+01:02:18.581050 IP6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy > 2001:a60:f001:1:218:f3ff:fe66:xxxx: ICMP6, echo reply, seq 6558, length 64
 
-In drivers/rtc/rtc-cmos.c I hope ...  <asm/rtc.h> seems to not
-give equivalent functionality even on platforms which have it.
+while this is happening, the SSH session (between the very same hosts) is
+perfectly fine. ip6_tables.ko is not loaded, there is no other ICMPv6 packet
+(e.g. neighbor solicitation or router advertisement) anywhere near the
+beginning of my problem. Incoming TCP SYN (an additional SSH session I
+tried to establish when I saw the box was not responding) are also 
+visible on the interface, but not answered.
 
-Looks to me like <asm-generic/rtc.h> is the right solution, though
-that still implies arch-level support for <asm/mc146818rtc.h> which
-does not exist on all platforms.
+01:18:35.638744 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx.57045 > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy.22: SWE 1448406153:1448406153(0) win 5760 <mss 1440,sackOK,timestamp 13958554 0,nop,wscale 2>
+01:18:35.701523 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 41148, length 64
+01:18:36.328728 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 42428, length 64
 
-So the attached version of the rtc-cmos patch uses asm-generic
-and also adds Kconfig dependencies for architectures with usable
-versions of that header.
+I managed to pull ip -6 route, ip -6 neigh and ip -6 addr while the box
+was not responding:
 
-Of course, the "right" answer is to make this be like any other
-driver and allow the registers to go anywhere in the address space,
-not hard-wiring them to a platform-specific I/O space address.
-That is, CMOS_READ/CMOS_WRITE are legacy baggage.  But that's not
-an issue to be addressed by this particular patch.
+ip -6 route:
+2001:4ca0:0:f000::/64 dev eth0  proto kernel  metric 256  expires 86322sec mtu 1500 advmss 1440 fragtimeout 4294967295
+fe80::/64 dev eth0  metric 256  expires 21225804sec mtu 1500 advmss 1440 fragtimeout 4294967295
+ff00::/8 dev eth0  metric 256  expires 21225804sec mtu 1500 advmss 1440 fragtimeout 4294967295
+default via fe80::2d0:4ff:fe12:2400 dev eth0  proto kernel  metric 1024  expires 1717sec mtu 1500 advmss 1440 fragtimeout 64
+unreachable default dev lo  proto none  metric -1  error -101 fragtimeout 255
 
+ip -6 neigh:
+fe80::2d0:4ff:fe12:2400 dev eth0 lladdr 00:d0:04:12:24:00 router REACHABLE
 
-> Still does not build - see rtc_build2.log
-> 
-> Could you please check what other defs are missing on ARM?
+ip -6 addr:
+2: eth0: <BROADCAST,MULTICAST,NOTRAILERS,UP,10000> mtu 1500 qlen 1000
+    inet6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy/64 scope global dynamic 
+       valid_lft 86318sec preferred_lft 14318sec
+    inet6 fe80::211:43ff:fe7e:yyyy/64 scope link 
+       valid_lft forever preferred_lft forever
 
-I'm not sure what you changed.  I updated the rtc-cmos patch to
-use <asm-generic/rtc.h> directly, then did an ARM build which
-configured that driver as a module.  No compile-time problems.
-(I think you changed the wrong file...)
+Nothing in dmesg or any file in /var/log (except the notorious "Network
+is unreachable" messages from OpenVPN).
 
-But at link time I ran into the problem that arm/kernel/time.c
-defines "rtc_lock" but only exports it to an obsolete SA1100
-driver.  See attached "rtc-arm.patch".
+I was wrong before by the way, some outgoing connections from the affected
+machine still work, I was able to ping6, traceroute6 and telnet. At least
+on this particular machine, I am very sure I have seen "Network unreachable"
+on outgoing connects at some point.
 
-But static linking was no problem ... of course, I didn't add
-any code to define the platform_device (with or without the
-platform_data teling about extra registers) and couldn't test
-anything other than the build.
+I'll try to downgrade this machine to 2.6.16 (and eventually upgrade to 
+2.6.19.1) and have a look whether the problem is gone.
 
+> - Dell PowerEdge 750 (P4 with HT), Debian Etch, self compiled kernel
+>   2.6.17.11, connected (e1000) to two upstream Cisco 7200, default route
+>   is learned from RIPng (Quagga), static addresses
 
->  >>>
-> <anderson@netsweng.com>
-> As for the RTC patch, it does work on the shark, and is needed.
-> <<<
-> 
-> So is there a reason to have RTC build blocked on all ARM?
+Still too soon to be absolutely sure, but I think the problem is gone
+since the upgrade to 2.6.19.1.
 
-The original reason was that it's not known to work.  Given
-the attached patches, that issue is resolved at least from
-the build perspective.
-
-- Dave
-
---Boundary-00=_vzCpFHOXPojCtG6
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="rtc-arm.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rtc-arm.patch"
-
-Fix build problem on ARM ... the only user of "rtc_lock" today is the
-optional PC-style "CMOS" RTC driver, not the legacy SA1100 RTC driver.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
-Index: at91/arch/arm/kernel/time.c
-===================================================================
---- at91.orig/arch/arm/kernel/time.c	2006-11-10 09:47:46.000000000 -0800
-+++ at91/arch/arm/kernel/time.c	2007-01-09 15:08:39.000000000 -0800
-@@ -38,12 +38,14 @@
-  */
- struct sys_timer *system_timer;
- 
-+#if defined(CONFIG_RTC_DRV_CMOS) || defined(CONFIG_RTC_DRV_CMOS_MODULE)
- /* this needs a better home */
- DEFINE_SPINLOCK(rtc_lock);
- 
--#ifdef CONFIG_SA1100_RTC_MODULE
-+#ifdef CONFIG_RTC_DRV_CMOS_MODULE
- EXPORT_SYMBOL(rtc_lock);
- #endif
-+#endif	/* pc-style 'CMOS' RTC support */
- 
- /* change this if you have some constant time drift */
- #define USECS_PER_JIFFY	(1000000/HZ)
-
---Boundary-00=_vzCpFHOXPojCtG6
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="rtc-cmos-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rtc-cmos-2.patch"
-
-This is an "RTC framework" driver for the "CMOS" RTCs which are standard
-on PCs and some other platforms.  That's MC146818 compatible silicon.
-Advantages of this vs. drivers/char/rtc.c (use one _or_ the other, only
-one will be able to claim the RTC irq) include:
-
- - This leverages both the new RTC framework and the driver model; both
-   PNPACPI and platform device modes are supported.  (A separate patch
-   creates a platform device on PCs where PNPACPI isn't configured.)
-
- - It supports common extensions like longer alarms.  (A separate patch
-   exports that information from ACPI through platform_data.)
-
- - Likewise, system wakeup events use "real driver model support", with
-   policy control via sysfs "wakeup" attributes and and using normal rtc
-   ioctls to manage wakeup.  (Patch in the works.  The ACPI hooks are
-   known; /proc/acpi/alarm can vanish.  Making it work with EFI will
-   be a minor challenge to someone with e.g. a MiniMac.)
-
-It's not yet been tested on non-x86 systems, without ACPI, or with HPET.
-And the RTC framework will surely have teething pains on "mainstream"
-PC-based systems (though must embedded Linux systems use it heavily),
-not limited to sorting out the "/dev/rtc0" issue (udev easily tweaked).
-Also, the ALSA rtctimer code doesn't use the new RTC API.
-
-Otherwise, this should be a no-known-regressions replacement for the
-old drivers/char/rtc.c driver, and should help the non-embedded distros
-(and the new timekeeping code) start to switch to the framework.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
----
-Note also that any systems using "rtc-m48t86" are candidates to switch over
-to this more functional driver; the platform data is different, and the way
-bytes are read is different (no CMOS_READ/CMOS_WRITE, or even normal readb
-and writeb), but otherwise those chips should be compatible.
-
- drivers/rtc/Kconfig         |   13 
- drivers/rtc/Makefile        |    1 
- drivers/rtc/rtc-cmos.c      |  723 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mc146818rtc.h |   10 
- 4 files changed, 747 insertions(+)
-
-Index: g26/drivers/rtc/Kconfig
-===================================================================
---- g26.orig/drivers/rtc/Kconfig	2007-01-07 17:42:43.000000000 -0800
-+++ g26/drivers/rtc/Kconfig	2007-01-09 14:36:23.000000000 -0800
-@@ -95,6 +95,19 @@ config RTC_INTF_DEV_UIE_EMUL
- comment "RTC drivers"
- 	depends on RTC_CLASS
- 
-+config RTC_DRV_CMOS
-+	tristate "PC-style 'CMOS' real time clock"
-+	depends on RTC_CLASS
-+	help
-+	  Say "yes" here to get direct support for the real time clock
-+	  found in every PC or ACPI-based system, and some others.
-+	  Specifically the original MC146818, compatibles like those in
-+	  PC south bridges, the DS12887 or M48T86, some multifunction
-+	  or LPC bus chips, and so on.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-cmos.
-+
- config RTC_DRV_X1205
- 	tristate "Xicor/Intersil X1205"
- 	depends on RTC_CLASS && I2C
-Index: g26/drivers/rtc/Makefile
-===================================================================
---- g26.orig/drivers/rtc/Makefile	2007-01-07 17:42:43.000000000 -0800
-+++ g26/drivers/rtc/Makefile	2007-01-07 17:54:21.000000000 -0800
-@@ -15,6 +15,7 @@ obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysf
- obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
- obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
- 
-+obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
-Index: g26/include/linux/mc146818rtc.h
-===================================================================
---- g26.orig/include/linux/mc146818rtc.h	2007-01-07 17:42:43.000000000 -0800
-+++ g26/include/linux/mc146818rtc.h	2007-01-07 17:54:21.000000000 -0800
-@@ -18,6 +18,16 @@
- #ifdef __KERNEL__
- #include <linux/spinlock.h>		/* spinlock_t */
- extern spinlock_t rtc_lock;		/* serialize CMOS RAM access */
-+
-+/* Some RTCs extend the mc146818 register set to support alarms of more
-+ * than 24 hours in the future; or dates that include a century code.
-+ * This platform_data structure can pass this information to the driver.
-+ */
-+struct cmos_rtc_board_info {
-+	u8	rtc_day_alarm;		/* zero, or register index */
-+	u8	rtc_mon_alarm;		/* zero, or register index */
-+	u8	rtc_century;		/* zero, or register index */
-+};
- #endif
- 
- /**********************************************************************
-Index: g26/drivers/rtc/rtc-cmos.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ g26/drivers/rtc/rtc-cmos.c	2007-01-09 14:26:08.000000000 -0800
-@@ -0,0 +1,723 @@
-+/*
-+ * RTC class driver for "CMOS RTC":  PCs, ACPI, etc
-+ *
-+ * Copyright (C) 1996 Paul Gortmaker (drivers/char/rtc.c)
-+ * Copyright (C) 2006 David Brownell (convert to new framework)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+/*
-+ * The original "cmos clock" chip was an MC146818 chip, now obsolete.
-+ * That defined the register interface now provided by all PCs, some
-+ * non-PC systems, and incorporated into ACPI.  Modern PC chipsets
-+ * integrate an MC146818 clone in their southbridge, and boards use
-+ * that instead of discrete clones like the DS12887 or M48T86.  There
-+ * are also clones that connect using the LPC bus.
-+ *
-+ * That register API is also used directly by various other drivers
-+ * (notably for integrated NVRAM), infrastructure (x86 has code to
-+ * bypass the RTC framework, directly reading the RTC during boot
-+ * and updating minutes/seconds for systems using NTP synch) and
-+ * utilities (like userspace 'hwclock', if no /dev node exists).
-+ *
-+ * So **ALL** calls to CMOS_READ and CMOS_WRITE must be done with
-+ * interrupts disabled, holding the global rtc_lock, to exclude those
-+ * other drivers and utilities on correctly configured systems.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/spinlock.h>
-+#include <linux/platform_device.h>
-+#include <linux/mod_devicetable.h>
-+
-+/* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
-+#include <asm-generic/rtc.h>
-+
-+
-+struct cmos_rtc {
-+	struct rtc_device	*rtc;
-+	struct device		*dev;
-+	int			irq;
-+	struct resource		*iomem;
-+
-+	u8			suspend_ctrl;
-+
-+	/* newer hardware extends the original register set */
-+	u8			day_alrm;
-+	u8			mon_alrm;
-+	u8			century;
-+};
-+
-+/* both platform and pnp busses use negative numbers for invalid irqs */
-+#define is_valid_irq(n)		((n) >= 0)
-+
-+static const char driver_name[] = "rtc_cmos";
-+
-+/*----------------------------------------------------------------*/
-+
-+static int cmos_read_time(struct device *dev, struct rtc_time *t)
-+{
-+	/* REVISIT:  if the clock has a "century" register, use
-+	 * that instead of the heuristic in get_rtc_time().
-+	 * That'll make Y3K compatility (year > 2070) easy!
-+	 */
-+	get_rtc_time(t);
-+	return 0;
-+}
-+
-+static int cmos_set_time(struct device *dev, struct rtc_time *t)
-+{
-+	/* REVISIT:  set the "century" register if available
-+	 *
-+	 * NOTE: this ignores the issue whereby updating the seconds
-+	 * takes effect exactly 500ms after we write the register.
-+	 * (Also queueing and other delays before we get this far.)
-+	 */
-+	return set_rtc_time(t);
-+}
-+
-+static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	unsigned char	rtc_control;
-+
-+	if (!is_valid_irq(cmos->irq))
-+		return -EIO;
-+
-+	/* Basic alarms only support hour, minute, and seconds fields.
-+	 * Some also support day and month, for alarms up to a year in
-+	 * the future.
-+	 */
-+	t->time.tm_mday = -1;
-+	t->time.tm_mon = -1;
-+
-+	spin_lock_irq(&rtc_lock);
-+	t->time.tm_sec = CMOS_READ(RTC_SECONDS_ALARM);
-+	t->time.tm_min = CMOS_READ(RTC_MINUTES_ALARM);
-+	t->time.tm_hour = CMOS_READ(RTC_HOURS_ALARM);
-+
-+	if (cmos->day_alrm) {
-+		t->time.tm_mday = CMOS_READ(cmos->day_alrm);
-+		if (!t->time.tm_mday)
-+			t->time.tm_mday = -1;
-+
-+		if (cmos->mon_alrm) {
-+			t->time.tm_mon = CMOS_READ(cmos->mon_alrm);
-+			if (!t->time.tm_mon)
-+				t->time.tm_mon = -1;
-+		}
-+	}
-+
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
-+	/* REVISIT this assumes PC style usage:  always BCD */
-+
-+	if (((unsigned)t->time.tm_sec) < 0x60)
-+		t->time.tm_sec = BCD2BIN(t->time.tm_sec);
-+	else
-+		t->time.tm_sec = -1;
-+	if (((unsigned)t->time.tm_min) < 0x60)
-+		t->time.tm_min = BCD2BIN(t->time.tm_min);
-+	else
-+		t->time.tm_min = -1;
-+	if (((unsigned)t->time.tm_hour) < 0x24)
-+		t->time.tm_hour = BCD2BIN(t->time.tm_hour);
-+	else
-+		t->time.tm_hour = -1;
-+
-+	if (cmos->day_alrm) {
-+		if (((unsigned)t->time.tm_mday) <= 0x31)
-+			t->time.tm_mday = BCD2BIN(t->time.tm_mday);
-+		else
-+			t->time.tm_mday = -1;
-+		if (cmos->mon_alrm) {
-+			if (((unsigned)t->time.tm_mon) <= 0x12)
-+				t->time.tm_mon = BCD2BIN(t->time.tm_mon) - 1;
-+			else
-+				t->time.tm_mon = -1;
-+		}
-+	}
-+	t->time.tm_year = -1;
-+
-+	t->enabled = !!(rtc_control & RTC_AIE);
-+	t->pending = 0;
-+
-+	return 0;
-+}
-+
-+static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	unsigned char	mon, mday, hrs, min, sec;
-+	unsigned char	rtc_control, rtc_intr;
-+
-+	if (!is_valid_irq(cmos->irq))
-+		return -EIO;
-+
-+	/* REVISIT this assumes PC style usage:  always BCD */
-+
-+	/* Writing 0xff means "don't care" or "match all".  */
-+
-+	mon = t->time.tm_mon;
-+	mon = (mon < 12) ? BIN2BCD(mon) : 0xff;
-+	mon++;
-+
-+	mday = t->time.tm_mday;
-+	mday = (mday >= 1 && mday <= 31) ? BIN2BCD(mday) : 0xff;
-+
-+	hrs = t->time.tm_hour;
-+	hrs = (hrs < 24) ? BIN2BCD(hrs) : 0xff;
-+
-+	min = t->time.tm_min;
-+	min = (min < 60) ? BIN2BCD(min) : 0xff;
-+
-+	sec = t->time.tm_sec;
-+	sec = (sec < 60) ? BIN2BCD(sec) : 0xff;
-+
-+	spin_lock_irq(&rtc_lock);
-+
-+	/* next rtc irq must not be from previous alarm setting */
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	rtc_control &= ~RTC_AIE;
-+	CMOS_WRITE(rtc_control, RTC_CONTROL);
-+	rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
-+	if (rtc_intr)
-+		rtc_update_irq(&cmos->rtc->class_dev, 1, rtc_intr);
-+
-+	/* update alarm */
-+	CMOS_WRITE(hrs, RTC_HOURS_ALARM);
-+	CMOS_WRITE(min, RTC_MINUTES_ALARM);
-+	CMOS_WRITE(sec, RTC_SECONDS_ALARM);
-+
-+	/* the system may support an "enhanced" alarm */
-+	if (cmos->day_alrm) {
-+		CMOS_WRITE(mday, cmos->day_alrm);
-+		if (cmos->mon_alrm)
-+			CMOS_WRITE(mon, cmos->mon_alrm);
-+	}
-+
-+	if (t->enabled) {
-+		rtc_control |= RTC_AIE;
-+		CMOS_WRITE(rtc_control, RTC_CONTROL);
-+		rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
-+		if (rtc_intr)
-+			rtc_update_irq(&cmos->rtc->class_dev, 1, rtc_intr);
-+	}
-+
-+	spin_unlock_irq(&rtc_lock);
-+
-+	return 0;
-+}
-+
-+static int cmos_set_freq(struct device *dev, int freq)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	int		f;
-+	unsigned long	flags;
-+
-+	if (!is_valid_irq(cmos->irq))
-+		return -ENXIO;
-+
-+	/* 0 = no irqs; 1 = 2^15 Hz ... 15 = 2^0 Hz */
-+	f = ffs(freq);
-+	if (f != 0) {
-+		if (f-- > 16 || freq != (1 << f))
-+			return -EINVAL;
-+		f = 16 - f;
-+	}
-+
-+	spin_lock_irqsave(&rtc_lock, flags);
-+	CMOS_WRITE(RTC_REF_CLCK_32KHZ | f, RTC_FREQ_SELECT);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+
-+	return 0;
-+}
-+
-+#if defined(CONFIG_RTC_INTF_DEV) || defined(CONFIG_RTC_INTF_DEV_MODULE)
-+
-+static int
-+cmos_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	unsigned char	rtc_control, rtc_intr;
-+	unsigned long	flags;
-+
-+	switch (cmd) {
-+	case RTC_AIE_OFF:
-+	case RTC_AIE_ON:
-+	case RTC_UIE_OFF:
-+	case RTC_UIE_ON:
-+	case RTC_PIE_OFF:
-+	case RTC_PIE_ON:
-+		if (!is_valid_irq(cmos->irq))
-+			return -EINVAL;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+
-+	spin_lock_irqsave(&rtc_lock, flags);
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	switch (cmd) {
-+	case RTC_AIE_OFF:	/* alarm off */
-+		rtc_control &= ~RTC_AIE;
-+		break;
-+	case RTC_AIE_ON:	/* alarm on */
-+		rtc_control |= RTC_AIE;
-+		break;
-+	case RTC_UIE_OFF:	/* update off */
-+		rtc_control &= ~RTC_UIE;
-+		break;
-+	case RTC_UIE_ON:	/* update on */
-+		rtc_control |= RTC_UIE;
-+		break;
-+	case RTC_PIE_OFF:	/* periodic off */
-+		rtc_control &= ~RTC_PIE;
-+		break;
-+	case RTC_PIE_ON:	/* periodic on */
-+		rtc_control |= RTC_PIE;
-+		break;
-+	}
-+	CMOS_WRITE(rtc_control, RTC_CONTROL);
-+	rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
-+	if (rtc_intr)
-+		rtc_update_irq(&cmos->rtc->class_dev, 1, rtc_intr);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+	return 0;
-+}
-+
-+#else
-+#define	cmos_rtc_ioctl	NULL
-+#endif
-+
-+#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+
-+static int cmos_procfs(struct device *dev, struct seq_file *seq)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	unsigned char	rtc_control, valid;
-+
-+	spin_lock_irq(&rtc_lock);
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	valid = CMOS_READ(RTC_VALID);
-+	spin_unlock_irq(&rtc_lock);
-+
-+	/* NOTE:  at least ICH6 reports battery status using a different
-+	 * (non-RTC) bit; and SQWE is ignored on many current systems.
-+	 */
-+	return seq_printf(seq,
-+			"periodic_IRQ\t: %s\n"
-+			"update_IRQ\t: %s\n"
-+			// "square_wave\t: %s\n"
-+			// "BCD\t\t: %s\n"
-+			"DST_enable\t: %s\n"
-+			"periodic_freq\t: %d\n"
-+			"batt_status\t: %s\n",
-+			(rtc_control & RTC_PIE) ? "yes" : "no",
-+			(rtc_control & RTC_UIE) ? "yes" : "no",
-+			// (rtc_control & RTC_SQWE) ? "yes" : "no",
-+			// (rtc_control & RTC_DM_BINARY) ? "no" : "yes",
-+			(rtc_control & RTC_DST_EN) ? "yes" : "no",
-+			cmos->rtc->irq_freq,
-+			(valid & RTC_VRT) ? "okay" : "dead");
-+}
-+
-+#else
-+#define	cmos_procfs	NULL
-+#endif
-+
-+static const struct rtc_class_ops cmos_rtc_ops = {
-+	.ioctl		= cmos_rtc_ioctl,
-+	.read_time	= cmos_read_time,
-+	.set_time	= cmos_set_time,
-+	.read_alarm	= cmos_read_alarm,
-+	.set_alarm	= cmos_set_alarm,
-+	.proc		= cmos_procfs,
-+	.irq_set_freq	= cmos_set_freq,
-+};
-+
-+/*----------------------------------------------------------------*/
-+
-+static struct cmos_rtc	cmos_rtc;
-+
-+static irqreturn_t cmos_interrupt(int irq, void *p)
-+{
-+	u8		irqstat;
-+
-+	spin_lock(&rtc_lock);
-+	irqstat = CMOS_READ(RTC_INTR_FLAGS);
-+	spin_unlock(&rtc_lock);
-+
-+	if (irqstat) {
-+		/* NOTE: irqstat may have e.g. RTC_PF set
-+		 * even when RTC_PIE is clear...
-+		 */
-+		rtc_update_irq(p, 1, irqstat);
-+		return IRQ_HANDLED;
-+	} else
-+		return IRQ_NONE;
-+}
-+
-+#ifdef	CONFIG_PNPACPI
-+#define	is_pnpacpi()	1
-+#define	INITSECTION
-+
-+#else
-+#define	is_pnpacpi()	0
-+#define	INITSECTION	__init
-+#endif
-+
-+static int INITSECTION
-+cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
-+{
-+	struct cmos_rtc_board_info	*info = dev->platform_data;
-+	int				retval = 0;
-+	unsigned char			rtc_control;
-+
-+	/* there can be only one ... */
-+	if (cmos_rtc.dev)
-+		return -EBUSY;
-+
-+	if (!ports)
-+		return -ENODEV;
-+
-+	cmos_rtc.irq = rtc_irq;
-+	cmos_rtc.iomem = ports;
-+
-+	if (info) {
-+		cmos_rtc.day_alrm = info->rtc_day_alarm;
-+		cmos_rtc.mon_alrm = info->rtc_mon_alarm;
-+		cmos_rtc.century = info->rtc_century;
-+	}
-+
-+	cmos_rtc.rtc = rtc_device_register(driver_name, dev,
-+				&cmos_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(cmos_rtc.rtc))
-+		return PTR_ERR(cmos_rtc.rtc);
-+
-+	cmos_rtc.dev = dev;
-+	dev_set_drvdata(dev, &cmos_rtc);
-+
-+	/* platform and pnp busses handle resources incompatibly.
-+	 *
-+	 * REVISIT for non-x86 systems we may need to handle io memory
-+	 * resources: ioremap them, and request_mem_region().
-+	 */
-+	if (is_pnpacpi()) {
-+		retval = request_resource(&ioport_resource, ports);
-+		if (retval < 0) {
-+			dev_dbg(dev, "i/o registers already in use\n");
-+			goto cleanup0;
-+		}
-+	}
-+	rename_region(ports, cmos_rtc.rtc->class_dev.class_id);
-+
-+	spin_lock_irq(&rtc_lock);
-+
-+	/* force periodic irq to CMOS reset default of 1024Hz;
-+	 *
-+	 * REVISIT it's been reported that at least one x86_64 ALI mobo
-+	 * doesn't use 32KHz here ... for portability we might need to
-+	 * do something about other clock frequencies.
-+	 */
-+	CMOS_WRITE(RTC_REF_CLCK_32KHZ | 0x06, RTC_FREQ_SELECT);
-+	cmos_rtc.rtc->irq_freq = 1024;
-+
-+	/* disable irqs.
-+	 *
-+	 * NOTE after changing RTC_xIE bits we always read INTR_FLAGS;
-+	 * allegedly some older rtcs need that to handle irqs properly
-+	 */
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	rtc_control &= ~(RTC_PIE | RTC_AIE | RTC_UIE);
-+	CMOS_WRITE(rtc_control, RTC_CONTROL);
-+	CMOS_READ(RTC_INTR_FLAGS);
-+
-+	spin_unlock_irq(&rtc_lock);
-+
-+	/* FIXME teach the alarm code how to handle binary mode;
-+	 * <asm-generic/rtc.h> doesn't know 12-hour mode either.
-+	 */
-+	if (!(rtc_control & RTC_24H) || (rtc_control & (RTC_DM_BINARY))) {
-+		dev_dbg(dev, "only 24-hr BCD mode supported\n");
-+		retval = -ENXIO;
-+		goto cleanup1;
-+	}
-+
-+	if (is_valid_irq(rtc_irq))
-+		retval = request_irq(rtc_irq, cmos_interrupt, IRQF_DISABLED,
-+				cmos_rtc.rtc->class_dev.class_id,
-+				&cmos_rtc.rtc->class_dev);
-+	if (retval < 0) {
-+		dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
-+		goto cleanup1;
-+	}
-+
-+	/* REVISIT optionally make 50 or 114 bytes NVRAM available,
-+	 * like rtc-ds1553, rtc-ds1742 ... this will often include
-+	 * registers for century, and day/month alarm.
-+	 */
-+
-+	pr_info("%s: alarms up to one %s%s\n",
-+			cmos_rtc.rtc->class_dev.class_id,
-+			is_valid_irq(rtc_irq)
-+				?  (cmos_rtc.mon_alrm
-+					? "year"
-+					: (cmos_rtc.day_alrm
-+						? "month" : "day"))
-+				: "no",
-+			cmos_rtc.century ? ", y3k" : ""
-+			);
-+
-+	return 0;
-+
-+cleanup1:
-+	rename_region(ports, NULL);
-+cleanup0:
-+	rtc_device_unregister(cmos_rtc.rtc);
-+	return retval;
-+}
-+
-+static void cmos_do_shutdown(void)
-+{
-+	unsigned char	rtc_control;
-+
-+	spin_lock_irq(&rtc_lock);
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	rtc_control &= ~(RTC_PIE|RTC_AIE|RTC_UIE);
-+	CMOS_WRITE(rtc_control, RTC_CONTROL);
-+	CMOS_READ(RTC_INTR_FLAGS);
-+	spin_unlock_irq(&rtc_lock);
-+}
-+
-+static void __exit cmos_do_remove(struct device *dev)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+
-+	cmos_do_shutdown();
-+
-+	if (is_pnpacpi())
-+		release_resource(cmos->iomem);
-+	rename_region(cmos->iomem, NULL);
-+
-+	if (is_valid_irq(cmos->irq))
-+		free_irq(cmos->irq, &cmos_rtc.rtc->class_dev);
-+
-+	rtc_device_unregister(cmos_rtc.rtc);
-+
-+	cmos_rtc.dev = NULL;
-+	dev_set_drvdata(dev, NULL);
-+}
-+
-+#ifdef	CONFIG_PM
-+
-+static int cmos_suspend(struct device *dev, pm_message_t mesg)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	int		do_wake = device_may_wakeup(dev);
-+	unsigned char	tmp, irqstat;
-+
-+	/* only the alarm might be a wakeup event source */
-+	spin_lock_irq(&rtc_lock);
-+	cmos->suspend_ctrl = tmp = CMOS_READ(RTC_CONTROL);
-+	if (tmp & (RTC_PIE|RTC_AIE|RTC_UIE)) {
-+		if (do_wake)
-+			tmp &= ~(RTC_PIE|RTC_UIE);
-+		else
-+			tmp &= ~(RTC_PIE|RTC_AIE|RTC_UIE);
-+		CMOS_WRITE(tmp, RTC_CONTROL);
-+		irqstat = CMOS_READ(RTC_INTR_FLAGS);
-+	} else
-+		irqstat = 0;
-+	spin_unlock_irq(&rtc_lock);
-+
-+	if (irqstat)
-+		rtc_update_irq(&cmos->rtc->class_dev, 1, irqstat);
-+
-+	/* ACPI HOOK:  enable ACPI_EVENT_RTC when (tmp & RTC_AIE)
-+	 * ... it'd be best if we could do that under rtc_lock.
-+	 */
-+
-+	pr_debug("%s: suspend%s, ctrl %02x\n",
-+			cmos_rtc.rtc->class_dev.class_id,
-+			(tmp & RTC_AIE) ? ", alarm may wake" : "",
-+			tmp);
-+
-+	return 0;
-+}
-+
-+static int cmos_resume(struct device *dev)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	unsigned char	tmp = cmos->suspend_ctrl;
-+
-+	/* REVISIT:  a mechanism to resync the system clock (jiffies)
-+	 * on resume should be portable between platforms ...
-+	 */
-+
-+	/* re-enable any irqs previously active */
-+	if (tmp & (RTC_PIE|RTC_AIE|RTC_UIE)) {
-+
-+		/* ACPI HOOK:  disable ACPI_EVENT_RTC when (tmp & RTC_AIE) */
-+
-+		spin_lock_irq(&rtc_lock);
-+		CMOS_WRITE(tmp, RTC_CONTROL);
-+		tmp = CMOS_READ(RTC_INTR_FLAGS);
-+		spin_unlock_irq(&rtc_lock);
-+		if (tmp)
-+			rtc_update_irq(&cmos->rtc->class_dev, 1, tmp);
-+	}
-+
-+	pr_debug("%s: resume, ctrl %02x\n",
-+			cmos_rtc.rtc->class_dev.class_id,
-+			cmos->suspend_ctrl);
-+
-+
-+	return 0;
-+}
-+
-+#else
-+#define	cmos_suspend	NULL
-+#define	cmos_resume	NULL
-+#endif
-+
-+/*----------------------------------------------------------------*/
-+
-+/* On ACPI systems, the device node may be created as either a PNP
-+ * device or a platform_device.  In either case the FADT data should
-+ * have been transferred to us through platform_data.
-+ */
-+
-+#ifdef	CONFIG_PNPACPI
-+
-+#include <linux/pnp.h>
-+
-+static int __devinit
-+cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
-+{
-+	/* REVISIT paranoia argues for a shutdown notifier, since PNP
-+	 * drivers can't provide shutdown() methods to disable IRQs.
-+	 * Or better yet, fix PNP to allow those methods...
-+	 */
-+	return cmos_do_probe(&pnp->dev,
-+			&pnp->res.port_resource[0],
-+			pnp->res.irq_resource[0].start);
-+}
-+
-+static void __exit cmos_pnp_remove(struct pnp_dev *pnp)
-+{
-+	cmos_do_remove(&pnp->dev);
-+}
-+
-+#ifdef	CONFIG_PM
-+
-+static int cmos_pnp_suspend(struct pnp_dev *pnp, pm_message_t mesg)
-+{
-+	return cmos_suspend(&pnp->dev, mesg);
-+}
-+
-+static int cmos_pnp_resume(struct pnp_dev *pnp)
-+{
-+	return cmos_resume(&pnp->dev);
-+}
-+
-+#else
-+#define	cmos_pnp_suspend	NULL
-+#define	cmos_pnp_resume		NULL
-+#endif
-+
-+
-+static const struct pnp_device_id rtc_ids[] = {
-+	{ .id = "PNP0b00", },
-+	{ .id = "PNP0b01", },
-+	{ .id = "PNP0b02", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(pnp, rtc_ids);
-+
-+static struct pnp_driver cmos_pnp_driver = {
-+	.name		= (char *) driver_name,
-+	.id_table	= rtc_ids,
-+	.probe		= cmos_pnp_probe,
-+	.remove		= __exit_p(cmos_pnp_remove),
-+
-+	/* flag ensures resume() gets called, and stops syslog spam */
-+	.flags		= PNP_DRIVER_RES_DO_NOT_CHANGE,
-+	.suspend	= cmos_pnp_suspend,
-+	.resume		= cmos_pnp_resume,
-+};
-+
-+static int __init cmos_init(void)
-+{
-+	return pnp_register_driver(&cmos_pnp_driver);
-+}
-+module_init(cmos_init);
-+
-+static void __exit cmos_exit(void)
-+{
-+	pnp_unregister_driver(&cmos_pnp_driver);
-+}
-+module_exit(cmos_exit);
-+
-+#else	/* no PNPACPI */
-+
-+/*----------------------------------------------------------------*/
-+
-+/* Platform setup should have set up an RTC device, when PNPACPI is
-+ * unavailable ... including non-PC and non-ACPI platforms.
-+ */
-+
-+static int __init cmos_platform_probe(struct platform_device *pdev)
-+{
-+	return cmos_do_probe(&pdev->dev,
-+			platform_get_resource(pdev, IORESOURCE_IO, 0),
-+			platform_get_irq(pdev, 0));
-+}
-+
-+static int __exit cmos_platform_remove(struct platform_device *pdev)
-+{
-+	cmos_do_remove(&pdev->dev);
-+	return 0;
-+}
-+
-+static void cmos_platform_shutdown(struct platform_device *pdev)
-+{
-+	cmos_do_shutdown();
-+}
-+
-+static struct platform_driver cmos_platform_driver = {
-+	.remove		= __exit_p(cmos_platform_remove),
-+	.shutdown	= cmos_platform_shutdown,
-+	.driver = {
-+		.name		= (char *) driver_name,
-+		.suspend	= cmos_suspend,
-+		.resume		= cmos_resume,
-+	}
-+};
-+
-+static int __init cmos_init(void)
-+{
-+	return platform_driver_probe(&cmos_platform_driver,
-+			cmos_platform_probe);
-+}
-+module_init(cmos_init);
-+
-+static void __exit cmos_exit(void)
-+{
-+	platform_driver_unregister(&cmos_platform_driver);
-+}
-+module_exit(cmos_exit);
-+
-+
-+#endif	/* !PNPACPI */
-+
-+MODULE_AUTHOR("David Brownell");
-+MODULE_DESCRIPTION("'CMOS' RTC driver:  PCs, ACPI, etc");
-+MODULE_LICENSE("GPL");
-
---Boundary-00=_vzCpFHOXPojCtG6--
+Regards,
+Bernhard

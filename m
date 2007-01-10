@@ -1,88 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964964AbXAJRKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964969AbXAJRNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbXAJRKs (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 12:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbXAJRKs
+	id S964969AbXAJRNr (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 12:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbXAJRNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 12:10:48 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:4466 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964964AbXAJRKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 12:10:47 -0500
-Date: Wed, 10 Jan 2007 18:10:53 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>
-Subject: Re: .version keeps being updated
-Message-Id: <20070110181053.3b3632a8.khali@linux-fr.org>
-In-Reply-To: <Pine.LNX.4.64.0701101426400.14458@scrub.home>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109170550.AFEF460C343@tzec.mtu.ru>
-	<20070109214421.281ff564.khali@linux-fr.org>
-	<Pine.LNX.4.64.0701101426400.14458@scrub.home>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Jan 2007 12:13:47 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:3489 "EHLO relay.sw.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964969AbXAJRNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 12:13:46 -0500
+To: linux-kernel@vger.kernel.org
+CC: netdev@vger.kernel.org, jeff@garzik.org,
+       Gary Zambrano <zambrano@broadcom.com>,
+       Francois Romieu <romieu@fr.zoreil.com>
+Subject: [PATCH] Broadcom 4400 resume small fix (v2)
+From: Dmitriy Monakhov <dmonakhov@openvz.org>
+Date: Wed, 10 Jan 2007 20:13:37 +0300
+Message-ID: <87bql6ztxa.fsf@sw.ru>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+--=-=-=
 
-On Wed, 10 Jan 2007 14:45:28 +0100 (CET), Roman Zippel wrote:
-> On Tue, 9 Jan 2007, Jean Delvare wrote:
-> 
-> > I tried a git bisect to find out what commit was reponsible for it, and
-> > the winner is...
-> > 
-> > 8993780a6e44fb4e7ed34e33458506a775356c6e is first bad commit
-> > commit 8993780a6e44fb4e7ed34e33458506a775356c6e
-> > Author: Linus Torvalds <torvalds@woody.osdl.org>
-> > Date:   Mon Dec 11 09:28:46 2006 -0800
-> > 
-> > [..]
-> > Reverting this from 2.6.20-rc1 made the build behave again, however I
-> > found that reverting it from 2.6.20-rc2 did _not_ fix the problem. I
-> > also had to revert the following patch to make things work as before
-> > again:
-> > 
-> > commit ef129412b4cbd6686d0749612cb9b76e207271f4
-> > Author: Andrew Morton <akpm@osdl.org>
-> > Date:   Fri Dec 22 01:12:01 2006 -0800
-> 
-> To make the list complete, this patch started all the mess:
-> 
-> commit a2ee8649ba6d71416712e798276bf7c40b64e6e5
-> Author: Herbert Poetzl <herbert@13thfloor.at>
-> Date:   Fri Dec 8 02:36:00 2006 -0800
-> 
->     [PATCH] Fix linux banner utsname information
-> 
-> and this tries to fix a problem in Andrew's patch:
-> 
-> commit d449db98d5d7d90f29f9f6e091b0e1d996184df1
-> Author: Mikael Pettersson <mikpe@it.uu.se>
-> Date:   Fri Dec 29 16:48:09 2006 -0800
-> 
->     [PATCH] fix mrproper incompleteness
-> 
-> The patch below reverts pretty much everything and instead introduces a 
-> seperate format string for proc.
-> (...)
-> [PATCH] fix linux banner format string
-> 
-> Revert previous attempts at messing with the linux banner string and 
-> simply use a separate format string for proc.
+Changes from v1:
+- Fix according to Francois Romieu comments.
 
-This fixes the problem I reported. Thanks Roman!
+LOG:
+Some issues in b44_resume().
+- Return value of pci_enable_device() was ignored.
+- If request_irq() has failed we have to just disable device and exit.
 
-Linus, Andrew, if Roman's patch looks OK to you, can it please be
-applied before 2.6.20 is released?
+Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
+-------
 
-Thanks,
--- 
-Jean Delvare
+--=-=-=
+Content-Disposition: inline; filename=diff-ms-net-b44-resume-fix
+
+diff --git a/drivers/net/b44.c b/drivers/net/b44.c
+index 5eb2ec6..42c57bf 100644
+--- a/drivers/net/b44.c
++++ b/drivers/net/b44.c
+@@ -2315,16 +2315,27 @@ static int b44_resume(struct pci_dev *pd
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct b44 *bp = netdev_priv(dev);
++	int rc = 0;
+ 
+ 	pci_restore_state(pdev);
+-	pci_enable_device(pdev);
++	rc = pci_enable_device(pdev);
++	if (rc) {
++		printk(KERN_ERR PFX "%s: pci_enable_device failed\n",
++			dev->name);
++		return rc;
++	}
++
+ 	pci_set_master(pdev);
+ 
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+-	if (request_irq(dev->irq, b44_interrupt, IRQF_SHARED, dev->name, dev))
++	rc = request_irq(dev->irq, b44_interrupt, IRQF_SHARED, dev->name, dev);
++	if (rc) {
+ 		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
++		pci_disable_device(pdev);
++		return rc;
++	}
+ 
+ 	spin_lock_irq(&bp->lock);
+ 
+
+--=-=-=--
+

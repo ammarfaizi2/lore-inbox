@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965117AbXAJVWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965120AbXAJVYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbXAJVWT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 16:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbXAJVWT
+	id S965120AbXAJVYy (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 16:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbXAJVYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 16:22:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36978 "EHLO
+	Wed, 10 Jan 2007 16:24:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37006 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965095AbXAJVWR (ORCPT
+	with ESMTP id S965115AbXAJVYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 16:22:17 -0500
-Date: Wed, 10 Jan 2007 21:22:15 +0000
+	Wed, 10 Jan 2007 16:24:53 -0500
+Date: Wed, 10 Jan 2007 21:24:48 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Jeff Layton <jlayton@redhat.com>
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       esandeen@redhat.com, aviro@redhat.com
-Subject: Re: [PATCH 2/3] change libfs sb creation routines to avoid collisions with their root inodes
-Message-ID: <20070110212215.GB4425@infradead.org>
+       esandeen@redhat.com, aviro@redhat.com, haveblue@us.ibm.com
+Subject: Re: [PATCH 3/3] have pipefs ensure i_ino uniqueness by calling iunique and hashing the inode
+Message-ID: <20070110212448.GA4656@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, esandeen@redhat.com, aviro@redhat.com
-References: <200701082047.l08KlDCa001921@dantu.rdu.redhat.com>
+	linux-kernel@vger.kernel.org, esandeen@redhat.com, aviro@redhat.com,
+	haveblue@us.ibm.com
+References: <200701082047.l08KlHwK001925@dantu.rdu.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200701082047.l08KlDCa001921@dantu.rdu.redhat.com>
+In-Reply-To: <200701082047.l08KlHwK001925@dantu.rdu.redhat.com>
 User-Agent: Mutt/1.4.2.2i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2007 at 03:47:13PM -0500, Jeff Layton wrote:
-> This changes the superblock creation routines that call new_inode to take steps
-> to avoid later collisions with other inodes that get created. I took the
-> approach here of not hashing things unless is was strictly necessary, though
-> that does mean that filesystem authors need to be careful to avoid collisions
-> by calling iunique properly.
+On Mon, Jan 08, 2007 at 03:47:17PM -0500, Jeff Layton wrote:
+> This converts pipefs to use the new scheme. Here we're calling iunique to get
+> a unique i_ino value for the new inode, and then hashing it afterward. We
+> call iunique with a max_reserved value of 1 to avoid collision with the root
+> inode.  Since the inode is now hashed, we need to take care that we end up in
+> generic_delete_inode rather than generic_forget_inode or we'll create a nasty
+> leak, so we clear_nlink when we destroy the pipe info.
 > 
+> I'm not certain that this is the right place to add the clear_nlink, though
+> it does seem to work. I'm open to suggestions on a better place to put
+> this, or of a better way to make sure that we end up with i_nlink == 0 at
+> iput time.
+
+You should Cc Dave Hansen as he's did the nlink helpers and works on
+the per-mount readonly code that requires them.
+
 > Signed-off-by: Jeff Layton <jlayton@redhat.com>
 > 
-> diff --git a/fs/libfs.c b/fs/libfs.c
-> index 503898d..5bdaf00 100644
-> --- a/fs/libfs.c
-> +++ b/fs/libfs.c
-> @@ -217,6 +217,12 @@ int get_sb_pseudo(struct file_system_type *fs_type, char *name,
->  	root = new_inode(s);
->  	if (!root)
->  		goto Enomem;
-> +	/*
-> +	 * since this is the first inode, make it number 1. New inodes created
-> +         * after this must take care not to collide with it (by passing
-> +	 * max_reserved of 1 to iunique).
-> +	 */
-> +	root->i_ino = 1;
-
-Ok.
-
->  		return -ENOMEM;
-> +	/* set to high value to try and avoid collisions with loop below */
-> +	inode->i_ino = 0xffffffff;
+> diff --git a/fs/pipe.c b/fs/pipe.c
+> index 68090e8..1d44ff0 100644
+> --- a/fs/pipe.c
+> +++ b/fs/pipe.c
+> @@ -825,6 +825,7 @@ void free_pipe_info(struct inode *inode)
+>  {
+>  	__free_pipe_info(inode->i_pipe);
+>  	inode->i_pipe = NULL;
+> +	clear_nlink(inode);
+>  }
+>  
+>  static struct vfsmount *pipe_mnt __read_mostly;
+> @@ -871,6 +872,8 @@ static struct inode * get_pipe_inode(void)
+>  	inode->i_uid = current->fsuid;
+>  	inode->i_gid = current->fsgid;
+>  	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+> +	inode->i_ino = iunique(pipe_mnt->mnt_sb, 1);
 > +	insert_inode_hash(inode);
-
-This is odd.  Can't we just add some constant base to the loop below?
-
->  	inode->i_mode = S_IFDIR | 0755;
->  	inode->i_uid = inode->i_gid = 0;
->  	inode->i_blocks = 0;
-> @@ -399,6 +408,11 @@ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files
->  		inode->i_blocks = 0;
->  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
->  		inode->i_fop = files->ops;
-> +		/*
-> +		 * no need to hash these, but you need to make sure that any
-> +		 * calls to iunique on this mount call it with a max_reserved
-> +		 * value high enough to avoid collisions with these inodes.
-> +		 */
->  		inode->i_ino = i;
->  		d_add(dentry, inode);
+>  
+>  	return inode;
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+---end quoted text---

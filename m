@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932715AbXAJECk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932708AbXAJEPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932715AbXAJECk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 23:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbXAJECk
+	id S932708AbXAJEPO (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 23:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbXAJEPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 23:02:40 -0500
-Received: from emerald.lightlink.com ([205.232.34.14]:1108 "EHLO
-	emerald.lightlink.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932715AbXAJECj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 23:02:39 -0500
-Date: Tue, 9 Jan 2007 22:58:20 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Adrian Bunk <bunk@stusta.de>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
-Message-ID: <20070110035820.GB27550@jupiter.solarsys.private>
-References: <20061219041315.GE6993@stusta.de> <20070105095233.4ce72e7e.khali@linux-fr.org> <20070107154441.GB22558@jupiter.solarsys.private> <20070108121055.d25c8ffa.khali@linux-fr.org> <20070109030226.GA2408@jupiter.solarsys.private> <20070109141721.b823187c.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109141721.b823187c.khali@linux-fr.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 9 Jan 2007 23:15:14 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57582 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932708AbXAJEPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 23:15:12 -0500
+Date: Tue, 9 Jan 2007 20:15:07 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: mbind: Restrict nodes to the currently allowed cpuset
+Message-ID: <Pine.LNX.4.64.0701092012340.18021@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean:
+Currently one can specify an arbitrary node mask to mbind that includes nodes
+not allowed. If that is done with an interleave policy then we will go around
+all the nodes. Those outside of the currently allowed cpuset will be redirected
+to the border nodes. Interleave will then create imbalances at the borders
+of the cpuset.
 
-> On Mon, 8 Jan 2007 22:02:26 -0500, Mark M. Hoffman wrote:
-> > 3) I've just confirmed that this quirk is still broken on recent FC6 kernels.
-> > Perhaps they should have picked my patch out of their bugzilla, but they didn't.
+This patch restricts the nodes to the currently allowed cpuset.
 
-* Jean Delvare <khali@linux-fr.org> [2007-01-09 14:17:21 +0100]:
-> I am worried about the Intel/Asus SMBus quirk then, which affects many
-> more users than the SiS SMBus one, and would suffer from a reordering as
-> well.
+The RFC for this patch was discussed at
+http://marc.theaimsgroup.com/?t=116793842100004&r=1&w=2
 
-Intel/Asus users on FC[456] would surely have screamed if that was true.  But I
-was curious so I looked deeper.  There is a fundamental difference between the
-Intel SMBus quirks and the SiS SMBus quirk...
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Intel:
-1) The first quirk keys off the host bridge, setting a flag.  
-2) The second quirk keys off the LPC, enabling the SMBus if the flag was set.
-
-SiS:
-1) The first quirk keys off the *old* LPC ID... this causes the ID to change.[1]
-2) The second quirk keys off the *new* LPC ID; this one enables the SMBus.
-
-In the SiS case, both quirks key off the *same* *device*, but with potentially
-different IDs.  The quirk list ordering matters there because the list is
-scanned only once per device.
-
-For the Intel case, the only ordering that matters is that the host bridge
-device is added [pci_device_add()] before the LPC; AFAICT, that is reliable,
-perhaps even by definition.
-
-So I don't think you have to worry about the Intel SMBus quirks.
-
-[1] That's right, the first quirk actually changes the PCI device ID of the
-LPC.  Unless it actually *is* older hardware... in which case the quirk just
-tickles a reserved bit that is ignored.  Thank you SiS, that's just beautiful.
-
-Regards,
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+Index: linux-2.6.19-mm1/mm/mempolicy.c
+===================================================================
+--- linux-2.6.19-mm1.orig/mm/mempolicy.c	2006-12-11 19:00:38.224610647 -0800
++++ linux-2.6.19-mm1/mm/mempolicy.c	2006-12-13 11:13:10.175294067 -0800
+@@ -882,6 +882,7 @@ asmlinkage long sys_mbind(unsigned long 
+ 	int err;
+ 
+ 	err = get_nodes(&nodes, nmask, maxnode);
++	nodes_and(nodes, nodes, current->mems_allowed);
+ 	if (err)
+ 		return err;
+ 	return do_mbind(start, len, mode, &nodes, flags);

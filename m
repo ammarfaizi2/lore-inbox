@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964867AbXAJORk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964880AbXAJO1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbXAJORk (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 09:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbXAJORk
+	id S964880AbXAJO1K (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 09:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbXAJO1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 09:17:40 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:33175 "HELO ustc.edu.cn"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S964867AbXAJORj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 09:17:39 -0500
-Message-ID: <368438638.13038@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Wed, 10 Jan 2007 22:17:56 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-Message-ID: <20070110141756.GA5572@mail.ustc.edu.cn>
-Mail-Followup-To: Neil Brown <neilb@suse.de>,
-	linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <367964923.02447@ustc.edu.cn> <20070105024226.GA6076@mail.ustc.edu.cn> <17828.33075.145986.404400@notabene.brown>
+	Wed, 10 Jan 2007 09:27:10 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:41221 "EHLO
+	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964880AbXAJO1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 09:27:08 -0500
+Message-ID: <45A4F675.3080503@in.ibm.com>
+Date: Wed, 10 Jan 2007 19:51:41 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17828.33075.145986.404400@notabene.brown>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Paul Menage <menage@google.com>
+CC: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
+       serue@us.ibm.com, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, mbligh@google.com,
+       winget@google.com, containers@lists.osdl.org, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 4/6] containers: Simple CPU accounting container
+ subsystem
+References: <20061222141442.753211763@menage.corp.google.com> <20061222145216.755437205@menage.corp.google.com>
+In-Reply-To: <20061222145216.755437205@menage.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2007 at 05:01:23PM +1100, Neil Brown wrote:
-> On Friday January 5, fengguang.wu@gmail.com wrote:
-> > Hi Neil,
-> > 
-> > NFS mounting succeeded, but the kernel gives a warning.
-> > I'm running 2.6.20-rc2-mm1.
-> > 
-> > # mount -o vers=3 localhost:/suse /mnt
-> > [  689.651606] svc: unknown version (3)
-> > # mount | grep suse
-> > localhost:/suse on /mnt type nfs (rw,nfsvers=3,addr=127.0.0.1)
-> > 
-> > Any clues about it?
+Paul Menage wrote:
+> This demonstrates how to use the generic container subsystem for a
+> simple resource tracker that counts the total CPU time used by all
+> processes in a container, during the time that they're members of the
+> container.
 > 
-> Weird.
+> Signed-off-by: Paul Menage <menage@google.com>
 > 
-> Please try this patch.  It should provide more useful information.
-> 
-> NeilBrown
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> 
-> ### Diffstat output
->  ./net/sunrpc/svc.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff .prev/net/sunrpc/svc.c ./net/sunrpc/svc.c
-> --- .prev/net/sunrpc/svc.c	2007-01-10 16:58:14.000000000 +1100
-> +++ ./net/sunrpc/svc.c	2007-01-10 16:59:55.000000000 +1100
-> @@ -910,7 +910,8 @@ err_bad_prog:
->  
->  err_bad_vers:
->  #ifdef RPC_PARANOIA
-> -	printk("svc: unknown version (%d)\n", vers);
-> +	printk("svc: unknown version (%d for prog %d, %s)\n", 
-> +	       vers, prog, progp->pg_name);
->  #endif
->  	serv->sv_stats->rpcbadfmt++;
->  	svc_putnl(resv, RPC_PROG_MISMATCH);
 
-root ~# mount localhost:/suse /mnt
-[  132.678204] svc: unknown version (3 for prog 100227, nfsd)
+Hi, Paul,
 
-I've confirmed that 2.6.20-rc2-mm1, 2.6.20-rc3-mm1, 2.6.19-rc6-mm1 all
-have this warning, while 2.6.17-2-amd64 is good.
+I have run into a problem running this patch on a powerpc box. Basically,
+the machine panics as soon as I mount the container filesystem with
 
-Thanks,
-Wu
+mount -t container -oall container /<mount point>, I see
+
+cpu 0x2: Vector: 300 (Data Access) at [c0000001e7f2b8e0]
+    pc: c000000000098b70: .cpuacct_charge+0x84/0xbc
+    lr: c000000000060a3c: .account_user_time+0x60/0xb4
+    sp: c0000001e7f2bb60
+   msr: 8000000000009032
+   dar: 48
+ dsisr: 40000000
+  current = 0xc0000001e7f0e800
+  paca    = 0xc00000000071c300
+    pid   = 0, comm = swapper
+
+Analyzing the dump a bit further lead me to container_subsys_state().
+
+I am trying to figure out the reason for the panic and trying to find
+a fix. Since the introduction of whole hierarchy system, the debugging
+has gotten a bit harder and taking longer, hence I was wondering if you
+had any clues about the problem
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

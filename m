@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964921AbXAJP4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964923AbXAJP6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbXAJP4o (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 10:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbXAJP4o
+	id S964923AbXAJP6x (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 10:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbXAJP6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 10:56:44 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:51430 "EHLO
-	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964921AbXAJP4n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 10:56:43 -0500
-Message-ID: <45A50CA5.6070101@in.ibm.com>
-Date: Wed, 10 Jan 2007 21:26:21 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
+	Wed, 10 Jan 2007 10:58:53 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:47288 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964923AbXAJP6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 10:58:52 -0500
+Date: Wed, 10 Jan 2007 09:58:45 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Mimi Zohar <zohar@us.ibm.com>,
+       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@saff.watson.ibm.com
+Subject: Re: mprotect abuse in slim
+Message-ID: <20070110155845.GA373@sergelap.austin.ibm.com>
+References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org> <20070109094625.GA11918@infradead.org> <20070109231449.GA4547@sergelap.austin.ibm.com> <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
-       serue@us.ibm.com, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, mbligh@google.com,
-       winget@google.com, containers@lists.osdl.org, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 3/6] containers: Add generic multi-subsystem
- API	to containers
-References: <20061222141442.753211763@menage.corp.google.com> <20061222145216.574346828@menage.corp.google.com>
-In-Reply-To: <20061222145216.574346828@menage.corp.google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-> +/* The set of hierarchies in use. Hierarchy 0 is the "dummy
-> + * container", reserved for the subsystems that are otherwise
-> + * unattached - it never has more than a single container, and all
-> + * tasks are part of that container. */
-> +
-> +static struct containerfs_root rootnode[CONFIG_MAX_CONTAINER_HIERARCHIES];
-> +
-> +/* dummytop is a shorthand for the dummy hierarchy's top container */
-> +#define dummytop (&rootnode[0].top_container)
-> +
+Quoting Pekka J Enberg (penberg@cs.helsinki.fi):
+> On Tue, 9 Jan 2007, Serge E. Hallyn wrote:
+> > Whatever happened with Pekka's revoke submissions?  Did you lose
+> > interest after
+> > http://www.kernel.org/pub/linux/kernel/people/penberg/patches/revoke/2.6.19-rc1/revoke-2.6.19-rc1,
+> > or was it decided that the approach was unworkable?
+> 
+> Lack of time.
 
-With these changes, is there a generic way to determine the root container
-for the hierarchy the subsystem is in? Calls to ->create() pass the dummytop
-container. It would be useful and is often required to walk the hierarchy
-and know the root of the container hierarchy.
+Ok great - then it's not dead  :)
 
--- 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+> Also, I would love to hear comments on the way I am doing
+> revoke on shared mappings. There are few open issues remaining, mainly,
+> supporting munmap(2) for revoked mappings.
+
+Hmm, I wanted to test your revoke-munmap.c to see what you get right now
+with munmap, but a quick port of your patch to yesterdays -git on s390
+gives me an oops on do_revoke.  I'll have to straighten that out when I
+get a chance.
+
+But since it looks like you just munmap the region now, shouldn't a
+subsequent munmap by the app just return -EINVAL?  that seems appropriate
+to me.
+
+thanks,
+-serge

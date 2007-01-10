@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965086AbXAJURL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965077AbXAJUVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbXAJURL (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 15:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbXAJURK
+	id S965077AbXAJUVc (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 15:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbXAJUVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 15:17:10 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:44819 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965084AbXAJURJ (ORCPT
+	Wed, 10 Jan 2007 15:21:32 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:37489 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965077AbXAJUVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 15:17:09 -0500
-Date: Wed, 10 Jan 2007 15:15:24 -0500
-Message-Id: <200701102015.l0AKFOQu028764@agora.fsl.cs.sunysb.edu>
-From: Erez Zadok <ezk@cs.sunysb.edu>
-To: Jan Kara <jack@suse.cz>
-Cc: Erez Zadok <ezk@cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
-       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation 
-In-reply-to: Your message of "Wed, 10 Jan 2007 17:12:15 +0100."
-             <20070110161215.GB12654@atrey.karlin.mff.cuni.cz> 
-X-MailKey: Erez_Zadok
+	Wed, 10 Jan 2007 15:21:32 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Wed, 10 Jan 2007 21:21:07 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [GIT PULL] ieee1394 fix
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-ID: <tkrat.d0d4cea2d223b048@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20070110161215.GB12654@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
-> > In message <20070109122644.GB1260@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
-[...]
-> > Jan, all of it is duable: we can downgrade the f/s to readonly, grab various
-> > locks, search through various lists looking for open fd's and such, then
-> > decide if to allow the mount or not.  And hopefully all of that can be done
-> > in a non-racy manner.  But it feels just rather hacky and ugly to me.  If
-> > this community will endorse such a solution, we'll be happy to develop it.
-> > But right now my impression is that if we posted such patches today, some
-> > people will have to wipe the vomit off of their monitors... :-)
->   I see :). To me it just sounds as if you want to do remount-read-only
-> for source filesystems, which is operation we support perfectly fine,
-> and after that create union mount. But I agree you cannot do quite that
-> since you need to have write access later from your union mount. So
-> maybe it's not so easy as I thought.
->   On the other hand, there was some effort to support read-only bind-mounts of
-> read-write filesystems (there were even some patches floating around but
-> I don't think they got merged) and that should be even closer to what
-> you'd need...
+Linus, please pull from the for-linus branch at
 
-I didn't know about those patches, but yes, they do sound useful.  I'm
-curious who needed such functionality before and why.  If someone can point
-me to those patches, we can look into using them for Unionfs.  Thanks.
+    git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git for-linus
 
-> 									Honza
-> -- 
-> Jan Kara <jack@suse.cz>
-> SuSE CR Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+to receive a fix for a regression since 2.6.19 inclusive.
+(Or apply from this mail.)
 
-Erez.
+ drivers/ieee1394/sbp2.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+
+commit 1a74bc68e4c0534d150e6454b45a70dab831fa32
+Author: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Date:   Wed Jan 10 20:17:15 2007 +0100
+
+    ieee1394: sbp2: fix probing of some DVD-ROM/RWs
+    
+    Since commit 98e238cd42be6c0852da519303cf0182690f8d9f in Linux 2.6.19,
+    "ieee1394: sbp2: don't prefer MODE SENSE 10", some FireWire DVD-ROMs and
+    DVD-RWs were mistaken as CD-ROM because sr_mod now sent MODE SENSE 6.
+    The MMC command set includes only MODE SENSE 10.
+    http://bugzilla.kernel.org/show_bug.cgi?id=7800
+    
+    This fix lets sbp2 switch scsi_device.use_10_for_rw on for MMC LUs.
+    This should rather be done in the command set driver sr_mod, not in the
+    sbp2 transport driver, and an according patch will follow for a next
+    Linux release.
+    
+    Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+diff --git a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
+index 2b5d7ab..4325aac 100644
+--- a/drivers/ieee1394/sbp2.c
++++ b/drivers/ieee1394/sbp2.c
+@@ -2020,6 +2020,8 @@ static int sbp2scsi_slave_configure(stru
+ 	blk_queue_dma_alignment(sdev->request_queue, (512 - 1));
+ 	sdev->use_10_for_rw = 1;
+ 
++	if (sdev->type == TYPE_ROM)
++		sdev->use_10_for_ms = 1;
+ 	if (sdev->type == TYPE_DISK &&
+ 	    lu->workarounds & SBP2_WORKAROUND_MODE_SENSE_8)
+ 		sdev->skip_ms_page_8 = 1;
+
+
+-- 
+Stefan Richter
+-=====-=-=== ---= -=-=-
+http://arcgraph.de/sr/
+

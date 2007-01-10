@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964769AbXAJFiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932598AbXAJFi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964769AbXAJFiv (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 00:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbXAJFiZ
+	id S932598AbXAJFi4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 00:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbXAJFiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 00:38:25 -0500
+	Wed, 10 Jan 2007 00:38:55 -0500
 Received: from ug-out-1314.google.com ([66.249.92.169]:26779 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932669AbXAJFgD (ORCPT
+	with ESMTP id S932598AbXAJFgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 00:36:03 -0500
+	Wed, 10 Jan 2007 00:36:00 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=XRs6dB5r6VBFthbqF0YqK6Y5Gl5hIng99YmznrPbaxptyLyfkshMxTxm5XjxPCO1/7t271UqpqhB3RUSOUYYAvL1shlVWPJthYzjPMxHp6HrgKoLIbQeo0sBcMXUOfxODoPPyQHcIj2qqQWF0RrbuDWWv4pQ96szv/37gKM+dtk=
+        b=hiSk3sBKM6RjdShIGwppR0buzadPKjbXqCeybh74KYVDzMwlrzVQJ2QbOcVMq4MpO+TaBSFx1fYHgNE1x+/GKvOAaGYezsLbOIRL+7B0P2dmB71l6oU/D5ECf9clMW7ueWZBCzsHHpK1uxB9pSjvjxiTRtBM9LJprsV8xhPvS0g=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 12/13] devres: implement pcim_iomap_regions()
+Subject: [PATCH 8/13] libata: implement ata_host_detach()
 In-Reply-To: <11684073353213-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
-Date: Wed, 10 Jan 2007 14:35:38 +0900
-Message-Id: <1168407338988-git-send-email-htejun@gmail.com>
+Date: Wed, 10 Jan 2007 14:35:37 +0900
+Message-Id: <11684073371703-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -31,90 +31,92 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement pcim_iomap_regions().  This function takes mask of BARs to
-request and iomap.  No BAR should have length of zero.  BARs are
-iomapped using pcim_iomap_table().
+Implement ata_host_detach() which calls ata_port_detach() for each
+port in the host and export it.  ata_port_detach() is now internal and
+thus un-exported.  ata_host_detach() will be used as the 'deregister
+from libata layer' function after devres conversion.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 ---
- include/linux/io.h |    2 +
- lib/iomap.c        |   53 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+), 0 deletions(-)
+ drivers/ata/ahci.c        |    3 +--
+ drivers/ata/libata-core.c |   22 +++++++++++++++++++---
+ include/linux/libata.h    |    2 +-
+ 3 files changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/io.h b/include/linux/io.h
-index f5edf9c..45a9c94 100644
---- a/include/linux/io.h
-+++ b/include/linux/io.h
-@@ -45,6 +45,8 @@ void __iomem * pcim_iomap(struct pci_dev *pdev, int bar, unsigned long maxlen);
- void pcim_iounmap(struct pci_dev *pdev, void __iomem *addr);
- void __iomem * const * pcim_iomap_table(struct pci_dev *pdev);
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 5998f74..d089217 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1767,8 +1767,7 @@ static void ahci_remove_one (struct pci_dev *pdev)
+ 	unsigned int i;
+ 	int have_msi;
  
-+int pcim_iomap_regions(struct pci_dev *pdev, u16 mask, const char *name);
-+
- /**
-  *	check_signature		-	find BIOS signatures
-  *	@io_addr: mmio address to check
-diff --git a/lib/iomap.c b/lib/iomap.c
-index 3214028..4990c73 100644
---- a/lib/iomap.c
-+++ b/lib/iomap.c
-@@ -498,3 +498,56 @@ void pcim_iounmap(struct pci_dev *pdev, void __iomem *addr)
- 	WARN_ON(1);
+-	for (i = 0; i < host->n_ports; i++)
+-		ata_port_detach(host->ports[i]);
++	ata_host_detach(host);
+ 
+ 	have_msi = hpriv->flags & AHCI_FLAG_MSI;
+ 	free_irq(host->irq, host);
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 2cc7a17..c63fe10 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6001,6 +6001,23 @@ void ata_port_detach(struct ata_port *ap)
  }
- EXPORT_SYMBOL(pcim_iounmap);
+ 
+ /**
++ *	ata_host_detach - Detach all ports of an ATA host
++ *	@host: Host to detach
++ *
++ *	Detach all ports of @host.
++ *
++ *	LOCKING:
++ *	Kernel thread context (may sleep).
++ */
++void ata_host_detach(struct ata_host *host)
++{
++	int i;
++
++	for (i = 0; i < host->n_ports; i++)
++		ata_port_detach(host->ports[i]);
++}
 +
 +/**
-+ * pcim_iomap_regions - Request and iomap PCI BARs
-+ * @pdev: PCI device to map IO resources for
-+ * @mask: Mask of BARs to request and iomap
-+ * @name: Name used when requesting regions
-+ *
-+ * Request and iomap regions specified by @mask.
-+ */
-+int pcim_iomap_regions(struct pci_dev *pdev, u16 mask, const char *name)
-+{
-+	void __iomem * const *iomap;
-+	int i, rc;
-+
-+	iomap = pcim_iomap_table(pdev);
-+	if (!iomap)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
-+		unsigned long len;
-+
-+		if (!(mask & (1 << i)))
-+			continue;
-+
-+		rc = -EINVAL;
-+		len = pci_resource_len(pdev, i);
-+		if (!len)
-+			goto err_inval;
-+
-+		rc = pci_request_region(pdev, i, name);
-+		if (rc)
-+			goto err_region;
-+
-+		rc = -ENOMEM;
-+		if (!pcim_iomap(pdev, i, 0))
-+			goto err_iomap;
-+	}
-+
-+	return 0;
-+
-+ err_iomap:
-+	pcim_iounmap(pdev, iomap[i]);
-+ err_region:
-+	pci_release_region(pdev, i);
-+ err_inval:
-+	while (--i >= 0) {
-+		pcim_iounmap(pdev, iomap[i]);
-+		pci_release_region(pdev, i);
-+	}
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL(pcim_iomap_regions);
+  *	ata_host_remove - PCI layer callback for device removal
+  *	@host: ATA host set that was removed
+  *
+@@ -6015,8 +6032,7 @@ void ata_host_remove(struct ata_host *host)
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < host->n_ports; i++)
+-		ata_port_detach(host->ports[i]);
++	ata_host_detach(host);
+ 
+ 	free_irq(host->irq, host);
+ 	if (host->irq2)
+@@ -6391,7 +6407,7 @@ EXPORT_SYMBOL_GPL(ata_std_bios_param);
+ EXPORT_SYMBOL_GPL(ata_std_ports);
+ EXPORT_SYMBOL_GPL(ata_host_init);
+ EXPORT_SYMBOL_GPL(ata_device_add);
+-EXPORT_SYMBOL_GPL(ata_port_detach);
++EXPORT_SYMBOL_GPL(ata_host_detach);
+ EXPORT_SYMBOL_GPL(ata_host_remove);
+ EXPORT_SYMBOL_GPL(ata_sg_init);
+ EXPORT_SYMBOL_GPL(ata_sg_init_one);
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 7cfc18f..816d6ef 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -721,7 +721,7 @@ extern int ata_pci_device_resume(struct pci_dev *pdev);
+ extern int ata_pci_clear_simplex(struct pci_dev *pdev);
+ #endif /* CONFIG_PCI */
+ extern int ata_device_add(const struct ata_probe_ent *ent);
+-extern void ata_port_detach(struct ata_port *ap);
++extern void ata_host_detach(struct ata_host *host);
+ extern void ata_host_init(struct ata_host *, struct device *,
+ 			  unsigned long, const struct ata_port_operations *);
+ extern void ata_host_remove(struct ata_host *host);
 -- 
 1.4.4.3
 

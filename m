@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965121AbXAJV1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965118AbXAJVdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbXAJV1r (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 16:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbXAJV1r
+	id S965118AbXAJVdz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 16:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbXAJVdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 16:27:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45408 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965115AbXAJV1q (ORCPT
+	Wed, 10 Jan 2007 16:33:55 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:12100 "EHLO
+	sj-iport-2.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965118AbXAJVdy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 16:27:46 -0500
-Date: Wed, 10 Jan 2007 22:27:45 +0100
-From: Jan Kara <jack@suse.cz>
-To: Erez Zadok <ezk@cs.sunysb.edu>
-Cc: Andrew Morton <akpm@osdl.org>, "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
-Subject: Re: [PATCH 01/24] Unionfs: Documentation
-Message-ID: <20070110212744.GD12654@atrey.karlin.mff.cuni.cz>
-References: <20070110161215.GB12654@atrey.karlin.mff.cuni.cz> <200701102015.l0AKFOQu028764@agora.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
+	Wed, 10 Jan 2007 16:33:54 -0500
+X-IronPort-AV: i="4.13,168,1167638400"; 
+   d="scan'208"; a="355590805:sNHT42367288"
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [kvm-devel] guest crash on 2.6.20-rc4
+X-Message-Flag: Warning: May contain useful information
+References: <ada4pr1mqz2.fsf@cisco.com> <45A40898.4040307@qumranet.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 10 Jan 2007 13:33:47 -0800
+In-Reply-To: <45A40898.4040307@qumranet.com> (Avi Kivity's message of "Tue, 09 Jan 2007 23:26:48 +0200")
+Message-ID: <ada8xgay3b7.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701102015.l0AKFOQu028764@agora.fsl.cs.sunysb.edu>
-User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 10 Jan 2007 21:33:50.0226 (UTC) FILETIME=[04A02F20:01C734FF]
+Authentication-Results: sj-dkim-4; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim4002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In message <20070110161215.GB12654@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
-> > > In message <20070109122644.GB1260@atrey.karlin.mff.cuni.cz>, Jan Kara writes:
-> [...]
-> > > Jan, all of it is duable: we can downgrade the f/s to readonly, grab various
-> > > locks, search through various lists looking for open fd's and such, then
-> > > decide if to allow the mount or not.  And hopefully all of that can be done
-> > > in a non-racy manner.  But it feels just rather hacky and ugly to me.  If
-> > > this community will endorse such a solution, we'll be happy to develop it.
-> > > But right now my impression is that if we posted such patches today, some
-> > > people will have to wipe the vomit off of their monitors... :-)
-> >   I see :). To me it just sounds as if you want to do remount-read-only
-> > for source filesystems, which is operation we support perfectly fine,
-> > and after that create union mount. But I agree you cannot do quite that
-> > since you need to have write access later from your union mount. So
-> > maybe it's not so easy as I thought.
-> >   On the other hand, there was some effort to support read-only bind-mounts of
-> > read-write filesystems (there were even some patches floating around but
-> > I don't think they got merged) and that should be even closer to what
-> > you'd need...
-> 
-> I didn't know about those patches, but yes, they do sound useful.  I'm
-> curious who needed such functionality before and why.  If someone can point
-> me to those patches, we can look into using them for Unionfs.  Thanks.
-  Dave Hansen writes them. One of recent submissions starts for example at
-http://openvz.org/pipermail/devel/2006-December/002543.html.
+ >  	if (is_writeble_pte(*shadow_ent))
+ > -		return 0;
+ > +		return 1;
 
-									Honza
+With this patch, it looks like my guest is surviving the load that
+triggered the oops before.  So I think this fixes the issue I saw as well.
+I assume you'll send this in for 2.6.20?
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+ - R.

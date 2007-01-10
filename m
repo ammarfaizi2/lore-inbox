@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964881AbXAJOjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964894AbXAJOoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbXAJOjU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 09:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbXAJOjU
+	id S964894AbXAJOoX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 09:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbXAJOoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 09:39:20 -0500
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:45807 "EHLO
-	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964881AbXAJOjT (ORCPT
+	Wed, 10 Jan 2007 09:44:23 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:4738 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964894AbXAJOoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 09:39:19 -0500
-Date: Wed, 10 Jan 2007 09:39:19 -0500
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash IDE chip under 2.6.18
-Message-ID: <20070110143919.GH17269@csclub.uwaterloo.ca>
-References: <45A3FF32.1030905@wolfmountaingroup.com> <45A42385.7090904@garzik.org> <45A42670.703@wolfmountaingroup.com> <45A4325C.9060902@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Jan 2007 09:44:22 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=fTQfrwB5RbMBr/WPdlgYjB2UfCKwfRHLtZAcUJBz+6K7SIzygPvZTc44H+4r5tEwYdwFS2+/tnbpL1LlDbsznFTeaCSUiYKL3z4dofx5WB3x+CIYgfYVB7kI7637q1HoFHeGmp0ON9W3VaAPujr2BjGIyEqsrhH2NXNtN5m6onc=
+Message-ID: <84144f020701100644u483cf60y239608b0174161f4@mail.gmail.com>
+Date: Wed, 10 Jan 2007 16:44:20 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: [PATCH] slab: cache_grow cleanup
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, hugh@veritas.com
+In-Reply-To: <Pine.LNX.4.64.0701091017350.15631@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A4325C.9060902@garzik.org>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <Pine.LNX.4.64.0701091539160.10824@sbz-30.cs.Helsinki.FI>
+	 <Pine.LNX.4.64.0701091017350.15631@schroedinger.engr.sgi.com>
+X-Google-Sender-Auth: 2e606dc75e7cadc8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 07:25:00PM -0500, Jeff Garzik wrote:
-> Combined mode is a technical term.  Judging from your answers, you are 
-> not using combined mode.
+On 1/9/07, Christoph Lameter <clameter@sgi.com> wrote:
+> I am loosing track of these. What is the difference to earlier versions?
 
-I would have thought 'sata 3.0 + IDE' sounded a lot like combined mode,
-unless it means seperate sata and ide.
+It is just a rediff on top of Linus' tree as Hugh's fix already went in.
 
-> Judging from your answers, you are not in AHCI mode.
-> 
-> Side note:  You should use AHCI if available.  Emulating a PATA 
-> interface for SATA devices is error prone [in the silicon].  AHCI is 
-> native SATA, "enhanced mode" is not.
-
-I tried setting my sister's new machine to AHCI mode (Asus P5B with 965
-chipset), but I eventually gave up since it also needed windows xp on it
-and I can't for the life of me find an AHCI driver for windows that
-would install.
-
---
-Len Sorensen
+                                  Pekka

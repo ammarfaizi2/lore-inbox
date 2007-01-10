@@ -1,43 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932642AbXAJBzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbXAJB5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbXAJBzT (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 20:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbXAJBzT
+	id S932653AbXAJB5d (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 20:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbXAJB5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 20:55:19 -0500
-Received: from an-out-0708.google.com ([209.85.132.241]:39371 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932642AbXAJBzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 20:55:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=EcBQxP0YUw61MCd03aNOhzAo6D4IdbyDAmQkeeKd/YkbouTccUz7CQmPrQm8Vv3qPivwkJ4QDgfNc3FCyHwOyYEXn+0dBu2slZXjgA9o2JKGqSqasqnRvOoFGPGn6gNGLCVQq1PFDHfX9s7hUnk/LWhQd59leCUs31m3HIN8zT8=
-Message-ID: <45A4477E.6050703@gmail.com>
-Date: Wed, 10 Jan 2007 10:55:10 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Tue, 9 Jan 2007 20:57:32 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:58521 "HELO ustc.edu.cn"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S932653AbXAJB5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 20:57:31 -0500
+Message-ID: <368394226.19365@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Wed, 10 Jan 2007 09:57:39 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Theodore Tso <tytso@mit.edu>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070110015739.GA26978@mail.ustc.edu.cn>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Theodore Tso <tytso@mit.edu>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+	"H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+	nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+	Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org> <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org> <368329554.17014@ustc.edu.cn> <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
 MIME-Version: 1.0
-To: Pablo Sebastian Greco <lkml@fliagreco.com.ar>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA problems
-References: <459A674B.3060304@fliagreco.com.ar> <459B9F91.9070908@gmail.com> <459BC703.9000207@fliagreco.com.ar> <459C8A5E.5010206@gmail.com> <459CFE7B.6090306@fliagreco.com.ar> <459DC2EE.1090307@fliagreco.com.ar> <45A1AB3F.1080408@gmail.com> <45A2376D.5060905@fliagreco.com.ar> <45A41E0E.9050608@fliagreco.com.ar>
-In-Reply-To: <45A41E0E.9050608@fliagreco.com.ar>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
+X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Pablo.
+On Tue, Jan 09, 2007 at 08:23:32AM -0800, Linus Torvalds wrote:
+>
+>
+> On Tue, 9 Jan 2007, Fengguang Wu wrote:
+> > >
+> > > The fastest and probably most important thing to add is some readahead
+> > > smarts to directories --- both to the htree and non-htree cases.  If
+> >
+> > Here's is a quick hack to practice the directory readahead idea.
+> > Comments are welcome, it's a freshman's work :)
+>
+> Well, I'd probably have done it differently, but more important is whether
+> this actually makes a difference performance-wise. Have you benchmarked it
+> at all?
 
-Please apply common hardware debugging method.  You know, swap drives.
-Use separate power supply for disks, swap cables, etc...
+Yes, a trivial test shows a marginal improvement, on a minimal debian system:
 
-It seems more like a hardware problem at this point.
+# find / | wc -l
+13641
 
-Thanks.
+# time find / > /dev/null
 
--- 
-tejun
+real    0m10.000s
+user    0m0.210s
+sys     0m4.370s
+
+# time find / > /dev/null
+
+real    0m9.890s
+user    0m0.160s
+sys     0m3.270s
+
+> Doing an
+>
+> 	echo 3 > /proc/sys/vm/drop_caches
+>
+> is your friend for testing things like this, to force cold-cache
+> behaviour..
+
+Thanks, I'll work out numbers on large/concurrent dir accesses soon.
+
+Regards,
+Wu

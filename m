@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965234AbXAJXTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965242AbXAJXVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965234AbXAJXTI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 18:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbXAJXTH
+	id S965242AbXAJXVu (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 18:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbXAJXVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 18:19:07 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36786 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965234AbXAJXTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 18:19:06 -0500
-Date: Thu, 11 Jan 2007 10:18:48 +1100
-From: David Chinner <dgc@sgi.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [REGRESSION] 2.6.19/2.6.20-rc3 buffered write slowdown
-Message-ID: <20070110231848.GS33919298@melbourne.sgi.com>
-References: <20070110223731.GC44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101503310.22578@schroedinger.engr.sgi.com> <20070110230855.GF44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101510520.23052@schroedinger.engr.sgi.com>
+	Wed, 10 Jan 2007 18:21:50 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50373 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965239AbXAJXVt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 18:21:49 -0500
+Date: Wed, 10 Jan 2007 18:20:54 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Jan Kara <jack@suse.cz>
+Cc: Erez Zadok <ezk@cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070110232054.GB5088@filer.fsl.cs.sunysb.edu>
+References: <20070109122644.GB1260@atrey.karlin.mff.cuni.cz> <200701091734.l09HYRHB009290@agora.fsl.cs.sunysb.edu> <20070110161215.GB12654@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701101510520.23052@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20070110161215.GB12654@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2007 at 03:12:02PM -0800, Christoph Lameter wrote:
-> On Thu, 11 Jan 2007, David Chinner wrote:
-> 
-> > Well, pdflush appears to be doing very little on both 2.6.18 and
-> > 2.6.20-rc3. In both cases kswapd is consuming 10-20% of a CPU and
-> > all of the pdflush threads combined (I've seen up to 7 active at
-> > once) use maybe 1-2% of cpu time. This occurs regardless of the
-> > dirty_ratio setting.
-> 
-> That sounds a bit much for kswapd. How many nodes? Any cpusets in use?
+On Wed, Jan 10, 2007 at 05:12:15PM +0100, Jan Kara wrote:
+>   I see :). To me it just sounds as if you want to do remount-read-only
+> for source filesystems, which is operation we support perfectly fine,
+> and after that create union mount. But I agree you cannot do quite that
+> since you need to have write access later from your union mount. So
+> maybe it's not so easy as I thought.
+>   On the other hand, there was some effort to support read-only bind-mounts of
+> read-write filesystems (there were even some patches floating around but
+> I don't think they got merged) and that should be even closer to what
+> you'd need...
 
-It's an x86-64 box - an XE 240 - 4 core, 16GB RAM, single node, no cpusets.
+Since the RO flag is per-mount point, how do you guarantee that no one is
+messing with the fs? (I haven't looked at the patches that do per mount
+ro flag, but this would require some over-arching ro flag - in the
+superblock most likely.)
 
-> A upper maximum on the number of pdflush threads exists at 8. Are these 
-> multiple files or single file transfers?
+Josef "Jeff" Sipek.
 
-See the test case i posted - a single file write per filesystem, three
-filesystems being written to at once, all on different, unshared block
-devices.
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+I think there is a world market for maybe five computers.
+		- Thomas Watson, chairman of IBM, 1943.

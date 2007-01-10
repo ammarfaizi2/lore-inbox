@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932695AbXAJFkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932643AbXAJFlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932695AbXAJFkM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 00:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbXAJFjm
+	id S932643AbXAJFlN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 00:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbXAJFlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 00:39:42 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:57248 "EHLO
-	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932614AbXAJFji (ORCPT
+	Wed, 10 Jan 2007 00:41:12 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:55207 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932611AbXAJFlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 00:39:38 -0500
-Date: Wed, 10 Jan 2007 11:14:19 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-aio@kvack.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu,
-       Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
-Message-ID: <20070110054419.GA3542@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org>
+	Wed, 10 Jan 2007 00:41:09 -0500
+Date: Tue, 9 Jan 2007 21:41:09 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, Matt_Domsch@dell.com
+Subject: [PATCH] docbook: add edd firmware interfaces
+Message-Id: <20070109214109.3d70403f.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070104090242.44dd8165.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 09:02:42AM -0800, Andrew Morton wrote:
-> On Thu, 4 Jan 2007 10:26:21 +0530
-> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> 
-> > On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
-> 
-> Patches against next -mm would be appreciated, please.  Sorry about that.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-I have updated the patchset against 2620-rc3-mm1, incorporated various
-cleanups suggested during last review. Please let me know if I have missed
-anything:
+Cleanup kernel-doc notation in drivers/firmware/edd.c.
 
-It should show up at
-www.kernel.org:/pub/linux/kernel/people/suparna/aio/2620-rc3-mm1
+Add edd.c to DocBook/kernel-api.tmpl.
 
-Brief changelog:
-- Reworked against the block layer unplug changes 
-- Switched from defines to inlines for init_wait_bit* etc (per akpm)
-- Better naming:  __lock_page to lock_page_async (per hch, npiggin)
-- Kill lock_page_slow wrapper and rename __lock_page_slow to lock_page_slow
-  (per hch)
-- Use a helper function aio_restarted() (per hch)
-- Replace combined if/assignment (per hch)
-- fix resetting of current->io_wait after ->retry in aio_run_iocb (per zab)
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ Documentation/DocBook/kernel-api.tmpl |    3 +++
+ drivers/firmware/edd.c                |    8 +++++---
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-I have run my usual aio-stress variations script
-(www.kernel.org:/pub/linux/kernel/people/suparna/aio/aio-results.sh)
+--- linux-2620-rc4.orig/drivers/firmware/edd.c
++++ linux-2620-rc4/drivers/firmware/edd.c
+@@ -233,6 +233,8 @@ edd_show_interface(struct edd_device *ed
+ 
+ /**
+  * edd_show_raw_data() - copies raw data to buffer for userspace to parse
++ * @edev: target edd_device
++ * @buf: output buffer
+  *
+  * Returns: number of bytes written, or -EINVAL on failure
+  */
+@@ -634,8 +636,8 @@ static decl_subsys(edd,&ktype_edd,NULL);
+ 
+ /**
+  * edd_dev_is_type() - is this EDD device a 'type' device?
+- * @edev
+- * @type - a host bus or interface identifier string per the EDD spec
++ * @edev: target edd_device
++ * @type: a host bus or interface identifier string per the EDD spec
+  *
+  * Returns 1 (TRUE) if it is a 'type' device, 0 otherwise.
+  */
+@@ -657,7 +659,7 @@ edd_dev_is_type(struct edd_device *edev,
+ 
+ /**
+  * edd_get_pci_dev() - finds pci_dev that matches edev
+- * @edev - edd_device
++ * @edev: edd_device
+  *
+  * Returns pci_dev if found, or NULL
+  */
+--- linux-2620-rc4.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2620-rc4/Documentation/DocBook/kernel-api.tmpl
+@@ -316,6 +316,9 @@ X!Earch/i386/kernel/mca.c
+      <sect1><title>DMI Interfaces</title>
+ !Edrivers/firmware/dmi_scan.c
+      </sect1>
++     <sect1><title>EDD Interfaces</title>
++!Idrivers/firmware/edd.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="security">
 
-Regards
-Suparna
 
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+---

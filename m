@@ -1,135 +1,118 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932601AbXAJAed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932432AbXAJAiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbXAJAed (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 19:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbXAJAed
+	id S932432AbXAJAiZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 19:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbXAJAiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 19:34:33 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52429 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932596AbXAJAec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 19:34:32 -0500
-Date: Wed, 10 Jan 2007 11:33:54 +1100
-From: David Chinner <dgc@sgi.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: [PATCH 1 of 2]: Make BH_Unwritten a first class bufferhead flag V2
-Message-ID: <20070110003354.GN44411608@melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 9 Jan 2007 19:38:25 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:33935 "EHLO
+	rwcrmhc11.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932432AbXAJAiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 19:38:24 -0500
+Message-ID: <45A42FA2.2070106@wolfmountaingroup.com>
+Date: Tue, 09 Jan 2007 17:13:22 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+References: <45A3FF32.1030905@wolfmountaingroup.com> <45A42385.7090904@garzik.org> <45A42670.703@wolfmountaingroup.com> <45A4325C.9060902@garzik.org>
+In-Reply-To: <45A4325C.9060902@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2:
+Jeff Garzik wrote:
 
-- separate buffer_delay in generic code into buffer_delay
-  and buffer_unwritten
-- include XFS changes as a second patch:
-  - remove XFS use of buffer_delay to indicate buffer_unwritten
-  - remove XFS hack to silently clear "lost" unwritten flags
+> Jeff V. Merkey wrote:
+>
+>> Jeff Garzik wrote:
+>>
+>>> Jeff V. Merkey wrote:
+>>>
+>>>>
+>>>> I just finished pulling out a melted IDE flash drive out of a 
+>>>> Shuttle motherboard with the intel 945 chipset which claims to support
+>>>> SATA and IDE drives concurrently under Linux 2.6.18.
+>>>>
+>>>> The chip worked for about 30 seconds before liquifying in the 
+>>>> chassis.  I note that the 945 chipset in the shuttle PC had some 
+>>>> serious
+>>>> issues recognizing 2 x SATA devices and a IDE device 
+>>>> concurrently.   Are there known problems with the Linux drivers
+>>>> with these newer chipsets.
+>>>>
+>>>> One other disturbing issue was the IDE flash drive was configured 
+>>>> (and recognized) as /dev/hda during bootup, but when
+>>>> it got to the root mountint, even with root=/dev/hda set, it still 
+>>>> kept thinking the drive was at scsi (ATA) device (08,13)
+>>>> and kept crashing with VFS cannot find root FS errors.
+>>>
+>>>
+>>>
+>>> We have two sets of ATA drivers now, and Intel motherboards support 
+>>> bazillion annoying IDE modes, so you will need to provide more info 
+>>> than this.
+>>>
+>>> Is the motherboard in combined mode?
+>>
+>>
+>>
+>> Yes.  "Enhanced mode" is how it is listed in the BIOS.
+>
+>
+> Combined mode is a technical term.  Judging from your answers, you are 
+> not using combined mode.
+>
+>
+>>> native mode?  AHCI or RAID mode?
+>>
+>>
+>> No RAID, just enhanced mode (SATA 3.0 + IDE)
+>
+>
+> Judging from your answers, you are not in AHCI mode.
+>
+> Side note:  You should use AHCI if available.  Emulating a PATA 
+> interface for SATA devices is error prone [in the silicon].  AHCI is 
+> native SATA, "enhanced mode" is not.
 
-Version 1:
 
-Currently, XFS uses BH_PrivateStart for flagging unwritten
-extent state in a bufferhead. Recently, i found the long standing
-mmap/unwritten extent conversion bug, and it was to do with
-partial page invalidation not clearing the unwritten flag from
-bufferheads attached to the page but beyond EOF. See here
-for a full explaination:
+AHCI It is.   
 
-http://oss.sgi.com/archives/xfs/2006-12/msg00196.html
+Jeff
 
-The solution I have checked into the XFS dev tree involves
-duplicating code from block_invalidatepage to clear the
-unwritten flag from the bufferhead(s), and then calling
-block_invalidatepage() to do the rest.
+>
+>
+>>> The cannot-find-root-FS errors are definitely caused by driver 
+>>> and/or initrd misconfiguration.  The melted flash, I dunno, maybe 
+>>> you managed to get two drivers fighting over the same hardware.
+>>
+>>
+>> No.  Seems related to the chipset problems.  If I say 
+>> "root=/dev/hda2" I have better not be getting errors claiming device 
+>> 08:13 could not mount as root.  memory corruption?
+>
+>
+> If the kernel cannot mount the requested root= disk, it tries the 
+> default that is encoded into the vmlinuz image at build time, which is 
+> probably 08:13.
+>
+>
+>> The melted flash seems power related (like pin 20 was live for some 
+>> reason on a standard IDE).
+>
+>
+> Probably, otherwise we would have many more reports like this than 
+> just yours.
+>
+>     Jeff
+>
+>
+>
 
-Christoph suggested that this would be better solved by
-pushing the unwritten flag into the common buffer head flags
-and just adding the call to discard_buffer():
-
-http://oss.sgi.com/archives/xfs/2006-12/msg00239.html
-
-The following patch makes BH_Unwritten a first class citizen.
-Patch against 2.6.20-rc3.
-
-Signed-Off-By: Dave Chinner <dgc@sgi.com>
-
----
- fs/buffer.c                  |    4 +++-
- fs/xfs/linux-2.6/xfs_linux.h |   10 ----------
- include/linux/buffer_head.h  |    2 ++
- 3 files changed, 5 insertions(+), 11 deletions(-)
-
-Index: 2.6.x-xfs-new/fs/buffer.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/buffer.c	2007-01-08 14:32:39.688130559 +1100
-+++ 2.6.x-xfs-new/fs/buffer.c	2007-01-09 11:00:02.659186970 +1100
-@@ -1437,6 +1437,7 @@ static void discard_buffer(struct buffer
- 	clear_buffer_req(bh);
- 	clear_buffer_new(bh);
- 	clear_buffer_delay(bh);
-+	clear_buffer_unwritten(bh);
- 	unlock_buffer(bh);
- }
- 
-@@ -1820,6 +1821,7 @@ static int __block_prepare_write(struct 
- 			continue; 
- 		}
- 		if (!buffer_uptodate(bh) && !buffer_delay(bh) &&
-+		    !buffer_unwritten(bh) &&
- 		     (block_start < from || block_end > to)) {
- 			ll_rw_block(READ, 1, &bh);
- 			*wait_bh++=bh;
-@@ -2541,7 +2543,7 @@ int block_truncate_page(struct address_s
- 	if (PageUptodate(page))
- 		set_buffer_uptodate(bh);
- 
--	if (!buffer_uptodate(bh) && !buffer_delay(bh)) {
-+	if (!buffer_uptodate(bh) && !buffer_delay(bh) && !buffer_unwritten(bh)) {
- 		err = -EIO;
- 		ll_rw_block(READ, 1, &bh);
- 		wait_on_buffer(bh);
-Index: 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_linux.h
-===================================================================
---- 2.6.x-xfs-new.orig/fs/xfs/linux-2.6/xfs_linux.h	2006-12-12 12:05:17.000000000 +1100
-+++ 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_linux.h	2007-01-09 10:58:30.459212715 +1100
-@@ -109,16 +109,6 @@
- #undef  HAVE_PERCPU_SB	/* per cpu superblock counters are a 2.6 feature */
- #endif
- 
--/*
-- * State flag for unwritten extent buffers.
-- *
-- * We need to be able to distinguish between these and delayed
-- * allocate buffers within XFS.  The generic IO path code does
-- * not need to distinguish - we use the BH_Delay flag for both
-- * delalloc and these ondisk-uninitialised buffers.
-- */
--BUFFER_FNS(PrivateStart, unwritten);
--
- #define restricted_chown	xfs_params.restrict_chown.val
- #define irix_sgid_inherit	xfs_params.sgid_inherit.val
- #define irix_symlink_mode	xfs_params.symlink_mode.val
-Index: 2.6.x-xfs-new/include/linux/buffer_head.h
-===================================================================
---- 2.6.x-xfs-new.orig/include/linux/buffer_head.h	2006-12-12 12:06:29.000000000 +1100
-+++ 2.6.x-xfs-new/include/linux/buffer_head.h	2007-01-09 10:58:30.535202804 +1100
-@@ -34,6 +34,7 @@ enum bh_state_bits {
- 	BH_Write_EIO,	/* I/O error on write */
- 	BH_Ordered,	/* ordered write */
- 	BH_Eopnotsupp,	/* operation not supported (barrier) */
-+	BH_Unwritten,	/* Buffer is allocated on disk but not written */
- 
- 	BH_PrivateStart,/* not a state bit, but the first bit available
- 			 * for private allocation by other entities
-@@ -126,6 +127,7 @@ BUFFER_FNS(Boundary, boundary)
- BUFFER_FNS(Write_EIO, write_io_error)
- BUFFER_FNS(Ordered, ordered)
- BUFFER_FNS(Eopnotsupp, eopnotsupp)
-+BUFFER_FNS(Unwritten, unwritten)
- 
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
- #define touch_buffer(bh)	mark_page_accessed(bh->b_page)

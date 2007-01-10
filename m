@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932802AbXAJNAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932805AbXAJNC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932802AbXAJNAT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 08:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbXAJNAS
+	id S932805AbXAJNC6 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 08:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbXAJNC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 08:00:18 -0500
-Received: from miranda.se.axis.com ([193.13.178.8]:39808 "EHLO
-	miranda.se.axis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932802AbXAJNAR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 08:00:17 -0500
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Patrick McHardy'" <kaber@trash.net>,
-       "Mikael Starvik" <mikael.starvik@axis.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "Edgar Iglesias" <edgar.iglesias@axis.com>,
-       "'Netfilter Development Mailinglist'" 
-	<netfilter-devel@lists.netfilter.org>
-Subject: RE: Iptable loop during kernel startup
-Date: Wed, 10 Jan 2007 14:00:05 +0100
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668030B5909@exmail1.se.axis.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668044DEB69@exmail1.se.axis.com>
-Importance: Normal
+	Wed, 10 Jan 2007 08:02:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34579 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932805AbXAJNC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 08:02:57 -0500
+Date: Wed, 10 Jan 2007 07:54:16 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: Ulrich Drepper <drepper@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
+       Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, Jakub Jelinek <jakub@redhat.com>,
+       Darren Hart <dvhltc@us.ibm.com>,
+       Sebastien Dugue <sebastien.dugue@bull.net>
+Subject: Re: [PATCH 2.6.20-rc4 1/4] futex priority based wakeup
+Message-ID: <20070110125416.GW29911@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <45A3B330.9000104@bull.net> <45A3BFC8.1030104@bull.net> <45A3C2CE.7070500@redhat.com> <45A4D249.8080904@bull.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45A4D249.8080904@bull.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The architecture is called CRIS. Its a straightforward 32-bit only arch. The
-
-only special about this architecture that it doesn't force any alignment of 
-data (so a packed struct and an unpacked struct is always the same).
-
-/Mikael
------Original Message-----
-From: Patrick McHardy [mailto:kaber@trash.net] 
-Sent: Wednesday, January 10, 2007 1:50 PM
-To: Mikael Starvik
-Cc: 'Linux Kernel Mailing List'; Edgar Iglesias; 'Netfilter Development
-Mailinglist'
-Subject: Re: Iptable loop during kernel startup
-
-
-Mikael Starvik wrote:
->>Which iptables/kernel versions are you using?
+On Wed, Jan 10, 2007 at 12:47:21PM +0100, Pierre Peiffer wrote:
+> So, yes it (logically) has a cost, depending of the number of different 
+> priorities used, so it's specially measurable with real-time threads.
+> With SCHED_OTHER, I suppose that the priorities are not be very distributed.
 > 
-> 
-> 2.6.19. After further testing it seams to be a compiler/CPU issue. The
-exact
-> 
-> same kernelconfig works on ARM. So I have to dig some...
+> May be, supposing it makes sense to respect the priority order only for 
+> real-time pthreads, I can register all SCHED_OTHER threads to the same 
+> MAX_RT_PRIO priotity ?
+> Or do you think this must be set behind a CONFIG* option ?
+> (Or finally not interesting enough for mainline ?)
 
-On which architecture did the error occur? It could be related
-to 32 bit compat issues ..
+As soon as there is at least one non-SCHED_OTHER thread among the waiters,
+there is no question about whether plist should be used or not, that's
+a correctness issue and if we want to conform to POSIX, we have to use that.
 
+I guess Ulrich's question was mainly about performance differences
+with/without plist wakeup when all threads are SCHED_OTHER.  I'd say for
+that a pure pthread_mutex_{lock,unlock} benchmark or even just a program
+which uses futex FUTEX_WAIT/FUTEX_WAKE in a bunch of threads would be
+better.
+
+In the past we talked with Ingo about the possibilities here, one is use
+plist always and prove that it doesn't add measurable overhead over current
+FIFO (when only SCHED_OTHER is involved), the other possibility would be
+to start using FIFOs as before, but when the first non-SCHED_OTHER thread
+decides to wait on the futex, switch it to plist wakeup mode (convert the
+FIFO into a plist) and from that point on just use plist wakeups on it.
+
+	Jakub

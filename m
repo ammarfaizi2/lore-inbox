@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932700AbXAJDlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932715AbXAJECk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbXAJDlK (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 22:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbXAJDlJ
+	id S932715AbXAJECk (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 23:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbXAJECk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 22:41:09 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:39305 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932700AbXAJDlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 22:41:08 -0500
-Date: Tue, 9 Jan 2007 19:41:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH - RFC] allow setting vm_dirty below 1% for large memory
- machines
-Message-Id: <20070109194101.c8a1beaa.akpm@osdl.org>
-In-Reply-To: <17828.23967.419596.669927@notabene.brown>
-References: <17827.22798.625018.673326@notabene.brown>
-	<20070109021017.447b682d.akpm@osdl.org>
-	<17828.23967.419596.669927@notabene.brown>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 9 Jan 2007 23:02:40 -0500
+Received: from emerald.lightlink.com ([205.232.34.14]:1108 "EHLO
+	emerald.lightlink.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932715AbXAJECj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 23:02:39 -0500
+Date: Tue, 9 Jan 2007 22:58:20 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Adrian Bunk <bunk@stusta.de>, greg@kroah.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
+Message-ID: <20070110035820.GB27550@jupiter.solarsys.private>
+References: <20061219041315.GE6993@stusta.de> <20070105095233.4ce72e7e.khali@linux-fr.org> <20070107154441.GB22558@jupiter.solarsys.private> <20070108121055.d25c8ffa.khali@linux-fr.org> <20070109030226.GA2408@jupiter.solarsys.private> <20070109141721.b823187c.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109141721.b823187c.khali@linux-fr.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2007 14:29:35 +1100
-Neil Brown <neilb@suse.de> wrote:
+Hi Jean:
 
-> > 
-> > It would be better if we can avoid creating the second global variable.  Is
-> > it not possible to remove dirty_ratio?  Make everything work off
-> > vm_dirty_kb and do arithmetricks at the /proc/sys/vm/dirty_ratio interface?
-> 
-> Uhmmm... not sure what you are thinking.
-> I guess we could teach vm.dirty_ratio to take a floating point number
-> (but does sysctl understand that?) so we could set it to 0.01 or
-> similar, but that is missing the point in a way.  We don't really want
-> to set a small ratio.  We want to set a small maximum number.
+> On Mon, 8 Jan 2007 22:02:26 -0500, Mark M. Hoffman wrote:
+> > 3) I've just confirmed that this quirk is still broken on recent FC6 kernels.
+> > Perhaps they should have picked my patch out of their bugzilla, but they didn't.
 
-I mean remove the kernel-internal dirty_ratio variable and use
-/proc/sys/vm/dirty_ratio as an accessor to `long vm_dirty_kb', with
-appropriate conversions when /proc/sys/vm/dirty_ratio is written to and
-read from.
+* Jean Delvare <khali@linux-fr.org> [2007-01-09 14:17:21 +0100]:
+> I am worried about the Intel/Asus SMBus quirk then, which affects many
+> more users than the SiS SMBus one, and would suffer from a reordering as
+> well.
 
-> It could make lots of sense to have two numbers.  A ratio that wins on
-> a small memory machine and a fixed number that wins on a large memory
-> machine.  Different trade offs are more significant in the different
-> cases.
+Intel/Asus users on FC[456] would surely have screamed if that was true.  But I
+was curious so I looked deeper.  There is a fundamental difference between the
+Intel SMBus quirks and the SiS SMBus quirk...
 
-hm.
+Intel:
+1) The first quirk keys off the host bridge, setting a flag.  
+2) The second quirk keys off the LPC, enabling the SMBus if the flag was set.
 
-> > 
-> > We should perform the same conversion to dirty_background_ratio, I suspect.
-> > 
-> 
-> I didn't add a fixed limit for dirty_background_ratio as it seemed
-> reasonable to assume that (dirty_background_ratio / dirty_ratio) was a
-> meaningful value, and just multiplied the final 'dirty' figure by this
-> ration to get the 'background' figure.
+SiS:
+1) The first quirk keys off the *old* LPC ID... this causes the ID to change.[1]
+2) The second quirk keys off the *new* LPC ID; this one enables the SMBus.
 
-Sounds complex.  Better, I think, to create (and recommend) vm_dirty_kb and
-vm_dirty_background_kb and deprecate the old knobs.
+In the SiS case, both quirks key off the *same* *device*, but with potentially
+different IDs.  The quirk list ordering matters there because the list is
+scanned only once per device.
 
-> > And these guys should be `long', not `int'.  Otherwise things will go
-> > pearshaped at 2 tabbybytes.
-> 
-> I don't think so.  You would need to have blindingly fast storage
-> before there would be any interest in vm_dirty_kb getting anything
-> close to t*bytes.  But I guess we can make it 'unsigned long' if it
-> helps.
-> 
+For the Intel case, the only ordering that matters is that the host bridge
+device is added [pci_device_add()] before the LPC; AFAICT, that is reliable,
+perhaps even by definition.
 
-A 16TB machine would overflow that int by default.
+So I don't think you have to worry about the Intel SMBus quirks.
+
+[1] That's right, the first quirk actually changes the PCI device ID of the
+LPC.  Unless it actually *is* older hardware... in which case the quirk just
+tickles a reserved bit that is ignored.  Thank you SiS, that's just beautiful.
+
+Regards,
+
+-- 
+Mark M. Hoffman
+mhoffman@lightlink.com
+

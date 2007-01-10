@@ -1,101 +1,128 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965130AbXAJVk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965127AbXAJVts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbXAJVk6 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 16:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbXAJVk6
+	id S965127AbXAJVts (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 16:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbXAJVts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 16:40:58 -0500
-Received: from hoefnix.telenet-ops.be ([195.130.132.54]:36689 "EHLO
-	hoefnix.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965122AbXAJVk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 16:40:57 -0500
-Date: Wed, 10 Jan 2007 22:39:45 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] severing module.h->sched.h
-In-Reply-To: <200612041859.kB4Ix2cx013332@hera.kernel.org>
-Message-ID: <Pine.LNX.4.64.0701102224320.4331@anakin>
-References: <200612041859.kB4Ix2cx013332@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Jan 2007 16:49:48 -0500
+Received: from smtp.ono.com ([62.42.230.12]:56422 "EHLO resmaa02.ono.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965127AbXAJVtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 16:49:47 -0500
+Date: Wed, 10 Jan 2007 22:49:22 +0100
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
+       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+Subject: Re: macros:  "do-while" versus "({ })" and a compile-time error
+Message-ID: <20070110224922.2de6a641@werewolf-wl>
+In-Reply-To: <Pine.LNX.4.61.0701100715330.16104@chaos.analogic.com>
+References: <Pine.LNX.4.64.0701081347410.32420@localhost.localdomain>
+	<45A3D1DF.4020205@s5r6.in-berlin.de>
+	<Pine.LNX.4.61.0701091415200.12545@chaos.analogic.com>
+	<Pine.LNX.4.64.0701100116420.10133@localhost.localdomain>
+	<Pine.LNX.4.61.0701100715330.16104@chaos.analogic.com>
+X-Mailer: Claws Mail 2.7.0cvs4 (GTK+ 2.10.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006, Linux Kernel Mailing List wrote:
-> Gitweb:     http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6a570333e554b48ad589e7137c77c57809eee81
-> Commit:     f6a570333e554b48ad589e7137c77c57809eee81
-> Parent:     2b5f6dcce5bf94b9b119e9ed8d537098ec61c3d2
-> Author:     Al Viro <viro@zeniv.linux.org.uk>
-> AuthorDate: Wed Oct 18 01:47:25 2006 -0400
-> Committer:  Al Viro <viro@zeniv.linux.org.uk>
-> CommitDate: Mon Dec 4 02:00:22 2006 -0500
+On Wed, 10 Jan 2007 07:16:55 -0500, "linux-os \(Dick Johnson\)" <linux-os@analogic.com> wrote:
+
 > 
->     [PATCH] severing module.h->sched.h
->     
->     Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> On Wed, 10 Jan 2007, Robert P. J. Day wrote:
+> 
+> > On Tue, 9 Jan 2007, linux-os (Dick Johnson) wrote:
+> >
+> >>
+> >> On Tue, 9 Jan 2007, Stefan Richter wrote:
+> >>
+> >>> Robert P. J. Day wrote:
+> >>>>   just to stir the pot a bit regarding the discussion of the two
+> >>>> different ways to define macros,
+> >>>
+> >>> You mean function-like macros, right?
+> >>>
+> >>>> i've just noticed that the "({ })"
+> >>>> notation is not universally acceptable.  i've seen examples where
+> >>>> using that notation causes gcc to produce:
+> >>>>
+> >>>>   error: braced-group within expression allowed only inside a function
+> >>>
+> >>> And function calls and macros which expand to "do { expr; } while (0)"
+> >>> won't work anywhere outside of functions either.
+> >>>
+> >>>> i wasn't aware that there were limits on this notation.  can someone
+> >>>> clarify this?  under what circumstances *can't* you use that notation?
+> >>>> thanks.
+> >>>
+> >>> The limitations are certainly highly compiler-specific.
+> >>
+> >> I don't think so. You certainly couldn't write working 'C' code like
+> >> this:
+> >>
+> >>  	do { a = 1; } while(0);
+> >>
+> >> This _needs_ to be inside a function. In fact any runtime operations
+> >> need to be inside functions. It's only in assembly that you could
+> >> 'roll your own' code like:
+> >>
+> >> main:
+> >>  	ret 0
+> >>
+> >>
+> >> Most of these errors come about as a result of changes where a macro
+> >> used to define a constant. Later on, it was no longer a constant in
+> >> code that didn't actually get compiled during the testing.
+> >
+> > just FYI, the reason i brought this up in the first place is that i
+> > noticed that the ALIGN() macro in kernel.h didn't verify that the
+> > alignment value was a power of 2, so i thought -- hmmm, i wonder if
+> > there are any invocations where that's not true, so i (temporarily)
+> > rewrote ALIGN to incorporate that check, and the build blew up
+> > including include/net/neighbour.h, which contains the out-of-function
+> > declaration:
+> >
+> > struct neighbour
+> > {
+> >        ...
+> >        unsigned char           ha[ALIGN(MAX_ADDR_LEN, sizeof(unsigned long))];
+> >        ...
+> >
+> > so it's not a big deal, it was just me goofing around and breaking
+> > things.
+> >
+> > rday
+> 
+> 
+> Hmmm, in that case you would be trying to put code inside a structure!
+> Neat --if you could do it!
+> 
 
-> diff --git a/include/linux/module.h b/include/linux/module.h
-> index 9258ffd..d33df24 100644
-> --- a/include/linux/module.h
-> +++ b/include/linux/module.h
-> @@ -6,7 +6,6 @@
->   * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
->   * Rewritten again by Rusty Russell, 2002
->   */
-> -#include <linux/sched.h>
->  #include <linux/spinlock.h>
->  #include <linux/list.h>
->  #include <linux/stat.h>
+The ({ }) is a block expression, ie, it allows declaring variables and
+executing code. Its a gcc extension trying to resemble what other languages
+like ML have:
 
-This change causes the following compile errors on m68k:
+ML:
+f = let
+      y = x*x
+    in
+      2*y + sin(y)
+    end
 
-| linux-2.6.20-rc4/kernel/time/clocksource.c: In function `sysfs_show_current_clocksources':
-| linux-2.6.20-rc4/kernel/time/clocksource.c:204: error: dereferencing pointer to incomplete type
-| linux-2.6.20-rc4/kernel/time/clocksource.c: In function `sysfs_override_clocksource':
-| linux-2.6.20-rc4/kernel/time/clocksource.c:243: error: dereferencing pointer to incomplete type
-| linux-2.6.20-rc4/kernel/time/clocksource.c: In function `sysfs_show_available_clocksources':
-| linux-2.6.20-rc4/kernel/time/clocksource.c:268: error: dereferencing pointer to incomplete type
+GNU C:
+f = ({ int y = x*x;
+       2*y + sin(y); })
 
-spin_lock_irq
-    -> _spin_lock_irq
-    -> preempt_disable
-    -> inc_preempt_count
-    -> add_preempt_count
-    -> preempt_count
-    -> current_thread_info
-    -> task_thread_info
-which needs the definition of struct task_struct.
-
-The patch below fixes it by including <linux/sched.h> in
-kernel/time/clocksource.c. But perhaps this is the right time to move
-struct task_struct to its own include instead?
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index 22504af..dda1e21 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -28,6 +28,7 @@
- #include <linux/sysdev.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/sched.h>
- 
- /* XXX - Would like a better way for initializing curr_clocksource */
- extern struct clocksource clocksource_jiffies;
-
-Gr{oetje,eeting}s,
-
-						Geert
+So you can put it on every place you could also put a { } block or declare a
+variable. {} is a compund command and ({ }) is a compund expression
+(or block expression, do not know which is the good name in engelish).
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.1 (Cooker) for i586
+Linux 2.6.19-jam03 (gcc 4.1.2 20061110 (prerelease) (4.1.2-0.20061110.1mdv2007.1)) #1 SMP PREEMPT

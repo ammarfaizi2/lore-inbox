@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965098AbXAJVwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965128AbXAJVxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbXAJVwH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 16:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbXAJVwH
+	id S965128AbXAJVxS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 16:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbXAJVxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 16:52:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35765 "EHLO mx1.redhat.com"
+	Wed, 10 Jan 2007 16:53:17 -0500
+Received: from mail.tmr.com ([64.65.253.246]:40517 "EHLO gaimboi.tmr.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965098AbXAJVwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 16:52:04 -0500
-Message-ID: <45A55FE5.80907@redhat.com>
-Date: Wed, 10 Jan 2007 15:51:33 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	id S965128AbXAJVxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 16:53:17 -0500
+Message-ID: <45A5609C.1000308@tmr.com>
+Date: Wed, 10 Jan 2007 16:54:36 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Jeff Layton <jlayton@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       esandeen@redhat.com, aviro@redhat.com
-Subject: Re: [PATCH 2/3] change libfs sb creation routines to avoid collisions
- with their root inodes
-References: <200701082047.l08KlDCa001921@dantu.rdu.redhat.com> <20070110212215.GB4425@infradead.org>
-In-Reply-To: <20070110212215.GB4425@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Alexy Khrabrov <deliverable@gmail.com>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: installing only the newly (re)built modules
+References: <7c737f300701082029i1ce9f7d8oc67cb3339c9c2856@mail.gmail.com>
+In-Reply-To: <7c737f300701082029i1ce9f7d8oc67cb3339c9c2856@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-
+Alexy Khrabrov wrote:
+> The 2.6 build system compiles only those modules whose config
+> changed.  However, the install still installs all modules.
 > 
->>  		return -ENOMEM;
->> +	/* set to high value to try and avoid collisions with loop below */
->> +	inode->i_ino = 0xffffffff;
->> +	insert_inode_hash(inode);
-> 
-> This is odd.  Can't we just add some constant base to the loop below?
->
-I thought the same thing, but Jeff pointed out that
-nfsctl_transaction_write does ops based on inode numbers, and they maybe
-can't move around?
+> Is there a way to entice make modules_install to install only those
+> new modules we've actually just changed/built?
 
-        rv =  write_op[ino](file, data, size);
+Out of curiosity, why? I've noticed this, but the copy runs so fast I 
+never really thought about it as an issue.
 
-However, nfsd's call to simple_fill_super already sends in a set of
-files starting at inode 2:
-
-enum {
-        NFSD_Root = 1,
-        NFSD_Svc,
-...
-
-        static struct tree_descr nfsd_files[] = {
-                [NFSD_Svc] = {".svc", &transaction_ops, S_IWUSR},
-...
-        return simple_fill_super(sb, 0x6e667364, nfsd_files);
-
-which does...
-
-      for (i = 0; !files->name || files->name[0]; i++, files++) {
-                if (!files->name)
-                        continue;
-...
-                inode->i_ino = i;
-
-So I think it's already expecting the root inode at one, and the other
-files starting at 2?
-
--Eric
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

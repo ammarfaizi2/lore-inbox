@@ -1,61 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932697AbXAJDRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932703AbXAJDUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbXAJDRc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 22:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbXAJDRc
+	id S932703AbXAJDUx (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 22:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbXAJDUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 22:17:32 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:52993 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932697AbXAJDRb (ORCPT
+	Tue, 9 Jan 2007 22:20:53 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:44177 "EHLO
+	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932696AbXAJDUw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 22:17:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TnsHcZJQCjjxHq0+ngTWVtEJ37SlB/wHnUetOZTjI/ZF7aiIX5vi+yaxHU/gacwgZRKsj7Q/zIoRn1lyZjOdKxTV/tcmWm9f3ha9KpX6+wi46XBn0GbB2iEmI/EghKlzchN3ez42CeLGFIW5Dd1UkJdVE3Cvbo8UJTkPN7uMAho=
-Message-ID: <a44ae5cd0701091917o13fc3badud118364a5e8be9dd@mail.gmail.com>
-Date: Tue, 9 Jan 2007 21:17:30 -0600
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: BUG: bad unlock balance detected! -- [<c017986d>] generic_sync_sb_inodes+0x26a/0x275
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 9 Jan 2007 22:20:52 -0500
+Subject: Re: How git affects kernel.org performance
+From: Nigel Cunningham <nigel@nigel.suspend2.net>
+Reply-To: nigel@nigel.suspend2.net
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Theodore Tso <tytso@mit.edu>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+In-Reply-To: <20070110015739.GA26978@mail.ustc.edu.cn>
+References: <1168140954.2153.1.camel@nigel.suspend2.net>
+	 <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com>
+	 <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
+	 <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org>
+	 <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org>
+	 <368329554.17014@ustc.edu.cn>
+	 <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
+	 <20070110015739.GA26978@mail.ustc.edu.cn>
+Content-Type: text/plain
+Date: Wed, 10 Jan 2007 14:20:49 +1100
+Message-Id: <1168399249.2585.6.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ BUG: bad unlock balance detected! ]
--------------------------------------
-swapper/0 is trying to release lock (inode_lock) at:
-[<c017986d>] generic_sync_sb_inodes+0x26a/0x275
-but there are no more locks to release!
+Hi.
 
-other info that might help us debug this:
-1 lock held by swapper/0:
- #0:  (&type->s_umount_key){--..}, at: [<c0161eb2>] sget+0x1e4/0x31c
+On Wed, 2007-01-10 at 09:57 +0800, Fengguang Wu wrote:
+> On Tue, Jan 09, 2007 at 08:23:32AM -0800, Linus Torvalds wrote:
+> >
+> >
+> > On Tue, 9 Jan 2007, Fengguang Wu wrote:
+> > > >
+> > > > The fastest and probably most important thing to add is some readahead
+> > > > smarts to directories --- both to the htree and non-htree cases.  If
+> > >
+> > > Here's is a quick hack to practice the directory readahead idea.
+> > > Comments are welcome, it's a freshman's work :)
+> >
+> > Well, I'd probably have done it differently, but more important is whether
+> > this actually makes a difference performance-wise. Have you benchmarked it
+> > at all?
+> 
+> Yes, a trivial test shows a marginal improvement, on a minimal debian system:
+> 
+> # find / | wc -l
+> 13641
+> 
+> # time find / > /dev/null
+> 
+> real    0m10.000s
+> user    0m0.210s
+> sys     0m4.370s
+> 
+> # time find / > /dev/null
+> 
+> real    0m9.890s
+> user    0m0.160s
+> sys     0m3.270s
+> 
+> > Doing an
+> >
+> > 	echo 3 > /proc/sys/vm/drop_caches
+> >
+> > is your friend for testing things like this, to force cold-cache
+> > behaviour..
+> 
+> Thanks, I'll work out numbers on large/concurrent dir accesses soon.
 
-stack backtrace:
- [<c0104ebb>] show_trace_log_lvl+0x1a/0x2f
- [<c010559b>] show_trace+0x12/0x14
- [<c010564d>] dump_stack+0x16/0x18
- [<c0132252>] print_unlock_inbalance_bug+0xec/0xf9
- [<c013421d>] lock_release_non_nested+0x95/0x150
- [<c013442d>] lock_release+0x155/0x17c
- [<c02d62ce>] _spin_unlock+0x16/0x3d
- [<c017986d>] generic_sync_sb_inodes+0x26a/0x275
- [<c0179895>] sync_sb_inodes+0x1d/0x20
- [<c017990d>] sync_inodes_sb+0x75/0x7d
- [<c0161ff7>] __fsync_super+0xd/0x66
- [<c016205b>] fsync_super+0xb/0x19
- [<c01620b2>] do_remount_sb+0x49/0x101
- [<c016257c>] get_sb_single+0x77/0x8c
- [<c0198c40>] sysfs_get_sb+0x1c/0x1e
- [<c016243b>] vfs_kern_mount+0x81/0xf1
- [<c01624c1>] kern_mount+0x16/0x18
- [<c03d040a>] sysfs_init+0x57/0xa5
- [<c03cefd8>] mnt_init+0xc5/0x1c2
- [<c03ceced>] vfs_caches_init+0x138/0x149
- [<c03be9e8>] start_kernel+0x1fb/0x344
- [<00000000>] 0x0
+I gave it a try, and I'm afraid the results weren't pretty.
+
+I did:
+
+time find /usr/src | wc -l
+
+on current git with (3 times) and without (5 times) the patch, and got
+
+with:
+real   54.306, 54.327, 53.742s
+usr    0.324, 0.284, 0.234s
+sys    2.432, 2.484, 2.592s
+
+without:
+real   24.413, 24.616, 24.080s
+usr    0.208, 0.316, 0.312s
+sys:   2.496, 2.440, 2.540s
+
+Subsequent runs without dropping caches did give a significant
+improvement in both cases (1.821/.188/1.632 is one result I wrote with
+the patch applied).
+
+Regards,
+
+Nigel
+

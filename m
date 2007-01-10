@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932804AbXAJNF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964800AbXAJNGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932804AbXAJNF1 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 08:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbXAJNF1
+	id S964800AbXAJNGM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 08:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbXAJNGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 08:05:27 -0500
-Received: from stinky.trash.net ([213.144.137.162]:34330 "EHLO
-	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932806AbXAJNF0 (ORCPT
+	Wed, 10 Jan 2007 08:06:12 -0500
+Received: from gw-e.panasas.com ([65.194.124.178]:56447 "EHLO
+	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932817AbXAJNGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 08:05:26 -0500
-Message-ID: <45A4E491.90106@trash.net>
-Date: Wed, 10 Jan 2007 14:05:21 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 10 Jan 2007 08:06:10 -0500
+Message-ID: <45A4E457.7020403@panasas.com>
+Date: Wed, 10 Jan 2007 15:04:23 +0200
+From: Benny Halevy <bhalevy@panasas.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: Mikael Starvik <mikael.starvik@axis.com>
-CC: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       Edgar Iglesias <edgar.iglesias@axis.com>,
-       "'Netfilter Development Mailinglist'" 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Iptable loop during kernel startup
-References: <BFECAF9E178F144FAEF2BF4CE739C66803BEED34@exmail1.se.axis.com>
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66803BEED34@exmail1.se.axis.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+To: Benny Halevy <bhalevy@panasas.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       nfsv4@ietf.org, linux-kernel@vger.kernel.org,
+       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [nfsv4] RE: Finding hardlinks
+References: <4593C524.8070209@poochiereds.net> <4593DEF8.5020609@panasas.com> <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz> <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com> <1167388129.6106.45.camel@lade.trondhjem.org> <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com> <1167780097.6090.104.camel@lade.trondhjem.org> <459BA30A.4020809@panasas.com> <1167899796.6046.11.camel@lade.trondhjem.org> <459CD11E.3000200@panasas.com> <20070105164008.GA1010@binky.Central.Sun.COM>
+In-Reply-To: <20070105164008.GA1010@binky.Central.Sun.COM>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jan 2007 13:04:01.0984 (UTC) FILETIME=[CC9CDC00:01C734B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Starvik wrote:
-> Ok, this is what happens:
+Nicolas Williams wrote:
+> On Thu, Jan 04, 2007 at 12:04:14PM +0200, Benny Halevy wrote:
+>> I agree that the way the client implements its cache is out of the protocol
+>> scope. But how do you interpret "correct behavior" in section 4.2.1?
+>>  "Clients MUST use filehandle comparisons only to improve performance, not for correct behavior. All clients need to be prepared for situations in which it cannot be determined whether two filehandles denote the same object and in such cases, avoid making invalid assumptions which might cause incorrect behavior."
+>> Don't you consider data corruption due to cache inconsistency an incorrect behavior?
 > 
-> iptable_filter sets up initial_table.
-> The part that says { IPT_ALIGN(sizeof(struct ipt_standard_target)), "" }
->   initializes a xt_entry_target struct. target_size gets the value 
->   0x24 and name "". 
-> This is copied to loc_cpu_entry in iptables.c:ipt_register_table() 
->   and translate_table is called
-> translate_table calls IPT_ENTRY_ITERATE with the 
->   check_entry_function
-> check_entry does t->u.kernel.target = target;
+> If a file with multiple hardlinks appears to have multiple distinct
+> filehandles then a client like Trond's will treat it as multiple
+> distinct files (with the same hardlink count, and you won't be able to
+> find the other links to them -- oh well).  Can this cause data
+> corruption?  Yes, but only if there are applications that rely on the
+> different file names referencing the same file, and backup apps on the
+> client won't get the hardlinks right either.
+
+The case I'm discussing is multiple filehandles for the same name,
+not even for different hardlinks.  This causes spurious EIO errors
+on the client when the filehandle changes and cache inconsistency
+when opening the file multiple times in parallel.
+
 > 
-> On this particular architecture u.user.name and u.kernel.target in 
-> struct xt_entry_target has the same address (because of the union). So 
-> name that was previously "" gets mangled here.
-> 
-> check_entry returns into translate_table which calls mark_source_chains
-> mark_source_chains compares t->target.u.user.name with 
-> IPT_STANDARD_TARGET. name has been mangled above and the comparision 
-> fails. On my ARM platform name has not been mangled (I guess this is 
-> because target and name doesn't share address by I haven't checked).
-> 
-> So... Is it really correct to modify the target pointer there?
+> What I don't understand is why getting the fileid is so hard -- always
+> GETATTR when you GETFH and you'll be fine.  I'm guessing that's not as
+> difficult as it is to maintain a hash table of fileids.
+
+It's not difficult at all, just that the client can't rely on the fileids to be
+unique in both space and time because of server non-compliance (e.g. netapp's
+snapshots) and fileid reuse after delete.
 
 
-Please try the latest -stable kernel, this should be fixed already.

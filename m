@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932617AbXAJFiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964769AbXAJFiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbXAJFiB (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 00:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbXAJFgD
+	id S964769AbXAJFiv (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 00:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbXAJFiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 00:36:03 -0500
-Received: from nz-out-0506.google.com ([64.233.162.235]:4098 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932614AbXAJFfx (ORCPT
+	Wed, 10 Jan 2007 00:38:25 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:26779 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932669AbXAJFgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 00:35:53 -0500
+	Wed, 10 Jan 2007 00:36:03 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=NZuU4p+zhBcUJ7MoHMzulCCnCc4jrbnMItwW4QkLwxCa3dZ0vVMLgDpcZ0fHeESl8guE8Wlegh9rUT1kMOp3CL0CMk+LItpwjU0yHWLAAcY2+gkQTDF4qGQEx9ET4lz3AuF4H/ej6c3B4gR38BnxCIc9i6FcsCNoywBA+E3lzPw=
+        b=XRs6dB5r6VBFthbqF0YqK6Y5Gl5hIng99YmznrPbaxptyLyfkshMxTxm5XjxPCO1/7t271UqpqhB3RUSOUYYAvL1shlVWPJthYzjPMxHp6HrgKoLIbQeo0sBcMXUOfxODoPPyQHcIj2qqQWF0RrbuDWWv4pQ96szv/37gKM+dtk=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 7/13] devres: add Documentation/driver-model/devres.txt
+Subject: [PATCH 12/13] devres: implement pcim_iomap_regions()
 In-Reply-To: <11684073353213-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
-Date: Wed, 10 Jan 2007 14:35:37 +0900
-Message-Id: <11684073373338-git-send-email-htejun@gmail.com>
+Date: Wed, 10 Jan 2007 14:35:38 +0900
+Message-Id: <1168407338988-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -31,287 +31,90 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add Documentation/driver-model/drvres.txt.
+Implement pcim_iomap_regions().  This function takes mask of BARs to
+request and iomap.  No BAR should have length of zero.  BARs are
+iomapped using pcim_iomap_table().
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 ---
- Documentation/driver-model/devres.txt |  268 +++++++++++++++++++++++++++++++++
- 1 files changed, 268 insertions(+), 0 deletions(-)
+ include/linux/io.h |    2 +
+ lib/iomap.c        |   53 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-new file mode 100644
-index 0000000..5163b85
---- /dev/null
-+++ b/Documentation/driver-model/devres.txt
-@@ -0,0 +1,268 @@
-+Devres - Managed Device Resource
-+================================
+diff --git a/include/linux/io.h b/include/linux/io.h
+index f5edf9c..45a9c94 100644
+--- a/include/linux/io.h
++++ b/include/linux/io.h
+@@ -45,6 +45,8 @@ void __iomem * pcim_iomap(struct pci_dev *pdev, int bar, unsigned long maxlen);
+ void pcim_iounmap(struct pci_dev *pdev, void __iomem *addr);
+ void __iomem * const * pcim_iomap_table(struct pci_dev *pdev);
+ 
++int pcim_iomap_regions(struct pci_dev *pdev, u16 mask, const char *name);
 +
-+Tejun Heo	<teheo@suse.de>
+ /**
+  *	check_signature		-	find BIOS signatures
+  *	@io_addr: mmio address to check
+diff --git a/lib/iomap.c b/lib/iomap.c
+index 3214028..4990c73 100644
+--- a/lib/iomap.c
++++ b/lib/iomap.c
+@@ -498,3 +498,56 @@ void pcim_iounmap(struct pci_dev *pdev, void __iomem *addr)
+ 	WARN_ON(1);
+ }
+ EXPORT_SYMBOL(pcim_iounmap);
 +
-+First draft	10 January 2007
++/**
++ * pcim_iomap_regions - Request and iomap PCI BARs
++ * @pdev: PCI device to map IO resources for
++ * @mask: Mask of BARs to request and iomap
++ * @name: Name used when requesting regions
++ *
++ * Request and iomap regions specified by @mask.
++ */
++int pcim_iomap_regions(struct pci_dev *pdev, u16 mask, const char *name)
++{
++	void __iomem * const *iomap;
++	int i, rc;
 +
-+
-+1. Intro			: Huh? Devres?
-+2. Devres			: Devres in a nutshell
-+3. Devres Group			: Group devres'es and release them together
-+4. Details			: Life time rules, calling context, ...
-+5. Overhead			: How much do we have to pay for this?
-+6. List of managed interfaces	: Currently implemented managed interfaces
-+
-+
-+  1. Intro
-+  --------
-+
-+devres came up while trying to convert libata to use iomap.  Each
-+iomapped address should be kept and unmapped on driver detach.  For
-+example, a plain SFF ATA controller (that is, good old PCI IDE) in
-+native mode makes use of 5 PCI BARs and all of them should be
-+maintained.
-+
-+As with many other device drivers, libata low level drivers have
-+sufficient bugs in ->remove and ->probe failure path.  Well, yes,
-+that's probably because libata low level driver developers are lazy
-+bunch, but aren't all low level driver developers?  After spending a
-+day fiddling with braindamaged hardware with no document or
-+braindamaged document, if it's finally working, well, it's working.
-+
-+For one reason or another, low level drivers don't receive as much
-+attention or testing as core code, and bugs on driver detach or
-+initilaization failure doesn't happen often enough to be noticeable.
-+Init failure path is worse because it's much less travelled while
-+needs to handle multiple entry points.
-+
-+So, many low level drivers end up leaking resources on driver detach
-+and having half broken failure path implementation in ->probe() which
-+would leak resources or even cause oops when failure occurs.  iomap
-+adds more to this mix.  So do msi and msix.
-+
-+
-+  2. Devres
-+  ---------
-+
-+devres is basically linked list of arbitrarily sized memory areas
-+associated with a struct device.  Each devres entry is associated with
-+a release function.  A devres can be released in several ways.  No
-+matter what, all devres entries are released on driver detach.  On
-+release, the associated release function is invoked and then the
-+devres entry is freed.
-+
-+Managed interface is created for resources commonly used by device
-+drivers using devres.  For example, coherent DMA memory is acquired
-+using dma_alloc_coherent().  The managed version is called
-+dmam_alloc_coherent().  It is identical to dma_alloc_coherent() except
-+for the DMA memory allocated using it is managed and will be
-+automatically released on driver detach.  Implementation looks like
-+the following.
-+
-+  struct dma_devres {
-+	size_t		size;
-+	void		*vaddr;
-+	dma_addr_t	dma_handle;
-+  };
-+
-+  static void dmam_coherent_release(struct device *dev, void *res)
-+  {
-+	struct dma_devres *this = res;
-+
-+	dma_free_coherent(dev, this->size, this->vaddr, this->dma_handle);
-+  }
-+
-+  dmam_alloc_coherent(dev, size, dma_handle, gfp)
-+  {
-+	struct dma_devres *dr;
-+	void *vaddr;
-+
-+	dr = devres_alloc(dmam_coherent_release, sizeof(*dr), gfp);
-+	...
-+
-+	/* alloc DMA memory as usual */
-+	vaddr = dma_alloc_coherent(...);
-+	...
-+
-+	/* record size, vaddr, dma_handle in dr */
-+	dr->vaddr = vaddr;
-+	...
-+
-+	devres_add(dev, dr);
-+
-+	return vaddr;
-+  }
-+
-+If a driver uses dmam_alloc_coherent(), the area is guaranteed to be
-+freed whether initialization fails half-way or the device gets
-+detached.  If most resources are acquired using managed interface, a
-+driver can have much simpler init and exit code.  Init path basically
-+looks like the following.
-+
-+  my_init_one()
-+  {
-+	struct mydev *d;
-+
-+	d = devm_kzalloc(dev, sizeof(*d), GFP_KERNEL);
-+	if (!d)
++	iomap = pcim_iomap_table(pdev);
++	if (!iomap)
 +		return -ENOMEM;
 +
-+	d->ring = dmam_alloc_coherent(...);
-+	if (!d->ring)
-+		return -ENOMEM;
++	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
++		unsigned long len;
 +
-+	if (check something)
-+		return -EINVAL;
-+	...
++		if (!(mask & (1 << i)))
++			continue;
 +
-+	return register_to_upper_layer(d);
-+  }
++		rc = -EINVAL;
++		len = pci_resource_len(pdev, i);
++		if (!len)
++			goto err_inval;
 +
-+And exit path,
++		rc = pci_request_region(pdev, i, name);
++		if (rc)
++			goto err_region;
 +
-+  my_remove_one()
-+  {
-+	unregister_from_upper_layer(d);
-+	shutdown_my_hardware();
-+  }
++		rc = -ENOMEM;
++		if (!pcim_iomap(pdev, i, 0))
++			goto err_iomap;
++	}
 +
-+As shown above, low level drivers can be simplified a lot by using
-+devres.  Complexity is shifted from less maintained low level drivers
-+to better maintained higher layer.  Also, as init failure path is
-+shared with exit path, both can get more testing.
-+
-+
-+  3. Devres group
-+  ---------------
-+
-+Devres entries can be grouped using devres group.  When a group is
-+released, all contained normal devres entries and properly nested
-+groups are released.  One usage is to rollback series of acquired
-+resources on failure.  For example,
-+
-+  if (!devres_open_group(dev, NULL, GFP_KERNEL))
-+	return -ENOMEM;
-+
-+  acquire A;
-+  if (failed)
-+	goto err;
-+
-+  acquire B;
-+  if (failed)
-+	goto err;
-+  ...
-+
-+  devres_remove_group(dev, NULL);
-+  return 0;
-+
-+ err:
-+  devres_release_group(dev, NULL);
-+  return err_code;
-+
-+As resource acquision failure usually means probe failure, constructs
-+like above are usually useful in midlayer driver (e.g. libata core
-+layer) where interface function shouldn't have side effect on failure.
-+For LLDs, just returning error code suffices in most cases.
-+
-+Each group is identified by void *id.  It can either be explicitly
-+specified by @id argument to devres_open_group() or automatically
-+created by passing NULL as @id as in the above example.  In both
-+cases, devres_open_group() returns the group's id.  The returned id
-+can be passed to other devres functions to select the target group.
-+If NULL is given to those functions, the latest open group is
-+selected.
-+
-+For example, you can do something like the following.
-+
-+  int my_midlayer_create_something()
-+  {
-+	if (!devres_open_group(dev, my_midlayer_create_something, GFP_KERNEL))
-+		return -ENOMEM;
-+
-+	...
-+
-+	devres_close_group(dev, my_midlayer_something);
 +	return 0;
-+  }
 +
-+  void my_midlayer_destroy_something()
-+  {
-+	devres_release_group(dev, my_midlayer_create_soemthing);
-+  }
++ err_iomap:
++	pcim_iounmap(pdev, iomap[i]);
++ err_region:
++	pci_release_region(pdev, i);
++ err_inval:
++	while (--i >= 0) {
++		pcim_iounmap(pdev, iomap[i]);
++		pci_release_region(pdev, i);
++	}
 +
-+
-+  4. Details
-+  ----------
-+
-+Lifetime of a devres entry begins on devres allocation and finishes
-+when it is released or destroyed (removed and freed) - no reference
-+counting.
-+
-+devres core guarantees atomicity to all basic devres operations and
-+has support for single-instance devres types (atomic
-+lookup-and-add-if-not-found).  Other than that, synchronizing
-+concurrent accesses to allocated devres data is caller's
-+responsibility.  This is usually non-issue because bus ops and
-+resource allocations already do the job.
-+
-+For an example of single-instance devres type, read pcim_iomap_table()
-+in lib/iomap.c.
-+
-+All devres interface functions can be called without context if the
-+right gfp mask is given.
-+
-+
-+  5. Overhead
-+  -----------
-+
-+Each devres bookkeeping info is allocated together with requested data
-+area.  With debug option turned off, bookkeeping info occupies 16
-+bytes on 32bit machines and 24 bytes on 64bit (three pointers rounded
-+up to ull alignment).  If singly linked list is used, it can be
-+reduced to two pointers (8 bytes on 32bit, 16 bytes on 64bit).
-+
-+Each devres group occupies 8 pointers.  It can be reduced to 6 if
-+singly linked list is used.
-+
-+Memory space overhead on ahci controller with two ports is between 300
-+and 400 bytes on 32bit machine after naive conversion (we can
-+certainly invest a bit more effort into libata core layer).
-+
-+
-+  6. List of managed interfaces
-+  -----------------------------
-+
-+IO region
-+  devm_request_region()
-+  devm_request_mem_region()
-+  devm_release_region()
-+  devm_release_mem_region()
-+
-+IRQ
-+  devm_request_irq()
-+  devm_free_irq()
-+
-+DMA
-+  dmam_alloc_coherent()
-+  dmam_free_coherent()
-+  dmam_alloc_noncoherent()
-+  dmam_free_noncoherent()
-+  dmam_declare_coherent_memory()
-+  dmam_pool_create()
-+  dmam_pool_destroy()
-+
-+PCI
-+  pcim_enable_device()	: after success, all PCI ops become managed
-+  pcim_pin_device()	: keep PCI device enabled after release
-+
-+IOMAP
-+  devm_ioport_map()
-+  devm_ioport_unmap()
-+  devm_ioremap()
-+  devm_ioremap_nocache()
-+  devm_iounmap()
-+  pcim_iomap()
-+  pcim_iounmap()
-+  pcim_iomap_table()	: array of mapped addresses indexed by BAR
-+  pcim_iomap_regions()	: do request_region() and iomap() on multiple BARs
++	return rc;
++}
++EXPORT_SYMBOL(pcim_iomap_regions);
 -- 
 1.4.4.3
 

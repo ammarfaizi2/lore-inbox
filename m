@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932508AbXAJIxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932737AbXAJI6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbXAJIxt (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 03:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbXAJIxt
+	id S932737AbXAJI6I (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 03:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbXAJI6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 03:53:49 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:2791 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932508AbXAJIxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 03:53:48 -0500
-Date: Wed, 10 Jan 2007 09:53:50 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>
-Subject: Re: .version keeps being updated
-Message-Id: <20070110095350.8669dbba.khali@linux-fr.org>
-In-Reply-To: <20070109152534.ebfa5aa8.akpm@osdl.org>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
-	<20070109170550.AFEF460C343@tzec.mtu.ru>
-	<20070109214421.281ff564.khali@linux-fr.org>
-	<20070109133121.194f3261.akpm@osdl.org>
-	<Pine.LNX.4.64.0701091520280.3594@woody.osdl.org>
-	<20070109152534.ebfa5aa8.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Jan 2007 03:58:08 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:46748 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932737AbXAJI6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 03:58:07 -0500
+Message-ID: <45A4AAA4.4040606@novell.com>
+Date: Wed, 10 Jan 2007 09:58:12 +0100
+From: Gerd Hoffmann <kraxel@novell.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: [patch] Fix bttv and friends on 64bit machines with lots of memory.
+Content-Type: multipart/mixed;
+ boundary="------------070702000202010903050800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Andrew,
+This is a multi-part message in MIME format.
+--------------070702000202010903050800
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Tue, 9 Jan 2007 15:25:34 -0800, Andrew Morton wrote:
-> On Tue, 9 Jan 2007 15:21:51 -0800, Linus Torvalds wrote:
-> > Actually, how about just removing the incrementing version count entirely?
->
-> I use it pretty commonly to answer the question "did I remember to install
-> that new kernel I just built before I rebooted"?  By comparing `uname -a'
-> with $TOPDIR/.version.
+  Hi,
 
-This will no longer work with the current state of things, as
-$TOPDIR/.version keeps increasing.
+We have a DMA32 zone now, lets use it to make sure the card
+can reach the memory we have allocated for the video frame
+buffers.
 
-> > (...) We have more useful _real_ versioning these days, with git commit
-> > ID's etc.
+please apply,
 
-These are completely different types of IDs. The .version number is a
-local build ID and changes when one applies a local patch, or simply
-changes a config option, and recompiles his/her kernel. The git ID of
-course doesn't.
+  Gerd
 
->From the other comments in this thread, it looks like the build ID is
-something many people are interested in, so we can't just drop it.
+--------------070702000202010903050800
+Content-Type: text/plain;
+ name="v4l-dma32"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l-dma32"
 
--- 
-Jean Delvare
+Fix bttv and friends on 64bit machines with lots of memory.
+
+We have a DMA32 zone now, lets use it to make sure the card
+can reach the memory we have allocated for the video frame
+buffers.
+
+Signed-off-by: Gerds Hoffmann <kraxel@suse.de>
+---
+ drivers/media/video/video-buf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.18/drivers/media/video/video-buf.c
+===================================================================
+--- linux-2.6.18.orig/drivers/media/video/video-buf.c
++++ linux-2.6.18/drivers/media/video/video-buf.c
+@@ -1224,7 +1224,7 @@ videobuf_vm_nopage(struct vm_area_struct
+ 		vaddr,vma->vm_start,vma->vm_end);
+ 	if (vaddr > vma->vm_end)
+ 		return NOPAGE_SIGBUS;
+-	page = alloc_page(GFP_USER);
++	page = alloc_page(GFP_USER | __GFP_DMA32);
+ 	if (!page)
+ 		return NOPAGE_OOM;
+ 	clear_user_page(page_address(page), vaddr, page);
+
+--------------070702000202010903050800--

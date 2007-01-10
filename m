@@ -1,227 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932637AbXAJFkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932695AbXAJFkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbXAJFkM (ORCPT <rfc822;w@1wt.eu>);
+	id S932695AbXAJFkM (ORCPT <rfc822;w@1wt.eu>);
 	Wed, 10 Jan 2007 00:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbXAJFjo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbXAJFjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 00:39:44 -0500
-Received: from nz-out-0506.google.com ([64.233.162.234]:4133 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932637AbXAJFf6 (ORCPT
+	Wed, 10 Jan 2007 00:39:42 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:57248 "EHLO
+	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932614AbXAJFji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 00:35:58 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=rNEgIMe4U0Gbix/hgd1P1RRuAhMOOfoYo8i700rm3965rFkunTPwhro2MwwttK0qF9jTPyIO4tn2WRGuN2HWDfC8rn15OiOChS+Xdu90auAnF+gQUro9Nht2qJ27rO+vwQRqn+lrtNRz/qEpTxBYdjs7tjnuim7BJrkACTkThlk=
-Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 11/13] libata: remove unused functions
-In-Reply-To: <11684073353213-git-send-email-htejun@gmail.com>
-X-Mailer: git-send-email
-Date: Wed, 10 Jan 2007 14:35:38 +0900
-Message-Id: <116840733843-git-send-email-htejun@gmail.com>
+	Wed, 10 Jan 2007 00:39:38 -0500
+Date: Wed, 10 Jan 2007 11:14:19 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-aio@kvack.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu,
+       Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20070110054419.GA3542@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Tejun Heo <htejun@gmail.com>
-To: jgarzik@pobox.com, gregkh@suse.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       htejun@gmail.com
-Content-Transfer-Encoding: 7BIT
-From: Tejun Heo <htejun@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104090242.44dd8165.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that all LLDs are converted to use devres, default stop callbacks
-are unused.  Remove them.
+On Thu, Jan 04, 2007 at 09:02:42AM -0800, Andrew Morton wrote:
+> On Thu, 4 Jan 2007 10:26:21 +0530
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> 
+> > On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
+> 
+> Patches against next -mm would be appreciated, please.  Sorry about that.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
----
- drivers/ata/libata-core.c |   81 +++-----------------------------------------
- include/linux/libata.h    |    4 --
- 2 files changed, 6 insertions(+), 79 deletions(-)
+I have updated the patchset against 2620-rc3-mm1, incorporated various
+cleanups suggested during last review. Please let me know if I have missed
+anything:
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index e476574..b5538dd 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5515,31 +5515,6 @@ int ata_port_start(struct ata_port *ap)
- }
- 
- /**
-- *	ata_port_stop - Undo ata_port_start()
-- *	@ap: Port to shut down
-- *
-- *	Frees the PRD table.
-- *
-- *	May be used as the port_stop() entry in ata_port_operations.
-- *
-- *	LOCKING:
-- *	Inherited from caller.
-- */
--void ata_port_stop (struct ata_port *ap)
--{
--	struct device *dev = ap->dev;
--
--	dmam_free_coherent(dev, ATA_PRD_TBL_SZ, ap->prd, ap->prd_dma);
--	ata_pad_free(ap, dev);
--}
--
--void ata_host_stop (struct ata_host *host)
--{
--	if (host->mmio_base)
--		iounmap(host->mmio_base);
--}
--
--/**
-  *	ata_dev_init - Initialize an ata_device structure
-  *	@dev: Device structure to initialize
-  *
-@@ -5878,7 +5853,7 @@ int ata_device_add(const struct ata_probe_ent *ent)
- 	}
- 
- 	/* resource acquisition complete */
--	devres_close_group(dev, ata_device_add);
-+	devres_remove_group(dev, ata_device_add);
- 
- 	/* perform each probe synchronously */
- 	DPRINTK("probe begin\n");
-@@ -6033,22 +6008,6 @@ void ata_host_detach(struct ata_host *host)
- 		ata_port_detach(host->ports[i]);
- }
- 
--/**
-- *	ata_host_remove - PCI layer callback for device removal
-- *	@host: ATA host set that was removed
-- *
-- *	Unregister all objects associated with this host set. Free those
-- *	objects.
-- *
-- *	LOCKING:
-- *	Inherited from calling layer (may sleep).
-- */
--void ata_host_remove(struct ata_host *host)
--{
--	ata_host_detach(host);
--	devres_release_group(host->dev, ata_device_add);
--}
--
- struct ata_probe_ent *
- ata_probe_ent_alloc(struct device *dev, const struct ata_port_info *port)
- {
-@@ -6108,26 +6067,13 @@ void ata_std_ports(struct ata_ioports *ioaddr)
- 
- #ifdef CONFIG_PCI
- 
--void ata_pci_host_stop (struct ata_host *host)
--{
--	struct pci_dev *pdev = to_pci_dev(host->dev);
--
--	/* XXX - the following if can go away once all LLDs are managed */
--	if (!list_empty(&host->dev->devres_head))
--		pcim_iounmap(pdev, host->mmio_base);
--	else
--		pci_iounmap(pdev, host->mmio_base);
--}
--
- /**
-  *	ata_pci_remove_one - PCI layer callback for device removal
-  *	@pdev: PCI device that was removed
-  *
-- *	PCI layer indicates to libata via this hook that
-- *	hot-unplug or module unload event has occurred.
-- *	Handle this by unregistering all objects associated
-- *	with this PCI device.  Free those objects.  Then finally
-- *	release PCI resources and disable device.
-+ *	PCI layer indicates to libata via this hook that hot-unplug or
-+ *	module unload event has occurred.  Detach all ports.  Resource
-+ *	release is handled via devres.
-  *
-  *	LOCKING:
-  *	Inherited from PCI layer (may sleep).
-@@ -6137,14 +6083,7 @@ void ata_pci_remove_one(struct pci_dev *pdev)
- 	struct device *dev = pci_dev_to_dev(pdev);
- 	struct ata_host *host = dev_get_drvdata(dev);
- 
--	/* XXX - the following if can go away once all LLDs are managed */
--	if (!list_empty(&host->dev->devres_head)) {
--		ata_host_remove(host);
--		pci_release_regions(pdev);
--		pci_disable_device(pdev);
--		dev_set_drvdata(dev, NULL);
--	} else
--		ata_host_detach(host);
-+	ata_host_detach(host);
- }
- 
- /* move to PCI subsystem */
-@@ -6198,11 +6137,7 @@ int ata_pci_device_do_resume(struct pci_dev *pdev)
- 	pci_set_power_state(pdev, PCI_D0);
- 	pci_restore_state(pdev);
- 
--	/* XXX - the following if can go away once all LLDs are managed */
--	if (!list_empty(&pdev->dev.devres_head))
--		rc = pcim_enable_device(pdev);
--	else
--		rc = pci_enable_device(pdev);
-+	rc = pcim_enable_device(pdev);
- 	if (rc) {
- 		dev_printk(KERN_ERR, &pdev->dev,
- 			   "failed to enable device after resume (%d)\n", rc);
-@@ -6382,7 +6317,6 @@ EXPORT_SYMBOL_GPL(ata_std_ports);
- EXPORT_SYMBOL_GPL(ata_host_init);
- EXPORT_SYMBOL_GPL(ata_device_add);
- EXPORT_SYMBOL_GPL(ata_host_detach);
--EXPORT_SYMBOL_GPL(ata_host_remove);
- EXPORT_SYMBOL_GPL(ata_sg_init);
- EXPORT_SYMBOL_GPL(ata_sg_init_one);
- EXPORT_SYMBOL_GPL(ata_hsm_move);
-@@ -6399,8 +6333,6 @@ EXPORT_SYMBOL_GPL(ata_check_status);
- EXPORT_SYMBOL_GPL(ata_altstatus);
- EXPORT_SYMBOL_GPL(ata_exec_command);
- EXPORT_SYMBOL_GPL(ata_port_start);
--EXPORT_SYMBOL_GPL(ata_port_stop);
--EXPORT_SYMBOL_GPL(ata_host_stop);
- EXPORT_SYMBOL_GPL(ata_interrupt);
- EXPORT_SYMBOL_GPL(ata_mmio_data_xfer);
- EXPORT_SYMBOL_GPL(ata_pio_data_xfer);
-@@ -6461,7 +6393,6 @@ EXPORT_SYMBOL_GPL(ata_timing_merge);
- 
- #ifdef CONFIG_PCI
- EXPORT_SYMBOL_GPL(pci_test_config_bits);
--EXPORT_SYMBOL_GPL(ata_pci_host_stop);
- EXPORT_SYMBOL_GPL(ata_pci_init_native_mode);
- EXPORT_SYMBOL_GPL(ata_pci_init_one);
- EXPORT_SYMBOL_GPL(ata_pci_remove_one);
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index f6a6bef..afeb48b 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -724,7 +724,6 @@ extern int ata_device_add(const struct ata_probe_ent *ent);
- extern void ata_host_detach(struct ata_host *host);
- extern void ata_host_init(struct ata_host *, struct device *,
- 			  unsigned long, const struct ata_port_operations *);
--extern void ata_host_remove(struct ata_host *host);
- extern int ata_scsi_detect(struct scsi_host_template *sht);
- extern int ata_scsi_ioctl(struct scsi_device *dev, int cmd, void __user *arg);
- extern int ata_scsi_queuecmd(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd *));
-@@ -770,8 +769,6 @@ extern u8 ata_check_status(struct ata_port *ap);
- extern u8 ata_altstatus(struct ata_port *ap);
- extern void ata_exec_command(struct ata_port *ap, const struct ata_taskfile *tf);
- extern int ata_port_start (struct ata_port *ap);
--extern void ata_port_stop (struct ata_port *ap);
--extern void ata_host_stop (struct ata_host *host);
- extern irqreturn_t ata_interrupt (int irq, void *dev_instance);
- extern void ata_mmio_data_xfer(struct ata_device *adev, unsigned char *buf,
- 			       unsigned int buflen, int write_data);
-@@ -858,7 +855,6 @@ struct pci_bits {
- 	unsigned long		val;
- };
- 
--extern void ata_pci_host_stop (struct ata_host *host);
- extern struct ata_probe_ent *
- ata_pci_init_native_mode(struct pci_dev *pdev, struct ata_port_info **port, int portmask);
- extern int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits);
+It should show up at
+www.kernel.org:/pub/linux/kernel/people/suparna/aio/2620-rc3-mm1
+
+Brief changelog:
+- Reworked against the block layer unplug changes 
+- Switched from defines to inlines for init_wait_bit* etc (per akpm)
+- Better naming:  __lock_page to lock_page_async (per hch, npiggin)
+- Kill lock_page_slow wrapper and rename __lock_page_slow to lock_page_slow
+  (per hch)
+- Use a helper function aio_restarted() (per hch)
+- Replace combined if/assignment (per hch)
+- fix resetting of current->io_wait after ->retry in aio_run_iocb (per zab)
+
+I have run my usual aio-stress variations script
+(www.kernel.org:/pub/linux/kernel/people/suparna/aio/aio-results.sh)
+
+Regards
+Suparna
+
+
 -- 
-1.4.4.3
-
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

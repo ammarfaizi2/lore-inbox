@@ -1,41 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750837AbXAJXfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965239AbXAJXm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbXAJXfY (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 18:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbXAJXfY
+	id S965239AbXAJXm5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 18:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbXAJXm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 18:35:24 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46456 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965239AbXAJXfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 18:35:23 -0500
-In-Reply-To: <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
-References: <20070109102057.c684cc78.khali@linux-fr.org> <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org> <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org> <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org> <20070110193136.GA30486@aepfle.de> <20070110200249.GA30676@aepfle.de> <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
+	Wed, 10 Jan 2007 18:42:57 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:33909 "EHLO
+	mail-in-04.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965239AbXAJXm4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 18:42:56 -0500
+Subject: Re: [patch] Fix bttv and friends on 64bit machines with lots of
+	memory.
+From: hermann pitton <hermann-pitton@arcor.de>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <45A4AAA4.4040606@novell.com>
+References: <45A4AAA4.4040606@novell.com>
+Content-Type: text/plain
+Date: Thu, 11 Jan 2007 00:41:46 +0100
+Message-Id: <1168472507.3118.7.camel@pc08.localdom.local>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andy Whitcroft <apw@shadowen.org>,
-       Andrew Morton <akpm@osdl.org>, Olaf Hering <olaf@aepfle.de>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Jean Delvare <khali@linux-fr.org>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: .version keeps being updated
-Date: Thu, 11 Jan 2007 00:35:06 +0100
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With such a change, you would not need to grep for it. You could use
-> binutils on it. `objdump -sj .rodata.uts vmlinux` would be a start.
-> Maybe not the prettiest output, but guaranteed to contain only the
-> banner.
+Am Mittwoch, den 10.01.2007, 09:58 +0100 schrieb Gerd Hoffmann:
+>   Hi,
+> 
+> We have a DMA32 zone now, lets use it to make sure the card
+> can reach the memory we have allocated for the video frame
+> buffers.
+> 
+> please apply,
+> 
+>   Gerd
 
-objcopy -j .rodata.uts -O binary vmlinux >(the-checker-script)
+Hi,
 
+did anybody already pick up, comment, review Gerd's patch ?
 
-Segher
+Walks in into his own home like a stranger ...
+
+Gerd, THANKS for all you did.
+It was a incredible lot!
+
+Hermann
+
+> einfaches Textdokument-Anlage (v4l-dma32)
+> Fix bttv and friends on 64bit machines with lots of memory.
+> 
+> We have a DMA32 zone now, lets use it to make sure the card
+> can reach the memory we have allocated for the video frame
+> buffers.
+> 
+> Signed-off-by: Gerds Hoffmann <kraxel@suse.de>
+> ---
+>  drivers/media/video/video-buf.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6.18/drivers/media/video/video-buf.c
+> ===================================================================
+> --- linux-2.6.18.orig/drivers/media/video/video-buf.c
+> +++ linux-2.6.18/drivers/media/video/video-buf.c
+> @@ -1224,7 +1224,7 @@ videobuf_vm_nopage(struct vm_area_struct
+>  		vaddr,vma->vm_start,vma->vm_end);
+>  	if (vaddr > vma->vm_end)
+>  		return NOPAGE_SIGBUS;
+> -	page = alloc_page(GFP_USER);
+> +	page = alloc_page(GFP_USER | __GFP_DMA32);
+>  	if (!page)
+>  		return NOPAGE_OOM;
+>  	clear_user_page(page_address(page), vaddr, page);
 

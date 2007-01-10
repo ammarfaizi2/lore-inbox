@@ -1,106 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932587AbXAJAX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932590AbXAJAZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbXAJAX7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 19:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbXAJAX6
+	id S932590AbXAJAZF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 19:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbXAJAZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 19:23:58 -0500
-Received: from vs02.svr02.mucip.net ([83.170.6.69]:57448 "EHLO mx01.mucip.net"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932585AbXAJAX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 19:23:57 -0500
-Date: Wed, 10 Jan 2007 01:23:52 +0100
-From: Bernhard Schmidt <berni@birkenwald.de>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [IPv6] PROBLEM? Network unreachable despite correct route
-Message-ID: <20070110002352.GA31743@obelix.birkenwald.de>
-References: <20070109193624.GA27718@obelix.birkenwald.de>
+	Tue, 9 Jan 2007 19:25:05 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:39118 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932583AbXAJAZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 19:25:04 -0500
+Message-ID: <45A4325C.9060902@garzik.org>
+Date: Tue, 09 Jan 2007 19:25:00 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109193624.GA27718@obelix.birkenwald.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA/IDE Dual Mode w/Intel 945 Chipset or HOW TO LIQUIFY a flash
+ IDE chip under 2.6.18
+References: <45A3FF32.1030905@wolfmountaingroup.com> <45A42385.7090904@garzik.org> <45A42670.703@wolfmountaingroup.com>
+In-Reply-To: <45A42670.703@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 08:36:24PM +0100, Bernhard Schmidt wrote:
+Jeff V. Merkey wrote:
+> Jeff Garzik wrote:
+> 
+>> Jeff V. Merkey wrote:
+>>
+>>>
+>>> I just finished pulling out a melted IDE flash drive out of a Shuttle 
+>>> motherboard with the intel 945 chipset which claims to support
+>>> SATA and IDE drives concurrently under Linux 2.6.18.
+>>>
+>>> The chip worked for about 30 seconds before liquifying in the 
+>>> chassis.  I note that the 945 chipset in the shuttle PC had some serious
+>>> issues recognizing 2 x SATA devices and a IDE device concurrently.   
+>>> Are there known problems with the Linux drivers
+>>> with these newer chipsets.
+>>>
+>>> One other disturbing issue was the IDE flash drive was configured 
+>>> (and recognized) as /dev/hda during bootup, but when
+>>> it got to the root mountint, even with root=/dev/hda set, it still 
+>>> kept thinking the drive was at scsi (ATA) device (08,13)
+>>> and kept crashing with VFS cannot find root FS errors.
+>>
+>>
+>> We have two sets of ATA drivers now, and Intel motherboards support 
+>> bazillion annoying IDE modes, so you will need to provide more info 
+>> than this.
+>>
+>> Is the motherboard in combined mode?
+> 
+> 
+> Yes.  "Enhanced mode" is how it is listed in the BIOS.
 
-Hi,
+Combined mode is a technical term.  Judging from your answers, you are 
+not using combined mode.
 
-I did some additional testing
 
-> I'm having a really ugly problem I'm trying to pinpoint, but failed so
-> far. I'm neither completely convinced it is not related to my local
-> setup(s), nor do I have any clue how this might be caused.
-[...]
-> - Dell OptiPlex GX<something> (P4 with HT, Single Core), SuSE 10.2,
->   distribution kernel 2.6.18.5-3-default, connected (tg3) to one
->   upstream Cisco 6500/Sup720, default route learned through stateless
->   autoconfiguration (RA)
+>> native mode?  AHCI or RAID mode?
+> 
+> No RAID, just enhanced mode (SATA 3.0 + IDE)
 
-Running tcpdump on this (target) box shows that ICMPv6 echo requests
-(which is what mtr sends to the target box) are received by the box, but
-not replied to
+Judging from your answers, you are not in AHCI mode.
 
-01:02:09.884692 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 54173, length 64
-01:02:09.884706 IP6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy > 2001:a60:f001:1:218:f3ff:fe66:xxxx: ICMP6, echo reply, seq 54173, length 64
-01:02:10.428063 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 55453, length 64
-01:02:11.056871 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 56733, length 64
-01:02:11.700772 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 58013, length 64
-[...]
-01:02:17.301169 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 3998, length 64
-01:02:17.941020 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 5278, length 64
-01:02:18.581037 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 6558, length 64
-01:02:18.581050 IP6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy > 2001:a60:f001:1:218:f3ff:fe66:xxxx: ICMP6, echo reply, seq 6558, length 64
+Side note:  You should use AHCI if available.  Emulating a PATA 
+interface for SATA devices is error prone [in the silicon].  AHCI is 
+native SATA, "enhanced mode" is not.
 
-while this is happening, the SSH session (between the very same hosts) is
-perfectly fine. ip6_tables.ko is not loaded, there is no other ICMPv6 packet
-(e.g. neighbor solicitation or router advertisement) anywhere near the
-beginning of my problem. Incoming TCP SYN (an additional SSH session I
-tried to establish when I saw the box was not responding) are also 
-visible on the interface, but not answered.
 
-01:18:35.638744 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx.57045 > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy.22: SWE 1448406153:1448406153(0) win 5760 <mss 1440,sackOK,timestamp 13958554 0,nop,wscale 2>
-01:18:35.701523 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 41148, length 64
-01:18:36.328728 IP6 2001:a60:f001:1:218:f3ff:fe66:xxxx > 2001:4ca0:0:f000:211:43ff:fe7e:yyyy: ICMP6, echo request, seq 42428, length 64
+>> The cannot-find-root-FS errors are definitely caused by driver and/or 
+>> initrd misconfiguration.  The melted flash, I dunno, maybe you managed 
+>> to get two drivers fighting over the same hardware.
+> 
+> No.  Seems related to the chipset problems.  If I say "root=/dev/hda2" I 
+> have better not be getting errors claiming device 08:13 could not mount 
+> as root.  memory corruption?
 
-I managed to pull ip -6 route, ip -6 neigh and ip -6 addr while the box
-was not responding:
+If the kernel cannot mount the requested root= disk, it tries the 
+default that is encoded into the vmlinuz image at build time, which is 
+probably 08:13.
 
-ip -6 route:
-2001:4ca0:0:f000::/64 dev eth0  proto kernel  metric 256  expires 86322sec mtu 1500 advmss 1440 fragtimeout 4294967295
-fe80::/64 dev eth0  metric 256  expires 21225804sec mtu 1500 advmss 1440 fragtimeout 4294967295
-ff00::/8 dev eth0  metric 256  expires 21225804sec mtu 1500 advmss 1440 fragtimeout 4294967295
-default via fe80::2d0:4ff:fe12:2400 dev eth0  proto kernel  metric 1024  expires 1717sec mtu 1500 advmss 1440 fragtimeout 64
-unreachable default dev lo  proto none  metric -1  error -101 fragtimeout 255
 
-ip -6 neigh:
-fe80::2d0:4ff:fe12:2400 dev eth0 lladdr 00:d0:04:12:24:00 router REACHABLE
+> The melted flash seems power related (like pin 20 was live for some 
+> reason on a standard IDE).
 
-ip -6 addr:
-2: eth0: <BROADCAST,MULTICAST,NOTRAILERS,UP,10000> mtu 1500 qlen 1000
-    inet6 2001:4ca0:0:f000:211:43ff:fe7e:yyyy/64 scope global dynamic 
-       valid_lft 86318sec preferred_lft 14318sec
-    inet6 fe80::211:43ff:fe7e:yyyy/64 scope link 
-       valid_lft forever preferred_lft forever
+Probably, otherwise we would have many more reports like this than just 
+yours.
 
-Nothing in dmesg or any file in /var/log (except the notorious "Network
-is unreachable" messages from OpenVPN).
+	Jeff
 
-I was wrong before by the way, some outgoing connections from the affected
-machine still work, I was able to ping6, traceroute6 and telnet. At least
-on this particular machine, I am very sure I have seen "Network unreachable"
-on outgoing connects at some point.
 
-I'll try to downgrade this machine to 2.6.16 (and eventually upgrade to 
-2.6.19.1) and have a look whether the problem is gone.
-
-> - Dell PowerEdge 750 (P4 with HT), Debian Etch, self compiled kernel
->   2.6.17.11, connected (e1000) to two upstream Cisco 7200, default route
->   is learned from RIPng (Quagga), static addresses
-
-Still too soon to be absolutely sure, but I think the problem is gone
-since the upgrade to 2.6.19.1.
-
-Regards,
-Bernhard

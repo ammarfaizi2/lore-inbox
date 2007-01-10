@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964919AbXAJP4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964921AbXAJP4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbXAJP4j (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 10:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbXAJP4j
+	id S964921AbXAJP4o (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 10:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbXAJP4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 10:56:39 -0500
-Received: from mo-p00-ob.rzone.de ([81.169.146.160]:56684 "EHLO
-	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964919AbXAJP4i (ORCPT
+	Wed, 10 Jan 2007 10:56:44 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:51430 "EHLO
+	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964921AbXAJP4n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 10:56:38 -0500
-X-Greylist: delayed 411 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Jan 2007 10:56:38 EST
-Date: Wed, 10 Jan 2007 16:49:35 +0100 (MET)
-From: Oliver Neukum <oneukum@suse.de>
-Organization: Novell
-To: Pavel Machek <pavel@ucw.cz>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.20-rc4: null pointer deref in khubd
-User-Agent: KMail/1.9.1
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-References: <20070110104937.GA32112@elf.ucw.cz>
-In-Reply-To: <20070110104937.GA32112@elf.ucw.cz>
+	Wed, 10 Jan 2007 10:56:43 -0500
+Message-ID: <45A50CA5.6070101@in.ibm.com>
+Date: Wed, 10 Jan 2007 21:26:21 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
 MIME-Version: 1.0
-Content-Type: text/plain;  charset="utf-8"
+To: Paul Menage <menage@google.com>
+CC: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
+       serue@us.ibm.com, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, mbligh@google.com,
+       winget@google.com, containers@lists.osdl.org, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 3/6] containers: Add generic multi-subsystem
+ API	to containers
+References: <20061222141442.753211763@menage.corp.google.com> <20061222145216.574346828@menage.corp.google.com>
+In-Reply-To: <20061222145216.574346828@menage.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701101653.57929.oneukum@suse.de>
-X-RZG-AUTH: kN+qSWxTQH+Xqix8Cni7tCsVYhPCm1GP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 10. Januar 2007 11:49 schrieb Pavel Machek:
-> usb 2-1: new full speed USB device using uhci_hcd and address 68
-> usb 2-1: USB disconnect, address 68
-> usb 2-1: unable to read config index 0 descriptor/start
-> usb 2-1: chopping to 0 config(s)
+Paul Menage wrote:
+> +/* The set of hierarchies in use. Hierarchy 0 is the "dummy
+> + * container", reserved for the subsystems that are otherwise
+> + * unattached - it never has more than a single container, and all
+> + * tasks are part of that container. */
+> +
+> +static struct containerfs_root rootnode[CONFIG_MAX_CONTAINER_HIERARCHIES];
+> +
+> +/* dummytop is a shorthand for the dummy hierarchy's top container */
+> +#define dummytop (&rootnode[0].top_container)
+> +
 
-Does anybody know a legitimate reasons a device should have
-0 configurations? Independent of the reason of this bug, should we disallow
-such devices and error out?
+With these changes, is there a generic way to determine the root container
+for the hierarchy the subsystem is in? Calls to ->create() pass the dummytop
+container. It would be useful and is often required to walk the hierarchy
+and know the root of the container hierarchy.
 
-	Regards
-		Oliver
+-- 
+	Thanks,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

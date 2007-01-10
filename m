@@ -1,112 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932539AbXAJAmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932549AbXAJAtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbXAJAmF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 9 Jan 2007 19:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbXAJAmE
+	id S932549AbXAJAtN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 9 Jan 2007 19:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbXAJAtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Jan 2007 19:42:04 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:45919 "EHLO koto.vergenet.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932539AbXAJAmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Jan 2007 19:42:01 -0500
-Date: Wed, 10 Jan 2007 09:31:11 +0900
-From: Horms <horms@verge.net.au>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>, Mohan Kumar M <mohan@in.ibm.com>
-Subject: Re: [PATCH] Kdump documentation update for 2.6.20
-Message-ID: <20070110003110.GC28721@verge.net.au>
-References: <20070108075803.GB7889@in.ibm.com> <20070109011846.GB7479@verge.net.au> <20070109144708.GA6924@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070109144708.GA6924@in.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Debian)
+	Tue, 9 Jan 2007 19:49:13 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:27502 "EHLO
+	pd4mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932549AbXAJAtM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Jan 2007 19:49:12 -0500
+Date: Tue, 09 Jan 2007 18:48:06 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Gaming Interface
+In-reply-to: <fa.j23ZZ5CMmxfxN0vEdIJJTHQ1MeE@ifi.uio.no>
+To: Adrian Bunk <bunk@stusta.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Message-id: <45A437C6.9040506@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa./yEu+Q5zfyi+9Dt6KeRH/0YTv6M@ifi.uio.no>
+ <fa.lZ5ow3GVFhmIN84swduaYc/QGC8@ifi.uio.no>
+ <fa./w7HN6qfHdRrvVr4gQ41Yr6D2Zs@ifi.uio.no>
+ <fa.wzIAazh/K3RXZGwCv85z7hMkX9w@ifi.uio.no>
+ <fa.QdkEYH0MeusxZdKe4kSh6Svj6dI@ifi.uio.no>
+ <fa.j23ZZ5CMmxfxN0vEdIJJTHQ1MeE@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2007 at 08:17:08PM +0530, Vivek Goyal wrote:
-> On Tue, Jan 09, 2007 at 10:18:47AM +0900, Horms wrote:
-> > >  Download and build the system and dump-capture kernels
-> > >  ------------------------------------------------------
-> > > +There are two possible methods of using Kdump.
-> > > +
-> > > +	1) Build a separate custom dump-capture kernel for capturing the
-> > > +	   kernel core dump.
-> > > +
-> > > +	2) Use system kernel itself as dump-capture kernel and there is
-> > > +	   no need to build a separate dump-capture kernel. (Only for
-> > > +	   i386 architecture kernel version 2.6.20 onwards)
-> > > +
-> > > +For i386, second method is recommended, as it takes away the need to build
-> > > +additional kernel.
-> > 
-> > I think that the above description is a little misleading, and quite
-> > i386 centric. The question is not weather or not you are using the
-> > system kernel, but rather, what options are needed for the crash kernel.
-> > 
-> Hi Horms,
-> 
-> Thanks for going through the update. Actually I never knew that kdump
-> IA64 support is mainline now. I thought it is still in Tony's tree. And
-> we never had IA64 specific documentation in kdump.txt file and that's another
-> reason that discussion became more i386 centric when it came to relocatable
-> kernels.
+Adrian Bunk wrote:
+> DirectX is simply _the_ state of the art technology you have to use in 
+> some areas of game development if you don't want to make your game 
+> technically inferior before you even started developing.
 
-It wasn't that long ago it was merged, but its there now :)
-
-> > In terms of a non-relocatable kernel, then the boot and crash kernels
-> > need to be separate.
-> > 
-> > But in the case of a relocatable kernel, then the boot and crash kernels
-> > may be the same, or they may be separate. Depending on just what
-> > the end-user wants in each kernel.
-> > 
-> > On ia64 there is no CONFIG_RELOCATABLE option, but the kernel is always
-> > relocatable anyway. That is, you can use the same kernel before and
-> > after crash (though I am not sure that I have tested this).
-> > 
-> 
-> I have tried to re-arrange the documentation based on some of your 
-> recommendations. I have also left couple of sections empty which are
-> ia64 specific. I don't have an IA64 machine and I don't know how exactly
-> it is used on IA64. Can you please have a quick look at the patch and
-> also fill IA64 specific details where appropriate.
-
-Sure, will do.
-
-> Hopefully, this time documentation is clearer.
-> 
-> 
-> Mohan, Can you please check the correctness of ppc64 specific details.
-> 
-> > > +   --append="root=<root-dev> init 1 irqpoll maxcpus=1"
-> > > +
-> > > +If you are using a relocatable kernel (method 2), then use
-> > > +following command.
-> > >
-> > > +   kexec -p <bzImage-of-relocatable-kernel> \
-> > > +   --initrd=<initrd-for-relocatable-kernel> \
-> > > +   --append="root=<root-dev> init 1 irqpoll maxcpus=1"
-> > 
-> > --args-linux is not needed on ia64, but its kernel is relocatable.
-> > I think the important point is that if you are using a bzImage,
-> > then you need --args-linux, and basically at this point that
-> > means an i386 (or x86_64) relocatable bzImage.
-> > 
-> 
-> I am hoping it --args-linux will be required while loading vmlinux on
-> IA64? Because this is ELF file specific option. And this interface should
-> be common across all the architectures.
-> 
-> > Then again, I could be wrong, I'm not sure that I understand
-> > --args-linux, I just know that I'm not using it :)
-
-I will take a look into this.
+How is that? id Software doesn't use DirectX (not for graphics, anyway) 
+and you could hardly claim their engines have been technically inferior 
+at the time of their release..
 
 -- 
-Horms
-  H: http://www.vergenet.net/~horms/
-  W: http://www.valinux.co.jp/en/
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

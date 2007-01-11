@@ -1,69 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751521AbXAKVkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932066AbXAKVqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbXAKVkq (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 16:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbXAKVkq
+	id S932066AbXAKVqe (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 16:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbXAKVqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 16:40:46 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35306 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751518AbXAKVkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 16:40:45 -0500
-Date: Fri, 12 Jan 2007 08:39:16 +1100
-From: David Chinner <dgc@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sami Farin <7atbggg02@sneakemail.com>, David Chinner <dgc@sgi.com>,
-       xfs-masters@oss.sgi.com
-Subject: Re: 2.6.20-rc4: known regressions with patches (v3)
-Message-ID: <20070111213916.GE33919298@melbourne.sgi.com>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <20070111051329.GB21724@stusta.de>
+	Thu, 11 Jan 2007 16:46:34 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:49691 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932066AbXAKVqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 16:46:33 -0500
+Date: Thu, 11 Jan 2007 13:44:59 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, "Michael Reed" <mdr@sgi.com>,
+       "'Zach Brown'" <zach.brown@oracle.com>,
+       "'Chris Mason'" <chris.mason@oracle.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Jeremy Higdon" <jeremy@sgi.com>, "David Chinner" <dgc@sgi.com>
+Subject: Re: [patch] optimize o_direct on block device - v3
+Message-Id: <20070111134459.4b43330d.randy.dunlap@oracle.com>
+In-Reply-To: <000001c735c8$8dc1ad00$eb34030a@amr.corp.intel.com>
+References: <20070111112901.28085adf.akpm@osdl.org>
+	<000001c735c8$8dc1ad00$eb34030a@amr.corp.intel.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070111051329.GB21724@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2007 at 06:13:29AM +0100, Adrian Bunk wrote:
-> This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
-> with patches available.
+On Thu, 11 Jan 2007 13:36:28 -0800 Chen, Kenneth W wrote:
+
+> Andrew Morton wrote on Thursday, January 11, 2007 11:29 AM
+> > On Thu, 11 Jan 2007 13:21:57 -0600
+> > Michael Reed <mdr@sgi.com> wrote:
+> > > Testing on my ia64 system reveals that this patch introduces a
+> > > data integrity error for direct i/o to a block device.  Device
+> > > errors which result in i/o failure do not propagate to the
+> > > process issuing direct i/o to the device.
+> > > 
+> > > This can be reproduced by doing writes to a fibre channel block
+> > > device and then disabling the switch port connecting the host
+> > > adapter to the switch.
+> > > 
+> > 
+> > Does this fix it?
+> > 
+> > <thwaps Ken>
 > 
-> Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
-> References : http://lkml.org/lkml/2007/1/5/308
-> Submitter  : Sami Farin <7atbggg02@sneakemail.com>
-> Handled-By : David Chinner <dgc@sgi.com>
-> Patch      : http://lkml.org/lkml/2007/1/7/201
-> Status     : patch available
+> 
+> Darn, kicking myself in the butt.  Thank you Andrew for fixing this.
+> We've also running DIO stress test almost non-stop over the last 30
+> days or so and we did uncover another bug in that patch.
+> 
+> Andrew, would you please take the follow bug fix patch as well.  It
+> is critical because it also affects data integrity.
+> 
+> 
+> [patch] fix blk_direct_IO bio preparation.
+> 
+> For large size DIO that needs multiple bio, one full page worth of data
+> was lost at the boundary of bio's maximum sector or segment limits.
+> After a bio is full and got submitted.  The outer while (nbytes) { ... }
+> loop will allocate a new bio and just march on to index into next page.
+> It just forget about the page that bio_add_page() rejected when previous
+> bio is full.  Fix it by put the rejected page back to pvec so we pick it
+> up again for the next bio.
+> 
+> 
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> 
+> diff -Nurp linux-2.6.20-rc4/fs/block_dev.c linux-2.6.20.ken/fs/block_dev.c
+> --- linux-2.6.20-rc4/fs/block_dev.c	2007-01-06 21:45:51.000000000 -0800
+> +++ linux-2.6.20.ken/fs/block_dev.c	2007-01-10 19:54:53.000000000 -0800
+> @@ -190,6 +190,12 @@ static struct page *blk_get_page(unsigne
+>  	return pvec->page[pvec->idx++];
+>  }
+>  
+> +/* return a pge back to pvec array */
 
-Patch is broken, do not merge. The original had an off-by-one bug in
-it, and the fixed one I have has just shown a worse problem than
-before - partial page truncation (i.e.  filesystem block size less
-than page size) is busted because invalidate_complete_page2_range() can
-only handle complete pages.
+is pge just a typo or some other tla that i don't know?
+(not portland general electric or pacific gas & electric)
 
-Andrew - looking at unmap_mapping_pages, it says it cannot handle
-partial pages and must get rid of them whereas vmtrucate() handles
-partial pages but changes file size so can't be used. I see that
-vmtruncate handles this by not unmapping the first partial page.
+> +static void blk_unget_page(struct page *page, struct pvec *pvec)
+> +{
+> +	pvec->page[--pvec->idx] = page;
+> +}
+> +
+>  static ssize_t
+>  blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+>  		 loff_t pos, unsigned long nr_segs)
+> @@ -278,6 +284,8 @@ same_bio:
+>  				count = min(count, nbytes);
+>  				goto same_bio;
+>  			}
+> +		} else {
+> +			blk_unget_page(page, &pvec);
+>  		}
+>  
+>  		/* bio is ready, submit it */
+> -
 
-I can use the vmtruncate mechanism (unmap_mapping_pages, then
-truncate_inode_pages) but that seems racy to me because we are not
-actually truncating the file so a mmap could remap a page between
-the unmap and the truncate and hence we still get the warning.
 
-So the question is - is there any generic function that handles
-this case (i.e. don't unmap first partial page, unmap the rest,
-partial truncate of first page, complete truncate of the rest)
-without racing? Or do I need to write a variation of
-invalidate_inode_pages2_range() to do this?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+---
+~Randy

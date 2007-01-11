@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751301AbXAKSBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750978AbXAKSPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbXAKSBD (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 13:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbXAKSBD
+	id S1750978AbXAKSPQ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 13:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbXAKSPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 13:01:03 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:50845 "EHLO smtp.osdl.org"
+	Thu, 11 Jan 2007 13:15:16 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:38720 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751301AbXAKSBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 13:01:01 -0500
-Date: Thu, 11 Jan 2007 10:00:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-cc: Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-In-Reply-To: <20070111174214.676d15b9@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0701110958370.3594@woody.osdl.org>
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
- <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru>
- <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <20070111174214.676d15b9@localhost.localdomain>
+	id S1750978AbXAKSPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 13:15:14 -0500
+Date: Thu, 11 Jan 2007 19:01:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+cc: Andreas Schwab <schwab@suse.de>, Roman Zippel <zippel@linux-m68k.org>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       Olaf Hering <olaf@aepfle.de>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jean Delvare <khali@linux-fr.org>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: .version keeps being updated
+In-Reply-To: <2bb47a77ba69186f793f57b86c003ebd@kernel.crashing.org>
+Message-ID: <Pine.LNX.4.61.0701111857530.29801@yvahk01.tjqt.qr>
+References: <20070109102057.c684cc78.khali@linux-fr.org>
+ <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org>
+ <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org>
+ <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org> <20070110193136.GA30486@aepfle.de>
+ <20070110200249.GA30676@aepfle.de> <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
+ <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
+ <Pine.LNX.4.61.0701111424390.29801@yvahk01.tjqt.qr> <jeejq1is77.fsf@sykes.suse.de>
+ <2bb47a77ba69186f793f57b86c003ebd@kernel.crashing.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Jan 11 2007 18:39, Segher Boessenkool wrote:
+>
+>> > ../drivers/char$ objcopy -j .modinfo -O binary sonypi.ko
+>> > objcopy: stvfMiji: Permission denied
+>> > 
+>> > Why does it want to create a file there? This one works better:
+>> 
+>> objcopy works in-place when only one file argument is passed.
+>
+> Yeah.  The >(...) syntax in my example provides such a file;
+> of course it's horribly broken in bash 3.x like so many other
+> things, but that's a different issue ;-)
 
-On Thu, 11 Jan 2007, Alan wrote:
-> 
-> Well you can - its called SG_IO and that really does get the OS out of
-> the way. O_DIRECT gets crazy when you stop using it on devices directly
-> and use it on files
+I took () to be substituted, did not know you intended to write >(grep ...)
+And that's not broken at all.
 
-Well, on a raw disk, O_DIRECT is fine too, but yeah, you might as well 
-use SG_IO at that point. All of my issues are all about filesystems.
 
-And filesystems is where people use O_DIRECT most. Almost nobody puts 
-their database on a partition of its own these days, afaik. Perhaps for 
-benchmarking or some really high-end stuff. Not "normal users".
-
-		Linus
+	-`J'
+-- 

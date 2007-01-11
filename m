@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751459AbXAKT4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751462AbXAKUBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbXAKT4x (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 14:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbXAKT4w
+	id S1751462AbXAKUBg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 15:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbXAKUBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 14:56:52 -0500
-Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:61009 "EHLO
-	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751459AbXAKT4w (ORCPT
+	Thu, 11 Jan 2007 15:01:36 -0500
+Received: from mga07.intel.com ([143.182.124.22]:6039 "EHLO
+	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751460AbXAKUBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 14:56:52 -0500
-Message-ID: <45A69634.4090201@lwfinger.net>
-Date: Thu, 11 Jan 2007 13:55:32 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
+	Thu, 11 Jan 2007 15:01:35 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,174,1167638400"; 
+   d="scan'208"; a="167901014:sNHT19373417"
+Message-ID: <45A6979A.8030000@linux.intel.com>
+Date: Thu, 11 Jan 2007 23:01:30 +0300
+From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Need help with PCI-E interrupts
-Content-Type: text/plain; charset=ISO-8859-1
+To: Len Brown <lenb@kernel.org>
+CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, MoRpHeUz <morpheuz@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
+       Mattia Dongili <malattia@linux.it>,
+       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701051310.41131.lenb@kernel.org> <200701052109.35707.bjorn.helgaas@hp.com> <200701111452.31490.lenb@kernel.org>
+In-Reply-To: <200701111452.31490.lenb@kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for help with PCI-E interrupts. The problem occurs with the following device:
+Len Brown wrote:
+> On Friday 05 January 2007 23:09, Bjorn Helgaas wrote:
+>   
+>> On Friday 05 January 2007 11:10, Len Brown wrote:
+>>     
+>>> On Friday 05 January 2007 12:24, MoRpHeUz wrote:
+>>>       
+>>>>> What workaround are you using?
+>>>>>           
+>>>>  This one: http://bugzilla.kernel.org/show_bug.cgi?id=7465
+>>>>         
+>>> Ah yes, the duplicate MADT issue is clearly a BIOS bug.
+>>> It is possible that we can tweak our Linux workaround for it to be more
+>>> Microsoft Windows Bug Compatbile(TM).
+>>>       
+>> Maybe Windows discovers processors using the namespace rather
+>> than the MADT.
+>>     
+>
+> Nod.
+>
+> Based on the fact that the 1st MADT on this box is toast, they're not using that.
+> If the last one also doesn't work universally, then they must be using the namespace.
+>
+> For us to do the same would be a relatively significant change -- as it means
+> we either have to push SMP startup after the interpreter init, or move the
+> interpreter init yet sooner.
+>
+> In general, over the last couple of years, we've been forced for compatibility
+> with various systems to move ACPI initialization sooner and sooner.
+> (I think the last issue was getting the HW into "ACPI mode" sooner
+>  because some stuff I don't recall didn't work if we didn't)
+> It would probably make sense to experiment with what the soonest we
+> can initialize ACPI, as I have a feeling we're going to have to head that way.
+>
+> -Len
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>   
 
-01:00.0 Network controller: Broadcom Corporation Dell Wireless 1390 WLAN Mini-PCI Card (rev 01)
-        Subsystem: Hewlett-Packard Company Unknown device 1363
-        Flags: bus master, fast devsel, latency 0, IRQ 20
-        Memory at c3000000 (32-bit, non-prefetchable) [size=16K]
-        Capabilities: [40] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: Mask- 64bit- Queue=0/0 Enable-
-        Capabilities: [d0] Express Legacy Endpoint IRQ 0
-        Capabilities: [100] Advanced Error Reporting
-        Capabilities: [13c] Virtual Channel
+If any of the two tables does not work, may be we need both together?
 
-The card is recognized as of the PCI-E variety and appears to be set up properly, but interrupts are
-not delivered to the driver as shown by the output of 'cat /proc/interrupts':
-
-           CPU0       CPU1
-  0:       4752    1884273   IO-APIC-edge      timer
-  1:         21       6306   IO-APIC-edge      i8042
-  8:          0          2   IO-APIC-edge      rtc
-  9:        249     158866   IO-APIC-fasteoi   acpi
- 12:       3670     846095   IO-APIC-edge      i8042
- 15:        337      65615   IO-APIC-edge      ide1
- 16:       1427     329891   IO-APIC-fasteoi   libata
- 17:       2315     925273   IO-APIC-fasteoi   eth0
- 18:          0          2   IO-APIC-fasteoi   ohci1394
- 19:          3        117   IO-APIC-fasteoi   HDA Intel
- 20:          0          0   IO-APIC-fasteoi   ohci_hcd:usb1, bcm43xx
- 21:          0          0   IO-APIC-fasteoi   ehci_hcd:usb2
-NMI:          0          0
-LOC:    1825978    1826429
-ERR:          1
-MIS:          0
-
-I'm currently have an i386 system, but the problem is there with an x86_64 system. I've tried the
-following boot-time fixups: acpi=noirq, irqfixup, irqpoll, pci=routeirq and a UP system without any
-effect. It did work a couple of times with the x86_64 system, which made me think it was some kind
-of race condition. I have also compared the bcm43xx code with that of the bcm43xx-d80211 version
-that works, but I don't find any differences other than those related to design changes. I'm
-currently working with 2.6.20-rc4, but get the same results with 2.6.18 and 2.6.19, which need a
-PCI-E patch to recognize the card.
-
-I would appreciate any suggestions regarding differences between PCI and PCI-E interrupts.
-
-Thanks,
-
-Larry
+Regards,
+    Alex.

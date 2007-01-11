@@ -1,30 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAKUJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751482AbXAKUPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbXAKUJA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 15:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbXAKUJA
+	id S1751482AbXAKUPY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 15:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbXAKUPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 15:09:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37088 "EHLO mx1.redhat.com"
+	Thu, 11 Jan 2007 15:15:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40879 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751468AbXAKUI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 15:08:59 -0500
-Date: Thu, 11 Jan 2007 15:08:57 -0500
-Message-Id: <200701112008.l0BK8vwA011835@dantu.rdu.redhat.com>
+	id S1751475AbXAKUPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 15:15:23 -0500
+Date: Thu, 11 Jan 2007 15:15:15 -0500
+Message-Id: <200701112015.l0BKFFX5011879@dantu.rdu.redhat.com>
 From: Jeff Layton <jlayton@redhat.com>
 To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/3] change libfs sb creation routines to avoid collisions with their root inodes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet another respin. It's awfully easy to pass in a files array that will
-conflict with the root inode. Add in a check and warning for that. It would
-be nice if it were possible to make it so this couldn't happen by design,
-I don't see how to do that, given that some filesystems need control over
-what inode numbers these entries receive.
-
-This one is untested, but the only change from the last one is the
-if/printk.
+Amateur mistake. Fix the if statement that I just added. That'll teach me to
+not test these things.
 
 Signed-off-by: Jeff Layton <jlayton@redhat.com>
 
@@ -58,7 +52,7 @@ index c2e0825..023d825 100644
  	int err = simple_fill_super(sb, 0x42494e4d, bm_files);
 diff --git a/fs/inode.c b/fs/inode.c
 diff --git a/fs/libfs.c b/fs/libfs.c
-index 503898d..c8f5532 100644
+index 503898d..9b77f89 100644
 --- a/fs/libfs.c
 +++ b/fs/libfs.c
 @@ -217,6 +217,12 @@ int get_sb_pseudo(struct file_system_type *fs_type, char *name,
@@ -104,7 +98,7 @@ index 503898d..c8f5532 100644
  			continue;
 +
 +		/* warn if it tries to conflict with the root inode */
-+		if (unlikely(i = 1))
++		if (unlikely(i == 1))
 +			printk(KERN_WARNING "%s: %s passed in a files array"
 +				"with an index of 1!\n", __func__,
 +				s->s_type->name);

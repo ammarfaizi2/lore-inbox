@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030298AbXAKMO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030299AbXAKMPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbXAKMO2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 07:14:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbXAKMO1
+	id S1030299AbXAKMPv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 07:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbXAKMPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 07:14:27 -0500
-Received: from mx28.mail.ru ([194.67.23.67]:1396 "EHLO mx28.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030298AbXAKMO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 07:14:27 -0500
-Message-ID: <45A629E9.70502@inbox.ru>
-Date: Thu, 11 Jan 2007 15:13:29 +0300
-From: Viktor <vvp01@inbox.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060212 Fedora/1.7.12-5
-X-Accept-Language: en-us, ru, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
-       mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+	Thu, 11 Jan 2007 07:15:51 -0500
+Received: from birgitte.twibble.org ([202.173.155.195]:57807 "EHLO
+	birgitte.twibble.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030299AbXAKMPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 07:15:50 -0500
+Date: Thu, 11 Jan 2007 22:41:40 +1100
+From: Jamie Lenehan <lenehan@twibble.org>
+To: David Brownell <david-b@pacbell.net>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Paul Mundt <lethal@linux-sh.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       rtc-linux@googlegroups.com
+Subject: [patch] rtc-sh: act on rtc_wkalrm.enabled when setting an alarm
+Message-ID: <20070111114140.GB6333@twibble.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 11 Jan 2007, Aubrey wrote:
-> 
->>Now, my question is, is there a existing way to mount a filesystem
->>with O_DIRECT flag? so that I don't need to change anything in my
->>system. If there is no option so far, What is the right way to achieve
->>my purpose?
-> 
-> 
-> The right way to do it is to just not use O_DIRECT. 
-> 
-> The whole notion of "direct IO" is totally braindamaged. Just say no.
-> 
-> 	This is your brain: O
-> 	This is your brain on O_DIRECT: .
-> 
-> 	Any questions?
-> 
-> I should have fought back harder. There really is no valid reason for EVER 
-> using O_DIRECT. You need a buffer whatever IO you do, and it might as well 
-> be the page cache. There are better ways to control the page cache than 
-> play games and think that a page cache isn't necessary.
-> 
-> So don't use O_DIRECT. Use things like madvise() and posix_fadvise() 
-> instead. 
+This fixes the SH rtc driver correctly act on the "enabled" flag when
+setting an alarm.
 
-OK, madvise() used with mmap'ed file allows to have reads from a file
-with zero-copy between kernel/user buffers and don't pollute cache
-memory unnecessarily. But how about writes? How is to do zero-copy
-writes to a file and don't pollute cache memory without using O_DIRECT?
-Do I miss the appropriate interface?
+Signed-off-by: Jamie Lenehan <lenehan@twibble.org>
 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -492,10 +492,10 @@ static int sh_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 
+ 	spin_lock_irq(&rtc->lock);
+ 
+-	/* disable alarm interrupt and clear flag */
++	/* disable alarm interrupt and clear the alarm flag */
+ 	rcr1 = readb(rtc->regbase + RCR1);
+-	rcr1 &= ~RCR1_AF;
+-	writeb(rcr1 & ~RCR1_AIE, rtc->regbase + RCR1);
++	rcr1 &= ~(RCR1_AF|RCR1_AIE);
++	writeb(rcr1, rtc->regbase + RCR1);
+ 
+ 	rtc->rearm_aie = 0;
+ 
+@@ -510,8 +510,10 @@ static int sh_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		mon += 1;
+ 	sh_rtc_write_alarm_value(rtc, mon, RMONAR);
+ 
+-	/* Restore interrupt activation status */
+-	writeb(rcr1, rtc->regbase + RCR1);
++	if (wkalrm->enabled) {
++		rcr1 |= RCR1_AIE;
++		writeb(rcr1, rtc->regbase + RCR1);
++	}
+ 
+ 	spin_unlock_irq(&rtc->lock);
+ 
 
+-- 
+ Jamie Lenehan <lenehan@twibble.org>

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965270AbXAKBPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751259AbXAKBVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965270AbXAKBPW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 20:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbXAKBPW
+	id S1751259AbXAKBVD (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 20:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbXAKBVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 20:15:22 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:55246
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S965270AbXAKBPW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 20:15:22 -0500
-Date: Wed, 10 Jan 2007 17:15:20 -0800 (PST)
-Message-Id: <20070110.171520.23015257.davem@davemloft.net>
-To: jafo@tummy.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: select() setting ERESTARTNOHAND (514).
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070111010429.GN7121@tummy.com>
-References: <20070110234238.GB10791@tummy.com>
-	<20070110.162747.28789587.davem@davemloft.net>
-	<20070111010429.GN7121@tummy.com>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 10 Jan 2007 20:21:01 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:51053 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965280AbXAKBVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 20:21:01 -0500
+Date: Wed, 10 Jan 2007 17:27:21 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: Eric Sandeen <sandeen@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] ext2: skip pages past number of blocks in ext2_find_entry (CVE-2006-6054)
+Message-ID: <20070111012721.GO10475@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sean Reifschneider <jafo@tummy.com>
-Date: Wed, 10 Jan 2007 18:04:29 -0700
+This one looks like it fell through the cracks, it's in 2.6.19.2 but not upstream yet.
 
-> On Wed, Jan 10, 2007 at 04:27:47PM -0800, David Miller wrote:
-> >It gets caught by the return into userspace code.
-> 
-> Ok, so somehow it is leaking.  I have a system in the lab that is the same
-> hardware as production, but it currently has no, you know, hard drives in
-> it, so some assembly is required.  I'll see if I can reproduce it in a test
-> environment and then see if I can get more information on when/where it is
-> leaking.
+thanks,
+-chris
+--
+Subject: [PATCH] ext2: skip pages past number of blocks in ext2_find_entry (CVE-2006-6054)
+From: Eric Sandeen <sandeen@redhat.com>
 
-If you're only seeing it in strace, that's expected due to some
-unfortunate things in the way that x86 and x86_64 handle signal
-return events via ptrace().
+This one was pointed out on the MOKB site:
+http://kernelfun.blogspot.com/2006/11/mokb-09-11-2006-linux-26x-ext2checkpage.html
 
-On sparc and sparc64 I fixed this long ago such that ptrace() will
-update the user registers before ptrace parents are notified, and
-therefore you'll never see those kernel internal error codes.
+If a directory's i_size is corrupted, ext2_find_entry() will keep processing
+pages until the i_size is reached, even if there are no more blocks associated
+with the directory inode.  This patch puts in some minimal sanity-checking
+so that we don't keep checking pages (and issuing errors) if we know there
+can be no more data to read, based on the block count of the directory inode.
 
-The upside of this is that you'll really need to see what value is
-making it to the application.  What the kernel is probably
-doing is looping trying to restart the system call and sending
-the signal.  If it's doing that the application is being rewound
-to call the system call again once the signal handler returns
-(if that is even being run at all).
+This is somewhat similar in approach to the ext3 patch I sent earlier this
+year.
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+Not upstream yet
+
+ fs/ext2/dir.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- linux-2.6.19.1.orig/fs/ext2/dir.c
++++ linux-2.6.19.1/fs/ext2/dir.c
+@@ -368,6 +368,14 @@ struct ext2_dir_entry_2 * ext2_find_entr
+ 		}
+ 		if (++n >= npages)
+ 			n = 0;
++		/* next page is past the blocks we've got */
++		if (unlikely(n > (dir->i_blocks >> (PAGE_CACHE_SHIFT - 9)))) {
++			ext2_error(dir->i_sb, __FUNCTION__,
++				"dir %lu size %lld exceeds block count %llu",
++				dir->i_ino, dir->i_size,
++				(unsigned long long)dir->i_blocks);
++			goto out;
++		}
+ 	} while (n != start);
+ out:
+ 	return NULL;

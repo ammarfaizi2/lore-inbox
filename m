@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750889AbXAKSgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751356AbXAKSlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbXAKSgK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 13:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbXAKSgK
+	id S1751356AbXAKSlg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 13:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbXAKSlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 13:36:10 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41911 "EHLO gate.crashing.org"
+	Thu, 11 Jan 2007 13:41:36 -0500
+Received: from pat.uio.no ([129.240.10.15]:58226 "EHLO pat.uio.no"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750889AbXAKSgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 13:36:09 -0500
-In-Reply-To: <13426df10701110955y18381bbeg5f23c0e375383836@mail.gmail.com>
-References: <13426df10701110939k21f7bb1dy38d2b34ca37a5a36@mail.gmail.com> <45A67987.6030508@firmworks.com> <13426df10701110955y18381bbeg5f23c0e375383836@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <d2b1934bee9f965f755a8d0851d25d81@kernel.crashing.org>
+	id S1751356AbXAKSlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 13:41:35 -0500
+Subject: Re: O_DIRECT question
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Xavier Bestel <xavier.bestel@free.fr>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
+In-Reply-To: <Pine.LNX.4.64.0701110900090.3594@woody.osdl.org>
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+	 <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
+	 <45A5D4A7.7020202@yahoo.com.au>
+	 <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+	 <1168534362.7365.3.camel@bip.parateam.prv>
+	 <Pine.LNX.4.64.0701110900090.3594@woody.osdl.org>
+Content-Type: text/plain
+Date: Thu, 11 Jan 2007 13:41:15 -0500
+Message-Id: <1168540875.6170.46.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Cc: "Mitch Bradley" <wmb@firmworks.com>,
-       "OLPC Developer's List" <devel@laptop.org>,
-       "Linux Kernel ML" <linux-kernel@vger.kernel.org>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Date: Thu, 11 Jan 2007 19:36:22 +0100
-To: "ron minnich" <rminnich@gmail.com>
-X-Mailer: Apple Mail (2.623)
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=disabled, UIO_MAIL_IS_INTERNAL=-5)
+X-UiO-Scanned: CC5960E53CC0D720CF450FC87794508036D0B213
+X-UiO-SPAM-Test: 141.211.133.154 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Segher has a modification to the devtree patch that creates a lower
->> level ops vector that can be implemented with callback or 
->> non-callback.
->>
->> It is still being tested.
+On Thu, 2007-01-11 at 09:04 -0800, Linus Torvalds wrote:
+> That is what I think some users could do. If the main issue with O_DIRECT 
+> is the page cache allocations, if we instead had better (read: "any") 
+> support for POSIX_FADV_NOREUSE, one class of reasons O_DIRECT usage would 
+> just go away.
 
-It currently only hooks up OLPC, and I don't have any of
-those [hint hint], so I need external testers.  I'll send
-the patch to LKML if it does work.  However, the way it
-implements the filesystem will need significant changes,
-but we'll discuss that later :-)
+For NFS, the main feature of interest when it comes to O_DIRECT is
+strictly uncached I/O. Replacing it with POSIX_FADV_NOREUSE won't help
+because it can't guarantee that the page will be thrown out of the page
+cache before some second process tries to read it. That is particularly
+true if some dopey third party process has mmapped the file.
 
-> Wonderful! If the non-callback version works out,
-
-We use it on many PowerPC platforms already, it works
-just fine.
-
-> then we can greatly
-> widen the potential use of the OF device tree for many BIOSes. If that
-> works, then we can put the proprietary tables into a small box and
-> ignore them :-)
-
-Yup, the DTC-generated tree is just a single binary blob
-from the perspective of passing it around.
-
-
-Segher
+Trond
 

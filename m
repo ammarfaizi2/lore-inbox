@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030307AbXAKMeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030267AbXAKMii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbXAKMeS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 07:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbXAKMeS
+	id S1030267AbXAKMii (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 07:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbXAKMii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 07:34:18 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:4792 "EHLO
-	spirit.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030307AbXAKMeR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 07:34:17 -0500
+	Thu, 11 Jan 2007 07:38:38 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:55954 "EHLO scrub.xs4all.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030267AbXAKMih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 07:38:37 -0500
+Date: Thu, 11 Jan 2007 13:38:24 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jean Delvare <khali@linux-fr.org>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>,
+       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>
+Subject: Re: .version keeps being updated
+In-Reply-To: <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0701111330400.14457@scrub.home>
+References: <20070109102057.c684cc78.khali@linux-fr.org>
+ <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org>
+ <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org>
+ <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 11 Jan 2007 12:34:05.0915 (UTC) FILETIME=[C87C3AB0:01C7357C]
-Content-class: urn:content-classes:message
-Subject: Re: O_DIRECT question
-Date: Thu, 11 Jan 2007 07:34:00 -0500
-Message-ID: <Pine.LNX.4.61.0701110724040.19233@chaos.analogic.com>
-In-Reply-To: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: O_DIRECT question
-Thread-Index: Acc1fMiPVFyFTizbRPaAXwTuk/kVtw==
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Aubrey" <aubreylee@gmail.com>
-Cc: "Hua Zhong" <hzhong@gmail.com>, "Hugh Dickins" <hugh@veritas.com>,
-       <linux-kernel@vger.kernel.org>, <hch@infradead.org>,
-       <kenneth.w.chen@intel.com>, <akpm@osdl.org>, <torvalds@osdl.org>,
-       <mjt@tls.msk.ru>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 10 Jan 2007, Aubrey wrote:
+On Wed, 10 Jan 2007, Linus Torvalds wrote:
 
-> Hi all,
->
-> Opening file with O_DIRECT flag can do the un-buffered read/write access.
-> So if I need un-buffered access, I have to change all of my
-> applications to add this flag. What's more, Some scripts like "cp
-> oldfile newfile" still use pagecache and buffer.
-> Now, my question is, is there a existing way to mount a filesystem
-> with O_DIRECT flag? so that I don't need to change anything in my
-> system. If there is no option so far, What is the right way to achieve
-> my purpose?
->
-> Thanks a lot.
-> -Aubrey
-> -
+> This part:
+> 
+> 	const char __init linux_banner[] =
+> 
+> CANNOT work, because the stupid SuSE tool that look into the kernel binary 
+> searches for "Linux version " as the thing, and as such the "linux_banner" 
+> has to be the _first_ thing to trigger it for it to work.
 
-I don't think O_DIRECT ever did what a lot of folks expect, i.e.,
-write this buffer of data to the physical device _now_. All I/O
-ends up being buffered. The `man` page states that the I/O will
-be synchronous, that at the conclusion of the call, data will have
-been transferred. However, the data written probably will not be
-in the physical device, perhaps only in a DMA-able buffer with
-a promise to get it to the SCSI device, soon.
+Unless the SuSE tool is completely stupid, it should actually work:
 
-Maybe you need to say why you want to use O_DIRECT with its terrible
-performance?
+$ strings vmlinux | grep "Linux version"
+Linux version 2.6.20-rc3-git7 (roman@squid) (gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)) #7 SMP Wed Jan 10 14:20:10 CET 2007
+$
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+> Which is why "__init" is wrong. It causes the linker to either put it at 
+> the end of the thing (which would break the SuSE tool). Alternatively it 
+> causes section mismatch problems ("init" and "const" don't work that well 
+> together), in which case it might work, but only due to toolchain bugs.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+The const could be dropped, but it shouldn't hurt much either...
 
-Thank you.
+bye, Roman

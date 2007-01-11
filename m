@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030470AbXAKNvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030471AbXAKNvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbXAKNvl (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 08:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbXAKNvI
+	id S1030471AbXAKNvm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 08:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbXAKNvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 08:51:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4603 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1030455AbXAKNtM (ORCPT
+	Thu, 11 Jan 2007 08:51:06 -0500
+Received: from extu-mxob-2.symantec.com ([216.10.194.135]:5566 "EHLO
+	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030469AbXAKNu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 08:49:12 -0500
-Date: Thu, 11 Jan 2007 14:49:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let BLK_DEV_AMD74XX depend on X86
-Message-ID: <20070111134917.GE20027@stusta.de>
+	Thu, 11 Jan 2007 08:50:29 -0500
+X-AuditID: d80ac287-a08bebb000007fb9-ad-45a641d7f7b2 
+Date: Thu, 11 Jan 2007 13:50:43 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Robert Schwebel <r.schwebel@pengutronix.de>
+cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+       Bjoern Buerger <bbu@pengutronix.de>
+Subject: Re: Mounting tmpfs with symbolic gid doesn't work
+In-Reply-To: <20070111113812.GD29495@pengutronix.de>
+Message-ID: <Pine.LNX.4.64.0701111342180.14808@blonde.wat.veritas.com>
+References: <20070111113812.GD29495@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 11 Jan 2007 13:50:27.0096 (UTC) FILETIME=[7314F980:01C73587]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's unlikely that this driver will ever be of any use on other 
-architectures.
+On Thu, 11 Jan 2007, Robert Schwebel wrote:
+> 
+> Mounting tmpfs with gid=<symbolic-group> doesn't work on recent kernels
+> any more; the same with uid=<symbolic-username> works fine:
+> 
+> rsc@isonoe:~$ mkdir troet
+> rsc@isonoe:~$ sudo mount -t tmpfs -ogid=rsc none troet/
+> mount: wrong fs type, bad option, bad superblock on none,
+>        missing codepage or other error
+>        In some cases useful info is found in syslog - try
+>        dmesg | tail  or so
+> rsc@isonoe:~/svn/ptxdist-trunk$ dmesg | tail -n 1 
+> tmpfs: Bad value 'rsc' for mount option 'gid'
+> rsc@isonoe:~$ sudo mount -t tmpfs -ogid=1006 none troet/
+> rsc@isonoe:~$ mount | grep troet
+> none on /home/rsc/troet type tmpfs (rw,gid=1006)
+> rsc@isonoe:~$ ls -ld troet/
+> drwxrwxrwt 2 root 1006 40 Jan 11 12:32 troet/
+> rsc@isonoe:~$ sudo umount troet/
+> rsc@isonoe:~$ sudo mount -t tmpfs -ouid=1006 none troet/
+> rsc@isonoe:~$ sudo umount troet/
+> rsc@isonoe:~$ sudo mount -t tmpfs -ouid=rsc none troet/
+> rsc@isonoe:~$ ls -ld troet/
+> drwxrwxrwt 2 rsc root 40 Jan 11 12:33 troet/
+> rsc@isonoe:~$ sudo umount troet/
+> 
+> Tested with 2.6.19-rc6, the behaviour seems to have worked until at
+> least 2.6.16. Does anyone have an idea?
 
-This fixes the following compile error on ia64:
+Works fine for me here on 2.6.16 or 2.6.19 or 2.6.20-rc4
+(though I tried with "mail" rather than "rsc" ;)
 
-<--  snip  -->
+Whatever, I think it's not a kernel problem: tmpfs itself only handles
+numeric gid, I believe it's the job of the userspace end of mount to
+convert symbolic uid or gid to numeric uid or gid for the kernel mount.
 
-...
-  CC      drivers/ide/pci/amd74xx.o
-/home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c: In function 'init_hwif_amd74xx':
-/home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c:421: warning: implicit declaration of function 'pci_get_legacy_ide_irq'
-  CC      drivers/ide/pci/cmd64x.o
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `init_hwif_amd74xx':
-/home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c:421: undefined reference to `pci_get_legacy_ide_irq'
-make[1]: *** [.tmp_vmlinux1] Error 1
+Looking through what you've tried above, I'm guessing that "rsc" is
+your symbolic uid, but you're expecting there to be a group of that
+name - perhaps there is not?  perhaps since 2.6.16 you switched from
+a distro which makes a group for each user to a distro which does not?
 
-<--  snip  -->
-
-
-This fixes kernel Bugzilla #6644.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.20-rc3-mm1/drivers/ide/Kconfig.old	2007-01-11 11:15:24.000000000 +0100
-+++ linux-2.6.20-rc3-mm1/drivers/ide/Kconfig	2007-01-11 11:15:37.000000000 +0100
-@@ -478,6 +478,7 @@
- 
- config BLK_DEV_AMD74XX
- 	tristate "AMD and nVidia IDE support"
-+	depends on X86
- 	help
- 	  This driver adds explicit support for AMD-7xx and AMD-8111 chips
- 	  and also for the nVidia nForce chip.  This allows the kernel to
-
+Hugh

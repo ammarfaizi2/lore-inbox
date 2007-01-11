@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751440AbXAKVCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751448AbXAKVIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbXAKVCz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 16:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbXAKVCz
+	id S1751448AbXAKVIS (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 16:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbXAKVIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 16:02:55 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:47987 "EHLO
-	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751440AbXAKVCz (ORCPT
+	Thu, 11 Jan 2007 16:08:18 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:47213 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751448AbXAKVIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 16:02:55 -0500
-Subject: Re: [FYI] Vendor interest in Unionfs
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Indrek Kruusa <indrek.kruusa@artecdesign.ee>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <45A37D73.1090604@artecdesign.ee>
-References: <45A37D73.1090604@artecdesign.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 11 Jan 2007 16:02:49 -0500
-Message-Id: <1168549369.5332.5.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 11 Jan 2007 16:08:17 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Thu, 11 Jan 2007 22:08:12 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: Linux-2.6.20-rc4 - Kernel panic!
+To: Sunil Naidu <akula2.shark@gmail.com>
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8355959a0701111211m416e202bx637bca22f8fca826@mail.gmail.com>
+Message-ID: <tkrat.113437f9eecab84a@s5r6.in-berlin.de>
+References: <8355959a0701110300j33d28f54y67728eb847c7ba31@mail.gmail.com> 
+ <45A681E5.6060502@s5r6.in-berlin.de>
+ <8355959a0701111211m416e202bx637bca22f8fca826@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-09 at 13:33 +0200, Indrek Kruusa wrote:
->  >> Is there vendor interest in unionfs?
-> 
->  > MANY live cds seem to use it
-> 
-> 
-> I'd like to add that also in embedded area (flash storage) the UnionFS 
-> helps in some cases.
+Sunil Naidu wrote:
+> compiling a driver as module has same affect (while
+> loading/booting of kernel) compare to compiling a driver as kernel
+> builtin feature?
 
-I'll chime in as well. Ubuntu uses unionfs extensively for our live
-CD's. I'd very much like to stop adding this to our kernels myself.
+LKML is not the place for such questions.
+
+Modules have to be loaded from a filesystem while built-in features are
+available from the start.
+
+The bootloader only loads the kernel image and optionally an initrd. The
+initrd is used as a preliminary root filesystem which may contain kernel
+modules to load to make the real root filesystem accessible. That's what
+distributors do because they don't know in advance which drivers their
+users will actually need. Endusers who build their own kernels might as
+well compile all drivers that are needed for access to the root
+filesystem into the kernel image and work without initrd.
+-- 
+Stefan Richter
+-=====-=-=== ---= -=-==
+http://arcgraph.de/sr/
+

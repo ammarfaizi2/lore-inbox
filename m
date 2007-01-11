@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965327AbXAKHjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965324AbXAKHsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965327AbXAKHjh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 02:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965326AbXAKHjh
+	id S965324AbXAKHsz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 02:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965325AbXAKHsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 02:39:37 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:59559 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965324AbXAKHjg (ORCPT
+	Thu, 11 Jan 2007 02:48:55 -0500
+Received: from mo-p00-ob.rzone.de ([81.169.146.160]:19272 "EHLO
+	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965324AbXAKHsz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 02:39:36 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=twJzQFttTKyq1PXNot3rU5vqbyzlhQI2LGRis0ka34Bg3wjjz8+nGuWRyeMtZwsy3Ikcmu0YLdB0CCTUekyR5uHtsuBJLNgshwaBOna3OXmaE35tEiyQH8zfI2JQICBM3UB5MBmUsHcakzm01Kw4ZoIRwYpFJCyX1S4qej5eXsY=
-Message-ID: <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
-Date: Thu, 11 Jan 2007 09:39:34 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: mprotect abuse in slim
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Mimi Zohar" <zohar@us.ibm.com>, akpm@osdl.org,
-       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@saff.watson.ibm.com
-In-Reply-To: <20070110155845.GA373@sergelap.austin.ibm.com>
+	Thu, 11 Jan 2007 02:48:55 -0500
+Date: Thu, 11 Jan 2007 08:48:53 +0100 (MET)
+From: Oliver Neukum <oneukum@suse.de>
+Organization: Novell
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.20-rc4: null pointer deref in khubd
+User-Agent: KMail/1.9.1
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0701101732160.5563-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0701101732160.5563-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
-	 <1168312045.3180.140.camel@laptopd505.fenrus.org>
-	 <20070109094625.GA11918@infradead.org>
-	 <20070109231449.GA4547@sergelap.austin.ibm.com>
-	 <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI>
-	 <20070110155845.GA373@sergelap.austin.ibm.com>
-X-Google-Sender-Auth: 6bb5e6e88973c0fa
+Message-Id: <200701110853.26871.oneukum@suse.de>
+X-RZG-AUTH: kN+qSWxTQH+Xqix8Cni7tCsVYhPCm1GP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/10/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> But since it looks like you just munmap the region now, shouldn't a
-> subsequent munmap by the app just return -EINVAL?  that seems appropriate
-> to me.
+Am Mittwoch, 10. Januar 2007 23:35 schrieb Alan Stern:
+> > Apparently here: drivers/base/core.c:
+> > 
+> > void device_del(struct device * dev)
+> > {
+> >       struct device * parent = dev->parent;
+> >       struct class_interface *class_intf;
+> > 
+> >       if (parent)
+> >               klist_del(&dev->knode_parent);
+> > 
+> > The obvious change with this device is that usb_set_configuration() is never
+> > called, but that should not matter.
+> 
+> No, I think you're barking up the wrong tree.
 
-Applications don't know about revoke and neither should they.
-Therefore close(2) and munmap(2) must work the same way they would for
-non-revoked inodes so that applications can release resources
-properly.
+OK. Next time I'll ask about config options before going through working
+code looking for a bug.
 
-                                         Pekka
+	Regards
+		Oliver

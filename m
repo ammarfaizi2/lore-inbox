@@ -1,236 +1,130 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750821AbXAKQTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750818AbXAKQU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbXAKQTs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXAKQTs
+	id S1750818AbXAKQU7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 11:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXAKQU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:19:48 -0500
-Received: from wr-out-0506.google.com ([64.233.184.238]:64203 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750821AbXAKQTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:19:47 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=s1mUP9qXVOnbSaTbFi7/aSca47OHHfecyDuuhg0qnSB2XZKsIApQECWuwTEyCHBSwIoYqINkqGA2Dx1NF52XTxHv+ItpDlwGkJUcH+s7utlb6IdWvjrHgJKlYLx4mVdwlrxXM3cUrQM4PLyDb/QmkRwBw8qV9CDAc5JZ2Ir+3zU=
-Message-ID: <6d6a94c50701110819nf78a90eg3ff06f85c75e8b50@mail.gmail.com>
-Date: Fri, 12 Jan 2007 00:19:45 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: O_DIRECT question
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Hua Zhong" <hzhong@gmail.com>,
-       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+	Thu, 11 Jan 2007 11:20:59 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:44131 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750818AbXAKQU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 11:20:58 -0500
+Date: Thu, 11 Jan 2007 08:20:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Viktor <vvp01@inbox.ru>
+cc: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
        hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
        mjt@tls.msk.ru
-In-Reply-To: <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Subject: Re: O_DIRECT question
+In-Reply-To: <45A629E9.70502@inbox.ru>
+Message-ID: <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org>
 References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
-	 <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
-	 <45A5D4A7.7020202@yahoo.com.au>
-	 <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+ <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/07, Linus Torvalds <torvalds@osdl.org> wrote:
->
-> The "good" news is that CPU really is outperforming disk more and more, so
-> the extra cost of managing the page cache keeps on getting smaller and
-> smaller, and (fingers crossed) some day we can hopefully just drop
-> O_DIRECT and nobody will care.
->
->                 Linus
->
-Yes for desktop, server, but maybe not for embedded system, specially
-for no-mmu linux. In many embedded system cases, the whole system is
-running in the ram, including file system. So it's not necessary using
-page cache anymore. Page cache can't improve performance on these
-cases, but only fragment memory.
-Maybe O_DIRECT is not a right way to fix this issue. But I think file
-system need an option for un-buffered access, that means don't use
-page cache at all.
-
--Aubrey
-
-P.S. The following is the test case and crash info. I think it will
-help what exactly I encountered.
-------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#define N 8
-
-int main (void){
-       void *p[N];
-       int i;
-
-       printf("Alloc %d MB !\n", N);
-
-       for (i = 0; i < N; i++) {
-               p[i] = malloc(1024 * 1024);
-               if (p[i] == NULL)
-                       printf("alloc failed\n");
-       }
-
-               printf("alloc successful \n");
-       for (i = 0; i < N; i++)
-               free(p[i]);
-}
---------------------------------------------------------------
-
-When there is not enough free memory to allocate:
-==============================
-root:/mnt> cat /proc/meminfo
-MemTotal:        54196 kB
-MemFree:          5520 kB <== only 5M free
-Buffers:            76 kB
-Cached:          44696 kB <== cache eat 40MB
-SwapCached:          0 kB
-Active:          21092 kB
-Inactive:        23680 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        54196 kB
-LowFree:          5520 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-AnonPages:           0 kB
-Mapped:              0 kB
-Slab:             3720 kB
-PageTables:          0 kB
-NFS_Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:     27096 kB
-Committed_AS:        0 kB
-VmallocTotal:        0 kB
-VmallocUsed:         0 kB
-VmallocChunk:        0 kB
-==========================================
 
 
-I got failure after run the test program.
----------------------------------------
-root:/mnt> ./t
-Alloc 8 MB !
-t: page allocation failure. order:9, mode:0x40d0
-Hardware Trace:
- 0 Target : <0x00004de0> { _dump_stack + 0x0 }
-  Source : <0x0003054a> { ___alloc_pages + 0x17e }
- 1 Target : <0x0003054a> { ___alloc_pages + 0x17e }
-  Source : <0x0000dbc2> { _printk + 0x16 }
- 2 Target : <0x0000dbbe> { _printk + 0x12 }
-  Source : <0x0000da4e> { _vprintk + 0x1a2 }
- 3 Target : <0x0000da42> { _vprintk + 0x196 }
-  Source : <0xffa001ea> { __common_int_entry + 0xd8 }
- 4 Target : <0xffa00188> { __common_int_entry + 0x76 }
-  Source : <0x000089bc> { _return_from_int + 0x58 }
- 5 Target : <0x000089bc> { _return_from_int + 0x58 }
-  Source : <0x00008992> { _return_from_int + 0x2e }
- 6 Target : <0x00008964> { _return_from_int + 0x0 }
-  Source : <0xffa00184> { __common_int_entry + 0x72 }
- 7 Target : <0xffa00182> { __common_int_entry + 0x70 }
-  Source : <0x00012682> { __local_bh_enable + 0x56 }
- 8 Target : <0x0001266c> { __local_bh_enable + 0x40 }
-  Source : <0x0001265c> { __local_bh_enable + 0x30 }
- 9 Target : <0x00012654> { __local_bh_enable + 0x28 }
-  Source : <0x00012644> { __local_bh_enable + 0x18 }
-10 Target : <0x0001262c> { __local_bh_enable + 0x0 }
-  Source : <0x000128e0> { ___do_softirq + 0x94 }
-11 Target : <0x000128d8> { ___do_softirq + 0x8c }
-  Source : <0x000128b8> { ___do_softirq + 0x6c }
-12 Target : <0x000128aa> { ___do_softirq + 0x5e }
-  Source : <0x0001666a> { _run_timer_softirq + 0x82 }
-13 Target : <0x000165fc> { _run_timer_softirq + 0x14 }
-  Source : <0x00023eb8> { _hrtimer_run_queues + 0xe8 }
-14 Target : <0x00023ea6> { _hrtimer_run_queues + 0xd6 }
-  Source : <0x00023e70> { _hrtimer_run_queues + 0xa0 }
-15 Target : <0x00023e68> { _hrtimer_run_queues + 0x98 }
-  Source : <0x00023eae> { _hrtimer_run_queues + 0xde }
-Stack from 015a7dcc:
-       00000001 0003054e 00000000 00000001 000040d0 0013c70c 00000009 000040d0
-       00000000 00000080 00000000 000240d0 00000000 015a6000 015a6000 015a6000
-       00000010 00000000 00000001 00036e12 00000000 0023f8e0 00000073 00191e40
-       00000020 0023e9a0 000040d0 015afea9 015afe94 00101fff 000040d0 0023e9a0
-       00000010 00101fff 000370de 00000000 0363d3e0 00000073 0000ffff 04000021
-       00000000 00101000 00187af0 00035b44 00000000 00035e40 00000000 00000000
-Call Trace:
-Call Trace:
-[<0000fffe>] _do_exit+0x12e/0x7cc
-[<00004118>] _sys_mmap+0x54/0x98
-[<00101000>] _fib_create_info+0x670/0x780
-[<00008828>] _system_call+0x68/0xba
-[<000040c4>] _sys_mmap+0x0/0x98
-[<0000fffe>] _do_exit+0x12e/0x7cc
-[<00008000>] _cplb_mgr+0x8/0x2e8
-[<00101000>] _fib_create_info+0x670/0x780
-[<00101000>] _fib_create_info+0x670/0x780
+On Thu, 11 Jan 2007, Viktor wrote:
+> 
+> OK, madvise() used with mmap'ed file allows to have reads from a file
+> with zero-copy between kernel/user buffers and don't pollute cache
+> memory unnecessarily. But how about writes? How is to do zero-copy
+> writes to a file and don't pollute cache memory without using O_DIRECT?
+> Do I miss the appropriate interface?
 
-Mem-info:
-DMA per-cpu:
-cpu 0 hot: high 18, batch 3 used:5
-cpu 0 cold: high 6, batch 1 used:5
-DMA32 per-cpu: empty
-Normal per-cpu: empty
-HighMem per-cpu: empty
-Free pages:       21028kB (0kB HighMem)
-Active:2549 inactive:3856 dirty:0 writeback:0 unstable:0 free:5257
-slab:1833 mapped:0 pagetables:0
-DMA free:21028kB min:948kB low:1184kB high:1420kB active:10196kB
-inactive:15424kB present:56320kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
-present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
-present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-HighMem free:0kB min:128kB low:128kB high:128kB active:0kB
-inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-DMA: 43*4kB 35*8kB 28*16kB 17*32kB 18*64kB 20*128kB 16*256kB 11*512kB
-6*1024kB 0*2048kB 0*4096kB 0*8192kB 0*16384kB 0*32768kB = 21028kB
-DMA32: empty
-Normal: empty
-HighMem: empty
-14080 pages of RAM
-5285 free pages
-531 reserved pages
-11 pages shared
-0 pages swap cached
-Allocation of length 1052672 from process 57 failed
-DMA per-cpu:
-cpu 0 hot: high 18, batch 3 used:5
-cpu 0 cold: high 6, batch 1 used:5
-DMA32 per-cpu: empty
-Normal per-cpu: empty
-HighMem per-cpu: empty
-Free pages:       21028kB (0kB HighMem)
-Active:2549 inactive:3856 dirty:0 writeback:0 unstable:0 free:5257
-slab:1833 mapped:0 pagetables:0
-DMA free:21028kB min:948kB low:1184kB high:1420kB active:10196kB
-inactive:15424kB present:56320kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
-present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
-present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-HighMem free:0kB min:128kB low:128kB high:128kB active:0kB
-inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-DMA: 43*4kB 35*8kB 28*16kB 17*32kB 18*64kB 20*128kB 16*256kB 11*512kB
-6*1024kB 0*2048kB 0*4096kB 0*8192kB 0*16384kB 0*32768kB = 21028kB
-DMA32: empty
-Normal: empty
-HighMem: empty
------------------------------
+mmap()+msync() can do that too.
 
-If there is no page cache, I have another 40Mb to run the test
-program. I'm pretty sure the program can work properly at the first
-time.
+Also, regular user-space page-aligned data could easily just be moved into 
+the page cache. We actually have a lot of the infrastructure for it. See 
+the "splice()" system call. It's just not very widely used, and the 
+"drop-behind" behaviour (to then release the data) isn't there. And I bet 
+that there's lots of work needed to make it work well in practice, but 
+from a conceptual standpoint the O_DIRECT method really is just about the 
+*worst* way to do things.
+
+O_DIRECT is "simple" in the sense that it basically is a "OS: please just 
+get out of the way" method. It's why database people like it, and it's why 
+it has gotten implemented in many operating systems: it *looks* like a 
+simple interface. 
+
+But deep down, O_DIRECT is anything but simple. Trying to do a direct 
+access with an interface that really isn't designed for it (write() 
+_fundamentally_ has semantics that do not fit the problem in that you're 
+supposed to be able to re-use the buffer immediately afterwards in user 
+space, just as an example) is wrong in the first place, but the really 
+subtle problems come when you realize that you can't really just "bypass" 
+the OS.
+
+As a very concrete example: people *think* that they can just bypass the 
+OS IO layers and just do the write directly. It *sounds* like something 
+simple and obvious. It sounds like a total no-brainer. Which is exactly 
+what it is, if by "no-brainer" you mean "only a person without a brain 
+will do it". Because by-passing the OS has all these subtle effects on 
+both security and on fundamental correctness.
+
+The whole _point_ of an OS is to be a "resource manager", to make sure 
+that people cannot walk all over each other, and to be the central point 
+that makes sure that different people doing allocations and deallocations 
+don't get confused. In the specific case of a filesystem, it's "trivial" 
+things like serializing IO, allocating new blocks on the disk, and making 
+sure that nobody will see the half-way state when the dirty blocks haven't 
+been written out yet.
+
+O_DIRECT - by bypassing the "real" kernel - very fundamentally breaks the 
+whole _point_ of the kernel. There's tons of races where an O_DIRECT user 
+(or other users that expect to see the O_DIRECT data) will now see the 
+wrong data - including seeign uninitialized portions of the disk etc etc. 
+
+In short, the whole "let's bypass the OS" notion is just fundamentally 
+broken. It sounds simple, but it sounds simple only to an idiot who writes 
+databases and doesn't even UNDERSTAND what an OS is meant to do. For some 
+reasons, db people think that they don't need one, and don't ever seem to 
+really understand the concept fo "security" and "correctness". They 
+understand it (sometimes) _within_ their own database, but seem to have a 
+really hard time seeing past their own sandbox.
+
+Some of the O_DIRECT breakage could probably be fixed:
+
+ - An O_DIRECT operation must never allocate new blocks on the disk. It's 
+   fundamentally broken. If you *cannot* write new blocks, and can only 
+   read and re-write previous allocations, things are much easier, and a 
+   lot of the races go away.
+
+   This is probably _perfectly_ fine for the users (namely databases). 
+   People who do O_DIRECT really expect to see a "raw disk image", but 
+   they (exactly _because_ they expect a raw disk image) are perfectly 
+   happy to "set up" that image beforehand.
+
+ - An O_DIRECT operation must never race with any metadata operation, 
+   most notably truncate(), but also any file extension operation like a 
+   normal write() that extends the size of the file.
+
+   This should be reasonably easy to do. Any O_DIRECT operation would just 
+   take the inode->i_mutex for reading. HOWEVER. Right now it's a mutex, 
+   not a read-write semaphore, so that is actually pretty painful. But it 
+   would be fairly simple.
+
+With those two rules, a lot of the complexity of the nasty side effects of 
+O_DIRECT that the db people obviously never even thought about would go 
+away. We'd still have to have some way to synchronize the page cache, but 
+it could be as simple as having an O_DIRECT open simply _flush_ the whole 
+page cache, and set some flag saying "can't do normal opens, we're 
+exclusively open for O_DIRECT".
+
+I dunno. A lot of filesystems don't want to (or can't) actually do a 
+"write in place" ANYWAY (writes happen through the log, and hit the "real 
+filesystem" part of the disk later), and O_DIRECT really only makes sense 
+if you do the write in place, so the above rules would help make that 
+obvious too - O_DIRECT really is a totally different thing from a normal 
+IO, and an O_DIRECT write() or read() really has *nothing* to do with a 
+regular write() or read() system call. 
+
+Overloading a totally different operation with a flag is a bad idea, which 
+is one reason I really hate O_DIRECT. It's just doing things badly on so 
+many levels.
+
+			Linus

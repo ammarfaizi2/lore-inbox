@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751514AbXAKUob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751440AbXAKVCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbXAKUob (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 15:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbXAKUob
+	id S1751440AbXAKVCz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 16:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbXAKVCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 15:44:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34209 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751514AbXAKUoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 15:44:30 -0500
-Message-ID: <45A6A17F.6080002@sgi.com>
-Date: Thu, 11 Jan 2007 14:43:43 -0600
-From: Michael Reed <mdr@sgi.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Zach Brown'" <zach.brown@oracle.com>,
-       "'Chris Mason'" <chris.mason@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jeremy Higdon <jeremy@sgi.com>, David Chinner <dgc@sgi.com>
-Subject: Re: [patch] optimize o_direct on block device - v3
-References: <000101c7198d$9a9fde40$ff0da8c0@amr.corp.intel.com>	<45A68E55.10601@sgi.com> <20070111112901.28085adf.akpm@osdl.org>
-In-Reply-To: <20070111112901.28085adf.akpm@osdl.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 11 Jan 2007 16:02:55 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:47987 "EHLO
+	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751440AbXAKVCz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 16:02:55 -0500
+Subject: Re: [FYI] Vendor interest in Unionfs
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Indrek Kruusa <indrek.kruusa@artecdesign.ee>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <45A37D73.1090604@artecdesign.ee>
+References: <45A37D73.1090604@artecdesign.ee>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Jan 2007 16:02:49 -0500
+Message-Id: <1168549369.5332.5.camel@gullible>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Andrew Morton wrote:
-> On Thu, 11 Jan 2007 13:21:57 -0600
-> Michael Reed <mdr@sgi.com> wrote:
+On Tue, 2007-01-09 at 13:33 +0200, Indrek Kruusa wrote:
+>  >> Is there vendor interest in unionfs?
 > 
->> Testing on my ia64 system reveals that this patch introduces a
->> data integrity error for direct i/o to a block device.  Device
->> errors which result in i/o failure do not propagate to the
->> process issuing direct i/o to the device.
->>
->> This can be reproduced by doing writes to a fibre channel block
->> device and then disabling the switch port connecting the host
->> adapter to the switch.
->>
-> 
-> Does this fix it?
-> 
-
-
-Yes it does!  Thank you for finding this so quickly.
-
-Mike
-
-
-> <thwaps Ken>
-> <thwaps compiler>
-> <adds new entry to Documentation/SubmitChecklist>
-> 
-> diff -puN fs/block_dev.c~a fs/block_dev.c
-> --- a/fs/block_dev.c~a
-> +++ a/fs/block_dev.c
-> @@ -146,7 +146,7 @@ static int blk_end_aio(struct bio *bio, 
->  		iocb->ki_nbytes = -EIO;
->  
->  	if (atomic_dec_and_test(bio_count)) {
-> -		if (iocb->ki_nbytes < 0)
-> +		if ((long)iocb->ki_nbytes < 0)
->  			aio_complete(iocb, iocb->ki_nbytes, 0);
->  		else
->  			aio_complete(iocb, iocb->ki_left, 0);
-> _
+>  > MANY live cds seem to use it
 > 
 > 
+> I'd like to add that also in embedded area (flash storage) the UnionFS 
+> helps in some cases.
+
+I'll chime in as well. Ubuntu uses unionfs extensively for our live
+CD's. I'd very much like to stop adding this to our kernels myself.

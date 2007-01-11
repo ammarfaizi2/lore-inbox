@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932105AbXAKWHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932673AbXAKWQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbXAKWHA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 17:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbXAKWHA
+	id S932673AbXAKWQL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 17:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbXAKWQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 17:07:00 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:38341 "EHLO smtp.osdl.org"
+	Thu, 11 Jan 2007 17:16:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51281 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932105AbXAKWG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 17:06:59 -0500
-Date: Thu, 11 Jan 2007 14:02:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sami Farin <7atbggg02@sneakemail.com>, xfs-masters@oss.sgi.com
-Subject: Re: 2.6.20-rc4: known regressions with patches (v3)
-Message-Id: <20070111140241.32f27a1b.akpm@osdl.org>
-In-Reply-To: <20070111213916.GE33919298@melbourne.sgi.com>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	<20070111051329.GB21724@stusta.de>
-	<20070111213916.GE33919298@melbourne.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	id S932675AbXAKWQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 17:16:09 -0500
+Date: Thu, 11 Jan 2007 17:14:46 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+       Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [PATCH 2.6.20-rc4 4/4][RFC] sys_futex64 : allows 64bit futexes
+Message-ID: <20070111221446.GF29911@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <45A3B330.9000104@bull.net> <45A3C1F6.4020503@bull.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45A3C1F6.4020503@bull.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 08:39:16 +1100
-David Chinner <dgc@sgi.com> wrote:
-
-> On Thu, Jan 11, 2007 at 06:13:29AM +0100, Adrian Bunk wrote:
-> > This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
-> > with patches available.
-> > 
-> > Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
-> > References : http://lkml.org/lkml/2007/1/5/308
-> > Submitter  : Sami Farin <7atbggg02@sneakemail.com>
-> > Handled-By : David Chinner <dgc@sgi.com>
-> > Patch      : http://lkml.org/lkml/2007/1/7/201
-> > Status     : patch available
+On Tue, Jan 09, 2007 at 05:25:26PM +0100, Pierre Peiffer wrote:
+> This latest patch is an adaptation of the sys_futex64 syscall provided in 
+> -rt
+> patch (originally written by Ingo). It allows the use of 64bit futex.
 > 
-> Patch is broken, do not merge. The original had an off-by-one bug in
-> it, and the fixed one I have has just shown a worse problem than
-> before - partial page truncation (i.e.  filesystem block size less
-> than page size) is busted because invalidate_complete_page2_range() can
-> only handle complete pages.
+> I have re-worked most of the code to avoid the duplication of the code.
 > 
-> Andrew - looking at unmap_mapping_pages, it says it cannot handle
-> partial pages and must get rid of them whereas vmtrucate() handles
-> partial pages but changes file size so can't be used. I see that
-> vmtruncate handles this by not unmapping the first partial page.
-> 
-> I can use the vmtruncate mechanism (unmap_mapping_pages, then
-> truncate_inode_pages) but that seems racy to me because we are not
-> actually truncating the file so a mmap could remap a page between
-> the unmap and the truncate and hence we still get the warning.
+> It does not provide the functionality for all architectures, and thus, it 
+> can
+> not be applied "as is".
+> But, again, feedbacks and comments are welcome.
 
-Yes, truncate relies upon there being nothing outside i_size, and that
-i_mutex is held.
+Why do you support all operations for 64-bit futexes?
+IMHO PI futexes don't make sense for 64-bit futexes, PI futexes have
+hardcoded bit layout of the 32-bit word.  Similarly, FUTEX_WAKE
+is not really necessary for 64-bit futexes, 32-bit futex's FUTEX_WAKE
+can wake it equally well (it never reads anything, all it cares
+is about the futex's address).  Similarly, I don't see a need for
+FUTEX_WAKE_OP (and this could simplify the patch quite a lot, no
+need to change asm*/futex.h headers at all).
+All that's needed is 64-bit FUTEX_WAIT and perhaps FUTEX_CMP_REQUEUE.
 
-> So the question is - is there any generic function that handles
-> this case (i.e. don't unmap first partial page, unmap the rest,
-> partial truncate of first page, complete truncate of the rest)
-> without racing? Or do I need to write a variation of
-> invalidate_inode_pages2_range() to do this?
-
-umm, nothing I can immediately think of.  Perhaps you can generalise
-vmtruncate_range() a bit?
+	Jakub

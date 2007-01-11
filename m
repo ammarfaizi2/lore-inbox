@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751524AbXAKVvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932103AbXAKWEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbXAKVvG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 16:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbXAKVvG
+	id S932103AbXAKWEj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 17:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbXAKWEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 16:51:06 -0500
-Received: from mga03.intel.com ([143.182.124.21]:32931 "EHLO mga03.intel.com"
+	Thu, 11 Jan 2007 17:04:39 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:44016 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751517AbXAKVvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 16:51:04 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,175,1167638400"; 
-   d="scan'208"; a="167935837:sNHT20213319"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Randy Dunlap'" <randy.dunlap@oracle.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, "Michael Reed" <mdr@sgi.com>,
-       "'Zach Brown'" <zach.brown@oracle.com>,
-       "'Chris Mason'" <chris.mason@oracle.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Jeremy Higdon" <jeremy@sgi.com>, "David Chinner" <dgc@sgi.com>
-Subject: RE: [patch] optimize o_direct on block device - v3
-Date: Thu, 11 Jan 2007 13:51:04 -0800
-Message-ID: <000101c735ca$9782b4e0$eb34030a@amr.corp.intel.com>
+	id S932103AbXAKWEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 17:04:38 -0500
+From: Neil Brown <neilb@suse.de>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Date: Fri, 12 Jan 2007 09:04:15 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: Acc1yewxPqzMuM/aRSOyn/Fxfz5pIgAABm1Q
-In-Reply-To: <20070111134459.4b43330d.randy.dunlap@oracle.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-ID: <17830.46175.410277.466742@notabene.brown>
+Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
+In-Reply-To: message from Fengguang Wu on Thursday January 11
+References: <367964923.02447@ustc.edu.cn>
+	<20070105024226.GA6076@mail.ustc.edu.cn>
+	<17828.33075.145986.404400@notabene.brown>
+	<368438638.13038@ustc.edu.cn>
+	<20070110141756.GA5572@mail.ustc.edu.cn>
+	<17829.46603.14554.981639@notabene.brown>
+	<368527150.02925@ustc.edu.cn>
+	<20070111145309.GA6226@mail.ustc.edu.cn>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote on Thursday, January 11, 2007 1:45 PM
-> > +/* return a pge back to pvec array */
+On Thursday January 11, fengguang.wu@gmail.com wrote:
+> Neil,
 > 
-> is pge just a typo or some other tla that i don't know?
-> (not portland general electric or pacific gas & electric)
+> On Thu, Jan 11, 2007 at 02:59:07PM +1100, Neil Brown wrote:
+> > On Wednesday January 10, fengguang.wu@gmail.com wrote:
+> > > 
+> > > root ~# mount localhost:/suse /mnt
+> > > [  132.678204] svc: unknown version (3 for prog 100227, nfsd)
+> > > 
+> > > I've confirmed that 2.6.20-rc2-mm1, 2.6.20-rc3-mm1, 2.6.19-rc6-mm1 all
+> > > have this warning, while 2.6.17-2-amd64 is good.
+> > 
+> > Thanks.  That helps a lot.
+> > 
+> > This patch should help too.  Please let me know.
+> 
+> # mount localhost:/suse /mnt
+> [ 2058.438236] svc: unknown version (3 for prog 100227, nfsd)
 
+Are you really really double-plus sure that you are running a kernel
+with the patch applied?
+Because at the very least it should have changed the message to
 
-Typo with fat fingers. Thanks for catching it. Full patch with typo fixed.
+> [ 2058.438236] svc: unknown version (3 for prog 100227, nfsacl)
 
-
-
-[patch] fix blk_direct_IO bio preparation.
-
-For large size DIO that needs multiple bio, one full page worth of data
-was lost at the boundary of bio's maximum sector or segment limits.
-After a bio is full and got submitted.  The outer while (nbytes) { ... }
-loop will allocate a new bio and just march on to index into next page.
-It just forget about the page that bio_add_page() rejected when previous
-bio is full.  Fix it by put the rejected page back to pvec so we pick it
-up again for the next bio.
-
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
-diff -Nurp linux-2.6.20-rc4/fs/block_dev.c linux-2.6.20.ken/fs/block_dev.c
---- linux-2.6.20-rc4/fs/block_dev.c	2007-01-06 21:45:51.000000000 -0800
-+++ linux-2.6.20.ken/fs/block_dev.c	2007-01-10 19:54:53.000000000 -0800
-@@ -190,6 +190,12 @@ static struct page *blk_get_page(unsigne
- 	return pvec->page[pvec->idx++];
- }
- 
-+/* return a page back to pvec array */
-+static void blk_unget_page(struct page *page, struct pvec *pvec)
-+{
-+	pvec->page[--pvec->idx] = page;
-+}
-+
- static ssize_t
- blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
- 		 loff_t pos, unsigned long nr_segs)
-@@ -278,6 +284,8 @@ same_bio:
- 				count = min(count, nbytes);
- 				goto same_bio;
- 			}
-+		} else {
-+			blk_unget_page(page, &pvec);
- 		}
- 
- 		/* bio is ready, submit it */
+NeilBrown

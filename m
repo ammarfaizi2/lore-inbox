@@ -1,95 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751401AbXAKSq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750953AbXAKTBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbXAKSq7 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 13:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbXAKSq7
+	id S1750953AbXAKTBH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 14:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbXAKTBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 13:46:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:54121 "EHLO gate.crashing.org"
+	Thu, 11 Jan 2007 14:01:07 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:55159 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751401AbXAKSq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 13:46:58 -0500
-In-Reply-To: <20070111182041.GA6243@coresystems.de>
-References: <13426df10701110939k21f7bb1dy38d2b34ca37a5a36@mail.gmail.com> <20070111182041.GA6243@coresystems.de>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <e31af5463dc2a8d051b632f54e65decf@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ron minnich <rminnich@gmail.com>,
-       "OLPC Developer's List" <devel@laptop.org>,
-       Mitch Bradley <wmb@firmworks.com>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Date: Thu, 11 Jan 2007 19:47:10 +0100
-To: Stefan Reinauer <stepan@coresystems.de>
-X-Mailer: Apple Mail (2.623)
+	id S1750953AbXAKTBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 14:01:05 -0500
+Date: Thu, 11 Jan 2007 11:00:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Xavier Bestel <xavier.bestel@free.fr>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+In-Reply-To: <1168540875.6170.46.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0701111054500.3594@woody.osdl.org>
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> 
+ <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> 
+ <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>  <45A5D4A7.7020202@yahoo.com.au>
+  <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>  <1168534362.7365.3.camel@bip.parateam.prv>
+  <Pine.LNX.4.64.0701110900090.3594@woody.osdl.org> <1168540875.6170.46.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I'd like to put in my $.02 in favor of having a way to pass the OF
->> device tree to the kernel, in much the same way we pass stuff like
->> ACPI and PIRQ and MP tables now.
->
-> This works fine for just passing the device tree, but it will fail for
-> the next step of being able to use the firmware in the OS, and 
-> returning
-> sanely to the firmware.
-
-Not everyone wants/needs that.  Flexibility is key.
-
->> - any path that uses kexec (since the first kernel probably shut down
->>   OF)
->
-> No, that path works fine. The first kernel uses OFW, so it wont shut it
-> down. Only thing is you need to pass the callback to the loaded kernel.
-
-Depends.  The kernel _can_ shut down OF; in that case, it
-becomes responsible for passing the device tree along to
-the kexec'd kernel.
-
->> - etherboot
->
-> ok, well.
-
-Heh :-)
-
->> OFW is open source now. I think it's time to reexamine the basic
->> assumptions about the need for a callback, and see if something better
->> can't be done.
->
-> I fully agree. And I believe there are very good things that can be 
-> done
-> with callbacks. The reasons callbacks are evil is that you dont know
-> what you call into. This is not at all the case here. It's a mere
-> function call that calls some highly board specific code, not unlike 
-> all
-> the calls we do in LinuxBIOS already today. Since we're 100% open
-> source, we don't "cross a border" anymore.
-
-Oh you *do* cross a border, and that is a good thing here; it
-is a stable API, and that makes a lot of sense here.
-
-> - 16bit legacy callbacks
-> - (u)efi legacy callbacks
-> - existing openfirmware support code for non-x86 platforms.
->
-> But: It is a first step that, as a mid-term goal, allows us to unify 
-> OFW
-> support on all platforms to some extent.
-
-Yes.
-
->> Mitch, is there some way to get OF device tree to the kernel without
->> involving a callback? That would be quite nice.
->
-> That is a nice idea, but unless there is any LinuxBIOS version that
-> creates such a device tree and exports it as a data structure to the 
-> OS,
-> why would we want to add such support to the Linux kernel?
-
-The PowerPC arch code already handles this.
 
 
-Segher
+On Thu, 11 Jan 2007, Trond Myklebust wrote:
+> 
+> For NFS, the main feature of interest when it comes to O_DIRECT is
+> strictly uncached I/O. Replacing it with POSIX_FADV_NOREUSE won't help
+> because it can't guarantee that the page will be thrown out of the page
+> cache before some second process tries to read it. That is particularly
+> true if some dopey third party process has mmapped the file.
 
+You'd still be MUCH better off using the page cache, and just forcing the 
+IO (but _with_ all the page cache synchronization still active). Which is 
+trivial to do on the filesystem level, especially for something like NFS.
+
+If you bypass the page cache, you just make that "dopey third party 
+process" problem worse. You now _guarantee_ that there are aliases with 
+different data.
+
+Of course, with NFS, the _server_ will resolve any aliases anyway, so at 
+least you don't get file corruption, but you can get some really strange 
+things (like the write of one process actually happening before, but being 
+flushed _after_ and overriding the later write of the O_DIRECT process).
+
+And sure, the filesystem can have its own alias avoidance too (by just 
+probing the page cache all the time), but the fundamental fact remains: 
+the problem is that O_DIRECT as a page-cache-bypassing mechanism is 
+BROKEN.
+
+If you have issues with caching (but still have to allow it for other 
+things), the way to fix them is not to make uncached accesses, it's to 
+force the cache to be serialized. That's very fundamentally true.
+
+		Linus

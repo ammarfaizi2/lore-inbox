@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750864AbXAKQvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750878AbXAKQvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbXAKQvZ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbXAKQvZ
+	id S1750878AbXAKQvp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 11:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbXAKQvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:51:25 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:20176 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750863AbXAKQvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:51:24 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tTTuj5Eo0ddFxZLkeqJ9mCTx0vZ0T1cUkLF91Z0KdeprZRzG91mBzch7VUq0Cr0dMeriu0p+5lQ6+gyLyWiMQUJK/I8IMeVAGGPRT3WW4X8QDrk91Gsz//AKTe94BiNxf6NjueHYn5LQe6JtblFXnNA3pfvLCfj953GJ0g39q5U=
-Message-ID: <58cb370e0701110851r2da0be97pdba5140645cc5bf4@mail.gmail.com>
-Date: Thu, 11 Jan 2007 17:51:22 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.6 patch] let BLK_DEV_AMD74XX depend on X86
-Cc: "Adrian Bunk" <bunk@stusta.de>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20070111164853.5de4ddfa@localhost.localdomain>
+	Thu, 11 Jan 2007 11:51:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59941 "EHLO perch.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750876AbXAKQvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 11:51:44 -0500
+Date: Thu, 11 Jan 2007 08:51:17 -0800
+From: Greg KH <greg@kroah.com>
+To: Anssi Hannula <anssi.hannula@gmail.com>, jkosina@suse.cz
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-usb-devel@lists.sourceforge.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] hid: series of patches for PantherLord USB/PS2 2in1 Adapter support
+Message-ID: <20070111165117.GA27676@kroah.com>
+References: <20070111145115.405679742@delta.onse.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20070111134917.GE20027@stusta.de>
-	 <20070111164853.5de4ddfa@localhost.localdomain>
+In-Reply-To: <20070111145115.405679742@delta.onse.fi>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/07, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> On Thu, 11 Jan 2007 14:49:17 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
->
-> > It's unlikely that this driver will ever be of any use on other
-> > architectures.
-> >
-> > This fixes the following compile error on ia64:
->
-> NAK
->
-> pci_get_legacy_ide_irq() is a required method for all platforms and is
-> usually filled in by asm-generic/pci.h
->
-> Please fix the IA64 tree to do the right thing.
+On Thu, Jan 11, 2007 at 04:51:15PM +0200, Anssi Hannula wrote:
+> These three patches fix PantherLord USB/PS2 2in1 Adapter support
+> so that it appears as two input devices, and add force feedback
+> support for it.
 
-I've already sent a patch do do this...
+HID has a real maintainer now (Jiri Kosina <jkosina@suse.cz>), I suggest
+copying him on patches like this for the code.
 
-http://lkml.org/lkml/2007/1/11/118
+thanks,
+
+greg k-h

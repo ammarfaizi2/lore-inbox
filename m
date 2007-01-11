@@ -1,240 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965297AbXAKGI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965296AbXAKGKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965297AbXAKGI0 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 01:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965300AbXAKGI0
+	id S965296AbXAKGKR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 01:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965301AbXAKGKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 01:08:26 -0500
-Received: from [202.75.186.170] ([202.75.186.170]:1228 "EHLO
-	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S965297AbXAKGIZ (ORCPT
+	Thu, 11 Jan 2007 01:10:17 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:29173 "HELO
+	smtp107.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S965299AbXAKGKQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 01:08:25 -0500
-X-Greylist: delayed 1300 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Jan 2007 01:08:19 EST
-Date: Thu, 11 Jan 2007 13:19:47 +0800
-Message-Id: <200701110519.l0B5Jl5B026909@localhost.localdomain>
-From: jayakumar.acpi@gmail.com
-Subject: [PATCH 2.6.19 1/1] input: Atlas button driver 
-To: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       dmitry.torokhov@gmail.com, akpm@osdl.org, akpm@kernel.org
+	Thu, 11 Jan 2007 01:10:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=BO4nkxluKjgR0Rp1G9mt+hD3xY5tQe31hkCxpWGx0ICclz84oj6TtC/3oY+/0N1b+Abrnp6//aaP+PpC2f6vEDhsTTyAen2ImC95ltn+ADF0Z5JPHsYIcle86ucg3WggC9SUqX5zsekJDnYkDiJPq3y+TsALH1HtGeLxltNGKqk=  ;
+X-YMail-OSG: ATPQZqcVM1kIyFU1XgPfq4EdhOfULqewcJjdfvynaQgXFbmbPUnGXfdiY7wJYsvj1Qm6E36Hzcq6Fsc_gUaBOMqYv6olrXw1sN7SNIP53ppZVjkoTIphRCcI0HEztNLHQ4fRvBF37a73.P3FOoroBzeVTFeGGJdnAXqORyzq9uLh0uDMzELVI8PQUzHe
+Message-ID: <45A5D4A7.7020202@yahoo.com.au>
+Date: Thu, 11 Jan 2007 17:09:43 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for the buttons on the Atlas wallmount
-touchscreen.
+Linus Torvalds wrote:
+> 
+> On Wed, 10 Jan 2007, Linus Torvalds wrote:
+> 
+>>So don't use O_DIRECT. Use things like madvise() and posix_fadvise() 
+>>instead. 
+> 
+> 
+> Side note: the only reason O_DIRECT exists is because database people are 
+> too used to it, because other OS's haven't had enough taste to tell them 
+> to do it right, so they've historically hacked their OS to get out of the 
+> way.
+> 
+> As a result, our madvise and/or posix_fadvise interfaces may not be all 
+> that strong, because people sadly don't use them that much. It's a sad 
+> example of a totally broken interface (O_DIRECT) resulting in better 
+> interfaces not getting used, and then not getting as much development 
+> effort put into them.
+> 
+> So O_DIRECT not only is a total disaster from a design standpoint (just 
+> look at all the crap it results in), it also indirectly has hurt better 
+> interfaces. For example, POSIX_FADV_NOREUSE (which _could_ be a useful and 
+> clean interface to make sure we don't pollute memory unnecessarily with 
+> cached pages after they are all done) ends up being a no-op ;/
+> 
+> Sad. And it's one of those self-fulfilling prophecies. Still, I hope some 
+> day we can just rip the damn disaster out.
 
-Signed-off-by: Jaya Kumar <jayakumar.acpi@gmail.com>
+Speaking of which, why did we obsolete raw devices? And/or why not just
+go with a minimal O_DIRECT on block device support? Not a rhetorical
+question -- I wasn't involved in the discussions when they happened, so
+I would be interested.
 
----
+O_DIRECT is still crazily racy versus pagecache operations. Chris Mason's
+recent patches to attempt to fix it, while actually doing quite a fine
+job, are very intrusive and complex for such a sad corner case.
 
- Kconfig      |   10 +++
- Makefile     |    1 
- atlas_btns.c |  170 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 181 insertions(+)
-
----
-
-diff -X linux-2.6.19-vanilla/Documentation/dontdiff -uprN linux-2.6.19-vanilla/drivers/input/misc/atlas_btns.c linux-2.6.19-atlas/drivers/input/misc/atlas_btns.c
---- linux-2.6.19-vanilla/drivers/input/misc/atlas_btns.c	1970-01-01 07:30:00.000000000 +0730
-+++ linux-2.6.19-atlas/drivers/input/misc/atlas_btns.c	2007-01-07 09:38:23.000000000 +0800
-@@ -0,0 +1,170 @@
-+/*
-+ *  atlas_btns.c - Atlas Wallmount Touchscreen ACPI Extras
-+ *
-+ *  Copyright (C) 2006 Jaya Kumar
-+ *  Based on Toshiba ACPI by John Belmonte and ASUS ACPI
-+ *  This work was sponsored by CIS(M) Sdn Bhd.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/types.h>
-+#include <asm/uaccess.h>
-+#include <acpi/acpi_drivers.h>
-+
-+#define ACPI_ATLAS_NAME			"Atlas ACPI"
-+#define ACPI_ATLAS_CLASS		"Atlas"
-+#define ACPI_ATLAS_BUTTON_HID		"ASIM0000"
-+
-+static struct input_dev *input_dev;
-+
-+/* button handling code */
-+static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
-+		    u32 function, void *handler_context, void **return_context)
-+{
-+	*return_context =
-+		(function != ACPI_REGION_DEACTIVATE) ? handler_context : NULL;
-+
-+	return AE_OK;
-+}
-+
-+static acpi_status acpi_atlas_button_handler(u32 function,
-+		      acpi_physical_address address,
-+		      u32 bit_width, acpi_integer *value,
-+		      void *handler_context, void *region_context)
-+{
-+	acpi_status status;
-+	int keycode;
-+
-+	if (function == ACPI_WRITE)  {
-+		keycode = KEY_F1 + (address & 0x0F);
-+		input_report_key(input_dev, keycode, !(address & 0x10));
-+		input_sync(input_dev);
-+		status = 0;
-+	} else {
-+		printk(KERN_WARNING "atlas: shrugged on unexpected function"
-+			":function=%x,address=%lx,value=%x\n",
-+			function, (unsigned long)address, (u32)*value);
-+		status = -EINVAL;
-+	}
-+
-+	return status;
-+}
-+
-+static int atlas_acpi_button_add(struct acpi_device *device)
-+{
-+	acpi_status status;
-+	int err;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		printk(KERN_ERR "atlas: insufficient mem to allocate input "
-+				"device\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev->name = "Atlas ACPI button driver";
-+	input_dev->phys = "ASIM0000/atlas/input0";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->evbit[LONG(EV_KEY)] = BIT(EV_KEY);
-+
-+	set_bit(KEY_F1, input_dev->keybit);
-+	set_bit(KEY_F2, input_dev->keybit);
-+	set_bit(KEY_F3, input_dev->keybit);
-+	set_bit(KEY_F4, input_dev->keybit);
-+	set_bit(KEY_F5, input_dev->keybit);
-+	set_bit(KEY_F6, input_dev->keybit);
-+	set_bit(KEY_F7, input_dev->keybit);
-+	set_bit(KEY_F8, input_dev->keybit);
-+	set_bit(KEY_F9, input_dev->keybit);
-+
-+	err = input_register_device(input_dev);
-+	if (err) {
-+		printk(KERN_ERR "atlas: couldn't register input device\n");
-+		input_free_device(input_dev);
-+		return err;
-+	}
-+
-+	/* hookup button handler */
-+	status = acpi_install_address_space_handler(device->handle,
-+				0x81, &acpi_atlas_button_handler,
-+				&acpi_atlas_button_setup, device);
-+	if (ACPI_FAILURE(status)) {
-+		printk(KERN_ERR "Atlas: Error installing addr spc handler\n");
-+		input_unregister_device(input_dev);
-+		status = -EINVAL;
-+	}
-+
-+	return status;
-+}
-+
-+static int atlas_acpi_button_remove(struct acpi_device *device, int type)
-+{
-+	acpi_status status;
-+
-+	status = acpi_remove_address_space_handler(device->handle,
-+				0x81, &acpi_atlas_button_handler);
-+	if (ACPI_FAILURE(status)) {
-+		printk(KERN_ERR "Atlas: Error removing addr spc handler\n");
-+		status = -EINVAL;
-+	}
-+
-+	input_unregister_device(input_dev);
-+	return status;
-+}
-+
-+static struct acpi_driver atlas_acpi_driver = {
-+	.name = ACPI_ATLAS_NAME,
-+	.class = ACPI_ATLAS_CLASS,
-+	.ids = ACPI_ATLAS_BUTTON_HID,
-+	.ops = {
-+		.add = atlas_acpi_button_add,
-+		.remove = atlas_acpi_button_remove,
-+	},
-+};
-+
-+static int atlas_acpi_init(void)
-+{
-+	int result;
-+
-+	if (acpi_disabled)
-+		return -ENODEV;
-+
-+	result = acpi_bus_register_driver(&atlas_acpi_driver);
-+	if (result < 0) {
-+		printk(KERN_ERR "Atlas ACPI: Unable to register driver\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+static void atlas_acpi_exit(void)
-+{
-+	acpi_bus_unregister_driver(&atlas_acpi_driver);
-+}
-+
-+module_init(atlas_acpi_init);
-+module_exit(atlas_acpi_exit);
-+
-+MODULE_AUTHOR("Jaya Kumar");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Atlas button driver");
-+
-diff -X linux-2.6.19-vanilla/Documentation/dontdiff -uprN linux-2.6.19-vanilla/drivers/input/misc/Kconfig linux-2.6.19-atlas/drivers/input/misc/Kconfig
---- linux-2.6.19-vanilla/drivers/input/misc/Kconfig	2006-12-10 13:37:46.000000000 +0800
-+++ linux-2.6.19-atlas/drivers/input/misc/Kconfig	2007-01-07 09:26:15.000000000 +0800
-@@ -50,6 +50,16 @@ config INPUT_WISTRON_BTNS
- 	  To compile this driver as a module, choose M here: the module will
- 	  be called wistron_btns.
- 
-+config INPUT_ATLAS_BTNS
-+	tristate "x86 Atlas button interface"
-+	depends on X86 && ACPI
-+	help
-+	  Say Y here for support of Atlas wallmount touchscreen buttons. 
-+	  The events will show up as scancodes F1 through F9 via evdev.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called atlas_btns.
-+
- config INPUT_IXP4XX_BEEPER
- 	tristate "IXP4XX Beeper support"
- 	depends on ARCH_IXP4XX
-diff -X linux-2.6.19-vanilla/Documentation/dontdiff -uprN linux-2.6.19-vanilla/drivers/input/misc/Makefile linux-2.6.19-atlas/drivers/input/misc/Makefile
---- linux-2.6.19-vanilla/drivers/input/misc/Makefile	2006-12-10 13:37:46.000000000 +0800
-+++ linux-2.6.19-atlas/drivers/input/misc/Makefile	2007-01-07 09:26:15.000000000 +0800
-@@ -9,5 +9,6 @@ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
- obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
- obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
-+obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

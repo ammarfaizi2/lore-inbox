@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932103AbXAKWEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932105AbXAKWHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbXAKWEj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 17:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbXAKWEj
+	id S932105AbXAKWHA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 17:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbXAKWHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 17:04:39 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:44016 "EHLO mx2.suse.de"
+	Thu, 11 Jan 2007 17:07:00 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:38341 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932103AbXAKWEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 17:04:38 -0500
-From: Neil Brown <neilb@suse.de>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-Date: Fri, 12 Jan 2007 09:04:15 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S932105AbXAKWG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 17:06:59 -0500
+Date: Thu, 11 Jan 2007 14:02:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sami Farin <7atbggg02@sneakemail.com>, xfs-masters@oss.sgi.com
+Subject: Re: 2.6.20-rc4: known regressions with patches (v3)
+Message-Id: <20070111140241.32f27a1b.akpm@osdl.org>
+In-Reply-To: <20070111213916.GE33919298@melbourne.sgi.com>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	<20070111051329.GB21724@stusta.de>
+	<20070111213916.GE33919298@melbourne.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17830.46175.410277.466742@notabene.brown>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-In-Reply-To: message from Fengguang Wu on Thursday January 11
-References: <367964923.02447@ustc.edu.cn>
-	<20070105024226.GA6076@mail.ustc.edu.cn>
-	<17828.33075.145986.404400@notabene.brown>
-	<368438638.13038@ustc.edu.cn>
-	<20070110141756.GA5572@mail.ustc.edu.cn>
-	<17829.46603.14554.981639@notabene.brown>
-	<368527150.02925@ustc.edu.cn>
-	<20070111145309.GA6226@mail.ustc.edu.cn>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday January 11, fengguang.wu@gmail.com wrote:
-> Neil,
-> 
-> On Thu, Jan 11, 2007 at 02:59:07PM +1100, Neil Brown wrote:
-> > On Wednesday January 10, fengguang.wu@gmail.com wrote:
-> > > 
-> > > root ~# mount localhost:/suse /mnt
-> > > [  132.678204] svc: unknown version (3 for prog 100227, nfsd)
-> > > 
-> > > I've confirmed that 2.6.20-rc2-mm1, 2.6.20-rc3-mm1, 2.6.19-rc6-mm1 all
-> > > have this warning, while 2.6.17-2-amd64 is good.
+On Fri, 12 Jan 2007 08:39:16 +1100
+David Chinner <dgc@sgi.com> wrote:
+
+> On Thu, Jan 11, 2007 at 06:13:29AM +0100, Adrian Bunk wrote:
+> > This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
+> > with patches available.
 > > 
-> > Thanks.  That helps a lot.
-> > 
-> > This patch should help too.  Please let me know.
+> > Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
+> > References : http://lkml.org/lkml/2007/1/5/308
+> > Submitter  : Sami Farin <7atbggg02@sneakemail.com>
+> > Handled-By : David Chinner <dgc@sgi.com>
+> > Patch      : http://lkml.org/lkml/2007/1/7/201
+> > Status     : patch available
 > 
-> # mount localhost:/suse /mnt
-> [ 2058.438236] svc: unknown version (3 for prog 100227, nfsd)
+> Patch is broken, do not merge. The original had an off-by-one bug in
+> it, and the fixed one I have has just shown a worse problem than
+> before - partial page truncation (i.e.  filesystem block size less
+> than page size) is busted because invalidate_complete_page2_range() can
+> only handle complete pages.
+> 
+> Andrew - looking at unmap_mapping_pages, it says it cannot handle
+> partial pages and must get rid of them whereas vmtrucate() handles
+> partial pages but changes file size so can't be used. I see that
+> vmtruncate handles this by not unmapping the first partial page.
+> 
+> I can use the vmtruncate mechanism (unmap_mapping_pages, then
+> truncate_inode_pages) but that seems racy to me because we are not
+> actually truncating the file so a mmap could remap a page between
+> the unmap and the truncate and hence we still get the warning.
 
-Are you really really double-plus sure that you are running a kernel
-with the patch applied?
-Because at the very least it should have changed the message to
+Yes, truncate relies upon there being nothing outside i_size, and that
+i_mutex is held.
 
-> [ 2058.438236] svc: unknown version (3 for prog 100227, nfsacl)
+> So the question is - is there any generic function that handles
+> this case (i.e. don't unmap first partial page, unmap the rest,
+> partial truncate of first page, complete truncate of the rest)
+> without racing? Or do I need to write a variation of
+> invalidate_inode_pages2_range() to do this?
 
-NeilBrown
+umm, nothing I can immediately think of.  Perhaps you can generalise
+vmtruncate_range() a bit?

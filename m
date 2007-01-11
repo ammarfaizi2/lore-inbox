@@ -1,81 +1,114 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751462AbXAKUBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAKUJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbXAKUBg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 15:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbXAKUBg
+	id S1751472AbXAKUJA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 15:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbXAKUJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 15:01:36 -0500
-Received: from mga07.intel.com ([143.182.124.22]:6039 "EHLO
-	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751460AbXAKUBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 15:01:35 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,174,1167638400"; 
-   d="scan'208"; a="167901014:sNHT19373417"
-Message-ID: <45A6979A.8030000@linux.intel.com>
-Date: Thu, 11 Jan 2007 23:01:30 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: Len Brown <lenb@kernel.org>
-CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, MoRpHeUz <morpheuz@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
-       Mattia Dongili <malattia@linux.it>,
-       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
-Subject: Re: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
-References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701051310.41131.lenb@kernel.org> <200701052109.35707.bjorn.helgaas@hp.com> <200701111452.31490.lenb@kernel.org>
-In-Reply-To: <200701111452.31490.lenb@kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 15:09:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37088 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751468AbXAKUI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 15:08:59 -0500
+Date: Thu, 11 Jan 2007 15:08:57 -0500
+Message-Id: <200701112008.l0BK8vwA011835@dantu.rdu.redhat.com>
+From: Jeff Layton <jlayton@redhat.com>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] change libfs sb creation routines to avoid collisions with their root inodes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> On Friday 05 January 2007 23:09, Bjorn Helgaas wrote:
->   
->> On Friday 05 January 2007 11:10, Len Brown wrote:
->>     
->>> On Friday 05 January 2007 12:24, MoRpHeUz wrote:
->>>       
->>>>> What workaround are you using?
->>>>>           
->>>>  This one: http://bugzilla.kernel.org/show_bug.cgi?id=7465
->>>>         
->>> Ah yes, the duplicate MADT issue is clearly a BIOS bug.
->>> It is possible that we can tweak our Linux workaround for it to be more
->>> Microsoft Windows Bug Compatbile(TM).
->>>       
->> Maybe Windows discovers processors using the namespace rather
->> than the MADT.
->>     
->
-> Nod.
->
-> Based on the fact that the 1st MADT on this box is toast, they're not using that.
-> If the last one also doesn't work universally, then they must be using the namespace.
->
-> For us to do the same would be a relatively significant change -- as it means
-> we either have to push SMP startup after the interpreter init, or move the
-> interpreter init yet sooner.
->
-> In general, over the last couple of years, we've been forced for compatibility
-> with various systems to move ACPI initialization sooner and sooner.
-> (I think the last issue was getting the HW into "ACPI mode" sooner
->  because some stuff I don't recall didn't work if we didn't)
-> It would probably make sense to experiment with what the soonest we
-> can initialize ACPI, as I have a feeling we're going to have to head that way.
->
-> -Len
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->   
+Yet another respin. It's awfully easy to pass in a files array that will
+conflict with the root inode. Add in a check and warning for that. It would
+be nice if it were possible to make it so this couldn't happen by design,
+I don't see how to do that, given that some filesystems need control over
+what inode numbers these entries receive.
 
-If any of the two tables does not work, may be we need both together?
+This one is untested, but the only change from the last one is the
+if/printk.
 
-Regards,
-    Alex.
+Signed-off-by: Jeff Layton <jlayton@redhat.com>
+
+diff --git a/drivers/infiniband/hw/ipath/ipath_fs.c b/drivers/infiniband/hw/ipath/ipath_fs.c
+index 79a60f0..6ce7926 100644
+--- a/drivers/infiniband/hw/ipath/ipath_fs.c
++++ b/drivers/infiniband/hw/ipath/ipath_fs.c
+@@ -510,7 +510,7 @@ static int ipathfs_fill_super(struct super_block *sb, void *data,
+ 	int ret;
+ 
+ 	static struct tree_descr files[] = {
+-		[1] = {"atomic_stats", &atomic_stats_ops, S_IRUGO},
++		[2] = {"atomic_stats", &atomic_stats_ops, S_IRUGO},
+ 		{""},
+ 	};
+ 
+diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
+index c2e0825..023d825 100644
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -727,8 +727,8 @@ static struct super_operations s_ops = {
+ static int bm_fill_super(struct super_block * sb, void * data, int silent)
+ {
+ 	static struct tree_descr bm_files[] = {
+-		[1] = {"status", &bm_status_operations, S_IWUSR|S_IRUGO},
+-		[2] = {"register", &bm_register_operations, S_IWUSR},
++		[2] = {"status", &bm_status_operations, S_IWUSR|S_IRUGO},
++		[3] = {"register", &bm_register_operations, S_IWUSR},
+ 		/* last one */ {""}
+ 	};
+ 	int err = simple_fill_super(sb, 0x42494e4d, bm_files);
+diff --git a/fs/inode.c b/fs/inode.c
+diff --git a/fs/libfs.c b/fs/libfs.c
+index 503898d..c8f5532 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -217,6 +217,12 @@ int get_sb_pseudo(struct file_system_type *fs_type, char *name,
+ 	root = new_inode(s);
+ 	if (!root)
+ 		goto Enomem;
++	/*
++	 * since this is the first inode, make it number 1. New inodes created
++	 * after this must take care not to collide with it (by passing
++	 * max_reserved of 1 to iunique).
++	 */
++	root->i_ino = 1;
+ 	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+ 	root->i_uid = root->i_gid = 0;
+ 	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
+@@ -356,6 +362,11 @@ int simple_commit_write(struct file *file, struct page *page,
+ 	return 0;
+ }
+ 
++/*
++ * the inodes created here are not hashed. If you use iunique to generate
++ * unique inode values later for this filesystem, then you must take care
++ * to pass it an appropriate max_reserved value to avoid collisions.
++ */
+ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
+ {
+ 	static struct super_operations s_ops = {.statfs = simple_statfs};
+@@ -373,6 +384,11 @@ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files
+ 	inode = new_inode(s);
+ 	if (!inode)
+ 		return -ENOMEM;
++	/*
++	 * because the root inode is 1, the files array must not contain an
++	 * entry at index 1
++	 */
++	inode->i_ino = 1;
+ 	inode->i_mode = S_IFDIR | 0755;
+ 	inode->i_uid = inode->i_gid = 0;
+ 	inode->i_blocks = 0;
+@@ -388,6 +404,13 @@ int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files
+ 	for (i = 0; !files->name || files->name[0]; i++, files++) {
+ 		if (!files->name)
+ 			continue;
++
++		/* warn if it tries to conflict with the root inode */
++		if (unlikely(i = 1))
++			printk(KERN_WARNING "%s: %s passed in a files array"
++				"with an index of 1!\n", __func__,
++				s->s_type->name);
++
+ 		dentry = d_alloc_name(root, files->name);
+ 		if (!dentry)
+ 			goto out;

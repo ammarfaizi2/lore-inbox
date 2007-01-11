@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXAKPuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750729AbXAKPvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbXAKPuF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 10:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbXAKPuF
+	id S1750729AbXAKPvG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 10:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbXAKPvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 10:50:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:50469 "EHLO e2.ny.us.ibm.com"
+	Thu, 11 Jan 2007 10:51:06 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:41753 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750773AbXAKPuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 10:50:01 -0500
-Date: Thu, 11 Jan 2007 09:49:57 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Mimi Zohar <zohar@us.ibm.com>,
-       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@saff.watson.ibm.com
-Subject: Re: mprotect abuse in slim
-Message-ID: <20070111154957.GG4791@sergelap.austin.ibm.com>
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org> <20070109094625.GA11918@infradead.org> <20070109231449.GA4547@sergelap.austin.ibm.com> <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI> <20070110155845.GA373@sergelap.austin.ibm.com> <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
+	id S1750729AbXAKPvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 10:51:05 -0500
+Date: Thu, 11 Jan 2007 07:50:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+In-Reply-To: <45A5D4A7.7020202@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+ <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+ <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org> <45A5D4A7.7020202@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pekka Enberg (penberg@cs.helsinki.fi):
-> On 1/10/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> >But since it looks like you just munmap the region now, shouldn't a
-> >subsequent munmap by the app just return -EINVAL?  that seems appropriate
-> >to me.
+
+
+On Thu, 11 Jan 2007, Nick Piggin wrote:
 > 
-> Applications don't know about revoke and neither should they.
-> Therefore close(2) and munmap(2) must work the same way they would for
-> non-revoked inodes so that applications can release resources
-> properly.
-> 
->                                         Pekka
+> Speaking of which, why did we obsolete raw devices? And/or why not just
+> go with a minimal O_DIRECT on block device support? Not a rhetorical
+> question -- I wasn't involved in the discussions when they happened, so
+> I would be interested.
 
-Right, but is returning -EINVAL to userspace on munmap a problem?
-It may not have been expected before, but it shouldn't break
-anything...
+Lots of people want to put their databases in a file. Partitions really 
+weren't nearly flexible enough. So the whole raw device or O_DIRECT just 
+to the block device thing isn't really helping any.
 
-Thanks for the tw other patches - I'll give them a shot and check
-out current munmap behavior just as soon as I get a chance.
+> O_DIRECT is still crazily racy versus pagecache operations.
 
-thanks,
--serge
+Yes. O_DIRECT is really fundamentally broken. There's just no way to fix 
+it sanely. Except by teaching people not to use it, and making the normal 
+paths fast enough (and that _includes_ doing things like dropping caches 
+more aggressively, but it probably would include more work on the device 
+queue merging stuff etc etc).
 
+The "good" news is that CPU really is outperforming disk more and more, so 
+the extra cost of managing the page cache keeps on getting smaller and 
+smaller, and (fingers crossed) some day we can hopefully just drop 
+O_DIRECT and nobody will care.
+
+		Linus

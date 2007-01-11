@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964901AbXAKXNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932657AbXAKXNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbXAKXNT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 18:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932670AbXAKXNT
+	id S932657AbXAKXNc (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 18:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932817AbXAKXNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 18:13:19 -0500
-Received: from mail.screens.ru ([213.234.233.54]:52963 "EHLO mail.screens.ru"
+	Thu, 11 Jan 2007 18:13:32 -0500
+Received: from mail.screens.ru ([213.234.233.54]:52966 "EHLO mail.screens.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932657AbXAKXNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 18:13:18 -0500
-Date: Fri, 12 Jan 2007 02:12:19 +0300
+	id S932657AbXAKXNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 18:13:30 -0500
+Date: Fri, 12 Jan 2007 02:12:44 +0300
 From: Oleg Nesterov <oleg@tv-sign.ru>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
        "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
        Gautham shenoy <ego@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
        David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] workqueue: fix freezeable workqueues implementation
-Message-ID: <20070111231219.GA2981@tv-sign.ru>
+Subject: [PATCH 2/3] workqueue: fix flush_workqueue() vs CPU_DEAD race
+Message-ID: <20070111231244.GA2984@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,95 +26,159 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently ->freezeable is per-cpu, this is wrong. CPU_UP_PREPARE creates
-cwq->thread which is not freezeable. Move ->freezeable to workqueue_struct.
+(Andrew, please drop fix-flush_workqueue-vs-cpu_dead-race.patch)
+
+Many thanks to Srivatsa Vaddagiri for the helpful discussion and for spotting
+the bug in my previous attempt.
+
+work->func() (and thus flush_workqueue()) must not use workqueue_mutex,
+this leads to deadlock when CPU_DEAD does kthread_stop(). However without
+this mutex held we can't detect CPU_DEAD in progress, which can move pending
+works to another CPU while the dead one is not on cpu_online_map.
+
+Change flush_workqueue() to use for_each_possible_cpu(). This means that
+flush_cpu_workqueue() may hit CPU which is already dead. However in that
+case
+
+	!list_empty(&cwq->worklist) || cwq->current_work != NULL
+
+means that CPU_DEAD in progress, it will do kthread_stop() + take_over_work()
+so we can proceed and insert a barrier. We hold cwq->lock, so we are safe.
+
+Also, add migrate_sequence incremented by take_over_work() under cwq->lock.
+If take_over_work() happened before we checked this CPU, we should see the
+new value after spin_unlock().
+
+
+Further possible changes:
+
+	remove CPU_DEAD handling (along with take_over_work, migrate_sequence)
+	from workqueue.c. CPU_DEAD just sets cwq->please_exit_after_flush flag.
+
+	CPU_UP_PREPARE->create_workqueue_thread() clears this flag, and creates
+	the new thread if cwq->thread == NULL.
+
+This way the workqueue/cpu-hotplug interaction is almost zero, workqueue_mutex
+just protects "workqueues" list, CPU_LOCK_ACQUIRE/CPU_LOCK_RELEASE go away.
 
 Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---- mm-6.20-rc3/kernel/workqueue.c~1_freeze	2007-01-11 21:34:21.000000000 +0300
-+++ mm-6.20-rc3/kernel/workqueue.c	2007-01-11 21:38:12.000000000 +0300
-@@ -49,8 +49,6 @@ struct cpu_workqueue_struct {
- 	struct work_struct *current_work;
- 
- 	int run_depth;		/* Detect run_workqueue() recursion depth */
--
--	int freezeable;		/* Freeze the thread during suspend */
- } ____cacheline_aligned;
- 
- /*
-@@ -61,6 +59,7 @@ struct workqueue_struct {
- 	struct cpu_workqueue_struct *cpu_wq;
- 	const char *name;
- 	struct list_head list; 	/* Empty if single thread */
-+	int freezeable;		/* Freeze threads during suspend */
- };
+--- mm-6.20-rc3/kernel/workqueue.c~2_race	2007-01-11 21:38:12.000000000 +0300
++++ mm-6.20-rc3/kernel/workqueue.c	2007-01-11 22:22:58.000000000 +0300
+@@ -64,6 +64,7 @@ struct workqueue_struct {
  
  /* All the per-cpu workqueues on the system, for hotplug cpu to add/remove
-@@ -351,7 +350,7 @@ static int worker_thread(void *__cwq)
- 	struct k_sigaction sa;
- 	sigset_t blocked;
+    threads to each one as cpus come/go. */
++static long migrate_sequence __read_mostly;
+ static DEFINE_MUTEX(workqueue_mutex);
+ static LIST_HEAD(workqueues);
  
--	if (!cwq->freezeable)
-+	if (!cwq->wq->freezeable)
- 		current->flags |= PF_NOFREEZE;
+@@ -421,13 +422,7 @@ static void flush_cpu_workqueue(struct c
+ 		 * Probably keventd trying to flush its own queue. So simply run
+ 		 * it by hand rather than deadlocking.
+ 		 */
+-		preempt_enable();
+-		/*
+-		 * We can still touch *cwq here because we are keventd, and
+-		 * hot-unplug will be waiting us to exit.
+-		 */
+ 		run_workqueue(cwq);
+-		preempt_disable();
+ 	} else {
+ 		struct wq_barrier barr;
+ 		int active = 0;
+@@ -439,11 +434,8 @@ static void flush_cpu_workqueue(struct c
+ 		}
+ 		spin_unlock_irq(&cwq->lock);
  
- 	set_user_nice(current, -5);
-@@ -375,7 +374,7 @@ static int worker_thread(void *__cwq)
+-		if (active) {
+-			preempt_enable();
++		if (active)
+ 			wait_for_completion(&barr.done);
+-			preempt_disable();
+-		}
+ 	}
+ }
  
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
--		if (cwq->freezeable)
-+		if (cwq->wq->freezeable)
- 			try_to_freeze();
+@@ -462,17 +454,21 @@ static void flush_cpu_workqueue(struct c
+  */
+ void fastcall flush_workqueue(struct workqueue_struct *wq)
+ {
+-	preempt_disable();		/* CPU hotplug */
+ 	if (is_single_threaded(wq)) {
+ 		/* Always use first cpu's area. */
+ 		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
+ 	} else {
++		long sequence;
+ 		int cpu;
++again:
++		sequence = migrate_sequence;
  
- 		add_wait_queue(&cwq->more_work, &wait);
-@@ -546,7 +545,7 @@ out:
+-		for_each_online_cpu(cpu)
++		for_each_possible_cpu(cpu)
+ 			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
++
++		if (unlikely(sequence != migrate_sequence))
++			goto again;
+ 	}
+-	preempt_enable();
+ }
+ EXPORT_SYMBOL_GPL(flush_workqueue);
+ 
+@@ -544,17 +540,21 @@ out:
+ }
  EXPORT_SYMBOL_GPL(flush_work);
  
- static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
--						   int cpu, int freezeable)
-+							int cpu)
+-static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
+-							int cpu)
++static void init_cpu_workqueue(struct workqueue_struct *wq, int cpu)
  {
  	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
- 	struct task_struct *p;
-@@ -554,7 +553,6 @@ static struct task_struct *create_workqu
- 	spin_lock_init(&cwq->lock);
+-	struct task_struct *p;
+ 
+-	spin_lock_init(&cwq->lock);
  	cwq->wq = wq;
- 	cwq->thread = NULL;
--	cwq->freezeable = freezeable;
+-	cwq->thread = NULL;
++	spin_lock_init(&cwq->lock);
  	INIT_LIST_HEAD(&cwq->worklist);
  	init_waitqueue_head(&cwq->more_work);
- 
-@@ -586,10 +584,12 @@ struct workqueue_struct *__create_workqu
- 	}
- 
- 	wq->name = name;
-+	wq->freezeable = freezeable;
++}
 +
++static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
++							int cpu)
++{
++	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
++	struct task_struct *p;
+ 
+ 	if (is_single_threaded(wq))
+ 		p = kthread_create(worker_thread, cwq, "%s", wq->name);
+@@ -589,6 +589,7 @@ struct workqueue_struct *__create_workqu
  	mutex_lock(&workqueue_mutex);
  	if (singlethread) {
  		INIT_LIST_HEAD(&wq->list);
--		p = create_workqueue_thread(wq, singlethread_cpu, freezeable);
-+		p = create_workqueue_thread(wq, singlethread_cpu);
++		init_cpu_workqueue(wq, singlethread_cpu);
+ 		p = create_workqueue_thread(wq, singlethread_cpu);
  		if (!p)
  			destroy = 1;
- 		else
-@@ -597,7 +597,7 @@ struct workqueue_struct *__create_workqu
+@@ -596,7 +597,11 @@ struct workqueue_struct *__create_workqu
+ 			wake_up_process(p);
  	} else {
  		list_add(&wq->list, &workqueues);
- 		for_each_online_cpu(cpu) {
--			p = create_workqueue_thread(wq, cpu, freezeable);
-+			p = create_workqueue_thread(wq, cpu);
+-		for_each_online_cpu(cpu) {
++		for_each_possible_cpu(cpu) {
++			init_cpu_workqueue(wq, cpu);
++			if (!cpu_online(cpu))
++				continue;
++
+ 			p = create_workqueue_thread(wq, cpu);
  			if (p) {
  				kthread_bind(p, cpu);
- 				wake_up_process(p);
-@@ -859,7 +859,7 @@ static int __devinit workqueue_cpu_callb
- 	case CPU_UP_PREPARE:
- 		/* Create a new workqueue thread for it. */
- 		list_for_each_entry(wq, &workqueues, list) {
--			if (!create_workqueue_thread(wq, hotcpu, 0)) {
-+			if (!create_workqueue_thread(wq, hotcpu)) {
- 				printk("workqueue for %i failed\n", hotcpu);
- 				return NOTIFY_BAD;
- 			}
+@@ -833,6 +838,7 @@ static void take_over_work(struct workqu
+ 
+ 	spin_lock_irq(&cwq->lock);
+ 	list_replace_init(&cwq->worklist, &list);
++	migrate_sequence++;
+ 
+ 	while (!list_empty(&list)) {
+ 		printk("Taking work for %s\n", wq->name);
 

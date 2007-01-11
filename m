@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030235AbXAKJJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965338AbXAKJTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbXAKJJz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 04:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbXAKJJz
+	id S965338AbXAKJTh (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 04:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965340AbXAKJTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 04:09:55 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:22341 "HELO
-	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030235AbXAKJJx (ORCPT
+	Thu, 11 Jan 2007 04:19:36 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34613 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965337AbXAKJTf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 04:09:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ZPIjdKUyF+1C3n/VZD5rpM6VD02tSVt1qBIjMP6gdfsbgzztELQHoTKYhw0Vf4FdsWDiq4KP9f7zj9rnBcPCdX0HTqVAX/TAXFA14oLaEfRl15lrU7QpHp7qlGI+bI2Vp1x9oDR4/Tcw7UyqTXcrtTufxK4CIat6recN5oy+wXk=  ;
-X-YMail-OSG: q2u0VBUVM1kYmffI8t73KLJt9oIIKlV6H2LDYWyeoGS2p4UPVrnZ0XDsNL8sdy63KF1s8vvA4jxTDr6dU96jKWf3KtaoK4fROIoM25Q.q.Oh3hbI.t7.72vxHSvyril09uC43ZJ7gRgIKmnjQc_D.KWgkTmsKpNqOWn.bz_gABeT8sSV_enqh1kGwfqlfgirH9DjJuAx6SVUbOY-
-Message-ID: <45A5FEC4.8020800@yahoo.com.au>
-Date: Thu, 11 Jan 2007 20:09:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Huang <royhuang9@gmail.com>
-CC: Aubrey <aubreylee@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>	 <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>	 <20070110220603.f3685385.akpm@osdl.org>	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>	 <20070110225720.7a46e702.akpm@osdl.org>	 <45A5E1B2.2050908@yahoo.com.au>	 <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>	 <45A5F157.9030001@yahoo.com.au> <afe668f90701110049m412a041awc1fd9a03660bec45@mail.gmail.com>
-In-Reply-To: <afe668f90701110049m412a041awc1fd9a03660bec45@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 04:19:35 -0500
+Date: Thu, 11 Jan 2007 09:19:13 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+Cc: jeff@garzik.org, shemminger@osdl.org, csnook@redhat.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       atl1-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] atl1: Build files for Attansic L1 driver
+Message-ID: <20070111091913.GA3141@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
+	shemminger@osdl.org, csnook@redhat.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, atl1-devel@lists.sourceforge.net
+References: <20070111004051.GB2624@osprey.hogchain.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070111004051.GB2624@osprey.hogchain.net>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Huang wrote:
-> There is already an EMBEDDED option in config, so I think linux is
-> also supporting embedded system. There are many developers working on
-> embedded system runing linux. They also hope to contribute to linux,
-> then other embeded developers can share it.
+On Wed, Jan 10, 2007 at 06:40:51PM -0600, Jay Cliburn wrote:
+> --- /dev/null
+> +++ b/drivers/net/atl1/Makefile
+> @@ -0,0 +1,30 @@
+> +################################################################################
+> +#
+> +# Attansic L1 gigabit ethernet driver
+> +# Copyright(c) 2005 - 2006 Attansic Corporation.
+> +#
+> +# This program is free software; you can redistribute it and/or modify it
+> +# under the terms and conditions of the GNU General Public License,
+> +# version 2, as published by the Free Software Foundation.
+> +#
+> +# This program is distributed in the hope it will be useful, but WITHOUT
+> +# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +# more details.
+> +#
+> +# You should have received a copy of the GNU General Public License along with
+> +# this program; if not, write to the Free Software Foundation, Inc.,
+> +# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +#
+> +# The full GNU General Public License is included in this distribution in
+> +# the file called "COPYING".
+> +#
+> +################################################################################
 
-Yes, but we don't like to apply kernel hacks regardless if they "help"
-embedded, desktop, server or anyone else.
+I don't think anyone can claim copyright on two lines of actual kbuild code.
 
-Note that these tricks to limit file cache will only paper over the
-actual issue, which is that large allocations must be contiguous and
-thus subject to fragmentation on nommu kernels. The real solution to
-this is simply not a kernel based one.
+> +#
+> +# Makefile for the Attansic L1 gigabit ethernet driver
+> +#
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+This comment is antirely superflous.
+
+> +obj-$(CONFIG_ATL1) += atl1.o
+> +
+> +atl1-objs := atl1_main.o atl1_hw.o atl1_ethtool.o atl1_param.o
+
+Thi should be atl1-y += ...
+
+In short the whole contents of this file should be:
+
+---------------- snip ----------------
+obj-$(CONFIG_ATL1)	+= atl1.o
+atl1-y			+= atl1_main.o atl1_hw.o atl1_ethtool.o atl1_param.o
+---------------- snip ----------------
+

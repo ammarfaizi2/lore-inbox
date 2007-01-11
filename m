@@ -1,55 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750907AbXAKQ7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750914AbXAKRAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbXAKQ7Q (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbXAKQ7Q
+	id S1750914AbXAKRAh (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 12:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbXAKRAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:59:16 -0500
-Received: from neopsis.com ([213.239.204.14]:38799 "EHLO
-	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750907AbXAKQ7P (ORCPT
+	Thu, 11 Jan 2007 12:00:37 -0500
+Received: from postfix2-g20.free.fr ([212.27.60.43]:34388 "EHLO
+	postfix2-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750914AbXAKRAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:59:15 -0500
-Message-ID: <45A67143.1030500@dbservice.com>
-Date: Thu, 11 Jan 2007 18:17:55 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Thunderbird 2.0b1 (X11/20061212)
+	Thu, 11 Jan 2007 12:00:36 -0500
+Message-ID: <1168534773.45a66cf58d25e@imp4-g19.free.fr>
+Date: Thu, 11 Jan 2007 17:59:33 +0100
+From: castet.matthieu@free.fr
+To: e1000-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: e1000 : link down issues
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Gert Vervoort <gert.vervoort@hccnet.nl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oprofile broken on 2.6.19
-References: <45A3FF3E.7060109@hccnet.nl> <45A52320.2050100@hccnet.nl> <45A64BA1.2080403@dbservice.com> <200701111547.48982.dada1@cosmosbay.com>
-In-Reply-To: <200701111547.48982.dada1@cosmosbay.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
-X-Neopsis-MailScanner: Found to be clean
-X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.368,
-	required 5, autolearn=spam, AWL 0.23, BAYES_00 -2.60)
-X-MailScanner-From: tom@dbservice.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 82.120.200.254
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> On Thursday 11 January 2007 15:37, Tomas Carnecky wrote:
->> Gert Vervoort wrote:
->>> Tomas Carnecky wrote:
->>>> Gert Vervoort wrote:
->>>>> When I try to use oprofile on 2.6.19, it does not seem to work:
->>>> http://lkml.org/lkml/2006/11/22/172
->>> Disabling the nmi watchdog, as suggested in:
->>> http://marc.theaimsgroup.com/?l=oprofile-list&m=116422889324043&w=2,
->>> also makes oprofile work again.
->> Oh.. that seem to be much easier then compiling a patched oprofile :)
->> However, I can't find any NMI option (grep NMI .config), and
->> CONFIG_WATCHDOG is disabled here.
-> 
-> Sure, but did you tried to boot with 'nmi_watchdog=0' appended in your boot 
-> params ?
+Hi,
 
-No, I assumed since I don't have any watchdog, I wouldn't have the NMI
-thing either... these silly assumptions.
+I got a 82566DM e1000 network controller [1] on my motherboard, and most of the
+time the link go down when doing dhcp. [2]
 
-tom
+ifconfig eth0 up -> link become up
+dhclient eth0 -> some packet are transmited and received and the link become
+down.
+
+
+
+I sometimes got e1000_reset: Hardware Error.
+
+This happen with vanilla 2.6.19 and e1000-7.3.20 drivers.
+
+This is very anoying because I should do rmmod e1000; modprobe e1000; ifup e1000
+in loop until the link stay up.
+I try forcing speed, duplex and flow control, but nothing solve my issue.
+
+The device is working fine on windows.
+
+What should I do ?
+
+Thanks.
+
+
+Matthieu CASTET
+
+
+[1]
+00:19.0 0200: 8086:104a (rev 02)
+        Subsystem: 103c:2800
+
+[2]
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+None
+e1000: eth0: e1000_watchdog: NIC Link is Down
+e1000: 0000:00:19.0: e1000_validate_option: Flow Control Disabled
+e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1)
+00:0f:fe:77:08:a1
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+None
+e1000: eth0: e1000_watchdog: NIC Link is Down
+e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1)
+00:0f:fe:77:08:a1
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+RX
+e1000: eth0: e1000_watchdog: NIC Link is Down
+e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1)
+00:0f:fe:77:08:a1
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+RX
+e1000: eth0: e1000_watchdog: NIC Link is Down
+e1000: 0000:00:19.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1)
+00:0f:fe:77:08:a1
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+None
+e1000: eth0: e1000_watchdog: NIC Link is Down
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex, Flow Control:
+None

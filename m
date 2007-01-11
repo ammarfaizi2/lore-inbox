@@ -1,50 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932108AbXAKWWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932674AbXAKWfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbXAKWWt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 17:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbXAKWWs
+	id S932674AbXAKWfJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 17:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbXAKWfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 17:22:48 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:55024 "EHLO outpost.ds9a.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932108AbXAKWWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 17:22:48 -0500
-Date: Thu, 11 Jan 2007 23:22:46 +0100
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Sean Reifschneider <jafo@tummy.com>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: select() setting ERESTARTNOHAND (514).
-Message-ID: <20070111222246.GA27976@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Sean Reifschneider <jafo@tummy.com>,
-	David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-References: <20070110234238.GB10791@tummy.com> <20070110.162747.28789587.davem@davemloft.net> <20070111010429.GN7121@tummy.com> <20070110.171520.23015257.davem@davemloft.net> <20070111082516.GU7121@tummy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070111082516.GU7121@tummy.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 11 Jan 2007 17:35:09 -0500
+Received: from twinlark.arctic.org ([207.29.250.54]:57226 "EHLO
+	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932674AbXAKWfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 17:35:08 -0500
+Date: Thu, 11 Jan 2007 14:35:06 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - RFC] allow setting vm_dirty below 1% for large memory
+ machines
+In-Reply-To: <20070111122127.5bcc0b0f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701111431470.4980@twinlark.arctic.org>
+References: <17827.22798.625018.673326@notabene.brown>
+ <Pine.LNX.4.64.0701110245300.22043@twinlark.arctic.org>
+ <20070111122127.5bcc0b0f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2007 at 01:25:16AM -0700, Sean Reifschneider wrote:
+On Thu, 11 Jan 2007, Andrew Morton wrote:
 
-> Nope, I haven't looked in strace at all.  It's definitely making it to
-> user-space.  The code in question is (abbreviated):
+> On Thu, 11 Jan 2007 03:04:00 -0800 (PST)
+> dean gaudet <dean@arctic.org> wrote:
 > 
->    if (select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &t) != 0) {
->       PyErr_SetFromErrno(PyExc_IOError);
->       return -1;
->       }
+> > On Tue, 9 Jan 2007, Neil Brown wrote:
+> > 
+> > > Imagine a machine with lots of memory - say 100Gig.
+> > 
+> > i've had these problems on machines as "small" as 8GiB.  the real problem 
+> > is that the kernel will let millions of potential (write) IO ops stack up 
+> > for a device which can handle only mere 100s of IOs per second.  (and i'm 
+> > not convinced it does the IOs in a sane order when it has millions to 
+> > choose from)
+> > 
+> > replacing the percentage based dirty_ratio / dirty_background_ratio with 
+> > sane kibibyte units is a good fix... but i'm not sure it's sufficient.
+> > 
+> > it seems like the "flow control" mechanism (i.e. dirty_ratio) should be on 
+> > a device basis...
+> > 
+> > try running doug ledford'd memtest.sh on an 8GiB box with a single disk, 
+> > let it go a few minutes then ^C and type "sync".  i've had to wait 10 
+> > minutes (2.6.18 with default vm settings).
+> > 
+> > it makes it hard to guarantee a box can shutdown quickly -- nasty for 
+> > setting up UPS on-battery timeouts for example.
+> > 
+> 
+> Increasing the request queue size should help there
+> (/sys/block/sda/queue/nr_requests).  Maybe 25% or more benefit with that
+> test, at a guess.
 
-Anything else relevant? Do you know which signal interrupted select? Is this
-a single or multithreaded application? And where did the signal come from?
+hmm i've never had much luck with increasing nr_requests... if i get a 
+chance i'll reproduce the problem and try that.
 
-I tried to reproduce your problem in various ways on 2.6.20-rc4, but it
-didn't appear.
 
-Thanks.
+> Probably initscripts should do that rather than leaving the kernel defaults
+> in place.  It's a bit tricky for the kernel to do because the decision
+> depends upon the number of disks in the system, as well as the amount of
+> memory.
+> 
+> Or perhaps the kernel should implement a system-wide limit on the number of
+> requests in flight.  While avoiding per-device starvation.  Tricky.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+actually a global dirty_ratio causes interference between devices which 
+should otherwise not block each other...
+
+if you set up a "dd if=/dev/zero of=/dev/sdb bs=1M" it shouldn't affect 
+write performance on sda -- but it does... because the dd basically 
+dirties all of the "dirty_background_ratio" pages and then any task 
+writing to sda has to block in the foreground...  (i've had this happen in 
+practice -- my hack fix is oflag=direct on the dd... but the problem still 
+exists.)
+
+i'm not saying fixing any of this is easy, i'm just being a user griping 
+about it :)
+
+-dean

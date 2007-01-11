@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030335AbXAKNJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030342AbXAKNNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbXAKNJJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 08:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbXAKNJJ
+	id S1030342AbXAKNNH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 08:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbXAKNNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 08:09:09 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39130 "EHLO mx2.suse.de"
+	Thu, 11 Jan 2007 08:13:07 -0500
+Received: from mail.alkar.net ([195.248.191.95]:50145 "EHLO mail.alkar.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030335AbXAKNJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 08:09:07 -0500
-From: Oliver Neukum <oneukum@suse.de>
-Organization: Novell
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-usb-devel] 2.6.20-rc4: null pointer deref in khubd
-Date: Thu, 11 Jan 2007 14:08:53 +0100
-User-Agent: KMail/1.9.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>,
-       linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0701101732160.5563-100000@iolanthe.rowland.org> <200701110853.26871.oneukum@suse.de> <20070111103406.GA5943@elf.ucw.cz>
-In-Reply-To: <20070111103406.GA5943@elf.ucw.cz>
+	id S1030342AbXAKNNG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 08:13:06 -0500
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.20-rc4: known unfixed regressions (v2)
+Date: Thu, 11 Jan 2007 16:12:40 +0300
+User-Agent: KMail/1.8.2
+Cc: reiserfs-dev@namesys.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <200701110324.42920.vs@namesys.com> <45A58C33.4050909@yahoo.com.au>
+In-Reply-To: <45A58C33.4050909@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200701111408.54424.oneukum@suse.de>
+Message-Id: <200701111612.40701.vs@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 11. Januar 2007 11:34 schrieb Pavel Machek:
+Hello
 
-[on USB_MULTITHREAD_PROBE]
-> Can we delete that config option for 2.6.20? (And sorry for a crappy report).
+On Thursday 11 January 2007 04:00, Nick Piggin wrote:
+> Vladimir V. Saveliev wrote:
+> > Hello
+> > 
+> > On Tuesday 09 January 2007 21:30, Linus Torvalds wrote:
+> > 
+> >>On Tue, 9 Jan 2007, Malte Schröder wrote:
+> >>
+> >>>>So something interesting is definitely going on, but I don't know exactly
+> >>>>what it is. Why does reiserfs do the truncate as part of a close, if the
+> >>>>same inode is actually mapped somewhere else? 
+> > 
+> > 
+> > on file close reiserfs tries to "pack" content of last incomplete page of file into metadata blocks.
+> > It should not if that page is still mapped somewhere. 
+> > It does not actually truncate, it calls the same function which does truncate, but file size does not change.
+> 
+> That's racy, unfortunately :P
+> 
 
-Somebody already has done so, however he left the module parameter.
-I'll remove that, too.
+Sorry, please, explain what is racy.
+reiserfs_truncate and reiserfs_release call that function after they have inode's mutex locked.
 
-	Regards
-		Oliver
+> > 
+> > Please consider the below patch.
+> 
+> That seems like it would work. Probably papers over your truncate-inside-i_size as well.
+> 

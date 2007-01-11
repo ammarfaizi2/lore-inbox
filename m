@@ -1,122 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750772AbXAKPqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXAKPuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbXAKPqK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 10:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbXAKPqK
+	id S1750773AbXAKPuF (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 10:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbXAKPuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 10:46:10 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:33810 "EHLO e6.ny.us.ibm.com"
+	Thu, 11 Jan 2007 10:50:05 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:50469 "EHLO e2.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750772AbXAKPqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 10:46:08 -0500
-Date: Thu, 11 Jan 2007 09:46:02 -0600
+	id S1750773AbXAKPuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 10:50:01 -0500
+Date: Thu, 11 Jan 2007 09:49:57 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Containers <containers@lists.osdl.org>, clg@fr.ibm.com,
-       "David C. Hansen" <haveblue@us.ibm.com>, serue@us.ibm.com
-Subject: Re: [PATCH] attach_pid() with struct pid parameter
-Message-ID: <20070111154602.GE4791@sergelap.austin.ibm.com>
-References: <20070111130411.GB15353@us.ibm.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Mimi Zohar <zohar@us.ibm.com>,
+       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@saff.watson.ibm.com
+Subject: Re: mprotect abuse in slim
+Message-ID: <20070111154957.GG4791@sergelap.austin.ibm.com>
+References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org> <20070109094625.GA11918@infradead.org> <20070109231449.GA4547@sergelap.austin.ibm.com> <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI> <20070110155845.GA373@sergelap.austin.ibm.com> <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070111130411.GB15353@us.ibm.com>
+In-Reply-To: <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you also add a comment above both find_attach_pid() and
-attach_pid() saying they are always called with the
-tasklist_lock write-held?  Keeps each patch reader from having
-to go verify that...
+Quoting Pekka Enberg (penberg@cs.helsinki.fi):
+> On 1/10/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
+> >But since it looks like you just munmap the region now, shouldn't a
+> >subsequent munmap by the app just return -EINVAL?  that seems appropriate
+> >to me.
+> 
+> Applications don't know about revoke and neither should they.
+> Therefore close(2) and munmap(2) must work the same way they would for
+> non-revoked inodes so that applications can release resources
+> properly.
+> 
+>                                         Pekka
+
+Right, but is returning -EINVAL to userspace on munmap a problem?
+It may not have been expected before, but it shouldn't break
+anything...
+
+Thanks for the tw other patches - I'll give them a shot and check
+out current munmap behavior just as soon as I get a chance.
 
 thanks,
 -serge
 
-Quoting Sukadev Bhattiprolu (sukadev@us.ibm.com):
-> 
-> From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-> 
-> Implement a new version of attach_pid() with a struct pid parameter and
-> wrap find_attach_pid() around it. attach_pid() would also be used in
-> subsequent container patches.
-> 
-> Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-> Cc: Cedric Le Goater <clg@fr.ibm.com>
-> Cc: Dave Hansen <haveblue@us.ibm.com>
-> Cc: Serge Hallyn <serue@us.ibm.com>
-> Cc: containers@lists.osdl.org
-> ---
->  include/linux/pid.h |   28 +++++++++++++++++-----------
->  kernel/pid.c        |    7 +++----
->  2 files changed, 20 insertions(+), 15 deletions(-)
-> 
-> Index: lx26-20-rc2-mm1/include/linux/pid.h
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/include/linux/pid.h	2007-01-11 04:44:06.674046656 -0800
-> +++ lx26-20-rc2-mm1/include/linux/pid.h	2007-01-11 04:44:56.820423248 -0800
-> @@ -72,17 +72,6 @@ extern struct task_struct *FASTCALL(get_
->  extern struct pid *get_task_pid(struct task_struct *task, enum pid_type type);
-> 
->  /*
-> - * find_attach_pid() and detach_pid() must be called with the tasklist_lock
-> - * write-held.
-> - */
-> -extern int FASTCALL(find_attach_pid(struct task_struct *task,
-> -				enum pid_type type, int nr));
-> -
-> -extern void FASTCALL(detach_pid(struct task_struct *task, enum pid_type));
-> -extern void FASTCALL(transfer_pid(struct task_struct *old,
-> -				  struct task_struct *new, enum pid_type));
-> -
-> -/*
->   * look up a PID in the hash table. Must be called with the tasklist_lock
->   * or rcu_read_lock() held.
->   */
-> @@ -94,6 +83,23 @@ extern struct pid *FASTCALL(find_pid(int
->  extern struct pid *find_get_pid(int nr);
->  extern struct pid *find_ge_pid(int nr);
-> 
-> +/*
-> + * attach_pid(), find_attach_pid() and detach_pid() must be called with the
-> + * tasklist_lock write-held.
-> + */
-> +extern int FASTCALL(attach_pid(struct task_struct *task, enum pid_type type,
-> +				struct pid *pid));
-> +
-> +static inline int find_attach_pid(struct task_struct *task, enum pid_type type,
-> +				int nr)
-> +{
-> +	return attach_pid(task, type, find_pid(nr));
-> +}
-> +
-> +extern void FASTCALL(detach_pid(struct task_struct *task, enum pid_type));
-> +extern void FASTCALL(transfer_pid(struct task_struct *old,
-> +				  struct task_struct *new, enum pid_type));
-> +
->  extern struct pid *alloc_pid(void);
->  extern void FASTCALL(free_pid(struct pid *pid));
-> 
-> Index: lx26-20-rc2-mm1/kernel/pid.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/kernel/pid.c	2007-01-11 04:44:06.674046656 -0800
-> +++ lx26-20-rc2-mm1/kernel/pid.c	2007-01-11 04:44:56.821423096 -0800
-> @@ -247,14 +247,13 @@ struct pid * fastcall find_pid(int nr)
->  }
->  EXPORT_SYMBOL_GPL(find_pid);
-> 
-> -int fastcall find_attach_pid(struct task_struct *task, enum pid_type type,
-> -				int nr)
-> +int fastcall attach_pid(struct task_struct *task, enum pid_type type,
-> +				struct pid *pid)
->  {
->  	struct pid_link *link;
-> -	struct pid *pid;
-> 
->  	link = &task->pids[type];
-> -	link->pid = pid = find_pid(nr);
-> +	link->pid = pid;
->  	hlist_add_head_rcu(&link->node, &pid->tasks[type]);
-> 
->  	return 0;

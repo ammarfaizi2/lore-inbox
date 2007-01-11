@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030232AbXAKIdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030228AbXAKImM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbXAKIdv (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 03:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbXAKIdu
+	id S1030228AbXAKImM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 03:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbXAKImM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 03:33:50 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:20385 "EHLO kernel.dk"
+	Thu, 11 Jan 2007 03:42:12 -0500
+Received: from hera.kernel.org ([140.211.167.34]:34985 "EHLO hera.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030227AbXAKIdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 03:33:49 -0500
-Date: Thu, 11 Jan 2007 09:34:31 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       dm-devel@redhat.com, j-nomura@ce.jp.nec.com
-Subject: Re: [RFC PATCH 3/3] blk_end_request: caller change
-Message-ID: <20070111083430.GD11203@kernel.dk>
-References: <20070110.180859.78702215.k-ueda@ct.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S1030228AbXAKImL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 03:42:11 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: jayakumar.acpi@gmail.com
+Subject: Re: [PATCH 2.6.19 1/1] input: Atlas button driver
+Date: Thu, 11 Jan 2007 03:40:35 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       dmitry.torokhov@gmail.com, akpm@osdl.org
+References: <200701110519.l0B5Jl5B026909@localhost.localdomain>
+In-Reply-To: <200701110519.l0B5Jl5B026909@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070110.180859.78702215.k-ueda@ct.jp.nec.com>
+Message-Id: <200701110340.35427.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10 2007, Kiyoshi Ueda wrote:
-> +static int end_request_callback(void *arg)
-> +{
-> +	struct request *req = (struct request *)arg;
-> +
-> +	add_disk_randomness(req->rq_disk);
-> +	blkdev_dequeue_request(req);
-> +
-> +	return 0;
-> +}
+Jaya,
+Thanks for consolidating the earlier patches
+so that this driver now only reports input events
+and does not touch /proc/acpi.
 
-This is bad, don't pass void * around.
+Thanks for fixing the status issue.
 
-> +static int cdrom_newpc_intr_dma_callback(void *arg)
-> +{
-> +	void **argv = (void **)arg;
-> +	struct request *rq = (struct request *)*argv++;
-> +	ide_drive_t *drive = (ide_drive_t *)argv++;
-> +	spinlock_t *ide_lock = (spinlock_t *)argv;
-> +
-> +	rq->data_len = 0;
-> +
-> +	cdrom_newpc_intr_callback_common(rq, drive, ide_lock);
-> +
-> +	return 0;
-> +}
-
-And this is why, down right horrible. The callback should be correctly
-typed, pass down a request pointer ALWAYS.
-
--- 
-Jens Axboe
-
+Acked-by: Len Brown <len.brown@intel.com>

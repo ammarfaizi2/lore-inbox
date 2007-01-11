@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030201AbXAKCaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965281AbXAKCxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbXAKCaW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 21:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbXAKCaW
+	id S965281AbXAKCxn (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 21:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbXAKCxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 21:30:22 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:49381 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965285AbXAKCaV (ORCPT
+	Wed, 10 Jan 2007 21:53:43 -0500
+Received: from outbound-mail-42.bluehost.com ([69.89.18.11]:39399 "HELO
+	outbound-mail-42.bluehost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S965281AbXAKCxm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 21:30:21 -0500
-Date: Thu, 11 Jan 2007 08:00:05 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Benjamin Gilbert <bgilbert@cs.cmu.edu>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Gautham shenoy <ego@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [patch -mm] slab: use CPU_LOCK_[ACQUIRE|RELEASE]
-Message-ID: <20070111023005.GA5357@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20070108120719.16d4674e.bgilbert@cs.cmu.edu> <20070109121738.GC9563@osiris.boeblingen.de.ibm.com> <20070109122740.GC22080@in.ibm.com> <20070109150351.GD9563@osiris.boeblingen.de.ibm.com> <20070109150615.GF9563@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0701101012460.21379@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Jan 2007 21:53:42 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Olivier Galibert <galibert@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] PCI mmconfig support for Intel 915 bridges
+Date: Wed, 10 Jan 2007 18:53:03 -0800
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701101012460.21379@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200701101853.04059.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2007 at 10:20:28AM -0800, Christoph Lameter wrote:
-> I have got a bad feeling about upcoming deadlock problems when looking at
-> the mutex_lock / unlock code in cpuup_callback in slab.c. Branches
-> that just obtain a lock or release a lock? I hope there is some
-> control of  what happens between lock acquisition and release?
+This is a resend of the patch I sent earlier to Oliver.  It adds support
+for Intel 915 bridge chips to the new PCI MMConfig detection code.  Tested
+and works on my sole 915 based platform (a Toshiba laptop).  I added
+register masking per Oliver's suggestion, and moved the __init qualifier to
+after the 'static const char' to match Ogawa-san's recent cleanup patches.
 
-A cpu hotplug should happen between LOCK_ACQUIRE/RELEASE
+Over time we can probably associate more PCI IDs with this routine, since
+i915 family contains a few other chips.  But since I didn't have platforms
+to test such additions on, they're left out for now.
 
-> You are aware that this lock is taken for cache shrinking/destroy, tuning
-> of cpu cache sizes, proc output and cache creation? Any of those run on
-> the same processor should cause a deadlock.
+Signed-off-by:  Jesse Barnes <jbarnes@virtuousgeek.org>
 
-Why? mutex_lock() taken in LOCK_ACQ will just block those functions
-(cache create etc) from proceeding simultaneously as a hotplug event.
-This per-subsystem mutex_lock() is supposed to be a replacement for the global
-lock_cpu_hotplug() lock .. 
+Thanks,
+Jesse
 
-But the whole thing is changing again ..we will likely move towards a
-process freezer based cpu hotplug locking ..all the lock_cpu_hotplugs()
-and the existing LOCK_ACQ/RELS can go away when we do that ..
-
--- 
-Regards,
-vatsa
+diff -Napur -X /home/jbarnes/dontdiff linux-2.6.19-mmconfig.orig/arch/i386/pci/mmconfig-shared.c linux-2.6.19-mmconfig/arch/i386/pci/mmconfig-shared.c
+--- linux-2.6.19-mmconfig.orig/arch/i386/pci/mmconfig-shared.c	2007-01-07 10:10:29.000000000 -0800
++++ linux-2.6.19-mmconfig/arch/i386/pci/mmconfig-shared.c	2007-01-10 18:46:46.000000000 -0800
+@@ -71,6 +71,26 @@ static __init const char *pci_mmcfg_e752
+ 	return "Intel Corporation E7520 Memory Controller Hub";
+ }
+ 
++static const char __init *pci_mmcfg_intel_915(void)
++{
++	u32 pciexbar, len = 0;
++
++	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
++
++	/* No enable bit or size field, so assume 256M range is enabled. */
++	len = 0x10000000U;
++	pci_mmcfg_config_num = 1;
++	pciexbar &= 0xe0000000; /* mask out potentially bogus bits */
++
++	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]), GFP_KERNEL);
++	pci_mmcfg_config[0].base_address = pciexbar;
++	pci_mmcfg_config[0].pci_segment_group_number = 0;
++	pci_mmcfg_config[0].start_bus_number = 0;
++	pci_mmcfg_config[0].end_bus_number = (len >> 20) - 1;
++
++	return "Intel Corporation 915PM/GM/GMS Express Memory Controller Hub";
++}
++
+ static __init const char *pci_mmcfg_intel_945(void)
+ {
+ 	u32 pciexbar, mask = 0, len = 0;
+@@ -126,6 +146,7 @@ struct pci_mmcfg_hostbridge_probe {
+ 
+ static __initdata struct pci_mmcfg_hostbridge_probe pci_mmcfg_probes[] = {
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_E7520_MCH, pci_mmcfg_e7520 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82915GM_HB, pci_mmcfg_intel_915 },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82945G_HB, pci_mmcfg_intel_945 },
+ };
+ 

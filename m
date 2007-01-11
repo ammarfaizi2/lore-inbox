@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965301AbXAKGoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965307AbXAKGpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965301AbXAKGoY (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 01:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965302AbXAKGoX
+	id S965307AbXAKGpP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 01:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbXAKGpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 01:44:23 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:21724 "HELO
-	smtp101.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965301AbXAKGoX (ORCPT
+	Thu, 11 Jan 2007 01:45:15 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:51396 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965302AbXAKGpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 01:44:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=i9bZF4LzIY6juFeSjPj9nHaR5plNsoBRrzcbd3kmz2oE21jMUti6sIqEuqTDpAIy9pc7ssV7Rbv2EPQu+45BLqi6ahCMZgGZPC8k67PcVnreeL4GpHsZWU6S7yBYmBDpX09tRq8/7qIPHE7J1dJxUfxA81fYHexCMZPGYHyrpB0=  ;
-X-YMail-OSG: oINDlq8VM1nYN6rbdqmRKQeWfYQ.nWOSwCvJ2jPw3pWZSKBW6Nq4P12ZoZ8wy4wjB6rCLHzZ.i7fnuXvpyeSvPvI.XJfXqLzKvdYvFPcHfF3LGch38BcHdpaWJKt5CrQ11U8byavF3gEttQ-
-Message-ID: <45A5DCAB.6060900@yahoo.com.au>
-Date: Thu, 11 Jan 2007 17:43:55 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 11 Jan 2007 01:45:13 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BP/93REsAKMQMdCoX/1ukYdAVAiwkwNMt+JSsEjQ8zKE+tkwkdoPTPOEDp4Yqa3qdTJDorRsDcuoFX2IyXYQ4bqbCKho2RIdrErEiNzUeJrKCxAYakbhqzLTagsKGYcQGu0+5MQm38SDUlXokGIZeBTXfH7vrl5tsIIT6MGSv/k=
+Message-ID: <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
+Date: Thu, 11 Jan 2007 14:45:12 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: O_DIRECT question
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Hua Zhong" <hzhong@gmail.com>,
+       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
+In-Reply-To: <20070110220603.f3685385.akpm@osdl.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John McCutchan <john@johnmccutchan.com>, rml@novell.com
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v3)
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <20070111051022.GA21724@stusta.de>
-In-Reply-To: <20070111051022.GA21724@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+	 <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>
+	 <20070110220603.f3685385.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On 1/11/07, Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 11 Jan 2007 13:50:53 +0800
+> Aubrey <aubreylee@gmail.com> wrote:
+>
+> > Firstly I want to say I'm working on no-mmu arch and uClinux.
+> > After much of file operations VFS cache eat up all of the memory.
+> > At this time, if an application request memory which order > 3, the
+> > kernel will report failure.
+>
+> nommu kernels should probably run reclaim for higher-order allocations as
+> well.
 
-> Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
-> References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
-> Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
-> Handled-By : John McCutchan <john@johnmccutchan.com>
-> Status     : problem is being debugged
+Here is the limitation. rebalance doesn't occur if order > 3.
+/*
+         * Don't let big-order allocations loop unless the caller explicitly
+         * requests that.  Wait for some write requests to complete then retry.
+         *
+         * In this implementation, __GFP_REPEAT means __GFP_NOFAIL for order
+         * <= 3, but that may not be true in other implementations.
+         */
+        do_retry = 0;
+        if (!(gfp_mask & __GFP_NORETRY)) {
+                if ((order <= 3) || (gfp_mask & __GFP_REPEAT))
+                        do_retry = 1;
+                if (gfp_mask & __GFP_NOFAIL)
+                        do_retry = 1;
+        }
+        if (do_retry) {
+                blk_congestion_wait(WRITE, HZ/50);
+                goto rebalance;
+        }
 
-I'm not sure that this is actually a regression for 2.6.20-rc.
+>
+> That's rather a blunt instrument.  The "lumpy reclaim" patches in -mm
+> provide a much better approach, but they need more work yet (although I
+> don't immediately recall what's needed).
 
-I'll see if I can cook up something that dumps a bit more info
-for us. There must be some peculiar usage pattern and/or filesystem
-involved.
+Thanks, I'll take a look.
 
+>
+> In the interim you could do the old "echo 3 > /proc/sys/vm/drop_caches"
+> thing, but that's terribly crude - drop_caches is really only for debugging
+> and benchmarking.
+>
+Yes. This method can drop caches, but will fragment memory. This is
+not what I want. I want cache is limited to a tunable value of the
+whole memory. For example, if total memory is 128M, is there a way to
+trigger reclaim when cache size > 16M?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-Aubrey

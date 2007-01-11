@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932666AbXALLA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161079AbXALLCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbXALLA1 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 06:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbXALLA1
+	id S1161079AbXALLCi (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 06:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbXALLCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 06:00:27 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:57159 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932666AbXALLA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 06:00:27 -0500
-Date: Fri, 12 Jan 2007 11:59:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: congwen <congwen@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How can I create or read/write a file in linux device driver?
-In-Reply-To: <9a8748490701120254x6a7dd93aw9dd75994af661f5e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0701121158460.17236@yvahk01.tjqt.qr>
-References: <200701121547221465420@gmail.com> 
- <9a8748490701120227h757d473ctaf5673aa318fe090@mail.gmail.com> 
- <Pine.LNX.4.61.0701121139010.17236@yvahk01.tjqt.qr>
- <9a8748490701120254x6a7dd93aw9dd75994af661f5e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 12 Jan 2007 06:02:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2264 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1161060AbXALLCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 06:02:38 -0500
+Date: Thu, 11 Jan 2007 14:35:37 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Mimi Zohar <zohar@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@watson.ibm.com
+Subject: Re: mprotect abuse in slim
+Message-ID: <20070111143537.GB6843@ucw.cz>
+References: <20070108134152.GA19811@infradead.org> <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Jan 12 2007 11:54, Jesper Juhl wrote:
->> 
->> The article does it the bad way. IMHO filp_open() and
->> vfs_read/vfs_write() are much less problematic wrt. to userspace.
->> FWIW see
->> ftp://ftp-1.gwdg.de/pub/linux/misc/suser-jengelh/kernel/quad_dsp-1.5.1.tar.bz2
->
-> There is no good way.  You simply should NOT do it.
+> SLIM implements dynamic process labels, so when a process
+> is demoted, we must be able to revoke write access to some
+> resources to which it has previously valid handles.
+> For example, if a shell reads an untrusted file, the
+> shell is demoted, and write access to more trusted files
+> revoked. Based on previous comments on lkml, we understand
+> that this is not really possible in general, so SLIM only
+> attempts to revoke access in certain simple cases.
 
-I never said there is a good way, just that some are better than others ;-)
-As for quad_dsp, well, the reason why it's done in kernel-space is because
-userspace wrapping with LD_PRELOAD does not always work, esp. with statically
-compiled apps.
-
-
-	-`J'
+Are you saying that SLIM is useless by design because interested
+parties can work around it?
+							Pavel
 -- 
+Thanks for all the (sleeping) penguins.

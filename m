@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751511AbXAKVut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751524AbXAKVvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbXAKVut (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 16:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbXAKVut
+	id S1751524AbXAKVvG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 16:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbXAKVvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 16:50:49 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:37506 "EHLO smtp.osdl.org"
+	Thu, 11 Jan 2007 16:51:06 -0500
+Received: from mga03.intel.com ([143.182.124.21]:32931 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751511AbXAKVus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 16:50:48 -0500
-Date: Thu, 11 Jan 2007 13:49:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
-       Jakub Jelinek <jakub@redhat.com>, Darren Hart <dvhltc@us.ibm.com>,
-       =?ISO-8859-1?Q?S=E9b?= =?ISO-8859-1?Q?astien_Dugu=E9?= 
-	<sebastien.dugue@bull.net>
-Subject: Re: [PATCH 2.6.20-rc4 4/4][RFC] sys_futex64 : allows 64bit futexes
-Message-Id: <20070111134904.44d89572.akpm@osdl.org>
-In-Reply-To: <45A3C1F6.4020503@bull.net>
-References: <45A3B330.9000104@bull.net>
-	<45A3C1F6.4020503@bull.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1751517AbXAKVvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 16:51:04 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,175,1167638400"; 
+   d="scan'208"; a="167935837:sNHT20213319"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Randy Dunlap'" <randy.dunlap@oracle.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, "Michael Reed" <mdr@sgi.com>,
+       "'Zach Brown'" <zach.brown@oracle.com>,
+       "'Chris Mason'" <chris.mason@oracle.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Jeremy Higdon" <jeremy@sgi.com>, "David Chinner" <dgc@sgi.com>
+Subject: RE: [patch] optimize o_direct on block device - v3
+Date: Thu, 11 Jan 2007 13:51:04 -0800
+Message-ID: <000101c735ca$9782b4e0$eb34030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Acc1yewxPqzMuM/aRSOyn/Fxfz5pIgAABm1Q
+In-Reply-To: <20070111134459.4b43330d.randy.dunlap@oracle.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 Jan 2007 17:25:26 +0100
-Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+Randy Dunlap wrote on Thursday, January 11, 2007 1:45 PM
+> > +/* return a pge back to pvec array */
+> 
+> is pge just a typo or some other tla that i don't know?
+> (not portland general electric or pacific gas & electric)
 
->   static inline int
-> +futex_atomic_op_inuser64 (int encoded_op, u64 __user *uaddr)
 
-Your email client performs space-stuffing.  Please see if you can turn that
-off.  (It's fixable at my end with s/^ /^/g but it's a nuisance).
+Typo with fat fingers. Thanks for catching it. Full patch with typo fixed.
 
-> +{
-> +	int op = (encoded_op >> 28) & 7;
-> +	int cmp = (encoded_op >> 24) & 15;
-> +	u64 oparg = (encoded_op << 8) >> 20;
-> +	u64 cmparg = (encoded_op << 20) >> 20;
-> +	u64 oldval = 0, ret, tem;
-> +
-> +	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
-> +		oparg = 1 << oparg;
-> +
-> +	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(u64)))
-> +		return -EFAULT;
-> +
-> +	inc_preempt_count();
 
-What is that open-coded, uncommented inc_preempt_count() doing in there?
+
+[patch] fix blk_direct_IO bio preparation.
+
+For large size DIO that needs multiple bio, one full page worth of data
+was lost at the boundary of bio's maximum sector or segment limits.
+After a bio is full and got submitted.  The outer while (nbytes) { ... }
+loop will allocate a new bio and just march on to index into next page.
+It just forget about the page that bio_add_page() rejected when previous
+bio is full.  Fix it by put the rejected page back to pvec so we pick it
+up again for the next bio.
+
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+diff -Nurp linux-2.6.20-rc4/fs/block_dev.c linux-2.6.20.ken/fs/block_dev.c
+--- linux-2.6.20-rc4/fs/block_dev.c	2007-01-06 21:45:51.000000000 -0800
++++ linux-2.6.20.ken/fs/block_dev.c	2007-01-10 19:54:53.000000000 -0800
+@@ -190,6 +190,12 @@ static struct page *blk_get_page(unsigne
+ 	return pvec->page[pvec->idx++];
+ }
+ 
++/* return a page back to pvec array */
++static void blk_unget_page(struct page *page, struct pvec *pvec)
++{
++	pvec->page[--pvec->idx] = page;
++}
++
+ static ssize_t
+ blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+ 		 loff_t pos, unsigned long nr_segs)
+@@ -278,6 +284,8 @@ same_bio:
+ 				count = min(count, nbytes);
+ 				goto same_bio;
+ 			}
++		} else {
++			blk_unget_page(page, &pvec);
+ 		}
+ 
+ 		/* bio is ready, submit it */

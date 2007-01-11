@@ -1,58 +1,165 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965344AbXAKJXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965343AbXAKJ1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965344AbXAKJXz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 04:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbXAKJXy
+	id S965343AbXAKJ1R (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 04:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965339AbXAKJ1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 04:23:54 -0500
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:38276 "HELO
-	smtp104.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965344AbXAKJXx (ORCPT
+	Thu, 11 Jan 2007 04:27:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54148 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965340AbXAKJ1P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 04:23:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=hb7eIjnCNTRhfvBarDnPe8ugJs4JH6gyvYsCNYZ6JvWVYA/vbl3+TNrgB+5o1Gai5YLEzULxgeqmo13fjBySeWR85NXEDik36X1Kdkqxg1D9Cq0B4wGBLm+xs5/Q8r6mFkFGgHARUBZyvvWIf45UN4OsDR3qkyGLJ8rXGibJ9YI=  ;
-X-YMail-OSG: ot9_SLIVM1kC.ybQwqUUqJLE1DYlZwohGVqp30oOnr77IKkC8H.GzmUPRc_ubqNoBFk89QX_Qz2uWmPpFspGCEg5l0EBDxHar1LpNGXaClF1p36wXUcOCqbbkgQ9naSelTtLMQcOz1wlxQ--
-Message-ID: <45A6020F.6030604@yahoo.com.au>
-Date: Thu, 11 Jan 2007 20:23:27 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: Christoph Lameter <clameter@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [REGRESSION] 2.6.19/2.6.20-rc3 buffered write slowdown
-References: <20070110223731.GC44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101503310.22578@schroedinger.engr.sgi.com> <20070110230855.GF44411608@melbourne.sgi.com> <45A57333.6060904@yahoo.com.au> <20070111003158.GT33919298@melbourne.sgi.com> <45A58DFA.8050304@yahoo.com.au> <20070111063555.GB33919298@melbourne.sgi.com>
-In-Reply-To: <20070111063555.GB33919298@melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 04:27:15 -0500
+Date: Thu, 11 Jan 2007 09:27:04 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+Cc: jeff@garzik.org, shemminger@osdl.org, csnook@redhat.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       atl1-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/4] atl1: Header files for Attansic L1 driver
+Message-ID: <20070111092704.GB3141@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
+	shemminger@osdl.org, csnook@redhat.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, atl1-devel@lists.sourceforge.net
+References: <20070111004137.GC2624@osprey.hogchain.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070111004137.GC2624@osprey.hogchain.net>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks. BTW. You didn't cc this to the list, so I won't either in case
-you want it kept private.
+On Wed, Jan 10, 2007 at 06:41:37PM -0600, Jay Cliburn wrote:
+> +/**
+> + * atl1.h - atl1 main header
 
-David Chinner wrote:
-> On Thu, Jan 11, 2007 at 12:08:10PM +1100, Nick Piggin wrote:
-> 
->>Ahh, sorry to be unclear, I meant:
->>
->>  cat /proc/vmstat > pre
->>  run_test
->>  cat /proc/vmstat > post
-> 
-> 
-> 6 files attached - 2.6.18 pre/post, 2.6.20-rc3 dirty_ratio = 10 pre/post
-> and 2.6.20-rc3 dirty_ratio=40 pre/post.
-> 
-> Cheers,
-> 
-> Dave.
-> 
-> 
-> ------------------------------------------------------------------------
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Please remove these kind of comments, they get out of date far too soon
+and don't really help anything.  (Also everywhere else in the driver)
+
+> +#include <linux/tcp.h>
+> +#include <linux/skbuff.h>
+> +#include <linux/netdevice.h>
+> +#include <linux/pci.h>
+> +#include <linux/spinlock_types.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/timer.h>
+> +#include <linux/delay.h>
+> +#include <linux/if_vlan.h>
+> +
+> +#include <asm/types.h>
+
+Please always include <linux/types.h>
+
+>
+> +#include <asm/atomic.h>
+
+Please only includ headers where you use them - that's mostly the .c
+files unless you have lots of inlines or complex structures in the headers.
+
+
+
+> +#ifdef NETIF_F_TSO
+> +#include <net/checksum.h>
+> +#endif
+> +
+> +#ifdef SIOCGMIIPHY
+> +#include <linux/mii.h>
+> +#endif
+> +
+> +#ifdef SIOCETHTOOL
+> +#include <linux/ethtool.h>
+> +#endif
+
+Please remove all these ifdefs.
+
+> +#define BAR_0	0
+
+This looks etirely superflous.
+
+> +#define usec_delay(x)	udelay(x)
+> +#ifndef msec_delay
+> +#define msec_delay(x)	do { if(in_interrupt()) { \
+> +			/* Don't mdelay in interrupt context!*/ \
+> +				BUG(); \
+> +			} else { \
+> +				msleep(x); \
+> +			}} while(0)
+> +/**
+> + * Some workarounds require millisecond delays and are run during interrupt
+> + * context.  Most notably, when establishing link, the phy may need tweaking
+> + * but cannot process phy register reads/writes faster than millisecond
+> + * intervals...and we establish link due to a "link status change" interrupt.
+> + **/
+> +#define msec_delay_irq(x) mdelay(x)
+> +#endif
+
+Please kill all these wrappers.
+
+> +} _ATL1_ATTRIB_PACK_;
+
+All your structs seems to be properly packed from a first sight.  Please
+doble-check this and get rid of the attribute packed.
+
+> +struct csum_param {
+> +	unsigned buf_len:14;
+> +	unsigned dma_int:1;
+> +	unsigned pkt_int:1;
+> +	u16 valan_tag;
+> +	unsigned eop:1;
+> +	/* command */
+> +	unsigned coalese:1;
+> +	unsigned ins_vlag:1;
+> +	unsigned custom_chksum:1;
+> +	unsigned segment:1;
+> +	unsigned ip_chksum:1;
+> +	unsigned tcp_chksum:1;
+> +	unsigned udp_chksum:1;
+> +	/* packet state */
+> +	unsigned vlan_tagged:1;
+> +	unsigned eth_type:1;
+> +	unsigned iphl:4;
+> +	unsigned:2;
+> +	unsigned payload_offset:8;
+> +	unsigned xsum_offset:8;
+> +} _ATL1_ATTRIB_PACK_;
+
+Bitfields should not be used for hardware datastructures ever.
+Please convert this to explicit masking and shifting.
+
+> +/* Structure containing variables used by the shared code */
+> +struct atl1_hw {
+> +	u8 __iomem *hw_addr;
+> +	void *back;
+
+This is definitly a kernel data structure.  Shouldn't it be in atl1.h
+instead of _hw.h?  Also does back really need to be a void pointer or
+can it be something typed?
+
+> +	u16 dev_rev;
+> +	u16 device_id;
+> +	u16 vendor_id;
+> +	u16 subsystem_id;
+> +	u16 subsystem_vendor_id;
+> +	u8 revision_id;
+
+Please just use the values from the pci_dev insead of duplicating them.
+
+> +/* formerly ATL1_WRITE_REG */
+> +static inline void atl1_write32(const struct atl1_hw *hw, int reg, u32 val)
+> +{
+> +        writel(val, hw->hw_addr + reg);
+> +}
+> +
+> +/* formerly ATL1_READ_REG */
+> +static inline u32 atl1_read32(const struct atl1_hw *hw, int reg)
+> +{
+> +        return readl(hw->hw_addr + reg);
+> +}
+
+Just kill all these wrappers.  Also you probably want to convert to
+pci_iomap + ioread*/iowrite*.
+

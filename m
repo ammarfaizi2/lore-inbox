@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965341AbXAKKYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030253AbXAKKYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965341AbXAKKYO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 05:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965358AbXAKKYN
+	id S1030253AbXAKKYb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 05:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbXAKKYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 05:24:13 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:50718 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965341AbXAKKYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 05:24:13 -0500
-Date: Thu, 11 Jan 2007 11:21:23 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John McCutchan <john@johnmccutchan.com>, rml@novell.com,
-       Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v3)
-In-Reply-To: <20070111084554.GF21724@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701111119180.16747@twin.jikos.cz>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
- <20070111051022.GA21724@stusta.de> <45A5DCAB.6060900@yahoo.com.au>
- <20070111084554.GF21724@stusta.de>
+	Thu, 11 Jan 2007 05:24:31 -0500
+Received: from mail.phnxsoft.com ([195.227.45.4]:4548 "EHLO
+	posthamster.phnxsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030253AbXAKKYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 05:24:30 -0500
+Message-ID: <45A6104F.4090207@imap.cc>
+Date: Thu, 11 Jan 2007 11:24:15 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.8.0.9) Gecko/20061211 SeaMonkey/1.0.7 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: installing only the newly (re)built modules
+References: <7c737f300701082029i1ce9f7d8oc67cb3339c9c2856@mail.gmail.com> <45A5609C.1000308@tmr.com>
+In-Reply-To: <45A5609C.1000308@tmr.com>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA3A27E90DB2C91899D196A5A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2007, Adrian Bunk wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA3A27E90DB2C91899D196A5A
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> > >Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
-> > >References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
-> > >Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
-> > >Handled-By : John McCutchan <john@johnmccutchan.com>
-> > >Status     : problem is being debugged
-> > I'm not sure that this is actually a regression for 2.6.20-rc.
-> The submitter says it doesn't occur in 2.6.19.
+Bill Davidsen schrieb:
+> Alexy Khrabrov wrote:
+>> The 2.6 build system compiles only those modules whose config
+>> changed.  However, the install still installs all modules.
+>>=20
+>> Is there a way to entice make modules_install to install only those
+>> new modules we've actually just changed/built?
+>=20
+> Out of curiosity, why? I've noticed this, but the copy runs so fast I=20
+> never really thought about it as an issue.
 
-Any chance that the submitter could do git bisect? (added to CC). From the 
-bugzilla entry it seems to be well reproducible for him.
+Not here. On the 933 MHz P3 machine I use for driver development,
+"make modules_install" takes so much time that I always copy my
+modules by hand instead after recompiling them.
 
--- 
-Jiri Kosina
+--=20
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enigA3A27E90DB2C91899D196A5A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFphBXMdB4Whm86/kRAi4xAJwLOxHPKQT7WfpT1jjZp17SP8WDlACfRLmA
+u5Qd0bixZHu56qCn2nFnOBA=
+=S/Ug
+-----END PGP SIGNATURE-----
+
+--------------enigA3A27E90DB2C91899D196A5A--

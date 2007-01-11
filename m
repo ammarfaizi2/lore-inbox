@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030441AbXAKNj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030444AbXAKNsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030441AbXAKNj3 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 08:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbXAKNj3
+	id S1030444AbXAKNsp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 08:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbXAKNsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 08:39:29 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:40673 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030441AbXAKNj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 08:39:28 -0500
-Date: Thu, 11 Jan 2007 14:27:59 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-cc: Roman Zippel <zippel@linux-m68k.org>, Andy Whitcroft <apw@shadowen.org>,
-       Andrew Morton <akpm@osdl.org>, Olaf Hering <olaf@aepfle.de>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Jean Delvare <khali@linux-fr.org>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: .version keeps being updated
-In-Reply-To: <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
-Message-ID: <Pine.LNX.4.61.0701111424390.29801@yvahk01.tjqt.qr>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
- <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org>
- <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org>
- <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org> <20070110193136.GA30486@aepfle.de>
- <20070110200249.GA30676@aepfle.de> <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
- <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
+	Thu, 11 Jan 2007 08:48:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4591 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1030444AbXAKNso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 08:48:44 -0500
+Date: Thu, 11 Jan 2007 14:48:48 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: davej@codemonkey.org.uk
+Cc: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] CPU_FREQ_TABLE shouldn't be a def_tristate
+Message-ID: <20070111134848.GB20027@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CPU_FREQ_TABLE enables helper code and gets select'ed when it's 
+required.
 
->> With such a change, you would not need to grep for it. You could use
->> binutils on it. `objdump -sj .rodata.uts vmlinux` would be a start.
->> Maybe not the prettiest output, but guaranteed to contain only the
->> banner.
->
-> objcopy -j .rodata.uts -O binary vmlinux >(the-checker-script)
+Building it as a module when it's not required doesn't seem to make much 
+sense.
 
-For some reason that does not work.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+--- linux-2.6.20-rc3-mm1/drivers/cpufreq/Kconfig.old	2007-01-11 07:56:13.000000000 +0100
++++ linux-2.6.20-rc3-mm1/drivers/cpufreq/Kconfig	2007-01-11 07:56:25.000000000 +0100
+@@ -16,7 +16,7 @@
+ if CPU_FREQ
+ 
+ config CPU_FREQ_TABLE
+-       def_tristate m
++       tristate
+ 
+ config CPU_FREQ_DEBUG
+ 	bool "Enable CPUfreq debugging"
 
-  ../drivers/char$ objcopy -j .modinfo -O binary sonypi.ko 
-  objcopy: stvfMiji: Permission denied
-
-Why does it want to create a file there? This one works better:
-
-  $ objcopy -j .modinfo -O binary sonypi.ko /dev/stdout
-
-has more success.
-
-	-`J'
--- 

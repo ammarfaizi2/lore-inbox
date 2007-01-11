@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030238AbXAKKGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030246AbXAKKHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbXAKKGc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 05:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbXAKKGc
+	id S1030246AbXAKKHc (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 05:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbXAKKHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 05:06:32 -0500
-Received: from il.qumranet.com ([62.219.232.206]:44529 "EHLO il.qumranet.com"
+	Thu, 11 Jan 2007 05:07:32 -0500
+Received: from il.qumranet.com ([62.219.232.206]:44587 "EHLO il.qumranet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030238AbXAKKGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 05:06:31 -0500
-Subject: [PATCH 4/5] KVM: Fix asm constraints with CONFIG_FRAME_POINTER=n
+	id S1030246AbXAKKHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 05:07:31 -0500
+Subject: [PATCH 5/5] KVM: Fix bogus pagefault on writable pages
 From: Avi Kivity <avi@qumranet.com>
-Date: Thu, 11 Jan 2007 10:06:30 -0000
+Date: Thu, 11 Jan 2007 10:07:30 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
 References: <45A60B2F.6090901@qumranet.com>
 In-Reply-To: <45A60B2F.6090901@qumranet.com>
-Message-Id: <20070111100630.55461250595@il.qumranet.com>
+Message-Id: <20070111100730.6B6C1250595@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A "g" constraint may place a local variable in an %rsp-relative memory operand.
-but if your assembly changes %rsp, the operand points to the wrong location.
+If a page is marked as dirty in the guest pte, set_pte_common() can set the
+writable bit on newly-instantiated shadow pte.  This optimization avoids
+a write fault after the initial read fault.
 
-An "r" constraint fixes that.
+However, if a write fault instantiates the pte, fix_write_pf() incorrectly
+reports the fault as a guest page fault, and the guest oopses on what appears
+to be a correctly-mapped page.
 
-Thanks to Ingo Molnar for neatly bisecting the problem.
+Fix is to detect the condition and only report a guest page fault on a user
+access to a kernel page.
+
+With the fix, a kvm guest can survive a whole night of running the kernel
+hacker's screensaver (make -j9 in a loop).
 
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/vmx.c
+Index: linux-2.6/drivers/kvm/paging_tmpl.h
 ===================================================================
---- linux-2.6.orig/drivers/kvm/vmx.c
-+++ linux-2.6/drivers/kvm/vmx.c
-@@ -1825,7 +1825,7 @@ again:
- #endif
- 		"setbe %0 \n\t"
- 		"popf \n\t"
--	      : "=g" (fail)
-+	      : "=r" (fail)
- 	      : "r"(vcpu->launched), "d"((unsigned long)HOST_RSP),
- 		"c"(vcpu),
- 		[rax]"i"(offsetof(struct kvm_vcpu, regs[VCPU_REGS_RAX])),
+--- linux-2.6.orig/drivers/kvm/paging_tmpl.h
++++ linux-2.6/drivers/kvm/paging_tmpl.h
+@@ -274,7 +274,7 @@ static int FNAME(fix_write_pf)(struct kv
+ 	struct kvm_mmu_page *page;
+ 
+ 	if (is_writeble_pte(*shadow_ent))
+-		return 0;
++		return !user || (*shadow_ent & PT_USER_MASK);
+ 
+ 	writable_shadow = *shadow_ent & PT_SHADOW_WRITABLE_MASK;
+ 	if (user) {

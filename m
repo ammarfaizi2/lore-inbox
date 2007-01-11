@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932812AbXAKW5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932675AbXAKXBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932812AbXAKW5P (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 17:57:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932815AbXAKW5P
+	id S932675AbXAKXBj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 18:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932817AbXAKXBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 17:57:15 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:50585 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932812AbXAKW5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 17:57:14 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Thu, 11 Jan 2007 23:57:06 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: Linux-2.6.20-rc4 - Kernel panic!
-To: Sunil Naidu <akula2.shark@gmail.com>
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8355959a0701111329t506ba4e6g993400ea31d47b3e@mail.gmail.com>
-Message-ID: <tkrat.f1956029d478404e@s5r6.in-berlin.de>
-References: <8355959a0701110300j33d28f54y67728eb847c7ba31@mail.gmail.com> 
- <45A681E5.6060502@s5r6.in-berlin.de> 
- <8355959a0701111211m416e202bx637bca22f8fca826@mail.gmail.com> 
- <tkrat.113437f9eecab84a@s5r6.in-berlin.de>
- <8355959a0701111329t506ba4e6g993400ea31d47b3e@mail.gmail.com>
+	Thu, 11 Jan 2007 18:01:39 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:48075 "EHLO iradimed.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932675AbXAKXBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 18:01:38 -0500
+Message-ID: <45A6C1D2.9020104@cfl.rr.com>
+Date: Thu, 11 Jan 2007 18:01:38 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Linus Torvalds <torvalds@osdl.org>, Viktor <vvp01@inbox.ru>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <45A6704A.40205@tls.msk.ru>
+In-Reply-To: <45A6704A.40205@tls.msk.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Jan 2007 23:02:07.0742 (UTC) FILETIME=[849AB9E0:01C735D4]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14930.000
+X-TM-AS-Result: No--9.181300-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sunil Naidu wrote:
-> I meant to ask choosing (from Xconfig tree)  a driver as module has
-> same affect compare to compiling a driver as kernel builtin feature?
-> (while loading/booting of kernel)
+Michael Tokarev wrote:
+> Linus Torvalds wrote:
+>> On Thu, 11 Jan 2007, Viktor wrote:
+>>> OK, madvise() used with mmap'ed file allows to have reads from a file
+>>> with zero-copy between kernel/user buffers and don't pollute cache
+>>> memory unnecessarily. But how about writes? How is to do zero-copy
+>>> writes to a file and don't pollute cache memory without using O_DIRECT?
+>>> Do I miss the appropriate interface?
+>> mmap()+msync() can do that too.
+> 
+> It can, somehow... until there's an I/O error.  And *that* is just terrbile.
 
-No, it hasn't quite the same effect:
+The other problem besides the inability to handle IO errors is that 
+mmap()+msync() is synchronous.  You need to go async to keep the 
+pipelines full.
 
->> Modules have to be loaded from a filesystem while built-in features are
->> available from the start.
-
-...
-> I did check the distro .config file (2.6.18-1.2868.fc6). Even I have
-> changed the my .config files according to the distro's. Even after
-> that, same error message.
-
-Check if you also built the initrd the same way as the distributed one,
-i.e. examine their contents. If it was, try booting an own kernel and
-initrd built from FC6's 2.6.18-* sources. If that fails too, build a
-kernel with all drivers compiled in which you know you need to access
-the root FS. If that kernel still fails to mount the root FS, look for
-any earlier error messages in the boot sequence.
--- 
-Stefan Richter
--=====-=-=== ---= -=-==
-http://arcgraph.de/sr/
+Now if someone wants to implement an aio version of msync and mlock, 
+that might do the trick.  At least for MMU systems.  Non MMU systems 
+just can't play mmap type games.
 

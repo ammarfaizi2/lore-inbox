@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965325AbXAKHvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965328AbXAKHyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965325AbXAKHvs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 02:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbXAKHvs
+	id S965328AbXAKHyJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 02:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965329AbXAKHyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 02:51:48 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:34423 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965325AbXAKHvr (ORCPT
+	Thu, 11 Jan 2007 02:54:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:16926 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965328AbXAKHyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 02:51:47 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Thu, 11 Jan 2007 08:50:27 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.19.y] ieee1394: sbp2: fix probing of some DVD-ROM/RWs
-To: stable@kernel.org
-cc: linux-kernel@vger.kernel.org
-Message-ID: <tkrat.d4c825f325c015da@s5r6.in-berlin.de>
+	Thu, 11 Jan 2007 02:54:06 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VkHtjSZbaPBbyAyXx71nfJauDSycwDRAe/Pb982pkGKPtRmFb1h4RxGTyiv5RFiD8OGd4yeuKbT7uod3lIyUsvzjG4Lwl0aGO+1jjXZrNSRCM6Ss5txXYNXJVL+/jXg+33ZnWI/1DrNK3FPy3rbGcXwDm0ZSikjAEVxezV3V2gw=
+Message-ID: <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
+Date: Thu, 11 Jan 2007 15:54:05 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: O_DIRECT question
+Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Hua Zhong" <hzhong@gmail.com>, "Hugh Dickins" <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, mjt@tls.msk.ru
+In-Reply-To: <45A5E1B2.2050908@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+	 <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>
+	 <20070110220603.f3685385.akpm@osdl.org>
+	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
+	 <20070110225720.7a46e702.akpm@osdl.org>
+	 <45A5E1B2.2050908@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since commit 98e238cd42be6c0852da519303cf0182690f8d9f in Linux 2.6.19,
-"ieee1394: sbp2: don't prefer MODE SENSE 10", some FireWire DVD-ROMs and
-DVD-RWs were mistaken as CD-ROM because sr_mod now sent MODE SENSE 6.
-The MMC command set includes only MODE SENSE 10.
-http://bugzilla.kernel.org/show_bug.cgi?id=7800
+On 1/11/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Andrew Morton wrote:
+> > On Thu, 11 Jan 2007 14:45:12 +0800
+> > Aubrey <aubreylee@gmail.com> wrote:
+> >
+> >
+> >>>In the interim you could do the old "echo 3 > /proc/sys/vm/drop_caches"
+> >>>thing, but that's terribly crude - drop_caches is really only for debugging
+> >>>and benchmarking.
+> >>>
+> >>
+> >>Yes. This method can drop caches, but will fragment memory.
+> >
+> >
+> > That's what page reclaim will do as well.
+> >
+> > What you want is Mel's antifragmentation work, or lumpy reclaim.
+> >
+> >
+> >>This is
+> >>not what I want. I want cache is limited to a tunable value of the
+> >>whole memory. For example, if total memory is 128M, is there a way to
+> >>trigger reclaim when cache size > 16M?
+> >
+> >
+> > If there was, it'd "fragment memory" as well.
+> >
+> > You might get a little benefit from increasing /proc/sys/vm/min_free_kbytes,
+> > but not much.  Some page allocation tweaks would aid that.
+> >
+> > But basically, to do this well, serious work is needed.
+>
+> OTOH, the antifragmentation stuff can also break down eventually,
+> especially if higher order allocations are actually in common use.
 
-This fix lets sbp2 switch scsi_device.use_10_for_rw on for MMC LUs.
-This should rather be done in the command set driver sr_mod, not in the
-sbp2 transport driver, and an according patch will follow for a next
-Linux release.
+That's right. When VFS cache eat up almost all of the memory, I think
+no memory algorithm can help the case, including Mei's anti-fragment
+patch.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-same as commit 1a74bc68e4c0534d150e6454b45a70dab831fa32
+>
+> What you _really_ want to do is avoid large mallocs after boot, or use
+> a CPU with an mmu. I don't think nommu linux was ever intended to be a
+> simple drop in replacement for a normal unix kernel.
 
-Index: linux-2.6.19.1/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.19.1.orig/drivers/ieee1394/sbp2.c
-+++ linux-2.6.19.1/drivers/ieee1394/sbp2.c
-@@ -2530,6 +2530,8 @@ static int sbp2scsi_slave_configure(stru
- 	blk_queue_dma_alignment(sdev->request_queue, (512 - 1));
- 	sdev->use_10_for_rw = 1;
- 
-+	if (sdev->type == TYPE_ROM)
-+		sdev->use_10_for_ms = 1;
- 	if (sdev->type == TYPE_DISK &&
- 	    scsi_id->workarounds & SBP2_WORKAROUND_MODE_SENSE_8)
- 		sdev->skip_ms_page_8 = 1;
+Is there a position available working on mmu CPU? Joking, :)
+Yes, some problems are serious on nommu linux. But I think we should
+try to fix them not avoid them.
 
--- 
-Stefan Richter
--=====-=-=== ---= -=-==
-http://arcgraph.de/sr/
-
+-Aubrey

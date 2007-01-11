@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965224AbXAKFN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965241AbXAKFuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965224AbXAKFN1 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 00:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbXAKFN0
+	id S965241AbXAKFuz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 00:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbXAKFuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 00:13:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3466 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S965241AbXAKFNZ (ORCPT
+	Thu, 11 Jan 2007 00:50:55 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:50857 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965241AbXAKFuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 00:13:25 -0500
-Date: Thu, 11 Jan 2007 06:13:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Henrique de Moraes Holschuh <hmh@hmh.eng.br>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org,
-       Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
-       "Vladimir V. Saveliev" <vs@namesys.com>, reiserfs-dev@namesys.com,
-       Sami Farin <7atbggg02@sneakemail.com>, David Chinner <dgc@sgi.com>,
-       xfs-masters@oss.sgi.com, Brice Goglin <brice@myri.com>,
-       Robert Hancock <hancockr@shaw.ca>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, Roland Dreier <rdreier@cisco.com>,
-       Avi Kivity <avi@qumranet.com>, kvm-devel@lists.sourceforge.net
-Subject: 2.6.20-rc4: known regressions with patches (v3)
-Message-ID: <20070111051329.GB21724@stusta.de>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	Thu, 11 Jan 2007 00:50:54 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JThNQRQkfupORM0ngucQxZw042PyKrcBJUl+rZXEQIr6lECYOm6F0L8Q3Vmil9MYaHXWyuzp2QJYQvaeRexd3Dmbi/bYYYpGs/J1N/xOcmLuiIfnLBxjKm6/Smw/U6/d8klry4kDfbu7Gggi3TaTcXafS7ONWVnqSLptk4LEDRg=
+Message-ID: <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>
+Date: Thu, 11 Jan 2007 13:50:53 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: O_DIRECT question
+Cc: "Hua Zhong" <hzhong@gmail.com>, "Hugh Dickins" <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
+In-Reply-To: <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc4 compared to 2.6.19
-with patches available.
+Firstly I want to say I'm working on no-mmu arch and uClinux.
+After much of file operations VFS cache eat up all of the memory.
+At this time, if an application request memory which order > 3, the
+kernel will report failure.
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+uClinux use a memory mapped MTD driver to store rootfs, of course it's
+in the ram,
+So I don't need VFS cache to improve performance. And when order > 3,
+__alloc_page() even doesn't try to shrunk cache and slab, just report
+failure.
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+So my thought is remove cache, or limit it. But currently there seems
+to be no way in the kernel to do it.  So I want to try to use
+O_DIRECT. But it seems not to be a right way.
 
+Thanks for your suggestion about my case.
 
-Subject    : ibm-acpi: bay support disabled
-References : http://lkml.org/lkml/2007/1/9/242
-Submitter  : Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Caused-By  : Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-             commit 2df910b4c3edcce9a0c12394db6f5f4a6e69c712
-Handled-By : Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Patch      : http://lkml.org/lkml/2007/1/9/242
-Status     : patch to revert the commit available
+Regards,
+-Aubrey
 
-
-Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs)
-References : http://lkml.org/lkml/2007/1/7/117
-Submitter  : Malte Schröder <MalteSch@gmx.de>
-Handled-By : Vladimir V. Saveliev <vs@namesys.com>
-Patch      : http://lkml.org/lkml/2007/1/10/202
-Status     : patch available
-
-
-Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
-References : http://lkml.org/lkml/2007/1/5/308
-Submitter  : Sami Farin <7atbggg02@sneakemail.com>
-Handled-By : David Chinner <dgc@sgi.com>
-Patch      : http://lkml.org/lkml/2007/1/7/201
-Status     : patch available
-
-
-Subject    : nVidia CK804 chipset: not detecting HT MSI capabilities
-References : http://lkml.org/lkml/2007/1/5/215
-Submitter  : Brice Goglin <brice@myri.com>
-             Robert Hancock <hancockr@shaw.ca>
-Handled-By : Brice Goglin <brice@myri.com>
-Patch      : http://lkml.org/lkml/2007/1/5/215
-Status     : patch available
-
-
-Subject    : KVM: guest crash
-References : http://lkml.org/lkml/2007/1/8/163
-Submitter  : Roland Dreier <rdreier@cisco.com>
-Handled-By : Avi Kivity <avi@qumranet.com>
-Patch      : http://lkml.org/lkml/2007/1/9/280
-Status     : patch available
-
-
+On 1/11/07, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Thu, 11 Jan 2007, Aubrey wrote:
+> >
+> > Now, my question is, is there a existing way to mount a filesystem
+> > with O_DIRECT flag? so that I don't need to change anything in my
+> > system. If there is no option so far, What is the right way to achieve
+> > my purpose?
+>
+> The right way to do it is to just not use O_DIRECT.
+>
+> The whole notion of "direct IO" is totally braindamaged. Just say no.
+>
+>         This is your brain: O
+>         This is your brain on O_DIRECT: .
+>
+>         Any questions?
+>
+> I should have fought back harder. There really is no valid reason for EVER
+> using O_DIRECT. You need a buffer whatever IO you do, and it might as well
+> be the page cache. There are better ways to control the page cache than
+> play games and think that a page cache isn't necessary.
+>
+> So don't use O_DIRECT. Use things like madvise() and posix_fadvise()
+> instead.
+>
+>                 Linus
+>

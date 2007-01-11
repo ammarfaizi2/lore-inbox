@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030231AbXAKXNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932813AbXAKXhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030231AbXAKXNl (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 18:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbXAKXNl
+	id S932813AbXAKXhW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 18:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932818AbXAKXhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 18:13:41 -0500
-Received: from mail.screens.ru ([213.234.233.54]:52971 "EHLO mail.screens.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030231AbXAKXNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 18:13:40 -0500
-Date: Fri, 12 Jan 2007 02:12:57 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Gautham shenoy <ego@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] workqueue: don't clear cwq->thread until it exits
-Message-ID: <20070111231257.GA2987@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Jan 2007 18:37:22 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:3270 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932177AbXAKXhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 18:37:20 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=googlemail.com; s=beta;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ULRQwQ/n2B+q8B5Te4GStCot7kcMGGln/lJ6GkHgIUjh9fpsK5GTDsmCnE6Glqt1qZ+v3J31B2HvJ7q2HERIJk6pF0qtpp1EuOw+qNRFnoYzhy31JmTtCEuM+AafV3gC+a7OZIFk9B0KmbPteO/nmRNlzW2RZ5hTmm7G9tcnfeo=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Benny Halevy <bhalevy@panasas.com>
+Subject: Re: Finding hardlinks
+Date: Fri, 12 Jan 2007 00:35:37 +0100
+User-Agent: KMail/1.8.2
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com>
+In-Reply-To: <4593890C.8030207@panasas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200701120035.37337.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pointed out by Srivatsa Vaddagiri.
+On Thursday 28 December 2006 10:06, Benny Halevy wrote:
+> Mikulas Patocka wrote:
+> >>> If user (or script) doesn't specify that flag, it doesn't help. I think
+> >>> the best solution for these filesystems would be either to add new syscall
+> >>>  	int is_hardlink(char *filename1, char *filename2)
+> >>> (but I know adding syscall bloat may be objectionable)
+> >> it's also the wrong api; the filenames may have been changed under you
+> >> just as you return from this call, so it really is a
+> >> "was_hardlink_at_some_point()" as you specify it.
+> >> If you make it work on fd's.. it has a chance at least.
+> > 
+> > Yes, but it doesn't matter --- if the tree changes under "cp -a" command, 
+> > no one guarantees you what you get.
+> >  	int fis_hardlink(int handle1, int handle 2);
+> > Is another possibility but it can't detect hardlinked symlinks.
 
-cleanup_workqueue_thread() sets cwq->thread = NULL and does kthread_stop().
-This breaks the "if (cwq->thread == current)" logic in flush_cpu_workqueue()
-and leads to deadlock.
-
-Kill the thead first, then clear cwq->thread. workqueue_mutex protects us
-from create_workqueue_thread() so we don't need cwq->lock.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- mm-6.20-rc3/kernel/workqueue.c~3_thread	2007-01-11 22:22:58.000000000 +0300
-+++ mm-6.20-rc3/kernel/workqueue.c	2007-01-12 01:44:39.000000000 +0300
-@@ -625,17 +625,12 @@ EXPORT_SYMBOL_GPL(__create_workqueue);
+It also suffers from combinatorial explosion.
+cp -a on 10^6 files will require ~0.5 * 10^12 compares...
  
- static void cleanup_workqueue_thread(struct workqueue_struct *wq, int cpu)
- {
--	struct cpu_workqueue_struct *cwq;
--	unsigned long flags;
--	struct task_struct *p;
-+	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
- 
--	cwq = per_cpu_ptr(wq->cpu_wq, cpu);
--	spin_lock_irqsave(&cwq->lock, flags);
--	p = cwq->thread;
--	cwq->thread = NULL;
--	spin_unlock_irqrestore(&cwq->lock, flags);
--	if (p)
--		kthread_stop(p);
-+	if (cwq->thread) {
-+		kthread_stop(cwq->thread);
-+		cwq->thread = NULL;
-+	}
- }
- 
- /**
+> It seems like the posix idea of unique <st_dev, st_ino> doesn't
+> hold water for modern file systems and that creates real problems for
+> backup apps which rely on that to detect hard links.
 
+Yes, and it should have been obvious at 32->64bit inode# transition.
+Unfortunately people tend to think "ok, NOW this new shiny BIGNUM-bit
+field is big enough for everybody". Then cycle repeats in five years...
+
+I think the solution is that inode "numbers" should become
+opaque _variable-length_ hashes. They are already just hash values,
+this is nothing new. All problems stem from fixed width of inode# only.
+
+--
+vda

@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030239AbXAKIuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030242AbXAKIyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbXAKIuD (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 03:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbXAKIuC
+	id S1030242AbXAKIyz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 03:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbXAKIyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 03:50:02 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:35495 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030239AbXAKIuB (ORCPT
+	Thu, 11 Jan 2007 03:54:55 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35617 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030238AbXAKIyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 03:50:01 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eh2XlRdmQq0iAEnnrRuYkLX+xEN0R30dxFbJq+wrDB813KG9Tw6QhtMt5/FgUtNepT9ZScCn1uojLyqSEi7FUIckhALti6BfKJzdNmCCJJeEvH5zdz2CIVzfKtFnQyC35iYh38ItKTmttthTVM2OWI+NkD1d4ulxb8jpHVh4jlM=
-Message-ID: <afe668f90701110049m412a041awc1fd9a03660bec45@mail.gmail.com>
-Date: Thu, 11 Jan 2007 16:49:59 +0800
-From: "Roy Huang" <royhuang9@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: O_DIRECT question
-Cc: Aubrey <aubreylee@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Linus Torvalds" <torvalds@osdl.org>, "Hua Zhong" <hzhong@gmail.com>,
-       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-In-Reply-To: <45A5F157.9030001@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 03:54:54 -0500
+Date: Thu, 11 Jan 2007 09:54:53 +0100
+From: Jan Kara <jack@suse.cz>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, Erez Zadok <ezk@cs.sunysb.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@cs.sunysb.edu>
+Subject: Re: [PATCH 01/24] Unionfs: Documentation
+Message-ID: <20070111085453.GC27059@atrey.karlin.mff.cuni.cz>
+References: <20070109122644.GB1260@atrey.karlin.mff.cuni.cz> <200701091734.l09HYRHB009290@agora.fsl.cs.sunysb.edu> <20070110161215.GB12654@atrey.karlin.mff.cuni.cz> <20070110232054.GB5088@filer.fsl.cs.sunysb.edu> <45A576E7.1070808@cs.columbia.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
-	 <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>
-	 <20070110220603.f3685385.akpm@osdl.org>
-	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
-	 <20070110225720.7a46e702.akpm@osdl.org>
-	 <45A5E1B2.2050908@yahoo.com.au>
-	 <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
-	 <45A5F157.9030001@yahoo.com.au>
+In-Reply-To: <45A576E7.1070808@cs.columbia.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is already an EMBEDDED option in config, so I think linux is
-also supporting embedded system. There are many developers working on
-embedded system runing linux. They also hope to contribute to linux,
-then other embeded developers can share it.
+> Josef Sipek wrote:
+> >On Wed, Jan 10, 2007 at 05:12:15PM +0100, Jan Kara wrote:
+> >>  I see :). To me it just sounds as if you want to do remount-read-only
+> >>for source filesystems, which is operation we support perfectly fine,
+> >>and after that create union mount. But I agree you cannot do quite that
+> >>since you need to have write access later from your union mount. So
+> >>maybe it's not so easy as I thought.
+> >>  On the other hand, there was some effort to support read-only 
+> >>  bind-mounts of
+> >>read-write filesystems (there were even some patches floating around but
+> >>I don't think they got merged) and that should be even closer to what
+> >>you'd need...
+> >
+> >Since the RO flag is per-mount point, how do you guarantee that no one is
+> >messing with the fs? (I haven't looked at the patches that do per mount
+> >ro flag, but this would require some over-arching ro flag - in the
+> >superblock most likely.)
+> 
+> I thought about it, wrote an email, then cancelled it as it won't work.
+> 
+> what I thought was that you could a limited unionfs case would be with X 
+> layers read-only and the top layer read-write, and what you would do is 
+> dynamically make read only bind mounts for the the X layers and since 
+> you control the top layer hide it from the system.
+> 
+> However, read only bind mounts are great if you want a limit a process 
+> to accessing the files read-only, as they won't have access to the other 
+> vfs_mounts, but it does nothing for the other vfs_mounts that are using 
+> that same file system.  hence, does us no good.
+  Right, you'd need to remount read-only all the mountpoints of one
+filesystem. But if we had read-only bind-mounts, you could do such things
+from userspace. It won't be 100% reliable (as it would be racy) but as a
+basic protection against stupidity of admin it should work. And it would
+be 100% safe against malicious intentions of average user (who has no
+right to create new mountpoints).
 
-On 1/11/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Aubrey wrote:
-> > On 1/11/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> >> What you _really_ want to do is avoid large mallocs after boot, or use
-> >> a CPU with an mmu. I don't think nommu linux was ever intended to be a
-> >> simple drop in replacement for a normal unix kernel.
-> >
-> >
-> > Is there a position available working on mmu CPU? Joking, :)
-> > Yes, some problems are serious on nommu linux. But I think we should
-> > try to fix them not avoid them.
->
-> Exactly, and the *real* fix is to modify userspace not to make > PAGE_SIZE
-> mallocs[*] if it is to be nommu friendly. It is the kernel hacks to do things
-> like limit cache size that are the bandaids.
->
-> Of course, being an embedded system, if they work for you then that's
-> really fine and you can obviously ship with them. But they don't need to
-> go upstream.
->
-> --
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

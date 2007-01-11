@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750978AbXAKSPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750981AbXAKSQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbXAKSPQ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 13:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbXAKSPQ
+	id S1750981AbXAKSQ4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 13:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbXAKSQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 13:15:16 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:38720 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750978AbXAKSPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 13:15:14 -0500
-Date: Thu, 11 Jan 2007 19:01:02 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-cc: Andreas Schwab <schwab@suse.de>, Roman Zippel <zippel@linux-m68k.org>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olaf@aepfle.de>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Jean Delvare <khali@linux-fr.org>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: .version keeps being updated
-In-Reply-To: <2bb47a77ba69186f793f57b86c003ebd@kernel.crashing.org>
-Message-ID: <Pine.LNX.4.61.0701111857530.29801@yvahk01.tjqt.qr>
-References: <20070109102057.c684cc78.khali@linux-fr.org>
- <20070109170550.AFEF460C343@tzec.mtu.ru> <20070109214421.281ff564.khali@linux-fr.org>
- <Pine.LNX.4.64.0701101426400.14458@scrub.home> <20070110181053.3b3632a8.khali@linux-fr.org>
- <Pine.LNX.4.64.0701101058200.3594@woody.osdl.org> <20070110193136.GA30486@aepfle.de>
- <20070110200249.GA30676@aepfle.de> <Pine.LNX.4.61.0701102352400.28885@yvahk01.tjqt.qr>
- <acfe3f410c8bae877412655797a15e17@kernel.crashing.org>
- <Pine.LNX.4.61.0701111424390.29801@yvahk01.tjqt.qr> <jeejq1is77.fsf@sykes.suse.de>
- <2bb47a77ba69186f793f57b86c003ebd@kernel.crashing.org>
+	Thu, 11 Jan 2007 13:16:56 -0500
+Received: from puma.cosy.sbg.ac.at ([141.201.2.23]:45881 "EHLO
+	puma.cosy.sbg.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750981AbXAKSQz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 13:16:55 -0500
+X-Greylist: delayed 1286 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Jan 2007 13:16:55 EST
+Message-ID: <45A67A10.7090805@cosy.sbg.ac.at>
+Date: Thu, 11 Jan 2007 18:55:28 +0100
+From: Michael Noisternig <mnoist@cosy.sbg.ac.at>
+Reply-To: mnoist@cosy.sbg.ac.at
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: linux-kernel@vger.kernel.org
+Subject: configfs issues
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Jan 11 2007 18:39, Segher Boessenkool wrote:
->
->> > ../drivers/char$ objcopy -j .modinfo -O binary sonypi.ko
->> > objcopy: stvfMiji: Permission denied
->> > 
->> > Why does it want to create a file there? This one works better:
->> 
->> objcopy works in-place when only one file argument is passed.
->
-> Yeah.  The >(...) syntax in my example provides such a file;
-> of course it's horribly broken in bash 3.x like so many other
-> things, but that's a different issue ;-)
+I've got some issues with using configfs in my module. The problem I ran 
+into could be solved if configfs_group_operations->drop_item() would 
+allow returning an error code. But I'll try to explain...
 
-I took () to be substituted, did not know you intended to write >(grep ...)
-And that's not broken at all.
+(1)
+Say the user creates one object, let's say as objects/myobj1/. This 
+object is dependent on some (shared) parameters which the user created 
+under params/myparams1/. Now while myobj1/ is 'active', I don't want to 
+let the user remove myparams1/. I can prevent this by making the user 
+create a symlink(2) in the objects/myobj1/ directory to myparams1/, i.e. 
+objects/myobj1/params/ -> ../../params/myparams1/, to denote its use. 
+Now - if I have read the documentation correctly - the user cannot 
+remove myparams1/ without removing the params/ link first. So fine, so good.
 
+(2)
+Next the user may create several objects which may be dependent on 
+several params objects. Now I can solve this by creating a default group 
+for each object, i.e. on myobj1 creation there is objects/myobj1/params/ 
+automatically. In that directory the user may create symlink(2)s to 
+several params/*/ dirs. Fine again.
 
-	-`J'
--- 
+(3)
+Now what I want is the list of params an object uses to be an ordered 
+list. I cannot do this because there is no intrinsic order in a 
+filesystem. I can get the order by instead having an attribute called 
+param_list which contains the ordered list of all params to use, e.g.
+ > cat param_list
+  myparams2
+  myparams4
+  myparams1
+However, this way I don't have any way to prevent the user from removing 
+params because configfs_group_operations->drop_item() is void and does 
+not allow me to return an error.
+
+Question now: Do you think, ->drop_item() should be changed to allow 
+returning an error? If not, what do you think would be an appropriate 
+solution for the problem? (One solution would be that I trace back every 
+object that uses the params to get dropped, and delete the according 
+params entry from the object's params_list automatically... another 
+would be, that I keep a reference on each params used, so they are 
+deleted only from configfs but not from memory on removal, and rename 
+the list entries to <removed> or whatever... both ideas I don't like too 
+much.)
+
+Thank you for any feedback!!!
+
+PS: Please CC me on your replies, I'm not a LKML subscriber.

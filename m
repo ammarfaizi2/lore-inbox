@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030212AbXAKILS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030214AbXAKIMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbXAKILS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 03:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbXAKILS
+	id S1030214AbXAKIMl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 03:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbXAKIMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 03:11:18 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:20671 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030212AbXAKILS (ORCPT
+	Thu, 11 Jan 2007 03:12:41 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:41082 "HELO
+	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1030214AbXAKIMk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 03:11:18 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D8/D7WgOmNvsMxOvU40ZO1LRv4w47jXui7xGh6tEjjgO1/32Vb48pY24QQlHFUhPKpZuAZTdHU6uQ6bKgRm+VNsp854G8dqoAKJvw7bxZdT8OogNZ2m5iBnCc1PEC3mFvN1X+CiaiyreS/zY5cLx1/sw+5N0q3hkPraJQ9BHhiI=
-Message-ID: <4df04b840701110011p153c6d14t8d5f0ca584af9516@mail.gmail.com>
-Date: Thu, 11 Jan 2007 16:11:16 +0800
-From: "yunfeng zhang" <zyf.zeroos@gmail.com>
-To: "Rik van Riel" <riel@redhat.com>
-Subject: Re: [PATCH 2.6.16.29 1/1] MM: enhance Linux swap subsystem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45A5DE7C.3030108@redhat.com>
+	Thu, 11 Jan 2007 03:12:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=g7gukPZFMAe9XE1QFoBYpriE9+KwYsbHeVQQVit6TRIDh5b/sN4B50vy+GIcmAIytRFULjU2qlVHpVWinU6KPiUTFmL2Z8UTzfYnbvt/N+7DL3564KA1jCt28WqA0q7ahauCkxabm3nzUPutOlvuqATAbckODD3DSNYd0cmZKjQ=  ;
+X-YMail-OSG: 2dxA7VoVM1mAijmXT6AP7rqPHyvmhwuKuGbN4fCc2xTlretsgSIoKUWPtWlgx0DclpQ4MGcNthQ3cvtTIXmerlACom3ubabzhQ7zuM_fxdI82nz9G6pPfwREnuEPfCZ68sm_bHjzXtzsBtY-
+Message-ID: <45A5F157.9030001@yahoo.com.au>
+Date: Thu, 11 Jan 2007 19:12:07 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Aubrey <aubreylee@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>	 <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>	 <20070110220603.f3685385.akpm@osdl.org>	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>	 <20070110225720.7a46e702.akpm@osdl.org>	 <45A5E1B2.2050908@yahoo.com.au> <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
+In-Reply-To: <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4df04b840701101935i2083da21t26785bc6c00057a7@mail.gmail.com>
-	 <45A5DE7C.3030108@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2007/1/11, Rik van Riel <riel@redhat.com>:
->
-> Have you actually measured this?
->
-> If your measurements saw any performance gains, with what kind
-> of workload did they happen, how big were they and how do you
-> explain those performance gains?
->
-> How do you balance scanning the private memory with taking
-> pages off the per-zone page lists?
->
-> How do you deal with systems where some zones are really
-> large and other zones are really small, eg. a 32 bit system
-> with one 880MB zone and one 15.1GB zone?
->
+Aubrey wrote:
+> On 1/11/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-You didn't mention another problem, a VMA maybe residents on multiple zones. To
-multiple address space, multiple memory inode architecture, we can introduce
-a new core object -- section which has several features
-1) Section is used as the atomic unit to contain the pages of a VMA residing in
-  the memory inode of the section.
-2) When page migration occurs among different memory inodes, new secion should
-  be set up to trace the pages.
-3) Section can be scanned by the SwapDaemon of its memory inode directely.
-4) All sections of a VMA are excluded with each other not overlayed.
-5) VMA is made up of sections totally, but its section objects scatter on memory
-  inodes.
-So to the architecture, we can deploy swap subsystem on an
-architecture-independent layer by section and scan pages batchly.
+>> What you _really_ want to do is avoid large mallocs after boot, or use
+>> a CPU with an mmu. I don't think nommu linux was ever intended to be a
+>> simple drop in replacement for a normal unix kernel.
+> 
+> 
+> Is there a position available working on mmu CPU? Joking, :)
+> Yes, some problems are serious on nommu linux. But I think we should
+> try to fix them not avoid them.
 
-> If the benefits come mostly from better IO clustering, would
-> it not be safer/less invasive to add swapout clustering of the
-> same style that the BSD kernels have?
->
+Exactly, and the *real* fix is to modify userspace not to make > PAGE_SIZE
+mallocs[*] if it is to be nommu friendly. It is the kernel hacks to do things
+like limit cache size that are the bandaids.
 
-You mean add a new swap file/partition? I scan every UserSpaces by
-init_mm::mmlist which has already been used by swap subsystem, and I've patched
-in mm/swapfile.c.
+Of course, being an embedded system, if they work for you then that's
+really fine and you can obviously ship with them. But they don't need to
+go upstream.
 
-> For your reference, the BSD kernels do swapout clustering like this:
-> 1) select a page off the end of the pageout list
-> 2) then scan the page table the page is in, to find
->     nearby pages that are also eligable for pageout
-> 3) page them all out with one disk I/O operation
->
-> The same could also be done for files.
->
-> With peterz's dirty tracking (and possible dirty limiting)
-> code in the kernel, this can be done without the kind of
-> deadlocks that would have plagued earlier kernels, when
-> trying to do IO trickery from the pageout path...
->
-
-I've noticed FreeBSD maybe has a similar design as I mentioned, I'm reading
-their code to whether they have another two features -- UnmappedPTE and dftlb in
-my Documentation/vm_pps.txt.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

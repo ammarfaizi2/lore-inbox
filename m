@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750871AbXAKQx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750897AbXAKQy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbXAKQx4 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbXAKQx4
+	id S1750897AbXAKQy3 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 11:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbXAKQy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:53:56 -0500
-Received: from smtp19.orange.fr ([80.12.242.17]:27411 "EHLO smtp19.orange.fr"
+	Thu, 11 Jan 2007 11:54:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49651 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750871AbXAKQxz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:53:55 -0500
-X-Greylist: delayed 317 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Jan 2007 11:53:55 EST
-X-ME-UUID: 20070111164836435.6A5CE1C00049@mwinf1903.orange.fr
-Subject: Re: O_DIRECT question
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
-In-Reply-To: <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
-	 <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
-	 <45A5D4A7.7020202@yahoo.com.au>
-	 <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 11 Jan 2007 17:52:42 +0100
-Message-Id: <1168534362.7365.3.camel@bip.parateam.prv>
+	id S1750897AbXAKQy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 11:54:28 -0500
+Date: Thu, 11 Jan 2007 12:01:51 -0500 (EST)
+Message-Id: <20070111.120151.71083168.k-ueda@ct.jp.nec.com>
+To: jens.axboe@oracle.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       dm-devel@redhat.com, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
+Subject: Re: [RFC PATCH 3/3] blk_end_request: caller change
+From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+In-Reply-To: <20070111083430.GD11203@kernel.dk>
+References: <20070110.180859.78702215.k-ueda@ct.jp.nec.com>
+	<20070111083430.GD11203@kernel.dk>
+X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
+ =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2 
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 11 janvier 2007 à 07:50 -0800, Linus Torvalds a écrit :
-> > O_DIRECT is still crazily racy versus pagecache operations.
+Hi Jens,
+
+On Thu, 11 Jan 2007 09:34:31 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > +static int cdrom_newpc_intr_dma_callback(void *arg)
+> > +{
+> > +	void **argv = (void **)arg;
+> > +	struct request *rq = (struct request *)*argv++;
+> > +	ide_drive_t *drive = (ide_drive_t *)argv++;
+> > +	spinlock_t *ide_lock = (spinlock_t *)argv;
+> > +
+> > +	rq->data_len = 0;
+> > +
+> > +	cdrom_newpc_intr_callback_common(rq, drive, ide_lock);
+> > +
+> > +	return 0;
+> > +}
 > 
-> Yes. O_DIRECT is really fundamentally broken. There's just no way to fix 
-> it sanely.
+> And this is why, down right horrible. The callback should be correctly
+> typed, pass down a request pointer ALWAYS.
 
-How about aliasing O_DIRECT to POSIX_FADV_NOREUSE (sortof) ?
+OK.  I think everything such callbacks need can be obtained through
+struct request.  (e.g. ide_drive_t can get by rq->q->queuedata and
+ide_lock can get by rq->q->queue_lock.)
+So I'll change the callback to pass a pointer to the request
+instead of void *.
 
-	Xav
-
+Thanks,
+Kiyoshi Ueda
 

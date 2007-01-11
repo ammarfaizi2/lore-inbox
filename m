@@ -1,73 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751453AbXAKV3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751415AbXAKVga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbXAKV3h (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 16:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbXAKV3g
+	id S1751415AbXAKVga (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 16:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbXAKVga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 16:29:36 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:18873 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751453AbXAKV3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 16:29:36 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZP/XW1eiWZ5da2BZ58MJJeEzUR2w7cXOM59FrcJJl72uU0dE6WKWcWQBe3vU+W2sgfLsIjUKvdmWVipJQXN644tAB99RAcu3glnYX6gMZSEYR4rRRN5a8yWVmwHxmvH1JJgPsLG7owMldgkcezYV42myIyEexHu+jWU+R8SKENM=
-Message-ID: <8355959a0701111329t506ba4e6g993400ea31d47b3e@mail.gmail.com>
-Date: Fri, 12 Jan 2007 02:59:34 +0530
-From: "Sunil Naidu" <akula2.shark@gmail.com>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: Linux-2.6.20-rc4 - Kernel panic!
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <tkrat.113437f9eecab84a@s5r6.in-berlin.de>
+	Thu, 11 Jan 2007 16:36:30 -0500
+Received: from mga03.intel.com ([143.182.124.21]:7445 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751415AbXAKVg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 16:36:29 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,175,1167638400"; 
+   d="scan'208"; a="167931492:sNHT20559903"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Michael Reed" <mdr@sgi.com>
+Cc: "'Zach Brown'" <zach.brown@oracle.com>,
+       "'Chris Mason'" <chris.mason@oracle.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Jeremy Higdon" <jeremy@sgi.com>, "David Chinner" <dgc@sgi.com>
+Subject: RE: [patch] optimize o_direct on block device - v3
+Date: Thu, 11 Jan 2007 13:36:28 -0800
+Message-ID: <000001c735c8$8dc1ad00$eb34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <8355959a0701110300j33d28f54y67728eb847c7ba31@mail.gmail.com>
-	 <45A681E5.6060502@s5r6.in-berlin.de>
-	 <8355959a0701111211m416e202bx637bca22f8fca826@mail.gmail.com>
-	 <tkrat.113437f9eecab84a@s5r6.in-berlin.de>
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Acc1ttnRV4dloWbWSXGY/+cA4JhMKwADvYcQ
+In-Reply-To: <20070111112901.28085adf.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/07, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> Sunil Naidu wrote:
-> > compiling a driver as module has same affect (while
-> > loading/booting of kernel) compare to compiling a driver as kernel
-> > builtin feature?
->
-> LKML is not the place for such questions.
+Andrew Morton wrote on Thursday, January 11, 2007 11:29 AM
+> On Thu, 11 Jan 2007 13:21:57 -0600
+> Michael Reed <mdr@sgi.com> wrote:
+> > Testing on my ia64 system reveals that this patch introduces a
+> > data integrity error for direct i/o to a block device.  Device
+> > errors which result in i/o failure do not propagate to the
+> > process issuing direct i/o to the device.
+> > 
+> > This can be reproduced by doing writes to a fibre channel block
+> > device and then disabling the switch port connecting the host
+> > adapter to the switch.
+> > 
+> 
+> Does this fix it?
+> 
+> <thwaps Ken>
 
-Being wexed from these problems, I didn't frame that question
-properly. Okay, sorry for that.
 
-I meant to ask choosing (from Xconfig tree)  a driver as module has
-same affect compare to compiling a driver as kernel builtin feature?
-(while loading/booting of kernel)
+Darn, kicking myself in the butt.  Thank you Andrew for fixing this.
+We've also running DIO stress test almost non-stop over the last 30
+days or so and we did uncover another bug in that patch.
 
-> Modules have to be loaded from a filesystem while built-in features are
-> available from the start.
->
-> The bootloader only loads the kernel image and optionally an initrd. The
-> initrd is used as a preliminary root filesystem which may contain kernel
-> modules to load to make the real root filesystem accessible. That's what
-> distributors do because they don't know in advance which drivers their
-> users will actually need. Endusers who build their own kernels might as
-> well compile all drivers that are needed for access to the root
-> filesystem into the kernel image and work without initrd.
+Andrew, would you please take the follow bug fix patch as well.  It
+is critical because it also affects data integrity.
 
-The funda about the modules & bootloader I do know, thanks for explaining.
-I did check the distro .config file (2.6.18-1.2868.fc6). Even I have
-changed the my .config files according to the distro's. Even after
-that, same error message.
 
-Problem I think is choosing most of the drivers (allmost all) from the
-Xconfig list? (even the one's I don't use/need). What do you suggest?
+[patch] fix blk_direct_IO bio preparation.
 
-> --
-> Stefan Richter
-> -=====-=-=== ---= -=-==
+For large size DIO that needs multiple bio, one full page worth of data
+was lost at the boundary of bio's maximum sector or segment limits.
+After a bio is full and got submitted.  The outer while (nbytes) { ... }
+loop will allocate a new bio and just march on to index into next page.
+It just forget about the page that bio_add_page() rejected when previous
+bio is full.  Fix it by put the rejected page back to pvec so we pick it
+up again for the next bio.
 
-~ Akula2
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+diff -Nurp linux-2.6.20-rc4/fs/block_dev.c linux-2.6.20.ken/fs/block_dev.c
+--- linux-2.6.20-rc4/fs/block_dev.c	2007-01-06 21:45:51.000000000 -0800
++++ linux-2.6.20.ken/fs/block_dev.c	2007-01-10 19:54:53.000000000 -0800
+@@ -190,6 +190,12 @@ static struct page *blk_get_page(unsigne
+ 	return pvec->page[pvec->idx++];
+ }
+ 
++/* return a pge back to pvec array */
++static void blk_unget_page(struct page *page, struct pvec *pvec)
++{
++	pvec->page[--pvec->idx] = page;
++}
++
+ static ssize_t
+ blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+ 		 loff_t pos, unsigned long nr_segs)
+@@ -278,6 +284,8 @@ same_bio:
+ 				count = min(count, nbytes);
+ 				goto same_bio;
+ 			}
++		} else {
++			blk_unget_page(page, &pvec);
+ 		}
+ 
+ 		/* bio is ready, submit it */

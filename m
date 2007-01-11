@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750886AbXAKQxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750871AbXAKQx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbXAKQxn (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbXAKQxn
+	id S1750871AbXAKQx4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 11:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbXAKQx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:53:43 -0500
-Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:60183 "EHLO
-	imf21aec.mail.bellsouth.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750786AbXAKQxm (ORCPT
+	Thu, 11 Jan 2007 11:53:56 -0500
+Received: from smtp19.orange.fr ([80.12.242.17]:27411 "EHLO smtp19.orange.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750871AbXAKQxz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:53:42 -0500
-Date: Thu, 11 Jan 2007 10:53:30 -0600
-From: Jay Cliburn <jacliburn@bellsouth.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: jeff@garzik.org, shemminger@osdl.org, csnook@redhat.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 2/4] atl1: Header files for Attansic L1 driver
-Message-ID: <20070111165330.GA6191@osprey.hogchain.net>
-References: <20070111004137.GC2624@osprey.hogchain.net> <20070111092704.GB3141@infradead.org>
+	Thu, 11 Jan 2007 11:53:55 -0500
+X-Greylist: delayed 317 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Jan 2007 11:53:55 EST
+X-ME-UUID: 20070111164836435.6A5CE1C00049@mwinf1903.orange.fr
+Subject: Re: O_DIRECT question
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
+In-Reply-To: <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
+	 <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>
+	 <45A5D4A7.7020202@yahoo.com.au>
+	 <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 11 Jan 2007 17:52:42 +0100
+Message-Id: <1168534362.7365.3.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070111092704.GB3141@infradead.org>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.8.2 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2007 at 09:27:04AM +0000, Christoph Hellwig wrote:
-> On Wed, Jan 10, 2007 at 06:41:37PM -0600, Jay Cliburn wrote:
-> > +/**
-> > + * atl1.h - atl1 main header
+Le jeudi 11 janvier 2007 à 07:50 -0800, Linus Torvalds a écrit :
+> > O_DIRECT is still crazily racy versus pagecache operations.
 > 
-> Please remove these kind of comments, they get out of date far too soon
-> and don't really help anything.  (Also everywhere else in the driver)
+> Yes. O_DIRECT is really fundamentally broken. There's just no way to fix 
+> it sanely.
 
-Is your concern here with the filename portion of the comment only, or
-with the entire comment including the copyright and other material?
+How about aliasing O_DIRECT to POSIX_FADV_NOREUSE (sortof) ?
 
-Jay
+	Xav
+
+

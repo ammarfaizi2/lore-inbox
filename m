@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751308AbXAKR4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750822AbXAKR7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbXAKR4M (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 12:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbXAKR4M
+	id S1750822AbXAKR7F (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 12:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbXAKR7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 12:56:12 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:7987 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbXAKR4L (ORCPT
+	Thu, 11 Jan 2007 12:59:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59639 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750822AbXAKR7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 12:56:11 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=P9JVy2ykCYmSR+odz39uxKK7qEXhFBtMttXH0055pUDFgNd3vYIYKvp4hqpH+urf4MMqKWoFKoe6cI7/0PeTv5oM3YzxroHcbEoQYbgy5PHMZW+wuAzsIhMVqFRDIRf6JiSz9X0rFz0MLyg4U0qsaJXPI3453GrafeJ98klcrUo=
-Message-ID: <13426df10701110955y18381bbeg5f23c0e375383836@mail.gmail.com>
-Date: Thu, 11 Jan 2007 10:55:18 -0700
-From: "ron minnich" <rminnich@gmail.com>
-To: "Mitch Bradley" <wmb@firmworks.com>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Cc: "OLPC Developer's List" <devel@laptop.org>,
-       "Linux Kernel ML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <45A67987.6030508@firmworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 12:59:04 -0500
+Date: Thu, 11 Jan 2007 17:58:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+Cc: Christoph Hellwig <hch@infradead.org>, jeff@garzik.org,
+       shemminger@osdl.org, csnook@redhat.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH 2/4] atl1: Header files for Attansic L1 driver
+Message-ID: <20070111175833.GA15053@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
+	shemminger@osdl.org, csnook@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20070111004137.GC2624@osprey.hogchain.net> <20070111092704.GB3141@infradead.org> <20070111165330.GA6191@osprey.hogchain.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <13426df10701110939k21f7bb1dy38d2b34ca37a5a36@mail.gmail.com>
-	 <45A67987.6030508@firmworks.com>
+In-Reply-To: <20070111165330.GA6191@osprey.hogchain.net>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/07, Mitch Bradley <wmb@firmworks.com> wrote:
-> Segher has a modification to the devtree patch that creates a lower
-> level ops vector that can be implemented with callback or non-callback.
->
-> It is still being tested.
+On Thu, Jan 11, 2007 at 10:53:30AM -0600, Jay Cliburn wrote:
+> On Thu, Jan 11, 2007 at 09:27:04AM +0000, Christoph Hellwig wrote:
+> > On Wed, Jan 10, 2007 at 06:41:37PM -0600, Jay Cliburn wrote:
+> > > +/**
+> > > + * atl1.h - atl1 main header
+> > 
+> > Please remove these kind of comments, they get out of date far too soon
+> > and don't really help anything.  (Also everywhere else in the driver)
+> 
+> Is your concern here with the filename portion of the comment only, or
+> with the entire comment including the copyright and other material?
 
-Wonderful! If the non-callback version works out, then we can greatly
-widen the potential use of the OF device tree for many BIOSes. If that
-works, then we can put the proprietary tables into a small box and
-ignore them :-)
-
-thanks
-
-ron
+Only the line I quoted.  Copyright statements and similar things are
+obviously fine :)

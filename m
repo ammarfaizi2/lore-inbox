@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030200AbXAKPAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750696AbXAKPPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbXAKPAs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 10:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbXAKPAs
+	id S1750696AbXAKPPM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 10:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbXAKPPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 10:00:48 -0500
-Received: from mail2.domainserver.de ([213.83.41.143]:2641 "EHLO
-	smtp.domainserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030200AbXAKPAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 10:00:47 -0500
-X-Greylist: delayed 1181 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Jan 2007 10:00:47 EST
-Envelope-to: linux-kernel@vger.kernel.org
-Delivery-date: Thu, 11 Jan 2007 16:00:47 +0100
-From: Daniel Kabs <dkabs@mobotix.com>
-Organization: MOBOTIX AG
-To: linux-kernel@vger.kernel.org
-Subject: unix(7) and MSG_TRUNC semantics
-Date: Thu, 11 Jan 2007 15:41:03 +0100
-User-Agent: KMail/1.7.2
+	Thu, 11 Jan 2007 10:15:11 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:36472 "HELO abra2.bitwizard.nl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1750696AbXAKPPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 10:15:10 -0500
+Date: Thu, 11 Jan 2007 16:15:08 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jacky Malcles <Jacky.Malcles@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't cleanup /proc/swaps without rebooting ?
+Message-ID: <20070111151508.GR13675@harddisk-recovery.com>
+References: <45A650D2.90901@bull.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701111541.03667.dkabs@mobotix.com>
-X-AUTH: - 
+In-Reply-To: <45A650D2.90901@bull.net>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Jan 11, 2007 at 03:59:30PM +0100, Jacky Malcles wrote:
+> is there a way, other than rebooting, to clean up /proc/swaps ?
+> 
+> I'm in this situation (due to testing errors),
+> # cat /proc/swaps
+> Filename                                Type            Size    Used    
+> Priority
+> /dev/sdc1                               partition       2040064 0       -1
+> /tmp/swaH4mvTI/swapfilenext\040(deleted) file           48960   0       -31
+> /tmp/swa5TlBva/swapfilenext\040(deleted) file           49088   0       -118
+> #
+> # swapon -s
+> Filename                                Type            Size    Used    
+> Priority
+> /dev/sdc1                               partition       2040064 0       -1
+> /tmp/swaH4mvTI/swapfilenext\040(deleted) file           48960   0       -31
+> /tmp/swa5TlBva/swapfilenext\040(deleted) file           49088   0       -118
+> #
 
-For IPC, I use unix domain datagram sockets. I receive messages by calling 
-recv(). The man page recv(2) tells me about the flags argument to a recv 
-call, namely:
- MSG_TRUNC
-      Return  the  real  length of the packet, even when it was longer
-      than the passed buffer. Only valid for packet sockets.
-Thus I used recv() with flags MSG_TRUNC|MSG_PEEK in order to detect 
-message truncation due to insufficient buffer size.
-
-Strangely enough, MSG_TRUNC seems to get ignored by the kernel: If the 
-message received is larger than the receive buffer I supplied, the 
-function returns the size of the buffer. I reckon, the function should 
-return the real message size instead.
-
-To work around this problem, I use the ioctl FIONREAD instead.
-
-On the other hand, in this mailing list, I found an old bug report 
-describing the same problem using UDP sockets:
-
-http://groups.google.com/group/fa.linux.kernel/browse_frm/thread/fb6acbb527507e26/ad0b2ba33b6b66fa
-
-UDP sockets seem to have been patched by now. From linux/net/ipv4/udp.c:
- udp_recvmsg()
-  ...
-        err = copied;
-        if (flags & MSG_TRUNC)
-                err = skb->len - sizeof(struct udphdr);
-   ...
-
-Why doesn't unix_dgram_recvmsg() in linux/net/unix/af_unix.c contain code 
-to this effect? Is this a feature or a bug?
+"swapoff /dev/sdc1" or "swapoff /tmp/swa5TlBva/swapfilenext". Don't
+know if the latter works when the file is unlinked, just try.
 
 
-Cheers
-Daniel Kabs
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

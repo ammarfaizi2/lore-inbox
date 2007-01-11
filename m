@@ -1,37 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751369AbXAKS24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751385AbXAKSbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbXAKS24 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 13:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbXAKS2z
+	id S1751385AbXAKSbB (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 13:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbXAKSbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 13:28:55 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:49297 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751369AbXAKS2z (ORCPT
+	Thu, 11 Jan 2007 13:31:00 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:4084 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751371AbXAKSbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 13:28:55 -0500
-Message-ID: <45A681E5.6060502@s5r6.in-berlin.de>
-Date: Thu, 11 Jan 2007 19:28:53 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+	Thu, 11 Jan 2007 13:31:00 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=hp6Yyl8WePGFgdD15jPiiL72c4Gs8zphTMAHw+0j8u56eVeJpnCcWEi9Zl6+hfA3Ok/4nbRvo6w1ASwaHwhP3Bk5yGXovzWqaIFP8ZkHlXBRvWvbgRsGn+GC2EUX7FDLikBHXOdplV0h1bjcdci8BPEzVfLdD2z0G6FnMx7lmMg=
+Date: Thu, 11 Jan 2007 18:28:49 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: [-mm patch] remove tcp header from tcp_v4_check
+Message-ID: <20070111182849.GA5941@slug>
+References: <20070104220200.ae4e9a46.akpm@osdl.org>
 MIME-Version: 1.0
-To: Akula2 <akula2.shark@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.20-rc4 - Kernel panic!
-References: <8355959a0701110300j33d28f54y67728eb847c7ba31@mail.gmail.com>
-In-Reply-To: <8355959a0701110300j33d28f54y67728eb847c7ba31@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104220200.ae4e9a46.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akula2 wrote:
-> mount: could not find file system  '/dev/root'
+On Thu, Jan 04, 2007 at 10:02:00PM -0800, Andrew Morton wrote:
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
+> 
+The tcphdr struct passed to tcp_v4_check is not used, the following patch
+removes it from the parameter list.
 
-Make sure that the bootloader is correctly configured and that all
-drivers which are necessary to access the root filesystem are inserted
-(statically linked, or loaded from an initrd).
--- 
-Stefan Richter
--=====-=-=== ---= -=-==
-http://arcgraph.de/sr/
+Regards,
+Frederik
+
+
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+
+
+Index: 2.6.20-rc3-mm1/include/net/tcp.h
+===================================================================
+--- 2.6.20-rc3-mm1.orig/include/net/tcp.h
++++ 2.6.20-rc3-mm1/include/net/tcp.h
+@@ -802,9 +802,8 @@ static inline void tcp_update_wl(struct 
+ /*
+  * Calculate(/check) TCP checksum
+  */
+-static inline __sum16 tcp_v4_check(struct tcphdr *th, int len,
+-			       __be32 saddr, __be32 daddr,
+-			       __wsum base)
++static inline __sum16 tcp_v4_check(int len, __be32 saddr,
++				   __be32 daddr, __wsum base)
+ {
+ 	return csum_tcpudp_magic(saddr,daddr,len,IPPROTO_TCP,base);
+ }
+Index: 2.6.20-rc3-mm1/net/ipv4/netfilter/ipt_REJECT.c
+===================================================================
+--- 2.6.20-rc3-mm1.orig/net/ipv4/netfilter/ipt_REJECT.c
++++ 2.6.20-rc3-mm1/net/ipv4/netfilter/ipt_REJECT.c
+@@ -116,7 +116,7 @@ static void send_reset(struct sk_buff *o
+ 
+ 	/* Adjust TCP checksum */
+ 	tcph->check = 0;
+-	tcph->check = tcp_v4_check(tcph, sizeof(struct tcphdr),
++	tcph->check = tcp_v4_check(sizeof(struct tcphdr),
+ 				   nskb->nh.iph->saddr,
+ 				   nskb->nh.iph->daddr,
+ 				   csum_partial((char *)tcph,
+Index: 2.6.20-rc3-mm1/net/ipv4/tcp_ipv4.c
+===================================================================
+--- 2.6.20-rc3-mm1.orig/net/ipv4/tcp_ipv4.c
++++ 2.6.20-rc3-mm1/net/ipv4/tcp_ipv4.c
+@@ -502,14 +502,13 @@ void tcp_v4_send_check(struct sock *sk, 
+ 	struct tcphdr *th = skb->h.th;
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+-		th->check = ~tcp_v4_check(th, len,
+-					  inet->saddr, inet->daddr, 0);
++		th->check = ~tcp_v4_check(len, inet->saddr,
++					  inet->daddr, 0);
+ 		skb->csum_offset = offsetof(struct tcphdr, check);
+ 	} else {
+-		th->check = tcp_v4_check(th, len, inet->saddr, inet->daddr,
++		th->check = tcp_v4_check(len, inet->saddr, inet->daddr,
+ 					 csum_partial((char *)th,
+-						      th->doff << 2,
+-						      skb->csum));
++						th->doff << 2, skb->csum));
+ 	}
+ }
+ 
+@@ -525,7 +524,7 @@ int tcp_v4_gso_send_check(struct sk_buff
+ 	th = skb->h.th;
+ 
+ 	th->check = 0;
+-	th->check = ~tcp_v4_check(th, skb->len, iph->saddr, iph->daddr, 0);
++	th->check = ~tcp_v4_check(skb->len, iph->saddr, iph->daddr, 0);
+ 	skb->csum_offset = offsetof(struct tcphdr, check);
+ 	skb->ip_summed = CHECKSUM_PARTIAL;
+ 	return 0;
+@@ -747,7 +746,7 @@ static int tcp_v4_send_synack(struct soc
+ 	if (skb) {
+ 		struct tcphdr *th = skb->h.th;
+ 
+-		th->check = tcp_v4_check(th, skb->len,
++		th->check = tcp_v4_check(skb->len,
+ 					 ireq->loc_addr,
+ 					 ireq->rmt_addr,
+ 					 csum_partial((char *)th, skb->len,
+@@ -1514,7 +1513,7 @@ static struct sock *tcp_v4_hnd_req(struc
+ static __sum16 tcp_v4_checksum_init(struct sk_buff *skb)
+ {
+ 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
+-		if (!tcp_v4_check(skb->h.th, skb->len, skb->nh.iph->saddr,
++		if (!tcp_v4_check(skb->len, skb->nh.iph->saddr,
+ 				  skb->nh.iph->daddr, skb->csum)) {
+ 			skb->ip_summed = CHECKSUM_UNNECESSARY;
+ 			return 0;

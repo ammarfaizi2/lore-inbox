@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030189AbXAKCAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030201AbXAKCaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbXAKCAw (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 21:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbXAKCAw
+	id S1030201AbXAKCaW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 21:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbXAKCaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 21:00:52 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:12208 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030189AbXAKCAv (ORCPT
+	Wed, 10 Jan 2007 21:30:22 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49381 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965285AbXAKCaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 21:00:51 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ggGwwR/dehH3cR2AFPVVvrc7M7mM/AUXpNg0OVJBagw7aM8rzhWAwBt7QkP/wSmlyO2+6N5z9K1prqSEUT8++IPwF6GveLe7ee+MZCW1q41sDSGS/u9dj+u8Jgzt5H3PmkQA3Hq0se7rVkZF1zzuibb/FbQ4s6Ot4eD80628wDk=
-Message-ID: <58cb370e0701101800v19496013w9fa2e496949d4e40@mail.gmail.com>
-Date: Thu, 11 Jan 2007 03:00:49 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: "meaty biscuit" <meatybiscuit@gmail.com>
-Subject: Re: DMA problems in ide-scsi
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <948ae28c0701101653n572d0c63n2145e9b4208a6e5b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Jan 2007 21:30:21 -0500
+Date: Thu, 11 Jan 2007 08:00:05 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Benjamin Gilbert <bgilbert@cs.cmu.edu>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Gautham shenoy <ego@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [patch -mm] slab: use CPU_LOCK_[ACQUIRE|RELEASE]
+Message-ID: <20070111023005.GA5357@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070108120719.16d4674e.bgilbert@cs.cmu.edu> <20070109121738.GC9563@osiris.boeblingen.de.ibm.com> <20070109122740.GC22080@in.ibm.com> <20070109150351.GD9563@osiris.boeblingen.de.ibm.com> <20070109150615.GF9563@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0701101012460.21379@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <948ae28c0701101559j1e750d61g1f810feb04c1c4fb@mail.gmail.com>
-	 <948ae28c0701101653n572d0c63n2145e9b4208a6e5b@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0701101012460.21379@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jan 10, 2007 at 10:20:28AM -0800, Christoph Lameter wrote:
+> I have got a bad feeling about upcoming deadlock problems when looking at
+> the mutex_lock / unlock code in cpuup_callback in slab.c. Branches
+> that just obtain a lock or release a lock? I hope there is some
+> control of  what happens between lock acquisition and release?
 
-On 1/11/07, meaty biscuit <meatybiscuit@gmail.com> wrote:
-> I know there are lots of people that are glad to be done with
-> ide-scsi, but I'm hoping there is someone out there that has some
-> experience with this driver that my be able to help.  I would happily
-> switch modules and start using ide-cd, but I have a few pieces of
-> software that rely on ide-scsi to work properly and I don't have
-> enough time to change my software to work with ide-cd before my
-> product release deadline.
->
-> I am working with a mainline kernel, version 2.6.15.7 (I cannot change
-> kernel versions either).  If DMA is enabled and I try to write to a
-> CD, I get a kernel panic.  However, reading from a CD with DMA enabled
-> works fine.  If DMA is disabled and programmed IO is used, I can both
-> read and write CDs but the fact that PIO uses so much of the CPU
-> causes my application to have some problems and again, I don't have
-> time to go through several application release cycles to make them
-> work with PIO.
->
-> I have noticed that writing to CD (with DMA enabled) in 2.6.9 works
-> fine, it seems as though the breakage of ide-scsi occured in 2.6.10.
-> Also, burning a CD using DMA with ide-scsi in 2.6.19 seems to work as
+A cpu hotplug should happen between LOCK_ACQUIRE/RELEASE
 
-If it works fine in the current kernels it seems like the problem
-is not kernel bug but the fact that you are stuck on 2.6.15.7.
+> You are aware that this lock is taken for cache shrinking/destroy, tuning
+> of cpu cache sizes, proc output and cache creation? Any of those run on
+> the same processor should cause a deadlock.
 
-> well.  I have looked through the ide-scsi code for hours, and I have
-> also done a fair amount of debugging looking for the problem but I
-> have had no success.  I tried contacting Bartlomiej and have been
-> unsuccessful in getting a hold of him.  Does anyone know of a patch
+Why? mutex_lock() taken in LOCK_ACQ will just block those functions
+(cache create etc) from proceeding simultaneously as a hotplug event.
+This per-subsystem mutex_lock() is supposed to be a replacement for the global
+lock_cpu_hotplug() lock .. 
 
-I've just read your mail from Jan 4 (was on TODO).
-[ sorry but ide-scsi problems are (very) low priority ]
+But the whole thing is changing again ..we will likely move towards a
+process freezer based cpu hotplug locking ..all the lock_cpu_hotplugs()
+and the existing LOCK_ACQ/RELS can go away when we do that ..
 
-> floating around that may fix this problem?  Does anyone that is more
-> familiar with the ide, scsi, or dma subsystems have any suggestions
-> for me?  I am willing to put in the time and effort to fix this
-> problem and I would be more than happy to submit a fix back into the
-> open source world, but I am stuck and need any help I can get.
-
-If you send me the log/photo of the kernel panic I might be able to help you.
-
-Bart
+-- 
+Regards,
+vatsa

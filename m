@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965342AbXAKJ1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965352AbXAKJc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965342AbXAKJ1l (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 04:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965345AbXAKJ1l
+	id S965352AbXAKJc1 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 04:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965350AbXAKJc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 04:27:41 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:28757 "HELO
-	smtp101.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965342AbXAKJ1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 04:27:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=MBJ6uK4AtKhy5/BzmQtgBBAxd4Pu8yixhpycJ83uTxddrXIhfLMmWnp7nL+rjAibGZRtPd3nlvqWLBEYBlmz8aFy1CvUnagDto2PjHPmunSHL13EpcACFoBwrnW1AcMLtB4pR26fQAyCN/ouOYkXr/i22MMDAjQ6enUOeFhzLFc=  ;
-X-YMail-OSG: XBuY2I8VM1kbhJ7jj8yYYRCKUqDzV6rYkldUVYLuEXfMf1C69vgU6uW2YNVtCInpfR4czM8xkJKuv0CWydpXb7SBxrLfOsXp.D4dSei778UoyBZXkL5Yq004lq7FAQL3V.AQG02wXcWtn8Q-
-Message-ID: <45A602F0.1090405@yahoo.com.au>
-Date: Thu, 11 Jan 2007 20:27:12 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 11 Jan 2007 04:32:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38998 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965349AbXAKJcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 04:32:25 -0500
+Message-ID: <45A603FD.9090105@redhat.com>
+Date: Thu, 11 Jan 2007 04:31:41 -0500
+From: Chris Snook <csnook@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [REGRESSION] 2.6.19/2.6.20-rc3 buffered write slowdown
-References: <20070110223731.GC44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101503310.22578@schroedinger.engr.sgi.com> <20070110230855.GF44411608@melbourne.sgi.com> <45A57333.6060904@yahoo.com.au> <20070111003158.GT33919298@melbourne.sgi.com> <45A58DFA.8050304@yahoo.com.au> <20070111012404.GW33919298@melbourne.sgi.com>
-In-Reply-To: <20070111012404.GW33919298@melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Hellwig <hch@infradead.org>,
+       Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
+       shemminger@osdl.org, csnook@redhat.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, atl1-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] atl1: Build files for Attansic L1 driver
+References: <20070111004051.GB2624@osprey.hogchain.net> <20070111091913.GA3141@infradead.org>
+In-Reply-To: <20070111091913.GA3141@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner wrote:
-> On Thu, Jan 11, 2007 at 12:08:10PM +1100, Nick Piggin wrote:
-
->>>So, what I've attached is three files which have both
->>>'vmstat 5' output and 'iostat 5 |grep dm-' output in them.
->>
->>Ahh, sorry to be unclear, I meant:
->>
->>  cat /proc/vmstat > pre
->>  run_test
->>  cat /proc/vmstat > post
+Christoph Hellwig wrote:
+> On Wed, Jan 10, 2007 at 06:40:51PM -0600, Jay Cliburn wrote:
+>> --- /dev/null
+>> +++ b/drivers/net/atl1/Makefile
+>> @@ -0,0 +1,30 @@
+>> +################################################################################
+>> +#
+>> +# Attansic L1 gigabit ethernet driver
+>> +# Copyright(c) 2005 - 2006 Attansic Corporation.
+>> +#
+>> +# This program is free software; you can redistribute it and/or modify it
+>> +# under the terms and conditions of the GNU General Public License,
+>> +# version 2, as published by the Free Software Foundation.
+>> +#
+>> +# This program is distributed in the hope it will be useful, but WITHOUT
+>> +# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+>> +# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+>> +# more details.
+>> +#
+>> +# You should have received a copy of the GNU General Public License along with
+>> +# this program; if not, write to the Free Software Foundation, Inc.,
+>> +# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+>> +#
+>> +# The full GNU General Public License is included in this distribution in
+>> +# the file called "COPYING".
+>> +#
+>> +################################################################################
 > 
+> I don't think anyone can claim copyright on two lines of actual kbuild code.
 > 
-> Ok, I'll get back to you on that one - even at 600+MB/s, writing 5TB
-> of data takes some time....
+>> +#
+>> +# Makefile for the Attansic L1 gigabit ethernet driver
+>> +#
+> 
+> This comment is antirely superflous.
+> 
+>> +obj-$(CONFIG_ATL1) += atl1.o
+>> +
+>> +atl1-objs := atl1_main.o atl1_hw.o atl1_ethtool.o atl1_param.o
+> 
+> Thi should be atl1-y += ...
+> 
+> In short the whole contents of this file should be:
+> 
+> ---------------- snip ----------------
+> obj-$(CONFIG_ATL1)	+= atl1.o
+> atl1-y			+= atl1_main.o atl1_hw.o atl1_ethtool.o atl1_param.o
+> ---------------- snip ----------------
+> 
 
-OK, according to your vmstat deltas, you are doing an order of magnitude
-more writeout off the LRU with 2.6.20-rc3 default than with the smaller
-dirty_ratio (53GB of data vs 4GB of data). 2.6.18 does not have that stat,
-unfortunately.
+Good point.  The original Attansic driver had a whole bunch of legacy 
+compat crap, documentation build targets left over from e1000, etc. 
+which we've been modifying and mostly just removing.  We don't really 
+need this for merging.  If Attansic wants to maintain something out of 
+tree for legacy kernels, they might want to reinsert this, but we really 
+don't need it.
 
-allocstall and direct reclaim are way down when the dirty ratio is lower,
-but those numbers with vanilla 2.6.20-rc3 are comparable to 2.6.18, so
-that shows that kswapd in 2.6.18 is probably also having trouble which may
-mean it is also writing out a lot off the LRU.
+Thanks for pointing this out.
 
-You're not turning on zone_reclaim, by any chance, are you?
-
-Otherwise, nothing jumps out at me yet. I'll have a bit of a look through
-changelogs tomorrow. I guess it could be a pdflush or vmscan change (XFS,
-maybe?).
-
-Can you narrow it down at all?
-
-THanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	-- Chris

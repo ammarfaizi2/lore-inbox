@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750824AbXAKQXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750842AbXAKQl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbXAKQXy (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 11:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXAKQXy
+	id S1750842AbXAKQl5 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 11:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbXAKQl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 11:23:54 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:51017 "EHLO outpost.ds9a.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750824AbXAKQXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 11:23:53 -0500
-Date: Thu, 11 Jan 2007 17:23:51 +0100
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-Message-ID: <20070111162351.GA16091@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
-	Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-	linux-kernel@vger.kernel.org, hch@infradead.org,
-	kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org> <45A5D4A7.7020202@yahoo.com.au> <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
+	Thu, 11 Jan 2007 11:41:57 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43434 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750725AbXAKQl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 11:41:56 -0500
+Date: Thu, 11 Jan 2007 16:48:53 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let BLK_DEV_AMD74XX depend on X86
+Message-ID: <20070111164853.5de4ddfa@localhost.localdomain>
+In-Reply-To: <20070111134917.GE20027@stusta.de>
+References: <20070111134917.GE20027@stusta.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2007 at 07:50:26AM -0800, Linus Torvalds wrote:
-> Yes. O_DIRECT is really fundamentally broken. There's just no way to fix 
-> it sanely. Except by teaching people not to use it, and making the normal 
+On Thu, 11 Jan 2007 14:49:17 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Does this mean that it will eat data today? Or that it is broken because it
-requires heaps of work on the kernel side?
+> It's unlikely that this driver will ever be of any use on other 
+> architectures.
+> 
+> This fixes the following compile error on ia64:
 
-If it will eat data, when? What are the issues, cache coherency?
+NAK
 
-I understand what you say about O_DIRECT, but considering that it is seeing
-use today, it would be good to know the extent of the practical problems.
+pci_get_legacy_ide_irq() is a required method for all platforms and is
+usually filled in by asm-generic/pci.h
 
-Thanks.
+Please fix the IA64 tree to do the right thing.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Alan

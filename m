@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751457AbXAKTys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751450AbXAKTzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbXAKTys (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 14:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbXAKTys
+	id S1751450AbXAKTzB (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 14:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbXAKTzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 14:54:48 -0500
-Received: from hera.kernel.org ([140.211.167.34]:35770 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751453AbXAKTyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 14:54:47 -0500
-From: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
-Date: Thu, 11 Jan 2007 14:52:31 -0500
-User-Agent: KMail/1.9.5
-Cc: MoRpHeUz <morpheuz@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Stelian Pop" <stelian@popies.net>,
-       "Mattia Dongili" <malattia@linux.it>,
-       "Ismail Donmez" <ismail@pardus.org.tr>,
-       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, "Cacy Rodney" <cacy-rodney-cacy@tlen.pl>
-References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701051310.41131.lenb@kernel.org> <200701052109.35707.bjorn.helgaas@hp.com>
-In-Reply-To: <200701052109.35707.bjorn.helgaas@hp.com>
+	Thu, 11 Jan 2007 14:55:01 -0500
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:45403 "EHLO
+	sj-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751450AbXAKTzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 14:55:00 -0500
+X-IronPort-AV: i="4.13,174,1167638400"; 
+   d="scan'208"; a="100631194:sNHT56073330"
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openfabrics-ewg@openib.org, openib-general@openib.org,
+       raisch@de.ibm.com
+Subject: Re: [PATCH/RFC 2.6.21 2/5] ehca: ehca_uverbs.c: "proper" use of mmap
+X-Message-Flag: Warning: May contain useful information
+References: <200701112008.15841.hnguyen@linux.vnet.ibm.com>
+	<20070111194000.GE24623@infradead.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 11 Jan 2007 11:54:58 -0800
+In-Reply-To: <20070111194000.GE24623@infradead.org> (Christoph Hellwig's message of "Thu, 11 Jan 2007 19:40:00 +0000")
+Message-ID: <adaslehibjh.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701111452.31490.lenb@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Jan 2007 19:54:59.0093 (UTC) FILETIME=[5FCEDC50:01C735BA]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 January 2007 23:09, Bjorn Helgaas wrote:
-> On Friday 05 January 2007 11:10, Len Brown wrote:
-> > On Friday 05 January 2007 12:24, MoRpHeUz wrote:
-> > > > What workaround are you using?
-> > > 
-> > >  This one: http://bugzilla.kernel.org/show_bug.cgi?id=7465
-> > 
-> > Ah yes, the duplicate MADT issue is clearly a BIOS bug.
-> > It is possible that we can tweak our Linux workaround for it to be more
-> > Microsoft Windows Bug Compatbile(TM).
-> 
-> Maybe Windows discovers processors using the namespace rather
-> than the MADT.
+ > >  int ehca_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
+ > >  {
+ > 
+ > Can you split this monster routine into individual functions for
+ > each type of mmap please?  With two helpers to get and verify the cq/qp
+ > shared by the individual sub-variants, that would also help to get rid
+ > of all those magic offsets.
+ > 
+ > Actually, this routine directly comes from ib_device.mmap - Roland,
+ > can you shed some light on what's going on here?
 
-Nod.
+Each userspace-accessible IB device gets a single device node like
+/dev/infiniband/uverbsX.  Opening that gives userspace a "context".
+One of the things userspace can do with that fd is mmap() on it --
+that was originally envisioned as a way to map a page of hardware
+registers directly in to the userspace process.
 
-Based on the fact that the 1st MADT on this box is toast, they're not using that.
-If the last one also doesn't work universally, then they must be using the namespace.
+It seems ehca needs to allocate lots of different things in the kernel
+via mmap().  What you're saying I guess is that ideally each of these
+would be mmap() on a different fd rather than using different
+offsets.  It's a little awkward to open multiple device nodes to get
+multiple fds, since there's not a good way to attach them all to the
+same context.  I guess we could create some hack to return more file
+handles, but I think that cure is worse than the disease of using
+magic offsets...
 
-For us to do the same would be a relatively significant change -- as it means
-we either have to push SMP startup after the interpreter init, or move the
-interpreter init yet sooner.
+Maybe longer term we need to look at a scheme like cell's spufs but
+I'm still not confident we have the RDMA interface quite ready to
+freeze at the system call level.
 
-In general, over the last couple of years, we've been forced for compatibility
-with various systems to move ACPI initialization sooner and sooner.
-(I think the last issue was getting the HW into "ACPI mode" sooner
- because some stuff I don't recall didn't work if we didn't)
-It would probably make sense to experiment with what the soonest we
-can initialize ACPI, as I have a feeling we're going to have to head that way.
-
--Len
+ - R.

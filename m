@@ -1,157 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750723AbXAKPcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750747AbXAKPp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbXAKPcs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 10:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbXAKPcs
+	id S1750747AbXAKPp7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 10:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbXAKPp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 10:32:48 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:49842 "EHLO e1.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750723AbXAKPcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 10:32:47 -0500
-Date: Thu, 11 Jan 2007 09:31:24 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Containers <containers@lists.osdl.org>, clg@fr.ibm.com,
-       "David C. Hansen" <haveblue@us.ibm.com>, serue@us.ibm.com
-Subject: Re: [PATCH] Rename attach_pid() to find_attach_pid()
-Message-ID: <20070111153124.GD4791@sergelap.austin.ibm.com>
-References: <20070111130235.GA15353@us.ibm.com>
+	Thu, 11 Jan 2007 10:45:59 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:37530 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750725AbXAKPp5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 10:45:57 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=V5+oSmczzsp31eyNk3KWBy72d+pkeYa5R7ZwJBz/OI1rXp4FIk4pr5Yh8iZczcqa2xNAD03pDcrvS3v3fb0jtHOV/LzBYplWDQxjGN2fNijAVuU/0LnIddfKGKVExxXaurBUm+bJDkfPR7NgbzH8IYxCalHJvo9zyfjhkQpGgCE=
+Message-ID: <45A65C8A.9080601@gmail.com>
+Date: Thu, 11 Jan 2007 16:49:30 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070111130235.GA15353@us.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ia64: add pci_get_legacy_ide_irq() (was: [2.6 patch] let
+ BLK_DEV_AMD74XX depend on X86)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks straightforward enough.
 
-thanks,
--serge
+Adrian Bunk wrote:
+> 
+> It's unlikely that this driver will ever be of any use on other
+> architectures.
 
-Quoting Sukadev Bhattiprolu (sukadev@us.ibm.com):
+It is already used on PPC.
+
+[ see arch/powerpc/platforms/maple/pci.c:maple_pci_get_legacy_ide_irq() ]
+
+
+> This fixes the following compile error on ia64:
 > 
-> From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+> <--  snip  -->
 > 
-> attach_pid() currently takes a pid_t parameter and uses find_pid() to find
-> the struct pid associated with the pid_t. With containers, we sometimes
-> already have the struct pid and could skip the find_pid() - if we have a
-> version of attach_pid() that takes a struct pid parameter.
+> ...
+>  CC      drivers/ide/pci/amd74xx.o
+> /home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c:
+> In function 'init_hwif_amd74xx':
+> /home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c:421:
 > 
-> This patch renames the attach_pid() to find_attach_pid(). My next patch
-> defines attach_pid() to take a struct pid.
+> warning: implicit declaration of function 'pci_get_legacy_ide_irq'
+>  CC      drivers/ide/pci/cmd64x.o
+> ...
+>  LD      .tmp_vmlinux1
+> drivers/built-in.o: In function `init_hwif_amd74xx':
+> /home/bunk/linux/kernel-2.6/linux-2.6.20-rc3-mm1/drivers/ide/pci/amd74xx.c:421:
 > 
-> Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-> Cc: Cedric Le Goater <clg@fr.ibm.com>
-> Cc: Dave Hansen <haveblue@us.ibm.com>
-> Cc: Serge Hallyn <serue@us.ibm.com>
-> Cc: containers@lists.osdl.org
+> undefined reference to `pci_get_legacy_ide_irq'
+> make[1]: *** [.tmp_vmlinux1] Error 1
 > 
-> ---
->  fs/exec.c           |    2 +-
->  include/linux/pid.h |    4 ++--
->  kernel/exit.c       |    4 ++--
->  kernel/fork.c       |    6 +++---
->  kernel/pid.c        |    3 ++-
->  kernel/sys.c        |    2 +-
->  6 files changed, 11 insertions(+), 10 deletions(-)
+> <--  snip  -->
 > 
-> Index: lx26-20-rc2-mm1/fs/exec.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/fs/exec.c	2007-01-10 14:16:17.000000000 -0800
-> +++ lx26-20-rc2-mm1/fs/exec.c	2007-01-10 21:42:43.000000000 -0800
-> @@ -701,7 +701,7 @@ static int de_thread(struct task_struct
->  		 */
->  		detach_pid(tsk, PIDTYPE_PID);
->  		tsk->pid = leader->pid;
-> -		attach_pid(tsk, PIDTYPE_PID,  tsk->pid);
-> +		find_attach_pid(tsk, PIDTYPE_PID,  tsk->pid);
->  		transfer_pid(leader, tsk, PIDTYPE_PGID);
->  		transfer_pid(leader, tsk, PIDTYPE_SID);
->  		list_replace_rcu(&leader->tasks, &tsk->tasks);
-> Index: lx26-20-rc2-mm1/include/linux/pid.h
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/include/linux/pid.h	2007-01-10 14:16:18.000000000 -0800
-> +++ lx26-20-rc2-mm1/include/linux/pid.h	2007-01-11 04:44:06.674046656 -0800
-> @@ -72,10 +72,10 @@ extern struct task_struct *FASTCALL(get_
->  extern struct pid *get_task_pid(struct task_struct *task, enum pid_type type);
 > 
->  /*
-> - * attach_pid() and detach_pid() must be called with the tasklist_lock
-> + * find_attach_pid() and detach_pid() must be called with the tasklist_lock
->   * write-held.
->   */
-> -extern int FASTCALL(attach_pid(struct task_struct *task,
-> +extern int FASTCALL(find_attach_pid(struct task_struct *task,
->  				enum pid_type type, int nr));
-> 
->  extern void FASTCALL(detach_pid(struct task_struct *task, enum pid_type));
-> Index: lx26-20-rc2-mm1/kernel/exit.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/kernel/exit.c	2007-01-10 14:16:18.000000000 -0800
-> +++ lx26-20-rc2-mm1/kernel/exit.c	2007-01-10 21:43:09.000000000 -0800
-> @@ -301,12 +301,12 @@ void __set_special_pids(pid_t session, p
->  	if (process_session(curr) != session) {
->  		detach_pid(curr, PIDTYPE_SID);
->  		set_signal_session(curr->signal, session);
-> -		attach_pid(curr, PIDTYPE_SID, session);
-> +		find_attach_pid(curr, PIDTYPE_SID, session);
->  	}
->  	if (process_group(curr) != pgrp) {
->  		detach_pid(curr, PIDTYPE_PGID);
->  		curr->signal->pgrp = pgrp;
-> -		attach_pid(curr, PIDTYPE_PGID, pgrp);
-> +		find_attach_pid(curr, PIDTYPE_PGID, pgrp);
->  	}
->  }
-> 
-> Index: lx26-20-rc2-mm1/kernel/fork.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/kernel/fork.c	2007-01-10 14:16:18.000000000 -0800
-> +++ lx26-20-rc2-mm1/kernel/fork.c	2007-01-11 04:43:33.602074360 -0800
-> @@ -1248,13 +1248,13 @@ static struct task_struct *copy_process(
->  			p->signal->tty = current->signal->tty;
->  			p->signal->pgrp = process_group(current);
->  			set_signal_session(p->signal, process_session(current));
-> -			attach_pid(p, PIDTYPE_PGID, process_group(p));
-> -			attach_pid(p, PIDTYPE_SID, process_session(p));
-> +			find_attach_pid(p, PIDTYPE_PGID, process_group(p));
-> +			find_attach_pid(p, PIDTYPE_SID, process_session(p));
-> 
->  			list_add_tail_rcu(&p->tasks, &init_task.tasks);
->  			__get_cpu_var(process_counts)++;
->  		}
-> -		attach_pid(p, PIDTYPE_PID, p->pid);
-> +		find_attach_pid(p, PIDTYPE_PID, p->pid);
->  		nr_threads++;
->  	}
-> 
-> Index: lx26-20-rc2-mm1/kernel/pid.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/kernel/pid.c	2007-01-10 14:15:49.000000000 -0800
-> +++ lx26-20-rc2-mm1/kernel/pid.c	2007-01-11 04:44:06.674046656 -0800
-> @@ -247,7 +247,8 @@ struct pid * fastcall find_pid(int nr)
->  }
->  EXPORT_SYMBOL_GPL(find_pid);
-> 
-> -int fastcall attach_pid(struct task_struct *task, enum pid_type type, int nr)
-> +int fastcall find_attach_pid(struct task_struct *task, enum pid_type type,
-> +				int nr)
->  {
->  	struct pid_link *link;
->  	struct pid *pid;
-> Index: lx26-20-rc2-mm1/kernel/sys.c
-> ===================================================================
-> --- lx26-20-rc2-mm1.orig/kernel/sys.c	2007-01-10 14:16:18.000000000 -0800
-> +++ lx26-20-rc2-mm1/kernel/sys.c	2007-01-10 21:45:01.000000000 -0800
-> @@ -1480,7 +1480,7 @@ asmlinkage long sys_setpgid(pid_t pid, p
->  	if (process_group(p) != pgid) {
->  		detach_pid(p, PIDTYPE_PGID);
->  		p->signal->pgrp = pgid;
-> -		attach_pid(p, PIDTYPE_PGID, pgid);
-> +		find_attach_pid(p, PIDTYPE_PGID, pgid);
->  	}
-> 
->  	err = 0;
+> This fixes kernel Bugzilla #6644.
+
+Does the following patch fix the problem?
+
+[PATCH] ia64: add pci_get_legacy_ide_irq()
+
+Add pci_get_legacy_ide_irq() identical to the one used by i386/x86_64.
+Fixes amd74xx driver build on ia64 (bugzilla bug #6644).
+
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+---
+ include/asm-ia64/pci.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+Index: a/include/asm-ia64/pci.h
+===================================================================
+--- a.orig/include/asm-ia64/pci.h
++++ a/include/asm-ia64/pci.h
+@@ -167,4 +167,10 @@ pcibios_select_root(struct pci_dev *pdev
+ 
+ #define pcibios_scan_all_fns(a, b)	0
+ 
++#define HAVE_ARCH_PCI_GET_LEGACY_IDE_IRQ
++static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
++{
++	return channel ? 15 : 14;
++}
++
+ #endif /* _ASM_IA64_PCI_H */
+
+
+

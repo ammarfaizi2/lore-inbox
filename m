@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965286AbXAKBLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965270AbXAKBPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965286AbXAKBLW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 20:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbXAKBLW
+	id S965270AbXAKBPW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 20:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbXAKBPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 20:11:22 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38876 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965286AbXAKBLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 20:11:21 -0500
-Date: Thu, 11 Jan 2007 12:11:05 +1100
-From: David Chinner <dgc@sgi.com>
-To: David Chinner <dgc@sgi.com>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [REGRESSION] 2.6.19/2.6.20-rc3 buffered write slowdown
-Message-ID: <20070111011105.GV33919298@melbourne.sgi.com>
-References: <20070110223731.GC44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101503310.22578@schroedinger.engr.sgi.com> <20070110230855.GF44411608@melbourne.sgi.com>
+	Wed, 10 Jan 2007 20:15:22 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:55246
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S965270AbXAKBPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 20:15:22 -0500
+Date: Wed, 10 Jan 2007 17:15:20 -0800 (PST)
+Message-Id: <20070110.171520.23015257.davem@davemloft.net>
+To: jafo@tummy.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: select() setting ERESTARTNOHAND (514).
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20070111010429.GN7121@tummy.com>
+References: <20070110234238.GB10791@tummy.com>
+	<20070110.162747.28789587.davem@davemloft.net>
+	<20070111010429.GN7121@tummy.com>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070110230855.GF44411608@melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2007 at 10:08:55AM +1100, David Chinner wrote:
-> On Wed, Jan 10, 2007 at 03:04:15PM -0800, Christoph Lameter wrote:
-> > On Thu, 11 Jan 2007, David Chinner wrote:
-> > 
-> > > The performance and smoothness is fully restored on 2.6.20-rc3
-> > > by setting dirty_ratio down to 10 (from the default 40), so
-> > > something in the VM is not working as well as it used to....
-> > 
-> > dirty_background_ratio is left as is at 10?
+From: Sean Reifschneider <jafo@tummy.com>
+Date: Wed, 10 Jan 2007 18:04:29 -0700
+
+> On Wed, Jan 10, 2007 at 04:27:47PM -0800, David Miller wrote:
+> >It gets caught by the return into userspace code.
 > 
-> Yes.
+> Ok, so somehow it is leaking.  I have a system in the lab that is the same
+> hardware as production, but it currently has no, you know, hard drives in
+> it, so some assembly is required.  I'll see if I can reproduce it in a test
+> environment and then see if I can get more information on when/where it is
+> leaking.
 
-FWIW, setting dirty_ratio to 20 instead of 10 fixes the most of
-the erraticness of the writeback and most of the performance as well.
+If you're only seeing it in strace, that's expected due to some
+unfortunate things in the way that x86 and x86_64 handle signal
+return events via ptrace().
 
-Cheers,
+On sparc and sparc64 I fixed this long ago such that ptrace() will
+update the user registers before ptrace parents are notified, and
+therefore you'll never see those kernel internal error codes.
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+The upside of this is that you'll really need to see what value is
+making it to the application.  What the kernel is probably
+doing is looping trying to restart the system call and sending
+the signal.  If it's doing that the application is being rewound
+to call the system call again once the signal handler returns
+(if that is even being run at all).

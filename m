@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030187AbXAKBan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030181AbXAKBhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbXAKBan (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 20:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbXAKBaB
+	id S1030181AbXAKBhM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 20:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbXAKBhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 20:30:01 -0500
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:32975 "EHLO
-	imf18aec.mail.bellsouth.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030186AbXAKB3v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 20:29:51 -0500
-X-Greylist: delayed 2991 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Jan 2007 20:29:44 EST
-Date: Wed, 10 Jan 2007 18:39:51 -0600
-From: Jay Cliburn <jacliburn@bellsouth.net>
-To: jeff@garzik.org
-Cc: shemminger@osdl.org, csnook@redhat.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, atl1-devel@lists.sourceforge.net
-Subject: [PATCH 0/4] atl1: Attansic L1 ethernet driver
-Message-ID: <20070111003951.GA2624@osprey.hogchain.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Jan 2007 20:37:12 -0500
+Received: from ns2.suse.de ([195.135.220.15]:39347 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030181AbXAKBhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 20:37:10 -0500
+From: Andi Kleen <ak@suse.de>
+To: Neil Brown <neilb@suse.de>
+Subject: Re: PATCH - x86-64 signed-compare bug, was Re: select() setting ERESTARTNOHAND (514).
+Date: Thu, 11 Jan 2007 02:37:05 +0100
+User-Agent: KMail/1.9.5
+Cc: Sean Reifschneider <jafo@tummy.com>, linux-kernel@vger.kernel.org
+References: <20070110234238.GB10791@tummy.com> <200701110140.51842.ak@suse.de> <17829.36029.240912.274302@notabene.brown>
+In-Reply-To: <17829.36029.240912.274302@notabene.brown>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200701110237.05753.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 11 January 2007 02:02, Neil Brown wrote:
+> On Thursday January 11, ak@suse.de wrote:
+> > > Just a 'me too' at this point. 
+> > > The X server on my shiny new notebook (Core 2 Duo) occasionally dies
+> > > with 'select' repeatedly returning ERESTARTNOHAND.  It is most
+> > > annoying!
+> > 
+> > Normally it should be only visible in strace. Did you see it without
+> > strace?
+> 
+> No, only in strace.
 
-This is the latest submittal of the patchset providing support for the 
-Attansic L1 gigabit ethernet adapter.  This patchset is built against 
-kernel version 2.6.20-rc4 current git as of 20070109.
+strace leaks internal errors. At some point that should be fixed,
+but it's not really a serious problem.
 
-The monolithic version of this patchset may be found at:
-ftp://hogchain.net/pub/linux/m2v/attansic/kernel_driver/atl1-2.0.3/atl1-2.0.3-linux-2.6.20.rc4.patch.bz2
+There was one other report of internal errors leaking without strace,
+but it was vague and I never got confirmation.
 
-As a reminder, this driver is a modified version of the Attansic reference 
-driver for the L1 ethernet adapter.  Attansic has granted permission for 
-its inclusion in the mainline kernel.
+> Still, I think it would be safer to have the cast, in case the compiler
+> decided to be clever.... or does the C standard ensure against that?
 
-Changes for this version include:
-* Incorporation of previous comments from Arnd Bergmann, Alan Cox, and
-  Jan Engelhardt.
-* Conversion to the new workqueue method.
-* Addition of MSI support (thanks to Luca Tettamanti).
+It does.
 
-NOTES:
-1.  TSO is broken (order of magnitude decrease in Tx peformance as compared
-to Rx performance) and therefore the feature has been disabled until it's
-fixed.  We have not been able to find the source of the problem in the 
-driver itself, so we've requested that Attansic take a look at the hardware.
-We've not yet heard back from them.  We encourage any experienced netdev
-folks to take a look at the TSO code and let us know if you see the problem.
-
-2.  Given the download statistics from Sourceforge (current home of the
-driver) and hogchain.net (the original home of the driver), we believe the 
-driver to be in use by dozens, if not hundreds, of users.  We've received 
-remarkably few bug reports:  a couple of typos and and the TSO performance 
-issue.
-
-This patch contains:
-
-drivers/net/Kconfig             |   11 +
-drivers/net/Makefile            |    1 +
-drivers/net/atl1/Makefile       |   30 +
-drivers/net/atl1/atl1.h         |  266 +++++
-drivers/net/atl1/atl1_ethtool.c |  528 +++++++++
-drivers/net/atl1/atl1_hw.c      |  797 +++++++++++++
-drivers/net/atl1/atl1_hw.h      | 1053 +++++++++++++++++
-drivers/net/atl1/atl1_main.c    | 2464 +++++++++++++++++++++++++++++++++++++++
-drivers/net/atl1/atl1_param.c   |  223 ++++ 
-9 files changed, 5373 insertions(+), 0 deletions(-)
-
+-Andi

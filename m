@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965158AbXAKBBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965278AbXAKBDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbXAKBBG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 10 Jan 2007 20:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbXAKBBF
+	id S965278AbXAKBDQ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 10 Jan 2007 20:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965280AbXAKBDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Jan 2007 20:01:05 -0500
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:22321 "HELO
-	smtp109.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965158AbXAKBBE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Jan 2007 20:01:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uA80nEhGJhE0yB93SL3jFnMOJCqdOz3ygmTUDBGJUiKSKtmrfyIQZTQFjVQl3DDA95vY4FnrkmMjMGjTQ6IEt3h5s+g3YhFtJDQLwsBzqFhav5QSWmCP6k52pjqofVlCmKVkPUf0YUDywtT2Znvp6A87WrX8Rd0bVouj3BGNiZk=  ;
-X-YMail-OSG: KW.cYGQVM1mveZy4j1KyVYtCB6SEeUvUy2P_zoCxKQZjE2To7n5nCYtgE2jE.pujUvpND_0ruXSWvvM71cMwniF4Fx9tzSX8gmySvh2UIk.YZr8JwMA8yTsae_5HCzXS8g1KZl_jPcdDDZI-
-Message-ID: <45A58C33.4050909@yahoo.com.au>
-Date: Thu, 11 Jan 2007 12:00:35 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 10 Jan 2007 20:03:16 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38401 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965278AbXAKBDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Jan 2007 20:03:16 -0500
+From: Neil Brown <neilb@suse.de>
+To: Andi Kleen <ak@suse.de>
+Date: Thu, 11 Jan 2007 12:02:53 +1100
+Message-ID: <17829.36029.240912.274302@notabene.brown>
 MIME-Version: 1.0
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-CC: Linus Torvalds <torvalds@osdl.org>, reiserfs-dev@namesys.com,
-       =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v2)
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <200701091908.44576.MalteSch@gmx.de> <Pine.LNX.4.64.0701091022180.3594@woody.osdl.org> <200701110324.42920.vs@namesys.com>
-In-Reply-To: <200701110324.42920.vs@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Cc: Neil Brown <neilb@suse.de>, Sean Reifschneider <jafo@tummy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH - x86-64 signed-compare bug, was Re: select() setting ERESTARTNOHAND (514).
+In-Reply-To: message from Andi Kleen on Thursday January 11
+References: <20070110234238.GB10791@tummy.com>
+	<17829.34481.340913.519675@notabene.brown>
+	<200701110140.51842.ak@suse.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir V. Saveliev wrote:
-> Hello
+On Thursday January 11, ak@suse.de wrote:
+> > Just a 'me too' at this point. 
+> > The X server on my shiny new notebook (Core 2 Duo) occasionally dies
+> > with 'select' repeatedly returning ERESTARTNOHAND.  It is most
+> > annoying!
 > 
-> On Tuesday 09 January 2007 21:30, Linus Torvalds wrote:
-> 
->>On Tue, 9 Jan 2007, Malte Schröder wrote:
->>
->>>>So something interesting is definitely going on, but I don't know exactly
->>>>what it is. Why does reiserfs do the truncate as part of a close, if the
->>>>same inode is actually mapped somewhere else? 
-> 
-> 
-> on file close reiserfs tries to "pack" content of last incomplete page of file into metadata blocks.
-> It should not if that page is still mapped somewhere. 
-> It does not actually truncate, it calls the same function which does truncate, but file size does not change.
+> Normally it should be only visible in strace. Did you see it without
+> strace?
 
-That's racy, unfortunately :P
+No, only in strace.
 
 > 
-> Please consider the below patch.
+> > 
+> > You don't mention in the Email which kernel version you use but I see
+> > from the web page you reference it is 2.6.19.1.  I'm using
+> > 2.6.18.something.
+> > 
+> > I thought I'd have a quick look at the code, comparing i386 to x86-64
+> > and guess what I found.....
+> > 
+> > On x86-64, regs->rax is "unsigned long", so the following is
+> > needed....
+> 
+> regs->rax is unsigned long.
+> I don't think your patch will make any difference. What do you think
+> it will change?
 
-That seems like it would work. Probably papers over your truncate-inside-i_size as well.
+If regs->rax is unsigned long, then I would think the compiler would
+be allowed to convert
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+   switch (regs->rax) {
+	case -514 : whatever;
+   }
+
+to a no-op, as regs->rax will never have a negative value.
+
+However it appears that the current compiler doesn't make that
+optimisation so I guess I was too hasty.
+
+Still, I think it would be safer to have the cast, in case the compiler
+decided to be clever.... or does the C standard ensure against that?
+
+Sorry for the noise,
+
+NeilBrown

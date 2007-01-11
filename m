@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030225AbXAKIc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030232AbXAKIdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbXAKIc2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 03:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbXAKIc2
+	id S1030232AbXAKIdv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 03:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbXAKIdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 03:32:28 -0500
-Received: from il.qumranet.com ([62.219.232.206]:53198 "EHLO il.qumranet.com"
+	Thu, 11 Jan 2007 03:33:50 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:20385 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030225AbXAKIc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 03:32:28 -0500
-Message-ID: <45A5F616.3040305@qumranet.com>
-Date: Thu, 11 Jan 2007 10:32:22 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Arnd Bergmann <arnd@arndb.de>, kvm-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [kvm-devel] [RFC] Stable kvm userspace interface
-References: <45A39A97.5060807@qumranet.com> <45A39D0D.7090007@garzik.org> <200701110834.43800.arnd@arndb.de> <45A5F4A5.9000408@garzik.org>
-In-Reply-To: <45A5F4A5.9000408@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S1030227AbXAKIdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 03:33:49 -0500
+Date: Thu, 11 Jan 2007 09:34:31 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       dm-devel@redhat.com, j-nomura@ce.jp.nec.com
+Subject: Re: [RFC PATCH 3/3] blk_end_request: caller change
+Message-ID: <20070111083430.GD11203@kernel.dk>
+References: <20070110.180859.78702215.k-ueda@ct.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070110.180859.78702215.k-ueda@ct.jp.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Arnd Bergmann wrote:
->> On Tuesday 09 January 2007 14:47, Jeff Garzik wrote:
->>> Can we please avoid adding a ton of new ioctls?  ioctls inevitably 
->>> require 64-bit compat code for certain architectures, whereas 
->>> sysfs/procfs does not.
->>
->> For performance reasons, an ascii string based interface is not
->> desireable here, some of these calls should be optimized to
->> the point of counting cycles.
->
-> sysfs does not require ASCII...
->
+On Wed, Jan 10 2007, Kiyoshi Ueda wrote:
+> +static int end_request_callback(void *arg)
+> +{
+> +	struct request *req = (struct request *)arg;
+> +
+> +	add_disk_randomness(req->rq_disk);
+> +	blkdev_dequeue_request(req);
+> +
+> +	return 0;
+> +}
 
-The main kvm ioctl switches the execution mode to guest mode.  Just like 
-a syscall enters kernel mode, ioctl(vcpu_fd, KVM_VCPU_RUN) enters the 
-guest address space and begins executing guest code.
+This is bad, don't pass void * around.
 
-I don't see how to model that with sysfs.
+> +static int cdrom_newpc_intr_dma_callback(void *arg)
+> +{
+> +	void **argv = (void **)arg;
+> +	struct request *rq = (struct request *)*argv++;
+> +	ide_drive_t *drive = (ide_drive_t *)argv++;
+> +	spinlock_t *ide_lock = (spinlock_t *)argv;
+> +
+> +	rq->data_len = 0;
+> +
+> +	cdrom_newpc_intr_callback_common(rq, drive, ide_lock);
+> +
+> +	return 0;
+> +}
 
-There are other objections as well. sysfs is a public interface, whereas 
-kvm is a process private attribute.  These objections don't apply to 
-/proc though.
-
+And this is why, down right horrible. The callback should be correctly
+typed, pass down a request pointer ALWAYS.
 
 -- 
-error compiling committee.c: too many arguments to function
+Jens Axboe
 

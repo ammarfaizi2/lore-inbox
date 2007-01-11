@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965320AbXAKHYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965312AbXAKH0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965320AbXAKHYZ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 02:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbXAKHYZ
+	id S965312AbXAKH0y (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 02:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965317AbXAKH0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 02:24:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57569 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965320AbXAKHYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 02:24:24 -0500
-Message-ID: <45A5E558.6000807@redhat.com>
-Date: Wed, 10 Jan 2007 23:20:56 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 11 Jan 2007 02:26:53 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:49964 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965312AbXAKH0x convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 02:26:53 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: kvm-devel@lists.sourceforge.net
+Subject: Re: [kvm-devel] [RFC] Stable kvm userspace interface
+Date: Thu, 11 Jan 2007 08:26:28 +0100
+User-Agent: KMail/1.9.5
+Cc: Avi Kivity <avi@qumranet.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+References: <45A39A97.5060807@qumranet.com>
+In-Reply-To: <45A39A97.5060807@qumranet.com>
 MIME-Version: 1.0
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-CC: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Ingo Molnar <mingo@elte.hu>, Jakub Jelinek <jakub@redhat.com>,
-       Darren Hart <dvhltc@us.ibm.com>,
-       =?UTF-8?B?U8OpYmFzdGllbiBEdWd1w6k=?= <sebastien.dugue@bull.net>
-Subject: Re: [PATCH 2.6.20-rc4 1/4] futex priority based wakeup
-References: <45A3B330.9000104@bull.net> <45A3BFC8.1030104@bull.net> <45A3C2CE.7070500@redhat.com> <45A4D249.8080904@bull.net>
-In-Reply-To: <45A4D249.8080904@bull.net>
-X-Enigmail-Version: 0.94.1.2.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5F3D18B7B74BCAC1644296C8"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701110826.28535.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+X-Provags-ID2: V01U2FsdGVkX19APi2H+p8I+IZ7EOIkkLInyQcCLjeLhCGdJnNH6QSxAFi4X0ooE+Uw5Si5+oD3V6VRF4m6mbiy87/KwQE9KuEglqGgzyY5t6liQLnosR91zA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5F3D18B7B74BCAC1644296C8
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tuesday 09 January 2007 14:37, Avi Kivity wrote:
+> struct kvm_vcpu_area {
+>     u32 vcpu_area_size;
+>     u32 exit_reason;
+> 
+>     sigset_t sigmask;  // for use during vcpu execution
 
-Pierre Peiffer wrote:
-> Here are the average latencies after 5000 measures.
-> [...]
+Since Jeff brought up the point of 32 bit compatibility:
+When this structure is shared between 64 bit kernel and
+32 bit user space, you sigmask should be a __u64 in order
+to guarantee compatibility.
 
-Use something more realistic.  I suggest using the Volano benchmark
-under your favorite JVM.  I found it to be quite representative and you
-get a nice number you can show.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig5F3D18B7B74BCAC1644296C8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFFpeVY2ijCOnn/RHQRAtg7AJ9ys4FpD+QlWhbV78sfKaNRdMUMcgCgxzaW
-KuiplP6nrxGR3u2TwlmYDWM=
-=DEVO
------END PGP SIGNATURE-----
-
---------------enig5F3D18B7B74BCAC1644296C8--
+	Arnd <><

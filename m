@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932807AbXAKWrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932790AbXAKWsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932807AbXAKWrD (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 17:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbXAKWrD
+	id S932790AbXAKWsw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 17:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932670AbXAKWsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 17:47:03 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59397 "EHLO mx1.redhat.com"
+	Thu, 11 Jan 2007 17:48:52 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:40522 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932807AbXAKWrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 17:47:01 -0500
-Message-ID: <45A6BE5C.9040904@redhat.com>
-Date: Thu, 11 Jan 2007 17:46:52 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
-MIME-Version: 1.0
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mmap / mtime updates
-References: <20070109220940.GA16978@amelek.gda.pl>
-In-Reply-To: <20070109220940.GA16978@amelek.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id S932790AbXAKWsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 17:48:51 -0500
+Date: Thu, 11 Jan 2007 14:48:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dean gaudet <dean@arctic.org>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - RFC] allow setting vm_dirty below 1% for large memory
+ machines
+Message-Id: <20070111144801.ef86c169.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701111431470.4980@twinlark.arctic.org>
+References: <17827.22798.625018.673326@notabene.brown>
+	<Pine.LNX.4.64.0701110245300.22043@twinlark.arctic.org>
+	<20070111122127.5bcc0b0f.akpm@osdl.org>
+	<Pine.LNX.4.64.0701111431470.4980@twinlark.arctic.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marek Michalkiewicz wrote:
-> Hello,
->
-> What is the current status of the bug where modifications to file
-> contents made via mmap fail to update mtime of the file?
->
-> This was discussed a few months ago in this thread:
->
-> http://lkml.org/lkml/2006/5/17/138
->
-> where patches have been posted, but it seems that no final solution
-> has been agreed on and applied to the kernel tree.  Updating ctime
-> and mtime appears to be required by the standard:
->
->   http://www.opengroup.org/onlinepubs/009695399/functions/mmap.html
->
->   The st_ctime and st_mtime fields of a file that is mapped with
->   MAP_SHARED and PROT_WRITE shall be marked for update at some point
->   in the interval between a write reference to the mapped region and
->   the next call to msync() with MS_ASYNC or MS_SYNC for that portion
->   of the file by any process.
->
-> and failing to do it can lead to potential data loss as well, if
-> modified files are not backed up (I'm seeing the problem with Samba
-> tdb files not being backed up by rsnapshot, for example).
+On Thu, 11 Jan 2007 14:35:06 -0800 (PST)
+dean gaudet <dean@arctic.org> wrote:
 
-I am working on porting the patches to the current upstream kernel.
-As soon as I complete this work, then I will repost the patch and
-we'll see where things go then.
+> actually a global dirty_ratio causes interference between devices which 
+> should otherwise not block each other...
+> 
+> if you set up a "dd if=/dev/zero of=/dev/sdb bs=1M" it shouldn't affect 
+> write performance on sda -- but it does... because the dd basically 
+> dirties all of the "dirty_background_ratio" pages and then any task 
+> writing to sda has to block in the foreground...  (i've had this happen in 
+> practice -- my hack fix is oflag=direct on the dd... but the problem still 
+> exists.)
 
-    Thanx...
+yeah.  Plus your heavy-dd-to-/dev/sda tends to block light-writers to
+/dev/sda in perhaps disproportionate ways.
 
-       ps
+This is on my list of things to look at.  Hah.
+
+> i'm not saying fixing any of this is easy, i'm just being a user griping 
+> about it :)
+
+It's rather complex, I believe.   Needs per-backing-dev dirty counts (already
+in -mm) plus, I suspect, per-process dirty counts (possibly derivable from
+per-task-io-accounting) plus some tricky logic to make all that work along
+with global dirtiness (and later per-node dirtiness!) while meeting all the
+constraints which that logic must satisfy.

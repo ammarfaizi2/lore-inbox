@@ -1,105 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030196AbXAKOxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030227AbXAKOyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbXAKOxm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 09:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbXAKOxm
+	id S1030227AbXAKOyy (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 09:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbXAKOyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 09:53:42 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:44731 "HELO ustc.edu.cn"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1030196AbXAKOxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 09:53:41 -0500
-Message-ID: <368527150.02925@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 11 Jan 2007 22:53:10 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-Message-ID: <20070111145309.GA6226@mail.ustc.edu.cn>
-Mail-Followup-To: Neil Brown <neilb@suse.de>,
-	linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <367964923.02447@ustc.edu.cn> <20070105024226.GA6076@mail.ustc.edu.cn> <17828.33075.145986.404400@notabene.brown> <368438638.13038@ustc.edu.cn> <20070110141756.GA5572@mail.ustc.edu.cn> <17829.46603.14554.981639@notabene.brown>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17829.46603.14554.981639@notabene.brown>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 11 Jan 2007 09:54:54 -0500
+Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:48754 "EHLO
+	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1030227AbXAKOyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 09:54:53 -0500
+Message-Id: <20070111145422.383583876@delta.onse.fi>
+References: <20070111145115.405679742@delta.onse.fi>
+User-Agent: quilt/0.45-1
+Date: Thu, 11 Jan 2007 16:51:17 +0200
+From: Anssi Hannula <anssi.hannula@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Anssi Hannula <anssi.hannula@gmail.com>
+Subject: [patch 2/3] hid: quirk for multi-input devices with unneeded output reports
+Content-Disposition: inline; filename=input-hid-multi-input-skip-output-report.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil,
+Add new quirk HID_QUIRK_SKIP_OUTPUT_REPORTS to skip output reports
+when enumerating reports on a hid-input device. Add this quirk and
+HID_QUIRK_MULTI_INPUT to 0810:0001.
 
-On Thu, Jan 11, 2007 at 02:59:07PM +1100, Neil Brown wrote:
-> On Wednesday January 10, fengguang.wu@gmail.com wrote:
-> > 
-> > root ~# mount localhost:/suse /mnt
-> > [  132.678204] svc: unknown version (3 for prog 100227, nfsd)
-> > 
-> > I've confirmed that 2.6.20-rc2-mm1, 2.6.20-rc3-mm1, 2.6.19-rc6-mm1 all
-> > have this warning, while 2.6.17-2-amd64 is good.
-> 
-> Thanks.  That helps a lot.
-> 
-> This patch should help too.  Please let me know.
+PantherLord Twin USB Joystick, 0810:0001 has separate input reports
+for 2 distinct game controllers in the same interface, so it needs
+HID_QUIRK_MULTI_INPUT. However, the device also contains one output
+report per controller which is used to control the force feedback
+function, and we do not want those to appear as separate input
+devices as well. The simplest approach seems to be to add a quirk to
+skip output reports on 0810:0001, and allow the force feedback
+driver to handle those.
 
-# mount localhost:/suse /mnt
-[ 2058.438236] svc: unknown version (3 for prog 100227, nfsd)
+Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
 
-# pss nfs
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root      5488  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5489  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5490  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5491  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5492  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5493  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5494  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-root      5495  0.0  0.0      0     0 ?        S    22:16   0:00 [nfsd]
-# pss rpc
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root      5486  0.0  0.0      0     0 ?        S<   22:16   0:00 [rpciod/0]
-root      5487  0.0  0.0      0     0 ?        S<   22:16   0:00 [rpciod/1]
-root      5499  0.0  0.0   7944   668 ?        Ss   22:16   0:00 /usr/sbin/rpc.mountd
-statd     5567  0.0  0.0   7892  1084 ?        Ss   22:16   0:00 /sbin/rpc.statd
-root      5578  0.0  0.0  23180   652 ?        Ss   22:16   0:00 /usr/sbin/rpc.idmapd
+---
+ drivers/hid/hid-input.c      |    6 +++++-
+ drivers/usb/input/hid-core.c |    5 +++++
+ include/linux/hid.h          |    1 +
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
-Thanks,
-Wu
+Index: linux-2.6.20-rc3-ptr/drivers/hid/hid-input.c
+===================================================================
+--- linux-2.6.20-rc3-ptr.orig/drivers/hid/hid-input.c	2007-01-06 00:38:33.000000000 +0200
++++ linux-2.6.20-rc3-ptr/drivers/hid/hid-input.c	2007-01-07 21:07:34.000000000 +0200
+@@ -796,6 +796,7 @@ int hidinput_connect(struct hid_device *
+ 	struct hid_input *hidinput = NULL;
+ 	struct input_dev *input_dev;
+ 	int i, j, k;
++	int max_report_type = HID_OUTPUT_REPORT;
+ 
+ 	INIT_LIST_HEAD(&hid->inputs);
+ 
+@@ -808,7 +809,10 @@ int hidinput_connect(struct hid_device *
+ 	if (i == hid->maxcollection)
+ 		return -1;
+ 
+-	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
++	if (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
++		max_report_type = HID_INPUT_REPORT;
++
++	for (k = HID_INPUT_REPORT; k <= max_report_type; k++)
+ 		list_for_each_entry(report, &hid->report_enum[k].report_list, list) {
+ 
+ 			if (!report->maxfield)
+Index: linux-2.6.20-rc3-ptr/drivers/usb/input/hid-core.c
+===================================================================
+--- linux-2.6.20-rc3-ptr.orig/drivers/usb/input/hid-core.c	2007-01-07 20:53:21.000000000 +0200
++++ linux-2.6.20-rc3-ptr/drivers/usb/input/hid-core.c	2007-01-07 21:02:39.000000000 +0200
+@@ -791,6 +791,9 @@ void usbhid_init_reports(struct hid_devi
+ #define USB_VENDOR_ID_LOGITECH		0x046d
+ #define USB_DEVICE_ID_LOGITECH_USB_RECEIVER	0xc101
+ 
++#define USB_VENDOR_ID_PANTHERLORD	0x0810
++#define USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK	0x0001
++
+ /*
+  * Alphabetically sorted blacklist by quirk type.
+  */
+@@ -965,6 +968,8 @@ static const struct hid_blacklist {
+ 
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_USB_RECEIVER, HID_QUIRK_BAD_RELATIVE_KEYS },
+ 
++	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
++
+ 	{ 0, 0 }
+ };
+ 
+Index: linux-2.6.20-rc3-ptr/include/linux/hid.h
+===================================================================
+--- linux-2.6.20-rc3-ptr.orig/include/linux/hid.h	2007-01-07 20:53:42.000000000 +0200
++++ linux-2.6.20-rc3-ptr/include/linux/hid.h	2007-01-07 20:56:10.000000000 +0200
+@@ -264,6 +264,7 @@ struct hid_item {
+ #define HID_QUIRK_INVERT_HWHEEL			0x00004000
+ #define HID_QUIRK_POWERBOOK_ISO_KEYBOARD        0x00008000
+ #define HID_QUIRK_BAD_RELATIVE_KEYS		0x00010000
++#define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00020000
+ 
+ /*
+  * This is the global environment of the parser. This information is
 
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> 
-> ### Diffstat output
->  ./fs/nfsd/nfssvc.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
-> --- .prev/fs/nfsd/nfssvc.c	2007-01-11 14:55:38.000000000 +1100
-> +++ ./fs/nfsd/nfssvc.c	2007-01-11 14:57:03.000000000 +1100
-> @@ -72,7 +72,7 @@ static struct svc_program	nfsd_acl_progr
->  	.pg_prog		= NFS_ACL_PROGRAM,
->  	.pg_nvers		= NFSD_ACL_NRVERS,
->  	.pg_vers		= nfsd_acl_versions,
-> -	.pg_name		= "nfsd",
-> +	.pg_name		= "nfsacl",
->  	.pg_class		= "nfsd",
->  	.pg_stats		= &nfsd_acl_svcstats,
->  	.pg_authenticate	= &svc_set_client,
-> @@ -121,13 +121,13 @@ int nfsd_vers(int vers, enum vers_op cha
->  		break;
->  #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
->  		if (vers < NFSD_ACL_NRVERS)
-> -			nfsd_acl_version[vers] = nfsd_acl_version[vers];
-> +			nfsd_acl_versions[vers] = nfsd_acl_version[vers];
->  #endif
->  	case NFSD_CLEAR:
->  		nfsd_versions[vers] = NULL;
->  #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
->  		if (vers < NFSD_ACL_NRVERS)
-> -			nfsd_acl_version[vers] = NULL;
-> +			nfsd_acl_versions[vers] = NULL;
->  #endif
->  		break;
->  	case NFSD_TEST:
+--
+Anssi Hannula

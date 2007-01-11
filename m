@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965308AbXAKG55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965309AbXAKHBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965308AbXAKG55 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 01:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965311AbXAKG55
+	id S965309AbXAKHBe (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 02:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbXAKHBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 01:57:57 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:36340 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965308AbXAKG5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 01:57:55 -0500
-Date: Wed, 10 Jan 2007 22:57:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Aubrey <aubreylee@gmail.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Hua Zhong" <hzhong@gmail.com>,
-       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-Message-Id: <20070110225720.7a46e702.akpm@osdl.org>
-In-Reply-To: <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-	<Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>
-	<6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>
-	<20070110220603.f3685385.akpm@osdl.org>
-	<6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 02:01:34 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3623 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S965309AbXAKHBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 02:01:33 -0500
+Date: Thu, 11 Jan 2007 08:01:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ak@suse.de
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: x86_64: up to 255 or 256 CPUs?
+Message-ID: <20070111070138.GD21724@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2007 14:45:12 +0800
-Aubrey <aubreylee@gmail.com> wrote:
+Quoting arch/x86_64/Kconfig:
 
-> >
-> > In the interim you could do the old "echo 3 > /proc/sys/vm/drop_caches"
-> > thing, but that's terribly crude - drop_caches is really only for debugging
-> > and benchmarking.
-> >
-> Yes. This method can drop caches, but will fragment memory.
+<--  snip  -->
 
-That's what page reclaim will do as well.
+...
+config NR_CPUS
+        int "Maximum number of CPUs (2-256)"
+        range 2 255
+...
 
-What you want is Mel's antifragmentation work, or lumpy reclaim.
 
-> This is
-> not what I want. I want cache is limited to a tunable value of the
-> whole memory. For example, if total memory is 128M, is there a way to
-> trigger reclaim when cache size > 16M?
+<--  snip  -->
 
-If there was, it'd "fragment memory" as well.
+cu
+Adrian
 
-You might get a little benefit from increasing /proc/sys/vm/min_free_kbytes,
-but not much.  Some page allocation tweaks would aid that.
+-- 
 
-But basically, to do this well, serious work is needed.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

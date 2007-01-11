@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030443AbXAKOO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030456AbXAKOSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbXAKOO5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 09:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbXAKOO5
+	id S1030456AbXAKOSi (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 09:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbXAKOSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 09:14:57 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:25056 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030443AbXAKOO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 09:14:56 -0500
-Date: Thu, 11 Jan 2007 15:15:38 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
-       torvalds@osdl.org, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-Message-ID: <20070111141537.GD2277@kernel.dk>
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.61.0701110724040.19233@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0701110724040.19233@chaos.analogic.com>
+	Thu, 11 Jan 2007 09:18:38 -0500
+Received: from neopsis.com ([213.239.204.14]:38217 "EHLO
+	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1030456AbXAKOSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Jan 2007 09:18:38 -0500
+Message-ID: <45A64BA1.2080403@dbservice.com>
+Date: Thu, 11 Jan 2007 15:37:21 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Thunderbird 2.0b1 (X11/20061212)
+MIME-Version: 1.0
+To: Gert Vervoort <gert.vervoort@hccnet.nl>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oprofile broken on 2.6.19
+References: <45A3FF3E.7060109@hccnet.nl> <45A525B6.5030709@dbservice.com> <45A52320.2050100@hccnet.nl>
+In-Reply-To: <45A52320.2050100@hccnet.nl>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
+X-Neopsis-MailScanner: Found to be clean
+X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.366,
+	required 5, autolearn=spam, AWL 0.23, BAYES_00 -2.60)
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11 2007, linux-os (Dick Johnson) wrote:
-> 
-> On Wed, 10 Jan 2007, Aubrey wrote:
-> 
-> > Hi all,
-> >
-> > Opening file with O_DIRECT flag can do the un-buffered read/write access.
-> > So if I need un-buffered access, I have to change all of my
-> > applications to add this flag. What's more, Some scripts like "cp
-> > oldfile newfile" still use pagecache and buffer.
-> > Now, my question is, is there a existing way to mount a filesystem
-> > with O_DIRECT flag? so that I don't need to change anything in my
-> > system. If there is no option so far, What is the right way to achieve
-> > my purpose?
-> >
-> > Thanks a lot.
-> > -Aubrey
-> > -
-> 
-> I don't think O_DIRECT ever did what a lot of folks expect, i.e.,
-> write this buffer of data to the physical device _now_. All I/O
-> ends up being buffered. The `man` page states that the I/O will
-> be synchronous, that at the conclusion of the call, data will have
-> been transferred. However, the data written probably will not be
-> in the physical device, perhaps only in a DMA-able buffer with
-> a promise to get it to the SCSI device, soon.
+Gert Vervoort wrote:
+> Tomas Carnecky wrote:
+>> Gert Vervoort wrote:
+>>> When I try to use oprofile on 2.6.19, it does not seem to work:
+>>>
+>> http://lkml.org/lkml/2006/11/22/172
+>> 
+> Disabling the nmi watchdog, as suggested in:
+> http://marc.theaimsgroup.com/?l=oprofile-list&m=116422889324043&w=2,
+> also makes oprofile work again.
+>  
 
-Thanks for your guessing, but O_DIRECT is with the physical drive once
-the call returns. Whether it's in drive cache or on drive platters is a
-different story, but from the OS point of view, it's definitely with the
-drive.
+Oh.. that seem to be much easier then compiling a patched oprofile :)
+However, I can't find any NMI option (grep NMI .config), and
+CONFIG_WATCHDOG is disabled here.
 
--- 
-Jens Axboe
+tom
 

@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030480AbXALFZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030490AbXALFez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbXALFZx (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 00:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbXALFZx
+	id S1030490AbXALFez (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 00:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbXALFez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 00:25:53 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:34020 "EHLO smtp.osdl.org"
+	Fri, 12 Jan 2007 00:34:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44005 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030480AbXALFZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 00:25:53 -0500
-Date: Thu, 11 Jan 2007 21:25:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alberto Alonso <alberto@ggsys.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 mounted as ext2 but journal still in effect.
-Message-Id: <20070111212545.efd5d8c5.akpm@osdl.org>
-In-Reply-To: <1168578496.9707.6.camel@w100>
-References: <1168578496.9707.6.camel@w100>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1030490AbXALFez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 00:34:55 -0500
+Message-ID: <45A71DEA.9020307@redhat.com>
+Date: Fri, 12 Jan 2007 00:34:34 -0500
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>
+CC: Ingo Molnar <mingo@elte.hu>, kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kvm & dyntick
+References: <45A66106.5030608@qumranet.com>
+In-Reply-To: <45A66106.5030608@qumranet.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2007 23:08:16 -0600
-Alberto Alonso <alberto@ggsys.net> wrote:
+Avi Kivity wrote:
 
-> I have an ext3 filesystem that has been having problems
-> with its journal. The result is that the file system
-> remounts internally as read-only and the server becomes
-> unusable, even shutdown does not work, using up 100% of
-> the CPU but not rebooting.
-> 
-> I found some postings indicating that mounting it as
-> ext2 should fix the problem, as it doesn't appear to be
-> a hardware issue.
-> 
-> So, I decided to mount everything as ext2. Mount shows this:
-> 
-> # mount
-> /dev/hda2 on / type ext2 (rw,usrquota)
-> none on /proc type proc (rw)
-> none on /sys type sysfs (rw)
-> none on /dev/pts type devpts (rw,gid=5,mode=620)
-> usbfs on /proc/bus/usb type usbfs (rw)
-> /dev/hda1 on /boot type ext2 (rw)
-> none on /dev/shm type tmpfs (rw,noexec)
-> none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
-> sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
-> 
-> But now I still get the error:
-> 
-> # dmesg
-> [...]
-> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> [...]
-> 
-> 
-> The kernel is:
-> 
-> # uname -a
-> Linux hyperweb.net 2.6.5-1.358smp #1 SMP Sat May 8 09:25:36 EDT 2004
-> i686 i686 i386 GNU/Linux
-> 
-> 
-> Any ideas?
-> 
+> dyntick-enabled guest:
+> - reduce the load on the host when the guest is idling
+>   (currently an idle guest consumes a few percent cpu)
 
-mount(8) tells lies.  Look in /proc/mounts and you'll see that it's really
-mounted as ext3.
+You do not need dynticks for this actually.  Simple no-tick-on-idle
+like Xen has works well enough.
 
-You probably want to add `rootfstype=ext2' to the kernel boot command line.
+While you're modifying the timer code, you might also want to add
+proper accounting for steal time.  Time during which your guest
+had a runnable process, but was not actually running itself, should
+not be accounted against the currently running process.
 
+I wonder if it would be possible to simply copy some of the timer
+code from Xen.  They have the timing quirks worked out very well
+and their timer_interrupt() is pretty nice code.
+
+(Now I need to buy myself another VT box so I can help out with KVM :))
+
+http://virt.kernelnewbies.org/ParavirtBenefits has some other features
+you may want to have :)))
+
+-- 
+Politics is the struggle between those who want to make their country
+the best in the world, and those who believe it already is.  Each group
+calls the other unpatriotic.

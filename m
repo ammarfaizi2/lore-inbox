@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932113AbXALQLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932203AbXALQ2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbXALQLg (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 11:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbXALQLg
+	id S932203AbXALQ2J (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 11:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbXALQ2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 11:11:36 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:4288 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932113AbXALQLf convert rfc822-to-8bit (ORCPT
+	Fri, 12 Jan 2007 11:28:09 -0500
+Received: from noname.neutralserver.com ([70.84.186.210]:36302 "EHLO
+	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932203AbXALQ2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 11:11:35 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: 2.6.20-rc4-mm1
-Date: Fri, 12 Jan 2007 17:12:06 +0100
-User-Agent: KMail/1.9.5
-Cc: "Frederik Deweerdt" <deweerdt@free.fr>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, drzeus@drzeus.cx
-References: <20070111222627.66bb75ab.akpm@osdl.org> <200701121613.28254.m.kozlowski@tuxland.pl> <6bffcb0e0701120716h23a1c776je0caeb59c97e8e1a@mail.gmail.com>
-In-Reply-To: <6bffcb0e0701120716h23a1c776je0caeb59c97e8e1a@mail.gmail.com>
+	Fri, 12 Jan 2007 11:28:08 -0500
+Date: Fri, 12 Jan 2007 18:28:00 +0200
+From: Dan Aloni <da-x@monatomic.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: kexec + ACPI in 2.6.19 (was: Re: kexec + USB storage in 2.6.19)
+Message-ID: <20070112162800.GA23791@localdomain>
+References: <20070112122444.GA28597@localdomain> <m1mz4oe3xm.fsf@ebiederm.dsl.xmission.com> <20070112145710.GA29884@localdomain> <m1irfce06s.fsf@ebiederm.dsl.xmission.com> <20070112160243.GA13980@localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701121712.06911.m.kozlowski@tuxland.pl>
+In-Reply-To: <20070112160243.GA13980@localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-PopBeforeSMTPSenders: da-x@monatomic.org
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - noname.neutralserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - monatomic.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Jan 12, 2007 at 06:02:43PM +0200, Dan Aloni wrote:
+> On Fri, Jan 12, 2007 at 08:26:03AM -0700, Eric W. Biederman wrote:
+> > Dan Aloni <da-x@monatomic.org> writes:
+> > 
+> > > I'm attaching the full logs.
+> > 
+> > Thanks.
+> > 
+> > > [ 8656.272980] ACPI Error (tbxfroot-0512): Could not map memory at 0000040E for length 2 [20060707]
+> > 
+> > Ok. This looks like the first sign of trouble.
+> > Normally I would suspect a memory map issue but your e820 memory map looks fine,
+> > although a little different between the two kernels.
+> > 
+> > Is this enough of a hint for you to dig more deeply?
+> 
+> Reverting just the ACPI code (everything under drivers/acpi/*) 
+> back to the version of 2.6.18.3 doesn't fix the problem, so it 
+> must be something else.
 
-> This may help
-> http://lkml.org/lkml/2007/1/12/45
-
-True. Now it boots fine. Tanks for the tip.
-
-Dziêki Micha³. 
+Just occured to me that I didn't revert the relevant code under 
+arch/x86_64 so it might still be related somehow..
 
 -- 
-Regards,
-
-	Mariusz Kozlowski
+Dan Aloni
+XIV LTD, http://www.xivstorage.com
+da-x (at) monatomic.org, dan (at) xiv.co.il

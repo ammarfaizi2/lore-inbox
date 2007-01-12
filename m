@@ -1,27 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161015AbXALHZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161017AbXALHcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbXALHZd (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 02:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbXALHZd
+	id S1161017AbXALHcD (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 02:32:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161019AbXALHcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 02:25:33 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:39813 "EHLO smtp.osdl.org"
+	Fri, 12 Jan 2007 02:32:03 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:40006 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161015AbXALHZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 02:25:32 -0500
-Date: Thu, 11 Jan 2007 23:25:22 -0800
+	id S1161017AbXALHcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 02:32:01 -0500
+Date: Thu, 11 Jan 2007 23:31:57 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Jaya Kumar <jayakumar.lkml@gmail.com>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH/RFC 2.6.20-rc4 1/1] fbdev,mm: hecuba/E-Ink fbdev driver
-Message-Id: <20070111232522.491e57fb.akpm@osdl.org>
-In-Reply-To: <1168586145.26496.35.camel@twins>
-References: <20070111142427.GA1668@localhost>
-	<20070111133759.d17730a4.akpm@osdl.org>
-	<45a44e480701111622i32fffddcn3b4270d539620743@mail.gmail.com>
-	<1168586145.26496.35.camel@twins>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: avi@qumranet.com, yaniv@qumranet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.20-rc4-mm1 -- WARNING: "profile_hits"
+ [drivers/kvm/kvm-intel.ko] undefined!
+Message-Id: <20070111233157.01341bea.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0701112318r9472505m106cb7dd65c4c836@mail.gmail.com>
+References: <a44ae5cd0701112318r9472505m106cb7dd65c4c836@mail.gmail.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,9 +25,44 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 08:15:45 +0100
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+On Fri, 12 Jan 2007 01:18:17 -0600
+"Miles Lane" <miles.lane@gmail.com> wrote:
 
-> How about implementing the sync_page() aop?
+> WARNING: "profile_hits" [drivers/kvm/kvm-intel.ko] undefined!
 
-That got deleted in Jens's tree - the unplugging rework.
+This?
+
+From: Andrew Morton <akpm@osdl.org>
+
+export profile_hits() on !SMP too.
+
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Avi Kivity <avi@qumranet.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ kernel/profile.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN kernel/profile.c~kvm-add-vm-exit-profiling-fix kernel/profile.c
+--- a/kernel/profile.c~kvm-add-vm-exit-profiling-fix
++++ a/kernel/profile.c
+@@ -331,7 +331,6 @@ out:
+ 	local_irq_restore(flags);
+ 	put_cpu();
+ }
+-EXPORT_SYMBOL_GPL(profile_hits);
+ 
+ static int __devinit profile_cpu_callback(struct notifier_block *info,
+ 					unsigned long action, void *__cpu)
+@@ -401,6 +400,8 @@ void profile_hits(int type, void *__pc, 
+ }
+ #endif /* !CONFIG_SMP */
+ 
++EXPORT_SYMBOL_GPL(profile_hits);
++
+ void profile_tick(int type)
+ {
+ 	struct pt_regs *regs = get_irq_regs();
+_
+

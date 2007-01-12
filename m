@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750999AbXALMwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751051AbXALNGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbXALMwq (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 07:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbXALMwq
+	id S1751051AbXALNGV (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 08:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbXALNGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 07:52:46 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37703 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750999AbXALMwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 07:52:45 -0500
-Date: Fri, 12 Jan 2007 13:48:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] audit: fix audit_filter_user_rules() initialization bug
-Message-ID: <20070112124841.GA6970@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Jan 2007 08:06:20 -0500
+Received: from bill.weihenstephan.org ([82.135.35.21]:33555 "EHLO
+	bill.weihenstephan.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751051AbXALNGU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 08:06:20 -0500
+X-Greylist: delayed 1353 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 08:06:20 EST
+From: Juergen Beisert <juergen127@kreuzholzen.de>
+Organization: Privat
+To: linux-kernel@vger.kernel.org
+Subject: Kernel command line for a specific framebuffer console driver
+Date: Fri, 12 Jan 2007 13:43:42 +0100
+User-Agent: KMail/1.9.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Message-Id: <200701121343.43100.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Subject: [patch] audit: fix audit_filter_user_rules() initialization bug
+Hi,
 
-gcc emits this warning:
+does someone know how to forward a kernel command line option to configure the 
+AMD Geode GX1 framebuffer?
 
- kernel/auditfilter.c: In function 'audit_filter_user':
- kernel/auditfilter.c:1611: warning: 'state' is used uninitialized in this function
+I tried with "video=gx1fb:1024x768-16@60" but it does not work. On another 
+machine with an SIS framebuffer the line "video=sisfb:1280x1024-8@60" works 
+as expected.
 
-i tend to agree with gcc - there are a couple of plausible exit paths 
-from audit_filter_user_rules() where it does not set 'state', keeping 
-the variable uninitialized. For example if a filter rule has an 
-AUDIT_POSSIBLE action. Initialize to 'wont audit'. Fix whitespace damage 
-too.
+Any ideas?
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-Index: linux/kernel/auditfilter.c
-===================================================================
---- linux.orig/kernel/auditfilter.c
-+++ linux/kernel/auditfilter.c
-@@ -1601,8 +1601,8 @@ static int audit_filter_user_rules(struc
- 
- int audit_filter_user(struct netlink_skb_parms *cb, int type)
- {
-+	enum audit_state state = AUDIT_DISABLED;
- 	struct audit_entry *e;
--	enum audit_state   state;
- 	int ret = 1;
- 
- 	rcu_read_lock();
+Juergen

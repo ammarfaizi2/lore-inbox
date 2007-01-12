@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030316AbXALUp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030256AbXALUqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbXALUp6 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 15:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbXALUp6
+	id S1030256AbXALUqW (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 15:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbXALUqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 15:45:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52131 "EHLO mx1.redhat.com"
+	Fri, 12 Jan 2007 15:46:22 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:23748 "EHLO hobbit.corpit.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030197AbXALUp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 15:45:57 -0500
-Message-ID: <45A7F384.3050303@redhat.com>
-Date: Fri, 12 Jan 2007 14:45:56 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	id S1030256AbXALUqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 15:46:20 -0500
+Message-ID: <45A7F396.4080600@tls.msk.ru>
+Date: Fri, 12 Jan 2007 23:46:14 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>
-Subject: [PATCH] [RFC] remove ext3 inode from orphan list when link and unlink
- race
+To: Chris Mason <chris.mason@oracle.com>
+CC: Linus Torvalds <torvalds@osdl.org>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com>
+In-Reply-To: <20070112202316.GA28400@think.oraclecorp.com>
+X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=4F9CF57E
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been looking at a case where many threads are opening, unlinking, and
-hardlinking files on ext3 .  At unmount time I see an oops, because the superblock's
-orphan list points to a freed inode.
+Chris Mason wrote:
+[]
+> I recently spent some time trying to integrate O_DIRECT locking with
+> page cache locking.  The basic theory is that instead of using
+> semaphores for solving O_DIRECT vs buffered races, you put something
+> into the radix tree (I call it a placeholder) to keep the page cache
+> users out, and lock any existing pages that are present.
 
-I did some tracing of the inodes, and it looks like this:
+But seriously - what about just disallowing non-O_DIRECT opens together
+with O_DIRECT ones ?
 
-  ext3_unlink():[/src/linux-2.6.18/fs/ext3/namei.c:2123] adding orphan
-      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+If the thing will allow non-DIRECT READ-ONLY open, I personally see no
+problems whatsoever, at all.  If non-DIRECT READONLY open will be disallowed
+too, -- well, a bit less nice, but still workable (allowing online backup
+of database files opened in O_DIRECT mode using other tools such as `cp' --
+if non-direct opens aren't allowed, i'll switch to using dd or somesuch).
 
-  ext3_orphan_add():[/src/linux-2.6.18/fs/ext3/namei.c:1890] ext3_orphan_add
-      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+Yes there may be still a race between ftruncate() and reads (either direct
+or not), or when filling gaps by writing into places which were skipped
+by using ftruncate.  I don't know how serious those races are.
 
-  iput():[/src/linux-2.6.18/fs/inode.c:1139] iput enter
-      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+That to say - if the whole thing will be a bit more strict wrt allowing
+set of operations, races (or some of them, anyway) will just go away
+(and maybe it will work even better due to quite some code and lock
+contention removal), and maybe after that, Linus will like the whole
+thing a bit better... ;)
 
-  ext3_link():[/src/linux-2.6.18/fs/ext3/namei.c:2202] ext3_link enter
-      i_state:0x7 cpu:3 i_count:1 i_nlink:0
+After all the explanations, I still don't see anything wrong with the
+interface itself.  O_DIRECT isn't "different semantics" - we're still
+writing and reading some data.  Yes, O_DIRECT and non-O_DIRECT usages
+somewhat contradicts with each other, but there are other ways to make
+the two happy, instead of introducing alot of stupid, complex, and racy
+code all over.
 
-  ext3_inc_count():[/src/linux-2.6.18/fs/ext3/namei.c:1627] done
-      i_state:0x7 cpu:3 i_count:1 i_nlink:1
-
-The unlink gets there first, finds i_count > 0 (in use) but nlink goes to 0, so
-it puts it on the orphan inode list.  Then link comes along, and bumps the link
-back up to 1.  So now we are on the orphan inode list, but we are not unlinked.
-
-Eventually when count goes to 0, and we still have 1 link, again no action is
-taken to remove the inode from the orphan list, because it is still linked (i.e.
-we don't go through ext3_delete())
-
-When this inode is eventually freed, the sb orphan list gets corrupted, because 
-we have freed it without first removing it from the orphan list.
-
-I think the simple solution is to remove the inode from the orphan list
-when we bump the link back up from 0 to 1.  I put that test in there because
-there are other potential reasons that we might be on the list (truncates,
-direct IO).
-
-Comments?
-
-Thanks,
--Eric
-
-p.s. ext3_inc_count and ext3_dec_count seem misnamed, have an unused
-arg, and are very infrequently called.  I'll probably submit a patch
-to just put the single line of code into the caller, too.
-
----
-
-Remove inode from the orphan list in ext3_link() if we might have
-raced with ext3_unlink(), which potentially put it on the list.
-If we're on the list with nlink > 0, we'll never get cleaned up
-properly and eventually may corrupt the list.
-
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-
-Index: linux-2.6.19/fs/ext3/namei.c
-===================================================================
---- linux-2.6.19.orig/fs/ext3/namei.c
-+++ linux-2.6.19/fs/ext3/namei.c
-@@ -2204,6 +2204,9 @@ retry:
- 	inode->i_ctime = CURRENT_TIME_SEC;
- 	ext3_inc_count(handle, inode);
- 	atomic_inc(&inode->i_count);
-+	/* did we race w/ unlink? */
-+	if (inode->i_nlink == 1)
-+		ext3_orphan_del(handle, inode);
- 
- 	err = ext3_add_nondir(handle, dentry, inode);
- 	ext3_journal_stop(handle);
-
-
+/mjt

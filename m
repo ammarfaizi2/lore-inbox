@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161025AbXALHuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161027AbXALHy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161025AbXALHuX (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 02:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbXALHuX
+	id S1161027AbXALHy7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 02:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbXALHy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 02:50:23 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:48556 "EHLO
-	ausmtp05.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161025AbXALHuU (ORCPT
+	Fri, 12 Jan 2007 02:54:59 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:34114 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161027AbXALHy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 02:50:20 -0500
-Message-ID: <45A72AE0.9010209@in.ibm.com>
-Date: Fri, 12 Jan 2007 11:59:52 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
+	Fri, 12 Jan 2007 02:54:58 -0500
+Message-ID: <45A73E90.7050805@bull.net>
+Date: Fri, 12 Jan 2007 08:53:52 +0100
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: vatsa@in.ibm.com, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, xemul@sw.ru, dev@sw.ru,
-       containers@lists.osdl.org, pj@sgi.com, mbligh@google.com,
-       winget@google.com, rohitseth@google.com, serue@us.ibm.com,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 3/6] containers: Add generic multi-subsystem
- API to containers
-References: <20061222141442.753211763@menage.corp.google.com> <20061222145216.574346828@menage.corp.google.com> <45A50CA5.6070101@in.ibm.com> <6599ad830701111453t62bec38cl9534263002f48a15@mail.gmail.com>
-In-Reply-To: <6599ad830701111453t62bec38cl9534263002f48a15@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
+References: <45A3BFAC.1030700@bull.net>	<45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org>
+In-Reply-To: <20070111134615.34902742.akpm@osdl.org>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/01/2007 09:03:07,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/01/2007 09:03:08,
+	Serialize complete at 12/01/2007 09:03:08
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-> On 1/10/07, Balbir Singh <balbir@in.ibm.com> wrote:
->> Paul Menage wrote:
->>> +/* The set of hierarchies in use. Hierarchy 0 is the "dummy
->>> + * container", reserved for the subsystems that are otherwise
->>> + * unattached - it never has more than a single container, and all
->>> + * tasks are part of that container. */
->>> +
->>> +static struct containerfs_root rootnode[CONFIG_MAX_CONTAINER_HIERARCHIES];
->>> +
->>> +/* dummytop is a shorthand for the dummy hierarchy's top container */
->>> +#define dummytop (&rootnode[0].top_container)
->>> +
->> With these changes, is there a generic way to determine the root container
->> for the hierarchy the subsystem is in? Calls to ->create() pass the dummytop
->> container.
-> 
-> There are two places that the subsystem create() function is called -
-> the first is during the subsystem registration, to create the
-> subsystem state for the root container. That one passes in dummytop
-> since that is the container that all subsystems start attached to.
-> 
+Andrew Morton a écrit :
+ > OK.  Unfortunately patches 2-4 don't apply without #1 present and the fix
+ > is not immediately obvious, so we'll need a respin+retest, please.
 
-Yes, I saw that.
+Ok, I'll provide updated patches for -mm ASAP.
 
-> For clarification, the default (dummy) hierarchy is a placeholder for
-> subsystems that aren't bound to a hierarchy. It always contains
-> exactly one container (dummytop) and all processes are members of that
-> container. It isn't reference-counted, since it can never go away, and
-> it can never have any subcontainers.
-> 
-> When a real subcontainer is created (which must be after a subsystem
-> has been bound to a hierarchy via a filesystem mount), the new
-> subcontainer is passed in. From there you can follow the top_container
-> field in the subcontainer, which leads to the root of the hierarchy.
-> 
-> Andrew has suggested that I need to document this better :-)
-> 
+> On Thu, 11 Jan 2007 09:47:28 -0800
+> Ulrich Drepper <drepper@redhat.com> wrote:
 
-One of things I was trying to do with cpu_acct was to actually calculate
-the % load over a defined interval. I have the patch for that ready.
-When the interval ticks over (which happens in interrupt context -
-account_xxxxx_time()), I want to reset the load of child containers
-to 0. To walk the hierarchy, I have no root now since I do not have
-any task context. I was wondering if exporting the rootnode or providing
-a function to export the rootnode of the mounter hierarchy will make
-programming easier.
+>> if the patches allow this, I'd like to see parts 2, 3, and 4 to be in
+>> -mm ASAP.  Especially the 64-bit variants are urgently needed.  Just
+>> hold off adding the plist use, I am still not convinced that
+>> unconditional use is a good thing, especially with one single global list.
 
-Something like
+Just to avoid any misunderstanding (I (really) understand your point about 
+performance issue), but:
 
-struct container *get_root_container(struct container_subsys *ss)
-{
-	return &rootnode[ss->hierarchy];
-}
+* the problem I mention about several futexes hashed on the same key, and thus 
+with all potential waiters listed on the same list, is _not_ a new problem which 
+comes with this patch: it already exists today, with simple list.
 
-> Paul
-> 
+* the measures of performance done with pthread_broadcast (and thus with 
+futex_requeue) is a good choice (well, may be not realistic, when considering 
+real applications (*)) to put in evidence the performance impact, rather than 
+threads making FUTEX_WAIT/FUTEX_WAKE: what is expensive with plist is the 
+plist_add operation (which occurs in FUTEX_WAIT), not plist_del (which occurs 
+during FUTEX_WAKE => thus, no big impact should be noticed here). Any measure 
+will be difficult to do with only FUTEX_WAIT/WAKE.
+
+=> futex_requeue does as many plist_del/plist_add operations as the number of 
+threads waiting (minus 1), and thus has a direct impact on the time needed to 
+wake everybody (or to wake the first thread to be more precise).
+
+(*) I'll try the volano bench, if I have time.
 
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Pierre

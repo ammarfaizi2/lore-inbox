@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932247AbXALRD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932292AbXALREj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbXALRD3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 12:03:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbXALRD3
+	id S932292AbXALREj (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 12:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbXALREj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 12:03:29 -0500
-Received: from mx33.mail.ru ([194.67.23.194]:1067 "EHLO mx33.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932247AbXALRD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 12:03:28 -0500
-Message-ID: <45A7BF53.2090006@inbox.ru>
-Date: Fri, 12 Jan 2007 20:03:15 +0300
-From: Viktor <vvp01@inbox.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060212 Fedora/1.7.12-5
-X-Accept-Language: en-us, ru, en
+	Fri, 12 Jan 2007 12:04:39 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:58647 "EHLO
+	mis011-1.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932292AbXALREj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 12:04:39 -0500
+Message-ID: <45A7BF9F.5090508@qumranet.com>
+Date: Fri, 12 Jan 2007 19:04:31 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>  <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>  <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org>  <45A5D4A7.7020202@yahoo.com.au>  <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org> <1168534362.7365.3.camel@bip.parateam.prv> <Pine.LNX.4.64.0701110900090.3594@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701110900090.3594@woody.osdl.org>
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: kvm & dyntick
+References: <45A66106.5030608@qumranet.com> <20070112062006.GA32714@elte.hu> <20070112101931.GA11635@elte.hu>
+In-Reply-To: <20070112101931.GA11635@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jan 2007 17:04:37.0767 (UTC) FILETIME=[BDD60970:01C7366B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->>>>O_DIRECT is still crazily racy versus pagecache operations.
->>>
->>>Yes. O_DIRECT is really fundamentally broken. There's just no way to fix 
->>>it sanely.
->>
->>How about aliasing O_DIRECT to POSIX_FADV_NOREUSE (sortof) ?
-> 
-> 
-> That is what I think some users could do. If the main issue with O_DIRECT 
-> is the page cache allocations, if we instead had better (read: "any") 
-> support for POSIX_FADV_NOREUSE, one class of reasons O_DIRECT usage would 
-> just go away.
-> 
-> See also the patch that Roy Huang posted about another approach to the 
-> same problem: just limiting page cache usage explicitly.
-> 
-> That's not the _only_ issue with O_DIRECT, though. It's one big one, but 
-> people like to think that the memory copy makes a difference when you do 
-> IO too (I think it's likely pretty debatable in real life, but I'm totally 
-> certain you can benchmark it, probably even pretty easily especially if 
-> you have fairly studly IO capabilities and a CPU that isn't quite as 
-> studly).
-> 
-> So POSIX_FADV_NOREUSE kind of support is one _part_ of the O_DIRECT 
-> picture, and depending on your problems (in this case, the embedded world) 
-> it may even be the *biggest* part. But it's not the whole picture.
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+>   
+>>> dyntick-enabled guest:
+>>> - reduce the load on the host when the guest is idling
+>>>   (currently an idle guest consumes a few percent cpu)
+>>>       
+>> yeah. KVM under -rt already works with dynticks enabled on both the 
+>> host and the guest. (but it's more optimal to use a dedicated 
+>> hypercall to set the next guest-interrupt)
+>>     
+>
+> using the dynticks code from the -rt kernel makes the overhead of an 
+> idle guest go down by a factor of 10-15:
+>
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>  2556 mingo     15   0  598m 159m 157m R  1.5  8.0   0:26.20 qemu
+>
+>   
 
->From 2.6.19 sources it looks like POSIX_FADV_NOREUSE is no-op there
+As usual, great news.
 
-> 		Linus
+> ( for this to work on my system i have added a 'hyper' clocksource 
+>   hypercall API for KVM guests to use - this is needed instead of the 
+>   running-to-slowly TSC. )
+>   
+
+What's the problem with the TSC?  The only issue I'm aware of is that 
+the tsc might go backwards if the vcpu is migrated to another host cpu 
+(easily fixed).
+
+A pv clocksource makes sense in any case.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

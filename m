@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751612AbXALFKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751614AbXALFPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbXALFKa (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 00:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbXALFKa
+	id S1751614AbXALFPE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 00:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbXALFPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 00:10:30 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:26817 "HELO
-	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751609AbXALFK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 00:10:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=wOT2tJB75dcz1QPxYFSl/0QiogvhAhaiscRNXRyaTR3d+CHOHD+XLYKV1fu1aaqJ5PoWybR4/E3CnD8dQeQ4l0ZKjNC07xvq5izAEHbXtqv08IF7MoC971kNt5DuPmNpSf46ooewL+IlHYHSQQO9v38xrojT/fYMWMbQTDQ40Bk=  ;
-X-YMail-OSG: TwDpp8YVM1lYvbG48BIyLBdjKUslwJWBgyk0AdHdgdgQnVffVjNiQYtSHw2QRoVQHibCKHZl1eVCzN1f6RiTRTKZx_BNTqwLB542ESZZhOvwNnD2hTYl.eQQEmGZrCAw1hhi6zyjV50L5BSgFu3sznuQQGeD_glzDQ--
-Message-ID: <45A71827.6020300@yahoo.com.au>
-Date: Fri, 12 Jan 2007 16:09:59 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 05/05] Linux Kernel Markers, non optimised architectures
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca> <11685601404005-git-send-email-mathieu.desnoyers@polymtl.ca> <45A710F8.7000405@yahoo.com.au> <20070112050032.GA14100@Krystal>
-In-Reply-To: <20070112050032.GA14100@Krystal>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Jan 2007 00:15:04 -0500
+Received: from mail.ggsys.net ([69.26.161.131]:56840 "EHLO mail.ggsys.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751614AbXALFPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 00:15:03 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 00:15:03 EST
+Subject: Ext3 mounted as ext2 but journal still in effect.
+From: Alberto Alonso <alberto@ggsys.net>
+To: linux-kernel@vger.kernel.org
+Cc: Alberto Alonso <alberto@ggsys.net>
+Content-Type: text/plain
+Organization: Global Gate Systems LLC.
+Date: Thu, 11 Jan 2007 23:08:16 -0600
+Message-Id: <1168578496.9707.6.camel@w100>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> * Nick Piggin (nickpiggin@yahoo.com.au) wrote:
-> 
->>Mathieu Desnoyers wrote:
->>
->>
->>>+#define MARK(name, format, args...) \
->>>+	do { \
->>>+		static marker_probe_func *__mark_call_##name = \
->>>+					__mark_empty_function; \
->>>+		volatile static char __marker_enable_##name = 0; \
->>>+		static const struct __mark_marker_c __mark_c_##name \
->>>+			__attribute__((section(".markers.c"))) = \
->>>+			{ #name, &__mark_call_##name, format } ; \
->>>+		static const struct __mark_marker __mark_##name \
->>>+			__attribute__((section(".markers"))) = \
->>>+			{ &__mark_c_##name, &__marker_enable_##name } ; \
->>>+		asm volatile ( "" : : "i" (&__mark_##name)); \
->>>+		__mark_check_format(format, ## args); \
->>>+		if (unlikely(__marker_enable_##name)) { \
->>>+			preempt_disable(); \
->>>+			(*__mark_call_##name)(format, ## args); \
->>>+			preempt_enable_no_resched(); \
->>
->>Why not just preempt_enable() here?
->>
-> 
-> 
-> Because the preempt_enable() macro contains preempt_check_resched(), which
-> may call preempt_schedule() which leads us to a call to schedule(). Therefore,
-> all those very interesting scheduler functions would cause an infinite
-> recursive scheduler call if we marked schedule() and used preempt_enable() in
-> the marker.
+I have an ext3 filesystem that has been having problems
+with its journal. The result is that the file system
+remounts internally as read-only and the server becomes
+unusable, even shutdown does not work, using up 100% of
+the CPU but not rebooting.
 
-The vast majority of schedule() has preempt turned off, so that shouldn't
-be a problem, if you provide a comment.
+I found some postings indicating that mounting it as
+ext2 should fix the problem, as it doesn't appear to be
+a hardware issue.
 
-> The primary goal for the markers (and the probes that attaches to them) is to
-> have the fewest side-effects possible : any kernel method called from an
-> instrumentation site adds this precise kernel method to the "cannot be
-> instrumented" list, which I want to keep as small possible.
+So, I decided to mount everything as ext2. Mount shows this:
 
-OK, well one problem is that it can cause a resched event to be lost, so
-you might say it has more side-effects without checking resched.
+# mount
+/dev/hda2 on / type ext2 (rw,usrquota)
+none on /proc type proc (rw)
+none on /sys type sysfs (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+usbfs on /proc/bus/usb type usbfs (rw)
+/dev/hda1 on /boot type ext2 (rw)
+none on /dev/shm type tmpfs (rw,noexec)
+none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+
+But now I still get the error:
+
+# dmesg
+[...]
+EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+[...]
+
+
+The kernel is:
+
+# uname -a
+Linux hyperweb.net 2.6.5-1.358smp #1 SMP Sat May 8 09:25:36 EDT 2004
+i686 i686 i386 GNU/Linux
+
+
+Any ideas?
+
+Thanks,
+
+Alberto
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Alberto Alonso                        Global Gate Systems LLC.
+(512) 351-7233                        http://www.ggsys.net
+Hardware, consulting, sysadmin, monitoring and remote backups
+

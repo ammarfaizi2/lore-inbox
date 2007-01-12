@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161136AbXALXNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161160AbXALXVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161136AbXALXNV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 18:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbXALXNV
+	id S1161160AbXALXVO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 18:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbXALXVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 18:13:21 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:16672 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161136AbXALXNU (ORCPT
+	Fri, 12 Jan 2007 18:21:14 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:38778 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161160AbXALXVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 18:13:20 -0500
+	Fri, 12 Jan 2007 18:21:13 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=rSEpGuJv0opkbWSSZblyMGArwVz0fWjlRx9rBCZWaIyUjtwd4JXjy9imOxTtnGi0s6BatD3OXYKnLLznlQAySrduG5Ngo8GV24co8P4iUm9ZjremRJT9JbyL6G9lJKjS3zI4ex07r5hLM0mnILrP7fXIsrgmqRHf4vJYWmHwIJE=
-Date: Fri, 12 Jan 2007 23:10:15 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Len Brown <lenb@kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rui.zhang@intel.com, michal.k.k.piotrowski@gmail.com
-Subject: Re: Early ACPI lockup (was Re: 2.6.20-rc4-mm1)
-Message-ID: <20070112231015.GI5941@slug>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <20070112102040.GD5941@slug> <200701121753.08710.lenb@kernel.org>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bCk6sQ2+FT7H7lrhPIFcF+43CiRtHCqEvCxs1elUtg3v4O012yt7gF1tKLxXqL1ZgtQjTfivxhb9488YwvoJ0N4E3sySqWu4685sEKqgMatIcku6FbIuPVAQYIYptNUiMGKI9wUVcolqaHLtA120RzEW+d634OoIPtSvLWXs0bo=
+Message-ID: <8355959a0701121521h47acde7cy5f4661bb283ae782@mail.gmail.com>
+Date: Sat, 13 Jan 2007 04:51:11 +0530
+From: "Sunil Naidu" <akula2.shark@gmail.com>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Subject: Re: Choosing a HyperThreading/SMP/MultiCore kernel ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20070112150349.GI17269@csclub.uwaterloo.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200701121753.08710.lenb@kernel.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+References: <8355959a0701120525m5d1a7904i56b8a8f7316883d6@mail.gmail.com>
+	 <20070112150349.GI17269@csclub.uwaterloo.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 05:53:08PM -0500, Len Brown wrote:
-> On Friday 12 January 2007 05:20, Frederik Deweerdt wrote:
-> > On Thu, Jan 11, 2007 at 10:26:27PM -0800, Andrew Morton wrote:
-> > > 
-> > >   ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc4-mm1/
-> > > 
-> > Hi,
-> > 
-> > The git-acpi.patch replaces earlier "if(!handler) return -EINVAL" by
-> > "BUG_ON(!handler)". This locks my machine early at boot with a message
-> > along the lines of (It's hand copied):
-> > Int 6: cr2: 00000000 eip: c0570e05 flags: 00010046 cs: 60
-> > stack: c054ffac c011db2b c04936d0 c054ff68 c054ffc0 c054fff4 c057da2c
-> > 
-> > Reverting the change as follows, allows booting:
-> > Any ideas to debug this further?
-> 
-> 
-> > diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-> > index db0c5f6..fba018c 100644
-> > --- a/drivers/acpi/tables.c
-> > +++ b/drivers/acpi/tables.c
-> > @@ -414,7 +414,9 @@ int __init acpi_table_parse(enum acpi_ta
-> >  	unsigned int index;
-> >  	unsigned int count = 0;
-> >  
-> > -	BUG_ON(!handler);
-> > +	if (!handler)
-> > +		return -EINVAL;
-> > +	/*BUG_ON(!handler);*/
-> >  
-> >  	for (i = 0; i < sdt_count; i++) {
-> >  		if (sdt_entry[i].id != id)
-> 
-> What do you see if on failure you also print out the params, like below?
-> 
-I'm sorry, I might not be able to try it until monday. Michal reported
-a similar problem though, adding him to CC list.
+On 1/12/07, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+>
+> I would expect any distribution should work on these (as long as the
+> kernel they use isn't too old.).  Of course if it is a Mac, you need a
+> distribution that supports their firmware (which is of course not a PC
+> bios).  As long as you can boot it, any i386 or amd64 kernel with smp
+> enabled should use all the processors present (well amd64 on the
+> core2duo and on the p4 if it is em64t enabled).
 
-Regards,
-Frederik
+It is not a Mac here, IBM Workstation. I can see the Processor as
+Pentium 4 CPU 3. GHz (family 15, model 4). How to know EM64T enabled,
+any command?
 
-> thanks,
-> -Len
-> 
-> diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-> index 3fce3db..e2d08a5 100644
-> --- a/drivers/acpi/tables.c
-> +++ b/drivers/acpi/tables.c
-> @@ -415,7 +415,12 @@ int __init acpi_table_parse(enum acpi_table_id id, acpi_table_handler handler)
->  	unsigned int index = 0;
->  	unsigned int count = 0;
->  
-> -	BUG_ON(!handler);
-> +	if (!handler) {
-> +		printk(KERN_WARNING PREFIX
-> +			"acpi_table_parse(%d, %p) %s NULL handler!\n",
-> +			id, handler, acpi_table_signatures[id]);
-> +		return -EINVAL;
-> +	}
->  
->  	for (i = 0; i < sdt_count; i++) {
->  		if (sdt_entry[i].id != id)
-> 
-> 
-> 
+Trying to understand, should I set CPUSETS=y and SCHED_MC=y Or ignore them.
+
+> I believe the closest optimization for a Core2 is probably the Pentium M
+> (certainly not the P4/netburst).  Not entirely sure though.
+>
+
+Yep, this ia a MacBookPro. I have decided about the distro. I did ask
+this doubt when I got for the custom kernel compilation from source
+after installation.
+
+What I have seen in KConfig is, MPENTIUM4 used for the Xeon processor
+too. I would try this soon on my Laptop (with SMP since it's a
+Core2Duo). Anyway, shall post here.
+
+> --
+> Len Sorensen
+
+Thanks,
+
+~Sunil

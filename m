@@ -1,77 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030488AbXALFWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030480AbXALFZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbXALFWR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 00:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160997AbXALFWR
+	id S1030480AbXALFZx (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 00:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbXALFZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 00:22:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:24239 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030488AbXALFWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 00:22:16 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f0i3iLv1IJ/Dmk8LAA0jGViOkOz78Xph4RxG4+nHJ564H6WlDrIKBxImsy4cpPXIxk3aQKPZShMcu2164qziauuspAXqcSozpeGHIvsghvra99Ou92YJMWYZulrcPdvnw74kMXCRcPIlJgw46Rin6pcCuGR1Lj+ppRXqcQuGOlI=
-Message-ID: <6d6a94c50701112122l66a4866bg548009dddb806434@mail.gmail.com>
-Date: Fri, 12 Jan 2007 13:22:03 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: O_DIRECT question
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Bill Davidsen" <davidsen@tmr.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Hua Zhong" <hzhong@gmail.com>,
-       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-In-Reply-To: <45A714F8.6020600@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 Jan 2007 00:25:53 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:34020 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030480AbXALFZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 00:25:53 -0500
+Date: Thu, 11 Jan 2007 21:25:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alberto Alonso <alberto@ggsys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 mounted as ext2 but journal still in effect.
+Message-Id: <20070111212545.efd5d8c5.akpm@osdl.org>
+In-Reply-To: <1168578496.9707.6.camel@w100>
+References: <1168578496.9707.6.camel@w100>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
-	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
-	 <20070110225720.7a46e702.akpm@osdl.org>
-	 <45A5E1B2.2050908@yahoo.com.au>
-	 <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
-	 <45A5F157.9030001@yahoo.com.au> <45A6F70E.1050902@tmr.com>
-	 <45A70EF9.40408@yahoo.com.au>
-	 <Pine.LNX.4.64.0701112044070.3594@woody.osdl.org>
-	 <45A714F8.6020600@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Linus Torvalds wrote:
-> >
-> > On Fri, 12 Jan 2007, Nick Piggin wrote:
-> >
-> >>We are talking about about fragmentation. And limiting pagecache to try to
-> >>avoid fragmentation is a bandaid, especially when the problem can be solved
-> >>(not just papered over, but solved) in userspace.
-> >
-> >
-> > It's not clear that the problem _can_ be solved in user space.
-> >
-> > It's easy enough to say "never allocate more than a page". But it's often
-> > not REALISTIC.
->  >
-> > Very basic issue: the perfect is the enemy of the good. Claiming that
-> > there is a "proper solution" is usually a total red herring. Quite often
-> > there isn't, and the "paper over" is actually not papering over, it's
-> > quite possibly the best solution there is.
->
-> Yeah *smallish* higher order allocations are fine, and we use them all the
-> time for things like stacks or networking.
->
-> But Aubrey (who somehow got removed from the cc list) wants to do order 9
-> allocations from userspace in his nommu environment. I'm just trying to be
-> realistic when I say that this isn't going to be robust and a userspace
-> solution is needed.
->
-Hmm..., aside from big order allocations from user space, if there is
-a large application we need to run, it should be loaded into the
-memory, so we have to allocate a big block to accommodate it. kernel
-fun like load_elf_fdpic_binary() etc will request contiguous memory,
-then if vfs eat up free memory, loading fails.
+On Thu, 11 Jan 2007 23:08:16 -0600
+Alberto Alonso <alberto@ggsys.net> wrote:
 
--Aubrey
+> I have an ext3 filesystem that has been having problems
+> with its journal. The result is that the file system
+> remounts internally as read-only and the server becomes
+> unusable, even shutdown does not work, using up 100% of
+> the CPU but not rebooting.
+> 
+> I found some postings indicating that mounting it as
+> ext2 should fix the problem, as it doesn't appear to be
+> a hardware issue.
+> 
+> So, I decided to mount everything as ext2. Mount shows this:
+> 
+> # mount
+> /dev/hda2 on / type ext2 (rw,usrquota)
+> none on /proc type proc (rw)
+> none on /sys type sysfs (rw)
+> none on /dev/pts type devpts (rw,gid=5,mode=620)
+> usbfs on /proc/bus/usb type usbfs (rw)
+> /dev/hda1 on /boot type ext2 (rw)
+> none on /dev/shm type tmpfs (rw,noexec)
+> none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+> sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+> 
+> But now I still get the error:
+> 
+> # dmesg
+> [...]
+> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+> EXT3-fs error (device hda2) in start_transaction: Journal has aborted
+> [...]
+> 
+> 
+> The kernel is:
+> 
+> # uname -a
+> Linux hyperweb.net 2.6.5-1.358smp #1 SMP Sat May 8 09:25:36 EDT 2004
+> i686 i686 i386 GNU/Linux
+> 
+> 
+> Any ideas?
+> 
+
+mount(8) tells lies.  Look in /proc/mounts and you'll see that it's really
+mounted as ext3.
+
+You probably want to add `rootfstype=ext2' to the kernel boot command line.
+

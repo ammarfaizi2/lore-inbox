@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751002AbXALOTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751194AbXALOUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbXALOTq (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 09:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbXALOTq
+	id S1751194AbXALOUP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 09:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbXALOUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 09:19:46 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:40329 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750985AbXALOTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 09:19:45 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CKydVQW3BUD1rG9b0LLC7zVyCdNsOKtNaJc96MsVZsiKwhTVYBhMTWCObPof02ZwwlOqQLAX/RMM/1KPOXOezE/nw/NGsG3yRMPAkd40hzQ1Xfrjq6FSCQv3dw1a1061CE4dwameYPFoM0aDwmh0nVt1DYx8bfPBNczwyoF46eM=
-Message-ID: <58cb370e0701120619v27ca51dek48154136e54defd5@mail.gmail.com>
-Date: Fri, 12 Jan 2007 15:19:43 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 19/19] ide: use PIO/MMIO operations directly where possible
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20070112100641.02858876@localhost.localdomain>
+	Fri, 12 Jan 2007 09:20:14 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:43333 "EHLO cs.columbia.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751167AbXALOUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 09:20:12 -0500
+Message-ID: <45A79862.5060303@cs.columbia.edu>
+Date: Fri, 12 Jan 2007 09:17:06 -0500
+From: Shaya Potter <spotter@cs.columbia.edu>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070102)
 MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>, Jan Kara <jack@suse.cz>,
+       Josef Sipek <jsipek@fsl.cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       mhalcrow@us.ibm.com, David Quigley <dquigley@fsl.cs.sunysb.edu>,
+       Erez Zadok <ezk@cs.sunysb.edu>
+Subject: Re: unionfs unusable on multiuser systems (was Re: [PATCH 01/24]
+ Unionfs: Documentation)
+References: <1168229596580-git-send-email-jsipek@cs.sunysb.edu> <1168229596875-git-send-email-jsipek@cs.sunysb.edu> <20070108111852.ee156a90.akpm@osdl.org> <20070108231524.GA1269@filer.fsl.cs.sunysb.edu> <20070109121552.GA1260@atrey.karlin.mff.cuni.cz> <1168360219.6054.14.camel@lade.trondhjem.org> <20070111142956.GA6843@ucw.cz>
+In-Reply-To: <20070111142956.GA6843@ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
-	 <20070112042807.28794.8251.sendpatchset@localhost.localdomain>
-	 <20070112100641.02858876@localhost.localdomain>
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter1.cs.columbia.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/07, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> On Fri, 12 Jan 2007 05:28:07 +0100
-> Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
->
-> > [PATCH] ide: use PIO/MMIO operations directly where possible
-> >
-> > This results in smaller/faster/simpler code and allows future optimizations.
-> > Also remove no longer needed ide[_mm]_{inl,outl}() and ide_hwif_t.{INL,OUTL}.
-> >
-> > Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
->
-> > --- a.orig/drivers/ide/ide-dma.c
-> > +++ a/drivers/ide/ide-dma.c
-> > @@ -565,7 +565,10 @@ int ide_dma_setup(ide_drive_t *drive)
-> >       }
-> >
-> >       /* PRD table */
-> > -     hwif->OUTL(hwif->dmatable_dma, hwif->dma_prdtable);
-> > +     if (hwif->mmio == 2)
-> > +             writel(hwif->dmatable_dma, (void __iomem *)hwif->dma_prdtable);
-> > +     else
-> > +             outl(hwif->dmatable_dma, hwif->dma_prdtable);
->
->
-> This should simply be if (hwif->mmio)
->
-> mmio = 1 is still used by some amiga and other oddments and indicates
-> mmio in old form. I don't think this causes a bug as they don't use the
-> DMA layer, but its a bug waiting to happen if the mmio==1 case doesn't
-> get handled correctly or BUG()
 
-mmio = 1 isn't used in the current IDE code and we have BUG_ON()
-for it in ide.c:ide_hwif_request_regions() so the above change is safe.
 
-Anyway thanks for bringing mmio = 1 issue - it can be converted
-to flag now (will let us avoid similar confusions in the future).
+Pavel Machek wrote:
+> Hi!
+> 
+>>>> That statement is meant to scare people away from modifying the lower fs :)
+>>>> I tortured unionfs quite a bit, and it can oops but it takes some effort.
+>>>   But isn't it then potential DOS? If you happen to union two filesystems
+>>> and an untrusted user has write access to both original filesystem and
+>>> the union, then you say he'd be able to produce oops? That does not
+>>> sound very secure to me... And if any secure use of unionfs requires
+>>> limitting access to the original trees, then I think it's a good reason
+>>> to implement it in unionfs itself. Just my 2 cents.
+>> You mean somebody like, say, a perfectly innocent process working on the
+>> NFS server or some other client that is oblivious to the existence of
+>> unionfs stacks on your particular machine?
+>> To me, this has always sounded like a showstopper for using unionfs with
+>> a remote filesystem.
+> 
+> Actually, it is worse than that. find / (and updatedb) *will* write to
+> all the filesystems (atime).
+> 
+> Expecting sysadmins to know/prevent this seems like expecting quite a
+> lot from them. Sounds like a show stopper to me :-(....
 
-Bart
+a modified atime will not affect unionfs at all (at least from my 
+experience)

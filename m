@@ -1,128 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161005AbXALG5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161014AbXALHRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbXALG5F (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 01:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbXALG5F
+	id S1161014AbXALHRJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 02:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbXALHRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 01:57:05 -0500
-Received: from mail.ggsys.net ([69.26.161.131]:56960 "EHLO mail.ggsys.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161010AbXALG5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 01:57:04 -0500
-Subject: Re: Ext3 mounted as ext2 but journal still in effect.
-From: Alberto Alonso <alberto@ggsys.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070111212545.efd5d8c5.akpm@osdl.org>
-References: <1168578496.9707.6.camel@w100>
-	 <20070111212545.efd5d8c5.akpm@osdl.org>
+	Fri, 12 Jan 2007 02:17:09 -0500
+Received: from amsfep16-int.chello.nl ([62.179.120.11]:45379 "EHLO
+	amsfep16-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161014AbXALHRI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 02:17:08 -0500
+Subject: Re: [PATCH/RFC 2.6.20-rc4 1/1] fbdev,mm: hecuba/E-Ink fbdev driver
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Jaya Kumar <jayakumar.lkml@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <45a44e480701111622i32fffddcn3b4270d539620743@mail.gmail.com>
+References: <20070111142427.GA1668@localhost>
+	 <20070111133759.d17730a4.akpm@osdl.org>
+	 <45a44e480701111622i32fffddcn3b4270d539620743@mail.gmail.com>
 Content-Type: text/plain
-Organization: Global Gate Systems LLC.
-Date: Fri, 12 Jan 2007 00:57:01 -0600
-Message-Id: <1168585021.9707.25.camel@w100>
+Date: Fri, 12 Jan 2007 08:15:45 +0100
+Message-Id: <1168586145.26496.35.camel@twins>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You were right, even after making the changes, it seems to be 
-telling lies:
+On Thu, 2007-01-11 at 19:22 -0500, Jaya Kumar wrote:
 
-# mount
-/dev/hda2 on / type ext2 (rw,usrquota)
-[...]
+> Agreed. Though I may be misunderstanding what you mean by first-touch.
+> Currently, I do a schedule_delayed_work and leave 1s between when the
+> page_mkwrite callback indicating the first touch is received and when
+> the deferred IO is processed to actually deliver the data to the
+> display. I picked 1s because it rounds up the display latency. I
+> imagine increasing the delay further may make it miss some desirable
+> display activity. For example, a slider indicating progress of music
+> may be slower than optimal. Perhaps I should make the delay a module
+> parameter and leave the choice to the user?
 
-However, I think I am still not mounting as ext2:
+How about implementing the sync_page() aop? Then you could force the
+flush using msync(MS_SYNC). 
 
-# dmesg | grep 'Kernel command'
-Kernel command line: ro root=/dev/hda2 rootfstype=ext2
-
-# cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw 0 0
-/proc /proc proc rw,nodiratime 0 0
-/sys /sys sysfs rw 0 0
-none /dev/pts devpts rw 0 0
-usbfs /proc/bus/usb usbfs rw 0 0
-/dev/hda1 /boot ext2 rw 0 0
-none /dev/shm tmpfs rw,noexec 0 0
-none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
-sunrpc /var/lib/nfs/rpc_pipefs rpc_pipefs rw 0 0
-
-Do I need to mess with the initrd? My grub lines look like
-this:
-
-title Fedora Core (2.6.5-1.358smp)
-        root (hd0,0)
-        kernel /vmlinuz-2.6.5-1.358smp ro root=/dev/hda2 rootfstype=ext2
-        initrd /initrd-2.6.5-1.358smp.img
-title Fedora Core-up (2.6.5-1.358)
-        root (hd0,0)
-        kernel /vmlinuz-2.6.5-1.358 ro root=/dev/hda2 rootfstype=ext2
-        initrd /initrd-2.6.5-1.358.img
-
-
-Thanks,
-
-Alberto
-
-
-On Thu, 2007-01-11 at 21:25 -0800, Andrew Morton wrote:
-> On Thu, 11 Jan 2007 23:08:16 -0600
-> Alberto Alonso <alberto@ggsys.net> wrote:
-> 
-> > I have an ext3 filesystem that has been having problems
-> > with its journal. The result is that the file system
-> > remounts internally as read-only and the server becomes
-> > unusable, even shutdown does not work, using up 100% of
-> > the CPU but not rebooting.
-> > 
-> > I found some postings indicating that mounting it as
-> > ext2 should fix the problem, as it doesn't appear to be
-> > a hardware issue.
-> > 
-> > So, I decided to mount everything as ext2. Mount shows this:
-> > 
-> > # mount
-> > /dev/hda2 on / type ext2 (rw,usrquota)
-> > none on /proc type proc (rw)
-> > none on /sys type sysfs (rw)
-> > none on /dev/pts type devpts (rw,gid=5,mode=620)
-> > usbfs on /proc/bus/usb type usbfs (rw)
-> > /dev/hda1 on /boot type ext2 (rw)
-> > none on /dev/shm type tmpfs (rw,noexec)
-> > none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
-> > sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
-> > 
-> > But now I still get the error:
-> > 
-> > # dmesg
-> > [...]
-> > EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> > EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> > EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> > EXT3-fs error (device hda2) in start_transaction: Journal has aborted
-> > [...]
-> > 
-> > 
-> > The kernel is:
-> > 
-> > # uname -a
-> > Linux hyperweb.net 2.6.5-1.358smp #1 SMP Sat May 8 09:25:36 EDT 2004
-> > i686 i686 i386 GNU/Linux
-> > 
-> > 
-> > Any ideas?
-> > 
-> 
-> mount(8) tells lies.  Look in /proc/mounts and you'll see that it's really
-> mounted as ext3.
-> 
-> You probably want to add `rootfstype=ext2' to the kernel boot command line.
-> 
--- 
-Alberto Alonso                        Global Gate Systems LLC.
-(512) 351-7233                        http://www.ggsys.net
-Hardware, consulting, sysadmin, monitoring and remote backups
+Hmm... that might require more surgery but the idea would work I think.
 

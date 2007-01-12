@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751561AbXALBgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751566AbXALBku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751561AbXALBgS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 20:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751567AbXALBgR
+	id S1751566AbXALBku (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 20:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbXALBkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 20:36:17 -0500
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:37422 "EHLO
-	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751563AbXALBfs (ORCPT
+	Thu, 11 Jan 2007 20:40:49 -0500
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:60853 "EHLO
+	tomts22-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751564AbXALBkt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 20:35:48 -0500
+	Thu, 11 Jan 2007 20:40:49 -0500
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,84 +19,200 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        "Martin J. Bligh" <mbligh@mbligh.org>,
        Thomas Gleixner <tglx@linutronix.de>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Subject: [PATCH 09/09] atomic.h : Add atomic64 cmpxchg, xchg and add_unless to x86_64
-Date: Thu, 11 Jan 2007 20:35:41 -0500
-Message-Id: <11685657441917-git-send-email-mathieu.desnoyers@polymtl.ca>
+Subject: [PATCH 02/09] atomic.h : Complete atomic_long operations in asm-generic
+Date: Thu, 11 Jan 2007 20:35:34 -0500
+Message-Id: <11685657424039-git-send-email-mathieu.desnoyers@polymtl.ca>
 X-Mailer: git-send-email 1.4.4.3
 In-Reply-To: <11685657414033-git-send-email-mathieu.desnoyers@polymtl.ca>
 References: <11685657414033-git-send-email-mathieu.desnoyers@polymtl.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-atomic.h : Add atomic64 cmpxchg, xchg and add_unless to x86_64
+atomic.h : Complete atomic_long operations in asm-generic
 
 Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
---- a/include/asm-x86_64/atomic.h
-+++ b/include/asm-x86_64/atomic.h
-@@ -375,8 +375,8 @@ static __inline__ long atomic64_add_return(long i, atomic64_t *v)
- 	long __i = i;
- 	__asm__ __volatile__(
- 		LOCK_PREFIX "xaddq %0, %1;"
--		:"=r"(i)
--		:"m"(v->counter), "0"(i));
-+		:"+r" (i), "+m" (v->counter)
-+		: : "memory");
- 	return i + __i;
+--- a/include/asm-generic/atomic.h
++++ b/include/asm-generic/atomic.h
+@@ -66,6 +66,90 @@ static inline void atomic_long_sub(long i, atomic_long_t *l)
+ 	atomic64_sub(i, v);
  }
  
-@@ -388,7 +388,12 @@ static __inline__ long atomic64_sub_return(long i, atomic64_t *v)
- #define atomic64_inc_return(v)  (atomic64_add_return(1,v))
- #define atomic64_dec_return(v)  (atomic64_sub_return(1,v))
- 
--#define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic64_cmpxchg(v, old, new) \
-+	((__typeof__((v)->counter))cmpxchg(&((v)->counter), old, new))
-+#define atomic64_xchg(v, new) (xchg(&((v)->counter), new))
++static inline int atomic_long_sub_and_test(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_sub_and_test(i, v);
++}
 +
-+#define atomic_cmpxchg(v, old, new) \
-+	((__typeof__((v)->counter))cmpxchg(&((v)->counter), old, new))
- #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-@@ -402,7 +407,7 @@ static __inline__ long atomic64_sub_return(long i, atomic64_t *v)
-  */
- #define atomic_add_unless(v, a, u)				\
- ({								\
--	int c, old;						\
-+	__typeof__((v)->counter) c, old;			\
- 	c = atomic_read(v);					\
- 	for (;;) {						\
- 		if (unlikely(c == (u)))				\
-@@ -416,6 +421,31 @@ static __inline__ long atomic64_sub_return(long i, atomic64_t *v)
- })
- #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
- 
-+/**
-+ * atomic64_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic64_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic64_add_unless(v, a, u)				\
-+({								\
-+	__typeof__((v)->counter) c, old;			\
-+	c = atomic64_read(v);					\
-+	for (;;) {						\
-+		if (unlikely(c == (u)))				\
-+			break;					\
-+		old = atomic64_cmpxchg((v), c, c + (a));	\
-+		if (likely(old == c))				\
-+			break;					\
-+		c = old;					\
-+	}							\
-+	c != (u);						\
-+})
-+#define atomic64_inc_not_zero(v) atomic64_add_unless((v), 1, 0)
++static inline int atomic_long_dec_and_test(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_dec_and_test(v);
++}
 +
- /* These are x86-specific, used by some header files */
- #define atomic_clear_mask(mask, addr) \
- __asm__ __volatile__(LOCK_PREFIX "andl %0,%1" \
++static inline int atomic_long_inc_and_test(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_inc_and_test(v);
++}
++
++static inline int atomic_long_add_negative(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_add_negative(i, v);
++}
++
++static inline long atomic_long_add_return(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_add_return(i, v);
++}
++
++static inline long atomic_long_sub_return(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_sub_return(i, v);
++}
++
++static inline long atomic_long_inc_return(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_inc_return(v);
++}
++
++static inline long atomic_long_dec_return(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_dec_return(v);
++}
++
++static inline long atomic_long_add_unless(atomic_long_t *l, long a, long u)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_add_unless(v, a, u);
++}
++
++static inline long atomic_long_inc_not_zero(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_inc_not_zero(v);
++}
++
++static inline long atomic_long_cmpxchg(atomic_long_t *l, long old, long new)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_cmpxchg(v, old, new);
++}
++
++static inline long atomic_long_xchg(atomic_long_t *l, long new)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	
++	return (long)atomic64_xchg(v, new);
++}
++
+ #else  /*  BITS_PER_LONG == 64  */
+ 
+ typedef atomic_t atomic_long_t;
+@@ -113,6 +197,90 @@ static inline void atomic_long_sub(long i, atomic_long_t *l)
+ 	atomic_sub(i, v);
+ }
+ 
++static inline int atomic_long_sub_and_test(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return atomic_sub_and_test(i, v);
++}
++
++static inline int atomic_long_dec_and_test(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return atomic_dec_and_test(v);
++}
++
++static inline int atomic_long_inc_and_test(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return atomic_inc_and_test(v);
++}
++
++static inline int atomic_long_add_negative(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return atomic_add_negative(i, v);
++}
++
++static inline long atomic_long_add_return(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_add_return(i, v);
++}
++
++static inline long atomic_long_sub_return(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_sub_return(i, v);
++}
++
++static inline long atomic_long_inc_return(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_inc_return(v);
++}
++
++static inline long atomic_long_dec_return(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_dec_return(v);
++}
++
++static inline long atomic_long_add_unless(atomic_long_t *l, long a, long u)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_add_unless(v, a, u);
++}
++
++static inline long atomic_long_inc_not_zero(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_inc_not_zero(v);
++}
++
++static inline long atomic_long_cmpxchg(atomic_long_t *l, long old, long new)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_cmpxchg(v, old, new);
++}
++
++static inline long atomic_long_xchg(atomic_long_t *l, long new)
++{
++	atomic_t *v = (atomic_t *)l;
++	
++	return (long)atomic_xchg(v, new);
++}
++
+ #endif  /*  BITS_PER_LONG == 64  */
+ 
+ #endif  /*  _ASM_GENERIC_ATOMIC_H  */

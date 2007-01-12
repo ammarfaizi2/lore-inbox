@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030490AbXALFez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030501AbXALGCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030490AbXALFez (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 00:34:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbXALFez
+	id S1030501AbXALGCT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 01:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbXALGCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 00:34:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44005 "EHLO mx1.redhat.com"
+	Fri, 12 Jan 2007 01:02:19 -0500
+Received: from ns2.suse.de ([195.135.220.15]:39243 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030490AbXALFez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 00:34:55 -0500
-Message-ID: <45A71DEA.9020307@redhat.com>
-Date: Fri, 12 Jan 2007 00:34:34 -0500
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Avi Kivity <avi@qumranet.com>
-CC: Ingo Molnar <mingo@elte.hu>, kvm-devel <kvm-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kvm & dyntick
-References: <45A66106.5030608@qumranet.com>
-In-Reply-To: <45A66106.5030608@qumranet.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S1030501AbXALGCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 01:02:19 -0500
+Date: Fri, 12 Jan 2007 07:02:13 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] sched: avoid div in rebalance_tick
+Message-ID: <20070112060213.GB28611@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
+Just noticed this while looking at a bug.
 
-> dyntick-enabled guest:
-> - reduce the load on the host when the guest is idling
->   (currently an idle guest consumes a few percent cpu)
+--
 
-You do not need dynticks for this actually.  Simple no-tick-on-idle
-like Xen has works well enough.
+Avoid an expensive integer divide 3 times per CPU per tick.
 
-While you're modifying the timer code, you might also want to add
-proper accounting for steal time.  Time during which your guest
-had a runnable process, but was not actually running itself, should
-not be accounted against the currently running process.
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-I wonder if it would be possible to simply copy some of the timer
-code from Xen.  They have the timing quirks worked out very well
-and their timer_interrupt() is pretty nice code.
-
-(Now I need to buy myself another VT box so I can help out with KVM :))
-
-http://virt.kernelnewbies.org/ParavirtBenefits has some other features
-you may want to have :)))
-
--- 
-Politics is the struggle between those who want to make their country
-the best in the world, and those who believe it already is.  Each group
-calls the other unpatriotic.
+Index: linux-2.6/kernel/sched.c
+===================================================================
+--- linux-2.6.orig/kernel/sched.c
++++ linux-2.6/kernel/sched.c
+@@ -2887,13 +2887,14 @@ static void active_load_balance(struct r
+ static void update_load(struct rq *this_rq)
+ {
+ 	unsigned long this_load;
+-	int i, scale;
++	int i;
+ 
+ 	this_load = this_rq->raw_weighted_load;
+ 
+ 	/* Update our load: */
+-	for (i = 0, scale = 1; i < 3; i++, scale <<= 1) {
++	for (i = 0; i < 3; i++) {
+ 		unsigned long old_load, new_load;
++		int scale;
+ 
+ 		old_load = this_rq->cpu_load[i];
+ 		new_load = this_load;
+@@ -2902,9 +2903,11 @@ static void update_load(struct rq *this_
+ 		 * prevents us from getting stuck on 9 if the load is 10, for
+ 		 * example.
+ 		 */
++		scale = 1 << i;
+ 		if (new_load > old_load)
+ 			new_load += scale-1;
+-		this_rq->cpu_load[i] = (old_load*(scale-1) + new_load) / scale;
++		this_rq->cpu_load[i] = (old_load*(scale-1) + new_load)
++					>> i; /* (divide by 'scale') */
+ 	}
+ }
+ 

@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030274AbXALVFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161068AbXALVOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbXALVFr (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 16:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbXALVFr
+	id S1161068AbXALVOv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 16:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbXALVOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 16:05:47 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4651 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030274AbXALVFq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 16:05:46 -0500
-Date: Fri, 12 Jan 2007 21:05:37 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Cc: jffs-dev@axis.com
-Subject: Build regression since 2.6.19-git7: jffs2
-Message-ID: <20070112210537.GA24451@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Adrian Bunk <bunk@stusta.de>, jffs-dev@axis.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Fri, 12 Jan 2007 16:14:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59363 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030484AbXALVOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 16:14:49 -0500
+Message-ID: <45A7FA3C.8030209@redhat.com>
+Date: Fri, 12 Jan 2007 15:14:36 -0600
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Alex Tomas <alex@clusterfs.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>
+Subject: Re: [PATCH] [RFC] remove ext3 inode from orphan list when link and
+ unlink race
+References: <45A7F384.3050303@redhat.com> <m34pqw0xii.fsf@bzzz.home.net>
+In-Reply-To: <m34pqw0xii.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following configuration:
+Alex Tomas wrote:
+> interesting ..
+> 
+> I thought VFS doesn't allow concurrent operations.
+> if unlink goes first, then link should wait on the
+> parent's i_mutex and then found no source name.
+> 
+> thanks, Alex
 
-CONFIG_JFFS2_FS=y
-CONFIG_JFFS2_FS_DEBUG=2
-# CONFIG_JFFS2_FS_NAND is not set
-# CONFIG_JFFS2_FS_NOR_ECC is not set
-# CONFIG_JFFS2_COMPRESSION_OPTIONS is not set
-CONFIG_JFFS2_ZLIB=y
-CONFIG_JFFS2_RTIME=y
-# CONFIG_JFFS2_RUBIN is not set
+Well... I was wondering that myself, whether this race should even
+happen.  But the bottom of do_unlinkat looks like:
 
-results in these build errors:
+        mutex_unlock(&nd.dentry->d_inode->i_mutex);
+        if (inode)
+                iput(inode);    /* truncate the inode here */
+exit1:
+        path_release(&nd);
+exit:
+        putname(name);
+        return error;
 
-fs/jffs2/malloc.c: In function 'jffs2_alloc_full_dirent':
-fs/jffs2/malloc.c:126: error: dereferencing pointer to incomplete type
-fs/jffs2/malloc.c: In function 'jffs2_free_full_dirent':
-fs/jffs2/malloc.c:132: error: dereferencing pointer to incomplete type
-fs/jffs2/malloc.c: In function 'jffs2_alloc_full_dnode':
-fs/jffs2/malloc.c:140: error: dereferencing pointer to incomplete type
-fs/jffs2/malloc.c: In function 'jffs2_free_full_dnode':
-fs/jffs2/malloc.c:146: error: dereferencing pointer to incomplete type
-fs/jffs2/malloc.c: In function 'jffs2_alloc_raw_dirent':
-fs/jffs2/malloc.c:154: error: dereferencing pointer to incomplete type
+so I think it's possible that link can sneak in there & find it after
+the mutex is dropped...?  Is this ok? :)  It's certainly -happening-
+anyway....
 
-... etc ...
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+-Eric

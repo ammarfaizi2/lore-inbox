@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030324AbXALUwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030498AbXALU7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbXALUwK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 15:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbXALUwK
+	id S1030498AbXALU7R (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 15:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbXALU7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 15:52:10 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:20768 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030324AbXALUwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 15:52:09 -0500
-Message-ID: <45A7F4F2.2080903@tls.msk.ru>
-Date: Fri, 12 Jan 2007 23:52:02 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Fri, 12 Jan 2007 15:59:17 -0500
+Received: from [212.12.190.123] ([212.12.190.123]:33304 "EHLO raad.intranet"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030487AbXALU7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 15:59:16 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1: (211MB/s read & 195MB/s write)
+Date: Sat, 13 Jan 2007 00:00:48 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
+References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan> <Pine.LNX.4.64.0701121455550.6844@p34.internal.lan> <Pine.LNX.4.64.0701121459240.3650@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0701121459240.3650@p34.internal.lan>
 MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: Chris Mason <chris.mason@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       dean gaudet <dean@arctic.org>, Viktor <vvp01@inbox.ru>,
-       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com> <45A7F396.4080600@tls.msk.ru>
-In-Reply-To: <45A7F396.4080600@tls.msk.ru>
-X-Enigmail-Version: 0.94.1.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701130000.48717.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-[]
-> After all the explanations, I still don't see anything wrong with the
-> interface itself.  O_DIRECT isn't "different semantics" - we're still
-> writing and reading some data.  Yes, O_DIRECT and non-O_DIRECT usages
-> somewhat contradicts with each other, but there are other ways to make
-> the two happy, instead of introducing alot of stupid, complex, and racy
-> code all over.
+Justin Piszcz wrote:
+> Btw, max sectors did improve my performance a little bit but
+> stripe_cache+read_ahead were the main optimizations that made everything
+> go faster by about ~1.5x.   I have individual bonnie++ benchmarks of
+> [only] the max_sector_kb tests as well, it improved the times from
+> 8min/bonnie run -> 7min 11 seconds or so, see below and then after that is
+> what you requested.
+>
+> # echo 3 > /proc/sys/vm/drop_caches
+> # dd if=/dev/md3 of=/dev/null bs=1M count=10240
+> 10240+0 records in
+> 10240+0 records out
+> 10737418240 bytes (11 GB) copied, 399.352 seconds, 26.9 MB/s
+> # for i in sde sdg sdi sdk; do   echo 192 >
+> /sys/block/"$i"/queue/max_sectors_kb;   echo "Set
+> /sys/block/"$i"/queue/max_sectors_kb to 192kb"; done
+> Set /sys/block/sde/queue/max_sectors_kb to 192kb
+> Set /sys/block/sdg/queue/max_sectors_kb to 192kb
+> Set /sys/block/sdi/queue/max_sectors_kb to 192kb
+> Set /sys/block/sdk/queue/max_sectors_kb to 192kb
+> # echo 3 > /proc/sys/vm/drop_caches
+> # dd if=/dev/md3 of=/dev/null bs=1M count=10240
+> 10240+0 records in
+> 10240+0 records out
+> 10737418240 bytes (11 GB) copied, 398.069 seconds, 27.0 MB/s
+>
+> Awful performance with your numbers/drop_caches settings.. !
 
-By the way.  I just ran - for fun - a read test of a raid array.
+Can you repeat with /dev/sda only?
 
-Reading blocks of size 512kbytes, starting at random places on a 400Gb
-array, doing 64threads.
+With fresh reboot to shell, then:
+$ cat /sys/block/sda/queue/max_sectors_kb
+$ echo 3 > /proc/sys/vm/drop_caches
+$ dd if=/dev/sda of=/dev/null bs=1M count=10240
 
- O_DIRECT: 336.73 MB/sec.
-!O_DIRECT: 146.00 MB/sec.
+$ echo 192 > /sys/block/sda/queue/max_sectors_kb
+$ echo 3 > /proc/sys/vm/drop_caches
+$ dd if=/dev/sda of=/dev/null bs=1M count=10240
 
-Quite a... difference here.
+$ echo 128 > /sys/block/sda/queue/max_sectors_kb
+$ echo 3 > /proc/sys/vm/drop_caches
+$ dd if=/dev/sda of=/dev/null bs=1M count=10240
 
-Using posix_fadvice() does not improve it.
+> What were your tests designed to show?
 
-/mjt
+A problem with the block-io.
+
+
+Thanks!
+
+--
+Al
+

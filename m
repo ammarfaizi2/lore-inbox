@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161109AbXALWeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161120AbXALWfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbXALWeG (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 17:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbXALWeG
+	id S1161120AbXALWfN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 17:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbXALWfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 17:34:06 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:35179 "EHLO tmailer.gwdg.de"
+	Fri, 12 Jan 2007 17:35:12 -0500
+Received: from codepoet.org ([166.70.99.138]:33319 "EHLO codepoet.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161109AbXALWeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 17:34:04 -0500
-Date: Fri, 12 Jan 2007 23:31:29 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Erik Mouw <erik@harddisk-recovery.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, congwen <congwen@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How can I create or read/write a file in linux device driver?
-In-Reply-To: <Pine.LNX.4.61.0701120907430.23919@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0701122329000.19224@yvahk01.tjqt.qr>
-References: <200701121547221465420@gmail.com>
- <9a8748490701120227h757d473ctaf5673aa318fe090@mail.gmail.com>
- <20070112132459.GY13675@harddisk-recovery.com> <Pine.LNX.4.61.0701120907430.23919@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1161120AbXALWfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 17:35:10 -0500
+Date: Fri, 12 Jan 2007 15:35:09 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, Chris Mason <chris.mason@oracle.com>,
+       dean gaudet <dean@arctic.org>, Viktor <vvp01@inbox.ru>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+Message-ID: <20070112223509.GA12512@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Linus Torvalds <torvalds@osdl.org>, Michael Tokarev <mjt@tls.msk.ru>,
+	Chris Mason <chris.mason@oracle.com>, dean gaudet <dean@arctic.org>,
+	Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+	Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+	linux-kernel@vger.kernel.org, hch@infradead.org,
+	kenneth.w.chen@intel.com, akpm@osdl.org
+References: <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com> <45A7F396.4080600@tls.msk.ru> <45A7F4F2.2080903@tls.msk.ru> <45A7F7A7.1080108@tls.msk.ru> <Pine.LNX.4.64.0701121611370.3470@woody.osdl.org> <45A8038F.2040609@tls.msk.ru> <Pine.LNX.4.64.0701121705440.3470@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701121705440.3470@woody.osdl.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri Jan 12, 2007 at 05:09:09PM -0500, Linus Torvalds wrote:
+> I suspect a lot of people actually have other reasons to avoid caches. 
+> 
+> For example, the reason to do O_DIRECT may well not be that you want to 
+> avoid caching per se, but simply because you want to limit page cache 
+> activity. In which case O_DIRECT "works", but it's really the wrong thing 
+> to do. We could export other ways to do what people ACTUALLY want, that 
+> doesn't have the downsides.
 
-On Jan 12 2007 09:27, linux-os (Dick Johnson) wrote:
->
->First, since file-operations require process context, and the kernel
->is not a process, you need to create a kernel thread to handle your file
->I/O.
+I was rather fond of the old O_STREAMING patch by Robert Love,
+which added an open() flag telling the kernel to not keep data
+from the current file in cache by dropping pages from the
+pagecache before the current index.  O_STREAMING was very nice
+for when you know you want to read a large file sequentially
+without polluting the rest of the cache with GB of data that you
+plan on only read once and discard.  It worked nicely at doing
+what many people want to use O_DIRECT for.
 
-Not always. If you do file I/O as part of a device driver, you are fine.
-quad_dsp is such an example, where writing to /dev/Qdsp_* will trigger writes
-to /dev/dsp and /dev/adsp.
+Using O_STREAMING you would get normal read/write semantics since
+you still had the pagecache caching your data, but only the
+not-yet-written write-behind data and the not-yet-read read-ahead
+data.  With the additional hint the kernel should drop free-able
+pages from the pagecache behind the current position, because we
+know we will never want them again.  I thought that was a very
+nice way of handling things.
 
->Once you set up this "internal environment," you use the appropriate
->kernel function(s) such as sys_open()
+ -Erik
 
-What against filp_open? That avoids the unnecessary getname() stuff in most
-syscalls.
-
-
-	-`J'
--- 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

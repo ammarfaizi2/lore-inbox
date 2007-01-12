@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161002AbXALKyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161064AbXALKyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbXALKyh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 05:54:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbXALKyh
+	id S1161064AbXALKyr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 05:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbXALKyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 05:54:37 -0500
-Received: from wr-out-0506.google.com ([64.233.184.234]:39256 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161002AbXALKyh (ORCPT
+	Fri, 12 Jan 2007 05:54:47 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:37849 "EHLO
+	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161037AbXALKyp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 05:54:37 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=V/iHFzHQoZJ2hGql5ZvMxZr4dPuc34q85ApDPA0DHx41vsXFxQvidcgvDxKRlKLFegGfs1E+0j45fAtvo+FMRiyXBLY42GrG06KgTNPk4LAaZ+jGCkJL07hrkQyl+0uJqSTURUQoxOQp6fLtzWjQF8mlQLknu+cqyjv3n1+rh24=
-Message-ID: <9a8748490701120254x6a7dd93aw9dd75994af661f5e@mail.gmail.com>
-Date: Fri, 12 Jan 2007 11:54:33 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: How can I create or read/write a file in linux device driver?
-Cc: congwen <congwen@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0701121139010.17236@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 Jan 2007 05:54:45 -0500
+Subject: Re: How git affects kernel.org performance
+From: Nigel Cunningham <nigel@nigel.suspend2.net>
+Reply-To: nigel@nigel.suspend2.net
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Theodore Tso <tytso@mit.edu>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Willy Tarreau <w@1wt.eu>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+In-Reply-To: <20070110140730.GA986@mail.ustc.edu.cn>
+References: <45A083F2.5000000@zytor.com>
+	 <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
+	 <20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org>
+	 <20070108030555.GA7289@in.ibm.com> <20070108125819.GA32756@thunk.org>
+	 <368329554.17014@ustc.edu.cn>
+	 <Pine.LNX.4.64.0701090821550.3661@woody.osdl.org>
+	 <20070110015739.GA26978@mail.ustc.edu.cn>
+	 <1168399249.2585.6.camel@nigel.suspend2.net>
+	 <20070110140730.GA986@mail.ustc.edu.cn>
+Content-Type: text/plain
+Date: Fri, 12 Jan 2007 21:54:43 +1100
+Message-Id: <1168599283.2744.5.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200701121547221465420@gmail.com>
-	 <9a8748490701120227h757d473ctaf5673aa318fe090@mail.gmail.com>
-	 <Pine.LNX.4.61.0701121139010.17236@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/01/07, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> On Jan 12 2007 11:27, Jesper Juhl wrote:
-> > On 12/01/07, congwen <congwen@gmail.com> wrote:
-> >> Hello everyone, I want to create and read/write a file in Linux kernel or
-> >> device driver,
-> >
-> > Don't read/write user space files from kernel space.
-> >
-> > Please search the archives, this get asked a lot and it has been
-> > explained a million times why it's a bad idea.
-> > You can also read http://www.linuxjournal.com/article/8110
->
-> The article does it the bad way. IMHO filp_open() and
-> vfs_read/vfs_write() are much less problematic wrt. to userspace.
-> FWIW see
-> ftp://ftp-1.gwdg.de/pub/linux/misc/suser-jengelh/kernel/quad_dsp-1.5.1.tar.bz2
->
+Hi.
 
-There is no good way.  You simply should NOT do it.
+On Wed, 2007-01-10 at 22:07 +0800, Fengguang Wu wrote:
+> Thanks, Nigel.
+> But I'm very sorry that the calculation in the patch was wrong.
+> 
+> Would you give this new patch a run?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Sorry for my slowness. I just did
+
+time find /usr/src | wc -l
+
+again:
+
+Without patch: 35.137, 35.104, 35.351 seconds
+With patch: 34.518, 34.376, 34.489 seconds
+
+So there's about .8 seconds saved.
+
+Regards,
+
+Nigel
+

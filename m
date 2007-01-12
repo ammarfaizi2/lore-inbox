@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030188AbXALT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030229AbXALUIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbXALT4F (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 14:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbXALT4E
+	id S1030229AbXALUIf (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 15:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbXALUIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 14:56:04 -0500
-Received: from lucidpixels.com ([66.45.37.187]:45696 "EHLO lucidpixels.com"
+	Fri, 12 Jan 2007 15:08:34 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:56825 "EHLO e1.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030188AbXALT4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 14:56:03 -0500
-Date: Fri, 12 Jan 2007 14:56:00 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1:
- (211MB/s read & 195MB/s write)
-In-Reply-To: <200701122235.30288.a1426z@gawab.com>
-Message-ID: <Pine.LNX.4.64.0701121455550.6844@p34.internal.lan>
-References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan>
- <Pine.LNX.4.64.0701120934260.21164@p34.internal.lan>
- <Pine.LNX.4.64.0701121236470.3840@p34.internal.lan> <200701122235.30288.a1426z@gawab.com>
+	id S1030229AbXALUIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 15:08:34 -0500
+In-Reply-To: <20070111143537.GB6843@ucw.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+       safford@watson.ibm.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: mprotect abuse in slim
+X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
+Message-ID: <OFDF1FF03C.DB6D539B-ON85257261.006E437F-85257261.006F74D1@us.ibm.com>
+From: Mimi Zohar <zohar@us.ibm.com>
+Date: Fri, 12 Jan 2007 15:08:32 -0500
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
+ 01/12/2007 15:08:34,
+	Serialize complete at 01/12/2007 15:08:34
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@suse.cz> wrote on 01/11/2007 09:35:37 AM:
 
+> Hi!
+> 
+> > SLIM implements dynamic process labels, so when a process
+> > is demoted, we must be able to revoke write access to some
+> > resources to which it has previously valid handles.
+> > For example, if a shell reads an untrusted file, the
+> > shell is demoted, and write access to more trusted files
+> > revoked. Based on previous comments on lkml, we understand
+> > that this is not really possible in general, so SLIM only
+> > attempts to revoke access in certain simple cases.
+> 
+> Are you saying that SLIM is useless by design because interested
+> parties can work around it?
+>                      Pavel
 
-On Fri, 12 Jan 2007, Al Boldi wrote:
+Sorry that we were unclear about what happens in the case revocation
+is not possible.  In those cases, the unsafe requested read or exec
+that would normally trigger the demotion/revocation is denied, so
+there is no way around the integrity model.
 
-> Justin Piszcz wrote:
-> > RAID 5 TWEAKED: 1:06.41 elapsed @ 60% CPU
-> >
-> > This should be 1:14 not 1:06(was with a similarly sized file but not the
-> > same) the 1:14 is the same file as used with the other benchmarks.  and to
-> > get that I used 256mb read-ahead and 16384 stripe size ++ 128
-> > max_sectors_kb (same size as my sw raid5 chunk size)
-> 
-> max_sectors_kb is probably your key. On my system I get twice the read 
-> performance by just reducing max_sectors_kb from default 512 to 192.
-> 
-> Can you do a fresh reboot to shell and then:
-> $ cat /sys/block/hda/queue/*
-> $ cat /proc/meminfo
-> $ echo 3 > /proc/sys/vm/drop_caches
-> $ dd if=/dev/hda of=/dev/null bs=1M count=10240
-> $ echo 192 > /sys/block/hda/queue/max_sectors_kb
-> $ echo 3 > /proc/sys/vm/drop_caches
-> $ dd if=/dev/hda of=/dev/null bs=1M count=10240
-> 
-> 
-> Thanks!
-> 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+The goal of the low water mark integrity model is to be as transparent
+as possible to the user. If the user asks for something to be done, we
+allow it as much as possible, demoting the process as needed for
+security.  If there is something that would need to be revoked, which
+can't safely be revoked, then we deny the read/exec request, which is
+secure, but possibly visible/annoying to the user. Fortunately in our
+testing, there are only a few cases where this happens, and the
+overall result is a model which is still much more transparent than
+other models which don't allow demotion at all.
 
-Ok. sec
+Mimi Zohar

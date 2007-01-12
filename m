@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964810AbXALRnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932373AbXALRqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbXALRnU (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 12:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXALRnU
+	id S932373AbXALRqv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 12:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbXALRqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 12:43:20 -0500
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:50176 "EHLO
-	tomts13-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932355AbXALRnT (ORCPT
+	Fri, 12 Jan 2007 12:46:51 -0500
+Received: from posthamster.phnxsoft.com ([195.227.45.4]:1434 "EHLO
+	posthamster.phnxsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932373AbXALRqu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 12:43:19 -0500
-Date: Fri, 12 Jan 2007 12:43:12 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>
-Subject: Re: [PATCH 05/05] Linux Kernel Markers, non optimised architectures
-Message-ID: <20070112174312.GA22771@Krystal>
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca> <11685601404005-git-send-email-mathieu.desnoyers@polymtl.ca> <45A710F8.7000405@yahoo.com.au> <20070112050032.GA14100@Krystal> <45A71827.6020300@yahoo.com.au> <20070112171512.GB2888@Krystal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20070112171512.GB2888@Krystal>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 12:39:57 up 142 days, 14:47,  4 users,  load average: 0.50, 0.48, 0.45
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 12 Jan 2007 12:46:50 -0500
+Message-ID: <45A7C95F.6020507@imap.cc>
+Date: Fri, 12 Jan 2007 18:46:07 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.8.0.9) Gecko/20061211 SeaMonkey/1.0.7 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: suparna@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: spurious sparse warnings from linux/aio.h
+References: <20070111222627.66bb75ab.akpm@osdl.org> <45A77726.2030605@imap.cc> <20070112131120.GA22364@in.ibm.com>
+In-Reply-To: <20070112131120.GA22364@in.ibm.com>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDEB2CFDA035AD1237B3D8632"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca) wrote:
-> > 
-> > OK, well one problem is that it can cause a resched event to be lost, so
-> > you might say it has more side-effects without checking resched.
-> > 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDEB2CFDA035AD1237B3D8632
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Suparna Bhattacharya schrieb:
+> On Fri, Jan 12, 2007 at 12:55:18PM +0100, Tilman Schmidt wrote:
 [...]
-> If we are sure that we expect calls to preempt_schedule() from each of these
-> contexts, then it's ok to put preempt_enable(). It is important to note that a
-> marker would then act as a source of scheduler events in code paths where
-> disabling interrupts is expected to disable the scheduler.
-> 
+>> causes a sparse warning:
+>>=20
+>> > include/linux/sched.h:1313:29: warning: symbol '__mptr' shadows an e=
+arlier one
+>> > include/linux/sched.h:1313:29: originally declared here
+>>=20
+>> for every source file referencing <linux/sched.h>.
+>> Could that be avoided please?
+>=20
+> So ... the nested container_of() is a problem ? I guess changing
+> io_wait_to_kiocb() to be an inline function instead of a macro could he=
+lp ?
 
-Sorry for self-reply, but the above mentioned issue is dealt by the
-irqs_disabled() check at the beginning of preempt_schedule().
+So it would seem. The following experimental patch indeed makes
+the warnings disappear:
 
-Mathieu
+--- linux-2.6.20-rc4-mm1-orig/include/linux/aio.h	2007-01-12 10:33:12.000=
+000000 +0100
++++ linux-2.6.20-rc4-mm1-work/include/linux/aio.h	2007-01-12 18:31:16.000=
+000000 +0100
+@@ -243,8 +243,12 @@
+
+-#define io_wait_to_kiocb(io_wait) container_of(container_of(io_wait,	\
+-	struct wait_bit_queue, wait), struct kiocb, ki_wait)
++static inline struct kiocb *io_wait_to_kiocb(wait_queue_t *io_wait)
++{
++	struct wait_bit_queue *wbqptr =3D
++		container_of(io_wait, struct wait_bit_queue, wait);
++	return container_of(wbqptr, struct kiocb, ki_wait);
++}
+
+ #include <linux/aio_abi.h>
 
 
--- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Compile checked only - please review.
+
+Thanks
+Tilman
+
+--=20
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enigDEB2CFDA035AD1237B3D8632
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFp8lnMdB4Whm86/kRAigtAJ4zXFFqoUtnpui+ASQHbYm1U5RQlQCdG9z6
+qVazGce5uSprdI7h1lrJbq4=
+=9GYn
+-----END PGP SIGNATURE-----
+
+--------------enigDEB2CFDA035AD1237B3D8632--

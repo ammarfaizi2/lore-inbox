@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161133AbXALWMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161134AbXALWXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161133AbXALWMD (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 17:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbXALWMB
+	id S1161134AbXALWXf (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 17:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbXALWXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 17:12:01 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:38684 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161135AbXALWMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 17:12:00 -0500
-Date: Fri, 12 Jan 2007 14:11:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Paul Jackson <pj@sgi.com>, sander@humilis.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: 'struct task_struct' has no member named 'mems_allowed'  (was:
- Re: 2.6.20-rc4-mm1)
-Message-Id: <20070112141141.d9a73e32.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701121359290.3087@schroedinger.engr.sgi.com>
-References: <20070111222627.66bb75ab.akpm@osdl.org>
-	<20070112105224.GA12813@favonius>
-	<20070112032820.9c995718.pj@sgi.com>
-	<Pine.LNX.4.64.0701121123410.2296@schroedinger.engr.sgi.com>
-	<20070112132016.f11ffc8a.pj@sgi.com>
-	<Pine.LNX.4.64.0701121324060.2969@schroedinger.engr.sgi.com>
-	<20070112135847.2d057e30.pj@sgi.com>
-	<Pine.LNX.4.64.0701121359290.3087@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 12 Jan 2007 17:23:35 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4891 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1161134AbXALWXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 17:23:34 -0500
+Date: Fri, 12 Jan 2007 14:50:25 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Luming Yu <luming.yu@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
+Message-ID: <20070112145025.GB7685@ucw.cz>
+References: <20070107151744.GA9799@dose.home.local> <1168194194.18788.63.camel@mindpipe> <20070107200453.GA3227@thinkpad.home.local> <20070107222706.GA6092@thinkpad.home.local> <20070107234445.GM20714@stusta.de> <20070108210428.GA7199@dose.home.local> <3877989d0701090651m84d7f41v5d06e1638a7eb31d@mail.gmail.com> <20070109231655.GA5958@thinkpad.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109231655.GA5958@thinkpad.home.local>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 14:00:16 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
+Hi!
 
-> On Fri, 12 Jan 2007, Paul Jackson wrote:
+> > >> > It didn't. It looks like it is unusable, becuase it isn't reliable in
+> > >> > 2.6.20-rc3.
+> > >>
+> > >> Is this issue still present in -rc4?
+> > >
+> > >I used 2.6.20-rc4 in single user mode, and applied 2 patches from
+> > >netdev to get wake on LAN support. This way I was able to set up an
+> > >automatic suspend/resume loop. It looked good, but after e.g. 20
+> > >minutes, the resume hang. So it is reproduceable with 2.6.20-rc4.
+> > >Unfortunately, I can not test the same with 2.6.18, as the wake on LAN
+> > >patches need 2.6.20-rc.
+> > 
+> > Hmm, do you mean this is the first time of this kind of testing?
+> > Is this issue related to LAN driver?
+> > I guess you should be able to set up an automatic suspend/resume loop
+> > with /proc/acpi/alarm, and test similar with 2.6.18.
 > 
-> > It might look clearer to someone who is focused on that particular
-> > change, but it adds unnecessary noise for the other 90% of the readers
-> > of that code who are not concerned with cpusets at that point in time.
-> 
-> This is in NUMA specific code. And they should be concerned about cpusets 
-> since cpusets may affect the node masks they can set. If this is hidden in 
-> a macro then it may be overlooked.
+> Thanks for the hint. I just used /proc/acpi/alarm to set up a
+> suspend/resume loop and did ca. 100 cycles in a row with 2.6.18.2 in
+> single user mode, without a failure.
 
-bah.  No ifdefs!
+Can you do similar test on 2.6.20 -- w/o network driver loaded (and
+generaly minimum drivers?)
+							Pavel
+
+-- 
+Thanks for all the (sleeping) penguins.

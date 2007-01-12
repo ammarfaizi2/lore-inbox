@@ -1,92 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030255AbXALUmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030316AbXALUp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbXALUmA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 15:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbXALUmA
+	id S1030316AbXALUp6 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 15:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbXALUp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 15:42:00 -0500
-Received: from mail.tmr.com ([64.65.253.246]:42432 "EHLO gaimboi.tmr.com"
+	Fri, 12 Jan 2007 15:45:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52131 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030250AbXALUl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 15:41:59 -0500
-Message-ID: <45A7F27B.3080402@tmr.com>
-Date: Fri, 12 Jan 2007 15:41:31 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	id S1030197AbXALUp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 15:45:57 -0500
+Message-ID: <45A7F384.3050303@redhat.com>
+Date: Fri, 12 Jan 2007 14:45:56 -0600
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1: (211MB/s
- read & 195MB/s write)
-References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan> <Pine.LNX.4.64.0701120934260.21164@p34.internal.lan> <Pine.LNX.4.64.0701121236470.3840@p34.internal.lan> <200701122235.30288.a1426z@gawab.com> <Pine.LNX.4.64.0701121455550.6844@p34.internal.lan> <Pine.LNX.4.64.0701121459240.3650@p34.internal.lan>
-In-Reply-To: <Pine.LNX.4.64.0701121459240.3650@p34.internal.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>
+Subject: [PATCH] [RFC] remove ext3 inode from orphan list when link and unlink
+ race
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> # echo 3 > /proc/sys/vm/drop_caches
-> # dd if=/dev/md3 of=/dev/null bs=1M count=10240
-> 10240+0 records in
-> 10240+0 records out
-> 10737418240 bytes (11 GB) copied, 399.352 seconds, 26.9 MB/s
-> # for i in sde sdg sdi sdk; do   echo 192 > 
-> /sys/block/"$i"/queue/max_sectors_kb;   echo "Set 
-> /sys/block/"$i"/queue/max_sectors_kb to 192kb"; done
-> Set /sys/block/sde/queue/max_sectors_kb to 192kb
-> Set /sys/block/sdg/queue/max_sectors_kb to 192kb
-> Set /sys/block/sdi/queue/max_sectors_kb to 192kb
-> Set /sys/block/sdk/queue/max_sectors_kb to 192kb
-> # echo 3 > /proc/sys/vm/drop_caches
-> # dd if=/dev/md3 of=/dev/null bs=1M count=10240 
-> 10240+0 records in
-> 10240+0 records out
-> 10737418240 bytes (11 GB) copied, 398.069 seconds, 27.0 MB/s
->
-> Awful performance with your numbers/drop_caches settings.. !
->
-> What were your tests designed to show?
->   
-To start, I expect then to show change in write, not read... and IIRC (I 
-didn't look it up) drop_caches just flushes the caches so you start with 
-known memory contents, none.
->
-> Justin.
->
-> On Fri, 12 Jan 2007, Justin Piszcz wrote:
->
->   
->> On Fri, 12 Jan 2007, Al Boldi wrote:
->>
->>     
->>> Justin Piszcz wrote:
->>>       
->>>> RAID 5 TWEAKED: 1:06.41 elapsed @ 60% CPU
->>>>
->>>> This should be 1:14 not 1:06(was with a similarly sized file but not the
->>>> same) the 1:14 is the same file as used with the other benchmarks.  and to
->>>> get that I used 256mb read-ahead and 16384 stripe size ++ 128
->>>> max_sectors_kb (same size as my sw raid5 chunk size)
->>>>         
->>> max_sectors_kb is probably your key. On my system I get twice the read 
->>> performance by just reducing max_sectors_kb from default 512 to 192.
->>>
->>> Can you do a fresh reboot to shell and then:
->>> $ cat /sys/block/hda/queue/*
->>> $ cat /proc/meminfo
->>> $ echo 3 > /proc/sys/vm/drop_caches
->>> $ dd if=/dev/hda of=/dev/null bs=1M count=10240
->>> $ echo 192 > /sys/block/hda/queue/max_sectors_kb
->>> $ echo 3 > /proc/sys/vm/drop_caches
->>> $ dd if=/dev/hda of=/dev/null bs=1M count=10240
->>>
->>>       
+I've been looking at a case where many threads are opening, unlinking, and
+hardlinking files on ext3 .  At unmount time I see an oops, because the superblock's
+orphan list points to a freed inode.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+I did some tracing of the inodes, and it looks like this:
+
+  ext3_unlink():[/src/linux-2.6.18/fs/ext3/namei.c:2123] adding orphan
+      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+
+  ext3_orphan_add():[/src/linux-2.6.18/fs/ext3/namei.c:1890] ext3_orphan_add
+      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+
+  iput():[/src/linux-2.6.18/fs/inode.c:1139] iput enter
+      i_state:0x7 cpu:1 i_count:2 i_nlink:0
+
+  ext3_link():[/src/linux-2.6.18/fs/ext3/namei.c:2202] ext3_link enter
+      i_state:0x7 cpu:3 i_count:1 i_nlink:0
+
+  ext3_inc_count():[/src/linux-2.6.18/fs/ext3/namei.c:1627] done
+      i_state:0x7 cpu:3 i_count:1 i_nlink:1
+
+The unlink gets there first, finds i_count > 0 (in use) but nlink goes to 0, so
+it puts it on the orphan inode list.  Then link comes along, and bumps the link
+back up to 1.  So now we are on the orphan inode list, but we are not unlinked.
+
+Eventually when count goes to 0, and we still have 1 link, again no action is
+taken to remove the inode from the orphan list, because it is still linked (i.e.
+we don't go through ext3_delete())
+
+When this inode is eventually freed, the sb orphan list gets corrupted, because 
+we have freed it without first removing it from the orphan list.
+
+I think the simple solution is to remove the inode from the orphan list
+when we bump the link back up from 0 to 1.  I put that test in there because
+there are other potential reasons that we might be on the list (truncates,
+direct IO).
+
+Comments?
+
+Thanks,
+-Eric
+
+p.s. ext3_inc_count and ext3_dec_count seem misnamed, have an unused
+arg, and are very infrequently called.  I'll probably submit a patch
+to just put the single line of code into the caller, too.
+
+---
+
+Remove inode from the orphan list in ext3_link() if we might have
+raced with ext3_unlink(), which potentially put it on the list.
+If we're on the list with nlink > 0, we'll never get cleaned up
+properly and eventually may corrupt the list.
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+
+Index: linux-2.6.19/fs/ext3/namei.c
+===================================================================
+--- linux-2.6.19.orig/fs/ext3/namei.c
++++ linux-2.6.19/fs/ext3/namei.c
+@@ -2204,6 +2204,9 @@ retry:
+ 	inode->i_ctime = CURRENT_TIME_SEC;
+ 	ext3_inc_count(handle, inode);
+ 	atomic_inc(&inode->i_count);
++	/* did we race w/ unlink? */
++	if (inode->i_nlink == 1)
++		ext3_orphan_del(handle, inode);
+ 
+ 	err = ext3_add_nondir(handle, dentry, inode);
+ 	ext3_journal_stop(handle);
+
 

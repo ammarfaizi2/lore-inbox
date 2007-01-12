@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932120AbXALQk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932244AbXALQnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbXALQk6 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 11:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbXALQk6
+	id S932244AbXALQnu (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 11:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbXALQnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 11:40:58 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:57832 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932120AbXALQk5 (ORCPT
+	Fri, 12 Jan 2007 11:43:50 -0500
+Received: from noname.neutralserver.com ([70.84.186.210]:37556 "EHLO
+	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932244AbXALQnu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 11:40:57 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=ODJYBDAhtU+xyaHVZtqlE0SJTIB9WIXt33SrNTLGBJvnafKBts/pTt0PNicfdt4fRfO5zUylQq/LwgJ/xX9pOsHCckfhwXIiLwrfvmOoOS+ROK7O06GIC7yehY3NVgUaa7x5NxGTe2rwkp939/vh88i7yeaErCL9EBZq4QgVdSM=
-Date: Fri, 12 Jan 2007 19:39:16 +0300
-From: "Cyrill V. Gorcunov" <gorcunov@gmail.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel-list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] qconf: fix showing help info on failed search
-Message-ID: <20070112163916.GA13958@cvg>
+	Fri, 12 Jan 2007 11:43:50 -0500
+Date: Fri, 12 Jan 2007 18:43:40 +0200
+From: Dan Aloni <da-x@monatomic.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: kexec + ACPI in 2.6.19 (was: Re: kexec + USB storage in 2.6.19)
+Message-ID: <20070112164339.GA24291@localdomain>
+References: <20070112122444.GA28597@localdomain> <m1mz4oe3xm.fsf@ebiederm.dsl.xmission.com> <20070112145710.GA29884@localdomain> <m1irfce06s.fsf@ebiederm.dsl.xmission.com> <20070112160243.GA13980@localdomain> <20070112162800.GA23791@localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20070112162800.GA23791@localdomain>
 User-Agent: Mutt/1.5.13 (2006-08-11)
+X-PopBeforeSMTPSenders: da-x@monatomic.org
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - noname.neutralserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - monatomic.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-qconf does not clear help text in search window
-if previous search has been failed.
+On Fri, Jan 12, 2007 at 06:28:00PM +0200, Dan Aloni wrote:
+> On Fri, Jan 12, 2007 at 06:02:43PM +0200, Dan Aloni wrote:
+> > On Fri, Jan 12, 2007 at 08:26:03AM -0700, Eric W. Biederman wrote:
+> > > Dan Aloni <da-x@monatomic.org> writes:
+> > > 
+> > > > I'm attaching the full logs.
+> > > 
+> > > Thanks.
+> > > 
+> > > > [ 8656.272980] ACPI Error (tbxfroot-0512): Could not map memory at 0000040E for length 2 [20060707]
+> > > 
+> > > Ok. This looks like the first sign of trouble.
+> > > Normally I would suspect a memory map issue but your e820 memory map looks fine,
+> > > although a little different between the two kernels.
+> > > 
+> > > Is this enough of a hint for you to dig more deeply?
+> > 
+> > Reverting just the ACPI code (everything under drivers/acpi/*) 
+> > back to the version of 2.6.18.3 doesn't fix the problem, so it 
+> > must be something else.
+> 
+> Just occured to me that I didn't revert the relevant code under 
+> arch/x86_64 so it might still be related somehow..
 
-Signed-off-by: Cyrill V. Gorcunov <gorcunov@mail.ru>
+After adding a few prints inside __ioremap() it appears the function
+exits for phys_addr==0x40e because (!PageReserved(page)).
 
----
+Isn't page 0 supposed to be reserved? I clearly see that it is
+being reserved under setup_arch(). 
 
-diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
-index c0ae0a7..f9a63a4 100644
---- a/scripts/kconfig/qconf.cc
-+++ b/scripts/kconfig/qconf.cc
-@@ -1247,6 +1247,7 @@ void ConfigSearchWindow::search(void)
- 
- 	free(result);
- 	list->list->clear();
-+	info->clear();
- 
- 	result = sym_re_search(editField->text().latin1());
- 	if (!result)
+Odd, I must say...
+
+-- 
+Dan Aloni
+XIV LTD, http://www.xivstorage.com
+da-x (at) monatomic.org, dan (at) xiv.co.il

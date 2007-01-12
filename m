@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932160AbXALBPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751557AbXALBfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbXALBPA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 20:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbXALBPA
+	id S1751557AbXALBfo (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 20:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbXALBfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 20:15:00 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33374 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932160AbXALBO7 (ORCPT
+	Thu, 11 Jan 2007 20:35:44 -0500
+Received: from tomts43.bellnexxia.net ([209.226.175.110]:37401 "EHLO
+	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751556AbXALBfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 20:14:59 -0500
-Date: Fri, 12 Jan 2007 01:26:03 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata: PIIX3 support
-Message-ID: <20070112012603.35e291a9@localhost.localdomain>
-In-Reply-To: <200701120108.l0C18CnN028291@harpo.it.uu.se>
-References: <200701120108.l0C18CnN028291@harpo.it.uu.se>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Jan 2007 20:35:44 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Subject: [PATCH 00/09] atomic.h : standardizing atomic primitives
+Date: Thu, 11 Jan 2007 20:35:32 -0500
+Message-Id: <11685657414033-git-send-email-mathieu.desnoyers@polymtl.ca>
+X-Mailer: git-send-email 1.4.4.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 02:08:12 +0100 (MET)
-Mikael Pettersson <mikpe@it.uu.se> wrote:
+atomic.h : standardizing atomic primitives
 
-> On Wed, 10 Jan 2007 17:13:38 +0000, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> >This I believe completes the PIIX range of support for libata
-> >
-> >This adds the table entries needed for the PIIX3, both a new PCI
-> >identifier and a new mode list. It also fixes an erroneous access to PCI
-> >configuration 0x48 on non UDMA capable chips.
-> 
-> Works fine here on a 430HX box (ASUS T2P4).
-> I'm appending kernel messages for boots with the IDE driver and
-> with the updated libata driver, in case you want to compare them.
+It mainly adds support for missing 64 bits cmpxchg and 64 bits atomic add
+unless. Therefore, principally 64 bits architectures are targeted by these
+patches. It also adds the complete list of atomic operations on the atomic_long
+type.
 
-Thanks a lot. That all looks good and fits the other test reports nicely
-(except qemu which appears to have PIIX3 emulation issues which Tejun's
-quite fussy and careful eh code picks up on)
+These patches apply on 2.6.20-rc4-git3.
 
-Alan
+Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+

@@ -1,95 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932097AbXALP1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932127AbXALP1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbXALP1B (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 10:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbXALP1A
+	id S932127AbXALP1p (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 10:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbXALP1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 10:27:00 -0500
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:64437 "EHLO
-	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932097AbXALP07 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 10:26:59 -0500
-From: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
-To: Roland Dreier <rdreier@cisco.com>
-Subject: Re: [PATCH/RFC 2.6.21 3/5] ehca: completion queue: remove use of do_mmap()
-Date: Fri, 12 Jan 2007 16:23:13 +0100
-User-Agent: KMail/1.8.2
-Cc: Nathan Lynch <ntl@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openfabrics-ewg@openib.org, openib-general@openib.org,
-       raisch@de.ibm.com
-References: <200701112008.37236.hnguyen@linux.vnet.ibm.com> <20070111194054.GA11770@localdomain> <adaodp5ibh9.fsf@cisco.com>
-In-Reply-To: <adaodp5ibh9.fsf@cisco.com>
+	Fri, 12 Jan 2007 10:27:45 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:54467 "EHLO iradimed.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932119AbXALP1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 10:27:44 -0500
+Message-ID: <45A7A8F0.30200@cfl.rr.com>
+Date: Fri, 12 Jan 2007 10:27:44 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: dean gaudet <dean@arctic.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Viktor <vvp01@inbox.ru>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org>
+In-Reply-To: <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701121623.13687.hnguyen@linux.vnet.ibm.com>
+X-OriginalArrivalTime: 12 Jan 2007 15:27:53.0059 (UTC) FILETIME=[39F5E330:01C7365E]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14930.003
+X-TM-AS-Result: No--5.272700-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roland!
->  > >  	spin_lock_irqsave(&ehca_cq_idr_lock, flags);
->  > >  	while (my_cq->nr_callbacks)
->  > >  		yield();
-> 
->  > Isn't that code outright buggy?  Calling into the scheduler with a
->  > spinlock held and local interrupts disabled...
-> 
-> Yes, absolutely -- if nr_callbacks is ever nonzero then this will
-> obviously crash instantly.
-As Christoph R. mentioned in another thread I'm sending you a patch
-to fix this bug. Thanks to all for this hint!
-Purpose of the while loop is to wait until all completion entries
-have been processed by a running completion handler. First then
-the function continue with destroying completion queue. Thus, we do
-unlock and lock around yield(), ie yield() is now called from a normal
-process context without active lock. Hope that this pattern is ok.
-In addition of yield issue this patch also fixes an unproper use of
-spin_unlock() in ehca_irq.c.
-Thanks
-Nam
+dean gaudet wrote:
+> it seems to me that if splice and fadvise and related things are 
+> sufficient for userland to take care of things "properly" then O_DIRECT 
+> could be changed into splice/fadvise calls either by a library or in the 
+> kernel directly...
 
+No, because the semantics are entirely different.  An application using 
+read/write with O_DIRECT expects read() to block until data is 
+physically fetched from the device.  fadvise() does not FORCE the kernel 
+to discard cache, it only hints that it should, so a read() or mmap() 
+very well may reuse a cached page instead of fetching from the disk 
+again.  The application also expects write() to block until the data is 
+on the disk.  In the case of a blocking write, you could splice/msync, 
+but what about aio?
 
-Signed-off-by Hoang-Nam Nguyen <hnguyen@de.ibm.com>
----
-
-
- ehca_cq.c  |    5 ++++-
- ehca_irq.c |    4 +++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-
-diff -Nurp infiniband_orig/drivers/infiniband/hw/ehca/ehca_cq.c infiniband_work/drivers/infiniband/hw/ehca/ehca_cq.c
---- infiniband_orig/drivers/infiniband/hw/ehca/ehca_cq.c	2007-01-11 19:54:06.000000000 +0100
-+++ infiniband_work/drivers/infiniband/hw/ehca/ehca_cq.c	2007-01-12 15:27:50.000000000 +0100
-@@ -330,8 +330,11 @@ int ehca_destroy_cq(struct ib_cq *cq)
- 	}
- 
- 	spin_lock_irqsave(&ehca_cq_idr_lock, flags);
--	while (my_cq->nr_callbacks)
-+	while (my_cq->nr_callbacks) {
-+		spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
- 		yield();
-+		spin_lock_irqsave(&ehca_cq_idr_lock, flags);
-+	}
- 
- 	idr_remove(&ehca_cq_idr, my_cq->token);
- 	spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
-diff -Nurp infiniband_orig/drivers/infiniband/hw/ehca/ehca_irq.c infiniband_work/drivers/infiniband/hw/ehca/ehca_irq.c
---- infiniband_orig/drivers/infiniband/hw/ehca/ehca_irq.c	2007-01-11 19:53:33.000000000 +0100
-+++ infiniband_work/drivers/infiniband/hw/ehca/ehca_irq.c	2007-01-12 15:27:50.000000000 +0100
-@@ -440,7 +440,9 @@ void ehca_tasklet_eq(unsigned long data)
- 					cq = idr_find(&ehca_cq_idr, token);
- 
- 					if (cq == NULL) {
--						spin_unlock(&ehca_cq_idr_lock);
-+						spin_unlock_irqrestore(
-+							&ehca_cq_idr_lock,
-+							flags);
- 						break;
- 					}
- 
 

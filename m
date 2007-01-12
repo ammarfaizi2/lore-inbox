@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161054AbXALK1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161066AbXALK1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161054AbXALK1H (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 05:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbXALK1H
+	id S1161066AbXALK1v (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 05:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbXALK1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 05:27:07 -0500
-Received: from wx-out-0506.google.com ([66.249.82.239]:27535 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161054AbXALK1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 05:27:03 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RnbExX1/MWny3vV02bseMi/UD5HBbKmyiRt9ejOWS9jiyr5TTwLA2T6STra3A2S1ZmiGs9rAvLuk5VbBwz2nmq4bXaj9iAorcauDEiCl4SijUYO3W+mjAx+4CUIpQcQF10jx6SreateZKzsiqAknzZMruD8IHnQL8EGliiHOh78=
-Message-ID: <9a8748490701120227h757d473ctaf5673aa318fe090@mail.gmail.com>
-Date: Fri, 12 Jan 2007 11:27:01 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: congwen <congwen@gmail.com>
-Subject: Re: How can I create or read/write a file in linux device driver?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200701121547221465420@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Jan 2007 05:27:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:52886 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161068AbXALK1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 05:27:50 -0500
+Date: Fri, 12 Jan 2007 11:27:40 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: avoid div in rebalance_tick
+Message-ID: <20070112102740.GC28611@wotan.suse.de>
+References: <20070112060213.GB28611@wotan.suse.de> <20070112095940.0795a998@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200701121547221465420@gmail.com>
+In-Reply-To: <20070112095940.0795a998@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/01/07, congwen <congwen@gmail.com> wrote:
-> Hello everyone, I want to create and read/write a file in Linux kernel or device driver,
+On Fri, Jan 12, 2007 at 09:59:40AM +0000, Alan wrote:
+> On Fri, 12 Jan 2007 07:02:13 +0100
+> Nick Piggin <npiggin@suse.de> wrote:
+> 
+> > Just noticed this while looking at a bug.
+> > Avoid an expensive integer divide 3 times per CPU per tick.
+> 
+> Integer divide is cheap on some modern processors, and multibit shift
+> isn't on all embedded ones.
 
-Don't read/write user space files from kernel space.
+Well integer divide unit is non-pipelined on P4 K8 Core2 and probably
+most processors, AFAIK. So the 3 divs would take 240 cycles on a P4,
+perhaps.
 
-Please search the archives, this get asked a lot and it has been
-explained a million times why it's a bad idea.
-You can also read http://www.linuxjournal.com/article/8110
+> How about putting back scale = 1 and using
+> 
+> scale += scale;
+> 
+> instead of the shift and getting what ought to be even better results
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yes I gues we ccan do this as well, good idea. I'll make a
+quick userspace benchmark and post some numbers with my next
+submission.

@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751272AbXALQjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932120AbXALQk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbXALQjE (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 11:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbXALQjE
+	id S932120AbXALQk6 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 11:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbXALQk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 11:39:04 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2828 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751272AbXALQjC (ORCPT
+	Fri, 12 Jan 2007 11:40:58 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:57832 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932120AbXALQk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 11:39:02 -0500
-Date: Fri, 12 Jan 2007 16:38:52 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
-Subject: Re: [patch 2.6.20-rc4-git] remove modpost false warnings on ARM
-Message-ID: <20070112163852.GA16511@flint.arm.linux.org.uk>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	rusty@rustcorp.com.au
-References: <200701120831.37513.david-b@pacbell.net>
-Mime-Version: 1.0
+	Fri, 12 Jan 2007 11:40:57 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=ODJYBDAhtU+xyaHVZtqlE0SJTIB9WIXt33SrNTLGBJvnafKBts/pTt0PNicfdt4fRfO5zUylQq/LwgJ/xX9pOsHCckfhwXIiLwrfvmOoOS+ROK7O06GIC7yehY3NVgUaa7x5NxGTe2rwkp939/vh88i7yeaErCL9EBZq4QgVdSM=
+Date: Fri, 12 Jan 2007 19:39:16 +0300
+From: "Cyrill V. Gorcunov" <gorcunov@gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel-list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] qconf: fix showing help info on failed search
+Message-ID: <20070112163916.GA13958@cvg>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200701120831.37513.david-b@pacbell.net>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 08:31:36AM -0800, David Brownell wrote:
-> Index: at91/scripts/mod/modpost.c
-> ===================================================================
-> --- at91.orig/scripts/mod/modpost.c	2007-01-11 22:51:49.000000000 -0800
-> +++ at91/scripts/mod/modpost.c	2007-01-12 04:20:00.000000000 -0800
-> @@ -679,6 +679,26 @@ static Elf_Sym *find_elf_symbol(struct e
->  }
->  
->  /*
-> + * If there's no name there, ignore it; likewise, ignore it if it's
-> + * one of the magic symbols emitted used by current ARM tools.
-> + *
-> + * Otherwise if find_symbols_between() returns those symbols, they'll
-> + * fail the whitelist tests and cause lots of false alarms ... fixable
-> + * only by shrinking __exit and __init sections into __text, bloating
-> + * the kernel (which is especially evil on embedded platforms).
-> + */
-> +static int is_valid_name(struct elf_info *elf, Elf_Sym *sym)
-> +{
-> +	const char *name = elf->strtab + sym->st_name;
-> +
-> +	if (!name || !strlen(name))
-> +		return 0;
-> +	if (strcmp(name, "$a") == 0 || strcmp(name, "$d") == 0)
-> +		return 0;
+qconf does not clear help text in search window
+if previous search has been failed.
 
-A more correct test would be that found in kallsyms.c:
+Signed-off-by: Cyrill V. Gorcunov <gorcunov@mail.ru>
 
-/*
- * This ignores the intensely annoying "mapping symbols" found
- * in ARM ELF files: $a, $t and $d.
- */
-static inline int is_arm_mapping_symbol(const char *str)
-{
-        return str[0] == '$' && strchr("atd", str[1])
-               && (str[2] == '\0' || str[2] == '.');
-}
+---
 
-Suggest that code is re-used here (as well as in other tools such as
-oprofile, readprofile, etc.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index c0ae0a7..f9a63a4 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -1247,6 +1247,7 @@ void ConfigSearchWindow::search(void)
+ 
+ 	free(result);
+ 	list->list->clear();
++	info->clear();
+ 
+ 	result = sym_re_search(editField->text().latin1());
+ 	if (!result)

@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161173AbXALXlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161149AbXALXu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161173AbXALXlg (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 18:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbXALXlg
+	id S1161149AbXALXu7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 18:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbXALXu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 18:41:36 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:39524 "EHLO cacti.profiwh.com"
+	Fri, 12 Jan 2007 18:50:59 -0500
+Received: from colo.lackof.org ([198.49.126.79]:59338 "EHLO colo.lackof.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161173AbXALXlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 18:41:35 -0500
-Message-id: <304942792709111335@wsc.cz>
-Subject: [PATCH 1/1] Char: mxser_new, fix sparc compile error
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Sat, 13 Jan 2007 00:41:34 +0100 (CET)
+	id S1161149AbXALXu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 18:50:58 -0500
+Date: Fri, 12 Jan 2007 16:50:54 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Dmitriy Monakhov <dmonakhov@openvz.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       devel@openvz.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       netdev@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2/5] fixing errors handling during pci_driver resume stage [ata]
+Message-ID: <20070112235054.GA5074@colo.lackof.org>
+References: <87tzz0mv4n.fsf@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87tzz0mv4n.fsf@sw.ru>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, fix sparc compile error
+On Tue, Jan 09, 2007 at 12:01:28PM +0300, Dmitriy Monakhov wrote:
+> ata pci drivers have to return correct error code during resume stage in
+> case of errors.
+...
+> @@ -6246,8 +6253,10 @@ int ata_pci_device_suspend(struct pci_de
+>  int ata_pci_device_resume(struct pci_dev *pdev)
+>  {
+>  	struct ata_host *host = dev_get_drvdata(&pdev->dev);
+> +	int err;
+>  
+> -	ata_pci_device_do_resume(pdev);
+> +	if ((err = ata_pci_device_do_resume(pdev)))
+> +		return err;
 
-On sparc B4000000 is not defined. Use B2000000 for special baudrate, which
-is defined on all platforms.
+nit: in every other case I looked at you did:
+   err = foo()
+   if (err) ...
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Can you make that consistent here too?
 
----
-commit 2826e3a35f34046890c84a77bc2784a184f9bf6a
-tree fcfd15b000e703d91361f2b2c3c1bafb0d18b05d
-parent 1ed2feac68d7b7cd50ffcd28cb0830b435e7d120
-author Jiri Slaby <jirislaby@gmail.com> Sat, 13 Jan 2007 00:27:05 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 13 Jan 2007 00:27:05 +0059
-
- drivers/char/mxser_new.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index 1997390..4c80549 100644
---- a/drivers/char/mxser_new.c
-+++ b/drivers/char/mxser_new.c
-@@ -189,6 +189,8 @@ static unsigned int mxvar_baud_table1[] = {
- };
- #define BAUD_TABLE_NO ARRAY_SIZE(mxvar_baud_table)
- 
-+#define B_SPEC	B2000000
-+
- static int ioaddr[MXSER_BOARDS] = { 0, 0, 0, 0 };
- static int ttymajor = MXSERMAJOR;
- static int calloutmajor = MXSERCUMAJOR;
-@@ -544,7 +546,7 @@ static int mxser_change_speed(struct mxser_port *info,
- 		return ret;
- 
- 	if (mxser_set_baud_method[info->tty->index] == 0) {
--		if ((cflag & (CBAUD | CBAUDEX)) == B4000000)
-+		if ((cflag & CBAUD) == B_SPEC)
- 			baud = info->speed;
- 		else
- 			baud = tty_get_baud_rate(info->tty);
-@@ -1700,7 +1702,7 @@ static int mxser_ioctl(struct tty_struct *tty, struct file *file,
- 			if (speed == mxvar_baud_table[i])
- 				break;
- 		if (i == BAUD_TABLE_NO) {
--			info->tty->termios->c_cflag |= B4000000;
-+			info->tty->termios->c_cflag |= B_SPEC;
- 		} else if (speed != 0)
- 			info->tty->termios->c_cflag |= mxvar_baud_table1[i];
- 
+thanks,
+grant

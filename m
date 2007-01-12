@@ -1,406 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030240AbXALACu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751517AbXALAHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbXALACu (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 19:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932818AbXALAC3
+	id S1751517AbXALAHR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 19:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbXALAHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 19:02:29 -0500
-Received: from tomts43-srv.bellnexxia.net ([209.226.175.110]:37127 "EHLO
-	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751510AbXALACW (ORCPT
+	Thu, 11 Jan 2007 19:07:17 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:32148 "HELO
+	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751517AbXALAHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 19:02:22 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Subject: [PATCH 01/05] Linux Kernel Markers : Kconfig menus
-Date: Thu, 11 Jan 2007 19:02:14 -0500
-Message-Id: <11685601381312-git-send-email-mathieu.desnoyers@polymtl.ca>
-X-Mailer: git-send-email 1.4.4.3
-In-Reply-To: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca>
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca>
+	Thu, 11 Jan 2007 19:07:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=EvhubOlucxpGl303KggN+6hGYeFk6XxhkKBmb3j22H2/TYo8J3iM36dx5A8ApqPFTVHupPhDEq3RUmnzVNmgi1aFl5Pi4T0rrBelpHboOIE6fvI+/wMKHgZVy+H5i6GuWiLgJBnVJQqDM7+PyiI6GoMbEANA5LZ/N/g4d6JqGJE=  ;
+X-YMail-OSG: _mQ5jS8VM1kUfrkbkNhy6KOGYiT0xnDzwGwRaeIjc3Y8.ngXeizCqI6JLRnLHLxqXVj7gev6njq.jJshF8fSgbqU4IkQiIHnprSXiBd5c.hDL6k33UwYNJFiKZ06d7JVfwOe_kQwtVqi0p4-
+Message-ID: <45A6D118.5030508@yahoo.com.au>
+Date: Fri, 12 Jan 2007 11:06:48 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [REGRESSION] 2.6.19/2.6.20-rc3 buffered write slowdown
+References: <20070110223731.GC44411608@melbourne.sgi.com> <Pine.LNX.4.64.0701101503310.22578@schroedinger.engr.sgi.com> <20070110230855.GF44411608@melbourne.sgi.com> <45A57333.6060904@yahoo.com.au> <20070111003158.GT33919298@melbourne.sgi.com> <45A58DFA.8050304@yahoo.com.au> <20070111012404.GW33919298@melbourne.sgi.com> <45A602F0.1090405@yahoo.com.au> <Pine.LNX.4.64.0701110950380.28802@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0701110950380.28802@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Markers : Kconfig menus
+Christoph Lameter wrote:
+> On Thu, 11 Jan 2007, Nick Piggin wrote:
+> 
+> 
+>>You're not turning on zone_reclaim, by any chance, are you?
+> 
+> 
+> It is not a NUMA system so zone reclaim is not available.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Ah yes... Can't you force it on if you have a NUMA complied kernel?
 
---- /dev/null
-+++ b/kernel/Kconfig.marker
-@@ -0,0 +1,17 @@
-+# Code markers configuration
-+
-+config MARKERS
-+	bool "Activate markers"
-+	select MODULES
-+	default n
-+	help
-+	  Place an empty function call at each marker site. Can be
-+	  dynamically changed for a probe function.
-+
-+config MARKERS_DISABLE_OPTIMIZATION
-+	bool "Disable architecture specific marker optimization"
-+	depends EMBEDDED
-+	default n
-+	help
-+	  Disable code replacement jump optimisations. Especially useful if your
-+	  code is in a read-only rom/flash.
---- a/Makefile
-+++ b/Makefile
-@@ -308,7 +308,8 @@ AFLAGS_KERNEL	=
- # Needed to be compatible with the O= option
- LINUXINCLUDE    := -Iinclude \
-                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
--		   -include include/linux/autoconf.h
-+		   -include include/linux/autoconf.h \
-+		   -include linux/marker.h
- 
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -638,6 +638,12 @@ source "fs/Kconfig"
- 
- source "arch/alpha/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/alpha/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/cris/Kconfig
-+++ b/arch/cris/Kconfig
-@@ -191,6 +191,12 @@ source "sound/Kconfig"
- 
- source "drivers/usb/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/cris/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/frv/Kconfig
-+++ b/arch/frv/Kconfig
-@@ -375,6 +375,12 @@ source "drivers/Kconfig"
- 
- source "fs/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/frv/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/h8300/Kconfig
-+++ b/arch/h8300/Kconfig
-@@ -205,6 +205,12 @@ endmenu
- 
- source "fs/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/h8300/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -1210,6 +1210,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
-+
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/i386/Kconfig.debug"
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -564,6 +564,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
-+
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/ia64/Kconfig.debug"
---- a/arch/m32r/Kconfig
-+++ b/arch/m32r/Kconfig
-@@ -394,6 +394,12 @@ source "fs/Kconfig"
- 
- source "arch/m32r/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/m32r/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/m68k/Kconfig
-+++ b/arch/m68k/Kconfig
-@@ -660,6 +660,12 @@ endmenu
- 
- source "fs/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/m68k/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/m68knommu/Kconfig
-+++ b/arch/m68knommu/Kconfig
-@@ -669,6 +669,12 @@ source "drivers/Kconfig"
- 
- source "fs/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/m68knommu/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/ppc/Kconfig
-+++ b/arch/ppc/Kconfig
-@@ -1443,8 +1443,18 @@ source "lib/Kconfig"
- 
- source "arch/powerpc/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/ppc/Kconfig.debug"
- 
- source "security/Kconfig"
- 
- source "crypto/Kconfig"
-+
-+menu "Instrumentation Support"
-+
-+endmenu
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -1185,6 +1185,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
-+
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/powerpc/Kconfig.debug"
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -263,6 +263,12 @@ source "fs/Kconfig"
- 
- source "arch/parisc/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/parisc/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -968,6 +968,12 @@ source "fs/Kconfig"
- 
- source "arch/arm/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/arm/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/arm26/Kconfig
-+++ b/arch/arm26/Kconfig
-@@ -240,6 +240,12 @@ source "drivers/misc/Kconfig"
- 
- source "drivers/usb/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/arm26/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2068,6 +2068,12 @@ source "fs/Kconfig"
- 
- source "arch/mips/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/mips/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -518,6 +518,8 @@ config KPROBES
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
- 
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/s390/Kconfig.debug"
---- a/arch/sh64/Kconfig
-+++ b/arch/sh64/Kconfig
-@@ -284,6 +284,12 @@ source "fs/Kconfig"
- 
- source "arch/sh64/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/sh64/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -707,6 +707,12 @@ source "fs/Kconfig"
- 
- source "arch/sh/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/sh/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/sparc64/Kconfig
-+++ b/arch/sparc64/Kconfig
-@@ -443,6 +443,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
-+
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/sparc64/Kconfig.debug"
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -302,6 +302,8 @@ menu "Instrumentation Support"
- 
- source "arch/sparc/oprofile/Kconfig"
- 
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/sparc/Kconfig.debug"
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -344,4 +344,10 @@ config INPUT
- 	bool
- 	default n
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/um/Kconfig.debug"
---- a/arch/v850/Kconfig
-+++ b/arch/v850/Kconfig
-@@ -332,6 +332,12 @@ source "sound/Kconfig"
- 
- source "drivers/usb/Kconfig"
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/v850/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -244,6 +244,12 @@ config EMBEDDED_RAMDISK_IMAGE
- 	  provide one yourself.
- endmenu
- 
-+menu "Instrumentation Support"
-+
-+source "kernel/Kconfig.marker"
-+
-+endmenu
-+
- source "arch/xtensa/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -731,6 +731,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
-+
-+source "kernel/Kconfig.marker"
-+
- endmenu
- 
- source "arch/x86_64/Kconfig.debug"
+> zone reclaim was 
+> already in 2.6.16.
+
+Well it was a long shot, but that is something that has had a few
+changes recently and is something that could interact badly with
+the global pdflush.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

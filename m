@@ -1,97 +1,151 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964843AbXALTnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964925AbXALTpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbXALTnd (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 14:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbXALTnd
+	id S964925AbXALTpZ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 14:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbXALTpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 14:43:33 -0500
-Received: from mx2.suse.de ([195.135.220.15]:55866 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964843AbXALTnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 14:43:32 -0500
-From: Neil Brown <neilb@suse.de>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-Date: Sat, 13 Jan 2007 06:43:07 +1100
+	Fri, 12 Jan 2007 14:45:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37047 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964925AbXALTpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 14:45:24 -0500
+Message-ID: <45A7E59F.7020207@sgi.com>
+Date: Fri, 12 Jan 2007 11:46:39 -0800
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Horms <horms@verge.net.au>
+CC: "Zou, Nanhai" <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] Kdump documentation update for 2.6.20: ia64
+ portion
+References: <20070112060724.GC17379@verge.net.au>	<10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com> <20070112090043.GA27340@verge.net.au>
+In-Reply-To: <20070112090043.GA27340@verge.net.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17831.58571.460279.128732@notabene.brown>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-In-Reply-To: message from Fengguang Wu on Friday January 12
-References: <367964923.02447@ustc.edu.cn>
-	<20070105024226.GA6076@mail.ustc.edu.cn>
-	<17828.33075.145986.404400@notabene.brown>
-	<368438638.13038@ustc.edu.cn>
-	<20070110141756.GA5572@mail.ustc.edu.cn>
-	<17829.46603.14554.981639@notabene.brown>
-	<368527150.02925@ustc.edu.cn>
-	<20070111145309.GA6226@mail.ustc.edu.cn>
-	<17830.46175.410277.466742@notabene.brown>
-	<368569131.07190@ustc.edu.cn>
-	<20070112023251.GA6136@mail.ustc.edu.cn>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday January 12, fengguang.wu@gmail.com wrote:
-> > Are you really really double-plus sure that you are running a kernel
-> > with the patch applied?
-> > Because at the very least it should have changed the message to
+Horms wrote:
+> Hi,
 > 
-> Oh, sorry. I recompiled & installed kernel and it output this new message:
+> this patch fills in the portions for ia64 kexec.
 > 
-> [  133.129919] svc: unknown version (3 for prog 100227, nfsacl)
+> I'm actually not sure what options are required for the dump-capture
+> kernel, but "init 1 irqpoll maxcpus=1" has been working fine for me.
+> Or more to the point, I'm not sure if irqpoll is needed or not.
 > 
+> This patch requires the documentation patch update that Vivek Goyal has
+> been circulating, and I believe is currently in mm. Feel free to fold it
+> into that change if it makes things easier for anyone.
+> 
+> Take II
+> 
+> Nanhai,
+> 
+> I have noted that vmlinux.gz may also be used. And added a note about the
+> kernel being able to automatically place the crashkernel region.
+> Furthermore, I added a note that if manually specified, the region should
+> be 64Mb aligned to avoid wastage. I notice that the auto placement code
+> uses 64Mb. But is this strictly neccessary for all page sizes?
+> 
+> Signed-off-by: Simon Horman <horms@verge.net.au>
+> 
+> Index: linux-2.6/Documentation/kdump/kdump.txt
+> ===================================================================
+> --- linux-2.6.orig/Documentation/kdump/kdump.txt	2007-01-12 17:45:19.000000000 +0900
+> +++ linux-2.6/Documentation/kdump/kdump.txt	2007-01-12 17:59:42.000000000 +0900
+> @@ -17,7 +17,7 @@
+>  memory image to a dump file on the local disk, or across the network to
+>  a remote system.
+>  
+> -Kdump and kexec are currently supported on the x86, x86_64, ppc64 and IA64
+> +Kdump and kexec are currently supported on the x86, x86_64, ppc64 and ia64
+>  architectures.
+>  
+>  When the system kernel boots, it reserves a small section of memory for
+> @@ -229,7 +229,23 @@
+>  
+>  Dump-capture kernel config options (Arch Dependent, ia64)
+>  ----------------------------------------------------------
+> -(To be filled)
+> +
+> +- No specific options are required to create a dump-capture kernel
+> +  for ia64, other than those specified in the arch idependent section
+> +  above. This means that it is possible to use the system kernel
+> +  as a dump-capture kernel if desired.
+> +  
+> +  The crashkernel region can be automatically placed by the system
+> +  kernel at run time. This is done by specifying the base address as 0,
+> +  or omitting it all together.
 
-Ok, thanks.  I must have missed something else wrong in the code......
+In my testing, i found the base address was ignored. Whatever value
+specified was fine. Not necessary to be 0. But i guess it is fine to
+give people a guideline telling them to specify 0.
 
-Probably this 'break' in the wrong place...
+Cheers,
+ - jay
 
-Could you try this patch instead please - or just move the 'break' to
-where it should be.
 
-Thanks,
-NeilBrown
+> +
+> +  crashkernel=256M@0
+> +  or
+> +  crashkernel=256M
+> +
+> +  If the start address is specified, not that the start address of the
+> +  kernel will be alligned to 64Mb, so any if the start address is not then
+> +  any space below the alignment point will be wasted.
+>  
+>  
+>  Boot into System Kernel
+> @@ -248,6 +264,10 @@
+>  
+>     On ppc64, use "crashkernel=128M@32M".
+>  
+> +   On ia64, 256M@256M is a generous value that typically works.
+> +   The region may be automatically placed on ia64, see the
+> +   dump-capture kernel config option notes above.
+> +
+>  Load the Dump-capture Kernel
+>  ============================
+>  
+> @@ -266,7 +286,8 @@
+>  For ppc64:
+>  	- Use vmlinux
+>  For ia64:
+> -	(To be filled)
+> +	- Use vmlinux or vmlinuz.gz
+> +
+>  
+>  If you are using a uncompressed vmlinux image then use following command
+>  to load dump-capture kernel.
+> @@ -282,18 +303,19 @@
+>     --initrd=<initrd-for-dump-capture-kernel> \
+>     --append="root=<root-dev> <arch-specific-options>"
+>  
+> +Please note, that --args-linux does not need to be specified for ia64.
+> +It is planned to make this a no-op on that architecture, but for now
+> +it should be omitted
+> +
+>  Following are the arch specific command line options to be used while
+>  loading dump-capture kernel.
+>  
+> -For i386 and x86_64:
+> +For i386, x86_64 and ia64:
+>  	"init 1 irqpoll maxcpus=1"
+>  
+>  For ppc64:
+>  	"init 1 maxcpus=1 noirqdistrib"
+>  
+> -For IA64
+> -	(To be filled)
+> -
+>  
+>  Notes on loading the dump-capture kernel:
+>  
+> _______________________________________________
+> fastboot mailing list
+> fastboot@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/fastboot
 
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/nfsd/nfssvc.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
---- .prev/fs/nfsd/nfssvc.c	2007-01-11 14:55:38.000000000 +1100
-+++ ./fs/nfsd/nfssvc.c	2007-01-13 06:40:12.000000000 +1100
-@@ -72,7 +72,7 @@ static struct svc_program	nfsd_acl_progr
- 	.pg_prog		= NFS_ACL_PROGRAM,
- 	.pg_nvers		= NFSD_ACL_NRVERS,
- 	.pg_vers		= nfsd_acl_versions,
--	.pg_name		= "nfsd",
-+	.pg_name		= "nfsacl",
- 	.pg_class		= "nfsd",
- 	.pg_stats		= &nfsd_acl_svcstats,
- 	.pg_authenticate	= &svc_set_client,
-@@ -118,16 +118,16 @@ int nfsd_vers(int vers, enum vers_op cha
- 	switch(change) {
- 	case NFSD_SET:
- 		nfsd_versions[vers] = nfsd_version[vers];
--		break;
- #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
- 		if (vers < NFSD_ACL_NRVERS)
--			nfsd_acl_version[vers] = nfsd_acl_version[vers];
-+			nfsd_acl_versions[vers] = nfsd_acl_version[vers];
- #endif
-+		break;
- 	case NFSD_CLEAR:
- 		nfsd_versions[vers] = NULL;
- #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
- 		if (vers < NFSD_ACL_NRVERS)
--			nfsd_acl_version[vers] = NULL;
-+			nfsd_acl_versions[vers] = NULL;
- #endif
- 		break;
- 	case NFSD_TEST:

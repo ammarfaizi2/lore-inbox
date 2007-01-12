@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964920AbXALSt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965014AbXALTZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbXALSt4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 13:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbXALSt4
+	id S965014AbXALTZP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 14:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbXALTZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 13:49:56 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:46243 "EHLO
-	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964920AbXALSt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 13:49:56 -0500
-Date: Fri, 12 Jan 2007 20:49:45 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: kexec + ACPI in 2.6.19 (was: Re: kexec + USB storage in 2.6.19)
-Message-ID: <20070112184945.GC24291@localdomain>
-References: <20070112122444.GA28597@localdomain> <m1mz4oe3xm.fsf@ebiederm.dsl.xmission.com> <20070112145710.GA29884@localdomain> <m1irfce06s.fsf@ebiederm.dsl.xmission.com> <20070112160243.GA13980@localdomain> <20070112162800.GA23791@localdomain> <20070112164339.GA24291@localdomain> <20070112165600.GB24291@localdomain> <m18xg8dua9.fsf@ebiederm.dsl.xmission.com>
+	Fri, 12 Jan 2007 14:25:15 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:42932 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965014AbXALTZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 14:25:13 -0500
+Date: Fri, 12 Jan 2007 11:25:02 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+cc: Paul Jackson <pj@sgi.com>, sander@humilis.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 'struct task_struct' has no member named 'mems_allowed'  (was:
+ Re: 2.6.20-rc4-mm1)
+In-Reply-To: <20070112032820.9c995718.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0701121123410.2296@schroedinger.engr.sgi.com>
+References: <20070111222627.66bb75ab.akpm@osdl.org> <20070112105224.GA12813@favonius>
+ <20070112032820.9c995718.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m18xg8dua9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-PopBeforeSMTPSenders: da-x@monatomic.org
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 10:33:34AM -0700, Eric W. Biederman wrote:
-> > And I get:
-> >
-> > [ 1013.864201] PAGE ffff810001000000 (pfn=0): flags=0, count=0
-> >
-> > So at least no one is using that page. Still it is not clear why it
-> > doesn't have the reserve flag turned on.
-> 
-> My hunch is that it might have something to do with the difference
-> in the e820 map.  The original map reports that whole page as
-> being usable while in the kexec case the memory from 0x100 is
-> reported as being usable.  Perhaps someone has a rounding error?
+On Fri, 12 Jan 2007, Paul Jackson wrote:
 
-I added this right at the beginning of sanitize_e820_map():
+> I'll leave the honors to Christoph (added to CC), since this is his patch.
 
-	for (i=0; i < *pnr_map; i++) {
-		printk("index %d: addr=%llx, size=%llx, type=%d\n",
-		       i, 
-		       (unsigned long long)biosmap[i].addr, 
-		       (unsigned long long)biosmap[i].size, 
-		       (unsigned int)biosmap[i].type);
-	}
+Ok. Here it is
 
-.. and got (kexec boot):
+mems_allowed only exists if CONFIG_CPUSETS is set. So put an #ifdef around
+it. Also move the masking of the nodes behind the error check (looks 
+better) and add a comment.
 
-[    0.000000] index 0: addr=100, size=9b700, type=1
-[    0.000000] index 1: addr=9b800, size=4800, type=2
-[    0.000000] index 2: addr=100000, size=cfe70000, type=1
-[    0.000000] index 3: addr=cff70000, size=8000, type=3
-[    0.000000] index 4: addr=cff78000, size=8000, type=4
-[    0.000000] index 5: addr=cff80000, size=80000, type=2
-[    0.000000] index 6: addr=e0000000, size=10000000, type=2
-[    0.000000] index 7: addr=fec00000, size=10000, type=2
-[    0.000000] index 8: addr=fee00000, size=1000, type=2
-[    0.000000] index 9: addr=ff800000, size=400000, type=2
-[    0.000000] index 10: addr=fffffc00, size=400, type=2
-[    0.000000] index 11: addr=100000000, size=30000000, type=1
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Compared with a normal boot:
-
-[    0.000000] index 0: addr=0, size=9b800, type=1
-[    0.000000] index 1: addr=9b800, size=4800, type=2
-[    0.000000] index 2: addr=e4000, size=1c000, type=2
-[    0.000000] index 3: addr=100000, size=cfe70000, type=1
-[    0.000000] index 4: addr=cff70000, size=8000, type=3
-[    0.000000] index 5: addr=cff78000, size=8000, type=4
-[    0.000000] index 6: addr=cff80000, size=80000, type=2
-[    0.000000] index 7: addr=e0000000, size=10000000, type=2
-[    0.000000] index 8: addr=fec00000, size=10000, type=2
-[    0.000000] index 9: addr=fee00000, size=1000, type=2
-[    0.000000] index 10: addr=ff800000, size=400000, type=2
-[    0.000000] index 11: addr=fffffc00, size=400, type=2
-[    0.000000] index 12: addr=100000000, size=30000000, type=1
-
-So that is the actual boot data that is passed to us.
-
-Anyway, if I add this:
-
-	if (*pnr_map >= 1) {
-		if (biosmap[0].addr == 0x100)
-			biosmap[0].addr = 0;
-	}
-
-kexec works. I'll use this for now, but obviously we _must_ come up 
-with a cleaner fix...		   
-
--- 
-Dan Aloni
-XIV LTD, http://www.xivstorage.com
-da-x (at) monatomic.org, dan (at) xiv.co.il
+Index: linux-2.6.20-rc4-mm1/mm/mempolicy.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/mm/mempolicy.c	2007-01-12 13:20:17.000000000 -0600
++++ linux-2.6.20-rc4-mm1/mm/mempolicy.c	2007-01-12 13:21:30.220968608 -0600
+@@ -882,9 +882,12 @@ asmlinkage long sys_mbind(unsigned long 
+ 	int err;
+ 
+ 	err = get_nodes(&nodes, nmask, maxnode);
+-	nodes_and(nodes, nodes, current->mems_allowed);
+ 	if (err)
+ 		return err;
++#ifdef CONFIG_CPUSETS
++	/* Restrict the nodes to the allowed nodes in the cpuset */
++	nodes_and(nodes, nodes, current->mems_allowed);
++#endif
+ 	return do_mbind(start, len, mode, &nodes, flags);
+ }
+ 

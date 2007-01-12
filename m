@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751125AbXALO4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751212AbXALO50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbXALO4k (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 09:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbXALO4k
+	id S1751212AbXALO50 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 09:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbXALO50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 09:56:40 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:30263 "EHLO
+	Fri, 12 Jan 2007 09:57:26 -0500
+Received: from noname.neutralserver.com ([70.84.186.210]:30310 "EHLO
 	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751125AbXALO4i (ORCPT
+	with ESMTP id S1751213AbXALO5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 09:56:38 -0500
-Date: Fri, 12 Jan 2007 16:55:49 +0200
+	Fri, 12 Jan 2007 09:57:24 -0500
+Date: Fri, 12 Jan 2007 16:57:10 +0200
 From: Dan Aloni <da-x@monatomic.org>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
        linux-usb-devel@lists.sourceforge.net
 Subject: Re: kexec + USB storage in 2.6.19
-Message-ID: <20070112145548.GA22117@localdomain>
+Message-ID: <20070112145710.GA29884@localdomain>
 References: <20070112122444.GA28597@localdomain> <m1mz4oe3xm.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -644,8 +644,4 @@ kdb_cmd[21]: defcmd archkdbcommon "" "Common arch debugging"
 [   93.377313] xiv: board Supermicro X6DH8-XG2
 [   93.381538] Freeing unused kernel memory: 264k freed
 
-
--- 
-Dan Aloni
-XIV LTD, http://www.xivstorage.com
-da-x (at) monatomic.org, dan (at) xiv.co.il
+  - Dan

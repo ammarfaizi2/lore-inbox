@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161017AbXALHcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161019AbXALHf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbXALHcD (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 02:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161019AbXALHcD
+	id S1161019AbXALHf4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 02:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbXALHf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 02:32:03 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:40006 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161017AbXALHcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 02:32:01 -0500
-Date: Thu, 11 Jan 2007 23:31:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: avi@qumranet.com, yaniv@qumranet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc4-mm1 -- WARNING: "profile_hits"
- [drivers/kvm/kvm-intel.ko] undefined!
-Message-Id: <20070111233157.01341bea.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0701112318r9472505m106cb7dd65c4c836@mail.gmail.com>
-References: <a44ae5cd0701112318r9472505m106cb7dd65c4c836@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 Jan 2007 02:35:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:19597 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161019AbXALHfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 02:35:55 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=FYHH8tFhJDk2aaIb819EBMB7TPueDWjC/LOzgPnHRMHRE+tyaR7JOzOv31Joa13KSvirE+KPtyHeY/rTCQ4iZ7c2us0X+eTHM1Rg2ZyY21sKnd7wy+g1VKI1jkYsIlR8f4R0tR18b3ad8TpaHqcCSHHWP/DrTHfrkdPcucwtg/E=
+Message-ID: <84144f020701112335v44bcf8a5see13fdbf01b700cd@mail.gmail.com>
+Date: Fri, 12 Jan 2007 09:35:52 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "joe jin" <joe.jin@oracle.com>
+Subject: Re: [PATCH] bonding: Replace kmalloc() + memset() pairs with the appropriate kzalloc() calls
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <1168568903.10377.7.camel@joejin-pc.cn.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1168568903.10377.7.camel@joejin-pc.cn.oracle.com>
+X-Google-Sender-Auth: d9233be372b1572a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 01:18:17 -0600
-"Miles Lane" <miles.lane@gmail.com> wrote:
+Hi Joe,
 
-> WARNING: "profile_hits" [drivers/kvm/kvm-intel.ko] undefined!
+On 1/12/07, joe jin <joe.jin@oracle.com> wrote:
+> @@ -788,7 +786,7 @@ static int rlb_initialize(struct bonding
+>
+>         spin_lock_init(&(bond_info->rx_hashtbl_lock));
+>
+> -       new_hashtbl = kmalloc(size, GFP_KERNEL);
+> +       new_hashtbl = kzalloc(size, GFP_KERNEL);
+>         if (!new_hashtbl) {
+>                 printk(KERN_ERR DRV_NAME
+>                        ": %s: Error: Failed to allocate RLB hash table\n",
 
-This?
-
-From: Andrew Morton <akpm@osdl.org>
-
-export profile_hits() on !SMP too.
-
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Avi Kivity <avi@qumranet.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- kernel/profile.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN kernel/profile.c~kvm-add-vm-exit-profiling-fix kernel/profile.c
---- a/kernel/profile.c~kvm-add-vm-exit-profiling-fix
-+++ a/kernel/profile.c
-@@ -331,7 +331,6 @@ out:
- 	local_irq_restore(flags);
- 	put_cpu();
- }
--EXPORT_SYMBOL_GPL(profile_hits);
- 
- static int __devinit profile_cpu_callback(struct notifier_block *info,
- 					unsigned long action, void *__cpu)
-@@ -401,6 +400,8 @@ void profile_hits(int type, void *__pc, 
- }
- #endif /* !CONFIG_SMP */
- 
-+EXPORT_SYMBOL_GPL(profile_hits);
-+
- void profile_tick(int type)
- {
- 	struct pt_regs *regs = get_irq_regs();
-_
-
+You forgot to remove the memset here.

@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030496AbXALEYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030505AbXALEYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030496AbXALEYA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 23:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbXALEYA
+	id S1030505AbXALEYQ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 23:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbXALEYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 23:24:00 -0500
+	Thu, 11 Jan 2007 23:24:13 -0500
 Received: from ug-out-1314.google.com ([66.249.92.169]:34121 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030504AbXALEX6 (ORCPT
+	with ESMTP id S1030494AbXALEXe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 23:23:58 -0500
+	Thu, 11 Jan 2007 23:23:34 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:from:to:cc:date:message-id:in-reply-to:references:subject;
-        b=WM+eer9DzjXLLDjeZp088HklzY1AsVfR2HaXLwgBMuLHK/PSjlflL54gFeqAeY13xGiCD7A2N2i/xI2IPCA/Y3lUl0o1+vKBHQlhPrD5n1LVGkzVrNqcx5jJYmxA7ha/oUusHL24B5dIS0L/keF46hmXYC9PbmEmkVJRSCLmwmc=
+        b=VOy1iogarvJ4ZtDU7YxT0vf9tU/2JAeC5Ku/TOHBWXmEhlseozQF8owK9oYQsPRoJltNm/DdVFeKcOZ2fvxI04D9intECrvpxM6i/c7jp9/WLvGLdX8dnILOwC7dkrzFf6PA83V0OpGYL615CKlRDHxeiZxz16woqGl6YMIrNqg=
 From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: linux-ide@vger.kernel.org
 Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
        linux-kernel@vger.kernel.org
-Date: Fri, 12 Jan 2007 05:27:35 +0100
-Message-Id: <20070112042735.28794.34617.sendpatchset@localhost.localdomain>
+Date: Fri, 12 Jan 2007 05:27:10 +0100
+Message-Id: <20070112042710.28794.40403.sendpatchset@localhost.localdomain>
 In-Reply-To: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
 References: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
-Subject: [PATCH 14/19] cs5530: small cleanup
+Subject: [PATCH 10/19] trm290: remove redundant CONFIG_BLK_DEV_IDEDMA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] cs5530: small cleanup
+[PATCH] trm290: remove redundant CONFIG_BLK_DEV_IDEDMA #ifdef-s
 
-* BUG() on unknown DMA mode in cs5530_config_dma()
-* there is no need to call hwif->ide_dma_host_{off,on}() in
-  cs5530_config_dma() because hwif->ide_dma_host_{off,on}()
-  is called by hwif->ide_dma_off_{quietly,on}()
+In drivers/ide/Kconfig BLK_DEV_TRM290 depends on
+BLK_DEV_IDEDMA_PCI (on which is BLK_DEV_IDEDMA dependant on).
 
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
 ---
- drivers/ide/pci/cs5530.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/ide/pci/trm290.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-Index: a/drivers/ide/pci/cs5530.c
+Index: a/drivers/ide/pci/trm290.c
 ===================================================================
---- a.orig/drivers/ide/pci/cs5530.c
-+++ a/drivers/ide/pci/cs5530.c
-@@ -103,16 +103,13 @@ static int cs5530_config_dma (ide_drive_
- 	int			unit = drive->select.b.unit;
- 	ide_drive_t		*mate = &hwif->drives[unit^1];
- 	struct hd_driveid	*id = drive->id;
--	unsigned int		reg, timings;
-+	unsigned int		reg, timings = 0;
- 	unsigned long		basereg;
+--- a.orig/drivers/ide/pci/trm290.c
++++ a/drivers/ide/pci/trm290.c
+@@ -177,7 +177,6 @@ static void trm290_selectproc (ide_drive
+ 	trm290_prepare_drive(drive, drive->using_dma);
+ }
  
- 	/*
- 	 * Default to DMA-off in case we run into trouble here.
- 	 */
- 	hwif->ide_dma_off_quietly(drive);
--	/* turn off DMA while we fiddle */
--	hwif->ide_dma_host_off(drive);
--	/* clear DMA_capable bit */
+-#ifdef CONFIG_BLK_DEV_IDEDMA
+ static void trm290_ide_dma_exec_cmd(ide_drive_t *drive, u8 command)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+@@ -242,7 +241,6 @@ static int trm290_ide_dma_test_irq (ide_
+ 	status = hwif->INW(hwif->dma_status);
+ 	return (status == 0x00ff);
+ }
+-#endif /* CONFIG_BLK_DEV_IDEDMA */
  
- 	/*
- 	 * The CS5530 specifies that two drives sharing a cable cannot
-@@ -182,9 +179,8 @@ static int cs5530_config_dma (ide_drive_
- 		case XFER_MW_DMA_1:	timings = 0x00012121; break;
- 		case XFER_MW_DMA_2:	timings = 0x00002020; break;
- 		default:
--			printk(KERN_ERR "%s: cs5530_config_dma: huh? mode=%02x\n",
--				drive->name, mode);
--			return 1;	/* failure */
-+			BUG();
-+			break;
- 	}
- 	basereg = CS5530_BASEREG(hwif);
- 	reg = hwif->INL(basereg+4);		/* get drive0 config register */
-@@ -199,8 +195,6 @@ static int cs5530_config_dma (ide_drive_
- 		hwif->OUTL(reg,     basereg+4);	/* write drive0 config register */
- 		hwif->OUTL(timings, basereg+12);	/* write drive1 config register */
- 	}
--	(void) hwif->ide_dma_host_on(drive);
--	/* set DMA_capable bit */
+ /*
+  * Invoked from ide-dma.c at boot time.
+@@ -289,13 +287,11 @@ static void __devinit init_hwif_trm290(i
  
- 	/*
- 	 * Finally, turn DMA on in software, and exit.
+ 	ide_setup_dma(hwif, (hwif->config_data + 4) ^ (hwif->channel ? 0x0080 : 0x0000), 3);
+ 
+-#ifdef CONFIG_BLK_DEV_IDEDMA
+ 	hwif->dma_setup = &trm290_ide_dma_setup;
+ 	hwif->dma_exec_cmd = &trm290_ide_dma_exec_cmd;
+ 	hwif->dma_start = &trm290_ide_dma_start;
+ 	hwif->ide_dma_end = &trm290_ide_dma_end;
+ 	hwif->ide_dma_test_irq = &trm290_ide_dma_test_irq;
+-#endif /* CONFIG_BLK_DEV_IDEDMA */
+ 
+ 	hwif->selectproc = &trm290_selectproc;
+ 	hwif->autodma = 0;		/* play it safe for now */

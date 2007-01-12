@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751611AbXALE6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751608AbXALFAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbXALE6m (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 23:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbXALE6m
+	id S1751608AbXALFAg (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 00:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbXALFAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 23:58:42 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:20211 "HELO
-	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751606AbXALE6m (ORCPT
+	Fri, 12 Jan 2007 00:00:36 -0500
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:42023 "EHLO
+	tomts16-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751608AbXALFAf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 23:58:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=bZdgNeLsZ4opW/uMi7Xep+uSWjYbLdJKBExLCFQMigm+GHX0ie20pHWWf4/ikhOd0Rq1dCCxZ/w/lCiVFpmHGjtYeFfLAcFaARCxhNpS688YHYW/LVpQxVNjJjOkWS8zrLSwDSFE1YJJYQLOC9AdD9OxnD4l2jF3Sf0bCjog30Q=  ;
-X-YMail-OSG: FetTwQ8VM1lzKaZO4Cpe0r.yweazoIdck3zkTesQe4CEgvwgbhulMpmGJo_YB6N.07YHObn6cXMlnjNhjxxVsX4j7FaMpzg0YTzGGBN0H8Hxg5w3mlT_nQIfFiv2QJgpZBCr090Q_Xztnn8-
-Message-ID: <45A71565.2030908@yahoo.com.au>
-Date: Fri, 12 Jan 2007 15:58:13 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 12 Jan 2007 00:00:35 -0500
+Date: Fri, 12 Jan 2007 00:00:32 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-       Andrew Morton <akpm@osdl.org>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>  <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org>  <6d6a94c50701102150w4c3b46d0w6981267e2b873d37@mail.gmail.com>  <20070110220603.f3685385.akpm@osdl.org>  <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>  <20070110225720.7a46e702.akpm@osdl.org>  <45A5E1B2.2050908@yahoo.com.au> <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com> <45A5F157.9030001@yahoo.com.au> <45A6F70E.1050902@tmr.com> <45A70EF9.40408@yahoo.com.au> <Pine.LNX.4.64.0701112044070.3594@woody.osdl.org> <45A714F8.6020600@yahoo.com.au>
-In-Reply-To: <45A714F8.6020600@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 05/05] Linux Kernel Markers, non optimised architectures
+Message-ID: <20070112050032.GA14100@Krystal>
+References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca> <11685601404005-git-send-email-mathieu.desnoyers@polymtl.ca> <45A710F8.7000405@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <45A710F8.7000405@yahoo.com.au>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 23:50:41 up 142 days,  1:58,  4 users,  load average: 0.38, 0.60, 0.87
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Linus Torvalds wrote:
+* Nick Piggin (nickpiggin@yahoo.com.au) wrote:
+> Mathieu Desnoyers wrote:
+> 
+> >+#define MARK(name, format, args...) \
+> >+	do { \
+> >+		static marker_probe_func *__mark_call_##name = \
+> >+					__mark_empty_function; \
+> >+		volatile static char __marker_enable_##name = 0; \
+> >+		static const struct __mark_marker_c __mark_c_##name \
+> >+			__attribute__((section(".markers.c"))) = \
+> >+			{ #name, &__mark_call_##name, format } ; \
+> >+		static const struct __mark_marker __mark_##name \
+> >+			__attribute__((section(".markers"))) = \
+> >+			{ &__mark_c_##name, &__marker_enable_##name } ; \
+> >+		asm volatile ( "" : : "i" (&__mark_##name)); \
+> >+		__mark_check_format(format, ## args); \
+> >+		if (unlikely(__marker_enable_##name)) { \
+> >+			preempt_disable(); \
+> >+			(*__mark_call_##name)(format, ## args); \
+> >+			preempt_enable_no_resched(); \
+> 
+> Why not just preempt_enable() here?
+> 
 
->> Very basic issue: the perfect is the enemy of the good. Claiming that 
->> there is a "proper solution" is usually a total red herring. Quite 
->> often there isn't, and the "paper over" is actually not papering over, 
->> it's quite possibly the best solution there is.
-> 
-> 
-> Yeah *smallish* higher order allocations are fine, and we use them all the
-> time for things like stacks or networking.
-> 
-> But Aubrey (who somehow got removed from the cc list) wants to do order 9
-> allocations from userspace in his nommu environment. I'm just trying to be
-> realistic when I say that this isn't going to be robust and a userspace
-> solution is needed.
+Because the preempt_enable() macro contains preempt_check_resched(), which
+may call preempt_schedule() which leads us to a call to schedule(). Therefore,
+all those very interesting scheduler functions would cause an infinite
+recursive scheduler call if we marked schedule() and used preempt_enable() in
+the marker.
 
-Oh, and also: I don't disagree with that limiting pagecache to some %
-might be useful for other reasons.
+The primary goal for the markers (and the probes that attaches to them) is to
+have the fewest side-effects possible : any kernel method called from an
+instrumentation site adds this precise kernel method to the "cannot be
+instrumented" list, which I want to keep as small possible.
+
+Mathieu
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

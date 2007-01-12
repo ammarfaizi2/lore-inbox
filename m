@@ -1,180 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932348AbXALRh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932351AbXALRkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbXALRh4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 12:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbXALRh4
+	id S932351AbXALRkg (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 12:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbXALRkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 12:37:56 -0500
-Received: from lucidpixels.com ([66.45.37.187]:50944 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932332AbXALRhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 12:37:55 -0500
-Date: Fri, 12 Jan 2007 12:37:48 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Michael Tokarev <mjt@tls.msk.ru>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1:
- (211MB/s read & 195MB/s write)
-In-Reply-To: <Pine.LNX.4.64.0701120934260.21164@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0701121236470.3840@p34.internal.lan>
-References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan>
- <45A794B4.5020608@tls.msk.ru> <Pine.LNX.4.64.0701120934260.21164@p34.internal.lan>
+	Fri, 12 Jan 2007 12:40:36 -0500
+Received: from an-out-0708.google.com ([209.85.132.250]:30797 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932351AbXALRkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 12:40:35 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RNhz0uuQbbBHX8syLJj1T/9TXJH/wtJ6O1O2zQSkvo41ub6VCAzSV0n8ZxJUgUveD2GLu/9WNReETZ2n8E1ntqd3A0R3asdnPTESAPujTnKGcpL2fLPDTUyoBAfwu6BXpfgYc8qFJ6lte2wiIgQbdOcL/vAVF9+U9pgY3v1gb/k=
+Message-ID: <6bffcb0e0701120940i1775057bq31b289384c26d19c@mail.gmail.com>
+Date: Fri, 12 Jan 2007 18:40:29 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.20-rc4-mm1 md problem
+Cc: "Andrew Morton" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
+       "Neil Brown" <neilb@cse.unsw.edu.au>,
+       LKML <linux-kernel@vger.kernel.org>, "Jens Axboe" <axboe@suse.de>
+In-Reply-To: <200701121652.46896.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6bffcb0e0701120533o609489den9ca02f42e4d4839@mail.gmail.com>
+	 <200701121652.46896.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RAID 5 TWEAKED: 1:06.41 elapsed @ 60% CPU
+On 12/01/07, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> On Friday, 12 January 2007 14:33, Michal Piotrowski wrote:
+> > My system hangs on this
+> > http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/bug2.jpg
+> > http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/mm-config
+> >
+> > Debug plan:
+> > - revert md-* patches
+> > - binary search
+> >
+> > Does someone have a better idea?
+>
+> Revert git-block.patch and related stuff?
 
-This should be 1:14 not 1:06(was with a similarly sized file but not the 
-same) the 1:14 is the same file as used with the other benchmarks.  and to 
-get that I used 256mb read-ahead and 16384 stripe size ++ 128 
-max_sectors_kb (same size as my sw raid5 chunk size)
+Indeed.
 
-On Fri, 12 Jan 2007, Justin Piszcz wrote:
+GOOD
+#
+##git-sym2.patch
+#git-scsi-target.patch
+#git-scsi-target-fixup.patch
+#
+git-block.patch
+git-block-fixup.patch
+BAD
 
-> 
-> 
-> On Fri, 12 Jan 2007, Michael Tokarev wrote:
-> 
-> > Justin Piszcz wrote:
-> > > Using 4 raptor 150s:
-> > > 
-> > > Without the tweaks, I get 111MB/s write and 87MB/s read.
-> > > With the tweaks, 195MB/s write and 211MB/s read.
-> > > 
-> > > Using kernel 2.6.19.1.
-> > > 
-> > > Without the tweaks and with the tweaks:
-> > > 
-> > > # Stripe tests:
-> > > echo 8192 > /sys/block/md3/md/stripe_cache_size
-> > > 
-> > > # DD TESTS [WRITE]
-> > > 
-> > > DEFAULT: (512K)
-> > > $ dd if=/dev/zero of=10gb.no.optimizations.out bs=1M count=10240
-> > > 10240+0 records in
-> > > 10240+0 records out
-> > > 10737418240 bytes (11 GB) copied, 96.6988 seconds, 111 MB/s
-> > []
-> > > 8192K READ AHEAD
-> > > $ dd if=10gb.16384k.stripe.out of=/dev/null bs=1M
-> > > 10240+0 records in
-> > > 10240+0 records out
-> > > 10737418240 bytes (11 GB) copied, 64.9454 seconds, 165 MB/s
-> > 
-> > What exactly are you measuring?  Linear read/write, like copying one
-> > device to another (or to /dev/null), in large chunks?
-> Check bonnie benchmarks below.
-> > 
-> > I don't think it's an interesting test.  Hint: how many times a day
-> > you plan to perform such a copy?
-> It is a measurement of raw performance.
-> > 
-> > (By the way, for a copy of one block device to another, try using
-> > O_DIRECT, with two dd processes doing the copy - one reading, and
-> > another writing - this way, you'll get best results without huge
-> > affect on other things running on the system.  Like this:
-> > 
-> >  dd if=/dev/onedev bs=1M iflag=direct |
-> >  dd of=/dev/twodev bs=1M oflag=direct
-> > )
-> Interesting, I will take this into consideration-- however, an untar test 
-> shows a 2:1 improvement, see below.
-> > 
-> > /mjt
-> > 
-> 
-> Decompress/unrar a DVD-sized file:
-> 
-> On the following RAID volumes with the same set of [4] 150GB raptors:
-> 
-> RAID  0] 1:13.16 elapsed @ 49% CPU
-> RAID  4] 2:05.85 elapsed @ 30% CPU 
-> RAID  5] 2:01.94 elapsed @ 32% CPU
-> RAID  6] 2:39.34 elapsed @ 24% CPU
-> RAID 10] 1:52.37 elapsed @ 32% CPU
-> 
-> RAID 5 Tweaked (8192 stripe_cache & 16384 setra/blockdev)::
-> 
-> RAID 5 TWEAKED: 1:06.41 elapsed @ 60% CPU
-> 
-> I did not tweak raid 0, but seeing how RAID5 tweaked is faster than RAID0 
-> is good enough for me :)
-> 
-> RAID0 did 278MB/s read and 317MB/s write (by the way)
-> 
-> Here are the bonnie results, the times alone speak for themselves, from 8 
-> minutes to min and 48-59 seconds.
-> 
-> # No optimizations:
-> # Run Benchmarks
-> Default Bonnie: 
-> [nr_requests=128,max_sectors_kb=512,stripe_cache_size=256,read_ahead=1536]
-> default_run1,4000M,42879,98,105436,19,41081,11,46277,96,87845,15,639.2,1,16:100000:16/64,380,4,29642,99,2990,18,469,5,11784,40,1712,12
-> default_run2,4000M,47145,99,108664,19,40931,11,46466,97,94158,16,634.8,0,16:100000:16/64,377,4,16990,56,2850,17,431,4,21066,71,1800,13
-> default_run3,4000M,43653,98,109063,19,40898,11,46447,97,97141,16,645.8,1,16:100000:16/64,373,4,22302,75,2793,16,420,4,16708,56,1794,13
-> default_run4,4000M,46485,98,110664,20,41102,11,46443,97,93616,16,631.3,1,16:100000:16/64,363,3,14484,49,2802,17,388,4,25532,86,1604,12
-> default_run5,4000M,43813,98,109800,19,41214,11,46457,97,92563,15,635.1,1,16:100000:16/64,376,4,28990,95,2827,17,388,4,22874,76,1817,13
-> 
-> 169.88user 44.01system 8:02.98elapsed 44%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (6major+1102minor)pagefaults 0swaps
-> 161.60user 44.33system 7:53.14elapsed 43%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (13major+1095minor)pagefaults 0swaps
-> 166.64user 45.24system 8:00.07elapsed 44%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (13major+1096minor)pagefaults 0swaps
-> 161.90user 44.66system 8:00.85elapsed 42%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (13major+1094minor)pagefaults 0swaps
-> 167.61user 44.12system 8:03.26elapsed 43%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (13major+1092minor)pagefaults 0swaps
-> 
-> 
-> All optimizations [bonnie++] 
-> 
-> 168.08user 46.05system 5:55.13elapsed 60%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (16major+1092minor)pagefaults 0swaps
-> 162.65user 46.21system 5:48.47elapsed 59%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (7major+1101minor)pagefaults 0swaps
-> 168.06user 45.74system 5:59.84elapsed 59%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (7major+1102minor)pagefaults 0swaps
-> 168.00user 46.18system 5:58.77elapsed 59%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (13major+1095minor)pagefaults 0swaps
-> 167.98user 45.53system 5:56.49elapsed 59%CPU (0avgtext+0avgdata 
-> 0maxresident)k
-> 0inputs+0outputs (5major+1101minor)pagefaults 0swaps
-> 
-> c6300-optimized:4000M,43976,99,167209,29,73109,22,43471,91,208572,40,511.4,1,16:100000:16/64,1109,12,26948,89,2469,14,1051,11,29037,97,2167,16
-> c6300-optimized:4000M,47455,99,190212,35,70402,21,43167,92,206290,40,503.3,1,16:100000:16/64,1071,11,29893,99,2804,16,1059,12,24887,84,2090,16
-> c6300-optimized:4000M,43979,99,172543,29,71811,21,41760,87,201870,39,498.9,1,16:100000:16/64,1042,11,30276,99,2800,16,1063,12,29491,99,2257,17
-> c6300-optimized:4000M,43824,98,164585,29,73470,22,43098,90,207003,40,489.1,1,16:100000:16/64,1045,11,30288,98,2512,15,1018,11,27365,92,2097,16
-> c6300-optimized:4000M,44003,99,194250,32,71055,21,43327,91,196553,38,505.8,1,16:100000:16/64,1031,11,30278,98,2474,14,1049,12,28068,94,2027,15
-> 
-> txt version of optimized results:
-> 
-> Version  1.03      ------Sequential Output------ --Sequential Input- 
-> --Random-
->                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- 
-> --Seeks--
-> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  
-> /sec %CP
-> c6300-optimiz 47455    99 190212    35 70402    21 43167    92 206290    
-> 40 503.3     1
-> c6300-optimiz 43979    99 172543    29 71811    21 41760    87 201870    
-> 39 498.9     1
-> c6300-optimiz 43824    98 164585    29 73470    22 43098    90 207003    
-> 40 489.1     1
-> c6300-optimiz 44003    99 194250    32 71055    21 43327    91 196553    
-> 38 505.8     1
-> 
-> 
+git-block.patch it's huge patch.
+
+diffstat git-block.patch
+[..]
+drivers/md/bitmap.c             |    1
+ drivers/md/dm-emc.c             |    2
+ drivers/md/dm-table.c           |   14 -
+ drivers/md/dm.c                 |   18 -
+ drivers/md/dm.h                 |    1
+ drivers/md/linear.c             |   14 -
+ drivers/md/md.c                 |    3
+ drivers/md/multipath.c          |   32 --
+ drivers/md/raid0.c              |   17 -
+ drivers/md/raid1.c              |   70 -----
+ drivers/md/raid10.c             |   73 ------
+ drivers/md/raid5.c              |   60 ----
+[..]
+
+I'll do a binary search through those files.
+
+>
+> Greetings,
+> Rafael
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

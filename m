@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965005AbXALTql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030190AbXALTr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965005AbXALTql (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 14:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbXALTqk
+	id S1030190AbXALTr0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 14:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbXALTr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 14:46:40 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45459 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965005AbXALTqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 14:46:40 -0500
-Date: Fri, 12 Jan 2007 11:46:22 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>
-Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
-In-Reply-To: <20070112160104.GA5766@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com>
-References: <20070112160104.GA5766@localhost.localdomain>
+	Fri, 12 Jan 2007 14:47:26 -0500
+Received: from [212.12.190.102] ([212.12.190.102]:33210 "EHLO raad.intranet"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030182AbXALTrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 14:47:25 -0500
+X-Greylist: delayed 818 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 14:47:23 EST
+From: Al Boldi <a1426z@gawab.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1: (211MB/s read & 195MB/s write)
+Date: Fri, 12 Jan 2007 22:49:13 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
+References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan> <Pine.LNX.4.64.0701120934260.21164@p34.internal.lan> <Pine.LNX.4.64.0701121236470.3840@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0701121236470.3840@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200701122235.30288.a1426z@gawab.com>
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007, Ravikiran G Thirumalai wrote:
+Justin Piszcz wrote:
+> RAID 5 TWEAKED: 1:06.41 elapsed @ 60% CPU
+>
+> This should be 1:14 not 1:06(was with a similarly sized file but not the
+> same) the 1:14 is the same file as used with the other benchmarks.  and to
+> get that I used 256mb read-ahead and 16384 stripe size ++ 128
+> max_sectors_kb (same size as my sw raid5 chunk size)
 
-> The test was simple, we have 16 processes, each allocating 3.5G of memory
-> and and touching each and every page and returning.  Each of the process is
-> bound to a node (socket), with the local node being the preferred node for
-> allocation (numactl --cpubind=$node ./numa-membomb --preferred=$node).  Each
-> socket has 4G of physical memory and there are two cores on each socket. On
-> start of the test, the machine becomes unresponsive after sometime and
-> prints out softlockup and OOM messages.  We then found out the cause
-> for softlockups being the excessive spin times on zone_lru lock.  The fact
-> that spin_lock_irq disables interrupts while spinning made matters very bad.
-> We instrumented the spin_lock_irq code and found that the spin time on the
-> lru locks was in the order of a few seconds (tens of seconds at times) and
-> the hold time was comparatively lesser.
+max_sectors_kb is probably your key. On my system I get twice the read 
+performance by just reducing max_sectors_kb from default 512 to 192.
 
-So the issue is two processes contenting on the zone lock for one node? 
-You are overallocating the 4G node with two processes attempting to 
-allocate 7.5GB? So we go off node for 3.5G of the allocation?
+Can you do a fresh reboot to shell and then:
+$ cat /sys/block/hda/queue/*
+$ cat /proc/meminfo
+$ echo 3 > /proc/sys/vm/drop_caches
+$ dd if=/dev/hda of=/dev/null bs=1M count=10240
+$ echo 192 > /sys/block/hda/queue/max_sectors_kb
+$ echo 3 > /proc/sys/vm/drop_caches
+$ dd if=/dev/hda of=/dev/null bs=1M count=10240
 
-Does the system scale the right way if you stay within the bounds of node 
-memory? I.e. allocate 1.5GB from each process?
 
-Have you tried increasing the size of the per cpu caches in 
-/proc/sys/vm/percpu_pagelist_fraction?
+Thanks!
 
-> While the softlockups and the like went away by enabling interrupts during
-> spinning, as mentioned in http://lkml.org/lkml/2007/1/3/29 ,
-> Andi thought maybe this is exposing a problem with zone->lru_locks and 
-> hence warrants a discussion on lkml, hence this post.  Are there any 
-> plans/patches/ideas to address the spin time under such extreme conditions?
+--
+Al
 
-Could this be a hardware problem? Some issue with atomic ops in the 
-Sun hardware?

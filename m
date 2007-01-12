@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161160AbXALXVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161151AbXALXZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161160AbXALXVO (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 18:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbXALXVO
+	id S1161151AbXALXZS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 18:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161156AbXALXZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 18:21:14 -0500
-Received: from nf-out-0910.google.com ([64.233.182.187]:38778 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161160AbXALXVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 18:21:13 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bCk6sQ2+FT7H7lrhPIFcF+43CiRtHCqEvCxs1elUtg3v4O012yt7gF1tKLxXqL1ZgtQjTfivxhb9488YwvoJ0N4E3sySqWu4685sEKqgMatIcku6FbIuPVAQYIYptNUiMGKI9wUVcolqaHLtA120RzEW+d634OoIPtSvLWXs0bo=
-Message-ID: <8355959a0701121521h47acde7cy5f4661bb283ae782@mail.gmail.com>
-Date: Sat, 13 Jan 2007 04:51:11 +0530
-From: "Sunil Naidu" <akula2.shark@gmail.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Subject: Re: Choosing a HyperThreading/SMP/MultiCore kernel ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070112150349.GI17269@csclub.uwaterloo.ca>
+	Fri, 12 Jan 2007 18:25:18 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:14108 "EHLO
+	mis011-1.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161151AbXALXZQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 18:25:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <8355959a0701120525m5d1a7904i56b8a8f7316883d6@mail.gmail.com>
-	 <20070112150349.GI17269@csclub.uwaterloo.ca>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [kvm-devel] kvm & dyntick
+Date: Fri, 12 Jan 2007 15:25:14 -0800
+Message-ID: <64F9B87B6B770947A9F8391472E0321609F7A0E2@ehost011-8.exch011.intermedia.net>
+In-Reply-To: <20070112101931.GA11635@elte.hu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [kvm-devel] kvm & dyntick
+Thread-Index: Acc2OJQMDvcEO5ZvR+S0EUsPiWlbHAAZt3Gw
+References: <45A66106.5030608@qumranet.com> <20070112062006.GA32714@elte.hu> <20070112101931.GA11635@elte.hu>
+From: "Dor Laor" <dor.laor@qumranet.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Avi Kivity" <avik@qumranet.com>
+Cc: "kvm-devel" <kvm-devel@lists.sourceforge.net>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Jan 2007 23:25:16.0342 (UTC) FILETIME=[EAB00560:01C736A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/07, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+>* Ingo Molnar <mingo@elte.hu> wrote:
 >
-> I would expect any distribution should work on these (as long as the
-> kernel they use isn't too old.).  Of course if it is a Mac, you need a
-> distribution that supports their firmware (which is of course not a PC
-> bios).  As long as you can boot it, any i386 or amd64 kernel with smp
-> enabled should use all the processors present (well amd64 on the
-> core2duo and on the p4 if it is em64t enabled).
-
-It is not a Mac here, IBM Workstation. I can see the Processor as
-Pentium 4 CPU 3. GHz (family 15, model 4). How to know EM64T enabled,
-any command?
-
-Trying to understand, should I set CPUSETS=y and SCHED_MC=y Or ignore them.
-
-> I believe the closest optimization for a Core2 is probably the Pentium M
-> (certainly not the P4/netburst).  Not entirely sure though.
+>> > dyntick-enabled guest:
+>> > - reduce the load on the host when the guest is idling
+>> >   (currently an idle guest consumes a few percent cpu)
+>>
+>> yeah. KVM under -rt already works with dynticks enabled on both the
+>> host and the guest. (but it's more optimal to use a dedicated
+>> hypercall to set the next guest-interrupt)
 >
+>using the dynticks code from the -rt kernel makes the overhead of an
+>idle guest go down by a factor of 10-15:
+>
+>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+> 2556 mingo     15   0  598m 159m 157m R  1.5  8.0   0:26.20 qemu
+>
+>( for this to work on my system i have added a 'hyper' clocksource
+>  hypercall API for KVM guests to use - this is needed instead of the
+>  running-to-slowly TSC. )
+>
+>	Ingo
 
-Yep, this ia a MacBookPro. I have decided about the distro. I did ask
-this doubt when I got for the custom kernel compilation from source
-after installation.
+This is great news for PV guests.
 
-What I have seen in KConfig is, MPENTIUM4 used for the Xeon processor
-too. I would try this soon on my Laptop (with SMP since it's a
-Core2Duo). Anyway, shall post here.
+Never-the-less we still need to improve our full virtualized guest
+support. 
+First we need a mechanism (can we use the timeout_granularity?) to
+dynamically change the host timer frequency so we can support guests
+with 100hz that dynamically change their freq to 1000hz and back.
 
-> --
-> Len Sorensen
+Afterwards we'll need to compensate the lost alarm signals to the guests
+by using one of 
+ - hrtimers to inject the lost interrupts for specific guests. The
+problem this will increase the overall load.
+ - Injecting several virtual irq to the guests one after another (using
+interrupt window exit). The question is how the guest will be effected
+from this unfair behavior.
 
-Thanks,
-
-~Sunil
+Can dyntick help HVMs? Will the answer be the same for guest-dense
+hosts? I understood that the main gain of dyn-tick is for idle time.

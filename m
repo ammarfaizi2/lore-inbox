@@ -1,62 +1,145 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030229AbXALUIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030180AbXALUNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbXALUIf (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 15:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbXALUIe
+	id S1030180AbXALUNf (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 15:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbXALUNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 15:08:34 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:56825 "EHLO e1.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030229AbXALUIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 15:08:34 -0500
-In-Reply-To: <20070111143537.GB6843@ucw.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
-       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@watson.ibm.com
+	Fri, 12 Jan 2007 15:13:35 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:41573 "HELO
+	smtp112.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1030180AbXALUNe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 15:13:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=0hFE95BNwYQ3xYPSEZQjucTyhUiycfcGVF/OYeQYEBb3kjPsHF616VBznp/fiT6YJVHamrygKrhRzUsXdDxzbDsbPDwv3tl+QfCHPYwWs98g4ArnLD8cpM56OUhvc6+ALrOx7nWqqATm8/uKvP/3NGWGhrWHmIUyNmeS9shozH8=  ;
+X-YMail-OSG: KMssyVYVM1mPtf5ZGMwpKJA1N9M0b4lPAJQYs9LvxCkrg8dmKAcDEESkELV4kXF4TRh_1pZv__pP9kAyrj5ATU6qHpn8PUJHhdtj0_sBDKL5wy6JjAivT948nkCXc6WsLku1cdIx5ZvT5HU-
+From: David Brownell <david-b@pacbell.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 2.6.20-rc4-git] remove modpost false warnings on ARM
+Date: Fri, 12 Jan 2007 12:13:30 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
+References: <200701120831.37513.david-b@pacbell.net> <20070112163852.GA16511@flint.arm.linux.org.uk>
+In-Reply-To: <20070112163852.GA16511@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Subject: Re: mprotect abuse in slim
-X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
-Message-ID: <OFDF1FF03C.DB6D539B-ON85257261.006E437F-85257261.006F74D1@us.ibm.com>
-From: Mimi Zohar <zohar@us.ibm.com>
-Date: Fri, 12 Jan 2007 15:08:32 -0500
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
- 01/12/2007 15:08:34,
-	Serialize complete at 01/12/2007 15:08:34
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200701121213.31028.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote on 01/11/2007 09:35:37 AM:
+On Friday 12 January 2007 8:38 am, Russell King wrote:
+> A more correct test would be that found in kallsyms.c:
 
-> Hi!
-> 
-> > SLIM implements dynamic process labels, so when a process
-> > is demoted, we must be able to revoke write access to some
-> > resources to which it has previously valid handles.
-> > For example, if a shell reads an untrusted file, the
-> > shell is demoted, and write access to more trusted files
-> > revoked. Based on previous comments on lkml, we understand
-> > that this is not really possible in general, so SLIM only
-> > attempts to revoke access in certain simple cases.
-> 
-> Are you saying that SLIM is useless by design because interested
-> parties can work around it?
->                      Pavel
+Good point.  Updated patch appended.
 
-Sorry that we were unclear about what happens in the case revocation
-is not possible.  In those cases, the unsafe requested read or exec
-that would normally trigger the demotion/revocation is denied, so
-there is no way around the integrity model.
+- Dave
 
-The goal of the low water mark integrity model is to be as transparent
-as possible to the user. If the user asks for something to be done, we
-allow it as much as possible, demoting the process as needed for
-security.  If there is something that would need to be revoked, which
-can't safely be revoked, then we deny the read/exec request, which is
-secure, but possibly visible/annoying to the user. Fortunately in our
-testing, there are only a few cases where this happens, and the
-overall result is a model which is still much more transparent than
-other models which don't allow demotion at all.
 
-Mimi Zohar
+===============	CUT HERE
+This patch stops "modpost" from issuing erroneous modpost warnings on ARM
+builds, which it's been doing simce since maybe last summer.  A canonical
+example would be driver method table entries:
+
+  WARNING: <path> - Section mismatch: reference to .exit.text:<name>_remove
+	from .data after '$d' (at offset 0x4)
+
+That "$d" symbol is generated by tools conformant with ARM ABI specs; in
+this case, it's a relocation in the middle of a "<name>_driver" struct.
+The erroneous warnings appear to be issued because "modpost" whitelists
+references from "<name>_driver" data into init and exit sections ... but
+does NOT whitelist them from "$d" (and can't).
+
+This patch prevents the modpost symbol lookup code from ever returning
+those symbols, so it will return a whitelisted symbol instead.
+
+Now to revert various code-bloating "fixes" that got merged because of
+this modpost bug....
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+---
+Likely this patch can be improved on, but there's another issue.
+It seems to me that these modpost checks are wrong:
+
+  * Lingering pointers that point into sections modprobe removes are
+    *always* unsafe ... including probe() methods marked "__init"
+    on hotpluggable busses.  Trivial fix:  use __devinit instead;
+    or maybe platform_driver_probe().
+  * Lingering pointers that point into sections that aren't removed
+    are *never* unsafe ... including this remove() method case, since
+    module unloading is configured and the __exit stuff must stay.
+
+Whitelisting the former means not reporting potential oopsing cases;
+dangerous.  Whereas even *checking* the latter is a waste of effort.
+
+Index: at91/scripts/mod/modpost.c
+===================================================================
+--- at91.orig/scripts/mod/modpost.c	2006-12-15 10:08:57.000000000 -0800
++++ at91/scripts/mod/modpost.c	2007-01-12 12:09:29.000000000 -0800
+@@ -655,6 +655,30 @@ static Elf_Sym *find_elf_symbol(struct e
+ 	return NULL;
+ }
+ 
++static inline int is_arm_mapping_symbol(const char *str)
++{
++	return str[0] == '$' && strchr("atd", str[1])
++	       && (str[2] == '\0' || str[2] == '.');
++}
++
++/*
++ * If there's no name there, ignore it; likewise, ignore it if it's
++ * one of the magic symbols emitted used by current ARM tools.
++ *
++ * Otherwise if find_symbols_between() returns those symbols, they'll
++ * fail the whitelist tests and cause lots of false alarms ... fixable
++ * only by shrinking __exit and __init sections into __text, bloating
++ * the kernel (which is especially evil on embedded platforms).
++ */
++static inline int is_valid_name(struct elf_info *elf, Elf_Sym *sym)
++{
++	const char *name = elf->strtab + sym->st_name;
++
++	if (!name || !strlen(name))
++		return 0;
++	return !is_arm_mapping_symbol(name);
++}
++
+ /*
+  * Find symbols before or equal addr and after addr - in the section sec.
+  * If we find two symbols with equal offset prefer one with a valid name.
+@@ -683,16 +707,15 @@ static void find_symbols_between(struct 
+ 		symsec = secstrings + elf->sechdrs[sym->st_shndx].sh_name;
+ 		if (strcmp(symsec, sec) != 0)
+ 			continue;
++		if (!is_valid_name(elf, sym))
++			continue;
+ 		if (sym->st_value <= addr) {
+ 			if ((addr - sym->st_value) < beforediff) {
+ 				beforediff = addr - sym->st_value;
+ 				*before = sym;
+ 			}
+ 			else if ((addr - sym->st_value) == beforediff) {
+-				/* equal offset, valid name? */
+-				const char *name = elf->strtab + sym->st_name;
+-				if (name && strlen(name))
+-					*before = sym;
++				*before = sym;
+ 			}
+ 		}
+ 		else
+@@ -702,10 +725,7 @@ static void find_symbols_between(struct 
+ 				*after = sym;
+ 			}
+ 			else if ((sym->st_value - addr) == afterdiff) {
+-				/* equal offset, valid name? */
+-				const char *name = elf->strtab + sym->st_name;
+-				if (name && strlen(name))
+-					*after = sym;
++				*after = sym;
+ 			}
+ 		}
+ 	}

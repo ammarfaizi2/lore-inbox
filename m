@@ -1,112 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030525AbXALE0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030481AbXALE0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030525AbXALE0N (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 23:26:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbXALEYJ
+	id S1030481AbXALE0Z (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 23:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbXALE0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 23:24:09 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:34837 "EHLO
+	Thu, 11 Jan 2007 23:26:14 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:34121 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030488AbXALEXk (ORCPT
+	with ESMTP id S1030493AbXALEYL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 23:23:40 -0500
+	Thu, 11 Jan 2007 23:24:11 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:from:to:cc:date:message-id:in-reply-to:references:subject;
-        b=HeI5CvqM9N+nZTr2nsmX0+gFu0l15s9xx58brsrtRnLXYw4A1/sW9edb7CGU0VPWBlSae8dsKir+bH+Iihr2d164QpxAGB2GT6jzRyg+rrNouM7exbY9U/ik9PZSwUcKxU5pbsI4vfPquoYiHoLkT71H+NKI0ZaXr/R6cviidWc=
+        b=S74/1U7RWwCnwR1N0rNZy8lEI9xZLzjwrcjOKg5vHukppNk8SmPu/jKBS9OOrztVUGreGUewRLYcyzc9+2GMr2W1LwRXNloEgS6GeSxzw9RK/bY83tBdsE13veFrr6PLmt5hb3ReRhnxIKyexmpV2DRiIE+fkyCiVEVCDqMVKNg=
 From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: linux-ide@vger.kernel.org
 Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
        linux-kernel@vger.kernel.org
-Date: Fri, 12 Jan 2007 05:27:16 +0100
-Message-Id: <20070112042716.28794.40732.sendpatchset@localhost.localdomain>
+Date: Fri, 12 Jan 2007 05:27:47 +0100
+Message-Id: <20070112042747.28794.38484.sendpatchset@localhost.localdomain>
 In-Reply-To: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
 References: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
-Subject: [PATCH 11/19] ide: remove ide_pci_device_t tables with only one entry
+Subject: [PATCH 16/19] sis5513: sis5513_config_xfer_rate() cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] ide: remove ide_pci_device_t tables with only one entry
+[PATCH] sis5513: sis5513_config_xfer_rate() cleanup
+
+* remove bogus comment for sis5513_config_xfer_rate()
+* there is no need to call config_drive_art_rwp() because
+  it is called by config_art_rwp_pio()
+* remove needless wrapper
+* remove stale "TODO" comment
+  (IDE core should provide generic tuning code)
 
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
 ---
- drivers/ide/pci/cy82c693.c |   21 +++++++++------------
- drivers/ide/pci/sgiioc4.c  |    7 ++-----
- 2 files changed, 11 insertions(+), 17 deletions(-)
+ drivers/ide/pci/sis5513.c |   41 +++--------------------------------------
+ 1 file changed, 3 insertions(+), 38 deletions(-)
 
-Index: a/drivers/ide/pci/cy82c693.c
+Index: a/drivers/ide/pci/sis5513.c
 ===================================================================
---- a.orig/drivers/ide/pci/cy82c693.c
-+++ a/drivers/ide/pci/cy82c693.c
-@@ -478,21 +478,18 @@ static void __devinit init_iops_cy82c693
- 	}
+--- a.orig/drivers/ide/pci/sis5513.c
++++ a/drivers/ide/pci/sis5513.c
+@@ -667,11 +667,13 @@ static int config_chipset_for_dma (ide_d
+ 	return ide_dma_enable(drive);
  }
  
--static ide_pci_device_t cy82c693_chipsets[] __devinitdata = {
--	{	/* 0 */
--		.name		= "CY82C693",
--		.init_chipset	= init_chipset_cy82c693,
--		.init_iops	= init_iops_cy82c693,
--		.init_hwif	= init_hwif_cy82c693,
--		.channels	= 1,
--		.autodma	= AUTODMA,
--		.bootable	= ON_BOARD,
--	}
-+static ide_pci_device_t cy82c693_chipset __devinitdata = {
-+	.name		= "CY82C693",
-+	.init_chipset	= init_chipset_cy82c693,
-+	.init_iops	= init_iops_cy82c693,
-+	.init_hwif	= init_hwif_cy82c693,
-+	.channels	= 1,
-+	.autodma	= AUTODMA,
-+	.bootable	= ON_BOARD,
- };
- 
- static int __devinit cy82c693_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+-static int sis5513_config_drive_xfer_rate (ide_drive_t *drive)
++static int sis5513_config_xfer_rate(ide_drive_t *drive)
  {
--	ide_pci_device_t *d = &cy82c693_chipsets[id->driver_data];
- 	struct pci_dev *dev2;
- 	int ret = -ENODEV;
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct hd_driveid *id	= drive->id;
  
-@@ -501,7 +498,7 @@ static int __devinit cy82c693_init_one(s
-         if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE &&
- 	    PCI_FUNC(dev->devfn) == 1) {
- 		dev2 = pci_get_slot(dev->bus, dev->devfn + 1);
--		ret = ide_setup_pci_devices(dev, dev2, d);
-+		ret = ide_setup_pci_devices(dev, dev2, &cy82c693_chipset);
- 		/* We leak pci refs here but thats ok - we can't be unloaded */
- 	}
- 	return ret;
-Index: a/drivers/ide/pci/sgiioc4.c
-===================================================================
---- a.orig/drivers/ide/pci/sgiioc4.c
-+++ a/drivers/ide/pci/sgiioc4.c
-@@ -729,8 +729,7 @@ out:
- 	return ret;
++	config_art_rwp_pio(drive, 5);
++
+ 	drive->init_speed = 0;
+ 
+ 	if (id && (id->capability & 1) && drive->autodma) {
+@@ -692,43 +694,6 @@ fast_ata_pio:
+ 	return 0;
  }
  
--static ide_pci_device_t sgiioc4_chipsets[] __devinitdata = {
--	{
-+static ide_pci_device_t sgiioc4_chipset __devinitdata = {
- 	 /* Channel 0 */
- 	 .name = "SGIIOC4",
- 	 .init_hwif = ide_init_sgiioc4,
-@@ -739,7 +738,6 @@ static ide_pci_device_t sgiioc4_chipsets
- 	 .autodma = AUTODMA,
- 	 /* SGI IOC4 doesn't have enablebits. */
- 	 .bootable = ON_BOARD,
--	}
- };
- 
- int
-@@ -751,8 +749,7 @@ ioc4_ide_attach_one(struct ioc4_driver_d
- 	if (idd->idd_variant == IOC4_VARIANT_PCI_RT)
- 		return 0;
- 
--	return pci_init_sgiioc4(idd->idd_pdev,
--				&sgiioc4_chipsets[idd->idd_pci_id->driver_data]);
-+	return pci_init_sgiioc4(idd->idd_pdev, &sgiioc4_chipset);
- }
- 
- static struct ioc4_submodule ioc4_ide_submodule = {
+-/* initiates/aborts (U)DMA read/write operations on a drive. */
+-static int sis5513_config_xfer_rate (ide_drive_t *drive)
+-{
+-	config_drive_art_rwp(drive);
+-	config_art_rwp_pio(drive, 5);
+-	return sis5513_config_drive_xfer_rate(drive);
+-}
+-
+-/*
+-  Future simpler config_xfer_rate :
+-   When ide_find_best_mode is made bad-drive aware
+-   - remove config_drive_xfer_rate and config_chipset_for_dma,
+-   - replace config_xfer_rate with the following
+-
+-static int sis5513_config_xfer_rate (ide_drive_t *drive)
+-{
+-	u16 w80 = HWIF(drive)->udma_four;
+-	u16 speed;
+-
+-	config_drive_art_rwp(drive);
+-	config_art_rwp_pio(drive, 5);
+-
+-	speed = ide_find_best_mode(drive,
+-		XFER_PIO | XFER_EPIO | XFER_SWDMA | XFER_MWDMA |
+-		(chipset_family >= ATA_33 ? XFER_UDMA : 0) |
+-		(w80 && chipset_family >= ATA_66 ? XFER_UDMA_66 : 0) |
+-		(w80 && chipset_family >= ATA_100a ? XFER_UDMA_100 : 0) |
+-		(w80 && chipset_family >= ATA_133a ? XFER_UDMA_133 : 0));
+-
+-	sis5513_tune_chipset(drive, speed);
+-
+-	if (drive->autodma && (speed & XFER_MODE) != XFER_PIO)
+-		return HWIF(drive)->ide_dma_on(drive);
+-	return HWIF(drive)->ide_dma_off_quietly(drive);
+-}
+-*/
+-
+ /* Chip detection and general config */
+ static unsigned int __devinit init_chipset_sis5513 (struct pci_dev *dev, const char *name)
+ {

@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1160996AbXALFVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030488AbXALFWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160996AbXALFVB (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 00:21:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160997AbXALFVB
+	id S1030488AbXALFWR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 00:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160997AbXALFWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 00:21:01 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:33872 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1160996AbXALFVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 00:21:00 -0500
-Date: Thu, 11 Jan 2007 21:20:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 7/8] user_ns: handle file sigio
-Message-Id: <20070111212039.68e57e65.akpm@osdl.org>
-In-Reply-To: <20070104181257.GH11377@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com>
-	<20070104181257.GH11377@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 Jan 2007 00:22:17 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:24239 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030488AbXALFWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 00:22:16 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f0i3iLv1IJ/Dmk8LAA0jGViOkOz78Xph4RxG4+nHJ564H6WlDrIKBxImsy4cpPXIxk3aQKPZShMcu2164qziauuspAXqcSozpeGHIvsghvra99Ou92YJMWYZulrcPdvnw74kMXCRcPIlJgw46Rin6pcCuGR1Lj+ppRXqcQuGOlI=
+Message-ID: <6d6a94c50701112122l66a4866bg548009dddb806434@mail.gmail.com>
+Date: Fri, 12 Jan 2007 13:22:03 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: O_DIRECT question
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Bill Davidsen" <davidsen@tmr.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Hua Zhong" <hzhong@gmail.com>,
+       "Hugh Dickins" <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
+In-Reply-To: <45A714F8.6020600@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>
+	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>
+	 <20070110225720.7a46e702.akpm@osdl.org>
+	 <45A5E1B2.2050908@yahoo.com.au>
+	 <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>
+	 <45A5F157.9030001@yahoo.com.au> <45A6F70E.1050902@tmr.com>
+	 <45A70EF9.40408@yahoo.com.au>
+	 <Pine.LNX.4.64.0701112044070.3594@woody.osdl.org>
+	 <45A714F8.6020600@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007 12:12:57 -0600
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+On 1/12/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Linus Torvalds wrote:
+> >
+> > On Fri, 12 Jan 2007, Nick Piggin wrote:
+> >
+> >>We are talking about about fragmentation. And limiting pagecache to try to
+> >>avoid fragmentation is a bandaid, especially when the problem can be solved
+> >>(not just papered over, but solved) in userspace.
+> >
+> >
+> > It's not clear that the problem _can_ be solved in user space.
+> >
+> > It's easy enough to say "never allocate more than a page". But it's often
+> > not REALISTIC.
+>  >
+> > Very basic issue: the perfect is the enemy of the good. Claiming that
+> > there is a "proper solution" is usually a total red herring. Quite often
+> > there isn't, and the "paper over" is actually not papering over, it's
+> > quite possibly the best solution there is.
+>
+> Yeah *smallish* higher order allocations are fine, and we use them all the
+> time for things like stacks or networking.
+>
+> But Aubrey (who somehow got removed from the cc list) wants to do order 9
+> allocations from userspace in his nommu environment. I'm just trying to be
+> realistic when I say that this isn't going to be robust and a userspace
+> solution is needed.
+>
+Hmm..., aside from big order allocations from user space, if there is
+a large application we need to run, it should be loaded into the
+memory, so we have to allocate a big block to accommodate it. kernel
+fun like load_elf_fdpic_binary() etc will request contiguous memory,
+then if vfs eat up free memory, loading fails.
 
-> A process in one user namespace could set a fowner and sigio on a file in a
-> shared vfsmount, ending up killing a task in another user namespace.
-> 
-> Prevent this by adding a user namespace pointer to the fown_struct, and
-> enforcing that a process causing a signal to be sent be in the same
-> user namespace as the file owner.
-
-This patch breaks the X server (stock FC5 install) with CONFIG_USER_NS=n. 
-Neither the USB mouse nor the trackpad work.  They work OK under GPM.
-
-Setting CONFIG_USER_NS=y "fixes" this.  This bug was not observed in
-2.6.20-rc3-mm1 because that kernel had user-ns-always-on.patch for other
-reasons.  (I'll restore that patch).
-
-There's nothing very interesting here:
-
-
-sony:/home/akpm> diff -u Xorg.0.log.good Xorg.0.log.bad          
---- Xorg.0.log.good     2007-01-11 21:11:11.000000000 -0800
-+++ Xorg.0.log.bad      2007-01-11 21:17:31.000000000 -0800
-@@ -6,7 +6,7 @@
- Release Date: 21 December 2005
- X Protocol Version 11, Revision 0, Release 7.0
- Build Operating System:Linux 2.6.9-22.18.bz155725.ELsmp i686Red Hat, Inc.
--Current Operating System: Linux sony 2.6.20-rc4-mm1 #15 Thu Jan 11 21:07:58 PST 2007 i686
-+Current Operating System: Linux sony 2.6.20-rc4-mm1 #16 Thu Jan 11 21:14:03 PST 2007 i686
- Build Date: 22 March 2006
-        Before reporting problems, check http://wiki.x.org
-        to make sure that you have the latest version.
-@@ -14,7 +14,7 @@
- Markers: (--) probed, (**) from config file, (==) default setting,
-        (++) from command line, (!!) notice, (II) informational,
-        (WW) warning, (EE) error, (NI) not implemented, (??) unknown.
--(==) Log file: "/var/log/Xorg.0.log", Time: Thu Jan 11 21:10:16 2007
-+(==) Log file: "/var/log/Xorg.0.log", Time: Thu Jan 11 21:16:39 2007
- (==) Using config file: "/etc/X11/xorg.conf"
- (==) ServerLayout "single head configuration"
- (**) |-->Screen "Screen0" (0)
-@@ -2117,9 +2117,9 @@
- (II) I810(0): Allocated 128 kB for the ring buffer at 0x0
- (II) I810(0): Allocating at least 256 scanlines for pixmap cache
- (II) I810(0): Initial framebuffer allocation size: 12288 kByte
--(II) I810(0): Allocated 4 kB for HW cursor at 0xffff000 (0x35dd3000)
--(II) I810(0): Allocated 16 kB for HW (ARGB) cursor at 0xfffb000 (0x35e78000)
--(II) I810(0): Allocated 4 kB for Overlay registers at 0xfffa000 (0x35e39000).
-+(II) I810(0): Allocated 4 kB for HW cursor at 0xffff000 (0x358d5000)
-+(II) I810(0): Allocated 16 kB for HW (ARGB) cursor at 0xfffb000 (0x35888000)
-+(II) I810(0): Allocated 4 kB for Overlay registers at 0xfffa000 (0x358d7000).
- (II) I810(0): Allocated 64 kB for the scratch buffer at 0xffea000
- drmOpenDevice: node name is /dev/dri/card0
- drmOpenDevice: open result is -1, (No such device or address)
-@@ -2137,8 +2137,8 @@
- (II) I810(0): [drm] loaded kernel module for "i915" driver
- (II) I810(0): [drm] DRM interface version 1.3
- (II) I810(0): [drm] created "i915" driver at busid "pci:0000:00:02.0"
--(II) I810(0): [drm] added 8192 byte SAREA at 0xf8e46000
--(II) I810(0): [drm] mapped SAREA 0xf8e46000 to 0xb7eec000
-+(II) I810(0): [drm] added 8192 byte SAREA at 0xf8d4a000
-+(II) I810(0): [drm] mapped SAREA 0xf8d4a000 to 0xb7f23000
- (II) I810(0): [drm] framebuffer handle = 0xc0020000
- (II) I810(0): [drm] added 1 reserved context for kernel
- (II) I810(0): Allocated 32 kB for the logical context at 0xffe2000.
+-Aubrey

@@ -1,177 +1,135 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161126AbXALWDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161107AbXALWH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161126AbXALWDG (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 17:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbXALWDG
+	id S1161107AbXALWH2 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 17:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbXALWH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 17:03:06 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:59533 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161107AbXALWDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 17:03:04 -0500
-Message-ID: <45A805A0.2080000@us.ibm.com>
-Date: Fri, 12 Jan 2007 16:03:12 -0600
-From: Maynard Johnson <maynardj@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH] Cell SPU task notification
-Content-Type: multipart/mixed;
- boundary="------------040508030100030202060105"
+	Fri, 12 Jan 2007 17:07:27 -0500
+Received: from mail.first.fraunhofer.de ([194.95.169.2]:56103 "EHLO
+	mail.first.fraunhofer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161107AbXALWH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 17:07:26 -0500
+Subject: Re: SATA hotplug from the user side ?
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <45A7BFB0.9090308@garzik.org>
+References: <1168588629.5403.7.camel@localhost>
+	 <45A7BFB0.9090308@garzik.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 12 Jan 2007 23:07:19 +0100
+Message-Id: <1168639639.3707.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040508030100030202060105
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2007-01-12 at 12:04 -0500, Jeff Garzik wrote:
+> Soeren Sonnenburg wrote:
+> > Dear all,
+> > 
+> > I'd like to try out SATA hotplugging using a SIL3114. Though I was
+> > harvesting the web, I could not find any useful information how this is
+> > done in practice.
+> > 
+> > Well I realized that I can still use scsiadd to print and remove
+> > devices, e.g.:
+> 
+> For SIL3114, you shouldn't have to run any commands at all.  It should 
+> notice when you yank the cable, or plug in a new device.
 
 
+It is true it detects a removal and newly plugged devices immediately...
+However it still prints warnings and errors that it could not
+synchronize SCSI cache for the disks. Then it prints regular 'rejects
+I/O to dead device' warning messages and on replugging the disks puts
+them to the next free sd device (e.g. sdc -> sdd).
 
---------------040508030100030202060105
-Content-Type: text/x-diff;
- name="spu-notifier.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="spu-notifier.patch"
+These messages sound eval - so now the question is should I care ?
+( On the other hand it did not crash the machine )
 
-Subject: Enable SPU switch notification to detect currently active SPU tasks.
+What follows is a change between to sata drives attached to port 4/5 of
+the sil (ata5/ata6 here):
 
-From: Maynard Johnson <maynardj@us.ibm.com>
+ata6: exception Emask 0x10 SAct 0x0 SErr 0x10000 action 0x2 frozen
+ata6: hard resetting port
+ata6: SATA link down (SStatus 0 SControl 310)
+ata6: failed to recover some devices, retrying in 5 secs
+ata5: exception Emask 0x10 SAct 0x0 SErr 0x10000 action 0x2 frozen
+ata5: hard resetting port
+ata5: SATA link down (SStatus 0 SControl 310)
+ata5: failed to recover some devices, retrying in 5 secs
+ata6: hard resetting port
+ata6: SATA link down (SStatus 0 SControl 310)
+ata6: failed to recover some devices, retrying in 5 secs
+ata5: hard resetting port
+ata5: SATA link down (SStatus 0 SControl 310)
+ata5: failed to recover some devices, retrying in 5 secs
+ata6: hard resetting port
+ata6: SATA link down (SStatus 0 SControl 310)
+ata6.00: disabled
+ata6: EH complete
+ata6.00: detaching (SCSI 5:0:0:0)
+Synchronizing SCSI cache for disk sdd: 
+FAILED
+  status = 0, message = 00, host = 4, driver = 00
+  <6>ata5: hard resetting port
+ata5: SATA link down (SStatus 0 SControl 310)
+ata5.00: disabled
+ata5: EH complete
+ata5.00: detaching (SCSI 4:0:0:0)
+Synchronizing SCSI cache for disk sdc: 
+FAILED
+  status = 0, message = 00, host = 4, driver = 00
+  <3>ata6: exception Emask 0x10 SAct 0x0 SErr 0x50000 action 0x2 frozen
+ata6: hard resetting port
+ata6: port is slow to respond, please be patient (Status 0xff)
+ata6: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+ata6.00: ATA-7, max UDMA/133, 1465149168 sectors: LBA48 NCQ (depth 0/32)
+ata6.00: configured for UDMA/100
+ata6: EH complete
+scsi 5:0:0:0: Direct-Access     ATA      ST3750640AS      3.AA PQ: 0
+ANSI: 5
+SCSI device sdf: 1465149168 512-byte hdwr sectors (750156 MB)
+sdf: Write Protect is off
+sdf: Mode Sense: 00 3a 00 00
+SCSI device sdf: drive cache: write back
+SCSI device sdf: 1465149168 512-byte hdwr sectors (750156 MB)
+sdf: Write Protect is off
+sdf: Mode Sense: 00 3a 00 00
+SCSI device sdf: drive cache: write back
+ sdf: unknown partition table
+sd 5:0:0:0: Attached scsi disk sdf
+sd 5:0:0:0: Attached scsi generic sg2 type 0
+scsi 4:0:0:0: rejecting I/O to dead device
+scsi 4:0:0:0: rejecting I/O to dead device
+scsi 5:0:0:0: rejecting I/O to dead device
+scsi 5:0:0:0: rejecting I/O to dead device
+ata5: exception Emask 0x10 SAct 0x0 SErr 0x50000 action 0x2 frozen
+ata5: hard resetting port
+ata5: port is slow to respond, please be patient (Status 0xff)
+ata5: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+ata5.00: ATA-7, max UDMA/133, 1465149168 sectors: LBA48 NCQ (depth 0/32)
+ata5.00: configured for UDMA/100
+ata5: EH complete
+scsi 4:0:0:0: Direct-Access     ATA      ST3750640AS      3.AA PQ: 0
+ANSI: 5
+SCSI device sdg: 1465149168 512-byte hdwr sectors (750156 MB)
+sdg: Write Protect is off
+sdg: Mode Sense: 00 3a 00 00
+SCSI device sdg: drive cache: write back
+SCSI device sdg: 1465149168 512-byte hdwr sectors (750156 MB)
+sdg: Write Protect is off
+sdg: Mode Sense: 00 3a 00 00
+SCSI device sdg: drive cache: write back
+ sdg: unknown partition table
+sd 4:0:0:0: Attached scsi disk sdg
+sd 4:0:0:0: Attached scsi generic sg3 type 0
 
-This patch adds to the capability of spu_switch_event_register so that the
-caller is also notified of currently active SPU tasks.  It also exports
-spu_switch_event_register and spu_switch_event_unregister.
-
-Signed-off-by: Maynard Johnson <mpjohn@us.ibm.com>
-
-
-Index: linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/sched.c
-===================================================================
---- linux-2.6.19-rc6-arnd1+patches.orig/arch/powerpc/platforms/cell/spufs/sched.c	2006-12-04 10:56:04.730698720 -0600
-+++ linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/sched.c	2007-01-11 09:45:37.918333128 -0600
-@@ -46,6 +46,8 @@
- 
- #define SPU_MIN_TIMESLICE 	(100 * HZ / 1000)
- 
-+int notify_active[MAX_NUMNODES];
-+
- #define SPU_BITMAP_SIZE (((MAX_PRIO+BITS_PER_LONG)/BITS_PER_LONG)+1)
- struct spu_prio_array {
- 	unsigned long bitmap[SPU_BITMAP_SIZE];
-@@ -81,18 +83,45 @@
- static void spu_switch_notify(struct spu *spu, struct spu_context *ctx)
- {
- 	blocking_notifier_call_chain(&spu_switch_notifier,
--			    ctx ? ctx->object_id : 0, spu);
-+				     ctx ? ctx->object_id : 0, spu);
-+}
-+
-+static void notify_spus_active(void)
-+{
-+	int node;
-+	/* Wake up the active spu_contexts. When the awakened processes 
-+	 * sees their notify_active flag is set, they will call
-+	 * spu_notify_already_active().
-+	 */
-+	for (node = 0; node < MAX_NUMNODES; node++) {
-+		struct spu *spu;
-+		mutex_lock(&spu_prio->active_mutex[node]);
-+                list_for_each_entry(spu, &spu_prio->active_list[node], list) {
-+			struct spu_context *ctx = spu->ctx;
-+			wake_up_all(&ctx->stop_wq);
-+			notify_active[ctx->spu->number] = 1;
-+			smp_mb();
-+		}
-+                mutex_unlock(&spu_prio->active_mutex[node]);
-+	}
-+	yield();
- }
- 
- int spu_switch_event_register(struct notifier_block * n)
- {
--	return blocking_notifier_chain_register(&spu_switch_notifier, n);
-+	int ret;
-+	ret = blocking_notifier_chain_register(&spu_switch_notifier, n);
-+	if (!ret)
-+		notify_spus_active();
-+	return ret;
- }
-+EXPORT_SYMBOL_GPL(spu_switch_event_register);
- 
- int spu_switch_event_unregister(struct notifier_block * n)
- {
- 	return blocking_notifier_chain_unregister(&spu_switch_notifier, n);
- }
-+EXPORT_SYMBOL_GPL(spu_switch_event_unregister);
- 
- 
- static inline void bind_context(struct spu *spu, struct spu_context *ctx)
-@@ -250,6 +279,14 @@
- 	return spu_get_idle(ctx, flags);
- }
- 
-+void spu_notify_already_active(struct spu_context *ctx)
-+{
-+	struct spu *spu = ctx->spu;
-+	if (!spu)
-+		return;
-+	spu_switch_notify(spu, ctx);
-+}
-+
- /* The three externally callable interfaces
-  * for the scheduler begin here.
-  *
-Index: linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/spufs.h
-===================================================================
---- linux-2.6.19-rc6-arnd1+patches.orig/arch/powerpc/platforms/cell/spufs/spufs.h	2007-01-08 18:18:40.093354608 -0600
-+++ linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/spufs.h	2007-01-08 18:31:03.610345792 -0600
-@@ -183,6 +183,7 @@
- void spu_yield(struct spu_context *ctx);
- int __init spu_sched_init(void);
- void __exit spu_sched_exit(void);
-+void spu_notify_already_active(struct spu_context *ctx);
- 
- extern char *isolated_loader;
- 
-Index: linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/run.c
-===================================================================
---- linux-2.6.19-rc6-arnd1+patches.orig/arch/powerpc/platforms/cell/spufs/run.c	2007-01-08 18:33:51.979311680 -0600
-+++ linux-2.6.19-rc6-arnd1+patches/arch/powerpc/platforms/cell/spufs/run.c	2007-01-11 10:17:20.777344984 -0600
-@@ -10,6 +10,8 @@
- 
- #include "spufs.h"
- 
-+extern int notify_active[MAX_NUMNODES];
-+
- /* interrupt-level stop callback function. */
- void spufs_stop_callback(struct spu *spu)
- {
-@@ -45,7 +47,9 @@
- 	u64 pte_fault;
- 
- 	*stat = ctx->ops->status_read(ctx);
--	if (ctx->state != SPU_STATE_RUNNABLE)
-+	smp_mb();
-+
-+	if (ctx->state != SPU_STATE_RUNNABLE || notify_active[ctx->spu->number])
- 		return 1;
- 	spu = ctx->spu;
- 	pte_fault = spu->dsisr &
-@@ -319,6 +323,11 @@
- 		ret = spufs_wait(ctx->stop_wq, spu_stopped(ctx, &status));
- 		if (unlikely(ret))
- 			break;
-+		if (unlikely(notify_active[ctx->spu->number])) {
-+			notify_active[ctx->spu->number] = 0;
-+			if (!(status & SPU_STATUS_STOPPED_BY_STOP))
-+				spu_notify_already_active(ctx);
-+		}
- 		if ((status & SPU_STATUS_STOPPED_BY_STOP) &&
- 		    (status >> SPU_STOP_STATUS_SHIFT == 0x2104)) {
- 			ret = spu_process_callback(ctx);
-
---------------040508030100030202060105--
-
+Best,
+Soeren
+-- 
+For the one fact about the future of which we can be certain is that it
+will be utterly fantastic. -- Arthur C. Clarke, 1962

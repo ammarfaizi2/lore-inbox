@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932229AbXALQc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751272AbXALQjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbXALQc0 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 11:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbXALQcZ
+	id S1751272AbXALQjE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 11:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbXALQjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 11:32:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37044 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932228AbXALQcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 11:32:24 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Steven Fernandez <sfernand@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] raw: don't allow the creation of a raw device with minor number 0
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Fri, 12 Jan 2007 11:32:11 -0500
-Message-ID: <x49bql48aus.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
-MIME-Version: 1.0
+	Fri, 12 Jan 2007 11:39:04 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2828 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751272AbXALQjC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 11:39:02 -0500
+Date: Fri, 12 Jan 2007 16:38:52 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
+Subject: Re: [patch 2.6.20-rc4-git] remove modpost false warnings on ARM
+Message-ID: <20070112163852.GA16511@flint.arm.linux.org.uk>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	rusty@rustcorp.com.au
+References: <200701120831.37513.david-b@pacbell.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701120831.37513.david-b@pacbell.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jan 12, 2007 at 08:31:36AM -0800, David Brownell wrote:
+> Index: at91/scripts/mod/modpost.c
+> ===================================================================
+> --- at91.orig/scripts/mod/modpost.c	2007-01-11 22:51:49.000000000 -0800
+> +++ at91/scripts/mod/modpost.c	2007-01-12 04:20:00.000000000 -0800
+> @@ -679,6 +679,26 @@ static Elf_Sym *find_elf_symbol(struct e
+>  }
+>  
+>  /*
+> + * If there's no name there, ignore it; likewise, ignore it if it's
+> + * one of the magic symbols emitted used by current ARM tools.
+> + *
+> + * Otherwise if find_symbols_between() returns those symbols, they'll
+> + * fail the whitelist tests and cause lots of false alarms ... fixable
+> + * only by shrinking __exit and __init sections into __text, bloating
+> + * the kernel (which is especially evil on embedded platforms).
+> + */
+> +static int is_valid_name(struct elf_info *elf, Elf_Sym *sym)
+> +{
+> +	const char *name = elf->strtab + sym->st_name;
+> +
+> +	if (!name || !strlen(name))
+> +		return 0;
+> +	if (strcmp(name, "$a") == 0 || strcmp(name, "$d") == 0)
+> +		return 0;
 
-Minor number 0 (under the raw major) is reserved for the rawctl device
-file, which is used to query, set, and unset raw device bindings.
-However, the ioctl interface does not protect the user from specifying
-a raw device with minor number 0:
+A more correct test would be that found in kallsyms.c:
 
-$ sudo ./raw /dev/raw/raw0 /dev/VolGroup00/swap
-/dev/raw/raw0:  bound to major 253, minor 2
-$ ls -l /dev/rawctl
-ls: /dev/rawctl: No such file or directory
-$ ls -l /dev/raw/raw0 
-crw------- 1 root root 162, 0 Jan 12 10:51 /dev/raw/raw0
-$ sudo ./raw -qa
-Cannot open master raw device '/dev/rawctl' (No such file or directory)
+/*
+ * This ignores the intensely annoying "mapping symbols" found
+ * in ARM ELF files: $a, $t and $d.
+ */
+static inline int is_arm_mapping_symbol(const char *str)
+{
+        return str[0] == '$' && strchr("atd", str[1])
+               && (str[2] == '\0' || str[2] == '.');
+}
 
-As you can see, this prevents any further raw operations from
-succeeding.  The fix (from Steve Fernandez) is quite simple--do not
-allow the allocation of minor number 0.
+Suggest that code is re-used here (as well as in other tools such as
+oprofile, readprofile, etc.)
 
-Thanks!
-
-Jeff
-
-diff --git a/drivers/char/raw.c b/drivers/char/raw.c
-index 645e20a..1f0d7c6 100644
---- a/drivers/char/raw.c
-+++ b/drivers/char/raw.c
-@@ -154,7 +154,7 @@ static int raw_ctl_ioctl(struct inode *i
- 			goto out;
- 		}
- 
--		if (rq.raw_minor < 0 || rq.raw_minor >= MAX_RAW_MINORS) {
-+		if (rq.raw_minor <= 0 || rq.raw_minor >= MAX_RAW_MINORS) {
- 			err = -EINVAL;
- 			goto out;
- 		}
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

@@ -1,127 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161020AbXALVka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161080AbXALVkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbXALVka (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 16:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbXALVka
+	id S1161080AbXALVkn (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 16:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbXALVkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 16:40:30 -0500
-Received: from lucidpixels.com ([66.45.37.187]:57787 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161020AbXALVk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 16:40:29 -0500
-Date: Fri, 12 Jan 2007 16:40:27 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1:
- (211MB/s read & 195MB/s write)
-In-Reply-To: <200701130000.48717.a1426z@gawab.com>
-Message-ID: <Pine.LNX.4.64.0701121628100.3655@p34.internal.lan>
-References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan>
- <Pine.LNX.4.64.0701121455550.6844@p34.internal.lan>
- <Pine.LNX.4.64.0701121459240.3650@p34.internal.lan> <200701130000.48717.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Jan 2007 16:40:43 -0500
+Received: from server99.tchmachines.com ([72.9.230.178]:35758 "EHLO
+	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161080AbXALVkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 16:40:42 -0500
+Date: Fri, 12 Jan 2007 13:40:21 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>, a.p.zijlstra@chello.nl
+Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
+Message-ID: <20070112214021.GA4300@localhost.localdomain>
+References: <20070112160104.GA5766@localhost.localdomain> <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 13 Jan 2007, Al Boldi wrote:
-
-> Justin Piszcz wrote:
-> > Btw, max sectors did improve my performance a little bit but
-> > stripe_cache+read_ahead were the main optimizations that made everything
-> > go faster by about ~1.5x.   I have individual bonnie++ benchmarks of
-> > [only] the max_sector_kb tests as well, it improved the times from
-> > 8min/bonnie run -> 7min 11 seconds or so, see below and then after that is
-> > what you requested.
-> >
-> > # echo 3 > /proc/sys/vm/drop_caches
-> > # dd if=/dev/md3 of=/dev/null bs=1M count=10240
-> > 10240+0 records in
-> > 10240+0 records out
-> > 10737418240 bytes (11 GB) copied, 399.352 seconds, 26.9 MB/s
-> > # for i in sde sdg sdi sdk; do   echo 192 >
-> > /sys/block/"$i"/queue/max_sectors_kb;   echo "Set
-> > /sys/block/"$i"/queue/max_sectors_kb to 192kb"; done
-> > Set /sys/block/sde/queue/max_sectors_kb to 192kb
-> > Set /sys/block/sdg/queue/max_sectors_kb to 192kb
-> > Set /sys/block/sdi/queue/max_sectors_kb to 192kb
-> > Set /sys/block/sdk/queue/max_sectors_kb to 192kb
-> > # echo 3 > /proc/sys/vm/drop_caches
-> > # dd if=/dev/md3 of=/dev/null bs=1M count=10240
-> > 10240+0 records in
-> > 10240+0 records out
-> > 10737418240 bytes (11 GB) copied, 398.069 seconds, 27.0 MB/s
-> >
-> > Awful performance with your numbers/drop_caches settings.. !
+On Fri, Jan 12, 2007 at 11:46:22AM -0800, Christoph Lameter wrote:
+> On Fri, 12 Jan 2007, Ravikiran G Thirumalai wrote:
 > 
-> Can you repeat with /dev/sda only?
+> > The test was simple, we have 16 processes, each allocating 3.5G of memory
+> > and and touching each and every page and returning.  Each of the process is
+> > bound to a node (socket), with the local node being the preferred node for
+> > allocation (numactl --cpubind=$node ./numa-membomb --preferred=$node).  Each
+> > socket has 4G of physical memory and there are two cores on each socket. On
+> > start of the test, the machine becomes unresponsive after sometime and
+> > prints out softlockup and OOM messages.  We then found out the cause
+> > for softlockups being the excessive spin times on zone_lru lock.  The fact
+> > that spin_lock_irq disables interrupts while spinning made matters very bad.
+> > We instrumented the spin_lock_irq code and found that the spin time on the
+> > lru locks was in the order of a few seconds (tens of seconds at times) and
+> > the hold time was comparatively lesser.
 > 
-> With fresh reboot to shell, then:
-> $ cat /sys/block/sda/queue/max_sectors_kb
-> $ echo 3 > /proc/sys/vm/drop_caches
-> $ dd if=/dev/sda of=/dev/null bs=1M count=10240
-> 
-> $ echo 192 > /sys/block/sda/queue/max_sectors_kb
-> $ echo 3 > /proc/sys/vm/drop_caches
-> $ dd if=/dev/sda of=/dev/null bs=1M count=10240
-> 
-> $ echo 128 > /sys/block/sda/queue/max_sectors_kb
-> $ echo 3 > /proc/sys/vm/drop_caches
-> $ dd if=/dev/sda of=/dev/null bs=1M count=10240
-> 
-> > What were your tests designed to show?
-> 
-> A problem with the block-io.
-> 
-> 
-> Thanks!
-> 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> So the issue is two processes contenting on the zone lock for one node? 
+> You are overallocating the 4G node with two processes attempting to 
+> allocate 7.5GB? So we go off node for 3.5G of the allocation?
 
-Here you go:
+Yes.
 
-For sda-- (is a 74GB raptor only)-- but ok.
+> 
+> Does the system scale the right way if you stay within the bounds of node 
+> memory? I.e. allocate 1.5GB from each process?
 
-# uptime
- 16:25:38 up 1 min,  3 users,  load average: 0.23, 0.14, 0.05
-# cat /sys/block/sda/queue/max_sectors_kb
-512
-# echo 3 > /proc/sys/vm/drop_caches
-# dd if=/dev/sda of=/dev/null bs=1M count=10240
-10240+0 records in
-10240+0 records out
-10737418240 bytes (11 GB) copied, 150.891 seconds, 71.2 MB/s
-# 
+Yes. We see problems only when we oversubscribe memory.
 
+> 
+> Have you tried increasing the size of the per cpu caches in 
+> /proc/sys/vm/percpu_pagelist_fraction?
 
-# 
-# 
-# echo 192 > /sys/block/sda/queue/max_sectors_kb
-# echo 3 > /proc/sys/vm/drop_caches
-# dd if=/dev/sda of=/dev/null bs=1M count=10240
-10240+0 records in
-10240+0 records out
-10737418240 bytes (11 GB) copied, 150.192 seconds, 71.5 MB/s
-# echo 128 > /sys/block/sda/queue/max_sectors_kb
-# echo 3 > /proc/sys/vm/drop_caches
-# dd if=/dev/sda of=/dev/null bs=1M count=10240
-10240+0 records in
-10240+0 records out
-10737418240 bytes (11 GB) copied, 150.15 seconds, 71.5 MB/s
+No not yet. I can give it a try.
 
+> 
+> > While the softlockups and the like went away by enabling interrupts during
+> > spinning, as mentioned in http://lkml.org/lkml/2007/1/3/29 ,
+> > Andi thought maybe this is exposing a problem with zone->lru_locks and 
+> > hence warrants a discussion on lkml, hence this post.  Are there any 
+> > plans/patches/ideas to address the spin time under such extreme conditions?
+> 
+> Could this be a hardware problem? Some issue with atomic ops in the 
+> Sun hardware?
 
-Does this show anything useful?
-
-
-Justin.
+I think that is unlikely -- because when we donot oversubscribe
+memory, the tests complete quickly without softlockups ane the like.  Peter 
+has also noticed this (presumeably on different hardware).  I would think
+this could also be locking unfairness (cpus of the same node getting the 
+lock and starving out other nodes) case under extreme contention.

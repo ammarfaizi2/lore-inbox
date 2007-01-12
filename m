@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161092AbXALLDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161042AbXALLLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbXALLDD (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 06:03:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbXALLDA
+	id S1161042AbXALLLv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 06:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbXALLLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 06:03:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2267 "EHLO spitz.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1161008AbXALLCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 06:02:46 -0500
-Date: Fri, 12 Jan 2007 10:38:02 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Dmitriy Monakhov <dmonakhov@sw.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_driver resume() callback return value
-Message-ID: <20070112103801.GA7145@ucw.cz>
-References: <87wt3xcmyr.fsf@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Jan 2007 06:11:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:8347 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161042AbXALLLu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 06:11:50 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ITkmQ7Cvvz8LlGJx/KjJjgmn0vwv52cpsO3c5mQYbE/09dZAo3qj+/ziLiRmUPByo70ZvkgcgbHPEnR9WYGHWtxQr2+0y6QMlHBzgPlmV52m3kbOW76HMzBPdeISSuDUy0/5h2Kq2P1O0B49g51ay4HExH6skLWnI7zkx+Dz+f0=
+Message-ID: <414cba4e0701120311t39d90e10y472f251f8e357643@mail.gmail.com>
+Date: Fri, 12 Jan 2007 12:11:49 +0100
+From: emisca <emisca.ml@gmail.com>
+To: "Stefan Seyfried" <seife@suse.de>
+Subject: Re: [Suspend-devel] asus p5ld2 se, serial port gone after suspend and i8042 problems (solved, pnpacpi=off needed)
+Cc: "Pavel Machek" <pavel@ucw.cz>, suspend2-users@lists.suspend2.net,
+       suspend-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20070111195812.GF11903@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <87wt3xcmyr.fsf@sw.ru>
-User-Agent: Mutt/1.5.9i
+References: <414cba4e0701101409w4be38105vae7d185f4c2967bd@mail.gmail.com>
+	 <20070111114202.GC5945@elf.ucw.cz>
+	 <414cba4e0701110514t2fbd0659g905aa2fb06b9a261@mail.gmail.com>
+	 <20070111195812.GF11903@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+But using pnpacpi=no, I disable the acpi code.. the "normal" pnp code,
+what does on suspend? Does it simply do nothing? In the dmesg I don't
+see anything related to pnp device reinit.
+I tried suspend to ram on this motherboard. A strange thing happens..
+the system goes to suspend and then suddenly resumes. Why?
+How I can check if it's enabled a wake up device? There are no related
+settings on the bios, only wake on lan (disabled). I think I must
+debug interrupts...
 
-> Now question. Should we,or should we not return error code from resume callback?
-> Where a two possible ways:
-> a) Comment in document section is out of date and we have to properly handle 
->    and return error code if something goes wrong.
-
-This is right.
-
-> b) Comment in document section is correct and and dont have to worry about any 
-> error, and return code  from resume() callback.
-> As i understand (a) is correct answer.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Thanks for all the (sleeping) penguins.
+2007/1/11, Stefan Seyfried <seife@suse.de>:
+> On Thu, Jan 11, 2007 at 02:14:42PM +0100, emisca wrote:
+> > Yes, I have to look at pnpacpi code... but does the dsdt matters for this
+> > problem?
+> > Surely, it is a bios bug (as usually.....). I will look at pnpacpi code.
+>
+> Not necessarily. IIRC, somebody (Rusty?) said that serial consoles have had
+> problems with suspend for a long time and just sometimes work "by accident".
+> ISTR that they do not really save and restore the line settings etc.
+>
+> So it does not need to be the BIOS, it can also be a plain broken driver.
+>
+> --
+> Stefan Seyfried
+> QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+> SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out."
+>

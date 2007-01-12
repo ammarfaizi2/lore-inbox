@@ -1,94 +1,132 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751534AbXALAHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751545AbXALAWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751534AbXALAHm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 19:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbXALAHl
+	id S1751545AbXALAWr (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 19:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbXALAWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 19:07:41 -0500
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:39790 "EHLO
-	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751525AbXALAHd (ORCPT
+	Thu, 11 Jan 2007 19:22:47 -0500
+Received: from an-out-0708.google.com ([209.85.132.251]:17674 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751543AbXALAWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 19:07:33 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Subject: [PATCH 03/05] Linux Kernel Markers : powerpc optimisation
-Date: Thu, 11 Jan 2007 19:02:16 -0500
-Message-Id: <11685601391595-git-send-email-mathieu.desnoyers@polymtl.ca>
-X-Mailer: git-send-email 1.4.4.3
-In-Reply-To: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca>
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca>
+	Thu, 11 Jan 2007 19:22:46 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Dbh62jaL6hf8hSwxhhE0M/g+rWuTp8NQ16dKniR2KyQ4hknq4G5vGKx6fU4JZ6aCE/wTOMPgSRbgLOCcQ+CXVpuGYCN0Er8Kp9WciacqEdnkQBN9NZM+5ad+w19srqqfp1LDAiAIMnrVmR50YwUvc081ure7Rxi+SLHJ9FeZbXo=
+Message-ID: <45a44e480701111622i32fffddcn3b4270d539620743@mail.gmail.com>
+Date: Thu, 11 Jan 2007 19:22:45 -0500
+From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH/RFC 2.6.20-rc4 1/1] fbdev,mm: hecuba/E-Ink fbdev driver
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20070111133759.d17730a4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20070111142427.GA1668@localhost>
+	 <20070111133759.d17730a4.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Markers : powerpc optimisation
+On 1/11/07, Andrew Morton <akpm@osdl.org> wrote:
+> That's all very interesting.
+>
+> Please don't dump a bunch of new implementation concepts like this on us
+> with no description of what it does, why it does it and why it does it in
+> this particular manner.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Hi Andrew,
 
---- /dev/null
-+++ b/include/asm-powerpc/marker.h
-@@ -0,0 +1,58 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. PowerPC architecture
-+ * optimisations.
-+ *
-+ * (C) Copyright 2006 Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
-+
-+#include <asm/asm-compat.h>
-+
-+struct __mark_marker_c {
-+	const char *name;
-+	marker_probe_func **call;
-+	const char *format;
-+} __attribute__((packed));
-+
-+struct __mark_marker {
-+	struct __mark_marker_c *cmark;
-+	volatile short *enable;
-+} __attribute__((packed));
-+
-+#ifdef CONFIG_MARKERS
-+
-+#define MARK(name, format, args...) \
-+	do { \
-+		static marker_probe_func *__mark_call_##name = \
-+					__mark_empty_function; \
-+		static const struct __mark_marker_c __mark_c_##name \
-+			__attribute__((section(".markers.c"))) = \
-+			{ #name, &__mark_call_##name, format } ; \
-+		char condition; \
-+		asm volatile(	".section .markers, \"a\";\n\t" \
-+					PPC_LONG "%1, 0f;\n\t" \
-+					".previous;\n\t" \
-+					".align 4\n\t" \
-+					"0:\n\t" \
-+					"li %0,0;\n\t" \
-+				: "=r" (condition) \
-+				: "i" (&__mark_c_##name)); \
-+		__mark_check_format(format, ## args); \
-+		if (unlikely(condition)) { \
-+			preempt_disable(); \
-+			(*__mark_call_##name)(format, ## args); \
-+			preempt_enable_no_resched(); \
-+		} \
-+	} while (0)
-+
-+
-+/* Offset of the immediate value from the start of the addi instruction (result
-+ * of the li mnemonic), in bytes. */
-+#define MARK_ENABLE_IMMEDIATE_OFFSET 2
-+#define MARK_POLYMORPHIC
-+
-+#endif
+Actually, I didn't dump without description. :-) I had posted an RFC
+and an explanation of the design to the lists. Here's an archive link
+to that post. http://marc.theaimsgroup.com/?l=linux-kernel&m=116583546411423&w=2
+I wasn't sure whether to include that description with the patch email
+because it was long.
+
+>From that email:
+---
+This is there in order to hide the latency
+associated with updating the display (500ms to 800ms). The method used
+is to fake a framebuffer in memory. Then use pagefaults followed by delayed
+unmaping and only then do the actual framebuffer update. To explain this
+better, the usage scenario is like this:
+
+- userspace app like Xfbdev mmaps framebuffer
+- driver handles and sets up nopage and page_mkwrite handlers
+- app tries to write to mmaped vaddress
+- get pagefault and reaches driver's nopage handler
+- driver's nopage handler finds and returns physical page ( no
+  actual framebuffer )
+- write so get page_mkwrite where we add this page to a list
+- also schedules a workqueue task to be run after a delay
+- app continues writing to that page with no additional cost
+- the workqueue task comes in and unmaps the pages on the list, then
+  completes the work associated with updating the framebuffer
+- app tries to write to the address (that has now been unmapped)
+- get pagefault and the above sequence occurs again
+
+The desire is roughly to allow bursty framebuffer writes to occur.
+Then after some time when hopefully things have gone quiet, we go and
+really update the framebuffer. For this type of nonvolatile high latency
+display, the desired image is the final image rather than intermediate
+stages which is why it's okay to not update for each write that is
+occuring.
+---
+
+>
+> What is the "theory of operation" here?
+>
+> Presumably this is a performance optimisation to permit batching of the
+> copying from user memory into the frambuffer card?  If so, how much
+> performance does it gain?
+
+Yes, you are right. Updating the E-Ink display currently requires
+about 500ms - 800ms. It is a non-volatile display and as such it is
+typically used in a manner where only the final image is important. As
+a result, being able to avoid the bursts of IO associated with screen
+activity and only write the final result is attractive.
+
+I have not done any performance benchmarks. I'm not sure exactly what
+to compare. I imagine in one case would be using write() to deliver
+the image updates and the other case would be mmap(), memcpy(). The
+latter would win because it's hiding all the intermediate "writes".
+
+>
+> I expect the benefit will be large, and could be increased if you were to
+> add a small delay between first-touch and writeback to the display.  Let's
+> talk about that a bit.
+
+Agreed. Though I may be misunderstanding what you mean by first-touch.
+Currently, I do a schedule_delayed_work and leave 1s between when the
+page_mkwrite callback indicating the first touch is received and when
+the deferred IO is processed to actually deliver the data to the
+display. I picked 1s because it rounds up the display latency. I
+imagine increasing the delay further may make it miss some desirable
+display activity. For example, a slider indicating progress of music
+may be slower than optimal. Perhaps I should make the delay a module
+parameter and leave the choice to the user?
+
+>
+> Is the optimisation applicable to other drivers?  If so, should it be
+> generalised into library code somewhere?
+
+I think the deferred IO code would be useful to devices that have slow
+updates and where only the final result is important. So far, this is
+the only device I've encountered that has this characteristic.
+
+>
+> I guess the export of page_mkclean() makes sense for this application.
+>
+> The use of lock_page_nosync() is wrong.  It can still sleep, and here it's
+> inside spinlock.  And we don't want to export __lock_page_nosync() to
+> modules.  I suggest you convert the list locking here to a mutex and use
+> lock_page().
+>
+
+Oops, sorry about that. I will correct it.
+
+Thanks,
+jayakumar

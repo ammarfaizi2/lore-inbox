@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965050AbXALT2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964927AbXALTcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbXALT2S (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 14:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbXALT2S
+	id S964927AbXALTcR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 14:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbXALTcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 14:28:18 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:60797 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965050AbXALT2R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 14:28:17 -0500
-Date: Fri, 12 Jan 2007 13:28:12 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Mimi Zohar <zohar@us.ibm.com>,
-       akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@watson.ibm.com
-Subject: Re: mprotect abuse in slim
-Message-ID: <20070112192812.GC10445@sergelap.austin.ibm.com>
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com> <1168312045.3180.140.camel@laptopd505.fenrus.org> <20070109094625.GA11918@infradead.org> <20070109231449.GA4547@sergelap.austin.ibm.com> <84144f020701120145r13d5d7bbndf652692f729ad9d@mail.gmail.com>
+	Fri, 12 Jan 2007 14:32:17 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:22608 "EHLO hobbit.corpit.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964927AbXALTcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 14:32:16 -0500
+Message-ID: <45A7E23A.6000100@tls.msk.ru>
+Date: Fri, 12 Jan 2007 22:32:10 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060813)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84144f020701120145r13d5d7bbndf652692f729ad9d@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: /sys/$DEVPATH/uevent vs uevent attributes
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pekka Enberg (penberg@cs.helsinki.fi):
-> On 1/10/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> >Now, what slim needs isn't "revoke all files for this inode",
-> >but "revoke this task's write access to this fd".  So two functions
-> >which could be useful are
-> >
-> >        int fd_revoke_write(struct task_struct *tsk, int fd)
-> >        int fd_revoke_write_iter(struct task_struct *tsk,
-> >                        (int *)need_revoke(struct task_struct *tsk, int 
-> >                        fd))
-> 
-> This gets interesting. We probably need revokefs (which we use
-> internally as a substitute for revoke inodes) to be stacked on top of
-> the actual fs so that you can still read from the fd. But most of the
-> revocation is still the same, we need to watch out for fork(2) and
-> dup(2) and take down shared mappings.
+Not-so-recently already, device directories in /sys started providing
+files like modalias, which corresponds to $MODALIAS env. variable at
+uevent time.  Also not-so-recently, uevent file appeared, which, when
+written, triggers re-execution of an uevent corresponding to the
+device.  So far so good.
 
-Hmm, would revokefs need to be explicitly stacked on top of the fs,
-or could we just swap out fdt[fd] for the revokefs file, and have
-the revokefs file's private data point to the original inode, with
-it's write function returning an error, and read being passed through?
+But there's an inconsistency at least: why modalias file is here,
+while other attributes of an uevent aren't?
 
-Do you (or hch) then have a problem with these functions (sitting either
-in fs/revoke.c or fs/file_table.c) calling mprotect to remove the write
-permission from the mmap'ed segment?  i.e. was the main objection to
-mprotect being called from "just anywhere"?
+If the proper way to refresh everything which has been detected during
+kernel boot (before userspace) is to use `uevent' triggers in sysfs,
+modalias files aren't needed - proper $MODALIAS will be here when an
+event will re-trigger.
 
--serge
+But if it's possible to refresh the things  by just walking over /sys
+finding all device dirs, modalias file isn't sufficient.
+
+Current udev way of populating /dev at startup looks.. hackish at
+least.  We start udevd, and start sending it uevents - all we find
+in /sys at that time.  Kernel spews tons of events, and udevd has
+to serialize them somehow.  Next, we're waiting for the storm to
+calm down, again using a hackish way - by waiting while current
+SEQNUM will be the same as last processed by udevd (which might
+never be a case by the way, due to, say, udevd crash or somesuch).
+
+What I was thinking is -- how about making uevent file readable
+too, to be able to sequentially walk over /sys, read environment
+from uevent files, and - again - sequentially execute things with
+that environment, without all the hackery currently implemented
+in udev, in a stright, clean and understandable way?
+
+Something like:
+
+ . /etc/hotplug/config
+ find /sys -name uevent | while read path; do
+  ( read x < $path; eval $x; process_event; )
+
+This way, it will also be possible to bring the ol'good
+udev-free days back (and did I mention I *detest* udev,
+and prefer simple, clean shell script instead, as far as
+I'm forced to use something to handle hotplug events?),
+without too much speed problems for example...
+
+(No patch at this time, -- just asking about an.. idea ;)
+
+Thanks.
+
+/mjt

@@ -1,111 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964898AbXALSXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964812AbXALSfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbXALSXJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 13:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbXALSXJ
+	id S964812AbXALSfU (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 13:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbXALSfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 13:23:09 -0500
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:46624 "EHLO
-	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964898AbXALSXH (ORCPT
+	Fri, 12 Jan 2007 13:35:20 -0500
+Received: from cthulhu.lanfear.net ([206.124.137.179]:47811 "EHLO
+	cthulhu.lanfear.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964812AbXALSfS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 13:23:07 -0500
-Date: Fri, 12 Jan 2007 13:23:01 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 05/05] update - Linux Kernel Markers, non optimised architectures
-Message-ID: <20070112182301.GA11102@Krystal>
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca> <11685601404005-git-send-email-mathieu.desnoyers@polymtl.ca> <45A710F8.7000405@yahoo.com.au> <20070112050032.GA14100@Krystal> <45A71827.6020300@yahoo.com.au>
-Mime-Version: 1.0
+	Fri, 12 Jan 2007 13:35:18 -0500
+Date: Fri, 12 Jan 2007 10:35:15 -0800
+From: Mark Wagner <mark@lanfear.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: sata_sil24 lockups under heavy i/o
+Message-ID: <20070112183514.GA30434@freddy.lanfear.net>
+Reply-To: Mark Wagner <mark@lanfear.net>
+References: <20070103173024.GB17650@freddy.lanfear.net> <20070104181601.GD17650@freddy.lanfear.net> <45A092B7.4070301@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A71827.6020300@yahoo.com.au>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:19:07 up 142 days, 15:26,  3 users,  load average: 1.25, 0.69, 0.52
+In-Reply-To: <45A092B7.4070301@gmail.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nick Piggin (nickpiggin@yahoo.com.au) wrote:
-> OK, well one problem is that it can cause a resched event to be lost, so
-> you might say it has more side-effects without checking resched.
+On Sun, Jan 07, 2007 at 03:27:03PM +0900, Tejun Heo wrote:
+
+> Mark Wagner wrote:
+> [--snip--]
+> >NETDEV WATCHDOG: eth0: transmit timed out
+> >eth0: transmit timed out, tx_status 00 status e000.
+> [--snip--]
+> >hda: DMA timeout error
+> >hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+> >ide: failed opcode was: unknown
+> >hda: status timeout: status=0xd0 { Busy }
+> >ide: failed opcode was: unknown
+> >hdb: DMA disabled
+> >hda: no DRQ after issuing MULTWRITE_EXT
+> >ata3.00: exception Emask 0x0 SAct 0x1 SErr 0x0 action 0x2 frozen
+> >ata3.00: tag 0 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> >ata4.00: exception Emask 0x0 SAct 0x1 SErr 0x0 action 0x6 frozen
+> >ata4.00: tag 0 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> >ata4: hard resetting port
+> >ata2.00: exception Emask 0x0 SAct 0x1 SErr 0x0 action 0x6 frozen
+> >ata2.00: tag 0 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> >ata2: hard resetting port
+> >ata1.00: exception Emask 0x0 SAct 0x3 SErr 0x0 action 0x6 frozen
+> >ata1.00: tag 0 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> >ata1.00: tag 1 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> [--snip--]
+> >i2c_adapter i2c-0: Transaction error!
+> >i2c_adapter i2c-0: Transaction error!
+> >i2c_adapter i2c-0: Transaction error!
 > 
+> It seems like your system is falling apart.  Timeouts are occurring 
+> everywhere.  Either IRQ routing went wrong or your powersupply is not 
+> providing enough power.  Adding two more disks to sil24 doesn't change 
+> anything about IRQ routing.  If the system functioned okay w/ two disks 
+> attached to sil24, give your system a better power supply or rewire 
+> power cables such that each power lane is more equally loaded.
 
-Here is the patch that implements this. I also did a cosmetic change to
-linux/marker.h. Preliminary tests of running the markers with preempt_enable()
-with LTTng 0.6.56 instrumentation shows no problem.
+The sil24-connected sata drives are external and connected to their own
+power supply.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+I've replaced the sil24-based card with a Promise SATA300 TX4 controller
+card and everything seems to work now.
 
---- a/include/asm-generic/marker.h
-+++ b/include/asm-generic/marker.h
-@@ -39,7 +39,7 @@ struct __mark_marker {
- 		if (unlikely(__marker_enable_##name)) { \
- 			preempt_disable(); \
- 			(*__mark_call_##name)(format, ## args); \
--			preempt_enable_no_resched(); \
-+			preempt_enable(); \
- 		} \
- 	} while (0)
- 
---- a/include/asm-i386/marker.h
-+++ b/include/asm-i386/marker.h
-@@ -42,7 +42,7 @@ struct __mark_marker {
- 		if (unlikely(condition)) { \
- 			preempt_disable(); \
- 			(*__mark_call_##name)(format, ## args); \
--			preempt_enable_no_resched(); \
-+			preempt_enable(); \
- 		} \
- 	} while (0)
- 
---- a/include/asm-powerpc/marker.h
-+++ b/include/asm-powerpc/marker.h
-@@ -45,7 +45,7 @@ struct __mark_marker {
- 		if (unlikely(condition)) { \
- 			preempt_disable(); \
- 			(*__mark_call_##name)(format, ## args); \
--			preempt_enable_no_resched(); \
-+			preempt_enable(); \
- 		} \
- 	} while (0)
- 
---- a/include/linux/marker.h
-+++ b/include/linux/marker.h
-@@ -8,12 +8,12 @@
-  *
-  * Example :
-  *
-- * MARK(subsystem_event, "%d %s %p[struct task_struct *]",
-+ * MARK(subsystem_event, "%d %s %p[struct task_struct]",
-  *   someint, somestring, current);
-  * Where :
-  * - Subsystem is the name of your subsystem.
-  * - event is the name of the event to mark.
-- * - "%d %s %p[struct task_struct *]" is the formatted string for printk.
-+ * - "%d %s %p[struct task_struct]" is the formatted string for printk.
-  * - someint is an integer.
-  * - somestring is a char pointer.
-  * - current is a pointer to a struct task_struct.
-@@ -27,6 +27,9 @@
-  * Markers can be put in inline functions, inlined static functions and
-  * unrolled loops.
-  *
-+ * Note : It is safe to put markers within preempt-safe code : preempt_enable()
-+ * will not call the scheduler due to the tests in preempt_schedule().
-+ *
-  * (C) Copyright 2006 Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-  *
-  * This file is released under the GPLv2.
+Thanks,
+
+Mark
+
 -- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Mark Wagner mark@lanfear.net

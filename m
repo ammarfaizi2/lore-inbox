@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161057AbXALJ6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161058AbXALJ6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161057AbXALJ6N (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 04:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbXALJ6N
+	id S1161058AbXALJ6a (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 04:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbXALJ6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 04:58:13 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:54879 "HELO
-	mail.dev.rtsoft.ru" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-	with SMTP id S1161061AbXALJ6M (ORCPT
+	Fri, 12 Jan 2007 04:58:30 -0500
+Received: from 16.169.aberger.at ([193.186.169.16]:3149 "EHLO
+	asmtp.proserver1.at" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1161058AbXALJ63 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 04:58:12 -0500
-Message-ID: <45A75968.7010109@dev.rtsoft.ru>
-Date: Fri, 12 Jan 2007 12:48:24 +0300
-From: Dmitry Antipov <antipov@dev.rtsoft.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
+	Fri, 12 Jan 2007 04:58:29 -0500
+X-Greylist: delayed 1897 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 04:58:28 EST
+Message-ID: <46816.80.120.2.52.1168594005.squirrel@secure.proserver1.at>
+Date: Fri, 12 Jan 2007 10:26:45 +0100 (CET)
+Subject: Problem with out-dated Linux 2.14-rt system
+From: "Harald Krammer" <Harald.Krammer@hkr.at>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.20-rc4: async I/O support for inotify
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: SquirrelMail/1.4.9a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+I have running Linux Version 2.6.14-rc5-rt7 on ARM EP9302 and
+in the most of time all works fine for me, but very seldom
+my system crash.
 
-this is a proposal async I/O notification support for the inotify.
+With a JTAG-debugger I dumped out the kernel-log message and saw
+following entries:
 
-Dmitry
+<4>BUG: unbalanced irq-handler preempt count in timer_interrupt+0x0/0x50!
+<4>entered with 00010002, exited with 00000000.
 
---- .orig-2.6.20-rc4/fs/inotify_user.c	2007-01-12 08:27:10.000000000 +0300
-+++ 2.6.20-rc4/fs/inotify_user.c	2007-01-12 09:53:12.000000000 +0300
-@@ -72,6 +72,7 @@
-   */
-  struct inotify_device {
-  	wait_queue_head_t 	wq;		/* wait queue for i/o */
-+	struct fasync_struct    *fasync;        /* async i/o notification */
-  	struct mutex		ev_mutex;	/* protects event queue */
-  	struct mutex		up_mutex;	/* synchronizes watch updates */
-  	struct list_head 	events;		/* list of queued events */
-@@ -301,6 +302,7 @@
-  	dev->queue_size += sizeof(struct inotify_event) + kevent->event.len;
-  	list_add_tail(&kevent->list, &dev->events);
-  	wake_up_interruptible(&dev->wq);
-+	kill_fasync(&dev->fasync, SIGIO, POLL_IN);
+What could be the reason for that? A racing ? If it true, how I can find
+it out? BTW, I enabled all debug-options without to get
+more information's.
 
-  out:
-  	mutex_unlock(&dev->ev_mutex);
-@@ -485,6 +487,7 @@
-  {
-  	struct inotify_device *dev = file->private_data;
+I know this version is totally out-dated, but it is my current playground
+to get a deeper understanding and it's a try to fix a problem.
 
-+	fasync_helper(-1, file, 0, &dev->fasync);
-  	inotify_destroy(dev->ih);
+Any hints are welcome!
+Thanks,
+Harald
 
-  	/* destroy all of the events on this device */
-@@ -518,12 +521,19 @@
-  	return ret;
-  }
+-- 
+Harald Krammer
+Brucknerstrasse 33
+A - 4020  Linz
+AUSTRIA
 
-+static int inotify_fasync(int fd, struct file *file, int on)
-+{
-+	struct inotify_device *dev = file->private_data;
-+	return fasync_helper(fd, file, on, &dev->fasync);
-+}
-+
-  static const struct file_operations inotify_fops = {
-  	.poll           = inotify_poll,
-  	.read           = inotify_read,
-  	.release        = inotify_release,
-  	.unlocked_ioctl = inotify_ioctl,
-  	.compat_ioctl	= inotify_ioctl,
-+	.fasync         = inotify_fasync,
-  };
-
-  static const struct inotify_operations inotify_user_ops = {
+Mobil +43.(0) 664. 130 59 58
+Mail: Harald.Krammer (at) hkr.at
 

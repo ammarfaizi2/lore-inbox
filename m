@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161051AbXALJ5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161057AbXALJ6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbXALJ5P (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 04:57:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbXALJ5P
+	id S1161057AbXALJ6N (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 04:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbXALJ6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 04:57:15 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40798 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161051AbXALJ5N (ORCPT
+	Fri, 12 Jan 2007 04:58:13 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:54879 "HELO
+	mail.dev.rtsoft.ru" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with SMTP id S1161061AbXALJ6M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 04:57:13 -0500
-Date: Fri, 12 Jan 2007 10:08:36 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 18/19] ide: add ide_use_fast_pio() helper
-Message-ID: <20070112100836.58738dbc@localhost.localdomain>
-In-Reply-To: <20070112042800.28794.95095.sendpatchset@localhost.localdomain>
-References: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
-	<20070112042800.28794.95095.sendpatchset@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 Jan 2007 04:58:12 -0500
+Message-ID: <45A75968.7010109@dev.rtsoft.ru>
+Date: Fri, 12 Jan 2007 12:48:24 +0300
+From: Dmitry Antipov <antipov@dev.rtsoft.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.20-rc4: async I/O support for inotify
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007 05:28:00 +0100
-Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+Hello,
 
-> [PATCH] ide: add ide_use_fast_pio() helper
-> 
-> * add ide_use_fast_pio() helper for use by host drivers
-> * add DMA capability and autodma checks to ide_use_dma()
->   - au1xxx-ide/it8213/it821x drivers didn't check for (id->capability & 1)
+this is a proposal async I/O notification support for the inotify.
 
-For the IT8211/2 in SMART this check shouldn't be made.
+Dmitry
 
->   - ide-cris driver didn't set ->autodma
+--- .orig-2.6.20-rc4/fs/inotify_user.c	2007-01-12 08:27:10.000000000 +0300
++++ 2.6.20-rc4/fs/inotify_user.c	2007-01-12 09:53:12.000000000 +0300
+@@ -72,6 +72,7 @@
+   */
+  struct inotify_device {
+  	wait_queue_head_t 	wq;		/* wait queue for i/o */
++	struct fasync_struct    *fasync;        /* async i/o notification */
+  	struct mutex		ev_mutex;	/* protects event queue */
+  	struct mutex		up_mutex;	/* synchronizes watch updates */
+  	struct list_head 	events;		/* list of queued events */
+@@ -301,6 +302,7 @@
+  	dev->queue_size += sizeof(struct inotify_event) + kevent->event.len;
+  	list_add_tail(&kevent->list, &dev->events);
+  	wake_up_interruptible(&dev->wq);
++	kill_fasync(&dev->fasync, SIGIO, POLL_IN);
 
-You've changed the behaviour there. Should the default be autodma=0 ?
+  out:
+  	mutex_unlock(&dev->ev_mutex);
+@@ -485,6 +487,7 @@
+  {
+  	struct inotify_device *dev = file->private_data;
+
++	fasync_helper(-1, file, 0, &dev->fasync);
+  	inotify_destroy(dev->ih);
+
+  	/* destroy all of the events on this device */
+@@ -518,12 +521,19 @@
+  	return ret;
+  }
+
++static int inotify_fasync(int fd, struct file *file, int on)
++{
++	struct inotify_device *dev = file->private_data;
++	return fasync_helper(fd, file, on, &dev->fasync);
++}
++
+  static const struct file_operations inotify_fops = {
+  	.poll           = inotify_poll,
+  	.read           = inotify_read,
+  	.release        = inotify_release,
+  	.unlocked_ioctl = inotify_ioctl,
+  	.compat_ioctl	= inotify_ioctl,
++	.fasync         = inotify_fasync,
+  };
+
+  static const struct inotify_operations inotify_user_ops = {
 

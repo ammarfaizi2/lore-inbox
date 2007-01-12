@@ -1,81 +1,136 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161035AbXALIur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161038AbXALJCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161035AbXALIur (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 03:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbXALIur
+	id S1161038AbXALJCz (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 04:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbXALJCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 03:50:47 -0500
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:41722 "EHLO
-	mail4.hitachi.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161035AbXALIuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 03:50:46 -0500
-Message-ID: <45A74B89.4040100@hitachi.com>
-Date: Fri, 12 Jan 2007 17:49:13 +0900
-From: "Kawai, Hidehiro" <hidehiro.kawai.ez@hitachi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) 
-    Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
+	Fri, 12 Jan 2007 04:02:55 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:54148 "EHLO koto.vergenet.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161038AbXALJCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 04:02:53 -0500
+Date: Fri, 12 Jan 2007 18:00:44 +0900
+From: Horms <horms@verge.net.au>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, Mohan Kumar M <mohan@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Kdump documentation update for 2.6.20: ia64 portion
+Message-ID: <20070112090043.GA27340@verge.net.au>
+References: <20070112060724.GC17379@verge.net.au> <10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, james.bottomley@steeleye.com,
-       Satoshi OSHIMA <soshima@redhat.com>,
-       "Hideo AOKI@redhat" <haoki@redhat.com>,
-       sugita <yumiko.sugita.yf@hitachi.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] binfmt_elf: core dump masking support
-References: <457FA840.5000107@hitachi.com> 
-    <20061213132358.ddcaaaf4.akpm@osdl.org> <20061220154056.GA4261@ucw.cz> 
-    <45A2EADF.3030807@hitachi.com> <20070109143912.GC19787@elf.ucw.cz>
-In-Reply-To: <20070109143912.GC19787@elf.ucw.cz>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com>
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
->>>>  $ echo 1 > /proc/self/coremask
->>>>  $ ./some_program
->>>
->>>User can already ulimit -c 0 on himself, perhaps we want to use same
->>>interface here? ulimit -cmask=(bitmask)?
->>
->>Are you saying that 1) it is good to change ulimit (shell programs)
->>so that shell programs will read/write /proc/self/coremask when
->>the -cmask option is given to ulimit?
->>Or, 2) it is good to change ulimit and get/setrlimit so that shell
->>programs will invoke get/setrlimit with new parameter?
+this patch fills in the portions for ia64 kexec.
 
->>But the second approach is problematic because the bitmask doesn't
->>conform to the usage of setrlimit.  You know, setrlimit controls amount
->>of resources the system can use by the soft limit and hard limit.
->>These limitations don't suit for the bitmask.
-> 
-> Well, you can have it as set of 0-1 "limits"...
+I'm actually not sure what options are required for the dump-capture
+kernel, but "init 1 irqpoll maxcpus=1" has been working fine for me.
+Or more to the point, I'm not sure if irqpoll is needed or not.
 
-I have come up with a similar idea of regarding the ulimit
-value as a bitmask, and I think it may work.
-But it will be confusable for users to add the new concept of
-0-1 limitation into the traditional resouce limitation feature.
-Additionaly, this approach needs a modification of each shell
-command.
-What do you think about these demerits?
+This patch requires the documentation patch update that Vivek Goyal has
+been circulating, and I believe is currently in mm. Feel free to fold it
+into that change if it makes things easier for anyone.
 
-The /proc/<pid>/ approach doesn't have these demerits, and it
-has an advantage that users can change the bitmask of any process
-at anytime.
+Take II
 
-So I'm going to post the 2nd version patchset with /proc/<pid>/
-interface.  If the 2nd version has crucial problems, I'll try
-the ulimit approach.
+Nanhai,
 
-Best regards,
--- 
-Hidehiro Kawai
-Hitachi, Ltd., Systems Development Laboratory
+I have noted that vmlinux.gz may also be used. And added a note about the
+kernel being able to automatically place the crashkernel region.
+Furthermore, I added a note that if manually specified, the region should
+be 64Mb aligned to avoid wastage. I notice that the auto placement code
+uses 64Mb. But is this strictly neccessary for all page sizes?
 
+Signed-off-by: Simon Horman <horms@verge.net.au>
 
-
+Index: linux-2.6/Documentation/kdump/kdump.txt
+===================================================================
+--- linux-2.6.orig/Documentation/kdump/kdump.txt	2007-01-12 17:45:19.000000000 +0900
++++ linux-2.6/Documentation/kdump/kdump.txt	2007-01-12 17:59:42.000000000 +0900
+@@ -17,7 +17,7 @@
+ memory image to a dump file on the local disk, or across the network to
+ a remote system.
+ 
+-Kdump and kexec are currently supported on the x86, x86_64, ppc64 and IA64
++Kdump and kexec are currently supported on the x86, x86_64, ppc64 and ia64
+ architectures.
+ 
+ When the system kernel boots, it reserves a small section of memory for
+@@ -229,7 +229,23 @@
+ 
+ Dump-capture kernel config options (Arch Dependent, ia64)
+ ----------------------------------------------------------
+-(To be filled)
++
++- No specific options are required to create a dump-capture kernel
++  for ia64, other than those specified in the arch idependent section
++  above. This means that it is possible to use the system kernel
++  as a dump-capture kernel if desired.
++  
++  The crashkernel region can be automatically placed by the system
++  kernel at run time. This is done by specifying the base address as 0,
++  or omitting it all together.
++
++  crashkernel=256M@0
++  or
++  crashkernel=256M
++
++  If the start address is specified, not that the start address of the
++  kernel will be alligned to 64Mb, so any if the start address is not then
++  any space below the alignment point will be wasted.
+ 
+ 
+ Boot into System Kernel
+@@ -248,6 +264,10 @@
+ 
+    On ppc64, use "crashkernel=128M@32M".
+ 
++   On ia64, 256M@256M is a generous value that typically works.
++   The region may be automatically placed on ia64, see the
++   dump-capture kernel config option notes above.
++
+ Load the Dump-capture Kernel
+ ============================
+ 
+@@ -266,7 +286,8 @@
+ For ppc64:
+ 	- Use vmlinux
+ For ia64:
+-	(To be filled)
++	- Use vmlinux or vmlinuz.gz
++
+ 
+ If you are using a uncompressed vmlinux image then use following command
+ to load dump-capture kernel.
+@@ -282,18 +303,19 @@
+    --initrd=<initrd-for-dump-capture-kernel> \
+    --append="root=<root-dev> <arch-specific-options>"
+ 
++Please note, that --args-linux does not need to be specified for ia64.
++It is planned to make this a no-op on that architecture, but for now
++it should be omitted
++
+ Following are the arch specific command line options to be used while
+ loading dump-capture kernel.
+ 
+-For i386 and x86_64:
++For i386, x86_64 and ia64:
+ 	"init 1 irqpoll maxcpus=1"
+ 
+ For ppc64:
+ 	"init 1 maxcpus=1 noirqdistrib"
+ 
+-For IA64
+-	(To be filled)
+-
+ 
+ Notes on loading the dump-capture kernel:
+ 

@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161021AbXALHnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161022AbXALHrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161021AbXALHnQ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 02:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbXALHnQ
+	id S1161022AbXALHrn (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 02:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbXALHrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 02:43:16 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:27977 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161021AbXALHnP (ORCPT
+	Fri, 12 Jan 2007 02:47:42 -0500
+Received: from py-out-1112.google.com ([64.233.166.179]:54674 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161022AbXALHrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 02:43:15 -0500
+	Fri, 12 Jan 2007 02:47:42 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=an98Juzf4mM2/B67RVpDWi7CXN741C14x/VfaRx00j9z2la9N3Ve10o5+3KBRfbi1ThHbdX4iq9gjSznAZPzd93bnO3Q/+CwChPLowb2trx6OxMM11Ksna0KJ5SAt0Jp2uoBW5rQTpyHxPWaL3gmquUE80Y1rP3jbLSBjh6k+0k=
-Message-ID: <84144f020701112343n1e398fc4r65fa83717f9e5f02@mail.gmail.com>
-Date: Fri, 12 Jan 2007 09:43:10 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: mprotect abuse in slim
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Mimi Zohar" <zohar@us.ibm.com>, akpm@osdl.org,
-       kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
-       safford@saff.watson.ibm.com
-In-Reply-To: <20070111154957.GG4791@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=K8/boOayUS6BrYqXb8EJr0sC0airEcYv+Wf1Fpd+bLH8bJPUTWwxbrPVbkSLSFf9zwr6X9eSfOucmOrPC7eGC8rA+Rl36tFHisvuifMkuI/FiLacUxdWEeM428r7upr8OlCt+yiV/WTVKDD1ih7Ay5QzINiFhQxe6KSyVHhLU5s=
+Date: Fri, 12 Jan 2007 15:47:32 +0800
+From: "congwen" <congwen@gmail.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: How can I create or read/write a file in linux device driver?
+Message-ID: <200701121547221465420@gmail.com>
+X-mailer: Foxmail 6, 5, 104, 21 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <OFE2C5A2DE.3ADDD896-ON8525725D.007C0671-8525725D.007D2BA9@us.ibm.com>
-	 <1168312045.3180.140.camel@laptopd505.fenrus.org>
-	 <20070109094625.GA11918@infradead.org>
-	 <20070109231449.GA4547@sergelap.austin.ibm.com>
-	 <Pine.LNX.4.64.0701100914550.22496@sbz-30.cs.Helsinki.FI>
-	 <20070110155845.GA373@sergelap.austin.ibm.com>
-	 <84144f020701102339n1935b0a7v5ca3419fe3b66be5@mail.gmail.com>
-	 <20070111154957.GG4791@sergelap.austin.ibm.com>
-X-Google-Sender-Auth: e36cee2ac50bcc33
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> Right, but is returning -EINVAL to userspace on munmap a problem?
+Hello everyone, I want to create and read/write a file in Linux kernel or device driver, I have write some code, the file could be created successfully, but it can not be wrote in anything, the function "write" always return a negative number, the content of the file is still empty. The following code is what I wrote in my device driver, the code reference the function sys_open() in open.c and sys_write() in read_write.c, please give me a help, thanks!
 
-Yes, because an application has no way of reusing the revoked mapping
-range. The current patch should get this right, though.
+struct file *filp;
+char testbuf[100] = {0};
+char *ptestbuf = NULL;
+ssize_t count = 0;
+ssize_t ret = 0;
+int ii = 0;
+   
+filp = filp_open("/logfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+if (IS_ERR(filp))
+   printk("<0>Create record file error!\n\r");
+for(ii = 0; ii < 100; ii++)
+   testbuf[ii] = 1;
+ptestbuf = testbuf;
 
-On 1/11/07, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> Thanks for the tw other patches - I'll give them a shot and check
-> out current munmap behavior just as soon as I get a chance.
+if (filp->f_mode & FMODE_WRITE) 
+{
+   struct inode *inode = filp->f_dentry->d_inode;
+   ret = locks_verify_area(FLOCK_VERIFY_WRITE, inode, filp, filp->f_pos, count);
+   if (!ret) 
+   {
+      ssize_t (*write)(struct file *, const char *, size_t, loff_t *);
+      if (filp->f_op && (filp->f_op->write) != NULL) 
+      {
+         write = filp->f_op->write;
+         count = 99;
+         ret = write(filp, (const char *)ptestbuf, count, &filp->f_pos);
+         printk("<0>After write, ret = %d   \n\r");
+      }
+   }
+}
 
-I hacked the remaining open issues yesterday so please use this instead:
-
-http://www.cs.helsinki.fi/u/penberg/linux/revoke/revoke-2.6.20-rc4
-
-The one at kernel.org will be updated as well when mirroring catches up.

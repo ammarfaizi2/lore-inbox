@@ -1,136 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161038AbXALJCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161046AbXALJWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbXALJCz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 04:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbXALJCz
+	id S1161046AbXALJWr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 04:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbXALJWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 04:02:55 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:54148 "EHLO koto.vergenet.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161038AbXALJCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 04:02:53 -0500
-Date: Fri, 12 Jan 2007 18:00:44 +0900
-From: Horms <horms@verge.net.au>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Mohan Kumar M <mohan@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Kdump documentation update for 2.6.20: ia64 portion
-Message-ID: <20070112090043.GA27340@verge.net.au>
-References: <20070112060724.GC17379@verge.net.au> <10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com>
+	Fri, 12 Jan 2007 04:22:47 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:6428 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161046AbXALJWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 04:22:46 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=fzS7MnpC6h6sdv5aT4FlBe7DjjmlkP2WteyZl3ULv3rAxj6HSGOsu1UwDHVzkFBAZZRTcnUZo655kurYaBR2mVevnJzRejSUF8nymV9sAiWMmW/BW9vwgXvH35VWQMwhtfxp/XzWuMI7pNsOWeDGwHLgV3V02HRKiJW7tYI5/n0=
+Message-ID: <84144f020701120122v4fdcc6a8l81053885256c1339@mail.gmail.com>
+Date: Fri, 12 Jan 2007 11:22:40 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Subject: Re: [PATCH] slab: cache_grow cleanup
+Cc: linux-kernel@vger.kernel.org, hugh@veritas.com, clameter@sgi.com
+In-Reply-To: <Pine.LNX.4.64.0701091539160.10824@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com>
-User-Agent: mutt-ng/devel-r804 (Debian)
+References: <Pine.LNX.4.64.0701091539160.10824@sbz-30.cs.Helsinki.FI>
+X-Google-Sender-Auth: 5939f655fa8aaf5c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Andrew,
 
-this patch fills in the portions for ia64 kexec.
+On 1/9/07, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
+>
+> The current implementation of cache_grow() has to either (1) use pre-allocated
+> memory for the slab or (2) allocate the memory itself which makes the error
+> paths messy. Move __GFP_NO_GROW and __GFP_WAIT processing to kmem_getpages()
+> and introduce a new __cache_grow() variant that expects the memory for a new
+> slab to always be handed over in the 'objp' parameter.
+>
+> Cc: Hugh Dickins <hugh@veritas.com>
+> Cc: Christoph Lameter <clameter@sgi.com>
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-I'm actually not sure what options are required for the dump-capture
-kernel, but "init 1 irqpoll maxcpus=1" has been working fine for me.
-Or more to the point, I'm not sure if irqpoll is needed or not.
-
-This patch requires the documentation patch update that Vivek Goyal has
-been circulating, and I believe is currently in mm. Feel free to fold it
-into that change if it makes things easier for anyone.
-
-Take II
-
-Nanhai,
-
-I have noted that vmlinux.gz may also be used. And added a note about the
-kernel being able to automatically place the crashkernel region.
-Furthermore, I added a note that if manually specified, the region should
-be 64Mb aligned to avoid wastage. I notice that the auto placement code
-uses 64Mb. But is this strictly neccessary for all page sizes?
-
-Signed-off-by: Simon Horman <horms@verge.net.au>
-
-Index: linux-2.6/Documentation/kdump/kdump.txt
-===================================================================
---- linux-2.6.orig/Documentation/kdump/kdump.txt	2007-01-12 17:45:19.000000000 +0900
-+++ linux-2.6/Documentation/kdump/kdump.txt	2007-01-12 17:59:42.000000000 +0900
-@@ -17,7 +17,7 @@
- memory image to a dump file on the local disk, or across the network to
- a remote system.
- 
--Kdump and kexec are currently supported on the x86, x86_64, ppc64 and IA64
-+Kdump and kexec are currently supported on the x86, x86_64, ppc64 and ia64
- architectures.
- 
- When the system kernel boots, it reserves a small section of memory for
-@@ -229,7 +229,23 @@
- 
- Dump-capture kernel config options (Arch Dependent, ia64)
- ----------------------------------------------------------
--(To be filled)
-+
-+- No specific options are required to create a dump-capture kernel
-+  for ia64, other than those specified in the arch idependent section
-+  above. This means that it is possible to use the system kernel
-+  as a dump-capture kernel if desired.
-+  
-+  The crashkernel region can be automatically placed by the system
-+  kernel at run time. This is done by specifying the base address as 0,
-+  or omitting it all together.
-+
-+  crashkernel=256M@0
-+  or
-+  crashkernel=256M
-+
-+  If the start address is specified, not that the start address of the
-+  kernel will be alligned to 64Mb, so any if the start address is not then
-+  any space below the alignment point will be wasted.
- 
- 
- Boot into System Kernel
-@@ -248,6 +264,10 @@
- 
-    On ppc64, use "crashkernel=128M@32M".
- 
-+   On ia64, 256M@256M is a generous value that typically works.
-+   The region may be automatically placed on ia64, see the
-+   dump-capture kernel config option notes above.
-+
- Load the Dump-capture Kernel
- ============================
- 
-@@ -266,7 +286,8 @@
- For ppc64:
- 	- Use vmlinux
- For ia64:
--	(To be filled)
-+	- Use vmlinux or vmlinuz.gz
-+
- 
- If you are using a uncompressed vmlinux image then use following command
- to load dump-capture kernel.
-@@ -282,18 +303,19 @@
-    --initrd=<initrd-for-dump-capture-kernel> \
-    --append="root=<root-dev> <arch-specific-options>"
- 
-+Please note, that --args-linux does not need to be specified for ia64.
-+It is planned to make this a no-op on that architecture, but for now
-+it should be omitted
-+
- Following are the arch specific command line options to be used while
- loading dump-capture kernel.
- 
--For i386 and x86_64:
-+For i386, x86_64 and ia64:
- 	"init 1 irqpoll maxcpus=1"
- 
- For ppc64:
- 	"init 1 maxcpus=1 noirqdistrib"
- 
--For IA64
--	(To be filled)
--
- 
- Notes on loading the dump-capture kernel:
- 
+Can we get this into -mm, please?

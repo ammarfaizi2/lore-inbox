@@ -1,93 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751574AbXALCfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030440AbXALCoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751574AbXALCfJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 21:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbXALCfI
+	id S1030440AbXALCoD (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 21:44:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbXALCoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 21:35:08 -0500
-Received: from rgminet02.oracle.com ([148.87.113.119]:33196 "EHLO
-	rgminet02.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751574AbXALCfH (ORCPT
+	Thu, 11 Jan 2007 21:44:03 -0500
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:42906 "EHLO
+	fed1rmmtao11.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751581AbXALCoA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 21:35:07 -0500
-Subject: [PATCH] bonding: Replace kmalloc() + memset() pairs with the
-	appropriate kzalloc() calls
-From: joe jin <joe.jin@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, joe.jin@oracle.com
-Content-Type: text/plain
-Organization: Oracle
-Date: Fri, 12 Jan 2007 10:28:23 +0800
-Message-Id: <1168568903.10377.7.camel@joejin-pc.cn.oracle.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27.rhel4.6) 
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 11 Jan 2007 21:44:00 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git and announcing GIT v1.5.0-rc1
+cc: linux-kernel@vger.kernel.org
+X-maint-at: 6534141151f7fd4334f62827d9234acf3974ca4d
+X-master-at: ba70de01bb0c8a08135b63ace183bd3f4b149d9e
+Date: Thu, 11 Jan 2007 18:43:53 -0800
+Message-ID: <7v8xg9x8uu.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replace kmalloc() + memset() pairs with the appropriate
-kzalloc() calls.
+The tip of 'master' branch is tagged as v1.5.0-rc1; this means a
+few things:
 
-Signed-off-by: Joe Jin <lkmaillist@gmail.com>
---
-diff -urNp old/drivers/net/bonding/bond_alb.c
-new/drivers/net/bonding/bond_alb.c
---- old/drivers/net/bonding/bond_alb.c	2006-11-30 05:57:37.000000000
-+0800
-+++ new/drivers/net/bonding/bond_alb.c	2007-01-09 13:13:16.000000000
-+0800
-@@ -184,7 +184,7 @@ static int tlb_initialize(struct bonding
- 
- 	spin_lock_init(&(bond_info->tx_hashtbl_lock));
- 
--	new_hashtbl = kmalloc(size, GFP_KERNEL);
-+	new_hashtbl = kzalloc(size, GFP_KERNEL);
- 	if (!new_hashtbl) {
- 		printk(KERN_ERR DRV_NAME
- 		       ": %s: Error: Failed to allocate TLB hash table\n",
-@@ -195,8 +195,6 @@ static int tlb_initialize(struct bonding
- 
- 	bond_info->tx_hashtbl = new_hashtbl;
- 
--	memset(bond_info->tx_hashtbl, 0, size);
--
- 	for (i = 0; i < TLB_HASH_TABLE_SIZE; i++) {
- 		tlb_init_table_entry(&bond_info->tx_hashtbl[i], 1);
- 	}
-@@ -788,7 +786,7 @@ static int rlb_initialize(struct bonding
- 
- 	spin_lock_init(&(bond_info->rx_hashtbl_lock));
- 
--	new_hashtbl = kmalloc(size, GFP_KERNEL);
-+	new_hashtbl = kzalloc(size, GFP_KERNEL);
- 	if (!new_hashtbl) {
- 		printk(KERN_ERR DRV_NAME
- 		       ": %s: Error: Failed to allocate RLB hash table\n",
-diff -urNp old/drivers/net/bonding/bond_main.c
-new/drivers/net/bonding/bond_main.c
---- old/drivers/net/bonding/bond_main.c	2006-11-30 05:57:37.000000000
-+0800
-+++ new/drivers/net/bonding/bond_main.c	2007-01-09 13:14:20.000000000
-+0800
-@@ -1336,14 +1336,12 @@ int bond_enslave(struct net_device *bond
- 		goto err_undo_flags;
- 	}
- 
--	new_slave = kmalloc(sizeof(struct slave), GFP_KERNEL);
-+	new_slave = kzalloc(sizeof(struct slave), GFP_KERNEL);
- 	if (!new_slave) {
- 		res = -ENOMEM;
- 		goto err_undo_flags;
- 	}
- 
--	memset(new_slave, 0, sizeof(struct slave));
--
- 	/* save slave's original flags before calling
- 	 * netdev_set_master and dev_open
- 	 */
+ - The focus is shifted to stabilize 'master'.  Fixes to what
+   are already there are very much appreciated.
+
+ - I'll change my $PATH to use the 'master' version, not 'next',
+   for my own use until v1.5.0 final.  I ask people who usually
+   follow 'next' to do the same so that we can catch breakages
+   on 'master'.
+
+ - No new features nor major changes, whether they have been
+   cooking in 'next' or not, will be merged to 'master' until
+   v1.5.0 final.  I might drop patches on the floor that are not
+   meant for 'master', although I intend to try hard to keep up
+   with whatever the list comes up with.
+
+Tonight's update merges a handful remaining topics from 'next',
+along with fixes and updates directly applied to 'master'.
+
+
+* The 'master' branch has these since the last announcement.
+
+   Alex Riesen (1):
+      Speed-up recursive by flushing index only once for all entries
+
+   Eric Wong (1):
+      Avoid errors and warnings when attempting to do I/O on zero bytes
+
+   Johannes Schindelin (2):
+      Sanitize for_each_reflog_ent()
+      Fix t1410 for core.filemode==false
+
+   Junio C Hamano (20):
+      Move initialization of log_all_ref_updates
+      Introduce is_bare_repository() and core.bare configuration variable
+      git-fetch: allow updating the current branch in a bare repository.
+      git-status: show detached HEAD
+      Detached HEAD (experimental)
+      git-checkout: do not warn detaching HEAD when it is already detached.
+      git-checkout: rewording comments regarding detached HEAD.
+      git-checkout: safety when coming back from the detached HEAD state.
+      git-checkout: fix branch name output from the command
+      git-checkout: safety check for detached HEAD checks existing refs
+      git-checkout: handle local changes sanely when detaching HEAD
+      Makefile: remove $foo when $foo.exe is built/installed.
+      merge-recursive: do not use on-file index when not needed.
+      Document git-init
+      index-pack: write-or-die instead of unchecked write-in-full.
+      config-set: check write-in-full returns in set_multivar
+      git-rm: do not fail on already removed file.
+      git-status: wording update to deal with deleted files.
+      plug a few leaks in revision walking used in describe.
+      GIT v1.5.0-rc1
+
+   Jürgen Rühle (2):
+      send-email: work around double encoding of in-body From field.
+      Provide better feedback for the untracked only case in status output
+
+   Lars Hjemli (1):
+      git-branch: show detached HEAD
+
+   Linus Torvalds (3):
+      write-cache: do not leak the serialized cache-tree data.
+      write_in_full: really write in full or return error on disk full.
+      Better error messages for corrupt databases
+
+   Nicolas Pitre (1):
+      Add git-init documentation.
+
+   Shawn O. Pearce (4):
+      Don't save the commit buffer in git-describe.
+      Make git-describe a builtin.
+      Disallow working directory commands in a bare repository.
+      Chose better tag names in git-describe after merges.
 
 

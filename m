@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932670AbXAKXxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751469AbXALACH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbXAKXxe (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 11 Jan 2007 18:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbXAKXxe
+	id S1751469AbXALACH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 11 Jan 2007 19:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbXALACH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Jan 2007 18:53:34 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:27268 "HELO
-	smtp103.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932670AbXAKXxd (ORCPT
+	Thu, 11 Jan 2007 19:02:07 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:29306 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751487AbXALACF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Jan 2007 18:53:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=r1TbPgYVmMEscm/S8nXy8qOdJL6SDyYZ3+yGHNXQ4Z4dPPK7gcjFnF0wciPgSeI+RIShhviN7cl+cowOX9WlZZtDk1H1wzkTGUNbYgGiR2VNfsrVCnRWTHKNqrwWxd9yKhWWPR6BZibNRiKmQOkNAVyS78Oz3Q8IDA08IL/RI64=  ;
-X-YMail-OSG: 3FjLnakVM1k6xtHZJor7kWYinzzHNsUrt0GZFyp.IeZm.DACON5aB2fufH5IL5fQhkIYMsb60eHsD0IiG24J76M5KRLr0hxX7JP0vI5cVacTpSS0x7ULIEWAsl4iV6mYpa5k49djqBOLjfo-
-Message-ID: <45A6CDE3.90001@yahoo.com.au>
-Date: Fri, 12 Jan 2007 10:53:07 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 11 Jan 2007 19:02:05 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=googlemail.com; s=beta;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=nveun8BIaegRLK88jWj9uXxSICdfBZ2NGhBSrHonO/oMwgcaMLmCS7AHRswY+YaqatVNP/K72Q72ILFmyr5hKMgeKUJ4WtG7ofR2AgkNMcdFfZzetRnFBr9t3PXLSj7tK745rzDi/H9X/C1Jvn5j1Wy+IZDEK/MPlGjxXUyK+AY=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Subject: Re: Finding hardlinks
+Date: Fri, 12 Jan 2007 01:00:21 +0100
+User-Agent: KMail/1.8.2
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Pavel Machek <pavel@suse.cz>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz> <20070103202641.GA3510@janus>
+In-Reply-To: <20070103202641.GA3510@janus>
 MIME-Version: 1.0
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-CC: reiserfs-dev@namesys.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.20-rc4: known unfixed regressions (v2)
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <200701110324.42920.vs@namesys.com> <45A58C33.4050909@yahoo.com.au> <200701111612.40701.vs@namesys.com>
-In-Reply-To: <200701111612.40701.vs@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701120100.21672.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir V. Saveliev wrote:
-> Hello
+On Wednesday 03 January 2007 21:26, Frank van Maarseveen wrote:
+> On Wed, Jan 03, 2007 at 08:31:32PM +0100, Mikulas Patocka wrote:
+> > 64-bit inode numbers space is not yet implemented on Linux --- the problem 
+> > is that if you return ino >= 2^32, programs compiled without 
+> > -D_FILE_OFFSET_BITS=64 will fail with stat() returning -EOVERFLOW --- this 
+> > failure is specified in POSIX, but not very useful.
 > 
-> On Thursday 11 January 2007 04:00, Nick Piggin wrote:
-
->>That's racy, unfortunately :P
->>
+> hmm, checking iunique(), ino_t, __kernel_ino_t... I see. Pity. So at
+> some point in time we may need a sort of "ino64" mount option to be
+> able to switch to a 64 bit number space on mount basis. Or (conversely)
+> refuse to mount without that option if we know there are >32 bit st_ino
+> out there. And invent iunique64() and use that when "ino64" specified
+> for FAT/SMB/...  when those filesystems haven't been replaced by a
+> successor by that time.
 > 
-> 
-> Sorry, please, explain what is racy.
-> reiserfs_truncate and reiserfs_release call that function after they have inode's mutex locked.
+> At that time probably all programs are either compiled with
+> -D_FILE_OFFSET_BITS=64 (most already are because of files bigger than 2G)
+> or completely 64 bit. 
 
-Calling truncate inside i_size (ie. vmtruncate_range is also racy), because
-of the way that the pagefault side of the equation works (eg. truncate_count).
-
-But if you're only calling truncate on files that are never mmapped, then I
-think that race should disappear.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Good plan. Be prepared to redo it again when 64bits will feel "small" also.
+Then again when 128bit will be "small". Don't tell me this won't happen.
+15 years ago people would laugh about 32bit inode numbers being not enough.
+--
+vda

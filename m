@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161164AbXALX3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161165AbXALXeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161164AbXALX3L (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 18:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbXALX3K
+	id S1161165AbXALXeA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 18:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbXALXeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 18:29:10 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:42928 "EHLO omx1.sgi.com"
+	Fri, 12 Jan 2007 18:34:00 -0500
+Received: from www.osadl.org ([213.239.205.134]:46113 "EHLO mail.tglx.de"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1161164AbXALX3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 18:29:09 -0500
-Date: Fri, 12 Jan 2007 15:29:04 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Sunil Naidu" <akula2.shark@gmail.com>
-Cc: lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org
-Subject: Re: Choosing a HyperThreading/SMP/MultiCore kernel ?
-Message-Id: <20070112152904.86c7e167.pj@sgi.com>
-In-Reply-To: <8355959a0701121521h47acde7cy5f4661bb283ae782@mail.gmail.com>
-References: <8355959a0701120525m5d1a7904i56b8a8f7316883d6@mail.gmail.com>
-	<20070112150349.GI17269@csclub.uwaterloo.ca>
-	<8355959a0701121521h47acde7cy5f4661bb283ae782@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	id S1161165AbXALXd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 18:33:59 -0500
+Subject: Re: [kvm-devel] kvm & dyntick
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Dor Laor <dor.laor@qumranet.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Avi Kivity <avik@qumranet.com>,
+       kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <64F9B87B6B770947A9F8391472E0321609F7A0E2@ehost011-8.exch011.intermedia.net>
+References: <45A66106.5030608@qumranet.com> <20070112062006.GA32714@elte.hu>
+	 <20070112101931.GA11635@elte.hu>
+	 <64F9B87B6B770947A9F8391472E0321609F7A0E2@ehost011-8.exch011.intermedia.net>
+Content-Type: text/plain
+Date: Sat, 13 Jan 2007 00:39:59 +0100
+Message-Id: <1168645199.2941.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Trying to understand, should I set CPUSETS=y
+On Fri, 2007-01-12 at 15:25 -0800, Dor Laor wrote:
+> This is great news for PV guests.
+> 
+> Never-the-less we still need to improve our full virtualized guest
+> support. 
 
-You don't need CPUSETS for this small a system.
+Full virtualized guests, which have their own dyntick support, are fine
+as long as we provide local apic emulation for them.
 
-But setting it is harmless - for example at least
-one major commercial distribution enables CPUSETS
-on almost all their product, most of which is running
-on PC's less powerful than yours.
+If a guest does not have that, it will use the periodic mode. There is
+no way to circumvent this. We do not know, whether the guest relies on
+that periodic interrupt or not.
 
-CPUSETS provides a facility for managing the memory
-and processor placement of jobs running on what are
-typically big NUMA systems.  Job X runs on CPUs 0-3
-with memory on Nodes 0-1, while Job Y runs on CPUs
-4-7 and Nodes 2-3.  And bigger ... to hundreds and
-thousands of CPUs and Nodes.
+	tglx
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+

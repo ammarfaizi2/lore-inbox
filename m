@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161042AbXALLLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161043AbXALLQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbXALLLv (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 06:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbXALLLv
+	id S1161043AbXALLQq (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 06:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbXALLQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 06:11:51 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:8347 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161042AbXALLLu convert rfc822-to-8bit (ORCPT
+	Fri, 12 Jan 2007 06:16:46 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:56294 "EHLO
+	favonius.humilis.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161043AbXALLQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 06:11:50 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ITkmQ7Cvvz8LlGJx/KjJjgmn0vwv52cpsO3c5mQYbE/09dZAo3qj+/ziLiRmUPByo70ZvkgcgbHPEnR9WYGHWtxQr2+0y6QMlHBzgPlmV52m3kbOW76HMzBPdeISSuDUy0/5h2Kq2P1O0B49g51ay4HExH6skLWnI7zkx+Dz+f0=
-Message-ID: <414cba4e0701120311t39d90e10y472f251f8e357643@mail.gmail.com>
-Date: Fri, 12 Jan 2007 12:11:49 +0100
-From: emisca <emisca.ml@gmail.com>
-To: "Stefan Seyfried" <seife@suse.de>
-Subject: Re: [Suspend-devel] asus p5ld2 se, serial port gone after suspend and i8042 problems (solved, pnpacpi=off needed)
-Cc: "Pavel Machek" <pavel@ucw.cz>, suspend2-users@lists.suspend2.net,
-       suspend-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20070111195812.GF11903@suse.de>
+	Fri, 12 Jan 2007 06:16:46 -0500
+X-Greylist: delayed 1459 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 06:16:45 EST
+Date: Fri, 12 Jan 2007 11:52:24 +0100
+From: Sander <sander@humilis.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 'struct task_struct' has no member named 'mems_allowed'  (was: Re: 2.6.20-rc4-mm1)
+Message-ID: <20070112105224.GA12813@favonius>
+Reply-To: sander@humilis.net
+References: <20070111222627.66bb75ab.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <414cba4e0701101409w4be38105vae7d185f4c2967bd@mail.gmail.com>
-	 <20070111114202.GC5945@elf.ucw.cz>
-	 <414cba4e0701110514t2fbd0659g905aa2fb06b9a261@mail.gmail.com>
-	 <20070111195812.GF11903@suse.de>
+In-Reply-To: <20070111222627.66bb75ab.akpm@osdl.org>
+X-Uptime: 11:30:41 up 10:19, 15 users,  load average: 0.15, 0.10, 0.03
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But using pnpacpi=no, I disable the acpi code.. the "normal" pnp code,
-what does on suspend? Does it simply do nothing? In the dmesg I don't
-see anything related to pnp device reinit.
-I tried suspend to ram on this motherboard. A strange thing happens..
-the system goes to suspend and then suddenly resumes. Why?
-How I can check if it's enabled a wake up device? There are no related
-settings on the bios, only wake on lan (disabled). I think I must
-debug interrupts...
+Andrew Morton wrote (ao):
+>   ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc4-mm1/
 
-2007/1/11, Stefan Seyfried <seife@suse.de>:
-> On Thu, Jan 11, 2007 at 02:14:42PM +0100, emisca wrote:
-> > Yes, I have to look at pnpacpi code... but does the dsdt matters for this
-> > problem?
-> > Surely, it is a bios bug (as usually.....). I will look at pnpacpi code.
->
-> Not necessarily. IIRC, somebody (Rusty?) said that serial consoles have had
-> problems with suspend for a long time and just sometimes work "by accident".
-> ISTR that they do not really save and restore the line settings etc.
->
-> So it does not need to be the BIOS, it can also be a plain broken driver.
->
-> --
-> Stefan Seyfried
-> QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-> SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out."
->
+>  x86/x86_64 things
+
+> +mbind-restrict-nodes-to-the-currently-allowed-cpuset.patch
+
+I had to revert this patch because of:
+
+===
+mm/mempolicy.c: In function 'sys_mbind':
+mm/mempolicy.c:885: error: 'struct task_struct' has no member named 'mems_allowed'
+make[1]: *** [mm/mempolicy.o] Error 1
+make: *** [mm] Error 2
+===
+
+===
+http://lkml.org/lkml/2007/1/9/375
+
+Date	Tue, 9 Jan 2007 20:15:07 -0800 (PST)
+From	Christoph Lameter <>
+Subject	mbind: Restrict nodes to the currently allowed cpuset
+Digg This
+
+Currently one can specify an arbitrary node mask to mbind that includes nodes
+not allowed. If that is done with an interleave policy then we will go around
+all the nodes. Those outside of the currently allowed cpuset will be redirected
+to the border nodes. Interleave will then create imbalances at the borders
+of the cpuset.
+
+This patch restricts the nodes to the currently allowed cpuset.
+
+The RFC for this patch was discussed at
+http://marc.theaimsgroup.com/?t=116793842100004&r=1&w=2
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.19-mm1/mm/mempolicy.c
+===================================================================
+--- linux-2.6.19-mm1.orig/mm/mempolicy.c	2006-12-11 19:00:38.224610647 -0800
++++ linux-2.6.19-mm1/mm/mempolicy.c	2006-12-13 11:13:10.175294067 -0800
+@@ -882,6 +882,7 @@ asmlinkage long sys_mbind(unsigned long 
+ 	int err;
+ 
+ 	err = get_nodes(&nodes, nmask, maxnode);
++	nodes_and(nodes, nodes, current->mems_allowed);
+ 	if (err)
+ 		return err;
+ 	return do_mbind(start, len, mode, &nodes, flags);
+===
+
+	With kind regards, Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

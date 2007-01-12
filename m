@@ -1,87 +1,121 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161080AbXALVkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161086AbXALVm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161080AbXALVkn (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 16:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbXALVkn
+	id S1161086AbXALVm0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 16:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbXALVm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 16:40:43 -0500
-Received: from server99.tchmachines.com ([72.9.230.178]:35758 "EHLO
-	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161080AbXALVkm (ORCPT
+	Fri, 12 Jan 2007 16:42:26 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3669 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161086AbXALVmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 16:40:42 -0500
-Date: Fri, 12 Jan 2007 13:40:21 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>, a.p.zijlstra@chello.nl
-Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
-Message-ID: <20070112214021.GA4300@localhost.localdomain>
-References: <20070112160104.GA5766@localhost.localdomain> <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com>
+	Fri, 12 Jan 2007 16:42:25 -0500
+Date: Fri, 12 Jan 2007 21:42:16 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, jkosina@suse.cz,
+       linux-input@atrey.karlin.mff.cuni.cz, Adrian Bunk <bunk@stusta.de>
+Subject: Re: Fwd: [PATCH] Fix some ARM builds due to HID brokenness
+Message-ID: <20070112214216.GC24451@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>, jkosina@suse.cz,
+	linux-input@atrey.karlin.mff.cuni.cz, Adrian Bunk <bunk@stusta.de>
+References: <20070112210015.GA2923@dyn-67.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com>
+In-Reply-To: <20070112210015.GA2923@dyn-67.arm.linux.org.uk>
 User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 11:46:22AM -0800, Christoph Lameter wrote:
-> On Fri, 12 Jan 2007, Ravikiran G Thirumalai wrote:
+On Fri, Jan 12, 2007 at 09:00:15PM +0000, Russell King wrote:
+> Could we please have this (or a proper fix) in before 2.6.20 to resolve
+> the regression please?
+
+Actually, this remaining regression is not caused by this patch not being
+integrated, but this:
+
+config USB_HID
+        tristate "USB Human Interface Device (full HID) support"
+        default y
+        depends on USB
+        select HID
+
+So... we have USB_HID _newly_ selected in configurations which didn't
+have it before, which overrides CONFIG_HID and builds HID without
+input support.
+
+Relevant lines from "make ep93xx_defconfig" output:
+
+Generic input layer (needed for keyboard, mouse, ...) (INPUT) [N/m/y/?] n
+Support for Host-side USB (USB) [Y/n/m/?] y
+USB Human Interface Device (full HID) support (USB_HID) [Y/n/m/?] (NEW) y
+
+Can USB_HID also depend on INPUT ?
+
+> ----- Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
 > 
-> > The test was simple, we have 16 processes, each allocating 3.5G of memory
-> > and and touching each and every page and returning.  Each of the process is
-> > bound to a node (socket), with the local node being the preferred node for
-> > allocation (numactl --cpubind=$node ./numa-membomb --preferred=$node).  Each
-> > socket has 4G of physical memory and there are two cores on each socket. On
-> > start of the test, the machine becomes unresponsive after sometime and
-> > prints out softlockup and OOM messages.  We then found out the cause
-> > for softlockups being the excessive spin times on zone_lru lock.  The fact
-> > that spin_lock_irq disables interrupts while spinning made matters very bad.
-> > We instrumented the spin_lock_irq code and found that the spin time on the
-> > lru locks was in the order of a few seconds (tens of seconds at times) and
-> > the hold time was comparatively lesser.
+> Date: Fri, 22 Dec 2006 17:09:16 +0000
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+> To: Linux Kernel List <linux-kernel@vger.kernel.org>
+> Cc: jkosina@suse.cz, linux-input@atrey.karlin.mff.cuni.cz
+> Subject: [PATCH] Fix some ARM builds due to HID brokenness
 > 
-> So the issue is two processes contenting on the zone lock for one node? 
-> You are overallocating the 4G node with two processes attempting to 
-> allocate 7.5GB? So we go off node for 3.5G of the allocation?
-
-Yes.
-
+> The new location for HID is extremely annoying:
 > 
-> Does the system scale the right way if you stay within the bounds of node 
-> memory? I.e. allocate 1.5GB from each process?
-
-Yes. We see problems only when we oversubscribe memory.
-
+> 1. the help text implies that you need to enable it for any
+>    keyboard or mouse attached to the system.  This is not
+>    correct.
 > 
-> Have you tried increasing the size of the per cpu caches in 
-> /proc/sys/vm/percpu_pagelist_fraction?
-
-No not yet. I can give it a try.
-
+> 2. it defaults to 'y'.  When you have input deselected, this
+>    causes the kernel to fail to link:
 > 
-> > While the softlockups and the like went away by enabling interrupts during
-> > spinning, as mentioned in http://lkml.org/lkml/2007/1/3/29 ,
-> > Andi thought maybe this is exposing a problem with zone->lru_locks and 
-> > hence warrants a discussion on lkml, hence this post.  Are there any 
-> > plans/patches/ideas to address the spin time under such extreme conditions?
+> drivers/built-in.o: In function `usb_hidinput_input_event':
+> hid-input.c:(.text+0x55054): undefined reference to `input_ff_event'
+> drivers/built-in.o: In function `hidinput_hid_event':
+> hid-input.c:(.text+0x6446c): undefined reference to `input_event'
+> hid-input.c:(.text+0x644f8): undefined reference to `input_event'
+> hid-input.c:(.text+0x64550): undefined reference to `input_event'
+> hid-input.c:(.text+0x64590): undefined reference to `input_event'
+> hid-input.c:(.text+0x645b8): undefined reference to `input_event'
+> drivers/built-in.o: In function `hidinput_disconnect':
+> hid-input.c:(.text+0x64624): undefined reference to `input_unregister_device'
+> drivers/built-in.o: In function `hidinput_report_event':
+> hid-input.c:(.text+0x64670): undefined reference to `input_event'
+> drivers/built-in.o: In function `hidinput_connect':
+> hid-input.c:(.text+0x64824): undefined reference to `input_allocate_device'
+> hid-input.c:(.text+0x675e0): undefined reference to `input_register_device'
+> hid-input.c:(.text+0x67698): undefined reference to `input_free_device'
+> hid-input.c:(.text+0x676b8): undefined reference to `input_register_device'
+> make: *** [.tmp_vmlinux1] Error 1
 > 
-> Could this be a hardware problem? Some issue with atomic ops in the 
-> Sun hardware?
+> Fix the second problem by making it depend on INPUT.  The first
+> problem is left as an exercise for the HID maintainers to solve.
+> 
+> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 96d4a0b..1ccc222 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -6,6 +6,7 @@ menu "HID Devices"
+>  
+>  config HID
+>  	tristate "Generic HID support"
+> +	depends on INPUT
+>  	default y
+>  	---help---
+>  	  Say Y here if you want generic HID support to connect keyboards,
+> 
+> ----- End forwarded message -----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I think that is unlikely -- because when we donot oversubscribe
-memory, the tests complete quickly without softlockups ane the like.  Peter 
-has also noticed this (presumeably on different hardware).  I would think
-this could also be locking unfairness (cpus of the same node getting the 
-lock and starving out other nodes) case under extreme contention.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

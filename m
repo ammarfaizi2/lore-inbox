@@ -1,90 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932228AbXALQ4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932295AbXALQ71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbXALQ4O (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 11:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbXALQ4O
+	id S932295AbXALQ71 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 11:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbXALQ71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 11:56:14 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:38496 "EHLO
-	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932228AbXALQ4N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 11:56:13 -0500
-Date: Fri, 12 Jan 2007 18:56:00 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: kexec + ACPI in 2.6.19 (was: Re: kexec + USB storage in 2.6.19)
-Message-ID: <20070112165600.GB24291@localdomain>
-References: <20070112122444.GA28597@localdomain> <m1mz4oe3xm.fsf@ebiederm.dsl.xmission.com> <20070112145710.GA29884@localdomain> <m1irfce06s.fsf@ebiederm.dsl.xmission.com> <20070112160243.GA13980@localdomain> <20070112162800.GA23791@localdomain> <20070112164339.GA24291@localdomain>
+	Fri, 12 Jan 2007 11:59:27 -0500
+Received: from mx33.mail.ru ([194.67.23.194]:8530 "EHLO mx33.mail.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932295AbXALQ70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 11:59:26 -0500
+X-Greylist: delayed 103543 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jan 2007 11:59:26 EST
+Message-ID: <45A7BE54.7010609@inbox.ru>
+Date: Fri, 12 Jan 2007 19:59:00 +0300
+From: Viktor <vvp01@inbox.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060212 Fedora/1.7.12-5
+X-Accept-Language: en-us, ru, en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070112164339.GA24291@localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-PopBeforeSMTPSenders: da-x@monatomic.org
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 06:43:40PM +0200, Dan Aloni wrote:
-> On Fri, Jan 12, 2007 at 06:28:00PM +0200, Dan Aloni wrote:
-> > On Fri, Jan 12, 2007 at 06:02:43PM +0200, Dan Aloni wrote:
-> > > On Fri, Jan 12, 2007 at 08:26:03AM -0700, Eric W. Biederman wrote:
-> > > > Dan Aloni <da-x@monatomic.org> writes:
-> > > > 
-> > > > > I'm attaching the full logs.
-> > > > 
-> > > > Thanks.
-> > > > 
-> > > > > [ 8656.272980] ACPI Error (tbxfroot-0512): Could not map memory at 0000040E for length 2 [20060707]
-> > > > 
-> > > > Ok. This looks like the first sign of trouble.
-> > > > Normally I would suspect a memory map issue but your e820 memory map looks fine,
-> > > > although a little different between the two kernels.
-> > > > 
-> > > > Is this enough of a hint for you to dig more deeply?
-> > > 
-> > > Reverting just the ACPI code (everything under drivers/acpi/*) 
-> > > back to the version of 2.6.18.3 doesn't fix the problem, so it 
-> > > must be something else.
-> > 
-> > Just occured to me that I didn't revert the relevant code under 
-> > arch/x86_64 so it might still be related somehow..
+Linus Torvalds wrote:
+>>OK, madvise() used with mmap'ed file allows to have reads from a file
+>>with zero-copy between kernel/user buffers and don't pollute cache
+>>memory unnecessarily. But how about writes? How is to do zero-copy
+>>writes to a file and don't pollute cache memory without using O_DIRECT?
+>>Do I miss the appropriate interface?
 > 
-> After adding a few prints inside __ioremap() it appears the function
-> exits for phys_addr==0x40e because (!PageReserved(page)).
 > 
-> Isn't page 0 supposed to be reserved? I clearly see that it is
-> being reserved under setup_arch(). 
-> 
-> Odd, I must say...
+> mmap()+msync() can do that too.
 
-In __ioremap() I added this under if(!PageReserved(page)) {...}:
+Sorry, I wasn't sufficiently clear. Mmap()+msync() can't be used for
+that if data to be written come from some external source, like video
+capturing hardware, which DMA'ing data directly into the user space
+buffers. Using mmap'ed area for those DMA buffers doesn't look as a good
+idea, because, e.g., it will involve unneeded disk reads on the first
+page faults.
 
-		if (phys_addr == 0x40e) {
-			printk("PAGE %p (pfn=%ld): flags=%lx, count=%d\n",
-			       page,
-			       page_to_pfn(page),
-			       page->flags,
-			       atomic_read(&page->_count));
-		}
+So, some O_DIRECT-like interface should exist in the system. Also, as
+Michael Tokarev noted, operations over mmap'ed areas don't provide good
+ways for error handling, which effectively makes them unusable for
+something serious.
 
-And I get:
+> Also, regular user-space page-aligned data could easily just be moved into 
+> the page cache. We actually have a lot of the infrastructure for it. See 
+> the "splice()" system call. It's just not very widely used, and the 
+> "drop-behind" behaviour (to then release the data) isn't there. And I bet 
+> that there's lots of work needed to make it work well in practice, but 
+> from a conceptual standpoint the O_DIRECT method really is just about the 
+> *worst* way to do things.
 
-[ 1013.864201] PAGE ffff810001000000 (pfn=0): flags=0, count=0
+splice() needs 2 file descriptors, but looking at it I've found
+vmsplice() syscall, which, seems, can do the needed actions, although
+I'm not sure it can work with files and zero-copy. Thanks for pointing
+on those interfaces.
 
-So at least no one is using that page. Still it is not clear why it
-doesn't have the reserve flag turned on.
-
--- 
-Dan Aloni
-XIV LTD, http://www.xivstorage.com
-da-x (at) monatomic.org, dan (at) xiv.co.il

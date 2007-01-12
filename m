@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751290AbXALNKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751229AbXALNUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbXALNKy (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 08:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbXALNKy
+	id S1751229AbXALNUQ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 08:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbXALNUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 08:10:54 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:17802 "EHLO
+	Fri, 12 Jan 2007 08:20:16 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:28765 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751290AbXALNKx (ORCPT
+	with ESMTP id S1751229AbXALNUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 08:10:53 -0500
+	Fri, 12 Jan 2007 08:20:14 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wv7fzbAzeC9jVldfsKH6v8v/YkUmSBB9vFI6X1ArYX4+4E1hY1heyY+y+Xmw//mWyTwZjwNELSJr5FS1LJE9sqXBUDQMRUJAdz0k10DoswYyz4ehi6PhzDTH8WuSeEI4zD5eEaEwLJE+I4b3SzWDTysMUudSzhcKChhU06XMUy4=
-Message-ID: <6bffcb0e0701120510w13295ab6scbdff1be3cb5ab1@mail.gmail.com>
-Date: Fri, 12 Jan 2007 14:10:50 +0100
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Jiri Slaby" <jirislaby@gmail.com>
-Subject: Re: 2.6.20-rc4-mm1strange bug
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <45A77FCF.2010107@gmail.com>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=MrDJARviokGllotKY8q/17PSji/K0A5JylkG5GaAyiFAUiH1zbXDT8fNHFIW9XyaTM0YEZqm7kSUMNxGDpMx08yExYuIMeN3UT9AoPctVHjbSPrKxXCR2imE0h3dbY2WFPS7rNjAD0hjMrwQnCsMsOl5ixrUhl/sdmiA5NMlu1c=
+Date: Fri, 12 Jan 2007 13:18:00 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       drzeus@drzeus.cx
+Subject: Re: 2.6.20-rc4-mm1
+Message-ID: <20070112131800.GE5941@slug>
+References: <20070111222627.66bb75ab.akpm@osdl.org> <200701121125.58794.m.kozlowski@tuxland.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6bffcb0e0701120338j399461fdna6984bce16ae4622@mail.gmail.com>
-	 <45A77FCF.2010107@gmail.com>
+In-Reply-To: <200701121125.58794.m.kozlowski@tuxland.pl>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/01/07, Jiri Slaby <jirislaby@gmail.com> wrote:
-> Michal Piotrowski wrote:
-> > Hi,
-> >
-> > This bug looks strange
-> > http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/bug.jpg
-> > http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/mm-config
->
-> Here too, see
-> http://lkml.org/lkml/2007/1/12/45
+On Fri, Jan 12, 2007 at 11:25:58AM +0100, Mariusz Kozlowski wrote:
+> Hello,
+> 
+> 	Doesn't build on my laptop.
+> 
+> drivers/mmc/mmc.c: In function 'mmc_lock_unlock':
+> drivers/mmc/mmc.c:1527: error: dereferencing pointer to incomplete type
+> drivers/mmc/mmc.c:1527: warning: type defaults to 'int' in declaration of '_________p1'
+> drivers/mmc/mmc.c:1527: error: dereferencing pointer to incomplete type
+> drivers/mmc/mmc.c:1527: warning: assignment makes pointer from integer without a cast
+> make[2]: *** [drivers/mmc/mmc.o] Error 1
+> make[1]: *** [drivers/mmc] Error 2
+> make: *** [drivers] Error 2
+> 
+Hi,
 
-Thanks. Now it almost works ;).
+That's because mmc_lock_unlock should depend on CONFIG_KEYS, it uses struct key.
+Could you try the following patch (compile tested)?
 
 Regards,
-Michal
+Frederik
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 3956023..c1fe01d 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -1503,6 +1503,8 @@ static void mmc_setup(struct mmc_host *h
+ 		mmc_process_ext_csds(host);
+ }
+ 
++#ifdef CONFIG_MMC_PASSWORDS
++
+ /**
+  *	mmc_lock_unlock - send LOCK_UNLOCK command to a specific card.
+  *	@card: card to which the LOCK_UNLOCK command should be sent
+@@ -1617,6 +1619,8 @@ out:
+ 	return err;
+ }
+ 
++#endif /* CONFIG_MMC_PASSWORDS */
++
+ /**
+  *	mmc_detect_change - process change of state on a MMC socket
+  *	@host: host which changed state.

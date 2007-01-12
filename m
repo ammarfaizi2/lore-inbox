@@ -1,137 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964774AbXALRU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964794AbXALRYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbXALRU3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 12:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbXALRU3
+	id S964794AbXALRYe (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 12:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbXALRYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 12:20:29 -0500
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:55731 "EHLO
-	tomts16-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932332AbXALRU2 (ORCPT
+	Fri, 12 Jan 2007 12:24:34 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:41589 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932333AbXALRYd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 12:20:28 -0500
-Date: Fri, 12 Jan 2007 12:15:12 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 05/05] Linux Kernel Markers, non optimised architectures
-Message-ID: <20070112171512.GB2888@Krystal>
-References: <11685601382063-git-send-email-mathieu.desnoyers@polymtl.ca> <11685601404005-git-send-email-mathieu.desnoyers@polymtl.ca> <45A710F8.7000405@yahoo.com.au> <20070112050032.GA14100@Krystal> <45A71827.6020300@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Jan 2007 12:24:33 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Le+GzQJhw216n7ZiurSBLwLnB14+HNIaUaqVG3MnTpiblt6zZ7aOEoeefSY0weBMmFPWsSp5iM3dtxGM9XdUmssYWje27HtlVEz67Rn7+wRuIE/mVNXc3C1u0iKUjjNMbCoH7CxhkKLomAzskM96Xae40P78o907e4d2loBSnCU=
+Message-ID: <58cb370e0701120924u7f8d0e32ta57b983ad10c502c@mail.gmail.com>
+Date: Fri, 12 Jan 2007 18:24:31 +0100
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 18/19] ide: add ide_use_fast_pio() helper
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20070112151629.00c17327@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A71827.6020300@yahoo.com.au>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 10:29:21 up 142 days, 12:36,  4 users,  load average: 0.36, 0.50, 0.45
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <20070112042621.28794.6937.sendpatchset@localhost.localdomain>
+	 <20070112042800.28794.95095.sendpatchset@localhost.localdomain>
+	 <20070112100836.58738dbc@localhost.localdomain>
+	 <58cb370e0701120600pc65b237w4865c9637fc1b6e6@mail.gmail.com>
+	 <20070112143037.7d5bf10f@localhost.localdomain>
+	 <58cb370e0701120643l5274bd5bn9d9f3661808a455c@mail.gmail.com>
+	 <20070112151629.00c17327@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nick Piggin (nickpiggin@yahoo.com.au) wrote:
-> Mathieu Desnoyers wrote:
-> >* Nick Piggin (nickpiggin@yahoo.com.au) wrote:
-> >
-> >>Mathieu Desnoyers wrote:
-> >>
-> >>
-> >>>+#define MARK(name, format, args...) \
-> >>>+	do { \
-> >>>+		static marker_probe_func *__mark_call_##name = \
-> >>>+					__mark_empty_function; \
-> >>>+		volatile static char __marker_enable_##name = 0; \
-> >>>+		static const struct __mark_marker_c __mark_c_##name \
-> >>>+			__attribute__((section(".markers.c"))) = \
-> >>>+			{ #name, &__mark_call_##name, format } ; \
-> >>>+		static const struct __mark_marker __mark_##name \
-> >>>+			__attribute__((section(".markers"))) = \
-> >>>+			{ &__mark_c_##name, &__marker_enable_##name } ; \
-> >>>+		asm volatile ( "" : : "i" (&__mark_##name)); \
-> >>>+		__mark_check_format(format, ## args); \
-> >>>+		if (unlikely(__marker_enable_##name)) { \
-> >>>+			preempt_disable(); \
-> >>>+			(*__mark_call_##name)(format, ## args); \
-> >>>+			preempt_enable_no_resched(); \
-> >>
-> >>Why not just preempt_enable() here?
-> >>
-> >
-> >
-> >Because the preempt_enable() macro contains preempt_check_resched(), which
-> >may call preempt_schedule() which leads us to a call to schedule(). 
-> >Therefore,
-> >all those very interesting scheduler functions would cause an infinite
-> >recursive scheduler call if we marked schedule() and used preempt_enable() 
-> >in
-> >the marker.
-> 
-> The vast majority of schedule() has preempt turned off, so that shouldn't
-> be a problem, if you provide a comment.
-> 
-> >The primary goal for the markers (and the probes that attaches to them) is 
-> >to
-> >have the fewest side-effects possible : any kernel method called from an
-> >instrumentation site adds this precise kernel method to the "cannot be
-> >instrumented" list, which I want to keep as small possible.
-> 
-> OK, well one problem is that it can cause a resched event to be lost, so
-> you might say it has more side-effects without checking resched.
-> 
+On 1/12/07, Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> > It seems that it821x_tune_chipset() is buggy since it sends SET FEATURES
+> > command even when in smart mode.  Shouldn't there be "don't tune" flag
+> > in it812x_fixups() to tell it821x_tune_chipset() to not send SET FEATURES
+> > commands?
+>
+> It's itdev->smart but falls through to ide_config_drive_speed while it
+> should probably just copy bits of the code from it. Thats all fixed in
+> the libata driver which allows chip specific mode setup.
 
-I agree : this a side-effect I pointed out in my LTTng presentation last
-summer at OLS.
+ide_config_drive_speed() does the following things:
+1. disables host DMA
+2. sends SET FEATURES command (in polling mode)
+3. re-enables host DMA (only if DMA mode was set)
+4. updates drive->id->dma_{ultra,mword,1word}
+5. updates drive->{current,init}_speed
 
-Here is a quick idea of the potentially problematic instrumentation points
-(i386 example) :
+1. and 2. should really go to higher layers
+3. obviously shouldn't be done for itdev->smart
+4. also shouldn't be done for itdev>smart
+   (we are not changing speed mode)
+5. should be done once outside of it821x_tune_chipset()
 
-- with the task_rq_lock held (therefore preemption is disabled, so it's not a
-  problem)
-sched.c wait_task_inactive()
-sched.c try_to_wake_up()
-sched.c wake_up_new_task()
-sched.c sched_migrate_task()
+Therefore current TODO looks like:
+* moving DMA fiddling code out of ide_config_drive_speed()
+* setting drive->{current,init} speed in it821x_fixups()
+* fixing it821x not to call ide_config_drive_speed() for itdev->smart
 
-sched.c schedule() after prepare_task_switch call, before context_switch call.
-  Surrounded by preempt_disable(), preempt_enable_no_resched(), should be ok.
+Fixing user space generated requests requires more work
+(i.e. adding ->set_mode method)...
 
-- IRQs : irq_enter()/irq_exit() calls in do_IRQ makes sure that the
-  preempt_count is incremented. irq_enter() is called with interrupts still
-  disabled.
-kernel/irq/handle.c handle_IRQ_event()
+I'll try to cook up some patches later unless somebody beats me to it.
 
-- NMIs : nmi_enter() -> irq_enter() -> add_preempt_count(HARDIRQ_OFFSET) called
-  with interrupts still disabled.
-  Therefore, preemption is disabled within trace points in do_nmi.
-
-- traps : GPF, do_trap, do_page_fault, do_debug, spurious_interrupt,
-  math_emulate.
-  It is not uncommon for these trap handlers to reenable interrupts very soon.
-  They do not increment the preemption count.
-  Therefore, preemption must be expected when these handlers run : we cannot
-  rely of the fact that hard IRQs would be disabled to prevent the scheduler
-  from running, as markers becomes a new source of scheduler events.
-
-- local_irq_enable()/local_irq_disable() :
-  It can call trace_hardirqs_on()/trace_hardirqs_off(). These macros are
-  sprinkled in _every_ possible context cited above, from trap handlers to
-  preemptible code.
-
-Other contexts or code location are not a problem (process context, softirq).
-
-If we are sure that we expect calls to preempt_schedule() from each of these
-contexts, then it's ok to put preempt_enable(). It is important to note that a
-marker would then act as a source of scheduler events in code paths where
-disabling interrupts is expected to disable the scheduler.
-
-Mathieu
-
--- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Thanks,
+Bart

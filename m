@@ -1,47 +1,140 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161264AbXAMDpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161276AbXAMEGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161264AbXAMDpR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 22:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbXAMDpR
+	id S1161276AbXAMEGs (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 23:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbXAMEGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 22:45:17 -0500
-Received: from eazy.amigager.de ([213.239.192.238]:48087 "EHLO
-	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161253AbXAMDpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 22:45:15 -0500
-Date: Sat, 13 Jan 2007 04:45:12 +0100
-From: Tino Keitel <tino.keitel@tikei.de>
-To: Pavel Machek <pavel@ucw.cz>, Luming Yu <luming.yu@gmail.com>,
-       Adrian Bunk <bunk@stusta.de>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
-Message-ID: <20070113034512.GA6422@dose.home.local>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Luming Yu <luming.yu@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-References: <20070107151744.GA9799@dose.home.local> <1168194194.18788.63.camel@mindpipe> <20070107200453.GA3227@thinkpad.home.local> <20070107222706.GA6092@thinkpad.home.local> <20070107234445.GM20714@stusta.de> <20070108210428.GA7199@dose.home.local> <3877989d0701090651m84d7f41v5d06e1638a7eb31d@mail.gmail.com> <20070109231655.GA5958@thinkpad.home.local> <20070112145025.GB7685@ucw.cz> <20070113030528.GA8269@dose.home.local>
+	Fri, 12 Jan 2007 23:06:48 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:55995 "EHLO koto.vergenet.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161268AbXAMEGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 23:06:47 -0500
+Date: Sat, 13 Jan 2007 13:05:41 +0900
+From: Horms <horms@verge.net.au>
+To: Andreas Schwab <schwab@suse.de>
+Cc: "Zou, Nanhai" <nanhai.zou@intel.com>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Mohan Kumar M <mohan@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Kdump documentation update for 2.6.20: ia64 portion
+Message-ID: <20070113040541.GB6227@verge.net.au>
+References: <20070112060724.GC17379@verge.net.au> <10EA09EFD8728347A513008B6B0DA77A086BAA@pdsmsx411.ccr.corp.intel.com> <20070112090043.GA27340@verge.net.au> <je1wm0h6vh.fsf@sykes.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070113030528.GA8269@dose.home.local>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <je1wm0h6vh.fsf@sykes.suse.de>
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 04:05:28 +0100, Tino Keitel wrote:
+Hi,
 
-[...]
+this patch fills in the portions for ia64 kexec.
 
-> I think I found the problem. In 2.6.18, I had a slightly different
-> config. With 2.6.20-rc4, I had sucessful suspend/resume cycles without
-> the USB DVB-T box attached. I tweaked the USB options a bit and
-> activated some options (CONFIG_USB_SUSPEND,
-> CONFIG_USB_MULTITHREAD_PROBE, CONFIG_USB_EHCI_SPLIT_ISO,
-> CONFIG_USB_EHCI_ROOT_HUB_TT, CONFIG_USB_EHCI_TT_NEWSCHED) and now I can
-> suspend/resume without hangs. At least I haven't seen one until now.
+I'm actually not sure what options are required for the dump-capture
+kernel, but "init 1 irqpoll maxcpus=1" has been working fine for me.
+Or more to the point, I'm not sure if irqpoll is needed or not.
 
-Just after I sent the mail, I had 2 failures again. :-(
+This patch requires the documentation patch update that Vivek Goyal has
+been circulating, and I believe is currently in mm. Feel free to fold it
+into that change if it makes things easier for anyone.
 
-Regards,
-Tino
+Take II
+
+Nanhai,
+
+I have noted that vmlinux.gz may also be used. And added a note about the
+kernel being able to automatically place the crashkernel region.
+Furthermore, I added a note that if manually specified, the region should
+be 64Mb aligned to avoid wastage. I notice that the auto placement code
+uses 64Mb. But is this strictly neccessary for all page sizes?
+
+Take III
+
+Fixed some typos, thaniks to Andreas Schwab
+
+Signed-off-by: Simon Horman <horms@verge.net.au>
+
+Index: linux-2.6/Documentation/kdump/kdump.txt
+===================================================================
+--- linux-2.6.orig/Documentation/kdump/kdump.txt	2007-01-12 17:45:19.000000000 +0900
++++ linux-2.6/Documentation/kdump/kdump.txt	2007-01-12 17:59:42.000000000 +0900
+@@ -17,7 +17,7 @@
+ memory image to a dump file on the local disk, or across the network to
+ a remote system.
+ 
+-Kdump and kexec are currently supported on the x86, x86_64, ppc64 and IA64
++Kdump and kexec are currently supported on the x86, x86_64, ppc64 and ia64
+ architectures.
+ 
+ When the system kernel boots, it reserves a small section of memory for
+@@ -229,7 +229,23 @@
+ 
+ Dump-capture kernel config options (Arch Dependent, ia64)
+ ----------------------------------------------------------
+-(To be filled)
++
++- No specific options are required to create a dump-capture kernel
++  for ia64, other than those specified in the arch idependent section
++  above. This means that it is possible to use the system kernel
++  as a dump-capture kernel if desired.
++  
++  The crashkernel region can be automatically placed by the system
++  kernel at run time. This is done by specifying the base address as 0,
++  or omitting it all together.
++
++  crashkernel=256M@0
++  or
++  crashkernel=256M
++
++  If the start address is specified, note that the start address of the
++  kernel will be aligned to 64Mb, so if the start address is not then
++  any space below the alignment point will be wasted.
+ 
+ 
+ Boot into System Kernel
+@@ -248,6 +264,10 @@
+ 
+    On ppc64, use "crashkernel=128M@32M".
+ 
++   On ia64, 256M@256M is a generous value that typically works.
++   The region may be automatically placed on ia64, see the
++   dump-capture kernel config option notes above.
++
+ Load the Dump-capture Kernel
+ ============================
+ 
+@@ -266,7 +286,8 @@
+ For ppc64:
+ 	- Use vmlinux
+ For ia64:
+-	(To be filled)
++	- Use vmlinux or vmlinuz.gz
++
+ 
+ If you are using a uncompressed vmlinux image then use following command
+ to load dump-capture kernel.
+@@ -282,18 +303,19 @@
+    --initrd=<initrd-for-dump-capture-kernel> \
+    --append="root=<root-dev> <arch-specific-options>"
+ 
++Please note, that --args-linux does not need to be specified for ia64.
++It is planned to make this a no-op on that architecture, but for now
++it should be omitted
++
+ Following are the arch specific command line options to be used while
+ loading dump-capture kernel.
+ 
+-For i386 and x86_64:
++For i386, x86_64 and ia64:
+ 	"init 1 irqpoll maxcpus=1"
+ 
+ For ppc64:
+ 	"init 1 maxcpus=1 noirqdistrib"
+ 
+-For IA64
+-	(To be filled)
+-
+ 
+ Notes on loading the dump-capture kernel:
+ 

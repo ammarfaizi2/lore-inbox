@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422786AbXAMUzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422779AbXAMU7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422786AbXAMUzv (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 15:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422794AbXAMUzv
+	id S1422779AbXAMU7V (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 15:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422782AbXAMU7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 15:55:51 -0500
-Received: from squeaker.ratbox.org ([66.212.148.233]:59620 "EHLO
-	squeaker.ratbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422786AbXAMUzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 15:55:50 -0500
-Date: Sat, 13 Jan 2007 15:55:47 -0500 (EST)
-From: Aaron Sethman <androsyn@ratbox.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Damien Wyart <damien.wyart@free.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jon Smirl <jonsmirl@gmail.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.20-rc5: known unfixed regressions
-In-Reply-To: <20070113155956.GP7469@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701131555220.19856@squeaker.ratbox.org>
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>
- <20070113071125.GG7469@stusta.de> <87bql2ylfb.fsf@brouette.noos.fr>
- <20070113155956.GP7469@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 13 Jan 2007 15:59:21 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:60097 "EHLO hera.cwi.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422779AbXAMU7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 15:59:20 -0500
+Date: Sat, 13 Jan 2007 21:58:38 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Kris Karas <ktk@bigfoot.com>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 Partitioning bug with LILO
+Message-ID: <20070113205838.GA2875@apps.cwi.nl>
+References: <45A81728.6060405@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45A81728.6060405@bigfoot.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 12, 2007 at 06:18:00PM -0500, Kris Karas wrote:
+> Hello Andries,
+> 
+> I noticed you're listed as the maintainer for the disk
+> geometry/partitioning logic in the 2.6 kernel, so I'm sending this to
+> you, as I think this bug is most likely in that part of the code, ...
+> 
+> I've been bug-hunting with John Coffman to solve an issue where running
+> LILO trashes the ext2 metadata on my /boot partition.  The consensus so
+> far is that it's not LILO at all, but rather some subtle bug in the
+> kernel that's the culprit.  I can reproduce it easily enough on 2.6, but
+> not on 2.4, which further suggests its kernel-related.
+> 
+> If one does:
+> 
+> 	umount /boot
+> 	e2fsck -f -y /dev/hda1
+> 	mount /dev/hda1 /boot
+> 	lilo
+> 	umount /boot
+> 	e2fsck -f -y /dev/hda1
+> 
+> the second run of e2fsck will report fixable block bitmap errors.
 
-On Sat, 13 Jan 2007, Adrian Bunk wrote:
+It is easy to see the cause of this.
+There is an old problem with the Linux whole disk device /dev/hda
+namely that there is aliasing with /dev/hdaN.
+I don't know whether there exist kernels that fix this problem -
+as far as I know this has been a problem since ancient times.
 
-> On Sat, Jan 13, 2007 at 04:51:36PM +0100, Damien Wyart wrote:
->> * Adrian Bunk <bunk@stusta.de> [070113 08:11]:
->>> This still leaves the old regressions we have not yet fixed...
->>> This email lists some known regressions in 2.6.20-rc5 compared to 2.6.19.
->>
->>> Subject    : BUG: scheduling while atomic: hald-addon-stor/...
->>>              cdrom_{open,release,ioctl} in trace
->>> References : http://lkml.org/lkml/2006/12/26/105
->>>              http://lkml.org/lkml/2006/12/29/22
->>>              http://lkml.org/lkml/2006/12/31/133
->>> Submitter  : Jon Smirl <jonsmirl@gmail.com>
->>>              Damien Wyart <damien.wyart@free.fr>
->>>              Aaron Sethman <androsyn@ratbox.org>
->>> Status     : unknown
->>
->> I have not seen the problem since using rc3, so I guess it is ok now.
->> Maybe the commit 9414232fa0cc28e2f51b8c76d260f2748f7953fc has fixed the
->> problem, but I am not 100% sure.
->
-> Thanks for this information.
->
-> Jon, Aaron, can you confirm it's fixed in -rc5?
+But, given the fact that this is a well-known problem of the kernel,
+a utility should be careful to avoid problems and flush buffers
+at appropriate times.
 
-I haven't seen it in a while anyways, fwiw.
+Now that lilo is one of the few utilities to write to /dev/hda,
+it should be fixed.
 
--Aaron
+[And yes, also the kernel should be fixed.]
+
+Andries
+
+[let me cc linux-kernel]

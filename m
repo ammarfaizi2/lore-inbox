@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422675AbXAMOGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422677AbXAMOGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422675AbXAMOGU (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 09:06:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbXAMOGU
+	id S1422677AbXAMOGa (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 09:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbXAMOGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 09:06:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3715 "HELO
+	Sat, 13 Jan 2007 09:06:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3720 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1422675AbXAMOGT (ORCPT
+	with SMTP id S1422677AbXAMOG3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 09:06:19 -0500
-Date: Sat, 13 Jan 2007 15:06:24 +0100
+	Sat, 13 Jan 2007 09:06:29 -0500
+Date: Sat, 13 Jan 2007 15:06:33 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/isdn/sc/: proper prototypes
-Message-ID: <20070113140623.GM7469@stusta.de>
+To: mhalcrow@us.ibm.com, phillip@hellewell.homeip.net
+Cc: ecryptfs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [RFC: -mm patch] fs/ecryptfs/: make code static
+Message-ID: <20070113140633.GN7469@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,267 +23,143 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds proper prototypes in a header file for global code under 
-drivers/isdn/sc/.
-
-Since the GNU C compiler is now able do tell us that caller and callee 
-disagreed about the number of arguments of setup_buffers(), this patch 
-also fixes this bug.
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent on:
-- 4 Jan 2007
+ fs/ecryptfs/crypto.c          |   24 ++++++++++++------------
+ fs/ecryptfs/ecryptfs_kernel.h |   18 ------------------
+ fs/ecryptfs/messaging.c       |   20 +++++++++++---------
+ 3 files changed, 23 insertions(+), 39 deletions(-)
 
- drivers/isdn/sc/card.h      |   30 ++++++++++++++++++++++++++++++
- drivers/isdn/sc/command.c   |   17 ++---------------
- drivers/isdn/sc/event.c     |    3 ---
- drivers/isdn/sc/init.c      |    6 ------
- drivers/isdn/sc/interrupt.c |   10 ----------
- drivers/isdn/sc/ioctl.c     |   10 ----------
- drivers/isdn/sc/message.c   |   10 ----------
- drivers/isdn/sc/packet.c    |   10 ----------
- drivers/isdn/sc/scioc.h     |    6 ++++++
- drivers/isdn/sc/shmem.c     |    6 ------
- drivers/isdn/sc/timer.c     |    8 --------
- 11 files changed, 38 insertions(+), 78 deletions(-)
-
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/card.h.old	2007-01-03 22:10:02.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/card.h	2007-01-03 22:42:13.000000000 +0100
-@@ -26,7 +26,9 @@
- #include <linux/timer.h>
- #include <linux/time.h>
- #include <linux/isdnif.h>
-+#include <linux/irqreturn.h>
- #include "message.h"
-+#include "scioc.h"
+--- linux-2.6.20-rc4-mm1/fs/ecryptfs/ecryptfs_kernel.h.old	2007-01-13 08:34:46.000000000 +0100
++++ linux-2.6.20-rc4-mm1/fs/ecryptfs/ecryptfs_kernel.h	2007-01-13 14:31:01.000000000 +0100
+@@ -329,18 +329,6 @@
+ 	struct mutex mux;
+ };
  
- /*
-  * Amount of time to wait for a reset to complete
-@@ -98,4 +100,32 @@
- 	spinlock_t lock;		/* local lock */
- } board;
- 
-+
-+extern board *sc_adapter[];
-+extern int cinst;
-+
-+void memcpy_toshmem(int card, void *dest, const void *src, size_t n);
-+void memcpy_fromshmem(int card, void *dest, const void *src, size_t n);
-+int get_card_from_id(int driver);
-+int indicate_status(int card, int event, ulong Channel, char *Data);
-+irqreturn_t interrupt_handler(int interrupt, void *cardptr);
-+int sndpkt(int devId, int channel, struct sk_buff *data);
-+void rcvpkt(int card, RspMessage *rcvmsg);
-+int command(isdn_ctrl *cmd);
-+int reset(int card);
-+int startproc(int card);
-+int send_and_receive(int card, unsigned int procid, unsigned char type,
-+		     unsigned char class, unsigned char code,
-+		     unsigned char link, unsigned char data_len, 
-+		     unsigned char *data,  RspMessage *mesgdata, int timeout);
-+void flushreadfifo (int card);
-+int sendmessage(int card, unsigned int procid, unsigned int type,
-+		unsigned int class, unsigned int code, unsigned int link, 
-+		unsigned int data_len, unsigned int *data);
-+int receivemessage(int card, RspMessage *rspmsg);
-+int sc_ioctl(int card, scs_ioctl *data);
-+int setup_buffers(int card, int c);
-+void check_reset(unsigned long data);
-+void check_phystat(unsigned long data);
-+
- #endif /* CARD_H */
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/scioc.h.old	2007-01-03 22:44:10.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/scioc.h	2007-01-03 22:44:52.000000000 +0100
-@@ -1,3 +1,6 @@
-+#ifndef __ISDN_SC_SCIOC_H__
-+#define __ISDN_SC_SCIOC_H__
-+
- /*
-  * This software may be used and distributed according to the terms
-  * of the GNU General Public License, incorporated herein by reference.
-@@ -103,3 +106,6 @@
- 		POTInfo potsinfo;
- 	} info;
- } boardInfo;
-+
-+#endif  /*  __ISDN_SC_SCIOC_H__  */
-+
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/packet.c.old	2007-01-03 22:10:42.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/packet.c	2007-01-03 22:31:00.000000000 +0100
-@@ -20,16 +20,6 @@
- #include "message.h"
- #include "card.h"
- 
--extern board *sc_adapter[];
--extern unsigned int cinst;
+-extern struct list_head ecryptfs_msg_ctx_free_list;
+-extern struct list_head ecryptfs_msg_ctx_alloc_list;
+-extern struct mutex ecryptfs_msg_ctx_lists_mux;
 -
--extern int get_card_from_id(int);
--extern int indicate_status(int, int,ulong, char*);
--extern void memcpy_toshmem(int, void *, const void *, size_t);
--extern void memcpy_fromshmem(int, void *, const void *, size_t);
--extern int sendmessage(int, unsigned int, unsigned int, unsigned int,
--                unsigned int, unsigned int, unsigned int, unsigned int *);
+-#define ecryptfs_uid_hash(uid) \
+-        hash_long((unsigned long)uid, ecryptfs_hash_buckets)
+-extern struct hlist_head *ecryptfs_daemon_id_hash;
+-extern struct mutex ecryptfs_daemon_id_hash_mux;
+-extern int ecryptfs_hash_buckets;
 -
- int sndpkt(int devId, int channel, struct sk_buff *data)
- {
- 	LLData	ReqLnkWrite;
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/shmem.c.old	2007-01-03 22:12:09.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/shmem.c	2007-01-03 22:12:18.000000000 +0100
-@@ -22,12 +22,6 @@
- #include "card.h"
+-extern unsigned int ecryptfs_msg_counter;
+-extern struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
+ extern unsigned int ecryptfs_transport;
  
- /*
-- * Main adapter array
-- */
--extern board *sc_adapter[];
--extern int cinst;
--
--/*
+ struct ecryptfs_daemon_id {
+@@ -538,15 +526,9 @@
+ int ecryptfs_decrypt_page(struct file *file, struct page *page);
+ int ecryptfs_write_metadata(struct dentry *ecryptfs_dentry,
+ 			    struct file *lower_file);
+-int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
+-				struct ecryptfs_crypt_stat *crypt_stat,
+-				struct dentry *ecryptfs_dentry);
+ int ecryptfs_read_metadata(struct dentry *ecryptfs_dentry,
+ 			   struct file *lower_file);
+ int ecryptfs_new_file_context(struct dentry *ecryptfs_dentry);
+-int contains_ecryptfs_marker(char *data);
+-int ecryptfs_read_header_region(char *data, struct dentry *dentry,
+-				struct vfsmount *mnt);
+ int ecryptfs_read_and_validate_header_region(char *data, struct dentry *dentry,
+ 					     struct vfsmount *mnt);
+ int ecryptfs_read_and_validate_xattr_region(char *page_virt,
+--- linux-2.6.20-rc4-mm1/fs/ecryptfs/crypto.c.old	2007-01-13 08:35:23.000000000 +0100
++++ linux-2.6.20-rc4-mm1/fs/ecryptfs/crypto.c	2007-01-13 14:27:02.000000000 +0100
+@@ -1026,7 +1026,7 @@
   *
+  * Returns one if marker found; zero if not found
   */
- void memcpy_toshmem(int card, void *dest, const void *src, size_t n)
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/command.c.old	2007-01-03 22:12:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/command.c	2007-01-03 22:50:27.000000000 +0100
-@@ -31,19 +31,6 @@
- static int setl3(int card, unsigned long arg);
- static int acceptb(int card, unsigned long channel);
- 
--extern int cinst;
--extern board *sc_adapter[];
--
--extern int sc_ioctl(int, scs_ioctl *);
--extern int setup_buffers(int, int, unsigned int);
--extern int indicate_status(int, int,ulong,char*);
--extern void check_reset(unsigned long);
--extern int send_and_receive(int, unsigned int, unsigned char, unsigned char,
--                unsigned char, unsigned char, unsigned char, unsigned char *,
--                RspMessage *, int);
--extern int sendmessage(int, unsigned int, unsigned int, unsigned int,
--                unsigned int, unsigned int, unsigned int, unsigned int *);
--
- #ifdef DEBUG
- /*
-  * Translate command codes to strings
-@@ -208,7 +195,7 @@
- 		return -ENODEV;
- 	}
- 
--	if(setup_buffers(card, channel+1, BUFFER_SIZE)) {
-+	if(setup_buffers(card, channel+1)) {
- 		hangup(card, channel+1);
- 		return -ENOBUFS;
- 	}
-@@ -297,7 +284,7 @@
- 		return -ENODEV;
- 	}
- 
--	if(setup_buffers(card, channel+1, BUFFER_SIZE))
-+	if(setup_buffers(card, channel+1))
- 	{
- 		hangup(card, channel+1);
- 		return -ENOBUFS;
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/event.c.old	2007-01-03 22:12:49.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/event.c	2007-01-03 22:12:55.000000000 +0100
-@@ -20,9 +20,6 @@
- #include "message.h"
- #include "card.h"
- 
--extern int cinst;
--extern board *sc_adapter[];
--
- #ifdef DEBUG
- static char *events[] = { "ISDN_STAT_STAVAIL",
- 			  "ISDN_STAT_ICALL",
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/interrupt.c.old	2007-01-03 22:13:11.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/interrupt.c	2007-01-03 22:34:36.000000000 +0100
-@@ -21,16 +21,6 @@
- #include "card.h"
- #include <linux/interrupt.h>
- 
--extern int indicate_status(int, int, ulong, char *);
--extern void check_phystat(unsigned long);
--extern int receivemessage(int, RspMessage *);
--extern int sendmessage(int, unsigned int, unsigned int, unsigned int,
--        unsigned int, unsigned int, unsigned int, unsigned int *);
--extern void rcvpkt(int, RspMessage *);
--
--extern int cinst;
--extern board *sc_adapter[];
--
- static int get_card_from_irq(int irq)
+-int contains_ecryptfs_marker(char *data)
++static int contains_ecryptfs_marker(char *data)
  {
- 	int i;
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/ioctl.c.old	2007-01-03 22:13:26.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/ioctl.c	2007-01-03 22:25:25.000000000 +0100
-@@ -12,16 +12,6 @@
- #include "card.h"
- #include "scioc.h"
+ 	u32 m_1, m_2;
  
--extern int indicate_status(int, int, unsigned long, char *);
--extern int startproc(int);
--extern int reset(int);
--extern int send_and_receive(int, unsigned int, unsigned char,unsigned char,
--		unsigned char,unsigned char, 
--		unsigned char, unsigned char *, RspMessage *, int);
--
--extern board *sc_adapter[];
--
--
- static int GetStatus(int card, boardInfo *);
- 
- /*
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/message.c.old	2007-01-03 22:13:57.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/message.c	2007-01-03 22:19:53.000000000 +0100
-@@ -22,16 +22,6 @@
- #include "message.h"
- #include "card.h"
- 
--extern board *sc_adapter[];
--extern unsigned int cinst;
--
--/*
-- * Obligatory function prototypes
-- */
--extern int indicate_status(int,ulong,char*);
--extern int scm_command(isdn_ctrl *);
--
--
- /*
-  * receive a message from the board
+@@ -1213,8 +1213,8 @@
+  *
+  * Returns zero on success; non-zero otherwise
   */
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/timer.c.old	2007-01-03 22:14:14.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/timer.c	2007-01-03 22:28:23.000000000 +0100
-@@ -20,14 +20,6 @@
- #include "message.h"
- #include "card.h"
+-int ecryptfs_read_header_region(char *data, struct dentry *dentry,
+-				struct vfsmount *mnt)
++static int ecryptfs_read_header_region(char *data, struct dentry *dentry,
++				       struct vfsmount *mnt)
+ {
+ 	struct file *lower_file;
+ 	mm_segment_t oldfs;
+@@ -1310,9 +1310,9 @@
+  *
+  * Returns zero on success
+  */
+-int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
+-				struct ecryptfs_crypt_stat *crypt_stat,
+-				struct dentry *ecryptfs_dentry)
++static int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
++				       struct ecryptfs_crypt_stat *crypt_stat,
++				       struct dentry *ecryptfs_dentry)
+ {
+ 	int rc;
+ 	size_t written;
+@@ -1339,9 +1339,9 @@
+ 	return rc;
+ }
  
--extern board *sc_adapter[];
+-int ecryptfs_write_metadata_to_contents(struct ecryptfs_crypt_stat *crypt_stat,
+-					struct file *lower_file,
+-					char *page_virt)
++static int ecryptfs_write_metadata_to_contents(struct ecryptfs_crypt_stat *crypt_stat,
++					       struct file *lower_file,
++					       char *page_virt)
+ {
+ 	mm_segment_t oldfs;
+ 	int current_header_page;
+@@ -1366,9 +1366,9 @@
+ 	return 0;
+ }
+ 
+-int ecryptfs_write_metadata_to_xattr(struct dentry *ecryptfs_dentry,
+-				     struct ecryptfs_crypt_stat *crypt_stat,
+-				     char *page_virt, size_t size)
++static int ecryptfs_write_metadata_to_xattr(struct dentry *ecryptfs_dentry,
++					    struct ecryptfs_crypt_stat *crypt_stat,
++					    char *page_virt, size_t size)
+ {
+ 	int rc;
+ 
+--- linux-2.6.20-rc4-mm1/fs/ecryptfs/messaging.c.old	2007-01-13 14:28:20.000000000 +0100
++++ linux-2.6.20-rc4-mm1/fs/ecryptfs/messaging.c	2007-01-13 14:31:27.000000000 +0100
+@@ -22,16 +22,18 @@
+ 
+ #include "ecryptfs_kernel.h"
+ 
+-LIST_HEAD(ecryptfs_msg_ctx_free_list);
+-LIST_HEAD(ecryptfs_msg_ctx_alloc_list);
+-struct mutex ecryptfs_msg_ctx_lists_mux;
 -
--extern void flushreadfifo(int);
--extern int  startproc(int);
--extern int  indicate_status(int, int, unsigned long, char *);
--extern int  sendmessage(int, unsigned int, unsigned int, unsigned int,
--        unsigned int, unsigned int, unsigned int, unsigned int *);
--
+-struct hlist_head *ecryptfs_daemon_id_hash;
+-struct mutex ecryptfs_daemon_id_hash_mux;
+-int ecryptfs_hash_buckets;
++static LIST_HEAD(ecryptfs_msg_ctx_free_list);
++static LIST_HEAD(ecryptfs_msg_ctx_alloc_list);
++static struct mutex ecryptfs_msg_ctx_lists_mux;
++
++static struct hlist_head *ecryptfs_daemon_id_hash;
++static struct mutex ecryptfs_daemon_id_hash_mux;
++static int ecryptfs_hash_buckets;
++#define ecryptfs_uid_hash(uid) \
++        hash_long((unsigned long)uid, ecryptfs_hash_buckets)
  
- /*
-  * Write the proper values into the I/O ports following a reset
---- linux-2.6.20-rc2-mm1/drivers/isdn/sc/init.c.old	2007-01-03 22:19:00.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/isdn/sc/init.c	2007-01-03 22:22:04.000000000 +0100
-@@ -35,12 +35,6 @@
- module_param_array(ram, int, NULL, 0);
- module_param(do_reset, bool, 0);
+-unsigned int ecryptfs_msg_counter;
+-struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
++static unsigned int ecryptfs_msg_counter;
++static struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
  
--extern irqreturn_t interrupt_handler(int, void *);
--extern int sndpkt(int, int, int, struct sk_buff *);
--extern int command(isdn_ctrl *);
--extern int indicate_status(int, int, ulong, char*);
--extern int reset(int);
--
- static int identify_board(unsigned long, unsigned int);
- 
- static int __init sc_init(void)
+ /**
+  * ecryptfs_acquire_free_msg_ctx
 

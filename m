@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161238AbXAMFBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161280AbXAMFJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161238AbXAMFBl (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 00:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbXAMFBl
+	id S1161280AbXAMFJN (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 00:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbXAMFJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 00:01:41 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2713 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1161238AbXAMFBl (ORCPT
+	Sat, 13 Jan 2007 00:09:13 -0500
+Received: from py-out-1112.google.com ([64.233.166.183]:1794 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161280AbXAMFJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 00:01:41 -0500
-Date: Sat, 13 Jan 2007 06:01:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.20-rc5
-Message-ID: <20070113050143.GF7469@stusta.de>
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org> <20070112142645.29a7ebe3.akpm@osdl.org>
+	Sat, 13 Jan 2007 00:09:13 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:from:x-x-sender:to:subject:message-id:mime-version:content-type;
+        b=P3uFiwVS/FAczoEak5kmBZCeOPHMRbfnOIxN5YFpan5rWysM/G6dP1mFIGptxUufj2jVJlly55oGhu9B6VzLS4TUjJCGZjADgO1gWZiIVgGWQEQMutNZrORroV5Ig2NechZ1lJVzbZlt5UUP/YkX9ZV4bP3k0BS3BgHALtZldCQ=
+Date: Sat, 13 Jan 2007 13:09:04 +0800 (SGT)
+From: Jeff Chua <jeff.chua.linux@gmail.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.15-rc5 - removes "video device notify" message (fwd)
+Message-ID: <Pine.LNX.4.64.0701131308130.22948@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070112142645.29a7ebe3.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 02:26:45PM -0800, Andrew Morton wrote:
-> On Fri, 12 Jan 2007 14:27:48 -0500 (EST)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > 
-> > Ok, there it is, in all its shining glory.
-> 
-> It still doesn't run Excel.
->...
 
-It should work with CrossOver.
 
-cu
-Adrian
+Here's a line fix to ignore the "video device notify" message ...
 
--- 
+--- linux/drivers/acpi/video.c.org	2007-01-12 23:05:23 +0800
++++ linux/drivers/acpi/video.c	2007-01-12 23:05:29 +0800
+@@ -1771,1 +1771,1 @@
+-	printk("video device notify\n");
++	//printk("video device notify\n");
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+
+Thanks,
+Jeff

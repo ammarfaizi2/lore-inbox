@@ -1,866 +1,511 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030537AbXAMXLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422823AbXAMXLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030537AbXAMXLb (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 18:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030531AbXAMXLR
+	id S1422823AbXAMXLc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 18:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbXAMXLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 18:11:17 -0500
-Received: from gw.goop.org ([64.81.55.164]:59936 "EHLO mail.goop.org"
+	Sat, 13 Jan 2007 18:11:11 -0500
+Received: from gw.goop.org ([64.81.55.164]:59924 "EHLO mail.goop.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422801AbXAMXKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 18:10:46 -0500
-Message-Id: <20070113014648.767777869@goop.org>
+	id S1030532AbXAMXKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 18:10:37 -0500
+Message-Id: <20070113014648.000988681@goop.org>
 References: <20070113014539.408244126@goop.org>
 User-Agent: quilt/0.46-1
-Date: Fri, 12 Jan 2007 17:45:55 -0800
+Date: Fri, 12 Jan 2007 17:45:48 -0800
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>,
        Chris Wright <chrisw@sous-sol.org>
-Subject: [patch 16/20] XEN-paravirt: Add the Xen virtual console driver.
-Content-Disposition: inline; filename=xen-console.patch
+Subject: [patch 09/20] XEN-paravirt: dont export paravirt_ops structure, do individual functions
+Content-Disposition: inline; filename=no-paravirt_ops-export.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This provides a bootstrap and ongoing emergency console which is
-intended to be available from very early during boot and at all times
-thereafter, in contrast with alternatives such as UDP-based syslogd,
-or logging in via ssh. The protocol is based on a simple shared-memory
-ring buffer.
+Wrap the paravirt_ops members we want to export in wrapper functions.
+Since we binary-patch the critical ones, this doesn't make a speed
+impact.
 
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+I moved drm_follow_page into the core, to avoid having to wrap the
+various pte ops.  Unlining kernel_fpu_end and using that in the RAID6
+code would remove the need to export clts/read_cr0/write_cr0 too.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
----
- arch/i386/kernel/early_printk.c    |    2 
- arch/i386/paravirt-xen/enlighten.c |    3 
- drivers/Makefile                   |    3 
- drivers/xen/Makefile               |    1 
- drivers/xen/console/Makefile       |    2 
- drivers/xen/console/console.c      |  588 ++++++++++++++++++++++++++++++++++++
- drivers/xen/console/xencons_ring.c |  144 ++++++++
- include/xen/xencons.h              |   14 
- init/main.c                        |    2 
- 9 files changed, 759 insertions(+)
-
 ===================================================================
---- a/arch/i386/kernel/early_printk.c
-+++ b/arch/i386/kernel/early_printk.c
-@@ -1,2 +1,4 @@
- 
-+#ifndef CONFIG_XEN
- #include "../../x86_64/kernel/early_printk.c"
-+#endif
-===================================================================
---- a/arch/i386/paravirt-xen/enlighten.c
-+++ b/arch/i386/paravirt-xen/enlighten.c
-@@ -798,6 +798,9 @@ static asmlinkage void __init xen_start_
- 	INITRD_START = xen_start_info->mod_start ? __pa(xen_start_info->mod_start) : 0;
- 	INITRD_SIZE = xen_start_info->mod_len;
- 
-+	/* use Xen console */
-+	vgacon_enabled = 0;
-+
- 	/* Start the world */
- 	start_kernel();
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -596,6 +596,123 @@ static int __init print_banner(void)
+ 	return 0;
  }
-===================================================================
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -14,6 +14,9 @@ obj-$(CONFIG_ACPI)		+= acpi/
- # was used and do nothing if so
- obj-$(CONFIG_PNP)		+= pnp/
- obj-$(CONFIG_ARM_AMBA)		+= amba/
+ core_initcall(print_banner);
 +
-+# Xen is the default console when running as a guest
-+obj-$(CONFIG_XEN)		+= xen/
- 
- # char/ comes before serial/ etc so that the VT console is the boot-time
- # default.
-===================================================================
---- /dev/null
-+++ b/drivers/xen/Makefile
-@@ -0,0 +1,1 @@
-+obj-y	+= console/
-===================================================================
---- /dev/null
-+++ b/drivers/xen/console/Makefile
-@@ -0,0 +1,2 @@
++unsigned long paravirt_save_flags(void)
++{
++	return paravirt_ops.save_fl();
++}
++EXPORT_SYMBOL(paravirt_save_flags);
 +
-+obj-y	:= console.o xencons_ring.o
-===================================================================
---- /dev/null
-+++ b/drivers/xen/console/console.c
-@@ -0,0 +1,588 @@
-+/******************************************************************************
-+ * console.c
-+ * 
-+ * Virtual console driver.
-+ * 
-+ * Copyright (c) 2002-2004, K A Fraser.
-+ * 
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ * 
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ * 
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ * 
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
++void paravirt_restore_flags(unsigned long flags)
++{
++	paravirt_ops.restore_fl(flags);
++}
++EXPORT_SYMBOL(paravirt_restore_flags);
 +
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/signal.h>
-+#include <linux/sched.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/tty_flip.h>
-+#include <linux/serial.h>
-+#include <linux/major.h>
-+#include <linux/ptrace.h>
-+#include <linux/ioport.h>
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/console.h>
-+#include <linux/bootmem.h>
-+#include <linux/sysrq.h>
-+#include <linux/vt.h>
++void paravirt_irq_disable(void)
++{
++	paravirt_ops.irq_disable();
++}
++EXPORT_SYMBOL(paravirt_irq_disable);
 +
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/uaccess.h>
-+#include <xen/interface/xen.h>
-+#include <xen/interface/event_channel.h>
-+#include <asm/hypervisor.h>
-+#include "../../../arch/i386/paravirt-xen/events.h"
-+#include <xen/xencons.h>
++void paravirt_irq_enable(void)
++{
++	paravirt_ops.irq_enable();
++}
++EXPORT_SYMBOL(paravirt_irq_enable);
 +
-+MODULE_LICENSE("Dual BSD/GPL");
++void paravirt_io_delay(void)
++{
++	paravirt_ops.io_delay();
++}
++EXPORT_SYMBOL(paravirt_io_delay);
 +
-+static int xc_disabled = 0;
-+static int xc_num = -1;
++void paravirt_const_udelay(unsigned long loops)
++{
++	paravirt_ops.const_udelay(loops);
++}
++EXPORT_SYMBOL(paravirt_const_udelay);
 +
-+/* /dev/xvc0 device number allocated by lanana.org. */
-+#define XEN_XVC_MAJOR 204
-+#define XEN_XVC_MINOR 191
++u64 paravirt_read_msr(unsigned int msr, int *err)
++{
++	return paravirt_ops.read_msr(msr, err);
++}
++EXPORT_SYMBOL(paravirt_read_msr);
 +
-+#ifdef CONFIG_MAGIC_SYSRQ
-+static unsigned long sysrq_requested;
++int paravirt_write_msr(unsigned int msr, u64 val)
++{
++	return paravirt_ops.write_msr(msr, val);
++}
++EXPORT_SYMBOL(paravirt_write_msr);
++
++u64 paravirt_read_tsc(void)
++{
++	return paravirt_ops.read_tsc();
++}
++EXPORT_SYMBOL(paravirt_read_tsc);
++
++int paravirt_enabled(void)
++{
++	return paravirt_ops.paravirt_enabled;
++}
++EXPORT_SYMBOL(paravirt_enabled);
++
++void clts(void)
++{
++	paravirt_ops.clts();
++}
++EXPORT_SYMBOL(clts);
++
++unsigned long read_cr0(void)
++{
++	return paravirt_ops.read_cr0();
++}
++EXPORT_SYMBOL_GPL(read_cr0);
++
++void write_cr0(unsigned long cr0)
++{
++	paravirt_ops.write_cr0(cr0);
++}
++EXPORT_SYMBOL_GPL(write_cr0);
++
++void wbinvd(void)
++{
++	paravirt_ops.wbinvd();
++}
++EXPORT_SYMBOL(wbinvd);
++
++void raw_safe_halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(raw_safe_halt);
++
++void halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(halt);
++
++#ifdef CONFIG_X86_LOCAL_APIC
++void apic_write(unsigned long reg, unsigned long v)
++{
++	paravirt_ops.apic_write(reg,v);
++}
++EXPORT_SYMBOL_GPL(apic_write);
++
++unsigned long apic_read(unsigned long reg)
++{
++	return paravirt_ops.apic_read(reg);
++}
++EXPORT_SYMBOL_GPL(apic_read);
 +#endif
 +
-+static int __init xencons_setup(char *str)
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx)
 +{
-+	if (!strcmp(str, "off"))
-+		xc_disabled = 1;
-+	return 1;
++	paravirt_ops.cpuid(eax, ebx, ecx, edx);
 +}
-+__setup("xencons=", xencons_setup);
-+
-+/* The kernel and user-land drivers share a common transmit buffer. */
-+static unsigned int wbuf_size = 4096;
-+#define WBUF_MASK(_i) ((_i)&(wbuf_size-1))
-+static char *wbuf;
-+static unsigned int wc, wp; /* write_cons, write_prod */
-+
-+static int __init xencons_bufsz_setup(char *str)
-+{
-+	unsigned int goal;
-+	goal = simple_strtoul(str, NULL, 0);
-+	if (goal) {
-+		goal = roundup_pow_of_two(goal);
-+		if (wbuf_size < goal)
-+			wbuf_size = goal;
-+	}
-+	return 1;
-+}
-+__setup("xencons_bufsz=", xencons_bufsz_setup);
-+
-+/* This lock protects accesses to the common transmit buffer. */
-+static DEFINE_SPINLOCK(xencons_lock);
-+
-+/* Common transmit-kick routine. */
-+static void __xencons_tx_flush(void);
-+
-+static struct tty_driver *xencons_driver;
-+
-+/******************** Kernel console driver ********************************/
-+
-+static void kcons_write(struct console *c, const char *s, unsigned int count)
-+{
-+	int           i = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+
-+	while (i < count) {
-+		for (; i < count; i++) {
-+			if ((wp - wc) >= (wbuf_size - 1))
-+				break;
-+			if ((wbuf[WBUF_MASK(wp++)] = s[i]) == '\n')
-+				wbuf[WBUF_MASK(wp++)] = '\r';
-+		}
-+
-+		__xencons_tx_flush();
-+	}
-+
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void kcons_write_dom0(struct console *c, const char *s, unsigned int count)
-+{
-+	while (count > 0) {
-+		int rc;
-+		rc = HYPERVISOR_console_io(CONSOLEIO_write, count, (char *)s);
-+		if (rc <= 0)
-+			break;
-+		count -= rc;
-+		s += rc;
-+	}
-+}
-+
-+void early_printk(const char *fmt, ...)
-+{
-+	va_list args;
-+	int printk_len;
-+	static char printk_buf[1024];
-+
-+	/* Emit the output into the temporary buffer */
-+	va_start(args, fmt);
-+	printk_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
-+	va_end(args);
-+
-+	/* Send the processed output directly to Xen. */
-+	kcons_write_dom0(NULL, printk_buf, printk_len);
-+}
-+
-+static struct console early_xen_console = {
-+	.name =		"earlyxen",
-+	.write =	kcons_write_dom0,
-+	.flags =	CON_PRINTBUFFER,
-+	.index =	-1,
-+};
-+
-+static int early_console_initialized = 0;
-+
-+int __init setup_early_printk(char *opt)
-+{
-+	early_console_initialized = 1;
-+	register_console(&early_xen_console);
-+
-+	return 0;
-+}
-+
-+void __init disable_early_printk(void)
-+{
-+	if (!early_console_initialized)
-+		return;
-+	printk("disabling early console\n");
-+	unregister_console(&early_xen_console);
-+	early_console_initialized = 0;
-+}
-+
-+static struct tty_driver *kcons_device(struct console *c, int *index)
-+{
-+	*index = 0;
-+	return xencons_driver;
-+}
-+
-+static struct console kcons_info = {
-+	.name   = "xvc",
-+	.device	= kcons_device,
-+	.flags	= CON_PRINTBUFFER | CON_ENABLED,
-+	.index	= -1,
-+};
-+
-+static int __init xen_console_init(void)
-+{
-+	if (!is_running_on_xen())
-+		goto out;
-+	if (xc_disabled)
-+		goto out;
-+
-+	if (is_initial_xendomain()) {
-+		kcons_info.write = kcons_write_dom0;
-+	} else {
-+		if (!xen_start_info->console.domU.evtchn)
-+			goto out;
-+		kcons_info.write = kcons_write;
-+	}
-+	if (xc_num == -1)
-+		xc_num = 0;
-+
-+	wbuf = alloc_bootmem(wbuf_size);
-+
-+	register_console(&kcons_info);
-+
-+out:
-+	return 0;
-+}
-+console_initcall(xen_console_init);
-+
-+/*** Forcibly flush console data before dying. ***/
-+void xencons_force_flush(void)
-+{
-+	int sz;
-+
-+	/* Emergency console is synchronous, so there's nothing to flush. */
-+	if (!is_running_on_xen() ||
-+	    is_initial_xendomain() ||
-+	    !xen_start_info->console.domU.evtchn)
-+		return;
-+
-+	/* Spin until console data is flushed through to the daemon. */
-+	while (wc != wp) {
-+		int sent = 0;
-+		if ((sz = wp - wc) == 0)
-+			continue;
-+		sent = xencons_ring_send(&wbuf[WBUF_MASK(wc)], sz);
-+		if (sent > 0)
-+			wc += sent;
-+	}
-+}
-+
-+
-+/******************** User-space console driver (/dev/console) ************/
-+
-+#define DRV(_d)         (_d)
-+
-+static struct ktermios *xencons_termios[1];
-+static struct ktermios *xencons_termios_locked[1];
-+static struct tty_struct *xencons_tty;
-+static int xencons_priv_irq;
-+static char x_char;
-+
-+void xencons_rx(char *buf, unsigned len)
-+{
-+	int           i;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	if (xencons_tty == NULL)
-+		goto out;
-+
-+	for (i = 0; i < len; i++) {
-+#ifdef CONFIG_MAGIC_SYSRQ
-+		if (sysrq_on()) {
-+			if (buf[i] == '\x0f') { /* ^O */
-+				sysrq_requested = jiffies;
-+				continue; /* don't print the sysrq key */
-+			} else if (sysrq_requested) {
-+				unsigned long sysrq_timeout =
-+					sysrq_requested + HZ*2;
-+				sysrq_requested = 0;
-+				if (time_before(jiffies, sysrq_timeout)) {
-+					spin_unlock_irqrestore(
-+						&xencons_lock, flags);
-+					handle_sysrq(
-+						buf[i], xencons_tty);
-+					spin_lock_irqsave(
-+						&xencons_lock, flags);
-+					continue;
-+				}
-+			}
-+		}
-+#endif
-+		tty_insert_flip_char(xencons_tty, buf[i], 0);
-+	}
-+	tty_flip_buffer_push(xencons_tty);
-+
-+ out:
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void __xencons_tx_flush(void)
-+{
-+	int sent, sz, work_done = 0;
-+
-+	if (x_char) {
-+		if (is_initial_xendomain())
-+			kcons_write_dom0(NULL, &x_char, 1);
-+		else
-+			while (x_char)
-+				if (xencons_ring_send(&x_char, 1) == 1)
-+					break;
-+		x_char = 0;
-+		work_done = 1;
-+	}
-+
-+	while (wc != wp) {
-+		sz = wp - wc;
-+		if (sz > (wbuf_size - WBUF_MASK(wc)))
-+			sz = wbuf_size - WBUF_MASK(wc);
-+		if (is_initial_xendomain()) {
-+			kcons_write_dom0(NULL, &wbuf[WBUF_MASK(wc)], sz);
-+			wc += sz;
-+		} else {
-+			sent = xencons_ring_send(&wbuf[WBUF_MASK(wc)], sz);
-+			if (sent == 0)
-+				break;
-+			wc += sent;
-+		}
-+		work_done = 1;
-+	}
-+
-+	if (work_done && (xencons_tty != NULL)) {
-+		wake_up_interruptible(&xencons_tty->write_wait);
-+		if ((xencons_tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
-+		    (xencons_tty->ldisc.write_wakeup != NULL))
-+			(xencons_tty->ldisc.write_wakeup)(xencons_tty);
-+	}
-+}
-+
-+void xencons_tx(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+/* Privileged receive callback and transmit kicker. */
-+static irqreturn_t xencons_priv_interrupt(int irq, void *dev_id)
-+{
-+	static char rbuf[16];
-+	int         l;
-+
-+	while ((l = HYPERVISOR_console_io(CONSOLEIO_read, 16, rbuf)) > 0)
-+		xencons_rx(rbuf, l);
-+
-+	xencons_tx();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int xencons_write_room(struct tty_struct *tty)
-+{
-+	return wbuf_size - (wp - wc);
-+}
-+
-+static int xencons_chars_in_buffer(struct tty_struct *tty)
-+{
-+	return wp - wc;
-+}
-+
-+static void xencons_send_xchar(struct tty_struct *tty, char ch)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	x_char = ch;
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_throttle(struct tty_struct *tty)
-+{
-+	if (I_IXOFF(tty))
-+		xencons_send_xchar(tty, STOP_CHAR(tty));
-+}
-+
-+static void xencons_unthrottle(struct tty_struct *tty)
-+{
-+	if (I_IXOFF(tty)) {
-+		if (x_char != 0)
-+			x_char = 0;
-+		else
-+			xencons_send_xchar(tty, START_CHAR(tty));
-+	}
-+}
-+
-+static void xencons_flush_buffer(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	wc = wp = 0;
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static inline int __xencons_put_char(int ch)
-+{
-+	char _ch = (char)ch;
-+	if ((wp - wc) == wbuf_size)
-+		return 0;
-+	wbuf[WBUF_MASK(wp++)] = _ch;
-+	return 1;
-+}
-+
-+static int xencons_write(
-+	struct tty_struct *tty,
-+	const unsigned char *buf,
-+	int count)
-+{
-+	int i;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+
-+	for (i = 0; i < count; i++)
-+		if (!__xencons_put_char(buf[i]))
-+			break;
-+
-+	if (i != 0)
-+		__xencons_tx_flush();
-+
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+
-+	return i;
-+}
-+
-+static void xencons_put_char(struct tty_struct *tty, u_char ch)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	(void)__xencons_put_char(ch);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_flush_chars(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_wait_until_sent(struct tty_struct *tty, int timeout)
-+{
-+	unsigned long orig_jiffies = jiffies;
-+
-+	while (DRV(tty->driver)->chars_in_buffer(tty)) {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(1);
-+		if (signal_pending(current))
-+			break;
-+		if (timeout && time_after(jiffies, orig_jiffies + timeout))
-+			break;
-+	}
-+
-+	set_current_state(TASK_RUNNING);
-+}
-+
-+static int xencons_open(struct tty_struct *tty, struct file *filp)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	tty->driver_data = NULL;
-+	if (xencons_tty == NULL)
-+		xencons_tty = tty;
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+
-+	return 0;
-+}
-+
-+static void xencons_close(struct tty_struct *tty, struct file *filp)
-+{
-+	unsigned long flags;
-+
-+	mutex_lock(&tty_mutex);
-+
-+	if (tty->count != 1) {
-+		mutex_unlock(&tty_mutex);
-+		return;
-+	}
-+
-+	/* Prevent other threads from re-opening this tty. */
-+	set_bit(TTY_CLOSING, &tty->flags);
-+	mutex_unlock(&tty_mutex);
-+
-+	tty->closing = 1;
-+	tty_wait_until_sent(tty, 0);
-+	if (DRV(tty->driver)->flush_buffer != NULL)
-+		DRV(tty->driver)->flush_buffer(tty);
-+	if (tty->ldisc.flush_buffer != NULL)
-+		tty->ldisc.flush_buffer(tty);
-+	tty->closing = 0;
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	xencons_tty = NULL;
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static struct tty_operations xencons_ops = {
-+	.open = xencons_open,
-+	.close = xencons_close,
-+	.write = xencons_write,
-+	.write_room = xencons_write_room,
-+	.put_char = xencons_put_char,
-+	.flush_chars = xencons_flush_chars,
-+	.chars_in_buffer = xencons_chars_in_buffer,
-+	.send_xchar = xencons_send_xchar,
-+	.flush_buffer = xencons_flush_buffer,
-+	.throttle = xencons_throttle,
-+	.unthrottle = xencons_unthrottle,
-+	.wait_until_sent = xencons_wait_until_sent,
-+};
-+
-+static int __init xencons_init(void)
-+{
-+	int rc;
-+
-+	if (!is_running_on_xen())
-+		return -ENODEV;
-+
-+	if (xc_disabled)
-+		return 0;
-+
-+	if (!is_initial_xendomain()) {
-+		rc = xencons_ring_init();
-+		if (rc)
-+			return rc;
-+	}
-+
-+	xencons_driver = alloc_tty_driver(1);
-+	if (xencons_driver == NULL)
-+		return -ENOMEM;
-+
-+	DRV(xencons_driver)->name            = "xvc";
-+	DRV(xencons_driver)->major           = XEN_XVC_MAJOR;
-+	DRV(xencons_driver)->minor_start     = XEN_XVC_MINOR;
-+	DRV(xencons_driver)->name_base       = xc_num;
-+	DRV(xencons_driver)->type            = TTY_DRIVER_TYPE_SERIAL;
-+	DRV(xencons_driver)->subtype         = SERIAL_TYPE_NORMAL;
-+	DRV(xencons_driver)->init_termios    = tty_std_termios;
-+	DRV(xencons_driver)->flags           =
-+		TTY_DRIVER_REAL_RAW |
-+		TTY_DRIVER_RESET_TERMIOS |
-+		TTY_DRIVER_DYNAMIC_DEV;
-+	DRV(xencons_driver)->termios         = xencons_termios;
-+	DRV(xencons_driver)->termios_locked  = xencons_termios_locked;
-+
-+	tty_set_operations(xencons_driver, &xencons_ops);
-+
-+	if ((rc = tty_register_driver(DRV(xencons_driver))) != 0) {
-+		printk("WARNING: Failed to register Xen virtual "
-+		       "console driver as '%s%d'\n",
-+		       DRV(xencons_driver)->name,
-+		       DRV(xencons_driver)->name_base);
-+		put_tty_driver(xencons_driver);
-+		xencons_driver = NULL;
-+		return rc;
-+	}
-+
-+	if (is_initial_xendomain()) {
-+		xencons_priv_irq = bind_virq_to_irqhandler(
-+			VIRQ_CONSOLE,
-+			0,
-+			xencons_priv_interrupt,
-+			0,
-+			"console",
-+			NULL);
-+		BUG_ON(xencons_priv_irq < 0);
-+	}
-+
-+	printk("Xen virtual console successfully installed as %s%d\n",
-+	       DRV(xencons_driver)->name, xc_num);
-+
-+	return 0;
-+}
-+
-+module_init(xencons_init);
-===================================================================
---- /dev/null
-+++ b/drivers/xen/console/xencons_ring.c
-@@ -0,0 +1,144 @@
-+/* 
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ * 
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ * 
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ * 
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/signal.h>
-+#include <linux/sched.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/tty_flip.h>
-+#include <linux/serial.h>
-+#include <linux/major.h>
-+#include <linux/ptrace.h>
-+#include <linux/ioport.h>
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+
-+#include <asm/hypervisor.h>
-+#include "../../../arch/i386/paravirt-xen/events.h"
-+#include <xen/xencons.h>
-+#include <linux/wait.h>
-+#include <linux/interrupt.h>
-+#include <linux/sched.h>
-+#include <linux/err.h>
-+#include <xen/interface/io/console.h>
-+#include "../../../arch/i386/paravirt-xen/xen-page.h"
-+
-+static int xencons_irq;
-+
-+static inline struct xencons_interface *xencons_interface(void)
-+{
-+	return mfn_to_virt(xen_start_info->console.domU.mfn);
-+}
-+
-+static inline void notify_daemon(void)
-+{
-+	/* Use evtchn: this is called early, before irq is set up. */
-+	notify_remote_via_evtchn(xen_start_info->console.domU.evtchn);
-+}
-+
-+int xencons_ring_send(const char *data, unsigned len)
-+{
-+	int sent = 0;
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+
-+	cons = intf->out_cons;
-+	prod = intf->out_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->out));
-+
-+	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
-+		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
-+
-+	wmb();
-+	intf->out_prod = prod;
-+
-+	notify_daemon();
-+
-+	return sent;
-+}
-+
-+static irqreturn_t handle_input(int irq, void *unused)
-+{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+
-+	cons = intf->in_cons;
-+	prod = intf->in_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->in));
-+
-+	while (cons != prod) {
-+		xencons_rx(intf->in+MASK_XENCONS_IDX(cons,intf->in), 1);
-+		cons++;
-+	}
-+
-+	mb();
-+	intf->in_cons = cons;
-+
-+	notify_daemon();
-+
-+	xencons_tx();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+int xencons_ring_init(void)
-+{
-+	int irq;
-+
-+	if (xencons_irq)
-+		unbind_from_irqhandler(xencons_irq, NULL);
-+	xencons_irq = 0;
-+
-+	if (!is_running_on_xen() ||
-+	    is_initial_xendomain() ||
-+	    !xen_start_info->console.domU.evtchn)
-+		return -ENODEV;
-+
-+	irq = bind_evtchn_to_irqhandler(
-+		xen_start_info->console.domU.evtchn,
-+		handle_input, 0, "xencons", NULL);
-+	if (irq < 0) {
-+		printk(KERN_ERR "XEN console request irq failed %i\n", irq);
-+		return irq;
-+	}
-+
-+	xencons_irq = irq;
-+
-+	/* In case we have in-flight data after save/restore... */
-+	notify_daemon();
-+
-+	return 0;
-+}
-+
-+void xencons_resume(void)
-+{
-+	(void)xencons_ring_init();
-+}
-===================================================================
---- /dev/null
-+++ b/include/xen/xencons.h
-@@ -0,0 +1,14 @@
-+#ifndef __ASM_XENCONS_H__
-+#define __ASM_XENCONS_H__
-+
-+void xencons_force_flush(void);
-+void xencons_resume(void);
-+
-+/* Interrupt work hooks. Receive data, or kick data out. */
-+void xencons_rx(char *buf, unsigned len);
-+void xencons_tx(void);
-+
-+int xencons_ring_init(void);
-+int xencons_ring_send(const char *data, unsigned len);
-+
-+#endif /* __ASM_XENCONS_H__ */
-===================================================================
---- a/init/main.c
-+++ b/init/main.c
-@@ -495,6 +495,8 @@ asmlinkage void __init start_kernel(void
- 	unwind_init();
- 	lockdep_init();
++EXPORT_SYMBOL(__cpuid);
  
-+	//setup_early_printk(NULL);
+ /* We simply declare start_kernel to be the paravirt probe of last resort. */
+ paravirt_probe(start_kernel);
+@@ -712,11 +829,3 @@ struct paravirt_ops paravirt_ops = {
+ 
+ 	.startup_ipi_hook = (void *)native_nop,
+ };
+-
+-/*
+- * NOTE: CONFIG_PARAVIRT is experimental and the paravirt_ops
+- * semantics are subject to change. Hence we only do this
+- * internal-only export of this, until it gets sorted out and
+- * all lowlevel CPU ops used by modules are separately exported.
+- */
+-EXPORT_SYMBOL_GPL(paravirt_ops);
+===================================================================
+--- a/include/asm-i386/delay.h
++++ b/include/asm-i386/delay.h
+@@ -17,9 +17,9 @@ extern void __delay(unsigned long loops)
+ extern void __delay(unsigned long loops);
+ 
+ #if defined(CONFIG_PARAVIRT) && !defined(USE_REAL_TIME_DELAY)
+-#define udelay(n) paravirt_ops.const_udelay((n) * 0x10c7ul)
++#define udelay(n) paravirt_const_udelay((n) * 0x10c7ul)
+ 
+-#define ndelay(n) paravirt_ops.const_udelay((n) * 5ul)
++#define ndelay(n) paravirt_const_udelay((n) * 5ul)
+ 
+ #else /* !PARAVIRT || USE_REAL_TIME_DELAY */
+ 
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -218,8 +218,6 @@ fastcall pgd_t native_make_pgd(unsigned 
+ fastcall pgd_t native_make_pgd(unsigned long pgd);
+ #endif
+ 
+-#define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+-
+ static inline void load_esp0(struct tss_struct *tss,
+ 			     struct thread_struct *thread)
+ {
+@@ -243,11 +241,8 @@ static inline void do_time_init(void)
+ }
+ 
+ /* The paravirtualized CPUID instruction. */
+-static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
+-			   unsigned int *ecx, unsigned int *edx)
+-{
+-	paravirt_ops.cpuid(eax, ebx, ecx, edx);
+-}
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx);
+ 
+ /*
+  * These special macros can be used to get or set a debugging register
+@@ -255,11 +250,6 @@ static inline void __cpuid(unsigned int 
+ #define get_debugreg(var, reg) var = paravirt_ops.get_debugreg(reg)
+ #define set_debugreg(val, reg) paravirt_ops.set_debugreg(reg, val)
+ 
+-#define clts() paravirt_ops.clts()
+-
+-#define read_cr0() paravirt_ops.read_cr0()
+-#define write_cr0(x) paravirt_ops.write_cr0(x)
+-
+ #define read_cr2() paravirt_ops.read_cr2()
+ #define write_cr2(x) paravirt_ops.write_cr2(x)
+ 
+@@ -272,62 +262,51 @@ static inline void __cpuid(unsigned int 
+ 
+ #define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
+ 
+-static inline void raw_safe_halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-
+-static inline void halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-#define wbinvd() paravirt_ops.wbinvd()
+-
+ #define get_kernel_rpl()  (paravirt_ops.kernel_rpl)
+ 
+ #define rdmsr(msr,val1,val2) do {				\
+ 	int _err;						\
+-	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l = paravirt_read_msr(msr,&_err);			\
+ 	val1 = (u32)_l;						\
+ 	val2 = _l >> 32;					\
+ } while(0)
+ 
+ #define wrmsr(msr,val1,val2) do {				\
+ 	u64 _l = ((u64)(val2) << 32) | (val1);			\
+-	paravirt_ops.write_msr((msr), _l);			\
++	paravirt_write_msr((msr), _l);				\
+ } while(0)
+ 
+ #define rdmsrl(msr,val) do {					\
+ 	int _err;						\
+-	val = paravirt_ops.read_msr((msr),&_err);		\
++	val = paravirt_read_msr((msr),&_err);			\
+ } while(0)
+ 
+-#define wrmsrl(msr,val) (paravirt_ops.write_msr((msr),(val)))
++#define wrmsrl(msr,val) (paravirt_write_msr((msr),(val)))
+ #define wrmsr_safe(msr,a,b) ({					\
+ 	u64 _l = ((u64)(b) << 32) | (a);			\
+-	paravirt_ops.write_msr((msr),_l);			\
++	paravirt_write_msr((msr),_l);				\
+ })
+ 
+ /* rdmsr with exception handling */
+ #define rdmsr_safe(msr,a,b) ({					\
+ 	int _err;						\
+-	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l = paravirt_read_msr(msr,&_err);			\
+ 	(*a) = (u32)_l;						\
+ 	(*b) = _l >> 32;					\
+ 	_err; })
+ 
+ #define rdtsc(low,high) do {					\
+-	u64 _l = paravirt_ops.read_tsc();			\
++	u64 _l = paravirt_read_tsc();				\
+ 	low = (u32)_l;						\
+ 	high = _l >> 32;					\
+ } while(0)
+ 
+ #define rdtscl(low) do {					\
+-	u64 _l = paravirt_ops.read_tsc();			\
++	u64 _l = paravirt_read_tsc();				\
+ 	low = (int)_l;						\
+ } while(0)
+ 
+-#define rdtscll(val) (val = paravirt_ops.read_tsc())
++#define rdtscll(val) (val = paravirt_read_tsc())
+ 
+ #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+ 
+@@ -364,35 +343,7 @@ static inline void halt(void)
+ #define pmd_val(x)	paravirt_ops.pmd_val(x)
+ #endif
+ 
+-/* The paravirtualized I/O functions */
+-static inline void slow_down_io(void) {
+-	paravirt_ops.io_delay();
+-#ifdef REALLY_SLOW_IO
+-	paravirt_ops.io_delay();
+-	paravirt_ops.io_delay();
+-	paravirt_ops.io_delay();
+-#endif
+-}
+-
+ #ifdef CONFIG_X86_LOCAL_APIC
+-/*
+- * Basic functions accessing APICs.
+- */
+-static inline void apic_write(unsigned long reg, unsigned long v)
+-{
+-	paravirt_ops.apic_write(reg,v);
+-}
+-
+-static inline void apic_write_atomic(unsigned long reg, unsigned long v)
+-{
+-	paravirt_ops.apic_write_atomic(reg,v);
+-}
+-
+-static inline unsigned long apic_read(unsigned long reg)
+-{
+-	return paravirt_ops.apic_read(reg);
+-}
+-
+ static inline void setup_boot_clock(void)
+ {
+ 	paravirt_ops.setup_boot_clock();
+@@ -489,6 +440,46 @@ static inline void pte_update_defer(stru
+ 	paravirt_ops.pte_update_defer(mm, addr, ptep);
+ }
+ 
++/* These are the functions exported to modules. */
++int paravirt_enabled(void);
++unsigned long paravirt_save_flags(void);
++void paravirt_restore_flags(unsigned long flags);
++void paravirt_irq_disable(void);
++void paravirt_irq_enable(void);
++void paravirt_const_udelay(unsigned long loops);
++u64 paravirt_read_msr(unsigned int msr, int *err);
++int paravirt_write_msr(unsigned int msr, u64 val);
++u64 paravirt_read_tsc(void);
++void raw_safe_halt(void);
++void halt(void);
++void wbinvd(void);
++void paravirt_io_delay(void);
++static inline void slow_down_io(void) {
++	paravirt_io_delay();
++#ifdef REALLY_SLOW_IO
++	paravirt_io_delay();
++	paravirt_io_delay();
++	paravirt_io_delay();
++#endif
++}
 +
- 	local_irq_disable();
- 	early_boot_irqs_off();
- 	early_init_irq_lock_class();
++#ifdef CONFIG_X86_LOCAL_APIC
++/*
++ * Basic functions accessing APICs.
++ */
++void apic_write(unsigned long reg, unsigned long v);
++static inline void apic_write_atomic(unsigned long reg, unsigned long v)
++{
++	paravirt_ops.apic_write_atomic(reg,v);
++}
++unsigned long apic_read(unsigned long reg);
++#endif
++
++/* These will be unexported once raid6 is fixed... */
++void clts(void);
++unsigned long read_cr0(void);
++void write_cr0(unsigned long);
++
+ #ifdef CONFIG_X86_PAE
+ static inline void set_pte_atomic(pte_t *ptep, pte_t pteval)
+ {
+@@ -551,42 +542,38 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ 
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_save_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=a"(f): "m"(paravirt_ops.save_fl)
+-			     : "memory", "cc");
++			     : "=a"(f) : : "memory", "cc");
+ 	return f;
+ }
+ 
+ static inline void raw_local_irq_restore(unsigned long f)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_restore_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
+-			     : "memory", "cc");
++			     : "=a"(f) : "0"(f) : "memory", "cc");
+ }
+ 
+ static inline void raw_local_irq_disable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_disable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ 
+ static inline void raw_local_irq_enable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_enable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ 
+ static inline unsigned long __raw_local_irq_save(void)
+@@ -594,15 +581,13 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ 
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
++					   "call paravirt_save_flags;"
++					   "pushl %%eax;"
++					   "call paravirt_irq_disable;"
++					   "popl %%eax;popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+ 					  CLBR_NONE)
+-			     : "=a"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++			     : "=a"(f) : : "memory", "cc");
+ 	return f;
+ }
+ 
+===================================================================
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -74,11 +74,11 @@
+ #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+-#define safe_halt()						\
+-	do {							\
+-		trace_hardirqs_on();				\
+-		raw_safe_halt();				\
+-	} while (0)
++static inline void safe_halt(void)
++{
++	trace_hardirqs_on();
++	raw_safe_halt();
++}
+ 
+ #define local_save_flags(flags)		raw_local_save_flags(flags)
+ 
+===================================================================
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1174,6 +1174,8 @@ struct page *follow_page(struct vm_area_
+ #define FOLL_GET	0x04	/* do get_page on page */
+ #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
+ 
++unsigned long __follow_page(void *vaddr);
++
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, long);
+ #else
+===================================================================
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -976,6 +976,17 @@ no_page_table:
+ 	return page;
+ }
+ 
++/* You don't want to use this function.  It's for drm_memory.c. */
++unsigned long __follow_page(void *vaddr)
++{
++	pgd_t *pgd = pgd_offset_k((unsigned long)vaddr);
++	pud_t *pud = pud_offset(pgd, (unsigned long)vaddr);
++	pmd_t *pmd = pmd_offset(pud, (unsigned long)vaddr);
++	pte_t *ptep = pte_offset_kernel(pmd, (unsigned long)vaddr);
++	return pte_pfn(*ptep) << PAGE_SHIFT;
++}
++EXPORT_SYMBOL_GPL(__follow_page);
++
+ int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+ 		unsigned long start, int len, int write, int force,
+ 		struct page **pages, struct vm_area_struct **vmas)
 
 -- 
 

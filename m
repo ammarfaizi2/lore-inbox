@@ -1,165 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422677AbXAMOGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422680AbXAMOae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbXAMOGa (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 09:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbXAMOGa
+	id S1422680AbXAMOae (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 09:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422681AbXAMOae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 09:06:30 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3720 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1422677AbXAMOG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 09:06:29 -0500
-Date: Sat, 13 Jan 2007 15:06:33 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mhalcrow@us.ibm.com, phillip@hellewell.homeip.net
-Cc: ecryptfs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC: -mm patch] fs/ecryptfs/: make code static
-Message-ID: <20070113140633.GN7469@stusta.de>
-MIME-Version: 1.0
+	Sat, 13 Jan 2007 09:30:34 -0500
+Received: from 1wt.eu ([62.212.114.60]:1935 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422680AbXAMOad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 09:30:33 -0500
+Date: Sat, 13 Jan 2007 15:30:27 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Toon van der Pas <toon@hout.vanvergehaald.nl>
+Cc: Kumar Gala <galak@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: tuning/tweaking VM settings for low memory (preventing OOM)
+Message-ID: <20070113143027.GA16868@1wt.eu>
+References: <D7BBB18A-F5D4-4FE0-903F-3683333D957C@kernel.crashing.org> <20070113072217.GW24090@1wt.eu> <20070113131601.GA12901@shuttle.vanvergehaald.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070113131601.GA12901@shuttle.vanvergehaald.nl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+Hi Toon,
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Sat, Jan 13, 2007 at 02:16:01PM +0100, Toon van der Pas wrote:
+> On Sat, Jan 13, 2007 at 08:22:18AM +0100, Willy Tarreau wrote:
+> > > 
+> > > Which makes me think that we aren't writing back fast enough.  If I  
+> > > mount the drive "sync" the issue clearly goes away.
+> > > 
+> > > It appears from an strace we are doing ftruncate64(5, 178257920) when  
+> > > we OOM.
+> > > 
+> > > Any ideas on VM parameters to tweak so we throttle this from occurring?
+> > 
+> > Take a look at /proc/sys/vm/bdflush. There are several useful parameters
+> > there (doc is in linux-xxx/Documentation). For instance, the first column
+> > is the percentage of memory used by writes before starting to write on
+> > disk. When using tcpdump intensively, I lower this one to about 1%.
+> > 
+> > Willy
+> 
+> Hi Willy,
+> 
+> I know you're doing a great job on keeping the 2.4 kernel in shape,
+> but do you also have a good advice for people with more recent
+> kernels?  (hint: the file /proc/sys/vm/bdflush is missing)
 
----
+OK OK OK... Next time I will have coffee *before* replying :-)
 
- fs/ecryptfs/crypto.c          |   24 ++++++++++++------------
- fs/ecryptfs/ecryptfs_kernel.h |   18 ------------------
- fs/ecryptfs/messaging.c       |   20 +++++++++++---------
- 3 files changed, 23 insertions(+), 39 deletions(-)
+Check /proc/sys/vm/dirty_ratio and dirty_background_ratio. Both are
+percentage of total memory. The first one is for "foreground" writes
+(ie the writing process may block) while the second one is for
+"background" writes :
 
---- linux-2.6.20-rc4-mm1/fs/ecryptfs/ecryptfs_kernel.h.old	2007-01-13 08:34:46.000000000 +0100
-+++ linux-2.6.20-rc4-mm1/fs/ecryptfs/ecryptfs_kernel.h	2007-01-13 14:31:01.000000000 +0100
-@@ -329,18 +329,6 @@
- 	struct mutex mux;
- };
- 
--extern struct list_head ecryptfs_msg_ctx_free_list;
--extern struct list_head ecryptfs_msg_ctx_alloc_list;
--extern struct mutex ecryptfs_msg_ctx_lists_mux;
--
--#define ecryptfs_uid_hash(uid) \
--        hash_long((unsigned long)uid, ecryptfs_hash_buckets)
--extern struct hlist_head *ecryptfs_daemon_id_hash;
--extern struct mutex ecryptfs_daemon_id_hash_mux;
--extern int ecryptfs_hash_buckets;
--
--extern unsigned int ecryptfs_msg_counter;
--extern struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
- extern unsigned int ecryptfs_transport;
- 
- struct ecryptfs_daemon_id {
-@@ -538,15 +526,9 @@
- int ecryptfs_decrypt_page(struct file *file, struct page *page);
- int ecryptfs_write_metadata(struct dentry *ecryptfs_dentry,
- 			    struct file *lower_file);
--int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
--				struct ecryptfs_crypt_stat *crypt_stat,
--				struct dentry *ecryptfs_dentry);
- int ecryptfs_read_metadata(struct dentry *ecryptfs_dentry,
- 			   struct file *lower_file);
- int ecryptfs_new_file_context(struct dentry *ecryptfs_dentry);
--int contains_ecryptfs_marker(char *data);
--int ecryptfs_read_header_region(char *data, struct dentry *dentry,
--				struct vfsmount *mnt);
- int ecryptfs_read_and_validate_header_region(char *data, struct dentry *dentry,
- 					     struct vfsmount *mnt);
- int ecryptfs_read_and_validate_xattr_region(char *page_virt,
---- linux-2.6.20-rc4-mm1/fs/ecryptfs/crypto.c.old	2007-01-13 08:35:23.000000000 +0100
-+++ linux-2.6.20-rc4-mm1/fs/ecryptfs/crypto.c	2007-01-13 14:27:02.000000000 +0100
-@@ -1026,7 +1026,7 @@
-  *
-  * Returns one if marker found; zero if not found
-  */
--int contains_ecryptfs_marker(char *data)
-+static int contains_ecryptfs_marker(char *data)
- {
- 	u32 m_1, m_2;
- 
-@@ -1213,8 +1213,8 @@
-  *
-  * Returns zero on success; non-zero otherwise
-  */
--int ecryptfs_read_header_region(char *data, struct dentry *dentry,
--				struct vfsmount *mnt)
-+static int ecryptfs_read_header_region(char *data, struct dentry *dentry,
-+				       struct vfsmount *mnt)
- {
- 	struct file *lower_file;
- 	mm_segment_t oldfs;
-@@ -1310,9 +1310,9 @@
-  *
-  * Returns zero on success
-  */
--int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
--				struct ecryptfs_crypt_stat *crypt_stat,
--				struct dentry *ecryptfs_dentry)
-+static int ecryptfs_write_headers_virt(char *page_virt, size_t *size,
-+				       struct ecryptfs_crypt_stat *crypt_stat,
-+				       struct dentry *ecryptfs_dentry)
- {
- 	int rc;
- 	size_t written;
-@@ -1339,9 +1339,9 @@
- 	return rc;
- }
- 
--int ecryptfs_write_metadata_to_contents(struct ecryptfs_crypt_stat *crypt_stat,
--					struct file *lower_file,
--					char *page_virt)
-+static int ecryptfs_write_metadata_to_contents(struct ecryptfs_crypt_stat *crypt_stat,
-+					       struct file *lower_file,
-+					       char *page_virt)
- {
- 	mm_segment_t oldfs;
- 	int current_header_page;
-@@ -1366,9 +1366,9 @@
- 	return 0;
- }
- 
--int ecryptfs_write_metadata_to_xattr(struct dentry *ecryptfs_dentry,
--				     struct ecryptfs_crypt_stat *crypt_stat,
--				     char *page_virt, size_t size)
-+static int ecryptfs_write_metadata_to_xattr(struct dentry *ecryptfs_dentry,
-+					    struct ecryptfs_crypt_stat *crypt_stat,
-+					    char *page_virt, size_t size)
- {
- 	int rc;
- 
---- linux-2.6.20-rc4-mm1/fs/ecryptfs/messaging.c.old	2007-01-13 14:28:20.000000000 +0100
-+++ linux-2.6.20-rc4-mm1/fs/ecryptfs/messaging.c	2007-01-13 14:31:27.000000000 +0100
-@@ -22,16 +22,18 @@
- 
- #include "ecryptfs_kernel.h"
- 
--LIST_HEAD(ecryptfs_msg_ctx_free_list);
--LIST_HEAD(ecryptfs_msg_ctx_alloc_list);
--struct mutex ecryptfs_msg_ctx_lists_mux;
--
--struct hlist_head *ecryptfs_daemon_id_hash;
--struct mutex ecryptfs_daemon_id_hash_mux;
--int ecryptfs_hash_buckets;
-+static LIST_HEAD(ecryptfs_msg_ctx_free_list);
-+static LIST_HEAD(ecryptfs_msg_ctx_alloc_list);
-+static struct mutex ecryptfs_msg_ctx_lists_mux;
-+
-+static struct hlist_head *ecryptfs_daemon_id_hash;
-+static struct mutex ecryptfs_daemon_id_hash_mux;
-+static int ecryptfs_hash_buckets;
-+#define ecryptfs_uid_hash(uid) \
-+        hash_long((unsigned long)uid, ecryptfs_hash_buckets)
- 
--unsigned int ecryptfs_msg_counter;
--struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
-+static unsigned int ecryptfs_msg_counter;
-+static struct ecryptfs_msg_ctx *ecryptfs_msg_ctx_arr;
- 
- /**
-  * ecryptfs_acquire_free_msg_ctx
+$ uname -a
+Linux hp 2.6.16-rc2-pa1 #1 Fri Feb 3 23:34:56 MST 2006 parisc unknown
+$ cat /proc/sys/vm/dirty_ratio 
+40
+$ cat /proc/sys/vm/dirty_background_ratio 
+10
+
+Again, lowering those values should help writing data to disk sooner.
+Also you should take a look at min_free_kbytes (although I've not played
+with it yet) :
+
+[from Documentation/sysctl/vm.txt] :
+  min_free_kbytes:
+
+  This is used to force the Linux VM to keep a minimum number 
+  of kilobytes free.  The VM uses this number to compute a pages_min
+  value for each lowmem zone in the system.  Each lowmem zone gets 
+  a number of reserved free pages based proportionally on its size.
+
+Docuemntation/filesystems/proc.txt is your friend here too.
+
+Regards,
+Willy
 

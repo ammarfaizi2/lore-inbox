@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161252AbXAMDok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161264AbXAMDpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161252AbXAMDok (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 22:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbXAMDok
+	id S1161264AbXAMDpR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 22:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbXAMDpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 22:44:40 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:13118 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161252AbXAMDoj (ORCPT
+	Fri, 12 Jan 2007 22:45:17 -0500
+Received: from eazy.amigager.de ([213.239.192.238]:48087 "EHLO
+	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161253AbXAMDpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 22:44:39 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NIkShwaMCSxIv/gM6Hi/oDlrs1W1qsEsswGstE63lZvWhqWBJzJ36uJvDzLKD8zI0ZwjKSnWxhZT8Xg5nv0vpsZO++MnSVmm0Wj/BXA5c/ALnreAQRLltBifkj8b5+MW/XcL+hxL4lTAtaXkmol4FFYw9vN/xx98CjNnNA8Mpmk=
-Message-ID: <b6a2187b0701121944j702ba941s1cc0583e476ceb6a@mail.gmail.com>
-Date: Sat, 13 Jan 2007 11:44:36 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Linux v2.6.20-rc5
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <b6a2187b0701121936t3175d7a1i21eb6fa1f72cac1d@mail.gmail.com>
+	Fri, 12 Jan 2007 22:45:15 -0500
+Date: Sat, 13 Jan 2007 04:45:12 +0100
+From: Tino Keitel <tino.keitel@tikei.de>
+To: Pavel Machek <pavel@ucw.cz>, Luming Yu <luming.yu@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
+Message-ID: <20070113034512.GA6422@dose.home.local>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Luming Yu <luming.yu@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+References: <20070107151744.GA9799@dose.home.local> <1168194194.18788.63.camel@mindpipe> <20070107200453.GA3227@thinkpad.home.local> <20070107222706.GA6092@thinkpad.home.local> <20070107234445.GM20714@stusta.de> <20070108210428.GA7199@dose.home.local> <3877989d0701090651m84d7f41v5d06e1638a7eb31d@mail.gmail.com> <20070109231655.GA5958@thinkpad.home.local> <20070112145025.GB7685@ucw.cz> <20070113030528.GA8269@dose.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>
-	 <20070112142645.29a7ebe3.akpm@osdl.org>
-	 <b6a2187b0701121936t3175d7a1i21eb6fa1f72cac1d@mail.gmail.com>
+In-Reply-To: <20070113030528.GA8269@dose.home.local>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/07, Jeff Chua <jeff.chua.linux@gmail.com> wrote:
-> On 1/13/07, Andrew Morton <akpm@osdl.org> wrote:
-> > On Fri, 12 Jan 2007 14:27:48 -0500 (EST)
-> > Linus Torvalds <torvalds@osdl.org> wrote:
->
->   CC [M]  drivers/kvm/vmx.o
-> {standard input}: Assembler messages:
-> {standard input}:3257: Error: bad register name `%sil'
-> make[2]: *** [drivers/kvm/vmx.o] Error 1
-> make[1]: *** [drivers/kvm] Error 2
-> make: *** [drivers] Error 2
->
-> Am I missing something or this is a real problem?
-> Applied 2.6.20-rc5-mm-fixes and got this problem.
-> Using gcc version 3.4.5, binutils-2.17.50.0.8
+On Sat, Jan 13, 2007 at 04:05:28 +0100, Tino Keitel wrote:
 
-Same problem with vanilla linux-2.6.20-rc5.
+[...]
 
-Thanks,
-Jeff.
+> I think I found the problem. In 2.6.18, I had a slightly different
+> config. With 2.6.20-rc4, I had sucessful suspend/resume cycles without
+> the USB DVB-T box attached. I tweaked the USB options a bit and
+> activated some options (CONFIG_USB_SUSPEND,
+> CONFIG_USB_MULTITHREAD_PROBE, CONFIG_USB_EHCI_SPLIT_ISO,
+> CONFIG_USB_EHCI_ROOT_HUB_TT, CONFIG_USB_EHCI_TT_NEWSCHED) and now I can
+> suspend/resume without hangs. At least I haven't seen one until now.
+
+Just after I sent the mail, I had 2 failures again. :-(
+
+Regards,
+Tino

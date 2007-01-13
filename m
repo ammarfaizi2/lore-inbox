@@ -1,117 +1,149 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422744AbXAMSPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422743AbXAMTH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422744AbXAMSPz (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 13:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422747AbXAMSPz
+	id S1422743AbXAMTH1 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 14:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422756AbXAMTH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 13:15:55 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:55561 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422744AbXAMSPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 13:15:55 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 13 Jan 2007 19:15:36 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: ieee1394 feature needed: overwrite SPLIT_TIMEOUT from userspace
-To: Philipp Beyer <philipp.beyer@alliedvisiontec.com>
-cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-In-Reply-To: <1168602157.5074.4.camel@ahr-pbe-lx.avtnet.local>
-Message-ID: <tkrat.0ae1f576575bc02e@s5r6.in-berlin.de>
-References: <1168602157.5074.4.camel@ahr-pbe-lx.avtnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+	Sat, 13 Jan 2007 14:07:27 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:43177 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422743AbXAMTH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 14:07:26 -0500
+Date: Sat, 13 Jan 2007 11:06:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marc Dietrich <Marc.Dietrich@ap.physik.uni-giessen.de>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [-mm] reiserfs4 still hangs
+Message-Id: <20070113110633.b1a7100a.akpm@osdl.org>
+In-Reply-To: <200701131954.58339.marc.dietrich@ap.physik.uni-giessen.de>
+References: <200701131954.58339.marc.dietrich@ap.physik.uni-giessen.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(full quote for linux1394-devel)
-
-On 12 Jan, Philipp Beyer wrote to linux-kernel:
+> On Sat, 13 Jan 2007 19:54:53 +0100 Marc Dietrich <Marc.Dietrich@ap.physik.uni-giessen.de> wrote:
+> 
 > Hi,
 > 
-> I'm investigating an unwanted behaviour of our firewire devices in 
-> connection with the ieee1394 kernel module.
+> using 2.6.20-rc3-mm1 and 2.6.20-rc4-mm1, I get reiserfs4 related processes in 
+> down state (not only using googleearth...). Any hints?
+>
+> sysrq-t shows:
 > 
-> The problem is caused by a non standard-conform behaviour of our
-> devices. Anyway, changes on the device-side dont seem to be the
-> best solution, so I'm looking for a workaround in terms of a
-> kernel patch.
+> Jan 13 19:32:57 fb07-iapwap2 kernel: googleearth-b D 00000001     0  6089   
+> 6072          6109       (NOTLB)
+> Jan 13 19:32:57 fb07-iapwap2 kernel:        c45f3a94 00000086 c4d7a050 
+> 00000001 c02bb6b5 c013a38b c02bb6b5 00000000
+> Jan 13 19:32:57 fb07-iapwap2 kernel:        c4d7a050 00000004 c4d7a050 
+> e9eb4e3d 00000044 0001cd83 c4d7a15c c7bae8d4
+> Jan 13 19:32:57 fb07-iapwap2 kernel:        00000282 c7bae8d4 c7bae884 
+> c7bae8d4 00000000 c987ad20 dcdd223a 00000000
+> Jan 13 19:32:57 fb07-iapwap2 kernel: Call Trace:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c02bb6b5>] 
+> _spin_unlock_irqrestore+0x45/0x60
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c013a38b>] mark_held_locks+0x6b/0x90
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c02bb6b5>] 
+> _spin_unlock_irqrestore+0x45/0x60
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdd223a>] 
+> reiser4_go_to_sleep+0x5a/0x90 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c0130bc0>] 
+> autoremove_wake_function+0x0/0x50
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdd86c4>] 
+> capture_fuse_wait+0x164/0x190 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdd7ba0>] wait_for_fusion+0x0/0x30 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdd94f4>] 
+> reiser4_try_capture+0xa04/0xa30 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c02bb20a>] _spin_lock+0x2a/0x40
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdd2a9b>] 
+> longterm_lock_znode+0x2bb/0x470 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c02bb20a>] _spin_lock+0x2a/0x40
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcde1bea>] coord_by_handle+0x40a/0xcf0 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dd30334c>] 
+> nfs_lookup_revalidate+0x1c/0x4a0 [nfs]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcde2736>] 
+> reiser4_object_lookup+0xc6/0x110 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dce04499>] unit_key_cde+0x49/0x70 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcde30b0>] reiser4_seal_init+0x20/0x60 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcde264e>] coord_by_key+0x9e/0xc0 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdee8a1>] lookup_sd+0x61/0xa0 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcde79fb>] reiser4_iget+0x15b/0x330 
+> [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<dcdec5da>] 
+> reiser4_lookup_common+0x6a/0x120 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c0178ea8>] do_lookup+0x148/0x190
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017af9c>] 
+> __link_path_walk+0x7cc/0xe20
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c01d27b1>] 
+> _atomic_dec_and_lock+0x31/0x60
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c0187ff3>] mntput_no_expire+0x13/0x70
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017b653>] link_path_walk+0x63/0xc0
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017b633>] link_path_walk+0x43/0xc0
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c0104114>] restore_nocheck+0x12/0x15
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c013a537>] 
+> trace_hardirqs_on+0xc7/0x170
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017b8a4>] do_path_lookup+0x84/0x210
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017a60a>] getname+0x9a/0xf0
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017c2fb>] __user_walk_fd+0x3b/0x60
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c01706b9>] sys_faccessat+0x99/0x160
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c0104114>] restore_nocheck+0x12/0x15
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c013a537>] 
+> trace_hardirqs_on+0xc7/0x170
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c017079f>] sys_access+0x1f/0x30
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  [<c01040cc>] syscall_call+0x7/0xb
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  =======================
 > 
-> The problem:
-> Our devices exceed the SPLIT_TIMEOUT for write requests in some
-> situations, where write accesses to the devices flash memory are 
-> triggered.
-
-There are certainly a number of ways to implement this in your
-device in a conforming way. For example, if it is too costly to
-avoid the transaction timeout, you could add a register to your
-device to be polled by the requester after it initiated a lengthy
-operation. The extra register would become responsive when the
-operation finished and could even show whether the operation
-succeeded.
-
-But then, why not support lengthier timeouts in Linux if it can be
-done with minimum overhead.
-
-> The SPLIT_TIMEOUT could be adjusted as it's part of the 
-> CSR layout, but the longest interval possible is 8 seconds. We need
-> a substantial longer interval to assure failure-free operation.
-> (the maximum timeout needed may be around 120 seconds)
 > 
-> The presumed solution:
-> These long timeouts are only needed in a few rare situations like
-> writing user presets to flash or firmware updates. As far as I've
-> examined the kernel code it would be the best thing to have a
-> function (ioctl?) accessible from userspace that overwrites the
-> stored SPLIT_TIMEOUT for a certain connected device. This way
-> there should not be any interferences in case of normal operation.
-> Until (rare) write accesses to the flash memory are performed, a
-> reasonable short timeout could be used.
+> locks:
+> Jan 13 19:32:57 fb07-iapwap2 kernel: Showing all locks held in the system:
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 3 locks held by pdflush/117:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&type->s_umount_key#17){----}, at: 
+> [<c018f3ba>] writeback_inodes+0x9a/0xe0
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #1:  (&mgr->commit_mutex){--..}, at: 
+> [<dcdd9a2c>] reiser4_txn_end+0x3bc/0x510 [reiser4
+> ]
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #2:  (&qp->mutex){--..}, at: 
+> [<c01354c3>] synchronize_qrcu+0x13/0xb0
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by mingetty/5432:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by mingetty/5433:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by mingetty/5434:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by mingetty/5435:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by mingetty/5455:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 1 lock held by bash/5487:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&tty->atomic_read_lock){--..}, at: 
+> [<c0221f24>] read_chan+0x414/0x610
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 2 locks held by googleearth-bin/6089:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (&inode->i_mutex){--..}, at: 
+> [<c0178e13>] do_lookup+0xb3/0x190
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #1:  (&info->loading){--..}, at: 
+> [<dcde79bd>] reiser4_iget+0x11d/0x330 [reiser4]
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 2 locks held by bash/6141:
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #0:  (sysrq_key_table_lock){....}, at: 
+> [<c022dcf7>] __handle_sysrq+0x17/0x130
+> Jan 13 19:32:57 fb07-iapwap2 kernel:  #1:  (tasklist_lock){..??}, at: 
+> [<c0139081>] debug_show_all_locks+0x21/0x150
+> Jan 13 19:32:57 fb07-iapwap2 kernel:
+> Jan 13 19:32:57 fb07-iapwap2 kernel: 
 
-I have an alternative suggestion:
-
- - Keep a global timeout for split transactions for all nodes.
-   Tracking different timeouts per node would add significant code
-   footprint.
- - Control the timeout like before via a write request to the
-   SPLIT_TIMEOUT CSR.
- - Allow the local node to write a nonstandard value of >7 to
-   SPLIT_TIMEOUT_HI. This would not be compliant with IEEE 1394(a)
-   but at least with IEEE 1212.
-
-This suggestion may fall short if a bus manager is present. Also,
-I have concerns to add such a non-conforming feature to mainline.
-(Not that our drivers were fully compliant to the spec now or that
-100% by-the-book behavior would be desirable in the first place...)
-
-> Since I don't have any real experience in kernel hacking yet,
-> this should be interpreted as a feature request at first:
-> If the described feature is easy to implement I would appreciate
-> if someone could do this.
-
-I could post a patch which works as I outlined if it fits your
-requirements.
-
-> Otherwise I'm confident that I'm able to write a patch on my own.
-> In this case the critical part would be to meet the standards
-> of the kernel community, since we would like to have the patch
-> included in the mainline.
-> 
-> Therefore I'm also interested in any kind of advices about how
-> to realize an appropriate patch.
-> 
-> Thanks,
-> 
-> Philipp Beyer
-> 
-> Software Development
-> Allied Vision Technologies
-
-See Documentation/SubmittingPatches in the Linux kernel source
-distribution for advice on code submission.
--- 
-Stefan Richter
--=====-=-=== ---= -==-=
-http://arcgraph.de/sr/
-
+Could be a reiser4 problem, could be a git-block problem - several people
+seem to be hitting problems with the new block unplugging code.  I guess
+I'll drop git-block next time unless some fairly significant fixes go into
+it.

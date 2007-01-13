@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422777AbXAMUVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422776AbXAMUX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422777AbXAMUVQ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 15:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422776AbXAMUVQ
+	id S1422776AbXAMUX1 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 15:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422781AbXAMUX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 15:21:16 -0500
-Received: from mail.tmr.com ([64.65.253.246]:43136 "EHLO gaimboi.tmr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422777AbXAMUVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 15:21:15 -0500
-Message-ID: <45A93FA4.9050600@tmr.com>
-Date: Sat, 13 Jan 2007 15:23:00 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	Sat, 13 Jan 2007 15:23:27 -0500
+Received: from bill.weihenstephan.org ([82.135.35.21]:44277 "EHLO
+	bill.weihenstephan.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422776AbXAMUX0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 15:23:26 -0500
+From: Juergen Beisert <juergen127@kreuzholzen.de>
+Organization: Privat
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel command line for a specific framebuffer console driver
+Date: Sat, 13 Jan 2007 21:23:23 +0100
+User-Agent: KMail/1.9.4
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+References: <200701121343.43100.juergen127@kreuzholzen.de> <20070112193627.GA4999@martell.zuzino.mipt.ru>
+In-Reply-To: <20070112193627.GA4999@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.20-rc5
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>	 <20070112142645.29a7ebe3.akpm@osdl.org>	 <b6a2187b0701121936t3175d7a1i21eb6fa1f72cac1d@mail.gmail.com> <b6a2187b0701121944j702ba941s1cc0583e476ceb6a@mail.gmail.com>
-In-Reply-To: <b6a2187b0701121944j702ba941s1cc0583e476ceb6a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701132123.23866.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
-> On 1/13/07, Jeff Chua <jeff.chua.linux@gmail.com> wrote:
->> On 1/13/07, Andrew Morton <akpm@osdl.org> wrote:
->> > On Fri, 12 Jan 2007 14:27:48 -0500 (EST)
->> > Linus Torvalds <torvalds@osdl.org> wrote:
->>
->>   CC [M]  drivers/kvm/vmx.o
->> {standard input}: Assembler messages:
->> {standard input}:3257: Error: bad register name `%sil'
->> make[2]: *** [drivers/kvm/vmx.o] Error 1
->> make[1]: *** [drivers/kvm] Error 2
->> make: *** [drivers] Error 2
->>
->> Am I missing something or this is a real problem?
->> Applied 2.6.20-rc5-mm-fixes and got this problem.
->> Using gcc version 3.4.5, binutils-2.17.50.0.8
-> 
-> Same problem with vanilla linux-2.6.20-rc5.
+Hi Alexey,
 
-What target? I had no such problem with x86, haven't tried the x86_64 
-build yet. Haven't even been able to try a boot, but the build was fine ;-)
+On Friday 12 January 2007 20:36, Alexey Dobriyan wrote:
+> On Fri, Jan 12, 2007 at 01:43:42PM +0100, Juergen Beisert wrote:
+> > does someone know how to forward a kernel command line option to
+> > configure the AMD Geode GX1 framebuffer?
+> >
+> > I tried with "video=gx1fb:1024x768-16@60" but it does not work. On
+> > another machine with an SIS framebuffer the line
+> > "video=sisfb:1280x1024-8@60" works as expected.
+> >
+> > Any ideas?
+>
+> Yes. You try this patch and report whether it works or not.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Thank you very much. Yes it works. I tried these kernel parameters:
+
+1) video=gx1fb:mode:1280x1024-16@60,crt:1
+  -> CRT was active, 160x64 console
+2) video=gx1fb:mode:1024x768-16@60,crt:1
+  -> CRT was active, 128x48 console
+3) video=gx1fb:mode:800x600-16@60,crt:0,panel:800x600
+  -> CRT was disabled, 100x37 console
+4) video=gx1fb:mode:1024x768-16@60,crt:0,panel:800x600
+  -> CRT was disabled, 80x25 console
+
+Sorry, I have no flatpanel, so I cannot test if the "panel" option works 
+correctly. But somethings changes when I tried different values (see 3 and 
+4).
+
+Regards
+Juergen

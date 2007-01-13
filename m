@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161301AbXAMHhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161302AbXAMHnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161301AbXAMHhA (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 02:37:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161309AbXAMHhA
+	id S1161302AbXAMHnE (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 02:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161307AbXAMHnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 02:37:00 -0500
-Received: from server99.tchmachines.com ([72.9.230.178]:45867 "EHLO
+	Sat, 13 Jan 2007 02:43:04 -0500
+Received: from server99.tchmachines.com ([72.9.230.178]:46254 "EHLO
 	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161301AbXAMHg7 (ORCPT
+	with ESMTP id S1161302AbXAMHnD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 02:36:59 -0500
-Date: Fri, 12 Jan 2007 23:36:43 -0800
+	Sat, 13 Jan 2007 02:43:03 -0500
+Date: Fri, 12 Jan 2007 23:42:42 -0800
 From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
        "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>
+       pravin b shelar <pravin.shelar@calsoftinc.com>, a.p.zijlstra@chello.nl
 Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
-Message-ID: <20070113073643.GA4234@localhost.localdomain>
-References: <20070112160104.GA5766@localhost.localdomain> <45A86291.8090408@yahoo.com.au>
+Message-ID: <20070113074242.GB4234@localhost.localdomain>
+References: <20070112160104.GA5766@localhost.localdomain> <Pine.LNX.4.64.0701121137430.2306@schroedinger.engr.sgi.com> <20070112214021.GA4300@localhost.localdomain> <Pine.LNX.4.64.0701121341320.3087@schroedinger.engr.sgi.com> <20070113010039.GA8465@localhost.localdomain> <20070112171116.a8f62ecb.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45A86291.8090408@yahoo.com.au>
+In-Reply-To: <20070112171116.a8f62ecb.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - server99.tchmachines.com
@@ -36,46 +36,20 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 03:39:45PM +1100, Nick Piggin wrote:
-> Ravikiran G Thirumalai wrote:
-> >Hi,
-> >We noticed high interrupt hold off times while running some memory 
-> >intensive
-> >tests on a Sun x4600 8 socket 16 core x86_64 box.  We noticed softlockups,
+On Fri, Jan 12, 2007 at 05:11:16PM -0800, Andrew Morton wrote:
+> On Fri, 12 Jan 2007 17:00:39 -0800
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
 > 
-> [...]
+> > But is
+> > lru_lock an issue is another question.
 > 
-> >We did not use any lock debugging options and used plain old rdtsc to
-> >measure cycles.  (We disable cpu freq scaling in the BIOS). All we did was
-> >this:
-> >
-> >void __lockfunc _spin_lock_irq(spinlock_t *lock)
-> >{
-> >        local_irq_disable();
-> >        ------------------------> rdtsc(t1);
-> >        preempt_disable();
-> >        spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
-> >        _raw_spin_lock(lock);
-> >        ------------------------> rdtsc(t2);
-> >        if (lock->spin_time < (t2 - t1))
-> >                lock->spin_time = t2 - t1;
-> >}
-> >
-> >On some runs, we found that the zone->lru_lock spun for 33 seconds or more
-> >while the maximal CS time was 3 seconds or so.
+> I doubt it, although there might be changes we can make in there to
+> work around it.
 > 
-> What is the "CS time"?
+> <mentions PAGEVEC_SIZE again>
 
-Critical Section :).  This is the maximal time interval I measured  from 
-t2 above to the time point we release the spin lock.  This is the hold 
-time I guess.
+I tested with PAGEVEC_SIZE define to 62 and 126 -- no difference.  I still
+notice the atrociously high spin times.
 
-> 
-> It would be interesting to know how long the maximal lru_lock *hold* time 
-> is,
-> which could give us a better indication of whether it is a hardware problem.
-> 
-> For example, if the maximum hold time is 10ms, that it might indicate a
-> hardware fairness problem.
-
-The maximal hold time was about 3s.
+Thanks,
+Kiran

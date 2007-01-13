@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422705AbXAMP7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422710AbXAMQVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422705AbXAMP7x (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 10:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbXAMP7w
+	id S1422710AbXAMQVG (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 11:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbXAMQVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 10:59:52 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3931 "HELO
+	Sat, 13 Jan 2007 11:21:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4005 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1422705AbXAMP7w (ORCPT
+	with SMTP id S1422710AbXAMQVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 10:59:52 -0500
-Date: Sat, 13 Jan 2007 16:59:56 +0100
+	Sat, 13 Jan 2007 11:21:03 -0500
+Date: Sat, 13 Jan 2007 17:21:08 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Damien Wyart <damien.wyart@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jon Smirl <jonsmirl@gmail.com>, Aaron Sethman <androsyn@ratbox.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.20-rc5: known unfixed regressions
-Message-ID: <20070113155956.GP7469@stusta.de>
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org> <20070113071125.GG7469@stusta.de> <87bql2ylfb.fsf@brouette.noos.fr>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Miles Lane <miles.lane@gmail.com>, Ingo Molnar <mingo@elte.hu>,
+       avi@qumranet.com, kvm-devel@lists.sourceforge.net,
+       Russell King <rmk+lkml@arm.linux.org.uk>, vojtech@suse.cz,
+       greg@kroah.com, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.20-rc5: known regressions with patches
+Message-ID: <20070113162108.GQ7469@stusta.de>
+References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org> <20070113071412.GH7469@stusta.de> <adaps9j54dd.fsf@cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87bql2ylfb.fsf@brouette.noos.fr>
+In-Reply-To: <adaps9j54dd.fsf@cisco.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 04:51:36PM +0100, Damien Wyart wrote:
-> * Adrian Bunk <bunk@stusta.de> [070113 08:11]:
-> > This still leaves the old regressions we have not yet fixed...
-> > This email lists some known regressions in 2.6.20-rc5 compared to 2.6.19.
+On Sat, Jan 13, 2007 at 07:32:46AM -0800, Roland Dreier wrote:
+>  > This email lists some known regressions in 2.6.20-rc5 compared to 2.6.19
+>  > with patches available.
 > 
-> > Subject    : BUG: scheduling while atomic: hald-addon-stor/...
-> >              cdrom_{open,release,ioctl} in trace
-> > References : http://lkml.org/lkml/2006/12/26/105
-> >              http://lkml.org/lkml/2006/12/29/22
-> >              http://lkml.org/lkml/2006/12/31/133
-> > Submitter  : Jon Smirl <jonsmirl@gmail.com>
-> >              Damien Wyart <damien.wyart@free.fr>
-> >              Aaron Sethman <androsyn@ratbox.org>
-> > Status     : unknown
+>  > Subject    : KVM: guest crash
+>  > References : http://lkml.org/lkml/2007/1/8/163
+>  > Submitter  : Roland Dreier <rdreier@cisco.com>
+>  > Handled-By : Avi Kivity <avi@qumranet.com>
+>  > Patch      : http://lkml.org/lkml/2007/1/9/280
+>  > Status     : patch available
 > 
-> I have not seen the problem since using rc3, so I guess it is ok now.
-> Maybe the commit 9414232fa0cc28e2f51b8c76d260f2748f7953fc has fixed the
-> problem, but I am not 100% sure.
+> This is not a regression from 2.6.19, since kvm did not exist in
+> 2.6.19.  In any case akpm has the patch and plans to merge it for
+> 2.6.20 so I don't think anyone has to worry about this one.
 
-Thanks for this information.
+I know, but a bug that is not present in 2.6.19 is a regression. ;-)
 
-Jon, Aaron, can you confirm it's fixed in -rc5?
+More seriously, I know it's a bit borderline to talk about a regression, 
+but I think listing things like crashes or compile errors in new 
+functionality makes sense - especially in such cases where it's about 
+tracking that a patch doesn't miss 2.6.20.
 
-> Damien Wyart
+>  - R.
 
 cu
 Adrian

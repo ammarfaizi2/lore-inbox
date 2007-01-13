@@ -1,124 +1,175 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422798AbXAMVUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422799AbXAMV13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422798AbXAMVUg (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 16:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422799AbXAMVUg
+	id S1422799AbXAMV13 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 16:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbXAMV13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 16:20:36 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:51313 "EHLO smtp.osdl.org"
+	Sat, 13 Jan 2007 16:27:29 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:1514 "EHLO parknet.jp"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422798AbXAMVUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 16:20:35 -0500
-Date: Sat, 13 Jan 2007 13:20:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       ak@suse.de, shai@scalex86.org, pravin.shelar@calsoftinc.com
-Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
-Message-Id: <20070113132023.0f8d2da8.akpm@osdl.org>
-In-Reply-To: <20070113195334.GC4234@localhost.localdomain>
-References: <20070112160104.GA5766@localhost.localdomain>
-	<45A86291.8090408@yahoo.com.au>
-	<20070113073643.GA4234@localhost.localdomain>
-	<20070113000017.2ad2df12.akpm@osdl.org>
-	<20070113195334.GC4234@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1422799AbXAMV12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 16:27:28 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] MMCONFIG: Reject a broken MCFG tables on Asus etc
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 14 Jan 2007 06:27:18 +0900
+Message-ID: <87hcuusjm1.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 13 Jan 2007 11:53:34 -0800 Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> On Sat, Jan 13, 2007 at 12:00:17AM -0800, Andrew Morton wrote:
-> > > On Fri, 12 Jan 2007 23:36:43 -0800 Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > > > >void __lockfunc _spin_lock_irq(spinlock_t *lock)
-> > > > >{
-> > > > >        local_irq_disable();
-> > > > >        ------------------------> rdtsc(t1);
-> > > > >        preempt_disable();
-> > > > >        spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
-> > > > >        _raw_spin_lock(lock);
-> > > > >        ------------------------> rdtsc(t2);
-> > > > >        if (lock->spin_time < (t2 - t1))
-> > > > >                lock->spin_time = t2 - t1;
-> > > > >}
-> > > > >
-> > > > >On some runs, we found that the zone->lru_lock spun for 33 seconds or more
-> > > > >while the maximal CS time was 3 seconds or so.
-> > > > 
-> > > > What is the "CS time"?
-> > > 
-> > > Critical Section :).  This is the maximal time interval I measured  from 
-> > > t2 above to the time point we release the spin lock.  This is the hold 
-> > > time I guess.
-> > 
-> > By no means.  The theory here is that CPUA is taking and releasing the
-> > lock at high frequency, but CPUB never manages to get in and take it.  In
-> > which case the maximum-acquisition-time is much larger than the
-> > maximum-hold-time.
-> > 
-> > I'd suggest that you use a similar trick to measure the maximum hold time:
-> > start the timer after we got the lock, stop it just before we release the
-> > lock (assuming that the additional rdtsc delay doesn't "fix" things, of
-> > course...)
-> 
-> Well, that is exactly what I described above  as CS time.
+This rejects a broken MCFG tables on Asus etc.
+Arjan and Andi suggest this.
 
-Seeing the code helps.
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
->  The
-> instrumentation goes like this:
-> 
-> void __lockfunc _spin_lock_irq(spinlock_t *lock)
-> {
->         unsigned long long t1,t2;
->         local_irq_disable();
->         t1 = get_cycles_sync();
->         preempt_disable();
->         spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
->         _raw_spin_lock(lock);
->         t2 = get_cycles_sync();
->         lock->raw_lock.htsc = t2;
->         if (lock->spin_time < (t2 - t1))
->                 lock->spin_time = t2 - t1;
-> }
-> ...
-> 
-> void __lockfunc _spin_unlock_irq(spinlock_t *lock)
-> {
->         unsigned long long t1 ;
->         spin_release(&lock->dep_map, 1, _RET_IP_);
->         t1 = get_cycles_sync();
->         if (lock->cs_time < (t1 -  lock->raw_lock.htsc))
->                 lock->cs_time = t1 -  lock->raw_lock.htsc;
->         _raw_spin_unlock(lock);
->         local_irq_enable();
->         preempt_enable();
-> }
-> 
-> Am I missing something?  Is this not what you just described? (The
-> synchronizing rdtsc might not be really required at all locations, but I 
-> doubt if it would contribute a significant fraction to 33s  or even 
-> the 3s hold time on a 2.6 GHZ opteron).
+ arch/i386/pci/mmconfig-shared.c |   24 ++++++++++++++++++-
+ arch/i386/pci/mmconfig.c        |    9 -------
+ arch/x86_64/pci/mmconfig.c      |   50 +++++++++++-----------------------------
+ 3 files changed, 37 insertions(+), 46 deletions(-)
 
-OK, now we need to do a dump_stack() each time we discover a new max hold
-time.  That might a bit tricky: the printk code does spinlocking too so
-things could go recursively deadlocky.  Maybe make spin_unlock_irq() return
-the hold time then do:
+diff -puN arch/i386/pci/mmconfig-shared.c~pci-mmconfig-reject-mcfg_broken arch/i386/pci/mmconfig-shared.c
+--- linux-2.6/arch/i386/pci/mmconfig-shared.c~pci-mmconfig-reject-mcfg_broken	2007-01-12 23:15:58.000000000 +0900
++++ linux-2.6-hirofumi/arch/i386/pci/mmconfig-shared.c	2007-01-12 23:15:58.000000000 +0900
+@@ -207,6 +207,26 @@ static void __init pci_mmcfg_insert_reso
+ 	}
+ }
+ 
++static void __init pci_mmcfg_reject_broken(void)
++{
++	struct acpi_table_mcfg_config *cfg = &pci_mmcfg_config[0];
++
++	/*
++	 * Handle more broken MCFG tables on Asus etc.
++	 * They only contain a single entry for bus 0-0.
++	 */
++	if (pci_mmcfg_config_num == 1 &&
++	    cfg->pci_segment_group_number == 0 &&
++	    (cfg->start_bus_number | cfg->end_bus_number) == 0) {
++		kfree(pci_mmcfg_config);
++		pci_mmcfg_config = NULL;
++		pci_mmcfg_config_num = 0;
++
++		printk(KERN_ERR "PCI: start and end of bus number is 0. "
++		       "Rejected as broken MCFG.");
++	}
++}
++
+ void __init pci_mmcfg_init(int type)
+ {
+ 	int known_bridge = 0;
+@@ -217,8 +237,10 @@ void __init pci_mmcfg_init(int type)
+ 	if (type == 1 && pci_mmcfg_check_hostbridge())
+ 		known_bridge = 1;
+ 
+-	if (!known_bridge)
++	if (!known_bridge) {
+ 		acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
++		pci_mmcfg_reject_broken();
++	}
+ 
+ 	if ((pci_mmcfg_config_num == 0) ||
+ 	    (pci_mmcfg_config == NULL) ||
+diff -puN arch/i386/pci/mmconfig.c~pci-mmconfig-reject-mcfg_broken arch/i386/pci/mmconfig.c
+--- linux-2.6/arch/i386/pci/mmconfig.c~pci-mmconfig-reject-mcfg_broken	2007-01-12 23:15:58.000000000 +0900
++++ linux-2.6-hirofumi/arch/i386/pci/mmconfig.c	2007-01-12 23:15:58.000000000 +0900
+@@ -42,15 +42,6 @@ static u32 get_base_addr(unsigned int se
+ 			return cfg->base_address;
+ 	}
+ 
+-	/* Handle more broken MCFG tables on Asus etc.
+-	   They only contain a single entry for bus 0-0. Assume
+- 	   this applies to all busses. */
+-	cfg = &pci_mmcfg_config[0];
+-	if (pci_mmcfg_config_num == 1 &&
+-		cfg->pci_segment_group_number == 0 &&
+-		(cfg->start_bus_number | cfg->end_bus_number) == 0)
+-		return cfg->base_address;
+-
+ 	/* Fall back to type 0 */
+ 	return 0;
+ }
+diff -puN arch/x86_64/pci/mmconfig.c~pci-mmconfig-reject-mcfg_broken arch/x86_64/pci/mmconfig.c
+--- linux-2.6/arch/x86_64/pci/mmconfig.c~pci-mmconfig-reject-mcfg_broken	2007-01-12 23:15:58.000000000 +0900
++++ linux-2.6-hirofumi/arch/x86_64/pci/mmconfig.c	2007-01-12 23:20:25.000000000 +0900
+@@ -20,39 +20,6 @@ struct mmcfg_virt {
+ };
+ static struct mmcfg_virt *pci_mmcfg_virt;
+ 
+-static inline int mcfg_broken(void)
+-{
+-	struct acpi_table_mcfg_config *cfg = &pci_mmcfg_config[0];
+-
+-	/* Handle more broken MCFG tables on Asus etc.
+-	   They only contain a single entry for bus 0-0. Assume
+- 	   this applies to all busses. */
+-	if (pci_mmcfg_config_num == 1 &&
+-	    cfg->pci_segment_group_number == 0 &&
+-	    (cfg->start_bus_number | cfg->end_bus_number) == 0)
+-		return 1;
+-	return 0;
+-}
+-
+-static void __iomem *mcfg_ioremap(struct acpi_table_mcfg_config *cfg)
+-{
+-	void __iomem *addr;
+-	u32 size;
+-
+-	if (mcfg_broken())
+-		size = 256 << 20;
+-	else
+-		size = (cfg->end_bus_number + 1) << 20;
+-
+-	addr = ioremap_nocache(cfg->base_address, size);
+-	if (addr) {
+-		printk(KERN_INFO "PCI: Using MMCONFIG at %x - %x\n",
+-		       cfg->base_address,
+-		       cfg->base_address + size - 1);
+-	}
+-	return addr;
+-}
+-
+ static char __iomem *get_virt(unsigned int seg, unsigned bus)
+ {
+ 	struct acpi_table_mcfg_config *cfg;
+@@ -66,9 +33,6 @@ static char __iomem *get_virt(unsigned i
+ 			return pci_mmcfg_virt[cfg_num].virt;
+ 	}
+ 
+-	if (mcfg_broken())
+-		return pci_mmcfg_virt[0].virt;
+-
+ 	/* Fall back to type 0 */
+ 	return NULL;
+ }
+@@ -154,6 +118,20 @@ int __init pci_mmcfg_arch_reachable(unsi
+ 	return pci_dev_base(seg, bus, devfn) != NULL;
+ }
+ 
++static void __iomem * __init mcfg_ioremap(struct acpi_table_mcfg_config *cfg)
++{
++	void __iomem *addr;
++	u32 size;
++
++	size = (cfg->end_bus_number + 1) << 20;
++	addr = ioremap_nocache(cfg->base_address, size);
++	if (addr) {
++		printk(KERN_INFO "PCI: Using MMCONFIG at %x - %x\n",
++		       cfg->base_address, cfg->base_address + size - 1);
++	}
++	return addr;
++}
++
+ int __init pci_mmcfg_arch_init(void)
+ {
+ 	int i;
+_
 
-void lru_spin_unlock_irq(struct zone *zone)
-{
-	long this_time;
-
-	this_time = spin_unlock_irq(&zone->lru_lock);
-	if (this_time > zone->max_time) {
-		zone->max_time = this_time;
-		dump_stack();
-	}
-}
-
-or similar.
-
-
-
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

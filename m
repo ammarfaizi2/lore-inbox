@@ -1,100 +1,123 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161229AbXAMD1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161242AbXAMD1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161229AbXAMD1I (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 22:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161230AbXAMDZg
+	id S1161242AbXAMD1l (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 22:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161218AbXAMDZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 22:25:36 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46609 "EHLO mx2.suse.de"
+	Fri, 12 Jan 2007 22:25:04 -0500
+Received: from ns2.suse.de ([195.135.220.15]:46593 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161216AbXAMDZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 22:25:15 -0500
+	id S1161216AbXAMDY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 22:24:56 -0500
 From: Nick Piggin <npiggin@suse.de>
 To: Linux Memory Management <linux-mm@kvack.org>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
        Linux Filesystems <linux-fsdevel@vger.kernel.org>,
        Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20070113011255.9449.33228.sendpatchset@linux.site>
+Message-Id: <20070113011236.9449.34557.sendpatchset@linux.site>
 In-Reply-To: <20070113011159.9449.4327.sendpatchset@linux.site>
 References: <20070113011159.9449.4327.sendpatchset@linux.site>
-Subject: [patch 6/10] mm: be sure to trim blocks
-Date: Sat, 13 Jan 2007 04:25:11 +0100 (CET)
+Subject: [patch 4/10] mm: generic_file_buffered_write cleanup
+Date: Sat, 13 Jan 2007 04:24:52 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If prepare_write fails with AOP_TRUNCATED_PAGE, or if commit_write fails, then
-we may have failed the write operation despite prepare_write having
-instantiated blocks past i_size. Fix this, and consolidate the trimming into
-one place.
+From: Andrew Morton <akpm@osdl.org>
 
+Clean up buffered write code. Rename some variables and fix some types.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
 Index: linux-2.6/mm/filemap.c
 ===================================================================
 --- linux-2.6.orig/mm/filemap.c
 +++ linux-2.6/mm/filemap.c
-@@ -1911,22 +1911,9 @@ generic_file_buffered_write(struct kiocb
- 		}
+@@ -1854,16 +1854,15 @@ generic_file_buffered_write(struct kiocb
+ 		size_t count, ssize_t written)
+ {
+ 	struct file *file = iocb->ki_filp;
+-	struct address_space * mapping = file->f_mapping;
++	struct address_space *mapping = file->f_mapping;
+ 	const struct address_space_operations *a_ops = mapping->a_ops;
+ 	struct inode 	*inode = mapping->host;
+ 	long		status = 0;
+ 	struct page	*page;
+ 	struct page	*cached_page = NULL;
+-	size_t		bytes;
+ 	struct pagevec	lru_pvec;
+ 	const struct iovec *cur_iov = iov; /* current iovec */
+-	size_t		iov_base = 0;	   /* offset in the current iovec */
++	size_t		iov_offset = 0;	   /* offset in the current iovec */
+ 	char __user	*buf;
  
- 		status = a_ops->prepare_write(file, page, offset, offset+bytes);
--		if (unlikely(status)) {
--			loff_t isize = i_size_read(inode);
-+		if (unlikely(status))
-+			goto fs_write_aop_error;
+ 	pagevec_init(&lru_pvec, 0);
+@@ -1874,31 +1873,33 @@ generic_file_buffered_write(struct kiocb
+ 	if (likely(nr_segs == 1))
+ 		buf = iov->iov_base + written;
+ 	else {
+-		filemap_set_next_iovec(&cur_iov, &iov_base, written);
+-		buf = cur_iov->iov_base + iov_base;
++		filemap_set_next_iovec(&cur_iov, &iov_offset, written);
++		buf = cur_iov->iov_base + iov_offset;
+ 	}
  
--			if (status != AOP_TRUNCATED_PAGE)
--				unlock_page(page);
--			page_cache_release(page);
--			if (status == AOP_TRUNCATED_PAGE)
--				continue;
--			/*
--			 * prepare_write() may have instantiated a few blocks
--			 * outside i_size.  Trim these off again.
--			 */
--			if (pos + bytes > isize)
--				vmtruncate(inode, isize);
--			break;
--		}
- 		if (likely(nr_segs == 1))
- 			copied = filemap_copy_from_user(page, offset,
+ 	do {
+-		unsigned long index;
+-		unsigned long offset;
+-		unsigned long maxlen;
+-		size_t copied;
++		pgoff_t index;		/* Pagecache index for current page */
++		unsigned long offset;	/* Offset into pagecache page */
++		unsigned long maxlen;	/* Bytes remaining in current iovec */
++		size_t bytes;		/* Bytes to write to page */
++		size_t copied;		/* Bytes copied from user */
+ 
+-		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
++		offset = (pos & (PAGE_CACHE_SIZE - 1));
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+ 		if (bytes > count)
+ 			bytes = count;
+ 
++		maxlen = cur_iov->iov_len - iov_offset;
++		if (maxlen > bytes)
++			maxlen = bytes;
++
+ 		/*
+ 		 * Bring in the user page that we will copy from _first_.
+ 		 * Otherwise there's a nasty deadlock on copying from the
+ 		 * same page as we're writing to, without it being marked
+ 		 * up-to-date.
+ 		 */
+-		maxlen = cur_iov->iov_len - iov_base;
+-		if (maxlen > bytes)
+-			maxlen = bytes;
+ 		fault_in_pages_readable(buf, maxlen);
+ 
+ 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
+@@ -1929,7 +1930,7 @@ generic_file_buffered_write(struct kiocb
  							buf, bytes);
-@@ -1935,10 +1922,9 @@ generic_file_buffered_write(struct kiocb
- 						cur_iov, iov_offset, bytes);
+ 		else
+ 			copied = filemap_copy_from_user_iovec(page, offset,
+-						cur_iov, iov_base, bytes);
++						cur_iov, iov_offset, bytes);
  		flush_dcache_page(page);
  		status = a_ops->commit_write(file, page, offset, offset+bytes);
--		if (status == AOP_TRUNCATED_PAGE) {
--			page_cache_release(page);
--			continue;
--		}
-+		if (unlikely(status))
-+			goto fs_write_aop_error;
-+
- 		if (likely(copied > 0)) {
- 			if (!status)
- 				status = copied;
-@@ -1969,6 +1955,25 @@ generic_file_buffered_write(struct kiocb
- 			break;
- 		balance_dirty_pages_ratelimited(mapping);
- 		cond_resched();
-+		continue;
-+
-+fs_write_aop_error:
-+		if (status != AOP_TRUNCATED_PAGE)
-+			unlock_page(page);
-+		page_cache_release(page);
-+
-+		/*
-+		 * prepare_write() may have instantiated a few blocks
-+		 * outside i_size.  Trim these off again. Don't need
-+		 * i_size_read because we hold i_mutex.
-+		 */
-+		if (pos + bytes > inode->i_size)
-+			vmtruncate(inode, inode->i_size);
-+		if (status == AOP_TRUNCATED_PAGE)
-+			continue;
-+		else
-+			break;
-+
- 	} while (count);
- 	*ppos = pos;
- 
+ 		if (status == AOP_TRUNCATED_PAGE) {
+@@ -1947,12 +1948,12 @@ generic_file_buffered_write(struct kiocb
+ 				buf += status;
+ 				if (unlikely(nr_segs > 1)) {
+ 					filemap_set_next_iovec(&cur_iov,
+-							&iov_base, status);
++							&iov_offset, status);
+ 					if (count)
+ 						buf = cur_iov->iov_base +
+-							iov_base;
++							iov_offset;
+ 				} else {
+-					iov_base += status;
++					iov_offset += status;
+ 				}
+ 			}
+ 		}

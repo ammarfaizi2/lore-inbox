@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030509AbXAMMID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030523AbXAMMKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030509AbXAMMID (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 07:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030512AbXAMMID
+	id S1030523AbXAMMKP (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 07:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbXAMMKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 07:08:03 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:55246 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030509AbXAMMIB (ORCPT
+	Sat, 13 Jan 2007 07:10:15 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:47460 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030514AbXAMMKN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 07:08:01 -0500
-Message-ID: <45A8CB9F.3020506@s5r6.in-berlin.de>
-Date: Sat, 13 Jan 2007 13:07:59 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+	Sat, 13 Jan 2007 07:10:13 -0500
+From: Faik Uygur <faik@pardus.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: ahci_softreset prevents acpi_power_off
+Date: Sat, 13 Jan 2007 14:10:33 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+References: <200701111231.26819.faik@pardus.org.tr> <45A831EA.50601@gmail.com>
+In-Reply-To: <45A831EA.50601@gmail.com>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Sunil Naidu <akula2.shark@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Choosing a HyperThreading/SMP/MultiCore kernel ?
-References: <8355959a0701120525m5d1a7904i56b8a8f7316883d6@mail.gmail.com>            <20070112150349.GI17269@csclub.uwaterloo.ca> <200701130338.l0D3chOs026407@turing-police.cc.vt.edu>
-In-Reply-To: <200701130338.l0D3chOs026407@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701131410.34265.faik@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/2007 4:38 AM, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 12 Jan 2007 10:03:49 EST, Lennart Sorensen said:
->> I believe the closest optimization for a Core2 is probably the Pentium M
->> (certainly not the P4/netburst).  Not entirely sure though.
-> 
-> CONFIG_MCORE2=y
-> 
-> That's probably even closer :)  At least in 2.6.20-rc4-mm1.  
+Hello Tejun,
 
-Here is some more information, not about kernel configuration parameters
-but more generally about gcc flags to be used with Core and Core 2 CPUs:
-http://www.gentoo.org/news/en/gwn/20061211-newsletter.xml#doc_chap2_sect3
+13 Oca 2007 Cts 03:12 tarihinde şunları yazmıştınız:
+> If possible, please post dmesg of shutting down.  
 
-Quoting their source, http://psykil.livejournal.com/2006/12/03/:
-| If you're using GCC 4.1, use -march=prescott for Intel Core Solo/Duo
-| and -march=nocona (and an amd64 profile) for Core 2 Solo/Duo.  For GCC
-| 4.2, a Core Solo/Duo should use -march=prescott -mtune=generic, and
-| Core 2 Solo/Duo should be set to -march=nocona -mtune=generic.  GCC
-| trunk adds -march=core2 and support for the SSSE3 instruction set, but
-| that won't be out for quite a while yet.
-|
-| If you do happen to be using GCC 4.2, check out the very cool
-| -march=native, which will autodetect the host processor(s) and set
-| -march and -mtune accordingly. For Core CPU's you'll also need the
-| patch from GCC PR #30040.
+I have taken more detailed dmesg outputs of three configs with ATA_DEBUG and 
+ATA_VERBOSE_DEBUG defined. You can find them at this address:
 
--- 
-Stefan Richter
--=====-=-=== ---= -==-=
-http://arcgraph.de/sr/
+http://cekirdek.pardus.org.tr/~faik/tmp/ahci/
+
+* ahci file is the output of CONFIG_SCSI_SATA_AHCI compiled config
+* noahci file is the output of CONFIG_SCSI_SATA_AHCI not compiled config
+* ahci-nullsoftreset is the output of CONFIG_SCSI_SATA_AHCI compiled config
+but given NULL to softreset parameters of ata_do_eh in ahci.c
+
+Also poweroff-config is the used .config file. Only CONFIG_SCSI_SATA_AHCI is
+changed between them.
+
+I am not familiar with AHCI nor ATA internals. So please ask if you would like 
+to see anything more.
+
+Regards,
+- Faik

@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422691AbXAMPeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422700AbXAMPmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422691AbXAMPeT (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 10:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422696AbXAMPeT
+	id S1422700AbXAMPmk (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 10:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbXAMPmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 10:34:19 -0500
-Received: from styx.suse.cz ([82.119.242.94]:39520 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1422691AbXAMPeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 10:34:18 -0500
-Date: Sat, 13 Jan 2007 16:34:13 +0100 (CET)
+	Sat, 13 Jan 2007 10:42:40 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:51390 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422700AbXAMPmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 10:42:39 -0500
+Date: Sat, 13 Jan 2007 16:41:19 +0100 (CET)
 From: Jiri Kosina <jkosina@suse.cz>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz, Adrian Bunk <bunk@stusta.de>
-Subject: Re: Fwd: [PATCH] Fix some ARM builds due to HID brokenness
-In-Reply-To: <20070112215351.GD24451@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0701131631490.5228@jikos.suse.cz>
-References: <20070112210015.GA2923@dyn-67.arm.linux.org.uk>
- <20070112214216.GC24451@flint.arm.linux.org.uk> <20070112215351.GD24451@flint.arm.linux.org.uk>
+X-X-Sender: jikos@twin.jikos.cz
+To: linux-kernel@vger.kernel.org
+cc: Pavel Machek <pavel@ucw.cz>, Charles Majola <charles@ubuntu.com>,
+       Patrick McFarland <diablod3@gmail.com>
+Subject: [announce] ipwireless_cs 3G PCMCIA network driver
+Message-ID: <Pine.LNX.4.64.0701121633130.16747@twin.jikos.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2007, Russell King wrote:
+Hi,
 
-> > So... we have USB_HID _newly_ selected in configurations which didn't 
-> > have it before, which overrides CONFIG_HID and builds HID without 
-> > input support. Can USB_HID also depend on INPUT ?
-> Nevertheless, here's a patch to solve more of the same that my original
-> patch attempted to solve.  The original patch is still required.  Seems
-> to solve the final instance of this problem here.
+there was some discussion some time ago on lkml about the driver for the 
+ipwireless 3G UMTS (in some countries, such as Czech Republic, this is 
+shipped under the name "4G UMTS") PCMCIA card [1]
 
-Yes, it is by the time being needed for USB_HID to depend on input. Thanks 
-for the patch, I applied it to HID tree and will push it upstream in the 
-next round.
+I have taken the old driver written by guys at Symmetric Systems and 
+ported it to the current kernel, modified a code layout a bit, removed 
+some dead code, etc. I have established a git tree [2] for this driver, as 
+it needs considerable amount of work the be acceptable to mainline (not 
+only due to functionality problems with V3 (see below), but also 
+CodingStyle, migrating the driver to use in-kernel linked lists, etc etc) 
+and testing by other people owning the hardware will also help.
+
+There is a little confusion regarding the hardware - there used to be V1 
+and V2 cards (which require some little differences in handling). With 
+these card types, the driver seems to work well. Then ipwireless company 
+produced version V3 of the card. (sadly, IDs of the card didn't change, 
+only firmware seems to be modified). This is for example the card that 
+T-Mobile is currently shipping by default for the 4G UMTS service (or at 
+least in Czech Republic).
+
+This card is correctly detected by this driver, is able to send and 
+receive AT commands, dial and connect, but after the ppp connection is 
+established, the LCP frames that the card is passing to the driver are 
+broken (one byte per frame). We are currently trying, together with 
+authors of original driver, to identify an exact cause of this behavior 
+(seems like PPP framer on the card is somehow misconfigured or 
+unitialized).
+
+Any testers are welcome. Thanks.
+
+[1] http://lkml.org/lkml/2006/6/16/31
+[2] git://git.kernel.org/pub/scm/linux/kernel/git/jikos/ipwireless_cs.git, 
+    ipw-devel branch
 
 -- 
 Jiri Kosina

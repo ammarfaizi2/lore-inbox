@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422776AbXAMUX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422785AbXAMU12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422776AbXAMUX1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 15:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422781AbXAMUX1
+	id S1422785AbXAMU12 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 15:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbXAMU12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 15:23:27 -0500
-Received: from bill.weihenstephan.org ([82.135.35.21]:44277 "EHLO
-	bill.weihenstephan.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422776AbXAMUX0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 15:23:26 -0500
-From: Juergen Beisert <juergen127@kreuzholzen.de>
-Organization: Privat
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel command line for a specific framebuffer console driver
-Date: Sat, 13 Jan 2007 21:23:23 +0100
-User-Agent: KMail/1.9.4
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-References: <200701121343.43100.juergen127@kreuzholzen.de> <20070112193627.GA4999@martell.zuzino.mipt.ru>
-In-Reply-To: <20070112193627.GA4999@martell.zuzino.mipt.ru>
+	Sat, 13 Jan 2007 15:27:28 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:24687 "EHLO hobbit.corpit.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422785AbXAMU11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 15:27:27 -0500
+Message-ID: <45A940A9.2030001@tls.msk.ru>
+Date: Sat, 13 Jan 2007 23:27:21 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Chris Mason <chris.mason@oracle.com>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com> <45A7F396.4080600@tls.msk.ru> <45A7F4F2.2080903@tls.msk.ru> <45A7F7A7.1080108@tls.msk.ru> <Pine.LNX.4.64.0701121611370.3470@woody.osdl.org> <45A93BEA.6040601@tmr.com>
+In-Reply-To: <45A93BEA.6040601@tmr.com>
+X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701132123.23866.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey,
+Bill Davidsen wrote:
+> Linus Torvalds wrote:
+>>
+[]
+>> But what O_DIRECT does right now is _not_ really sensible, and the
+>> O_DIRECT propeller-heads seem to have some problem even admitting that
+>> there _is_ a problem, because they don't care. 
+> 
+> You say that as if it were a failing. Currently if you mix access via
+> O_DIRECT and non-DIRECT you can get unexpected results. You can screw
+> yourself, mangle your data, or have no problems at all if you avoid
+> trying to access the same bytes in multiple ways. There are lots of ways
+> to get or write stale data, not all involve O_DIRECT in any way, and the
+> people actually using O_DIRECT now are managing very well.
+> 
+> I don't regard it as a system failing that I am allowed to shoot myself
+> in the foot, it's one of the benefits of Linux over Windows. Using
+> O_DIRECT now is like being your own lawyer, room for both creativity and
+> serious error. But what's there appears portable, which is important as
+> well.
 
-On Friday 12 January 2007 20:36, Alexey Dobriyan wrote:
-> On Fri, Jan 12, 2007 at 01:43:42PM +0100, Juergen Beisert wrote:
-> > does someone know how to forward a kernel command line option to
-> > configure the AMD Geode GX1 framebuffer?
-> >
-> > I tried with "video=gx1fb:1024x768-16@60" but it does not work. On
-> > another machine with an SIS framebuffer the line
-> > "video=sisfb:1280x1024-8@60" works as expected.
-> >
-> > Any ideas?
->
-> Yes. You try this patch and report whether it works or not.
+If I got it right (and please someone tell me if I *really* got it right!),
+the problem is elsewhere.
 
-Thank you very much. Yes it works. I tried these kernel parameters:
+Suppose you have a filesystem, not at all related to databases and stuff.
+Your usual root filesystem, with your /etc/ /var and so on directories.
 
-1) video=gx1fb:mode:1280x1024-16@60,crt:1
-  -> CRT was active, 160x64 console
-2) video=gx1fb:mode:1024x768-16@60,crt:1
-  -> CRT was active, 128x48 console
-3) video=gx1fb:mode:800x600-16@60,crt:0,panel:800x600
-  -> CRT was disabled, 100x37 console
-4) video=gx1fb:mode:1024x768-16@60,crt:0,panel:800x600
-  -> CRT was disabled, 80x25 console
+Some time ago you edited /etc/shadow, updating it by writing new file and
+renaming it to proper place.  So you have that old content of your shadow
+file (now deleted) somewhere on the disk, but not accessible from the
+filesystem.
 
-Sorry, I have no flatpanel, so I cannot test if the "panel" option works 
-correctly. But somethings changes when I tried different values (see 3 and 
-4).
+Now, a bad guy deliberately tries to open some file on this filesystem, using
+O_DIRECT flag, ftruncates() it to some huge size (or does seek+write), and
+at the same time tries to use O_DIRECT read of the data.
 
-Regards
-Juergen
+Due to all the races etc, it is possible for him to read that old content of
+/etc/shadow file you've deleted before.
+
+> I do have one thought, WRT reading uninitialized disk data. I would hope
+> that sparse files are handled right, and that when doing a write with
+> O_DIRECT the metadata is not updated until the write is done.
+
+"hope that sparse files are handled right" is a high hope.  Exactly because
+this very place IS racy.
+
+Again, *IF* I got it correctly.
+
+/mjt

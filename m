@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422768AbXAMTx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422769AbXAMUDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422768AbXAMTx6 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 14:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbXAMTx6
+	id S1422769AbXAMUDZ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 15:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbXAMUDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 14:53:58 -0500
-Received: from server99.tchmachines.com ([72.9.230.178]:39195 "EHLO
-	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422768AbXAMTx5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 14:53:57 -0500
-Date: Sat, 13 Jan 2007 11:53:34 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       ak@suse.de, shai@scalex86.org, pravin.shelar@calsoftinc.com
-Subject: Re: High lock spin time for zone->lru_lock under extreme conditions
-Message-ID: <20070113195334.GC4234@localhost.localdomain>
-References: <20070112160104.GA5766@localhost.localdomain> <45A86291.8090408@yahoo.com.au> <20070113073643.GA4234@localhost.localdomain> <20070113000017.2ad2df12.akpm@osdl.org>
-Mime-Version: 1.0
+	Sat, 13 Jan 2007 15:03:25 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:55294 "EHLO enyo.dsw2k3.info"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422769AbXAMUDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 15:03:24 -0500
+Message-ID: <45A93B02.7040301@citd.de>
+Date: Sat, 13 Jan 2007 21:03:14 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Richard Knutsson <ricknu-0@student.ltu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
+References: <45A9092F.7060503@student.ltu.se>
+In-Reply-To: <45A9092F.7060503@student.ltu.se>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070113000017.2ad2df12.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 12:00:17AM -0800, Andrew Morton wrote:
-> > On Fri, 12 Jan 2007 23:36:43 -0800 Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > > >void __lockfunc _spin_lock_irq(spinlock_t *lock)
-> > > >{
-> > > >        local_irq_disable();
-> > > >        ------------------------> rdtsc(t1);
-> > > >        preempt_disable();
-> > > >        spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
-> > > >        _raw_spin_lock(lock);
-> > > >        ------------------------> rdtsc(t2);
-> > > >        if (lock->spin_time < (t2 - t1))
-> > > >                lock->spin_time = t2 - t1;
-> > > >}
-> > > >
-> > > >On some runs, we found that the zone->lru_lock spun for 33 seconds or more
-> > > >while the maximal CS time was 3 seconds or so.
-> > > 
-> > > What is the "CS time"?
-> > 
-> > Critical Section :).  This is the maximal time interval I measured  from 
-> > t2 above to the time point we release the spin lock.  This is the hold 
-> > time I guess.
-> 
-> By no means.  The theory here is that CPUA is taking and releasing the
-> lock at high frequency, but CPUB never manages to get in and take it.  In
-> which case the maximum-acquisition-time is much larger than the
-> maximum-hold-time.
-> 
-> I'd suggest that you use a similar trick to measure the maximum hold time:
-> start the timer after we got the lock, stop it just before we release the
-> lock (assuming that the additional rdtsc delay doesn't "fix" things, of
-> course...)
+Richard Knutsson wrote:
 
-Well, that is exactly what I described above  as CS time.  The
-instrumentation goes like this:
+> Any thoughts on this is very much appreciated (is there any flaws with
+> this?).
 
-void __lockfunc _spin_lock_irq(spinlock_t *lock)
-{
-        unsigned long long t1,t2;
-        local_irq_disable();
-        t1 = get_cycles_sync();
-        preempt_disable();
-        spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
-        _raw_spin_lock(lock);
-        t2 = get_cycles_sync();
-        lock->raw_lock.htsc = t2;
-        if (lock->spin_time < (t2 - t1))
-                lock->spin_time = t2 - t1;
-}
-...
+The thought that crossed my mind was:
 
-void __lockfunc _spin_unlock_irq(spinlock_t *lock)
-{
-        unsigned long long t1 ;
-        spin_release(&lock->dep_map, 1, _RET_IP_);
-        t1 = get_cycles_sync();
-        if (lock->cs_time < (t1 -  lock->raw_lock.htsc))
-                lock->cs_time = t1 -  lock->raw_lock.htsc;
-        _raw_spin_unlock(lock);
-        local_irq_enable();
-        preempt_enable();
-}
+Why not do the same thing that was done to the "Help"-file. (Before it
+was superseded by Kconfig).
 
-Am I missing something?  Is this not what you just described? (The
-synchronizing rdtsc might not be really required at all locations, but I 
-doubt if it would contribute a significant fraction to 33s  or even 
-the 3s hold time on a 2.6 GHZ opteron).
+Originaly there was a central Help-file, with all the texts. Then it was
+split and placed in each sub-dir. And later it was superseded by Kconfig.
+
+On the other hand you could skip the intermediate step and just fold the
+Maintainer-data directly into Kconfig, that way everything is "in one
+place" and you could place a "Maintainers"-Button next to the
+"Help"-Button in *config, or just display it alongside the help.
+
+And MAYBE that would also lessen the "update-to-date"-problem, as you
+can just write the MAINTAINERs-data when you create/update the
+Kconfig-file. Which is a thing that creates much bigger pain when you
+forget it accidently. ;-)
+
+Oh, and it neadly solves the mapping-problem, for at least all
+kernel-parts that have a Kconfig-option/Sub-Tree.
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
+

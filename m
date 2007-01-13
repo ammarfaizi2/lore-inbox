@@ -1,120 +1,216 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422719AbXAMQzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422711AbXAMQ7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbXAMQzg (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 11:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbXAMQzg
+	id S1422711AbXAMQ7t (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 11:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbXAMQ7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 11:55:36 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:56088 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422719AbXAMQzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 11:55:35 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: O_DIRECT question
-To: Linus Torvalds <torvalds@osdl.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Chris Mason <chris.mason@oracle.com>, dean gaudet <dean@arctic.org>,
-       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 13 Jan 2007 17:53:59 +0100
-References: <7BYkO-5OV-17@gated-at.bofh.it> <7BYul-6gz-5@gated-at.bofh.it> <7C74B-2A4-23@gated-at.bofh.it> <7CaYA-mT-19@gated-at.bofh.it> <7Cpuz-64X-1@gated-at.bofh.it> <7Cz0T-4PH-17@gated-at.bofh.it> <7CBcl-86B-9@gated-at.bofh.it> <7CBvH-52-9@gated-at.bofh.it> <7CBFn-hw-1@gated-at.bofh.it> <7CBP1-KI-3@gated-at.bofh.it> <7CBYG-WK-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 13 Jan 2007 11:59:49 -0500
+Received: from rtr.ca ([64.26.128.89]:4407 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422711AbXAMQ7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 11:59:49 -0500
+X-Greylist: delayed 2047 seconds by postgrey-1.27 at vger.kernel.org; Sat, 13 Jan 2007 11:59:48 EST
+From: Mark Lord <liml@rtr.ca>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: [PATCH] IDE Driver for Delkin/Lexar/etc.. cardbus CF adapter
+Date: Sat, 13 Jan 2007 11:25:38 -0500
+User-Agent: KMail/1.9.4
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20070112041720.28755.49663.sendpatchset@localhost.localdomain>
+In-Reply-To: <20070112041720.28755.49663.sendpatchset@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1H5m8l-0000ns-9e@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701131125.38882.liml@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-> On Sat, 13 Jan 2007, Michael Tokarev wrote:
-
->> (No, really - this load isn't entirely synthetic.  It's a typical database
->> workload - random I/O all over, on a large file.  If it can, it combines
->> several I/Os into one, by requesting more than a single block at a time,
->> but overall it is random.)
+On Thursday 11 January 2007 23:17, Bartlomiej Zolnierkiewicz wrote:
 > 
-> My point is that you can get basically ALL THE SAME GOOD BEHAVIOUR without
-> having all the BAD behaviour that O_DIRECT adds.
+> My working IDE tree (against Linus' tree) now resides here:
 > 
-> For example, just the requirement that O_DIRECT can never create a file
-> mapping,
+> 	http://kernel.org/pub/linux/kernel/people/bart/pata-2.6/patches/
 
-That sounds sane, but the video streaming folks will be unhappy.
+Bart, here's a driver I've been keeping out-of-tree for the past couple of years.
+This is for the Delking/Lexar/ASKA/etc.. 32-bit cardbus IDE CompactFlash adapter card.
 
-Maybe you could do:
- reserve_space(); (*)
- do_write_odirect();
- update_filesize();
-and only allow reads up to the current filesize?
+It's probably way out of sync with the latest driver model (??), but it still builds/works.
+I'm not interested in doing much of a rewrite, other than for libata someday,
+as I no longer use the card myself.
 
-Off cause if you do ftruncate first and then write o_direct, the holes will
-need to be filled before the corresponding blocks are assigned to the file.
-Either you'll zero them or you can insert them into the file after the write.
+But lots of other people do seem to use it, so it might be nice to see it "in-tree".
 
-Races:
-against other reads:  May happen in any order, to-be-written pages are
- beyond filesize (inaccessible), zeroed or not yet assigned to the file.
-against other writes: No bad effect, since you don't unreserve
- mappings, and update_filesize won't shrink the file. You must, however,
- not reserve two chunks for the same location in the file unless you can
- handle replacing blocks of files.
- open(O_WRITE) without O_DIRECT is not allowed, therefore that can't race.
-against truncate: Yes, see below
+Signed-off-by:  Mark Lord <mlord@pobox.com>
 
-(*) This would allow fadvise_size(), too, which could reduce fragmentation
-    (and give an early warning on full disks) without forcing e.g. fat to
-    zero all blocks. OTOH, fadvise_size() would allow users to reserve the
-    complete disk space without his filesizes reflecting this.
-
-> and can never interact with ftruncate
-
-ACK, r/w semaphore, read={r,w}_odirect, write=ftruncate?
-
-> would actually make
-> O_DIRECT a lot more palatable to me. Together with just the requirement
-> that an O_DIRECT open would literally disallow any non-O_DIRECT accesses,
-> and flush the page cache entirely, would make all the aliases go away.
-
-That's probably the best semantics.
-
-Maybe you should allow O_READ for the backup people, maybe forcing
-O_DIRECT|O_ALLOWDOUBLEBUFFER (doing the extra copy in the kernel).
-
-> At that point, O_DIRECT would be a way of saying "we're going to do
-> uncached accesses to this pre-allocated file". Which is a half-way
-> sensible thing to do.
-
-And I'd bet nobody would notice these changes unless they try inherently
-stupid things.
-
-> But what O_DIRECT does right now is _not_ really sensible, and the
-> O_DIRECT propeller-heads seem to have some problem even admitting that
-> there _is_ a problem, because they don't care.
-
-It's a hammer - having it will make anything look like a nail,
-and there is nothing wrong with hammering a nail!!! .-)
-
-> A lot of DB people seem to simply not care about security or anything
-> else.anything else. I'm trying to tell you that quoting numbers is
-> pointless, when simply the CORRECTNESS of O_DIRECT is very much in doubt.
-
-The only thing you'll need for a correct database behaviour is:
-If one process has completed it's write and the next process opens that
-file, it must read the current contents.
-
-Races with normal reads and writes, races with truncate - don't do that then.
-You wouldn't expect "cat somefile > database.dat" on a running db to be a
-good thing, too, no matter if o_direct is used or not.
--- 
-Funny quotes:
-3. On the other hand, you have different fingers.
-
-Friﬂ, Spammer: mJyp@uhu.7eggert.dyndns.org
+---
+--- linux-2.6.11/drivers/ide/Kconfig	2005-03-02 10:07:37.000000000 -0500
++++ linux/drivers/ide/Kconfig	2005-03-02 10:11:54.000000000 -0500
+@@ -166,6 +166,13 @@
+ 	  Support for outboard IDE disks, tape drives, and CD-ROM drives
+ 	  connected through a CARDBUS card.
+ 
++config BLK_DEV_DELKIN
++	tristate "Cardbus IDE support (Delkin/ASKA/Workbit)"
++	depends on CARDBUS && PCI
++	help
++	  Support for Delkin, ASKA, and Workbit Cardbus CompactFlash
++	  Adapters.  This may also work for similar SD and XD adapters.
++
+ config BLK_DEV_IDECD
+ 	tristate "Include IDE/ATAPI CDROM support"
+ 	---help---
+--- linux-2.6.11/drivers/ide/pci/delkin_cb.c	1969-12-31 19:00:00.000000000 -0500
++++ linux/drivers/ide/pci/delkin_cb.c	2005-02-14 11:58:59.000000000 -0500
+@@ -0,0 +1,140 @@
++/*
++ *  linux/drivers/ide/pci/delkin_cb.c
++ *
++ *  Created 20 Oct 2004 by Mark Lord
++ *
++ *  Basic support for Delkin/ASKA/Workbit Cardbus CompactFlash adapter
++ *
++ *  Modeled after the 16-bit PCMCIA driver: ide-cs.c
++ *
++ *  This is slightly peculiar, in that it is a PCI driver,
++ *  but is NOT an IDE PCI driver -- the IDE layer does not directly
++ *  support hot insertion/removal of PCI interfaces, so this driver
++ *  is unable to use the IDE PCI interfaces.  Instead, it uses the
++ *  same interfaces as the ide-cs (PCMCIA) driver uses.
++ *  On the plus side, the driver is also smaller/simpler this way.
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of this archive for
++ *  more details.
++ */
++#include <linux/autoconf.h>
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/mm.h>
++#include <linux/blkdev.h>
++#include <linux/hdreg.h>
++#include <linux/ide.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++
++/*
++ * No chip documentation has yet been found,
++ * so these configuration values were pulled from
++ * a running Win98 system using "debug".
++ * This gives around 3MByte/second read performance,
++ * which is about 2/3 of what the chip is capable of.
++ *
++ * There is also a 4KByte mmio region on the card,
++ * but its purpose has yet to be reverse-engineered.
++ */
++static const u8 setup[] = {
++	0x00, 0x05, 0xbe, 0x01, 0x20, 0x8f, 0x00, 0x00,
++	0xa4, 0x1f, 0xb3, 0x1b, 0x00, 0x00, 0x00, 0x80,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0xa4, 0x83, 0x02, 0x13,
++};
++
++static int __devinit
++delkin_cb_probe (struct pci_dev *dev, const struct pci_device_id *id)
++{
++	unsigned long base;
++	hw_regs_t hw;
++	ide_hwif_t *hwif = NULL;
++	ide_drive_t *drive;
++	int i, rc;
++
++	rc = pci_enable_device(dev);
++	if (rc) {
++		printk(KERN_ERR "delkin_cb: pci_enable_device failed (%d)\n", rc);
++		return rc;
++	}
++	rc = pci_request_regions(dev, "delkin_cb");
++	if (rc) {
++		printk(KERN_ERR "delkin_cb: pci_request_regions failed (%d)\n", rc);
++		pci_disable_device(dev);
++		return rc;
++	}
++	base = pci_resource_start(dev, 0);
++	outb(0x02, base + 0x1e);	/* set nIEN to block interrupts */
++	inb(base + 0x17);		/* read status to clear interrupts */
++	for (i = 0; i < sizeof(setup); ++i) {
++		if (setup[i])
++			outb(setup[i], base + i);
++	}
++	pci_release_regions(dev);	/* IDE layer handles regions itself */
++
++	memset(&hw, 0, sizeof(hw));
++	ide_std_init_ports(&hw, base + 0x10, base + 0x1e);
++	hw.irq = dev->irq;
++	hw.chipset = ide_pci;		/* this enables IRQ sharing */
++
++	rc = ide_register_hw_with_fixup(&hw, &hwif, ide_undecoded_slave);
++	if (rc < 0) {
++		printk(KERN_ERR "delkin_cb: ide_register_hw failed (%d)\n", rc);
++		pci_disable_device(dev);
++		return -ENODEV;
++	}
++	pci_set_drvdata(dev, hwif);
++	hwif->pci_dev = dev;
++	drive = &hwif->drives[0];
++	if (drive->present) {
++		drive->io_32bit = 1;
++		drive->unmask   = 1;
++	}
++	return 0;
++}
++
++static void
++delkin_cb_remove (struct pci_dev *dev)
++{
++	ide_hwif_t *hwif = pci_get_drvdata(dev);
++
++	if (hwif)
++		ide_unregister(hwif->index);
++	pci_disable_device(dev);
++}
++
++static struct pci_device_id delkin_cb_pci_tbl[] __devinitdata = {
++	{ 0x1145, 0xf021, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ 0, },
++};
++MODULE_DEVICE_TABLE(pci, delkin_cb_pci_tbl);
++
++static struct pci_driver driver = {
++	.name		= "Delkin-ASKA-Workbit Cardbus IDE",
++	.id_table	= delkin_cb_pci_tbl,
++	.probe		= delkin_cb_probe,
++	.remove		= delkin_cb_remove,
++};
++
++static int
++delkin_cb_init (void)
++{
++	return pci_module_init(&driver);
++}
++
++static void
++delkin_cb_exit (void)
++{
++	pci_unregister_driver(&driver);
++}
++
++module_init(delkin_cb_init);
++module_exit(delkin_cb_exit);
++
++MODULE_AUTHOR("Mark Lord");
++MODULE_DESCRIPTION("Basic support for Delkin/ASKA/Workbit Cardbus IDE");
++MODULE_LICENSE("GPL");
++
+--- linux-2.6.11/drivers/ide/pci/Makefile	2005-03-02 10:07:37.000000000 -0500
++++ linux/drivers/ide/pci/Makefile	2005-03-02 10:11:54.000000000 -0500
+@@ -8,6 +8,7 @@
+ obj-$(CONFIG_BLK_DEV_CS5530)		+= cs5530.o
+ obj-$(CONFIG_BLK_DEV_SC1200)		+= sc1200.o
+ obj-$(CONFIG_BLK_DEV_CY82C693)		+= cy82c693.o
++obj-$(CONFIG_BLK_DEV_DELKIN)		+= delkin_cb.o
+ obj-$(CONFIG_BLK_DEV_HPT34X)		+= hpt34x.o
+ obj-$(CONFIG_BLK_DEV_HPT366)		+= hpt366.o
+ #obj-$(CONFIG_BLK_DEV_HPT37X)		+= hpt37x.o

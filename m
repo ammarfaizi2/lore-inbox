@@ -1,133 +1,315 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161292AbXAMFuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161295AbXAMF7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161292AbXAMFuu (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 00:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161294AbXAMFuu
+	id S1161295AbXAMF7W (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 00:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161294AbXAMF7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 00:50:50 -0500
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:38907 "EHLO
-	tomts16-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161292AbXAMFut (ORCPT
+	Sat, 13 Jan 2007 00:59:22 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:49638 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1161291AbXAMF7U convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 00:50:49 -0500
-Date: Sat, 13 Jan 2007 00:45:34 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       ltt-dev@shafik.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Ingo Molnar <mingo@redhat.com>, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 0/4] Linux Kernel Markers
-Message-ID: <20070113054534.GA27017@Krystal>
-References: <20061220235216.GA28643@Krystal> <OFAB3D8A6C.1643F2D3-ON80257262.000581E4-80257262.00088F04@uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Jan 2007 00:59:20 -0500
+From: Faik Uygur <faik@pardus.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: ahci_softreset prevents acpi_power_off
+Date: Sat, 13 Jan 2007 07:59:40 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+References: <200701111231.26819.faik@pardus.org.tr> <45A831EA.50601@gmail.com>
+In-Reply-To: <45A831EA.50601@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <OFAB3D8A6C.1643F2D3-ON80257262.000581E4-80257262.00088F04@uk.ibm.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 22:27:26 up 143 days, 34 min,  3 users,  load average: 2.64, 1.02, 0.59
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200701130759.40780.faik@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard,
+13 Oca 2007 Cts 03:12 tarihinde, Tejun Heo şunları yazmıştı: 
+> Hello,
 
-* Richard J Moore (richardj_moore@uk.ibm.com) wrote:
-> 
-> 
-> Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote on 20/12/2006
-> 23:52:16:
-> 
-> > Hi,
-> >
-> > You will find, in the following posts, the latest revision of the Linux
-> Kernel
-> > Markers. Due to the need some tracing projects (LTTng, SystemTAP) has of
-> this
-> > kind of mechanism, it could be nice to consider it for mainstream
-> inclusion.
-> >
-> > The following patches apply on 2.6.20-rc1-git7.
-> >
-> > Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-> 
-> Mathiue, FWIW I like this idea. A few years ago I implemented something
-> similar, but that had no explicit clients. Consequently I made my hooks
-> code more generalized than is needed in practice. I do remember that Karim
-> reworked the LTT instrumentation to use hooks and it worked fine.
-> 
+Hello,
 
-Yes, I think some features you implemented in GKHI, like chained calls to
-multiple probes, should be implemented in a "probe management module" which
-would be built on top of the marker infrastructure. One of my goal is to
-concentrate on having the core right so that, afterward, building on top of it
-will be easy.
+Thanks for the response.
 
-> You've got the same optimizations for x86 by modifying an instruction's
-> immediate operand and thus avoiding a d-cache hit. The only real caveat is
-> the need to avoid the unsynchronised cross modification erratum. Which
-> means that all processors will need to issue a serializing operation before
-> executing a Marker whose state is changed. How is that handled?
-> 
+> [...]
+> Does everything else work okay?  
+> Can you access devices attached to 
+> ahci?  
 
-Good catch. I thought that modifying only 1 byte would spare us from this
-errata, but looking at it in detail tells me than it's not the case.
+Yes. While the machine is on, there seems to be no problem at all. Everything 
+works great.
 
-I see three different ways to address the problem :
-1 - Adding some synchronization code in the marker and using
-    synchronize_sched().
-2 - Using an IPI to make other CPUs busy loop while we change the code and then
-    execute a serializing instruction (iret, cpuid...).
-3 - First write an int3 instead of the instruction's first byte. The handler
-    would do the following :
-    int3_handler :
-      single-step the original instruction.
-      iret
+> What happens when you try to shutdown?  
 
-    Secondly, we call an IPI that does a smp_processor_id() on each CPU and
-    wait for them to complete. It will make sure we execute a synchronizing
-    instruction on every CPU even if we do not execute the trap handler.
+Does not shutdown and freezes.
 
-    Then, we write the new 2 bytes instruction atomically instead of the int3
-    and immediate value.
+Hand copied last messages seen on console:
 
+Synchronizing SCSI cache for disk sda:
+ACPI: PCI Interrupt for device 0000:06:08.0 disabled
+Power down.
+acpi_power_off called
+  hwsleep-0285 [01] enter_sleep_state    : Entering sleep state [S5]
 
-I exclude (1) because of the performance impact, (2) because it does not deal
-with NMIs. It leaves (3). Does it make sense ?
+> If possible, please post  
+> dmesg of shutting down.  
 
+Following is the netcat output. Please ask if you need anything else.
 
-> One additional thing we did, which might be useful at some future point,
-> was adding a /proc interface. We reflected the current instrumentation
-> though /proc and gave the status of each hook. We even talked about being
-> able to enable or disabled instrumentation by writing to /proc but I don't
-> think we ever implemented this.
-> 
+Regards,
+- Faik
 
-Adding a /proc output to list the active probes and their
-callback will be tribial to add to the markers. I think the probe management
-module should have its /proc file too to list the chains of connected handlers
-once we get there.
-
-> It's high time we settled the issue of instrumentation. It gets my vote,
-> 
-> Good luck!
-> 
-> Richard
-> 
-
-Thanks,
-
-Mathieu
-
-> - -
-> Richard J Moore
-> IBM Linux Technology Centre
-> 
-
--- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Linux version 2.6.20-rc4 (root@pardus) (gcc version 3.4.6) #58 SMP Sat Jan 13 
+07:38:22 EET 2007
+BIOS-provided physical RAM map:
+sanitize start
+sanitize end
+copy_e820_map() start: 0000000000000000 size: 000000000009f800 end: 
+000000000009f800 type: 1
+copy_e820_map() type is E820_RAM
+copy_e820_map() start: 000000000009f800 size: 0000000000000800 end: 
+00000000000a0000 type: 2
+copy_e820_map() start: 00000000000d8000 size: 0000000000028000 end: 
+0000000000100000 type: 2
+copy_e820_map() start: 0000000000100000 size: 000000001fd90000 end: 
+000000001fe90000 type: 1
+copy_e820_map() type is E820_RAM
+copy_e820_map() start: 000000001fe90000 size: 000000000000d000 end: 
+000000001fe9d000 type: 3
+copy_e820_map() start: 000000001fe9d000 size: 0000000000063000 end: 
+000000001ff00000 type: 4
+copy_e820_map() start: 000000001ff00000 size: 0000000000100000 end: 
+0000000020000000 type: 2
+copy_e820_map() start: 00000000e0000000 size: 0000000010006000 end: 
+00000000f0006000 type: 2
+copy_e820_map() start: 00000000f0008000 size: 0000000000004000 end: 
+00000000f000c000 type: 2
+copy_e820_map() start: 00000000fed20000 size: 0000000000070000 end: 
+00000000fed90000 type: 2
+copy_e820_map() start: 00000000ff000000 size: 0000000001000000 end: 
+0000000100000000 type: 2
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000d8000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001fe90000 (usable)
+ BIOS-e820: 000000001fe90000 - 000000001fe9d000 (ACPI data)
+ BIOS-e820: 000000001fe9d000 - 000000001ff00000 (ACPI NVS)
+ BIOS-e820: 000000001ff00000 - 0000000020000000 (reserved)
+ BIOS-e820: 00000000e0000000 - 00000000f0006000 (reserved)
+ BIOS-e820: 00000000f0008000 - 00000000f000c000 (reserved)
+ BIOS-e820: 00000000fed20000 - 00000000fed90000 (reserved)
+ BIOS-e820: 00000000ff000000 - 0000000100000000 (reserved)
+0MB HIGHMEM available.
+510MB LOWMEM available.
+Zone PFN ranges:
+  DMA             0 ->     4096
+  Normal       4096 ->   130704
+  HighMem    130704 ->   130704
+early_node_map[1] active PFN ranges
+    0:        0 ->   130704
+DMI 2.3 present.
+ACPI: PM-Timer IO Port: 0x1008
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 6:13 APIC version 20
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] disabled)
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+ACPI: IOAPIC (id[0x01] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 1, version 32, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at 30000000 (gap: 20000000:c0000000)
+Detected 1729.118 MHz processor.
+Built 1 zonelists.  Total pages: 129045
+Kernel command line: root=/dev/sda1 mudur=language:tr init=/bin/bash 
+netconsole=4444@192.168.1.8/eth0,9353@192.168.1.3/00:13:02:50:5C:2B
+netconsole: local port 4444
+netconsole: local IP 192.168.1.8
+netconsole: interface eth0
+netconsole: remote port 9353
+netconsole: remote IP 192.168.1.3
+netconsole: remote ethernet address 00:13:02:50:5c:2b
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Initializing CPU#0
+PID hash table entries: 2048 (order: 11, 8192 bytes)
+Console: colour VGA+ 80x25
+Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
+... MAX_LOCKDEP_SUBCLASSES:    8
+... MAX_LOCK_DEPTH:          30
+... MAX_LOCKDEP_KEYS:        2048
+... CLASSHASH_SIZE:           1024
+... MAX_LOCKDEP_ENTRIES:     8192
+... MAX_LOCKDEP_CHAINS:      16384
+... CHAINHASH_SIZE:          8192
+ memory used by lock dependency info: 1064 kB
+ per task-struct memory footprint: 1200 bytes
+------------------------
+| Locking API testsuite:
+----------------------------------------------------------------------------
+                                 | spin |wlock |rlock |mutex | wsem | rsem |
+  --------------------------------------------------------------------------
+                     A-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+                 A-B-B-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+             A-B-B-C-C-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+             A-B-C-A-B-C deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+         A-B-B-C-C-D-D-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+         A-B-C-D-B-D-D-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+         A-B-C-D-B-C-D-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+                    double unlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+                  initialize held:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+                 bad unlock order:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+  --------------------------------------------------------------------------
+              recursive read-lock:             |  ok  |             |  ok  |
+           recursive read-lock #2:             |  ok  |             |  ok  |
+            mixed read-write-lock:             |  ok  |             |  ok  |
+            mixed write-read-lock:             |  ok  |             |  ok  |
+  --------------------------------------------------------------------------
+     hard-irqs-on + irq-safe-A/12:  ok  |  ok  |  ok  |
+     soft-irqs-on + irq-safe-A/12:  ok  |  ok  |  ok  |
+     hard-irqs-on + irq-safe-A/21:  ok  |  ok  |  ok  |
+     soft-irqs-on + irq-safe-A/21:  ok  |  ok  |  ok  |
+       sirq-safe-A => hirqs-on/12:  ok  |  ok  |  ok  |
+       sirq-safe-A => hirqs-on/21:  ok  |  ok  |  ok  |
+         hard-safe-A + irqs-on/12:  ok  |  ok  |  ok  |
+         soft-safe-A + irqs-on/12:  ok  |  ok  |  ok  |
+         hard-safe-A + irqs-on/21:  ok  |  ok  |  ok  |
+         soft-safe-A + irqs-on/21:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/123:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/123:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/132:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/132:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/213:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/213:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/231:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/231:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/312:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/312:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #1/321:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #1/321:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/123:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/123:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/132:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/132:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/213:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/213:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/231:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/231:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/312:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/312:  ok  |  ok  |  ok  |
+    hard-safe-A + unsafe-B #2/321:  ok  |  ok  |  ok  |
+    soft-safe-A + unsafe-B #2/321:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/123:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/123:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/132:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/132:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/213:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/213:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/231:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/231:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/312:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/312:  ok  |  ok  |  ok  |
+      hard-irq lock-inversion/321:  ok  |  ok  |  ok  |
+      soft-irq lock-inversion/321:  ok  |  ok  |  ok  |
+      hard-irq read-recursion/123:  ok  |
+      soft-irq read-recursion/123:  ok  |
+      hard-irq read-recursion/132:  ok  |
+      soft-irq read-recursion/132:  ok  |
+      hard-irq read-recursion/213:  ok  |
+      soft-irq read-recursion/213:  ok  |
+      hard-irq read-recursion/231:  ok  |
+      soft-irq read-recursion/231:  ok  |
+      hard-irq read-recursion/312:  ok  |
+      soft-irq read-recursion/312:  ok  |
+      hard-irq read-recursion/321:  ok  |
+      soft-irq read-recursion/321:  ok  |
+-------------------------------------------------------
+Good, all 218 testcases passed! |
+---------------------------------
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Memory: 510196k/522816k available (1638k kernel code, 12096k reserved, 750k 
+data, 180k init, 0k highmem)
+virtual kernel memory layout:
+    fixmap  : 0xfff4f000 - 0xfffff000   ( 704 kB)
+    pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
+    vmalloc : 0xe0800000 - 0xff7fe000   ( 495 MB)
+    lowmem  : 0xc0000000 - 0xdfe90000   ( 510 MB)
+      .init : 0xc035b000 - 0xc0388000   ( 180 kB)
+      .data : 0xc029989d - 0xc03553b8   ( 750 kB)
+      .text : 0xc0100000 - 0xc029989d   (1638 kB)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay using timer specific routine.. 3461.31 BogoMIPS 
+(lpj=1730655)
+Mount-cache hash table entries: 512
+CPU: L1 I cache: 32K, L1 D cache: 32K
+CPU: L2 cache: 2048K
+Checking 'hlt' instruction... OK.
+SMP alternatives: switching to UP code
+Freeing SMP alternatives: 8k freed
+ACPI: Core revision 20060707
+ tbxface-0107 [01] load_tables           : ACPI Tables successfully acquired
+Parsing all Control Methods:
+Table [DSDT](id 000A) - 649 Objects with 60 Devices 190 Methods 21 Regions
+Parsing all Control Methods:
+Table [SSDT](id 0004) - 10 Objects with 3 Devices 4 Methods 0 Regions
+Parsing all Control Methods:
+Table [SSDT](id 0005) - 11 Objects with 3 Devices 5 Methods 0 Regions
+Parsing all Control Methods:
+hda: MATSHITAUJ-832D, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: ATAPI 24X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+st: Version 20061107, fixed bufsize 32768, s/g segs 256
+SCSI Media Changer driver v0.25
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 18 (level, low) -> IRQ 19
+ahci 0000:00:1f.2: PORTS_IMPL is zero, forcing 0xf
+ahci 0000:00:1f.2: AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0x5 impl IDE mode
+ahci 0000:00:1f.2: flags: 64bit ncq pm led pmp slum part
+ata1: SATA max UDMA/133 cmd 0xE081C500 ctl 0x0 bmdma 0x0 irq 19
+ata2: SATA max UDMA/133 cmd 0xE081C580 ctl 0x0 bmdma 0x0 irq 19
+ata3: SATA max UDMA/133 cmd 0xE081C600 ctl 0x0 bmdma 0x0 irq 19
+ata4: SATA max UDMA/133 cmd 0xE081C680 ctl 0x0 bmdma 0x0 irq 19
+scsi0 : ahci
+ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ata1.00: ATA-7, max UDMA/100, 156301488 sectors: LBA48 NCQ (depth 31/32)
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/100
+scsi1 : ahci
+ata2: SATA link down (SStatus 0 SControl 0)
+scsi2 : ahci
+ata3: SATA link down (SStatus 0 SControl 300)
+scsi3 : ahci
+ata4: SATA link down (SStatus 0 SControl 0)
+scsi 0:0:0:0: Direct-Access     ATA      FUJITSU MHV2080B 0000 PQ: 0 ANSI: 5
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: write cache: enabled, read cache: enabled, doesn't support 
+DPO or FUA
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: write cache: enabled, read cache: enabled, doesn't support 
+DPO or FUA
+ sda: sda1 sda2 sda3
+sd 0:0:0:0: Attached scsi disk sda
+sd 0:0:0:0: Attached scsi generic sg0 type 0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+mice: PS/2 mouse device common for all mice
+Using IPI Shortcut mode
+Time: tsc clocksource has been installed.
+input: AT Translated Set 2 keyboard as /class/input/input0
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 180k freed
+EXT3-fs warning: maximal mount count reached, running e2fsck is recommended
+EXT3 FS on sda1, internal journal
+Synchronizing SCSI cache for disk sda:

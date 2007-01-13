@@ -1,151 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161297AbXAMGOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161177AbXAMGPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161297AbXAMGOE (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 01:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161296AbXAMGOE
+	id S1161177AbXAMGPf (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 01:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbXAMGPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 01:14:04 -0500
-Received: from hera.kernel.org ([140.211.167.34]:35461 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161294AbXAMGOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 01:14:02 -0500
-From: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: markh@compro.net
-Subject: Re: 2.6.17 - weird, boot CPU (#0) not listed by the BIOS.
-Date: Sat, 13 Jan 2007 01:12:39 -0500
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <45A7ABB8.2030808@compro.net> <45A7AE57.8020400@compro.net>
-In-Reply-To: <45A7AE57.8020400@compro.net>
+	Sat, 13 Jan 2007 01:15:35 -0500
+Received: from [82.147.213.6] ([82.147.213.6]:33003 "EHLO raad.intranet"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1161177AbXAMGPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 01:15:34 -0500
+X-Greylist: delayed 325 seconds by postgrey-1.27 at vger.kernel.org; Sat, 13 Jan 2007 01:15:32 EST
+From: Al Boldi <a1426z@gawab.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1: (211MB/s read & 195MB/s write)
+Date: Sat, 13 Jan 2007 09:11:38 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
+References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan> <200701130000.48717.a1426z@gawab.com> <Pine.LNX.4.64.0701121628100.3655@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0701121628100.3655@p34.internal.lan>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701130112.39140.lenb@kernel.org>
+Message-Id: <200701130911.38240.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 January 2007 10:50, Mark Hounschell wrote:
-> Mark Hounschell wrote:
-> > I have a Tyan S4881 Thunder K8QW 4 processor (8 cores). Kernel 2.6.16.37 boots
-> > and runs fine.
-> > However kernel 2.6.17 and up doesn't. Here is my boot error msg.
-> > 
-> > 
-> > kernel /vmlinuz-2.6.17-smp  root=/dev/sda5inux version 2.6.17-smp (root@badboy1)
-> > (gcc version 4.1.0 (SUSE Linux)) #1 SMP PREEMPT Fri Jan 12 07:53:35 EST 2007
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 0000000000093800 (usable)
-> >  BIOS-e820: 0000000000093800 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000c2000 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 00000000cfea0000 (usable)
-> >  BIOS-e820: 00000000cfea0000 - 00000000cfea4000 (ACPI data)
-> >  BIOS-e820: 00000000cfea4000 - 00000000cff00000 (ACPI NVS)
-> >  BIOS-e820: 00000000cff00000 - 00000000d0000000 (reserved)
-> >  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
-> >  BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
-> >  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-> >  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-> >  BIOS-e820: 0000000100000000 - 0000000230000000 (usable)
-> > Warning only 4GB will be used.
-> > Use a PAE enabled kernel.
-> > 3200MB HIGHMEM available.
-> > 896MB LOWMEM available.
-> > found SMP MP-table at 000f71f0
-> > DMI present.
-> > ACPI: PM-Timer IO Port: 0x8008
-> > ACPI: LAPIC (acpi_id[0x00] lapic_id[0x10] enabled)
-> > Processor #16 15:1 APIC version 16
+Justin Piszcz wrote:
+> On Sat, 13 Jan 2007, Al Boldi wrote:
+> > Justin Piszcz wrote:
+> > > Btw, max sectors did improve my performance a little bit but
+> > > stripe_cache+read_ahead were the main optimizations that made
+> > > everything go faster by about ~1.5x.   I have individual bonnie++
+> > > benchmarks of [only] the max_sector_kb tests as well, it improved the
+> > > times from 8min/bonnie run -> 7min 11 seconds or so, see below and
+> > > then after that is what you requested.
+> >
+> > Can you repeat with /dev/sda only?
+>
+> For sda-- (is a 74GB raptor only)-- but ok.
 
-The APIC id for the 1st processor here is 16.
-Usually it is 0.
+Do you get the same results for the 150GB-raptor on sd{e,g,i,k}?
 
-Apparently this has confused some of the smpboot code
-with all their new nifty bitmaps for processors online and offline...
+> # uptime
+>  16:25:38 up 1 min,  3 users,  load average: 0.23, 0.14, 0.05
+> # cat /sys/block/sda/queue/max_sectors_kb
+> 512
+> # echo 3 > /proc/sys/vm/drop_caches
+> # dd if=/dev/sda of=/dev/null bs=1M count=10240
+> 10240+0 records in
+> 10240+0 records out
+> 10737418240 bytes (11 GB) copied, 150.891 seconds, 71.2 MB/s
+> # echo 192 > /sys/block/sda/queue/max_sectors_kb
+> # echo 3 > /proc/sys/vm/drop_caches
+> # dd if=/dev/sda of=/dev/null bs=1M count=10240
+> 10240+0 records in
+> 10240+0 records out
+> 10737418240 bytes (11 GB) copied, 150.192 seconds, 71.5 MB/s
+> # echo 128 > /sys/block/sda/queue/max_sectors_kb
+> # echo 3 > /proc/sys/vm/drop_caches
+> # dd if=/dev/sda of=/dev/null bs=1M count=10240
+> 10240+0 records in
+> 10240+0 records out
+> 10737418240 bytes (11 GB) copied, 150.15 seconds, 71.5 MB/s
+>
+>
+> Does this show anything useful?
 
-Does the latest kernel work any better, say 2.6.19?
-What if you throw CONFIG_NR_CPUS=32 at it?
+Probably a latency issue.  md is highly latency sensitive.
 
--Len
+What CPU type/speed do you have?  Bootlog/dmesg?
 
-> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x11] enabled)
-> > Processor #17 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x12] enabled)
-> > Processor #18 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x13] enabled)
-> > Processor #19 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x14] enabled)
-> > Processor #20 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x05] lapic_id[0x15] enabled)
-> > Processor #21 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x06] lapic_id[0x16] enabled)
-> > Processor #22 15:1 APIC version 16
-> > ACPI: LAPIC (acpi_id[0x07] lapic_id[0x17] enabled)
-> > Processor #23 15:1 APIC version 16
-> > ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x04] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x05] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x06] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x07] high edge lint[0x1])
-> > ACPI: IOAPIC (id[0x00] address[0xfec00000] gsi_base[0])
-> > IOAPIC[0]: apic_id 0, version 17, address 0xfec00000, GSI 0-23
-> > ACPI: IOAPIC (id[0x01] address[0xda200000] gsi_base[24])
-> > IOAPIC[1]: apic_id 1, version 17, address 0xda200000, GSI 24-27
-> > ACPI: IOAPIC (id[0x02] address[0xda201000] gsi_base[28])
-> > IOAPIC[2]: apic_id 2, version 17, address 0xda201000, GSI 28-31
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
-> > Enabling APIC mode:  Flat.  Using 3 I/O APICs
-> > Using ACPI (MADT) for SMP configuration information
-> > Allocating PCI resources starting at d1000000 (gap: d0000000:10000000)
-> > Built 1 zonelists
-> > Kernel command line: root=/dev/sda5 vga=normal resume=/dev/sda2  splash=silent
-> > "console=ttyS0,19200"
-> > Enabling fast FPU save and restore... done.
-> > Enabling unmasked SIMD FPU exception support... done.
-> > Initializing CPU#0
-> > PID hash table entries: 4096 (order: 12, 16384 bytes)
-> > Detected 2411.454 MHz processor.
-> > Using pmtmr for high-res timesource
-> > Console: colour VGA+ 80x25
-> > Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
-> > Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> > Memory: 3366304k/4194304k available (1529k kernel code, 38968k reserved, 633k
-> > data, 184k init, 2488960k highmem)
-> > Checking if this processor honours the WP bit even in supervisor mode... Ok.
-> > Calibrating delay using timer specific routine.. 4827.61 BogoMIPS (lpj=9655232)
-> > Security Framework v1.0.0 initialized
-> > Capability LSM initialized
-> > Mount-cache hash table entries: 512
-> > CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> > CPU: L2 Cache: 1024K (64 bytes/line)
-> > CPU 0(2) -> Core 0
-> > Intel machine check architecture supported.
-> > Intel machine check reporting enabled on CPU#0.
-> > Checking 'hlt' instruction... OK.
-> > Freeing SMP alternatives: 12k freed
-> > ACPI Warning (nsload-0106): Zero-length AML block in table [SSDT] [20060127]
-> > CPU0: AMD Athlon(tm) or Opteron(tm) CPU-model unknown stepping 02
-> > weird, boot CPU (#0) not listed by the BIOS.
-> > 
-> > It then just reboots. Any ideas what I need to do for 2.6.17 and up kernels. I
-> > have tried all the
-> > way up to 2.6.20-rc4.
-> > 
-> > Thanks
-> > Mark
-> > 
-> 
-> Oh, I'm running in 32 bit mode on SuSE-10.2
-> 
-> Mark
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+Thanks!
+
+--
+Al
+

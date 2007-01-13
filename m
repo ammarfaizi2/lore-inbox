@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030502AbXAMJkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751302AbXAMJuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030502AbXAMJkm (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 04:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbXAMJkm
+	id S1751302AbXAMJuc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 04:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030506AbXAMJuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 04:40:42 -0500
-Received: from lucidpixels.com ([66.45.37.187]:36620 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030331AbXAMJkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 04:40:41 -0500
-Date: Sat, 13 Jan 2007 04:40:39 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Linux Software RAID 5 Performance Optimizations: 2.6.19.1:
- (211MB/s read & 195MB/s write)
-In-Reply-To: <200701130911.38240.a1426z@gawab.com>
-Message-ID: <Pine.LNX.4.64.0701130439590.23336@p34.internal.lan>
-References: <Pine.LNX.4.64.0701111832080.3673@p34.internal.lan>
- <200701130000.48717.a1426z@gawab.com> <Pine.LNX.4.64.0701121628100.3655@p34.internal.lan>
- <200701130911.38240.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Jan 2007 04:50:32 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51053 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751197AbXAMJub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 04:50:31 -0500
+Date: Sat, 13 Jan 2007 10:01:58 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Proposed changes for libata speed handling
+Message-ID: <20070113100158.1d79ba9f@localhost.localdomain>
+In-Reply-To: <45A83DD2.5020000@gmail.com>
+References: <20070112135301.4cdba24f@localhost.localdomain>
+	<45A83DD2.5020000@gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+O> Wouldn't it be better to have ->determine_xfer_mask() and
+> ->set_specific_mode() than having two somewhat overlapping callbacks?
+> Or is there some problem that can't be handled that way?
 
+I'm not sure I follow what you are suggesting - can you explain further.
 
-On Sat, 13 Jan 2007, Al Boldi wrote:
+Right now ->set_mode does all the policy management with regards to
+picking the right modes which is sometimes done by the usual ATA rules
+and sometimes by card specific code.
 
-> Justin Piszcz wrote:
-> > On Sat, 13 Jan 2007, Al Boldi wrote:
-> > > Justin Piszcz wrote:
-> > > > Btw, max sectors did improve my performance a little bit but
-> > > > stripe_cache+read_ahead were the main optimizations that made
-> > > > everything go faster by about ~1.5x.   I have individual bonnie++
-> > > > benchmarks of [only] the max_sector_kb tests as well, it improved the
-> > > > times from 8min/bonnie run -> 7min 11 seconds or so, see below and
-> > > > then after that is what you requested.
-> > >
-> > > Can you repeat with /dev/sda only?
-> >
-> > For sda-- (is a 74GB raptor only)-- but ok.
-> 
-> Do you get the same results for the 150GB-raptor on sd{e,g,i,k}?
-> 
-> > # uptime
-> >  16:25:38 up 1 min,  3 users,  load average: 0.23, 0.14, 0.05
-> > # cat /sys/block/sda/queue/max_sectors_kb
-> > 512
-> > # echo 3 > /proc/sys/vm/drop_caches
-> > # dd if=/dev/sda of=/dev/null bs=1M count=10240
-> > 10240+0 records in
-> > 10240+0 records out
-> > 10737418240 bytes (11 GB) copied, 150.891 seconds, 71.2 MB/s
-> > # echo 192 > /sys/block/sda/queue/max_sectors_kb
-> > # echo 3 > /proc/sys/vm/drop_caches
-> > # dd if=/dev/sda of=/dev/null bs=1M count=10240
-> > 10240+0 records in
-> > 10240+0 records out
-> > 10737418240 bytes (11 GB) copied, 150.192 seconds, 71.5 MB/s
-> > # echo 128 > /sys/block/sda/queue/max_sectors_kb
-> > # echo 3 > /proc/sys/vm/drop_caches
-> > # dd if=/dev/sda of=/dev/null bs=1M count=10240
-> > 10240+0 records in
-> > 10240+0 records out
-> > 10737418240 bytes (11 GB) copied, 150.15 seconds, 71.5 MB/s
-> >
-> >
-> > Does this show anything useful?
-> 
-> Probably a latency issue.  md is highly latency sensitive.
-> 
-> What CPU type/speed do you have?  Bootlog/dmesg?
-> 
-> 
-> Thanks!
-> 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+->set_specific_mode does no policy work but merely sets up a mode.
 
-> What CPU type/speed do you have?  Bootlog/dmesg?
-Core Duo E6300
+The default behaviour of ->set_mode() is the ATA mode selection by best
+mode available, and this function is normally not provided by a driver.
 
-The speed is great since I have tweaked the various settings..
+The default behaviour of ->set_specific_mode() is to verify the mode is
+valid then issue ->set_pio|dma_mode() (for both devices in case a timing
+change on both is triggered). This function is overridable because of
+things like IT821x where the IDE mode is imaginary.
+
+Alan

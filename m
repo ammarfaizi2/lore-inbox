@@ -1,520 +1,206 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422797AbXAMXQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422812AbXAMXbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422797AbXAMXQs (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 18:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422812AbXAMXKx
+	id S1422812AbXAMXbO (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 18:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbXAMXbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 18:10:53 -0500
-Received: from gw.goop.org ([64.81.55.164]:59885 "EHLO mail.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030521AbXAMXKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 18:10:25 -0500
-Message-Id: <20070113014647.376622753@goop.org>
-References: <20070113014539.408244126@goop.org>
-User-Agent: quilt/0.46-1
-Date: Fri, 12 Jan 2007 17:45:42 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Chris Wright <chris@sous-sol.org>,
-       Zachary Amsden <zach@vmware.com>, Andi Kleen <ak@muc.de>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [patch 03/20] XEN-paravirt: paravirt: page-table accessors
-Content-Disposition: inline; filename=paravirt-pte-accessors.patch
+	Sat, 13 Jan 2007 18:31:14 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:59635 "EHLO
+	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422812AbXAMXbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 18:31:13 -0500
+Message-ID: <45A96C3F.3090307@student.ltu.se>
+Date: Sun, 14 Jan 2007 00:33:19 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
+References: <45A9092F.7060503@student.ltu.se> <tkrat.428a51215926acac@s5r6.in-berlin.de> <45A93069.5080906@student.ltu.se> <tkrat.343d5eb8f1097532@s5r6.in-berlin.de>
+In-Reply-To: <tkrat.343d5eb8f1097532@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a set of accessors to pack, unpack and modify page table entries
-(at all levels).  This allows a paravirt implementation to control the
-contents of pgd/pmd/pte entries.  For example, Xen uses this to
-convert the (pseudo-)physical address into a machine address when
-populating a pagetable entry, and converting back to pphys address
-when an entry is read.
+Stefan Richter wrote:
+> On 13 Jan, Richard Knutsson wrote:
+>   
+>> Stefan Richter wrote:
+>>     
+>>> On 13 Jan, Richard Knutsson wrote:
+>>> [...]
+>>>   
+>>>       
+>>>> SUPERCOOL ALPHA CARD
+>>>>
+>>>> P:	Clark Kent
+>>>> M:	superman@krypton.kr
+>>>> L:	some@thing.com
+>>>> C:	SUPER_A
+>>>> S:	Maintained
+>>>> (C: for CONFIG. Any better idea?)
+>>>>
+>>>> then if someone changes a file who are built with CONFIG_SUPER_A, can 
+>>>> easily backtrack it to the correct maintainer(s).
+>>>>     
+>>>>         
+>>> [...]
+>>>   
+>>>       
+>>>> My first idea was to use the pathway and define that directories above 
+>>>> the specified (if not specified by another) would fall to the current 
+>>>> maintainer. It would work, but requires that all pathways be specified 
+>>>> at once, or a few maintainers with "short" pathways would get much of 
+>>>> the patches (and it is not as correct/easy to maintain as looking for 
+>>>> the CONFIG_flag).
+>>>>
+>>>>
+>>>> Any thoughts on this is very much appreciated (is there any flaws with 
+>>>> this?).
+>>>>     
+>>>>         
+>>>  - What about drivers which have no MAINTAINER entry but reside in a
+>>>    subsystem with MAINTAINER entry?
+>>>   
+>>>       
+>> Hmm, how are those drivers built? Can you please point me to one?
+>>     
+>
+> I believe you read too quickly what I wrote, didn't you? :-)
+> The MAINTAINER file doesn't influence how drivers are built.
+>   
+What the... now I have no idea why I deleted the previous text... oh 
+well, I tried 'grep -Er "^M\:" */*' but did not find any such entries. 
+Or did you mean files just stating "I maintaining this file"?
+At least I know so much about the building-process that I don't think 
+MAINTAINER is involved :). It was meant as: how is a driver build 
+without some CONFIG_-flag set, but not sure now what I wanted with that 
+(blaming low blood-suger, got a pizza since then).
+>   
+>>>  - What if these drivers depend on two subsystems?
+>>>   
+>>>       
+>> Not sure if I understand the problem. I don't see the maintainers for 
+>> the subsystems too interested in a driver, and it is the drivers 
+>> maintainer we want.
+>>     
+>
+> I am specifically thinking of drivers which are maintained by the
+> subsystem maintainers. (Well, see below...)
+>   
+More then one subsystem maintainers that is maintainers to a driver? I 
+would think one off those would quite naturally become the maintainer of 
+the driver and then accepting patches from the rest.
+> Besides, the subsystem maintainer could point the submitter to a
+> more appropriate channel or ignore the submitter. (A submitter who
+> feels ignored is hopefully doing some more research then.) Also,
+> a driver maintainer certainly reads the mailinglist to which the
+> submitter posted.
+>   
+Hopefully, but I think it is asking much of the maintainer and then 
+there will certanly be confused/frustrated submitter who don't know why 
+they don't get any answer nor patched included. We have already seen a 
+few asking about what happened with their patches.
+>>>  - Config options map to object files but do not map directly to source
+>>>    files. Diffstats show source files.
+>>>   
+>>>       
+>> Can you make a object-file out of 2 c-files? Using Makefile?
+>>     
+>
+> Yes, you can, although I don't know if it is directly done in the
+> kernel build system. Of course what is often done is to make n object
+> files out of n c files, then link them to make 1 object file.
+>   
+How?:
+gcc -c test.c test2.c -o test3.o
+gcc: cannot specify -o with -c or -S with multiple files
+(with only -c i got test.o and test2.o)
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chris@sous-sol.org>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
+In the kernel building system, an object-file is made from a c- or 
+s-file with the same name. Then, of course, they can be put together to 
+a larger object-file.
+>>> Example: The sbp2 driver is an IEEE 1394 driver and a SCSI driver.
+>>> sbp2.o is enabled by CONFIG_IEEE1394_SBP2 which depends on
+>>> CONFIG_IEEE1394 and CONFIG_SCSI. sbp2.c resides in drivers/ieee1394/.
+>>> What is the algorithm to look up sbp2's maintainers?
+>>>   
+>>>       
+>> The one listed for CONFIG_IEEE1394_SBP2 :)
+>>     
+>
+> ...OK, we /could/ write
+>
+> IEEE 1394 SUBSYSTEM
+> C:	IEEE1394
+> C:	IEEE1394_OHCI1394
+> C:	IEEE1394_SBP2
+> C:	IEEE1394_DV1394  /* would better be put into a new own entry due to different status of maintenance level */
+> C:	IEEE1394_VIDEO1394  /* that one perhaps too */
+> L:	linux1394-devel@lists.sourceforge.net
+> P:	Ben and me
+> [...]
+> IEEE 1394 IPV4 DRIVER (eth1394)
+> C:	IEEE1394_ETH1394
+> [...]
+>   
+What about possibility to replace it with:
 
---
- arch/i386/kernel/paravirt.c       |  113 +++++++++++++++++++++++++++++++++----
- arch/i386/kernel/vmlinux.lds.S    |    3 
- include/asm-i386/page.h           |   18 ++++-
- include/asm-i386/paravirt.h       |   68 +++++++++++++++++++++-
- include/asm-i386/pgtable-2level.h |    5 -
- include/asm-i386/pgtable-3level.h |   27 ++++----
- 6 files changed, 199 insertions(+), 35 deletions(-)
+C:	IEEE1394*
 
-===================================================================
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -34,7 +34,7 @@
- #include <asm/tlbflush.h>
- 
- /* nop stub */
--static void native_nop(void)
-+void native_nop(void)
- {
- }
- 
-@@ -400,38 +400,74 @@ static fastcall void native_flush_tlb_si
- }
- 
- #ifndef CONFIG_X86_PAE
--static fastcall void native_set_pte(pte_t *ptep, pte_t pteval)
-+fastcall void native_set_pte(pte_t *ptep, pte_t pteval)
- {
- 	*ptep = pteval;
- }
- 
--static fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval)
-+fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval)
- {
- 	*ptep = pteval;
- }
- 
--static fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
-+fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
- {
- 	*pmdp = pmdval;
- }
- 
-+fastcall unsigned long native_pte_val(pte_t pte)
-+{
-+	return pte.pte_low;
-+}
-+
-+fastcall unsigned long native_pmd_val(pmd_t pmd)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+fastcall unsigned long native_pgd_val(pgd_t pgd)
-+{
-+	return pgd.pgd;
-+}
-+
-+fastcall pte_t native_make_pte(unsigned long pte)
-+{
-+	return (pte_t){ pte };
-+}
-+
-+fastcall pmd_t native_make_pmd(unsigned long pmd)
-+{
-+	BUG();
-+}
-+
-+fastcall pgd_t native_make_pgd(unsigned long pgd)
-+{
-+	return (pgd_t){ pgd };
-+}
-+
-+fastcall pte_t native_ptep_get_and_clear(pte_t *ptep)
-+{
-+	return __pte(xchg(&(ptep)->pte_low, 0));
-+}
-+
- #else /* CONFIG_X86_PAE */
- 
--static fastcall void native_set_pte(pte_t *ptep, pte_t pte)
-+fastcall void native_set_pte(pte_t *ptep, pte_t pte)
- {
- 	ptep->pte_high = pte.pte_high;
- 	smp_wmb();
- 	ptep->pte_low = pte.pte_low;
- }
- 
--static fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
-+fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
- {
- 	ptep->pte_high = pte.pte_high;
- 	smp_wmb();
- 	ptep->pte_low = pte.pte_low;
- }
- 
--static fastcall void native_set_pte_present(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
-+fastcall void native_set_pte_present(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
- {
- 	ptep->pte_low = 0;
- 	smp_wmb();
-@@ -440,34 +476,76 @@ static fastcall void native_set_pte_pres
- 	ptep->pte_low = pte.pte_low;
- }
- 
--static fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
-+fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
- {
- 	set_64bit((unsigned long long *)ptep,pte_val(pteval));
- }
- 
--static fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
-+fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
- {
- 	set_64bit((unsigned long long *)pmdp,pmd_val(pmdval));
- }
- 
--static fastcall void native_set_pud(pud_t *pudp, pud_t pudval)
-+fastcall void native_set_pud(pud_t *pudp, pud_t pudval)
- {
- 	*pudp = pudval;
- }
- 
--static fastcall void native_pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-+fastcall void native_pte_clear(struct mm_struct *mm, u32 addr, pte_t *ptep)
- {
- 	ptep->pte_low = 0;
- 	smp_wmb();
- 	ptep->pte_high = 0;
- }
- 
--static fastcall void native_pmd_clear(pmd_t *pmd)
-+fastcall void native_pmd_clear(pmd_t *pmd)
- {
- 	u32 *tmp = (u32 *)pmd;
- 	*tmp = 0;
- 	smp_wmb();
- 	*(tmp + 1) = 0;
-+}
-+
-+fastcall unsigned long long native_pte_val(pte_t pte)
-+{
-+	return pte.pte_low | ((unsigned long long)pte.pte_high << 32);
-+}
-+
-+fastcall unsigned long long native_pmd_val(pmd_t pmd)
-+{
-+	return pmd.pmd;
-+}
-+
-+fastcall unsigned long long native_pgd_val(pgd_t pgd)
-+{
-+	return pgd.pgd;
-+}
-+
-+fastcall pte_t native_make_pte(unsigned long long pte)
-+{
-+	return (pte_t){ pte };
-+}
-+
-+fastcall pmd_t native_make_pmd(unsigned long long pmd)
-+{
-+	return (pmd_t){ pmd };
-+}
-+
-+fastcall pgd_t native_make_pgd(unsigned long long pgd)
-+{
-+	return (pgd_t){ pgd };
-+}
-+
-+fastcall pte_t native_ptep_get_and_clear(pte_t *ptep)
-+{
-+	pte_t res;
-+
-+	/* xchg acts as a barrier before the setting of the high bits */
-+	res.pte_low = xchg(&ptep->pte_low, 0);
-+	res.pte_high = ptep->pte_high;
-+	ptep->pte_high = 0;
-+
-+	return res;
- }
- #endif /* CONFIG_X86_PAE */
- 
-@@ -564,6 +642,9 @@ struct paravirt_ops paravirt_ops = {
- 	.set_pmd = native_set_pmd,
- 	.pte_update = (void *)native_nop,
- 	.pte_update_defer = (void *)native_nop,
-+
-+	.ptep_get_and_clear = native_ptep_get_and_clear,
-+
- #ifdef CONFIG_X86_PAE
- 	.set_pte_atomic = native_set_pte_atomic,
- 	.set_pte_present = native_set_pte_present,
-@@ -572,6 +653,14 @@ struct paravirt_ops paravirt_ops = {
- 	.pmd_clear = native_pmd_clear,
- #endif
- 
-+	.pte_val = native_pte_val,
-+	.pmd_val = native_pmd_val,
-+	.pgd_val = native_pgd_val,
-+
-+	.make_pte = native_make_pte,
-+	.make_pmd = native_make_pmd,
-+	.make_pgd = native_make_pgd,
-+
- 	.irq_enable_sysexit = native_irq_enable_sysexit,
- 	.iret = native_iret,
- 
-===================================================================
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -21,6 +21,9 @@
- #include <asm/page.h>
- #include <asm/cache.h>
- #include <asm/boot.h>
-+
-+#undef ENTRY
-+#undef ALIGN
- 
- OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
- OUTPUT_ARCH(i386)
-===================================================================
---- a/include/asm-i386/page.h
-+++ b/include/asm-i386/page.h
-@@ -11,7 +11,6 @@
- 
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
--
- 
- #ifdef CONFIG_X86_USE_3DNOW
- 
-@@ -48,9 +47,11 @@ typedef struct { unsigned long long pmd;
- typedef struct { unsigned long long pmd; } pmd_t;
- typedef struct { unsigned long long pgd; } pgd_t;
- typedef struct { unsigned long long pgprot; } pgprot_t;
-+#ifndef CONFIG_PARAVIRT
- #define pmd_val(x)	((x).pmd)
- #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
- #define __pmd(x) ((pmd_t) { (x) } )
-+#endif	/* CONFIG_PARAVIRT */
- #define HPAGE_SHIFT	21
- #include <asm-generic/pgtable-nopud.h>
- #else
-@@ -58,7 +59,9 @@ typedef struct { unsigned long pgd; } pg
- typedef struct { unsigned long pgd; } pgd_t;
- typedef struct { unsigned long pgprot; } pgprot_t;
- #define boot_pte_t pte_t /* or would you rather have a typedef */
-+#ifndef CONFIG_PARAVIRT
- #define pte_val(x)	((x).pte_low)
-+#endif
- #define HPAGE_SHIFT	22
- #include <asm-generic/pgtable-nopmd.h>
- #endif
-@@ -71,12 +74,14 @@ typedef struct { unsigned long pgprot; }
- #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
- #endif
- 
-+#define pgprot_val(x)	((x).pgprot)
-+#define __pgprot(x)	((pgprot_t) { (x) } )
-+
-+#ifndef CONFIG_PARAVIRT
- #define pgd_val(x)	((x).pgd)
--#define pgprot_val(x)	((x).pgprot)
--
- #define __pte(x) ((pte_t) { (x) } )
- #define __pgd(x) ((pgd_t) { (x) } )
--#define __pgprot(x)	((pgprot_t) { (x) } )
-+#endif
- 
- #endif /* !__ASSEMBLY__ */
- 
-@@ -143,6 +148,11 @@ extern int page_is_ram(unsigned long pag
- #include <asm-generic/memory_model.h>
- #include <asm-generic/page.h>
- 
-+#ifdef CONFIG_PARAVIRT
-+/* After pte_t, etc, have been defined */
-+#include <asm/paravirt.h>
-+#endif
-+
- #define __HAVE_ARCH_GATE_AREA 1
- #endif /* __KERNEL__ */
- 
-===================================================================
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -25,6 +25,8 @@
- #define CLBR_ANY 0x7
- 
- #ifndef __ASSEMBLY__
-+#include <linux/types.h>
-+
- struct thread_struct;
- struct Xgt_desc_struct;
- struct tss_struct;
-@@ -140,12 +142,31 @@ struct paravirt_ops
- 	void (fastcall *set_pmd)(pmd_t *pmdp, pmd_t pmdval);
- 	void (fastcall *pte_update)(struct mm_struct *mm, u32 addr, pte_t *ptep);
- 	void (fastcall *pte_update_defer)(struct mm_struct *mm, u32 addr, pte_t *ptep);
-+
-+	pte_t (fastcall *ptep_get_and_clear)(pte_t *ptep);
-+
- #ifdef CONFIG_X86_PAE
- 	void (fastcall *set_pte_atomic)(pte_t *ptep, pte_t pteval);
--	void (fastcall *set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte);
-+	void (fastcall *set_pte_present)(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte);
- 	void (fastcall *set_pud)(pud_t *pudp, pud_t pudval);
--	void (fastcall *pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
-+	void (fastcall *pte_clear)(struct mm_struct *mm, u32 addr, pte_t *ptep);
- 	void (fastcall *pmd_clear)(pmd_t *pmdp);
-+
-+	unsigned long long (fastcall *pte_val)(pte_t);
-+	unsigned long long (fastcall *pmd_val)(pmd_t);
-+	unsigned long long (fastcall *pgd_val)(pgd_t);
-+
-+	pte_t (fastcall *make_pte)(unsigned long long pte);
-+	pmd_t (fastcall *make_pmd)(unsigned long long pmd);
-+	pgd_t (fastcall *make_pgd)(unsigned long long pgd);
-+#else  /* !CONFIG_X86_PAE */
-+	unsigned long (fastcall *pte_val)(pte_t);
-+	unsigned long (fastcall *pmd_val)(pmd_t);
-+	unsigned long (fastcall *pgd_val)(pgd_t);
-+
-+	pte_t (fastcall *make_pte)(unsigned long pte);
-+	pmd_t (fastcall *make_pmd)(unsigned long pmd);
-+	pgd_t (fastcall *make_pgd)(unsigned long pgd);
- #endif
- 
- 	void (fastcall *set_lazy_mode)(int mode);
-@@ -163,6 +184,24 @@ struct paravirt_ops
- 		__attribute__((__section__(".paravirtprobe"))) = fn
- 
- extern struct paravirt_ops paravirt_ops;
-+
-+#ifdef CONFIG_X86_PAE
-+fastcall unsigned long long native_pte_val(pte_t);
-+fastcall unsigned long long native_pmd_val(pmd_t);
-+fastcall unsigned long long native_pgd_val(pgd_t);
-+
-+fastcall pte_t native_make_pte(unsigned long long pte);
-+fastcall pmd_t native_make_pmd(unsigned long long pmd);
-+fastcall pgd_t native_make_pgd(unsigned long long pgd);
-+#else
-+fastcall unsigned long native_pte_val(pte_t);
-+fastcall unsigned long native_pmd_val(pmd_t);
-+fastcall unsigned long native_pgd_val(pgd_t);
-+
-+fastcall pte_t native_make_pte(unsigned long pte);
-+fastcall pmd_t native_make_pmd(unsigned long pmd);
-+fastcall pgd_t native_make_pgd(unsigned long pgd);
-+#endif
- 
- #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
- 
-@@ -215,6 +254,8 @@ static inline void __cpuid(unsigned int 
- #define read_cr4() paravirt_ops.read_cr4()
- #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
- #define write_cr4(x) paravirt_ops.write_cr4(x)
-+
-+#define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
- 
- static inline void raw_safe_halt(void)
- {
-@@ -297,6 +338,17 @@ static inline void halt(void)
- 	(paravirt_ops.write_idt_entry((dt), (entry), (low), (high)))
- #define set_iopl_mask(mask) (paravirt_ops.set_iopl_mask(mask))
- 
-+#define __pte(x)	paravirt_ops.make_pte(x)
-+#define __pgd(x)	paravirt_ops.make_pgd(x)
-+
-+#define pte_val(x)	paravirt_ops.pte_val(x)
-+#define pgd_val(x)	paravirt_ops.pgd_val(x)
-+
-+#ifdef CONFIG_X86_PAE
-+#define __pmd(x)	paravirt_ops.make_pmd(x)
-+#define pmd_val(x)	paravirt_ops.pmd_val(x)
-+#endif
-+
- /* The paravirtualized I/O functions */
- static inline void slow_down_io(void) {
- 	paravirt_ops.io_delay();
-@@ -336,6 +388,18 @@ static inline void setup_secondary_clock
- 	paravirt_ops.setup_secondary_clock();
- }
- #endif
-+
-+
-+fastcall void native_set_pte(pte_t *ptep, pte_t pteval);
-+fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval);
-+fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval);
-+fastcall void native_set_pte_present(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte);
-+fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval);
-+fastcall void native_set_pud(pud_t *pudp, pud_t pudval);
-+fastcall void native_pte_clear(struct mm_struct *mm, u32 addr, pte_t *ptep);
-+fastcall void native_pmd_clear(pmd_t *pmd);
-+fastcall pte_t native_ptep_get_and_clear(pte_t *ptep);
-+void native_nop(void);
- 
- #ifdef CONFIG_SMP
- static inline void startup_ipi_hook(int phys_apicid, unsigned long start_eip,
-===================================================================
---- a/include/asm-i386/pgtable-2level.h
-+++ b/include/asm-i386/pgtable-2level.h
-@@ -15,6 +15,7 @@
- #define set_pte(pteptr, pteval) (*(pteptr) = pteval)
- #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
-+#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
- #endif
- 
- #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
-@@ -23,11 +24,9 @@
- #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
- #define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
- 
--#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
--
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
- #define pte_none(x)		(!(x).pte_low)
--#define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
-+#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
- #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
- #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
- 
-===================================================================
---- a/include/asm-i386/pgtable-3level.h
-+++ b/include/asm-i386/pgtable-3level.h
-@@ -98,6 +98,18 @@ static inline void pmd_clear(pmd_t *pmd)
- 	smp_wmb();
- 	*(tmp + 1) = 0;
- }
-+
-+static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
-+{
-+	pte_t res;
-+
-+	/* xchg acts as a barrier before the setting of the high bits */
-+	res.pte_low = xchg(&ptep->pte_low, 0);
-+	res.pte_high = ptep->pte_high;
-+	ptep->pte_high = 0;
-+
-+	return res;
-+}
- #endif
- 
- /*
-@@ -119,18 +131,6 @@ static inline void pud_clear (pud_t * pu
- #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
- 			pmd_index(address))
- 
--static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
--{
--	pte_t res;
--
--	/* xchg acts as a barrier before the setting of the high bits */
--	res.pte_low = xchg(&ptep->pte_low, 0);
--	res.pte_high = ptep->pte_high;
--	ptep->pte_high = 0;
--
--	return res;
--}
--
- #define __HAVE_ARCH_PTE_SAME
- static inline int pte_same(pte_t a, pte_t b)
- {
-@@ -146,8 +146,7 @@ static inline int pte_none(pte_t pte)
- 
- static inline unsigned long pte_pfn(pte_t pte)
- {
--	return (pte.pte_low >> PAGE_SHIFT) |
--		(pte.pte_high << (32 - PAGE_SHIFT));
-+	return pte_val(pte) >> PAGE_SHIFT;
- }
- 
- extern unsigned long long __supported_pte_mask;
-
--- 
+and use the same system as with the path-approach, "longest wins". (I 
+don't think just IEEE1394 is appropriate, since then there is 
+possibility with false-positives again)
+> On the other hand, we could write
+>
+> IEEE 1394 SUBSYSTEM
+> F:	drivers/ieee1394
+> L:	linux1394-devel@lists.sourceforge.net
+> P:	Ben and me
+> [...]
+> IEEE 1394 IPV4 DRIVER (eth1394)
+> F:	drivers/ieee1394/eth1394
+> [...]
+>
+> If it was done the latter way, i.e. using F: not C:, it could be
+> made a rule that the more specific entries come after more generic
+> entries. Thus the last match of multiple matches is the proper one.
+> In any case, the longest match is the proper one.
+>   
+As I wrote in the initial mail, my first idea was like that. But how to 
+solve when different drivers (with of course different maintainers) lies 
+in the same directory?
+I thought something like include/linux/config.h,autoconf.h could be used 
+when referring to a few specific files in a directory. But there is also 
+the problem that all mails were the maintainer has no F: will fall in 
+the lap of the "good" maintainer with the shorter pathway, and I'm 
+afraid this might make people hesitant to add the F:.
+>   
+>> But what about ex ieee1394_core.o? Is ieee1394-objs "equal" to 
+>> ieee1394.o? (Seems I need to read some Makefile docs...)
+>>     
+>
+> Yes and yes. (Documentation/kbuild/makefiles.txt)
+>   
+Thanks
+>> (Btw, what I can see, there is no possibility to get the wrong 
+>> maintainer. Just that sometime it can't give you an answer and you have 
+>> to do it in the old way).
+>>     
+>
+> Your approach could give a wrong answer if someone implements a
+> very "clever" mapping. My approach could give a wrong answer if
+> someone takes a generic match while there was a more specific
+> match.
+>
+> Your approach requires to evaluate the diffstat, one or more
+> Makefile (taking the Linux Makefile syntax into account), and the
+> MAINTAINERS file. My approach just requires to evaluate the
+> diffstat and the MAINTAINERS file.
+>   
+Can't disagree on any. It is just the problems with false-positives and 
+picking out specific files that made me reconsider.
 

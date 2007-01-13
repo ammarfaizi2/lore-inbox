@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422710AbXAMQVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422715AbXAMQ2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422710AbXAMQVG (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 11:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbXAMQVG
+	id S1422715AbXAMQ2a (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 11:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbXAMQ2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 11:21:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4005 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1422710AbXAMQVD (ORCPT
+	Sat, 13 Jan 2007 11:28:30 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:56057 "EHLO
+	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422715AbXAMQ2a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 11:21:03 -0500
-Date: Sat, 13 Jan 2007 17:21:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Miles Lane <miles.lane@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       avi@qumranet.com, kvm-devel@lists.sourceforge.net,
-       Russell King <rmk+lkml@arm.linux.org.uk>, vojtech@suse.cz,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.20-rc5: known regressions with patches
-Message-ID: <20070113162108.GQ7469@stusta.de>
-References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org> <20070113071412.GH7469@stusta.de> <adaps9j54dd.fsf@cisco.com>
+	Sat, 13 Jan 2007 11:28:30 -0500
+Message-ID: <45A9092F.7060503@student.ltu.se>
+Date: Sat, 13 Jan 2007 17:30:39 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaps9j54dd.fsf@cisco.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] How to (automatically) find the correct maintainer(s)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 07:32:46AM -0800, Roland Dreier wrote:
->  > This email lists some known regressions in 2.6.20-rc5 compared to 2.6.19
->  > with patches available.
-> 
->  > Subject    : KVM: guest crash
->  > References : http://lkml.org/lkml/2007/1/8/163
->  > Submitter  : Roland Dreier <rdreier@cisco.com>
->  > Handled-By : Avi Kivity <avi@qumranet.com>
->  > Patch      : http://lkml.org/lkml/2007/1/9/280
->  > Status     : patch available
-> 
-> This is not a regression from 2.6.19, since kvm did not exist in
-> 2.6.19.  In any case akpm has the patch and plans to merge it for
-> 2.6.20 so I don't think anyone has to worry about this one.
+Hello all
 
-I know, but a bug that is not present in 2.6.19 is a regression. ;-)
+Would like to come with a suggestion I have been wondering about for a 
+while, why not add the config-flag, used in Kconfig/Makefile in the 
+MAINTAINERS-file?
 
-More seriously, I know it's a bit borderline to talk about a regression, 
-but I think listing things like crashes or compile errors in new 
-functionality makes sense - especially in such cases where it's about 
-tracking that a patch doesn't miss 2.6.20.
+By doing this, there would not be any confusion who to send a patch, 
+since all "files" is defined under a flag, right? (when it is a 
+header-file, it can be grep'ed on the c-files and from the hit find the 
+flag)
 
->  - R.
+So, with a MAINTAINERS-entry like:
 
-cu
-Adrian
+SUPERCOOL ALPHA CARD
 
--- 
+P:	Clark Kent
+M:	superman@krypton.kr
+L:	some@thing.com
+C:	SUPER_A
+S:	Maintained
+(C: for CONFIG. Any better idea?)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+then if someone changes a file who are built with CONFIG_SUPER_A, can 
+easily backtrack it to the correct maintainer(s). And because there is 
+no question how to find the correct maintainer, a script can do it for 
+us. This is something that would be really useful for Kernel-Janitors 
+when doing big cleanups all over the kernel (see ex pci_module_init to 
+pci_register_driver and standardize the tree to use macros from 
+include/linux/kernel.h).
+By this, I believe trivial patch-series would be reduced from the lkml 
+when they can automatically be sent to the maintainer (and maybe 
+specified mailing-list).
+
+My first idea was to use the pathway and define that directories above 
+the specified (if not specified by another) would fall to the current 
+maintainer. It would work, but requires that all pathways be specified 
+at once, or a few maintainers with "short" pathways would get much of 
+the patches (and it is not as correct/easy to maintain as looking for 
+the CONFIG_flag).
+
+
+Any thoughts on this is very much appreciated (is there any flaws with 
+this?).
+
+Richard Knutsson
 

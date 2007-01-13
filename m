@@ -1,90 +1,128 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965033AbXAMGqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161298AbXAMHLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbXAMGqW (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 01:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbXAMGqW
+	id S1161298AbXAMHLX (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 02:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbXAMHLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 01:46:22 -0500
-Received: from mail.suse.de ([195.135.220.2]:57124 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965033AbXAMGqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 01:46:22 -0500
-Date: Sat, 13 Jan 2007 07:46:18 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: avoid div in rebalance_tick
-Message-ID: <20070113064618.GA30425@wotan.suse.de>
-References: <20070112060213.GB28611@wotan.suse.de> <20070112095940.0795a998@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Jan 2007 02:11:23 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2921 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1161298AbXAMHLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 02:11:22 -0500
+Date: Sat, 13 Jan 2007 08:11:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, gd@spherenet.de,
+       alan@lxorguk.ukuu.org.uk, linux-ide@vger.kernel.org, petero2@telia.com,
+       Uwe Bugla <uwe.bugla@gmx.de>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       Jon Smirl <jonsmirl@gmail.com>, Damien Wyart <damien.wyart@free.fr>,
+       Aaron Sethman <androsyn@ratbox.org>,
+       Berthold Cogel <cogel@rrz.uni-koeln.de>,
+       Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
+       greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
+       Florin Iucha <florin@iucha.net>, Jiri Kosina <jkosina@suse.cz>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, ttb@tentacle.dhs.org,
+       rml@novell.com, Sami Farin <7atbggg02@sneakemail.com>,
+       David Chinner <dgc@sgi.com>, xfs-masters@oss.sgi.com,
+       Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
+       "Vladimir V. Saveliev" <vs@namesys.com>, reiserfs-dev@namesys.com
+Subject: 2.6.20-rc5: known unfixed regressions
+Message-ID: <20070113071125.GG7469@stusta.de>
+References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20070112095940.0795a998@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2007 at 09:59:40AM +0000, Alan wrote:
-> On Fri, 12 Jan 2007 07:02:13 +0100
-> Nick Piggin <npiggin@suse.de> wrote:
+On Fri, Jan 12, 2007 at 02:27:48PM -0500, Linus Torvalds wrote:
+>...
+> A lot of developers (including me) will be gone next week for 
+> Linux.Conf.Au, so you have a week of rest and quiet to test this, and 
+> report any problems. 
 > 
-> > Just noticed this while looking at a bug.
-> > Avoid an expensive integer divide 3 times per CPU per tick.
-> 
-> Integer divide is cheap on some modern processors, and multibit shift
-> isn't on all embedded ones.
-> 
-> How about putting back scale = 1 and using
-> 
-> scale += scale;
-> 
-> instead of the shift and getting what ought to be even better results
+> Not that there will be any, right? You all behave now!
+>...
 
-OK, how about this? It only works out to be around 0.01% of my P3's CPU time
-at 1000HZ, but it also did make the x86 code 16 bytes smaller.
+This still leaves the old regressions we have not yet fixed...
 
 
---
-Avoid expensive integer divide 3 times per CPU per tick.
+This email lists some known regressions in 2.6.20-rc5 compared to 2.6.19.
 
-A userspace test of this loop went from 26ns, down to 19ns on a G5; and
-from 123ns down to 28ns on a P3.
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-(Also avoid a variable bit shift, as suggested by Alan. The effect
-of this wasn't noticable on the CPUs I tested with).
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c
-+++ linux-2.6/kernel/sched.c
-@@ -2887,14 +2887,16 @@ static void active_load_balance(struct r
- static void update_load(struct rq *this_rq)
- {
- 	unsigned long this_load;
--	int i, scale;
-+	unsigned int i, scale;
- 
- 	this_load = this_rq->raw_weighted_load;
- 
- 	/* Update our load: */
--	for (i = 0, scale = 1; i < 3; i++, scale <<= 1) {
-+	for (i = 0, scale = 1; i < 3; i++, scale += scale) {
- 		unsigned long old_load, new_load;
- 
-+		/* scale is effectively 1 << i now, and >> i divides by scale */
-+
- 		old_load = this_rq->cpu_load[i];
- 		new_load = this_load;
- 		/*
-@@ -2904,7 +2906,7 @@ static void update_load(struct rq *this_
- 		 */
- 		if (new_load > old_load)
- 			new_load += scale-1;
--		this_rq->cpu_load[i] = (old_load*(scale-1) + new_load) / scale;
-+		this_rq->cpu_load[i] = (old_load*(scale-1) + new_load) >> i;
- 	}
- }
- 
+Subject    : pktcdvd fails with pata_amd
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7810
+Submitter  : gd@spherenet.de
+Status     : unknown
+
+
+Subject    : problems with CD burning
+References : http://www.spinics.net/lists/linux-ide/msg06545.html
+Submitter  : Uwe Bugla <uwe.bugla@gmx.de>
+Status     : unknown
+
+
+Subject    : BUG: scheduling while atomic: hald-addon-stor/...
+             cdrom_{open,release,ioctl} in trace
+References : http://lkml.org/lkml/2006/12/26/105
+             http://lkml.org/lkml/2006/12/29/22
+             http://lkml.org/lkml/2006/12/31/133
+Submitter  : Jon Smirl <jonsmirl@gmail.com>
+             Damien Wyart <damien.wyart@free.fr>
+             Aaron Sethman <androsyn@ratbox.org>
+Status     : unknown
+
+
+Subject    : 'shutdown -h now' reboots the system  (CONFIG_USB_SUSPEND)
+References : http://lkml.org/lkml/2006/12/25/40
+Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
+Handled-By : Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Status     : problem is being debugged
+
+
+Subject    : USB keyboard unresponsive after some time
+References : http://lkml.org/lkml/2006/12/25/35
+             http://lkml.org/lkml/2006/12/26/106
+Submitter  : Florin Iucha <florin@iucha.net>
+Handled-By : Jiri Kosina <jkosina@suse.cz>
+             Alan Stern <stern@rowland.harvard.edu>
+Status     : problem is being debugged
+
+
+Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
+Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
+Handled-By : Nick Piggin <nickpiggin@yahoo.com.au>
+Status     : problem is being debugged
+
+
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
+References : http://lkml.org/lkml/2007/1/5/308
+Submitter  : Sami Farin <7atbggg02@sneakemail.com>
+Handled-By : David Chinner <dgc@sgi.com>
+Status     : problem is being discussed
+
+
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs)
+References : http://lkml.org/lkml/2007/1/7/117
+             http://lkml.org/lkml/2007/1/10/202
+Submitter  : Malte Schröder <MalteSch@gmx.de>
+Handled-By : Vladimir V. Saveliev <vs@namesys.com>
+             Nick Piggin <nickpiggin@yahoo.com.au>
+Patch      : http://lkml.org/lkml/2007/1/10/202
+Status     : problem is being discussed
+
+

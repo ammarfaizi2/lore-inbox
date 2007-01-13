@@ -1,123 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161242AbXAMD1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161215AbXAMD3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161242AbXAMD1l (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 22:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161218AbXAMDZE
+	id S1161215AbXAMD3A (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 22:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161205AbXAMD27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 22:25:04 -0500
-Received: from ns2.suse.de ([195.135.220.15]:46593 "EHLO mx2.suse.de"
+	Fri, 12 Jan 2007 22:28:59 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46807 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161216AbXAMDY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 22:24:56 -0500
+	id S1161249AbXAMD2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 22:28:43 -0500
 From: Nick Piggin <npiggin@suse.de>
 To: Linux Memory Management <linux-mm@kvack.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Filesystems <linux-fsdevel@vger.kernel.org>,
-       Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20070113011236.9449.34557.sendpatchset@linux.site>
-In-Reply-To: <20070113011159.9449.4327.sendpatchset@linux.site>
-References: <20070113011159.9449.4327.sendpatchset@linux.site>
-Subject: [patch 4/10] mm: generic_file_buffered_write cleanup
-Date: Sat, 13 Jan 2007 04:24:52 +0100 (CET)
+Cc: Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <npiggin@suse.de>, thomas@tungstengraphics.com
+Message-Id: <20070113011623.9479.10194.sendpatchset@linux.site>
+In-Reply-To: <20070113011526.9479.79596.sendpatchset@linux.site>
+References: <20070113011526.9479.79596.sendpatchset@linux.site>
+Subject: [patch 5/7] mm: add vm_insert_pfn
+Date: Sat, 13 Jan 2007 04:28:39 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
+Add a vm_insert_pfn helper, so that ->fault handlers can have nopfn
+functionality by installing their own pte and returning NULL.
 
-Clean up buffered write code. Rename some variables and fix some types.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/mm/filemap.c
+Index: linux-2.6/include/linux/mm.h
 ===================================================================
---- linux-2.6.orig/mm/filemap.c
-+++ linux-2.6/mm/filemap.c
-@@ -1854,16 +1854,15 @@ generic_file_buffered_write(struct kiocb
- 		size_t count, ssize_t written)
- {
- 	struct file *file = iocb->ki_filp;
--	struct address_space * mapping = file->f_mapping;
-+	struct address_space *mapping = file->f_mapping;
- 	const struct address_space_operations *a_ops = mapping->a_ops;
- 	struct inode 	*inode = mapping->host;
- 	long		status = 0;
- 	struct page	*page;
- 	struct page	*cached_page = NULL;
--	size_t		bytes;
- 	struct pagevec	lru_pvec;
- 	const struct iovec *cur_iov = iov; /* current iovec */
--	size_t		iov_base = 0;	   /* offset in the current iovec */
-+	size_t		iov_offset = 0;	   /* offset in the current iovec */
- 	char __user	*buf;
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -1151,6 +1151,7 @@ unsigned long vmalloc_to_pfn(void *addr)
+ int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
+ 			unsigned long pfn, unsigned long size, pgprot_t);
+ int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
++int vm_insert_pfn(struct vm_area_struct *, unsigned long addr, unsigned long pfn);
  
- 	pagevec_init(&lru_pvec, 0);
-@@ -1874,31 +1873,33 @@ generic_file_buffered_write(struct kiocb
- 	if (likely(nr_segs == 1))
- 		buf = iov->iov_base + written;
- 	else {
--		filemap_set_next_iovec(&cur_iov, &iov_base, written);
--		buf = cur_iov->iov_base + iov_base;
-+		filemap_set_next_iovec(&cur_iov, &iov_offset, written);
-+		buf = cur_iov->iov_base + iov_offset;
- 	}
+ struct page *follow_page(struct vm_area_struct *, unsigned long address,
+ 			unsigned int foll_flags);
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c
++++ linux-2.6/mm/memory.c
+@@ -1277,6 +1277,50 @@ int vm_insert_page(struct vm_area_struct
+ }
+ EXPORT_SYMBOL(vm_insert_page);
  
- 	do {
--		unsigned long index;
--		unsigned long offset;
--		unsigned long maxlen;
--		size_t copied;
-+		pgoff_t index;		/* Pagecache index for current page */
-+		unsigned long offset;	/* Offset into pagecache page */
-+		unsigned long maxlen;	/* Bytes remaining in current iovec */
-+		size_t bytes;		/* Bytes to write to page */
-+		size_t copied;		/* Bytes copied from user */
- 
--		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
-+		offset = (pos & (PAGE_CACHE_SIZE - 1));
- 		index = pos >> PAGE_CACHE_SHIFT;
- 		bytes = PAGE_CACHE_SIZE - offset;
- 		if (bytes > count)
- 			bytes = count;
- 
-+		maxlen = cur_iov->iov_len - iov_offset;
-+		if (maxlen > bytes)
-+			maxlen = bytes;
++/**
++ * vm_insert_pfn - insert single pfn into user vma
++ * @vma: user vma to map to
++ * @addr: target user address of this page
++ * @pfn: source kernel pfn
++ *
++ * Similar to vm_inert_page, this allows drivers to insert individual pages
++ * they've allocated into a user vma. Same comments apply.
++ *
++ * This function should only be called from a vm_ops->fault handler, and
++ * in that case the handler should return NULL.
++ */
++int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr, unsigned long pfn)
++{
++	struct mm_struct *mm = vma->vm_mm;
++	int retval;
++	pte_t *pte, entry;
++	spinlock_t *ptl;
 +
- 		/*
- 		 * Bring in the user page that we will copy from _first_.
- 		 * Otherwise there's a nasty deadlock on copying from the
- 		 * same page as we're writing to, without it being marked
- 		 * up-to-date.
- 		 */
--		maxlen = cur_iov->iov_len - iov_base;
--		if (maxlen > bytes)
--			maxlen = bytes;
- 		fault_in_pages_readable(buf, maxlen);
- 
- 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
-@@ -1929,7 +1930,7 @@ generic_file_buffered_write(struct kiocb
- 							buf, bytes);
- 		else
- 			copied = filemap_copy_from_user_iovec(page, offset,
--						cur_iov, iov_base, bytes);
-+						cur_iov, iov_offset, bytes);
- 		flush_dcache_page(page);
- 		status = a_ops->commit_write(file, page, offset, offset+bytes);
- 		if (status == AOP_TRUNCATED_PAGE) {
-@@ -1947,12 +1948,12 @@ generic_file_buffered_write(struct kiocb
- 				buf += status;
- 				if (unlikely(nr_segs > 1)) {
- 					filemap_set_next_iovec(&cur_iov,
--							&iov_base, status);
-+							&iov_offset, status);
- 					if (count)
- 						buf = cur_iov->iov_base +
--							iov_base;
-+							iov_offset;
- 				} else {
--					iov_base += status;
-+					iov_offset += status;
- 				}
- 			}
- 		}
++	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
++	BUG_ON(is_cow_mapping(vma->vm_flags));
++
++	retval = -ENOMEM;
++	pte = get_locked_pte(mm, addr, &ptl);
++	if (!pte)
++		goto out;
++	retval = -EBUSY;
++	if (!pte_none(*pte))
++		goto out_unlock;
++
++	/* Ok, finally just insert the thing.. */
++	entry = pfn_pte(pfn, vma->vm_page_prot);
++	set_pte_at(mm, addr, pte, entry);
++	update_mmu_cache(vma, addr, entry);
++
++	retval = 0;
++out_unlock:
++	pte_unmap_unlock(pte, ptl);
++
++out:
++	return retval;
++}
++EXPORT_SYMBOL(vm_insert_pfn);
++
+ /*
+  * maps a range of physical memory into the requested pages. the old
+  * mappings are removed. any references to nonexistent pages results

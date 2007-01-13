@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161184AbXAMB4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161188AbXAMCAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161184AbXAMB4H (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 20:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbXAMB4H
+	id S1161188AbXAMCAa (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 21:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbXAMCAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 20:56:07 -0500
-Received: from wx-out-0506.google.com ([66.249.82.231]:29406 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161184AbXAMB4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 20:56:04 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=GHirPMzfyDjGneB1KPVf0Pvp+eepVAJd8jOvd2S3S55i2LQiY6RA0JaBC56/eJXurt1B+g+eTJlQyk35BKg2aFl4XM7yXvGIk8dEWbJWSZI0455u+MxAEGSFQ+z44ZJ+IUwM2tafjpQJ8/fkAFz9lReOIEsBHup67Wi0ZcnDxzk=
-Message-ID: <45A83C22.6050409@gmail.com>
-Date: Sat, 13 Jan 2007 10:55:46 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Fri, 12 Jan 2007 21:00:30 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:22639 "EHLO hobbit.corpit.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161190AbXAMCA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 21:00:29 -0500
+Message-ID: <45A83D37.2010807@tls.msk.ru>
+Date: Sat, 13 Jan 2007 05:00:23 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-To: Soeren Sonnenburg <kernel@nn7.de>
-CC: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA hotplug from the user side ?
-References: <1168588629.5403.7.camel@localhost>	 <45A7BFB0.9090308@garzik.org> <1168639639.3707.6.camel@localhost>
-In-Reply-To: <1168639639.3707.6.camel@localhost>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: /sys/$DEVPATH/uevent vs uevent attributes
+References: <45A7E23A.6000100@tls.msk.ru> <20070113004817.GA4870@kroah.com>
+In-Reply-To: <20070113004817.GA4870@kroah.com>
 X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=4F9CF57E
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg wrote:
-> It is true it detects a removal and newly plugged devices immediately...
-> However it still prints warnings and errors that it could not
-> synchronize SCSI cache for the disks. Then it prints regular 'rejects
-> I/O to dead device' warning messages and on replugging the disks puts
-> them to the next free sd device (e.g. sdc -> sdd).
+Greg KH wrote:
+> On Fri, Jan 12, 2007 at 10:32:10PM +0300, Michael Tokarev wrote:
+>> (No patch at this time, -- just asking about an.. idea ;)
+> 
+> Let's see what such a patch looks like to see if it would be workable or
+> not.
 
-You need to stop using the devices before unplugging.  If you have no
-pending IO to the device, there won't be 'rejects IO to dead device'
-messages.  You can ignore the SCSI cache sync failure if the device is
-properly closed before being unplugged.
+Umm.. it's definitely workable, and even almost trivial.
 
-> These messages sound eval - so now the question is should I care ?
-> ( On the other hand it did not crash the machine )
+Just splitting kobject_uevent() routine into two parts, one to format
+the environment variables, and one to actually send things over netlink
+and executing the hotplug_helper if defined, and using the first part
+to format the content of `uevent' file will do the trick.
 
-So, no, you don't really have to care.  Just make sure the device is
-unmounted prior to unplugging.
+I don't know how to do the last part.
 
--- 
-tejun
+> And no one forces you to use udev, I have machines with a static /dev
+> that work just fine :)
+
+It has less and less chances to work correctly.  For example, this dynamic
+sdX thing, when I don't know anymore which sdX is which, without some help
+from /dev/disk/by-XXX/.
+
+And more and more software requires udev, at least as packages by distos.
+For example, today I've got rid of udev on one of our servers, which has
+been installed (debian) due to xen-utils having Depends: udev.  Even when
+it doesn't *really* *require* udev, -- i replaced the whole thing with a
+5-line shell script.
+
+/mjt

@@ -1,76 +1,151 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161293AbXAMGGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161297AbXAMGOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161293AbXAMGGA (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 01:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161294AbXAMGGA
+	id S1161297AbXAMGOE (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 01:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161296AbXAMGOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 01:06:00 -0500
-Received: from an-out-0708.google.com ([209.85.132.245]:11178 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161293AbXAMGGA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 01:06:00 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:from:x-x-sender:to:subject:message-id:mime-version:content-type;
-        b=Fz+hYjzs+Ocx4LXJrGVZKbYeDAmym3s+5dwXpzwUXVc3I6luSxmYjbeEtdT5luXENaFj1KRUqzkt/Sghu/1YKV+cPOtAdU0W0qzPIPfLOUgWOkcUu5hB+WeueKviXn1tyRk2JUxr4uxZpvnkqNsKvg/B/jp31b9h7MmAmGHj2C8=
-Date: Sat, 13 Jan 2007 14:05:51 +0800 (SGT)
-From: Jeff Chua <jeff.chua.linux@gmail.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux v2.6.20-rc5
-Message-ID: <Pine.LNX.4.64.0701131404520.22948@boston.corp.fedex.com>
+	Sat, 13 Jan 2007 01:14:04 -0500
+Received: from hera.kernel.org ([140.211.167.34]:35461 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161294AbXAMGOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 01:14:02 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: markh@compro.net
+Subject: Re: 2.6.17 - weird, boot CPU (#0) not listed by the BIOS.
+Date: Sat, 13 Jan 2007 01:12:39 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+References: <45A7ABB8.2030808@compro.net> <45A7AE57.8020400@compro.net>
+In-Reply-To: <45A7AE57.8020400@compro.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701130112.39140.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 12 January 2007 10:50, Mark Hounschell wrote:
+> Mark Hounschell wrote:
+> > I have a Tyan S4881 Thunder K8QW 4 processor (8 cores). Kernel 2.6.16.37 boots
+> > and runs fine.
+> > However kernel 2.6.17 and up doesn't. Here is my boot error msg.
+> > 
+> > 
+> > kernel /vmlinuz-2.6.17-smp  root=/dev/sda5inux version 2.6.17-smp (root@badboy1)
+> > (gcc version 4.1.0 (SUSE Linux)) #1 SMP PREEMPT Fri Jan 12 07:53:35 EST 2007
+> > BIOS-provided physical RAM map:
+> >  BIOS-e820: 0000000000000000 - 0000000000093800 (usable)
+> >  BIOS-e820: 0000000000093800 - 00000000000a0000 (reserved)
+> >  BIOS-e820: 00000000000c2000 - 0000000000100000 (reserved)
+> >  BIOS-e820: 0000000000100000 - 00000000cfea0000 (usable)
+> >  BIOS-e820: 00000000cfea0000 - 00000000cfea4000 (ACPI data)
+> >  BIOS-e820: 00000000cfea4000 - 00000000cff00000 (ACPI NVS)
+> >  BIOS-e820: 00000000cff00000 - 00000000d0000000 (reserved)
+> >  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
+> >  BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
+> >  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+> >  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+> >  BIOS-e820: 0000000100000000 - 0000000230000000 (usable)
+> > Warning only 4GB will be used.
+> > Use a PAE enabled kernel.
+> > 3200MB HIGHMEM available.
+> > 896MB LOWMEM available.
+> > found SMP MP-table at 000f71f0
+> > DMI present.
+> > ACPI: PM-Timer IO Port: 0x8008
+> > ACPI: LAPIC (acpi_id[0x00] lapic_id[0x10] enabled)
+> > Processor #16 15:1 APIC version 16
 
+The APIC id for the 1st processor here is 16.
+Usually it is 0.
 
-From: Jeff Chua <jchua@fedex.com>
+Apparently this has confused some of the smpboot code
+with all their new nifty bitmaps for processors online and offline...
 
->   CC [M]  drivers/kvm/vmx.o
-> {standard input}: Assembler messages:
-> {standard input}:3257: Error: bad register name `%sil'
-> make[2]: *** [drivers/kvm/vmx.o] Error 1
-> make[1]: *** [drivers/kvm] Error 2
-> make: *** [drivers] Error 2
+Does the latest kernel work any better, say 2.6.19?
+What if you throw CONFIG_NR_CPUS=32 at it?
 
+-Len
 
-I'm not using the kernel profiler, so here's a patch to make it work without 
-CONFIG_PROFILING.
-
-
-Thanks,
-Jeff
-
-
---- linux/drivers/kvm/vmx.c.org	2007-01-13 12:57:28 +0800
-+++ linux/drivers/kvm/vmx.c	2007-01-13 14:01:17 +0800
-@@ -21,7 +21,11 @@
-  #include <linux/module.h>
-  #include <linux/mm.h>
-  #include <linux/highmem.h>
-+
-+#ifdef CONFIG_PROFILING
-  #include <linux/profile.h>
-+#endif
-+
-  #include <asm/io.h>
-  #include <asm/desc.h>
-
-@@ -1861,11 +1865,13 @@
-  	asm ("mov %0, %%ds; mov %0, %%es" : : "r"(__USER_DS));
-  #endif
-
-+#ifdef CONFIG_PROFILING
-  	/*
-  	 * Profile KVM exit RIPs:
-  	 */
-  	if (unlikely(prof_on == KVM_PROFILING))
-  		profile_hit(KVM_PROFILING, (void *)vmcs_readl(GUEST_RIP));
-+#endif
-
-  	kvm_run->exit_type = 0;
-  	if (fail) {
+> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x11] enabled)
+> > Processor #17 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x12] enabled)
+> > Processor #18 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x13] enabled)
+> > Processor #19 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x14] enabled)
+> > Processor #20 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x05] lapic_id[0x15] enabled)
+> > Processor #21 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x06] lapic_id[0x16] enabled)
+> > Processor #22 15:1 APIC version 16
+> > ACPI: LAPIC (acpi_id[0x07] lapic_id[0x17] enabled)
+> > Processor #23 15:1 APIC version 16
+> > ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x04] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x05] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x06] high edge lint[0x1])
+> > ACPI: LAPIC_NMI (acpi_id[0x07] high edge lint[0x1])
+> > ACPI: IOAPIC (id[0x00] address[0xfec00000] gsi_base[0])
+> > IOAPIC[0]: apic_id 0, version 17, address 0xfec00000, GSI 0-23
+> > ACPI: IOAPIC (id[0x01] address[0xda200000] gsi_base[24])
+> > IOAPIC[1]: apic_id 1, version 17, address 0xda200000, GSI 24-27
+> > ACPI: IOAPIC (id[0x02] address[0xda201000] gsi_base[28])
+> > IOAPIC[2]: apic_id 2, version 17, address 0xda201000, GSI 28-31
+> > ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+> > Enabling APIC mode:  Flat.  Using 3 I/O APICs
+> > Using ACPI (MADT) for SMP configuration information
+> > Allocating PCI resources starting at d1000000 (gap: d0000000:10000000)
+> > Built 1 zonelists
+> > Kernel command line: root=/dev/sda5 vga=normal resume=/dev/sda2  splash=silent
+> > "console=ttyS0,19200"
+> > Enabling fast FPU save and restore... done.
+> > Enabling unmasked SIMD FPU exception support... done.
+> > Initializing CPU#0
+> > PID hash table entries: 4096 (order: 12, 16384 bytes)
+> > Detected 2411.454 MHz processor.
+> > Using pmtmr for high-res timesource
+> > Console: colour VGA+ 80x25
+> > Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+> > Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+> > Memory: 3366304k/4194304k available (1529k kernel code, 38968k reserved, 633k
+> > data, 184k init, 2488960k highmem)
+> > Checking if this processor honours the WP bit even in supervisor mode... Ok.
+> > Calibrating delay using timer specific routine.. 4827.61 BogoMIPS (lpj=9655232)
+> > Security Framework v1.0.0 initialized
+> > Capability LSM initialized
+> > Mount-cache hash table entries: 512
+> > CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> > CPU: L2 Cache: 1024K (64 bytes/line)
+> > CPU 0(2) -> Core 0
+> > Intel machine check architecture supported.
+> > Intel machine check reporting enabled on CPU#0.
+> > Checking 'hlt' instruction... OK.
+> > Freeing SMP alternatives: 12k freed
+> > ACPI Warning (nsload-0106): Zero-length AML block in table [SSDT] [20060127]
+> > CPU0: AMD Athlon(tm) or Opteron(tm) CPU-model unknown stepping 02
+> > weird, boot CPU (#0) not listed by the BIOS.
+> > 
+> > It then just reboots. Any ideas what I need to do for 2.6.17 and up kernels. I
+> > have tried all the
+> > way up to 2.6.20-rc4.
+> > 
+> > Thanks
+> > Mark
+> > 
+> 
+> Oh, I'm running in 32 bit mode on SuSE-10.2
+> 
+> Mark
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751302AbXAMJuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751338AbXAMJvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbXAMJuc (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 04:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030506AbXAMJuc
+	id S1751338AbXAMJvy (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 04:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbXAMJvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 04:50:32 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51053 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751197AbXAMJub (ORCPT
+	Sat, 13 Jan 2007 04:51:54 -0500
+Received: from a80-100-32-23.adsl.xs4all.nl ([80.100.32.23]:45231 "EHLO
+	mail.vanvergehaald.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751338AbXAMJvx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 04:50:31 -0500
-Date: Sat, 13 Jan 2007 10:01:58 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Proposed changes for libata speed handling
-Message-ID: <20070113100158.1d79ba9f@localhost.localdomain>
-In-Reply-To: <45A83DD2.5020000@gmail.com>
-References: <20070112135301.4cdba24f@localhost.localdomain>
-	<45A83DD2.5020000@gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Jan 2007 04:51:53 -0500
+Date: Sat, 13 Jan 2007 10:51:51 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Two versions of the truth (Documentation/{filesystems/proc.txt,sysctl/vm.txt}
+Message-ID: <20070113095151.GA24254@shuttle.vanvergehaald.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O> Wouldn't it be better to have ->determine_xfer_mask() and
-> ->set_specific_mode() than having two somewhat overlapping callbacks?
-> Or is there some problem that can't be handled that way?
+Hi,
 
-I'm not sure I follow what you are suggesting - can you explain further.
+I was looking for a description of the kernel parameter page-cluster
+and found two versions that appear to be very different to me.
+(see the two text fragments below)
 
-Right now ->set_mode does all the policy management with regards to
-picking the right modes which is sometimes done by the usual ATA rules
-and sometimes by card specific code.
+The first one talks about the clusting of pages on a page fault,
+when pages need to be read into memory.
+The second one talks about the number of pages written to swap in
+a single attempt.
 
-->set_specific_mode does no policy work but merely sets up a mode.
+Which one is correct?
+I'm inclined to choose the first description.
+The second one appears to be wrong to me because paged-in pages are
+simply evicted from the page cache when need be, they are never
+written out to swap. At least, that's what I've always thought.
 
-The default behaviour of ->set_mode() is the ATA mode selection by best
-mode available, and this function is normally not provided by a driver.
+Can anybody help me out?
+Regards,
+Toon.
 
-The default behaviour of ->set_specific_mode() is to verify the mode is
-valid then issue ->set_pio|dma_mode() (for both devices in case a timing
-change on both is triggered). This function is overridable because of
-things like IT821x where the IDE mode is imaginary.
+8< - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Alan
+/usr/src/linux-2.6.18-gentoo-r4/Documentation/sysctl/vm.txt:
+============================================================
+page-cluster:
+
+The Linux VM subsystem avoids excessive disk seeks by reading
+multiple pages on a page fault. The number of pages it reads
+is dependent on the amount of memory in your machine.
+
+The number of pages the kernel reads in at once is equal to
+2 ^ page-cluster. Values above 2 ^ 5 don't make much sense
+for swap because we only cluster swap data in 32-page groups.
+
+/usr/src/linux-2.6.18-gentoo-r4/Documentation/filesystems/proc.txt:
+===================================================================
+page-cluster
+------------
+
+page-cluster controls the number of pages which are written to swap
+in a single attempt.  The swap I/O size.
+
+It is a logarithmic value - setting it to zero means "1 page",
+setting it to 1 means "2 pages", setting it to 2 means "4 pages",
+etc.
+
+The default value is three (eight pages at a time).  There may be
+some small benefits in tuning this to a different value if your
+workload is swap-intensive.

@@ -1,66 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161273AbXAMEwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161285AbXAMEym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161273AbXAMEwK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 23:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbXAMEwK
+	id S1161285AbXAMEym (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 23:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbXAMEyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 23:52:10 -0500
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:22014 "HELO
-	smtp104.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1161273AbXAMEwJ (ORCPT
+	Fri, 12 Jan 2007 23:54:41 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:36895 "HELO
+	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1161280AbXAMEyl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 23:52:09 -0500
+	Fri, 12 Jan 2007 23:54:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=CZtSIod7+jzj3ZCRHTvFrsFLIi5Cxy4OE33w18qYe+K3g04M6JxmM/Ogyi2dAseD01g6qcWKrgOfwYb0IQpNO2kQ3/xG2c+c5rf8FnCx2g8qWKV6sIGuR2IO/kLtTezYR0BkmFaXu+IcO6QfwkA5nUjOUjlo+BGTvqlshYRydUw=  ;
-X-YMail-OSG: RjNAsYwVM1mp9N8eL8b4PPLj_HfQlXdHQNChAxSCMO2txYQcj3o7YT.BPg6jeQeq6XJE305A5l.101voM0HmHg9ao2Pf61qIy0boEUgFYU8cU_KW6zdLtZ5r_6eSsF9ekZKnZp6Amjhf4DFWgQWjT93s1z21ilZqXNEL0HlEXoy_mwMkO16o0LF8jwwZ
-Message-ID: <45A8655E.8050708@yahoo.com.au>
-Date: Sat, 13 Jan 2007 15:51:42 +1100
+  b=iLmypEEgEh1k/HOfC9A50hXLSlu1d7OyX5vz/qFDw2z3QRao70ijWBGc1zb4rviEcRdIrVfs38Y3tIPhKJcTNz5ZCCyilHZwxc0kgVh4FS5G05bDsjW7/xShP2fbTlZziEzEoF/4O8bS8W2+OlP8/zMZWx4Vb+NwFIbf7mBYT0M=  ;
+X-YMail-OSG: VEpEB8UVM1nVLitgJ2FHsiDWWCvR7u.ky.dtrE0tq_BzH1enOifsmHx5t4F_Ymp3gjzv9aZ17.T6BhIRef9aZtnSNUPXZMoAHTSOPr4IS489Au5xcXaXlAi_1U2rEa.OGgBaiUKkWPeVeBo-
+Message-ID: <45A865F7.3010900@yahoo.com.au>
+Date: Sat, 13 Jan 2007 15:54:15 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Aubrey <aubreylee@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, mjt@tls.msk.ru
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com>	 <6d6a94c50701102245g6afe6aacxfcb2136baee5cbfa@mail.gmail.com>	 <20070110225720.7a46e702.akpm@osdl.org>	 <45A5E1B2.2050908@yahoo.com.au>	 <6d6a94c50701102354l7ab41a3bp4761566204f1d992@mail.gmail.com>	 <45A5F157.9030001@yahoo.com.au> <45A6F70E.1050902@tmr.com>	 <45A70EF9.40408@yahoo.com.au>	 <Pine.LNX.4.64.0701112044070.3594@woody.osdl.org>	 <45A714F8.6020600@yahoo.com.au> <6d6a94c50701112122l66a4866bg548009dddb806434@mail.gmail.com> <45A7A23F.7040801@tmr.com>
-In-Reply-To: <45A7A23F.7040801@tmr.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: tuning/tweaking VM settings for low memory (preventing OOM)
+References: <D7BBB18A-F5D4-4FE0-903F-3683333D957C@kernel.crashing.org>
+In-Reply-To: <D7BBB18A-F5D4-4FE0-903F-3683333D957C@kernel.crashing.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Kumar Gala wrote:
+> I'm working on an embedded PPC setup with 64M of memory and no swap.   
+> I'm trying to figure out how best to tune the VM for an OOM situation  
+> I'm running into.
+> 
+> I'm running a 2.6.16.35 kernel and have a bittorrent app that appears  
+> to be initializing a large file for it to download into.  What I see  
+> before running the app:
+> 
+> /bigfoot/usb_disk # cat /proc/meminfo
+> MemTotal:        62520 kB
+> MemFree:         49192 kB
+> Buffers:          8240 kB
+> Cached:            740 kB
+> SwapCached:          0 kB
+> Active:           8196 kB
+> Inactive:         1236 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:        62520 kB
+> LowFree:         49192 kB
+> SwapTotal:           0 kB
+> SwapFree:            0 kB
+> Dirty:               0 kB
+> Writeback:           0 kB
+> Mapped:            916 kB
+> Slab:             2224 kB
+> CommitLimit:     31260 kB
+> Committed_AS:     1704 kB
+> PageTables:         88 kB
+> VmallocTotal:   933872 kB
+> VmallocUsed:      9416 kB
+> VmallocChunk:   923628 kB
+> 
+> after the OOM:
+> 
+> /bigfoot/usb_disk # cat /proc/meminfo
+> MemTotal:        62520 kB
+> MemFree:          1608 kB
+> Buffers:          8212 kB
+> Cached:          42780 kB
+> SwapCached:          0 kB
+> Active:           6228 kB
+> Inactive:        45176 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:        62520 kB
+> LowFree:          1608 kB
+> SwapTotal:           0 kB
+> SwapFree:            0 kB
+> Dirty:           35208 kB
+> Writeback:        5616 kB
+> Mapped:            892 kB
+> Slab:             7788 kB
+> CommitLimit:     31260 kB
+> Committed_AS:     1704 kB
+> PageTables:         88 kB
+> VmallocTotal:   933872 kB
+> VmallocUsed:      9416 kB
+> VmallocChunk:   923628 kB
+> 
+> Which makes me think that we aren't writing back fast enough.  If I  
+> mount the drive "sync" the issue clearly goes away.
+> 
+> It appears from an strace we are doing ftruncate64(5, 178257920) when  
+> we OOM.
+> 
+> Any ideas on VM parameters to tweak so we throttle this from occurring?
 
-> The point is that if you want to be able to allocate at all, sometimes 
-> you will have to write dirty pages, garbage collect, and move or swap 
-> programs. The hardware is just too limited to do something less painful, 
-> and the user can't see memory to do things better. Linus is right, 
-> 'Claiming that there is a "proper solution" is usually a total red 
-> herring. Quite often there isn't, and the "paper over" is actually not 
-> papering over, it's quite possibly the best solution there is.' I think 
-> any solution is going to be ugly, unfortunately.
-
-It seems quite robust and clean to me, actually. Any userspace memory
-that absolutely must be large contiguous regions have to be allocated at
-boot or from a pool reserved at boot. All other allocations can be broken
-into smaller ones.
-
-Write dirty pages, garbage collect, move or swap programs isn't going
-to be robust because there is lots of vital kernel memory that cannot be
-moved and will cause fragmentation.
-
-The reclaimable zone work that went on a while ago for hugepages is
-exactly how you would also fix this problem and still have a reasonable
-degree of flexibility at runtime. It isn't really ugly or hard,  compared
-with some of the non-working "solutions" that have been proposed.
-
-The other good thing is that the core mm already has practically
-everything required, so the functionality is unintrusive.
+You don't give us the actual OOM message. In newer kernels, there has been
+quite a bit of work done to improve the OOM situation -- search changelogs
+in mm/oom_kill.c mm/vmscan.c mm/page_alloc.c.
 
 -- 
 SUSE Labs, Novell Inc.

@@ -1,104 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161141AbXAMArV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161147AbXAMAsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161141AbXAMArV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 12 Jan 2007 19:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161144AbXAMArV
+	id S1161147AbXAMAsE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 12 Jan 2007 19:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161159AbXAMAsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Jan 2007 19:47:21 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:38473 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161141AbXAMArU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Jan 2007 19:47:20 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:sender;
-        b=LUhwIIvy+1RVlydx+3NcmBq94Yxyt9k8dqY/rl6gDP13OpwhUbD1zhu+EP39q7MPbpgKkstDQkvWSJ9YmGxLUWCjvCYZ9p4JZy9/fOBJkRJqs5hMfKc5Rjr69hNu8Izxturi+lwOUxx63XW7MkePjBjoQg9ETwI/yIwVomHnq3k=
-Date: Sat, 13 Jan 2007 00:45:03 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Len Brown <lenb@kernel.org>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, rui.zhang@intel.com,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Subject: Re: Early ACPI lockup (was Re: 2.6.20-rc4-mm1)
-Message-ID: <20070113004502.GJ5941@slug>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <20070112102040.GD5941@slug> <200701121753.08710.lenb@kernel.org> <20070112231015.GI5941@slug> <45A81B6C.3030106@gmail.com> <45A8230E.5050600@googlemail.com>
+	Fri, 12 Jan 2007 19:48:04 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:55616 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161147AbXAMAsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Jan 2007 19:48:01 -0500
+Message-ID: <45A82BED.4000608@us.ibm.com>
+Date: Fri, 12 Jan 2007 16:46:37 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45A8230E.5050600@googlemail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] NMI watchdog lockups caused by mwait_idle
+References: <EB12A50964762B4D8111D55B764A8454011D61F7@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454011D61F7@scsmsx413.amr.corp.intel.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2007 at 01:08:46AM +0100, Michal Piotrowski wrote:
-> Jiri Slaby napisał(a):
-> > Frederik Deweerdt wrote:
-> >> On Fri, Jan 12, 2007 at 05:53:08PM -0500, Len Brown wrote:
-> >>> On Friday 12 January 2007 05:20, Frederik Deweerdt wrote:
-> >>>> On Thu, Jan 11, 2007 at 10:26:27PM -0800, Andrew Morton wrote:
-> >>>>>   ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc4-mm1/
-> >>>>>
-> >>>> Hi,
-> >>>>
-> >>>> The git-acpi.patch replaces earlier "if(!handler) return -EINVAL" by
-> >>>> "BUG_ON(!handler)". This locks my machine early at boot with a message
-> >>>> along the lines of (It's hand copied):
-> >>>> Int 6: cr2: 00000000 eip: c0570e05 flags: 00010046 cs: 60
-> >>>> stack: c054ffac c011db2b c04936d0 c054ff68 c054ffc0 c054fff4 c057da2c
-> >>>>
-> >>>> Reverting the change as follows, allows booting:
-> >>>> Any ideas to debug this further?
-> >>>> diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-> >>>> index db0c5f6..fba018c 100644
-> >>>> --- a/drivers/acpi/tables.c
-> >>>> +++ b/drivers/acpi/tables.c
-> >>>> @@ -414,7 +414,9 @@ int __init acpi_table_parse(enum acpi_ta
-> >>>>  	unsigned int index;
-> >>>>  	unsigned int count = 0;
-> >>>>  
-> >>>> -	BUG_ON(!handler);
-> >>>> +	if (!handler)
-> >>>> +		return -EINVAL;
-> >>>> +	/*BUG_ON(!handler);*/
-> >>>>  
-> >>>>  	for (i = 0; i < sdt_count; i++) {
-> >>>>  		if (sdt_entry[i].id != id)
-> >>> What do you see if on failure you also print out the params, like below?
-> > 
-> > I get this:
-> > 
-> > ACPI: RSDP (v000 GBT                                   ) @ 0x000f6e80
-> > ACPI: RSDT (v001 GBT    AWRDACPI 0x42302e31 AWRD 0x01010101) @ 0x3fff3000
-> > ACPI: FADT (v001 GBT    AWRDACPI 0x42302e31 AWRD 0x01010101) @ 0x3fff3040
-> > ACPI: MADT (v001 GBT    AWRDACPI 0x42302e31 AWRD 0x01010101) @ 0x3fff7100
-> > ACPI: DSDT (v001 GBT    AWRDACPI 0x00001000 MSFT 0x0100000c) @ 0x00000000
-> > ACPI: PM-Timer IO Port: 0x1008
-> > ACPI: Local APIC address 0xfee00000
-> > ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-> > Processor #0 15:2 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-> > Processor #1 15:2 APIC version 20
-> > ACPI: LAPIC_NMI (acpi_id[0x00] dfl dfl lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-> > ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-> > IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-> > ACPI: IRQ0 used by override.
-> > ACPI: IRQ2 used by override.
-> > ACPI: IRQ9 used by override.
-> > Enabling APIC mode:  Flat.  Using 1 I/O APICs
-> > ACPI: acpi_table_parse(17, 00000000) HPET NULL handler!
-> > Using ACPI (MADT) for SMP configuration information
-> > 
+Pallipadi, Venkatesh wrote:
+> Darrick,
 > 
-> ACPI: acpi_table_parse(17, 00000000) HPET NULL handler!
-So the BUG_ON is triggered by CONFIG_HPET_TIMER not being defined,
-causing acpi_parse_hpet to be NULL.
-Should the acpi_table_parse() called be ifdef'ed of is the previous
-behaviour (returning -EINVAL) just OK?
+> I tried 2.6.20-rc4 on a Dempsey system here in my lab and it worked
+> fine. No watchdog lockups.
+> Can you try idle routine with hlt instead of mwait. There is no boot
+> option for this in x86_64, but you can change
+> arch/x86_64/kernel/process.c:select_idle_routine() not to enable mwait.
+> With that default kernel should use hlt based idle.
+> 
+> Also, worth seeing will be, what happens when nmi_watchdog=0,
+> nmi_watchdog=1, and nmi_watchdog=2 boot options. That should tell us
+> whether nmi_watchdog is raising some false alarm or the CPUs are indeed
+> getting locked up here..
+> 
 
-Regards,
-Frederik
+Locks up with hlt-based idle too. :(
+
+Here's what I get with nmi_watchdog=0:
+
+[  206.088703] BUG: soft lockup detected on CPU#0!
+[  206.093284] 
+[  206.093286] Call Trace:
+[  206.097324]  <IRQ>  [<ffffffff801b1f89>] softlockup_tick+0xd4/0xe9
+[  206.103618]  [<ffffffff80173c55>] do_flush_tlb_all+0x0/0x68
+[  206.109238]  [<ffffffff8014d8f8>] run_local_timers+0x13/0x15
+[  206.114949]  [<ffffffff80192844>] update_process_times+0x4c/0x78
+[  206.121008]  [<ffffffff80174fcd>] smp_local_timer_interrupt+0x34/0x51
+[  206.127498]  [<ffffffff801756b1>] smp_apic_timer_interrupt+0x49/0x60
+[  206.133901]  [<ffffffff8015cd16>] apic_timer_interrupt+0x66/0x70
+[  206.139956]  <EOI>  [<ffffffff80173baa>] __smp_call_function+0x66/0x87
+[  206.146594]  [<ffffffff80173ba6>] __smp_call_function+0x62/0x87
+[  206.152564]  [<ffffffff80173c55>] do_flush_tlb_all+0x0/0x68
+[  206.158188]  [<ffffffff80173c55>] do_flush_tlb_all+0x0/0x68
+[  206.163813]  [<ffffffff80173cef>] smp_call_function+0x32/0x49
+[  206.169611]  [<ffffffff80173c55>] do_flush_tlb_all+0x0/0x68
+[  206.175236]  [<ffffffff8018e117>] on_each_cpu+0x30/0x67
+[  206.180514]  [<ffffffff80173d46>] flush_tlb_all+0x1c/0x1e
+[  206.185965]  [<ffffffff80150f2a>] unmap_vm_area+0x1c3/0x265
+[  206.191590]  [<ffffffff80101c20>] init_level4_pgt+0xc20/0x1000
+[  206.197474]  [<ffffffff801bfc47>] remove_vm_area+0x41/0x67
+[  206.203010]  [<ffffffff8017c33c>] iounmap+0x8e/0xc8
+[  206.207933]  [<ffffffff80230032>] acpi_os_unmap_memory+0x9/0xb
+[  206.213810]  [<ffffffff8023aaff>] acpi_ev_system_memory_region_setup+0x52/0x105
+[  206.221174]  [<ffffffff80259465>] acpi_ut_delete_internal_obj+0x2c4/0x3b2
+[  206.228012]  [<ffffffff802596d3>] acpi_ut_update_ref_count+0x180/0x1d2
+[  206.234587]  [<ffffffff80259885>] acpi_ut_update_object_reference+0x160/0x207
+[  206.241770]  [<ffffffff802599e1>] acpi_ut_remove_reference+0xb5/0xd5
+[  206.248173]  [<ffffffff8024da8a>] acpi_ns_detach_object+0xca/0xee
+[  206.254318]  [<ffffffff8024b08a>] acpi_ns_delete_namespace_by_owner+0xcf/0x154
+[  206.261597]  [<ffffffff80234481>] acpi_ds_terminate_control_method+0xb5/0x14f
+[  206.268779]  [<ffffffff8024ef7c>] acpi_ps_parse_aml+0x242/0x3a0
+[  206.274750]  [<ffffffff80250a00>] acpi_ps_execute_pass+0xd5/0x10b
+[  206.280895]  [<ffffffff80250c3c>] acpi_ps_execute_method+0x1bf/0x2cb
+[  206.287298]  [<ffffffff8024b4da>] acpi_ns_evaluate+0x1f8/0x315
+[  206.293180]  [<ffffffff8024abf1>] acpi_evaluate_object+0x1d9/0x2fa
+[  206.299411]  [<ffffffff8010ab03>] kmem_cache_alloc+0xce/0xda
+[  206.305125]  [<ffffffff880146a9>] :processor:acpi_processor_start+0x656/0x6fd
+[  206.312307]  [<ffffffff801cc2a0>] kmem_cache_zalloc+0xce/0xf4
+[  206.318103]  [<ffffffff80261097>] acpi_start_single_object+0x2a/0x54
+[  206.324509]  [<ffffffff8026192d>] acpi_bus_register_driver+0xcd/0x14c
+[  206.331001]  [<ffffffff88022061>] :processor:acpi_processor_init+0x61/0xb7
+[  206.337923]  [<ffffffff801a4d6e>] sys_init_module+0xac/0x16c
+[  206.343630]  [<ffffffff8015c11e>] system_call+0x7e/0x83
+
+nmi_watchdog={1,2} produce the same errors.
+
+--D

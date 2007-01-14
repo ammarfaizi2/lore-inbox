@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751734AbXAOABd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751742AbXAOAHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751734AbXAOABd (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbXAOABd
+	id S1751742AbXAOAHb (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbXAOAHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 19:01:33 -0500
-Received: from enyo.dsw2k3.info ([195.71.86.239]:46786 "EHLO enyo.dsw2k3.info"
+	Sun, 14 Jan 2007 19:07:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10212 "EHLO virtualhost.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751734AbXAOABc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 19:01:32 -0500
-Message-ID: <45AAC44D.808@citd.de>
-Date: Mon, 15 Jan 2007 01:01:17 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
-X-Accept-Language: en-us, en
+	id S1751740AbXAOAHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 19:07:30 -0500
+Date: Mon, 15 Jan 2007 09:20:42 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: 2.6.20-rc4-mm1
+Message-ID: <20070114222042.GO5860@kernel.dk>
+References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Richard Knutsson <ricknu-0@student.ltu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
-References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de> <45AAA3C2.80603@student.ltu.se> <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de>
-In-Reply-To: <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1168785616.2941.67.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> On 14 Jan, Richard Knutsson wrote:
+On Sun, Jan 14 2007, Thomas Gleixner wrote:
+> On Sun, 2007-01-14 at 11:46 +0100, Thomas Gleixner wrote:
+> > > Boot proceeds, but gets stuck hard at:
+> > > "Remounting root filesystem in read-write mode:"
+> > > 
+> > > No SysRq-T, nothing.
+> > > 
+> > > The above BUG seems unrelated to that. Investigating further.
+> > 
+> > Bisect identified: git-block.patch
 > 
->>(Really liked the idea to have a "Maintainer"-button 
->>next to "Help" in *config)
+> Does only happen on 2 systems. Both have sata + raid1 setup. I managed 
+> to get a stacktrace from the SMP box. Sits there and sleeps forever.
 > 
+> 	tglx
 > 
-> Rhetorical question: What will this button be used for?
+> [<c032ac64>] io_schedule+0x7a/0x9a
+> [<c0157f89>] sleep_on_page+0x8/0xc
+> [<c032ae45>] __wait_on_bit+0x36/0x5d
+> [<c01580d8>] wait_on_page_bit+0x5b/0x61
+> [<c0158a2b>] wait_on_page_writeback_range+0x4f/0xef
+> [<c0158b0f>] filemap_fdatawait+0x44/0x49
+> [<c0158da0>] filemap_write_and_wait+0x22/0x2d
+> [<c0190e39>] sync_blockdev+0x17/0x1d
+> [<c01a27af>] quota_sync_sb+0x33/0xd6
+> [<c01a2874>] sync_dquots+0x22/0xfa
+> [<c01757cf>] __fsync_super+0x17/0x66
+> [<c0175829>] fsync_super+0xb/0x19
+> [<c0175880>] do_remount_sb+0x49/0x101
+> [<c0187f98>] do_mount+0x1ad/0x678
+> [<c01884d2>] sys_mount+0x6f/0xa4
+> [<c0103f6a>] sysenter_past_esp+0x5f/0x99
 
-Having "all(tm)" information of something in one place?
-Help-Text and Dependencies/Selects are already there.
-I think adding the Maintainers-data is more or less a logical next step.
-
-It's not always clear from the MAINTAINERS-file who is the right person
-for what. Especially as it is a rather large text-file with only
-mediocre search-friendlieness. It's a 3.5 K-lines file!
-
-So when you know that you have a problem with drivers X, wouldn't it be
-great if you could just "go to" the driver in *config and see not only
-the Help-Text but the Maintainers-Data also.
-And you can place "Fallback"-Maintainers-Data on Tree-Parents, for the
-cases where you only can pinpoint a area, like when you have a problem
-with a USB-device.
-
-
-I can ask a rhetorical question too:
-Why not go back to Config.help. Having a huge X K-Lines file with
-everything in one file can't be that bad. It worked before!
-
-
-
-
-Bis denn
+raid seems to have severe problems with the plugging change. I'll try
+and find Neil and have a chat with him, hopefully we can work it out.
 
 -- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
+Jens Axboe
 

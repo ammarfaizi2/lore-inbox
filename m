@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750917AbXANBAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751006AbXANBBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbXANBAr (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 20:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbXANBAr
+	id S1751006AbXANBBM (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 20:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbXANBBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 20:00:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:52754 "EHLO
+	Sat, 13 Jan 2007 20:01:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52760 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750917AbXANBAn (ORCPT
+	with ESMTP id S1750948AbXANBBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 20:00:43 -0500
-Subject: [patch 03/12] mark struct file_operations const 3
+	Sat, 13 Jan 2007 20:01:06 -0500
+Subject: [patch 04/12] mark struct file_operations const 4
 From: Arjan van de Ven <arjan@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org
@@ -18,8 +18,8 @@ In-Reply-To: <1168735868.3123.315.camel@laptopd505.fenrus.org>
 References: <1168735868.3123.315.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Organization: Intel International BV
-Date: Sat, 13 Jan 2007 16:53:58 -0800
-Message-Id: <1168736038.3123.323.camel@laptopd505.fenrus.org>
+Date: Sat, 13 Jan 2007 16:54:27 -0800
+Message-Id: <1168736067.3123.325.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
@@ -30,7 +30,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Arjan van de Ven <arjan@linux.intel.com>
-Subject: [patch 03/12] mark struct file_operations const
+Subject: [patch 04/12] mark struct file_operations const
 
 Many struct file_operations in the kernel can be "const". Marking them const
 moves these to the .rodata section, which avoids false sharing with
@@ -39,224 +39,50 @@ time to these shared resources.
 
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
-Index: linux-2.6/block/blktrace.c
+Index: linux-2.6/drivers/macintosh/adb.c
 ===================================================================
---- linux-2.6.orig/block/blktrace.c
-+++ linux-2.6/block/blktrace.c
-@@ -264,7 +264,7 @@ static ssize_t blk_dropped_read(struct f
- 	return simple_read_from_buffer(buffer, count, ppos, buf, strlen(buf));
+--- linux-2.6.orig/drivers/macintosh/adb.c
++++ linux-2.6/drivers/macintosh/adb.c
+@@ -885,7 +885,7 @@ out:
+ 	return ret;
  }
  
--static struct file_operations blk_dropped_fops = {
-+static const struct file_operations blk_dropped_fops = {
- 	.owner =	THIS_MODULE,
- 	.open =		blk_dropped_open,
- 	.read =		blk_dropped_read,
-Index: linux-2.6/crypto/proc.c
-===================================================================
---- linux-2.6.orig/crypto/proc.c
-+++ linux-2.6/crypto/proc.c
-@@ -101,7 +101,7 @@ static int crypto_info_open(struct inode
- 	return seq_open(file, &crypto_seq_ops);
- }
-         
--static struct file_operations proc_crypto_ops = {
-+static const struct file_operations proc_crypto_ops = {
- 	.open		= crypto_info_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-Index: linux-2.6/drivers/acorn/char/i2c.c
-===================================================================
---- linux-2.6.orig/drivers/acorn/char/i2c.c
-+++ linux-2.6/drivers/acorn/char/i2c.c
-@@ -238,7 +238,7 @@ static int rtc_ioctl(struct inode *inode
- 	return -EINVAL;
- }
- 
--static struct file_operations rtc_fops = {
-+static const struct file_operations rtc_fops = {
- 	.ioctl	= rtc_ioctl,
- };
- 
-Index: linux-2.6/drivers/block/acsi_slm.c
-===================================================================
---- linux-2.6.orig/drivers/block/acsi_slm.c
-+++ linux-2.6/drivers/block/acsi_slm.c
-@@ -269,7 +269,7 @@ static int slm_get_pagesize( int device,
- 
- static DEFINE_TIMER(slm_timer, slm_test_ready, 0, 0);
- 
--static struct file_operations slm_fops = {
-+static const struct file_operations slm_fops = {
- 	.owner =	THIS_MODULE,
- 	.read =		slm_read,
- 	.write =	slm_write,
-Index: linux-2.6/drivers/block/aoe/aoechr.c
-===================================================================
---- linux-2.6.orig/drivers/block/aoe/aoechr.c
-+++ linux-2.6/drivers/block/aoe/aoechr.c
-@@ -233,7 +233,7 @@ loop:
- 	}
- }
- 
--static struct file_operations aoe_fops = {
-+static const struct file_operations aoe_fops = {
- 	.write = aoechr_write,
- 	.read = aoechr_read,
- 	.open = aoechr_open,
-Index: linux-2.6/drivers/block/DAC960.c
-===================================================================
---- linux-2.6.orig/drivers/block/DAC960.c
-+++ linux-2.6/drivers/block/DAC960.c
-@@ -7025,7 +7025,7 @@ static int DAC960_gam_ioctl(struct inode
-   return -EINVAL;
- }
- 
--static struct file_operations DAC960_gam_fops = {
-+static const struct file_operations DAC960_gam_fops = {
+-static struct file_operations adb_fops = {
++static const struct file_operations adb_fops = {
  	.owner		= THIS_MODULE,
- 	.ioctl		= DAC960_gam_ioctl
- };
-Index: linux-2.6/drivers/block/paride/pg.c
+ 	.llseek		= no_llseek,
+ 	.read		= adb_read,
+Index: linux-2.6/drivers/macintosh/ans-lcd.c
 ===================================================================
---- linux-2.6.orig/drivers/block/paride/pg.c
-+++ linux-2.6/drivers/block/paride/pg.c
-@@ -227,7 +227,7 @@ static struct class *pg_class;
- 
- /* kernel glue structures */
- 
--static struct file_operations pg_fops = {
-+static const struct file_operations pg_fops = {
- 	.owner = THIS_MODULE,
- 	.read = pg_read,
- 	.write = pg_write,
-Index: linux-2.6/drivers/block/paride/pt.c
-===================================================================
---- linux-2.6.orig/drivers/block/paride/pt.c
-+++ linux-2.6/drivers/block/paride/pt.c
-@@ -232,7 +232,7 @@ static char pt_scratch[512];	/* scratch 
- 
- /* kernel glue structures */
- 
--static struct file_operations pt_fops = {
-+static const struct file_operations pt_fops = {
- 	.owner = THIS_MODULE,
- 	.read = pt_read,
- 	.write = pt_write,
-Index: linux-2.6/drivers/block/pktcdvd.c
-===================================================================
---- linux-2.6.orig/drivers/block/pktcdvd.c
-+++ linux-2.6/drivers/block/pktcdvd.c
-@@ -447,7 +447,7 @@ static int pkt_debugfs_fops_open(struct 
- 	return single_open(file, pkt_debugfs_seq_show, inode->i_private);
- }
- 
--static struct file_operations debug_fops = {
-+static const struct file_operations debug_fops = {
- 	.open		= pkt_debugfs_fops_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-@@ -2737,7 +2737,7 @@ static int pkt_seq_open(struct inode *in
- 	return single_open(file, pkt_seq_show, PDE(inode)->data);
- }
- 
--static struct file_operations pkt_proc_fops = {
-+static const struct file_operations pkt_proc_fops = {
- 	.open	= pkt_seq_open,
- 	.read	= seq_read,
- 	.llseek	= seq_lseek,
-@@ -3064,7 +3064,7 @@ static int pkt_ctl_ioctl(struct inode *i
- }
- 
- 
--static struct file_operations pkt_ctl_fops = {
-+static const struct file_operations pkt_ctl_fops = {
- 	.ioctl	 = pkt_ctl_ioctl,
- 	.owner	 = THIS_MODULE,
- };
-Index: linux-2.6/drivers/bluetooth/hci_vhci.c
-===================================================================
---- linux-2.6.orig/drivers/bluetooth/hci_vhci.c
-+++ linux-2.6/drivers/bluetooth/hci_vhci.c
-@@ -332,7 +332,7 @@ static int vhci_fasync(int fd, struct fi
+--- linux-2.6.orig/drivers/macintosh/ans-lcd.c
++++ linux-2.6/drivers/macintosh/ans-lcd.c
+@@ -121,7 +121,7 @@ anslcd_open( struct inode * inode, struc
  	return 0;
  }
  
--static struct file_operations vhci_fops = {
-+static const struct file_operations vhci_fops = {
+-struct file_operations anslcd_fops = {
++const struct file_operations anslcd_fops = {
+ 	.write	= anslcd_write,
+ 	.ioctl	= anslcd_ioctl,
+ 	.open	= anslcd_open,
+Index: linux-2.6/drivers/macintosh/apm_emu.c
+===================================================================
+--- linux-2.6.orig/drivers/macintosh/apm_emu.c
++++ linux-2.6/drivers/macintosh/apm_emu.c
+@@ -501,7 +501,7 @@ static int apm_emu_get_info(char *buf, c
+ 	return p - buf;
+ }
+ 
+-static struct file_operations apm_bios_fops = {
++static const struct file_operations apm_bios_fops = {
  	.owner		= THIS_MODULE,
- 	.llseek		= vhci_llseek,
- 	.read		= vhci_read,
-Index: linux-2.6/drivers/cdrom/viocd.c
+ 	.read		= do_read,
+ 	.poll		= do_poll,
+Index: linux-2.6/drivers/macintosh/nvram.c
 ===================================================================
---- linux-2.6.orig/drivers/cdrom/viocd.c
-+++ linux-2.6/drivers/cdrom/viocd.c
-@@ -176,7 +176,7 @@ static int proc_viocd_open(struct inode 
- 	return single_open(file, proc_viocd_show, NULL);
- }
- 
--static struct file_operations proc_viocd_operations = {
-+static const struct file_operations proc_viocd_operations = {
- 	.open		= proc_viocd_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-Index: linux-2.6/drivers/char/briq_panel.c
-===================================================================
---- linux-2.6.orig/drivers/char/briq_panel.c
-+++ linux-2.6/drivers/char/briq_panel.c
-@@ -187,7 +187,7 @@ static ssize_t briq_panel_write(struct f
- 	return len;
- }
- 
--static struct file_operations briq_panel_fops = {
-+static const struct file_operations briq_panel_fops = {
- 	.owner		= THIS_MODULE,
- 	.read		= briq_panel_read,
- 	.write		= briq_panel_write,
-Index: linux-2.6/drivers/char/drm/drm_drv.c
-===================================================================
---- linux-2.6.orig/drivers/char/drm/drm_drv.c
-+++ linux-2.6/drivers/char/drm/drm_drv.c
-@@ -371,7 +371,7 @@ void drm_exit(struct drm_driver *driver)
- EXPORT_SYMBOL(drm_exit);
- 
- /** File operations structure */
--static struct file_operations drm_stub_fops = {
-+static const struct file_operations drm_stub_fops = {
- 	.owner = THIS_MODULE,
- 	.open = drm_stub_open
- };
-Index: linux-2.6/drivers/char/drm/i810_dma.c
-===================================================================
---- linux-2.6.orig/drivers/char/drm/i810_dma.c
-+++ linux-2.6/drivers/char/drm/i810_dma.c
-@@ -112,7 +112,7 @@ static int i810_mmap_buffers(struct file
- 	return 0;
- }
- 
--static struct file_operations i810_buffer_fops = {
-+static const struct file_operations i810_buffer_fops = {
- 	.open = drm_open,
- 	.release = drm_release,
- 	.ioctl = drm_ioctl,
-Index: linux-2.6/drivers/char/drm/i830_dma.c
-===================================================================
---- linux-2.6.orig/drivers/char/drm/i830_dma.c
-+++ linux-2.6/drivers/char/drm/i830_dma.c
-@@ -114,7 +114,7 @@ static int i830_mmap_buffers(struct file
- 	return 0;
- }
- 
--static struct file_operations i830_buffer_fops = {
-+static const struct file_operations i830_buffer_fops = {
- 	.open = drm_open,
- 	.release = drm_release,
- 	.ioctl = drm_ioctl,
-Index: linux-2.6/drivers/char/generic_nvram.c
-===================================================================
---- linux-2.6.orig/drivers/char/generic_nvram.c
-+++ linux-2.6/drivers/char/generic_nvram.c
-@@ -117,7 +117,7 @@ static int nvram_ioctl(struct inode *ino
+--- linux-2.6.orig/drivers/macintosh/nvram.c
++++ linux-2.6/drivers/macintosh/nvram.c
+@@ -100,7 +100,7 @@ static int nvram_ioctl(struct inode *ino
  	return 0;
  }
  
@@ -265,754 +91,901 @@ Index: linux-2.6/drivers/char/generic_nvram.c
  	.owner		= THIS_MODULE,
  	.llseek		= nvram_llseek,
  	.read		= read_nvram,
-Index: linux-2.6/drivers/char/mbcs.c
+Index: linux-2.6/drivers/macintosh/smu.c
 ===================================================================
---- linux-2.6.orig/drivers/char/mbcs.c
-+++ linux-2.6/drivers/char/mbcs.c
-@@ -46,7 +46,7 @@ LIST_HEAD(soft_list);
- /*
-  * file operations
-  */
--struct file_operations mbcs_ops = {
-+const struct file_operations mbcs_ops = {
- 	.open = mbcs_open,
- 	.llseek = mbcs_sram_llseek,
- 	.read = mbcs_sram_read,
-Index: linux-2.6/drivers/char/mspec.c
-===================================================================
---- linux-2.6.orig/drivers/char/mspec.c
-+++ linux-2.6/drivers/char/mspec.c
-@@ -291,7 +291,7 @@ uncached_mmap(struct file *file, struct 
- 	return mspec_mmap(file, vma, MSPEC_UNCACHED);
+--- linux-2.6.orig/drivers/macintosh/smu.c
++++ linux-2.6/drivers/macintosh/smu.c
+@@ -1277,7 +1277,7 @@ static int smu_release(struct inode *ino
  }
  
--static struct file_operations fetchop_fops = {
-+static const struct file_operations fetchop_fops = {
- 	.owner = THIS_MODULE,
- 	.mmap = fetchop_mmap
- };
-@@ -302,7 +302,7 @@ static struct miscdevice fetchop_miscdev
- 	.fops = &fetchop_fops
- };
  
--static struct file_operations cached_fops = {
-+static const struct file_operations cached_fops = {
- 	.owner = THIS_MODULE,
- 	.mmap = cached_mmap
- };
-@@ -313,7 +313,7 @@ static struct miscdevice cached_miscdev 
- 	.fops = &cached_fops
- };
- 
--static struct file_operations uncached_fops = {
-+static const struct file_operations uncached_fops = {
- 	.owner = THIS_MODULE,
- 	.mmap = uncached_mmap
- };
-Index: linux-2.6/drivers/char/random.c
+-static struct file_operations smu_device_fops = {
++static const struct file_operations smu_device_fops = {
+ 	.llseek		= no_llseek,
+ 	.read		= smu_read,
+ 	.write		= smu_write,
+Index: linux-2.6/drivers/macintosh/via-pmu68k.c
 ===================================================================
---- linux-2.6.orig/drivers/char/random.c
-+++ linux-2.6/drivers/char/random.c
-@@ -1117,14 +1117,14 @@ random_ioctl(struct inode * inode, struc
+--- linux-2.6.orig/drivers/macintosh/via-pmu68k.c
++++ linux-2.6/drivers/macintosh/via-pmu68k.c
+@@ -1040,7 +1040,7 @@ static int pmu_ioctl(struct inode * inod
+ 	return -EINVAL;
+ }
+ 
+-static struct file_operations pmu_device_fops = {
++static const struct file_operations pmu_device_fops = {
+ 	.read		= pmu_read,
+ 	.write		= pmu_write,
+ 	.ioctl		= pmu_ioctl,
+Index: linux-2.6/drivers/macintosh/via-pmu.c
+===================================================================
+--- linux-2.6.orig/drivers/macintosh/via-pmu.c
++++ linux-2.6/drivers/macintosh/via-pmu.c
+@@ -2673,7 +2673,7 @@ pmu_ioctl(struct inode * inode, struct f
+ 	return error;
+ }
+ 
+-static struct file_operations pmu_device_fops = {
++static const struct file_operations pmu_device_fops = {
+ 	.read		= pmu_read,
+ 	.write		= pmu_write,
+ 	.poll		= pmu_fpoll,
+Index: linux-2.6/drivers/md/dm-ioctl.c
+===================================================================
+--- linux-2.6.orig/drivers/md/dm-ioctl.c
++++ linux-2.6/drivers/md/dm-ioctl.c
+@@ -1473,7 +1473,7 @@ static int ctl_ioctl(struct inode *inode
+ 	return r;
+ }
+ 
+-static struct file_operations _ctl_fops = {
++static const struct file_operations _ctl_fops = {
+ 	.ioctl	 = ctl_ioctl,
+ 	.owner	 = THIS_MODULE,
+ };
+Index: linux-2.6/drivers/md/md.c
+===================================================================
+--- linux-2.6.orig/drivers/md/md.c
++++ linux-2.6/drivers/md/md.c
+@@ -4917,7 +4917,7 @@ static unsigned int mdstat_poll(struct f
+ 	return mask;
+ }
+ 
+-static struct file_operations md_seq_fops = {
++static const struct file_operations md_seq_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = md_seq_open,
+ 	.read           = seq_read,
+Index: linux-2.6/drivers/media/common/saa7146_fops.c
+===================================================================
+--- linux-2.6.orig/drivers/media/common/saa7146_fops.c
++++ linux-2.6/drivers/media/common/saa7146_fops.c
+@@ -416,7 +416,7 @@ static ssize_t fops_write(struct file *f
  	}
  }
  
--struct file_operations random_fops = {
-+const struct file_operations random_fops = {
- 	.read  = random_read,
- 	.write = random_write,
- 	.poll  = random_poll,
- 	.ioctl = random_ioctl,
+-static struct file_operations video_fops =
++static const struct file_operations video_fops =
+ {
+ 	.owner		= THIS_MODULE,
+ 	.open		= fops_open,
+Index: linux-2.6/drivers/media/radio/dsbr100.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/dsbr100.c
++++ linux-2.6/drivers/media/radio/dsbr100.c
+@@ -144,7 +144,7 @@ struct dsbr100_device {
+ 
+ 
+ /* File system interface */
+-static struct file_operations usb_dsbr100_fops = {
++static const struct file_operations usb_dsbr100_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		usb_dsbr100_open,
+ 	.release =     	usb_dsbr100_close,
+Index: linux-2.6/drivers/media/radio/miropcm20-radio.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/miropcm20-radio.c
++++ linux-2.6/drivers/media/radio/miropcm20-radio.c
+@@ -216,7 +216,7 @@ static struct pcm20_device pcm20_unit = 
+ 	.muted  = 1,
  };
  
--struct file_operations urandom_fops = {
-+const struct file_operations urandom_fops = {
- 	.read  = urandom_read,
- 	.write = random_write,
- 	.ioctl = random_ioctl,
-Index: linux-2.6/drivers/char/tpm/tpm_bios.c
+-static struct file_operations pcm20_fops = {
++static const struct file_operations pcm20_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/miropcm20-rds.c
 ===================================================================
---- linux-2.6.orig/drivers/char/tpm/tpm_bios.c
-+++ linux-2.6/drivers/char/tpm/tpm_bios.c
-@@ -443,7 +443,7 @@ static int tpm_ascii_bios_measurements_o
- 	return err;
+--- linux-2.6.orig/drivers/media/radio/miropcm20-rds.c
++++ linux-2.6/drivers/media/radio/miropcm20-rds.c
+@@ -105,7 +105,7 @@ static ssize_t rds_f_read(struct file *f
+ 	}
  }
  
--struct file_operations tpm_ascii_bios_measurements_ops = {
-+const struct file_operations tpm_ascii_bios_measurements_ops = {
- 	.open = tpm_ascii_bios_measurements_open,
- 	.read = seq_read,
- 	.llseek = seq_lseek,
-@@ -476,7 +476,7 @@ static int tpm_binary_bios_measurements_
- 	return err;
+-static struct file_operations rds_fops = {
++static const struct file_operations rds_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.read		= rds_f_read,
+ 	.open		= rds_f_open,
+Index: linux-2.6/drivers/media/radio/radio-aimslab.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-aimslab.c
++++ linux-2.6/drivers/media/radio/radio-aimslab.c
+@@ -358,7 +358,7 @@ static int rt_ioctl(struct inode *inode,
+ 
+ static struct rt_device rtrack_unit;
+ 
+-static struct file_operations rtrack_fops = {
++static const struct file_operations rtrack_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-aztech.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-aztech.c
++++ linux-2.6/drivers/media/radio/radio-aztech.c
+@@ -314,7 +314,7 @@ static int az_ioctl(struct inode *inode,
+ 
+ static struct az_device aztech_unit;
+ 
+-static struct file_operations aztech_fops = {
++static const struct file_operations aztech_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-cadet.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-cadet.c
++++ linux-2.6/drivers/media/radio/radio-cadet.c
+@@ -507,7 +507,7 @@ cadet_poll(struct file *file, struct pol
  }
  
--struct file_operations tpm_binary_bios_measurements_ops = {
-+const struct file_operations tpm_binary_bios_measurements_ops = {
- 	.open = tpm_binary_bios_measurements_open,
- 	.read = seq_read,
- 	.llseek = seq_lseek,
-Index: linux-2.6/drivers/char/viotape.c
+ 
+-static struct file_operations cadet_fops = {
++static const struct file_operations cadet_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= cadet_open,
+ 	.release       	= cadet_release,
+Index: linux-2.6/drivers/media/radio/radio-gemtek.c
 ===================================================================
---- linux-2.6.orig/drivers/char/viotape.c
-+++ linux-2.6/drivers/char/viotape.c
-@@ -872,7 +872,7 @@ free_op:
+--- linux-2.6.orig/drivers/media/radio/radio-gemtek.c
++++ linux-2.6/drivers/media/radio/radio-gemtek.c
+@@ -296,7 +296,7 @@ static int gemtek_ioctl(struct inode *in
+ 
+ static struct gemtek_device gemtek_unit;
+ 
+-static struct file_operations gemtek_fops = {
++static const struct file_operations gemtek_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-gemtek-pci.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-gemtek-pci.c
++++ linux-2.6/drivers/media/radio/radio-gemtek-pci.c
+@@ -346,7 +346,7 @@ MODULE_DEVICE_TABLE( pci, gemtek_pci_id 
+ 
+ static int mx = 1;
+ 
+-static struct file_operations gemtek_pci_fops = {
++static const struct file_operations gemtek_pci_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-maestro.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-maestro.c
++++ linux-2.6/drivers/media/radio/radio-maestro.c
+@@ -99,7 +99,7 @@ static struct pci_driver maestro_r_drive
+ 	.remove		= __devexit_p(maestro_remove),
+ };
+ 
+-static struct file_operations maestro_fops = {
++static const struct file_operations maestro_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-maxiradio.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-maxiradio.c
++++ linux-2.6/drivers/media/radio/radio-maxiradio.c
+@@ -91,7 +91,7 @@ module_param(radio_nr, int, 0);
+ static int radio_ioctl(struct inode *inode, struct file *file,
+ 		       unsigned int cmd, unsigned long arg);
+ 
+-static struct file_operations maxiradio_fops = {
++static const struct file_operations maxiradio_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-rtrack2.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-rtrack2.c
++++ linux-2.6/drivers/media/radio/radio-rtrack2.c
+@@ -262,7 +262,7 @@ static int rt_ioctl(struct inode *inode,
+ 
+ static struct rt_device rtrack2_unit;
+ 
+-static struct file_operations rtrack2_fops = {
++static const struct file_operations rtrack2_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-sf16fmi.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-sf16fmi.c
++++ linux-2.6/drivers/media/radio/radio-sf16fmi.c
+@@ -265,7 +265,7 @@ static int fmi_ioctl(struct inode *inode
+ 
+ static struct fmi_device fmi_unit;
+ 
+-static struct file_operations fmi_fops = {
++static const struct file_operations fmi_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-sf16fmr2.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-sf16fmr2.c
++++ linux-2.6/drivers/media/radio/radio-sf16fmr2.c
+@@ -410,7 +410,7 @@ static int fmr2_ioctl(struct inode *inod
+ 
+ static struct fmr2_device fmr2_unit;
+ 
+-static struct file_operations fmr2_fops = {
++static const struct file_operations fmr2_fops = {
+ 	.owner          = THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-terratec.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-terratec.c
++++ linux-2.6/drivers/media/radio/radio-terratec.c
+@@ -338,7 +338,7 @@ static int tt_ioctl(struct inode *inode,
+ 
+ static struct tt_device terratec_unit;
+ 
+-static struct file_operations terratec_fops = {
++static const struct file_operations terratec_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-trust.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-trust.c
++++ linux-2.6/drivers/media/radio/radio-trust.c
+@@ -325,7 +325,7 @@ static int tr_ioctl(struct inode *inode,
+ 	return video_usercopy(inode, file, cmd, arg, tr_do_ioctl);
+ }
+ 
+-static struct file_operations trust_fops = {
++static const struct file_operations trust_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-typhoon.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-typhoon.c
++++ linux-2.6/drivers/media/radio/radio-typhoon.c
+@@ -318,7 +318,7 @@ static struct typhoon_device typhoon_uni
+ 	.mutefreq	= CONFIG_RADIO_TYPHOON_MUTEFREQ,
+ };
+ 
+-static struct file_operations typhoon_fops = {
++static const struct file_operations typhoon_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/radio/radio-zoltrix.c
+===================================================================
+--- linux-2.6.orig/drivers/media/radio/radio-zoltrix.c
++++ linux-2.6/drivers/media/radio/radio-zoltrix.c
+@@ -373,7 +373,7 @@ static int zol_ioctl(struct inode *inode
+ 
+ static struct zol_device zoltrix_unit;
+ 
+-static struct file_operations zoltrix_fops =
++static const struct file_operations zoltrix_fops =
+ {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+Index: linux-2.6/drivers/media/video/arv.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/arv.c
++++ linux-2.6/drivers/media/video/arv.c
+@@ -742,7 +742,7 @@ void ar_release(struct video_device *vfd
+  * Video4Linux Module functions
+  *
+  ****************************************************************************/
+-static struct file_operations ar_fops = {
++static const struct file_operations ar_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= video_exclusive_open,
+ 	.release	= video_exclusive_release,
+Index: linux-2.6/drivers/media/video/bt8xx/bttv-driver.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/bt8xx/bttv-driver.c
++++ linux-2.6/drivers/media/video/bt8xx/bttv-driver.c
+@@ -3174,7 +3174,7 @@ bttv_mmap(struct file *file, struct vm_a
+ 	return videobuf_mmap_mapper(bttv_queue(fh),vma);
+ }
+ 
+-static struct file_operations bttv_fops =
++static const struct file_operations bttv_fops =
+ {
+ 	.owner	  = THIS_MODULE,
+ 	.open	  = bttv_open,
+@@ -3332,7 +3332,7 @@ static unsigned int radio_poll(struct fi
+ 	return cmd.result;
+ }
+ 
+-static struct file_operations radio_fops =
++static const struct file_operations radio_fops =
+ {
+ 	.owner	  = THIS_MODULE,
+ 	.open	  = radio_open,
+Index: linux-2.6/drivers/media/video/bw-qcam.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/bw-qcam.c
++++ linux-2.6/drivers/media/video/bw-qcam.c
+@@ -871,7 +871,7 @@ static ssize_t qcam_read(struct file *fi
+ 	return len;
+ }
+ 
+-static struct file_operations qcam_fops = {
++static const struct file_operations qcam_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/video/cafe_ccic.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/cafe_ccic.c
++++ linux-2.6/drivers/media/video/cafe_ccic.c
+@@ -1715,7 +1715,7 @@ static void cafe_v4l_dev_release(struct 
+  * clone it for specific real devices.
+  */
+ 
+-static struct file_operations cafe_v4l_fops = {
++static const struct file_operations cafe_v4l_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = cafe_v4l_open,
+ 	.release = cafe_v4l_release,
+@@ -1969,7 +1969,7 @@ static ssize_t cafe_dfs_read_regs(struct
+ 			s - cafe_debug_buf);
+ }
+ 
+-static struct file_operations cafe_dfs_reg_ops = {
++static const struct file_operations cafe_dfs_reg_ops = {
+ 	.owner = THIS_MODULE,
+ 	.read = cafe_dfs_read_regs,
+ 	.open = cafe_dfs_open
+@@ -1995,7 +1995,7 @@ static ssize_t cafe_dfs_read_cam(struct 
+ 			s - cafe_debug_buf);
+ }
+ 
+-static struct file_operations cafe_dfs_cam_ops = {
++static const struct file_operations cafe_dfs_cam_ops = {
+ 	.owner = THIS_MODULE,
+ 	.read = cafe_dfs_read_cam,
+ 	.open = cafe_dfs_open
+Index: linux-2.6/drivers/media/video/cpia2/cpia2_v4l.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/cpia2/cpia2_v4l.c
++++ linux-2.6/drivers/media/video/cpia2/cpia2_v4l.c
+@@ -1924,7 +1924,7 @@ static void reset_camera_struct_v4l(stru
+ /***
+  * The v4l video device structure initialized for this device
+  ***/
+-static struct file_operations fops_template = {
++static const struct file_operations fops_template = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= cpia2_open,
+ 	.release	= cpia2_close,
+Index: linux-2.6/drivers/media/video/cpia.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/cpia.c
++++ linux-2.6/drivers/media/video/cpia.c
+@@ -3791,7 +3791,7 @@ static int cpia_mmap(struct file *file, 
+ 	return 0;
+ }
+ 
+-static struct file_operations cpia_fops = {
++static const struct file_operations cpia_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= cpia_open,
+ 	.release       	= cpia_close,
+Index: linux-2.6/drivers/media/video/c-qcam.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/c-qcam.c
++++ linux-2.6/drivers/media/video/c-qcam.c
+@@ -684,7 +684,7 @@ static ssize_t qcam_read(struct file *fi
+ }
+ 
+ /* video device template */
+-static struct file_operations qcam_fops = {
++static const struct file_operations qcam_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/video/cx88/cx88-blackbird.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/cx88/cx88-blackbird.c
++++ linux-2.6/drivers/media/video/cx88/cx88-blackbird.c
+@@ -1051,7 +1051,7 @@ mpeg_mmap(struct file *file, struct vm_a
+ 	return videobuf_mmap_mapper(&fh->mpegq, vma);
+ }
+ 
+-static struct file_operations mpeg_fops =
++static const struct file_operations mpeg_fops =
+ {
+ 	.owner	       = THIS_MODULE,
+ 	.open	       = mpeg_open,
+Index: linux-2.6/drivers/media/video/cx88/cx88-video.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/cx88/cx88-video.c
++++ linux-2.6/drivers/media/video/cx88/cx88-video.c
+@@ -1808,7 +1808,7 @@ static irqreturn_t cx8800_irq(int irq, v
+ /* ----------------------------------------------------------- */
+ /* exported stuff                                              */
+ 
+-static struct file_operations video_fops =
++static const struct file_operations video_fops =
+ {
+ 	.owner	       = THIS_MODULE,
+ 	.open	       = video_open,
+@@ -1839,7 +1839,7 @@ static struct video_device cx8800_vbi_te
+ 	.minor         = -1,
+ };
+ 
+-static struct file_operations radio_fops =
++static const struct file_operations radio_fops =
+ {
+ 	.owner         = THIS_MODULE,
+ 	.open          = video_open,
+Index: linux-2.6/drivers/media/video/dabusb.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/dabusb.c
++++ linux-2.6/drivers/media/video/dabusb.c
+@@ -696,7 +696,7 @@ static int dabusb_ioctl (struct inode *i
  	return ret;
  }
  
--struct file_operations viotap_fops = {
-+const struct file_operations viotap_fops = {
- 	owner: THIS_MODULE,
- 	read: viotap_read,
- 	write: viotap_write,
-Index: linux-2.6/drivers/char/watchdog/iTCO_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/iTCO_wdt.c
-+++ linux-2.6/drivers/char/watchdog/iTCO_wdt.c
-@@ -539,7 +539,7 @@ static int iTCO_wdt_ioctl (struct inode 
-  *	Kernel Interfaces
-  */
- 
--static struct file_operations iTCO_wdt_fops = {
-+static const struct file_operations iTCO_wdt_fops = {
+-static struct file_operations dabusb_fops =
++static const struct file_operations dabusb_fops =
+ {
  	.owner =	THIS_MODULE,
  	.llseek =	no_llseek,
- 	.write =	iTCO_wdt_write,
-Index: linux-2.6/drivers/char/watchdog/omap_wdt.c
+Index: linux-2.6/drivers/media/video/em28xx/em28xx-video.c
 ===================================================================
---- linux-2.6.orig/drivers/char/watchdog/omap_wdt.c
-+++ linux-2.6/drivers/char/watchdog/omap_wdt.c
-@@ -230,7 +230,7 @@ omap_wdt_ioctl(struct inode *inode, stru
- 	}
- }
- 
--static struct file_operations omap_wdt_fops = {
-+static const struct file_operations omap_wdt_fops = {
- 	.owner = THIS_MODULE,
- 	.write = omap_wdt_write,
- 	.ioctl = omap_wdt_ioctl,
-Index: linux-2.6/drivers/char/watchdog/pc87413_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/pc87413_wdt.c
-+++ linux-2.6/drivers/char/watchdog/pc87413_wdt.c
-@@ -526,7 +526,7 @@ static int pc87413_notify_sys(struct not
- 
- /* -- Module's structures ---------------------------------------*/
- 
--static struct file_operations pc87413_fops = {
-+static const struct file_operations pc87413_fops = {
- 	.owner		= THIS_MODULE,
- 	.llseek		= no_llseek,
- 	.write		= pc87413_write,
-Index: linux-2.6/drivers/char/watchdog/pnx4008_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/pnx4008_wdt.c
-+++ linux-2.6/drivers/char/watchdog/pnx4008_wdt.c
-@@ -238,7 +238,7 @@ static int pnx4008_wdt_release(struct in
- 	return 0;
- }
- 
--static struct file_operations pnx4008_wdt_fops = {
-+static const struct file_operations pnx4008_wdt_fops = {
- 	.owner = THIS_MODULE,
- 	.llseek = no_llseek,
- 	.write = pnx4008_wdt_write,
-Index: linux-2.6/drivers/char/watchdog/rm9k_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/rm9k_wdt.c
-+++ linux-2.6/drivers/char/watchdog/rm9k_wdt.c
-@@ -95,7 +95,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog can
- 
- 
- /* Kernel interfaces */
--static struct file_operations fops = {
-+static const struct file_operations fops = {
- 	.owner		= THIS_MODULE,
- 	.open		= wdt_gpi_open,
- 	.release	= wdt_gpi_release,
-Index: linux-2.6/drivers/char/watchdog/smsc37b787_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/smsc37b787_wdt.c
-+++ linux-2.6/drivers/char/watchdog/smsc37b787_wdt.c
-@@ -510,7 +510,7 @@ static int wb_smsc_wdt_notify_sys(struct
- 
- /* -- Module's structures ---------------------------------------*/
- 
--static struct file_operations wb_smsc_wdt_fops =
-+static const struct file_operations wb_smsc_wdt_fops =
- {
- 	.owner          = THIS_MODULE,
- 	.llseek		= no_llseek,
-Index: linux-2.6/drivers/char/watchdog/w83697hf_wdt.c
-===================================================================
---- linux-2.6.orig/drivers/char/watchdog/w83697hf_wdt.c
-+++ linux-2.6/drivers/char/watchdog/w83697hf_wdt.c
-@@ -323,7 +323,7 @@ wdt_notify_sys(struct notifier_block *th
-  *	Kernel Interfaces
-  */
- 
--static struct file_operations wdt_fops = {
-+static const struct file_operations wdt_fops = {
- 	.owner		= THIS_MODULE,
- 	.llseek		= no_llseek,
- 	.write		= wdt_write,
-Index: linux-2.6/drivers/i2c/chips/tps65010.c
-===================================================================
---- linux-2.6.orig/drivers/i2c/chips/tps65010.c
-+++ linux-2.6/drivers/i2c/chips/tps65010.c
-@@ -308,7 +308,7 @@ static int dbg_tps_open(struct inode *in
- 	return single_open(file, dbg_show, inode->i_private);
- }
- 
--static struct file_operations debug_fops = {
-+static const struct file_operations debug_fops = {
- 	.open		= dbg_tps_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-Index: linux-2.6/drivers/i2c/i2c-dev.c
-===================================================================
---- linux-2.6.orig/drivers/i2c/i2c-dev.c
-+++ linux-2.6/drivers/i2c/i2c-dev.c
-@@ -392,7 +392,7 @@ static int i2cdev_release(struct inode *
- 	return 0;
- }
- 
--static struct file_operations i2cdev_fops = {
-+static const struct file_operations i2cdev_fops = {
- 	.owner		= THIS_MODULE,
- 	.llseek		= no_llseek,
- 	.read		= i2cdev_read,
-Index: linux-2.6/drivers/ide/ide-proc.c
-===================================================================
---- linux-2.6.orig/drivers/ide/ide-proc.c
-+++ linux-2.6/drivers/ide/ide-proc.c
-@@ -549,7 +549,7 @@ static int ide_drivers_open(struct inode
- 	return single_open(file, &ide_drivers_show, NULL);
- }
- 
--static struct file_operations ide_drivers_operations = {
-+static const struct file_operations ide_drivers_operations = {
- 	.open		= ide_drivers_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-Index: linux-2.6/drivers/ide/ide-tape.c
-===================================================================
---- linux-2.6.orig/drivers/ide/ide-tape.c
-+++ linux-2.6/drivers/ide/ide-tape.c
-@@ -4779,7 +4779,7 @@ static ide_driver_t idetape_driver = {
- /*
-  *	Our character device supporting functions, passed to register_chrdev.
-  */
--static struct file_operations idetape_fops = {
-+static const struct file_operations idetape_fops = {
- 	.owner		= THIS_MODULE,
- 	.read		= idetape_chrdev_read,
- 	.write		= idetape_chrdev_write,
-Index: linux-2.6/drivers/ieee1394/dv1394.c
-===================================================================
---- linux-2.6.orig/drivers/ieee1394/dv1394.c
-+++ linux-2.6/drivers/ieee1394/dv1394.c
-@@ -2147,7 +2147,7 @@ out:
- }
- 
- static struct cdev dv1394_cdev;
--static struct file_operations dv1394_fops=
-+static const struct file_operations dv1394_fops=
- {
- 	.owner =	THIS_MODULE,
- 	.poll =         dv1394_poll,
-Index: linux-2.6/drivers/ieee1394/raw1394.c
-===================================================================
---- linux-2.6.orig/drivers/ieee1394/raw1394.c
-+++ linux-2.6/drivers/ieee1394/raw1394.c
-@@ -3003,7 +3003,7 @@ static struct hpsb_highlevel raw1394_hig
- };
- 
- static struct cdev raw1394_cdev;
--static struct file_operations raw1394_fops = {
-+static const struct file_operations raw1394_fops = {
- 	.owner = THIS_MODULE,
- 	.read = raw1394_read,
- 	.write = raw1394_write,
-Index: linux-2.6/drivers/ieee1394/video1394.c
-===================================================================
---- linux-2.6.orig/drivers/ieee1394/video1394.c
-+++ linux-2.6/drivers/ieee1394/video1394.c
-@@ -1269,7 +1269,7 @@ static long video1394_compat_ioctl(struc
- #endif
- 
- static struct cdev video1394_cdev;
--static struct file_operations video1394_fops=
-+static const struct file_operations video1394_fops=
- {
- 	.owner =	THIS_MODULE,
- 	.unlocked_ioctl = video1394_ioctl,
-Index: linux-2.6/drivers/infiniband/core/ucma.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/core/ucma.c
-+++ linux-2.6/drivers/infiniband/core/ucma.c
-@@ -833,7 +833,7 @@ static int ucma_close(struct inode *inod
- 	return 0;
- }
- 
--static struct file_operations ucma_fops = {
-+static const struct file_operations ucma_fops = {
- 	.owner 	 = THIS_MODULE,
- 	.open 	 = ucma_open,
- 	.release = ucma_close,
-Index: linux-2.6/drivers/infiniband/core/ucm.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/core/ucm.c
-+++ linux-2.6/drivers/infiniband/core/ucm.c
-@@ -1221,7 +1221,7 @@ static void ib_ucm_release_class_dev(str
- 	kfree(dev);
- }
- 
--static struct file_operations ucm_fops = {
-+static const struct file_operations ucm_fops = {
- 	.owner 	 = THIS_MODULE,
- 	.open 	 = ib_ucm_open,
- 	.release = ib_ucm_close,
-Index: linux-2.6/drivers/infiniband/core/user_mad.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/core/user_mad.c
-+++ linux-2.6/drivers/infiniband/core/user_mad.c
-@@ -771,7 +771,7 @@ static int ib_umad_close(struct inode *i
- 	return 0;
- }
- 
--static struct file_operations umad_fops = {
-+static const struct file_operations umad_fops = {
- 	.owner 	 	= THIS_MODULE,
- 	.read 	 	= ib_umad_read,
- 	.write 	 	= ib_umad_write,
-@@ -846,7 +846,7 @@ static int ib_umad_sm_close(struct inode
+--- linux-2.6.orig/drivers/media/video/em28xx/em28xx-video.c
++++ linux-2.6/drivers/media/video/em28xx/em28xx-video.c
+@@ -1480,7 +1480,7 @@ static int em28xx_v4l2_ioctl(struct inod
  	return ret;
  }
  
--static struct file_operations umad_sm_fops = {
-+static const struct file_operations umad_sm_fops = {
- 	.owner 	 = THIS_MODULE,
- 	.open 	 = ib_umad_sm_open,
- 	.release = ib_umad_sm_close
-Index: linux-2.6/drivers/infiniband/core/uverbs_main.c
+-static struct file_operations em28xx_v4l_fops = {
++static const struct file_operations em28xx_v4l_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = em28xx_v4l2_open,
+ 	.release = em28xx_v4l2_close,
+Index: linux-2.6/drivers/media/video/et61x251/et61x251_core.c
 ===================================================================
---- linux-2.6.orig/drivers/infiniband/core/uverbs_main.c
-+++ linux-2.6/drivers/infiniband/core/uverbs_main.c
-@@ -375,7 +375,7 @@ static int ib_uverbs_event_close(struct 
+--- linux-2.6.orig/drivers/media/video/et61x251/et61x251_core.c
++++ linux-2.6/drivers/media/video/et61x251/et61x251_core.c
+@@ -2454,7 +2454,7 @@ static int et61x251_ioctl(struct inode* 
+ }
+ 
+ 
+-static struct file_operations et61x251_fops = {
++static const struct file_operations et61x251_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open =    et61x251_open,
+ 	.release = et61x251_release,
+Index: linux-2.6/drivers/media/video/meye.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/meye.c
++++ linux-2.6/drivers/media/video/meye.c
+@@ -1748,7 +1748,7 @@ static int meye_mmap(struct file *file, 
  	return 0;
  }
  
--static struct file_operations uverbs_event_fops = {
-+static const struct file_operations uverbs_event_fops = {
+-static struct file_operations meye_fops = {
++static const struct file_operations meye_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= meye_open,
+ 	.release	= meye_release,
+Index: linux-2.6/drivers/media/video/ov511.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/ov511.c
++++ linux-2.6/drivers/media/video/ov511.c
+@@ -4653,7 +4653,7 @@ ov51x_v4l1_mmap(struct file *file, struc
+ 	return 0;
+ }
+ 
+-static struct file_operations ov511_fops = {
++static const struct file_operations ov511_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		ov51x_v4l1_open,
+ 	.release =	ov51x_v4l1_close,
+Index: linux-2.6/drivers/media/video/pms.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/pms.c
++++ linux-2.6/drivers/media/video/pms.c
+@@ -881,7 +881,7 @@ static ssize_t pms_read(struct file *fil
+ 	return len;
+ }
+ 
+-static struct file_operations pms_fops = {
++static const struct file_operations pms_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
++++ linux-2.6/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
+@@ -986,7 +986,7 @@ static unsigned int pvr2_v4l2_poll(struc
+ }
+ 
+ 
+-static struct file_operations vdev_fops = {
++static const struct file_operations vdev_fops = {
+ 	.owner      = THIS_MODULE,
+ 	.open       = pvr2_v4l2_open,
+ 	.release    = pvr2_v4l2_release,
+Index: linux-2.6/drivers/media/video/pwc/pwc-if.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/pwc/pwc-if.c
++++ linux-2.6/drivers/media/video/pwc/pwc-if.c
+@@ -152,7 +152,7 @@ static int  pwc_video_ioctl(struct inode
+ 			    unsigned int ioctlnr, unsigned long arg);
+ static int  pwc_video_mmap(struct file *file, struct vm_area_struct *vma);
+ 
+-static struct file_operations pwc_fops = {
++static const struct file_operations pwc_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		pwc_video_open,
+ 	.release =     	pwc_video_close,
+Index: linux-2.6/drivers/media/video/saa5246a.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/saa5246a.c
++++ linux-2.6/drivers/media/video/saa5246a.c
+@@ -817,7 +817,7 @@ static void __exit cleanup_saa_5246a (vo
+ module_init(init_saa_5246a);
+ module_exit(cleanup_saa_5246a);
+ 
+-static struct file_operations saa_fops = {
++static const struct file_operations saa_fops = {
  	.owner	 = THIS_MODULE,
- 	.read 	 = ib_uverbs_event_read,
- 	.poll    = ib_uverbs_event_poll,
-@@ -679,14 +679,14 @@ static int ib_uverbs_close(struct inode 
- 	return 0;
+ 	.open	 = saa5246a_open,
+ 	.release = saa5246a_release,
+Index: linux-2.6/drivers/media/video/saa5249.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/saa5249.c
++++ linux-2.6/drivers/media/video/saa5249.c
+@@ -699,7 +699,7 @@ static void __exit cleanup_saa_5249 (voi
+ module_init(init_saa_5249);
+ module_exit(cleanup_saa_5249);
+ 
+-static struct file_operations saa_fops = {
++static const struct file_operations saa_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= saa5249_open,
+ 	.release       	= saa5249_release,
+Index: linux-2.6/drivers/media/video/saa7134/saa7134-empress.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/saa7134/saa7134-empress.c
++++ linux-2.6/drivers/media/video/saa7134/saa7134-empress.c
+@@ -319,7 +319,7 @@ static int ts_ioctl(struct inode *inode,
+ 	return video_usercopy(inode, file, cmd, arg, ts_do_ioctl);
  }
  
--static struct file_operations uverbs_fops = {
-+static const struct file_operations uverbs_fops = {
- 	.owner 	 = THIS_MODULE,
- 	.write 	 = ib_uverbs_write,
- 	.open 	 = ib_uverbs_open,
- 	.release = ib_uverbs_close
- };
- 
--static struct file_operations uverbs_mmap_fops = {
-+static const struct file_operations uverbs_mmap_fops = {
- 	.owner 	 = THIS_MODULE,
- 	.write 	 = ib_uverbs_write,
- 	.mmap    = ib_uverbs_mmap,
-Index: linux-2.6/drivers/infiniband/hw/ipath/ipath_diag.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/hw/ipath/ipath_diag.c
-+++ linux-2.6/drivers/infiniband/hw/ipath/ipath_diag.c
-@@ -59,7 +59,7 @@ static ssize_t ipath_diag_read(struct fi
- static ssize_t ipath_diag_write(struct file *fp, const char __user *data,
- 				size_t count, loff_t *off);
- 
--static struct file_operations diag_file_ops = {
-+static const struct file_operations diag_file_ops = {
- 	.owner = THIS_MODULE,
- 	.write = ipath_diag_write,
- 	.read = ipath_diag_read,
-@@ -71,7 +71,7 @@ static ssize_t ipath_diagpkt_write(struc
- 				   const char __user *data,
- 				   size_t count, loff_t *off);
- 
--static struct file_operations diagpkt_file_ops = {
-+static const struct file_operations diagpkt_file_ops = {
- 	.owner = THIS_MODULE,
- 	.write = ipath_diagpkt_write,
- };
-Index: linux-2.6/drivers/infiniband/hw/ipath/ipath_file_ops.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/hw/ipath/ipath_file_ops.c
-+++ linux-2.6/drivers/infiniband/hw/ipath/ipath_file_ops.c
-@@ -54,7 +54,7 @@ static ssize_t ipath_write(struct file *
- static unsigned int ipath_poll(struct file *, struct poll_table_struct *);
- static int ipath_mmap(struct file *, struct vm_area_struct *);
- 
--static struct file_operations ipath_file_ops = {
-+static const struct file_operations ipath_file_ops = {
- 	.owner = THIS_MODULE,
- 	.write = ipath_write,
- 	.open = ipath_open,
-@@ -2153,7 +2153,7 @@ bail:
- 
- static struct class *ipath_class;
- 
--static int init_cdev(int minor, char *name, struct file_operations *fops,
-+static int init_cdev(int minor, char *name, const struct file_operations *fops,
- 		     struct cdev **cdevp, struct class_device **class_devp)
+-static struct file_operations ts_fops =
++static const struct file_operations ts_fops =
  {
- 	const dev_t dev = MKDEV(IPATH_MAJOR, minor);
-@@ -2210,7 +2210,7 @@ done:
- 	return ret;
- }
- 
--int ipath_cdev_init(int minor, char *name, struct file_operations *fops,
-+int ipath_cdev_init(int minor, char *name, const struct file_operations *fops,
- 		    struct cdev **cdevp, struct class_device **class_devp)
- {
- 	return init_cdev(minor, name, fops, cdevp, class_devp);
-Index: linux-2.6/drivers/infiniband/hw/ipath/ipath_fs.c
+ 	.owner	  = THIS_MODULE,
+ 	.open	  = ts_open,
+Index: linux-2.6/drivers/media/video/saa7134/saa7134-oss.c
 ===================================================================
---- linux-2.6.orig/drivers/infiniband/hw/ipath/ipath_fs.c
-+++ linux-2.6/drivers/infiniband/hw/ipath/ipath_fs.c
-@@ -47,7 +47,7 @@
- static struct super_block *ipath_super;
- 
- static int ipathfs_mknod(struct inode *dir, struct dentry *dentry,
--			 int mode, struct file_operations *fops,
-+			 int mode, const struct file_operations *fops,
- 			 void *data)
- {
- 	int error;
-@@ -81,7 +81,7 @@ bail:
- 
- static int create_file(const char *name, mode_t mode,
- 		       struct dentry *parent, struct dentry **dentry,
--		       struct file_operations *fops, void *data)
-+		       const struct file_operations *fops, void *data)
- {
- 	int error;
- 
-@@ -105,7 +105,7 @@ static ssize_t atomic_stats_read(struct 
- 				       sizeof ipath_stats);
+--- linux-2.6.orig/drivers/media/video/saa7134/saa7134-oss.c
++++ linux-2.6/drivers/media/video/saa7134/saa7134-oss.c
+@@ -563,7 +563,7 @@ static unsigned int dsp_poll(struct file
+ 	return mask;
  }
  
--static struct file_operations atomic_stats_ops = {
-+static const struct file_operations atomic_stats_ops = {
- 	.read = atomic_stats_read,
- };
- 
-@@ -127,7 +127,7 @@ static ssize_t atomic_counters_read(stru
- 				       sizeof counters);
- }
- 
--static struct file_operations atomic_counters_ops = {
-+static const struct file_operations atomic_counters_ops = {
- 	.read = atomic_counters_read,
- };
- 
-@@ -166,7 +166,7 @@ static ssize_t atomic_node_info_read(str
- 				       sizeof nodeinfo);
- }
- 
--static struct file_operations atomic_node_info_ops = {
-+static const struct file_operations atomic_node_info_ops = {
- 	.read = atomic_node_info_read,
- };
- 
-@@ -291,7 +291,7 @@ static ssize_t atomic_port_info_read(str
- 				       sizeof portinfo);
- }
- 
--static struct file_operations atomic_port_info_ops = {
-+static const struct file_operations atomic_port_info_ops = {
- 	.read = atomic_port_info_read,
- };
- 
-@@ -394,7 +394,7 @@ bail:
- 	return ret;
- }
- 
--static struct file_operations flash_ops = {
-+static const struct file_operations flash_ops = {
- 	.read = flash_read,
- 	.write = flash_write,
- };
-Index: linux-2.6/drivers/infiniband/hw/ipath/ipath_kernel.h
-===================================================================
---- linux-2.6.orig/drivers/infiniband/hw/ipath/ipath_kernel.h
-+++ linux-2.6/drivers/infiniband/hw/ipath/ipath_kernel.h
-@@ -593,7 +593,7 @@ void ipath_shutdown_device(struct ipath_
- void ipath_disarm_senderrbufs(struct ipath_devdata *);
- 
- struct file_operations;
--int ipath_cdev_init(int minor, char *name, struct file_operations *fops,
-+int ipath_cdev_init(int minor, char *name, const struct file_operations *fops,
- 		    struct cdev **cdevp, struct class_device **class_devp);
- void ipath_cdev_cleanup(struct cdev **cdevp,
- 			struct class_device **class_devp);
-Index: linux-2.6/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-===================================================================
---- linux-2.6.orig/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-+++ linux-2.6/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-@@ -146,7 +146,7 @@ static int ipoib_mcg_open(struct inode *
- 	return 0;
- }
- 
--static struct file_operations ipoib_mcg_fops = {
-+static const struct file_operations ipoib_mcg_fops = {
+-struct file_operations saa7134_dsp_fops = {
++const struct file_operations saa7134_dsp_fops = {
  	.owner   = THIS_MODULE,
- 	.open    = ipoib_mcg_open,
- 	.read    = seq_read,
-@@ -252,7 +252,7 @@ static int ipoib_path_open(struct inode 
- 	return 0;
- }
- 
--static struct file_operations ipoib_path_fops = {
-+static const struct file_operations ipoib_path_fops = {
- 	.owner   = THIS_MODULE,
- 	.open    = ipoib_path_open,
- 	.read    = seq_read,
-Index: linux-2.6/drivers/input/input.c
-===================================================================
---- linux-2.6.orig/drivers/input/input.c
-+++ linux-2.6/drivers/input/input.c
-@@ -482,7 +482,7 @@ static int input_proc_devices_open(struc
- 	return seq_open(file, &input_devices_seq_ops);
- }
- 
--static struct file_operations input_devices_fileops = {
-+static const struct file_operations input_devices_fileops = {
- 	.owner		= THIS_MODULE,
- 	.open		= input_proc_devices_open,
- 	.poll		= input_proc_devices_poll,
-@@ -533,7 +533,7 @@ static int input_proc_handlers_open(stru
- 	return seq_open(file, &input_handlers_seq_ops);
- }
- 
--static struct file_operations input_handlers_fileops = {
-+static const struct file_operations input_handlers_fileops = {
- 	.owner		= THIS_MODULE,
- 	.open		= input_proc_handlers_open,
- 	.read		= seq_read,
-@@ -1142,7 +1142,7 @@ static int input_open_file(struct inode 
- 	return err;
- }
- 
--static struct file_operations input_fops = {
-+static const struct file_operations input_fops = {
- 	.owner = THIS_MODULE,
- 	.open = input_open_file,
- };
-Index: linux-2.6/drivers/input/misc/hp_sdc_rtc.c
-===================================================================
---- linux-2.6.orig/drivers/input/misc/hp_sdc_rtc.c
-+++ linux-2.6/drivers/input/misc/hp_sdc_rtc.c
-@@ -670,7 +670,7 @@ static int hp_sdc_rtc_ioctl(struct inode
- #endif
- }
- 
--static struct file_operations hp_sdc_rtc_fops = {
-+static const struct file_operations hp_sdc_rtc_fops = {
-         .owner =	THIS_MODULE,
-         .llseek =	no_llseek,
-         .read =		hp_sdc_rtc_read,
-Index: linux-2.6/drivers/input/misc/uinput.c
-===================================================================
---- linux-2.6.orig/drivers/input/misc/uinput.c
-+++ linux-2.6/drivers/input/misc/uinput.c
-@@ -627,7 +627,7 @@ static long uinput_ioctl(struct file *fi
- 	return retval;
- }
- 
--static struct file_operations uinput_fops = {
-+static const struct file_operations uinput_fops = {
- 	.owner		= THIS_MODULE,
- 	.open		= uinput_open,
- 	.release	= uinput_release,
-Index: linux-2.6/drivers/input/serio/serio_raw.c
-===================================================================
---- linux-2.6.orig/drivers/input/serio/serio_raw.c
-+++ linux-2.6/drivers/input/serio/serio_raw.c
-@@ -234,7 +234,7 @@ static unsigned int serio_raw_poll(struc
- 	return 0;
- }
- 
--static struct file_operations serio_raw_fops = {
-+static const struct file_operations serio_raw_fops = {
- 	.owner =	THIS_MODULE,
- 	.open =		serio_raw_open,
- 	.release =	serio_raw_release,
-Index: linux-2.6/drivers/isdn/capi/capi.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/capi/capi.c
-+++ linux-2.6/drivers/isdn/capi/capi.c
-@@ -988,7 +988,7 @@ capi_release(struct inode *inode, struct
- 	return 0;
- }
- 
--static struct file_operations capi_fops =
-+static const struct file_operations capi_fops =
- {
- 	.owner		= THIS_MODULE,
- 	.llseek		= no_llseek,
-Index: linux-2.6/drivers/isdn/capi/kcapi_proc.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/capi/kcapi_proc.c
-+++ linux-2.6/drivers/isdn/capi/kcapi_proc.c
-@@ -113,14 +113,14 @@ static int seq_contrstats_open(struct in
- 	return seq_open(file, &seq_contrstats_ops);
- }
- 
--static struct file_operations proc_controller_ops = {
-+static const struct file_operations proc_controller_ops = {
- 	.open		= seq_controller_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
- 	.release	= seq_release,
- };
- 
--static struct file_operations proc_contrstats_ops = {
-+static const struct file_operations proc_contrstats_ops = {
- 	.open		= seq_contrstats_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-@@ -218,14 +218,14 @@ seq_applstats_open(struct inode *inode, 
- 	return seq_open(file, &seq_applstats_ops);
- }
- 
--static struct file_operations proc_applications_ops = {
-+static const struct file_operations proc_applications_ops = {
- 	.open		= seq_applications_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
- 	.release	= seq_release,
- };
- 
--static struct file_operations proc_applstats_ops = {
-+static const struct file_operations proc_applstats_ops = {
- 	.open		= seq_applstats_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-@@ -302,7 +302,7 @@ seq_capi_driver_open(struct inode *inode
- 	return err;
- }
- 
--static struct file_operations proc_driver_ops = {
-+static const struct file_operations proc_driver_ops = {
- 	.open		= seq_capi_driver_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-Index: linux-2.6/drivers/isdn/divert/divert_procfs.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/divert/divert_procfs.c
-+++ linux-2.6/drivers/isdn/divert/divert_procfs.c
-@@ -256,7 +256,7 @@ isdn_divert_ioctl(struct inode *inode, s
- 
- 
- #ifdef CONFIG_PROC_FS
--static struct file_operations isdn_fops =
-+static const struct file_operations isdn_fops =
- {
- 	.owner          = THIS_MODULE,
- 	.llseek         = no_llseek,
-Index: linux-2.6/drivers/isdn/hardware/eicon/divamnt.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/hardware/eicon/divamnt.c
-+++ linux-2.6/drivers/isdn/hardware/eicon/divamnt.c
-@@ -164,7 +164,7 @@ static ssize_t divas_maint_read(struct f
- 	return (maint_read_write(buf, (int) count));
- }
- 
--static struct file_operations divas_maint_fops = {
-+static const struct file_operations divas_maint_fops = {
- 	.owner   = THIS_MODULE,
- 	.llseek  = no_llseek,
- 	.read    = divas_maint_read,
-Index: linux-2.6/drivers/isdn/hardware/eicon/divasi.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/hardware/eicon/divasi.c
-+++ linux-2.6/drivers/isdn/hardware/eicon/divasi.c
-@@ -131,7 +131,7 @@ static void remove_um_idi_proc(void)
+ 	.open    = dsp_open,
+ 	.release = dsp_release,
+@@ -804,7 +804,7 @@ static int mixer_ioctl(struct inode *ino
  	}
  }
  
--static struct file_operations divas_idi_fops = {
-+static const struct file_operations divas_idi_fops = {
+-struct file_operations saa7134_mixer_fops = {
++const struct file_operations saa7134_mixer_fops = {
  	.owner   = THIS_MODULE,
- 	.llseek  = no_llseek,
- 	.read    = um_idi_read,
-Index: linux-2.6/drivers/isdn/hardware/eicon/divasmain.c
+ 	.open    = mixer_open,
+ 	.release = mixer_release,
+Index: linux-2.6/drivers/media/video/saa7134/saa7134-video.c
 ===================================================================
---- linux-2.6.orig/drivers/isdn/hardware/eicon/divasmain.c
-+++ linux-2.6/drivers/isdn/hardware/eicon/divasmain.c
-@@ -663,7 +663,7 @@ static unsigned int divas_poll(struct fi
- 	return (POLLIN | POLLRDNORM);
+--- linux-2.6.orig/drivers/media/video/saa7134/saa7134-video.c
++++ linux-2.6/drivers/media/video/saa7134/saa7134-video.c
+@@ -2336,7 +2336,7 @@ static int radio_ioctl(struct inode *ino
+ 	return video_usercopy(inode, file, cmd, arg, radio_do_ioctl);
  }
  
--static struct file_operations divas_fops = {
-+static const struct file_operations divas_fops = {
- 	.owner   = THIS_MODULE,
- 	.llseek  = no_llseek,
- 	.read    = divas_read,
-Index: linux-2.6/drivers/isdn/hardware/eicon/divasproc.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/hardware/eicon/divasproc.c
-+++ linux-2.6/drivers/isdn/hardware/eicon/divasproc.c
-@@ -113,7 +113,7 @@ static int divas_close(struct inode *ino
- 	return (0);
- }
+-static struct file_operations video_fops =
++static const struct file_operations video_fops =
+ {
+ 	.owner	  = THIS_MODULE,
+ 	.open	  = video_open,
+@@ -2349,7 +2349,7 @@ static struct file_operations video_fops
+ 	.llseek   = no_llseek,
+ };
  
--static struct file_operations divas_fops = {
-+static const struct file_operations divas_fops = {
- 	.owner   = THIS_MODULE,
- 	.llseek  = no_llseek,
- 	.read    = divas_read,
-Index: linux-2.6/drivers/isdn/hysdn/hysdn_procconf.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/hysdn/hysdn_procconf.c
-+++ linux-2.6/drivers/isdn/hysdn/hysdn_procconf.c
-@@ -367,7 +367,7 @@ hysdn_conf_close(struct inode *ino, stru
- /******************************************************/
- /* table for conf filesystem functions defined above. */
- /******************************************************/
--static struct file_operations conf_fops =
-+static const struct file_operations conf_fops =
+-static struct file_operations radio_fops =
++static const struct file_operations radio_fops =
  {
- 	.llseek         = no_llseek,
- 	.read           = hysdn_conf_read,
-Index: linux-2.6/drivers/isdn/hysdn/hysdn_proclog.c
+ 	.owner	  = THIS_MODULE,
+ 	.open	  = video_open,
+Index: linux-2.6/drivers/media/video/se401.c
 ===================================================================
---- linux-2.6.orig/drivers/isdn/hysdn/hysdn_proclog.c
-+++ linux-2.6/drivers/isdn/hysdn/hysdn_proclog.c
-@@ -383,7 +383,7 @@ hysdn_log_poll(struct file *file, poll_t
- /**************************************************/
- /* table for log filesystem functions defined above. */
- /**************************************************/
--static struct file_operations log_fops =
-+static const struct file_operations log_fops =
- {
- 	.llseek         = no_llseek,
- 	.read           = hysdn_log_read,
-Index: linux-2.6/drivers/isdn/i4l/isdn_common.c
-===================================================================
---- linux-2.6.orig/drivers/isdn/i4l/isdn_common.c
-+++ linux-2.6/drivers/isdn/i4l/isdn_common.c
-@@ -1822,7 +1822,7 @@ isdn_close(struct inode *ino, struct fil
+--- linux-2.6.orig/drivers/media/video/se401.c
++++ linux-2.6/drivers/media/video/se401.c
+@@ -1185,7 +1185,7 @@ static int se401_mmap(struct file *file,
  	return 0;
  }
  
--static struct file_operations isdn_fops =
-+static const struct file_operations isdn_fops =
+-static struct file_operations se401_fops = {
++static const struct file_operations se401_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =         se401_open,
+ 	.release =      se401_close,
+Index: linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/sn9c102/sn9c102_core.c
++++ linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
+@@ -2736,7 +2736,7 @@ static int sn9c102_ioctl(struct inode* i
+ 
+ /*****************************************************************************/
+ 
+-static struct file_operations sn9c102_fops = {
++static const struct file_operations sn9c102_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open =    sn9c102_open,
+ 	.release = sn9c102_release,
+Index: linux-2.6/drivers/media/video/stradis.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/stradis.c
++++ linux-2.6/drivers/media/video/stradis.c
+@@ -1901,7 +1901,7 @@ static int saa_release(struct inode *ino
+ 	return 0;
+ }
+ 
+-static struct file_operations saa_fops = {
++static const struct file_operations saa_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = saa_open,
+ 	.release = saa_release,
+Index: linux-2.6/drivers/media/video/stv680.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/stv680.c
++++ linux-2.6/drivers/media/video/stv680.c
+@@ -1380,7 +1380,7 @@ static ssize_t stv680_read (struct file 
+ 	return realcount;
+ }				/* stv680_read */
+ 
+-static struct file_operations stv680_fops = {
++static const struct file_operations stv680_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		stv_open,
+ 	.release =     	stv_close,
+Index: linux-2.6/drivers/media/video/tvmixer.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/tvmixer.c
++++ linux-2.6/drivers/media/video/tvmixer.c
+@@ -228,7 +228,7 @@ static struct i2c_driver driver = {
+ 	.detach_client   = tvmixer_clients,
+ };
+ 
+-static struct file_operations tvmixer_fops = {
++static const struct file_operations tvmixer_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.llseek         = no_llseek,
+ 	.ioctl          = tvmixer_ioctl,
+Index: linux-2.6/drivers/media/video/usbvideo/usbvideo.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/usbvideo/usbvideo.c
++++ linux-2.6/drivers/media/video/usbvideo/usbvideo.c
+@@ -945,7 +945,7 @@ static int usbvideo_find_struct(struct u
+ 	return rv;
+ }
+ 
+-static struct file_operations usbvideo_fops = {
++static const struct file_operations usbvideo_fops = {
+ 	.owner =  THIS_MODULE,
+ 	.open =   usbvideo_v4l_open,
+ 	.release =usbvideo_v4l_close,
+Index: linux-2.6/drivers/media/video/usbvideo/vicam.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/usbvideo/vicam.c
++++ linux-2.6/drivers/media/video/usbvideo/vicam.c
+@@ -1234,7 +1234,7 @@ static inline void vicam_create_proc_ent
+ static inline void vicam_destroy_proc_entry(void *ptr) { }
+ #endif
+ 
+-static struct file_operations vicam_fops = {
++static const struct file_operations vicam_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= vicam_open,
+ 	.release	= vicam_close,
+Index: linux-2.6/drivers/media/video/usbvision/usbvision-video.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/usbvision/usbvision-video.c
++++ linux-2.6/drivers/media/video/usbvision/usbvision-video.c
+@@ -1476,7 +1476,7 @@ static int usbvision_vbi_ioctl(struct in
+ //
+ 
+ // Video template
+-static struct file_operations usbvision_fops = {
++static const struct file_operations usbvision_fops = {
+ 	.owner             = THIS_MODULE,
+ 	.open		= usbvision_v4l2_open,
+ 	.release	= usbvision_v4l2_close,
+@@ -1497,7 +1497,7 @@ static struct video_device usbvision_vid
+ 
+ 
+ // Radio template
+-static struct file_operations usbvision_radio_fops = {
++static const struct file_operations usbvision_radio_fops = {
+ 	.owner             = THIS_MODULE,
+ 	.open		= usbvision_radio_open,
+ 	.release	= usbvision_radio_close,
+@@ -1518,7 +1518,7 @@ static struct video_device usbvision_rad
+ 
+ 
+ // vbi template
+-static struct file_operations usbvision_vbi_fops = {
++static const struct file_operations usbvision_vbi_fops = {
+ 	.owner             = THIS_MODULE,
+ 	.open		= usbvision_vbi_open,
+ 	.release	= usbvision_vbi_close,
+Index: linux-2.6/drivers/media/video/videodev.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/videodev.c
++++ linux-2.6/drivers/media/video/videodev.c
+@@ -1561,7 +1561,7 @@ out:
+ }
+ 
+ 
+-static struct file_operations video_fops;
++static const struct file_operations video_fops;
+ 
+ /**
+  *	video_register_device - register video4linux devices
+@@ -1709,7 +1709,7 @@ void video_unregister_device(struct vide
+ /*
+  * Video fs operations
+  */
+-static struct file_operations video_fops=
++static const struct file_operations video_fops=
  {
  	.owner		= THIS_MODULE,
  	.llseek		= no_llseek,
+Index: linux-2.6/drivers/media/video/vino.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/vino.c
++++ linux-2.6/drivers/media/video/vino.c
+@@ -4390,7 +4390,7 @@ static int vino_ioctl(struct inode *inod
+ // __initdata
+ static int vino_init_stage = 0;
+ 
+-static struct file_operations vino_fops = {
++static const struct file_operations vino_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= vino_open,
+ 	.release	= vino_close,
+Index: linux-2.6/drivers/media/video/vivi.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/vivi.c
++++ linux-2.6/drivers/media/video/vivi.c
+@@ -1285,7 +1285,7 @@ vivi_mmap(struct file *file, struct vm_a
+ 	return ret;
+ }
+ 
+-static struct file_operations vivi_fops = {
++static const struct file_operations vivi_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = vivi_open,
+ 	.release        = vivi_release,
+Index: linux-2.6/drivers/media/video/w9966.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/w9966.c
++++ linux-2.6/drivers/media/video/w9966.c
+@@ -183,7 +183,7 @@ static int w9966_v4l_ioctl(struct inode 
+ static ssize_t w9966_v4l_read(struct file *file, char __user *buf,
+ 			      size_t count, loff_t *ppos);
+ 
+-static struct file_operations w9966_fops = {
++static const struct file_operations w9966_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open           = video_exclusive_open,
+ 	.release        = video_exclusive_release,
+Index: linux-2.6/drivers/media/video/w9968cf.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/w9968cf.c
++++ linux-2.6/drivers/media/video/w9968cf.c
+@@ -399,7 +399,7 @@ MODULE_PARM_DESC(specific_debug,
+  ****************************************************************************/
+ 
+ /* Video4linux interface */
+-static struct file_operations w9968cf_fops;
++static const struct file_operations w9968cf_fops;
+ static int w9968cf_open(struct inode*, struct file*);
+ static int w9968cf_release(struct inode*, struct file*);
+ static int w9968cf_mmap(struct file*, struct vm_area_struct*);
+@@ -3466,7 +3466,7 @@ ioctl_fail:
+ }
+ 
+ 
+-static struct file_operations w9968cf_fops = {
++static const struct file_operations w9968cf_fops = {
+ 	.owner =   THIS_MODULE,
+ 	.open =    w9968cf_open,
+ 	.release = w9968cf_release,
+Index: linux-2.6/drivers/media/video/zc0301/zc0301_core.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/zc0301/zc0301_core.c
++++ linux-2.6/drivers/media/video/zc0301/zc0301_core.c
+@@ -1871,7 +1871,7 @@ static int zc0301_ioctl(struct inode* in
+ }
+ 
+ 
+-static struct file_operations zc0301_fops = {
++static const struct file_operations zc0301_fops = {
+ 	.owner =   THIS_MODULE,
+ 	.open =    zc0301_open,
+ 	.release = zc0301_release,
+Index: linux-2.6/drivers/media/video/zoran_driver.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/zoran_driver.c
++++ linux-2.6/drivers/media/video/zoran_driver.c
+@@ -4680,7 +4680,7 @@ zoran_mmap (struct file           *file,
+ 	return 0;
+ }
+ 
+-static struct file_operations zoran_fops = {
++static const struct file_operations zoran_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = zoran_open,
+ 	.release = zoran_close,
+Index: linux-2.6/drivers/media/video/zoran_procfs.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/zoran_procfs.c
++++ linux-2.6/drivers/media/video/zoran_procfs.c
+@@ -186,7 +186,7 @@ static ssize_t zoran_write(struct file *
+ 	return count;
+ }
+ 
+-static struct file_operations zoran_operations = {
++static const struct file_operations zoran_operations = {
+ 	.open		= zoran_open,
+ 	.read		= seq_read,
+ 	.write		= zoran_write,
+Index: linux-2.6/drivers/message/fusion/mptctl.c
+===================================================================
+--- linux-2.6.orig/drivers/message/fusion/mptctl.c
++++ linux-2.6/drivers/message/fusion/mptctl.c
+@@ -2718,7 +2718,7 @@ mptctl_hp_targetinfo(unsigned long arg)
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ 
+-static struct file_operations mptctl_fops = {
++static const struct file_operations mptctl_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.llseek =	no_llseek,
+ 	.release =	mptctl_release,
 
 

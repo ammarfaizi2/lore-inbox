@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751236AbXANLhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751247AbXANLoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbXANLhT (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 06:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbXANLhT
+	id S1751247AbXANLoe (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 06:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbXANLoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 06:37:19 -0500
-Received: from wx-out-0506.google.com ([66.249.82.233]:61179 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751236AbXANLhS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 06:37:18 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=e9+QRdt2bGLCKgTfPEa2VLKDKHxZgN8sHiJ5n+EK9Wd/Kg5w1+O+qol2txZPmVRCLqU14r9kHreDw8ojam2Mr4aiv9+u37a60FRMvxp0OSw3OhGuf7XND6KW2eGKxBacN4UxQMI1/s3M5lCVnGD9plo5e0CXcPH6sP6RKSydGoU=
-Message-ID: <dc2200690701140337pde7842dy7744d284df20d9ff@mail.gmail.com>
-Date: Sun, 14 Jan 2007 12:37:16 +0100
-From: "=?WINDOWS-1252?Q?Cyril_Hrubi=9A?=" <watashi.metan@gmail.com>
-To: arminlitzel@web.de, pavel.urban@ct.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       linux-kernel@vger.kernel.org, Dirk@Opfer-Online.de, milan@ucw.cz,
-       pavel@ucw.cz
-Subject: collie 2.6 source tarbal
+	Sun, 14 Jan 2007 06:44:34 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:56966 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751248AbXANLoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 06:44:34 -0500
+Date: Sun, 14 Jan 2007 12:35:19 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [patch 20/20] XEN-paravirt: Add Xen virtual block device driver.
+In-Reply-To: <20070114112412.GA32719@rhun.haifa.ibm.com>
+Message-ID: <Pine.LNX.4.61.0701141230580.26276@yvahk01.tjqt.qr>
+References: <20070113014539.408244126@goop.org> <20070113014649.256179743@goop.org>
+ <Pine.LNX.4.61.0701141202050.26276@yvahk01.tjqt.qr> <20070114112412.GA32719@rhun.haifa.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've put source tarball of collie bootable 2.6 kernel on web. It tries
-to be up to date with pavel's git tree on kernel.org; this one is few
-weeks old. Happy testing.
 
-http://atrey.karlin.mff.cuni.cz/~metan/zaurus/zaurus.tar.bz2
+On Jan 14 2007 13:24, Muli Ben-Yehuda wrote:
+>On Sun, Jan 14, 2007 at 12:05:13PM +0100, Jan Engelhardt wrote:
+>
+>> >+	(void)xenbus_switch_state(info->xbdev, XenbusStateConnected);
+>> 
+>> Cast remove, if xenbus_switch_state does not have __must_check.
+>> Also elsewhere.
+>
+>Hmm, why? this way you know that the programmer isn't checking the
+>return value *on purpose*. More information is good.
 
+Then I'd prefer a comment. Plus, you don't do (void) on every
+xenbus_switch_state, so I have to assume (1) you either forgot to check the
+return value or (2) you don't follow your own "on purpose" policy. If you
+really want to enforce to use the return value and explicitly not in some
+places, then please tag it __must_check. http://lkml.org/lkml/2006/12/21/282
+might be something to read.
+
+
+	-`J'
 -- 
-watashi |v|3+@n
-Cyril Hrubis
-watashi.metan@gmail.com
-+-> struggle.sf.net developer
-+-> rattulla.ic.cz vyvojar (cz)

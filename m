@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751027AbXANBDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751058AbXANBEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbXANBDp (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 20:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbXANBDp
+	id S1751058AbXANBEG (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 20:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbXANBEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 20:03:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:52782 "EHLO
+	Sat, 13 Jan 2007 20:04:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52793 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750968AbXANBDU (ORCPT
+	with ESMTP id S1750968AbXANBEA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 20:03:20 -0500
-Subject: [patch 10/12] mark struct inode_operations const 1
+	Sat, 13 Jan 2007 20:04:00 -0500
+Subject: [patch 11/12] mark struct inode_operations const 2
 From: Arjan van de Ven <arjan@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org
@@ -18,8 +18,8 @@ In-Reply-To: <1168735868.3123.315.camel@laptopd505.fenrus.org>
 References: <1168735868.3123.315.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Organization: Intel International BV
-Date: Sat, 13 Jan 2007 16:57:42 -0800
-Message-Id: <1168736262.3123.337.camel@laptopd505.fenrus.org>
+Date: Sat, 13 Jan 2007 16:58:11 -0800
+Message-Id: <1168736291.3123.339.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
@@ -30,7 +30,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Arjan van de Ven <arjan@linux.intel.com>
-Subject: [patch 10/12] mark struct inode_operations const
+Subject: [patch 11/12] mark struct inode_operations const
 
 Many struct inode_operations in the kernel can be "const". Marking them const
 moves these to the .rodata section, which avoids false sharing with
@@ -39,1002 +39,1016 @@ time to these shared resources.
 
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
-Index: linux-2.6.20-rc4/arch/powerpc/platforms/cell/spufs/inode.c
+Index: linux-2.6.20-rc4/fs/gfs2/ops_inode.c
 ===================================================================
---- linux-2.6.20-rc4.orig/arch/powerpc/platforms/cell/spufs/inode.c
-+++ linux-2.6.20-rc4/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -220,7 +220,7 @@ static int spufs_dir_close(struct inode 
- 	return dcache_dir_close(inode, file);
+--- linux-2.6.20-rc4.orig/fs/gfs2/ops_inode.c
++++ linux-2.6.20-rc4/fs/gfs2/ops_inode.c
+@@ -1084,7 +1084,7 @@ static int gfs2_removexattr(struct dentr
+ 	return gfs2_ea_remove(GFS2_I(dentry->d_inode), &er);
  }
  
--struct inode_operations spufs_dir_inode_operations = {
-+const struct inode_operations spufs_dir_inode_operations = {
- 	.lookup = simple_lookup,
+-struct inode_operations gfs2_file_iops = {
++const struct inode_operations gfs2_file_iops = {
+ 	.permission = gfs2_permission,
+ 	.setattr = gfs2_setattr,
+ 	.getattr = gfs2_getattr,
+@@ -1094,7 +1094,7 @@ struct inode_operations gfs2_file_iops =
+ 	.removexattr = gfs2_removexattr,
  };
  
-Index: linux-2.6.20-rc4/fs/9p/vfs_inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/9p/vfs_inode.c
-+++ linux-2.6.20-rc4/fs/9p/vfs_inode.c
-@@ -41,10 +41,10 @@
- #include "v9fs_vfs.h"
- #include "fid.h"
- 
--static struct inode_operations v9fs_dir_inode_operations;
--static struct inode_operations v9fs_dir_inode_operations_ext;
--static struct inode_operations v9fs_file_inode_operations;
--static struct inode_operations v9fs_symlink_inode_operations;
-+static const struct inode_operations v9fs_dir_inode_operations;
-+static const struct inode_operations v9fs_dir_inode_operations_ext;
-+static const struct inode_operations v9fs_file_inode_operations;
-+static const struct inode_operations v9fs_symlink_inode_operations;
- 
- /**
-  * unixmode2p9mode - convert unix mode bits to plan 9
-@@ -1274,7 +1274,7 @@ v9fs_vfs_mknod(struct inode *dir, struct
- 	return retval;
- }
- 
--static struct inode_operations v9fs_dir_inode_operations_ext = {
-+static const struct inode_operations v9fs_dir_inode_operations_ext = {
- 	.create = v9fs_vfs_create,
- 	.lookup = v9fs_vfs_lookup,
- 	.symlink = v9fs_vfs_symlink,
-@@ -1289,7 +1289,7 @@ static struct inode_operations v9fs_dir_
- 	.setattr = v9fs_vfs_setattr,
+-struct inode_operations gfs2_dev_iops = {
++const struct inode_operations gfs2_dev_iops = {
+ 	.permission = gfs2_permission,
+ 	.setattr = gfs2_setattr,
+ 	.getattr = gfs2_getattr,
+@@ -1104,7 +1104,7 @@ struct inode_operations gfs2_dev_iops = 
+ 	.removexattr = gfs2_removexattr,
  };
  
--static struct inode_operations v9fs_dir_inode_operations = {
-+static const struct inode_operations v9fs_dir_inode_operations = {
- 	.create = v9fs_vfs_create,
- 	.lookup = v9fs_vfs_lookup,
- 	.unlink = v9fs_vfs_unlink,
-@@ -1301,12 +1301,12 @@ static struct inode_operations v9fs_dir_
- 	.setattr = v9fs_vfs_setattr,
+-struct inode_operations gfs2_dir_iops = {
++const struct inode_operations gfs2_dir_iops = {
+ 	.create = gfs2_create,
+ 	.lookup = gfs2_lookup,
+ 	.link = gfs2_link,
+@@ -1123,7 +1123,7 @@ struct inode_operations gfs2_dir_iops = 
+ 	.removexattr = gfs2_removexattr,
  };
  
--static struct inode_operations v9fs_file_inode_operations = {
-+static const struct inode_operations v9fs_file_inode_operations = {
- 	.getattr = v9fs_vfs_getattr,
- 	.setattr = v9fs_vfs_setattr,
+-struct inode_operations gfs2_symlink_iops = {
++const struct inode_operations gfs2_symlink_iops = {
+ 	.readlink = gfs2_readlink,
+ 	.follow_link = gfs2_follow_link,
+ 	.permission = gfs2_permission,
+Index: linux-2.6.20-rc4/fs/gfs2/ops_inode.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/gfs2/ops_inode.h
++++ linux-2.6.20-rc4/fs/gfs2/ops_inode.h
+@@ -12,9 +12,9 @@
+ 
+ #include <linux/fs.h>
+ 
+-extern struct inode_operations gfs2_file_iops;
+-extern struct inode_operations gfs2_dir_iops;
+-extern struct inode_operations gfs2_symlink_iops;
+-extern struct inode_operations gfs2_dev_iops;
++extern const struct inode_operations gfs2_file_iops;
++extern const struct inode_operations gfs2_dir_iops;
++extern const struct inode_operations gfs2_symlink_iops;
++extern const struct inode_operations gfs2_dev_iops;
+ 
+ #endif /* __OPS_INODE_DOT_H__ */
+Index: linux-2.6.20-rc4/fs/hfs/dir.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hfs/dir.c
++++ linux-2.6.20-rc4/fs/hfs/dir.c
+@@ -320,7 +320,7 @@ const struct file_operations hfs_dir_ope
+ 	.release	= hfs_dir_release,
  };
  
--static struct inode_operations v9fs_symlink_inode_operations = {
-+static const struct inode_operations v9fs_symlink_inode_operations = {
- 	.readlink = v9fs_vfs_readlink,
- 	.follow_link = v9fs_vfs_follow_link,
- 	.put_link = v9fs_vfs_put_link,
-Index: linux-2.6.20-rc4/fs/adfs/adfs.h
+-struct inode_operations hfs_dir_inode_operations = {
++const struct inode_operations hfs_dir_inode_operations = {
+ 	.create		= hfs_create,
+ 	.lookup		= hfs_lookup,
+ 	.unlink		= hfs_unlink,
+Index: linux-2.6.20-rc4/fs/hfs/hfs_fs.h
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/adfs/adfs.h
-+++ linux-2.6.20-rc4/fs/adfs/adfs.h
-@@ -84,7 +84,7 @@ void __adfs_error(struct super_block *sb
-  */
- 
- /* dir_*.c */
--extern struct inode_operations adfs_dir_inode_operations;
-+extern const struct inode_operations adfs_dir_inode_operations;
- extern const struct file_operations adfs_dir_operations;
- extern struct dentry_operations adfs_dentry_operations;
- extern struct adfs_dir_ops adfs_f_dir_ops;
-@@ -93,7 +93,7 @@ extern struct adfs_dir_ops adfs_fplus_di
- extern int adfs_dir_update(struct super_block *sb, struct object_info *obj);
- 
- /* file.c */
--extern struct inode_operations adfs_file_inode_operations;
-+extern const struct inode_operations adfs_file_inode_operations;
- extern const struct file_operations adfs_file_operations;
- 
- static inline __u32 signed_asl(__u32 val, signed int shift)
-Index: linux-2.6.20-rc4/fs/adfs/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/adfs/dir.c
-+++ linux-2.6.20-rc4/fs/adfs/dir.c
-@@ -295,7 +295,7 @@ adfs_lookup(struct inode *dir, struct de
- /*
-  * directories can handle most operations...
-  */
--struct inode_operations adfs_dir_inode_operations = {
-+const struct inode_operations adfs_dir_inode_operations = {
- 	.lookup		= adfs_lookup,
- 	.setattr	= adfs_notify_change,
- };
-Index: linux-2.6.20-rc4/fs/adfs/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/adfs/file.c
-+++ linux-2.6.20-rc4/fs/adfs/file.c
-@@ -36,6 +36,6 @@ const struct file_operations adfs_file_o
- 	.sendfile	= generic_file_sendfile,
- };
- 
--struct inode_operations adfs_file_inode_operations = {
-+const struct inode_operations adfs_file_inode_operations = {
- 	.setattr	= adfs_notify_change,
- };
-Index: linux-2.6.20-rc4/fs/affs/affs.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/affs/affs.h
-+++ linux-2.6.20-rc4/fs/affs/affs.h
-@@ -188,9 +188,9 @@ extern void   affs_dir_truncate(struct i
- 
- /* jump tables */
- 
--extern struct inode_operations	 affs_file_inode_operations;
--extern struct inode_operations	 affs_dir_inode_operations;
--extern struct inode_operations   affs_symlink_inode_operations;
-+extern const struct inode_operations	 affs_file_inode_operations;
-+extern const struct inode_operations	 affs_dir_inode_operations;
-+extern const struct inode_operations   affs_symlink_inode_operations;
- extern const struct file_operations	 affs_file_operations;
- extern const struct file_operations	 affs_file_operations_ofs;
- extern const struct file_operations	 affs_dir_operations;
-Index: linux-2.6.20-rc4/fs/affs/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/affs/dir.c
-+++ linux-2.6.20-rc4/fs/affs/dir.c
-@@ -26,7 +26,7 @@ const struct file_operations affs_dir_op
- /*
-  * directories can handle most operations...
-  */
--struct inode_operations affs_dir_inode_operations = {
-+const struct inode_operations affs_dir_inode_operations = {
- 	.create		= affs_create,
- 	.lookup		= affs_lookup,
- 	.link		= affs_link,
-Index: linux-2.6.20-rc4/fs/affs/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/affs/file.c
-+++ linux-2.6.20-rc4/fs/affs/file.c
-@@ -38,7 +38,7 @@ const struct file_operations affs_file_o
- 	.sendfile	= generic_file_sendfile,
- };
- 
--struct inode_operations affs_file_inode_operations = {
-+const struct inode_operations affs_file_inode_operations = {
- 	.truncate	= affs_truncate,
- 	.setattr	= affs_notify_change,
- };
-Index: linux-2.6.20-rc4/fs/affs/inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/affs/inode.c
-+++ linux-2.6.20-rc4/fs/affs/inode.c
-@@ -12,7 +12,7 @@
- 
- #include "affs.h"
- 
--extern struct inode_operations affs_symlink_inode_operations;
-+extern const struct inode_operations affs_symlink_inode_operations;
- extern struct timezone sys_tz;
- 
- void
-Index: linux-2.6.20-rc4/fs/affs/symlink.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/affs/symlink.c
-+++ linux-2.6.20-rc4/fs/affs/symlink.c
-@@ -70,7 +70,7 @@ const struct address_space_operations af
- 	.readpage	= affs_symlink_readpage,
- };
- 
--struct inode_operations affs_symlink_inode_operations = {
-+const struct inode_operations affs_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= page_follow_link_light,
- 	.put_link	= page_put_link,
-Index: linux-2.6.20-rc4/fs/afs/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/afs/dir.c
-+++ linux-2.6.20-rc4/fs/afs/dir.c
-@@ -37,7 +37,7 @@ const struct file_operations afs_dir_fil
- 	.readdir	= afs_dir_readdir,
- };
- 
--struct inode_operations afs_dir_inode_operations = {
-+const struct inode_operations afs_dir_inode_operations = {
- 	.lookup		= afs_dir_lookup,
- 	.getattr	= afs_inode_getattr,
- #if 0 /* TODO */
-Index: linux-2.6.20-rc4/fs/afs/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/afs/file.c
-+++ linux-2.6.20-rc4/fs/afs/file.c
-@@ -30,7 +30,7 @@ static int afs_file_readpage(struct file
- static void afs_file_invalidatepage(struct page *page, unsigned long offset);
- static int afs_file_releasepage(struct page *page, gfp_t gfp_flags);
- 
--struct inode_operations afs_file_inode_operations = {
-+const struct inode_operations afs_file_inode_operations = {
- 	.getattr	= afs_inode_getattr,
- };
- 
-Index: linux-2.6.20-rc4/fs/afs/internal.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/afs/internal.h
-+++ linux-2.6.20-rc4/fs/afs/internal.h
-@@ -63,14 +63,14 @@ extern struct cachefs_index_def afs_cach
- /*
-  * dir.c
-  */
--extern struct inode_operations afs_dir_inode_operations;
-+extern const struct inode_operations afs_dir_inode_operations;
- extern const struct file_operations afs_dir_file_operations;
- 
- /*
-  * file.c
-  */
- extern const struct address_space_operations afs_fs_aops;
--extern struct inode_operations afs_file_inode_operations;
-+extern const struct inode_operations afs_file_inode_operations;
- 
- #ifdef AFS_CACHING_SUPPORT
- extern int afs_cache_get_page_cookie(struct page *page,
-@@ -104,7 +104,7 @@ extern struct cachefs_netfs afs_cache_ne
- /*
-  * mntpt.c
-  */
--extern struct inode_operations afs_mntpt_inode_operations;
-+extern const struct inode_operations afs_mntpt_inode_operations;
- extern const struct file_operations afs_mntpt_file_operations;
- extern struct afs_timer afs_mntpt_expiry_timer;
- extern struct afs_timer_ops afs_mntpt_expiry_timer_ops;
-Index: linux-2.6.20-rc4/fs/afs/mntpt.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/afs/mntpt.c
-+++ linux-2.6.20-rc4/fs/afs/mntpt.c
-@@ -36,7 +36,7 @@ const struct file_operations afs_mntpt_f
- 	.open		= afs_mntpt_open,
- };
- 
--struct inode_operations afs_mntpt_inode_operations = {
-+const struct inode_operations afs_mntpt_inode_operations = {
- 	.lookup		= afs_mntpt_lookup,
- 	.follow_link	= afs_mntpt_follow_link,
- 	.readlink	= page_readlink,
-Index: linux-2.6.20-rc4/fs/autofs/autofs_i.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs/autofs_i.h
-+++ linux-2.6.20-rc4/fs/autofs/autofs_i.h
-@@ -142,8 +142,8 @@ struct autofs_dir_ent *autofs_expire(str
- 
- /* Operations structures */
- 
--extern struct inode_operations autofs_root_inode_operations;
--extern struct inode_operations autofs_symlink_inode_operations;
-+extern const struct inode_operations autofs_root_inode_operations;
-+extern const struct inode_operations autofs_symlink_inode_operations;
- extern const struct file_operations autofs_root_operations;
- 
- /* Initializing function */
-Index: linux-2.6.20-rc4/fs/autofs/root.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs/root.c
-+++ linux-2.6.20-rc4/fs/autofs/root.c
-@@ -32,7 +32,7 @@ const struct file_operations autofs_root
- 	.ioctl		= autofs_root_ioctl,
- };
- 
--struct inode_operations autofs_root_inode_operations = {
-+const struct inode_operations autofs_root_inode_operations = {
-         .lookup		= autofs_root_lookup,
-         .unlink		= autofs_root_unlink,
-         .symlink	= autofs_root_symlink,
-Index: linux-2.6.20-rc4/fs/autofs/symlink.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs/symlink.c
-+++ linux-2.6.20-rc4/fs/autofs/symlink.c
-@@ -20,7 +20,7 @@ static void *autofs_follow_link(struct d
- 	return NULL;
- }
- 
--struct inode_operations autofs_symlink_inode_operations = {
-+const struct inode_operations autofs_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= autofs_follow_link
- };
-Index: linux-2.6.20-rc4/fs/autofs4/autofs_i.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs4/autofs_i.h
-+++ linux-2.6.20-rc4/fs/autofs4/autofs_i.h
-@@ -168,11 +168,11 @@ int autofs4_expire_multi(struct super_bl
- 
- /* Operations structures */
- 
--extern struct inode_operations autofs4_symlink_inode_operations;
--extern struct inode_operations autofs4_dir_inode_operations;
--extern struct inode_operations autofs4_root_inode_operations;
--extern struct inode_operations autofs4_indirect_root_inode_operations;
--extern struct inode_operations autofs4_direct_root_inode_operations;
-+extern const struct inode_operations autofs4_symlink_inode_operations;
-+extern const struct inode_operations autofs4_dir_inode_operations;
-+extern const struct inode_operations autofs4_root_inode_operations;
-+extern const struct inode_operations autofs4_indirect_root_inode_operations;
-+extern const struct inode_operations autofs4_direct_root_inode_operations;
- extern const struct file_operations autofs4_dir_operations;
- extern const struct file_operations autofs4_root_operations;
- 
-Index: linux-2.6.20-rc4/fs/autofs4/root.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs4/root.c
-+++ linux-2.6.20-rc4/fs/autofs4/root.c
-@@ -47,7 +47,7 @@ const struct file_operations autofs4_dir
- 	.readdir	= autofs4_dir_readdir,
- };
- 
--struct inode_operations autofs4_indirect_root_inode_operations = {
-+const struct inode_operations autofs4_indirect_root_inode_operations = {
- 	.lookup		= autofs4_lookup,
- 	.unlink		= autofs4_dir_unlink,
- 	.symlink	= autofs4_dir_symlink,
-@@ -55,7 +55,7 @@ struct inode_operations autofs4_indirect
- 	.rmdir		= autofs4_dir_rmdir,
- };
- 
--struct inode_operations autofs4_direct_root_inode_operations = {
-+const struct inode_operations autofs4_direct_root_inode_operations = {
- 	.lookup		= autofs4_lookup,
- 	.unlink		= autofs4_dir_unlink,
- 	.mkdir		= autofs4_dir_mkdir,
-@@ -63,7 +63,7 @@ struct inode_operations autofs4_direct_r
- 	.follow_link	= autofs4_follow_link,
- };
- 
--struct inode_operations autofs4_dir_inode_operations = {
-+const struct inode_operations autofs4_dir_inode_operations = {
- 	.lookup		= autofs4_lookup,
- 	.unlink		= autofs4_dir_unlink,
- 	.symlink	= autofs4_dir_symlink,
-Index: linux-2.6.20-rc4/fs/autofs4/symlink.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/autofs4/symlink.c
-+++ linux-2.6.20-rc4/fs/autofs4/symlink.c
-@@ -19,7 +19,7 @@ static void *autofs4_follow_link(struct 
- 	return NULL;
- }
- 
--struct inode_operations autofs4_symlink_inode_operations = {
-+const struct inode_operations autofs4_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= autofs4_follow_link
- };
-Index: linux-2.6.20-rc4/fs/bad_inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/bad_inode.c
-+++ linux-2.6.20-rc4/fs/bad_inode.c
-@@ -291,7 +291,7 @@ static int bad_inode_removexattr(struct 
- 	return -EIO;
- }
- 
--static struct inode_operations bad_inode_ops =
-+static const struct inode_operations bad_inode_ops =
- {
- 	.create		= bad_inode_create,
- 	.lookup		= bad_inode_lookup,
-Index: linux-2.6.20-rc4/fs/befs/linuxvfs.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/befs/linuxvfs.c
-+++ linux-2.6.20-rc4/fs/befs/linuxvfs.c
-@@ -68,7 +68,7 @@ static const struct file_operations befs
- 	.readdir	= befs_readdir,
- };
- 
--static struct inode_operations befs_dir_inode_operations = {
-+static const struct inode_operations befs_dir_inode_operations = {
- 	.lookup		= befs_lookup,
- };
- 
-@@ -78,7 +78,7 @@ static const struct address_space_operat
- 	.bmap		= befs_bmap,
- };
- 
--static struct inode_operations befs_symlink_inode_operations = {
-+static const struct inode_operations befs_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= befs_follow_link,
- 	.put_link	= befs_put_link,
-Index: linux-2.6.20-rc4/fs/bfs/bfs.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/bfs/bfs.h
-+++ linux-2.6.20-rc4/fs/bfs/bfs.h
-@@ -48,12 +48,12 @@ static inline struct bfs_inode_info *BFS
- 
- 
- /* file.c */
--extern struct inode_operations bfs_file_inops;
-+extern const struct inode_operations bfs_file_inops;
- extern const struct file_operations bfs_file_operations;
- extern const struct address_space_operations bfs_aops;
+--- linux-2.6.20-rc4.orig/fs/hfs/hfs_fs.h
++++ linux-2.6.20-rc4/fs/hfs/hfs_fs.h
+@@ -170,7 +170,7 @@ extern void hfs_cat_build_key(struct sup
  
  /* dir.c */
--extern struct inode_operations bfs_dir_inops;
-+extern const struct inode_operations bfs_dir_inops;
- extern const struct file_operations bfs_dir_operations;
+ extern const struct file_operations hfs_dir_operations;
+-extern struct inode_operations hfs_dir_inode_operations;
++extern const struct inode_operations hfs_dir_inode_operations;
  
- #endif /* _FS_BFS_BFS_H */
-Index: linux-2.6.20-rc4/fs/bfs/dir.c
+ /* extent.c */
+ extern int hfs_ext_keycmp(const btree_key *, const btree_key *);
+Index: linux-2.6.20-rc4/fs/hfs/inode.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/bfs/dir.c
-+++ linux-2.6.20-rc4/fs/bfs/dir.c
-@@ -260,7 +260,7 @@ end_rename:
- 	return error;
+--- linux-2.6.20-rc4.orig/fs/hfs/inode.c
++++ linux-2.6.20-rc4/fs/hfs/inode.c
+@@ -18,7 +18,7 @@
+ #include "btree.h"
+ 
+ static const struct file_operations hfs_file_operations;
+-static struct inode_operations hfs_file_inode_operations;
++static const struct inode_operations hfs_file_inode_operations;
+ 
+ /*================ Variable-like macros ================*/
+ 
+@@ -612,7 +612,7 @@ static const struct file_operations hfs_
+ 	.release	= hfs_file_release,
+ };
+ 
+-static struct inode_operations hfs_file_inode_operations = {
++static const struct inode_operations hfs_file_inode_operations = {
+ 	.lookup		= hfs_file_lookup,
+ 	.truncate	= hfs_file_truncate,
+ 	.setattr	= hfs_inode_setattr,
+Index: linux-2.6.20-rc4/fs/hfsplus/dir.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hfsplus/dir.c
++++ linux-2.6.20-rc4/fs/hfsplus/dir.c
+@@ -471,7 +471,7 @@ static int hfsplus_rename(struct inode *
+ 	return res;
  }
  
--struct inode_operations bfs_dir_inops = {
-+const struct inode_operations bfs_dir_inops = {
- 	.create			= bfs_create,
- 	.lookup			= bfs_lookup,
- 	.link			= bfs_link,
-Index: linux-2.6.20-rc4/fs/bfs/file.c
+-struct inode_operations hfsplus_dir_inode_operations = {
++const struct inode_operations hfsplus_dir_inode_operations = {
+ 	.lookup		= hfsplus_lookup,
+ 	.create		= hfsplus_create,
+ 	.link		= hfsplus_link,
+Index: linux-2.6.20-rc4/fs/hfsplus/inode.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/bfs/file.c
-+++ linux-2.6.20-rc4/fs/bfs/file.c
-@@ -164,4 +164,4 @@ const struct address_space_operations bf
- 	.bmap		= bfs_bmap,
- };
- 
--struct inode_operations bfs_file_inops;
-+const struct inode_operations bfs_file_inops;
-Index: linux-2.6.20-rc4/fs/cifs/cifsfs.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/cifs/cifsfs.c
-+++ linux-2.6.20-rc4/fs/cifs/cifsfs.c
-@@ -525,7 +525,7 @@ static struct file_system_type cifs_fs_t
- 	.kill_sb = kill_anon_super,
- 	/*  .fs_flags */
- };
--struct inode_operations cifs_dir_inode_ops = {
-+const struct inode_operations cifs_dir_inode_ops = {
- 	.create = cifs_create,
- 	.lookup = cifs_lookup,
- 	.getattr = cifs_getattr,
-@@ -547,7 +547,7 @@ struct inode_operations cifs_dir_inode_o
- #endif
- };
- 
--struct inode_operations cifs_file_inode_ops = {
-+const struct inode_operations cifs_file_inode_ops = {
- /*	revalidate:cifs_revalidate, */
- 	.setattr = cifs_setattr,
- 	.getattr = cifs_getattr, /* do we need this anymore? */
-@@ -561,7 +561,7 @@ struct inode_operations cifs_file_inode_
- #endif 
- };
- 
--struct inode_operations cifs_symlink_inode_ops = {
-+const struct inode_operations cifs_symlink_inode_ops = {
- 	.readlink = generic_readlink, 
- 	.follow_link = cifs_follow_link,
- 	.put_link = cifs_put_link,
-Index: linux-2.6.20-rc4/fs/cifs/cifsfs.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/cifs/cifsfs.h
-+++ linux-2.6.20-rc4/fs/cifs/cifsfs.h
-@@ -42,7 +42,7 @@ extern void cifs_delete_inode(struct ino
- /* extern void cifs_write_inode(struct inode *); *//* BB not needed yet */
- 
- /* Functions related to inodes */
--extern struct inode_operations cifs_dir_inode_ops;
-+extern const struct inode_operations cifs_dir_inode_ops;
- extern int cifs_create(struct inode *, struct dentry *, int, 
- 		       struct nameidata *);
- extern struct dentry * cifs_lookup(struct inode *, struct dentry *,
-@@ -58,8 +58,8 @@ extern int cifs_revalidate(struct dentry
- extern int cifs_getattr(struct vfsmount *, struct dentry *, struct kstat *);
- extern int cifs_setattr(struct dentry *, struct iattr *);
- 
--extern struct inode_operations cifs_file_inode_ops;
--extern struct inode_operations cifs_symlink_inode_ops;
-+extern const struct inode_operations cifs_file_inode_ops;
-+extern const struct inode_operations cifs_symlink_inode_ops;
- 
- /* Functions related to files and directories */
- extern const struct file_operations cifs_file_ops;
-Index: linux-2.6.20-rc4/fs/coda/cnode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/coda/cnode.c
-+++ linux-2.6.20-rc4/fs/coda/cnode.c
-@@ -16,7 +16,7 @@ static inline int coda_fideq(struct Coda
- 	return memcmp(fid1, fid2, sizeof(*fid1)) == 0;
- }
- 
--static struct inode_operations coda_symlink_inode_operations = {
-+static const struct inode_operations coda_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= page_follow_link_light,
- 	.put_link	= page_put_link,
-Index: linux-2.6.20-rc4/fs/coda/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/coda/dir.c
-+++ linux-2.6.20-rc4/fs/coda/dir.c
-@@ -66,7 +66,7 @@ static struct dentry_operations coda_den
- 	.d_delete	= coda_dentry_delete,
- };
- 
--struct inode_operations coda_dir_inode_operations =
-+const struct inode_operations coda_dir_inode_operations =
- {
- 	.create		= coda_create,
- 	.lookup		= coda_lookup,
-Index: linux-2.6.20-rc4/fs/coda/inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/coda/inode.c
-+++ linux-2.6.20-rc4/fs/coda/inode.c
-@@ -271,7 +271,7 @@ int coda_setattr(struct dentry *de, stru
- 	return error;
- }
- 
--struct inode_operations coda_file_inode_operations = {
-+const struct inode_operations coda_file_inode_operations = {
- 	.permission	= coda_permission,
- 	.getattr	= coda_getattr,
- 	.setattr	= coda_setattr,
-Index: linux-2.6.20-rc4/fs/coda/pioctl.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/coda/pioctl.c
-+++ linux-2.6.20-rc4/fs/coda/pioctl.c
-@@ -30,7 +30,7 @@ static int coda_pioctl(struct inode * in
-                        unsigned int cmd, unsigned long user_data);
- 
- /* exported from this file */
--struct inode_operations coda_ioctl_inode_operations =
-+const struct inode_operations coda_ioctl_inode_operations =
- {
- 	.permission	= coda_ioctl_permission,
- 	.setattr	= coda_setattr,
-Index: linux-2.6.20-rc4/fs/configfs/configfs_internal.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/configfs/configfs_internal.h
-+++ linux-2.6.20-rc4/fs/configfs/configfs_internal.h
-@@ -75,8 +75,8 @@ extern struct super_block * configfs_sb;
- extern const struct file_operations configfs_dir_operations;
- extern const struct file_operations configfs_file_operations;
- extern const struct file_operations bin_fops;
--extern struct inode_operations configfs_dir_inode_operations;
--extern struct inode_operations configfs_symlink_inode_operations;
-+extern const struct inode_operations configfs_dir_inode_operations;
-+extern const struct inode_operations configfs_symlink_inode_operations;
- 
- extern int configfs_symlink(struct inode *dir, struct dentry *dentry,
- 			    const char *symname);
-Index: linux-2.6.20-rc4/fs/configfs/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/configfs/dir.c
-+++ linux-2.6.20-rc4/fs/configfs/dir.c
-@@ -931,7 +931,7 @@ static int configfs_rmdir(struct inode *
+--- linux-2.6.20-rc4.orig/fs/hfsplus/inode.c
++++ linux-2.6.20-rc4/fs/hfsplus/inode.c
+@@ -268,10 +268,10 @@ static int hfsplus_file_release(struct i
  	return 0;
  }
  
--struct inode_operations configfs_dir_inode_operations = {
-+const struct inode_operations configfs_dir_inode_operations = {
- 	.mkdir		= configfs_mkdir,
- 	.rmdir		= configfs_rmdir,
- 	.symlink	= configfs_symlink,
-Index: linux-2.6.20-rc4/fs/configfs/inode.c
+-extern struct inode_operations hfsplus_dir_inode_operations;
++extern const struct inode_operations hfsplus_dir_inode_operations;
+ extern struct file_operations hfsplus_dir_operations;
+ 
+-static struct inode_operations hfsplus_file_inode_operations = {
++static const struct inode_operations hfsplus_file_inode_operations = {
+ 	.lookup		= hfsplus_file_lookup,
+ 	.truncate	= hfsplus_file_truncate,
+ 	.permission	= hfsplus_permission,
+Index: linux-2.6.20-rc4/fs/hostfs/hostfs_kern.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/configfs/inode.c
-+++ linux-2.6.20-rc4/fs/configfs/inode.c
-@@ -49,7 +49,7 @@ static struct backing_dev_info configfs_
- 	.capabilities	= BDI_CAP_NO_ACCT_DIRTY | BDI_CAP_NO_WRITEBACK,
+--- linux-2.6.20-rc4.orig/fs/hostfs/hostfs_kern.c
++++ linux-2.6.20-rc4/fs/hostfs/hostfs_kern.c
+@@ -52,8 +52,8 @@ static int append = 0;
+ 
+ #define HOSTFS_SUPER_MAGIC 0x00c0ffee
+ 
+-static struct inode_operations hostfs_iops;
+-static struct inode_operations hostfs_dir_iops;
++static const struct inode_operations hostfs_iops;
++static const struct inode_operations hostfs_dir_iops;
+ static const struct address_space_operations hostfs_link_aops;
+ 
+ #ifndef MODULE
+@@ -880,7 +880,7 @@ int hostfs_getattr(struct vfsmount *mnt,
+ 	return(0);
+ }
+ 
+-static struct inode_operations hostfs_iops = {
++static const struct inode_operations hostfs_iops = {
+ 	.create		= hostfs_create,
+ 	.link		= hostfs_link,
+ 	.unlink		= hostfs_unlink,
+@@ -894,7 +894,7 @@ static struct inode_operations hostfs_io
+ 	.getattr	= hostfs_getattr,
  };
  
--static struct inode_operations configfs_inode_operations ={
-+static const struct inode_operations configfs_inode_operations ={
- 	.setattr	= configfs_setattr,
+-static struct inode_operations hostfs_dir_iops = {
++static const struct inode_operations hostfs_dir_iops = {
+ 	.create		= hostfs_create,
+ 	.lookup		= hostfs_lookup,
+ 	.link		= hostfs_link,
+Index: linux-2.6.20-rc4/fs/hpfs/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hpfs/file.c
++++ linux-2.6.20-rc4/fs/hpfs/file.c
+@@ -132,7 +132,7 @@ const struct file_operations hpfs_file_o
+ 	.sendfile	= generic_file_sendfile,
  };
  
-Index: linux-2.6.20-rc4/fs/configfs/symlink.c
+-struct inode_operations hpfs_file_iops =
++const struct inode_operations hpfs_file_iops =
+ {
+ 	.truncate	= hpfs_truncate,
+ 	.setattr	= hpfs_notify_change,
+Index: linux-2.6.20-rc4/fs/hpfs/hpfs_fn.h
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/configfs/symlink.c
-+++ linux-2.6.20-rc4/fs/configfs/symlink.c
-@@ -272,7 +272,7 @@ static void configfs_put_link(struct den
+--- linux-2.6.20-rc4.orig/fs/hpfs/hpfs_fn.h
++++ linux-2.6.20-rc4/fs/hpfs/hpfs_fn.h
+@@ -266,7 +266,7 @@ void hpfs_set_ea(struct inode *, struct 
+ 
+ int hpfs_file_fsync(struct file *, struct dentry *, int);
+ extern const struct file_operations hpfs_file_ops;
+-extern struct inode_operations hpfs_file_iops;
++extern const struct inode_operations hpfs_file_iops;
+ extern const struct address_space_operations hpfs_aops;
+ 
+ /* inode.c */
+@@ -302,7 +302,7 @@ void hpfs_decide_conv(struct inode *, un
+ 
+ /* namei.c */
+ 
+-extern struct inode_operations hpfs_dir_iops;
++extern const struct inode_operations hpfs_dir_iops;
+ extern const struct address_space_operations hpfs_symlink_aops;
+ 
+ static inline struct hpfs_inode_info *hpfs_i(struct inode *inode)
+Index: linux-2.6.20-rc4/fs/hpfs/namei.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hpfs/namei.c
++++ linux-2.6.20-rc4/fs/hpfs/namei.c
+@@ -659,7 +659,7 @@ end1:
+ 	return err;
+ }
+ 
+-struct inode_operations hpfs_dir_iops =
++const struct inode_operations hpfs_dir_iops =
+ {
+ 	.create		= hpfs_create,
+ 	.lookup		= hpfs_lookup,
+Index: linux-2.6.20-rc4/fs/hppfs/hppfs_kern.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hppfs/hppfs_kern.c
++++ linux-2.6.20-rc4/fs/hppfs/hppfs_kern.c
+@@ -212,7 +212,7 @@ static struct dentry *hppfs_lookup(struc
+ 	return(ERR_PTR(err));
+ }
+ 
+-static struct inode_operations hppfs_file_iops = {
++static const struct inode_operations hppfs_file_iops = {
+ };
+ 
+ static ssize_t read_proc(struct file *file, char __user *buf, ssize_t count,
+@@ -693,11 +693,11 @@ static void* hppfs_follow_link(struct de
+ 	return ret;
+ }
+ 
+-static struct inode_operations hppfs_dir_iops = {
++static const struct inode_operations hppfs_dir_iops = {
+ 	.lookup		= hppfs_lookup,
+ };
+ 
+-static struct inode_operations hppfs_link_iops = {
++static const struct inode_operations hppfs_link_iops = {
+ 	.readlink	= hppfs_readlink,
+ 	.follow_link	= hppfs_follow_link,
+ };
+Index: linux-2.6.20-rc4/fs/hugetlbfs/inode.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/hugetlbfs/inode.c
++++ linux-2.6.20-rc4/fs/hugetlbfs/inode.c
+@@ -36,8 +36,8 @@
+ static struct super_operations hugetlbfs_ops;
+ static const struct address_space_operations hugetlbfs_aops;
+ const struct file_operations hugetlbfs_file_operations;
+-static struct inode_operations hugetlbfs_dir_inode_operations;
+-static struct inode_operations hugetlbfs_inode_operations;
++static const struct inode_operations hugetlbfs_dir_inode_operations;
++static const struct inode_operations hugetlbfs_inode_operations;
+ 
+ static struct backing_dev_info hugetlbfs_backing_dev_info = {
+ 	.ra_pages	= 0,	/* No readahead */
+@@ -560,7 +560,7 @@ const struct file_operations hugetlbfs_f
+ 	.get_unmapped_area	= hugetlb_get_unmapped_area,
+ };
+ 
+-static struct inode_operations hugetlbfs_dir_inode_operations = {
++static const struct inode_operations hugetlbfs_dir_inode_operations = {
+ 	.create		= hugetlbfs_create,
+ 	.lookup		= simple_lookup,
+ 	.link		= simple_link,
+@@ -573,7 +573,7 @@ static struct inode_operations hugetlbfs
+ 	.setattr	= hugetlbfs_setattr,
+ };
+ 
+-static struct inode_operations hugetlbfs_inode_operations = {
++static const struct inode_operations hugetlbfs_inode_operations = {
+ 	.setattr	= hugetlbfs_setattr,
+ };
+ 
+Index: linux-2.6.20-rc4/fs/isofs/dir.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/isofs/dir.c
++++ linux-2.6.20-rc4/fs/isofs/dir.c
+@@ -24,7 +24,7 @@ const struct file_operations isofs_dir_o
+ /*
+  * directories can handle most operations...
+  */
+-struct inode_operations isofs_dir_inode_operations =
++const struct inode_operations isofs_dir_inode_operations =
+ {
+ 	.lookup		= isofs_lookup,
+ };
+Index: linux-2.6.20-rc4/fs/isofs/isofs.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/isofs/isofs.h
++++ linux-2.6.20-rc4/fs/isofs/isofs.h
+@@ -174,7 +174,7 @@ isofs_normalize_block_and_offset(struct 
  	}
  }
  
--struct inode_operations configfs_symlink_inode_operations = {
-+const struct inode_operations configfs_symlink_inode_operations = {
- 	.follow_link = configfs_follow_link,
- 	.readlink = generic_readlink,
- 	.put_link = configfs_put_link,
-Index: linux-2.6.20-rc4/fs/cramfs/inode.c
+-extern struct inode_operations isofs_dir_inode_operations;
++extern const struct inode_operations isofs_dir_inode_operations;
+ extern const struct file_operations isofs_dir_operations;
+ extern const struct address_space_operations isofs_symlink_aops;
+ extern struct export_operations isofs_export_ops;
+Index: linux-2.6.20-rc4/fs/jffs/inode-v23.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/cramfs/inode.c
-+++ linux-2.6.20-rc4/fs/cramfs/inode.c
-@@ -28,7 +28,7 @@
- #include <asm/uaccess.h>
+--- linux-2.6.20-rc4.orig/fs/jffs/inode-v23.c
++++ linux-2.6.20-rc4/fs/jffs/inode-v23.c
+@@ -56,9 +56,9 @@ static int jffs_remove(struct inode *dir
  
- static struct super_operations cramfs_ops;
--static struct inode_operations cramfs_dir_inode_operations;
-+static const struct inode_operations cramfs_dir_inode_operations;
- static const struct file_operations cramfs_directory_operations;
- static const struct address_space_operations cramfs_aops;
+ static struct super_operations jffs_ops;
+ static const struct file_operations jffs_file_operations;
+-static struct inode_operations jffs_file_inode_operations;
++static const struct inode_operations jffs_file_inode_operations;
+ static const struct file_operations jffs_dir_operations;
+-static struct inode_operations jffs_dir_inode_operations;
++static const struct inode_operations jffs_dir_inode_operations;
+ static const struct address_space_operations jffs_address_operations;
  
-@@ -518,7 +518,7 @@ static const struct file_operations cram
- 	.readdir	= cramfs_readdir,
+ struct kmem_cache     *node_cache = NULL;
+@@ -1642,7 +1642,7 @@ static const struct file_operations jffs
  };
  
--static struct inode_operations cramfs_dir_inode_operations = {
-+static const struct inode_operations cramfs_dir_inode_operations = {
- 	.lookup		= cramfs_lookup,
+ 
+-static struct inode_operations jffs_file_inode_operations =
++static const struct inode_operations jffs_file_inode_operations =
+ {
+ 	.lookup		= jffs_lookup,          /* lookup */
+ 	.setattr	= jffs_setattr,
+@@ -1655,7 +1655,7 @@ static const struct file_operations jffs
  };
  
-Index: linux-2.6.20-rc4/fs/ecryptfs/ecryptfs_kernel.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ecryptfs/ecryptfs_kernel.h
-+++ linux-2.6.20-rc4/fs/ecryptfs/ecryptfs_kernel.h
-@@ -385,9 +385,9 @@ void __ecryptfs_printk(const char *fmt, 
  
- extern const struct file_operations ecryptfs_main_fops;
- extern const struct file_operations ecryptfs_dir_fops;
--extern struct inode_operations ecryptfs_main_iops;
--extern struct inode_operations ecryptfs_dir_iops;
--extern struct inode_operations ecryptfs_symlink_iops;
-+extern const struct inode_operations ecryptfs_main_iops;
-+extern const struct inode_operations ecryptfs_dir_iops;
-+extern const struct inode_operations ecryptfs_symlink_iops;
- extern struct super_operations ecryptfs_sops;
- extern struct dentry_operations ecryptfs_dops;
- extern struct address_space_operations ecryptfs_aops;
-Index: linux-2.6.20-rc4/fs/ecryptfs/inode.c
+-static struct inode_operations jffs_dir_inode_operations =
++static const struct inode_operations jffs_dir_inode_operations =
+ {
+ 	.create		= jffs_create,
+ 	.lookup		= jffs_lookup,
+Index: linux-2.6.20-rc4/fs/jffs2/dir.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ecryptfs/inode.c
-+++ linux-2.6.20-rc4/fs/ecryptfs/inode.c
-@@ -972,7 +972,7 @@ int ecryptfs_inode_set(struct inode *ino
+--- linux-2.6.20-rc4.orig/fs/jffs2/dir.c
++++ linux-2.6.20-rc4/fs/jffs2/dir.c
+@@ -46,7 +46,7 @@ const struct file_operations jffs2_dir_o
+ };
+ 
+ 
+-struct inode_operations jffs2_dir_inode_operations =
++const struct inode_operations jffs2_dir_inode_operations =
+ {
+ 	.create =	jffs2_create,
+ 	.lookup =	jffs2_lookup,
+Index: linux-2.6.20-rc4/fs/jffs2/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/jffs2/file.c
++++ linux-2.6.20-rc4/fs/jffs2/file.c
+@@ -54,7 +54,7 @@ const struct file_operations jffs2_file_
+ 
+ /* jffs2_file_inode_operations */
+ 
+-struct inode_operations jffs2_file_inode_operations =
++const struct inode_operations jffs2_file_inode_operations =
+ {
+ 	.permission =	jffs2_permission,
+ 	.setattr =	jffs2_setattr,
+Index: linux-2.6.20-rc4/fs/jffs2/os-linux.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/jffs2/os-linux.h
++++ linux-2.6.20-rc4/fs/jffs2/os-linux.h
+@@ -153,11 +153,11 @@ void jffs2_garbage_collect_trigger(struc
+ 
+ /* dir.c */
+ extern const struct file_operations jffs2_dir_operations;
+-extern struct inode_operations jffs2_dir_inode_operations;
++extern const struct inode_operations jffs2_dir_inode_operations;
+ 
+ /* file.c */
+ extern const struct file_operations jffs2_file_operations;
+-extern struct inode_operations jffs2_file_inode_operations;
++extern const struct inode_operations jffs2_file_inode_operations;
+ extern const struct address_space_operations jffs2_file_address_operations;
+ int jffs2_fsync(struct file *, struct dentry *, int);
+ int jffs2_do_readpage_unlock (struct inode *inode, struct page *pg);
+@@ -166,7 +166,7 @@ int jffs2_do_readpage_unlock (struct ino
+ int jffs2_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
+ 
+ /* symlink.c */
+-extern struct inode_operations jffs2_symlink_inode_operations;
++extern const struct inode_operations jffs2_symlink_inode_operations;
+ 
+ /* fs.c */
+ int jffs2_setattr (struct dentry *, struct iattr *);
+Index: linux-2.6.20-rc4/fs/jffs2/symlink.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/jffs2/symlink.c
++++ linux-2.6.20-rc4/fs/jffs2/symlink.c
+@@ -20,7 +20,7 @@
+ 
+ static void *jffs2_follow_link(struct dentry *dentry, struct nameidata *nd);
+ 
+-struct inode_operations jffs2_symlink_inode_operations =
++const struct inode_operations jffs2_symlink_inode_operations =
+ {
+ 	.readlink =	generic_readlink,
+ 	.follow_link =	jffs2_follow_link,
+Index: linux-2.6.20-rc4/fs/jfs/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/jfs/file.c
++++ linux-2.6.20-rc4/fs/jfs/file.c
+@@ -88,7 +88,7 @@ static int jfs_release(struct inode *ino
  	return 0;
  }
  
--struct inode_operations ecryptfs_symlink_iops = {
-+const struct inode_operations ecryptfs_symlink_iops = {
- 	.readlink = ecryptfs_readlink,
- 	.follow_link = ecryptfs_follow_link,
- 	.put_link = ecryptfs_put_link,
-@@ -984,7 +984,7 @@ struct inode_operations ecryptfs_symlink
- 	.removexattr = ecryptfs_removexattr
- };
- 
--struct inode_operations ecryptfs_dir_iops = {
-+const struct inode_operations ecryptfs_dir_iops = {
- 	.create = ecryptfs_create,
- 	.lookup = ecryptfs_lookup,
- 	.link = ecryptfs_link,
-@@ -1002,7 +1002,7 @@ struct inode_operations ecryptfs_dir_iop
- 	.removexattr = ecryptfs_removexattr
- };
- 
--struct inode_operations ecryptfs_main_iops = {
-+const struct inode_operations ecryptfs_main_iops = {
- 	.permission = ecryptfs_permission,
- 	.setattr = ecryptfs_setattr,
- 	.setxattr = ecryptfs_setxattr,
-Index: linux-2.6.20-rc4/fs/efs/dir.c
+-struct inode_operations jfs_file_inode_operations = {
++const struct inode_operations jfs_file_inode_operations = {
+ 	.truncate	= jfs_truncate,
+ 	.setxattr	= jfs_setxattr,
+ 	.getxattr	= jfs_getxattr,
+Index: linux-2.6.20-rc4/fs/jfs/jfs_inode.h
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/efs/dir.c
-+++ linux-2.6.20-rc4/fs/efs/dir.c
-@@ -15,7 +15,7 @@ const struct file_operations efs_dir_ope
- 	.readdir	= efs_readdir,
- };
+--- linux-2.6.20-rc4.orig/fs/jfs/jfs_inode.h
++++ linux-2.6.20-rc4/fs/jfs/jfs_inode.h
+@@ -35,10 +35,10 @@ extern void jfs_set_inode_flags(struct i
+ extern int jfs_get_block(struct inode *, sector_t, struct buffer_head *, int);
  
--struct inode_operations efs_dir_inode_operations = {
-+const struct inode_operations efs_dir_inode_operations = {
- 	.lookup		= efs_lookup,
- };
- 
-Index: linux-2.6.20-rc4/fs/ext2/ext2.h
+ extern const struct address_space_operations jfs_aops;
+-extern struct inode_operations jfs_dir_inode_operations;
++extern const struct inode_operations jfs_dir_inode_operations;
+ extern const struct file_operations jfs_dir_operations;
+-extern struct inode_operations jfs_file_inode_operations;
++extern const struct inode_operations jfs_file_inode_operations;
+ extern const struct file_operations jfs_file_operations;
+-extern struct inode_operations jfs_symlink_inode_operations;
++extern const struct inode_operations jfs_symlink_inode_operations;
+ extern struct dentry_operations jfs_ci_dentry_operations;
+ #endif				/* _H_JFS_INODE */
+Index: linux-2.6.20-rc4/fs/jfs/namei.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ext2/ext2.h
-+++ linux-2.6.20-rc4/fs/ext2/ext2.h
-@@ -158,7 +158,7 @@ extern void ext2_write_super (struct sup
- extern const struct file_operations ext2_dir_operations;
- 
- /* file.c */
--extern struct inode_operations ext2_file_inode_operations;
-+extern const struct inode_operations ext2_file_inode_operations;
- extern const struct file_operations ext2_file_operations;
- extern const struct file_operations ext2_xip_file_operations;
- 
-@@ -168,9 +168,9 @@ extern const struct address_space_operat
- extern const struct address_space_operations ext2_nobh_aops;
- 
- /* namei.c */
--extern struct inode_operations ext2_dir_inode_operations;
--extern struct inode_operations ext2_special_inode_operations;
-+extern const struct inode_operations ext2_dir_inode_operations;
-+extern const struct inode_operations ext2_special_inode_operations;
- 
- /* symlink.c */
--extern struct inode_operations ext2_fast_symlink_inode_operations;
--extern struct inode_operations ext2_symlink_inode_operations;
-+extern const struct inode_operations ext2_fast_symlink_inode_operations;
-+extern const struct inode_operations ext2_symlink_inode_operations;
-Index: linux-2.6.20-rc4/fs/ext2/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ext2/file.c
-+++ linux-2.6.20-rc4/fs/ext2/file.c
-@@ -75,7 +75,7 @@ const struct file_operations ext2_xip_fi
- };
- #endif
- 
--struct inode_operations ext2_file_inode_operations = {
-+const struct inode_operations ext2_file_inode_operations = {
- 	.truncate	= ext2_truncate,
- #ifdef CONFIG_EXT2_FS_XATTR
- 	.setxattr	= generic_setxattr,
-Index: linux-2.6.20-rc4/fs/ext2/namei.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ext2/namei.c
-+++ linux-2.6.20-rc4/fs/ext2/namei.c
-@@ -373,7 +373,7 @@ out:
- 	return err;
+--- linux-2.6.20-rc4.orig/fs/jfs/namei.c
++++ linux-2.6.20-rc4/fs/jfs/namei.c
+@@ -1495,7 +1495,7 @@ struct dentry *jfs_get_parent(struct den
+ 	return parent;
  }
  
--struct inode_operations ext2_dir_inode_operations = {
-+const struct inode_operations ext2_dir_inode_operations = {
- 	.create		= ext2_create,
- 	.lookup		= ext2_lookup,
- 	.link		= ext2_link,
-@@ -393,7 +393,7 @@ struct inode_operations ext2_dir_inode_o
- 	.permission	= ext2_permission,
- };
- 
--struct inode_operations ext2_special_inode_operations = {
-+const struct inode_operations ext2_special_inode_operations = {
- #ifdef CONFIG_EXT2_FS_XATTR
- 	.setxattr	= generic_setxattr,
- 	.getxattr	= generic_getxattr,
-Index: linux-2.6.20-rc4/fs/ext2/symlink.c
+-struct inode_operations jfs_dir_inode_operations = {
++const struct inode_operations jfs_dir_inode_operations = {
+ 	.create		= jfs_create,
+ 	.lookup		= jfs_lookup,
+ 	.link		= jfs_link,
+Index: linux-2.6.20-rc4/fs/jfs/symlink.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ext2/symlink.c
-+++ linux-2.6.20-rc4/fs/ext2/symlink.c
-@@ -28,7 +28,7 @@ static void *ext2_follow_link(struct den
+--- linux-2.6.20-rc4.orig/fs/jfs/symlink.c
++++ linux-2.6.20-rc4/fs/jfs/symlink.c
+@@ -29,7 +29,7 @@ static void *jfs_follow_link(struct dent
  	return NULL;
  }
  
--struct inode_operations ext2_symlink_inode_operations = {
-+const struct inode_operations ext2_symlink_inode_operations = {
+-struct inode_operations jfs_symlink_inode_operations = {
++const struct inode_operations jfs_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= jfs_follow_link,
+ 	.setxattr	= jfs_setxattr,
+Index: linux-2.6.20-rc4/fs/libfs.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/libfs.c
++++ linux-2.6.20-rc4/fs/libfs.c
+@@ -186,7 +186,7 @@ const struct file_operations simple_dir_
+ 	.fsync		= simple_sync_file,
+ };
+ 
+-struct inode_operations simple_dir_inode_operations = {
++const struct inode_operations simple_dir_inode_operations = {
+ 	.lookup		= simple_lookup,
+ };
+ 
+Index: linux-2.6.20-rc4/fs/minix/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/minix/file.c
++++ linux-2.6.20-rc4/fs/minix/file.c
+@@ -26,7 +26,7 @@ const struct file_operations minix_file_
+ 	.sendfile	= generic_file_sendfile,
+ };
+ 
+-struct inode_operations minix_file_inode_operations = {
++const struct inode_operations minix_file_inode_operations = {
+ 	.truncate	= minix_truncate,
+ 	.getattr	= minix_getattr,
+ };
+Index: linux-2.6.20-rc4/fs/minix/inode.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/minix/inode.c
++++ linux-2.6.20-rc4/fs/minix/inode.c
+@@ -344,7 +344,7 @@ static const struct address_space_operat
+ 	.bmap = minix_bmap
+ };
+ 
+-static struct inode_operations minix_symlink_inode_operations = {
++static const struct inode_operations minix_symlink_inode_operations = {
  	.readlink	= generic_readlink,
  	.follow_link	= page_follow_link_light,
  	.put_link	= page_put_link,
-@@ -40,7 +40,7 @@ struct inode_operations ext2_symlink_ino
- #endif
- };
-  
--struct inode_operations ext2_fast_symlink_inode_operations = {
-+const struct inode_operations ext2_fast_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= ext2_follow_link,
- #ifdef CONFIG_EXT2_FS_XATTR
-Index: linux-2.6.20-rc4/fs/ext3/file.c
+Index: linux-2.6.20-rc4/fs/minix/minix.h
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ext3/file.c
-+++ linux-2.6.20-rc4/fs/ext3/file.c
-@@ -125,7 +125,7 @@ const struct file_operations ext3_file_o
- 	.splice_write	= generic_file_splice_write,
- };
+--- linux-2.6.20-rc4.orig/fs/minix/minix.h
++++ linux-2.6.20-rc4/fs/minix/minix.h
+@@ -79,8 +79,8 @@ extern ino_t minix_inode_by_name(struct 
  
--struct inode_operations ext3_file_inode_operations = {
-+const struct inode_operations ext3_file_inode_operations = {
- 	.truncate	= ext3_truncate,
- 	.setattr	= ext3_setattr,
- #ifdef CONFIG_EXT3_FS_XATTR
-Index: linux-2.6.20-rc4/fs/ext3/namei.c
+ extern int minix_sync_file(struct file *, struct dentry *, int);
+ 
+-extern struct inode_operations minix_file_inode_operations;
+-extern struct inode_operations minix_dir_inode_operations;
++extern const struct inode_operations minix_file_inode_operations;
++extern const struct inode_operations minix_dir_inode_operations;
+ extern const struct file_operations minix_file_operations;
+ extern const struct file_operations minix_dir_operations;
+ extern struct dentry_operations minix_dentry_operations;
+Index: linux-2.6.20-rc4/fs/minix/namei.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ext3/namei.c
-+++ linux-2.6.20-rc4/fs/ext3/namei.c
-@@ -2374,7 +2374,7 @@ end_rename:
+--- linux-2.6.20-rc4.orig/fs/minix/namei.c
++++ linux-2.6.20-rc4/fs/minix/namei.c
+@@ -291,7 +291,7 @@ out:
  /*
   * directories can handle most operations...
   */
--struct inode_operations ext3_dir_inode_operations = {
-+const struct inode_operations ext3_dir_inode_operations = {
- 	.create		= ext3_create,
- 	.lookup		= ext3_lookup,
- 	.link		= ext3_link,
-@@ -2394,7 +2394,7 @@ struct inode_operations ext3_dir_inode_o
- 	.permission	= ext3_permission,
- };
- 
--struct inode_operations ext3_special_inode_operations = {
-+const struct inode_operations ext3_special_inode_operations = {
- 	.setattr	= ext3_setattr,
- #ifdef CONFIG_EXT3_FS_XATTR
- 	.setxattr	= generic_setxattr,
-Index: linux-2.6.20-rc4/fs/ext3/symlink.c
+-struct inode_operations minix_dir_inode_operations = {
++const struct inode_operations minix_dir_inode_operations = {
+ 	.create		= minix_create,
+ 	.lookup		= minix_lookup,
+ 	.link		= minix_link,
+Index: linux-2.6.20-rc4/fs/msdos/namei.c
 ===================================================================
---- linux-2.6.20-rc4.orig/fs/ext3/symlink.c
-+++ linux-2.6.20-rc4/fs/ext3/symlink.c
-@@ -30,7 +30,7 @@ static void * ext3_follow_link(struct de
- 	return NULL;
- }
- 
--struct inode_operations ext3_symlink_inode_operations = {
-+const struct inode_operations ext3_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= page_follow_link_light,
- 	.put_link	= page_put_link,
-@@ -42,7 +42,7 @@ struct inode_operations ext3_symlink_ino
- #endif
- };
- 
--struct inode_operations ext3_fast_symlink_inode_operations = {
-+const struct inode_operations ext3_fast_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= ext3_follow_link,
- #ifdef CONFIG_EXT3_FS_XATTR
-Index: linux-2.6.20-rc4/fs/ext4/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ext4/file.c
-+++ linux-2.6.20-rc4/fs/ext4/file.c
-@@ -125,7 +125,7 @@ const struct file_operations ext4_file_o
- 	.splice_write	= generic_file_splice_write,
- };
- 
--struct inode_operations ext4_file_inode_operations = {
-+const struct inode_operations ext4_file_inode_operations = {
- 	.truncate	= ext4_truncate,
- 	.setattr	= ext4_setattr,
- #ifdef CONFIG_EXT4DEV_FS_XATTR
-Index: linux-2.6.20-rc4/fs/ext4/namei.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ext4/namei.c
-+++ linux-2.6.20-rc4/fs/ext4/namei.c
-@@ -2372,7 +2372,7 @@ end_rename:
- /*
-  * directories can handle most operations...
-  */
--struct inode_operations ext4_dir_inode_operations = {
-+const struct inode_operations ext4_dir_inode_operations = {
- 	.create		= ext4_create,
- 	.lookup		= ext4_lookup,
- 	.link		= ext4_link,
-@@ -2392,7 +2392,7 @@ struct inode_operations ext4_dir_inode_o
- 	.permission	= ext4_permission,
- };
- 
--struct inode_operations ext4_special_inode_operations = {
-+const struct inode_operations ext4_special_inode_operations = {
- 	.setattr	= ext4_setattr,
- #ifdef CONFIG_EXT4DEV_FS_XATTR
- 	.setxattr	= generic_setxattr,
-Index: linux-2.6.20-rc4/fs/ext4/symlink.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/ext4/symlink.c
-+++ linux-2.6.20-rc4/fs/ext4/symlink.c
-@@ -30,7 +30,7 @@ static void * ext4_follow_link(struct de
- 	return NULL;
- }
- 
--struct inode_operations ext4_symlink_inode_operations = {
-+const struct inode_operations ext4_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= page_follow_link_light,
- 	.put_link	= page_put_link,
-@@ -42,7 +42,7 @@ struct inode_operations ext4_symlink_ino
- #endif
- };
- 
--struct inode_operations ext4_fast_symlink_inode_operations = {
-+const struct inode_operations ext4_fast_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= ext4_follow_link,
- #ifdef CONFIG_EXT4DEV_FS_XATTR
-Index: linux-2.6.20-rc4/fs/fat/file.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/fat/file.c
-+++ linux-2.6.20-rc4/fs/fat/file.c
-@@ -312,7 +312,7 @@ int fat_getattr(struct vfsmount *mnt, st
- }
- EXPORT_SYMBOL_GPL(fat_getattr);
- 
--struct inode_operations fat_file_inode_operations = {
-+const struct inode_operations fat_file_inode_operations = {
- 	.truncate	= fat_truncate,
- 	.setattr	= fat_notify_change,
- 	.getattr	= fat_getattr,
-Index: linux-2.6.20-rc4/fs/fat/inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/fat/inode.c
-+++ linux-2.6.20-rc4/fs/fat/inode.c
-@@ -1151,7 +1151,7 @@ static int fat_read_root(struct inode *i
-  * Read the super block of an MS-DOS FS.
-  */
- int fat_fill_super(struct super_block *sb, void *data, int silent,
--		   struct inode_operations *fs_dir_inode_ops, int isvfat)
-+		   const struct inode_operations *fs_dir_inode_ops, int isvfat)
- {
- 	struct inode *root_inode = NULL;
- 	struct buffer_head *bh;
-Index: linux-2.6.20-rc4/fs/freevxfs/vxfs_extern.h
-===================================================================
---- linux-2.6.20-rc4.orig/fs/freevxfs/vxfs_extern.h
-+++ linux-2.6.20-rc4/fs/freevxfs/vxfs_extern.h
-@@ -62,7 +62,7 @@ extern void			vxfs_read_inode(struct ino
- extern void			vxfs_clear_inode(struct inode *);
- 
- /* vxfs_lookup.c */
--extern struct inode_operations	vxfs_dir_inode_ops;
-+extern const struct inode_operations	vxfs_dir_inode_ops;
- extern const struct file_operations	vxfs_dir_operations;
- 
- /* vxfs_olt.c */
-Index: linux-2.6.20-rc4/fs/freevxfs/vxfs_immed.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/freevxfs/vxfs_immed.c
-+++ linux-2.6.20-rc4/fs/freevxfs/vxfs_immed.c
-@@ -48,7 +48,7 @@ static int	vxfs_immed_readpage(struct fi
-  * Unliked all other operations we do not go through the pagecache,
-  * but do all work directly on the inode.
-  */
--struct inode_operations vxfs_immed_symlink_iops = {
-+const struct inode_operations vxfs_immed_symlink_iops = {
- 	.readlink =		generic_readlink,
- 	.follow_link =		vxfs_immed_follow_link,
- };
-Index: linux-2.6.20-rc4/fs/freevxfs/vxfs_inode.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/freevxfs/vxfs_inode.c
-+++ linux-2.6.20-rc4/fs/freevxfs/vxfs_inode.c
-@@ -44,7 +44,7 @@
- extern const struct address_space_operations vxfs_aops;
- extern const struct address_space_operations vxfs_immed_aops;
- 
--extern struct inode_operations vxfs_immed_symlink_iops;
-+extern const struct inode_operations vxfs_immed_symlink_iops;
- 
- struct kmem_cache		*vxfs_inode_cachep;
- 
-Index: linux-2.6.20-rc4/fs/freevxfs/vxfs_lookup.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/freevxfs/vxfs_lookup.c
-+++ linux-2.6.20-rc4/fs/freevxfs/vxfs_lookup.c
-@@ -52,7 +52,7 @@
- static struct dentry *	vxfs_lookup(struct inode *, struct dentry *, struct nameidata *);
- static int		vxfs_readdir(struct file *, void *, filldir_t);
- 
--struct inode_operations vxfs_dir_inode_ops = {
-+const struct inode_operations vxfs_dir_inode_ops = {
- 	.lookup =		vxfs_lookup,
- };
- 
-Index: linux-2.6.20-rc4/fs/fuse/control.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/fuse/control.c
-+++ linux-2.6.20-rc4/fs/fuse/control.c
-@@ -73,7 +73,7 @@ static struct dentry *fuse_ctl_add_dentr
- 					  struct fuse_conn *fc,
- 					  const char *name,
- 					  int mode, int nlink,
--					  struct inode_operations *iop,
-+					  const struct inode_operations *iop,
- 					  const struct file_operations *fop)
- {
- 	struct dentry *dentry;
-Index: linux-2.6.20-rc4/fs/fuse/dir.c
-===================================================================
---- linux-2.6.20-rc4.orig/fs/fuse/dir.c
-+++ linux-2.6.20-rc4/fs/fuse/dir.c
-@@ -1242,7 +1242,7 @@ static int fuse_removexattr(struct dentr
+--- linux-2.6.20-rc4.orig/fs/msdos/namei.c
++++ linux-2.6.20-rc4/fs/msdos/namei.c
+@@ -646,7 +646,7 @@ out:
  	return err;
  }
  
--static struct inode_operations fuse_dir_inode_operations = {
-+static const struct inode_operations fuse_dir_inode_operations = {
- 	.lookup		= fuse_lookup,
- 	.mkdir		= fuse_mkdir,
- 	.symlink	= fuse_symlink,
-@@ -1270,7 +1270,7 @@ static const struct file_operations fuse
- 	.fsync		= fuse_dir_fsync,
+-static struct inode_operations msdos_dir_inode_operations = {
++static const struct inode_operations msdos_dir_inode_operations = {
+ 	.create		= msdos_create,
+ 	.lookup		= msdos_lookup,
+ 	.unlink		= msdos_unlink,
+Index: linux-2.6.20-rc4/fs/namei.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/namei.c
++++ linux-2.6.20-rc4/fs/namei.c
+@@ -2744,7 +2744,7 @@ int page_symlink(struct inode *inode, co
+ 			mapping_gfp_mask(inode->i_mapping));
+ }
+ 
+-struct inode_operations page_symlink_inode_operations = {
++const struct inode_operations page_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= page_follow_link_light,
+ 	.put_link	= page_put_link,
+Index: linux-2.6.20-rc4/fs/ncpfs/dir.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ncpfs/dir.c
++++ linux-2.6.20-rc4/fs/ncpfs/dir.c
+@@ -58,7 +58,7 @@ const struct file_operations ncp_dir_ope
+ #endif
  };
  
--static struct inode_operations fuse_common_inode_operations = {
-+static const struct inode_operations fuse_common_inode_operations = {
- 	.setattr	= fuse_setattr,
- 	.permission	= fuse_permission,
- 	.getattr	= fuse_getattr,
-@@ -1280,7 +1280,7 @@ static struct inode_operations fuse_comm
- 	.removexattr	= fuse_removexattr,
+-struct inode_operations ncp_dir_inode_operations =
++const struct inode_operations ncp_dir_inode_operations =
+ {
+ 	.create		= ncp_create,
+ 	.lookup		= ncp_lookup,
+Index: linux-2.6.20-rc4/fs/ncpfs/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ncpfs/file.c
++++ linux-2.6.20-rc4/fs/ncpfs/file.c
+@@ -297,7 +297,7 @@ const struct file_operations ncp_file_op
+ 	.fsync		= ncp_fsync,
  };
  
--static struct inode_operations fuse_symlink_inode_operations = {
-+static const struct inode_operations fuse_symlink_inode_operations = {
- 	.setattr	= fuse_setattr,
- 	.follow_link	= fuse_follow_link,
- 	.put_link	= fuse_put_link,
+-struct inode_operations ncp_file_inode_operations =
++const struct inode_operations ncp_file_inode_operations =
+ {
+ 	.setattr	= ncp_notify_change,
+ };
+Index: linux-2.6.20-rc4/fs/ncpfs/inode.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ncpfs/inode.c
++++ linux-2.6.20-rc4/fs/ncpfs/inode.c
+@@ -229,7 +229,7 @@ static void ncp_set_attr(struct inode *i
+ }
+ 
+ #if defined(CONFIG_NCPFS_EXTRAS) || defined(CONFIG_NCPFS_NFS_NS)
+-static struct inode_operations ncp_symlink_inode_operations = {
++static const struct inode_operations ncp_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= page_follow_link_light,
+ 	.put_link	= page_put_link,
+Index: linux-2.6.20-rc4/fs/nfs/dir.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/dir.c
++++ linux-2.6.20-rc4/fs/nfs/dir.c
+@@ -65,7 +65,7 @@ const struct file_operations nfs_dir_ope
+ 	.fsync		= nfs_fsync_dir,
+ };
+ 
+-struct inode_operations nfs_dir_inode_operations = {
++const struct inode_operations nfs_dir_inode_operations = {
+ 	.create		= nfs_create,
+ 	.lookup		= nfs_lookup,
+ 	.link		= nfs_link,
+@@ -81,7 +81,7 @@ struct inode_operations nfs_dir_inode_op
+ };
+ 
+ #ifdef CONFIG_NFS_V3
+-struct inode_operations nfs3_dir_inode_operations = {
++const struct inode_operations nfs3_dir_inode_operations = {
+ 	.create		= nfs_create,
+ 	.lookup		= nfs_lookup,
+ 	.link		= nfs_link,
+@@ -104,7 +104,7 @@ struct inode_operations nfs3_dir_inode_o
+ #ifdef CONFIG_NFS_V4
+ 
+ static struct dentry *nfs_atomic_lookup(struct inode *, struct dentry *, struct nameidata *);
+-struct inode_operations nfs4_dir_inode_operations = {
++const struct inode_operations nfs4_dir_inode_operations = {
+ 	.create		= nfs_create,
+ 	.lookup		= nfs_atomic_lookup,
+ 	.link		= nfs_link,
+Index: linux-2.6.20-rc4/fs/nfs/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/file.c
++++ linux-2.6.20-rc4/fs/nfs/file.c
+@@ -68,14 +68,14 @@ const struct file_operations nfs_file_op
+ 	.check_flags	= nfs_check_flags,
+ };
+ 
+-struct inode_operations nfs_file_inode_operations = {
++const struct inode_operations nfs_file_inode_operations = {
+ 	.permission	= nfs_permission,
+ 	.getattr	= nfs_getattr,
+ 	.setattr	= nfs_setattr,
+ };
+ 
+ #ifdef CONFIG_NFS_V3
+-struct inode_operations nfs3_file_inode_operations = {
++const struct inode_operations nfs3_file_inode_operations = {
+ 	.permission	= nfs_permission,
+ 	.getattr	= nfs_getattr,
+ 	.setattr	= nfs_setattr,
+Index: linux-2.6.20-rc4/fs/nfs/namespace.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/namespace.c
++++ linux-2.6.20-rc4/fs/nfs/namespace.c
+@@ -155,12 +155,12 @@ out_follow:
+ 	goto out;
+ }
+ 
+-struct inode_operations nfs_mountpoint_inode_operations = {
++const struct inode_operations nfs_mountpoint_inode_operations = {
+ 	.follow_link	= nfs_follow_mountpoint,
+ 	.getattr	= nfs_getattr,
+ };
+ 
+-struct inode_operations nfs_referral_inode_operations = {
++const struct inode_operations nfs_referral_inode_operations = {
+ 	.follow_link	= nfs_follow_mountpoint,
+ };
+ 
+Index: linux-2.6.20-rc4/fs/nfs/nfs4_fs.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/nfs4_fs.h
++++ linux-2.6.20-rc4/fs/nfs/nfs4_fs.h
+@@ -151,7 +151,7 @@ struct nfs4_state_recovery_ops {
+ };
+ 
+ extern struct dentry_operations nfs4_dentry_operations;
+-extern struct inode_operations nfs4_dir_inode_operations;
++extern const struct inode_operations nfs4_dir_inode_operations;
+ 
+ /* inode.c */
+ extern ssize_t nfs4_getxattr(struct dentry *, const char *, void *, size_t);
+Index: linux-2.6.20-rc4/fs/nfs/nfs4proc.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/nfs4proc.c
++++ linux-2.6.20-rc4/fs/nfs/nfs4proc.c
+@@ -3625,7 +3625,7 @@ struct nfs4_state_recovery_ops nfs4_netw
+ 	.recover_lock	= nfs4_lock_expired,
+ };
+ 
+-static struct inode_operations nfs4_file_inode_operations = {
++static const struct inode_operations nfs4_file_inode_operations = {
+ 	.permission	= nfs_permission,
+ 	.getattr	= nfs_getattr,
+ 	.setattr	= nfs_setattr,
+Index: linux-2.6.20-rc4/fs/nfs/symlink.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/nfs/symlink.c
++++ linux-2.6.20-rc4/fs/nfs/symlink.c
+@@ -76,7 +76,7 @@ read_failed:
+ /*
+  * symlinks can't do much...
+  */
+-struct inode_operations nfs_symlink_inode_operations = {
++const struct inode_operations nfs_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= nfs_follow_link,
+ 	.put_link	= page_put_link,
+Index: linux-2.6.20-rc4/fs/ntfs/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ntfs/file.c
++++ linux-2.6.20-rc4/fs/ntfs/file.c
+@@ -2328,7 +2328,7 @@ const struct file_operations ntfs_file_o
+ 						    the data source. */
+ };
+ 
+-struct inode_operations ntfs_file_inode_ops = {
++const struct inode_operations ntfs_file_inode_ops = {
+ #ifdef NTFS_RW
+ 	.truncate	= ntfs_truncate_vfs,
+ 	.setattr	= ntfs_setattr,
+@@ -2337,4 +2337,4 @@ struct inode_operations ntfs_file_inode_
+ 
+ const struct file_operations ntfs_empty_file_ops = {};
+ 
+-struct inode_operations ntfs_empty_inode_ops = {};
++const struct inode_operations ntfs_empty_inode_ops = {};
+Index: linux-2.6.20-rc4/fs/ntfs/namei.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ntfs/namei.c
++++ linux-2.6.20-rc4/fs/ntfs/namei.c
+@@ -359,7 +359,7 @@ err_out:
+ /**
+  * Inode operations for directories.
+  */
+-struct inode_operations ntfs_dir_inode_ops = {
++const struct inode_operations ntfs_dir_inode_ops = {
+ 	.lookup	= ntfs_lookup,	/* VFS: Lookup directory. */
+ };
+ 
+Index: linux-2.6.20-rc4/fs/ntfs/ntfs.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ntfs/ntfs.h
++++ linux-2.6.20-rc4/fs/ntfs/ntfs.h
+@@ -61,13 +61,13 @@ extern const struct address_space_operat
+ extern const struct address_space_operations ntfs_mst_aops;
+ 
+ extern const struct  file_operations ntfs_file_ops;
+-extern struct inode_operations ntfs_file_inode_ops;
++extern const struct inode_operations ntfs_file_inode_ops;
+ 
+ extern const struct  file_operations ntfs_dir_ops;
+-extern struct inode_operations ntfs_dir_inode_ops;
++extern const struct inode_operations ntfs_dir_inode_ops;
+ 
+ extern const struct  file_operations ntfs_empty_file_ops;
+-extern struct inode_operations ntfs_empty_inode_ops;
++extern const struct inode_operations ntfs_empty_inode_ops;
+ 
+ extern struct export_operations ntfs_export_ops;
+ 
+Index: linux-2.6.20-rc4/fs/ocfs2/dlm/dlmfs.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/dlm/dlmfs.c
++++ linux-2.6.20-rc4/fs/ocfs2/dlm/dlmfs.c
+@@ -63,9 +63,9 @@
+ 
+ static struct super_operations dlmfs_ops;
+ static const struct file_operations dlmfs_file_operations;
+-static struct inode_operations dlmfs_dir_inode_operations;
+-static struct inode_operations dlmfs_root_inode_operations;
+-static struct inode_operations dlmfs_file_inode_operations;
++static const struct inode_operations dlmfs_dir_inode_operations;
++static const struct inode_operations dlmfs_root_inode_operations;
++static const struct inode_operations dlmfs_file_inode_operations;
+ static struct kmem_cache *dlmfs_inode_cache;
+ 
+ struct workqueue_struct *user_dlm_worker;
+@@ -547,14 +547,14 @@ static const struct file_operations dlmf
+ 	.write		= dlmfs_file_write,
+ };
+ 
+-static struct inode_operations dlmfs_dir_inode_operations = {
++static const struct inode_operations dlmfs_dir_inode_operations = {
+ 	.create		= dlmfs_create,
+ 	.lookup		= simple_lookup,
+ 	.unlink		= dlmfs_unlink,
+ };
+ 
+ /* this way we can restrict mkdir to only the toplevel of the fs. */
+-static struct inode_operations dlmfs_root_inode_operations = {
++static const struct inode_operations dlmfs_root_inode_operations = {
+ 	.lookup		= simple_lookup,
+ 	.mkdir		= dlmfs_mkdir,
+ 	.rmdir		= simple_rmdir,
+@@ -568,7 +568,7 @@ static struct super_operations dlmfs_ops
+ 	.drop_inode	= generic_delete_inode,
+ };
+ 
+-static struct inode_operations dlmfs_file_inode_operations = {
++static const struct inode_operations dlmfs_file_inode_operations = {
+ 	.getattr	= simple_getattr,
+ };
+ 
+Index: linux-2.6.20-rc4/fs/ocfs2/file.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/file.c
++++ linux-2.6.20-rc4/fs/ocfs2/file.c
+@@ -1365,13 +1365,13 @@ bail:
+ 	return ret;
+ }
+ 
+-struct inode_operations ocfs2_file_iops = {
++const struct inode_operations ocfs2_file_iops = {
+ 	.setattr	= ocfs2_setattr,
+ 	.getattr	= ocfs2_getattr,
+ 	.permission	= ocfs2_permission,
+ };
+ 
+-struct inode_operations ocfs2_special_file_iops = {
++const struct inode_operations ocfs2_special_file_iops = {
+ 	.setattr	= ocfs2_setattr,
+ 	.getattr	= ocfs2_getattr,
+ 	.permission	= ocfs2_permission,
+Index: linux-2.6.20-rc4/fs/ocfs2/file.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/file.h
++++ linux-2.6.20-rc4/fs/ocfs2/file.h
+@@ -28,8 +28,8 @@
+ 
+ extern const struct file_operations ocfs2_fops;
+ extern const struct file_operations ocfs2_dops;
+-extern struct inode_operations ocfs2_file_iops;
+-extern struct inode_operations ocfs2_special_file_iops;
++extern const struct inode_operations ocfs2_file_iops;
++extern const struct inode_operations ocfs2_special_file_iops;
+ struct ocfs2_alloc_context;
+ 
+ enum ocfs2_alloc_restarted {
+Index: linux-2.6.20-rc4/fs/ocfs2/namei.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/namei.c
++++ linux-2.6.20-rc4/fs/ocfs2/namei.c
+@@ -2301,7 +2301,7 @@ leave:
+ 	return status;
+ }
+ 
+-struct inode_operations ocfs2_dir_iops = {
++const struct inode_operations ocfs2_dir_iops = {
+ 	.create		= ocfs2_create,
+ 	.lookup		= ocfs2_lookup,
+ 	.link		= ocfs2_link,
+Index: linux-2.6.20-rc4/fs/ocfs2/namei.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/namei.h
++++ linux-2.6.20-rc4/fs/ocfs2/namei.h
+@@ -26,7 +26,7 @@
+ #ifndef OCFS2_NAMEI_H
+ #define OCFS2_NAMEI_H
+ 
+-extern struct inode_operations ocfs2_dir_iops;
++extern const struct inode_operations ocfs2_dir_iops;
+ 
+ struct dentry *ocfs2_get_parent(struct dentry *child);
+ 
+Index: linux-2.6.20-rc4/fs/ocfs2/symlink.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/symlink.c
++++ linux-2.6.20-rc4/fs/ocfs2/symlink.c
+@@ -171,12 +171,12 @@ bail:
+ 	return ERR_PTR(status);
+ }
+ 
+-struct inode_operations ocfs2_symlink_inode_operations = {
++const struct inode_operations ocfs2_symlink_inode_operations = {
+ 	.readlink	= page_readlink,
+ 	.follow_link	= ocfs2_follow_link,
+ 	.getattr	= ocfs2_getattr,
+ };
+-struct inode_operations ocfs2_fast_symlink_inode_operations = {
++const struct inode_operations ocfs2_fast_symlink_inode_operations = {
+ 	.readlink	= ocfs2_readlink,
+ 	.follow_link	= ocfs2_follow_link,
+ 	.getattr	= ocfs2_getattr,
+Index: linux-2.6.20-rc4/fs/ocfs2/symlink.h
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/ocfs2/symlink.h
++++ linux-2.6.20-rc4/fs/ocfs2/symlink.h
+@@ -26,8 +26,8 @@
+ #ifndef OCFS2_SYMLINK_H
+ #define OCFS2_SYMLINK_H
+ 
+-extern struct inode_operations ocfs2_symlink_inode_operations;
+-extern struct inode_operations ocfs2_fast_symlink_inode_operations;
++extern const struct inode_operations ocfs2_symlink_inode_operations;
++extern const struct inode_operations ocfs2_fast_symlink_inode_operations;
+ 
+ /*
+  * Test whether an inode is a fast symlink.
+Index: linux-2.6.20-rc4/fs/openpromfs/inode.c
+===================================================================
+--- linux-2.6.20-rc4.orig/fs/openpromfs/inode.c
++++ linux-2.6.20-rc4/fs/openpromfs/inode.c
+@@ -169,7 +169,7 @@ static const struct file_operations open
+ 
+ static struct dentry *openpromfs_lookup(struct inode *, struct dentry *, struct nameidata *);
+ 
+-static struct inode_operations openprom_inode_operations = {
++static const struct inode_operations openprom_inode_operations = {
+ 	.lookup		= openpromfs_lookup,
+ };
+ 
+Index: linux-2.6.20-rc4/ipc/mqueue.c
+===================================================================
+--- linux-2.6.20-rc4.orig/ipc/mqueue.c
++++ linux-2.6.20-rc4/ipc/mqueue.c
+@@ -84,7 +84,7 @@ struct mqueue_inode_info {
+ 	unsigned long qsize; /* size of queue in memory (sum of all msgs) */
+ };
+ 
+-static struct inode_operations mqueue_dir_inode_operations;
++static const struct inode_operations mqueue_dir_inode_operations;
+ static const struct file_operations mqueue_file_operations;
+ static struct super_operations mqueue_super_ops;
+ static void remove_notification(struct mqueue_inode_info *info);
+@@ -1160,7 +1160,7 @@ out:
+ 	return ret;
+ }
+ 
+-static struct inode_operations mqueue_dir_inode_operations = {
++static const struct inode_operations mqueue_dir_inode_operations = {
+ 	.lookup = simple_lookup,
+ 	.create = mqueue_create,
+ 	.unlink = mqueue_unlink,
+Index: linux-2.6.20-rc4/kernel/cpuset.c
+===================================================================
+--- linux-2.6.20-rc4.orig/kernel/cpuset.c
++++ linux-2.6.20-rc4/kernel/cpuset.c
+@@ -1540,7 +1540,7 @@ static const struct file_operations cpus
+ 	.release = cpuset_file_release,
+ };
+ 
+-static struct inode_operations cpuset_dir_inode_operations = {
++static const struct inode_operations cpuset_dir_inode_operations = {
+ 	.lookup = simple_lookup,
+ 	.mkdir = cpuset_mkdir,
+ 	.rmdir = cpuset_rmdir,
+Index: linux-2.6.20-rc4/mm/shmem.c
+===================================================================
+--- linux-2.6.20-rc4.orig/mm/shmem.c
++++ linux-2.6.20-rc4/mm/shmem.c
+@@ -178,9 +178,9 @@ static inline void shmem_unacct_blocks(u
+ static struct super_operations shmem_ops;
+ static const struct address_space_operations shmem_aops;
+ static const struct file_operations shmem_file_operations;
+-static struct inode_operations shmem_inode_operations;
+-static struct inode_operations shmem_dir_inode_operations;
+-static struct inode_operations shmem_special_inode_operations;
++static const struct inode_operations shmem_inode_operations;
++static const struct inode_operations shmem_dir_inode_operations;
++static const struct inode_operations shmem_special_inode_operations;
+ static struct vm_operations_struct shmem_vm_ops;
+ 
+ static struct backing_dev_info shmem_backing_dev_info  __read_mostly = {
+@@ -1410,8 +1410,8 @@ shmem_get_inode(struct super_block *sb, 
+ }
+ 
+ #ifdef CONFIG_TMPFS
+-static struct inode_operations shmem_symlink_inode_operations;
+-static struct inode_operations shmem_symlink_inline_operations;
++static const struct inode_operations shmem_symlink_inode_operations;
++static const struct inode_operations shmem_symlink_inline_operations;
+ 
+ /*
+  * Normally tmpfs makes no use of shmem_prepare_write, but it
+@@ -1904,12 +1904,12 @@ static void shmem_put_link(struct dentry
+ 	}
+ }
+ 
+-static struct inode_operations shmem_symlink_inline_operations = {
++static const struct inode_operations shmem_symlink_inline_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= shmem_follow_link_inline,
+ };
+ 
+-static struct inode_operations shmem_symlink_inode_operations = {
++static const struct inode_operations shmem_symlink_inode_operations = {
+ 	.truncate	= shmem_truncate,
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= shmem_follow_link,
+@@ -2335,7 +2335,7 @@ static const struct file_operations shme
+ #endif
+ };
+ 
+-static struct inode_operations shmem_inode_operations = {
++static const struct inode_operations shmem_inode_operations = {
+ 	.truncate	= shmem_truncate,
+ 	.setattr	= shmem_notify_change,
+ 	.truncate_range	= shmem_truncate_range,
+@@ -2349,7 +2349,7 @@ static struct inode_operations shmem_ino
+ 
+ };
+ 
+-static struct inode_operations shmem_dir_inode_operations = {
++static const struct inode_operations shmem_dir_inode_operations = {
+ #ifdef CONFIG_TMPFS
+ 	.create		= shmem_create,
+ 	.lookup		= simple_lookup,
+@@ -2371,7 +2371,7 @@ static struct inode_operations shmem_dir
+ #endif
+ };
+ 
+-static struct inode_operations shmem_special_inode_operations = {
++static const struct inode_operations shmem_special_inode_operations = {
+ #ifdef CONFIG_TMPFS_POSIX_ACL
+ 	.setattr	= shmem_notify_change,
+ 	.setxattr	= generic_setxattr,
 
 

@@ -1,97 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751310AbXANP1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751319AbXANPjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbXANP1W (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 10:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbXANP1W
+	id S1751319AbXANPjl (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 10:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbXANPjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 10:27:22 -0500
-Received: from emerald.lightlink.com ([205.232.34.14]:4253 "EHLO
-	emerald.lightlink.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751310AbXANP1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 10:27:21 -0500
-Date: Sun, 14 Jan 2007 10:22:49 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jean Delvare <khali@linux-fr.org>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [-mm patch] remove quirk_sis_96x_compatible()
-Message-ID: <20070114152249.GB2910@jupiter.solarsys.private>
-References: <20061219041315.GE6993@stusta.de> <20070105095233.4ce72e7e.khali@linux-fr.org> <20070105232913.GU20714@stusta.de> <20070107123013.097c1f23.khali@linux-fr.org> <20070107154049.GA22558@jupiter.solarsys.private> <20070114134632.GX7469@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070114134632.GX7469@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 14 Jan 2007 10:39:41 -0500
+Received: from mail.tmr.com ([64.65.253.246]:44106 "EHLO gaimboi.tmr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751319AbXANPjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 10:39:40 -0500
+Message-ID: <45AA4EC8.7020707@tmr.com>
+Date: Sun, 14 Jan 2007 10:39:52 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Chris Mason <chris.mason@oracle.com>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com> <45A7F396.4080600@tls.msk.ru> <45A7F4F2.2080903@tls.msk.ru> <45A7F7A7.1080108@tls.msk.ru> <Pine.LNX.4.64.0701121611370.3470@woody.osdl.org> <45A93BEA.6040601@tmr.com> <45A940A9.2030001@tls.msk.ru>
+In-Reply-To: <45A940A9.2030001@tls.msk.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian:
+Michael Tokarev wrote:
+> Bill Davidsen wrote:
 
-> On Sun, Jan 07, 2007 at 10:40:49AM -0500, Mark M. Hoffman wrote:
-> > It's just cruft from the original quirk.  The "compatible" printk could have
-> > had value as a diagnostic in case the new quirk didn't work for some reason,
-> > but I never saw any complaints about it (apart from the link order problem,
-> > which is something different.)  It's safe to remove by now.
+> If I got it right (and please someone tell me if I *really* got it right!),
+> the problem is elsewhere.
+> 
+> Suppose you have a filesystem, not at all related to databases and stuff.
+> Your usual root filesystem, with your /etc/ /var and so on directories.
+> 
+> Some time ago you edited /etc/shadow, updating it by writing new file and
+> renaming it to proper place.  So you have that old content of your shadow
+> file (now deleted) somewhere on the disk, but not accessible from the
+> filesystem.
+> 
+> Now, a bad guy deliberately tries to open some file on this filesystem, using
+> O_DIRECT flag, ftruncates() it to some huge size (or does seek+write), and
+> at the same time tries to use O_DIRECT read of the data.
 
-* Adrian Bunk <bunk@stusta.de> [2007-01-14 14:46:32 +0100]:
-> Below is a patch to remove it.
-> 
-> Since 2.6.0-test10, all quirk_sis_96x_compatible() had any effect on
-> was a printk().
-> 
-> This patch therefore removes it.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Which should be identified and zeros returned. Consider: I open a file 
+for database use, and legitimately seek to a location out at, say, 
+250MB, and then write at the location my hash says I should. That's all 
+legitimate. Now when some backup program accesses the file sequentially, 
+it gets a boatload of zeros, because Linux "knows" that is sparse data. 
+Yes, the backup program should detect this as well, so what?
 
-Acked-by: Mark M. Hoffman <mhoffman@lightlink.com>
+My point is, that there is code to handle sparse data now, without 
+O_DIRECT involved, and if O_DIRECT bypasses that, it's not a problem 
+with the idea of O_DIRECT, the kernel has a security problem.
+> 
+> Due to all the races etc, it is possible for him to read that old content of
+> /etc/shadow file you've deleted before.
+> 
+>> I do have one thought, WRT reading uninitialized disk data. I would hope
+>> that sparse files are handled right, and that when doing a write with
+>> O_DIRECT the metadata is not updated until the write is done.
+> 
+> "hope that sparse files are handled right" is a high hope.  Exactly because
+> this very place IS racy.
 
-> ---
-> 
->  drivers/pci/quirks.c |   15 ---------------
->  1 file changed, 15 deletions(-)
-> 
-> --- linux-2.6.20-rc4-mm1/drivers/pci/quirks.c.old	2007-01-14 09:58:01.000000000 +0100
-> +++ linux-2.6.20-rc4-mm1/drivers/pci/quirks.c	2007-01-14 09:58:37.000000000 +0100
-> @@ -1141,8 +1141,6 @@
->   *
->   * We can also enable the sis96x bit in the discovery register..
->   */
-> -static int __devinitdata sis_96x_compatible = 0;
-> -
->  #define SIS_DETECT_REGISTER 0x40
->  
->  static void quirk_sis_503(struct pci_dev *dev)
-> @@ -1158,9 +1156,6 @@
->  		return;
->  	}
->  
-> -	/* Make people aware that we changed the config.. */
-> -	printk(KERN_WARNING "Uncovering SIS%x that hid as a SIS503 (compatible=%d)\n", devid, sis_96x_compatible);
-> -
->  	/*
->  	 * Ok, it now shows up as a 96x.. run the 96x quirk by
->  	 * hand in case it has already been processed.
-> @@ -1172,16 +1167,6 @@
->  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
->  DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
->  
-> -static void __init quirk_sis_96x_compatible(struct pci_dev *dev)
-> -{
-> -	sis_96x_compatible = 1;
-> -}
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_645,		quirk_sis_96x_compatible );
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_646,		quirk_sis_96x_compatible );
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_648,		quirk_sis_96x_compatible );
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_650,		quirk_sis_96x_compatible );
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_651,		quirk_sis_96x_compatible );
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_735,		quirk_sis_96x_compatible );
->  
->  /*
->   * On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
+Other than assuring that a program can't read where no program has 
+written, I don't see a problem. Anyone accessing the same file with 
+multiple processes had better be doing user space coordination, and gets 
+no sympathy from me if they don't. In this case, "works right" does not 
+mean "works as expected," because the program has no right to assume the 
+kernel will sort out poor implementations.
+
+Without O_DIRECT the problem of doing ordered i/o in user space becomes 
+very difficult, if not impossible, so "get rid of O_DIRECT" is the wrong 
+direction. When the program can be sure the i/o is done, then cleverness 
+in user space can see that it's done RIGHT.
 
 -- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,114 +1,257 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751724AbXANXsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751722AbXANXzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751724AbXANXsY (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 18:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbXANXsY
+	id S1751722AbXANXzG (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 18:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbXANXzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 18:48:24 -0500
-Received: from out5.smtp.messagingengine.com ([66.111.4.29]:33936 "EHLO
-	out5.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751724AbXANXsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 18:48:23 -0500
-X-Sasl-enc: 8tdkNeW329cuR4IOGY5vG4fdZy6m5j5dHhwkTBwJJ1T6 1168818501
-Message-ID: <45AAC244.8060607@imap.cc>
-Date: Mon, 15 Jan 2007 00:52:36 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.9) Gecko/20061211 SeaMonkey/1.0.7 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: i810fb fails to load (was: 2.6.20-rc4-mm1)
-References: <20070111222627.66bb75ab.akpm@osdl.org>
-In-Reply-To: <20070111222627.66bb75ab.akpm@osdl.org>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig45AC97A48380A9FE0492F6D4"
+	Sun, 14 Jan 2007 18:55:06 -0500
+Received: from mail.screens.ru ([213.234.233.54]:59605 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751722AbXANXzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 18:55:04 -0500
+Date: Mon, 15 Jan 2007 02:54:10 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070114235410.GA6165@tv-sign.ru>
+References: <20070107115957.6080aa08.akpm@osdl.org> <20070107210139.GA2332@tv-sign.ru> <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070109165655.GA215@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig45AC97A48380A9FE0492F6D4
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+How about the pseudo-code below?
 
-With kernel 2.6.20-rc4-mm1 and all hotfixes, i810fb fails to load on my
-Dell Optiplex GX110. Here's an excerpt of the diff between the boot logs
-of 2.6.20-rc5 (working) and 2.6.20-rc4-mm1 (non-working):
+workqueue_mutex is only used to protect "struct list_head workqueues",
+all workqueue operations can run in parallel with cpuhotplug callback path.
+take_over_work(), migrate_sequence, CPU_LOCK_ACQUIRE/RELEASE go away.
 
-@@ -4,7 +4,7 @@
- No module symbols loaded - kernel modules not enabled.
+I'd like to make a couple of cleanups (and fix schedule_on_each_cpu) before
+sending the patch, but if somebody doesn't like this intrusive change, he
+can nack it right now.
 
- klogd 1.4.1, log source =3D ksyslog started.
--<5>Linux version 2.6.20-rc5-noinitrd (ts@gx110) (gcc version 4.0.2 20050=
-901 (prerelease) (SUSE Linux)) #2 PREEMPT Sun Jan 14 23:37:12 CET 2007
-+<5>Linux version 2.6.20-rc4-mm1-noinitrd (ts@gx110) (gcc version 4.0.2 2=
-0050901 (prerelease) (SUSE Linux)) #3 PREEMPT Sun Jan 14 21:08:56 CET 200=
-7
- <6>BIOS-provided physical RAM map:
- <4>sanitize start
- <4>sanitize end
-@@ -188,7 +192,6 @@
- <6>ACPI: Interpreter enabled
- <6>ACPI: Using PIC for interrupt routing
- <6>ACPI: PCI Root Bridge [PCI0] (0000:00)
--<7>PCI: Probing PCI hardware (bus 00)
- <6>ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
- <7>Boot video device is 0000:00:01.0
- <4>PCI quirk: region 0800-087f claimed by ICH4 ACPI/GPIO/TCO
-@@ -238,20 +241,15 @@
- <6>isapnp: No Plug & Play device found
- <6>Real Time Clock Driver v1.12ac
- <6>Intel 82802 RNG detected
--<6>Linux agpgart interface v0.101 (c) Dave Jones
-+<6>Linux agpgart interface v0.102 (c) Dave Jones
- <6>agpgart: Detected an Intel i810 E Chipset.
- <6>agpgart: detected 4MB dedicated video ram.
- <6>agpgart: AGP aperture is 64M @ 0xf8000000
- <4>ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 9
- <7>PCI: setting IRQ 9 as level-triggered
- <6>ACPI: PCI Interrupt 0000:00:01.0[A] -> Link [LNKA] -> GSI 9 (level, l=
-ow) -> IRQ 9
--<4>i810-i2c: Probe DDC1 Bus
--<4>i810fb_init_pci: DDC probe successful
--<4>Console: switching to colour frame buffer device 160x64
--<4>I810FB: fb0         : Intel(R) 810E Framebuffer Device v0.9.0
--<4>I810FB: Video RAM   : 4096K
--<4>I810FB: Monitor     : H: 30-83 KHz V: 55-75 Hz
--<4>I810FB: Mode        : 1280x1024-8bpp@60Hz
-+<4>i810fb_alloc_fbmem: can't bind framebuffer memory
-+<4>i810fb: probe of 0000:00:01.0 failed with error -16
- <6>Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enab=
-led
- <6>serial8250: ttyS0 at I/O 0x3f8 (irq =3D 4) is a 16550A
- <6>serial8250: ttyS1 at I/O 0x2f8 (irq =3D 3) is a 16550A
+Oleg.
 
-Please let me know if you need more information.
+struct cpu_workqueue_srtuct {
+	...
+	int should_stop;
+	...
+};
 
-Thanks
-Tilman
+// also used by flush_work/flush_workqueue
+static cpumask_t cpu_populated_map __read_mostly;
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+/*
+ * NOTE: the caller must not touch *cwq if this func returns true
+ */
+static inline int cwq_should_stop(struct cpu_workqueue_struct *cwq)
+{
+	int should_stop = cwq->should_stop;
 
+	if (unlikely(should_stop)) {
+		spin_lock_irq(&cwq->lock);
+		should_stop = cwq->should_stop && list_empty(&cwq->worklist);
+		if (should_stop)
+			cwq->thread = NULL;
+		spin_unlock_irq(&cwq->lock);
+	}
 
---------------enig45AC97A48380A9FE0492F6D4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+	return should_stop;
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+static int worker_thread(void *cwq)
+{
+	while (!cwq_should_stop(cwq)) {
+		...
+		run_workqueue();
+		...
+	}
+}
 
-iD8DBQFFqsJSMdB4Whm86/kRAqkWAJ9vVwhivB2J+4zyNAiWE5st9Q6CigCfYrDK
-WtodgKbBmhlfUqtslvhprNw=
-=Pgn9
------END PGP SIGNATURE-----
+static int create_workqueue_thread(struct cpu_workqueue_struct *cwq, int cpu)
+{
+	struct task_struct *p;
 
---------------enig45AC97A48380A9FE0492F6D4--
+	spin_lock_irq(&cwq->lock);
+	cwq->should_stop = 0;
+	p = cwq->thread;
+	spin_unlock_irq(&cwq->lock);
+
+	if (!p) {
+		struct workqueue_struct *wq = cwq->wq;
+		const char *fmt = is_single_threaded(wq) ? "%s" : "%s/%d";
+
+		p = kthread_create(worker_thread, cwq, fmt, wq->name, cpu);
+		/*
+		 * Nobody can add the work_struct to this cwq,
+		 *	if (caller is __create_workqueue)
+		 *		nobody should see this wq
+		 *	else // caller is CPU_UP_PREPARE
+		 *		cpu is not on cpu_online_map
+		 * so we can abort safely.
+		 */
+		if (IS_ERR(p))
+			return PTR_ERR(p);
+
+		if (!is_single_threaded(wq))
+			kthread_bind(p, cpu);
+		/*
+		 * Cancels affinity if the caller is CPU_UP_PREPARE.
+		 * Needs a cleanup, but OK.
+		 */
+		wake_up_process(p);
+		cwq->thread = p;
+	}
+
+	return 0;
+}
+
+struct workqueue_struct *__create_workqueue(const char *name,
+					    int singlethread, int freezeable)
+{
+	struct workqueue_struct *wq;
+	struct cpu_workqueue_struct *cwq;
+	int err = 0, cpu;
+
+	wq = kzalloc(sizeof(*wq), GFP_KERNEL);
+	if (!wq)
+		return NULL;
+
+	wq->cpu_wq = alloc_percpu(struct cpu_workqueue_struct);
+	if (!wq->cpu_wq) {
+		kfree(wq);
+		return NULL;
+	}
+
+	wq->name = name;
+	wq->freezeable = freezeable;
+
+	if (singlethread) {
+		INIT_LIST_HEAD(&wq->list);
+		cwq = init_cpu_workqueue(wq, singlethread_cpu);
+		err = create_workqueue_thread(cwq, singlethread_cpu);
+	} else {
+		mutex_lock(&workqueue_mutex);
+		list_add(&wq->list, &workqueues);
+
+		for_each_possible_cpu(cpu) {
+			cwq = init_cpu_workqueue(wq, cpu);
+			if (err || !cpu_isset(cpu, cpu_populated_map))
+				continue;
+			err = create_workqueue_thread(cwq, cpu);
+		}
+		mutex_unlock(&workqueue_mutex);
+	}
+
+	if (err) {
+		destroy_workqueue(wq);
+		wq = NULL;
+	}
+	return wq;
+}
+
+static void cleanup_workqueue_thread(struct workqueue_struct *wq, int cpu)
+{
+	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
+	struct wq_barrier barr;
+	int alive = 0;
+
+	spin_lock_irq(&cwq->lock);
+	if (cwq->thread != NULL) {
+		insert_wq_barrier(cwq, &barr, 1);
+		cwq->should_stop = 1;
+		alive = 1;
+	}
+	spin_unlock_irq(&cwq->lock);
+
+	if (alive) {
+		wait_for_completion(&barr.done);
+
+		while (unlikely(cwq->thread != NULL))
+			cpu_relax();
+		/*
+		 * Wait until cwq->thread unlocks cwq->lock,
+		 * it won't touch *cwq after that.
+		 */
+		smp_rmb();
+		spin_unlock_wait(&cwq->lock);
+	}
+}
+
+void destroy_workqueue(struct workqueue_struct *wq)
+{
+	if (is_single_threaded(wq))
+		cleanup_workqueue_thread(wq, singlethread_cpu);
+	else {
+		int cpu;
+
+		mutex_lock(&workqueue_mutex);
+		list_del(&wq->list);
+		mutex_unlock(&workqueue_mutex);
+
+		for_each_cpu_mask(cpu, cpu_populated_map)
+			cleanup_workqueue_thread(wq, cpu);
+	}
+
+	free_percpu(wq->cpu_wq);
+	kfree(wq);
+}
+
+static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
+						unsigned long action,
+						void *hcpu)
+{
+	struct workqueue_struct *wq;
+	struct cpu_workqueue_struct *cwq;
+	unsigned int cpu = (unsigned long)hcpu;
+	int ret = NOTIFY_OK;
+
+	mutex_lock(&workqueue_mutex);
+	if (action == CPU_UP_PREPARE)
+		cpu_set(cpu, cpu_populated_map);
+
+	list_for_each_entry(wq, &workqueues, list) {
+		cwq = per_cpu_ptr(wq->cpu_wq, cpu);
+
+		switch (action) {
+		case CPU_UP_PREPARE:
+			if (create_workqueue_thread(cwq, cpu))
+				ret = NOTIFY_BAD;
+			break;
+
+		case CPU_ONLINE:
+			set_cpus_allowed(cwq->thread, cpumask_of_cpu(cpu));
+			break;
+
+		case CPU_UP_CANCELED:
+		case CPU_DEAD:
+			cwq->should_stop = 1;
+			wake_up(&cwq->more_work);
+			break;
+		}
+
+		if (ret != NOTIFY_OK) {
+			printk(KERN_ERR "workqueue for %i failed\n", cpu);
+			break;
+		}
+	}
+	mutex_unlock(&workqueue_mutex);
+
+	return ret;
+}
+
+void init_workqueues(void)
+{
+	...
+	cpu_populated_map = cpu_online_map;
+	...
+}
+

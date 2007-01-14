@@ -1,66 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751207AbXANJmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751203AbXANJoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbXANJmS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 04:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbXANJmS
+	id S1751203AbXANJoY (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 04:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbXANJoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 04:42:18 -0500
-Received: from www.osadl.org ([213.239.205.134]:52603 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751184AbXANJmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 04:42:17 -0500
-Subject: Re: 2.6.20-rc4-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
-In-Reply-To: <20070111222627.66bb75ab.akpm@osdl.org>
-References: <20070111222627.66bb75ab.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 14 Jan 2007 10:48:23 +0100
-Message-Id: <1168768104.2941.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 14 Jan 2007 04:44:24 -0500
+Received: from mail-in-11.arcor-online.net ([151.189.21.51]:60800 "EHLO
+	mail-in-11.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751203AbXANJoX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 04:44:23 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: 2.6.20-rc4: usb somehow broken
+Date: Sun, 14 Jan 2007 10:44:19 +0100
+User-Agent: KMail/1.9.5
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <200701111820.46121.prakash@punnoor.de> <200701141008.49986.prakash@punnoor.de> <200701141028.35533.oliver@neukum.org>
+In-Reply-To: <200701141028.35533.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1766987.8F8870u85X";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200701141044.20056.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-11 at 22:26 -0800, Andrew Morton wrote:
-> - Merged the "filesystem AIO patches".
+--nextPart1766987.8F8870u85X
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hotfixes alreday applied.
+Am Sonntag 14 Januar 2007 10:28 schrieb Oliver Neukum:
+> Am Sonntag, 14. Januar 2007 10:08 schrieb Prakash Punnoor:
+> > Am Donnerstag 11 Januar 2007 18:28 schrieb Oliver Neukum:
+> > > Am Donnerstag, 11. Januar 2007 18:20 schrieb Prakash Punnoor:
+> > > > Hi,
+> > > >
+> > > > I can't scan anymore. :-( I don't know which rc kernel introduced i=
+t,
+> > > > but this are the messages I get (w/o touching the device/usb cable
+> > > > except pluggin it in for the first time):
+> > > >
+> > > > usb 1-1.2: new full speed USB device using ehci_hcd and address 4
+> > > > ehci_hcd 0000:00:0b.1: qh ffff81007bc6c280 (#00) state 4
+> > > > usb 1-1.2: configuration #1 chosen from 1 choice
+> > > > usb 1-1.2: USB disconnect, address 4
+> > > > usb 1-1.2: new full speed USB device using ehci_hcd and address 5
+> > > > usb 1-1.2: configuration #1 chosen from 1 choice
+> > > > usb 1-1.2: USB disconnect, address 5
+> > > > usb 1-1.2: new full speed USB device using ehci_hcd and address 6
+> > > > usb 1-1.2: configuration #1 chosen from 1 choice
+> > > > usb 1-1.2: USB disconnect, address 6
+> > > > usb 1-1.2: new full speed USB device using ehci_hcd and address 7
+> > > > usb 1-1.2: configuration #1 chosen from 1 choice
+> > > > usb 1-1.2: USB disconnect, address 7
+> > > > usb 1-1.2: new full speed USB device using ehci_hcd and address 8
+> > > > usb 1-1.2: configuration #1 chosen from 1 choice
+>
+> [..]
+>
+> > Hi, I did more tests and I was wrong about "broken". It seems more a
+> > time-out problem, ie if I try to use sane again in short intervalls, I
+> > will get my device working. The cause seems CONFIG_USB_SUSPEND=3Dy. With
+> > 2.6.20-rc5 the
+>
+> Have you confirmed that by using a kernel without  CONFIG_USB_SUSPEND ?
 
-BUG: at /home/tglx/work/kernel/vanilla/linux-2.6.20-rc4-mm1/arch/i386/mm/highmem.c:60 kmap_atomic()
- [<c0105fba>] show_trace_log_lvl+0x1a/0x2f
- [<c01065ff>] show_trace+0x12/0x14
- [<c01066b1>] dump_stack+0x16/0x18
- [<c011fad8>] kmap_atomic+0x12f/0x1c8
- [<f88db29c>] ata_scsi_rbuf_get+0x22/0x37 [libata]
- [<f88db773>] atapi_qc_complete+0x1ee/0x240 [libata]
- [<f88d666b>] __ata_qc_complete+0x86/0x8d [libata]
- [<f88d670a>] ata_qc_complete+0x98/0x9e [libata]
- [<f88d98f4>] ata_qc_complete_multiple+0x8a/0xa4 [libata]
- [<f88b3a2c>] ahci_interrupt+0x2bd/0x3b9 [ahci]
- [<c0154a2d>] handle_IRQ_event+0x21/0x48
- [<c0155971>] handle_edge_irq+0xd1/0x115
- [<c01071af>] do_IRQ+0x6c/0x89
- [<c0105a0b>] common_interrupt+0x23/0x28
- [<c01031c2>] mwait_idle+0xd/0xf
- [<c010343f>] cpu_idle+0xb7/0xf1
- [<c010141d>] rest_init+0x37/0x3a
- [<c04629bd>] start_kernel+0x3cc/0x3ef
- [<00000000>] 0x0
+Yes. I compiled the modules with various settings, reloaded the modules and=
+=20
+above option made the difference. I also don't get the disconnect mesages, =
+as=20
+well, w/o USB_SUSPEND.
 
-ata_scsi_rbuf_get requests KM_IRQ0 type memory and calls kmap_atomic
-with interrupts enabled.
+Cheers,
+=2D-=20
+(=C2=B0=3D                 =3D=C2=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-Boot proceeds, but gets stuck hard at:
-"Remounting root filesystem in read-write mode:"
+--nextPart1766987.8F8870u85X
+Content-Type: application/pgp-signature
 
-No SysRq-T, nothing.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
 
-The above BUG seems unrelated to that. Investigating further.
+iD8DBQBFqft0xU2n/+9+t5gRAho5AJ0S58PpRenDvthfN3A8EkHXv7vqKACcDxby
+1hSOXk5oUrfjlxKaokcPF08=
+=8hw+
+-----END PGP SIGNATURE-----
 
-	tglx
-
-
+--nextPart1766987.8F8870u85X--

@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751184AbXANJsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751177AbXANJtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbXANJsI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 04:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbXANJsI
+	id S1751177AbXANJtf (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 04:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbXANJtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 04:48:08 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:38100 "EHLO
-	mail-in-03.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751202AbXANJsH (ORCPT
+	Sun, 14 Jan 2007 04:49:35 -0500
+Received: from www17.your-server.de ([213.133.104.17]:4723 "EHLO
+	www17.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751177AbXANJte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 04:48:07 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: 2.6.20-rc4: usb somehow broken
-Date: Sun, 14 Jan 2007 10:48:04 +0100
-User-Agent: KMail/1.9.5
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <200701111820.46121.prakash@punnoor.de> <200701141008.49986.prakash@punnoor.de> <200701141028.35533.oliver@neukum.org>
-In-Reply-To: <200701141028.35533.oliver@neukum.org>
+	Sun, 14 Jan 2007 04:49:34 -0500
+Message-ID: <45A9FC73.2000105@m3y3r.de>
+Date: Sun, 14 Jan 2007 10:48:35 +0100
+From: Thomas Meyer <thomas@m3y3r.de>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061222)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3293781.FX5LFpc3gH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-kernel@vger.kernel.org
+Subject: KVM: vmwrite error in
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200701141048.04247.prakash@punnoor.de>
+X-Authenticated-Sender: thomas@m3y3r.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3293781.FX5LFpc3gH
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi.
 
-Am Sonntag 14 Januar 2007 10:28 schrieb Oliver Neukum:
->
-> Have you confirmed that by using a kernel without  CONFIG_USB_SUSPEND ?
+I have a few of these entries in my log buffer:
+vmwrite error: reg 6802 value d19e0464 (err 26626)
+ [<c02413bf>] kvm_mmu_zap_page+0x8f/0x1d7
+ [<c014c2cb>] __pagevec_free+0x18/0x22
+ [<c0241517>] free_mmu_pages+0x10/0x81
+ [<c02415c4>] kvm_mmu_destroy+0x3c/0x56
+ [<c023f3a3>] kvm_free_vcpu+0x8/0x15
+ [<c023f429>] kvm_dev_release+0x13/0x37
+ [<c01640c9>] __fput+0xa5/0x14d
+ [<c0161cb1>] filp_close+0x51/0x58
+ [<c012104b>] put_files_struct+0x5f/0xa2
+ [<c0122035>] do_exit+0x207/0x6ea
+ [<c012897a>] __dequeue_signal+0xff/0x14e
+ [<c012258d>] sys_exit_group+0x0/0xd
+ [<c012a242>] get_signal_to_deliver+0x39f/0x3cb
+ [<c0102499>] do_notify_resume+0x84/0x5f9
+ [<c0106fc7>] convert_fxsr_from_user+0x1c/0xdc
+ [<c01075a1>] restore_i387+0x74/0xcd
+ [<c012850c>] sigprocmask+0xa1/0xc5
+ [<c012a6d2>] sys_rt_sigprocmask+0x4b/0xc5
+ [<c012a6d2>] sys_rt_sigprocmask+0x4b/0xc5
+ [<c0102e87>] work_notifysig+0x13/0x18
+ =======================
 
-BTW, these are my USB config options, which don't seem to make problems=20
-anymore as long as USB_SUSPEND isn't activated:
+Look's like a stack trace, but no oops. What does this mean? this 
+happens with kernel 2.6.20-rc4-gd39c9400 (two commits missing before 
+rc5, nothing kvm related, so...)
 
-CONFIG_USB_ARCH_HAS_HCD=3Dy
-CONFIG_USB_ARCH_HAS_OHCI=3Dy
-CONFIG_USB_ARCH_HAS_EHCI=3Dy
-CONFIG_USB=3Dm
-CONFIG_USB_DEVICEFS=3Dy
-CONFIG_USB_BANDWIDTH=3Dy
-CONFIG_USB_MULTITHREAD_PROBE=3Dy
-CONFIG_USB_EHCI_HCD=3Dm
-CONFIG_USB_EHCI_SPLIT_ISO=3Dy
-CONFIG_USB_EHCI_ROOT_HUB_TT=3Dy
-CONFIG_USB_EHCI_TT_NEWSCHED=3Dy
-CONFIG_USB_OHCI_HCD=3Dm
-CONFIG_USB_OHCI_LITTLE_ENDIAN=3Dy
-CONFIG_USB_PRINTER=3Dm
-CONFIG_USB_STORAGE=3Dm
+-- 
+Jabber-ID: thomas.mey@jabber.ccc.de
 
-=2D-=20
-(=C2=B0=3D                 =3D=C2=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart3293781.FX5LFpc3gH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.1 (GNU/Linux)
-
-iD8DBQBFqfxUxU2n/+9+t5gRAlTzAKCE8TaZ8d9L2K7jFET+zMGrLM0PJACg6jch
-6pwwGfR1smvGtY4OaIwa43U=
-=eHjN
------END PGP SIGNATURE-----
-
---nextPart3293781.FX5LFpc3gH--

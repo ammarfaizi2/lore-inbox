@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751708AbXANXH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751712AbXANXKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751708AbXANXH3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 18:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751710AbXANXH3
+	id S1751712AbXANXKn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 18:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbXANXKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 18:07:29 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:17974 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706AbXANXH1 (ORCPT
+	Sun, 14 Jan 2007 18:10:43 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33717 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751709AbXANXKm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 18:07:27 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=Yph2us5nzvneruVJHDosjo5uQnm646L0UgWKo9qBM56NgX6BuJqBGXr7UckKHKa2REdcHXUX+ureHIiXxfF4v77xdkdvYvXkLNelS2qCnV9vicWCXL06hajCdb0Mou7J8RIMIY2wrNp2+TIxTu2VwTfUV7/xk5aRsI9SKMaSSY0=
-Date: Mon, 15 Jan 2007 01:07:18 +0200
-To: Dave Airlie <airlied@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc5] intel_rng: substitue magic PCI IDs with macros
-Message-ID: <20070114230718.GB3874@Ahmed>
-Mail-Followup-To: Dave Airlie <airlied@gmail.com>,
-	Arjan van de Ven <arjan@infradead.org>, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org
-References: <20070114172421.GA3874@Ahmed> <1168796241.3123.954.camel@laptopd505.fenrus.org> <21d7e9970701141131n24bb371di2c941c681b4afdf8@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970701141131n24bb371di2c941c681b4afdf8@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+	Sun, 14 Jan 2007 18:10:42 -0500
+Date: Sun, 14 Jan 2007 23:22:19 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: it821x trouble since 2.6.18
+Message-ID: <20070114232219.3038987e@localhost.localdomain>
+In-Reply-To: <1168811634@msgid.manchmal.in-ulm.de>
+References: <1168811634@msgid.manchmal.in-ulm.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 06:31:01AM +1100, Dave Airlie wrote:
-> On 1/15/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> >On Sun, 2007-01-14 at 19:24 +0200, Ahmed S. Darwish wrote:
-> >> Substitue intel_rng magic PCI IDs values used in the IDs table
-> >> with the macros defined in pci_ids.h
-> >>
-> >Hi,
-> >
-> >hmm this is actually the opposite direction than most of the kernel is
-> >heading in, mostly because the pci_ids.h file is a major maintenance
-> >pain.
-> >
-> >Afaik the current "rule" is: if a PCI ID is only used in one driver, use
-> >the numeric value and not (add) a symbolic constant.
-> >
+> 2. Trying to understand what has happened I found the main difference
+> is not in the driver but in ide-dma.c:
 > 
-> My guess is that the RNG is on the LPC so the values are used in a few 
-> places..
+> --- linux-2.6.17.14/drivers/ide/ide-dma.c   2006-06-18 01:49:35.000000000 +0000
+> +++ linux-2.6.18.6/drivers/ide/ide-dma.c    2006-09-20 03:42:06.000000000 +0000
+> @@ -752,7 +750,7 @@
+>                         goto bug_dma_off;
+>                 printk(", DMA");
+>         } else if (id->field_valid & 1) {
+> -               printk(", BUG");
+> +               goto bug_dma_off;
+>         }
+>         return;
+>  bug_dma_off:
 > 
+> 
+> and reverting that change returns the old transfer rates. But that is
+> probably not a good idea.
 
-Will pci_ids.h be removed from the tree some time in the future then ?
+It should be just fine. 
 
--- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+> So I tried this again:
+
+This is complete bogus. You simply poked random incorrect registers and
+happened not to crash the chip, or confuse it, and since you have the
+IT821x bios enabled it happened to have roughly valid configuration.
+
+> and disabled CONFIG_BLK_DEV_IT821X - and now the disk is even faster
+> than before:
+
+For all the wrong reasons I would add.
+

@@ -1,122 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751718AbXANXg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751082AbXANXoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751718AbXANXg4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 18:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbXANXg4
+	id S1751082AbXANXoV (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 18:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbXANXoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 18:36:56 -0500
-Received: from enyo.dsw2k3.info ([195.71.86.239]:46499 "EHLO enyo.dsw2k3.info"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751082AbXANXgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 18:36:55 -0500
-Message-ID: <45AABE8D.9010804@citd.de>
-Date: Mon, 15 Jan 2007 00:36:45 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
-References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de> <45AAA3C2.80603@student.ltu.se>
-In-Reply-To: <45AAA3C2.80603@student.ltu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Jan 2007 18:44:21 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:56943 "EHLO
+	pd2mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751082AbXANXoV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 18:44:21 -0500
+Date: Sun, 14 Jan 2007 17:43:53 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+In-reply-to: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no>
+To: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, htejun@gmail.com
+Message-id: <45AAC039.1020808@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson wrote:
-> Matthias Schniedermeyer wrote:
+Björn Steinbrink wrote:
+> Hi,
 > 
->> Richard Knutsson wrote:
->>  
->>
->>> Matthias Schniedermeyer wrote:
->>>
->>>    
->>>
->>>> Richard Knutsson wrote:
->>>>
->>>>  
->>>>
->>>>      
->>>>
->>>>> Any thoughts on this is very much appreciated (is there any flaws with
->>>>> this?).
->>>>>             
->>>>
->>>> The thought that crossed my mind was:
->>>>
->>>> Why not do the same thing that was done to the "Help"-file. (Before it
->>>> was superseded by Kconfig).
->>>>
->>>> Originaly there was a central Help-file, with all the texts. Then it
->>>> was
->>>> split and placed in each sub-dir. And later it was superseded by
->>>> Kconfig.
->>>>
->>>> On the other hand you could skip the intermediate step and just fold
->>>> the
->>>> Maintainer-data directly into Kconfig, that way everything is "in one
->>>> place" and you could place a "Maintainers"-Button next to the
->>>> "Help"-Button in *config, or just display it alongside the help.
->>>>
->>>> And MAYBE that would also lessen the "update-to-date"-problem, as you
->>>> can just write the MAINTAINERs-data when you create/update the
->>>> Kconfig-file. Which is a thing that creates much bigger pain when you
->>>> forget it accidently. ;-)
->>>>
->>>> Oh, and it neadly solves the mapping-problem, for at least all
->>>> kernel-parts that have a Kconfig-option/Sub-Tree.
->>>>         
->>>
->>> I'm all for splitting up the MAINTAINERS! :)
->>>
->>> Just, do you have any ideas how to solve the possible multiple of the
->>> same entries, when handling multiple sub-directories and when many
->>> different drivers with different maintainers are in the same directory
->>> and a maintainer have more then one driver?
->>>     
->>
->>
->> Handles.
->> If a Maintainer maintains several subsystems/drivers a "handle" could be
->> used to references to a handle-list (hello MAINTAINERS) or to the place
->> where the full-maintainers-entry is placed.
->>   
-> 
-> Mm, and maybe store the entry on the shortest-pathway common directory.
-> Then there should be just a few left entries in the current MAINTAINERS.
-> But how to create the handles?
-> * Name (problem with persons with the same name)
-> * E-mail (much to change when they change it)
-> This also make a problem when there is a change of the maintainer, what
-> happens with the entry if there is no maintainer?
-> * Just numbers and increase every new one with one? (quite ugly!)
-> ... and here is the end of my ideas.
-> 
-> Any good ideas? (Really liked the idea to have a "Maintainer"-button
-> next to "Help" in *config)
+> with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
+> often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
+> output follows. In the meantime, I'll start bisecting.
 
-I'd say something like:
-<Initials/ShortenedName><Numbers>
-e.g.
-MS0001
-MaSchn001
-or something along that line.
+...
 
-Some people have several entries in the MAINTAINERs and a new way would
-have to make that possible too.
+> ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+> ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
+>          res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+> ata1: soft resetting port
+> ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+> ata1.00: configured for UDMA/133
+> ata1: EH complete
+> SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+> sda: Write Protect is off
+> sda: Mode Sense: 00 3a 00 00
+> SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
 
-
-
-
-
-Bis denn
+Looks like all of these errors are from a FLUSH CACHE command and the 
+drive is indicating that it is no longer busy, so presumably done. 
+That's not a DMA-mapped command, so it wouldn't go through the ADMA 
+machinery and I wouldn't have expected this to be handled any 
+differently from before. Curious..
 
 -- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

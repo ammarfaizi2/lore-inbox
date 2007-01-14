@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751050AbXANDSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751089AbXANEAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbXANDSW (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 13 Jan 2007 22:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbXANDSV
+	id S1751089AbXANEAK (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 13 Jan 2007 23:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbXANEAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Jan 2007 22:18:21 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:39555 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751050AbXANDSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Jan 2007 22:18:21 -0500
-Message-ID: <45A9A0F2.4090608@garzik.org>
-Date: Sat, 13 Jan 2007 22:18:10 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sat, 13 Jan 2007 23:00:10 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:41816 "HELO
+	smtp109.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751089AbXANEAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Jan 2007 23:00:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=uXAErWQY4OOBYZwI/5jegdmZvv3A8Xp1VRFAdA8/YzTGt9o/a0fMCna2cgYcNOb89ZtbSmPofksUMK1BzfUKbhW4KDpOAvCDbxwxlKHafyc7CtCez9j1u/5mAipIAjfY3saE3cWJrg6p5CmhD34hMEurw0xq0WR7e+kSH6K3+Cw=  ;
+X-YMail-OSG: 61FUd9MVM1nzoKUlNXt69aroH7R4IqZ1qTn3OHnaOm2owbgc6n4GWtJ0C_1PRIUYkDz2zjFgWefAA7sUHXAoUP2ZJKz44njJtQpv4eso7W6QEq60HXudrdUG_ap4mCtO.2i3TyJIW955ln4-
+Message-ID: <45A9AAAB.2090008@yahoo.com.au>
+Date: Sun, 14 Jan 2007 14:59:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: Faik Uygur <faik@pardus.org.tr>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Tejun Heo <htejun@gmail.com>
-Subject: Re: ahci_softreset prevents acpi_power_off
-References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no> <fa.1s/e9SHVR6LQC2HgdZRykrqlV5Q@ifi.uio.no> <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>
-In-Reply-To: <45A9860D.5080506@shaw.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Nick Piggin <npiggin@suse.de>
+CC: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Filesystems <linux-fsdevel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 10/10] mm: fix pagecache write deadlocks
+References: <20070113011159.9449.4327.sendpatchset@linux.site> <20070113011334.9449.61323.sendpatchset@linux.site>
+In-Reply-To: <20070113011334.9449.61323.sendpatchset@linux.site>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Faik Uygur wrote:
->>> What happens when you try to shutdown?  
->>
->> Does not shutdown and freezes.
->>
->> Hand copied last messages seen on console:
->>
->> Synchronizing SCSI cache for disk sda:
->> ACPI: PCI Interrupt for device 0000:06:08.0 disabled
->> Power down.
->> acpi_power_off called
->>   hwsleep-0285 [01] enter_sleep_state    : Entering sleep state [S5]
-> 
-> Since you're getting to this point I think this has to be some kind of 
-> BIOS interaction causing this. The only thing that happens after the 
-> "Entering sleep state" is that the kernel writes to some ACPI registers 
-> to tell the hardware to power down. I think some laptop BIOSes do things 
-> on ACPI power down like try to park the drive heads, etc. and maybe this 
-> change that you found from git bisecting is somehow interfering with it 
-> doing this?
-> 
-> Might want to check for a BIOS update first of all..
+Nick Piggin wrote:
 
-It would be interesting to try -mm, which includes ACPI support for ATA...
+> @@ -1878,31 +1889,88 @@ generic_file_buffered_write(struct kiocb
+>  			break;
+>  		}
+>  
+> +		/*
+> +		 * non-uptodate pages cannot cope with short copies, and we
+> +		 * cannot take a pagefault with the destination page locked.
+> +		 * So pin the source page to copy it.
+> +		 */
+> +		if (!PageUptodate(page)) {
+> +			unlock_page(page);
+> +
+> +			bytes = min(bytes, PAGE_CACHE_SIZE -
+> +				     ((unsigned long)buf & ~PAGE_CACHE_MASK));
+> +
+> +			/*
+> +			 * Cannot get_user_pages with a page locked for the
+> +			 * same reason as we can't take a page fault with a
+> +			 * page locked (as explained below).
+> +			 */
+> +			status = get_user_pages(current, current->mm,
+> +					(unsigned long)buf & PAGE_CACHE_MASK, 1,
+> +					0, 0, &src_page, NULL);
 
-	Jeff
+Thinko... get_user_pages needs to be called with mmap_sem held, obviously.
 
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

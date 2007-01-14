@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751649AbXANT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751653AbXANUCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbXANT5I (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 14:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbXANT5I
+	id S1751653AbXANUCO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 15:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbXANUCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 14:57:08 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37110 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751650AbXANT5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 14:57:07 -0500
-Date: Sun, 14 Jan 2007 20:52:31 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] lockdep: shrink held_lock structure
-Message-ID: <20070114195231.GA22911@elte.hu>
-References: <20070102233558.GA4577@redhat.com> <20070102233824.GF18033@redhat.com> <1168800350.32239.13.camel@earth> <20070114194217.GA20726@elte.hu>
-Mime-Version: 1.0
+	Sun, 14 Jan 2007 15:02:14 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57604 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751650AbXANUCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 15:02:13 -0500
+Date: Sun, 14 Jan 2007 21:01:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Kawai, Hidehiro" <hidehiro.kawai.ez@hitachi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, james.bottomley@steeleye.com,
+       Satoshi OSHIMA <soshima@redhat.com>,
+       "Hideo AOKI@redhat" <haoki@redhat.com>,
+       sugita <yumiko.sugita.yf@hitachi.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] binfmt_elf: core dump masking support
+Message-ID: <20070114200157.GA2582@elf.ucw.cz>
+References: <457FA840.5000107@hitachi.com> <20061213132358.ddcaaaf4.akpm@osdl.org> <20061220154056.GA4261@ucw.cz> <45A2EADF.3030807@hitachi.com> <20070109143912.GC19787@elf.ucw.cz> <45A74B89.4040100@hitachi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070114194217.GA20726@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0001]
+In-Reply-To: <45A74B89.4040100@hitachi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> Subject: [patch] lockdep: shrink held_lock structure
-> From: Dave Jones <davej@redhat.com>
+> > Well, you can have it as set of 0-1 "limits"...
 > 
-> shrink the held_lock structure from 40 to 20 bytes. This shrinks struct 
-> task_struct from 3056 to 2464 bytes.
-> 
-> [ From: Ingo Molnar <mingo@elte.hu>, shrunk hlock->class too. ]
+> I have come up with a similar idea of regarding the ulimit
+> value as a bitmask, and I think it may work.
+> But it will be confusable for users to add the new concept of
+> 0-1 limitation into the traditional resouce limitation feature.
+> Additionaly, this approach needs a modification of each shell
+> command.
+> What do you think about these demerits?
 
-doh - some buglet sneaked into the hlock->class_idx change ... 
-investigating it. Ignore this patch for now.
+> The /proc/<pid>/ approach doesn't have these demerits, and it
+> has an advantage that users can change the bitmask of any process
+> at anytime.
 
-	Ingo
+Well... not sure if it is advantage. Semantics of ulimit inheritance
+are well given, for example. How is this going to be inherited?
+
+Anyway, yes, I see 0/1 "limits" have bad sides, too, so...
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

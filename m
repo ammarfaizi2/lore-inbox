@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751154AbXANIFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751165AbXANIFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbXANIFX (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 03:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbXANIFX
+	id S1751165AbXANIFj (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 03:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXANIFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 03:05:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40893 "EHLO perch.kroah.org"
+	Sun, 14 Jan 2007 03:05:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40913 "EHLO perch.kroah.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751154AbXANIFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 03:05:23 -0500
-Date: Sat, 13 Jan 2007 23:54:18 -0800
+	id S1751165AbXANIFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 03:05:35 -0500
+Date: Sat, 13 Jan 2007 23:55:14 -0800
 From: Greg KH <greg@kroah.com>
 To: James Simmons <jsimmons@infradead.org>
 Cc: Dmitry Torokhov <dtor@insightbb.com>, Miguel Ojeda <maxextreme@gmail.com>,
@@ -20,7 +20,7 @@ Cc: Dmitry Torokhov <dtor@insightbb.com>, Miguel Ojeda <maxextreme@gmail.com>,
        linux-acpi@vger.kernel.org, kernel-discuss@handhelds.org,
        lcd4linux-devel@sf.net
 Subject: Re: Display class
-Message-ID: <20070114075418.GD10585@kroah.com>
+Message-ID: <20070114075514.GE10585@kroah.com>
 References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org> <Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org> <Pine.LNX.4.64.0612051740250.2925@pentafluge.infradead.org> <200612292232.44122.dtor@insightbb.com> <Pine.LNX.4.64.0701132225530.18652@pentafluge.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -47,12 +47,8 @@ On Sat, Jan 13, 2007 at 10:40:55PM +0000, James Simmons wrote:
 > displays such as LCD, CRT, LVDS etc. It is a expansion of the lcd
 > class to include other types of displays.
 
-Any chance you can change this to use "struct device" instead of "struct
-class_device" so I don't have to convert it myself in the next few weeks
-if it ever gets merged?  :)
-
-The functionality will be the same, if not, please let me know what
-problems you have with the change.
+Have you worked with the DRM developers who also need to tie into this
+CRT class somehow?
 
 thanks,
 

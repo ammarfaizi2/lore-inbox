@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751246AbXANW3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751271AbXANWdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbXANW3s (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 17:29:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbXANW3s
+	id S1751271AbXANWdX (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 17:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbXANWdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 17:29:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9550 "EHLO virtualhost.dk"
+	Sun, 14 Jan 2007 17:33:23 -0500
+Received: from ns2.suse.de ([195.135.220.15]:38998 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751246AbXANW3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 17:29:47 -0500
-X-Greylist: delayed 574 seconds by postgrey-1.27 at vger.kernel.org; Sun, 14 Jan 2007 17:29:47 EST
-Date: Mon, 15 Jan 2007 09:30:19 +1100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: 2.6.20-rc4-mm1
-Message-ID: <20070114223019.GP5860@kernel.dk>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain> <20070114220515.GG5860@kernel.dk> <1168813901.2941.85.camel@localhost.localdomain>
+	id S1751271AbXANWdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 17:33:22 -0500
+From: Neil Brown <neilb@suse.de>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Date: Mon, 15 Jan 2007 09:32:57 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1168813901.2941.85.camel@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17834.44953.447617.272404@notabene.brown>
+Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
+In-Reply-To: message from Fengguang Wu on Saturday January 13
+References: <17828.33075.145986.404400@notabene.brown>
+	<368438638.13038@ustc.edu.cn>
+	<20070110141756.GA5572@mail.ustc.edu.cn>
+	<17829.46603.14554.981639@notabene.brown>
+	<368527150.02925@ustc.edu.cn>
+	<20070111145309.GA6226@mail.ustc.edu.cn>
+	<17830.46175.410277.466742@notabene.brown>
+	<368569131.07190@ustc.edu.cn>
+	<20070112023251.GA6136@mail.ustc.edu.cn>
+	<17831.58571.460279.128732@notabene.brown>
+	<368654358.17532@ustc.edu.cn>
+	<20070113021320.GA6055@mail.ustc.edu.cn>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14 2007, Thomas Gleixner wrote:
-> On Mon, 2007-01-15 at 09:05 +1100, Jens Axboe wrote:
-> > raid seems to have severe problems with the plugging change. I'll try
-> > and find Neil and have a chat with him, hopefully we can work it out.
+On Saturday January 13, fengguang.wu@gmail.com wrote:
+> On Sat, Jan 13, 2007 at 06:43:07AM +1100, Neil Brown wrote:
+> > 
+> > Ok, thanks.  I must have missed something else wrong in the code......
+> > 
+> > Probably this 'break' in the wrong place...
+> > 
+> > Could you try this patch instead please - or just move the 'break' to
+> > where it should be.
 > 
-> Some hints:
-> 
-> mount(1899): WRITE block 16424 on md3
-> call md_write_start
-> md3_raid1(438): WRITE block 40965504 on sdb6
-> md3_raid1(438): WRITE block 40965504 on sda6
-> First Write sector 16424 disks 2
-> 
-> Stuck.
-> 
-> Note, that neither end_buffer_async_write() nor
-> raid1_end_write_request() are invoked, 
-> 
-> In a previous write invoked by:
-> fsck.ext3(1896): WRITE block 8552 on sdb1
-> end_buffer_async_write() is invoked.
-> 
-> sdb1 is not a part of a raid device.
+> Now it worked :)
 
-When I briefly tested this before I left (and found it broken), doing a
-cat /proc/mdstat got things going again. Hard if that's your rootfs,
-it's just a hint :-)
+Thanks.  I'll try to get those fixes into 2.6.20...
 
-> Hope that helps,
-
-I can reproduce, so that's not a problem. I can't do much about it until
-I'm back next week, but Neil might be able to help. We shall see. Thanks
-for testing.
-
--- 
-Jens Axboe
-
+NeilBrown

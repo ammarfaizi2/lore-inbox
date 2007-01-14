@@ -1,80 +1,105 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751170AbXANIzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751150AbXANJIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbXANIzu (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 03:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbXANIzu
+	id S1751150AbXANJIz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 04:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbXANJIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 03:55:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36232 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751170AbXANIzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 03:55:49 -0500
-Date: Sun, 14 Jan 2007 09:51:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dor Laor <dor.laor@qumranet.com>
-Cc: Avi Kivity <avik@qumranet.com>,
-       kvm-devel <kvm-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [kvm-devel] kvm & dyntick
-Message-ID: <20070114085116.GD2913@elte.hu>
-References: <45A66106.5030608@qumranet.com> <20070112062006.GA32714@elte.hu> <20070112101931.GA11635@elte.hu> <64F9B87B6B770947A9F8391472E0321609F7A0E2@ehost011-8.exch011.intermedia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <64F9B87B6B770947A9F8391472E0321609F7A0E2@ehost011-8.exch011.intermedia.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	Sun, 14 Jan 2007 04:08:55 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:36534 "EHLO
+	mail-in-02.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751150AbXANJIy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 04:08:54 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: 2.6.20-rc4: usb somehow broken
+Date: Sun, 14 Jan 2007 10:08:37 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200701111820.46121.prakash@punnoor.de> <200701111828.02119.oliver@neukum.org>
+In-Reply-To: <200701111828.02119.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1326608.gmbgH2GEn4";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200701141008.49986.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1326608.gmbgH2GEn4
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-* Dor Laor <dor.laor@qumranet.com> wrote:
+Am Donnerstag 11 Januar 2007 18:28 schrieb Oliver Neukum:
+> Am Donnerstag, 11. Januar 2007 18:20 schrieb Prakash Punnoor:
+> > Hi,
+> >
+> > I can't scan anymore. :-( I don't know which rc kernel introduced it, b=
+ut
+> > this are the messages I get (w/o touching the device/usb cable except
+> > pluggin it in for the first time):
+> >
+> > usb 1-1.2: new full speed USB device using ehci_hcd and address 4
+> > ehci_hcd 0000:00:0b.1: qh ffff81007bc6c280 (#00) state 4
+> > usb 1-1.2: configuration #1 chosen from 1 choice
+> > usb 1-1.2: USB disconnect, address 4
+> > usb 1-1.2: new full speed USB device using ehci_hcd and address 5
+> > usb 1-1.2: configuration #1 chosen from 1 choice
+> > usb 1-1.2: USB disconnect, address 5
+> > usb 1-1.2: new full speed USB device using ehci_hcd and address 6
+> > usb 1-1.2: configuration #1 chosen from 1 choice
+> > usb 1-1.2: USB disconnect, address 6
+> > usb 1-1.2: new full speed USB device using ehci_hcd and address 7
+> > usb 1-1.2: configuration #1 chosen from 1 choice
+> > usb 1-1.2: USB disconnect, address 7
+> > usb 1-1.2: new full speed USB device using ehci_hcd and address 8
+> > usb 1-1.2: configuration #1 chosen from 1 choice
+> >
+> >
+> > Shouldn't the ohci module handle the scanner? The scanner is connected
+> > through a hub.
+>
+> Therefore it goes to EHCI. Can you try a direct connection?
+>
+> > I don't remember how 2.6.19 handled it, or whether I used some new exot=
+ic
+> > setting which causes the breakage.
+>
+> Could you try 2.6.19?
+>
+> > Well, I'll test this week-end and upload more infos then. If you already
+> > have some ideas in the meantime, let me know.
+>
+> Please test with CONFIG_USB_DEBUG
 
-> Afterwards we'll need to compensate the lost alarm signals to the 
-> guests by using one of
->  - hrtimers to inject the lost interrupts for specific guests. The 
-> problem this will increase the overall load.
->  - Injecting several virtual irq to the guests one after another 
-> (using interrupt window exit). The question is how the guest will be 
-> effected from this unfair behavior.
 
-well, the most important thing would be to fix qemu to:
+Hi, I did more tests and I was wrong about "broken". It seems more a time-o=
+ut=20
+problem, ie if I try to use sane again in short intervalls, I will get my=20
+device working. The cause seems CONFIG_USB_SUSPEND=3Dy. With 2.6.20-rc5 the=
+=20
+situation seems better, ie now I don't get "no device" very less often.
 
- - not use a 1024 /dev/rtc stream of signals as its clock emulation 
-   source
+So do you still want me to try above stuff?
 
-i hacked that out of qemu, only to find out that qemu then uses periodic 
-itimers. Instead of that it should use one-shot itimers, driven by the 
-expiry time of the next clock. I.e. this code in vl.c, in 
-host_alarm_handler():
+=2D-=20
+(=C2=B0=3D                 =3D=C2=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-    if (qemu_timer_expired(active_timers[QEMU_TIMER_VIRTUAL],
-                           qemu_get_clock(vm_clock)) ||
-        qemu_timer_expired(active_timers[QEMU_TIMER_REALTIME],
-                           qemu_get_clock(rt_clock))) {
+--nextPart1326608.gmbgH2GEn4
+Content-Type: application/pgp-signature
 
-should start an itimer with an expiry time of:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
 
- active_timers[QEMU_TIMER_VIRTUAL]->expire_time - qemu_get_clock(vm_clock)
+iD8DBQBFqfMhxU2n/+9+t5gRAm88AJ0XWAcNMFluwb1WoCHPrhhVjtFbGwCfZZ6e
+S5fgNsDZ8yqny0hLwD8VQC0=
+=iH6t
+-----END PGP SIGNATURE-----
 
-or:
-
- active_timers[QEMU_TIMER_REALTIME]->expire_time - qemu_get_clock(rt_clock)
-
-whichever is smaller. Furthermore, whenever timer->expire_time is 
-changed in qemu_mod_timer(), this set-the-next-itimer-expiry-time code 
-needs to be called. Would anyone like to try that?
-
-this will reduce the host Qemu wakeup rate from 1000-1100/sec to the 
-guest's 4-5/sec wakeup rate - resulting in 0.01% CPU overhead from a 
-single idle guest. Current unmodified Qemu causes 10-20% CPU overhead 
-from a single idle guest.
-
-	Ingo
+--nextPart1326608.gmbgH2GEn4--

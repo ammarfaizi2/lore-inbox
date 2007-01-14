@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751188AbXANIo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751197AbXANIqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbXANIo3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 03:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbXANIo2
+	id S1751197AbXANIqF (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 03:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbXANIqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 03:44:28 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47994 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751188AbXANIo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 03:44:28 -0500
-Date: Sun, 14 Jan 2007 09:39:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: kvm & dyntick
-Message-ID: <20070114083954.GB2913@elte.hu>
-References: <45A66106.5030608@qumranet.com> <20070112062006.GA32714@elte.hu> <20070112101931.GA11635@elte.hu> <45A7BF9F.5090508@qumranet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Jan 2007 03:46:05 -0500
+Received: from wx-out-0506.google.com ([66.249.82.225]:60240 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751197AbXANIqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 03:46:03 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=BEgFPN/aHql3+8nA0yuMqjD4dEGq3lHSNpacN09umqiyjQc7smi2RVfJ8ptIXXKLUxR4sHI2B28/OoOLySweXf0BbDeuaOPjgptA4Xc1Ydzx26OTSmsrLs01VgiCcj9LNxJVqzr6VyJ2vgkpe6/3YvKziImYETMjx+F1nC+AOgo=
+Message-ID: <3ae72650701140046p5c3280a1ofd7b59cece11b773@mail.gmail.com>
+Date: Sun, 14 Jan 2007 09:46:02 +0100
+From: "Kay Sievers" <kay.sievers@vrfy.org>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: No more "device" symlinks for classes
+Cc: "Andrey Borzenkov" <arvidjaar@mail.ru>,
+       "Pierre Ossman" <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <20070114073937.GA10585@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A7BF9F.5090508@qumranet.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+References: <45A97089.5090004@drzeus.cx>
+	 <20070114061104.1C53839AF7F@muan.mtu.ru>
+	 <20070114073937.GA10585@kroah.com>
+X-Google-Sender-Auth: dde9f4eec34cbd52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/14/07, Greg KH <greg@kroah.com> wrote:
+> On Sun, Jan 14, 2007 at 09:10:59AM +0300, Andrey Borzenkov wrote:
+> > Pierre Ossman wrote:
+> >
+> > > Hi guys,
+> > >
+> > > I just wanted to know the rationale behind
+> > > 99ef3ef8d5f2f5b5312627127ad63df27c0d0d05 (no more "device" symlink in
+> > > class devices). I thought that was a rather convenient way of finding
+> > > which physical device the class device was coupled to.
+> > >
+> >
+> > Actually I wonder why those links still present even when I told system not
+> > to create them?
+> >
+> > {pts/1}% grep DEPRE /boot/config
+> > # CONFIG_SYSFS_DEPRECATED is not set
+> > # CONFIG_PM_SYSFS_DEPRECATED is not set
+> > {pts/1}% find /sys/class -name device
+> > /sys/class/pcmcia_socket/pcmcia_socket2/device
+> > /sys/class/pcmcia_socket/pcmcia_socket1/device
+> > /sys/class/pcmcia_socket/pcmcia_socket0/device
+> > /sys/class/usb_device/usbdev1.1/device
+> > /sys/class/usb_host/usb_host1/device
+> > /sys/class/scsi_disk/0:0:0:0/device
+> > /sys/class/scsi_device/1:0:0:0/device
+> > /sys/class/scsi_device/0:0:0:0/device
+> > /sys/class/scsi_host/host1/device
+> > /sys/class/scsi_host/host0/device
+> > /sys/class/net/eth0/device
+> > /sys/class/net/eth1/device
+> > /sys/class/input/input1/ts0/device
+> > /sys/class/input/input1/mouse0/device
+> > /sys/class/input/input1/event1/device
+> > /sys/class/input/input1/device
+> > /sys/class/input/input0/event0/device
+> > /sys/class/input/input0/device
+> > {pts/1}% uname -a
+> > Linux cooker 2.6.20-rc5-1avb #10 Sat Jan 13 14:05:34 MSK 2007 i686 Pentium
+> > III (Coppermine) GNU/Linux
+>
+> Because I haven't finished converting all of the different usages of
+> struct class_device to struct device just yet.  When that happens, those
+> links go away, as the /sys/class/foo_class/foo is a symlink itself into
+> the /sys/devices/ tree.
 
-* Avi Kivity <avi@qumranet.com> wrote:
+Right, you only told not to create the links for already converted
+subsystems to create the class-devices in /sys/devices. You can never
+supress the links for subsystems which still create device-directories
+in /sys/class, because you would lose the parent information then and
+udev and HAL couldn't work anymore.
 
-> >( for this to work on my system i have added a 'hyper' clocksource
-> >  hypercall API for KVM guests to use - this is needed instead of the 
-> >  running-to-slowly TSC. )
-> >  
-> 
-> What's the problem with the TSC?  The only issue I'm aware of is that 
-> the tsc might go backwards if the vcpu is migrated to another host cpu 
-> (easily fixed).
-
-this is not a problem of KVM - this is a problem of this laptop: its TSC 
-stops when going idle. So the TSC is fundamentally unusable for reliable 
-timekeeping - and qemu doesnt offer pmtimer emulation to fall back to, 
-so the dyntick kernel refused to go high-res under KVM. Once i added the 
-hyper clocksource to fall back to, it could utilize the PIT and the 
-lapic for clock-events.
-
-	Ingo
+Kay
+Kay

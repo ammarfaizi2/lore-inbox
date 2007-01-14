@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751276AbXANNGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751278AbXANNG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbXANNGU (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 08:06:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbXANNGT
+	id S1751278AbXANNG1 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 08:06:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbXANNG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 08:06:19 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40632 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751276AbXANNGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 08:06:19 -0500
-Message-ID: <45AA2AD7.70607@drzeus.cx>
-Date: Sun, 14 Jan 2007 14:06:31 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Philip Langdale <philipl@overt.org>
-CC: LAK <linux-arm-kernel@lists.arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] MMC: Major restructuring and cleanup
-References: <459CB3D2.4010707@drzeus.cx> <45A9BF57.7050408@overt.org>
-In-Reply-To: <45A9BF57.7050408@overt.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Jan 2007 08:06:27 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:47800 "EHLO mta2.cl.cam.ac.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751278AbXANNG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 08:06:26 -0500
+X-Greylist: delayed 1604 seconds by postgrey-1.27 at vger.kernel.org; Sun, 14 Jan 2007 08:06:25 EST
+User-Agent: Microsoft-Entourage/11.3.2.061213
+Date: Sun, 14 Jan 2007 12:37:46 +0000
+Subject: Re: [patch 20/20] XEN-paravirt: Add Xen virtual block device
+ driver.
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Andrew Morton <akpm@osdl.org>, <virtualization@lists.osdl.org>,
+       <xen-devel@lists.xensource.com>, Chris Wright <chrisw@sous-sol.org>,
+       Ian Pratt <ian.pratt@xensource.com>, <linux-kernel@vger.kernel.org>
+Message-ID: <C1CFD49A.7286%Keir.Fraser@cl.cam.ac.uk>
+Thread-Topic: [patch 20/20] XEN-paravirt: Add Xen virtual block device
+ driver.
+Thread-Index: Acc32MrnCbWgRqPMEdur9wANk04WTA==
+In-Reply-To: <Pine.LNX.4.61.0701141202050.26276@yvahk01.tjqt.qr>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Langdale wrote:
-> So, I think I'm a bit too much of a kernel newbie to be able to provide a
-> definitive review, but I've looked over the changes and they look good to me.
->   
+On 14/1/07 11:05 am, "Jan Engelhardt" <jengelh@linux01.gwdg.de> wrote:
 
-Good to hear. I'd like to get this in ASAP, but in order to make sure
-everyone gets a look at it, it'll have to go a round in -mm during the
-next kernel.
+>> The block device frontend driver allows the kernel to access block
+>> devices exported exported by a virtual machine containing a physical
+>> block device driver.
+> 
+> Is this significantly different from ubd/hostfs that it actually warrants a
+> reinvention?
 
-> I fully agree with the rearchitecturing - it makes it a lot easier to see
-> what's going on and it'll scale for SDIO (as you mention) and CE-ATA as well,
-> if we ever get a hold of any of those :-)
->   
+It is certainly unlike hostfs because hostfs provides file-level access to
+host storage, not block-level. It's unlike both ubd and hostfs in that both
+of those (I believe) make significant use of the syscall interface (and so
+assume they run in a process on a Linux host). Also our driver appears to be
+lower level, pushing more responsibility for features like CoW into the VMM.
+Arguably that's a more generically reusable and flexible strategy although
+it requires more VMM run-time support (which a Xen system provides).
 
-With the very generous help of John Gilmore, I think we'll have those
-sorted out in a jiffy. :)
+>> + (void)xenbus_switch_state(info->xbdev, XenbusStateConnected);
+> 
+> Cast remove, if xenbus_switch_state does not have __must_check.
+> Also elsewhere.
 
-> One concrete observation I'd make is that we should probably try and detect
-> MMC first instead of SD. Up until today, I'd have said it didn't really
-> matter, but I've been doing some reading and discovered that Protec make
-> some very strange cards they call "SuperSD" which can talk mmc4 and sd 1.1.
-> These will happily go along with either initialisation sequence - and as mmc4
-> is either the same or better than sd 1.1 from a performance point of view,
-> we should prefer it. This is independent of your restructuring, but as you're
-> fiddling with this code... :-)
->   
+Okay, we should certainly follow the general rule here.
 
-Eeeeww... This is a problem as the SD spec. clearly states the order of
-init commands. So I wouldn't be surprised if we find SD cards that choke
-on the MMC init sequence.
+ Thanks,
+ Keir
 
-I guess what we lose by not supporting these is 8 bit data bus, but as
-we do not currently have a controller for that I think the point is moot.
-
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
 

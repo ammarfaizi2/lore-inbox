@@ -1,100 +1,122 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751720AbXANXST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751718AbXANXg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751720AbXANXST (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 18:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbXANXST
+	id S1751718AbXANXg4 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 18:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbXANXg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 18:18:19 -0500
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:33852 "EHLO
-	smtprelay05.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751715AbXANXSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 18:18:18 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Sun, 14 Jan 2007 18:18:17 EST
-Date: Mon, 15 Jan 2007 00:11:35 +0100
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.19] USB HID: proper LED-mapping (support for SpaceNavigator)
-Message-ID: <20070114231135.GA29966@budig.de>
+	Sun, 14 Jan 2007 18:36:56 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:46499 "EHLO enyo.dsw2k3.info"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751082AbXANXgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 18:36:55 -0500
+Message-ID: <45AABE8D.9010804@citd.de>
+Date: Mon, 15 Jan 2007 00:36:45 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
+References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de> <45AAA3C2.80603@student.ltu.se>
+In-Reply-To: <45AAA3C2.80603@student.ltu.se>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Simon Budig <simon@budig.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Simon Budig <simon@budig.de>
+Richard Knutsson wrote:
+> Matthias Schniedermeyer wrote:
+> 
+>> Richard Knutsson wrote:
+>>  
+>>
+>>> Matthias Schniedermeyer wrote:
+>>>
+>>>    
+>>>
+>>>> Richard Knutsson wrote:
+>>>>
+>>>>  
+>>>>
+>>>>      
+>>>>
+>>>>> Any thoughts on this is very much appreciated (is there any flaws with
+>>>>> this?).
+>>>>>             
+>>>>
+>>>> The thought that crossed my mind was:
+>>>>
+>>>> Why not do the same thing that was done to the "Help"-file. (Before it
+>>>> was superseded by Kconfig).
+>>>>
+>>>> Originaly there was a central Help-file, with all the texts. Then it
+>>>> was
+>>>> split and placed in each sub-dir. And later it was superseded by
+>>>> Kconfig.
+>>>>
+>>>> On the other hand you could skip the intermediate step and just fold
+>>>> the
+>>>> Maintainer-data directly into Kconfig, that way everything is "in one
+>>>> place" and you could place a "Maintainers"-Button next to the
+>>>> "Help"-Button in *config, or just display it alongside the help.
+>>>>
+>>>> And MAYBE that would also lessen the "update-to-date"-problem, as you
+>>>> can just write the MAINTAINERs-data when you create/update the
+>>>> Kconfig-file. Which is a thing that creates much bigger pain when you
+>>>> forget it accidently. ;-)
+>>>>
+>>>> Oh, and it neadly solves the mapping-problem, for at least all
+>>>> kernel-parts that have a Kconfig-option/Sub-Tree.
+>>>>         
+>>>
+>>> I'm all for splitting up the MAINTAINERS! :)
+>>>
+>>> Just, do you have any ideas how to solve the possible multiple of the
+>>> same entries, when handling multiple sub-directories and when many
+>>> different drivers with different maintainers are in the same directory
+>>> and a maintainer have more then one driver?
+>>>     
+>>
+>>
+>> Handles.
+>> If a Maintainer maintains several subsystems/drivers a "handle" could be
+>> used to references to a handle-list (hello MAINTAINERS) or to the place
+>> where the full-maintainers-entry is placed.
+>>   
+> 
+> Mm, and maybe store the entry on the shortest-pathway common directory.
+> Then there should be just a few left entries in the current MAINTAINERS.
+> But how to create the handles?
+> * Name (problem with persons with the same name)
+> * E-mail (much to change when they change it)
+> This also make a problem when there is a change of the maintainer, what
+> happens with the entry if there is no maintainer?
+> * Just numbers and increase every new one with one? (quite ugly!)
+> ... and here is the end of my ideas.
+> 
+> Any good ideas? (Really liked the idea to have a "Maintainer"-button
+> next to "Help" in *config)
 
-This change introduces a mapping for LED indicators between the USB HID
-specification and the Linux input subsystem. The previous code properly
-mapped the LEDs relevant for Keyboards, but garbeled the remaining ones.
-With this change all LED enums from the input system get mapped to more
-or less equivalent LED numbers from the HID specification.
+I'd say something like:
+<Initials/ShortenedName><Numbers>
+e.g.
+MS0001
+MaSchn001
+or something along that line.
 
-This patch also extends the debug output and ensures that the unused
-bits in a HID report to the device are zeroed out. This makes the
-3Dconnexion SpaceNavigator fully usable with the linux input system.
+Some people have several entries in the MAINTAINERs and a new way would
+have to make that possible too.
 
-Signed-off-by: Simon Budig <simon@budig.de>
 
-diff -uprN -X linux/Documentation/dontdiff linux/drivers/usb/input.orig/hid-core.c linux/drivers/usb/input/hid-core.c
---- linux/drivers/usb/input.orig/hid-core.c	2006-11-29 22:57:37.000000000 +0100
-+++ linux/drivers/usb/input/hid-core.c	2007-01-15 00:01:25.000000000 +0100
-@@ -1089,6 +1089,10 @@ static void hid_output_field(struct hid_
- 	unsigned size = field->report_size;
- 	unsigned n;
- 
-+	/* make sure the unused bits in the last byte are zeros */
-+	if (count > 0 && size > 0)
-+		data[(count*size-1)/8] = 0;
-+
- 	for (n = 0; n < count; n++) {
- 		if (field->logical_minimum < 0)	/* signed values */
- 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
-diff -uprN -X linux/Documentation/dontdiff linux/drivers/usb/input.orig/hid-debug.h linux/drivers/usb/input/hid-debug.h
---- linux/drivers/usb/input.orig/hid-debug.h	2006-11-29 22:57:37.000000000 +0100
-+++ linux/drivers/usb/input/hid-debug.h	2007-01-08 15:36:51.000000000 +0100
-@@ -700,9 +700,10 @@ static char *keys[KEY_MAX + 1] = {
- 
- static char *relatives[REL_MAX + 1] = {
- 	[REL_X] = "X",			[REL_Y] = "Y",
--	[REL_Z] = "Z",			[REL_HWHEEL] = "HWheel",
--	[REL_DIAL] = "Dial",		[REL_WHEEL] = "Wheel",
--	[REL_MISC] = "Misc",
-+	[REL_Z] = "Z",			[REL_RX] = "Rx",
-+	[REL_RY] = "Ry",		[REL_RZ] = "Rz",
-+	[REL_HWHEEL] = "HWheel",	[REL_DIAL] = "Dial",
-+	[REL_WHEEL] = "Wheel",		[REL_MISC] = "Misc",
- };
- 
- static char *absolutes[ABS_MAX + 1] = {
-diff -uprN -X linux/Documentation/dontdiff linux/drivers/usb/input.orig/hid-input.c linux/drivers/usb/input/hid-input.c
---- linux/drivers/usb/input.orig/hid-input.c	2006-11-29 22:57:37.000000000 +0100
-+++ linux/drivers/usb/input/hid-input.c	2007-01-08 17:20:16.000000000 +0100
-@@ -366,9 +366,22 @@ static void hidinput_configure_usage(str
- 			break;
- 
- 		case HID_UP_LED:
--			if (((usage->hid - 1) & 0xffff) >= LED_MAX)
--				goto ignore;
--			map_led((usage->hid - 1) & 0xffff);
-+
-+			switch (usage->hid & 0xffff) {                        /* HID-Value: */
-+				case 0x01:  map_led (LED_NUML);     break;    /* Num Lock */
-+				case 0x02:  map_led (LED_CAPSL);    break;    /* Caps Lock */
-+				case 0x03:  map_led (LED_SCROLLL);  break;    /* Scroll Lock */
-+				case 0x04:  map_led (LED_COMPOSE);  break;    /* Compose */
-+				case 0x05:  map_led (LED_KANA);     break;    /* Kana */
-+				case 0x27:  map_led (LED_SLEEP);    break;    /* Stand-By */
-+				case 0x4c:  map_led (LED_SUSPEND);  break;    /* System Suspend */
-+				case 0x09:  map_led (LED_MUTE);     break;    /* Mute */
-+				case 0x4b:  map_led (LED_MISC);     break;    /* Generic Indicator */
-+				case 0x19:  map_led (LED_MAIL);     break;    /* Message Waiting */
-+				case 0x4d:  map_led (LED_CHARGING); break;    /* External Power Connected */
-+
-+				default: goto ignore;
-+			}
- 			break;
- 
- 		case HID_UP_DIGITIZER:
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
+

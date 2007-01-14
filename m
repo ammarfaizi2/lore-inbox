@@ -1,90 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750959AbXANVkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751244AbXANWEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbXANVkW (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 16:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbXANVkW
+	id S1751244AbXANWEg (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 17:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbXANWEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 16:40:22 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:40011 "EHLO
-	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750959AbXANVkV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 16:40:21 -0500
-Message-ID: <45AAA3C2.80603@student.ltu.se>
-Date: Sun, 14 Jan 2007 22:42:26 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sun, 14 Jan 2007 17:04:36 -0500
+Received: from [169.222.10.252] ([169.222.10.252]:39485 "EHLO kernel.dk"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751244AbXANWEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 17:04:35 -0500
+X-Greylist: delayed 343 seconds by postgrey-1.27 at vger.kernel.org; Sun, 14 Jan 2007 17:04:35 EST
+Date: Mon, 15 Jan 2007 09:05:15 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: 2.6.20-rc4-mm1
+Message-ID: <20070114220515.GG5860@kernel.dk>
+References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Matthias Schniedermeyer <ms@citd.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
-References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de>
-In-Reply-To: <45A973A8.1000101@citd.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1168785616.2941.67.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> Richard Knutsson wrote:
->   
->> Matthias Schniedermeyer wrote:
->>
->>     
->>> Richard Knutsson wrote:
->>>
->>>  
->>>
->>>       
->>>> Any thoughts on this is very much appreciated (is there any flaws with
->>>> this?).
->>>>     
->>>>         
->>> The thought that crossed my mind was:
->>>
->>> Why not do the same thing that was done to the "Help"-file. (Before it
->>> was superseded by Kconfig).
->>>
->>> Originaly there was a central Help-file, with all the texts. Then it was
->>> split and placed in each sub-dir. And later it was superseded by Kconfig.
->>>
->>> On the other hand you could skip the intermediate step and just fold the
->>> Maintainer-data directly into Kconfig, that way everything is "in one
->>> place" and you could place a "Maintainers"-Button next to the
->>> "Help"-Button in *config, or just display it alongside the help.
->>>
->>> And MAYBE that would also lessen the "update-to-date"-problem, as you
->>> can just write the MAINTAINERs-data when you create/update the
->>> Kconfig-file. Which is a thing that creates much bigger pain when you
->>> forget it accidently. ;-)
->>>
->>> Oh, and it neadly solves the mapping-problem, for at least all
->>> kernel-parts that have a Kconfig-option/Sub-Tree.
->>>   
->>>       
->> I'm all for splitting up the MAINTAINERS! :)
->>
->> Just, do you have any ideas how to solve the possible multiple of the
->> same entries, when handling multiple sub-directories and when many
->> different drivers with different maintainers are in the same directory
->> and a maintainer have more then one driver?
->>     
->
-> Handles.
-> If a Maintainer maintains several subsystems/drivers a "handle" could be
-> used to references to a handle-list (hello MAINTAINERS) or to the place
-> where the full-maintainers-entry is placed.
->   
-Mm, and maybe store the entry on the shortest-pathway common directory. 
-Then there should be just a few left entries in the current MAINTAINERS. 
-But how to create the handles?
-* Name (problem with persons with the same name)
-* E-mail (much to change when they change it)
-This also make a problem when there is a change of the maintainer, what 
-happens with the entry if there is no maintainer?
-* Just numbers and increase every new one with one? (quite ugly!)
-... and here is the end of my ideas.
+On Sun, Jan 14 2007, Thomas Gleixner wrote:
+> On Sun, 2007-01-14 at 11:46 +0100, Thomas Gleixner wrote:
+> > > Boot proceeds, but gets stuck hard at:
+> > > "Remounting root filesystem in read-write mode:"
+> > > 
+> > > No SysRq-T, nothing.
+> > > 
+> > > The above BUG seems unrelated to that. Investigating further.
+> > 
+> > Bisect identified: git-block.patch
+> 
+> Does only happen on 2 systems. Both have sata + raid1 setup. I managed 
+> to get a stacktrace from the SMP box. Sits there and sleeps forever.
+> 
+> 	tglx
+> 
+> [<c032ac64>] io_schedule+0x7a/0x9a
+> [<c0157f89>] sleep_on_page+0x8/0xc
+> [<c032ae45>] __wait_on_bit+0x36/0x5d
+> [<c01580d8>] wait_on_page_bit+0x5b/0x61
+> [<c0158a2b>] wait_on_page_writeback_range+0x4f/0xef
+> [<c0158b0f>] filemap_fdatawait+0x44/0x49
+> [<c0158da0>] filemap_write_and_wait+0x22/0x2d
+> [<c0190e39>] sync_blockdev+0x17/0x1d
+> [<c01a27af>] quota_sync_sb+0x33/0xd6
+> [<c01a2874>] sync_dquots+0x22/0xfa
+> [<c01757cf>] __fsync_super+0x17/0x66
+> [<c0175829>] fsync_super+0xb/0x19
+> [<c0175880>] do_remount_sb+0x49/0x101
+> [<c0187f98>] do_mount+0x1ad/0x678
+> [<c01884d2>] sys_mount+0x6f/0xa4
+> [<c0103f6a>] sysenter_past_esp+0x5f/0x99
 
-Any good ideas? (Really liked the idea to have a "Maintainer"-button 
-next to "Help" in *config)
+raid seems to have severe problems with the plugging change. I'll try
+and find Neil and have a chat with him, hopefully we can work it out.
+
+-- 
+Jens Axboe
 

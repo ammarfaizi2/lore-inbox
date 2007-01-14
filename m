@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751673AbXANUsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751678AbXANVCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751673AbXANUsB (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 15:48:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbXANUsB
+	id S1751678AbXANVCj (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 16:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbXANVCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 15:48:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37547 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751672AbXANUsA (ORCPT
+	Sun, 14 Jan 2007 16:02:38 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:45497 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751678AbXANVCi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 15:48:00 -0500
-Subject: Re: allocation failed: out of vmalloc space error treating and
-	VIDEO1394 IOC LISTEN CHANNEL =?ISO-8859-1?Q?ioctl=A0failed?= problem
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Peter Antoniac <theSeinfeld@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <tkrat.832df3763908c060@s5r6.in-berlin.de>
-References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net>
-	 <200701100023.39964.theSeinfeld@users.sf.net>
-	 <tkrat.c0a43c7c901c438c@s5r6.in-berlin.de>
-	 <1168802934.3123.1062.camel@laptopd505.fenrus.org>
-	 <tkrat.832df3763908c060@s5r6.in-berlin.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 14 Jan 2007 12:48:00 -0800
-Message-Id: <1168807680.3123.1137.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 14 Jan 2007 16:02:38 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: icxcnika@mar.tar.cc, linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.20-rc4: usb somehow broken
+Date: Sun, 14 Jan 2007 22:03:02 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0701141418290.24969-100000@netrider.rowland.org> <Pine.LNX.4.64.0701141945010.14767@server.willdawg>
+In-Reply-To: <Pine.LNX.4.64.0701141945010.14767@server.willdawg>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701142203.03306.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2007-01-14 at 21:31 +0100, Stefan Richter wrote:
-> On 14 Jan, Arjan van de Ven wrote:
-> > vmalloc space is limited; you really can't assume you can get any more
-> > than 64Mb or so (and even then it's thight on some systems already);
+Am Sonntag, 14. Januar 2007 20:47 schrieb icxcnika@mar.tar.cc:
+> > When the scanner is not in use, the system automatically suspends it after
+> > two seconds.  When you use sane the scanner is resumed, but it then
+> > disconnects itself and reconnects.  Sane is left trying to control the
+> > disconnected device instance, so of course it fails.
+> >
+> > I'm beginning to think that we need some way to deal with devices that
+> > cannot recover from a suspend.  Several examples have cropped up.
+> > Unfortunately, I can't think of anything better than a blacklist, which is
+> > not very satisfactory.
+> >
+> > Can anyone suggest another approach?
+> >
+> > Alan Stern
 > 
-> I suppose "grep VmallocChunk /proc/meminfo" shows what is available?
-> 
-> > it really sounds like vmalloc space isn't the right solution for your
-> > problem whatever it is (context is lost in the quoted mail)...
-> > can you restate the problem to see if there's a better solution
-> > possible?
-> 
-> Thanks. Below is Peter's message to linux1394-devel. The previous
-> discussion went over libdc1394-devel which I don't receive. Obviously he
-> wants a really large buffer for reception of an isochronous stream. I
-> guess his reason is highly application specific...
+> Just a thought, you could use both a blacklist approach, and a module 
+> paramater, or something in sysfs, to allow specifying devices that won't 
+> be suspend and resume compatible.
 
+Yes,
+but in any case the sysfs attributes would have to populated somehow.
+You'd just shift the burden. As this behavior is hopefully rare, it's
+probably not worth the effort.
 
-but why does that even use vmalloc? You can just do a scatter gather
-thing instead... and keep a list of pages that you're mapping into
-userspace. vmalloc isn't really a requirement for that....
+I can't think of anything better than a blacklist.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+	Regards
+		Oliver

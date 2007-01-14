@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751632AbXANTbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751647AbXANTka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751632AbXANTbG (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 14:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbXANTbG
+	id S1751647AbXANTka (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 14:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbXANTka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 14:31:06 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:50614 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751635AbXANTbF (ORCPT
+	Sun, 14 Jan 2007 14:40:30 -0500
+Received: from moutng.kundenserver.de ([212.227.126.179]:55157 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751646AbXANTk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 14:31:05 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GZJRdz8I5RqPOtJ58eHVQB/YisMhXMjIwkMeBaFdRljOTK7h6lSMTjF4NEoubyk13Bub32PZVLUGry5YvODWMsBDobpoGogeRbvtz4yWZcsITVVFVhm5gWHFIq7Bhb8Q/8oaemFbOPC4LnjXYEo8zjs27KybOCkq6wNbJfc0ZXU=
-Message-ID: <21d7e9970701141131n24bb371di2c941c681b4afdf8@mail.gmail.com>
-Date: Mon, 15 Jan 2007 06:31:01 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH 2.6.20-rc5] intel_rng: substitue magic PCI IDs with macros
-Cc: "Ahmed S. Darwish" <darwish.07@gmail.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1168796241.3123.954.camel@laptopd505.fenrus.org>
+	Sun, 14 Jan 2007 14:40:29 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: O_DIRECT question
+To: Bill Davidsen <davidsen@tmr.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       Chris Mason <chris.mason@oracle.com>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 14 Jan 2007 20:39:50 +0100
+References: <7BYkO-5OV-17@gated-at.bofh.it> <7BYul-6gz-5@gated-at.bofh.it> <7C74B-2A4-23@gated-at.bofh.it> <7CaYA-mT-19@gated-at.bofh.it> <7Cpuz-64X-1@gated-at.bofh.it> <7Cz0T-4PH-17@gated-at.bofh.it> <7CBcl-86B-9@gated-at.bofh.it> <7CBvH-52-9@gated-at.bofh.it> <7CBFn-hw-1@gated-at.bofh.it> <7CBP1-KI-3@gated-at.bofh.it> <7CBYG-WK-3@gated-at.bofh.it> <7CXmz-88G-29@gated-at.bofh.it> <7CXFR-8vZ-15@gated-at.bofh.it> <7DfMP-2ak-19@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070114172421.GA3874@Ahmed>
-	 <1168796241.3123.954.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1H6BCo-0000mv-TY@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/15/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sun, 2007-01-14 at 19:24 +0200, Ahmed S. Darwish wrote:
-> > Substitue intel_rng magic PCI IDs values used in the IDs table
-> > with the macros defined in pci_ids.h
-> >
-> Hi,
->
->
-> hmm this is actually the opposite direction than most of the kernel is
-> heading in, mostly because the pci_ids.h file is a major maintenance
-> pain.
->
-> Afaik the current "rule" is: if a PCI ID is only used in one driver, use
-> the numeric value and not (add) a symbolic constant.
->
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-My guess is that the RNG is on the LPC so the values are used in a few places..
+> My point is, that there is code to handle sparse data now, without
+> O_DIRECT involved, and if O_DIRECT bypasses that, it's not a problem
+> with the idea of O_DIRECT, the kernel has a security problem.
 
-Dave.
+The idea of O_DIRECT is to bypass the pagecache, and the pagecache is what
+provides the security against reading someone else's data using sparse
+files or partial-block-IO.

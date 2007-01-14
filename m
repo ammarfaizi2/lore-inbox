@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751447AbXANSHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751463AbXANSuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbXANSHH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 13:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbXANSHH
+	id S1751463AbXANSuK (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 13:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbXANSuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 13:07:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37285 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751447AbXANSHG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 13:07:06 -0500
-Subject: Re: ahci_softreset prevents acpi_power_off
-From: Arjan van de Ven <arjan@infradead.org>
-To: Faik Uygur <faik@pardus.org.tr>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Tejun Heo <htejun@gmail.com>, Jeff Garzik <jeff@garzik.org>
-In-Reply-To: <200701141959.40673.faik@pardus.org.tr>
-References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no>
-	 <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>
-	 <200701141959.40673.faik@pardus.org.tr>
-Content-Type: text/plain; charset=UTF-8
-Organization: Intel International BV
-Date: Sun, 14 Jan 2007 10:06:18 -0800
-Message-Id: <1168797978.3123.997.camel@laptopd505.fenrus.org>
+	Sun, 14 Jan 2007 13:50:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53038 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751463AbXANSuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 13:50:09 -0500
+Subject: Re: Shrink the held_lock struct by using bitfields.
+From: Ingo Molnar <mingo@redhat.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+In-Reply-To: <20070102233824.GF18033@redhat.com>
+References: <20070102233558.GA4577@redhat.com>
+	 <20070102233824.GF18033@redhat.com>
+Content-Type: text/plain
+Date: Sun, 14 Jan 2007 19:45:50 +0100
+Message-Id: <1168800350.32239.13.camel@earth>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2007-01-14 at 19:59 +0200, Faik Uygur wrote:
-> 14 Oca 2007 Paz 03:23 tarihinde, Robert Hancock şunları yazmıştı: 
-> >> [...]
-> >> > Since you're getting to this point I think this has to be some kind of 
-> > BIOS interaction causing this. The only thing that happens after the
-> > "Entering sleep state" is that the kernel writes to some ACPI registers
-> > to tell the hardware to power down. I think some laptop BIOSes do things
-> > on ACPI power down like try to park the drive heads, etc. and maybe this
-> > change that you found from git bisecting is somehow interfering with it
-> > doing this?
-> >
-> > Might want to check for a BIOS update first of all..
-> 
-> Checked from the Sony support page for the laptop model and seems the BIOS 
-> version is the latest.
-> 
-> So it is nothing interesting but a broken BIOS.
+On Tue, 2007-01-02 at 18:38 -0500, Dave Jones wrote:
+> +       unsigned char irq_context:1;
+> +       unsigned char trylock:1;
+> +       unsigned char read:2;
+> +       unsigned char check:1;
+> +       unsigned char hardirqs_off:1; 
 
-Hi,
+cool! I totally missed those. I'd even do this for 2.6.20, but it's
+probably too late for that.
 
-I'd be interested in finding out how to best test this; if the bios is
-really broken I'd love to add a test to the Linux-ready Firmware
-Developer Kit for this, so that BIOS developers can make sure future
-bioses do not suffer from this bug...
+Acked-by: Ingo Molnar <mingo@redhat.com>
 
-Greetings,
-   Arjan van de Ven
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+	Ingo
 

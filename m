@@ -1,115 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751451AbXAOWO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751454AbXAOW0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbXAOWO5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 17:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbXAOWO5
+	id S1751454AbXAOW0e (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 17:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbXAOW0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 17:14:57 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:42039 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751451AbXAOWO4 (ORCPT
+	Mon, 15 Jan 2007 17:26:34 -0500
+Received: from mail1.key-systems.net ([81.3.43.211]:57290 "HELO
+	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751454AbXAOW0d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 17:14:56 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=Mqanmut9yDFXfl9qbZYaNRIlHXMYiqdEXhLhswQbg/LgTDIh6gsSdCEHDT+K5UXruKhI9RVDNIHe8uWn5j+4P9u+d/p3l/7f4wA2iB7y8oXrMOVqmivRPblN6CuPxrDHRBsmqZFh0o+EL/jprjuawHdx6QMhHyHvOPw0TFYb+g8=
-Date: Tue, 16 Jan 2007 01:14:32 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] seq_file conversion: toshiba.c
-Message-ID: <20070115221432.GA31293@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 15 Jan 2007 17:26:33 -0500
+Message-ID: <45ABFF95.1000105@scientia.net>
+Date: Mon, 15 Jan 2007 23:26:29 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: mistysga@googlemail.com
+CC: Chris Wedgwood <cw@f00f.org>, Karsten Weiss <knweiss@gmx.de>,
+       linux-kernel@vger.kernel.org, ak@suse.de, andersen@codepoet.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
+ hole mapping related bug?!
+References: <4570CF26.8070800@scientia.net> <Pine.LNX.4.64.0612021048200.2981@addx.localnet> <45804C0B.4030109@scientia.net> <Pine.LNX.4.64.0612132014340.2963@addx.localnet> <45805E71.6060006@scientia.net> <20061214093428.GA1086@tuatara.stupidest.org>
+In-Reply-To: <20061214093428.GA1086@tuatara.stupidest.org>
+Content-Type: multipart/mixed;
+ boundary="------------080401090101060403000203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile-tested.
+This is a multi-part message in MIME format.
+--------------080401090101060403000203
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Hi.
 
- drivers/char/toshiba.c |   35 +++++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
+Some days ago I received the following message from "Sunny Days". I
+think he did not send it lkml so I forward it now:
 
---- a/drivers/char/toshiba.c
-+++ b/drivers/char/toshiba.c
-@@ -68,6 +68,7 @@ #include <asm/uaccess.h>
- #include <linux/init.h>
- #include <linux/stat.h>
- #include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
- 
- #include <linux/toshiba.h>
- 
-@@ -298,12 +299,10 @@ static int tosh_ioctl(struct inode *ip, 
-  * Print the information for /proc/toshiba
-  */
- #ifdef CONFIG_PROC_FS
--static int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
-+static int proc_toshiba_show(struct seq_file *m, void *v)
- {
--	char *temp;
- 	int key;
- 
--	temp = buffer;
- 	key = tosh_fn_status();
- 
- 	/* Arguments
-@@ -314,8 +313,7 @@ static int tosh_get_info(char *buffer, c
- 	     4) BIOS date (in SCI date format)
- 	     5) Fn Key status
- 	*/
--
--	temp += sprintf(temp, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
-+	seq_printf(m, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
- 		tosh_id,
- 		(tosh_sci & 0xff00)>>8,
- 		tosh_sci & 0xff,
-@@ -323,9 +321,21 @@ static int tosh_get_info(char *buffer, c
- 		tosh_bios & 0xff,
- 		tosh_date,
- 		key);
-+	return 0;
-+}
- 
--	return temp-buffer;
-+static int proc_toshiba_open(struct inode *inode, struct file *file)
-+{
-+	return single_open(file, proc_toshiba_show, NULL);
- }
-+
-+static const struct file_operations proc_toshiba_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= proc_toshiba_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= single_release,
-+};
- #endif
- 
- 
-@@ -508,10 +518,15 @@ static int __init toshiba_init(void)
- 		return retval;
- 
- #ifdef CONFIG_PROC_FS
--	/* register the proc entry */
--	if (create_proc_info_entry("toshiba", 0, NULL, tosh_get_info) == NULL) {
--		misc_deregister(&tosh_device);
--		return -ENOMEM;
-+	{
-+		struct proc_dir_entry *pde;
-+
-+		pde = create_proc_entry("toshiba", 0, NULL);
-+		if (!pde) {
-+			misc_deregister(&tosh_device);
-+			return -ENOMEM;
-+		}
-+		pde->proc_fops = &proc_toshiba_fops;
- 	}
- #endif
- 
+Sunny Days wrote:
+> hello,
+>
+> i have done some extensive testing on this.
+>
+> various opterons, always single socket
+> various dimms 1 and 2gb modules
+> and hitachi+seagate disks with various firmwares and sizes
+> but i am getting a diferent pattern in the corruption.
+> My test file was 10gb.
+>
+> I have mapped the earliest corruption as low as 10mb in the written data.
+> i have also monitor the adress range used from the cp /md5sum proccess
+> under /proc//$PID/maps to see if i could find a pattern but i was
+> unable to.
+>
+> i also tested ext2 and lvm with similar results aka corruption.
+> later on the week i should get a pci promise controller and test on that one.
+>
+> Things i have not tested is the patch that linus released 10 days ago
+> and reiserfs3/4
+>
+> my nvidia chipset was ck804 (a3)
+>
+> Hope somehow we get to the bottom of this.
+>
+> Hope this helps
+>
+>
+> btw amd erratas that could possible influence this are
+>
+> 115, 123, 156 with the latter been fascinating as it the workaround
+> suggested is 0x0 page entry.
+>
+>   
 
+Does anyone has any opinions about this? Could you please read the
+mentioned erratas and tell me what you think?
+
+Best wishes,
+Chris.
+
+@ Sunny Days: Thanks for you mail.
+
+--------------080401090101060403000203
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------080401090101060403000203--

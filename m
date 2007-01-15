@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932293AbXAONDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932305AbXAONDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbXAONDP (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbXAONDP
+	id S932305AbXAONDj (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbXAONDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:03:15 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:58535 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932293AbXAONDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:03:14 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Mon, 15 Jan 2007 07:32:46 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Ben Dooks <ben-linux@fluff.org>
-cc: rpurdie@rpsys.net, linux-kernel@vger.kernel.org
-Subject: Re: LEDS: S3C24XX generate name if none given
-In-Reply-To: <20070115122654.GA25047@home.fluff.org>
-Message-ID: <Pine.LNX.4.64.0701150732190.2742@CPE00045a9c397f-CM001225dbafb6>
-References: <20070115122654.GA25047@home.fluff.org>
+	Mon, 15 Jan 2007 08:03:39 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:47550 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932305AbXAONDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:03:38 -0500
+Date: Mon, 15 Jan 2007 14:01:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Patrick McHardy <kaber@trash.net>
+cc: David Madore <david.madore@ens.fr>, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] netfilter: implement TCPMSS target for IPv6
+In-Reply-To: <45AB54E5.6060103@trash.net>
+Message-ID: <Pine.LNX.4.61.0701151358130.13639@yvahk01.tjqt.qr>
+References: <20070114192011.GA6270@clipper.ens.fr>
+ <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr> <45AB3DCA.9020204@trash.net>
+ <Pine.LNX.4.61.0701151109540.32479@yvahk01.tjqt.qr> <45AB54E5.6060103@trash.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2007, Ben Dooks wrote:
 
-> Generate a name if none is passed to the S3C24XX GPIO LED driver.
+On Jan 15 2007 11:18, Patrick McHardy wrote:
+>Jan Engelhardt wrote:
+>> On Jan 15 2007 09:39, Patrick McHardy wrote:
+>> 
+>>>I'm not sure how well that will work (the IPv4/IPv6-specific stuff
+>>>is spread over the entire target function), but its worth a try.
+>> 
+>> 
+>> well here's a q: would a patch be accepted that changes
+>> all ipt and ip6t modules to the new xt? Even if a module is only for
+>> ipv4 or ipv6, I think it makes sense to reduce the number of
+>> different *t structures floating around.
 >
-> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
->
-> diff -urpN -X ../dontdiff linux-2.6.19/drivers/leds/leds-s3c24xx.c linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c
-> --- linux-2.6.19/drivers/leds/leds-s3c24xx.c	2006-11-29 21:57:37.000000000 +0000
-> +++ linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c	2007-01-04 10:22:58.000000000 +0000
-> @@ -23,6 +23,8 @@
->  /* our context */
->
->  struct s3c24xx_gpio_led {
-> +	char				 name[32];
-> +
->  	struct led_classdev		 cdev;
->  	struct s3c24xx_led_platdata	*pdata;
->  };
-> @@ -85,6 +87,14 @@ static int s3c24xx_led_probe(struct plat
->
->  	led->pdata = pdata;
->
-> +	/* create name if we where not passed one */
-                             ^^^^^ "were"
+>If you're talking about using the xt-structures in net/ipv[46]/netfilter
+>and removing the ipt/ip6t-wrappers, that would make sense IMO.
+
+Yup. Should the files then be renamed/moved to net/netfilter/xt_[foobaz].c
+in a second step?
+
+Should I leave ipt_TCPMSS/ip6t_TCPMSS untouched while you are working on 
+that one?
 
 
-rday
+	-`J'
+-- 

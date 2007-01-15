@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932268AbXAOMNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932271AbXAOMNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbXAOMNU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 07:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbXAOMNU
+	id S932271AbXAOMNk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 07:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbXAOMNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 07:13:20 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:51872 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932268AbXAOMNT (ORCPT
+	Mon, 15 Jan 2007 07:13:39 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:58517 "HELO
+	embla.aitel.hist.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932271AbXAOMNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 07:13:19 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Mon, 15 Jan 2007 06:43:30 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: kkeil@suse.de
-Subject: any value to fixing apparent bugs in old ISDN4Linux?
-Message-ID: <Pine.LNX.4.64.0701150634270.1953@CPE00045a9c397f-CM001225dbafb6>
+	Mon, 15 Jan 2007 07:13:38 -0500
+Message-ID: <45AB6F69.6030004@aitel.hist.no>
+Date: Mon, 15 Jan 2007 13:11:21 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Chris Mason <chris.mason@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
+       dean gaudet <dean@arctic.org>, Viktor <vvp01@inbox.ru>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <45A629E9.70502@inbox.ru> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <Pine.LNX.4.64.0701112351520.18431@twinlark.arctic.org> <Pine.LNX.4.64.0701120955440.3594@woody.osdl.org> <20070112202316.GA28400@think.oraclecorp.com> <45A7F396.4080600@tls.msk.ru>
+In-Reply-To: <45A7F396.4080600@tls.msk.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Tokarev wrote:
+> Chris Mason wrote:
+> []
+>   
+>> I recently spent some time trying to integrate O_DIRECT locking with
+>> page cache locking.  The basic theory is that instead of using
+>> semaphores for solving O_DIRECT vs buffered races, you put something
+>> into the radix tree (I call it a placeholder) to keep the page cache
+>> users out, and lock any existing pages that are present.
+>>     
+>
+> But seriously - what about just disallowing non-O_DIRECT opens together
+> with O_DIRECT ones ?
+>   
+Please do not create a new local DOS attack.
+I open some important file, say /etc/resolv.conf
+with O_DIRECT and just sit on the open handle.
+Now nobody else can open that file because
+it is "busy" with O_DIRECT ?
 
-$ grep -r DE_AOC .
-./.config:CONFIG_DE_AOC=y
-./drivers/isdn/hisax/l3dss1.c:#ifdef HISAX_DE_AOC
-./drivers/isdn/hisax/l3dss1.c:#else  /* not HISAX_DE_AOC */
-./drivers/isdn/hisax/l3dss1.c:#endif /* not HISAX_DE_AOC */
-./drivers/isdn/hisax/Kconfig:config DE_AOC
-
-  it seems like there's a name mismatch between the config variable
-and the one that's being tested, no?
-
-  OTOH, since that code *is* in the allegedly obsolete old ISDN4Linux
-code, perhaps that entire part of the tree can just be junked.  but if
-it's sticking around, it should probably be fixed.
-
-  unless i'm misreading something up there.
-
-rday
+Helge Hafting

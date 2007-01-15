@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751732AbXANX6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751734AbXAOABd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbXANX6T (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 18:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbXANX6T
+	id S1751734AbXAOABd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbXAOABd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 18:58:19 -0500
-Received: from iucha.net ([209.98.146.184]:39713 "EHLO mail.iucha.net"
+	Sun, 14 Jan 2007 19:01:33 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:46786 "EHLO enyo.dsw2k3.info"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751732AbXANX6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 18:58:18 -0500
-Date: Sun, 14 Jan 2007 17:58:17 -0600
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jiri Kosina <jikos@jikos.cz>, linux-usb-devel@lists.sourceforge.net,
-       Adrian Bunk <bunk@stusta.de>, Alan Stern <stern@rowland.harvard.edu>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: heavy nfs[4]] causes fs badness Was: 2.6.20-rc4: known unfixed regressions (v2)
-Message-ID: <20070114235816.GB6053@iucha.net>
-References: <20070109214431.GH24369@iucha.net> <Pine.LNX.4.44L0.0701101052310.3289-100000@iolanthe.rowland.org> <20070114225701.GA6053@iucha.net>
+	id S1751734AbXAOABc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 19:01:32 -0500
+Message-ID: <45AAC44D.808@citd.de>
+Date: Mon, 15 Jan 2007 01:01:17 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
-Content-Disposition: inline
-In-Reply-To: <20070114225701.GA6053@iucha.net>
-X-GPG-Key: http://iucha.net/florin_iucha.gpg
-X-GPG-Fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: florin@iucha.net (Florin Iucha)
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Richard Knutsson <ricknu-0@student.ltu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
+References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de> <45AAA3C2.80603@student.ltu.se> <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de>
+In-Reply-To: <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stefan Richter wrote:
+> On 14 Jan, Richard Knutsson wrote:
+> 
+>>(Really liked the idea to have a "Maintainer"-button 
+>>next to "Help" in *config)
+> 
+> 
+> Rhetorical question: What will this button be used for?
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Having "all(tm)" information of something in one place?
+Help-Text and Dependencies/Selects are already there.
+I think adding the Maintainers-data is more or less a logical next step.
 
-On Sun, Jan 14, 2007 at 04:57:01PM -0600,  wrote:
-> On Wed, Jan 10, 2007 at 10:54:34AM -0500, Alan Stern wrote:
-> > It's still possible that this is hardware related; perhaps some compone=
-nt
-> > just began to wear out.  If you return to an earlier kernel, does the=
-=20
-> > problem go away?
->=20
-> As reported in my original e-mail and verified just minutes ago, the
-> copy succeeds with 2.6.19 (kernel.org vanilla, compiled with the same
-> config as 2.6.20-rcX).  I will begin bisecting between .19 and .20-rc1
-> after re-reading Jiri's messages.
+It's not always clear from the MAINTAINERS-file who is the right person
+for what. Especially as it is a rather large text-file with only
+mediocre search-friendlieness. It's a 3.5 K-lines file!
 
-All the testing was done via a ssh into the workstation.  The console
-was left as booted into, with the gdm running.  The remote nfs4
-directory was mounted on "/mnt".
+So when you know that you have a problem with drivers X, wouldn't it be
+great if you could just "go to" the driver in *config and see not only
+the Help-Text but the Maintainers-Data also.
+And you can place "Fallback"-Maintainers-Data on Tree-Parents, for the
+cases where you only can pinpoint a area, like when you have a problem
+with a USB-device.
 
-After copying the 60+ GB and testing that the keyboard was still
-functioning, I did not reboot but stayed in the same kernel and pulled
-the latest git then started bisecting.  After recompiling, I moved
-over to the workstation to reboot it, but the keyboard was not
-functioning ;(
 
-I ran "lsusb" and it displayed all the devices. "dmesg" did not show
-any oops, anything for that matter.  I have unplugged the keyboard and
-run "lsusb" again, but it hang.  I ran "ls /mnt" and it hang as well.
-Stracing "lsusb" showed it hang (entered the kernel) at opening the device
-that used to be the keyboard.  Stracing "ls /mnt" showed that it
-hang at "stat(/mnt)".  Both processes were in "D" state.  "ls /root"
-worked without problem, so it appears that crossing mountpoints causes
-some hang in the kernel.
+I can ask a rhetorical question too:
+Why not go back to Config.help. Having a huge X K-Lines file with
+everything in one file can't be that bad. It worked before!
 
-Based on this info, I think we can rule out any USB.  I will try
-testing with NFS3 to see if the problem persists.  Unfortunately there
-is no oops or anything in "dmesg".
 
-florin
 
---=20
-Bruce Schneier expects the Spanish Inquisition.
-      http://geekz.co.uk/schneierfacts/fact/163
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Bis denn
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
 
-iD8DBQFFqsOYND0rFCN2b1sRAnI7AJ4ykBSkPaoxRoLDuXoJoHxY1drk/gCgqdOJ
-WbfXOT6vh+/8Uh83CRi/Ubk=
-=fUzK
------END PGP SIGNATURE-----
-
---O5XBE6gyVG5Rl6Rj--

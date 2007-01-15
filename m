@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932237AbXAOLfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932245AbXAOLnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbXAOLfN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 06:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbXAOLfN
+	id S932245AbXAOLnG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 06:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbXAOLnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 06:35:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55111 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932237AbXAOLfM (ORCPT
+	Mon, 15 Jan 2007 06:43:06 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:47625 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932245AbXAOLnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 06:35:12 -0500
-Subject: Re: 2.6.20-rc4-mm1: status of sn9c102_pas202bca?
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       v4l-dvb-maintainer@linuxtv.org
-In-Reply-To: <20070113072718.GI7469@stusta.de>
-References: <20070111222627.66bb75ab.akpm@osdl.org>
-	 <20070113072718.GI7469@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 15 Jan 2007 09:34:34 -0200
-Message-Id: <1168860874.5387.1.camel@areia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 15 Jan 2007 06:43:05 -0500
+X-Originating-Ip: 74.109.98.130
+Date: Mon, 15 Jan 2007 06:18:30 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: Another potential kbuild cleanup -- "def_boolean"
+Message-ID: <Pine.LNX.4.64.0701150615230.1768@CPE00045a9c397f-CM001225dbafb6>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
 
-Em Sáb, 2007-01-13 às 08:27 +0100, Adrian Bunk escreveu: 
-> On Thu, Jan 11, 2007 at 10:26:27PM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.20-rc3-mm1:
-> >...
-> >  git-dvb.patch
-> >...
-> >  git trees
-> >...
-> 
-> drivers/media/video/sn9c102/sn9c102_pas202bca.c is no longer used or 
-> built but still shipped.
+  while the kconfig parser recognizes both "def_bool" and
+"def_boolean", apparently no one uses the longer form, so it's
+probably safe to toss if there are no plans to use it in the future.
 
-Ok, fixed and folded at the original patch. It should be at the next
-git-dvb.patch, after Andrew updates it from my tree.
-
-> cu
-> Adrian
-> 
-
+rday

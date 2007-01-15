@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932330AbXAONgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932335AbXAONnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbXAONgn (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbXAONgn
+	id S932335AbXAONnB (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbXAONnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:36:43 -0500
-Received: from an-out-0708.google.com ([209.85.132.243]:43890 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932330AbXAONgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:36:42 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Jl0b/qgbKEUty+vNXFKkpoyLiHV90aVCerWdnKJsd77cEstRrXbWBWOlC73ikbGI0GG+dgfkmRFmBPL+P2/51k37dkZgFSZa8ZN2Xmhxnns2aqxgv/IZlfbr2SiT1HgwkgQWWgL7AwHR40VnDKRSvvTyrnIbFBHV1pXd293gDHE=
-Message-ID: <5d96567b0701150536j4c3c50abndec5155ddb53d4a1@mail.gmail.com>
-Date: Mon, 15 Jan 2007 15:36:41 +0200
-From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: [DISCUSS] memory allocation method
+	Mon, 15 Jan 2007 08:43:01 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:47477 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932335AbXAONnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:43:01 -0500
+Message-ID: <45AB84D8.3020507@garzik.org>
+Date: Mon, 15 Jan 2007 08:42:48 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Robert Hancock <hancockr@shaw.ca>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrin?= =?ISO-8859-1?Q?k?= 
+	<B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <45AAC95B.1020708@garzik.org> <45AAE635.8090308@shaw.ca> <20070115025319.GC4516@kernel.dk>
+In-Reply-To: <20070115025319.GC4516@kernel.dk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a process who allocates as much as possible of RAM
-in 4 G ram 32bit machine.  This buffer is never released.
+Jens Axboe wrote:
+> I'd be surprised if the device would not obey the 7 second timeout rule
+> that seems to be set in stone and not allow more dirty in-drive cache
+> than it could flush out in approximately that time.
 
-Questions:
+AFAIK Windows flush-cache timeout is 30 seconds, not 7 as with other 
+commands...
 
-1. Is it better allocates with many 1MB buffers or allocate it in with
-one a big valloc ?
 
-2. I will be needing to make this memory allocation in many other
-machines , some have 2 GRAM and some 3 GRAM. what is the preferrable
-method  ?
+> And BUSY should also be set for that case, as Robert indicates.
 
-3. In 64bit machines , is it possible to allocate huge buffers , such
-as 30 GB of ram ?
+Agreed.
 
-Thank you
--- 
-Raz
+	Jeff
+
+
+

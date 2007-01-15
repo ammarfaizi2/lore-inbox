@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751438AbXAOTur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751448AbXAOTyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbXAOTur (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 14:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbXAOTur
+	id S1751448AbXAOTyc (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 14:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbXAOTyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 14:50:47 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:53986 "EHLO
-	vms044pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751438AbXAOTuq (ORCPT
+	Mon, 15 Jan 2007 14:54:32 -0500
+Received: from [195.171.73.133] ([195.171.73.133]:34685 "EHLO
+	pelagius.h-e-r-e-s-y.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1751448AbXAOTyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 14:50:46 -0500
-Date: Mon, 15 Jan 2007 14:50:29 -0500
-From: Eric Buddington <ebuddington@verizon.net>
-Subject: Re: 2.6.20-rc4-mm1 USB (asix) problem
-In-reply-to: <1168889276.19899.105.camel@dhollis-lnx.sunera.com>
-To: David Hollis <dhollis@davehollis.com>
-Cc: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
-Reply-to: ebuddington@wesleyan.edu
-Message-id: <20070115195024.GA8135@pool-71-123-103-45.spfdma.east.verizon.net>
-Organization: ECS Labs
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-References: <20070113203113.GB14587@pool-71-123-103-45.spfdma.east.verizon.net>
- <1168889276.19899.105.camel@dhollis-lnx.sunera.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Eric-conspiracy: there is no conspiracy
+	Mon, 15 Jan 2007 14:54:31 -0500
+Message-ID: <45ABDBF5.9000900@walrond.org>
+Date: Mon, 15 Jan 2007 19:54:29 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070103)
+MIME-Version: 1.0
+To: Olaf Hering <olaf@aepfle.de>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Initramfs and /sbin/hotplug fun
+References: <45AB8CB9.2000209@walrond.org> <20070115170412.GA26414@aepfle.de> <45ABBB8B.6000505@walrond.org> <20070115175437.GA26944@aepfle.de>
+In-Reply-To: <20070115175437.GA26944@aepfle.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 07:27:56PM +0000, David Hollis wrote:
-> Do you happen to have a Rev. B1 DLink adapter?  If so, the only change
-> that was put in (PHY Select fix) should actually make these devices
-> work.  Can you check the top of the ax88772_bind() call in your file and
-> see if it has this bit:
+Olaf Hering wrote:
 > 
->         if ((ret = asix_write_cmd(dev, AX_CMD_SW_PHY_SELECT,
->                                 1, 0, 0, buf)) < 0) {
->                 dbg("Select PHY #1 failed: %d", ret);
->                 goto out2;
->         }
-> 
-> 
-> That '1' after the AX_CMD_SW_PHY_SELECT was the key to that patch.  If
-> yours is 1, you could try setting it to 0, though that should make
-> things not work.  I'd very interested if it made things work for you.
-> BTW, the ramifications of this bug were similar to what you describe:
-> the interface would come up, look fine but just wouldn't send or receive
-> any packets. The hard lock-ups and such are likely from something else.
+> Why do you need /sbin/hotplug anyway, just for firmware loading for a
+> non-modular kernel?
 
-I don't know the Rev number of the adapter; I can't get to it physically
-today, and I don't see it in dmesg.
+I guess this is unusual, but FWIW...
 
-The asix_write_cmd argument in question did indeed change from 0 to 1
-between 2.6.20-rc3-mm1 and -rc4-mm1. I'll change it back, rebuild,
-and test. Probably tomorrow.
+I have a custom distro and I was just looking for the easiest way to 
+create a bootable rescue pen-drive. So I just took a working distro, 
+added an init->sbin/init symlink, cpio'ed it into an initramfs, and 
+booted it up. Works a treat, except for the early hotplug calls.
 
-Thanks.
+Andrew
 
--Eric

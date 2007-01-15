@@ -1,75 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932336AbXAOOAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750696AbXAOOGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbXAOOAl (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 09:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbXAOOAl
+	id S1750696AbXAOOGZ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 09:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbXAOOGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 09:00:41 -0500
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:50832 "EHLO
-	mail.first.fraunhofer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932353AbXAOOAk (ORCPT
+	Mon, 15 Jan 2007 09:06:25 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:33910 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750696AbXAOOGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 09:00:40 -0500
-Subject: Re: prioritize PCI traffic ?
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <45AB8768.7000907@linux.vnet.ibm.com>
-References: <1168859265.15294.8.camel@localhost>
-	 <45AB8768.7000907@linux.vnet.ibm.com>
-Content-Type: text/plain
+	Mon, 15 Jan 2007 09:06:24 -0500
+Message-ID: <45AB8A5E.7040006@s5r6.in-berlin.de>
+Date: Mon, 15 Jan 2007 15:06:22 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: Philipp Beyer <philipp.beyer@alliedvisiontec.com>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: ieee1394 feature needed: overwrite SPLIT_TIMEOUT from userspace
+References: <1168602157.5074.4.camel@ahr-pbe-lx.avtnet.local>	 <tkrat.0ae1f576575bc02e@s5r6.in-berlin.de> <1168867271.5190.9.camel@ahr-pbe-lx.avtnet.local>
+In-Reply-To: <1168867271.5190.9.camel@ahr-pbe-lx.avtnet.local>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Mon, 15 Jan 2007 15:00:30 +0100
-Message-Id: <1168869630.15294.44.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-15 at 19:23 +0530, Vaidyanathan Srinivasan wrote:
-> Soeren Sonnenburg wrote:
-> > Dear all,
-> > 
-> > is it possible to explicitly tell the kernel to prioritize PCI traffic
-> > for a number of cards in pci slots x,y,z ?
-> > 
-> > I am asking as severe ide traffic causes lost frames when watching TV
-> > using 2 DVB cards + vdr... This is simply due to the fact that the PCI
-> > bus is saturated...
+Philipp Beyer wrote:
+> Thanks for your input. My post was based on the (wrong) idea that
+> the kernel already uses different timeout values per node.
 > 
-> How do you know that the bus is saturated?
-
-I simply dd if=/dev/sd? of=/dev/null from four brand new sata-harddisks.
-
-> Are you streaming data to/from the ide hard disks/CDROM?
-
-yes.
-
-> Do you have DMAs 'ON' for the hard disks?
-
-yes.
-
-> Is everything just fine if there are no IDE traffic?
-
-yes.
-
-> Are you running 2.6 kernel with preempt 'ON'?
-
-no: CONFIG_PREEMPT_NONE=y
-
-> Are all hardware on the same IRQ line? (shared interrupts)
-
-no: libata devices are on IRQ 16 and DVB devices on IRQ 20
-
-> > So, is any prioritizing of the PCI bus possible ?
+> Therefore, having read your answer, I have a different opinion about
+> how to solve this now.
 > 
-> The drivers + application indirectly can control priority on the
-> bus.  Just reduce the priority of the application that uses IDE and
-> see if adjusting nice values of applications can change the scenario.
+> About your suggestions:
+> Unfortunately sending an early response and using a secondary register
+> as indication for completed flash writes doesnt work. In short, the
+> device isn't able to process packets while writing to flash and an early
+> answer followed by a period of non-responsiveness might lead to problems
+> on the windows side.
 
-That unfortunately did not help... no change...
+You don't need the early response if you would have the extra register.
+(The config ROM instead of a register might work too.)
 
-Soeren
+01) PC: sends write request (or whatever)
+02) Dev: starts to process request, doesn't send response
+03) PC: transaction times out
+04) PC: now knows that either the request failed or the Dev is now busy
+05) PC: sends read request to special register or to config ROM
+<if Dev ready goto 08>
+06) Dev: doesn't respond or even ack
+07) PC: transaction times out
+<goto 05>
+08) Dev: responds to read request
+09) PC: now assumes or knows that the request 01 was actually successful
+
+If you used a special register, you can show by the contents of the read
+response whether the action started in 02 was successful or failed.
+
+> Also I dont like the idea of having such a big timeout for every bus
+> transaction.
+
+Me neither.
+
+> In case of 'normal' operation the device runs fine with
+> a standard timeout value.
+
+If you don't want or can implement something like the above protocol, we
+could patch the ieee1394 driver for non-standard time-outs. Then a
+possible protocol could look like this:
+
+0a) PC: reads current SPLIT_TIMEOUT on local node
+0b) PC: writes large SPLIT_TIMEOUT to local node
+0c) PC: sends write request (or whatever) to Dev
+0d) Dev: starts to process request
+<aeons pass>
+0e) Dev: sends response
+0f) PC: restores previous SPLIT_TIMEOUT on local node
+
+As mentioned in the other post, a bus manager could interfere with the
+manipulation of the SPLIT_TIMEOUT value. A bus manager is meant to
+ensure that all nodes have the same SPLIT_TIMEOUT. I don't remember if
+the spec also says when and how a bus manager is supposed to do this.
+But this is irrelevant if there is only your device and the Linux PC.
+
+> I will now try to work around this problem in userspace basically by
+> ignoring the timeout error.
+
+I.e. something similar but less sophisticated than the protocol 01...09?
+
+> The correct transmission of the write 
+> request will already be confirmed by the acknowledge packet, after all.
+
+In case of a split transaction, the ack indeed confirms proper reception
+of the request. In case of a unified transaction, it is even possible to
+encapsulate a write response in the ack, i.e. to complete the
+transaction with the ack to the request. Needless to say, unified
+transactions require special support by the link layer hardware on the
+responder's side.
 -- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+Stefan Richter
+-=====-=-=== ---= -====
+http://arcgraph.de/sr/

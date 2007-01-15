@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751830AbXAOIh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932106AbXAOIjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751830AbXAOIh7 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 03:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbXAOIh7
+	id S932106AbXAOIjk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 03:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbXAOIjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 03:37:59 -0500
-Received: from nat-132.atmel.no ([80.232.32.132]:63218 "EHLO relay.atmel.no"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751830AbXAOIh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 03:37:58 -0500
-Date: Mon, 15 Jan 2007 09:37:35 +0100
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Ben Nizette <ben.nizette@iinet.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] AVR32: fix build breakage
-Message-ID: <20070115093735.6dc06b9c@dhcp-252-105.norway.atmel.com>
-In-Reply-To: <45AAF9A9.9080501@iinet.net.au>
-References: <45AAF9A9.9080501@iinet.net.au>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 Jan 2007 03:39:40 -0500
+Received: from stinky.trash.net ([213.144.137.162]:53034 "EHLO
+	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932106AbXAOIjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 03:39:39 -0500
+Message-ID: <45AB3DCA.9020204@trash.net>
+Date: Mon, 15 Jan 2007 09:39:38 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: David Madore <david.madore@ens.fr>, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] netfilter: implement TCPMSS target for IPv6
+References: <20070114192011.GA6270@clipper.ens.fr> <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2007 14:48:57 +1100
-Ben Nizette <ben.nizette@iinet.net.au> wrote:
+Jan Engelhardt wrote:
+> On Jan 14 2007 20:20, David Madore wrote:
+> 
+>>Implement TCPMSS target for IPv6 by shamelessly copying from
+>>Marc Boucher's IPv4 implementation.
+>>
+>>Signed-off-by: David A. Madore <david.madore@ens.fr>
+> 
+> 
+> Would not it be worthwhile to merge ipt_TCPMSS and
+> ip6t_TCPMSS to xt_TCPMSS instead?
 
-> Remove an unwanted remnant of the recent revert of AVR32/AT91 SPI 
-> patches in -mm.  Without this patch, the AVR32 build of 
-> 2.6.20-rc[34]-mm1 breaks.
+I'm not sure how well that will work (the IPv4/IPv6-specific stuff
+is spread over the entire target function), but its worth a try.
 
-Actually, this is broken in my tree. Wonder how I managed to do that
-and not even notice it.
-
-I'll apply this patch and push out a new avr32-arch branch for Andrew.
-Thanks for testing.
-
-Haavard

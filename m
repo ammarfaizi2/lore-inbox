@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751371AbXAOTNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751393AbXAOTNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbXAOTNk (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 14:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbXAOTNj
+	id S1751393AbXAOTNv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 14:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbXAOTNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 14:13:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51508 "EHLO
+	Mon, 15 Jan 2007 14:13:51 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51509 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751371AbXAOTNi (ORCPT
+	with ESMTP id S1751393AbXAOTNs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 14:13:38 -0500
-Message-Id: <20070115183647.PS0588920000@infradead.org>
-Date: Mon, 15 Jan 2007 16:36:47 -0200
+	Mon, 15 Jan 2007 14:13:48 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
+To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       V4L <video4linux-list@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/9] V4L/DVB updates
+       Thierry MERLE <thierry.merle@free.fr>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 1/9] V4L/DVB (5019): Fix the frame->grabstate update in
+	read() entry point.
+Date: Mon, 15 Jan 2007 16:37:05 -0200
+Message-id: <20070115183705.PS3399200001@infradead.org>
+In-Reply-To: <20070115183647.PS0588920000@infradead.org>
+References: <20070115183647.PS0588920000@infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.0-1mdv2007.0 
 Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
 X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Please pull 'master' from:
-        git://git.kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git master
+From: Thierry MERLE <thierry.merle@free.fr>
 
-It contains the following:
+The Coverity checker spotted that in usbvision_v4l2_read(), the variable
+"frmx" is never assigned any value different from -1, but it's used an 
+an array index in "usbvision->frame[frmx]".
+Thanks to Adrian Bunk <bunk@stusta.de> for warning about that.
 
-   - Fix the frame->grabstate update in read() entry point.
-   - Fix: disable interrupts while at KM_BOUNCE_READ
-   - Cx88xx: Fix lockup on suspend
-   - Fix quickcam communicator driver for big endian architectures
-   - Ks0127 status flags
-   - MSI TV@nywhere Plus fixes
-   - Fix bttv and friends on 64bit machines with lots of memory
-   - Tveeprom: autodetect LG TAPC G701D as tuner type 37
-   - Fix compilation on ppc32 architecture
-
-Cheers,
-Mauro.
-
-V4L/DVB development is hosted at http://linuxtv.org
+Signed-off-by: Thierry MERLE <thierry.merle@free.fr>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/cx88/cx88-tvaudio.c           |    2 ++
- drivers/media/video/ks0127.c                      |    8 ++++----
- drivers/media/video/saa7134/saa7134-cards.c       |   14 ++++++++++----
- drivers/media/video/tveeprom.c                    |    2 +-
- drivers/media/video/usbvideo/quickcam_messenger.h |   14 --------------
- drivers/media/video/usbvision/usbvision-video.c   |    3 +--
- drivers/media/video/v4l2-common.c                 |    9 ++++++++-
- drivers/media/video/video-buf.c                   |    2 +-
- drivers/media/video/vivi.c                        |    7 +++++++
- include/linux/videodev2.h                         |    9 +++++++++
- 10 files changed, 43 insertions(+), 27 deletions(-)
+ drivers/media/video/usbvision/usbvision-video.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/video/usbvision/usbvision-video.c b/drivers/media/video/usbvision/usbvision-video.c
+index 8c7eba2..7243337 100644
+--- a/drivers/media/video/usbvision/usbvision-video.c
++++ b/drivers/media/video/usbvision/usbvision-video.c
+@@ -1080,7 +1080,6 @@ static ssize_t usbvision_v4l2_read(struc
+ 	int noblock = file->f_flags & O_NONBLOCK;
+ 	unsigned long lock_flags;
+ 
+-	int frmx = -1;
+ 	int ret,i;
+ 	struct usbvision_frame *frame;
+ 
+@@ -1155,7 +1154,7 @@ static ssize_t usbvision_v4l2_read(struc
+ 		frame->bytes_read = 0;
+ 
+ 		/* Mark it as available to be used again. */
+-		usbvision->frame[frmx].grabstate = FrameState_Unused;
++		frame->grabstate = FrameState_Unused;
+ /* 	} */
+ 
+ 	return count;
 

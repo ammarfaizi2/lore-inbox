@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751167AbXAOSRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751194AbXAOSTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbXAOSRV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 13:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbXAOSRV
+	id S1751194AbXAOSTY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 13:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbXAOSTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 13:17:21 -0500
-Received: from hera.kernel.org ([140.211.167.34]:40331 "EHLO hera.kernel.org"
+	Mon, 15 Jan 2007 13:19:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46041 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751167AbXAOSRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 13:17:20 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: incorrect TCP checksum on sent TCP-MD5 packets (2.6.20-rc5)
-Date: Mon, 15 Jan 2007 10:15:22 -0800
-Organization: OSDL
-Message-ID: <20070115101522.481e2f8f@freekitty>
-References: <1168803154.3090.45.camel@elida.cbxnet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1751194AbXAOSTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 13:19:22 -0500
+Message-ID: <45ABC572.2070206@redhat.com>
+Date: Mon, 15 Jan 2007 12:18:26 -0600
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.9 (Macintosh/20061207)
+MIME-Version: 1.0
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>
+CC: dmonakhov@sw.ru, alex@clusterfs.com, Al Viro <viro@ftp.linux.org.uk>
+Subject: [PATCH] return ENOENT from ext3_link when racing with unlink
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1168884954 14029 10.8.0.54 (15 Jan 2007 18:15:54 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Mon, 15 Jan 2007 18:15:54 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jan 2007 20:32:34 +0100
-Torsten Luettgert <t.luettgert@pressestimmen.de> wrote:
+An update from the earlier thread, 
+[PATCH] [RFC] remove ext3 inode from orphan list when link and unlink race
 
-> Hi,
-> 
-> I'm using the new TCP-MD5 option in 2.6.20-rc4 and rc5
-> to talk BGP to cisco routers.
-> My box connects to the cisco, and the handshake looks fine:
-> SYN, SYN/ACK, ACK all have md5 option and correct TCP checksums.
-> 
-> All packets after that, i.e. the ones with payload data,
-> have wrong TCP checksums, quoth wireshark.
-> The same happens if the cisco connects: the first, "empty" packet
-> is ok, packets with payload aren't.
-> 
-> Am I doing something wrong? Or is this a bug?
-> 
-> I'll gladly send tcpdumps if it helps.
-> 
-> Thanks for your help,
-> Torsten
+I think this is better than the original idea of trying to handle the race;
+I've seen that the orphan inode list can get corrupted, but there may well
+be other implications of the race which haven't yet been exposed.  I think
+it's safer to simply return -ENOENT in this race window, and avoid other
+potential problems.  Anything wrong with this?
 
-Are you running over a device that does checksum offload?
+Thanks for the comments suggesting this approach in the prior thread.
+
+Thanks,
+
+-Eric
+
+---
+
+Return -ENOENT from ext[34]_link if we've raced with unlink and
+i_nlink is 0.  Doing otherwise has the potential to corrupt the
+orphan inode list, because we'd wind up with an inode with a
+non-zero link count on the list, and it will never get properly
+cleaned up & removed from the orphan list before it is freed.
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+
+Index: linux-2.6.19/fs/ext3/namei.c
+===================================================================
+--- linux-2.6.19.orig/fs/ext3/namei.c
++++ linux-2.6.19/fs/ext3/namei.c
+@@ -2191,6 +2191,8 @@ static int ext3_link (struct dentry * ol
+ 
+ 	if (inode->i_nlink >= EXT3_LINK_MAX)
+ 		return -EMLINK;
++	if (inode->i_nlink == 0)
++		return -ENOENT;
+ 
+ retry:
+ 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS(dir->i_sb) +
+Index: linux-2.6.19/fs/ext4/namei.c
+===================================================================
+--- linux-2.6.19.orig/fs/ext4/namei.c
++++ linux-2.6.19/fs/ext4/namei.c
+@@ -2189,6 +2189,8 @@ static int ext4_link (struct dentry * ol
+ 
+ 	if (inode->i_nlink >= EXT4_LINK_MAX)
+ 		return -EMLINK;
++	if (inode->i_nlink == 0)
++		return -ENOENT;
+ 
+ retry:
+ 	handle = ext4_journal_start(dir, EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
 
 
--- 
-Stephen Hemminger <shemminger@osdl.org>

@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750816AbXAOVRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750878AbXAOVY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbXAOVRd (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 16:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbXAOVRd
+	id S1750878AbXAOVY3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 16:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbXAOVY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 16:17:33 -0500
-Received: from mail.gmx.net ([213.165.64.20]:47721 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1750816AbXAOVRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 16:17:32 -0500
-X-Authenticated: #5039886
-Date: Mon, 15 Jan 2007 22:17:24 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, htejun@gmail.com,
-       jens.axboe@oracle.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070115211723.GA3750@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Robert Hancock <hancockr@shaw.ca>, jeff@garzik.org,
-	linux-kernel@vger.kernel.org, htejun@gmail.com,
-	jens.axboe@oracle.com
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca>
+	Mon, 15 Jan 2007 16:24:28 -0500
+Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:48319
+	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750729AbXAOVY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 16:24:28 -0500
+From: Rob Landley <rob@landley.net>
+Subject: [PATCH] sed s/gawk/awk/ scripts/gen_init_ramfs.sh
+Date: Mon, 15 Jan 2007 16:24:17 -0500
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45AAC039.1020808@shaw.ca>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+To: "Undisclosed.Recipients":;
+Message-Id: <200701151624.18033.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2007.01.14 17:43:53 -0600, Robert Hancock wrote:
-> Björn Steinbrink wrote:
-> >Hi,
-> >
-> >with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
-> >often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
-> >output follows. In the meantime, I'll start bisecting.
-> 
-> ...
-> 
-> >ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-> >ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
-> >         res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
-> >ata1: soft resetting port
-> >ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-> >ata1.00: configured for UDMA/133
-> >ata1: EH complete
-> >SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
-> >sda: Write Protect is off
-> >sda: Mode Sense: 00 3a 00 00
-> >SCSI device sda: write cache: enabled, read cache: enabled, doesn't 
-> >support DPO or FUA
-> 
-> Looks like all of these errors are from a FLUSH CACHE command and the 
-> drive is indicating that it is no longer busy, so presumably done. 
-> That's not a DMA-mapped command, so it wouldn't go through the ADMA 
-> machinery and I wouldn't have expected this to be handled any 
-> differently from before. Curious..
+Signed-off-by: Rob Landley <rob@landley.net>
 
-My latest bisection attempt actually led to your sata_nv ADMA commit. [1]
-I've now backed out that patch from 2.6.20-rc5 and have my stress test
-running for 20 minutes now ("record" for a bad kernel surviving that
-test is about 40 minutes IIRC). I'll keep it running for at least 2 more
-hours.
+Use "awk" instead of "gawk".
 
-The test is pretty simple:
-while /bin/true; do ls -lR > /dev/null; done
-while /bin/true; do echo 255 > /proc/sys/vm/drop_caches; sleep 1; done
+-- 
 
-running in parallel.
+There's a symlink from awk to gawk if you're using the gnu tools, but no
+symlink from gawk to awk if you're using BusyBox or some such.  (There's a
+reason for the existence of standard names.  Can we use them please?)
 
-Björn
+--- linux-2.6.19.2/scripts/gen_initramfs_list.sh	2007-01-10 14:10:37.000000000 -0500
++++ linux-new/scripts/gen_initramfs_list.sh	2007-01-15 10:14:41.000000000 -0500
+@@ -121,9 +121,9 @@
+ 		"nod")
+ 			local dev_type=
+ 			local maj=$(LC_ALL=C ls -l "${location}" | \
+-					gawk '{sub(/,/, "", $5); print $5}')
++					awk '{sub(/,/, "", $5); print $5}')
+ 			local min=$(LC_ALL=C ls -l "${location}" | \
+-					gawk '{print $6}')
++					awk '{print $6}')
+ 
+ 			if [ -b "${location}" ]; then
+ 				dev_type="b"
+@@ -134,7 +134,7 @@
+ 			;;
+ 		"slink")
+ 			local target=$(LC_ALL=C ls -l "${location}" | \
+-					gawk '{print $11}')
++					awk '{print $11}')
+ 			str="${ftype} ${name} ${target} ${str}"
+ 			;;
+ 		*)
 
-[1] 2dec7555e6bf2772749113ea0ad454fcdb8cf861
+-- 
+"Perfection is reached, not when there is no longer anything to add, but
+when there is no longer anything to take away." - Antoine de Saint-Exupery

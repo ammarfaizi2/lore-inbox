@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932310AbXAONK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932314AbXAONU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbXAONK1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbXAONK1
+	id S932314AbXAONU1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbXAONU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:10:27 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:34303
-	"EHLO public.id2-vpn.continvity.gns.novell.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932310AbXAONK1 (ORCPT
+	Mon, 15 Jan 2007 08:20:26 -0500
+Received: from luna.alliedvisiontec.com ([213.203.238.80]:54462 "EHLO
+	luna.alliedvisiontec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932314AbXAONU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:10:27 -0500
-Message-Id: <45AB8BB1.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 15 Jan 2007 13:12:01 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Martin Bretschneider" <martin.bretschneider@imr.uni-hannover.de>
-Cc: <mb@bu3sch.de>, <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: new HW RNG freezes kernels > 2.6.17 at startup with Xeon
-	5130
-References: <45AB6E8C.4090408@imr.uni-hannover.de>
-In-Reply-To: <45AB6E8C.4090408@imr.uni-hannover.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 Jan 2007 08:20:26 -0500
+Subject: Re: ieee1394 feature needed: overwrite SPLIT_TIMEOUT from userspace
+From: Philipp Beyer <philipp.beyer@alliedvisiontec.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+In-Reply-To: <tkrat.0ae1f576575bc02e@s5r6.in-berlin.de>
+References: <1168602157.5074.4.camel@ahr-pbe-lx.avtnet.local>
+	 <tkrat.0ae1f576575bc02e@s5r6.in-berlin.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Mon, 15 Jan 2007 14:21:11 +0100
+Message-Id: <1168867271.5190.9.camel@ahr-pbe-lx.avtnet.local>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch was sent out to (hopefully) address this problem (or at least allow you to
-work around it), which had been reported for a similar machine before. The patch
-is present in 2.6.20-rc5.
 
-Jan
+Thanks for your input. My post was based on the (wrong) idea that
+the kernel already uses different timeout values per node.
 
->>> Martin Bretschneider <martin.bretschneider@imr.uni-hannover.de> 15.01.07 13:07 >>>
-Hi,
+Therefore, having read your answer, I have a different opinion about
+how to solve this now.
 
-it seems to me that the new hardware random number generator (HW RNG) 
-freezes my hardware:
+About your suggestions:
+Unfortunately sending an early response and using a secondary register
+as indication for completed flash writes doesnt work. In short, the
+device isn't able to process packets while writing to flash and an early
+answer followed by a period of non-responsiveness might lead to problems
+on the windows side.
 
-The CPU is Intel Xeon 5130 (Intel Core microarchitecture) [1] installed 
-on Intel Server Board S5000VSA.
+Also I dont like the idea of having such a big timeout for every bus
+transaction. In case of 'normal' operation the device runs fine with
+a standard timeout value.
 
-Linux is run in 64bit mode and the distribution is Debian Etch (but that 
-should not matter).
 
-If I take Debian's kernel 2.6.17 it boots :-)
-If I take vanilla  kernel 2.6.17.9 it boots :-)
-If I take Debian's kernel 2.6.18 it does not boot.
-If I take vanilla  kernel 2.6.18.6 it does not boot.
-If I take vanilla  kernel 2.6.19.1 it does not boot.
-If I take vanilla  kernel 2.6.20-rc4 it does not boot.
 
-There was no error thus it was not that easy to find out the problem. 
-Comparing the boot logs of 2.6.17 and 2.6.18 the freeze ocurred before 
-initializing the hardware random number generator. Thus I recompiled the 
-vanilla Kernel 2.6.18.6 without support of the new HW RNG and it boots. 
-So, I renamed the directory /kernel/drivers/char/hw_random and the 
-Debian kernel 2.6.18 does also boot.
+I will now try to work around this problem in userspace basically by
+ignoring the timeout error. The correct transmission of the write 
+request will already be confirmed by the acknowledge packet, after all.
 
-I have not testet the kernel > 2.6.18 but I guess that they will also 
-boot without the new NW RNG.
 
-Do you know the problem? Can I provide you more information?
+Philipp Beyer
 
-TIA  Martin
 
-[1]http://en.wikipedia.org/wiki/List_of_Intel_Xeon_microprocessors#Woodcrest

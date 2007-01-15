@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750906AbXAOQDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750944AbXAOQTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbXAOQDh (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 11:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbXAOQDg
+	id S1750944AbXAOQTs (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 11:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbXAOQTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 11:03:36 -0500
-Received: from firewall.rowland.harvard.edu ([140.247.233.35]:39251 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S1750900AbXAOQDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 11:03:36 -0500
-Date: Mon, 15 Jan 2007 11:03:35 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Oliver Neukum <oliver@neukum.org>
-cc: icxcnika@mar.tar.cc, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.20-rc4: usb somehow broken
-In-Reply-To: <200701151210.49495.oliver@neukum.org>
-Message-ID: <Pine.LNX.4.44L0.0701151058520.15327-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Jan 2007 11:19:48 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:41141 "EHLO e1.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750936AbXAOQTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 11:19:47 -0500
+Date: Mon, 15 Jan 2007 21:48:10 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070115161810.GB16435@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070115125401.GA134@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2007, Oliver Neukum wrote:
-
-> Am Sonntag, 14. Januar 2007 20:47 schrieb icxcnika@mar.tar.cc:
-> > > Can anyone suggest another approach?
-> > >
-> > > Alan Stern
-> > 
-> > Just a thought, you could use both a blacklist approach, and a module 
-> > paramater, or something in sysfs, to allow specifying devices that won't 
-> > be suspend and resume compatible.
+On Mon, Jan 15, 2007 at 03:54:01PM +0300, Oleg Nesterov wrote:
+> > - singlethread_cpu needs to be hotplug safe (broken currently)
 > 
-> Upon further thought, a module parameter won't do as the problem
-> will arise without a driver loaded. A sysfs parameter turns the whole
-> affair into a race condition. Will you set the guard parameter before the
-> autosuspend logic strikes?
-> Unfortunately this leaves only the least attractive solution.
+> Why? Could you explain?
 
-There could be a mixed approach: a builtin blacklist that is extensible 
-via a procfs- or sysfs-based interface.
+What if 'singlethread_cpu' dies?
 
-Note that we actually have two problems to contend with.  Some devices
-must never be autosuspended at all (they disconnect when resuming), and
-others need a reset after resuming.
+> > - Any reason why cpu_populated_map is not modified on CPU_DEAD?
+> 
+> Because CPU_DEAD/CPU_UP_CANCELED doesn't wait for cwq->thread to exit.
+> cpu_populated_map never shrinks, it only grows on CPU_UP_PREPARE.
+> 
+> We can change this, but it needs some more code, and I am not sure
+> we need it. Note that a "false" bit in cpu_populated_map only means
+> that flush_work/flush_workqueue/destroy_workqueu will do lock/unlock
+> of cwq->lock, nothing more.
 
-Alan Stern
+What abt __create_workqueue/schedule_on_each_cpu?
 
+> > - I feel more comfortable if workqueue_cpu_callback were to take
+> >   workqueue_mutex in LOCK_ACQ and release it in LOCK_RELEASE
+> >   notifications.
+> 
+> The whole purpose of this change to avoid this!
+
+I guess it depends on how __create_workqueue/schedule_on_each_cpu is
+modified (whether we take/release lock upon LOCK_ACQ/LOCK_RELEASE)
+
+> > Finally, I wonder if these changes will be unnecessary if we move to
+> > process freezer based hotplug locking ...
+> 
+> This change ir not strictly necessary but imho make the code better and
+> shrinks .text by 379 bytes.
+> 
+> But I believe that freezer will change nothing for workqueue. We still
+> need take_over_work(), and hacks like migrate_sequence. And no, CPU_DEAD
+> can't just thaw cwq->thread which was bound to the dead CPU to complete
+> kthread_stop(), we should thaw all processes.
+
+What abt stopping that thread in CPU_DOWN_PREPARE (before freezing
+processes)? I understand that it may add to the latency, but compared to
+the overall latency of process freezer, I suspect it may not be much.
+
+-- 
+Regards,
+vatsa

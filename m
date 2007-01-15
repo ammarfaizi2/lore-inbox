@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932221AbXAOLHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932222AbXAOLK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbXAOLHy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 06:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbXAOLHx
+	id S932222AbXAOLK2 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 06:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbXAOLK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 06:07:53 -0500
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:49190 "EHLO
-	mail.first.fraunhofer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932221AbXAOLHx (ORCPT
+	Mon, 15 Jan 2007 06:10:28 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:47404 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932222AbXAOLK2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 06:07:53 -0500
-Subject: prioritize PCI traffic ?
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Mon, 15 Jan 2007 06:10:28 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: icxcnika@mar.tar.cc, linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.20-rc4: usb somehow broken
+Date: Mon, 15 Jan 2007 12:10:49 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0701141418290.24969-100000@netrider.rowland.org> <Pine.LNX.4.64.0701141945010.14767@server.willdawg>
+In-Reply-To: <Pine.LNX.4.64.0701141945010.14767@server.willdawg>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 15 Jan 2007 12:07:45 +0100
-Message-Id: <1168859265.15294.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Disposition: inline
+Message-Id: <200701151210.49495.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Am Sonntag, 14. Januar 2007 20:47 schrieb icxcnika@mar.tar.cc:
+> > Can anyone suggest another approach?
+> >
+> > Alan Stern
+> 
+> Just a thought, you could use both a blacklist approach, and a module 
+> paramater, or something in sysfs, to allow specifying devices that won't 
+> be suspend and resume compatible.
 
-is it possible to explicitly tell the kernel to prioritize PCI traffic
-for a number of cards in pci slots x,y,z ?
+Upon further thought, a module parameter won't do as the problem
+will arise without a driver loaded. A sysfs parameter turns the whole
+affair into a race condition. Will you set the guard parameter before the
+autosuspend logic strikes?
+Unfortunately this leaves only the least attractive solution.
 
-I am asking as severe ide traffic causes lost frames when watching TV
-using 2 DVB cards + vdr... This is simply due to the fact that the PCI
-bus is saturated...
-
-So, is any prioritizing of the PCI bus possible ?
-
-Best
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+	Regards
+		Oliver

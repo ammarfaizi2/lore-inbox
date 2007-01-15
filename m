@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751788AbXAOCxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751795AbXAOC4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751788AbXAOCxS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 21:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbXAOCxS
+	id S1751795AbXAOC4S (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 21:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbXAOC4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 21:53:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10911 "EHLO virtualhost.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751788AbXAOCxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 21:53:17 -0500
-Date: Mon, 15 Jan 2007 13:53:19 +1100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070115025319.GC4516@kernel.dk>
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <45AAC95B.1020708@garzik.org> <45AAE635.8090308@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45AAE635.8090308@shaw.ca>
+	Sun, 14 Jan 2007 21:56:18 -0500
+Received: from rgminet02.oracle.com ([148.87.113.119]:28463 "EHLO
+	rgminet02.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751795AbXAOC4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 21:56:17 -0500
+Subject: Re: [PATCH] bonding: Replace kmalloc() + memset() pairs with the
+	appropriate kzalloc() calls
+From: joe jin <joe.jin@oracle.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <84144f020701112335v44bcf8a5see13fdbf01b700cd@mail.gmail.com>
+References: <1168568903.10377.7.camel@joejin-pc.cn.oracle.com>
+	 <84144f020701112335v44bcf8a5see13fdbf01b700cd@mail.gmail.com>
+Content-Type: text/plain
+Organization: Oracle
+Date: Mon, 15 Jan 2007 10:49:30 +0800
+Message-Id: <1168829370.6068.2.camel@joejin-pc.cn.oracle.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27.rhel4.6) 
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14 2007, Robert Hancock wrote:
-> Jeff Garzik wrote:
-> >>Looks like all of these errors are from a FLUSH CACHE command and the 
-> >>drive is indicating that it is no longer busy, so presumably done. 
-> >>That's not a DMA-mapped command, so it wouldn't go through the ADMA 
-> >>machinery and I wouldn't have expected this to be handled any 
-> >>differently from before. Curious..
-> >
-> >It's possible the flush-cache command takes longer than 30 seconds, if 
-> >the cache is large, contents are discontiguous, etc.  It's a 
-> >pathological case, but possible.
-> >
-> >Or maybe flush-cache doesn't get a 30 second timeout, and it should...? 
-> > (thinking out loud)
-> >
-> >    Jeff
+> Hi Joe,
 > 
-> If the flush was still in progress I would expect Busy to still be set, 
-> however..
+> On 1/12/07, joe jin <joe.jin@oracle.com> wrote:
+> > @@ -788,7 +786,7 @@ static int rlb_initialize(struct bonding
+> >
+> >         spin_lock_init(&(bond_info->rx_hashtbl_lock));
+> >
+> > -       new_hashtbl = kmalloc(size, GFP_KERNEL);
+> > +       new_hashtbl = kzalloc(size, GFP_KERNEL);
+> >         if (!new_hashtbl) {
+> >                 printk(KERN_ERR DRV_NAME
+> >                        ": %s: Error: Failed to allocate RLB hash table\n",
+> 
+> You forgot to remove the memset here.
 
-I'd be surprised if the device would not obey the 7 second timeout rule
-that seems to be set in stone and not allow more dirty in-drive cache
-than it could flush out in approximately that time.
-
-And BUSY should also be set for that case, as Robert indicates.
-
--- 
-Jens Axboe
+Here is not a memset :)
 

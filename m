@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751742AbXAOAHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751747AbXAOAOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751742AbXAOAHb (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbXAOAHa
+	id S1751747AbXAOAOz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbXAOAOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 19:07:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10212 "EHLO virtualhost.dk"
+	Sun, 14 Jan 2007 19:14:55 -0500
+Received: from pat.uio.no ([129.240.10.15]:34162 "EHLO pat.uio.no"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751740AbXAOAHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 19:07:30 -0500
-Date: Mon, 15 Jan 2007 09:20:42 +1100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: 2.6.20-rc4-mm1
-Message-ID: <20070114222042.GO5860@kernel.dk>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1168785616.2941.67.camel@localhost.localdomain>
+	id S1751746AbXAOAOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 19:14:54 -0500
+Subject: Re: heavy nfs[4]] causes fs badness Was: 2.6.20-rc4: known unfixed
+	regressions (v2)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Florin Iucha <florin@iucha.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jiri Kosina <jikos@jikos.cz>, linux-usb-devel@lists.sourceforge.net,
+       Adrian Bunk <bunk@stusta.de>, Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <20070114235816.GB6053@iucha.net>
+References: <20070109214431.GH24369@iucha.net>
+	 <Pine.LNX.4.44L0.0701101052310.3289-100000@iolanthe.rowland.org>
+	 <20070114225701.GA6053@iucha.net>  <20070114235816.GB6053@iucha.net>
+Content-Type: text/plain
+Date: Sun, 14 Jan 2007 19:14:37 -0500
+Message-Id: <1168820077.6465.10.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=disabled, UIO_MAIL_IS_INTERNAL=-5)
+X-UiO-Scanned: 4CB8B4861E8C0C376B0ABCDBACB255147347506C
+X-UiO-SPAM-Test: 69.242.210.120 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14 2007, Thomas Gleixner wrote:
-> On Sun, 2007-01-14 at 11:46 +0100, Thomas Gleixner wrote:
-> > > Boot proceeds, but gets stuck hard at:
-> > > "Remounting root filesystem in read-write mode:"
-> > > 
-> > > No SysRq-T, nothing.
-> > > 
-> > > The above BUG seems unrelated to that. Investigating further.
-> > 
-> > Bisect identified: git-block.patch
+On Sun, 2007-01-14 at 17:58 -0600, Florin Iucha wrote:
+> All the testing was done via a ssh into the workstation.  The console
+> was left as booted into, with the gdm running.  The remote nfs4
+> directory was mounted on "/mnt".
 > 
-> Does only happen on 2 systems. Both have sata + raid1 setup. I managed 
-> to get a stacktrace from the SMP box. Sits there and sleeps forever.
+> After copying the 60+ GB and testing that the keyboard was still
+> functioning, I did not reboot but stayed in the same kernel and pulled
+> the latest git then started bisecting.  After recompiling, I moved
+> over to the workstation to reboot it, but the keyboard was not
+> functioning ;(
 > 
-> 	tglx
+> I ran "lsusb" and it displayed all the devices. "dmesg" did not show
+> any oops, anything for that matter.  I have unplugged the keyboard and
+> run "lsusb" again, but it hang.  I ran "ls /mnt" and it hang as well.
+> Stracing "lsusb" showed it hang (entered the kernel) at opening the device
+> that used to be the keyboard.  Stracing "ls /mnt" showed that it
+> hang at "stat(/mnt)".  Both processes were in "D" state.  "ls /root"
+> worked without problem, so it appears that crossing mountpoints causes
+> some hang in the kernel.
 > 
-> [<c032ac64>] io_schedule+0x7a/0x9a
-> [<c0157f89>] sleep_on_page+0x8/0xc
-> [<c032ae45>] __wait_on_bit+0x36/0x5d
-> [<c01580d8>] wait_on_page_bit+0x5b/0x61
-> [<c0158a2b>] wait_on_page_writeback_range+0x4f/0xef
-> [<c0158b0f>] filemap_fdatawait+0x44/0x49
-> [<c0158da0>] filemap_write_and_wait+0x22/0x2d
-> [<c0190e39>] sync_blockdev+0x17/0x1d
-> [<c01a27af>] quota_sync_sb+0x33/0xd6
-> [<c01a2874>] sync_dquots+0x22/0xfa
-> [<c01757cf>] __fsync_super+0x17/0x66
-> [<c0175829>] fsync_super+0xb/0x19
-> [<c0175880>] do_remount_sb+0x49/0x101
-> [<c0187f98>] do_mount+0x1ad/0x678
-> [<c01884d2>] sys_mount+0x6f/0xa4
-> [<c0103f6a>] sysenter_past_esp+0x5f/0x99
+> Based on this info, I think we can rule out any USB.  I will try
+> testing with NFS3 to see if the problem persists.  Unfortunately there
+> is no oops or anything in "dmesg".
 
-raid seems to have severe problems with the plugging change. I'll try
-and find Neil and have a chat with him, hopefully we can work it out.
+Did you try an 'echo t > /proc/sysrq-trigger' in order to find out where
+the stat process is hanging?
 
--- 
-Jens Axboe
+  Trond
 

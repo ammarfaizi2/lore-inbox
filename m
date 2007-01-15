@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751762AbXAOAf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751763AbXAOAip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751762AbXAOAf0 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbXAOAf0
+	id S1751763AbXAOAip (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751764AbXAOAip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 19:35:26 -0500
-Received: from nef2.ens.fr ([129.199.96.40]:1230 "EHLO nef2.ens.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751762AbXAOAfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 19:35:24 -0500
-Date: Mon, 15 Jan 2007 01:35:08 +0100
-From: David Madore <david.madore@ens.fr>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] netfilter: implement TCPMSS target for IPv6
-Message-ID: <20070115003508.GA8085@clipper.ens.fr>
-References: <20070114192011.GA6270@clipper.ens.fr> <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.9 (nef2.ens.fr [129.199.96.32]); Mon, 15 Jan 2007 01:35:09 +0100 (CET)
+	Sun, 14 Jan 2007 19:38:45 -0500
+Received: from usul.saidi.cx ([204.11.33.34]:35182 "EHLO usul.overt.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751763AbXAOAio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 19:38:44 -0500
+Message-ID: <45AACCE9.8080405@overt.org>
+Date: Sun, 14 Jan 2007 16:38:01 -0800
+From: Philip Langdale <philipl@overt.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+CC: LAK <linux-arm-kernel@lists.arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] MMC: Major restructuring and cleanup
+References: <459CB3D2.4010707@drzeus.cx> <45A9BF57.7050408@overt.org> <45AA2AD7.70607@drzeus.cx>
+In-Reply-To: <45AA2AD7.70607@drzeus.cx>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2007 at 09:10:45PM +0100, Jan Engelhardt wrote:
-> On Jan 14 2007 20:20, David Madore wrote:
-> >Implement TCPMSS target for IPv6 by shamelessly copying from
-> >Marc Boucher's IPv4 implementation.
+Pierre Ossman wrote:
+ >
+> Eeeeww... This is a problem as the SD spec. clearly states the order of
+> init commands. So I wouldn't be surprised if we find SD cards that choke
+> on the MMC init sequence.
 > 
-> Would not it be worthwhile to merge ipt_TCPMSS and
-> ip6t_TCPMSS to xt_TCPMSS instead?
+> I guess what we lose by not supporting these is 8 bit data bus, but as
+> we do not currently have a controller for that I think the point is moot.
 
-It may be, but I'm afraid that's outside my competence.  I happened to
-need ip6t_TCPMSS badly and soon, so I went for the quickest solution.
-Of course, I'd appreciate it if someone were to do it in a better way.
+Hrm. Even the MMC 4.1 App Note describes a unified init sequence where SD is
+checked first.
 
-Happy hacking,
+So, these cards are essentially useless then. The number of hosts that support
+MMC 4 but not SD can probably be counted on no hands. :-)
 
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+--phil

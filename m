@@ -1,87 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932113AbXAOXfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932099AbXAOXq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbXAOXfI (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 18:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbXAOXfI
+	id S932099AbXAOXq4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 18:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbXAOXq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 18:35:08 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:3129 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932113AbXAOXfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 18:35:06 -0500
-Date: Tue, 16 Jan 2007 00:35:05 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: What does this scsi error mean ?
-Message-ID: <20070115233504.GA63539@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Stefan Richter <stefanr@s5r6.in-berlin.de>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20070115171602.GA23661@dspnet.fr.eu.org> <tkrat.845391bfec80a6b0@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Jan 2007 18:46:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:38178 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S932099AbXAOXqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 18:46:55 -0500
+X-Authenticated: #5039886
+Date: Tue, 16 Jan 2007 00:46:51 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Robert Hancock <hancockr@shaw.ca>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070115234650.GA2124@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Robert Hancock <hancockr@shaw.ca>, jeff@garzik.org,
+	linux-kernel@vger.kernel.org, htejun@gmail.com,
+	jens.axboe@oracle.com
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <20070115211723.GA3750@atjola.homenet>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <tkrat.845391bfec80a6b0@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.2.2i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070115211723.GA3750@atjola.homenet>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2007 at 12:27:17AM +0100, Stefan Richter wrote:
-> On 15 Jan, Olivier Galibert wrote:
-> > sd 0:0:0:0: SCSI error: return code = 0x08000002
-> > sda: Current: sense key: Hardware Error
-> >     ASC=0x42 ASCQ=0x0
+On 2007.01.15 22:17:24 +0100, Björn Steinbrink wrote:
+> On 2007.01.14 17:43:53 -0600, Robert Hancock wrote:
+> > Björn Steinbrink wrote:
+> > >Hi,
+> > >
+> > >with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
+> > >often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
+> > >output follows. In the meantime, I'll start bisecting.
+> > 
+> > ...
+> > 
+> > >ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+> > >ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
+> > >         res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+> > >ata1: soft resetting port
+> > >ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+> > >ata1.00: configured for UDMA/133
+> > >ata1: EH complete
+> > >SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+> > >sda: Write Protect is off
+> > >sda: Mode Sense: 00 3a 00 00
+> > >SCSI device sda: write cache: enabled, read cache: enabled, doesn't 
+> > >support DPO or FUA
+> > 
+> > Looks like all of these errors are from a FLUSH CACHE command and the 
+> > drive is indicating that it is no longer busy, so presumably done. 
+> > That's not a DMA-mapped command, so it wouldn't go through the ADMA 
+> > machinery and I wouldn't have expected this to be handled any 
+> > differently from before. Curious..
 > 
-> The Additional Sense Code means "power-on or self-test failure" FWIW.
-> (SPC-4 annex D)
+> My latest bisection attempt actually led to your sata_nv ADMA commit. [1]
+> I've now backed out that patch from 2.6.20-rc5 and have my stress test
+> running for 20 minutes now ("record" for a bad kernel surviving that
+> test is about 40 minutes IIRC). I'll keep it running for at least 2 more
+> hours.
 
-Given that happens between 3 days to a week after bootup on the root
-drive, it's obviously not the "power on" part.  It's kinda annoying
-nothing appears in the smart logs though:
+Yep, that one seems to be guilty. 2.6.20-rc5 with that commit backed out
+survived about 3 hours of testing, while the average was around 5
+minutes for a failure, sometimes even before I could log in.
+I took a look at the patch, but I can't really tell anything.
+nv_adma_check_atapi_dma somehow looks like it should not negate its
+return value, so that it returns 0 (atapi dma available) when
+adma_enable was 1. But I'm not exactly confident about that either ;)
+Will it hurt if I try to remove the negation?
 
-smartctl version 5.36 [x86_64-redhat-linux-gnu] Copyright (C) 2002-6 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-Device: IBM-ESXS ST936701LC    FN Version: B41D
-Serial number: 3LC0C8P000007647WLMV
-Device type: disk
-Transport protocol: Parallel SCSI (SPI-4)
-Local Time is: Tue Jan 16 00:33:09 2007 CET
-Device supports SMART and is Enabled
-Temperature Warning Enabled
-SMART Health Status: OK
-
-Current Drive Temperature:     33 C
-Drive Trip Temperature:        60 C
-Elements in grown defect list: 0
-Vendor (Seagate) cache information
-  Blocks sent to initiator = 16206797
-  Blocks received from initiator = 83607272
-  Blocks read from cache and sent to initiator = 3311410
-  Number of read and write commands whose size <= segment size = 2801896
-  Number of read and write commands whose size > segment size = 0
-Vendor (Seagate/Hitachi) factory information
-  number of hours powered up = 533.07
-  number of minutes until next internal SMART test = 112
-
-Error counter log:
-           Errors Corrected by           Total   Correction     Gigabytes    Total
-               ECC          rereads/    errors   algorithm      processed    uncorrected
-           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
-read:      10474        0         0     10474      10474         61.360           0
-write:         0        0         0         0          0         58.647           2
-
-Non-medium error count:  1457822
-
-SMART Self-test log
-Num  Test              Status                 segment  LifeTime  LBA_first_err [SK ASC ASQ]
-     Description                              number   (hours)
-# 1  Background long   Completed                   -     407                 - [-   -    -]
-# 2  Background short  Completed                   -     243                 - [-   -    -]
-
-Long (extended) Self Test duration: 793 seconds [13.2 minutes]
-
-
-  OG.
-
+Thanks,
+Björn

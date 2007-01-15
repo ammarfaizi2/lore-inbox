@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750878AbXAOVY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750729AbXAOVYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbXAOVY3 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 16:24:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbXAOVY2
+	id S1750729AbXAOVYb (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 16:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbXAOVYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 16:24:28 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:48319
-	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750729AbXAOVY2 (ORCPT
+	Mon, 15 Jan 2007 16:24:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54179 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750729AbXAOVY3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 16:24:28 -0500
-From: Rob Landley <rob@landley.net>
-Subject: [PATCH] sed s/gawk/awk/ scripts/gen_init_ramfs.sh
-Date: Mon, 15 Jan 2007 16:24:17 -0500
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 15 Jan 2007 16:24:29 -0500
+Subject: Re: allocation failed: out of vmalloc space error treating and
+	VIDEO1394 IOC LISTEN CHANNEL ioctl failed problem
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@bitplanet.net>
+Cc: David Moore <dcm@mit.edu>, linux1394-devel@lists.sourceforge.net,
+       theSeinfeld@users.sourceforge.net, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net
+In-Reply-To: <59ad55d30701151306q492e07aep9c640afd7b6c442f@mail.gmail.com>
+References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net>
+	 <200701100023.39964.theSeinfeld@users.sf.net>
+	 <tkrat.c0a43c7c901c438c@s5r6.in-berlin.de>
+	 <1168802934.3123.1062.camel@laptopd505.fenrus.org> <45ABC1A2.90109@tmr.com>
+	 <1168885223.3122.304.camel@laptopd505.fenrus.org>
+	 <1168890881.10136.29.camel@pisces.mit.edu>
+	 <59ad55d30701151306q492e07aep9c640afd7b6c442f@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 15 Jan 2007 13:24:17 -0800
+Message-Id: <1168896257.3122.577.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-To: "Undisclosed.Recipients":;
-Message-Id: <200701151624.18033.rob@landley.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Rob Landley <rob@landley.net>
 
-Use "awk" instead of "gawk".
+> However, what I'd really like to do is to leave it to user space to
+> allocate the memory as David describes.  In the transmit case, user
+> space allocates memory (malloc or mmap) and loads the payload into
+> that buffer.
 
--- 
+there is a lot of pain involved with doing things this way, it is a TON
+better if YOU provide the memory via a custom mmap handler for a device
+driver.
+(there are a lot of security nightmares involved with the opposite
+model, like the user can put any kind of memory there, even pci mmio
+space)
 
-There's a symlink from awk to gawk if you're using the gnu tools, but no
-symlink from gawk to awk if you're using BusyBox or some such.  (There's a
-reason for the existence of standard names.  Can we use them please?)
+>   Then is does an ioctl() on the firewire control device
 
---- linux-2.6.19.2/scripts/gen_initramfs_list.sh	2007-01-10 14:10:37.000000000 -0500
-+++ linux-new/scripts/gen_initramfs_list.sh	2007-01-15 10:14:41.000000000 -0500
-@@ -121,9 +121,9 @@
- 		"nod")
- 			local dev_type=
- 			local maj=$(LC_ALL=C ls -l "${location}" | \
--					gawk '{sub(/,/, "", $5); print $5}')
-+					awk '{sub(/,/, "", $5); print $5}')
- 			local min=$(LC_ALL=C ls -l "${location}" | \
--					gawk '{print $6}')
-+					awk '{print $6}')
- 
- 			if [ -b "${location}" ]; then
- 				dev_type="b"
-@@ -134,7 +134,7 @@
- 			;;
- 		"slink")
- 			local target=$(LC_ALL=C ls -l "${location}" | \
--					gawk '{print $11}')
-+					awk '{print $11}')
- 			str="${ftype} ${name} ${target} ${str}"
- 			;;
- 		*)
+ioctls are evil ;) esp an "mmap me" ioctl
+
+> It's not too difficult from what I'm doing now, I'd just like to give
+> user space more control over the buffers it uses for streaming (i.e.
+> letting user space allocate them).  What I'm missing here is: how do I
+> actually pin a page in memory?  I'm sure it's not too difficult, but I
+> haven't yet figured it out and I'm sure somebody knows it off the top
+> of his head.
+
+again the best way is for you to provide an mmap method... you can then
+fill in the pages and keep that in some sort of array; this is for
+example also what the DRI/DRM layer does for textures etc...
 
 -- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

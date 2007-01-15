@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751409AbXAOTNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751401AbXAOTNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbXAOTNA (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 14:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbXAOTNA
+	id S1751401AbXAOTNR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 14:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbXAOTNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 14:13:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51497 "EHLO
+	Mon, 15 Jan 2007 14:13:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51500 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751409AbXAOTM7 (ORCPT
+	with ESMTP id S1751415AbXAOTNP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 14:12:59 -0500
+	Mon, 15 Jan 2007 14:13:15 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
+       Grant Likely <grant.likely@secretlab.ca>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 2/9] V4L/DVB (5020): Fix: disable interrupts while at
-	KM_BOUNCE_READ
-Date: Mon, 15 Jan 2007 16:37:05 -0200
-Message-id: <20070115183705.PS5598290002@infradead.org>
+Subject: [PATCH 4/9] V4L/DVB (5024): Fix quickcam communicator driver for
+	big endian architectures
+Date: Mon, 15 Jan 2007 16:37:06 -0200
+Message-id: <20070115183705.PS9920820004@infradead.org>
 In-Reply-To: <20070115183647.PS0588920000@infradead.org>
 References: <20070115183647.PS0588920000@infradead.org>
 Mime-Version: 1.0
@@ -30,50 +31,51 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
+From: Grant Likely <grant.likely@secretlab.ca>
 
-vivi.c uses the KM_BOUNCE_READ with local interrupts enabled. 
-This means that if a disk interrupt occurs while vivi.c is using this
-fixmap slot, the vivi.c driver will, upon return from that interrupt, find
-that the fixmap slot now points at a different physical page.
-The net result will probably be rare corruption of disk file contents,
-because viv.c will now be altering the page which the disk code was
-recently using. 
+Host endianess does not affect the order that pixel rgb data comes
+in from the quickcam (the values are bytes, not words or longs).  The
+driver is erroniously swapping the order of rgb values for big endian
+machines.  This patch is needed get the Quickcam communicator working
+on big endian machines (tested on powerpc)
 
-Thanks to Andrew Morton for pointing this.
+Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/vivi.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/media/video/usbvideo/quickcam_messenger.h |   14 --------------
+ 1 files changed, 0 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
-index bacb311..d4cf556 100644
---- a/drivers/media/video/vivi.c
-+++ b/drivers/media/video/vivi.c
-@@ -270,10 +270,15 @@ static void gen_line(struct sg_to_addr t
- 	char *p,*s,*basep;
- 	struct page *pg;
- 	u8   chr,r,g,b,color;
-+	unsigned long flags;
-+	spinlock_t spinlock;
-+
-+	spin_lock_init(&spinlock);
+diff --git a/drivers/media/video/usbvideo/quickcam_messenger.h b/drivers/media/video/usbvideo/quickcam_messenger.h
+index baab9c0..17ace39 100644
+--- a/drivers/media/video/usbvideo/quickcam_messenger.h
++++ b/drivers/media/video/usbvideo/quickcam_messenger.h
+@@ -35,27 +35,13 @@ struct rgb {
+ };
  
- 	/* Get first addr pointed to pixel position */
- 	oldpg=get_addr_pos(pos,pages,to_addr);
- 	pg=pfn_to_page(sg_dma_address(to_addr[oldpg].sg) >> PAGE_SHIFT);
-+	spin_lock_irqsave(&spinlock,flags);
- 	basep = kmap_atomic(pg, KM_BOUNCE_READ)+to_addr[oldpg].sg->offset;
+ struct bayL0 {
+-#ifdef __BIG_ENDIAN
+-	u8 r;
+-	u8 g;
+-#elif __LITTLE_ENDIAN
+ 	u8 g;
+ 	u8 r;
+-#else
+-#error not byte order defined
+-#endif
+ };
  
- 	/* We will just duplicate the second pixel at the packet */
-@@ -376,6 +381,8 @@ static void gen_line(struct sg_to_addr t
+ struct bayL1 {
+-#ifdef __BIG_ENDIAN
+-	u8 g;
+-	u8 b;
+-#elif __LITTLE_ENDIAN
+ 	u8 b;
+ 	u8 g;
+-#else
+-#error not byte order defined
+-#endif
+ };
  
- end:
- 	kunmap_atomic(basep, KM_BOUNCE_READ);
-+	spin_unlock_irqrestore(&spinlock,flags);
-+
- }
- static void vivi_fillbuff(struct vivi_dev *dev,struct vivi_buffer *buf)
- {
+ struct cam_size {
 

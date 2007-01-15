@@ -1,181 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932074AbXAOHBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932088AbXAOHPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbXAOHBl (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 02:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbXAOHBl
+	id S932088AbXAOHPm (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 02:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbXAOHPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 02:01:41 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:42912 "EHLO e5.ny.us.ibm.com"
+	Mon, 15 Jan 2007 02:15:42 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:49155 "EHLO aun.it.uu.se"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932074AbXAOHBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 02:01:40 -0500
-Date: Mon, 15 Jan 2007 12:31:12 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] i386: modpost apic related warning fixes
-Message-ID: <20070115070112.GA18259@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	id S932088AbXAOHPl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 02:15:41 -0500
+X-Greylist: delayed 1623 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 02:15:41 EST
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <17835.9143.973552.427040@alkaid.it.uu.se>
+Date: Mon, 15 Jan 2007 07:48:23 +0100
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, htejun@gmail.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+In-Reply-To: <20070114224409.GA17199@atjola.homenet>
+References: <20070114224409.GA17199@atjola.homenet>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Björn Steinbrink writes:
+ > Hi,
+ > 
+ > with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
+ > often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
+ > output follows. In the meantime, I'll start bisecting.
+ > 
+ > Thanks
+ > Björn
+ > 
+ > 
+ > Linux version 2.6.20-rc2 (doener@atjola) (gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)) #4 SMP Sun Dec 31 12:54:22 CET 2006
 
+[uneventful kernel log omitted]
 
+ > sata_nv 0000:00:07.0: Using ADMA mode
+ > PCI: Setting latency timer of device 0000:00:07.0 to 64
+ > ata1: SATA max UDMA/133 cmd 0xFFFFC20000004480 ctl 0xFFFFC200000044A0 bmdma 0xD400 irq 23
+ > ata2: SATA max UDMA/133 cmd 0xFFFFC20000004580 ctl 0xFFFFC200000045A0 bmdma 0xD408 irq 23
+ > scsi0 : sata_nv
+ > ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ > ata1.00: ATA-7, max UDMA/133, 160086528 sectors: LBA 
+ > ata1.00: ata1: dev 0 multi count 16
+ > ata1.00: configured for UDMA/133
+ > scsi1 : sata_nv
+ > ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ > ata2.00: ATA-7, max UDMA/133, 160086528 sectors: LBA 
+ > ata2.00: ata2: dev 0 multi count 16
+ > ata2.00: configured for UDMA/133
+ > scsi 0:0:0:0: Direct-Access     ATA      Maxtor 6Y080M0   YAR5 PQ: 0 ANSI: 5
+ > ata1: bounce limit 0xFFFFFFFFFFFFFFFF, segment boundary 0xFFFFFFFF, hw segs 61
+ > SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+ > sda: Write Protect is off
+ > sda: Mode Sense: 00 3a 00 00
+ > SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ > SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+ > sda: Write Protect is off
+ > sda: Mode Sense: 00 3a 00 00
+ > SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ >  sda: sda1 sda2 sda3
+ > sd 0:0:0:0: Attached scsi disk sda
+ > scsi 1:0:0:0: Direct-Access     ATA      Maxtor 6Y080M0   YAR5 PQ: 0 ANSI: 5
+ > ata2: bounce limit 0xFFFFFFFFFFFFFFFF, segment boundary 0xFFFFFFFF, hw segs 61
+ > SCSI device sdb: 160086528 512-byte hdwr sectors (81964 MB)
+ > sdb: Write Protect is off
+ > sdb: Mode Sense: 00 3a 00 00
+ > SCSI device sdb: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ > SCSI device sdb: 160086528 512-byte hdwr sectors (81964 MB)
+ > sdb: Write Protect is off
+ > sdb: Mode Sense: 00 3a 00 00
+ > SCSI device sdb: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ >  sdb: sdb1 sdb2 sdb3
+ > sd 1:0:0:0: Attached scsi disk sdb
 
-o Modpost generates warnings for i386 if compiled with CONFIG_RELOCATABLE=y
+Things are fine so far.
 
-WARNING: vmlinux - Section mismatch: reference to .init.text:find_unisys_acpi_oem_table from .text between 'acpi_madt_oem_check' (at offset 0xc0101eda) and 'enable_apic_mode'
-WARNING: vmlinux - Section mismatch: reference to .init.text:acpi_get_table_header_early from .text between 'acpi_madt_oem_check' (at offset 0xc0101ef0) and 'enable_apic_mode'
-WARNING: vmlinux - Section mismatch: reference to .init.text:parse_unisys_oem from .text between 'acpi_madt_oem_check' (at offset 0xc0101f2e) and 'enable_apic_mode'
-WARNING: vmlinux - Section mismatch: reference to .init.text:setup_unisys from .text between 'acpi_madt_oem_check' (at offset 0xc0101f37) and 'enable_apic_mode'WARNING: vmlinux - Section mismatch: reference to .init.text:parse_unisys_oem from .text between 'mps_oem_check' (at offset 0xc0101ec7) and 'acpi_madt_oem_check'
-WARNING: vmlinux - Section mismatch: reference to .init.text:es7000_sw_apic from .text between 'enable_apic_mode' (at offset 0xc0101f48) and 'check_apicid_present'
+[more uneventful kernel log omitted]
 
-o Some functions which are inline (acpi_madt_oem_check) are not inlined by
-  compiler as these functions are accessed using function pointer. These
-  functions are put in .text section and they in-turn access __init type
-  functions hence modpost generates warnings.
+ > NVRM: loading NVIDIA Linux x86_64 Kernel Module  1.0-9631  Thu Nov  9 17:35:27 PST 2006
+ > ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ > ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
+ >          res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+ > ata1: soft resetting port
+ > ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ > ata1.00: configured for UDMA/133
+ > ata1: EH complete
+ > SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+ > sda: Write Protect is off
+ > sda: Mode Sense: 00 3a 00 00
+ > SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ > ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ > ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 out
+ >          res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
 
-o Do not iniline acpi_madt_oem_check, instead make it __init. 
+and then things start to break.
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/i386/mach-generic/es7000.c             |   41 ++++++++++++++++++++++++++++
- include/asm-i386/mach-es7000/mach_apic.h    |    7 ----
- include/asm-i386/mach-es7000/mach_mpparse.h |   32 ---------------------
- scripts/mod/modpost.c                       |    1 
- 4 files changed, 42 insertions(+), 39 deletions(-)
-
-diff -puN include/asm-i386/mach-es7000/mach_mpparse.h~modpost-apic-related-warning-fixes include/asm-i386/mach-es7000/mach_mpparse.h
---- linux-2.6.20-rc4-mm1-reloc/include/asm-i386/mach-es7000/mach_mpparse.h~modpost-apic-related-warning-fixes	2007-01-15 11:30:12.000000000 +0530
-+++ linux-2.6.20-rc4-mm1-reloc-root/include/asm-i386/mach-es7000/mach_mpparse.h	2007-01-15 11:50:15.000000000 +0530
-@@ -18,18 +18,6 @@ extern int parse_unisys_oem (char *oempt
- extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
- extern void setup_unisys(void);
- 
--static inline int mps_oem_check(struct mp_config_table *mpc, char *oem,
--		char *productid)
--{
--	if (mpc->mpc_oemptr) {
--		struct mp_config_oemtable *oem_table = 
--			(struct mp_config_oemtable *)mpc->mpc_oemptr;
--		if (!strncmp(oem, "UNISYS", 6))
--			return parse_unisys_oem((char *)oem_table);
--	}
--	return 0;
--}
--
- #ifdef CONFIG_ACPI
- static inline int es7000_check_dsdt(void)
- {
-@@ -40,26 +28,6 @@ static inline int es7000_check_dsdt(void
- 		return 1;
- 	return 0;
- }
--
--/* Hook from generic ACPI tables.c */
--static inline int acpi_madt_oem_check(char *oem_id, char *oem_table_id)
--{
--	unsigned long oem_addr; 
--	if (!find_unisys_acpi_oem_table(&oem_addr)) {
--		if (es7000_check_dsdt())
--			return parse_unisys_oem((char *)oem_addr);
--		else {
--			setup_unisys();
--			return 1;
--		}
--	}
--	return 0;
--}
--#else
--static inline int acpi_madt_oem_check(char *oem_id, char *oem_table_id)
--{
--	return 0;
--}
- #endif
- 
- #endif /* __ASM_MACH_MPPARSE_H */
-diff -puN arch/i386/mach-generic/es7000.c~modpost-apic-related-warning-fixes arch/i386/mach-generic/es7000.c
---- linux-2.6.20-rc4-mm1-reloc/arch/i386/mach-generic/es7000.c~modpost-apic-related-warning-fixes	2007-01-15 11:30:12.000000000 +0530
-+++ linux-2.6.20-rc4-mm1-reloc-root/arch/i386/mach-generic/es7000.c	2007-01-15 11:56:18.000000000 +0530
-@@ -25,4 +25,45 @@ static int probe_es7000(void)
- 	return 0;
- }
- 
-+extern void es7000_sw_apic(void);
-+static void __init enable_apic_mode(void)
-+{
-+	es7000_sw_apic();
-+	return;
-+}
-+
-+static __init int mps_oem_check(struct mp_config_table *mpc, char *oem,
-+		char *productid)
-+{
-+	if (mpc->mpc_oemptr) {
-+		struct mp_config_oemtable *oem_table =
-+			(struct mp_config_oemtable *)mpc->mpc_oemptr;
-+		if (!strncmp(oem, "UNISYS", 6))
-+			return parse_unisys_oem((char *)oem_table);
-+	}
-+	return 0;
-+}
-+
-+#ifdef CONFIG_ACPI
-+/* Hook from generic ACPI tables.c */
-+static int __init acpi_madt_oem_check(char *oem_id, char *oem_table_id)
-+{
-+	unsigned long oem_addr;
-+	if (!find_unisys_acpi_oem_table(&oem_addr)) {
-+		if (es7000_check_dsdt())
-+			return parse_unisys_oem((char *)oem_addr);
-+		else {
-+			setup_unisys();
-+			return 1;
-+		}
-+	}
-+	return 0;
-+}
-+#else
-+static int __init acpi_madt_oem_check(char *oem_id, char *oem_table_id)
-+{
-+	return 0;
-+}
-+#endif
-+
- struct genapic apic_es7000 = APIC_INIT("es7000", probe_es7000);
-diff -puN include/asm-i386/mach-es7000/mach_apic.h~modpost-apic-related-warning-fixes include/asm-i386/mach-es7000/mach_apic.h
---- linux-2.6.20-rc4-mm1-reloc/include/asm-i386/mach-es7000/mach_apic.h~modpost-apic-related-warning-fixes	2007-01-15 11:54:25.000000000 +0530
-+++ linux-2.6.20-rc4-mm1-reloc-root/include/asm-i386/mach-es7000/mach_apic.h	2007-01-15 11:56:27.000000000 +0530
-@@ -73,13 +73,6 @@ static inline void init_apic_ldr(void)
- 	apic_write_around(APIC_LDR, val);
- }
- 
--extern void es7000_sw_apic(void);
--static inline void enable_apic_mode(void)
--{
--	es7000_sw_apic();
--	return;
--}
--
- extern int apic_version [MAX_APICS];
- static inline void setup_apic_routing(void)
- {
-diff -puN scripts/mod/modpost.c~modpost-apic-related-warning-fixes scripts/mod/modpost.c
---- linux-2.6.20-rc4-mm1-reloc/scripts/mod/modpost.c~modpost-apic-related-warning-fixes	2007-01-15 12:01:49.000000000 +0530
-+++ linux-2.6.20-rc4-mm1-reloc-root/scripts/mod/modpost.c	2007-01-15 12:02:16.000000000 +0530
-@@ -606,6 +606,7 @@ static int secref_whitelist(const char *
- 		"_probe",
- 		"_probe_one",
- 		"_console",
-+		"apic_es7000",
- 		NULL
- 	};
- 
-_
+Notice how the problems started exactly at the point the
+"NVRM" NVIDIA module (whatever it is) was loaded ...

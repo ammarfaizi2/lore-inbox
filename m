@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932305AbXAONDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932311AbXAONI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbXAONDj (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbXAONDj
+	id S932311AbXAONI4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbXAONI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:03:39 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:47550 "EHLO tmailer.gwdg.de"
+	Mon, 15 Jan 2007 08:08:56 -0500
+Received: from mail.screens.ru ([213.234.233.54]:38701 "EHLO mail.screens.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932305AbXAONDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:03:38 -0500
-Date: Mon, 15 Jan 2007 14:01:58 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Patrick McHardy <kaber@trash.net>
-cc: David Madore <david.madore@ens.fr>, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] netfilter: implement TCPMSS target for IPv6
-In-Reply-To: <45AB54E5.6060103@trash.net>
-Message-ID: <Pine.LNX.4.61.0701151358130.13639@yvahk01.tjqt.qr>
-References: <20070114192011.GA6270@clipper.ens.fr>
- <Pine.LNX.4.61.0701142110250.11926@yvahk01.tjqt.qr> <45AB3DCA.9020204@trash.net>
- <Pine.LNX.4.61.0701151109540.32479@yvahk01.tjqt.qr> <45AB54E5.6060103@trash.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S932311AbXAONI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:08:56 -0500
+Date: Mon, 15 Jan 2007 16:08:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070115130816.GA207@tv-sign.ru>
+References: <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070115125401.GA134@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Jan 15 2007 11:18, Patrick McHardy wrote:
->Jan Engelhardt wrote:
->> On Jan 15 2007 09:39, Patrick McHardy wrote:
->> 
->>>I'm not sure how well that will work (the IPv4/IPv6-specific stuff
->>>is spread over the entire target function), but its worth a try.
->> 
->> 
->> well here's a q: would a patch be accepted that changes
->> all ipt and ip6t modules to the new xt? Even if a module is only for
->> ipv4 or ipv6, I think it makes sense to reduce the number of
->> different *t structures floating around.
+On 01/15, Oleg Nesterov wrote:
 >
->If you're talking about using the xt-structures in net/ipv[46]/netfilter
->and removing the ipt/ip6t-wrappers, that would make sense IMO.
+> cpu_populated_map never shrinks, it only grows on CPU_UP_PREPARE.
 
-Yup. Should the files then be renamed/moved to net/netfilter/xt_[foobaz].c
-in a second step?
+__create_workqueue() should not use it. Needs a fix.
 
-Should I leave ipt_TCPMSS/ip6t_TCPMSS untouched while you are working on 
-that one?
+Oleg.
 
-
-	-`J'
--- 

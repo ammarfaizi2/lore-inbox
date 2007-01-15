@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932341AbXAONoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932338AbXAONpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbXAONoz (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbXAONoy
+	id S932338AbXAONpG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbXAONpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:44:54 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:60900 "EHLO tim.rpsys.net"
+	Mon, 15 Jan 2007 08:45:06 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:47500 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932341AbXAONoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:44:54 -0500
-Subject: Re: LEDS: S3C24XX generate name if none given
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070115122654.GA25047@home.fluff.org>
-References: <20070115122654.GA25047@home.fluff.org>
-Content-Type: text/plain
-Date: Mon, 15 Jan 2007 13:44:28 +0000
-Message-Id: <1168868669.5860.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	id S932338AbXAONpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:45:04 -0500
+Message-ID: <45AB8553.10301@garzik.org>
+Date: Mon, 15 Jan 2007 08:44:51 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Faik Uygur <faik@pardus.org.tr>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ahci_softreset prevents acpi_power_off
+References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no>	 <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>	 <200701141959.40673.faik@pardus.org.tr> <1168797978.3123.997.camel@laptopd505.fenrus.org> <45AAFCC6.9000700@gmail.com>
+In-Reply-To: <45AAFCC6.9000700@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-15 at 12:26 +0000, Ben Dooks wrote:
-> Generate a name if none is passed to the S3C24XX GPIO LED driver.
+Tejun Heo wrote:
+> Arjan van de Ven wrote:
+>> I'd be interested in finding out how to best test this; if the bios is
+>> really broken I'd love to add a test to the Linux-ready Firmware
+>> Developer Kit for this, so that BIOS developers can make sure future
+>> bioses do not suffer from this bug...
 > 
-> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-> 
-> diff -urpN -X ../dontdiff linux-2.6.19/drivers/leds/leds-s3c24xx.c linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c
-> --- linux-2.6.19/drivers/leds/leds-s3c24xx.c	2006-11-29 21:57:37.000000000 +0000
-> +++ linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c	2007-01-04 10:22:58.000000000 +0000
-> @@ -23,6 +23,8 @@
->  /* our context */
->  
->  struct s3c24xx_gpio_led {
-> +	char				 name[32];
-> +
->  	struct led_classdev		 cdev;
+> As reported, this is almost a butterfly effect.  ->softreset method is
+> only used during initialization and error recovery of ATA devices which
+> has almost nothing to do with the rest of the system.  This is almost
+> like 'changing my mixer input to line-in makes power off fail'.  (it's
+> more related due to ATA ACPI stuff and maybe that's why this happens but
+> I'm trying to make a point here.)
 
-I'm not that keen on this since it wastes 32 bytes per LED when the
-platform code does declare the names. If you're happy with that, its up
-to you as the platform maintainer I guess but is there no nicer way to
-handle this? I'm mainly concerned about people copying this code into
-other drivers as then they'll all end up doing it...
+It's quite possible that the BIOS in question wants AHCI in some 
+specific state at poweroff.
 
-Richard
+	Jeff
+
+
 

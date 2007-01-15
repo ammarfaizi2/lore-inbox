@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751128AbXAOR7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751149AbXAOSAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbXAOR7g (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 12:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbXAOR7g
+	id S1751149AbXAOSAr (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 13:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbXAOSAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 12:59:36 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:64067 "EHLO
-	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751128AbXAOR7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 12:59:35 -0500
-Message-ID: <45ABC17D.3050105@student.ltu.se>
-Date: Mon, 15 Jan 2007 19:01:33 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Mon, 15 Jan 2007 13:00:47 -0500
+Received: from mail.tmr.com ([64.65.253.246]:44832 "EHLO gaimboi.tmr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751149AbXAOSAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 13:00:46 -0500
+Message-ID: <45ABC1A2.90109@tmr.com>
+Date: Mon, 15 Jan 2007 13:02:10 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Matthias Schniedermeyer <ms@citd.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
-References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de> <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de> <45AAA3C2.80603@student.ltu.se> <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de> <45AAC44D.808@citd.de> <tkrat.0ce30797d3555dc3@s5r6.in-berlin.de>
-In-Reply-To: <tkrat.0ce30797d3555dc3@s5r6.in-berlin.de>
+To: Arjan van de Ven <arjan@infradead.org>
+CC: theSeinfeld@users.sourceforge.net, linux1394-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net
+Subject: Re: allocation failed: out of vmalloc space error treating and  
+ VIDEO1394 IOC LISTEN CHANNEL ioctl failed problem
+References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net>	<200701100023.39964.theSeinfeld@users.sf.net>	<tkrat.c0a43c7c901c438c@s5r6.in-berlin.de> <1168802934.3123.1062.camel@laptopd505.fenrus.org>
+In-Reply-To: <1168802934.3123.1062.camel@laptopd505.fenrus.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> On 15 Jan, Matthias Schniedermeyer wrote:
->   
->> Stefan Richter wrote:
->>     
->>> On 14 Jan, Richard Knutsson wrote:
->>>       
->>>> (Really liked the idea to have a "Maintainer"-button 
->>>> next to "Help" in *config)
->>>>         
->>> Rhetorical question: What will this button be used for?
->>>       
->> Having "all(tm)" information of something in one place?
->>     
->
-> Or, "click here to say 'it does not work'"?
->
-> My rhetorical question wasn't about what it is intended for, but what
-> people would think it was intended for if it was there.
->
->   
-I think it could be practical to have an easy access to whom is 
-responsible for a driver and which mailinglist its development is 
-addressed to, both for people interested in helping develop the driver 
-and those who got an error (or fan-mail :).
->> I think adding the Maintainers-data is more or less a logical next step.
+Arjan van de Ven wrote:
+> On Sun, 2007-01-14 at 20:19 +0100, Stefan Richter wrote:
+>> On 10 Jan, Peter Antoniac wrote:
+>> [...]
+>>> Problem is: how to get the VMALLOC_RESERVED value for the kernel that is 
+>>> running? I couldn't find any standard way to do that (something to apply to 
+>>> GNU Linux and the like). All the things I could get were the default value 
+>>> being 128MiB :) and that is it. Now, I could just put 128, but what if 
+>>> somebody changes that, or in some new distro suddenly decides to make it 
+>>> different? Even worse, what if it is an old kernel with 64 setting?
+>> [...]
 >>
->> It's not always clear from the MAINTAINERS-file who is the right person
->> for what. Especially as it is a rather large text-file with only
->> mediocre search-friendlieness. It's a 3.5 K-lines file!
->>
->> So when you know that you have a problem with drivers X, wouldn't it be
->> great if you could just "go to" the driver in *config and see not only
->> the Help-Text but the Maintainers-Data also.
->>     
->
-> Seems more like what you actually want to have there is links to users'
-> mailinglists or forums.
->
-> When this thread started, it was about assisting authors in submitting
-> patches.
->
->   
-Yes, this is a bit out of scope, but just realized a simple way to 
-implement it if using the CONFIG_FLAG-approach, just "grep" after the 
-flag, under which the user hit the "Maintainer"-button, in the 
-MAINTAINER-file. Also, I think this solves the handler-problem since an 
-entry can have multiple CONFIG_FLAG's stated.
+>> Maybe somebody at LKML has answers?
+> 
+> vmalloc space is limited; you really can't assume you can get any more
+> than 64Mb or so (and even then it's thight on some systems already); it
+> really sounds like vmalloc space isn't the right solution for your
+> problem whatever it is (context is lost in the quoted mail)...
+> can you restate the problem to see if there's a better solution
+> possible?
+> 
+I've used vmalloc in the past, and not had a problem, but it is a fair 
+question, how do you find out how much space is available? Other than a 
+binary vmalloc/release loop.
 
-I don't think we should add the maintainer-entries directly in Kconfig, 
-as you Stefan stated, because it is for configure the kernel. With the 
-above approach, it will just require minor fixes in the "make *config" 
-to handle it.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

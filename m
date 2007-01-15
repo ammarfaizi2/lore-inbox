@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAONxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbXAONyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbXAONxB (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbXAONxB
+	id S932342AbXAONyL (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbXAONyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:53:01 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:47564 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932343AbXAONxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:53:00 -0500
-Message-ID: <45AB8738.6090405@garzik.org>
-Date: Mon, 15 Jan 2007 08:52:56 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Mon, 15 Jan 2007 08:54:11 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:45987 "EHLO
+	ausmtp05.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932342AbXAONyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:54:09 -0500
+Message-ID: <45AB8768.7000907@linux.vnet.ibm.com>
+Date: Mon, 15 Jan 2007 19:23:44 +0530
+From: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Alan <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proposed changes for libata speed handling
-References: <20070112135301.4cdba24f@localhost.localdomain>	<45A83DD2.5020000@gmail.com> <20070113100158.1d79ba9f@localhost.localdomain> <45AAF060.3040106@gmail.com>
-In-Reply-To: <45AAF060.3040106@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Soeren Sonnenburg <kernel@nn7.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: prioritize PCI traffic ?
+References: <1168859265.15294.8.camel@localhost>
+In-Reply-To: <1168859265.15294.8.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, for a solution to be complete, we need to halt all work on all 
-other ports, when issuing SET FEATURES - XFER MODE.  On SiI and Promise 
-controllers, possibly others, the command is snooped and side effects 
-such as register setting occur.
 
-Long standing to-do.  Currently we hack around this by serializing the 
-bus probe, and preventing people from issuing SET FEATURES - XFER MODE 
-from userspace.
+Soeren Sonnenburg wrote:
+> Dear all,
+> 
+> is it possible to explicitly tell the kernel to prioritize PCI traffic
+> for a number of cards in pci slots x,y,z ?
+> 
+> I am asking as severe ide traffic causes lost frames when watching TV
+> using 2 DVB cards + vdr... This is simply due to the fact that the PCI
+> bus is saturated...
 
-	Jeff
+How do you know that the bus is saturated?
+Are you streaming data to/from the ide hard disks/CDROM?
+Do you have DMAs 'ON' for the hard disks?
+Is everything just fine if there are no IDE traffic?
+Are you running 2.6 kernel with preempt 'ON'?
+Are all hardware on the same IRQ line? (shared interrupts)
 
+> So, is any prioritizing of the PCI bus possible ?
 
+The drivers + application indirectly can control priority on the
+bus.  Just reduce the priority of the application that uses IDE and
+see if adjusting nice values of applications can change the scenario.
+
+--Vaidy
+
+> Best
+> Soeren
+> --
+> Sometimes, there's a moment as you're waking, when you become aware of
+> the real world around you, but you're still dreaming.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

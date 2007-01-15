@@ -1,209 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932153AbXAOJjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932157AbXAOJwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbXAOJjx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 04:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbXAOJjw
+	id S932157AbXAOJwG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 04:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbXAOJwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 04:39:52 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:35332 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932153AbXAOJjw (ORCPT
+	Mon, 15 Jan 2007 04:52:06 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:46426 "EHLO
+	ausmtp05.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932157AbXAOJwD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 04:39:52 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dWJdVwi58+w5fIa5a1oC/AhYEGfDO6CjRd6/TGdgoFVWA+u2DwzMHuWPdDXeQU5gN4XKYy/lHjRyZFIoyLqzwviKWM6bsBew1OSeWHvsjnD+VIFadEpHg0om9p8MCepjYbLIWJNXDmzKQfflAU6AmhVYqxk05GjJJs1VcpMpV/8=
-Message-ID: <afe668f90701150139q26e41720lf06d6ee445a917b0@mail.gmail.com>
-Date: Mon, 15 Jan 2007 17:39:46 +0800
-From: "Roy Huang" <royhuang9@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Provide an interface to limit total page cache.
-Cc: aubreylee@gmail.com, nickpiggin@yahoo.com.au, torvalds@osdl.org
+	Mon, 15 Jan 2007 04:52:03 -0500
+Message-ID: <45AB4EA0.3030704@in.ibm.com>
+Date: Mon, 15 Jan 2007 15:21:28 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Paul Menage <menage@google.com>
+CC: vatsa@in.ibm.com, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, xemul@sw.ru, dev@sw.ru,
+       containers@lists.osdl.org, pj@sgi.com, mbligh@google.com,
+       winget@google.com, rohitseth@google.com, serue@us.ibm.com,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 1/1] Fix a panic while mouting containers
+ on powerpc and some other small cleanups (Re: [PATCH 4/6] containers: Simple
+ CPU accounting container subsystem)
+References: <20061222141442.753211763@menage.corp.google.com> <20061222145216.755437205@menage.corp.google.com> <45A4F675.3080503@in.ibm.com> <6599ad830701111633j2ae65807sad393d2dad44a260@mail.gmail.com> <45AB42E6.4020507@in.ibm.com> <45AB43B5.3070007@in.ibm.com> <6599ad830701150122g7156a599t1b3dd3af9f5f821b@mail.gmail.com>
+In-Reply-To: <6599ad830701150122g7156a599t1b3dd3af9f5f821b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch provide a interface to limit total page cache in
-/proc/sys/vm/pagecache_ratio. The default value is 90 percent. Any
-feedback is appreciated.
+Paul Menage wrote:
+> On 1/15/07, Balbir Singh <balbir@in.ibm.com> wrote:
+>> In sched.c, account_user_time() can be called with the task p set to rq->idle.
+>> Since idle tasks do not belong to any container, this was causing a panic in
+>> task_ca() in cpu_acct.c.
+> 
+> How come that didn't cause a problem on x86_64? If this is an
+> inconsistency between architectures then perhaps it ought to be
+> cleaned up.
+> 
 
--Roy
+That is because account_system/user_time() is also called from
+account_process_vtime() which is called from __switch_to in
+power pc. vtime is for virtual time accounting. Enabled by
+CONFIG_VIRT_CPU_ACCOUNTING.
 
-diff -urp a/include/linux/pagemap.h b/include/linux/pagemap.h
---- a/include/linux/pagemap.h	2006-11-30 05:57:37.000000000 +0800
-+++ b/include/linux/pagemap.h	2007-01-15 17:03:09.000000000 +0800
-@@ -12,6 +12,12 @@
- #include <asm/uaccess.h>
- #include <linux/gfp.h>
+> Additionally, I think that we should make the idle tasks members of
+> the root container(s), to remove this special case. (I'm a bit
+> surprised that they're not already - I thought that the early
+> container initialization was early enough that the idle tasks hadn't
+> yet been forked. Is that different on PowerPC?
+> 
 
-+extern int pagecache_ratio;
-+extern long pagecache_limit;
-+
-+int pagecache_ratio_sysctl_handler(struct ctl_table *, int,
-+			struct file *, void __user *, size_t *, loff_t *);
-+
- /*
-  * Bits in mapping->flags.  The lower __GFP_BITS_SHIFT bits are the page
-  * allocation mode flags.
-diff -urp a/include/linux/sysctl.h b/include/linux/sysctl.h
---- a/include/linux/sysctl.h	2007-01-15 17:18:46.000000000 +0800
-+++ b/include/linux/sysctl.h	2007-01-15 17:03:09.000000000 +0800
-@@ -202,6 +202,7 @@ enum
- 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
- 	VM_VDSO_ENABLED=34,	/* map VDSO into new processes? */
- 	VM_MIN_SLAB=35,		 /* Percent pages ignored by zone reclaim */
-+	VM_PAGECACHE_RATIO=36,  /* Percent memory is used as page cache */
- };
+idle threads are associated only with the runqueue and not visible
+by the do_each_thread()/while_each_thread() loop. They are not added
+to the tasklist (please see init_idle() in kernel/sched.c).
+
+>> Multiplying the time by 1000 is not correct in cpuusage_read(). The code
+>> has been converted to use the correct cputime API.
+> 
+> Thanks.
+> 
+>> Add mount/umount callbacks.
+> 
+> I'm not sure I like the mount/unmount callbacks. What exactly are you
+> trying to gain from them? My intention was that the
+> 
+> cont->subsys[i]->container = cont;
+> 
+> line in container_get_sb() was doing essentially this - i.e. the
+> container_subsys_state for the root container in a subsystem is
+> already kept up to date by the container system, and the subsystem can
+> rely on the "container" field in the container_subsys_state.
+> 
 
 
-diff -urp a/kernel/sysctl.c b/kernel/sysctl.c
---- a/kernel/sysctl.c	2007-01-15 17:18:46.000000000 +0800
-+++ b/kernel/sysctl.c	2007-01-15 17:03:09.000000000 +0800
-@@ -1035,6 +1035,15 @@ static ctl_table vm_table[] = {
- 		.extra1		= &zero,
- 	},
- #endif
-+	{
-+		.ctl_name	= VM_PAGECACHE_RATIO,
-+		.procname	= "pagecache_ratio",
-+		.data		= &pagecache_ratio,
-+		.maxlen		= sizeof(pagecache_ratio),
-+		.mode		= 0644,
-+		.proc_handler	= &pagecache_ratio_sysctl_handler,
-+		.strategy	= &sysctl_intvec,
-+	},
- 	{ .ctl_name = 0 }
- };
+While writing/extending the cpuacct container, I found it useful to
+know if the container resource group we are controlling is really mounted.
+Controllers can try and avoid doing work when not mounted and start
+when the subsystem is mounted. Also, without these callbacks, one has no
+definite way of checking if the top_container is dummy or for real.
 
-diff -urp a/mm/filemap.c b/mm/filemap.c
---- a/mm/filemap.c	2007-01-15 17:18:46.000000000 +0800
-+++ b/mm/filemap.c	2007-01-15 17:03:09.000000000 +0800
-@@ -30,6 +30,7 @@
- #include <linux/security.h>
- #include <linux/syscalls.h>
- #include <linux/cpuset.h>
-+#include <linux/sysctl.h>
- #include "filemap.h"
- #include "internal.h"
+> Thanks,
+> 
+> Paul
 
-@@ -108,6 +109,48 @@ generic_file_direct_IO(int rw, struct ki
-  */
+-- 
 
- /*
-+ * Start release pagecache (via kswapd) at the percentage.
-+ */
-+int pagecache_ratio __read_mostly = 90;
-+
-+long pagecache_limit = 0;
-+
-+int setup_pagecache_limit(void)
-+{
-+	pagecache_limit = pagecache_ratio * nr_free_pagecache_pages() / 100;
-+	return 0;
-+}
-+
-+int pagecache_ratio_sysctl_handler(ctl_table *table, int write,
-+	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
-+{
-+	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
-+	setup_pagecache_limit();
-+	return 0;
-+}
-+
-+static inline int balance_pagecache(void)
-+{
-+	if (global_page_state(NR_FILE_PAGES) > pagecache_limit) {
-+		int nid, j;
-+		pg_data_t *pgdat;
-+		struct zone *zone;
-+
-+		for_each_online_node(nid) {
-+			pgdat = NODE_DATA(nid);
-+			for (j = 0; j < MAX_NR_ZONES; j++) {
-+				zone = pgdat->node_zones + j;
-+				wakeup_kswapd(zone, 0);
-+			}
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+module_init(setup_pagecache_limit)
-+
-+/*
-  * Remove a page from the page cache and free it. Caller has to make
-  * sure the page is locked and that nobody else uses it - or that usage
-  * is safe.  The caller must hold a write_lock on the mapping's tree_lock.
-@@ -1085,6 +1128,8 @@ out:
- 		page_cache_release(cached_page);
- 	if (filp)
- 		file_accessed(filp);
-+
-+	balance_pagecache();
- }
- EXPORT_SYMBOL(do_generic_mapping_read);
-
-@@ -2212,6 +2257,8 @@ zero_length_segment:
- 		status = filemap_write_and_wait(mapping);
-
- 	pagevec_lru_add(&lru_pvec);
-+	balance_pagecache();
-+
- 	return written ? written : status;
- }
- EXPORT_SYMBOL(generic_file_buffered_write);
-diff -urp a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	2007-01-15 17:18:46.000000000 +0800
-+++ b/mm/vmscan.c	2007-01-15 17:03:09.000000000 +0800
-@@ -1316,6 +1316,7 @@ static int kswapd(void *p)
- 	order = 0;
- 	for ( ; ; ) {
- 		unsigned long new_order;
-+		long over_limit;
-
- 		try_to_freeze();
-
-@@ -1335,6 +1336,9 @@ static int kswapd(void *p)
- 		finish_wait(&pgdat->kswapd_wait, &wait);
-
- 		balance_pgdat(pgdat, order);
-+		over_limit = global_page_state(NR_FILE_PAGES) - pagecache_limit;
-+		if (over_limit > 0)
-+			shrink_all_memory(over_limit);
- 	}
- 	return 0;
- }
-@@ -1350,8 +1354,10 @@ void wakeup_kswapd(struct zone *zone, in
- 		return;
-
- 	pgdat = zone->zone_pgdat;
--	if (zone_watermark_ok(zone, order, zone->pages_low, 0, 0))
--		return;
-+	if (zone_watermark_ok(zone, order, zone->pages_low, 0, 0)) {
-+		if (global_page_state(NR_FILE_PAGES) < pagecache_limit)
-+			return;
-+	}
- 	if (pgdat->kswapd_max_order < order)
- 		pgdat->kswapd_max_order = order;
- 	if (!cpuset_zone_allowed_hardwall(zone, GFP_KERNEL))
-@@ -1361,7 +1367,6 @@ void wakeup_kswapd(struct zone *zone, in
- 	wake_up_interruptible(&pgdat->kswapd_wait);
- }
-
--#ifdef CONFIG_PM
- /*
-  * Helper function for shrink_all_memory().  Tries to reclaim 'nr_pages' pages
-  * from LRU lists system-wide, for given pass and priority, and returns the
-@@ -1510,7 +1515,6 @@ out:
-
- 	return ret;
- }
--#endif
-
- /* It's optimal to keep kswapds on the same CPUs as their memory, but
-    not required for correctness.  So if the last cpu in a node goes
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

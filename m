@@ -1,319 +1,114 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751790AbXAOClH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751791AbXAOCrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751790AbXAOClH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 21:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbXAOClG
+	id S1751791AbXAOCrW (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 21:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbXAOCrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 21:41:06 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:10093 "EHLO
-	pd2mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751783AbXAOClE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 21:41:04 -0500
-Date: Sun, 14 Jan 2007 20:40:01 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: [PATCH -mm] sata_nv: cleanup ADMA error handling
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Cc: Jeff Garzik <jeff@garzik.org>, Allen Martin <AMartin@nvidia.com>
-Message-id: <45AAE981.60906@shaw.ca>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary=------------020709050709090500030209
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Sun, 14 Jan 2007 21:47:22 -0500
+Received: from mail.gmx.net ([213.165.64.20]:42951 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751788AbXAOCrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 21:47:21 -0500
+X-Authenticated: #5039886
+Date: Mon, 15 Jan 2007 03:47:17 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Jeff Garzik <jeff@garzik.org>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070115024717.GA2736@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Jeff Garzik <jeff@garzik.org>, Robert Hancock <hancockr@shaw.ca>,
+	linux-kernel@vger.kernel.org, htejun@gmail.com
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <45AAC95B.1020708@garzik.org> <20070115003448.GA2787@atjola.homenet>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070115003448.GA2787@atjola.homenet>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020709050709090500030209
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On 2007.01.15 01:34:48 +0100, Björn Steinbrink wrote:
+> On 2007.01.14 19:22:51 -0500, Jeff Garzik wrote:
+> > Robert Hancock wrote:
+> > >Björn Steinbrink wrote:
+> > >>Hi,
+> > >>
+> > >>with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
+> > >>often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
+> > >>output follows. In the meantime, I'll start bisecting.
+> > >
+> > >...
+> > >
+> > >>ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+> > >>ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
+> > >>         res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+> > >>ata1: soft resetting port
+> > >>ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+> > >>ata1.00: configured for UDMA/133
+> > >>ata1: EH complete
+> > >>SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+> > >>sda: Write Protect is off
+> > >>sda: Mode Sense: 00 3a 00 00
+> > >>SCSI device sda: write cache: enabled, read cache: enabled, doesn't 
+> > >>support DPO or FUA
+> > >
+> > >Looks like all of these errors are from a FLUSH CACHE command and the 
+> > >drive is indicating that it is no longer busy, so presumably done. 
+> > >That's not a DMA-mapped command, so it wouldn't go through the ADMA 
+> > >machinery and I wouldn't have expected this to be handled any 
+> > >differently from before. Curious..
+> > 
+> > It's possible the flush-cache command takes longer than 30 seconds, if 
+> > the cache is large, contents are discontiguous, etc.  It's a 
+> > pathological case, but possible.
+> > 
+> > Or maybe flush-cache doesn't get a 30 second timeout, and it should...? 
+> >  (thinking out loud)
+> 
+> Bi-section led to commit 249e83fe839 which makes absolutely no sense to
+> me, just in case that anyone sees any problem with that commit.
+> I'll go and re-check a few of those commits that I marked as good.
 
-Should apply to -mm tree or current libata-dev git tree. Sorry for 
-attaching, but I seem to have misplaced the magic incantations to make 
-Thunderbird not destroy inline patches..
+Next round of bisecting led to another useless result, a) it was an
+unrelated driver, b) the kernel I just marked as good after 20 minutes
+of testing decided to fail when I hit reply... Guess that it was pure
+luck that the kernel I marked as bad failed within 1-2 minutes.
+I send the git bisect log with this mail, maybe at least the early good
+kernel are really good and someone can make some sense out of it. At
+least I ended up somewhere in a series of libata changes.
 
----
+Thanks,
+Björn
 
-This cleans up a few issues with the error handling in sata_nv in ADMA 
-mode to make it more consistent with other NCQ-capable drivers like ahci 
-and sata_sil24:
-
--When a command failed, we would effectively set AC_ERR_DEV on the 
-queued command always. In the case of NCQ commands this prevents libata 
-from doing a log page query to determine the details of the failed 
-command, since it thinks we've already analyzed. Just set flags in the 
-port ehi->err_mask, then freeze or abort and let libata figure out what 
-went wrong.
-
--The code handled NV_ADMA_STAT_CPBERR as a "really bad error" which 
-caused it to set error flags on every queued command. I don't know 
-exactly what this flag means (no docs, grr!) but from what I can guess 
-from the standard ADMA spec, it just means that one or more of the CPBs 
-had an error, so we just need to go through and do our normal checks in 
-this case.
-
--In the error_handler function the code would always go through and do 
-an ADMA channel reset and also dump out the state of all the CPBs. This 
-reset seems heinous in this situation since we haven't even decided to 
-reset anything yet. The output seems redundant at this point since 
-libata already dumps the state of all active commands on errors (and it 
-also triggers at times when it shouldn't, like when suspending). Do the 
-ADMA reset only on hardreset and remove the output.
-
-Signed-off-by: Robert Hancock <hancockr@shaw.ca>
-
-
---------------020709050709090500030209
-Content-Type: text/plain;
- name="sata_nv-cleanup-error-handling.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sata_nv-cleanup-error-handling.patch"
-
---- linux-2.6.20-rc5/drivers/ata/sata_nv.c	2007-01-12 23:18:08.000000000 -0600
-+++ linux-2.6.20-rc5edit/drivers/ata/sata_nv.c	2007-01-14 20:08:35.000000000 -0600
-@@ -646,53 +646,64 @@ static unsigned int nv_adma_tf_to_cpb(st
- 	return idx;
- }
- 
--static void nv_adma_check_cpb(struct ata_port *ap, int cpb_num, int force_err)
-+static int nv_adma_check_cpb(struct ata_port *ap, int cpb_num, int force_err)
- {
- 	struct nv_adma_port_priv *pp = ap->private_data;
--	int complete = 0, have_err = 0;
- 	u8 flags = pp->cpb[cpb_num].resp_flags;
- 
- 	VPRINTK("CPB %d, flags=0x%x\n", cpb_num, flags);
- 
--	if (flags & NV_CPB_RESP_DONE) {
--		VPRINTK("CPB flags done, flags=0x%x\n", flags);
--		complete = 1;
--	}
--	if (flags & NV_CPB_RESP_ATA_ERR) {
--		ata_port_printk(ap, KERN_ERR, "CPB flags ATA err, flags=0x%x\n", flags);
--		have_err = 1;
--		complete = 1;
--	}
--	if (flags & NV_CPB_RESP_CMD_ERR) {
--		ata_port_printk(ap, KERN_ERR, "CPB flags CMD err, flags=0x%x\n", flags);
--		have_err = 1;
--		complete = 1;
--	}
--	if (flags & NV_CPB_RESP_CPB_ERR) {
--		ata_port_printk(ap, KERN_ERR, "CPB flags CPB err, flags=0x%x\n", flags);
--		have_err = 1;
--		complete = 1;
-+	if(unlikely((force_err ||
-+		     flags & (NV_CPB_RESP_ATA_ERR |
-+			      NV_CPB_RESP_CMD_ERR |
-+			      NV_CPB_RESP_CPB_ERR)))) {
-+		struct ata_eh_info *ehi = &ap->eh_info;
-+		int freeze = 0;
-+		ata_ehi_clear_desc(ehi);
-+		ata_ehi_push_desc(ehi, "CPB resp_flags 0x%x", flags );
-+		if(flags & NV_CPB_RESP_ATA_ERR) {
-+			ata_ehi_push_desc(ehi, ": ATA error");
-+			ehi->err_mask |= AC_ERR_DEV;
-+		}
-+		else if(flags & NV_CPB_RESP_CMD_ERR) {
-+			ata_ehi_push_desc(ehi, ": CMD error");
-+			ehi->err_mask |= AC_ERR_DEV;
-+		}
-+		else if(flags & NV_CPB_RESP_CPB_ERR) {
-+			ata_ehi_push_desc(ehi, ": CPB error");
-+			ehi->err_mask |= AC_ERR_SYSTEM;
-+			freeze = 1;
-+		}
-+		else {
-+			/* notifier error, but no error in CPB flags? */
-+			ehi->err_mask |= AC_ERR_OTHER;
-+			freeze = 1;
-+		}
-+		/* Kill all commands. EH will determine what actually failed. */
-+		if(freeze)
-+			ata_port_freeze(ap);
-+		else
-+			ata_port_abort(ap);
-+		return 1;
- 	}
--	if(complete || force_err)
--	{
-+		
-+	if (flags & NV_CPB_RESP_DONE) {
- 		struct ata_queued_cmd *qc = ata_qc_from_tag(ap, cpb_num);
-+		VPRINTK("CPB flags done, flags=0x%x\n", flags);
- 		if(likely(qc)) {
--			u8 ata_status = 0;
--			/* Only use the ATA port status for non-NCQ commands.
-+			/* Grab the ATA port status for non-NCQ commands.
- 			   For NCQ commands the current status may have nothing to do with
- 			   the command just completed. */
--			if(qc->tf.protocol != ATA_PROT_NCQ)
--				ata_status = readb(pp->ctl_block + (ATA_REG_STATUS * 4));
--
--			if(have_err || force_err)
--				ata_status |= ATA_ERR;
--
--			qc->err_mask |= ac_err_mask(ata_status);
-+			if(qc->tf.protocol != ATA_PROT_NCQ) {
-+				u8 ata_status = readb(pp->ctl_block + (ATA_REG_STATUS * 4));
-+				qc->err_mask |= ac_err_mask(ata_status);
-+			}
- 			DPRINTK("Completing qc from tag %d with err_mask %u\n",cpb_num,
- 				qc->err_mask);
- 			ata_qc_complete(qc);
- 		}
- 	}
-+	return 0;
- }
- 
- static int nv_host_intr(struct ata_port *ap, u8 irq_stat)
-@@ -743,7 +754,6 @@ static irqreturn_t nv_adma_interrupt(int
- 			void __iomem *mmio = pp->ctl_block;
- 			u16 status;
- 			u32 gen_ctl;
--			int have_global_err = 0;
- 			u32 notifier, notifier_error;
- 
- 			/* if in ATA register mode, use standard ata interrupt handler */
-@@ -774,42 +784,50 @@ static irqreturn_t nv_adma_interrupt(int
- 			readw(mmio + NV_ADMA_STAT); /* flush posted write */
- 			rmb();
- 
--			/* freeze if hotplugged */
--			if (unlikely(status & (NV_ADMA_STAT_HOTPLUG | NV_ADMA_STAT_HOTUNPLUG))) {
--				ata_port_printk(ap, KERN_NOTICE, "Hotplug event, freezing\n");
-+			handled++; /* irq handled if we got here */
-+
-+			/* freeze if hotplugged or controller error */
-+			if (unlikely(status & (NV_ADMA_STAT_HOTPLUG |
-+					       NV_ADMA_STAT_HOTUNPLUG |
-+					       NV_ADMA_STAT_TIMEOUT))) {
-+				struct ata_eh_info *ehi = &ap->eh_info;
-+				ata_ehi_clear_desc(ehi);
-+				ata_ehi_push_desc(ehi, "ADMA status 0x%08x", status );
-+				if(status & NV_ADMA_STAT_TIMEOUT) {
-+					ehi->err_mask |= AC_ERR_SYSTEM;
-+					ata_ehi_push_desc(ehi, ": timeout");
-+				}
-+				else if(status & NV_ADMA_STAT_HOTPLUG) {
-+					ata_ehi_hotplugged(ehi);
-+					ata_ehi_push_desc(ehi, ": hotplug");
-+				}
-+				else if(status & NV_ADMA_STAT_HOTUNPLUG) {
-+					ata_ehi_hotplugged(ehi);
-+					ata_ehi_push_desc(ehi, ": hot unplug");
-+				}
- 				ata_port_freeze(ap);
--				handled++;
- 				continue;
- 			}
- 
--			if (status & NV_ADMA_STAT_TIMEOUT) {
--				ata_port_printk(ap, KERN_ERR, "timeout, stat=0x%x\n", status);
--				have_global_err = 1;
--			}
--			if (status & NV_ADMA_STAT_CPBERR) {
--				ata_port_printk(ap, KERN_ERR, "CPB error, stat=0x%x\n", status);
--				have_global_err = 1;
--			}
--			if ((status & NV_ADMA_STAT_DONE) || have_global_err) {
-+			if (status & (NV_ADMA_STAT_DONE |
-+				      NV_ADMA_STAT_CPBERR)) {
- 				/** Check CPBs for completed commands */
- 
- 				if(ata_tag_valid(ap->active_tag))
- 					/* Non-NCQ command */
--					nv_adma_check_cpb(ap, ap->active_tag, have_global_err ||
--						(notifier_error & (1 << ap->active_tag)));
-+					nv_adma_check_cpb(ap, ap->active_tag, 
-+						notifier_error & (1 << ap->active_tag));
- 				else {
--					int pos;
-+					int pos, error = 0;
- 					u32 active = ap->sactive;
--					while( (pos = ffs(active)) ) {
-+					while( (pos = ffs(active)) && !error) {
- 						pos--;
--						nv_adma_check_cpb(ap, pos, have_global_err ||
--							(notifier_error & (1 << pos)) );
-+						error = nv_adma_check_cpb(ap, pos,
-+							notifier_error & (1 << pos) );
- 						active &= ~(1 << pos );
- 					}
- 				}
- 			}
--
--			handled++; /* irq handled if we got here */
- 		}
- 	}
- 	
-@@ -1373,13 +1391,7 @@ static int nv_hardreset(struct ata_port 
- 	return sata_std_hardreset(ap, &dummy);
- }
- 
--static void nv_error_handler(struct ata_port *ap)
--{
--	ata_bmdma_drive_eh(ap, ata_std_prereset, ata_std_softreset,
--			   nv_hardreset, ata_std_postreset);
--}
--
--static void nv_adma_error_handler(struct ata_port *ap)
-+static int nv_adma_hardreset(struct ata_port *ap, unsigned int *class)
- {
- 	struct nv_adma_port_priv *pp = ap->private_data;
- 	if(!(pp->flags & NV_ADMA_PORT_REGISTER_MODE)) {
-@@ -1387,28 +1399,9 @@ static void nv_adma_error_handler(struct
- 		int i;
- 		u16 tmp;
- 
--		u32 notifier = readl(mmio + NV_ADMA_NOTIFIER);
--		u32 notifier_error = readl(mmio + NV_ADMA_NOTIFIER_ERROR);
--		u32 gen_ctl = readl(pp->gen_block + NV_ADMA_GEN_CTL);
--		u32 status = readw(mmio + NV_ADMA_STAT);
--
--		ata_port_printk(ap, KERN_ERR, "EH in ADMA mode, notifier 0x%X "
--			"notifier_error 0x%X gen_ctl 0x%X status 0x%X\n",
--			notifier, notifier_error, gen_ctl, status);
--
--		for( i=0;i<NV_ADMA_MAX_CPBS;i++) {
--			struct nv_adma_cpb *cpb = &pp->cpb[i];
--			if( cpb->ctl_flags || cpb->resp_flags )
--				ata_port_printk(ap, KERN_ERR,
--					"CPB %d: ctl_flags 0x%x, resp_flags 0x%x\n",
--					i, cpb->ctl_flags, cpb->resp_flags);
--		}
--
--		/* Push us back into port register mode for error handling. */
-+		/* Push us back into port register mode for hardreset. */
- 		nv_adma_register_mode(ap);
- 
--		ata_port_printk(ap, KERN_ERR, "Resetting port\n");
--
- 		/* Mark all of the CPBs as invalid to prevent them from being executed */
- 		for( i=0;i<NV_ADMA_MAX_CPBS;i++)
- 			pp->cpb[i].ctl_flags &= ~NV_CPB_CTL_CPB_VALID;
-@@ -1424,11 +1417,21 @@ static void nv_adma_error_handler(struct
- 		writew(tmp & ~NV_ADMA_CTL_CHANNEL_RESET, mmio + NV_ADMA_CTL);
- 		readl( mmio + NV_ADMA_CTL );	/* flush posted write */
- 	}
-+	return nv_hardreset(ap, class);
-+}
- 
-+static void nv_error_handler(struct ata_port *ap)
-+{
- 	ata_bmdma_drive_eh(ap, ata_std_prereset, ata_std_softreset,
- 			   nv_hardreset, ata_std_postreset);
- }
- 
-+static void nv_adma_error_handler(struct ata_port *ap)
-+{
-+	ata_bmdma_drive_eh(ap, ata_std_prereset, ata_std_softreset,
-+			   nv_adma_hardreset, ata_std_postreset);
-+}
-+
- static int nv_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	static int printed_version = 0;
-
---------------020709050709090500030209--
-
+git-bisect start
+# bad: [8a2d17a56a71c5c796b0a5378ee76a105f21fdd9] Linux 2.6.20-rc2
+git-bisect bad 8a2d17a56a71c5c796b0a5378ee76a105f21fdd9
+# good: [c3fe6924620fd733ffe8bc8a9da1e9cde08402b3] Linux 2.6.19
+git-bisect good c3fe6924620fd733ffe8bc8a9da1e9cde08402b3
+# bad: [2685b267bce34c9b66626cb11664509c32a761a5] Merge master.kernel.org:/pub/scm/linux/kernel/git/davem/net-2.6
+git-bisect bad 2685b267bce34c9b66626cb11664509c32a761a5
+# good: [a985239bdf017e00e985c3a31149d6ae128fdc5f] [POWERPC] cell: spu management xmon routines
+git-bisect good a985239bdf017e00e985c3a31149d6ae128fdc5f
+# bad: [33f2ef89f8e181486b63fdbdc97c6afa6ca9f34b] mm: make compound page destructor handling explicit
+git-bisect bad 33f2ef89f8e181486b63fdbdc97c6afa6ca9f34b
+# bad: [651857a1ecaf97a8ad9d324dd2a61675c53e541e] Merge branch 'upstream-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2
+git-bisect bad 651857a1ecaf97a8ad9d324dd2a61675c53e541e
+# bad: [ff51a98799931256b555446b2f5675db08de6229] Merge branch 'upstream-linus' of master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev
+git-bisect bad ff51a98799931256b555446b2f5675db08de6229
+# bad: [3ac551a6a63dcbc707348772a27bd7090b081524] [libata] pata_cs5535: fix build
+git-bisect bad 3ac551a6a63dcbc707348772a27bd7090b081524
+# good: [750426aa1ad1ddd1fa8bb4ed531a7956f3b9a27c] libata: cosmetic changes to sense generation functions
+git-bisect good 750426aa1ad1ddd1fa8bb4ed531a7956f3b9a27c
+# good: [62d64ae0ec76360736c9dc4ca2067ae8de0ba9f2] pata : more drivers that need only standard suspend and resume
+git-bisect good 62d64ae0ec76360736c9dc4ca2067ae8de0ba9f2
+# good: [6a36261e63770ab61422550b774fe949ccca5fa9] libata: fix READ CAPACITY simulation
+git-bisect good 6a36261e63770ab61422550b774fe949ccca5fa9
+# good: [2432697ba0ce312d60be5009ffe1fa054a761bb9] libata: implement ata_exec_internal_sg()
+git-bisect good 2432697ba0ce312d60be5009ffe1fa054a761bb9
+# good: [70e6ad0c6d1e6cb9ee3c036a85ca2561eb1fd766] libata: prepare ata_sg_clean() for invocation from EH
+git-bisect good 70e6ad0c6d1e6cb9ee3c036a85ca2561eb1fd766
+# good: [8e16f941226f15622fbbc416a1f3d8705001a191] ahci: do not powerdown during initialization
+git-bisect good 8e16f941226f15622fbbc416a1f3d8705001a191

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751753AbXAOAPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751745AbXAOAW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751753AbXAOAPm (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbXAOAPl
+	id S1751745AbXAOAW4 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbXAOAWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 19:15:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33034 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751755AbXAOAPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 19:15:40 -0500
-Subject: Re: [patch 00/12] Fix ppc64's writing to struct file_operations
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Alan <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20070115105501.0ec8ead0.sfr@canb.auug.org.au>
-References: <1168735868.3123.315.camel@laptopd505.fenrus.org>
-	 <1168735914.3123.317.camel@laptopd505.fenrus.org>
-	 <20070114145411.1fd8c985@localhost.localdomain>
-	 <20070115105501.0ec8ead0.sfr@canb.auug.org.au>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 14 Jan 2007 16:15:31 -0800
-Message-Id: <1168820131.3123.1344.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 14 Jan 2007 19:22:55 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:44349 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751725AbXAOAWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Jan 2007 19:22:55 -0500
+Message-ID: <45AAC95B.1020708@garzik.org>
+Date: Sun, 14 Jan 2007 19:22:51 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca>
+In-Reply-To: <45AAC039.1020808@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-15 at 10:55 +1100, Stephen Rothwell wrote:
-> On Sun, 14 Jan 2007 14:54:11 +0000 Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> >
-> > This doesn't appea to do the same thing at all. You need to select
-> > between two sets of const inode ops instead, otherwise you turn write on
-> > arbitarily.
+Robert Hancock wrote:
+> Björn Steinbrink wrote:
+>> Hi,
+>>
+>> with 2.6.20-rc{2,4,5} (no other tested yet) I see SATA exceptions quite
+>> often, with 2.6.19 there are no such exceptions. dmesg and lspci -v
+>> output follows. In the meantime, I'll start bisecting.
 > 
-> Or something like below ... (compile tested on pseries, iseries and combined).
+> ...
+> 
+>> ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+>> ata1.00: cmd e7/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 in
+>>          res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+>> ata1: soft resetting port
+>> ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+>> ata1.00: configured for UDMA/133
+>> ata1: EH complete
+>> SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
+>> sda: Write Protect is off
+>> sda: Mode Sense: 00 3a 00 00
+>> SCSI device sda: write cache: enabled, read cache: enabled, doesn't 
+>> support DPO or FUA
+> 
+> Looks like all of these errors are from a FLUSH CACHE command and the 
+> drive is indicating that it is no longer busy, so presumably done. 
+> That's not a DMA-mapped command, so it wouldn't go through the ADMA 
+> machinery and I wouldn't have expected this to be handled any 
+> differently from before. Curious..
 
-ok I was about to do this instead... but you beat me to it.. thanks!
+It's possible the flush-cache command takes longer than 30 seconds, if 
+the cache is large, contents are discontiguous, etc.  It's a 
+pathological case, but possible.
 
-Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+Or maybe flush-cache doesn't get a 30 second timeout, and it should...? 
+  (thinking out loud)
+
+	Jeff
 
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

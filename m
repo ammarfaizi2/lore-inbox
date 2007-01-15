@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751765AbXAOAns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751771AbXAOBCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751765AbXAOAns (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbXAOAns
+	id S1751771AbXAOBCn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 20:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbXAOBCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 19:43:48 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:58056 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751765AbXAOAnr (ORCPT
+	Sun, 14 Jan 2007 20:02:43 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50599 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751768AbXAOBCm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 19:43:47 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 15 Jan 2007 01:43:23 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [RFC] How to (automatically) find the correct maintainer(s)
-To: Matthias Schniedermeyer <ms@citd.de>
-cc: Richard Knutsson <ricknu-0@student.ltu.se>, linux-kernel@vger.kernel.org
-In-Reply-To: <45AAC44D.808@citd.de>
-Message-ID: <tkrat.0ce30797d3555dc3@s5r6.in-berlin.de>
-References: <45A9092F.7060503@student.ltu.se> <45A93B02.7040301@citd.de>
- <45A96E31.3080307@student.ltu.se> <45A973A8.1000101@citd.de>
- <45AAA3C2.80603@student.ltu.se> <tkrat.b40f8fe0936d84cd@s5r6.in-berlin.de>
- <45AAC44D.808@citd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+	Sun, 14 Jan 2007 20:02:42 -0500
+Date: Sun, 14 Jan 2007 20:02:39 -0500
+From: Josef Sipek <jsipek@cs.sunysb.edu>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Guilt v0.18
+Message-ID: <20070115010239.GB9484@filer.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jan, Matthias Schniedermeyer wrote:
-> Stefan Richter wrote:
->> On 14 Jan, Richard Knutsson wrote:
->>>(Really liked the idea to have a "Maintainer"-button 
->>>next to "Help" in *config)
->> 
->> Rhetorical question: What will this button be used for?
-> 
-> Having "all(tm)" information of something in one place?
+Guilt v0.18 is available for download.
 
-Or, "click here to say 'it does not work'"?
+Guilt (Git Quilt) is a series of bash scripts which add a Mercurial
+queues-like functionality and interface to git.
 
-My rhetorical question wasn't about what it is intended for, but what
-people would think it was intended for if it was there.
+Tarballs:
+http://www.kernel.org/pub/linux/kernel/people/jsipek/guilt/
 
-> Help-Text and Dependencies/Selects are already there.
+Git repo:
+git://git.kernel.org/pub/scm/linux/kernel/git/jsipek/guilt.git
 
-Yes. For the purpose of configuring the kernel.
 
-> I think adding the Maintainers-data is more or less a logical next step.
-> 
-> It's not always clear from the MAINTAINERS-file who is the right person
-> for what. Especially as it is a rather large text-file with only
-> mediocre search-friendlieness. It's a 3.5 K-lines file!
-> 
-> So when you know that you have a problem with drivers X, wouldn't it be
-> great if you could just "go to" the driver in *config and see not only
-> the Help-Text but the Maintainers-Data also.
+The majority of changes is in greater sanity checking - before a patch is
+pushed/popped/refreshed, we check the HEAD hash with that in the status file.
+guilt-pop now does only one git-reset instead of n (n == number of patches
+to pop). This should greatly increase the speed of popping patches.
 
-Seems more like what you actually want to have there is links to users'
-mailinglists or forums.
+Josef "Jeff" Sipek.
 
-When this thread started, it was about assisting authors in submitting
-patches.
+----------
 
-> And you can place "Fallback"-Maintainers-Data on Tree-Parents, for the
-> cases where you only can pinpoint a area, like when you have a problem
-> with a USB-device.
-> 
-> 
-> I can ask a rhetorical question too:
-> Why not go back to Config.help. Having a huge X K-Lines file with
-> everything in one file can't be that bad. It worked before!
+Josef 'Jeff' Sipek (10):
+      push_patch should be more careful when applying patches
+      pop_patch should be quieter
+      Removed debug line out of push_patch
+      guilt-pop is now less brain damaged
+      Add -m & -s args to guilt-new
+      push_patch: look at diff stats instead of number of lines in patch
+      Check HEAD hash against what we expect before push/pop/refresh
+      Small cleanup in push_patch
+      TODO moved to a separate branch
+      Guilt v0.18
 
-I am in no way against Richard's plan to improve development and
-maintenance processes by easier access to contact data.
 -- 
-Stefan Richter
--=====-=-=== ---= -====
-http://arcgraph.de/sr/
-
+All science is either physics or stamp collecting.
+		- Ernest Rutherford

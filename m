@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932085AbXAOHQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932089AbXAOHWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbXAOHQP (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 02:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbXAOHQP
+	id S932089AbXAOHWT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 02:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbXAOHWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 02:16:15 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:55058 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932085AbXAOHQN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 02:16:13 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=Iiis07p0VtKL4Iznpv7s99M0fyQSJXmX84gMoUUS/UYTXcP9n4cg5irNEcSBFD3lOIw8D/ubBiCcTdkqaTIYT7baEPEgvoN2qRjtnCGk2E7jqsaXI5o3N3ksD7CGsxgb+4JEmGJKm/hvVSrywsBWQf0Ljr6I8Vab4yRUy1i9kng=
-Date: Mon, 15 Jan 2007 09:16:02 +0200
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc5] intel_rng: substitue magic PCI IDs with macros
-Message-ID: <20070115071602.GE3874@Ahmed>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org
-References: <20070114172421.GA3874@Ahmed> <1168796241.3123.954.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Mon, 15 Jan 2007 02:22:19 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55529 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932089AbXAOHWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 02:22:19 -0500
+Date: Mon, 15 Jan 2007 08:17:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: 2.6.20-rc4-mm1 md problem
+Message-ID: <20070115071747.GA31267@elte.hu>
+References: <6bffcb0e0701120533o609489den9ca02f42e4d4839@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1168796241.3123.954.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+In-Reply-To: <6bffcb0e0701120533o609489den9ca02f42e4d4839@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0016]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2007 at 09:37:21AM -0800, Arjan van de Ven wrote:
-> On Sun, 2007-01-14 at 19:24 +0200, Ahmed S. Darwish wrote:
-> > Substitue intel_rng magic PCI IDs values used in the IDs table
-> > with the macros defined in pci_ids.h
-> > 
-> Hi,
-> 
-> 
-> hmm this is actually the opposite direction than most of the kernel is
-> heading in, mostly because the pci_ids.h file is a major maintenance
-> pain.
-> 
-> Afaik the current "rule" is: if a PCI ID is only used in one driver, use
-> the numeric value and not (add) a symbolic constant.
 
-I think you understood me wrong .. I haven't added new macros in pci_ids.h,
-I've just used the macros already defined there like the PCI_VENDOR_ID_INTEL
-and others.
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
 
--- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+> My system hangs on this
+> http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/bug2.jpg
+> http://www.stardust.webpages.pl/files/tbf/euridica/2.6.20-rc4-mm1/mm-config
+> 
+> Debug plan:
+> - revert md-* patches
+> - binary search
+> 
+> Does someone have a better idea?
+
+Thomas saw something similar yesterday and he the partial results that 
+git.block (between rc2-mm1 and rc4-mm1) breaks certain disk drivers or 
+filesystems drivers. For me it worked fine, so it must be only on some 
+combinations. The changes to ll_rw_block.c look quite extensive.
+
+	Ingo

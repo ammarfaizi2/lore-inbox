@@ -1,42 +1,105 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAOUpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751482AbXAOU7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbXAOUpS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 15:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbXAOUpR
+	id S1751482AbXAOU7z (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 15:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbXAOU7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 15:45:17 -0500
-Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:32903 "EHLO
-	imf24aec.mail.bellsouth.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751472AbXAOUpQ (ORCPT
+	Mon, 15 Jan 2007 15:59:54 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:1994 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482AbXAOU7y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 15:45:16 -0500
-Message-ID: <45ABE7D8.3030903@bellsouth.net>
-Date: Mon, 15 Jan 2007 14:45:12 -0600
-From: Jay Cliburn <jacliburn@bellsouth.net>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Christoph Hellwig <hch@infradead.org>, jeff@garzik.org,
-       shemminger@osdl.org, csnook@redhat.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, atl1-devel@lists.sourceforge.net
-Subject: Re: [PATCH 2/4] atl1: Header files for Attansic L1 driver
-References: <20070111004137.GC2624@osprey.hogchain.net> <20070111092704.GB3141@infradead.org> <45ABD42D.1060901@bellsouth.net> <20070115203357.GA14200@electric-eye.fr.zoreil.com>
-In-Reply-To: <20070115203357.GA14200@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Jan 2007 15:59:54 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=XUr4pMRpaApuX9ZEnVKOssRIaxwaOPdt1Ca2uom9OQKtyHR2Z6I3rODJ/aLzzAO5R568BXiRwQb2Z6Bk7Nvp6bQ896fZ3TTrwR32eTIR3w7mvxY8KrNJHsRoe10+8v8KsPKIPuxpvSYez88ujLBR5VK1aZbmeemHeJpmZEalYy4=
+Date: Mon, 15 Jan 2007 23:59:35 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: [PATCH] seq_file conversion: APM on arm
+Message-ID: <20070115205935.GA5010@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> Jay Cliburn <jacliburn@bellsouth.net> :
-> [...]
->> I welcome any comments on the rationality of this approach.
-> 
-> An URL for the current version of the patch would be welcome too :o)
-> 
+Compile-tested.
 
-Sorry.  Forgot to do that.  The current version may be found here:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-ftp://hogchain.net/pub/linux/m2v/attansic/kernel_driver/atl1-2.0.4/atl1-2.0.4-linux-2.6.20.rc5.patch.bz2
+ arch/arm/kernel/apm.c |   28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-Jay
+--- a/arch/arm/kernel/apm.c
++++ b/arch/arm/kernel/apm.c
+@@ -14,6 +14,7 @@ #include <linux/module.h>
+ #include <linux/poll.h>
+ #include <linux/slab.h>
+ #include <linux/proc_fs.h>
++#include <linux/seq_file.h>
+ #include <linux/miscdevice.h>
+ #include <linux/apm_bios.h>
+ #include <linux/capability.h>
+@@ -501,11 +502,10 @@ #ifdef CONFIG_PROC_FS
+  *	-1: Unknown
+  *   8) min = minutes; sec = seconds
+  */
+-static int apm_get_info(char *buf, char **start, off_t fpos, int length)
++static int proc_apm_show(struct seq_file *m, void *v)
+ {
+ 	struct apm_power_info info;
+ 	char *units;
+-	int ret;
+ 
+ 	info.ac_line_status = 0xff;
+ 	info.battery_status = 0xff;
+@@ -523,14 +523,26 @@ static int apm_get_info(char *buf, char 
+ 	case 1: 	units = "sec";	break;
+ 	}
+ 
+-	ret = sprintf(buf, "%s 1.2 0x%02x 0x%02x 0x%02x 0x%02x %d%% %d %s\n",
++	seq_printf(m, "%s 1.2 0x%02x 0x%02x 0x%02x 0x%02x %d%% %d %s\n",
+ 		     driver_version, APM_32_BIT_SUPPORT,
+ 		     info.ac_line_status, info.battery_status,
+ 		     info.battery_flag, info.battery_life,
+ 		     info.time, units);
++	return 0;
++}
+ 
+- 	return ret;
++static int proc_apm_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, proc_apm_show, NULL);
+ }
++
++static const struct file_operations proc_apm_fops = {
++	.owner		= THIS_MODULE,
++	.open		= proc_apm_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
+ #endif
+ 
+ static int kapmd(void *arg)
+@@ -602,7 +614,13 @@ static int __init apm_init(void)
+ 	wake_up_process(kapmd_tsk);
+ 
+ #ifdef CONFIG_PROC_FS
+-	create_proc_info_entry("apm", 0, NULL, apm_get_info);
++	{
++		struct proc_dir_entry *pde;
++
++		pde = create_proc_entry("apm", 0, NULL);
++		if (pde)
++			pde->proc_fops = &proc_apm_fops;
++	}
+ #endif
+ 
+ 	ret = misc_register(&apm_device);
+

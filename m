@@ -1,57 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750863AbXAOR4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751156AbXAOR52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbXAOR4o (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 12:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbXAOR4o
+	id S1751156AbXAOR52 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 12:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbXAOR52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 12:56:44 -0500
-Received: from ns1.suse.de ([195.135.220.2]:51126 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750863AbXAOR4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 12:56:43 -0500
-Date: Mon, 15 Jan 2007 09:56:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
-       icxcnika@mar.tar.cc, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] 2.6.20-rc4: usb somehow broken
-Message-ID: <20070115175601.GA21679@kroah.com>
-References: <200701151210.49495.oliver@neukum.org> <Pine.LNX.4.44L0.0701151058520.15327-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0701151058520.15327-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 15 Jan 2007 12:57:28 -0500
+Received: from www.osadl.org ([213.239.205.134]:59180 "EHLO mail.tglx.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751137AbXAOR51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 12:57:27 -0500
+Subject: [patch-mm] Workaround for RAID breakage
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
+       LKML <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>
+In-Reply-To: <1168848513.2941.100.camel@localhost.localdomain>
+References: <6bffcb0e0701120533o609489den9ca02f42e4d4839@mail.gmail.com>
+	 <20070115071747.GA31267@elte.hu>
+	 <1168848513.2941.100.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 15 Jan 2007 19:03:39 +0100
+Message-Id: <1168884220.2941.144.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 11:03:35AM -0500, Alan Stern wrote:
-> On Mon, 15 Jan 2007, Oliver Neukum wrote:
+On Mon, 2007-01-15 at 09:08 +0100, Thomas Gleixner wrote:
+> > Thomas saw something similar yesterday and he the partial results that 
+> > git.block (between rc2-mm1 and rc4-mm1) breaks certain disk drivers or 
+> > filesystems drivers. For me it worked fine, so it must be only on some 
+> > combinations. The changes to ll_rw_block.c look quite extensive.
 > 
-> > Am Sonntag, 14. Januar 2007 20:47 schrieb icxcnika@mar.tar.cc:
-> > > > Can anyone suggest another approach?
-> > > >
-> > > > Alan Stern
-> > > 
-> > > Just a thought, you could use both a blacklist approach, and a module 
-> > > paramater, or something in sysfs, to allow specifying devices that won't 
-> > > be suspend and resume compatible.
-> > 
-> > Upon further thought, a module parameter won't do as the problem
-> > will arise without a driver loaded. A sysfs parameter turns the whole
-> > affair into a race condition. Will you set the guard parameter before the
-> > autosuspend logic strikes?
-> > Unfortunately this leaves only the least attractive solution.
-> 
-> There could be a mixed approach: a builtin blacklist that is extensible 
-> via a procfs- or sysfs-based interface.
+> Yes. Jens Axboe confirmed yesterday that the plug changes broke RAID.
 
-Yes, I think this is the best solution, allow users to add their devices
-to the kernel through a sysfs interface as a temporary solution, while
-providing a built-in list for known broken devices.
+I tracked this down and found two problems:
 
-And yeah, I hate blacklists too, but they are necessary at times :(
+- The new plug/unplug code does not check for underruns. That allows the
+plug count (ioc->plugged) to become negative. This gets triggered from
+various places. 
 
-thanks,
+AFAICS this is intentional to avoid checks all over the place, but the
+underflow check is missing. All we need to do is make sure, that in case
+of ioc->plugged == 0 we return early and bug, if there is either a queue
+plugged in or the plugged_list is not empty.
 
-greg k-h
+Jens ?
+
+- The raid1 code has no bitmap set in remount r/w. So the
+pending_bio_list gets not processed for quite a time. The workaround is
+to kick mddev->thread, so the list is processed. Not sure about that.
+
+Neil ?
+
+At least it boots and behaves normal.
+
+	tglx
+
+
+Index: linux-2.6.20-rc4-mm1/block/ll_rw_blk.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/block/ll_rw_blk.c
++++ linux-2.6.20-rc4-mm1/block/ll_rw_blk.c
+@@ -3757,6 +3757,12 @@ void blk_unplug_current(void)
+ 	if (!ioc)
+ 		return;
+ 
++	if (!ioc->plugged) {
++		BUG_ON(!list_empty(&ioc->plugged_list));
++		BUG_ON(ioc->plugged_queue);
++		return;
++	}
++
+ 	ioc->plugged--;
+ 	if (ioc->plugged)
+ 		return;
+Index: linux-2.6.20-rc4-mm1/drivers/md/raid1.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/drivers/md/raid1.c
++++ linux-2.6.20-rc4-mm1/drivers/md/raid1.c
+@@ -897,7 +897,7 @@ static int make_request(request_queue_t 
+ 
+ 	spin_unlock_irqrestore(&conf->device_lock, flags);
+ 
+-	if (do_sync)
++	if (do_sync || !bitmap)
+ 		md_wakeup_thread(mddev->thread);
+ #if 0
+ 	while ((bio = bio_list_pop(&bl)) != NULL)
+
+
+

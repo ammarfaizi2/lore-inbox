@@ -1,95 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750824AbXAOP23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750821AbXAOPaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbXAOP23 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 10:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbXAOP23
+	id S1750821AbXAOPaL (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 10:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbXAOPaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 10:28:29 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:55904 "EHLO e5.ny.us.ibm.com"
+	Mon, 15 Jan 2007 10:30:10 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:48701 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750824AbXAOP22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 10:28:28 -0500
-Date: Mon, 15 Jan 2007 09:28:25 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 7/8] user_ns: handle file sigio
-Message-ID: <20070115152825.GA20350@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181257.GH11377@sergelap.austin.ibm.com> <20070111212039.68e57e65.akpm@osdl.org> <20070115072653.GA7385@sergelap.austin.ibm.com> <45AB97D5.6010503@fr.ibm.com>
+	id S1750821AbXAOPaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 10:30:09 -0500
+Date: Mon, 15 Jan 2007 16:30:05 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: linux-kernel@vger.kernel.org
+cc: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [announce] ipwireless_cs 3G PCMCIA network driver
+In-Reply-To: <Pine.LNX.4.64.0701121633130.16747@twin.jikos.cz>
+Message-ID: <Pine.LNX.4.64.0701151513100.16747@twin.jikos.cz>
+References: <Pine.LNX.4.64.0701121633130.16747@twin.jikos.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45AB97D5.6010503@fr.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Cedric Le Goater (clg@fr.ibm.com):
-> Serge E. Hallyn wrote:
-> > Quoting Andrew Morton (akpm@osdl.org):
-> >> On Thu, 4 Jan 2007 12:12:57 -0600
-> >> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> >>
-> >>> A process in one user namespace could set a fowner and sigio on a file in a
-> >>> shared vfsmount, ending up killing a task in another user namespace.
-> >>>
-> >>> Prevent this by adding a user namespace pointer to the fown_struct, and
-> >>> enforcing that a process causing a signal to be sent be in the same
-> >>> user namespace as the file owner.
-> >> This patch breaks the X server (stock FC5 install) with CONFIG_USER_NS=n.
-> >> Neither the USB mouse nor the trackpad work.  They work OK under GPM.
-> >>
-> >> Setting CONFIG_USER_NS=y "fixes" this.  This bug was not observed in
-> >> 2.6.20-rc3-mm1 because that kernel had user-ns-always-on.patch for other
-> >> reasons.  (I'll restore that patch).
-> >>
-> >> There's nothing very interesting here:
-> >
-> [ ... ]
-> >
-> > I can't see any reason for this in the code or comparative ltp runs.
-> > Cedric is testing on a fc6 laptop, hopefully he can reproduce it.
-> 
-> I did reproduce it on a FC5 desktop finally.
-> 
-> get_user_ns() returns NULL when CONFIG_USER_NS=n and this breaks
-> sigio_perm() which does not expect NULL values for ->user_ns.
+On Sat, 13 Jan 2007, Jiri Kosina wrote:
 
-Argh.
+> This card is correctly detected by this driver, is able to send and 
+> receive AT commands, dial and connect, but after the ppp connection is 
+> established, the LCP frames that the card is passing to the driver are 
+> broken (one byte per frame). We are currently trying, together with 
+> authors of original driver, to identify an exact cause of this behavior 
+> (seems like PPP framer on the card is somehow misconfigured or 
+> unitialized).
 
-Thanks, Cedric.
+Just for the lkml archives and google to have it - I have just committed 
+to ipwireless_cs git tree a patch that makes the driver work also with V3 
+cards.
 
-Rewriting the userns testcases right now.  Clearly, in addition to
-separately testing clone and unshare, I need to add a sigioperm check,
-and have a separate set of testcases for CONFIG_USER_NS=n.
+commit 490828d4ced805410d08acc46e56410a3aacdaeb
+Author: Jiri Kosina <jkosina@suse.cz>
+Date:   Mon Jan 15 15:09:11 2007 +0100
 
-thanks,
--serge
+    ipwireless_cs: make the V3 card ppp connections work
 
-> I would fix this with the following patch.
-> 
-> C.
-> 
-> 
-> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+    V3 card requires the dial commands to be sent on RAS channel and
+    not DIAL channel - when being sent on DIAL channel, the ppp framer
+    on the card is not configured properly.
 
-Acked-off-by: Serge E Hallyn <serue@us.ibm.com>
+    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-> ---
->  include/linux/user_namespace.h |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: 2.6.20-rc4-mm1/include/linux/user_namespace.h
-> ===================================================================
-> --- 2.6.20-rc4-mm1.orig/include/linux/user_namespace.h
-> +++ 2.6.20-rc4-mm1/include/linux/user_namespace.h
-> @@ -49,7 +49,7 @@
-> 
->  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
->  {
-> -	return NULL;
-> +	return &init_user_ns;
->  }
-> 
->  static inline int unshare_user_ns(unsigned long flags,
+-- 
+Jiri Kosina

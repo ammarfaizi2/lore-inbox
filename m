@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932077AbXAOWzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932080AbXAOWzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbXAOWzV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 17:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbXAOWzV
+	id S932080AbXAOWzh (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 17:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbXAOWzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 17:55:21 -0500
-Received: from mail.velocitynet.com.au ([203.17.154.25]:38115 "EHLO
-	m0.velocity.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932077AbXAOWzU (ORCPT
+	Mon, 15 Jan 2007 17:55:37 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:37480 "EHLO
+	smtprelay02.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932080AbXAOWzd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 17:55:20 -0500
-Message-ID: <45AC064B.7000107@iinet.net.au>
-Date: Tue, 16 Jan 2007 09:55:07 +1100
-From: Ben Nizette <ben.nizette@iinet.net.au>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Mon, 15 Jan 2007 17:55:33 -0500
+Date: Mon, 15 Jan 2007 23:55:31 +0100
+From: Simon Budig <simon@budig.de>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19] USB HID: proper LED-mapping (support for SpaceNavigator)
+Message-ID: <20070115225531.GA8483@budig.de>
+References: <20070114231135.GA29966@budig.de> <Pine.LNX.4.64.0701150938180.16747@twin.jikos.cz> <20070115162541.GA3751@budig.de> <Pine.LNX.4.64.0701151743170.16747@twin.jikos.cz> <20070115173216.GA4582@budig.de> <Pine.LNX.4.64.0701152210530.16747@twin.jikos.cz>
 MIME-Version: 1.0
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] AVR32: fix build breakage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701152210530.16747@twin.jikos.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2007 09:37:35 +0100
-Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
- >
- > On Mon, 15 Jan 2007 14:48:57 +1100
- > Ben Nizette <ben.nizette@iinet.net.au> wrote:
- >
- >> Remove an unwanted remnant of the recent revert of AVR32/AT91 SPI 
-patches in -mm.  Without this patch, the AVR32 build of 
-2.6.20-rc[34]-mm1 breaks.
- >
- > Actually, this is broken in my tree. Wonder how I managed to do that
- > and not even notice it.
- >
+Jiri Kosina (jikos@jikos.cz) wrote:
+> On Mon, 15 Jan 2007, Simon Budig wrote:
+> > Is it possible that there is a regression in the hid-debug stuff? The
+> > mapping does not seem to appear in the dmesg-output. I unfortunately
+> > don't have an earlier kernel available right now to verify, but now the
+> > output on plugging in the device looks like this:
+> 
+[...]
+> (after I check why the debug output seems to be broken),
 
-Interestly git://www.atmel.no/~hskinnemoen/linux/kernel/avr32.git master 
-is still fine
+Actually this might have been a false alarm. I remembered about
+/var/log/messages and looked up how this looked like with earlier
+kernels - turns out it looks exactly the same.
 
- > I'll apply this patch and push out a new avr32-arch branch for Andrew.
- > Thanks for testing.
+(the values dumped there seem to be the initial values of a given field
+in a HID-Report)
 
-Sounds good, no worries.
+So there is no regression there, sorry about the confusion.
 
---Ben
- >
- > Haavard
- >
+Bye,
+        Simon
+-- 
+              simon@budig.de              http://simon.budig.de/

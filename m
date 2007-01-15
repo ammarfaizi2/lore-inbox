@@ -1,169 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932300AbXAOMvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932304AbXAOMyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbXAOMvp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 07:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbXAOMvp
+	id S932304AbXAOMyv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 07:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbXAOMyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 07:51:45 -0500
-Received: from 216-54-166-2.static.twtelecom.net ([216.54.166.2]:42345 "EHLO
-	mx2.compro.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932300AbXAOMvo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 07:51:44 -0500
-X-IronPort-AV: i="4.13,189,1167627600"; 
-   d="scan'208"; a="313463:sNHT28287580"
-Message-ID: <45AB78C3.7050406@compro.net>
-Date: Mon, 15 Jan 2007 07:51:15 -0500
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
-MIME-Version: 1.0
-To: Mark Hounschell <dmarkh@cfl.rr.com>
-CC: linux-kernel@vger.kernel.org, Len Brown <lenb@kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: 2.6.17 - weird, boot CPU (#0) not listed by the BIOS.
-References: <45A7ABB8.2030808@compro.net> <45A7AE57.8020400@compro.net> <200701130112.39140.lenb@kernel.org> <45A8D3B2.30506@cfl.rr.com>
-In-Reply-To: <45A8D3B2.30506@cfl.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Jan 2007 07:54:50 -0500
+Received: from mail.screens.ru ([213.234.233.54]:60724 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932304AbXAOMyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 07:54:50 -0500
+Date: Mon, 15 Jan 2007 15:54:01 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070115125401.GA134@tv-sign.ru>
+References: <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070115043304.GA16435@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
-> Len Brown wrote:
->> On Friday 12 January 2007 10:50, Mark Hounschell wrote:
->>> Mark Hounschell wrote:
->>>> I have a Tyan S4881 Thunder K8QW 4 processor (8 cores). Kernel 2.6.16.37 boots
->>>> and runs fine.
->>>> However kernel 2.6.17 and up doesn't. Here is my boot error msg.
->>>>
->>>>
->>>> kernel /vmlinuz-2.6.17-smp  root=/dev/sda5inux version 2.6.17-smp (root@badboy1)
->>>> (gcc version 4.1.0 (SUSE Linux)) #1 SMP PREEMPT Fri Jan 12 07:53:35 EST 2007
->>>> BIOS-provided physical RAM map:
->>>>  BIOS-e820: 0000000000000000 - 0000000000093800 (usable)
->>>>  BIOS-e820: 0000000000093800 - 00000000000a0000 (reserved)
->>>>  BIOS-e820: 00000000000c2000 - 0000000000100000 (reserved)
->>>>  BIOS-e820: 0000000000100000 - 00000000cfea0000 (usable)
->>>>  BIOS-e820: 00000000cfea0000 - 00000000cfea4000 (ACPI data)
->>>>  BIOS-e820: 00000000cfea4000 - 00000000cff00000 (ACPI NVS)
->>>>  BIOS-e820: 00000000cff00000 - 00000000d0000000 (reserved)
->>>>  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
->>>>  BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
->>>>  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
->>>>  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
->>>>  BIOS-e820: 0000000100000000 - 0000000230000000 (usable)
->>>> Warning only 4GB will be used.
->>>> Use a PAE enabled kernel.
->>>> 3200MB HIGHMEM available.
->>>> 896MB LOWMEM available.
->>>> found SMP MP-table at 000f71f0
->>>> DMI present.
->>>> ACPI: PM-Timer IO Port: 0x8008
->>>> ACPI: LAPIC (acpi_id[0x00] lapic_id[0x10] enabled)
->>>> Processor #16 15:1 APIC version 16
->> The APIC id for the 1st processor here is 16.
->> Usually it is 0.
->>
->> Apparently this has confused some of the smpboot code
->> with all their new nifty bitmaps for processors online and offline...
->>
->> Does the latest kernel work any better, say 2.6.19?
->> What if you throw CONFIG_NR_CPUS=32 at it?
->>
->> -Len
->>
+On 01/15, Srivatsa Vaddagiri wrote:
+>
+> On Mon, Jan 15, 2007 at 02:54:10AM +0300, Oleg Nesterov wrote:
+> > How about the pseudo-code below?
 > 
-> CONFIG_NR_CPUS is set to 32. Even 2.6.20-rc4 does this.
+> Some quick comments:
 > 
-> 
->>>> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x11] enabled)
->>>> Processor #17 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x12] enabled)
->>>> Processor #18 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x03] lapic_id[0x13] enabled)
->>>> Processor #19 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x04] lapic_id[0x14] enabled)
->>>> Processor #20 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x05] lapic_id[0x15] enabled)
->>>> Processor #21 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x06] lapic_id[0x16] enabled)
->>>> Processor #22 15:1 APIC version 16
->>>> ACPI: LAPIC (acpi_id[0x07] lapic_id[0x17] enabled)
->>>> Processor #23 15:1 APIC version 16
->>>> ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x04] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x05] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x06] high edge lint[0x1])
->>>> ACPI: LAPIC_NMI (acpi_id[0x07] high edge lint[0x1])
->>>> ACPI: IOAPIC (id[0x00] address[0xfec00000] gsi_base[0])
->>>> IOAPIC[0]: apic_id 0, version 17, address 0xfec00000, GSI 0-23
->>>> ACPI: IOAPIC (id[0x01] address[0xda200000] gsi_base[24])
->>>> IOAPIC[1]: apic_id 1, version 17, address 0xda200000, GSI 24-27
->>>> ACPI: IOAPIC (id[0x02] address[0xda201000] gsi_base[28])
->>>> IOAPIC[2]: apic_id 2, version 17, address 0xda201000, GSI 28-31
->>>> ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
->>>> Enabling APIC mode:  Flat.  Using 3 I/O APICs
->>>> Using ACPI (MADT) for SMP configuration information
->>>> Allocating PCI resources starting at d1000000 (gap: d0000000:10000000)
->>>> Built 1 zonelists
->>>> Kernel command line: root=/dev/sda5 vga=normal resume=/dev/sda2  splash=silent
->>>> "console=ttyS0,19200"
->>>> Enabling fast FPU save and restore... done.
->>>> Enabling unmasked SIMD FPU exception support... done.
->>>> Initializing CPU#0
->>>> PID hash table entries: 4096 (order: 12, 16384 bytes)
->>>> Detected 2411.454 MHz processor.
->>>> Using pmtmr for high-res timesource
->>>> Console: colour VGA+ 80x25
->>>> Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
->>>> Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
->>>> Memory: 3366304k/4194304k available (1529k kernel code, 38968k reserved, 633k
->>>> data, 184k init, 2488960k highmem)
->>>> Checking if this processor honours the WP bit even in supervisor mode... Ok.
->>>> Calibrating delay using timer specific routine.. 4827.61 BogoMIPS (lpj=9655232)
->>>> Security Framework v1.0.0 initialized
->>>> Capability LSM initialized
->>>> Mount-cache hash table entries: 512
->>>> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
->>>> CPU: L2 Cache: 1024K (64 bytes/line)
->>>> CPU 0(2) -> Core 0
->>>> Intel machine check architecture supported.
->>>> Intel machine check reporting enabled on CPU#0.
->>>> Checking 'hlt' instruction... OK.
->>>> Freeing SMP alternatives: 12k freed
->>>> ACPI Warning (nsload-0106): Zero-length AML block in table [SSDT] [20060127]
->>>> CPU0: AMD Athlon(tm) or Opteron(tm) CPU-model unknown stepping 02
->>>> weird, boot CPU (#0) not listed by the BIOS.
->>>>
->>>> It then just reboots. Any ideas what I need to do for 2.6.17 and up kernels. I
->>>> have tried all the
->>>> way up to 2.6.20-rc4.
->>>>
->>>> Thanks
->>>> Mark
->>>>
->>> Oh, I'm running in 32 bit mode on SuSE-10.2
->>>
->>> Mark
->>> -
->>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>> Please read the FAQ at  http://www.tux.org/lkml/
->>>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
-> 
+> - singlethread_cpu needs to be hotplug safe (broken currently)
 
-It this a BIOS bug or a kernel bug?
+Why? Could you explain?
 
-Mark
+> - Any reason why cpu_populated_map is not modified on CPU_DEAD?
+
+Because CPU_DEAD/CPU_UP_CANCELED doesn't wait for cwq->thread to exit.
+cpu_populated_map never shrinks, it only grows on CPU_UP_PREPARE.
+
+We can change this, but it needs some more code, and I am not sure
+we need it. Note that a "false" bit in cpu_populated_map only means
+that flush_work/flush_workqueue/destroy_workqueu will do lock/unlock
+of cwq->lock, nothing more.
+
+> - I feel more comfortable if workqueue_cpu_callback were to take
+>   workqueue_mutex in LOCK_ACQ and release it in LOCK_RELEASE
+>   notifications.
+
+The whole purpose of this change to avoid this!
+
+	Gautham R Shenoy wrote:
+	>
+	> Oh! I was refering to the other set of workqueue deadlock woes. The
+	> ones caused when subsystems (like cpufreq) try to create/destroy
+	> workqueue from the cpuhotplug callback path.
+	>
+	> Creation/destruction of workqueue requires us to take workqueue_mutex,
+	> which would have already been taken during CPU_LOCK_ACQUIRE.
+
+With this change workqueue_mutex is only taken to protect workqueues
+list, why should we hold it for (say) CPU_UP_PREPARE->CPU_ONLINE path?
+
+>                   This will provide stable access to cpu_populated_map
+>   to functions like __create_workqueue.
+
+I think this is not needed.
+
+> Finally, I wonder if these changes will be unnecessary if we move to
+> process freezer based hotplug locking ...
+
+This change ir not strictly necessary but imho make the code better and
+shrinks .text by 379 bytes.
+
+But I believe that freezer will change nothing for workqueue. We still
+need take_over_work(), and hacks like migrate_sequence. And no, CPU_DEAD
+can't just thaw cwq->thread which was bound to the dead CPU to complete
+kthread_stop(), we should thaw all processes.
+
+Oleg.
+

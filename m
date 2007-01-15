@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750919AbXAOVpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751146AbXAOVvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbXAOVpG (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 16:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbXAOVpF
+	id S1751146AbXAOVvV (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 16:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbXAOVvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 16:45:05 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2438 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751018AbXAOVpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 16:45:04 -0500
-Date: Mon, 15 Jan 2007 22:45:03 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: What does this scsi error mean ?
-Message-ID: <20070115214503.GA56952@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Alan <alan@lxorguk.ukuu.org.uk>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20070115171602.GA23661@dspnet.fr.eu.org> <20070115184540.2b3c4f78@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 15 Jan 2007 16:51:20 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:52442 "EHLO
+	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751146AbXAOVvT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 16:51:19 -0500
+Date: Mon, 15 Jan 2007 15:51:17 -0600
+To: Jens Axboe <axboe@suse.de>, Chris Wright <chrisw@sous-sol.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <npiggin@suse.de>, Bino.Sebastian@Emulex.Com,
+       James.Smart@Emulex.Com, rlary@us.ibm.com, Laurie.Barry@Emulex.Com,
+       strosake@us.ibm.com, vaios.papadimitriou@Emulex.Com
+Subject: [PATCH] adjust use of unplug in elevator code
+Message-ID: <20070115215117.GD13157@austin.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070115184540.2b3c4f78@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 06:45:40PM +0000, Alan wrote:
-> On Mon, 15 Jan 2007 18:16:02 +0100
-> Olivier Galibert <galibert@pobox.com> wrote:
-> 
-> > sd 0:0:0:0: SCSI error: return code = 0x08000002
-> > sda: Current: sense key: Hardware Error
-> >     ASC=0x42 ASCQ=0x0
-> 
-> I'll give you a clue: The words "Hardware Error".
-> 
-> Run a SCSI verify pass on the drive with some drive utilities and see
-> what happens. If you are lucky it'll just reallocate blocks and decide
-> the drive is ok, if not well see what the smart data thinks.
 
-Both smart and the internal blade diagnostics say "everything is a-ok
-with the drive, there hasn't been any error ever except a bunch of
-corrected ECC ones, and no more than with a similar drive in another
-working blade".  Hence my initial post.  "Hardware error" is kinda
-imprecise, so I was wondering whether it was unexpected controller
-answer, detected transmission error, block write error, sector not
-found...  Is there a way to have more information?
+Hi Chris, Jens,
+Can you look at this, and push upstream if this looks reasonable
+to you? It fixes a bug I've been tripping over.
 
-  OG.
+--linas
 
+
+A flag was recently added to the elevator code to avoid
+performing an unplug when reuests are being re-queued.
+The goal of this flag was to avoid a deep recursion that
+can occur when re-queueing requests after a SCSI device/host 
+reset.  See http://lkml.org/lkml/2006/5/17/254
+
+However, that fix added the flag near the bottom of a case
+statement, where an earlier break (in an if statement) could
+transport one out of the case, without setting the flag.
+This patch sets the flag earlier in the case statement.
+
+I re-discovered the deep recursion recently during testing;
+I was told that it was a known problem, and the fix to it was
+in the kernel I was testing. Indeed it was ... but it didn't
+fix the bug. With the patch below, I no longer see the bug.
+
+Signed-off by: Linas Vepstas <linas@austin.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>
+
+----
+ block/elevator.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+Index: linux-2.6.20-rc4/block/elevator.c
+===================================================================
+--- linux-2.6.20-rc4.orig/block/elevator.c	2007-01-15 14:16:03.000000000 -0600
++++ linux-2.6.20-rc4/block/elevator.c	2007-01-15 14:20:04.000000000 -0600
+@@ -590,6 +590,12 @@ void elv_insert(request_queue_t *q, stru
+ 		 */
+ 		rq->cmd_flags |= REQ_SOFTBARRIER;
+ 
++		/*
++		 * Most requeues happen because of a busy condition,
++		 * don't force unplug of the queue for that case.
++		 */
++		unplug_it = 0;
++
+ 		if (q->ordseq == 0) {
+ 			list_add(&rq->queuelist, &q->queue_head);
+ 			break;
+@@ -604,11 +610,6 @@ void elv_insert(request_queue_t *q, stru
+ 		}
+ 
+ 		list_add_tail(&rq->queuelist, pos);
+-		/*
+-		 * most requeues happen because of a busy condition, don't
+-		 * force unplug of the queue for that case.
+-		 */
+-		unplug_it = 0;
+ 		break;
+ 
+ 	default:

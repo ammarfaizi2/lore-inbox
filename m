@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932240AbXAOM1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932299AbXAOMn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbXAOM1K (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 07:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbXAOM1K
+	id S932299AbXAOMn3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 07:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbXAOMn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 07:27:10 -0500
-Received: from 87-194-8-8.bethere.co.uk ([87.194.8.8]:50241 "EHLO
-	aeryn.fluff.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932240AbXAOM1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 07:27:09 -0500
-Date: Mon, 15 Jan 2007 12:26:54 +0000
-From: Ben Dooks <ben-linux@fluff.org>
-To: rpurdie@rpsys.net, linux-kernel@vger.kernel.org
-Subject: LEDS: S3C24XX generate name if none given
-Message-ID: <20070115122654.GA25047@home.fluff.org>
+	Mon, 15 Jan 2007 07:43:29 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:36174 "EHLO scrub.xs4all.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932299AbXAOMn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 07:43:28 -0500
+Date: Mon, 15 Jan 2007 13:43:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Bernhard Schiffner <bernhard@schiffner-limbach.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ntp.c : possible inconsistency?
+In-Reply-To: <200701101629.44528.bernhard@schiffner-limbach.de>
+Message-ID: <Pine.LNX.4.64.0701151338120.14457@scrub.home>
+References: <200701101423.36740.bernhard@schiffner-limbach.de>
+ <Pine.LNX.4.64.0701101516420.14458@scrub.home> <200701101629.44528.bernhard@schiffner-limbach.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-802229199-1168865006=:14457"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Generate a name if none is passed to the S3C24XX GPIO LED driver.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+---1463811837-802229199-1168865006=:14457
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-diff -urpN -X ../dontdiff linux-2.6.19/drivers/leds/leds-s3c24xx.c linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c
---- linux-2.6.19/drivers/leds/leds-s3c24xx.c	2006-11-29 21:57:37.000000000 +0000
-+++ linux-2.6.19-simtec1p22/drivers/leds/leds-s3c24xx.c	2007-01-04 10:22:58.000000000 +0000
-@@ -23,6 +23,8 @@
- /* our context */
- 
- struct s3c24xx_gpio_led {
-+	char				 name[32];
-+
- 	struct led_classdev		 cdev;
- 	struct s3c24xx_led_platdata	*pdata;
- };
-@@ -85,6 +87,14 @@ static int s3c24xx_led_probe(struct plat
- 
- 	led->pdata = pdata;
- 
-+	/* create name if we where not passed one */
-+
-+	if (led->cdev.name == NULL) {
-+		snprintf(led->name, sizeof(led->name), "%s.%d",
-+			 dev->name, dev->id);
-+		led->cdev.name = led->name;
-+	}
-+
- 	/* no point in having a pull-up if we are always driving */
- 
- 	if (pdata->flags & S3C24XX_LEDF_TRISTATE) {
+Hi,
+
+On Wed, 10 Jan 2007, Bernhard Schiffner wrote:
+
+> > Without a further explanation of this craziness, it's a little hard to
+> > discuss...
+> Let's try it:
+> time_constant is created for internal use of ntp.c and added by 4
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 time_constant =3D min(txc->constant + 4, (l=
+ong)MAXTC);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 time_constant =3D min(txc->constant + 4, (l=
+ong)MAXTC + 4);
+
+MAXTC is already adjusted.
+
+> But sometimes it is written back to data referenced from outside. So let'=
+s do=20
+> the + 4 backwards ...
+> - =A0 =A0 =A0 txc->constant =A0 =A0 =A0=3D time_constant;
+> + =A0 =A0 =A0 txc->constant =A0 =A0 =A0=3D time_constant - 4;
+
+ntpd doesn't read it back for it's own purposes, it only prints it, when=20
+the kernel info is queried, it doesn't adjust the constant there, so I=20
+didn't do it in the kernel either.
+
+bye, Roman
+---1463811837-802229199-1168865006=:14457--

@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbXAONyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbXAONzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbXAONyL (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbXAONyL
+	id S932371AbXAONzU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbXAONzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:54:11 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:45987 "EHLO
-	ausmtp05.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932342AbXAONyJ (ORCPT
+	Mon, 15 Jan 2007 08:55:20 -0500
+Received: from an-out-0708.google.com ([209.85.132.251]:57353 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932356AbXAONzS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:54:09 -0500
-Message-ID: <45AB8768.7000907@linux.vnet.ibm.com>
-Date: Mon, 15 Jan 2007 19:23:44 +0530
-From: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Mon, 15 Jan 2007 08:55:18 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=bmhnXVhBKe3/k4bL7VRBUttDDy3juizvrbHSw816VK9gsnO/sgB4UZ7VaEIYkIuBfwLhBqxOZnQ9Sey9l1RCKz1mEzXgfdSOby1qIJGaKT81XKyRGTXXyVDJ3F3LdDJCD2qQ/n38nGJRSo7zEydKSBiqoF1F5fP00L9x0Ng/udY=
+Message-ID: <45AB87BE.9060304@gmail.com>
+Date: Mon, 15 Jan 2007 22:55:10 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-To: Soeren Sonnenburg <kernel@nn7.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: prioritize PCI traffic ?
-References: <1168859265.15294.8.camel@localhost>
-In-Reply-To: <1168859265.15294.8.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jeff Garzik <jeff@garzik.org>
+CC: Arjan van de Ven <arjan@infradead.org>, Faik Uygur <faik@pardus.org.tr>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ahci_softreset prevents acpi_power_off
+References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no>	 <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>	 <200701141959.40673.faik@pardus.org.tr> <1168797978.3123.997.camel@laptopd505.fenrus.org> <45AAFCC6.9000700@gmail.com> <45AB8553.10301@garzik.org>
+In-Reply-To: <45AB8553.10301@garzik.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Soeren Sonnenburg wrote:
-> Dear all,
+Jeff Garzik wrote:
+> Tejun Heo wrote:
+>> Arjan van de Ven wrote:
+>>> I'd be interested in finding out how to best test this; if the bios is
+>>> really broken I'd love to add a test to the Linux-ready Firmware
+>>> Developer Kit for this, so that BIOS developers can make sure future
+>>> bioses do not suffer from this bug...
+>>
+>> As reported, this is almost a butterfly effect.  ->softreset method is
+>> only used during initialization and error recovery of ATA devices which
+>> has almost nothing to do with the rest of the system.  This is almost
+>> like 'changing my mixer input to line-in makes power off fail'.  (it's
+>> more related due to ATA ACPI stuff and maybe that's why this happens but
+>> I'm trying to make a point here.)
 > 
-> is it possible to explicitly tell the kernel to prioritize PCI traffic
-> for a number of cards in pci slots x,y,z ?
-> 
-> I am asking as severe ide traffic causes lost frames when watching TV
-> using 2 DVB cards + vdr... This is simply due to the fact that the PCI
-> bus is saturated...
+> It's quite possible that the BIOS in question wants AHCI in some
+> specific state at poweroff.
 
-How do you know that the bus is saturated?
-Are you streaming data to/from the ide hard disks/CDROM?
-Do you have DMAs 'ON' for the hard disks?
-Is everything just fine if there are no IDE traffic?
-Are you running 2.6 kernel with preempt 'ON'?
-Are all hardware on the same IRQ line? (shared interrupts)
+I would be surprised if this weren't an accident.  We reset the
+controller during initialization, so whether softreset or hardreset is
+used, the end status cannot be much different.  And, I really don't
+wanna change ahci and/or libata for this.
 
-> So, is any prioritizing of the PCI bus possible ?
-
-The drivers + application indirectly can control priority on the
-bus.  Just reduce the priority of the application that uses IDE and
-see if adjusting nice values of applications can change the scenario.
-
---Vaidy
-
-> Best
-> Soeren
-> --
-> Sometimes, there's a moment as you're waking, when you become aware of
-> the real world around you, but you're still dreaming.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+tejun

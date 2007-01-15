@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750977AbXAOR3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750973AbXAORd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbXAOR3Q (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 12:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbXAOR3Q
+	id S1750973AbXAORd7 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 12:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbXAORd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 12:29:16 -0500
-Received: from ns2.suse.de ([195.135.220.15]:35143 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750977AbXAOR3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 12:29:15 -0500
-Date: Mon, 15 Jan 2007 18:29:12 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Tilman Schmidt <tilman@imap.cc>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>, kkeil@suse.de
-Subject: Re: any value to fixing apparent bugs in old ISDN4Linux?
-Message-ID: <20070115172912.GA3323@pingi.kke.suse.de>
-Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-	Tilman Schmidt <tilman@imap.cc>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	kkeil@suse.de
-References: <Pine.LNX.4.64.0701150634270.1953@CPE00045a9c397f-CM001225dbafb6> <45ABB53C.5030100@imap.cc> <Pine.LNX.4.64.0701151216310.7260@CPE00045a9c397f-CM001225dbafb6>
-Mime-Version: 1.0
+	Mon, 15 Jan 2007 12:33:59 -0500
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:59828 "EHLO
+	smtprelay04.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751051AbXAORd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 12:33:58 -0500
+Date: Mon, 15 Jan 2007 18:32:16 +0100
+From: Simon Budig <simon@budig.de>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19] USB HID: proper LED-mapping (support for SpaceNavigator)
+Message-ID: <20070115173216.GA4582@budig.de>
+References: <20070114231135.GA29966@budig.de> <Pine.LNX.4.64.0701150938180.16747@twin.jikos.cz> <20070115162541.GA3751@budig.de> <Pine.LNX.4.64.0701151743170.16747@twin.jikos.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701151216310.7260@CPE00045a9c397f-CM001225dbafb6>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0701151743170.16747@twin.jikos.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 12:17:37PM -0500, Robert P. J. Day wrote:
-> On Mon, 15 Jan 2007, Tilman Schmidt wrote:
+Jiri Kosina (jikos@jikos.cz) wrote:
+> On Mon, 15 Jan 2007, Simon Budig wrote:
+> > Yeah, it was easy to port over. Did the hid-debug stuff disappear
+> > completely? What would I use instead?
 > 
-> > Robert P. J. Day schrieb:
-> > >   OTOH, since that code *is* in the allegedly obsolete old ISDN4Linux
-> > > code, perhaps that entire part of the tree can just be junked.  but if
-> > > it's sticking around, it should probably be fixed.
-> >
-> > Please do not remove isdn4linux just yet. It's true that it has been
-> > marked as obsolete for quite some time, but it's still needed
-> > anyway. Its designated successor, the CAPI subsystem, so far only
-> > supports a very limited range of hardware. Dropping isdn4linux now
-> > would leave the owners of some very popular ISDN cards out in the
-> > cold.
-> 
-> that wouldn't be my decision, i just made a note of an oddity.  but if
-> it's still in actual use, then it really should be re-labelled from
-> "obsolete" to "deprecated," no?
-> 
+> No, it didn't disappear, it was just moved to include/linux/hid-debug.h. 
+> Should I wait for an updated patch that uses hid-debug.h again?
 
-Good point.
+Thanks, I missed that. Since these issues are unrelated I'll just submit
+a trivial patch for the hid-debug.h stuff.
 
+Is it possible that there is a regression in the hid-debug stuff? The
+mapping does not seem to appear in the dmesg-output. I unfortunately
+don't have an earlier kernel available right now to verify, but now the
+output on plugging in the device looks like this:
+
+[...]
+usbcore: registered new interface driver hiddev
+hid-debug: input GenericDesktop.X = 0
+hid-debug: input GenericDesktop.Y = 0
+hid-debug: input GenericDesktop.Z = 0
+hid-debug: input GenericDesktop.Rx = 0
+hid-debug: input GenericDesktop.Ry = 0
+hid-debug: input GenericDesktop.Rz = 0
+[...]
+
+which looks bogus to me, IIRC earlier versions really printed the
+mapping to linux input events at this point.
+
+Anyway, the patch is correct anyway, will submit it soon.
+
+Bye,
+        Simon
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+              simon@budig.de              http://simon.budig.de/

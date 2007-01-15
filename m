@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932096AbXAOIbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751830AbXAOIh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbXAOIbZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 03:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbXAOIbZ
+	id S1751830AbXAOIh7 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 03:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbXAOIh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 03:31:25 -0500
-Received: from stinky.trash.net ([213.144.137.162]:52894 "EHLO
-	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751700AbXAOIbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 03:31:24 -0500
-Message-ID: <45AB3BDA.6050300@trash.net>
-Date: Mon, 15 Jan 2007 09:31:22 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@it.uu.se>
-CC: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: [PATCH 2.6.20-rc5] netfilter: xt_state compile failure
-References: <17835.13603.658813.332230@alkaid.it.uu.se>
-In-Reply-To: <17835.13603.658813.332230@alkaid.it.uu.se>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Mon, 15 Jan 2007 03:37:59 -0500
+Received: from nat-132.atmel.no ([80.232.32.132]:63218 "EHLO relay.atmel.no"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751830AbXAOIh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 03:37:58 -0500
+Date: Mon, 15 Jan 2007 09:37:35 +0100
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Ben Nizette <ben.nizette@iinet.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] AVR32: fix build breakage
+Message-ID: <20070115093735.6dc06b9c@dhcp-252-105.norway.atmel.com>
+In-Reply-To: <45AAF9A9.9080501@iinet.net.au>
+References: <45AAF9A9.9080501@iinet.net.au>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> include/net/netfilter/nf_conntrack_compat.h: In function 'nf_ct_l3proto_try_module_get':
-> include/net/netfilter/nf_conntrack_compat.h:70: error: 'PF_INET' undeclared (first use in this function)
-> include/net/netfilter/nf_conntrack_compat.h:70: error: (Each undeclared identifier is reported only once
-> include/net/netfilter/nf_conntrack_compat.h:70: error: for each function it appears in.)
-> include/net/netfilter/nf_conntrack_compat.h:71: warning: control reaches end of non-void function
-> make[2]: *** [net/netfilter/xt_state.o] Error 1
-> make[1]: *** [net/netfilter] Error 2
-> make: *** [net] Error 2
-> 
-> A simple fix is to have nf_conntrack_compat.h #include <linux/socket.h>.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+On Mon, 15 Jan 2007 14:48:57 +1100
+Ben Nizette <ben.nizette@iinet.net.au> wrote:
 
-Applied, thanks Mikael.
+> Remove an unwanted remnant of the recent revert of AVR32/AT91 SPI 
+> patches in -mm.  Without this patch, the AVR32 build of 
+> 2.6.20-rc[34]-mm1 breaks.
+
+Actually, this is broken in my tree. Wonder how I managed to do that
+and not even notice it.
+
+I'll apply this patch and push out a new avr32-arch branch for Andrew.
+Thanks for testing.
+
+Haavard

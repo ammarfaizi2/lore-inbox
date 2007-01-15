@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751127AbXAOQyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751025AbXAOQ5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbXAOQyi (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 11:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbXAOQyh
+	id S1751025AbXAOQ5G (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 11:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbXAOQ5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 11:54:37 -0500
-Received: from mail.screens.ru ([213.234.233.54]:45852 "EHLO mail.screens.ru"
+	Mon, 15 Jan 2007 11:57:06 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:35981 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751127AbXAOQyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 11:54:37 -0500
-Date: Mon, 15 Jan 2007 19:55:16 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
-Message-ID: <20070115165516.GA254@tv-sign.ru>
-References: <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru> <20070115161810.GB16435@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070115161810.GB16435@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	id S1751025AbXAOQ5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 11:57:05 -0500
+Date: Mon, 15 Jan 2007 17:56:47 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Suhabe Bugrara <suhabe@stanford.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: user pointer bugs
+In-Reply-To: <5166c2f30701141558td770dfbt13fd5098f76bcde6@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0701151746370.23841@yvahk01.tjqt.qr>
+References: <5166c2f30701141558td770dfbt13fd5098f76bcde6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/15, Srivatsa Vaddagiri wrote:
+
+On Jan 14 2007 15:58, Suhabe Bugrara wrote:
 >
-> On Mon, Jan 15, 2007 at 03:54:01PM +0300, Oleg Nesterov wrote:
-> > > - singlethread_cpu needs to be hotplug safe (broken currently)
-> > 
-> > Why? Could you explain?
-> 
-> What if 'singlethread_cpu' dies?
+> In linux-2.6.19.2, do the following lines have bugs in them? It looks
+> like they dereference a user pointer without first being checked by
+> the "access_ok" macro to ensure that they point into userspace.
+>
+> Suhabe
+>
+> ========================
+> File: sound/isa/sscape.c
+> Lines: 550, 665
+> Description: The pointer "bb" is dereferenced in the expression
+> "bb->code" without being checked first.
+> Fix: Replace "bb->code" with "&bb->code"
 
-Still can't understand you. Probably you missed what singlethread_cpu is.
+Looking at 2.6.20-rc5 now...
 
-singlethread_cpu is just a "random" bit from cpu_possible_map. Single
-threaded workqueue is not bound to any cpu. We only need it to be sure that
-percpu_data.ptrs[singlethread_cpu] is populated by __percpu_alloc_mask().
+550: ret = upload_dma_data(sscape, bb->code, sizeof(bb->code));
+665: if ( !access_ok(VERIFY_READ, bb->code, sizeof(bb->code)) )
 
-> > > - Any reason why cpu_populated_map is not modified on CPU_DEAD?
-> > 
-> > Because CPU_DEAD/CPU_UP_CANCELED doesn't wait for cwq->thread to exit.
-> > cpu_populated_map never shrinks, it only grows on CPU_UP_PREPARE.
-> > 
-> > We can change this, but it needs some more code, and I am not sure
-> > we need it. Note that a "false" bit in cpu_populated_map only means
-> > that flush_work/flush_workqueue/destroy_workqueu will do lock/unlock
-> > of cwq->lock, nothing more.
-> 
-> What abt __create_workqueue/schedule_on_each_cpu?
+Here's a test:
 
-As I said already __create_workqueue() needs a fix, schedule_on_each_cpu()
-is already broken, and should be fixed as well.
+$ cat x.c
+/*1*/ struct foo {
+/*2*/     char bar[256];
+/*3*/ };
+/*4*/ int main(void) {
+/*5*/     struct foo tmp;
+/*6*/     char *x = tmp.bar;
+/*7*/     char *y = &tmp.bar;
+/*8*/     return 0;
+/*9*/ }
 
-> > > - I feel more comfortable if workqueue_cpu_callback were to take
-> > >   workqueue_mutex in LOCK_ACQ and release it in LOCK_RELEASE
-> > >   notifications.
-> > 
-> > The whole purpose of this change to avoid this!
-> 
-> I guess it depends on how __create_workqueue/schedule_on_each_cpu is
-> modified (whether we take/release lock upon LOCK_ACQ/LOCK_RELEASE)
+$ cc x.c -Wall
+x.c:7: warning: initialization from incompatible pointer type
 
-Sorry, can't understand this...
+Hence, &bb->code would be wrong. Really. (Talk to ##c or comp.lang.c
+perhaps on details.)
 
-> > > Finally, I wonder if these changes will be unnecessary if we move to
-> > > process freezer based hotplug locking ...
-> > 
-> > This change ir not strictly necessary but imho make the code better and
-> > shrinks .text by 379 bytes.
-> > 
-> > But I believe that freezer will change nothing for workqueue. We still
-> > need take_over_work(), and hacks like migrate_sequence. And no, CPU_DEAD
-> > can't just thaw cwq->thread which was bound to the dead CPU to complete
-> > kthread_stop(), we should thaw all processes.
-> 
-> What abt stopping that thread in CPU_DOWN_PREPARE (before freezing
-> processes)? I understand that it may add to the latency, but compared to
-> the overall latency of process freezer, I suspect it may not be much.
+>
+> ========================
+> File: block/scsi_ioctl.c
+> Lines: 406, 427, 430, 482, 486
+> Description: The pointer "sic" is dereferenced in the expression
+> "sic->data" without being checked first.
+> Fix: Replace "sic->code" with "&sic->code"
 
-Srivatsa, why do you think this would be better?
+Same. sic->code decays into a char* when used.
+This gets boring, I won't look at the others.
 
-It add to the complexity! What do you mean by "stopping that thread" ?
-Kill it? - this is wrong. Make it TASK_STOPPED? - very untrivial and I
-can't see how this helps.
 
-Oleg.
-
+	-`J'
+-- 

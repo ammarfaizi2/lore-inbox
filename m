@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbXAONzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932356AbXAON5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbXAONzU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbXAONzU
+	id S932356AbXAON5U (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbXAON5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:55:20 -0500
-Received: from an-out-0708.google.com ([209.85.132.251]:57353 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932356AbXAONzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:55:18 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=bmhnXVhBKe3/k4bL7VRBUttDDy3juizvrbHSw816VK9gsnO/sgB4UZ7VaEIYkIuBfwLhBqxOZnQ9Sey9l1RCKz1mEzXgfdSOby1qIJGaKT81XKyRGTXXyVDJ3F3LdDJCD2qQ/n38nGJRSo7zEydKSBiqoF1F5fP00L9x0Ng/udY=
-Message-ID: <45AB87BE.9060304@gmail.com>
-Date: Mon, 15 Jan 2007 22:55:10 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Arjan van de Ven <arjan@infradead.org>, Faik Uygur <faik@pardus.org.tr>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ahci_softreset prevents acpi_power_off
-References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no>	 <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>	 <200701141959.40673.faik@pardus.org.tr> <1168797978.3123.997.camel@laptopd505.fenrus.org> <45AAFCC6.9000700@gmail.com> <45AB8553.10301@garzik.org>
-In-Reply-To: <45AB8553.10301@garzik.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Jan 2007 08:57:20 -0500
+Received: from mx1.suse.de ([195.135.220.2]:34335 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932356AbXAON5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:57:20 -0500
+Date: Mon, 15 Jan 2007 14:57:18 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: any value to fixing apparent bugs in old ISDN4Linux?
+Message-ID: <20070115135718.GC30889@pingi.kke.suse.de>
+Mail-Followup-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0701150634270.1953@CPE00045a9c397f-CM001225dbafb6>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701150634270.1953@CPE00045a9c397f-CM001225dbafb6>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tejun Heo wrote:
->> Arjan van de Ven wrote:
->>> I'd be interested in finding out how to best test this; if the bios is
->>> really broken I'd love to add a test to the Linux-ready Firmware
->>> Developer Kit for this, so that BIOS developers can make sure future
->>> bioses do not suffer from this bug...
->>
->> As reported, this is almost a butterfly effect.  ->softreset method is
->> only used during initialization and error recovery of ATA devices which
->> has almost nothing to do with the rest of the system.  This is almost
->> like 'changing my mixer input to line-in makes power off fail'.  (it's
->> more related due to ATA ACPI stuff and maybe that's why this happens but
->> I'm trying to make a point here.)
+On Mon, Jan 15, 2007 at 06:43:30AM -0500, Robert P. J. Day wrote:
 > 
-> It's quite possible that the BIOS in question wants AHCI in some
-> specific state at poweroff.
+> $ grep -r DE_AOC .
+> ./.config:CONFIG_DE_AOC=y
+> ./drivers/isdn/hisax/l3dss1.c:#ifdef HISAX_DE_AOC
+> ./drivers/isdn/hisax/l3dss1.c:#else  /* not HISAX_DE_AOC */
+> ./drivers/isdn/hisax/l3dss1.c:#endif /* not HISAX_DE_AOC */
+> ./drivers/isdn/hisax/Kconfig:config DE_AOC
+> 
+>   it seems like there's a name mismatch between the config variable
+> and the one that's being tested, no?
+> 
+>   OTOH, since that code *is* in the allegedly obsolete old ISDN4Linux
+> code, perhaps that entire part of the tree can just be junked.  but if
+> it's sticking around, it should probably be fixed.
+> 
 
-I would be surprised if this weren't an accident.  We reset the
-controller during initialization, so whether softreset or hardreset is
-used, the end status cannot be much different.  And, I really don't
-wanna change ahci and/or libata for this.
+
+Yes thanks for discover this. Since the code only affect the
+analyse of the AOC info which is pure information only without real
+function it was not detected before.
 
 -- 
-tejun
+Karsten Keil
+SuSE Labs
+ISDN development

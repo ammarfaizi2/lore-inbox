@@ -1,46 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750791AbXAOPDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750804AbXAOPDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbXAOPDq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 10:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbXAOPDq
+	id S1750804AbXAOPDx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 10:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbXAOPDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 10:03:46 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:35057 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750791AbXAOPDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 10:03:45 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: nigel@nigel.suspend2.net
-Subject: Re: [Patch] Extend support for PM_TRACE to include x86_64
-Date: Mon, 15 Jan 2007 16:04:58 +0100
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <1168859098.4417.3.camel@nigel.suspend2.net>
-In-Reply-To: <1168859098.4417.3.camel@nigel.suspend2.net>
+	Mon, 15 Jan 2007 10:03:53 -0500
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:25977 "EHLO
+	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750804AbXAOPDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 10:03:52 -0500
+Message-ID: <45AB97D5.6010503@fr.ibm.com>
+Date: Mon, 15 Jan 2007 16:03:49 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 7/8] user_ns: handle file sigio
+References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181257.GH11377@sergelap.austin.ibm.com> <20070111212039.68e57e65.akpm@osdl.org> <20070115072653.GA7385@sergelap.austin.ibm.com>
+In-Reply-To: <20070115072653.GA7385@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701151604.59455.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday, 15 January 2007 12:04, Nigel Cunningham wrote:
-> Hi.
+Serge E. Hallyn wrote:
+> Quoting Andrew Morton (akpm@osdl.org):
+>> On Thu, 4 Jan 2007 12:12:57 -0600
+>> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+>>
+>>> A process in one user namespace could set a fowner and sigio on a file in a
+>>> shared vfsmount, ending up killing a task in another user namespace.
+>>>
+>>> Prevent this by adding a user namespace pointer to the fown_struct, and
+>>> enforcing that a process causing a signal to be sent be in the same
+>>> user namespace as the file owner.
+>> This patch breaks the X server (stock FC5 install) with CONFIG_USER_NS=n.
+>> Neither the USB mouse nor the trackpad work.  They work OK under GPM.
+>>
+>> Setting CONFIG_USER_NS=y "fixes" this.  This bug was not observed in
+>> 2.6.20-rc3-mm1 because that kernel had user-ns-always-on.patch for other
+>> reasons.  (I'll restore that patch).
+>>
+>> There's nothing very interesting here:
+>
+[ ... ]
 > 
-> This patch adds support for PM_TRACE for the x86_64 architecture. Thanks
-> to Linus for help with my asm ignorance.
+> I can't see any reason for this in the code or comparative ltp runs.
+> Cedric is testing on a fc6 laptop, hopefully he can reproduce it.
 
-It has been for quite some time on my todo list.  Thanks for doing it.
+I did reproduce it on a FC5 desktop finally. 
 
-Greetings,
-Rafael
+get_user_ns() returns NULL when CONFIG_USER_NS=n and this breaks  
+sigio_perm() which does not expect NULL values for ->user_ns.
+
+I would fix this with the following patch.
+
+C.
 
 
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+
+---
+ include/linux/user_namespace.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: 2.6.20-rc4-mm1/include/linux/user_namespace.h
+===================================================================
+--- 2.6.20-rc4-mm1.orig/include/linux/user_namespace.h
++++ 2.6.20-rc4-mm1/include/linux/user_namespace.h
+@@ -49,7 +49,7 @@
+
+ static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+ {
+-	return NULL;
++	return &init_user_ns;
+ }
+
+ static inline int unshare_user_ns(unsigned long flags,

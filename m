@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751757AbXAOAPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751753AbXAOAPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751757AbXAOAPl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 19:15:41 -0500
+	id S1751753AbXAOAPm (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 19:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbXAOAPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Sun, 14 Jan 2007 19:15:41 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:48702 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751757AbXAOAPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from pentafluge.infradead.org ([213.146.154.40]:33034 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751755AbXAOAPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 14 Jan 2007 19:15:40 -0500
-Date: Mon, 15 Jan 2007 01:14:09 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Florin Iucha <florin@iucha.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: heavy nfs[4]] causes fs badness Was: 2.6.20-rc4: known unfixed
- regressions (v2)
-In-Reply-To: <20070114235816.GB6053@iucha.net>
-Message-ID: <Pine.LNX.4.64.0701150109190.16747@twin.jikos.cz>
-References: <20070109214431.GH24369@iucha.net>
- <Pine.LNX.4.44L0.0701101052310.3289-100000@iolanthe.rowland.org>
- <20070114225701.GA6053@iucha.net> <20070114235816.GB6053@iucha.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [patch 00/12] Fix ppc64's writing to struct file_operations
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Alan <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20070115105501.0ec8ead0.sfr@canb.auug.org.au>
+References: <1168735868.3123.315.camel@laptopd505.fenrus.org>
+	 <1168735914.3123.317.camel@laptopd505.fenrus.org>
+	 <20070114145411.1fd8c985@localhost.localdomain>
+	 <20070115105501.0ec8ead0.sfr@canb.auug.org.au>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 14 Jan 2007 16:15:31 -0800
+Message-Id: <1168820131.3123.1344.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jan 2007, Florin Iucha wrote:
+On Mon, 2007-01-15 at 10:55 +1100, Stephen Rothwell wrote:
+> On Sun, 14 Jan 2007 14:54:11 +0000 Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> >
+> > This doesn't appea to do the same thing at all. You need to select
+> > between two sets of const inode ops instead, otherwise you turn write on
+> > arbitarily.
+> 
+> Or something like below ... (compile tested on pseries, iseries and combined).
 
-> All the testing was done via a ssh into the workstation.  The console 
-> was left as booted into, with the gdm running.  The remote nfs4 
-> directory was mounted on "/mnt". After copying the 60+ GB and testing 
-> that the keyboard was still functioning, I did not reboot but stayed in 
-> the same kernel and pulled the latest git then started bisecting.  
+ok I was about to do this instead... but you beat me to it.. thanks!
 
-Hi Florin,
+Acked-by: Arjan van de Ven <arjan@linux.intel.com>
 
-thanks a lot for the testing. Just to verify - what kernel is 'the same 
-kernel' mentioned above? (just to isolate whether the problem is really 
-somewhere between 2.6.19 and 2.6.20-rc2, as you stated in previous posts, 
-or the situation has changed).
 
-> After recompiling, I moved over to the workstation to reboot it, but the 
-> keyboard was not functioning ;(
-
-So this time the hang occured when the system was idle, not during the 
-transfers, right?
-
-> I ran "lsusb" and it displayed all the devices. "dmesg" did not show
-> any oops, anything for that matter.  I have unplugged the keyboard and
-> run "lsusb" again, but it hang.  I ran "ls /mnt" and it hang as well.
-> Stracing "lsusb" showed it hang (entered the kernel) at opening the device
-> that used to be the keyboard.  Stracing "ls /mnt" showed that it
-> hang at "stat(/mnt)".  Both processes were in "D" state.  "ls /root"
-> worked without problem, so it appears that crossing mountpoints causes
-> some hang in the kernel.
-
-Could you please do alt-sysrq-t (or "echo t > /proc/sysrq-trigger" via 
-ssh, when your keyboard is dead) to see the calltraces of the processes 
-which are stuck inside kernel?
-
-You will probably get a lot of output after the sysrq, so please either 
-put it somewhere on the web if possible, or just extract the interesting 
-processes out of it (mainly the ones which are stuck).
-
-Thanks,
 
 -- 
-Jiri Kosina
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

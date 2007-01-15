@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751798AbXAODr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751800AbXAODtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751798AbXAODr6 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 22:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbXAODr6
+	id S1751800AbXAODtK (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 22:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbXAODtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 22:47:58 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:43623 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751798AbXAODr5 (ORCPT
+	Sun, 14 Jan 2007 22:49:10 -0500
+Received: from mail.velocitynet.com.au ([203.17.154.25]:52953 "EHLO
+	m0.velocity.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751800AbXAODtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 22:47:57 -0500
-In-Reply-To: <45AAF3AC.3070600@gentoo.org>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, stable@kernel.org
+	Sun, 14 Jan 2007 22:49:08 -0500
+Message-ID: <45AAF9A9.9080501@iinet.net.au>
+Date: Mon, 15 Jan 2007 14:48:57 +1100
+From: Ben Nizette <ben.nizette@iinet.net.au>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-Subject: Re: 2.6.19.2 regression introduced by "IPV4/IPV6: Fix inet{,6} device
- initialization order."
-X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
-Message-ID: <OF0ECEC103.470302BB-ON88257264.00142A49-88257264.0014DC27@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Sun, 14 Jan 2007 19:47:49 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 7.0.2HF32 | October 17, 2006) at
- 01/14/2007 20:47:55,
-	Serialize complete at 01/14/2007 20:47:55
-Content-Type: text/plain; charset="US-ASCII"
+To: Andrew Morton <akpm@osdl.org>, Haavard Skinnemoen <hskinnemoen@atmel.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH -mm] AVR32: fix build breakage
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I expect this is the failure to join the all-nodes multicast group,
-in which case the fix has already been posted to netdev. I
-believe the router advertisements are sent to that, and if the
-join failed, it wouldn't receive any of them.
+Remove an unwanted remnant of the recent revert of AVR32/AT91 SPI 
+patches in -mm.  Without this patch, the AVR32 build of 
+2.6.20-rc[34]-mm1 breaks.
 
-I think it's better to add the fix than withdraw this patch, since
-the original bug is a crash.
-
-Details:
-The IPv6 code passes the "dev" entry to the multicast group
-incrementer and uses it to dereference to get the in6_dev.
-IPv4, by contrast, passes the in_dev directly to its equivalent
-functions.
-
-IPv6 joins the required "all-nodes" multicast group in the
-multicast device initialization function, which due to the fix
-won't have a dev entry at that time. The patch posted by
-Yoshifuji Hideaki moves the all-nodes join until after the
-ip6_ptr is added to the dev.
-
-                                        +-DLS
-
+Signed-off-by: Ben Nizette <ben.nizette@iinet.net.au>
+---
+Index: linux-2.6.20-rc3/arch/avr32/mach-at32ap/at32ap7000.c
+===================================================================
+--- linux-2.6.20-rc3.orig/arch/avr32/mach-at32ap/at32ap7000.c	2007-01-11 
+17:29:01.000000000 +1100
++++ linux-2.6.20-rc3/arch/avr32/mach-at32ap/at32ap7000.c	2007-01-11 
+17:29:18.000000000 +1100
+@@ -895,7 +895,7 @@
+  	&macb0_pclk,
+  	&macb1_hclk,
+  	&macb1_pclk,
+-	&atmel_spi0_mck,
++	&atmel_spi0_pclk,
+  	&atmel_spi1_pclk,
+  	&lcdc0_hclk,
+  	&lcdc0_pixclk,

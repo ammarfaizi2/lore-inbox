@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932098AbXAOIDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751719AbXAOI10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbXAOIDZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 03:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbXAOIDZ
+	id S1751719AbXAOI10 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 03:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbXAOI10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 03:03:25 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:49401 "EHLO aun.it.uu.se"
+	Mon, 15 Jan 2007 03:27:26 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:56078 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932098AbXAOIDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 03:03:25 -0500
-From: Mikael Pettersson <mikpe@it.uu.se>
-MIME-Version: 1.0
+	id S1751700AbXAOI1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 03:27:25 -0500
+Date: Mon, 15 Jan 2007 09:22:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org
+Subject: Re: 2.6.20-rc4-mm1
+Message-ID: <20070115082219.GA9062@elte.hu>
+References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain> <20070114220515.GG5860@kernel.dk> <1168813901.2941.85.camel@localhost.localdomain> <20070114223019.GP5860@kernel.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17835.13603.658813.332230@alkaid.it.uu.se>
-Date: Mon, 15 Jan 2007 09:02:43 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.20-rc5] netfilter: xt_state compile failure
-Cc: netfilter-devel@lists.netfilter.org
+Content-Disposition: inline
+In-Reply-To: <20070114223019.GP5860@kernel.dk>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This config:
 
-CONFIG_NF_CONNTRACK_ENABLED=m
-# CONFIG_NF_CONNTRACK_SUPPORT is not set
-CONFIG_IP_NF_CONNTRACK_SUPPORT=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_NETFILTER_XTABLES=m
-CONFIG_NETFILTER_XT_MATCH_STATE=m
+* Jens Axboe <jens.axboe@oracle.com> wrote:
 
-causes this compilation failure:
+> > In a previous write invoked by: fsck.ext3(1896): WRITE block 8552 on 
+> > sdb1 end_buffer_async_write() is invoked.
+> > 
+> > sdb1 is not a part of a raid device.
+> 
+> When I briefly tested this before I left (and found it broken), doing 
+> a cat /proc/mdstat got things going again. Hard if that's your rootfs, 
+> it's just a hint :-)
 
-  gcc -m32 -Wp,-MD,net/netfilter/.xt_state.o.d  -nostdinc -isystem /local/home/mikpeadm/pkgs/linux-ppc/gcc-4.1.1/lib/gcc/powerpc-unknown-linux-gnu/4.1.1/include -D__KERNEL__ -Iinclude  -include include/linux/autoconf.h -Iarch/powerpc -Iarch/powerpc/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -O2 -msoft-float -pipe -Iarch/powerpc -ffixed-r2 -mmultiple -mno-altivec -funit-at-a-time -mstring -mcpu=powerpc -Wa,-maltivec -fomit-frame-pointer  -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign   -DMODULE -D"KBUILD_STR(s)=#s" -D"KBUILD_BASENAME=KBUILD_STR(xt_state)"  -D"KBUILD_MODNAME=KBUILD_STR(xt_state)" -c -o net/netfilter/xt_state.o net/netfilter/xt_state.c
-In file included from net/netfilter/xt_state.c:13:
-include/net/netfilter/nf_conntrack_compat.h: In function 'nf_ct_l3proto_try_module_get':
-include/net/netfilter/nf_conntrack_compat.h:70: error: 'PF_INET' undeclared (first use in this function)
-include/net/netfilter/nf_conntrack_compat.h:70: error: (Each undeclared identifier is reported only once
-include/net/netfilter/nf_conntrack_compat.h:70: error: for each function it appears in.)
-include/net/netfilter/nf_conntrack_compat.h:71: warning: control reaches end of non-void function
-make[2]: *** [net/netfilter/xt_state.o] Error 1
-make[1]: *** [net/netfilter] Error 2
-make: *** [net] Error 2
+hm, so you knew it's broken, still you let Andrew pick it up, or am i 
+misunderstanding something?
 
-A simple fix is to have nf_conntrack_compat.h #include <linux/socket.h>.
-
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
-
---- linux-2.6.20-rc5/include/net/netfilter/nf_conntrack_compat.h.~1~    2007-01-15 09:00:26.000000000 +0100
-+++ linux-2.6.20-rc5/include/net/netfilter/nf_conntrack_compat.h        2007-01-15 09:00:32.000000000 +0100
-@@ -6,6 +6,7 @@
- #if defined(CONFIG_IP_NF_CONNTRACK) || defined(CONFIG_IP_NF_CONNTRACK_MODULE)
- 
- #include <linux/netfilter_ipv4/ip_conntrack.h>
-+#include <linux/socket.h>
- 
- #ifdef CONFIG_IP_NF_CONNTRACK_MARK
- static inline u_int32_t *nf_ct_get_mark(const struct sk_buff *skb,
+	Ingo

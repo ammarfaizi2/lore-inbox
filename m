@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751051AbXAORfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751316AbXAORgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbXAORfh (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 12:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbXAORfg
+	id S1751316AbXAORgO (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 12:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbXAORgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 12:35:36 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:34021 "EHLO
-	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751051AbXAORfg (ORCPT
+	Mon, 15 Jan 2007 12:36:14 -0500
+Received: from [195.171.73.133] ([195.171.73.133]:34106 "EHLO
+	pelagius.h-e-r-e-s-y.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1751275AbXAORgO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 12:35:36 -0500
-Message-ID: <45ABBB64.3060304@fr.ibm.com>
-Date: Mon, 15 Jan 2007 18:35:32 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Mon, 15 Jan 2007 12:36:14 -0500
+Message-ID: <45ABBB8B.6000505@walrond.org>
+Date: Mon, 15 Jan 2007 17:36:11 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070103)
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 7/8] user_ns: handle file sigio
-References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181257.GH11377@sergelap.austin.ibm.com> <20070111212039.68e57e65.akpm@osdl.org> <20070115072653.GA7385@sergelap.austin.ibm.com> <45AB97D5.6010503@fr.ibm.com> <20070115152825.GA20350@sergelap.austin.ibm.com>
-In-Reply-To: <20070115152825.GA20350@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Olaf Hering <olaf@aepfle.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Initramfs and /sbin/hotplug fun
+References: <45AB8CB9.2000209@walrond.org> <20070115170412.GA26414@aepfle.de>
+In-Reply-To: <20070115170412.GA26414@aepfle.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Olaf Hering wrote:
+> On Mon, Jan 15, Andrew Walrond wrote:
+> 
+>> To solve this, I deleted /sbin/hotplug from the initramfs archive and 
+>> modified /init to reinstate it once it gets control. This works fine, 
+>> but seems inelegant. Is there a better solution? Should sbin/hotplug be 
+>> called at all before the kernel has passed control to /init?
+> 
+> Yes, it should be called.
 
-[ ... ]
+Ok
 
-> Rewriting the userns testcases right now.  Clearly, in addition to
-> separately testing clone and unshare, I need to add a sigioperm check,
-> and have a separate set of testcases for CONFIG_USER_NS=n.
+> /sbin/hotplug and /init are two very different and unrelated things.
 
-Could we get rid of CONFIG_USER_NS ? 
+Well, of course. But looking at the thread provided by Jan, it seems the 
+kernel might not be in any fit state to service the (userspace) hotplug 
+infrastructure when it makes the calls (Ie can't create pipes yet).
 
-It doesn't look that useful anyway, it just deactivates the unshare 
-capability for the user namespace. 
+The kernel wouldn't call /init (or /sbin/init) before it was fully ready 
+to handle userspace processes, so why should it feel able to call the 
+hotplug userspace?
 
-Same question for the other mainline namespaces, IPC and utsname. 
+Andrew Walrond
 
-C.

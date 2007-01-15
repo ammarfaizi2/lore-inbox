@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751137AbXAOSc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751181AbXAOSeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbXAOSc3 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 13:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbXAOSc3
+	id S1751181AbXAOSeK (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 13:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbXAOSeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 13:32:29 -0500
-Received: from styx.suse.cz ([82.119.242.94]:48998 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751137AbXAOSc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 13:32:28 -0500
-Date: Mon, 15 Jan 2007 19:32:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Simon Budig <simon@budig.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19] USB HID: proper LED-mapping (support for SpaceNavigator)
-Message-ID: <20070115183207.GA6792@suse.cz>
-References: <20070114231135.GA29966@budig.de> <Pine.LNX.4.64.0701150938180.16747@twin.jikos.cz> <20070115162541.GA3751@budig.de> <Pine.LNX.4.64.0701151743170.16747@twin.jikos.cz>
+	Mon, 15 Jan 2007 13:34:10 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50444 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751301AbXAOSeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 13:34:09 -0500
+Date: Mon, 15 Jan 2007 18:45:40 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: What does this scsi error mean ?
+Message-ID: <20070115184540.2b3c4f78@localhost.localdomain>
+In-Reply-To: <20070115171602.GA23661@dspnet.fr.eu.org>
+References: <20070115171602.GA23661@dspnet.fr.eu.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701151743170.16747@twin.jikos.cz>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 05:44:26PM +0100, Jiri Kosina wrote:
-> On Mon, 15 Jan 2007, Simon Budig wrote:
-> 
-> > > thanks for the patch. It seems that it is based on pre-2.6.20-rc1 kernel 
-> > > (this is where the USBHID split happened and generic HID layer was 
-> > > introduced). Could you please rebase it against newer version of kernel 
-> > > and resend it?
-> > I've updated the patch, will submit it to the list in a few minutes.
-> 
-> I got it, thanks.
-> 
-> > > All your changes happen to be in the transport-independent code, so it 
-> > > seems that this would be rather trivial task - probably only pathnames 
-> > > (and diff offsets) will change - your changes should now go to 
-> > > drivers/hid/hid-*, not drivers/usb/input/hid-*.
-> > Yeah, it was easy to port over. Did the hid-debug stuff disappear
-> > completely? What would I use instead?
-> 
-> No, it didn't disappear, it was just moved to include/linux/hid-debug.h. 
+On Mon, 15 Jan 2007 18:16:02 +0100
+Olivier Galibert <galibert@pobox.com> wrote:
 
-Do you think that makes sense? It's code, not a header file.
+> sd 0:0:0:0: SCSI error: return code = 0x08000002
+> sda: Current: sense key: Hardware Error
+>     ASC=0x42 ASCQ=0x0
 
-> Should I wait for an updated patch that uses hid-debug.h again?
+I'll give you a clue: The words "Hardware Error".
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+Run a SCSI verify pass on the drive with some drive utilities and see
+what happens. If you are lucky it'll just reallocate blocks and decide
+the drive is ok, if not well see what the smart data thinks.
+
+Alan
+
+

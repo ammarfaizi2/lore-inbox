@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751802AbXAOECa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751799AbXAOEdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbXAOECa (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 14 Jan 2007 23:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbXAOECa
+	id S1751799AbXAOEdP (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 14 Jan 2007 23:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbXAOEdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Jan 2007 23:02:30 -0500
-Received: from wr-out-0506.google.com ([64.233.184.236]:25512 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751802AbXAOEC3 (ORCPT
+	Sun, 14 Jan 2007 23:33:15 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:44282 "EHLO
+	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751799AbXAOEdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Jan 2007 23:02:29 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=f7xTbuJCWwEROei+gg+NgpGKONhoPhAdpzGD/eym3+7cA4JtF6WZeOLwLDObQt4SeXxr+XbmSl2R+otPCREzQPhIUx+BxS4rgzGhLWg0syv8xSRjX/FvEJ25y3ylizj5b6E3OSgl5ykDoBSeofwDBIqm5tB/7k6vIzznVJYqh/0=
-Message-ID: <45AAFCC6.9000700@gmail.com>
-Date: Mon, 15 Jan 2007 13:02:14 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Faik Uygur <faik@pardus.org.tr>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: ahci_softreset prevents acpi_power_off
-References: <fa.enjQgtLFPdSkeJjKv6eOjULTovQ@ifi.uio.no>	 <fa.kpxGqupQMKJxBBFrktFUzuoKc7c@ifi.uio.no> <45A9860D.5080506@shaw.ca>	 <200701141959.40673.faik@pardus.org.tr> <1168797978.3123.997.camel@laptopd505.fenrus.org>
-In-Reply-To: <1168797978.3123.997.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Jan 2007 23:33:14 -0500
+Date: Mon, 15 Jan 2007 10:03:04 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070115043304.GA16435@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070107210139.GA2332@tv-sign.ru> <20070108155428.d76f3b73.akpm@osdl.org> <20070109050417.GC589@in.ibm.com> <20070108212656.ca77a3ba.akpm@osdl.org> <20070109150755.GB89@tv-sign.ru> <20070109155908.GD22080@in.ibm.com> <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070114235410.GA6165@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> I'd be interested in finding out how to best test this; if the bios is
-> really broken I'd love to add a test to the Linux-ready Firmware
-> Developer Kit for this, so that BIOS developers can make sure future
-> bioses do not suffer from this bug...
+On Mon, Jan 15, 2007 at 02:54:10AM +0300, Oleg Nesterov wrote:
+> How about the pseudo-code below?
 
-As reported, this is almost a butterfly effect.  ->softreset method is
-only used during initialization and error recovery of ATA devices which
-has almost nothing to do with the rest of the system.  This is almost
-like 'changing my mixer input to line-in makes power off fail'.  (it's
-more related due to ATA ACPI stuff and maybe that's why this happens but
-I'm trying to make a point here.)
+Some quick comments:
 
-I'm not sure the test can be generalized and included in the firmware
-devel kit.  This is a really really special obscure corner case bug
-which, I believe, none will be able to recreate in the future unless the
-same code is reused.  So, I think the right course of action is to bug
-the manufacturer.  Eh.... Does that work with sony these days?
+- singlethread_cpu needs to be hotplug safe (broken currently)
+
+- Any reason why cpu_populated_map is not modified on CPU_DEAD?
+
+- I feel more comfortable if workqueue_cpu_callback were to take
+  workqueue_mutex in LOCK_ACQ and release it in LOCK_RELEASE 
+  notifications. This will provide stable access to cpu_populated_map
+  to functions like __create_workqueue.
+
+Finally, I wonder if these changes will be unnecessary if we move to
+process freezer based hotplug locking ...
 
 -- 
-tejun
+Regards,
+vatsa

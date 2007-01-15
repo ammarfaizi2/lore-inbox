@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932340AbXAONro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAONxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbXAONro (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 08:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbXAONrn
+	id S932359AbXAONxB (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 08:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbXAONxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 08:47:43 -0500
-Received: from mail.gmx.net ([213.165.64.20]:42632 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932340AbXAONrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 08:47:43 -0500
-X-Authenticated: #5039886
-Date: Mon, 15 Jan 2007 14:47:40 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, htejun@gmail.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070115134739.GA2255@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Mikael Pettersson <mikpe@it.uu.se>, jeff@garzik.org,
-	linux-kernel@vger.kernel.org, htejun@gmail.com
-References: <20070114224409.GA17199@atjola.homenet> <17835.9143.973552.427040@alkaid.it.uu.se>
+	Mon, 15 Jan 2007 08:53:01 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:47564 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932343AbXAONxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 08:53:00 -0500
+Message-ID: <45AB8738.6090405@garzik.org>
+Date: Mon, 15 Jan 2007 08:52:56 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17835.9143.973552.427040@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+To: Tejun Heo <htejun@gmail.com>
+CC: Alan <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proposed changes for libata speed handling
+References: <20070112135301.4cdba24f@localhost.localdomain>	<45A83DD2.5020000@gmail.com> <20070113100158.1d79ba9f@localhost.localdomain> <45AAF060.3040106@gmail.com>
+In-Reply-To: <45AAF060.3040106@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2007.01.15 07:48:23 +0100, Mikael Pettersson wrote:
-> Notice how the problems started exactly at the point the
-> "NVRM" NVIDIA module (whatever it is) was loaded ...
+BTW, for a solution to be complete, we need to halt all work on all 
+other ports, when issuing SET FEATURES - XFER MODE.  On SiI and Promise 
+controllers, possibly others, the command is snooped and side effects 
+such as register setting occur.
 
-That's not the reason. Yeah, I should not have sent a log of a run with
-the nvidia module loaded, but the same thing happens without it. For the
-bisection kernels I did not even build the nvidia module and did the
-testing at the console.
+Long standing to-do.  Currently we hack around this by serializing the 
+bus probe, and preventing people from issuing SET FEATURES - XFER MODE 
+from userspace.
 
-Björn
+	Jeff
+
+
+

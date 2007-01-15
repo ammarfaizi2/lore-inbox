@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751719AbXAOI10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932096AbXAOIbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751719AbXAOI10 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 03:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbXAOI10
+	id S932096AbXAOIbZ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 03:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbXAOIbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 03:27:26 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:56078 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751700AbXAOI1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 03:27:25 -0500
-Date: Mon, 15 Jan 2007 09:22:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org
-Subject: Re: 2.6.20-rc4-mm1
-Message-ID: <20070115082219.GA9062@elte.hu>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <1168768104.2941.53.camel@localhost.localdomain> <1168771617.2941.59.camel@localhost.localdomain> <1168785616.2941.67.camel@localhost.localdomain> <20070114220515.GG5860@kernel.dk> <1168813901.2941.85.camel@localhost.localdomain> <20070114223019.GP5860@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070114223019.GP5860@kernel.dk>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	Mon, 15 Jan 2007 03:31:25 -0500
+Received: from stinky.trash.net ([213.144.137.162]:52894 "EHLO
+	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751700AbXAOIbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 03:31:24 -0500
+Message-ID: <45AB3BDA.6050300@trash.net>
+Date: Mon, 15 Jan 2007 09:31:22 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: [PATCH 2.6.20-rc5] netfilter: xt_state compile failure
+References: <17835.13603.658813.332230@alkaid.it.uu.se>
+In-Reply-To: <17835.13603.658813.332230@alkaid.it.uu.se>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jens Axboe <jens.axboe@oracle.com> wrote:
-
-> > In a previous write invoked by: fsck.ext3(1896): WRITE block 8552 on 
-> > sdb1 end_buffer_async_write() is invoked.
-> > 
-> > sdb1 is not a part of a raid device.
+Mikael Pettersson wrote:
+> include/net/netfilter/nf_conntrack_compat.h: In function 'nf_ct_l3proto_try_module_get':
+> include/net/netfilter/nf_conntrack_compat.h:70: error: 'PF_INET' undeclared (first use in this function)
+> include/net/netfilter/nf_conntrack_compat.h:70: error: (Each undeclared identifier is reported only once
+> include/net/netfilter/nf_conntrack_compat.h:70: error: for each function it appears in.)
+> include/net/netfilter/nf_conntrack_compat.h:71: warning: control reaches end of non-void function
+> make[2]: *** [net/netfilter/xt_state.o] Error 1
+> make[1]: *** [net/netfilter] Error 2
+> make: *** [net] Error 2
 > 
-> When I briefly tested this before I left (and found it broken), doing 
-> a cat /proc/mdstat got things going again. Hard if that's your rootfs, 
-> it's just a hint :-)
+> A simple fix is to have nf_conntrack_compat.h #include <linux/socket.h>.
+> 
+> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
-hm, so you knew it's broken, still you let Andrew pick it up, or am i 
-misunderstanding something?
-
-	Ingo
+Applied, thanks Mikael.

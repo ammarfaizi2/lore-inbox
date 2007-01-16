@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751457AbXAPUbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAPUcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbXAPUbr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 15:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbXAPUbr
+	id S1751472AbXAPUcq (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 15:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbXAPUcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 15:31:47 -0500
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:43557 "HELO
-	smtp105.sbc.mail.re2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751457AbXAPUbq (ORCPT
+	Tue, 16 Jan 2007 15:32:46 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:60711 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751481AbXAPUcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 15:31:46 -0500
-X-YMail-OSG: l.Fn_l0VM1ljqwjIQwR2v.OFiq80_vmVq8itdlyeI0Syk.yCL5nLkx3t7lsqGg8L8J7nKHlQh1HtQJiv_ic34RInoEctvD3dIvDjAKwefGlWHuSH8G5EMaJfJ7u2mivsGOrCjSqlQa8un.0-
-Date: Tue, 16 Jan 2007 12:31:43 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
-       knweiss@gmx.de, ak@suse.de, andersen@codepoet.org, krader@us.ibm.com,
-       lfriedman@nvidia.com, linux-nforce-bugs@nvidia.com
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
-Message-ID: <20070116203143.GA4213@tuatara.stupidest.org>
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca> <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net> <45AC1AEB.60805@shaw.ca> <45ACD918.2040204@scientia.net> <45ACE07D.3050207@shaw.ca> <20070116180154.GA1335@tuatara.stupidest.org> <45AD2D00.2040904@scientia.net>
+	Tue, 16 Jan 2007 15:32:45 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: O_DIRECT question
+To: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Michael Tokarev <mjt@tls.msk.ru>, Chris Mason <chris.mason@oracle.com>,
+       Linus Torvalds <torvalds@osdl.org>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 16 Jan 2007 21:26:55 +0100
+References: <7BYkO-5OV-17@gated-at.bofh.it> <7BYul-6gz-5@gated-at.bofh.it> <7C74B-2A4-23@gated-at.bofh.it> <7CaYA-mT-19@gated-at.bofh.it> <7Cpuz-64X-1@gated-at.bofh.it> <7Cz0T-4PH-17@gated-at.bofh.it> <7CBcl-86B-9@gated-at.bofh.it> <7CBvH-52-9@gated-at.bofh.it> <7DyYK-6lE-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45AD2D00.2040904@scientia.net>
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1H6utT-0000g3-Aw@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2007 at 08:52:32PM +0100, Christoph Anton Mitterer wrote:
+Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> Michael Tokarev wrote:
 
-> I agree,... it seems drastic, but this is the only really secure
-> solution.
+>> But seriously - what about just disallowing non-O_DIRECT opens together
+>> with O_DIRECT ones ?
+>>   
+> Please do not create a new local DOS attack.
+> I open some important file, say /etc/resolv.conf
+> with O_DIRECT and just sit on the open handle.
+> Now nobody else can open that file because
+> it is "busy" with O_DIRECT ?
 
-I'd like to here from Andi how he feels about this?  It seems like a
-somewhat drastic solution in some ways given a lot of hardware doesn't
-seem to be affected (or maybe in those cases it's just really hard to
-hit, I don't know).
+Suspend O_DIRECT access while non-O_DIRECT-fds are open, fdatasync on close?
+-- 
+"Unix policy is to not stop root from doing stupid things because
+that would also stop him from doing clever things." - Andi Kleen
 
-> Well we can hope that Nvidia will find out more (though I'm not too
-> optimistic).
-
-Ideally someone from AMD needs to look into this, if some mainboards
-really never see this problem, then why is that?  Is there errata that
-some BIOS/mainboard vendors are dealing with that others are not?
-
-> But we should not forget about the issue, just because SATA is not
-> longer affected.
-
-Right.
+"It's such a fine line between stupid and clever" - Derek Smalls

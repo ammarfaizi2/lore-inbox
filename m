@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751572AbXAPQpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751569AbXAPQpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbXAPQpD (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbXAPQom
+	id S1751569AbXAPQpU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbXAPQpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:44:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37847 "EHLO
+	Tue, 16 Jan 2007 11:45:18 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37951 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751355AbXAPQoR (ORCPT
+	with ESMTP id S1751546AbXAPQol (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:17 -0500
+	Tue, 16 Jan 2007 11:44:41 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 40/59] sysctl: C99 convert ctl_tables in arch/x86_64/kernel/vsyscall.c
-Date: Tue, 16 Jan 2007 09:39:45 -0700
-Message-Id: <11689656651135-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 16/59] sysctl: md Remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:21 -0700
+Message-Id: <1168965633112-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,35 +37,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-Basically everything was done but I removed all element
-initializers from the trailing entries to make it clear
-the entire last entry should be zero filled.
+The sysctls used by the md driver are have unique binary numbers
+so remove the insert_at_head flag as it serves no useful purpose.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/kernel/vsyscall.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/md.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86_64/kernel/vsyscall.c b/arch/x86_64/kernel/vsyscall.c
-index 2433d6f..c0e2b48 100644
---- a/arch/x86_64/kernel/vsyscall.c
-+++ b/arch/x86_64/kernel/vsyscall.c
-@@ -235,13 +235,13 @@ static ctl_table kernel_table2[] = {
- 	  .data = &sysctl_vsyscall, .maxlen = sizeof(int), .mode = 0644,
- 	  .strategy = vsyscall_sysctl_nostrat,
- 	  .proc_handler = vsyscall_sysctl_change },
--	{ 0, }
-+	{}
- };
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index d1cb45f..966e8be 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -5551,7 +5551,7 @@ static int __init md_init(void)
+ 			    md_probe, NULL, NULL);
  
- static ctl_table kernel_root_table2[] = {
- 	{ .ctl_name = CTL_KERN, .procname = "kernel", .mode = 0555,
- 	  .child = kernel_table2 },
--	{ 0 },
-+	{}
- };
+ 	register_reboot_notifier(&md_notifier);
+-	raid_table_header = register_sysctl_table(raid_root_table, 1);
++	raid_table_header = register_sysctl_table(raid_root_table, 0);
  
- #endif
+ 	md_geninit();
+ 	return (0);
 -- 
 1.4.4.1.g278f
 

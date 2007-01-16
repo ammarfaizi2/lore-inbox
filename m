@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751432AbXAPUDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751259AbXAPUG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbXAPUDW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 15:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbXAPUDW
+	id S1751259AbXAPUG5 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 15:06:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbXAPUG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 15:03:22 -0500
-Received: from mga03.intel.com ([143.182.124.21]:28779 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751401AbXAPUDU convert rfc822-to-8bit (ORCPT
+	Tue, 16 Jan 2007 15:06:57 -0500
+Received: from smtp-out.google.com ([216.239.45.13]:26151 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751259AbXAPUG4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 15:03:20 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,197,1167638400"; 
-   d="scan'208"; a="169492540:sNHT986414597"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 16 Jan 2007 15:06:56 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=rM/uJQWFebfJpkGs16RzDJYm00GC/qvkDuWIpW2IzzYTROunYQTo0MEoBpCRgqNV1
+	hc5PxP59xvSIfLeMldnSw==
+Message-ID: <6599ad830701161206w7dff0fa8y34f1e74f94ab9051@mail.gmail.com>
+Date: Tue, 16 Jan 2007 12:06:50 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: [RFC 8/8] Reduce inode memory usage for systems with a high MAX_NUMNODES
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       "Andi Kleen" <ak@suse.de>, "Paul Jackson" <pj@sgi.com>,
+       "Dave Chinner" <dgc@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0701161152450.2780@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: intel 82571EB gigabit fails to see link on 2.6.20-rc5 in-tree e1000 driver (regression)
-Date: Tue, 16 Jan 2007 12:02:49 -0800
-Message-ID: <36D9DB17C6DE9E40B059440DB8D95F5201A78A3B@orsmsx418.amr.corp.intel.com>
-In-Reply-To: <4807377b0701161118g7f15f201yea4a4c16c252a864@mail.gmail.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: intel 82571EB gigabit fails to see link on 2.6.20-rc5 in-tree e1000 driver (regression)
-Thread-Index: Acc5o2q7wpqtLtMlRU+M4lirTrJTPgABctbA
-From: "Brandeburg, Jesse" <jesse.brandeburg@intel.com>
-To: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>,
-       "Allen Parker" <parker@isohunt.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       "Kok, Auke-jan H" <auke-jan.h.kok@intel.com>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>
-X-OriginalArrivalTime: 16 Jan 2007 20:02:50.0652 (UTC) FILETIME=[4CF1CDC0:01C739A9]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+	 <20070116054825.15358.65020.sendpatchset@schroedinger.engr.sgi.com>
+	 <6599ad830701161152q75ff29cdo7306c9b8df5c351b@mail.gmail.com>
+	 <Pine.LNX.4.64.0701161152450.2780@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-added Linux-pci
+On 1/16/07, Christoph Lameter <clameter@sgi.com> wrote:
+> On Tue, 16 Jan 2007, Paul Menage wrote:
+>
+> > On 1/15/07, Christoph Lameter <clameter@sgi.com> wrote:
+> > >
+> > > This solution may be a bit hokey. I tried other approaches but this
+> > > one seemed to be the simplest with the least complications. Maybe someone
+> > > else can come up with a better solution?
+> >
+> > How about a 64-bit field in struct inode that's used as a bitmask if
+> > there are no more than 64 nodes, and a pointer to a bitmask if there
+> > are more than 64 nodes. The filesystems wouldn't need to be involved
+> > then, as the bitmap allocation could be done in the generic code.
+>
+> How would we decide if there are more than 64 nodes? Runtime or compile
+> time?
 
-Jesse Brandeburg wrote:
-> On 1/16/07, Allen Parker <parker@isohunt.com> wrote:
->> Allen Parker wrote:
->>> I have a PCI-E pro/1000 MT Quad Port adapter, which works quite well
->>> under 2.6.19.2 but fails to see link under 2.6.20-rc5. Earlier
->>> today I reported this to e1000-devel@lists.sf.net, but thought I
->>> should get the word out in case someone else is testing this kernel
->>> on this nic chipset. 
-> 
-> Upon some further investigation with Allen, I got this info, and it
-> appears that his system is not freeing MSI irq's correctly.
-> 
-> from our discussion:
->> Allen wrote:
->>> Jesse Brandeburg wrote:
->>> I believe you may have an interrupt delivery problem, due to kernel
->>> changes.  When you don't get interrupts delivered correctly, you may
->>> not achieve link up.
->>> 
->>> you can try disabling CONFIG_PCI_MSI in the kernel, as another
->>> trouble shooting step.  Also, what model motherboard/machine are you
->>> using, and please check to make sure your BIOS is up to date.
->> 
->> CONFIG_PCI_MSI seems to fix it as well, however, i'm not sure about
->> possible performance implications with leaving it turned off.
->> 
->> Tyan S2927G2NR w/ 2x Opteron 2210 bios rev 1.02 iirc
-> 
-> Also, here is an excerpt of his his proc/interrupts
-> Allen Parker wrote:
->        CPU0       CPU1       CPU2       CPU3
-> 498:      1          8        129       8723   PCI-MSI-edge      eth3
-> 499:      0         42        122      17135   PCI-MSI-edge      eth2
-> 500:      0         19        275    1418326   PCI-MSI-edge      eth1
-> 501:      0          0          0          0   PCI-MSI-edge      eth1
-> 502:      0        414         26      25227   PCI-MSI-edge      eth1
-> 503:      0         37        264    1418695   PCI-MSI-edge      eth0
-> 504:      0          0          0        139   PCI-MSI-edge      eth0
-> 505:      0          6        714      22806   PCI-MSI-edge      eth0
-> NMI:    275        207        225        262
-> LOC:3531851    3531829    3531805    3531778
-> ERR:      0
-> 
-> The disturbing bit is that on this Hypertransport to PCIe system, his
-> interrupts appear to be getting registered multiple times on different
-> IRQ numbers.
-> 
-> help?
+I was thinking runtime, unless MAX_NUMNODES is less than 64 in which
+case you can make the decision at compile time.
+
+>
+> If done at compile time then we will end up with a pointer to an unsigned
+> long for a system with <= 64 nodes. If we allocate the nodemask via
+> kmalloc then we will always end up with a mininum allocation size of 64
+> bytes.
+
+Can't we get less overhead with a slab cache with appropriate-sized objects?
+
+Paul

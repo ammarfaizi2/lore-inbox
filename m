@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751965AbXAPRrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751391AbXAPRvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751965AbXAPRrf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbXAPRrf
+	id S1751391AbXAPRvk (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbXAPRvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:47:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41226 "EHLO mx1.redhat.com"
+	Tue, 16 Jan 2007 12:51:40 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48531 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751965AbXAPRre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:47:34 -0500
-Message-ID: <45AD0F70.30808@redhat.com>
-Date: Tue, 16 Jan 2007 09:46:24 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Pierre Peiffer <pierre.peiffer@bull.net>,
+	id S1751391AbXAPRvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 12:51:39 -0500
+Date: Tue, 16 Jan 2007 18:50:21 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Pierre Peiffer <pierre.peiffer@bull.net>,
        LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        Jakub Jelinek <jakub@redhat.com>
 Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
-References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net> <45ACEBDF.60602@redhat.com> <20070116154054.GA21786@elte.hu>
-In-Reply-To: <20070116154054.GA21786@elte.hu>
-X-Enigmail-Version: 0.94.1.2.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig50C54277E1FDDD485760C07F"
+Message-ID: <20070116175021.GA9778@elte.hu>
+References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net> <45ACEBDF.60602@redhat.com> <20070116154054.GA21786@elte.hu> <45AD0F70.30808@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45AD0F70.30808@redhat.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig50C54277E1FDDD485760C07F
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Ingo Molnar wrote:
-> what do you mean by that - which is this same resource?
+* Ulrich Drepper <drepper@redhat.com> wrote:
 
-=46rom what has been said here before, all futexes are stored in the same=
+> > what do you mean by that - which is this same resource?
+> 
+> From what has been said here before, all futexes are stored in the 
+> same list or hash table or whatever it was.  I want to see how that 
+> code behaves if many separate processes concurrently use futexes.
 
-list or hash table or whatever it was.  I want to see how that code
-behaves if many separate processes concurrently use futexes.
+futexes are stored in the bucket hash, and these patches do not change 
+that. The pi-list that was talked about is per-futex. So there's no 
+change to the way futexes are hashed nor should there be any scalability 
+impact - besides the micro-impact that was measured in a number of ways 
+- AFAICS.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig50C54277E1FDDD485760C07F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFFrQ912ijCOnn/RHQRAkA2AKCUJvmSdAVMageJQTu9gYtNoFHG3wCgjwln
-p089zwg8SNAT3EzqKhCIe9w=
-=tfSO
------END PGP SIGNATURE-----
-
---------------enig50C54277E1FDDD485760C07F--
+	Ingo

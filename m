@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751082AbXAPR63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751263AbXAPR7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbXAPR63 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbXAPR63
+	id S1751263AbXAPR7S (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbXAPR7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:58:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44383 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751082AbXAPR62 (ORCPT
+	Tue, 16 Jan 2007 12:59:18 -0500
+Received: from wx-out-0506.google.com ([66.249.82.224]:12942 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751263AbXAPR7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:58:28 -0500
-Subject: Re: allocation failed: out of vmalloc space error treating and
-	VIDEO1394 IOC LISTEN CHANNEL ioctl failed problem
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Moore <dcm@MIT.EDU>
-Cc: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@bitplanet.net>,
-       linux1394-devel@lists.sourceforge.net,
-       theSeinfeld@users.sourceforge.net, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net
-In-Reply-To: <1168924893.10136.52.camel@pisces.mit.edu>
-References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net>
-	 <200701100023.39964.theSeinfeld@users.sf.net>
-	 <tkrat.c0a43c7c901c438c@s5r6.in-berlin.de>
-	 <1168802934.3123.1062.camel@laptopd505.fenrus.org> <45ABC1A2.90109@tmr.com>
-	 <1168885223.3122.304.camel@laptopd505.fenrus.org>
-	 <1168890881.10136.29.camel@pisces.mit.edu>
-	 <59ad55d30701151306q492e07aep9c640afd7b6c442f@mail.gmail.com>
-	 <1168896257.3122.577.camel@laptopd505.fenrus.org>
-	 <59ad55d30701151343r6f964475tae799185f05aa579@mail.gmail.com>
-	 <1168924893.10136.52.camel@pisces.mit.edu>
-Content-Type: text/plain; charset=UTF-8
-Organization: Intel International BV
-Date: Tue, 16 Jan 2007 09:58:04 -0800
-Message-Id: <1168970286.3049.129.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 16 Jan 2007 12:59:17 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=googlemail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UqDw7AfwWUxLAJyGii7TS2jbGa3Bt0wxcAigm8hdshh9eeSYrftLr4Fx+5fBedHy/rjCKtynOvB10vWE6k7zBsg5FV9Z50hSmf1BCyS2nAgzs2mx8h0xHaIyTyX8PHCzEiBY8YlQSnqPltjCEeTo7MbgrPwE/H+QaNOJn05ZpEI=
+Message-ID: <5c8016cf0701160959l1489b56t980779f1f6e49848@mail.gmail.com>
+Date: Tue, 16 Jan 2007 17:59:15 +0000
+From: "Giuliano Procida" <giuliano.procida@googlemail.com>
+To: "Mikael Pettersson" <mikpe@it.uu.se>, rgooch@atnf.csiro.au
+Subject: Re: [PATCH]: MTRR: fix 32-bit ioctls on x64_32
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200701161248.l0GCmG7O025771@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200701161248.l0GCmG7O025771@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 00:21 -0500, David Moore wrote:
-> On Mon, 2007-01-15 at 16:43 -0500, Kristian Høgsberg wrote:
-> > On 1/15/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> > > again the best way is for you to provide an mmap method... you can then
-> > > fill in the pages and keep that in some sort of array; this is for
-> > > example also what the DRI/DRM layer does for textures etc...
-> > 
-> > That sounds a lot like what I have now (mmap method, array of pages)
-> > so I'll just stick with that.
-> 
-> It sounds like the distinction Arjan is getting at is that the buffer
-> should exist in the process's virtual address space instead of the
-> kernel's virtual address space so that we have plenty of space available
-> to us.
+Hi.
 
-exactly! and either way the user would need that space allocated ANYWAY.
+On 16/01/07, Mikael Pettersson <mikpe@it.uu.se> wrote:
+> On Tue, 16 Jan 2007 08:14:30 +0000, Giuliano Procida wrote:
+> These #ifdefs are too ugly.
 
-> 
-> Thus, we should use get_user_pages() instead of vmalloc().  I think
-> get_user_pages() will also automatically pin the memory. 
+Agreed that the #ifdefs are rather ugly, but they were the smallest change.
+Whoever wrote the original compat changes was relying on the IOC
+constants being different for 32- and 64-bit userspace. This allowed the
+lazy reuse of the whole ioctl function rather than having to write a complete
+replacement compat_ioctl for fops.
 
-actually if you provide the mmap method yourself you're not going to
-need get_user_pages(), because it's kernel allocated memory already!
+> Since you apparently just add aliases for the case labels,
+> and do no actual code changes, why not
+> 1. make the new cases unconditional, or
 
+The constants are only visible under CONFIG_COMPAT. I think they
+should stay that way.
 
->  And we'll also
-> need to call get_user_pages() from a custom mmap() handler so that we
-> know what process virtual address to assign to the region.
+> 2. invoke a translation function before the switch which
+>    maps the MTRRCIOC32_ constants to what the kernel uses
 
-see above; it's one or the other. Personally I'd think the mmap method
-is simpler, because there's less conditions to consider (again, the
-malicious user passing you memory that is mmap'd PCI MMIO space is a
-"fun" example, but there's a lot more cafes which are... funky)
+Other things I considered:
 
-Greetings,
-   Arjan van de Ven
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+3. write a wrapper compat function that calls the original, make the
+original pure 64-bit
+4. macroise the case labels away somehow
+5. update cmd in place (cannot do this as it re-used in the third switch)
+6. add real_cmd and switch on that instead (your 2.),
+   requires yet another switch and #ifdef.
 
+It might be nicer to decode the IOC constants and use action, size and R/W flags
+to control all the switches. Not sure myself.
+
+Giuliano.

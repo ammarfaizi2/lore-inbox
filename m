@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751730AbXAPQvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751399AbXAPQoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751730AbXAPQvT (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbXAPQvA
+	id S1751399AbXAPQoj (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbXAPQof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:51:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46047 "EHLO
+	Tue, 16 Jan 2007 11:44:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37884 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751730AbXAPQu4 (ORCPT
+	with ESMTP id S1751456AbXAPQoZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:50:56 -0500
+	Tue, 16 Jan 2007 11:44:25 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 44/59] sysctl: Register the sysctl number used by the arlan driver.
-Date: Tue, 16 Jan 2007 09:39:49 -0700
-Message-Id: <1168965670476-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 13/59] sysctl: xfs remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:18 -0700
+Message-Id: <11689656291632-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -39,35 +39,22 @@ From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/net/wireless/arlan-proc.c |    2 +-
- include/linux/sysctl.h            |    1 +
- 2 files changed, 2 insertions(+), 1 deletions(-)
+ fs/xfs/linux-2.6/xfs_sysctl.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/net/wireless/arlan-proc.c b/drivers/net/wireless/arlan-proc.c
-index 5fa9854..20499a6 100644
---- a/drivers/net/wireless/arlan-proc.c
-+++ b/drivers/net/wireless/arlan-proc.c
-@@ -1216,7 +1216,7 @@ static ctl_table arlan_table[MAX_ARLANS + 1] =
- static ctl_table arlan_root_table[] =
+diff --git a/fs/xfs/linux-2.6/xfs_sysctl.c b/fs/xfs/linux-2.6/xfs_sysctl.c
+index af24653..af777e9 100644
+--- a/fs/xfs/linux-2.6/xfs_sysctl.c
++++ b/fs/xfs/linux-2.6/xfs_sysctl.c
+@@ -149,7 +149,7 @@ STATIC ctl_table xfs_root_table[] = {
+ void
+ xfs_sysctl_register(void)
  {
- 	{
--		.ctl_name	= 254,
-+		.ctl_name	= CTL_ARLAN,
- 		.procname	= "arlan",
- 		.maxlen		= 0,
- 		.mode		= 0555,
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 56d0161..f4ba72e 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -70,6 +70,7 @@ enum
- 	CTL_BUS=8,		/* Busses */
- 	CTL_ABI=9,		/* Binary emulation */
- 	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
-+	CTL_ARLAN=254,		/* arlan wireless driver */
- 	CTL_SUNRPC=7249,	/* sunrpc debug */
- 	CTL_PM=9899,		/* frv power management */
- 	CTL_FRV=9898,		/* frv specific sysctls */
+-	xfs_table_header = register_sysctl_table(xfs_root_table, 1);
++	xfs_table_header = register_sysctl_table(xfs_root_table, 0);
+ }
+ 
+ void
 -- 
 1.4.4.1.g278f
 

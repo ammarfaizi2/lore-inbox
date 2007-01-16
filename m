@@ -1,117 +1,157 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751201AbXAPOtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750925AbXAPOxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbXAPOtr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 09:49:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbXAPOtq
+	id S1750925AbXAPOxU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 09:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbXAPOxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 09:49:46 -0500
-Received: from an-out-0708.google.com ([209.85.132.247]:46711 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751201AbXAPOtq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 09:49:46 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=riQl6Iz1K0IZFexI5AetP2pY3xTbkoTZZo+G/9AdPPMg4IWqCmGztv9fEC7lvUny90uqFvVQnI94lds/I+tdD3NWtrv74Ve1GtdgvtWCKBWjDO0dyvr/4L4e51/7A7X3bZC19WIKoQJfkV3y/zo8PaHshOcrWCFuh9GjiS7zvio=
-Message-ID: <ceccffee0701160649w5e401cf9i433f61beeb26e2b1@mail.gmail.com>
-Date: Tue, 16 Jan 2007 15:49:45 +0100
-From: "Linux Portal" <linportal@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Simple utility to measure disk random access time
+	Tue, 16 Jan 2007 09:53:20 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:36431 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750925AbXAPOxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 09:53:19 -0500
+Date: Tue, 16 Jan 2007 08:53:12 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] user_ns: remove CONFIG_USER_NS
+Message-ID: <20070116145312.GB28253@sergelap.austin.ibm.com>
+References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181257.GH11377@sergelap.austin.ibm.com> <20070111212039.68e57e65.akpm@osdl.org> <20070115072653.GA7385@sergelap.austin.ibm.com> <45AB97D5.6010503@fr.ibm.com> <20070115152825.GA20350@sergelap.austin.ibm.com> <45ABBB64.3060304@fr.ibm.com> <45ACB13F.4020607@fr.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <45ACB13F.4020607@fr.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And a few graphs here: http://linux.inet.hr/how_fast_is_your_disk.html
+Quoting Cedric Le Goater (clg@fr.ibm.com):
+> It doesn't look that useful anyway, it just deactivates the unshare
+> capability for the user namespace.
+> 
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
 
-Comments welcome!
+Agreed on both this and CONFIG_UTS_NS.  (I haven't looked closely enough
+at the CONFIG_IPC_NS case yet)
 
-#define _LARGEFILE64_SOURCE
+Acked-by: Serge Hallyn <serue@us.ibm.com>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <time.h>
-#include <signal.h>
-#include <sys/fcntl.h>
-#include <sys/ioctl.h>
-#include <linux/fs.h>
+thanks,
+-serge
 
-#define BLOCKSIZE 512
-#define TIMEOUT 30
-
-int count;
-time_t start;
-
-void done()
-{
-	time_t end;
-
-	time(&end);
-
-	if (end < start + TIMEOUT) {
-		printf(".");
-		alarm(1);
-		return;
-	}
-
-	if (count) {
-	  printf(".\nResults: %d seeks/second, %.2f ms random access time\n",
-		 count / TIMEOUT, 1000.0 * TIMEOUT / count);
-	}
-	exit(EXIT_SUCCESS);
-}
-
-void handle(const char *string, int error)
-{
-	if (error) {
-		perror(string);
-		exit(EXIT_FAILURE);
-	}
-}
-
-int main(int argc, char **argv)
-{
-	char buffer[BLOCKSIZE];
-	int fd, retval;
-	unsigned long numblocks;
-	off64_t offset;
-
-	setvbuf(stdout, NULL, _IONBF, 0);
-
-	printf("Seeker v2.0, 2007-01-15, "
-	       "http://linux.inet.hr/how_fast_is_your_disk.html\n");
-
-	if (argc != 2) {
-		printf("Usage: seeker <raw disk device>\n");
-		exit(EXIT_SUCCESS);
-	}
-
-	fd = open(argv[1], O_RDONLY);
-	handle("open", fd < 0);
-
-	retval = ioctl(fd, BLKGETSIZE, &numblocks);
-	handle("ioctl", retval == -1);
-	printf("Benchmarking %s [%luMB], wait %d seconds",
-	       argv[1], numblocks / 2048, TIMEOUT);
-
-	time(&start);
-	srand(start);
-	signal(SIGALRM, &done);
-	alarm(1);
-
-	for (;;) {
-		offset = (off64_t) numblocks * random() / RAND_MAX;
-		retval = lseek64(fd, BLOCKSIZE * offset, SEEK_SET);
-		handle("lseek64", retval == (off64_t) -1);
-		retval = read(fd, buffer, BLOCKSIZE);
-		handle("read", retval < 0);
-		count++;
-	}
-	/* notreached */
-}
+> ---
+>  include/linux/sched.h          |    9 ---------
+>  include/linux/user_namespace.h |   33 ---------------------------------
+>  init/Kconfig                   |    4 ----
+>  kernel/user_namespace.c        |    3 ---
+>  4 files changed, 49 deletions(-)
+> 
+> Index: 2.6.20-rc4-mm1/include/linux/sched.h
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/include/linux/sched.h
+> +++ 2.6.20-rc4-mm1/include/linux/sched.h
+> @@ -1603,7 +1603,6 @@ extern int cond_resched(void);
+>  extern int cond_resched_lock(spinlock_t * lock);
+>  extern int cond_resched_softirq(void);
+> 
+> -#ifdef CONFIG_USER_NS
+>  /*
+>   * Check whether a task and a vfsmnt belong to the same uidns.
+>   * Since the initial namespace is exempt from these checks,
+> @@ -1622,14 +1621,6 @@ static inline int task_mnt_same_uidns(st
+>  		return 1;
+>  	return 0;
+>  }
+> -#else
+> -static inline int task_mnt_same_uidns(struct task_struct *tsk,
+> -					struct vfsmount *mnt)
+> -{
+> -	return 1;
+> -}
+> -#endif
+> -
+> 
+>  /*
+>   * Does a critical section need to be broken due to another
+> Index: 2.6.20-rc4-mm1/include/linux/user_namespace.h
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/include/linux/user_namespace.h
+> +++ 2.6.20-rc4-mm1/include/linux/user_namespace.h
+> @@ -16,8 +16,6 @@ struct user_namespace {
+> 
+>  extern struct user_namespace init_user_ns;
+> 
+> -#ifdef CONFIG_USER_NS
+> -
+>  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+>  {
+>  	if (ns)
+> @@ -45,35 +43,4 @@ static inline int clone_mnt_userns_permi
+>  	return 1;
+>  }
+> 
+> -#else
+> -
+> -static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+> -{
+> -	return NULL;
+> -}
+> -
+> -static inline int unshare_user_ns(unsigned long flags,
+> -			 struct user_namespace **new_user)
+> -{
+> -	if (flags & CLONE_NEWUSER)
+> -		return -EINVAL;
+> -
+> -	return 0;
+> -}
+> -
+> -static inline int copy_user_ns(int flags, struct task_struct *tsk)
+> -{
+> -	return 0;
+> -}
+> -
+> -static inline void put_user_ns(struct user_namespace *ns)
+> -{
+> -}
+> -
+> -static inline int clone_mnt_userns_permission(struct vfsmount *old)
+> -{
+> -	return 1;
+> -}
+> -#endif
+> -
+>  #endif /* _LINUX_USER_H */
+> Index: 2.6.20-rc4-mm1/init/Kconfig
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/init/Kconfig
+> +++ 2.6.20-rc4-mm1/init/Kconfig
+> @@ -222,10 +222,6 @@ config UTS_NS
+>  	  vservers, to use uts namespaces to provide different
+>  	  uts info for different servers.  If unsure, say N.
+> 
+> -config USER_NS
+> -	bool
+> -	default y
+> -
+>  config AUDIT
+>  	bool "Auditing support"
+>  	depends on NET
+> Index: 2.6.20-rc4-mm1/kernel/user_namespace.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/kernel/user_namespace.c
+> +++ 2.6.20-rc4-mm1/kernel/user_namespace.c
+> @@ -19,7 +19,6 @@ struct user_namespace init_user_ns = {
+> 
+>  EXPORT_SYMBOL_GPL(init_user_ns);
+> 
+> -#ifdef CONFIG_USER_NS
+>  /*
+>   * Clone a new ns copying an original user ns, setting refcount to 1
+>   * @old_ns: namespace to clone
+> @@ -110,5 +109,3 @@ void free_user_ns(struct kref *kref)
+>  	ns = container_of(kref, struct user_namespace, kref);
+>  	kfree(ns);
+>  }
+> -
+> -#endif /* CONFIG_USER_NS */

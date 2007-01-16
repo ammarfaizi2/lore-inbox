@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932125AbXAPD2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932193AbXAPDpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbXAPD2r (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 22:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbXAPD2r
+	id S932193AbXAPDpY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 22:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAPDpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 22:28:47 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:51659
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932105AbXAPD2q (ORCPT
+	Mon, 15 Jan 2007 22:45:24 -0500
+Received: from lazybastard.de ([212.112.238.170]:36762 "EHLO
+	longford.lazybastard.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932193AbXAPDpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 22:28:46 -0500
-Date: Mon, 15 Jan 2007 19:28:46 -0800 (PST)
-Message-Id: <20070115.192846.85406756.davem@davemloft.net>
-To: ahendry@tusc.com.au
-Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] X.25 Add missing sock_put in x25_receive_data
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1168295537.5460.30.camel@localhost>
-References: <1168295537.5460.30.camel@localhost>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 15 Jan 2007 22:45:24 -0500
+Date: Tue, 16 Jan 2007 03:41:14 +0000
+From: =?utf-8?B?SsO2cm4=?= Engel <joern@lazybastard.org>
+To: Aubrey <aubreylee@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru,
+       Carsten Otte <cotte@freenet.de>
+Subject: Re: O_DIRECT question
+Message-ID: <20070116034113.GB27177@lazybastard.org>
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org> <45A5D4A7.7020202@yahoo.com.au> <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org> <6d6a94c50701110819nf78a90eg3ff06f85c75e8b50@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6d6a94c50701110819nf78a90eg3ff06f85c75e8b50@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: ahendry <ahendry@tusc.com.au>
-Date: Tue, 09 Jan 2007 09:32:17 +1100
+On Fri, 12 January 2007 00:19:45 +0800, Aubrey wrote:
+>
+> Yes for desktop, server, but maybe not for embedded system, specially
+> for no-mmu linux. In many embedded system cases, the whole system is
+> running in the ram, including file system. So it's not necessary using
+> page cache anymore. Page cache can't improve performance on these
+> cases, but only fragment memory.
 
-> __x25_find_socket does a sock_hold.
-> This adds a missing sock_put in x25_receive_data.
-> 
-> Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+You were not very specific, so I have to guess that you're referring to
+the problem of having two copies of the same file in RAM - one in the
+page cache and one in the "backing store", which is just RAM.
 
-Applied, thanks a lot.
+There are two solutions to this problem.  One is tmpfs, which doesn't
+use a backing store and keeps all data in the page cache.  The other is
+xip, which doesn't use the page cache and goes directly to backing
+store.  Unlike O_DIRECT, xip only works with a RAM or de-facto RAM
+backing store (NOR flash works read-only).
+
+So if you really care about memory waste in embedded systems, you should
+have a look at mm/filemap_xip.c and continue Carsten Otte's work.
+
+Jörn
+
+-- 
+Fantasy is more important than knowledge. Knowledge is limited,
+while fantasy embraces the whole world.
+-- Albert Einstein

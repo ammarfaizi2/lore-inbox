@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751685AbXAPQtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751690AbXAPQt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751685AbXAPQtN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbXAPQq2
+	id S1751690AbXAPQt2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbXAPQtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:46:28 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38156 "EHLO
+	Tue, 16 Jan 2007 11:49:22 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38164 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751584AbXAPQq0 (ORCPT
+	with ESMTP id S1751591AbXAPQq2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:46:26 -0500
+	Tue, 16 Jan 2007 11:46:28 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 19/59] sysctl: cdrom remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:24 -0700
-Message-Id: <11689656363765-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 30/59] sysctl: mips/au1000 Remove sys_sysctl support
+Date: Tue, 16 Jan 2007 09:39:35 -0700
+Message-Id: <11689656521540-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,26 +37,62 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-With unique binary sysctl numbers setting insert_at_head to
-override other sysctl entries is pointless.
+The assignment of binary numbers for sys_sysctl use was in
+shambles and despite requiring methods.  Nothing was implemented
+on the sys_sysctl side.
+
+So this patch gives a mercy killing to the sys_sysctl support for
+powermanagment on mips/au1000.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/cdrom/cdrom.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/mips/au1000/common/power.c |   16 +++++-----------
+ 1 files changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index 3105ddd..f0a6801 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -3553,7 +3553,7 @@ static void cdrom_sysctl_register(void)
- 	if (initialized == 1)
- 		return;
+diff --git a/arch/mips/au1000/common/power.c b/arch/mips/au1000/common/power.c
+index 7504a63..b531ab7 100644
+--- a/arch/mips/au1000/common/power.c
++++ b/arch/mips/au1000/common/power.c
+@@ -62,12 +62,6 @@ extern unsigned long save_local_and_disable(int controller);
+ extern void restore_local_and_enable(int controller, unsigned long mask);
+ extern void local_enable_irq(unsigned int irq_nr);
  
--	cdrom_sysctl_header = register_sysctl_table(cdrom_root_table, 1);
-+	cdrom_sysctl_header = register_sysctl_table(cdrom_root_table, 0);
- 	if (cdrom_root_table->ctl_name && cdrom_root_table->child->de)
- 		cdrom_root_table->child->de->owner = THIS_MODULE;
+-/* Quick acpi hack. This will have to change! */
+-#define	CTL_ACPI 9999
+-#define	ACPI_S1_SLP_TYP 19
+-#define	ACPI_SLEEP 21
+-
+-
+ static DEFINE_SPINLOCK(pm_lock);
+ 
+ /* We need to save/restore a bunch of core registers that are
+@@ -425,14 +419,14 @@ static int pm_do_freq(ctl_table * ctl, int write, struct file *file,
+ 
+ 
+ static struct ctl_table pm_table[] = {
+-	{ACPI_S1_SLP_TYP, "suspend", NULL, 0, 0600, NULL, &pm_do_suspend},
+-	{ACPI_SLEEP, "sleep", NULL, 0, 0600, NULL, &pm_do_sleep},
+-	{CTL_ACPI, "freq", NULL, 0, 0600, NULL, &pm_do_freq},
++	{CTL_UNNUMBERED, "suspend", NULL, 0, 0600, NULL, &pm_do_suspend},
++	{CTL_UNNUMBERED, "sleep", NULL, 0, 0600, NULL, &pm_do_sleep},
++	{CTL_UNNUMBERED, "freq", NULL, 0, 0600, NULL, &pm_do_freq},
+ 	{0}
+ };
+ 
+ static struct ctl_table pm_dir_table[] = {
+-	{CTL_ACPI, "pm", NULL, 0, 0555, pm_table},
++	{CTL_UNNUMBERED, "pm", NULL, 0, 0555, pm_table},
+ 	{0}
+ };
+ 
+@@ -441,7 +435,7 @@ static struct ctl_table pm_dir_table[] = {
+  */
+ static int __init pm_init(void)
+ {
+-	register_sysctl_table(pm_dir_table, 1);
++	register_sysctl_table(pm_dir_table, 0);
+ 	return 0;
+ }
  
 -- 
 1.4.4.1.g278f

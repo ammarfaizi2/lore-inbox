@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751149AbXAPTOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751052AbXAPTPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbXAPTOa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 14:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbXAPTOa
+	id S1751052AbXAPTPz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 14:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbXAPTPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 14:14:30 -0500
-Received: from [213.46.243.15] ([213.46.243.15]:19098 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751156AbXAPTO3 (ORCPT
+	Tue, 16 Jan 2007 14:15:55 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:39238 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751051AbXAPTPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 14:14:29 -0500
-X-Greylist: delayed 5863 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 14:14:28 EST
-Subject: Re: [patch 6/10] mm: be sure to trim blocks
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Filesystems <linux-fsdevel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1168968985.5975.30.camel@lappy>
-References: <20070113011159.9449.4327.sendpatchset@linux.site>
-	 <20070113011255.9449.33228.sendpatchset@linux.site>
-	 <1168968985.5975.30.camel@lappy>
-Content-Type: text/plain
-Date: Tue, 16 Jan 2007 20:14:16 +0100
-Message-Id: <1168974857.5975.36.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 16 Jan 2007 14:15:54 -0500
+Message-ID: <45AD2439.6000406@zytor.com>
+Date: Tue, 16 Jan 2007 11:15:05 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070102)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>,
+       Tony Luck <tony.luck@intel.com>, netdev@vger.kernel.org
+Subject: Re: [PATCH 0/59] Cleanup sysctl
+References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>	<45AD02FF.605@zytor.com> <m164b6den7.fsf@ebiederm.dsl.xmission.com>	<45AD1AD7.7030804@zytor.com>	<m1ac0iby5q.fsf@ebiederm.dsl.xmission.com>	<45AD2042.9090701@zytor.com> <m164b6bxpz.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m164b6bxpz.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 18:36 +0100, Peter Zijlstra wrote:
->   							buf, bytes);
-> > @@ -1935,10 +1922,9 @@ generic_file_buffered_write(struct kiocb
-> >  						cur_iov, iov_offset, bytes);
-> >  		flush_dcache_page(page);
-> >  		status = a_ops->commit_write(file, page, offset, offset+bytes);
-> > -		if (status == AOP_TRUNCATED_PAGE) {
-> > -			page_cache_release(page);
-> > -			continue;
-> > -		}
-> > +		if (unlikely(status))
-> > +			goto fs_write_aop_error;
-> > +
+Eric W. Biederman wrote:
+>>
+>> Agreed.  *Furthermore*, if the number isn't in <linux/sysctl.h> it shouldn't
+>> exist anywhere else, either.
 > 
-> I don't think this is correct, see how status >= 0 is used a few lines
-> downwards. Perhaps something along the lines of an
-> is_positive_aop_return() to test on?
+> That would be a good habit.  Feel free to send the patches to ensure that
+> is so.
+> 
+> I'm a practical fix it when it is in my way kind of guy ;)
 
-Hmm, if commit_write() will never return non error positive values then
-this and 8/10 look sane.
+That's fine.  However, I am wondering if there are things in 
+<linux/sysctl.h> which really doesn't need architectural numbers, i.e. 
+which should be removed from the binary interface.
 
+	-hpa

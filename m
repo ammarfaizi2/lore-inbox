@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751391AbXAPRvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751447AbXAPRwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbXAPRvk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbXAPRvk
+	id S1751447AbXAPRwH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbXAPRwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:51:40 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48531 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751391AbXAPRvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:51:39 -0500
-Date: Tue, 16 Jan 2007 18:50:21 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Pierre Peiffer <pierre.peiffer@bull.net>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
-Message-ID: <20070116175021.GA9778@elte.hu>
-References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net> <45ACEBDF.60602@redhat.com> <20070116154054.GA21786@elte.hu> <45AD0F70.30808@redhat.com>
+	Tue, 16 Jan 2007 12:52:06 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:60548 "EHLO
+	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751447AbXAPRwF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 12:52:05 -0500
+Date: Tue, 16 Jan 2007 09:53:55 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [mm PATCH 3/6] RCU: Fix barriers
+Message-ID: <20070116175355.GF1776@linux.vnet.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <20070115191909.GA32238@in.ibm.com> <20070115192446.GD32238@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45AD0F70.30808@redhat.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+In-Reply-To: <20070115192446.GD32238@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ulrich Drepper <drepper@redhat.com> wrote:
-
-> > what do you mean by that - which is this same resource?
+On Tue, Jan 16, 2007 at 12:54:46AM +0530, Dipankar Sarma wrote:
 > 
-> From what has been said here before, all futexes are stored in the 
-> same list or hash table or whatever it was.  I want to see how that 
-> code behaves if many separate processes concurrently use futexes.
+> 
+> Fix rcu_barrier() to work properly in preemptive kernel environment.
+> Also, the ordering of callback must be preserved while moving
+> callbacks to another CPU during CPU hotplug.
 
-futexes are stored in the bucket hash, and these patches do not change 
-that. The pi-list that was talked about is per-futex. So there's no 
-change to the way futexes are hashed nor should there be any scalability 
-impact - besides the micro-impact that was measured in a number of ways 
-- AFAICS.
+Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
 
-	Ingo
+> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+> ---
+> 
+> 
+> 
+> diff -puN kernel/rcuclassic.c~rcu-fix-barriers kernel/rcuclassic.c
+> --- linux-2.6.20-rc3-mm1-rcu/kernel/rcuclassic.c~rcu-fix-barriers	2007-01-15 15:36:47.000000000 +0530
+> +++ linux-2.6.20-rc3-mm1-rcu-dipankar/kernel/rcuclassic.c	2007-01-15 15:36:47.000000000 +0530
+> @@ -350,9 +350,9 @@ static void __rcu_offline_cpu(struct rcu
+>  	if (rcp->cur != rcp->completed)
+>  		cpu_quiet(rdp->cpu, rcp);
+>  	spin_unlock_bh(&rcp->lock);
+> +	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+>  	rcu_move_batch(this_rdp, rdp->curlist, rdp->curtail);
+>  	rcu_move_batch(this_rdp, rdp->nxtlist, rdp->nxttail);
+> -	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+>  }
+> 
+>  static void rcu_offline_cpu(int cpu)
+> diff -puN kernel/rcupdate.c~rcu-fix-barriers kernel/rcupdate.c
+> --- linux-2.6.20-rc3-mm1-rcu/kernel/rcupdate.c~rcu-fix-barriers	2007-01-15 15:36:47.000000000 +0530
+> +++ linux-2.6.20-rc3-mm1-rcu-dipankar/kernel/rcupdate.c	2007-01-15 15:36:47.000000000 +0530
+> @@ -117,7 +117,18 @@ void rcu_barrier(void)
+>  	mutex_lock(&rcu_barrier_mutex);
+>  	init_completion(&rcu_barrier_completion);
+>  	atomic_set(&rcu_barrier_cpu_count, 0);
+> +	/*
+> +	 * The queueing of callbacks in all CPUs must be
+> +	 * atomic with respect to RCU, otherwise one cpu may
+> +	 * queue a callback, wait for a grace period, decrement
+> +	 * barrier count and call complete(), while other CPUs
+> +	 * haven't yet queued anything. So, we need to make sure
+> +	 * that no grace period happens until all the callbacks
+> +	 * are queued.
+> +	 */
+> +	rcu_read_lock();
+>  	on_each_cpu(rcu_barrier_func, NULL, 0, 1);
+> +	rcu_read_unlock();
+>  	wait_for_completion(&rcu_barrier_completion);
+>  	mutex_unlock(&rcu_barrier_mutex);
+>  }
+> 
+> _

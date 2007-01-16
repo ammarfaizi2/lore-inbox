@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751602AbXAPQqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751580AbXAPQqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751602AbXAPQqu (ORCPT <rfc822;w@1wt.eu>);
+	id S1751580AbXAPQqu (ORCPT <rfc822;w@1wt.eu>);
 	Tue, 16 Jan 2007 11:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbXAPQqk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbXAPQqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:46:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38142 "EHLO
+	Tue, 16 Jan 2007 11:46:39 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38146 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbXAPQqR (ORCPT
+	with ESMTP id S1751580AbXAPQqS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:46:17 -0500
+	Tue, 16 Jan 2007 11:46:18 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 2/59] sysctl: Move CTL_SUNRPC to sysctl.h where it belongs
-Date: Tue, 16 Jan 2007 09:39:07 -0700
-Message-Id: <116896561018-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 11/59] sysctl: ax25 remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:16 -0700
+Message-Id: <11689656273396-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -39,36 +39,22 @@ From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- include/linux/sunrpc/debug.h |    1 -
- include/linux/sysctl.h       |    3 ++-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/ax25/sysctl_net_ax25.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/sunrpc/debug.h b/include/linux/sunrpc/debug.h
-index 60fce3c..b7c7307 100644
---- a/include/linux/sunrpc/debug.h
-+++ b/include/linux/sunrpc/debug.h
-@@ -78,7 +78,6 @@ void		rpc_unregister_sysctl(void);
-  * module currently registers its sysctl table dynamically, the sysctl path
-  * for module FOO is <CTL_SUNRPC, CTL_FOODEBUG>.
-  */
--#define CTL_SUNRPC	7249	/* arbitrary and hopefully unused */
+diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
+index d23a27f..afdba04 100644
+--- a/net/ax25/sysctl_net_ax25.c
++++ b/net/ax25/sysctl_net_ax25.c
+@@ -245,7 +245,7 @@ void ax25_register_sysctl(void)
  
- enum {
- 	CTL_RPCDEBUG = 1,
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 81480e6..54a9cf5 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -69,7 +69,8 @@ enum
- 	CTL_DEV=7,		/* Devices */
- 	CTL_BUS=8,		/* Busses */
- 	CTL_ABI=9,		/* Binary emulation */
--	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
-+	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
-+	CTL_SUNRPC=7249,	/* sunrpc debug */
- };
+ 	ax25_dir_table[0].child = ax25_table;
  
- /* CTL_BUS names: */
+-	ax25_table_header = register_sysctl_table(ax25_root_table, 1);
++	ax25_table_header = register_sysctl_table(ax25_root_table, 0);
+ }
+ 
+ void ax25_unregister_sysctl(void)
 -- 
 1.4.4.1.g278f
 

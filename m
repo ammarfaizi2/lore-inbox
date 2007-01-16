@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751677AbXAPWCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751682AbXAPWCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751677AbXAPWCn (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 17:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbXAPWCn
+	id S1751682AbXAPWCz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 17:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbXAPWCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 17:02:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59143 "EHLO mx1.redhat.com"
+	Tue, 16 Jan 2007 17:02:55 -0500
+Received: from ns2.suse.de ([195.135.220.15]:33372 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751677AbXAPWCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 17:02:42 -0500
-Message-ID: <45AD4B20.70507@redhat.com>
-Date: Tue, 16 Jan 2007 17:01:04 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
+	id S1751682AbXAPWCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 17:02:54 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+Date: Wed, 17 Jan 2007 09:01:58 +1100
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, Paul Menage <menage@google.com>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Paul Jackson <pj@sgi.com>,
+       Dave Chinner <dgc@sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Eric Sandeen <sandeen@redhat.com>
-CC: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>, dmonakhov@sw.ru,
-       alex@clusterfs.com, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] return ENOENT from ext3_link when racing with unlink
-References: <45ABC572.2070206@redhat.com>
-In-Reply-To: <45ABC572.2070206@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701170901.58757.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen wrote:
-> An update from the earlier thread, [PATCH] [RFC] remove ext3 inode 
-> from orphan list when link and unlink race
->
-> I think this is better than the original idea of trying to handle the 
-> race;
-> I've seen that the orphan inode list can get corrupted, but there may 
-> well
-> be other implications of the race which haven't yet been exposed.  I 
-> think
-> it's safer to simply return -ENOENT in this race window, and avoid other
-> potential problems.  Anything wrong with this?
->
-> Thanks for the comments suggesting this approach in the prior thread.
->
-> Thanks,
->
-> -Eric
->
-> ---
->
-> Return -ENOENT from ext[34]_link if we've raced with unlink and
-> i_nlink is 0.  Doing otherwise has the potential to corrupt the
-> orphan inode list, because we'd wind up with an inode with a
-> non-zero link count on the list, and it will never get properly
-> cleaned up & removed from the orphan list before it is freed.
->
-> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
->
-> Index: linux-2.6.19/fs/ext3/namei.c
-> ===================================================================
-> --- linux-2.6.19.orig/fs/ext3/namei.c
-> +++ linux-2.6.19/fs/ext3/namei.c
-> @@ -2191,6 +2191,8 @@ static int ext3_link (struct dentry * ol
->
->     if (inode->i_nlink >= EXT3_LINK_MAX)
->         return -EMLINK;
-> +    if (inode->i_nlink == 0)
-> +        return -ENOENT;
->
-> retry:
->     handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS(dir->i_sb) +
-> Index: linux-2.6.19/fs/ext4/namei.c
-> ===================================================================
-> --- linux-2.6.19.orig/fs/ext4/namei.c
-> +++ linux-2.6.19/fs/ext4/namei.c
-> @@ -2189,6 +2189,8 @@ static int ext4_link (struct dentry * ol
->
->     if (inode->i_nlink >= EXT4_LINK_MAX)
->         return -EMLINK;
-> +    if (inode->i_nlink == 0)
-> +        return -ENOENT;
->
-> retry:
->     handle = ext4_journal_start(dir, EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
->
 
-Just out of curosity, what keeps i_nlink from going to 0 immediately
-after the new test is executed?
+> Secondly we modify the dirty limit calculation to be based
+> on the acctive cpuset.
 
-    Thanx...
+The global dirty limit definitely seems to be a problem
+in several cases, but my feeling is that the cpuset is the wrong unit
+to keep track of it. Most likely it should be more fine grained.
 
-       ps
+> If we are in a cpuset then we select only inodes for writeback
+> that have pages on the nodes of the cpuset.
+
+Is there any indication this change helps on smaller systems
+or is it purely a large system optimization?
+
+> B. We add a new counter NR_UNRECLAIMABLE that is subtracted
+>    from the available pages in a node. This allows us to
+>    accurately calculate the dirty ratio even if large portions
+>    of the node have been allocated for huge pages or for
+>    slab pages.
+
+That sounds like a useful change by itself.
+
+-Andi

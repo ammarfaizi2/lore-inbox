@@ -1,101 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751331AbXAPCkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751421AbXAPCkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbXAPCkr (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 21:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbXAPCkr
+	id S1751421AbXAPCkz (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 21:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbXAPCkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 21:40:47 -0500
-Received: from marisil.org ([72.9.228.73]:34890 "EHLO smtp.marisil.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751331AbXAPCkq convert rfc822-to-8bit (ORCPT
+	Mon, 15 Jan 2007 21:40:55 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:18925 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751421AbXAPCkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 21:40:46 -0500
-From: Peter Antoniac <theSeinfeld@users.sourceforge.net>
-Reply-To: theSeinfeld@users.sourceforge.net
-Organization: University of Oulu
-To: "Kristian =?utf-8?q?H=C3=B8gsberg?=" <krh@bitplanet.net>
-Subject: Re: allocation failed: out of vmalloc space error treating and VIDEO1394 IOC LISTEN CHANNEL ioctl failed problem
-Date: Tue, 16 Jan 2007 11:40:18 +0900
-User-Agent: KMail/1.9.5
-Cc: "Arjan van de Ven" <arjan@infradead.org>, "David Moore" <dcm@mit.edu>,
-       linux1394-devel@lists.sourceforge.net,
-       theSeinfeld@users.sourceforge.net, "Bill Davidsen" <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net
-References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net> <1168896257.3122.577.camel@laptopd505.fenrus.org> <59ad55d30701151343r6f964475tae799185f05aa579@mail.gmail.com>
-In-Reply-To: <59ad55d30701151343r6f964475tae799185f05aa579@mail.gmail.com>
+	Mon, 15 Jan 2007 21:40:53 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PO+nNmHgLyzPsdUWj97p2pKlFpTyRoieJtE+qFFK92PqYAgl2AdNAwDar7yCsa+mwqza7N+jBGKCTap49xxXEDrwrELuuMKda2/Uq12wc7pduueG0wU+ydgigshoBzNBE5jZW59QZLvnlMOPlEoCwXrfuPGh5lTq9LGLN1uXwvA=
+Message-ID: <afe668f90701151840tc8d7608sadccb3e39017d1ed@mail.gmail.com>
+Date: Tue, 16 Jan 2007 10:40:52 +0800
+From: "Roy Huang" <royhuang9@gmail.com>
+To: "Vaidyanathan Srinivasan" <svaidy@linux.vnet.ibm.com>
+Subject: Re: [PATCH] Provide an interface to limit total page cache.
+Cc: linux-kernel@vger.kernel.org, aubreylee@gmail.com, nickpiggin@yahoo.com.au,
+       torvalds@osdl.org
+In-Reply-To: <45AB6C25.1080804@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701161140.19084.theSeinfeld@users.sf.net>
+References: <afe668f90701150139q26e41720lf06d6ee445a917b0@mail.gmail.com>
+	 <45AB6C25.1080804@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 January 2007 06:43, Kristian Høgsberg wrote:
-> On 1/15/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> > there is a lot of pain involved with doing things this way, it is a TON
-> > better if YOU provide the memory via a custom mmap handler for a device
-> > driver.
-> > (there are a lot of security nightmares involved with the opposite
-> > model, like the user can put any kind of memory there, even pci mmio
-> > space)
->
-> OK, point taken.  I don't have a strong preference for the opposite
-> model, it just seems elegant that you can let user space handle
-> allocation and pin and map the pages as needed.  But you're right, it
-> certainly is easier to give safe memory to user space in the first
-> place rather than try to make sure user space isn't trying to trick
-> us.
+The possible cause is a bug in kswapd thread, or shrink_all_memory
+cannot be called in kswapd thread.
 
-I am glad that the discussion is heading to the right place thanks to David.
-
-Yes. Probably that is the best solution. In the case of the ring buffers, 
-based on my discussion with Damien, 4 buffers are probably optimal. If the 
-user is allocating them, in case of normal cameras, this is somewhere around 
-4 MiB, lets say maxim 16 MiB. So, everything should be ok for normal people, 
-at least for now. The problem is when the cameras require bigger images (we 
-are thinking about the future, right) and maybe also more buffers in the DMA 
-ring buffer. If you leave that to the user, it will require some hacking 
-skills if we are using the current model from libdc1394 and video1394. Why? 
-Because if you use 10 buffers with some big images it is likely you are going 
-out of the 64 MiB. In that case, we were thinking to give a nice error (that 
-is why we needed to know the amount available for mmap/vmalloc) and instruct 
-the user to change the kernel boot time allocation of memory in a way that 
-will fit the range (the vmalloc=xxx at startup - the "hacking"). So, in a 
-way, it will be nice to have the solution close to the one proposed by David. 
-Do you think that if the user allocates small buffers (instead of the big 
-ring buffer) and sends the list to the driver, this will help in breaking the 
-64 limit? I have doubts about it, but I am not good at this level of VMA. 
-Anyway, I hope that something can be done to allow bigger DMA ring buffers 
-without the user needing to reboot the system with some parameter.
-
-> > >   Then is does an ioctl() on the firewire control device
-> >
-> > ioctls are evil ;) esp an "mmap me" ioctl
+On 1/15/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
 >
-> Ah, I'm not mmap'ing it from the ioctl, I do implement the mma file
-> operation for this.  However, you have to do an ioctl before mapping
-> the device to configure the dma context.
+> Roy Huang wrote:
+> > A patch provide a interface to limit total page cache in
+> > /proc/sys/vm/pagecache_ratio. The default value is 90 percent. Any
+> > feedback is appreciated.
 >
-> Other than that what is the problem with ioctls, and more interesting,
-> what is the alternative?  I don't expect (or want) a bunch of syscalls
-> to be added for this, so I don't really see what other mechanism I
-> should use for this.
+> [snip]
 >
-> > > It's not too difficult from what I'm doing now, I'd just like to give
-> > > user space more control over the buffers it uses for streaming (i.e.
-> > > letting user space allocate them).  What I'm missing here is: how do I
-> > > actually pin a page in memory?  I'm sure it's not too difficult, but I
-> > > haven't yet figured it out and I'm sure somebody knows it off the top
-> > > of his head.
-> >
-> > again the best way is for you to provide an mmap method... you can then
-> > fill in the pages and keep that in some sort of array; this is for
-> > example also what the DRI/DRM layer does for textures etc...
+> I tried to run your patch on PPC64 SMP machine, unfortunately kswapd
+> crashes the kernel when the pagecache limit is exceeded!
 >
-> That sounds a lot like what I have now (mmap method, array of pages)
-> so I'll just stick with that.
+> ->dd if=/dev/zero of=/tmp/foo bs=1M count=1200
+> cpu 0x0: Vector: 300 (Data Access) at [c0000000012d7ad0]
+>     pc: c0000000000976ac: .kswapd+0x3a4/0x4f0
+>     lr: c0000000000976ac: .kswapd+0x3a4/0x4f0
+>     sp: c0000000012d7d50
+>    msr: 8000000000009032
+>    dar: 0
+>  dsisr: 42000000
+>   current = 0xc00000000fed7040
+>   paca    = 0xc00000000063fb80
+>     pid   = 134, comm = kswapd0
+> ------------[ cut here ]------------
+> enter ? for help
+> [c0000000012d7ee0] c000000000069150 .kthread+0x124/0x174
+> [c0000000012d7f90] c0000000000247b4 .kernel_thread+0x4c/0x68
+> 0:mon>
 >
-> thanks,
-> Kristian
+> Steps to recreate fail:
+>
+> # sync
+> # echo 1 > /proc/sys/vm/drop_caches
+> MemTotal:      1014584 kB
+> MemFree:        905536 kB
+> Buffers:          3232 kB
+> Cached:          57628 kB
+> SwapCached:          0 kB
+> Active:          47664 kB
+> Inactive:        33160 kB
+> SwapTotal:     1526164 kB
+> SwapFree:      1526164 kB
+> Dirty:             108 kB
+> Writeback:           0 kB
+> AnonPages:       19976 kB
+> Mapped:          15084 kB
+> Slab:            19724 kB
+> SReclaimable:     8536 kB
+> SUnreclaim:      11188 kB
+> PageTables:        972 kB
+> NFS_Unstable:        0 kB
+> Bounce:              0 kB
+> CommitLimit:   2033456 kB
+> Committed_AS:    87884 kB
+> VmallocTotal: 8589934592 kB
+> VmallocUsed:      2440 kB
+> VmallocChunk: 8589932152 kB
+> HugePages_Total:     0
+> HugePages_Free:      0
+> HugePages_Rsvd:      0
+> Hugepagesize:    16384 kB
+>
+> # echo 50 > /proc/sys/vm/pagecache_ratio
+> # dd if=/dev/zero of=/tmp/foo bs=1M count=1200
+>
+> Basically fill pagecache with overlimit dirty file pages and check
+> if the reclaim happened and the limit was not exceeded.
+>
+> --Vaidy
+>
+>
+>
+>

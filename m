@@ -1,501 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751958AbXAPRmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751959AbXAPRmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751958AbXAPRmI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751959AbXAPRmH
+	id S1751959AbXAPRmP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbXAPRmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:42:07 -0500
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:61101 "EHLO
-	tomts13-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751958AbXAPRmF (ORCPT
+	Tue, 16 Jan 2007 12:42:14 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:43995 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751959AbXAPRmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:42:05 -0500
-Date: Tue, 16 Jan 2007 12:41:58 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Ingo Molnar <mingo@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 0/4 update] Linux Kernel Markers - i386 : pIII erratum 49 : XMC
-Message-ID: <20070116174158.GA16084@Krystal>
+	Tue, 16 Jan 2007 12:42:12 -0500
+X-Greylist: delayed 341 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 12:42:12 EST
+Date: Tue, 16 Jan 2007 17:36:51 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "<Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org, netdev@vger.kernel.org,
+       xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com, minyard@acm.org,
+       openipmi-developer@lists.sourceforge.net, tony.luck@intel.com,
+       linux-mips@linux-mips.org, schwidefsky@de.ibm.com,
+       heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-390@vm.marist.edu,
+       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
+       linuxsh-shmedia-dev@lists.sourceforge.net, ak@suse.de, vojtech@suse.cz,
+       clemens@ladisch.de, a.zummo@towertech.it, rtc-linux@googlegroups.com,
+       linux-parport@lists.infradead.org, andrea@suse.de, tim@cyberelk.net,
+       philb@gnu.org, aharkes@cs.cmu.edu, coda@cs.cmu.edu,
+       codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
+       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com
+Subject: Re: [PATCH 5/59] sysctl: rose remove unnecessary insert_at_head flag
+Message-ID: <20070116173651.GA9184@linux-mips.org>
+References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com> <11689656191854-git-send-email-ebiederm@xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070113054534.GA27017@Krystal>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 10:25:50 up 145 days, 12:33,  4 users,  load average: 0.69, 0.54, 0.43
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <11689656191854-git-send-email-ebiederm@xmission.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard,
+On Tue, Jan 16, 2007 at 09:39:10AM -0700, Eric W. Biederman wrote:
 
-* Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca) wrote:
-> > You've got the same optimizations for x86 by modifying an instruction's
-> > immediate operand and thus avoiding a d-cache hit. The only real caveat is
-> > the need to avoid the unsynchronised cross modification erratum. Which
-> > means that all processors will need to issue a serializing operation before
-> > executing a Marker whose state is changed. How is that handled?
-> > 
-> 
-> Good catch. I thought that modifying only 1 byte would spare us from this
-> errata, but looking at it in detail tells me than it's not the case.
-> 
-> I see three different ways to address the problem :
-[...]
-> 3 - First write an int3 instead of the instruction's first byte. The handler
->     would do the following :
->     int3_handler :
->       single-step the original instruction.
->       iret
-> 
->     Secondly, we call an IPI that does a smp_processor_id() on each CPU and
->     wait for them to complete. It will make sure we execute a synchronizing
->     instruction on every CPU even if we do not execute the trap handler.
-> 
->     Then, we write the new 2 bytes instruction atomically instead of the int3
->     and immediate value.
-> 
-> 
+Looks ok, for these:
 
-Here is the implementation of my proposal using a slightly enhanced kprobes. I
-add the ability to single step a different instruction than the original one,
-and then put the new instruction instead of the original one when removing the
-kprobe. It is an improvement on the djprobes design : AFAIK, djprobes required
-the int3 to be executed by _every_ CPU before the instruction could be
-replaced. It was problematic with rarely used code paths (error handling) and
-with thread CPU affinity. Comments are welcome.
+Subject: [PATCH 5/59] sysctl: rose remove unnecessary insert_at_head flag
+Subject: [PATCH 6/59] sysctl: netrom remove unnecessary insert_at_head flag
+Subject: [PATCH 11/59] sysctl: ax25 remove unnecessary insert_at_head flag
+Subject: [PATCH 30/59] sysctl: mips/au1000 Remove sys_sysctl support
+Subject: [PATCH 31/59] sysctl: C99 convert the ctl_tables in arch/mips/au1000/common/power.c
+Subject: [PATCH 32/59] sysctl: C99 convert arch/mips/lasat/sysctl.c and remove ABI breakage.
+Subject: [PATCH 43/59] sysctl: Remove sys_sysctl support from drivers/char/rtc.c
+Subject: [PATCH 55/59] sysctl: Remove insert_at_head from register_sysctl
 
-I noticed that it restrains LTTng by removing the ability to probe
-do_general_protection, do_nmi, do_trap, do_debug and do_page_fault.
-hardirq on/off in lockdep.c must also be tweaked to allow
-local_irq_enable/disable usage within the debug trap handler.
+Acked-by: Ralf Baechle <ralf@linux-mips.org>
 
-It would be nice to push the study of the kprobes debug trap handler so it can
-become possible to use it to put breakpoints in trap handlers. For now, kprobes
-refuses to insert breakpoints in __kprobes marked functions. However, as we
-instrument specific spots of the functions (not necessarily the function entry),
-it is sometimes correct to use kprobes on a marker within the function even if 
-it is not correct to use it in the prologue. Insight from the SystemTAP team
-would be welcome on this kprobe limitation.
-
-Mathieu
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-
---- a/arch/i386/kernel/kprobes.c
-+++ b/arch/i386/kernel/kprobes.c
-@@ -31,6 +31,7 @@
- #include <linux/kprobes.h>
- #include <linux/ptrace.h>
- #include <linux/preempt.h>
-+#include <linux/kallsyms.h>
- #include <asm/cacheflush.h>
- #include <asm/kdebug.h>
- #include <asm/desc.h>
-@@ -753,6 +754,73 @@ int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
- 	return 0;
- }
- 
-+static struct kprobe xmc_kp;
-+DEFINE_MUTEX(kprobe_xmc_mutex);
-+
-+static int xmc_handler_pre(struct kprobe *p, struct pt_regs *regs)
-+{
-+	return 0;
-+}
-+
-+static void xmc_handler_post(struct kprobe *p, struct pt_regs *regs,
-+	unsigned long flags)
-+{
-+}
-+
-+static int xmc_handler_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
-+{
-+	return 0;
-+}
-+
-+static void xmc_synchronize_cpu(void *info)
-+{
-+	smp_processor_id();
-+}
-+
-+/* Think of it as a memcpy of new into address with safety with regard to 
-+ * Intel PIII errata 49. Only valid for modifying a single instruction with
-+ * an instruction of the same size or in smaller instructions of the total
-+ * same size as the original instruction. */
-+int arch_xmc(void *address, char *newi, int size)
-+{
-+	int ret = 0;
-+	char *dest = (char*)address;
-+	char str[KSYM_NAME_LEN + 1];
-+	unsigned long sym_offs, sym_size;
-+	char *modname;
-+	const char *sym_name;
-+
-+	mutex_lock(&kprobe_xmc_mutex);
-+	xmc_kp.pre_handler = xmc_handler_pre;
-+	xmc_kp.post_handler = xmc_handler_post;
-+	xmc_kp.fault_handler = xmc_handler_fault;
-+	xmc_kp.addr = address;
-+	xmc_kp.symbol_name = NULL;
-+	xmc_kp.offset = 0;
-+
-+	ret = register_kprobe_swapi(&xmc_kp, newi, size);
-+	if (ret < 0) {
-+		sym_name = kallsyms_lookup((unsigned long)address,
-+				&sym_size, &sym_offs,
-+				&modname, str);
-+		printk("register_kprobe failed for %p in %s:%s returned %d\n",
-+			address, modname?modname:"kernel", sym_name, ret);
-+		goto end;
-+	}
-+	/* Copy every bytes of the new instruction except the first one */
-+	memcpy(dest+1, newi+1, size-1);
-+	flush_icache_range(dest, size);
-+	/* Execute serializing instruction on each CPU */
-+	ret = on_each_cpu(xmc_synchronize_cpu, NULL, 1, 1);
-+	BUG_ON(ret != 0);
-+
-+	unregister_kprobe(&xmc_kp);
-+end:
-+	mutex_unlock(&kprobe_xmc_mutex);
-+
-+	return ret;
-+}
-+
- int __init arch_init_kprobes(void)
- {
- 	return 0;
---- a/include/asm-generic/marker.h
-+++ b/include/asm-generic/marker.h
-@@ -18,7 +18,7 @@ struct __mark_marker_c {
- 
- struct __mark_marker {
- 	const struct __mark_marker_c *cmark;
--	volatile char *enable;
-+	char *enable;
- } __attribute__((packed));
- 
- #ifdef CONFIG_MARKERS
---- a/include/asm-i386/kprobes.h
-+++ b/include/asm-i386/kprobes.h
-@@ -90,4 +90,7 @@ static inline void restore_interrupts(struct pt_regs *regs)
- 
- extern int kprobe_exceptions_notify(struct notifier_block *self,
- 				    unsigned long val, void *data);
-+/* pIII code cross modification which follows erratum 49. */
-+#define ARCH_HAS_XMC
-+int arch_xmc(void *address, char *newi, int size);
- #endif				/* _ASM_KPROBES_H */
---- a/include/asm-i386/marker.h
-+++ b/include/asm-i386/marker.h
-@@ -18,7 +18,7 @@ struct __mark_marker_c {
- 
- struct __mark_marker {
- 	struct __mark_marker_c *cmark;
--	volatile char *enable;
-+	char *enable;
- } __attribute__((packed));
- 
- #ifdef CONFIG_MARKERS
---- a/include/asm-powerpc/marker.h
-+++ b/include/asm-powerpc/marker.h
-@@ -20,7 +20,7 @@ struct __mark_marker_c {
- 
- struct __mark_marker {
- 	struct __mark_marker_c *cmark;
--	volatile short *enable;
-+	short *enable;
- } __attribute__((packed));
- 
- #ifdef CONFIG_MARKERS
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -189,6 +189,7 @@ static inline struct kprobe_ctlblk *get_kprobe_ctlblk(void)
- }
- 
- int register_kprobe(struct kprobe *p);
-+int register_kprobe_swapi(struct kprobe *p, char *newi, int size);
- void unregister_kprobe(struct kprobe *p);
- int setjmp_pre_handler(struct kprobe *, struct pt_regs *);
- int longjmp_break_handler(struct kprobe *, struct pt_regs *);
-@@ -203,6 +204,9 @@ struct kretprobe_instance *get_free_rp_inst(struct kretprobe *rp);
- void add_rp_inst(struct kretprobe_instance *ri);
- void kprobe_flush_task(struct task_struct *tk);
- void recycle_rp_inst(struct kretprobe_instance *ri, struct hlist_head *head);
-+/* Architecture specific code cross-modification. Valid for overwriting
-+ * a single instruction. Safe for Intel PIII erratum 49. */
-+int kprobe_xmc(void *address, char *newi, int size);
- #else /* CONFIG_KPROBES */
- 
- #define __kprobes	/**/
---- a/include/linux/marker.h
-+++ b/include/linux/marker.h
-@@ -40,7 +40,7 @@
- 
- typedef void marker_probe_func(const char *fmt, ...);
- 
--#ifndef CONFIG_MARKERS_DISABLE_OPTIMIZATION
-+#ifdef CONFIG_MARKERS_ENABLE_OPTIMIZATION
- #include <asm/marker.h>
- #else
- #include <asm-generic/marker.h>
---- a/kernel/Kconfig.marker
-+++ b/kernel/Kconfig.marker
-@@ -8,9 +8,10 @@ config MARKERS
- 	  Place an empty function call at each marker site. Can be
- 	  dynamically changed for a probe function.
- 
--config MARKERS_DISABLE_OPTIMIZATION
--	bool "Disable architecture specific marker optimization"
--	depends EMBEDDED
-+config MARKERS_ENABLE_OPTIMIZATION
-+	bool "Enable marker optimization (EXPERIMENTAL)"
-+	depends MARKERS
-+	select KPROBES
- 	default n
- 	help
- 	  Disable code replacement jump optimisations. Especially useful if your
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -534,7 +534,7 @@ static int __kprobes in_kprobes_functions(unsigned long addr)
- }
- 
- static int __kprobes __register_kprobe(struct kprobe *p,
--	unsigned long called_from)
-+	unsigned long called_from, char *newi, int size)
- {
- 	int ret = 0;
- 	struct kprobe *old_p;
-@@ -587,6 +587,10 @@ static int __kprobes __register_kprobe(struct kprobe *p,
- 
- 	if ((ret = arch_prepare_kprobe(p)) != 0)
- 		goto out;
-+	if (newi) {
-+		memcpy(p->ainsn.insn, newi, size);
-+		p->opcode = *newi;
-+	}
- 
- 	INIT_HLIST_NODE(&p->hlist);
- 	hlist_add_head_rcu(&p->hlist,
-@@ -609,7 +613,14 @@ out:
- int __kprobes register_kprobe(struct kprobe *p)
- {
- 	return __register_kprobe(p,
--		(unsigned long)__builtin_return_address(0));
-+		(unsigned long)__builtin_return_address(0),
-+		NULL, 0);
-+}
-+
-+int __kprobes register_kprobe_swapi(struct kprobe *p, char *newi, int size)
-+{
-+	return __register_kprobe(p,
-+		(unsigned long)__builtin_return_address(0), newi, size);
- }
- 
- void __kprobes unregister_kprobe(struct kprobe *p)
-@@ -699,7 +710,8 @@ int __kprobes register_jprobe(struct jprobe *jp)
- 	jp->kp.break_handler = longjmp_break_handler;
- 
- 	return __register_kprobe(&jp->kp,
--		(unsigned long)__builtin_return_address(0));
-+		(unsigned long)__builtin_return_address(0),
-+		NULL, 0);
- }
- 
- void __kprobes unregister_jprobe(struct jprobe *jp)
-@@ -760,7 +772,8 @@ int __kprobes register_kretprobe(struct kretprobe *rp)
- 	rp->nmissed = 0;
- 	/* Establish function entry probe point */
- 	if ((ret = __register_kprobe(&rp->kp,
--		(unsigned long)__builtin_return_address(0))) != 0)
-+		(unsigned long)__builtin_return_address(0),
-+		NULL, 0)) != 0)
- 		free_rp_inst(rp);
- 	return ret;
- }
-@@ -790,6 +803,33 @@ void __kprobes unregister_kretprobe(struct kretprobe *rp)
- 	free_rp_inst(rp);
- }
- 
-+#ifdef ARCH_HAS_XMC
-+int kprobe_xmc(void *address, char *newi, int size)
-+{
-+	return arch_xmc(address, newi, size);
-+}
-+#else
-+/* Limited XMC : only overwrite an instruction with an atomic operation
-+ * (writing at most an aligned long). */
-+int kprobe_xmc(void *address, char *newi, int size)
-+{
-+	if (size > sizeof(long)) {
-+		printk("Limited XMC : cannot overwrite instructions bigger "\
-+			"than %d. XMC of size %d fails.\n", sizeof(long),
-+			size);
-+		return -EPERM;
-+	}
-+	if (hweight32(size) != 1 || address % size != 0) {
-+		printk("Limited XMC : cannot write %d bytes unaligned "\
-+			"instruction. XMC fails.\n", size);
-+		return -EPERM;
-+	}
-+	memcpy(address, newi, size);
-+	flush_icache_range(address, size);
-+}
-+#endif /* HAS_ARCH_XMC */
-+EXPORT_SYMBOL(kprobe_xmc);
-+
- static int __init init_kprobes(void)
- {
- 	int i, err = 0;
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -40,6 +40,7 @@
- #include <linux/string.h>
- #include <linux/mutex.h>
- #include <linux/unwind.h>
-+#include <linux/kprobes.h>
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
- #include <asm/cacheflush.h>
-@@ -309,6 +310,26 @@ EXPORT_SYMBOL(__mark_empty_function);
- #define MARK_ENABLE_OFFSET(a) \
- 	(typeof(a))((char*)a+MARK_ENABLE_IMMEDIATE_OFFSET)
- 
-+/* wmb() stay ordered. State will be ok for interrupts/other CPUs. */
-+#ifdef MARK_POLYMORPHIC
-+static int marker_set_enable(char *address, char enable)
-+{
-+	char newi[MARK_ENABLE_IMMEDIATE_OFFSET+1];
-+
-+	memcpy(newi, address, MARK_ENABLE_IMMEDIATE_OFFSET+1);
-+	*MARK_ENABLE_OFFSET(&newi[0]) = enable;
-+	return kprobe_xmc(address, newi, MARK_ENABLE_IMMEDIATE_OFFSET+1);
-+}
-+#else
-+static int marker_set_enable(char *address, char enable)
-+{
-+	*MARK_ENABLE_OFFSET(address) = enable;
-+	return 0;
-+}
-+#endif /* MARK_POLYMORPHIC */
-+
-+/* enable and function address are set out of order, and it's ok :
-+ * the state is always coherent. */
- static int marker_set_probe_range(const char *name, 
- 	const char *format,
- 	marker_probe_func *probe,
-@@ -336,13 +357,7 @@ static int marker_set_probe_range(const char *name,
- 					*iter->cmark->call =
- 						__mark_empty_function;
- 				}
--				/* Can have many enables for one function */
--				*MARK_ENABLE_OFFSET(iter->enable) = 0;
--#ifdef MARK_POLYMORPHIC
--				flush_icache_range(
--					MARK_ENABLE_OFFSET(iter->enable),
--					sizeof(*(iter->enable)));
--#endif
-+				marker_set_enable(iter->enable, 0);
- 			} else {
- 				if (*iter->cmark->call
- 					!= __mark_empty_function) {
-@@ -360,12 +375,7 @@ static int marker_set_probe_range(const char *name,
- 					*iter->cmark->call = probe;
- 				}
- 				/* Can have many enables for one function */
--				*MARK_ENABLE_OFFSET(iter->enable) = 1;
--#ifdef MARK_POLYMORPHIC
--				flush_icache_range(
--					MARK_ENABLE_OFFSET(iter->enable),
--					sizeof(*(iter->enable)));
--#endif
-+				marker_set_enable(iter->enable, 1);
- 			}
- 			found++;
- 		}
-@@ -382,12 +392,7 @@ static int marker_remove_probe_range(marker_probe_func *probe,
- 
- 	for (iter = begin; iter < end; iter++) {
- 		if (*iter->cmark->call == probe) {
--			*MARK_ENABLE_OFFSET(iter->enable) = 0;
--#ifdef MARK_POLYMORPHIC
--				flush_icache_range(
--					MARK_ENABLE_OFFSET(iter->enable),
--					sizeof(*(iter->enable)));
--#endif
-+			marker_set_enable(iter->enable, 0);
- 			*iter->cmark->call = __mark_empty_function;
- 			found++;
- 		}
-@@ -419,9 +424,8 @@ int marker_set_probe(const char *name, const char *format,
- {
- 	struct module *mod;
- 	int found = 0;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
-+	mutex_lock(&module_mutex);
- 	/* Core kernel markers */
- 	found += marker_set_probe_range(name, format, probe,
- 			__start___markers, __stop___markers);
-@@ -431,7 +435,7 @@ int marker_set_probe(const char *name, const char *format,
- 			found += marker_set_probe_range(name, format, probe,
- 				mod->markers, mod->markers+mod->num_markers);
- 	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	mutex_unlock(&module_mutex);
- 	return found;
- }
- EXPORT_SYMBOL(marker_set_probe);
-@@ -440,9 +444,8 @@ int marker_remove_probe(marker_probe_func *probe)
- {
- 	struct module *mod;
- 	int found = 0;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
-+	mutex_lock(&module_mutex);
- 	/* Core kernel markers */
- 	found += marker_remove_probe_range(probe,
- 			__start___markers, __stop___markers);
-@@ -452,7 +455,7 @@ int marker_remove_probe(marker_probe_func *probe)
- 			found += marker_remove_probe_range(probe,
- 				mod->markers, mod->markers+mod->num_markers);
- 	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	mutex_unlock(&module_mutex);
- 	return found;
- }
- EXPORT_SYMBOL(marker_remove_probe);
-@@ -461,9 +464,8 @@ int marker_list_probe(marker_probe_func *probe)
- {
- 	struct module *mod;
- 	int found = 0;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
-+	mutex_lock(&module_mutex);
- 	/* Core kernel markers */
- 	printk("Listing kernel markers\n");
- 	found += marker_list_probe_range(probe,
-@@ -477,7 +479,7 @@ int marker_list_probe(marker_probe_func *probe)
- 				mod->markers, mod->markers+mod->num_markers);
- 		}
- 	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	mutex_unlock(&module_mutex);
- 	return found;
- }
- EXPORT_SYMBOL(marker_list_probe);
-
--- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+  Ralf

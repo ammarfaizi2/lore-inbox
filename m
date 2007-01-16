@@ -1,222 +1,156 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932410AbXAPFs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932404AbXAPFtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbXAPFs7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 00:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbXAPFs6
+	id S932404AbXAPFtc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 00:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbXAPFtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 00:48:58 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40820 "EHLO omx1.sgi.com"
+	Tue, 16 Jan 2007 00:49:00 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58785 "EHLO omx2.sgi.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932410AbXAPFse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 00:48:34 -0500
-Date: Mon, 15 Jan 2007 21:48:25 -0800 (PST)
+	id S932402AbXAPFs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 00:48:27 -0500
+Date: Mon, 15 Jan 2007 21:48:19 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Paul Menage <menage@google.com>, linux-kernel@vger.kernel.org,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
        Dave Chinner <dgc@sgi.com>, Christoph Lameter <clameter@sgi.com>
-Message-Id: <20070116054825.15358.65020.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20070116054819.15358.37282.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
 References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 8/8] Reduce inode memory usage for systems with a high MAX_NUMNODES
+Subject: [RFC 7/8] Exclude unreclaimable pages from dirty ration calculation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dynamically reduce the size of the nodemask_t in struct inode
+Consider unreclaimable pages during dirty limit calculation
 
-The nodemask_t in struct inode can potentially waste a lot of memory if
-MAX_NUMNODES is high. For IA64 MAX_NUMNODES is 1024 by default which
-results in 128 bytes to be used for the nodemask. This means that the
-memory use for inodes may increase significantly since they all now
-include a dirty_map. These may be unecessarily large on smaller systems.
+Tracking unreclaimable pages helps us to calculate the dirty ratio
+the right way. If a large number of unreclaimable pages are allocated
+(through the slab or through huge pages) then write throttling will
+no longer work since the limit cannot be reached anymore.
 
-We placed the nodemask at the end of struct inode. This patch avoids
-touching the later part of the nodemask if the actual maximum possible
-node on the system is less than 1024. If MAX_NUMNODES is larger than
-BITS_PER_LONG (and we may use more than one word for the nodemask) then
-we calculate the number of bytes that may be taken off the end of
-an inode. We can then create the inode caches without those bytes
-effectively saving memory. On a IA64 system booting with a
-maximum of 64 nodes we may save 120 of those 128 bytes per inode.
+So we simply subtract the number of unreclaimable pages from the pages
+considered for writeout threshold calculation.
 
-This is only done for filesystems that are typically used for NUMA
-systems: xfs, nfs, ext3, ext4 and reiserfs. Other filesystems will
-always use the full length of the inode.
-
-This solution may be a bit hokey. I tried other approaches but this
-one seemed to be the simplest with the least complications. Maybe someone
-else can come up with a better solution?
+Other code that allocates significant amounts of memory for device
+drivers etc could also be modified to take advantage of this functionality.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.20-rc5/fs/xfs/linux-2.6/xfs_super.c
+Index: linux-2.6.20-rc5/include/linux/mmzone.h
 ===================================================================
---- linux-2.6.20-rc5.orig/fs/xfs/linux-2.6/xfs_super.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/fs/xfs/linux-2.6/xfs_super.c	2007-01-15 22:35:07.596529498 -0600
-@@ -370,7 +370,9 @@ xfs_fs_inode_init_once(
- STATIC int
- xfs_init_zones(void)
- {
--	xfs_vnode_zone = kmem_zone_init_flags(sizeof(bhv_vnode_t), "xfs_vnode",
-+	xfs_vnode_zone = kmem_zone_init_flags(sizeof(bhv_vnode_t)
-+						- unused_numa_nodemask_bytes,
-+					"xfs_vnode",
- 					KM_ZONE_HWALIGN | KM_ZONE_RECLAIM |
- 					KM_ZONE_SPREAD,
- 					xfs_fs_inode_init_once);
-Index: linux-2.6.20-rc5/include/linux/fs.h
+--- linux-2.6.20-rc5.orig/include/linux/mmzone.h	2007-01-12 12:54:26.000000000 -0600
++++ linux-2.6.20-rc5/include/linux/mmzone.h	2007-01-15 21:37:37.579950696 -0600
+@@ -53,6 +53,7 @@ enum zone_stat_item {
+ 	NR_FILE_PAGES,
+ 	NR_SLAB_RECLAIMABLE,
+ 	NR_SLAB_UNRECLAIMABLE,
++	NR_UNRECLAIMABLE,
+ 	NR_PAGETABLE,	/* used for pagetables */
+ 	NR_FILE_DIRTY,
+ 	NR_WRITEBACK,
+Index: linux-2.6.20-rc5/fs/proc/proc_misc.c
 ===================================================================
---- linux-2.6.20-rc5.orig/include/linux/fs.h	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/include/linux/fs.h	2007-01-15 22:35:07.621922373 -0600
-@@ -591,6 +591,14 @@ struct inode {
- 	void			*i_private; /* fs or device private pointer */
- #ifdef CONFIG_CPUSETS
- 	nodemask_t		dirty_nodes;	/* Map of nodes with dirty pages */
-+	/*
-+	 * Note that we may only use a portion of the bitmap in dirty_nodes
-+	 * if we have a large MAX_NUMNODES but the number of possible nodes
-+	 * is small in order to reduce the size of the inode.
-+	 *
-+	 * Bits after nr_node_ids (one node beyond the last possible
-+	 * node_id) may not be accessed.
-+	 */
- #endif
- };
- 
-Index: linux-2.6.20-rc5/fs/ext3/super.c
+--- linux-2.6.20-rc5.orig/fs/proc/proc_misc.c	2007-01-12 12:54:26.000000000 -0600
++++ linux-2.6.20-rc5/fs/proc/proc_misc.c	2007-01-15 21:37:37.641479580 -0600
+@@ -174,6 +174,7 @@ static int meminfo_read_proc(char *page,
+ 		"Slab:         %8lu kB\n"
+ 		"SReclaimable: %8lu kB\n"
+ 		"SUnreclaim:   %8lu kB\n"
++		"Unreclaimabl: %8lu kB\n"
+ 		"PageTables:   %8lu kB\n"
+ 		"NFS_Unstable: %8lu kB\n"
+ 		"Bounce:       %8lu kB\n"
+@@ -205,6 +206,7 @@ static int meminfo_read_proc(char *page,
+ 				global_page_state(NR_SLAB_UNRECLAIMABLE)),
+ 		K(global_page_state(NR_SLAB_RECLAIMABLE)),
+ 		K(global_page_state(NR_SLAB_UNRECLAIMABLE)),
++		K(global_page_state(NR_UNRECLAIMABLE)),
+ 		K(global_page_state(NR_PAGETABLE)),
+ 		K(global_page_state(NR_UNSTABLE_NFS)),
+ 		K(global_page_state(NR_BOUNCE)),
+Index: linux-2.6.20-rc5/mm/hugetlb.c
 ===================================================================
---- linux-2.6.20-rc5.orig/fs/ext3/super.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/fs/ext3/super.c	2007-01-15 22:35:07.646338599 -0600
-@@ -480,7 +480,8 @@ static void init_once(void * foo, struct
- static int init_inodecache(void)
- {
- 	ext3_inode_cachep = kmem_cache_create("ext3_inode_cache",
--					     sizeof(struct ext3_inode_info),
-+					     sizeof(struct ext3_inode_info)
-+						- unused_numa_nodemask_bytes,
- 					     0, (SLAB_RECLAIM_ACCOUNT|
- 						SLAB_MEM_SPREAD),
- 					     init_once, NULL);
-Index: linux-2.6.20-rc5/fs/inode.c
-===================================================================
---- linux-2.6.20-rc5.orig/fs/inode.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/fs/inode.c	2007-01-15 22:35:07.661964984 -0600
-@@ -1399,7 +1399,8 @@ void __init inode_init(unsigned long mem
- 
- 	/* inode slab cache */
- 	inode_cachep = kmem_cache_create("inode_cache",
--					 sizeof(struct inode),
-+					 sizeof(struct inode)
-+						- unused_numa_nodemask_bytes,
- 					 0,
- 					 (SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|
- 					 SLAB_MEM_SPREAD),
-Index: linux-2.6.20-rc5/fs/reiserfs/super.c
-===================================================================
---- linux-2.6.20-rc5.orig/fs/reiserfs/super.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/fs/reiserfs/super.c	2007-01-15 22:35:07.685404561 -0600
-@@ -525,11 +525,11 @@ static void init_once(void *foo, struct 
- static int init_inodecache(void)
- {
- 	reiserfs_inode_cachep = kmem_cache_create("reiser_inode_cache",
--						  sizeof(struct
--							 reiserfs_inode_info),
--						  0, (SLAB_RECLAIM_ACCOUNT|
--							SLAB_MEM_SPREAD),
--						  init_once, NULL);
-+					  sizeof(struct reiserfs_inode_info)
-+						 - unused_numa_nodemask_bytes,
-+					  0, (SLAB_RECLAIM_ACCOUNT|
-+						SLAB_MEM_SPREAD),
-+					  init_once, NULL);
- 	if (reiserfs_inode_cachep == NULL)
- 		return -ENOMEM;
+--- linux-2.6.20-rc5.orig/mm/hugetlb.c	2007-01-12 12:54:26.000000000 -0600
++++ linux-2.6.20-rc5/mm/hugetlb.c	2007-01-15 21:37:37.664919155 -0600
+@@ -115,6 +115,8 @@ static int alloc_fresh_huge_page(void)
+ 		nr_huge_pages_node[page_to_nid(page)]++;
+ 		spin_unlock(&hugetlb_lock);
+ 		put_page(page); /* free it into the hugepage allocator */
++		mod_zone_page_state(page_zone(page), NR_UNRECLAIMABLE,
++					HPAGE_SIZE / PAGE_SIZE);
+ 		return 1;
+ 	}
  	return 0;
-Index: linux-2.6.20-rc5/include/linux/cpuset.h
+@@ -183,6 +185,8 @@ static void update_and_free_page(struct 
+ 				1 << PG_dirty | 1 << PG_active | 1 << PG_reserved |
+ 				1 << PG_private | 1<< PG_writeback);
+ 	}
++	mod_zone_page_state(page_zone(page), NR_UNRECLAIMABLE,
++					- (HPAGE_SIZE / PAGE_SIZE));
+ 	page[1].lru.next = NULL;
+ 	set_page_refcounted(page);
+ 	__free_pages(page, HUGETLB_PAGE_ORDER);
+Index: linux-2.6.20-rc5/mm/vmstat.c
 ===================================================================
---- linux-2.6.20-rc5.orig/include/linux/cpuset.h	2007-01-15 22:34:37.000000000 -0600
-+++ linux-2.6.20-rc5/include/linux/cpuset.h	2007-01-15 22:33:53.759908623 -0600
-@@ -82,11 +82,13 @@ extern void cpuset_track_online_nodes(vo
- 	node_set(page_to_nid(__page), (__inode)->dirty_nodes)
- 
- #define cpuset_clear_dirty_nodes(__inode) \
--		(__inode)->dirty_nodes = NODE_MASK_NONE
-+	bitmap_zero(nodes_addr((__inode)->dirty_nodes), nr_node_ids)
- 
- #define cpuset_intersects_dirty_nodes(__inode, __nodemask_ptr) \
--		(!(__nodemask_ptr) || nodes_intersects((__inode)->dirty_nodes, \
--		*(__nodemask_ptr)))
-+		(!(__nodemask_ptr) || bitmap_intersects( \
-+			nodes_addr((__inode)->dirty_nodes), \
-+			nodes_addr(*(__nodemask_ptr)), \
-+			nr_node_ids))
- 
- #else /* !CONFIG_CPUSETS */
- 
-Index: linux-2.6.20-rc5/include/linux/nodemask.h
+--- linux-2.6.20-rc5.orig/mm/vmstat.c	2007-01-12 12:54:26.000000000 -0600
++++ linux-2.6.20-rc5/mm/vmstat.c	2007-01-15 21:37:37.686405431 -0600
+@@ -459,6 +459,7 @@ static const char * const vmstat_text[] 
+ 	"nr_file_pages",
+ 	"nr_slab_reclaimable",
+ 	"nr_slab_unreclaimable",
++	"nr_unreclaimable",
+ 	"nr_page_table_pages",
+ 	"nr_dirty",
+ 	"nr_writeback",
+Index: linux-2.6.20-rc5/mm/page-writeback.c
 ===================================================================
---- linux-2.6.20-rc5.orig/include/linux/nodemask.h	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/include/linux/nodemask.h	2007-01-15 22:35:07.712750734 -0600
-@@ -353,6 +353,13 @@ extern nodemask_t node_possible_map;
- #define first_online_node	first_node(node_online_map)
- #define next_online_node(nid)	next_node((nid), node_online_map)
- extern int nr_node_ids;
-+
-+#if MAX_NUMNODES > BITS_PER_LONG
-+extern int unused_numa_nodemask_bytes;
-+#else
-+#define unused_numa_nodemask_bytes 0
-+#endif
-+
- #else
- #define num_online_nodes()	1
- #define num_possible_nodes()	1
-@@ -361,6 +368,7 @@ extern int nr_node_ids;
- #define first_online_node	0
- #define next_online_node(nid)	(MAX_NUMNODES)
- #define nr_node_ids		1
-+#define unused_numa_nodemask_bytes	0
- #endif
- 
- #define any_online_node(mask)			\
-Index: linux-2.6.20-rc5/mm/page_alloc.c
+--- linux-2.6.20-rc5.orig/mm/page-writeback.c	2007-01-15 21:37:33.302228293 -0600
++++ linux-2.6.20-rc5/mm/page-writeback.c	2007-01-15 21:37:37.697148570 -0600
+@@ -165,7 +165,9 @@ get_dirty_limits(struct dirty_limits *dl
+ 			dl->nr_writeback +=
+ 				node_page_state(node, NR_WRITEBACK);
+ 			available_memory +=
+-				NODE_DATA(node)->node_present_pages;
++				NODE_DATA(node)->node_present_pages
++				- node_page_state(node, NR_UNRECLAIMABLE)
++				- node_page_state(node, NR_SLAB_UNRECLAIMABLE);
+ #ifdef CONFIG_HIGHMEM
+ 			high_memory += NODE_DATA(node)
+ 				->node_zones[ZONE_HIGHMEM]->present_pages;
+@@ -180,7 +182,9 @@ get_dirty_limits(struct dirty_limits *dl
+ 		dl->nr_dirty = global_page_state(NR_FILE_DIRTY);
+ 		dl->nr_unstable = global_page_state(NR_UNSTABLE_NFS);
+ 		dl->nr_writeback = global_page_state(NR_WRITEBACK);
+-		available_memory = vm_total_pages;
++		available_memory = vm_total_pages
++				- global_page_state(NR_UNRECLAIMABLE)
++				- global_page_state(NR_SLAB_UNRECLAIMABLE);
+ 		high_memory = totalhigh_pages;
+ 		nr_mapped = global_page_state(NR_FILE_MAPPED) +
+ 				global_page_state(NR_ANON_PAGES);
+Index: linux-2.6.20-rc5/drivers/base/node.c
 ===================================================================
---- linux-2.6.20-rc5.orig/mm/page_alloc.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/mm/page_alloc.c	2007-01-15 22:35:07.735213662 -0600
-@@ -663,6 +663,10 @@ static int rmqueue_bulk(struct zone *zon
- #if MAX_NUMNODES > 1
- int nr_node_ids __read_mostly;
- EXPORT_SYMBOL(nr_node_ids);
-+#if MAX_NUMNODES > BITS_PER_LONG
-+int unused_numa_nodemask_bytes __read_mostly;
-+EXPORT_SYMBOL(unused_numa_nodemask_bytes);
-+#endif
- 
- /*
-  * Figure out the number of possible node ids.
-@@ -675,6 +679,10 @@ static void __init setup_nr_node_ids(voi
- 	for_each_node_mask(node, node_possible_map)
- 		highest = node;
- 	nr_node_ids = highest + 1;
-+#if MAX_NUMNODES > BITS_PER_LONG
-+	unused_numa_nodemask_bytes = BITS_TO_LONGS(MAX_NUMNODES)
-+				- BITS_TO_LONGS(nr_node_ids);
-+#endif
+--- linux-2.6.20-rc5.orig/drivers/base/node.c	2007-01-12 12:54:26.000000000 -0600
++++ linux-2.6.20-rc5/drivers/base/node.c	2007-01-15 21:37:37.759654103 -0600
+@@ -70,7 +70,8 @@ static ssize_t node_read_meminfo(struct 
+ 		       "Node %d Bounce:       %8lu kB\n"
+ 		       "Node %d Slab:         %8lu kB\n"
+ 		       "Node %d SReclaimable: %8lu kB\n"
+-		       "Node %d SUnreclaim:   %8lu kB\n",
++		       "Node %d SUnreclaim:   %8lu kB\n"
++		       "Node %d Unreclaimabl: %8lu kB\n",
+ 		       nid, K(i.totalram),
+ 		       nid, K(i.freeram),
+ 		       nid, K(i.totalram - i.freeram),
+@@ -93,7 +94,8 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(node_page_state(nid, NR_SLAB_RECLAIMABLE) +
+ 				node_page_state(nid, NR_SLAB_UNRECLAIMABLE)),
+ 		       nid, K(node_page_state(nid, NR_SLAB_RECLAIMABLE)),
+-		       nid, K(node_page_state(nid, NR_SLAB_UNRECLAIMABLE)));
++		       nid, K(node_page_state(nid, NR_SLAB_UNRECLAIMABLE)),
++		       nid, K(node_page_state(nid, NR_UNRECLAIMABLE)));
+ 	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
  }
- #else
- static void __init setup_nr_node_ids(void) {}
-Index: linux-2.6.20-rc5/fs/nfs/inode.c
-===================================================================
---- linux-2.6.20-rc5.orig/fs/nfs/inode.c	2007-01-15 22:33:55.000000000 -0600
-+++ linux-2.6.20-rc5/fs/nfs/inode.c	2007-01-15 22:35:07.755723291 -0600
-@@ -1136,7 +1136,8 @@ static void init_once(void * foo, struct
- static int __init nfs_init_inodecache(void)
- {
- 	nfs_inode_cachep = kmem_cache_create("nfs_inode_cache",
--					     sizeof(struct nfs_inode),
-+					     sizeof(struct nfs_inode)
-+					     - unused_numa_nodemask_bytes,
- 					     0, (SLAB_RECLAIM_ACCOUNT|
- 						SLAB_MEM_SPREAD),
- 					     init_once, NULL);

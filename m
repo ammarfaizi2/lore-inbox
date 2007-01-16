@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751197AbXAPOYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751195AbXAPOZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbXAPOYn (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 09:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbXAPOYn
+	id S1751195AbXAPOZz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 09:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbXAPOZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 09:24:43 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51082 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751197AbXAPOYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 09:24:42 -0500
-Date: Tue, 16 Jan 2007 15:24:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: Re: 2.6.20-rc5: usb mouse breaks suspend to ram
-Message-ID: <20070116142432.GA6171@elf.ucw.cz>
-References: <20070116135727.GA2831@elf.ucw.cz> <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 16 Jan 2007 09:25:54 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:44054 "EHLO
+	pd5mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751195AbXAPOZy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 09:25:54 -0500
+Date: Tue, 16 Jan 2007 08:26:05 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
+ hole mapping related bug?!
+In-reply-to: <45ACD918.2040204@scientia.net>
+To: Christoph Anton Mitterer <calestyo@scientia.net>
+Cc: linux-kernel@vger.kernel.org, cw@f00f.org, knweiss@gmx.de, ak@suse.de,
+       andersen@codepoet.org, krader@us.ibm.com, lfriedman@nvidia.com,
+       linux-nforce-bugs@nvidia.com
+Message-id: <45ACE07D.3050207@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca>
+ <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net>
+ <45AC1AEB.60805@shaw.ca> <45ACD918.2040204@scientia.net>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >I started using el-cheapo usb mouse... only to find out that it breaks
-> >suspend to RAM. Suspend-to-disk works okay. I was not able to extract
-> >any usefull messages...
-> >
-> >Resume process hangs; I can still switch console and even type on
-> >keyboard, but userland is dead, and I was not able to get magic sysrq
-> >to respond.
+Christoph Anton Mitterer wrote:
+> Ok,.. that sounds reasonable,.. so the whole thing might (!) actually be
+> a hardware design error,... but we just don't use that hardware any
+> longer when accessing devices via sata_nv.
 > 
-> Are you using hid or usbmouse?
+> So this doesn't solve our problem with PATA drives or other devices
+> (although we had until now no reports of errors with other devices) and
+> we have to stick with iommu=soft.
+> 
+> If one use iommu=soft the sata_nv will continue to use the new code for
+> the ADMA, right?
 
-I think it is hid:
-
-pavel@amd:/data/l/linux$ cat .config | grep MOUSE
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=y
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_USB_IDMOUSE is not set
-pavel@amd:/data/l/linux$ cat .config | grep HID
-CONFIG_BT_HIDP=y
-# HID Devices
-CONFIG_HID=y
-CONFIG_USB_HID=y
-# CONFIG_USB_HIDINPUT_POWERBOOK is not set
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-# CONFIG_USB_PHIDGET is not set
-pavel@amd:/data/l/linux$
-
-Should I disable config_hid and try some other driver?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Right, that shouldn't affect it.

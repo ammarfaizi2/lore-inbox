@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751253AbXAPV3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751409AbXAPVcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbXAPV3k (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 16:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbXAPV3k
+	id S1751409AbXAPVcS (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 16:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbXAPVcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 16:29:40 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3604 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751253AbXAPV3j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 16:29:39 -0500
-Date: Tue, 16 Jan 2007 22:29:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Wendy Cheng <wcheng@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, swhiteho@redhat.com,
-       cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [Cluster-devel] [-mm patch] make gfs2_change_nlink_i() static
-Message-ID: <20070116212942.GH3465@stusta.de>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <20070113095640.GK7469@stusta.de> <45AD3DCF.6000604@redhat.com>
+	Tue, 16 Jan 2007 16:32:18 -0500
+Received: from ns.suse.de ([195.135.220.2]:33291 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751409AbXAPVcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 16:32:17 -0500
+From: Andi Kleen <ak@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
+Date: Wed, 17 Jan 2007 08:29:53 +1100
+User-Agent: KMail/1.9.1
+Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, andersen@codepoet.org, krader@us.ibm.com,
+       lfriedman@nvidia.com, linux-nforce-bugs@nvidia.com
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org>
+In-Reply-To: <20070116203143.GA4213@tuatara.stupidest.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45AD3DCF.6000604@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200701170829.54540.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2007 at 04:04:15PM -0500, Wendy Cheng wrote:
-> Adrian Bunk wrote:
-> >On Thu, Jan 11, 2007 at 10:26:27PM -0800, Andrew Morton wrote:
-> >  
-> >>...
-> >>Changes since 2.6.20-rc3-mm1:
-> >>...
-> >> git-gfs2-nmw.patch
-> >>...
-> >> git trees
-> >>...
-> >>    
-> >
-> >
-> >This patch makes the needlessly globlal gfs2_change_nlink_i() static.
-> >  
-> We will probably need to call this routine from other files in our next 
-> round of code check-in.
+On Wednesday 17 January 2007 07:31, Chris Wedgwood wrote:
+> On Tue, Jan 16, 2007 at 08:52:32PM +0100, Christoph Anton Mitterer wrote:
+> > I agree,... it seems drastic, but this is the only really secure
+> > solution.
+>
+> I'd like to here from Andi how he feels about this?  It seems like a
+> somewhat drastic solution in some ways given a lot of hardware doesn't
+> seem to be affected (or maybe in those cases it's just really hard to
+> hit, I don't know).
 
-You can always make it global again when you use it from another file.
+AMD is looking at the issue. Only Nvidia chipsets seem to be affected,
+although there were similar problems on VIA in the past too.
+Unless a good workaround comes around soon I'll probably default
+to iommu=soft on Nvidia.
 
-> -- Wendy
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

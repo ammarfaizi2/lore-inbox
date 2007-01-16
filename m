@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751737AbXAPW2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751723AbXAPWbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbXAPW2F (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 17:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbXAPW2F
+	id S1751723AbXAPWbA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 17:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbXAPWbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 17:28:05 -0500
-Received: from pat.uio.no ([129.240.10.15]:44976 "EHLO pat.uio.no"
+	Tue, 16 Jan 2007 17:31:00 -0500
+Received: from farad.aurel32.net ([82.232.2.251]:2601 "EHLO mail.aurel32.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751737AbXAPW2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 17:28:03 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <1168985323.5975.53.camel@lappy>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org>  <1168985323.5975.53.camel@lappy>
-Content-Type: text/plain
-Date: Tue, 16 Jan 2007 17:27:46 -0500
-Message-Id: <1168986466.6056.52.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	id S1751719AbXAPWa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 17:30:59 -0500
+X-Greylist: delayed 2885 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 17:30:59 EST
+Message-ID: <45AD46DD.7050408@aurel32.net>
+Date: Tue, 16 Jan 2007 22:42:53 +0100
+From: Aurelien Jarno <aurelien@aurel32.net>
+User-Agent: IceDove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IPv6 router advertisement broken on 2.6.20-rc5
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-UiO-Resend: resent
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.0, required=12.0, autolearn=disabled, none)
-X-UiO-Scanned: 56D91E2C9961F47E5A7384AB54D99FDDE2F032D1
-X-UiO-SPAM-Test: 129.240.10.9 spam_score 0 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Tue, 2007-01-16 at 23:08 +0100, Peter Zijlstra wrote:
-> Subject: nfs: fix congestion control
-> 
-> The current NFS client congestion logic is severely broken, it marks the
-> backing device congested during each nfs_writepages() call and implements
-> its own waitqueue.
-> 
-> Replace this by a more regular congestion implementation that puts a cap
-> on the number of active writeback pages and uses the bdi congestion waitqueue.
-> 
-> NFSv[34] commit pages are allowed to go unchecked as long as we are under 
-> the dirty page limit and not in direct reclaim.
-> 
-> 	A buxom young lass from Neale's Flat,
-> 	Bore triplets, named Matt, Pat and Tat.
-> 	"Oh Lord," she protested,
-> 	"'Tis somewhat congested ...
-> 	"You've given me no tit for Tat." 
+I have just tried a 2.6.20-rc5 kernel (I previously used a 2.6.19 one),
+and I have noticed that the IPv6 router advertisement functionality is
+broken. The interface is not attributed an IPv6 address anymore, despite
+/proc/sys/net/ipv6/conf/all/ra_accept being set to 1 (also true for each
+individual interface configuration).
 
+Using tcpdump, I am seeing the router advertisement messages arriving on
+the interface, but they seems to be ignored.
 
-What on earth is the point of adding congestion control to COMMIT?
-Strongly NACKed.
+Does somebody have also seen this behaviour?
 
-Why 16MB of on-the-wire data? Why not 32, or 128, or ...
-Solaris already allows you to send 2MB of write data in a single RPC
-request, and the RPC engine has for some time allowed you to tune the
-number of simultaneous RPC requests you have on the wire: Chuck has
-already shown that read/write performance is greatly improved by upping
-that value to 64 or more in the case of RPC over TCP. Why are we then
-suddenly telling people that they are limited to 8 simultaneous writes?
+Bye,
+Aurelien
 
-Trond
-
-
+-- 
+  .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
+ : :' :  Debian developer           | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net

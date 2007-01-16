@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751833AbXAPQ4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751847AbXAPQ4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751833AbXAPQ4J (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbXAPQyg
+	id S1751847AbXAPQ4q (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbXAPQy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:54:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46002 "EHLO
+	Tue, 16 Jan 2007 11:54:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46007 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751588AbXAPQtf (ORCPT
+	with ESMTP id S1751591AbXAPQtj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:49:35 -0500
+	Tue, 16 Jan 2007 11:49:39 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 41/59] sysctl: C99 convert ctl_tables in arch/x86_64/mm/init.c
-Date: Tue, 16 Jan 2007 09:39:46 -0700
-Message-Id: <11689656673646-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 48/59] sysctl: Register the ocfs2 sysctl numbers
+Date: Tue, 16 Jan 2007 09:39:53 -0700
+Message-Id: <11689656823041-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,47 +37,66 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
+ocfs2 was did not have the binary number it uses under CTL_FS
+registered in sysctl.h.  Register it to avoid future conflicts,
+and change the name of the definition to be in line with the
+rest of the sysctl numbers.
+
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/mm/init.c |   22 ++++++++++++++++------
- 1 files changed, 16 insertions(+), 6 deletions(-)
+ fs/ocfs2/cluster/nodemanager.c |    4 ++--
+ fs/ocfs2/cluster/nodemanager.h |    3 +--
+ include/linux/sysctl.h         |    1 +
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86_64/mm/init.c b/arch/x86_64/mm/init.c
-index 65aa66c..a04535d 100644
---- a/arch/x86_64/mm/init.c
-+++ b/arch/x86_64/mm/init.c
-@@ -711,15 +711,25 @@ int kern_addr_valid(unsigned long addr)
- extern int exception_trace, page_fault_trace;
+diff --git a/fs/ocfs2/cluster/nodemanager.c b/fs/ocfs2/cluster/nodemanager.c
+index b17333a..df763c7 100644
+--- a/fs/ocfs2/cluster/nodemanager.c
++++ b/fs/ocfs2/cluster/nodemanager.c
+@@ -55,7 +55,7 @@ static ctl_table ocfs2_nm_table[] = {
  
- static ctl_table debug_table2[] = {
--	{ 99, "exception-trace", &exception_trace, sizeof(int), 0644, NULL,
--	  proc_dointvec },
--	{ 0, }
-+	{
-+		.ctl_name	= 99,
-+		.procname	= "exception-trace",
-+		.data		= &exception_trace,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec
-+	},
-+	{}
- }; 
+ static ctl_table ocfs2_mod_table[] = {
+ 	{
+-		.ctl_name	= KERN_OCFS2_NM,
++		.ctl_name	= FS_OCFS2_NM,
+ 		.procname	= "nm",
+ 		.data		= NULL,
+ 		.maxlen		= 0,
+@@ -67,7 +67,7 @@ static ctl_table ocfs2_mod_table[] = {
  
- static ctl_table debug_root_table2[] = { 
--	{ .ctl_name = CTL_DEBUG, .procname = "debug", .mode = 0555, 
--	   .child = debug_table2 }, 
--	{ 0 }, 
-+	{
-+		.ctl_name = CTL_DEBUG,
-+		.procname = "debug",
-+		.mode = 0555,
-+		.child = debug_table2
-+	}, 
-+	{}
- }; 
+ static ctl_table ocfs2_kern_table[] = {
+ 	{
+-		.ctl_name	= KERN_OCFS2,
++		.ctl_name	= FS_OCFS2,
+ 		.procname	= "ocfs2",
+ 		.data		= NULL,
+ 		.maxlen		= 0,
+diff --git a/fs/ocfs2/cluster/nodemanager.h b/fs/ocfs2/cluster/nodemanager.h
+index 8fb23ca..0705221 100644
+--- a/fs/ocfs2/cluster/nodemanager.h
++++ b/fs/ocfs2/cluster/nodemanager.h
+@@ -33,8 +33,7 @@
+ #include <linux/configfs.h>
+ #include <linux/rbtree.h>
  
- static __init int x8664_sysctl_init(void)
+-#define KERN_OCFS2		988
+-#define KERN_OCFS2_NM		1
++#define FS_OCFS2_NM		1
+ 
+ const char *o2nm_get_hb_ctl_path(void);
+ 
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index f4ba72e..63e1bac 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -813,6 +813,7 @@ enum
+ 	FS_AIO_NR=18,	/* current system-wide number of aio requests */
+ 	FS_AIO_MAX_NR=19,	/* system-wide maximum number of aio requests */
+ 	FS_INOTIFY=20,	/* inotify submenu */
++	FS_OCFS2=988,	/* ocfs2 */
+ };
+ 
+ /* /proc/sys/fs/quota/ */
 -- 
 1.4.4.1.g278f
 

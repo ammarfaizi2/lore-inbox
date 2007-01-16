@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751351AbXAPRRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751346AbXAPRZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbXAPRRO (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbXAPRRO
+	id S1751346AbXAPRZQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751906AbXAPRZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:17:14 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:2418 "EHLO gherkin.frus.com"
+	Tue, 16 Jan 2007 12:25:15 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:2185 "EHLO dspnet.fr.eu.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751351AbXAPRRN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:17:13 -0500
-X-Greylist: delayed 1555 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 12:17:13 EST
-Subject: [IPv6] link-local all-nodes ping broken
-To: linux-kernel@vger.kernel.org
-Date: Tue, 16 Jan 2007 10:51:15 -0600 (CST)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20070116165116.216DBDBA1@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+	id S1751346AbXAPRZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 12:25:13 -0500
+Date: Tue, 16 Jan 2007 18:25:09 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: What does this scsi error mean ?
+Message-ID: <20070116172509.GA94048@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Alan <alan@lxorguk.ukuu.org.uk>,
+	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+References: <20070115171602.GA23661@dspnet.fr.eu.org> <20070115184540.2b3c4f78@localhost.localdomain> <20070115214503.GA56952@dspnet.fr.eu.org> <Pine.LNX.4.61.0701160959450.8079@chaos.analogic.com> <20070116154752.782a605e@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070116154752.782a605e@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"ping6 -I eth0 ff02::1" worked fine for 2.6.20-rc3, with both Linux
-systems on the link responding.  Somewhere in either -rc4 or -rc5 this
-quit working.
+On Tue, Jan 16, 2007 at 03:47:52PM +0000, Alan wrote:
+> The drives do that automatically, and the SCSI verify did it for him too
+> if there were any other problems.
 
-"tcpdump -i eth0 -l -n ip6" on the remote (same link) Linux system shows
-the icmp6 echo request going out on the wire, but no one responds.
+The SCSI verify didn't see a thing, I'm gonna do the disk swapping
+dance.
 
-One host is running 2.6.20-rc4, the other -rc5.  The results are the
-same no matter which direction the test is run.
+  OG.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------

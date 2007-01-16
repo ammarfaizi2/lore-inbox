@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750917AbXAPLPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750755AbXAPLZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbXAPLPd (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 06:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbXAPLPd
+	id S1750755AbXAPLZQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 06:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbXAPLZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 06:15:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59989 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750788AbXAPLPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 06:15:32 -0500
-Date: Tue, 16 Jan 2007 12:15:11 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       gregkh@elf.ucw.cz
-Subject: pci power management: remove noise on non-manageable hw
-Message-ID: <20070116111507.GA19343@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 16 Jan 2007 06:25:15 -0500
+Received: from mail.cbxnet.de ([212.87.33.16]:60568 "EHLO mail1.combox.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750755AbXAPLZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 06:25:14 -0500
+X-Greylist: delayed 2663 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 06:25:14 EST
+Subject: Re: incorrect checksum on sent TCP-MD5 packets (2.6.20-rc5)
+From: Torsten =?ISO-8859-1?Q?L=FCttgert?= <t.luettgert@cbxnet.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, yoshfuji@linux-ipv6.org
+In-Reply-To: <20070115101522.481e2f8f@freekitty>
+References: <1168803154.3090.45.camel@elida.cbxnet.de>
+	 <20070115101522.481e2f8f@freekitty>
+Content-Type: text/plain
+Date: Tue, 16 Jan 2007 11:40:48 +0100
+Message-Id: <1168944048.3033.14.camel@sokrates.cff>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mo, 2007-01-15 at 10:15 -0800, Stephen Hemminger wrote:
 
-Return early from pci_set_power_state() if hardware does not support
-power management. This way, we do not generate noise in the logs.
+> Are you running over a device that does checksum offload?
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Ooh, I'm feeling stupid now. Yes, I was. Turns out the problem
+are the md5 checksums after all. Crypto-enabled tcpdump says:
+
+11:05:42.856702 IP (tos 0x0, ttl  64, id 35129, offset 0, flags [DF],
+proto: TCP (6), length: 80) 212.87.33.4.60565 > 212.87.49.254.bgp: S,
+cksum 0x4a03 (correct), 1122127063:1122127063(0) win 5840 <mss
+1460,sackOK,timestamp 63686126 0,nop,wscale 5,nop,nop,md5:valid>
+
+11:05:42.871809 IP (tos 0x0, ttl 253, id 0, offset 0, flags [none],
+proto: TCP (6), length: 64) 212.87.49.254.bgp > 212.87.33.4.60565: S,
+cksum 0x0cc9 (correct), 2943414712:2943414712(0) ack 1122127064 win
+16384 <mss 516,md5:valid,eol>
+
+11:05:42.872085 IP (tos 0x0, ttl  64, id 35130, offset 0, flags [DF],
+proto: TCP (6), length: 60) 212.87.33.4.60565 > 212.87.49.254.bgp: .,
+cksum 0x4160 (correct), ack 1 win 5840 <nop,nop,md5:valid>
+
+11:05:42.872150 IP (tos 0x0, ttl  64, id 35131, offset 0, flags [DF],
+proto: TCP (6), length: 105) 212.87.33.4.60565 > 212.87.49.254.bgp: P,
+cksum 0x54ec (correct), 1:46(45) ack 1 win 5840 <nop,nop,md5:invalid>:
+BGP, length: 45
+...
+
+- Torsten
 
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 206c834..6158497 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -392,6 +392,14 @@ pci_set_power_state(struct pci_dev *dev,
- 	if (state > PCI_D3hot)
- 		state = PCI_D3hot;
- 
-+	/*
-+	 * If the device or the parent bridge can't support PCI PM, ignore
-+	 * the request if we're doing anything besides putting it into D0
-+	 * (which would only happen on boot).
-+	 */
-+	if ((state == PCI_D1 || state == PCI_D2) && pci_no_d1d2(dev))
-+		return 0;
-+
- 	/* Validate current state:
- 	 * Can enter D0 from any state, but if we can only go deeper 
- 	 * to sleep if we're already in a low power state
-@@ -403,13 +411,6 @@ pci_set_power_state(struct pci_dev *dev,
- 	} else if (dev->current_state == state)
- 		return 0;        /* we're already there */
- 
--	/*
--	 * If the device or the parent bridge can't support PCI PM, ignore
--	 * the request if we're doing anything besides putting it into D0
--	 * (which would only happen on boot).
--	 */
--	if ((state == PCI_D1 || state == PCI_D2) && pci_no_d1d2(dev))
--		return 0;
- 
- 	/* find PCI PM capability in list */
- 	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,45 +1,130 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751195AbXAPOZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751203AbXAPO22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbXAPOZz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 09:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbXAPOZy
+	id S1751203AbXAPO22 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 09:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbXAPO22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 09:25:54 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:44054 "EHLO
-	pd5mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751195AbXAPOZy (ORCPT
+	Tue, 16 Jan 2007 09:28:28 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:43431 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751203AbXAPO21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 09:25:54 -0500
-Date: Tue, 16 Jan 2007 08:26:05 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-In-reply-to: <45ACD918.2040204@scientia.net>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: linux-kernel@vger.kernel.org, cw@f00f.org, knweiss@gmx.de, ak@suse.de,
-       andersen@codepoet.org, krader@us.ibm.com, lfriedman@nvidia.com,
-       linux-nforce-bugs@nvidia.com
-Message-id: <45ACE07D.3050207@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca>
- <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net>
- <45AC1AEB.60805@shaw.ca> <45ACD918.2040204@scientia.net>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Tue, 16 Jan 2007 09:28:27 -0500
+Message-ID: <45ACE104.6090306@fr.ibm.com>
+Date: Tue, 16 Jan 2007 15:28:20 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Containers <containers@lists.osdl.org>
+Subject: [PATCH -mm] uts namespace : remove CONFIG_UTS_NS
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Anton Mitterer wrote:
-> Ok,.. that sounds reasonable,.. so the whole thing might (!) actually be
-> a hardware design error,... but we just don't use that hardware any
-> longer when accessing devices via sata_nv.
-> 
-> So this doesn't solve our problem with PATA drives or other devices
-> (although we had until now no reports of errors with other devices) and
-> we have to stick with iommu=soft.
-> 
-> If one use iommu=soft the sata_nv will continue to use the new code for
-> the ADMA, right?
+CONFIG_UTS_NS has very little value as it only deactivates the unshare 
+of the uts namespace and does not improve performance.
 
-Right, that shouldn't affect it.
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+---
+ include/linux/utsname.h |   19 -------------------
+ init/Kconfig            |    8 --------
+ kernel/Makefile         |    3 +--
+ kernel/sysctl.c         |    3 +--
+ 4 files changed, 2 insertions(+), 31 deletions(-)
+
+Index: 2.6.20-rc4-mm1/include/linux/utsname.h
+===================================================================
+--- 2.6.20-rc4-mm1.orig/include/linux/utsname.h
++++ 2.6.20-rc4-mm1/include/linux/utsname.h
+@@ -48,7 +48,6 @@ static inline void get_uts_ns(struct uts
+ 	kref_get(&ns->kref);
+ }
+ 
+-#ifdef CONFIG_UTS_NS
+ extern int unshare_utsname(unsigned long unshare_flags,
+ 				struct uts_namespace **new_uts);
+ extern int copy_utsname(int flags, struct task_struct *tsk);
+@@ -58,24 +57,6 @@ static inline void put_uts_ns(struct uts
+ {
+ 	kref_put(&ns->kref, free_uts_ns);
+ }
+-#else
+-static inline int unshare_utsname(unsigned long unshare_flags,
+-			struct uts_namespace **new_uts)
+-{
+-	if (unshare_flags & CLONE_NEWUTS)
+-		return -EINVAL;
+-
+-	return 0;
+-}
+-
+-static inline int copy_utsname(int flags, struct task_struct *tsk)
+-{
+-	return 0;
+-}
+-static inline void put_uts_ns(struct uts_namespace *ns)
+-{
+-}
+-#endif
+ 
+ static inline struct new_utsname *utsname(void)
+ {
+Index: 2.6.20-rc4-mm1/init/Kconfig
+===================================================================
+--- 2.6.20-rc4-mm1.orig/init/Kconfig
++++ 2.6.20-rc4-mm1/init/Kconfig
+@@ -205,14 +205,6 @@ config TASK_DELAY_ACCT
+ 
+ 	  Say N if unsure.
+ 
+-config UTS_NS
+-	bool "UTS Namespaces"
+-	default n
+-	help
+-	  Support uts namespaces.  This allows containers, i.e.
+-	  vservers, to use uts namespaces to provide different
+-	  uts info for different servers.  If unsure, say N.
+-
+ config AUDIT
+ 	bool "Auditing support"
+ 	depends on NET
+Index: 2.6.20-rc4-mm1/kernel/Makefile
+===================================================================
+--- 2.6.20-rc4-mm1.orig/kernel/Makefile
++++ 2.6.20-rc4-mm1/kernel/Makefile
+@@ -8,7 +8,7 @@ obj-y     = sched.o fork.o exec_domain.o
+ 	    signal.o sys.o kmod.o workqueue.o pid.o \
+ 	    rcupdate.o extable.o params.o posix-timers.o \
+ 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
+-	    hrtimer.o rwsem.o latency.o nsproxy.o srcu.o
++	    hrtimer.o rwsem.o latency.o nsproxy.o srcu.o utsname.o
+ 
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+ obj-y += time/
+@@ -48,7 +48,6 @@ obj-$(CONFIG_SECCOMP) += seccomp.o
+ obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
+ obj-$(CONFIG_DEBUG_SYNCHRO_TEST) += synchro-test.o
+ obj-$(CONFIG_RELAY) += relay.o
+-obj-$(CONFIG_UTS_NS) += utsname.o
+ obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
+ obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
+ 
+Index: 2.6.20-rc4-mm1/kernel/sysctl.c
+===================================================================
+--- 2.6.20-rc4-mm1.orig/kernel/sysctl.c
++++ 2.6.20-rc4-mm1/kernel/sysctl.c
+@@ -187,10 +187,9 @@ int sysctl_legacy_va_layout;
+ static void *get_uts(ctl_table *table, int write)
+ {
+ 	char *which = table->data;
+-#ifdef CONFIG_UTS_NS
+ 	struct uts_namespace *uts_ns = current->nsproxy->uts_ns;
+ 	which = (which - (char *)&init_uts_ns) + (char *)uts_ns;
+-#endif
++
+ 	if (!write)
+ 		down_read(&uts_sem);
+ 	else

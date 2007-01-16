@@ -1,76 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751290AbXAPWQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750919AbXAPWQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbXAPWQI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 17:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbXAPWQH
+	id S1750919AbXAPWQS (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 17:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbXAPWQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 17:16:07 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:52897 "EHLO
-	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751400AbXAPWQG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 17:16:06 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 45/59] sysctl: C99 convert ctl_tables in drivers/parport/procfs.c
-Date: Tue, 16 Jan 2007 23:15:43 +0100
-User-Agent: KMail/1.9.5
-Cc: "<Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org, netdev@vger.kernel.org,
-       xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-scsi@vger.kernel.org,
-       James.Bottomley@steeleye.com, minyard@acm.org,
-       openipmi-developer@lists.sourceforge.net, tony.luck@intel.com,
-       linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com,
-       heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-390@vm.marist.edu,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-       linuxsh-shmedia-dev@lists.sourceforge.net, ak@suse.de, vojtech@suse.cz,
-       clemens@ladisch.de, a.zummo@towertech.it, rtc-linux@googlegroups.com,
-       linux-parport@lists.infradead.org, andrea@suse.de, tim@cyberelk.net,
-       philb@gnu.org, aharkes@cs.cmu.edu, coda@cs.cmu.edu,
-       codalist@telemann.coda.cs.cmu.edu, aia21@cantab.net,
-       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
-       kurt.hackel@oracle.com
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com> <11689656733768-git-send-email-ebiederm@xmission.com>
-In-Reply-To: <11689656733768-git-send-email-ebiederm@xmission.com>
+	Tue, 16 Jan 2007 17:16:18 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52256 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750919AbXAPWQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 17:16:17 -0500
+Date: Tue, 16 Jan 2007 14:15:56 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+In-Reply-To: <20070116135325.3441f62b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+ <20070116135325.3441f62b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701162315.56454.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+On Tue, 16 Jan 2007, Andrew Morton wrote:
 
-On Tuesday, 16. January 2007 17:39, Eric W. Biederman wrote:
-> diff --git a/drivers/parport/procfs.c b/drivers/parport/procfs.c
-> index 2e744a2..5337789 100644
-> --- a/drivers/parport/procfs.c
-> +++ b/drivers/parport/procfs.c
-> @@ -263,50 +263,118 @@ struct parport_sysctl_table {
-> +		{
-> +			.ctl_name	= DEV_PARPORT_BASE_ADDR,
-> +			.procname	= "base-addr",
-> +			.data		= NULL,
-> +			.maxlen		= 0,
-> +			.mode		= 0444,
-> +			.proc_handler	= &do_hardware_base_addr
-> +		},
+> > On Mon, 15 Jan 2007 21:47:43 -0800 (PST) Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> > Currently cpusets are not able to do proper writeback since
+> > dirty ratio calculations and writeback are all done for the system
+> > as a whole.
+> 
+> We _do_ do proper writeback.  But it's less efficient than it might be, and
+> there's an NFS problem.
 
-No need to initialize to zero or NULL. Just list any variable, which is NOT zero or NULL.
+Well yes we write back during LRU scans when a potentially high percentage 
+of the memory in cpuset is dirty.
 
-> +		{
-> +			.ctl_name	= DEV_PARPORT_AUTOPROBE + 1,
-> +			.procname	= "autoprobe0",
-> +			.data		= NULL,
-> +			.maxlen		= 0,
-> +			.maxlen		= 0444,
-> +			.proc_handler	=  &do_autoprobe
-> +		},
+> > This may result in a large percentage of a cpuset
+> > to become dirty without writeout being triggered. Under NFS
+> > this can lead to OOM conditions.
+> 
+> OK, a big question: is this patchset a performance improvement or a
+> correctness fix?  Given the above, and the lack of benchmark results I'm
+> assuming it's for correctness.
 
-Typo here? .mode = 0444 makes mor sense.
+It is a correctness fix both for NFS OOM and doing proper cpuset writeout.
 
-Regards
+> - Why does NFS go oom?  Because it allocates potentially-unbounded
+>   numbers of requests in the writeback path?
+> 
+>   It was able to go oom on non-numa machines before dirty-page-tracking
+>   went in.  So a general problem has now become specific to some NUMA
+>   setups.
 
-Ingo Oeser
+
+Right. The issue is that large portions of memory become dirty / 
+writeback since no writeback occurs because dirty limits are not checked 
+for a cpuset. Then NFS attempt to writeout when doing LRU scans but is 
+unable to allocate memory.
+ 
+>   So an obvious, equivalent and vastly simpler "fix" would be to teach
+>   the NFS client to go off-cpuset when trying to allocate these requests.
+
+Yes we can fix these allocations by allowing processes to allocate from 
+other nodes. But then the container function of cpusets is no longer 
+there.
+
+> (But is it really bad? What actual problems will it cause once NFS is fixed?)
+
+NFS is okay as far as I can tell. dirty throttling works fine in non 
+cpuset environments because we throttle if 40% of memory becomes dirty or 
+under writeback.
+
+> I don't understand why the proposed patches are cpuset-aware at all.  This
+> is a per-zone problem, and a per-zone fix would seem to be appropriate, and
+> more general.  For example, i386 machines can presumably get into trouble
+> if all of ZONE_DMA or ZONE_NORMAL get dirty.  A good implementation would
+> address that problem as well.  So I think it should all be per-zone?
+
+No. A zone can be completely dirty as long as we are allowed to allocate 
+from other zones.
+
+> Do we really need those per-inode cpumasks?  When page reclaim encounters a
+> dirty page on the zone LRU, we automatically know that page->mapping->host
+> has at least one dirty page in this zone, yes?  We could immediately ask
+
+Yes, but when we enter reclaim most of the pages of a zone may already be 
+dirty/writeback so we fail. Also when we enter reclaim we may not have
+the proper process / cpuset context. There is no use to throttle kswapd. 
+We need to throttle the process that is dirtying memory.
+
+> But all of this is, I think, unneeded if NFS is fixed.  It's hopefully a
+> performance optimisation to permit writeout in a less seeky fashion. 
+> Unless there's some other problem with excessively dirty zones.
+
+The patchset improves performance because the filesystem can do sequential 
+writeouts. So yes in some ways this is a performance improvement. But this 
+is only because this patch makes dirty throttling for cpusets work in the 
+same way as for non NUMA system.

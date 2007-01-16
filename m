@@ -1,75 +1,165 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932156AbXAPBfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932177AbXAPBrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbXAPBfL (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 20:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbXAPBfK
+	id S932177AbXAPBrN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 20:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbXAPBrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 20:35:10 -0500
-Received: from mail.gmx.net ([213.165.64.20]:55982 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932156AbXAPBfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 20:35:09 -0500
-X-Authenticated: #5039886
-Date: Tue, 16 Jan 2007 02:35:06 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, htejun@gmail.com,
-       jens.axboe@oracle.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070116013505.GA5846@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Robert Hancock <hancockr@shaw.ca>, jeff@garzik.org,
-	linux-kernel@vger.kernel.org, htejun@gmail.com,
-	jens.axboe@oracle.com
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <20070115211723.GA3750@atjola.homenet> <20070115234650.GA2124@atjola.homenet> <45AC1DA3.5040104@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45AC1DA3.5040104@shaw.ca>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+	Mon, 15 Jan 2007 20:47:13 -0500
+Received: from smtp.ono.com ([62.42.230.12]:52232 "EHLO resmaa01.ono.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932177AbXAPBrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 20:47:12 -0500
+Date: Tue, 16 Jan 2007 02:47:10 +0100
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Problem with POSIX threads in latest kernel...
+Message-ID: <20070116024710.7e94326c@werewolf-wl>
+X-Mailer: Claws Mail 2.7.0cvs26 (GTK+ 2.10.-1208314016; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=MP_UWy_eK9MAUiL6rHNrJ2kXHa
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2007.01.15 18:34:43 -0600, Robert Hancock wrote:
-> Björn Steinbrink wrote:
-> >>My latest bisection attempt actually led to your sata_nv ADMA commit. [1]
-> >>I've now backed out that patch from 2.6.20-rc5 and have my stress test
-> >>running for 20 minutes now ("record" for a bad kernel surviving that
-> >>test is about 40 minutes IIRC). I'll keep it running for at least 2 more
-> >>hours.
-> >
-> >Yep, that one seems to be guilty. 2.6.20-rc5 with that commit backed out
-> >survived about 3 hours of testing, while the average was around 5
-> >minutes for a failure, sometimes even before I could log in.
-> >I took a look at the patch, but I can't really tell anything.
-> >nv_adma_check_atapi_dma somehow looks like it should not negate its
-> >return value, so that it returns 0 (atapi dma available) when
-> >adma_enable was 1. But I'm not exactly confident about that either ;)
-> >Will it hurt if I try to remove the negation?
-> 
-> It should be correct the way it is - that check is trying to prevent 
-> ATAPI commands from using DMA until the slave_config function has been 
-> called to set up the DMA parameters properly. When the 
-> NV_ADMA_ATAPI_SETUP_COMPLETE flag is not set, this returns 1 which 
-> disallows DMA transfers. Unless you were using an ATAPI (i.e. CD/DVD) 
-> device on the channel this wouldn't affect you anyway.
+--MP_UWy_eK9MAUiL6rHNrJ2kXHa
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I wondered about it, because the flag is cleared when adma_enabled is 1,
-which seems to be consistent with everything but nv_adma_check_atapi_dma.
-Thus I thought that nv_adma_check_atapi_dma might be wrong, but maybe
-setting/clearing the flag is wrong instead? *feels lost*
+Hi...
 
-> I'll try your stress test when I get a chance, but I doubt I'll run into 
-> the same problem and I haven't seen any similar reports. Perhaps it's 
-> some kind of wierd timing issue or incompatibility between the 
-> controller and that drive when running in ADMA mode? I seem to remember 
-> various reports of issues with certain Maxtor drives and some nForce 
-> SATA controllers under Windows at least..
+I run the (almost) latest -mm kernel (2.6.20-rc3-mm1), and see some strange behaviour
+with POSIX threads (glibc-2.4).
+I have downgraded my test to a simple textboox example for a SMP-safe spool
+queue, it's just a circular queue with a mutex and a condition variable for in
+and out. I have seen the same structure in several places.
 
-I just checked Maxtor's knowledge base, that incompatibility does not
-affect my drive.
+Well, it just sometimes gets blocked. GDB says its stuck in pthread_wait().
+I could swear it worked on previous kernels. It works as is on IRIX.
+I will try to build an older kernel to test.
+I takes a second to block it with something like while :; tst; done.
 
-Thanks,
-Björn
+Any ideas ?
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.1 (Cooker) for i586
+Linux 2.6.19-jam04 (gcc 4.1.2 20061110 (prerelease) (4.1.2-0.20061110.2mdv2007.1)) #0 SMP PREEMPT
+
+--MP_UWy_eK9MAUiL6rHNrJ2kXHa
+Content-Type: text/x-csrc; name=tst.c
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=tst.c
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <pthread.h>
+
+#define SIZE		16
+
+int				jobs[SIZE];
+int				in;
+int				slots;
+pthread_mutex_t	slots_mutex;
+pthread_cond_t	slots_cond;
+int				out;
+int				items;
+pthread_mutex_t	items_mutex;
+pthread_cond_t	items_cond;
+
+void put(int job);
+void get(int* job);
+void* prod(void* data);
+void* cons(void* data);
+
+int main(int argc,char** argv)
+{
+	pthread_t	prodid,consid;
+
+	in =3D 0;
+	slots =3D SIZE;
+	pthread_mutex_init(&slots_mutex,0);
+	pthread_cond_init(&slots_cond,0);
+	out =3D 0;
+	items =3D 0;
+	pthread_mutex_init(&items_mutex,0);
+	pthread_cond_init(&items_cond,0);
+
+	pthread_setconcurrency(3);
+	pthread_create(&prodid,0,prod,0);
+	pthread_create(&consid,0,cons,0);
+
+	pthread_join(prodid,0);
+	pthread_join(consid,0);
+
+	return 0;
+}
+
+void* prod(void* data)
+{
+	int	i;
+
+	for (i=3D0; i<1000; i++)
+	{
+		if (!(i%100))
+			printf("put %d\n",i);
+		put(i);
+	}
+	put(-1);
+	puts("prod done");
+
+	return 0;
+}
+
+void* cons(void* data)
+{
+	int	i;
+	do
+	{
+		get(&i);
+		if (!(i%100))
+			printf("got %d\n",i);
+	}
+	while (i>=3D0);
+	puts("cons done");
+
+	return 0;
+}
+
+void put(int job)
+{
+	pthread_mutex_lock(&slots_mutex);
+		while (slots<=3D0)
+			pthread_cond_wait(&slots_cond,&slots_mutex);
+		jobs[in] =3D job;
+		in++;
+		in %=3D SIZE;
+		slots--;
+		items++;
+	pthread_mutex_unlock(&slots_mutex);
+
+	pthread_mutex_lock(&items_mutex);
+		pthread_cond_signal(&items_cond);
+	pthread_mutex_unlock(&items_mutex);
+}
+
+void get(int* job)
+{
+	pthread_mutex_lock(&items_mutex);
+		while (items<=3D0)
+			pthread_cond_wait(&items_cond,&items_mutex);
+		*job =3D jobs[out];
+		out++;
+		out %=3D SIZE;
+		items--;
+		slots++;
+	pthread_mutex_unlock(&items_mutex);
+
+	pthread_mutex_lock(&slots_mutex);
+		pthread_cond_signal(&slots_cond);
+	pthread_mutex_unlock(&slots_mutex);
+}
+
+
+--MP_UWy_eK9MAUiL6rHNrJ2kXHa--

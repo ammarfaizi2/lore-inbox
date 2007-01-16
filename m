@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932193AbXAPDpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932228AbXAPDuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbXAPDpY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 22:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAPDpY
+	id S932228AbXAPDuM (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 22:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbXAPDuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 22:45:24 -0500
-Received: from lazybastard.de ([212.112.238.170]:36762 "EHLO
-	longford.lazybastard.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932193AbXAPDpY (ORCPT
+	Mon, 15 Jan 2007 22:50:12 -0500
+Received: from py-out-1112.google.com ([64.233.166.180]:10592 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932228AbXAPDuK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 22:45:24 -0500
-Date: Tue, 16 Jan 2007 03:41:14 +0000
-From: =?utf-8?B?SsO2cm4=?= Engel <joern@lazybastard.org>
-To: Aubrey <aubreylee@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org, mjt@tls.msk.ru,
-       Carsten Otte <cotte@freenet.de>
-Subject: Re: O_DIRECT question
-Message-ID: <20070116034113.GB27177@lazybastard.org>
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701101902270.3594@woody.osdl.org> <Pine.LNX.4.64.0701101910110.3594@woody.osdl.org> <45A5D4A7.7020202@yahoo.com.au> <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org> <6d6a94c50701110819nf78a90eg3ff06f85c75e8b50@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6d6a94c50701110819nf78a90eg3ff06f85c75e8b50@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 15 Jan 2007 22:50:10 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:subject:date:to:x-mailer:from;
+        b=P5zuS7///z5LnxcScvgn4IOgoB60vNQwpGYHusfv8kVgV9+IRDp+itiNIFlmMteT+aXLeDW8PvXMtVJcSDbVnegxuw+WpDNapnTIqi1D27OSTlHOzP4vb5X6PNO0gyTWK1StAz7UXJEZNlQPBnHXnlxiO6gHlYxD7e8/fcHTuxk=
+In-Reply-To: <45ABDBF5.9000900@walrond.org>
+References: <45AB8CB9.2000209@walrond.org> <20070115170412.GA26414@aepfle.de> <45ABBB8B.6000505@walrond.org> <20070115175437.GA26944@aepfle.de> <45ABDBF5.9000900@walrond.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <91B1A3E1-A745-4EB3-893F-8AC7D2497FFF@gmail.com>
+Cc: Olaf Hering <olaf@aepfle.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Subject: Re: Initramfs and /sbin/hotplug fun
+Date: Mon, 15 Jan 2007 21:50:01 -0600
+To: Andrew Walrond <andrew@walrond.org>
+X-Mailer: Apple Mail (2.752.2)
+From: Mark Rustad <mrustad@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 January 2007 00:19:45 +0800, Aubrey wrote:
+On Jan 15, 2007, at 1:54 PM, Andrew Walrond wrote:
+
+> Olaf Hering wrote:
+>> Why do you need /sbin/hotplug anyway, just for firmware loading for a
+>> non-modular kernel?
 >
-> Yes for desktop, server, but maybe not for embedded system, specially
-> for no-mmu linux. In many embedded system cases, the whole system is
-> running in the ram, including file system. So it's not necessary using
-> page cache anymore. Page cache can't improve performance on these
-> cases, but only fragment memory.
+> I guess this is unusual, but FWIW...
+>
+> I have a custom distro and I was just looking for the easiest way  
+> to create a bootable rescue pen-drive. So I just took a working  
+> distro, added an init->sbin/init symlink, cpio'ed it into an  
+> initramfs, and booted it up. Works a treat, except for the early  
+> hotplug calls.
 
-You were not very specific, so I have to guess that you're referring to
-the problem of having two copies of the same file in RAM - one in the
-page cache and one in the "backing store", which is just RAM.
+I have a kernel that needs to have early hotplug calls to load  
+firmware. I just rolled my own simple hotplug scripts to only address  
+that issue and have not had a problem since. The mdev in busybox that  
+is in the gentoo initramfs didn't seem to be able to handle it, so I  
+just made my own scripts. In my case I needed QLogic firmware so root  
+could be on FC.
 
-There are two solutions to this problem.  One is tmpfs, which doesn't
-use a backing store and keeps all data in the page cache.  The other is
-xip, which doesn't use the page cache and goes directly to backing
-store.  Unlike O_DIRECT, xip only works with a RAM or de-facto RAM
-backing store (NOR flash works read-only).
-
-So if you really care about memory waste in embedded systems, you should
-have a look at mm/filemap_xip.c and continue Carsten Otte's work.
-
-Jörn
+FWIW, it is a real PITA to not be able to build a monolithic kernel  
+that can bring up root on its own. I will stipulate that I am an old- 
+school guy that likes monolithic kernels, but I do feel that  
+something has been lost. Yes, I am aware of the reasons for the  
+change, else I would have written something when I was fighting the  
+battle, but I still don't have to like it.
 
 -- 
-Fantasy is more important than knowledge. Knowledge is limited,
-while fantasy embraces the whole world.
--- Albert Einstein
+Mark Rustad, MRustad@mac.com
+
+

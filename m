@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750863AbXAPU0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751465AbXAPUbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbXAPU0O (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 15:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbXAPU0N
+	id S1751465AbXAPUbP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 15:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbXAPUbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 15:26:13 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:2288 "EHLO ra.tuxdriver.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750863AbXAPU0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 15:26:13 -0500
-X-Greylist: delayed 710 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 15:26:12 EST
-Date: Tue, 16 Jan 2007 15:13:32 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.com, torvalds@osdl.com, nhorman@tuxdriver.com
-Subject: [PATCH] select: fix sys_select to not leak ERESTARTNOHAND to userspace
-Message-ID: <20070116201332.GA28523@hmsreliant.homelinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Tue, 16 Jan 2007 15:31:15 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:39558 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751469AbXAPUbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 15:31:14 -0500
+Date: Tue, 16 Jan 2007 15:31:10 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6.20-rc5: BUG: lock held at task exit time!
+ (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+In-Reply-To: <200701162122.42581.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.44L0.0701161515150.2550-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As it is currently written, sys_select checks its return code to convert
-ERESTARTNOHAND to EINTR.  However, the check is within an if (tvp) clause, and
-so if select is called from userspace with a NULL timeval, then it is possible
-for the ERESTARTNOHAND errno to leak into userspace, which is incorrect.  This
-patch moves that check outside of the conditional, and prevents the errno leak.
+On Tue, 16 Jan 2007, Andrey Borzenkov wrote:
 
-Thanks & Regards
-Neil
+> I have Toshiba Portege 4000 that almost always hangs dead resuming from STR. 
+> This was better before 2.6.18, since then STR is unusable. Sometimes it 
+> manages to resume; yesterday I got on console and in dmesg:
+> 
+> =====================================
+> [ BUG: lock held at task exit time! ]
+> - -------------------------------------
+> echo/28793 is exiting with locks still held!
+> 1 lock held by echo/28793:
+>  #0:  (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+> 
+> stack backtrace:
+>  [<c0103fea>] show_trace_log_lvl+0x1a/0x30
+>  [<c01045f2>] show_trace+0x12/0x20
+>  [<c01046a6>] dump_stack+0x16/0x20
+>  [<c0132377>] debug_check_no_locks_held+0x87/0x90
+>  [<c011c8bb>] do_exit+0x4db/0x820
+>  [<c011cc29>] do_group_exit+0x29/0x70
+>  [<c011cc7f>] sys_exit_group+0xf/0x20
+>  [<c010300e>] sysenter_past_esp+0x5f/0x99
+>  =======================
 
-Signed-Off-By: Neil Horman <nhorman@tuxdriver.com>
+Have you tried using 2.6.19?  There was a bug which got fixed in that 
+release.
 
+Alan Stern
 
- select.c |   18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
-
-
-diff --git a/fs/select.c b/fs/select.c
-index fe0893a..afcd691 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -415,20 +415,12 @@ asmlinkage long sys_select(int n, fd_set __user *inp, fd_set __user *outp,
- 		rtv.tv_sec = timeout;
- 		if (timeval_compare(&rtv, &tv) >= 0)
- 			rtv = tv;
--		if (copy_to_user(tvp, &rtv, sizeof(rtv))) {
--sticky:
--			/*
--			 * If an application puts its timeval in read-only
--			 * memory, we don't want the Linux-specific update to
--			 * the timeval to cause a fault after the select has
--			 * completed successfully. However, because we're not
--			 * updating the timeval, we can't restart the system
--			 * call.
--			 */
--			if (ret == -ERESTARTNOHAND)
--				ret = -EINTR;
--		}
-+		if (copy_to_user(tvp, &rtv, sizeof(rtv)))
-+			return -EFAULT;
- 	}
-+sticky:
-+	if (ret == -ERESTARTNOHAND)
-+		ret = -EINTR;
- 
- 	return ret;
- }

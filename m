@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751177AbXAPN6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750896AbXAPOIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbXAPN6u (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 08:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXAPN6u
+	id S1750896AbXAPOIZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 09:08:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbXAPOIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 08:58:50 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:60345 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751177AbXAPN6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 08:58:49 -0500
-Date: Tue, 16 Jan 2007 14:57:56 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sami Farin <7atbggg02@sneakemail.com>
-cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I broke my port numbers :(
-In-Reply-To: <20070115224801.GB3771@m.safari.iki.fi>
-Message-ID: <Pine.LNX.4.61.0701161457240.23841@yvahk01.tjqt.qr>
-References: <20070115215515.GA3771@m.safari.iki.fi> <20070115224801.GB3771@m.safari.iki.fi>
+	Tue, 16 Jan 2007 09:08:25 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:24867 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbXAPOIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 09:08:24 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ewtat+Mx7ZY1blKQ/vzoBMGZ4/RTMXlGlN1w53l2cDDXgfebLRz3yKhpMmXNi8GOoMLeXD8Sb+f6hqEki09UWXUZfUP44cFLKCpxpIDTKD6Fh5pHoTFci7VvPAg/4fPK+ragVAlAA1XWyaTCo5AYxdKI/KyP7gCmYDi2OmE63UU=
+Message-ID: <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com>
+Date: Tue, 16 Jan 2007 09:08:21 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: 2.6.20-rc5: usb mouse breaks suspend to ram
+Cc: "kernel list" <linux-kernel@vger.kernel.org>,
+       "Linux usb mailing list" <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <20070116135727.GA2831@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20070116135727.GA2831@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->Subject: Re: I broke my port numbers :(
+On 1/16/07, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
 >
->On Mon, Jan 15, 2007 at 23:55:15 +0200, Sami Farin wrote:
->> I know this may be entirely my fault but I have tried reversing
->> all of my _own_ patches I applied to 2.6.19.2 but can't find what broke this.
->> I did three times "netcat 127.0.0.69 42", notice the different
->> port numbers.
+> I started using el-cheapo usb mouse... only to find out that it breaks
+> suspend to RAM. Suspend-to-disk works okay. I was not able to extract
+> any usefull messages...
 >
->Hmm...  when I do "rmmod iptable_nat ip_nat", it works.
+> Resume process hangs; I can still switch console and even type on
+> keyboard, but userland is dead, and I was not able to get magic sysrq
+> to respond.
 
-Then please show us your rulset that was loaded (iptables-save) before 
-you removed the modules.
+Are you using hid or usbmouse?
 
-
-	-`J'
 -- 
+Dmitry

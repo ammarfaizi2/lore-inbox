@@ -1,119 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751970AbXAPRsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751965AbXAPRrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbXAPRsL (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751969AbXAPRsL
+	id S1751965AbXAPRrf (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbXAPRrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:48:11 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:33475 "EHLO e4.ny.us.ibm.com"
+	Tue, 16 Jan 2007 12:47:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41226 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751970AbXAPRsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:48:09 -0500
-Date: Tue, 16 Jan 2007 09:49:59 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [mm PATCH 2/6] RCU: softirq for RCU
-Message-ID: <20070116174959.GE1776@linux.vnet.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20070115191909.GA32238@in.ibm.com> <20070115192247.GC32238@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070115192247.GC32238@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	id S1751965AbXAPRre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 12:47:34 -0500
+Message-ID: <45AD0F70.30808@redhat.com>
+Date: Tue, 16 Jan 2007 09:46:24 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Pierre Peiffer <pierre.peiffer@bull.net>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
+References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net> <45ACEBDF.60602@redhat.com> <20070116154054.GA21786@elte.hu>
+In-Reply-To: <20070116154054.GA21786@elte.hu>
+X-Enigmail-Version: 0.94.1.2.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig50C54277E1FDDD485760C07F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2007 at 12:52:48AM +0530, Dipankar Sarma wrote:
-> 
-> 
-> Finally, RCU gets its own softirq. With it being used extensively,
-> the per-cpu tasklet used earlier was just a softirq with overheads.
-> This makes things more efficient.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig50C54277E1FDDD485760C07F
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Paul E. McKenney <paulmck@in.ibm.com>
+Ingo Molnar wrote:
+> what do you mean by that - which is this same resource?
 
-> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-> ---
-> 
-> 
-> 
-> diff -puN include/linux/interrupt.h~rcu-softirq include/linux/interrupt.h
-> --- linux-2.6.20-rc3-mm1-rcu/include/linux/interrupt.h~rcu-softirq	2007-01-15 15:36:43.000000000 +0530
-> +++ linux-2.6.20-rc3-mm1-rcu-dipankar/include/linux/interrupt.h	2007-01-15 15:36:43.000000000 +0530
-> @@ -236,6 +236,7 @@ enum
->  #ifdef CONFIG_HIGH_RES_TIMERS
->  	HRTIMER_SOFTIRQ,
->  #endif
-> +	RCU_SOFTIRQ	/* Preferable RCU should always be the last softirq */
->  };
-> 
->  /* softirq mask and active fields moved to irq_cpustat_t in
-> diff -puN kernel/rcuclassic.c~rcu-softirq kernel/rcuclassic.c
-> --- linux-2.6.20-rc3-mm1-rcu/kernel/rcuclassic.c~rcu-softirq	2007-01-15 15:36:43.000000000 +0530
-> +++ linux-2.6.20-rc3-mm1-rcu-dipankar/kernel/rcuclassic.c	2007-01-15 15:36:43.000000000 +0530
-> @@ -69,7 +69,6 @@ DEFINE_PER_CPU(struct rcu_data, rcu_data
->  DEFINE_PER_CPU(struct rcu_data, rcu_bh_data) = { 0L };
-> 
->  /* Fake initialization required by compiler */
-> -static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
->  static int blimit = 10;
->  static int qhimark = 10000;
->  static int qlowmark = 100;
-> @@ -215,7 +214,7 @@ static void rcu_do_batch(struct rcu_data
->  	if (!rdp->donelist)
->  		rdp->donetail = &rdp->donelist;
->  	else
-> -		tasklet_schedule(&per_cpu(rcu_tasklet, rdp->cpu));
-> +		raise_softirq(RCU_SOFTIRQ);
->  }
-> 
->  /*
-> @@ -367,7 +366,6 @@ static void rcu_offline_cpu(int cpu)
->  					&per_cpu(rcu_bh_data, cpu));
->  	put_cpu_var(rcu_data);
->  	put_cpu_var(rcu_bh_data);
-> -	tasklet_kill_immediate(&per_cpu(rcu_tasklet, cpu), cpu);
->  }
-> 
->  #else
-> @@ -379,7 +377,7 @@ static void rcu_offline_cpu(int cpu)
->  #endif
-> 
->  /*
-> - * This does the RCU processing work from tasklet context.
-> + * This does the RCU processing work from softirq context.
->   */
->  static void __rcu_process_callbacks(struct rcu_ctrlblk *rcp,
->  					struct rcu_data *rdp)
-> @@ -424,7 +422,7 @@ static void __rcu_process_callbacks(stru
->  		rcu_do_batch(rdp);
->  }
-> 
-> -static void rcu_process_callbacks(unsigned long unused)
-> +static void rcu_process_callbacks(struct softirq_action *unused)
->  {
->  	__rcu_process_callbacks(&rcu_ctrlblk, &__get_cpu_var(rcu_data));
->  	__rcu_process_callbacks(&rcu_bh_ctrlblk, &__get_cpu_var(rcu_bh_data));
-> @@ -488,7 +486,7 @@ void rcu_check_callbacks(int cpu, int us
->  		rcu_bh_qsctr_inc(cpu);
->  	} else if (!in_softirq())
->  		rcu_bh_qsctr_inc(cpu);
-> -	tasklet_schedule(&per_cpu(rcu_tasklet, cpu));
-> +	raise_softirq(RCU_SOFTIRQ);
->  }
-> 
->  static void rcu_init_percpu_data(int cpu, struct rcu_ctrlblk *rcp,
-> @@ -511,7 +509,7 @@ static void __devinit rcu_online_cpu(int
-> 
->  	rcu_init_percpu_data(cpu, &rcu_ctrlblk, rdp);
->  	rcu_init_percpu_data(cpu, &rcu_bh_ctrlblk, bh_rdp);
-> -	tasklet_init(&per_cpu(rcu_tasklet, cpu), rcu_process_callbacks, 0UL);
-> +	open_softirq(RCU_SOFTIRQ, rcu_process_callbacks, NULL);
->  }
-> 
->  static int __cpuinit rcu_cpu_notify(struct notifier_block *self,
-> 
-> _
+=46rom what has been said here before, all futexes are stored in the same=
+
+list or hash table or whatever it was.  I want to see how that code
+behaves if many separate processes concurrently use futexes.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig50C54277E1FDDD485760C07F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFrQ912ijCOnn/RHQRAkA2AKCUJvmSdAVMageJQTu9gYtNoFHG3wCgjwln
+p089zwg8SNAT3EzqKhCIe9w=
+=tfSO
+-----END PGP SIGNATURE-----
+
+--------------enig50C54277E1FDDD485760C07F--

@@ -1,95 +1,264 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751242AbXAPPQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750984AbXAPPRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbXAPPQc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 10:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbXAPPQb
+	id S1750984AbXAPPRy (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 10:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbXAPPRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 10:16:31 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:2712 "EHLO
-	odyssey.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751242AbXAPPQa convert rfc822-to-8bit (ORCPT
+	Tue, 16 Jan 2007 10:17:54 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:54392 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750984AbXAPPRx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 10:16:30 -0500
+	Tue, 16 Jan 2007 10:17:53 -0500
+Date: Tue, 16 Jan 2007 09:17:49 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Containers <containers@lists.osdl.org>
+Subject: Re: [PATCH -mm] ipc namespace : remove CONFIG_IPC_NS
+Message-ID: <20070116151749.GD28253@sergelap.austin.ibm.com>
+References: <45ACE10F.8020109@fr.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 16 Jan 2007 15:16:26.0972 (UTC) FILETIME=[4AAC51C0:01C73981]
-Content-class: urn:content-classes:message
-Subject: Re: What does this scsi error mean ?
-Date: Tue, 16 Jan 2007 10:16:22 -0500
-Message-ID: <Pine.LNX.4.61.0701160959450.8079@chaos.analogic.com>
-In-Reply-To: <20070115214503.GA56952@dspnet.fr.eu.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: What does this scsi error mean ?
-Thread-Index: Acc5gUq1xmne+QdgRaq2DjXXnNxLog==
-References: <20070115171602.GA23661@dspnet.fr.eu.org> <20070115184540.2b3c4f78@localhost.localdomain> <20070115214503.GA56952@dspnet.fr.eu.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Olivier Galibert" <galibert@pobox.com>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45ACE10F.8020109@fr.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Cedric Le Goater (clg@fr.ibm.com):
+> CONFIG_IPC_NS has very little value as it only deactivates the unshare 
+> of the ipc namespace and does not improve performance.
+> 
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
 
-On Mon, 15 Jan 2007, Olivier Galibert wrote:
+Acked-by: Serge Hallyn <serue@us.ibm.com>
 
-> On Mon, Jan 15, 2007 at 06:45:40PM +0000, Alan wrote:
->> On Mon, 15 Jan 2007 18:16:02 +0100
->> Olivier Galibert <galibert@pobox.com> wrote:
->>
->>> sd 0:0:0:0: SCSI error: return code = 0x08000002
->>> sda: Current: sense key: Hardware Error
->>>     ASC=0x42 ASCQ=0x0
->>
->> I'll give you a clue: The words "Hardware Error".
->>
->> Run a SCSI verify pass on the drive with some drive utilities and see
->> what happens. If you are lucky it'll just reallocate blocks and decide
->> the drive is ok, if not well see what the smart data thinks.
->
-> Both smart and the internal blade diagnostics say "everything is a-ok
-> with the drive, there hasn't been any error ever except a bunch of
-> corrected ECC ones, and no more than with a similar drive in another
-> working blade".  Hence my initial post.  "Hardware error" is kinda
-> imprecise, so I was wondering whether it was unexpected controller
-> answer, detected transmission error, block write error, sector not
-> found...  Is there a way to have more information?
->
->  OG.
-
-Correctable SCSI errors show that the data in a sector was not properly
-read, but the device was able to fix the data error because of the
-redundancy in the CRC. The error could be permanently fixed is you
-rewrote the sector. You probably don't know where the bad sector is
-without adding a printk() to driver code. Some BIOS SCSI utilities
-(Adaptec) have the capability of reading an entire drive and fixing
-bad sectors either by rewrite or relocation. Since drives can be
-accessed as files, you could write a utility that opens the RAW
-device with in NOT mounted, reads a bunch of sectors, then writes
-them back. To do this, you need to verify that lseek() works on
-your particular drive because you need to write the data back to
-the same offset that you read it from. I mention this because
-the raw r/w of an early Adaptec (aha1542) driver, didn't impliment
-lseek, just returned 'okay'. You can imagine the mess I made of
-a drive with that controller!
-
-Once you verify that lseek works, the rest of the code is trivial.
-I suggest reading then writing 64 kilobytes at a time. It will seem
-to take 'forever', but the retries on these relatively short groups
-of sectors (128 sectors), will be short when errors are encountered.
-
-Make sure the drive is either not mounted or mounted r/o.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.67 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+> ---
+>  include/linux/ipc.h |   11 -----------
+>  init/Kconfig        |    9 ---------
+>  ipc/msg.c           |    4 +---
+>  ipc/sem.c           |    4 +---
+>  ipc/shm.c           |    4 +---
+>  ipc/util.c          |    4 +---
+>  ipc/util.h          |    8 ++------
+>  kernel/fork.c       |   10 ----------
+>  8 files changed, 6 insertions(+), 48 deletions(-)
+> 
+> Index: 2.6.20-rc4-mm1/include/linux/ipc.h
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/include/linux/ipc.h
+> +++ 2.6.20-rc4-mm1/include/linux/ipc.h
+> @@ -96,31 +96,20 @@ extern struct ipc_namespace init_ipc_ns;
+>  #define INIT_IPC_NS(ns)
+>  #endif
+>  
+> -#ifdef CONFIG_IPC_NS
+>  extern void free_ipc_ns(struct kref *kref);
+>  extern int copy_ipcs(unsigned long flags, struct task_struct *tsk);
+>  extern int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns);
+> -#else
+> -static inline int copy_ipcs(unsigned long flags, struct task_struct *tsk)
+> -{
+> -	return 0;
+> -}
+> -#endif
+>  
+>  static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
+>  {
+> -#ifdef CONFIG_IPC_NS
+>  	if (ns)
+>  		kref_get(&ns->kref);
+> -#endif
+>  	return ns;
+>  }
+>  
+>  static inline void put_ipc_ns(struct ipc_namespace *ns)
+>  {
+> -#ifdef CONFIG_IPC_NS
+>  	kref_put(&ns->kref, free_ipc_ns);
+> -#endif
+>  }
+>  
+>  #endif /* __KERNEL__ */
+> Index: 2.6.20-rc4-mm1/init/Kconfig
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/init/Kconfig
+> +++ 2.6.20-rc4-mm1/init/Kconfig
+> @@ -138,15 +138,6 @@ config SYSVIPC
+>  	  section 6.4 of the Linux Programmer's Guide, available from
+>  	  <http://www.tldp.org/guides.html>.
+>  
+> -config IPC_NS
+> -	bool "IPC Namespaces"
+> -	depends on SYSVIPC
+> -	default n
+> -	help
+> -	  Support ipc namespaces.  This allows containers, i.e. virtual
+> -	  environments, to use ipc namespaces to provide different ipc
+> -	  objects for different servers.  If unsure, say N.
+> -
+>  config POSIX_MQUEUE
+>  	bool "POSIX Message Queues"
+>  	depends on NET && EXPERIMENTAL
+> Index: 2.6.20-rc4-mm1/ipc/msg.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/ipc/msg.c
+> +++ 2.6.20-rc4-mm1/ipc/msg.c
+> @@ -87,7 +87,7 @@ static int newque (struct ipc_namespace 
+>  static int sysvipc_msg_proc_show(struct seq_file *s, void *it);
+>  #endif
+>  
+> -static void __ipc_init __msg_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+> +static void __msg_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+>  {
+>  	ns->ids[IPC_MSG_IDS] = ids;
+>  	ns->msg_ctlmax = MSGMAX;
+> @@ -96,7 +96,6 @@ static void __ipc_init __msg_init_ns(str
+>  	ipc_init_ids(ids, ns->msg_ctlmni);
+>  }
+>  
+> -#ifdef CONFIG_IPC_NS
+>  int msg_init_ns(struct ipc_namespace *ns)
+>  {
+>  	struct ipc_ids *ids;
+> @@ -128,7 +127,6 @@ void msg_exit_ns(struct ipc_namespace *n
+>  	kfree(ns->ids[IPC_MSG_IDS]);
+>  	ns->ids[IPC_MSG_IDS] = NULL;
+>  }
+> -#endif
+>  
+>  void __init msg_init(void)
+>  {
+> Index: 2.6.20-rc4-mm1/ipc/sem.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/ipc/sem.c
+> +++ 2.6.20-rc4-mm1/ipc/sem.c
+> @@ -122,7 +122,7 @@ static int sysvipc_sem_proc_show(struct 
+>  #define sc_semopm	sem_ctls[2]
+>  #define sc_semmni	sem_ctls[3]
+>  
+> -static void __ipc_init __sem_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+> +static void __sem_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+>  {
+>  	ns->ids[IPC_SEM_IDS] = ids;
+>  	ns->sc_semmsl = SEMMSL;
+> @@ -133,7 +133,6 @@ static void __ipc_init __sem_init_ns(str
+>  	ipc_init_ids(ids, ns->sc_semmni);
+>  }
+>  
+> -#ifdef CONFIG_IPC_NS
+>  int sem_init_ns(struct ipc_namespace *ns)
+>  {
+>  	struct ipc_ids *ids;
+> @@ -165,7 +164,6 @@ void sem_exit_ns(struct ipc_namespace *n
+>  	kfree(ns->ids[IPC_SEM_IDS]);
+>  	ns->ids[IPC_SEM_IDS] = NULL;
+>  }
+> -#endif
+>  
+>  void __init sem_init (void)
+>  {
+> Index: 2.6.20-rc4-mm1/ipc/shm.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/ipc/shm.c
+> +++ 2.6.20-rc4-mm1/ipc/shm.c
+> @@ -67,7 +67,7 @@ static void shm_destroy (struct ipc_name
+>  static int sysvipc_shm_proc_show(struct seq_file *s, void *it);
+>  #endif
+>  
+> -static void __ipc_init __shm_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+> +static void __shm_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+>  {
+>  	ns->ids[IPC_SHM_IDS] = ids;
+>  	ns->shm_ctlmax = SHMMAX;
+> @@ -88,7 +88,6 @@ static void do_shm_rmid(struct ipc_names
+>  		shm_destroy(ns, shp);
+>  }
+>  
+> -#ifdef CONFIG_IPC_NS
+>  int shm_init_ns(struct ipc_namespace *ns)
+>  {
+>  	struct ipc_ids *ids;
+> @@ -120,7 +119,6 @@ void shm_exit_ns(struct ipc_namespace *n
+>  	kfree(ns->ids[IPC_SHM_IDS]);
+>  	ns->ids[IPC_SHM_IDS] = NULL;
+>  }
+> -#endif
+>  
+>  void __init shm_init (void)
+>  {
+> Index: 2.6.20-rc4-mm1/ipc/util.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/ipc/util.c
+> +++ 2.6.20-rc4-mm1/ipc/util.c
+> @@ -51,7 +51,6 @@ struct ipc_namespace init_ipc_ns = {
+>  	},
+>  };
+>  
+> -#ifdef CONFIG_IPC_NS
+>  static struct ipc_namespace *clone_ipc_ns(struct ipc_namespace *old_ns)
+>  {
+>  	int err;
+> @@ -144,7 +143,6 @@ void free_ipc_ns(struct kref *kref)
+>  	shm_exit_ns(ns);
+>  	kfree(ns);
+>  }
+> -#endif
+>  
+>  /**
+>   *	ipc_init	-	initialise IPC subsystem
+> @@ -172,7 +170,7 @@ __initcall(ipc_init);
+>   *	array itself. 
+>   */
+>   
+> -void __ipc_init ipc_init_ids(struct ipc_ids* ids, int size)
+> +void ipc_init_ids(struct ipc_ids* ids, int size)
+>  {
+>  	int i;
+>  
+> Index: 2.6.20-rc4-mm1/ipc/util.h
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/ipc/util.h
+> +++ 2.6.20-rc4-mm1/ipc/util.h
+> @@ -41,12 +41,8 @@ struct ipc_ids {
+>  };
+>  
+>  struct seq_file;
+> -#ifdef CONFIG_IPC_NS
+> -#define __ipc_init
+> -#else
+> -#define __ipc_init	__init
+> -#endif
+> -void __ipc_init ipc_init_ids(struct ipc_ids *ids, int size);
+> +
+> +void ipc_init_ids(struct ipc_ids *ids, int size);
+>  #ifdef CONFIG_PROC_FS
+>  void __init ipc_init_proc_interface(const char *path, const char *header,
+>  		int ids, int (*show)(struct seq_file *, void *));
+> Index: 2.6.20-rc4-mm1/kernel/fork.c
+> ===================================================================
+> --- 2.6.20-rc4-mm1.orig/kernel/fork.c
+> +++ 2.6.20-rc4-mm1/kernel/fork.c
+> @@ -1595,16 +1595,6 @@ static int unshare_semundo(unsigned long
+>  	return 0;
+>  }
+>  
+> -#ifndef CONFIG_IPC_NS
+> -static inline int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns)
+> -{
+> -	if (flags & CLONE_NEWIPC)
+> -		return -EINVAL;
+> -
+> -	return 0;
+> -}
+> -#endif
+> -
+>  /*
+>   * unshare allows a process to 'unshare' part of the process
+>   * context which was originally shared using clone.  copy_*
+> _______________________________________________
+> Containers mailing list
+> Containers@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/containers

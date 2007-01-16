@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751569AbXAPQpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751567AbXAPQpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751569AbXAPQpU (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbXAPQpS
+	id S1751567AbXAPQpx (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbXAPQpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:45:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37951 "EHLO
+	Tue, 16 Jan 2007 11:45:23 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38022 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751546AbXAPQol (ORCPT
+	with ESMTP id S1751561AbXAPQpQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:41 -0500
+	Tue, 16 Jan 2007 11:45:16 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 16/59] sysctl: md Remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:21 -0700
-Message-Id: <1168965633112-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 35/59] sysctl: C99 convert ctl_tables in arch/powerpc/kernel/idle.c
+Date: Tue, 16 Jan 2007 09:39:40 -0700
+Message-Id: <11689656593247-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,27 +37,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-The sysctls used by the md driver are have unique binary numbers
-so remove the insert_at_head flag as it serves no useful purpose.
+This was partially done already and there was no ABI breakage what
+a relief.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/md/md.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/powerpc/kernel/idle.c |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index d1cb45f..966e8be 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -5551,7 +5551,7 @@ static int __init md_init(void)
- 			    md_probe, NULL, NULL);
+diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
+index 8994af3..8b27bb1 100644
+--- a/arch/powerpc/kernel/idle.c
++++ b/arch/powerpc/kernel/idle.c
+@@ -110,11 +110,16 @@ static ctl_table powersave_nap_ctl_table[]={
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+-	{ 0, },
++	{}
+ };
+ static ctl_table powersave_nap_sysctl_root[] = {
+-	{ 1, "kernel", NULL, 0, 0755, powersave_nap_ctl_table, },
+- 	{ 0,},
++	{
++		.ctl_name	= CTL_KERN,
++		.procname	= "kernel",
++		.mode		= 0755,
++		.child		= powersave_nap_ctl_table,
++	},
++	{}
+ };
  
- 	register_reboot_notifier(&md_notifier);
--	raid_table_header = register_sysctl_table(raid_root_table, 1);
-+	raid_table_header = register_sysctl_table(raid_root_table, 0);
- 
- 	md_geninit();
- 	return (0);
+ static int __init
 -- 
 1.4.4.1.g278f
 

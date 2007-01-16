@@ -1,265 +1,222 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932393AbXAPFsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932410AbXAPFs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbXAPFsc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 00:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbXAPFs2
+	id S932410AbXAPFs7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 00:48:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbXAPFs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 00:48:28 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40796 "EHLO omx1.sgi.com"
+	Tue, 16 Jan 2007 00:48:58 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40820 "EHLO omx1.sgi.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932393AbXAPFsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 00:48:15 -0500
-Date: Mon, 15 Jan 2007 21:47:59 -0800 (PST)
+	id S932410AbXAPFse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 00:48:34 -0500
+Date: Mon, 15 Jan 2007 21:48:25 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Paul Menage <menage@google.com>, linux-kernel@vger.kernel.org,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
        Dave Chinner <dgc@sgi.com>, Christoph Lameter <clameter@sgi.com>
-Message-Id: <20070116054759.15358.98106.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20070116054825.15358.65020.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
 References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 3/8] Add a nodemask to pdflush functions
+Subject: [RFC 8/8] Reduce inode memory usage for systems with a high MAX_NUMNODES
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pdflush: Allow the passing of a nodemask parameter
+Dynamically reduce the size of the nodemask_t in struct inode
 
-If we want to support nodeset specific writeout then we need a way
-to communicate the set of nodes that an operation should affect.
+The nodemask_t in struct inode can potentially waste a lot of memory if
+MAX_NUMNODES is high. For IA64 MAX_NUMNODES is 1024 by default which
+results in 128 bytes to be used for the nodemask. This means that the
+memory use for inodes may increase significantly since they all now
+include a dirty_map. These may be unecessarily large on smaller systems.
 
-So add a nodemask_t parameter to the pdflush functions and also
-store the nodemask in the pdflush control structure.
+We placed the nodemask at the end of struct inode. This patch avoids
+touching the later part of the nodemask if the actual maximum possible
+node on the system is less than 1024. If MAX_NUMNODES is larger than
+BITS_PER_LONG (and we may use more than one word for the nodemask) then
+we calculate the number of bytes that may be taken off the end of
+an inode. We can then create the inode caches without those bytes
+effectively saving memory. On a IA64 system booting with a
+maximum of 64 nodes we may save 120 of those 128 bytes per inode.
+
+This is only done for filesystems that are typically used for NUMA
+systems: xfs, nfs, ext3, ext4 and reiserfs. Other filesystems will
+always use the full length of the inode.
+
+This solution may be a bit hokey. I tried other approaches but this
+one seemed to be the simplest with the least complications. Maybe someone
+else can come up with a better solution?
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.20-rc5/include/linux/writeback.h
+Index: linux-2.6.20-rc5/fs/xfs/linux-2.6/xfs_super.c
 ===================================================================
---- linux-2.6.20-rc5.orig/include/linux/writeback.h	2007-01-15 21:34:38.564104333 -0600
-+++ linux-2.6.20-rc5/include/linux/writeback.h	2007-01-15 21:34:43.135798088 -0600
-@@ -81,7 +81,7 @@ static inline void wait_on_inode(struct 
- /*
-  * mm/page-writeback.c
-  */
--int wakeup_pdflush(long nr_pages);
-+int wakeup_pdflush(long nr_pages, nodemask_t *nodes);
- void laptop_io_completion(void);
- void laptop_sync_completion(void);
- void throttle_vm_writeout(void);
-@@ -109,7 +109,8 @@ balance_dirty_pages_ratelimited(struct a
- 	balance_dirty_pages_ratelimited_nr(mapping, 1);
- }
- 
--int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
-+int pdflush_operation(void (*fn)(unsigned long, nodemask_t *nodes),
-+		unsigned long arg0, nodemask_t *nodes);
- extern int generic_writepages(struct address_space *mapping,
- 			      struct writeback_control *wbc);
- int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
-Index: linux-2.6.20-rc5/mm/page-writeback.c
+--- linux-2.6.20-rc5.orig/fs/xfs/linux-2.6/xfs_super.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/fs/xfs/linux-2.6/xfs_super.c	2007-01-15 22:35:07.596529498 -0600
+@@ -370,7 +370,9 @@ xfs_fs_inode_init_once(
+ STATIC int
+ xfs_init_zones(void)
+ {
+-	xfs_vnode_zone = kmem_zone_init_flags(sizeof(bhv_vnode_t), "xfs_vnode",
++	xfs_vnode_zone = kmem_zone_init_flags(sizeof(bhv_vnode_t)
++						- unused_numa_nodemask_bytes,
++					"xfs_vnode",
+ 					KM_ZONE_HWALIGN | KM_ZONE_RECLAIM |
+ 					KM_ZONE_SPREAD,
+ 					xfs_fs_inode_init_once);
+Index: linux-2.6.20-rc5/include/linux/fs.h
 ===================================================================
---- linux-2.6.20-rc5.orig/mm/page-writeback.c	2007-01-15 21:34:38.573870823 -0600
-+++ linux-2.6.20-rc5/mm/page-writeback.c	2007-01-15 21:34:43.150447823 -0600
-@@ -101,7 +101,7 @@ EXPORT_SYMBOL(laptop_mode);
- /* End of sysctl-exported parameters */
- 
- 
--static void background_writeout(unsigned long _min_pages);
-+static void background_writeout(unsigned long _min_pages, nodemask_t *nodes);
- 
- /*
-  * Work out the current dirty-memory clamping and background writeout
-@@ -244,7 +244,7 @@ static void balance_dirty_pages(struct a
- 	 */
- 	if ((laptop_mode && pages_written) ||
- 	     (!laptop_mode && (nr_reclaimable > background_thresh)))
--		pdflush_operation(background_writeout, 0);
-+		pdflush_operation(background_writeout, 0, NULL);
- }
- 
- void set_page_dirty_balance(struct page *page)
-@@ -325,7 +325,7 @@ void throttle_vm_writeout(void)
-  * writeback at least _min_pages, and keep writing until the amount of dirty
-  * memory is less than the background threshold, or until we're all clean.
-  */
--static void background_writeout(unsigned long _min_pages)
-+static void background_writeout(unsigned long _min_pages, nodemask_t *unused)
- {
- 	long min_pages = _min_pages;
- 	struct writeback_control wbc = {
-@@ -365,12 +365,12 @@ static void background_writeout(unsigned
-  * the whole world.  Returns 0 if a pdflush thread was dispatched.  Returns
-  * -1 if all pdflush threads were busy.
-  */
--int wakeup_pdflush(long nr_pages)
-+int wakeup_pdflush(long nr_pages, nodemask_t *nodes)
- {
- 	if (nr_pages == 0)
- 		nr_pages = global_page_state(NR_FILE_DIRTY) +
- 				global_page_state(NR_UNSTABLE_NFS);
--	return pdflush_operation(background_writeout, nr_pages);
-+	return pdflush_operation(background_writeout, nr_pages, nodes);
- }
- 
- static void wb_timer_fn(unsigned long unused);
-@@ -394,7 +394,7 @@ static DEFINE_TIMER(laptop_mode_wb_timer
-  * older_than_this takes precedence over nr_to_write.  So we'll only write back
-  * all dirty pages if they are all attached to "old" mappings.
-  */
--static void wb_kupdate(unsigned long arg)
-+static void wb_kupdate(unsigned long arg, nodemask_t *unused)
- {
- 	unsigned long oldest_jif;
- 	unsigned long start_jif;
-@@ -454,18 +454,18 @@ int dirty_writeback_centisecs_handler(ct
- 
- static void wb_timer_fn(unsigned long unused)
- {
--	if (pdflush_operation(wb_kupdate, 0) < 0)
-+	if (pdflush_operation(wb_kupdate, 0, NULL) < 0)
- 		mod_timer(&wb_timer, jiffies + HZ); /* delay 1 second */
- }
- 
--static void laptop_flush(unsigned long unused)
-+static void laptop_flush(unsigned long unused, nodemask_t *unused2)
- {
- 	sys_sync();
- }
- 
- static void laptop_timer_fn(unsigned long unused)
- {
--	pdflush_operation(laptop_flush, 0);
-+	pdflush_operation(laptop_flush, 0, NULL);
- }
- 
- /*
-Index: linux-2.6.20-rc5/mm/pdflush.c
-===================================================================
---- linux-2.6.20-rc5.orig/mm/pdflush.c	2007-01-15 21:34:38.582660664 -0600
-+++ linux-2.6.20-rc5/mm/pdflush.c	2007-01-15 21:34:43.161190961 -0600
-@@ -83,10 +83,12 @@ static unsigned long last_empty_jifs;
-  */
- struct pdflush_work {
- 	struct task_struct *who;	/* The thread */
--	void (*fn)(unsigned long);	/* A callback function */
-+	void (*fn)(unsigned long, nodemask_t *); /* A callback function */
- 	unsigned long arg0;		/* An argument to the callback */
- 	struct list_head list;		/* On pdflush_list, when idle */
- 	unsigned long when_i_went_to_sleep;
-+	int have_nodes;			/* Nodes were specified */
-+	nodemask_t nodes;		/* Nodes of interest */
+--- linux-2.6.20-rc5.orig/include/linux/fs.h	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/include/linux/fs.h	2007-01-15 22:35:07.621922373 -0600
+@@ -591,6 +591,14 @@ struct inode {
+ 	void			*i_private; /* fs or device private pointer */
+ #ifdef CONFIG_CPUSETS
+ 	nodemask_t		dirty_nodes;	/* Map of nodes with dirty pages */
++	/*
++	 * Note that we may only use a portion of the bitmap in dirty_nodes
++	 * if we have a large MAX_NUMNODES but the number of possible nodes
++	 * is small in order to reduce the size of the inode.
++	 *
++	 * Bits after nr_node_ids (one node beyond the last possible
++	 * node_id) may not be accessed.
++	 */
+ #endif
  };
  
- static int __pdflush(struct pdflush_work *my_work)
-@@ -123,7 +125,8 @@ static int __pdflush(struct pdflush_work
- 		}
- 		spin_unlock_irq(&pdflush_lock);
- 
--		(*my_work->fn)(my_work->arg0);
-+		(*my_work->fn)(my_work->arg0,
-+			my_work->have_nodes ? &my_work->nodes : NULL);
- 
- 		/*
- 		 * Thread creation: For how long have there been zero
-@@ -197,7 +200,8 @@ static int pdflush(void *dummy)
-  * Returns zero if it indeed managed to find a worker thread, and passed your
-  * payload to it.
-  */
--int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0)
-+int pdflush_operation(void (*fn)(unsigned long, nodemask_t *),
-+			unsigned long arg0, nodemask_t *nodes)
+Index: linux-2.6.20-rc5/fs/ext3/super.c
+===================================================================
+--- linux-2.6.20-rc5.orig/fs/ext3/super.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/fs/ext3/super.c	2007-01-15 22:35:07.646338599 -0600
+@@ -480,7 +480,8 @@ static void init_once(void * foo, struct
+ static int init_inodecache(void)
  {
- 	unsigned long flags;
- 	int ret = 0;
-@@ -217,6 +221,11 @@ int pdflush_operation(void (*fn)(unsigne
- 			last_empty_jifs = jiffies;
- 		pdf->fn = fn;
- 		pdf->arg0 = arg0;
-+		if (nodes) {
-+			pdf->nodes = *nodes;
-+			pdf->have_nodes = 1;
-+		} else
-+			pdf->have_nodes = 0;
- 		wake_up_process(pdf->who);
- 		spin_unlock_irqrestore(&pdflush_lock, flags);
- 	}
-Index: linux-2.6.20-rc5/mm/vmscan.c
+ 	ext3_inode_cachep = kmem_cache_create("ext3_inode_cache",
+-					     sizeof(struct ext3_inode_info),
++					     sizeof(struct ext3_inode_info)
++						- unused_numa_nodemask_bytes,
+ 					     0, (SLAB_RECLAIM_ACCOUNT|
+ 						SLAB_MEM_SPREAD),
+ 					     init_once, NULL);
+Index: linux-2.6.20-rc5/fs/inode.c
 ===================================================================
---- linux-2.6.20-rc5.orig/mm/vmscan.c	2007-01-15 21:34:38.592427153 -0600
-+++ linux-2.6.20-rc5/mm/vmscan.c	2007-01-15 21:34:43.173887398 -0600
-@@ -1065,7 +1065,7 @@ unsigned long try_to_free_pages(struct z
- 		 */
- 		if (total_scanned > sc.swap_cluster_max +
- 					sc.swap_cluster_max / 2) {
--			wakeup_pdflush(laptop_mode ? 0 : total_scanned);
-+			wakeup_pdflush(laptop_mode ? 0 : total_scanned, NULL);
- 			sc.may_writepage = 1;
- 		}
+--- linux-2.6.20-rc5.orig/fs/inode.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/fs/inode.c	2007-01-15 22:35:07.661964984 -0600
+@@ -1399,7 +1399,8 @@ void __init inode_init(unsigned long mem
  
-Index: linux-2.6.20-rc5/fs/buffer.c
+ 	/* inode slab cache */
+ 	inode_cachep = kmem_cache_create("inode_cache",
+-					 sizeof(struct inode),
++					 sizeof(struct inode)
++						- unused_numa_nodemask_bytes,
+ 					 0,
+ 					 (SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|
+ 					 SLAB_MEM_SPREAD),
+Index: linux-2.6.20-rc5/fs/reiserfs/super.c
 ===================================================================
---- linux-2.6.20-rc5.orig/fs/buffer.c	2007-01-15 21:34:38.601216994 -0600
-+++ linux-2.6.20-rc5/fs/buffer.c	2007-01-15 21:34:43.195373675 -0600
-@@ -357,7 +357,7 @@ static void free_more_memory(void)
- 	struct zone **zones;
- 	pg_data_t *pgdat;
- 
--	wakeup_pdflush(1024);
-+	wakeup_pdflush(1024, NULL);
- 	yield();
- 
- 	for_each_online_pgdat(pgdat) {
-Index: linux-2.6.20-rc5/fs/super.c
-===================================================================
---- linux-2.6.20-rc5.orig/fs/super.c	2007-01-15 21:34:38.610983483 -0600
-+++ linux-2.6.20-rc5/fs/super.c	2007-01-15 21:34:43.208070111 -0600
-@@ -618,7 +618,7 @@ int do_remount_sb(struct super_block *sb
+--- linux-2.6.20-rc5.orig/fs/reiserfs/super.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/fs/reiserfs/super.c	2007-01-15 22:35:07.685404561 -0600
+@@ -525,11 +525,11 @@ static void init_once(void *foo, struct 
+ static int init_inodecache(void)
+ {
+ 	reiserfs_inode_cachep = kmem_cache_create("reiser_inode_cache",
+-						  sizeof(struct
+-							 reiserfs_inode_info),
+-						  0, (SLAB_RECLAIM_ACCOUNT|
+-							SLAB_MEM_SPREAD),
+-						  init_once, NULL);
++					  sizeof(struct reiserfs_inode_info)
++						 - unused_numa_nodemask_bytes,
++					  0, (SLAB_RECLAIM_ACCOUNT|
++						SLAB_MEM_SPREAD),
++					  init_once, NULL);
+ 	if (reiserfs_inode_cachep == NULL)
+ 		return -ENOMEM;
  	return 0;
- }
+Index: linux-2.6.20-rc5/include/linux/cpuset.h
+===================================================================
+--- linux-2.6.20-rc5.orig/include/linux/cpuset.h	2007-01-15 22:34:37.000000000 -0600
++++ linux-2.6.20-rc5/include/linux/cpuset.h	2007-01-15 22:33:53.759908623 -0600
+@@ -82,11 +82,13 @@ extern void cpuset_track_online_nodes(vo
+ 	node_set(page_to_nid(__page), (__inode)->dirty_nodes)
  
--static void do_emergency_remount(unsigned long foo)
-+static void do_emergency_remount(unsigned long foo, nodemask_t *bar)
- {
- 	struct super_block *sb;
+ #define cpuset_clear_dirty_nodes(__inode) \
+-		(__inode)->dirty_nodes = NODE_MASK_NONE
++	bitmap_zero(nodes_addr((__inode)->dirty_nodes), nr_node_ids)
  
-@@ -646,7 +646,7 @@ static void do_emergency_remount(unsigne
+ #define cpuset_intersects_dirty_nodes(__inode, __nodemask_ptr) \
+-		(!(__nodemask_ptr) || nodes_intersects((__inode)->dirty_nodes, \
+-		*(__nodemask_ptr)))
++		(!(__nodemask_ptr) || bitmap_intersects( \
++			nodes_addr((__inode)->dirty_nodes), \
++			nodes_addr(*(__nodemask_ptr)), \
++			nr_node_ids))
  
- void emergency_remount(void)
- {
--	pdflush_operation(do_emergency_remount, 0);
-+	pdflush_operation(do_emergency_remount, 0, NULL);
- }
+ #else /* !CONFIG_CPUSETS */
+ 
+Index: linux-2.6.20-rc5/include/linux/nodemask.h
+===================================================================
+--- linux-2.6.20-rc5.orig/include/linux/nodemask.h	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/include/linux/nodemask.h	2007-01-15 22:35:07.712750734 -0600
+@@ -353,6 +353,13 @@ extern nodemask_t node_possible_map;
+ #define first_online_node	first_node(node_online_map)
+ #define next_online_node(nid)	next_node((nid), node_online_map)
+ extern int nr_node_ids;
++
++#if MAX_NUMNODES > BITS_PER_LONG
++extern int unused_numa_nodemask_bytes;
++#else
++#define unused_numa_nodemask_bytes 0
++#endif
++
+ #else
+ #define num_online_nodes()	1
+ #define num_possible_nodes()	1
+@@ -361,6 +368,7 @@ extern int nr_node_ids;
+ #define first_online_node	0
+ #define next_online_node(nid)	(MAX_NUMNODES)
+ #define nr_node_ids		1
++#define unused_numa_nodemask_bytes	0
+ #endif
+ 
+ #define any_online_node(mask)			\
+Index: linux-2.6.20-rc5/mm/page_alloc.c
+===================================================================
+--- linux-2.6.20-rc5.orig/mm/page_alloc.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/mm/page_alloc.c	2007-01-15 22:35:07.735213662 -0600
+@@ -663,6 +663,10 @@ static int rmqueue_bulk(struct zone *zon
+ #if MAX_NUMNODES > 1
+ int nr_node_ids __read_mostly;
+ EXPORT_SYMBOL(nr_node_ids);
++#if MAX_NUMNODES > BITS_PER_LONG
++int unused_numa_nodemask_bytes __read_mostly;
++EXPORT_SYMBOL(unused_numa_nodemask_bytes);
++#endif
  
  /*
-Index: linux-2.6.20-rc5/fs/sync.c
+  * Figure out the number of possible node ids.
+@@ -675,6 +679,10 @@ static void __init setup_nr_node_ids(voi
+ 	for_each_node_mask(node, node_possible_map)
+ 		highest = node;
+ 	nr_node_ids = highest + 1;
++#if MAX_NUMNODES > BITS_PER_LONG
++	unused_numa_nodemask_bytes = BITS_TO_LONGS(MAX_NUMNODES)
++				- BITS_TO_LONGS(nr_node_ids);
++#endif
+ }
+ #else
+ static void __init setup_nr_node_ids(void) {}
+Index: linux-2.6.20-rc5/fs/nfs/inode.c
 ===================================================================
---- linux-2.6.20-rc5.orig/fs/sync.c	2007-01-15 21:34:38.622703271 -0600
-+++ linux-2.6.20-rc5/fs/sync.c	2007-01-15 21:34:43.217836601 -0600
-@@ -21,9 +21,9 @@
-  * sync everything.  Start out by waking pdflush, because that writes back
-  * all queues in parallel.
-  */
--static void do_sync(unsigned long wait)
-+static void do_sync(unsigned long wait, nodemask_t *unused)
+--- linux-2.6.20-rc5.orig/fs/nfs/inode.c	2007-01-15 22:33:55.000000000 -0600
++++ linux-2.6.20-rc5/fs/nfs/inode.c	2007-01-15 22:35:07.755723291 -0600
+@@ -1136,7 +1136,8 @@ static void init_once(void * foo, struct
+ static int __init nfs_init_inodecache(void)
  {
--	wakeup_pdflush(0);
-+	wakeup_pdflush(0, NULL);
- 	sync_inodes(0);		/* All mappings, inodes and their blockdevs */
- 	DQUOT_SYNC(NULL);
- 	sync_supers();		/* Write the superblocks */
-@@ -38,13 +38,13 @@ static void do_sync(unsigned long wait)
- 
- asmlinkage long sys_sync(void)
- {
--	do_sync(1);
-+	do_sync(1, NULL);
- 	return 0;
- }
- 
- void emergency_sync(void)
- {
--	pdflush_operation(do_sync, 0);
-+	pdflush_operation(do_sync, 0, NULL);
- }
- 
- /*
+ 	nfs_inode_cachep = kmem_cache_create("nfs_inode_cache",
+-					     sizeof(struct nfs_inode),
++					     sizeof(struct nfs_inode)
++					     - unused_numa_nodemask_bytes,
+ 					     0, (SLAB_RECLAIM_ACCOUNT|
+ 						SLAB_MEM_SPREAD),
+ 					     init_once, NULL);

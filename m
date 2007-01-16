@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751778AbXAPXr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751877AbXAPXsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751778AbXAPXr5 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 18:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbXAPXr5
+	id S1751877AbXAPXsd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 18:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbXAPXsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 18:47:57 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:30530 "EHLO
-	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751778AbXAPXr4 (ORCPT
+	Tue, 16 Jan 2007 18:48:32 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:58098 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751877AbXAPXsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 18:47:56 -0500
-X-IronPort-AV: i="4.13,198,1167638400"; 
-   d="scan'208"; a="759500133:sNHT42708992"
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: On some configs, sparse spinlock balance checking is broken
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 16 Jan 2007 15:47:42 -0800
-Message-ID: <adaejpumt41.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 16 Jan 2007 18:48:31 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NtwjZeAMSF1cFb3x7t7IyDQmKAZEpezSvM0flpnIyVRfEjSeX5fQ91olJzLi9EHDRRKc/kmkHEBUjBhPkxJw38vV6NG4MtAYDaZyhGV39X11LRntaGJlf3+XDTcVMd+0fTTfH3Bd7s+IybkTcggf52twmOs04+rWX00L2CWO2p8=
+Message-ID: <2475a8740701161548v5758935dq51f1ed27a0c91d51@mail.gmail.com>
+Date: Tue, 16 Jan 2007 15:48:28 -0800
+From: "Sridhar Samudrala" <samudrala.sridhar@gmail.com>
+To: "bert hubert" <bert.hubert@netherlabs.nl>,
+       "Aurelien Jarno" <aurelien@aurel32.net>, linux-kernel@vger.kernel.org
+Subject: Re: IPv6 router advertisement broken on 2.6.20-rc5
+In-Reply-To: <20070116233053.GA667@outpost.ds9a.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Jan 2007 23:47:44.0637 (UTC) FILETIME=[B7FC82D0:01C739C8]
-Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim3002 verified; ); 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <45AD46DD.7050408@aurel32.net>
+	 <20070116233053.GA667@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Ingo -- you seem to be the last person to touch all this stuff, and I
-can't untangle what you did, hence I'm sending this email to you)
+I think the following patch
 
-On at least some of my configs on x86_64, when running sparse, I see
-bogus 'warning: context imbalance in '<func>' - wrong count at exit'.
+[IPV6] MCAST: Fix joining all-node multicast group on device initialization.
+  http://www.spinics.net/lists/netdev/msg22663.html
 
-This seems to be because I have CONFIG_SMP=y, CONFIG_DEBUG_SPINLOCK=n
-and CONFIG_PREEMPT=n.  Therefore, <linux/spinlock.h> does
+that went in after 2.6.20-rc5 should fix this problem.
 
-	#define spin_lock(lock)			_spin_lock(lock)
+Thanks
+Sridhar
 
-which picks up
-
-	void __lockfunc _spin_lock(spinlock_t *lock)		__acquires(lock);
-
-from <linux/spinlock_api_smp.h>, but <linux/spinlock.h> also has:
-
-	#if defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT) || \
-		!defined(CONFIG_SMP)
-	//...
-	#else
-	# define spin_unlock(lock)		__raw_spin_unlock(&(lock)->raw_lock)
-
-and <asm-x86_64/spinlock.h> has:
-
-	static inline void __raw_spin_unlock(raw_spinlock_t *lock)
-	{
-		asm volatile("movl $1,%0" :"=m" (lock->slock) :: "memory");
-	}
-
-so sparse doesn't see any __releases() to match the __acquires.
-
-This all seems to go back to commit bda98685 ("x86: inline spin_unlock
-if !CONFIG_DEBUG_SPINLOCK and !CONFIG_PREEMPT") but I don't know what
-motivated that change.
-
-Anyway, Ingo or anyone else, what's the best way to fix this?  Maybe
-the right way to fix this is just to define away __acquires/__releases
-unless CONFIG_DEBUG_SPINLOCK is set, but that seems suboptimal.
-
-Thanks,
-  Roland
+On 1/16/07, bert hubert <bert.hubert@netherlabs.nl> wrote:
+> On Tue, Jan 16, 2007 at 10:42:53PM +0100, Aurelien Jarno wrote:
+>
+> > I have just tried a 2.6.20-rc5 kernel (I previously used a 2.6.19 one),
+> > and I have noticed that the IPv6 router advertisement functionality is
+>
+> Can you check if rc1, rc2, rc3 etc do work?
+>
+> Thanks.
+>
+> --
+> http://www.PowerDNS.com      Open source, database driven DNS Software
+> http://netherlabs.nl              Open and Closed source services
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

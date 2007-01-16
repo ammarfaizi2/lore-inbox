@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751614AbXAPQr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751608AbXAPQsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751614AbXAPQr6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbXAPQqc
+	id S1751608AbXAPQsJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbXAPQr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:46:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38161 "EHLO
+	Tue, 16 Jan 2007 11:47:59 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38174 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585AbXAPQq0 (ORCPT
+	with ESMTP id S1751585AbXAPQqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:46:26 -0500
+	Tue, 16 Jan 2007 11:46:33 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 17/59] sysctl: mac_hid remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:22 -0700
-Message-Id: <11689656343467-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 18/59] sysctl: ipmi remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:23 -0700
+Message-Id: <1168965635875-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -41,22 +41,22 @@ With unique sysctl binary numbers setting insert_at_head is pointless.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/macintosh/mac_hid.c |    2 +-
+ drivers/char/ipmi/ipmi_poweroff.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/macintosh/mac_hid.c b/drivers/macintosh/mac_hid.c
-index ee6b4ca..c676740 100644
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -138,7 +138,7 @@ int __init mac_hid_init(void)
- 		return err;
+diff --git a/drivers/char/ipmi/ipmi_poweroff.c b/drivers/char/ipmi/ipmi_poweroff.c
+index 9d23136..b3ae65e 100644
+--- a/drivers/char/ipmi/ipmi_poweroff.c
++++ b/drivers/char/ipmi/ipmi_poweroff.c
+@@ -686,7 +686,7 @@ static int ipmi_poweroff_init (void)
+ 		printk(KERN_INFO PFX "Power cycle is enabled.\n");
  
- #if defined(CONFIG_SYSCTL)
--	mac_hid_sysctl_header = register_sysctl_table(mac_hid_root_dir, 1);
-+	mac_hid_sysctl_header = register_sysctl_table(mac_hid_root_dir, 0);
- #endif /* CONFIG_SYSCTL */
- 
- 	return 0;
+ #ifdef CONFIG_PROC_FS
+-	ipmi_table_header = register_sysctl_table(ipmi_root_table, 1);
++	ipmi_table_header = register_sysctl_table(ipmi_root_table, 0);
+ 	if (!ipmi_table_header) {
+ 		printk(KERN_ERR PFX "Unable to register powercycle sysctl\n");
+ 		rv = -ENOMEM;
 -- 
 1.4.4.1.g278f
 

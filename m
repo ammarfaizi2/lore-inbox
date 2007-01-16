@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932333AbXAPH3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932440AbXAPHki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbXAPH3P (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 02:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbXAPH3P
+	id S932440AbXAPHki (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 02:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbXAPHki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 02:29:15 -0500
-Received: from mail.isohunt.com ([69.64.61.20]:55614 "EHLO mail.isohunt.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932333AbXAPH3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 02:29:14 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 02:29:14 EST
-X-Spam-Check-By: mail.isohunt.com
-Message-ID: <45AC7CB2.1010202@isohunt.com>
-Date: Tue, 16 Jan 2007 00:20:18 -0700
-From: Allen Parker <parker@isohunt.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux.nics@intel.com
-Subject: 82571EB gigabit on e1000 in 2.6.20-rc5
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 16 Jan 2007 02:40:38 -0500
+Received: from amsfep19-int.chello.nl ([213.46.243.16]:52253 "EHLO
+	amsfep11-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S932440AbXAPHkh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 02:40:37 -0500
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, Paul Menage <menage@google.com>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
+       Dave Chinner <dgc@sgi.com>
+In-Reply-To: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 16 Jan 2007 08:38:10 +0100
+Message-Id: <1168933090.22935.30.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PCI-E pro/1000 MT Quad Port adapter, which works quite well 
-under 2.6.19.2 but fails to see link under 2.6.20-rc5. Earlier today I 
-reported this to e1000-devel@lists.sf.net, but thought I should get the 
-word out in case someone else is testing this kernel on this nic chipset.
+On Mon, 2007-01-15 at 21:47 -0800, Christoph Lameter wrote:
+> Currently cpusets are not able to do proper writeback since
+> dirty ratio calculations and writeback are all done for the system
+> as a whole. This may result in a large percentage of a cpuset
+> to become dirty without writeout being triggered. Under NFS
+> this can lead to OOM conditions.
+> 
+> Writeback will occur during the LRU scans. But such writeout
+> is not effective since we write page by page and not in inode page
+> order (regular writeback).
+> 
+> In order to fix the problem we first of all introduce a method to
+> establish a map of nodes that contain dirty pages for each
+> inode mapping.
+> 
+> Secondly we modify the dirty limit calculation to be based
+> on the acctive cpuset.
+> 
+> If we are in a cpuset then we select only inodes for writeback
+> that have pages on the nodes of the cpuset.
+> 
+> After we have the cpuset throttling in place we can then make
+> further fixups:
+> 
+> A. We can do inode based writeout from direct reclaim
+>    avoiding single page writes to the filesystem.
+> 
+> B. We add a new counter NR_UNRECLAIMABLE that is subtracted
+>    from the available pages in a node. This allows us to
+>    accurately calculate the dirty ratio even if large portions
+>    of the node have been allocated for huge pages or for
+>    slab pages.
 
-Due to changes between 2.6.19.2 and 2.6.20, Intel driver 7.3.20 will not 
-compile for 2.6.20, nor will the 2.6.19.2 in-tree driver.
+What about mlock'ed pages?
 
-Error output:
-   CC [M]  drivers/net/e1000/e1000_main.o
-drivers/net/e1000/e1000_main.c:1132:45: error: macro "INIT_WORK" passed 
-3 arguments, but takes just 2
-drivers/net/e1000/e1000_main.c: In function 'e1000_probe':
-drivers/net/e1000/e1000_main.c:1131: error: 'INIT_WORK' undeclared 
-(first use in this function)
-drivers/net/e1000/e1000_main.c:1131: error: (Each undeclared identifier 
-is reported only once
-drivers/net/e1000/e1000_main.c:1131: error: for each function it appears 
-in.)
-make[3]: *** [drivers/net/e1000/e1000_main.o] Error 1
+> There are a couple of points where some better ideas could be used:
+> 
+> 1. The nodemask expands the inode structure significantly if the
+> architecture allows a high number of nodes. This is only an issue
+> for IA64. For that platform we expand the inode structure by 128 byte
+> (to support 1024 nodes). The last patch attempts to address the issue
+> by using the knowledge about the maximum possible number of nodes
+> determined on bootup to shrink the nodemask.
 
-lspci -nn output (quad port):
-09:00.0 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:10a4] (rev 06)
-09:00.1 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:10a4] (rev 06)
-0a:00.0 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:10a4] (rev 06)
-0a:00.1 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:10a4] (rev 06)
-lspci -nn output (dual port):
-07:00.0 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:105e] (rev 06)
-07:00.1 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
-Ethernet Controller [8086:105e] (rev 06)
+Not the prettiest indeed, no ideas though.
 
- From what I've been able to gather, other Intel Pro/1000 chipsets work 
-fine in 2.6.20-rc5. If the e1000 guys need any assistance testing, I'll 
-be more than happy to volunteer myself as a guinea pig for patches.
+> 2. The calculation of the per cpuset limits can require looping
+> over a number of nodes which may bring the performance of get_dirty_limits
+> near pre 2.6.18 performance (before the introduction of the ZVC counters)
+> (only for cpuset based limit calculation). There is no way of keeping these
+> counters per cpuset since cpusets may overlap.
 
-Allen Parker
+Well, you gain functionality, you loose some runtime, sad but probably
+worth it.
+
+Otherwise it all looks good.
+
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+

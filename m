@@ -1,153 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932185AbXAPBrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932195AbXAPBv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbXAPBrR (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 20:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbXAPBrR
+	id S932195AbXAPBv1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 20:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbXAPBv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 20:47:17 -0500
-Received: from mx1.sierrawireless.com ([204.50.29.40]:31564 "EHLO
-	mx1.sierrawireless.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932185AbXAPBrQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 20:47:16 -0500
-X-Greylist: delayed 846 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 20:47:16 EST
-Message-ID: <45AC2B68.9060904@sierrawireless.com>
-Date: Mon, 15 Jan 2007 17:33:28 -0800
-From: Kevin Lloyd <klloyd@sierrawireless.com>
+	Mon, 15 Jan 2007 20:51:27 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:51568 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932195AbXAPBv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 20:51:27 -0500
+Message-ID: <45AC2F99.3040209@garzik.org>
+Date: Mon, 15 Jan 2007 20:51:21 -0500
+From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: gregkh@suse.de
-CC: linux-usb-devel@lists.sourceforge.net,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, klloyd@sierrawireless.com
-Subject: [PATCH 2.6.20-rc3 01/01] usb: Sierra Wireless auto set D0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Robert Hancock <hancockr@shaw.ca>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrin?= =?ISO-8859-1?Q?k?= 
+	<B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <45AAC95B.1020708@garzik.org> <45AAE635.8090308@shaw.ca> <20070115025319.GC4516@kernel.dk> <45AB84D8.3020507@garzik.org> <20070116002336.GB4067@kernel.dk>
+In-Reply-To: <20070116002336.GB4067@kernel.dk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jan 2007 01:28:19.0363 (UTC) FILETIME=[9A8CDF30:01C7390D]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14938.000
-X-TM-AS-Result: No--8.399900-5.000000-2
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-from: Kevin Lloyd <linux@sierrawireless.com>
+Jens Axboe wrote:
+> On Mon, Jan 15 2007, Jeff Garzik wrote:
+>> Jens Axboe wrote:
+>>> I'd be surprised if the device would not obey the 7 second timeout rule
+>>> that seems to be set in stone and not allow more dirty in-drive cache
+>>> than it could flush out in approximately that time.
+>> AFAIK Windows flush-cache timeout is 30 seconds, not 7 as with other 
+>> commands...
+> 
+> Ok, 7 seconds for FLUSH_CACHE would have been nice for us too though, as
+> it would pretty much guarentee lower latencies for random writes and
+> write back caching. The concern is the barrier code, of course. I guess
+> I should do some timings on potential worst case patterns some day. Alan
+> may have done that sometime in the past, iirc.
 
-This patch ensures that the device is turned on when inserted into the 
-system (which mostly affects the EM5725 and MC5720. It also adds more 
-VID/PIDs and matches the N_OUT_URB with the airprime driver.
+FWIW:  According to the drive guys (Eric M, among others), FLUSH CACHE 
+will "probably" be under 30 seconds, but pathological cases might even 
+extend beyond that.
 
-Signed-off-by: Kevin Lloyd <linux@sierrawireless.com>
+Definitely more than 7 seconds in less-than-pathological cases, 
+unfortunately...
 
----
+The SCSI layer /should/ already take this (30 second timeout) into 
+account, for SYNCHRONIZE CACHE (and thus FLUSH CACHE for libata) but I'm 
+too slack to check at the moment.
 
---- linux-2.6.20-rc5/drivers/usb/serial/sierra.c.orig	2007-01-15 15:17:15.000000000 -0800
-+++ linux-2.6.20-rc5/drivers/usb/serial/sierra.c	2007-01-15 15:41:56.000000000 -0800
-@@ -14,9 +14,31 @@
-   Whom based his on the Keyspan driver by Hugh Blemings <hugh@blemings.org>
- 
-   History:
-+v.1.0.6:
-+ klloyd
-+ Added more devices and added Vendor Specific USB message to make sure
-+ that devices are in D0 state when they start. This is very important for
-+ MC5720 and EM5625 modules that go between Windows and Non-Windows 
-+ machines.
-+v.1.0.5:
-+ Greg KH
-+ This saves over 30 lines and fixes a warning from sparse and allows
-+ debugging to work dynamically like all other usb-serial drivers.
-+ klloyd
-+ Changed versioning to v.x.y.z
-+v.1.04:
-+ klloyd
-+ Adds significant throughput increase to the Sierra driver (uses multiple
-+ urgs for download link). This patch also updates the current sierra.c 
-+ driver so that it supports both 3-port Sierra devices and 1-port legacy
-+ devices and removes Sierra's references in other related files (Kconfig
-+ and airprime.c).
-+v.1.03
-+ klloyd
-+ Adds DTR line control support and impliments urb control.
- */
- 
--#define DRIVER_VERSION "v.1.0.5"
-+#define DRIVER_VERSION "v.1.0.6"
- #define DRIVER_AUTHOR "Kevin Lloyd <linux@sierrawireless.com>"
- #define DRIVER_DESC "USB Driver for Sierra Wireless USB modems"
- 
-@@ -31,14 +53,14 @@
- 
- 
- static struct usb_device_id id_table [] = {
-+	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
- 	{ USB_DEVICE(0x1199, 0x0018) },	/* Sierra Wireless MC5720 */
- 	{ USB_DEVICE(0x1199, 0x0020) },	/* Sierra Wireless MC5725 */
--	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
- 	{ USB_DEVICE(0x1199, 0x0019) },	/* Sierra Wireless AirCard 595 */
--	{ USB_DEVICE(0x1199, 0x0218) },	/* Sierra Wireless MC5720 */
-+	{ USB_DEVICE(0x1199, 0x0021) },	/* Sierra Wireless AirCard 597E */
- 	{ USB_DEVICE(0x1199, 0x6802) },	/* Sierra Wireless MC8755 */
-+	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 */
- 	{ USB_DEVICE(0x1199, 0x6803) },	/* Sierra Wireless MC8765 */
--	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 for Europe */
- 	{ USB_DEVICE(0x1199, 0x6812) },	/* Sierra Wireless MC8775 */
- 	{ USB_DEVICE(0x1199, 0x6820) },	/* Sierra Wireless AirCard 875 */
- 
-@@ -55,14 +77,14 @@ static struct usb_device_id id_table_1po
- };
- 
- static struct usb_device_id id_table_3port [] = {
-+	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
- 	{ USB_DEVICE(0x1199, 0x0018) },	/* Sierra Wireless MC5720 */
- 	{ USB_DEVICE(0x1199, 0x0020) },	/* Sierra Wireless MC5725 */
--	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
- 	{ USB_DEVICE(0x1199, 0x0019) },	/* Sierra Wireless AirCard 595 */
--	{ USB_DEVICE(0x1199, 0x0218) },	/* Sierra Wireless MC5720 */
-+	{ USB_DEVICE(0x1199, 0x0021) },	/* Sierra Wireless AirCard 597E */
- 	{ USB_DEVICE(0x1199, 0x6802) },	/* Sierra Wireless MC8755 */
-+	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 */
- 	{ USB_DEVICE(0x1199, 0x6803) },	/* Sierra Wireless MC8765 */
--	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 for Europe */
- 	{ USB_DEVICE(0x1199, 0x6812) },	/* Sierra Wireless MC8775 */
- 	{ USB_DEVICE(0x1199, 0x6820) },	/* Sierra Wireless AirCard 875 */
- 	{ }
-@@ -81,7 +103,7 @@ static int debug;
- 
- /* per port private data */
- #define N_IN_URB	4
--#define N_OUT_URB	1
-+#define N_OUT_URB	4
- #define IN_BUFLEN	4096
- #define OUT_BUFLEN	128
- 
-@@ -123,6 +145,7 @@ static int sierra_send_setup(struct usb_
- 		return usb_control_msg(serial->dev,
- 				usb_rcvctrlpipe(serial->dev, 0),
- 				0x22,0x21,val,0,NULL,0,USB_CTRL_SET_TIMEOUT);
-+
- 	}
- 
- 	return 0;
-@@ -396,6 +419,8 @@ static int sierra_open(struct usb_serial
- 	struct usb_serial *serial = port->serial;
- 	int i, err;
- 	struct urb *urb;
-+	int result;
-+	__u16 set_mode_dzero = 0x0000; //Set mode to D0
- 
- 	portdata = usb_get_serial_port_data(port);
- 
-@@ -442,6 +467,11 @@ static int sierra_open(struct usb_serial
- 
- 	port->tty->low_latency = 1;
- 
-+	//set mode to D0
-+	result = usb_control_msg(serial->dev,
-+			usb_rcvctrlpipe(serial->dev, 0),
-+			0x00,0x40,set_mode_dzero,0,NULL,0,USB_CTRL_SET_TIMEOUT);
-+
- 	sierra_send_setup(port);
- 
- 	return (0);
+	Jeff
 
 
 

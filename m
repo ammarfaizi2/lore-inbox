@@ -1,61 +1,283 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932289AbXAPCFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932281AbXAPCGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbXAPCFx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 21:05:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbXAPCFv
+	id S932281AbXAPCGb (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 21:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbXAPCDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 21:05:51 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:46184 "EHLO
-	yue.st-paulia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932280AbXAPCFa (ORCPT
+	Mon, 15 Jan 2007 21:03:40 -0500
+Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:25129 "EHLO
+	ext.agami.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932214AbXAPCDa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 21:05:30 -0500
-Date: Tue, 16 Jan 2007 11:06:30 +0900 (JST)
-Message-Id: <20070116.110630.60620489.yoshfuji@linux-ipv6.org>
-To: nix.or.die@googlemail.com, greg@kroah.com, stable@kernel.org
-Cc: davem@davemloft.net, dlstevens@us.ibm.com, dsd@gentoo.org,
-       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [stable] 2.6.19.2 regression introduced by "IPV4/IPV6: Fix
- inet{, 6} device initialization order."
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <45AC3214.4080800@googlemail.com>
-References: <20070114.213008.74745274.davem@davemloft.net>
-	<20070115072554.GA16969@kroah.com>
-	<45AC3214.4080800@googlemail.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 3.3 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Jan 2007 21:03:30 -0500
+X-Greylist: delayed 510 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 21:03:27 EST
+From: Nate Diller <nate@agami.com>
+To: Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Benjamin LaHaise <bcrl@kvack.org>,
+       Alexander Viro <viro@zeniv.linux.org.uk>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Kenneth W Chen <kenneth.w.chen@intel.com>,
+       David Brownell <dbrownell@users.sourceforge.net>,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       netdev@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-aio@kvack.org,
+       xfs-masters@oss.sgi.com
+Date: Mon, 15 Jan 2007 17:54:50 -0800
+Message-Id: <20070116015450.9764.62432.patchbomb.py@nate-64.agami.com>
+In-Reply-To: <20070116015450.9764.37697.patchbomb.py@nate-64.agami.com>
+Subject: [PATCH -mm 9/10][RFC] aio: usb gadget remove aio file ops
+X-OriginalArrivalTime: 16 Jan 2007 01:55:36.0694 (UTC) FILETIME=[6A79C160:01C73911]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <45AC3214.4080800@googlemail.com> (at Tue, 16 Jan 2007 03:01:56 +0100), Gabriel C <nix.or.die@googlemail.com> says:
+This removes the aio implementation from the usb gadget file system.  Aside
+from making very creative (!) use of the aio retry path, it can't be of any
+use performance-wise because it always kmalloc()s a bounce buffer for the
+*whole* I/O size.  Perhaps the only reason to keep it around is the ability
+to cancel I/O requests, which only applies when using the user space async
+I/O interface.  I highly doubt that is enough incentive to justify the extra
+complexity here or in user-space, so I think it's a safe bet to remove this. 
+If that feature still desired, it would be possible to implement a sync
+interface that does an interruptible sleep.
 
-> Greg KH schrieb:
-> > On Sun, Jan 14, 2007 at 09:30:08PM -0800, David Miller wrote:
-> >   
-> >> From: David Stevens <dlstevens@us.ibm.com>
-> >> Date: Sun, 14 Jan 2007 19:47:49 -0800
-> >>
-> >>     
-> >>> I think it's better to add the fix than withdraw this patch, since
-> >>> the original bug is a crash.
-> >>>       
-> >> I completely agree.
-> >>     
-> >
-> > Great, can someone forward the patch to us?
-> >   
-> 
-> Should be the fix from http://bugzilla.kernel.org/show_bug.cgi?id=7817
+I can be convinced otherwise, but the alternatives are difficult.  See for
+example the "fuse, get_user_pages, flush_anon_page, aliasing caches and all
+that again" LKML thread recently for why it's waaay easier to kmalloc a
+bounce buffer here, and (ab)use the retry interface.
 
-I've resent the patch to <stable@kernel.org>.
+---
 
---yoshfuji
+diff -urpN -X dontdiff a/drivers/usb/gadget/inode.c b/drivers/usb/gadget/inode.c
+--- a/drivers/usb/gadget/inode.c	2007-01-10 13:23:46.000000000 -0800
++++ b/drivers/usb/gadget/inode.c	2007-01-10 16:56:09.000000000 -0800
+@@ -527,218 +527,6 @@ static int ep_ioctl (struct inode *inode
+ 
+ /*----------------------------------------------------------------------*/
+ 
+-/* ASYNCHRONOUS ENDPOINT I/O OPERATIONS (bulk/intr/iso) */
+-
+-struct kiocb_priv {
+-	struct usb_request	*req;
+-	struct ep_data		*epdata;
+-	void			*buf;
+-	const struct iovec	*iv;
+-	unsigned long		nr_segs;
+-	unsigned		actual;
+-};
+-
+-static int ep_aio_cancel(struct kiocb *iocb, struct io_event *e)
+-{
+-	struct kiocb_priv	*priv = iocb->private;
+-	struct ep_data		*epdata;
+-	int			value;
+-
+-	local_irq_disable();
+-	epdata = priv->epdata;
+-	// spin_lock(&epdata->dev->lock);
+-	kiocbSetCancelled(iocb);
+-	if (likely(epdata && epdata->ep && priv->req))
+-		value = usb_ep_dequeue (epdata->ep, priv->req);
+-	else
+-		value = -EINVAL;
+-	// spin_unlock(&epdata->dev->lock);
+-	local_irq_enable();
+-
+-	aio_put_req(iocb);
+-	return value;
+-}
+-
+-static int ep_aio_read_retry(struct kiocb *iocb)
+-{
+-	struct kiocb_priv	*priv = iocb->private;
+-	ssize_t			total;
+-	int			i, err = 0;
+-
+-  	/* we "retry" to get the right mm context for this: */
+-
+- 	/* copy stuff into user buffers */
+- 	total = priv->actual;
+- 	for (i=0; i < priv->nr_segs; i++) {
+- 		ssize_t this = min((ssize_t)(priv->iv[i].iov_len), total);
+-
+- 		if (copy_to_user(priv->iv[i].iov_base, priv->buf, this)) {
+- 			err = -EFAULT;
+- 			break;
+- 		}
+-
+- 		total -= this;
+- 		if (total == 0)
+- 			break;
+- 	}
+-  	kfree(priv->buf);
+-  	kfree(priv);
+-  	aio_put_req(iocb);
+- 	return err;
+-}
+-
+-static void ep_aio_complete(struct usb_ep *ep, struct usb_request *req)
+-{
+-	struct kiocb		*iocb = req->context;
+-	struct kiocb_priv	*priv = iocb->private;
+-	struct ep_data		*epdata = priv->epdata;
+-
+-	/* lock against disconnect (and ideally, cancel) */
+-	spin_lock(&epdata->dev->lock);
+-	priv->req = NULL;
+-	priv->epdata = NULL;
+-	if (priv->iv == NULL
+-			|| unlikely(req->actual == 0)
+-			|| unlikely(kiocbIsCancelled(iocb))) {
+-		kfree(req->buf);
+-		kfree(priv);
+-		iocb->private = NULL;
+-		/* aio_complete() reports bytes-transferred _and_ faults */
+-		if (unlikely(kiocbIsCancelled(iocb)))
+-			aio_put_req(iocb);
+-		else
+-			aio_complete(iocb, req->actual, req->status);
+-	} else {
+-		/* retry() won't report both; so we hide some faults */
+-		if (unlikely(0 != req->status))
+-			DBG(epdata->dev, "%s fault %d len %d\n",
+-				ep->name, req->status, req->actual);
+-
+-		priv->buf = req->buf;
+-		priv->actual = req->actual;
+-		kick_iocb(iocb);
+-	}
+-	spin_unlock(&epdata->dev->lock);
+-
+-	usb_ep_free_request(ep, req);
+-	put_ep(epdata);
+-}
+-
+-static ssize_t
+-ep_aio_rwtail(
+-	struct kiocb	*iocb,
+-	char		*buf,
+-	size_t		len,
+-	struct ep_data	*epdata,
+-	const struct iovec *iv,
+-	unsigned long 	nr_segs
+-)
+-{
+-	struct kiocb_priv	*priv;
+-	struct usb_request	*req;
+-	ssize_t			value;
+-
+-	priv = kmalloc(sizeof *priv, GFP_KERNEL);
+-	if (!priv) {
+-		value = -ENOMEM;
+-fail:
+-		kfree(buf);
+-		return value;
+-	}
+-	iocb->private = priv;
+-	priv->iv = iv;
+-	priv->nr_segs = nr_segs;
+-
+-	value = get_ready_ep(iocb->ki_filp->f_flags, epdata);
+-	if (unlikely(value < 0)) {
+-		kfree(priv);
+-		goto fail;
+-	}
+-
+-	iocb->ki_cancel = ep_aio_cancel;
+-	get_ep(epdata);
+-	priv->epdata = epdata;
+-	priv->actual = 0;
+-
+-	/* each kiocb is coupled to one usb_request, but we can't
+-	 * allocate or submit those if the host disconnected.
+-	 */
+-	spin_lock_irq(&epdata->dev->lock);
+-	if (likely(epdata->ep)) {
+-		req = usb_ep_alloc_request(epdata->ep, GFP_ATOMIC);
+-		if (likely(req)) {
+-			priv->req = req;
+-			req->buf = buf;
+-			req->length = len;
+-			req->complete = ep_aio_complete;
+-			req->context = iocb;
+-			value = usb_ep_queue(epdata->ep, req, GFP_ATOMIC);
+-			if (unlikely(0 != value))
+-				usb_ep_free_request(epdata->ep, req);
+-		} else
+-			value = -EAGAIN;
+-	} else
+-		value = -ENODEV;
+-	spin_unlock_irq(&epdata->dev->lock);
+-
+-	up(&epdata->lock);
+-
+-	if (unlikely(value)) {
+-		kfree(priv);
+-		put_ep(epdata);
+-	} else
+-		value = (iv ? -EIOCBRETRY : -EIOCBQUEUED);
+-	return value;
+-}
+-
+-static ssize_t
+-ep_aio_read(struct kiocb *iocb, const struct iovec *iov,
+-		unsigned long nr_segs, loff_t o)
+-{
+-	struct ep_data		*epdata = iocb->ki_filp->private_data;
+-	char			*buf;
+-	size_t			len = iov_length(iov, nr_segs);
+-
+-	if (unlikely(epdata->desc.bEndpointAddress & USB_DIR_IN))
+-		return -EINVAL;
+-
+-	buf = kmalloc(len, GFP_KERNEL);
+-	if (unlikely(!buf))
+-		return -ENOMEM;
+-
+-	iocb->ki_retry = ep_aio_read_retry;
+-	return ep_aio_rwtail(iocb, buf, len, epdata, iov, nr_segs);
+-}
+-
+-static ssize_t
+-ep_aio_write(struct kiocb *iocb, const struct iovec *iov,
+-		unsigned long nr_segs, loff_t o)
+-{
+-	struct ep_data		*epdata = iocb->ki_filp->private_data;
+-	char			*buf;
+-	size_t			len = 0;
+-	int			i = 0;
+-
+-	if (unlikely(!(epdata->desc.bEndpointAddress & USB_DIR_IN)))
+-		return -EINVAL;
+-
+-	buf = kmalloc(iov_length(iov, nr_segs), GFP_KERNEL);
+-	if (unlikely(!buf))
+-		return -ENOMEM;
+-
+-	for (i=0; i < nr_segs; i++) {
+-		if (unlikely(copy_from_user(&buf[len], iov[i].iov_base,
+-				iov[i].iov_len) != 0)) {
+-			kfree(buf);
+-			return -EFAULT;
+-		}
+-		len += iov[i].iov_len;
+-	}
+-	return ep_aio_rwtail(iocb, buf, len, epdata, NULL, 0);
+-}
+-
+-/*----------------------------------------------------------------------*/
+-
+ /* used after endpoint configuration */
+ static const struct file_operations ep_io_operations = {
+ 	.owner =	THIS_MODULE,
+@@ -748,9 +536,6 @@ static const struct file_operations ep_i
+ 	.write =	ep_write,
+ 	.ioctl =	ep_ioctl,
+ 	.release =	ep_release,
+-
+-	.aio_read =	ep_aio_read,
+-	.aio_write =	ep_aio_write,
+ };
+ 
+ /* ENDPOINT INITIALIZATION

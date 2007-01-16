@@ -1,63 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751464AbXAPJtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932082AbXAPJxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbXAPJtr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 04:49:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbXAPJtr
+	id S932082AbXAPJxo (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 04:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbXAPJxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 04:49:47 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51022 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751464AbXAPJtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 04:49:46 -0500
-Date: Tue, 16 Jan 2007 10:44:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ulrich Drepper <drepper@redhat.com>, Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
-Message-ID: <20070116094450.GB11543@elte.hu>
-References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net>
-Mime-Version: 1.0
+	Tue, 16 Jan 2007 04:53:44 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:14365 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751468AbXAPJxn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 04:53:43 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:from;
+        b=So4GU7gW96Fkcf+j+/sfSjKJ+hHUT5eamh8uEi8kIVo42cfuoJD3hVQ4nrVW4EAx8iH8vZXpTonB4lawBgNR/EpKaktzIYAcNp60eP0WgwzFde5EvDYyZoFk8lu08tOZmNSRrMIoakINMiRXAuoyEDc1wmIwahEdKJIqZKPg7Fw=
+Date: Tue, 16 Jan 2007 11:53:19 +0200
+To: kkeil@suse.de, kai.germaschewski@gmx.de
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: [PATCH 2.6.20-rc5] isdn/capi: use ARRAY_SIZE when appropriate
+Message-ID: <20070116095319.GB718@Ahmed>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45AC8E2A.3060708@bull.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+A trivial patch to use ARRAY_SIZE macro defined in kernel.h instead
+of reimplementing it.
 
-> The modified hackbench is available here:
-> 
-> http://www.bullopensource.org/posix/pi-futex/hackbench_pth.c
+Signed-off-by: Ahmed S. Darwish <darwish.07@gmail.com>
+---
 
-cool!
+capi.c    |    4 ++--
+capidrv.c |    4 ++--
+2 files changed, 4 insertions(+), 4 deletions(-)
 
-> I've run this bench 1000 times with pipe and 800 groups.
-> Here are the results:
-> 
-> Test1 - with simple list (i.e. without any futex patches)
-> =========================================================
-> Latency (s)      min      max      avg      stddev
->                 26.67    27.89    27.14        0.19
+diff --git a/drivers/isdn/capi/capi.c b/drivers/isdn/capi/capi.c
+index d22c022..3804591 100644
+--- a/drivers/isdn/capi/capi.c
++++ b/drivers/isdn/capi/capi.c
+@@ -1456,7 +1456,7 @@ static struct procfsentries {
+ 
+ static void __init proc_init(void)
+ {
+-    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
++    int nelem = ARRAY_SIZE(procfsentries);
+     int i;
+ 
+     for (i=0; i < nelem; i++) {
+@@ -1468,7 +1468,7 @@ static void __init proc_init(void)
+ 
+ static void __exit proc_exit(void)
+ {
+-    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
++    int nelem = ARRAY_SIZE(procfsentries);
+     int i;
+ 
+     for (i=nelem-1; i >= 0; i--) {
+diff --git a/drivers/isdn/capi/capidrv.c b/drivers/isdn/capi/capidrv.c
+index c4d438c..8cec9c3 100644
+--- a/drivers/isdn/capi/capidrv.c
++++ b/drivers/isdn/capi/capidrv.c
+@@ -2218,7 +2218,7 @@ static struct procfsentries {
+ 
+ static void __init proc_init(void)
+ {
+-    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
++    int nelem = ARRAY_SIZE(procfsentries);
+     int i;
+ 
+     for (i=0; i < nelem; i++) {
+@@ -2230,7 +2230,7 @@ static void __init proc_init(void)
+ 
+ static void __exit proc_exit(void)
+ {
+-    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
++    int nelem = ARRAY_SIZE(procfsentries);
+     int i;
+ 
+     for (i=nelem-1; i >= 0; i--) {
 
-> Test2 - with plist (i.e. with only patch 1/4 as is)
->                 26.87    28.18    27.30        0.18
-
-> Test3 - with plist but all SHED_OTHER registered
->                 26.74    27.84    27.16        0.18
-
-ok, seems like the last one is the winner - it's the same as unmodified, 
-within noise.
-
-	Ingo
+-- 
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

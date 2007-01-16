@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751468AbXAPJ5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932118AbXAPKDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbXAPJ5p (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 04:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbXAPJ5p
+	id S932118AbXAPKDn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 05:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbXAPKDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 04:57:45 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:34918 "EHLO
-	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751468AbXAPJ5o (ORCPT
+	Tue, 16 Jan 2007 05:03:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:29706 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751212AbXAPKDm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 04:57:44 -0500
-Message-ID: <45ACA173.8000207@in.ibm.com>
-Date: Tue, 16 Jan 2007 15:27:07 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
+	Tue, 16 Jan 2007 05:03:42 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W92PxIi22O/4RNJIb1pvLlReJnVONCpu2IhsKBENP0qNdf+Xy95B3O/rg42llpsjGbMzdePpIu9egnB7bMmjD1Hxmc5S8lulAGksVNg1lzuEr5npFUJeT33yRv74EcZTg83zckKHWWmx6RR15/NFE1PWFZ7PCqvIkvQlNsJNjqs=
+Message-ID: <5a2cf1f60701160203j6dc5911fsddcb1e1babc6ae98@mail.gmail.com>
+Date: Tue, 16 Jan 2007 11:03:39 +0100
+From: "Jerome Lacoste" <jerome.lacoste@gmail.com>
+To: "Oliver Neukum" <oneukum@suse.de>
+Subject: Re: khubd taking 100% CPU after unproperly removing USB webcam
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200701161046.29262.oneukum@suse.de>
 MIME-Version: 1.0
-To: Roy Huang <royhuang9@gmail.com>
-CC: linux-kernel@vger.kernel.org, aubreylee@gmail.com, nickpiggin@yahoo.com.au,
-       torvalds@osdl.org
-Subject: Re: [PATCH] Provide an interface to limit total page cache.
-References: <afe668f90701150139q26e41720lf06d6ee445a917b0@mail.gmail.com> <661de9470701150301i7f315280p5ffa2b388e883f50@mail.gmail.com> <afe668f90701151834u13c75a88sa4592a4a9482d510@mail.gmail.com>
-In-Reply-To: <afe668f90701151834u13c75a88sa4592a4a9482d510@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5a2cf1f60701160110v68342cf5lbc364ffae568cd1@mail.gmail.com>
+	 <200701161046.29262.oneukum@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Huang wrote:
-> Hi Balbir,
-> 
-> Thanks for your comment.
-> 
-> On 1/15/07, Balbir Singh <balbir@in.ibm.com> wrote:
-> 
->> wakeup_kswapd and shrink_all_memory use swappiness to determine what to reclaim
->> (mapped pages or page cache).  This patch does not ensure that only
->> page cache is
->> reclaimed/limited. If the swappiness value is high, mapped pages will be hit.
->>
-> You are right, it is possible to release mapped pages. It can be
-> avoided by add a field in "struct scan_control" to determine whether
-> mapped pages will be released.
-> 
+On 1/16/07, Oliver Neukum <oneukum@suse.de> wrote:
+> Am Dienstag, 16. Januar 2007 10:10 schrieb Jerome Lacoste:
+> > Hi,
+> >
+> > I unplugged my (second) webcam, forgotting to stop ekiga, and khubd is
+> > now taking 100% CPU.
+> >
+> > - lsusb doesn't return
+> > - /etc/init.d/udev restart didn't resolve the problem.
+> >
+> > Is that a problem one may want to investigate or should I just forget
+> > about it (problem being cause by a user error)?
+>
+> If your are using this driver
+> http://mxhaard.free.fr/download.html
+>
+> then it appears that it most likely hanging here:
+>
+>         for (n = 0; n < SPCA50X_NUMFRAMES; n++)
+>                 if (waitqueue_active(&spca50x->frame[n].wq))
+>                         wake_up_interruptible(&spca50x->frame[n].wq);
+>         if (waitqueue_active(&spca50x->wq))
+>                 wake_up_interruptible(&spca50x->wq);
+>         gspca_kill_transfert(spca50x);
+>         PDEBUG(3, "Disconnect Kill isoc done");
+>         up(&spca50x->lock);
+>         while (spca50x->user)
+>                 schedule();
+>
+> This driver's disconnect handling is buggy. As this is an out of tree
+> driver, please contact the original author.
 
-Yes that could be done. I have been trying to figure out if there is a good
-reason why the LRU is common for both mapped and pagecache. Does it make
-sense to split them up? I am still digging through lkml archives to see
-if I can find something.
+OK thanks for your answer.
 
->> One could get similar functionality by implementing resource management.
->>
->> Resource  management splits tasks into groups and does management of
->> resources for the
->> groups rather than the whole system. Such a facility will come with a
->> resource controller for
->> memory (split into finer grain rss/page cache/mlock'ed memory, etc),
->> one for cpu, etc.
-> I s there any more information in detail about resource controller?
-> Even there is a resource controller for tasks, all memory is also
-> possbile to be eaten up by page cache.
+I also found out that ekiga was still running. I killed it and that
+stopped the hang.
 
-
-Yes, please see the discussions on lkml on resource management, ckrm,
-beancounters and containers.
-
-http://lwn.net/Articles/206697/ RFC for memory controller, might be a good
-starting point
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Jerome

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751877AbXAPXsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751946AbXAPX70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751877AbXAPXsd (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 18:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbXAPXsc
+	id S1751946AbXAPX70 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 18:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbXAPX70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 18:48:32 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:58098 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751877AbXAPXsb (ORCPT
+	Tue, 16 Jan 2007 18:59:26 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:44642 "EHLO
+	vms042pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751946AbXAPX7Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 18:48:31 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NtwjZeAMSF1cFb3x7t7IyDQmKAZEpezSvM0flpnIyVRfEjSeX5fQ91olJzLi9EHDRRKc/kmkHEBUjBhPkxJw38vV6NG4MtAYDaZyhGV39X11LRntaGJlf3+XDTcVMd+0fTTfH3Bd7s+IybkTcggf52twmOs04+rWX00L2CWO2p8=
-Message-ID: <2475a8740701161548v5758935dq51f1ed27a0c91d51@mail.gmail.com>
-Date: Tue, 16 Jan 2007 15:48:28 -0800
-From: "Sridhar Samudrala" <samudrala.sridhar@gmail.com>
-To: "bert hubert" <bert.hubert@netherlabs.nl>,
-       "Aurelien Jarno" <aurelien@aurel32.net>, linux-kernel@vger.kernel.org
-Subject: Re: IPv6 router advertisement broken on 2.6.20-rc5
-In-Reply-To: <20070116233053.GA667@outpost.ds9a.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45AD46DD.7050408@aurel32.net>
-	 <20070116233053.GA667@outpost.ds9a.nl>
+	Tue, 16 Jan 2007 18:59:25 -0500
+X-Greylist: delayed 3607 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 18:59:25 EST
+Date: Tue, 16 Jan 2007 17:59:15 -0500
+From: Eric Buddington <ebuddington@verizon.net>
+Subject: Re: 2.6.20-rc4-mm1 USB (asix) problem
+In-reply-to: <1168893137.19899.109.camel@dhollis-lnx.sunera.com>
+To: David Hollis <dhollis@davehollis.com>
+Cc: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
+Reply-to: ebuddington@wesleyan.edu
+Message-id: <20070116225909.GA6932@pool-71-123-123-29.spfdma.east.verizon.net>
+Organization: ECS Labs
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+References: <20070113203113.GB14587@pool-71-123-103-45.spfdma.east.verizon.net>
+ <1168889276.19899.105.camel@dhollis-lnx.sunera.com>
+ <20070115195024.GA8135@pool-71-123-103-45.spfdma.east.verizon.net>
+ <1168893137.19899.109.camel@dhollis-lnx.sunera.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Eric-conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the following patch
+On Mon, Jan 15, 2007 at 08:32:17PM +0000, David Hollis wrote:
+> Interesting.  It would really be something if your devices happen to
+> work better with 0.  Wouldn't make much sense at all unfortunately.  If
+> 0 works, could you also try setting it to 2 or 3?  The PHY select value
+> is a bit field with the 0 bit being to select the onboard PHY, and 1 bit
+> being to 'auto-select' the PHY based on link status.  The data sheet
+> indicates that 3 should be the default, but all of the literature I have
+> seen from ASIX says to write a 1 to it.
 
-[IPV6] MCAST: Fix joining all-node multicast group on device initialization.
-  http://www.spinics.net/lists/netdev/msg22663.html
+My hardware is ver. B1.
 
-that went in after 2.6.20-rc5 should fix this problem.
+0, 2, and 3 all worked for me. 1, as before, does not.
 
-Thanks
-Sridhar
+'rmmod asix' takes a really long time (45-80s) with any setting, and
+sometimes coincides with ksoftirqd pegging (99.9% CPU) for several
+seconds.
 
-On 1/16/07, bert hubert <bert.hubert@netherlabs.nl> wrote:
-> On Tue, Jan 16, 2007 at 10:42:53PM +0100, Aurelien Jarno wrote:
->
-> > I have just tried a 2.6.20-rc5 kernel (I previously used a 2.6.19 one),
-> > and I have noticed that the IPv6 router advertisement functionality is
->
-> Can you check if rc1, rc2, rc3 etc do work?
->
-> Thanks.
->
-> --
-> http://www.PowerDNS.com      Open source, database driven DNS Software
-> http://netherlabs.nl              Open and Closed source services
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-Eric

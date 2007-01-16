@@ -1,132 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751246AbXAPR4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751082AbXAPR63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbXAPR4f (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbXAPR4f
+	id S1751082AbXAPR63 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbXAPR63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:56:35 -0500
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:41892 "EHLO
-	tomts22-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751246AbXAPR4e (ORCPT
+	Tue, 16 Jan 2007 12:58:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44383 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751082AbXAPR62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 12:56:34 -0500
-Date: Tue, 16 Jan 2007 12:56:31 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       ltt-dev@shafik.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, systemtap@sources.redhat.com,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: [PATCH 2/2] lockdep reentrancy
-Message-ID: <20070116175631.GB16084@Krystal>
-References: <20061220235216.GA28643@Krystal> <OFAB3D8A6C.1643F2D3-ON80257262.000581E4-80257262.00088F04@uk.ibm.com>
+	Tue, 16 Jan 2007 12:58:28 -0500
+Subject: Re: allocation failed: out of vmalloc space error treating and
+	VIDEO1394 IOC LISTEN CHANNEL ioctl failed problem
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Moore <dcm@MIT.EDU>
+Cc: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@bitplanet.net>,
+       linux1394-devel@lists.sourceforge.net,
+       theSeinfeld@users.sourceforge.net, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org, libdc1394-devel@lists.sourceforge.net
+In-Reply-To: <1168924893.10136.52.camel@pisces.mit.edu>
+References: <mailman.59.1168027378.1221.libdc1394-devel@lists.sourceforge.net>
+	 <200701100023.39964.theSeinfeld@users.sf.net>
+	 <tkrat.c0a43c7c901c438c@s5r6.in-berlin.de>
+	 <1168802934.3123.1062.camel@laptopd505.fenrus.org> <45ABC1A2.90109@tmr.com>
+	 <1168885223.3122.304.camel@laptopd505.fenrus.org>
+	 <1168890881.10136.29.camel@pisces.mit.edu>
+	 <59ad55d30701151306q492e07aep9c640afd7b6c442f@mail.gmail.com>
+	 <1168896257.3122.577.camel@laptopd505.fenrus.org>
+	 <59ad55d30701151343r6f964475tae799185f05aa579@mail.gmail.com>
+	 <1168924893.10136.52.camel@pisces.mit.edu>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel International BV
+Date: Tue, 16 Jan 2007 09:58:04 -0800
+Message-Id: <1168970286.3049.129.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <OFAB3D8A6C.1643F2D3-ON80257262.000581E4-80257262.00088F04@uk.ibm.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 12:42:02 up 146 days, 14:49,  5 users,  load average: 0.48, 1.51, 2.20
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to lockdep.c so it behaves correctly when a kprobe breakpoint is
-put on a marker within hardirq tracing functions as long as the marker is within
-the lockdep_recursion incremented boundaries. It should apply on 
-2.6.20-rc4-git3.
+On Tue, 2007-01-16 at 00:21 -0500, David Moore wrote:
+> On Mon, 2007-01-15 at 16:43 -0500, Kristian Høgsberg wrote:
+> > On 1/15/07, Arjan van de Ven <arjan@infradead.org> wrote:
+> > > again the best way is for you to provide an mmap method... you can then
+> > > fill in the pages and keep that in some sort of array; this is for
+> > > example also what the DRI/DRM layer does for textures etc...
+> > 
+> > That sounds a lot like what I have now (mmap method, array of pages)
+> > so I'll just stick with that.
+> 
+> It sounds like the distinction Arjan is getting at is that the buffer
+> should exist in the process's virtual address space instead of the
+> kernel's virtual address space so that we have plenty of space available
+> to us.
 
-Mathieu
+exactly! and either way the user would need that space allocated ANYWAY.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+> 
+> Thus, we should use get_user_pages() instead of vmalloc().  I think
+> get_user_pages() will also automatically pin the memory. 
+
+actually if you provide the mmap method yourself you're not going to
+need get_user_pages(), because it's kernel allocated memory already!
 
 
-@@ -1841,33 +1843,36 @@ void trace_hardirqs_on(void)
- 	struct task_struct *curr = current;
- 	unsigned long ip;
- 
- 	if (unlikely(!debug_locks || current->lockdep_recursion))
- 		return;
- 
-+	current->lockdep_recursion++;
-+	barrier();
-+
- 	if (DEBUG_LOCKS_WARN_ON(unlikely(!early_boot_irqs_enabled)))
--		return;
-+		goto end;
- 
- 	if (unlikely(curr->hardirqs_enabled)) {
- 		debug_atomic_inc(&redundant_hardirqs_on);
--		return;
-+		goto end;
- 	}
- 	/* we'll do an OFF -> ON transition: */
- 	curr->hardirqs_enabled = 1;
- 	ip = (unsigned long) __builtin_return_address(0);
- 
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
--		return;
-+		goto end;
- 	if (DEBUG_LOCKS_WARN_ON(current->hardirq_context))
--		return;
-+		goto end;
- 	/*
- 	 * We are going to turn hardirqs on, so set the
- 	 * usage bit for all held locks:
- 	 */
- 	if (!mark_held_locks(curr, 1, ip))
--		return;
-+		goto end;
- 	/*
- 	 * If we have softirqs enabled, then set the usage
- 	 * bit for all held locks. (disabled hardirqs prevented
-@@ -1875,11 +1880,14 @@ void trace_hardirqs_on(void)
- 	 */
- 	if (curr->softirqs_enabled)
- 		if (!mark_held_locks(curr, 0, ip))
--			return;
-+			goto end;
- 
- 	curr->hardirq_enable_ip = ip;
- 	curr->hardirq_enable_event = ++curr->irq_events;
- 	debug_atomic_inc(&hardirqs_on_events);
-+end:
-+	barrier();
-+	current->lockdep_recursion--;
- }
- 
- EXPORT_SYMBOL(trace_hardirqs_on);
-@@ -1888,14 +1896,17 @@ void trace_hardirqs_off(void)
- {
- 	struct task_struct *curr = current;
- 
- 	if (unlikely(!debug_locks || current->lockdep_recursion))
- 		return;
- 
-+	current->lockdep_recursion++;
-+	barrier();
-+	
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
--		return;
-+		goto end;
- 
- 	if (curr->hardirqs_enabled) {
- 		/*
-@@ -1910,6 +1921,9 @@ void trace_hardirqs_off(void)
- 		debug_atomic_inc(&hardirqs_off_events);
- 	} else
- 		debug_atomic_inc(&redundant_hardirqs_off);
-+end:
-+	barrier();
-+	current->lockdep_recursion--;
- }
- 
- EXPORT_SYMBOL(trace_hardirqs_off);
+>  And we'll also
+> need to call get_user_pages() from a custom mmap() handler so that we
+> know what process virtual address to assign to the region.
 
+see above; it's one or the other. Personally I'd think the mmap method
+is simpler, because there's less conditions to consider (again, the
+malicious user passing you memory that is mmap'd PCI MMIO space is a
+"fun" example, but there's a lot more cafes which are... funky)
+
+Greetings,
+   Arjan van de Ven
 -- 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

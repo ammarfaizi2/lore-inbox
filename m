@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751608AbXAPQsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751617AbXAPQsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751608AbXAPQsJ (ORCPT <rfc822;w@1wt.eu>);
+	id S1751617AbXAPQsJ (ORCPT <rfc822;w@1wt.eu>);
 	Tue, 16 Jan 2007 11:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbXAPQr7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbXAPQsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:47:59 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38174 "EHLO
+	Tue, 16 Jan 2007 11:48:01 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38172 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585AbXAPQqd (ORCPT
+	with ESMTP id S1751355AbXAPQqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:46:33 -0500
+	Tue, 16 Jan 2007 11:46:31 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 18/59] sysctl: ipmi remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:23 -0700
-Message-Id: <1168965635875-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 26/59] sysctl: C99 convert arch/frv/kernel/sysctl.c
+Date: Tue, 16 Jan 2007 09:39:31 -0700
+Message-Id: <11689656454112-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,26 +37,60 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-With unique sysctl binary numbers setting insert_at_head is pointless.
-
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/char/ipmi/ipmi_poweroff.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/frv/kernel/sysctl.c |   29 ++++++++++++++++++++++++-----
+ 1 files changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_poweroff.c b/drivers/char/ipmi/ipmi_poweroff.c
-index 9d23136..b3ae65e 100644
---- a/drivers/char/ipmi/ipmi_poweroff.c
-+++ b/drivers/char/ipmi/ipmi_poweroff.c
-@@ -686,7 +686,7 @@ static int ipmi_poweroff_init (void)
- 		printk(KERN_INFO PFX "Power cycle is enabled.\n");
+diff --git a/arch/frv/kernel/sysctl.c b/arch/frv/kernel/sysctl.c
+index 37528eb..577ad16 100644
+--- a/arch/frv/kernel/sysctl.c
++++ b/arch/frv/kernel/sysctl.c
+@@ -175,11 +175,25 @@ static int procctl_frv_pin_cxnr(ctl_table *table, int write, struct file *filp,
+  */
+ static struct ctl_table frv_table[] =
+ {
+-	{ 1, "cache-mode",	NULL, 0, 0644, NULL, &procctl_frv_cachemode },
++	{
++		.ctl_name 	= 1,
++		.procname 	= "cache-mode",
++		.data		= NULL,
++		.maxlen		= 0,
++		.mode		= 0644,
++		.proc_handler	= &procctl_frv_cachemode,
++	},
+ #ifdef CONFIG_MMU
+-	{ 2, "pin-cxnr",	NULL, 0, 0644, NULL, &procctl_frv_pin_cxnr },
++	{
++		.ctl_name	= 2,
++		.procname	= "pin-cxnr",
++		.data		= NULL,
++		.maxlen		= 0,
++		.mode		= 0644,
++		.proc_handler	= &procctl_frv_pin_cxnr
++	},
+ #endif
+-	{ 0 }
++	{}
+ };
  
- #ifdef CONFIG_PROC_FS
--	ipmi_table_header = register_sysctl_table(ipmi_root_table, 1);
-+	ipmi_table_header = register_sysctl_table(ipmi_root_table, 0);
- 	if (!ipmi_table_header) {
- 		printk(KERN_ERR PFX "Unable to register powercycle sysctl\n");
- 		rv = -ENOMEM;
+ /*
+@@ -188,8 +202,13 @@ static struct ctl_table frv_table[] =
+  */
+ static struct ctl_table frv_dir_table[] =
+ {
+-	{CTL_FRV, "frv", NULL, 0, 0555, frv_table},
+-	{0}
++	{
++		.ctl_name	= CTL_FRV,
++		.procname	= "frv",
++		.mode 		= 0555,
++		.child		= frv_table
++	},
++	{}
+ };
+ 
+ /*
 -- 
 1.4.4.1.g278f
 

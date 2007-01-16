@@ -1,85 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932163AbXAPAiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932165AbXAPAkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbXAPAiS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 19:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbXAPAiS
+	id S932165AbXAPAkq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 19:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbXAPAkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 19:38:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15955 "EHLO virtualhost.dk"
+	Mon, 15 Jan 2007 19:40:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:15980 "EHLO virtualhost.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932163AbXAPAiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 19:38:17 -0500
-Date: Tue, 16 Jan 2007 11:38:54 +1100
+	id S932165AbXAPAkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 19:40:45 -0500
+Date: Tue, 16 Jan 2007 11:27:33 +1100
 From: Jens Axboe <jens.axboe@oracle.com>
-To: Ricardo Correia <rcorreia@wizy.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to flush the disk write cache from userspace
-Message-ID: <20070116003854.GE4067@kernel.dk>
-References: <200701140405.33748.rcorreia@wizy.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>, Chris Wright <chrisw@sous-sol.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <npiggin@suse.de>, Bino.Sebastian@Emulex.Com,
+       James.Smart@Emulex.Com, rlary@us.ibm.com, Laurie.Barry@Emulex.Com,
+       strosake@us.ibm.com, vaios.papadimitriou@Emulex.Com
+Subject: Re: [PATCH] adjust use of unplug in elevator code
+Message-ID: <20070116002733.GC4067@kernel.dk>
+References: <20070115215117.GD13157@austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200701140405.33748.rcorreia@wizy.org>
+In-Reply-To: <20070115215117.GD13157@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14 2007, Ricardo Correia wrote:
-> Hi, (please CC: to my email address, I'm not subscribed)
+On Mon, Jan 15 2007, Linas Vepstas wrote:
 > 
-> Quick question: how can I flush the disk write cache from userspace?
+> Hi Chris, Jens,
+> Can you look at this, and push upstream if this looks reasonable
+> to you? It fixes a bug I've been tripping over.
 > 
-> Long question:
+> --linas
 > 
-> I'm porting the Solaris ZFS filesystem to the FUSE/Linux filesystem
-> framework.  This is a copy-on-write, transactional filesystem and so
-> it needs to ensure correct ordering of writes when transactions are
-> written to disk.
 > 
-> At the moment, when transactions end, I'm using a fsync() on the block
-> device followed by a ioctl(BLKFLSBUF).
+> A flag was recently added to the elevator code to avoid
+> performing an unplug when reuests are being re-queued.
+> The goal of this flag was to avoid a deep recursion that
+> can occur when re-queueing requests after a SCSI device/host 
+> reset.  See http://lkml.org/lkml/2006/5/17/254
 > 
-> This is because, according to the fsync manpage, even after fsync()
-> returns, data might still be in the disk write cache, so fsync by
-> itself doesn't guarantee data safety on power failure.
-
-Depends. Only if the file system does the right thing here, iirc only
-reiserfs with barriers enabled issue a real disk flush for fsync. So you
-can't rely on it in general.
-
-> I was looking for something like the Solaris
-> ioctl(DKIOCFLUSHWRITECACHE), which does exactly what I need.
+> However, that fix added the flag near the bottom of a case
+> statement, where an earlier break (in an if statement) could
+> transport one out of the case, without setting the flag.
+> This patch sets the flag earlier in the case statement.
 > 
-> The most similar thing I could find was ioctl(BLKFLSBUF), however a
-> search for BLKFLSBUF on the Linux 2.6.15 source doesn't seem to return
-> anything related to IDE or SCSI disks.
+> I re-discovered the deep recursion recently during testing;
+> I was told that it was a known problem, and the fix to it was
+> in the kernel I was testing. Indeed it was ... but it didn't
+> fix the bug. With the patch below, I no longer see the bug.
 > 
-> Can I trust ioctl(BLKFLSBUF) to flush disks' write caches (for disks
-> that follow the specs)?
+> Signed-off by: Linas Vepstas <linas@austin.ibm.com>
+> Cc: Jens Axboe <axboe@suse.de>
+> Cc: Chris Wright <chrisw@sous-sol.org>
+> 
+> ----
+>  block/elevator.c |   11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> Index: linux-2.6.20-rc4/block/elevator.c
+> ===================================================================
+> --- linux-2.6.20-rc4.orig/block/elevator.c	2007-01-15 14:16:03.000000000 -0600
+> +++ linux-2.6.20-rc4/block/elevator.c	2007-01-15 14:20:04.000000000 -0600
+> @@ -590,6 +590,12 @@ void elv_insert(request_queue_t *q, stru
+>  		 */
+>  		rq->cmd_flags |= REQ_SOFTBARRIER;
+>  
+> +		/*
+> +		 * Most requeues happen because of a busy condition,
+> +		 * don't force unplug of the queue for that case.
+> +		 */
+> +		unplug_it = 0;
+> +
+>  		if (q->ordseq == 0) {
+>  			list_add(&rq->queuelist, &q->queue_head);
+>  			break;
+> @@ -604,11 +610,6 @@ void elv_insert(request_queue_t *q, stru
+>  		}
+>  
+>  		list_add_tail(&rq->queuelist, pos);
+> -		/*
+> -		 * most requeues happen because of a busy condition, don't
+> -		 * force unplug of the queue for that case.
+> -		 */
+> -		unplug_it = 0;
+>  		break;
 
-BLKFLSBUF doesn't flush the disk cache either, it just flushes
-every dirty page in the block device address space. It would not be very
-hard to do, basically we have most of the support code in place for this
-for IO barriers. Basically it would be something like:
+Ah, yes it definitely should be moved up, thanks for that!
 
-blockdev_cache_flush(bdev)
-{
-        request_queue_t *q = bdev_get_queue(bdev);
-        struct request *rq = blk_get_request(q, WRITE, GFP_WHATEVER);
-        int ret;
+Acked-by: Jens Axboe <jens.axboe@oracle.com>
 
-        ret = blk_execute_rq(q, bdev->bd_disk, rq, 0);
-        blk_put_request(rq);
-        return ret;
-}
-
-Somewhat simplified of course, but it should get the point across.
-Putting that in fs/buffer.c:sync_blockdev() would make BLKFLSBUF work.
-
-As always with these things, the devil is in the details. It requires
-the device to support a ->prepare_flush() queue hook, and not all
-devices do that. It will work for IDE/SATA/SCSI, though. In some devices
-you don't want/need to do a real disk flush, it depends on the write
-cache settings, battery backing, etc.
+I'll get this merged for 2.6.21.
 
 -- 
 Jens Axboe

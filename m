@@ -1,62 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751108AbXAPMs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751141AbXAPNFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbXAPMs2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 07:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbXAPMs2
+	id S1751141AbXAPNFq (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 08:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbXAPNFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 07:48:28 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:60774 "EHLO aun.it.uu.se"
+	Tue, 16 Jan 2007 08:05:46 -0500
+Received: from mx1.suse.de ([195.135.220.2]:56022 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751108AbXAPMs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 07:48:27 -0500
-Date: Tue, 16 Jan 2007 13:48:16 +0100 (MET)
-Message-Id: <200701161248.l0GCmG7O025771@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: giuliano.procida@googlemail.com, rgooch@atnf.csiro.au
-Subject: Re: [PATCH]: MTRR: fix 32-bit ioctls on x64_32
-Cc: linux-kernel@vger.kernel.org
+	id S1751141AbXAPNFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 08:05:45 -0500
+Date: Tue, 16 Jan 2007 14:05:44 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: "Ahmed S. Darwish" <darwish.07@gmail.com>
+Cc: kai.germaschewski@gmx.de, linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 2.6.20-rc5] isdn/capi: use ARRAY_SIZE when appropriate
+Message-ID: <20070116130544.GA18190@pingi.kke.suse.de>
+Mail-Followup-To: "Ahmed S. Darwish" <darwish.07@gmail.com>,
+	kai.germaschewski@gmx.de, linux-kernel@vger.kernel.org,
+	trivial@kernel.org
+References: <20070116095319.GB718@Ahmed>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070116095319.GB718@Ahmed>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2007 08:14:30 +0000, Giuliano Procida wrote:
-> [MTRR] fix 32-bit ioctls on x64_32
+On Tue, Jan 16, 2007 at 11:53:19AM +0200, Ahmed S. Darwish wrote:
+> Hi all,
 > 
-> Signed-off-by: Giuliano Procida <giuliano.procida@googlemail.com>
+> A trivial patch to use ARRAY_SIZE macro defined in kernel.h instead
+> of reimplementing it.
 > 
+> Signed-off-by: Ahmed S. Darwish <darwish.07@gmail.com>
+
+Acked-by: Karsten Keil <kkeil@suse.de>
+
 > ---
 > 
-> Fixed incomplete support for 32-bit compatibility ioctls in
-> 2.6.19.1. They were unhandled in one of three case-statements.
-> Testing using X server before and after change.
+> capi.c    |    4 ++--
+> capidrv.c |    4 ++--
+> 2 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> --- linux-source-2.6.19.1.orig/arch/i386/kernel/cpu/mtrr/if.c	2006-12-11 19:32:53.000000000 +0000
-> +++ linux-source-2.6.19.1/arch/i386/kernel/cpu/mtrr/if.c	2007-01-16 07:31:06.000000000 +0000
-> @@ -211,6 +211,9 @@ mtrr_ioctl(struct file *file, unsigned i
->  	default:
->  		return -ENOTTY;
->  	case MTRRIOC_ADD_ENTRY:
-> +#ifdef CONFIG_COMPAT
-> +	case MTRRIOC32_ADD_ENTRY:
-> +#endif
->  		if (!capable(CAP_SYS_ADMIN))
->  			return -EPERM;
->  		err =
-> @@ -218,21 +221,33 @@ mtrr_ioctl(struct file *file, unsigned i
->  				  file, 0);
->  		break;
->  	case MTRRIOC_SET_ENTRY:
-> +#ifdef CONFIG_COMPAT
-> +	case MTRRIOC32_SET_ENTRY:
-> +#endif
+> diff --git a/drivers/isdn/capi/capi.c b/drivers/isdn/capi/capi.c
+> index d22c022..3804591 100644
+> --- a/drivers/isdn/capi/capi.c
+> +++ b/drivers/isdn/capi/capi.c
+> @@ -1456,7 +1456,7 @@ static struct procfsentries {
+>  
+>  static void __init proc_init(void)
+>  {
+> -    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
+> +    int nelem = ARRAY_SIZE(procfsentries);
+>      int i;
+>  
+>      for (i=0; i < nelem; i++) {
+> @@ -1468,7 +1468,7 @@ static void __init proc_init(void)
+>  
+>  static void __exit proc_exit(void)
+>  {
+> -    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
+> +    int nelem = ARRAY_SIZE(procfsentries);
+>      int i;
+>  
+>      for (i=nelem-1; i >= 0; i--) {
+> diff --git a/drivers/isdn/capi/capidrv.c b/drivers/isdn/capi/capidrv.c
+> index c4d438c..8cec9c3 100644
+> --- a/drivers/isdn/capi/capidrv.c
+> +++ b/drivers/isdn/capi/capidrv.c
+> @@ -2218,7 +2218,7 @@ static struct procfsentries {
+>  
+>  static void __init proc_init(void)
+>  {
+> -    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
+> +    int nelem = ARRAY_SIZE(procfsentries);
+>      int i;
+>  
+>      for (i=0; i < nelem; i++) {
+> @@ -2230,7 +2230,7 @@ static void __init proc_init(void)
+>  
+>  static void __exit proc_exit(void)
+>  {
+> -    int nelem = sizeof(procfsentries)/sizeof(procfsentries[0]);
+> +    int nelem = ARRAY_SIZE(procfsentries);
+>      int i;
+>  
+>      for (i=nelem-1; i >= 0; i--) {
+> 
+> -- 
+> Ahmed S. Darwish
+> http://darwish-07.blogspot.com
 
-etc
-
-These #ifdefs are too ugly.
-
-Since you apparently just add aliases for the case labels,
-and do no actual code changes, why not
-1. make the new cases unconditional, or 
-2. invoke a translation function before the switch which
-   maps the MTRRCIOC32_ constants to what the kernel uses
-
-/Mikael
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

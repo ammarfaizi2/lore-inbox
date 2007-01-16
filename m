@@ -1,157 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750925AbXAPOxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751238AbXAPPPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbXAPOxU (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 09:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbXAPOxU
+	id S1751238AbXAPPPp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 10:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbXAPPPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 09:53:20 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:36431 "EHLO e2.ny.us.ibm.com"
+	Tue, 16 Jan 2007 10:15:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56996 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750925AbXAPOxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 09:53:19 -0500
-Date: Tue, 16 Jan 2007 08:53:12 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] user_ns: remove CONFIG_USER_NS
-Message-ID: <20070116145312.GB28253@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181257.GH11377@sergelap.austin.ibm.com> <20070111212039.68e57e65.akpm@osdl.org> <20070115072653.GA7385@sergelap.austin.ibm.com> <45AB97D5.6010503@fr.ibm.com> <20070115152825.GA20350@sergelap.austin.ibm.com> <45ABBB64.3060304@fr.ibm.com> <45ACB13F.4020607@fr.ibm.com>
+	id S1751238AbXAPPPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 10:15:44 -0500
+Message-ID: <45ACEBDF.60602@redhat.com>
+Date: Tue, 16 Jan 2007 07:14:39 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45ACB13F.4020607@fr.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+CC: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
+References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net>
+In-Reply-To: <45AC8E2A.3060708@bull.net>
+X-Enigmail-Version: 0.94.1.2.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBA9A568BF06096F3868F137E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Cedric Le Goater (clg@fr.ibm.com):
-> It doesn't look that useful anyway, it just deactivates the unshare
-> capability for the user namespace.
-> 
-> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBA9A568BF06096F3868F137E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Agreed on both this and CONFIG_UTS_NS.  (I haven't looked closely enough
-at the CONFIG_IPC_NS case yet)
+Pierre Peiffer wrote:
+> I've run this bench 1000 times with pipe and 800 groups.
+> Here are the results:
 
-Acked-by: Serge Hallyn <serue@us.ibm.com>
+This is not what I'm mostly concerned about.  The patches create a
+bottleneck since _all_ processes use the same resource.  Plus, this code
+has to be run on a machine with multiple processors to get RFOs into play=
+=2E
 
-thanks,
--serge
+So, please do this: on an SMP (4p or more) machine, rig the test so that
+it runs quite a while.  Then, in a script, start the program a bunch of
+times, all in parallel.  Have the script wait until all program runs are
+done and time the time until the last program finishes.
 
-> ---
->  include/linux/sched.h          |    9 ---------
->  include/linux/user_namespace.h |   33 ---------------------------------
->  init/Kconfig                   |    4 ----
->  kernel/user_namespace.c        |    3 ---
->  4 files changed, 49 deletions(-)
-> 
-> Index: 2.6.20-rc4-mm1/include/linux/sched.h
-> ===================================================================
-> --- 2.6.20-rc4-mm1.orig/include/linux/sched.h
-> +++ 2.6.20-rc4-mm1/include/linux/sched.h
-> @@ -1603,7 +1603,6 @@ extern int cond_resched(void);
->  extern int cond_resched_lock(spinlock_t * lock);
->  extern int cond_resched_softirq(void);
-> 
-> -#ifdef CONFIG_USER_NS
->  /*
->   * Check whether a task and a vfsmnt belong to the same uidns.
->   * Since the initial namespace is exempt from these checks,
-> @@ -1622,14 +1621,6 @@ static inline int task_mnt_same_uidns(st
->  		return 1;
->  	return 0;
->  }
-> -#else
-> -static inline int task_mnt_same_uidns(struct task_struct *tsk,
-> -					struct vfsmount *mnt)
-> -{
-> -	return 1;
-> -}
-> -#endif
-> -
-> 
->  /*
->   * Does a critical section need to be broken due to another
-> Index: 2.6.20-rc4-mm1/include/linux/user_namespace.h
-> ===================================================================
-> --- 2.6.20-rc4-mm1.orig/include/linux/user_namespace.h
-> +++ 2.6.20-rc4-mm1/include/linux/user_namespace.h
-> @@ -16,8 +16,6 @@ struct user_namespace {
-> 
->  extern struct user_namespace init_user_ns;
-> 
-> -#ifdef CONFIG_USER_NS
-> -
->  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
->  {
->  	if (ns)
-> @@ -45,35 +43,4 @@ static inline int clone_mnt_userns_permi
->  	return 1;
->  }
-> 
-> -#else
-> -
-> -static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-> -{
-> -	return NULL;
-> -}
-> -
-> -static inline int unshare_user_ns(unsigned long flags,
-> -			 struct user_namespace **new_user)
-> -{
-> -	if (flags & CLONE_NEWUSER)
-> -		return -EINVAL;
-> -
-> -	return 0;
-> -}
-> -
-> -static inline int copy_user_ns(int flags, struct task_struct *tsk)
-> -{
-> -	return 0;
-> -}
-> -
-> -static inline void put_user_ns(struct user_namespace *ns)
-> -{
-> -}
-> -
-> -static inline int clone_mnt_userns_permission(struct vfsmount *old)
-> -{
-> -	return 1;
-> -}
-> -#endif
-> -
->  #endif /* _LINUX_USER_H */
-> Index: 2.6.20-rc4-mm1/init/Kconfig
-> ===================================================================
-> --- 2.6.20-rc4-mm1.orig/init/Kconfig
-> +++ 2.6.20-rc4-mm1/init/Kconfig
-> @@ -222,10 +222,6 @@ config UTS_NS
->  	  vservers, to use uts namespaces to provide different
->  	  uts info for different servers.  If unsure, say N.
-> 
-> -config USER_NS
-> -	bool
-> -	default y
-> -
->  config AUDIT
->  	bool "Auditing support"
->  	depends on NET
-> Index: 2.6.20-rc4-mm1/kernel/user_namespace.c
-> ===================================================================
-> --- 2.6.20-rc4-mm1.orig/kernel/user_namespace.c
-> +++ 2.6.20-rc4-mm1/kernel/user_namespace.c
-> @@ -19,7 +19,6 @@ struct user_namespace init_user_ns = {
-> 
->  EXPORT_SYMBOL_GPL(init_user_ns);
-> 
-> -#ifdef CONFIG_USER_NS
->  /*
->   * Clone a new ns copying an original user ns, setting refcount to 1
->   * @old_ns: namespace to clone
-> @@ -110,5 +109,3 @@ void free_user_ns(struct kref *kref)
->  	ns = container_of(kref, struct user_namespace, kref);
->  	kfree(ns);
->  }
-> -
-> -#endif /* CONFIG_USER_NS */
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enigBA9A568BF06096F3868F137E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFrOvf2ijCOnn/RHQRArOMAKCZyFz6o28umdXWl0+hthdG4tjSdQCgnSHJ
+tpG2iLFITS52rEMwtoSwQ2w=
+=LVdC
+-----END PGP SIGNATURE-----
+
+--------------enigBA9A568BF06096F3868F137E--

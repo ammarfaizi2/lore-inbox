@@ -1,69 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751238AbXAPPPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751242AbXAPPQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbXAPPPp (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 10:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbXAPPPp
+	id S1751242AbXAPPQc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 10:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbXAPPQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 10:15:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56996 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751238AbXAPPPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 10:15:44 -0500
-Message-ID: <45ACEBDF.60602@redhat.com>
-Date: Tue, 16 Jan 2007 07:14:39 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Tue, 16 Jan 2007 10:16:31 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:2712 "EHLO
+	odyssey.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751242AbXAPPQa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 10:16:30 -0500
 MIME-Version: 1.0
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-CC: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH 2.6.20-rc4 0/4] futexes functionalities and improvements
-References: <45A3BFAC.1030700@bull.net> <45A67830.4050207@redhat.com> <20070111134615.34902742.akpm@osdl.org> <45A73E90.7050805@bull.net> <20070112075816.GA23341@elte.hu> <45AC8E2A.3060708@bull.net>
-In-Reply-To: <45AC8E2A.3060708@bull.net>
-X-Enigmail-Version: 0.94.1.2.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBA9A568BF06096F3868F137E"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 16 Jan 2007 15:16:26.0972 (UTC) FILETIME=[4AAC51C0:01C73981]
+Content-class: urn:content-classes:message
+Subject: Re: What does this scsi error mean ?
+Date: Tue, 16 Jan 2007 10:16:22 -0500
+Message-ID: <Pine.LNX.4.61.0701160959450.8079@chaos.analogic.com>
+In-Reply-To: <20070115214503.GA56952@dspnet.fr.eu.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: What does this scsi error mean ?
+Thread-Index: Acc5gUq1xmne+QdgRaq2DjXXnNxLog==
+References: <20070115171602.GA23661@dspnet.fr.eu.org> <20070115184540.2b3c4f78@localhost.localdomain> <20070115214503.GA56952@dspnet.fr.eu.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Olivier Galibert" <galibert@pobox.com>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBA9A568BF06096F3868F137E
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Pierre Peiffer wrote:
-> I've run this bench 1000 times with pipe and 800 groups.
-> Here are the results:
+On Mon, 15 Jan 2007, Olivier Galibert wrote:
 
-This is not what I'm mostly concerned about.  The patches create a
-bottleneck since _all_ processes use the same resource.  Plus, this code
-has to be run on a machine with multiple processors to get RFOs into play=
-=2E
+> On Mon, Jan 15, 2007 at 06:45:40PM +0000, Alan wrote:
+>> On Mon, 15 Jan 2007 18:16:02 +0100
+>> Olivier Galibert <galibert@pobox.com> wrote:
+>>
+>>> sd 0:0:0:0: SCSI error: return code = 0x08000002
+>>> sda: Current: sense key: Hardware Error
+>>>     ASC=0x42 ASCQ=0x0
+>>
+>> I'll give you a clue: The words "Hardware Error".
+>>
+>> Run a SCSI verify pass on the drive with some drive utilities and see
+>> what happens. If you are lucky it'll just reallocate blocks and decide
+>> the drive is ok, if not well see what the smart data thinks.
+>
+> Both smart and the internal blade diagnostics say "everything is a-ok
+> with the drive, there hasn't been any error ever except a bunch of
+> corrected ECC ones, and no more than with a similar drive in another
+> working blade".  Hence my initial post.  "Hardware error" is kinda
+> imprecise, so I was wondering whether it was unexpected controller
+> answer, detected transmission error, block write error, sector not
+> found...  Is there a way to have more information?
+>
+>  OG.
 
-So, please do this: on an SMP (4p or more) machine, rig the test so that
-it runs quite a while.  Then, in a script, start the program a bunch of
-times, all in parallel.  Have the script wait until all program runs are
-done and time the time until the last program finishes.
+Correctable SCSI errors show that the data in a sector was not properly
+read, but the device was able to fix the data error because of the
+redundancy in the CRC. The error could be permanently fixed is you
+rewrote the sector. You probably don't know where the bad sector is
+without adding a printk() to driver code. Some BIOS SCSI utilities
+(Adaptec) have the capability of reading an entire drive and fixing
+bad sectors either by rewrite or relocation. Since drives can be
+accessed as files, you could write a utility that opens the RAW
+device with in NOT mounted, reads a bunch of sectors, then writes
+them back. To do this, you need to verify that lseek() works on
+your particular drive because you need to write the data back to
+the same offset that you read it from. I mention this because
+the raw r/w of an early Adaptec (aha1542) driver, didn't impliment
+lseek, just returned 'okay'. You can imagine the mess I made of
+a drive with that controller!
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Once you verify that lseek works, the rest of the code is trivial.
+I suggest reading then writing 64 kilobytes at a time. It will seem
+to take 'forever', but the retries on these relatively short groups
+of sectors (128 sectors), will be short when errors are encountered.
 
+Make sure the drive is either not mounted or mounted r/o.
 
---------------enigBA9A568BF06096F3868F137E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.67 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-iD8DBQFFrOvf2ijCOnn/RHQRArOMAKCZyFz6o28umdXWl0+hthdG4tjSdQCgnSHJ
-tpG2iLFITS52rEMwtoSwQ2w=
-=LVdC
------END PGP SIGNATURE-----
-
---------------enigBA9A568BF06096F3868F137E--
+Thank you.

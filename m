@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751741AbXAPQuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751783AbXAPQu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbXAPQuc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbXAPQuL
+	id S1751783AbXAPQu6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbXAPQuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:50:11 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46024 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751619AbXAPQt4 (ORCPT
+	Tue, 16 Jan 2007 11:50:35 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:60412 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751725AbXAPQuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:49:56 -0500
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: "<Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
-       <netdev@vger.kernel.org>, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
-       minyard@acm.org, openipmi-developer@lists.sourceforge.net,
-       <tony.luck@intel.com>, linux-mips@linux-mips.org, ralf@linux-mips.org,
-       schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com,
-       linux-390@vm.marist.edu, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       lethal@linux-sh.org, linuxsh-shmedia-dev@lists.sourceforge.net,
-       <ak@suse.de>, vojtech@suse.cz, clemens@ladisch.de, a.zummo@towertech.it,
-       rtc-linux@googlegroups.com, linux-parport@lists.infradead.org,
-       andrea@suse.de, tim@cyberelk.net, philb@gnu.org, aharkes@cs.cmu.edu,
-       coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
-       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
-       kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 24/59] sysctl: frv remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:29 -0700
-Message-Id: <1168965642471-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.5.0.rc1.gb60d
-In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
+	Tue, 16 Jan 2007 11:50:08 -0500
+Date: Tue, 16 Jan 2007 11:50:07 -0500
+To: takada <takada@mbf.nifty.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fix typo in geode_configre()@cyrix.c
+Message-ID: <20070116165007.GZ17267@csclub.uwaterloo.ca>
+References: <20070109.184156.260789378.takada@mbf.nifty.com> <20070109173348.GF17269@csclub.uwaterloo.ca> <20070117.013835.51856830.takada@mbf.nifty.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070117.013835.51856830.takada@mbf.nifty.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
+On Wed, Jan 17, 2007 at 01:38:35AM +0900, takada wrote:
+> You are right. I agree to your comment. These variables are needless.
+> I made a patch again.
 
-Since the binary sysctl numbers are unique putting the registered
-sysctls at the head of the sysctl list where they can override
-existing sysctls serves no useful purpose.
+Of course there are also lots of "magic numbers" around, but I must
+admit I don't personally really feel like going through the data sheet
+and naming all of them.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/frv/kernel/sysctl.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> diff -Narup linux-2.6.19.orig/arch/i386/kernel/cpu/cyrix.c linux-2.6.19/arch/i386/kernel/cpu/cyrix.c
+> --- linux-2.6.19.orig/arch/i386/kernel/cpu/cyrix.c	2006-11-30 06:57:37.000000000 +0900
+> +++ linux-2.6.19/arch/i386/kernel/cpu/cyrix.c	2007-01-16 19:55:05.000000000 +0900
+> @@ -161,19 +161,15 @@ static void __cpuinit set_cx86_inc(void)
+>  static void __cpuinit geode_configure(void)
+>  {
+>  	unsigned long flags;
+> -	u8 ccr3, ccr4;
+>  	local_irq_save(flags);
+>  
+>  	/* Suspend on halt power saving and enable #SUSP pin */
+>  	setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x88);
+>  
+> -	ccr3 = getCx86(CX86_CCR3);
+> -	setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10);	/* Enable */
+> +	setCx86(CX86_CCR3, (getCx86(CX86_CCR3) & 0x0f) | 0x10);	/* Enable */
+>  	
+> -	ccr4 = getCx86(CX86_CCR4);
+> -	ccr4 |= 0x38;		/* FPU fast, DTE cache, Mem bypass */
+> -	
+> -	setCx86(CX86_CCR3, ccr3);
+> +	/* FPU fast, DTE cache, Mem bypass */
+> +	setCx86(CX86_CCR4, getCx86(CX86_CCR4) | 0x30);
+	
+Why did that change from 0x38 to 0x30?
 
-diff --git a/arch/frv/kernel/sysctl.c b/arch/frv/kernel/sysctl.c
-index 2f4da32..37528eb 100644
---- a/arch/frv/kernel/sysctl.c
-+++ b/arch/frv/kernel/sysctl.c
-@@ -197,7 +197,7 @@ static struct ctl_table frv_dir_table[] =
-  */
- static int __init frv_sysctl_init(void)
- {
--	register_sysctl_table(frv_dir_table, 1);
-+	register_sysctl_table(frv_dir_table, 0);
- 	return 0;
- }
- 
--- 
-1.4.4.1.g278f
+>  	set_cx86_memwb();
+>  	set_cx86_reorder();	
+> @@ -415,15 +411,14 @@ static void __cpuinit cyrix_identify(str
+>  		
+>     	        if (dir0 == 5 || dir0 == 3)
+>     	        {
+> -			unsigned char ccr3, ccr4;
+> +			unsigned char ccr3;
+>  			unsigned long flags;
+>  			printk(KERN_INFO "Enabling CPUID on Cyrix processor.\n");
+>  			local_irq_save(flags);
+>  			ccr3 = getCx86(CX86_CCR3);
+> -			setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10); /* enable MAPEN  */
+> -			ccr4 = getCx86(CX86_CCR4);
+> -			setCx86(CX86_CCR4, ccr4 | 0x80);          /* enable cpuid  */
+> -			setCx86(CX86_CCR3, ccr3);                 /* disable MAPEN */
+> +			setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10);      /* enable MAPEN  */
+> +			setCx86(CX86_CCR4, getCx86(CX86_CCR4) | 0x80); /* enable cpuid  */
+> +			setCx86(CX86_CCR3, ccr3);                      /* disable MAPEN */
+>  			local_irq_restore(flags);
+>  		}
+>  	}
 
+--
+Len Sorensen

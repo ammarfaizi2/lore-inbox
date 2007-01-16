@@ -1,13 +1,13 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751584AbXAPQ7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751545AbXAPQ7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751584AbXAPQ7M (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbXAPQ7E
+	id S1751545AbXAPQ7i (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbXAPQ7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:59:04 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37950 "EHLO
+	Tue, 16 Jan 2007 11:59:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37948 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751545AbXAPQok (ORCPT
+	with ESMTP id S1751427AbXAPQok (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 16 Jan 2007 11:44:40 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
@@ -26,37 +26,35 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 1/59] sysctl x25: Remove unnecessary insert_at_head from register_sysctl_table.
-Date: Tue, 16 Jan 2007 09:39:06 -0700
-Message-Id: <11689656044103-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 10/59] sysctl: dccp remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:15 -0700
+Message-Id: <1168965624939-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since x25 uses unique binary numbers inserting yourself at the
-head of the search list for sysctls so you can override already
-registered sysctls is pointless.
+From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- net/x25/sysctl_net_x25.c |    2 +-
+ net/dccp/sysctl.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/net/x25/sysctl_net_x25.c b/net/x25/sysctl_net_x25.c
-index aabda59..94aff67 100644
---- a/net/x25/sysctl_net_x25.c
-+++ b/net/x25/sysctl_net_x25.c
-@@ -98,7 +98,7 @@ static struct ctl_table x25_root_table[] = {
+diff --git a/net/dccp/sysctl.c b/net/dccp/sysctl.c
+index fdcfca3..3391631 100644
+--- a/net/dccp/sysctl.c
++++ b/net/dccp/sysctl.c
+@@ -127,7 +127,7 @@ static struct ctl_table_header *dccp_table_header;
  
- void __init x25_register_sysctl(void)
+ int __init dccp_sysctl_init(void)
  {
--	x25_table_header = register_sysctl_table(x25_root_table, 1);
-+	x25_table_header = register_sysctl_table(x25_root_table, 0);
- }
+-	dccp_table_header = register_sysctl_table(dccp_root_table, 1);
++	dccp_table_header = register_sysctl_table(dccp_root_table, 0);
  
- void x25_unregister_sysctl(void)
+ 	return dccp_table_header != NULL ? 0 : -ENOMEM;
+ }
 -- 
 1.4.4.1.g278f
 

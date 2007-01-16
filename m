@@ -1,122 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932254AbXAPCFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932289AbXAPCFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbXAPCFv (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 21:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbXAPCDn
+	id S932289AbXAPCFx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 21:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbXAPCFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 21:03:43 -0500
-Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:25129 "EHLO
-	ext.agami.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932228AbXAPCDc (ORCPT
+	Mon, 15 Jan 2007 21:05:51 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:46184 "EHLO
+	yue.st-paulia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932280AbXAPCFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 21:03:32 -0500
-X-Greylist: delayed 510 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 21:03:27 EST
-From: Nate Diller <nate@agami.com>
-To: Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Benjamin LaHaise <bcrl@kvack.org>,
-       Alexander Viro <viro@zeniv.linux.org.uk>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Kenneth W Chen <kenneth.w.chen@intel.com>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       netdev@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-aio@kvack.org,
-       xfs-masters@oss.sgi.com
-Date: Mon, 15 Jan 2007 17:54:50 -0800
-Message-Id: <20070116015450.9764.52713.patchbomb.py@nate-64.agami.com>
-In-Reply-To: <20070116015450.9764.37697.patchbomb.py@nate-64.agami.com>
-Subject: [PATCH -mm 3/10][RFC] aio: use iov_length instead of ki_left
-X-OriginalArrivalTime: 16 Jan 2007 01:55:06.0191 (UTC) FILETIME=[584B5DF0:01C73911]
+	Mon, 15 Jan 2007 21:05:30 -0500
+Date: Tue, 16 Jan 2007 11:06:30 +0900 (JST)
+Message-Id: <20070116.110630.60620489.yoshfuji@linux-ipv6.org>
+To: nix.or.die@googlemail.com, greg@kroah.com, stable@kernel.org
+Cc: davem@davemloft.net, dlstevens@us.ibm.com, dsd@gentoo.org,
+       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [stable] 2.6.19.2 regression introduced by "IPV4/IPV6: Fix
+ inet{, 6} device initialization order."
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <45AC3214.4080800@googlemail.com>
+References: <20070114.213008.74745274.davem@davemloft.net>
+	<20070115072554.GA16969@kroah.com>
+	<45AC3214.4080800@googlemail.com>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 3.3 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert code using iocb->ki_left to use the more generic iov_length() call. 
+In article <45AC3214.4080800@googlemail.com> (at Tue, 16 Jan 2007 03:01:56 +0100), Gabriel C <nix.or.die@googlemail.com> says:
 
----
+> Greg KH schrieb:
+> > On Sun, Jan 14, 2007 at 09:30:08PM -0800, David Miller wrote:
+> >   
+> >> From: David Stevens <dlstevens@us.ibm.com>
+> >> Date: Sun, 14 Jan 2007 19:47:49 -0800
+> >>
+> >>     
+> >>> I think it's better to add the fix than withdraw this patch, since
+> >>> the original bug is a crash.
+> >>>       
+> >> I completely agree.
+> >>     
+> >
+> > Great, can someone forward the patch to us?
+> >   
+> 
+> Should be the fix from http://bugzilla.kernel.org/show_bug.cgi?id=7817
 
-diff -urpN -X dontdiff a/fs/ocfs2/file.c b/fs/ocfs2/file.c
---- a/fs/ocfs2/file.c	2007-01-10 11:50:26.000000000 -0800
-+++ b/fs/ocfs2/file.c	2007-01-10 12:42:09.000000000 -0800
-@@ -1157,7 +1157,7 @@ static ssize_t ocfs2_file_aio_write(stru
- 		   filp->f_path.dentry->d_name.name);
- 
- 	/* happy write of zero bytes */
--	if (iocb->ki_left == 0)
-+	if (iov_length(iov, nr_segs) == 0)
- 		return 0;
- 
- 	mutex_lock(&inode->i_mutex);
-@@ -1177,7 +1177,7 @@ static ssize_t ocfs2_file_aio_write(stru
- 	}
- 
- 	ret = ocfs2_prepare_inode_for_write(filp->f_path.dentry, &iocb->ki_pos,
--					    iocb->ki_left, appending);
-+					iov_length(iov, nr_segs), appending);
- 	if (ret < 0) {
- 		mlog_errno(ret);
- 		goto out;
-diff -urpN -X dontdiff a/fs/smbfs/file.c b/fs/smbfs/file.c
---- a/fs/smbfs/file.c	2007-01-10 11:50:28.000000000 -0800
-+++ b/fs/smbfs/file.c	2007-01-10 12:42:09.000000000 -0800
-@@ -222,7 +222,7 @@ smb_file_aio_read(struct kiocb *iocb, co
- 	ssize_t	status;
- 
- 	VERBOSE("file %s/%s, count=%lu@%lu\n", DENTRY_PATH(dentry),
--		(unsigned long) iocb->ki_left, (unsigned long) pos);
-+		(unsigned long) iov_length(iov, nr_segs), (unsigned long) pos);
- 
- 	status = smb_revalidate_inode(dentry);
- 	if (status) {
-@@ -328,7 +328,7 @@ smb_file_aio_write(struct kiocb *iocb, c
- 
- 	VERBOSE("file %s/%s, count=%lu@%lu\n",
- 		DENTRY_PATH(dentry),
--		(unsigned long) iocb->ki_left, (unsigned long) pos);
-+		(unsigned long) iov_length(iov, nr_segs), (unsigned long) pos);
- 
- 	result = smb_revalidate_inode(dentry);
- 	if (result) {
-@@ -341,7 +341,7 @@ smb_file_aio_write(struct kiocb *iocb, c
- 	if (result)
- 		goto out;
- 
--	if (iocb->ki_left > 0) {
-+	if (iov_length(iov, nr_segs) > 0) {
- 		result = generic_file_aio_write(iocb, iov, nr_segs, pos);
- 		VERBOSE("pos=%ld, size=%ld, mtime=%ld, atime=%ld\n",
- 			(long) file->f_pos, (long) dentry->d_inode->i_size,
-diff -urpN -X dontdiff a/fs/udf/file.c b/fs/udf/file.c
---- a/fs/udf/file.c	2007-01-10 11:53:02.000000000 -0800
-+++ b/fs/udf/file.c	2007-01-10 12:42:09.000000000 -0800
-@@ -109,7 +109,7 @@ static ssize_t udf_file_aio_write(struct
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file->f_path.dentry->d_inode;
- 	int err, pos;
--	size_t count = iocb->ki_left;
-+	size_t count = iov_length(iov, nr_segs);
- 
- 	if (UDF_I_ALLOCTYPE(inode) == ICBTAG_FLAG_AD_IN_ICB)
- 	{
-diff -urpN -X dontdiff a/net/socket.c b/net/socket.c
---- a/net/socket.c	2007-01-10 12:40:54.000000000 -0800
-+++ b/net/socket.c	2007-01-10 12:42:09.000000000 -0800
-@@ -632,7 +632,7 @@ static ssize_t sock_aio_read(struct kioc
- 	if (pos != 0)
- 		return -ESPIPE;
- 
--	if (iocb->ki_left == 0)	/* Match SYS5 behaviour */
-+	if (iov_length(iov, nr_segs) == 0)	/* Match SYS5 behaviour */
- 		return 0;
- 
- 	for (i = 0; i < nr_segs; i++)
-@@ -660,7 +660,7 @@ static ssize_t sock_aio_write(struct kio
- 	if (pos != 0)
- 		return -ESPIPE;
- 
--	if (iocb->ki_left == 0)	/* Match SYS5 behaviour */
-+	if (iov_length(iov, nr_segs) == 0)	/* Match SYS5 behaviour */
- 		return 0;
- 
- 	for (i = 0; i < nr_segs; i++)
+I've resent the patch to <stable@kernel.org>.
+
+--yoshfuji

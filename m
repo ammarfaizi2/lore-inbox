@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751188AbXAPOX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751197AbXAPOYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbXAPOX4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 09:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbXAPOX4
+	id S1751197AbXAPOYn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 09:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbXAPOYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 09:23:56 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:46155 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751188AbXAPOXz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 09:23:55 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Tue, 16 Jan 2007 09:14:58 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: how exactly is the macro SPIN_LOCK_UNLOCKED going to be removed?
-Message-ID: <Pine.LNX.4.64.0701160906140.20489@CPE00045a9c397f-CM001225dbafb6>
+	Tue, 16 Jan 2007 09:24:43 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51082 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751197AbXAPOYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 09:24:42 -0500
+Date: Tue, 16 Jan 2007 15:24:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux usb mailing list 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: 2.6.20-rc5: usb mouse breaks suspend to ram
+Message-ID: <20070116142432.GA6171@elf.ucw.cz>
+References: <20070116135727.GA2831@elf.ucw.cz> <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, TW_RW 0.08)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-  (the following applies equally well to RW_LOCK_UNLOCKED.)
+> >I started using el-cheapo usb mouse... only to find out that it breaks
+> >suspend to RAM. Suspend-to-disk works okay. I was not able to extract
+> >any usefull messages...
+> >
+> >Resume process hangs; I can still switch console and even type on
+> >keyboard, but userland is dead, and I was not able to get magic sysrq
+> >to respond.
+> 
+> Are you using hid or usbmouse?
 
-according to Documentation/spinlocks.txt:
+I think it is hid:
 
-======================================
-Macros SPIN_LOCK_UNLOCKED and RW_LOCK_UNLOCKED are deprecated and will
-be removed soon. So for any new code dynamic initialization should be
-used:
+pavel@amd:/data/l/linux$ cat .config | grep MOUSE
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_USB_IDMOUSE is not set
+pavel@amd:/data/l/linux$ cat .config | grep HID
+CONFIG_BT_HIDP=y
+# HID Devices
+CONFIG_HID=y
+CONFIG_USB_HID=y
+# CONFIG_USB_HIDINPUT_POWERBOOK is not set
+# CONFIG_HID_FF is not set
+# CONFIG_USB_HIDDEV is not set
+# CONFIG_USB_PHIDGET is not set
+pavel@amd:/data/l/linux$
 
-   spinlock_t xxx_lock;
-   rwlock_t xxx_rw_lock;
-
-   static int __init xxx_init(void)
-   {
-        spin_lock_init(&xxx_lock);
-        rwlock_init(&xxx_rw_lock);
-        ...
-   }
-
-   module_init(xxx_init);
-...
-======================================
-
-  fair enough, i can see how *some* of that replacement is going to be
-done.  new spinlocks can be created based on the macro:
-
-#define DEFINE_SPINLOCK(x)      spinlock_t x = __SPIN_LOCK_UNLOCKED(x)
-
-  so i'm assuming that the underlying macro __SPIN_LOCK_UNLOCKED is
-sticking around.
-
-  also, since defining a spinlock that way requires a lock name,
-things like this:
-
-  ...
-  .lock           = SPIN_LOCK_UNLOCKED,
-  ...
-
-will have to be replaced with the form:
-
-  ...
-  .death_lock     = __SPIN_LOCK_UNLOCKED(tcp_death_row.death_lock)
-  ...
-
-is that correct so far?  but i'm not sure what's going to happen with
-stuff like this:
-
-  spinlock_t cris_atomic_locks[] =
-    { [0 ... LOCK_COUNT - 1] = SPIN_LOCK_UNLOCKED};
-
-what's the deal with *that*?  or am i misunderstanding this
-completely?
-
-rday
+Should I disable config_hid and try some other driver?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

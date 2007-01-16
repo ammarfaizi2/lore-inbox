@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752006AbXAQEOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752008AbXAQEQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752006AbXAQEOk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 23:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752010AbXAQEOk
+	id S1752008AbXAQEQ0 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 23:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbXAQEQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 23:14:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56295 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752008AbXAQEOj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 23:14:39 -0500
-Subject: Re: BUG: linux 2.6.19 unable to enable acpi
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
-References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 16 Jan 2007 20:14:48 -0800
-Message-Id: <1169007288.3457.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Tue, 16 Jan 2007 23:16:26 -0500
+Received: from mx1.suse.de ([195.135.220.2]:54772 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752009AbXAQEQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 23:16:25 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [RFC 5/8] Make writeout during reclaim cpuset aware
+Date: Wed, 17 Jan 2007 09:07:14 +1100
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, Paul Menage <menage@google.com>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Paul Jackson <pj@sgi.com>,
+       Dave Chinner <dgc@sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com> <20070116054809.15358.22246.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20070116054809.15358.22246.sendpatchset@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200701170907.14670.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-17 at 02:01 -0200, Matheus Izvekov wrote:
-> Just tried linux for the first time on this old machine, and i got
-> this problem. dmesg below:
+On Tuesday 16 January 2007 16:48, Christoph Lameter wrote:
+> Direct reclaim: cpuset aware writeout
+>
+> During direct reclaim we traverse down a zonelist and are carefully
+> checking each zone if its a member of the active cpuset. But then we call
+> pdflush without enforcing the same restrictions. In a larger system this
+> may have the effect of a massive amount of pages being dirtied and then
+> either
 
+Is there a reason this can't be just done by node, ignoring the cpusets? 
 
-did this machine EVER support acpi ?
+-Andi
 

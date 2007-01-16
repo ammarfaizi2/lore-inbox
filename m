@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751586AbXAPQr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751565AbXAPQr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbXAPQr0 (ORCPT <rfc822;w@1wt.eu>);
+	id S1751565AbXAPQr0 (ORCPT <rfc822;w@1wt.eu>);
 	Tue, 16 Jan 2007 11:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbXAPQqh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbXAPQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:46:37 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38162 "EHLO
+	Tue, 16 Jan 2007 11:46:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38154 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751586AbXAPQq1 (ORCPT
+	with ESMTP id S1751581AbXAPQqX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:46:27 -0500
+	Tue, 16 Jan 2007 11:46:23 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4/59] sysctl: sunrpc Don't unnecessarily set ctl_table->de
-Date: Tue, 16 Jan 2007 09:39:09 -0700
-Message-Id: <11689656151751-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 20/59] sysctl: cdrom Don't set de->owner
+Date: Tue, 16 Jan 2007 09:39:25 -0700
+Message-Id: <11689656373737-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,54 +37,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-We don't need this to prevent module unload races so remove
-the unnecessary code.
+There is no need for open files in /proc/sys/XXX to hold
+a reference count on the module that provides the file
+to prevent module unload races.  While there is code active
+in the module p->used in the sysctl_table_header is incremented,
+preventing the sysctl from being unregisted.  Once the
+sysctl is unregistered it cannot be found.  Open files
+are also not a problem as they revalidate the sysctl information
+and bump p->used before accessing module code.
+
+So setting de->owner is unnecessary, makes for a bad example
+and gets in my way of removing ctl_table->de.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- net/sunrpc/sysctl.c   |    8 +-------
- net/sunrpc/xprtsock.c |    7 +------
- 2 files changed, 2 insertions(+), 13 deletions(-)
+ drivers/cdrom/cdrom.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/sysctl.c b/net/sunrpc/sysctl.c
-index 3852689..6a82ed2 100644
---- a/net/sunrpc/sysctl.c
-+++ b/net/sunrpc/sysctl.c
-@@ -35,14 +35,8 @@ static ctl_table		sunrpc_table[];
- void
- rpc_register_sysctl(void)
- {
--	if (!sunrpc_table_header) {
-+	if (!sunrpc_table_header)
- 		sunrpc_table_header = register_sysctl_table(sunrpc_table, 0);
--#ifdef CONFIG_PROC_FS
--		if (sunrpc_table[0].de)
--			sunrpc_table[0].de->owner = THIS_MODULE;
--#endif
--	}
--			
- }
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index f0a6801..14f72c4 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -3554,8 +3554,6 @@ static void cdrom_sysctl_register(void)
+ 		return;
  
- void
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 98d1af9..51964cf 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1629,13 +1629,8 @@ struct rpc_xprt *xs_setup_tcp(struct sockaddr *addr, size_t addrlen, struct rpc_
- int init_socket_xprt(void)
- {
- #ifdef RPC_DEBUG
--	if (!sunrpc_table_header) {
-+	if (!sunrpc_table_header)
- 		sunrpc_table_header = register_sysctl_table(sunrpc_table, 0);
--#ifdef CONFIG_PROC_FS
--		if (sunrpc_table[0].de)
--			sunrpc_table[0].de->owner = THIS_MODULE;
--#endif
--	}
- #endif
+ 	cdrom_sysctl_header = register_sysctl_table(cdrom_root_table, 0);
+-	if (cdrom_root_table->ctl_name && cdrom_root_table->child->de)
+-		cdrom_root_table->child->de->owner = THIS_MODULE;
  
- 	return 0;
+ 	/* set the defaults */
+ 	cdrom_sysctl_settings.autoclose = autoclose;
 -- 
 1.4.4.1.g278f
 

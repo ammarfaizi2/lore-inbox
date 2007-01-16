@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751323AbXAPRC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751878AbXAPRDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbXAPRC4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbXAPRCz
+	id S1751878AbXAPRDa (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbXAPRDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:02:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37841 "EHLO
+	Tue, 16 Jan 2007 12:03:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37762 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751384AbXAPQoQ (ORCPT
+	with ESMTP id S1751325AbXAPQoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:16 -0500
+	Tue, 16 Jan 2007 11:44:04 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 38/59] sysctl: x86_64 Remove unnecessary use of insert_at_head
-Date: Tue, 16 Jan 2007 09:39:43 -0700
-Message-Id: <1168965663675-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 23/59] sysctl: Move CTL_FRV into sysctl.h where it belongs
+Date: Tue, 16 Jan 2007 09:39:28 -0700
+Message-Id: <1168965640807-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,41 +37,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-The only sysctl x86_64 provides are not provided elsewhere,
-so insert_at_head is unnecessary.
-
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/ia32/ia32_binfmt.c |    2 +-
- arch/x86_64/mm/init.c          |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/frv/kernel/sysctl.c |    1 -
+ include/linux/sysctl.h   |    1 +
+ 2 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86_64/ia32/ia32_binfmt.c b/arch/x86_64/ia32/ia32_binfmt.c
-index 543ef4f..75677ad 100644
---- a/arch/x86_64/ia32/ia32_binfmt.c
-+++ b/arch/x86_64/ia32/ia32_binfmt.c
-@@ -408,7 +408,7 @@ static ctl_table abi_root_table2[] = {
+diff --git a/arch/frv/kernel/sysctl.c b/arch/frv/kernel/sysctl.c
+index ce67680..2f4da32 100644
+--- a/arch/frv/kernel/sysctl.c
++++ b/arch/frv/kernel/sysctl.c
+@@ -186,7 +186,6 @@ static struct ctl_table frv_table[] =
+  * Use a temporary sysctl number. Horrid, but will be cleaned up in 2.6
+  * when all the PM interfaces exist nicely.
+  */
+-#define CTL_FRV 9898
+ static struct ctl_table frv_dir_table[] =
+ {
+ 	{CTL_FRV, "frv", NULL, 0, 0555, frv_table},
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index e7c40b6..71c16b4 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -72,6 +72,7 @@ enum
+ 	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
+ 	CTL_SUNRPC=7249,	/* sunrpc debug */
+ 	CTL_PM=9899,		/* frv power management */
++	CTL_FRV=9898,		/* frv specific sysctls */
+ };
  
- static __init int ia32_binfmt_init(void)
- { 
--	register_sysctl_table(abi_root_table2, 1);
-+	register_sysctl_table(abi_root_table2, 0);
- 	return 0;
- }
- __initcall(ia32_binfmt_init);
-diff --git a/arch/x86_64/mm/init.c b/arch/x86_64/mm/init.c
-index 2968b90..65aa66c 100644
---- a/arch/x86_64/mm/init.c
-+++ b/arch/x86_64/mm/init.c
-@@ -724,7 +724,7 @@ static ctl_table debug_root_table2[] = {
- 
- static __init int x8664_sysctl_init(void)
- { 
--	register_sysctl_table(debug_root_table2, 1);
-+	register_sysctl_table(debug_root_table2, 0);
- 	return 0;
- }
- __initcall(x8664_sysctl_init);
+ /* CTL_BUS names: */
 -- 
 1.4.4.1.g278f
 

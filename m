@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932257AbXAPCDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932312AbXAPCES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbXAPCDh (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 21:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbXAPCDf
+	id S932312AbXAPCES (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 21:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbXAPCEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 21:03:35 -0500
+	Mon, 15 Jan 2007 21:04:04 -0500
 Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:25129 "EHLO
 	ext.agami.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932224AbXAPCD3 (ORCPT
+	with ESMTP id S932254AbXAPCDg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 21:03:29 -0500
+	Mon, 15 Jan 2007 21:03:36 -0500
 X-Greylist: delayed 510 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 21:03:27 EST
 From: Nate Diller <nate@agami.com>
 To: Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
@@ -25,600 +25,431 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        netdev@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-aio@kvack.org,
        xfs-masters@oss.sgi.com
 Date: Mon, 15 Jan 2007 17:54:50 -0800
-Message-Id: <20070116015450.9764.34762.patchbomb.py@nate-64.agami.com>
+Message-Id: <20070116015450.9764.38389.patchbomb.py@nate-64.agami.com>
 In-Reply-To: <20070116015450.9764.37697.patchbomb.py@nate-64.agami.com>
-Subject: [PATCH -mm 1/10][RFC] aio: scm remove struct siocb
-X-OriginalArrivalTime: 16 Jan 2007 01:54:55.0956 (UTC) FILETIME=[5231A140:01C73911]
+Subject: [PATCH -mm 4/10][RFC] aio: convert aio_complete to file_endio_t
+X-OriginalArrivalTime: 16 Jan 2007 01:55:11.0286 (UTC) FILETIME=[5B54CD60:01C73911]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch removes struct sock_iocb
+Define a new function typedef for I/O completion at the file/iovec level --
 
-Its purpose seems to have dwindled to a mere container for struct
-scm_cookie, and all of the users of scm_cookie seem to require
-re-initializing it each time anyway.  Besides, keeping such data around from
-one call to the next seems to me like a layering violation, if not a bug,
-considering that the sync IO code can use this call path too.
+typedef void (file_endio_t)(void *endio_data, ssize_t count, int err);
 
-All scm_cookie users are converted to unconditionally allocate on the stack,
-and sock_iocb and all its helpers are removed.  This also simplifies the
-socket aio submission path (is that even used?)
+and convert aio_complete and all its callers to this new prototype.
 
 ---
 
- include/net/scm.h        |    2 
- include/net/sock.h       |   26 ---------
- net/netlink/af_netlink.c |   18 ++----
- net/socket.c             |  131 +++++++++++------------------------------------
- net/unix/af_unix.c       |   77 ++++++++++-----------------
- 5 files changed, 68 insertions(+), 186 deletions(-)
+ drivers/usb/gadget/inode.c |   24 +++++++-----------
+ fs/aio.c                   |   59 ++++++++++++++++++++++++---------------------
+ fs/block_dev.c             |    8 +-----
+ fs/direct-io.c             |   18 +++++--------
+ fs/nfs/direct.c            |    9 ++----
+ include/linux/aio.h        |   11 +++-----
+ include/linux/fs.h         |    2 +
+ 7 files changed, 61 insertions(+), 70 deletions(-)
 
 ---
 
-diff -urpN -X dontdiff a/include/net/scm.h b/include/net/scm.h
---- a/include/net/scm.h	2006-11-29 13:57:37.000000000 -0800
-+++ b/include/net/scm.h	2007-01-10 12:10:19.000000000 -0800
-@@ -23,7 +23,6 @@ struct scm_cookie
- #ifdef CONFIG_SECURITY_NETWORK
- 	u32			secid;		/* Passed security ID 	*/
- #endif
--	unsigned long		seq;		/* Connection seqno	*/
- };
+diff -urpN -X dontdiff a/drivers/usb/gadget/inode.c b/drivers/usb/gadget/inode.c
+--- a/drivers/usb/gadget/inode.c	2007-01-12 14:42:29.000000000 -0800
++++ b/drivers/usb/gadget/inode.c	2007-01-12 14:25:34.000000000 -0800
+@@ -559,35 +559,32 @@ static int ep_aio_cancel(struct kiocb *i
+ 	return value;
+ }
  
- extern void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm);
-@@ -56,7 +55,6 @@ static __inline__ int scm_send(struct so
- 	scm->creds.gid = p->gid;
- 	scm->creds.pid = p->tgid;
- 	scm->fp = NULL;
--	scm->seq = 0;
- 	unix_get_peersec_dgram(sock, scm);
- 	if (msg->msg_controllen <= 0)
- 		return 0;
-diff -urpN -X dontdiff a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h	2007-01-10 11:50:54.000000000 -0800
-+++ b/include/net/sock.h	2007-01-10 12:15:35.000000000 -0800
-@@ -75,10 +75,9 @@
-  * between user contexts and software interrupt processing, whereas the
-  * mini-semaphore synchronizes multiple users amongst themselves.
+-static ssize_t ep_aio_read_retry(struct kiocb *iocb)
++static int ep_aio_read_retry(struct kiocb *iocb)
+ {
+ 	struct kiocb_priv	*priv = iocb->private;
+-	ssize_t			len, total;
+-	int			i;
++	ssize_t			total;
++	int			i, err = 0;
+ 
+   	/* we "retry" to get the right mm context for this: */
+ 
+  	/* copy stuff into user buffers */
+  	total = priv->actual;
+- 	len = 0;
+  	for (i=0; i < priv->nr_segs; i++) {
+  		ssize_t this = min((ssize_t)(priv->iv[i].iov_len), total);
+ 
+  		if (copy_to_user(priv->iv[i].iov_base, priv->buf, this)) {
+- 			if (len == 0)
+- 				len = -EFAULT;
++ 			err = -EFAULT;
+  			break;
+  		}
+ 
+  		total -= this;
+- 		len += this;
+  		if (total == 0)
+  			break;
+  	}
+   	kfree(priv->buf);
+   	kfree(priv);
+   	aio_put_req(iocb);
+- 	return len;
++ 	return err;
+ }
+ 
+ static void ep_aio_complete(struct usb_ep *ep, struct usb_request *req)
+@@ -610,9 +607,7 @@ static void ep_aio_complete(struct usb_e
+ 		if (unlikely(kiocbIsCancelled(iocb)))
+ 			aio_put_req(iocb);
+ 		else
+-			aio_complete(iocb,
+-				req->actual ? req->actual : req->status,
+-				req->status);
++			aio_complete(iocb, req->actual, req->status);
+ 	} else {
+ 		/* retry() won't report both; so we hide some faults */
+ 		if (unlikely(0 != req->status))
+@@ -702,16 +697,17 @@ ep_aio_read(struct kiocb *iocb, const st
+ {
+ 	struct ep_data		*epdata = iocb->ki_filp->private_data;
+ 	char			*buf;
++	size_t			len = iov_length(iov, nr_segs);
+ 
+ 	if (unlikely(epdata->desc.bEndpointAddress & USB_DIR_IN))
+ 		return -EINVAL;
+ 
+-	buf = kmalloc(iocb->ki_left, GFP_KERNEL);
++	buf = kmalloc(len, GFP_KERNEL);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+ 
+ 	iocb->ki_retry = ep_aio_read_retry;
+-	return ep_aio_rwtail(iocb, buf, iocb->ki_left, epdata, iov, nr_segs);
++	return ep_aio_rwtail(iocb, buf, len, epdata, iov, nr_segs);
+ }
+ 
+ static ssize_t
+@@ -726,7 +722,7 @@ ep_aio_write(struct kiocb *iocb, const s
+ 	if (unlikely(!(epdata->desc.bEndpointAddress & USB_DIR_IN)))
+ 		return -EINVAL;
+ 
+-	buf = kmalloc(iocb->ki_left, GFP_KERNEL);
++	buf = kmalloc(iov_length(iov, nr_segs), GFP_KERNEL);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+ 
+diff -urpN -X dontdiff a/fs/aio.c b/fs/aio.c
+--- a/fs/aio.c	2007-01-12 14:42:29.000000000 -0800
++++ b/fs/aio.c	2007-01-12 14:29:20.000000000 -0800
+@@ -658,16 +658,16 @@ static inline int __queue_kicked_iocb(st
+  * simplifies the coding of individual aio operations as
+  * it avoids various potential races.
   */
--struct sock_iocb;
- typedef struct {
- 	spinlock_t		slock;
--	struct sock_iocb	*owner;
-+	void			*owner;
- 	wait_queue_head_t	wq;
+-static ssize_t aio_run_iocb(struct kiocb *iocb)
++static void aio_run_iocb(struct kiocb *iocb)
+ {
+ 	struct kioctx	*ctx = iocb->ki_ctx;
+-	ssize_t (*retry)(struct kiocb *);
++	int (*retry)(struct kiocb *);
+ 	wait_queue_t *io_wait = current->io_wait;
+-	ssize_t ret;
++	int err;
+ 
+ 	if (!(retry = iocb->ki_retry)) {
+ 		printk("aio_run_iocb: iocb->ki_retry = NULL\n");
+-		return 0;
++		return;
+ 	}
+ 
  	/*
- 	 * We express the mutex-alike socket_lock semantics
-@@ -656,29 +655,6 @@ static inline void __sk_prot_rehash(stru
- #define SOCK_BINDADDR_LOCK	4
- #define SOCK_BINDPORT_LOCK	8
+@@ -702,8 +702,8 @@ static ssize_t aio_run_iocb(struct kiocb
  
--/* sock_iocb: used to kick off async processing of socket ios */
--struct sock_iocb {
--	struct list_head	list;
--
--	int			flags;
--	int			size;
--	struct socket		*sock;
--	struct sock		*sk;
--	struct scm_cookie	*scm;
--	struct msghdr		*msg, async_msg;
--	struct kiocb		*kiocb;
--};
--
--static inline struct sock_iocb *kiocb_to_siocb(struct kiocb *iocb)
--{
--	return (struct sock_iocb *)iocb->private;
--}
--
--static inline struct kiocb *siocb_to_kiocb(struct sock_iocb *si)
--{
--	return si->kiocb;
--}
--
- struct socket_alloc {
- 	struct socket socket;
- 	struct inode vfs_inode;
-diff -urpN -X dontdiff a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
---- a/net/netlink/af_netlink.c	2007-01-10 11:53:12.000000000 -0800
-+++ b/net/netlink/af_netlink.c	2007-01-10 12:10:19.000000000 -0800
-@@ -1106,7 +1106,6 @@ static inline void netlink_rcv_wake(stru
- static int netlink_sendmsg(struct kiocb *kiocb, struct socket *sock,
- 			   struct msghdr *msg, size_t len)
- {
--	struct sock_iocb *siocb = kiocb_to_siocb(kiocb);
- 	struct sock *sk = sock->sk;
- 	struct netlink_sock *nlk = nlk_sk(sk);
- 	struct sockaddr_nl *addr=msg->msg_name;
-@@ -1119,9 +1118,7 @@ static int netlink_sendmsg(struct kiocb 
- 	if (msg->msg_flags&MSG_OOB)
- 		return -EOPNOTSUPP;
+ 	/* Quit retrying if the i/o has been cancelled */
+ 	if (kiocbIsCancelled(iocb)) {
+-		ret = -EINTR;
+-		aio_complete(iocb, ret, 0);
++		err = -EINTR;
++		aio_complete(iocb, iocb->ki_nbytes - iocb->ki_left, err);
+ 		/* must not access the iocb after this */
+ 		goto out;
+ 	}
+@@ -720,17 +720,17 @@ static ssize_t aio_run_iocb(struct kiocb
+ 	 */
+ 	BUG_ON(!is_sync_wait(current->io_wait));
+ 	current->io_wait = &iocb->ki_wait.wait;
+-	ret = retry(iocb);
++	err = retry(iocb);
+ 	current->io_wait = io_wait;
  
--	if (NULL == siocb->scm)
--		siocb->scm = &scm;
--	err = scm_send(sock, msg, siocb->scm);
-+	err = scm_send(sock, msg, &scm);
- 	if (err < 0)
- 		return err;
- 
-@@ -1155,7 +1152,7 @@ static int netlink_sendmsg(struct kiocb 
- 	NETLINK_CB(skb).dst_group = dst_group;
- 	NETLINK_CB(skb).loginuid = audit_get_loginuid(current->audit_context);
- 	selinux_get_task_sid(current, &(NETLINK_CB(skb).sid));
--	memcpy(NETLINK_CREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
-+	memcpy(NETLINK_CREDS(skb), &scm.creds, sizeof(struct ucred));
- 
- 	/* What can I do? Netlink is asynchronous, so that
- 	   we will have to save current capabilities to
-@@ -1189,7 +1186,6 @@ static int netlink_recvmsg(struct kiocb 
- 			   struct msghdr *msg, size_t len,
- 			   int flags)
- {
--	struct sock_iocb *siocb = kiocb_to_siocb(kiocb);
- 	struct scm_cookie scm;
- 	struct sock *sk = sock->sk;
- 	struct netlink_sock *nlk = nlk_sk(sk);
-@@ -1230,17 +1226,15 @@ static int netlink_recvmsg(struct kiocb 
- 	if (nlk->flags & NETLINK_RECV_PKTINFO)
- 		netlink_cmsg_recv_pktinfo(msg, skb);
- 
--	if (NULL == siocb->scm) {
--		memset(&scm, 0, sizeof(scm));
--		siocb->scm = &scm;
--	}
--	siocb->scm->creds = *NETLINK_CREDS(skb);
-+	memset(&scm, 0, sizeof(scm));
-+
-+	scm.creds = *NETLINK_CREDS(skb);
- 	skb_free_datagram(sk, skb);
- 
- 	if (nlk->cb && atomic_read(&sk->sk_rmem_alloc) <= sk->sk_rcvbuf / 2)
- 		netlink_dump(sk);
- 
--	scm_recv(sock, msg, siocb->scm, flags);
-+	scm_recv(sock, msg, &scm, flags);
- 
+-	if (ret != -EIOCBRETRY && ret != -EIOCBQUEUED) {
++	if (err != -EIOCBRETRY && err != -EIOCBQUEUED) {
+ 		BUG_ON(!list_empty(&iocb->ki_wait.wait.task_list));
+-		aio_complete(iocb, ret, 0);
++		aio_complete(iocb, iocb->ki_nbytes - iocb->ki_left, err);
+ 	}
  out:
- 	netlink_rcv_wake(sk);
-diff -urpN -X dontdiff a/net/socket.c b/net/socket.c
---- a/net/socket.c	2007-01-10 11:51:10.000000000 -0800
-+++ b/net/socket.c	2007-01-10 12:10:19.000000000 -0800
-@@ -551,14 +551,8 @@ void sock_release(struct socket *sock)
- static inline int __sock_sendmsg(struct kiocb *iocb, struct socket *sock,
- 				 struct msghdr *msg, size_t size)
- {
--	struct sock_iocb *si = kiocb_to_siocb(iocb);
- 	int err;
+ 	spin_lock_irq(&ctx->ctx_lock);
  
--	si->sock = sock;
--	si->scm = NULL;
--	si->msg = msg;
--	si->size = size;
--
- 	err = security_socket_sendmsg(sock, msg, size);
- 	if (err)
- 		return err;
-@@ -569,15 +563,9 @@ static inline int __sock_sendmsg(struct 
- int sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- {
- 	struct kiocb iocb;
--	struct sock_iocb siocb;
--	int ret;
- 
- 	init_sync_kiocb(&iocb, NULL);
--	iocb.private = &siocb;
--	ret = __sock_sendmsg(&iocb, sock, msg, size);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&iocb);
+-	if (-EIOCBRETRY == ret) {
++	if (-EIOCBRETRY == err) {
+ 		/*
+ 		 * OK, now that we are done with this iteration
+ 		 * and know that there is more left to go,
+@@ -754,7 +754,6 @@ out:
+ 			aio_queue_work(ctx);
+ 		}
+ 	}
 -	return ret;
-+	return __sock_sendmsg(&iocb, sock, msg, size);
- }
- 
- int kernel_sendmsg(struct socket *sock, struct msghdr *msg,
-@@ -602,13 +590,6 @@ static inline int __sock_recvmsg(struct 
- 				 struct msghdr *msg, size_t size, int flags)
- {
- 	int err;
--	struct sock_iocb *si = kiocb_to_siocb(iocb);
--
--	si->sock = sock;
--	si->scm = NULL;
--	si->msg = msg;
--	si->size = size;
--	si->flags = flags;
- 
- 	err = security_socket_recvmsg(sock, msg, size, flags);
- 	if (err)
-@@ -621,15 +602,9 @@ int sock_recvmsg(struct socket *sock, st
- 		 size_t size, int flags)
- {
- 	struct kiocb iocb;
--	struct sock_iocb siocb;
--	int ret;
- 
- 	init_sync_kiocb(&iocb, NULL);
--	iocb.private = &siocb;
--	ret = __sock_recvmsg(&iocb, sock, msg, size, flags);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&iocb);
--	return ret;
-+	return __sock_recvmsg(&iocb, sock, msg, size, flags);
- }
- 
- int kernel_recvmsg(struct socket *sock, struct msghdr *msg,
-@@ -649,11 +624,6 @@ int kernel_recvmsg(struct socket *sock, 
- 	return result;
- }
- 
--static void sock_aio_dtor(struct kiocb *iocb)
--{
--	kfree(iocb->private);
--}
--
- static ssize_t sock_sendpage(struct file *file, struct page *page,
- 			     int offset, size_t size, loff_t *ppos, int more)
- {
-@@ -669,47 +639,13 @@ static ssize_t sock_sendpage(struct file
- 	return sock->ops->sendpage(sock, page, offset, size, flags);
- }
- 
--static struct sock_iocb *alloc_sock_iocb(struct kiocb *iocb,
--					 struct sock_iocb *siocb)
--{
--	if (!is_sync_kiocb(iocb)) {
--		siocb = kmalloc(sizeof(*siocb), GFP_KERNEL);
--		if (!siocb)
--			return NULL;
--		iocb->ki_dtor = sock_aio_dtor;
--	}
--
--	siocb->kiocb = iocb;
--	iocb->private = siocb;
--	return siocb;
--}
--
--static ssize_t do_sock_read(struct msghdr *msg, struct kiocb *iocb,
--		struct file *file, const struct iovec *iov,
--		unsigned long nr_segs)
--{
--	struct socket *sock = file->private_data;
--	size_t size = 0;
--	int i;
--
--	for (i = 0; i < nr_segs; i++)
--		size += iov[i].iov_len;
--
--	msg->msg_name = NULL;
--	msg->msg_namelen = 0;
--	msg->msg_control = NULL;
--	msg->msg_controllen = 0;
--	msg->msg_iov = (struct iovec *)iov;
--	msg->msg_iovlen = nr_segs;
--	msg->msg_flags = (file->f_flags & O_NONBLOCK) ? MSG_DONTWAIT : 0;
--
--	return __sock_recvmsg(iocb, sock, msg, size, msg->msg_flags);
--}
--
- static ssize_t sock_aio_read(struct kiocb *iocb, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t pos)
- {
--	struct sock_iocb siocb, *x;
-+	struct msghdr msg;
-+	struct socket *sock = iocb->ki_filp->private_data;
-+	size_t size = 0;
-+	int i;
- 
- 	if (pos != 0)
- 		return -ESPIPE;
-@@ -717,41 +653,27 @@ static ssize_t sock_aio_read(struct kioc
- 	if (iocb->ki_left == 0)	/* Match SYS5 behaviour */
- 		return 0;
- 
--
--	x = alloc_sock_iocb(iocb, &siocb);
--	if (!x)
--		return -ENOMEM;
--	return do_sock_read(&x->async_msg, iocb, iocb->ki_filp, iov, nr_segs);
--}
--
--static ssize_t do_sock_write(struct msghdr *msg, struct kiocb *iocb,
--			struct file *file, const struct iovec *iov,
--			unsigned long nr_segs)
--{
--	struct socket *sock = file->private_data;
--	size_t size = 0;
--	int i;
--
- 	for (i = 0; i < nr_segs; i++)
- 		size += iov[i].iov_len;
- 
--	msg->msg_name = NULL;
--	msg->msg_namelen = 0;
--	msg->msg_control = NULL;
--	msg->msg_controllen = 0;
--	msg->msg_iov = (struct iovec *)iov;
--	msg->msg_iovlen = nr_segs;
--	msg->msg_flags = (file->f_flags & O_NONBLOCK) ? MSG_DONTWAIT : 0;
--	if (sock->type == SOCK_SEQPACKET)
--		msg->msg_flags |= MSG_EOR;
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_iov = (struct iovec *)iov;
-+	msg.msg_iovlen = nr_segs;
-+	msg.msg_flags = (iocb->ki_filp->f_flags & O_NONBLOCK) ? MSG_DONTWAIT : 0;
- 
--	return __sock_sendmsg(iocb, sock, msg, size);
-+	return __sock_recvmsg(iocb, sock, &msg, size, msg.msg_flags);
- }
- 
- static ssize_t sock_aio_write(struct kiocb *iocb, const struct iovec *iov,
- 			  unsigned long nr_segs, loff_t pos)
- {
--	struct sock_iocb siocb, *x;
-+	struct msghdr msg;
-+	struct socket *sock = iocb->ki_filp->private_data;
-+	size_t size = 0;
-+	int i;
- 
- 	if (pos != 0)
- 		return -ESPIPE;
-@@ -759,11 +681,20 @@ static ssize_t sock_aio_write(struct kio
- 	if (iocb->ki_left == 0)	/* Match SYS5 behaviour */
- 		return 0;
- 
--	x = alloc_sock_iocb(iocb, &siocb);
--	if (!x)
--		return -ENOMEM;
-+	for (i = 0; i < nr_segs; i++)
-+		size += iov[i].iov_len;
-+
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_iov = (struct iovec *)iov;
-+	msg.msg_iovlen = nr_segs;
-+	msg.msg_flags = (iocb->ki_filp->f_flags & O_NONBLOCK) ? MSG_DONTWAIT : 0;
-+	if (sock->type == SOCK_SEQPACKET)
-+		msg.msg_flags |= MSG_EOR;
- 
--	return do_sock_write(&x->async_msg, iocb, iocb->ki_filp, iov, nr_segs);
-+	return __sock_sendmsg(iocb, sock, &msg, size);
  }
  
  /*
-diff -urpN -X dontdiff a/net/unix/af_unix.c b/net/unix/af_unix.c
---- a/net/unix/af_unix.c	2007-01-10 11:51:11.000000000 -0800
-+++ b/net/unix/af_unix.c	2007-01-10 12:10:19.000000000 -0800
-@@ -1267,7 +1267,6 @@ static void unix_attach_fds(struct scm_c
- static int unix_dgram_sendmsg(struct kiocb *kiocb, struct socket *sock,
- 			      struct msghdr *msg, size_t len)
+@@ -918,19 +917,25 @@ EXPORT_SYMBOL(kick_iocb);
+ 
+ /* aio_complete
+  *	Called when the io request on the given iocb is complete.
+- *	Returns true if this is the last user of the request.  The 
++ *	Frees ioctx if this is the last user of the request.  The 
+  *	only other user of the request can be the cancellation code.
+  */
+-int fastcall aio_complete(struct kiocb *iocb, long res, long res2)
++void fastcall aio_complete(void *endio_data, ssize_t count, int err)
  {
--	struct sock_iocb *siocb = kiocb_to_siocb(kiocb);
- 	struct sock *sk = sock->sk;
- 	struct unix_sock *u = unix_sk(sk);
- 	struct sockaddr_un *sunaddr=msg->msg_name;
-@@ -1277,11 +1276,9 @@ static int unix_dgram_sendmsg(struct kio
- 	unsigned hash;
- 	struct sk_buff *skb;
- 	long timeo;
--	struct scm_cookie tmp_scm;
-+	struct scm_cookie scm;
++	struct kiocb *iocb = endio_data;
+ 	struct kioctx	*ctx = iocb->ki_ctx;
+ 	struct aio_ring_info	*info;
+ 	struct aio_ring	*ring;
+ 	struct io_event	*event;
+ 	unsigned long	flags;
+ 	unsigned long	tail;
++	long		result;
+ 	int		ret;
  
--	if (NULL == siocb->scm)
--		siocb->scm = &tmp_scm;
--	err = scm_send(sock, msg, siocb->scm);
-+	err = scm_send(sock, msg, &scm);
- 	if (err < 0)
- 		return err;
- 
-@@ -1314,10 +1311,10 @@ static int unix_dgram_sendmsg(struct kio
- 	if (skb==NULL)
- 		goto out;
- 
--	memcpy(UNIXCREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
--	if (siocb->scm->fp)
--		unix_attach_fds(siocb->scm, skb);
--	unix_get_secdata(siocb->scm, skb);
-+	memcpy(UNIXCREDS(skb), &scm.creds, sizeof(struct ucred));
-+	if (scm.fp)
-+		unix_attach_fds(&scm, skb);
-+	unix_get_secdata(&scm, skb);
- 
- 	skb->h.raw = skb->data;
- 	err = memcpy_fromiovec(skb_put(skb,len), msg->msg_iov, len);
-@@ -1401,7 +1398,7 @@ restart:
- 	unix_state_runlock(other);
- 	other->sk_data_ready(other, len);
- 	sock_put(other);
--	scm_destroy(siocb->scm);
-+	scm_destroy(&scm);
- 	return len;
- 
- out_unlock:
-@@ -1411,7 +1408,7 @@ out_free:
- out:
- 	if (other)
- 		sock_put(other);
--	scm_destroy(siocb->scm);
-+	scm_destroy(&scm);
- 	return err;
- }
- 
-@@ -1419,18 +1416,15 @@ out:
- static int unix_stream_sendmsg(struct kiocb *kiocb, struct socket *sock,
- 			       struct msghdr *msg, size_t len)
- {
--	struct sock_iocb *siocb = kiocb_to_siocb(kiocb);
- 	struct sock *sk = sock->sk;
- 	struct sock *other = NULL;
- 	struct sockaddr_un *sunaddr=msg->msg_name;
- 	int err,size;
- 	struct sk_buff *skb;
- 	int sent=0;
--	struct scm_cookie tmp_scm;
-+	struct scm_cookie scm;
- 
--	if (NULL == siocb->scm)
--		siocb->scm = &tmp_scm;
--	err = scm_send(sock, msg, siocb->scm);
-+	err = scm_send(sock, msg, &scm);
- 	if (err < 0)
- 		return err;
- 
-@@ -1486,9 +1480,9 @@ static int unix_stream_sendmsg(struct ki
- 		 */
- 		size = min_t(int, size, skb_tailroom(skb));
- 
--		memcpy(UNIXCREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
--		if (siocb->scm->fp)
--			unix_attach_fds(siocb->scm, skb);
-+		memcpy(UNIXCREDS(skb), &scm.creds, sizeof(struct ucred));
-+		if (scm.fp)
-+			unix_attach_fds(&scm, skb);
- 
- 		if ((err = memcpy_fromiovec(skb_put(skb,size), msg->msg_iov, size)) != 0) {
- 			kfree_skb(skb);
-@@ -1507,9 +1501,7 @@ static int unix_stream_sendmsg(struct ki
- 		sent+=size;
- 	}
- 
--	scm_destroy(siocb->scm);
--	siocb->scm = NULL;
--
-+	scm_destroy(&scm);
- 	return sent;
- 
- pipe_err_free:
-@@ -1520,8 +1512,7 @@ pipe_err:
- 		send_sig(SIGPIPE,current,0);
- 	err = -EPIPE;
- out_err:
--	scm_destroy(siocb->scm);
--	siocb->scm = NULL;
-+	scm_destroy(&scm);
- 	return sent ? : err;
- }
- 
-@@ -1559,8 +1550,7 @@ static int unix_dgram_recvmsg(struct kio
- 			      struct msghdr *msg, size_t size,
- 			      int flags)
- {
--	struct sock_iocb *siocb = kiocb_to_siocb(iocb);
--	struct scm_cookie tmp_scm;
-+	struct scm_cookie scm;
- 	struct sock *sk = sock->sk;
- 	struct unix_sock *u = unix_sk(sk);
- 	int noblock = flags & MSG_DONTWAIT;
-@@ -1593,17 +1583,14 @@ static int unix_dgram_recvmsg(struct kio
- 	if (err)
- 		goto out_free;
- 
--	if (!siocb->scm) {
--		siocb->scm = &tmp_scm;
--		memset(&tmp_scm, 0, sizeof(tmp_scm));
--	}
--	siocb->scm->creds = *UNIXCREDS(skb);
--	unix_set_secdata(siocb->scm, skb);
-+	memset(&scm, 0, sizeof(scm));
-+	scm.creds = *UNIXCREDS(skb);
-+	unix_set_secdata(&scm, skb);
- 
- 	if (!(flags & MSG_PEEK))
- 	{
- 		if (UNIXCB(skb).fp)
--			unix_detach_fds(siocb->scm, skb);
-+			unix_detach_fds(&scm, skb);
- 	}
- 	else 
- 	{
-@@ -1620,11 +1607,11 @@ static int unix_dgram_recvmsg(struct kio
- 		   
- 		*/
- 		if (UNIXCB(skb).fp)
--			siocb->scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
- 	}
- 	err = size;
- 
--	scm_recv(sock, msg, siocb->scm, flags);
-+	scm_recv(sock, msg, &scm, flags);
- 
- out_free:
- 	skb_free_datagram(sk,skb);
-@@ -1672,8 +1659,7 @@ static int unix_stream_recvmsg(struct ki
- 			       struct msghdr *msg, size_t size,
- 			       int flags)
- {
--	struct sock_iocb *siocb = kiocb_to_siocb(iocb);
--	struct scm_cookie tmp_scm;
-+	struct scm_cookie scm;
- 	struct sock *sk = sock->sk;
- 	struct unix_sock *u = unix_sk(sk);
- 	struct sockaddr_un *sunaddr=msg->msg_name;
-@@ -1700,10 +1686,7 @@ static int unix_stream_recvmsg(struct ki
- 	 * while sleeps in memcpy_tomsg
++	result = (long) err;
++	if (!result)
++		result = (long) count;
++
+ 	/*
+ 	 * Special case handling for sync iocbs:
+ 	 *  - events go directly into the iocb for fast handling
+@@ -940,10 +945,10 @@ int fastcall aio_complete(struct kiocb *
  	 */
+ 	if (is_sync_kiocb(iocb)) {
+ 		BUG_ON(iocb->ki_users != 1);
+-		iocb->ki_user_data = res;
++		iocb->ki_user_data = result;
+ 		iocb->ki_users = 0;
+ 		wake_up_process(iocb->ki_obj.tsk);
+-		return 1;
++		return;
+ 	}
  
--	if (!siocb->scm) {
--		siocb->scm = &tmp_scm;
--		memset(&tmp_scm, 0, sizeof(tmp_scm));
--	}
-+	memset(&scm, 0, sizeof(scm));
+ 	info = &ctx->ring_info;
+@@ -975,12 +980,12 @@ int fastcall aio_complete(struct kiocb *
  
- 	mutex_lock(&u->readlock);
+ 	event->obj = (u64)(unsigned long)iocb->ki_obj.user;
+ 	event->data = iocb->ki_user_data;
+-	event->res = res;
+-	event->res2 = res2;
++	event->res = result;
++	event->res2 = err;
  
-@@ -1743,13 +1726,13 @@ static int unix_stream_recvmsg(struct ki
+ 	dprintk("aio_complete: %p[%lu]: %p: %p %Lx %lx %lx\n",
+ 		ctx, tail, iocb, iocb->ki_obj.user, iocb->ki_user_data,
+-		res, res2);
++		result, err);
  
- 		if (check_creds) {
- 			/* Never glue messages from different writers */
--			if (memcmp(UNIXCREDS(skb), &siocb->scm->creds, sizeof(siocb->scm->creds)) != 0) {
-+			if (memcmp(UNIXCREDS(skb), &scm.creds, sizeof(scm.creds)) != 0) {
- 				skb_queue_head(&sk->sk_receive_queue, skb);
- 				break;
- 			}
- 		} else {
- 			/* Copy credentials */
--			siocb->scm->creds = *UNIXCREDS(skb);
-+			scm.creds = *UNIXCREDS(skb);
- 			check_creds = 1;
- 		}
+ 	/* after flagging the request as done, we
+ 	 * must never even look at it again
+@@ -1002,7 +1007,7 @@ put_rq:
+ 		wake_up(&ctx->wait);
  
-@@ -1776,7 +1759,7 @@ static int unix_stream_recvmsg(struct ki
- 			skb_pull(skb, chunk);
- 
- 			if (UNIXCB(skb).fp)
--				unix_detach_fds(siocb->scm, skb);
-+				unix_detach_fds(&scm, skb);
- 
- 			/* put the skb back if we didn't use it up.. */
- 			if (skb->len)
-@@ -1787,7 +1770,7 @@ static int unix_stream_recvmsg(struct ki
- 
- 			kfree_skb(skb);
- 
--			if (siocb->scm->fp)
-+			if (scm.fp)
- 				break;
- 		}
- 		else
-@@ -1795,7 +1778,7 @@ static int unix_stream_recvmsg(struct ki
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				siocb->scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
- 
- 			/* put message back and return */
- 			skb_queue_head(&sk->sk_receive_queue, skb);
-@@ -1804,7 +1787,7 @@ static int unix_stream_recvmsg(struct ki
- 	} while (size);
- 
- 	mutex_unlock(&u->readlock);
--	scm_recv(sock, msg, siocb->scm, flags);
-+	scm_recv(sock, msg, &scm, flags);
- out:
- 	return copied ? : err;
+ 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+-	return ret;
++	return;
  }
+ 
+ /* aio_read_evt
+@@ -1307,7 +1312,7 @@ static void aio_advance_iovec(struct kio
+ 	BUG_ON(ret > 0 && iocb->ki_left == 0);
+ }
+ 
+-static ssize_t aio_rw_vect_retry(struct kiocb *iocb)
++static int aio_rw_vect_retry(struct kiocb *iocb)
+ {
+ 	struct file *file = iocb->ki_filp;
+ 	struct address_space *mapping = file->f_mapping;
+@@ -1341,26 +1346,26 @@ static ssize_t aio_rw_vect_retry(struct 
+ 
+ 	/* This means we must have transferred all that we could */
+ 	/* No need to retry anymore */
+-	if ((ret == 0) || (iocb->ki_left == 0))
+-		ret = iocb->ki_nbytes - iocb->ki_left;
++	if (iocb->ki_left == 0)
++		ret = 0;
+ 
+-	return ret;
++	return (int) ret;
+ }
+ 
+-static ssize_t aio_fdsync(struct kiocb *iocb)
++static int aio_fdsync(struct kiocb *iocb)
+ {
+ 	struct file *file = iocb->ki_filp;
+-	ssize_t ret = -EINVAL;
++	int ret = -EINVAL;
+ 
+ 	if (file->f_op->aio_fsync)
+ 		ret = file->f_op->aio_fsync(iocb, 1);
+ 	return ret;
+ }
+ 
+-static ssize_t aio_fsync(struct kiocb *iocb)
++static int aio_fsync(struct kiocb *iocb)
+ {
+ 	struct file *file = iocb->ki_filp;
+-	ssize_t ret = -EINVAL;
++	int ret = -EINVAL;
+ 
+ 	if (file->f_op->aio_fsync)
+ 		ret = file->f_op->aio_fsync(iocb, 0);
+diff -urpN -X dontdiff a/fs/block_dev.c b/fs/block_dev.c
+--- a/fs/block_dev.c	2007-01-12 11:19:45.000000000 -0800
++++ b/fs/block_dev.c	2007-01-12 14:42:05.000000000 -0800
+@@ -147,12 +147,8 @@ static int blk_end_aio(struct bio *bio, 
+ 	if (error)
+ 		iocb->ki_nbytes = -EIO;
+ 
+-	if (atomic_dec_and_test(bio_count)) {
+-		if ((long)iocb->ki_nbytes < 0)
+-			aio_complete(iocb, iocb->ki_nbytes, 0);
+-		else
+-			aio_complete(iocb, iocb->ki_left, 0);
+-	}
++	if (atomic_dec_and_test(bio_count))
++		aio_complete(iocb, iocb->ki_left, iocb->ki_nbytes);
+ 
+ 	return 0;
+ }
+diff -urpN -X dontdiff a/fs/direct-io.c b/fs/direct-io.c
+--- a/fs/direct-io.c	2007-01-12 14:42:29.000000000 -0800
++++ b/fs/direct-io.c	2007-01-12 14:25:34.000000000 -0800
+@@ -224,8 +224,6 @@ static struct page *dio_get_page(struct 
+  */
+ static int dio_complete(struct dio *dio, loff_t offset, int ret)
+ {
+-	ssize_t transferred = 0;
+-
+ 	/*
+ 	 * AIO submission can race with bio completion to get here while
+ 	 * expecting to have the last io completed by bio completion.
+@@ -236,15 +234,13 @@ static int dio_complete(struct dio *dio,
+ 		ret = 0;
+ 
+ 	if (dio->result) {
+-		transferred = dio->result;
+-
+ 		/* Check for short read case */
+-		if ((dio->rw == READ) && ((offset + transferred) > dio->i_size))
+-			transferred = dio->i_size - offset;
++		if ((dio->rw == READ) && ((offset + dio->result) > dio->i_size))
++			dio->result = dio->i_size - offset;
+ 	}
+ 
+ 	if (dio->end_io && dio->result)
+-		dio->end_io(dio->iocb, offset, transferred,
++		dio->end_io(dio->iocb, offset, dio->result,
+ 			    dio->map_bh.b_private);
+ 	if (dio->lock_type == DIO_LOCKING)
+ 		/* lockdep: non-owner release */
+@@ -254,8 +250,6 @@ static int dio_complete(struct dio *dio,
+ 		ret = dio->page_errors;
+ 	if (ret == 0)
+ 		ret = dio->io_error;
+-	if (ret == 0)
+-		ret = transferred;
+ 
+ 	return ret;
+ }
+@@ -283,8 +277,8 @@ static int dio_bio_end_aio(struct bio *b
+ 	spin_unlock_irqrestore(&dio->bio_lock, flags);
+ 
+ 	if (remaining == 0) {
+-		int ret = dio_complete(dio, dio->iocb->ki_pos, 0);
+-		aio_complete(dio->iocb, ret, 0);
++		int err = dio_complete(dio, dio->iocb->ki_pos, 0);
++		aio_complete(dio->iocb, dio->result, err);
+ 		kfree(dio);
+ 	}
+ 
+@@ -1110,6 +1104,8 @@ direct_io_worker(int rw, struct kiocb *i
+ 	BUG_ON(!dio->is_async && ret2 != 0);
+ 	if (ret2 == 0) {
+ 		ret = dio_complete(dio, offset, ret);
++		if (ret == 0)
++			ret = dio->result;	/* bytes transferred */
+ 		kfree(dio);
+ 	} else
+ 		BUG_ON(ret != -EIOCBQUEUED);
+diff -urpN -X dontdiff a/fs/nfs/direct.c b/fs/nfs/direct.c
+--- a/fs/nfs/direct.c	2007-01-12 11:18:52.000000000 -0800
++++ b/fs/nfs/direct.c	2007-01-12 14:39:48.000000000 -0800
+@@ -200,12 +200,9 @@ out:
+  */
+ static void nfs_direct_complete(struct nfs_direct_req *dreq)
+ {
+-	if (dreq->iocb) {
+-		long res = (long) dreq->error;
+-		if (!res)
+-			res = (long) dreq->count;
+-		aio_complete(dreq->iocb, res, 0);
+-	}
++	if (dreq->iocb)
++		aio_complete(dreq->iocb, dreq->count, dreq->error);
++
+ 	complete_all(&dreq->completion);
+ 
+ 	kref_put(&dreq->kref, nfs_direct_req_release);
+diff -urpN -X dontdiff a/include/linux/aio.h b/include/linux/aio.h
+--- a/include/linux/aio.h	2007-01-12 14:42:29.000000000 -0800
++++ b/include/linux/aio.h	2007-01-12 14:25:34.000000000 -0800
+@@ -15,10 +15,9 @@
+ struct kioctx;
+ 
+ /* Notes on cancelling a kiocb:
+- *	If a kiocb is cancelled, aio_complete may return 0 to indicate 
+- *	that cancel has not yet disposed of the kiocb.  All cancel 
+- *	operations *must* call aio_put_req to dispose of the kiocb 
+- *	to guard against races with the completion code.
++ *	If a kiocb is cancelled, aio_complete may not yet have disposed of
++ *	the kiocb.  All cancel operations *must* call aio_put_req to dispose
++ *	of the kiocb to guard against races with the completion code.
+  */
+ #define KIOCB_C_CANCELLED	0x01
+ #define KIOCB_C_COMPLETE	0x02
+@@ -98,7 +97,7 @@ struct kiocb {
+ 	struct file		*ki_filp;
+ 	struct kioctx		*ki_ctx;	/* may be NULL for sync ops */
+ 	int			(*ki_cancel)(struct kiocb *, struct io_event *);
+-	ssize_t			(*ki_retry)(struct kiocb *);
++	int			(*ki_retry)(struct kiocb *);
+ 	void			(*ki_dtor)(struct kiocb *);
+ 
+ 	union {
+@@ -208,7 +207,7 @@ extern unsigned aio_max_size;
+ extern ssize_t FASTCALL(wait_on_sync_kiocb(struct kiocb *iocb));
+ extern int FASTCALL(aio_put_req(struct kiocb *iocb));
+ extern void FASTCALL(kick_iocb(struct kiocb *iocb));
+-extern int FASTCALL(aio_complete(struct kiocb *iocb, long res, long res2));
++extern void FASTCALL(aio_complete(void *endio_data, ssize_t count, int err));
+ extern void FASTCALL(__put_ioctx(struct kioctx *ctx));
+ struct mm_struct;
+ extern void FASTCALL(exit_aio(struct mm_struct *mm));
+diff -urpN -X dontdiff a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	2007-01-12 14:42:29.000000000 -0800
++++ b/include/linux/fs.h	2007-01-12 14:25:34.000000000 -0800
+@@ -1109,6 +1109,8 @@ typedef int (*read_actor_t)(read_descrip
+ #define HAVE_COMPAT_IOCTL 1
+ #define HAVE_UNLOCKED_IOCTL 1
+ 
++typedef void (file_endio_t)(void *endio_data, ssize_t count, int err);
++
+ /*
+  * NOTE:
+  * read, write, poll, fsync, readv, writev, unlocked_ioctl and compat_ioctl

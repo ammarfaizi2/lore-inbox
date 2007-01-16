@@ -1,59 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751678AbXAPWAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751677AbXAPWCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751678AbXAPWAn (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 17:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbXAPWAn
+	id S1751677AbXAPWCn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 17:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbXAPWCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 17:00:43 -0500
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:4542 "EHLO
-	HQEMGATE01.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751662AbXAPWAm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 17:00:42 -0500
-X-Greylist: delayed 300 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 17:00:42 EST
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 16 Jan 2007 17:02:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59143 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751677AbXAPWCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 17:02:42 -0500
+Message-ID: <45AD4B20.70507@redhat.com>
+Date: Tue, 16 Jan 2007 17:01:04 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
-Date: Tue, 16 Jan 2007 13:54:31 -0800
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B00E48D54B@hqemmail02.nvidia.com>
-In-Reply-To: <20070116203143.GA4213@tuatara.stupidest.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
-thread-index: Acc5rufLv1abkCjTT0eplUoc7NIjxwACYHzQ
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca> <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net> <45AC1AEB.60805@shaw.ca> <45ACD918.2040204@scientia.net> <45ACE07D.3050207@shaw.ca> <20070116180154.GA1335@tuatara.stupidest.org> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org>
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Chris Wedgwood" <cw@f00f.org>,
-       "Christoph Anton Mitterer" <calestyo@scientia.net>
-Cc: "Robert Hancock" <hancockr@shaw.ca>, <linux-kernel@vger.kernel.org>,
-       <knweiss@gmx.de>, <ak@suse.de>, <andersen@codepoet.org>,
-       <krader@us.ibm.com>, "Lonni Friedman" <lfriedman@nvidia.com>,
-       "Linux-Nforce-Bugs" <Linux-Nforce-Bugs@nvidia.com>
-X-OriginalArrivalTime: 16 Jan 2007 21:54:28.0841 (UTC) FILETIME=[E5605590:01C739B8]
+To: Eric Sandeen <sandeen@redhat.com>
+CC: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>, dmonakhov@sw.ru,
+       alex@clusterfs.com, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] return ENOENT from ext3_link when racing with unlink
+References: <45ABC572.2070206@redhat.com>
+In-Reply-To: <45ABC572.2070206@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd like to here from Andi how he feels about this?  It seems like a
-> somewhat drastic solution in some ways given a lot of hardware doesn't
-> seem to be affected (or maybe in those cases it's just really hard to
-> hit, I don't know).
-> 
-> > Well we can hope that Nvidia will find out more (though I'm not too
-> > optimistic).
-> 
-> Ideally someone from AMD needs to look into this, if some mainboards
-> really never see this problem, then why is that?  Is there errata that
-> some BIOS/mainboard vendors are dealing with that others are not?
+Eric Sandeen wrote:
+> An update from the earlier thread, [PATCH] [RFC] remove ext3 inode 
+> from orphan list when link and unlink race
+>
+> I think this is better than the original idea of trying to handle the 
+> race;
+> I've seen that the orphan inode list can get corrupted, but there may 
+> well
+> be other implications of the race which haven't yet been exposed.  I 
+> think
+> it's safer to simply return -ENOENT in this race window, and avoid other
+> potential problems.  Anything wrong with this?
+>
+> Thanks for the comments suggesting this approach in the prior thread.
+>
+> Thanks,
+>
+> -Eric
+>
+> ---
+>
+> Return -ENOENT from ext[34]_link if we've raced with unlink and
+> i_nlink is 0.  Doing otherwise has the potential to corrupt the
+> orphan inode list, because we'd wind up with an inode with a
+> non-zero link count on the list, and it will never get properly
+> cleaned up & removed from the orphan list before it is freed.
+>
+> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+>
+> Index: linux-2.6.19/fs/ext3/namei.c
+> ===================================================================
+> --- linux-2.6.19.orig/fs/ext3/namei.c
+> +++ linux-2.6.19/fs/ext3/namei.c
+> @@ -2191,6 +2191,8 @@ static int ext3_link (struct dentry * ol
+>
+>     if (inode->i_nlink >= EXT3_LINK_MAX)
+>         return -EMLINK;
+> +    if (inode->i_nlink == 0)
+> +        return -ENOENT;
+>
+> retry:
+>     handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS(dir->i_sb) +
+> Index: linux-2.6.19/fs/ext4/namei.c
+> ===================================================================
+> --- linux-2.6.19.orig/fs/ext4/namei.c
+> +++ linux-2.6.19/fs/ext4/namei.c
+> @@ -2189,6 +2189,8 @@ static int ext4_link (struct dentry * ol
+>
+>     if (inode->i_nlink >= EXT4_LINK_MAX)
+>         return -EMLINK;
+> +    if (inode->i_nlink == 0)
+> +        return -ENOENT;
+>
+> retry:
+>     handle = ext4_journal_start(dir, EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
+>
 
-NVIDIA and AMD are ivestigating this issue, we don't know what the
-problem is yet.
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+Just out of curosity, what keeps i_nlink from going to 0 immediately
+after the new test is executed?
+
+    Thanx...
+
+       ps

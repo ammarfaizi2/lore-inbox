@@ -1,76 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751042AbXAPL6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751059AbXAPMKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbXAPL6L (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 06:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbXAPL6L
+	id S1751059AbXAPMKn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 07:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbXAPMKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 06:58:11 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46044 "EHLO mx2.mail.elte.hu"
+	Tue, 16 Jan 2007 07:10:43 -0500
+Received: from doppler.zen.co.uk ([212.23.3.27]:55417 "EHLO doppler.zen.co.uk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751041AbXAPL6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 06:58:09 -0500
-Date: Tue, 16 Jan 2007 12:56:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Two 2.6.20-rc5-rt2 issues
-Message-ID: <20070116115638.GA6809@elte.hu>
-References: <5114.194.65.103.1.1168943363.squirrel@www.rncbc.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5114.194.65.103.1.1168943363.squirrel@www.rncbc.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S1751059AbXAPMKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 07:10:42 -0500
+X-Greylist: delayed 14290 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 07:10:42 EST
+From: Giuliano Procida <giuliano.procida@googlemail.com>
+Subject: [PATCH]: MTRR: fix 32-bit ioctls on x64_32
+To: rgooch@atnf.csiro.au
+CC: linux-kernel@vger.kernel.org, giuliano.procida@googlemail.com
+Message-Id: <E1H6jSg-0003zB-Ht@hilfy.n22.homeunix.net>
+Date: Tue, 16 Jan 2007 08:14:30 +0000
+X-Originating-Heisenberg-IP: [217.155.41.211]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[MTRR] fix 32-bit ioctls on x64_32
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+Signed-off-by: Giuliano Procida <giuliano.procida@googlemail.com>
 
-> First one is about building for UP (CONFIG_SMP not set) on my old P4 
-> laptop. As it seems, all my build attempts failed at the final link 
-> stage, with undefined references to paravirt_enable. After disabling 
-> CONFIG_PARAVIRT I get a similar failure, but this time for a couple 
-> kvm* symbols. [...]
+---
 
-ok, i think i have managed to fix both bugs. I have released -rt3, 
-please re-check whether it works any better. If it still doesnt then 
-please send me the exact .config that fails.
+Fixed incomplete support for 32-bit compatibility ioctls in
+2.6.19.1. They were unhandled in one of three case-statements.
+Testing using X server before and after change.
 
-> [...] I could only get a clean build when CONFIG_SMP is set, which is 
-> (IMHO) overkill for a machine which is neither HyperThread/SMT enabled 
-> nor multi-core. Its plain dead UP and it used to run PREEMPT_RT 
-> kernels for a long time now.
+--- linux-source-2.6.19.1.orig/arch/i386/kernel/cpu/mtrr/if.c	2006-12-11 19:32:53.000000000 +0000
++++ linux-source-2.6.19.1/arch/i386/kernel/cpu/mtrr/if.c	2007-01-16 07:31:06.000000000 +0000
+@@ -211,6 +211,9 @@ mtrr_ioctl(struct file *file, unsigned i
+ 	default:
+ 		return -ENOTTY;
+ 	case MTRRIOC_ADD_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_ADD_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err =
+@@ -218,21 +221,33 @@ mtrr_ioctl(struct file *file, unsigned i
+ 				  file, 0);
+ 		break;
+ 	case MTRRIOC_SET_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_SET_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_add(sentry.base, sentry.size, sentry.type, 0);
+ 		break;
+ 	case MTRRIOC_DEL_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_DEL_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_file_del(sentry.base, sentry.size, file, 0);
+ 		break;
+ 	case MTRRIOC_KILL_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_KILL_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_del(-1, sentry.base, sentry.size);
+ 		break;
+ 	case MTRRIOC_GET_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_GET_ENTRY:
++#endif
+ 		if (gentry.regnum >= num_var_ranges)
+ 			return -EINVAL;
+ 		mtrr_if->get(gentry.regnum, &gentry.base, &gentry.size, &type);
+@@ -249,6 +264,9 @@ mtrr_ioctl(struct file *file, unsigned i
+ 
+ 		break;
+ 	case MTRRIOC_ADD_PAGE_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_ADD_PAGE_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err =
+@@ -256,21 +274,33 @@ mtrr_ioctl(struct file *file, unsigned i
+ 				  file, 1);
+ 		break;
+ 	case MTRRIOC_SET_PAGE_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_SET_PAGE_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_add_page(sentry.base, sentry.size, sentry.type, 0);
+ 		break;
+ 	case MTRRIOC_DEL_PAGE_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_DEL_PAGE_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_file_del(sentry.base, sentry.size, file, 1);
+ 		break;
+ 	case MTRRIOC_KILL_PAGE_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_KILL_PAGE_ENTRY:
++#endif
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		err = mtrr_del_page(-1, sentry.base, sentry.size);
+ 		break;
+ 	case MTRRIOC_GET_PAGE_ENTRY:
++#ifdef CONFIG_COMPAT
++	case MTRRIOC32_GET_PAGE_ENTRY:
++#endif
+ 		if (gentry.regnum >= num_var_ranges)
+ 			return -EINVAL;
+ 		mtrr_if->get(gentry.regnum, &gentry.base, &gentry.size, &type);
 
-btw., latest SMP kernels (2.6.18 and later) "patch themselves back" to 
-UP instructions to a high degree if they run on a single CPU - that's 
-why for example Fedora uses only an SMP kernel these days. Running a 
-genuine UP kernel is still more efficient - but the difference shouldnt 
-be /that/ large anymore. (if someone would like to measure it that would 
-be interesting to see)
 
-> Second one is already about running SMP, on a Dual Core2 T7200, for 
-> which the build goes fine but run-time is haunted by a crippling BUG:
-
-> Call Trace:
->  [<c0102dad>] __switch_to+0xcc/0x176
->  [<c01185c8>] wake_up_process+0x19/0x1b
->  [<c01fe568>] acpi_ec_gpe_handler+0x1f/0x53
->  [<c01ec6c6>] acpi_ev_gpe_dispatch+0x64/0x163
->  [<c01eca06>] acpi_ev_gpe_detect+0x94/0xd7
-
-hm, this is a -rt specific thing that i hoped to have worked around but 
-apparently not. The ACPI code uses a waitqueue in its idle routine 
-(argh!) which cannot by done sanely on PREEMPT_RT. In -rt3 i've added a 
-more conservative (but still ugly and incorrect) hack - could you try 
-it, does -rt3 work any better?
-
-	Ingo

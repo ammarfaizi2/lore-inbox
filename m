@@ -1,244 +1,164 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750907AbXAPNj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750983AbXAPNu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbXAPNj4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 08:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbXAPNjz
+	id S1750983AbXAPNu2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 08:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbXAPNu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 08:39:55 -0500
-Received: from aurora.bayour.com ([212.214.70.50]:45341 "EHLO
-	aurora.bayour.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750842AbXAPNjz (ORCPT
+	Tue, 16 Jan 2007 08:50:28 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:26390 "EHLO
+	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750983AbXAPNu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 08:39:55 -0500
-X-Greylist: delayed 912 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 08:39:53 EST
-To: linux-kernel@vger.kernel.org
-Subject: Weird harddisk behaviour
-X-PGP-Fingerprint: B7 92 93 0E 06 94 D6 22  98 1F 0B 5B FE 33 A1 0B
-X-PGP-Key-ID: 0x788CD1A9
-X-URL: http://www.bayour.com/
-From: Turbo Fredriksson <turbo@bayour.com>
-Organization: Bah!
-Date: Tue, 16 Jan 2007 14:27:06 +0100
-Message-ID: <87bqkzp0et.fsf@pumba.bayour.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/20.7 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 16 Jan 2007 08:50:27 -0500
+Subject: Re: [PATCH 9/9] net: vm deadlock avoidance core
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
+       David Miller <davem@davemloft.net>
+In-Reply-To: <20070116132503.GA23144@2ka.mipt.ru>
+References: <20070116094557.494892000@taijtu.programming.kicks-ass.net>
+	 <20070116101816.115266000@taijtu.programming.kicks-ass.net>
+	 <20070116132503.GA23144@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Tue, 16 Jan 2007 14:47:54 +0100
+Message-Id: <1168955274.22935.47.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of weeks ago my 400Gb SATA disk crashed. I just
-got the replacement, but I can't seem to be able to create
-a filesystem on it!
+On Tue, 2007-01-16 at 16:25 +0300, Evgeniy Polyakov wrote:
+> On Tue, Jan 16, 2007 at 10:46:06AM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
 
-This is a PPC (Pegasos), running 2.6.15-27-powerpc (Ubuntu Dapper v2.6.15-27.50).
+> > @@ -1767,10 +1767,23 @@ int netif_receive_skb(struct sk_buff *sk
+> >  	struct net_device *orig_dev;
+> >  	int ret = NET_RX_DROP;
+> >  	__be16 type;
+> > +	unsigned long pflags = current->flags;
+> > +
+> > +	/* Emergency skb are special, they should
+> > +	 *  - be delivered to SOCK_VMIO sockets only
+> > +	 *  - stay away from userspace
+> > +	 *  - have bounded memory usage
+> > +	 *
+> > +	 * Use PF_MEMALLOC as a poor mans memory pool - the grouping kind.
+> > +	 * This saves us from propagating the allocation context down to all
+> > +	 * allocation sites.
+> > +	 */
+> > +	if (unlikely(skb->emergency))
+> > +		current->flags |= PF_MEMALLOC;
+> 
+> Access to 'current' in netif_receive_skb()???
+> Why do you want to work with, for example keventd?
 
------ s n i p -----
-root@pegasos:~# cfdisk -P s /dev/sda
-Partition Table for /dev/sda
+Can this run in keventd?
 
-               First       Last
- # Type       Sector      Sector   Offset    Length   Filesystem Type (ID) Flag
--- ------- ----------- ----------- ------ ----------- -------------------- ----
- 1 Primary           0   781417664     63   781417665 Linux raid auto (FD) None
-root@pegasos:~# cfdisk -P s /dev/sdb
-Partition Table for /dev/sdb
+I thought this was softirq context and thus this would either run in a
+borrowed context or in ksoftirqd. See patch 3/9.
 
-               First       Last
- # Type       Sector      Sector   Offset    Length   Filesystem Type (ID) Flag
--- ------- ----------- ----------- ------ ----------- -------------------- ----
- 1 Primary           0   781417664     63   781417665 Linux raid auto (FD) None
-root@pegasos:~# mke2fs -v -j /dev/sdb1
-mke2fs 1.38 (30-Jun-2005)
-Filesystem label=
-OS type: Linux
-Block size=4096 (log=2)
-Fragment size=4096 (log=2)
-48840704 inodes, 97677200 blocks
-4883860 blocks (5.00%) reserved for the super user
-First data block=0
-2981 block groups
-32768 blocks per group, 32768 fragments per group
-16384 inodes per group
-Superblock backups stored on blocks:
-        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
-        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968
+> > @@ -1798,6 +1811,8 @@ int netif_receive_skb(struct sk_buff *sk
+> >  		goto ncls;
+> >  	}
+> >  #endif
+> > +	if (unlikely(skb->emergency))
+> > +		goto skip_taps;
+> >  
+> >  	list_for_each_entry_rcu(ptype, &ptype_all, list) {
+> >  		if (!ptype->dev || ptype->dev == skb->dev) {
+> > @@ -1807,6 +1822,7 @@ int netif_receive_skb(struct sk_buff *sk
+> >  		}
+> >  	}
+> >  
+> > +skip_taps:
+> 
+> It is still a 'tap'.
 
-Writing inode tables: done
-Creating journal (32768 blocks): done
-Writing superblocks and filesystem accounting information: done
+Not sure what you are saying, I thought this should stop delivery of
+skbs to taps?
 
-This filesystem will be automatically checked every 36 mounts or
-180 days, whichever comes first.  Use tune2fs -c or -i to override.
-root@pegasos:~# e2fsck /dev/sdb1
-e2fsck 1.38 (30-Jun-2005)
-e2fsck: Filesystem revision too high while trying to open /dev/sdb1
-The filesystem revision is apparently too high for this version of e2fsck.
-(Or the filesystem superblock is corrupt)
+> >  #ifdef CONFIG_NET_CLS_ACT
+> >  	if (pt_prev) {
+> >  		ret = deliver_skb(skb, pt_prev, orig_dev);
+> > @@ -1819,15 +1835,26 @@ int netif_receive_skb(struct sk_buff *sk
+> >  
+> >  	if (ret == TC_ACT_SHOT || (ret == TC_ACT_STOLEN)) {
+> >  		kfree_skb(skb);
+> > -		goto out;
+> > +		goto unlock;
+> >  	}
+> >  
+> >  	skb->tc_verd = 0;
+> >  ncls:
+> >  #endif
+> >  
+> > +	if (unlikely(skb->emergency))
+> > +		switch(skb->protocol) {
+> > +			case __constant_htons(ETH_P_ARP):
+> > +			case __constant_htons(ETH_P_IP):
+> > +			case __constant_htons(ETH_P_IPV6):
+> > +				break;
+> 
+> Poor vlans and appletalk.
 
+Yeah and all those other too, maybe some day.
 
-The superblock could not be read or does not describe a correct ext2
-filesystem.  If the device is valid and it really contains an ext2
-filesystem (and not swap or ufs or something else), then the superblock
-is corrupt, and you might try running e2fsck with an alternate superblock:
-    e2fsck -b 8193 <device>
+> > Index: linux-2.6-git/net/ipv4/tcp_ipv4.c
+> > ===================================================================
+> > --- linux-2.6-git.orig/net/ipv4/tcp_ipv4.c	2007-01-12 12:20:07.000000000 +0100
+> > +++ linux-2.6-git/net/ipv4/tcp_ipv4.c	2007-01-12 12:21:14.000000000 +0100
+> > @@ -1604,6 +1604,22 @@ csum_err:
+> >  	goto discard;
+> >  }
+> >  
+> > +static int tcp_v4_backlog_rcv(struct sock *sk, struct sk_buff *skb)
+> > +{
+> > +	int ret;
+> > +	unsigned long pflags = current->flags;
+> > +	if (unlikely(skb->emergency)) {
+> > +		BUG_ON(!sk_has_vmio(sk)); /* we dropped those before queueing */
+> > +		if (!(pflags & PF_MEMALLOC))
+> > +			current->flags |= PF_MEMALLOC;
+> > +	}
+> > +
+> > +	ret = tcp_v4_do_rcv(sk, skb);
+> > +
+> > +	current->flags = pflags;
+> > +	return ret;
+> 
+> Why don't you want to just setup PF_MEMALLOC for the socket and all
+> related processes?
 
-root@pegasos:~# mount /dev/sdb1 /mnt/sdb
-mount: wrong fs type, bad option, bad superblock on /dev/sdb1,
-       missing codepage or other error
-       In some cases useful info is found in syslog - try
-       dmesg | tail  or so
+I'm not understanding what you're saying here.
 
-root@pegasos:~# dmesg | tail -n1
-[154695.371073] EXT3-fs: sdb1: couldn't mount because of unsupported optional features (20000).
------ s n i p -----
+I want grant the processing of skb->emergency packets access to the
+memory reserves.
 
-I tried using fdisk instead. Note that fdisk finds a different
-partition table than cfdisk above!
+How would I set PF_MEMALLOC on a socket, its a process flag? And which
+related processes?
 
------ s n i p -----
-root@pegasos:~# fdisk -l /dev/sdb
-/dev/sdb
-        #                    type name                  length   base      ( size )  system
-/dev/sdb1    Apple_partitiooma}amamamamamama Apple                     63 @ 1         ( 31.5k)  Unknown
-/dev/sdb2    Apple_gee_e_e_e_e_e_ o%Gï¿½%@~%Gï¿½%@o%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@     781434611 @ 781397715 (372.6G)  Unknown
+> > +}
+> > +
+> >  /*
+> >   *	From tcp_input.c
+> >   */
+> > @@ -1654,6 +1670,15 @@ int tcp_v4_rcv(struct sk_buff *skb)
+> >  	if (!sk)
+> >  		goto no_tcp_socket;
+> >  
+> > +	if (unlikely(skb->emergency)) {
+> > +	       	if (!sk_has_vmio(sk))
+> > +			goto discard_and_relse;
+> > +		/*
+> > +		   decrease window size..
+> > +		   tcp_enter_quickack_mode(sk);
+> > +		*/
+> 
+> How does this decrease window size?
+> Maybe ack scheduling would be better handled by inet_csk_schedule_ack()
+> or just directly send an ack, which in turn requires allocation, which
+> can be bound to this received frame processing...
 
-Block size=512, Number of Blocks=781422768
-DeviceType=0x0, DeviceId=0x0
+It doesn't, I thought that it might be a good idea doing that, but never
+got around to actually figuring out how to do it.
 
-root@pegasos:~# dd if=/dev/zero of=/dev/sdb count=10000
-10000+0 records in
-10000+0 records out
-5120000 bytes (5.1 MB) copied, 0.366181 seconds, 14.0 MB/s
-root@pegasos:~# fdisk -l /dev/sdb
-root@pegasos:~# cfdisk -P s /dev/sdb
-FATAL ERROR: No partition table.
-
-=> [fdisk /dev/sdb and chooses 'initialize partition map'] <=
-root@pegasos:~# fdisk -l /dev/sdb
-/dev/sdb
-        #                    type name                  length   base      ( size )  system
-/dev/sdb1    Apple_partitmooma}amamamamamama Apple                     63 @ 1         ( 31.5k)  Unknown
-/dev/sdb2    Apple_gee_e_e_e_e_e_ o%Gï¿½%@~%Gï¿½%@o%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@     781434611 @ 781397715 (372.6G)  Unknown
-
-Block size=512, Number of Blocks=781422768
-DeviceType=0x0, DeviceId=0x0
-
-root@pegasos:~# cfdisk -P s /dev/sdb
-FATAL ERROR: No partition table.
-
-=> [fdisk /dev/sdb and deletes both partitions (!!)] <=
-root@pegasos:~# fdisk -l /dev/sdb
-/dev/sdb
-        #                    type name                  length   base      ( size )  system
-/dev/sdb1              Apple_Free Extra                     63 @ 1         ( 31.5k)  Free space
-/dev/sdb2    Apple_gee_e_e_e_e_e_ o%Gï¿½%@~%Gï¿½%@o%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@.%Gï¿½%@     781434611 @ 781397715 (372.6G)  Unknown
-
-Block size=512, Number of Blocks=781422768
-DeviceType=0x0, DeviceId=0x0
-
-=> [in the syslog during the fdisk sessions:] <=
-root@pegasos:~# tail -f /var/log/syslog -n0
-Jan 16 07:15:59 localhost kernel: [154926.816696] SCSI device sdb: 781422768 512-byte hdwr sectors (400088 MB)
-Jan 16 07:15:59 localhost kernel: [154926.817340] SCSI device sdb: drive cache: write back
-Jan 16 07:15:59 localhost kernel: [154926.817515]  sdb: [mac] sdb1 sdb2
-Jan 16 07:15:59 localhost kernel: [154926.987204] printk: 292503 messages suppressed.
-Jan 16 07:15:59 localhost kernel: [154926.987230] Buffer I/O error on device sdb2, logical block 781434368
-Jan 16 07:15:59 localhost kernel: [154926.987238] Buffer I/O error on device sdb2, logical block 781434369
-Jan 16 07:15:59 localhost kernel: [154926.987245] Buffer I/O error on device sdb2, logical block 781434370
-Jan 16 07:15:59 localhost kernel: [154926.987252] Buffer I/O error on device sdb2, logical block 781434371
-Jan 16 07:15:59 localhost kernel: [154926.987258] Buffer I/O error on device sdb2, logical block 781434372
-Jan 16 07:15:59 localhost kernel: [154926.987265] Buffer I/O error on device sdb2, logical block 781434373
-Jan 16 07:15:59 localhost kernel: [154926.987272] Buffer I/O error on device sdb2, logical block 781434374
-Jan 16 07:15:59 localhost kernel: [154926.987279] Buffer I/O error on device sdb2, logical block 781434375
-Jan 16 07:15:59 localhost kernel: [154926.988530] Buffer I/O error on device sdb2, logical block 781434368
-Jan 16 07:15:59 localhost kernel: [154926.988538] Buffer I/O error on device sdb2, logical block 781434369
-Jan 16 07:16:00 localhost kernel: [154927.448100] SMB connection re-established (-5)
-Jan 16 07:16:01 localhost kernel: [154928.859934] SCSI device sdb: 781422768 512-byte hdwr sectors (400088 MB)
-Jan 16 07:16:01 localhost kernel: [154928.865115] SCSI device sdb: drive cache: write back
-Jan 16 07:16:01 localhost kernel: [154928.865381]  sdb: [mac] sdb1 sdb2
-Jan 16 07:17:01 localhost /USR/SBIN/CRON[4826]: (root) CMD (   run-parts --report /etc/cron.hourly)
-Jan 16 07:17:41 localhost kernel: [155028.253528] SCSI device sdb: 781422768 512-byte hdwr sectors (400088 MB)
-Jan 16 07:17:41 localhost kernel: [155028.259334] SCSI device sdb: drive cache: write back
-Jan 16 07:17:41 localhost kernel: [155028.259613]  sdb: [mac] sdb1 sdb2
-Jan 16 07:17:41 localhost kernel: [155028.377550] printk: 254 messages suppressed.
-Jan 16 07:17:41 localhost kernel: [155028.377577] Buffer I/O error on device sdb2, logical block 781434368
-Jan 16 07:17:41 localhost kernel: [155028.377586] Buffer I/O error on device sdb2, logical block 781434369
-Jan 16 07:17:41 localhost kernel: [155028.377593] Buffer I/O error on device sdb2, logical block 781434370
-Jan 16 07:17:41 localhost kernel: [155028.377600] Buffer I/O error on device sdb2, logical block 781434371
-Jan 16 07:17:41 localhost kernel: [155028.377606] Buffer I/O error on device sdb2, logical block 781434372
-Jan 16 07:17:41 localhost kernel: [155028.377613] Buffer I/O error on device sdb2, logical block 781434373
-Jan 16 07:17:41 localhost kernel: [155028.377620] Buffer I/O error on device sdb2, logical block 781434374
-Jan 16 07:17:41 localhost kernel: [155028.377627] Buffer I/O error on device sdb2, logical block 781434375
-Jan 16 07:17:41 localhost kernel: [155028.379062] Buffer I/O error on device sdb2, logical block 781434368
-Jan 16 07:17:41 localhost kernel: [155028.379073] Buffer I/O error on device sdb2, logical block 781434369
-Jan 16 07:17:43 localhost kernel: [155030.273386] SCSI device sdb: 781422768 512-byte hdwr sectors (400088 MB)
-Jan 16 07:17:43 localhost kernel: [155030.279303] SCSI device sdb: drive cache: write back
-Jan 16 07:17:43 localhost kernel: [155030.279591]  sdb: [mac] sdb1 sdb2
------ s n i p -----
-
-Note that I don't get a pip in the logs if I do a dd from /dev/zero to /dev/sdb
-and the full length/size of the disk.  Also not a word about I/O errors when
-mkfs'ing the disk...
-This when using cfdisk to partition the disk! I only get that when I'm using
-the MAC table (!?).
-
-
-If I use cfdisk to create ONE partition, but which starts a couple of megs
-in (cfdisk say the disk is exactly 400085.84Mb so if I create a partition
-that's 400000Mb and which is located at the _end_ of the disk), then the
-partition isn't found!
-
------ s n i p -----
-                                  cfdisk 2.12r
-
-                              Disk Drive: /dev/sdb
-                       Size: 400088457216 bytes, 400.0 GB
-             Heads: 255   Sectors per Track: 63   Cylinders: 48641
-
-    Name        Flags      Part Type  FS Type          [Label]        Size (MB)
- ------------------------------------------------------------------------------
-                            Pri/Log   Free Space                          82.26
-    sdb1                    Primary   Linux                           400003.60
-[... quit ...]
-root@pegasos:~# cfdisk -P s /dev/sdb
-FATAL ERROR: Bad primary partition 0: Partition ends after end-of-disk
------ s n i p -----
-
-I also saw this 'after end-of-disk' problem earlier (can't reproduce it now
-though). When I used 'less -f /dev/sdb' (didn't have any partitions then)
-less stopped after a few bytes. Also 'dd if=/dev/sdb | hexdump -c' stopped
-after only a few lines/bytes.
-
-The whole reason I found out that something was seriosly wrong with this/it
-was that I could not do a 'pvcreate' on the disk (choosed to use disk, not
-partition):
-
------ s n i p -----
-root@pegasos:~# pvcreate /dev/sdb
-  Physical volume "/dev/sdb" successfully created
-root@pegasos:~# pvscan
-  PV /dev/md0   VG movies   lvm2 [372.61 GB / 0    free]
-  PV /dev/hdb               lvm2 [74.53 GB]
-  Total: 2 [447.14 GB] / in use: 1 [372.61 GB] / in no VG: 1 [74.53 GB]
------ s n i p -----
-
-If/when I get sdb working, it will become the degraded md1 which I could
-vgcreate togheter with md0 which is now mounted. Md1 is also a degraded
-mirror - containing only sda - which is an identical disk as sdb.
-
-The smallest 'Free Space' I can create (see above) seems to be 8.23Mb
-and that doesn't show 'Partition ends after end-of-disk' but still
-shows the same 'unsupported optional features' in the logs...
-Next step(s) is: 16.46, 24.68, 32.91, 41.13. At 41.13, I get (in syslog)
-'sdb: unknown partition table' so somewhere between 32.91Mb and 41.13Mb
-there's something "weird" (sorry, but I have NO idea how else to describe
-it :).
-
-
-Just in case someone wonders/cares about the two decraded mirrors... I
-can't afford 4 400Gb disk at the moment, but I don't want to lock myself
-into a corner (or complicate matters like have to move data back and forth)
-when I DO afford more disk. I could just add disk(s) to the mirrors...
-Guess I could do that with LVM to, but I don't have much experience
-with LVM at the moment, but I do know md quite well...

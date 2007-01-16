@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751851AbXAPQ5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751858AbXAPQ5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751851AbXAPQ5R (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbXAPQtO
+	id S1751858AbXAPQ5j (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbXAPQpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:49:14 -0500
-Received: from mga01.intel.com ([192.55.52.88]:6865 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751665AbXAPQtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:49:09 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,197,1167638400"; 
-   d="scan'208"; a="188673185:sNHT2220573824"
-Message-ID: <45AD01FB.3050304@intel.com>
-Date: Tue, 16 Jan 2007 08:48:59 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.9 (X11/20061228)
-MIME-Version: 1.0
-To: Allen Parker <parker@isohunt.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: intel 82571EB gigabit fails to see link on 2.6.20-rc5 in-tree
- e1000 driver (regression)
-References: <45AC7CB2.1010202@isohunt.com> <45ACFA96.4040902@isohunt.com>
-In-Reply-To: <45ACFA96.4040902@isohunt.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jan 2007 16:48:59.0881 (UTC) FILETIME=[3876FD90:01C7398E]
+	Tue, 16 Jan 2007 11:45:13 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37970 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751355AbXAPQor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 11:44:47 -0500
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: "<Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
+       <netdev@vger.kernel.org>, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
+       linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
+       minyard@acm.org, openipmi-developer@lists.sourceforge.net,
+       <tony.luck@intel.com>, linux-mips@linux-mips.org, ralf@linux-mips.org,
+       schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com,
+       linux-390@vm.marist.edu, paulus@samba.org, linuxppc-dev@ozlabs.org,
+       lethal@linux-sh.org, linuxsh-shmedia-dev@lists.sourceforge.net,
+       <ak@suse.de>, vojtech@suse.cz, clemens@ladisch.de, a.zummo@towertech.it,
+       rtc-linux@googlegroups.com, linux-parport@lists.infradead.org,
+       andrea@suse.de, tim@cyberelk.net, philb@gnu.org, aharkes@cs.cmu.edu,
+       coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
+       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5/59] sysctl: rose remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:10 -0700
+Message-Id: <11689656191854-git-send-email-ebiederm@xmission.com>
+X-Mailer: git-send-email 1.5.0.rc1.gb60d
+In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
+References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allen Parker wrote:
-> Allen Parker wrote:
->> I have a PCI-E pro/1000 MT Quad Port adapter, which works quite well 
->> under 2.6.19.2 but fails to see link under 2.6.20-rc5. Earlier today I 
->> reported this to e1000-devel@lists.sf.net, but thought I should get 
->> the word out in case someone else is testing this kernel on this nic 
->> chipset.
->>
->> Due to changes between 2.6.19.2 and 2.6.20, Intel driver 7.3.20 will 
->> not compile for 2.6.20, nor will the 2.6.19.2 in-tree driver.
->>
-> <snip, worthless>
-> Affected chipset:
->> lspci -nn output (quad port):
->> 09:00.0 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
->> Ethernet Controller [8086:10a4] (rev 06)
->> lspci -nn output (dual port):
->> 07:00.0 Ethernet controller [0200]: Intel Corporation 82571EB Gigabit 
->> Ethernet Controller [8086:105e] (rev 06)
-> <snip, readability>
-> 
->>  From what I've been able to gather, other Intel Pro/1000 chipsets 
->> work fine in 2.6.20-rc5. If the e1000 guys need any assistance 
->> testing, I'll be more than happy to volunteer myself as a guinea pig 
->> for patches.
-> 
-> I wasn't aware that I was supposed to post this as a regression, so 
-> changed the subject, hoping that someone will pick this up and run with 
-> it. Primary issue being that link is not seen on this chipset under 
-> 2.6.20-rc5 via in-tree e1000 driver, despite multiple cycles of ifconfig 
-> $eth up && ethtool $eth | grep link && ifconfig $eth down. Tested on 2 
-> machines with identical hardware.
+From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-I asked Allen to report this here. I'm working on the issue as we speak but for now I'll 
-treat the link issue as a known regression once I confirm it. If others have seen it 
-then I'd like to know ASAP of course ;)
+The sysctl numbers used are unique so setting the insert_at_head
+flag serves no semantic purpose.
 
-Cheers,
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ net/rose/sysctl_net_rose.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Auke
+diff --git a/net/rose/sysctl_net_rose.c b/net/rose/sysctl_net_rose.c
+index 8548c7c..0190a07 100644
+--- a/net/rose/sysctl_net_rose.c
++++ b/net/rose/sysctl_net_rose.c
+@@ -160,7 +160,7 @@ static ctl_table rose_root_table[] = {
+ 
+ void __init rose_register_sysctl(void)
+ {
+-	rose_table_header = register_sysctl_table(rose_root_table, 1);
++	rose_table_header = register_sysctl_table(rose_root_table, 0);
+ }
+ 
+ void rose_unregister_sysctl(void)
+-- 
+1.4.4.1.g278f
+

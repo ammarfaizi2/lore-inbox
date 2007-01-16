@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751705AbXAPQwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751612AbXAPQwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751705AbXAPQwl (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbXAPQwK
+	id S1751612AbXAPQwt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbXAPQuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:52:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46032 "EHLO
+	Tue, 16 Jan 2007 11:50:03 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46023 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751606AbXAPQuF (ORCPT
+	with ESMTP id S1751631AbXAPQty (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:50:05 -0500
+	Tue, 16 Jan 2007 11:49:54 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 7/59] sysctl: llc remove unnecessary insert_at_head flag
-Date: Tue, 16 Jan 2007 09:39:12 -0700
-Message-Id: <1168965622720-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 15/59] sysctl: scsi remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:20 -0700
+Message-Id: <11689656323486-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,27 +37,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-The sysctl numbers used are unique so setting the insert_at_head
-flag serves no semantis purpose, and is just confusing.
-
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- net/llc/sysctl_net_llc.c |    2 +-
+ drivers/scsi/scsi_sysctl.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/net/llc/sysctl_net_llc.c b/net/llc/sysctl_net_llc.c
-index 45d7dd9..4aab676 100644
---- a/net/llc/sysctl_net_llc.c
-+++ b/net/llc/sysctl_net_llc.c
-@@ -116,7 +116,7 @@ static struct ctl_table_header *llc_table_header;
+diff --git a/drivers/scsi/scsi_sysctl.c b/drivers/scsi/scsi_sysctl.c
+index 04d06c2..b16b775 100644
+--- a/drivers/scsi/scsi_sysctl.c
++++ b/drivers/scsi/scsi_sysctl.c
+@@ -41,7 +41,7 @@ static struct ctl_table_header *scsi_table_header;
  
- int __init llc_sysctl_init(void)
+ int __init scsi_init_sysctl(void)
  {
--	llc_table_header = register_sysctl_table(llc_root_table, 1);
-+	llc_table_header = register_sysctl_table(llc_root_table, 0);
- 
- 	return llc_table_header ? 0 : -ENOMEM;
- }
+-	scsi_table_header = register_sysctl_table(scsi_root_table, 1);
++	scsi_table_header = register_sysctl_table(scsi_root_table, 0);
+ 	if (!scsi_table_header)
+ 		return -ENOMEM;
+ 	return 0;
 -- 
 1.4.4.1.g278f
 

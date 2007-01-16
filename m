@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751887AbXAPREo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751356AbXAPREp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751887AbXAPREo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbXAPRDA
+	id S1751356AbXAPREp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbXAPRC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:03:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37833 "EHLO
+	Tue, 16 Jan 2007 12:02:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37842 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751351AbXAPQoP (ORCPT
+	with ESMTP id S1751356AbXAPQoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:15 -0500
+	Tue, 16 Jan 2007 11:44:16 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 34/59] sysctl: s390 Remove unnecessary use of insert_at_head
-Date: Tue, 16 Jan 2007 09:39:39 -0700
-Message-Id: <11689656581195-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 28/59] sysctl: C99 Convert arch/ia64/sn/kernel/xpc_main.c
+Date: Tue, 16 Jan 2007 09:39:33 -0700
+Message-Id: <11689656481444-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -39,59 +39,119 @@ From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/s390/appldata/appldata_base.c |    4 ++--
- arch/s390/kernel/debug.c           |    2 +-
- arch/s390/mm/cmm.c                 |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ arch/ia64/sn/kernel/xpc_main.c |   86 +++++++++++++++++----------------------
+ 1 files changed, 38 insertions(+), 48 deletions(-)
 
-diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-index b8c2372..cdc4109 100644
---- a/arch/s390/appldata/appldata_base.c
-+++ b/arch/s390/appldata/appldata_base.c
-@@ -506,7 +506,7 @@ int appldata_register_ops(struct appldata_ops *ops)
+diff --git a/arch/ia64/sn/kernel/xpc_main.c b/arch/ia64/sn/kernel/xpc_main.c
+index 24adb75..e04f7b5 100644
+--- a/arch/ia64/sn/kernel/xpc_main.c
++++ b/arch/ia64/sn/kernel/xpc_main.c
+@@ -101,67 +101,57 @@ static int xpc_disengage_request_max_timelimit = 120;
  
- 	ops->ctl_table[3].ctl_name = 0;
+ static ctl_table xpc_sys_xpc_hb_dir[] = {
+ 	{
+-		CTL_UNNUMBERED,
+-		"hb_interval",
+-		&xpc_hb_interval,
+-		sizeof(int),
+-		0644,
+-		NULL,
+-		&proc_dointvec_minmax,
+-		&sysctl_intvec,
+-		NULL,
+-		&xpc_hb_min_interval,
+-		&xpc_hb_max_interval
++		.ctl_name 	= CTL_UNNUMBERED,
++		.procname	= "hb_interval",
++		.data		= &xpc_hb_interval,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec_minmax,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &xpc_hb_min_interval,
++		.extra2		= &xpc_hb_max_interval
+ 	},
+ 	{
+-		CTL_UNNUMBERED,
+-		"hb_check_interval",
+-		&xpc_hb_check_interval,
+-		sizeof(int),
+-		0644,
+-		NULL,
+-		&proc_dointvec_minmax,
+-		&sysctl_intvec,
+-		NULL,
+-		&xpc_hb_check_min_interval,
+-		&xpc_hb_check_max_interval
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "hb_check_interval",
++		.data		= &xpc_hb_check_interval,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec_minmax,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &xpc_hb_check_min_interval,
++		.extra2		= &xpc_hb_check_max_interval
+ 	},
+-	{0}
++	{}
+ };
+ static ctl_table xpc_sys_xpc_dir[] = {
+ 	{
+-		CTL_UNNUMBERED,
+-		"hb",
+-		NULL,
+-		0,
+-		0555,
+-		xpc_sys_xpc_hb_dir
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "hb",
++		.mode		= 0555,
++		.child		= xpc_sys_xpc_hb_dir
+ 	},
+ 	{
+-		CTL_UNNUMBERED,
+-		"disengage_request_timelimit",
+-		&xpc_disengage_request_timelimit,
+-		sizeof(int),
+-		0644,
+-		NULL,
+-		&proc_dointvec_minmax,
+-		&sysctl_intvec,
+-		NULL,
+-		&xpc_disengage_request_min_timelimit,
+-		&xpc_disengage_request_max_timelimit
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "disengage_request_timelimit",
++		.data		= &xpc_disengage_request_timelimit,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec_minmax,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &xpc_disengage_request_min_timelimit,
++		.extra2		= &xpc_disengage_request_max_timelimit
+ 	},
+-	{0}
++	{}
+ };
+ static ctl_table xpc_sys_dir[] = {
+ 	{
+-		CTL_UNNUMBERED,
+-		"xpc",
+-		NULL,
+-		0,
+-		0555,
+-		xpc_sys_xpc_dir
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "xpc",
++		.mode		= 0555,
++		.child		= xpc_sys_xpc_dir
+ 	},
+-	{0}
++	{}
+ };
+ static struct ctl_table_header *xpc_sysctl;
  
--	ops->sysctl_header = register_sysctl_table(ops->ctl_table,1);
-+	ops->sysctl_header = register_sysctl_table(ops->ctl_table,0);
- 
- 	P_INFO("%s-ops registered!\n", ops->name);
- 	return 0;
-@@ -606,7 +606,7 @@ static int __init appldata_init(void)
- 	/* Register cpu hotplug notifier */
- 	register_hotcpu_notifier(&appldata_nb);
- 
--	appldata_sysctl_header = register_sysctl_table(appldata_dir_table, 1);
-+	appldata_sysctl_header = register_sysctl_table(appldata_dir_table, 0);
- #ifdef MODULE
- 	appldata_dir_table[0].de->owner = THIS_MODULE;
- 	appldata_table[0].de->owner = THIS_MODULE;
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index c81f8e5..d38cb27 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -1053,7 +1053,7 @@ __init debug_init(void)
- {
- 	int rc = 0;
- 
--	s390dbf_sysctl_header = register_sysctl_table(s390dbf_dir_table, 1);
-+	s390dbf_sysctl_header = register_sysctl_table(s390dbf_dir_table, 0);
- 	down(&debug_lock);
- 	debug_debugfs_root_entry = debugfs_create_dir(DEBUG_DIR_ROOT,NULL);
- 	printk(KERN_INFO "debug: Initialization complete\n");
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index df733d5..5f83a3f 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -418,7 +418,7 @@ cmm_init (void)
- 	int rc = -ENOMEM;
- 
- #ifdef CONFIG_CMM_PROC
--	cmm_sysctl_header = register_sysctl_table(cmm_dir_table, 1);
-+	cmm_sysctl_header = register_sysctl_table(cmm_dir_table, 0);
- 	if (!cmm_sysctl_header)
- 		goto out;
- #endif
 -- 
 1.4.4.1.g278f
 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751823AbXAPRBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751852AbXAPRBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751823AbXAPRBc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbXAPRAe
+	id S1751852AbXAPRBq (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbXAPQoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 12:00:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37932 "EHLO
+	Tue, 16 Jan 2007 11:44:32 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37909 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751539AbXAPQoe (ORCPT
+	with ESMTP id S1751479AbXAPQo2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:34 -0500
+	Tue, 16 Jan 2007 11:44:28 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 49/59] sysctl: Move init_irq_proc into init/main where it belongs
-Date: Tue, 16 Jan 2007 09:39:54 -0700
-Message-Id: <1168965684147-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 52/59] sysctl: Create sys/fs/binfmt_misc as an ordinary sysctl entry
+Date: Tue, 16 Jan 2007 09:39:57 -0700
+Message-Id: <11689656932416-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,46 +37,65 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
+binfmt_misc has a mount point in the middle of the sysctl and
+that mount point is created as a proc_generic directory.
+
+Doing it that way gets in the way of cleaning up the sysctl
+proc support as it continues the existence of a horrible hack.
+So instead simply create the directory as an ordinary sysctl
+directory.   At least that removes the magic special case.
+
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- init/main.c     |    3 +++
- kernel/sysctl.c |    3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/proc/root.c  |    4 ----
+ kernel/sysctl.c |   13 +++++++++++++
+ 2 files changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/init/main.c b/init/main.c
-index 8b4a7d7..8af5c6e 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -691,6 +691,9 @@ static void __init do_basic_setup(void)
+diff --git a/fs/proc/root.c b/fs/proc/root.c
+index 64d242b..8059e92 100644
+--- a/fs/proc/root.c
++++ b/fs/proc/root.c
+@@ -74,10 +74,6 @@ void __init proc_root_init(void)
  #ifdef CONFIG_SYSCTL
- 	sysctl_init();
+ 	proc_sys_root = proc_mkdir("sys", NULL);
  #endif
-+#ifdef CONFIG_PROC_FS
-+	init_irq_proc();
-+#endif
- 
- 	do_initcalls();
- }
+-#if defined(CONFIG_BINFMT_MISC) || defined(CONFIG_BINFMT_MISC_MODULE)
+-	proc_mkdir("sys/fs", NULL);
+-	proc_mkdir("sys/fs/binfmt_misc", NULL);
+-#endif
+ 	proc_root_fs = proc_mkdir("fs", NULL);
+ 	proc_root_driver = proc_mkdir("driver", NULL);
+ 	proc_mkdir("fs/nfsd", NULL); /* somewhere for the nfsd filesystem to be mounted */
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 600b333..7420761 100644
+index 6e2e608..8da6647 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -1172,8 +1172,6 @@ static ctl_table dev_table[] = {
+@@ -142,6 +142,7 @@ static struct ctl_table_header root_table_header =
+ static ctl_table kern_table[];
+ static ctl_table vm_table[];
+ static ctl_table fs_table[];
++static ctl_table binfmt_misc_table[];
+ static ctl_table debug_table[];
+ static ctl_table dev_table[];
+ extern ctl_table random_table[];
+@@ -1001,6 +1002,18 @@ static ctl_table fs_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#if defined(CONFIG_BINFMT_MISC) || defined(CONFIG_BINFMT_MISC_MODULE)
++	{
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "binfmt_misc",
++		.mode		= 0555,
++		.child		= binfmt_misc_table,
++	},
++#endif
++	{ .ctl_name = 0 }
++};
++
++static ctl_table binfmt_misc_table[] = {
  	{ .ctl_name = 0 }
  };
- 
--extern void init_irq_proc (void);
--
- static DEFINE_SPINLOCK(sysctl_lock);
- 
- /* called under sysctl_lock */
-@@ -1219,7 +1217,6 @@ void __init sysctl_init(void)
- {
- #ifdef CONFIG_PROC_SYSCTL
- 	register_proc_table(root_table, proc_sys_root, &root_table_header);
--	init_irq_proc();
- #endif
- }
  
 -- 
 1.4.4.1.g278f

@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932118AbXAPKDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751254AbXAPKIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbXAPKDn (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 05:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbXAPKDn
+	id S1751254AbXAPKIY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 05:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbXAPKIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 05:03:43 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:29706 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751212AbXAPKDm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 05:03:42 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W92PxIi22O/4RNJIb1pvLlReJnVONCpu2IhsKBENP0qNdf+Xy95B3O/rg42llpsjGbMzdePpIu9egnB7bMmjD1Hxmc5S8lulAGksVNg1lzuEr5npFUJeT33yRv74EcZTg83zckKHWWmx6RR15/NFE1PWFZ7PCqvIkvQlNsJNjqs=
-Message-ID: <5a2cf1f60701160203j6dc5911fsddcb1e1babc6ae98@mail.gmail.com>
-Date: Tue, 16 Jan 2007 11:03:39 +0100
-From: "Jerome Lacoste" <jerome.lacoste@gmail.com>
-To: "Oliver Neukum" <oneukum@suse.de>
-Subject: Re: khubd taking 100% CPU after unproperly removing USB webcam
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200701161046.29262.oneukum@suse.de>
+	Tue, 16 Jan 2007 05:08:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:17997 "EHLO virtualhost.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751254AbXAPKIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 05:08:23 -0500
+Date: Tue, 16 Jan 2007 21:07:58 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch-mm] Workaround for RAID breakage
+Message-ID: <20070116100758.GC3938@kernel.dk>
+References: <6bffcb0e0701120533o609489den9ca02f42e4d4839@mail.gmail.com> <20070115071747.GA31267@elte.hu> <1168848513.2941.100.camel@localhost.localdomain> <1168884220.2941.144.camel@localhost.localdomain> <20070116004136.GF4067@kernel.dk> <1168936038.2941.182.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5a2cf1f60701160110v68342cf5lbc364ffae568cd1@mail.gmail.com>
-	 <200701161046.29262.oneukum@suse.de>
+In-Reply-To: <1168936038.2941.182.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/16/07, Oliver Neukum <oneukum@suse.de> wrote:
-> Am Dienstag, 16. Januar 2007 10:10 schrieb Jerome Lacoste:
-> > Hi,
-> >
-> > I unplugged my (second) webcam, forgotting to stop ekiga, and khubd is
-> > now taking 100% CPU.
-> >
-> > - lsusb doesn't return
-> > - /etc/init.d/udev restart didn't resolve the problem.
-> >
-> > Is that a problem one may want to investigate or should I just forget
-> > about it (problem being cause by a user error)?
->
-> If your are using this driver
-> http://mxhaard.free.fr/download.html
->
-> then it appears that it most likely hanging here:
->
->         for (n = 0; n < SPCA50X_NUMFRAMES; n++)
->                 if (waitqueue_active(&spca50x->frame[n].wq))
->                         wake_up_interruptible(&spca50x->frame[n].wq);
->         if (waitqueue_active(&spca50x->wq))
->                 wake_up_interruptible(&spca50x->wq);
->         gspca_kill_transfert(spca50x);
->         PDEBUG(3, "Disconnect Kill isoc done");
->         up(&spca50x->lock);
->         while (spca50x->user)
->                 schedule();
->
-> This driver's disconnect handling is buggy. As this is an out of tree
-> driver, please contact the original author.
+On Tue, Jan 16 2007, Thomas Gleixner wrote:
+> On Tue, 2007-01-16 at 11:41 +1100, Jens Axboe wrote:
+> > > AFAICS this is intentional to avoid checks all over the place, but the
+> > > underflow check is missing. All we need to do is make sure, that in case
+> > > of ioc->plugged == 0 we return early and bug, if there is either a queue
+> > > plugged in or the plugged_list is not empty.
+> > > 
+> > > Jens ?
+> > 
+> > It should not go negative, that would be a bug elsewhere. So it's
+> > interesting if it does, we should definitely put a WARN_ON() check in
+> > there for that.
+> 
+> Well. All offenders come via queue_sync_plugs(). queue_sync_plugs()
+> calls blk_unplug_current().
 
-OK thanks for your answer.
+Ah, again a problem because the #plug branch wasn't pushed to #for-akpm
+in due time. That problem was fixed already :/
 
-I also found out that ekiga was still running. I killed it and that
-stopped the hang.
+> One path which triggers is blk_sync_queue(). This happens e.g. in the
+> cleanup of the floppy check. There are other call pathes too.
+> 
+> The other is raid md_super_write(). It is not plugged and calls with the
+> barrier bit set, which executes the unlikely path in __make_request():
+> 
+>         if (unlikely(bio_barrier(bio))) {
+>                 queue_sync_plugs(q);
+>                 spin_lock_irq(q->queue_lock);
+>                 goto get_rq;
+>         }
+> 
+> So you either need checks all over the place to avoid calling
+> blk_unplug_current(), or you prevent the unplug below 0 like I did. The
+> BUG_ON()s I added should catch any real invalid callers. But it's up to
+> you.
 
-Jerome
+blk_replug_current_nested() should do it. I'll make sure the branch is
+updated for next -mm.
+
+The BUG_ON()'s are indeed correct, they should just be moved further
+down the function.
+
+-- 
+Jens Axboe
+

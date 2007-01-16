@@ -1,48 +1,190 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751469AbXAPUfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751481AbXAPUhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbXAPUfi (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 15:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbXAPUfi
+	id S1751481AbXAPUhy (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 15:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbXAPUhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 15:35:38 -0500
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:35262 "HELO
-	smtp101.sbc.mail.re2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751469AbXAPUfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 15:35:37 -0500
-X-YMail-OSG: _RABltwVM1kE0Awme6AMncyySwoj9JeQH8WJhL7dCj14zSlmjpGkwhW7IV6TTsnWQhoQeQzvljOa_4JWiMsFMLPwerCMBPOQzIrrJcEqCoPeB9B_F6VMApa82KHKebCq4ApkSQdP4y_ueQf6oW2hvxudHxUvmX8onGiADcZU8lMkcUJqgdWBTdMW2EDG
-Date: Tue, 16 Jan 2007 12:35:34 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, knweiss@gmx.de, ak@suse.de,
-       andersen@codepoet.org, krader@us.ibm.com, lfriedman@nvidia.com,
-       linux-nforce-bugs@nvidia.com
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
-Message-ID: <20070116203534.GA4991@tuatara.stupidest.org>
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca> <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net> <45AC1AEB.60805@shaw.ca> <45ACD918.2040204@scientia.net> <45ACE07D.3050207@shaw.ca> <20070116180154.GA1335@tuatara.stupidest.org> <m3d55eiuho.fsf@maximus.localdomain>
+	Tue, 16 Jan 2007 15:37:54 -0500
+Received: from hera.kernel.org ([140.211.167.34]:43229 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751481AbXAPUhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 15:37:53 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Andrey Borzenkov <arvidjaar@mail.ru>, linux-pm@lists.osdl.org
+Subject: Re: 2.6.20-rc5:  BUG: lock held at task exit time! (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+Date: Tue, 16 Jan 2007 15:29:27 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200701162122.42581.arvidjaar@mail.ru>
+In-Reply-To: <200701162122.42581.arvidjaar@mail.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3d55eiuho.fsf@maximus.localdomain>
+Message-Id: <200701161529.28110.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2007 at 09:31:31PM +0100, Krzysztof Halasa wrote:
+On Tuesday 16 January 2007 13:22, Andrey Borzenkov wrote:
+> I have Toshiba Portege 4000 that almost always hangs dead resuming from STR.
+> This was better before 2.6.18, since then STR is unusable. Sometimes it
+> manages to resume; yesterday I got on console and in dmesg:
+> 
+> =====================================
+> [ BUG: lock held at task exit time! ]
+> -------------------------------------
+> echo/28793 is exiting with locks still held!
+> 1 lock held by echo/28793:
+>  #0:  (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+> 
+> stack backtrace:
+>  [<c0103fea>] show_trace_log_lvl+0x1a/0x30
+>  [<c01045f2>] show_trace+0x12/0x20
+>  [<c01046a6>] dump_stack+0x16/0x20
+>  [<c0132377>] debug_check_no_locks_held+0x87/0x90
+>  [<c011c8bb>] do_exit+0x4db/0x820
+>  [<c011cc29>] do_group_exit+0x29/0x70
+>  [<c011cc7f>] sys_exit_group+0xf/0x20
+>  [<c010300e>] sysenter_past_esp+0x5f/0x99
+>  =======================
 
-> Do you (someone) have (maintain) a list of affected systems,
-> including motherboard type and possibly version, BIOS version and
-> CPU type? A similar list of unaffected systems with 4GB+ RAM could
-> be useful, too.
+the global pm_mutex that this refers to is used in generic PM code, not USB code.
 
-All I know is that some system hit this and some don't seem to.  Why
-it's not clear.
+enter_state() grabs it at the beginning of the suspend, and releases it when
+resume is completed.
 
-> I'm afraid with default iommu=soft it will be a mystery forever.
+The mystery is why echo is exiting before enter_state() completes.
 
-Right, but given windows doesn't use the iommu at all and that a lot
-of newer hardware/drivers doesn't need it it might be the safest
-option since it clearly has been causing corruption for a number of
-people for well over a year now.
 
+>>    if ! (/bin/echo $PARAM > $FILE &) ;then
+>>        ret=1
+>>    fi
+
+Same if you don't put the echo in the background here?
+
+> I have a bug report about resume issue but I may have wrongly attributed it to
+> ACPI: http://bugzilla.kernel.org/show_bug.cgi?id=7499
+
+hard to say if the failure is related to ACPI or not at this point --
+though it is not unusual for people to assume that STR and ACPI
+are synonyms, so that if STR doesn't work it must be due to ACPI
+rather than generic PM code or drivers.
+
+> echo mentioned here comes from "echo ... > /sys/power/state"
+> 
+> I have been suspecting ACPI because another permanent bug I have is lockup
+> using acpi_cpufreq and ondemand governor ... but it may be red herring
+> (although it is annoying).
+> 
+> {pts/0}% lspci
+> 00:00.0 Host bridge: ALi Corporation M1644/M1644T Northbridge+Trident (rev 01)
+> 00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller
+> 00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+> 00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c3)
+> 00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link
+> Controller Audio Device (rev 01)
+> 00:07.0 ISA bridge: ALi Corporation M1533/M1535 PCI to ISA Bridge [Aladdin
+> IV/V/V+]
+> 00:08.0 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
+> 00:0a.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100]
+> (rev 08)
+> 00:10.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller
+> (rev 01)
+> 00:11.0 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus
+> Bridge with ZV Support (rev 32)
+> 00:11.1 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus
+> Bridge with ZV Support (rev 32)
+> 00:12.0 System peripheral: Toshiba America Info Systems SD TypA Controller
+> (rev 03)
+> 01:00.0 VGA compatible controller: Trident Microsystems CyberBlade XPAi1 (rev
+> 82)
+> 
+> {pts/0}% lsmod
+> Module                  Size  Used by
+> snd_seq_dummy           3556  0
+> snd_seq_oss            32176  0
+> snd_seq_midi_event      7496  1 snd_seq_oss
+> snd_seq                50808  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event
+> snd_seq_device          8180  3 snd_seq_dummy,snd_seq_oss,snd_seq
+> snd_pcm_oss            43168  0
+> snd_mixer_oss          16104  1 snd_pcm_oss
+> snd_ali5451            23644  0
+> snd_ac97_codec         97116  1 snd_ali5451
+> snd_pcm                79564  3 snd_pcm_oss,snd_ali5451,snd_ac97_codec
+> snd_timer              23164  2 snd_seq,snd_pcm
+> snd_page_alloc          9832  1 snd_pcm
+> snd                    53956  9
+> snd_seq_oss,snd_seq,snd_seq_device,snd_pcm_oss,snd_mixer_oss,snd_ali5451,snd_ac97_codec,snd_pcm,snd_timer
+> soundcore               7776  1 snd
+> e100                   35968  0
+> mii                     5472  1 e100
+> nls_iso8859_1           3968  0
+> nls_cp866               5056  0
+> vfat                   12672  0
+> fat                    52436  1 vfat
+> sg                     35716  0
+> usb_storage            78816  0
+> bluetooth              54916  0
+> autofs4                21524  0
+> af_packet              21872  4
+> ac97_bus                2496  1 snd_ac97_codec
+> smsc_ircc2             17828  0
+> irnet                  24532  0
+> ppp_generic            29188  1 irnet
+> slhc                    6624  1 ppp_generic
+> irtty_sir               6016  0
+> sir_dev                14476  1 irtty_sir
+> ircomm_tty             24784  0
+> ircomm                 13828  1 ircomm_tty
+> irda                  119528  5 smsc_ircc2,irnet,sir_dev,ircomm_tty,ircomm
+> crc_ccitt               1984  1 irda
+> binfmt_misc            12072  1
+> loop                   16504  0
+> dm_mod                 58452  0
+> video                  15460  0
+> toshiba_acpi            6328  0
+> backlight               6176  1 toshiba_acpi
+> thermal                13704  0
+> sbs                    14840  0
+> processor              23372  1 thermal
+> i2c_ec                  4704  1 sbs
+> i2c_core               22608  1 i2c_ec
+> fan                     4516  0
+> container               4160  0
+> button                  7632  0
+> battery                 9604  0
+> ac                      4900  0
+> wlags49_h1_cs         181844  1
+> pcmcia                 38496  1 wlags49_h1_cs
+> firmware_class          9728  1 pcmcia
+> yenta_socket           26764  5
+> tsdev                   7648  0
+> mousedev               11752  1
+> evdev                   9952  2
+> rsrc_nonstatic         11456  1 yenta_socket
+> pcmcia_core            40344  3 pcmcia,yenta_socket,rsrc_nonstatic
+> ali_agp                 6976  1
+> agpgart                32068  1 ali_agp
+> nvram                   8904  0
+> toshiba                 4472  0
+> psmouse                38472  0
+> ohci_hcd               21356  0
+> usbcore               136560  3 usb_storage,ohci_hcd
+> sr_mod                 17412  0
+> reiserfs              248108  1
+> sd_mod                 20448  3
+> pata_ali               12012  2
+> libata                108348  1 pata_ali
+> scsi_mod              141032  5 sg,usb_storage,sr_mod,sd_mod,libata
+> atkbd                  17656  0
+> libps2                  7240  2 psmouse,atkbd
+> i8042                  19160  0
+> serio                  17240  5 psmouse,atkbd,i8042
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

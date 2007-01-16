@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932419AbXAPGn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932428AbXAPGrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbXAPGn3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 01:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbXAPGn3
+	id S932428AbXAPGrZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 01:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbXAPGrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 01:43:29 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:53138 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932419AbXAPGn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 01:43:28 -0500
-X-Greylist: delayed 100411 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 01:43:28 EST
-Subject: [PATCH] slip: Replace kmalloc() + memset() pairs with the
-	appropriate kzalloc() calls
-From: joe jin <joe.jin@oracle.com>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: joe.jin@oracle.com
+	Tue, 16 Jan 2007 01:47:25 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:6767 "EHLO mx2.netapp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932428AbXAPGrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 01:47:24 -0500
+X-IronPort-AV: i="4.13,194,1167638400"; 
+   d="scan'208"; a="21667823:sNHT44904433"
+Subject: Re: Some kind of 2.6.19 NFS regression
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45AC0DB0.5020000@gentoo.org>
+References: <45AC0DB0.5020000@gentoo.org>
 Content-Type: text/plain
-Organization: Oracle
-Date: Tue, 16 Jan 2007 14:42:57 +0800
-Message-Id: <1168929777.1498.3.camel@joejin-pc.cn.oracle.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27.rhel4.6) 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Organization: Network Appliance Inc
+Date: Tue, 16 Jan 2007 01:47:22 -0500
+Message-Id: <1168930042.6072.16.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 16 Jan 2007 06:47:23.0492 (UTC) FILETIME=[2D572240:01C7393A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replace kmalloc() + memset() pairs with the appropriate
-kzalloc().
+On Mon, 2007-01-15 at 18:26 -0500, Daniel Drake wrote:
+> Hi,
+> 
+> Tim Ryan has reported the following bug at the Gentoo bugzilla:
+> 
+> https://bugs.gentoo.org/show_bug.cgi?id=162199
+> 
+> His home dir is mounted over NFS. 2.6.18 worked OK but 2.6.19 is very 
+> slow to load the desktop environment. NFS is suspected here as the 
+> problem does not exist for users with local homedirs. This might not be 
+> a straightforward performance issue as it does seem to perform OK on the 
+> console.
+> 
+> The bug still exists in unpatched 2.6.20-rc5.
+> 
+> Is this a known issue? Should we report a new bug on the kernel bugzilla?
+> 
+> Thanks,
+> Daniel
 
-Signed-off-by: Joe Jin <joe.jin@oracle.com>
+I couldn't find any information whatsoever in that bug report as to what
+mount options he is using, or what server export options are in use. No
+info either about what networking hardware he is using (or what drivers
+are in use).
 
---- drivers/net/slip.c.orig	2007-01-16 14:21:52.000000000 +0800
-+++ drivers/net/slip.c	2007-01-16 14:23:07.000000000 +0800
-@@ -1343,15 +1343,12 @@
- 	printk(KERN_INFO "SLIP linefill/keepalive option.\n");
- #endif
- 
--	slip_devs = kmalloc(sizeof(struct net_device *)*slip_maxdev,
-GFP_KERNEL);
-+	slip_devs = kzalloc(sizeof(struct net_device *)*slip_maxdev,
-GFP_KERNEL);
- 	if (!slip_devs) {
- 		printk(KERN_ERR "SLIP: Can't allocate slip devices array!  Uaargh! (-
-> No SLIP available)\n");
- 		return -ENOMEM;
- 	}
- 
--	/* Clear the pointer array, we allocate devices when we need them */
--	memset(slip_devs, 0, sizeof(struct net_device *)*slip_maxdev);
--
- 	/* Fill in our line protocol discipline, and register it */
- 	if ((status = tty_register_ldisc(N_SLIP, &sl_ldisc)) != 0)  {
- 		printk(KERN_ERR "SLIP: can't register line discipline (err = %d)\n",
-status);
+I'd also recommend using something like ttcp to see if large packets
+(NFS read/write packets are typically ~ 32k large) are being transmitted
+efficiently.
 
-
-
+Cheers
+  Trond

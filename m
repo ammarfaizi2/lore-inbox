@@ -1,89 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932440AbXAPHki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932442AbXAPICA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbXAPHki (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 02:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbXAPHki
+	id S932442AbXAPICA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 03:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbXAPICA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 02:40:38 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.16]:52253 "EHLO
-	amsfep11-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932440AbXAPHkh (ORCPT
+	Tue, 16 Jan 2007 03:02:00 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:53916 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932442AbXAPIB7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 02:40:37 -0500
-Subject: Re: [RFC 0/8] Cpuset aware writeback
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, Paul Menage <menage@google.com>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       Dave Chinner <dgc@sgi.com>
-In-Reply-To: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Tue, 16 Jan 2007 08:38:10 +0100
-Message-Id: <1168933090.22935.30.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Jan 2007 03:01:59 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:date:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:from;
+        b=W8IdM/qC6bYoagFMJGFuEx3Qed5leoVme+yLnBb8dV31HJ2zNpY5os2Su/4Nm0D6Nfb7A+oFxzptj/ZUice8lfZRL2ufSQBHW40k7j2M0/LbckxuKk9JyNicPrbsGEps6+KQ36f/oibQR/GArcELitoCvpSfI82sIx/68rWSdBA=
+Date: Tue, 16 Jan 2007 10:01:36 +0200
+To: isely@pobox.com, video4linux-list@redhat.com
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: [PATCH 2.6.20-rc5 2/4] pvrusb2: Use ARRAY_SIZE macro
+Message-ID: <20070116080136.GA30133@Ahmed>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-15 at 21:47 -0800, Christoph Lameter wrote:
-> Currently cpusets are not able to do proper writeback since
-> dirty ratio calculations and writeback are all done for the system
-> as a whole. This may result in a large percentage of a cpuset
-> to become dirty without writeout being triggered. Under NFS
-> this can lead to OOM conditions.
-> 
-> Writeback will occur during the LRU scans. But such writeout
-> is not effective since we write page by page and not in inode page
-> order (regular writeback).
-> 
-> In order to fix the problem we first of all introduce a method to
-> establish a map of nodes that contain dirty pages for each
-> inode mapping.
-> 
-> Secondly we modify the dirty limit calculation to be based
-> on the acctive cpuset.
-> 
-> If we are in a cpuset then we select only inodes for writeback
-> that have pages on the nodes of the cpuset.
-> 
-> After we have the cpuset throttling in place we can then make
-> further fixups:
-> 
-> A. We can do inode based writeout from direct reclaim
->    avoiding single page writes to the filesystem.
-> 
-> B. We add a new counter NR_UNRECLAIMABLE that is subtracted
->    from the available pages in a node. This allows us to
->    accurately calculate the dirty ratio even if large portions
->    of the node have been allocated for huge pages or for
->    slab pages.
+Use ARRAY_SIZE macro in pvrusb2-hdw.c file
 
-What about mlock'ed pages?
+Signed-off-by: Ahmed S. Darwish <darwish.07@gmail.com>
+---
+diff --git a/drivers/media/video/pvrusb2/pvrusb2-hdw.c b/drivers/media/video/pvrusb2/pvrusb2-hdw.c
+index d200496..f66f7c6 100644
+--- a/drivers/media/video/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/video/pvrusb2/pvrusb2-hdw.c
+@@ -71,12 +71,10 @@ static const char *pvr2_client_29xxx[] = {
+ 
+ static struct pvr2_string_table pvr2_client_lists[] = {
+ 	[PVR2_HDW_TYPE_29XXX] = {
+-		pvr2_client_29xxx,
+-		sizeof(pvr2_client_29xxx)/sizeof(pvr2_client_29xxx[0]),
++		pvr2_client_29xxx, ARRAY_SIZE(pvr2_client_29xxx)
+ 	},
+ 	[PVR2_HDW_TYPE_24XXX] = {
+-		pvr2_client_24xxx,
+-		sizeof(pvr2_client_24xxx)/sizeof(pvr2_client_24xxx[0]),
++		pvr2_client_24xxx, ARRAY_SIZE(pvr2_client_24xxx)
+ 	},
+ };
+ 
+@@ -212,7 +210,7 @@ static const struct pvr2_mpeg_ids mpeg_ids[] = {
+ 		.id = V4L2_CID_MPEG_CX2341X_VIDEO_CHROMA_MEDIAN_FILTER_BOTTOM,
+ 	}
+ };
+-#define MPEGDEF_COUNT (sizeof(mpeg_ids)/sizeof(mpeg_ids[0]))
++#define MPEGDEF_COUNT ARRAY_SIZE(mpeg_ids)
+ 
+ 
+ static const char *control_values_srate[] = {
+@@ -846,7 +844,7 @@ static const struct pvr2_ctl_info control_defs[] = {
+ 	}
+ };
+ 
+-#define CTRLDEF_COUNT (sizeof(control_defs)/sizeof(control_defs[0]))
++#define CTRLDEF_COUNT ARRAY_SIZE(control_defs)
+ 
+ 
+ const char *pvr2_config_get_name(enum pvr2_config cfg)
+@@ -960,12 +958,10 @@ static int pvr2_upload_firmware1(struct pvr2_hdw *hdw)
+ 	};
+ 	static const struct pvr2_string_table fw_file_defs[] = {
+ 		[PVR2_HDW_TYPE_29XXX] = {
+-			fw_files_29xxx,
+-			sizeof(fw_files_29xxx)/sizeof(fw_files_29xxx[0]),
++			fw_files_29xxx, ARRAY_SIZE(fw_files_29xxx)
+ 		},
+ 		[PVR2_HDW_TYPE_24XXX] = {
+-			fw_files_24xxx,
+-			sizeof(fw_files_24xxx)/sizeof(fw_files_24xxx[0]),
++			fw_files_24xxx, ARRAY_SIZE(fw_files_24xxx)
+ 		},
+ 	};
+ 	hdw->fw1_state = FW1_STATE_FAILED; // default result
+@@ -1052,8 +1048,7 @@ int pvr2_upload_firmware2(struct pvr2_hdw *hdw)
+ 	trace_firmware("pvr2_upload_firmware2");
+ 
+ 	ret = pvr2_locate_firmware(hdw,&fw_entry,"encoder",
+-				   sizeof(fw_files)/sizeof(fw_files[0]),
+-				   fw_files);
++				   ARRAY_SIZE(fw_files), fw_files);
+ 	if (ret < 0) return ret;
+ 	fwidx = ret;
+ 	ret = 0;
+@@ -1750,8 +1745,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	struct pvr2_ctl_info *ciptr;
+ 
+ 	hdw_type = devid - pvr2_device_table;
+-	if (hdw_type >=
+-	    sizeof(pvr2_device_names)/sizeof(pvr2_device_names[0])) {
++	if (hdw_type >= ARRAY_SIZE(pvr2_device_names)) {
+ 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
+ 			   "Bogus device type of %u reported",hdw_type);
+ 		return NULL;
 
-> There are a couple of points where some better ideas could be used:
-> 
-> 1. The nodemask expands the inode structure significantly if the
-> architecture allows a high number of nodes. This is only an issue
-> for IA64. For that platform we expand the inode structure by 128 byte
-> (to support 1024 nodes). The last patch attempts to address the issue
-> by using the knowledge about the maximum possible number of nodes
-> determined on bootup to shrink the nodemask.
-
-Not the prettiest indeed, no ideas though.
-
-> 2. The calculation of the per cpuset limits can require looping
-> over a number of nodes which may bring the performance of get_dirty_limits
-> near pre 2.6.18 performance (before the introduction of the ZVC counters)
-> (only for cpuset based limit calculation). There is no way of keeping these
-> counters per cpuset since cpusets may overlap.
-
-Well, you gain functionality, you loose some runtime, sad but probably
-worth it.
-
-Otherwise it all looks good.
-
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+-- 
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

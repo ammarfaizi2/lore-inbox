@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750853AbXAPSqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750886AbXAPSqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbXAPSqW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 13:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbXAPSqW
+	id S1750886AbXAPSqj (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 13:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbXAPSqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 13:46:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60936 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750849AbXAPSqV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 13:46:21 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com,
-       xfs@oss.sgi.com
-Subject: [PATCH] sysctl: fixes for my C99 converion xfs ctl_tables
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-	<11689656301563-git-send-email-ebiederm@xmission.com>
-	<20070116181651.GA5028@martell.zuzino.mipt.ru>
-Date: Tue, 16 Jan 2007 11:45:35 -0700
-In-Reply-To: <20070116181651.GA5028@martell.zuzino.mipt.ru> (Alexey Dobriyan's
-	message of "Tue, 16 Jan 2007 21:16:51 +0300")
-Message-ID: <m1ejpubyk0.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Tue, 16 Jan 2007 13:46:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59606 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750871AbXAPSqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 13:46:38 -0500
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Richard J Moore <richardj_moore@uk.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Ingo Molnar <mingo@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 0/4 update] Linux Kernel Markers - i386 : pIII erratum 49 : XMC
+References: <20070113054534.GA27017@Krystal> <20070116174158.GA16084@Krystal>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 16 Jan 2007 13:35:21 -0500
+In-Reply-To: <20070116174158.GA16084@Krystal>
+Message-ID: <y0mzm8izuom.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
 
-This kills the extra NULLs and spaces, I missed.
+> [...]
+> It would be nice to push the study of the kprobes debug trap handler so it can
+> become possible to use it to put breakpoints in trap handlers. For now, kprobes
+> refuses to insert breakpoints in __kprobes marked functions. However, as we
+> instrument specific spots of the functions (not necessarily the function entry),
+> it is sometimes correct to use kprobes on a marker within the function even if 
+> it is not correct to use it in the prologue. [...]
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- fs/xfs/linux-2.6/xfs_sysctl.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+It may help to note that the issue with __kprobes attributes is
+separate from putting probes in the prologue vs. elsewhere.  The
+__kprobes functions are so marked because they can cause infinite
+regress if probed.  Examples are fault handlers that would service
+vmalloc-related faults, and some other functions unavoidably callable
+from early probe handling context.  Over time, the list has shrunk.
 
-diff --git a/fs/xfs/linux-2.6/xfs_sysctl.c b/fs/xfs/linux-2.6/xfs_sysctl.c
-index 3ac4dab..0dc3b59 100644
---- a/fs/xfs/linux-2.6/xfs_sysctl.c
-+++ b/fs/xfs/linux-2.6/xfs_sysctl.c
-@@ -94,7 +94,7 @@ STATIC ctl_table xfs_table[] = {
- 		.data		= &xfs_params.panic_mask.val,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	=  &proc_dointvec_minmax,
-+		.proc_handler	= &proc_dointvec_minmax,
- 		.strategy	= &sysctl_intvec,
- 		.extra1		= &xfs_params.panic_mask.min,
- 		.extra2		= &xfs_params.panic_mask.max
-@@ -140,7 +140,7 @@ STATIC ctl_table xfs_table[] = {
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec_minmax,
--		.strategy	= &sysctl_intvec, NULL,
-+		.strategy	= &sysctl_intvec,
- 		.extra1		= &xfs_params.inherit_nodump.min,
- 		.extra2		= &xfs_params.inherit_nodump.max
- 	},
-@@ -151,7 +151,7 @@ STATIC ctl_table xfs_table[] = {
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec_minmax,
--		.strategy	= &sysctl_intvec, NULL,
-+		.strategy	= &sysctl_intvec,
- 		.extra1		= &xfs_params.inherit_noatim.min,
- 		.extra2		= &xfs_params.inherit_noatim.max
- 	},
-@@ -218,7 +218,7 @@ STATIC ctl_table xfs_table[] = {
- 		.data		= &xfs_params.stats_clear.val,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	=  &xfs_stats_clear_proc_handler,
-+		.proc_handler	= &xfs_stats_clear_proc_handler,
- 		.strategy	= &sysctl_intvec,
- 		.extra1		= &xfs_params.stats_clear.min,
- 		.extra2		= &xfs_params.stats_clear.max
--- 
-1.4.4.1.g278f
+Indeed, __kprobes marking is a conservative measure, in that there may
+be spots in such functions that are immune from recursion hazards.
+But so far, we haven't encountered enough examples of this to warrant
+refining this blacklist somehow.
 
+- FChE

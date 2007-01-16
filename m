@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932147AbXAPAXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932154AbXAPAf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbXAPAXr (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 19:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbXAPAXq
+	id S932154AbXAPAf5 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 19:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbXAPAf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 19:23:46 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:21437 "EHLO
+	Mon, 15 Jan 2007 19:35:57 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:20013 "EHLO
 	pd4mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932147AbXAPAXp (ORCPT
+	with ESMTP id S932154AbXAPAf4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 19:23:45 -0500
-Date: Mon, 15 Jan 2007 18:23:07 -0600
+	Mon, 15 Jan 2007 19:35:56 -0500
+Date: Mon, 15 Jan 2007 18:34:43 -0600
 From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-In-reply-to: <45AC08B9.5020007@scientia.net>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: linux-kernel@vger.kernel.org, cw@f00f.org, knweiss@gmx.de, ak@suse.de,
-       andersen@codepoet.org, krader@us.ibm.com, lfriedman@nvidia.com,
-       linux-nforce-bugs@nvidia.com
-Message-id: <45AC1AEB.60805@shaw.ca>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+In-reply-to: <20070115234650.GA2124@atjola.homenet>
+To: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com
+Message-id: <45AC1DA3.5040104@shaw.ca>
 MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <459C3F29.2@shaw.ca>
- <45AC06B2.3060806@scientia.net> <45AC08B9.5020007@scientia.net>
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no>
+ <45AAC039.1020808@shaw.ca> <20070115211723.GA3750@atjola.homenet>
+ <20070115234650.GA2124@atjola.homenet>
 User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Anton Mitterer wrote:
-> Sorry, as always I've forgot some things... *g*
+Björn Steinbrink wrote:
+>> My latest bisection attempt actually led to your sata_nv ADMA commit. [1]
+>> I've now backed out that patch from 2.6.20-rc5 and have my stress test
+>> running for 20 minutes now ("record" for a bad kernel surviving that
+>> test is about 40 minutes IIRC). I'll keep it running for at least 2 more
+>> hours.
 > 
-> 
-> Robert Hancock wrote:
-> 
->> If this is related to some problem with using the GART IOMMU with memory 
->> hole remapping enabled
-> What is that GART thing exactly? Is this the hardware IOMMU? I've always
-> thought GART was something graphics card related,.. but if so,.. how
-> could this solve our problem (that seems to occur mainly on harddisks)?
+> Yep, that one seems to be guilty. 2.6.20-rc5 with that commit backed out
+> survived about 3 hours of testing, while the average was around 5
+> minutes for a failure, sometimes even before I could log in.
+> I took a look at the patch, but I can't really tell anything.
+> nv_adma_check_atapi_dma somehow looks like it should not negate its
+> return value, so that it returns 0 (atapi dma available) when
+> adma_enable was 1. But I'm not exactly confident about that either ;)
+> Will it hurt if I try to remove the negation?
 
-The GART built into the Athlon 64/Opteron CPUs is normally used for 
-remapping graphics memory so that an AGP graphics card can see 
-physically non-contiguous memory as one contiguous region. However, 
-Linux can also use it as an IOMMU which allows devices which normally 
-can't access memory above 4GB to see a mapping of that memory that 
-resides below 4GB. In pre-2.6.20 kernels both the SATA and PATA 
-controllers on the nForce 4 chipsets can only access memory below 4GB so 
-transfers to memory above this mark have to go through the IOMMU. In 
-2.6.20 this limitation is lifted on the nForce4 SATA controllers.
+It should be correct the way it is - that check is trying to prevent 
+ATAPI commands from using DMA until the slave_config function has been 
+called to set up the DMA parameters properly. When the 
+NV_ADMA_ATAPI_SETUP_COMPLETE flag is not set, this returns 1 which 
+disallows DMA transfers. Unless you were using an ATAPI (i.e. CD/DVD) 
+device on the channel this wouldn't affect you anyway.
 
-> 
->> then 2.6.20-rc kernels may avoid this problem on 
->> nForce4 CK804/MCP04 chipsets as far as transfers to/from the SATA 
->> controller are concerned
-> Does this mean that PATA is no related? The corruption appears on PATA
-> disks to, so why should it only solve the issue at SATA disks? Sounds a
-> bit strange to me?
-
-The PATA controller will still be using 32-bit DMA and so may also use 
-the IOMMU, so this problem would not be avoided.
-
-> 
->> as the sata_nv driver now supports 64-bit DMA 
->> on these chipsets and so no longer requires the IOMMU.
->>   
-> Can you explain this a little bit more please? Is this a drawback (like
-> a performance decrease)? Like under Windows where they never use the
-> hardware iommu but always do it via software?
-
-No, it shouldn't cause any performance loss. In previous kernels the 
-nForce4 SATA controller was controlled using an interface quite similar 
-to a PATA controller. In 2.6.20 kernels they use a more efficient 
-interface that NVidia calls ADMA, which in addition to supporting NCQ 
-also supports DMA without any 4GB limitations, so it can access all 
-memory directly without requiring IOMMU assistance.
-
-Note that if this corruption problem is, as has been suggested, related 
-to memory hole remapping and the IOMMU, then this change only prevents 
-the SATA controller transfers from experiencing this problem. Transfers 
-on the PATA controller as well as any other devices with 32-bit DMA 
-limitations might still have problems. As such this really just avoids 
-the problem, not fixes it.
+I'll try your stress test when I get a chance, but I doubt I'll run into 
+the same problem and I haven't seen any similar reports. Perhaps it's 
+some kind of wierd timing issue or incompatibility between the 
+controller and that drive when running in ADMA mode? I seem to remember 
+various reports of issues with certain Maxtor drives and some nForce 
+SATA controllers under Windows at least..
 
 -- 
 Robert Hancock      Saskatoon, SK, Canada
 To email, remove "nospam" from hancockr@nospamshaw.ca
 Home Page: http://www.roberthancock.com/
-
 

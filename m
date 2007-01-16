@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751456AbXAPQoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751572AbXAPQpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbXAPQoj (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 11:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbXAPQoh
+	id S1751572AbXAPQpD (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 11:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbXAPQom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:44:37 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37871 "EHLO
+	Tue, 16 Jan 2007 11:44:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37847 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751399AbXAPQoW (ORCPT
+	with ESMTP id S1751355AbXAPQoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:22 -0500
+	Tue, 16 Jan 2007 11:44:17 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 27/59] sysctl: sn Remove sysctl ABI BREAKAGE
-Date: Tue, 16 Jan 2007 09:39:32 -0700
-Message-Id: <1168965647511-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 40/59] sysctl: C99 convert ctl_tables in arch/x86_64/kernel/vsyscall.c
+Date: Tue, 16 Jan 2007 09:39:45 -0700
+Message-Id: <11689656651135-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,83 +37,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-By not using the enumeration in sysctl.h (or even understanding it)
-the SN platform placed their arch specific xpc directory on top of
-CTL_KERN and only because they didn't have 4 entries in their xpc
-directory got lucky and didn't break glibc.
+Basically everything was done but I removed all element
+initializers from the trailing entries to make it clear
+the entire last entry should be zero filled.
 
-This is totally irresponsible.  So this patch entirely removes
-sys_sysctl support from their sysctl code.  Hopefully they
-don't have ascii name conflicts as well.
-
-And now that they have no ABI numbers add them to the end
-instead of the sysctl list instead of the head so nothing
-else will be overridden.
-
-Cc: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/ia64/sn/kernel/xpc_main.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86_64/kernel/vsyscall.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/sn/kernel/xpc_main.c b/arch/ia64/sn/kernel/xpc_main.c
-index 7a387d2..24adb75 100644
---- a/arch/ia64/sn/kernel/xpc_main.c
-+++ b/arch/ia64/sn/kernel/xpc_main.c
-@@ -101,7 +101,7 @@ static int xpc_disengage_request_max_timelimit = 120;
- 
- static ctl_table xpc_sys_xpc_hb_dir[] = {
- 	{
--		1,
-+		CTL_UNNUMBERED,
- 		"hb_interval",
- 		&xpc_hb_interval,
- 		sizeof(int),
-@@ -114,7 +114,7 @@ static ctl_table xpc_sys_xpc_hb_dir[] = {
- 		&xpc_hb_max_interval
- 	},
- 	{
--		2,
-+		CTL_UNNUMBERED,
- 		"hb_check_interval",
- 		&xpc_hb_check_interval,
- 		sizeof(int),
-@@ -130,7 +130,7 @@ static ctl_table xpc_sys_xpc_hb_dir[] = {
+diff --git a/arch/x86_64/kernel/vsyscall.c b/arch/x86_64/kernel/vsyscall.c
+index 2433d6f..c0e2b48 100644
+--- a/arch/x86_64/kernel/vsyscall.c
++++ b/arch/x86_64/kernel/vsyscall.c
+@@ -235,13 +235,13 @@ static ctl_table kernel_table2[] = {
+ 	  .data = &sysctl_vsyscall, .maxlen = sizeof(int), .mode = 0644,
+ 	  .strategy = vsyscall_sysctl_nostrat,
+ 	  .proc_handler = vsyscall_sysctl_change },
+-	{ 0, }
++	{}
  };
- static ctl_table xpc_sys_xpc_dir[] = {
- 	{
--		1,
-+		CTL_UNNUMBERED,
- 		"hb",
- 		NULL,
- 		0,
-@@ -138,7 +138,7 @@ static ctl_table xpc_sys_xpc_dir[] = {
- 		xpc_sys_xpc_hb_dir
- 	},
- 	{
--		2,
-+		CTL_UNNUMBERED,
- 		"disengage_request_timelimit",
- 		&xpc_disengage_request_timelimit,
- 		sizeof(int),
-@@ -154,7 +154,7 @@ static ctl_table xpc_sys_xpc_dir[] = {
+ 
+ static ctl_table kernel_root_table2[] = {
+ 	{ .ctl_name = CTL_KERN, .procname = "kernel", .mode = 0555,
+ 	  .child = kernel_table2 },
+-	{ 0 },
++	{}
  };
- static ctl_table xpc_sys_dir[] = {
- 	{
--		1,
-+		CTL_UNNUMBERED,
- 		"xpc",
- 		NULL,
- 		0,
-@@ -1251,7 +1251,7 @@ xpc_init(void)
- 	snprintf(xpc_part->bus_id, BUS_ID_SIZE, "part");
- 	snprintf(xpc_chan->bus_id, BUS_ID_SIZE, "chan");
  
--	xpc_sysctl = register_sysctl_table(xpc_sys_dir, 1);
-+	xpc_sysctl = register_sysctl_table(xpc_sys_dir, 0);
- 
- 	/*
- 	 * The first few fields of each entry of xpc_partitions[] need to
+ #endif
 -- 
 1.4.4.1.g278f
 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751811AbXAPRAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751838AbXAPRA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751811AbXAPRAc (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 12:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbXAPQoe
+	id S1751838AbXAPRA4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 12:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbXAPRAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 11:44:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37890 "EHLO
+	Tue, 16 Jan 2007 12:00:40 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37927 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751517AbXAPQo0 (ORCPT
+	with ESMTP id S1751538AbXAPQoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 11:44:26 -0500
+	Tue, 16 Jan 2007 11:44:34 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
@@ -26,9 +26,9 @@ Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
        coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
        linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
        kurt.hackel@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 29/59] sysctl: C99 convert arch/ia64/kernel/perfmon and remove ABI breakage
-Date: Tue, 16 Jan 2007 09:39:34 -0700
-Message-Id: <1168965650735-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 12/59] sysctl: atalk remove unnecessary insert_at_head flag
+Date: Tue, 16 Jan 2007 09:39:17 -0700
+Message-Id: <11689656281139-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.5.0.rc1.gb60d
 In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
@@ -37,88 +37,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
 
-This convers the sysctl ctl_tables to use C99 initializers.
-While I was looking at it I discovered it was using a portion of
-the sysctl binary addresses space under CTL_KERN KERN_OSTYPE
-which was completely inappropriate.  So I completely removed
-all of the sysctl binary names, to remove and avoid the ABI conflict.
-
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/ia64/kernel/perfmon.c |   56 ++++++++++++++++++++++++++++++++++++-------
- 1 files changed, 47 insertions(+), 9 deletions(-)
+ net/appletalk/sysctl_net_atalk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/kernel/perfmon.c b/arch/ia64/kernel/perfmon.c
-index aa94f60..8c679ab 100644
---- a/arch/ia64/kernel/perfmon.c
-+++ b/arch/ia64/kernel/perfmon.c
-@@ -521,19 +521,57 @@ pfm_sysctl_t pfm_sysctl;
- EXPORT_SYMBOL(pfm_sysctl);
+diff --git a/net/appletalk/sysctl_net_atalk.c b/net/appletalk/sysctl_net_atalk.c
+index 40b0af7..4f806b6 100644
+--- a/net/appletalk/sysctl_net_atalk.c
++++ b/net/appletalk/sysctl_net_atalk.c
+@@ -73,7 +73,7 @@ static struct ctl_table_header *atalk_table_header;
  
- static ctl_table pfm_ctl_table[]={
--	{1, "debug", &pfm_sysctl.debug, sizeof(int), 0666, NULL, &proc_dointvec, NULL,},
--	{2, "debug_ovfl", &pfm_sysctl.debug_ovfl, sizeof(int), 0666, NULL, &proc_dointvec, NULL,},
--	{3, "fastctxsw", &pfm_sysctl.fastctxsw, sizeof(int), 0600, NULL, &proc_dointvec, NULL,},
--	{4, "expert_mode", &pfm_sysctl.expert_mode, sizeof(int), 0600, NULL, &proc_dointvec, NULL,},
--	{ 0, },
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "debug",
-+		.data		= &pfm_sysctl.debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0666,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "debug_ovfl",
-+		.data		= &pfm_sysctl.debug_ovfl,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0666,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "fastctxsw",
-+		.data		= &pfm_sysctl.fastctxsw,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	=  &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "expert_mode",
-+		.data		= &pfm_sysctl.expert_mode,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{}
- };
- static ctl_table pfm_sysctl_dir[] = {
--	{1, "perfmon", NULL, 0, 0755, pfm_ctl_table, },
-- 	{0,},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "perfmon",
-+		.mode		= 0755,
-+		.child		= pfm_ctl_table,
-+	},
-+ 	{}
- };
- static ctl_table pfm_sysctl_root[] = {
--	{1, "kernel", NULL, 0, 0755, pfm_sysctl_dir, },
-- 	{0,},
-+	{
-+		.ctl_name	= CTL_KERN,
-+		.procname	= "kernel",
-+		.mode		= 0755,
-+		.child		= pfm_sysctl_dir,
-+	},
-+ 	{}
- };
- static struct ctl_table_header *pfm_sysctl_header;
+ void atalk_register_sysctl(void)
+ {
+-	atalk_table_header = register_sysctl_table(atalk_root_table, 1);
++	atalk_table_header = register_sysctl_table(atalk_root_table, 0);
+ }
  
+ void atalk_unregister_sysctl(void)
 -- 
 1.4.4.1.g278f
 

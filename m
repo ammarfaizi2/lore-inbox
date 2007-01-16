@@ -1,118 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751652AbXAPVmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751653AbXAPVrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751652AbXAPVmH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 16:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbXAPVmH
+	id S1751653AbXAPVrc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 16:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751664AbXAPVrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 16:42:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52599 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751652AbXAPVmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 16:42:03 -0500
-Message-ID: <45AD4698.7050908@redhat.com>
-Date: Tue, 16 Jan 2007 16:41:44 -0500
-From: Chris Lalancette <clalance@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Tue, 16 Jan 2007 16:47:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34910 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751653AbXAPVrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 16:47:31 -0500
+Date: Tue, 16 Jan 2007 22:47:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux usb mailing list 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: 2.6.20-rc5: usb mouse breaks suspend to ram
+Message-ID: <20070116214706.GA2182@elf.ucw.cz>
+References: <20070116135727.GA2831@elf.ucw.cz> <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com> <20070116142432.GA6171@elf.ucw.cz> <d120d5000701161325h112a9299w944763b7f1032a61@mail.gmail.com>
 MIME-Version: 1.0
-To: jgarzik@pobox.com
-CC: Francois Romieu <romieu@fr.zoreil.com>, netdev@vger.kernel.org,
-       Herbert Xu <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.20-rc3]: 8139cp: Don't blindly enable interrupts
-References: <45ABAE69.4070105@redhat.com> <20070115195635.GA14205@electric-eye.fr.zoreil.com> <45ACE4B6.3040809@redhat.com> <20070116202217.GA9369@electric-eye.fr.zoreil.com>
-In-Reply-To: <20070116202217.GA9369@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000701161325h112a9299w944763b7f1032a61@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
+Hi!
 
->Chris Lalancette <clalance@redhat.com> :
->[...]
->  
->
->>     Thanks for the comments.  While the patch you sent will help, there are
->>still other places that will have problems.  For example, in netpoll_send_skb,
->>we call local_irq_save(flags), then call dev->hard_start_xmit(), and then call
->>local_irq_restore(flags).  This is a similar situation to what I described
->>above; we will re-enable interrupts in cp_start_xmit(), when netpoll_send_skb
->>doesn't expect that, and will probably run into issues.
->>     Is there a problem with changing cp_start_xmit to use the
->>spin_lock_irqsave(), besides the extra instructions it needs?
->>    
->>
->
->No. Given the history of locking in netpoll and the content of
->Documentation/networking/netdevices.txt, asking Herbert which rule(s)
->the code is supposed to follow seemed safer to me.
->
->You can forget my patch.
->
->Please resend your patch inlined to Jeff as described in
->http://linux.yyz.us/patch-format.html.
->
->  
->
-Francois,
-     Great.  Resending mail, shortening subject to < 65 characters and
-inlining the patch.
+> >> >I started using el-cheapo usb mouse... only to find out that it breaks
+> >> >suspend to RAM. Suspend-to-disk works okay. I was not able to extract
+> >> >any usefull messages...
+> >> >
+> >> >Resume process hangs; I can still switch console and even type on
+> >> >keyboard, but userland is dead, and I was not able to get magic sysrq
+> >> >to respond.
+> >>
+> >> Are you using hid or usbmouse?
+> >
+> >I think it is hid:
+> >
+> >pavel@amd:/data/l/linux$ cat .config | grep MOUSE
+...
+> >pavel@amd:/data/l/linux$
+> >
+> >Should I disable config_hid and try some other driver?
+> 
+> No, HID is the preferred... I am not sure what is going on - on my box
+> STR does not work at all thanks to nvidia chip turning the display on
+> all the way as the very last step of suspend ;(
 
-Thanks,
-Chris Lalancette
+Hmm, I guess we should fix the suspend for you...
 
-Similar to this commit:
+Strange, I can't reproduce the hang any more.
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=d15e9c4d9a75702b30e00cdf95c71c88e3f3f51e
-
-It's not safe in cp_start_xmit to blindly call spin_lock_irq and then
-spin_unlock_irq, since it may very well be the case that cp_start_xmit
-was called with interrupts already disabled (I came across this bug in
-the context of netdump in RedHat kernels, but the same issue holds, for
-example, in netconsole). Therefore, replace all instances of
-spin_lock_irq and spin_unlock_irq with spin_lock_irqsave and
-spin_unlock_irqrestore, respectively, in cp_start_xmit(). I tested this
-against a fully-virtualized Xen guest using netdump, which happens to
-use the 8139cp driver to talk to the emulated hardware. I don't have a
-real piece of 8139cp hardware to test on, so someone else will have to
-do that.
-
-Signed-off-by: Chris Lalancette <clalance@redhat.com>
-
-diff --git a/drivers/net/8139cp.c b/drivers/net/8139cp.c
-index e2cb19b..6f93a76 100644
---- a/drivers/net/8139cp.c
-+++ b/drivers/net/8139cp.c
-@@ -765,17 +765,18 @@ static int cp_start_xmit (struct sk_buff *skb, struct net_device *dev)
- 	struct cp_private *cp = netdev_priv(dev);
- 	unsigned entry;
- 	u32 eor, flags;
-+	unsigned long intr_flags;
- #if CP_VLAN_TAG_USED
- 	u32 vlan_tag = 0;
- #endif
- 	int mss = 0;
- 
--	spin_lock_irq(&cp->lock);
-+	spin_lock_irqsave(&cp->lock, intr_flags);
- 
- 	/* This is a hard error, log it. */
- 	if (TX_BUFFS_AVAIL(cp) <= (skb_shinfo(skb)->nr_frags + 1)) {
- 		netif_stop_queue(dev);
--		spin_unlock_irq(&cp->lock);
-+		spin_unlock_irqrestore(&cp->lock, intr_flags);
- 		printk(KERN_ERR PFX "%s: BUG! Tx Ring full when queue awake!\n",
- 		       dev->name);
- 		return 1;
-@@ -908,7 +909,7 @@ static int cp_start_xmit (struct sk_buff *skb, struct net_device *dev)
- 	if (TX_BUFFS_AVAIL(cp) <= (MAX_SKB_FRAGS + 1))
- 		netif_stop_queue(dev);
- 
--	spin_unlock_irq(&cp->lock);
-+	spin_unlock_irqrestore(&cp->lock, intr_flags);
- 
- 	cpw8(TxPoll, NormalTxPoll);
- 	dev->trans_start = jiffies;
-
-
+I found other weirdness while trying to hang it: if I move the mouse
+while suspending, it is _not_ completely powered off while machine is
+suspended. LED still shines, at half brightness...?! 
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

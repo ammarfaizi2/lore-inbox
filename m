@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932204AbXAPBxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932148AbXAPCCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbXAPBxO (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 20:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXAPBxO
+	id S932148AbXAPCCv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 21:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbXAPCCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 20:53:14 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:51591 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932204AbXAPBxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 20:53:13 -0500
-Message-ID: <45AC3006.9070705@garzik.org>
-Date: Mon, 15 Jan 2007 20:53:10 -0500
-From: Jeff Garzik <jeff@garzik.org>
+	Mon, 15 Jan 2007 21:02:51 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:4402 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932148AbXAPCCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 21:02:50 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=googlemail.com; s=beta;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=SJ7cGl8m9QILlMqj2SOnmjHfiKmFkSKTf22+Y7sezVvWQ9dmlCTadcmLJWJOJOt1U5cBrBtBqw1XxeBcqKNkG1DZIYaOnOXF2BHIThGrJjKcWUJtk0obUi5nypxroK/RwjqbzeymdUormKg8XEeuEJibLakNBnvKc3A62HtYzgI=
+Message-ID: <45AC3214.4080800@googlemail.com>
+Date: Tue, 16 Jan 2007 03:01:56 +0100
+From: Gabriel C <nix.or.die@googlemail.com>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>,
-       =?ISO-8859-1?Q?Bj=F6rn_Steinbrin?= =?ISO-8859-1?Q?k?= 
-	<B.Steinbrink@gmx.de>
-CC: linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AAC039.1020808@shaw.ca> <20070115211723.GA3750@atjola.homenet> <20070115234650.GA2124@atjola.homenet> <45AC1DA3.5040104@shaw.ca>
-In-Reply-To: <45AC1DA3.5040104@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <greg@kroah.com>
+CC: David Miller <davem@davemloft.net>, dlstevens@us.ibm.com, dsd@gentoo.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] 2.6.19.2 regression introduced by "IPV4/IPV6: Fix inet{,
+ 6} device initialization order."
+References: <45AAF3AC.3070600@gentoo.org> <OF0ECEC103.470302BB-ON88257264.00142A49-88257264.0014DC27@us.ibm.com> <20070114.213008.74745274.davem@davemloft.net> <20070115072554.GA16969@kroah.com>
+In-Reply-To: <20070115072554.GA16969@kroah.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> I'll try your stress test when I get a chance, but I doubt I'll run into 
-> the same problem and I haven't seen any similar reports. Perhaps it's 
-> some kind of wierd timing issue or incompatibility between the 
-> controller and that drive when running in ADMA mode? I seem to remember 
-> various reports of issues with certain Maxtor drives and some nForce 
-> SATA controllers under Windows at least..
+Greg KH schrieb:
+> On Sun, Jan 14, 2007 at 09:30:08PM -0800, David Miller wrote:
+>   
+>> From: David Stevens <dlstevens@us.ibm.com>
+>> Date: Sun, 14 Jan 2007 19:47:49 -0800
+>>
+>>     
+>>> I think it's better to add the fix than withdraw this patch, since
+>>> the original bug is a crash.
+>>>       
+>> I completely agree.
+>>     
+>
+> Great, can someone forward the patch to us?
+>   
 
+Should be the fix from http://bugzilla.kernel.org/show_bug.cgi?id=7817
 
-Just to eliminate things, has disabling ADMA been attempted?
+> thanks,
+>
+> greg k-h
+>   
 
-It can be disabled using the sata_nv.adma module parameter.
+Regards,
 
-	Jeff
-
+Gabriel
 

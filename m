@@ -1,165 +1,153 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932177AbXAPBrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932185AbXAPBrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbXAPBrN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 15 Jan 2007 20:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbXAPBrN
+	id S932185AbXAPBrR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 15 Jan 2007 20:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbXAPBrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Jan 2007 20:47:13 -0500
-Received: from smtp.ono.com ([62.42.230.12]:52232 "EHLO resmaa01.ono.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932177AbXAPBrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Jan 2007 20:47:12 -0500
-Date: Tue, 16 Jan 2007 02:47:10 +0100
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Problem with POSIX threads in latest kernel...
-Message-ID: <20070116024710.7e94326c@werewolf-wl>
-X-Mailer: Claws Mail 2.7.0cvs26 (GTK+ 2.10.-1208314016; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=MP_UWy_eK9MAUiL6rHNrJ2kXHa
+	Mon, 15 Jan 2007 20:47:17 -0500
+Received: from mx1.sierrawireless.com ([204.50.29.40]:31564 "EHLO
+	mx1.sierrawireless.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932185AbXAPBrQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Jan 2007 20:47:16 -0500
+X-Greylist: delayed 846 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Jan 2007 20:47:16 EST
+Message-ID: <45AC2B68.9060904@sierrawireless.com>
+Date: Mon, 15 Jan 2007 17:33:28 -0800
+From: Kevin Lloyd <klloyd@sierrawireless.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: gregkh@suse.de
+CC: linux-usb-devel@lists.sourceforge.net,
+       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, klloyd@sierrawireless.com
+Subject: [PATCH 2.6.20-rc3 01/01] usb: Sierra Wireless auto set D0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jan 2007 01:28:19.0363 (UTC) FILETIME=[9A8CDF30:01C7390D]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14938.000
+X-TM-AS-Result: No--8.399900-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---MP_UWy_eK9MAUiL6rHNrJ2kXHa
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+from: Kevin Lloyd <linux@sierrawireless.com>
 
-Hi...
+This patch ensures that the device is turned on when inserted into the 
+system (which mostly affects the EM5725 and MC5720. It also adds more 
+VID/PIDs and matches the N_OUT_URB with the airprime driver.
 
-I run the (almost) latest -mm kernel (2.6.20-rc3-mm1), and see some strange behaviour
-with POSIX threads (glibc-2.4).
-I have downgraded my test to a simple textboox example for a SMP-safe spool
-queue, it's just a circular queue with a mutex and a condition variable for in
-and out. I have seen the same structure in several places.
+Signed-off-by: Kevin Lloyd <linux@sierrawireless.com>
 
-Well, it just sometimes gets blocked. GDB says its stuck in pthread_wait().
-I could swear it worked on previous kernels. It works as is on IRIX.
-I will try to build an older kernel to test.
-I takes a second to block it with something like while :; tst; done.
+---
 
-Any ideas ?
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.1 (Cooker) for i586
-Linux 2.6.19-jam04 (gcc 4.1.2 20061110 (prerelease) (4.1.2-0.20061110.2mdv2007.1)) #0 SMP PREEMPT
-
---MP_UWy_eK9MAUiL6rHNrJ2kXHa
-Content-Type: text/x-csrc; name=tst.c
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename=tst.c
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <pthread.h>
-
-#define SIZE		16
-
-int				jobs[SIZE];
-int				in;
-int				slots;
-pthread_mutex_t	slots_mutex;
-pthread_cond_t	slots_cond;
-int				out;
-int				items;
-pthread_mutex_t	items_mutex;
-pthread_cond_t	items_cond;
-
-void put(int job);
-void get(int* job);
-void* prod(void* data);
-void* cons(void* data);
-
-int main(int argc,char** argv)
-{
-	pthread_t	prodid,consid;
-
-	in =3D 0;
-	slots =3D SIZE;
-	pthread_mutex_init(&slots_mutex,0);
-	pthread_cond_init(&slots_cond,0);
-	out =3D 0;
-	items =3D 0;
-	pthread_mutex_init(&items_mutex,0);
-	pthread_cond_init(&items_cond,0);
-
-	pthread_setconcurrency(3);
-	pthread_create(&prodid,0,prod,0);
-	pthread_create(&consid,0,cons,0);
-
-	pthread_join(prodid,0);
-	pthread_join(consid,0);
-
-	return 0;
-}
-
-void* prod(void* data)
-{
-	int	i;
-
-	for (i=3D0; i<1000; i++)
-	{
-		if (!(i%100))
-			printf("put %d\n",i);
-		put(i);
-	}
-	put(-1);
-	puts("prod done");
-
-	return 0;
-}
-
-void* cons(void* data)
-{
-	int	i;
-	do
-	{
-		get(&i);
-		if (!(i%100))
-			printf("got %d\n",i);
-	}
-	while (i>=3D0);
-	puts("cons done");
-
-	return 0;
-}
-
-void put(int job)
-{
-	pthread_mutex_lock(&slots_mutex);
-		while (slots<=3D0)
-			pthread_cond_wait(&slots_cond,&slots_mutex);
-		jobs[in] =3D job;
-		in++;
-		in %=3D SIZE;
-		slots--;
-		items++;
-	pthread_mutex_unlock(&slots_mutex);
-
-	pthread_mutex_lock(&items_mutex);
-		pthread_cond_signal(&items_cond);
-	pthread_mutex_unlock(&items_mutex);
-}
-
-void get(int* job)
-{
-	pthread_mutex_lock(&items_mutex);
-		while (items<=3D0)
-			pthread_cond_wait(&items_cond,&items_mutex);
-		*job =3D jobs[out];
-		out++;
-		out %=3D SIZE;
-		items--;
-		slots++;
-	pthread_mutex_unlock(&items_mutex);
-
-	pthread_mutex_lock(&slots_mutex);
-		pthread_cond_signal(&slots_cond);
-	pthread_mutex_unlock(&slots_mutex);
-}
+--- linux-2.6.20-rc5/drivers/usb/serial/sierra.c.orig	2007-01-15 15:17:15.000000000 -0800
++++ linux-2.6.20-rc5/drivers/usb/serial/sierra.c	2007-01-15 15:41:56.000000000 -0800
+@@ -14,9 +14,31 @@
+   Whom based his on the Keyspan driver by Hugh Blemings <hugh@blemings.org>
+ 
+   History:
++v.1.0.6:
++ klloyd
++ Added more devices and added Vendor Specific USB message to make sure
++ that devices are in D0 state when they start. This is very important for
++ MC5720 and EM5625 modules that go between Windows and Non-Windows 
++ machines.
++v.1.0.5:
++ Greg KH
++ This saves over 30 lines and fixes a warning from sparse and allows
++ debugging to work dynamically like all other usb-serial drivers.
++ klloyd
++ Changed versioning to v.x.y.z
++v.1.04:
++ klloyd
++ Adds significant throughput increase to the Sierra driver (uses multiple
++ urgs for download link). This patch also updates the current sierra.c 
++ driver so that it supports both 3-port Sierra devices and 1-port legacy
++ devices and removes Sierra's references in other related files (Kconfig
++ and airprime.c).
++v.1.03
++ klloyd
++ Adds DTR line control support and impliments urb control.
+ */
+ 
+-#define DRIVER_VERSION "v.1.0.5"
++#define DRIVER_VERSION "v.1.0.6"
+ #define DRIVER_AUTHOR "Kevin Lloyd <linux@sierrawireless.com>"
+ #define DRIVER_DESC "USB Driver for Sierra Wireless USB modems"
+ 
+@@ -31,14 +53,14 @@
+ 
+ 
+ static struct usb_device_id id_table [] = {
++	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
+ 	{ USB_DEVICE(0x1199, 0x0018) },	/* Sierra Wireless MC5720 */
+ 	{ USB_DEVICE(0x1199, 0x0020) },	/* Sierra Wireless MC5725 */
+-	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
+ 	{ USB_DEVICE(0x1199, 0x0019) },	/* Sierra Wireless AirCard 595 */
+-	{ USB_DEVICE(0x1199, 0x0218) },	/* Sierra Wireless MC5720 */
++	{ USB_DEVICE(0x1199, 0x0021) },	/* Sierra Wireless AirCard 597E */
+ 	{ USB_DEVICE(0x1199, 0x6802) },	/* Sierra Wireless MC8755 */
++	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 */
+ 	{ USB_DEVICE(0x1199, 0x6803) },	/* Sierra Wireless MC8765 */
+-	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 for Europe */
+ 	{ USB_DEVICE(0x1199, 0x6812) },	/* Sierra Wireless MC8775 */
+ 	{ USB_DEVICE(0x1199, 0x6820) },	/* Sierra Wireless AirCard 875 */
+ 
+@@ -55,14 +77,14 @@ static struct usb_device_id id_table_1po
+ };
+ 
+ static struct usb_device_id id_table_3port [] = {
++	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
+ 	{ USB_DEVICE(0x1199, 0x0018) },	/* Sierra Wireless MC5720 */
+ 	{ USB_DEVICE(0x1199, 0x0020) },	/* Sierra Wireless MC5725 */
+-	{ USB_DEVICE(0x1199, 0x0017) },	/* Sierra Wireless EM5625 */
+ 	{ USB_DEVICE(0x1199, 0x0019) },	/* Sierra Wireless AirCard 595 */
+-	{ USB_DEVICE(0x1199, 0x0218) },	/* Sierra Wireless MC5720 */
++	{ USB_DEVICE(0x1199, 0x0021) },	/* Sierra Wireless AirCard 597E */
+ 	{ USB_DEVICE(0x1199, 0x6802) },	/* Sierra Wireless MC8755 */
++	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 */
+ 	{ USB_DEVICE(0x1199, 0x6803) },	/* Sierra Wireless MC8765 */
+-	{ USB_DEVICE(0x1199, 0x6804) },	/* Sierra Wireless MC8755 for Europe */
+ 	{ USB_DEVICE(0x1199, 0x6812) },	/* Sierra Wireless MC8775 */
+ 	{ USB_DEVICE(0x1199, 0x6820) },	/* Sierra Wireless AirCard 875 */
+ 	{ }
+@@ -81,7 +103,7 @@ static int debug;
+ 
+ /* per port private data */
+ #define N_IN_URB	4
+-#define N_OUT_URB	1
++#define N_OUT_URB	4
+ #define IN_BUFLEN	4096
+ #define OUT_BUFLEN	128
+ 
+@@ -123,6 +145,7 @@ static int sierra_send_setup(struct usb_
+ 		return usb_control_msg(serial->dev,
+ 				usb_rcvctrlpipe(serial->dev, 0),
+ 				0x22,0x21,val,0,NULL,0,USB_CTRL_SET_TIMEOUT);
++
+ 	}
+ 
+ 	return 0;
+@@ -396,6 +419,8 @@ static int sierra_open(struct usb_serial
+ 	struct usb_serial *serial = port->serial;
+ 	int i, err;
+ 	struct urb *urb;
++	int result;
++	__u16 set_mode_dzero = 0x0000; //Set mode to D0
+ 
+ 	portdata = usb_get_serial_port_data(port);
+ 
+@@ -442,6 +467,11 @@ static int sierra_open(struct usb_serial
+ 
+ 	port->tty->low_latency = 1;
+ 
++	//set mode to D0
++	result = usb_control_msg(serial->dev,
++			usb_rcvctrlpipe(serial->dev, 0),
++			0x00,0x40,set_mode_dzero,0,NULL,0,USB_CTRL_SET_TIMEOUT);
++
+ 	sierra_send_setup(port);
+ 
+ 	return (0);
 
 
---MP_UWy_eK9MAUiL6rHNrJ2kXHa--
+

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932567AbXAQQZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932523AbXAQQ30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbXAQQZM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 11:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbXAQQZM
+	id S932523AbXAQQ30 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 11:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbXAQQ30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 11:25:12 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:41490 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932567AbXAQQZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 11:25:10 -0500
-Date: Wed, 17 Jan 2007 21:55:01 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
-Message-ID: <20070117162501.GF26211@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru> <20070115161810.GB16435@in.ibm.com> <20070115165516.GA254@tv-sign.ru> <20070116052606.GA995@in.ibm.com> <20070116132725.GA81@tv-sign.ru> <20070117061705.GB2803@in.ibm.com> <20070117154716.GA104@tv-sign.ru>
+	Wed, 17 Jan 2007 11:29:26 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38178 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932523AbXAQQ3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 11:29:25 -0500
+Date: Wed, 17 Jan 2007 17:28:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: On some configs, sparse spinlock balance checking is broken
+Message-ID: <20070117162817.GB14727@elte.hu>
+References: <adaejpumt41.fsf@cisco.com> <20070117063450.GC14027@elte.hu> <adavej5k6ld.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070117154716.GA104@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <adavej5k6ld.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.3
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.3 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-1.0 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 06:47:16PM +0300, Oleg Nesterov wrote:
-> Btw, I agree it is good to have a sleeping lock to protect cpu_online_map.
-> But it should be separate from workqueue_mutex, and it is not needed for
-> create/destroy/flush funcs.
 
-Which is what lock_cpu_hotplug() attempted to provide but which
-has recd lot of flak in recent days. I guess if someone implements
-process freezer based locking of cpu_online_map, we will know better how 
-suited later is for cpu hotplug.
+* Roland Dreier <rdreier@cisco.com> wrote:
 
--- 
-Regards,
-vatsa
+> And actually the lock stuff is OK, since it's not inlined -- it's the 
+> unlock stuff that goes directly to the __raw versions.  But something 
+> like the following works for me; does it look OK to you?
+
+yeah, it looks good to me too. Hopefully this will work with the include 
+file ordering of all platforms.
+
+	Ingo

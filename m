@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750978AbXAQG1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750965AbXAQGdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbXAQG1u (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 01:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbXAQG1u
+	id S1750965AbXAQGdV (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 01:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbXAQGdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 01:27:50 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:42462 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751025AbXAQG1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 01:27:49 -0500
-Date: Tue, 16 Jan 2007 22:27:36 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
-Subject: Re: [RFC 0/8] Cpuset aware writeback
-In-Reply-To: <20070116200506.d19eacf5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0701162219180.5215@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
- <20070116135325.3441f62b.akpm@osdl.org> <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
- <20070116154054.e655f75c.akpm@osdl.org> <Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
- <20070116170734.947264f2.akpm@osdl.org> <Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
- <20070116183406.ed777440.akpm@osdl.org> <Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
- <20070116200506.d19eacf5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Jan 2007 01:33:20 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35929 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750949AbXAQGdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 01:33:19 -0500
+Date: Wed, 17 Jan 2007 07:31:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Two 2.6.20-rc5-rt2 issues
+Message-ID: <20070117063144.GB14027@elte.hu>
+References: <5114.194.65.103.1.1168943363.squirrel@www.rncbc.org> <20070116115638.GA6809@elte.hu> <47345.192.168.1.8.1168994713.squirrel@www.rncbc.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <47345.192.168.1.8.1168994713.squirrel@www.rncbc.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2007, Andrew Morton wrote:
 
-> > Yes this is the result of the hierachical nature of cpusets which already 
-> > causes issues with the scheduler. It is rather typical that cpusets are 
-> > used to partition the memory and cpus. Overlappig cpusets seem to have 
-> > mainly an administrative function. Paul?
-> 
-> The typical usage scenarios don't matter a lot: the examples I gave show
-> that the core problem remains unsolved.  People can still hit the bug.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-I agree the overlap issue is a problem and I hope it can be addressed 
-somehow for the rare cases in which such nesting takes place.
+> Building this already with -rt5, still gives:
+> ...
+>   LD      arch/i386/boot/compressed/vmlinux
+>   OBJCOPY arch/i386/boot/vmlinux.bin
+>   BUILD   arch/i386/boot/bzImage
+> Root device is (3, 2)
+> Boot sector 512 bytes.
+> Setup is 7407 bytes.
+> System is 1427 kB
+> Kernel: arch/i386/boot/bzImage is ready  (#1)
+> WARNING: "profile_hits" [drivers/kvm/kvm-intel.ko] undefined!
+> WARNING: "profile_hits" [drivers/kvm/kvm-amd.ko] undefined!
 
-One easy solution may be to check the dirty ratio before engaging in 
-reclaim. If the dirty ratio is sufficiently high then trigger writeout via 
-pdflush (we already wakeup pdflush while scanning and you already noted 
-that pdflush writeout is not occurring within the context of the current 
-cpuset) and pass over any dirty pages during LRU scans until some pages 
-have been cleaned up.
+ok - in my test-config i didnt have KVM modular - the patch below should 
+fix this problem.
 
-This means we allow allocation of additional kernel memory outside of the 
-cpuset while triggering writeout of inodes that have pages on the nodes 
-of the cpuset. The memory directly used by the application is still 
-limited. Just the temporary information needed for writeback is allocated 
-outside.
+	Ingo
 
-Well sounds somehow still like a hack. Any other ideas out there?
+Index: linux/kernel/profile.c
+===================================================================
+--- linux.orig/kernel/profile.c
++++ linux/kernel/profile.c
+@@ -332,7 +332,6 @@ out:
+ 	local_irq_restore(flags);
+ 	put_cpu();
+ }
+-EXPORT_SYMBOL_GPL(profile_hits);
+ 
+ static int __devinit profile_cpu_callback(struct notifier_block *info,
+ 					unsigned long action, void *__cpu)
+@@ -402,6 +401,8 @@ void profile_hits(int type, void *__pc, 
+ }
+ #endif /* !CONFIG_SMP */
+ 
++EXPORT_SYMBOL_GPL(profile_hits);
++
+ void __profile_tick(int type, struct pt_regs *regs)
+ {
+ 	if (type == CPU_PROFILING && timer_hook)

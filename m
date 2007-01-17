@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932299AbXAQMBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932381AbXAQMKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbXAQMBR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 07:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbXAQMBR
+	id S932381AbXAQMKT (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 07:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbXAQMKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 07:01:17 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:64913 "EHLO
-	vms042pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932299AbXAQMBQ (ORCPT
+	Wed, 17 Jan 2007 07:10:18 -0500
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:26053 "EHLO
+	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932381AbXAQMKQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 07:01:16 -0500
-Date: Wed, 17 Jan 2007 07:00:48 -0500
-From: David Hollis <dhollis@davehollis.com>
-Subject: Re: 2.6.20-rc4-mm1 USB (asix) problem
-In-reply-to: <20070116225909.GA6932@pool-71-123-123-29.spfdma.east.verizon.net>
-To: ebuddington@wesleyan.edu
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1169035248.11226.11.camel@dhollis-lnx.sunera.com>
-MIME-version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6)
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20070113203113.GB14587@pool-71-123-103-45.spfdma.east.verizon.net>
-	<1168889276.19899.105.camel@dhollis-lnx.sunera.com>
-	<20070115195024.GA8135@pool-71-123-103-45.spfdma.east.verizon.net>
-	<1168893137.19899.109.camel@dhollis-lnx.sunera.com>
-	<20070116225909.GA6932@pool-71-123-123-29.spfdma.east.verizon.net>
+	Wed, 17 Jan 2007 07:10:16 -0500
+Subject: Re: [PATCH 0/59] Cleanup sysctl
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>, netdev@vger.kernel.org,
+       xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com, minyard@acm.org,
+       openipmi-developer@lists.sourceforge.net, tony.luck@intel.com,
+       linux-mips@linux-mips.org, ralf@linux-mips.org,
+       heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-390@vm.marist.edu,
+       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
+       linuxsh-shmedia-dev@lists.sourceforge.net, ak@suse.de, vojtech@suse.cz,
+       clemens@ladisch.de, a.zummo@towertech.it, rtc-linux@googlegroups.com,
+       linux-parport@lists.infradead.org, andrea@suse.de, tim@cyberelk.net,
+       philb@gnu.org, aharkes@cs.cmu.edu, coda@cs.cmu.edu,
+       codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
+       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com
+In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
+References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 17 Jan 2007 13:10:13 +0100
+Message-Id: <1169035813.7711.7.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 17:59 -0500, Eric Buddington wrote:
-> On Mon, Jan 15, 2007 at 08:32:17PM +0000, David Hollis wrote:
-> > Interesting.  It would really be something if your devices happen to
-> > work better with 0.  Wouldn't make much sense at all unfortunately.  If
-> > 0 works, could you also try setting it to 2 or 3?  The PHY select value
-> > is a bit field with the 0 bit being to select the onboard PHY, and 1 bit
-> > being to 'auto-select' the PHY based on link status.  The data sheet
-> > indicates that 3 should be the default, but all of the literature I have
-> > seen from ASIX says to write a 1 to it.
-> 
-> My hardware is ver. B1.
-> 
-> 0, 2, and 3 all worked for me. 1, as before, does not.
-> 
+On Tue, 2007-01-16 at 09:33 -0700, Eric W. Biederman wrote:
+> There has not been much maintenance on sysctl in years, and as a result is
+> there is a lot to do to allow future interesting work to happen, and being
+> ambitious I'm trying to do it all at once :)
 
-That's good to hear.  Some other patches have started floating around to
-deal with these cases of internal vs. external PHY's and also seem to
-work.
+s390 parts look good. Kernels boots and the system controls are still
+working. I had to add an #include <linux/uaccess.h> to ipc/ipc_sysctl.c
+to get the kernel compiled. That include should be added to patch #51.
 
-> 'rmmod asix' takes a really long time (45-80s) with any setting, and
-> sometimes coincides with ksoftirqd pegging (99.9% CPU) for several
-> seconds.
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com> for:
+[PATCH 33/59] sysctl: s390 move sysctl definitions to sysctl.h
+[PATCH 34/59] sysctl: s390 Remove unnecessary use of insert_at_head
 
-This I haven't seen before.  Does it occur even when the device is able
-to work (using 0 or the like from above)?  This may be due to something
-else in the USB subsystem or something.
+and the s390 parts of 
+[PATCH 55/59] sysctl: Remove insert_at_head from register_sysctl
 
 -- 
-David Hollis <dhollis@davehollis.com>
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

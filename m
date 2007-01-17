@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932095AbXAQI7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932089AbXAQJA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbXAQI7G (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 03:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbXAQI7G
+	id S932089AbXAQJA4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 04:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbXAQJA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 03:59:06 -0500
-Received: from smtp3.netcabo.pt ([212.113.174.30]:26047 "EHLO
-	exch01smtp12.hdi.tvcabo" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932080AbXAQI7E (ORCPT
+	Wed, 17 Jan 2007 04:00:56 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:53198 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932089AbXAQJAz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 03:59:04 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Ao8CAHVzrUVZmGJA/2dsb2JhbAA
-Message-ID: <3521.194.65.103.1.1169024309.squirrel@www.rncbc.org>
-In-Reply-To: <20070117063144.GB14027@elte.hu>
-References: <5114.194.65.103.1.1168943363.squirrel@www.rncbc.org>
-    <20070116115638.GA6809@elte.hu>
-    <47345.192.168.1.8.1168994713.squirrel@www.rncbc.org>
-    <20070117063144.GB14027@elte.hu>
-Date: Wed, 17 Jan 2007 08:58:29 -0000 (WET)
-Subject: Re: Two 2.6.20-rc5-rt2 issues
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1
+	Wed, 17 Jan 2007 04:00:55 -0500
+Message-ID: <45ADE56B.4010608@bull.net>
+Date: Wed, 17 Jan 2007 09:59:23 +0100
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 17 Jan 2007 08:58:59.0646 (UTC) FILETIME=[BA3A5DE0:01C73A15]
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+       Jakub Jelinek <jakub@redhat.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>
+Subject: [PATCH 2.6.20-rc5 0/4] futexes functionalities and improvements
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/01/2007 10:09:10,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/01/2007 10:09:11,
+	Serialize complete at 17/01/2007 10:09:11
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, January 17, 2007 06:31, Ingo Molnar wrote:
->
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
->
->> Building this already with -rt5, still gives:
->> ...
->> LD      arch/i386/boot/compressed/vmlinux
->> OBJCOPY arch/i386/boot/vmlinux.bin
->> BUILD   arch/i386/boot/bzImage
->> Root device is (3, 2)
->> Boot sector 512 bytes.
->> Setup is 7407 bytes.
->> System is 1427 kB
->> Kernel: arch/i386/boot/bzImage is ready  (#1)
->> WARNING: "profile_hits" [drivers/kvm/kvm-intel.ko] undefined!
->> WARNING: "profile_hits" [drivers/kvm/kvm-amd.ko] undefined!
->>
->
-> ok - in my test-config i didnt have KVM modular - the patch below should
-> fix this problem.
->
-> Ingo
->
->
-> Index: linux/kernel/profile.c
-> ===================================================================
-> --- linux.orig/kernel/profile.c
-> +++ linux/kernel/profile.c
-> @@ -332,7 +332,6 @@ out:
-> local_irq_restore(flags); put_cpu(); }
-> -EXPORT_SYMBOL_GPL(profile_hits);
->
->
-> static int __devinit profile_cpu_callback(struct notifier_block *info,
-> unsigned long action, void *__cpu) @@ -402,6 +401,8 @@ void
-> profile_hits(int type, void *__pc, }
-> #endif /* !CONFIG_SMP */
->
->
-> +EXPORT_SYMBOL_GPL(profile_hits);
-> +
-> void __profile_tick(int type, struct pt_regs *regs) {
-> if (type == CPU_PROFILING && timer_hook)
->
+	Today, there are several functionalities or improvements about futexes included
+in -rt kernel tree, which, I think, it make sense to have in mainline.
 
-OK, now it builds alright.
+Among them, there are:
+     * futex use prio list : allows RT-threads to be woken in priority order
+instead of FIFO order.
+     * futex_wait use hrtimer : allows the use of finer timer resolution.
+     * futex_requeue_pi functionality : allows use of requeue optimization for
+PI-mutexes/PI-futexes.
+     * futex64 syscall : allows use of 64-bit futexes instead of 32-bit.
 
-Both issues seem to be fixed now, thanks.
+The following mails provide the corresponding patches.
 
-Bye.
+
+I re-send this series for kernel 2.6.20-rc5 with this small modifications:
+
+  - futex_use_prio_list patch stores now all non-real-time threads with the same
+priority (MAX_RT_PRIO, which is a lower priority than real-time priorities),
+causing them to be stored in FIFO order. RT-threads are still woken first in
+priority order.
+  - futex_requeue_pi: I've found (and corrected of course) a bug causing a
+memory leak.
+
+plist (patch 1/4) is still under discussion: I think it should be taken into
+account, because it concerns a correctness issue with a very low cost as
+drawback (I would even say "without noticeable cost" ;-) but that's my opinion
+of course).
+Anyway, I still can provide the same series without patch 1/4 if needed.
+
+Comments and feedback are still welcome, as usual.
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Pierre
+

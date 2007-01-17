@@ -1,67 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751321AbXAQDzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751673AbXAQEBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbXAQDzi (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 22:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbXAQDzi
+	id S1751673AbXAQEBJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 23:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbXAQEBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 22:55:38 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:2809 "EHLO
-	amsfep18-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751321AbXAQDzh (ORCPT
+	Tue, 16 Jan 2007 23:01:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:58606 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751673AbXAQEBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 22:55:37 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <1168986466.6056.52.camel@lade.trondhjem.org>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org>  <1168985323.5975.53.camel@lappy>
-	 <1168986466.6056.52.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Wed, 17 Jan 2007 03:41:32 +0100
-Message-Id: <1169001692.22935.84.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 16 Jan 2007 23:01:08 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=l3UfGoJRtp/8P8AL+3+xhHKMx3XZBTE+Ixj2MMfYwpaZ7EX4fyfTp3mGWcV44uT7LeA6JrdrjZh20DlBlnSOAiCw7NtmHOzGsu8493Imd5pnlD6aPHyFyLEyWs7BAhCfRnnpN52pJOcZiovyhTSDnYoZEWUV96576yJFwDI9uQg=
+Message-ID: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
+Date: Wed, 17 Jan 2007 02:01:05 -0200
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: BUG: linux 2.6.19 unable to enable acpi
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 17:27 -0500, Trond Myklebust wrote:
-> On Tue, 2007-01-16 at 23:08 +0100, Peter Zijlstra wrote:
-> > Subject: nfs: fix congestion control
-> > 
-> > The current NFS client congestion logic is severely broken, it marks the
-> > backing device congested during each nfs_writepages() call and implements
-> > its own waitqueue.
-> > 
-> > Replace this by a more regular congestion implementation that puts a cap
-> > on the number of active writeback pages and uses the bdi congestion waitqueue.
-> > 
-> > NFSv[34] commit pages are allowed to go unchecked as long as we are under 
-> > the dirty page limit and not in direct reclaim.
+Just tried linux for the first time on this old machine, and i got
+this problem. dmesg below:
 
-> 
-> What on earth is the point of adding congestion control to COMMIT?
-> Strongly NACKed.
-
-They are dirty pages, how are we getting rid of them when we reached the
-dirty limit?
-
-> Why 16MB of on-the-wire data? Why not 32, or 128, or ...
-
-Andrew always promotes a fixed number for congestion control, I pulled
-one from a dark place. I have no problem with a more dynamic solution.
-
-> Solaris already allows you to send 2MB of write data in a single RPC
-> request, and the RPC engine has for some time allowed you to tune the
-> number of simultaneous RPC requests you have on the wire: Chuck has
-> already shown that read/write performance is greatly improved by upping
-> that value to 64 or more in the case of RPC over TCP. Why are we then
-> suddenly telling people that they are limited to 8 simultaneous writes?
-
-min(max RPC size * max concurrent RPC reqs, dirty threshold) then?
-
-
-
+Linux version 2.6.19 (root@localhost) (gcc version 4.1.1 (Gentoo
+4.1.1-r3)) #10 PREEMPT Sun Dec 10 17:35:24 BRST 2006
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000dc000 - 00000000000e0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000fdf0000 (usable)
+ BIOS-e820: 000000000fdf0000 - 000000000fdf8000 (ACPI data)
+ BIOS-e820: 000000000fdf8000 - 000000000fe00000 (ACPI NVS)
+ BIOS-e820: 00000000ffef0000 - 00000000fff00000 (reserved)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+253MB LOWMEM available.
+Entering add_active_range(0, 0, 65008) 0 entries of 256 used
+Zone PFN ranges:
+  DMA             0 ->     4096
+  Normal       4096 ->    65008
+early_node_map[1] active PFN ranges
+    0:        0 ->    65008
+On node 0 totalpages: 65008
+  DMA zone: 32 pages used for memmap
+  DMA zone: 0 pages reserved
+  DMA zone: 4064 pages, LIFO batch:0
+  Normal zone: 475 pages used for memmap
+  Normal zone: 60437 pages, LIFO batch:15
+DMI 2.2 present.
+ACPI: RSDP (v000 AMI                                   ) @ 0x000fb080
+ACPI: RSDT (v001 AMIINT          0x00000000 MSFT 0x00000097) @ 0x0fdf0000
+ACPI: FADT (v001 AMIINT          0x00000000 MSFT 0x00000097) @ 0x0fdf0030
+ACPI: DSDT (v001    SiS      620 0x00001000 MSFT 0x0100000a) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x408
+Allocating PCI resources starting at 10000000 (gap: 0fe00000:f00f0000)
+Detected 300.701 MHz processor.
+Built 1 zonelists.  Total pages: 64501
+Kernel command line: root=/dev/sda3
+Local APIC disabled by BIOS -- you can enable it with "lapic"
+mapped APIC to ffffd000 (01201000)
+Initializing CPU#0
+CPU 0 irqstacks, hard=c039e000 soft=c039d000
+PID hash table entries: 1024 (order: 10, 4096 bytes)
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Memory: 254172k/260032k available (1868k kernel code, 5368k reserved,
+603k data, 180k init, 0k highmem)
+virtual kernel memory layout:
+    fixmap  : 0xfffb7000 - 0xfffff000   ( 288 kB)
+    vmalloc : 0xd0800000 - 0xfffb5000   ( 759 MB)
+    lowmem  : 0xc0000000 - 0xcfdf0000   ( 253 MB)
+      .init : 0xc036b000 - 0xc0398000   ( 180 kB)
+      .data : 0xc02d3086 - 0xc0369fa8   ( 603 kB)
+      .text : 0xc0100000 - 0xc02d3086   (1868 kB)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay using timer specific routine.. 601.79 BogoMIPS (lpj=300897)
+Security Framework v1.0.0 initialized
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: 0080f9ff 00000000 00000000 00000000
+00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU: After all inits, caps: 0080f9ff 00000000 00000000 00000040
+00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Pentium II (Klamath) stepping 03
+Checking 'hlt' instruction... OK.
+ACPI: Core revision 20060707
+ACPI: setting ELCR to 0200 (from 1c00)
+ACPI Error (hwacpi-0179): Hardware did not change modes [20060707]
+ACPI Error (evxfevnt-0084): Could not transition to ACPI mode [20060707]
+ACPI Warning (utxface-0154): AcpiEnable failed [20060707]
+ACPI: Unable to enable ACPI

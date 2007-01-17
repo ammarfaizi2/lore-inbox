@@ -1,106 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932105AbXAQVwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751304AbXAQVyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbXAQVwy (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 16:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbXAQVwy
+	id S1751304AbXAQVyH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 16:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbXAQVyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 16:52:54 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:24288 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751304AbXAQVwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 16:52:53 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-In-Reply-To: <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
-	 <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Wed, 17 Jan 2007 22:52:42 +0100
-Message-Id: <1169070763.5975.70.camel@lappy>
+	Wed, 17 Jan 2007 16:54:07 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:37462 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751797AbXAQVyG (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 16:54:06 -0500
+Message-Id: <200701172154.l0HLs3BM021024@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: "obsolete" versus "deprecated", and a new config option?
+In-Reply-To: Your message of "Wed, 17 Jan 2007 11:51:27 EST."
+             <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1169070843_4892P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 17 Jan 2007 16:54:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-17 at 12:05 -0800, Christoph Lameter wrote:
-> On Tue, 16 Jan 2007, Peter Zijlstra wrote:
+--==_Exmh_1169070843_4892P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 17 Jan 2007 11:51:27 EST, "Robert P. J. Day" said:
+>
+>   in any event, what about introducing a new config variable,
+> OBSOLETE, under "Code maturity level options"?  this would seem to be
+> a quick and dirty way to prune anything that is *supposed* to be
+> obsolete from the build, to make sure you're not picking up dead code
+> by accident.
 > 
-> > The current NFS client congestion logic is severely broken, it marks the
-> > backing device congested during each nfs_writepages() call and implements
-> > its own waitqueue.
-> 
-> This is the magic bullet that Andrew is looking for to fix the NFS issues?
+>   i think it would be useful to be able to make that kind of
+> distinction since, as the devfs writer pointed out above, the point of
+> labelling something "obsolete" is not to *discourage* someone from
+> using a feature, it's to imply that they *shouldn't* be using that
+> feature.  period.  which suggests there should be an easy, one-step
+> way to enforce that absolutely in a build.
 
-Dunno if its magical, but it does solve a few issues I ran into.
+How much of the 'OBSOLETE' code should just be labelled 'BROKEN' instead?
 
-> > Index: linux-2.6-git/include/linux/nfs_fs_sb.h
-> > ===================================================================
-> > --- linux-2.6-git.orig/include/linux/nfs_fs_sb.h	2007-01-12 08:03:47.000000000 +0100
-> > +++ linux-2.6-git/include/linux/nfs_fs_sb.h	2007-01-12 08:53:26.000000000 +0100
-> > @@ -82,6 +82,8 @@ struct nfs_server {
-> >  	struct rpc_clnt *	client_acl;	/* ACL RPC client handle */
-> >  	struct nfs_iostats *	io_stats;	/* I/O statistics */
-> >  	struct backing_dev_info	backing_dev_info;
-> > +	atomic_t		writeback;	/* number of writeback pages */
-> > +	atomic_t		commit;		/* number of commit pages */
-> >  	int			flags;		/* various flags */
-> 
-> I think writeback is frequently incremented? Would it be possible to avoid
-> a single global instance of an atomic_t here? In a busy NFS system 
-> with lots of processors writing via NFS this may cause a hot cacheline 
-> that limits write speed.
+--==_Exmh_1169070843_4892P
+Content-Type: application/pgp-signature
 
-This would be per NFS mount, pretty global indeed. But not different
-that other backing_dev_info's. request_queue::nr_requests suffers a
-similar fate.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> Would it be possible to use NR_WRITEBACK? If not then maybe add another
-> ZVC counter named NFS_NFS_WRITEBACK?
+iD8DBQFFrpr7cC3lWbTT17ARAkRIAKCJ9J+8muj86atq6Hfwean1LBU70gCgt4YJ
+qphHZ6nBXc8Pt2hpAJdwa4s=
+=RZu2
+-----END PGP SIGNATURE-----
 
-Its a per backing_dev_info thing. So using the zone counters will not
-work.
-
-> > Index: linux-2.6-git/mm/page-writeback.c
-> > ===================================================================
-> > --- linux-2.6-git.orig/mm/page-writeback.c	2007-01-12 08:03:47.000000000 +0100
-> > +++ linux-2.6-git/mm/page-writeback.c	2007-01-12 08:53:26.000000000 +0100
-> > @@ -167,6 +167,12 @@ get_dirty_limits(long *pbackground, long
-> >  	*pdirty = dirty;
-> >  }
-> >  
-> > +int dirty_pages_exceeded(struct address_space *mapping)
-> > +{
-> > +	return dirty_exceeded;
-> > +}
-> > +EXPORT_SYMBOL_GPL(dirty_pages_exceeded);
-> > +
-> 
-> Export the variable instead of adding a new function? Why does it take an 
-> address space parameter that is not used?
-> 
-
-Yeah, that function used to be larger.
-
-> 
-> > Index: linux-2.6-git/fs/inode.c
-> > ===================================================================
-> > --- linux-2.6-git.orig/fs/inode.c	2007-01-12 08:03:47.000000000 +0100
-> > +++ linux-2.6-git/fs/inode.c	2007-01-12 08:53:26.000000000 +0100
-> > @@ -81,6 +81,7 @@ static struct hlist_head *inode_hashtabl
-> >   * the i_state of an inode while it is in use..
-> >   */
-> >  DEFINE_SPINLOCK(inode_lock);
-> > +EXPORT_SYMBOL_GPL(inode_lock);
-> 
-> Hmmm... Commits to all NFS servers will be globally serialized via the 
-> inode_lock?
-
-Hmm, right, thats not good indeed, I can pull the call to
-nfs_commit_list() out of that loop.
-
+--==_Exmh_1169070843_4892P--

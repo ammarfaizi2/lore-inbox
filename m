@@ -1,122 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932164AbXAQKDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932189AbXAQKD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbXAQKDv (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 05:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbXAQKDv
+	id S932189AbXAQKD6 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 05:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbXAQKD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 05:03:51 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46564 "EHLO mx2.mail.elte.hu"
+	Wed, 17 Jan 2007 05:03:58 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:57138 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932164AbXAQKDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 05:03:50 -0500
-Date: Wed, 17 Jan 2007 11:02:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>
-Subject: Re: [patch] KVM: do VMXOFF upon reboot
-Message-ID: <20070117100210.GA13080@elte.hu>
-References: <20070117091319.GA30036@elte.hu> <20070117095141.GA11341@elte.hu>
+	id S932189AbXAQKD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 05:03:57 -0500
+Date: Wed, 17 Jan 2007 02:03:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix emergency reboot: call reboot notifier list if
+ possible
+Message-Id: <20070117020343.8622e44d.akpm@osdl.org>
+In-Reply-To: <20070117093917.GA7538@elte.hu>
+References: <20070117091319.GA30036@elte.hu>
+	<20070117092233.GA30197@flint.arm.linux.org.uk>
+	<20070117093917.GA7538@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070117095141.GA11341@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -3.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.3 required=5.9 tests=ALL_TRUSTED autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Wed, 17 Jan 2007 10:39:17 +0100 Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> * Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+> > On Wed, Jan 17, 2007 at 10:13:19AM +0100, Ingo Molnar wrote:
+> > > we dont call the reboot notifiers during emergency reboot mainly because 
+> > > it could be called from atomic context and reboot notifiers are a 
+> > > blocking notifier list. But actually the kernel is often perfectly 
+> > > reschedulable in this stage, so we could as well process the 
+> > > reboot_notifier_list.
+> > 
+> > My experience has been that when there has been the need to use this
+> > facility, the kernel hasn't been reschedulable. [...]
+> 
+> this decision is totally automatic - so if your situation happens and 
+> the kernel isnt reschedulable, then the notifier chain wont be called 
+> and nothing changes from your perspective. Hm, perhaps this should be 
+> dependent on CONFIG_PREEMPT, to make sure preempt_count() is reliable?
+> 
+> but from my perspective this patch fixes a real regression.
+> 
+> updated patch attached below.
+> 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Making it dependent upon CONFIG_PREEMPT seems a bit sucky.  Perhaps pass in
+some "you were called from /proc/sysrq-trigger" notification?
 
-> So i think we should do the patch below - this makes reboot work even 
-> in atomic contexts. [...]
+Also, there are ways of telling if the kernel has oopsed (oops counter,
+oops_in_progress, etc) which should perhaps be tested.
 
-hm, this causes problems if KVM is not active on a VT-capable CPU: even 
-on CPUs with VT supported, if a VT context is not actually activated, a 
-vmxoff causes an invalid opcode exception. So the updated patch below 
-uses a slightly more sophisticated approach to avoid that problem.
+Or just learn to type `reboot -fn' ;)
 
-	Ingo
-
--------------------->
-Subject: [patch] kvm: do VMXOFF upon reboot
-From: Ingo Molnar <mingo@elte.hu>
-
-my laptop's BIOS apparently gets confused if the kernel tries to
-reboot without first turning VT context off, which results in a
-hung (emergency-)reboot. So make sure this happens, right before
-we reboot.
-
-( NOTE: this is a dual-core system, but only the core where the
-  BIOS executes seems to be affected - the other core can have an
-  active VT context just fine - so we dont have to risk reboot
-  robustness by doing a CPU cross-call in the emergency reboot
-  handler. )
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/i386/kernel/reboot.c   |   16 ++++++++++++++++
- arch/x86_64/kernel/reboot.c |   15 +++++++++++++++
- 2 files changed, 31 insertions(+)
-
-Index: linux/arch/i386/kernel/reboot.c
-===================================================================
---- linux.orig/arch/i386/kernel/reboot.c
-+++ linux/arch/i386/kernel/reboot.c
-@@ -318,6 +318,22 @@ void machine_shutdown(void)
- 
- void machine_emergency_restart(void)
- {
-+	unsigned long ecx = cpuid_ecx(1);
-+
-+	/*
-+	 * Disable any possibly active VT context (if VT supported):
-+	 */
-+	if (test_bit(5, &ecx)) { /* has VT support */
-+		asm volatile (
-+			"1: .byte 0x0f, 0x01, 0xc4	\n" /* vmxoff */
-+			"2:				\n"
-+ 			".section __ex_table,\"a\"	\n"
-+			"   .align 4			\n"
-+			"   .long 	1b,2b		\n"
-+			".previous			\n"
-+		);
-+	}
-+
- 	if (!reboot_thru_bios) {
- 		if (efi_enabled) {
- 			efi.reset_system(EFI_RESET_COLD, EFI_SUCCESS, 0, NULL);
-Index: linux/arch/x86_64/kernel/reboot.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/reboot.c
-+++ linux/arch/x86_64/kernel/reboot.c
-@@ -114,8 +114,23 @@ void machine_shutdown(void)
- 
- void machine_emergency_restart(void)
- {
-+	unsigned long ecx = cpuid_ecx(1);
- 	int i;
- 
-+	/*
-+	 * Disable any possibly active VT context (if VT supported):
-+	 */
-+	if (test_bit(5, &ecx)) { /* has VT support */
-+		asm volatile (
-+			"1: .byte 0x0f, 0x01, 0xc4	\n" /* vmxoff */
-+			"2:				\n"
-+ 			".section __ex_table,\"a\"	\n"
-+			"   .align 8			\n"
-+			"   .quad 	1b,2b		\n"
-+			".previous			\n"
-+		);
-+	}
-+
- 	/* Tell the BIOS if we want cold or warm reboot */
- 	*((unsigned short *)__va(0x472)) = reboot_mode;
-        

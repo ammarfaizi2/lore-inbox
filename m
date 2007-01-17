@@ -1,97 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932613AbXAQSGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932593AbXAQSLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932613AbXAQSGA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 13:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbXAQSGA
+	id S932593AbXAQSLU (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 13:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbXAQSLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 13:06:00 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:19200 "EHLO relay.sw.ru"
+	Wed, 17 Jan 2007 13:11:20 -0500
+Received: from mail.tmr.com ([64.65.253.246]:46870 "EHLO gaimboi.tmr.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932600AbXAQSF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 13:05:58 -0500
-Message-ID: <45AE66AA.1050508@sw.ru>
-Date: Wed, 17 Jan 2007 21:10:50 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	id S932593AbXAQSLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 13:11:19 -0500
+Message-ID: <45AE6759.70108@tmr.com>
+Date: Wed, 17 Jan 2007 13:13:45 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       linux-mips@linux-mips.org, linux-parport@lists.infradead.org,
-       minyard@acm.org, rtc-linux@googlegroups.com, clemens@ladisch.de,
-       heiko.carstens@de.ibm.com, xfs@oss.sgi.com, linuxppc-dev@ozlabs.org,
-       paulus@samba.org, openipmi-developer@lists.sourceforge.net,
-       linux-390@vm.marist.edu, schwidefsky@de.ibm.com, tim@cyberelk.net,
-       codalist@TELEMANN.coda.cs.cmu.edu, a.zummo@towertech.it,
-       tony.luck@intel.com, vojtech@suse.cz, linux-scsi@vger.kernel.org,
-       xfs-masters@oss.sgi.com, linux-ntfs-dev@lists.sourceforge.net,
-       netdev@vger.kernel.org, aia21@cantab.net, aharkes@cs.cmu.edu,
-       linux-kernel@vger.kernel.org, ralf@linux-mips.org,
-       mark.fasheh@oracle.com, coda@cs.cmu.edu, lethal@linux-sh.org,
-       kurt.hackel@oracle.com, Linux Containers <containers@lists.osdl.org>,
-       linux390@de.ibm.com, philb@gnu.org, andrea@suse.de,
-       linuxsh-shmedia-dev@lists.sourceforge.net, ak@suse.de
-Subject: Re: [PATCH 0/59] Cleanup sysctl
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii
+To: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "obsolete" versus "deprecated", and a new config option?
+References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
+In-Reply-To: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric, really good job!
+Robert P. J. Day wrote:
+>   a couple random thoughts on the notion of obsolescence and
+> deprecation.
 
-Patches: 1-13, 15-24, 26-32, 34-44, 46-49, 52-55, 57 (all except below)
-Acked-By: Kirill Korotaev <dev@openvz.org>
+	[...horrible example deleted...]
 
-14/59 - minor (extra space)
-25/59 - minor note	
-33/59 - not sorted sysctl IDs
-45/59 - typo
-50/59 - copyright/file note
-51/59 - copyright/file name/kconfig option notes
+>   so is that ioctl obsolete or deprecated?  those aren't the same
+> things, a good distinction being drawn here by someone discussing
+> devfs:
+> 
+> http://kerneltrap.org/node/1893
+> 
+> "Devfs is deprecated.  This means it's still available but you should
+> consider moving to other options when available.  Obsolete means it
+> shouldn't be used.  Some 2.6 docs have confused these two terms WRT
+> devfs."
+> 
+>   yes, and that confusion continues to this day, when a single feature
+> is described as both deprecated and obsolete.  not good.  (also, i'm
+> guessing that anything that's "obsolete" might deserve a default of
+> "n" rather than "y", but that's just me.  :-)
 
-56,58,59/59 - will review tomorrow
+Agree on that. I would hope "obsolete" means there's a newer way which 
+should provide the functionality (** help should say where that is **) 
+while depreciated should mean "we decided this was a bad solution" or 
+something like that.
+> 
+>   in any event, what about introducing a new config variable,
+> OBSOLETE, under "Code maturity level options"?  this would seem to be
+> a quick and dirty way to prune anything that is *supposed* to be
+> obsolete from the build, to make sure you're not picking up dead code
+> by accident.
 
-another issue I have to think over is removal of de->owner.
-Alexey Dobriyan has sent recently patching fixing /proc <-> modules refcounting.
-I guess w/o these patches your changes are not safe if proc_handler or strategy
-are functions from the module.
+If you're doing that, why not four variables, for incomplete, 
+experimental, obsolete and depreciated? Unfortunately doing any more 
+detailed nomenclature would be a LOT of work!
+> 
+>   i think it would be useful to be able to make that kind of
+> distinction since, as the devfs writer pointed out above, the point of
+> labelling something "obsolete" is not to *discourage* someone from
+> using a feature, it's to imply that they *shouldn't* be using that
+> feature.  period.  which suggests there should be an easy, one-step
+> way to enforce that absolutely in a build.
+> 
+>   thoughts?
+> 
+I think it's a good idea, but doing it right may be more work than the 
+benefit justifies.
 
-Thanks,
-Kirill
 
-> There has not been much maintenance on sysctl in years, and as a result is
-> there is a lot to do to allow future interesting work to happen, and being
-> ambitious I'm trying to do it all at once :)
-> 
-> The patches in this series fall into several general categories.
-> 
-> - Removal of useless attempts to override the standard sysctls
-> 
-> - Registers of sysctl numbers in sysctl.h so someone else does not use
->   the magic number and conflict.
-> 
-> - C99 conversions so it becomes possible to change the layout of 
->   struct ctl_table without breaking everything.
-> 
-> - Removal of useless claims of module ownership, in the proc dir entries
-> 
-> - Removal of sys_sysctl support where people had used conflicting sysctl
->   numbers. Trying to break glibc or other applications by changing the
->   ABI is not cool.  9 instances of this in the kernel seems a little
->   extreme.
-> 
-> - General enhancements when I got the junk I could see out.
-> 
-> Odds are I missed something, most of the cleanups are simply a result of
-> me working on the sysctl core and glancing at the users and going: What?
-> 
-> Eric
-> _______________________________________________
-> Containers mailing list
-> Containers@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/containers
-> 
-> 
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

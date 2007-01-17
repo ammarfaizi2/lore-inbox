@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932252AbXAQKYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932261AbXAQKZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbXAQKYM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 05:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbXAQKYM
+	id S932261AbXAQKZK (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 05:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbXAQKZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 05:24:12 -0500
-Received: from ara.aytolacoruna.es ([195.55.102.196]:54645 "EHLO
-	mx.aytolacoruna.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932252AbXAQKYL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 05:24:11 -0500
-X-Greylist: delayed 1405 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 05:24:11 EST
-Date: Wed, 17 Jan 2007 11:00:30 +0100
-From: Santiago Garcia Mantinan <manty@debian.org>
-To: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: problems with latest smbfs changes on 2.4.34 and security backports
-Message-ID: <20070117100030.GA11251@clandestino.aytolacoruna.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 17 Jan 2007 05:25:09 -0500
+Received: from main.gmane.org ([80.91.229.2]:57309 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932261AbXAQKZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 05:25:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicolas Bareil <nico@chdir.org>
+Subject: Linux 2.6.19.2 : Oops 
+Date: Wed, 17 Jan 2007 11:21:59 +0100
+Message-ID: <873b6a6ji0.fsf@boz.loft.chdir.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 88.191.14.36
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.92 (gnu/linux)
+Cancel-Lock: sha1:Cvj5LX4R1o740b1KNVtNsj2fl1Y=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I have discovered a problem with the changes applied to smbfs in 2.4.34 and
-in the security backports like last Debian's 2.4 kernel update these changes
-seem to be made to solve CVE-2006-5871 and they have broken symbolic links
-and changed the way that special files (like devices) are seen.
+Hello,
 
-For example:
-Before: symbolic links were seen as that, symbolic links an thus if you tried
-to open the file the link was followed and you ended up reading the
-destination file
-Now: symbolic links are seen as normal files (at least with a ls) but their
-length (N) is the length of the symbolic link, if you read it, you'll get the
-first N characters of the destination file. For example, on my filesystem
-bin/sh is a symlink to bash, thus it is 4 bytes long, if I to a cat bin/sh I
-get ELF (this is, the first 4 characters of the bash program, first one
-being a DEL).
+Since 2.6.19, I get the following Oops once a day, always with the same
+process, newspipe[1] which use a lot of CPU, threads and I/O.
 
-Another example:
-Before: if you did a ls of a device file, like dev/zero you could see it as
-a device, if you tried opening it, it wouldn't work, but if you did a cp -a
-of that file to a local filesystem the result was a working zero device.
-Now: the devices are seen as normal files with a length of 0 bytes.
+The kernel is patched by Grsecurity. The ext3 filesystem is on a
+software RAID device (the two disks are SATA2). I tested the 
+hardware (RAM, SMART disks) but nothing seem problematic.
 
-Seems to me like a mask is erasing some mode bits that shouldn't be erased.
+kernel: BUG: unable to handle kernel NULL pointer dereference at virtual address 00000004
+kernel: printing eip:
+kernel: b0176344
+kernel: *pgd =    0
+kernel: *pmd =    0
+kernel: Oops: 0000 [#1]
+kernel: CPU:    0
+kernel: EIP:    0060:[<b0176344>]    Not tainted VLI
+kernel: EFLAGS: 00210286   (2.6.19.2-grsec #1)
+kernel: EIP is at do_generic_mapping_read+0x34/0x4e0
+kernel: eax: d8deeb50   ebx: 0000001b   ecx: 00000000   edx: ed6e1df4
+kernel: esi: 00000000   edi: ed6e1e1c   ebp: e6235a40   esp: ed6e1dac
+kernel: ds: 0068   es: 0068   ss: 0068
+kernel: Process python (pid: 13360, ti=ed6e0000 task=daf1f030 task.ti=ed6e0000)
+kernel: Stack: d8deeb50 00000001 00000000 00001000 00000010 00000000 00000000 ed6e1df4 
+kernel: d8deeb50 00000010 00000000 00000010 00000010 0000000e 000105a5 00000000 
+kernel: 00000000 00001000 00000000 00000020 00000000 00000020 0000000f 00000000 
+kernel: Call Trace:
+kernel: [<b01788f3>] generic_file_aio_read+0xf3/0x230
+kernel: [<b0175a80>] file_read_actor+0x0/0x130
+kernel: [<b019444d>] do_sync_read+0xed/0x130
+kernel: [<b016a6d0>] autoremove_wake_function+0x0/0x60
+kernel: [<b01848fc>] __vma_link+0x3c/0x70
+kernel: [<b0185318>] vma_link+0x38/0xc0
+kernel: [<b0194ed4>] vfs_read+0xd4/0x1c0
+kernel: [<b019539b>] sys_read+0x4b/0x80
+kernel: [<b0140047>] syscall_call+0x7/0xb
+kernel: [<b014005f>] restore_all+0x0/0x18
+kernel: =======================
+kernel: Code: 83 ec 70 8b 84 24 84 00 00 00 8d 54 24 48 89 d7 8b b4 24 88 00 00 00 fc 8b 00 89 54 24 1c 89 44 24 20 f3 a5 8b b4 24 90 00 00 00 <8b> 5e 04 8b 0e 8b b4 24 94 00 00 00 89 da c1 fa 0c 89 c8 89 54 
+kernel: EIP: [<b0176344>] do_generic_mapping_read+0x34/0x4e0 SS:ESP 0068:ed6e1dac
 
-I have carried my tests on a Debian Sarge machine always mounting the share
-using: smbmount //server/share /mnt without any other options. The tests
-were carried on a unpatched 2.4.34 comparing it to 2.4.33 and also on
-Debian's 2.4.27 comparing 2.4.27-10sarge4 vs -10sarge5. The server is a
-samba 3.0.23d and I have experienced the same behaviour with samba's
-unix extensions = yes and unix extensions = no.
+My config is available on http://chdir.org/~nbareil/config-2.6.19.2-grsec.gz
 
-I don't know what else to add, if you need any more info or want me to do
-any tests just ask for it.
+Thank you!
 
-Regards...
+Footnotes: 
+[1]  http://newspipe.sourceforge.net/
+
 -- 
-Santiago García Mantiñán
+Nicolas Bareil                                  http://chdir.org/~nico/
+OpenPGP=0xAE4F7057 Fingerprint=34DB22091049FB2F33E6B71580F314DAAE4F7057
+

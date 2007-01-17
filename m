@@ -1,135 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932142AbXAQJKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932131AbXAQJK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbXAQJKV (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 04:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbXAQJKV
+	id S932131AbXAQJK2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 04:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbXAQJKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 04:10:21 -0500
-Received: from [213.46.243.15] ([213.46.243.15]:16155 "EHLO
-	amsfep14-int.chello.nl" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932126AbXAQJKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 04:10:18 -0500
-Subject: Re: [PATCH 9/9] net: vm deadlock avoidance core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <20070117045426.GA20921@2ka.mipt.ru>
-References: <20070116094557.494892000@taijtu.programming.kicks-ass.net>
-	 <20070116101816.115266000@taijtu.programming.kicks-ass.net>
-	 <20070116132503.GA23144@2ka.mipt.ru> <1168955274.22935.47.camel@twins>
-	 <20070116153315.GB710@2ka.mipt.ru> <1168963695.22935.78.camel@twins>
-	 <20070117045426.GA20921@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Wed, 17 Jan 2007 10:07:28 +0100
-Message-Id: <1169024848.22935.109.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Wed, 17 Jan 2007 04:10:22 -0500
+Received: from hera.kernel.org ([140.211.167.34]:43504 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932119AbXAQJKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 04:10:19 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: "Matheus Izvekov" <mizvekov@gmail.com>
+Subject: Re: BUG: linux 2.6.19 unable to enable acpi
+Date: Wed, 17 Jan 2007 04:08:54 -0500
+User-Agent: KMail/1.9.5
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Luming Yu" <luming.yu@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com> <305c16960701162335x3a84bbe5y87ee8c0608b2eea6@mail.gmail.com> <305c16960701162342u69526f5dn208c6531f6b9fc8e@mail.gmail.com>
+In-Reply-To: <305c16960701162342u69526f5dn208c6531f6b9fc8e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701170408.54220.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-17 at 07:54 +0300, Evgeniy Polyakov wrote:
-> On Tue, Jan 16, 2007 at 05:08:15PM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > On Tue, 2007-01-16 at 18:33 +0300, Evgeniy Polyakov wrote:
-> > > On Tue, Jan 16, 2007 at 02:47:54PM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > > > > > +	if (unlikely(skb->emergency))
-> > > > > > +		current->flags |= PF_MEMALLOC;
-> > > > > 
-> > > > > Access to 'current' in netif_receive_skb()???
-> > > > > Why do you want to work with, for example keventd?
-> > > > 
-> > > > Can this run in keventd?
-> > > 
-> > > Initial netchannel implementation by Kelly Daly (IBM) worked in keventd
-> > > (or dedicated kernel thread, I do not recall).
-> > > 
-> > > > I thought this was softirq context and thus this would either run in a
-> > > > borrowed context or in ksoftirqd. See patch 3/9.
-> > > 
-> > > And how are you going to access 'current' in softirq?
-> > > 
-> > > netif_receive_skb() can also be called from a lot of other places
-> > > including keventd and/or different context - it is permitted to call it
-> > > everywhere to process packet.
-> > > 
-> > > I meant that you break the rule accessing 'current' in that context.
-> > 
-> > Yeah, I know, but as long as we're not actually in hard irq context
-> > current does point to the task_struct in charge of current execution and
-> > as long as we restore whatever was in the flags field before we started
-> > poking, nothing can go wrong.
-> > 
-> > So, yes this is unconventional, but it does work as expected.
-> > 
-> > As for breaking, 3/9 makes it legal.
-> 
-> You operate with 'current' in different contexts without any locks which
-> looks racy and even is not allowed. What will be 'current' for
-> netif_rx() case, which schedules softirq from hard irq context -
-> ksoftirqd, why do you want to set its flags?
+The code that enables ACPI mode hasn't really changed since before 2.6.12 -- 
+unless udelay() has changed beneath us...
+So if you are going to test an old version of Linux, you should start before then.
 
-I don't touch current in hardirq context, do I (if I did, that is indeed
-a mistake)?
+Perhaps you can try this debug patch on top of 2.6.19 and send along the dmesg?
+(also, please include CONFIG_ACPI_DEBUG=y)
 
-In all other contexts, current is valid.
+thanks,
+-Len
 
-> > > I meant that you can just mark process which created such socket as
-> > > PF_MEMALLOC, and clone that flag on forks and other relatest calls without 
-> > > all that checks for 'current' in different places.
-> > 
-> > Ah, thats the wrong level to think here, these processes never reach
-> > user-space - nor should these sockets.
-> 
-> You limit this just to send an ack?
-> What about 'level-7' ack as you described in introduction?
 
-Take NFS, it does full data traffic in kernel.
 
-> > Also, I only want the processing of the actual network packet to be able
-> > to eat the reserves, not any other thing that might happen in that
-> > context.
-> > 
-> > And since network processing is mostly done in softirq context I must
-> > mark these sections like I did.
-> 
-> You artificially limit system to just add a reserve to generate one ack.
-> For that purpose you do not need to have all those flags - just reseve
-> some data in network core and use it when system is in OOM (or reclaim)
-> for critical data pathes.
-
-How would that end up being different, I would have to replace all
-allocations done in the full network processing path.
-
-This seems a much less invasive method, all the (allocation) code can
-stay the way it is and use the normal allocation functions.
-
-> > > > > > +		/*
-> > > > > > +		   decrease window size..
-> > > > > > +		   tcp_enter_quickack_mode(sk);
-> > > > > > +		*/
-> > > > > 
-> > > > > How does this decrease window size?
-> > > > > Maybe ack scheduling would be better handled by inet_csk_schedule_ack()
-> > > > > or just directly send an ack, which in turn requires allocation, which
-> > > > > can be bound to this received frame processing...
-> > > > 
-> > > > It doesn't, I thought that it might be a good idea doing that, but never
-> > > > got around to actually figuring out how to do it.
-> > > 
-> > > tcp_send_ack()?
-> > > 
-> > 
-> > does that shrink the window automagically?
-> 
-> Yes, it updates window, but having ack generated in that place is
-> actually very wrong. In that place system has not processed incoming
-> packet yet, so it can not generate correct ACK for received frame at
-> all. And it seems that the only purpose of the whole patchset is to
-> generate that poor ack - reseve 2007 ack packets (MAX_TCP_HEADER) 
-> in system startup and reuse them when you are under memory pressure.
-
-Right, I suspected something like that; hence I wanted to just shrink
-the window. Anyway, this is not a very important issue.
+diff --git a/drivers/acpi/hardware/hwacpi.c b/drivers/acpi/hardware/hwacpi.c
+index de50fab..c782da3 100644
+--- a/drivers/acpi/hardware/hwacpi.c
++++ b/drivers/acpi/hardware/hwacpi.c
+@@ -119,6 +119,9 @@ acpi_status acpi_hw_set_mode(u32 mode)
+ 	 * we make sure both the numbers are zero to determine these
+ 	 * transitions are not supported.
+ 	 */
++printk("ACPI: FADT.acpi_enable %d\n", acpi_gbl_FADT->acpi_enable);
++printk("ACPI: FADT.acpi_disable %d\n", acpi_gbl_FADT->acpi_disable);
++
+ 	if (!acpi_gbl_FADT->acpi_enable && !acpi_gbl_FADT->acpi_disable) {
+ 		ACPI_ERROR((AE_INFO,
+ 			    "No ACPI mode transition supported in this system (enable/disable both zero)"));
+@@ -130,6 +133,9 @@ acpi_status acpi_hw_set_mode(u32 mode)
+ 
+ 		/* BIOS should have disabled ALL fixed and GP events */
+ 
++printk("ACPI: smi_cmd 0x%x, acpi_enable 0x%x\n",
++	acpi_gbl_FADT->smi_cmd, (u32) acpi_gbl_FADT->acpi_enable);
++
+ 		status = acpi_os_write_port(acpi_gbl_FADT->smi_cmd,
+ 					    (u32) acpi_gbl_FADT->acpi_enable,
+ 					    8);
+@@ -164,7 +170,7 @@ acpi_status acpi_hw_set_mode(u32 mode)
+ 	 * Some hardware takes a LONG time to switch modes. Give them 3 sec to
+ 	 * do so, but allow faster systems to proceed more quickly.
+ 	 */
+-	retry = 3000;
++	retry = 3000 * 100;
+ 	while (retry) {
+ 		if (acpi_hw_get_mode() == mode) {
+ 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+@@ -175,6 +181,7 @@ acpi_status acpi_hw_set_mode(u32 mode)
+ 		acpi_os_stall(1000);
+ 		retry--;
+ 	}
++printk("ACPI: retry %d\n");
+ 
+ 	ACPI_ERROR((AE_INFO, "Hardware did not change modes"));
+ 	return_ACPI_STATUS(AE_NO_HARDWARE_RESPONSE);
 

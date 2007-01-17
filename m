@@ -1,91 +1,220 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751252AbXAQGf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751275AbXAQG7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbXAQGf5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 01:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbXAQGf5
+	id S1751275AbXAQG7P (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 01:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbXAQG7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 01:35:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36141 "EHLO mx2.mail.elte.hu"
+	Wed, 17 Jan 2007 01:59:14 -0500
+Received: from cet.com.ru ([195.178.208.66]:42799 "EHLO tservice.net.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751252AbXAQGf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 01:35:56 -0500
-Date: Wed, 17 Jan 2007 07:34:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: On some configs, sparse spinlock balance checking is broken
-Message-ID: <20070117063450.GC14027@elte.hu>
-References: <adaejpumt41.fsf@cisco.com>
+	id S1751275AbXAQG7N convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 01:59:13 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: [take33 6/10] kevent: Pipe notifications.
+In-Reply-To: <11690154343200@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 17 Jan 2007 09:30:34 +0300
+Message-Id: <11690154344197@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaejpumt41.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0098]
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Roland Dreier <rdreier@cisco.com> wrote:
+Pipe notifications.
 
-> (Ingo -- you seem to be the last person to touch all this stuff, and I 
-> can't untangle what you did, hence I'm sending this email to you)
-> 
-> On at least some of my configs on x86_64, when running sparse, I see 
-> bogus 'warning: context imbalance in '<func>' - wrong count at exit'.
-> 
-> This seems to be because I have CONFIG_SMP=y, CONFIG_DEBUG_SPINLOCK=n
-> and CONFIG_PREEMPT=n.  Therefore, <linux/spinlock.h> does
-> 
-> 	#define spin_lock(lock)			_spin_lock(lock)
-> 
-> which picks up
-> 
-> 	void __lockfunc _spin_lock(spinlock_t *lock)		__acquires(lock);
-> 
-> from <linux/spinlock_api_smp.h>, but <linux/spinlock.h> also has:
-> 
-> 	#if defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT) || \
-> 		!defined(CONFIG_SMP)
-> 	//...
-> 	#else
-> 	# define spin_unlock(lock)		__raw_spin_unlock(&(lock)->raw_lock)
 
-this is the direct-inlining speedup some people insisted on.
+diff --git a/fs/pipe.c b/fs/pipe.c
+index 68090e8..0c75bf1 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -16,6 +16,7 @@
+ #include <linux/uio.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/kevent.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+@@ -313,6 +314,7 @@ redo:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 			wake_up_interruptible_sync(&pipe->wait);
+  			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 		}
+@@ -322,6 +324,7 @@ redo:
+ 
+ 	/* Signal writers asynchronously that there is more room. */
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 	}
+@@ -484,6 +487,7 @@ redo2:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 			wake_up_interruptible_sync(&pipe->wait);
+ 			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 			do_wakeup = 0;
+@@ -495,6 +499,7 @@ redo2:
+ out:
+ 	mutex_unlock(&inode->i_mutex);
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 	}
+@@ -590,6 +595,7 @@ pipe_release(struct inode *inode, int decr, int decw)
+ 		free_pipe_info(inode);
+ 	} else {
+ 		wake_up_interruptible(&pipe->wait);
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 	}
+diff --git a/kernel/kevent/kevent_pipe.c b/kernel/kevent/kevent_pipe.c
+new file mode 100644
+index 0000000..91dc1eb
+--- /dev/null
++++ b/kernel/kevent/kevent_pipe.c
+@@ -0,0 +1,123 @@
++/*
++ * 	kevent_pipe.c
++ * 
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/file.h>
++#include <linux/fs.h>
++#include <linux/kevent.h>
++#include <linux/pipe_fs_i.h>
++
++static int kevent_pipe_callback(struct kevent *k)
++{
++	struct inode *inode = k->st->origin;
++	struct pipe_inode_info *pipe = inode->i_pipe;
++	int nrbufs = pipe->nrbufs;
++
++	if (k->event.event & KEVENT_SOCKET_RECV && nrbufs > 0) {
++		if (!pipe->writers)
++			return -1;
++		return 1;
++	}
++	
++	if (k->event.event & KEVENT_SOCKET_SEND && nrbufs < PIPE_BUFFERS) {
++		if (!pipe->readers)
++			return -1;
++		return 1;
++	}
++
++	return 0;
++}
++
++int kevent_pipe_enqueue(struct kevent *k)
++{
++	struct file *pipe;
++	int err = -EBADF;
++	struct inode *inode;
++
++	pipe = fget(k->event.id.raw[0]);
++	if (!pipe)
++		goto err_out_exit;
++
++	inode = igrab(pipe->f_dentry->d_inode);
++	if (!inode)
++		goto err_out_fput;
++
++	err = -EINVAL;
++	if (!S_ISFIFO(inode->i_mode))
++		goto err_out_iput;
++
++	err = kevent_storage_enqueue(&inode->st, k);
++	if (err)
++		goto err_out_iput;
++
++	if (k->event.req_flags & KEVENT_REQ_ALWAYS_QUEUE) {
++		kevent_requeue(k);
++		err = 0;
++	} else {
++		err = k->callbacks.callback(k);
++		if (err)
++			goto err_out_dequeue;
++	}
++
++	fput(pipe);
++
++	return err;
++
++err_out_dequeue:
++	kevent_storage_dequeue(k->st, k);
++err_out_iput:
++	iput(inode);
++err_out_fput:
++	fput(pipe);
++err_out_exit:
++	return err;
++}
++
++int kevent_pipe_dequeue(struct kevent *k)
++{
++	struct inode *inode = k->st->origin;
++
++	kevent_storage_dequeue(k->st, k);
++	iput(inode);
++
++	return 0;
++}
++
++void kevent_pipe_notify(struct inode *inode, u32 event)
++{
++	kevent_storage_ready(&inode->st, NULL, event);
++}
++
++static int __init kevent_init_pipe(void)
++{
++	struct kevent_callbacks sc = {
++		.callback = &kevent_pipe_callback,
++		.enqueue = &kevent_pipe_enqueue,
++		.dequeue = &kevent_pipe_dequeue,
++		.flags = 0,
++	};
++
++	return kevent_add_callbacks(&sc, KEVENT_PIPE);
++}
++module_init(kevent_init_pipe);
 
-> and <asm-x86_64/spinlock.h> has:
-> 
-> 	static inline void __raw_spin_unlock(raw_spinlock_t *lock)
-> 	{
-> 		asm volatile("movl $1,%0" :"=m" (lock->slock) :: "memory");
-> 	}
-> 
-> so sparse doesn't see any __releases() to match the __acquires.
-> 
-> This all seems to go back to commit bda98685 ("x86: inline spin_unlock
-> if !CONFIG_DEBUG_SPINLOCK and !CONFIG_PREEMPT") but I don't know what
-> motivated that change.
-> 
-> Anyway, Ingo or anyone else, what's the best way to fix this?  Maybe 
-> the right way to fix this is just to define away __acquires/__releases 
-> unless CONFIG_DEBUG_SPINLOCK is set, but that seems suboptimal.
-
-i think the right way to fix it might be to define a _spin_unlock() 
-within those #ifdef branches, and then to define spin_lock as:
-
-static inline void spin_lock(spinlock_t *lock) __acquires(lock)
-{
-	_spin_lock(lock);
-}
-
-?
-
-	Ingo

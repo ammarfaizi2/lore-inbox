@@ -1,60 +1,111 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932117AbXAQJ3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932119AbXAQJkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbXAQJ3Z (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 04:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbXAQJ3Y
+	id S932119AbXAQJkp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 04:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbXAQJkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 04:29:24 -0500
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:48947 "EHLO
-	ppsw-9.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932117AbXAQJ3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 04:29:24 -0500
-X-Greylist: delayed 1455 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 04:29:23 EST
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: NTFS deadlock on 2.6.18.6
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20070109205249.GA3802@procyon.home>
-References: <20070109205249.GA3802@procyon.home>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Wed, 17 Jan 2007 09:04:34 +0000
-Message-Id: <1169024674.10503.12.camel@imp.csi.cam.ac.uk>
+	Wed, 17 Jan 2007 04:40:45 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:59953 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932119AbXAQJko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 04:40:44 -0500
+Date: Wed, 17 Jan 2007 10:39:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] fix emergency reboot: call reboot notifier list if possible
+Message-ID: <20070117093917.GA7538@elte.hu>
+References: <20070117091319.GA30036@elte.hu> <20070117092233.GA30197@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070117092233.GA30197@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 2007-01-09 at 23:52 +0300, Sergey Vlasov wrote:
-[snip excellent analysis]
-> Seems that grabbing i_mutex in ntfs_put_inode() is not safe after all
-> (and lockdep cannot see this deadlock possibility, because one of
-> waits is __wait_on_freeing_inode - not a standard locking primitive).
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Inded.  Thanks a lot for the report and detailed analysis!  Much
-appreciated.
+> On Wed, Jan 17, 2007 at 10:13:19AM +0100, Ingo Molnar wrote:
+> > we dont call the reboot notifiers during emergency reboot mainly because 
+> > it could be called from atomic context and reboot notifiers are a 
+> > blocking notifier list. But actually the kernel is often perfectly 
+> > reschedulable in this stage, so we could as well process the 
+> > reboot_notifier_list.
+> 
+> My experience has been that when there has been the need to use this
+> facility, the kernel hasn't been reschedulable. [...]
 
-I have been meaning to do the needed changes anyway so the new OSX and
-Linux drivers are more alike but had not gotten round to it yet...  Now
-that I know it actually causes a deadlock I will bite the bullet and do
-the changes now.
+this decision is totally automatic - so if your situation happens and 
+the kernel isnt reschedulable, then the notifier chain wont be called 
+and nothing changes from your perspective. Hm, perhaps this should be 
+dependent on CONFIG_PREEMPT, to make sure preempt_count() is reliable?
 
-ps. Aplogies for delayed response but I was on holiday without
-computers/internet access...
+but from my perspective this patch fixes a real regression.
 
-Best regards,
+updated patch attached below.
 
-	Anton
+	Ingo
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer, http://www.linux-ntfs.org/
+-------------------->
+Subject: [patch] call reboot notifier list when doing an emergency reboot
+From: Ingo Molnar <mingo@elte.hu>
 
+my laptop does not reboot unless the shutdown notifiers are called
+first. So the following command, which i use as a fast way to reboot
+into a new kernel:
+
+ echo b > /proc/sysrq-trigger
+
+just hangs indefinitely after the kernel prints "System rebooting".
+
+the thing is, that the kernel is actually reschedulable in this stage,
+so we could as well process the reboot_notifier_list. (furthermore,
+on -rt kernels this place is preemptable even during SysRq-b)
+
+So just process the reboot notifier list if we are preemptable. This
+will shut disk caches and chipsets off.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/sys.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+Index: linux/kernel/sys.c
+===================================================================
+--- linux.orig/kernel/sys.c
++++ linux/kernel/sys.c
+@@ -29,6 +29,7 @@
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
+ #include <linux/getcpu.h>
++#include <linux/hardirq.h>
+ 
+ #include <linux/compat.h>
+ #include <linux/syscalls.h>
+@@ -710,6 +711,15 @@ out_unlock:
+  */
+ void emergency_restart(void)
+ {
++	/*
++	 * Call the notifier chain if we are not in an
++	 * atomic context:
++	 */
++#ifdef CONFIG_PREEMPT
++	if (!in_atomic() && !irqs_disabled())
++		blocking_notifier_call_chain(&reboot_notifier_list,
++					     SYS_RESTART, NULL);
++#endif
+ 	machine_emergency_restart();
+ }
+ EXPORT_SYMBOL_GPL(emergency_restart);

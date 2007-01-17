@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbXAQLpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932368AbXAQLs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbXAQLpg (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 06:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbXAQLpg
+	id S932368AbXAQLs6 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 06:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbXAQLs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 06:45:36 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:37503 "HELO abra2.bitwizard.nl"
+	Wed, 17 Jan 2007 06:48:58 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:37621 "HELO abra2.bitwizard.nl"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S932342AbXAQLpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 06:45:36 -0500
-Date: Wed, 17 Jan 2007 12:45:33 +0100
+	id S932368AbXAQLs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 06:48:58 -0500
+Date: Wed, 17 Jan 2007 12:48:56 +0100
 From: Erik Mouw <erik@harddisk-recovery.com>
-To: Turbo Fredriksson <turbo@bayour.com>
+To: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird harddisk behaviour
-Message-ID: <20070117114533.GA25077@harddisk-recovery.com>
-References: <87bqkzp0et.fsf@pumba.bayour.com> <20070116141959.GC476@deepthought> <87y7o2hsmm.fsf@pumba.bayour.com>
+Subject: Re: query related to serial console
+Message-ID: <20070117114855.GB25077@harddisk-recovery.com>
+References: <20070117112654.71340.qmail@web7708.mail.in.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87y7o2hsmm.fsf@pumba.bayour.com>
+In-Reply-To: <20070117112654.71340.qmail@web7708.mail.in.yahoo.com>
 Organization: Harddisk-recovery.com
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 11:09:21AM +0100, Turbo Fredriksson wrote:
-> Quoting Ken Moffat <zarniwhoop@ntlworld.com>:
-> >  Certainly, fdisk from util-linux doesn't know about mac disks, and
-> > I thought the same was true for cfdisk and sfdisk.  Many years ago
-> > there was mac-fdisk, I think also known as pdisk, but nowadays the
-> > common tool for partitioning mac disks is probably parted.
-> 
-> Yes. See now that 'fdisk' is a softlink to 'mac-fdisk'...
-> 
-> > Please try parted.
-> 
-> Same thing ('mkpartfs primary ext2 0 400000'):
-> 
-> Jan 17 11:03:41 localhost kernel: [254985.117447] EXT2-fs: sdb1: couldn't mount RDWR because of unsupported optional features (10000).
+On Wed, Jan 17, 2007 at 11:26:54AM +0000, Seetharam Dharmosoth wrote:
+> Is Linux having 'non-break interface for serial
+> console' ?
 
-I don't know if any of those tools tell the kernel that the partition
-table changedand that it has to reread them. To be sure the kernel
-knows, run "blockdev --rereadpt /dev/sdb".
+No idea. Could you explain what a 'non-break interface for serial
+console' is?
 
 
 Erik

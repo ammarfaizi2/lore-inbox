@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752027AbXAQF6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752031AbXAQF76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752027AbXAQF6m (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 00:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752030AbXAQF6m
+	id S1752031AbXAQF76 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 00:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752033AbXAQF76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 00:58:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41857 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752027AbXAQF6l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 00:58:41 -0500
-Subject: Re: O_DIRECT question
-From: Arjan van de Ven <arjan@infradead.org>
-To: 7eggert@gmx.de
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Michael Tokarev <mjt@tls.msk.ru>, Chris Mason <chris.mason@oracle.com>,
-       Linus Torvalds <torvalds@osdl.org>, dean gaudet <dean@arctic.org>,
-       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
-       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, hch@infradead.org,
-       kenneth.w.chen@intel.com, akpm@osdl.org
-In-Reply-To: <E1H6utT-0000g3-Aw@be1.lrz>
-References: <7BYkO-5OV-17@gated-at.bofh.it> <7BYul-6gz-5@gated-at.bofh.it>
-	 <7C74B-2A4-23@gated-at.bofh.it> <7CaYA-mT-19@gated-at.bofh.it>
-	 <7Cpuz-64X-1@gated-at.bofh.it> <7Cz0T-4PH-17@gated-at.bofh.it>
-	 <7CBcl-86B-9@gated-at.bofh.it> <7CBvH-52-9@gated-at.bofh.it>
-	 <7DyYK-6lE-3@gated-at.bofh.it>  <E1H6utT-0000g3-Aw@be1.lrz>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 16 Jan 2007 21:55:35 -0800
-Message-Id: <1169013342.3457.60.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Wed, 17 Jan 2007 00:59:58 -0500
+Received: from ns2.suse.de ([195.135.220.15]:53663 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752031AbXAQF75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 00:59:57 -0500
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC 5/8] Make writeout during reclaim cpuset aware
+Date: Wed, 17 Jan 2007 16:59:15 +1100
+User-Agent: KMail/1.9.1
+Cc: clameter@sgi.com, akpm@osdl.org, menage@google.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, dgc@sgi.com
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com> <200701171528.16854.ak@suse.de> <20070116203622.7f1b4e87.pj@sgi.com>
+In-Reply-To: <20070116203622.7f1b4e87.pj@sgi.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200701171659.16290.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 21:26 +0100, Bodo Eggert wrote:
-> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-> > Michael Tokarev wrote:
-> 
-> >> But seriously - what about just disallowing non-O_DIRECT opens together
-> >> with O_DIRECT ones ?
-> >>   
-> > Please do not create a new local DOS attack.
-> > I open some important file, say /etc/resolv.conf
-> > with O_DIRECT and just sit on the open handle.
-> > Now nobody else can open that file because
-> > it is "busy" with O_DIRECT ?
-> 
-> Suspend O_DIRECT access while non-O_DIRECT-fds are open, fdatasync on close?
+On Wednesday 17 January 2007 15:36, Paul Jackson wrote:
+> > With a per node dirty limit ...
+>
+> What would this mean?
+>
+> Lets say we have a simple machine with 4 nodes, cpusets disabled.
 
-.. then any user can impact the operation, performance and reliability
-of the database application of another user... sounds like plugging one
-hole by making a bigger hole ;)
+There can be always NUMA policy without cpusets for once.
 
+> Lets say all tasks are allowed to use all nodes, no set_mempolicy
+> either.
 
+Ok.
+
+> If a task happens to fill up 80% of one node with dirty pages, but
+> we have no dirty pages yet on other nodes, and we have a dirty ratio
+> of 40%, then do we throttle that task's writes?
+
+Yes we should actually. Every node should be able to supply
+memory (unless extreme circumstances like mlock) and that much dirty 
+memory on a node will make that hard.
+
+> I am surprised you are asking for this, Andi.  I would have thought
+> that on no-cpuset systems, the system wide throttling served your
+> needs fine.  
+
+No actually people are fairly unhappy when one node is filled with 
+file data and then they don't get local memory from it anymore.
+I get regular complaints about that for Opteron.
+
+Dirty limit wouldn't be a full solution, but a good step.
+
+> If not, then I can only guess that is because NUMA 
+> mempolicy constraints on allowed nodes are causing the same dirty page
+> problems as cpuset constrained systems -- is that your concern?
+
+That is another concern. I haven't checked recently, but it used
+to be fairly simple to put a system to its knees by oversubscribing
+a single node with a strict memory policy. Fixing that would be good.
+
+-Andi

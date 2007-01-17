@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932749AbXAQUdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751600AbXAQVJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932749AbXAQUdm (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 15:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbXAQUdm
+	id S1751600AbXAQVJs (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 16:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbXAQVJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 15:33:42 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:47754 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932749AbXAQUdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 15:33:41 -0500
-Message-ID: <45AE8818.1050803@zytor.com>
-Date: Wed, 17 Jan 2007 12:33:28 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20070102)
-MIME-Version: 1.0
-To: Tomasz Chmielewski <mangoo@wpkg.org>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
-References: <45AE1D65.4010804@wpkg.org> <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr> <45AE2E25.50309@wpkg.org>
-In-Reply-To: <45AE2E25.50309@wpkg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 17 Jan 2007 16:09:48 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:59102 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751568AbXAQVJr (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 16:09:47 -0500
+Message-Id: <200701172109.l0HL9fdw019715@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Chris Leech <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.20-rc4-mm1 - cvs merge whoops in git-ioat.patch?
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1169068181_4892P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 17 Jan 2007 16:09:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Chmielewski wrote:
-> 
-> All right.
-> I see that initramfs is attached to the kernel itself.
-> 
-> So it leaves me only a question: will I fit all tools into 300 kB 
-> (considering I'll use uClibc and busybox)?
-> 
+--==_Exmh_1169068181_4892P
+Content-Type: text/plain; charset=us-ascii
 
-You don't need to use busybox and have a bunch of tools.
+commit d8238afa7eedc047b57da7ec98e98fb051fc4e85
+Author: Chris Leech <christopher.leech@intel.com>
+Date:   Fri Nov 17 11:37:29 2006 -0800
 
-The klibc distribution comes with "kinit", which does the equivalent to 
-the kernel root-mounting code; it's in the tens of kilobytes, at least 
-on x86.  If you're using ARM, you can compile it as Thumb.
+    I/OAT: Add documentation for the tcp_dma_copybreak sysctl
 
-	-hpa
+    Signed-off-by: Chris Leech <christopher.leech@intel.com>
 
+looks fishy, like a cvs update went bad:
+
+diff -puN Documentation/networking/ip-sysctl.txt~git-ioat Documentation/networking/ip-sysctl.txt
+--- a/Documentation/networking/ip-sysctl.txt~git-ioat
++++ a/Documentation/networking/ip-sysctl.txt
+@@ -387,6 +387,22 @@ tcp_workaround_signed_windows - BOOLEAN
+        not receive a window scaling option from them.
+        Default: 0
+
++<<<<<<< HEAD/Documentation/networking/ip-sysctl.txt
++=======
++tcp_slow_start_after_idle - BOOLEAN
++       If set, provide RFC2861 behavior and time out the congestion
+
+
+
+--==_Exmh_1169068181_4892P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFrpCVcC3lWbTT17ARAjHaAKC14ikUjOclkGvpxYtpcvjKWWrrPwCeP5oa
+pQ5DeqcKdT5jt8wLiIiwjW0=
+=UUr/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1169068181_4892P--

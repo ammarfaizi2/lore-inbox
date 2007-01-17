@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932541AbXAQQIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932544AbXAQQMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbXAQQIg (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 11:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbXAQQIg
+	id S932544AbXAQQMY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 11:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbXAQQMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 11:08:36 -0500
-Received: from emroute1.ornl.gov ([160.91.4.119]:41514 "EHLO emroute1.ornl.gov"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932541AbXAQQIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 11:08:35 -0500
-X-Greylist: delayed 850 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 11:08:35 EST
-Date: Wed, 17 Jan 2007 10:54:18 -0500
-From: Lawrence MacIntyre <macintyrelp@ornl.gov>
-Subject: Hung Port
-To: linux-kernel@vger.kernel.org
-Message-id: <45AE46AA.7030700@ornl.gov>
-Organization: Oak Ridge National Laboratory
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-OpenPGP: id=42228DB2;
-	url=http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xD7566FF1
-X-Enigmail-Version: 0.94.1.1
+	Wed, 17 Jan 2007 11:12:24 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:55720 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932544AbXAQQMX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 11:12:23 -0500
+Date: Wed, 17 Jan 2007 21:42:07 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070117161207.GE26211@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru> <20070115161810.GB16435@in.ibm.com> <20070115165516.GA254@tv-sign.ru> <20070116052606.GA995@in.ibm.com> <20070116132725.GA81@tv-sign.ru> <20070117061705.GB2803@in.ibm.com> <20070117154716.GA104@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070117154716.GA104@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last week I had a port (TCP:52557) that was mysteriously unavailable on
-my ubuntu machine (running kernel 2.6.15-27-k7 #1 SMP PREEMPT).  If you
-tried to bind to it, it was unavailable.  However, nmap (both to
-localhost and from an external host) reported the port closed.  fuser,
-lsof, and netstat had no record of the port being used.  Our firewall
-logs didn't show any unusual traffic to the machine.  Nor did they show
-any traffic at all to/from that port on the machine.  After checking
-everything I could think of, I rebooted it, and there were no ports that
-were unavailable in this way when it came back up.  This morning another
-hung port has appeared (TCP:43355).  My best guess is that this is an
-ephemeral port that has somehow gotten hung in the kernel somewhere.
-Has anyone seen anything like this and/or is there anything else I could
-look at to figure it out?
--- 
-  Lawrence MacIntyre   865.574.8696   macintyrelp@ornl.gov
-                Oak Ridge National Laboratory
-Cyber Security and Information Infrastructure Research Group
+On Wed, Jan 17, 2007 at 06:47:16PM +0300, Oleg Nesterov wrote:
+> > What do you mean by "currently" executing work? worker thread executing
+> > some work on the cpu? That is not possible, because all threads are
+> > frozen at this point. There cant be any ongoing flush_workxxx() as well
+> > because of this, which should avoid breaking flush_workxxx() ..
+> 
+> work->func() sleeps/freezed. 
 
-Protect your digital freedom and privacy, eliminate DRM.
-Learn more at http://www.defectivebydesign.org/what_is_drm
+Didnt Andrew call that (work->func calling try_to_freeze) madness?
+
+	http://lkml.org/lkml/2007/01/07/166
+
+Does that happen in practice?
+
+-- 
+Regards,
+vatsa

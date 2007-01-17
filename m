@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932221AbXAQKGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932252AbXAQKYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbXAQKGn (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 05:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbXAQKGn
+	id S932252AbXAQKYM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 05:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbXAQKYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 05:06:43 -0500
-Received: from aurora.bayour.com ([212.214.70.50]:36013 "EHLO
-	aurora.bayour.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932221AbXAQKGm (ORCPT
+	Wed, 17 Jan 2007 05:24:12 -0500
+Received: from ara.aytolacoruna.es ([195.55.102.196]:54645 "EHLO
+	mx.aytolacoruna.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932252AbXAQKYL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 05:06:42 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Weird harddisk behaviour
-X-PGP-Fingerprint: B7 92 93 0E 06 94 D6 22  98 1F 0B 5B FE 33 A1 0B
-X-PGP-Key-ID: 0x788CD1A9
-X-URL: http://www.bayour.com/
-References: <87bqkzp0et.fsf@pumba.bayour.com>
-	<20070116141959.GC476@deepthought>
-From: Turbo Fredriksson <turbo@bayour.com>
-Organization: Bah!
-Date: Wed, 17 Jan 2007 11:09:21 +0100
-In-Reply-To: <20070116141959.GC476@deepthought> (Ken Moffat's message of
- "Tue, 16 Jan 2007 14:19:59 +0000")
-Message-ID: <87y7o2hsmm.fsf@pumba.bayour.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/20.7 (gnu/linux)
+	Wed, 17 Jan 2007 05:24:11 -0500
+X-Greylist: delayed 1405 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 05:24:11 EST
+Date: Wed, 17 Jan 2007 11:00:30 +0100
+From: Santiago Garcia Mantinan <manty@debian.org>
+To: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: problems with latest smbfs changes on 2.4.34 and security backports
+Message-ID: <20070117100030.GA11251@clandestino.aytolacoruna.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Ken Moffat <zarniwhoop@ntlworld.com>:
+Hi!
 
-> On Tue, Jan 16, 2007 at 02:27:06PM +0100, Turbo Fredriksson wrote:
->> A couple of weeks ago my 400Gb SATA disk crashed. I just
->> got the replacement, but I can't seem to be able to create
->> a filesystem on it!
->> 
->> This is a PPC (Pegasos), running 2.6.15-27-powerpc (Ubuntu Dapper v2.6.15-27.50).
-> Hi Turbo,
->
->  I think you have mac partitions (the first item is the partition
-> map itself - very different from the dos partitions common on x86).
->
->  Certainly, fdisk from util-linux doesn't know about mac disks, and
-> I thought the same was true for cfdisk and sfdisk.  Many years ago
-> there was mac-fdisk, I think also known as pdisk, but nowadays the
-> common tool for partitioning mac disks is probably parted.
+I have discovered a problem with the changes applied to smbfs in 2.4.34 and
+in the security backports like last Debian's 2.4 kernel update these changes
+seem to be made to solve CVE-2006-5871 and they have broken symbolic links
+and changed the way that special files (like devices) are seen.
 
-Yes. See now that 'fdisk' is a softlink to 'mac-fdisk'...
+For example:
+Before: symbolic links were seen as that, symbolic links an thus if you tried
+to open the file the link was followed and you ended up reading the
+destination file
+Now: symbolic links are seen as normal files (at least with a ls) but their
+length (N) is the length of the symbolic link, if you read it, you'll get the
+first N characters of the destination file. For example, on my filesystem
+bin/sh is a symlink to bash, thus it is 4 bytes long, if I to a cat bin/sh I
+get ELF (this is, the first 4 characters of the bash program, first one
+being a DEL).
 
-> Please try parted.
+Another example:
+Before: if you did a ls of a device file, like dev/zero you could see it as
+a device, if you tried opening it, it wouldn't work, but if you did a cp -a
+of that file to a local filesystem the result was a working zero device.
+Now: the devices are seen as normal files with a length of 0 bytes.
 
-Same thing ('mkpartfs primary ext2 0 400000'):
+Seems to me like a mask is erasing some mode bits that shouldn't be erased.
 
-Jan 17 11:03:41 localhost kernel: [254985.117447] EXT2-fs: sdb1: couldn't mount RDWR because of unsupported optional features (10000).
+I have carried my tests on a Debian Sarge machine always mounting the share
+using: smbmount //server/share /mnt without any other options. The tests
+were carried on a unpatched 2.4.34 comparing it to 2.4.33 and also on
+Debian's 2.4.27 comparing 2.4.27-10sarge4 vs -10sarge5. The server is a
+samba 3.0.23d and I have experienced the same behaviour with samba's
+unix extensions = yes and unix extensions = no.
 
+I don't know what else to add, if you need any more info or want me to do
+any tests just ask for it.
 
-The 'unsupported optional features' number keeps changing... ?
+Regards...
+-- 
+Santiago García Mantiñán

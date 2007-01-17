@@ -1,76 +1,115 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbXAQTUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932657AbXAQTVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbXAQTUm (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 14:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbXAQTUm
+	id S932657AbXAQTVw (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 14:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbXAQTVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 14:20:42 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:20101 "EHLO
-	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932653AbXAQTUl (ORCPT
+	Wed, 17 Jan 2007 14:21:52 -0500
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:33921 "HELO
+	smtp111.sbc.mail.re2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932657AbXAQTVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 14:20:41 -0500
-Message-ID: <45AE7705.4040603@fr.ibm.com>
-Date: Wed, 17 Jan 2007 20:20:37 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Wed, 17 Jan 2007 14:21:51 -0500
+X-YMail-OSG: ofMvncsVM1kg8i8Bs41OmbkQ71Vgiho.PyPf2Osq5v7gSms_xzdoThhC6sIvJsqO9nNlor9Naxc01Mcmh_buD0MAneyOskNaVrUen.TuJIYB1Qn0EFLp
+Date: Wed, 17 Jan 2007 13:21:48 -0600
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Alexey Dobriyan <adobriyan@openvz.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: Re: [PATCH] Introduce and use get_task_mnt_ns()
+Message-ID: <20070117192148.GA13894@vino.hallyn.com>
+References: <20070117154319.GD6021@localhost.sw.ru>
 MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: Daniel Hokka Zakrisson <daniel@hozac.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, akpm@osdl.org,
-       trond.myklebust@fys.uio.no,
-       Linux Containers <containers@lists.osdl.org>
-Subject: Re: NFS causing oops when freeing namespace
-References: <57238.192.168.101.6.1169029688.squirrel@intranet> <m18xg1akmd.fsf@ebiederm.dsl.xmission.com> <51072.192.168.101.6.1169039633.squirrel@intranet> <20070117185823.GA878@tv-sign.ru>
-In-Reply-To: <20070117185823.GA878@tv-sign.ru>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070117154319.GD6021@localhost.sw.ru>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> On 01/17, Daniel Hokka Zakrisson wrote:
->>>> Call Trace:
->>>>  [<c03be6f0>] _spin_lock_irqsave+0x20/0x90
->>>>  [<c01f6115>] lockd_down+0x125/0x190
->>>>  [<c01d26bd>] nfs_free_server+0x6d/0xd0
->>>>  [<c01d8e9c>] nfs_kill_super+0xc/0x20
->>>>  [<c0161c5d>] deactivate_super+0x7d/0xa0
->>>>  [<c0175e0e>] release_mounts+0x6e/0x80
->>>>  [<c0175e86>] __put_mnt_ns+0x66/0x80
->>>>  [<c0132b3e>] free_nsproxy+0x5e/0x60
->>>>  [<c011f021>] do_exit+0x791/0x810
->>>>  [<c011f0c6>] do_group_exit+0x26/0x70
->>>>  [<c0103142>] sysenter_past_esp+0x5f/0x85
->>>>  [<c03b0033>] rpc_wake_up+0x3/0x70
->> It was the only semi-plausible explanation I could come up with. I added a
->> printk in do_exit right before exit_task_namespaces, where sighand was
->> still set, and one right before the spin_lock_irq in lockd_down, where it
->> had suddenly been set to NULL.
+Quoting Alexey Dobriyan (adobriyan@openvz.org):
+> Apply after "[PATCH] Fix NULL ->nsproxy dereference in /proc/*/mounts".
 > 
-> I can't reproduce the problem, but
-
-I did on a 2.6.20-rc4-mm1.
-
-> 	do_exit:
-> 		exit_notify(tsk);
-> 		exit_task_namespaces(tsk);
+> Similar to get_task_mm(): get a reference to task's mnt namespace if any.
+> Suggested by Pavel Emelianov.
 > 
-> the task could be reaped by its parent in between.
+> Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
 
-indeed. while it goes spleeping in lockd_down() just before it does
+Yeah, that's nicer, thanks.
 
-	spin_lock_irq(&current->sighand->siglock);
+Acked-by: Serge Hallyn <serue@us.ibm.com>
 
-current->sighand is valid before interruptible_sleep_on_timeout() and
-not after.
- 
-> We should not use ->signal/->sighand after exit_notify().
+
+> ---
 > 
-> Can we move exit_task_namespaces() up?
-
-yes but I moved it down because it invalidates ->nsproxy ... 
-
-C.
-
+>  fs/proc/base.c          |   15 ++-------------
+>  include/linux/nsproxy.h |    1 +
+>  kernel/nsproxy.c        |   14 ++++++++++++++
+>  3 files changed, 17 insertions(+), 13 deletions(-)
+> 
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -370,13 +370,7 @@ static int mounts_open(struct inode *ino
+>  	int ret = -EINVAL;
+>  
+>  	if (task) {
+> -		task_lock(task);
+> -		if (task->nsproxy) {
+> -			ns = task->nsproxy->mnt_ns;
+> -			if (ns)
+> -				get_mnt_ns(ns);
+> -		}
+> -		task_unlock(task);
+> +		ns = get_task_mnt_ns(task);
+>  		put_task_struct(task);
+>  	}
+>  
+> @@ -443,12 +437,7 @@ static int mountstats_open(struct inode 
+>  		struct task_struct *task = get_proc_task(inode);
+>  
+>  		if (task) {
+> -			task_lock(task);
+> -			if (task->nsproxy)
+> -				mnt_ns = task->nsproxy->mnt_ns;
+> -			if (mnt_ns)
+> -				get_mnt_ns(mnt_ns);
+> -			task_unlock(task);
+> +			mnt_ns = get_task_mnt_ns(task);
+>  			put_task_struct(task);
+>  		}
+>  
+> --- a/include/linux/nsproxy.h
+> +++ b/include/linux/nsproxy.h
+> @@ -35,6 +35,7 @@ struct nsproxy *dup_namespaces(struct ns
+>  int copy_namespaces(int flags, struct task_struct *tsk);
+>  void get_task_namespaces(struct task_struct *tsk);
+>  void free_nsproxy(struct nsproxy *ns);
+> +struct mnt_namespace * get_task_mnt_ns(struct task_struct *tsk);
+>  
+>  static inline void put_nsproxy(struct nsproxy *ns)
+>  {
+> --- a/kernel/nsproxy.c
+> +++ b/kernel/nsproxy.c
+> @@ -147,3 +147,17 @@ void free_nsproxy(struct nsproxy *ns)
+>  		put_pid_ns(ns->pid_ns);
+>  	kfree(ns);
+>  }
+> +
+> +struct mnt_namespace * get_task_mnt_ns(struct task_struct *tsk)
+> +{
+> +	struct mnt_namespace *mnt_ns = NULL;
+> +
+> +	task_lock(tsk);
+> +	if (tsk->nsproxy)
+> +		mnt_ns = tsk->nsproxy->mnt_ns;
+> +	if (mnt_ns)
+> +		get_mnt_ns(mnt_ns);
+> +	task_unlock(tsk);
+> +
+> +	return mnt_ns;
+> +}
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

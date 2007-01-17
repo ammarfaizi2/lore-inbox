@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751050AbXAQW5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751147AbXAQXP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbXAQW5d (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 17:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbXAQW5d
+	id S1751147AbXAQXP5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 18:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbXAQXP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 17:57:33 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:58003 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751061AbXAQW5c (ORCPT
+	Wed, 17 Jan 2007 18:15:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47914 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751147AbXAQXP5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 17:57:32 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Wed, 17 Jan 2007 17:51:55 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Valdis.Kletnieks@vt.edu
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: "obsolete" versus "deprecated", and a new config option?
-In-Reply-To: <200701172254.l0HMsDMK022934@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.64.0701171749430.4760@CPE00045a9c397f-CM001225dbafb6>
-References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
- <200701172154.l0HLs3BM021024@turing-police.cc.vt.edu>           
- <Pine.LNX.4.64.0701171654480.4298@CPE00045a9c397f-CM001225dbafb6>
- <200701172254.l0HMsDMK022934@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Wed, 17 Jan 2007 18:15:57 -0500
+Date: Wed, 17 Jan 2007 23:15:54 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] nfs: fix congestion control
+Message-ID: <20070117231554.GC9387@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com> <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1168985323.5975.53.camel@lappy>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2007, Valdis.Kletnieks@vt.edu wrote:
+> --- linux-2.6-git.orig/fs/inode.c	2007-01-12 08:03:47.000000000 +0100
+> +++ linux-2.6-git/fs/inode.c	2007-01-12 08:53:26.000000000 +0100
+> @@ -81,6 +81,7 @@ static struct hlist_head *inode_hashtabl
+>   * the i_state of an inode while it is in use..
+>   */
+>  DEFINE_SPINLOCK(inode_lock);
+> +EXPORT_SYMBOL_GPL(inode_lock);
 
-> On Wed, 17 Jan 2007 17:04:20 EST, "Robert P. J. Day" said:
->
-> > > How much of the 'OBSOLETE' code should just be labelled 'BROKEN'
-> > > instead?
-> >
-> > the stuff that's actually "broken."  :-)
->
-> Right - the question is how much code qualifies as either/both, and
-> which we should use when we encounter the random driver that's both
-> obsolete *and* broken...
-
-that's entirely a judgment call on the part of the code's maintainer.
-if something is both obsolete and broken, then make it depend on
-*both* OBSOLETE and BROKEN if you want.  no big deal.
-
-rday
+Btw, big "no fucking way" here.  There is no chance we're going to export
+this, even _GPL

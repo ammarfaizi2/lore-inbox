@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752018AbXAQEXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752014AbXAQEZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752018AbXAQEXh (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 23:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752020AbXAQEXh
+	id S1752014AbXAQEZX (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 23:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbXAQEZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 23:23:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40428 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752019AbXAQEXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 23:23:36 -0500
-Date: Tue, 16 Jan 2007 20:23:23 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, Paul Menage <menage@google.com>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-mm@kvack.org, Paul Jackson <pj@sgi.com>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [RFC 1/8] Convert higest_possible_node_id() into nr_node_ids
-In-Reply-To: <200701171515.20380.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0701162023140.4849@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
- <200701170905.17234.ak@suse.de> <Pine.LNX.4.64.0701161913180.4677@schroedinger.engr.sgi.com>
- <200701171515.20380.ak@suse.de>
+	Tue, 16 Jan 2007 23:25:23 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:20277 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752014AbXAQEZW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 23:25:22 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SDTEV9mBBZUW/Bd8DdEv0vO4zRPQnZjv7uZyd1uYyCv3wmOAw3NpwsrJwzBKZFHIHoJqq4XJbEbWc3RPLKDpkLOvwCasmmxrXhAhDgS1vTkj8cagFnJQRupTbItVffcpdiM4rl2YadBnzGhCJ3FXvQmKYfAENV3znyNHe5neG2E=
+Message-ID: <305c16960701162025o2f96eb25m79f58aede11821ec@mail.gmail.com>
+Date: Wed, 17 Jan 2007 02:25:19 -0200
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: BUG: linux 2.6.19 unable to enable acpi
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1169007288.3457.4.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
+	 <1169007288.3457.4.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2007, Andi Kleen wrote:
+On 1/17/07, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Wed, 2007-01-17 at 02:01 -0200, Matheus Izvekov wrote:
+> > Just tried linux for the first time on this old machine, and i got
+> > this problem. dmesg below:
+>
+>
+> did this machine EVER support acpi ?
+>
+>
 
-> > > Are you sure this is even possible in general on systems with node
-> > > hotplug? The firmware might not pass a maximum limit.
-> >
-> > In that case the node possible map must include all nodes right?
-> 
-> Yes.
-
-Then we are fine.
-
+It used to support power button events, dont know what else. Is there
+anything I can do to check how good the acpi support is?

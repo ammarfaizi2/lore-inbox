@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932593AbXAQSLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932584AbXAQS2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbXAQSLU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 13:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbXAQSLU
+	id S932584AbXAQS2n (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 13:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbXAQS2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 13:11:20 -0500
-Received: from mail.tmr.com ([64.65.253.246]:46870 "EHLO gaimboi.tmr.com"
+	Wed, 17 Jan 2007 13:28:43 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:24296 "EHLO mx27.mail.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932593AbXAQSLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 13:11:19 -0500
-Message-ID: <45AE6759.70108@tmr.com>
-Date: Wed, 17 Jan 2007 13:13:45 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "obsolete" versus "deprecated", and a new config option?
-References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
-In-Reply-To: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id S932584AbXAQS2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 13:28:42 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.20-rc5: BUG: lock held at task exit time! (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+Date: Wed, 17 Jan 2007 21:28:34 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0701161515150.2550-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0701161515150.2550-100000@iolanthe.rowland.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701172128.38545.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day wrote:
->   a couple random thoughts on the notion of obsolescence and
-> deprecation.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	[...horrible example deleted...]
+On Tuesday 16 January 2007 23:31, Alan Stern wrote:
+> On Tue, 16 Jan 2007, Andrey Borzenkov wrote:
+> > I have Toshiba Portege 4000 that almost always hangs dead resuming from
+> > STR. This was better before 2.6.18, since then STR is unusable. Sometimes
+> > it manages to resume; yesterday I got on console and in dmesg:
+> >
+> > =====================================
+> > [ BUG: lock held at task exit time! ]
+> > - -------------------------------------
+> > echo/28793 is exiting with locks still held!
+> > 1 lock held by echo/28793:
+> >  #0:  (pm_mutex){--..}, at: [<c013bfff>] enter_state+0x3f/0x170
+> >
+> > stack backtrace:
+> >  [<c0103fea>] show_trace_log_lvl+0x1a/0x30
+> >  [<c01045f2>] show_trace+0x12/0x20
+> >  [<c01046a6>] dump_stack+0x16/0x20
+> >  [<c0132377>] debug_check_no_locks_held+0x87/0x90
+> >  [<c011c8bb>] do_exit+0x4db/0x820
+> >  [<c011cc29>] do_group_exit+0x29/0x70
+> >  [<c011cc7f>] sys_exit_group+0xf/0x20
+> >  [<c010300e>] sysenter_past_esp+0x5f/0x99
+> >  =======================
+>
+> Have you tried using 2.6.19?  There was a bug which got fixed in that
+> release.
+>
 
->   so is that ioctl obsolete or deprecated?  those aren't the same
-> things, a good distinction being drawn here by someone discussing
-> devfs:
-> 
-> http://kerneltrap.org/node/1893
-> 
-> "Devfs is deprecated.  This means it's still available but you should
-> consider moving to other options when available.  Obsolete means it
-> shouldn't be used.  Some 2.6 docs have confused these two terms WRT
-> devfs."
-> 
->   yes, and that confusion continues to this day, when a single feature
-> is described as both deprecated and obsolete.  not good.  (also, i'm
-> guessing that anything that's "obsolete" might deserve a default of
-> "n" rather than "y", but that's just me.  :-)
+Yes I did. It had the same problem.
 
-Agree on that. I would hope "obsolete" means there's a newer way which 
-should provide the functionality (** help should say where that is **) 
-while depreciated should mean "we decided this was a bad solution" or 
-something like that.
-> 
->   in any event, what about introducing a new config variable,
-> OBSOLETE, under "Code maturity level options"?  this would seem to be
-> a quick and dirty way to prune anything that is *supposed* to be
-> obsolete from the build, to make sure you're not picking up dead code
-> by accident.
+Sorry for posting to wrong list, but I hit USB pm_mutex before other one.
 
-If you're doing that, why not four variables, for incomplete, 
-experimental, obsolete and depreciated? Unfortunately doing any more 
-detailed nomenclature would be a LOT of work!
-> 
->   i think it would be useful to be able to make that kind of
-> distinction since, as the devfs writer pointed out above, the point of
-> labelling something "obsolete" is not to *discourage* someone from
-> using a feature, it's to imply that they *shouldn't* be using that
-> feature.  period.  which suggests there should be an easy, one-step
-> way to enforce that absolutely in a build.
-> 
->   thoughts?
-> 
-I think it's a good idea, but doing it right may be more work than the 
-benefit justifies.
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+iD8DBQFFrmrWR6LMutpd94wRAr6eAKCVhFTsgtrrxlPWcY/kCa6hAq8sWACgkUrK
+SA8GeytfzwD38IOrVCIkAXU=
+=Me0j
+-----END PGP SIGNATURE-----

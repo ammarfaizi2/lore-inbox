@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751304AbXAQVyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751657AbXAQVzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbXAQVyH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 16:54:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbXAQVyH
+	id S1751657AbXAQVzM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 16:55:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbXAQVzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 16:54:07 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37462 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751797AbXAQVyG (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 16:54:06 -0500
-Message-Id: <200701172154.l0HLs3BM021024@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: "obsolete" versus "deprecated", and a new config option?
-In-Reply-To: Your message of "Wed, 17 Jan 2007 11:51:27 EST."
-             <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
+	Wed, 17 Jan 2007 16:55:11 -0500
+Received: from pat.uio.no ([129.240.10.15]:57054 "EHLO pat.uio.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751657AbXAQVzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 16:55:10 -0500
+Subject: Re: [PATCH] nfs: fix congestion control
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1169070763.5975.70.camel@lappy>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+	 <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
+	 <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
+	 <1169070763.5975.70.camel@lappy>
+Content-Type: text/plain
+Date: Wed, 17 Jan 2007 16:54:46 -0500
+Message-Id: <1169070886.6523.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1169070843_4892P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Date: Wed, 17 Jan 2007 16:54:03 -0500
+X-UiO-Resend: resent
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.0, required=12.0, autolearn=disabled, none)
+X-UiO-Scanned: CF11D01D9BBDC7EC7B0EB6B3B7226FE6A0736072
+X-UiO-SPAM-Test: remote_host: 129.240.10.9 spam_score: 0 maxlevel 200 minaction 2 bait 0 mail/h: 171 total 9318 max/h 9318 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1169070843_4892P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 2007-01-17 at 22:52 +0100, Peter Zijlstra wrote:
 
-On Wed, 17 Jan 2007 11:51:27 EST, "Robert P. J. Day" said:
->
->   in any event, what about introducing a new config variable,
-> OBSOLETE, under "Code maturity level options"?  this would seem to be
-> a quick and dirty way to prune anything that is *supposed* to be
-> obsolete from the build, to make sure you're not picking up dead code
-> by accident.
+> > 
+> > > Index: linux-2.6-git/fs/inode.c
+> > > ===================================================================
+> > > --- linux-2.6-git.orig/fs/inode.c	2007-01-12 08:03:47.000000000 +0100
+> > > +++ linux-2.6-git/fs/inode.c	2007-01-12 08:53:26.000000000 +0100
+> > > @@ -81,6 +81,7 @@ static struct hlist_head *inode_hashtabl
+> > >   * the i_state of an inode while it is in use..
+> > >   */
+> > >  DEFINE_SPINLOCK(inode_lock);
+> > > +EXPORT_SYMBOL_GPL(inode_lock);
+> > 
+> > Hmmm... Commits to all NFS servers will be globally serialized via the 
+> > inode_lock?
 > 
->   i think it would be useful to be able to make that kind of
-> distinction since, as the devfs writer pointed out above, the point of
-> labelling something "obsolete" is not to *discourage* someone from
-> using a feature, it's to imply that they *shouldn't* be using that
-> feature.  period.  which suggests there should be an easy, one-step
-> way to enforce that absolutely in a build.
+> Hmm, right, thats not good indeed, I can pull the call to
+> nfs_commit_list() out of that loop.
 
-How much of the 'OBSOLETE' code should just be labelled 'BROKEN' instead?
+There is no reason to modify any of the commit stuff. Please just drop
+that code.
 
---==_Exmh_1169070843_4892P
-Content-Type: application/pgp-signature
+Trond
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFrpr7cC3lWbTT17ARAkRIAKCJ9J+8muj86atq6Hfwean1LBU70gCgt4YJ
-qphHZ6nBXc8Pt2hpAJdwa4s=
-=RZu2
------END PGP SIGNATURE-----
-
---==_Exmh_1169070843_4892P--

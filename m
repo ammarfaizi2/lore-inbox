@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932694AbXAQTq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932637AbXAQTuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbXAQTq5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 14:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbXAQTq5
+	id S932637AbXAQTuA (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 14:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbXAQTt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 14:46:57 -0500
-Received: from mail.screens.ru ([213.234.233.54]:32791 "EHLO mail.screens.ru"
+	Wed, 17 Jan 2007 14:49:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44698 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932694AbXAQTq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 14:46:56 -0500
-Date: Wed, 17 Jan 2007 22:46:32 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Daniel Hokka Zakrisson <daniel@hozac.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, akpm@osdl.org,
-       trond.myklebust@fys.uio.no,
-       Linux Containers <containers@lists.osdl.org>
-Subject: Re: NFS causing oops when freeing namespace
-Message-ID: <20070117194632.GA1071@tv-sign.ru>
-References: <57238.192.168.101.6.1169029688.squirrel@intranet> <m18xg1akmd.fsf@ebiederm.dsl.xmission.com> <51072.192.168.101.6.1169039633.squirrel@intranet> <20070117185823.GA878@tv-sign.ru> <45AE7705.4040603@fr.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45AE7705.4040603@fr.ibm.com>
-User-Agent: Mutt/1.5.11
+	id S932637AbXAQTt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 14:49:59 -0500
+Date: Wed, 17 Jan 2007 14:46:01 -0500 (EST)
+From: Chip Coldwell <coldwell@redhat.com>
+To: Chip Coldwell <coldwell@redhat.com>
+cc: Andi Kleen <ak@suse.de>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, andersen@codepoet.org, krader@us.ibm.com,
+       lfriedman@nvidia.com, linux-nforce-bugs@nvidia.com
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8
+ cpu errata needed?)
+In-Reply-To: <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0701171445120.18888@localhost.localdomain>
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net>
+ <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de>
+ <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/17, Cedric Le Goater wrote:
+On Wed, 17 Jan 2007, Chip Coldwell wrote:
+
+> On Wed, 17 Jan 2007, Andi Kleen wrote:
 >
-> Oleg Nesterov wrote:
-> > On 01/17, Daniel Hokka Zakrisson wrote:
-> >> It was the only semi-plausible explanation I could come up with. I added a
-> >> printk in do_exit right before exit_task_namespaces, where sighand was
-> >> still set, and one right before the spin_lock_irq in lockd_down, where it
-> >> had suddenly been set to NULL.
-> > 
-> > I can't reproduce the problem, but
-> 
-> I did on a 2.6.20-rc4-mm1.
-> 
-> > 	do_exit:
-> > 		exit_notify(tsk);
-> > 		exit_task_namespaces(tsk);
-> > 
-> > the task could be reaped by its parent in between.
-> 
-> indeed. while it goes spleeping in lockd_down() just before it does
-> 
-> 	spin_lock_irq(&current->sighand->siglock);
-> 
-> current->sighand is valid before interruptible_sleep_on_timeout() and
-> not after.
->  
-> > We should not use ->signal/->sighand after exit_notify().
-> > 
-> > Can we move exit_task_namespaces() up?
-> 
-> yes but I moved it down because it invalidates ->nsproxy ... 
+>> On Wednesday 17 January 2007 07:31, Chris Wedgwood wrote:
+>>> On Tue, Jan 16, 2007 at 08:52:32PM +0100, Christoph Anton Mitterer wrote:
+>>>> I agree,... it seems drastic, but this is the only really secure
+>>>> solution.
+>>> 
+>>> I'd like to here from Andi how he feels about this?  It seems like a
+>>> somewhat drastic solution in some ways given a lot of hardware doesn't
+>>> seem to be affected (or maybe in those cases it's just really hard to
+>>> hit, I don't know).
+>> 
+>> AMD is looking at the issue. Only Nvidia chipsets seem to be affected,
+>> although there were similar problems on VIA in the past too.
+>> Unless a good workaround comes around soon I'll probably default
+>> to iommu=soft on Nvidia.
+>> 
+>
+> We've just verified that configuring the graphics aperture to be
+> write-combining instead of write-back using an MTRR also solves the
+> problem.  It appears to be a cache incoherency issue in the graphics
+> aperture.
 
-Well, we can fix the symptom if we change lockd_down() to use
-lock_task_sighand(), or something like this,
+I take it back.  Further testing has revealed that this does not solve
+the problem.
 
-	--- NFS/fs/lockd/svc.c~lockd_down	2006-11-27 21:20:11.000000000 +0300
-	+++ NFS/fs/lockd/svc.c	2007-01-17 22:39:47.000000000 +0300
-	@@ -314,6 +314,7 @@ void
-	 lockd_down(void)
-	 {
-		static int warned;
-	+	int sigpending;
-	 
-		mutex_lock(&nlmsvc_mutex);
-		if (nlmsvc_users) {
-	@@ -334,16 +335,15 @@ lockd_down(void)
-		 * Wait for the lockd process to exit, but since we're holding
-		 * the lockd semaphore, we can't wait around forever ...
-		 */
-	-	clear_thread_flag(TIF_SIGPENDING);
-	+	sigpending = test_and_clear_thread_flag(TIF_SIGPENDING);
-		interruptible_sleep_on_timeout(&lockd_exit, HZ);
-		if (nlmsvc_pid) {
-			printk(KERN_WARNING 
-				"lockd_down: lockd failed to exit, clearing pid\n");
-			nlmsvc_pid = 0;
-		}
-	-	spin_lock_irq(&current->sighand->siglock);
-	-	recalc_sigpending();
-	-	spin_unlock_irq(&current->sighand->siglock);
-	+	if (sigpending)	/* can be wrong at this point, harmless */
-	+		set_thread_flag(TIF_SIGPENDING);
-	 out:
-		mutex_unlock(&nlmsvc_mutex);
-	 }
+Chip
 
-but this is not good anyway.
-
-Oleg.
+-- 
+Charles M. "Chip" Coldwell
+Senior Software Engineer
+Red Hat, Inc
+978-392-2426
 

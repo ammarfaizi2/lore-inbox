@@ -1,67 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932637AbXAQTuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932715AbXAQUGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbXAQTuA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 14:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbXAQTt7
+	id S932715AbXAQUGY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 15:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbXAQUGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 14:49:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44698 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932637AbXAQTt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 14:49:59 -0500
-Date: Wed, 17 Jan 2007 14:46:01 -0500 (EST)
-From: Chip Coldwell <coldwell@redhat.com>
-To: Chip Coldwell <coldwell@redhat.com>
-cc: Andi Kleen <ak@suse.de>, Chris Wedgwood <cw@f00f.org>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
-       knweiss@gmx.de, andersen@codepoet.org, krader@us.ibm.com,
-       lfriedman@nvidia.com, linux-nforce-bugs@nvidia.com
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8
- cpu errata needed?)
-In-Reply-To: <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0701171445120.18888@localhost.localdomain>
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net>
- <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de>
- <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
+	Wed, 17 Jan 2007 15:06:24 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58203 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932715AbXAQUGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 15:06:23 -0500
+Date: Wed, 17 Jan 2007 12:05:53 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] nfs: fix congestion control
+In-Reply-To: <1168985323.5975.53.camel@lappy>
+Message-ID: <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+  <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2007, Chip Coldwell wrote:
+On Tue, 16 Jan 2007, Peter Zijlstra wrote:
 
-> On Wed, 17 Jan 2007, Andi Kleen wrote:
->
->> On Wednesday 17 January 2007 07:31, Chris Wedgwood wrote:
->>> On Tue, Jan 16, 2007 at 08:52:32PM +0100, Christoph Anton Mitterer wrote:
->>>> I agree,... it seems drastic, but this is the only really secure
->>>> solution.
->>> 
->>> I'd like to here from Andi how he feels about this?  It seems like a
->>> somewhat drastic solution in some ways given a lot of hardware doesn't
->>> seem to be affected (or maybe in those cases it's just really hard to
->>> hit, I don't know).
->> 
->> AMD is looking at the issue. Only Nvidia chipsets seem to be affected,
->> although there were similar problems on VIA in the past too.
->> Unless a good workaround comes around soon I'll probably default
->> to iommu=soft on Nvidia.
->> 
->
-> We've just verified that configuring the graphics aperture to be
-> write-combining instead of write-back using an MTRR also solves the
-> problem.  It appears to be a cache incoherency issue in the graphics
-> aperture.
+> The current NFS client congestion logic is severely broken, it marks the
+> backing device congested during each nfs_writepages() call and implements
+> its own waitqueue.
 
-I take it back.  Further testing has revealed that this does not solve
-the problem.
+This is the magic bullet that Andrew is looking for to fix the NFS issues?
 
-Chip
+> Index: linux-2.6-git/include/linux/nfs_fs_sb.h
+> ===================================================================
+> --- linux-2.6-git.orig/include/linux/nfs_fs_sb.h	2007-01-12 08:03:47.000000000 +0100
+> +++ linux-2.6-git/include/linux/nfs_fs_sb.h	2007-01-12 08:53:26.000000000 +0100
+> @@ -82,6 +82,8 @@ struct nfs_server {
+>  	struct rpc_clnt *	client_acl;	/* ACL RPC client handle */
+>  	struct nfs_iostats *	io_stats;	/* I/O statistics */
+>  	struct backing_dev_info	backing_dev_info;
+> +	atomic_t		writeback;	/* number of writeback pages */
+> +	atomic_t		commit;		/* number of commit pages */
+>  	int			flags;		/* various flags */
 
--- 
-Charles M. "Chip" Coldwell
-Senior Software Engineer
-Red Hat, Inc
-978-392-2426
+I think writeback is frequently incremented? Would it be possible to avoid
+a single global instance of an atomic_t here? In a busy NFS system 
+with lots of processors writing via NFS this may cause a hot cacheline 
+that limits write speed.
+
+Would it be possible to use NR_WRITEBACK? If not then maybe add another
+ZVC counter named NFS_NFS_WRITEBACK?
+
+> Index: linux-2.6-git/mm/page-writeback.c
+> ===================================================================
+> --- linux-2.6-git.orig/mm/page-writeback.c	2007-01-12 08:03:47.000000000 +0100
+> +++ linux-2.6-git/mm/page-writeback.c	2007-01-12 08:53:26.000000000 +0100
+> @@ -167,6 +167,12 @@ get_dirty_limits(long *pbackground, long
+>  	*pdirty = dirty;
+>  }
+>  
+> +int dirty_pages_exceeded(struct address_space *mapping)
+> +{
+> +	return dirty_exceeded;
+> +}
+> +EXPORT_SYMBOL_GPL(dirty_pages_exceeded);
+> +
+
+Export the variable instead of adding a new function? Why does it take an 
+address space parameter that is not used?
+
+
+> Index: linux-2.6-git/fs/inode.c
+> ===================================================================
+> --- linux-2.6-git.orig/fs/inode.c	2007-01-12 08:03:47.000000000 +0100
+> +++ linux-2.6-git/fs/inode.c	2007-01-12 08:53:26.000000000 +0100
+> @@ -81,6 +81,7 @@ static struct hlist_head *inode_hashtabl
+>   * the i_state of an inode while it is in use..
+>   */
+>  DEFINE_SPINLOCK(inode_lock);
+> +EXPORT_SYMBOL_GPL(inode_lock);
+
+Hmmm... Commits to all NFS servers will be globally serialized via the 
+inode_lock?
 

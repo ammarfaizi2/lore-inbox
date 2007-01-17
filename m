@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751728AbXAQHyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751779AbXAQICW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbXAQHyG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 02:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751779AbXAQHyG
+	id S1751779AbXAQICW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 03:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbXAQICV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 02:54:06 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:42759 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751728AbXAQHyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 02:54:05 -0500
-Message-Id: <1169020441.11252.1169664809@webmail.messagingengine.com>
-X-Sasl-Enc: cKHL9v7Ak2FIBvtUH6iWwMEIqmD5Qql0Wb4YRIjxweU0 1169020441
-From: "Clemens Ladisch" <clemens@ladisch.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "<Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Content-Disposition: inline
+	Wed, 17 Jan 2007 03:02:21 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35745 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751779AbXAQICV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 03:02:21 -0500
+Date: Wed, 17 Jan 2007 00:01:58 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: clameter@sgi.com, menage@google.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, linux-mm@kvack.org, ak@suse.de, dgc@sgi.com
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+Message-Id: <20070117000158.a2e7016e.pj@sgi.com>
+In-Reply-To: <20070116230034.b8cb4263.akpm@osdl.org>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+	<20070116135325.3441f62b.akpm@osdl.org>
+	<Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
+	<20070116154054.e655f75c.akpm@osdl.org>
+	<Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
+	<20070116170734.947264f2.akpm@osdl.org>
+	<Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
+	<20070116183406.ed777440.akpm@osdl.org>
+	<Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
+	<20070116200506.d19eacf5.akpm@osdl.org>
+	<Pine.LNX.4.64.0701162219180.5215@schroedinger.engr.sgi.com>
+	<20070116230034.b8cb4263.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-   <11689656683585-git-send-email-ebiederm@xmission.com>
-Subject: Re: [PATCH 42/59] sysctl: Remove sys_sysctl support from the hpet timer
-   driver.
-In-Reply-To: <11689656683585-git-send-email-ebiederm@xmission.com>
-Date: Wed, 17 Jan 2007 08:54:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
-> 
-> In the binary sysctl interface the hpet driver was claiming to
-> be the cdrom driver.  This is a no-no so remove support for the
-> binary interface.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Andrew wrote:
+> - consider going off-cpuset for critical allocations. 
 
-Acked-by: Clemens Ladisch <clemens@ladisch.de>
+We do ... in mm/page_alloc.c:
 
-> ---
->  drivers/char/hpet.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-> index 20dc3be..81be1db 100644
-> --- a/drivers/char/hpet.c
-> +++ b/drivers/char/hpet.c
-> @@ -703,7 +703,7 @@ int hpet_control(struct hpet_task *tp, unsigned int
-> cmd, unsigned long arg)
->  
->  static ctl_table hpet_table[] = {
->  	{
-> -        .ctl_name = 1,
-> +        .ctl_name = CTL_UNNUMBERED,
->  	 .procname = "max-user-freq",
->  	 .data = &hpet_max_freq,
->  	 .maxlen = sizeof(int),
-> @@ -715,7 +715,7 @@ static ctl_table hpet_table[] = {
->  
->  static ctl_table hpet_root[] = {
->  	{
-> -        .ctl_name = 1,
-> +        .ctl_name = CTL_UNNUMBERED,
->  	 .procname = "hpet",
->  	 .maxlen = 0,
->  	 .mode = 0555,
-> -- 
-> 1.4.4.1.g278f
+         * This is the last chance, in general, before the goto nopage.
+         * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
+         * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
+         */
+        page = get_page_from_freelist(gfp_mask, order, zonelist, alloc_flags);
+
+We also allow GFP_KERNEL requests to escape the current cpuset, to the nearest
+enclosing mem_exclusive cpuset, which is typically a big cpuset covering most
+of the system.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

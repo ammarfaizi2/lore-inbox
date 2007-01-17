@@ -1,87 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750725AbXAQGPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750791AbXAQGRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbXAQGPf (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 01:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbXAQGPf
+	id S1750791AbXAQGRP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 01:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbXAQGRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 01:15:35 -0500
-Received: from pat.uio.no ([129.240.10.15]:48728 "EHLO pat.uio.no"
+	Wed, 17 Jan 2007 01:17:15 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:47137 "EHLO e1.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750725AbXAQGPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 01:15:34 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <1169001692.22935.84.camel@twins>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org>  <1168985323.5975.53.camel@lappy>
-	 <1168986466.6056.52.camel@lade.trondhjem.org>
-	 <1169001692.22935.84.camel@twins>
-Content-Type: text/plain
-Date: Wed, 17 Jan 2007 01:15:15 -0500
-Message-Id: <1169014515.6065.5.camel@lade.trondhjem.org>
+	id S1750791AbXAQGRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 01:17:14 -0500
+Date: Wed, 17 Jan 2007 11:47:05 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-ID: <20070117061705.GB2803@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070109163815.GA208@tv-sign.ru> <20070109164604.GA17915@in.ibm.com> <20070109165655.GA215@tv-sign.ru> <20070114235410.GA6165@tv-sign.ru> <20070115043304.GA16435@in.ibm.com> <20070115125401.GA134@tv-sign.ru> <20070115161810.GB16435@in.ibm.com> <20070115165516.GA254@tv-sign.ru> <20070116052606.GA995@in.ibm.com> <20070116132725.GA81@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Resend: resent
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.5, required=12.0, autolearn=disabled, AWL=-2.500)
-X-UiO-Scanned: 958ECDA21537018D63A669BEF324C5BFB442ED4A
-X-UiO-SPAM-Test: 129.240.10.9 spam_score -24 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070116132725.GA81@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-17 at 03:41 +0100, Peter Zijlstra wrote:
-> On Tue, 2007-01-16 at 17:27 -0500, Trond Myklebust wrote:
-> > On Tue, 2007-01-16 at 23:08 +0100, Peter Zijlstra wrote:
-> > > Subject: nfs: fix congestion control
-> > > 
-> > > The current NFS client congestion logic is severely broken, it marks the
-> > > backing device congested during each nfs_writepages() call and implements
-> > > its own waitqueue.
-> > > 
-> > > Replace this by a more regular congestion implementation that puts a cap
-> > > on the number of active writeback pages and uses the bdi congestion waitqueue.
-> > > 
-> > > NFSv[34] commit pages are allowed to go unchecked as long as we are under 
-> > > the dirty page limit and not in direct reclaim.
+On Tue, Jan 16, 2007 at 04:27:25PM +0300, Oleg Nesterov wrote:
+> > I meant issuing kthread_stop() in DOWN_PREPARE so that worker
+> > thread exits itself (much before CPU is actually brought down).
 > 
-> > 
-> > What on earth is the point of adding congestion control to COMMIT?
-> > Strongly NACKed.
+> Deadlock if work_struct re-queues itself.
+
+Are you referring to the problem you described here?
+
+	http://lkml.org/lkml/2007/1/8/173
+
+If so, then it can easily be prevented by having run_workqueue() check for 
+kthread_should_stop() in its while loop?
+
+> > Even if there are problems with it, how abt something like below:
+> >
+> > workqueue_cpu_callback()
+> > {
+> >
+> > 	CPU_DEAD:
+> > 		/* threads are still frozen at this point */
+> > 		take_over_work();
 > 
-> They are dirty pages, how are we getting rid of them when we reached the
-> dirty limit?
+> No, we can't move a currently executing work. This will break flush_workxxx().
 
-They are certainly _not_ dirty pages. They are pages that have been
-written to the server but are not yet guaranteed to have hit the disk
-(they were only written to the server's page cache). We don't care if
-they are paged in or swapped out on the local client.
+What do you mean by "currently" executing work? worker thread executing
+some work on the cpu? That is not possible, because all threads are
+frozen at this point. There cant be any ongoing flush_workxxx() as well
+because of this, which should avoid breaking flush_workxxx() ..
 
-\All the COMMIT does, is to ask the server to write the data from its
-page cache onto disk. Once that has been done, we can release the pages.
-If the commit fails, then we iterate through the whole writepage()
-process again. The commit itself does, however, not even look at the
-page data.
-
-> > Why 16MB of on-the-wire data? Why not 32, or 128, or ...
+> > 		if (kthread_marked_stop(current))
+> > 			break;
 > 
-> Andrew always promotes a fixed number for congestion control, I pulled
-> one from a dark place. I have no problem with a more dynamic solution.
-> 
-> > Solaris already allows you to send 2MB of write data in a single RPC
-> > request, and the RPC engine has for some time allowed you to tune the
-> > number of simultaneous RPC requests you have on the wire: Chuck has
-> > already shown that read/write performance is greatly improved by upping
-> > that value to 64 or more in the case of RPC over TCP. Why are we then
-> > suddenly telling people that they are limited to 8 simultaneous writes?
-> 
-> min(max RPC size * max concurrent RPC reqs, dirty threshold) then?
+> Racy. Because of kthread_stop() above we should clear cwq->thread somehow.
+> But we can't do this: this workqueue may be already destroyed.
 
-That would be far preferable. For instance, it allows those who have
-long latency fat pipes to actually use the bandwidth optimally when
-writing out the data.
+We will surely take workqueue_mutex in CPU_CLEAN_THREADS (when it
+traverses the workqueues list), which should avoid this race?
 
-Trond
+> Please note that the code I posted does something like kthread_mark_stop(), but
+> it operates on cwq, not on task_struct, this makes a big difference.
 
+Ok sure ..putting the flag in cwq makes sense. Others also can follow
+similar trick for stopping threads (like ksoftirqd).
+
+> And it doesn't need take_over_work() at all. And it doesn't need additional 
+> complications. Instead, it lessens both the source and compiled code.
+
+I guess either way, changes are required.
+
+1st method, what you are suggesting:
+	
+	- Needs separate bitmap(s), cpu_populated_map and possible another
+	  for create_workqueue()?
+	- flush_workqueue() traverses thr a separate bitmap
+	  cpu_populated_map (separate from the online map) while
+	  create_workqueue() traverses the other bitmap
+
+2nd method:
+
+	- Avoids the need for maintenance of separate bitmaps (uses
+  	  existing cpu_online_map). All functions can safely use
+	  the online_map w/o any races. Personally this is why I like
+	  this approach.
+	- Needs changes in worker_thread to exit right after it comes
+	  out of refrigerator.
+
+I havent made any changes as per 2nd method to see the resulting code
+size, so I cant comment on code sizes.
+
+Another point is that once we create code as in 1st method, which
+maintains separate bitmaps, that will easily get replicated (over time) 
+to other subsystems. Is that a good thing?
+
+-- 
+Regards,
+vatsa

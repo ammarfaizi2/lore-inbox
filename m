@@ -1,142 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932497AbXAQPhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932493AbXAQPhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbXAQPhe (ORCPT <rfc822;w@1wt.eu>);
+	id S932493AbXAQPhe (ORCPT <rfc822;w@1wt.eu>);
 	Wed, 17 Jan 2007 10:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbXAQPh0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbXAQPhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 10:37:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1924 "EHLO spitz.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932491AbXAQPg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 10:36:58 -0500
-Date: Mon, 15 Jan 2007 13:18:06 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 19/20] XEN-paravirt: Add the Xenbus sysfs and virtual device hotplug driver.
-Message-ID: <20070115131806.GC4272@ucw.cz>
-References: <20070113014539.408244126@goop.org> <20070113014649.154623814@goop.org>
-Mime-Version: 1.0
+	Wed, 17 Jan 2007 10:37:24 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:39290 "EHLO
+	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932493AbXAQPhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 10:37:12 -0500
+X-IronPort-AV: i="4.13,199,1167638400"; 
+   d="scan'208"; a="759576028:sNHT45573312"
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: On some configs, sparse spinlock balance checking is broken
+X-Message-Flag: Warning: May contain useful information
+References: <adaejpumt41.fsf@cisco.com> <20070117063450.GC14027@elte.hu>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 17 Jan 2007 07:37:02 -0800
+In-Reply-To: <20070117063450.GC14027@elte.hu> (Ingo Molnar's message of "Wed, 17 Jan 2007 07:34:50 +0100")
+Message-ID: <adavej5k6ld.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070113014649.154623814@goop.org>
-User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 17 Jan 2007 15:37:04.0552 (UTC) FILETIME=[56BDCA80:01C73A4D]
+Authentication-Results: sj-dkim-4; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim4002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ > i think the right way to fix it might be to define a _spin_unlock() 
+ > within those #ifdef branches, and then to define spin_lock as:
+ > 
+ > static inline void spin_lock(spinlock_t *lock) __acquires(lock)
 
-> This communicates with the machine control software via a registry
-> residing in a controlling virtual machine. This allows dynamic
-> creation, destruction and modification of virtual device
-> configurations (network devices, block devices and CPUS, to name some
-> examples).
-> 
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  drivers/xen/Makefile               |    1
->  drivers/xen/xenbus/Makefile        |    7
->  drivers/xen/xenbus/xenbus_client.c |  528 ++++++++++++++++++++
->  drivers/xen/xenbus/xenbus_comms.c  |  222 ++++++++
->  drivers/xen/xenbus/xenbus_comms.h  |   43 +
->  drivers/xen/xenbus/xenbus_probe.c  |  954 +++++++++++++++++++++++++++++++++++++
->  drivers/xen/xenbus/xenbus_xs.c     |  828 ++++++++++++++++++++++++++++++++
+I tried a similar approach, but what got me was that sparse doesn't
+pay attention to the "__acquires()" annotation there.  However I now
+realized that putting "__acquire()" inside the implementation of the
+function (which sparse can see for inline functions) actually works.
 
-Hmm, you have word 'xen' three times in this pathname, and then the
-file is name 'xs'. Trying to do xen advertising in path names? :-)
+And actually the lock stuff is OK, since it's not inlined -- it's the
+unlock stuff that goes directly to the __raw versions.  But something
+like the following works for me; does it look OK to you?
 
-> @@ -0,0 +1,565 @@
-> +/******************************************************************************
-> + * Client-facing interface for the Xenbus driver.  In other words, the
-> + * interface between the Xenbus and the device-specific code, be it the
-> + * frontend or the backend of that driver.
-> + *
-> + * Copyright (C) 2005 XenSource Ltd
-> + * 
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License version 2
-> + * as published by the Free Software Foundation; or, when distributed
-> + * separately from the Linux kernel or incorporated into other
-> + * software packages, subject to the following license:
-> + * 
-> + * Permission is hereby granted, free of charge, to any person obtaining a copy
-> + * of this source file (the "Software"), to deal in the Software without
-> + * restriction, including without limitation the rights to use, copy, modify,
-> + * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-> + * and to permit persons to whom the Software is furnished to do so, subject to
-> + * the following conditions:
-> + * 
-> + * The above copyright notice and this permission notice shall be included in
-> + * all copies or substantial portions of the Software.
+---
 
-So this is dual BSD/GPL?
-
-> +#include <linux/types.h>
-> +#include <xen/interface/xen.h>
-> +#include <xen/interface/event_channel.h>
-> +#include "../../../arch/i386/paravirt-xen/events.h"
-> +#include <xen/grant_table.h>
-> +#include <xen/xenbus.h>
-> +#include <xen/driver_util.h>
-> +
-> +char *xenbus_strstate(enum xenbus_state state)
-> +{
-> +	static char *name[] = {
-> +		[ XenbusStateUnknown      ] = "Unknown",
-
-Constants are normally XENBUS_STATE_UNKNOWN in linux...
-
-Can we get description of its kernel-user interface in Documentation/
-somewhere?
-
-
-> +#include <asm/io.h>
-> +#include <asm/page.h>
-> +//#include <asm/maddr.h>
-> +#include <asm/pgtable.h>
-> +#include <asm/hypervisor.h>
-> +#include <xen/xenbus.h>
-> +//#include <xen/xen_proc.h>
-> +//#include <xen/evtchn.h>
-> +#include <xen/features.h>
-> +//#include <xen/hvm.h>
-> +
-
-Just delete the lines.
-
-> +#ifdef HAVE_XEN_PLATFORM_COMPAT_H
-> +#include <xen/platform-compat.h>
-> +#endif
-
-Is this really neccessary?
-
-> +	.bus = {
-> +		.name     = "xen-backend",
-> +		.match    = xenbus_match,
-> +		.probe    = xenbus_dev_probe,
-> +		.remove   = xenbus_dev_remove,
-> +//		.shutdown = xenbus_dev_shutdown,
-
-Delete.
-
-> --- /dev/null
-> +++ b/drivers/xen/xenbus/xenbus_xs.c
-> @@ -0,0 +1,840 @@
-> +/******************************************************************************
-> + * xenbus_xs.c
-> + *
-> + * This is the kernel equivalent of the "xs" library.  We don't need everything
-> + * and we use xenbus_comms for communication.
-
-One line explanation what xs is would be nice.
-
-						Pavel
--- 
-Thanks for all the (sleeping) penguins.
+diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
+index 94b767d..8ec4142 100644
+--- a/include/linux/spinlock.h
++++ b/include/linux/spinlock.h
+@@ -228,15 +228,45 @@ do {								\
+ # define read_unlock_irq(lock)		_read_unlock_irq(lock)
+ # define write_unlock_irq(lock)		_write_unlock_irq(lock)
+ #else
+-# define spin_unlock(lock)		__raw_spin_unlock(&(lock)->raw_lock)
+-# define read_unlock(lock)		__raw_read_unlock(&(lock)->raw_lock)
+-# define write_unlock(lock)		__raw_write_unlock(&(lock)->raw_lock)
+-# define spin_unlock_irq(lock) \
+-    do { __raw_spin_unlock(&(lock)->raw_lock); local_irq_enable(); } while (0)
+-# define read_unlock_irq(lock) \
+-    do { __raw_read_unlock(&(lock)->raw_lock); local_irq_enable(); } while (0)
+-# define write_unlock_irq(lock) \
+-    do { __raw_write_unlock(&(lock)->raw_lock); local_irq_enable(); } while (0)
++static inline void spin_unlock(spinlock_t *lock)
++{
++	__release(lock);
++	__raw_spin_unlock(&(lock)->raw_lock);
++}
++
++static inline void read_unlock(rwlock_t *lock)
++{
++	__release(lock);
++	__raw_read_unlock(&(lock)->raw_lock);
++}
++
++static inline void write_unlock(rwlock_t *lock)
++{
++	__release(lock);
++	__raw_write_unlock(&(lock)->raw_lock);
++}
++
++static inline void spin_unlock_irq(spinlock_t *lock)
++{
++	__release(lock);
++	__raw_spin_unlock(&(lock)->raw_lock);
++	local_irq_enable();
++}
++
++static inline void read_unlock_irq(rwlock_t *lock)
++{
++	__release(lock);
++	__raw_read_unlock(&(lock)->raw_lock);
++	local_irq_enable();
++}
++
++static inline void write_unlock_irq(rwlock_t *lock)
++{
++	__release(lock);
++	__raw_write_unlock(&(lock)->raw_lock);
++	local_irq_enable();
++}
++
+ #endif
+ 
+ #define spin_unlock_irqrestore(lock, flags) \

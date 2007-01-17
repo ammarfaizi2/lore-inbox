@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751954AbXAQAIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751953AbXAQAPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751954AbXAQAIP (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 19:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbXAQAIP
+	id S1751953AbXAQAPx (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 19:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751966AbXAQAPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 19:08:15 -0500
-Received: from avexch1.qlogic.com ([198.70.193.115]:46834 "EHLO
-	avexch1.qlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751949AbXAQAIO (ORCPT
+	Tue, 16 Jan 2007 19:15:53 -0500
+Received: from bill.weihenstephan.org ([82.135.35.21]:58615 "EHLO
+	bill.weihenstephan.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751953AbXAQAPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 19:08:14 -0500
-X-Greylist: delayed 849 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jan 2007 19:08:14 EST
-Date: Tue, 16 Jan 2007 15:54:13 -0800
-From: Ravi Anand <ravi.anand@qlogic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: David Somayajulu <david.somayajulu@qlogic.com>,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] drivers/scsi/qla4xxx/: possible cleanups
-Message-ID: <20070116235413.GA17703@ranandlinuxbox.qlogic.org>
-References: <20070114134554.GW7469@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Jan 2007 19:15:52 -0500
+From: Juergen Beisert <juergen127@kreuzholzen.de>
+Organization: Privat
+To: linux-kernel@vger.kernel.org
+Subject: Re: fix typo in geode_configre()@cyrix.c
+Date: Wed, 17 Jan 2007 01:15:48 +0100
+User-Agent: KMail/1.9.4
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       takada <takada@mbf.nifty.com>
+References: <20070109.184156.260789378.takada@mbf.nifty.com> <20070109154342.GB17269@csclub.uwaterloo.ca>
+In-Reply-To: <20070109154342.GB17269@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070114134554.GW7469@stusta.de>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 16 Jan 2007 23:54:04.0479 (UTC) FILETIME=[9A63CCF0:01C739C9]
+Message-Id: <200701170115.49168.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Sun, 14 Jan 2007, Adrian Bunk wrote:
+On Tuesday 09 January 2007 16:43, Lennart Sorensen wrote:
+> On Tue, Jan 09, 2007 at 06:41:56PM +0900, takada wrote:
+> > In kernel 2.6, write back wrong register when configure Geode processor.
+> > Instead of storing to CCR4, it stores to CCR3.
+> >
+> > --- linux-2.6.19/arch/i386/kernel/cpu/cyrix.c.orig	2007-01-09
+> > 16:45:21.000000000 +0900 +++
+> > linux-2.6.19/arch/i386/kernel/cpu/cyrix.c	2007-01-09 17:10:13.000000000
+> > +0900 @@ -173,7 +173,7 @@ static void __cpuinit geode_configure(vo
+> >  	ccr4 = getCx86(CX86_CCR4);
+> >  	ccr4 |= 0x38;		/* FPU fast, DTE cache, Mem bypass */
+> >
+> > -	setCx86(CX86_CCR3, ccr3);
+> > +	setCx86(CX86_CCR4, ccr4);
+> >
+> >  	set_cx86_memwb();
+> >  	set_cx86_reorder();
+>
+> Any idea what the consequence of this would be?  Any chance that while
+> fixing this file anyhow, adding a missing variant could be done?
 
-> Date: Sun, 14 Jan 2007 14:45:54 +0100
-> From: Adrian Bunk <bunk@stusta.de>
-> To: Ravi Anand <ravi.anand@qlogic.com>,
-> 	David Somayajulu <david.somayajulu@qlogic.com>
-> Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-> 	linux-kernel@vger.kernel.org
-> Subject: [RFC: 2.6 patch] drivers/scsi/qla4xxx/: possible cleanups
-> User-Agent: Mutt/1.5.13 (2006-08-11)
-> 
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - #if 0 unused functions
+Writing back of ccr4 should be intented here, but also writing back the ccr3 
+to disable the MAPEN again. So both are required. But the ccr4 first:
 
-Ack. 
+   setCx86(CX86_CCR4, ccr4);
+   setCx86(CX86_CCR3, ccr3);
 
-Thanx
-Ravi Anand
+Juergen

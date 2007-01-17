@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932245AbXAQOGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932248AbXAQOK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbXAQOGN (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 09:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbXAQOGN
+	id S932248AbXAQOK3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 09:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbXAQOK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 09:06:13 -0500
-Received: from an-out-0708.google.com ([209.85.132.246]:53469 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932245AbXAQOGM (ORCPT
+	Wed, 17 Jan 2007 09:10:29 -0500
+Received: from mail.syneticon.net ([213.239.212.131]:35891 "EHLO
+	mail2.syneticon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932248AbXAQOK2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 09:06:12 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B3N3gSYl3vwZ9+TxqLKdLPBwIAfd8Y4A6gqYhiilT9MYP81GrQqRUhMoGxHkvj86Heks6Px3uUZ5JoMCy7Y9oAQK7gMgnRUG7/YxxqoIk0C5D3ZQzFV1l+edQSUjel/zTW0xbqBl+LXJAtq0pJl00tqSgF5nJxEtYtVWs4SkBTY=
-Message-ID: <9e0cf0bf0701170606x32e701e7i460aba13a2ae5bfd@mail.gmail.com>
-Date: Wed, 17 Jan 2007 16:06:10 +0200
-From: "Alon Bar-Lev" <alon.barlev@gmail.com>
-To: "Tomasz Chmielewski" <mangoo@wpkg.org>
-Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45AE2AF3.5070706@wpkg.org>
+	Wed, 17 Jan 2007 09:10:28 -0500
+Message-ID: <45AE2E25.50309@wpkg.org>
+Date: Wed, 17 Jan 2007 15:09:41 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061110 Mandriva/1.5.0.8-1mdv2007.1 (2007.1) Thunderbird/1.5.0.8 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
+References: <45AE1D65.4010804@wpkg.org> <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45AE1D65.4010804@wpkg.org>
-	 <9e0cf0bf0701170537s4bb663a1j2d45b4013da81fbc@mail.gmail.com>
-	 <45AE2AF3.5070706@wpkg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/17/07, Tomasz Chmielewski <mangoo@wpkg.org> wrote:
-> Another obstacle would be to place the initramfs image on the same
-> partition as the kernel (normally, I dd kernel to /dev/mtd1).
+Jan Engelhardt wrote:
+>> The device is pretty small and has no keyboard, video card etc., so if it ever
+>> happens to break (can be a disk failure, but also operator who messed with
+>> startup scripts), it has to be opened (warranty!).
+>>
+>> These all unpleasant tasks could be avoided if it was possible to have a
+>> "fallback" device. For example, consider this hypothetical command line:
+>>
+>> root=/dev/sdb1,/dev/sda1
+> 
+> You should use initramfs to achieve that.
 
-As far as I know you can embed the initramfs into the kernel image using
-CONFIG_INITRAMFS_SOURCE.
+All right.
+I see that initramfs is attached to the kernel itself.
 
-http://www.timesys.com/timesource/initramfs.htm
+So it leaves me only a question: will I fit all tools into 300 kB 
+(considering I'll use uClibc and busybox)?
 
-Best Regards,
-Alon Bar-Lev.
+
+-- 
+Tomasz Chmielewski
+http://wpkg.org

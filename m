@@ -1,61 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932692AbXAQToI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932694AbXAQTq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbXAQToI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 14:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbXAQToI
+	id S932694AbXAQTq5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 14:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbXAQTq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 14:44:08 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57706 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932692AbXAQToG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 14:44:06 -0500
-Date: Wed, 17 Jan 2007 11:43:42 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
-Subject: Re: [RFC 0/8] Cpuset aware writeback
-In-Reply-To: <20070116230034.b8cb4263.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0701171140580.7397@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
- <20070116135325.3441f62b.akpm@osdl.org> <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
- <20070116154054.e655f75c.akpm@osdl.org> <Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
- <20070116170734.947264f2.akpm@osdl.org> <Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
- <20070116183406.ed777440.akpm@osdl.org> <Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
- <20070116200506.d19eacf5.akpm@osdl.org> <Pine.LNX.4.64.0701162219180.5215@schroedinger.engr.sgi.com>
- <20070116230034.b8cb4263.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Jan 2007 14:46:57 -0500
+Received: from mail.screens.ru ([213.234.233.54]:32791 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932694AbXAQTq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 14:46:56 -0500
+Date: Wed, 17 Jan 2007 22:46:32 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Daniel Hokka Zakrisson <daniel@hozac.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, akpm@osdl.org,
+       trond.myklebust@fys.uio.no,
+       Linux Containers <containers@lists.osdl.org>
+Subject: Re: NFS causing oops when freeing namespace
+Message-ID: <20070117194632.GA1071@tv-sign.ru>
+References: <57238.192.168.101.6.1169029688.squirrel@intranet> <m18xg1akmd.fsf@ebiederm.dsl.xmission.com> <51072.192.168.101.6.1169039633.squirrel@intranet> <20070117185823.GA878@tv-sign.ru> <45AE7705.4040603@fr.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45AE7705.4040603@fr.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2007, Andrew Morton wrote:
-
-> Do what blockdevs do: limit the number of in-flight requests (Peter's
-> recent patch seems to be doing that for us) (perhaps only when PF_MEMALLOC
-> is in effect, to keep Trond happy) and implement a mempool for the NFS
-> request critical store.  Additionally:
+On 01/17, Cedric Le Goater wrote:
+>
+> Oleg Nesterov wrote:
+> > On 01/17, Daniel Hokka Zakrisson wrote:
+> >> It was the only semi-plausible explanation I could come up with. I added a
+> >> printk in do_exit right before exit_task_namespaces, where sighand was
+> >> still set, and one right before the spin_lock_irq in lockd_down, where it
+> >> had suddenly been set to NULL.
+> > 
+> > I can't reproduce the problem, but
 > 
-> - we might need to twiddle the NFS gfp_flags so it doesn't call the
->   oom-killer on failure: just return NULL.
+> I did on a 2.6.20-rc4-mm1.
 > 
-> - consider going off-cpuset for critical allocations.  It's better than
->   going oom.  A suitable implementation might be to ignore the caller's
->   cpuset if PF_MEMALLOC.  Maybe put a WARN_ON_ONCE in there: we prefer that
->   it not happen and we want to know when it does.
+> > 	do_exit:
+> > 		exit_notify(tsk);
+> > 		exit_task_namespaces(tsk);
+> > 
+> > the task could be reaped by its parent in between.
+> 
+> indeed. while it goes spleeping in lockd_down() just before it does
+> 
+> 	spin_lock_irq(&current->sighand->siglock);
+> 
+> current->sighand is valid before interruptible_sleep_on_timeout() and
+> not after.
+>  
+> > We should not use ->signal/->sighand after exit_notify().
+> > 
+> > Can we move exit_task_namespaces() up?
+> 
+> yes but I moved it down because it invalidates ->nsproxy ... 
 
-Given the intermediate  layers (network, additional gizmos (ip over xxx) 
-and the network cards) that will not be easy.
+Well, we can fix the symptom if we change lockd_down() to use
+lock_task_sighand(), or something like this,
 
-> btw, regarding the per-address_space node mask: I think we should free it
-> when the inode is clean (!mapping_tagged(PAGECACHE_TAG_DIRTY)).  Chances
-> are, the inode will be dirty for 30 seconds and in-core for hours.  We
-> might as well steal its nodemask storage and give it to the next file which
-> gets written to.  A suitable place to do all this is in
-> __mark_inode_dirty(I_DIRTY_PAGES), using inode_lock to protect
-> address_space.dirty_page_nodemask.
+	--- NFS/fs/lockd/svc.c~lockd_down	2006-11-27 21:20:11.000000000 +0300
+	+++ NFS/fs/lockd/svc.c	2007-01-17 22:39:47.000000000 +0300
+	@@ -314,6 +314,7 @@ void
+	 lockd_down(void)
+	 {
+		static int warned;
+	+	int sigpending;
+	 
+		mutex_lock(&nlmsvc_mutex);
+		if (nlmsvc_users) {
+	@@ -334,16 +335,15 @@ lockd_down(void)
+		 * Wait for the lockd process to exit, but since we're holding
+		 * the lockd semaphore, we can't wait around forever ...
+		 */
+	-	clear_thread_flag(TIF_SIGPENDING);
+	+	sigpending = test_and_clear_thread_flag(TIF_SIGPENDING);
+		interruptible_sleep_on_timeout(&lockd_exit, HZ);
+		if (nlmsvc_pid) {
+			printk(KERN_WARNING 
+				"lockd_down: lockd failed to exit, clearing pid\n");
+			nlmsvc_pid = 0;
+		}
+	-	spin_lock_irq(&current->sighand->siglock);
+	-	recalc_sigpending();
+	-	spin_unlock_irq(&current->sighand->siglock);
+	+	if (sigpending)	/* can be wrong at this point, harmless */
+	+		set_thread_flag(TIF_SIGPENDING);
+	 out:
+		mutex_unlock(&nlmsvc_mutex);
+	 }
 
-The inode lock is not taken when the page is dirtied. The tree_lock
-is already taken when the mapping is dirtied and so I used that to
-avoid races adding and removing pointers to nodemasks from the address 
-space.
+but this is not good anyway.
+
+Oleg.
+

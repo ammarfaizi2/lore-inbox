@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932627AbXAQToH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932692AbXAQToI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932627AbXAQToH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 14:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbXAQToH
+	id S932692AbXAQToI (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 14:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbXAQToI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 14:44:07 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:49080 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932627AbXAQToE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 14:44:04 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MiT1UA75vlyPCs2D26bQimcuHkdKpO4KpgNtN1q+4MkButoc7HIB4E5UCgi+cWUCtyfgl163IXP4vtoImm25BO5iA0ihIsTBLvNkf20In6Agn3V2O/3ox+6i55ULUPjCjq3YSdBwQVM8sjQQPuoJlS743mz3QXgKtASUO7UAVFc=
-Message-ID: <305c16960701171144w6b949c23tba366ee59377fba@mail.gmail.com>
-Date: Wed, 17 Jan 2007 17:44:02 -0200
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "Sunil Naidu" <akula2.shark@gmail.com>
-Subject: Re: BUG: linux 2.6.19 unable to enable acpi
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Luming Yu" <luming.yu@gmail.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <8355959a0701170234i20d3600dvbb77936046006788@mail.gmail.com>
+	Wed, 17 Jan 2007 14:44:08 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:57706 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932692AbXAQToG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 14:44:06 -0500
+Date: Wed, 17 Jan 2007 11:43:42 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+In-Reply-To: <20070116230034.b8cb4263.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701171140580.7397@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+ <20070116135325.3441f62b.akpm@osdl.org> <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
+ <20070116154054.e655f75c.akpm@osdl.org> <Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
+ <20070116170734.947264f2.akpm@osdl.org> <Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
+ <20070116183406.ed777440.akpm@osdl.org> <Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
+ <20070116200506.d19eacf5.akpm@osdl.org> <Pine.LNX.4.64.0701162219180.5215@schroedinger.engr.sgi.com>
+ <20070116230034.b8cb4263.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
-	 <1169007288.3457.4.camel@laptopd505.fenrus.org>
-	 <305c16960701162025o2f96eb25m79f58aede11821ec@mail.gmail.com>
-	 <3877989d0701162226p552b2d01q8438b0c561e5dd67@mail.gmail.com>
-	 <305c16960701162335x3a84bbe5y87ee8c0608b2eea6@mail.gmail.com>
-	 <305c16960701162342u69526f5dn208c6531f6b9fc8e@mail.gmail.com>
-	 <8355959a0701170234i20d3600dvbb77936046006788@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/17/07, Sunil Naidu <akula2.shark@gmail.com> wrote:
-> On 1/17/07, Matheus Izvekov <mizvekov@gmail.com> wrote:
-> > I just tried the firmwarekit, and here are the results, attached.
-> > TYVM, thats a very useful tool.
->
-> I do suspect ACPI issues on my new DG965WH MOBO:-
->
-> http://www.intel.com/products/motherboard/DG965WH/index.htm
->
-> Tried with Linux-2.6.19.2. Anyone tested this MOBO?
->
-> And, from where to download the firmwarekit?
->
-> ~Akula2
->
+On Tue, 16 Jan 2007, Andrew Morton wrote:
 
-Its in Arjan's sig: http://www.linuxfirmwarekit.org
+> Do what blockdevs do: limit the number of in-flight requests (Peter's
+> recent patch seems to be doing that for us) (perhaps only when PF_MEMALLOC
+> is in effect, to keep Trond happy) and implement a mempool for the NFS
+> request critical store.  Additionally:
+> 
+> - we might need to twiddle the NFS gfp_flags so it doesn't call the
+>   oom-killer on failure: just return NULL.
+> 
+> - consider going off-cpuset for critical allocations.  It's better than
+>   going oom.  A suitable implementation might be to ignore the caller's
+>   cpuset if PF_MEMALLOC.  Maybe put a WARN_ON_ONCE in there: we prefer that
+>   it not happen and we want to know when it does.
+
+Given the intermediate  layers (network, additional gizmos (ip over xxx) 
+and the network cards) that will not be easy.
+
+> btw, regarding the per-address_space node mask: I think we should free it
+> when the inode is clean (!mapping_tagged(PAGECACHE_TAG_DIRTY)).  Chances
+> are, the inode will be dirty for 30 seconds and in-core for hours.  We
+> might as well steal its nodemask storage and give it to the next file which
+> gets written to.  A suitable place to do all this is in
+> __mark_inode_dirty(I_DIRTY_PAGES), using inode_lock to protect
+> address_space.dirty_page_nodemask.
+
+The inode lock is not taken when the page is dirtied. The tree_lock
+is already taken when the mapping is dirtied and so I used that to
+avoid races adding and removing pointers to nodemasks from the address 
+space.

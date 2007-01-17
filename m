@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751649AbXAQHBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751595AbXAQG74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbXAQHBp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 02:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbXAQG7c
+	id S1751595AbXAQG74 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 01:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbXAQG7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 01:59:32 -0500
-Received: from matrixpower.ru ([195.178.208.66]:42814 "EHLO tservice.net.ru"
+	Wed, 17 Jan 2007 01:59:40 -0500
+Received: from netgear.net.ru ([195.178.208.66]:42813 "EHLO tservice.net.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751300AbXAQG7P convert rfc822-to-8bit (ORCPT
+	id S1751410AbXAQG7Q convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 01:59:15 -0500
+	Wed, 17 Jan 2007 01:59:16 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,12 +17,12 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [take33 4/10] kevent: Socket notifications.
-In-Reply-To: <11690154333425@2ka.mipt.ru>
+       Ingo Molnar <mingo@elte.hu>, linux-fsdevel@vger.kernel.org
+Subject: [take33 0/10] kevent: Generic event handling mechanism.
+In-Reply-To: <1315adqaa0591036@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 17 Jan 2007 09:30:33 +0300
-Message-Id: <11690154331753@2ka.mipt.ru>
+Date: Wed, 17 Jan 2007 09:30:32 +0300
+Message-Id: <1169015432804@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -33,456 +33,289 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Socket notifications.
+Generic event handling mechanism.
 
-This patch includes socket send/recv/accept notifications.
-Using trivial web server based on kevent and this features
-instead of epoll it's performance increased more than noticebly.
-More details about various benchmarks and server itself 
-(evserver_kevent.c) can be found on project's homepage.
+Kevent is a generic subsytem which allows to handle event notifications.
+It supports both level and edge triggered events. It is similar to
+poll/epoll in some cases, but it is more scalable, it is faster and
+allows to work with essentially eny kind of events.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
+Events are provided into kernel through control syscall and can be read
+back through ring buffer or using usual syscalls.
+Kevent update (i.e. readiness switching) happens directly from internals
+of the appropriate state machine of the underlying subsytem (like
+network, filesystem, timer or any other).
 
-diff --git a/fs/inode.c b/fs/inode.c
-index bf21dc6..82817b1 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -21,6 +21,7 @@
- #include <linux/cdev.h>
- #include <linux/bootmem.h>
- #include <linux/inotify.h>
-+#include <linux/kevent.h>
- #include <linux/mount.h>
- 
- /*
-@@ -164,12 +165,18 @@ static struct inode *alloc_inode(struct super_block *sb)
- 		}
- 		inode->i_private = NULL;
- 		inode->i_mapping = mapping;
-+#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
-+		kevent_storage_init(inode, &inode->st);
-+#endif
- 	}
- 	return inode;
- }
- 
- void destroy_inode(struct inode *inode) 
- {
-+#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
-+	kevent_storage_fini(&inode->st);
-+#endif
- 	BUG_ON(inode_has_buffers(inode));
- 	security_inode_free(inode);
- 	if (inode->i_sb->s_op->destroy_inode)
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 03684e7..d840399 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -49,6 +49,7 @@
- #include <linux/skbuff.h>	/* struct sk_buff */
- #include <linux/mm.h>
- #include <linux/security.h>
-+#include <linux/kevent.h>
- 
- #include <linux/filter.h>
- 
-@@ -451,6 +452,21 @@ static inline int sk_stream_memory_free(struct sock *sk)
- 
- extern void sk_stream_rfree(struct sk_buff *skb);
- 
-+struct socket_alloc {
-+	struct socket socket;
-+	struct inode vfs_inode;
-+};
-+
-+static inline struct socket *SOCKET_I(struct inode *inode)
-+{
-+	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
-+}
-+
-+static inline struct inode *SOCK_INODE(struct socket *socket)
-+{
-+	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
-+}
-+
- static inline void sk_stream_set_owner_r(struct sk_buff *skb, struct sock *sk)
- {
- 	skb->sk = sk;
-@@ -478,6 +494,7 @@ static inline void sk_add_backlog(struct sock *sk, struct sk_buff *skb)
- 		sk->sk_backlog.tail = skb;
- 	}
- 	skb->next = NULL;
-+	kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
- }
- 
- #define sk_wait_event(__sk, __timeo, __condition)		\
-@@ -679,21 +696,6 @@ static inline struct kiocb *siocb_to_kiocb(struct sock_iocb *si)
- 	return si->kiocb;
- }
- 
--struct socket_alloc {
--	struct socket socket;
--	struct inode vfs_inode;
--};
--
--static inline struct socket *SOCKET_I(struct inode *inode)
--{
--	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
--}
--
--static inline struct inode *SOCK_INODE(struct socket *socket)
--{
--	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
--}
--
- extern void __sk_stream_mem_reclaim(struct sock *sk);
- extern int sk_stream_mem_schedule(struct sock *sk, int size, int kind);
- 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index b7d8317..2763b30 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -864,6 +864,7 @@ static inline int tcp_prequeue(struct sock *sk, struct sk_buff *skb)
- 			tp->ucopy.memory = 0;
- 		} else if (skb_queue_len(&tp->ucopy.prequeue) == 1) {
- 			wake_up_interruptible(sk->sk_sleep);
-+			kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
- 			if (!inet_csk_ack_scheduled(sk))
- 				inet_csk_reset_xmit_timer(sk, ICSK_TIME_DACK,
- 						          (3 * TCP_RTO_MIN) / 4,
-diff --git a/kernel/kevent/kevent_socket.c b/kernel/kevent/kevent_socket.c
-new file mode 100644
-index 0000000..d1a2701
---- /dev/null
-+++ b/kernel/kevent/kevent_socket.c
-@@ -0,0 +1,144 @@
-+/*
-+ * 	kevent_socket.c
-+ * 
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/file.h>
-+#include <linux/tcp.h>
-+#include <linux/kevent.h>
-+
-+#include <net/sock.h>
-+#include <net/request_sock.h>
-+#include <net/inet_connection_sock.h>
-+
-+static int kevent_socket_callback(struct kevent *k)
-+{
-+	struct inode *inode = k->st->origin;
-+	unsigned int events = SOCKET_I(inode)->ops->poll(SOCKET_I(inode)->file, SOCKET_I(inode), NULL);
-+
-+	if ((events & (POLLIN | POLLRDNORM)) && (k->event.event & (KEVENT_SOCKET_RECV | KEVENT_SOCKET_ACCEPT)))
-+		return 1;
-+	if ((events & (POLLOUT | POLLWRNORM)) && (k->event.event & KEVENT_SOCKET_SEND))
-+		return 1;
-+	if (events & (POLLERR | POLLHUP | POLLRDHUP | POLLREMOVE))
-+		return -1;
-+	return 0;
-+}
-+
-+int kevent_socket_enqueue(struct kevent *k)
-+{
-+	struct inode *inode;
-+	struct socket *sock;
-+	int err = -EBADF;
-+
-+	sock = sockfd_lookup(k->event.id.raw[0], &err);
-+	if (!sock)
-+		goto err_out_exit;
-+
-+	inode = igrab(SOCK_INODE(sock));
-+	if (!inode)
-+		goto err_out_fput;
-+
-+	err = kevent_storage_enqueue(&inode->st, k);
-+	if (err)
-+		goto err_out_iput;
-+
-+	if (k->event.req_flags & KEVENT_REQ_ALWAYS_QUEUE) {
-+		kevent_requeue(k);
-+		err = 0;
-+	} else {
-+		err = k->callbacks.callback(k);
-+		if (err)
-+			goto err_out_dequeue;
-+	}
-+
-+	return err;
-+
-+err_out_dequeue:
-+	kevent_storage_dequeue(k->st, k);
-+err_out_iput:
-+	iput(inode);
-+err_out_fput:
-+	sockfd_put(sock);
-+err_out_exit:
-+	return err;
-+}
-+
-+int kevent_socket_dequeue(struct kevent *k)
-+{
-+	struct inode *inode = k->st->origin;
-+	struct socket *sock;
-+
-+	kevent_storage_dequeue(k->st, k);
-+
-+	sock = SOCKET_I(inode);
-+	iput(inode);
-+	sockfd_put(sock);
-+
-+	return 0;
-+}
-+
-+void kevent_socket_notify(struct sock *sk, u32 event)
-+{
-+	if (sk->sk_socket)
-+		kevent_storage_ready(&SOCK_INODE(sk->sk_socket)->st, NULL, event);
-+}
-+
-+/*
-+ * It is required for network protocols compiled as modules, like IPv6.
-+ */
-+EXPORT_SYMBOL_GPL(kevent_socket_notify);
-+
-+#ifdef CONFIG_LOCKDEP
-+static struct lock_class_key kevent_sock_key;
-+
-+void kevent_socket_reinit(struct socket *sock)
-+{
-+	struct inode *inode = SOCK_INODE(sock);
-+
-+	lockdep_set_class(&inode->st.lock, &kevent_sock_key);
-+}
-+
-+void kevent_sk_reinit(struct sock *sk)
-+{
-+	if (sk->sk_socket) {
-+		struct inode *inode = SOCK_INODE(sk->sk_socket);
-+
-+		lockdep_set_class(&inode->st.lock, &kevent_sock_key);
-+	}
-+}
-+#endif
-+static int __init kevent_init_socket(void)
-+{
-+	struct kevent_callbacks sc = {
-+		.callback = &kevent_socket_callback,
-+		.enqueue = &kevent_socket_enqueue,
-+		.dequeue = &kevent_socket_dequeue,
-+		.flags = 0,
-+	};
-+
-+	return kevent_add_callbacks(&sc, KEVENT_SOCKET);
-+}
-+module_init(kevent_init_socket);
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 0ed5b4f..e687f54 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1393,6 +1393,7 @@ static void sock_def_wakeup(struct sock *sk)
- 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
- 		wake_up_interruptible_all(sk->sk_sleep);
- 	read_unlock(&sk->sk_callback_lock);
-+	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
- }
- 
- static void sock_def_error_report(struct sock *sk)
-@@ -1402,6 +1403,7 @@ static void sock_def_error_report(struct sock *sk)
- 		wake_up_interruptible(sk->sk_sleep);
- 	sk_wake_async(sk,0,POLL_ERR); 
- 	read_unlock(&sk->sk_callback_lock);
-+	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
- }
- 
- static void sock_def_readable(struct sock *sk, int len)
-@@ -1411,6 +1413,7 @@ static void sock_def_readable(struct sock *sk, int len)
- 		wake_up_interruptible(sk->sk_sleep);
- 	sk_wake_async(sk,1,POLL_IN);
- 	read_unlock(&sk->sk_callback_lock);
-+	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
- }
- 
- static void sock_def_write_space(struct sock *sk)
-@@ -1430,6 +1433,7 @@ static void sock_def_write_space(struct sock *sk)
- 	}
- 
- 	read_unlock(&sk->sk_callback_lock);
-+	kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
- }
- 
- static void sock_def_destruct(struct sock *sk)
-@@ -1480,6 +1484,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
- 	sk->sk_state		=	TCP_CLOSE;
- 	sk->sk_socket		=	sock;
- 
-+	kevent_sk_reinit(sk);
-+
- 	sock_set_flag(sk, SOCK_ZAPPED);
- 
- 	if(sock)
-@@ -1546,8 +1552,10 @@ void fastcall release_sock(struct sock *sk)
- 	if (sk->sk_backlog.tail)
- 		__release_sock(sk);
- 	sk->sk_lock.owner = NULL;
--	if (waitqueue_active(&sk->sk_lock.wq))
-+	if (waitqueue_active(&sk->sk_lock.wq)) {
- 		wake_up(&sk->sk_lock.wq);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
-+	}
- 	spin_unlock_bh(&sk->sk_lock.slock);
- }
- EXPORT_SYMBOL(release_sock);
-diff --git a/net/core/stream.c b/net/core/stream.c
-index d1d7dec..2878c2a 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -36,6 +36,7 @@ void sk_stream_write_space(struct sock *sk)
- 			wake_up_interruptible(sk->sk_sleep);
- 		if (sock->fasync_list && !(sk->sk_shutdown & SEND_SHUTDOWN))
- 			sock_wake_async(sock, 2, POLL_OUT);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
- 	}
- }
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index c701f6a..84ce4c5 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -3127,6 +3127,7 @@ static void tcp_ofo_queue(struct sock *sk)
- 
- 		__skb_unlink(skb, &tp->out_of_order_queue);
- 		__skb_queue_tail(&sk->sk_receive_queue, skb);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
- 		tp->rcv_nxt = TCP_SKB_CB(skb)->end_seq;
- 		if(skb->h.th->fin)
- 			tcp_fin(skb, sk, skb->h.th);
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index bf7a224..bca9f2a 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -61,6 +61,7 @@
- #include <linux/jhash.h>
- #include <linux/init.h>
- #include <linux/times.h>
-+#include <linux/kevent.h>
- 
- #include <net/icmp.h>
- #include <net/inet_hashtables.h>
-@@ -1391,6 +1392,7 @@ int tcp_v4_conn_request(struct sock *sk, struct sk_buff *skb)
- 	   	reqsk_free(req);
- 	} else {
- 		inet_csk_reqsk_queue_hash_add(sk, req, TCP_TIMEOUT_INIT);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_ACCEPT);
- 	}
- 	return 0;
- 
-diff --git a/net/socket.c b/net/socket.c
-index 4e39631..776dc2e 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -84,6 +84,7 @@
- #include <linux/kmod.h>
- #include <linux/audit.h>
- #include <linux/wireless.h>
-+#include <linux/kevent.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -496,6 +497,8 @@ static struct socket *sock_alloc(void)
- 	inode->i_uid = current->fsuid;
- 	inode->i_gid = current->fsgid;
- 
-+	kevent_socket_reinit(sock);
-+
- 	get_cpu_var(sockets_in_use)++;
- 	put_cpu_var(sockets_in_use);
- 	return sock;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 2f208c7..835e20f 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1563,8 +1563,10 @@ static int unix_dgram_recvmsg(struct kiocb *iocb, struct socket *sock,
- 	struct scm_cookie tmp_scm;
- 	struct sock *sk = sock->sk;
- 	struct unix_sock *u = unix_sk(sk);
-+	struct sock *other;
- 	int noblock = flags & MSG_DONTWAIT;
- 	struct sk_buff *skb;
-+
- 	int err;
- 
- 	err = -EOPNOTSUPP;
-@@ -1580,6 +1582,12 @@ static int unix_dgram_recvmsg(struct kiocb *iocb, struct socket *sock,
- 		goto out_unlock;
- 
- 	wake_up_interruptible(&u->peer_wait);
-+	other =unix_peer_get(sk);
-+	if (other) {
-+		kevent_socket_notify(other, KEVENT_SOCKET_SEND);
-+		sock_put(other);
-+	} else
-+		kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
- 
- 	if (msg->msg_name)
- 		unix_copy_addr(msg, skb->sk);
-@@ -1674,7 +1682,7 @@ static int unix_stream_recvmsg(struct kiocb *iocb, struct socket *sock,
- {
- 	struct sock_iocb *siocb = kiocb_to_siocb(iocb);
- 	struct scm_cookie tmp_scm;
--	struct sock *sk = sock->sk;
-+	struct sock *sk = sock->sk, *other;
- 	struct unix_sock *u = unix_sk(sk);
- 	struct sockaddr_un *sunaddr=msg->msg_name;
- 	int copied = 0;
-@@ -1803,6 +1811,14 @@ static int unix_stream_recvmsg(struct kiocb *iocb, struct socket *sock,
- 		}
- 	} while (size);
- 
-+	other =unix_peer_get(sk);
-+	if (other) {
-+		kevent_socket_notify(other, KEVENT_SOCKET_SEND);
-+		sock_put(other);
-+	}
-+	if (sk->sk_shutdown & RCV_SHUTDOWN || !other)
-+		kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
-+
- 	mutex_unlock(&u->readlock);
- 	scm_recv(sock, msg, siocb->scm, flags);
- out:
-@@ -1824,6 +1840,10 @@ static int unix_shutdown(struct socket *sock, int mode)
- 			sock_hold(other);
- 		unix_state_wunlock(sk);
- 		sk->sk_state_change(sk);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
-+		if (other)
-+			kevent_socket_notify(other, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
-+		kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
- 
- 		if (other &&
- 			(sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET)) {
+Homepage:
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+
+Documentation page:
+http://linux-net.osdl.org/index.php/Kevent
+
+Consider for inclusion.
+
+P.S. If you want to be removed from Cc: list just drop me a mail.
+
+Changes from 'take32' patchset:
+ * Updated documentation (aio_sendfile_path()).
+ * Fixed typo in forward declaration.
+
+Changes from 'take31' patchset:
+ * Added aio_sendfile_path() - this syscall allows to asynchronosly transfer
+   file specified by provided pathname to destination socket.
+   Opened file descriptor is returned.
+ * Added trivial scheduler which selects execution thread. It allows
+   to specify given thread 'by-hands', but since kaio provides '-1' it uses
+   round-robin to get processing thread. In theory it can be bound to
+   scheduler statistics or gamma-ray receiver data.
+ * Number of bug fixes in kevent based AIO mpage_readpages().
+   
+   Benchmark of the 100 1Mb files transfer (files are in VFS already) using 
+   sync sendfile or this new version shows about 10Mb/sec performance win
+   for aio_sendfile_path().
+
+Changes from 'take30' patchset:
+ * AIO state machine.
+ * aio_sendfile() implementation.
+ * moved kevent_user_get/kevent_user_put into header.
+ * use *zalloc where needed.
+
+Changes from 'take29' patchset:
+ * new private userspace notifications - allows to queue any userspace private 
+ 	event and then mark it as ready using kevent_ctl(KEVENT_READY) command
+ * KEVENT_REQ_READY flag - if set kevent will be marked as ready at enqueue time
+ * port to 2.6.20-rc2 tree (54abb5fcdae74a811ed440ec6556cabc6b24f404 commit)
+ * use struct kmem_cache instead of kmem_cache_t
+ * added notificaion type into search key, this allows to have the same id for 
+ 	different types of notifications
+
+Changes from 'take28' patchset:
+ * optimized af_unix to use socket notifications
+ * changed ALWAYS_QUEUE behaviour with poll/select notifications - previously
+ 	kevent was not queued into poll wait queue when ALWAYS_QUEUE flag
+	is set
+ * added KEVENT_POLL_POLLRDHUP definition into ukevent.h header
+ * libevent-1.2 patch (Jamal, your request is completed, so I'm waiting two weeks
+ 	before starting final countdown :)
+	All regression tests passed successfully except test_evbuffer(), which is
+	crashed on my amd64 linux 2.6 test machine for all types of notifications,
+	probably it was fixed in libevent-1.2a version, I did not check.
+	Patch and README can be found at project homepage.
+
+Changes from 'take27' patchset:
+ * made kevent default yes in non embedded case.
+ * added falgs to callback structures - currently used to check if kevent
+ 	can be requested from kernelspace only (posix timers) or 
+	userspace (all others)
+
+Changes from 'take26' patchset:
+ * made kevent visible in config only in case of embedded setup.
+ * added comment about KEVENT_MAX number.
+ * spell fix.
+
+Changes from 'take25' patchset:
+ * use timespec as timeout parameter.
+ * added high-resolution timer to handle absolute timeouts.
+ * added flags to waiting and initialization syscalls.
+ * kevent_commit() has new_uidx parameter.
+ * kevent_wait() has old_uidx parameter, which, if not equal to u->uidx,
+ 	results in immediate wakeup (usefull for the case when entries
+	are added asynchronously from kernel (not supported for now)).
+ * added interface to mark any event as ready.
+ * event POSIX timers support.
+ * return -ENOSYS if there is no registered event type.
+ * provided file descriptor must be checked for fifo type (spotted by Eric Dumazet).
+ * signal notifications.
+ * documentation update.
+ * lighttpd patch updated (the latest benchmarks with lighttpd patch can be found in blog).
+
+Changes from 'take24' patchset:
+ * new (old (new)) ring buffer implementation with kernel and user indexes.
+ * added initialization syscall instead of opening /dev/kevent
+ * kevent_commit() syscall to commit ring buffer entries
+ * changed KEVENT_REQ_WAKEUP_ONE flag to KEVENT_REQ_WAKEUP_ALL, kevent wakes
+   only first thread always if that flag is not set
+ * KEVENT_REQ_ALWAYS_QUEUE flag. If set, kevent will be queued into ready queue
+   instead of copying back to userspace when kevent is ready immediately when
+   it is added.
+ * lighttpd patch (Hail! Although nothing really outstanding compared to epoll)
+
+Changes from 'take23' patchset:
+ * kevent PIPE notifications
+ * KEVENT_REQ_LAST_CHECK flag, which allows to perform last check at dequeueing time
+ * fixed poll/select notifications (were broken due to tree manipulations)
+ * made Documentation/kevent.txt look nice in 80-col terminal
+ * fix for copy_to_user() failure report for the first kevent (Andrew Morton)
+ * minor function renames
+
+Changes from 'take22' patchset:
+ * new ring buffer implementation in process' memory
+ * wakeup-one-thread flag
+ * edge-triggered behaviour
+
+Changes from 'take21' patchset:
+ * minor cleanups (different return values, removed unneded variables, whitespaces and so on)
+ * fixed bug in kevent removal in case when kevent being removed
+   is the same as overflow_kevent (spotted by Eric Dumazet)
+
+Changes from 'take20' patchset:
+ * new ring buffer implementation
+ * removed artificial limit on possible number of kevents
+
+Changes from 'take19' patchset:
+ * use __init instead of __devinit
+ * removed 'default N' from config for user statistic
+ * removed kevent_user_fini() since kevent can not be unloaded
+ * use KERN_INFO for statistic output
+
+Changes from 'take18' patchset:
+ * use __init instead of __devinit
+ * removed 'default N' from config for user statistic
+ * removed kevent_user_fini() since kevent can not be unloaded
+ * use KERN_INFO for statistic output
+
+Changes from 'take17' patchset:
+ * Use RB tree instead of hash table. 
+	At least for a web sever, frequency of addition/deletion of new kevent 
+	is comparable with number of search access, i.e. most of the time events 
+	are added, accesed only couple of times and then removed, so it justifies 
+	RB tree usage over AVL tree, since the latter does have much slower deletion 
+	time (max O(log(N)) compared to 3 ops), 
+	although faster search time (1.44*O(log(N)) vs. 2*O(log(N))). 
+	So for kevents I use RB tree for now and later, when my AVL tree implementation 
+	is ready, it will be possible to compare them.
+ * Changed readiness check for socket notifications.
+
+With both above changes it is possible to achieve more than 3380 req/second compared to 2200, 
+sometimes 2500 req/second for epoll() for trivial web-server and httperf client on the same
+hardware.
+It is possible that above kevent limit is due to maximum allowed kevents in a time limit, which is
+4096 events.
+
+Changes from 'take16' patchset:
+ * misc cleanups (__read_mostly, const ...)
+ * created special macro which is used for mmap size (number of pages) calculation
+ * export kevent_socket_notify(), since it is used in network protocols which can be 
+	built as modules (IPv6 for example)
+
+Changes from 'take15' patchset:
+ * converted kevent_timer to high-resolution timers, this forces timer API update at
+	http://linux-net.osdl.org/index.php/Kevent
+ * use struct ukevent* instead of void * in syscalls (documentation has been updated)
+ * added warning in kevent_add_ukevent() if ring has broken index (for testing)
+
+Changes from 'take14' patchset:
+ * added kevent_wait()
+    This syscall waits until either timeout expires or at least one event
+    becomes ready. It also commits that @num events from @start are processed
+    by userspace and thus can be be removed or rearmed (depending on it's flags).
+    It can be used for commit events read by userspace through mmap interface.
+    Example userspace code (evtest.c) can be found on project's homepage.
+ * added socket notifications (send/recv/accept)
+
+Changes from 'take13' patchset:
+ * do not get lock aroung user data check in __kevent_search()
+ * fail early if there were no registered callbacks for given type of kevent
+ * trailing whitespace cleanup
+
+Changes from 'take12' patchset:
+ * remove non-chardev interface for initialization
+ * use pointer to kevent_mring instead of unsigned longs
+ * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
+ * simplified enqueue/dequeue callbacks and kevent initialization
+ * use nanoseconds for timeout
+ * put number of milliseconds into timer's return data
+ * move some definitions into user-visible header
+ * removed filenames from comments
+
+Changes from 'take11' patchset:
+ * include missing headers into patchset
+ * some trivial code cleanups (use goto instead of if/else games and so on)
+ * some whitespace cleanups
+ * check for ready_callback() callback before main loop which should save us some ticks
+
+Changes from 'take10' patchset:
+ * removed non-existent prototypes
+ * added helper function for kevent_registered_callbacks
+ * fixed 80 lines comments issues
+ * added shared between userspace and kernelspace header instead of embedd them in one
+ * core restructuring to remove forward declarations
+ * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
+ * use vm_insert_page() instead of remap_pfn_range()
+
+Changes from 'take9' patchset:
+ * fixed ->nopage method
+
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
+
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
+
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was
+learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from
+userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
 

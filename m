@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751845AbXAQWRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750783AbXAQWcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751845AbXAQWRZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 17:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbXAQWRY
+	id S1750783AbXAQWcQ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 17:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAQWcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 17:17:24 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:49232 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932311AbXAQWRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 17:17:23 -0500
-Date: Wed, 17 Jan 2007 14:17:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: christopher.leech@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc4-mm1 - cvs merge whoops in git-ioat.patch?
-Message-Id: <20070117141718.824df05b.akpm@osdl.org>
-In-Reply-To: <200701172109.l0HL9fdw019715@turing-police.cc.vt.edu>
-References: <200701172109.l0HL9fdw019715@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Jan 2007 17:32:16 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53631 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750783AbXAQWcP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 17:32:15 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Daniel Hokka Zakrisson <daniel@hozac.com>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, akpm@osdl.org,
+       trond.myklebust@fys.uio.no,
+       Linux Containers <containers@lists.osdl.org>
+Subject: Re: NFS causing oops when freeing namespace
+References: <57238.192.168.101.6.1169029688.squirrel@intranet>
+	<m18xg1akmd.fsf@ebiederm.dsl.xmission.com>
+	<51072.192.168.101.6.1169039633.squirrel@intranet>
+	<20070117185823.GA878@tv-sign.ru> <45AE7705.4040603@fr.ibm.com>
+	<20070117194632.GA1071@tv-sign.ru> <45AE87BC.4030404@fr.ibm.com>
+Date: Wed, 17 Jan 2007 15:30:16 -0700
+In-Reply-To: <45AE87BC.4030404@fr.ibm.com> (Cedric Le Goater's message of
+	"Wed, 17 Jan 2007 21:31:56 +0100")
+Message-ID: <m1d55d8ex3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 17 Jan 2007 16:09:41 -0500 Valdis.Kletnieks@vt.edu wrote:
-> commit d8238afa7eedc047b57da7ec98e98fb051fc4e85
-> Author: Chris Leech <christopher.leech@intel.com>
-> Date:   Fri Nov 17 11:37:29 2006 -0800
-> 
->     I/OAT: Add documentation for the tcp_dma_copybreak sysctl
-> 
->     Signed-off-by: Chris Leech <christopher.leech@intel.com>
-> 
-> looks fishy, like a cvs update went bad:
-> 
-> diff -puN Documentation/networking/ip-sysctl.txt~git-ioat Documentation/networking/ip-sysctl.txt
-> --- a/Documentation/networking/ip-sysctl.txt~git-ioat
-> +++ a/Documentation/networking/ip-sysctl.txt
-> @@ -387,6 +387,22 @@ tcp_workaround_signed_windows - BOOLEAN
->         not receive a window scaling option from them.
->         Default: 0
-> 
-> +<<<<<<< HEAD/Documentation/networking/ip-sysctl.txt
-> +=======
-> +tcp_slow_start_after_idle - BOOLEAN
-> +       If set, provide RFC2861 behavior and time out the congestion
-> 
+Cedric Le Goater <clg@fr.ibm.com> writes:
+>
+> your first analysis was correct : exit_task_namespaces() should be moved 
+> above exit_notify(tsk). It will require some extra fixes for nsproxy 
+> though.
 
-Yeah, that's a git merge error.  I fix lots of them but didn't bother with
-this one because it's just a .txt file.  It'll go away when Chris gets
-around to cleaning up that tree.
+I think the only issue is the child_reaper and currently we only have one of
+those.  When we really do the pid namespace we are going to have to revisit
+this.  My gut feel says that we won't be able to exit our pid namespace until
+the process is waited on.  So we may need to break up exit_task_namespace into
+individual components.
+
+Eric

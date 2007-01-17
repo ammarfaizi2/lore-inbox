@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932189AbXAQKD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932221AbXAQKGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbXAQKD6 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 05:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbXAQKD6
+	id S932221AbXAQKGn (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 05:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbXAQKGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 05:03:58 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:57138 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932189AbXAQKD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 05:03:57 -0500
-Date: Wed, 17 Jan 2007 02:03:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix emergency reboot: call reboot notifier list if
- possible
-Message-Id: <20070117020343.8622e44d.akpm@osdl.org>
-In-Reply-To: <20070117093917.GA7538@elte.hu>
-References: <20070117091319.GA30036@elte.hu>
-	<20070117092233.GA30197@flint.arm.linux.org.uk>
-	<20070117093917.GA7538@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Jan 2007 05:06:43 -0500
+Received: from aurora.bayour.com ([212.214.70.50]:36013 "EHLO
+	aurora.bayour.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932221AbXAQKGm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 05:06:42 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Weird harddisk behaviour
+X-PGP-Fingerprint: B7 92 93 0E 06 94 D6 22  98 1F 0B 5B FE 33 A1 0B
+X-PGP-Key-ID: 0x788CD1A9
+X-URL: http://www.bayour.com/
+References: <87bqkzp0et.fsf@pumba.bayour.com>
+	<20070116141959.GC476@deepthought>
+From: Turbo Fredriksson <turbo@bayour.com>
+Organization: Bah!
+Date: Wed, 17 Jan 2007 11:09:21 +0100
+In-Reply-To: <20070116141959.GC476@deepthought> (Ken Moffat's message of
+ "Tue, 16 Jan 2007 14:19:59 +0000")
+Message-ID: <87y7o2hsmm.fsf@pumba.bayour.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/20.7 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 17 Jan 2007 10:39:17 +0100 Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> * Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> > On Wed, Jan 17, 2007 at 10:13:19AM +0100, Ingo Molnar wrote:
-> > > we dont call the reboot notifiers during emergency reboot mainly because 
-> > > it could be called from atomic context and reboot notifiers are a 
-> > > blocking notifier list. But actually the kernel is often perfectly 
-> > > reschedulable in this stage, so we could as well process the 
-> > > reboot_notifier_list.
-> > 
-> > My experience has been that when there has been the need to use this
-> > facility, the kernel hasn't been reschedulable. [...]
-> 
-> this decision is totally automatic - so if your situation happens and 
-> the kernel isnt reschedulable, then the notifier chain wont be called 
-> and nothing changes from your perspective. Hm, perhaps this should be 
-> dependent on CONFIG_PREEMPT, to make sure preempt_count() is reliable?
-> 
-> but from my perspective this patch fixes a real regression.
-> 
-> updated patch attached below.
-> 
+Quoting Ken Moffat <zarniwhoop@ntlworld.com>:
 
-Making it dependent upon CONFIG_PREEMPT seems a bit sucky.  Perhaps pass in
-some "you were called from /proc/sysrq-trigger" notification?
+> On Tue, Jan 16, 2007 at 02:27:06PM +0100, Turbo Fredriksson wrote:
+>> A couple of weeks ago my 400Gb SATA disk crashed. I just
+>> got the replacement, but I can't seem to be able to create
+>> a filesystem on it!
+>> 
+>> This is a PPC (Pegasos), running 2.6.15-27-powerpc (Ubuntu Dapper v2.6.15-27.50).
+> Hi Turbo,
+>
+>  I think you have mac partitions (the first item is the partition
+> map itself - very different from the dos partitions common on x86).
+>
+>  Certainly, fdisk from util-linux doesn't know about mac disks, and
+> I thought the same was true for cfdisk and sfdisk.  Many years ago
+> there was mac-fdisk, I think also known as pdisk, but nowadays the
+> common tool for partitioning mac disks is probably parted.
 
-Also, there are ways of telling if the kernel has oopsed (oops counter,
-oops_in_progress, etc) which should perhaps be tested.
+Yes. See now that 'fdisk' is a softlink to 'mac-fdisk'...
 
-Or just learn to type `reboot -fn' ;)
+> Please try parted.
 
+Same thing ('mkpartfs primary ext2 0 400000'):
+
+Jan 17 11:03:41 localhost kernel: [254985.117447] EXT2-fs: sdb1: couldn't mount RDWR because of unsupported optional features (10000).
+
+
+The 'unsupported optional features' number keeps changing... ?

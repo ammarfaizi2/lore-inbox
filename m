@@ -1,163 +1,151 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932260AbXAQKk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932304AbXAQLFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbXAQKk4 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 05:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAQKk4
+	id S932304AbXAQLFz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 06:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbXAQLFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 05:40:56 -0500
-Received: from mxfep04.bredband.com ([195.54.107.79]:37506 "EHLO
-	mxfep04.bredband.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932260AbXAQKky (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 05:40:54 -0500
-X-Greylist: delayed 707 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 05:40:54 EST
-Message-ID: <57238.192.168.101.6.1169029688.squirrel@intranet>
-Date: Wed, 17 Jan 2007 11:28:08 +0100 (CET)
-Subject: NFS causing oops when freeing namespace
-From: "Daniel Hokka Zakrisson" <daniel@hozac.com>
-To: linux-kernel@vger.kernel.org
-Cc: herbert@13thfloor.at, akpm@osdl.org, ebiederm@xmission.com,
-       trond.myklebust@fys.uio.no
-User-Agent: SquirrelMail/1.4.8-2.fc6
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: 
-In-Reply-To: 
+	Wed, 17 Jan 2007 06:05:55 -0500
+Received: from madara.hpl.hp.com ([192.6.19.124]:55601 "EHLO madara.hpl.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932304AbXAQLFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 06:05:53 -0500
+Date: Wed, 17 Jan 2007 03:05:22 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
+       suresh.b.siddha@intel.com, kenneth.w.chen@intel.com,
+       tony.luck@intel.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] sched: improve sched_clock() on i686
+Message-ID: <20070117110522.GD18499@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061222104306.GC1895@frankl.hpl.hp.com> <20061222121920.GA3809@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061222121920.GA3809@elte.hu>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The test-case at the bottom causes the following recursive Oopsing on
-2.6.20-rc5:
+Ingo,
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address
-00000504
- printing eip:
-c02292d4
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT SMP
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c02292d4>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.20-rc5 #11)
-EIP is at _raw_spin_trylock+0x4/0x30
-eax: 00000000   ebx: 00000213   ecx: 00000001   edx: 00000504
-esi: 00000504   edi: c1493da0   ebp: d5b5ff3c   esp: d5b5fee0
-ds: 007b   es: 007b   ss: 0068
-Process mount (pid: 2618, ti=d5b5e000 task=c17fdaa0 task.ti=d5b5e000)
-Stack: c03be6f0 00000000 00000000 c01f6115 c04240dc c17fdaa0 c17fdc2c
-00000000
-       00000000 d555ebe0 c04734a0 c01d26bd c01d8e9c d553b800 c0161c5d
-d707443c
-       d54cedc0 c0175e0e d779c9a0 d779cd60 c1493f20 d7f1caa0 c0175e86
-d54cee40
-Call Trace:
- [<c03be6f0>] _spin_lock_irqsave+0x20/0x90
- [<c01f6115>] lockd_down+0x125/0x190
- [<c01d26bd>] nfs_free_server+0x6d/0xd0
- [<c01d8e9c>] nfs_kill_super+0xc/0x20
- [<c0161c5d>] deactivate_super+0x7d/0xa0
- [<c0175e0e>] release_mounts+0x6e/0x80
- [<c0175e86>] __put_mnt_ns+0x66/0x80
- [<c0132b3e>] free_nsproxy+0x5e/0x60
- [<c011f021>] do_exit+0x791/0x810
- [<c011f0c6>] do_group_exit+0x26/0x70
- [<c0103142>] sysenter_past_esp+0x5f/0x85
- [<c03b0033>] rpc_wake_up+0x3/0x70
- =======================
-Code: ff ff c3 8d 74 26 00 c7 00 00 00 00 01 c7 40 08 ed 1e af de c7 40 10
-ff ff ff ff c7 40 0c ff ff ff ff c3 8d 74 26 00 89 c2 31 c0 <86> 02 31 c9
-84 c0 0f 9f c1 85 c9 74 12 65 a1 04 00 00 00 89 42
-EIP: [<c02292d4>] _raw_spin_trylock+0x4/0x30 SS:ESP 0068:d5b5fee0
- <1>BUG: unable to handle kernel NULL pointer dereference at virtual
-address 00000024
- printing eip:
-c011e8dd
-*pde = 00000000
-Oops: 0000 [#2]
-PREEMPT SMP
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c011e8dd>]    Not tainted VLI
-EFLAGS: 00010006   (2.6.20-rc5 #11)
-EIP is at do_exit+0x4d/0x810
-eax: 00000000   ebx: d5b5fea8   ecx: c17fdaa0   edx: 00000001
-esi: c17fdaa0   edi: 00000a3a   ebp: 0000000b   esp: d5b5fde4
-ds: 007b   es: 007b   ss: 0068
-Process mount (pid: 2618, ti=d5b5e000 task=c17fdaa0 task.ti=d5b5e000)
-Stack: 00000a3a d5b5e000 c17fdaa0 d5b5e000 00000003 c046a307 0000000f
-d5b5fee0
-       00000068 00000013 c011c3cb c042b321 d5b5fe24 d5b5fea8 d5b5fee0
-00000068
-       00000000 c0104816 c041347f 00000068 d5b5fee0 00000001 d5b5fea8
-c0414df5
-Call Trace:
- [<c011c3cb>] printk+0x1b/0x20
- [<c0104816>] die+0x246/0x260
- [<c03c09b0>] do_page_fault+0x2e0/0x630
- [<c011c2cf>] vprintk+0x28f/0x370
- [<c03c06d0>] do_page_fault+0x0/0x630
- [<c03beea4>] error_code+0x7c/0x84
- [<c03b007b>] rpc_wake_up+0x4b/0x70
- [<c02292d4>] _raw_spin_trylock+0x4/0x30
- [<c03be6f0>] _spin_lock_irqsave+0x20/0x90
- [<c01f6115>] lockd_down+0x125/0x190
- [<c01d26bd>] nfs_free_server+0x6d/0xd0
- [<c01d8e9c>] nfs_kill_super+0xc/0x20
- [<c0161c5d>] deactivate_super+0x7d/0xa0
- [<c0175e0e>] release_mounts+0x6e/0x80
- [<c0175e86>] __put_mnt_ns+0x66/0x80
- [<c0132b3e>] free_nsproxy+0x5e/0x60
- [<c011f021>] do_exit+0x791/0x810
- [<c011f0c6>] do_group_exit+0x26/0x70
- [<c0103142>] sysenter_past_esp+0x5f/0x85
- [<c03b0033>] rpc_wake_up+0x3/0x70
- =======================
-Code: 03 00 00 89 e0 25 00 e0 ff ff f7 40 14 00 ff ff 0f 0f 85 69 03 00 00
-8b be a4 00 00 00 85 ff 0f 84 43 03 00 00 8b 86 48 04 00 00 <8b> 50 24 3b
-72 10 0f 84 1c 03 00 00 65 a1 08 00 00 00 f6 40 11
-EIP: [<c011e8dd>] do_exit+0x4d/0x810 SS:ESP 0068:d5b5fde4
+I see that this patch made it into -mm, so i am hoping it will
+also show up in mainline fairly soon.
 
-It seems to go on forever. addr2line output follows:
-$ addr2line -e vmlinux c02292d4 c03be6f0 c01f6115 c01d26bd c01d8e9c
-c0161c5d c0175e0e c0175e86 c0132b3e c011f021 c011e8dd
-include/asm/spinlock.h:90
-kernel/spinlock.c:280
-fs/lockd/svc.c:345
-fs/nfs/client.c:782
-fs/nfs/super.c:679
-fs/super.c:184
-include/linux/list.h:299
-fs/namespace.c:1879
-include/linux/mnt_namespace.h:26
-include/linux/nsproxy.h:42
-include/linux/pid_namespace.h:42
+Thanks.
 
-The problem appears to be that fs/lockd/svc.c:lockd_down tries to lock
-current->sighand->siglock, but during the time it's sleeping the process
-is reaped and released, setting sighand to NULL.
 
-This also affects 2.6.19.2, but since there are no pid spaces there, it's
-"just" a single oops, and doesn't make the machine totally unusable.
-
-Test-case, execute as ./a.out mount -t nfs ...:
-#include <stdio.h>
-#include <sched.h>
-#include <unistd.h>
-
-int main(int argc, char *argv[])
-{
-	if (unshare(CLONE_NEWNS) == -1) {
-		perror("unshare");
-		exit(1);
-	}
-	execv("/bin/mount", argv+1);
-	perror("execv(mount)");
-	return 1;
-}
+On Fri, Dec 22, 2006 at 01:19:20PM +0100, Ingo Molnar wrote:
+> 
+> * Stephane Eranian <eranian@hpl.hp.com> wrote:
+> 
+> > The perfmon subsystems needs to compute per-CPU duration. It is using 
+> > sched_clock() to provide this information. However, it seems they are 
+> > big variations in the way sched_clock() is implemented for each 
+> > architectures, especially in the accuracy of the returned value (going 
+> > from TSC to jiffies).
+> > 
+> > Looking at the i386 implementation, it is not so clear to me what the 
+> > actual goal of the function is. I was under the impression that this 
+> > function was meant to compute per-CPU time deltas. This is how the 
+> > scheduler seems to use it.
+> > 
+> > The x86-64 and i386 implementations are quite different. The i386 
+> > comment about NUMA seems to contradict the initial goal of the 
+> > function. Why is that?
+> 
+> it's purely historic - the i686 sched_clock() implementation predates 
+> the scheduler's ability to deal with non-synchronous per-CPU clocks. I 
+> tried to fix that (a year ago) and it didnt work out - but i've reviewed 
+> my old patch and now realize what the mistake was - the patch below 
+> should work better.
+> 
+> 	Ingo
+> 
+> ---------------------->
+> Subject: [patch] sched: improve sched_clock() on i686
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> this patch cleans up sched_clock() on i686: it will use the TSC if 
+> available and falls back to jiffies only if the user asked for it to be 
+> disabled via notsc or the CPU calibration code didnt figure out the 
+> right cpu_khz.
+> 
+> this generally makes the scheduler timestamps more finegrained, on all 
+> hardware. (the current scheduler is pretty resistant against 
+> asynchronous sched_clock() values on different CPUs, it will allow at 
+> most up to a jiffy of jitter.)
+> 
+> also simplify sched_clock()'s check for TSC availability: propagate the 
+> desire and ability to use the TSC into the tsc_disable flag, previously 
+> this flag only indicated whether the notsc option was passed. This makes 
+> the rare low-res sched_clock() codepath a single branch off a 
+> read-mostly flag.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ---
+>  arch/i386/kernel/tsc.c |   22 ++++++++++++++--------
+>  1 file changed, 14 insertions(+), 8 deletions(-)
+> 
+> Index: linux/arch/i386/kernel/tsc.c
+> ===================================================================
+> --- linux.orig/arch/i386/kernel/tsc.c
+> +++ linux/arch/i386/kernel/tsc.c
+> @@ -108,13 +108,10 @@ unsigned long long sched_clock(void)
+>  	unsigned long long this_offset;
+>  
+>  	/*
+> -	 * in the NUMA case we dont use the TSC as they are not
+> -	 * synchronized across all CPUs.
+> +	 * Fall back to jiffies if there's no TSC available:
+>  	 */
+> -#ifndef CONFIG_NUMA
+> -	if (!cpu_khz || check_tsc_unstable())
+> -#endif
+> -		/* no locking but a rare wrong value is not a big deal */
+> +	if (unlikely(tsc_disable))
+> +		/* No locking but a rare wrong value is not a big deal: */
+>  		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
+>  
+>  	/* read the Time Stamp Counter: */
+> @@ -194,13 +191,13 @@ EXPORT_SYMBOL(recalibrate_cpu_khz);
+>  void __init tsc_init(void)
+>  {
+>  	if (!cpu_has_tsc || tsc_disable)
+> -		return;
+> +		goto out_no_tsc;
+>  
+>  	cpu_khz = calculate_cpu_khz();
+>  	tsc_khz = cpu_khz;
+>  
+>  	if (!cpu_khz)
+> -		return;
+> +		goto out_no_tsc;
+>  
+>  	printk("Detected %lu.%03lu MHz processor.\n",
+>  				(unsigned long)cpu_khz / 1000,
+> @@ -208,6 +205,15 @@ void __init tsc_init(void)
+>  
+>  	set_cyc2ns_scale(cpu_khz);
+>  	use_tsc_delay();
+> +	return;
+> +
+> +out_no_tsc:
+> +	/*
+> +	 * Set the tsc_disable flag if there's no TSC support, this
+> +	 * makes it a fast flag for the kernel to see whether it
+> +	 * should be using the TSC.
+> +	 */
+> +	tsc_disable = 1;
+>  }
+>  
+>  #ifdef CONFIG_CPU_FREQ
 
 -- 
-Daniel Hokka Zakrisson
+
+-Stephane

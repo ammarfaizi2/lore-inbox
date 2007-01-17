@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751986AbXAQDIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751982AbXAQDO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbXAQDIX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 22:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751988AbXAQDIW
+	id S1751982AbXAQDO2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 22:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751987AbXAQDO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 22:08:22 -0500
-Received: from mga01.intel.com ([192.55.52.88]:38881 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751986AbXAQDIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 22:08:22 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,198,1167638400"; 
-   d="scan'208"; a="188938970:sNHT18678345"
-Date: Wed, 17 Jan 2007 11:07:54 +0800
-From: Wang Zhenyu <zhenyu.z.wang@intel.com>
-To: davej@redhat.com
-Cc: LKML <linux-kernel@vger.kernel.org>, Keith Packard <keithp@keithp.com>,
-       Eric Anholt <eric@anholt.net>
-Subject: [PATCH] intel_agp: restore graphics device's pci space early in resume
-Message-ID: <20070117030754.GA30564@zhen-devel.sh.intel.com>
-Mail-Followup-To: davej@redhat.com, LKML <linux-kernel@vger.kernel.org>,
-	Keith Packard <keithp@keithp.com>, Eric Anholt <eric@anholt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Mailer: mutt
-X-Operating-System: Linux 2.6.15-1.2054_FC5smp i686
+	Tue, 16 Jan 2007 22:14:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58487 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751982AbXAQDO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 22:14:28 -0500
+Date: Tue, 16 Jan 2007 19:14:12 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: akpm@osdl.org, Paul Menage <menage@google.com>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Paul Jackson <pj@sgi.com>,
+       Dave Chinner <dgc@sgi.com>
+Subject: Re: [RFC 1/8] Convert higest_possible_node_id() into nr_node_ids
+In-Reply-To: <200701170905.17234.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0701161913180.4677@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+ <20070116054748.15358.31856.sendpatchset@schroedinger.engr.sgi.com>
+ <200701170905.17234.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Jan 2007, Andi Kleen wrote:
 
-Dave, 
+> On Tuesday 16 January 2007 16:47, Christoph Lameter wrote:
+> 
+> > I think having the ability to determine the maximum amount of nodes in
+> > a system at runtime is useful but then we should name this entry
+> > correspondingly and also only calculate the value once on bootup.
+> 
+> Are you sure this is even possible in general on systems with node
+> hotplug? The firmware might not pass a maximum limit.
 
-Currently in resuming path graphics device's pci space restore is 
-behind host bridge, so resume function wrongly accesses graphics 
-device's space. This makes resuming failure which crashed X. So 
-here's a patch to restore device's pci space early, which makes
-resuming ok with X. Patch against 2.6.20-rc5.
+In that case the node possible map must include all nodes right?
 
-Signed-off-by: Wang Zhenyu <zhenyu.z.wang@intel.com>
-
----
-diff --git a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
-index ab0a9c0..7af734b 100644
---- a/drivers/char/agp/intel-agp.c
-+++ b/drivers/char/agp/intel-agp.c
-@@ -1955,6 +1955,15 @@ static int agp_intel_resume(struct pci_d
- 
- 	pci_restore_state(pdev);
- 
-+	/* We should restore our graphics device's config space,
-+	 * as host bridge (00:00) resumes before graphics device (02:00),
-+	 * then our access to its pci space can work right. 
-+	 */
-+	if (intel_i810_private.i810_dev)
-+		pci_restore_state(intel_i810_private.i810_dev);
-+	if (intel_i830_private.i830_dev)
-+		pci_restore_state(intel_i830_private.i830_dev);
-+
- 	if (bridge->driver == &intel_generic_driver)
- 		intel_configure();
- 	else if (bridge->driver == &intel_850_driver)

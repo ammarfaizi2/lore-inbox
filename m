@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750857AbXAQG0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750978AbXAQG1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbXAQG0m (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 01:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbXAQG0l
+	id S1750978AbXAQG1u (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 01:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbXAQG1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 01:26:41 -0500
-Received: from wx-out-0506.google.com ([66.249.82.228]:16154 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750816AbXAQG0l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 01:26:41 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lnEp9H9T3ZJubn3QsgrUCPimStob3WrAwrDevHGiT8KhFVDXjawoyFEZKLkxZAPPht1Gg1H8TlbqQ4cbxYK8yba5KXkvZmDYWoywdC4dqo2Ar+sEqMviuPXSf23E/khIMcj2K6MaYfMmmALHaMt94dRw0SaI76yPLGHJwoMQvbM=
-Message-ID: <3877989d0701162226p552b2d01q8438b0c561e5dd67@mail.gmail.com>
-Date: Wed, 17 Jan 2007 14:26:40 +0800
-From: "Luming Yu" <luming.yu@gmail.com>
-To: "Matheus Izvekov" <mizvekov@gmail.com>
-Subject: Re: BUG: linux 2.6.19 unable to enable acpi
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <305c16960701162025o2f96eb25m79f58aede11821ec@mail.gmail.com>
+	Wed, 17 Jan 2007 01:27:50 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:42462 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751025AbXAQG1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 01:27:49 -0500
+Date: Tue, 16 Jan 2007 22:27:36 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+In-Reply-To: <20070116200506.d19eacf5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701162219180.5215@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+ <20070116135325.3441f62b.akpm@osdl.org> <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
+ <20070116154054.e655f75c.akpm@osdl.org> <Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
+ <20070116170734.947264f2.akpm@osdl.org> <Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
+ <20070116183406.ed777440.akpm@osdl.org> <Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
+ <20070116200506.d19eacf5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
-	 <1169007288.3457.4.camel@laptopd505.fenrus.org>
-	 <305c16960701162025o2f96eb25m79f58aede11821ec@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/17/07, Matheus Izvekov <mizvekov@gmail.com> wrote:
-> On 1/17/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Wed, 2007-01-17 at 02:01 -0200, Matheus Izvekov wrote:
-> > > Just tried linux for the first time on this old machine, and i got
-> > > this problem. dmesg below:
-> >
-> >
-> > did this machine EVER support acpi ?
-> >
-> >
->
-> It used to support power button events, dont know what else. Is there
-> anything I can do to check how good the acpi support is?
+On Tue, 16 Jan 2007, Andrew Morton wrote:
 
-Did you check BIOS setting? Is there any ACPI related menuitems?
-Does MS windows work?
-Have you ever tried other kernel  i.e. 2.6.18, 2.6.17, 2.6.16..?
+> > Yes this is the result of the hierachical nature of cpusets which already 
+> > causes issues with the scheduler. It is rather typical that cpusets are 
+> > used to partition the memory and cpus. Overlappig cpusets seem to have 
+> > mainly an administrative function. Paul?
+> 
+> The typical usage scenarios don't matter a lot: the examples I gave show
+> that the core problem remains unsolved.  People can still hit the bug.
+
+I agree the overlap issue is a problem and I hope it can be addressed 
+somehow for the rare cases in which such nesting takes place.
+
+One easy solution may be to check the dirty ratio before engaging in 
+reclaim. If the dirty ratio is sufficiently high then trigger writeout via 
+pdflush (we already wakeup pdflush while scanning and you already noted 
+that pdflush writeout is not occurring within the context of the current 
+cpuset) and pass over any dirty pages during LRU scans until some pages 
+have been cleaned up.
+
+This means we allow allocation of additional kernel memory outside of the 
+cpuset while triggering writeout of inodes that have pages on the nodes 
+of the cpuset. The memory directly used by the application is still 
+limited. Just the temporary information needed for writeback is allocated 
+outside.
+
+Well sounds somehow still like a hack. Any other ideas out there?

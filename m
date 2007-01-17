@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750823AbXAQWfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750956AbXAQWoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbXAQWfI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 17:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbXAQWfI
+	id S1750956AbXAQWoO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 17:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbXAQWoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 17:35:08 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:46661 "EHLO
-	ccerelbas04.cce.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750823AbXAQWfH convert rfc822-to-8bit (ORCPT
+	Wed, 17 Jan 2007 17:44:14 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:58913 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750955AbXAQWoN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 17:35:07 -0500
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 17 Jan 2007 17:44:13 -0500
+X-Greylist: delayed 421 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 17:44:13 EST
+Date: Wed, 17 Jan 2007 23:36:10 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: 7eggert@gmx.de, Helge Hafting <helge.hafting@aitel.hist.no>,
+       Michael Tokarev <mjt@tls.msk.ru>, Chris Mason <chris.mason@oracle.com>,
+       Linus Torvalds <torvalds@osdl.org>, dean gaudet <dean@arctic.org>,
+       Viktor <vvp01@inbox.ru>, Aubrey <aubreylee@gmail.com>,
+       Hua Zhong <hzhong@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, hch@infradead.org,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+In-Reply-To: <1169013342.3457.60.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.58.0701172319570.2544@be1.lrz>
+References: <7BYkO-5OV-17@gated-at.bofh.it> <7BYul-6gz-5@gated-at.bofh.it> 
+ <7C74B-2A4-23@gated-at.bofh.it> <7CaYA-mT-19@gated-at.bofh.it> 
+ <7Cpuz-64X-1@gated-at.bofh.it> <7Cz0T-4PH-17@gated-at.bofh.it> 
+ <7CBcl-86B-9@gated-at.bofh.it> <7CBvH-52-9@gated-at.bofh.it> 
+ <7DyYK-6lE-3@gated-at.bofh.it>  <E1H6utT-0000g3-Aw@be1.lrz>
+ <1169013342.3457.60.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PME_Turn_Off in Linux
-Date: Wed, 17 Jan 2007 16:35:02 -0600
-Message-ID: <E717642AF17E744CA95C070CA815AE550116BB82@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <20070117213318.GA2525@kroah.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PME_Turn_Off in Linux
-Thread-Index: Acc6f0BDEOCaODtvSD2T5t+B+RUW/QABcn6Q
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: "LKML" <linux-kernel@vger.kernel.org>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>,
-       "Brainard, Jim" <jim.brainard@hp.com>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>
-X-OriginalArrivalTime: 17 Jan 2007 22:35:03.0493 (UTC) FILETIME=[BAF47F50:01C73A87]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+X-Provags-ID2: V01U2FsdGVkX1+0A2h9j4iqdvVDRu2rzivmKrNufvH838C3sAg7JdSeGHavSC4LNMp90hKLbThxhqtOOBUqGnWwUza4YwIZ1dqwejLhbg/gcTsU6gzeLfsStQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-greg k-h wrote: 
+On Tue, 16 Jan 2007, Arjan van de Ven wrote:
+> On Tue, 2007-01-16 at 21:26 +0100, Bodo Eggert wrote:
+> > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> > > Michael Tokarev wrote:
 
-> On Wed, Jan 17, 2007 at 10:43:14AM -0600, Miller, Mike (OS Dev) wrote:
-> > Hello,
-> > We've been seeing some nasty data corruption issues on some 
-> platforms.
-> > We've been capturing PCI-E traces looking for something 
-> nasty but we 
-> > haven't found anything yet. One of the hardware guys if asking if 
-> > there is a call in Linux to issue a PME_Turn_Off broadcast message.
-> >  
-> > PME_Turn_Off Broadcast Message
-> > Before main component power and reference clocks are turned 
-> off, the 
-> > Root Complex or Switch Downstream Port must issue a 
-> broadcast Message 
-> > that instructs all agents downstream of that point within the 
-> > hierarchy to cease initiation of any subsequent PM_PME Messages, 
-> > effective immediately upon receipt of the PME_Turn_Off Message.
+> > >> But seriously - what about just disallowing non-O_DIRECT opens together
+> > >> with O_DIRECT ones ?
+> > >>   
+> > > Please do not create a new local DOS attack.
+> > > I open some important file, say /etc/resolv.conf
+> > > with O_DIRECT and just sit on the open handle.
+> > > Now nobody else can open that file because
+> > > it is "busy" with O_DIRECT ?
 > > 
-> > This must be initiated from the root complex. Is there such 
-> a call in 
-> > linux?
+> > Suspend O_DIRECT access while non-O_DIRECT-fds are open, fdatasync on close?
 > 
-> This firmware that implements the PCI-E connection should do 
-> this, I don't think there is anything that the Operating 
-> system can do to control this, as PCI-E should be transparant 
-> to the OS.
+> .. then any user can impact the operation, performance and reliability
+> of the database application of another user... sounds like plugging one
+> hole by making a bigger hole ;)
 
-Hmmm, the hw folks tell me that "other" os'es implement that. But I
-would tend to agree that system firmware should probably be doing this.
+Don't allow other users to access your raw database files then, and if
+backup kicks in, pausing the database would DTRT for integrety of the
+backup. For other applications, paused O_DIRECT may very well be a
+problem, but I can't think of one right now.
 
-> 
-> Unless this is on a PCI-E Hotplug system?  What is the 
-
-No hotplug.
-
-> sequence of events that cause the data corruption?
-
-Install rhel4 u4 on ia64, at the reboot prompt let the system sit idle
-for several hours or overnight. Then after rebooting the filesystems are
-totally trashed. I usually get a message that the kernel is not a valid
-compressed file format. If I try to rescue the system I cannot mount any
-filesystems. I don't have the message handy but it complains about an
-invalid Verneed record, whatever that is.
-
-I've also tried the same procedure using a dumb SAS hba. It complained
-that it couldn't read the initrd image but on a second attempt it acted
-like it read the initrd but the system goes out in the weeds while
-booting. Not the same symptoms but I suspect there's some relationship.
-
-I have not tried any other distros yet.
-
-Thanks,
-mikem
+-- 
+Logic: The art of being wrong with confidence... 

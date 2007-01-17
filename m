@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751846AbXAQWQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932074AbXAQWQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbXAQWQA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 17:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751845AbXAQWQA
+	id S932074AbXAQWQb (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 17:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbXAQWQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 17:16:00 -0500
-Received: from smtp8-g19.free.fr ([212.27.42.65]:46319 "EHLO smtp8-g19.free.fr"
+	Wed, 17 Jan 2007 17:16:30 -0500
+Received: from mx1.suse.de ([195.135.220.2]:55957 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751846AbXAQWP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 17:15:59 -0500
-X-Greylist: delayed 163838 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 17:15:59 EST
-From: syrius.ml@no-log.org
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc5 nfs+krb => oops
-Message-ID: <87y7o12tdp.87wt3l2tdp@87vej52tdp.message.id>
-References: <871wlyo8fi.87zm8mmtv2@87y7o6mtv2.message.id>
-	<1168950785.6072.37.camel@lade.trondhjem.org>
-Date: Wed, 17 Jan 2007 23:15:57 +0100
-In-Reply-To: <1168950785.6072.37.camel@lade.trondhjem.org> (Trond Myklebust's
-	message of "Tue, 16 Jan 2007 07:33:05 -0500")
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	id S1751848AbXAQWQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 17:16:25 -0500
+From: Andi Kleen <ak@suse.de>
+To: Chip Coldwell <coldwell@redhat.com>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
+Date: Thu, 18 Jan 2007 09:15:32 +1100
+User-Agent: KMail/1.9.1
+Cc: Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, andersen@codepoet.org, krader@us.ibm.com,
+       lfriedman@nvidia.com, linux-nforce-bugs@nvidia.com
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <200701170829.54540.ak@suse.de> <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0701170942560.2900@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701180915.32944.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-> On Sat, 2007-01-13 at 23:57 +0100, syrius.ml@no-log.org wrote:
->> Hi there,
->> 
->> I've been curious enough to try 2.6.20-rc5 with nfs4/kerberos.
->> It was working fine before. I was using 2.6.18.1 on the client and
->> 2.6.20-rc3-git4 on server and today i tried 2.6.20-rc5 on both client
->> and server. (both running up to date debian/sid)
->> Trying to mount a nfs4 or nfs3 share with krb5 (did try with krb5 and
->> krb5p) produces this oops on the client side:
->> (each time I tried i got the same oops)
->> 
->> ------------[ cut here ]------------
->> kernel BUG at net/sunrpc/sched.c:902!
->> [ SNIP ]
->> EIP: [<c03fcb1f>] rpc_release_task+0x8f/0xc0 SS:ESP 0068:f6f21be4
->
-> Does the attached patch fix it for you?
+> We've just verified that configuring the graphics aperture to be
+> write-combining instead of write-back using an MTRR also solves the
+> problem.  It appears to be a cache incoherency issue in the graphics
+> aperture.
 
-Yes It does !
-Thanks a lot.
+Interesting. 
 
--- 
+Unfortunately it is also not correct. It was intentional to 
+mark the IOMMU half. of the aperture write-back, as opposed
+to uncached as the AGP half. Otherwise you get illegal cache attribute 
+conflicts with the memory that is being remapped which can also cause 
+corruption.
+
+The Northbridge guarantees coherency over the aperture, but 
+only if the caching attributes match. 
+
+You would need to change_page_attr() every kernel address that is mapped into 
+the  IOMMU to use an uncached aperture. AGP does this, but the frequency of 
+mapping for the IOMMU  is much higher and it would be prohibitively costly
+unfortunately. 
+
+In the past we saw corruptions from such conflicts, so this is more
+than just theory. I suspect  you traded a more easy to trigger corruption with 
+a more subtle one.
+
+-Andi
+

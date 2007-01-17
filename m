@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932381AbXAQMKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750969AbXAQMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbXAQMKT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 07:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbXAQMKS
+	id S1750969AbXAQMMt (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 07:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbXAQMMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 07:10:18 -0500
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:26053 "EHLO
-	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932381AbXAQMKQ (ORCPT
+	Wed, 17 Jan 2007 07:12:49 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:47364 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750949AbXAQMMs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 07:10:16 -0500
-Subject: Re: [PATCH 0/59] Cleanup sysctl
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Containers <containers@lists.osdl.org>, netdev@vger.kernel.org,
-       xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com, minyard@acm.org,
-       openipmi-developer@lists.sourceforge.net, tony.luck@intel.com,
-       linux-mips@linux-mips.org, ralf@linux-mips.org,
-       heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-390@vm.marist.edu,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-       linuxsh-shmedia-dev@lists.sourceforge.net, ak@suse.de, vojtech@suse.cz,
-       clemens@ladisch.de, a.zummo@towertech.it, rtc-linux@googlegroups.com,
-       linux-parport@lists.infradead.org, andrea@suse.de, tim@cyberelk.net,
-       philb@gnu.org, aharkes@cs.cmu.edu, coda@cs.cmu.edu,
-       codalist@TELEMANN.coda.cs.cmu.edu, aia21@cantab.net,
-       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
-       kurt.hackel@oracle.com
-In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Wed, 17 Jan 2007 13:10:13 +0100
-Message-Id: <1169035813.7711.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Wed, 17 Jan 2007 07:12:48 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gY8iGhrICeEfxW3vN2RBXUnB1zkmsk/fcvKEpAiNPLAK8zxmGjgNVkU8e6dqQ6C4aDAtTupQS+GwQ4eRoYNprNkuQvI21dUn0oFnskII/Fl+UsSaRMDbIowdKFjDlKTnPwGS4DlMPjDkCFFBsT/bjzPzZ8MOgfsPm/2YY6Xhbnc=
+Message-ID: <7783925d0701170412u2db661d6md5890f2a713ee808@mail.gmail.com>
+Date: Wed, 17 Jan 2007 17:42:46 +0530
+From: "Rick Brown" <rick.brown.3@gmail.com>
+To: kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: EXPORT_SYMBOL not mandatory in 2.4.x?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 09:33 -0700, Eric W. Biederman wrote:
-> There has not been much maintenance on sysctl in years, and as a result is
-> there is a lot to do to allow future interesting work to happen, and being
-> ambitious I'm trying to do it all at once :)
+Hi,
 
-s390 parts look good. Kernels boots and the system controls are still
-working. I had to add an #include <linux/uaccess.h> to ipc/ipc_sysctl.c
-to get the kernel compiled. That include should be added to patch #51.
+1) I'm using two 2.4 based kernel modules. The first module defines a
+symbol but does not EXPORT_SYSMBOL() it. Would my second module be
+able to use that symbol? In 2.4? In 2.6?
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com> for:
-[PATCH 33/59] sysctl: s390 move sysctl definitions to sysctl.h
-[PATCH 34/59] sysctl: s390 Remove unnecessary use of insert_at_head
+2) Also, in 2.4, is it OK if I start using my device memory before
+request_mem_region()?
 
-and the s390 parts of 
-[PATCH 55/59] sysctl: Remove insert_at_head from register_sysctl
+Thanks,
 
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+Rick

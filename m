@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751464AbXAQXfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751482AbXAQXjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbXAQXfZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 18:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbXAQXfZ
+	id S1751482AbXAQXjX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 18:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbXAQXjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 18:35:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55349 "EHLO perch.kroah.org"
+	Wed, 17 Jan 2007 18:39:23 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:40112 "EHLO e6.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751453AbXAQXfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 18:35:23 -0500
-Date: Wed, 17 Jan 2007 15:35:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Nicolas Bareil <nico@chdir.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.19.2 : Oops
-Message-ID: <20070117233545.GA12717@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <873b6a6ji0.fsf@boz.loft.chdir.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873b6a6ji0.fsf@boz.loft.chdir.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	id S1751453AbXAQXjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 18:39:22 -0500
+Subject: Re: [PATCH: 2.6.20-rc4-mm1] JFS: Avoid deadlock introduced by
+	explicit  I/O plugging
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: JFS Discussion <jfs-discussion@lists.sourceforge.net>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <20070117231847.GH3508@kernel.dk>
+References: <1169074549.10560.10.camel@kleikamp.austin.ibm.com>
+	 <20070117231847.GH3508@kernel.dk>
+Content-Type: text/plain
+Date: Wed, 17 Jan 2007 17:39:17 -0600
+Message-Id: <1169077157.10560.16.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 11:21:59AM +0100, Nicolas Bareil wrote:
-> 
-> Hello,
-> 
-> Since 2.6.19, I get the following Oops once a day, always with the same
-> process, newspipe[1] which use a lot of CPU, threads and I/O.
-> 
-> The kernel is patched by Grsecurity. The ext3 filesystem is on a
-> software RAID device (the two disks are SATA2). I tested the 
-> hardware (RAM, SMART disks) but nothing seem problematic.
+On Thu, 2007-01-18 at 10:18 +1100, Jens Axboe wrote:
 
-Can you reproduce it without the grsec patch applied?
+> Can you try io_schedule() and verify that things just work?
 
-thanks,
+I actually did do that in the first place, but wondered if it was the
+right thing to introduce the accounting changes that came with that.
+I'll change it back to io_schedule() and test it again, just to make
+sure.
 
-greg k-h
+If that's the right fix, I can push it directly since it won't have any
+dependencies on your patches.
+
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

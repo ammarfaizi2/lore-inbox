@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932543AbXAQQ5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932548AbXAQQ5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbXAQQ5T (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 11:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbXAQQ5S
+	id S932548AbXAQQ5i (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 11:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbXAQQ5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 11:57:18 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:45172 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932543AbXAQQ5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 11:57:17 -0500
-Date: Wed, 17 Jan 2007 17:56:58 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lawrence MacIntyre <macintyrelp@ornl.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hung Port
-In-Reply-To: <45AE46AA.7030700@ornl.gov>
-Message-ID: <Pine.LNX.4.61.0701171756050.18562@yvahk01.tjqt.qr>
-References: <45AE46AA.7030700@ornl.gov>
+	Wed, 17 Jan 2007 11:57:38 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:59328 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932548AbXAQQ5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 11:57:37 -0500
+X-Originating-Ip: 74.109.98.130
+Date: Wed, 17 Jan 2007 11:51:27 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: "obsolete" versus "deprecated", and a new config option?
+Message-ID: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, TW_EV 0.08)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Last week I had a port (TCP:52557) that was mysteriously unavailable on
->my ubuntu machine (running kernel 2.6.15-27-k7 #1 SMP PREEMPT).  If you
->tried to bind to it, it was unavailable.  However, nmap (both to
->localhost and from an external host) reported the port closed.  fuser,
->lsof, and netstat had no record of the port being used.
+  a couple random thoughts on the notion of obsolescence and
+deprecation.
 
-Did your application forgot to set SO_REUSEADDR?
+  first, there are places in the kernel (primarily Kconfig files) and
+the documentation that unnecessarily conflate these two properties.
+as a simple example, consider drivers/pcmcia/Kconfig:
+==========================================================
+config PCMCIA_IOCTL
+        bool "PCMCIA control ioctl (obsolete)"
+        depends on PCMCIA
+        default y
+        help
+          If you say Y here, the deprecated ioctl interface to the PCMCIA
+          subsystem will be built. It is needed by cardmgr and cardctl
+          (pcmcia-cs) to function properly.
 
->  Our firewall
->logs didn't show any unusual traffic to the machine.  Nor did they show
->any traffic at all to/from that port on the machine.  After checking
->everything I could think of, I rebooted it, and there were no ports that
->were unavailable in this way when it came back up.  This morning another
->hung port has appeared (TCP:43355).  My best guess is that this is an
->ephemeral port that has somehow gotten hung in the kernel somewhere.
->Has anyone seen anything like this and/or is there anything else I could
->look at to figure it out?
+          You should use the new pcmciautils package instead (see
+          <file:Documentation/Changes> for location and details).
 
-	-`J'
--- 
+          If unsure, say Y.
+==========================================================
+
+  so is that ioctl obsolete or deprecated?  those aren't the same
+things, a good distinction being drawn here by someone discussing
+devfs:
+
+http://kerneltrap.org/node/1893
+
+"Devfs is deprecated.  This means it's still available but you should
+consider moving to other options when available.  Obsolete means it
+shouldn't be used.  Some 2.6 docs have confused these two terms WRT
+devfs."
+
+  yes, and that confusion continues to this day, when a single feature
+is described as both deprecated and obsolete.  not good.  (also, i'm
+guessing that anything that's "obsolete" might deserve a default of
+"n" rather than "y", but that's just me.  :-)
+
+  in any event, what about introducing a new config variable,
+OBSOLETE, under "Code maturity level options"?  this would seem to be
+a quick and dirty way to prune anything that is *supposed* to be
+obsolete from the build, to make sure you're not picking up dead code
+by accident.
+
+  i think it would be useful to be able to make that kind of
+distinction since, as the devfs writer pointed out above, the point of
+labelling something "obsolete" is not to *discourage* someone from
+using a feature, it's to imply that they *shouldn't* be using that
+feature.  period.  which suggests there should be an easy, one-step
+way to enforce that absolutely in a build.
+
+  thoughts?
+
+rday
+
+
+
+
+

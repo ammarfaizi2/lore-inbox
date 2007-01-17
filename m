@@ -1,81 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751997AbXAQDUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751001AbXAQDkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751997AbXAQDUS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 22:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbXAQDUS
+	id S1751001AbXAQDkl (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 22:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbXAQDkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 22:20:18 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35331 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751999AbXAQDUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 22:20:13 -0500
-Subject: Re: [PATCH 35/59] sysctl: C99 convert ctl_tables in
-	arch/powerpc/kernel/idle.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "<Andrew Morton" <akpm@osdl.org>, linux-mips@linux-mips.org,
-       linux-parport@lists.infradead.org, heiko.carstens@de.ibm.com,
-       ak@suse.de, linuxppc-dev@ozlabs.org, paulus@samba.org,
-       aharkes@cs.cmu.edu, schwidefsky@de.ibm.com, tim@cyberelk.net,
-       rtc-linux@googlegroups.com, linux-scsi@vger.kernel.org,
-       kurt.hackel@oracle.com, coda@cs.cmu.edu, vojtech@suse.cz,
-       linuxsh-shmedia-dev@lists.sourceforge.net, James.Bottomley@SteelEye.com,
-       clemens@ladisch.de, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       andrea@suse.de, openipmi-developer@lists.sourceforge.net,
-       linux-390@vm.marist.edu, codalist@TELEMANN.coda.cs.cmu.edu,
-       a.zummo@towertech.it, tony.luck@intel.com,
-       linux-ntfs-dev@lists.sourceforge.net, netdev@vger.kernel.org,
-       aia21@cantab.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org,
-       lethal@linux-sh.org, containers@lists.osdl.org, linux390@de.ibm.com,
-       philb@gnu.org
-In-Reply-To: <11689656593247-git-send-email-ebiederm@xmission.com>
-References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
-	 <11689656593247-git-send-email-ebiederm@xmission.com>
-Content-Type: text/plain
-Date: Wed, 17 Jan 2007 14:16:27 +1100
-Message-Id: <1169003787.4778.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Jan 2007 22:40:41 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39757 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750747AbXAQDkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 22:40:40 -0500
+Date: Tue, 16 Jan 2007 19:40:17 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: menage@google.com, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, pj@sgi.com, dgc@sgi.com
+Subject: Re: [RFC 0/8] Cpuset aware writeback
+In-Reply-To: <20070116183406.ed777440.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701161920480.4677@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+ <20070116135325.3441f62b.akpm@osdl.org> <Pine.LNX.4.64.0701161407530.3545@schroedinger.engr.sgi.com>
+ <20070116154054.e655f75c.akpm@osdl.org> <Pine.LNX.4.64.0701161602480.4263@schroedinger.engr.sgi.com>
+ <20070116170734.947264f2.akpm@osdl.org> <Pine.LNX.4.64.0701161709490.4455@schroedinger.engr.sgi.com>
+ <20070116183406.ed777440.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-16 at 09:39 -0700, Eric W. Biederman wrote:
-> From: Eric W. Biederman <ebiederm@xmission.com> - unquoted
-> 
-> This was partially done already and there was no ABI breakage what
-> a relief.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+On Tue, 16 Jan 2007, Andrew Morton wrote:
 
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-> ---
->  arch/powerpc/kernel/idle.c |   11 ++++++++---
->  1 files changed, 8 insertions(+), 3 deletions(-)
+> Consider: non-exclusive cpuset A consists of mems 0-15, non-exclusive
+> cpuset B consists of mems 0-3.  A task running in cpuset A can freely dirty
+> all of cpuset B's memory.  A task running in cpuset B gets oomkilled.
 > 
-> diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
-> index 8994af3..8b27bb1 100644
-> --- a/arch/powerpc/kernel/idle.c
-> +++ b/arch/powerpc/kernel/idle.c
-> @@ -110,11 +110,16 @@ static ctl_table powersave_nap_ctl_table[]={
->  		.mode		= 0644,
->  		.proc_handler	= &proc_dointvec,
->  	},
-> -	{ 0, },
-> +	{}
->  };
->  static ctl_table powersave_nap_sysctl_root[] = {
-> -	{ 1, "kernel", NULL, 0, 0755, powersave_nap_ctl_table, },
-> - 	{ 0,},
-> +	{
-> +		.ctl_name	= CTL_KERN,
-> +		.procname	= "kernel",
-> +		.mode		= 0755,
-> +		.child		= powersave_nap_ctl_table,
-> +	},
-> +	{}
->  };
->  
->  static int __init
+> Consider: a 32-node machine has nodes 0-3 full of dirty memory.  I create a
+> cpuset containing nodes 0-2 and start using it.  I get oomkilled.
+> 
+> There may be other scenarios.
 
+Yes this is the result of the hierachical nature of cpusets which already 
+causes issues with the scheduler. It is rather typical that cpusets are 
+used to partition the memory and cpus. Overlappig cpusets seem to have 
+mainly an administrative function. Paul?
+
+> So what I suggest we do is to fix the NFS bug, then move on to considering
+> the performance problems.
+
+The NFS "bug" has been there for ages and no one cares since write 
+throttling works effectively. Since NFS can go via any network technology 
+(f.e. infiniband) we have many potential issues at that point that depend 
+on the underlying network technology. As far as I can recall we decided 
+that these stacking issues are inherently problematic and basically 
+unsolvable.
+
+> On reflection, I agree that your proposed changes are sensible-looking for
+> addressing the probable, not-yet-demonstrated-and-quantified performance
+> problem.  The per-inode (should be per-address_space, maybe it is?) node
+
+The address space is part of the inode. Some of my development versions at 
+the dirty_map in the address space. However, the end of the inode was a 
+convenient place for a runtime sizes nodemask.
+
+> map is unfortunate.  Need to think about that a bit more.  For a start, it
+> should be dynamically allocated (from a new, purpose-created slab cache):
+> most in-core inodes don't have any dirty pages and don't need this
+> additional storage.
+
+We also considered such an approach. However. it creates the problem 
+of performing a slab allocation while dirtying pages. At that point we do 
+not have an allocation context, nor can we block.
+
+> But this is unrelated to the NFS bug ;)
+
+Looks more like a design issue (given its layering on top of the 
+networking layer) and not a bug. The "bug" surfaces when writeback is not 
+done properly. I wonder what happens if other filesystems are pushed to 
+the border of the dirty abyss.  .... The mmap tracking 
+fixes that were done in 2.6.19 were done because of similar symptoms 
+because the systems dirty tracking was off. This is fundamentally the 
+same issue showing up in a cpuset. So we should be able to produce the
+hangs (looks ... yes another customer reported issue on this one is that 
+reclaim is continually running and we basically livelock the system) that 
+we saw for the mmap dirty tracking issues in addition to the NFS problems 
+seen so far.
+
+Memory allocation is required in most filesystem flush paths. If we cannot 
+allocate memory then we cannot clean pages and thus we continue trying -> 
+Livelock. I still see this as a fundamental correctness issue in the 
+kernel.

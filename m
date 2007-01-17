@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752014AbXAQEZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752021AbXAQE1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752014AbXAQEZX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 16 Jan 2007 23:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbXAQEZX
+	id S1752021AbXAQE1S (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 16 Jan 2007 23:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752017AbXAQE1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Jan 2007 23:25:23 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:20277 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752014AbXAQEZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Jan 2007 23:25:22 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SDTEV9mBBZUW/Bd8DdEv0vO4zRPQnZjv7uZyd1uYyCv3wmOAw3NpwsrJwzBKZFHIHoJqq4XJbEbWc3RPLKDpkLOvwCasmmxrXhAhDgS1vTkj8cagFnJQRupTbItVffcpdiM4rl2YadBnzGhCJ3FXvQmKYfAENV3znyNHe5neG2E=
-Message-ID: <305c16960701162025o2f96eb25m79f58aede11821ec@mail.gmail.com>
-Date: Wed, 17 Jan 2007 02:25:19 -0200
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: BUG: linux 2.6.19 unable to enable acpi
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1169007288.3457.4.camel@laptopd505.fenrus.org>
+	Tue, 16 Jan 2007 23:27:18 -0500
+Received: from ns2.suse.de ([195.135.220.15]:50267 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752016AbXAQE1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Jan 2007 23:27:17 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 0/59] Cleanup sysctl
+Date: Wed, 17 Jan 2007 15:21:43 +1100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>, netdev@vger.kernel.org,
+       xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-scsi@vger.kernel.org,
+       James.Bottomley@steeleye.com, minyard@acm.org,
+       openipmi-developer@lists.sourceforge.net, tony.luck@intel.com,
+       linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com,
+       heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-390@vm.marist.edu,
+       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
+       linuxsh-shmedia-dev@lists.sourceforge.net, vojtech@suse.cz,
+       clemens@ladisch.de, a.zummo@towertech.it, rtc-linux@googlegroups.com,
+       linux-parport@lists.infradead.org, andrea@suse.de, tim@cyberelk.net,
+       philb@gnu.org, aharkes@cs.cmu.edu, coda@cs.cmu.edu,
+       codalist@telemann.coda.cs.cmu.edu, aia21@cantab.net,
+       linux-ntfs-dev@lists.sourceforge.net, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com
+References: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ac0jc4no.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
-	 <1169007288.3457.4.camel@laptopd505.fenrus.org>
+Message-Id: <200701171521.45323.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/17/07, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Wed, 2007-01-17 at 02:01 -0200, Matheus Izvekov wrote:
-> > Just tried linux for the first time on this old machine, and i got
-> > this problem. dmesg below:
+On Wednesday 17 January 2007 03:33, Eric W. Biederman wrote:
+> There has not been much maintenance on sysctl in years, and as a result is
+> there is a lot to do to allow future interesting work to happen, and being
+> ambitious I'm trying to do it all at once :)
 >
->
-> did this machine EVER support acpi ?
->
->
+> The patches in this series fall into several general categories.
 
-It used to support power button events, dont know what else. Is there
-anything I can do to check how good the acpi support is?
+[...]
+
+The patches look good to me.
+
+-Andi

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751468AbXAQXsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751850AbXAQX4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbXAQXsY (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 18:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbXAQXsY
+	id S1751850AbXAQX4Q (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 18:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbXAQX4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 18:48:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27024 "EHLO virtualhost.dk"
+	Wed, 17 Jan 2007 18:56:16 -0500
+Received: from mga03.intel.com ([143.182.124.21]:5479 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751100AbXAQXsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 18:48:23 -0500
-X-Greylist: delayed 1226 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Jan 2007 18:48:23 EST
-Date: Thu, 18 Jan 2007 10:46:53 +1100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-Cc: JFS Discussion <jfs-discussion@lists.sourceforge.net>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH: 2.6.20-rc4-mm1] JFS: Avoid deadlock introduced by  explicit  I/O plugging
-Message-ID: <20070117234653.GI3508@kernel.dk>
-References: <1169074549.10560.10.camel@kleikamp.austin.ibm.com> <20070117231847.GH3508@kernel.dk> <1169077157.10560.16.camel@kleikamp.austin.ibm.com>
+	id S1751254AbXAQX4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 18:56:15 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.13,201,1167638400"; 
+   d="scan'208"; a="170071253:sNHT50481305"
+Message-ID: <45AEB79B.2010205@intel.com>
+Date: Wed, 17 Jan 2007 15:56:11 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.9 (X11/20061228)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1169077157.10560.16.camel@kleikamp.austin.ibm.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+CC: Auke Kok <auke-jan.h.kok@intel.com>, Allen Parker <parker@isohunt.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: intel 82571EB gigabit fails to see link on 2.6.20-rc5 in-tree
+ e1000 driver (regression)
+References: <20070117190448.A20184@mail.kroptech.com>
+In-Reply-To: <20070117190448.A20184@mail.kroptech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17 2007, Dave Kleikamp wrote:
-> On Thu, 2007-01-18 at 10:18 +1100, Jens Axboe wrote:
+Adam Kropelin wrote:
+>> Allen Parker wrote:
+>>> Allen Parker wrote:
+>>>>  From what I've been able to gather, other Intel Pro/1000 chipsets 
+>>>> work fine in 2.6.20-rc5. If the e1000 guys need any assistance 
+>>>> testing, I'll be more than happy to volunteer myself as a guinea pig 
+>>>> for patches.
+>>> I wasn't aware that I was supposed to post this as a regression, so 
+>>> changed the subject, hoping that someone will pick this up and run with 
+>>> it. Primary issue being that link is not seen on this chipset under 
+>>> 2.6.20-rc5 via in-tree e1000 driver, despite multiple cycles of ifconfig 
+>>> $eth up && ethtool $eth | grep link && ifconfig $eth down. Tested on 2 
+>>> machines with identical hardware.
+>> I asked Allen to report this here. I'm working on the issue as we speak
+>> but for now I'll treat the link issue as a known regression once I 
+>> confirm it. If others have seen it then I'd like to know ASAP of course
 > 
-> > Can you try io_schedule() and verify that things just work?
+> I am experiencing the no-link issue on a 82572EI single port copper
+> PCI-E card. I've only tried 2.6.20-rc5, so I cannot tell if this is a
+> regression or not yet. Will test older kernel soon.
 > 
-> I actually did do that in the first place, but wondered if it was the
-> right thing to introduce the accounting changes that came with that.
-> I'll change it back to io_schedule() and test it again, just to make
-> sure.
+> Can provide details/logs if you want 'em.
 
-It appears to be the correct change to me - you really are waiting for
-IO resources (otherwise it would not hang with the plug change), so
-doing an inc/dec of iowait around the schedule should be done.
+we've already established that Allen's issue is not due to the driver and caused by 
+interrupts being mal-assigned on his system, possibly a pci subsystem bug. You also have 
+a completely different board (82572EI instead of 82571EB), so I'd like to see the usual 
+debugging info as well as hearing from you whether 2.6.19.any works correctly.
 
-> If that's the right fix, I can push it directly since it won't have any
-> dependencies on your patches.
+On top of that I posted a patch to rc5-mm yesterday that fixes a few significant bugs in 
+the rc5-mm driver, so please apply that patch too before trying, so we're not wasting 
+our time finding old bugs ;)
 
-Perfect!
+Cheers,
 
--- 
-Jens Axboe
-
+Auke

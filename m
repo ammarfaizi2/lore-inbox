@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751006AbXAQWyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751013AbXAQWyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbXAQWyQ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 17:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbXAQWyQ
+	id S1751013AbXAQWyT (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 17:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbXAQWyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 17:54:16 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:57234 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751006AbXAQWyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 17:54:15 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Wed, 17 Jan 2007 17:48:33 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH]  Add new categories of DEPRECATED and OBSOLETE.
-Message-ID: <Pine.LNX.4.64.0701171745480.4740@CPE00045a9c397f-CM001225dbafb6>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Wed, 17 Jan 2007 17:54:19 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:45613 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751013AbXAQWyS (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 17:54:18 -0500
+Message-Id: <200701172254.l0HMsDMK022934@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: "obsolete" versus "deprecated", and a new config option?
+In-Reply-To: Your message of "Wed, 17 Jan 2007 17:04:20 EST."
+             <Pine.LNX.4.64.0701171654480.4298@CPE00045a9c397f-CM001225dbafb6>
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.64.0701171134440.1878@CPE00045a9c397f-CM001225dbafb6> <200701172154.l0HLs3BM021024@turing-police.cc.vt.edu>
+            <Pine.LNX.4.64.0701171654480.4298@CPE00045a9c397f-CM001225dbafb6>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1169074453_4892P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 17 Jan 2007 17:54:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1169074453_4892P
+Content-Type: text/plain; charset=us-ascii
 
-  Next to EXPERIMENTAL, add two new kernel config categories of
-DEPRECATED and OBSOLETE.
+On Wed, 17 Jan 2007 17:04:20 EST, "Robert P. J. Day" said:
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> > How much of the 'OBSOLETE' code should just be labelled 'BROKEN'
+> > instead?
+> 
+> the stuff that's actually "broken."  :-)
 
----
+Right - the question is how much code qualifies as either/both, and which
+we should use when we encounter the random driver that's both obsolete
+*and* broken...
 
-  speak now or forever ... too late.
+--==_Exmh_1169074453_4892P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-diff --git a/init/Kconfig b/init/Kconfig
-index a3f83e2..433dd30 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -29,9 +29,10 @@ config EXPERIMENTAL
- 	  <file:Documentation/BUG-HUNTING>, and
- 	  <file:Documentation/oops-tracing.txt> in the kernel source).
+iD8DBQFFrqkVcC3lWbTT17ARApV5AJ43PHHOTCKjbVc5KFz/bAlWPgnIlwCgodA1
+wpGxFc8tw0ECXtrISV0vjiU=
+=avvj
+-----END PGP SIGNATURE-----
 
--	  This option will also make obsoleted drivers available. These are
--	  drivers that have been replaced by something else, and/or are
--	  scheduled to be removed in a future kernel release.
-+	  At the moment, this option also makes obsolete drivers available,
-+	  but such drivers really should be removed from the EXPERIMENTAL
-+	  category and added to either DEPRECATED or OBSOLETE, depending
-+	  on their status.
-
- 	  Unless you intend to help test and develop a feature or driver that
- 	  falls into this category, or you have a situation that requires
-@@ -40,6 +41,26 @@ config EXPERIMENTAL
- 	  you say Y here, you will be offered the choice of using features or
- 	  drivers that are currently considered to be in the alpha-test phase.
-
-+config DEPRECATED
-+	bool "Prompt for deprecated code/drivers"
-+	default y
-+	---help---
-+	  Code that is tagged as "deprecated" is officially still available
-+	  for use but will typically have already been scheduled for removal
-+	  at some point, so it's in your best interests to start looking for
-+	  an alternative.
-+
-+config OBSOLETE
-+	bool "Prompt for obsolete code/drivers"
-+	default n
-+	---help---
-+	  Code that is tagged as "obsolete" is officially no longer supported
-+	  and shouldn't play a part in any normal build, but those features
-+	  might still be available if you absolutely need access to them.
-+
-+	  You are *strongly* discouraged from continuing to depend on
-+	  obsolete code on an ongoing, long-term basis.
-+
- config BROKEN
- 	bool
-
+--==_Exmh_1169074453_4892P--

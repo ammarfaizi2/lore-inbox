@@ -1,141 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751956AbXARFjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751987AbXARGce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751956AbXARFjT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 00:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751967AbXARFjT
+	id S1751987AbXARGce (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 01:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751984AbXARGce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 00:39:19 -0500
-Received: from web7704.mail.in.yahoo.com ([202.86.4.42]:27563 "HELO
-	web7704.mail.in.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751956AbXARFjS (ORCPT
+	Thu, 18 Jan 2007 01:32:34 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:38379 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751980AbXARGcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 00:39:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=ZjDOVkpzx5WF6qSgTL0VfRgL1plltbfEdSVaA7npaI+7yZYwZqToY8/03lIXVgngBSJSl6x+3TZtK0dfvgrKCI48q1inlmF1SHaFD34bsl5NthSnJ020RNtWTnh4zyChUsZIIklKAMumyY4cdZTnRZvGfnE4AbAWP+TyvAEDN8Y=;
-X-YMail-OSG: uobUTBwVM1mqNBgB7hfqrIMfiYs8EoMJGZRwtZ6rrEP6QrnmrkXf3U.AZyb2iB3IscMV9cZd.poDqylgLqJeExDr9JWXfmWPYsAsvQB3CLIcmya1Ttfq1R9LLwQOR2CH
-Date: Thu, 18 Jan 2007 05:39:15 +0000 (GMT)
-From: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>
-Subject: Re: query related to serial console
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070117203421.6d80be93.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <526190.52452.qm@web7704.mail.in.yahoo.com>
+	Thu, 18 Jan 2007 01:32:33 -0500
+Date: Thu, 18 Jan 2007 01:30:19 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+Cc: Jens Axboe <jens.axboe@oracle.com>,
+       JFS Discussion <jfs-discussion@lists.sourceforge.net>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH: 2.6.20-rc4-mm1] JFS: Avoid deadlock introduced by explicit I/O plugging
+Message-ID: <20070118063019.GA31164@filer.fsl.cs.sunysb.edu>
+References: <1169074549.10560.10.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1169074549.10560.10.camel@kleikamp.austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 17, 2007 at 04:55:49PM -0600, Dave Kleikamp wrote:
+...
+> diff -Nurp linux-2.6.20-rc4-mm1/fs/jfs/jfs_lock.h linux/fs/jfs/jfs_lock.h
+> --- linux-2.6.20-rc4-mm1/fs/jfs/jfs_lock.h	2006-11-29 15:57:37.000000000 -0600
+> +++ linux/fs/jfs/jfs_lock.h	2007-01-17 15:30:19.000000000 -0600
+> @@ -22,6 +22,7 @@
+>  #include <linux/spinlock.h>
+>  #include <linux/mutex.h>
+>  #include <linux/sched.h>
+> +#include <linux/blkdev.h>
+>  
+>  /*
+>   *	jfs_lock.h
+> @@ -42,6 +43,7 @@ do {							\
+>  		if (cond)				\
+>  			break;				\
+>  		unlock_cmd;				\
+> +		blk_replug_current_nested();		\
+>  		schedule();				\
+>  		lock_cmd;				\
+>  	}						\
 
---- Randy Dunlap <randy.dunlap@oracle.com> wrote:
+Is {,un}lock_cmd a macro? ...
 
-> On Thu, 18 Jan 2007 04:10:17 +0000 (GMT) Seetharam
-> Dharmosoth wrote:
-> 
-> (please don't top-post)
-> 
-> 
-> > Generally sysrq will work with serial console
-> right?
-> > 
-> > suppose system is connected through serial port to
-> the
-> > other system, (ie serial console), at this time we
-> can
-> > fire some set of commands through the serial
-> console.
-> > 
-> > the sequesnce is as follows  
-> > do ctrl+]
-> > send brk
-> > then some commands
-> > 
-> > What is my question is con't we pass commands
-> directly
-> > 
-> > to the console (without send brk signal) ?
-> > 
-> > This is a feature in Solris..
-> > 
-> > I am looking in Linux but, uable to find it.
-> > 
-> > can you please help me
-> > 
-> > Thanks
-> > Seetharam
-> 
-> Hi,
-> It's quite possible that I misunderstand your
-> question,
-> but anyway:
-> 
-> Alt-Sysrq-<key> is a route into the kernel sysrq
-> handler instead
-> of a route into the shell that the serial console is
-> connected to,
-> so something needs to signal that condition (like a
-> BREAK).
-> 
-> Or a specialized (serial) console app could know
-> other ways of
-> recognizing sysrq keys.  Or you could use
-> /proc/sysrq-trigger:
-> 	echo b > /proc/sysrq-trigger
-> 
-Hi Randy,
+Jeff.
 
-It's ok.
-Thanks for reply.
-
-I have one doubt in this regard.
-1) once we connected to the serial console we don't
-   want to login into the shell.
-   (without login into the shell we want to fire the
-   sysrq command like b, r m, etc.)
-
- for this I am doing like 
-  grabing the serial console then
-  doing ctrl+]
-  so that getting 
-              telnet> 
-now i want to give command like b, m ,r etc.
-
-but it is not accepting my commands until I do 
-telnet> send brk
-
-can you please explain me why like this behavior ?
-
-Thanks
-Seetharam
-
-  
-
-
-
-> 
-> > --- Erik Mouw <erik@harddisk-recovery.com> wrote:
-> > 
-> > > On Wed, Jan 17, 2007 at 11:26:54AM +0000,
-> Seetharam
-> > > Dharmosoth wrote:
-> > > > Is Linux having 'non-break interface for
-> serial
-> > > > console' ?
-> > > 
-> > > No idea. Could you explain what a 'non-break
-> > > interface for serial
-> > > console' is?
-> 
-> 
-> ---
-> ~Randy
-> 
-
-
-
-		
-__________________________________________________________
-Yahoo! India Answers: Share what you know. Learn something new
-http://in.answers.yahoo.com/
+-- 
+Keyboard not found!
+Press F1 to enter Setup

@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751901AbXARLMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751990AbXARLSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751901AbXARLMs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 06:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbXARLMr
+	id S1751990AbXARLSR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 06:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbXARLSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 06:12:47 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:48896 "EHLO relay.sw.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751901AbXARLMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 06:12:47 -0500
-Date: Thu, 18 Jan 2007 14:19:02 +0300
-From: Alexey Dobriyan <adobriyan@openvz.org>
-To: akpm@osdl.org
-Cc: dev@sw.ru, linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: [PATCH 2/2] Extract and use wake_up_klogd()
-Message-ID: <20070118111902.GB6040@localhost.sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Jan 2007 06:18:17 -0500
+Received: from wr-out-0506.google.com ([64.233.184.233]:32796 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751990AbXARLSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 06:18:16 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=K/82NCxaWwKnBhIYSFevFGCfVGPKvlr9eOGwqasGetcXlzZXMpOyvDuceVm99eFdNZWjvFYglbTQ2GsvSPu5QNsy3y8tkPc8X7wm3XJruGkhtg+NLwWTs4ZnNUnbNzoVvqoMttHWrCTLj/4e0k8kC0DMtUvHHwP0NxiYhdpyKis=
+Message-ID: <fb6b09f20701180318i5f3b2785sd7f3f0931808b849@mail.gmail.com>
+Date: Thu, 18 Jan 2007 06:18:14 -0500
+From: "Sue Alfano" <smalfano@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: uClibc - waitid()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kirill Korotaev <dev@sw.ru>
+Can anyone help with this?
 
-Remove hack with printing space to wake up klogd.
-Use explicit wake_up_klogd().
+We have an application that runs fine on our linux workstations, but
+will not compile to run on a new target.  This application is using
+the WNOWAIT option for the waitid() function.  When the source file is
+compiled for the target using powerpc-uclibc-gcc, it fails because
+WNOWAIT is not defined.  The best that I can tell, waitid() doesn't
+appear to be supported in uClibc (version 0.9.27).  I checked the
+latest version on the uClibc site, but it doesn't appear to have been
+considered for inclusion.  I looked in glibc (versions 2.4, 2.3.5, and
+2.0.6), but could only find emulated/stub/pseudo implementations for
+waitid().  The Linux man page for waitid() states that it's supported
+since the 2.6.9 kernel release.  At this point I'm not sure where the
+waitid() source code and WNOWAIT definition is suppose to be (kernel,
+uClibc, glibc, gcc) or what version of wait.h is actually being used
+(there appears to be many versions floating around on the machine).
+Since I'm way off in the weeds on this I was hoping somebody with more
+Linux experience than me (that would be just about anyone) might be
+able to shed some light on this problem or point me in a more
+constructive direction.
 
-See earlier discussion
-http://groups.google.com/group/fa.linux.kernel/browse_frm/thread/75f496668409f58d/1a8f28983a51e1ff?lnk=st&q=wake_up_klogd+group%3Afa.linux.kernel&rnum=2#1a8f28983a51e1ff
+Do you have any information as to the status of the waitid() support?
+It must have been available at one time since it's running on my linux
+workstation (Linux version 2.6.15-1.2054_FC5smp
+(bhcompile@hs20-bc1-3.build.redhat.com) (gcc version 4.1.0 20060304
+(Red Hat 4.1.0-3)) #1 SMP Tue Mar 14 16:05:46 EST2006).
 
-Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
----
+Was there a reason why it wasn't added to uClibc (other than the size issue)?
 
- include/linux/kernel.h |    1 +
- kernel/printk.c        |   10 ++++++++--
- lib/bust_spinlocks.c   |   10 +---------
- 3 files changed, 10 insertions(+), 11 deletions(-)
+Is there a recommended way to deal with applications that are using
+waitid() with the WNOWAIT option?
 
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -176,6 +176,7 @@ static inline void console_verbose(void)
- }
- 
- extern void bust_spinlocks(int yes);
-+extern void wake_up_klogd(void);
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
- extern int panic_timeout;
- extern int panic_on_oops;
---- a/kernel/printk.c
-+++ b/kernel/printk.c
-@@ -783,6 +783,12 @@ int is_console_locked(void)
- 	return console_locked;
- }
- 
-+void wake_up_klogd(void)
-+{
-+	if (!oops_in_progress && waitqueue_active(&log_wait))
-+		wake_up_interruptible(&log_wait);
-+}
-+
- /**
-  * release_console_sem - unlock the console system
-  *
-@@ -825,8 +831,8 @@ void release_console_sem(void)
- 	console_locked = 0;
- 	up(&console_sem);
- 	spin_unlock_irqrestore(&logbuf_lock, flags);
--	if (wake_klogd && !oops_in_progress && waitqueue_active(&log_wait))
--		wake_up_interruptible(&log_wait);
-+	if (wake_klogd)
-+		wake_up_klogd();
- }
- EXPORT_SYMBOL(release_console_sem);
- 
---- a/lib/bust_spinlocks.c
-+++ b/lib/bust_spinlocks.c
-@@ -19,19 +19,11 @@ void __attribute__((weak)) bust_spinlock
- 	if (yes) {
- 		oops_in_progress = 1;
- 	} else {
--		int loglevel_save = console_loglevel;
- #ifdef CONFIG_VT
- 		unblank_screen();
- #endif
- 		oops_in_progress = 0;
--		/*
--		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk() will give klogd
--		 * and the blanked console a poke.  Hold onto your hats...
--		 */
--		console_loglevel = 15;		/* NMI oopser may have shut the console up */
--		printk(" ");
--		console_loglevel = loglevel_save;
-+		wake_up_klogd();
- 	}
- }
- 
-
+Thanks for any assistance,
+Sue

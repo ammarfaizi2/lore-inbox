@@ -1,124 +1,139 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752077AbXARRdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752076AbXARRlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752077AbXARRdp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 12:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752071AbXARRdp
+	id S1752076AbXARRlK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 12:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752078AbXARRlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 12:33:45 -0500
-Received: from amsfep20-int.chello.nl ([62.179.120.15]:34875 "EHLO
-	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752064AbXARRdo (ORCPT
+	Thu, 18 Jan 2007 12:41:10 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:45658 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752076AbXARRlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 12:33:44 -0500
-Subject: Re: Possible ways of dealing with OOM conditions.
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <20070118155003.GA6719@2ka.mipt.ru>
-References: <20070116132503.GA23144@2ka.mipt.ru>
-	 <1168955274.22935.47.camel@twins> <20070116153315.GB710@2ka.mipt.ru>
-	 <1168963695.22935.78.camel@twins> <20070117045426.GA20921@2ka.mipt.ru>
-	 <1169024848.22935.109.camel@twins> <20070118104144.GA20925@2ka.mipt.ru>
-	 <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru>
-	 <1169133052.6197.96.camel@twins>  <20070118155003.GA6719@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Thu, 18 Jan 2007 18:31:53 +0100
-Message-Id: <1169141513.6197.115.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Jan 2007 12:41:09 -0500
+X-Originating-Ip: 74.109.98.130
+Date: Thu, 18 Jan 2007 12:35:18 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH] extend the set of "__attribute__" shortcut macros
+Message-ID: <Pine.LNX.4.64.0701181222200.2750@CPE00045a9c397f-CM001225dbafb6>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 18:50 +0300, Evgeniy Polyakov wrote:
-> On Thu, Jan 18, 2007 at 04:10:52PM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > On Thu, 2007-01-18 at 16:58 +0300, Evgeniy Polyakov wrote:
-> > 
-> > > Network is special in this regard, since it only has one allocation path
-> > > (actually it has one cache for skb, and usual kmalloc, but they are
-> > > called from only two functions).
-> > > 
-> > > So it would become 
-> > > ptr = network_alloc();
-> > > and network_alloc() would be usual kmalloc or call for own allocator in
-> > > case of deadlock.
-> > 
-> > There is more to networking that skbs only, what about route cache,
-> > there is quite a lot of allocs in this fib_* stuff, IGMP etc...
-> 
-> skbs are the most extensively used path.
-> Actually the same is applied to route - dst_entries and rtable are
-> allocated through own wrappers.
 
-Still, edit all places and perhaps forget one and make sure all new code
-doesn't forget about it, or pick a solution that covers everything.
+  Extend the set of "__attribute__" shortcut macros, and remove
+identical (and now superfluous) definitions from a couple of source
+files.
 
-> With power-of-two allocation SLAB wastes 500 bytes for each 1500 MTU
-> packet (roughly), it is actaly one ACK packet - and I hear it from
-> person who develops a system, which is aimed to guarantee ACK
-> allocation in OOM :)
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-I need full data traffic during OOM, not just a single ACK.
+---
 
-> SLAB overhead is _very_ expensive for network - what if jumbo frame is
-> used? It becomes incredible in that case, although modern NICs allows
-> scatter-gather, which is aimed to fix the problem.
+  based on a page at robert love's blog:
 
-Jumbo frames are fine if the hardware can do SG-DMA..
+	http://rlove.org/log/2005102601
 
-> Cache misses for small packet flow due to the fact, that the same data
-> is allocated and freed  and accessed on different CPUs will become an
-> issue soon, not right now, since two-four core CPUs are not yet to be
-> very popular and price for the cache miss is not _that_ high.
+extend the set of shortcut macros defined in compiler-gcc.h with the
+following:
 
-SGI does networking too, right?
+#define __packed                       __attribute__((packed))
+#define __weak                         __attribute__((weak))
+#define __naked                        __attribute__((naked))
+#define __noreturn                     __attribute__((noreturn))
+#define __pure                         __attribute__((pure))
+#define __aligned(x)                   __attribute__((aligned(x)))
+#define __printf(a,b)                  __attribute__((format(printf,a,b)))
 
-> > > > > performs self-defragmentation of the memeory, 
-> > > > 
-> > > > Does it move memory about? 
-> > > 
-> > > It works in a page, not as pages - when neighbour regions are freed,
-> > > they are combined into single one with bigger size
-> > 
-> > Yeah, that is not defragmentation, defragmentation is moving active
-> > regions about to create contiguous free space. What you do is free space
-> > coalescence.
-> 
-> That is wrong definition just because no one developed different system.
-> Defragmentation is a result of broken system.
-> 
-> Existing design _does_not_ allow to have the situation when whole page
-> belongs to the same cache after it was actively used, the same is
-> applied to the situation when several pages, which create contiguous
-> region, are used by different users, so people start develop VM tricks
-> to move pages around so they would be placed near in address space.
-> 
-> Do not fix the result, fix the reason.
+  once these are in place, it's up to subsystem maintainers to decide
+if they want to take advantage of them.  there is already a strong
+precedent for using shortcuts like this in the source tree.
 
-*plonk* 30+yrs of research ignored.
+  the ones that might give people pause are "__aligned" and
+"__printf", but shortcuts for both of those are already in use, and in
+some ways very confusingly.  note the two very different definitions
+for a macro named "ALIGNED":
 
-> > > The whole pool of pages becomes reserve, since no one (and mainly VFS)
-> > > can consume that reserve.
-> > 
-> > Ah, but there you violate my requirement, any network allocation can
-> > claim the last bit of memory. The whole idea was that the reserve is
-> > explicitly managed.
-> > 
-> > It not only needs protection from other users but also from itself.
-> 
-> Specifying some users as good and others as bad generally tends to very
-> bad behaviour. Your appwoach only covers some users, mine does not
-> differentiate between users,
+  drivers/net/sgiseeq.c:#define ALIGNED(x) ((((unsigned long)(x)) + 0xf) & ~(0xf))
+  drivers/scsi/ultrastor.c:#define ALIGNED(x) __attribute__((aligned(x)))
 
-The kernel is special, right? It has priority over whatever user-land
-does.
+also:
 
->  but prevents system from such situation at all.
+  include/acpi/platform/acgcc.h:
+    #define ACPI_PRINTF_LIKE(c) __attribute__ ((__format__ (__printf__, c, c+1)))
 
-I'm not seeing that, with your approach nobody stops the kernel from
-filling up the memory with user-space network traffic.
+given the precedent, then, it seems logical to at least standardize on
+a consistent set of these macros.
 
-swapping is not some random user process, its a fundamental kernel task,
-if this fails the machine is history.
 
+ arch/mips/mm/cache.c         |    2 --
+ fs/hfs/hfs.h                 |    2 --
+ fs/hfsplus/hfsplus_raw.h     |    2 --
+ include/linux/compiler-gcc.h |    7 +++++++
+ 4 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/arch/mips/mm/cache.c b/arch/mips/mm/cache.c
+index 1f954a2..31819c5 100644
+--- a/arch/mips/mm/cache.c
++++ b/arch/mips/mm/cache.c
+@@ -107,8 +107,6 @@ void __update_cache(struct vm_area_struct *vma, unsigned long address,
+ 	}
+ }
+
+-#define __weak __attribute__((weak))
+-
+ static char cache_panic[] __initdata = "Yeee, unsupported cache architecture.";
+
+ void __init cpu_cache_init(void)
+diff --git a/fs/hfs/hfs.h b/fs/hfs/hfs.h
+index 88099ab..1445e3a 100644
+--- a/fs/hfs/hfs.h
++++ b/fs/hfs/hfs.h
+@@ -83,8 +83,6 @@
+
+ /*======== HFS structures as they appear on the disk ========*/
+
+-#define __packed __attribute__ ((packed))
+-
+ /* Pascal-style string of up to 31 characters */
+ struct hfs_name {
+ 	u8 len;
+diff --git a/fs/hfsplus/hfsplus_raw.h b/fs/hfsplus/hfsplus_raw.h
+index 4920553..fe99fe8 100644
+--- a/fs/hfsplus/hfsplus_raw.h
++++ b/fs/hfsplus/hfsplus_raw.h
+@@ -15,8 +15,6 @@
+
+ #include <linux/types.h>
+
+-#define __packed __attribute__ ((packed))
+-
+ /* Some constants */
+ #define HFSPLUS_SECTOR_SIZE        512
+ #define HFSPLUS_SECTOR_SHIFT         9
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index 6e1c44a..9008eab 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -27,6 +27,13 @@
+ #define __inline__	__inline__	__attribute__((always_inline))
+ #define __inline	__inline	__attribute__((always_inline))
+ #define __deprecated			__attribute__((deprecated))
++#define __packed			__attribute__((packed))
++#define __weak				__attribute__((weak))
++#define __naked				__attribute__((naked))
++#define __noreturn			__attribute__((noreturn))
++#define __pure				__attribute__((pure))
++#define __aligned(x)			__attribute__((aligned(x)))
++#define __printf(a,b)			__attribute__((format(printf,a,b)))
+ #define  noinline			__attribute__((noinline))
+ #define __attribute_pure__		__attribute__((pure))
+ #define __attribute_const__		__attribute__((__const__))

@@ -1,136 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932207AbXARMUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932247AbXARM1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbXARMUh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 07:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbXARMUh
+	id S932247AbXARM1l (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 07:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbXARM1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 07:20:37 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:16038 "EHLO
-	amsfep18-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932207AbXARMUg (ORCPT
+	Thu, 18 Jan 2007 07:27:41 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:60259 "EHLO
+	pfepb.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932247AbXARM1k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 07:20:36 -0500
-Subject: Re: [PATCH 9/9] net: vm deadlock avoidance core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <20070118104144.GA20925@2ka.mipt.ru>
-References: <20070116094557.494892000@taijtu.programming.kicks-ass.net>
-	 <20070116101816.115266000@taijtu.programming.kicks-ass.net>
-	 <20070116132503.GA23144@2ka.mipt.ru> <1168955274.22935.47.camel@twins>
-	 <20070116153315.GB710@2ka.mipt.ru> <1168963695.22935.78.camel@twins>
-	 <20070117045426.GA20921@2ka.mipt.ru> <1169024848.22935.109.camel@twins>
-	 <20070118104144.GA20925@2ka.mipt.ru>
+	Thu, 18 Jan 2007 07:27:40 -0500
+Subject: Re: PROBLEM: writting files > 100 MB in FAT32
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: condor@stz-bg.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <48247.82.103.71.18.1169112129.squirrel@mail.stz-bg.com>
+References: <48247.82.103.71.18.1169112129.squirrel@mail.stz-bg.com>
 Content-Type: text/plain
-Date: Thu, 18 Jan 2007 13:18:44 +0100
-Message-Id: <1169122724.6197.50.camel@twins>
+Date: Thu, 18 Jan 2007 13:27:16 +0100
+Message-Id: <1169123236.12968.6.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 13:41 +0300, Evgeniy Polyakov wrote:
-
-> > > What about 'level-7' ack as you described in introduction?
-> > 
-> > Take NFS, it does full data traffic in kernel.
+On Thu, 2007-01-18 at 11:22 +0200, Condor wrote:
+> Hello,
 > 
-> NFS case is exactly the situation, when you only need to generate an ACK.
+> [1.] Files if > 100 MB saving in USB memory stick 4 GB with FAT32. While
+> saving all files is broken.
+im sorry, i do not understand this.
 
-No it is not, it needs the full RPC response.
+you are saying that if you copy files larger than 100mb into drive, all
+files die?
 
-> > > You artificially limit system to just add a reserve to generate one ack.
-> > > For that purpose you do not need to have all those flags - just reseve
-> > > some data in network core and use it when system is in OOM (or reclaim)
-> > > for critical data pathes.
-> > 
-> > How would that end up being different, I would have to replace all
-> > allocations done in the full network processing path.
-> > 
-> > This seems a much less invasive method, all the (allocation) code can
-> > stay the way it is and use the normal allocation functions.
+> [2.] I have USB memory stick A-DATA 4 GB with FAT32. When i trying to save
+> files in my USB and files is > of 100 MB, all files that i save is broken.
+> I put my USB in my laptop and mount it as: mount /dev/sda1 /mnt/usb-win
+> While i mount it, i got in my local disk and copy one file that is 520 MB.
+> The file is copying very slow (10 min). and after i see again my console i
+> wait light to my usb is off and i unmount it as: umount /mnt/usb-win
+> I get my USB stick and when i return to home i trying to copy file from my
+> USB to my windows and linux. Both OS unable to read file.
+> After some tryings i format my USB in FAT16 and now every thing is work
+> fine. I copy files to my USB and back to my hard drive and all files work
+> fine.
 
-> And acutally we are starting to talk about different approach - having
-> separated allocator for network, which will be turned on on OOM (reclaim
-> or at any other time).
+okay, i think thats what you are saying, could you please try to run
+dosfsck on it so we can see 100% whats wrong?
 
-I think we might be, I'm more talking about requirements on the
-allocator, while you seem to talk about implementations.
+also, try to do this:
+mount, copy, run command 'sync', unmount, pull out, and see if it works.
 
-Replacing the allocator, or splitting it in two based on a condition are
-all fine as long as they observe the requirements.
-
-The requirement I add is that there is a reserve nobody touches unless
-given express permission.
-
-You could implement this by modifying each reachable allocator call site
-and stick a branch in and use an alternate allocator when the normal
-route fails and we do have permission; much like:
-
-   foo = kmalloc(size, gfp_mask);
-+  if (!foo && special)
-+    foo = my_alloc(size)
-
-And earlier versions of this work did something like that. But it
-litters the code quite badly and its quite easy to miss spots. There can
-be quite a few allocations in processing network data.
-
-Hence my work on integrating this into the regular memory allocators.
-
-FYI; 'special' evaluates to something like:
-  !(gfp_mask & __GFP_NOMEMALLOC) &&
-  ((gfp_mask & __GFP_EMERGENCY) || 
-   (!in_irq() && (current->flags & PF_MEMALLOC)))
+finally, one more question. you said it does not work when you take it
+home, can you try this: mount, copy, unmount, mount, check to see if
+file works.
 
 
->  If you do not mind, I would likw to refresh a
-> discussion about network tree allocator,
+> [3.] lsmod
+> # lsmod
+<snip>
+> nvidia               4709172  22
+ohh, tainted ;P naughty. Though i dont think this affects vfat.
+<snip>
 
->  which utilizes own pool of
-> pages, 
-
-very high order pages, no?
-
-This means that you have to either allocate at boot time and cannot
-resize/add pools; which means you waste all that memory if the network
-load never comes near using the reserved amount.
-
-Or, you get into all the same trouble the hugepages folks are trying so
-very hard to solve.
-
-> performs self-defragmentation of the memeory, 
-
-Does it move memory about? 
-
-All it does is try to avoid fragmentation by policy - a problem
-impossible to solve in general; but can achieve good results in view of
-practical limitations on program behaviour.
-
-Does your policy work for the given workload? we'll see.
-
-Also, on what level, each level has both internal and external
-fragmentation. I can argue that having large immovable objects in memory
-adds to the fragmentation issues on the page-allocator level.
-
-> is very SMP
-> friendly in that regard that it is per-cpu like slab and never free
-> objects on different CPUs, so they always stay in the same cache.
-
-This makes it very hard to guarantee a reserve limit. (Not impossible,
-just more difficult)
-
-> Among other goodies it allows to have full sending/receiving zero-copy.
-
-That won't ever work unless you have page aligned objects, otherwise you
-cannot map them into user-space. Which seems to be at odds with your
-tight packing/reduce internal fragmentation goals.
-
-Zero-copy entails mapping the page the hardware writes the packet in
-into user-space, right?
-
-Since its impossible to predict to whoem the next packet is addressed
-the packets must be written (by hardware) to different pages.
-
+> Regards,
+> Condor
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

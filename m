@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751917AbXARHjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750860AbXARHrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751917AbXARHjr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 02:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbXARHjr
+	id S1750860AbXARHrA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 02:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbXARHq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 02:39:47 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53279 "EHLO mx2.mail.elte.hu"
+	Thu, 18 Jan 2007 02:46:59 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51151 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751917AbXARHjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 02:39:46 -0500
-Date: Thu, 18 Jan 2007 08:38:16 +0100
+	id S1750860AbXARHq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 02:46:59 -0500
+Date: Thu, 18 Jan 2007 08:45:56 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: tglx@linutronix.de, khilman@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] futex null pointer timeout
-Message-ID: <20070118073816.GA28486@elte.hu>
-References: <20070118002503.418478415@mvista.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Pierre Peiffer <pierre.peiffer@bull.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>
+Subject: Re: [PATCH 2.6.20-rc5 4/4] sys_futex64 : allows 64bit futexes
+Message-ID: <20070118074556.GB29128@elte.hu>
+References: <45ADDF60.5080704@bull.net> <45ADE6B5.8050402@bull.net> <20070118001758.GB17257@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070118002503.418478415@mvista.com>
+In-Reply-To: <20070118001758.GB17257@infradead.org>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-VirusStatus: clean
 X-ELTE-SpamScore: -4.3
@@ -34,21 +37,48 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-> This fix is mostly from Thomas ..
+> On Wed, Jan 17, 2007 at 10:04:53AM +0100, Pierre Peiffer wrote:
+> > Hi,
+> > 
+> > This latest patch is an adaptation of the sys_futex64 syscall 
+> > provided in -rt patch (originally written by Ingo). It allows the 
+> > use of 64bit futex.
 > 
-> The problem was that a futex can be called with a zero timeout (0 
-> seconds, 0 nanoseconds) and it's a valid expired timeout. However, the 
-> current futex in -rt assumes a zero timeout is an infinite timeout.
-> 
-> Kevin Hilman found this using LTP's nptl01 test case which would soft 
-> hang occasionally.
-> 
-> The patch reworks do_futex, and futex_wait* so a NULL pointer in the 
-> timeout position is infinite, and anything else is evaluated as a real 
-> timeout.
+> Big NACK here, we don't need yet another goddamn multiplexer.  Please 
+> make this individual syscalls for the actual operations.
 
-thanks, applied.
+actually, we have a big multiplexer there already, so it's only 
+symmetric. Nothing is served by doing it half-assed. I raised the issue 
+of the multiplexer back when the first futex API was merged (years ago), 
+and it was rejected. Now whether you like it or not we've got to live 
+with that decision. You are certainly free to introduce a patchset with 
+a completely new set of syscall vectors to demultiplex all futex APIs, 
+but to just start a half-done demultiplexing makes zero sense.
+
+> > +	if (!ret) {
+> > +		switch (cmp) {
+> > +		case FUTEX_OP_CMP_EQ: ret = (oldval == cmparg); break;
+> > +		case FUTEX_OP_CMP_NE: ret = (oldval != cmparg); break;
+> 
+> Please indent this properly, the ret = .. and reak need to go onto a 
+> line on it's own.
+
+this is the standard (already upstream) arithmetics style there for the 
+futex cmp ops, and it expresses things in a compact way. See 
+include/asm-i386/futex.h:
+
+                switch (cmp) {
+                case FUTEX_OP_CMP_EQ: ret = (oldval == cmparg); break;
+                case FUTEX_OP_CMP_NE: ret = (oldval != cmparg); break;
+                case FUTEX_OP_CMP_LT: ret = (oldval < cmparg); break;
+                case FUTEX_OP_CMP_GE: ret = (oldval >= cmparg); break;
+                case FUTEX_OP_CMP_LE: ret = (oldval <= cmparg); break;
+                case FUTEX_OP_CMP_GT: ret = (oldval > cmparg); break;
+                default: ret = -ENOSYS;
+                }
+
+Pierre correctly matched the existing style.
 
 	Ingo

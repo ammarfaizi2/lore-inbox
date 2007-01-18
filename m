@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932185AbXARMpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932344AbXARNER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbXARMpi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 07:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbXARMpi
+	id S932344AbXARNER (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 08:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbXARNEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 07:45:38 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:28393 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932185AbXARMpi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 07:45:38 -0500
-Subject: Re: [PATCH] futex null pointer timeout
-From: Daniel Walker <dwalker@mvista.com>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, khilman@mvista.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45AF6790.8010000@bull.net>
-References: <20070118002503.418478415@mvista.com>
-	 <20070118073816.GA28486@elte.hu>  <45AF6790.8010000@bull.net>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 18 Jan 2007 04:44:26 -0800
-Message-Id: <1169124266.20305.18.camel@imap.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
-Content-Transfer-Encoding: 8bit
+	Thu, 18 Jan 2007 08:04:16 -0500
+Received: from mx2.suse.de ([195.135.220.15]:54867 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932270AbXARNEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 08:04:16 -0500
+Message-Id: <20070118130028.492492000@strauss.suse.de>
+References: <20070118125849.441998000@strauss.suse.de>
+User-Agent: quilt/0.46-14
+Date: Thu, 18 Jan 2007 13:58:51 +0100
+From: Bernhard Walle <bwalle@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: [patch 02/26] Dynamic kernel command-line - alpha
+Content-Disposition: inline; filename=dynamic-kernel-command-line-alpha.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 13:26 +0100, Pierre Peiffer wrote:
-> Ingo Molnar a écrit :
-> > * Daniel Walker <dwalker@mvista.com> wrote:
-> > 
-> [...]
-> >> The patch reworks do_futex, and futex_wait* so a NULL pointer in the 
-> >> timeout position is infinite, and anything else is evaluated as a real 
-> >> timeout.
-> > 
-> > thanks, applied.
-> > 
-> 
-> On top of this patch, you will need the following patch: futex_lock_pi is also 
-> involved.
-> 
+1. Rename saved_command_line into boot_command_line.
+2. Set command_line as __initdata.
 
-True.
+Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
-Daniel
+---
+ arch/alpha/kernel/setup.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+Index: linux-2.6.20-rc4-mm1/arch/alpha/kernel/setup.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/arch/alpha/kernel/setup.c
++++ linux-2.6.20-rc4-mm1/arch/alpha/kernel/setup.c
+@@ -122,7 +122,7 @@ static void get_sysnames(unsigned long, 
+ 			 char **, char **);
+ static void determine_cpu_caches (unsigned int);
+ 
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
+ 
+ /*
+  * The format of "screen_info" is strange, and due to early
+@@ -547,7 +547,7 @@ setup_arch(char **cmdline_p)
+ 	} else {
+ 		strlcpy(command_line, COMMAND_LINE, sizeof command_line);
+ 	}
+-	strcpy(saved_command_line, command_line);
++	strcpy(boot_command_line, command_line);
+ 	*cmdline_p = command_line;
+ 
+ 	/* 
+@@ -589,7 +589,7 @@ setup_arch(char **cmdline_p)
+ 	}
+ 
+ 	/* Replace the command line, now that we've killed it with strsep.  */
+-	strcpy(command_line, saved_command_line);
++	strcpy(command_line, boot_command_line);
+ 
+ 	/* If we want SRM console printk echoing early, do it now. */
+ 	if (alpha_using_srm && srmcons_output) {
+
+-- 

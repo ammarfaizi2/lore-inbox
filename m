@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752026AbXAROLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752035AbXAROOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752026AbXAROLG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752029AbXAROLG
+	id S1752035AbXAROOM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752036AbXAROOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:11:06 -0500
-Received: from gateway1.seskion.de ([62.8.128.82]:20649 "EHLO
-	gateway1.seskion.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752026AbXAROLF (ORCPT
+	Thu, 18 Jan 2007 09:14:12 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2732 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752035AbXAROOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:11:05 -0500
-X-Greylist: delayed 1606 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Jan 2007 09:11:04 EST
-Message-ID: <45AF79AE.1060102@seskion.de>
-Date: Thu, 18 Jan 2007 14:44:14 +0100
-From: Juergen Pfeiffer <j.pfeiffer@seskion.de>
-Organization: SesKion Softwareentwicklung und System Konzeption GmbH
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: long disable of Softirqs in br_forward_delay_timer_expired()
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Jan 2007 09:14:11 -0500
+Date: Thu, 18 Jan 2007 14:14:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bernhard Walle <bwalle@suse.de>
+Cc: linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: [patch 03/26] Dynamic kernel command-line - arm
+Message-ID: <20070118141359.GB31418@flint.arm.linux.org.uk>
+Mail-Followup-To: Bernhard Walle <bwalle@suse.de>,
+	linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
+References: <20070118125849.441998000@strauss.suse.de> <20070118130028.719472000@strauss.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070118130028.719472000@strauss.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Jan 18, 2007 at 01:58:52PM +0100, Bernhard Walle wrote:
+> 2. Set command_line as __initdata.
 
-I had problems in my implementation of Profibus-protocol, because my 
-FDL-State machine is implemented in tasklets and
-sometimes there were situations, where Soft-Irqs were disabled for 
-20-40mS (Coldfire 5485 / 96MHz).
-After inserting some testpoints in kernels source, doing dump_stack(), 
-when the jiffie-time get longer then 20mS,
-i detected the place of the long Soft-Irq disable in function
+You can't.
 
-static void br_forward_delay_timer_expired(..)
-inside file "net/bridge/br_stp_timer.c"
+> -static char command_line[COMMAND_LINE_SIZE];
+> +static char __initdata command_line[COMMAND_LINE_SIZE];
 
-It does a
-spin_lock_bh(..);
-... some functionality;
-spin_unlock_bh(..);
+Uninitialised data is placed in the BSS.  Adding __initdata to BSS
+data causes grief.
 
-Does anybody know, why the functionality inbetween lock/unlock takes so long
-(2-4 jiffies @ HZ=100)
-
-
-Thank You
-
-Juergen Pfeiffer,
-Seskion GmbH
-Karlsruher Str. 11/1
-70771 Leinfelden-Echterdingen
-Germany
-
-j.pfeiffer@seskion.de
-
-www.seskion.de
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

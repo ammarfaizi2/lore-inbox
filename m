@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751089AbXARKPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751854AbXARKT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbXARKPo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 05:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbXARKPo
+	id S1751854AbXARKT5 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 05:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbXARKT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 05:15:44 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:11888 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751089AbXARKPn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 05:15:43 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eMLQ8wOjd+y+xEvHM0tmjLUyqFw2eBImHxZONwt4mS/57VzcW3O5Rb8Im6f5ufwMf39MiqrYq75thajDwmHvnhy47w7kMevLlRHu5tKvsIsJUbvSrprvyHwA8iVsoNOYi5ZsWktU3smpcgpDZlACV9FQC/38W8Lab+sMCvtAGTk=
-Message-ID: <8355959a0701180215s7824cea5m20a5d7b95d80c0e@mail.gmail.com>
-Date: Thu, 18 Jan 2007 15:45:41 +0530
-From: "Sunil Naidu" <akula2.shark@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Realtime-preemption for 2.6.20-rc5 ?
-Cc: linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 18 Jan 2007 05:19:56 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:58516 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751331AbXARKT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 05:19:56 -0500
+Date: Thu, 18 Jan 2007 11:18:01 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Introduce two new maturlty levels:  DEPRECATED and
+ OBSOLETE.
+In-Reply-To: <Pine.LNX.4.64.0701171706330.4353@CPE00045a9c397f-CM001225dbafb6>
+Message-ID: <Pine.LNX.4.61.0701181116250.19740@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0701171616140.4060@CPE00045a9c397f-CM001225dbafb6>
+ <45AE9B85.7090608@zytor.com> <Pine.LNX.4.64.0701171706330.4353@CPE00045a9c397f-CM001225dbafb6>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
 
-I would like to try with patch-2.6.20-rc5-rt7 for an experiment to
-measure the latency.
-Is there any documentation or help which talks about patching, issues,
-and latency benchmarks?
+>On Wed, 17 Jan 2007, H. Peter Anvin wrote:
+>
+>> DEPRECATED should presumably default to Y; OBSOLETE to n.
+>
+>crap, now i see what you were getting at -- i forgot to assign
+>defaults.  i'll resubmit, but i'll wait for anyone to suggest any
+>better help content if they have a better idea.
 
-~Akula2
+Well... _maybe_ documentation/scheduled-removal.txt (or whatever it is 
+called) could now be merged into the kconfig options and help text. Or 
+maybe not, to keep it easy to track deprecated code.
+
+Well, even if scheduled-removal.txt stays, you could submit a 2nd patch 
+putting OBSOLETE and DEPRECATED tags to the Kconfig options listed in 
+scheduled-removal.txt, so that kconfig+sched are in sync.
+
+
+	-`J'
+-- 

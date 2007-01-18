@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932462AbXARQ00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932433AbXARQg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbXARQ00 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 11:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbXARQ00
+	id S932433AbXARQg0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 11:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbXARQg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 11:26:26 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:32775 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932462AbXARQ0Z (ORCPT
+	Thu, 18 Jan 2007 11:36:26 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:36877 "HELO
+	smtp106.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932433AbXARQgZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 11:26:25 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Thu, 18 Jan 2007 11:20:36 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH]  Centralize the macro definition of "__packed".
-In-Reply-To: <Pine.LNX.4.64.0701180959470.19826@CPE00045a9c397f-CM001225dbafb6>
-Message-ID: <Pine.LNX.4.64.0701181120050.21236@CPE00045a9c397f-CM001225dbafb6>
-References: <Pine.LNX.4.64.0701180959470.19826@CPE00045a9c397f-CM001225dbafb6>
+	Thu, 18 Jan 2007 11:36:25 -0500
+X-YMail-OSG: Y4bpEWoVM1mFW0hEPsT010LUkqYK33_RjumMCDa14CN9CkAY.HBdO.5whDeJ1n08o_9lAYx2RnMxJKCZzALUQh5rmkVvYyuMAOoejb1riYDPZtQeKaIRmt4NvONpx5h50JRC0rtWcpdyoA4-
+Date: Thu, 18 Jan 2007 08:36:21 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: andersen@codepoet.org, Andi Kleen <ak@suse.de>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
+       linux-nforce-bugs@nvidia.com
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
+Message-ID: <20070118163621.GA27305@tuatara.stupidest.org>
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de> <20070118110028.GA22407@codepoet.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070118110028.GA22407@codepoet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2007, Robert P. J. Day wrote:
+On Thu, Jan 18, 2007 at 04:00:28AM -0700, Erik Andersen wrote:
 
->   Centralize the attribute macro definition of "__packed" so no
-> subsystem has to do that explicitly.
+> I just tried again and while using iommu=soft does avoid the
+> corruption problem, as with previous kernels with 2.6.20-rc5 using
+> iommu=soft still makes my pcHDTV HD5500 DVB cards not work.
 
-ummm ... might want to ignore this submission, i want to do some
-tweaking first.  sorry.
+i would file a separate bug about that, presumably it won't work in
+intel based machines too if the driver has dma api bugs
 
-rday

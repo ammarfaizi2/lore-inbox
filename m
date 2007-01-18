@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932754AbXARX1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932758AbXARXlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932754AbXARX1f (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 18:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbXARX1f
+	id S932758AbXARXlP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 18:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbXARXlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 18:27:35 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:45590 "EHLO alpha.polcom.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932754AbXARX1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 18:27:34 -0500
-Date: Fri, 19 Jan 2007 00:27:17 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, aia21@cam.ac.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: NTFS
-In-Reply-To: <20070118145439.b8d84d6b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.63.0701190022540.17626@alpha.polcom.net>
-References: <1169115951.5408.10.camel@imp.csi.cam.ac.uk>
- <20070118222243.GA14047@infradead.org> <20070118143506.4d007aad.akpm@osdl.org>
- <20070118223813.GA6589@infradead.org> <20070118145439.b8d84d6b.akpm@osdl.org>
+	Thu, 18 Jan 2007 18:41:15 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:58660 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932758AbXARXlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 18:41:15 -0500
+Message-ID: <45B00588.3010207@zytor.com>
+Date: Thu, 18 Jan 2007 15:40:56 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070102)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Andi Kleen <ak@suse.de>
+CC: Alexey Dobriyan <adobriyan@openvz.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
+       devel@vger.kernel.org
+Subject: Re: [PATCH] rdmsr_on_cpu, wrmsr_on_cpu
+References: <20070118144527.GA6021@localhost.sw.ru> <45AFF12D.2070901@zytor.com> <200701191021.16706.ak@suse.de>
+In-Reply-To: <200701191021.16706.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2007, Andrew Morton wrote:
->> On Thu, 18 Jan 2007 22:38:13 +0000 Christoph Hellwig <hch@infradead.org> wrote:
->> On Thu, Jan 18, 2007 at 02:35:06PM -0800, Andrew Morton wrote:
->>>> Cool.  That means ->put_inode is gone in -mm.  Andrew, what are the
->>>> plans for sending the patches to make the ext2 preallocation work
->>>> like ext3 to Linus?
->>>
->>> Cautious.  I'm not sure that we ever want to merge them, really - ext2 is
->>> more a reference filesystem than a real one nowadays, and making it more
->>> complex detracts from that.
->>
->> The again while the old preallocation code might be simpler it's also utterly
->> braindead and we need to make sure no one is going to copy this :)
->
-> Good point ;)
+Andi Kleen wrote:
+>> HOWEVER -- and this is where things get gnarly -- the CPUID and MSR
+>> drivers would really like to be able to execute CPUID, WRMSR and RDMSR
+>> with the entire GPR register set (except the stack pointer) pre-set and
+>> post-captured, since it's highly likely that there are going to be
+>> nonstandard MSRs and CPUID levels (already witness Intel breaking the
+>> CPUID architecture by introducing %ecx dependencies.)
+> 
+> That looks like such a specialized requirement that I would suggest 
+> you keep that in the drivers. The interface for most users would be just
+> too ugly
+> 
 
-Are you refering to that particular implementation in ext2 or to the 
-whole method od doing it implemented currently in ext2?
+It would, but rather than having the paravirtualization interfaces 
+duplicate out of control, we could/should implement the less generic 
+features in terms of the more generic, above the pvz layer.
 
-When can I read about it (description of the new method/implementation in 
-ext3 and why is it better) some more?
-
-
-Thanks,
-
-Grzegorz Kulewski
-
+	-hpa

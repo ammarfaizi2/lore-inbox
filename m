@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932160AbXARLta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932163AbXARLvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbXARLta (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 06:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbXARLta
+	id S932163AbXARLvI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 06:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbXARLvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 06:49:30 -0500
-Received: from mail.syneticon.net ([213.239.212.131]:37398 "EHLO
-	mail2.syneticon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932197AbXARLt3 (ORCPT
+	Thu, 18 Jan 2007 06:51:08 -0500
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:34170 "EHLO
+	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932163AbXARLvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 06:49:29 -0500
-Message-ID: <45AF5E8E.9020607@wpkg.org>
-Date: Thu, 18 Jan 2007 12:48:30 +0100
-From: Tomasz Chmielewski <mangoo@wpkg.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061110 Mandriva/1.5.0.8-1mdv2007.1 (2007.1) Thunderbird/1.5.0.8 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
-References: <45AE1D65.4010804@wpkg.org> <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr> <45AE2E25.50309@wpkg.org> <45AE8818.1050803@zytor.com> <45AF4CF9.1070801@wpkg.org> <45AF502F.9010009@zytor.com>
-In-Reply-To: <45AF502F.9010009@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Jan 2007 06:51:07 -0500
+Date: Thu, 18 Jan 2007 12:51:05 +0100
+From: Andreas Mohr <andim2@users.sourceforge.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: andi@lisas.de, davej@codemonkey.org.uk,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: intel-agp PM experiences (was: 2.6.20-rc5: usb mouse breaks suspend to ram)
+Message-ID: <20070118115105.GA28233@rhlx01.hs-esslingen.de>
+Reply-To: andi@lisas.de
+References: <20070116135727.GA2831@elf.ucw.cz> <d120d5000701160608t73db4405n5d157db43899776a@mail.gmail.com> <20070116142432.GA6171@elf.ucw.cz> <d120d5000701161325h112a9299w944763b7f1032a61@mail.gmail.com> <20070117004012.GA11140@rhlx01.hs-esslingen.de> <20070117005755.GB6270@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070117005755.GB6270@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.2i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Tomasz Chmielewski wrote:
->> H. Peter Anvin wrote:
->>> Tomasz Chmielewski wrote:
->>>>
->>>> All right.
->>>> I see that initramfs is attached to the kernel itself.
->>>>
->>>> So it leaves me only a question: will I fit all tools into 300 kB 
->>>> (considering I'll use uClibc and busybox)?
->>>>
->>>
->>> You don't need to use busybox and have a bunch of tools.
->>>
->>> The klibc distribution comes with "kinit", which does the equivalent 
->>> to the kernel root-mounting code; it's in the tens of kilobytes, at 
->>> least on x86.  If you're using ARM, you can compile it as Thumb.
->>
->> Hmm, I'm having problems compiling klibc-1.4 on ARM (using gcc-4.1.1):
->>
+Hi,
+
+On Wed, Jan 17, 2007 at 01:57:55AM +0100, Pavel Machek wrote:
+> > Especially the PCI video_state trick finally got me a working resume on
+> > 2.6.19-ck2 r128 Rage Mobility M4 AGP *WITH*(!) fully enabled and working
+> > (and keeping working!) DRI (3D).
 > 
-> Could you send me your kernel .config, as well as what version of the 
-> kernel you're building against?
+> Can we get whitelist entry for suspend.sf.net? s2ram from there can do
+> all the tricks you described, one letter per trick :-). We even got
+> PCI saving lately.
 
-I managed to compile a "Testing" 1.4.31 version (in fact, version 1.4 
-didn't compile because I didn't have a "linux" link pointing to kernel 
-sources; version 1.4.31 tells that it's missing - so both versions 
-compile fine).
+Whitelist? Let me blacklist it all the way to Timbuktu instead!
 
-The problem is... I'm not sure how to start with it. The package doesn't 
-have much documentation (other than "read the source"), does it?
+I've been doing more testing, and X never managed to come back to working
+state without some of my couple intel-agp changes:
+- a proper suspend method, doing a proper pci_save_state()
+  or improved equivalent
+- a missing resume check for my i815 chipset
+- global cache flush in _configure
+- restoring AGP bridge PCI config space
 
-On the other hand, I see it comes with a couple of useful tools, like sh 
-(dash)... They are also pretty small, so everything should fit into 300 
-kB (dash=70kB, kinit=70kB, mount=12kB).
+The remaining suspects (the other hacks alone didn't recover it)
+are global cache flush and restoring of the *entire* AGP bridge PCI
+config space (no, a 64-bytes-only pci_restore_state() alone doesn't help,
+and it didn't help either that intel-agp doesn't do pci_save_state() anywhere
+ - unless that's now done by default by PCI layer).
+I'll do more testing today to isolate which change exactly fixed it.
 
-As I understand, this is what I have to do:
+All in all intel-agp code semi-shattered my universe.
+I didn't expect to find all these issues in rather important core code
+for a wide-spread chipset vendor - it doesn't even log an
+"unhandled chipset: resuming may fail, please report!" message
+in the resume handler in case of a missing chipset check
+(although it may be debatable whether people are able to see this message
+at all).
+However since the new AGP code was a heroic refactoring effort
+it's understandable that there are some remaining issues.
 
-1. compile a kernel with initramfs, which will include a cpio image with 
-some tools
+Given the myriads of resume issues we experience in general,
+it may be wise to do something as simple as a code review of *all*
+relevant code no matter how "complete" we expect each driver to be...
+(one could e.g. start with reviewing all other AGP chipset drivers).
 
-2. tools/scripts in cpio image should do the following:
-
-mount /proc
-DISKS=$(cat /proc/diskstats)
-for WORD in $DISKS
-do
-[ $WORD = sdb1 ] && echo "partition found, what next?..."
-done
-
-# do a similar logic for sda1
-
-
-Am I correct? Of course I'd appreciate how to achieve point 2 (where now 
-"partition found, what next?..." is).
-
-
--- 
-Tomasz Chmielewski
-http://wpkg.org
-
+Andreas Mohr

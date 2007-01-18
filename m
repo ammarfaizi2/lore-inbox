@@ -1,63 +1,144 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751460AbXARASo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751081AbXARA3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbXARASo (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 19:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbXARASo
+	id S1751081AbXARA3H (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 19:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbXARA3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 19:18:44 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:23470 "EHLO
-	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751460AbXARASn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 19:18:43 -0500
-Date: Thu, 18 Jan 2007 00:18:38 +0000
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Turbo Fredriksson <turbo@bayour.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird harddisk behaviour
-Message-ID: <20070118001838.GA340@deepthought>
-References: <87bqkzp0et.fsf@pumba.bayour.com> <20070116141959.GC476@deepthought> <87y7o2hsmm.fsf@pumba.bayour.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <87y7o2hsmm.fsf@pumba.bayour.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-Content-Transfer-Encoding: 8BIT
+	Wed, 17 Jan 2007 19:29:06 -0500
+Received: from h155.mvista.com ([63.81.120.158]:6483 "EHLO
+	localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751081AbXARA3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 19:29:05 -0500
+Message-Id: <20070118002503.418478415@mvista.com>
+User-Agent: quilt/0.46.mv-1
+Date: Wed, 17 Jan 2007 16:25:03 -0800
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+CC: tglx@linutronix.de
+CC: khilman@mvista.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] futex null pointer timeout
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 11:09:21AM +0100, Turbo Fredriksson wrote:
-> Quoting Ken Moffat <zarniwhoop@ntlworld.com>:
-> 
-> >  Certainly, fdisk from util-linux doesn't know about mac disks, and
-> > I thought the same was true for cfdisk and sfdisk.  Many years ago
-> > there was mac-fdisk, I think also known as pdisk, but nowadays the
-> > common tool for partitioning mac disks is probably parted.
-> 
-> Yes. See now that 'fdisk' is a softlink to 'mac-fdisk'...
-> 
+This fix is mostly from Thomas .. 
 
- Sorry for not replying earlier, cutting the Cc: list on lkml is not
-always conducive to quick replies.
+The problem was that a futex can be called with a zero timeout (0 seconds,
+0 nanoseconds) and it's a valid expired timeout. However, the current futex
+in -rt assumes a zero timeout is an infinite timeout. 
 
- So, you were using a valid tool, but what you put in your original
-mail shows garbage - something like apple_partition_ma[mamama...
-followed later by some garbage which could admittedly have been UTF-8
-getting trashed in the mail.  I'm on my ibook at the moment, which
-has an old debian mac-fdisk on another partition.  If I chroot to
-that and look at the disk I see things like
+Kevin Hilman found this using LTP's nptl01 test case which would
+soft hang occasionally. 
 
-/dev/hda
-        #                    type name                 length   base     ( size )  system
-/dev/hda1     Apple_partition_map Apple                    63 @ 1        ( 31.5k)  Partition map
-/dev/hda2         Apple_Bootstrap untitled               1954 @ 64       (977.0k)  NewWorld bootblock
+The patch reworks do_futex, and futex_wait* so a NULL pointer in the timeout
+position is infinite, and anything else is evaluated as a real timeout.
 
- and so forth.  Notice that everything there is in legible ascii and
-can be read with sensible values.  If what you actually see is
-similar, then it's just a problem in the mail.  But if it isn't,
-somehow the data on the disk (or the data being read from it) is
-corrupt.
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-ĸen
+---
+ kernel/futex.c        |   14 ++++++++------
+ kernel/futex_compat.c |    5 +++--
+ 2 files changed, 11 insertions(+), 8 deletions(-)
+
+Index: linux-2.6.19/kernel/futex.c
+===================================================================
+--- linux-2.6.19.orig/kernel/futex.c
++++ linux-2.6.19/kernel/futex.c
+@@ -1466,7 +1466,7 @@ static int futex_wait(u32 __user *uaddr,
+ 
+ 		current->flags &= ~PF_NOSCHED;
+ 
+-		if (time->tv_sec == 0 && time->tv_nsec == 0)
++		if (!time)
+ 			schedule();
+ 		else {
+ 			to = &t;
+@@ -3070,7 +3070,7 @@ static int futex_wait64(u64 __user *uadd
+ 
+ 		current->flags &= ~PF_NOSCHED;
+ 
+-		if (time->tv_sec == 0 && time->tv_nsec == 0)
++		if (!time)
+ 			schedule();
+ 		else {
+ 			to = &t;
+@@ -3560,7 +3560,7 @@ asmlinkage long
+ sys_futex64(u64 __user *uaddr, int op, u64 val,
+ 	    struct timespec __user *utime, u64 __user *uaddr2, u64 val3)
+ {
+-	struct timespec t = {.tv_sec=0, .tv_nsec=0};
++	struct timespec t, *tp = NULL;
+ 	u64 val2 = 0;
+ 
+ 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
+@@ -3568,6 +3568,7 @@ sys_futex64(u64 __user *uaddr, int op, u
+ 			return -EFAULT;
+ 		if (!timespec_valid(&t))
+ 			return -EINVAL;
++		tp = &t;
+ 	}
+ 	/*
+ 	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
+@@ -3576,7 +3577,7 @@ sys_futex64(u64 __user *uaddr, int op, u
+ 	    || op == FUTEX_CMP_REQUEUE_PI)
+ 		val2 = (unsigned long) utime;
+ 
+-	return do_futex64(uaddr, op, val, &t, uaddr2, val2, val3);
++	return do_futex64(uaddr, op, val, tp, uaddr2, val2, val3);
+ }
+ 
+ #endif
+@@ -3585,7 +3586,7 @@ asmlinkage long sys_futex(u32 __user *ua
+ 			  struct timespec __user *utime, u32 __user *uaddr2,
+ 			  u32 val3)
+ {
+-	struct timespec t = {.tv_sec=0, .tv_nsec=0};
++	struct timespec t, *tp = NULL;
+ 	u32 val2 = 0;
+ 
+ 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
+@@ -3593,6 +3594,7 @@ asmlinkage long sys_futex(u32 __user *ua
+ 			return -EFAULT;
+ 		if (!timespec_valid(&t))
+ 			return -EINVAL;
++		tp = &t;
+ 	}
+ 	/*
+ 	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
+@@ -3601,7 +3603,7 @@ asmlinkage long sys_futex(u32 __user *ua
+ 	    || op == FUTEX_CMP_REQUEUE_PI)
+ 		val2 = (u32) (unsigned long) utime;
+ 
+-	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
++	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+ }
+ 
+ static int futexfs_get_sb(struct file_system_type *fs_type,
+Index: linux-2.6.19/kernel/futex_compat.c
+===================================================================
+--- linux-2.6.19.orig/kernel/futex_compat.c
++++ linux-2.6.19/kernel/futex_compat.c
+@@ -141,7 +141,7 @@ asmlinkage long compat_sys_futex(u32 __u
+ 		struct compat_timespec __user *utime, u32 __user *uaddr2,
+ 		u32 val3)
+ {
+-	struct timespec t = {.tv_sec = 0, .tv_nsec = 0};
++	struct timespec t, *tp = NULL;
+ 	int val2 = 0;
+ 
+ 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
+@@ -149,10 +149,11 @@ asmlinkage long compat_sys_futex(u32 __u
+ 			return -EFAULT;
+ 		if (!timespec_valid(&t))
+ 			return -EINVAL;
++		tp = &t;
+ 	}
+ 	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE
+ 	    || op == FUTEX_CMP_REQUEUE_PI)
+ 		val2 = (int) (unsigned long) utime;
+ 
+-	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
++	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+ }
 -- 
-das eine Mal als Tragödie, das andere Mal als Farce

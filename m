@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752023AbXARIOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751874AbXARIZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752023AbXARIOJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 03:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbXARIOJ
+	id S1751874AbXARIZx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 03:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751950AbXARIZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 03:14:09 -0500
-Received: from nikam-dmz.ms.mff.cuni.cz ([195.113.20.16]:55381 "EHLO
-	nikam.ms.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752023AbXARIOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 03:14:08 -0500
-Date: Thu, 18 Jan 2007 09:14:06 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Greg KH <greg@kroah.com>, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [RFC] pci_bus conversion to struct device
-Message-ID: <mj+md-20070118.081204.18154.nikam@ucw.cz>
-References: <20070118005344.GA8391@kroah.com> <20070118022352.GA17531@parisc-linux.org>
+	Thu, 18 Jan 2007 03:25:53 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:35344 "EHLO e5.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751874AbXARIZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 03:25:52 -0500
+Subject: Re: [PATCH] Fix missing include of list.h in sysfs.h
+From: Frank Haverkamp <haver@vnet.ibm.com>
+Reply-To: haver@vnet.ibm.com
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Frank Haverkamp <haver@vnet.ibm.com>
+In-Reply-To: <20070117211447.GA32495@kroah.com>
+References: <1169052679.21717.9.camel@localhost.localdomain>
+	 <20070117211447.GA32495@kroah.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 18 Jan 2007 09:25:45 +0100
+Message-Id: <1169108745.4231.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070118022352.GA17531@parisc-linux.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi Greg,
 
-> I recommend we just delete the pci_bus class.  I don't think it serves
-> any useful purpose.  The bridge can be inferred frmo the sysfs hierarchy
-> (not to mention lspci will tell you).  The cpuaffinity file should be
-> moved from the bus to the device -- it really doesn't make any sense to
-> talk about which cpu a bus is affine to, only a device.
+On Wed, 2007-01-17 at 13:14 -0800, Greg KH wrote:
 
-It doesn't seem to serve any useful purpose other than the affinity now,
-but I still think that it conceptually belongs there, because it makes
-sense to have per-bus attributes. For example, in the future we could
-show data width and signalling speed.
+> Does this currently cause a build error on any platform for 2.6.20-rc5?
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"I invented the term Object-Oriented, and I can tell you I did not have C++ in mind." -- Alan Kay
+Not that I know of. I saw it because a friend of mine tried to port
+some old code and played with the include ordering. Somehow he got
+a compile error doing it, and we found that it is strange that sysfs.h
+is using structs from list.h but is not including it. As result I sent
+the patch to propose that it gets included to avoid any possible
+trouble.
+
+Frank
+

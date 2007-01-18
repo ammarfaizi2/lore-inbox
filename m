@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750958AbXARHsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750861AbXARHsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbXARHsm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 02:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbXARHsl
+	id S1750861AbXARHsx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 02:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751853AbXARHsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 02:48:41 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59533 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751874AbXARHsl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 02:48:41 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Rajat Jain" <rajat.noida.india@gmail.com>
-Cc: "Ahmed S. Darwish" <darwish.07@gmail.com>,
-       "Daniel Rodrick" <daniel.rodrick@gmail.com>,
-       kernelnewbies <kernelnewbies@nl.linux.org>,
-       "Linux Newbie" <linux-newbie@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: after effects of a kernel API change
-References: <292693080701172015n736a269fl6945ba4fe19d8174@mail.gmail.com>
-	<20070118051026.GA29695@Ahmed>
-	<b115cb5f0701172135k411dca56u92101a929799548a@mail.gmail.com>
-Date: Thu, 18 Jan 2007 00:47:42 -0700
-In-Reply-To: <b115cb5f0701172135k411dca56u92101a929799548a@mail.gmail.com>
-	(Rajat Jain's message of "Thu, 18 Jan 2007 11:05:53 +0530")
-Message-ID: <m1mz4g7p41.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 18 Jan 2007 02:48:53 -0500
+Received: from main.gmane.org ([80.91.229.2]:38139 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750861AbXARHsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 02:48:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicolas Bareil <nico@chdir.org>
+Subject: Re: Linux 2.6.19.2 : Oops
+Date: Thu, 18 Jan 2007 08:48:30 +0100
+Message-ID: <87sle8wzap.fsf@boz.loft.chdir.org>
+References: <873b6a6ji0.fsf@boz.loft.chdir.org>
+	<20070117233545.GA12717@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 88.191.14.36
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.92 (gnu/linux)
+Cancel-Lock: sha1:ef1a+z5kf1ROyX7RwE8mmbxye4k=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rajat Jain" <rajat.noida.india@gmail.com> writes:
 
->> >
->> > Is there any way volunteers like me can help in this exercise?
->>
->> See the /APIchanges in the Kernel Janitors TODO list
->> http://kernelnewbies.org/KernelJanitors/Todo
->>
->
-> Hi,
->
-> This is regarding the link posted above.
->
-> 1) How do I make sure if some one is NOT working on any of the
-> mentioned bullet points? Who coordinates? On what mailing list?
+On 18 Jan 2007, Greg KH wrote:
+> > Since 2.6.19, I get the following Oops once a day, always with the same
+> > process, newspipe[1] which use a lot of CPU, threads and I/O.
+> > ...
+> Can you reproduce it without the grsec patch applied?
 
-Depends on the issue.  Release early and release often and there
-won't be much duplicate work :)
+I'm compiling a new kernel and will try it soon!
 
-> 2) Do any patches for the above Todo list have the chances of getting
-> merged into the mainstream kernel? Who approves? I suppose the
-> respective maintainer of the driver / subsystem getting affected?
+-- 
+Nicolas Bareil                                  http://chdir.org/~nico/
+OpenPGP=0xAE4F7057 Fingerprint=34DB22091049FB2F33E6B71580F314DAAE4F7057
 
-Generally. Occasionally for small things other paths are available.
-
-Eric

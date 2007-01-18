@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751870AbXARLKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751901AbXARLMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751870AbXARLKO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 06:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbXARLKO
+	id S1751901AbXARLMs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 06:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbXARLMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 06:10:14 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:18634 "EHLO relay.sw.ru"
+	Thu, 18 Jan 2007 06:12:47 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:48896 "EHLO relay.sw.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751870AbXARLKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 06:10:12 -0500
-Date: Thu, 18 Jan 2007 14:16:26 +0300
+	id S1751901AbXARLMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 06:12:47 -0500
+Date: Thu, 18 Jan 2007 14:19:02 +0300
 From: Alexey Dobriyan <adobriyan@openvz.org>
 To: akpm@osdl.org
-Cc: dev@sw.ru, linux-kernel@vger.kernel.org, devel@openvz.org,
-       linux-arch@vger.kernel.org
-Subject: [PATCH 1/2] Consolidate bust_spinlocks()
-Message-ID: <20070118111626.GA6040@localhost.sw.ru>
+Cc: dev@sw.ru, linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: [PATCH 2/2] Extract and use wake_up_klogd()
+Message-ID: <20070118111902.GB6040@localhost.sw.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,268 +24,77 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Kirill Korotaev <dev@sw.ru>
 
-Part of long forgotten patch
-http://groups.google.com/group/fa.linux.kernel/msg/e98e941ce1cf29f6?dmode=source
-Since then, m32r grabbed two copies.
+Remove hack with printing space to wake up klogd.
+Use explicit wake_up_klogd().
+
+See earlier discussion
+http://groups.google.com/group/fa.linux.kernel/browse_frm/thread/75f496668409f58d/1a8f28983a51e1ff?lnk=st&q=wake_up_klogd+group%3Afa.linux.kernel&rnum=2#1a8f28983a51e1ff
 
 Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
 ---
 
- arch/i386/mm/fault.c       |   26 --------------------------
- arch/ia64/kernel/traps.c   |   30 ------------------------------
- arch/m32r/mm/fault-nommu.c |   26 --------------------------
- arch/m32r/mm/fault.c       |   26 --------------------------
- arch/s390/mm/fault.c       |   26 --------------------------
- arch/x86_64/mm/fault.c     |   21 ---------------------
- lib/Makefile               |    4 ++--
- lib/bust_spinlocks.c       |    2 +-
- 8 files changed, 3 insertions(+), 158 deletions(-)
+ include/linux/kernel.h |    1 +
+ kernel/printk.c        |   10 ++++++++--
+ lib/bust_spinlocks.c   |   10 +---------
+ 3 files changed, 10 insertions(+), 11 deletions(-)
 
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -60,32 +60,6 @@ static inline int notify_page_fault(enum
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -176,6 +176,7 @@ static inline void console_verbose(void)
  }
  
- /*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out 
-- */
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk()
--	 * without oops_in_progress set so that printk will give klogd
--	 * a poke.  Hold onto your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
--/*
-  * Return EIP plus the CS segment base.  The segment limit is also
-  * adjusted, clamped to the kernel/user address space (whichever is
-  * appropriate), and returned in *eip_limit.
---- a/arch/ia64/kernel/traps.c
-+++ b/arch/ia64/kernel/traps.c
-@@ -24,8 +24,6 @@ #include <asm/processor.h>
- #include <asm/uaccess.h>
- #include <asm/kdebug.h>
- 
--extern spinlock_t timerlist_lock;
--
- fpswa_interface_t *fpswa_interface;
- EXPORT_SYMBOL(fpswa_interface);
- 
-@@ -53,34 +51,6 @@ trap_init (void)
- 		fpswa_interface = __va(ia64_boot_param->fpswa);
+ extern void bust_spinlocks(int yes);
++extern void wake_up_klogd(void);
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ extern int panic_timeout;
+ extern int panic_on_oops;
+--- a/kernel/printk.c
++++ b/kernel/printk.c
+@@ -783,6 +783,12 @@ int is_console_locked(void)
+ 	return console_locked;
  }
  
--/*
-- * Unlock any spinlocks which will prevent us from getting the message out (timerlist_lock
-- * is acquired through the console unblank code)
-- */
--void
--bust_spinlocks (int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk() without
--	 * oops_in_progress set so that printk will give klogd a poke.  Hold onto
--	 * your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
- void
- die (const char *str, struct pt_regs *regs, long err)
- {
---- a/arch/m32r/mm/fault-nommu.c
-+++ b/arch/m32r/mm/fault-nommu.c
-@@ -46,32 +46,6 @@ #define tlb_entry_i tlb_entry_i_dat[smp_
- #define tlb_entry_d tlb_entry_d_dat[smp_processor_id()]
- #endif
- 
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out
-- */
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk()
--	 * without oops_in_progress set so that printk will give klogd
--	 * a poke.  Hold onto your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
- void do_BUG(const char *file, int line)
- {
- 	bust_spinlocks(1);
---- a/arch/m32r/mm/fault.c
-+++ b/arch/m32r/mm/fault.c
-@@ -49,32 +49,6 @@ #endif
- 
- extern void init_tlb(void);
- 
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out
-- */
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk()
--	 * without oops_in_progress set so that printk will give klogd
--	 * a poke.  Hold onto your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
- /*======================================================================*
-  * do_page_fault()
-  *======================================================================*
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -83,32 +83,6 @@ static inline int notify_page_fault(enum
++void wake_up_klogd(void)
++{
++	if (!oops_in_progress && waitqueue_active(&log_wait))
++		wake_up_interruptible(&log_wait);
++}
++
+ /**
+  * release_console_sem - unlock the console system
+  *
+@@ -825,8 +831,8 @@ void release_console_sem(void)
+ 	console_locked = 0;
+ 	up(&console_sem);
+ 	spin_unlock_irqrestore(&logbuf_lock, flags);
+-	if (wake_klogd && !oops_in_progress && waitqueue_active(&log_wait))
+-		wake_up_interruptible(&log_wait);
++	if (wake_klogd)
++		wake_up_klogd();
  }
- #endif
+ EXPORT_SYMBOL(release_console_sem);
  
--extern spinlock_t timerlist_lock;
--
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is acquired through the
-- * console unblank code)
-- */
--void bust_spinlocks(int yes)
--{
--	if (yes) {
--		oops_in_progress = 1;
--	} else {
+--- a/lib/bust_spinlocks.c
++++ b/lib/bust_spinlocks.c
+@@ -19,19 +19,11 @@ void __attribute__((weak)) bust_spinlock
+ 	if (yes) {
+ 		oops_in_progress = 1;
+ 	} else {
 -		int loglevel_save = console_loglevel;
--		console_unblank();
--		oops_in_progress = 0;
+ #ifdef CONFIG_VT
+ 		unblank_screen();
+ #endif
+ 		oops_in_progress = 0;
 -		/*
 -		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk will give klogd
--		 * a poke.  Hold onto your hats...
--		 */
--		console_loglevel = 15;
--		printk(" ");
--		console_loglevel = loglevel_save;
--	}
--}
--
- /*
-  * Check which address space is addressed by the access
-  * register in S390_lowcore.exc_access_id.
---- a/arch/x86_64/mm/fault.c
-+++ b/arch/x86_64/mm/fault.c
-@@ -69,27 +69,6 @@ static inline int notify_page_fault(enum
- 	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
- }
- 
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--	if (yes) {
--		oops_in_progress = 1;
--	} else {
--#ifdef CONFIG_VT
--		unblank_screen();
--#endif
--		oops_in_progress = 0;
--		/*
--		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk will give klogd
--		 * a poke.  Hold onto your hats...
+-		 * without oops_in_progress set so that printk() will give klogd
+-		 * and the blanked console a poke.  Hold onto your hats...
 -		 */
 -		console_loglevel = 15;		/* NMI oopser may have shut the console up */
 -		printk(" ");
 -		console_loglevel = loglevel_save;
--	}
--}
--
- /* Sometimes the CPU reports invalid exceptions on prefetch.
-    Check that here and ignore.
-    Opcode checker based on code by Richard Brunner */
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -3,7 +3,7 @@ # Makefile for some libs needed in the k
- #
++		wake_up_klogd();
+ 	}
+ }
  
- lib-y := ctype.o string.o vsprintf.o cmdline.o \
--	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
-+	 rbtree.o radix-tree.o dump_stack.o \
- 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
- 	 sha1.o irq_regs.o reciprocal_div.o
- 
-@@ -12,7 +12,7 @@ lib-$(CONFIG_SMP) += cpumask.o
- 
- lib-y	+= kobject.o kref.o kobject_uevent.o klist.o
- 
--obj-y += sort.o parser.o halfmd4.o debug_locks.o random32.o
-+obj-y += sort.o parser.o halfmd4.o debug_locks.o random32.o bust_spinlocks.o
- 
- ifeq ($(CONFIG_DEBUG_KOBJECT),y)
- CFLAGS_kobject.o += -DDEBUG
---- a/lib/bust_spinlocks.c
-+++ b/lib/bust_spinlocks.c
-@@ -14,7 +14,7 @@ #include <linux/wait.h>
- #include <linux/vt_kern.h>
- 
- 
--void bust_spinlocks(int yes)
-+void __attribute__((weak)) bust_spinlocks(int yes)
- {
- 	if (yes) {
- 		oops_in_progress = 1;
 

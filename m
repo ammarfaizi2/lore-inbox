@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751980AbXARKrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751993AbXARLAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751980AbXARKrY (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 05:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbXARKrY
+	id S1751993AbXARLAs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 06:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751999AbXARLAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 05:47:24 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:39087 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751980AbXARKrX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 05:47:23 -0500
-Message-ID: <45AF502F.9010009@zytor.com>
-Date: Thu, 18 Jan 2007 02:47:11 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 18 Jan 2007 06:00:48 -0500
+Received: from codepoet.org ([166.70.99.138]:37694 "EHLO codepoet.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751993AbXARLAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 06:00:47 -0500
+Date: Thu, 18 Jan 2007 04:00:28 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
+       linux-nforce-bugs@nvidia.com
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
+Message-ID: <20070118110028.GA22407@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org, Andi Kleen <ak@suse.de>,
+	Chris Wedgwood <cw@f00f.org>,
+	Christoph Anton Mitterer <calestyo@scientia.net>,
+	Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+	knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
+	linux-nforce-bugs@nvidia.com
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de>
 MIME-Version: 1.0
-To: Tomasz Chmielewski <mangoo@wpkg.org>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
-References: <45AE1D65.4010804@wpkg.org> <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr> <45AE2E25.50309@wpkg.org> <45AE8818.1050803@zytor.com> <45AF4CF9.1070801@wpkg.org>
-In-Reply-To: <45AF4CF9.1070801@wpkg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701170829.54540.ak@suse.de>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Chmielewski wrote:
-> H. Peter Anvin wrote:
->> Tomasz Chmielewski wrote:
->>>
->>> All right.
->>> I see that initramfs is attached to the kernel itself.
->>>
->>> So it leaves me only a question: will I fit all tools into 300 kB 
->>> (considering I'll use uClibc and busybox)?
->>>
->>
->> You don't need to use busybox and have a bunch of tools.
->>
->> The klibc distribution comes with "kinit", which does the equivalent 
->> to the kernel root-mounting code; it's in the tens of kilobytes, at 
->> least on x86.  If you're using ARM, you can compile it as Thumb.
-> 
-> Hmm, I'm having problems compiling klibc-1.4 on ARM (using gcc-4.1.1):
-> 
+On Wed Jan 17, 2007 at 08:29:53AM +1100, Andi Kleen wrote:
+> AMD is looking at the issue. Only Nvidia chipsets seem to be affected,
+> although there were similar problems on VIA in the past too.
+> Unless a good workaround comes around soon I'll probably default
+> to iommu=soft on Nvidia.
 
-Could you send me your kernel .config, as well as what version of the 
-kernel you're building against?
+I just tried again and while using iommu=soft does avoid the
+corruption problem, as with previous kernels with 2.6.20-rc5
+using iommu=soft still makes my pcHDTV HD5500 DVB cards not work.
+I still have to disable memhole and lose 1 GB.  :-(
 
-	-hpa
+ -Erik
 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

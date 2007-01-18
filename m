@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932444AbXARPXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932445AbXARPXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbXARPXg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 10:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbXARPXg
+	id S932445AbXARPXw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 10:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbXARPXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 10:23:36 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4400 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932444AbXARPXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 10:23:35 -0500
-Date: Thu, 18 Jan 2007 15:23:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tomas Carnecky <tom@dbservice.com>
-Cc: Bernhard Walle <bwalle@suse.de>, linux-kernel@vger.kernel.org,
-       Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: [patch 03/26] Dynamic kernel command-line - arm
-Message-ID: <20070118152326.GC31418@flint.arm.linux.org.uk>
-Mail-Followup-To: Tomas Carnecky <tom@dbservice.com>,
-	Bernhard Walle <bwalle@suse.de>, linux-kernel@vger.kernel.org,
-	Alon Bar-Lev <alon.barlev@gmail.com>
-References: <20070118125849.441998000@strauss.suse.de> <20070118130028.719472000@strauss.suse.de> <20070118141359.GB31418@flint.arm.linux.org.uk> <45AF92E7.50901@dbservice.com>
+	Thu, 18 Jan 2007 10:23:52 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:50007 "EHLO smtp.mba.ocn.ne.jp"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932445AbXARPXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 10:23:50 -0500
+Date: Fri, 19 Jan 2007 00:23:46 +0900 (JST)
+Message-Id: <20070119.002346.74752797.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, akpm@osdl.org, ralf@linux-mips.org
+Subject: [PATCH] Make CARDBUS_MEM_SIZE and CARDBUS_IO_SIZE customizable
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45AF92E7.50901@dbservice.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 04:31:51PM +0100, Tomas Carnecky wrote:
-> Russell King wrote:
-> > On Thu, Jan 18, 2007 at 01:58:52PM +0100, Bernhard Walle wrote: 
-> >> -static char command_line[COMMAND_LINE_SIZE];
-> >> +static char __initdata command_line[COMMAND_LINE_SIZE];
-> > 
-> > Uninitialised data is placed in the BSS.  Adding __initdata to BSS
-> > data causes grief.
-> > 
-> 
-> Static variables are implicitly initialized to zero. Does that also
-> count as initialization?
+CARDBUS_MEM_SIZE was increased to 64MB on 2.6.20-rc2, but larger size
+might result in allocation failure for the reserving itself on some
+platforms (for example typical 32bit MIPS).  Make it (and
+CARDBUS_IO_SIZE too) customizable for such platforms.
 
-No.  As I say, they're placed in the BSS.  The BSS is zeroed as part of
-the C runtime initialisation.
-
-If you want to place a variable in a specific section, it must be
-explicitly initialised.  Eg,
-
-static char __initdata command_line[COMMAND_LINE_SIZE] = "";
-
-However, there is a bigger question here: that is the tradeoff between
-making this variable part of the on-disk kernel image, but throw away
-the memory at runtime, or to leave it in the BSS where it will not be
-part of the on-disk kernel image, but will not be thrown away at
-runtime.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+---
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 3cfb0a3..6085d3d 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -60,3 +60,19 @@ config HT_IRQ
+ 	   This allows native hypertransport devices to use interrupts.
+ 
+ 	   If unsure say Y.
++
++config PCI_CARDBUS_IO_SIZE
++	int "CardBus IO window size (bytes)"
++	depends on PCI
++	default "256"
++	help
++	  A fixed amount of bus space is reserved for CardBus bridges.
++	  The default value is 256 bytes.
++
++config PCI_CARDBUS_MEM_SIZE
++	int "CardBus Memory window size (megabytes)"
++	depends on PCI
++	default "64"
++	help
++	  A fixed amount of bus space is reserved for CardBus bridges.
++	  The default value is 64 megabytes.
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 89f3036..046c87b 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -40,8 +40,8 @@
+  * FIXME: IO should be max 256 bytes.  However, since we may
+  * have a P2P bridge below a cardbus bridge, we need 4K.
+  */
+-#define CARDBUS_IO_SIZE		(256)
+-#define CARDBUS_MEM_SIZE	(64*1024*1024)
++#define CARDBUS_IO_SIZE		CONFIG_PCI_CARDBUS_IO_SIZE
++#define CARDBUS_MEM_SIZE	(CONFIG_PCI_CARDBUS_MEM_SIZE * 1024 * 1024)
+ 
+ static void __devinit
+ pbus_assign_resources_sorted(struct pci_bus *bus)

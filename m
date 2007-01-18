@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932737AbXARXYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932754AbXARX1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbXARXYy (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 18:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbXARXYy
+	id S932754AbXARX1f (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 18:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbXARX1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 18:24:54 -0500
-Received: from mx2.suse.de ([195.135.220.15]:60297 "EHLO mx2.suse.de"
+	Thu, 18 Jan 2007 18:27:35 -0500
+Received: from alpha.polcom.net ([83.143.162.52]:45590 "EHLO alpha.polcom.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932737AbXARXYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 18:24:46 -0500
-From: Andi Kleen <ak@suse.de>
-To: andersen@codepoet.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8 cpu errata needed?)
-Date: Fri, 19 Jan 2007 10:23:15 +1100
-User-Agent: KMail/1.9.1
-Cc: Chris Wedgwood <cw@f00f.org>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
-       knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
-       linux-nforce-bugs@nvidia.com
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <200701170829.54540.ak@suse.de> <20070118110028.GA22407@codepoet.org>
-In-Reply-To: <20070118110028.GA22407@codepoet.org>
+	id S932754AbXARX1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 18:27:34 -0500
+Date: Fri, 19 Jan 2007 00:27:17 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, aia21@cam.ac.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: NTFS
+In-Reply-To: <20070118145439.b8d84d6b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.63.0701190022540.17626@alpha.polcom.net>
+References: <1169115951.5408.10.camel@imp.csi.cam.ac.uk>
+ <20070118222243.GA14047@infradead.org> <20070118143506.4d007aad.akpm@osdl.org>
+ <20070118223813.GA6589@infradead.org> <20070118145439.b8d84d6b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701191023.15929.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 January 2007 22:00, Erik Andersen wrote:
+On Thu, 18 Jan 2007, Andrew Morton wrote:
+>> On Thu, 18 Jan 2007 22:38:13 +0000 Christoph Hellwig <hch@infradead.org> wrote:
+>> On Thu, Jan 18, 2007 at 02:35:06PM -0800, Andrew Morton wrote:
+>>>> Cool.  That means ->put_inode is gone in -mm.  Andrew, what are the
+>>>> plans for sending the patches to make the ext2 preallocation work
+>>>> like ext3 to Linus?
+>>>
+>>> Cautious.  I'm not sure that we ever want to merge them, really - ext2 is
+>>> more a reference filesystem than a real one nowadays, and making it more
+>>> complex detracts from that.
+>>
+>> The again while the old preallocation code might be simpler it's also utterly
+>> braindead and we need to make sure no one is going to copy this :)
+>
+> Good point ;)
 
-> I just tried again and while using iommu=soft does avoid the
-> corruption problem, as with previous kernels with 2.6.20-rc5
-> using iommu=soft still makes my pcHDTV HD5500 DVB cards not work.
+Are you refering to that particular implementation in ext2 or to the 
+whole method od doing it implemented currently in ext2?
 
-This must be some separate bug and needs to be fixed anyways.
+When can I read about it (description of the new method/implementation in 
+ext3 and why is it better) some more?
 
--Andi
+
+Thanks,
+
+Grzegorz Kulewski
+

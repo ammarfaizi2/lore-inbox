@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932099AbXARJJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932108AbXARJNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbXARJJt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 04:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbXARJJs
+	id S932108AbXARJNg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 04:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbXARJNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 04:09:48 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2266 "EHLO
+	Thu, 18 Jan 2007 04:13:35 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2533 "EHLO
 	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932082AbXARJJp (ORCPT
+	with ESMTP id S932108AbXARJNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 04:09:45 -0500
-Date: Thu, 18 Jan 2007 09:09:35 +0000
+	Thu, 18 Jan 2007 04:13:34 -0500
+Date: Thu, 18 Jan 2007 09:13:27 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: query related to serial console
-Message-ID: <20070118090935.GA32068@flint.arm.linux.org.uk>
-Mail-Followup-To: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>,
-	Randy Dunlap <randy.dunlap@oracle.com>,
+To: Brian Beattie <brianb@apcon.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A question about break and sysrq on a serial console (2.6.19.1)
+Message-ID: <20070118091326.GB32068@flint.arm.linux.org.uk>
+Mail-Followup-To: Brian Beattie <brianb@apcon.com>,
 	linux-kernel@vger.kernel.org
-References: <20070117203421.6d80be93.randy.dunlap@oracle.com> <526190.52452.qm@web7704.mail.in.yahoo.com>
+References: <1169078214.16802.17.camel@brianb>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <526190.52452.qm@web7704.mail.in.yahoo.com>
+In-Reply-To: <1169078214.16802.17.camel@brianb>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 05:39:15AM +0000, Seetharam Dharmosoth wrote:
-> I have one doubt in this regard.
-> 1) once we connected to the serial console we don't
->    want to login into the shell.
->    (without login into the shell we want to fire the
->    sysrq command like b, r m, etc.)
-> 
->  for this I am doing like 
->   grabing the serial console then
->   doing ctrl+]
->   so that getting 
->               telnet> 
-> now i want to give command like b, m ,r etc.
-> 
-> but it is not accepting my commands until I do 
-> telnet> send brk
-> 
-> can you please explain me why like this behavior ?
+On Wed, Jan 17, 2007 at 03:56:54PM -0800, Brian Beattie wrote:
+> I'm trying to do a SYSRQ over a serial console.  As I understand it a
+> break will do that, but I'm not seeing the SYSRQ.  In looking at
+> uart_handle_break() in drivers/serial/8250.c it looks like the code will
+> toggle port->sysrq, rather than just setting it when the port is a
+> console.  I think the correct code would be to move the "port->sysrq =
+> 0;" to follow the closing brace on the next line, or am I missing
+> something.
 
-If it didn't require a break before hand, merely pressing 'b', 'm' or 'r'
-would trigger the sysrq command, which would make it absolutely impossible
-to login or type any normal command containing those characters.
+Thereby preventing the action of <break> (which may be to cause a SAK
+event, which would be rather important on a console to ensure that
+you're really logging in rather than typing your password into another
+users program which just looks like a login program.)
+
+Note that the sequence for sysrq is:
+
+(non-break characters or nothing) <break> <sysrq-char>
 
 -- 
 Russell King

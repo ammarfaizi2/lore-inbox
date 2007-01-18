@@ -1,35 +1,28 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932545AbXARTr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932572AbXARTyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbXARTr4 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 14:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbXARTrz
+	id S932572AbXARTyw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 14:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbXARTyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 14:47:55 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3275 "HELO
+	Thu, 18 Jan 2007 14:54:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3328 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932545AbXARTrx (ORCPT
+	with SMTP id S932463AbXARTyv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 14:47:53 -0500
-Date: Thu, 18 Jan 2007 20:47:56 +0100
+	Thu, 18 Jan 2007 14:54:51 -0500
+Date: Thu, 18 Jan 2007 20:54:56 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, sct@redhat.com,
-       adilger@clusterfs.com, linux-ext4@vger.kernel.org,
-       Berthold Cogel <cogel@rrz.uni-koeln.de>,
-       =?iso-8859-1?Q?Fran=E7ois?= Valenduc 
-	<francois.valenduc@skynet.be>,
-       Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       Prakash Punnoor <prakash@punnoor.de>, Oliver Neukum <oliver@neukum.org>,
-       Duncan <1i5t5.duncan@cox.net>, mingo@redhat.com, neilb@cse.unsw.edu.au,
-       linux-raid@vger.kernel.org, gd@spherenet.de, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org, alan@lxorguk.ukuu.org.uk, petero2@telia.com,
-       Uwe Bugla <uwe.bugla@gmx.de>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       Robert Hancock <hancockr@shaw.ca>
-Subject: 2.6.20-rc5: knwon unfixed regressions (v2) (part1)
-Message-ID: <20070118194756.GA9093@stusta.de>
+       Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, ttb@tentacle.dhs.org,
+       rml@novell.com, Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
+       "Vladimir V. Saveliev" <vs@namesys.com>, reiserfs-dev@namesys.com,
+       Sami Farin <7atbggg02@sneakemail.com>, David Chinner <dgc@sgi.com>,
+       xfs-masters@oss.sgi.com, Andrew Clayton <andrew@digital-domain.net>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: 2.6.20-rc5: knwon unfixed regressions (v2) (part2)
+Message-ID: <20070118195456.GB9093@stusta.de>
 References: <Pine.LNX.4.64.0701121424520.11200@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -50,52 +43,37 @@ involved with one or more of these issues.
 Due to the huge amount of recipients, please trim the Cc when answering.
 
 
-Subject    : ext3 with data=journal hangs when running fsx-linux since -rc2
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7844
-Submitter  : Randy Dunlap <rdunlap@xenotime.net>
-Status     : unknown
-
-
-Subject    : reboot instead of powerdown  (CONFIG_USB_SUSPEND)
-References : http://lkml.org/lkml/2006/12/25/40
-             http://bugzilla.kernel.org/show_bug.cgi?id=7828
-Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
-             François Valenduc <francois.valenduc@skynet.be>
-Handled-By : Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Subject    : BUG: at fs/inotify.c:172 set_dentry_child_flags()
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7785
+Submitter  : Cijoml Cijomlovic Cijomlov <cijoml@volny.cz>
+Handled-By : Nick Piggin <nickpiggin@yahoo.com.au>
 Status     : problem is being debugged
 
 
-Subject    : usb somehow broken  (CONFIG_USB_SUSPEND)
-References : http://lkml.org/lkml/2007/1/11/146
-Submitter  : Prakash Punnoor <prakash@punnoor.de>
-Handled-By : Oliver Neukum <oliver@neukum.org>
-Status     : problem is being debugged
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (reiserfs)
+References : http://lkml.org/lkml/2007/1/7/117
+             http://lkml.org/lkml/2007/1/10/202
+Submitter  : Malte Schröder <MalteSch@gmx.de>
+Handled-By : Vladimir V. Saveliev <vs@namesys.com>
+             Nick Piggin <nickpiggin@yahoo.com.au>
+Patch      : http://lkml.org/lkml/2007/1/10/202
+Status     : problem is being discussed
 
 
-Subject    : RAID-6 chunk_aligned_read problem
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7835
-Submitter  : Duncan <1i5t5.duncan@cox.net>
-Status     : unknown
+Subject    : BUG: at mm/truncate.c:60 cancel_dirty_page()  (XFS)
+References : http://lkml.org/lkml/2007/1/5/308
+             http://lkml.org/lkml/2007/1/16/15
+Submitter  : Sami Farin <7atbggg02@sneakemail.com>
+Handled-By : David Chinner <dgc@sgi.com>
+Status     : problem is being discussed
 
 
-Subject    : pktcdvd fails with pata_amd
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7810
-Submitter  : gd@spherenet.de
-Status     : unknown
-
-
-Subject    : problems with CD burning
-References : http://www.spinics.net/lists/linux-ide/msg06545.html
-Submitter  : Uwe Bugla <uwe.bugla@gmx.de>
-Status     : unknown
-
-
-Subject    : sata_nv: SATA exceptions
-References : http://lkml.org/lkml/2007/1/14/108
-Submitter  : Björn Steinbrink <B.Steinbrink@gmx.de>
-Caused-By  : Robert Hancock <hancockr@shaw.ca>
-             commit 2dec7555e6bf2772749113ea0ad454fcdb8cf861
-Handled-By : Robert Hancock <hancockr@shaw.ca>
-Status     : problem is being debugged
+Subject    : NFS triggers WARN_ON() in invalidate_inode_pages2_range()
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7826
+Submitter  : Andrew Clayton <andrew@digital-domain.net>
+Caused-By  : Andrew Morton <akpm@osdl.org>
+             commit 8258d4a574d3a8c01f0ef68aa26b969398a0e140
+Handled-By : Trond Myklebust <trond.myklebust@fys.uio.no>
+Status     : Trond: the WARN_ON() needs to be thrown out
 
 

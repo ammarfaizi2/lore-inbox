@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752035AbXAROOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752042AbXAROQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752035AbXAROOM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752036AbXAROOM
+	id S1752042AbXAROQ4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbXAROQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:14:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2732 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752035AbXAROOL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:14:11 -0500
-Date: Thu, 18 Jan 2007 14:14:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bernhard Walle <bwalle@suse.de>
-Cc: linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: [patch 03/26] Dynamic kernel command-line - arm
-Message-ID: <20070118141359.GB31418@flint.arm.linux.org.uk>
-Mail-Followup-To: Bernhard Walle <bwalle@suse.de>,
-	linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
-References: <20070118125849.441998000@strauss.suse.de> <20070118130028.719472000@strauss.suse.de>
+	Thu, 18 Jan 2007 09:16:55 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:48493 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752039AbXAROQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 09:16:54 -0500
+Subject: Re: [PATCH: 2.6.20-rc4-mm1] JFS: Avoid deadlock introduced by
+	explicit I/O plugging
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: Jens Axboe <jens.axboe@oracle.com>,
+       JFS Discussion <jfs-discussion@lists.sourceforge.net>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <20070118063019.GA31164@filer.fsl.cs.sunysb.edu>
+References: <1169074549.10560.10.camel@kleikamp.austin.ibm.com>
+	 <20070118063019.GA31164@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Date: Thu, 18 Jan 2007 08:15:30 -0600
+Message-Id: <1169129730.7295.10.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070118130028.719472000@strauss.suse.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 01:58:52PM +0100, Bernhard Walle wrote:
-> 2. Set command_line as __initdata.
+On Thu, 2007-01-18 at 01:30 -0500, Josef Sipek wrote:
+> On Wed, Jan 17, 2007 at 04:55:49PM -0600, Dave Kleikamp wrote:
 
-You can't.
+> >  /*
+> >   *	jfs_lock.h
+> > @@ -42,6 +43,7 @@ do {							\
+> >  		if (cond)				\
+> >  			break;				\
+> >  		unlock_cmd;				\
+> > +		blk_replug_current_nested();		\
+> >  		schedule();				\
+> >  		lock_cmd;				\
+> >  	}						\
+> 
+> Is {,un}lock_cmd a macro? ...
 
-> -static char command_line[COMMAND_LINE_SIZE];
-> +static char __initdata command_line[COMMAND_LINE_SIZE];
-
-Uninitialised data is placed in the BSS.  Adding __initdata to BSS
-data causes grief.
+They are the commands passed into this macro (as arguments) to
+release/take a lock.  This is a home-grown wait_on_event type macro
+where the condition must be checked while holding a lock.  And the
+commands passed in are themselves macros.  The jfs code could probably
+be cleaned up a bit as far as excessive use of macros for locking, but
+it's been working for a few years with few problems.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+David Kleikamp
+IBM Linux Technology Center
+

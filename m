@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932229AbXARS4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932422AbXARTGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbXARS4s (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 13:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbXARS4s
+	id S932422AbXARTGN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 14:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbXARTGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 13:56:48 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:61959 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932229AbXARS4r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 13:56:47 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SwcbQcMysQv7f9W0r0R04feIHbTlItufD9ldVPgzHh68FBmTHpuoABczvERcrULD5weJZwFvMPhysStheXstFGmC2UUAVAMeeh/uhqkGdteenQfGYm9iHJKLq6wueoTLMQmnbyyTEvlGEzQUBW0qvs9AS7of/TnXfH1YfjElmvo=
-Message-ID: <58cb370e0701181056v7765f219n7d62a3d28d1310c@mail.gmail.com>
-Date: Thu, 18 Jan 2007 19:56:45 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: "Mark Lord" <liml@rtr.ca>
-Subject: Re: [PATCH] IDE Driver for Delkin/Lexar/etc.. cardbus CF adapter
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200701131125.38882.liml@rtr.ca>
+	Thu, 18 Jan 2007 14:06:13 -0500
+Received: from wylie.me.uk ([82.68.155.89]:55311 "EHLO mail.wylie.me.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932422AbXARTGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 14:06:13 -0500
+X-Greylist: delayed 1184 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Jan 2007 14:06:12 EST
+From: alan@wylie.me.uk (Alan J. Wylie)
+To: linux-kernel@vger.kernel.org
+Cc: "Daniel Gonzalez Schiller" <daniel.schiller@gmail.com>
+Subject: Re: kernel 2.6.19 bug report --> "atkbd.c:spurious ACK on isa...." when boot from SATA hd, no way to start system
+References: <c951f21e0701180539t623387edh5783abc795ea3c9f@mail.gmail.com>
+	<c951f21e0701180542v22ce9ebaw69c36a1b2084daaa@mail.gmail.com>
+Date: Thu, 18 Jan 2007 18:46:26 +0000
+In-Reply-To: <c951f21e0701180542v22ce9ebaw69c36a1b2084daaa@mail.gmail.com>
+	(Daniel Gonzalez Schiller's message of "Thu\, 18 Jan 2007 14\:50\:24
+	+0100")
+Message-ID: <87hcuoxjel.fsf@devnull.wylie.me.uk>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070112041720.28755.49663.sendpatchset@localhost.localdomain>
-	 <200701131125.38882.liml@rtr.ca>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/07, Mark Lord <liml@rtr.ca> wrote:
-> On Thursday 11 January 2007 23:17, Bartlomiej Zolnierkiewicz wrote:
-> >
-> > My working IDE tree (against Linus' tree) now resides here:
-> >
-> >       http://kernel.org/pub/linux/kernel/people/bart/pata-2.6/patches/
->
-> Bart, here's a driver I've been keeping out-of-tree for the past couple of years.
-> This is for the Delking/Lexar/ASKA/etc.. 32-bit cardbus IDE CompactFlash adapter card.
->
-> It's probably way out of sync with the latest driver model (??), but it still builds/works.
-> I'm not interested in doing much of a rewrite, other than for libata someday,
-> as I no longer use the card myself.
->
-> But lots of other people do seem to use it, so it might be nice to see it "in-tree".
->
-> Signed-off-by:  Mark Lord <mlord@pobox.com>
+On Thu, 18 Jan 2007 14:50:24 +0100, "Daniel Gonzalez Schiller" <daniel.schiller@gmail.com> said:
 
-Thanks, I applied it to IDE tree.
+> When boot with SATA HD --> "atkbd.c:spurious ACK on
+> isa0060/serio0. Some program might be trying access hardware
+> directly."
 
-[ I must have been really somehow fixated on IDE unregistering/ordering mess
-  not to merge it earlier.  Sorry for that. ]
+> When booting with normal hd no problem.
+
+The problems are almost certainly to do with the driver (or lack of
+driver) for your hard disc interface. There will be earlier messages
+(and more importantly a lack of messages showing hardware being
+detected) that end with failure to mount your root partition.
+
+The configuration options for SATA moved in 2.6.19.
+
+They are now under
+  Device Drivers -> 
+    Serial ATA (prod) and Parallel ATA (experimental) drivers 
+
+> I've searched in changelog but nothing found.
+
+The error messages are as a result of the keyboard LEDs being flashed.
+
+Have a look at:
+
+http://groups.google.co.uk/group/linux.kernel/msg/197ddf90dd6e5058
+http://groups.google.com/group/fa.linux.kernel/msg/660c4d2dc419ee44
+
+Try booting with i8042.panicblink=0
+
+-- 
+Alan J. Wylie                                          http://www.wylie.me.uk/
+"Perfection [in design] is achieved not when there is nothing left to add,
+but rather when there is nothing left to take away."
+  -- Antoine de Saint-Exupery

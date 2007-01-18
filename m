@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751045AbXARU7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751125AbXARVBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbXARU7l (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 15:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbXARU7l
+	id S1751125AbXARVBN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 16:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbXARVBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 15:59:41 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:51675 "EHLO e5.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751045AbXARU7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 15:59:40 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       Eric Van Hensbergren <ericvh@gmail.com>
-Subject: [RESEND][PATCH] 9p: fix rename return code
-Date: Thu, 18 Jan 2007 14:56:40 -0600
-Message-Id: <11691538004070-git-send-email-ericvh@gmail.com>
-X-Mailer: git-send-email 1.5.0.rc1.gdf1b-dirty
+	Thu, 18 Jan 2007 16:01:13 -0500
+Received: from nikam-dmz.ms.mff.cuni.cz ([195.113.20.16]:38663 "EHLO
+	nikam.ms.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751125AbXARVBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 16:01:13 -0500
+Date: Thu, 18 Jan 2007 22:01:10 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [RFC] pci_bus conversion to struct device
+Message-ID: <mj+md-20070118.205904.29248.nikam@ucw.cz>
+References: <20070118005344.GA8391@kroah.com> <20070118022352.GA17531@parisc-linux.org> <mj+md-20070118.081204.18154.nikam@ucw.cz> <20070118090044.GA23596@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070118090044.GA23596@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-9p doesn't handle renames between directories -- however, we were returning
-EPERM instead of EXDEV when we detected this case.
+Hello!
 
-Signed-off-by: Eric Van Hensbergren <ericvh@gmail.com>
----
- fs/9p/vfs_inode.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> So, if it were to stay, where in the tree should it be?  Hanging off of
+> the pci device that is the bridge?  Or just placing these files within
+> the pci device directory itself, as it is the bridge.
 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 18f26cd..05d30e8 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -767,7 +767,7 @@ v9fs_vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	/* 9P can only handle file rename in the same directory */
- 	if (memcmp(&olddirfid->qid, &newdirfid->qid, sizeof(newdirfid->qid))) {
- 		dprintk(DEBUG_ERROR, "old dir and new dir are different\n");
--		retval = -EPERM;
-+		retval = -EXDEV;
- 		goto FreeFcallnBail;
- 	}
- 
+I originally didn't realize that we already represent devices on the
+subordinate bus as subdirectories of the bridge device's directory,
+without any extra level of abstraction. So it probably makes sense
+to put the bus-specific files there or, in case of a root bus, to
+/sys/devices/pciXXXX:YY/.
+
+				Have a nice fortnight
 -- 
-1.5.0.rc1.gdf1b-dirty
-
+Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"It is only with the heart that one can see rightly; What is essential is invisible to the eye." -- The Little Prince

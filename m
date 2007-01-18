@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752042AbXAROQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752036AbXAROWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752042AbXAROQ4 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbXAROQz
+	id S1752036AbXAROWg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbXAROWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:16:55 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:48493 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752039AbXAROQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:16:54 -0500
-Subject: Re: [PATCH: 2.6.20-rc4-mm1] JFS: Avoid deadlock introduced by
-	explicit I/O plugging
-From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: Jens Axboe <jens.axboe@oracle.com>,
-       JFS Discussion <jfs-discussion@lists.sourceforge.net>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <20070118063019.GA31164@filer.fsl.cs.sunysb.edu>
-References: <1169074549.10560.10.camel@kleikamp.austin.ibm.com>
-	 <20070118063019.GA31164@filer.fsl.cs.sunysb.edu>
-Content-Type: text/plain
-Date: Thu, 18 Jan 2007 08:15:30 -0600
-Message-Id: <1169129730.7295.10.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+	Thu, 18 Jan 2007 09:22:36 -0500
+Received: from mail.syneticon.net ([213.239.212.131]:37686 "EHLO
+	mail2.syneticon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752036AbXAROWf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 09:22:35 -0500
+Message-ID: <45AF827C.4020902@wpkg.org>
+Date: Thu, 18 Jan 2007 15:21:48 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061110 Mandriva/1.5.0.8-1mdv2007.1 (2007.1) Thunderbird/1.5.0.8 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: Al Borchers <alb@google.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
+References: <E1H7Uqx-0003X0-0u@llonio.corp.google.com>
+In-Reply-To: <E1H7Uqx-0003X0-0u@llonio.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 01:30 -0500, Josef Sipek wrote:
-> On Wed, Jan 17, 2007 at 04:55:49PM -0600, Dave Kleikamp wrote:
-
-> >  /*
-> >   *	jfs_lock.h
-> > @@ -42,6 +43,7 @@ do {							\
-> >  		if (cond)				\
-> >  			break;				\
-> >  		unlock_cmd;				\
-> > +		blk_replug_current_nested();		\
-> >  		schedule();				\
-> >  		lock_cmd;				\
-> >  	}						\
+Al Borchers wrote:
+> Thomas Chmielewski wrote:
+>> These all unpleasant tasks could be avoided if it was possible to have a 
+>> "fallback" device. For example, consider this hypothetical command line:
+>>
+>> root=/dev/sdb1,/dev/sda1
 > 
-> Is {,un}lock_cmd a macro? ...
+> Here is a patch to do this, though it sounds like you might have other
+> solutions.
+> 
+> This patch is for 2.6.18.1--thanks to Ed Falk for updating my original
+> 2.6.11 patch.  If people are interested I can update and test this on
+> the current kernel.  It was tested on 2.6.11.
 
-They are the commands passed into this macro (as arguments) to
-release/take a lock.  This is a home-grown wait_on_event type macro
-where the condition must be checked while holding a lock.  And the
-commands passed in are themselves macros.  The jfs code could probably
-be cleaned up a bit as far as excessive use of macros for locking, but
-it's been working for a few years with few problems.
+Yes, I'd be interested in a patch against a 2.6.19. It is way simpler to 
+do it this way than to do it with initramfs (although not as flexible).
+
+I tried your patch against 2.6.19, with some minor changes (as it 
+wouldn't apply), but it didn't work for me (perhaps I just screwed 
+something).
+
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Tomasz Chmielewski
+http://wpkg.org

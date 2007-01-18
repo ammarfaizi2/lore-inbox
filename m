@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751891AbXARCHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751899AbXARCM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751891AbXARCHg (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 21:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbXARCHg
+	id S1751899AbXARCM4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 21:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbXARCM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 21:07:36 -0500
-Received: from front2.netvisao.pt ([213.228.128.57]:41678 "HELO
-	front2.netvisao.pt" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751891AbXARCHf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 21:07:35 -0500
-From: Ricardo Correia <rcorreia@wizy.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: How to flush the disk write cache from userspace
-Date: Thu, 18 Jan 2007 01:15:54 +0000
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200701140405.33748.rcorreia@wizy.org> <20070116003854.GE4067@kernel.dk>
-In-Reply-To: <20070116003854.GE4067@kernel.dk>
+	Wed, 17 Jan 2007 21:12:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27523 "EHLO virtualhost.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751899AbXARCMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 21:12:55 -0500
+Date: Thu, 18 Jan 2007 13:13:06 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: linux-kernel@vger.kernel.org, KudOS <kudos@lists.ucla.edu>
+Subject: Re: block_device usage and incorrect block writes
+Message-ID: <20070118021306.GA22842@kernel.dk>
+References: <20070118010851.GA28129@pooh.cs.ucla.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701180115.54772.rcorreia@wizy.org>
+In-Reply-To: <20070118010851.GA28129@pooh.cs.ucla.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 January 2007 00:38, you wrote:
-> As always with these things, the devil is in the details. It requires
-> the device to support a ->prepare_flush() queue hook, and not all
-> devices do that. It will work for IDE/SATA/SCSI, though. In some devices
-> you don't want/need to do a real disk flush, it depends on the write
-> cache settings, battery backing, etc.
+On Wed, Jan 17 2007, Chris Frost wrote:
+> We are working on a kernel module which uses the linux block device
+> interface as part of a larger project, are seeing unexpected block
+> write behavior from our usage of the noop scheduler, and were
+> wondering whether anyone might have feedback on what the behavior we
+> see?
+> 
+> We would like to send block writes such that they are written to the
+> drive controller in fifo order, so we are using the noop scheduler.
+> However, a small percentage (1-5 of ~50,000) of block writes end up
+> with incorrect data on the disk. We have determined that for each of
+> these incorrect blocks, the last write for the block was issued while
+> a previous write to the block was still queued (that is, the bio end
+> function had not yet been called) and that the next to last issued
+> write (that is, the generic_make_request function call) for the block
+> contains the data that ends up on the disk.
 
-Is there any chance that someone could implement this (I don't have the 
-skills, unfortunately)? Maybe add a new ioctl() to block devices, so that it 
-doesn't break any existing code?
+noop doesn't guarentee that IO will be queued with the device in the
+order in which they are submitted, and it definitely doesn't guarentee
+that the device will process them in the order in which they are
+dispatched. noop being FIFO basically means that it will not sort
+requests. You can still have reordering if one request gets merged with
+another, for instance.
 
-I believe it's a very useful (and relatively simple) feature that increases 
-data integrity and reliability for applications that need this functionality.
+The block layer in general provides no guarentees about ordering of
+requests, unless you use barriers. So if you require ordering across a
+given write request, it needs to be a write barrier.
 
-I think it must be considered that most people have disk write caches enabled 
-and are using IDE, SATA or SCSI disks.
+> A possibly related (and unexpected) behavior we have noticed is that
+> the bio end function is not always called in the same order as our
+> calls to generic_make_request(). We are not sure whether this
+> indicates that the requests are being written to disk in the callback
+> order, but would like to fix this if so (since we want the writes made
+> in the order of our requests).
 
-I also think there's no point in disabling disks' write caches, since it slows 
-writes and decreases disks' lifetime, and because there's a better solution.
+The drive could complete requests in any order it sees fit, within the
+depth level of the drive. If write caching is enabled, it can reorder
+writes easily.
 
-Personally, I'm not really interested in specific filesystem behaviour, since 
-my application uses block devices directly (it's a filesystem itself). 
-Although I think all filesystems should guarantee data integrity in the face 
-of fsync() or metadata modifications, even if it costs a little performance.
+-- 
+Jens Axboe
 
-Thank you.

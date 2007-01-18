@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932307AbXARNI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932332AbXARNEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbXARNI6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 08:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbXARNI6
+	id S932332AbXARNEy (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 08:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbXARNEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 08:08:58 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:45364 "EHLO mx2.mail.elte.hu"
+	Thu, 18 Jan 2007 08:04:31 -0500
+Received: from mx2.suse.de ([195.135.220.15]:54876 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932307AbXARNIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 08:08:45 -0500
-Date: Thu, 18 Jan 2007 14:07:25 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: Daniel Walker <dwalker@mvista.com>, tglx@linutronix.de, khilman@mvista.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] futex null pointer timeout
-Message-ID: <20070118130725.GA14782@elte.hu>
-References: <20070118002503.418478415@mvista.com> <20070118073816.GA28486@elte.hu> <45AF6790.8010000@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45AF6790.8010000@bull.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -3.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.8 required=5.9 tests=ALL_TRUSTED,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-0.5 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.0765]
+	id S932367AbXARNES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 08:04:18 -0500
+Message-Id: <20070118130030.461808000@strauss.suse.de>
+References: <20070118125849.441998000@strauss.suse.de>
+User-Agent: quilt/0.46-14
+Date: Thu, 18 Jan 2007 13:59:05 +0100
+From: Bernhard Walle <bwalle@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: [patch 16/26] Dynamic kernel command-line - powerpc
+Content-Disposition: inline; filename=dynamic-kernel-command-line-powerpc.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+Rename saved_command_line into boot_command_line.
 
-> Ingo Molnar a écrit :
-> >* Daniel Walker <dwalker@mvista.com> wrote:
-> >
-> [...]
-> >>The patch reworks do_futex, and futex_wait* so a NULL pointer in the 
-> >>timeout position is infinite, and anything else is evaluated as a real 
-> >>timeout.
-> >
-> >thanks, applied.
-> >
-> 
-> On top of this patch, you will need the following patch: futex_lock_pi 
-> is also involved.
+Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
-thanks, applied. (FYI, your mailer added an extra space to every context 
-line in the patch and thus corrupted it, i fixed it up by hand.)
+---
+ arch/powerpc/kernel/legacy_serial.c     |    2 +-
+ arch/powerpc/kernel/prom.c              |    2 +-
+ arch/powerpc/kernel/udbg.c              |    2 +-
+ arch/powerpc/platforms/powermac/setup.c |    4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-	Ingo
+Index: linux-2.6.20-rc4-mm1/arch/powerpc/kernel/legacy_serial.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/arch/powerpc/kernel/legacy_serial.c
++++ linux-2.6.20-rc4-mm1/arch/powerpc/kernel/legacy_serial.c
+@@ -498,7 +498,7 @@ static int __init check_legacy_serial_co
+ 	DBG(" -> check_legacy_serial_console()\n");
+ 
+ 	/* The user has requested a console so this is already set up. */
+-	if (strstr(saved_command_line, "console=")) {
++	if (strstr(boot_command_line, "console=")) {
+ 		DBG(" console was specified !\n");
+ 		return -EBUSY;
+ 	}
+Index: linux-2.6.20-rc4-mm1/arch/powerpc/kernel/prom.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/arch/powerpc/kernel/prom.c
++++ linux-2.6.20-rc4-mm1/arch/powerpc/kernel/prom.c
+@@ -991,7 +991,7 @@ void __init early_init_devtree(void *par
+ 	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
+ 
+ 	/* Save command line for /proc/cmdline and then parse parameters */
+-	strlcpy(saved_command_line, cmd_line, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, cmd_line, COMMAND_LINE_SIZE);
+ 	parse_early_param();
+ 
+ 	/* Reserve LMB regions used by kernel, initrd, dt, etc... */
+Index: linux-2.6.20-rc4-mm1/arch/powerpc/kernel/udbg.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/arch/powerpc/kernel/udbg.c
++++ linux-2.6.20-rc4-mm1/arch/powerpc/kernel/udbg.c
+@@ -146,7 +146,7 @@ void __init disable_early_printk(void)
+ {
+ 	if (!early_console_initialized)
+ 		return;
+-	if (strstr(saved_command_line, "udbg-immortal")) {
++	if (strstr(boot_command_line, "udbg-immortal")) {
+ 		printk(KERN_INFO "early console immortal !\n");
+ 		return;
+ 	}
+Index: linux-2.6.20-rc4-mm1/arch/powerpc/platforms/powermac/setup.c
+===================================================================
+--- linux-2.6.20-rc4-mm1.orig/arch/powerpc/platforms/powermac/setup.c
++++ linux-2.6.20-rc4-mm1/arch/powerpc/platforms/powermac/setup.c
+@@ -506,8 +506,8 @@ void note_bootable_part(dev_t dev, int p
+ 	if ((goodness <= current_root_goodness) &&
+ 	    ROOT_DEV != DEFAULT_ROOT_DEVICE)
+ 		return;
+-	p = strstr(saved_command_line, "root=");
+-	if (p != NULL && (p == saved_command_line || p[-1] == ' '))
++	p = strstr(boot_command_line, "root=");
++	if (p != NULL && (p == boot_command_line || p[-1] == ' '))
+ 		return;
+ 
+ 	if (!found_boot) {
+
+-- 

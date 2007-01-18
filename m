@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932193AbXARLj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932160AbXARLta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbXARLj3 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 06:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbXARLj3
+	id S932160AbXARLta (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 06:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbXARLta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 06:39:29 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:51199 "EHLO
-	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932163AbXARLj2 (ORCPT
+	Thu, 18 Jan 2007 06:49:30 -0500
+Received: from mail.syneticon.net ([213.239.212.131]:37398 "EHLO
+	mail2.syneticon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932197AbXARLt3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 06:39:28 -0500
-Subject: Re: [PATCH 1/2] Consolidate bust_spinlocks()
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Alexey Dobriyan <adobriyan@openvz.org>
-Cc: akpm@osdl.org, dev@sw.ru, linux-kernel@vger.kernel.org, devel@openvz.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <20070118111626.GA6040@localhost.sw.ru>
-References: <20070118111626.GA6040@localhost.sw.ru>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 18 Jan 2007 12:39:25 +0100
-Message-Id: <1169120365.5621.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Thu, 18 Jan 2007 06:49:29 -0500
+Message-ID: <45AF5E8E.9020607@wpkg.org>
+Date: Thu, 18 Jan 2007 12:48:30 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061110 Mandriva/1.5.0.8-1mdv2007.1 (2007.1) Thunderbird/1.5.0.8 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: kernel cmdline: root=/dev/sdb1,/dev/sda1 "fallback"?
+References: <45AE1D65.4010804@wpkg.org> <Pine.LNX.4.61.0701171435060.18562@yvahk01.tjqt.qr> <45AE2E25.50309@wpkg.org> <45AE8818.1050803@zytor.com> <45AF4CF9.1070801@wpkg.org> <45AF502F.9010009@zytor.com>
+In-Reply-To: <45AF502F.9010009@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 14:16 +0300, Alexey Dobriyan wrote:
-> From: Kirill Korotaev <dev@sw.ru>
+H. Peter Anvin wrote:
+> Tomasz Chmielewski wrote:
+>> H. Peter Anvin wrote:
+>>> Tomasz Chmielewski wrote:
+>>>>
+>>>> All right.
+>>>> I see that initramfs is attached to the kernel itself.
+>>>>
+>>>> So it leaves me only a question: will I fit all tools into 300 kB 
+>>>> (considering I'll use uClibc and busybox)?
+>>>>
+>>>
+>>> You don't need to use busybox and have a bunch of tools.
+>>>
+>>> The klibc distribution comes with "kinit", which does the equivalent 
+>>> to the kernel root-mounting code; it's in the tens of kilobytes, at 
+>>> least on x86.  If you're using ARM, you can compile it as Thumb.
+>>
+>> Hmm, I'm having problems compiling klibc-1.4 on ARM (using gcc-4.1.1):
+>>
 > 
-> Part of long forgotten patch
-> http://groups.google.com/group/fa.linux.kernel/msg/e98e941ce1cf29f6?dmode=source
-> Since then, m32r grabbed two copies.
-> 
-> Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
-> ---
-> 
->  arch/i386/mm/fault.c       |   26 --------------------------
->  arch/ia64/kernel/traps.c   |   30 ------------------------------
->  arch/m32r/mm/fault-nommu.c |   26 --------------------------
->  arch/m32r/mm/fault.c       |   26 --------------------------
->  arch/s390/mm/fault.c       |   26 --------------------------
->  arch/x86_64/mm/fault.c     |   21 ---------------------
->  lib/Makefile               |    4 ++--
->  lib/bust_spinlocks.c       |    2 +-
->  8 files changed, 3 insertions(+), 158 deletions(-)
+> Could you send me your kernel .config, as well as what version of the 
+> kernel you're building against?
 
-NACK for the s390 part. lib/bust_spinlocks.c does an unblank_screen if
-CONFIG_VT is defined. That is not good enough for s390 because we do not
-have CONFIG_VT nor unblank_screen but still require that console_unblank
-is called.
+I managed to compile a "Testing" 1.4.31 version (in fact, version 1.4 
+didn't compile because I didn't have a "linux" link pointing to kernel 
+sources; version 1.4.31 tells that it's missing - so both versions 
+compile fine).
+
+The problem is... I'm not sure how to start with it. The package doesn't 
+have much documentation (other than "read the source"), does it?
+
+On the other hand, I see it comes with a couple of useful tools, like sh 
+(dash)... They are also pretty small, so everything should fit into 300 
+kB (dash=70kB, kinit=70kB, mount=12kB).
+
+As I understand, this is what I have to do:
+
+1. compile a kernel with initramfs, which will include a cpio image with 
+some tools
+
+2. tools/scripts in cpio image should do the following:
+
+mount /proc
+DISKS=$(cat /proc/diskstats)
+for WORD in $DISKS
+do
+[ $WORD = sdb1 ] && echo "partition found, what next?..."
+done
+
+# do a similar logic for sda1
+
+
+Am I correct? Of course I'd appreciate how to achieve point 2 (where now 
+"partition found, what next?..." is).
+
 
 -- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
+Tomasz Chmielewski
+http://wpkg.org
 

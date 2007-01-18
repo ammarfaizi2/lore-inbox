@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752024AbXAROIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752026AbXAROLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752024AbXAROIu (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752026AbXAROIu
+	id S1752026AbXAROLG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752029AbXAROLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:08:50 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2457 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752024AbXAROIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:08:50 -0500
-Date: Thu, 18 Jan 2007 15:08:46 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: What does this scsi error mean ?
-Message-ID: <20070118140846.GA30702@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Alan <alan@lxorguk.ukuu.org.uk>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20070115171602.GA23661@dspnet.fr.eu.org> <20070115184540.2b3c4f78@localhost.localdomain> <20070115214503.GA56952@dspnet.fr.eu.org> <20070115231452.3528bd32@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070115231452.3528bd32@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 18 Jan 2007 09:11:06 -0500
+Received: from gateway1.seskion.de ([62.8.128.82]:20649 "EHLO
+	gateway1.seskion.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752026AbXAROLF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 09:11:05 -0500
+X-Greylist: delayed 1606 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Jan 2007 09:11:04 EST
+Message-ID: <45AF79AE.1060102@seskion.de>
+Date: Thu, 18 Jan 2007 14:44:14 +0100
+From: Juergen Pfeiffer <j.pfeiffer@seskion.de>
+Organization: SesKion Softwareentwicklung und System Konzeption GmbH
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: long disable of Softirqs in br_forward_delay_timer_expired()
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2007 at 11:14:52PM +0000, Alan wrote:
-> > Both smart and the internal blade diagnostics say "everything is a-ok
-> > with the drive, there hasn't been any error ever except a bunch of
-> > corrected ECC ones, and no more than with a similar drive in another
-> > working blade".  Hence my initial post.  "Hardware error" is kinda
-> > imprecise, so I was wondering whether it was unexpected controller
-> > answer, detected transmission error, block write error, sector not
-> > found...  Is there a way to have more information?
-> 
-> Well the right place to look would indeed have been the SMART data
-> providing the drive didn't get into a state it couldn't update it.
-> Hardware error comes from the drive deciding something is wrong (or a
-> raid card faking it I guess). That covers everything from power
-> fluctuations and overheating through firmware consistency failures and
-> more.
-> 
-> If you pull the drive and test it in another box does it show the same ?
+Hi
 
-Ok, inverted the disks, got a crash of the same blade with the new
-disk, so the problem is not the drive itself.  Gonna try inverting two
-blades to check if it's the power supply connector/rail.
+I had problems in my implementation of Profibus-protocol, because my 
+FDL-State machine is implemented in tasklets and
+sometimes there were situations, where Soft-Irqs were disabled for 
+20-40mS (Coldfire 5485 / 96MHz).
+After inserting some testpoints in kernels source, doing dump_stack(), 
+when the jiffie-time get longer then 20mS,
+i detected the place of the long Soft-Irq disable in function
 
-  OG.
+static void br_forward_delay_timer_expired(..)
+inside file "net/bridge/br_stp_timer.c"
+
+It does a
+spin_lock_bh(..);
+... some functionality;
+spin_unlock_bh(..);
+
+Does anybody know, why the functionality inbetween lock/unlock takes so long
+(2-4 jiffies @ HZ=100)
+
+
+Thank You
+
+Juergen Pfeiffer,
+Seskion GmbH
+Karlsruher Str. 11/1
+70771 Leinfelden-Echterdingen
+Germany
+
+j.pfeiffer@seskion.de
+
+www.seskion.de
 

@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932526AbXARQsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752047AbXARQwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbXARQsz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 11:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbXARQsz
+	id S1752047AbXARQwv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 11:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752049AbXARQwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 11:48:55 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:6731 "EHLO
-	gockel.physik3.uni-rostock.de" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932526AbXARQsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 11:48:54 -0500
-Date: Thu, 18 Jan 2007 17:48:53 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH]  Centralize the macro definition of "__packed".
-In-Reply-To: <Pine.LNX.4.64.0701180959470.19826@CPE00045a9c397f-CM001225dbafb6>
-Message-ID: <Pine.LNX.4.63.0701181745550.2068@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.64.0701180959470.19826@CPE00045a9c397f-CM001225dbafb6>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Jan 2007 11:52:51 -0500
+Received: from mail.apcon.com ([66.213.199.210]:30601 "EHLO mail.apcon.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752047AbXARQwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 11:52:51 -0500
+Subject: Re: A question about break and sysrq on a serial console (2.6.19.1)
+From: Brian Beattie <brianb@apcon.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20070118164747.GD31418@flint.arm.linux.org.uk>
+References: <1169078214.16802.17.camel@brianb>
+	 <20070118091326.GB32068@flint.arm.linux.org.uk>
+	 <1169137187.16802.26.camel@brianb>
+	 <20070118164747.GD31418@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: APCON, Inc.
+Date: Thu, 18 Jan 2007 08:52:49 -0800
+Message-Id: <1169139169.16802.31.camel@brianb>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jan 2007 16:53:04.0728 (UTC) FILETIME=[1F3B2D80:01C73B21]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2007, Robert P. J. Day wrote:
+On Thu, 2007-01-18 at 16:47 +0000, Russell King wrote:
+> On Thu, Jan 18, 2007 at 08:19:47AM -0800, Brian Beattie wrote:
+> > On Thu, 2007-01-18 at 09:13 +0000, Russell King wrote:
+> > > On Wed, Jan 17, 2007 at 03:56:54PM -0800, Brian Beattie wrote:
+> > > > I'm trying to do a SYSRQ over a serial console.  As I understand it a
+> > > > break will do that, but I'm not seeing the SYSRQ.  In looking at
+> > > > uart_handle_break() in drivers/serial/8250.c it looks like the code will
+> > > > toggle port->sysrq, rather than just setting it when the port is a
+> > > > console.  I think the correct code would be to move the "port->sysrq =
+> > > > 0;" to follow the closing brace on the next line, or am I missing
+> > > > something.
+> > > 
+> > > Thereby preventing the action of <break> (which may be to cause a SAK
+> > > event, which would be rather important on a console to ensure that
+> > > you're really logging in rather than typing your password into another
+> > > users program which just looks like a login program.)
+> > > 
+> > > Note that the sequence for sysrq is:
+> > > 
+> > > (non-break characters or nothing) <break> <sysrq-char>
+> > > 
+> > well the code as is, is not working.  Printk's tell me that
+> > uart_handle_break() is called repeatedly while the break condition is
+> > active, toggling port->sysrq so that it's a 50/50 chance on whether
+> > port->sysrq will be set or cleared when the break condition ends.  On
+> > the other hand the 8250 break condition handling code is not working
+> > anyway, so the problem may be that the 8250 code is not calling
+> > uart_handle_break() correctly.
+> 
+> Please learn to use the "reply to all" button when using mailing lists.
+I don't post much to LKML, I realized after I hit send I needed to reply
+all.
+> 
+> Works fine here.  Which UART are you actually using?  At a guess, it's
+> probably a bad clone which does not have a correct break implementation.
 
->   Centralize the attribute macro definition of "__packed" so no
-> subsystem has to do that explicitly.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   compile tested to make sure the HFS subsystem still builds.  now
-> there's just 50 gazillion usages of "__attribute__((packed))" that can
-> be tightened up.
-> 
-> 
->  fs/hfs/hfs.h                 |    2 --
->  fs/hfsplus/hfsplus_raw.h     |    2 --
->  include/linux/compiler-gcc.h |    1 +
->  3 files changed, 1 insertion(+), 4 deletions(-)
+it's the built-in mpc8349 powerpc uart.
 
-Moving definitions into compiler-gcc.h only will screw non-gcc compilers 
-like icc.
-They should probably go into the generic section of compiler.h instead.
+> 
+-- 
+Brian Beattie
+Firmware Engineer
+APCON, Inc.
+BrianB@apcon.com
 
-Tim

@@ -1,246 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752075AbXARRYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752077AbXARRdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752075AbXARRYK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 12:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbXARRYK
+	id S1752077AbXARRdp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 12:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752071AbXARRdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 12:24:10 -0500
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:3566 "EHLO
-	usea-naimss1.unisys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752075AbXARRYI (ORCPT
+	Thu, 18 Jan 2007 12:33:45 -0500
+Received: from amsfep20-int.chello.nl ([62.179.120.15]:34875 "EHLO
+	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752064AbXARRdo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 12:24:08 -0500
-Subject: Re: PATCH: Update disable_IO_APIC to use 8-bit destination field 
-	(X86_64)
-From: Benjamin Romer <benjamin.romer@unisys.com>
-To: vgoyal@in.ibm.com
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20070118080003.GC31860@in.ibm.com>
-References: <1169052407.3082.43.camel@ustr-romerbm-2.na.uis.unisys.com>
-	 <m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
-	 <20070118034153.GA5406@in.ibm.com> <20070118043639.GA12459@in.ibm.com>
-	 <m1tzyo7qtc.fsf@ebiederm.dsl.xmission.com>
-	 <20070118080003.GC31860@in.ibm.com>
+	Thu, 18 Jan 2007 12:33:44 -0500
+Subject: Re: Possible ways of dealing with OOM conditions.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
+       David Miller <davem@davemloft.net>
+In-Reply-To: <20070118155003.GA6719@2ka.mipt.ru>
+References: <20070116132503.GA23144@2ka.mipt.ru>
+	 <1168955274.22935.47.camel@twins> <20070116153315.GB710@2ka.mipt.ru>
+	 <1168963695.22935.78.camel@twins> <20070117045426.GA20921@2ka.mipt.ru>
+	 <1169024848.22935.109.camel@twins> <20070118104144.GA20925@2ka.mipt.ru>
+	 <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru>
+	 <1169133052.6197.96.camel@twins>  <20070118155003.GA6719@2ka.mipt.ru>
 Content-Type: text/plain
-Organization: Unisys Corporation
-Date: Thu, 18 Jan 2007 12:23:54 -0500
-Message-Id: <1169141034.6665.6.camel@ustr-romerbm-2.na.uis.unisys.com>
+Date: Thu, 18 Jan 2007 18:31:53 +0100
+Message-Id: <1169141513.6197.115.camel@twins>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2007 17:23:55.0590 (UTC) FILETIME=[6E6E4E60:01C73B25]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-18 at 13:30 +0530, Vivek Goyal wrote:
-> On Thu, Jan 18, 2007 at 12:10:55AM -0700, Eric W. Biederman wrote:
-> > Vivek Goyal <vgoyal@in.ibm.com> writes:
-> > >
-> > > Or how about making physical_dest field also 8bit like logical_dest field.
-> > > This will work both for 4bit and 8bit physical apic ids at the same time
-> > > code becomes more intutive and it is easier to know whether IOAPIC is being
-> > > put in physical or destination logical mode.
+On Thu, 2007-01-18 at 18:50 +0300, Evgeniy Polyakov wrote:
+> On Thu, Jan 18, 2007 at 04:10:52PM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
+> > On Thu, 2007-01-18 at 16:58 +0300, Evgeniy Polyakov wrote:
 > > 
-> > Exactly what I was trying to suggest.
+> > > Network is special in this regard, since it only has one allocation path
+> > > (actually it has one cache for skb, and usual kmalloc, but they are
+> > > called from only two functions).
+> > > 
+> > > So it would become 
+> > > ptr = network_alloc();
+> > > and network_alloc() would be usual kmalloc or call for own allocator in
+> > > case of deadlock.
 > > 
-> > Looking closer at the code I think it makes sense to just kill the union and
-> > stop the discrimination between physical and logical modes and just have a
-> > dest field in the structure.  Roughly as you were suggesting at first.
-> > 
-> > The reason we aren't bitten by this on a regular basis is the normal code
-> > path uses logical.logical_dest in both logical and physical modes.
-> > Which is a little confusing.
-> > 
-> > Since there really isn't a distinction to be made we should just stop
-> > trying, which will make maintenance easier :)
-> > 
-> > Currently there are several non-common case users of physical_dest
-> > that are probably bitten by this problem under the right
-> > circumstances.
-> > 
-> > So I think we should just make the structure:
-> > 
-> > struct IO_APIC_route_entry {
-> > 	__u32	vector		:  8,
-> > 		delivery_mode	:  3,	/* 000: FIXED
-> > 					 * 001: lowest prio
-> > 					 * 111: ExtINT
-> > 					 */
-> > 		dest_mode	:  1,	/* 0: physical, 1: logical */
-> > 		delivery_status	:  1,
-> > 		polarity	:  1,
-> > 		irr		:  1,
-> > 		trigger		:  1,	/* 0: edge, 1: level */
-> > 		mask		:  1,	/* 0: enabled, 1: disabled */
-> > 		__reserved_2	: 15;
-> > 
-> > 	__u32	__reserved_3	: 24,
-> > 		__dest		:  8;
-> > } __attribute__ ((packed));
-> > 
-> > And fixup the users.  This should keep us from getting bit by this bug
-> > in the future.  Like when people start introducing support for more
-> > than 256 cores and the low 24bits start getting used.
-> > 
-> > Or when someone new starts working on the code and thinks the fact
-> > the field name says logical we are actually using the apic in logical
-> > mode.
+> > There is more to networking that skbs only, what about route cache,
+> > there is quite a lot of allocs in this fib_* stuff, IGMP etc...
 > 
-> This makes perfect sense to me. Ben, interested in providing a patch 
-> for this?
+> skbs are the most extensively used path.
+> Actually the same is applied to route - dst_entries and rtable are
+> allocated through own wrappers.
+
+Still, edit all places and perhaps forget one and make sure all new code
+doesn't forget about it, or pick a solution that covers everything.
+
+> With power-of-two allocation SLAB wastes 500 bytes for each 1500 MTU
+> packet (roughly), it is actaly one ACK packet - and I hear it from
+> person who develops a system, which is aimed to guarantee ACK
+> allocation in OOM :)
+
+I need full data traffic during OOM, not just a single ACK.
+
+> SLAB overhead is _very_ expensive for network - what if jumbo frame is
+> used? It becomes incredible in that case, although modern NICs allows
+> scatter-gather, which is aimed to fix the problem.
+
+Jumbo frames are fine if the hardware can do SG-DMA..
+
+> Cache misses for small packet flow due to the fact, that the same data
+> is allocated and freed  and accessed on different CPUs will become an
+> issue soon, not right now, since two-four core CPUs are not yet to be
+> very popular and price for the cache miss is not _that_ high.
+
+SGI does networking too, right?
+
+> > > > > performs self-defragmentation of the memeory, 
+> > > > 
+> > > > Does it move memory about? 
+> > > 
+> > > It works in a page, not as pages - when neighbour regions are freed,
+> > > they are combined into single one with bigger size
+> > 
+> > Yeah, that is not defragmentation, defragmentation is moving active
+> > regions about to create contiguous free space. What you do is free space
+> > coalescence.
 > 
-> Thanks
-> Vivek
+> That is wrong definition just because no one developed different system.
+> Defragmentation is a result of broken system.
+> 
+> Existing design _does_not_ allow to have the situation when whole page
+> belongs to the same cache after it was actively used, the same is
+> applied to the situation when several pages, which create contiguous
+> region, are used by different users, so people start develop VM tricks
+> to move pages around so they would be placed near in address space.
+> 
+> Do not fix the result, fix the reason.
 
-OK, here's the updated patch that uses the new definition and fixes up
-the other places that use it. I built and tested this on the ES7000/ONE
-and it works well. :)
+*plonk* 30+yrs of research ignored.
 
--- Ben
+> > > The whole pool of pages becomes reserve, since no one (and mainly VFS)
+> > > can consume that reserve.
+> > 
+> > Ah, but there you violate my requirement, any network allocation can
+> > claim the last bit of memory. The whole idea was that the reserve is
+> > explicitly managed.
+> > 
+> > It not only needs protection from other users but also from itself.
+> 
+> Specifying some users as good and others as bad generally tends to very
+> bad behaviour. Your appwoach only covers some users, mine does not
+> differentiate between users,
 
-diff -ru linux-2.6.19.2-orig/arch/x86_64/kernel/io_apic.c
-linux-2.6.19.2/arch/x86_64/kernel/io_apic.c
---- linux-2.6.19.2-orig/arch/x86_64/kernel/io_apic.c	2007-03-18
-12:29:52.000000000 -0400
-+++ linux-2.6.19.2/arch/x86_64/kernel/io_apic.c	2007-03-18
-13:15:26.000000000 -0400
-@@ -814,7 +814,7 @@
- 		entry.delivery_mode = INT_DELIVERY_MODE;
- 		entry.dest_mode = INT_DEST_MODE;
- 		entry.mask = 0;				/* enable IRQ */
--		entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
-+		entry.__dest = cpu_mask_to_apicid(TARGET_CPUS);
- 
- 		idx = find_irq_entry(apic,pin,mp_INT);
- 		if (idx == -1) {
-@@ -832,7 +832,7 @@
- 		if (irq_trigger(idx)) {
- 			entry.trigger = 1;
- 			entry.mask = 1;
--			entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
-+			entry.__dest = cpu_mask_to_apicid(TARGET_CPUS);
- 		}
- 
- 		irq = pin_2_irq(idx, apic, pin);
-@@ -847,7 +847,7 @@
- 			if (vector < 0)
- 				continue;
- 
--			entry.dest.logical.logical_dest = cpu_mask_to_apicid(mask);
-+			entry.__dest = cpu_mask_to_apicid(mask);
- 			entry.vector = vector;
- 
- 			ioapic_register_intr(irq, vector, IOAPIC_AUTO);
-@@ -888,7 +888,7 @@
- 	 */
- 	entry.dest_mode = INT_DEST_MODE;
- 	entry.mask = 0;					/* unmask IRQ now */
--	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
-+	entry.__dest = cpu_mask_to_apicid(TARGET_CPUS);
- 	entry.delivery_mode = INT_DELIVERY_MODE;
- 	entry.polarity = 0;
- 	entry.trigger = 0;
-@@ -988,18 +988,17 @@
- 
- 	printk(KERN_DEBUG ".... IRQ redirection table:\n");
- 
--	printk(KERN_DEBUG " NR Log Phy Mask Trig IRR Pol"
--			  " Stat Dest Deli Vect:   \n");
-+	printk(KERN_DEBUG " NR Dst Mask Trig IRR Pol"
-+			  " Stat Dmod Deli Vect:   \n");
- 
- 	for (i = 0; i <= reg_01.bits.entries; i++) {
- 		struct IO_APIC_route_entry entry;
- 
- 		entry = ioapic_read_entry(apic, i);
- 
--		printk(KERN_DEBUG " %02x %03X %02X  ",
-+		printk(KERN_DEBUG " %02x %03X ",
- 			i,
--			entry.dest.logical.logical_dest,
--			entry.dest.physical.physical_dest
-+			entry.__dest
- 		);
- 
- 		printk("%1d    %1d    %1d   %1d   %1d    %1d    %1d    %02X\n",
-@@ -1261,8 +1260,7 @@
- 		entry.dest_mode       = 0; /* Physical */
- 		entry.delivery_mode   = dest_ExtINT; /* ExtInt */
- 		entry.vector          = 0;
--		entry.dest.logical.logical_dest =
--					GET_APIC_ID(apic_read(APIC_ID));
-+		entry.__dest          = GET_APIC_ID(apic_read(APIC_ID));
- 
- 		/*
- 		 * Add it to the IO-APIC irq-routing table:
-@@ -1524,7 +1522,7 @@
- 
- 	entry1.dest_mode = 0;			/* physical delivery */
- 	entry1.mask = 0;			/* unmask IRQ now */
--	entry1.dest.physical.physical_dest = hard_smp_processor_id();
-+	entry1.__dest = hard_smp_processor_id();
- 	entry1.delivery_mode = dest_ExtINT;
- 	entry1.polarity = entry0.polarity;
- 	entry1.trigger = 0;
-@@ -2092,7 +2090,7 @@
- 
- 	entry.delivery_mode = INT_DELIVERY_MODE;
- 	entry.dest_mode = INT_DEST_MODE;
--	entry.dest.logical.logical_dest = cpu_mask_to_apicid(mask);
-+	entry.__dest = cpu_mask_to_apicid(mask);
- 	entry.trigger = triggering;
- 	entry.polarity = polarity;
- 	entry.mask = 1;					 /* Disabled (masked) */
-diff -ru linux-2.6.19.2-orig/include/asm-x86_64/io_apic.h
-linux-2.6.19.2/include/asm-x86_64/io_apic.h
---- linux-2.6.19.2-orig/include/asm-x86_64/io_apic.h	2007-03-18
-12:30:07.000000000 -0400
-+++ linux-2.6.19.2/include/asm-x86_64/io_apic.h	2007-03-18
-12:58:37.000000000 -0400
-@@ -72,31 +72,21 @@
- };
- 
- struct IO_APIC_route_entry {
--	__u32	vector		:  8,
--		delivery_mode	:  3,	/* 000: FIXED
--					 * 001: lowest prio
--					 * 111: ExtINT
--					 */
--		dest_mode	:  1,	/* 0: physical, 1: logical */
--		delivery_status	:  1,
--		polarity	:  1,
--		irr		:  1,
--		trigger		:  1,	/* 0: edge, 1: level */
--		mask		:  1,	/* 0: enabled, 1: disabled */
--		__reserved_2	: 15;
--
--	union {		struct { __u32
--					__reserved_1	: 24,
--					physical_dest	:  4,
--					__reserved_2	:  4;
--			} physical;
--
--			struct { __u32
--					__reserved_1	: 24,
--					logical_dest	:  8;
--			} logical;
--	} dest;
-+        __u32   vector          :  8,
-+                delivery_mode   :  3,   /* 000: FIXED
-+                                         * 001: lowest prio
-+                                         * 111: ExtINT
-+                                         */
-+                dest_mode       :  1,   /* 0: physical, 1: logical */
-+                delivery_status :  1,
-+                polarity        :  1,
-+                irr             :  1,
-+                trigger         :  1,   /* 0: edge, 1: level */
-+                mask            :  1,   /* 0: enabled, 1: disabled */
-+                __reserved_2    : 15;
- 
-+        __u32   __reserved_3    : 24,
-+                __dest          :  8;
- } __attribute__ ((packed));
- 
- /*
+The kernel is special, right? It has priority over whatever user-land
+does.
+
+>  but prevents system from such situation at all.
+
+I'm not seeing that, with your approach nobody stops the kernel from
+filling up the memory with user-space network traffic.
+
+swapping is not some random user process, its a fundamental kernel task,
+if this fails the machine is history.
 

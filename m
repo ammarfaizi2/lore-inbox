@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751129AbXARASA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751460AbXARASo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbXARASA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 19:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbXARASA
+	id S1751460AbXARASo (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 19:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbXARASo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 19:18:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55231 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751129AbXARASA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 19:18:00 -0500
-Date: Thu, 18 Jan 2007 00:17:58 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Ulrich Drepper <drepper@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH 2.6.20-rc5 4/4] sys_futex64 : allows 64bit futexes
-Message-ID: <20070118001758.GB17257@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pierre Peiffer <pierre.peiffer@bull.net>,
-	LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Jakub Jelinek <jakub@redhat.com>,
-	Jean-Pierre Dion <jean-pierre.dion@bull.net>
-References: <45ADDF60.5080704@bull.net> <45ADE6B5.8050402@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 Jan 2007 19:18:44 -0500
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:23470 "EHLO
+	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751460AbXARASn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 19:18:43 -0500
+Date: Thu, 18 Jan 2007 00:18:38 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Turbo Fredriksson <turbo@bayour.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weird harddisk behaviour
+Message-ID: <20070118001838.GA340@deepthought>
+References: <87bqkzp0et.fsf@pumba.bayour.com> <20070116141959.GC476@deepthought> <87y7o2hsmm.fsf@pumba.bayour.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <45ADE6B5.8050402@bull.net>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <87y7o2hsmm.fsf@pumba.bayour.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 10:04:53AM +0100, Pierre Peiffer wrote:
-> Hi,
+On Wed, Jan 17, 2007 at 11:09:21AM +0100, Turbo Fredriksson wrote:
+> Quoting Ken Moffat <zarniwhoop@ntlworld.com>:
 > 
-> This latest patch is an adaptation of the sys_futex64 syscall provided in 
-> -rt
-> patch (originally written by Ingo). It allows the use of 64bit futex.
+> >  Certainly, fdisk from util-linux doesn't know about mac disks, and
+> > I thought the same was true for cfdisk and sfdisk.  Many years ago
+> > there was mac-fdisk, I think also known as pdisk, but nowadays the
+> > common tool for partitioning mac disks is probably parted.
+> 
+> Yes. See now that 'fdisk' is a softlink to 'mac-fdisk'...
+> 
 
-Big NACK here, we don't need yet another goddamn multiplexer.  Please
-make this individual syscalls for the actual operations.
+ Sorry for not replying earlier, cutting the Cc: list on lkml is not
+always conducive to quick replies.
 
-> +	if (!ret) {
-> +		switch (cmp) {
-> +		case FUTEX_OP_CMP_EQ: ret = (oldval == cmparg); break;
-> +		case FUTEX_OP_CMP_NE: ret = (oldval != cmparg); break;
+ So, you were using a valid tool, but what you put in your original
+mail shows garbage - something like apple_partition_ma[mamama...
+followed later by some garbage which could admittedly have been UTF-8
+getting trashed in the mail.  I'm on my ibook at the moment, which
+has an old debian mac-fdisk on another partition.  If I chroot to
+that and look at the disk I see things like
 
-Please indent this properly, the ret = .. and reak need to go onto
-a line on it's own.
+/dev/hda
+        #                    type name                 length   base     ( size )  system
+/dev/hda1     Apple_partition_map Apple                    63 @ 1        ( 31.5k)  Partition map
+/dev/hda2         Apple_Bootstrap untitled               1954 @ 64       (977.0k)  NewWorld bootblock
 
+ and so forth.  Notice that everything there is in legible ascii and
+can be read with sensible values.  If what you actually see is
+similar, then it's just a problem in the mail.  But if it isn't,
+somehow the data on the disk (or the data being read from it) is
+corrupt.
+
+ĸen
+-- 
+das eine Mal als Tragödie, das andere Mal als Farce

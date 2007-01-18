@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932471AbXART5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbXART6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbXART5l (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 14:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbXART5l
+	id S932573AbXART6A (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 14:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbXART6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 14:57:41 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52324 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932471AbXART5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 14:57:39 -0500
-Date: Thu, 18 Jan 2007 11:56:45 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-cc: Paul Menage <menage@google.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [RFC 7/8] Exclude unreclaimable pages from dirty ration calculation
-In-Reply-To: <17839.38576.779132.455963@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.64.0701181152020.11639@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
- <20070116054819.15358.37282.sendpatchset@schroedinger.engr.sgi.com>
- <17839.38576.779132.455963@gargle.gargle.HOWL>
+	Thu, 18 Jan 2007 14:58:00 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:12205 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932573AbXART57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 14:57:59 -0500
+In-Reply-To: <adavej4b1vi.fsf@cisco.com>
+Subject: Re: [PATCH/RFC 2.6.21] ehca: ehca_uverbs.c: refactor ehca_mmap() for	better
+ readability
+To: Roland Dreier <rdreier@cisco.com>
+Cc: hch@infradead.org, Christoph Raisch <raisch@de.ibm.com>,
+       Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linuxppc-dev-bounces+hnguyen=de.ibm.com@ozlabs.org,
+       openfabrics-ewg@openib.org, openib-general@openib.org
+X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
+Message-ID: <OF2AD534B2.A4948D9F-ONC1257267.006D39E5-85257267.006DAB06@de.ibm.com>
+From: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>
+Date: Thu, 18 Jan 2007 14:57:54 -0500
+X-MIMETrack: Serialize by Router on D12ML065/12/M/IBM(Release 6.5.5HF882 | September 26, 2006) at
+ 18/01/2007 20:57:55
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2007, Nikita Danilov wrote:
+No problem. Will resend the full patch set for 2.6.21.
+Thanks
+Nam
 
-> I think that simpler solution of this problem is to use only potentially
-> reclaimable pages (that is, active, inactive, and free pages) to
-> calculate writeout threshold. This way there is no need to maintain
-> counters for unreclaimable pages. Below is a patch implementing this
-> idea, it got some testing.
+linuxppc-dev-bounces+hnguyen=de.ibm.com@ozlabs.org wrote on 18.01.2007
+13:56:01:
 
-Hmmm... the problem is that it is expensive to calculate these numbers on 
-larger systems. In order to calculate active and inactive pages we 
-have to first go through all the zones of the system. In a NUMA system 
-there could be many zones.
-
-> +/* Maximal number of pages that can be consumed by pageable caches. */
-> +static unsigned long total_pageable_pages(void)
-> +{
-> +	unsigned long active;
-> +	unsigned long inactive;
-> +	unsigned long free;
-> +
-> +	get_zone_counts(&active, &inactive, &free);
-> +	/* +1 to never return 0. */
-> +	return active + inactive + free + 1;
-> +}
-
-An expensive function. And we need to call it whenever we calculate dirty 
-limits.
-
-Maybe could create ZVC counters that allow an inexpensive determination of 
-these numbers? Then we first need to make sure that the counters are not 
-assumed to be accurate at all times.
-
+> I've kind of lost the plot here.  How does this patch fit in with the
+> previous series of patches you posted?  Does it replace them or go on
+> top of them?
+>
+> Can please you resend me the full series of patch that remove the use
+> of do_mmap(), with all cleanups and bug fixes included?  And please
+> roll up the fixes, I don't want one patch that adds a yield() inside a
+> spinlock and then a later patch to fix it -- there's no sense in
+> adding landmines for people potentially doing git bisect in the
+> future.
+>
+> And also please try to split the patches so that they don't mix
+> together two things -- please try to make the "remove obsolete
+> prototypes" patch separate from the mmap fixes.
+>
+> Thanks...
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev
 

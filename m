@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752051AbXAROnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752050AbXAROsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752051AbXAROnj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbXAROnj
+	id S1752050AbXAROsO (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752053AbXAROsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:43:39 -0500
-Received: from mail1.key-systems.net ([81.3.43.211]:40658 "HELO
-	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752049AbXAROni (ORCPT
+	Thu, 18 Jan 2007 09:48:13 -0500
+Received: from an-out-0708.google.com ([209.85.132.250]:56774 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752050AbXAROsM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:43:38 -0500
-Message-ID: <45AF8796.8030703@scientia.net>
-Date: Thu, 18 Jan 2007 15:43:34 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Thu, 18 Jan 2007 09:48:12 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VSEGIOn8uF/ppMhvsoBdo+jZ5gID9l0Ols/A2a5QmsZlvk5GVGvgP1GywUWgvWdxkdlbfWeEvZ9b85yaI+hoOSpuiZNizGP1qxEgt3KU0sCRoxQbjdOmpmX4zyVZ3VR3tY0tcnRMvox4TIunqqGVxpdYHyYqDtHpdrWanRQiKSk=
+Message-ID: <9e0cf0bf0701180648r1dfa03bej5b8fb547c8d1d2e@mail.gmail.com>
+Date: Thu, 18 Jan 2007 16:48:11 +0200
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+To: "Bernhard Walle" <bwalle@suse.de>, linux-kernel@vger.kernel.org,
+       "Alon Bar-Lev" <alon.barlev@gmail.com>
+Subject: Re: [patch 03/26] Dynamic kernel command-line - arm
+In-Reply-To: <20070118141359.GB31418@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: andersen@codepoet.org, Andi Kleen <ak@suse.de>,
-       Chris Wedgwood <cw@f00f.org>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
-       knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
-       linux-nforce-bugs@nvidia.com
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8
- cpu errata needed?)
-References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de> <20070118110028.GA22407@codepoet.org>
-In-Reply-To: <20070118110028.GA22407@codepoet.org>
-Content-Type: multipart/mixed;
- boundary="------------030001030206070300090204"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20070118125849.441998000@strauss.suse.de>
+	 <20070118130028.719472000@strauss.suse.de>
+	 <20070118141359.GB31418@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030001030206070300090204
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On 1/18/07, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Thu, Jan 18, 2007 at 01:58:52PM +0100, Bernhard Walle wrote:
+> > 2. Set command_line as __initdata.
+>
+> You can't.
+>
+> > -static char command_line[COMMAND_LINE_SIZE];
+> > +static char __initdata command_line[COMMAND_LINE_SIZE];
+>
+> Uninitialised data is placed in the BSS.  Adding __initdata to BSS
+> data causes grief.
 
-Erik Andersen wrote:
-> I just tried again and while using iommu=soft does avoid the
-> corruption problem, as with previous kernels with 2.6.20-rc5
-> using iommu=soft still makes my pcHDTV HD5500 DVB cards not work.
-> I still have to disable memhole and lose 1 GB.  :-(
+Thanks for the reply!
 
-Please add this to the bugreport
-(http://bugzilla.kernel.org/show_bug.cgi?id=7768)
+There are many places in kernel that uses __initdata for uninitialized
+variables.
 
-Chris.
+For example:
 
---------------030001030206070300090204
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+./drivers/ide/ide.c:static int __initdata probe_ali14xx;
+./drivers/ide/ide.c:static int __initdata probe_umc8672;
+./drivers/ide/ide.c:static int __initdata probe_dtc2278;
+./drivers/ide/ide.c:static int __initdata probe_ht6560b;
+./drivers/ide/ide.c:static int __initdata probe_qd65xx;
+static int __initdata is_chipset_set[MAX_HWIFS];
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------030001030206070300090204--
+So all these current places are wrong?
+If I initialize the data will it be OK.
+
+Best Regards,
+Alon Bar-Lev.

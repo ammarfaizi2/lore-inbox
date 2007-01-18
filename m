@@ -1,144 +1,259 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751081AbXARA3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751421AbXARAyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbXARA3H (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 19:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbXARA3G
+	id S1751421AbXARAyf (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 19:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbXARAyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 19:29:06 -0500
-Received: from h155.mvista.com ([63.81.120.158]:6483 "EHLO
-	localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751081AbXARA3F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 19:29:05 -0500
-Message-Id: <20070118002503.418478415@mvista.com>
-User-Agent: quilt/0.46.mv-1
-Date: Wed, 17 Jan 2007 16:25:03 -0800
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: tglx@linutronix.de
-CC: khilman@mvista.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] futex null pointer timeout
+	Wed, 17 Jan 2007 19:54:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:50549 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751421AbXARAye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 19:54:34 -0500
+Date: Wed, 17 Jan 2007 16:53:45 -0800
+From: Greg KH <greg@kroah.com>
+To: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
+Cc: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [RFC] pci_bus conversion to struct device
+Message-ID: <20070118005344.GA8391@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fix is mostly from Thomas .. 
+Hi Matt,
 
-The problem was that a futex can be called with a zero timeout (0 seconds,
-0 nanoseconds) and it's a valid expired timeout. However, the current futex
-in -rt assumes a zero timeout is an infinite timeout. 
+I'm trying to clean up all the usages of struct class_device to use
+struct device, and I ran into the pci_bus code.  Right now you create a
+symlink called "bridge" under the /sys/class/pci_bus/XXXX:XX/ directory
+to the pci device that is the bridge.
 
-Kevin Hilman found this using LTP's nptl01 test case which would
-soft hang occasionally. 
+This is messy to try to convert to struct device, but I have hack of a
+patch below.  I had some questions for you:
+  - is there userspace tools that use the 'bridge' symlink?
+  - do we really need a separate device here?  If I just create a tree
+    of symlinks to the pci devices that the bridges are, and add the
+    sysfs attributes that are currently in the class_device, to the
+    pci_device location, will that be acceptable?
 
-The patch reworks do_futex, and futex_wait* so a NULL pointer in the timeout
-position is infinite, and anything else is evaluated as a real timeout.
+Any thoughts you have about this would be appreciated.
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+thanks,
+
+greg k-h
 
 ---
- kernel/futex.c        |   14 ++++++++------
- kernel/futex_compat.c |    5 +++--
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ drivers/pci/bus.c    |   10 ++++-----
+ drivers/pci/pci.h    |    2 -
+ drivers/pci/probe.c  |   54 +++++++++++++++++++++++++--------------------------
+ drivers/pci/remove.c |    7 ++----
+ include/linux/pci.h  |    4 +--
+ 5 files changed, 38 insertions(+), 39 deletions(-)
 
-Index: linux-2.6.19/kernel/futex.c
-===================================================================
---- linux-2.6.19.orig/kernel/futex.c
-+++ linux-2.6.19/kernel/futex.c
-@@ -1466,7 +1466,7 @@ static int futex_wait(u32 __user *uaddr,
- 
- 		current->flags &= ~PF_NOSCHED;
- 
--		if (time->tv_sec == 0 && time->tv_nsec == 0)
-+		if (!time)
- 			schedule();
- 		else {
- 			to = &t;
-@@ -3070,7 +3070,7 @@ static int futex_wait64(u64 __user *uadd
- 
- 		current->flags &= ~PF_NOSCHED;
- 
--		if (time->tv_sec == 0 && time->tv_nsec == 0)
-+		if (!time)
- 			schedule();
- 		else {
- 			to = &t;
-@@ -3560,7 +3560,7 @@ asmlinkage long
- sys_futex64(u64 __user *uaddr, int op, u64 val,
- 	    struct timespec __user *utime, u64 __user *uaddr2, u64 val3)
- {
--	struct timespec t = {.tv_sec=0, .tv_nsec=0};
-+	struct timespec t, *tp = NULL;
- 	u64 val2 = 0;
- 
- 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
-@@ -3568,6 +3568,7 @@ sys_futex64(u64 __user *uaddr, int op, u
- 			return -EFAULT;
- 		if (!timespec_valid(&t))
- 			return -EINVAL;
-+		tp = &t;
+--- gregkh-2.6.orig/drivers/pci/bus.c
++++ gregkh-2.6/drivers/pci/bus.c
+@@ -138,11 +138,11 @@ void __devinit pci_bus_add_devices(struc
+ 			       up_write(&pci_bus_sem);
+ 			}
+ 			pci_bus_add_devices(dev->subordinate);
+-			retval = sysfs_create_link(&dev->subordinate->class_dev.kobj,
+-						   &dev->dev.kobj, "bridge");
+-			if (retval)
+-				dev_err(&dev->dev, "Error creating sysfs "
+-					"bridge symlink, continuing...\n");
++//			retval = sysfs_create_link(&dev->subordinate->class_dev.kobj,
++//						   &dev->dev.kobj, "bridge");
++//			if (retval)
++//				dev_err(&dev->dev, "Error creating sysfs "
++//					"bridge symlink, continuing...\n");
+ 		}
  	}
- 	/*
- 	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
-@@ -3576,7 +3577,7 @@ sys_futex64(u64 __user *uaddr, int op, u
- 	    || op == FUTEX_CMP_REQUEUE_PI)
- 		val2 = (unsigned long) utime;
+ }
+--- gregkh-2.6.orig/drivers/pci/pci.h
++++ gregkh-2.6/drivers/pci/pci.h
+@@ -78,7 +78,7 @@ static inline int pci_no_d1d2(struct pci
+ }
+ extern int pcie_mch_quirk;
+ extern struct device_attribute pci_dev_attrs[];
+-extern struct class_device_attribute class_device_attr_cpuaffinity;
++extern struct device_attribute dev_attr_cpuaffinity;
  
--	return do_futex64(uaddr, op, val, &t, uaddr2, val2, val3);
-+	return do_futex64(uaddr, op, val, tp, uaddr2, val2, val3);
+ /**
+  * pci_match_one_device - Tell if a PCI device structure has a matching
+--- gregkh-2.6.orig/drivers/pci/probe.c
++++ gregkh-2.6/drivers/pci/probe.c
+@@ -42,7 +42,7 @@ static void pci_create_legacy_files(stru
+ 		b->legacy_io->attr.owner = THIS_MODULE;
+ 		b->legacy_io->read = pci_read_legacy_io;
+ 		b->legacy_io->write = pci_write_legacy_io;
+-		class_device_create_bin_file(&b->class_dev, b->legacy_io);
++		device_create_bin_file(&b->dev, b->legacy_io);
+ 
+ 		/* Allocated above after the legacy_io struct */
+ 		b->legacy_mem = b->legacy_io + 1;
+@@ -51,15 +51,15 @@ static void pci_create_legacy_files(stru
+ 		b->legacy_mem->attr.mode = S_IRUSR | S_IWUSR;
+ 		b->legacy_mem->attr.owner = THIS_MODULE;
+ 		b->legacy_mem->mmap = pci_mmap_legacy_mem;
+-		class_device_create_bin_file(&b->class_dev, b->legacy_mem);
++		device_create_bin_file(&b->dev, b->legacy_mem);
+ 	}
  }
  
- #endif
-@@ -3585,7 +3586,7 @@ asmlinkage long sys_futex(u32 __user *ua
- 			  struct timespec __user *utime, u32 __user *uaddr2,
- 			  u32 val3)
+ void pci_remove_legacy_files(struct pci_bus *b)
  {
--	struct timespec t = {.tv_sec=0, .tv_nsec=0};
-+	struct timespec t, *tp = NULL;
- 	u32 val2 = 0;
- 
- 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
-@@ -3593,6 +3594,7 @@ asmlinkage long sys_futex(u32 __user *ua
- 			return -EFAULT;
- 		if (!timespec_valid(&t))
- 			return -EINVAL;
-+		tp = &t;
+ 	if (b->legacy_io) {
+-		class_device_remove_bin_file(&b->class_dev, b->legacy_io);
+-		class_device_remove_bin_file(&b->class_dev, b->legacy_mem);
++		device_remove_bin_file(&b->dev, b->legacy_io);
++		device_remove_bin_file(&b->dev, b->legacy_mem);
+ 		kfree(b->legacy_io); /* both are allocated here */
  	}
- 	/*
- 	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
-@@ -3601,7 +3603,7 @@ asmlinkage long sys_futex(u32 __user *ua
- 	    || op == FUTEX_CMP_REQUEUE_PI)
- 		val2 = (u32) (unsigned long) utime;
- 
--	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
-+	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
  }
- 
- static int futexfs_get_sb(struct file_system_type *fs_type,
-Index: linux-2.6.19/kernel/futex_compat.c
-===================================================================
---- linux-2.6.19.orig/kernel/futex_compat.c
-+++ linux-2.6.19/kernel/futex_compat.c
-@@ -141,7 +141,7 @@ asmlinkage long compat_sys_futex(u32 __u
- 		struct compat_timespec __user *utime, u32 __user *uaddr2,
- 		u32 val3)
+@@ -71,26 +71,27 @@ void pci_remove_legacy_files(struct pci_
+ /*
+  * PCI Bus Class Devices
+  */
+-static ssize_t pci_bus_show_cpuaffinity(struct class_device *class_dev,
++static ssize_t pci_bus_show_cpuaffinity(struct device *dev,
++					struct device_attribute *attr,
+ 					char *buf)
  {
--	struct timespec t = {.tv_sec = 0, .tv_nsec = 0};
-+	struct timespec t, *tp = NULL;
- 	int val2 = 0;
+ 	int ret;
+ 	cpumask_t cpumask;
  
- 	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
-@@ -149,10 +149,11 @@ asmlinkage long compat_sys_futex(u32 __u
- 			return -EFAULT;
- 		if (!timespec_valid(&t))
- 			return -EINVAL;
-+		tp = &t;
- 	}
- 	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE
- 	    || op == FUTEX_CMP_REQUEUE_PI)
- 		val2 = (int) (unsigned long) utime;
- 
--	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
-+	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+-	cpumask = pcibus_to_cpumask(to_pci_bus(class_dev));
++	cpumask = pcibus_to_cpumask(to_pci_bus(dev));
+ 	ret = cpumask_scnprintf(buf, PAGE_SIZE, cpumask);
+ 	if (ret < PAGE_SIZE)
+ 		buf[ret++] = '\n';
+ 	return ret;
  }
--- 
+-CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
++DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
+ 
+ /*
+  * PCI Bus Class
+  */
+-static void release_pcibus_dev(struct class_device *class_dev)
++static void release_pcibus_dev(struct device *dev)
+ {
+-	struct pci_bus *pci_bus = to_pci_bus(class_dev);
++	struct pci_bus *pci_bus = to_pci_bus(dev);
+ 
+ 	if (pci_bus->bridge)
+ 		put_device(pci_bus->bridge);
+@@ -99,7 +100,7 @@ static void release_pcibus_dev(struct cl
+ 
+ static struct class pcibus_class = {
+ 	.name		= "pci_bus",
+-	.release	= &release_pcibus_dev,
++	.dev_release	= &release_pcibus_dev,
+ };
+ 
+ static int __init pcibus_class_init(void)
+@@ -398,13 +399,12 @@ pci_alloc_child_bus(struct pci_bus *pare
+ 	child->bus_flags = parent->bus_flags;
+ 	child->bridge = get_device(&bridge->dev);
+ 
+-	child->class_dev.class = &pcibus_class;
+-	sprintf(child->class_dev.class_id, "%04x:%02x", pci_domain_nr(child), busnr);
+-	retval = class_device_register(&child->class_dev);
++	child->dev.class = &pcibus_class;
++	sprintf(child->dev.bus_id, "%04x:%02x", pci_domain_nr(child), busnr);
++	retval = device_register(&child->dev);
+ 	if (retval)
+ 		goto error_register;
+-	retval = class_device_create_file(&child->class_dev,
+-					  &class_device_attr_cpuaffinity);
++	retval = device_create_file(&child->dev, &dev_attr_cpuaffinity);
+ 	if (retval)
+ 		goto error_file_create;
+ 
+@@ -426,7 +426,7 @@ pci_alloc_child_bus(struct pci_bus *pare
+ 	return child;
+ 
+ error_file_create:
+-	class_device_unregister(&child->class_dev);
++	device_unregister(&child->dev);
+ error_register:
+ 	kfree(child);
+ 	return NULL;
+@@ -1081,21 +1081,21 @@ struct pci_bus * __devinit pci_create_bu
+ 		goto dev_reg_err;
+ 	b->bridge = get_device(dev);
+ 
+-	b->class_dev.class = &pcibus_class;
+-	sprintf(b->class_dev.class_id, "%04x:%02x", pci_domain_nr(b), bus);
+-	error = class_device_register(&b->class_dev);
++	b->dev.class = &pcibus_class;
++	sprintf(b->dev.bus_id, "%04x:%02x", pci_domain_nr(b), bus);
++	error = device_register(&b->dev);
+ 	if (error)
+ 		goto class_dev_reg_err;
+-	error = class_device_create_file(&b->class_dev, &class_device_attr_cpuaffinity);
++	error = device_create_file(&b->dev, &dev_attr_cpuaffinity);
+ 	if (error)
+-		goto class_dev_create_file_err;
++		goto dev_create_file_err;
+ 
+ 	/* Create legacy_io and legacy_mem files for this bus */
+ 	pci_create_legacy_files(b);
+ 
+-	error = sysfs_create_link(&b->class_dev.kobj, &b->bridge->kobj, "bridge");
+-	if (error)
+-		goto sys_create_link_err;
++//	error = sysfs_create_link(&b->dev.kobj, &b->bridge->kobj, "bridge");
++//	if (error)
++//		goto sys_create_link_err;
+ 
+ 	b->number = b->secondary = bus;
+ 	b->resource[0] = &ioport_resource;
+@@ -1104,9 +1104,9 @@ struct pci_bus * __devinit pci_create_bu
+ 	return b;
+ 
+ sys_create_link_err:
+-	class_device_remove_file(&b->class_dev, &class_device_attr_cpuaffinity);
+-class_dev_create_file_err:
+-	class_device_unregister(&b->class_dev);
++	device_remove_file(&b->dev, &dev_attr_cpuaffinity);
++dev_create_file_err:
++	device_unregister(&b->dev);
+ class_dev_reg_err:
+ 	device_unregister(dev);
+ dev_reg_err:
+--- gregkh-2.6.orig/drivers/pci/remove.c
++++ gregkh-2.6/drivers/pci/remove.c
+@@ -74,10 +74,9 @@ void pci_remove_bus(struct pci_bus *pci_
+ 	list_del(&pci_bus->node);
+ 	up_write(&pci_bus_sem);
+ 	pci_remove_legacy_files(pci_bus);
+-	class_device_remove_file(&pci_bus->class_dev,
+-		&class_device_attr_cpuaffinity);
+-	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
+-	class_device_unregister(&pci_bus->class_dev);
++	device_remove_file(&pci_bus->dev, &dev_attr_cpuaffinity);
++//	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
++	device_unregister(&pci_bus->dev);
+ }
+ EXPORT_SYMBOL(pci_remove_bus);
+ 
+--- gregkh-2.6.orig/include/linux/pci.h
++++ gregkh-2.6/include/linux/pci.h
+@@ -251,13 +251,13 @@ struct pci_bus {
+ 	unsigned short  bridge_ctl;	/* manage NO_ISA/FBB/et al behaviors */
+ 	pci_bus_flags_t bus_flags;	/* Inherited by child busses */
+ 	struct device		*bridge;
+-	struct class_device	class_dev;
++	struct device		dev;
+ 	struct bin_attribute	*legacy_io; /* legacy I/O for this bus */
+ 	struct bin_attribute	*legacy_mem; /* legacy mem */
+ };
+ 
+ #define pci_bus_b(n)	list_entry(n, struct pci_bus, node)
+-#define to_pci_bus(n)	container_of(n, struct pci_bus, class_dev)
++#define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
+ 
+ /*
+  * Error values that may be returned by PCI functions.

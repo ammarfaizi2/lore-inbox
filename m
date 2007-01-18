@@ -1,110 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751984AbXARHMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751934AbXARHeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751984AbXARHMG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 02:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbXARHMG
+	id S1751934AbXARHeJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 02:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751917AbXARHeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 02:12:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41410 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751984AbXARHME (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 02:12:04 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: Benjamin Romer <benjamin.romer@unisys.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Update disable_IO_APIC to use 8-bit destination field (X86_64)
-References: <1169052407.3082.43.camel@ustr-romerbm-2.na.uis.unisys.com>
-	<m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
-	<20070118034153.GA5406@in.ibm.com> <20070118043639.GA12459@in.ibm.com>
-Date: Thu, 18 Jan 2007 00:10:55 -0700
-In-Reply-To: <20070118043639.GA12459@in.ibm.com> (Vivek Goyal's message of
-	"Thu, 18 Jan 2007 10:06:39 +0530")
-Message-ID: <m1tzyo7qtc.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 18 Jan 2007 02:34:09 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38577 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751934AbXARHeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 02:34:07 -0500
+Date: Thu, 18 Jan 2007 08:31:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>,
+       Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH] Kwatch: kernel watchpoints using CPU debug registers
+Message-ID: <20070118073159.GA27233@elte.hu>
+References: <20070117094454.GB19093@elte.hu> <Pine.LNX.4.44L0.0701171114040.2381-100000@iolanthe.rowland.org> <20070118001229.GA17257@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070118001229.GA17257@infradead.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -3.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.7 required=5.9 tests=ALL_TRUSTED,BAYES_05 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
+	[score: 0.0360]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
 
+* Christoph Hellwig <hch@infradead.org> wrote:
 
->> Hi Eric,
->> 
->> In physical destination mode, the destination APIC is determined by
->> APIC ID and in logical destination mode, destination apics are determined
->> by the configurations based on LDR and DFR registers in APIC (Depending
->> on Flat mode or cluster mode).
->> 
->> Looks like previously one supported only 4bit apic ids if system is
->> operating in physical mode and 8bit ids if IOAPIC is put in logical
->> destination mode. That's why, struct IO_APIC_route_entry is containing
->> 4bits for physical apic id.
->> 
->> http://www.intel.com/design/chipsets/datashts/290566.htm
->> 
->> And now newer systems have switched to 8bit apic ids in physical mode.
->> That's why if somebody is crashing on a cpu whose apic id is more than
->> 16, kexec/kdump code will fail as 4bits are not sufficient.
->> 
->> Hence above change makes sense. Given the fact that logical and physical
->> apic id is basically a union, it will work even for older systems where
->> physical apic ids were 4bits only.
->> 
->> OTOH, I think down the line we can get rid of physical dest
->> field all together in struct IO_APIC_route_entry and use logical dest
->> field.
->> 
->
-> Or how about making physical_dest field also 8bit like logical_dest field.
-> This will work both for 4bit and 8bit physical apic ids at the same time
-> code becomes more intutive and it is easier to know whether IOAPIC is being
-> put in physical or destination logical mode.
+> > I'll be happy to move this over to the utrace setting, once it is 
+> > merged.  Do you think it would be better to include the current 
+> > version of kwatch now or to wait for utrace?
+> > 
+> > Roland, is there a schedule for when you plan to get utrace into 
+> > -mm?
+> 
+> Even if it goes into mainline soon we'll need a lot of time for all 
+> architectures to catch up, so I think kwatch should definitely comes 
+> first.
 
-Exactly what I was trying to suggest.
+i disagree. Utrace is a once-in-a-lifetime opportunity to clean up the 
+/huge/ ptrace mess. Ptrace has been a very large PITA, for many, many 
+years, precisely because it was done in the 'oh, lets get this feature 
+added first, think about it later' manner. Roland's work is a large 
+logistical undertaking and we should not make it more complex than it 
+is. Once it's in we can add debugging features ontop of that. To me work 
+that cleans up existing mess takes precedence before work that adds to 
+the mess.
 
-Looking closer at the code I think it makes sense to just kill the union and
-stop the discrimination between physical and logical modes and just have a
-dest field in the structure.  Roughly as you were suggesting at first.
+	Ingo
 
-The reason we aren't bitten by this on a regular basis is the normal code
-path uses logical.logical_dest in both logical and physical modes.
-Which is a little confusing.
-
-Since there really isn't a distinction to be made we should just stop
-trying, which will make maintenance easier :)
-
-Currently there are several non-common case users of physical_dest
-that are probably bitten by this problem under the right
-circumstances.
-
-So I think we should just make the structure:
-
-struct IO_APIC_route_entry {
-	__u32	vector		:  8,
-		delivery_mode	:  3,	/* 000: FIXED
-					 * 001: lowest prio
-					 * 111: ExtINT
-					 */
-		dest_mode	:  1,	/* 0: physical, 1: logical */
-		delivery_status	:  1,
-		polarity	:  1,
-		irr		:  1,
-		trigger		:  1,	/* 0: edge, 1: level */
-		mask		:  1,	/* 0: enabled, 1: disabled */
-		__reserved_2	: 15;
-
-	__u32	__reserved_3	: 24,
-		__dest		:  8;
-} __attribute__ ((packed));
-
-And fixup the users.  This should keep us from getting bit by this bug
-in the future.  Like when people start introducing support for more
-than 256 cores and the low 24bits start getting used.
-
-Or when someone new starts working on the code and thinks the fact
-the field name says logical we are actually using the apic in logical
-mode.
-
-Eric
+ps. please fix your mailer to not emit those silly Mail-Followup-To 
+headers! It collapses To: and Cc: lines into one huge unnecessary To: 
+line.

@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751898AbXARDck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751908AbXARDmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751898AbXARDck (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 17 Jan 2007 22:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbXARDck
+	id S1751908AbXARDmJ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 17 Jan 2007 22:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbXARDmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Jan 2007 22:32:40 -0500
-Received: from ns1.suse.de ([195.135.220.2]:47557 "EHLO mx1.suse.de"
+	Wed, 17 Jan 2007 22:42:09 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:39159 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751898AbXARDck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Jan 2007 22:32:40 -0500
-Date: Wed, 17 Jan 2007 19:31:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [RFC] pci_bus conversion to struct device
-Message-ID: <20070118033145.GA16368@kroah.com>
-References: <20070118005344.GA8391@kroah.com> <20070118022352.GA17531@parisc-linux.org>
-MIME-Version: 1.0
+	id S1751908AbXARDmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Jan 2007 22:42:08 -0500
+Date: Thu, 18 Jan 2007 09:11:53 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Benjamin Romer <benjamin.romer@unisys.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Update disable_IO_APIC to use 8-bit destination field (X86_64)
+Message-ID: <20070118034153.GA5406@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1169052407.3082.43.camel@ustr-romerbm-2.na.uis.unisys.com> <m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070118022352.GA17531@parisc-linux.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 07:23:52PM -0700, Matthew Wilcox wrote:
-> On Wed, Jan 17, 2007 at 04:53:45PM -0800, Greg KH wrote:
-> > I'm trying to clean up all the usages of struct class_device to use
-> > struct device, and I ran into the pci_bus code.  Right now you create a
-> > symlink called "bridge" under the /sys/class/pci_bus/XXXX:XX/ directory
-> > to the pci device that is the bridge.
+On Wed, Jan 17, 2007 at 12:08:48PM -0700, Eric W. Biederman wrote:
+> Benjamin Romer <benjamin.romer@unisys.com> writes:
 > 
-> I recommend we just delete the pci_bus class.  I don't think it serves
-> any useful purpose.  The bridge can be inferred frmo the sysfs hierarchy
-> (not to mention lspci will tell you).  The cpuaffinity file should be
-> moved from the bus to the device -- it really doesn't make any sense to
-> talk about which cpu a bus is affine to, only a device.
+> > On the Unisys ES7000/ONE system, we encountered a problem where
+> > performing a kexec reboot or dump on any cell other than cell 0 causes
+> > the system timer to stop working, resulting in a hang during timer
+> > calibration in the new kernel.
+> >
+> > We traced the problem to one line of code in disable_IO_APIC(), which
+> > needs to restore the timer's IO-APIC configuration before rebooting. The
+> > code is currently using the 4-bit physical destination field, rather
+> > than using the 8-bit logical destination field, and it cuts off the
+> > upper 4 bits of the timer's APIC ID. If we change this to use the
+> > logical destination field, the timer works and we can kexec on the upper
+> > cells. This was tested on two different cells (0 and 2) in an ES7000/ONE
+> > system.
+> >
+> > For reference, the relevant Intel xAPIC spec is kept at
+> > ftp://download.intel.com/design/chipsets/e8501/datashts/30962001.pdf,
+> > specifically on page 334.
+> 
+> Looks like good bug hunting.  I will have to look but it might
+> make more sense to simply fix: struct IO_APIC_route_entry,
+> or use whatever technique we normally use to generate the io_apic
+> vectors.
+> 
+> I don't recall enough off of the top of my head to recall what
+> the discrimination rule between logical and physical is but
+> I think setting the system in physical mode is a good clue :)
 
-I would like to do that, but I want to make sure that no userspace tools
-are using this information.
+Hi Eric,
 
-But, as Matt Dobson is now gone off somewhere in Europe, not doing Linux
-stuff anymore, he's not going to answer this.  So I'll just make up a
-removal patch and let it sit in -mm for a while to see if anything
-breaks.
+In physical destination mode, the destination APIC is determined by 
+APIC ID and in logical destination mode, destination apics are determined
+by the configurations based on LDR and DFR registers in APIC (Depending
+on Flat mode or cluster mode).
 
-I really only think the big NUMA boxes care about that information, if
-anything.
+Looks like previously one supported only 4bit apic ids if system is
+operating in physical mode and 8bit ids if IOAPIC is put in logical
+destination mode. That's why, struct IO_APIC_route_entry is containing
+4bits for physical apic id.
 
-thanks,
+http://www.intel.com/design/chipsets/datashts/290566.htm
 
-greg k-h
+And now newer systems have switched to 8bit apic ids in physical mode.
+That's why if somebody is crashing on a cpu whose apic id is more than
+16, kexec/kdump code will fail as 4bits are not sufficient.
+
+Hence above change makes sense. Given the fact that logical and physical
+apic id is basically a union, it will work even for older systems where
+physical apic ids were 4bits only.
+
+OTOH, I think down the line we can get rid of physical dest
+field all together in struct IO_APIC_route_entry and use logical dest
+field.
+
+Thanks
+Vivek

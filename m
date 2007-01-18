@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932344AbXARNER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932313AbXARNER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbXARNER (ORCPT <rfc822;w@1wt.eu>);
+	id S932313AbXARNER (ORCPT <rfc822;w@1wt.eu>);
 	Thu, 18 Jan 2007 08:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbXARNEQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbXARNER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 08:04:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54867 "EHLO mx2.suse.de"
+	Thu, 18 Jan 2007 08:04:17 -0500
+Received: from mx1.suse.de ([195.135.220.2]:50512 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932270AbXARNEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932292AbXARNEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 18 Jan 2007 08:04:16 -0500
-Message-Id: <20070118130028.492492000@strauss.suse.de>
+Message-Id: <20070118130028.719472000@strauss.suse.de>
 References: <20070118125849.441998000@strauss.suse.de>
 User-Agent: quilt/0.46-14
-Date: Thu, 18 Jan 2007 13:58:51 +0100
+Date: Thu, 18 Jan 2007 13:58:52 +0100
 From: Bernhard Walle <bwalle@suse.de>
 To: linux-kernel@vger.kernel.org
 Cc: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: [patch 02/26] Dynamic kernel command-line - alpha
-Content-Disposition: inline; filename=dynamic-kernel-command-line-alpha.diff
+Subject: [patch 03/26] Dynamic kernel command-line - arm
+Content-Disposition: inline; filename=dynamic-kernel-command-line-arm.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -27,39 +27,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
- arch/alpha/kernel/setup.c |    6 +++---
+ arch/arm/kernel/setup.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.20-rc4-mm1/arch/alpha/kernel/setup.c
+Index: linux-2.6.20-rc4-mm1/arch/arm/kernel/setup.c
 ===================================================================
---- linux-2.6.20-rc4-mm1.orig/arch/alpha/kernel/setup.c
-+++ linux-2.6.20-rc4-mm1/arch/alpha/kernel/setup.c
-@@ -122,7 +122,7 @@ static void get_sysnames(unsigned long, 
- 			 char **, char **);
- static void determine_cpu_caches (unsigned int);
- 
+--- linux-2.6.20-rc4-mm1.orig/arch/arm/kernel/setup.c
++++ linux-2.6.20-rc4-mm1/arch/arm/kernel/setup.c
+@@ -106,7 +106,7 @@ unsigned long phys_initrd_size __initdat
+ static struct meminfo meminfo __initdata = { 0, };
+ static const char *cpu_name;
+ static const char *machine_name;
 -static char command_line[COMMAND_LINE_SIZE];
 +static char __initdata command_line[COMMAND_LINE_SIZE];
  
- /*
-  * The format of "screen_info" is strange, and due to early
-@@ -547,7 +547,7 @@ setup_arch(char **cmdline_p)
- 	} else {
- 		strlcpy(command_line, COMMAND_LINE, sizeof command_line);
- 	}
--	strcpy(saved_command_line, command_line);
-+	strcpy(boot_command_line, command_line);
- 	*cmdline_p = command_line;
+ static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
+ static union { char c[4]; unsigned long l; } endian_test __initdata = { { 'l', '?', '?', 'b' } };
+@@ -803,8 +803,8 @@ void __init setup_arch(char **cmdline_p)
+ 	init_mm.end_data   = (unsigned long) &_edata;
+ 	init_mm.brk	   = (unsigned long) &_end;
  
- 	/* 
-@@ -589,7 +589,7 @@ setup_arch(char **cmdline_p)
- 	}
- 
- 	/* Replace the command line, now that we've killed it with strsep.  */
--	strcpy(command_line, saved_command_line);
-+	strcpy(command_line, boot_command_line);
- 
- 	/* If we want SRM console printk echoing early, do it now. */
- 	if (alpha_using_srm && srmcons_output) {
+-	memcpy(saved_command_line, from, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
++	memcpy(boot_command_line, from, COMMAND_LINE_SIZE);
++	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
+ 	parse_cmdline(cmdline_p, from);
+ 	paging_init(&meminfo, mdesc);
+ 	request_standard_resources(&meminfo, mdesc);
 
 -- 

@@ -1,121 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932311AbXAROlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752051AbXAROnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbXAROlt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 09:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752048AbXAROlt
+	id S1752051AbXAROnj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 09:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbXAROnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 09:41:49 -0500
-Received: from stz-bg.com ([213.169.37.103]:57627 "EHLO stz-bg.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752046AbXAROls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 09:41:48 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=default; d=stz-bg.com;
-  b=ZGp0DsBzY7x63eyNLE8ZFdHdM0FlOtPph0n6IDNRJxxn1tdwhxWDr9BXF5NJte1Tafd45THUXBEHkrhorUFcKUXHP+qvW6Q3nfjQQsH56F/G928p0QPv9I6kKARolaYh  ;
-Message-ID: <31333.83.228.43.37.1169131305.squirrel@mail.stz-bg.com>
-In-Reply-To: <1169123236.12968.6.camel@localhost>
-References: <48247.82.103.71.18.1169112129.squirrel@mail.stz-bg.com>
-    <1169123236.12968.6.camel@localhost>
-Date: Thu, 18 Jan 2007 16:41:45 +0200 (EET)
-Subject: Re: PROBLEM: writting files > 100 MB in FAT32
-From: "Condor" <condor@stz-bg.com>
-To: "Kasper Sandberg" <lkml@metanurb.dk>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: condor@stz-bg.com
-User-Agent: SquirrelMail/1.4.9a
+	Thu, 18 Jan 2007 09:43:39 -0500
+Received: from mail1.key-systems.net ([81.3.43.211]:40658 "HELO
+	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752049AbXAROni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 09:43:38 -0500
+Message-ID: <45AF8796.8030703@scientia.net>
+Date: Thu, 18 Jan 2007 15:43:34 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: andersen@codepoet.org, Andi Kleen <ak@suse.de>,
+       Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org,
+       knweiss@gmx.de, krader@us.ibm.com, lfriedman@nvidia.com,
+       linux-nforce-bugs@nvidia.com
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives (k8
+ cpu errata needed?)
+References: <fa.E9jVXDLMKzMZNCbslzUxjMhsInE@ifi.uio.no> <45AD2D00.2040904@scientia.net> <20070116203143.GA4213@tuatara.stupidest.org> <200701170829.54540.ak@suse.de> <20070118110028.GA22407@codepoet.org>
+In-Reply-To: <20070118110028.GA22407@codepoet.org>
+Content-Type: multipart/mixed;
+ boundary="------------030001030206070300090204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030001030206070300090204
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> On Thu, 2007-01-18 at 11:22 +0200, Condor wrote:
->> Hello,
->>
->> [1.] Files if > 100 MB saving in USB memory stick 4 GB with FAT32. While
->> saving all files is broken.
-> im sorry, i do not understand this.
->
-> you are saying that if you copy files larger than 100mb into drive, all
-> files die?
+Erik Andersen wrote:
+> I just tried again and while using iommu=soft does avoid the
+> corruption problem, as with previous kernels with 2.6.20-rc5
+> using iommu=soft still makes my pcHDTV HD5500 DVB cards not work.
+> I still have to disable memhole and lose 1 GB.  :-(
 
-No, only file when i copy is die.
+Please add this to the bugreport
+(http://bugzilla.kernel.org/show_bug.cgi?id=7768)
 
->
->> [2.] I have USB memory stick A-DATA 4 GB with FAT32. When i trying to
->> save
->> files in my USB and files is > of 100 MB, all files that i save is
->> broken.
->> I put my USB in my laptop and mount it as: mount /dev/sda1 /mnt/usb-win
->> While i mount it, i got in my local disk and copy one file that is 520
->> MB.
->> The file is copying very slow (10 min). and after i see again my console
->> i
->> wait light to my usb is off and i unmount it as: umount /mnt/usb-win
->> I get my USB stick and when i return to home i trying to copy file from
->> my
->> USB to my windows and linux. Both OS unable to read file.
->> After some tryings i format my USB in FAT16 and now every thing is work
->> fine. I copy files to my USB and back to my hard drive and all files
->> work
->> fine.
->
-> okay, i think thats what you are saying, could you please try to run
-> dosfsck on it so we can see 100% whats wrong?
->
+Chris.
 
-Yes, i run and it found error, i also run in windows scan drive, also
-found errors. I't correct them and i make test again. After copy file
-(unmount, sync ... ) i insert adapter again in windows and again unable to
-copy file from usb to windows (linux say may be missing sectors, mount it
-with read-only), run scan drive from windows and windows again found lost
-sectors.
+--------------030001030206070300090204
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
 
-> also, try to do this:
-> mount, copy, run command 'sync', unmount, pull out, and see if it works.
->
-
-Yes this is that i make.
-
-> finally, one more question. you said it does not work when you take it
-> home, can you try this: mount, copy, unmount, mount, check to see if
-> file works.
->
-
-Yes i try one of the times and linux say may be sda1 have missing sectors
-mount it with read-only.
-
->
->> [3.] lsmod
->> # lsmod
-> <snip>
->> nvidia               4709172  22
-> ohh, tainted ;P naughty. Though i dont think this affects vfat.
-> <snip>
->
->> Regards,
->> Condor
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->> in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
-
-I no longer can make tests because i remove my fat32 from my usb stick and
-i put it in to FAT16 and i make the exact tests and file is worked but on
-fat16 not in fat32. I just report the problem, to be investigate from
-kernel developers.
-
-
-Regards,
-Condor
-
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------030001030206070300090204--

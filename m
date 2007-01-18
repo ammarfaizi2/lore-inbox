@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932148AbXARJok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932137AbXARJua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbXARJok (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 04:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbXARJoj
+	id S932137AbXARJua (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 04:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXARJua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 04:44:39 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:36515 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932137AbXARJoi (ORCPT
+	Thu, 18 Jan 2007 04:50:30 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:51162 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932137AbXARJu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 04:44:38 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=EgKwT3NzXSe8rJKO4v/K7Lq0YEu3s2hJavSfknwFouT55gj+igU1p1Zln1852I3srq5eQ7lWNZFuzsjU1nS2m6VYHeuYmXVN8Veq3Bjhfx+0mlVAYRP6amCym+Fw2TeC3T6bJW/R1K4J7OWNFS1y0UOjypuK+k+YSQb4drW0yvA=
-Date: Thu, 18 Jan 2007 11:44:11 +0200
-To: Rajat Jain <rajat.noida.india@gmail.com>
-Cc: Daniel Rodrick <daniel.rodrick@gmail.com>,
-       kernelnewbies <kernelnewbies@nl.linux.org>,
-       Linux Newbie <linux-newbie@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: after effects of a kernel API change
-Message-ID: <20070118094411.GB29695@Ahmed>
-References: <292693080701172015n736a269fl6945ba4fe19d8174@mail.gmail.com> <20070118051026.GA29695@Ahmed> <b115cb5f0701172135k411dca56u92101a929799548a@mail.gmail.com>
+	Thu, 18 Jan 2007 04:50:29 -0500
+X-Originating-Ip: 74.109.98.130
+Date: Thu, 18 Jan 2007 04:44:38 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
+To: Cedric Le Goater <clg@fr.ibm.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]  Add new categories of DEPRECATED and OBSOLETE.
+In-Reply-To: <45AF3942.9070701@fr.ibm.com>
+Message-ID: <Pine.LNX.4.64.0701180437430.8137@CPE00045a9c397f-CM001225dbafb6>
+References: <Pine.LNX.4.64.0701171745480.4740@CPE00045a9c397f-CM001225dbafb6>
+ <45AF3942.9070701@fr.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b115cb5f0701172135k411dca56u92101a929799548a@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 11:05:53AM +0530, Rajat Jain wrote:
-> >>
-> >> Is there any way volunteers like me can help in this exercise?
-> >
-> >See the /APIchanges in the Kernel Janitors TODO list
-> >http://kernelnewbies.org/KernelJanitors/Todo
-> >
-> [...]
-> 1) How do I make sure if some one is NOT working on any of the
-> mentioned bullet points? Who coordinates? On what mailing list?
+On Thu, 18 Jan 2007, Cedric Le Goater wrote:
 
-Check latest trees to make sure the work is not duplicated. espicially 
-trees like -mm and subsystem ones.
+> Robert P. J. Day wrote:
+> >   Next to EXPERIMENTAL, add two new kernel config categories of
+> > DEPRECATED and OBSOLETE.
+>
+> What about adding some printks when DEPRECATED and OBSOLETE are set
+> ? like in print_tainted() for example.
 
-> 2) Do any patches for the above Todo list have the chances of getting
-> merged into the mainstream kernel? Who approves? I suppose the
-> respective maintainer of the driver / subsystem getting affected?
+i preferred to introduce this as a non-intrusive change, which didn't
+*require* any change to actual source code or header files.  note that
+you can add these two new categories (and any other categories you
+can dream up) without changing *anything* else about the build
+process.  and once those two categories are in the init/Kconfig file,
+subsystem maintainers can, on their own time, make the appropriate
+changes to their subsystems.  it's all perfectly voluntary.
 
-I advise lurking (following/reading) the list for at least 2 or 3 weeks and 
-you'll automatically understand how the "system" works. Also check:
+also, code that's deprecated can still be tagged with
+"__attribute__((deprecated))" in the source code.
 
-$KERNEL_TREE/Documentation/HOWTO
-$KERNEL_TREE/Documentation/SubmittingPatches
-$KERNEL_TREE/Documentation/CodingStyle
-
--- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+rday

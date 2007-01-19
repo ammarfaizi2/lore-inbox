@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965164AbXASPD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965065AbXASPFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbXASPD7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 10:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbXASPD7
+	id S965065AbXASPFi (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 10:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbXASPFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 10:03:59 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:58632 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965164AbXASPD6 (ORCPT
+	Fri, 19 Jan 2007 10:05:37 -0500
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:2665 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965065AbXASPFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 10:03:58 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Fri, 19 Jan 2007 09:53:21 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Adrian Bunk <bunk@stusta.de>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: can someone explain "inline" once and for all?
-In-Reply-To: <20070119141355.GM9093@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701190948170.25843@CPE00045a9c397f-CM001225dbafb6>
-References: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6>
- <84144f020701190501x5d1efb49u87dc9537bfe1e791@mail.gmail.com>
- <20070119141355.GM9093@stusta.de>
+	Fri, 19 Jan 2007 10:05:37 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Date: Fri, 19 Jan 2007 15:05:33 +0000
+User-Agent: KMail/1.9.5
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AC1DA3.5040104@shaw.ca> <45AC3006.9070705@garzik.org>
+In-Reply-To: <45AC3006.9070705@garzik.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701191505.33480.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Adrian Bunk wrote:
+On Tuesday 16 January 2007 01:53, Jeff Garzik wrote:
+> Robert Hancock wrote:
+> > I'll try your stress test when I get a chance, but I doubt I'll run into
+> > the same problem and I haven't seen any similar reports. Perhaps it's
+> > some kind of wierd timing issue or incompatibility between the
+> > controller and that drive when running in ADMA mode? I seem to remember
+> > various reports of issues with certain Maxtor drives and some nForce
+> > SATA controllers under Windows at least..
+>
+> Just to eliminate things, has disabling ADMA been attempted?
+>
+> It can be disabled using the sata_nv.adma module parameter.
 
-> With the current implementation in the kernel (and considering that
-> CONFIG_FORCED_INLINING was implemented in a way that it never had
-> any effect), __always_inline and inline are currently equivalent.
+Setting this option fixes the problem for me. I suggest that ADMA defaults off 
+in 2.6.20, if there's still time to do that.
 
-yes, that option was implemented in a half-assed sort of way.  if you
-look at compiler-gcc4.h, at first glance the preprocessing looks like
-it's doing the right thing for that config option:
+-- 
+Cheers,
+Alistair.
 
-==================================
-#include <linux/compiler-gcc.h>
-
-#ifdef CONFIG_FORCED_INLINING
-# undef inline
-# undef __inline__
-# undef __inline
-# define inline                 inline          __attribute__((always_inline))
-# define __inline__             __inline__      __attribute__((always_inline))
-# define __inline               __inline        __attribute__((always_inline))
-#endif
-==================================
-
-  but it's too late for checking that kernel config option, since
-compiler-gcc.h has already been included, which includes:
-
-==================================
-#define inline          inline          __attribute__((always_inline))
-#define __inline__      __inline__      __attribute__((always_inline))
-#define __inline        __inline        __attribute__((always_inline))
-==================================
-
-so, as you say, "__always_inline and inline are currently equivalent".
-which is sort of confusing and might come as a nasty surprise to some
-developers who weren't expecting that.
-
-rday
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

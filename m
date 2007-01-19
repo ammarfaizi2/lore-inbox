@@ -1,123 +1,167 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932856AbXASTey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932878AbXASTfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932856AbXASTey (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 14:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932862AbXASTey
+	id S932878AbXASTfr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 14:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932735AbXASTfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 14:34:54 -0500
-Received: from web50115.mail.yahoo.com ([206.190.39.163]:39779 "HELO
-	web50115.mail.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932856AbXASTey (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 14:34:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=6AfchusKGPV7B8GdubbiYhkTG1N7jaxUH8ajIb8ziQWROIlmAUBNxTVys6rldVSyT/KsBjRtcg3groWddGoojEjNBy4ZYFCpUT0EHTnnOCzj2K3QngC8HnEncpvHR2MFDwWesMYyzdpdMbpGFNR6avufWDy2ZFwDZOosEYvTr14=;
-X-YMail-OSG: FDLi1zQVM1mc06xK8ayHnib5DyZfwsLxS3L1T15Xg6brZ7Jeu54q.8mxbnD9muaJR4WVSJoIvsdox_ZrzI2eApM4L2yCCBMWl4ljIE5kbsCH9idK.QcFbuPs2uFMi6wTOWOYkkTN8fxGy3I-
-Date: Fri, 19 Jan 2007 11:34:52 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: EDAC chipkill messages
-To: Orion Poplawski <orion@cora.nwra.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <45B0F5B7.4080703@cora.nwra.com>
+	Fri, 19 Jan 2007 14:35:47 -0500
+Received: from h155.mvista.com ([63.81.120.155]:18599 "EHLO imap.sh.mvista.com"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932871AbXASTfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 14:35:46 -0500
+Message-ID: <45B11D8D.8070105@ru.mvista.com>
+Date: Fri, 19 Jan 2007 22:35:41 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <703726.11655.qm@web50115.mail.yahoo.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/15] ide: disable DMA in ->ide_dma_check for "no IORDY"
+ case
+References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain>	 <20070119003154.14846.87217.sendpatchset@localhost.localdomain>	 <45B0F12B.3000202@ru.mvista.com> <58cb370e0701191047h524434eobdb9d86ed614bc71@mail.gmail.com> <45B117D4.7050406@gmail.com>
+In-Reply-To: <45B117D4.7050406@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---- Orion Poplawski <orion@cora.nwra.com> wrote:
+Bartlomiej Zolnierkiewicz wrote:
 
-> Robert Hancock wrote:
-> > Orion Poplawski wrote:
-> >> Can someone please explain to me what these mean?
-> >>
-> >> EDAC k8 MC1: general bus error: participating processor(local node
-> 
-> >> origin), time-out(no timeout) memory transaction type(generic
-> read), 
-> >> mem or i/o(mem access), cache level(generic)
-> >> EDAC MC1: CE page 0xfbf6f, offset 0x4d0, grain 8, syndrome 0xc8f4,
-> row 
-> >> 1, channel 0, label "": k8_edac
-> >> EDAC MC1: CE - no information available: k8_edac Error Overflow
-> set
-> >> EDAC k8 MC1: extended error code: ECC chipkill x4 error
-> >>
-> >> Thanks!
-> >>
-> > 
-> > Sounds like you're having some memory ECC errors.. some Memtest86,
-> etc. 
-> > runs may be in order. You may be able to figure out from this info
-> what 
-> > DIMM is having the problem.
-> > 
-> 
-> That was my assumption as well, but was hoping someone could decode
-> the 
-> above information and point me to the problem chip.  I ran Memtest86 
-> overnight but found no problems, but don't know if it needs to run in
-> a 
-> particular ECC mode.
-> 
-> This is a dual proc 275 system with 4 1GB DIMMs.  Guessing that MC1
-> is 
-> the controller on the second CPU.  Would row 1 be the second DIMM?
+>>>[PATCH] ide: disable DMA in ->ide_dma_check for "no IORDY" case
 
+>>   I've looked thru the code, and found more issues with the PIO fallback
+>>there. Will try to cook up patches for at least some drivers...
 
-No that would be the FIRST DIMM, on Channel 0
+> Great, if possible please base them on top of the IDE tree...
 
-Each DIMM has 2 ChipSelect Rows (CSROW)
+    Erm, I had doubts about it (having in mind that all that code is more of a 
+cleanups than fixes). Maybe it'd be a good idea to separate the fix and 
+cleanup series somehow...
 
-Each csrow covers two channels across, therefore on a 4 socket memory
-array, there are CSROWS 0 and 1 on the first DIMM row and CSROWS 2 and
-3 on the second DIMM row.
+>>>Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
-WWWWWWWWW  XXXXXXXXXXX
-YYYYYYYYY  ZZZZZZZZZZZ
+>>>Index: b/drivers/ide/pci/aec62xx.c
+>>>===================================================================
+>>>--- a/drivers/ide/pci/aec62xx.c
+>>>+++ b/drivers/ide/pci/aec62xx.c
+>>>@@ -214,12 +214,10 @@ static int aec62xx_config_drive_xfer_rat
+>>>      if (ide_use_dma(drive) && config_chipset_for_dma(drive))
+>>>              return hwif->ide_dma_on(drive);
+>>>
+>>>-     if (ide_use_fast_pio(drive)) {
+>>>+     if (ide_use_fast_pio(drive))
+>>>              aec62xx_tune_drive(drive, 5);
+>>
+>>   This function looks like it's working (thouugh having the wrong limit of
+>>PIO5 on auto-tuning) but is unnecassary complex.
 
-The W and the Y DIMMs are channel 0
-The X and the Z DIMMs are channel 1
+> Yes, it seems that there are actually two bugs here:
+> * the maximum allowed PIO mode should be PIO4 not PIO5
+> * for auto-tuning ("pio" == 255) it incorrectly sets PIO0
+>   (255 fails to the default case in the switch statement)
 
-csrows 0 and 1 would cross over Y and Z DIMMs
-csrows 2 and 3 would cross over W and X DIMMs
+    Yeah, you if you pass 255, it won't work (so, drive->autotune must be 
+broken). But the driver itself have the wrong idea of 5 meaning auto-tune, so 
+fallback should still work.
 
-The mapping problem occurs in then identifying each of the above goes
-to which silk screen labeled sockets on the mobo.
+>>   Heh, the driver is certainly a rip-off form hpt366.c. What a doubtful
+>>example they have chosen... :-)
 
-Usually they are labeled:
+> hehe
 
-H0_DIMM2A   H0_DIMM2B
-H0_DIMM1A   H0_DIMM1B
+    The driver's authorship explains it all. :-)
 
-where A is channel 0 and B is channel 1 and
-the "DIMM1" would indicate the CSROWs 0 and 1
-and "DIMM2" would indicate the CSROWs 2 and 3
+>>>Index: b/drivers/ide/pci/atiixp.c
+>>>===================================================================
+>>>--- a/drivers/ide/pci/atiixp.c
+>>>+++ b/drivers/ide/pci/atiixp.c
+>>>@@ -264,10 +264,9 @@ static int atiixp_dma_check(ide_drive_t
+>>>              tspeed = ide_get_best_pio_mode(drive, 255, 5, NULL);
+>>>              speed = atiixp_dma_2_pio(XFER_PIO_0 + tspeed) + XFER_PIO_0;
 
-The string 'label ""' can be filled in by a userspace script to
-properly identify the DIMM silk screen according to the motherboard
-used.
+>>   It's simply stupid to convert PIO mode to PIO mode. The whole idea is
+>>doubtful as well..
 
-The lines with "EDAC MC1:" are EDAC CORE output messages, while the
-"EDAC K8:" lines are EDAC Memory Controller driver messages.
-"CE" is correctable error 
-MC1 is memory controller 1 (0 based)
+> It is side-effect of basing atiixp on piix driver.  Fixing it will allow PIO1
+> to be used (good) because atiixp_dma_2_pio() always downgrades PIO1 to PIO0
+> (leftover from piix - on Intel chipsets same timings are used for PIO0/1).
 
-ECC ChipKill x4 was what found the error and corrected it.
+>>>              hwif->speedproc(drive, speed);
 
-The FRU, (field replaceable unit) is the DIMM located at socket
-H1_DIMM1A, according to the labeling I mentioned above.
+>>   Well, well, the tuneproc() method can't ahndle auto-tunuing here
+>>(255)...
 
-caveat: the detector is not 100% perfect but gives a general area to
-look at, the DIMM specification. Sometimes other errors can cause what
-looks like a memory error, but usually a bad memory DIMM is the root
-cause of the vast majority of such errors.
+> Yes, definitely a bug.
 
-In addition, memtest86+ doesn't find all the bad memory in all cases,
-but it is still a VERY useful tool
+    Ugh... don't expect patches form me soon though. My first priority is the 
+drivers that we support here...
 
-doug thompson
+>>And it also doesn't set up drive's own speed. The code seem to be another
+>>rip-off from piix.c, repeating all its mistakes... :-)
 
+> :)
+
+>>>Index: b/drivers/ide/pci/cmd64x.c
+>>>===================================================================
+>>>--- a/drivers/ide/pci/cmd64x.c
+>>>+++ b/drivers/ide/pci/cmd64x.c
+>>>@@ -479,12 +479,10 @@ static int cmd64x_config_drive_for_dma (
+>>>      if (ide_use_dma(drive) && config_chipset_for_dma(drive))
+>>>              return hwif->ide_dma_on(drive);
+>>>
+>>>-     if (ide_use_fast_pio(drive)) {
+>>>+     if (ide_use_fast_pio(drive))
+>>>              config_chipset_for_pio(drive, 1);
+
+>>   This function will always set PIO mode 4. Mess.
+
+> Yep.
+
+    I'm going to send the patch for both this and siimage.c...
+
+>>>Index: b/drivers/ide/pci/cs5535.c
+>>>===================================================================
+>>>--- a/drivers/ide/pci/cs5535.c
+>>>+++ b/drivers/ide/pci/cs5535.c
+>>>@@ -206,10 +206,9 @@ static int cs5535_dma_check(ide_drive_t
+>>>      if (ide_use_fast_pio(drive)) {
+>>>              speed = ide_get_best_pio_mode(drive, 255, 4, NULL);
+>>>              cs5535_set_drive(drive, speed);
+
+>>   Could be folded into tuneproc() method call.
+
+> Using ->tuneproc() will also set the PIO mode on the drive
+> which is not done currently... 
+
+    Hm, ide_config_drive_speed() is called by both tuneproc() method and 
+cs5535_set_drive(), so I saw no issue there...
+
+>>>Index: b/drivers/ide/pci/sis5513.c
+>>>===================================================================
+>>>--- a/drivers/ide/pci/sis5513.c
+>>>+++ b/drivers/ide/pci/sis5513.c
+>>>@@ -678,12 +678,10 @@ static int sis5513_config_xfer_rate(ide_
+>>>      if (ide_use_dma(drive) && config_chipset_for_dma(drive))
+>>>              return hwif->ide_dma_on(drive);
+
+>>>-     if (ide_use_fast_pio(drive)) {
+>>>+     if (ide_use_fast_pio(drive))
+>>>              sis5513_tune_drive(drive, 5);
+
+>>    Ugh, PIO fallback effectively always tries to set mode 4 here (thanks
+>>it's not 5). Mess.
+
+> Yep, but it seems to be even more complicated since config_art_rwp_pio()
+> is a mess^2 - chipset is programmed to the best PIO mode while the
+> device is set to PIO4... *sigh*...
+
+    Sorry, this one is low prio for me... :-)
+
+> Thanks,
+> Bart
+
+MBR, Sergei

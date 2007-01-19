@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964845AbXASSzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932841AbXASS4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbXASSzP (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 13:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbXASSzP
+	id S932841AbXASS4I (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbXASS4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 13:55:15 -0500
-Received: from wr-out-0506.google.com ([64.233.184.235]:26693 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932841AbXASSzN (ORCPT
+	Fri, 19 Jan 2007 13:56:07 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50343 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932841AbXASS4G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 13:55:13 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NBmTKd4stY/j/2f9Sx7fnsxqJgTGt/QCkeb+3GJrsLYLh7O6geyNhPz1TI9i1UL+rqfWN0azPuN7K1DTAeGner2B4xLyG03Z6pTsiZ6ImCecYxlNIdqF9CyI+cI5iWACsNDlWgwghJ9udSf4Qx6WfGuFXTKfSQWvd/q0YFKP4Ck=
-Message-ID: <bc5b4c660701191055y584edfc7j195933a94c5f1eda@mail.gmail.com>
-Date: Fri, 19 Jan 2007 18:55:10 +0000
-From: "Marco Ferra" <mferra@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Odd USB problem on THOMSON PDP95FM
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 19 Jan 2007 13:56:06 -0500
+Subject: Re: Threading...
+From: Arjan van de Ven <arjan@infradead.org>
+To: Brian McGrew <brian@visionpro.com>
+Cc: linux-kernel@vger.kernel.org, fedora-users@rdhat.com
+In-Reply-To: <C1D65141.16E37%brian@visionpro.com>
+References: <C1D65141.16E37%brian@visionpro.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 19 Jan 2007 19:55:41 +0100
+Message-Id: <1169232941.3055.555.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi kernel developers
+On Fri, 2007-01-19 at 10:43 -0800, Brian McGrew wrote:
+> I have a very interesting question about something that we're seeing
+> happening with threading between Fedora Core 3 and Fedora Core 5.  Running
+> on Dell PowerEdge 1800 Hardware with a Xeon processor with hyper-threading
+> turned on.  Both systems are using a 2.6.16.16 kernel (MVP al la special).
+> 
+> We have a multithreaded application that starts two worker threads.  On
+> Fedora Core 3 both of these we use getpid() to get the PID of the thread and
+> then use set_afinity to assign each thread to it's own CPU.  Both threads
+> run almost symmetrically even on their given CPU watching the system
+> monitor.
 
-I don't know if this is the proper list but I have a very odd problem
-and it's driving me nuts for the past two days.
+this is odd; even in FC3 getpid() is supposed to return the process ID
+not the thread ID
 
-I have a portable mp3 player named:
+> What am I missing?  What do I need to do in FC5 or the kernel or the
+> threading library to get my threads to run in symmetric parallel again???
 
-usb-storage: waiting for device to settle before scanning
-  Vendor: THOMSON   Model: PDP95FM Series    Rev: 0100
-  Type:   Direct-Access                      ANSI SCSI revision: 04
-usb-storage: device scan complete
-SCSI device sda: 244288 2048-byte hdwr sectors (500 MB)
-sda: Write Protect is off
-sda: Mode Sense: 3e 00 00 00
-sda: assuming drive cache: write through
-SCSI device sda: 244288 2048-byte hdwr sectors (500 MB)
-sda: Write Protect is off
-sda: Mode Sense: 3e 00 00 00
-sda: assuming drive cache: write through
- sda: unknown partition table
-sd 0:0:0:0: Attached scsi removable disk sda
+you should fix the app to use something like pthread_self() instead...
+(or the highly unportable gettid() but that would just be horrible)
 
-that, I think, should act like an USB mass storage disk.  I have done:
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-# dd if=/dev/sda of=/dev/sda.dump
-
-sucessfully, several times.  But I can't do:
-
-# dd if=/dev/zero of=/dev/sda
-
-The error, all the time:
-
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-usb 2-1: reset full speed USB device using uhci_hcd and address 3
-sd 0:0:0:0: SCSI error: return code = 0x50000
-end_request: I/O error, dev sda, sector 1064
-Buffer I/O error on device sda, logical block 133
-lost page write due to I/O error on sda
-
-and from dd:
-
-bash-3.00# dd if=/dev/zero of=/dev/sda
-dd: writing to `/dev/sda': Input/output error
-13489+0 records in
-13488+0 records out
-6905856 bytes (6.9 MB) copied, 206.473 seconds, 33.4 kB/s
-dd: closing input file `/dev/zero': Bad file descriptor
-
-It never stops on the same place, but is always before reaching the
-7 MB.  I thought that I could ajust some tuneable parameters here:
-
-/sys/block/sda/device
-
-But I'm completly lost on the problem.  If anyone could be of assistance,
-it would appreciated.
-
-Sincere regards
-Marco

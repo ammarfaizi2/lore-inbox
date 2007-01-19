@@ -1,130 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751553AbXASQMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932477AbXASQYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbXASQMH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 11:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbXASQMH
+	id S932477AbXASQYJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 11:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbXASQYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 11:12:07 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:2357 "EHLO parknet.jp"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751553AbXASQMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 11:12:06 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: condor@stz-bg.com
-Cc: "Kasper Sandberg" <lkml@metanurb.dk>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: writting files > 100 MB in FAT32
-References: <48247.82.103.71.18.1169112129.squirrel@mail.stz-bg.com>
-	<1169123236.12968.6.camel@localhost>
-	<31333.83.228.43.37.1169131305.squirrel@mail.stz-bg.com>
-	<87bqkwv0dg.fsf@duaron.myhome.or.jp>
-	<37910.82.103.71.18.1169209969.squirrel@mail.stz-bg.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 20 Jan 2007 01:11:55 +0900
-In-Reply-To: <37910.82.103.71.18.1169209969.squirrel@mail.stz-bg.com> (condor@stz-bg.com's message of "Fri\, 19 Jan 2007 14\:32\:49 +0200 \(EET\)")
-Message-ID: <87ps9bro6s.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
+	Fri, 19 Jan 2007 11:24:09 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:20153 "EHLO coraid.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932477AbXASQYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 11:24:08 -0500
+Date: Fri, 19 Jan 2007 11:21:08 -0500
+From: "Ed L. Cashin" <ecashin@coraid.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       xfs@oss.sgi.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Re: bio pages with zero page reference count
+Message-ID: <20070119162108.GG16715@coraid.com>
+Reply-To: support@coraid.com
+References: <20061209234305.c65b4e14.akpm@osdl.org> <20061218175300.GM23156@coraid.com> <20061218222109.GA23156@coraid.com> <20061218225343.GA30167@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061218225343.GA30167@infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Condor" <condor@stz-bg.com> writes:
+On Mon, Dec 18, 2006 at 10:53:43PM +0000, Christoph Hellwig wrote:
+> On Mon, Dec 18, 2006 at 05:21:09PM -0500, Ed L. Cashin wrote:
+...
+> > If anyone has a better reference, I'd like to see it.
+> 
+> I searched around a little bit and found these:
+> 
+> 	http://groups.google.at/group/open-iscsi/browse_frm/thread/17fbe253cf1f69dd/f26cf19b0fee9147?tvc=1&q=kmalloc+iscsi+%22christoph+hellwig%22&hl=de#f26cf19b0fee9147
+> 	http://www.ussg.iu.edu/hypermail/linux/kernel/0408.3/0061.html
+> 
+> But that's not the conclusion I was looking for.  
 
->>From debug log:
-> Jan 16 14:56:13 elrond kernel: usb-storage: device found at 4
-> Jan 16 14:56:13 elrond kernel: usb-storage: waiting for device to settle
-> before scanning
-> Jan 16 14:56:18 elrond kernel: sda: Mode Sense: 00 00 00 00
-> Jan 16 14:56:18 elrond kernel: sda: Mode Sense: 00 00 00 00
-> Jan 16 14:56:18 elrond kernel: usb-storage: device scan complete
->
->>From syslog:
-> Jan 16 14:56:18 elrond kernel: sda: assuming drive cache: write through
-> Jan 16 14:56:40 elrond kernel: FAT: Filesystem panic (dev sda1)
-> Jan 16 14:56:40 elrond kernel:     invalid access to FAT (entry 0x0fffcf03)
-> Jan 16 14:56:40 elrond kernel:     File system has been set read-only
+So it sounds like you've been advocating a general discussion of this
+issue for a few years now.
 
-The disk seems flash disk, and this entry may be on the middle of
-erasing block. The flash disk might be unplugged before flushing dirty
-buffer to disk.  But, it's just my guess.
+To summarize the issue:
 
-> Here are from message log:
->
-> an 16 14:13:55 elrond kernel: usb 2-1: new full speed USB device using
-> uhci_hcd and address 3
-> Jan 16 14:13:55 elrond kernel: usb 2-1: configuration #1 chosen from 1 choice
-> Jan 16 14:13:56 elrond kernel: Initializing USB Mass Storage driver...
-> Jan 16 14:13:56 elrond kernel: scsi0 : SCSI emulation for USB Mass Storage
-> devices
-> Jan 16 14:13:56 elrond kernel: usbcore: registered new interface driver
-> usb-storage
-> Jan 16 14:13:56 elrond kernel: USB Mass Storage support registered.
-> Jan 16 14:14:01 elrond kernel: scsi 0:0:0:0: Direct-Access     USB 2.0 
-> Flash Disk       0.00 PQ: 0 ANSI: 2
-> Jan 16 14:14:01 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 14:14:01 elrond kernel: sda: Write Protect is off
-> Jan 16 14:14:01 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 14:14:01 elrond kernel: sda: Write Protect is off
-> Jan 16 14:14:01 elrond kernel:  sda: sda1 sda2
-> Jan 16 14:14:01 elrond kernel: sd 0:0:0:0: Attached scsi removable disk sda
-> Jan 16 14:14:01 elrond kernel: sd 0:0:0:0: Attached scsi generic sg0 type 0
-> Jan 16 14:28:22 elrond -- MARK --
-> Jan 16 14:37:52 elrond kernel: usb 2-1: USB disconnect, address 3
-> Jan 16 14:48:22 elrond -- MARK --
-> Jan 16 14:56:13 elrond kernel: usb 2-1: new full speed USB device using
-> uhci_hcd and address 4
-> Jan 16 14:56:13 elrond kernel: usb 2-1: configuration #1 chosen from 1 choice
-> Jan 16 14:56:13 elrond kernel: scsi1 : SCSI emulation for USB Mass Storage
-> devices
-> Jan 16 14:56:18 elrond kernel: scsi 1:0:0:0: Direct-Access     USB 2.0 
-> Flash Disk       0.00 PQ: 0 ANSI: 2
-> Jan 16 14:56:18 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 14:56:18 elrond kernel: sda: Write Protect is off
-> Jan 16 14:56:18 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 14:56:18 elrond kernel: sda: Write Protect is off
-> Jan 16 14:56:18 elrond kernel:  sda: sda1 sda2
-> Jan 16 14:56:18 elrond kernel: sd 1:0:0:0: Attached scsi removable disk sda
-> Jan 16 14:56:18 elrond kernel: sd 1:0:0:0: Attached scsi generic sg0 type 0
-> Jan 16 14:58:14 elrond kernel: usb 2-1: USB disconnect, address 4
-> Jan 16 14:59:48 elrond /usr/sbin/gpm[1216]: *** info [mice.c(1766)]:
-> Jan 16 14:59:48 elrond /usr/sbin/gpm[1216]: imps2: Auto-detected
-> intellimouse PS/2
-> Jan 16 15:28:22 elrond -- MARK --
-> Jan 16 15:32:04 elrond kernel: usb 2-1: new full speed USB device using
-> uhci_hcd and address 5
-> Jan 16 15:32:04 elrond kernel: usb 2-1: configuration #1 chosen from 1 choice
-> Jan 16 15:32:04 elrond kernel: scsi2 : SCSI emulation for USB Mass Storage
-> devices
-> Jan 16 15:32:09 elrond kernel: scsi 2:0:0:0: Direct-Access     USB 2.0 
-> Flash Disk       0.00 PQ: 0 ANSI: 2
-> Jan 16 15:32:09 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 15:32:09 elrond kernel: sda: Write Protect is off
-> Jan 16 15:32:09 elrond kernel: SCSI device sda: 8060927 512-byte hdwr
-> sectors (4127 MB)
-> Jan 16 15:32:09 elrond kernel: sda: Write Protect is off
-> Jan 16 15:32:09 elrond kernel:  sda: sda1 sda2
-> Jan 16 15:32:09 elrond kernel: sd 2:0:0:0: Attached scsi removable disk sda
-> Jan 16 15:32:09 elrond kernel: sd 2:0:0:0: Attached scsi generic sg0 type 0
-> Jan 16 15:39:16 elrond kernel: usb 2-1: reset full speed USB device using
-> uhci_hcd and address 5
-> Jan 16 15:50:24 elrond kernel: usb 2-1: USB disconnect, address 5
->
->
-> These are the logs that i have. I hope that this can help you.
->
-> Regards,
-> Condor
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  1) users of the block layer assume that it's fine to associate pages
+     that have a zero reference count with a bio before requesting
+     I/O,
+
+  2) intermediaries like iscsi, aoe, and drbd, associate the pages
+     with the frags of skbuffs, but
+
+  3) when the network layer has to linearize the skbuff for a network
+     device that doesn't support scatter gather, it winds up doing a
+     get_page and put_page on each page in the frags, despite the fact
+     that the page reference count on each may already be zero.  The
+     network layer is assuming that it's OK to do use these operations
+     on any page in the frags.
+
+Maybe the discussion is slow to start because too many parts of the
+kernel are involved.  Here are a couple of specific questions.  Maybe
+they'll help get the ball rolling.
+
+ 1) What are the disadvantages of making the network layer *not*
+    to assume it's correct to use get/put_page on the frags when it
+    linearizes an sk_buff?
+
+    For example, the network layer could omit the get/put_page when
+    the page reference count is zero.
+
+ 2) What are the disadvantages of having one part of the kernel (e.g.,
+    XFS) reference a page before handing it off to another part of the
+    kernel, e.g., in a bio?
+
+    This change would require multiple parts of the kernel to change
+    behavior, but it seems conceptually cleaner, since the reference
+    count would reflect the reality that the page does have an owner
+    (XFS or whoever).  I don't know how practical the implementation
+    would be.
+
+ 3) It seems messy to handle this is in each of the individual
+    intermediary drivers that sit between the block and network
+    layers, but if that really is the place to do it, then is there a
+    problem with simply incrementing the page reference counts upon
+    getting a bio from the block layer, and later decrementing them
+    before giving them back with bio_endio?
+
+        bio_for_each_segment(bv, bio, i)
+                atomic_inc(&bv->bv_page->_count);
+
+    ... [and later]
+
+        bio_for_each_segment(bv, bio, i)
+                atomic_dec(&bv->bv_page->_count);
+
+        bio_endio(bio, bytes_done, error);
+
+    That seems to eliminate problems aoe users have with XFS on AoE
+    devices that are accessible via network devices that don't support
+    scatter gather, but is it the right fix?
+
+    Andrew Morton changed "count" to "_count" to stop folks from
+    directly manipulating the page struct member, but I don't see any
+    get/put_page type operations that fit what the aoe driver has to
+    do in this case.
 
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+  Ed L Cashin <ecashin@coraid.com>

@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965068AbXASLmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965080AbXASMEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbXASLmj (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 06:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbXASLmj
+	id S965080AbXASMEt (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 07:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbXASMEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 06:42:39 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:30135 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965068AbXASLmi (ORCPT
+	Fri, 19 Jan 2007 07:04:49 -0500
+Received: from wr-out-0506.google.com ([64.233.184.235]:51002 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965080AbXASMEs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 06:42:38 -0500
+	Fri, 19 Jan 2007 07:04:48 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=td3n2hKVQ6TAStg8Nc8xfuZd+yxb+QcueJa8U4EQW8tYm3YvDLmfwpiZg4CFdY8NjdF81laszpzBIlmmVQmU/maUmT+LebHWUpNqEUdj2+YaH/TLzeWtaV3Jthc8lAUgskPpCG9jvVcaeC8ARHUgCXh5irA0dJBx7cQ0Ra90fIA=
-Message-ID: <7783925d0701190342j7e0e89a0ib0e9a7278887355f@mail.gmail.com>
-Date: Fri, 19 Jan 2007 17:12:35 +0530
-From: "Rick Brown" <rick.brown.3@gmail.com>
-To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-Subject: Re: [DISCUSS] memory allocation method
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <5d96567b0701150536j4c3c50abndec5155ddb53d4a1@mail.gmail.com>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=ILH0pYVir9jsDwy+ICCq4rTPk2XRqemSQNm3iCFUxt6y8D/Blz8AjpmxjD5He4BO3ny8qw5HaoAxw14H6OveN7v7nPAt4P2BeDgxzfzN4+cBCwSI9wWat8qLHrbV3s3DNiUaxnlF2OzBmuBqgkx+AMWwb3ZptW6/IkYAAFhspBw=
+Message-ID: <84144f020701190404u5162db92mcea13a709d487602@mail.gmail.com>
+Date: Fri, 19 Jan 2007 14:04:47 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Michael Halcrow" <mhalcrow@us.ibm.com>
+Subject: Re: [PATCH 2/5] eCryptfs: convert kmap() to kmap_atomic()
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20070118212725.GD3643@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5d96567b0701150536j4c3c50abndec5155ddb53d4a1@mail.gmail.com>
+References: <20070118212627.GC3643@us.ibm.com>
+	 <20070118212725.GD3643@us.ibm.com>
+X-Google-Sender-Auth: 2ce8a52d4e975d02
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/15/07, Raz Ben-Jehuda(caro) <raziebe@gmail.com> wrote:
-> I have a process who allocates as much as possible of RAM
-> in 4 G ram 32bit machine.  This buffer is never released.
->
-> Questions:
->
-> 1. Is it better allocates with many 1MB buffers or allocate it in with
-> one a big valloc ?
+On 1/18/07, Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+> +       page_data = (char *)kmap_atomic(page, KM_USER0);
+> +       lower_page_data = (char *)kmap_atomic(lower_page, KM_USER1);
 
-ONe BIG vmalloc has huge, huge chances of failure.
+Drop 'em redundant casts, please.

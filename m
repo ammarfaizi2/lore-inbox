@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932639AbXASRZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932774AbXASR1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932639AbXASRZh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbXASRZh
+	id S932774AbXASR1Q (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbXASR1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:25:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2711 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932684AbXASRZg (ORCPT
+	Fri, 19 Jan 2007 12:27:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49858 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932795AbXASR1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:25:36 -0500
-Date: Fri, 19 Jan 2007 18:25:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>, rth@twiddle.net
-Subject: Re: [PATCH] Stop making "inline" imply forced inlining.
-Message-ID: <20070119172542.GO9093@stusta.de>
-References: <Pine.LNX.4.64.0701191156000.24621@CPE00045a9c397f-CM001225dbafb6>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701191156000.24621@CPE00045a9c397f-CM001225dbafb6>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 19 Jan 2007 12:27:16 -0500
+Subject: Re: unable to mmap /dev/kmem
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nadia Derbey <Nadia.Derbey@bull.net>, Franck Bui-Huu <fbuihuu@gmail.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0701191704510.7577@blonde.wat.veritas.com>
+References: <45AFA490.5000508@bull.net>
+	 <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
+	 <45B08B17.3060807@bull.net>
+	 <Pine.LNX.4.64.0701191539070.4009@blonde.wat.veritas.com>
+	 <1169225824.3055.507.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0701191704510.7577@blonde.wat.veritas.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 19 Jan 2007 18:27:09 +0100
+Message-Id: <1169227629.3055.525.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2007 at 11:56:30AM -0500, Robert P. J. Day wrote:
+On Fri, 2007-01-19 at 17:12 +0000, Hugh Dickins wrote:
+> On Fri, 19 Jan 2007, Arjan van de Ven wrote:
+> > On Fri, 2007-01-19 at 16:33 +0000, Hugh Dickins wrote:
+> > > Though I do wonder whether
+> > > it was safe to change its behaviour at that stage: more evidence that
+> > > few have actually been using mmap of /dev/kmem. 
+> > 
+> > ... and maybe we should just kill /dev/kmem entirely... it seems mostly
+> > used by rootkits but very few other things, if any at all...
 > 
->   Remove the macros that define simple "inlining" to mean forced
-> inlining, since you can (and *should*) get that effect with the
-> CONFIG_FORCED_INLINING kernel config variable instead.
+> It was discourteous of me not to CC you: I thought you might say that ;)
+> Though so long as /dev/mem support remains, /dev/kmem might as well?
 
-NAK.
+they're not the same; for a long time, /dev/mem on actual memory
+returned zeros... so you couldn't use it for rootkits ;)
+(that got "fixed" a while ago)
 
-I don't see any place in the kernel where we need a non-forced inline.
+> And be kept as a CONFIG_ option under DEBUG_KERNEL thereafter?
 
-We have tons of inline's in C files that should simply be removed - 
-let's do this instead.
-
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   this change was compile tested on x86 with "make allyesconfig",
-> followed by turning off forced inlining.
-> 
->   now the alpha folks can simplify their compiler.h file. :-)
-> 
-> 
-> diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-> index 6e1c44a..5a90bd9 100644
-> --- a/include/linux/compiler-gcc.h
-> +++ b/include/linux/compiler-gcc.h
-> @@ -23,9 +23,6 @@
->      (typeof(ptr)) (__ptr + (off)); })
-> 
-> 
-> -#define inline		inline		__attribute__((always_inline))
-> -#define __inline__	__inline__	__attribute__((always_inline))
-> -#define __inline	__inline	__attribute__((always_inline))
->  #define __deprecated			__attribute__((deprecated))
->  #define  noinline			__attribute__((noinline))
->  #define __attribute_pure__		__attribute__((pure))
-
-Oh, and your patch would have been broken for gcc < 4.
-
-cu
-Adrian
+config option is fine I suppose... I assume distros will be smart enough
+to turn it off ;)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

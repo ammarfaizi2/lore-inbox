@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965101AbXASMiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965100AbXASMzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbXASMiR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 07:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbXASMiR
+	id S965100AbXASMzY (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 07:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbXASMzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 07:38:17 -0500
-Received: from ns1.suse.de ([195.135.220.2]:47803 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965101AbXASMiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 07:38:16 -0500
-Date: Fri, 19 Jan 2007 13:38:14 +0100
-From: Bernhard Walle <bwalle@suse.de>
-To: Tomas Carnecky <tom@dbservice.com>, linux-kernel@vger.kernel.org,
-       Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: [patch 03/26] Dynamic kernel command-line - arm
-Message-ID: <20070119123814.GA9825@strauss.suse.de>
-Mail-Followup-To: Tomas Carnecky <tom@dbservice.com>,
-	linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
-References: <20070118125849.441998000@strauss.suse.de> <20070118130028.719472000@strauss.suse.de> <20070118141359.GB31418@flint.arm.linux.org.uk> <45AF92E7.50901@dbservice.com> <20070118152326.GC31418@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-In-Reply-To: <20070118152326.GC31418@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 19 Jan 2007 07:55:24 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:19796 "EHLO
+	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S965100AbXASMzX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 07:55:23 -0500
+Subject: Re: Possible ways of dealing with OOM conditions.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
+       David Miller <davem@davemloft.net>
+In-Reply-To: <20070118183430.GA3345@2ka.mipt.ru>
+References: <20070116153315.GB710@2ka.mipt.ru>
+	 <1168963695.22935.78.camel@twins> <20070117045426.GA20921@2ka.mipt.ru>
+	 <1169024848.22935.109.camel@twins> <20070118104144.GA20925@2ka.mipt.ru>
+	 <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru>
+	 <1169133052.6197.96.camel@twins> <20070118155003.GA6719@2ka.mipt.ru>
+	 <1169141513.6197.115.camel@twins>  <20070118183430.GA3345@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Fri, 19 Jan 2007 13:53:15 +0100
+Message-Id: <1169211195.6197.143.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Let me briefly describe your approach and possible drawbacks in it.
+> You start reserving some memory when systems is under memory pressure.
+> when system is in real trouble, you start using that reserve for special
+> tasks mainly for network path to allocate packets and process them in
+> order to get committed some memory swapping.
+> 
+> So, the problems I see here, are following:
+> 1. it is possible that when you are starting to create a reserve, there
+> will not be enough memeory at all. So the solution is to reserve in
+> advance.
 
-* Russell King <rmk+lkml@arm.linux.org.uk> [2007-01-18 16:23]:
->=20
-> However, there is a bigger question here: that is the tradeoff between
-> making this variable part of the on-disk kernel image, but throw away
-> the memory at runtime, or to leave it in the BSS where it will not be
-> part of the on-disk kernel image, but will not be thrown away at
-> runtime.
+Swap is usually enabled at startup, but sure, if you want you can mess
+this up.
 
-Are 1024 bytes of a bigger kernel image really a problem? And even,
-normally kernel images are compressed, and compressing 1024 zeros
-can be compressed very well.
+> 2. You differentiate by hand between critical and non-critical
+> allocations by specifying some kernel users as potentially possible to
+> allocate from reserve. 
 
-I think saving memory is more important than saving disk space. I know
-that most ARM device use flash disk, but also most ARM devices have
-limited RAM.
+True, all sockets that are needed for swap, no-one else.
+
+> This does not prevent from NVIDIA module to
+> allocate from that reserve too, does it?
+
+All users of the NVidiot crap deserve all the pain they get.
+If it breaks they get to keep both pieces.
+
+> And you artificially limit
+> system to process only tiny bits of what it must do, thus potentially
+> leaking pathes which must use reserve too.
+
+How so? I cover pretty much every allocation needed to process an skb by
+setting PF_MEMALLOC - the only drawback there is that the reserve might
+not actually be large enough because it covers more allocations that
+were considered. (thats one of the TODO items, validate the reserve
+functions parameters)
+
+> So, solution is to have a reserve in advance, and manage it using
+> special path when system is in OOM. So you will have network memory
+> reserve, which will be used when system is in trouble. It is very
+> similar to what you had.
+> 
+> But the whole reserve can never be used at all, so it should be used,
+> but not by those who can create OOM condition, thus it should be
+> exported to, for example, network only, and when system is in trouble,
+> network would be still functional (although only critical pathes).
+
+But the network can create OOM conditions for itself just fine. 
+
+Consider the remote storage disappearing for a while (it got rebooted,
+someone tripped over the wire etc..). Now the rest of the network
+traffic keeps coming and will queue up - because user-space is stalled,
+waiting for more memory - and we run out of memory.
+
+There must be a point where we start dropping packets that are not
+critical to the survival of the machine.
+
+> Even further development of such idea is to prevent such OOM condition
+> at all - by starting swapping early (but wisely) and reduce memory
+> usage.
+
+These just postpone execution but will not avoid it.
 
 
-Regards,
-  Bernhard
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFsLu2iGU2lt2vZFQRAnwtAJ9tcLSOA2c6xVSSfN8WM/U9IXR3jwCfULSm
-5bJWwUmTQOafhEGX9LJLD6A=
-=7m3D
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--

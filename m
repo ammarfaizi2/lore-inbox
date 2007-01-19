@@ -1,95 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932833AbXASSth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964845AbXASSzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932833AbXASSth (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 13:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbXASSth
+	id S964845AbXASSzP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbXASSzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 13:49:37 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:59971 "EHLO
-	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932833AbXASStg (ORCPT
+	Fri, 19 Jan 2007 13:55:15 -0500
+Received: from wr-out-0506.google.com ([64.233.184.235]:26693 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932841AbXASSzN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 13:49:36 -0500
-Message-ID: <45B112B6.9060806@linux.vnet.ibm.com>
-Date: Sat, 20 Jan 2007 00:19:26 +0530
-From: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Fri, 19 Jan 2007 13:55:13 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NBmTKd4stY/j/2f9Sx7fnsxqJgTGt/QCkeb+3GJrsLYLh7O6geyNhPz1TI9i1UL+rqfWN0azPuN7K1DTAeGner2B4xLyG03Z6pTsiZ6ImCecYxlNIdqF9CyI+cI5iWACsNDlWgwghJ9udSf4Qx6WfGuFXTKfSQWvd/q0YFKP4Ck=
+Message-ID: <bc5b4c660701191055y584edfc7j195933a94c5f1eda@mail.gmail.com>
+Date: Fri, 19 Jan 2007 18:55:10 +0000
+From: "Marco Ferra" <mferra@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Odd USB problem on THOMSON PDP95FM
 MIME-Version: 1.0
-To: Aubrey Li <aubreylee@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
-References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com> <45B0DB45.4070004@linux.vnet.ibm.com> <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
-In-Reply-To: <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi kernel developers
 
+I don't know if this is the proper list but I have a very odd problem
+and it's driving me nuts for the past two days.
 
-Aubrey Li wrote:
-> On 1/19/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
->>
->> Hi Aubrey,
->>
->> The idea of creating separate flag for pagecache in page_alloc is
->> interesting.  The good part is that you flag watermark low and the
->> zone reclaimer will do the rest of the job.
->>
->> However when the zone reclaimer starts to reclaim pages, it will
->> remove all cold pages and not specifically pagecache pages.  This
->> may affect performance of applications.
->>
->> One possible solution to this reclaim is to use scan control fields
->> and ask the shrink_page_list() and shrink_active_list() routines to
->> target only pagecache pages.  Pagecache pages are not mapped and
->> they are easy to find on the LRU list.
->>
->> Please review my patch at http://lkml.org/lkml/2007/01/17/96
->>
-> 
-> So you mean the existing reclaimer has the same issue, doesn't it?
+I have a portable mp3 player named:
 
-Well, the existing reclaimer will do the right job if the kernel
-really runs out of memory and need to recover pages for new
-allocations.  The pages to be removed will be the coldest page in
-the system.  However now with the introduction of pagecache limit,
-we are artificially creating a memory scarcity and forcing the
-reclaimer to throw away some pages while we actually have free
-usable RAM.  In this context the choice of pages picked by the
-present reclaimer may not be the best ones.
+usb-storage: waiting for device to settle before scanning
+  Vendor: THOMSON   Model: PDP95FM Series    Rev: 0100
+  Type:   Direct-Access                      ANSI SCSI revision: 04
+usb-storage: device scan complete
+SCSI device sda: 244288 2048-byte hdwr sectors (500 MB)
+sda: Write Protect is off
+sda: Mode Sense: 3e 00 00 00
+sda: assuming drive cache: write through
+SCSI device sda: 244288 2048-byte hdwr sectors (500 MB)
+sda: Write Protect is off
+sda: Mode Sense: 3e 00 00 00
+sda: assuming drive cache: write through
+ sda: unknown partition table
+sd 0:0:0:0: Attached scsi removable disk sda
 
-If pagecache is overlimit, we expect old (cold) pagecache pages to
-be thrown out and reused for new file data.  We do not expect to
-drop a few text or data pages to make room for new pagecache.
+that, I think, should act like an USB mass storage disk.  I have done:
 
-> In your and Roy's patch, balance_pagecache() routine is called on file
-> backed access.
-> So you still want to add this checking? or change the current
-> reclaimer completely?
+# dd if=/dev/sda of=/dev/sda.dump
 
-The balance_pagecache() routine is called for file backed access
-since that is when we would probably exceed the pagecache limit.
-The routine check if the limit has exceeded and calls the reclaimer.
-The reclaimer is an extension of the present reclaimer with more
-checks to remove only pagecache pages and not try to unmap any
-mapped pages and potentially affect application performance.
+sucessfully, several times.  But I can't do:
 
-I am open to suggestions on reclaim logic.  My view is that we need
-to selectively reclaim pagecache pages and not just call the
-traditional reclaimer to freeup arbitrary type of pages.
+# dd if=/dev/zero of=/dev/sda
 
---Vaidy
+The error, all the time:
 
-> -Aubrey
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+usb 2-1: reset full speed USB device using uhci_hcd and address 3
+sd 0:0:0:0: SCSI error: return code = 0x50000
+end_request: I/O error, dev sda, sector 1064
+Buffer I/O error on device sda, logical block 133
+lost page write due to I/O error on sda
+
+and from dd:
+
+bash-3.00# dd if=/dev/zero of=/dev/sda
+dd: writing to `/dev/sda': Input/output error
+13489+0 records in
+13488+0 records out
+6905856 bytes (6.9 MB) copied, 206.473 seconds, 33.4 kB/s
+dd: closing input file `/dev/zero': Bad file descriptor
+
+It never stops on the same place, but is always before reaching the
+7 MB.  I thought that I could ajust some tuneable parameters here:
+
+/sys/block/sda/device
+
+But I'm completly lost on the problem.  If anyone could be of assistance,
+it would appreciated.
+
+Sincere regards
+Marco

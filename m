@@ -1,954 +1,304 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932794AbXASA1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932786AbXASA1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932794AbXASA1R (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 19:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932796AbXASA1Q
+	id S932786AbXASA1f (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 19:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbXASA1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 19:27:16 -0500
+	Thu, 18 Jan 2007 19:27:34 -0500
 Received: from ug-out-1314.google.com ([66.249.92.172]:62361 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932790AbXASA1G (ORCPT
+	with ESMTP id S932786AbXASA10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 19:27:06 -0500
+	Thu, 18 Jan 2007 19:27:26 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
         h=received:from:to:cc:date:message-id:in-reply-to:references:subject;
-        b=WWHs39ogQwMgbM01q/OrsgSS1Fy99pOQr3MpR6P+orUzEMXbti7NOeegz50dwMtAqHOhxqm3SVUQ4wc4YMN4+hE8kY5AFZoHBDE6Jk9Kr6xQUP1DExup7og96mXWCJfX5l3J4fS9Ck6Z0NMqIO5WKDdq+5r5opD7+Xkpjh6Db1E=
+        b=PyrEJQBkhB1+NcM1K3Gmd00HuN0Efie/YXF4vyAMjqVLZNCovgegHnc3lAVasrvG7AwtgVPLwvsSLhfD92q3iKvHMnFMgcn9/9e2s5zmNgmPQVCz+8+OdtdX3gbXCrW6twYyehUqtS2xaSyhFWmK/JCImzL9CHjXv/7C6dutQDk=
 From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: linux-ide@vger.kernel.org
 Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
        linux-kernel@vger.kernel.org
-Date: Fri, 19 Jan 2007 01:31:04 +0100
-Message-Id: <20070119003104.14846.26955.sendpatchset@localhost.localdomain>
+Date: Fri, 19 Jan 2007 01:31:24 +0100
+Message-Id: <20070119003124.14846.24392.sendpatchset@localhost.localdomain>
 In-Reply-To: <20070119003058.14846.43637.sendpatchset@localhost.localdomain>
 References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain>
-Subject: [PATCH 1/15] ACPI support for IDE devices
+Subject: [PATCH 4/15] ide: convert ide_hwif_t.mmio into flag
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] ACPI support for IDE devices
+[PATCH] ide: convert ide_hwif_t.mmio into flag
 
-This patch implements ACPI integration for generic IDE devices.
-The ACPI spec mandates that some methods are called during suspend and
-resume. And consequently there most modern Laptops cannot resume
-properly without it.
+All users of ->mmio == 1 are gone so convert ->mmio into flag.
 
-According to the spec, we should call '_GTM' (Get Timing) upon suspend
-to store the current IDE adapter settings.
-Upon resume we should call '_STM' (Set Timing) to initialize the
-adapter with the stored settings; afterwards '_GTF' (Get Taskfile)
-should be called which returns a buffer with some IDE initialisation
-commands. Those commands should be passed to the drive.
+Noticed by Alan Cox.
 
-There are two module params which control the behaviour of this patch:
-
-'ide=noacpi'
-	Do not call any ACPI methods (Disables any ACPI method calls)
-'ide=acpigtf'
-	Enable execution of _GTF methods upon resume.
-	Has no effect if 'ide=noacpi' is set.
-'ide=acpionboot'
-	Enable execution of ACPI methods during boot.
-	This might be required on some machines if 'ide=acpigtf' is
-	selected as some machines modify the _GTF information
-	depending on the drive identification passed down with _STM.
-
-Signed-off-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
 ---
- drivers/ide/Kconfig     |    7 
- drivers/ide/Makefile    |    1 
- drivers/ide/ide-acpi.c  |  696 ++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/ide/ide-probe.c |    3 
- drivers/ide/ide.c       |   36 ++
- include/linux/ide.h     |   27 +
- 6 files changed, 770 insertions(+)
+ drivers/ide/arm/icside.c      |    2 +-
+ drivers/ide/arm/rapide.c      |    2 +-
+ drivers/ide/cris/ide-cris.c   |    2 +-
+ drivers/ide/h8300/ide-h8300.c |    2 +-
+ drivers/ide/ide-dma.c         |    8 ++++----
+ drivers/ide/ide.c             |    5 ++---
+ drivers/ide/legacy/buddha.c   |    2 +-
+ drivers/ide/legacy/gayle.c    |    2 +-
+ drivers/ide/legacy/macide.c   |    2 +-
+ drivers/ide/legacy/q40ide.c   |    2 +-
+ drivers/ide/mips/au1xxx-ide.c |    3 ++-
+ drivers/ide/mips/swarm.c      |    2 +-
+ drivers/ide/pci/sgiioc4.c     |    2 +-
+ drivers/ide/pci/siimage.c     |    3 ++-
+ drivers/ide/ppc/pmac.c        |    2 +-
+ include/linux/ide.h           |    2 +-
+ 16 files changed, 22 insertions(+), 21 deletions(-)
 
-Index: b/drivers/ide/Kconfig
+Index: b/drivers/ide/arm/icside.c
 ===================================================================
---- a/drivers/ide/Kconfig
-+++ b/drivers/ide/Kconfig
-@@ -271,6 +271,13 @@ config BLK_DEV_IDESCSI
- 	  If both this SCSI emulation and native ATAPI support are compiled
- 	  into the kernel, the native support will be used.
+--- a/drivers/ide/arm/icside.c
++++ b/drivers/ide/arm/icside.c
+@@ -556,7 +556,7 @@ icside_setup(void __iomem *base, struct 
+ 		 * Ensure we're using MMIO
+ 		 */
+ 		default_hwif_mmiops(hwif);
+-		hwif->mmio = 2;
++		hwif->mmio = 1;
  
-+config BLK_DEV_IDEACPI
-+	bool "IDE ACPI support"
-+	depends on ACPI
-+	---help---
-+	  Implement ACPI support for generic IDE devices. On modern
-+	  machines ACPI support is required to properly handle ACPI S3 states.
-+
- config IDE_TASK_IOCTL
- 	bool "IDE Taskfile Access"
- 	help
-Index: b/drivers/ide/Makefile
+ 		for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+ 			hwif->hw.io_ports[i] = port;
+Index: b/drivers/ide/arm/rapide.c
 ===================================================================
---- a/drivers/ide/Makefile
-+++ b/drivers/ide/Makefile
-@@ -22,6 +22,7 @@ ide-core-$(CONFIG_BLK_DEV_IDEPCI)	+= set
- ide-core-$(CONFIG_BLK_DEV_IDEDMA)	+= ide-dma.o
- ide-core-$(CONFIG_PROC_FS)		+= ide-proc.o
- ide-core-$(CONFIG_BLK_DEV_IDEPNP)	+= ide-pnp.o
-+ide-core-$(CONFIG_BLK_DEV_IDEACPI)	+= ide-acpi.o
+--- a/drivers/ide/arm/rapide.c
++++ b/drivers/ide/arm/rapide.c
+@@ -46,7 +46,7 @@ rapide_locate_hwif(void __iomem *base, v
+ 	hwif->hw.io_ports[IDE_CONTROL_OFFSET] = (unsigned long)ctrl;
+ 	hwif->io_ports[IDE_CONTROL_OFFSET] = (unsigned long)ctrl;
+ 	hwif->hw.irq = hwif->irq = irq;
+-	hwif->mmio = 2;
++	hwif->mmio = 1;
+ 	default_hwif_mmiops(hwif);
  
- # built-in only drivers from arm/
- ide-core-$(CONFIG_IDE_ARM)		+= arm/ide_arm.o
-Index: b/drivers/ide/ide-acpi.c
+ 	return hwif;
+Index: b/drivers/ide/cris/ide-cris.c
 ===================================================================
---- /dev/null
-+++ b/drivers/ide/ide-acpi.c
-@@ -0,0 +1,696 @@
-+/*
-+ * ide-acpi.c
-+ * Provides ACPI support for IDE drives.
-+ *
-+ * Copyright (C) 2005 Intel Corp.
-+ * Copyright (C) 2005 Randy Dunlap
-+ * Copyright (C) 2006 SUSE Linux Products GmbH
-+ * Copyright (C) 2006 Hannes Reinecke
-+ */
-+
-+#include <linux/ata.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <acpi/acpi.h>
-+#include <linux/ide.h>
-+#include <linux/pci.h>
-+
-+#include <acpi/acpi_bus.h>
-+#include <acpi/acnames.h>
-+#include <acpi/acnamesp.h>
-+#include <acpi/acparser.h>
-+#include <acpi/acexcep.h>
-+#include <acpi/acmacros.h>
-+#include <acpi/actypes.h>
-+
-+#define REGS_PER_GTF		7
-+struct taskfile_array {
-+	u8	tfa[REGS_PER_GTF];	/* regs. 0x1f1 - 0x1f7 */
-+};
-+
-+struct GTM_buffer {
-+	u32	PIO_speed0;
-+	u32	DMA_speed0;
-+	u32	PIO_speed1;
-+	u32	DMA_speed1;
-+	u32	GTM_flags;
-+};
-+
-+struct ide_acpi_drive_link {
-+	ide_drive_t	*drive;
-+	acpi_handle	 obj_handle;
-+	u8		 idbuff[512];
-+};
-+
-+struct ide_acpi_hwif_link {
-+	ide_hwif_t			*hwif;
-+	acpi_handle			 obj_handle;
-+	struct GTM_buffer		 gtm;
-+	struct ide_acpi_drive_link	 master;
-+	struct ide_acpi_drive_link	 slave;
-+};
-+
-+#undef DEBUGGING
-+/* note: adds function name and KERN_DEBUG */
-+#ifdef DEBUGGING
-+#define DEBPRINT(fmt, args...)	\
-+		printk(KERN_DEBUG "%s: " fmt, __FUNCTION__, ## args)
-+#else
-+#define DEBPRINT(fmt, args...)	do {} while (0)
-+#endif	/* DEBUGGING */
-+
-+extern int ide_noacpi;
-+extern int ide_noacpitfs;
-+extern int ide_noacpionboot;
-+
-+/**
-+ * ide_get_dev_handle - finds acpi_handle and PCI device.function
-+ * @dev: device to locate
-+ * @handle: returned acpi_handle for @dev
-+ * @pcidevfn: return PCI device.func for @dev
-+ *
-+ * Returns the ACPI object handle to the corresponding PCI device.
-+ *
-+ * Returns 0 on success, <0 on error.
-+ */
-+static int ide_get_dev_handle(struct device *dev, acpi_handle *handle,
-+			       acpi_integer *pcidevfn)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	unsigned int bus, devnum, func;
-+	acpi_integer addr;
-+	acpi_handle dev_handle;
-+	struct acpi_buffer buffer = {.length = ACPI_ALLOCATE_BUFFER,
-+					.pointer = NULL};
-+	acpi_status status;
-+	struct acpi_device_info	*dinfo = NULL;
-+	int ret = -ENODEV;
-+
-+	bus = pdev->bus->number;
-+	devnum = PCI_SLOT(pdev->devfn);
-+	func = PCI_FUNC(pdev->devfn);
-+	/* ACPI _ADR encoding for PCI bus: */
-+	addr = (acpi_integer)(devnum << 16 | func);
-+
-+	DEBPRINT("ENTER: pci %02x:%02x.%01x\n", bus, devnum, func);
-+
-+	dev_handle = DEVICE_ACPI_HANDLE(dev);
-+	if (!dev_handle) {
-+		DEBPRINT("no acpi handle for device\n");
-+		goto err;
-+	}
-+
-+	status = acpi_get_object_info(dev_handle, &buffer);
-+	if (ACPI_FAILURE(status)) {
-+		DEBPRINT("get_object_info for device failed\n");
-+		goto err;
-+	}
-+	dinfo = buffer.pointer;
-+	if (dinfo && (dinfo->valid & ACPI_VALID_ADR) &&
-+	    dinfo->address == addr) {
-+		*pcidevfn = addr;
-+		*handle = dev_handle;
-+	} else {
-+		DEBPRINT("get_object_info for device has wrong "
-+			" address: %llu, should be %u\n",
-+			dinfo ? (unsigned long long)dinfo->address : -1ULL,
-+			(unsigned int)addr);
-+		goto err;
-+	}
-+
-+	DEBPRINT("for dev=0x%x.%x, addr=0x%llx, *handle=0x%p\n",
-+		 devnum, func, (unsigned long long)addr, *handle);
-+	ret = 0;
-+err:
-+	kfree(dinfo);
-+	return ret;
-+}
-+
-+/**
-+ * ide_acpi_hwif_get_handle - Get ACPI object handle for a given hwif
-+ * @hwif: device to locate
-+ *
-+ * Retrieves the object handle for a given hwif.
-+ *
-+ * Returns handle on success, 0 on error.
-+ */
-+static acpi_handle ide_acpi_hwif_get_handle(ide_hwif_t *hwif)
-+{
-+	struct device		*dev = hwif->gendev.parent;
-+	acpi_handle		dev_handle;
-+	acpi_integer		pcidevfn;
-+	acpi_handle		chan_handle;
-+	int			err;
-+
-+	DEBPRINT("ENTER: device %s\n", hwif->name);
-+
-+	if (!dev) {
-+		DEBPRINT("no PCI device for %s\n", hwif->name);
-+		return NULL;
-+	}
-+
-+	err = ide_get_dev_handle(dev, &dev_handle, &pcidevfn);
-+	if (err < 0) {
-+		DEBPRINT("ide_get_dev_handle failed (%d)\n", err);
-+		return NULL;
-+	}
-+
-+	/* get child objects of dev_handle == channel objects,
-+	 * + _their_ children == drive objects */
-+	/* channel is hwif->channel */
-+	chan_handle = acpi_get_child(dev_handle, hwif->channel);
-+	DEBPRINT("chan adr=%d: handle=0x%p\n",
-+		 hwif->channel, chan_handle);
-+
-+	return chan_handle;
-+}
-+
-+/**
-+ * ide_acpi_drive_get_handle - Get ACPI object handle for a given drive
-+ * @drive: device to locate
-+ *
-+ * Retrieves the object handle of a given drive. According to the ACPI
-+ * spec the drive is a child of the hwif.
-+ *
-+ * Returns handle on success, 0 on error.
-+ */
-+static acpi_handle ide_acpi_drive_get_handle(ide_drive_t *drive)
-+{
-+	ide_hwif_t	*hwif = HWIF(drive);
-+	int		 port;
-+	acpi_handle	 drive_handle;
-+
-+	if (!hwif->acpidata)
-+		return NULL;
-+
-+	if (!hwif->acpidata->obj_handle)
-+		return NULL;
-+
-+	port = hwif->channel ? drive->dn - 2: drive->dn;
-+
-+	DEBPRINT("ENTER: %s at channel#: %d port#: %d\n",
-+		 drive->name, hwif->channel, port);
-+
-+
-+	/* TBD: could also check ACPI object VALID bits */
-+	drive_handle = acpi_get_child(hwif->acpidata->obj_handle, port);
-+	DEBPRINT("drive %s handle 0x%p\n", drive->name, drive_handle);
-+
-+	return drive_handle;
-+}
-+
-+/**
-+ * do_drive_get_GTF - get the drive bootup default taskfile settings
-+ * @drive: the drive for which the taskfile settings should be retrieved
-+ * @gtf_length: number of bytes of _GTF data returned at @gtf_address
-+ * @gtf_address: buffer containing _GTF taskfile arrays
-+ *
-+ * The _GTF method has no input parameters.
-+ * It returns a variable number of register set values (registers
-+ * hex 1F1..1F7, taskfiles).
-+ * The <variable number> is not known in advance, so have ACPI-CA
-+ * allocate the buffer as needed and return it, then free it later.
-+ *
-+ * The returned @gtf_length and @gtf_address are only valid if the
-+ * function return value is 0.
-+ */
-+static int do_drive_get_GTF(ide_drive_t *drive,
-+		     unsigned int *gtf_length, unsigned long *gtf_address,
-+		     unsigned long *obj_loc)
-+{
-+	acpi_status			status;
-+	struct acpi_buffer		output;
-+	union acpi_object 		*out_obj;
-+	ide_hwif_t			*hwif = HWIF(drive);
-+	struct device			*dev = hwif->gendev.parent;
-+	int				err = -ENODEV;
-+	int				port;
-+
-+	*gtf_length = 0;
-+	*gtf_address = 0UL;
-+	*obj_loc = 0UL;
-+
-+	if (ide_noacpi)
-+		return 0;
-+
-+	if (!dev) {
-+		DEBPRINT("no PCI device for %s\n", hwif->name);
-+		goto out;
-+	}
-+
-+	if (!hwif->acpidata) {
-+		DEBPRINT("no ACPI data for %s\n", hwif->name);
-+		goto out;
-+	}
-+
-+	port = hwif->channel ? drive->dn - 2: drive->dn;
-+
-+	if (!drive->acpidata) {
-+		if (port == 0) {
-+			drive->acpidata = &hwif->acpidata->master;
-+			hwif->acpidata->master.drive = drive;
-+		} else {
-+			drive->acpidata = &hwif->acpidata->slave;
-+			hwif->acpidata->slave.drive = drive;
-+		}
-+	}
-+
-+	DEBPRINT("ENTER: %s at %s, port#: %d, hard_port#: %d\n",
-+		 hwif->name, dev->bus_id, port, hwif->channel);
-+
-+	if (!drive->present) {
-+		DEBPRINT("%s drive %d:%d not present\n",
-+			 hwif->name, hwif->channel, port);
-+		goto out;
-+	}
-+
-+	/* Get this drive's _ADR info. if not already known. */
-+	if (!drive->acpidata->obj_handle) {
-+		drive->acpidata->obj_handle = ide_acpi_drive_get_handle(drive);
-+		if (!drive->acpidata->obj_handle) {
-+			DEBPRINT("No ACPI object found for %s\n",
-+				 drive->name);
-+			goto out;
-+		}
-+	}
-+
-+	/* Setting up output buffer */
-+	output.length = ACPI_ALLOCATE_BUFFER;
-+	output.pointer = NULL;	/* ACPI-CA sets this; save/free it later */
-+
-+	/* _GTF has no input parameters */
-+	err = -EIO;
-+	status = acpi_evaluate_object(drive->acpidata->obj_handle, "_GTF",
-+				      NULL, &output);
-+	if (ACPI_FAILURE(status)) {
-+		printk(KERN_DEBUG
-+		       "%s: Run _GTF error: status = 0x%x\n",
-+		       __FUNCTION__, status);
-+		goto out;
-+	}
-+
-+	if (!output.length || !output.pointer) {
-+		DEBPRINT("Run _GTF: "
-+		       "length or ptr is NULL (0x%llx, 0x%p)\n",
-+		       (unsigned long long)output.length,
-+		       output.pointer);
-+		goto out;
-+	}
-+
-+	out_obj = output.pointer;
-+	if (out_obj->type != ACPI_TYPE_BUFFER) {
-+		DEBPRINT("Run _GTF: error: "
-+		       "expected object type of ACPI_TYPE_BUFFER, "
-+		       "got 0x%x\n", out_obj->type);
-+		err = -ENOENT;
-+		kfree(output.pointer);
-+		goto out;
-+	}
-+
-+	if (!out_obj->buffer.length || !out_obj->buffer.pointer ||
-+	    out_obj->buffer.length % REGS_PER_GTF) {
-+		printk(KERN_ERR
-+		       "%s: unexpected GTF length (%d) or addr (0x%p)\n",
-+		       __FUNCTION__, out_obj->buffer.length,
-+		       out_obj->buffer.pointer);
-+		err = -ENOENT;
-+		kfree(output.pointer);
-+		goto out;
-+	}
-+
-+	*gtf_length = out_obj->buffer.length;
-+	*gtf_address = (unsigned long)out_obj->buffer.pointer;
-+	*obj_loc = (unsigned long)out_obj;
-+	DEBPRINT("returning gtf_length=%d, gtf_address=0x%lx, obj_loc=0x%lx\n",
-+		 *gtf_length, *gtf_address, *obj_loc);
-+	err = 0;
-+out:
-+	return err;
-+}
-+
-+/**
-+ * taskfile_load_raw - send taskfile registers to drive
-+ * @drive: drive to which output is sent
-+ * @gtf: raw ATA taskfile register set (0x1f1 - 0x1f7)
-+ *
-+ * Outputs IDE taskfile to the drive.
-+ */
-+static int taskfile_load_raw(ide_drive_t *drive,
-+			      const struct taskfile_array *gtf)
-+{
-+	ide_task_t args;
-+	int err = 0;
-+
-+	DEBPRINT("(0x1f1-1f7): hex: "
-+	       "%02x %02x %02x %02x %02x %02x %02x\n",
-+	       gtf->tfa[0], gtf->tfa[1], gtf->tfa[2],
-+	       gtf->tfa[3], gtf->tfa[4], gtf->tfa[5], gtf->tfa[6]);
-+
-+	memset(&args, 0, sizeof(ide_task_t));
-+	args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase   = TASKFILE_IN;
-+	args.handler      = &task_no_data_intr;
-+
-+	/* convert gtf to IDE Taskfile */
-+	args.tfRegister[1] = gtf->tfa[0];	/* 0x1f1 */
-+	args.tfRegister[2] = gtf->tfa[1];	/* 0x1f2 */
-+	args.tfRegister[3] = gtf->tfa[2];	/* 0x1f3 */
-+	args.tfRegister[4] = gtf->tfa[3];	/* 0x1f4 */
-+	args.tfRegister[5] = gtf->tfa[4];	/* 0x1f5 */
-+	args.tfRegister[6] = gtf->tfa[5];	/* 0x1f6 */
-+	args.tfRegister[7] = gtf->tfa[6];	/* 0x1f7 */
-+
-+	if (ide_noacpitfs) {
-+		DEBPRINT("_GTF execution disabled\n");
-+		return err;
-+	}
-+
-+	err = ide_raw_taskfile(drive, &args, NULL);
-+	if (err)
-+		printk(KERN_ERR "%s: ide_raw_taskfile failed: %u\n",
-+		       __FUNCTION__, err);
-+
-+	return err;
-+}
-+
-+/**
-+ * do_drive_set_taskfiles - write the drive taskfile settings from _GTF
-+ * @drive: the drive to which the taskfile command should be sent
-+ * @gtf_length: total number of bytes of _GTF taskfiles
-+ * @gtf_address: location of _GTF taskfile arrays
-+ *
-+ * Write {gtf_address, length gtf_length} in groups of
-+ * REGS_PER_GTF bytes.
-+ */
-+static int do_drive_set_taskfiles(ide_drive_t *drive,
-+				  unsigned int gtf_length,
-+				  unsigned long gtf_address)
-+{
-+	int			rc = -ENODEV, err;
-+	int			gtf_count = gtf_length / REGS_PER_GTF;
-+	int			ix;
-+	struct taskfile_array	*gtf;
-+
-+	if (ide_noacpi)
-+		return 0;
-+
-+	DEBPRINT("ENTER: %s, hard_port#: %d\n", drive->name, drive->dn);
-+
-+	if (!drive->present)
-+		goto out;
-+	if (!gtf_count)		/* shouldn't be here */
-+		goto out;
-+
-+	DEBPRINT("total GTF bytes=%u (0x%x), gtf_count=%d, addr=0x%lx\n",
-+		 gtf_length, gtf_length, gtf_count, gtf_address);
-+
-+	if (gtf_length % REGS_PER_GTF) {
-+		printk(KERN_ERR "%s: unexpected GTF length (%d)\n",
-+		       __FUNCTION__, gtf_length);
-+		goto out;
-+	}
-+
-+	rc = 0;
-+	for (ix = 0; ix < gtf_count; ix++) {
-+		gtf = (struct taskfile_array *)
-+			(gtf_address + ix * REGS_PER_GTF);
-+
-+		/* send all TaskFile registers (0x1f1-0x1f7) *in*that*order* */
-+		err = taskfile_load_raw(drive, gtf);
-+		if (err)
-+			rc = err;
-+	}
-+
-+out:
-+	return rc;
-+}
-+
-+/**
-+ * ide_acpi_exec_tfs - get then write drive taskfile settings
-+ * @drive: the drive for which the taskfile settings should be
-+ *         written.
-+ *
-+ * According to the ACPI spec this should be called after _STM
-+ * has been evaluated for the interface. Some ACPI vendors interpret
-+ * that as a hard requirement and modify the taskfile according
-+ * to the Identify Drive information passed down with _STM.
-+ * So one should really make sure to call this only after _STM has
-+ * been executed.
-+ */
-+int ide_acpi_exec_tfs(ide_drive_t *drive)
-+{
-+	int		ret;
-+	unsigned int	gtf_length;
-+	unsigned long	gtf_address;
-+	unsigned long	obj_loc;
-+
-+	if (ide_noacpi)
-+		return 0;
-+
-+	DEBPRINT("call get_GTF, drive=%s port=%d\n", drive->name, drive->dn);
-+
-+	ret = do_drive_get_GTF(drive, &gtf_length, &gtf_address, &obj_loc);
-+	if (ret < 0) {
-+		DEBPRINT("get_GTF error (%d)\n", ret);
-+		return ret;
-+	}
-+
-+	DEBPRINT("call set_taskfiles, drive=%s\n", drive->name);
-+
-+	ret = do_drive_set_taskfiles(drive, gtf_length, gtf_address);
-+	kfree((void *)obj_loc);
-+	if (ret < 0) {
-+		DEBPRINT("set_taskfiles error (%d)\n", ret);
-+	}
-+
-+	DEBPRINT("ret=%d\n", ret);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(ide_acpi_exec_tfs);
-+
-+/**
-+ * ide_acpi_get_timing - get the channel (controller) timings
-+ * @hwif: target IDE interface (channel)
-+ *
-+ * This function executes the _GTM ACPI method for the target channel.
-+ *
-+ */
-+void ide_acpi_get_timing(ide_hwif_t *hwif)
-+{
-+	acpi_status		status;
-+	struct acpi_buffer	output;
-+	union acpi_object 	*out_obj;
-+
-+	if (ide_noacpi)
-+		return;
-+
-+	DEBPRINT("ENTER:\n");
-+
-+	if (!hwif->acpidata) {
-+		DEBPRINT("no ACPI data for %s\n", hwif->name);
-+		return;
-+	}
-+
-+	/* Setting up output buffer for _GTM */
-+	output.length = ACPI_ALLOCATE_BUFFER;
-+	output.pointer = NULL;	/* ACPI-CA sets this; save/free it later */
-+
-+	/* _GTM has no input parameters */
-+	status = acpi_evaluate_object(hwif->acpidata->obj_handle, "_GTM",
-+				      NULL, &output);
-+
-+	DEBPRINT("_GTM status: %d, outptr: 0x%p, outlen: 0x%llx\n",
-+		 status, output.pointer,
-+		 (unsigned long long)output.length);
-+
-+	if (ACPI_FAILURE(status)) {
-+		DEBPRINT("Run _GTM error: status = 0x%x\n", status);
-+		return;
-+	}
-+
-+	if (!output.length || !output.pointer) {
-+		DEBPRINT("Run _GTM: length or ptr is NULL (0x%llx, 0x%p)\n",
-+		       (unsigned long long)output.length,
-+		       output.pointer);
-+		kfree(output.pointer);
-+		return;
-+	}
-+
-+	out_obj = output.pointer;
-+	if (out_obj->type != ACPI_TYPE_BUFFER) {
-+		kfree(output.pointer);
-+		DEBPRINT("Run _GTM: error: "
-+		       "expected object type of ACPI_TYPE_BUFFER, "
-+		       "got 0x%x\n", out_obj->type);
-+		return;
-+	}
-+
-+	if (!out_obj->buffer.length || !out_obj->buffer.pointer ||
-+	    out_obj->buffer.length != sizeof(struct GTM_buffer)) {
-+		kfree(output.pointer);
-+		printk(KERN_ERR
-+		       "%s: unexpected _GTM length (0x%x)[should be 0x%x] or addr (0x%p)\n",
-+		       __FUNCTION__, out_obj->buffer.length,
-+		       sizeof(struct GTM_buffer), out_obj->buffer.pointer);
-+		return;
-+	}
-+
-+	memcpy(&hwif->acpidata->gtm, out_obj->buffer.pointer,
-+	       sizeof(struct GTM_buffer));
-+
-+	DEBPRINT("_GTM info: ptr: 0x%p, len: 0x%x, exp.len: 0x%Zx\n",
-+		 out_obj->buffer.pointer, out_obj->buffer.length,
-+		 sizeof(struct GTM_buffer));
-+
-+	DEBPRINT("_GTM fields: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n",
-+		 hwif->acpidata->gtm.PIO_speed0,
-+		 hwif->acpidata->gtm.DMA_speed0,
-+		 hwif->acpidata->gtm.PIO_speed1,
-+		 hwif->acpidata->gtm.DMA_speed1,
-+		 hwif->acpidata->gtm.GTM_flags);
-+
-+	kfree(output.pointer);
-+}
-+EXPORT_SYMBOL_GPL(ide_acpi_get_timing);
-+
-+/**
-+ * ide_acpi_push_timing - set the channel (controller) timings
-+ * @hwif: target IDE interface (channel)
-+ *
-+ * This function executes the _STM ACPI method for the target channel.
-+ *
-+ * _STM requires Identify Drive data, which has to passed as an argument.
-+ * Unfortunately hd_driveid is a mangled version which we can't readily
-+ * use; hence we'll get the information afresh.
-+ */
-+void ide_acpi_push_timing(ide_hwif_t *hwif)
-+{
-+	acpi_status		status;
-+	struct acpi_object_list	input;
-+	union acpi_object 	in_params[3];
-+	struct ide_acpi_drive_link	*master = &hwif->acpidata->master;
-+	struct ide_acpi_drive_link	*slave = &hwif->acpidata->slave;
-+
-+	if (ide_noacpi)
-+		return;
-+
-+	DEBPRINT("ENTER:\n");
-+
-+	if (!hwif->acpidata) {
-+		DEBPRINT("no ACPI data for %s\n", hwif->name);
-+		return;
-+	}
-+
-+	/* Give the GTM buffer + drive Identify data to the channel via the
-+	 * _STM method: */
-+	/* setup input parameters buffer for _STM */
-+	input.count = 3;
-+	input.pointer = in_params;
-+	in_params[0].type = ACPI_TYPE_BUFFER;
-+	in_params[0].buffer.length = sizeof(struct GTM_buffer);
-+	in_params[0].buffer.pointer = (u8 *)&hwif->acpidata->gtm;
-+	in_params[1].type = ACPI_TYPE_BUFFER;
-+	in_params[1].buffer.length = sizeof(struct hd_driveid);
-+	in_params[1].buffer.pointer = (u8 *)&master->idbuff;
-+	in_params[2].type = ACPI_TYPE_BUFFER;
-+	in_params[2].buffer.length = sizeof(struct hd_driveid);
-+	in_params[2].buffer.pointer = (u8 *)&slave->idbuff;
-+	/* Output buffer: _STM has no output */
-+
-+	status = acpi_evaluate_object(hwif->acpidata->obj_handle, "_STM",
-+				      &input, NULL);
-+
-+	if (ACPI_FAILURE(status)) {
-+		DEBPRINT("Run _STM error: status = 0x%x\n", status);
-+	}
-+	DEBPRINT("_STM status: %d\n", status);
-+}
-+EXPORT_SYMBOL_GPL(ide_acpi_push_timing);
-+
-+/**
-+ * ide_acpi_init - initialize the ACPI link for an IDE interface
-+ * @hwif: target IDE interface (channel)
-+ *
-+ * The ACPI spec is not quite clear when the drive identify buffer
-+ * should be obtained. Calling IDENTIFY DEVICE during shutdown
-+ * is not the best of ideas as the drive might already being put to
-+ * sleep. And obviously we can't call it during resume.
-+ * So we get the information during startup; but this means that
-+ * any changes during run-time will be lost after resume.
-+ */
-+void ide_acpi_init(ide_hwif_t *hwif)
-+{
-+	int unit;
-+	int			err;
-+	struct ide_acpi_drive_link	*master;
-+	struct ide_acpi_drive_link	*slave;
-+
-+	hwif->acpidata = kzalloc(sizeof(struct ide_acpi_hwif_link), GFP_KERNEL);
-+	if (!hwif->acpidata)
-+		return;
-+
-+	hwif->acpidata->obj_handle = ide_acpi_hwif_get_handle(hwif);
-+	if (!hwif->acpidata->obj_handle) {
-+		DEBPRINT("no ACPI object for %s found\n", hwif->name);
-+		kfree(hwif->acpidata);
-+		hwif->acpidata = NULL;
-+		return;
-+	}
-+
-+	/*
-+	 * The ACPI spec mandates that we send information
-+	 * for both drives, regardless whether they are connected
-+	 * or not.
-+	 */
-+	hwif->acpidata->master.drive = &hwif->drives[0];
-+	hwif->drives[0].acpidata = &hwif->acpidata->master;
-+	master = &hwif->acpidata->master;
-+
-+	hwif->acpidata->slave.drive = &hwif->drives[1];
-+	hwif->drives[1].acpidata = &hwif->acpidata->slave;
-+	slave = &hwif->acpidata->slave;
-+
-+
-+	/*
-+	 * Send IDENTIFY for each drive
-+	 */
-+	if (master->drive->present) {
-+		err = taskfile_lib_get_identify(master->drive, master->idbuff);
-+		if (err) {
-+			DEBPRINT("identify device %s failed (%d)\n",
-+				 master->drive->name, err);
-+		}
-+	}
-+
-+	if (slave->drive->present) {
-+		err = taskfile_lib_get_identify(slave->drive, slave->idbuff);
-+		if (err) {
-+			DEBPRINT("identify device %s failed (%d)\n",
-+				 slave->drive->name, err);
-+		}
-+	}
-+
-+	if (ide_noacpionboot) {
-+		DEBPRINT("ACPI methods disabled on boot\n");
-+		return;
-+	}
-+
-+	/*
-+	 * ACPI requires us to call _STM on startup
-+	 */
-+	ide_acpi_get_timing(hwif);
-+	ide_acpi_push_timing(hwif);
-+
-+	for (unit = 0; unit < MAX_DRIVES; ++unit) {
-+		ide_drive_t *drive = &hwif->drives[unit];
-+
-+		if (drive->present) {
-+			/* Execute ACPI startup code */
-+			ide_acpi_exec_tfs(drive);
-+		}
-+	}
-+}
-+EXPORT_SYMBOL_GPL(ide_acpi_init);
-Index: b/drivers/ide/ide-probe.c
+--- a/drivers/ide/cris/ide-cris.c
++++ b/drivers/ide/cris/ide-cris.c
+@@ -795,7 +795,7 @@ init_e100_ide (void)
+ 		                0, 0, cris_ide_ack_intr,
+ 		                ide_default_irq(0));
+ 		ide_register_hw(&hw, &hwif);
+-		hwif->mmio = 2;
++		hwif->mmio = 1;
+ 		hwif->chipset = ide_etrax100;
+ 		hwif->tuneproc = &tune_cris_ide;
+ 		hwif->speedproc = &speed_cris_ide;
+Index: b/drivers/ide/h8300/ide-h8300.c
 ===================================================================
---- a/drivers/ide/ide-probe.c
-+++ b/drivers/ide/ide-probe.c
-@@ -1384,6 +1384,9 @@ static int hwif_init(ide_hwif_t *hwif)
+--- a/drivers/ide/h8300/ide-h8300.c
++++ b/drivers/ide/h8300/ide-h8300.c
+@@ -76,7 +76,7 @@ static inline void hwif_setup(ide_hwif_t
+ {
+ 	default_hwif_iops(hwif);
  
- done:
- 	init_gendisk(hwif);
+-	hwif->mmio  = 2;
++	hwif->mmio  = 1;
+ 	hwif->OUTW  = mm_outw;
+ 	hwif->OUTSW = mm_outsw;
+ 	hwif->INW   = mm_inw;
+Index: b/drivers/ide/ide-dma.c
+===================================================================
+--- a/drivers/ide/ide-dma.c
++++ b/drivers/ide/ide-dma.c
+@@ -565,7 +565,7 @@ int ide_dma_setup(ide_drive_t *drive)
+ 	}
+ 
+ 	/* PRD table */
+-	if (hwif->mmio == 2)
++	if (hwif->mmio)
+ 		writel(hwif->dmatable_dma, (void __iomem *)hwif->dma_prdtable);
+ 	else
+ 		outl(hwif->dmatable_dma, hwif->dma_prdtable);
+@@ -815,7 +815,7 @@ int ide_release_dma(ide_hwif_t *hwif)
+ {
+ 	ide_release_dma_engine(hwif);
+ 
+-	if (hwif->mmio == 2)
++	if (hwif->mmio)
+ 		return 1;
+ 	else
+ 		return ide_release_iomio_dma(hwif);
+@@ -884,9 +884,9 @@ static int ide_iomio_dma(ide_hwif_t *hwi
+ 
+ static int ide_dma_iobase(ide_hwif_t *hwif, unsigned long base, unsigned int ports)
+ {
+-	if (hwif->mmio == 2)
++	if (hwif->mmio)
+ 		return ide_mapped_mmio_dma(hwif, base,ports);
+-	BUG_ON(hwif->mmio == 1);
 +
-+	ide_acpi_init(hwif);
-+
- 	hwif->present = 1;	/* success */
- 	return 1;
+ 	return ide_iomio_dma(hwif, base, ports);
+ }
  
 Index: b/drivers/ide/ide.c
 ===================================================================
 --- a/drivers/ide/ide.c
 +++ b/drivers/ide/ide.c
-@@ -187,6 +187,12 @@ int noautodma = 1;
+@@ -389,9 +389,8 @@ int ide_hwif_request_regions(ide_hwif_t 
+ 	unsigned long addr;
+ 	unsigned int i;
  
- EXPORT_SYMBOL(noautodma);
- 
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+int ide_noacpi = 0;
-+int ide_noacpitfs = 1;
-+int ide_noacpionboot = 1;
-+#endif
-+
- /*
-  * This is declared extern in ide.h, for access by other IDE modules:
-  */
-@@ -1211,10 +1217,15 @@ EXPORT_SYMBOL(system_bus_clock);
- static int generic_ide_suspend(struct device *dev, pm_message_t mesg)
+-	if (hwif->mmio == 2)
++	if (hwif->mmio)
+ 		return 0;
+-	BUG_ON(hwif->mmio == 1);
+ 	addr = hwif->io_ports[IDE_CONTROL_OFFSET];
+ 	if (addr && !hwif_request_region(hwif, addr, 1))
+ 		goto control_region_busy;
+@@ -438,7 +437,7 @@ void ide_hwif_release_regions(ide_hwif_t
  {
- 	ide_drive_t *drive = dev->driver_data;
-+	ide_hwif_t *hwif = HWIF(drive);
- 	struct request rq;
- 	struct request_pm_state rqpm;
- 	ide_task_t args;
+ 	u32 i = 0;
  
-+	/* Call ACPI _GTM only once */
-+	if (!(drive->dn % 2))
-+		ide_acpi_get_timing(hwif);
-+
- 	memset(&rq, 0, sizeof(rq));
- 	memset(&rqpm, 0, sizeof(rqpm));
- 	memset(&args, 0, sizeof(args));
-@@ -1232,10 +1243,17 @@ static int generic_ide_suspend(struct de
- static int generic_ide_resume(struct device *dev)
- {
- 	ide_drive_t *drive = dev->driver_data;
-+	ide_hwif_t *hwif = HWIF(drive);
- 	struct request rq;
- 	struct request_pm_state rqpm;
- 	ide_task_t args;
+-	if (hwif->mmio == 2)
++	if (hwif->mmio)
+ 		return;
+ 	if (hwif->io_ports[IDE_CONTROL_OFFSET])
+ 		release_region(hwif->io_ports[IDE_CONTROL_OFFSET], 1);
+Index: b/drivers/ide/legacy/buddha.c
+===================================================================
+--- a/drivers/ide/legacy/buddha.c
++++ b/drivers/ide/legacy/buddha.c
+@@ -215,7 +215,7 @@ fail_base2:
+ 			
+ 			index = ide_register_hw(&hw, &hwif);
+ 			if (index != -1) {
+-				hwif->mmio = 2;
++				hwif->mmio = 1;
+ 				printk("ide%d: ", index);
+ 				switch(type) {
+ 				case BOARD_BUDDHA:
+Index: b/drivers/ide/legacy/gayle.c
+===================================================================
+--- a/drivers/ide/legacy/gayle.c
++++ b/drivers/ide/legacy/gayle.c
+@@ -167,7 +167,7 @@ found:
  
-+	/* Call ACPI _STM only once */
-+	if (!(drive->dn % 2))
-+		ide_acpi_push_timing(hwif);
-+
-+	ide_acpi_exec_tfs(drive);
-+
- 	memset(&rq, 0, sizeof(rq));
- 	memset(&rqpm, 0, sizeof(rqpm));
- 	memset(&args, 0, sizeof(args));
-@@ -1540,6 +1558,24 @@ static int __init ide_setup(char *s)
+ 	index = ide_register_hw(&hw, &hwif);
+ 	if (index != -1) {
+-	    hwif->mmio = 2;
++	    hwif->mmio = 1;
+ 	    switch (i) {
+ 		case 0:
+ 		    printk("ide%d: Gayle IDE interface (A%d style)\n", index,
+Index: b/drivers/ide/legacy/macide.c
+===================================================================
+--- a/drivers/ide/legacy/macide.c
++++ b/drivers/ide/legacy/macide.c
+@@ -141,7 +141,7 @@ void macide_init(void)
  	}
- #endif /* CONFIG_BLK_DEV_IDEPCI */
  
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+	if (!strcmp(s, "ide=noacpi")) {
-+		//printk(" : Disable IDE ACPI support.\n");
-+		ide_noacpi = 1;
-+		return 1;
-+	}
-+	if (!strcmp(s, "ide=acpigtf")) {
-+		//printk(" : Enable IDE ACPI _GTF support.\n");
-+		ide_noacpitfs = 0;
-+		return 1;
-+	}
-+	if (!strcmp(s, "ide=acpionboot")) {
-+		//printk(" : Call IDE ACPI methods on boot.\n");
-+		ide_noacpionboot = 0;
-+		return 1;
-+	}
-+#endif /* CONFIG_BLK_DEV_IDEACPI */
+         if (index != -1) {
+-		hwif->mmio = 2;
++		hwif->mmio = 1;
+ 		if (macintosh_config->ide_type == MAC_IDE_QUADRA)
+ 			printk(KERN_INFO "ide%d: Macintosh Quadra IDE interface\n", index);
+ 		else if (macintosh_config->ide_type == MAC_IDE_PB)
+Index: b/drivers/ide/legacy/q40ide.c
+===================================================================
+--- a/drivers/ide/legacy/q40ide.c
++++ b/drivers/ide/legacy/q40ide.c
+@@ -145,7 +145,7 @@ void q40ide_init(void)
+ 	index = ide_register_hw(&hw, &hwif);
+ 	// **FIXME**
+ 	if (index != -1)
+-		hwif->mmio = 2;
++		hwif->mmio = 1;
+     }
+ }
+ 
+Index: b/drivers/ide/mips/au1xxx-ide.c
+===================================================================
+--- a/drivers/ide/mips/au1xxx-ide.c
++++ b/drivers/ide/mips/au1xxx-ide.c
+@@ -708,7 +708,8 @@ static int au_ide_probe(struct device *d
+ 
+ 	/* hold should be on in all cases */
+ 	hwif->hold                      = 1;
+-	hwif->mmio                      = 2;
 +
- 	/*
- 	 * Look for drive options:  "hdx="
- 	 */
++	hwif->mmio  = 1;
+ 
+ 	/* If the user has selected DDMA assisted copies,
+ 	   then set up a few local I/O function entry points 
+Index: b/drivers/ide/mips/swarm.c
+===================================================================
+--- a/drivers/ide/mips/swarm.c
++++ b/drivers/ide/mips/swarm.c
+@@ -115,7 +115,7 @@ static int __devinit swarm_ide_probe(str
+ 	/* Setup MMIO ops.  */
+ 	default_hwif_mmiops(hwif);
+ 	/* Prevent resource map manipulation.  */
+-	hwif->mmio = 2;
++	hwif->mmio = 1;
+ 	hwif->noprobe = 0;
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+Index: b/drivers/ide/pci/sgiioc4.c
+===================================================================
+--- a/drivers/ide/pci/sgiioc4.c
++++ b/drivers/ide/pci/sgiioc4.c
+@@ -593,7 +593,7 @@ static int sgiioc4_ide_dma_setup(ide_dri
+ static void __devinit
+ ide_init_sgiioc4(ide_hwif_t * hwif)
+ {
+-	hwif->mmio = 2;
++	hwif->mmio = 1;
+ 	hwif->autodma = 1;
+ 	hwif->atapi_dma = 1;
+ 	hwif->ultra_mask = 0x0;	/* Disable Ultra DMA */
+Index: b/drivers/ide/pci/siimage.c
+===================================================================
+--- a/drivers/ide/pci/siimage.c
++++ b/drivers/ide/pci/siimage.c
+@@ -889,7 +889,8 @@ static void __devinit init_mmio_iops_sii
+        	base = (unsigned long) addr;
+ 
+ 	hwif->dma_base			= base + (ch ? 0x08 : 0x00);
+-	hwif->mmio			= 2;
++
++	hwif->mmio = 1;
+ }
+ 
+ static int is_dev_seagate_sata(ide_drive_t *drive)
+Index: b/drivers/ide/ppc/pmac.c
+===================================================================
+--- a/drivers/ide/ppc/pmac.c
++++ b/drivers/ide/ppc/pmac.c
+@@ -1238,7 +1238,7 @@ pmac_ide_setup_device(pmac_ide_hwif_t *p
+        	hwif->OUTBSYNC = pmac_outbsync;
+ 
+ 	/* Tell common code _not_ to mess with resources */
+-	hwif->mmio = 2;
++	hwif->mmio = 1;
+ 	hwif->hwif_data = pmif;
+ 	pmac_ide_init_hwif_ports(&hwif->hw, pmif->regbase, 0, &hwif->irq);
+ 	memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->io_ports));
 Index: b/include/linux/ide.h
 ===================================================================
 --- a/include/linux/ide.h
 +++ b/include/linux/ide.h
-@@ -18,6 +18,9 @@
- #include <linux/device.h>
- #include <linux/pci.h>
- #include <linux/completion.h>
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+#include <acpi/acpi.h>
-+#endif
- #include <asm/byteorder.h>
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -541,6 +544,11 @@ typedef enum {
- struct ide_driver_s;
- struct ide_settings_s;
+@@ -771,7 +771,6 @@ typedef struct hwif_s {
+ 	unsigned int cursg;
+ 	unsigned int cursg_ofs;
  
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+struct ide_acpi_drive_link;
-+struct ide_acpi_hwif_link;
-+#endif
-+
- typedef struct ide_drive_s {
- 	char		name[4];	/* drive name, such as "hda" */
-         char            driver_req[10];	/* requests specific driver */
-@@ -636,6 +644,9 @@ typedef struct ide_drive_s {
+-	int		mmio;		/* hosts iomio (0) or custom (2) select */
+ 	int		rqsize;		/* max sectors per request */
+ 	int		irq;		/* our irq number */
  
- 	int		lun;		/* logical unit */
- 	int		crc_count;	/* crc counter to reduce drive speed */
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+	struct ide_acpi_drive_link *acpidata;
-+#endif
- 	struct list_head list;
+@@ -804,6 +803,7 @@ typedef struct hwif_s {
+ 	unsigned	no_io_32bit : 1; /* 1 = can not do 32-bit IO ops */
+ 	unsigned	err_stops_fifo : 1; /* 1=data FIFO is cleared by an error */
+ 	unsigned	atapi_irq_bogon : 1; /* Generates spurious DMA interrupts in PIO mode */
++	unsigned	mmio       : 1; /* host uses MMIO */
+ 
  	struct device	gendev;
- 	struct completion gendev_rel_comp;	/* to deal with device release() */
-@@ -800,6 +811,10 @@ typedef struct hwif_s {
- 	void		*hwif_data;	/* extra hwif data */
- 
- 	unsigned dma;
-+
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+	struct ide_acpi_hwif_link *acpidata;
-+#endif
- } ____cacheline_internodealigned_in_smp ide_hwif_t;
- 
- /*
-@@ -1294,6 +1309,18 @@ static inline void ide_dma_verbose(ide_d
- static inline void ide_release_dma(ide_hwif_t *drive) {;}
- #endif
- 
-+#ifdef CONFIG_BLK_DEV_IDEACPI
-+extern int ide_acpi_exec_tfs(ide_drive_t *drive);
-+extern void ide_acpi_get_timing(ide_hwif_t *hwif);
-+extern void ide_acpi_push_timing(ide_hwif_t *hwif);
-+extern void ide_acpi_init(ide_hwif_t *hwif);
-+#else
-+static inline int ide_acpi_exec_tfs(ide_drive_t *drive) { return 0; }
-+static inline void ide_acpi_get_timing(ide_hwif_t *hwif) { ; }
-+static inline void ide_acpi_push_timing(ide_hwif_t *hwif) { ; }
-+static inline void ide_acpi_init(ide_hwif_t *hwif) { ; }
-+#endif
-+
- extern int ide_hwif_request_regions(ide_hwif_t *hwif);
- extern void ide_hwif_release_regions(ide_hwif_t* hwif);
- extern void ide_unregister (unsigned int index);
+ 	struct completion gendev_rel_comp; /* To deal with device release() */

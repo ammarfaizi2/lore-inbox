@@ -1,54 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932813AbXASRgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932796AbXASRmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932813AbXASRgH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbXASRgH
+	id S932796AbXASRmN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932827AbXASRmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:36:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2738 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932813AbXASRgG (ORCPT
+	Fri, 19 Jan 2007 12:42:13 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:64171 "EHLO
+	ms-smtp-01.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932796AbXASRmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:36:06 -0500
-Date: Fri, 19 Jan 2007 18:36:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: can someone explain "inline" once and for all?
-Message-ID: <20070119173612.GP9093@stusta.de>
-References: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6> <orzm8f9bvs.fsf@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <orzm8f9bvs.fsf@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 19 Jan 2007 12:42:12 -0500
+Subject: Re: Regarding kernel opps after patchng lngo's RT_PREEMPT
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alim Akhtar <alim.akhtar@ttec.soc-soft.com>
+Cc: tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <C5065F118AFB3D478B052FC1E9810D9C23AF9C@tec-mail.ttec.soc-soft.com>
+References: <C5065F118AFB3D478B052FC1E9810D9C23AF9C@tec-mail.ttec.soc-soft.com>
+Content-Type: text/plain
+Date: Fri, 19 Jan 2007 12:41:14 -0500
+Message-Id: <1169228474.31347.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2007 at 03:15:03PM -0200, Alexandre Oliva wrote:
->...
-> That's still a long way ahead (the 4.3 development cycle has just
-> started), but it wouldn't hurt to start fixing incompatibilities
-> sooner rather than later, and coming up with a clean and uniform set
-> of inline macros that express intended meaning for the kernel to use.
+[ I believe you wanted LKML and not majordomo, also CC'd Ingo since he's
+the maintainer of the -rt patch ]
 
-I had already removed most of the "extern inline"s in the kernel since 
-they give warnings with -Wmissing-prototypes (which I'd like to enable 
-long-term in the kernel since it helps discovering a class of nasty 
-runtime errors).
+On Fri, 2007-01-19 at 16:20 +0530, Alim Akhtar wrote:
+> 
+> Dear Steven/Thomas Gleixner
+> 
+> i am using linux.2.6.14 + patch-2.6.14-rt22 for a iMX21 based coustom
+> board.
 
-As far as I can see, all we need is "static inline" with the semantics
-"force inlining" for functions in header files and perhaps a handful of 
-functions in C files (if any).
+Could you try 2.6.20-rc5-rt7.  It's hard to debug a kernel that old.
+Is there any reason you are not using the latest?
 
-cu
-Adrian
+-- Steve
 
--- 
+[ keeping rest of email for those that haven't read it yet. ]
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> when i have ported the image to board i got the following error just
+> after kernel completed its uncompression.
+> 
+> Uncompressing
+> Linux........................................................... done
+> vu Guillaume, booting the kernel.
+> NOT Creating MX21 tags...Done.
+> BUG: bad raw irq-flag value 600000d3, swapper/0!
+> Function entered at [<c00232bc>] from [<c0053af0>]
+>  r4 = C019E000
+> Function entered at [<c0053aa0>] from [<c01777b8>]
+> Function entered at [<c0177304>] from [<c0058534>]
+> Function entered at [<c00584ec>] from [<c0178ba4>]
+>  r8 = C001A0D0  r7 = 00000000  r6 = C01A8DD8  r5 = C0008708
+>  r4 = C019E000
+> Function entered at [<c0178b74>] from [<c0008708>]
+>  r7 = C01AA2E4  r6 = C001B0C4  r5 = C01C37AC  r4 = 00053175
+> Function entered at [<c00086f4>] from [<c00080a0>]
+>  r5 = C01C37AC  r4 = 00053175
+> ---------------------------
+> | preempt count: 00000001 ]
+> | 1-level deep critical section nesting:
+> ----------------------------------------
+> .. [<00000000>] .... .....[<00000000>] ..   ( <=
+> ------------------------------
+> | showing all locks held by: |  (swapper/0 [c01a8dd8, 120]):
+> ------------------------------
+> 
+> #001:             [c01b42ac] {kernel_sem.lock}
+> ... acquired at:
+> 
+> After the it is booting nornaly but after some time its comtinuosly
+> throughing some BUG messeges...no clue how to solve this.
+> i am attaching the whole capture file of boot process as well
+> as .config file.
+> one more thing, when i tried the same after disabling CONFIG_HARDIRQS,
+> its worked fine.
+> 
+> please help me out in this.
+> if any body have faced such problem, please give your vaulable
+> suggestions.
+> will be appricated.
+> 
+> Regards
+> Alim Akhtar
+> 
+> 
+> The information contained in this e-mail message and in any annexure is confidential to the  recipient and may contain privileged information. If you are not the intended recipient, please notify the sender and delete the message along with any annexure. You should not disclose, copy or otherwise use the information contained
+> in the message or any annexure. Any views expressed in this e-mail are those of the individual sender except where the sender specifically states them to be the views of SoCrates Software India Pvt Ltd., Bangalore.
+
+Sorry, but I'm forwarding it to LKML ;)
+
 

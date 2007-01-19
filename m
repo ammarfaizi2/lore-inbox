@@ -1,314 +1,529 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932866AbXASOpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964933AbXASOts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932866AbXASOpm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 09:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbXASOpm
+	id S964933AbXASOts (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 09:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbXASOts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 09:45:42 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:35402 "EHLO
-	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932866AbXASOpl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 09:45:41 -0500
-Message-ID: <45B0D967.8090607@linux.vnet.ibm.com>
-Date: Fri, 19 Jan 2007 20:14:55 +0530
-From: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Fri, 19 Jan 2007 09:49:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:56153 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S964933AbXASOtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 09:49:46 -0500
+X-Authenticated: #14842415
+From: Alessandro Di Marco <dmr@gmx.it>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] System Inactivity Monitor v1.0
+References: <877ivkrv5s.fsf@gmx.it>
+	<1169192306.3055.379.camel@laptopd505.fenrus.org>
+Date: Fri, 19 Jan 2007 15:49:43 +0100
+In-Reply-To: <1169192306.3055.379.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Fri\, 19 Jan 2007 08\:38\:26 +0100")
+Message-ID: <87zm8fkr5k.fsf@gmx.it>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
 MIME-Version: 1.0
-To: Aubrey Li <aubreylee@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
-References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com>
-In-Reply-To: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Aubrey Li wrote:
-> Here is the newest patch against 2.6.20-rc5.
-> ======================================================
-> From ad9ca9a32bdcaddce9988afbf0187bfd04685a0c Mon Sep 17 00:00:00 2001
-> From: Aubrey.Li <aubreylee@gmail.com>
-> Date: Thu, 18 Jan 2007 11:08:31 +0800
-> Subject: [PATCH] Add an interface to limit total vfs page cache.
-> The default percent is using 90% memory for page cache.
+Arjan van de Ven <arjan@infradead.org> writes:
 
-Hi Aubrey,
-
-I used your patch on my PPC64 box and I do not get expected
-behavior.  As you had requested, I am attaching zoneinfo and meminfo
-dumps:
-
-# cat  /proc/sys/vm/pagecache_ratio
-50
-# cat /proc/meminfo
-MemTotal:      1014600 kB << 1GB Ram
-MemFree:        960336 kB << Expect to see around 500MB free after
-Buffers:          8348 kB       issue of DD command
-Cached:           8624 kB
-SwapCached:          8 kB
-Active:          20908 kB
-Inactive:         5680 kB
-SwapTotal:     1526164 kB
-SwapFree:      1526088 kB
-Dirty:             116 kB
-Writeback:           0 kB
-AnonPages:        9544 kB
-Mapped:           7736 kB
-Slab:            18920 kB
-SReclaimable:     5792 kB
-SUnreclaim:      13128 kB
-PageTables:        972 kB
-NFS_Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:   2033464 kB
-Committed_AS:    46652 kB
-VmallocTotal: 8589934592 kB
-VmallocUsed:      2440 kB
-VmallocChunk: 8589932152 kB
-HugePages_Total:     0
-HugePages_Free:      0
-HugePages_Rsvd:      0
-Hugepagesize:    16384 kB
-
-# cat /proc/zoneinfo
-Node 0, zone      DMA
-  pages free     130474
-        min      571
-        low      713
-        high     856
-        active   5010
-        inactive 775
-        scanned  0 (a: 24 i: 0)
-        spanned  147456
-        present  145440
-    nr_anon_pages 2383
-    nr_mapped    1932
-    nr_file_pages 3389
-    nr_slab_reclaimable 1094
-    nr_slab_unreclaimable 1819
-    nr_page_table_pages 243
-    nr_dirty     4
-    nr_writeback 0
-    nr_unstable  0
-    nr_bounce    0
-    nr_vmscan_write 34
-    numa_hit     1428389
-    numa_miss    0
-    numa_foreign 1048457
-    numa_interleave 1511
-    numa_local   1428389
-    numa_other   0
-        protection: (0, 0)
-  pagesets
-    cpu: 0 pcp: 0
-              count: 77
-              high:  186
-              batch: 31
-    cpu: 0 pcp: 1
-              count: 3
-              high:  62
-              batch: 15
-  vm stats threshold: 16
-    cpu: 1 pcp: 0
-              count: 171
-              high:  186
-              batch: 31
-    cpu: 1 pcp: 1
-              count: 11
-              high:  62
-              batch: 15
-  vm stats threshold: 16
-  all_unreclaimable: 0
-  prev_priority:     12
-  start_pfn:         0
-Node 1, zone      DMA
-  pages free     109610
-        min      444
-        low      555
-        high     666
-        active   217
-        inactive 655
-        scanned  0 (a: 21 i: 0)
-        spanned  114688
-        present  113120
-    nr_anon_pages 3
-    nr_mapped    2
-    nr_file_pages 869
-    nr_slab_reclaimable 354
-    nr_slab_unreclaimable 1454
-    nr_page_table_pages 0
-    nr_dirty     0
-    nr_writeback 0
-    nr_unstable  0
-    nr_bounce    0
-    nr_vmscan_write 0
-    numa_hit     2220
-    numa_miss    1048457
-    numa_foreign 0
-    numa_interleave 1519
-    numa_local   0
-    numa_other   1050677
-        protection: (0, 0)
-  pagesets
-  all_unreclaimable: 0
-  prev_priority:     12
-  start_pfn:         147456
-
-The test: Write 1GB file in /tmp
-
- # dd if=/dev/zero of=/tmp/foo bs=1M count=1024
-1024+0 records in
-1024+0 records out
-1073741824 bytes (1.1 GB) copied, 15.2301 seconds, 70.5 MB/s
-
-Expect around 500MB to be retained as free after the run?
-
-# cat /proc/meminfo
-MemTotal:      1014600 kB
-MemFree:         14080 kB  <<<
-Buffers:         11164 kB
-Cached:         924536 kB  <<< Almost all memory is consumed by
-SwapCached:          8 kB         pagecache
-Active:          27500 kB
-Inactive:       917740 kB
-SwapTotal:     1526164 kB
-SwapFree:      1526088 kB
-Dirty:          100528 kB
-Writeback:           0 kB
-AnonPages:        9544 kB
-Mapped:           7736 kB
-Slab:            45264 kB
-SReclaimable:    29652 kB
-SUnreclaim:      15612 kB
-PageTables:        972 kB
-NFS_Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:   2033464 kB
-Committed_AS:    47732 kB
-VmallocTotal: 8589934592 kB
-VmallocUsed:      2440 kB
-VmallocChunk: 8589932152 kB
-HugePages_Total:     0
-HugePages_Free:      0
-HugePages_Rsvd:      0
-Hugepagesize:    16384 kB
-
-# cat /proc/zoneinfo
-Node 0, zone      DMA
-  pages free     2063
-        min      571
-        low      713
-        high     856
-        active   6028
-        inactive 124552
-        scanned  0 (a: 5 i: 0)
-        spanned  147456
-        present  145440
-    nr_anon_pages 2384
-    nr_mapped    1932
-    nr_file_pages 128191
-    nr_slab_reclaimable 4312
-    nr_slab_unreclaimable 2102
-    nr_page_table_pages 243
-    nr_dirty     13724
-    nr_writeback 0
-    nr_unstable  0
-    nr_bounce    0
-    nr_vmscan_write 34
-    numa_hit     1577905
-    numa_miss    0
-    numa_foreign 1173147
-    numa_interleave 1511
-    numa_local   1577905
-    numa_other   0
-        protection: (0, 0)
-  pagesets
-    cpu: 0 pcp: 0
-              count: 147
-              high:  186
-              batch: 31
-    cpu: 0 pcp: 1
-              count: 7
-              high:  62
-              batch: 15
-  vm stats threshold: 16
-    cpu: 1 pcp: 0
-              count: 160
-              high:  186
-              batch: 31
-    cpu: 1 pcp: 1
-              count: 52
-              high:  62
-              batch: 15
-  vm stats threshold: 16
-  all_unreclaimable: 0
-  prev_priority:     12
-  start_pfn:         0
-Node 1, zone      DMA
-  pages free     1766
-        min      444
-        low      555
-        high     666
-        active   847
-        inactive 104893
-        scanned  0 (a: 27 i: 0)
-        spanned  114688
-        present  113120
-    nr_anon_pages 2
-    nr_mapped    2
-    nr_file_pages 105739
-    nr_slab_reclaimable 3082
-    nr_slab_unreclaimable 1658
-    nr_page_table_pages 0
-    nr_dirty     11419
-    nr_writeback 0
-    nr_unstable  0
-    nr_bounce    0
-    nr_vmscan_write 0
-    numa_hit     2220
-    numa_miss    1173147
-    numa_foreign 0
-    numa_interleave 1519
-    numa_local   0
-    numa_other   1175367
-        protection: (0, 0)
-  pagesets
-    cpu: 0 pcp: 0
-              count: 1
-              high:  186
-              batch: 31
-    cpu: 0 pcp: 1
-              count: 0
-              high:  62
-              batch: 15
-  vm stats threshold: 12
-    cpu: 1 pcp: 0
-              count: 35
-              high:  186
-              batch: 31
-    cpu: 1 pcp: 1
-              count: 0
-              high:  62
-              batch: 15
-  vm stats threshold: 12
-  all_unreclaimable: 0
-  prev_priority:     12
-  start_pfn:         147456
+   On Thu, 2007-01-18 at 20:29 +0100, Alessandro Di Marco wrote:
+   > Hi all,
+   >=20
+   > this is a new 2.6.20 module implementing a user inactivity trigger. Ba=
+sically
+   > it acts as an event sniffer, issuing an ACPI event when no user activi=
+ty is
+   > detected for more than a certain amount of time. This event can be suc=
+cessively
+   > grabbed and managed by an user-level daemon such as acpid, blanking th=
+e screen,
+   > dimming the lcd-panel light =E0 la mac, etc...
 
 
+   Hi,
 
-[snip]
+   why did you chose an ACPI event? I'd expect a uevent (which dbus
+   captures etc) to be a more logical choice..
 
-Please let me know if you need any further data to help me out with
-the test/experiment.
+Laziness... :) Just an idea realized in a hurry to dim my laptop panel when=
+ it
+is in idle (I don't use X11, so no xscreensaver et simila.)=20=20
 
---Vaidy
+Anyway I can accommodate it, if someone of you thinks that it is interesting
+enough to be carried on the business.
 
+The patch in attachment fixes some silly bugs of the previous version.
+
+Regards,
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline; filename=sin-1.2.patch
+
+diff -uN old/procfs.c new/procfs.c
+--- old/procfs.c	2007-01-19 15:24:12.000000000 +0100
++++ new/procfs.c	2007-01-19 15:20:26.000000000 +0100
+@@ -89,9 +89,19 @@
+ 	return err;
+ }
+ 
++static int fake_write_proc(struct file *file, const __user char *ubuf,
++			   unsigned long count, void *data)
++{
++	void (*func)(void) = data;
++
++	func();
++	return count;
++}
++
+ int start_procfs(void)
+ {
+-	struct proc_dir_entry *inputd, *acpid, *table, *ilink, *alink;
++	struct proc_dir_entry *inputd, *acpid,
++		*table, *interact, *ilink, *alink;
+ 
+ 	int err = -ENOMEM;
+ 
+@@ -159,24 +169,35 @@
+ 	table->write_proc = write_proc;
+ 	table->owner = THIS_MODULE;
+ 
++	interact = create_proc_entry("interact", 0200, rootdir);
++	if (!interact) {
++		goto cleanout9;
++	}
++
++	interact->data = (void *) simulate_interaction;
++	interact->write_proc = fake_write_proc;
++	interact->owner = THIS_MODULE;
++
+ 	ilink = proc_symlink("sources", rootdir, "input");
+ 	if (!ilink) {
+-		goto cleanout9;
++		goto cleanout10;
+ 	}
+ 
+ 	ilink->owner = THIS_MODULE;
+ 
+ 	alink = proc_symlink("destinations", rootdir, "acpi");
+ 	if (!alink) {
+-		goto cleanout10;
++		goto cleanout11;
+ 	}
+ 
+ 	alink->owner = THIS_MODULE;
+ 
+ 	return 0;
+ 
+-cleanout10:
++cleanout11:
+ 	remove_proc_entry("sources", rootdir);
++cleanout10:
++	remove_proc_entry("interact", rootdir);
+ cleanout9:
+ 	remove_proc_entry("table", rootdir);
+ cleanout8:
+@@ -203,6 +224,7 @@
+ {
+ 	remove_proc_entry("destinations", rootdir);
+ 	remove_proc_entry("sources", rootdir);
++	remove_proc_entry("interact", rootdir);
+ 	remove_proc_entry("table", rootdir);
+ 	remove_proc_entry("acpi", rootdir);
+ 	remove_proc_entry("input", rootdir);
+diff -uN old/sin.c new/sin.c
+--- old/sin.c	2007-01-19 15:24:12.000000000 +0100
++++ new/sin.c	2007-01-19 15:20:26.000000000 +0100
+@@ -34,7 +34,7 @@
+ 
+ MODULE_ALIAS("blanker");
+ 
+-MODULE_VERSION("1.0");
++MODULE_VERSION("1.2");
+ 
+ static struct acpi_device *acpi_device;
+ 
+@@ -49,13 +49,18 @@
+ static DEFINE_MUTEX(runlock);
+ static int running;
+ 
+-static void event(struct input_handle *handle,
+-		  unsigned int type, unsigned int code, int value)
++inline void signal_interaction(void)
+ {
+ 	if (unlikely(test_and_clear_bit(0, &notify))) {
+ 		clear_bit(1, &notify);
+ 		occasionally_generate_event(acpi_device);
+ 	}
++}
++
++static void event(struct input_handle *handle,
++		  unsigned int type, unsigned int code, int value)
++{
++	signal_interaction();
+ 
+ 	atomic_inc(&interactions);
+ }
+@@ -166,8 +171,13 @@
+ 	if (running) {
+ 		shutdown = 1;
+ 		del_timer_sync(&timer);
++
+ 		input_unregister_handler(&ih);
+ 		kfree(ih.id_table);
++
++		signal_interaction();
++		cleanup_table();
++
+ 		running = 0;
+ 	}
+ 
+@@ -176,14 +186,14 @@
+ 
+ static int __init sih_init(void)
+ {
+-	printk("System Inactivity Notifier 1.0 - (c) Alessandro Di Marco <dmr@c0nc3pt.com>\n");
++	printk("System Inactivity Notifier 1.2 - (c) Alessandro Di Marco <dmr@c0nc3pt.com>\n");
+ 	return start_procfs();
+ }
+ 
+ static void __exit sih_exit(void)
+ {
+ 	stop_procfs();
+-	stop_monitor();
++	(void) stop_monitor();
+ }
+ 
+ module_init(sih_init);
+diff -uN old/sin.h new/sin.h
+--- old/sin.h	2007-01-19 15:24:12.000000000 +0100
++++ new/sin.h	2007-01-19 15:20:26.000000000 +0100
+@@ -26,6 +26,8 @@
+ 
+ #define MODULE_NAME "sin"
+ 
++extern void signal_interaction(void);
++
+ extern int start_monitor(char *ids, struct input_device_id *idi, unsigned long pace);
+ extern void stop_monitor(void);
+ 
+diff -uN old/table.c new/table.c
+--- old/table.c	2007-01-19 15:24:12.000000000 +0100
++++ new/table.c	2007-01-19 15:20:26.000000000 +0100
+@@ -32,7 +32,7 @@
+ #include "acpi_enumerator.h"
+ 
+ static struct table rt;
+-static int debug;
++static int counter, action;
+ 
+ /*
+  * WARNING: sonypi, buttons and others issue a spurious event when removed from
+@@ -42,7 +42,7 @@
+ 
+ void occasionally_generate_event(struct acpi_device *acpi_device)
+ {
+-	if (unlikely(debug)) {
++	if (unlikely(rt.debug)) {
+ 		printk("generating special event [%d, %d]\n",
+ 		       rt.rules[rt.rnum].type, rt.rules[rt.rnum].data);
+ 	}
+@@ -54,17 +54,15 @@
+ void timely_generate_event(struct acpi_device *acpi_device,
+ 			   int interactions, unsigned long *notify)
+ {
+-	static int counter, action;
+-
+ 	if (interactions && counter) {
+-		if (unlikely(debug)) {
++		if (unlikely(rt.debug)) {
+ 			printk("user activity detected, counter reset!\n");
+ 		}
+ 
+ 		counter = action = 0;
+ 	}
+ 
+-	if (unlikely(debug)) {
++	if (unlikely(rt.debug)) {
+ 		printk("global counter %d, next rule is [%d %d %d]\n",
+ 		       counter,
+ 		       rt.rules[action].counter,
+@@ -73,7 +71,7 @@
+ 	}
+ 
+ 	while (action < rt.rnum && rt.rules[action].counter == counter) {
+-		if (unlikely(debug)) {
++		if (unlikely(rt.debug)) {
+ 			printk("generating event [%d, %d]\n",
+ 			       rt.rules[action].type,
+ 			       rt.rules[action].data);
+@@ -87,7 +85,7 @@
+ 	}
+ 
+ 	if (rt.raction >= 0 && action == rt.rnum) {
+-		if (unlikely(debug)) {
++		if (unlikely(rt.debug)) {
+ 			printk("last rule reached, restarting from %d\n",
+ 			       rt.rcounter);
+ 		}
+@@ -101,6 +99,12 @@
+ 	}
+ }
+ 
++void simulate_interaction(void)
++{
++	signal_interaction();
++	counter = action = 0;
++}
++
+ #define parse_num(endp) ({				\
+ 			char *cp = endp;		\
+ 							\
+@@ -129,6 +133,7 @@
+ 
+ int push_table(char *buf, unsigned long count)
+ {
++	struct table nrt;
+ 	struct input_device_id *idi;
+ 	struct uniq uniq;
+ 	int devices;
+@@ -137,25 +142,25 @@
+ 
+ 	devices = get_devices();
+ 
+-	debug = parse_num(buf);
++	nrt.debug = parse_num(buf);
+ 
+-	rt.pace = (parse_num(buf) * HZ) / 10;
+-	rt.dnum = parse_num(buf);
+-	rt.rnum = parse_num(buf);
++	nrt.pace = (parse_num(buf) * HZ) / 10;
++	nrt.dnum = parse_num(buf);
++	nrt.rnum = parse_num(buf);
+ 
+-	if (out_of_range(1, rt.pace, 1000000) ||
+-	    out_of_range(0, rt.dnum, devices)) {
++	if (out_of_range(1, nrt.pace, 1000000) ||
++	    out_of_range(0, nrt.dnum, devices)) {
+ 		err = -EINVAL;
+ 		goto out;
+ 	}
+ 
+-	rt.devices = kmalloc(rt.dnum * sizeof (int), GFP_KERNEL);
+-	if (!rt.devices) {
++	nrt.devices = kmalloc(nrt.dnum * sizeof (int), GFP_KERNEL);
++	if (!nrt.devices) {
+ 		goto out;
+ 	}
+ 
+-	rt.rules = kmalloc((rt.rnum + 1) * sizeof (struct rule), GFP_KERNEL);
+-	if (!rt.rules) {
++	nrt.rules = kmalloc((nrt.rnum + 1) * sizeof (struct rule), GFP_KERNEL);
++	if (!nrt.rules) {
+ 		goto cleanout1;
+ 	}
+ 
+@@ -163,69 +168,76 @@
+ 		goto cleanout2;
+ 	}
+ 
+-	for (i = 0; i < rt.dnum; i++) {
+-		rt.devices[i] = parse_num(buf);
+-		if (uniq_check(&uniq, rt.devices[i])) {
++	for (i = 0; i < nrt.dnum; i++) {
++		nrt.devices[i] = parse_num(buf);
++		if (uniq_check(&uniq, nrt.devices[i])) {
+ 			break;
+ 		}
+ 	}
+ 
+ 	uniq_free(&uniq);
+ 
+-	if (i < rt.dnum) {
++	if (i < nrt.dnum) {
+ 		err = -EINVAL;
+ 		goto cleanout2;
+ 	}
+ 
+-	rt.handle = parse_num(buf);
+-	if (out_of_range(0, rt.handle, get_handlers())) {
++	nrt.handle = parse_num(buf);
++	if (out_of_range(0, nrt.handle, get_handlers())) {
+ 		err = -EINVAL;
+ 		goto cleanout2;
+ 	}
+ 
+-	rt.rcounter = parse_num(buf);
++	nrt.rcounter = parse_num(buf);
+ 
+-	rt.rules[rt.rnum].counter = -1;
+-	rt.rules[rt.rnum].type = parse_num(buf);
+-	rt.rules[rt.rnum].data = parse_num(buf);
+-
+-	for (i = 0; i < rt.rnum; i++) {
+-		rt.rules[i].counter = parse_num(buf);
+-		if (rt.rules[i].counter < 0) {
++	nrt.rules[nrt.rnum].counter = -1;
++	nrt.rules[nrt.rnum].type = parse_num(buf);
++	nrt.rules[nrt.rnum].data = parse_num(buf);
++
++	for (i = 0; i < nrt.rnum; i++) {
++		nrt.rules[i].counter = parse_num(buf);
++		if (nrt.rules[i].counter < 0) {
+ 			err = -EINVAL;
+ 			goto cleanout2;
+ 		}
+ 
+-		rt.rules[i].type = parse_num(buf);
+-		rt.rules[i].data = parse_num(buf);
++		nrt.rules[i].type = parse_num(buf);
++		nrt.rules[i].data = parse_num(buf);
+ 	}
+ 
+-	sort(rt.rules, rt.rnum, sizeof (struct rule), cmp, swap);
++	sort(nrt.rules, nrt.rnum, sizeof (struct rule), cmp, swap);
+ 
+-	rt.raction = -1;
++	nrt.raction = -1;
+ 
+-	if (rt.rcounter >= 0) {
+-		for (i = 0; i < rt.rnum; i++) {
+-			if (rt.rules[i].counter >= rt.rcounter) {
+-				rt.raction = i;
++	if (nrt.rcounter >= 0) {
++		for (i = 0; i < nrt.rnum; i++) {
++			if (nrt.rules[i].counter >= nrt.rcounter) {
++				nrt.raction = i;
+ 				break;
+ 			}
+ 		}
+ 	}
+ 
++	if (!tablecmp(&rt, &nrt)) {
++		err = count;
++		goto cleanout2;
++	}
++
+ 	stop_monitor();
+ 
+-	idi = kzalloc((rt.dnum + 1) *
++	idi = kzalloc((nrt.dnum + 1) *
+ 		      sizeof (struct input_device_id), GFP_KERNEL);
+ 	if (!idi) {
+ 		goto cleanout2;
+ 	}
+ 
+-	for (i = 0; i < rt.dnum; i++) {
+-		fill_input_device(&idi[i], rt.devices[i]);
++	for (i = 0; i < nrt.dnum; i++) {
++		fill_input_device(&idi[i], nrt.devices[i]);
+ 	}
+ 
+-	err = start_monitor(get_hardware_id(rt.handle), idi, rt.pace);
++	memcpy(&rt, &nrt, sizeof (struct table));
++
++	err = start_monitor(get_hardware_id(rt.handle), idi, nrt.pace);
+ 	if (err < 0) {
+ 		goto cleanout3;
+ 	}
+@@ -235,9 +247,9 @@
+ cleanout3:
+ 	kfree(idi);
+ cleanout2:
+-	kfree(rt.rules);
++	kfree(nrt.rules);
+ cleanout1:
+-	kfree(rt.devices);
++	kfree(nrt.devices);
+ out:
+ 	return err;
+ }
+@@ -252,7 +264,7 @@
+ 		return -EFAULT;
+ 	}
+ 
+-	b += sprintf(b, "%d\n%lu\n%d %d\n", debug,
++	b += sprintf(b, "%d\n%lu\n%d %d\n", rt.debug,
+ 		     (rt.pace * 10) / HZ, rt.dnum, rt.rnum);
+ 
+ 	for (i = 0; i < rt.dnum; i++) {
+@@ -272,3 +284,12 @@
+ 
+ 	return b - *buf;
+ }
++
++void cleanup_table(void)
++{
++	kfree(rt.devices);
++	kfree(rt.rules);
++	memset(&rt, 0, sizeof (struct table));
++
++	counter = action = 0;
++}
+diff -uN old/table.h new/table.h
+--- old/table.h	2007-01-19 15:24:12.000000000 +0100
++++ new/table.h	2007-01-19 15:20:26.000000000 +0100
+@@ -31,6 +31,7 @@
+ };
+ 
+ struct table {
++	int debug;
+ 	unsigned long pace;
+ 	int dnum, rnum;
+ 	int *devices;
+@@ -39,6 +40,28 @@
+ 	struct rule *rules;
+ };
+ 
++static inline int tablecmp(struct table *l, struct table *r)
++{
++	if (l->debug != r->debug ||
++	    l->pace != r->pace ||
++	    l->dnum != r->dnum ||
++	    l->handle != r->handle ||
++	    l->rcounter != r->rcounter ||
++	    l->raction != r->raction) {
++		return 1;
++	}
++
++	if (memcmp(l->devices, r->devices, l->dnum * sizeof (int))) {
++		return 1;
++	}
++
++	if (memcmp(l->rules, r->rules, l->rnum * sizeof (struct rule))) {
++		return 1;
++	}
++
++	return 0;
++}
++
+ #define TABLE_SIZE (sizeof (struct table) - 2 * sizeof (void *)	  \
+ 		    + rt.dnum * sizeof (int)			  \
+ 		    + rt.rnum * sizeof (struct rule))
+@@ -48,7 +71,10 @@
+ extern void occasionally_generate_event(struct acpi_device *acpi_device);
+ extern void timely_generate_event(struct acpi_device *acpi_device, int interactions, unsigned long *notify);
+ 
++void simulate_interaction(void);
++
+ extern int push_table(char *buf, unsigned long count);
+ extern int pull_table(char **buf);
++extern void cleanup_table(void);
+ 
+ #endif /* TABLE_H */
+
+--=-=-=
+
+
+-- 
+Ethics is not definable, is not implementable, because it is not conscious; it
+involves not only our thinking, but also our feeling. - Valdemar W. Setzer
+
+--=-=-=--

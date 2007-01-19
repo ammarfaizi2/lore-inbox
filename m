@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964857AbXASTPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932858AbXASTYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbXASTPy (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 14:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbXASTPx
+	id S932858AbXASTYG (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 14:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932856AbXASTYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 14:15:53 -0500
-Received: from xenotime.net ([66.160.160.81]:56188 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S964857AbXASTPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 14:15:53 -0500
-Date: Fri, 19 Jan 2007 11:12:09 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Noah Watkins <nwatkins@ittc.ku.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include linux/fs.h in linux/cdev.h for struct inode
-Message-Id: <20070119111209.ab02d109.rdunlap@xenotime.net>
-In-Reply-To: <11692328473797-git-send-email-nwatkins@ittc.ku.edu>
-References: <11692328473797-git-send-email-nwatkins@ittc.ku.edu>
-Organization: YPO4
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 19 Jan 2007 14:24:06 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36950 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932863AbXASTYF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 14:24:05 -0500
+Subject: Re: Threading...
+From: Arjan van de Ven <arjan@infradead.org>
+To: Brian McGrew <brian@visionpro.com>
+Cc: linux-kernel@vger.kernel.org, fedora-users@rdhat.com
+In-Reply-To: <C1D65587.16E59%brian@visionpro.com>
+References: <C1D65587.16E59%brian@visionpro.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 19 Jan 2007 20:23:40 +0100
+Message-Id: <1169234620.3055.563.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007 12:54:07 -0600 Noah Watkins wrote:
 
-> ---
->  include/linux/cdev.h |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
 > 
-> diff --git a/include/linux/cdev.h b/include/linux/cdev.h
-> index f309b00..b53e2a0 100644
-> --- a/include/linux/cdev.h
-> +++ b/include/linux/cdev.h
-> @@ -5,6 +5,7 @@
->  #include <linux/kobject.h>
->  #include <linux/kdev_t.h>
->  #include <linux/list.h>
-> +#include <linux/fs.h>
->  
->  struct cdev {
->  	struct kobject kobj;
-> -- 
+> And on FC5 I am using pthread_self but my problem isn't simply with
+> pthread_self, it's with the scheduling. 
 
-You can just do this forward declaration instead:
+maybe your kernel has a broken scheduler loadbalancing? you really
+shouldn't have to do this manually. At all.
 
-struct inode;
+>  On FC3 both threads run
+> simultaneously in almost symmetric parallel.  On FC5 one thread don't pick
+> up and start until the previous one is done.  On FC3, using getpid for the
+> thread I could use set_afinity to force each thread to its own processor and
+> with FC5 I can't; so I've got one idle processor all the time.
 
-since no struct members are used/needed.
+again you can use gettid() or pthread_self() in that call (but remember
+it's a bitmask not a number); but really you shouldn't have to do this.
+Try a kernel which has a non-broken load balancer?
 
-This cuts down on #include spider webs & nests.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
----
-~Randy

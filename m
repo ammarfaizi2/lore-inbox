@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932566AbXASRUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932639AbXASRZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbXASRUb (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbXASRUb
+	id S932639AbXASRZh (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbXASRZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:20:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48887 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932566AbXASRUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:20:30 -0500
-Date: Fri, 19 Jan 2007 09:20:03 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, pj@sgi.com
-Subject: Re: [PATCH] nfs: fix congestion control
-In-Reply-To: <1169212022.6197.148.camel@twins>
-Message-ID: <Pine.LNX.4.64.0701190912540.14617@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-  <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy> 
- <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com> 
- <1169070763.5975.70.camel@lappy>  <1169070886.6523.8.camel@lade.trondhjem.org>
-  <1169126868.6197.55.camel@twins>  <1169135375.6105.15.camel@lade.trondhjem.org>
-  <1169199234.6197.129.camel@twins> <1169212022.6197.148.camel@twins>
+	Fri, 19 Jan 2007 12:25:37 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2711 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932684AbXASRZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 12:25:36 -0500
+Date: Fri, 19 Jan 2007 18:25:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>, rth@twiddle.net
+Subject: Re: [PATCH] Stop making "inline" imply forced inlining.
+Message-ID: <20070119172542.GO9093@stusta.de>
+References: <Pine.LNX.4.64.0701191156000.24621@CPE00045a9c397f-CM001225dbafb6>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701191156000.24621@CPE00045a9c397f-CM001225dbafb6>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Peter Zijlstra wrote:
+On Fri, Jan 19, 2007 at 11:56:30AM -0500, Robert P. J. Day wrote:
+> 
+>   Remove the macros that define simple "inlining" to mean forced
+> inlining, since you can (and *should*) get that effect with the
+> CONFIG_FORCED_INLINING kernel config variable instead.
 
-> +	/*
-> +	 * NFS congestion size, scale with available memory.
-> +	 *
+NAK.
 
-Well this all depends on the memory available to the running process.
-If the process is just allowed to allocate from a subset of memory 
-(cpusets) then this may need to be lower.
+I don't see any place in the kernel where we need a non-forced inline.
 
-> +	 *  64MB:    8192k
-> +	 * 128MB:   11585k
-> +	 * 256MB:   16384k
-> +	 * 512MB:   23170k
-> +	 *   1GB:   32768k
-> +	 *   2GB:   46340k
-> +	 *   4GB:   65536k
-> +	 *   8GB:   92681k
-> +	 *  16GB:  131072k
+We have tons of inline's in C files that should simply be removed - 
+let's do this instead.
 
-Hmmm... lets say we have the worst case of an 8TB IA64 system with 1k 
-nodes of 8G each. On Ia64 the number of pages is 8TB/16KB pagesize = 512 
-million pages. Thus nfs_congestion_size is 724064 pages which is 
-11.1Gbytes?
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> 
+> ---
+> 
+>   this change was compile tested on x86 with "make allyesconfig",
+> followed by turning off forced inlining.
+> 
+>   now the alpha folks can simplify their compiler.h file. :-)
+> 
+> 
+> diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+> index 6e1c44a..5a90bd9 100644
+> --- a/include/linux/compiler-gcc.h
+> +++ b/include/linux/compiler-gcc.h
+> @@ -23,9 +23,6 @@
+>      (typeof(ptr)) (__ptr + (off)); })
+> 
+> 
+> -#define inline		inline		__attribute__((always_inline))
+> -#define __inline__	__inline__	__attribute__((always_inline))
+> -#define __inline	__inline	__attribute__((always_inline))
+>  #define __deprecated			__attribute__((deprecated))
+>  #define  noinline			__attribute__((noinline))
+>  #define __attribute_pure__		__attribute__((pure))
 
-If we now restrict a cpuset to a single node then have a 
-nfs_congestion_size of 11.1G vs an available memory on a node of 8G.
+Oh, and your patch would have been broken for gcc < 4.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

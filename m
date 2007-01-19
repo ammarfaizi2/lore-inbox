@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964771AbXASR77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932812AbXASSDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbXASR77 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbXASR77
+	id S932812AbXASSDH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbXASSDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:59:59 -0500
-Received: from [213.46.243.15] ([213.46.243.15]:18710 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S964771AbXASR76 (ORCPT
+	Fri, 19 Jan 2007 13:03:06 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:27095 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932812AbXASSDE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:59:58 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, pj@sgi.com
-In-Reply-To: <Pine.LNX.4.64.0701190912540.14617@schroedinger.engr.sgi.com>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
-	 <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
-	 <1169070763.5975.70.camel@lappy>
-	 <1169070886.6523.8.camel@lade.trondhjem.org>
-	 <1169126868.6197.55.camel@twins>
-	 <1169135375.6105.15.camel@lade.trondhjem.org>
-	 <1169199234.6197.129.camel@twins> <1169212022.6197.148.camel@twins>
-	 <Pine.LNX.4.64.0701190912540.14617@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Fri, 19 Jan 2007 18:57:41 +0100
-Message-Id: <1169229461.6197.154.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Fri, 19 Jan 2007 13:03:04 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FeX+1zaIWff2CEsI4dDDdudv1OatGwCmJT+YO9fYBk+Gc/Mm0lZM+pyYQ3t7S1jJdKh8soEUh5GJFV74cfXdezrgq/D2HOkjNB//EGOnhiPhg+p92sRuy3wcfhZCRbnb2Gt7g8drbEXDmMskNEXf1ISxujjL9Cym9WGGNvftHDw=
+Message-ID: <305c16960701191003k3e69cf65o135cc2a9b1249943@mail.gmail.com>
+Date: Fri, 19 Jan 2007 16:03:01 -0200
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Len Brown" <lenb@kernel.org>
+Subject: Re: BUG: linux 2.6.19 unable to enable acpi
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Luming Yu" <luming.yu@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200701190336.20236.lenb@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
+	 <200701170408.54220.lenb@kernel.org>
+	 <305c16960701171310v727963aevd4f29eba34316ed9@mail.gmail.com>
+	 <200701190336.20236.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 09:20 -0800, Christoph Lameter wrote:
-> On Fri, 19 Jan 2007, Peter Zijlstra wrote:
-> 
-> > +	/*
-> > +	 * NFS congestion size, scale with available memory.
-> > +	 *
-> 
-> Well this all depends on the memory available to the running process.
-> If the process is just allowed to allocate from a subset of memory 
-> (cpusets) then this may need to be lower.
-> 
-> > +	 *  64MB:    8192k
-> > +	 * 128MB:   11585k
-> > +	 * 256MB:   16384k
-> > +	 * 512MB:   23170k
-> > +	 *   1GB:   32768k
-> > +	 *   2GB:   46340k
-> > +	 *   4GB:   65536k
-> > +	 *   8GB:   92681k
-> > +	 *  16GB:  131072k
-> 
-> Hmmm... lets say we have the worst case of an 8TB IA64 system with 1k 
-> nodes of 8G each.
+On 1/19/07, Len Brown <lenb@kernel.org> wrote:
+> I guess I'm losing my mind, because when I read this code,
+> there are only two ways out of the while(retry) loop.
+> Either return with success, or retry is 0.
+> So how the heck is retry printed as 142?!
+>
+> did you notice any delay between the last two lines of printout above?
+>
+> please boot with "acpi_dbg_layer=2" "acpi_dbg_level=0xffffffff"
+> so that we can see each read and write of the hardware look like.
+> Success is measured here by looking for SCI_EN being set
+> to indicate that we successfully entered ACPI mode.
+>
+> I guess we should see about 142 reads looking for SCI_EN...
+>
+> It would be interesting if you could boot a windows disk on this box
+> to see if they are able to get into ACPI mode.  You'd be able to
+> tell by dumping the interrupt list, looking at the device tree,
+> or observing if the power button gives immediate poweroff
+> or does an OS shutdown.
+>
+> thanks,
+> -Len
 
-Eeuh, right. Glad to have you around to remind how puny my boxens
-are :-)
-
->  On Ia64 the number of pages is 8TB/16KB pagesize = 512 
-> million pages. Thus nfs_congestion_size is 724064 pages which is 
-> 11.1Gbytes?
-> 
-> If we now restrict a cpuset to a single node then have a 
-> nfs_congestion_size of 11.1G vs an available memory on a node of 8G.
-
-Right, perhaps cap this to a max of 256M. That would allow 128 2M RPC
-transfers, much more would not be needed I guess. Trond?
-
+printk("ACPI: retry %d\n") -> printk("ACPI: retry %d\n", retry)
+;)
+ill try this again soon.

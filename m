@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964773AbXASR5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964782AbXASR5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbXASR5S (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbXASR5S
+	id S964782AbXASR5u (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964771AbXASR5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:57:18 -0500
-Received: from [213.46.243.15] ([213.46.243.15]:22224 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S964773AbXASR5S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:57:18 -0500
-Subject: Re: [PATCH] nfs: fix congestion control
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <1169225506.5775.15.camel@lade.trondhjem.org>
-References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
-	 <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy>
-	 <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com>
-	 <1169070763.5975.70.camel@lappy>
-	 <1169070886.6523.8.camel@lade.trondhjem.org>
-	 <1169126868.6197.55.camel@twins>
-	 <1169135375.6105.15.camel@lade.trondhjem.org>
-	 <1169199234.6197.129.camel@twins>  <1169212022.6197.148.camel@twins>
-	 <1169225506.5775.15.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Fri, 19 Jan 2007 18:54:36 +0100
-Message-Id: <1169229276.6197.150.camel@twins>
+	Fri, 19 Jan 2007 12:57:50 -0500
+Received: from threatwall.zlynx.org ([199.45.143.218]:33167 "EHLO zlynx.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964782AbXASR5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 12:57:49 -0500
+Subject: linux-2.6.20-rc4-mm1 Reiser4 filesystem freeze and corruption
+From: Zan Lynx <zlynx@acm.org>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-egadha93x63bRqo945nm"
+Date: Fri, 19 Jan 2007 10:58:10 -0700
+Message-Id: <1169229490.6266.11.camel@oberon>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+X-Envelope-From: zlynx@acm.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 11:51 -0500, Trond Myklebust wrote:
 
-> > So with that out of the way I now have this
-> 
-> Looks much better. Just one obvious buglet...
+--=-egadha93x63bRqo945nm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > @@ -1565,6 +1579,23 @@ int __init nfs_init_writepagecache(void)
-> >  	if (nfs_commit_mempool == NULL)
-> >  		return -ENOMEM;
-> >  
-> > +	/*
-> > +	 * NFS congestion size, scale with available memory.
-> > +	 *
-> > +	 *  64MB:    8192k
-> > +	 * 128MB:   11585k
-> > +	 * 256MB:   16384k
-> > +	 * 512MB:   23170k
-> > +	 *   1GB:   32768k
-> > +	 *   2GB:   46340k
-> > +	 *   4GB:   65536k
-> > +	 *   8GB:   92681k
-> > +	 *  16GB:  131072k
-> > +	 *
-> > +	 * This allows larger machines to have larger/more transfers.
-> > +	 */
-> > +	nfs_congestion_size = 32*int_sqrt(totalram_pages);
-> > +
->           ^^^^^^^^^^^^^^^^^^^ nfs_congestion_pages?
+I have been running 2.6.20-rc2-mm1 without problems, but both rc3-mm1
+and rc4-mm1 have been giving me these freezes.  They were happening
+inside X and without external console it was impossible to get anything,
+plus I was reluctant to test it since the freeze sometimes requires a
+full fsck.reiser4 --build-fs to recover the filesystem.
 
-Ah, yeah, forgot to refresh the patch one last time before sending
-out :-(.
+But I finally got some output in a console session.  I wasn't able to
+get it all, I made some notes of what I think the problem is.  I may try
+again later once I get netconsole working (netconsole fails as a
+built-in, I'll try it as a module next).
 
+1 lock held by pdflush/185:
+#0: (&type->s_umount_key#15) ... writeback_inodes+0x89
 
+3 locks held by realsync/12942:
+#0: (&type->s_umount_key#15) at ... __sync_inodes+0x78
+#1: (&mgr->commit_mutex) ... reiser4_txn_end+0x37a
+#2: (&qp->mutex) ... synchronize_qrcu+0x19
+
+So, I *think* the problem is two locks on s_umount_key#15.  Does that
+sound likely?  I also noticed QRCU may be involved.
+
+Perhaps someone will look at this and instantly know what the problem
+is.
+
+If not, I'll be following up with more details like .config and perhaps
+a full sysrq-T dump as soon as that fsck finishes.
+
+--=-egadha93x63bRqo945nm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBFsQayG8fHaOLTWwgRAsm3AJ4olwpFn/9rrMvjc9fKuV7178sJzACeL/Ez
+R/vqYlLg1XxkewWgnvQ+VQs=
+=G6Uu
+-----END PGP SIGNATURE-----
+
+--=-egadha93x63bRqo945nm--
 

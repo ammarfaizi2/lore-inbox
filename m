@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932774AbXASR1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932813AbXASRgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932774AbXASR1Q (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbXASR1Q
+	id S932813AbXASRgH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:36:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbXASRgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:27:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49858 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932795AbXASR1Q (ORCPT
+	Fri, 19 Jan 2007 12:36:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2738 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932813AbXASRgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:27:16 -0500
-Subject: Re: unable to mmap /dev/kmem
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Nadia Derbey <Nadia.Derbey@bull.net>, Franck Bui-Huu <fbuihuu@gmail.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0701191704510.7577@blonde.wat.veritas.com>
-References: <45AFA490.5000508@bull.net>
-	 <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
-	 <45B08B17.3060807@bull.net>
-	 <Pine.LNX.4.64.0701191539070.4009@blonde.wat.veritas.com>
-	 <1169225824.3055.507.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0701191704510.7577@blonde.wat.veritas.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 19 Jan 2007 18:27:09 +0100
-Message-Id: <1169227629.3055.525.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 19 Jan 2007 12:36:06 -0500
+Date: Fri, 19 Jan 2007 18:36:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: can someone explain "inline" once and for all?
+Message-ID: <20070119173612.GP9093@stusta.de>
+References: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6> <orzm8f9bvs.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <orzm8f9bvs.fsf@redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 17:12 +0000, Hugh Dickins wrote:
-> On Fri, 19 Jan 2007, Arjan van de Ven wrote:
-> > On Fri, 2007-01-19 at 16:33 +0000, Hugh Dickins wrote:
-> > > Though I do wonder whether
-> > > it was safe to change its behaviour at that stage: more evidence that
-> > > few have actually been using mmap of /dev/kmem. 
-> > 
-> > ... and maybe we should just kill /dev/kmem entirely... it seems mostly
-> > used by rootkits but very few other things, if any at all...
-> 
-> It was discourteous of me not to CC you: I thought you might say that ;)
-> Though so long as /dev/mem support remains, /dev/kmem might as well?
+On Fri, Jan 19, 2007 at 03:15:03PM -0200, Alexandre Oliva wrote:
+>...
+> That's still a long way ahead (the 4.3 development cycle has just
+> started), but it wouldn't hurt to start fixing incompatibilities
+> sooner rather than later, and coming up with a clean and uniform set
+> of inline macros that express intended meaning for the kernel to use.
 
-they're not the same; for a long time, /dev/mem on actual memory
-returned zeros... so you couldn't use it for rootkits ;)
-(that got "fixed" a while ago)
+I had already removed most of the "extern inline"s in the kernel since 
+they give warnings with -Wmissing-prototypes (which I'd like to enable 
+long-term in the kernel since it helps discovering a class of nasty 
+runtime errors).
 
-> And be kept as a CONFIG_ option under DEBUG_KERNEL thereafter?
+As far as I can see, all we need is "static inline" with the semantics
+"force inlining" for functions in header files and perhaps a handful of 
+functions in C files (if any).
 
-config option is fine I suppose... I assume distros will be smart enough
-to turn it off ;)
+cu
+Adrian
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

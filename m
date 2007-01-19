@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964783AbXASSIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbXASSOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbXASSIK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 13:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbXASSIK
+	id S964786AbXASSOL (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbXASSOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 13:08:10 -0500
-Received: from extu-mxob-2.symantec.com ([216.10.194.135]:18522 "EHLO
-	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964783AbXASSII (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 13:08:08 -0500
-X-AuditID: d80ac287-9f49fbb0000026f2-fd-45b10aa825e3 
-Date: Fri, 19 Jan 2007 18:08:20 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Alexey Dobriyan <adobriyan@openvz.org>
-cc: Andrew Morton <akpm@osdl.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Richard Purdie <richard@openedhand.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Don't map random pages if swapoff errors
-In-Reply-To: <20070119163030.GA12507@localhost.sw.ru>
-Message-ID: <Pine.LNX.4.64.0701191754020.10013@blonde.wat.veritas.com>
-References: <20070119163030.GA12507@localhost.sw.ru>
+	Fri, 19 Jan 2007 13:14:11 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49940 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964786AbXASSOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 13:14:09 -0500
+Message-ID: <45B10A6D.7030500@sgi.com>
+Date: Fri, 19 Jan 2007 12:14:05 -0600
+From: Michael Reed <mdr@sgi.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Jan 2007 18:08:06.0029 (UTC) FILETIME=[C4A0F3D0:01C73BF4]
-X-Brightmail-Tracker: AAAAAA==
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] optimize o_direct on block device - v3
+References: <000101c7198d$9a9fde40$ff0da8c0@amr.corp.intel.com>	<45A68E55.10601@sgi.com> <20070111112901.28085adf.akpm@osdl.org>
+In-Reply-To: <20070111112901.28085adf.akpm@osdl.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Alexey Dobriyan wrote:
+Hi Andrew,
 
-> From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Thanks again for finding the fix to the problem I reported.
+Can you tell me when I might expect this fix to show up in
+2.6.20-rc?
+
+Thanks,
+ Mike
+
+
+Andrew Morton wrote:
+> On Thu, 11 Jan 2007 13:21:57 -0600
+> Michael Reed <mdr@sgi.com> wrote:
 > 
-> If read failed we cannot map not-uptodate page to user space.
-
-Good point.
-
-> Actually, we are in serious troubles, we do not even know what
-> process to kill.
-
-True, though we don't really want to kill anything yet: the process
-may never need that page again.  Better to let it continue until it
-exits, or hits Kirill's check in do_swap_page.  But sure, that's not
-going to happen without us making some change here.
-
-> So, the only variant remains: to stop swapoff()
-> and allow someone to kill processes to zap invalid pages.
-
-Simple as it is, no, I don't like this patch at all.
-Getting an error there is all the more reason to proceed
-with the swapoff, not to give up and break out of it.
-
-Let me think a little.
-
-CC'ed Richard, since he's also interested in bad swap, and this
-reminds me to look at his patches (though he's been concerned with
-when the writeout fails, rather than when the readin fails).
-
-Hugh
-
+>> Testing on my ia64 system reveals that this patch introduces a
+>> data integrity error for direct i/o to a block device.  Device
+>> errors which result in i/o failure do not propagate to the
+>> process issuing direct i/o to the device.
+>>
+>> This can be reproduced by doing writes to a fibre channel block
+>> device and then disabling the switch port connecting the host
+>> adapter to the switch.
+>>
 > 
-> Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-> Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
-> ---
+> Does this fix it?
 > 
->  mm/swapfile.c |   13 +++++++++++++
->  1 file changed, 13 insertions(+)
+> <thwaps Ken>
+> <thwaps compiler>
+> <adds new entry to Documentation/SubmitChecklist>
 > 
-> --- a/mm/swapfile.c
-> +++ b/mm/swapfile.c
-> @@ -766,6 +766,19 @@ static int try_to_unuse(unsigned int typ
->  		lock_page(page);
->  		wait_on_page_writeback(page);
+> diff -puN fs/block_dev.c~a fs/block_dev.c
+> --- a/fs/block_dev.c~a
+> +++ a/fs/block_dev.c
+> @@ -146,7 +146,7 @@ static int blk_end_aio(struct bio *bio, 
+>  		iocb->ki_nbytes = -EIO;
 >  
-> +		/* If read failed we cannot map not-uptodate page to
-> +		 * user space. Actually, we are in serious troubles,
-> +		 * we do not even know what process to kill. So, the only
-> +		 * variant remains: to stop swapoff() and allow someone
-> +		 * to kill processes to zap invalid pages.
-> +		 */
-> +		if (unlikely(!PageUptodate(page))) {
-> +			unlock_page(page);
-> +			page_cache_release(page);
-> +			retval = -EIO;
-> +			break;
-> +		}
-> +
->  		/*
->  		 * Remove all references to entry.
->  		 * Whenever we reach init_mm, there's no address space
+>  	if (atomic_dec_and_test(bio_count)) {
+> -		if (iocb->ki_nbytes < 0)
+> +		if ((long)iocb->ki_nbytes < 0)
+>  			aio_complete(iocb, iocb->ki_nbytes, 0);
+>  		else
+>  			aio_complete(iocb, iocb->ki_left, 0);
+> _
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+

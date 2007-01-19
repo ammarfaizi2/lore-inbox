@@ -1,68 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932840AbXASSnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932833AbXASSth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932840AbXASSnZ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 13:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932841AbXASSnZ
+	id S932833AbXASSth (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbXASSth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 13:43:25 -0500
-Received: from chicken.visionpro.com ([63.91.95.13]:44416 "EHLO
-	chicken.machinevisionproducts.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932840AbXASSnY (ORCPT
+	Fri, 19 Jan 2007 13:49:37 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:59971 "EHLO
+	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932833AbXASStg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 13:43:24 -0500
-X-Ninja-PIM: Scanned by Ninja
-X-Ninja-AttachmentFiltering: (no action)
-User-Agent: Microsoft-Entourage/11.3.3.061214
-Date: Fri, 19 Jan 2007 10:43:13 -0800
-Subject: Threading...
-From: Brian McGrew <brian@visionpro.com>
-To: <linux-kernel@vger.kernel.org>, <fedora-users@rdhat.com>
-Message-ID: <C1D65141.16E37%brian@visionpro.com>
-Thread-Topic: Threading...
-Thread-Index: Acc7+ax76v5J66fsEdu+HwADk9KF+g==
-Mime-version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	Fri, 19 Jan 2007 13:49:36 -0500
+Message-ID: <45B112B6.9060806@linux.vnet.ibm.com>
+Date: Sat, 20 Jan 2007 00:19:26 +0530
+From: Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Aubrey Li <aubreylee@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
+References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com> <45B0DB45.4070004@linux.vnet.ibm.com> <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
+In-Reply-To: <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a very interesting question about something that we're seeing
-happening with threading between Fedora Core 3 and Fedora Core 5.  Running
-on Dell PowerEdge 1800 Hardware with a Xeon processor with hyper-threading
-turned on.  Both systems are using a 2.6.16.16 kernel (MVP al la special).
 
-We have a multithreaded application that starts two worker threads.  On
-Fedora Core 3 both of these we use getpid() to get the PID of the thread and
-then use set_afinity to assign each thread to it's own CPU.  Both threads
-run almost symmetrically even on their given CPU watching the system
-monitor.
 
-On Fedora Core 5 with whatever new threading mechanism is being used, getpid
-no longer works on threads, it returns the same PID as the parent program.
-So we're using _pthread_self to get a u_long thread id back.  However,
-set_afinity doesn't accept that, it wants a real PID.  So we're leaving it
-to the system to schedule the threads between the CPUS.
+Aubrey Li wrote:
+> On 1/19/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
+>>
+>> Hi Aubrey,
+>>
+>> The idea of creating separate flag for pagecache in page_alloc is
+>> interesting.  The good part is that you flag watermark low and the
+>> zone reclaimer will do the rest of the job.
+>>
+>> However when the zone reclaimer starts to reclaim pages, it will
+>> remove all cold pages and not specifically pagecache pages.  This
+>> may affect performance of applications.
+>>
+>> One possible solution to this reclaim is to use scan control fields
+>> and ask the shrink_page_list() and shrink_active_list() routines to
+>> target only pagecache pages.  Pagecache pages are not mapped and
+>> they are easy to find on the LRU list.
+>>
+>> Please review my patch at http://lkml.org/lkml/2007/01/17/96
+>>
+> 
+> So you mean the existing reclaimer has the same issue, doesn't it?
 
-On FC3 the threads run on 2 CPUS in symmetry and almost in parallel.
-However, the problem is on FC5 it doesn't work like that.  We're seeing the
-threading is almost more serial, where one thread will run on CPU1 at 100%
-then as it's finishing and the CPU utilization is coming down, thread two is
-coming up to 100% on CPU2 and they're ping ponging back and forth ... Which
-is costing us a lot of time!
+Well, the existing reclaimer will do the right job if the kernel
+really runs out of memory and need to recover pages for new
+allocations.  The pages to be removed will be the coldest page in
+the system.  However now with the introduction of pagecache limit,
+we are artificially creating a memory scarcity and forcing the
+reclaimer to throw away some pages while we actually have free
+usable RAM.  In this context the choice of pages picked by the
+present reclaimer may not be the best ones.
 
-What am I missing?  What do I need to do in FC5 or the kernel or the
-threading library to get my threads to run in symmetric parallel again???
+If pagecache is overlimit, we expect old (cold) pagecache pages to
+be thrown out and reused for new file data.  We do not expect to
+drop a few text or data pages to make room for new pagecache.
 
-Thanks!
+> In your and Roy's patch, balance_pagecache() routine is called on file
+> backed access.
+> So you still want to add this checking? or change the current
+> reclaimer completely?
 
--- 
+The balance_pagecache() routine is called for file backed access
+since that is when we would probably exceed the pagecache limit.
+The routine check if the limit has exceeded and calls the reclaimer.
+The reclaimer is an extension of the present reclaimer with more
+checks to remove only pagecache pages and not try to unmap any
+mapped pages and potentially affect application performance.
 
--brian
+I am open to suggestions on reclaim logic.  My view is that we need
+to selectively reclaim pagecache pages and not just call the
+traditional reclaimer to freeup arbitrary type of pages.
 
-Brian McGrew    { brian@visionpro.com || brian@doubledimension.com }
---
-> With hope comes chance,
-    with chance comes destiny,
-    with destiny comes fate,
-    And with fate comes the courtesy flush!
+--Vaidy
 
+> -Aubrey
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

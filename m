@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932827AbXASRwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932829AbXASRy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932827AbXASRwp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 12:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbXASRwp
+	id S932829AbXASRy4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 12:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbXASRy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 12:52:45 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:6138 "EHLO
-	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932827AbXASRwo (ORCPT
+	Fri, 19 Jan 2007 12:54:56 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:54742 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932829AbXASRyz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 12:52:44 -0500
-X-AuditID: d80ac21c-a187abb00000330a-21-45b1056c6dad 
-Date: Fri, 19 Jan 2007 17:52:57 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Nadia Derbey <Nadia.Derbey@bull.net>, Franck Bui-Huu <fbuihuu@gmail.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: unable to mmap /dev/kmem
-In-Reply-To: <1169227629.3055.525.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0701191743560.10013@blonde.wat.veritas.com>
-References: <45AFA490.5000508@bull.net>  <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
-  <45B08B17.3060807@bull.net>  <Pine.LNX.4.64.0701191539070.4009@blonde.wat.veritas.com>
-  <1169225824.3055.507.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.64.0701191704510.7577@blonde.wat.veritas.com>
- <1169227629.3055.525.camel@laptopd505.fenrus.org>
+	Fri, 19 Jan 2007 12:54:55 -0500
+X-Originating-Ip: 74.109.98.130
+Date: Fri, 19 Jan 2007 12:39:37 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
+To: Adrian Bunk <bunk@stusta.de>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>, rth@twiddle.net
+Subject: Re: [PATCH] Stop making "inline" imply forced inlining.
+In-Reply-To: <20070119172542.GO9093@stusta.de>
+Message-ID: <Pine.LNX.4.64.0701191228200.25140@CPE00045a9c397f-CM001225dbafb6>
+References: <Pine.LNX.4.64.0701191156000.24621@CPE00045a9c397f-CM001225dbafb6>
+ <20070119172542.GO9093@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Jan 2007 17:52:43.0587 (UTC) FILETIME=[9ECF7930:01C73BF2]
-X-Brightmail-Tracker: AAAAAA==
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Arjan van de Ven wrote:
-> On Fri, 2007-01-19 at 17:12 +0000, Hugh Dickins wrote:
-> > Though so long as /dev/mem support remains, /dev/kmem might as well?
-> 
-> they're not the same; for a long time, /dev/mem on actual memory
-> returned zeros... so you couldn't use it for rootkits ;)
-> (that got "fixed" a while ago)
+On Fri, 19 Jan 2007, Adrian Bunk wrote:
 
-We fixed (or "fixed") the mmap of them both, not to give zeroes on
-!PageReserved pages; but read and write were never so restricted.
-(Oh, I've said "never" again - expect I'll be humiliated shortly.)
-Can't rootkits work as just about as easily through read & write?
+> On Fri, Jan 19, 2007 at 11:56:30AM -0500, Robert P. J. Day wrote:
+> >
+> >   Remove the macros that define simple "inlining" to mean forced
+> > inlining, since you can (and *should*) get that effect with the
+> > CONFIG_FORCED_INLINING kernel config variable instead.
+>
+> NAK.
+>
+> I don't see any place in the kernel where we need a non-forced
+> inline.
 
-Hugh
+that's not the point.  the point is that, as it stands now, the build
+is *broken* in three ways.
+
+first, it's broken because declaring something simply as "inline"
+*forces* it to be inlined, which flies in the face of historical
+convention and is more than a little misleading.
+
+second, it's broken because both the use of
+"__attribute__((always_inline))" all over the place and the
+CONFIG_FORCED_INLINING kernel config option imply that you indeed have
+a choice, when you clearly *don't*.  quite simply, you can play with
+that kernel config option or splash the "always_inline" attributes
+around all you want and, unbeknownst to you, none of that is making
+the *slightest* bit of difference.  that is the very *definition* of a
+"broken" build.
+
+and, finally, you claim that you "don't see any place in the kernel
+where we need a non-forced inline."  i have already posted an alpha
+header file that claims (rightly or wrongly) to need that freedom.
+Q.E.D.
+
+> We have tons of inline's in C files that should simply be removed -
+> let's do this instead.
+
+that may be a better idea, but it doesn't address the current
+brokenness.
+
+i'm willing to believe that this patch has zero chance of going
+anywhere.  but if you want to reject it, at least be honest about it.
+don't say, "there's no problem here."  instead, say, "yes, the build
+is broken but we don't feel like doing anything about it."
+
+rday

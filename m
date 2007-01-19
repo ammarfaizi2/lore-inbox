@@ -1,98 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965128AbXASNZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965135AbXASNhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbXASNZ2 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 08:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbXASNZ2
+	id S965135AbXASNhc (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 08:37:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbXASNhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 08:25:28 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:43548 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965128AbXASNZ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 08:25:27 -0500
-X-Originating-Ip: 74.109.98.130
-Date: Fri, 19 Jan 2007 08:19:37 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@CPE00045a9c397f-CM001225dbafb6
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Fri, 19 Jan 2007 08:37:31 -0500
+Received: from ns1.suse.de ([195.135.220.2]:51503 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965135AbXASNhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 08:37:31 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: can someone explain "inline" once and for all?
-In-Reply-To: <84144f020701190501x5d1efb49u87dc9537bfe1e791@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0701190805360.25200@CPE00045a9c397f-CM001225dbafb6>
 References: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6>
- <84144f020701190501x5d1efb49u87dc9537bfe1e791@mail.gmail.com>
+X-Yow: Now KEN is having a MENTAL CRISIS because his "R.V." PAYMENTS are
+ OVER-DUE!!
+Date: Fri, 19 Jan 2007 14:37:29 +0100
+In-Reply-To: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6>
+	(Robert P. J. Day's message of "Fri, 19 Jan 2007 06:56:54 -0500
+	(EST)")
+Message-ID: <jefya7jfxi.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Pekka Enberg wrote:
+"Robert P. J. Day" <rpjday@mindspring.com> writes:
 
-> On 1/19/07, Robert P. J. Day <rpjday@mindspring.com> wrote:
-> > is there a simple explanation for how to *properly* define inline
-> > routines in the kernel?  and maybe this can be added to the
-> > CodingStyle guide (he mused, wistfully).
+>   first, there appear to be three possible ways of specifying an
+> inline routine in the kernel source:
 >
-> AFAIK __always_inline is the only reliable way to force inlining
-> where it matters for correctness (for example, when playing tricks
-> with __builtin_return_address like we do in the slab).
+>   $ grep -r "static inline " .
+>   $ grep -r "static __inline__ " .
+>   $ grep -r "static __inline " .
 >
-> Anything else is just a hint to the compiler that might be ignored
-> if the optimizer thinks it knows better.
+> i vaguely recall that this has something to do with a distinction
+> between C99 inline and gcc inline
 
-  oh, *that* part i knew.  what i don't understand is the difference
-between "inline", "__inline" and "__inline__".  you can see in
-include/linux/compiler-gcc4.h:
+No, it doesn't (there is no C99 compatible inline in gcc before 4.3).  It
+has to do with the fact that inline is not a keyword in C89, so you need
+to use a different spelling when you want to stay compatible with strict
+C89.
 
-#ifdef CONFIG_FORCED_INLINING
-# undef inline
-# undef __inline__
-# undef __inline
-# define inline                 inline          __attribute__((always_inline))
-# define __inline__             __inline__      __attribute__((always_inline))
-# define __inline               __inline        __attribute__((always_inline))
-#endif
+Andreas.
 
-  so that header file certainly suggests that there's some sort of
-difference.  after which it gets even more confusing as various macros
-seem to mix and match:
-
-  drivers/cdrom/sbpcd.c:#define INLINE inline
-  arch/arm/nwfpe/ARM-gcc.h:#define INLINE extern __inline__
-  arch/cris/arch-v10/kernel/fasttimer.c:#define __INLINE__ inline
-  arch/alpha/mm/fault.c:#define __EXTERN_INLINE inline
-  ... etc etc ...
-
-  i mean, how many different kinds of inline *are* there?
-
-rday
-
-p.s.  apparently, some of the alpha people are less than thrilled with
-the situation:
-
-include/asm-alpha/compiler.h:
------------------------------
-
-#ifdef __KERNEL__
-/* Some idiots over in <linux/compiler.h> thought inline should imply
-   always_inline.  This breaks stuff.  We'll include this file whenever
-   we run into such problems.  */
-
-#include <linux/compiler.h>
-#undef inline
-#undef __inline__
-#undef __inline
-#undef __always_inline
-#define __always_inline         inline __attribute__((always_inline))
-
-#endif /* __KERNEL__ */
-
-
-
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

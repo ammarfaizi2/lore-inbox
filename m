@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965076AbXATBIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965069AbXATBLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbXATBIJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 20:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbXATBIJ
+	id S965069AbXATBLT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 20:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbXATBLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 20:08:09 -0500
-Received: from grayson.netsweng.com ([207.235.77.11]:47563 "EHLO
-	grayson.netsweng.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965076AbXATBII (ORCPT
+	Fri, 19 Jan 2007 20:11:19 -0500
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:29298 "EHLO
+	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965069AbXATBLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 20:08:08 -0500
-X-Greylist: delayed 1687 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jan 2007 20:08:08 EST
-Date: Fri, 19 Jan 2007 19:38:06 -0500 (EST)
-From: Stuart Anderson <anderson@netsweng.com>
-X-X-Sender: anderson@trantor.stuart.netsweng.com
-To: Woody Suwalski <woodys@xandros.com>
-cc: linux-fbdev-devel@lists.sourceforge.net, Martin Michlmayr <tbm@cyrius.com>,
-       rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cyber2010 framebuffer on ARM Netwinder fix...
-In-Reply-To: <45A3D05F.7060409@xandros.com>
-Message-ID: <Pine.LNX.4.64.0701191937110.25957@trantor.stuart.netsweng.com>
-References: <459D368F.2030204@xandros.com> <45A3D05F.7060409@xandros.com>
+	Fri, 19 Jan 2007 20:11:18 -0500
+From: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
+To: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, openfabrics-ewg@openib.org,
+       openib-general@openib.org
+Subject: [PATCH 2.6.20 1/2] ehca: ehca_cq.c: fix unproper use of yield within spinlock context
+Date: Fri, 19 Jan 2007 22:50:10 +0100
+User-Agent: KMail/1.8.2
+Cc: raisch@de.ibm.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701192250.10765.hnguyen@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Roland!
+This is a patch for ehca_cq.c that fixes unproper use of yield within
+spinlock context.
+Thanks
+Nam
 
 
-Just wondering, did the rtc change for the arm get sent up also?
+Signed-off-by Hoang-Nam Nguyen <hnguyen@de.ibm.com>
+---
 
 
-On Tue, 9 Jan 2007, Woody Suwalski wrote:
-
-> Martin Michlmayr wrote:
->> * Stuart Anderson <anderson@netsweng.com> [2007-01-05 09:40]:
->> 
->>> shark w/o any changes to the kernel. I dug a bit further, both in the
->>> driver, and in the HW spec for the shark, and discovered that the video
->>> chip on the shark is connected via the VL bus, not the PCI bus. The
->>> shark does have a VL-PCI bridge, but there doesn't seem to be anything
->>> connected to the PCI side of it (which matches what lspci says). The
->>> function containing the patch in question doesn't appear to even run on
->>> the shark (there is a VL version that is #ifdef SHARK'd), so I'd have
->>> to say the patch would have not impact on the shark.
->>> 
->> 
->> OK, good news.  Thanks for checking.  Woody, can you submit the patch
->> (with proper intentation) to linux-fbdev-devel@lists.sourceforge.net
->> 
->
-> As suggested - I am sending this patch to fbdev-devel....
->
-> The Netwinder machines with Cyber2010 crash badly when starting Xserver.
-> The workaround is to disable pci burst option for this revision of video 
-> chip.
->
-> Thanks, Woody
->
->
+ ehca_cq.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
 
-                                 Stuart
-
-Stuart R. Anderson                               anderson@netsweng.com
-Network & Software Engineering                   http://www.netsweng.com/
-1024D/37A79149:                                  0791 D3B8 9A4C 2CDC A31F
-                                                  BD03 0A62 E534 37A7 9149
+diff --git a/drivers/infiniband/hw/ehca/ehca_cq.c b/drivers/infiniband/hw/ehca/ehca_cq.c
+index 93995b6..6074c89 100644
+--- a/drivers/infiniband/hw/ehca/ehca_cq.c
++++ b/drivers/infiniband/hw/ehca/ehca_cq.c
+@@ -344,8 +344,11 @@ int ehca_destroy_cq(struct ib_cq *cq)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&ehca_cq_idr_lock, flags);
+-	while (my_cq->nr_callbacks)
++	while (my_cq->nr_callbacks) {
++		spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
+ 		yield();
++		spin_lock_irqsave(&ehca_cq_idr_lock, flags);
++	}
+ 
+ 	idr_remove(&ehca_cq_idr, my_cq->token);
+ 	spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);

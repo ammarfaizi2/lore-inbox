@@ -1,49 +1,225 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964899AbXASWau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932740AbXASWqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbXASWau (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 17:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbXASWau
+	id S932740AbXASWqE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 17:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbXASWqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 17:30:50 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:32290 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964899AbXASWat (ORCPT
+	Fri, 19 Jan 2007 17:46:04 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:45028 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932623AbXASWqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 17:30:49 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DmBi5Qet4XlvZWXpLiUju2tz5NdrPUJH9T+Ms6JkV0YuaaogwHGSGm8ecL4H+amFMXzhx0ZHZSxbhQQwDlgr1sBsdmcen3H6PMW+PsCJKur63FS1UirTQtK/1P5+fg46upJmsDLFG4DV0tzmpVatd01iX9XDsaFe8jJOBzQoXRE=
-Message-ID: <7b69d1470701191430p5e7df345k82f8ad0cd984734a@mail.gmail.com>
-Date: Fri, 19 Jan 2007 16:30:47 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: [ANNOUNCE] System Inactivity Monitor v1.0
-Cc: "Alessandro Di Marco" <dmr@gmx.it>,
-       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0701192320520.18606@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 19 Jan 2007 17:46:03 -0500
+Date: Fri, 19 Jan 2007 14:41:55 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Documentation/rbtree.txt
+Message-Id: <20070119144155.fef7815c.randy.dunlap@oracle.com>
+In-Reply-To: <200701181533.25318.rob@landley.net>
+References: <200701181533.25318.rob@landley.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <877ivkrv5s.fsf@gmx.it>
-	 <1169192306.3055.379.camel@laptopd505.fenrus.org>
-	 <87zm8fkr5k.fsf@gmx.it>
-	 <7b69d1470701190945w2da4e4ffqd8bca21a6d1d80d0@mail.gmail.com>
-	 <Pine.LNX.4.61.0701192320520.18606@yvahk01.tjqt.qr>
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/19/07, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> On Jan 19 2007 11:45, Scott Preece wrote:
-> > Hi, attached is a patch for your gentable file, rewriting some of the
-> > user prompts to make them more readable.
->
-> I still don't get why this is called "SIN" in the Kconfig and code texts
-> though the acronym for System Inactivity Monitor would be "SIM".
+On Thu, 18 Jan 2007 15:33:25 -0500 Rob Landley wrote:
+
+> Signed-off-by: Rob Landley <rob@landley.net>
+> 
+> Documentation for lib/rbtree.c.
+> 
+> --
+> 
+> I'm not an expert on this but I was asked to write up some documentation
+> for rbtree in the Linux kernel, and as long as it's there...
+> 
+> I'm sure if I screwed something up somebody will point it out to me, loudly.
+> :)
+
+Hi,
+
+Looks pretty good to me.  I have a few minor nits (below).
+
+
+> --- /dev/null	2006-05-30 21:33:22.000000000 -0400
+> +++ linux-2.6.19.2/Documentation/rbtree.txt	2007-01-18 11:57:50.000000000 -0500
+> @@ -0,0 +1,186 @@
+> +Red-black Trees (rbtree) in Linux
+> +January 18, 2007
+> +Rob Landley <rob@landley.net>
+> +=============================
+> +
+> +What are red-black trees, and what are they for?
+> +------------------------------------------------
+> +
+> +Red-black trees are a type of self-balancing binary search tree, used for
+> +storing sortable key/value data pairs.  This differs from radix trees (which
+> +are used to efficiently store sparse arrays and thus use long integer indexes
+> +to insert/access/delete nodes) and hash tables (which are not kept sorted to
+> +be easily traversed in order, and must be tuned for a specific size and
+> +hash function where rbtrees scale gracefully storing arbitrary keys).
+> +
+> +Red-black trees are similar to AVL trees, but provide faster realtime bounded
+
+   real-time
+
+> +worst case performance for insertion and deletion (at most two rotations and
+> +three rotations, respectively, to balance the tree), with slightly slower
+> +(but still O(log n)) lookup time.
+> +
+> +To quote Linux Weekly News:
+> +
+...
+> +
+> +This document covers use of the Linux rbtree implementation.  For more
+> +information on the nature and implementation of Red Black Trees,  see:
+> +
+...
+> +
+> +Linux implementation of red-black trees
+> +---------------------------------------
+> +
+> +Linux's rbtree implementation lives in the file "lib/rbtree.c".  To use it,
+> +"#include <linux/rbtree.h>".
+> +
+> +The Linux rbtree implementation is optimized for speed, and thus has one
+> +less layer of indirection (and better cache locality) than more traditional
+> +tree implementations.  Instead of using pointers to separate rb_node and data
+> +structures, each instance of struct rb_node is embedded in the data structure
+> +it organizes.  And instead of using a comparison callback function pointer,
+> +users are expected to write their own tree search and insert functions
+> +which call the provided rbtree functions.  Locking is also left up to the
+> +user of the rbtree code.
+> +
+> +Creating a new rbtree
+> +---------------------
+> +
+> +Data nodes in an rbtree tree are structures containing a struct rb_node member:
+> +
+> +  struct mytype {
+> +  	struct rb_node node;
+> +  	char *keystring;
+> +  };
+> +
+> +When dealing with a pointer to the embedded struct rb_node, the containing data
+> +structure may be accessed with the standard container_of() macro.  In addition,
+> +individual members may be accessed directly via rb_entry(node, type, member).
+> +
+> +At the root of each rbtree is a rb_root structure, which is initialized to be
+> +empty via:
+
+                                 an rb_root
+
+> +
+> +  struct rb_root mytree = RB_ROOT;
+> +
+> +Searching for a value in an rbtree
+> +----------------------------------
+> +
+> +Writing a search function for your tree is fairly straightforward: start at the
+> +root, compare each value, and follow the left or right branch as necessary.
+> +
+> +Example:
+> +
+> +  struct mytype *my_search(struct rb_root *root, char *string)
+> +  {
+> +  	struct rb_node *node = root->rb_node;
+> +
+> +  	while (node) {
+> +  		struct mytype *data = container_of(node, struct mytype, node);
+> +		int result;
+> +
+> +		result = strcmp(string, data->keystring);
+> +
+> +		if (result < 0) node = node->rb_left;
+> +		else if (result > 0) node = node->rb_right;
+> +		else return data;
+> +	}
+> +	return NULL;
+> +  }
+> +
+> +Inserting data into an rbtree
+> +-----------------------------
+> +
+> +Inserting data in the tree involves first searching for the place to insert the
+> +new node, then inserting the node and rebalancing ("recoloring") the tree.
+> +
+> +The search for insertion differs from the previous search by finding the
+> +location of the pointer on which to graft the new node.  The new node also
+> +needs a link to its' parent node for rebalancing purposes.
+
+                   its
+
+> +
+> +Example:
+> +
+> +  int my_insert(struct rb_root *root, struct mytype *data)
+> +  { 
+> +  	struct rb_node **new = &(root->rb_node), *parent = NULL;
+> +
+> +  	// Figure out where to put new node
+> +  	while (*new) {
+> +  		struct mytype *this = container_of(*new, struct mytype, node);
+> +  		int result = strcmp(data->keystring, this->keystring);
+> +
+> +		parent = *new;
+> +  		if (result < 0) new = &((*new)->rb_left);
+> +  		else if (result > 0) new = &((*new)->rb_right);
+> +  		else return FALSE;
+> +  	}
+> +
+> +  	// Add new node and rebalance tree.
+> +  	rb_link_node(data->node, parent, new);
+> +  	rb_insert_color(data->node, root);
+> +
+> +	return TRUE;
+> +  }
+
+Please use kernel CodingStyle in the kernel Documentation/ directory.
+That would mean /*...*/ comments instead of //
+and expanding the if/else lines to have their statements on separate
+lines....
+
+
+> +Removing or replacing existing data in an rbtree
+> +------------------------------------------------
+> +
+...
+> +
+> +Iterating through the elements stored in an rbtree (in sort order)
+> +------------------------------------------------------------------
+> +
+> +Four functions are provided for iterating through an rbtree's contents in
+> +sorted order.  These work on arbitrary trees, and should not need to be
+> +modified or wrapped (except for locking purposes):
+> +
+> +  struct rb_node *rb_first(struct rb_root *tree);
+> +  struct rb_node *rb_last(struct rb_root *tree);
+> +  struct rb_node *rb_next(struct rb_node *node);
+> +  struct rb_node *rb_prev(struct rb_node *node);
+> +
+> +To start iterating, call rb_first() or rb_last() with a pointer to the root
+> +fo the tree, which will return a pointer to the node structure contained in
+
+   of
+
+> +the first or last element in the tree.  To continue, fetch the next or previous
+> +node by calling rb_next() or rb_prev() on the current node.  This will return
+> +NULL when there are no more nodes left.
+> +
+> +The iterator functions return a pointer to the embedded struct rb_node, from
+> +which the containing data structure may be accessed with the container_of()
+> +macro, and individual members may be accessed directly via
+> +rb_entry(node, type, member).
+
+Thanks.
+
 ---
-
-The code calls it "System Inactivity Notifier".
-
-scott
+~Randy

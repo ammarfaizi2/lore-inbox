@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932801AbXASBAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932830AbXASBDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932801AbXASBAt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 20:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbXASBAs
+	id S932830AbXASBDL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 20:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932824AbXASBDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 20:00:48 -0500
-Received: from colo.lackof.org ([198.49.126.79]:58056 "EHLO colo.lackof.org"
+	Thu, 18 Jan 2007 20:03:11 -0500
+Received: from lixom.net ([66.141.50.11]:54381 "EHLO mail.lixom.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932801AbXASBAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 20:00:48 -0500
-Date: Thu, 18 Jan 2007 18:00:40 -0700
-From: dann frazier <dannf@debian.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Santiago Garcia Mantinan <manty@debian.org>, linux-kernel@vger.kernel.org,
-       debian-kernel@lists.debian.org
-Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
-Message-ID: <20070119010040.GR16053@colo>
-References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu>
+	id S932809AbXASBDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Jan 2007 20:03:09 -0500
+X-Greylist: delayed 1662 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Jan 2007 20:03:09 EST
+Date: Thu, 18 Jan 2007 18:39:59 -0600
+To: jgarzik@pobox.com
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] sata_mv HighPoint 2310 support (88SX7042)
+Message-ID: <20070119003959.GA23298@lixom.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070117215519.GX24090@1wt.eu>
-User-Agent: mutt-ng/devel-r782 (Debian)
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 10:55:19PM +0100, Willy Tarreau wrote:
-> @@ -505,8 +510,13 @@
->  		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
->  		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
->  
-> -		mnt->flags = (oldmnt->file_mode >> 9);
-> +		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID |
-> +			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
->  	} else {
-> +		mnt->file_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> +						S_IROTH | S_IXOTH | S_IFREG;
-> +		mnt->dir_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> +						S_IROTH | S_IXOTH | S_IFDIR;
->  		if (parse_options(mnt, raw_data))
->  			goto out_bad_option;
->  	}
-> 
-> 
-> See above ? mnt->dir_mode being assigned 3 times. It still *seems* to do the
-> expected thing like this but I wonder if the initial intent was
-> exactly this.
+Hi,
 
-Wow - sorry about that, that's certainly a cut & paste error. But the
-end result appears to match current 2.6, which was the intent.
+With the following patch, my HighPoint 2310 with a Marvell 88SX7042 on
+it seems to work OK.
 
-> Also, would not it be necessary to add "|S_IFLNK" to the file_mode ? Maybe
-> what I say is stupid, but it's just a guess.
+The controller only has 4 ports, with MV_FLAG_DUAL_HC it seems to init 8
+ports and fails miserably at probe time. There are no other devices mapped
+to that chip, maybe it was just incorrectly specified in the first place?
 
-I really don't know the correct answer to that, I was merely copying
-the 2.6 flags. 
 
-[Still working on getting a 2.4 smbfs test system up...]
+Signed-off-by: Olof Johansson <olof@lixom.net>
 
--- 
-dann frazier
-
+Index: linux-2.6/drivers/ata/sata_mv.c
+===================================================================
+--- linux-2.6.orig/drivers/ata/sata_mv.c
++++ linux-2.6/drivers/ata/sata_mv.c
+@@ -523,8 +523,7 @@ static const struct ata_port_info mv_por
+ 	},
+ 	{  /* chip_7042 */
+ 		.sht		= &mv_sht,
+-		.flags		= (MV_COMMON_FLAGS | MV_6XXX_FLAGS |
+-				   MV_FLAG_DUAL_HC),
++		.flags		= (MV_COMMON_FLAGS | MV_6XXX_FLAGS),
+ 		.pio_mask	= 0x1f,	/* pio0-4 */
+ 		.udma_mask	= 0x7f,	/* udma0-6 */
+ 		.port_ops	= &mv_iie_ops,
+@@ -545,6 +544,8 @@ static const struct pci_device_id mv_pci
+ 
+ 	{ PCI_VDEVICE(ADAPTEC2, 0x0241), chip_604x },
+ 
++	{ PCI_VDEVICE(TTI, 0x2310), chip_7042 },
++
+ 	{ }			/* terminate list */
+ };
+ 

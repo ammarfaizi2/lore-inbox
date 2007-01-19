@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751546AbXAUNCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751559AbXAUNMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751546AbXAUNCr (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 08:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbXAUNCr
+	id S1751559AbXAUNMF (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 08:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbXAUNME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 08:02:47 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:37892 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751545AbXAUNCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 08:02:46 -0500
-Date: Sun, 21 Jan 2007 14:01:43 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Ivan Ukhov <uvsoft@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use an usb interface than is claimed by HID?
-In-Reply-To: <45B32B80.4050208@gmail.com>
-Message-ID: <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
-References: <45B265E0.5020605@gmail.com> <Pine.LNX.4.64.0701210006591.21127@twin.jikos.cz>
- <45B2AA03.4070405@gmail.com> <Pine.LNX.4.64.0701210050490.21127@twin.jikos.cz>
- <45B32B80.4050208@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Jan 2007 08:12:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4583 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751545AbXAUNMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 08:12:02 -0500
+Date: Fri, 19 Jan 2007 10:11:04 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Alessandro Di Marco <dmr@gmx.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] System Inactivity Monitor v1.0
+Message-ID: <20070119101103.GA5730@ucw.cz>
+References: <877ivkrv5s.fsf@gmx.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <877ivkrv5s.fsf@gmx.it>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jan 2007, Ivan Ukhov wrote:
+HiQ
 
-> It's a tiny driver and it hardy can be a part of the mainline kernel 
-> because of its useless for everyone but me, beside I don't want to make 
-> someone modify the kernel code. 
+> this is a new 2.6.20 module implementing a user inactivity trigger. Basically
+> it acts as an event sniffer, issuing an ACPI event when no user activity is
+> detected for more than a certain amount of time. This event can be successively
+> grabbed and managed by an user-level daemon such as acpid, blanking the screen,
+> dimming the lcd-panel light ? la mac, etc...
 
-Then, when this is a non-standard situation anyway, would calling 
-hid_disconnect() for the usb_interface of your driver be enough?
+While functionality is extremely interesting.... does it really have
+to be in kernel?
 
+
+> +if [ ! -d "/proc/sin" ]; then
+> +    echo "/proc/sin not found, has sinmod been loaded?"
+> +    exit
+> +fi
+
+No new /proc files, please.
+
+> +cat <<EOF
+> +
+> +SIN wakes up periodically and checks for user activity occurred in the
+> +meantime; this options lets you to specify how much frequently SIN should be
+> +woken-up. Its value is expressed in tenth of seconds.
+
+Heh. We'll waste power trying to save it. If you have to hook it into
+kernel, can you at least do it properly?
+
+						Pavel
 -- 
-Jiri Kosina
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

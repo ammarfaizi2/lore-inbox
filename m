@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964851AbXASGWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964863AbXASGYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbXASGWV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 01:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbXASGWV
+	id S964863AbXASGYM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 01:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbXASGYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 01:22:21 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:43538 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964851AbXASGWT (ORCPT
+	Fri, 19 Jan 2007 01:24:12 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:44867 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964863AbXASGYL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 01:22:19 -0500
-Date: Fri, 19 Jan 2007 11:57:00 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>,
-       Ingo Molnar <mingo@elte.hu>, linux-fsdevel@vger.kernel.org
-Subject: Re: [take33 10/10] kevent: Kevent based AIO (aio_sendfile()/aio_sendfile_path()).
-Message-ID: <20070119062700.GA14705@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <11690154353959@2ka.mipt.ru> <11690154352501@2ka.mipt.ru> <20070117135142.GA24866@in.ibm.com> <20070117143950.GA19434@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070117143950.GA19434@2ka.mipt.ru>
-User-Agent: Mutt/1.5.11
+	Fri, 19 Jan 2007 01:24:11 -0500
+Message-ID: <45B064AD.6030002@bull.net>
+Date: Fri, 19 Jan 2007 07:26:53 +0100
+From: Nadia Derbey <Nadia.Derbey@bull.net>
+Organization: BULL/DT/OSwR&D/Linux
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Franck Bui-Huu <fbuihuu@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: unable to mmap /dev/kmem
+References: <45AFA490.5000508@bull.net> <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 19/01/2007 07:32:27,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 19/01/2007 07:32:28,
+	Serialize complete at 19/01/2007 07:32:28
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2007 at 05:39:51PM +0300, Evgeniy Polyakov wrote:
-> On Wed, Jan 17, 2007 at 07:21:42PM +0530, Suparna Bhattacharya (suparna@in.ibm.com) wrote:
-> >
-> > Since you are implementing new APIs here, have you considered doing an
-> > aio_sendfilev to be able to send a header with the data ?
+Hugh Dickins wrote:
+> On Thu, 18 Jan 2007, Nadia Derbey wrote:
 > 
-> It is doable, but why people do not like corking?
-> With Linux less than microsecond syscall overhead it is better and more
-> flexible solution, doesn't it?
-
-That is what I used to think as well. However ...
-
-The problem as I understand it now is not about bunching data together, but
-of ensuring some sort of atomicity between the header and the data, when
-there can be multiple outstanding aio requests on the same socket - i.e
-ensuring strict ordering without other data coming in between, when data
-to be sent is not already in cache, and in the meantime another sendfile
-or aio write requests comes in for the same socket. Without having to lock
-the socket when reading data from disk.
-
-There are alternate ways to address this, aio_sendfilev is one of the options
-I have heard people requesting.
-
-Regards
-Suparna
-
+>>Trying to mmap /dev/kmem with an offset I take from /boot/System.map,
+>>I get an EIO error on a 2.6.20-rc4.
+>>This is something that used to work on older kernels.
+>>
+>>Had a look at mmap_kmem() in drivers/char/mem.c, and I'm wondering whether
+>>pfn is correctly computed there: shouldn't we have something like
+>>
+>>pfn = PFN_DOWN(virt_to_phys((void *)PAGE_OFFSET)) +
+>>      __pa(vma->vm_pgoff << PAGE_SHIFT);
+>>
+>>instead of
+>>
+>>pfn = PFN_DOWN(virt_to_phys((void *)PAGE_OFFSET)) + vma->vm_pgoff;
+>>
+>>Or may be should I substract PAGE_OFFSET from the value I get from System.map
+>>before mmapping /dev/kmem?
 > 
-> I'm not saying - 'no, there will not be any *v variants', just getting
-> more info.
 > 
-> > Regards
-> > Suparna
+> Sigh, you're right, 2.6.19 messed that up completely.
+> No, you never had to subtract PAGE_OFFSET from that address
+> in the past, and you shouldn't have to do so now.
 > 
-> --
-> 	Evgeniy Polyakov
+> Please revert the offending patch below, and then maybe Franck
+> can come up with a patch which preserves the original behaviour
+> on architectures which used to work (e.g. i386), while fixing
+> it for those architectures (which are they?) that did not.
+> 
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Ok, I'll do that, thanks!
 
+Regards,
+Nadia

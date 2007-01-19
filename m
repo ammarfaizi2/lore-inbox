@@ -1,144 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932549AbXASQ0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751625AbXASQda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbXASQ0X (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 11:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbXASQ0X
+	id S1751625AbXASQda (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 11:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbXASQda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 11:26:23 -0500
-Received: from homer.mvista.com ([63.81.120.155]:17672 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932549AbXASQ0W (ORCPT
+	Fri, 19 Jan 2007 11:33:30 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:53951 "EHLO
+	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751619AbXASQd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 11:26:22 -0500
-Message-ID: <45B0F12B.3000202@ru.mvista.com>
-Date: Fri, 19 Jan 2007 19:26:19 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Fri, 19 Jan 2007 11:33:29 -0500
+X-AuditID: d80ac21c-a187abb00000330a-9c-45b0f2d8fc2c 
+Date: Fri, 19 Jan 2007 16:33:41 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Nadia Derbey <Nadia.Derbey@bull.net>
+cc: Franck Bui-Huu <fbuihuu@gmail.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: unable to mmap /dev/kmem
+In-Reply-To: <45B08B17.3060807@bull.net>
+Message-ID: <Pine.LNX.4.64.0701191539070.4009@blonde.wat.veritas.com>
+References: <45AFA490.5000508@bull.net> <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
+ <45B08B17.3060807@bull.net>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/15] ide: disable DMA in ->ide_dma_check for "no IORDY"
- case
-References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain> <20070119003154.14846.87217.sendpatchset@localhost.localdomain>
-In-Reply-To: <20070119003154.14846.87217.sendpatchset@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Jan 2007 16:33:27.0679 (UTC) FILETIME=[8C1180F0:01C73BE7]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Fri, 19 Jan 2007, Nadia Derbey wrote:
+> Hugh Dickins wrote:
+> > 
+> > Sigh, you're right, 2.6.19 messed that up completely.
+> > No, you never had to subtract PAGE_OFFSET from that address
+> > in the past, and you shouldn't have to do so now.
 
-Bartlomiej Zolnierkiewicz wrote:
-> [PATCH] ide: disable DMA in ->ide_dma_check for "no IORDY" case
+Whoops, I should never have said "never".  Checking further back,
+I found that in 2.4, and prior to 2.6.12, mmap_kmem was simply
+#defined to mmap_mem, and so you would then have had to subtract
+PAGE_OFFSET (well, on i386 at least) from the kernel virtual
+address to get it to work.
 
-    I've looked thru the code, and found more issues with the PIO fallback 
-there. Will try to cook up patches for at least some drivers...
+Andi fixed that in 2.6.12.  I agree with his fix: the same data should
+appear at the same offset whether you use mmap or read, which was not
+so before his patch (nor after Franck's).  Though I do wonder whether
+it was safe to change its behaviour at that stage: more evidence that
+few have actually been using mmap of /dev/kmem.
 
-> Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+> > I guess it's reassuring to know that not many are actually
+> > using mmap of /dev/kmem, so you're the first to notice: thanks.
+> > 
+> I find this feature very interesting from a testing perspective. Now, since I
+> don't like the idea of being the only one that uses a feature (not maintained
+> - may be even to be removed?) may be you could advice me on a more broadly
+> used way to get the value of a non exported kernel variable from inside a test
+> running in user mode? should I use /dev/mem instead? But in that case, I
+> should do the virtual to physical conversion myself, right?
 
-> Index: b/drivers/ide/pci/aec62xx.c
-> ===================================================================
-> --- a/drivers/ide/pci/aec62xx.c
-> +++ b/drivers/ide/pci/aec62xx.c
-> @@ -214,12 +214,10 @@ static int aec62xx_config_drive_xfer_rat
->  	if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->  		return hwif->ide_dma_on(drive);
->  
-> -	if (ide_use_fast_pio(drive)) {
-> +	if (ide_use_fast_pio(drive))
->  		aec62xx_tune_drive(drive, 5);
+That's exactly the way I've used mmap of /dev/kmem in the past myself:
+yes, a convenient way to collect stats or patch flags when investigating
+something on a private kernel.  There are probably more sophisticated
+alternatives now (systemtap, [a-z]probes), but mmap of /dev/kmem is
+pretty easy to understand, whatever its limitations.
 
-    This function looks like it's working (thouugh having the wrong limit of 
-PIO5 on auto-tuning) but is unnecassary complex.
-    Heh, the driver is certainly a rip-off form hpt366.c. What a doubtful 
-example they have chosen... :-)
+You're right to question whether you'll be safer in the long term to
+use /dev/mem instead, doing the virtual to physical conversion yourself:
+I share your doubt.  On the one hand, /dev/kmem is clearly underused,
+with an interface which changes without anyone noticing; and Fedora
+doesn't even supply the node (they'd like to get rid of /dev/mem also,
+I believe - too wide an open door into the kernel - but a few tools
+still use it).  On the other hand, if for some reason we make the 
+mapping between physical and kernel virtual more complicated in
+future, /dev/kmem should in theory save you from having to worry
+about that (though in practice none of us has ever got around to
+supporting mmap of the vmalloc area through /dev/kmem yet).
 
-> Index: b/drivers/ide/pci/atiixp.c
-> ===================================================================
-> --- a/drivers/ide/pci/atiixp.c
-> +++ b/drivers/ide/pci/atiixp.c
-> @@ -264,10 +264,9 @@ static int atiixp_dma_check(ide_drive_t 
->  		tspeed = ide_get_best_pio_mode(drive, 255, 5, NULL);
->  		speed = atiixp_dma_2_pio(XFER_PIO_0 + tspeed) + XFER_PIO_0;
+I think, if this thread provokes a call to remove support for mmap
+of /dev/kmem, I'd find that hard to argue against, and you'd better
+switch to /dev/mem.  But personally I'd prefer it to remain.
 
-    It's simply stupid to convert PIO mode to PIO mode. The whole idea is 
-doubtful as well..
-
->  		hwif->speedproc(drive, speed);
-
-    Well, well, the tuneproc() method can't ahndle auto-tunuing here (255)...
-And it also doesn't set up drive's own speed. The code seem to be another 
-rip-off from piix.c, repeating all its mistakes... :-)
-
-> Index: b/drivers/ide/pci/cmd64x.c
-> ===================================================================
-> --- a/drivers/ide/pci/cmd64x.c
-> +++ b/drivers/ide/pci/cmd64x.c
-> @@ -479,12 +479,10 @@ static int cmd64x_config_drive_for_dma (
->  	if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->  		return hwif->ide_dma_on(drive);
->  
-> -	if (ide_use_fast_pio(drive)) {
-> +	if (ide_use_fast_pio(drive))
->  		config_chipset_for_pio(drive, 1);
-
-    This function will always set PIO mode 4. Mess.
-
-> Index: b/drivers/ide/pci/cs5535.c
-> ===================================================================
-> --- a/drivers/ide/pci/cs5535.c
-> +++ b/drivers/ide/pci/cs5535.c
-> @@ -206,10 +206,9 @@ static int cs5535_dma_check(ide_drive_t 
->  	if (ide_use_fast_pio(drive)) {
->  		speed = ide_get_best_pio_mode(drive, 255, 4, NULL);
->  		cs5535_set_drive(drive, speed);
-
-    Could be folded into tuneproc() method call.
-
-> Index: b/drivers/ide/pci/pdc202xx_old.c
-> ===================================================================
-> --- a/drivers/ide/pci/pdc202xx_old.c
-> +++ b/drivers/ide/pci/pdc202xx_old.c
-> @@ -339,12 +339,10 @@ static int pdc202xx_config_drive_xfer_ra
->  	if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->  		return hwif->ide_dma_on(drive);
->  
-> -	if (ide_use_fast_pio(drive)) {
-> +	if (ide_use_fast_pio(drive))
->  		hwif->tuneproc(drive, 5);
-
-    This driver's tuneproc() method always auto-tunes here instead of setting 
-what it's told too -- I'll send a patch...
-
-> Index: b/drivers/ide/pci/siimage.c
-> ===================================================================
-> --- a/drivers/ide/pci/siimage.c
-> +++ b/drivers/ide/pci/siimage.c
-> @@ -420,12 +420,10 @@ static int siimage_config_drive_for_dma 
->  	if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->  		return hwif->ide_dma_on(drive);
->  
-> -	if (ide_use_fast_pio(drive)) {
-> +	if (ide_use_fast_pio(drive))
->  		config_chipset_for_pio(drive, 1);
-
-    This function will also always set PIO mode 4. More mess.
-
-> Index: b/drivers/ide/pci/sis5513.c
-> ===================================================================
-> --- a/drivers/ide/pci/sis5513.c
-> +++ b/drivers/ide/pci/sis5513.c
-> @@ -678,12 +678,10 @@ static int sis5513_config_xfer_rate(ide_
->  	if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->  		return hwif->ide_dma_on(drive);
->  
-> -	if (ide_use_fast_pio(drive)) {
-> +	if (ide_use_fast_pio(drive))
->  		sis5513_tune_drive(drive, 5);
-
-     Ugh, PIO fallback effectively always tries to set mode 4 here (thanks 
-it's not 5). Mess.
-
-MBR, Sergei
+Hugh

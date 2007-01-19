@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965065AbXASPFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751422AbXASPLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbXASPFi (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 10:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbXASPFh
+	id S1751422AbXASPLO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 10:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbXASPLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 10:05:37 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:2665 "EHLO
-	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965065AbXASPFh (ORCPT
+	Fri, 19 Jan 2007 10:11:14 -0500
+Received: from usea-naimss2.unisys.com ([192.61.61.104]:4571 "EHLO
+	usea-naimss2.unisys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751069AbXASPLN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 10:05:37 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Date: Fri, 19 Jan 2007 15:05:33 +0000
-User-Agent: KMail/1.9.5
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AC1DA3.5040104@shaw.ca> <45AC3006.9070705@garzik.org>
-In-Reply-To: <45AC3006.9070705@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 19 Jan 2007 10:11:13 -0500
+Subject: Re: PATCH: Update disable_IO_APIC to use 8-bit destination field 
+	(X86_64)
+From: Benjamin Romer <benjamin.romer@unisys.com>
+To: vgoyal@in.ibm.com
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20070119034944.GA7136@in.ibm.com>
+References: <1169052407.3082.43.camel@ustr-romerbm-2.na.uis.unisys.com>
+	 <m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
+	 <20070118034153.GA5406@in.ibm.com> <20070118043639.GA12459@in.ibm.com>
+	 <m1tzyo7qtc.fsf@ebiederm.dsl.xmission.com>
+	 <20070118080003.GC31860@in.ibm.com>
+	 <1169141034.6665.6.camel@ustr-romerbm-2.na.uis.unisys.com>
+	 <m14pqo6w3d.fsf@ebiederm.dsl.xmission.com>
+	 <1169147619.6665.11.camel@ustr-romerbm-2.na.uis.unisys.com>
+	 <20070119034944.GA7136@in.ibm.com>
+Content-Type: text/plain
+Organization: Unisys Corporation
+Date: Fri, 19 Jan 2007 10:11:10 -0500
+Message-Id: <1169219470.2819.9.camel@ustr-romerbm-2.na.uis.unisys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701191505.33480.s0348365@sms.ed.ac.uk>
+X-OriginalArrivalTime: 19 Jan 2007 15:11:10.0836 (UTC) FILETIME=[0D7B0B40:01C73BDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 January 2007 01:53, Jeff Garzik wrote:
-> Robert Hancock wrote:
-> > I'll try your stress test when I get a chance, but I doubt I'll run into
-> > the same problem and I haven't seen any similar reports. Perhaps it's
-> > some kind of wierd timing issue or incompatibility between the
-> > controller and that drive when running in ADMA mode? I seem to remember
-> > various reports of issues with certain Maxtor drives and some nForce
-> > SATA controllers under Windows at least..
->
-> Just to eliminate things, has disabling ADMA been attempted?
->
-> It can be disabled using the sata_nv.adma module parameter.
+On Fri, 2007-01-19 at 09:19 +0530, Vivek Goyal wrote:
+> On Thu, Jan 18, 2007 at 02:13:39PM -0500, Benjamin Romer wrote:
+> [..]
+> > > >
+> > > > OK, here's the updated patch that uses the new definition and fixes up
+> > > > the other places that use it. I built and tested this on the ES7000/ONE
+> > > > and it works well. :)
+> > >
+> > > Cool.
+> > >
+> > > I hate to pick nits by why the double underscore on dest?
+> > >
+> > 
+> > It was defined that way in the updated structure definition you sent in
+> > a previous mail, so I figured you wanted it that way. Here's another
+> > revision with the double underscores removed. :)
+> > 
+> > -- Ben
+> > 
+> 
+> This patch looks good to me. You might want to provide some description
+> too for changelog.
+> 
+> Thanks
+> Vivek
 
-Setting this option fixes the problem for me. I suggest that ADMA defaults off 
-in 2.6.20, if there's still time to do that.
+A simple description would look something like:
 
--- 
-Cheers,
-Alistair.
+- Updated 4-bit IO-APIC physical dest field to 8-bit dest field for
+xAPIC; fixes ES7000/ONE kexec timer hang
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Is there a changelog file in the kernel for kexec somewhere, or does
+this belong in the source file's comments somewhere? I can fix up the
+patch as soon as I know where the right spot for the description is. :)
+
+-- Ben
+

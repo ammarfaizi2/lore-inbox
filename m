@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964830AbXASFPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964848AbXASGGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbXASFPP (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 00:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbXASFPP
+	id S964848AbXASGGR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 01:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbXASGGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 00:15:15 -0500
-Received: from 1wt.eu ([62.212.114.60]:1996 "EHLO 1wt.eu"
+	Fri, 19 Jan 2007 01:06:17 -0500
+Received: from cnc.isely.net ([64.81.146.143]:39736 "EHLO cnc.isely.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964830AbXASFPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 00:15:14 -0500
-Date: Fri, 19 Jan 2007 06:15:06 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: dann frazier <dannf@debian.org>
-Cc: Santiago Garcia Mantinan <manty@debian.org>, linux-kernel@vger.kernel.org,
-       debian-kernel@lists.debian.org
-Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
-Message-ID: <20070119051506.GA17306@1wt.eu>
-References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo>
+	id S964848AbXASGGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 01:06:17 -0500
+Date: Fri, 19 Jan 2007 00:05:58 -0600 (CST)
+From: Mike Isely <isely@isely.net>
+Reply-To: Mike Isely <isely@pobox.com>
+To: "Ahmed S. Darwish" <darwish.07@gmail.com>
+cc: Randy Dunlap <randy.dunlap@oracle.com>,
+       "Robert P. J. Day" <rpjday@mindspring.com>, video4linux-list@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org, Mike Isely at pobox <isely@pobox.com>
+Subject: Re: [PATCH 2.6.20-rc5 2/4] pvrusb2: Use ARRAY_SIZE macro
+In-Reply-To: <20070116190738.GD718@Ahmed>
+Message-ID: <Pine.LNX.4.64.0701190003020.26643@cnc.isely.net>
+References: <20070116080136.GA30133@Ahmed>
+ <Pine.LNX.4.64.0701160334350.20244@CPE00045a9c397f-CM001225dbafb6>
+ <20070116101633.39e57884.randy.dunlap@oracle.com> <20070116190738.GD718@Ahmed>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070119010040.GR16053@colo>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dann !
+On Tue, 16 Jan 2007, Ahmed S. Darwish wrote:
 
-On Thu, Jan 18, 2007 at 06:00:40PM -0700, dann frazier wrote:
-> On Wed, Jan 17, 2007 at 10:55:19PM +0100, Willy Tarreau wrote:
-> > @@ -505,8 +510,13 @@
-> >  		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
-> >  		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
-> >  
-> > -		mnt->flags = (oldmnt->file_mode >> 9);
-> > +		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID |
-> > +			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
-> >  	} else {
-> > +		mnt->file_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> > +						S_IROTH | S_IXOTH | S_IFREG;
-> > +		mnt->dir_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> > +						S_IROTH | S_IXOTH | S_IFDIR;
-> >  		if (parse_options(mnt, raw_data))
-> >  			goto out_bad_option;
-> >  	}
+> On Tue, Jan 16, 2007 at 10:16:33AM -0800, Randy Dunlap wrote:
+> > On Tue, 16 Jan 2007 03:36:16 -0500 (EST) Robert P. J. Day wrote:
 > > 
+> > > On Tue, 16 Jan 2007, Ahmed S. Darwish wrote:
+> > > 
+> > > > Use ARRAY_SIZE macro in pvrusb2-hdw.c file
+> > > >
+> > > > Signed-off-by: Ahmed S. Darwish <darwish.07@gmail.com>
+> > > 
+> > > ... snip ...
+> > > 
+> > > i'm not sure it's worth submitting multiple patches to convert code
+> > > expressions to the ARRAY_SIZE() macro since i was going to wait for
+> > > the next kernel release, and do that in one fell swoop with a single
+> > > patch.
+> > > 
+> > > but if people higher up the food chain think it's a better idea to do
+> > > it a little at a time, that's fine.
 > > 
-> > See above ? mnt->dir_mode being assigned 3 times. It still *seems* to do the
-> > expected thing like this but I wonder if the initial intent was
-> > exactly this.
+> > I'm not strictly on the food chain, but these 4 patches to
+> > pvrusb2 should have been sent as one patch IMO.
 > 
-> Wow - sorry about that, that's certainly a cut & paste error. But the
-> end result appears to match current 2.6, which was the intent.
-
-OK.
-
-> > Also, would not it be necessary to add "|S_IFLNK" to the file_mode ? Maybe
-> > what I say is stupid, but it's just a guess.
+> Here's the same patch in one file as suggested.
 > 
-> I really don't know the correct answer to that, I was merely copying
-> the 2.6 flags. 
+> A patch to use ARRAY_SIZE macro when appropriate. 
+> 
+> Signed-off-by: Ahmed S. Darwish <darwish.07@gmail.com>
+> ---
 
-Don't waste your time on this one, it did not work.
+Ahmed:
 
-> [Still working on getting a 2.4 smbfs test system up...]
+I've pulled your patch into my driver source and will propagate it up 
+appropriately as part of the next batch of pvrusb2 changes to come out 
+of the v4l-dvb repository.
 
-Thanks !
+  -Mike
 
-Best regards,
-Willy
 
+-- 
+                        |         Mike Isely          |     PGP fingerprint
+     Spammers Die!!     |                             | 03 54 43 4D 75 E5 CC 92
+                        |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
+                        |                             |

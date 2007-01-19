@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964996AbXASW0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964899AbXASWau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbXASW0h (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 17:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbXASW0h
+	id S964899AbXASWau (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 17:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbXASWau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 17:26:37 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:43346 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964996AbXASW0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 17:26:36 -0500
-Date: Fri, 19 Jan 2007 23:26:17 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Noah Watkins <nwatkins@ittc.ku.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include linux/fs.h in linux/cdev.h for struct inode
-In-Reply-To: <11692328473797-git-send-email-nwatkins@ittc.ku.edu>
-Message-ID: <Pine.LNX.4.61.0701192324250.18606@yvahk01.tjqt.qr>
-References: <11692328473797-git-send-email-nwatkins@ittc.ku.edu>
+	Fri, 19 Jan 2007 17:30:50 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:32290 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964899AbXASWat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 17:30:49 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DmBi5Qet4XlvZWXpLiUju2tz5NdrPUJH9T+Ms6JkV0YuaaogwHGSGm8ecL4H+amFMXzhx0ZHZSxbhQQwDlgr1sBsdmcen3H6PMW+PsCJKur63FS1UirTQtK/1P5+fg46upJmsDLFG4DV0tzmpVatd01iX9XDsaFe8jJOBzQoXRE=
+Message-ID: <7b69d1470701191430p5e7df345k82f8ad0cd984734a@mail.gmail.com>
+Date: Fri, 19 Jan 2007 16:30:47 -0600
+From: "Scott Preece" <sepreece@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: [ANNOUNCE] System Inactivity Monitor v1.0
+Cc: "Alessandro Di Marco" <dmr@gmx.it>,
+       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0701192320520.18606@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1503481456-1169245577=:18606"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <877ivkrv5s.fsf@gmx.it>
+	 <1169192306.3055.379.camel@laptopd505.fenrus.org>
+	 <87zm8fkr5k.fsf@gmx.it>
+	 <7b69d1470701190945w2da4e4ffqd8bca21a6d1d80d0@mail.gmail.com>
+	 <Pine.LNX.4.61.0701192320520.18606@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 1/19/07, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>
+> On Jan 19 2007 11:45, Scott Preece wrote:
+> > Hi, attached is a patch for your gentable file, rewriting some of the
+> > user prompts to make them more readable.
+>
+> I still don't get why this is called "SIN" in the Kconfig and code texts
+> though the acronym for System Inactivity Monitor would be "SIM".
+---
 
---1283855629-1503481456-1169245577=:18606
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+The code calls it "System Inactivity Notifier".
 
-
->Subject: [PATCH] include linux/fs.h in linux/cdev.h for struct inode
-
-NAK.
-
-Better is this:
-
-Add missing struct predeclarations, otherwise we may get
-
-x.c:2: warning: ‘struct inode’ declared inside parameter list
-x.c:2: warning: its scope is only this definition or declaration, which is
-probably not what you want
-
-Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
-
-Index: linux-2.6.20-rc5/include/linux/cdev.h
-===================================================================
---- linux-2.6.20-rc5.orig/include/linux/cdev.h
-+++ linux-2.6.20-rc5/include/linux/cdev.h
-@@ -6,6 +6,10 @@
- #include <linux/kdev_t.h>
- #include <linux/list.h>
- 
-+struct file_operations;
-+struct inode;
-+struct module;
-+
- struct cdev {
- 	struct kobject kobj;
- 	struct module *owner;
-
-
---1283855629-1503481456-1169245577=:18606--
+scott

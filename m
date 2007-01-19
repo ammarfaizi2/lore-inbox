@@ -1,83 +1,341 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964898AbXASURe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932735AbXASUfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbXASURe (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 15:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbXASURe
+	id S932735AbXASUfL (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 15:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932860AbXASUfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 15:17:34 -0500
-Received: from fmmailgate03.web.de ([217.72.192.234]:40470 "EHLO
-	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964898AbXASURd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 15:17:33 -0500
-X-Greylist: delayed 1535 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jan 2007 15:17:33 EST
-From: chunkeey@web.de
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Date: Fri, 19 Jan 2007 20:51:52 +0100
-User-Agent: KMail/1.9.5
-Cc: Jeff Garzik <jeff@garzik.org>, Robert Hancock <hancockr@shaw.ca>,
-       =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
-       chunkeey@web.de
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <45AC3006.9070705@garzik.org> <200701191505.33480.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200701191505.33480.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Jan 2007 15:35:10 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:44887 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932844AbXASUfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 15:35:08 -0500
+Date: Fri, 19 Jan 2007 14:35:05 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5 (try 2)] eCryptfs: convert kmap() to kmap_atomic()
+Message-ID: <20070119203505.GC3608@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20070118212627.GC3643@us.ibm.com> <20070118212725.GD3643@us.ibm.com> <84144f020701190404u5162db92mcea13a709d487602@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701192051.52919.chunkeey@web.de>
+In-Reply-To: <84144f020701190404u5162db92mcea13a709d487602@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 19. January 2007 16:05, Alistair John Strachan wrote:
-> On Tuesday 16 January 2007 01:53, Jeff Garzik wrote:
-> > Robert Hancock wrote:
-> > > I'll try your stress test when I get a chance, but I doubt I'll run
-> > > into the same problem and I haven't seen any similar reports. Perhaps
-> > > it's some kind of wierd timing issue or incompatibility between the
-> > > controller and that drive when running in ADMA mode? I seem to remember
-> > > various reports of issues with certain Maxtor drives and some nForce
-> > > SATA controllers under Windows at least..
-> >
-> > Just to eliminate things, has disabling ADMA been attempted?
-> >
-> > It can be disabled using the sata_nv.adma module parameter.
->
-> Setting this option fixes the problem for me. I suggest that ADMA defaults
-> off in 2.6.20, if there's still time to do that.
+On Fri, Jan 19, 2007 at 02:04:47PM +0200, Pekka Enberg wrote:
+> On 1/18/07, Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+> >+       page_data = (char *)kmap_atomic(page, KM_USER0);
+> >+       lower_page_data = (char *)kmap_atomic(lower_page, KM_USER1);
+> 
+> Drop 'em redundant casts, please.
 
-Not for me.
-I'm still have the same trouble, but less (maybe about every hour, instead of 
-every 5 minutes). futhermore, I found a patch
-cocktail-2.6.20-rc3.patch: http://tinyurl.com/2gza8q, which improves the 
-situation too! 
+Replace kmap() with kmap_atomic(). Reduce the amount of time that
+mappings are held.
 
-Now, the funny thing is that I've two SATA HDDs, but only 1 causes all the
-headaches.
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+Signed-off-by: Trevor Highland <tshighla@us.ibm.com>
 
-The affected drive is a:
-sda - @ata3.0 - WDC WD2500KS-00M 02.0
-ATA-7, max UDMA/133, 488395055 sectors: LBA48
+---
 
-"ata3.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata3.00: cmd ea/00:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x0 data 0 out
-         res 40/00:ff:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
-ata3: soft resetting port
-ata3: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-ata3.00: configured for UDMA/133:PIO0
-ata3: EH complete
-SCSI device sda: 488395055 512-byte hdwr sectors (250058 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00"
+ fs/ecryptfs/crypto.c          |    8 +--
+ fs/ecryptfs/ecryptfs_kernel.h |    4 -
+ fs/ecryptfs/mmap.c            |  121 ++++++++++++-----------------------------
+ 3 files changed, 39 insertions(+), 94 deletions(-)
 
-the "good" HDD is a:
-sdb - @ata4.0 - WDC WD2500YD-01N 10.0
-ATA-7, max UDMA/133, 490234752 sectors: LBA48 NCQ (depth 0/1)
+ff2dcd23fe6bd000049987b2bf98ada70755f114
+diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
+index fbb62c8..ac4ea8d 100644
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -429,10 +429,10 @@ static int ecryptfs_read_in_page(struct 
+ 			goto out;
+ 		}
+ 	} else {
+-		rc = ecryptfs_grab_and_map_lower_page(lower_page, NULL,
+-						      lower_inode,
+-						      lower_page_idx);
+-		if (rc) {
++		*lower_page = grab_cache_page(lower_inode->i_mapping,
++					      lower_page_idx);
++		if (!(*lower_page)) {
++			rc = -EINVAL;
+ 			ecryptfs_printk(
+ 				KERN_ERR, "Error attempting to grab and map "
+ 				"lower page with index [0x%.16x]; rc = [%d]\n",
+diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
+index 859d31b..0e38d0d 100644
+--- a/fs/ecryptfs/ecryptfs_kernel.h
++++ b/fs/ecryptfs/ecryptfs_kernel.h
+@@ -527,10 +527,6 @@ int ecryptfs_copy_page_to_lower(struct p
+ 				struct file *lower_file);
+ int ecryptfs_do_readpage(struct file *file, struct page *page,
+ 			 pgoff_t lower_page_index);
+-int ecryptfs_grab_and_map_lower_page(struct page **lower_page,
+-				     char **lower_virt,
+-				     struct inode *lower_inode,
+-				     unsigned long lower_page_index);
+ int ecryptfs_writepage_and_release_lower_page(struct page *lower_page,
+ 					      struct inode *lower_inode,
+ 					      struct writeback_control *wbc);
+diff --git a/fs/ecryptfs/mmap.c b/fs/ecryptfs/mmap.c
+index 94bcabf..3dec846 100644
+--- a/fs/ecryptfs/mmap.c
++++ b/fs/ecryptfs/mmap.c
+@@ -234,22 +234,11 @@ int ecryptfs_do_readpage(struct file *fi
+ 		goto out;
+ 	}
+ 	wait_on_page_locked(lower_page);
+-	page_data = (char *)kmap(page);
+-	if (!page_data) {
+-		rc = -ENOMEM;
+-		ecryptfs_printk(KERN_ERR, "Error mapping page\n");
+-		goto out;
+-	}
+-	lower_page_data = (char *)kmap(lower_page);
+-	if (!lower_page_data) {
+-		rc = -ENOMEM;
+-		ecryptfs_printk(KERN_ERR, "Error mapping page\n");
+-		kunmap(page);
+-		goto out;
+-	}
++	page_data = kmap_atomic(page, KM_USER0);
++	lower_page_data = kmap_atomic(lower_page, KM_USER1);
+ 	memcpy(page_data, lower_page_data, PAGE_CACHE_SIZE);
+-	kunmap(lower_page);
+-	kunmap(page);
++	kunmap_atomic(lower_page_data, KM_USER1);
++	kunmap_atomic(page_data, KM_USER0);
+ 	rc = 0;
+ out:
+ 	if (likely(lower_page))
+@@ -325,19 +314,14 @@ static int ecryptfs_readpage(struct file
+ 			if (page->index < num_pages_in_header_region) {
+ 				char *page_virt;
+ 
+-				page_virt = (char *)kmap(page);
+-				if (!page_virt) {
+-					rc = -ENOMEM;
+-					printk(KERN_ERR "Error mapping page\n");
+-					goto out;
+-				}
++				page_virt = kmap_atomic(page, KM_USER0);
+ 				memset(page_virt, 0, PAGE_CACHE_SIZE);
+ 				if (page->index == 0) {
+ 					rc = ecryptfs_read_xattr_region(
+ 						page_virt, file->f_path.dentry);
+ 					set_header_info(page_virt, crypt_stat);
+ 				}
+-				kunmap(page);
++				kunmap_atomic(page_virt, KM_USER0);
+ 				if (rc) {
+ 					printk(KERN_ERR "Error reading xattr "
+ 					       "region\n");
+@@ -387,26 +371,19 @@ static int fill_zeros_to_end_of_page(str
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	int end_byte_in_page;
+-	int rc = 0;
+ 	char *page_virt;
+ 
+-	if ((i_size_read(inode) / PAGE_CACHE_SIZE) == page->index) {
+-		end_byte_in_page = i_size_read(inode) % PAGE_CACHE_SIZE;
+-		if (to > end_byte_in_page)
+-			end_byte_in_page = to;
+-		page_virt = kmap(page);
+-		if (!page_virt) {
+-			rc = -ENOMEM;
+-			ecryptfs_printk(KERN_WARNING,
+-					"Could not map page\n");
+-			goto out;
+-		}
+-		memset((page_virt + end_byte_in_page), 0,
+-		       (PAGE_CACHE_SIZE - end_byte_in_page));
+-		kunmap(page);
+-	}
++	if ((i_size_read(inode) / PAGE_CACHE_SIZE) != page->index)
++		goto out;
++	end_byte_in_page = i_size_read(inode) % PAGE_CACHE_SIZE;
++	if (to > end_byte_in_page)
++		end_byte_in_page = to;
++	page_virt = kmap_atomic(page, KM_USER0);
++	memset((page_virt + end_byte_in_page), 0,
++	       (PAGE_CACHE_SIZE - end_byte_in_page));
++	kunmap_atomic(page_virt, KM_USER0);
+ out:
+-	return rc;
++	return 0;
+ }
+ 
+ static int ecryptfs_prepare_write(struct file *file, struct page *page,
+@@ -414,7 +391,6 @@ static int ecryptfs_prepare_write(struct
+ {
+ 	int rc = 0;
+ 
+-	kmap(page);
+ 	if (from == 0 && to == PAGE_CACHE_SIZE)
+ 		goto out;	/* If we are writing a full page, it will be
+ 				   up to date. */
+@@ -424,30 +400,6 @@ out:
+ 	return rc;
+ }
+ 
+-int ecryptfs_grab_and_map_lower_page(struct page **lower_page,
+-				     char **lower_virt,
+-				     struct inode *lower_inode,
+-				     unsigned long lower_page_index)
+-{
+-	int rc = 0;
+-
+-	(*lower_page) = grab_cache_page(lower_inode->i_mapping,
+-					lower_page_index);
+-	if (!(*lower_page)) {
+-		ecryptfs_printk(KERN_ERR, "grab_cache_page for "
+-				"lower_page_index = [0x%.16x] failed\n",
+-				lower_page_index);
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	if (lower_virt)
+-		(*lower_virt) = kmap((*lower_page));
+-	else
+-		kmap((*lower_page));
+-out:
+-	return rc;
+-}
+-
+ int ecryptfs_writepage_and_release_lower_page(struct page *lower_page,
+ 					      struct inode *lower_inode,
+ 					      struct writeback_control *wbc)
+@@ -466,11 +418,8 @@ out:
+ 	return rc;
+ }
+ 
+-static void ecryptfs_unmap_and_release_lower_page(struct page *lower_page)
++static void ecryptfs_release_lower_page(struct page *lower_page)
+ {
+-	kunmap(lower_page);
+-	ecryptfs_printk(KERN_DEBUG, "Unlocking lower page with index = "
+-			"[0x%.16x]\n", lower_page->index);
+ 	unlock_page(lower_page);
+ 	page_cache_release(lower_page);
+ }
+@@ -492,11 +441,11 @@ static int ecryptfs_write_inode_size_to_
+ 	const struct address_space_operations *lower_a_ops;
+ 	u64 file_size;
+ 
+-	rc = ecryptfs_grab_and_map_lower_page(&header_page, &header_virt,
+-					      lower_inode, 0);
+-	if (rc) {
+-		ecryptfs_printk(KERN_ERR, "grab_cache_page for header page "
+-				"failed\n");
++	header_page = grab_cache_page(lower_inode->i_mapping, 0);
++	if (!header_page) {
++		ecryptfs_printk(KERN_ERR, "grab_cache_page for "
++				"lower_page_index 0 failed\n");
++		rc = -EINVAL;
+ 		goto out;
+ 	}
+ 	lower_a_ops = lower_inode->i_mapping->a_ops;
+@@ -504,12 +453,14 @@ static int ecryptfs_write_inode_size_to_
+ 	file_size = (u64)i_size_read(inode);
+ 	ecryptfs_printk(KERN_DEBUG, "Writing size: [0x%.16x]\n", file_size);
+ 	file_size = cpu_to_be64(file_size);
++	header_virt = kmap_atomic(header_page, KM_USER0);
+ 	memcpy(header_virt, &file_size, sizeof(u64));
++	kunmap_atomic(header_virt, KM_USER0);
+ 	rc = lower_a_ops->commit_write(lower_file, header_page, 0, 8);
+ 	if (rc < 0)
+ 		ecryptfs_printk(KERN_ERR, "Error commiting header page "
+ 				"write\n");
+-	ecryptfs_unmap_and_release_lower_page(header_page);
++	ecryptfs_release_lower_page(header_page);
+ 	lower_inode->i_mtime = lower_inode->i_ctime = CURRENT_TIME;
+ 	mark_inode_dirty_sync(inode);
+ out:
+@@ -597,10 +548,10 @@ int ecryptfs_get_lower_page(struct page 
+ {
+ 	int rc = 0;
+ 
+-	rc = ecryptfs_grab_and_map_lower_page(lower_page, NULL, lower_inode,
+-					      lower_page_index);
+-	if (rc) {
+-		ecryptfs_printk(KERN_ERR, "Error attempting to grab and map "
++	*lower_page = grab_cache_page(lower_inode->i_mapping, lower_page_index);
++	if (!(*lower_page)) {
++		rc = -EINVAL;
++		ecryptfs_printk(KERN_ERR, "Error attempting to grab "
+ 				"lower page with index [0x%.16x]\n",
+ 				lower_page_index);
+ 		goto out;
+@@ -616,7 +567,7 @@ int ecryptfs_get_lower_page(struct page 
+ 	}
+ out:
+ 	if (rc && (*lower_page)) {
+-		ecryptfs_unmap_and_release_lower_page(*lower_page);
++		ecryptfs_release_lower_page(*lower_page);
+ 		(*lower_page) = NULL;
+ 	}
+ 	return rc;
+@@ -641,7 +592,7 @@ ecryptfs_commit_lower_page(struct page *
+ 				"Error committing write; rc = [%d]\n", rc);
+ 	} else
+ 		rc = 0;
+-	ecryptfs_unmap_and_release_lower_page(lower_page);
++	ecryptfs_release_lower_page(lower_page);
+ 	return rc;
+ }
+ 
+@@ -747,7 +698,6 @@ static int ecryptfs_commit_write(struct 
+ 	lower_inode->i_mtime = lower_inode->i_ctime = CURRENT_TIME;
+ 	mark_inode_dirty_sync(inode);
+ out:
+-	kunmap(page); /* mapped in prior call (prepare_write) */
+ 	if (rc < 0)
+ 		ClearPageUptodate(page);
+ 	else
+@@ -772,6 +722,7 @@ int write_zeros(struct file *file, pgoff
+ {
+ 	int rc = 0;
+ 	struct page *tmp_page;
++	char *tmp_page_virt;
+ 
+ 	tmp_page = ecryptfs_get1page(file, index);
+ 	if (IS_ERR(tmp_page)) {
+@@ -780,28 +731,26 @@ int write_zeros(struct file *file, pgoff
+ 		rc = PTR_ERR(tmp_page);
+ 		goto out;
+ 	}
+-	kmap(tmp_page);
+ 	rc = ecryptfs_prepare_write(file, tmp_page, start, start + num_zeros);
+ 	if (rc) {
+ 		ecryptfs_printk(KERN_ERR, "Error preparing to write zero's "
+ 				"to remainder of page at index [0x%.16x]\n",
+ 				index);
+-		kunmap(tmp_page);
+ 		page_cache_release(tmp_page);
+ 		goto out;
+ 	}
+-	memset(((char *)page_address(tmp_page) + start), 0, num_zeros);
++	tmp_page_virt = kmap_atomic(tmp_page, KM_USER0);
++	memset(((char *)tmp_page_virt + start), 0, num_zeros);
++	kunmap_atomic(tmp_page_virt, KM_USER0);
+ 	rc = ecryptfs_commit_write(file, tmp_page, start, start + num_zeros);
+ 	if (rc < 0) {
+ 		ecryptfs_printk(KERN_ERR, "Error attempting to write zero's "
+ 				"to remainder of page at index [0x%.16x]\n",
+ 				index);
+-		kunmap(tmp_page);
+ 		page_cache_release(tmp_page);
+ 		goto out;
+ 	}
+ 	rc = 0;
+-	kunmap(tmp_page);
+ 	page_cache_release(tmp_page);
+ out:
+ 	return rc;
+-- 
+1.3.3
 
-System:
-AMD64 4200+ 
-nForce 4 SLI
-2 GB
-SMP PREEMPT kernel

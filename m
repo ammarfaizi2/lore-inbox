@@ -1,97 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932769AbXASW5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932854AbXASXKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932769AbXASW5N (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 17:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932825AbXASW5N
+	id S932854AbXASXKP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 18:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932868AbXASXKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 17:57:13 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:40977 "EHLO 2ka.mipt.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932769AbXASW5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 17:57:12 -0500
-Date: Sat, 20 Jan 2007 01:56:43 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-Subject: Re: Possible ways of dealing with OOM conditions.
-Message-ID: <20070119225643.GA22728@2ka.mipt.ru>
-References: <20070117045426.GA20921@2ka.mipt.ru> <1169024848.22935.109.camel@twins> <20070118104144.GA20925@2ka.mipt.ru> <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru> <1169133052.6197.96.camel@twins> <20070118155003.GA6719@2ka.mipt.ru> <1169141513.6197.115.camel@twins> <20070118183430.GA3345@2ka.mipt.ru> <1169211195.6197.143.camel@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 19 Jan 2007 18:10:14 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:58632 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932854AbXASXKN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 18:10:13 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AHzUwSJTr8TMCewr7sq56T31xSdBHI5nksDNkCLZ8yzQafNa7Z2KpA1U5mfokCpgoP1PbUTLB93H4i6GHR2TL7t3/ohL8C1xvjN110csprR22JHR9zU15GSiLMZEKtQHfUeiLvuipxMm6KPVnxNvkqd+1A6AyUI3VDt16vQ6VUg=
+Message-ID: <305c16960701191510g2ed9ef4ev184d09c7b7d75408@mail.gmail.com>
+Date: Fri, 19 Jan 2007 21:10:11 -0200
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Len Brown" <lenb@kernel.org>
+Subject: Re: BUG: linux 2.6.19 unable to enable acpi
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Luming Yu" <luming.yu@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <305c16960701191003k3e69cf65o135cc2a9b1249943@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1169211195.6197.143.camel@twins>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 20 Jan 2007 01:56:51 +0300 (MSK)
+References: <305c16960701162001j5ec23332hcd398cbe944916e1@mail.gmail.com>
+	 <200701170408.54220.lenb@kernel.org>
+	 <305c16960701171310v727963aevd4f29eba34316ed9@mail.gmail.com>
+	 <200701190336.20236.lenb@kernel.org>
+	 <305c16960701191003k3e69cf65o135cc2a9b1249943@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2007 at 01:53:15PM +0100, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > 2. You differentiate by hand between critical and non-critical
-> > allocations by specifying some kernel users as potentially possible to
-> > allocate from reserve. 
-> 
-> True, all sockets that are needed for swap, no-one else.
-> 
-> > This does not prevent from NVIDIA module to
-> > allocate from that reserve too, does it?
-> 
-> All users of the NVidiot crap deserve all the pain they get.
-> If it breaks they get to keep both pieces.
+On 1/19/07, Matheus Izvekov <mizvekov@gmail.com> wrote:
+> On 1/19/07, Len Brown <lenb@kernel.org> wrote:
+> > I guess I'm losing my mind, because when I read this code,
+> > there are only two ways out of the while(retry) loop.
+> > Either return with success, or retry is 0.
+> > So how the heck is retry printed as 142?!
+> >
+> > did you notice any delay between the last two lines of printout above?
+> >
+> > please boot with "acpi_dbg_layer=2" "acpi_dbg_level=0xffffffff"
+> > so that we can see each read and write of the hardware look like.
+> > Success is measured here by looking for SCI_EN being set
+> > to indicate that we successfully entered ACPI mode.
+> >
+> > I guess we should see about 142 reads looking for SCI_EN...
+> >
+> > It would be interesting if you could boot a windows disk on this box
+> > to see if they are able to get into ACPI mode.  You'd be able to
+> > tell by dumping the interrupt list, looking at the device tree,
+> > or observing if the power button gives immediate poweroff
+> > or does an OS shutdown.
+> >
+> > thanks,
+> > -Len
+>
+> printk("ACPI: retry %d\n") -> printk("ACPI: retry %d\n", retry)
+> ;)
+> ill try this again soon.
+>
 
-I meant that pretty anyone can be those user, who can just add a bit
-into own gfp_flags which are used for allocation.
+Ok, here is what i got:
 
-> > And you artificially limit
-> > system to process only tiny bits of what it must do, thus potentially
-> > leaking pathes which must use reserve too.
-> 
-> How so? I cover pretty much every allocation needed to process an skb by
-> setting PF_MEMALLOC - the only drawback there is that the reserve might
-> not actually be large enough because it covers more allocations that
-> were considered. (thats one of the TODO items, validate the reserve
-> functions parameters)
-
-You only covered ipv4/v6 and arp, maybe some route updates.
-But it is very possible, that some allocations are missed like
-multicast/broadcast. Selecting only special pathes out of the whole
-possible network alocations tends to create a situation, when something
-is missed or cross dependant on other pathes.
-
-> > So, solution is to have a reserve in advance, and manage it using
-> > special path when system is in OOM. So you will have network memory
-> > reserve, which will be used when system is in trouble. It is very
-> > similar to what you had.
-> > 
-> > But the whole reserve can never be used at all, so it should be used,
-> > but not by those who can create OOM condition, thus it should be
-> > exported to, for example, network only, and when system is in trouble,
-> > network would be still functional (although only critical pathes).
-> 
-> But the network can create OOM conditions for itself just fine. 
-> 
-> Consider the remote storage disappearing for a while (it got rebooted,
-> someone tripped over the wire etc..). Now the rest of the network
-> traffic keeps coming and will queue up - because user-space is stalled,
-> waiting for more memory - and we run out of memory.
-
-Hmm... Neither UDP, nor TCP work that way actually.
-
-> There must be a point where we start dropping packets that are not
-> critical to the survival of the machine.
-
-You still can drop them, the main point is that network allocations do
-not depend on other allocations.
-
-> > Even further development of such idea is to prevent such OOM condition
-> > at all - by starting swapping early (but wisely) and reduce memory
-> > usage.
-> 
-> These just postpone execution but will not avoid it.
-
-No. If system allows to have such a condition, then
-something is broken. It must be prevented, instead of creating special
-hacks to recover from it.
-
--- 
-	Evgeniy Polyakov
+  hwacpi-0207 [C031D380] [04] hw_get_mode           : ----Entry
+  hwregs-0273 [C031D380] [05] get_register          : ----Entry
+  hwregs-0487 [C031D380] [06] hw_register_read      : ----Entry
+  hwregs-0810 [C031D380] [06] hw_low_level_read     : Read:  00000000
+width 16 from 0000000000000404 (SystemIO)
+  hwregs-0575 [C031D380] [06] hw_register_read      : ----Exit- AE_OK
+  hwregs-0300 [C031D380] [05] get_register          : Read value
+00000000 register 3
+  hwregs-0303 [C031D380] [05] get_register          : ----Exit- AE_OK
+  hwacpi-0226 [C031D380] [04] hw_get_mode           : ----Exit- 0000000000000002
+ACPI: retry 0
+ACPI Error (hwacpi-0185): Hardware did not change modes [20060707]
+  hwacpi-0186 [C031D380] [03] hw_set_mode           : ----Exit-
+****Exception****: AE_NO_HARDWARE_RESPONSE
+ACPI Error (evxfevnt-0084): Could not transition to ACPI mode [20060707]
+ACPI Warning (utxface-0154): AcpiEnable failed [20060707]
+ACPI: Unable to enable ACPI

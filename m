@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932757AbXARX4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932780AbXASAIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbXARX4g (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 18:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbXARX4g
+	id S932780AbXASAIn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 19:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbXASAIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 18:56:36 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:44980 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932757AbXARX4f (ORCPT
+	Thu, 18 Jan 2007 19:08:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4226 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932780AbXASAIn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 18:56:35 -0500
-Date: Thu, 18 Jan 2007 17:56:33 -0600
-To: Allexio Ju <allexio.ju@gmail.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Questions on PCI express AER support in HBA driver
-Message-ID: <20070118235632.GA7860@austin.ibm.com>
-References: <a02278b00701181146o2384d62ah8445ec3bb846a8da@mail.gmail.com>
+	Thu, 18 Jan 2007 19:08:43 -0500
+Date: Fri, 19 Jan 2007 01:08:48 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.38-rc2
+Message-ID: <20070119000848.GI9093@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a02278b00701181146o2384d62ah8445ec3bb846a8da@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 11:46:21AM -0800, Allexio Ju wrote:
-> Hi,
-> 
-> I've got some questions on supporting PCI Express AER in Linux HBA drivers.
-> BTW, I'm developing SCSI HBA driver.
-[...]
+Security fixes since 2.6.16.37:
+- CVE-2006-4814: Fix incorrect user space access locking in mincore()
+- CVE-2006-5173: i386: save/restore eflags in context switch
+- CVE-2006-5749: Call init_timer() for ISDN PPP CCP reset state timer
+- CVE-2006-5755: x86_64: Don't leak NT bit into next task
+- CVE-2006-5757/CVE-2006-6060: grow_buffers() infinite loop fix
+- CVE-2006-5823: corrupted cramfs filesystems cause kernel oops
+- CVE-2006-6053: handle ext3 directory corruption better
+- CVE-2006-6054: ext2: skip pages past number of blocks in ext2_find_entry
+- CVE-2006-6056: hfs_fill_super returns success even if no root inode
+- CVE-2006-6106: Bluetooth: Add packet size checks for CAPI messages
 
-> What else does SCSI LLD driver need to changed?
 
-There are several scsi controllers that handle pci error recovery.
-For example, look at drivers/scsi/ipr.c, search for 
-struct pci_error_handlers. The callback routines there deal
-with reseting the driver after an error has been found.
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-I've posted patches in the past for the symbios driver;
-I suppose it is time to clean them up and resubmit them
-again; they are not in the kernel yet.
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-I recently posted patches for the Emulex lpfc fibre channel 
-scsi card, google for the subject line
-  "[PATCH] lpfc: add PCI error recovery support"
 
-to see what the patch looks like.
+Changes since 2.6.16.38-rc1:
 
-All of this work was done on powerpc systems. I have only
-a vague idea of how this works on PC-class Intel platforms.
+Adrian Bunk (1):
+      Linux 2.6.16.38-rc2
 
---linas
+Paolo 'Blaisorblade' Giarrusso (1):
+      UML: fix the MODE_TT compilation
+
+YOSHIFUJI Hideaki (1):
+      [IPV6] Fix joining all-node multicast group.
+
+
+ Makefile                   |    2 +-
+ arch/um/sys-i386/unmap.c   |   11 +++++++----
+ arch/um/sys-x86_64/unmap.c |   11 +++++++----
+ net/ipv6/addrconf.c        |    4 ++++
+ net/ipv6/mcast.c           |    6 ------
+ 5 files changed, 19 insertions(+), 15 deletions(-)
 

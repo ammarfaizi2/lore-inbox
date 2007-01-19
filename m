@@ -1,97 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965100AbXASMzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965120AbXASNBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbXASMzY (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 07:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbXASMzY
+	id S965120AbXASNBq (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 08:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbXASNBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 07:55:24 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:19796 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S965100AbXASMzX (ORCPT
+	Fri, 19 Jan 2007 08:01:46 -0500
+Received: from wr-out-0506.google.com ([64.233.184.233]:7179 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965120AbXASNBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 07:55:23 -0500
-Subject: Re: Possible ways of dealing with OOM conditions.
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <20070118183430.GA3345@2ka.mipt.ru>
-References: <20070116153315.GB710@2ka.mipt.ru>
-	 <1168963695.22935.78.camel@twins> <20070117045426.GA20921@2ka.mipt.ru>
-	 <1169024848.22935.109.camel@twins> <20070118104144.GA20925@2ka.mipt.ru>
-	 <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru>
-	 <1169133052.6197.96.camel@twins> <20070118155003.GA6719@2ka.mipt.ru>
-	 <1169141513.6197.115.camel@twins>  <20070118183430.GA3345@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Fri, 19 Jan 2007 13:53:15 +0100
-Message-Id: <1169211195.6197.143.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Fri, 19 Jan 2007 08:01:46 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=OqSQlJAiDqPPk5x2VP8bgCEKw2x6HtzlLXjj09L/KxX2Lsxfy5arkmTbQIaQnF8aLLIsJp1AZpleUh02PSUM2COqevNzmF/OTGPqxD8UkS0chV5q6EKd6JbvbN5giAeBAKmZ8b1Ap6fEL5s+Ab44/d0GkQtE76bLvglVbl+xgSI=
+Message-ID: <84144f020701190501x5d1efb49u87dc9537bfe1e791@mail.gmail.com>
+Date: Fri, 19 Jan 2007 15:01:44 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Subject: Re: can someone explain "inline" once and for all?
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0701190645400.24224@CPE00045a9c397f-CM001225dbafb6>
+X-Google-Sender-Auth: 88d1b9f57032ad2f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/19/07, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> is there a simple explanation for how to *properly* define inline
+> routines in the kernel?  and maybe this can be added to the
+> CodingStyle guide (he mused, wistfully).
 
-> Let me briefly describe your approach and possible drawbacks in it.
-> You start reserving some memory when systems is under memory pressure.
-> when system is in real trouble, you start using that reserve for special
-> tasks mainly for network path to allocate packets and process them in
-> order to get committed some memory swapping.
-> 
-> So, the problems I see here, are following:
-> 1. it is possible that when you are starting to create a reserve, there
-> will not be enough memeory at all. So the solution is to reserve in
-> advance.
+AFAIK __always_inline is the only reliable way to force inlining where
+it matters for correctness (for example, when playing tricks with
+__builtin_return_address like we do in the slab).
 
-Swap is usually enabled at startup, but sure, if you want you can mess
-this up.
-
-> 2. You differentiate by hand between critical and non-critical
-> allocations by specifying some kernel users as potentially possible to
-> allocate from reserve. 
-
-True, all sockets that are needed for swap, no-one else.
-
-> This does not prevent from NVIDIA module to
-> allocate from that reserve too, does it?
-
-All users of the NVidiot crap deserve all the pain they get.
-If it breaks they get to keep both pieces.
-
-> And you artificially limit
-> system to process only tiny bits of what it must do, thus potentially
-> leaking pathes which must use reserve too.
-
-How so? I cover pretty much every allocation needed to process an skb by
-setting PF_MEMALLOC - the only drawback there is that the reserve might
-not actually be large enough because it covers more allocations that
-were considered. (thats one of the TODO items, validate the reserve
-functions parameters)
-
-> So, solution is to have a reserve in advance, and manage it using
-> special path when system is in OOM. So you will have network memory
-> reserve, which will be used when system is in trouble. It is very
-> similar to what you had.
-> 
-> But the whole reserve can never be used at all, so it should be used,
-> but not by those who can create OOM condition, thus it should be
-> exported to, for example, network only, and when system is in trouble,
-> network would be still functional (although only critical pathes).
-
-But the network can create OOM conditions for itself just fine. 
-
-Consider the remote storage disappearing for a while (it got rebooted,
-someone tripped over the wire etc..). Now the rest of the network
-traffic keeps coming and will queue up - because user-space is stalled,
-waiting for more memory - and we run out of memory.
-
-There must be a point where we start dropping packets that are not
-critical to the survival of the machine.
-
-> Even further development of such idea is to prevent such OOM condition
-> at all - by starting swapping early (but wisely) and reduce memory
-> usage.
-
-These just postpone execution but will not avoid it.
-
-
+Anything else is just a hint to the compiler that might be ignored if
+the optimizer thinks it knows better.

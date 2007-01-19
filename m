@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751422AbXASPLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932231AbXASPkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbXASPLO (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 10:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbXASPLO
+	id S932231AbXASPkW (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 10:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbXASPkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 10:11:14 -0500
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:4571 "EHLO
-	usea-naimss2.unisys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751069AbXASPLN (ORCPT
+	Fri, 19 Jan 2007 10:40:22 -0500
+Received: from wr-out-0506.google.com ([64.233.184.226]:6566 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932231AbXASPkV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 10:11:13 -0500
-Subject: Re: PATCH: Update disable_IO_APIC to use 8-bit destination field 
-	(X86_64)
-From: Benjamin Romer <benjamin.romer@unisys.com>
-To: vgoyal@in.ibm.com
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20070119034944.GA7136@in.ibm.com>
-References: <1169052407.3082.43.camel@ustr-romerbm-2.na.uis.unisys.com>
-	 <m1tzyp8o8v.fsf@ebiederm.dsl.xmission.com>
-	 <20070118034153.GA5406@in.ibm.com> <20070118043639.GA12459@in.ibm.com>
-	 <m1tzyo7qtc.fsf@ebiederm.dsl.xmission.com>
-	 <20070118080003.GC31860@in.ibm.com>
-	 <1169141034.6665.6.camel@ustr-romerbm-2.na.uis.unisys.com>
-	 <m14pqo6w3d.fsf@ebiederm.dsl.xmission.com>
-	 <1169147619.6665.11.camel@ustr-romerbm-2.na.uis.unisys.com>
-	 <20070119034944.GA7136@in.ibm.com>
-Content-Type: text/plain
-Organization: Unisys Corporation
-Date: Fri, 19 Jan 2007 10:11:10 -0500
-Message-Id: <1169219470.2819.9.camel@ustr-romerbm-2.na.uis.unisys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+	Fri, 19 Jan 2007 10:40:21 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XMXkCt5ra4HeyzFJecXfP8K7LETPCbw5e8AdxSptmWiApXeIVpw0tNTCZnGkWer+cNFyMQxDgZ37MWCENaLvdtQiffTXvcz1DzlFslx5RNqykc9BpluUCc74Zbv9Xm4GIcodZmTjQFTCFdHH5vFGP4GBEzkfzIpvH0U42x+CFs8=
+Message-ID: <6d6a94c50701190740v6da25151kb9ddcf358ab2957@mail.gmail.com>
+Date: Fri, 19 Jan 2007 23:40:20 +0800
+From: "Aubrey Li" <aubreylee@gmail.com>
+To: "Vaidyanathan Srinivasan" <svaidy@linux.vnet.ibm.com>
+Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Robin Getz" <rgetz@blackfin.uclinux.org>
+In-Reply-To: <45B0D967.8090607@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jan 2007 15:11:10.0836 (UTC) FILETIME=[0D7B0B40:01C73BDC]
+Content-Disposition: inline
+References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com>
+	 <45B0D967.8090607@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 09:19 +0530, Vivek Goyal wrote:
-> On Thu, Jan 18, 2007 at 02:13:39PM -0500, Benjamin Romer wrote:
-> [..]
-> > > >
-> > > > OK, here's the updated patch that uses the new definition and fixes up
-> > > > the other places that use it. I built and tested this on the ES7000/ONE
-> > > > and it works well. :)
-> > >
-> > > Cool.
-> > >
-> > > I hate to pick nits by why the double underscore on dest?
-> > >
-> > 
-> > It was defined that way in the updated structure definition you sent in
-> > a previous mail, so I figured you wanted it that way. Here's another
-> > revision with the double underscores removed. :)
-> > 
-> > -- Ben
-> > 
-> 
-> This patch looks good to me. You might want to provide some description
-> too for changelog.
-> 
-> Thanks
-> Vivek
+On 1/19/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
+>
+> Hi Aubrey,
+>
+> I used your patch on my PPC64 box and I do not get expected
+> behavior.  As you had requested, I am attaching zoneinfo and meminfo
+> dumps:
+>
+> Please let me know if you need any further data to help me out with
+> the test/experiment.
+>
 
-A simple description would look something like:
+Although I have no PPC64 box in hand, I think the logic should be the same.
+get_page_from_freelist() is called 5 times in __alloc_pages().
 
-- Updated 4-bit IO-APIC physical dest field to 8-bit dest field for
-xAPIC; fixes ES7000/ONE kexec timer hang
+1) alloc_flags = ALLOC_WMARK_LOW | ALLOC_PAGECACHE;
+2) alloc_flags = ALLOC_WMARK_MIN | ALLOC_PAGECACHE;
+We should have the same result on the first two times get_page_from_freelist().
 
-Is there a changelog file in the kernel for kexec somewhere, or does
-this belong in the source file's comments somewhere? I can fix up the
-patch as soon as I know where the right spot for the description is. :)
+3) if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
+			&& !in_interrupt())
+   alloc_flags = ALLOC_NO_WATERMARKS
+The case on my platform will never enter this branch. If the branch
+occurs on your side,
+The limit will be omitted. Because NO watermark, zone_watermark_ok()
+will not be checked. memory will be allocated directly.
 
--- Ben
+4)if (likely(did_some_progress)) {
+   alloc_flags should include ALLOC_PAGECACHE.
+So we should have the same result on this call.
 
+5)	} else if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY)) {
+   alloc_flags = ALLOC_WMARK_HIGH, without ALLOC_PAGECACHE
+
+This branch will not hit on my case. You may need to check it.
+
+If 3) or 5) occurs on your platform, I think you can easily fix it.
+Please confirm it and let me know the result.
+
+Thanks,
+-Aubrey

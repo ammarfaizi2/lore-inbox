@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbXASSOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964810AbXASSO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbXASSOL (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 13:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbXASSOL
+	id S964810AbXASSO1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 13:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbXASSOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 13:14:11 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49940 "EHLO omx2.sgi.com"
+	Fri, 19 Jan 2007 13:14:24 -0500
+Received: from styx.suse.cz ([82.119.242.94]:38344 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964786AbXASSOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 13:14:09 -0500
-Message-ID: <45B10A6D.7030500@sgi.com>
-Date: Fri, 19 Jan 2007 12:14:05 -0600
-From: Michael Reed <mdr@sgi.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
+	id S964810AbXASSOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 13:14:22 -0500
+Date: Fri, 19 Jan 2007 19:14:16 +0100 (CET)
+From: Jiri Kosina <jkosina@suse.cz>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch] hid: put usb_interface instead of usb_device into hid->dev
+In-Reply-To: <45B0FFB1.3000900@gmail.com>
+Message-ID: <Pine.LNX.4.64.0701191907580.31347@jikos.suse.cz>
+References: <45B0FFB1.3000900@gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] optimize o_direct on block device - v3
-References: <000101c7198d$9a9fde40$ff0da8c0@amr.corp.intel.com>	<45A68E55.10601@sgi.com> <20070111112901.28085adf.akpm@osdl.org>
-In-Reply-To: <20070111112901.28085adf.akpm@osdl.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Fri, 19 Jan 2007, Anssi Hannula wrote:
 
-Thanks again for finding the fix to the problem I reported.
-Can you tell me when I might expect this fix to show up in
-2.6.20-rc?
+> The commit 4916b3a57fc94664677d439b911b8aaf86c7ec23 introduced a
+> hid regression between 2.6.19 and 2.6.20-rc1. The device put in
+> input_dev->cdev is now of type usb_device instead of usb_interface.
 
-Thanks,
- Mike
+Yes, this is apparently a bug. Thanks a lot for the patch.
 
+> Fix this by assigning the intf->dev into hid->dev, and fixing all the 
+> users.
+> 
+> Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+> 
+> ---
+> 
+> I recommend this fix to go to the stable tree before 2.6.20 is released.
 
-Andrew Morton wrote:
-> On Thu, 11 Jan 2007 13:21:57 -0600
-> Michael Reed <mdr@sgi.com> wrote:
-> 
->> Testing on my ia64 system reveals that this patch introduces a
->> data integrity error for direct i/o to a block device.  Device
->> errors which result in i/o failure do not propagate to the
->> process issuing direct i/o to the device.
->>
->> This can be reproduced by doing writes to a fibre channel block
->> device and then disabling the switch port connecting the host
->> adapter to the switch.
->>
-> 
-> Does this fix it?
-> 
-> <thwaps Ken>
-> <thwaps compiler>
-> <adds new entry to Documentation/SubmitChecklist>
-> 
-> diff -puN fs/block_dev.c~a fs/block_dev.c
-> --- a/fs/block_dev.c~a
-> +++ a/fs/block_dev.c
-> @@ -146,7 +146,7 @@ static int blk_end_aio(struct bio *bio, 
->  		iocb->ki_nbytes = -EIO;
->  
->  	if (atomic_dec_and_test(bio_count)) {
-> -		if (iocb->ki_nbytes < 0)
-> +		if ((long)iocb->ki_nbytes < 0)
->  			aio_complete(iocb, iocb->ki_nbytes, 0);
->  		else
->  			aio_complete(iocb, iocb->ki_left, 0);
-> _
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Looks OK to me. I have queued it in HID tree - I am going to push this 
+upstream in a few days.
+
+-- 
+Jiri Kosina
 

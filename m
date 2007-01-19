@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932780AbXASAIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932781AbXASALl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932780AbXASAIn (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 18 Jan 2007 19:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbXASAIn
+	id S932781AbXASALl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 18 Jan 2007 19:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932783AbXASALk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Jan 2007 19:08:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4226 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932780AbXASAIn (ORCPT
+	Thu, 18 Jan 2007 19:11:40 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:63827 "EHLO
+	pd2mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932781AbXASALk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Jan 2007 19:08:43 -0500
-Date: Fri, 19 Jan 2007 01:08:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Thu, 18 Jan 2007 19:11:40 -0500
+Date: Thu, 18 Jan 2007 18:09:50 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+In-reply-to: <fa.O3RzvckSjB73Y0uL8P1nTXDRd6U@ifi.uio.no>
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.38-rc2
-Message-ID: <20070119000848.GI9093@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Cc: Larry Walton <lwalton@real.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       jeff@garzik.org, htejun@gmail.com, jens.axboe@oracle.com
+Message-id: <45B00C4E.4040803@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.U/G88R1fWKOeQK3EBPHKK4MeRsQ@ifi.uio.no>
+ <fa.2D0TIXbVTOgZmGg9ZJU+R7te70k@ifi.uio.no>
+ <fa.hMhdefkReYJ4idUyqqEWJFnWUBE@ifi.uio.no>
+ <fa.8TPWeOrcwkkHutPX5NOcJsTBO8Y@ifi.uio.no>
+ <fa.b92BqwV090pDj7q0iBG6BChksbI@ifi.uio.no>
+ <fa.O3RzvckSjB73Y0uL8P1nTXDRd6U@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.37:
-- CVE-2006-4814: Fix incorrect user space access locking in mincore()
-- CVE-2006-5173: i386: save/restore eflags in context switch
-- CVE-2006-5749: Call init_timer() for ISDN PPP CCP reset state timer
-- CVE-2006-5755: x86_64: Don't leak NT bit into next task
-- CVE-2006-5757/CVE-2006-6060: grow_buffers() infinite loop fix
-- CVE-2006-5823: corrupted cramfs filesystems cause kernel oops
-- CVE-2006-6053: handle ext3 directory corruption better
-- CVE-2006-6054: ext2: skip pages past number of blocks in ext2_find_entry
-- CVE-2006-6056: hfs_fill_super returns success even if no root inode
-- CVE-2006-6106: Bluetooth: Add packet size checks for CAPI messages
+I heard from Larry Walton who was apparently seeing this problem as 
+well. He tried my recent "sata_nv: cleanup ADMA error handling v2" patch 
+and originally thought it fixed the problem, but it turned out to only 
+make it happen less often.
 
+I wouldn't expect that patch to have an effect on this problem. If it 
+seems to reduce the frequency that would tend to be further evidence of 
+  some kind of timing-related issue where the code change just happens 
+to make a difference.
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+I'll see if I can come up with a debug patch for people having this 
+problem to try, which prints out when a flush command is issued and what 
+interrupts happen when a flush is pending.
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+There is one important difference between ADMA and non-ADMA mode for 
+non-DMA commands like flushes, which didn't come to mind before: ADMA 
+mode uses MMIO registers on the controller whereas non-ADMA mode uses 
+legacy IO registers. Posted write flushing is a concern with MMIO 
+registers but not with PIO, the libata core is supposed to handle this 
+but maybe it doesn't in some case(s). In fact, just looking at 
+libata-sff.c there's this comment on the ata_exec_command_mmio function:
 
+  *      FIXME: missing write posting for 400nS delay enforcement
 
-Changes since 2.6.16.38-rc1:
+That seems a bit suspicious..
 
-Adrian Bunk (1):
-      Linux 2.6.16.38-rc2
-
-Paolo 'Blaisorblade' Giarrusso (1):
-      UML: fix the MODE_TT compilation
-
-YOSHIFUJI Hideaki (1):
-      [IPV6] Fix joining all-node multicast group.
-
-
- Makefile                   |    2 +-
- arch/um/sys-i386/unmap.c   |   11 +++++++----
- arch/um/sys-x86_64/unmap.c |   11 +++++++----
- net/ipv6/addrconf.c        |    4 ++++
- net/ipv6/mcast.c           |    6 ------
- 5 files changed, 19 insertions(+), 15 deletions(-)
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

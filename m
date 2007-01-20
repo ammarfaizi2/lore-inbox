@@ -1,117 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932795AbXATE0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965056AbXATGSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932795AbXATE0P (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 23:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932810AbXATE0P
+	id S965056AbXATGSd (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 01:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbXATGSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 23:26:15 -0500
-Received: from wx-out-0506.google.com ([66.249.82.232]:22064 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932795AbXATE0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 23:26:14 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CnIYuNC6TWC5vWfbXSZOQFko6m3hM6Bv3Urs0JUgW3I2dwddHXFpYUzOzeFnfA50/pKP5Erw0Ic/zZmVsG0NwQve42lvLkiKvYarlA3/nDNxxceWIBB0M0u2Woxy41R6STCHuStmnkD3RfozKt7vLyYCSEQ5zDrvhhsY2/CkGMk=
-Message-ID: <6d6a94c50701192026q4aad8954s2d2aaa6b66ab1fd0@mail.gmail.com>
-Date: Sat, 20 Jan 2007 12:26:13 +0800
-From: "Aubrey Li" <aubreylee@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
-Cc: "Vaidyanathan Srinivasan" <svaidy@linux.vnet.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Robin Getz" <rgetz@blackfin.uclinux.org>,
-       "Hennerich, Michael" <Michael.Hennerich@analog.com>
-In-Reply-To: <45B19483.6010300@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Jan 2007 01:18:33 -0500
+Received: from 1wt.eu ([62.212.114.60]:2068 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965056AbXATGSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 01:18:32 -0500
+Date: Sat, 20 Jan 2007 07:18:18 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: dann frazier <dannf@dannf.org>
+Cc: Santiago Garcia Mantinan <manty@debian.org>, linux-kernel@vger.kernel.org,
+       debian-kernel@lists.debian.org
+Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
+Message-ID: <20070120061818.GA22220@1wt.eu>
+References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo> <20070120010544.GY26210@colo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com>
-	 <45B0DB45.4070004@linux.vnet.ibm.com>
-	 <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
-	 <45B112B6.9060806@linux.vnet.ibm.com>
-	 <6d6a94c50701191804m79c70afdo1e664a072f928b9e@mail.gmail.com>
-	 <45B17D6D.2030004@yahoo.com.au>
-	 <6d6a94c50701191908i63fe7eebi9a97a4afb94f5df4@mail.gmail.com>
-	 <45B19483.6010300@yahoo.com.au>
+In-Reply-To: <20070120010544.GY26210@colo>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/20/07, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Aubrey Li wrote:
->
-> > So what's the right way to limit pagecache?
->
-> Probably something a lot more complicated... if you can say there
-> is a "right way".
->
-> >> Secondly, your patch isn't actually very good. It unconditionally
-> >> shrinks memory to below the given % mark each time a pagecache alloc
-> >> occurs, regardless of how much pagecache is in the system. Effectively
-> >> that seems to just reduce the amount of memory available to the system.
-> >
-> >
-> > It doesn't reduce the amount of memory available to the system. It
-> > just reduce the amount of memory available to the page cache. So that
-> > page cache is limited and the reserved memory can be allocated by the
-> > application.
->
-> But the patch doesn't do that, as I explained.
+On Fri, Jan 19, 2007 at 06:05:44PM -0700, dann frazier wrote:
+(...)
+> Ah, think I see the problem now:
+> 
+> --- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
+> +++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
+> @@ -1997,7 +1997,7 @@
+>  		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
+>  	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
+>  	          !(S_ISDIR(fattr->f_mode)) )
+> -		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
+> +		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
+>  
+>  }
+>  
+> Santiago: Thanks for reporting this - can you test this patch out on
+> your system and let me know if there are still any problems?
+> 
+> Willy: I'll do some more testing and get you a patch that fixes this
+> and the double assignment nonsense. Would you prefer a single patch or
+> two?
 
-I'm not sure you read the correct patch. Let me explain the logic again.
+Since the double assignment is not a bug per se, don't bother making a
+separate patch, put everything in the same one.
 
-assume:
-min = 123pages
-pagecache_reserved = 200 pages
+Thanks a lot for your very fast response !
 
-if( alloc_flags & ALLOC_PAGECACHE)
-        watermark = min + pagecache_reserved ( 323 pages)
-else
-        watermark = min ( 123 pages)
+Cheers,
+Willy
 
-So if request pagecache, when free pages < 323 pages, reclaim is triggered.
-But at this time if request memory not pagecache, reclaim will be
-triggered when free pages < 123 as the present reclaimer does.
-
-I verified it on my side, why do you think it doesn't work properly?
-
->
-> >> Luckily, there are actually good, robust solutions for your higher
-> >> order allocation problem. Do higher order allocations at boot time,
-> >> modifiy userspace applications, or set up otherwise-unused, or easily
-> >> reclaimable reserve pools for higher order allocations. I don't
-> >> understand why you are so resistant to all of these approaches?
-> >>
-> >
-> > I think we have explained the reason too much. We are working on
-> > no-mmu arch and provide a platform running linux to our customer. They
-> > are doing very good things like mplayer, asterisk, ip camera, etc on
-> > our platform, some applications was migrated from mmu arch. I think
-> > that means in some cases no-mmu arch is somewhat better than mmu arch.
-> > So we are taking effort to make the migration smooth or make no-mmu
-> > linux stronger.
-> > It's no way to let our customer modify their applications, we also
-> > unwilling to do it. And we have not an existing mechanism to set up a
-> > pools for the complex applications. So I'm trying to do some coding
-> > hack in the kernel to satisfy these kinds of requirement.
->
-> Oh, maybe you misunderstand the reserve pools idea: that is an entirely
-> kernel based solution where you can preallocate a large, contiguous
-> pool of memory at boot time which you can use to satisfy your nommu
-> higher order anonymous memory allocations.
->
-> This is something that will not get fragmented by pagecache, nor will
-> it get fragmented by any other page allocation, slab allocation. Tt is
-> a pretty good solution provided that you size the pool correctly for
-> your application's needs.
->
-
-So if application malloc(1M), how does kernel know to allocate
-reserved pool not from buddy system? I didn't see any special code
-about this. Is there any doc or example?
-
--Aubrey

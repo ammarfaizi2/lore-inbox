@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965290AbXATPc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965295AbXATPhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965290AbXATPc1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 10:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965291AbXATPc1
+	id S965295AbXATPhW (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 10:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbXATPhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 10:32:27 -0500
-Received: from www.osadl.org ([213.239.205.134]:32962 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965290AbXATPc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 10:32:26 -0500
-Subject: Re: [patch 3/3] clockevent driver for arm/pxa2xx
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, Luotao Fu <lfu@pengutronix.de>
-In-Reply-To: <Pine.LNX.4.60.0701192010490.5127@poirot.grange>
-References: <20070109100957.259649000@localhost.localdomain>
-	 <20070109101307.715996000@localhost.localdomain>
-	 <Pine.LNX.4.60.0701192010490.5127@poirot.grange>
-Content-Type: text/plain
-Date: Fri, 19 Jan 2007 20:33:40 +0100
-Message-Id: <1169235221.6271.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Jan 2007 10:37:22 -0500
+Received: from mail.gmx.net ([213.165.64.20]:37686 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S965295AbXATPhV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 10:37:21 -0500
+X-Authenticated: #14842415
+From: Alessandro Di Marco <dmr@gmx.it>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [ANNOUNCE] System Inactivity Monitor v1.0
+Cc: linux-kernel@vger.kernel.org
+References: <877ivkrv5s.fsf@gmx.it> <45B135B8.9000703@tmr.com>
+Date: Sat, 20 Jan 2007 16:37:18 +0100
+Message-ID: <878xfxaevl.fsf@gmx.it>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 20:13 +0100, Guennadi Liakhovetski wrote:
-> > +static u32 clockevent_mode = 0;
-> > +
-> > +static void pxa_set_next_event(unsigned long evt,
-> > +				  struct clock_event_device *unused)
-> > +{
-> > +	OSMR0 = OSCR + evt;
-> > +}
-> 
-> This doesn't work for me in various nasty ways. Please, check for a 
-> minimum delay or loop to get ahead of time. See code in the "old" timer 
-> ISR. See how it unconditionally adds at least 10 ticks...
+Bill Davidsen <davidsen@tmr.com> writes:
 
-I added support for match register based devices and you want to do
-something like this:
+   Alessandro Di Marco wrote:
+   > Hi all,
+   >
+   > this is a new 2.6.20 module implementing a user inactivity trigger. Basically
+   > it acts as an event sniffer, issuing an ACPI event when no user activity is
+   > detected for more than a certain amount of time. This event can be successively
+   > grabbed and managed by an user-level daemon such as acpid, blanking the screen,
+   > dimming the lcd-panel light à la mac, etc...
 
-static int hpet_next_event(unsigned long delta,
-                           struct clock_event_device *evt)
-{
-        unsigned long cnt;
+   Any idea how much power this saves? And for the vast rest of us who do run X,
+   this seems to parallel the work of a well-tuned screensaver.
 
-        cnt = hpet_readl(HPET_COUNTER);
-        cnt += delta;
-        hpet_writel(cnt, HPET_T0_CMP);
+This is just a notifier; to make it work as a screensaver you'll have to rely
+on some external programs. Personally I use smartdimmer to dim my vaio panel.
 
-        return ((long)(hpet_readl(HPET_COUNTER) - cnt ) > 0);
-}
+Obviously you can keep your toaster flying, if you like, simply calling the
+flying-toaster module instead of smartdimmer. Anyway I would use the latter on
+battery. ;-)
 
-The generic code takes care of the already expired event.
+Best,
 
-	tglx
-
-
-	
-
+-- 
+"What made the deepest impression upon you?" inquired a friend one day of
+Lincoln, "when you stood in the presence of the Falls of Niagara, the greatest
+of natural wonders?" ---- "The thing that stuck me most forcibly when I saw the
+Falls," Lincoln responded with the characteristic deliberation, "was where in
+the world did all that water come from?" - Author Unknown

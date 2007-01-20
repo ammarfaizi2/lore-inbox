@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932503AbXATACp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932860AbXATAMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbXATACp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 19:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932870AbXATACp
+	id S932860AbXATAMv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 19:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932844AbXATAMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 19:02:45 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:43608 "EHLO mx2.suse.de"
+	Fri, 19 Jan 2007 19:12:51 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:53716 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932503AbXATACo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 19:02:44 -0500
-Date: Fri, 19 Jan 2007 16:01:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Udo van den Heuvel <udovdh@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB extension (repeater) cable
-Message-ID: <20070120000158.GD12615@kroah.com>
-References: <45B0E672.4080404@xs4all.nl>
+	id S932617AbXATAMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 19:12:50 -0500
+Message-ID: <45B15E7F.1080005@garzik.org>
+Date: Fri, 19 Jan 2007 19:12:47 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45B0E672.4080404@xs4all.nl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc4] sata_promise: ATAPI cleanup
+References: <200701100832.l0A8WYat017411@harpo.it.uu.se>
+In-Reply-To: <200701100832.l0A8WYat017411@harpo.it.uu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2007 at 04:40:34PM +0100, Udo van den Heuvel wrote:
-> Hello,
+Mikael Pettersson wrote:
+> Here's a cleanup for yesterday's sata_promise ATAPI patch:
+> - add and use a symbolic constant for the altstatus register
+> - check return status from ata_busy_wait()
+> - add missing newline in a warning printk()
+> - update comment in pdc_issue_atapi_pkt_cmd() to clarify
+>   that the maybe-wait-for-INT issue cannot occur in the
+>   current driver, but may occur if the driver starts issuing
+>   ATAPI non-DMA commands as PDC packets
 > 
-> I just tried my shiny new usb extension cable (repeater):
-> 
-> Jan 19 16:01:17 epia kernel: usb 5-1: new high speed USB device using
-> ehci_hcd and address 60
-> Jan 19 16:01:17 epia kernel: usb 5-1: configuration #1 chosen from 1 choice
-> Jan 19 16:01:17 epia kernel: hub 5-1:1.0: USB hub found
-> Jan 19 16:01:17 epia kernel: hub 5-1:1.0: 4 ports detected
-> Jan 19 16:01:18 epia kernel: hub 5-1:1.0: Cannot enable port 1.  Maybe
-> the USB cable is bad?
-> Jan 19 16:01:22 epia last message repeated 3 times
-> Jan 19 16:01:23 epia kernel: hub 5-1:1.0: Cannot enable port 2.  Maybe
-> the USB cable is bad?
-> Jan 19 16:01:26 epia last message repeated 3 times
-> Jan 19 16:01:27 epia kernel: hub 5-1:1.0: Cannot enable port 3.  Maybe
-> the USB cable is bad?
-> Jan 19 16:01:31 epia last message repeated 3 times
-> 
-> The second cable does the same.
-> Of course we have just one port on this hub...
-> Any ideas?
+> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
-Perhaps the kernel is not lying and this cable really is bad?  :)
+applied
 
-Your hardware can not handle this device, there really is nothing that
-the kernel can do about this.
 
-USB extension cables are horrible things, and usually violate the USB
-spec and do not always work, as you are finding out.  Sorry about that.
-
-good luck,
-
-greg k-h

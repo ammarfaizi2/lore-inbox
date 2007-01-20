@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965354AbXATT7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965364AbXATUFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965354AbXATT7O (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 14:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965361AbXATT7O
+	id S965364AbXATUFp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 15:05:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965366AbXATUFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 14:59:14 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7659 "EHLO
-	pd3mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965354AbXATT7N (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 14:59:13 -0500
-Date: Sat, 20 Jan 2007 13:59:07 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: SATA exceptions with 2.6.20-rc5
-In-reply-to: <1169305408.4199.3.camel@pi.pomac.com>
-To: pomac@vapor.com
-Cc: Linux-kernel@vger.kernel.org, jeff@garzik.org, B.Steinbrink@gmx.de,
-       s0348365@sms.ed.ac.uk, chunkeey@web.de
-Message-id: <45B2748B.4060106@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <1169305408.4199.3.camel@pi.pomac.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Sat, 20 Jan 2007 15:05:45 -0500
+Received: from 1wt.eu ([62.212.114.60]:2084 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965364AbXATUFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 15:05:44 -0500
+Date: Sat, 20 Jan 2007 21:05:15 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Sunil Naidu <akula2.shark@gmail.com>
+Cc: Ismail =?iso-8859-1?Q?D=F6nmez?= <ismail@pardus.org.tr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Abysmal disk performance, how to debug?
+Message-ID: <20070120200515.GA25307@1wt.eu>
+References: <200701201920.54620.ismail@pardus.org.tr> <20070120174503.GZ24090@1wt.eu> <200701201952.54714.ismail@pardus.org.tr> <20070120180344.GA23841@1wt.eu> <8355959a0701201144x290362d8ja6cd5bc1408475da@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8355959a0701201144x290362d8ja6cd5bc1408475da@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kumlien wrote:
-> Hi,
+On Sun, Jan 21, 2007 at 01:14:41AM +0530, Sunil Naidu wrote:
+> On 1/20/07, Willy Tarreau <w@1wt.eu> wrote:
+> >> > >
+> >
+> >It is not expected to increase write performance, but it should help
+> >you do something else during that time, or also give more responsiveness
+> >to Ctrl-C. It is possible that you have fast and slow RAM, or that your
+> >video card uses shared memory which slows down some parts of memory
+> >which are not used anymore with those parameters.
 > 
-> I went from 2.6.19+sata_nv-adma-ncq-v7.patch, with no problems and adama
-> enabled, to 2.6.20-rc5, which gave me problems almost instantly.
+> I did test some SATA drives, am getting these value for 2.6.20-rc5:-
 > 
-> I just thought that it might be interesting to know that it DID work
-> nicely.
+> [sukhoi@Typhoon ~]$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
+> 1024+0 records in
+> 1024+0 records out
+> 1073741824 bytes (1.1 GB) copied, 21.0962 seconds, 50.9 MB/s
 > 
-> CC since i'm not on the ml
-> 
+> What can you suggest here w.r.t my RAM & disk?
 
-(I'm ccing more of the people who reported this)
+I don't suggest anything, this is already very good. The only goal of
+reducing memory write cache is to get a more responsive system when
+dumping massive amounts of data to disks, like above, because when
+the system starts flushing the caches, you can only wait for it to
+finish. But those tests are not realistic loads. A desktop and most
+servers will benefit from large caches. But *some* workloads will
+benefit from smaller caches if they consist in writing continuous
+streams (eg: tcpdump or video recorders). What I suggested to the
+user above was a way to get the system more responsive during his
+test. It should not have changed the throughput at all if the
+hardware was not a bit strange (well, it's a VAIO after all, I've
+had one too, fortunately it died one month after the warranty,
+putting an end to all my problems...).
 
-Well that's interesting.. The only significant change that went into 
-2.6.20-rc5 in that driver that wasn't in that version you mentioned was 
-this one:
-
-http://www2.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=2dec7555e6bf2772749113ea0ad454fcdb8cf861
-
-Could you (or anyone else) test what happens if you take the 2.6.20-rc5 
-version of sata_nv.c and try it on 2.6.19? That would tell us whether 
-it's this change or whether it's something else (i.e. in libata core).
-
-Assuming that still doesn't work, can you then try removing these lines 
-from nv_host_intr in 2.6.20-rc5 sata_nv.c and see what that does?
-
-	/* bail out if not our interrupt */
-	if (!(irq_stat & NV_INT_DEV))
-		return 0;
-
-as that's the difference I'm most suspicious of causing the problem.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Regards,
+Willy
 

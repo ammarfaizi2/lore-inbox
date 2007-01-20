@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965059AbXATBFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965076AbXATBIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbXATBFx (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 20:05:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbXATBFx
+	id S965076AbXATBIJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 20:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbXATBIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 20:05:53 -0500
-Received: from colo.lackof.org ([198.49.126.79]:32848 "EHLO colo.lackof.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965059AbXATBFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 20:05:52 -0500
-Date: Fri, 19 Jan 2007 18:05:44 -0700
-From: dann frazier <dannf@dannf.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Santiago Garcia Mantinan <manty@debian.org>, linux-kernel@vger.kernel.org,
-       debian-kernel@lists.debian.org
-Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
-Message-ID: <20070120010544.GY26210@colo>
-References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo>
+	Fri, 19 Jan 2007 20:08:09 -0500
+Received: from grayson.netsweng.com ([207.235.77.11]:47563 "EHLO
+	grayson.netsweng.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965076AbXATBII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 20:08:08 -0500
+X-Greylist: delayed 1687 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jan 2007 20:08:08 EST
+Date: Fri, 19 Jan 2007 19:38:06 -0500 (EST)
+From: Stuart Anderson <anderson@netsweng.com>
+X-X-Sender: anderson@trantor.stuart.netsweng.com
+To: Woody Suwalski <woodys@xandros.com>
+cc: linux-fbdev-devel@lists.sourceforge.net, Martin Michlmayr <tbm@cyrius.com>,
+       rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cyber2010 framebuffer on ARM Netwinder fix...
+In-Reply-To: <45A3D05F.7060409@xandros.com>
+Message-ID: <Pine.LNX.4.64.0701191937110.25957@trantor.stuart.netsweng.com>
+References: <459D368F.2030204@xandros.com> <45A3D05F.7060409@xandros.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070119010040.GR16053@colo>
-User-Agent: mutt-ng/devel-r782 (Debian)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2007 at 06:00:40PM -0700, dann frazier wrote:
-> On Wed, Jan 17, 2007 at 10:55:19PM +0100, Willy Tarreau wrote:
-> > @@ -505,8 +510,13 @@
-> >  		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
-> >  		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
-> >  
-> > -		mnt->flags = (oldmnt->file_mode >> 9);
-> > +		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID |
-> > +			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
-> >  	} else {
-> > +		mnt->file_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> > +						S_IROTH | S_IXOTH | S_IFREG;
-> > +		mnt->dir_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
-> > +						S_IROTH | S_IXOTH | S_IFDIR;
-> >  		if (parse_options(mnt, raw_data))
-> >  			goto out_bad_option;
-> >  	}
-> > 
-> > 
-> > See above ? mnt->dir_mode being assigned 3 times. It still *seems* to do the
-> > expected thing like this but I wonder if the initial intent was
-> > exactly this.
-> 
-> Wow - sorry about that, that's certainly a cut & paste error. But the
-> end result appears to match current 2.6, which was the intent.
-> 
-> > Also, would not it be necessary to add "|S_IFLNK" to the file_mode ? Maybe
-> > what I say is stupid, but it's just a guess.
-> 
-> I really don't know the correct answer to that, I was merely copying
-> the 2.6 flags. 
-> 
-> [Still working on getting a 2.4 smbfs test system up...]
 
-Ah, think I see the problem now:
 
---- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
-+++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
-@@ -1997,7 +1997,7 @@
- 		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
- 	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
- 	          !(S_ISDIR(fattr->f_mode)) )
--		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
-+		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
- 
- }
- 
-Santiago: Thanks for reporting this - can you test this patch out on
-your system and let me know if there are still any problems?
+Just wondering, did the rtc change for the arm get sent up also?
 
-Willy: I'll do some more testing and get you a patch that fixes this
-and the double assignment nonsense. Would you prefer a single patch or
-two?
 
--- 
-dann frazier
+On Tue, 9 Jan 2007, Woody Suwalski wrote:
 
+> Martin Michlmayr wrote:
+>> * Stuart Anderson <anderson@netsweng.com> [2007-01-05 09:40]:
+>> 
+>>> shark w/o any changes to the kernel. I dug a bit further, both in the
+>>> driver, and in the HW spec for the shark, and discovered that the video
+>>> chip on the shark is connected via the VL bus, not the PCI bus. The
+>>> shark does have a VL-PCI bridge, but there doesn't seem to be anything
+>>> connected to the PCI side of it (which matches what lspci says). The
+>>> function containing the patch in question doesn't appear to even run on
+>>> the shark (there is a VL version that is #ifdef SHARK'd), so I'd have
+>>> to say the patch would have not impact on the shark.
+>>> 
+>> 
+>> OK, good news.  Thanks for checking.  Woody, can you submit the patch
+>> (with proper intentation) to linux-fbdev-devel@lists.sourceforge.net
+>> 
+>
+> As suggested - I am sending this patch to fbdev-devel....
+>
+> The Netwinder machines with Cyber2010 crash badly when starting Xserver.
+> The workaround is to disable pci burst option for this revision of video 
+> chip.
+>
+> Thanks, Woody
+>
+>
+
+
+                                 Stuart
+
+Stuart R. Anderson                               anderson@netsweng.com
+Network & Software Engineering                   http://www.netsweng.com/
+1024D/37A79149:                                  0791 D3B8 9A4C 2CDC A31F
+                                                  BD03 0A62 E534 37A7 9149

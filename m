@@ -1,94 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965388AbXATUq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965372AbXATUzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965388AbXATUq1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 15:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965386AbXATUq1
+	id S965372AbXATUzc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 15:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965373AbXATUzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 15:46:27 -0500
-Received: from homer.mvista.com ([63.81.120.155]:23912 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S965384AbXATUq0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 15:46:26 -0500
-Message-ID: <45B27F9A.9070001@ru.mvista.com>
-Date: Sat, 20 Jan 2007 23:46:18 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sat, 20 Jan 2007 15:55:31 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:24122 "EHLO hobbit.corpit.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965372AbXATUzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 15:55:31 -0500
+Message-ID: <45B281BB.50607@tls.msk.ru>
+Date: Sat, 20 Jan 2007 23:55:23 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/15] ide: make ide_hwif_t.ide_dma_host_on void
-References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain> <20070119003220.14846.14258.sendpatchset@localhost.localdomain>
-In-Reply-To: <20070119003220.14846.14258.sendpatchset@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Denis Vlasenko <vda.linux@googlemail.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Viktor <vvp01@inbox.ru>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <45A6704A.40205@tls.msk.ru> <200701201736.22553.vda.linux@googlemail.com>
+In-Reply-To: <200701201736.22553.vda.linux@googlemail.com>
+X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again. :-)
+Denis Vlasenko wrote:
+> On Thursday 11 January 2007 18:13, Michael Tokarev wrote:
+>> example, which isn't quite possible now from userspace.  But as long as
+>> O_DIRECT actually writes data before returning from write() call (as it
+>> seems to be the case at least with a normal filesystem on a real block
+>> device - I don't touch corner cases like nfs here), it's pretty much
+>> THE ideal solution, at least from the application (developer) standpoint.
+> 
+> Why do you want to wait while 100 megs of data are being written?
+> You _have to_ have threaded db code in order to not waste
+> gobs of CPU time on UP + even with that you eat context switch
+> penalty anyway.
 
-Bartlomiej Zolnierkiewicz wrote:
+Usually it's done using aio ;)
 
-> [PATCH] ide: make ide_hwif_t.ide_dma_host_on void
+It's not that simple really.
 
-> * since ide_hwif_t.ide_dma_host_on is called either when drive->using_dma == 1
->   or when return value is discarded make it void, also drop "ide_" prefix
-> * make __ide_dma_host_on() void and drop "__" prefix
+For reads, you have to wait for the data anyway before doing something
+with it.  Omiting reads for now.
 
-    Below are some nits which also apply to the previous patch...
+For writes, it's not that problematic - even 10-15 threads is nothing
+compared with the I/O (O in this case) itself -- that context switch
+penalty.
 
-> Index: b/drivers/ide/pci/atiixp.c
-> ===================================================================
-> --- a/drivers/ide/pci/atiixp.c
-> +++ b/drivers/ide/pci/atiixp.c
-> @@ -101,7 +101,7 @@ static u8 atiixp_dma_2_pio(u8 xfer_rate)
->  	}
->  }
->  
-> -static int atiixp_ide_dma_host_on(ide_drive_t *drive)
-> +static void atiixp_ide_dma_host_on(ide_drive_t *drive)
->  {
+> I hope you agree that threaded code is not ideal performance-wise
+> - async IO is better. O_DIRECT is strictly sync IO.
 
-    Would seem logical to get rid of ide_ in this function's name also...
+Hmm.. Now I'm confused.
 
->  	struct pci_dev *dev = drive->hwif->pci_dev;
->  	unsigned long flags;
-[...]
-> Index: b/drivers/ide/pci/sgiioc4.c
-> ===================================================================
-> --- a/drivers/ide/pci/sgiioc4.c
-> +++ b/drivers/ide/pci/sgiioc4.c
-[...]
-> @@ -307,13 +307,8 @@ sgiioc4_ide_dma_test_irq(ide_drive_t * d
->  	return sgiioc4_checkirq(HWIF(drive));
->  }
->  
-> -static int
-> -sgiioc4_ide_dma_host_on(ide_drive_t * drive)
-> +static void sgiioc4_ide_dma_host_on(ide_drive_t * drive)
+For example, oracle uses aio + O_DIRECT.  It seems to be working... ;)
+As an alternative, there are multiple single-threaded db_writer processes.
+Why do you say O_DIRECT is strictly sync?
 
-    Same comment here...
+In either case - I provided some real numbers in this thread before.
+Yes, O_DIRECT has its problems, even security problems.  But the thing
+is - it is working, and working WAY better - from the performance point
+of view - than "indirect" I/O, and currently there's no alternative that
+works as good as O_DIRECT.
 
->  {
-> -	if (drive->using_dma)
-> -		return 0;
-> -
-> -	return 1;
->  }
->  
->  static void sgiioc4_ide_dma_host_off(ide_drive_t * drive)
-> @@ -610,7 +605,7 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
->  	hwif->ide_dma_on = &sgiioc4_ide_dma_on;
->  	hwif->dma_off_quietly = &sgiioc4_ide_dma_off_quietly;
->  	hwif->ide_dma_test_irq = &sgiioc4_ide_dma_test_irq;
-> -	hwif->ide_dma_host_on = &sgiioc4_ide_dma_host_on;
-> +	hwif->dma_host_on = &sgiioc4_ide_dma_host_on;
->  	hwif->dma_host_off = &sgiioc4_ide_dma_host_off;
->  	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
->  	hwif->ide_dma_timeout = &__ide_dma_timeout;
+Thanks.
 
-    Unrelated note: not sure why this default value needs explicit assignemnt...
-
-MBR, Sergei
+/mjt

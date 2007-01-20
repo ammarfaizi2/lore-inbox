@@ -1,74 +1,163 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965372AbXATUzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965379AbXATU4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965372AbXATUzc (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 15:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965373AbXATUzb
+	id S965379AbXATU4a (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 15:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965385AbXATU4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 15:55:31 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:24122 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965372AbXATUzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 15:55:31 -0500
-Message-ID: <45B281BB.50607@tls.msk.ru>
-Date: Sat, 20 Jan 2007 23:55:23 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Sat, 20 Jan 2007 15:56:30 -0500
+Received: from h155.mvista.com ([63.81.120.155]:23960 "EHLO imap.sh.mvista.com"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965379AbXATU43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 15:56:29 -0500
+Message-ID: <45B281FA.9050107@ru.mvista.com>
+Date: Sat, 20 Jan 2007 23:56:26 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-To: Denis Vlasenko <vda.linux@googlemail.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Viktor <vvp01@inbox.ru>,
-       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
-Subject: Re: O_DIRECT question
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <Pine.LNX.4.64.0701110750520.3594@woody.osdl.org> <45A6704A.40205@tls.msk.ru> <200701201736.22553.vda.linux@googlemail.com>
-In-Reply-To: <200701201736.22553.vda.linux@googlemail.com>
-X-Enigmail-Version: 0.94.1.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/15] ide: make ide_hwif_t.ide_dma_{host_off,off_quietly}
+ void
+References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain> <20070119003213.14846.1366.sendpatchset@localhost.localdomain>
+In-Reply-To: <20070119003213.14846.1366.sendpatchset@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Thursday 11 January 2007 18:13, Michael Tokarev wrote:
->> example, which isn't quite possible now from userspace.  But as long as
->> O_DIRECT actually writes data before returning from write() call (as it
->> seems to be the case at least with a normal filesystem on a real block
->> device - I don't touch corner cases like nfs here), it's pretty much
->> THE ideal solution, at least from the application (developer) standpoint.
-> 
-> Why do you want to wait while 100 megs of data are being written?
-> You _have to_ have threaded db code in order to not waste
-> gobs of CPU time on UP + even with that you eat context switch
-> penalty anyway.
+Hello again. :-)
 
-Usually it's done using aio ;)
+Bartlomiej Zolnierkiewicz wrote:
 
-It's not that simple really.
+> [PATCH] ide: make ide_hwif_t.ide_dma_{host_off,off_quietly} void
 
-For reads, you have to wait for the data anyway before doing something
-with it.  Omiting reads for now.
+    Below are my nits on the patch itself, and the code it changes.
 
-For writes, it's not that problematic - even 10-15 threads is nothing
-compared with the I/O (O in this case) itself -- that context switch
-penalty.
+> Index: b/drivers/ide/pci/atiixp.c
+> ===================================================================
+> --- a/drivers/ide/pci/atiixp.c
+> +++ b/drivers/ide/pci/atiixp.c
+> @@ -121,7 +121,7 @@ static int atiixp_ide_dma_host_on(ide_dr
+>  	return __ide_dma_host_on(drive);
+>  }
+>  
+> -static int atiixp_ide_dma_host_off(ide_drive_t *drive)
+> +static void atiixp_ide_dma_host_off(ide_drive_t *drive)
+>  {
+>  	struct pci_dev *dev = drive->hwif->pci_dev;
+>  	unsigned long flags;
+[...]
+> @@ -306,7 +306,7 @@ static void __devinit init_hwif_atiixp(i
+>  		hwif->udma_four = 0;
+>  
+>  	hwif->ide_dma_host_on = &atiixp_ide_dma_host_on;
+> -	hwif->ide_dma_host_off = &atiixp_ide_dma_host_off;
+> +	hwif->dma_host_off = &atiixp_ide_dma_host_off;
+>  	hwif->ide_dma_check = &atiixp_dma_check;
+>  	if (!noautodma)
+>  		hwif->autodma = 1;
 
-> I hope you agree that threaded code is not ideal performance-wise
-> - async IO is better. O_DIRECT is strictly sync IO.
+    Would seem logical to get rid of ide_ in the function's name also...
 
-Hmm.. Now I'm confused.
+> Index: b/drivers/ide/pci/sgiioc4.c
+> ===================================================================
+> --- a/drivers/ide/pci/sgiioc4.c
+> +++ b/drivers/ide/pci/sgiioc4.c
+> @@ -282,12 +282,11 @@ sgiioc4_ide_dma_on(ide_drive_t * drive)
+>  	return HWIF(drive)->ide_dma_host_on(drive);
+>  }
+>  
+> -static int
+> -sgiioc4_ide_dma_off_quietly(ide_drive_t * drive)
+> +static void sgiioc4_ide_dma_off_quietly(ide_drive_t *drive)
+>  {
+>  	drive->using_dma = 0;
+>  
+> -	return HWIF(drive)->ide_dma_host_off(drive);
+> +	drive->hwif->dma_host_off(drive);
+>  }
+>  
+>  static int sgiioc4_ide_dma_check(ide_drive_t *drive)
+> @@ -317,12 +316,9 @@ sgiioc4_ide_dma_host_on(ide_drive_t * dr
+>  	return 1;
+>  }
+>  
+> -static int
+> -sgiioc4_ide_dma_host_off(ide_drive_t * drive)
+> +static void sgiioc4_ide_dma_host_off(ide_drive_t * drive)
+>  {
+>  	sgiioc4_clearirq(drive);
+> -
+> -	return 0;
+>  }
+>  
+>  static int
+> @@ -612,10 +608,10 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
+>  	hwif->ide_dma_end = &sgiioc4_ide_dma_end;
+>  	hwif->ide_dma_check = &sgiioc4_ide_dma_check;
+>  	hwif->ide_dma_on = &sgiioc4_ide_dma_on;
+> -	hwif->ide_dma_off_quietly = &sgiioc4_ide_dma_off_quietly;
+> +	hwif->dma_off_quietly = &sgiioc4_ide_dma_off_quietly;
+>  	hwif->ide_dma_test_irq = &sgiioc4_ide_dma_test_irq;
+>  	hwif->ide_dma_host_on = &sgiioc4_ide_dma_host_on;
+> -	hwif->ide_dma_host_off = &sgiioc4_ide_dma_host_off;
+> +	hwif->dma_host_off = &sgiioc4_ide_dma_host_off;
+>  	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
+>  	hwif->ide_dma_timeout = &__ide_dma_timeout;
 
-For example, oracle uses aio + O_DIRECT.  It seems to be working... ;)
-As an alternative, there are multiple single-threaded db_writer processes.
-Why do you say O_DIRECT is strictly sync?
+    The same here...
 
-In either case - I provided some real numbers in this thread before.
-Yes, O_DIRECT has its problems, even security problems.  But the thing
-is - it is working, and working WAY better - from the performance point
-of view - than "indirect" I/O, and currently there's no alternative that
-works as good as O_DIRECT.
+> Index: b/drivers/ide/pci/sl82c105.c
+> ===================================================================
+> --- a/drivers/ide/pci/sl82c105.c
+> +++ b/drivers/ide/pci/sl82c105.c
+> @@ -261,26 +261,24 @@ static int sl82c105_ide_dma_on (ide_driv
+>  
+>  	if (config_for_dma(drive)) {
+>  		config_for_pio(drive, 4, 0, 0);
 
-Thanks.
+   Ugh, this forces PIO4 on fallback... and dma_on() doesn't select any modes 
+in any other driver but this one. :-/
 
-/mjt
+> -		return HWIF(drive)->ide_dma_off_quietly(drive);
+> +		drive->hwif->dma_off_quietly(drive);
+> +		return 0;
+>  	}
+>  	printk(KERN_INFO "%s: DMA enabled\n", drive->name);
+>  	return __ide_dma_on(drive);
+>  }
+>  
+> -static int sl82c105_ide_dma_off_quietly (ide_drive_t *drive)
+> +static void sl82c105_ide_dma_off_quietly(ide_drive_t *drive)
+
+    Also worth renaming...
+
+>  {
+>  	u8 speed = XFER_PIO_0;
+> -	int rc;
+> -	
+> +
+>  	DBG(("sl82c105_ide_dma_off_quietly(drive:%s)\n", drive->name));
+>  
+> -	rc = __ide_dma_off_quietly(drive);
+> +	ide_dma_off_quietly(drive);
+>  	if (drive->pio_speed)
+
+    Should always be non-zero since explicitly initialized.
+
+>  		speed = drive->pio_speed - XFER_PIO_0;
+>  	config_for_pio(drive, speed, 0, 1);
+>  	drive->current_speed = drive->pio_speed;
+
+    dma_off() shouldn't be changing current_speed IMHO.
+
+> -
+> -	return rc;
+>  }
+
+    The patch to fix those two functions is also cooking...
+
+MBR, Sergei
+

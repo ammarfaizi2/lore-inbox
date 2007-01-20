@@ -1,80 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965297AbXATToz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965351AbXATT4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965297AbXATToz (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 14:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965354AbXATToz
+	id S965351AbXATT4Y (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 14:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965359AbXATT4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 14:44:55 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:47878 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965297AbXATToy (ORCPT
+	Sat, 20 Jan 2007 14:56:24 -0500
+Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:55587
+	"HELO smtpout10-04.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S965351AbXATT4X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 14:44:54 -0500
-Date: Sat, 20 Jan 2007 11:44:56 -0800
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Containers <containers@lists.osdl.org>,
-       clg@fr.ibm.com, "David C. Hansen" <haveblue@us.ibm.com>,
-       serue@us.ibm.com, ebiederm@xmission.com
-Subject: [PATCH 2/2] Explicitly set pgid/sid of init
-Message-ID: <20070120194456.GA15691@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.0.32 on an i486
+	Sat, 20 Jan 2007 14:56:23 -0500
+Message-ID: <45B273E4.8040302@seclark.us>
+Date: Sat, 20 Jan 2007 14:56:20 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sunil Naidu <akula2.shark@gmail.com>
+CC: Willy Tarreau <w@1wt.eu>,
+       =?ISO-8859-1?Q?Ismail_D=F6nmez?= <ismail@pardus.org.tr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Abysmal disk performance, how to debug?
+References: <200701201920.54620.ismail@pardus.org.tr>	 <20070120174503.GZ24090@1wt.eu>	 <200701201952.54714.ismail@pardus.org.tr>	 <20070120180344.GA23841@1wt.eu> <8355959a0701201144x290362d8ja6cd5bc1408475da@mail.gmail.com>
+In-Reply-To: <8355959a0701201144x290362d8ja6cd5bc1408475da@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sunil Naidu wrote:
 
-Pls treat this patch as Patch 2/2 where Patch 1/2 is
+>On 1/20/07, Willy Tarreau <w@1wt.eu> wrote:
+>  
+>
+>>It is not expected to increase write performance, but it should help
+>>you do something else during that time, or also give more responsiveness
+>>to Ctrl-C. It is possible that you have fast and slow RAM, or that your
+>>video card uses shared memory which slows down some parts of memory
+>>which are not used anymore with those parameters.
+>>    
+>>
+>
+>I did test some SATA drives, am getting these value for 2.6.20-rc5:-
+>
+>[sukhoi@Typhoon ~]$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
+>1024+0 records in
+>1024+0 records out
+>1073741824 bytes (1.1 GB) copied, 21.0962 seconds, 50.9 MB/s
+>
+>What can you suggest here w.r.t my RAM & disk?
+>
+>  
+>
+>>Willy
+>>    
+>>
+>
+>Thanks,
+>
+>~Akula2
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi,
+whitebook vbi s96f core 2 duo t5600 2gb hitachi ATA      HTS721060G9AT00 
+using libata
+ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes (1.1 GB) copied, 10.0092 seconds, 107 MB/s
 
-	http://lkml.org/lkml/2007/1/19/159
----
+real    0m10.196s
+user    0m0.004s
+sys     0m3.440s
 
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
 
-Explicitly set pgid and sid of init process to 1.
+-- 
 
-Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>
-Cc: Serge Hallyn <serue@us.ibm.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: containers@lists.osdl.org
----
- init/main.c   |    1 +
- kernel/exit.c |    4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
 
-Index: lx26-20-rc4-mm1/init/main.c
-===================================================================
---- lx26-20-rc4-mm1.orig/init/main.c	2007-01-20 11:12:00.803672744 -0800
-+++ lx26-20-rc4-mm1/init/main.c	2007-01-20 11:12:20.786634872 -0800
-@@ -774,6 +774,7 @@ static int __init init(void * unused)
- 	 */
- 	init_pid_ns.child_reaper = current;
- 
-+	__set_special_pids(1, 1);
- 	cad_pid = task_pid(current);
- 
- 	smp_prepare_cpus(max_cpus);
-Index: lx26-20-rc4-mm1/kernel/exit.c
-===================================================================
---- lx26-20-rc4-mm1.orig/kernel/exit.c	2007-01-20 11:12:00.803672744 -0800
-+++ lx26-20-rc4-mm1/kernel/exit.c	2007-01-20 11:12:20.787634720 -0800
-@@ -297,12 +297,12 @@ void __set_special_pids(pid_t session, p
- {
- 	struct task_struct *curr = current->group_leader;
- 
--	if (process_session(curr) != session) {
-+	if (pid_nr(task_session(curr)) != session) {
- 		detach_pid(curr, PIDTYPE_SID);
- 		set_signal_session(curr->signal, session);
- 		attach_pid(curr, PIDTYPE_SID, find_pid(session));
- 	}
--	if (process_group(curr) != pgrp) {
-+	if (pid_nr(task_pgrp(curr)) != pgrp) {
- 		detach_pid(curr, PIDTYPE_PGID);
- 		curr->signal->pgrp = pgrp;
- 		attach_pid(curr, PIDTYPE_PGID, find_pid(pgrp));
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

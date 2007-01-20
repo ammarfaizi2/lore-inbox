@@ -1,59 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965095AbXATBTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932734AbXATCEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbXATBTg (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 20:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbXATBTg
+	id S932734AbXATCEK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 21:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932807AbXATCEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 20:19:36 -0500
-Received: from smtp.ono.com ([62.42.230.12]:45829 "EHLO resmaa01.ono.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965095AbXATBTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 20:19:35 -0500
-Date: Sat, 20 Jan 2007 02:18:45 +0100
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Brian McGrew <brian@visionpro.com>, linux-kernel@vger.kernel.org,
-       fedora-users@rdhat.com
-Subject: Re: Threading...
-Message-ID: <20070120021845.02b4f4fc@werewolf-wl>
-In-Reply-To: <1169232941.3055.555.camel@laptopd505.fenrus.org>
-References: <C1D65141.16E37%brian@visionpro.com>
-	<1169232941.3055.555.camel@laptopd505.fenrus.org>
-X-Mailer: Claws Mail 2.7.1cvs34 (GTK+ 2.10.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 Jan 2007 21:04:09 -0500
+Received: from wx-out-0506.google.com ([66.249.82.227]:38375 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932734AbXATCEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 21:04:08 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xju4ny7YoL5ssNCTWOL6VMHxqghknDO1ybaSmRZA0kY2ymY3YRhcb8jeLtAqEkobidcjzjLK3GNA6QRLqZU0i7hsH7jwGMeqb946gYaI1kJoVM8tMsQBI9ZdYJWvP3Np+ZTivAkpF/qiLd9W4V7gDhCx+LC/uO/qb7jrcOxk2GA=
+Message-ID: <6d6a94c50701191804m79c70afdo1e664a072f928b9e@mail.gmail.com>
+Date: Sat, 20 Jan 2007 10:04:07 +0800
+From: "Aubrey Li" <aubreylee@gmail.com>
+To: "Vaidyanathan Srinivasan" <svaidy@linux.vnet.ibm.com>
+Subject: Re: [RPC][PATCH 2.6.20-rc5] limit total vfs page cache
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Robin Getz" <rgetz@blackfin.uclinux.org>,
+       "Hennerich, Michael" <Michael.Hennerich@analog.com>
+In-Reply-To: <45B112B6.9060806@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50701171923g48c8652ayd281a10d1cb5dd95@mail.gmail.com>
+	 <45B0DB45.4070004@linux.vnet.ibm.com>
+	 <6d6a94c50701190805saa0c7bbgbc59d2251bed8537@mail.gmail.com>
+	 <45B112B6.9060806@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007 19:55:41 +0100, Arjan van de Ven <arjan@infradead.org> wrote:
+On 1/20/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
+>
+>
+> Aubrey Li wrote:
+> > On 1/19/07, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com> wrote:
+> >>
+> >> Hi Aubrey,
+> >>
+> >> The idea of creating separate flag for pagecache in page_alloc is
+> >> interesting.  The good part is that you flag watermark low and the
+> >> zone reclaimer will do the rest of the job.
+> >>
+> >> However when the zone reclaimer starts to reclaim pages, it will
+> >> remove all cold pages and not specifically pagecache pages.  This
+> >> may affect performance of applications.
+> >>
+> >> One possible solution to this reclaim is to use scan control fields
+> >> and ask the shrink_page_list() and shrink_active_list() routines to
+> >> target only pagecache pages.  Pagecache pages are not mapped and
+> >> they are easy to find on the LRU list.
+> >>
+> >> Please review my patch at http://lkml.org/lkml/2007/01/17/96
+> >>
+> >
+> > So you mean the existing reclaimer has the same issue, doesn't it?
+>
+> Well, the existing reclaimer will do the right job if the kernel
+> really runs out of memory and need to recover pages for new
+> allocations.  The pages to be removed will be the coldest page in
+> the system.  However now with the introduction of pagecache limit,
+> we are artificially creating a memory scarcity and forcing the
+> reclaimer to throw away some pages while we actually have free
+> usable RAM.  In this context the choice of pages picked by the
+> present reclaimer may not be the best ones.
+>
+> If pagecache is overlimit, we expect old (cold) pagecache pages to
+> be thrown out and reused for new file data.  We do not expect to
+> drop a few text or data pages to make room for new pagecache.
+>
+Well, actually I think this probably not necessary. Because the
+reclaimer has no way to predict the behavior of user mode processes,
+how do you make sure the pagecache will not be access again in a short
+time? So I think the present reclaimer is suitable. Limit pagecache
+must affect performance of applications. The key is what do you want
+to get?
+In my case, I get more memory to allocate, less fragmentation, it can
+solve my problem, :)
 
-> On Fri, 2007-01-19 at 10:43 -0800, Brian McGrew wrote:
-> > I have a very interesting question about something that we're seeing
-> > happening with threading between Fedora Core 3 and Fedora Core 5.  Running
-> > on Dell PowerEdge 1800 Hardware with a Xeon processor with hyper-threading
-> > turned on.  Both systems are using a 2.6.16.16 kernel (MVP al la special).
-> > 
-> > We have a multithreaded application that starts two worker threads.  On
-> > Fedora Core 3 both of these we use getpid() to get the PID of the thread and
-> > then use set_afinity to assign each thread to it's own CPU.  Both threads
-> > run almost symmetrically even on their given CPU watching the system
-> > monitor.
-> 
-> this is odd; even in FC3 getpid() is supposed to return the process ID
-> not the thread ID
-> 
-> > What am I missing?  What do I need to do in FC5 or the kernel or the
-> > threading library to get my threads to run in symmetric parallel again???
-> 
+Now the problem in the idea of the patch is, when vfs cache limit is
+hit, reclaimer doesn't reclaim all of the reclaimable pages, it just
+give few out. So next time vfs pagecache request, it is quite possible
+reclaimer is triggered again. That's the point in my mind affecting
+the performance of the applications.
 
-One thing to try. In linux, pthread_setconcurrency never did nothing
-(it _really_ did in IRIX...). Can you try that ? Perhaps FC5 has implemented
-some kind of scheduling policy like that on irix (everything stays on the
-same CPU until it starts to suck cycles, unless you use setconcurrency).
+I'll continue to work on this issue to see if I can make a improvement.
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.1 (Cooker) for i586
-Linux 2.6.19-jam04 (gcc 4.1.2 20061110 (prerelease) (4.1.2-0.20061110.2mdv2007.1)) #0 SMP PREEMPT
+-Aubrey

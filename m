@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965252AbXATKYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965246AbXATK3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965252AbXATKYD (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 05:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbXATKYD
+	id S965246AbXATK3r (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 05:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbXATK3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 05:24:03 -0500
-Received: from wx-out-0506.google.com ([66.249.82.225]:11377 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965246AbXATKYB (ORCPT
+	Sat, 20 Jan 2007 05:29:47 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:2628 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965246AbXATK3r convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 05:24:01 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KSzVUB+iUh5tddLPjtmkkxjD/wm9zq2ntAgWfcvmhj740FcpfdaWrueEOpthjvlEg8dCfqbae6K0/CxXJxEYX0TwpCtNTANkcpD/nu4q2XCjgjBhLXwOKfKBDfHKMNL+x3Kd3Zb9nYWe17ZY3w617OzrxQJ8OSKCU5h6bKpPRaE=
-Message-ID: <e92e3a770701200224n42c948d5oe75aa5eb907e9786@mail.gmail.com>
-Date: Sat, 20 Jan 2007 15:54:00 +0530
-From: "kalash nainwal" <nirvana.code@gmail.com>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: wake_up() takes long time to return
+	Sat, 20 Jan 2007 05:29:47 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+Date: Sat, 20 Jan 2007 02:29:40 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEIPBAAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200701200908.47654.Michal.Kudla@gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sat, 20 Jan 2007 03:32:12 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sat, 20 Jan 2007 03:32:14 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-We've a kernel (n/w) module, which sits over ethernet. Whenever a pkt
-is received (in softirq), after doing some minimal processing,
-wake_up() is called to wake up another kernel thread which does rest
-(bulk) of the processing.
+> [1.] One line summary of the problem: 
+> KB->KiB, MB -> MiB, ... (IEC 60027-2 Letter symbols to be used in 
+> electrical 
+> technology – Part 2)
+> Should be everywere KiB, MiB, GiB, ... according to IEC 60027-2 
 
-We notice that this wake_up() call is sometimes taking as long as 48
-milli-seconds to return. This happens around 10 times out of 10M. We
-earlier thought its possibly because of the contention on rq->lock,
-but we see the same phenomenon even on a uniprocessor box. So obviosly
-thats not the case.
+	Bytes are not an SI unit. A "megabyte" doesn't have to be a million bytes any more than a "megaphone" has to be a million phones. A "megabyte" is 1,048,576 bytes. The "mega" in there is not an SI prefix. "Mega" is only an SI prefix when it appears before an SI unit.
 
-We can't figure out any other reason for wake_up() to take this much
-time? As this call comes directly in our (receive) hotpath, we're very
-concerned. Any help would be greatly appreciated.
+	DS
 
-Thanks and regards,
--Kalash
+

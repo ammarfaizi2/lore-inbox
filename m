@@ -1,284 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965315AbXATRJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965320AbXATRTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965315AbXATRJS (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 12:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbXATRJS
+	id S965320AbXATRTu (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 12:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbXATRTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 12:09:18 -0500
-Received: from homer.mvista.com ([63.81.120.155]:23202 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S965307AbXATRJQ (ORCPT
+	Sat, 20 Jan 2007 12:19:50 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:11396 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965310AbXATRTt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 12:09:16 -0500
-Message-ID: <45B24CBA.8080900@ru.mvista.com>
-Date: Sat, 20 Jan 2007 20:09:14 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sat, 20 Jan 2007 12:19:49 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MUtL9xz0w1k87XFJeRtU2CrjKex9fZ+M3biHjgUEiHIET9hoeFl48q1U4CBjoXLld8CNLgbobYdmt+W9RtaQ2qJrtdWDJiwBZGJvMB7D59ql+GcMsT6JUfumILjcqtMaU9VppepiBJJnINElZCmNZDBP3c/7/y0g3YUGD6a7yfw=
+Message-ID: <61ec3ea90701200919kd6593bdl8dcd47824ed03f49@mail.gmail.com>
+Date: Sat, 20 Jan 2007 18:19:47 +0100
+From: "Franck Bui-Huu" <fbuihuu@gmail.com>
+To: "Hugh Dickins" <hugh@veritas.com>
+Subject: Re: unable to mmap /dev/kmem
+Cc: "Nadia Derbey" <Nadia.Derbey@bull.net>, "Andi Kleen" <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0701191634070.6398@blonde.wat.veritas.com>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/15] ide: disable DMA in ->ide_dma_check for "no IORDY"
- case
-References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain>	 <20070119003154.14846.87217.sendpatchset@localhost.localdomain>	 <45B0F12B.3000202@ru.mvista.com>	 <58cb370e0701191047h524434eobdb9d86ed614bc71@mail.gmail.com>	 <45B117D4.7050406@gmail.com> <45B11D8D.8070105@ru.mvista.com> <58cb370e0701191200i10119313i4aacae9c504a02e4@mail.gmail.com> <45B13B8D.2020402@gmail.com>
-In-Reply-To: <45B13B8D.2020402@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <45AFA490.5000508@bull.net>
+	 <Pine.LNX.4.64.0701181743340.25435@blonde.wat.veritas.com>
+	 <61ec3ea90701190331y459ad373n21a610157df03282@mail.gmail.com>
+	 <Pine.LNX.4.64.0701191634070.6398@blonde.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 1/19/07, Hugh Dickins <hugh@veritas.com> wrote:
+>
+> Apology surely accepted, it's a confusing area (inevitably: in a driver
+> for mem, the distinction between addresses and offsets become blurred).
+>
+> But please note, the worst of it was, that your patch comment gave no
+> hint that you were knowingly changing its behaviour on the "main"
+> architectures: it reads as if you were simply fixing it up on a
+> few less popular architectures where an anomaly had been missed.
+>
 
-Bartlomiej Zolnierkiewicz wrote:
+Because I was thinking that the expected behaviour was the one
+implemented before 2.6.12. So I really thought to fix a bug, again
+sorry for not having checked the history...
 
->>>>  I've looked thru the code, and found more issues with the PIO fallback
->>>>there. Will try to cook up patches for at least some drivers...
+That said, it's really confusing to pass a virtual address as an
+offset because:
 
->>>Great, if possible please base them on top of the IDE tree...
+    (a) mmap() has always worked with offset not addresses;
 
->>   Erm, I had doubts about it (having in mind that all that code is more of a
->>cleanups than fixes). Maybe it'd be a good idea to separate the fix and
->>cleanup series somehow...
+    (b) the kernel will treat this virtual address as an offset
+        until kmem driver convert it back to a virtual
+        address. And it seems that during this convertion the
+        lowest bits of the virtual address will be lost...
 
-> I generally tend do cleanups as a groundwork for the real fixes and separate
-> cleanups and fixes to have good base for dealing with regressions.  Often all
-> changes (cleanups/fixes) could be included in one patch but then I would have
-> had harsh times when debugging the regressions.  It matters a lot if you hit
-> an unknown (or known but the documentation is covered by NDA) hardware bug
-> - you can concentrate on a small patch changing the way in which hardware is
-> accessed instead of that big patch moving code around etc.
+Maybe read/write behaviours should be changed to use the offset as an
+offset and not as a virtual address.
 
-> Also the thing is that the same bugs are propagated over many drivers so doing
-> cleanups which merge code before fixing the bug makes sense.  We can then fix
-> the damn bug once and for all and not worry about somebody copy-n-pasting
-> the bug from the yet-to-be-fixed driver (i.e. in the next patch IDE update
-> there will be patch to check return value of ->speedproc in ide_tune_dma(),
-> without ide-fix-dma-mask/ide-max-dma-mode/ide-tune-dma-helper patches
-> I would have to go over all drivers to fix this bug and still there won't
-> be a guarantee that same bug wouldn't be introduced in some new driver).
+> > > I guess it's reassuring to know that not many are actually
+> > > using mmap of /dev/kmem, so you're the first to notice: thanks.
+> >
+> > yes it doesn't seems to be used. In my case, I was just playing with
+> > it when I submitted the patch but have no real usages.
+>
+> Have I got it right, that actually the problem you thought you were
+> fixing does not even exist?
 
-> The other advantage of doing cleanups is that code becomes cleaner/simpler
-> which matters a lot for this codebase, i.e. ide-dma-off-void.patch exposed
-> (yet to be fixed) bug in set_using_dma() (->ide_dma_off_quietly always returns
-> 0 which is passed by ->ide_dma_check to set_using_dma() which incorrectly
-> then calls ->ide_dma_on).
+yes, see above.
 
-    Well, this seems a newly intruduced bug.
+>  __pa was already doing the right thing on
+> all architectures, wasn't it?  So we can simply ask Linus to revert your
+> patch?
 
-    It's all fine but goes somewhat against Linus' policy as far as I 
-understnad it: fixes are merged all the time while cleanups (along with new 
-code) are merged mostly duting the merge window.
+yes we can if the desired behaviour is the one introduced by 2.6.12.
 
-> Moreover I don't find the current tree to be more of cleanups than fixes,
-> here is the analysis of current series file:
+> I don't think your PFN_DOWN or virt_to_phys were improvements:
+> though mem.c happens to live in drivers/char/, imagine it under mm/.
+>
 
-    Maybe I slightly exaggerated, being impressed by the volume of your recent
-changes. :-)
-    But still...
+I don't get your point here. Do you mean that virt_to_phys() is only
+meant for drivers ? If so, I would have said that virt_to_phys() is
+prefered once boot memory init is finished...
 
-> #
-> # IDE patches from 2.6.20-rc3-mm1
-> #
-> toshiba-tc86c001-ide-driver-take-2.patch
-> toshiba-tc86c001-ide-driver-take-2-fix.patch
-> toshiba-tc86c001-ide-driver-take-2-fix-2.patch
-> 	-- new driver
-
-     I'd count that as cleanup, since it's definitely not fix. ;-)
-
-> hpt3xx-rework-rate-filtering.patch
-> hpt3xx-rework-rate-filtering-tidy.patch
-> hpt3xx-print-the-real-chip-name-at-startup.patch
-> hpt3xx-switch-to-using-pci_get_slot.patch
-> hpt3xx-cache-channels-mcr-address.patch
-> hpt3x7-merge-speedproc-handlers.patch
-> hpt370-clean-up-dma-timeout-handling.patch
-> hpt3xx-init-code-rewrite.patch
-> piix-fix-82371mx-enablebits.patch
-> piix-tuneproc-fixes-cleanups.patch
-> slc90e66-carry-over-fixes-from-piix-driver.patch
-> hpt36x-pci-clock-detection-fix.patch
-> jmicron-warning-fix.patch
-> 	-- fixes (but most have cleanups mixed in)
-
-    Yeah, but not that those came in from the -mm tree.
-
-> pdc202xx_new-remove-useless-code.patch
-> pdc202xx_-remove-check_in_drive_lists-abomination.patch
-> 	-- cleanups
-> #
-> # IDE patches applied by Andrew (2.6.20-rc4-mm1)
-> #
-> atiixpc-remove-unused-code.patch
-> 	-- cleanup
-> atiixpc-sb600-ide-only-has-one-channel.patch
-> atiixpc-add-cable-detection-support-for-ati-ide.patch
-> ide-generic-jmicron-has-its-own-drivers-now.patch
-> 	-- fixes
-
-    Same about these 3.
-
-> ide-maintainers-entry.patch
-> 	-- n/a
-> #
-> # IT8213
-> #
-> it8213-ide-driver.patch
-> it8213-ide-driver-update.patch
-> 	-- new driver
-> #
-> # patches posted on Jan 11 2007
-> #
-> ia64-pci_get_legacy_ide_irq.patch
-> ide-pci-init-tags.patch
-> 	-- fixes
-> pdc202xx_old-dead-code.patch
-> au1xxx-dead-code.patch
-> ide-pio-blacklisted.patch
-> ide-no-dsc-flag.patch
-> trm290-dma-ifdefs.patch
-> ide-pci-device-tables.patch
-> ide-dev-openers.patch
-> hpt366-init-dma.patch
-> cs5530-cleanup.patch
-> svwks-cleanup.patch
-> sis5513-config-xfer-rate.patch
-> ide-set-xfer-rate.patch
-> ide-use-fast-pio-v2.patch
-> ide-io-cleanup.patch
-> 	-- cleanups
-> #
-> # Delkin CardBus CF driver (Mark Lord <mlord@pobox.com>)
-> #
-> delkin_cb-ide-driver.patch
-> 	-- new driver
-> #
-> # IDE ACPI support (Hannes Reinecke <hare@suse.de>)
-> #
-> ide-acpi-support.patch
-> 	-- new functionality (fixes PM on some machines)
-> #
-> # ide-pnp exit fix (Tejun Heo <htejun@gmail.com>)
-> #
-> ide-pnp-exit-fix.patch
-> 	-- fix
-> #
-> # VIA IDE update (Josepch Chan <josephchan@via.com.tw>)
-> #
-> via-ide-update.patch
-> 	-- fix
-
-    I'd put fixes before the rewrites and new code...
-
-> #
-> # patches posted on 18 Jan 2007
-> #
-> it8213-ide-driver-update-fixes.patch
-> 	-- fix
-
-    Well, this is a fix to the newly added driver, so may go anywhere after it...
-
-> ide-mmio-flag.patch
-> 	-- cleanup
-> hpt34x-tune-chipset-fix.patch
-> 	-- fix
-> ide-fix-pio-fallback.patch
-> 	-- fix
-
-    Those 2 are seem more of a cleanup to me...
-
-> piix-cleanup.patch
-> 	-- cleanup
-> ide-dma-check-disable-dma-fix.patch
-> sgiioc4-ide-dma-check-fix.patch
-> 	-- fixes
-
-    This one also seems more of a cleanup...
-
-> ide-set-dma-helper.patch
-> ide-dma-off-void.patch
-> ide-dma-host-on-void.patch
-> ide-fix-dma-masks.patch
-> ide-max-dma-mode.patch
-> ide-tune-dma-helper.patch
-> 	-- cleanups
-
-    Would make sense to keep those last in the tail of queue because of the
-amount of changes they introduce.  Possibly even IDE subsystem wide cleanups 
-after the driver specific cleanups, although this is arguable...
-
-> So it looks more like 50-50 with majority of fixes coming from you :)
-
-> However I understand that for some applications (stable distro etc) fixes
-> only tree would be more desired
-
-    Yeah, I'm really not eager to pull in the ton of cleanups for a couple of 
-fixes which won't apply otherwise (or have to rebase the fixes because of that).
-
-> and if somebody would like to maintain such tree I'm all for it. :)
-
-    Well, we have the -mm tree. :-)
-    I certainly have no time/bandwidth to spend on maintaining a tree, at
-least for the moment being.
-
-> OTOH getting patches against vanilla or -mm is perfectly fine with me
-
-    Thanks. Will send further patches to you only, not Andrew (with the notice 
-of the kernel they should apply to).
-
-> and if you would like me to shuffle ordering of the patches (but without
-> need of rewritting them) it also OK
-
-    Erm, no talking about the rewrite but that way you may have to rebase 
-cleanups on top of fixes.  This seems unavoidble though due to the way the 
-kernel patch acceptance process is working, as far as I understand it...
-
->>>>>Index: b/drivers/ide/pci/cmd64x.c
->>>>>===================================================================
->>>>>--- a/drivers/ide/pci/cmd64x.c
->>>>>+++ b/drivers/ide/pci/cmd64x.c
->>>>>@@ -479,12 +479,10 @@ static int cmd64x_config_drive_for_dma (
->>>>>     if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->>>>>             return hwif->ide_dma_on(drive);
->>>>>
->>>>>-     if (ide_use_fast_pio(drive)) {
->>>>>+     if (ide_use_fast_pio(drive))
->>>>>             config_chipset_for_pio(drive, 1);
-
->>>>  This function will always set PIO mode 4. Mess.
-
->>>Yep.
-
->>   I'm going to send the patch for both this and siimage.c...
-
-> OK
-
-    Not sure if I'll be able to find a card to test it soon though (I prefer 
-to test my stuff before submitting, even the simple changes :-).
-
->>>>>Index: b/drivers/ide/pci/sis5513.c
->>>>>===================================================================
->>>>>--- a/drivers/ide/pci/sis5513.c
->>>>>+++ b/drivers/ide/pci/sis5513.c
->>>>>@@ -678,12 +678,10 @@ static int sis5513_config_xfer_rate(ide_
->>>>>     if (ide_use_dma(drive) && config_chipset_for_dma(drive))
->>>>>             return hwif->ide_dma_on(drive);
-
->>>>>-     if (ide_use_fast_pio(drive)) {
->>>>>+     if (ide_use_fast_pio(drive))
->>>>>             sis5513_tune_drive(drive, 5);
-
->>>>   Ugh, PIO fallback effectively always tries to set mode 4 here (thanks
->>>>it's not 5). Mess.
-
->>>Yep, but it seems to be even more complicated since config_art_rwp_pio()
->>>is a mess^2 - chipset is programmed to the best PIO mode while the
->>>device is set to PIO4... *sigh*...
-
-    Oh, that's an usual mistake all over drivers/ide/pci/. :-)
-
-> Bart
-
-MBR, Sergei
-
+		Franck

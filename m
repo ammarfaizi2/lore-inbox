@@ -1,132 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965033AbXATArm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965059AbXATBFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbXATArm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 19:47:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbXATArm
+	id S965059AbXATBFx (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 20:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbXATBFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 19:47:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48589 "EHLO mx1.redhat.com"
+	Fri, 19 Jan 2007 20:05:53 -0500
+Received: from colo.lackof.org ([198.49.126.79]:32848 "EHLO colo.lackof.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965033AbXATArl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 19:47:41 -0500
-Message-ID: <45B1669F.90102@ce.jp.nec.com>
-Date: Fri, 19 Jan 2007 19:47:27 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	id S965059AbXATBFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Jan 2007 20:05:52 -0500
+Date: Fri, 19 Jan 2007 18:05:44 -0700
+From: dann frazier <dannf@dannf.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Santiago Garcia Mantinan <manty@debian.org>, linux-kernel@vger.kernel.org,
+       debian-kernel@lists.debian.org
+Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
+Message-ID: <20070120010544.GY26210@colo>
+References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-CC: Alasdair Kergon <agk@redhat.com>,
-       device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH 2.6.20-rc5] dm-multipath: fix stall on noflush suspend/resume
-Content-Type: multipart/mixed;
- boundary="------------080906070406080902050500"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070119010040.GR16053@colo>
+User-Agent: mutt-ng/devel-r782 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080906070406080902050500
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On Thu, Jan 18, 2007 at 06:00:40PM -0700, dann frazier wrote:
+> On Wed, Jan 17, 2007 at 10:55:19PM +0100, Willy Tarreau wrote:
+> > @@ -505,8 +510,13 @@
+> >  		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
+> >  		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
+> >  
+> > -		mnt->flags = (oldmnt->file_mode >> 9);
+> > +		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID |
+> > +			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
+> >  	} else {
+> > +		mnt->file_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
+> > +						S_IROTH | S_IXOTH | S_IFREG;
+> > +		mnt->dir_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
+> > +						S_IROTH | S_IXOTH | S_IFDIR;
+> >  		if (parse_options(mnt, raw_data))
+> >  			goto out_bad_option;
+> >  	}
+> > 
+> > 
+> > See above ? mnt->dir_mode being assigned 3 times. It still *seems* to do the
+> > expected thing like this but I wonder if the initial intent was
+> > exactly this.
+> 
+> Wow - sorry about that, that's certainly a cut & paste error. But the
+> end result appears to match current 2.6, which was the intent.
+> 
+> > Also, would not it be necessary to add "|S_IFLNK" to the file_mode ? Maybe
+> > what I say is stupid, but it's just a guess.
+> 
+> I really don't know the correct answer to that, I was merely copying
+> the 2.6 flags. 
+> 
+> [Still working on getting a 2.4 smbfs test system up...]
 
-Allow noflush suspend/resume of device-mapper device only for
-the case where the device size is unchanged.
+Ah, think I see the problem now:
 
-Otherwise, dm-multipath devices can stall when resumed if noflush
-was used when suspending them, all paths have failed and
-queue_if_no_path is set.
-
-Explanation:
- 1. Something is doing fsync() on the block dev,
-    holding inode->i_sem
- 2. The fsync write is blocked by all-paths-down and queue_if_no_path
- 3. Someone requests to suspend the dm device with noflush.
-    Pending writes are left in queue.
- 4. In the middle of dm_resume(), __bind() tries to get
-    inode->i_sem to do __set_size() and waits forever.
-
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
----
-'noflush suspend' is a new device-mapper feature introduced in
-early 2.6.20. So I hope the fix being included before 2.6.20 is
-released.
-
-Example of reproducer:
- 1. Create a multipath device by dmsetup
- 2. Fail all paths during mkfs
- 3. Do dmsetup suspend --noflush and load new map with healthy paths
- 4. Do dmsetup resume
-
-
- drivers/md/dm.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
-
-
---------------080906070406080902050500
-Content-Type: text/x-patch;
- name="dm-noflush-fix-stall-on-resume.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dm-noflush-fix-stall-on-resume.patch"
-
-Index: linux-2.6.19/drivers/md/dm.c
-===================================================================
---- linux-2.6.19.orig/drivers/md/dm.c	2006-12-12 22:02:29.000000000 +0000
-+++ linux-2.6.19/drivers/md/dm.c	2007-01-05 15:15:53.000000000 +0000
-@@ -1116,7 +1116,8 @@ static int __bind(struct mapped_device *
- 	if (size != get_capacity(md->disk))
- 		memset(&md->geometry, 0, sizeof(md->geometry));
+--- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
++++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
+@@ -1997,7 +1997,7 @@
+ 		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
+ 	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
+ 	          !(S_ISDIR(fattr->f_mode)) )
+-		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
++		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
  
--	__set_size(md, size);
-+	if (md->suspended_bdev)
-+		__set_size(md, size);
- 	if (size == 0)
- 		return 0;
+ }
  
-@@ -1265,6 +1266,11 @@ int dm_swap_table(struct mapped_device *
- 	if (!dm_suspended(md))
- 		goto out;
- 
-+	/* without bdev, the device size cannot be changed */
-+	if (!md->suspended_bdev)
-+		if (get_capacity(md->disk) != dm_table_get_size(table))
-+			goto out;
-+
- 	__unbind(md);
- 	r = __bind(md, table);
- 
-@@ -1342,11 +1348,14 @@ int dm_suspend(struct mapped_device *md,
- 	/* This does not get reverted if there's an error later. */
- 	dm_table_presuspend_targets(map);
- 
--	md->suspended_bdev = bdget_disk(md->disk, 0);
--	if (!md->suspended_bdev) {
--		DMWARN("bdget failed in dm_suspend");
--		r = -ENOMEM;
--		goto flush_and_out;
-+	/* bdget() can stall if the pending I/Os are not flushed */
-+	if (!noflush) {
-+		md->suspended_bdev = bdget_disk(md->disk, 0);
-+		if (!md->suspended_bdev) {
-+			DMWARN("bdget failed in dm_suspend");
-+			r = -ENOMEM;
-+			goto flush_and_out;
-+		}
- 	}
- 
- 	/*
-@@ -1474,8 +1483,10 @@ int dm_resume(struct mapped_device *md)
- 
- 	unlock_fs(md);
- 
--	bdput(md->suspended_bdev);
--	md->suspended_bdev = NULL;
-+	if (md->suspended_bdev) {
-+		bdput(md->suspended_bdev);
-+		md->suspended_bdev = NULL;
-+	}
- 
- 	clear_bit(DMF_SUSPENDED, &md->flags);
- 
+Santiago: Thanks for reporting this - can you test this patch out on
+your system and let me know if there are still any problems?
 
---------------080906070406080902050500--
+Willy: I'll do some more testing and get you a patch that fixes this
+and the double assignment nonsense. Would you prefer a single patch or
+two?
+
+-- 
+dann frazier
+

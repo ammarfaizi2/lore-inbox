@@ -1,163 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965379AbXATU4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965373AbXATVDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965379AbXATU4a (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 15:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965385AbXATU4a
+	id S965373AbXATVDp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 16:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965384AbXATVDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 15:56:30 -0500
-Received: from h155.mvista.com ([63.81.120.155]:23960 "EHLO imap.sh.mvista.com"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965379AbXATU43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 15:56:29 -0500
-Message-ID: <45B281FA.9050107@ru.mvista.com>
-Date: Sat, 20 Jan 2007 23:56:26 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sat, 20 Jan 2007 16:03:45 -0500
+Received: from lucidpixels.com ([66.45.37.187]:42865 "EHLO lucidpixels.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965373AbXATVDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 16:03:44 -0500
+Date: Sat, 20 Jan 2007 16:03:42 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Avuton Olrich <avuton@gmail.com>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: 2.6.19.2, cp 18gb_file 18gb_file.2 = OOM killer, 100% reproducible
+In-Reply-To: <3aa654a40701201245s72b2f76hc70ddd94b70ba99c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0701201602570.4910@p34.internal.lan>
+References: <Pine.LNX.4.64.0701201516450.3684@p34.internal.lan>
+ <3aa654a40701201245s72b2f76hc70ddd94b70ba99c@mail.gmail.com>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/15] ide: make ide_hwif_t.ide_dma_{host_off,off_quietly}
- void
-References: <20070119003058.14846.43637.sendpatchset@localhost.localdomain> <20070119003213.14846.1366.sendpatchset@localhost.localdomain>
-In-Reply-To: <20070119003213.14846.1366.sendpatchset@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again. :-)
 
-Bartlomiej Zolnierkiewicz wrote:
 
-> [PATCH] ide: make ide_hwif_t.ide_dma_{host_off,off_quietly} void
+On Sat, 20 Jan 2007, Avuton Olrich wrote:
 
-    Below are my nits on the patch itself, and the code it changes.
+> On 1/20/07, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
+> > Perhaps its time to back to a stable (2.6.17.13 kernel)?
+> >
+> > Anyway, when I run a cp 18gb_file 18gb_file.2 on a dual raptor sw raid1
+> > partition, the OOM killer goes into effect and kills almost all my
+> > processes.
+> >
+> > Completely 100% reproducible.
+> >
+> > Does 2.6.19.2 have some of memory allocation bug as well?
+> 
+> I had been seeing something similar (also with 2.6.19.2), but it's not
+> outputting anything to dmesg, so I was waiting for something to happen
+> before I reported it. It's mostly the same thing, but I've only seen
+> it happen when copying something large (2+ GB) over NFS. Interactivity
+> completely goes away and lockups last 10-15 seconds a piece. Then
+> realized I turned the swap off, so I turned it on and didn't lockup
+> any longer.
+> -- 
+> avuton
+> --
+> Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> 
+> 
 
-> Index: b/drivers/ide/pci/atiixp.c
-> ===================================================================
-> --- a/drivers/ide/pci/atiixp.c
-> +++ b/drivers/ide/pci/atiixp.c
-> @@ -121,7 +121,7 @@ static int atiixp_ide_dma_host_on(ide_dr
->  	return __ide_dma_host_on(drive);
->  }
->  
-> -static int atiixp_ide_dma_host_off(ide_drive_t *drive)
-> +static void atiixp_ide_dma_host_off(ide_drive_t *drive)
->  {
->  	struct pci_dev *dev = drive->hwif->pci_dev;
->  	unsigned long flags;
-[...]
-> @@ -306,7 +306,7 @@ static void __devinit init_hwif_atiixp(i
->  		hwif->udma_four = 0;
->  
->  	hwif->ide_dma_host_on = &atiixp_ide_dma_host_on;
-> -	hwif->ide_dma_host_off = &atiixp_ide_dma_host_off;
-> +	hwif->dma_host_off = &atiixp_ide_dma_host_off;
->  	hwif->ide_dma_check = &atiixp_dma_check;
->  	if (!noautodma)
->  		hwif->autodma = 1;
+My swap is on, 2GB ram and 2GB of swap on this machine.  I can't go back 
+to 2.6.17.13 as it does not recognize the NICs in my machine correctly and 
+the Alsa Intel HD Audio driver has bugs etc, I guess I am stuck with 
+2.6.19.2 :(
 
-    Would seem logical to get rid of ide_ in the function's name also...
-
-> Index: b/drivers/ide/pci/sgiioc4.c
-> ===================================================================
-> --- a/drivers/ide/pci/sgiioc4.c
-> +++ b/drivers/ide/pci/sgiioc4.c
-> @@ -282,12 +282,11 @@ sgiioc4_ide_dma_on(ide_drive_t * drive)
->  	return HWIF(drive)->ide_dma_host_on(drive);
->  }
->  
-> -static int
-> -sgiioc4_ide_dma_off_quietly(ide_drive_t * drive)
-> +static void sgiioc4_ide_dma_off_quietly(ide_drive_t *drive)
->  {
->  	drive->using_dma = 0;
->  
-> -	return HWIF(drive)->ide_dma_host_off(drive);
-> +	drive->hwif->dma_host_off(drive);
->  }
->  
->  static int sgiioc4_ide_dma_check(ide_drive_t *drive)
-> @@ -317,12 +316,9 @@ sgiioc4_ide_dma_host_on(ide_drive_t * dr
->  	return 1;
->  }
->  
-> -static int
-> -sgiioc4_ide_dma_host_off(ide_drive_t * drive)
-> +static void sgiioc4_ide_dma_host_off(ide_drive_t * drive)
->  {
->  	sgiioc4_clearirq(drive);
-> -
-> -	return 0;
->  }
->  
->  static int
-> @@ -612,10 +608,10 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
->  	hwif->ide_dma_end = &sgiioc4_ide_dma_end;
->  	hwif->ide_dma_check = &sgiioc4_ide_dma_check;
->  	hwif->ide_dma_on = &sgiioc4_ide_dma_on;
-> -	hwif->ide_dma_off_quietly = &sgiioc4_ide_dma_off_quietly;
-> +	hwif->dma_off_quietly = &sgiioc4_ide_dma_off_quietly;
->  	hwif->ide_dma_test_irq = &sgiioc4_ide_dma_test_irq;
->  	hwif->ide_dma_host_on = &sgiioc4_ide_dma_host_on;
-> -	hwif->ide_dma_host_off = &sgiioc4_ide_dma_host_off;
-> +	hwif->dma_host_off = &sgiioc4_ide_dma_host_off;
->  	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
->  	hwif->ide_dma_timeout = &__ide_dma_timeout;
-
-    The same here...
-
-> Index: b/drivers/ide/pci/sl82c105.c
-> ===================================================================
-> --- a/drivers/ide/pci/sl82c105.c
-> +++ b/drivers/ide/pci/sl82c105.c
-> @@ -261,26 +261,24 @@ static int sl82c105_ide_dma_on (ide_driv
->  
->  	if (config_for_dma(drive)) {
->  		config_for_pio(drive, 4, 0, 0);
-
-   Ugh, this forces PIO4 on fallback... and dma_on() doesn't select any modes 
-in any other driver but this one. :-/
-
-> -		return HWIF(drive)->ide_dma_off_quietly(drive);
-> +		drive->hwif->dma_off_quietly(drive);
-> +		return 0;
->  	}
->  	printk(KERN_INFO "%s: DMA enabled\n", drive->name);
->  	return __ide_dma_on(drive);
->  }
->  
-> -static int sl82c105_ide_dma_off_quietly (ide_drive_t *drive)
-> +static void sl82c105_ide_dma_off_quietly(ide_drive_t *drive)
-
-    Also worth renaming...
-
->  {
->  	u8 speed = XFER_PIO_0;
-> -	int rc;
-> -	
-> +
->  	DBG(("sl82c105_ide_dma_off_quietly(drive:%s)\n", drive->name));
->  
-> -	rc = __ide_dma_off_quietly(drive);
-> +	ide_dma_off_quietly(drive);
->  	if (drive->pio_speed)
-
-    Should always be non-zero since explicitly initialized.
-
->  		speed = drive->pio_speed - XFER_PIO_0;
->  	config_for_pio(drive, speed, 0, 1);
->  	drive->current_speed = drive->pio_speed;
-
-    dma_off() shouldn't be changing current_speed IMHO.
-
-> -
-> -	return rc;
->  }
-
-    The patch to fix those two functions is also cooking...
-
-MBR, Sergei
+Justin.
 

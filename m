@@ -1,76 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965275AbXATQIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965299AbXATQLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965275AbXATQIa (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 11:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965301AbXATQIa
+	id S965299AbXATQLO (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 11:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965301AbXATQLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 11:08:30 -0500
-Received: from mail.gmx.net ([213.165.64.20]:55196 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S965275AbXATQI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 11:08:29 -0500
-X-Authenticated: #20450766
-Date: Sat, 20 Jan 2007 17:08:27 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, Luotao Fu <lfu@pengutronix.de>
-Subject: Re: [patch 3/3] clockevent driver for arm/pxa2xx
-In-Reply-To: <1169235221.6271.19.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60.0701201655020.4223@poirot.grange>
-References: <20070109100957.259649000@localhost.localdomain> 
- <20070109101307.715996000@localhost.localdomain>  <Pine.LNX.4.60.0701192010490.5127@poirot.grange>
- <1169235221.6271.19.camel@localhost.localdomain>
+	Sat, 20 Jan 2007 11:11:14 -0500
+Received: from smtp.gentoo.org ([140.211.166.183]:37976 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965299AbXATQLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 11:11:13 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+Organization: wh0rd.org
+To: a.zummo@towertech.it
+Subject: [patch] remove __devinit markings from rtc_sysfs_add_device()
+Date: Sat, 20 Jan 2007 11:11:02 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_X8jsFj9GU9qjdjO"
+Message-Id: <200701201111.03507.vapier@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007, Thomas Gleixner wrote:
+--Boundary-00=_X8jsFj9GU9qjdjO
+Content-Type: multipart/signed;
+  boundary="nextPart4779593.GnDYT6AVux";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-> On Fri, 2007-01-19 at 20:13 +0100, Guennadi Liakhovetski wrote:
-> > > +static u32 clockevent_mode = 0;
-> > > +
-> > > +static void pxa_set_next_event(unsigned long evt,
-> > > +				  struct clock_event_device *unused)
-> > > +{
-> > > +	OSMR0 = OSCR + evt;
-> > > +}
-> > 
-> > This doesn't work for me in various nasty ways. Please, check for a 
-> > minimum delay or loop to get ahead of time. See code in the "old" timer 
-> > ISR. See how it unconditionally adds at least 10 ticks...
-> 
-> I added support for match register based devices and you want to do
-> something like this:
-> 
-> static int hpet_next_event(unsigned long delta,
->                            struct clock_event_device *evt)
-> {
->         unsigned long cnt;
-> 
->         cnt = hpet_readl(HPET_COUNTER);
->         cnt += delta;
->         hpet_writel(cnt, HPET_T0_CMP);
-> 
->         return ((long)(hpet_readl(HPET_COUNTER) - cnt ) > 0);
-> }
-> 
-> The generic code takes care of the already expired event.
+--nextPart4779593.GnDYT6AVux
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The thing is - 2.6.20-rc5-rt3 didn't provide clockevent on PXA, so, I took 
-Sascha's patch instead of my own, which I've been using with 2.6.18, as 
-his patches were already submitted to various lists and had chances to 
-become mainline. And strait away it didn't work. The code above seems to 
-be doing something close to Sascha's patch, so, I expect it would behave 
-in the same way. And until I introduced a minimum increment for the match 
-register, it didn't work. I either got hangs, or WARN_ON dumps about "time 
-warp detected". I think, any timer related code for PXA has to be tested 
-on real hardware under significant (real-time) load before going upstream. 
-Haven't tested -rt7 though, so, maybe it is already handled there?
+the sysfs interface from the rtc framework seems to incorrectly label the a=
+dd=20
+function with __devinit ... the proc and dev interfaces do not have this=20
+label on their add functions
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+ive been trying to develop a rtc module and it kept crashing ... after=20
+debugging it, i'm pretty sure ive traced it back to the devinit markings ..=
+=2E=20
+dropping this lets my module load nicely :)
+
+the crash would happen after my rtc called rtc_device_register ... down in=
+=20
+class_device_add in drivers/base/class.c, the active class interface list i=
+s=20
+walked and the add function is checked ... if it's non-null (aka in some=20
+interface would like to be notified of additions), then it's called with th=
+e=20
+new device information
+
+on my board, this add pointer would seemingly point into garbage because th=
+e=20
+memory it refers to was freed by the kernel :(
+=2Dmike
+
+--nextPart4779593.GnDYT6AVux
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
+
+iQIVAwUARbI/F0FjO5/oN/WBAQJ3IQ/7BHMjo6pKe3X/6e3GgKJm7jae0Q6sOV4W
+uIIPvLBEgYnuL6Oky0JiyoDDJ4qKqlxbwWoJ6rk8+RHMAE3w7/Sk4EfXQ9q5Vubx
+7oQqph31kQ2iDF7kZc0VQ5wmiJGRydx44MwuyOWs7tFfyUf/jPpoY33ZodqVticU
+cyNMZHoKcGqkrvfpFXBvGTslH8kS0FZToYiJeOdf7GkZJuSqeq9Mi3kBL1e/rHof
+a0kGGc6k0bWZTeGoxH2lkyBY8AZbJ7tbOKNYNZUIPCB5ZJZiN9rHtIM8ZbA+QYe4
+/cJ/F4g9tDFirNmLMbB68WANGTfo8QWmgcZXEML70bCQYdNDvHbmuo5yhTug5Aae
+IE4PTGJ1yyDC1aV88TbYaOvEv+lWLG9e5b0r43HiXzh7XEY+rSjQl0uGWQl2MGp4
+1lYaojPrsj6JMLvVos09B5ZhMNQ7YBAt8dIPfjQdwIcGyjHr/jMhs1OC8+4Qd8Bk
+RdmOo9kyCmACgZMqEyYiCPsH5spAVSONKfIZtKCAJPlrgZN/KE9vMVyTE3nfasxq
+ViH8gH867YRH41ymgb6/cvDTvbQF4iavzUwCTJtzbpZSBJXOIFpDc6faVoZGX5fA
+alvXx0d8jYC0YyFTYEPmneOJQMbvqONfyNQkvq+/kDn8ugIELJ68edtcbEZ3Gyyy
+qzoyNhGVCh0=
+=kX4s
+-----END PGP SIGNATURE-----
+
+--nextPart4779593.GnDYT6AVux--
+
+--Boundary-00=_X8jsFj9GU9qjdjO
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-rtc-sysfs-no-devinit-add.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="linux-rtc-sysfs-no-devinit-add.patch"
+
+rtc_sysfs_add_device is needed even after dev initialization, so drop __devinit.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 9418a59..2ddd0cf 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -78,7 +78,7 @@ static struct attribute_group rtc_attr_group = {
+ 	.attrs = rtc_attrs,
+ };
+ 
+-static int __devinit rtc_sysfs_add_device(struct class_device *class_dev,
++static int rtc_sysfs_add_device(struct class_device *class_dev,
+ 					struct class_interface *class_intf)
+ {
+ 	int err;
+
+--Boundary-00=_X8jsFj9GU9qjdjO--

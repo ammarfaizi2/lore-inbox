@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965105AbXATDp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965110AbXATDqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbXATDp2 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 22:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbXATDp2
+	id S965110AbXATDqO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 22:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbXATDqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 22:45:28 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:52015 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965105AbXATDp2 (ORCPT
+	Fri, 19 Jan 2007 22:46:14 -0500
+Received: from web36713.mail.mud.yahoo.com ([209.191.85.47]:23793 "HELO
+	web36713.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S965110AbXATDqN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 22:45:28 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dITgvOWcdsYPsYTPJsVePnp5m/5Nx4AnvjpEA5MGoKab2ee1nJ7tdvDGSq6wrpPVqoKqrrIzrMoISUPdYhjEEOqLSQs8Sbwx2uf2drly/wPtfefe7GiBHqtNUThT8WVjccVIMXqPctMv3ykDLzHN/B5hAU5f31Wg2f8Pqw5Bqiw=
-Message-ID: <8355959a0701191945q692bd32dod32b27170790d51b@mail.gmail.com>
-Date: Sat, 20 Jan 2007 09:15:26 +0530
-From: "Sunil Naidu" <akula2.shark@gmail.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Subject: Re: Choosing a HyperThreading/SMP/MultiCore kernel ?
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20070113175443.GX17267@csclub.uwaterloo.ca>
+	Fri, 19 Jan 2007 22:46:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=UbXZrv3Yrpr7upW4XoUHgeHTEimIdJK41d7JkBnX/l2fQnyhtIi7jdlrlpfysKDg4vb5pgUVGwV/fTLBlF2LoywmGt+lCjL9S1hF/4Dx0JzilKCBez1Pt0OwiqDNMAyfNLS7oBWlcf1RyMVgLSFBXaPJS+AWHBT1WAVN9/g53iU=;
+X-YMail-OSG: KWOQ85cVM1mcnaIO2Dhh5tStIJ19QwjL5U9HS6zAoChtd7UUOcmLgV7Ar7UUckTW9oDXx_mqQ2AbIyKojPrzcNhfS1rWJuxTlSsRY.gmhvOwVaCCg2vNZbaMtoM8CGbBVUENZm1lfe3Id5rP5ufz5v1TOZA1YP.M
+Date: Fri, 19 Jan 2007 19:46:12 -0800 (PST)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: mmc: correct semantics of the mmc_host_remove
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45B085AA.70109@drzeus.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <8355959a0701120525m5d1a7904i56b8a8f7316883d6@mail.gmail.com>
-	 <20070112150349.GI17269@csclub.uwaterloo.ca>
-	 <200701130338.l0D3chOs026407@turing-police.cc.vt.edu>
-	 <20070113175443.GX17267@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <859705.85986.qm@web36713.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/07, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> On Fri, Jan 12, 2007 at 10:38:43PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> > amd64 will only work on a core2duo if it's a T7200 or higher - the
-> > lower numbers are 32-bit-only chipsets.  I admit not knowing what
-> > exact variant the Mac has.
+> That shouldn't be possible. Are you using the block queue fixes I wrote?
+> Otherwise you will get problems like this.
+> 
+> Basically, when you call mmc_host_remove(), it will remove all card
+> devices. That shouldn't complete until all card drivers have released
+> control of the card. At that point there is no one else accessing the
+> device. If you see something else, then we have a bug somewhere.
+> 
+Indeed, I may be out of sync on this. Simply, I have this rather ugly hack in the tifm_sd remove
+code which I was forced to add because of the issue in question.
+I'll do some tests with newer kernels then.
 
-2.33GHz Intel Core 2 Duo - 4MB shared L2 cache with ATI Mobility
-Radeon X1600 with 256MB of GDDR3 SDRAM
 
 
-> The Core Duo had 32bit only (being a Pentium M), but the Core 2 Duo
-> should always be 64bit capable (at least that is what this list says:
-> http://en.wikipedia.org/wiki/List_of_Intel_Core_2_microprocessors#Core_2_Duo_2
-> )
-
-Thank's for that. Yep, it is 64-bit capable with EM64T & with Intel
-Vitualization.
-
-I do not know yet whether 2.6.19 or 2.6.20-rc5 supports  and iSight
-Video Camera, ATI DDR3 support, Apple Mobile Remote Control, and some
-sensors like Motion, Light, Thermal, etc. (any suggestion where to
-look for linux support?).
-
->
-> > CONFIG_MCORE2=y
->
-
-Got it, thanks
-
->
-> --
-> Len Sorensen
->
-
-Should I wait for 2.6.20 release so that code would run with no oops
-or less problematic?
-
-Thanks,
-
-~Akula2
+ 
+____________________________________________________________________________________
+Now that's room service!  Choose from over 150,000 hotels
+in 45,000 destinations on Yahoo! Travel to find your fit.
+http://farechase.yahoo.com/promo-generic-14795097

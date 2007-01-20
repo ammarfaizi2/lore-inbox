@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932884AbXATCuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932886AbXATC4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932884AbXATCuv (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 19 Jan 2007 21:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbXATCuv
+	id S932886AbXATC4o (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 19 Jan 2007 21:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbXATC4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Jan 2007 21:50:51 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:11168 "EHLO
+	Fri, 19 Jan 2007 21:56:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:17100 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932882AbXATCuu (ORCPT
+	with ESMTP id S932869AbXATC4m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Jan 2007 21:50:50 -0500
+	Fri, 19 Jan 2007 21:56:42 -0500
 DomainKey-Signature: a=rsa-sha1; c=nofws;
         d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=j4v5yn3jVGEMOL6A5k7xxVQ1maf4h+wBz4zPy3bueuxR5JfOtaSP5csrVDMbtwyVKnx0BCcmzz4e89EXjF6nsoEN+XrP7gCGASOjIyBuXSEQ3d24OUZIbB4Pa6E3OUG47KjH+TIq5U6cVrlC7sCbbpKL4cLzYEHLzPmA3CHOuF0=
-Message-ID: <8355959a0701191850kf3606e0h90c69827623bedfb@mail.gmail.com>
-Date: Sat, 20 Jan 2007 08:20:48 +0530
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q91ZRzHqov1UMQq2x7YW0dFIZwhZ2uFEHOLqYleI9dbYuYJY4qiFphuAS+0Y4Ihf4yDVrJEIT454Jo4kHiKDJWt9dUEHTekBr/qhsVItV3ad7KGrKMXuGrM44dsNOv77BwydO2LnTznHINXGv7qN3yxGyyiOyfrlWL/q9ci1tO0=
+Message-ID: <8355959a0701191856t5cadf684jdabb939d103de020@mail.gmail.com>
+Date: Sat, 20 Jan 2007 08:26:40 +0530
 From: "Sunil Naidu" <akula2.shark@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Missing dmesg parameters in 2.6.19.2
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: Realtime-preemption for 2.6.20-rc5 ?
+Cc: linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20070118101949.GA22671@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <8355959a0701180215s7824cea5m20a5d7b95d80c0e@mail.gmail.com>
+	 <20070118101949.GA22671@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On 1/18/07, Ingo Molnar <mingo@elte.hu> wrote:
+> the best place to start is:
+>
+>   http://rt.wiki.kernel.org
+>
+>         Ingo
 
-Atlast I have succeeded in booting 2.6.19.2 on mutiple x86 machines. I
-did observe a strange dmesg parameter behavior in this case:-
+I did refer the same. Is it necessary to use only base kernel, say
+2.6.19? Or, can I go ahead with 2.6.19 + 2.6.19.2 patch + 2.6.19-rt
+patch?
 
-
-1) Compiling with SMP as Generic (CONFIG_X86_PC is not set, CONFIG_M686=y)
-
-.........
-.........
-Using x86 segment limits to approximate NX protection
-.........
-.........
-Using APIC driver default
-.........
-.........
-
-2) Compiling with SMP as Processor specific (CONFIG_X86_PC=y,
-CONFIG_MPENTIUM4=y)
-
-I do not find the above mentioned parameters in this case.
-
-
-I am trying to figure out what might have happened here? Any clues pl...
-
+If yes, any reason why we need to apply rt patch only to a base kernel?
 
 Thanks,
 

@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750875AbXATXHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750749AbXATXJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbXATXHb (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 18:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbXATXHa
+	id S1750749AbXATXJS (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 18:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbXATXJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 18:07:30 -0500
-Received: from hu-out-0506.google.com ([72.14.214.238]:18047 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750875AbXATXH1 (ORCPT
+	Sat, 20 Jan 2007 18:09:18 -0500
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:33838 "EHLO
+	taverner.cs.berkeley.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbXATXJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 18:07:27 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=googlemail.com; s=beta;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=WzbXZLCUCwcvUnL7kTZoPn8QKDSL++XqwKilaWR94sosl+tWFb6gNVkq/NFCVvKE4pUaGWImhqmPVHAL9N0g6KpSTOwRC3dHXO4ZADDJCa5DSISrYRs968WsD7J3di7unjX5OlgzD7W0Oqp30F13puah95i/ZhRsyZ36so0rFbo=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Subject: Re: O_DIRECT question
-Date: Sun, 21 Jan 2007 00:05:36 +0100
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, Viktor <vvp01@inbox.ru>,
-       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org
-References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <200701201736.22553.vda.linux@googlemail.com> <45B281BB.50607@tls.msk.ru>
-In-Reply-To: <45B281BB.50607@tls.msk.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701210005.36274.vda.linux@googlemail.com>
+	Sat, 20 Jan 2007 18:09:17 -0500
+X-Greylist: delayed 2862 seconds by postgrey-1.27 at vger.kernel.org; Sat, 20 Jan 2007 18:09:17 EST
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] Undo some of the pseudo-security madness
+Date: Sat, 20 Jan 2007 21:58:08 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <eou39g$a8r$1@taverner.cs.berkeley.edu>
+References: <87y7nxvk65.wl@betelheise.deep.net>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1169330288 10523 128.32.168.222 (20 Jan 2007 21:58:08 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Sat, 20 Jan 2007 21:58:08 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 January 2007 21:55, Michael Tokarev wrote:
-> Denis Vlasenko wrote:
-> > On Thursday 11 January 2007 18:13, Michael Tokarev wrote:
-> >> example, which isn't quite possible now from userspace.  But as long as
-> >> O_DIRECT actually writes data before returning from write() call (as it
-> >> seems to be the case at least with a normal filesystem on a real block
-> >> device - I don't touch corner cases like nfs here), it's pretty much
-> >> THE ideal solution, at least from the application (developer) standpoint.
-> > 
-> > Why do you want to wait while 100 megs of data are being written?
-> > You _have to_ have threaded db code in order to not waste
-> > gobs of CPU time on UP + even with that you eat context switch
-> > penalty anyway.
-> 
-> Usually it's done using aio ;)
-> 
-> It's not that simple really.
-> 
-> For reads, you have to wait for the data anyway before doing something
-> with it.  Omiting reads for now.
+Samium Gromoff  wrote:
+>This patch removes the dropping of ADDR_NO_RANDOMIZE upon execution of setuid
+>binaries.
+>
+>Why? The answer consists of two parts:
+>
+>Firstly, there are valid applications which need an unadulterated memory map.
+>Some of those which do their memory management, like lisp systems (like SBCL).
+>They try to achieve this by setting ADDR_NO_RANDOMIZE and reexecuting
+>themselves.
+>
+>Secondly, there also are valid reasons to want those applications to be setuid
+>root. Like poking hardware.
 
-Really? All 100 megs _at once_? Linus described fairly simple (conceptually)
-idea here: http://lkml.org/lkml/2002/5/11/58
-In short, page-aligned read buffer can be just unmapped,
-with page fault handler catching accesses to yet-unread data.
-As data comes from disk, it gets mapped back in process'
-address space.
+This has the unfortunate side-effect of making it easier for local
+attackers to mount privilege escalation attacks against setuid binaries
+-- even those setuid binaries that don't need unadulterated memory maps.
 
-This way read() returns almost immediately and CPU is free to do
-something useful.
+There's a cleaner solution to the problem case you mentioned.  Rather than
+re-exec()ing itself, the application could be split into two executables:
+the first is a tiny setuid-root wrapper which sets ADDR_NO_RANDOMIZE and
+then executes the second program; the second is not setuid-anything and does
+all the real work.  Such a decomposition is often better for security
+for other reasons, too (such as the fact that the wrapper can drop all
+unneeded privileges before exec()ing the second executable).
 
-> For writes, it's not that problematic - even 10-15 threads is nothing
-> compared with the I/O (O in this case) itself -- that context switch
-> penalty.
+Why would you need an entire lisp system to be setuid root?  That sounds
+like a really bad idea.  I fail to see why that is a relevant example.  
+Perhaps the fact that such a lisp system breaks if you have security features
+enabled should tell you something.
 
-Well, if you have some CPU intensive thing to do (e.g. sort),
-why not benefit from lack of extra context switch?
-Assume that we have "clever writes" like Linus described.
+It may be possible to defeat address space randomization in some cases,
+but that doesn't mean address space randomization is worthless.
 
-/* something like "caching i/o over this fd is mostly useless" */
-/* (looks like this API is easier to transition to
- * than fadvise etc. - it's "looks like" O_DIRECT) */
-	fd = open(..., flags|O_STREAM);
-        ...
-/* Starts writeout immediately due to O_STREAM,
- * marks buf100meg's pages R/O to catch modifications,
- * but doesn't block! */
-	write(fd, buf100meg, 100*1024*1024);
-/* We are free to do something useful in parallel */
-	sort();
-
-> > I hope you agree that threaded code is not ideal performance-wise
-> > - async IO is better. O_DIRECT is strictly sync IO.
-> 
-> Hmm.. Now I'm confused.
-> 
-> For example, oracle uses aio + O_DIRECT.  It seems to be working... ;)
-> As an alternative, there are multiple single-threaded db_writer processes.
-> Why do you say O_DIRECT is strictly sync?
-
-I mean that O_DIRECT write() blocks until I/O really is done.
-Normal write can block for much less, or not at all.
-
-> In either case - I provided some real numbers in this thread before.
-> Yes, O_DIRECT has its problems, even security problems.  But the thing
-> is - it is working, and working WAY better - from the performance point
-> of view - than "indirect" I/O, and currently there's no alternative that
-> works as good as O_DIRECT.
-
-Why we bothered to write Linux at all?
-There were other Unixes which worked ok.
---
-vda
+It sounds like there is a tradeoff between security and backwards
+compatibility.  I don't claim to know how to choose between those tradeoffs,
+but I think one ought to at least be aware of the pros and cons on both
+sides.

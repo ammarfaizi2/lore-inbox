@@ -1,222 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750969AbXAUQI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751006AbXAUQbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbXAUQI5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 11:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbXAUQI5
+	id S1751006AbXAUQbP (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 11:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbXAUQbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 11:08:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3768 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750969AbXAUQI4 (ORCPT
+	Sun, 21 Jan 2007 11:31:15 -0500
+Received: from imladris.surriel.com ([66.92.77.98]:44687 "EHLO
+	imladris.surriel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751002AbXAUQbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 11:08:56 -0500
-Date: Sun, 21 Jan 2007 17:09:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.38
-Message-ID: <20070121160900.GI9093@stusta.de>
+	Sun, 21 Jan 2007 11:31:14 -0500
+Message-ID: <45B39539.8020704@surriel.com>
+Date: Sun, 21 Jan 2007 11:30:49 -0500
+From: Rik van Riel <riel@surriel.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, linux-mm@kvack.org,
+       David Miller <davem@davemloft.net>
+Subject: Re: Possible ways of dealing with OOM conditions.
+References: <20070118104144.GA20925@2ka.mipt.ru> <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru> <1169133052.6197.96.camel@twins> <20070118155003.GA6719@2ka.mipt.ru> <1169141513.6197.115.camel@twins> <20070118183430.GA3345@2ka.mipt.ru> <1169211195.6197.143.camel@twins> <20070119225643.GA22728@2ka.mipt.ru> <45B29953.5010505@surriel.com> <20070121014644.GA12070@2ka.mipt.ru>
+In-Reply-To: <20070121014644.GA12070@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.37:
-- CVE-2006-4814: Fix incorrect user space access locking in mincore()
-- CVE-2006-5173: i386: save/restore eflags in context switch
-- CVE-2006-5749: Call init_timer() for ISDN PPP CCP reset state timer
-- CVE-2006-5755: x86_64: Don't leak NT bit into next task
-- CVE-2006-5757/CVE-2006-6060: grow_buffers() infinite loop fix
-- CVE-2006-5823: corrupted cramfs filesystems cause kernel oops
-- CVE-2006-6053: handle ext3 directory corruption better
-- CVE-2006-6054: ext2: skip pages past number of blocks in ext2_find_entry
-- CVE-2006-6056: hfs_fill_super returns success even if no root inode
-- CVE-2006-6106: Bluetooth: Add packet size checks for CAPI messages
+Evgeniy Polyakov wrote:
+> On Sat, Jan 20, 2007 at 05:36:03PM -0500, Rik van Riel (riel@surriel.com) wrote:
+>> Evgeniy Polyakov wrote:
+>>> On Fri, Jan 19, 2007 at 01:53:15PM +0100, Peter Zijlstra 
+>>> (a.p.zijlstra@chello.nl) wrote:
+>>>>> Even further development of such idea is to prevent such OOM condition
+>>>>> at all - by starting swapping early (but wisely) and reduce memory
+>>>>> usage.
+>>>> These just postpone execution but will not avoid it.
+>>> No. If system allows to have such a condition, then
+>>> something is broken. It must be prevented, instead of creating special
+>>> hacks to recover from it.
+>> Evgeniy, you may want to learn something about the VM before
+>> stating that reality should not occur.
+> 
+> I.e. I should start believing that OOM can not be prevented, bugs can
+> not be fixed and things can not be changed just because it happens right
+> now? That is why I'm not subscribed to lkml :)
 
+The reasons for this are often not inside the VM itself,
+but are due to the constraints imposed on the VM.
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+For example, with many of the journaled filesystems there
+is no way to know in advance how much IO needs to be done
+to complete a writeout of one dirty page (and consequently,
+how much memory needs to be allocated to complete this one
+writeout).
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+Parts of the VM could be changed to reduce the pressure
+somewhat, eg. limiting the number of IOs in flight, but
+that will probably have performance consequences that may
+not be acceptable to Andrew and Linus and never get merged.
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.37:
-
-Adrian Bunk (6):
-      fix the UML compilation
-      USB_RTL8150 must select MII to avoid link errors.
-      x86_64: re-add a newline to RESTORE_CONTEXT
-      Linux 2.6.16.38-rc1
-      Linux 2.6.16.38-rc2
-      Linux 2.6.16.38
-
-Andi Kleen (1):
-      x86_64: Don't leak NT bit into next task (CVE-2006-5755)
-
-Andrew Morton (2):
-      grow_buffers() infinite loop fix (CVE-2006-5757/CVE-2006-6060)
-      ibmtr section fixes
-
-Andrey Mirkin (1):
-      skip data conversion in compat_sys_mount when data_page is NULL
-
-Arnaud Patard (1):
-      ALSA: emu10k1: Fix outl() in snd_emu10k1_resume_regs()
-
-Badari Pulavarty (1):
-      Fix for shmem_truncate_range() BUG_ON()
-
-Chuck Ebbert (2):
-      x86_64: fix ia32 syscall count
-      ebtables: check struct type before computing gap
-
-Chuck Short (1):
-      drm: allow detection of new VIA chipsets
-
-Clemens Ladisch (1):
-      ALSA: snd_rtctimer: handle RTC interrupts with a tasklet
-
-Dave Airlie (1):
-      drm: Add the P4VM800PRO PCI ID.
-
-David Brownell (1):
-      SPI/MTD: mtd_dataflash oops prevention
-
-David L Stevens (1):
-      [IPV4/IPV6]: Fix inet{,6} device initialization order.
-
-David S. Miller (1):
-      [SOUND] Sparc CS4231: Use 64 for period_bytes_min
-
-Dirk Eibach (1):
-      i2c: fix broken ds1337 initialization
-
-Eric Sandeen (3):
-      hfs_fill_super returns success even if no root inode (CVE-2006-6056)
-      ext2: skip pages past number of blocks in ext2_find_entry (CVE-2006-6054)
-      handle ext3 directory corruption better (CVE-2006-6053)
-
-Fabrice Knevez (1):
-      [SUNKBD]: Fix sunkbd_enable(sunkbd, 0); obvious.
-
-Georg Chini (1):
-      [SOUND] Sparc CS4231: Fix IRQ return value and initialization.
-
-Jason Gaston (2):
-      PCI: irq: irq and pci_ids patch for Intel ICH9
-      i2c-i801: SMBus patch for Intel ICH9
-
-Jean Delvare (1):
-      V4L: cx88: Fix leadtek_eeprom tagging
-
-John Heffner (1):
-      TCP: Fix and simplify microsecond rtt sampling
-
-Linus Torvalds (2):
-      Fix incorrect user space access locking in mincore() (CVE-2006-4814)
-      i386: save/restore eflags in context switch (CVE-2006-5173)
-
-Marcel Holtmann (2):
-      Call init_timer() for ISDN PPP CCP reset state timer (CVE-2006-5749)
-      Bluetooth: Add packet size checks for CAPI messages (CVE-2006-6106)
-
-Maxime Bizon (1):
-      i2c-mv64xxx: Fix random oops at boot
-
-Mikael Pettersson (1):
-      USB: Fix alignment of buffer passed down to ->hub_control()
-
-Miklos Szeredi (1):
-      fuse: fix hang on SMP
-
-Paolo 'Blaisorblade' Giarrusso (2):
-      uml: fix processor selection
-      UML: fix the MODE_TT compilation
-
-Patrick McHardy (1):
-      NET_SCHED: Fix fallout from dev->qdisc RCU change
-
-Peter Zijlstra (1):
-      rtc: lockdep fix/workaround
-
-Phillip Lougher (1):
-      corrupted cramfs filesystems cause kernel oops (CVE-2006-5823)
-
-Robert Olsson (1):
-      [PKTGEN]: Fix module load/unload races.
-
-Rudolf Marek (1):
-      i2c-viapro: Add support for the VT8237A and VT8251
-
-Takashi Iwai (1):
-      ALSA: Fix initiailization of user-space controls
-
-Willy Tarreau (1):
-      rio: typo in bitwise AND expression.
-
-YOSHIFUJI Hideaki (1):
-      [IPV6] Fix joining all-node multicast group.
-
-
- Documentation/i2c/busses/i2c-viapro   |    7 
- Makefile                              |    2 
- arch/i386/Kconfig.cpu                 |    3 
- arch/i386/kernel/entry.S              |    2 
- arch/i386/pci/irq.c                   |    6 
- arch/um/os-Linux/process.c            |    5 
- arch/um/os-Linux/skas/process.c       |    1 
- arch/x86_64/kernel/entry.S            |    4 
- arch/x86_64/kernel/setup64.c          |    4 
- drivers/char/drm/drm_pciids.h         |    4 
- drivers/char/rio/rio_linux.c          |    2 
- drivers/char/rtc.c                    |    5 
- drivers/i2c/busses/Kconfig            |   19 +-
- drivers/i2c/busses/i2c-i801.c         |    2 
- drivers/i2c/busses/i2c-mv64xxx.c      |    4 
- drivers/i2c/busses/i2c-viapro.c       |    8 +
- drivers/i2c/chips/ds1337.c            |    8 -
- drivers/input/keyboard/sunkbd.c       |    2 
- drivers/isdn/i4l/isdn_ppp.c           |    1 
- drivers/media/video/cx88/cx88-cards.c |    2 
- drivers/mtd/devices/mtd_dataflash.c   |    2 
- drivers/net/tokenring/ibmtr.c         |    4 
- drivers/usb/core/hcd.c                |    3 
- drivers/usb/net/Kconfig               |    1 
- fs/buffer.c                           |   21 ++
- fs/compat.c                           |    2 
- fs/cramfs/inode.c                     |    2 
- fs/ext2/dir.c                         |    8 +
- fs/ext3/dir.c                         |    3 
- fs/ext3/namei.c                       |    9 +
- fs/fuse/dir.c                         |   29 ++--
- fs/fuse/file.c                        |   12 +
- fs/fuse/inode.c                       |    4 
- fs/hfs/super.c                        |    2 
- include/asm-i386/system.h             |    8 -
- include/asm-x86_64/ia32_unistd.h      |    2 
- include/asm-x86_64/system.h           |   22 ++-
- include/linux/pci_ids.h               |    7 
- mm/mincore.c                          |  183 +++++++++++---------------
- mm/shmem.c                            |    7 
- net/bluetooth/cmtp/capi.c             |   39 ++++-
- net/bridge/netfilter/ebtables.c       |    3 
- net/core/dev.c                        |   14 +
- net/core/pktgen.c                     |   20 ++
- net/ipv4/devinet.c                    |    5 
- net/ipv4/tcp_input.c                  |   16 +-
- net/ipv6/addrconf.c                   |   12 +
- net/ipv6/mcast.c                      |    6 
- net/sched/cls_api.c                   |    4 
- net/sched/sch_api.c                   |   16 +-
- net/sched/sch_generic.c               |   66 ++-------
- sound/core/control.c                  |    1 
- sound/core/rtctimer.c                 |   17 +-
- sound/pci/emu10k1/emu10k1_main.c      |    4 
- sound/sparc/cs4231.c                  |   26 +--
- 55 files changed, 409 insertions(+), 262 deletions(-)
-
+-- 
+Politics is the struggle between those who want to make their country
+the best in the world, and those who believe it already is.  Each group
+calls the other unpatriotic.

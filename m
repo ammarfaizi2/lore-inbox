@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751065AbXAUBrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751062AbXAUBui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbXAUBrQ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 20:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbXAUBrQ
+	id S1751062AbXAUBui (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 20:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbXAUBui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 20:47:16 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:49111 "EHLO 2ka.mipt.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750997AbXAUBrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 20:47:15 -0500
-Date: Sun, 21 Jan 2007 04:46:44 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Rik van Riel <riel@surriel.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, linux-mm@kvack.org,
-       David Miller <davem@davemloft.net>
-Subject: Re: Possible ways of dealing with OOM conditions.
-Message-ID: <20070121014644.GA12070@2ka.mipt.ru>
-References: <20070118104144.GA20925@2ka.mipt.ru> <1169122724.6197.50.camel@twins> <20070118135839.GA7075@2ka.mipt.ru> <1169133052.6197.96.camel@twins> <20070118155003.GA6719@2ka.mipt.ru> <1169141513.6197.115.camel@twins> <20070118183430.GA3345@2ka.mipt.ru> <1169211195.6197.143.camel@twins> <20070119225643.GA22728@2ka.mipt.ru> <45B29953.5010505@surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <45B29953.5010505@surriel.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 21 Jan 2007 04:46:46 +0300 (MSK)
+	Sat, 20 Jan 2007 20:50:38 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:21751 "EHLO
+	pd4mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751062AbXAUBuh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 20:50:37 -0500
+Date: Sat, 20 Jan 2007 19:50:25 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+In-reply-to: <200701202332.58719.chunkeey@web.de>
+To: Chr <chunkeey@web.de>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jeff Garzik <jeff@garzik.org>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
+       lwalton@real.com
+Message-id: <45B2C6E1.9000901@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no>
+ <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca>
+ <200701202332.58719.chunkeey@web.de>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2007 at 05:36:03PM -0500, Rik van Riel (riel@surriel.com) wrote:
-> Evgeniy Polyakov wrote:
-> >On Fri, Jan 19, 2007 at 01:53:15PM +0100, Peter Zijlstra 
-> >(a.p.zijlstra@chello.nl) wrote:
+Chr wrote:
+>> Could you (or anyone else) test what happens if you take the 2.6.20-rc5
+>> version of sata_nv.c and try it on 2.6.19? That would tell us whether
+>> it's this change or whether it's something else (i.e. in libata core).
 > 
-> >>>Even further development of such idea is to prevent such OOM condition
-> >>>at all - by starting swapping early (but wisely) and reduce memory
-> >>>usage.
-> >>These just postpone execution but will not avoid it.
-> >
-> >No. If system allows to have such a condition, then
-> >something is broken. It must be prevented, instead of creating special
-> >hacks to recover from it.
+> Ok, did that! (got a fresh 2.6.19 tar ball, and used 2.6.20-rc5' sata_nv.c
+> with the oneliner in libata_sff.c)
 > 
-> Evgeniy, you may want to learn something about the VM before
-> stating that reality should not occur.
+> And surprise.................... after one hour uptime, there is not even one 
+> sata exceptions in dmesg! (I'll report back tomorrow...)
 
-I.e. I should start believing that OOM can not be prevented, bugs can
-not be fixed and things can not be changed just because it happens right
-now? That is why I'm not subscribed to lkml :)
+That is interesting, indeed.. If that holds up then I assume some other 
+change in 2.6.20-rc is either causing or triggering this problem. It 
+would be useful if you could try git bisect between 2.6.19 and 
+2.6.20-rc5, keeping the latest sata_nv.c each time, and see if that 
+gives any indication. If not, just trying some of the different 
+2.6.20-rcX versions may be useful.
 
-> Due to the way everything in the kernel works, you cannot
-> prevent the memory allocator from allocating everything and
-> running out, except maybe by setting aside reserves to deal
-> with special subsystems.
+Before that, though, can you try making this change I suggested below in 
+2.6.20-rc5 and see if the problem still shows up?
+
 > 
-> As for your "swapping early and reduce memory usage", that is
-> just not possible in a system where a memory writeout may need
-> one or more memory allocations to succeed and other I/O paths
-> (eg. file writes) can take memory from the same pools.
-
-When system starts swapping only when it can not allocate new page, 
-then it is broken system. I bet you get warm closing way before you 
-hands are frostbitten, and you do not have a liter of alcohol in the 
-packet for such emergency. And to get warm closing you still need to 
-go over cold street into the shop, but you will do it before weather
-becomes arctic.
-
-> With something like iscsi it may be _necessary_ for file writes
-> and swap to take memory from the same pools, because they can
-> share the same block device.
-
-Of course swapping can require additional allocation, when it happens
-over network it is quite obvious.
-
-The main problem is the fact, that if system was put into the state,
-when its life depends on the last possible allocation, then it is
-broken.
-
-There is a light connected to car's fuel tank which starts blinking, 
-when amount of fuel is less then predefined level. Car just does not 
-stop suddenly and starts to get fuel from reserve (well eventually it 
-stops, but it says about problem long before it dies).
-
-> Please get out of your fantasy world and accept the constraints
-> the VM has to operate under.  Maybe then you and Peter can agree
-> on something.
-
-I can not accept the situation, when problem is not fixed, but instead
-recovery path is added. There must be both ways of dealing with it -
-emergency force majeur recovery and preventive steps.
-
-What we are talking about (except pointing to obvious things and sending
-to school-classes), at least how I see this, is ways of dealing with
-possible OOM condition. If OOM has happend, then there must be recovery
-path, but OOM must be prevented, and ways to do this were described too.
-
-> -- 
-> Politics is the struggle between those who want to make their country
-> the best in the world, and those who believe it already is.  Each group
-> calls the other unpatriotic.
-
--- 
-	Evgeniy Polyakov
+>> Assuming that still doesn't work, can you then try removing these lines
+>> from nv_host_intr in 2.6.20-rc5 sata_nv.c and see what that does?
+>>
+>> 	/* bail out if not our interrupt */
+>> 	if (!(irq_stat & NV_INT_DEV))
+>> 		return 0;
+>>
+>> as that's the difference I'm most suspicious of causing the problem.
+> 

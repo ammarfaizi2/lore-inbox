@@ -1,42 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751283AbXAUHW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751287AbXAUIgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbXAUHW2 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 02:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbXAUHW2
+	id S1751287AbXAUIgZ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 03:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbXAUIgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 02:22:28 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:54455 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751283AbXAUHW1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 02:22:27 -0500
-Message-ID: <45B314B0.4020907@zytor.com>
-Date: Sat, 20 Jan 2007 23:22:24 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sun, 21 Jan 2007 03:36:25 -0500
+Received: from mail.gmx.net ([213.165.64.20]:58798 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751287AbXAUIgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 03:36:25 -0500
+X-Authenticated: #5039886
+Date: Sun, 21 Jan 2007 09:36:18 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Jeff Garzik <jeff@garzik.org>, Chr <chunkeey@web.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
+       lwalton@real.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070121083618.GA2434@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+	Chr <chunkeey@web.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	linux-kernel@vger.kernel.org, htejun@gmail.com,
+	jens.axboe@oracle.com, lwalton@real.com
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org> <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca>
 MIME-Version: 1.0
-To: Udo van den Heuvel <udovdh@xs4all.nl>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: USB extension (repeater) cable
-References: <45B0E672.4080404@xs4all.nl> <20070120000158.GD12615@kroah.com> <45B313AD.7080705@zytor.com> <45B31433.5000408@xs4all.nl>
-In-Reply-To: <45B31433.5000408@xs4all.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45B30A98.3030206@shaw.ca>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Udo van den Heuvel wrote:
+On 2007.01.21 00:39:20 -0600, Robert Hancock wrote:
+> Björn Steinbrink wrote:
+> >On 2007.01.20 22:34:27 -0500, Jeff Garzik wrote:
+> >>Robert Hancock wrote:
+> >>>change in 2.6.20-rc is either causing or triggering this problem. It 
+> >>>would be useful if you could try git bisect between 2.6.19 and 
+> >>>2.6.20-rc5, keeping the latest sata_nv.c each time, and see if that 
+> >>
+> >>Yes, 'git bisect' would be the next step in figuring out this puzzle.
+> >>
+> >>Anybody up for it?
+> >
+> >I'll go for it, but could I get an explanation how that could lead to a
+> >different result than my last bisection? I see the difference of keeping
+> >sata_nv.c but my brain can't wrap around it right now (woke up in the
+> >middle of the night and still not up to speed...).
 > 
->> Actually, what it looks like is even simpler.  The extension cable
->> contains a four-port hub chip (which is the most common commodity chip)
->> and haven't bothered changing the descriptor to tell the computer only
->> one port is actually active.  So only one port can be activated, and the
->> others are stubbed out in some evil way.  In that case, it should be
->> noisy but harmless.
-> 
-> I will do some more testing then.
-> Is there a way to get rid of the messages?
+> Whatever the problem is, only seems to show up when ADMA is enabled, and 
+> so the patch that added ADMA support shows up as the culprit from your 
+> git bisect. However, from what Chr is reporting, 2.6.19 with the ADMA 
+> support added in doesn't seem to have the problem, so presumably 
+> something else that changed in the 2.6.20-rc series is triggering it. 
+> Doing a bisect while keeping the driver code itself the same will 
+> hopefully identify what that change is..
 
-No, but you don't have to care about them.
+Ah, right... sata_nv.c of course interacts with the outside world, d'oh!
 
-	-hpa
+Up to now, I only got bad kernels, latest tested being:
+94fcda1f8ab5e0cacc381c5ca1cc9aa6ad523576
+
+Which, unless I missed a commit in the diff, only USB changes,
+continuing anyway.
+
+Just to make sure, here's my little helper for this bisect run, I hope
+it does what you expected:
+
+#!/bin/bash
+cp ../sata_nv.c.orig drivers/ata/sata_nv.c
+git bisect good
+cp drivers/ata/sata_nv.c ../sata_nv.c.orig
+cp ../sata_nv.c drivers/ata/
+make oldconfig
+make -j4
+
+Where "../sata_nv.c" is the version from 2.6.20-rc5. The copying is done
+to avoid conflicts and keep git happy. Of course there's also a version
+for bad kernels ;) No idea, why I didn't make that an argument to the
+script...
+
+Thanks,
+Björn

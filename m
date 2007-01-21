@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751308AbXAUSfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751321AbXAUSkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbXAUSfJ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 13:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbXAUSfI
+	id S1751321AbXAUSkh (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 13:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbXAUSkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 13:35:08 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:57139 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbXAUSfH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 13:35:07 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:from:to:subject:date:user-agent:references:in-reply-to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=tfEExI0PRQMQtBYShJDZh7prf4xONUKZcZjajFdWehtr4e3Ez3+gB34nZWXE0dGRtUOWsae0gwARvcBhQjNcrvgedtL7B6Opod3PnQmBasQbuBye8YjfkVCC8S1UPa7OsjndSZ0qwIVpiOoPP8DLf77REVoJDei2Up3M8X4ZH6E=
-From: Ivan Ukhov <uvsoft@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to use an usb interface than is claimed by HID?
-Date: Sun, 21 Jan 2007 21:34:58 +0300
-User-Agent: KMail/1.9.5
-References: <45B265E0.5020605@gmail.com> <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz> <Pine.LNX.4.64.0701211821530.21127@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0701211821530.21127@twin.jikos.cz>
-Cc: UVSoft@gmail.com
+	Sun, 21 Jan 2007 13:40:37 -0500
+Received: from mail.gmx.net ([213.165.64.20]:38288 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751314AbXAUSkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 13:40:36 -0500
+X-Authenticated: #5039886
+Date: Sun, 21 Jan 2007 19:40:32 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+       Chr <chunkeey@web.de>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
+       lwalton@real.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070121184032.GA3220@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+	Chr <chunkeey@web.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	linux-kernel@vger.kernel.org, htejun@gmail.com,
+	jens.axboe@oracle.com, lwalton@real.com
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org> <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca> <20070121083618.GA2434@atjola.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200701212134.58646.uvsoft@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070121083618.GA2434@atjola.homenet>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> .. which wouldn't help you either, supposing that you don't want to touch
-> the kernel sources at all, because this function is unexported and static.
->
-> So I think that there is no straightforward way, sorry.
->
-> Is this a device that doesn't exist anywhere else than on your table? I
-> still think that putting the code in kernel (if possible) and blacklisting
-> the device on the hid_blacklist[] is the simplest way.
->
-> The other possibility is writing the driver completely in userspace, using
-> libhid/hiddev. Would that suit your needs?
+On 2007.01.21 09:36:18 +0100, Björn Steinbrink wrote:
+> On 2007.01.21 00:39:20 -0600, Robert Hancock wrote:
+> > Björn Steinbrink wrote:
+> > >On 2007.01.20 22:34:27 -0500, Jeff Garzik wrote:
+> > >>Robert Hancock wrote:
+> > >>>change in 2.6.20-rc is either causing or triggering this problem. It 
+> > >>>would be useful if you could try git bisect between 2.6.19 and 
+> > >>>2.6.20-rc5, keeping the latest sata_nv.c each time, and see if that 
+> > >>
+> > >>Yes, 'git bisect' would be the next step in figuring out this puzzle.
+> > >>
+> > >>Anybody up for it?
+> > >
+> > >I'll go for it, but could I get an explanation how that could lead to a
+> > >different result than my last bisection? I see the difference of keeping
+> > >sata_nv.c but my brain can't wrap around it right now (woke up in the
+> > >middle of the night and still not up to speed...).
+> > 
+> > Whatever the problem is, only seems to show up when ADMA is enabled, and 
+> > so the patch that added ADMA support shows up as the culprit from your 
+> > git bisect. However, from what Chr is reporting, 2.6.19 with the ADMA 
+> > support added in doesn't seem to have the problem, so presumably 
+> > something else that changed in the 2.6.20-rc series is triggering it. 
+> > Doing a bisect while keeping the driver code itself the same will 
+> > hopefully identify what that change is..
+> 
+> Ah, right... sata_nv.c of course interacts with the outside world, d'oh!
+> 
+> Up to now, I only got bad kernels, latest tested being:
+> 94fcda1f8ab5e0cacc381c5ca1cc9aa6ad523576
+> 
+> Which, unless I missed a commit in the diff, only USB changes,
+> continuing anyway.
 
-I'm afraid it wouldn't.
+All kernels were bad using that approach. So back to square 1. :/
 
-Thank you very much.
-
--- 
-Regards,
-Ivan Ukhov.
+Björn

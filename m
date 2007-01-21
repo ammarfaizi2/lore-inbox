@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751250AbXAUHIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751258AbXAUHJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbXAUHIJ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 02:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbXAUHIJ
+	id S1751258AbXAUHJF (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 02:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbXAUHJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 02:08:09 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:43658 "EHLO
+	Sun, 21 Jan 2007 02:09:04 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:43662 "EHLO
 	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751250AbXAUHII (ORCPT
+	with ESMTP id S1751258AbXAUHJD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 02:08:08 -0500
-Message-ID: <45B3113A.7070006@zytor.com>
-Date: Sat, 20 Jan 2007 23:07:38 -0800
+	Sun, 21 Jan 2007 02:09:03 -0500
+Message-ID: <45B31174.9060804@zytor.com>
+Date: Sat, 20 Jan 2007 23:08:36 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
@@ -66,7 +66,9 @@ Joe Barr wrote:
 > the DTR or RTS pin.
 
 Okay, here he's using bit-banging of the DTR and RTS pins to generate a 
-fairly high precision output wave.  This is not really the
+fairly high precision output wave.  These bits are being used as GPIOs, 
+and would need very precise control.  This is much worse for USB serial 
+ports than for ordinary serial ports.
 
 > Direct access to the serial port(s) is a kernel perogative in Linux.  
 > Only kernel level drivers are allowed such port access.

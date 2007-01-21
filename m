@@ -1,36 +1,147 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751472AbXAUUG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751575AbXAUUKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbXAUUG6 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 15:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbXAUUG6
+	id S1751575AbXAUUKg (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 15:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbXAUUKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 15:06:58 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:55167 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751472AbXAUUG5 (ORCPT
+	Sun, 21 Jan 2007 15:10:35 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:56293 "EHLO
+	pincoya.inf.utfsm.cl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751438AbXAUUKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 15:06:57 -0500
-Message-ID: <45B3C7DC.6090401@zytor.com>
-Date: Sun, 21 Jan 2007 12:06:52 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: davids@webmaster.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
-References: <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com> <45B3122C.20301@zytor.com> <Pine.LNX.4.62.0701212101100.28541@pademelon.sonytel.be>
-In-Reply-To: <Pine.LNX.4.62.0701212101100.28541@pademelon.sonytel.be>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Jan 2007 15:10:34 -0500
+Message-Id: <200701211946.l0LJkTMV022057@laptop13.inf.utfsm.cl>
+To: Junio C Hamano <junkio@cox.net>
+cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Announce] GIT v1.5.0-rc2
+In-reply-to: <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
+Comments: In-reply-to Junio C Hamano <junkio@cox.net>
+   message dated "Sun, 21 Jan 2007 03:20:06 -0800."
+X-Mailer: MH-E 7.4.2; nmh 1.2-20070115cvs; XEmacs 21.5  (beta27)
+Date: Sun, 21 Jan 2007 16:46:29 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
+Junio C Hamano <junkio@cox.net> wrote:
+> BTW, as the upcoming v1.5.0 release will introduce quite a bit of
+> surface changes (although at the really core it still is the old
+> git and old ways should continue to work), I am wondering if it
+> would help people to try out and find wrinkles before the real
+> thing for me to cut a tarball and a set of RPM packages.
 > 
-> Yeah, and Ethernet speed is measured in Mbps, not Mibps.
+> Comments?
 > 
+> Also, in the same spirit of giving the release an early
+> exposure, here is the current draft of 1.5.0 release notes.
+> 
+> -- >8 -- cut here -- >8 --
+> 
+> GIT v1.5.0 Release Notes (draft)
+> ================================
+> 
+> Old news
+> --------
 
-Indeed.
+[...]
 
-	-hpa
+>  - There is a configuration variable core.legacyheaders that
+>    changes the format of loose objects so that they are more
+>    efficient to pack and to send out of the repository over git
+>    native protocol, since v1.4.2.  However, loose objects
+>    written in the new format cannot be read by git older than
+>    that version; people fetching from your repository using
+>    older clients over dumb transports (e.g. http) using older
+>    versions of git will also be affected.
+
+Huh?
+
+What are possible values of that variable? What happens if it is set/unset?
+I'd suppose that if it is set, you get the old format, but that isn't clear.
+
+>  - Since v1.4.3, configuration repack.usedeltabaseoffset allows
+>    packfile to be created in more space efficient format, which
+>    cannot be read by git older than that version.
+
+Same as above.
+
+> The above two are not enabled by default and you explicitly have
+> to ask for them, because these two features make repositories
+> unreadable by older versions of git, and in v1.5.0 we still do
+> not enable them by default for the same reason.  We will change
+> this default probably 1 year after 1.4.2's release, when it is
+> reasonable to expect everybody to have new enough version of
+> git.
+
+I don't see an upgrade path here that doesn't involve keeping cruft "new
+feature is on" variables around indefinitely... Why not just a repository
+version?
+
+[...]
+
+> Updates in v1.5.0 since v1.4.4 series
+> -------------------------------------
+> 
+> * Index manipulation
+
+[...]
+
+>  - git-add without any argument does not add everything
+>    anymore.  Use 'git-add .' instead.  Also you can add
+>    otherwise ignored files with an -f option.
+
+I suppose "git add ." works for 'adding everything' only at the top?
+
+>  - git-add tries to be more friendly to users by offering an
+>    interactive mode.
+
+Why not tell about "git add -i"?
+
+[...]
+
+> * Detached HEAD
+
+[...]
+
+>  - After detaching your HEAD, you can go back to an existing
+>    branch with usual "git checkout $branch".  Also you can
+>    start a new branch using "git checkout -b $newbranch".
+
+Where is such a branch rooted?
+
+>  - You can even pull from other repositories, make merges and
+>    commits while your HEAD is detached.  Also you can use "git
+>    reset" to jump to arbitrary commit.
+
+Does this leave you on that branch, or still in limbo?
+
+>    Going back to undetached state by "git checkout $branch" can
+
+s/undetached/attached/
+
+>    lose the current stat you arrived in these ways, and "git
+>    checkout" refuses when the detached HEAD is not pointed by
+>    any existing ref (an existing branch, a remote tracking
+>    branch or a tag).  This safety can be overriden with "git
+>    checkout -f $branch".
+
+What happens if there are changes in the tracked files?
+
+[...]
+
+> * Shallow clones
+> 
+>  - There is a partial support for 'shallow' repositories that
+>    keeps only recent history.  A 'shallow clone' is created by
+>    specifying how deep that truncated history should be.
+
+A bit of detail on how to specify shallowness would be nice here...
+
+
+Very nice work, thanks!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

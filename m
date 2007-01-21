@@ -1,108 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751246AbXAUHGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751250AbXAUHIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbXAUHGZ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 02:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbXAUHGZ
+	id S1751250AbXAUHIJ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 02:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbXAUHIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 02:06:25 -0500
-Received: from 1wt.eu ([62.212.114.60]:2108 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751246AbXAUHGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 02:06:24 -0500
-Date: Sun, 21 Jan 2007 08:05:57 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Theodore Tso <tytso@mit.edu>, Joe Barr <joe@pjprimer.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+	Sun, 21 Jan 2007 02:08:09 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:43658 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751250AbXAUHII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 02:08:08 -0500
+Message-ID: <45B3113A.7070006@zytor.com>
+Date: Sat, 20 Jan 2007 23:07:38 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Joe Barr <joe@pjprimer.com>
+CC: Linux Kernel mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Serial port blues
-Message-ID: <20070121070557.GB31780@1wt.eu>
-References: <1169242654.20402.154.camel@warthawg-desktop> <20070120173644.GY24090@1wt.eu> <20070121055456.GC27422@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070121055456.GC27422@thunk.org>
-User-Agent: Mutt/1.5.11
+References: <1169242654.20402.154.camel@warthawg-desktop>
+In-Reply-To: <1169242654.20402.154.camel@warthawg-desktop>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 12:54:56AM -0500, Theodore Tso wrote:
-> On Sat, Jan 20, 2007 at 06:36:44PM +0100, Willy Tarreau wrote:
-> > On Fri, Jan 19, 2007 at 03:37:34PM -0600, Joe Barr wrote:
-> > > 
-> > > I'm forwarding this post by the author of a great little program for
-> > > digital amateur radio on Linux, because I'm curious whether or not the
-> > > problem he is seeing can be resolved outside the kernel.
-> > 
-> > At least, I see one wrong claim and one unexplored track in his report.
-> > The wrong claim : the serial port can only be controled by the kernel.
-> > It is totally wrong for true serial ports. If he does not want to use
-> > ioctl(), then he can directly program the I/O port.
+Joe Barr wrote:
+> I'm forwarding this post by the author of a great little program for
+> digital amateur radio on Linux, because I'm curious whether or not the
+> problem he is seeing can be resolved outside the kernel.
 > 
-> There's more wrong with his claim than just that.  Another wrong claim
-> is that it's caused by the Linux kernel not treating ioctl requests
-> with high priority.  Of course that's nonsense.  It might be the case
-> if we were using brain-damaged messaging-passing approach like what
-> Andrew Tenenbaum is proposing with Minix 3.1, but in Linux, the serial
-> port DTR/CTS lines are toggled as soon as the userspace executes the
-> ioctl. 
-
-Damn you're right. It shocked me too and I know I was missing something
-when replying but I did not remember what.
-
-> The real issue is when does the userspace program get a chance to run.
-> He's using the select() system call, which only guarantees accuracy up
-> to the granularity of the system clock.  Given that he's reporting a
-> jitter of between 0 and 4ms, I'm guessing that he's running with a
-> system clock tick of 250HZ (since 1/250 == 4ms ).
-
-Yes, that's what I thought too. In the past, I've been having better
-resolution with select() and real-time scheduling, but I cannot reliably
-reproduce it, even on SMP. I remember nothing was running at all on the
-machine (not even X) and that can make an important difference. But as
-you say, there will be no guarantee of better accuracy anyway. 
-
-> So if he wants accuracy greater than that, there are a couple of
-> things he can do.  One is to recompile his kernel with HZ=1000.  That
-> will give him accuracy up to 1ms or so.  If he needs better than 1ms
-> granularity, there are two options.  One is use sched_setscheduler()
-> to enable posix soft-realtime, and then calibrate a busy loop.  This
-> will of course burn power and completely busy out one CPU, so if he
-> needs to run CW continuously this probably isn't a great solution.  On
-> an SMP system it might work, although it is obviously a huge kludge.
-
-Hmmm the busy loop is dirty as hell, even on SMP, but it works ;-)
-I remember is was possible to reprogram the RTC to interrupt at 8192 Hz.
-If the task is running with real time prio, it should get this accuracy,
-or am I mistaken ?
-
-> The other choice would be to install Ingo's -rt patches (see
-> http://rt.wiki.kernel.org for more information), and then use the
->  Posix high-resolution timer API's (i.e., timer_create, et. al).  Make
-> sure you enable CONFIG_HIGH_RES_TIMERS after you apply the patch.  It
-> would also be a good idea to set a real-time scheduling priority for
-> the application, to make sure that when the timer goes off, the
-> process doesn't get preempted by some background cron job.
-> 
-> > Now he must be careful about avoiding busy loops in the rest of the
-> > program, or he will have to use the reset button.
-> 
-> An easy way of dealing with this is to have an sshd running
-> an alternative port running at a nice high priority (say, prio 95 or
-> so).  That way, if you screw up, you can always login remotely and
-> kill the offending program.
+> All comments welcome on/off list.
 >
-> There is also a RT Watchdog program which can be found on
-> rt.wiki.kernel.org which can be used to recover from runaway real-time
-> processes without needing to hit the reset button.
+> Thanks,
+> Joe Barr
+> K1GPL
 
-Thanks for those hints, I've been used to play with the reset button,
-at least it has forced me to double check my code before running it :-)
+[...]
 
-> Finally, please feel free to direct your amateur radio friend to the
-> linux-rt-users@vger.kernel.org.  There are plenty of folks there who
-> would be very happy to help him out.
 > 
-> 73 de Ted, N1ZSU
+> I've spent the last day staring at the oscilloscope and pins RTS and DTR 
+> on the serial output for 4 different computers running 4 different 
+> versions of Linux.  Also have exhausted the search on the internet for 
+> information regarding both the latency and jitter associated with ioctl 
+> calls to the serial driver (both ttyS and ttyUSB).  I'm sure it is out 
+> there somewhere, I just cannot find it.
+> 
+> I am now convinced that the current serial port drivers available to us 
+> on the Linux platform WILL NOT support CW and/or RTTY that is software 
+> generated in a satisfactory manner.
+> 
+> To test the latency and jitter of the ioctl calls to set or clear RTS 
+> and / or DTR I built a basic square wave generator with microsecond 
+> timing precision.  The timing could be derived either from the select 
+> system call or by controlled i/o to the sound card.  Both provide very 
+> precise timing of the program loop.  Each time through the loop either 
+> the RTS/DTR was set or cleared.  The timing jitter for each 1/2 cycle 
+> was from 0 to +4 msec.  This varied between systems as each had 
+> different cpu clock rates.  The jitter is caused by the asynchronous 
+> response of the kernel to the request to control the port.  ioctl 
+> requests apparantly do not have a very high priority for the kernel.  
+> They are probably just serviced by a first-in first-out interrupt 
+> service request loop.  That type of jitter is tolerable up to about 20 
+> wpm CW.  It totally wipes out the ability to generate an FSK signal on 
+> the DTR or RTS pin.
 
-Regards,
-Willy
+Okay, here he's using bit-banging of the DTR and RTS pins to generate a 
+fairly high precision output wave.  This is not really the
+
+> Direct access to the serial port(s) is a kernel perogative in Linux.  
+> Only kernel level drivers are allowed such port access.
+
+So write a kernel driver.  It's not like we're locking anybody out. 
+There is certainly enough Amateur Radio/Linux crossover that a kernel 
+enhancement to support Amateur Radio is going to get frowned upon.
+
+> So ... bottom line is that all of my attempts over the past couple of 
+> months to provide CW and / or FSK output signal have been to fraught 
+> with pitfalls.  The CW seems OK for slow speed keying, but the FSK seems 
+> impossible to achieve.
+> 
+> The FSK using the UART is also limited by the Linux operating system and 
+> the current drivers.  That limitation excludes the use of 45 or 56 baud 
+> BAUDOT.
+
+That is true at the moment (due to unfortunate design choices made early 
+on), but this is already in the process of being changed:
+
+http://lkml.org/lkml/2006/10/18/280
+
+> Until such time as new information becomes available I am going to 
+> comment out all references to CW and / or FSK via RTS/DTR.  I also 
+> question how useful the FSK on TxD (UART derived) might be to most users 
+> since the 45.45 baudrate is not available in the serial port driver.  
+> That function will also be commented out.
+> 
+> All this should not really come as a surprise since Linux is not a 
+> real-time operating system. By the way, I did try the tests with the 
+> test program running with nice -20.  Not much difference.
+
+See again how he should be using real-time priority rather than nice -20.
+
+> Sorry folks, but we win some and lose some.
+> 
+> 73, Dave, W1HKJ
+
+	-hpa
 

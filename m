@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751696AbXAUWBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751708AbXAUWGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbXAUWBJ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 17:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbXAUWBJ
+	id S1751708AbXAUWGN (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbXAUWGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 17:01:09 -0500
-Received: from mail.gmx.net ([213.165.64.20]:59447 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751697AbXAUWBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 17:01:08 -0500
-X-Authenticated: #1490710
-Date: Sun, 21 Jan 2007 23:01:06 +0100 (CET)
-From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
-X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
-To: Jakub Narebski <jnareb@gmail.com>
-cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Announce] GIT v1.5.0-rc2
-In-Reply-To: <ep0m67$so8$1@sea.gmane.org>
-Message-ID: <Pine.LNX.4.63.0701212300130.22628@wbgn013.biozentrum.uni-wuerzburg.de>
-References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
- <17843.28128.851749.558017@lisa.zopyra.com> <17843.28673.205993.946369@lisa.zopyra.com>
- <Pine.LNX.4.63.0701212225350.22628@wbgn013.biozentrum.uni-wuerzburg.de>
- <ep0m67$so8$1@sea.gmane.org>
+	Sun, 21 Jan 2007 17:06:13 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:27674 "EHLO
+	sj-iport-2.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751707AbXAUWGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:06:12 -0500
+X-IronPort-AV: i="4.13,217,1167638400"; 
+   d="scan'208"; a="357159758:sNHT43668820"
+To: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openfabrics-ewg@openib.org, openib-general@openib.org,
+       raisch@de.ibm.com
+Subject: Re: [PATCH 2.6.20 1/2] ehca: ehca_cq.c: fix unproper use of yield within spinlock context
+X-Message-Flag: Warning: May contain useful information
+References: <200701192250.10765.hnguyen@linux.vnet.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 21 Jan 2007 14:06:09 -0800
+In-Reply-To: <200701192250.10765.hnguyen@linux.vnet.ibm.com> (Hoang-Nam Nguyen's message of "Fri, 19 Jan 2007 22:50:10 +0100")
+Message-ID: <ada4pqkrq5q.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Jan 2007 22:06:09.0300 (UTC) FILETIME=[5AF2A540:01C73DA8]
+Authentication-Results: sj-dkim-7; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim7002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Very minor but
 
-On Sun, 21 Jan 2007, Jakub Narebski wrote:
+ > Signed-off-by Hoang-Nam Nguyen <hnguyen@de.ibm.com>
 
-> Johannes Schindelin wrote:
-> 
-> > On Sun, 21 Jan 2007, Bill Lear wrote:
-> > 
-> >> Also (apologies for the ignorance), how do I get the 1.5.0-rc2 release?
-> > 
-> > Direct your browser to
-> > 
-> > http://repo.or.cz/w/git.git?a=snapshot;h=eaf6459e4d482af51429f9464125621b805eb5f
-> 
-> Better URL is
-> 
->   http://repo.or.cz/w/git.git?a=snapshot;h=v1.5.0-rc2
+should be
 
-It is a better URL. Somehow I fscked up when I tried it, so I had the 
-impression that does not work. But it does.
+Signed-off-by: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
 
-Sorry,
-Dscho
+(':' after the "-by")
 
+Anyway, queued for 2.6.20, thanks.
+
+ - R.

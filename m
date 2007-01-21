@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751585AbXAUOBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751604AbXAUOEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbXAUOBj (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 09:01:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbXAUOBj
+	id S1751604AbXAUOEZ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 09:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbXAUOEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 09:01:39 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:6968 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585AbXAUOBi (ORCPT
+	Sun, 21 Jan 2007 09:04:25 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:45186 "EHLO
+	allen.werkleitz.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751602AbXAUOEY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 09:01:38 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=dbEnVoKPwtHL0wUqzbWHjkxB5xTAHX3PQlCa8MXElQ4EffDEjXkL0CgNw0SSHG/P+jtRqG8t+dNSrHugZLVCacuvUibw5uWIWcnZfUHcgFI6ark0ZE2J2y5TylkVqbdm4IGTrETVOUay3MiNYSOUUBKQ6dAxC8kvv+xSOKYvobs=
-Message-ID: <45B3723D.4030901@gmail.com>
-Date: Sun, 21 Jan 2007 17:01:33 +0300
-From: Ivan Ukhov <uvsoft@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Sun, 21 Jan 2007 09:04:24 -0500
+Date: Sun, 21 Jan 2007 15:04:21 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Theodore Tso <tytso@mit.edu>, Joe Barr <joe@pjprimer.com>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20070121140421.GA13425@linuxtv.org>
+References: <1169242654.20402.154.camel@warthawg-desktop> <20070120173644.GY24090@1wt.eu> <20070121055456.GC27422@thunk.org> <20070121070557.GB31780@1wt.eu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: UVSoft@gmail.com
-Subject: Re: How to use an usb interface than is claimed by HID?
-References: <45B265E0.5020605@gmail.com> <Pine.LNX.4.64.0701210006591.21127@twin.jikos.cz> <45B2AA03.4070405@gmail.com> <Pine.LNX.4.64.0701210050490.21127@twin.jikos.cz> <45B32B80.4050208@gmail.com> <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070121070557.GB31780@1wt.eu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-SA-Exim-Connect-IP: 87.162.108.192
+Subject: Re: Serial port blues
+X-SA-Exim-Version: 4.2.1 (built Tue, 09 Jan 2007 17:23:22 +0000)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Kosina wrote:
-> Then, when this is a non-standard situation anyway, would calling 
-> hid_disconnect() for the usb_interface of your driver be enough?
->   
-I can't even imagine how to call this very function. Could you give me 
-an example? After all, this function and friends of its aren't 
-EXPORTED_SYMBOLs. Beside it's going to end up depending on the HID 
-driver, so the HID driver will have to be loaded all the time even if my 
-driver is loaded first and manages to claim the interfaces.
+On Sun, Jan 21, 2007 at 08:05:57AM +0100, Willy Tarreau wrote:
+> On Sun, Jan 21, 2007 at 12:54:56AM -0500, Theodore Tso wrote:
+> > On Sat, Jan 20, 2007 at 06:36:44PM +0100, Willy Tarreau wrote:
+> > 
+> > > Now he must be careful about avoiding busy loops in the rest of the
+> > > program, or he will have to use the reset button.
+> > 
+> > An easy way of dealing with this is to have an sshd running
+> > an alternative port running at a nice high priority (say, prio 95 or
+> > so).  That way, if you screw up, you can always login remotely and
+> > kill the offending program.
+> >
+> > There is also a RT Watchdog program which can be found on
+> > rt.wiki.kernel.org which can be used to recover from runaway real-time
+> > processes without needing to hit the reset button.
+> 
+> Thanks for those hints, I've been used to play with the reset button,
+> at least it has forced me to double check my code before running it :-)
 
-Sorry, I've absolutely forgotten to say that I'm talking about 2.4.x and 
-this function looks like:
+I think SysRq-N sets all processes with RT-priority to non-RT.
 
-static void hid_disconnect(struct usb_device *dev, void *ptr);
 
-ptr is a pointer to the struct hid_device structure, which is created 
-and initialized in the probe function. Do you offer me to set up this 
-structure myself????
-
-Thank you.
-
-Ivan Ukhov.
+Johannes

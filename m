@@ -1,100 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751053AbXAURDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751129AbXAUREY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbXAURDH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 12:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbXAURDH
+	id S1751129AbXAUREY (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 12:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbXAUREY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 12:03:07 -0500
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:3899 "EHLO
-	smtp-vbr5.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751053AbXAURDF (ORCPT
+	Sun, 21 Jan 2007 12:04:24 -0500
+Received: from nz-out-0506.google.com ([64.233.162.235]:8543 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751129AbXAUREX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 12:03:05 -0500
-Date: Sun, 21 Jan 2007 18:02:49 +0100
-From: thunder7@xs4all.nl
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: thunder7@xs4all.nl, Avuton Olrich <avuton@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: 2.6.19.2, cp 18gb_file 18gb_file.2 = OOM killer, 100% reproducible
-Message-ID: <20070121170249.GA19956@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <Pine.LNX.4.64.0701201516450.3684@p34.internal.lan> <3aa654a40701201245s72b2f76hc70ddd94b70ba99c@mail.gmail.com> <Pine.LNX.4.64.0701201602570.4910@p34.internal.lan> <20070121155219.GA7413@amd64.of.nowhere> <Pine.LNX.4.64.0701211146530.15334@p34.internal.lan>
+	Sun, 21 Jan 2007 12:04:23 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iY6C5lsbN/2KRVJuPv+rJXnISDAkUyR3PoyUbf6+7LbDLSO/rZJu+ol+jrQZEZWsRcW9oNQZumTP8kEQB73n27+/9TwOYjepPe1KKfIv7zTcJo0JUY9A8qm0gTChIh5lmAbgpd/CP0pGdnJFpEAa+8/MRQWLewgM4hHunYtQKa4=
+Message-ID: <c384c5ea0701210904t15f44178hfd807b4553e0e3d3@mail.gmail.com>
+Date: Sun, 21 Jan 2007 18:04:22 +0100
+From: "Leon Woestenberg" <leon.woestenberg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701211146530.15334@p34.internal.lan>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <c384c5ea0701201007t4e637b9eh133101286ce5598d@mail.gmail.com>
+	 <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-Date: Sun, Jan 21, 2007 at 11:48:07AM -0500
-> 
-> What about all of the changes with NAT?  I see that it operates on 
-> level-3/network wise, I enabled that and backward compatiblity support as 
-> well, but when my iptables rules kick in, it says no such driver/etc for 
-> `nat'-- is there a new target for iptables now or did I miss a kernel 
-> option?
-> 
+David,
 
-Well, I'm typing this on my laptop, connected via my main server to the
-internet, using SNAT, according to the firehol manpage. The main server
-runs 2.6.20-rc5, and somewhere in my 2.6.20-rc5 .config, there is
+On 1/20/07, David Schwartz <davids@webmaster.com> wrote:
+> [Leon said:]
+> > One way of getting rid of those inconsistencies would be to follow IEC
+> > 60027-2 for those cases where SI is inappropriate.
+>
+>         Talk about a cure worse than the disease! So you're saying that 256MB flash
+> cards could be advertised as having 268.4MB? A 512MB RAM stick is
+> mislabelled and could correctly say 536.8MB? That's just plain craziness.
+>
+No, I meant to advertise it as a 256 MiB flash device and a 512 MiB
+flash device, as the Mi prefix has a single interpretation, that is 2
+to the power of 20, as per IEC 60027-2, whereas M has not if used
+outside SI units.
 
-CONFIG_NF_NAT=m
-CONFIG_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_NF_NAT_SNMP_BASIC=m
-CONFIG_NF_NAT_PROTO_GRE=m
-CONFIG_NF_NAT_FTP=m
-CONFIG_NF_NAT_IRC=m
-CONFIG_NF_NAT_TFTP=m
-CONFIG_NF_NAT_AMANDA=m
-CONFIG_NF_NAT_PPTP=m
-CONFIG_NF_NAT_H323=m
-CONFIG_NF_NAT_SIP=m
-
-and my firewall's manpage says:
-
-FIREHOL.CONF(5)       User Contributed Perl Documentation      FIREHOL.CONF(5)
-
-
-       masquerade [reverse | interface] [optional rule parameters]
-
-         Masquerading is a special from of SNAT (Source NAT) that changes the
-         source of requests when they go out and replaces their original
-         source when replies come in. This way a Linux box can become an
-         internet router for a LAN of clients having unroutable IP addresses.
-         Masquerading takes care to re-map IP addresses and ports as required.
-
-         Masquerading is "expensive" compared to SNAT because it checks the IP
-         address of the ougoing interface every time for every packet, and
-         therefore it is suggested that if you connect to the internet with a
-         static IP address, to prefer SNAT.
-
-while my /etc/firehol/firehol.conf has a part in it like this:
-
-#
-# route access from the clients to the internet
-#
-router internet2network inface adsl outface switch
-	masquerade reverse
-	client all accept
-
-All in all, NAT is working for me with 2.6.20-rc5. I do remember I had
-to reselect all the netfilter modules in menuconfig.
-
-Good luck,
-Jurriaan
--- 
-> What does ELF stand for (in respect to Linux?)
-ELF is the first rock group that Ronnie James Dio performed with back in 
-the early 1970's.  In constrast, a.out is a misspelling	 of the French word 
-for the month of August.  What the two have in common is beyond me, but 
-Linux users seem to use the two words together.
-	seen on c.o.l.misc
-Debian (Unstable) GNU/Linux 2.6.20-rc5 2x2011 bogomips load 0.83
-the Jack Vance Integral Edition: http://www.integralarchive.org
+Leon.

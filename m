@@ -1,24 +1,27 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751689AbXAUVzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751696AbXAUWBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751689AbXAUVzz (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 16:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbXAUVzy
+	id S1751696AbXAUWBJ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbXAUWBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 16:55:54 -0500
-Received: from mail.gmx.net ([213.165.64.20]:53059 "HELO mail.gmx.net"
+	Sun, 21 Jan 2007 17:01:09 -0500
+Received: from mail.gmx.net ([213.165.64.20]:59447 "HELO mail.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751689AbXAUVzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 16:55:53 -0500
+	id S1751697AbXAUWBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:01:08 -0500
 X-Authenticated: #1490710
-Date: Sun, 21 Jan 2007 22:55:52 +0100 (CET)
+Date: Sun, 21 Jan 2007 23:01:06 +0100 (CET)
 From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
 X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
-To: Junio C Hamano <junkio@cox.net>
+To: Jakub Narebski <jnareb@gmail.com>
 cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [Announce] GIT v1.5.0-rc2
-In-Reply-To: <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
-Message-ID: <Pine.LNX.4.63.0701212234520.22628@wbgn013.biozentrum.uni-wuerzburg.de>
+In-Reply-To: <ep0m67$so8$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.63.0701212300130.22628@wbgn013.biozentrum.uni-wuerzburg.de>
 References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
+ <17843.28128.851749.558017@lisa.zopyra.com> <17843.28673.205993.946369@lisa.zopyra.com>
+ <Pine.LNX.4.63.0701212225350.22628@wbgn013.biozentrum.uni-wuerzburg.de>
+ <ep0m67$so8$1@sea.gmane.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Y-GMX-Trusted: 0
@@ -27,107 +30,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sun, 21 Jan 2007, Junio C Hamano wrote:
+On Sun, 21 Jan 2007, Jakub Narebski wrote:
 
->  - 'git pack-refs' appeared in v1.4.4;
-
-You should probably mention that it is not necessary to run git-pack-refs 
-by hand: git-gc is what you want.
-
-BTW have I praised y'all for inventing git-gc? It is _awesome_. I think I 
-will turn into a DWIM geek yet; it is soooo much more convenient to issue 
-"git gc" from time to time, than to think exactly about what I want to 
-clean up right now.
-
->  - 'git repo-config', 'git grep', 'git rebase' and 'gitk' were
->    seriously enhanced during v1.4.0 timeperiod.
-
-Should we introduce "git config" in time for the "let's please end-users" 
-release (1.5.0)?
-
->  - git-clone always uses what is known as "separate remote"
->    layout for a newly created repository with a working tree;
->    i.e. tracking branches in $GIT_DIR/refs/remotes/origin/ are
->    used to track branches from the origin.  
-
-... instead of $GIT_DIR/refs/heads/, making the difference between 
-remotely tracked and local branches more obvious.
-
->  - git-branch and git-show-branch know remote tracking branches.
-
-... (use the command line switch "-r" to list only tracked branches.)
-
->  - git-push can now be used to delete a remote branch or a tag.
->    This requires the updated git on the remote side.
-
-... (use "git push <remote> :refs/heads/<branch>" to delete "branch".)
-
->  - git-push more agressively keeps the transferred objects
->    packed.  Earlier we recommended to monitor amount of loose
->    objects and repack regularly, but you should repack when you
->    accumulated too many small packs this way as well.  Updated
->    git-count-objects helps you with this.
-
-It might make sense to enable something similar for git-fetch in time for 
-1.5.0.
-
-> * Reflog
+> Johannes Schindelin wrote:
 > 
->  - Reflog records the history of where the tip of each branch
->    was at each moment.
+> > On Sun, 21 Jan 2007, Bill Lear wrote:
+> > 
+> >> Also (apologies for the ignorance), how do I get the 1.5.0-rc2 release?
+> > 
+> > Direct your browser to
+> > 
+> > http://repo.or.cz/w/git.git?a=snapshot;h=eaf6459e4d482af51429f9464125621b805eb5f
+> 
+> Better URL is
+> 
+>   http://repo.or.cz/w/git.git?a=snapshot;h=v1.5.0-rc2
 
-It might make sense to reformulate that:
+It is a better URL. Somehow I fscked up when I tried it, so I had the 
+impression that does not work. But it does.
 
-	Reflog records the history from the view point of the local 
-	repository. In other words, regardless of the real history,
-	the reflog shows the history as seen by one particular repository
-	(this enables you to ask "what was the current revision in _this_
-	repository, yesterday at 1pm?").
-
->  - There is a toplevel garbage collector script, 'git-gc', that
->    is an easy way to run 'git-repack -a -d', 'git-reflog gc',
->    and 'git-prune'.
-
-Did I mention that I really _love_ git-gc?
-
->  - The original implementation of git-merge-recursive which was
->    in Python has been removed; we have C implementation of it
->    now.
-
-I am no native speaker, but should that not be "we have a C 
-implementation" instead?
-
->  - The default suffix for git-format-patch output is now ".patch",
->    not ".txt".  This can be changed with --suffix=.txt option,
->    or "format.suffix = .txt" in the configuration.
-
-I fully expect people to complain that a config like this
-
-	format.suffix = .txt
-
-does not work. better say ...
-
-	or setting the config variable "format.suffix" to ".txt".
-
->  - Better error messages for often used Porcelainish commands.
-
-Amen. I think this really helped a lot of people already.
-
->    - Cloning and fetching _from_ a shallow clone are not
->      supported (nor tested -- so they might work by accident but
->      they are not expected to).
-
-Maybe we should go the "restrict first, and loosen later" approach? I.e. 
-forbid git-upload-pack to run if is_repository_shallow()?
-
->    - Pushing from nor into a shallow clone are not expected to
->      work.
-
-Maybe forbid git-push and git-receive-pack to run if 
-is_repository_shallow()?
-
-(I _think_ git-push should be safe, but not git-receive-pack.)
-
-Ciao,
+Sorry,
 Dscho
 

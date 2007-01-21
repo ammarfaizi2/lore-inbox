@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751356AbXAULYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751298AbXAULex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbXAULYL (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 06:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbXAULYL
+	id S1751298AbXAULex (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 06:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbXAULex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 06:24:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34462 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751356AbXAULYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 06:24:10 -0500
-Date: Sun, 21 Jan 2007 11:23:47 +0000 (GMT)
-From: Artem Bityutskiy <dedekind@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Artem Bityutskiy <Artem.Bityutskiy@nokia.com>,
-       linux-mtd@lists.infradead.org, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/mtd/ubi/: possible cleanups
-In-Reply-To: <20070119184048.GR9093@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701211122480.6215@pentafluge.infradead.org>
-References: <20070111222627.66bb75ab.akpm@osdl.org> <20070119184048.GR9093@stusta.de>
+	Sun, 21 Jan 2007 06:34:53 -0500
+Received: from mx.mips.com ([63.167.95.198]:62028 "EHLO dns0.mips.com"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1751298AbXAULew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 06:34:52 -0500
+X-Greylist: delayed 1218 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 06:34:52 EST
+Message-ID: <005101c73d4e$6bbf96d0$10eca8c0@grendel>
+From: "Kevin D. Kissell" <kevink@mips.com>
+To: "Sunil Naidu" <akula2.shark@gmail.com>,
+       "Ralf Baechle" <ralf@linux-mips.org>
+Cc: <linux-kernel@vger.kernel.org>,
+       "sathesh babu" <sathesh_edara2003@yahoo.co.in>,
+       <linux-mips@linux-mips.org>
+References: <20070120234237.49126.qmail@web7912.mail.in.yahoo.com> <20070121001457.GA9123@linux-mips.org> <8355959a0701210159k2fcb2323s2d38f91a41fcb942@mail.gmail.com>
+Subject: Re: Running Linux on FPGA
+Date: Sun, 21 Jan 2007 12:22:20 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dedekind@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1896
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-19 at 19:40 +0100, Adrian Bunk wrote:
-This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - remove the following unused variable:
->   - debug.c: alloc_prints
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-I've committed this.
+> > The overhead of timer interrupts at this low clockrate is significant
+> > so I recommend to minimize the timer interrupt rate as far as possible.
+> > This is really a tradeoff between latency and overhead and matters
+> > much less on hardcores which run at hundreds of MHz.  For power sensitive
+> > applications lowering the interrupt rate can also help.  And that's alredy
+> > pretty much what you need to know, that is a 10ms  timer is fine.
+> >
+> 
+> I have worked with FPGA Linux system which is reconfigurable
+> on-the-fly by the 200Mhz ARM9 CPU running Debian Linux, Altera Cyclone
+> II FPGA is included on my TS-7300 board. Advantage is, Altera FPGA and
+> a dedicated high-speed bus between the CPU and FPGA provides a good
+> design scope to provide many solutions.
 
-BTW: Do you really need that many different
->      CONFIG_MTD_UBI_DEBUG_* options?
->
-The idea is to be able to switch debugging messages on/off for different 
-units separately. But the number of the option may indeed be reduced - i 
-will try to do this.
+What's your point here?  A 200MHz hard ore won't see the issues 
+under discussion.  We're talking about systems where the CPU itself
+is "soft" and implemented in an FPGA.
 
-Thanks!
+            Regards,
 
--- 
-Best regards,
-Artem Bityutskiy
+            Kevin K.
+

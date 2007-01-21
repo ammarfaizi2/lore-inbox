@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751715AbXAUWIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751717AbXAUWJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751715AbXAUWIR (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 17:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbXAUWIR
+	id S1751717AbXAUWJF (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbXAUWJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 17:08:17 -0500
-Received: from mail.gmx.net ([213.165.64.20]:56038 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751715AbXAUWIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 17:08:16 -0500
-X-Authenticated: #5039886
-Date: Sun, 21 Jan 2007 23:08:13 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Jeff Garzik <jeff@garzik.org>, Chr <chunkeey@web.de>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
-       lwalton@real.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070121220811.GA2136@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
-	Chr <chunkeey@web.de>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	linux-kernel@vger.kernel.org, htejun@gmail.com,
-	jens.axboe@oracle.com, lwalton@real.com
-References: <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org> <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca> <20070121083618.GA2434@atjola.homenet> <20070121184032.GA3220@atjola.homenet> <45B3C5C9.4010007@shaw.ca>
+	Sun, 21 Jan 2007 17:09:04 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:46043 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751717AbXAUWJD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:09:03 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45B3E443.8050900@s5r6.in-berlin.de>
+Date: Sun, 21 Jan 2007 23:08:03 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.9) Gecko/20070121 SeaMonkey/1.0.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45B3C5C9.4010007@shaw.ca>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+To: Eduard Bloch <edi@gmx.de>
+CC: Bodo Eggert <7eggert@gmx.de>, Tony Foiani <tkil@scrye.com>,
+       Leon Woestenberg <leon.woestenberg@gmail.com>,
+       linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+References: <7FsPf-51s-9@gated-at.bofh.it> <7FxlV-3sb-1@gated-at.bofh.it> <7FyUF-5XD-21@gated-at.bofh.it> <E1H8a7s-0000at-Jx@be1.lrz> <20070121111000.GA6679@rotes76.wohnheim.uni-kl.de>
+In-Reply-To: <20070121111000.GA6679@rotes76.wohnheim.uni-kl.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2007.01.21 13:58:01 -0600, Robert Hancock wrote:
-> Björn Steinbrink wrote:
-> >All kernels were bad using that approach. So back to square 1. :/
-> >
-> >Björn
-> >
+Eduard Bloch wrote:
+> * Bodo Eggert [Sun, Jan 21 2007, 11:40:40AM]:
+>> 2) No sane person would say kibibyte as required by the standard. You'd need
+>>    a sppech defect in order to do this, and a mental defect in order to try.
+>>    So why should anybody adhere to the rest of this bullshit?
 > 
-> OK guys, here's a new patch to try against 2.6.20-rc5:
-> 
-> Right now when switching between ADMA mode and legacy mode (i.e. when 
-> going from doing normal DMA reads/writes to doing a FLUSH CACHE) we just 
-> set the ADMA GO register bit appropriately and continue with no delay. 
-> It looks like in some cases the controller doesn't respond to this 
-> immediately, it takes some nanoseconds for the controller's status 
-> registers to reflect the change that was made. It's possible that if we 
-> were trying to issue commands during this time, the controller might not 
-> react properly. This patch adds some code to wait for the status 
-> register to change to the state we asked for before continuing.
+> You talk for everybody, or is it just your (and only your) mind refusing
+> to accept new terms?
 
-I went for the "I feel lucky" route and did just add mmio reads after the
-mmio writes, posting them. Rationale being that if it is a write posting
-issue, the debug patch would/could actually hide it AFAICT.
-It's the "I feel lucky" route, because my whole "knowledge" about mmio
-and write posting originates from the few things I read up on when you
-discovered the comment about write posting in the generic ata code.
-
-Björn
+I'd say it is the refusal to accept new *dumb* terms.
+-- 
+Stefan Richter
+-=====-=-=== ---= =-=-=
+http://arcgraph.de/sr/

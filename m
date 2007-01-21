@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750783AbXAUO7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750696AbXAUPKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbXAUO7p (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 09:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750696AbXAUO7p
+	id S1750696AbXAUPKH (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 10:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbXAUPKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 09:59:45 -0500
-Received: from 1wt.eu ([62.212.114.60]:2117 "EHLO 1wt.eu"
+	Sun, 21 Jan 2007 10:10:06 -0500
+Received: from main.gmane.org ([80.91.229.2]:37315 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750783AbXAUO7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 09:59:44 -0500
-Date: Sun, 21 Jan 2007 15:58:17 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Grzegorz Ja?kiewicz <gryzman@gmail.com>
-Cc: Johannes Stezenbach <js@linuxtv.org>, Theodore Tso <tytso@mit.edu>,
-       Joe Barr <joe@pjprimer.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Serial port blues
-Message-ID: <20070121145817.GE31780@1wt.eu>
-References: <1169242654.20402.154.camel@warthawg-desktop> <20070120173644.GY24090@1wt.eu> <20070121055456.GC27422@thunk.org> <20070121070557.GB31780@1wt.eu> <20070121140421.GA13425@linuxtv.org> <2f4958ff0701210650w4fa0138di6a5026de8a0823dc@mail.gmail.com>
+	id S1750696AbXAUPKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 10:10:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jakub Narebski <jnareb@gmail.com>
+Subject: Re: [Announce] GIT v1.5.0-rc2
+Followup-To: gmane.comp.version-control.git
+Date: Sun, 21 Jan 2007 16:06:22 +0100
+Organization: At home
+Message-ID: <eovvg3$i6m$1@sea.gmane.org>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <20070121134308.GA24090@1wt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2f4958ff0701210650w4fa0138di6a5026de8a0823dc@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-81-190-20-200.torun.mm.pl
+Mail-Copies-To: jnareb@gmail.com
+User-Agent: KNode/0.10.2
+Cc: git@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 03:50:32PM +0100, Grzegorz Ja?kiewicz wrote:
-> funny, how even very fast box can be useless for such activities with modern
-> kernels, such as linux. After all, serial ports don't require too much
-> horsepower to be highly accurate.
-> >From designer perspective, I would rather go for uC solution in his case.
-> That is, design and build fairly simple board - based on atmega AVRs. 16mhz
-> 8bit chip can do so much better compared to N gigs mhz box running "modern"
-> operating system, these days....
+Willy Tarreau wrote:
+> On Sun, Jan 21, 2007 at 03:20:06AM -0800, Junio C Hamano wrote:
 
-It is true, but the point is not "modern" vs "ancient" OS, it's "multitasking"
-vs "monotasking" kernel. If your program does the busy loop, you'll get a
-very high accuracy at the expense of burning watts polling one bit one
-billion times a second waiting for a change every millisecond.
+>> BTW, as the upcoming v1.5.0 release will introduce quite a bit of
+>> surface changes (although at the really core it still is the old
+>> git and old ways should continue to work), I am wondering if it
+>> would help people to try out and find wrinkles before the real
+>> thing for me to cut a tarball and a set of RPM packages.
+>> 
+>> Comments?
+> 
+> Anything you can do to make tester's life easier will always slightly
+> increase the number of testers. Hint: how often do you try random
+> software that requires that you first install CVS, SVN or arch just to
+> get it, compared to how often you try random software provided as tar.gz ?
+> Pre-release tar.gz and rpms coupled with a freshmeat announcement should
+> get you a bunch of testers and newcomers. This will give the new doc a
+> real trial, and will help discover traps in which beginners often fall.
 
-18 years ago, I wrote a soft-only 8250 emulator to connect my second 8088
-to the first one's serial port at 19200 bauds. At this time, waiting for
-a change only took a few hundred cycles and the busy loop was the default
-mode of the OS anyway. Things have changed since.
+RPMS are nicely divided into (sub)packages, so you need CVS indtalled
+only if you install git-cvs package, for example to interact with CVS.
+git-core has minimal dependencies.
 
-Willy
+To compile git you truly don't need other software installed (1.5.0
+for example does not require RCS anymore for RCS merge).
+-- 
+Jakub Narebski
+Warsaw, Poland
+ShadeHawk on #git
+
 

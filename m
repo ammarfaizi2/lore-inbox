@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751242AbXAUHW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751283AbXAUHW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbXAUHW0 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 02:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbXAUHW0
+	id S1751283AbXAUHW2 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 02:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbXAUHW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 02:22:26 -0500
-Received: from mx0.karneval.cz ([81.27.192.17]:54515 "EHLO av3.karneval.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751242AbXAUHWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 02:22:25 -0500
-From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-To: Sunil Naidu <akula2.shark@gmail.com>
-Subject: Re: Realtime-preemption for 2.6.20-rc5 ?
-Date: Sun, 21 Jan 2007 00:39:26 +0100
-User-Agent: KMail/1.9.4
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+	Sun, 21 Jan 2007 02:22:28 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:54455 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751283AbXAUHW1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 02:22:27 -0500
+Message-ID: <45B314B0.4020907@zytor.com>
+Date: Sat, 20 Jan 2007 23:22:24 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Udo van den Heuvel <udovdh@xs4all.nl>
+CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: USB extension (repeater) cable
+References: <45B0E672.4080404@xs4all.nl> <20070120000158.GD12615@kroah.com> <45B313AD.7080705@zytor.com> <45B31433.5000408@xs4all.nl>
+In-Reply-To: <45B31433.5000408@xs4all.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701210039.27284.pisa@cmp.felk.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Sunil and Ingo,
+Udo van den Heuvel wrote:
+> 
+>> Actually, what it looks like is even simpler.  The extension cable
+>> contains a four-port hub chip (which is the most common commodity chip)
+>> and haven't bothered changing the descriptor to tell the computer only
+>> one port is actually active.  So only one port can be activated, and the
+>> others are stubbed out in some evil way.  In that case, it should be
+>> noisy but harmless.
+> 
+> I will do some more testing then.
+> Is there a way to get rid of the messages?
 
-Date: 2007-01-20 02:56:40 GMT (20 hours and 26 minutes ago)
-> 2007-01-20, Sunil Naidu <akula2.shark@gmail.com> wrote:
-> I did refer the same. Is it necessary to use only base kernel, say
-> 2.6.19? Or, can I go ahead with 2.6.19 + 2.6.19.2 patch + 2.6.19-rt
-> patch?
->
-> If yes, any reason why we need to apply rt patch only to a base kernel?
+No, but you don't have to care about them.
 
-according to my observation 2.6.19-rt15 is based/includes 2.6.19.1 changes.
-
-But there has been that nasty clear_page_dirty_for_io() bug causing
-corruption of ext3. Even that I have tested more 2.6.20-rc + rt, I preffer
-to stay on "stable" kernel on boxes which I use daily until next stable
-appears. I have backported clear_page_dirty_for_io() to 2.6.19-rt15
-and it worked fine. I have tried to update 2.6.19-rt15 to 2.6.19.2
-base. There is result of my attempt
-
-Unofficial incremental patch from 2.6.19-rt15 to 2.6.19.2 + rt
-http://rtime.felk.cvut.cz/repos/ppisa-linux-devel/kernel-patches/current/patch-2.6.19.2-incr.patch
-
-Kernel seems to work correctly. I have checked the patch contents
-and I have not noticed any RT problematic changes in the code according
-to my dumb knowledge.
-
-I would be very happy, if Ingo would be so kind and could confirm my findings,
-because I am not sure, if final 2.6.20+rt would be ready before we need
-to prepare setup for our next semester classes at university.
-
-Best wishes
-
-                Pavel Pisa
-        e-mail: pisa@cmp.felk.cvut.cz
-        www:    http://cmp.felk.cvut.cz/~pisa
-        work:   http://www.pikron.com
+	-hpa

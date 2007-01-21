@@ -1,125 +1,236 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751363AbXAUTRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751385AbXAUT0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbXAUTRz (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 14:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbXAUTRz
+	id S1751385AbXAUT0y (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 14:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbXAUT0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 14:17:55 -0500
-Received: from [85.204.20.254] ([85.204.20.254]:55713 "EHLO megainternet.ro"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751363AbXAUTRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 14:17:54 -0500
-Subject: [BUG] eth0 appers many times in /proc/interrupts after resume
-From: Andrei Popa <andrei.popa@i-neo.ro>
-Reply-To: andrei.popa@i-neo.ro
-To: linux-kernel@vger.kernel.org
-Cc: nigel@suspend2.net
-In-Reply-To: <1168463852.3205.1.camel@nigel.suspend2.net>
-References: <1167478664.8521.2.camel@localhost>
-	 <1167479650.3337.18.camel@nigel.suspend2.net>
-	 <1167480259.8855.3.camel@localhost>
-	 <1167514357.2566.0.camel@nigel.suspend2.net>
-	 <1167515552.30176.4.camel@localhost>
-	 <1167517817.2566.13.camel@nigel.suspend2.net>
-	 <1167518608.7177.0.camel@localhost>
-	 <1167520557.2566.23.camel@nigel.suspend2.net>
-	 <1167571281.7175.1.camel@localhost>
-	 <1167599458.2662.8.camel@nigel.suspend2.net>
-	 <1167605481.12328.0.camel@localhost>
-	 <1167607994.2662.39.camel@nigel.suspend2.net>
-	 <1167644970.7142.6.camel@localhost>
-	 <1168317278.6948.9.camel@nigel.suspend2.net>
-	 <1168448689.7430.1.camel@localhost>
-	 <1168463852.3205.1.camel@nigel.suspend2.net>
-Content-Type: text/plain
-Organization: I-NEO
-Date: Sun, 21 Jan 2007 21:17:41 +0200
-Message-Id: <1169407062.1932.4.camel@localhost>
+	Sun, 21 Jan 2007 14:26:54 -0500
+Received: from aa013msr.fastwebnet.it ([85.18.95.73]:41471 "EHLO
+	aa013msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751385AbXAUT0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 14:26:53 -0500
+Date: Sun, 21 Jan 2007 20:25:52 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-15?B?Qmr2cm4=?= Steinbrink <B.Steinbrink@gmx.de>,
+       Jens Axboe <jens.axboe@oracle.com>, Jeff Garzik <jeff@garzik.org>,
+       Tejun Heo <htejun@gmail.com>
+Subject: Re: SATA exceptions triggered by XFS (since 2.6.18)
+Message-ID: <20070121202552.14cc29fe@localhost>
+In-Reply-To: <45B3A392.6050609@shaw.ca>
+References: <20070121152932.6dc1d9fb@localhost>
+	<20070121174023.68402ade@localhost>
+	<45B3A392.6050609@shaw.ca>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 21 Jan 2007 11:32:02 -0600
+Robert Hancock <hancockr@shaw.ca> wrote:
 
-It's the 10th resume and in /proc/interrupts eth0 appers 10 times.
+> It looks like what you're getting is an actual NCQ write timing out. 
+> That makes the bisect result not very interesting since obviously it 
+> wouldn't have issued any NCQ writes before NCQ support was
+> implemented. Seeing as how it's also an entirely different driver I
+> imagine it's a different problem than what I've been looking at.
+> 
+> Maybe that drive just has some issues with NCQ? I would be surprised
+> at that with a Seagate though..
 
-ierdnac ~ # cat /proc/interrupts
-           CPU0       CPU1
-  0:   19690962      21390   IO-APIC-edge      timer
-  1:      34666          0   IO-APIC-edge      i8042
-  8:         12          0   IO-APIC-edge      rtc
-  9:     189109          0   IO-APIC-fasteoi   acpi
- 12:    2467502      62285   IO-APIC-edge      i8042
- 14:         40          0   IO-APIC-edge      ide0
- 17:    1156971      14168   IO-APIC-fasteoi   uhci_hcd:usb5,
-i915@pci:0000:00:02.0
- 18:          0          0   IO-APIC-fasteoi   uhci_hcd:usb4
- 19:          0          0   IO-APIC-fasteoi   uhci_hcd:usb3
- 20:          1      26290   IO-APIC-fasteoi   ehci_hcd:usb1,
-uhci_hcd:usb2
- 21:     408192          0   IO-APIC-fasteoi   HDA Intel
- 22:     249414       2543   IO-APIC-fasteoi   ohci1394, eth0, eth0,
-eth0, eth0, eth0, eth0, eth0, eth0, eth0, eth0
-223:     220668          0   PCI-MSI-edge      libata
-NMI:          0          0
-LOC:   19338002   19135738
-ERR:          0
-MIS:          0
+I don't know. It's a two years old ST380817AS.
 
 
-ierdnac ~ # lsmod
-Module                  Size  Used by
-snd_seq                47120  0
-snd_seq_device          6860  1 snd_seq
-snd_hda_intel          16344  4
-snd_hda_codec         157568  1 snd_hda_intel
-snd_pcm                68100  3 snd_hda_intel,snd_hda_codec
-snd_timer              18884  3 snd_seq,snd_pcm
-snd                    38776  12
-snd_seq,snd_seq_device,snd_hda_intel,snd_hda_codec,snd_pcm,snd_timer
-snd_page_alloc          7880  2 snd_hda_intel,snd_pcm
-usb_storage            33156  0
-ohci1394               32176  0
-ieee1394               82964  1 ohci1394
-e100                   31368  0
-uhci_hcd               21516  0
-ehci_hcd               27596  0
-usbcore               100948  3 usb_storage,uhci_hcd,ehci_hcd
+# smartctl -a -d ata /dev/sda
+
+smartctl version 5.36 [x86_64-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Seagate Barracuda 7200.7 and 7200.7 Plus family
+Device Model:     ST380817AS
+Serial Number:    4MR08EK8
+Firmware Version: 3.42
+User Capacity:    80,026,361,856 bytes
+Device is:        In smartctl database [for details use: -P show]
+ATA Version is:   6
+ATA Standard is:  ATA/ATAPI-6 T13 1410D revision 2
+Local Time is:    Sun Jan 21 20:15:40 2007 CET
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Offline data collection status:  (0x82)	Offline data collection activity
+					was completed without error.
+					Auto Offline Data Collection: Enabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		 ( 430) seconds.
+Offline data collection
+capabilities: 			 (0x5b) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					No General Purpose Logging support.
+Short self-test routine 
+recommended polling time: 	 (   1) minutes.
+Extended self-test routine
+recommended polling time: 	 (  47) minutes.
+
+SMART Attributes Data Structure revision number: 10
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000f   059   049   006    Pre-fail  Always       -       215927244
+  3 Spin_Up_Time            0x0003   098   098   000    Pre-fail  Always       -       0
+  4 Start_Stop_Count        0x0032   098   098   020    Old_age   Always       -       2182
+  5 Reallocated_Sector_Ct   0x0033   100   100   036    Pre-fail  Always       -       0
+  7 Seek_Error_Rate         0x000f   083   060   030    Pre-fail  Always       -       204305750
+  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3494
+ 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  Always       -       0
+ 12 Power_Cycle_Count       0x0032   098   098   020    Old_age   Always       -       2541
+194 Temperature_Celsius     0x0022   024   040   000    Old_age   Always       -       24 (Lifetime Min/Max 0/15)
+195 Hardware_ECC_Recovered  0x001a   059   049   000    Old_age   Always       -       215927244
+197 Current_Pending_Sector  0x0012   100   100   000    Old_age   Always       -       1
+198 Offline_Uncorrectable   0x0010   100   100   000    Old_age   Offline      -       1
+199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always       -       0
+200 Multi_Zone_Error_Rate   0x0000   100   253   000    Old_age   Offline      -       0
+202 TA_Increase_Count       0x0032   100   253   000    Old_age   Always       -       0
+
+SMART Error Log Version: 1
+ATA Error Count: 12 (device log contains only the most recent five errors)
+	CR = Command Register [HEX]
+	FR = Features Register [HEX]
+	SC = Sector Count Register [HEX]
+	SN = Sector Number Register [HEX]
+	CL = Cylinder Low Register [HEX]
+	CH = Cylinder High Register [HEX]
+	DH = Device/Head Register [HEX]
+	DC = Device Command Register [HEX]
+	ER = Error register [HEX]
+	ST = Status register [HEX]
+Powered_Up_Time is measured from power on, and printed as
+DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,
+SS=sec, and sss=millisec. It "wraps" after 49.710 days.
+
+Error 12 occurred at disk power-on lifetime: 2516 hours (104 days + 20 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 0d 5b 9d 34 e1  Error: UNC 13 sectors at LBA = 0x01349d5b = 20225371
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 00 4e 9d 34 e1 00      00:03:03.851  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.848  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.846  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.843  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.839  READ DMA
+
+Error 11 occurred at disk power-on lifetime: 2516 hours (104 days + 20 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 0d 5b 9d 34 e1  Error: UNC 13 sectors at LBA = 0x01349d5b = 20225371
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 00 4e 9d 34 e1 00      00:03:03.851  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.848  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.846  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.843  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.839  READ DMA
+
+Error 10 occurred at disk power-on lifetime: 2516 hours (104 days + 20 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 0d 5b 9d 34 e1  Error: UNC 13 sectors at LBA = 0x01349d5b = 20225371
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 00 4e 9d 34 e1 00      00:03:03.851  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.848  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.846  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.843  READ DMA
+  c8 00 00 16 9c 34 e1 00      00:03:03.839  READ DMA
+
+Error 9 occurred at disk power-on lifetime: 2516 hours (104 days + 20 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 0d 5b 9d 34 e1  Error: UNC 13 sectors at LBA = 0x01349d5b = 20225371
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 00 4e 9d 34 e1 00      00:03:03.851  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.848  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.846  READ DMA
+  c8 00 00 16 9c 34 e1 00      00:03:03.843  READ DMA
+  c8 00 00 0e 9b 34 e1 00      00:03:03.839  READ DMA
+
+Error 8 occurred at disk power-on lifetime: 2516 hours (104 days + 20 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 0d 5b 9d 34 e1  Error: UNC 13 sectors at LBA = 0x01349d5b = 20225371
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 00 4e 9d 34 e1 00      00:03:03.851  READ DMA
+  c8 00 00 4e 9d 34 e1 00      00:03:03.848  READ DMA
+  c8 00 00 16 9c 34 e1 00      00:03:03.846  READ DMA
+  c8 00 00 0e 9b 34 e1 00      00:03:03.843  READ DMA
+  c8 00 00 8e 99 34 e1 00      00:03:03.839  READ DMA
+
+SMART Self-test log structure revision number 1
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
 
 
-from dmesg:
-Restarting tasks ... done.
-Suspend2 debugging info:
-- Suspend core   : 2.2.9.1
-- Kernel Version : 2.6.20-rc4
-- Compiler vers. : 4.1
-- Attempt number : 10
-- Parameters     : 0 81936 0 1 0 5
-- Overall expected compression percentage: 0.
-- Compressor is 'lzf'.
-  Compressed 525217792 bytes into 449285477 (14 percent compression).
-- SwapAllocator active.
-  Swap available for image: 250982 pages.
-- I/O speed: Write 43 MB/s, Read 44 MB/s.
-- Extra pages    : -99 used/500.
-Enabling non-boot CPUs ...
-SMP alternatives: switching to SMP code
-Booting processor 1/1 eip 3000
-CPU 1 irqstacks, hard=c04bd000 soft=c04b5000
-
-suspend2 maintainer:
-"That is interesting! Unfortunately, I don't touch anything in that area.
-Could I get you to send the message to the Linux kernel mailing list?
-
-Regards,
-
-Nigel"
-
-ierdnac ~ # uname -a
-Linux ierdnac 2.6.20-rc4 #0 SMP PREEMPT Wed Jan 10 18:34:14 EET 2007 i686 Genuine Intel(R) CPU           T2050  @ 1.60GHz GenuineIntel GNU/Linux
+SMART Selective self-test log data structure revision number 1
+ SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS
+    1        0        0  Not_testing
+    2        0        0  Not_testing
+    3        0        0  Not_testing
+    4        0        0  Not_testing
+    5        0        0  Not_testing
+Selective self-test flags (0x0):
+  After scanning selected spans, do NOT read-scan remainder of disk.
+If Selective self-test is pending on power-up, resume after 0 minute delay.
 
 
 
-
+-- 
+	Paolo Ornati
+	Linux 2.6.20-rc5 on x86_64

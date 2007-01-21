@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750863AbXAUOoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750783AbXAUO7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbXAUOoM (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 09:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbXAUOoM
+	id S1750783AbXAUO7p (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 09:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750696AbXAUO7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 09:44:12 -0500
-Received: from main.gmane.org ([80.91.229.2]:46718 "EHLO ciao.gmane.org"
+	Sun, 21 Jan 2007 09:59:45 -0500
+Received: from 1wt.eu ([62.212.114.60]:2117 "EHLO 1wt.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750857AbXAUOoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 09:44:11 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
-Date: 21 Jan 2007 15:45:09 +0100
-Message-ID: <m33b64iglm.fsf@ursa.amorsen.dk>
-References: <7FsPf-51s-9@gated-at.bofh.it> <7FxlV-3sb-1@gated-at.bofh.it> <7FyUF-5XD-21@gated-at.bofh.it> <E1H8a7s-0000at-Jx@be1.lrz>
+	id S1750783AbXAUO7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 09:59:44 -0500
+Date: Sun, 21 Jan 2007 15:58:17 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Grzegorz Ja?kiewicz <gryzman@gmail.com>
+Cc: Johannes Stezenbach <js@linuxtv.org>, Theodore Tso <tytso@mit.edu>,
+       Joe Barr <joe@pjprimer.com>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Serial port blues
+Message-ID: <20070121145817.GE31780@1wt.eu>
+References: <1169242654.20402.154.camel@warthawg-desktop> <20070120173644.GY24090@1wt.eu> <20070121055456.GC27422@thunk.org> <20070121070557.GB31780@1wt.eu> <20070121140421.GA13425@linuxtv.org> <2f4958ff0701210650w4fa0138di6a5026de8a0823dc@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 10.8.185.213.dk-amb.res.sta.perspektivbredband.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+Content-Disposition: inline
+In-Reply-To: <2f4958ff0701210650w4fa0138di6a5026de8a0823dc@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "BE" == Bodo Eggert <7eggert@gmx.de> writes:
+On Sun, Jan 21, 2007 at 03:50:32PM +0100, Grzegorz Ja?kiewicz wrote:
+> funny, how even very fast box can be useless for such activities with modern
+> kernels, such as linux. After all, serial ports don't require too much
+> horsepower to be highly accurate.
+> >From designer perspective, I would rather go for uC solution in his case.
+> That is, design and build fairly simple board - based on atmega AVRs. 16mhz
+> 8bit chip can do so much better compared to N gigs mhz box running "modern"
+> operating system, these days....
 
-BE> 1) This change isn't nescensary - any sane person will know that
-BE> it's not a SI unit. You wouldn't talk about megabananas == 1000000
-BE> bananas and expect to be taken seriously.
+It is true, but the point is not "modern" vs "ancient" OS, it's "multitasking"
+vs "monotasking" kernel. If your program does the busy loop, you'll get a
+very high accuracy at the expense of burning watts polling one bit one
+billion times a second waiting for a change every millisecond.
 
-What about megaparsec? I have also seen graphs delimited in megayears.
-Millibar, that's another one. Not that I would have any problems
-talking about megabananas, if I ever had to deal with that many
-bananas.
+18 years ago, I wrote a soft-only 8250 emulator to connect my second 8088
+to the first one's serial port at 19200 bauds. At this time, waiting for
+a change only took a few hundred cycles and the busy loop was the default
+mode of the OS anyway. Things have changed since.
 
-
-/Benny
-
+Willy
 

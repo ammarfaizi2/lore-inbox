@@ -1,133 +1,126 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750943AbXAUAcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750973AbXAUAf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbXAUAcJ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 19:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbXAUAcJ
+	id S1750973AbXAUAf0 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 19:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbXAUAfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 19:32:09 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:59156 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750972AbXAUAcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 19:32:08 -0500
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Weird XFS slowness
-Date: Sun, 21 Jan 2007 02:29:53 +0200
-User-Agent: KMail/1.9.6
+	Sat, 20 Jan 2007 19:35:25 -0500
+Received: from scrye.com ([216.17.180.1]:58195 "EHLO mail.scrye.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750973AbXAUAfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 19:35:24 -0500
+X-Greylist: delayed 1689 seconds by postgrey-1.27 at vger.kernel.org; Sat, 20 Jan 2007 19:35:24 EST
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+From: Tony Foiani <tkil@scrye.com>
+Reply-To: Tony Foiani <tkil@scrye.com>
+X-Attribution: Tony
+To: davids@webmaster.com ("David Schwartz")
+CC: leon.woestenberg@gmail.com ("Leon Woestenberg"),
+       linux-kernel@vger.kernel.org
+References: <c384c5ea0701201007t4e637b9eh133101286ce5598d@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com>
+Date: Sat, 20 Jan 2007 17:07:14 -0700
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com> (David Schwartz's message of "Sat, 20 Jan 2007 14:54:10 -0800")
+Message-ID: <gzm8d1bv1.fsf@brand.scrye.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart233871657.Lt2R8Mg2hV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200701210229.53179.caglar@pardus.org.tr>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart233871657.Lt2R8Mg2hV
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>>>>> "David" == David Schwartz <davids@webmaster.com> writes:
 
-Hi;
+David> The way RAM and flash are measured is correct.
 
-After switching ext3 to xfs, i realize system starts to _really_ unresponsi=
-ve=20
-and extracting tarballs, copying or deleting files or checking out svn=20
-repositories are really slow, so i basically try to measure some for both x=
-fs=20
-and ext3 with same computer, same kernel (2.6.18.6), same disk, here are th=
-e=20
-results=20
+In my experience, RAM and flash *drives* are measured differently.  
 
-* between all tests i dropped caches
-* i already tried to change block device's scheduler to as, noop and cfq,=20
-nothing really changes
-* i already tried 2.6.20-rc5 and 2.6.20-rc5.1.rt8.0085 which Ingo provides =
-but=20
-again nothing really changes
+I understand that individual flash chips come in powers of 2, but by
+the time they're packaged as a "flash drive", some of that has been
+used up -- yet they're still sold as the full capacity, and the
+manufacturers use the confusion between MiB and MB to defend the
+practice.
 
-Kernel Tarball
-=2D-------------
+   This "16Mb" drive doesn't really have 16 megabytes of capacity -
+   it's really got 15.5. But that's just standard operating procedure
+   for storage manufacturers. Non-volatile storage manufacturers,
+   including hard drive companies, like to define a megabyte as
+   1,000,000 bytes and a gigabyte as 1,000,000,000 bytes. They're
+   actually two-to-the-power-of-20 and two-to-the-power-of-30 bytes,
+   which is 1,048,576 and 1,073,741,824 bytes respectively. This is
+   the main reason why a "20Gb" hard drive won't actually give you
+   20Gb of capacity.
 
-a) XFS
+   In flash RAM devices, things can get a bit more complex again,
+   thanks to the small amount of memory which may be used by the
+   device itself for housekeeping. That can vary between device
+   families; a CompactFlash card with a given nominal capacity may
+   actually have a bit less space than a SmartMedia card with the same
+   number on the label. And manufacturers may throw in some more
+   memory to push the real capacity up closer to the stated one, which
+   is what they've done with the USBDrive. It's still about three per
+   cent shy of its claimed capacity, though.
 
-ekin@idaho ~ $ time tar xvf linux-2.6.19.tar.bz2
-=2E..
-real    2m16.865s
-user    0m21.113s
-sys     0m2.426s
+   -- http://www.dansdata.com/flashcomp.htm
 
-b) EXT3
+(E.g., my "512MB" CF card shows up as "487MB" in the camera -- a
+difference of exactly 5%, as would be expected by the MB-vs-MiB scam.
+I'd be happier if the camera said "487MiB", but we're looking at OSes
+we do have control over, not others.)
 
-ekin@idaho ~ $ time tar xvf linux-2.6.19.tar.bz2
-=2E..
-real    0m34.192s
-user    0m20.624s
-sys     0m1.771s
+And this cheat is getting better (for the seller) with every expansion:
 
-Deletion
-=2D-------
+   1 MiB is  5% bigger than 1 MB
+   1 GiB is  7% bigger than 1 GB
+   1 TiB is 10% bigger than 1 TB
 
-a) XFS
+So when you go out to buy your 1TB drive this year, you're really only
+buying 0.9TiB or so.
 
-ekin@idaho ~ $ time rm -rf linux-2.6.19/
+Since all the manufacturers do the same thing, it's possible to
+consider it "fair", at least for comparisons -- but when the customer
+gets home and formats their drive, I think they'd be happier if the
+number was the same as on the carton.
 
-real    0m50.902s
-user    0m0.064s
-sys     0m1.378s
+Just last night I formatted some new "500GB" drives, and they
+eventually came back with 465GB as the displayed capacity.  Wouldn't
+it make more sense to display that as "465GiB"?
 
-b) EXT3
+David> Talk about a cure worse than the disease! So you're saying that
+David> 256MB flash cards could be advertised as having 268.4MB? A
+David> 512MB RAM stick is mislabelled and could correctly say 536.8MB? 
+David> That's just plain craziness.
 
-ekin@idaho ~ $ time rm -rf linux-2.6.19/
+No, it sounds like he wants them advertised as 256MB and 512MiB,
+respectively -- packaged flash cards tend to use the 1000 multiples,
+while DRAM uses the 1024.  One extra letter doesn't sound all that
+crazy.
 
-real    0m1.162s
-user    0m0.031s
-sys     0m0.411s
+How fast is your Ethernet port?  100Mbps or 95.37Mbps?
 
-Copying
-=2D------
+Somewhat archaic now, but how big was your common 3.5" floppy disk (PC
+"HD" format)?  It actually used a basis of 1,024,000:
 
-a) XFS
+   And if two definitions of the megabyte are not enough, a third
+   megabyte of 1 024 000 bytes is the megabyte used to format the
+   familiar 90 mm (3 1/2 inch), "1.44 MB" diskette.
 
-ekin@idaho test $ time cp -r ../linux-2.6.19 .
-=2E..
-real    1m42.833s
-user    0m0.124s
-sys     0m2.621s
+   -- http://physics.nist.gov/cuu/Units/binary.html
 
-b) EXT3
+What's likely is that the flash and drive manufacturers will either
+mark their products honestly, or they'll increase the capacity of
+their product to meet the given label.
 
-ekin@idaho test $ time cp -r ../linux-2.6.19 .
-=2E..
-real    0m38.456s
-user    0m0.166s
-sys     0m2.744s
+(Think about the CRT "diagonal" measurements -- it took a few
+lawsuits, but they eventually switched from measuring bezel-to-bezel,
+or total tube diagonal, to "viewable".  Sure, everyone in technology
+"knew" that you had to chop off an inch or two from the advertised
+value to get the viewable; but that's not enough to meet the standard
+of truth in advertising.)
 
-I'm not sure these are normal numbers or its a regression (i'm just startin=
-g=20
-to use XFS) so any hints will be appreciated.
+David> Adopting IEC 60027-2 just replaces a set of well-understood
+David> problems with all new problems.
 
-Cheers
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+Which are clearly solved in the standards document, and remove any
+ambiguity.  Is one extra character really that painful to you?
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+t.
 
---nextPart233871657.Lt2R8Mg2hV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.1 (GNU/Linux)
-
-iD8DBQBFsrQBy7E6i0LKo6YRAnFrAJkBzBshfbldRsetmfr1/YjR0ooUfwCaA4RE
-OMZy89TcPX1pM0BbbMEucHw=
-=/HBe
------END PGP SIGNATURE-----
-
---nextPart233871657.Lt2R8Mg2hV--

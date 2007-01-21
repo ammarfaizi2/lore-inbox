@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751468AbXAUUCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751462AbXAUUDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbXAUUCU (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 15:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbXAUUCU
+	id S1751462AbXAUUDg (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 15:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbXAUUDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 15:02:20 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:42137 "EHLO
-	pincoya.inf.utfsm.cl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751468AbXAUUCT (ORCPT
+	Sun, 21 Jan 2007 15:03:36 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:46270 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751462AbXAUUDf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 15:02:19 -0500
-X-Greylist: delayed 919 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 15:02:18 EST
-Message-Id: <200701212001.l0LK1ofV022758@laptop13.inf.utfsm.cl>
-To: Junio C Hamano <junkio@cox.net>
-cc: Willy Tarreau <w@1wt.eu>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: [Announce] GIT v1.5.0-rc2
-In-reply-to: <7v7ivg1a25.fsf@assigned-by-dhcp.cox.net>
-References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <20070121134308.GA24090@1wt.eu> <7v7ivg1a25.fsf@assigned-by-dhcp.cox.net>
-Comments: In-reply-to Junio C Hamano <junkio@cox.net>
-   message dated "Sun, 21 Jan 2007 10:58:26 -0800."
-X-Mailer: MH-E 7.4.2; nmh 1.2-20070115cvs; XEmacs 21.5  (beta27)
-Date: Sun, 21 Jan 2007 17:01:50 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+	Sun, 21 Jan 2007 15:03:35 -0500
+Date: Sun, 21 Jan 2007 21:03:26 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: davids@webmaster.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+In-Reply-To: <45B3122C.20301@zytor.com>
+Message-ID: <Pine.LNX.4.62.0701212101100.28541@pademelon.sonytel.be>
+References: <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com>
+ <45B3122C.20301@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio C Hamano <junkio@cox.net> wrote:
-> Willy Tarreau <w@1wt.eu> writes:
-> > Anything you can do to make tester's life easier will always slightly
-> > increase the number of testers.
-> > ...
-> > Pre-release tar.gz and rpms coupled with a freshmeat announcement should
-> > get you a bunch of testers and newcomers. This will give the new doc a
-> > real trial, and will help discover traps in which beginners often fall.
+On Sat, 20 Jan 2007, H. Peter Anvin wrote:
+> David Schwartz wrote:
+> > 	Talk about a cure worse than the disease! So you're saying that 256MB
+> > flash
+> > cards could be advertised as having 268.4MB? A 512MB RAM stick is
+> > mislabelled and could correctly say 536.8MB? That's just plain craziness.
+> > 
+> > 	Adopting IEC 60027-2 just replaces a set of well-understood problems
+> > with
+> > all new problems.
 > 
-> One worry I had about releasing git-1.5.0-rc2-1.rpm and friends
-> just like the "official" ones was that people might have scripts
-> to automate downloading & updating of packages, and they may not
-> like to get "beta" installed for them.
+> Except that you're wrong above.  Most 512 MB flash cards are less than 512
+> MiB; most of them are, in fact, around 512 MB!  RAM, of course, is
+> consistently 512 MiB.
+> 
+> This little tidbit discovered in the process of working on an application
+> which required powers-of-two flash cards, and finding that one does have to
+> use one size larger...
 
-Then put them into a "testing" or "pre-release" directory...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+Yeah, and Ethernet speed is measured in Mbps, not Mibps.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

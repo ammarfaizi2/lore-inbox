@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751719AbXAUWNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751726AbXAUWZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751719AbXAUWNL (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 17:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbXAUWNL
+	id S1751726AbXAUWZR (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbXAUWZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 17:13:11 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:4467 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751719AbXAUWNK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 17:13:10 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
-Date: Sun, 21 Jan 2007 14:12:26 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEENPBAAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-reply-to: <c384c5ea0701210904t15f44178hfd807b4553e0e3d3@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 21 Jan 2007 15:14:57 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 21 Jan 2007 15:14:59 -0800
+	Sun, 21 Jan 2007 17:25:17 -0500
+Received: from main.gmane.org ([80.91.229.2]:33567 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751726AbXAUWZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:25:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jakub Narebski <jnareb@gmail.com>
+Subject: Re: [Announce] GIT v1.5.0-rc2
+Followup-To: gmane.comp.version-control.git
+Date: Sun, 21 Jan 2007 23:24:18 +0100
+Organization: At home
+Message-ID: <ep0p55$6ko$1@sea.gmane.org>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <17843.28128.851749.558017@lisa.zopyra.com> <17843.28673.205993.946369@lisa.zopyra.com> <Pine.LNX.4.63.0701212225350.22628@wbgn013.biozentrum.uni-wuerzburg.de> <ep0m67$so8$1@sea.gmane.org> <Pine.LNX.4.63.0701212300130.22628@wbgn013.biozentrum.uni-wuerzburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-81-190-20-200.torun.mm.pl
+Mail-Copies-To: jnareb@gmail.com
+User-Agent: KNode/0.10.2
+Cc: git@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Johannes Schindelin wrote:
+> On Sun, 21 Jan 2007, Jakub Narebski wrote:
+>> Johannes Schindelin wrote:
+>>> On Sun, 21 Jan 2007, Bill Lear wrote:
+>>> 
+>>>> Also (apologies for the ignorance), how do I get the 1.5.0-rc2 release?
+>>> 
+>>> Direct your browser to
+>>> 
+>>> http://repo.or.cz/w/git.git?a=snapshot;h=eaf6459e4d482af51429f9464125621b805eb5f
+>> 
+>> Better URL is
+>> 
+>>   http://repo.or.cz/w/git.git?a=snapshot;h=v1.5.0-rc2
+> 
+> It is a better URL. Somehow I fscked up when I tried it, so I had the 
+> impression that does not work. But it does.
 
-> > Talk about a cure worse than the disease! So you're
-> > saying that 256MB flash
-> > cards could be advertised as having 268.4MB? A 512MB RAM stick is
-> > mislabelled and could correctly say 536.8MB? That's just plain
-> > craziness.
+Most probably you wrote '1.5.0-rc2' instead of 'v1.5.0-rc2'
+(with 'v' prefix).
 
-> No, I meant to advertise it as a 256 MiB flash device and a 512 MiB
-> flash device, as the Mi prefix has a single interpretation, that is 2
-> to the power of 20, as per IEC 60027-2, whereas M has not if used
-> outside SI units.
-
-If it actually has 256*2^20 bytes, why advertise it as "256 MiB" when "268.4
-MB" is equally valid and looks better? It really comes down to this: is it
-your position that "256 MB" can only correctly mean 256 million bytes?
-
-If you are right, a "512MB" RAM stick is mislabelled and is more correctly
-labelled as "536.8MB". (With 512MiB being equally correct.)
-
-Isn't that obviously not just wrong but borderline crazy? Yes, your position
-has some nice consequences, but that doesn't allow you to ignore the bad
-ones.
-
-Unfortunately, we're not writing on a clean slate here.
-
-DS
+-- 
+Jakub Narebski
+Warsaw, Poland
+ShadeHawk on #git
 
 

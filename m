@@ -1,112 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751465AbXAUUCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751468AbXAUUCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbXAUUCR (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 15:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbXAUUCR
+	id S1751468AbXAUUCU (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 15:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbXAUUCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 15:02:17 -0500
-Received: from hosting.zipcon.net ([209.221.136.3]:47117 "EHLO
-	hosting.zipcon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751465AbXAUUCQ (ORCPT
+	Sun, 21 Jan 2007 15:02:20 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:42137 "EHLO
+	pincoya.inf.utfsm.cl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751468AbXAUUCT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 15:02:16 -0500
-X-Greylist: delayed 2798 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 15:02:16 EST
-Message-ID: <45B3BBE1.9090305@beezmo.com>
-Date: Sun, 21 Jan 2007 11:15:45 -0800
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFCLUE3] flagging kernel interface changes
-References: <455B9133.9030704@beezmo.com> <9a8748490611151517r7779652ej910a33ca961ba025@mail.gmail.com>
-In-Reply-To: <9a8748490611151517r7779652ej910a33ca961ba025@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hosting.zipcon.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - beezmo.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 21 Jan 2007 15:02:19 -0500
+X-Greylist: delayed 919 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 15:02:18 EST
+Message-Id: <200701212001.l0LK1ofV022758@laptop13.inf.utfsm.cl>
+To: Junio C Hamano <junkio@cox.net>
+cc: Willy Tarreau <w@1wt.eu>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: [Announce] GIT v1.5.0-rc2
+In-reply-to: <7v7ivg1a25.fsf@assigned-by-dhcp.cox.net>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <20070121134308.GA24090@1wt.eu> <7v7ivg1a25.fsf@assigned-by-dhcp.cox.net>
+Comments: In-reply-to Junio C Hamano <junkio@cox.net>
+   message dated "Sun, 21 Jan 2007 10:58:26 -0800."
+X-Mailer: MH-E 7.4.2; nmh 1.2-20070115cvs; XEmacs 21.5  (beta27)
+Date: Sun, 21 Jan 2007 17:01:50 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 15/11/06, William D Waddington <william.waddington@beezmo.com> wrote:
+Junio C Hamano <junkio@cox.net> wrote:
+> Willy Tarreau <w@1wt.eu> writes:
+> > Anything you can do to make tester's life easier will always slightly
+> > increase the number of testers.
+> > ...
+> > Pre-release tar.gz and rpms coupled with a freshmeat announcement should
+> > get you a bunch of testers and newcomers. This will give the new doc a
+> > real trial, and will help discover traps in which beginners often fall.
 > 
->> I tried submitting a patch a while back:
->> "[PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype"
->> to add #define __PT_REGS to include/linux/interrupt.h to flag the change
->> to the new interrupt handler prototype.  It wasn't well received :(
->>
->> No big surprise.  The #define wasn't my idea and I hadn't submitted a
->> patch before.  I wanted to see how the patch procedure worked, and
->> hoped that the flag would be included so I could mod my drivers and
->> move on...
->>
->> What I'm curious about is why flagging kernel/driver interface changes
->> is considered a bad idea.  From my point of view as a low-life out-of-
->> tree driver maintainer,
->>
->> #ifdef NEW_INTERFACE
->> #define <my new internals>
->> #endif
->>
->> (w/maybe an #else...)
->>
->> is cleaner and safer than trying to track specific kernel versions in
->> a multi-kernel-version driver.  It seems that in some cases, the new
->> interface has been, like HAVE_COMPAT_IOCTL for instance.
->>
->> I don't want to start an argument about "stable_api_nonsense" or the
->> wisdom of out-of-tree drivers.  Just curious about the - why - and
->> whether it is indifference or antagonism toward drivers outside the
->> fold. Or ???
->>
-> 
-> I would say that one reason is that cluttering up the kernel with
-> #ifdef's is ugly and annoying to maintain long-term. Especially when
-> it's expected that anyone who changes in-kernel interfaces also fix up
-> any user(s) of those interfaces, so the #ifdef's are pointless
-> (ignoring out-of-tree code that is).
+> One worry I had about releasing git-1.5.0-rc2-1.rpm and friends
+> just like the "official" ones was that people might have scripts
+> to automate downloading & updating of packages, and they may not
+> like to get "beta" installed for them.
 
-Ah, but out-of-tree code is what I'm stuck w/maintaining.  I wouldn't
-want to infest in-tree drivers w/#ifdef's either, but they are a fact
-of life in my world.  And, lately, _really_ ugly version tests.
-
-If I had _my_ way, there would be a kernel_interface_change.h file that
-had an #define'd entry for _every_ kernel interface change within a
-major release series:
-
-/*
-  * include/linux/interrupt.h interface change x.y.z
-  * interrupt handler now takes 2 args
-  */
-#define INTERRUPT_H_CHANGE_X.Y.Z "interrupt handler now takes 2 args"
-
-or something.
-
-I understand that many (most?) kernel maintainers would prefer that
-all drivers be brought in-tree, and aren't particularly concerned
-when interface changes affect out-of-tree drivers.
-
-Respectfully, I suggest that world domination isn't quite the same
-thing as world dictatorship, and maybe the road to the former would
-be helped by a little less of the latter :)
-
-Rat-bastard out-of-tree maintainer takes refuge under desk....
-
-Thanks,
-Bill
+Then put them into a "testing" or "pre-release" directory...
 -- 
---------------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-william.waddington@beezmo.com
---------------------------------------------
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

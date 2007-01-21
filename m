@@ -1,58 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750942AbXAUAXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750943AbXAUAcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbXAUAXr (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 19:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbXAUAXr
+	id S1750943AbXAUAcJ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 19:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbXAUAcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 19:23:47 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:2258 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750905AbXAUAXq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 19:23:46 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kY3mulFc2PP9PIpP6m1SQrkeZm7CF5/dVITAg6YER+D0NkJpoDhhAOVBIm768qtP0GMQI1KwfaQQyI75E3JqbZZfZk2ynawE49vwGFM4nKSf90wjkd38cbGKRomuht/udE9Dht/XEk9hP7aKNnOgrjf5B4aJPF5TXxrZ6vtVzV0=
-Message-ID: <8d158e1f0701201623q1519c6e7m334f0c702553b666@mail.gmail.com>
-Date: Sun, 21 Jan 2007 01:23:44 +0100
-From: "Patrick Ale" <patrick.ale@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: pata_sil680 module, udev and changing drive node order
+	Sat, 20 Jan 2007 19:32:09 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:59156 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750972AbXAUAcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Jan 2007 19:32:08 -0500
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Weird XFS slowness
+Date: Sun, 21 Jan 2007 02:29:53 +0200
+User-Agent: KMail/1.9.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart233871657.Lt2R8Mg2hV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200701210229.53179.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+--nextPart233871657.Lt2R8Mg2hV
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I am using kernel 2.6.19 with the new pata and sata drivers.
-First of all, the drivers work great, no crashes nothing.
+Hi;
 
-There is one downside i found by using these drivers, and i am not
-sure how i can fix this.
+After switching ext3 to xfs, i realize system starts to _really_ unresponsi=
+ve=20
+and extracting tarballs, copying or deleting files or checking out svn=20
+repositories are really slow, so i basically try to measure some for both x=
+fs=20
+and ext3 with same computer, same kernel (2.6.18.6), same disk, here are th=
+e=20
+results=20
 
-The drivers load correctly but my drives seem to be in a different
-order all the time, which is not very convinient when your run md
-devices.
+* between all tests i dropped caches
+* i already tried to change block device's scheduler to as, noop and cfq,=20
+nothing really changes
+* i already tried 2.6.20-rc5 and 2.6.20-rc5.1.rt8.0085 which Ingo provides =
+but=20
+again nothing really changes
 
-I have a pata_via driver, which is built-in to the kernel since it
-serves my primary and secundary ATA controller.
-I have a pata_pdc2027x driver, serving the 3rd and 4th ATA controller
-on the motherboard. (as module)
-I have a pata_sil680 driver serving 2 PCI add-in cards (as module)
-I have a sata_sil driver for the onboard sata controller. (as module)
+Kernel Tarball
+=2D-------------
 
-What seems to happen is that either the modules are auto-loaded and
-that the pata_sil680 driver changes the order of the two PCI cards
-every reboot or that udev gets different events from different
-controllers as first after every reboot and therefor creates the
-device nodes different.
+a) XFS
 
-So, my question is: how do I force a fixed order for a module handling
-two PCI cards, or how do I tell udev to always use the same mapping
-for the device nodes in /dev?
+ekin@idaho ~ $ time tar xvf linux-2.6.19.tar.bz2
+=2E..
+real    2m16.865s
+user    0m21.113s
+sys     0m2.426s
 
-Thanks,
+b) EXT3
+
+ekin@idaho ~ $ time tar xvf linux-2.6.19.tar.bz2
+=2E..
+real    0m34.192s
+user    0m20.624s
+sys     0m1.771s
+
+Deletion
+=2D-------
+
+a) XFS
+
+ekin@idaho ~ $ time rm -rf linux-2.6.19/
+
+real    0m50.902s
+user    0m0.064s
+sys     0m1.378s
+
+b) EXT3
+
+ekin@idaho ~ $ time rm -rf linux-2.6.19/
+
+real    0m1.162s
+user    0m0.031s
+sys     0m0.411s
+
+Copying
+=2D------
+
+a) XFS
+
+ekin@idaho test $ time cp -r ../linux-2.6.19 .
+=2E..
+real    1m42.833s
+user    0m0.124s
+sys     0m2.621s
+
+b) EXT3
+
+ekin@idaho test $ time cp -r ../linux-2.6.19 .
+=2E..
+real    0m38.456s
+user    0m0.166s
+sys     0m2.744s
+
+I'm not sure these are normal numbers or its a regression (i'm just startin=
+g=20
+to use XFS) so any hints will be appreciated.
+
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart233871657.Lt2R8Mg2hV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
+
+iD8DBQBFsrQBy7E6i0LKo6YRAnFrAJkBzBshfbldRsetmfr1/YjR0ooUfwCaA4RE
+OMZy89TcPX1pM0BbbMEucHw=
+=/HBe
+-----END PGP SIGNATURE-----
+
+--nextPart233871657.Lt2R8Mg2hV--

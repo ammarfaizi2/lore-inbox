@@ -1,113 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751171AbXAUEGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751182AbXAUEQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbXAUEGN (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 23:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbXAUEGN
+	id S1751182AbXAUEQj (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 23:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbXAUEQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 23:06:13 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:20638 "EHLO
-	vms040pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751171AbXAUEGM (ORCPT
+	Sat, 20 Jan 2007 23:16:39 -0500
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:39188 "EHLO
+	mail07.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751182AbXAUEQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 23:06:12 -0500
-Date: Sat, 20 Jan 2007 23:06:07 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Abysmal disk performance, how to debug?
-In-reply-to: <45B2E0DD.9020807@seclark.us>
-To: linux-kernel@vger.kernel.org, Stephen.Clark@seclark.us
-Cc: Willy Tarreau <w@1wt.eu>, Sunil Naidu <akula2.shark@gmail.com>,
-       Ismail =?utf-8?q?D=C3=B6nmez?= <ismail@pardus.org.tr>
-Message-id: <200701202306.09087.gene.heskett@verizon.net>
-Organization: Not detectable
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200701201920.54620.ismail@pardus.org.tr>
- <20070120200916.GB25307@1wt.eu> <45B2E0DD.9020807@seclark.us>
-User-Agent: KMail/1.9.5
+	Sat, 20 Jan 2007 23:16:38 -0500
+X-Greylist: delayed 464 seconds by postgrey-1.27 at vger.kernel.org; Sat, 20 Jan 2007 23:16:38 EST
+Date: Sun, 21 Jan 2007 15:07:35 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: dann frazier <dannf@dannf.org>
+Cc: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       chase.maupin@hp.com
+Subject: Re: [PATCH 9/12] repost: cciss: add busy_configuring flag
+Message-ID: <20070121040735.GF4658@kernel.dk>
+References: <20061106202559.GI17847@beardog.cca.cpqcorp.net> <20061106203200.GG19471@kernel.dk> <20061212170111.GA26017@beardog.cca.cpqcorp.net> <20061213125236.GO4576@kernel.dk> <20070119174220.GF26210@colo>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070119174220.GF26210@colo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 January 2007 22:41, Stephen Clark wrote:
->Willy Tarreau wrote:
->>On Sat, Jan 20, 2007 at 02:56:20PM -0500, Stephen Clark wrote:
->>>Sunil Naidu wrote:
->>>>On 1/20/07, Willy Tarreau <w@1wt.eu> wrote:
->>>>>It is not expected to increase write performance, but it should help
->>>>>you do something else during that time, or also give more
->>>>> responsiveness to Ctrl-C. It is possible that you have fast and
->>>>> slow RAM, or that your video card uses shared memory which slows
->>>>> down some parts of memory which are not used anymore with those
->>>>> parameters.
->>>>
->>>>I did test some SATA drives, am getting these value for 2.6.20-rc5:-
->>>>
->>>>[sukhoi@Typhoon ~]$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
->>>>1024+0 records in
->>>>1024+0 records out
->>>>1073741824 bytes (1.1 GB) copied, 21.0962 seconds, 50.9 MB/s
->>>>
->>>>What can you suggest here w.r.t my RAM & disk?
->>>>
->>>>>Willy
->>>>
->>>>Thanks,
->>>>
->>>>~Akula2
->>>>-
->>>>To unsubscribe from this list: send the line "unsubscribe
->>>> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>Please read the FAQ at  http://www.tux.org/lkml/
->>>
->>>Hi,
->>>whitebook vbi s96f core 2 duo t5600 2gb hitachi ATA     
->>> HTS721060G9AT00 using libata
->>>time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
->>>1024+0 records in
->>>1024+0 records out
->>>1073741824 bytes (1.1 GB) copied, 10.0092 seconds, 107 MB/s
->>>
->>>real    0m10.196s
->>>user    0m0.004s
->>>sys     0m3.440s
->>
->>You have too much RAM, it's possible that writes did not complete
->> before the end of your measurement. Try this instead :
->>
->>$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024 | sync
->>
->>Willy
->
->Yeah that make a difference:
-> time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024 | sync
->1024+0 records in
->1024+0 records out
->1073741824 bytes (1.1 GB) copied, 8.86719 seconds, 121 MB/s
->
->real    0m43.601s
->user    0m0.004s
->sys     0m3.912s
+On Fri, Jan 19 2007, dann frazier wrote:
+> On Wed, Dec 13, 2006 at 01:52:36PM +0100, Jens Axboe wrote:
+> > On Tue, Dec 12 2006, Mike Miller (OS Dev) wrote:
+> > > On Mon, Nov 06, 2006 at 09:32:00PM +0100, Jens Axboe wrote:
+> > > > On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
+> > > > > PATCH 9 of 12
+> > > > > 
+> > > > > This patch adds a check for busy_configuring to prevent starting a queue
+> > > > > on a drive that may be in the midst of updating, configuring, deleting, etc.
+> > > > > 
+> > > > > This had a test for if the queue was stopped or plugged but that seemed
+> > > > > to cause issues.
+> > > > > Please consider this for inclusion.
+> > > > > 
+> > > > > Thanks,
+> > > > > mikem
+> > > > > 
+> > > > > Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > > > > 
+> > > > > --------------------------------------------------------------------------------
+> > > > > 
+> > > > > ---
+> > > > > 
+> > > > >  drivers/block/cciss.c |    5 ++++-
+> > > > >  1 files changed, 4 insertions(+), 1 deletion(-)
+> > > > > 
+> > > > > diff -puN drivers/block/cciss.c~cciss_busy_conf_for_lx2619-rc4 drivers/block/cciss.c
+> > > > > --- linux-2.6/drivers/block/cciss.c~cciss_busy_conf_for_lx2619-rc4	2006-11-06 13:27:53.000000000 -0600
+> > > > > +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:27:53.000000000 -0600
+> > > > > @@ -1190,8 +1190,11 @@ static void cciss_check_queues(ctlr_info
+> > > > >  		/* make sure the disk has been added and the drive is real
+> > > > >  		 * because this can be called from the middle of init_one.
+> > > > >  		 */
+> > > > > -		if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
+> > > > > +		if (!(h->drv[curr_queue].queue) ||
+> > > > > +		    !(h->drv[curr_queue].heads) ||
+> > > > > +		    h->drv[curr_queue].busy_configuring)
+> > > > >  			continue;
+> > > > > +
+> > > > >  		blk_start_queue(h->gendisk[curr_queue]->queue);
+> > > > 
+> > > > This is racy, because you don't start the queue when you unset
+> > > > ->busy_configuring later on. For this to be safe, you need to call
+> > > > blk_start_queue() when you set ->busy_configuring to 0.
+> > > 
+> > > Jens, please see Chase's reply to your concerns:
+> > > > busy_configuring - I do not think this is racy.  This
+> > > > flag is used only when we are removing/deleting a disk.  In
+> > > > this case the queue is cleaned up and the disk is deleted.
+> > > > If we are doing that then there is no queue to start later.
+> > > > The check of this flag in the interrupt handler is to prevent
+> > > > us from trying to start a queue that is in the middle of
+> > > > being deleted.  This flag could be called busy_deleting.
+> > 
+> > Ok, no worries then if it's simply a going away flag. I wonder if it's
+> > needed at all, but it certainly doesn't hurt.
+> 
+> hey Jens,
+>   Just a poke since I haven't seen this change go into your block
+> tree. Is it still in-plan?
 
-I'd reconsider my new years resolutions for figures like that:
-
-#> time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024 | sync
-1024+0 records in
-1024+0 records out
-1073741824 bytes (1.1 GB) copied, 24.1455 seconds, 44.5 MB/s
-
-real    0m25.218s
-user    0m0.009s
-sys     0m5.763s
-
-but then I also have only a gig of ram.  So does this look normal?
+I had it stashed for a 2.6.21 merge, it'll go in by then.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2007 by Maurice Eugene Heskett, all rights reserved.
+Jens Axboe
+

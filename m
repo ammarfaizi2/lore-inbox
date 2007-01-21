@@ -1,131 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751170AbXAUDlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751154AbXAUEDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbXAUDlT (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 22:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXAUDlS
+	id S1751154AbXAUEDi (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 20 Jan 2007 23:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXAUEDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 22:41:18 -0500
-Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:53582
-	"HELO smtpout10-04.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751170AbXAUDlS (ORCPT
+	Sat, 20 Jan 2007 23:03:38 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:37495 "EHLO
+	mail20.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751154AbXAUEDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 22:41:18 -0500
-Message-ID: <45B2E0DD.9020807@seclark.us>
-Date: Sat, 20 Jan 2007 22:41:17 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Sat, 20 Jan 2007 23:03:38 -0500
+X-Greylist: delayed 360 seconds by postgrey-1.27 at vger.kernel.org; Sat, 20 Jan 2007 23:03:37 EST
+Date: Sun, 21 Jan 2007 14:50:58 +1100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Ricardo Correia <rcorreia@wizy.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to flush the disk write cache from userspace
+Message-ID: <20070121035058.GB4658@kernel.dk>
+References: <fa.y+HJNAxqDqX5AHUxcmThAo20Ivo@ifi.uio.no> <fa.xbdrjhFpvWMJeTroG2DpPE4wd+M@ifi.uio.no> <fa.lqQRZqIqMX2chyIAM888fc1jCuY@ifi.uio.no> <45B0123C.3080506@shaw.ca>
 MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: Sunil Naidu <akula2.shark@gmail.com>,
-       =?ISO-8859-1?Q?Ismail_D=F6nme?= =?ISO-8859-1?Q?z?= 
-	<ismail@pardus.org.tr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Abysmal disk performance, how to debug?
-References: <200701201920.54620.ismail@pardus.org.tr> <20070120174503.GZ24090@1wt.eu> <200701201952.54714.ismail@pardus.org.tr> <20070120180344.GA23841@1wt.eu> <8355959a0701201144x290362d8ja6cd5bc1408475da@mail.gmail.com> <45B273E4.8040302@seclark.us> <20070120200916.GB25307@1wt.eu>
-In-Reply-To: <20070120200916.GB25307@1wt.eu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45B0123C.3080506@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
+On Thu, Jan 18 2007, Robert Hancock wrote:
+> Ricardo Correia wrote:
+> >On Tuesday 16 January 2007 00:38, you wrote:
+> >>As always with these things, the devil is in the details. It requires
+> >>the device to support a ->prepare_flush() queue hook, and not all
+> >>devices do that. It will work for IDE/SATA/SCSI, though. In some devices
+> >>you don't want/need to do a real disk flush, it depends on the write
+> >>cache settings, battery backing, etc.
+> >
+> >Is there any chance that someone could implement this (I don't have the 
+> >skills, unfortunately)? Maybe add a new ioctl() to block devices, so that 
+> >it doesn't break any existing code?
+> 
+> I think we really should have support for doing cache flushes 
+> automatically on fsync, etc. User space code should not have to worry 
+> about this problem, it's pretty silly that for example MySQL has to 
+> advise people to use hdparm -W 0 to disable the write cache on their IDE 
+> drives in order to get proper data integrity guarantees - and disabling 
+> the cache on IDE without command queueing really slaughters the 
+> performance, unnecessarily in this case.
 
->On Sat, Jan 20, 2007 at 02:56:20PM -0500, Stephen Clark wrote:
->  
->
->>Sunil Naidu wrote:
->>
->>    
->>
->>>On 1/20/07, Willy Tarreau <w@1wt.eu> wrote:
->>>
->>>
->>>      
->>>
->>>>It is not expected to increase write performance, but it should help
->>>>you do something else during that time, or also give more responsiveness
->>>>to Ctrl-C. It is possible that you have fast and slow RAM, or that your
->>>>video card uses shared memory which slows down some parts of memory
->>>>which are not used anymore with those parameters.
->>>>  
->>>>
->>>>        
->>>>
->>>I did test some SATA drives, am getting these value for 2.6.20-rc5:-
->>>
->>>[sukhoi@Typhoon ~]$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
->>>1024+0 records in
->>>1024+0 records out
->>>1073741824 bytes (1.1 GB) copied, 21.0962 seconds, 50.9 MB/s
->>>
->>>What can you suggest here w.r.t my RAM & disk?
->>>
->>>
->>>
->>>      
->>>
->>>>Willy
->>>>  
->>>>
->>>>        
->>>>
->>>Thanks,
->>>
->>>~Akula2
->>>-
->>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>>the body of a message to majordomo@vger.kernel.org
->>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>Please read the FAQ at  http://www.tux.org/lkml/
->>>
->>>
->>>
->>>      
->>>
->>Hi,
->>whitebook vbi s96f core 2 duo t5600 2gb hitachi ATA      HTS721060G9AT00 
->>using libata
->>time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024
->>1024+0 records in
->>1024+0 records out
->>1073741824 bytes (1.1 GB) copied, 10.0092 seconds, 107 MB/s
->>
->>real    0m10.196s
->>user    0m0.004s
->>sys     0m3.440s
->>    
->>
->
->You have too much RAM, it's possible that writes did not complete before
->the end of your measurement. Try this instead :
->
->$ time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024 | sync
->
->Willy
->
->
->  
->
-Yeah that make a difference:
- time dd if=/dev/zero of=/tmp/1GB bs=1M count=1024 | sync
-1024+0 records in
-1024+0 records out
-1073741824 bytes (1.1 GB) copied, 8.86719 seconds, 121 MB/s
+Completely agree. If you have barriers enabled in your filesystem, then
+it should Just Work when you do fsync(). At least that is the case for
+reiserfs and XFS, I'm not completely sure that ext3 also handles it
+correctly.
 
-real    0m43.601s
-user    0m0.004s
-sys     0m3.912s
+For direct block device access, fsync() does need to provide a commit to
+stable storage as well though.
 
+> There may be some cases where the controller provides a battery-backed 
+> cache and thus we don't want to actually force the controller to flush 
+> everything out to the drive on fsync, so we may need to be able to 
+> disable this, but these controllers may ignore flushes anyway. I know 
+> IBM ServeRAID appears to fail requests for write cache info and so the 
+> kernel assumes drive cache: write through and doesn't do any flushes.
+
+That would be the preferable approach, just have the hardware that
+doesn't need a flush ignore the FLUSH_CACHE. That would also need to
+ignore the FUA bit on writes then. I'm not sure what the spec has to say
+on this, basically the requirement is just that data is on stable
+storage (eg survives power failure and so on), then that would be fine.
+And I would hope it is, it'd be hard to specify anything else.
+
+> >I believe it's a very useful (and relatively simple) feature that 
+> >increases data integrity and reliability for applications that need this 
+> >functionality.
+> >
+> >I think it must be considered that most people have disk write caches 
+> >enabled and are using IDE, SATA or SCSI disks.
+> >
+> >I also think there's no point in disabling disks' write caches, since it 
+> >slows writes and decreases disks' lifetime, and because there's a better 
+> >solution.
+> 
+> Yes, ideally doing all writes to the drive with write cache enabled and 
+> then flushing them out afterwards would be much more efficient (at least 
+>  when no command queueing is involved) since the drive can choose what 
+> order to complete the writes in.
+
+That only works if you just care about the stream of writes going to
+stable storage and don't care about ordering. But the above is
+essentially how the barriers work on write back cache + non queued
+devices. When the barrier write is received, we commit the previous
+writes first with a flush and then write the barrier (followed by
+another flush, or possibly not if we have FUA).
 
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
+Jens Axboe
 

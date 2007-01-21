@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751929AbXAVFTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750952AbXAVFYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751929AbXAVFTt (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 00:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbXAVFTt
+	id S1750952AbXAVFYO (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 00:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbXAVFYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 00:19:49 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:34153 "EHLO
-	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751929AbXAVFTt (ORCPT
+	Mon, 22 Jan 2007 00:24:13 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:49837 "EHLO
+	thing.hostingexpert.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750755AbXAVFYN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 00:19:49 -0500
-Subject: Re: Suspend to RAM generates oops and general protection fault
-From: Nigel Cunningham <nigel@nigel.suspend2.net>
-Reply-To: nigel@nigel.suspend2.net
-To: Jean-Marc Valin <jean-marc.valin@usherbrooke.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45B448BA.70800@usherbrooke.ca>
-References: <45B422D3.9040409@usherbrooke.ca>
-	 <1169436221.2190.13.camel@nigel.suspend2.net>
-	 <45B448BA.70800@usherbrooke.ca>
-Content-Type: text/plain
-Date: Mon, 22 Jan 2007 16:19:45 +1100
-Message-Id: <1169443185.2190.16.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 22 Jan 2007 00:24:13 -0500
+X-Greylist: delayed 18681 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Jan 2007 00:24:13 EST
+Message-ID: <45B3BB26.7000208@linuxtv.org>
+Date: Sun, 21 Jan 2007 14:12:38 -0500
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20070120)
+MIME-Version: 1.0
+To: Chris Rankin <rankincj@yahoo.com>
+CC: v4l-dvb-maintainer@linuxtv.org, linux-dvb@linuxtv.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] [PATCH] Register the bus,	vendor and product
+ IDs for dvb-usb remote device
+References: <879469.96393.qm@web52901.mail.yahoo.com>
+In-Reply-To: <879469.96393.qm@web52901.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Chris Rankin wrote:
+> Hi,
+>
+> This patch writes the USB vendor and product IDs into the /sys/class/input/inputX/id/ files, so
+> that udev can find them. A rule like this does the trick for me:
+>
+> KERNEL="event*", SYSFS{../id/vendor}=="2040", SYSFS{../id/product}=="9301",
+> SYMLINK+="input/dvb-remote"
+>
+> --- linux-2.6.18/drivers/media/dvb/dvb-usb/dvb-usb-remote.c.old 2007-01-21 02:43:11.000000000
+> +0000
+> +++ linux-2.6.18/drivers/media/dvb/dvb-usb/dvb-usb-remote.c     2007-01-21 02:39:02.000000000
+> +0000
+> @@ -107,6 +107,9 @@
+>         d->rc_input_dev->keycodemax = KEY_MAX;
+>         d->rc_input_dev->name = "IR-receiver inside an USB DVB receiver";
+>         d->rc_input_dev->phys = d->rc_phys;
+> +       d->rc_input_dev->id.bustype = BUS_USB;
+> +       d->rc_input_dev->id.vendor = d->udev->descriptor.idVendor;
+> +       d->rc_input_dev->id.product = d->udev->descriptor.idProduct;
+>
+>         /* set the bits for the keys */
+>         deb_rc("key map size: %d\n", d->props.rc_key_map_size);
 
-On Mon, 2007-01-22 at 16:16 +1100, Jean-Marc Valin wrote:
-> >> I just encountered the following oops and general protection fault
-> >> trying to suspend/resume my laptop. I've got a Dell D820 laptop with a 2
-> >> GHz Core 2 Duo CPU. It usually suspends/resumes fine but not always. The
-> >> relevant errors are below but the full dmesg log is at
-> >> http://people.xiph.org/~jm/suspend_resume_oops.txt and my config is in
-> >> http://people.xiph.org/~jm/config-2.6.20-rc5.txt
-> ...
-> > It looks like something is stomping on memory it shouldn't be touching,
-> > so I would suggest testing multiple cycles with a minimal (preferably
-> > zero) number of modules loaded. If that looks good and reliable, add
-> > modules & processes until you can say 'If I do X, it breaks.'. If having
-> > a minimal number of modules loaded doesn't help, I would then suggest
-> > reviewing your kernel config to see if other things can be built as
-> > modules and the same logic applied. You can be reasonably sure that it
-> > will be a device driver. Common causes of suspend/resume problems from
-> > the list you give below are acpi modules, bluetooth and usb. I'd also be
-> > consider pcmcia, drm and fuse possibilities. But again, go for unloading
-> > everything possible in the first instance.
-> 
-> Actually, the reason I sent this is that when I showed the oops/gpf to
-> Matthew Garrett at linux.conf.au, he said it looked like a CPU hotplug
-> problem and suggested I send it to lkml. BTW, with 2.6.20-rc5, the
-> suspend to RAM now works ~95% of the time.
+Chris,
 
-I agree that the second is cpu hotplug, but the first is something else,
-hence my recommendations above.
+The patch is fine.  Could you please provide a sign-off, in the form:
 
-Regards,
+Signed-off-by: Your Name <email@addre.ss>
 
-Nigel
+...so that we can apply this to the kernel sources?
 
+Cheers,
 
+Mike Krufky

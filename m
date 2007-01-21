@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751711AbXAUWH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751715AbXAUWIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751711AbXAUWH3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 17:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751712AbXAUWH2
+	id S1751715AbXAUWIR (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbXAUWIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 17:07:28 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:13276 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751709AbXAUWH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 17:07:27 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=qmF672qNVUdbSAcPTUeTtNnll+Ckzt4QmeLmQ107V7Vk9nDxQA9vZ1+kPkZ+FZ0Fe9lXJeHDPVwf9TjOOnBg4ir3plHfcK93/gu611lzEkutkC209HOJnviWGbGfDh4uWZ/OSDLxqUNa65kohMPJoDLULz4f8wX6uYH7KrWt4P0=
-Date: Sun, 21 Jan 2007 22:04:57 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Andrei Popa <andrei.popa@i-neo.ro>, linux-kernel@vger.kernel.org,
-       nigel@suspend2.net, NetDev <netdev@vger.kernel.org>
-Subject: Re: [BUG] e100: eth0 appers many times in /proc/interrupts after resume
-Message-ID: <20070121220457.GC8958@slug>
-References: <1167599458.2662.8.camel@nigel.suspend2.net> <1167605481.12328.0.camel@localhost> <1167607994.2662.39.camel@nigel.suspend2.net> <1167644970.7142.6.camel@localhost> <1168317278.6948.9.camel@nigel.suspend2.net> <1168448689.7430.1.camel@localhost> <1168463852.3205.1.camel@nigel.suspend2.net> <1169407062.1932.4.camel@localhost> <20070121212209.GB8958@slug> <45B3DEF7.8020505@intel.com>
+	Sun, 21 Jan 2007 17:08:17 -0500
+Received: from mail.gmx.net ([213.165.64.20]:56038 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751715AbXAUWIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:08:16 -0500
+X-Authenticated: #5039886
+Date: Sun, 21 Jan 2007 23:08:13 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Jeff Garzik <jeff@garzik.org>, Chr <chunkeey@web.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
+       lwalton@real.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070121220811.GA2136@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+	Chr <chunkeey@web.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	linux-kernel@vger.kernel.org, htejun@gmail.com,
+	jens.axboe@oracle.com, lwalton@real.com
+References: <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org> <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca> <20070121083618.GA2434@atjola.homenet> <20070121184032.GA3220@atjola.homenet> <45B3C5C9.4010007@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <45B3DEF7.8020505@intel.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45B3C5C9.4010007@shaw.ca>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 01:45:27PM -0800, Auke Kok wrote:
-> Frederik Deweerdt wrote:
-> >On Sun, Jan 21, 2007 at 09:17:41PM +0200, Andrei Popa wrote:
-> >>It's the 10th resume and in /proc/interrupts eth0 appers 10 times.
-> >The e100_resume() function should be calling netif_device_detach and
-> >free_irq. Could you try the following (compile tested) patch?
+On 2007.01.21 13:58:01 -0600, Robert Hancock wrote:
+> Björn Steinbrink wrote:
+> >All kernels were bad using that approach. So back to square 1. :/
+> >
+> >Björn
+> >
 > 
-> I just fixed suspend/shutdown for e100 in 2.6.19, not sure why the problem still shows up. Since it's a driver/net issue, you 
-> should CC netdev on it tho, otherwise it might go unnoticed.
-Thanks for adding the CC
+> OK guys, here's a new patch to try against 2.6.20-rc5:
 > 
-> I'll open up the can-o-worms on this issue and see what's up with it.
-> 
-> I'm not so sure that this patch is OK, and I wonder why it stopped working, because I spent quite some time fixing it only a 
-> few months ago. Did swsup change again? sigh...
+> Right now when switching between ADMA mode and legacy mode (i.e. when 
+> going from doing normal DMA reads/writes to doing a FLUSH CACHE) we just 
+> set the ADMA GO register bit appropriately and continue with no delay. 
+> It looks like in some cases the controller doesn't respond to this 
+> immediately, it takes some nanoseconds for the controller's status 
+> registers to reflect the change that was made. It's possible that if we 
+> were trying to issue commands during this time, the controller might not 
+> react properly. This patch adds some code to wait for the status 
+> register to change to the state we asked for before continuing.
 
-I may well be wrong (It appears that most of the time I am :)), but the
-unbalanced netif_device_attach (in resume) looks suspicious.  resume()
-also calls request_irq, so calling free_irq on suspend seemed logical.
+I went for the "I feel lucky" route and did just add mmio reads after the
+mmio writes, posting them. Rationale being that if it is a write posting
+issue, the debug patch would/could actually hide it AFAICT.
+It's the "I feel lucky" route, because my whole "knowledge" about mmio
+and write posting originates from the few things I read up on when you
+discovered the comment about write posting in the generic ata code.
 
-Regards,
-Frederik
-
-> 
-> Auke
-> 
-> >Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-> >diff --git a/drivers/net/e100.c b/drivers/net/e100.c
-> >index 2fe0445..0c376e4 100644
-> >--- a/drivers/net/e100.c
-> >+++ b/drivers/net/e100.c
-> >@@ -2671,6 +2671,7 @@ static int e100_suspend(struct pci_dev *pdev, pm_message_t state)
-> > 	del_timer_sync(&nic->watchdog);
-> > 	netif_carrier_off(nic->netdev);
-> > +	netif_device_detach(netdev);
-> > 	pci_save_state(pdev);
-> >  	if ((nic->flags & wol_magic) | e100_asf(nic)) {
-> >@@ -2682,6 +2683,7 @@ static int e100_suspend(struct pci_dev *pdev, pm_message_t state)
-> > 	}
-> >  	pci_disable_device(pdev);
-> >+	free_irq(pdev->irq, netdev);
-> > 	pci_set_power_state(pdev, PCI_D3hot);
-> >  	return 0;
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Björn

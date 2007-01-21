@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751737AbXAUWkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751741AbXAUWpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbXAUWkG (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 17:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbXAUWkF
+	id S1751741AbXAUWpT (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 17:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751744AbXAUWpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 17:40:05 -0500
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:40740 "EHLO
-	taverner.cs.berkeley.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736AbXAUWkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 17:40:04 -0500
+	Sun, 21 Jan 2007 17:45:19 -0500
+Received: from main.gmane.org ([80.91.229.2]:51660 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751741AbXAUWpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 17:45:17 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] Undo some of the pseudo-security madness
-Date: Sun, 21 Jan 2007 22:16:17 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <ep0onh$ana$1@taverner.cs.berkeley.edu>
-References: <87y7nxvk65.wl@betelheise.deep.net> <1169345764.3055.935.camel@laptopd505.fenrus.org> <87tzykuj49.wl@betelheise.deep.net>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1169417777 10986 128.32.168.222 (21 Jan 2007 22:16:17 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Sun, 21 Jan 2007 22:16:17 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+From: Jakub Narebski <jnareb@gmail.com>
+Subject: Re: [Announce] GIT v1.5.0-rc2
+Followup-To: gmane.comp.version-control.git
+Date: Sun, 21 Jan 2007 23:45:07 +0100
+Organization: At home
+Message-ID: <ep0qc6$bph$1@sea.gmane.org>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.63.0701212234520.22628@wbgn013.biozentrum.uni-wuerzburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-81-190-20-200.torun.mm.pl
+Mail-Copies-To: jnareb@gmail.com
+User-Agent: KNode/0.10.2
+Cc: git@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff  wrote:
->the core of the problem are the cores which are customarily
->dumped by lisps during the environment generation (or modification) stage,
->and then mapped back, every time the environment is invoked.
->
->at the current step of evolution, those core files are not relocatable
->in certain natively compiling lisp systems.
->
->in an even smaller subset of them, these cores are placed after
->the shared libraries and the executable.
->
->which obviously breaks when the latter are placed unpredictably.
->(yes, i know, currently mmap_base() varies over a 1MB range, but who
->says it will last indefinitely -- probably one day these people
->from full-disclosure will prevail and it will become, like, 256MB ;-)
->
->so, what do you propose?
+Johannes Schindelin wrote:
 
-The obvious solution is: Don't make them setuid root.
-Then this issue disappears.
+> On Sun, 21 Jan 2007, Junio C Hamano wrote:
 
-If there is some strong reason why they need to be setuid root, then
-you'll need to explain that reason and your requirements in more detail.
-But, based on your explanation so far, I have serious doubts about
-whether it is a good idea to make such core-dumps setuid root in the
-first place.
+>> * Reflog
+>> 
+>>  - Reflog records the history of where the tip of each branch
+>>    was at each moment.
+> 
+> It might make sense to reformulate that:
+> 
+>       Reflog records the history from the view point of the local 
+>       repository. In other words, regardless of the real history,
+>       the reflog shows the history as seen by one particular repository
+>       (this enables you to ask "what was the current revision in _this_
+>       repository, yesterday at 1pm?").
+
+I think that _both_ sentences are right. Reflog records history of where the
+tip of each branch was at each moment, logging also what command was used
+to move tip of branch (was it commit, amending commit, rebase, reset, or
+creating branch anew, git-am or pull).
+
+But where tip of each branch was is purely local matter. What is global
+is DAG of commits, refs are always as seen by one particular repository.
+
+-- 
+Jakub Narebski
+Warsaw, Poland
+ShadeHawk on #git
+
+

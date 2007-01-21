@@ -1,78 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751683AbXAUVpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751689AbXAUVzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751683AbXAUVpf (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 16:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbXAUVpe
+	id S1751689AbXAUVzz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 16:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbXAUVzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 16:45:34 -0500
-Received: from mga02.intel.com ([134.134.136.20]:37803 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751683AbXAUVpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 16:45:33 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.13,217,1167638400"; 
-   d="scan'208"; a="187397651:sNHT25326742"
-Message-ID: <45B3DEF7.8020505@intel.com>
-Date: Sun, 21 Jan 2007 13:45:27 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.9 (X11/20061228)
+	Sun, 21 Jan 2007 16:55:54 -0500
+Received: from mail.gmx.net ([213.165.64.20]:53059 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751689AbXAUVzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 16:55:53 -0500
+X-Authenticated: #1490710
+Date: Sun, 21 Jan 2007 22:55:52 +0100 (CET)
+From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
+To: Junio C Hamano <junkio@cox.net>
+cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Announce] GIT v1.5.0-rc2
+In-Reply-To: <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
+Message-ID: <Pine.LNX.4.63.0701212234520.22628@wbgn013.biozentrum.uni-wuerzburg.de>
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
 MIME-Version: 1.0
-To: Frederik Deweerdt <deweerdt@free.fr>
-CC: Andrei Popa <andrei.popa@i-neo.ro>, linux-kernel@vger.kernel.org,
-       nigel@suspend2.net, NetDev <netdev@vger.kernel.org>
-Subject: Re: [BUG] e100: eth0 appers many times in /proc/interrupts after
- resume
-References: <1167520557.2566.23.camel@nigel.suspend2.net> <1167571281.7175.1.camel@localhost> <1167599458.2662.8.camel@nigel.suspend2.net> <1167605481.12328.0.camel@localhost> <1167607994.2662.39.camel@nigel.suspend2.net> <1167644970.7142.6.camel@localhost> <1168317278.6948.9.camel@nigel.suspend2.net> <1168448689.7430.1.camel@localhost> <1168463852.3205.1.camel@nigel.suspend2.net> <1169407062.1932.4.camel@localhost> <20070121212209.GB8958@slug>
-In-Reply-To: <20070121212209.GB8958@slug>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederik Deweerdt wrote:
-> On Sun, Jan 21, 2007 at 09:17:41PM +0200, Andrei Popa wrote:
->> It's the 10th resume and in /proc/interrupts eth0 appers 10 times.
+Hi,
+
+On Sun, 21 Jan 2007, Junio C Hamano wrote:
+
+>  - 'git pack-refs' appeared in v1.4.4;
+
+You should probably mention that it is not necessary to run git-pack-refs 
+by hand: git-gc is what you want.
+
+BTW have I praised y'all for inventing git-gc? It is _awesome_. I think I 
+will turn into a DWIM geek yet; it is soooo much more convenient to issue 
+"git gc" from time to time, than to think exactly about what I want to 
+clean up right now.
+
+>  - 'git repo-config', 'git grep', 'git rebase' and 'gitk' were
+>    seriously enhanced during v1.4.0 timeperiod.
+
+Should we introduce "git config" in time for the "let's please end-users" 
+release (1.5.0)?
+
+>  - git-clone always uses what is known as "separate remote"
+>    layout for a newly created repository with a working tree;
+>    i.e. tracking branches in $GIT_DIR/refs/remotes/origin/ are
+>    used to track branches from the origin.  
+
+... instead of $GIT_DIR/refs/heads/, making the difference between 
+remotely tracked and local branches more obvious.
+
+>  - git-branch and git-show-branch know remote tracking branches.
+
+... (use the command line switch "-r" to list only tracked branches.)
+
+>  - git-push can now be used to delete a remote branch or a tag.
+>    This requires the updated git on the remote side.
+
+... (use "git push <remote> :refs/heads/<branch>" to delete "branch".)
+
+>  - git-push more agressively keeps the transferred objects
+>    packed.  Earlier we recommended to monitor amount of loose
+>    objects and repack regularly, but you should repack when you
+>    accumulated too many small packs this way as well.  Updated
+>    git-count-objects helps you with this.
+
+It might make sense to enable something similar for git-fetch in time for 
+1.5.0.
+
+> * Reflog
 > 
-> The e100_resume() function should be calling netif_device_detach and
-> free_irq. Could you try the following (compile tested) patch?
+>  - Reflog records the history of where the tip of each branch
+>    was at each moment.
 
-I just fixed suspend/shutdown for e100 in 2.6.19, not sure why the problem still 
-shows up. Since it's a driver/net issue, you should CC netdev on it tho, 
-otherwise it might go unnoticed.
+It might make sense to reformulate that:
 
-I'll open up the can-o-worms on this issue and see what's up with it.
+	Reflog records the history from the view point of the local 
+	repository. In other words, regardless of the real history,
+	the reflog shows the history as seen by one particular repository
+	(this enables you to ask "what was the current revision in _this_
+	repository, yesterday at 1pm?").
 
-I'm not so sure that this patch is OK, and I wonder why it stopped working, 
-because I spent quite some time fixing it only a few months ago. Did swsup 
-change again? sigh...
+>  - There is a toplevel garbage collector script, 'git-gc', that
+>    is an easy way to run 'git-repack -a -d', 'git-reflog gc',
+>    and 'git-prune'.
 
-Auke
+Did I mention that I really _love_ git-gc?
 
-> 
-> Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-> 
-> diff --git a/drivers/net/e100.c b/drivers/net/e100.c
-> index 2fe0445..0c376e4 100644
-> --- a/drivers/net/e100.c
-> +++ b/drivers/net/e100.c
-> @@ -2671,6 +2671,7 @@ static int e100_suspend(struct pci_dev *pdev, pm_message_t state)
->  	del_timer_sync(&nic->watchdog);
->  	netif_carrier_off(nic->netdev);
->  
-> +	netif_device_detach(netdev);
->  	pci_save_state(pdev);
->  
->  	if ((nic->flags & wol_magic) | e100_asf(nic)) {
-> @@ -2682,6 +2683,7 @@ static int e100_suspend(struct pci_dev *pdev, pm_message_t state)
->  	}
->  
->  	pci_disable_device(pdev);
-> +	free_irq(pdev->irq, netdev);
->  	pci_set_power_state(pdev, PCI_D3hot);
->  
->  	return 0;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  - The original implementation of git-merge-recursive which was
+>    in Python has been removed; we have C implementation of it
+>    now.
+
+I am no native speaker, but should that not be "we have a C 
+implementation" instead?
+
+>  - The default suffix for git-format-patch output is now ".patch",
+>    not ".txt".  This can be changed with --suffix=.txt option,
+>    or "format.suffix = .txt" in the configuration.
+
+I fully expect people to complain that a config like this
+
+	format.suffix = .txt
+
+does not work. better say ...
+
+	or setting the config variable "format.suffix" to ".txt".
+
+>  - Better error messages for often used Porcelainish commands.
+
+Amen. I think this really helped a lot of people already.
+
+>    - Cloning and fetching _from_ a shallow clone are not
+>      supported (nor tested -- so they might work by accident but
+>      they are not expected to).
+
+Maybe we should go the "restrict first, and loosen later" approach? I.e. 
+forbid git-upload-pack to run if is_repository_shallow()?
+
+>    - Pushing from nor into a shallow clone are not expected to
+>      work.
+
+Maybe forbid git-push and git-receive-pack to run if 
+is_repository_shallow()?
+
+(I _think_ git-push should be safe, but not git-receive-pack.)
+
+Ciao,
+Dscho
+

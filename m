@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751326AbXAUS6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751365AbXAUS63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbXAUS6E (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 13:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbXAUS6E
+	id S1751365AbXAUS63 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 13:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbXAUS63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 13:58:04 -0500
-Received: from thunk.org ([69.25.196.29]:52237 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751326AbXAUS6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 13:58:03 -0500
-Date: Sun, 21 Jan 2007 13:52:18 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Grzegorz =?utf-8?Q?Ja=C5=9Bkiewicz?= <gryzman@gmail.com>
-Cc: Willy Tarreau <w@1wt.eu>, Johannes Stezenbach <js@linuxtv.org>,
-       Joe Barr <joe@pjprimer.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Serial port blues
-Message-ID: <20070121185218.GD27422@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Grzegorz =?utf-8?Q?Ja=C5=9Bkiewicz?= <gryzman@gmail.com>,
-	Willy Tarreau <w@1wt.eu>, Johannes Stezenbach <js@linuxtv.org>,
-	Joe Barr <joe@pjprimer.com>,
-	Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-References: <1169242654.20402.154.camel@warthawg-desktop> <20070120173644.GY24090@1wt.eu> <20070121055456.GC27422@thunk.org> <20070121070557.GB31780@1wt.eu> <20070121140421.GA13425@linuxtv.org> <2f4958ff0701210650w4fa0138di6a5026de8a0823dc@mail.gmail.com> <20070121145817.GE31780@1wt.eu> <2f4958ff0701210710r743c1821n9af23a050c847a7@mail.gmail.com>
+	Sun, 21 Jan 2007 13:58:29 -0500
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:63387 "EHLO
+	fed1rmmtao11.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751332AbXAUS62 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 13:58:28 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: Willy Tarreau <w@1wt.eu>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: [Announce] GIT v1.5.0-rc2
+References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net>
+	<7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
+	<20070121134308.GA24090@1wt.eu>
+Date: Sun, 21 Jan 2007 10:58:26 -0800
+In-Reply-To: <20070121134308.GA24090@1wt.eu> (Willy Tarreau's message of "Sun,
+	21 Jan 2007 14:43:08 +0100")
+Message-ID: <7v7ivg1a25.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2f4958ff0701210710r743c1821n9af23a050c847a7@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 04:10:58PM +0100, Grzegorz Jaśkiewicz wrote:
-> you're right, I used wrong term to describe.
-> But the problem still exists. Nowadays it should be possible to run many
-> serial ports fully accurate "at the same time". It is also true that the
-> same problem exists in windows, and bsd worlds. So it is not only Linux
-> problem.
+Willy Tarreau <w@1wt.eu> writes:
 
-It's not so much a "problem", but rather, most people aren't
-particularly interested in using the millions and millions of
-transisters of a modern CPU to generate a square wave.  So OS's aren't
-optimized to do that.  Linux has no problems running many serial
-ports; but in their normal designed function, which is to send and
-receive characters, using the UART's FIFO's and interrupts to do so.  
+> Anything you can do to make tester's life easier will always slightly
+> increase the number of testers.
+> ...
+> Pre-release tar.gz and rpms coupled with a freshmeat announcement should
+> get you a bunch of testers and newcomers. This will give the new doc a
+> real trial, and will help discover traps in which beginners often fall.
 
-The question of manually toggling DTR/CTS RS-232 lines to generate a
-tone is something that you *can* do, but you won't be doing anything
-else --- and that's simply because fundamentally that's a very silly
-thing to do.  Most people will use a tiny amount of dedicated hardware
---- like the sound care that is built into every single modern PC ---
-rather than manually waggling the RS-232 lines in order to generate a
-tone.
+One worry I had about releasing git-1.5.0-rc2-1.rpm and friends
+just like the "official" ones was that people might have scripts
+to automate downloading & updating of packages, and they may not
+like to get "beta" installed for them.
 
-> Like I said previously, 30$ board (usb+avr+max232) would do it accurately +
-> over 300$ PC to control it :D funny...
+I wonder if kernel.org machines are also affected...
 
-You *can* do it, and we've described how to do it.  It won't be
-efficient (you won't be doing much else), but that's because a PC and
-Linux is optimized for different set of tasks.  Sometimes dedicated
-hardware is the far superior option to a general purpose OS and a
-general-purpose hardware.  This should not at all be surprising.
+>> Also, in the same spirit of giving the release an early
+>> exposure, here is the current draft of 1.5.0 release notes.
+>
+> (...)
+>
+>>  - There is a configuration variable core.legacyheaders that
+>>    changes the format of loose objects so that they are more
+>>    efficient to pack and to send out of the repository over git
+>>    native protocol, since v1.4.2.  However, loose objects
+>>    written in the new format cannot be read by git older than
+>>    that version; people fetching from your repository using
+>>    older clients over dumb transports (e.g. http) using older
+>>    versions of git will also be affected.
+>> 
+>>  - Since v1.4.3, configuration repack.usedeltabaseoffset allows
+>>    packfile to be created in more space efficient format, which
+>>    cannot be read by git older than that version.
+>
+> I know it's a bit late to ask, but if new on-disk format changes, isn't
+> it time to bump the version to 2.0? It would be easier for many people to
+> remember that GIT 1.X uses format version 1 and that GIT 2.X uses format
+> version 2 with backwards compatibility with 1.X. I also think that 1.5
+> is much more different from 1.0 than a mid-term 2.0 would be from current
+> 1.5.
 
-						- Ted
+I think we could have gone either way (as you said, it is
+probably a bit too late to discuss this), but it should probably
+be Ok to stay at 1.X as long as these one-way-street format
+updates are turned off by default.
+
+And the above happened way before this round and people have
+hopefully been happily using.  For example, v1.4.2 was done
+early August 2006.
+

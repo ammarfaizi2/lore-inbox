@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751586AbXAUOBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751585AbXAUOBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbXAUOBf (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 09:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbXAUOBf
+	id S1751585AbXAUOBj (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 09:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbXAUOBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 09:01:35 -0500
-Received: from mail.zopyra.com ([65.68.225.25]:60667 "EHLO zopyra.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751585AbXAUOBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 09:01:35 -0500
-From: Bill Lear <rael@zopyra.com>
+	Sun, 21 Jan 2007 09:01:39 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:6968 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751585AbXAUOBi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 09:01:38 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=dbEnVoKPwtHL0wUqzbWHjkxB5xTAHX3PQlCa8MXElQ4EffDEjXkL0CgNw0SSHG/P+jtRqG8t+dNSrHugZLVCacuvUibw5uWIWcnZfUHcgFI6ark0ZE2J2y5TylkVqbdm4IGTrETVOUay3MiNYSOUUBKQ6dAxC8kvv+xSOKYvobs=
+Message-ID: <45B3723D.4030901@gmail.com>
+Date: Sun, 21 Jan 2007 17:01:33 +0300
+From: Ivan Ukhov <uvsoft@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: UVSoft@gmail.com
+Subject: Re: How to use an usb interface than is claimed by HID?
+References: <45B265E0.5020605@gmail.com> <Pine.LNX.4.64.0701210006591.21127@twin.jikos.cz> <45B2AA03.4070405@gmail.com> <Pine.LNX.4.64.0701210050490.21127@twin.jikos.cz> <45B32B80.4050208@gmail.com> <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
+In-Reply-To: <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17843.28128.851749.558017@lisa.zopyra.com>
-Date: Sun, 21 Jan 2007 07:42:56 -0600
-To: Junio C Hamano <junkio@cox.net>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Announce] GIT v1.5.0-rc2
-In-Reply-To: <7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
-References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net>
-	<7v3b6439uh.fsf@assigned-by-dhcp.cox.net>
-X-Mailer: VM 7.18 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, January 21, 2007 at 03:20:06 (-0800) Junio C Hamano writes:
->BTW, as the upcoming v1.5.0 release will introduce quite a bit of
->surface changes (although at the really core it still is the old
->git and old ways should continue to work), I am wondering if it
->would help people to try out and find wrinkles before the real
->thing for me to cut a tarball and a set of RPM packages.
->
->Comments?
+Jiri Kosina wrote:
+> Then, when this is a non-standard situation anyway, would calling 
+> hid_disconnect() for the usb_interface of your driver be enough?
+>   
+I can't even imagine how to call this very function. Could you give me 
+an example? After all, this function and friends of its aren't 
+EXPORTED_SYMBOLs. Beside it's going to end up depending on the HID 
+driver, so the HID driver will have to be loaded all the time even if my 
+driver is loaded first and manages to claim the interfaces.
 
-I asked this in the context of the "fatal: protocol error"
-thread, but can I install the 1.5.0rcX on my machine and use
-it with our company repository, running 1.4.4.1?
+Sorry, I've absolutely forgotten to say that I'm talking about 2.4.x and 
+this function looks like:
 
-In any case, I think trying to find wrinkles before the real
-thing is certainly healthy.
+static void hid_disconnect(struct usb_device *dev, void *ptr);
 
+ptr is a pointer to the struct hid_device structure, which is created 
+and initialized in the probe function. Do you offer me to set up this 
+structure myself????
 
-Bill
+Thank you.
+
+Ivan Ukhov.

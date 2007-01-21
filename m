@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751384AbXAUK0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751399AbXAUKkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbXAUK0t (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 05:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbXAUK0s
+	id S1751399AbXAUKkx (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 05:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbXAUKkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 05:26:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3068 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751384AbXAUK0r (ORCPT
+	Sun, 21 Jan 2007 05:40:53 -0500
+Received: from moutng.kundenserver.de ([212.227.126.179]:51840 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399AbXAUKkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 05:26:47 -0500
-Date: Sun, 21 Jan 2007 11:26:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: 2.6.19.2 -> 2.6.20-rc5 libata regression
-Message-ID: <20070121102653.GH9093@stusta.de>
-References: <Pine.LNX.4.64.0701210515510.3703@p34.internal.lan>
+	Sun, 21 Jan 2007 05:40:52 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+To: Tony Foiani <tkil@scrye.com>,
+       Leon Woestenberg <leon.woestenberg@gmail.com>,
+       linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 21 Jan 2007 11:40:40 +0100
+References: <7FsPf-51s-9@gated-at.bofh.it> <7FxlV-3sb-1@gated-at.bofh.it> <7FyUF-5XD-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701210515510.3703@p34.internal.lan>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1H8a7s-0000at-Jx@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 05:16:21AM -0500, Justin Piszcz wrote:
-> 2.6.19.2:
-> # hddtemp /dev/sda
-> /dev/sda: WDC WD740GD-00FLC0: 27C
+Tony Foiani <tkil@scrye.com> wrote:
+>>>>>> "David" == David Schwartz <davids@webmaster.com> writes:
+
+> Just last night I formatted some new "500GB" drives, and they
+> eventually came back with 465GB as the displayed capacity.  Wouldn't
+> it make more sense to display that as "465GiB"?
+
+[...]
+
+> David> Adopting IEC 60027-2 just replaces a set of well-understood
+> David> problems with all new problems.
 > 
-> 2.6.20-rc5:
-> # hddtemp /dev/sda
-> /dev/sda: ATA WDC WD740GD-00FL: S.M.A.R.T. not available
+> Which are clearly solved in the standards document, and remove any
+> ambiguity.  Is one extra character really that painful to you?
 
+If it's done in order to make disk vendors look good in spite of
+advertizing more than they deliver, yes.
 
-Subject    : `hddtemp' no longer works
-References : http://lkml.org/lkml/2006/12/14/272
-             http://bugzilla.kernel.org/show_bug.cgi?id=7581
-Submitter  : Alistair John Strachan <s0348365@sms.ed.ac.uk>
-             Nicolas Mailhot <Nicolas.Mailhot@LaPoste.net>
-Handled-By : Jens Axboe <jens.axboe@oracle.com>
-Status     : bug in hddtemp: http://bugzilla.kernel.org/show_bug.cgi?id=7581
-
-
-cu
-Adrian
-
+1) This change isn't nescensary - any sane person will know that it's not a
+   SI unit. You wouldn't talk about megabananas == 1000000 bananas and
+   expect to be taken seriously.
+2) No sane person would say kibibyte as required by the standard. You'd need
+   a sppech defect in order to do this, and a mental defect in order to try.
+   So why should anybody adhere to the rest of this bullshit?
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+"Whoever said the pen is mightier than the sword obviously never
+encountered automatic weapons."
+-Gen. Douglas MacArthur
+Friﬂ, Spammer: x39bp@lZonner.7eggert.dyndns.org .wq@ZHh.7eggert.dyndns.org

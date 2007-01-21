@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751188AbXAUEyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751195AbXAUFbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbXAUEyl (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 20 Jan 2007 23:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbXAUEyl
+	id S1751195AbXAUFbi (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 00:31:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbXAUFbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Jan 2007 23:54:41 -0500
-Received: from mail.gmx.net ([213.165.64.20]:32879 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751188AbXAUEyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Jan 2007 23:54:40 -0500
-X-Authenticated: #5039886
-Date: Sun, 21 Jan 2007 05:54:38 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Robert Hancock <hancockr@shaw.ca>, Chr <chunkeey@web.de>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
-       lwalton@real.com
-Subject: Re: SATA exceptions with 2.6.20-rc5
-Message-ID: <20070121045437.GA7387@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Jeff Garzik <jeff@garzik.org>, Robert Hancock <hancockr@shaw.ca>,
-	Chr <chunkeey@web.de>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	linux-kernel@vger.kernel.org, htejun@gmail.com,
-	jens.axboe@oracle.com, lwalton@real.com
-References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <200701191505.33480.s0348365@sms.ed.ac.uk> <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org>
+	Sun, 21 Jan 2007 00:31:38 -0500
+Received: from inetc.connecttech.com ([64.7.140.42]:3866 "EHLO
+	inetc.connecttech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751195AbXAUFbh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 00:31:37 -0500
+X-Greylist: delayed 1146 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 00:31:37 EST
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Joe Barr'" <joe@pjprimer.com>,
+       "'Linux Kernel mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Serial port blues
+Date: Sun, 21 Jan 2007 00:09:39 -0500
+Organization: Connect Tech Inc.
+Message-ID: <09dd01c73d1a$5a71a5f0$294b82ce@stuartm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45B2DF43.8080304@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <1169242654.20402.154.camel@warthawg-desktop>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2007.01.20 22:34:27 -0500, Jeff Garzik wrote:
-> Robert Hancock wrote:
-> >change in 2.6.20-rc is either causing or triggering this problem. It 
-> >would be useful if you could try git bisect between 2.6.19 and 
-> >2.6.20-rc5, keeping the latest sata_nv.c each time, and see if that 
-> 
-> 
-> Yes, 'git bisect' would be the next step in figuring out this puzzle.
-> 
-> Anybody up for it?
+From: On Behalf Of Joe Barr
+> I'm forwarding this post by the author of a great little program for
+> digital amateur radio on Linux, because I'm curious whether or not the
+> problem he is seeing can be resolved outside the kernel.
 
-I'll go for it, but could I get an explanation how that could lead to a
-different result than my last bisection? I see the difference of keeping
-sata_nv.c but my brain can't wrap around it right now (woke up in the
-middle of the night and still not up to speed...).
+From: w1hkj [mailto:w1hkj@w1hkj.com] 
+> I am now convinced that the current serial port drivers 
+> available to us 
+> on the Linux platform WILL NOT support CW and/or RTTY that is 
+> software 
+> generated in a satisfactory manner.
 
-Thanks,
-Björn
+I don't know what FSK/CW/RTTY/BAUDOT is.
+
+> Direct access to the serial port(s) is a kernel perogative in Linux.  
+> Only kernel level drivers are allowed such port access.
+
+Not true.
+
+> Until such time as new information becomes available I am going to 
+> comment out all references to CW and / or FSK via RTS/DTR.  I also 
+> question how useful the FSK on TxD (UART derived) might be to 
+> most users 
+> since the 45.45 baudrate is not available in the serial port driver.  
+> That function will also be commented out.
+
+You may be confusing the old-style baud rate lookup table (B9600 et
+al) with the actual capabilities of the serial port. The lookup table
+has a limited number of baud rates. You can get more rates than that
+using a custom divisor. Most motherboard-based serial ports are
+clocked at 1.8432 Mhz. The UART does 16 samples per bit time, yielding
+a max baud rate of 115200.
+
+115200 / 25 yields 4608, which is a 1.4% error rate from 4545. This
+may or may not be acceptable. 115200 / 2535 yields 45.44, which is a
+0.01% error rate, which is likely acceptable.
+
+> Sorry folks, but we win some and lose some.
+
+We make serial port boards with very flexible UARTS. 4545 exactly is
+achievable. 45.45 too. Linux supported.
+
+..Stu
+
+-- 
+We make multiport serial products.
+http://www.connecttech.com/
+(800) 426-8979
+

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750696AbXAUPKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750816AbXAUPdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750696AbXAUPKH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 10:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbXAUPKG
+	id S1750816AbXAUPdM (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 10:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbXAUPdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 10:10:06 -0500
-Received: from main.gmane.org ([80.91.229.2]:37315 "EHLO ciao.gmane.org"
+	Sun, 21 Jan 2007 10:33:11 -0500
+Received: from zakalwe.fi ([80.83.5.154]:58797 "EHLO zakalwe.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750696AbXAUPKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 10:10:05 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jakub Narebski <jnareb@gmail.com>
-Subject: Re: [Announce] GIT v1.5.0-rc2
-Followup-To: gmane.comp.version-control.git
-Date: Sun, 21 Jan 2007 16:06:22 +0100
-Organization: At home
-Message-ID: <eovvg3$i6m$1@sea.gmane.org>
-References: <7v64b04v2e.fsf@assigned-by-dhcp.cox.net> <7v3b6439uh.fsf@assigned-by-dhcp.cox.net> <20070121134308.GA24090@1wt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-81-190-20-200.torun.mm.pl
-Mail-Copies-To: jnareb@gmail.com
-User-Agent: KNode/0.10.2
-Cc: git@vger.kernel.org
+	id S1750816AbXAUPdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 10:33:10 -0500
+X-Greylist: delayed 1592 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 10:33:10 EST
+Date: Sun, 21 Jan 2007 17:06:18 +0200
+From: Heikki Orsila <shdl@zakalwe.fi>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Tony Foiani <tkil@scrye.com>,
+       Leon Woestenberg <leon.woestenberg@gmail.com>,
+       linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
+Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
+Message-ID: <20070121150618.GA11613@zakalwe.fi>
+References: <7FsPf-51s-9@gated-at.bofh.it> <7FxlV-3sb-1@gated-at.bofh.it> <7FyUF-5XD-21@gated-at.bofh.it> <E1H8a7s-0000at-Jx@be1.lrz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E1H8a7s-0000at-Jx@be1.lrz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Sun, Jan 21, 2007 at 03:20:06AM -0800, Junio C Hamano wrote:
+On Sun, Jan 21, 2007 at 11:40:40AM +0100, Bodo Eggert wrote:
+> 1) This change isn't nescensary - any sane person will know that it's not a
+>    SI unit. You wouldn't talk about megabananas == 1000000 bananas and
+>    expect to be taken seriously.
 
->> BTW, as the upcoming v1.5.0 release will introduce quite a bit of
->> surface changes (although at the really core it still is the old
->> git and old ways should continue to work), I am wondering if it
->> would help people to try out and find wrinkles before the real
->> thing for me to cut a tarball and a set of RPM packages.
->> 
->> Comments?
-> 
-> Anything you can do to make tester's life easier will always slightly
-> increase the number of testers. Hint: how often do you try random
-> software that requires that you first install CVS, SVN or arch just to
-> get it, compared to how often you try random software provided as tar.gz ?
-> Pre-release tar.gz and rpms coupled with a freshmeat announcement should
-> get you a bunch of testers and newcomers. This will give the new doc a
-> real trial, and will help discover traps in which beginners often fall.
+I've met quite a few non-sane persons then. I find using kilo, mega and 
+giga prefixes convenient to use. For example, I often use GEUR to refer 
+to Giga Euros, because the word billion is overloaded.
 
-RPMS are nicely divided into (sub)packages, so you need CVS indtalled
-only if you install git-cvs package, for example to interact with CVS.
-git-core has minimal dependencies.
+> 2) No sane person would say kibibyte as required by the standard. You'd need
+>    a sppech defect in order to do this, and a mental defect in order to try.
+>    So why should anybody adhere to the rest of this bullshit?
 
-To compile git you truly don't need other software installed (1.5.0
-for example does not require RCS anymore for RCS merge).
+I think I'm not sane then. I find it easy to use and pronounce.
+
+IEC 60027-2 is a great standard! It removes some annoying ambiquity in 
+speech and text. Adhering strictly to proper SI units (k, M, G, ...) 
+makes life easier as they are taught in school to everyone.
+
 -- 
-Jakub Narebski
-Warsaw, Poland
-ShadeHawk on #git
-
-
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd

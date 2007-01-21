@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751524AbXAUMpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751546AbXAUNCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbXAUMpW (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 07:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbXAUMpW
+	id S1751546AbXAUNCr (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 08:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbXAUNCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 07:45:22 -0500
-Received: from av5.karneval.cz ([81.27.192.12]:9047 "EHLO av1.karneval.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751510AbXAUMpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 07:45:22 -0500
-From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: Realtime-preemption for 2.6.20-rc5 ?
-Date: Sun, 21 Jan 2007 13:44:05 +0100
-User-Agent: KMail/1.9.4
-Cc: Sunil Naidu <akula2.shark@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <200701210039.27284.pisa@cmp.felk.cvut.cz> <1169370638.6197.175.camel@twins>
-In-Reply-To: <1169370638.6197.175.camel@twins>
+	Sun, 21 Jan 2007 08:02:47 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:37892 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751545AbXAUNCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 08:02:46 -0500
+Date: Sun, 21 Jan 2007 14:01:43 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Ivan Ukhov <uvsoft@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to use an usb interface than is claimed by HID?
+In-Reply-To: <45B32B80.4050208@gmail.com>
+Message-ID: <Pine.LNX.4.64.0701211358570.21127@twin.jikos.cz>
+References: <45B265E0.5020605@gmail.com> <Pine.LNX.4.64.0701210006591.21127@twin.jikos.cz>
+ <45B2AA03.4070405@gmail.com> <Pine.LNX.4.64.0701210050490.21127@twin.jikos.cz>
+ <45B32B80.4050208@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701211344.05853.pisa@cmp.felk.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 January 2007 10:10, Peter Zijlstra wrote:
-> > I preffer
-> > to stay on "stable" kernel on boxes which I use daily until next stable
-> > appears.
->
-> This is a very weird statement, the -rt kernel includes so much
-> experimental work it cannot be called 'stable' by a long shot.
->
-> Sure its not known unstable, but neither is .20-rc5.
+On Sun, 21 Jan 2007, Ivan Ukhov wrote:
 
-There are no security fixes for rc and our own experience
-is, that RT patch has very low impact on base system stability.
-The rc-s contains much more experimental stuff all over the
-kernel which needs to be stabilized till next (hopefully) stable
-release.
+> It's a tiny driver and it hardy can be a part of the mainline kernel 
+> because of its useless for everyone but me, beside I don't want to make 
+> someone modify the kernel code. 
 
-> If you want -rt, just run with the latest unless you have a very
-> specific need not to.
+Then, when this is a non-standard situation anyway, would calling 
+hid_disconnect() for the usb_interface of your driver be enough?
 
-We have run successfully 2.6.16.1-rt12 over last summer
-semester on students diskless stations without much problems.
-(Main problem has been some NFS FS problem with 1GB/s server, 100MB/s
-stations and switches in between, but it has been same for non-RT kernel.
-We solved that by switching NFS over TCP.)
-
-We would like to upgrade to something which would not cause us much
-troubles for next course run. We teach real time control in X35POS
-course and we need fast responses and timing (100 usec) for direct
-PWM and IO control.
-
-On the other hand, I agree that for own experimentation and development
-it is better to build on latest released version.
-
-Best wishes
-
-             Pavel
+-- 
+Jiri Kosina

@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751797AbXAUXuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751799AbXAUX6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbXAUXuv (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 18:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbXAUXuu
+	id S1751799AbXAUX6o (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 18:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbXAUX6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 18:50:50 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:45914 "EHLO
-	relay02.mail-hub.dodo.com.au" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751797AbXAUXuu (ORCPT
+	Sun, 21 Jan 2007 18:58:44 -0500
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:45017 "EHLO
+	taverner.cs.berkeley.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751799AbXAUX6n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 18:50:50 -0500
-X-Greylist: delayed 51875 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Jan 2007 18:50:49 EST
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Grant Coady <gcoady.lk@gmail.com>, dann frazier <dannf@dannf.org>,
-       Santiago Garcia Mantinan <manty@debian.org>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
-Date: Mon, 22 Jan 2007 10:50:47 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <lpu7r2lbtpm5cui8v1qpuj2fb5k3vs6f4n@4ax.com>
-References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo> <20070120010544.GY26210@colo> <t1r7r2thimh3gpuhtfc9l3aehjdd6dqkp8@4ax.com> <20070121230321.GC2480@1wt.eu>
-In-Reply-To: <20070121230321.GC2480@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Jan 2007 18:58:43 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] Undo some of the pseudo-security madness
+Date: Sun, 21 Jan 2007 23:34:56 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ep0tb0$f6e$1@taverner.cs.berkeley.edu>
+References: <87r6toufpp.wl@betelheise.deep.net>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1169422496 15566 128.32.168.222 (21 Jan 2007 23:34:56 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Sun, 21 Jan 2007 23:34:56 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2007 00:03:21 +0100, Willy Tarreau <w@1wt.eu> wrote:
+Samium Gromoff  wrote:
+>[...] directly setuid root the lisp system executable itself [...]
 
->Hi Grant !
->
->On Mon, Jan 22, 2007 at 09:52:44AM +1100, Grant Coady wrote:
->> On Fri, 19 Jan 2007 18:05:44 -0700, dann frazier <dannf@dannf.org> wrote:
->> 
->> >On Thu, Jan 18, 2007 at 06:00:40PM -0700, dann frazier wrote:
->> >Ah, think I see the problem now:
->> >
->> >--- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
->> >+++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
->> >@@ -1997,7 +1997,7 @@
->> > 		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
->> > 	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
->> > 	          !(S_ISDIR(fattr->f_mode)) )
->> >-		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
->> >+		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
->> > 
->> > }
->> > 
->> client running 2.4.34 with above patch, server is running 2.6.19.2 to 
->> eliminate it from the problem space (hopefully ;) :
->> grant@sempro:/home/other$ uname -r
->> 2.4.34b
->> grant@sempro:/home/other$ ls -l
->> total 9
->> drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dir/
->> drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dirlink/
->> -rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 file*
->> -rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 filelink*
->
->It seems to me that there is a difference, because filelink now appears the
->same size as file. It's just as if we had hard links instead of symlinks.
+Like I said, that sounds like a bad idea to me.  Sounds like a recipe for
+privilege escalation vulnerabilities.  Was the lisp system executable
+really implemented to be secure even when you make it setuid root?
+Setting the setuid-root bit on programs that didn't expect to be
+setuid-root is generally not a very safe thing to do. [1]
 
-Hi Willy,
+The more I hear, the more unconvinced I am by this use case.
 
-No, those dir and files were created server-side, sorry I gave wrong 
-impression, I still get on client side:
+If you don't care about the security issues created by (mis)using the lisp
+interpreter in this way, then like I suggested before, you can always
+write a tiny setuid-root wrapper program that turns off address space
+randomization and exec()s the lisp system executable, and leave the lisp
+system executable non-setuid and don't touch the code in the Linux kernel.
+That strikes me as a better solution: those who don't mind the security
+risks can take all the risks they want, without forcing others to take
+unwanted and unnecessary risks.
 
-grant@sempro:/home/other$ uname -r
-2.4.34b
-grant@sempro:/home/other$ mkdir test
-grant@sempro:/home/other$ ln -s test testlink
-ln: creating symbolic link `testlink' to `test': Operation not permitted
-grant@sempro:/home/other$ echo "this is also a test" > test/file
-grant@sempro:/home/other$ ln -s test/file test2
-ln: creating symbolic link `test2' to `test/file': Operation not permitted
+It's not that I'm wedded to address space randomization of setuid
+programs, or that I think it would be a disaster if this patch were
+accepted.  Local privilege escalation attacks aren't the end of the world;
+in all honesty, they're pretty much irrelevant to many or most users.
+It's just that the arguments I'm hearing advanced in support of this
+change seem dubious, and the change does eliminate one of the defenses
+against a certain (narrow) class of attacks.
 
-trying to create symlinks.
 
-No problems creating symlinks with 2.4.33.3.
-
-Grant.
+[1] In comparison, suidperl was designed to be installed setuid-root,
+and it takes special precautions to be safe in this usage.  (And even it
+has had some security vulnerabilities, despite its best efforts, which
+illustrates how tricky this business can be.)  Setting the setuid-root
+bit on a large complex interpreter that wasn't designed to be setuid-root
+seems like a pretty dubious proposition to me.

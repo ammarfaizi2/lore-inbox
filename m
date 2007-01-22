@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751898AbXAVHV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751901AbXAVHbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751898AbXAVHV5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 02:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbXAVHV4
+	id S1751901AbXAVHbA (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 02:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751906AbXAVHbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 02:21:56 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:45494 "EHLO
-	relay01.mail-hub.dodo.com.au" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751898AbXAVHV4 (ORCPT
+	Mon, 22 Jan 2007 02:31:00 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:33906 "EHLO
+	ausmtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751901AbXAVHa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 02:21:56 -0500
-X-Greylist: delayed 30546 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Jan 2007 02:21:55 EST
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: dann frazier <dannf@dannf.org>
-Cc: Willy Tarreau <w@1wt.eu>, Santiago Garcia Mantinan <manty@debian.org>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
-Date: Mon, 22 Jan 2007 09:52:44 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <t1r7r2thimh3gpuhtfc9l3aehjdd6dqkp8@4ax.com>
-References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo> <20070120010544.GY26210@colo>
-In-Reply-To: <20070120010544.GY26210@colo>
-X-Mailer: Forte Agent 2.0/32.652
+	Mon, 22 Jan 2007 02:30:59 -0500
+Message-ID: <45B47200.6030908@in.ibm.com>
+Date: Mon, 22 Jan 2007 13:42:48 +0530
+From: Srinivasa Ds <srinivasa@in.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, ashok.raj@intel,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       mingo@redhat.com
+Subject: [Need Help] Cpuhotplug operations on 32-bit mode of xeon-64bit processor
+ crashes the system.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2007 18:05:44 -0700, dann frazier <dannf@dannf.org> wrote:
+I saw cpuhotplug operations on 32-bit mode of xeon-64bit processors 
+crashing the system. This happens on latest 2.6.20-rc5 kernel also. Same 
+(i386 cpuhotplug code) runs fine on xeon-32bit processors.
+Steps to reproduce.
+====================
+echo 0 > /sys/devices/system/cpu/cpu6/online
+echo 1 > /sys/devices/system/cpu/cpu6/online
+================================
+dmesg shows.
+==============
+Breaking affinity for irq 4
+cpu_mask_to_apicid: Not a valid mask!
+CPU 6 is now offline
+=======================
 
->On Thu, Jan 18, 2007 at 06:00:40PM -0700, dann frazier wrote:
->Ah, think I see the problem now:
->
->--- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
->+++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
->@@ -1997,7 +1997,7 @@
-> 		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
-> 	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
-> 	          !(S_ISDIR(fattr->f_mode)) )
->-		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
->+		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
-> 
-> }
-> 
-client running 2.4.34 with above patch, server is running 2.6.19.2 to 
-eliminate it from the problem space (hopefully ;) :
-grant@sempro:/home/other$ uname -r
-2.4.34b
-grant@sempro:/home/other$ ls -l
-total 9
-drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dir/
-drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dirlink/
--rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 file*
--rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 filelink*
-grant@sempro:/home/other$ ls -l dirlink/
-total 1
--rwxr-xr-x 1 grant wheel 15 2007-01-21 11:44 file*
--rwxr-xr-x 1 grant wheel 15 2007-01-21 11:44 filelink*
-grant@sempro:/home/other$
+On debugging the problem, I found that problem is not in cpuhotplug code 
+but in apic part. Execution of  "stale" IPI's by onlined cpus(which we 
+offlined earlier) is causing the crash. Now we need to debug,why IPI's 
+are reaching the offlined cpu's too.
 
-problem is still there :(
+1)   During the calculation of apicid's, if cpu to which IPI has to 
+deliver is not in
+same apic cluster,it prints "Not a valid mask" error and returns "0xFF" 
+which means broadcast the IPI's to all cpus(which are offlined too) and 
+hence the problem.
 
-With client 2.4.33.3 (slackware-11 distro kernel):
-grant@sempro:/home/other$ uname -r
-2.4.33.3
-grant@sempro:/home/other$ ls -l
-total 2048
-drwxr-xr-x 1 root root  0 2007-01-21 11:44 dir/
-lrwxrwxrwx 1 root root  3 2007-01-21 11:43 dirlink -> dir/
--rw-r--r-- 1 root root 15 2007-01-21 11:43 file
-lrwxrwxrwx 1 root root  4 2007-01-21 11:44 filelink -> file
-grant@sempro:/home/other$ ls -l dirlink/
-total 2048
--rw-r--r-- 1 root root 15 2007-01-21 11:44 file
-lrwxrwxrwx 1 root root  4 2007-01-21 11:44 filelink -> file
-grant@sempro:/home/other$ cat filelink
-this is a test
+2) I booted the system with maxcpus=2 boot parameter, and tried cpu 
+hotplugging on it.
+but still problem recreates(I think there is no concept of apic clusters 
+if there are only 2 cpus). Hence it makes me to conclude that problem is 
+in delivery of IPI's.
 
-No problem with symlinks, execute flag.
+So Iam completely stuck here. Iam not able to move forward in debugging. 
+So could someone(may be intel folks) please throw some light on this.
 
-Grant.
+Thanks in advance
+  Srinivasa DS
+  LTC-IBM
+

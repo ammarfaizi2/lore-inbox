@@ -1,156 +1,228 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751912AbXAVE16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751920AbXAVEec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751912AbXAVE16 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 23:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbXAVE16
+	id S1751920AbXAVEec (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 23:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbXAVEec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 23:27:58 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:47128 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751912AbXAVE15 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 23:27:57 -0500
-Date: Sun, 21 Jan 2007 20:22:18 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: rpjday@mindspring.com, akpm <akpm@osdl.org>
-Subject: [PATCH] fix various kernel-doc in header files
-Message-Id: <20070121202218.6d1f414d.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 21 Jan 2007 23:34:32 -0500
+Received: from smtp.gentoo.org ([140.211.166.183]:52817 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751920AbXAVEeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 23:34:31 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+Organization: wh0rd.org
+To: a.zummo@towertech.it
+Subject: [patch] some rtc documentation updates
+Date: Sun, 21 Jan 2007 23:34:36 -0500
+User-Agent: KMail/1.9.5
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_d7DtFWigXtS/a+G"
+Message-Id: <200701212334.37396.vapier@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Robert P. J. Day <rpjday@mindspring.com>
+--Boundary-00=_d7DtFWigXtS/a+G
+Content-Type: multipart/signed;
+  boundary="nextPart16955314.pXxOYuQnp3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-  Fix a number of kernel-doc entries for header files in
-include/linux by making sure they begin with the appropriate '/**'
-notation and use @var notation.
+--nextPart16955314.pXxOYuQnp3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
+find attached a patch to update the rtc documentation a bit.  i fixed a typ=
+o,=20
+added a bunch of helpful pointers (thanks to Paul Mundt and the linux/sh gu=
+ys=20
+for holding my hand :D), and improved a bunch of the error messages in the=
+=20
+test program
 
- include/linux/bitops.h  |    6 ++----
- include/linux/list.h    |   10 +++++-----
- include/linux/mutex.h   |    2 +-
- include/linux/rtmutex.h |    4 ++--
- include/linux/timer.h   |    4 ++--
- 5 files changed, 12 insertions(+), 14 deletions(-)
+hope this helps
+=2Dmike
 
---- linux-2620-rc4.orig/include/linux/bitops.h
-+++ linux-2620-rc4/include/linux/bitops.h
-@@ -31,9 +31,8 @@ static inline unsigned long hweight_long
- 	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
- }
+--nextPart16955314.pXxOYuQnp3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
+
+iQIVAwUARbQ+3UFjO5/oN/WBAQIwsBAAgv/seG4Iz9aGyLmuwvPEoQvBaIs2sJgd
+WRRQnSfGiB028ceACs+dfxndylBbTjShzUSAEygYAiEIs+V7ecH9vd+U0ljnH+ej
+W91PllEi81RDb99sAfa+xXMBISo4nwUxLs3je3HBECodXok95Ryi8m7B1pWXJnVD
+sZV9IhNF+Iq6iJlGbpWIi8BuBvktngmnMlq45Cl0nq8WQEEZs/Mx4XS1y50vEF3z
+JnAzRKSe7GwyYP1fcADZdGN2/HbTGgg9KaR0fHSI+1ZI1FKRHAHIYZKbu4EYDtgO
+xg5CAcRibjM98RQKV/EyHt/euKlLCH6LRigJgJElgTrZ06L+QebjW4RZY8dh1iKj
+Q3G63I9txE+AZp38oYldNY1nJxPQin6RDvc0+OWugC5Zvv0EVoZpVbCt/3cm6dJW
+96p2TuQvoDbFgir6sz2qdqqSK2UCm2vpap3ecbKdnyMTOiinx54Ussz4vyhAPqia
+M4F87MosDUH1/8ae99DTaIkXbYK9xWFGramUJLH8Zh9tYnydwbb6Pk3GMpxMEBgF
+sueBq/5ME3jhNDsQDpGOsEPPcKXhbO/pstw1joNX/K2FgRwje7K9aw3W8eENtr9J
+A9tbZuBHOPX+zQejU7vtK0iVePRQBe66IodpMekb6AGl1DWoXGIL27AF8NQDUXvp
+jKKr8s7WGqo=
+=XiFT
+-----END PGP SIGNATURE-----
+
+--nextPart16955314.pXxOYuQnp3--
+
+--Boundary-00=_d7DtFWigXtS/a+G
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-rtc-doc-update.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="linux-rtc-doc-update.patch"
+
+Fix typo when describing RTC_WKALM.  Add some helpful pointers to people
+developing their own RTC driver.  Change a bunch of the error messages in the
+test program to be a bit more helpful.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+index 7cf1ec5..1ef6bb8 100644
+--- a/Documentation/rtc.txt
++++ b/Documentation/rtc.txt
+@@ -149,7 +149,7 @@ RTC class framework, but can't be supported by the older driver.
+ 	is connected to an IRQ line, it can often issue an alarm IRQ up to
+ 	24 hours in the future.
  
--/*
-+/**
-  * rol32 - rotate a 32-bit value left
-- *
-  * @word: value to rotate
-  * @shift: bits to roll
-  */
-@@ -42,9 +41,8 @@ static inline __u32 rol32(__u32 word, un
- 	return (word << shift) | (word >> (32 - shift));
- }
+-    *	RTC_WKALM_SET, RTC_WKALM_READ ... RTCs that can issue alarms beyond
++    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue alarms beyond
+ 	the next 24 hours use a slightly more powerful API, which supports
+ 	setting the longer alarm time and enabling its IRQ using a single
+ 	request (using the same model as EFI firmware).
+@@ -167,6 +167,28 @@ Linux out of a low power sleep state (or hibernation) back to a fully
+ operational state.  For example, a system could enter a deep power saving
+ state until it's time to execute some scheduled tasks.
  
--/*
-+/**
-  * ror32 - rotate a 32-bit value right
-- *
-  * @word: value to rotate
-  * @shift: bits to roll
-  */
---- linux-2620-rc4.orig/include/linux/list.h
-+++ linux-2620-rc4/include/linux/list.h
-@@ -227,13 +227,13 @@ static inline void list_replace_init(str
- 	INIT_LIST_HEAD(old);
- }
++Note that many of these ioctls need not actually be implemented by your
++driver.  The common rtc-dev interface handles many of these nicely if your
++driver returns ENOIOCTLCMD.  Some common examples:
++
++    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time functions will be
++	called with appropriate values.
++
++    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD: the
++	set_alarm/read_alarm functions will be called.  To differentiate
++	between the ALM and WKALM, check the larger fields of the rtc_wkalrm
++	struct (like tm_year).  These will be set to -1 when using ALM and
++	will be set to proper values when using WKALM.
++
++    *	RTC_IRQP_SET, RTC_IRQP_READ: the irq_set_freq function will be called
++	to set the frequency while the framework will handle the read for you
++	since the frequency is stored in the irq_freq member of the rtc_device
++	structure.  Also make sure you set the max_user_freq member in your
++	initialization routines so the framework can sanity check the user
++	input for you.
++
++If all else fails, check out the rtc-test.c driver!
++
  
--/*
-+/**
-  * list_replace_rcu - replace old entry by new one
-  * @old : the element to be replaced
-  * @new : the new element to insert
-  *
-- * The old entry will be replaced with the new entry atomically.
-- * Note: 'old' should not be empty.
-+ * The @old entry will be replaced with the @new entry atomically.
-+ * Note: @old should not be empty.
-  */
- static inline void list_replace_rcu(struct list_head *old,
- 				struct list_head *new)
-@@ -680,12 +680,12 @@ static inline void hlist_del_init(struct
+ -------------------- 8< ---------------- 8< -----------------------------
+ 
+@@ -237,7 +259,7 @@ int main(int argc, char **argv)
+ 				"\n...Update IRQs not supported.\n");
+ 			goto test_READ;
+ 		}
+-		perror("ioctl");
++		perror("RTC_UIE_ON ioctl");
+ 		exit(errno);
  	}
- }
  
--/*
-+/**
-  * hlist_replace_rcu - replace old entry by new one
-  * @old : the element to be replaced
-  * @new : the new element to insert
-  *
-- * The old entry will be replaced with the new entry atomically.
-+ * The @old entry will be replaced with the @new entry atomically.
-  */
- static inline void hlist_replace_rcu(struct hlist_node *old,
- 					struct hlist_node *new)
---- linux-2620-rc4.orig/include/linux/mutex.h
-+++ linux-2620-rc4/include/linux/mutex.h
-@@ -105,7 +105,7 @@ do {							\
- extern void __mutex_init(struct mutex *lock, const char *name,
- 			 struct lock_class_key *key);
+@@ -284,7 +306,7 @@ int main(int argc, char **argv)
+ 	/* Turn off update interrupts */
+ 	retval = ioctl(fd, RTC_UIE_OFF, 0);
+ 	if (retval == -1) {
+-		perror("ioctl");
++		perror("RTC_UIE_OFF ioctl");
+ 		exit(errno);
+ 	}
  
--/***
-+/**
-  * mutex_is_locked - is the mutex locked
-  * @lock: the mutex to be queried
-  *
---- linux-2620-rc4.orig/include/linux/rtmutex.h
-+++ linux-2620-rc4/include/linux/rtmutex.h
-@@ -16,7 +16,7 @@
- #include <linux/plist.h>
- #include <linux/spinlock_types.h>
+@@ -292,7 +314,7 @@ test_READ:
+ 	/* Read the RTC time/date */
+ 	retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
+ 	if (retval == -1) {
+-		perror("ioctl");
++		perror("RTC_RD_TIME ioctl");
+ 		exit(errno);
+ 	}
  
--/*
-+/**
-  * The rt_mutex structure
-  *
-  * @wait_lock:	spinlock to protect the structure
-@@ -71,7 +71,7 @@ struct hrtimer_sleeper;
- #define DEFINE_RT_MUTEX(mutexname) \
- 	struct rt_mutex mutexname = __RT_MUTEX_INITIALIZER(mutexname)
+@@ -320,14 +342,14 @@ test_READ:
+ 				"\n...Alarm IRQs not supported.\n");
+ 			goto test_PIE;
+ 		}
+-		perror("ioctl");
++		perror("RTC_ALM_SET ioctl");
+ 		exit(errno);
+ 	}
  
--/***
-+/**
-  * rt_mutex_is_locked - is the mutex locked
-  * @lock: the mutex to be queried
-  *
---- linux-2620-rc4.orig/include/linux/timer.h
-+++ linux-2620-rc4/include/linux/timer.h
-@@ -41,7 +41,7 @@ static inline void setup_timer(struct ti
- 	init_timer(timer);
- }
+ 	/* Read the current alarm settings */
+ 	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
+ 	if (retval == -1) {
+-		perror("ioctl");
++		perror("RTC_ALM_READ ioctl");
+ 		exit(errno);
+ 	}
  
--/***
-+/**
-  * timer_pending - is a timer pending?
-  * @timer: the timer in question
-  *
-@@ -63,7 +63,7 @@ extern int mod_timer(struct timer_list *
+@@ -337,7 +359,7 @@ test_READ:
+ 	/* Enable alarm interrupts */
+ 	retval = ioctl(fd, RTC_AIE_ON, 0);
+ 	if (retval == -1) {
+-		perror("ioctl");
++		perror("RTC_AIE_ON ioctl");
+ 		exit(errno);
+ 	}
  
- extern unsigned long next_timer_interrupt(void);
+@@ -355,7 +377,7 @@ test_READ:
+ 	/* Disable alarm interrupts */
+ 	retval = ioctl(fd, RTC_AIE_OFF, 0);
+ 	if (retval == -1) {
+-		perror("ioctl");
++		perror("RTC_AIE_OFF ioctl");
+ 		exit(errno);
+ 	}
  
--/***
-+/**
+@@ -368,7 +390,7 @@ test_PIE:
+ 			fprintf(stderr, "\nNo periodic IRQ support\n");
+ 			return 0;
+ 		}
+-		perror("ioctl");
++		perror("RTC_IRQP_READ ioctl");
+ 		exit(errno);
+ 	}
+ 	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
+@@ -387,7 +409,7 @@ test_PIE:
+ 					"\n...Periodic IRQ rate is fixed\n");
+ 				goto done;
+ 			}
+-		        perror("ioctl");
++		        perror("RTC_IRQP_SET ioctl");
+ 		        exit(errno);
+ 		}
+ 
+@@ -397,7 +419,7 @@ test_PIE:
+ 		/* Enable periodic interrupts */
+ 		retval = ioctl(fd, RTC_PIE_ON, 0);
+ 		if (retval == -1) {
+-		        perror("ioctl");
++		        perror("RTC_PIE_ON ioctl");
+ 		        exit(errno);
+ 		}
+ 
+@@ -416,7 +438,7 @@ test_PIE:
+ 		/* Disable periodic interrupts */
+ 		retval = ioctl(fd, RTC_PIE_OFF, 0);
+ 		if (retval == -1) {
+-		        perror("ioctl");
++		        perror("RTC_PIE_OFF ioctl");
+ 		        exit(errno);
+ 		}
+ 	}
 
-
----
+--Boundary-00=_d7DtFWigXtS/a+G--

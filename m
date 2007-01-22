@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751448AbXAVKVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751486AbXAVKWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbXAVKVw (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 05:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbXAVKVw
+	id S1751486AbXAVKWR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 05:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbXAVKWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 05:21:52 -0500
-Received: from aa013msr.fastwebnet.it ([85.18.95.73]:43213 "EHLO
-	aa013msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751448AbXAVKVv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 05:21:51 -0500
-Date: Mon, 22 Jan 2007 11:21:46 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-15?B?Qmr2cm4=?= Steinbrink <B.Steinbrink@gmx.de>,
-       Jens Axboe <jens.axboe@oracle.com>, Jeff Garzik <jeff@garzik.org>
-Subject: Re: SATA exceptions triggered by XFS (since 2.6.18)
-Message-ID: <20070122112146.089cffff@localhost>
-In-Reply-To: <45B48549.1080209@gmail.com>
-References: <20070121152932.6dc1d9fb@localhost>
-	<20070121174023.68402ade@localhost>
-	<45B3A392.6050609@shaw.ca>
-	<20070121202552.14cc29fe@localhost>
-	<45B42569.6030902@gmail.com>
-	<20070122093823.1241be05@localhost>
-	<45B48549.1080209@gmail.com>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Jan 2007 05:22:16 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40213 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751486AbXAVKWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 05:22:14 -0500
+Date: Mon, 22 Jan 2007 11:21:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: yunfeng zhang <zyf.zeroos@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
+       Al Boldi <a1426z@gawab.com>
+Subject: Re: [PATCH 2.6.20-rc5 1/1] MM: enhance Linux swap subsystem
+Message-ID: <20070122102156.GD16309@elf.ucw.cz>
+References: <4df04b840701212309l2a283357jbdaa88794e5208a7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4df04b840701212309l2a283357jbdaa88794e5208a7@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2007 18:35:05 +0900
-Tejun Heo <htejun@gmail.com> wrote:
+Hi1
 
-> Yeap, certainly.  I'll ask people first before actually proceeding with 
-> the blacklisting.  I'm just getting a bit tired of tides of NCQ firmware 
-> problems.
+> My patch is based on my new idea to Linux swap subsystem, you can find more 
+> in
+> Documentation/vm_pps.txt which isn't only patch illustration but also file
+> changelog. In brief, SwapDaemon should scan and reclaim pages on
+> UserSpace::vmalist other than current zone::active/inactive. The change will
+> conspicuously enhance swap subsystem performance by
 
-Another interesting thing: it seems that I'm unable to reproduce the
-problem mounting XFS with "nobarrier" (using sda queue_depth = 31).
+No, this is not the way to submit major rewrite of swap subsystem.
 
-So it looks like a problem with NCQ combined with cache flush command...
+You need to (at minimum, making fundamental changes _is_ hard):
 
+1) Fix your mailer not to wordwrap.
+
+2) Get some testing. Identify workloads it improves.
+
+3) Get some _external_ testing. You are retransmitting wordwrapped
+patch. That means noone other then you is actually using it.
+
+4) Don't cc me; I'm not mm expert, and I tend to read l-k, anyway.
+
+								Pavel
+
+> +                         Pure Private Page System (pps)
+> +                     Copyright by Yunfeng Zhang on GFDL 1.2
+
+I am not sure GFDL is GPL compatible.
+
+> +// Purpose <([{
+
+You have certainly "interesting" heading style. What is this markup?
+> +
+> +// The prototype of the function is fit with the "func" of "int
+> +// smp_call_function (void (*func) (void *info), void *info, int retry, int
+> +// wait);" of include/linux/smp.h of 2.6.16.29. Call it with NULL.
+> +void timer_flush_tlb_tasks(void* data /* = NULL */);
+
+I thought I told you to read the CodingStyle in some previous mail?
+
+									Pavel
 -- 
-	Paolo Ornati
-	Linux 2.6.20-rc5 on x86_64
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

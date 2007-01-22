@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751837AbXAVQEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751631AbXAVQIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbXAVQEj (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 11:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbXAVQEi
+	id S1751631AbXAVQIg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 11:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbXAVQIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 11:04:38 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:59231 "EHLO smtp.osdl.org"
+	Mon, 22 Jan 2007 11:08:36 -0500
+Received: from mail.alkar.net ([195.248.191.95]:59269 "EHLO mail.alkar.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751934AbXAVQEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 11:04:37 -0500
-Date: Mon, 22 Jan 2007 08:03:53 -0800 (PST)
-From: Linus Torvalds <torvalds@linux-foundation.org>
-To: Neil Horman <nhorman@tuxdriver.com>
-cc: Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] select: fix sys_select to not leak ERESTARTNOHAND to
- userspace
-In-Reply-To: <20070122145259.GB21059@hmsreliant.homelinux.net>
-Message-ID: <Pine.LNX.4.64.0701220758120.32200@woody.linux-foundation.org>
-References: <20070116201332.GA28523@hmsreliant.homelinux.net>
- <20070122145956.4a68762d@localhost> <20070122145259.GB21059@hmsreliant.homelinux.net>
+	id S1751631AbXAVQIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 11:08:35 -0500
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+To: reiserfs-list@namesys.com, tdwebste2@yahoo.com
+Subject: Re: reiserfs4 primary contact
+Date: Mon, 22 Jan 2007 20:08:06 +0300
+User-Agent: KMail/1.8.2
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <330384.6532.qm@web51313.mail.yahoo.com>
+In-Reply-To: <330384.6532.qm@web51313.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701222008.07087.vs@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
+On Monday 22 January 2007 18:48, Timothy Webster wrote:
+> I am curious, who is coordinating reiserfs4 bug fixes, 
+> testing and kernel integration work at this point?  
+> I would like to help out with auto testing the reiserfs4 builds. 
 
-On Mon, 22 Jan 2007, Neil Horman wrote:
+Thanks
 
-> On Mon, Jan 22, 2007 at 02:59:56PM +0100, Paolo Ornati wrote:
-> > 
-> > the ERESTARTNOHAND thing is handled in arch specific signal code,
+> Who is coordinating this work?  
+
+All reiserfs/reiser4 related posts are to go to reiserfs-dev@namesys.com or reiserfs-list@namesys.com
+
 > 
-> In the signal handling path yes.
-
-Right.
-
-> Not always in the case of select, though.  Check core_sys_select:
-
-No, even in the case of select().
-
-> if (!ret) {
->                 ret = -ERESTARTNOHAND;
->                 if (signal_pending(current))
->                         goto out;
->                 ret = 0;
-
-Since we have "signal_pending(current)" being true, we _know_ that the 
-signal handling path will be triggered, so the ERESTARTNOHAND will be 
-changed into the appropriate error return (or restart) by the signal 
-handling code.
-
-> Its possible for core_sys_select to return ERESTARTNOHAND to sys_select, which
-> will in turn (as its currently written), return that value back to user space.
-
-No. Exactly because sys_select() will always return through the system 
-call handling path, and that will turn the ERESTARTNOHAND into something 
-else.
-
-NOTE! If you use "ptrace()", you may see the internal errors. But that's a 
-ptrace-only thing, and may have fooled you into thinking that the actual 
-_application_ sees those internal errors. It won't.
-
-Of course, we could have some signal-handling bug here, but if so, it 
-would affect a lot more than just select(). Have you actually seen 
-ERESTARTNOINTR in the app (not just ptrace?)
-
-		Linus
+> Tim 
+> 
+>  
+> ---------------------------------
+> We won't tell. Get more on shows you hate to love
+> (and love to hate): Yahoo! TV's Guilty Pleasures list.

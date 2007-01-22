@@ -1,180 +1,128 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750845AbXAVIvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750889AbXAVIyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbXAVIvS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 03:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbXAVIvS
+	id S1750889AbXAVIyU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 03:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbXAVIyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 03:51:18 -0500
-Received: from rk.rkuhn.info ([88.198.164.84]:43757 "EHLO mailhost.rkuhn.info"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750845AbXAVIvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 03:51:17 -0500
-X-Greylist: delayed 1527 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Jan 2007 03:51:16 EST
-In-Reply-To: <Pine.LNX.4.61.0701212208080.29213@yvahk01.tjqt.qr>
-References: <c384c5ea0701201007t4e637b9eh133101286ce5598d@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEKNBAAC.davids@webmaster.com> <gzm8d1bv1.fsf@brand.scrye.com> <Pine.LNX.4.61.0701212208080.29213@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-203-21104622"
-Message-Id: <F23DDC9E-83CB-4A6E-8494-FBD899119FC4@e18.physik.tu-muenchen.de>
-Cc: Tony Foiani <tkil@scrye.com>, David Schwartz <davids@webmaster.com>,
-       Leon Woestenberg <leon.woestenberg@gmail.com>,
-       linux-kernel@vger.kernel.org
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
-Date: Mon, 22 Jan 2007 09:25:48 +0100
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Content-Transfer-Encoding: 7bit
-X-Pgp-Agent: GPGMail 1.1.2 (Tiger)
-X-Mailer: Apple Mail (2.752.2)
+	Mon, 22 Jan 2007 03:54:20 -0500
+Received: from ara.aytolacoruna.es ([195.55.102.196]:38232 "EHLO
+	mx.aytolacoruna.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750849AbXAVIyT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 03:54:19 -0500
+Date: Mon, 22 Jan 2007 09:54:00 +0100
+From: Santiago Garcia Mantinan <manty@debian.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Grant Coady <gcoady.lk@gmail.com>, dann frazier <dannf@dannf.org>,
+       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
+Message-ID: <20070122085400.GA16302@clandestino.aytolacoruna.es>
+References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo> <20070120010544.GY26210@colo> <t1r7r2thimh3gpuhtfc9l3aehjdd6dqkp8@4ax.com> <20070121230321.GC2480@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20070121230321.GC2480@1wt.eu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---Apple-Mail-203-21104622
-Content-Type: multipart/signed; micalg=sha1; boundary=Apple-Mail-202-21104594; protocol="application/pkcs7-signature"
+Hi again!
 
+I tried to replicate the problem at home during the weekend with my laptop,
+but I couldn't get it to show links with previous kernels, so I guess I had
+something different on my samba server or similar, I'm at the real machines
+now so I have done the real tests and they look promising. I'm getting
+completely different results than those of Grant, which seems really weird.
 
---Apple-Mail-202-21104594
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
+I applied just this patch:
 
-Hi Jan!
+> > >--- kernel-source-2.4.27.orig/fs/smbfs/proc.c	2007-01-19 17:53:57.247695476 -0700
+> > >+++ kernel-source-2.4.27/fs/smbfs/proc.c	2007-01-19 17:49:07.480161733 -0700
+> > >@@ -1997,7 +1997,7 @@
+> > > 		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
+> > > 	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
+> > > 	          !(S_ISDIR(fattr->f_mode)) )
+> > >-		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
+> > >+		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | (fattr->f_mode & S_IFMT);
+> > > 
+> > > }
 
-On 21 Jan 2007, at 22:12, Jan Engelhardt wrote:
+To an unpatched 2.4.34, the client is an IBM NetworkStation 1000 (a PowerPC
+based thin client), and the server is a normal amd64 based PC running
+2.6.19.1, both running Debian, the client runs Sarge and the Server Etch.
+I'm descriving this to see if differences on the architectures could be
+causing the differences on behaviour between my tests and Grant's.
 
->> How fast is your Ethernet port?  100Mbps or 95.37Mbps?
->
-> Same lie like with harddrives. It's around 80, not 100.
-> But it depends on how you look at it. 80 for Layer3, possibly
-> a little more for Layer2/1.
->
-Nope, I get consistently 12e6 bytes/sec, which is 96e6 bits/sec  
-across 100Mbps ethernet, fitting nicely with the frame overhead (some  
-50 bytes out of 1500, without TCP options). So no lie here. With  
-gigabit I'm not completely sure yet, still have to see the advertised  
-125e6 symbols/sec (got only as far as 115e6 up to now).
+> > client running 2.4.34 with above patch, server is running 2.6.19.2 to 
+> > eliminate it from the problem space (hopefully ;) :
+> > grant@sempro:/home/other$ uname -r
+> > 2.4.34b
+> > grant@sempro:/home/other$ ls -l
+> > total 9
+> > drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dir/
+> > drwxr-xr-x 1 grant wheel 4096 2007-01-21 11:44 dirlink/
+> > -rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 file*
+> > -rwxr-xr-x 1 grant wheel   15 2007-01-21 11:43 filelink*
+> 
+> It seems to me that there is a difference, because filelink now appears the
+> same size as file. It's just as if we had hard links instead of symlinks.
 
-Ciao,
-                     Roland
+Here is what I did, I mounted the remote filesystem on /mnt on my client,
+the share on the server has a normal Debian Sarge PowerPC filesystem on it.
 
---
-TU Muenchen, Physik-Department E18, James-Franck-Str., 85748 Garching
-Telefon 089/289-12575; Telefax 089/289-12570
---
-CERN office: 892-1-D23 phone: +41 22 7676540 mobile: +41 76 487 4482
---
-Any society that would give up a little liberty to gain a little
-security will deserve neither and lose both.  - Benjamin Franklin
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GS/CS/M/MU d-(++) s:+ a-> C+++ UL++++ P+++ L+++ E(+) W+ !N K- w--- M 
-+ !V Y+
-PGP++ t+(++) 5 R+ tv-- b+ DI++ e+++>++++ h---- y+++
-------END GEEK CODE BLOCK------
+$ pwd
+/mnt/usr
+$ ls -l
+total 0
+drwxr-xr-x  1 root root  0 Feb 15  2005 X11R6
+drwxr-xr-x  1 root root  0 Jan 16  2007 bin
+drwxr-xr-x  1 root root  0 Jan 16  2007 doc
+drwxr-xr-x  1 root root  0 Feb 10  2005 games
+drwxr-xr-x  1 root root  0 Jan 16  2007 include
+lrwxr-xr-x  1 root root 10 Jan 16  2007 info -> share/info
+drwxr-xr-x  1 root root  0 Jan 16  2007 lib
+drwxr-xr-x  1 root root  0 Feb 10  2005 local
+drwxr-xr-x  1 root root  0 Jan 16  2007 sbin
+drwxr-xr-x  1 root root  0 Jan  5  2006 share
+drwxr-xr-x  1 root root  0 Dec 15  2004 src
+$ ls -l info/
+total 249856
+-rwxr-xr-x  1 root root 150109 Jul 16  2004 coreutils.info.gz
+-rwxr-xr-x  1 root root   1299 Jan 16  2007 dir
+-rwxr-xr-x  1 root root   1299 Jan 16  2007 dir.old
+-rwxr-xr-x  1 root root  28019 Mar 20  2005 find.info.gz
+-rwxr-xr-x  1 root root  26136 Nov 22  2004 grep.info.gz
+-rwxr-xr-x  1 root root  12914 Sep 16  2006 gzip.info.gz
+-rwxr-xr-x  1 root root  12316 Sep 18  2005 ipc.info.gz
+-rwxr-xr-x  1 root root  21432 Jan 23  2005 rl5userman.info.gz
+-rwxr-xr-x  1 root root  26647 Dec  1  2004 sed.info.gz
+-rwxr-xr-x  1 root root 123382 Dec  1  2006 tar.info.gz
+-rwxr-xr-x  1 root root  54876 May 23  2005 wget.info.gz
+$ cd ../bin
+$ ls -l sh
+lrwxr-xr-x  1 root root 4 Jan 16  2007 sh -> bash
+$ dd if=sh bs=1 count=6
+ELF6+0 records in
+6+0 records out
+6 bytes transferred in 0.001432 seconds (4190 bytes/sec)
 
+As you can see I now can see the symbolic links perfectly and they work as
+expected.
 
+In fact, this patch is working so well that it poses a security risk, as now
+the devices on my /mnt/dev directory are not only seen as devices (like they
+were seen on 2.4.33) but they also work (which didn't happen on 2.4.33).
 
---Apple-Mail-202-21104594
-Content-Transfer-Encoding: base64
-Content-Type: application/pkcs7-signature;
-	name=smime.p7s
-Content-Disposition: attachment;
-	filename=smime.p7s
+So... for me now the remote filesystem works as if it was a local
+filesystem, without any difference of behaviour, not even on special files
+like devices or whatever.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIINxTCCBi4w
-ggUWoAMCAQICCmEPqkwAAAAAAAMwDQYJKoZIhvcNAQEFBQAwQTESMBAGCgmSJomT8ixkARkWAmNo
-MRQwEgYKCZImiZPyLGQBGRYEY2VybjEVMBMGA1UEAxMMQ0VSTiBSb290IENBMB4XDTA2MTAwMzA5
-MzYxM1oXDTE2MTAwMzA5NDYxM1owWTESMBAGCgmSJomT8ixkARkWAmNoMRQwEgYKCZImiZPyLGQB
-GRYEY2VybjEtMCsGA1UEAxMkQ0VSTiBUcnVzdGVkIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIIB
-IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdFGqthhWlgUOSZ6C6hReNEVGzbjf2IQgxo7
-/rOfOQHZH3krQPQ37fqFroEr46PrruymZ/U+QAzmESZQ4Z+nCfBhm7cEi0TIhihHd4cEPaPxawGR
-T9Ck7BBk9za8TUljF6c/JodnIcmIrpbazEbSAS1KEXwETHDsTrQ7lJ+6SzDP4/oOwrHrgJx+tKsm
-gOsFSbBEK4OYx1UYQpYS9OJQk2Sc0q4a/SCSu+xbN8ppmgV3WFytN8NW20n3NpCCWYPzo9rXmPRA
-7a/c6mf+RV5gPCnUqeW6KUvix5kz9+X8/4SQV/fU12OPdRvtkqcC+PpiePK7bjMLQJEYwvchJrSz
-AwIDAQABo4IDDjCCAwowDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUmMyS0EYwNoyw7ZgNclGp
-R0zdviEwCwYDVR0PBAQDAgGGMBAGCSsGAQQBgjcVAQQDAgECMCMGCSsGAQQBgjcVAgQWBBT/Rljl
-vgfrVK8GmAaYe+TbiXbJ7DBRBgNVHSAESjBIMEYGCisGAQQBYAoCAQEwODA2BggrBgEFBQcCARYq
-aHR0cDovL2NhLmNlcm4uY2gvY2EvY3JsL3BvbGljeS9jcC1jcHMucGRmMBkGCSsGAQQBgjcUAgQM
-HgoAUwB1AGIAQwBBMB8GA1UdIwQYMBaAFJgK9+w+7FnWHa2ZvLUBPt7spudQMIH8BgNVHR8EgfQw
-gfEwge6ggeuggeiGLWh0dHA6Ly9jYS5jZXJuLmNoL2NhL2NybC9DRVJOJTIwUm9vdCUyMENBLmNy
-bIaBtmxkYXA6Ly8vQ049Q0VSTiUyMFJvb3QlMjBDQSxDTj1jZXJucm9vdGNhLENOPUNEUCxDTj1Q
-dWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPWNl
-cm4sREM9Y2g/Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD9iYXNlP29iamVjdENsYXNzPWNSTERp
-c3RyaWJ1dGlvblBvaW50MIIBBAYIKwYBBQUHAQEEgfcwgfQwRAYIKwYBBQUHMAKGOGh0dHA6Ly9j
-YS5jZXJuLmNoL2NhL2NybC9jZXJucm9vdGNhX0NFUk4lMjBSb290JTIwQ0EuY3J0MIGrBggrBgEF
-BQcwAoaBnmxkYXA6Ly8vQ049Q0VSTiUyMFJvb3QlMjBDQSxDTj1BSUEsQ049UHVibGljJTIwS2V5
-JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1jZXJuLERDPWNoP2NB
-Q2VydGlmaWNhdGU/YmFzZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9yaXR5MA0GCSqG
-SIb3DQEBBQUAA4IBAQAfEzvOeYohKndmJqnVdiCqZ38tSBxOOPsKUHW4UY1jBfYMXbnZ9keFQFlK
-/g5X4aZPNBEHXw0eKpQVsMhEPWQrvx8T/f7GwtU+JNQhkgK9tnezmHxYzWgEC9MXZhfYzFSwMIF6
-kSKllmUTnN35uF1EnT8+64daje+yEVcpmM34p8Fw125/WpKnRmwNp0YkUk6uMti6Y6vOTHttzIN5
-P6elGoat8sadMqrVnaMNzG8hGUvSkYivYBs7msAPuwmXgLvIkXWPW+MDFs+x5Kzx75ZHv3c2WoKg
-UxL5KZH9QqiR7t8P6YBfYW6SpzyGRi4QHN/iOLhXZ06R6aPljLEOn41JMIIHjzCCBnegAwIBAgIK
-chmBHgACAAACZjANBgkqhkiG9w0BAQUFADBZMRIwEAYKCZImiZPyLGQBGRYCY2gxFDASBgoJkiaJ
-k/IsZAEZFgRjZXJuMS0wKwYDVQQDEyRDRVJOIFRydXN0ZWQgQ2VydGlmaWNhdGlvbiBBdXRob3Jp
-dHkwHhcNMDYxMTA5MTMwMjIzWhcNMDcxMTA5MTMwMjIzWjCBiTESMBAGCgmSJomT8ixkARkWAmNo
-MRQwEgYKCZImiZPyLGQBGRYEY2VybjEWMBQGA1UECxMNT3JnYW5pYyBVbml0czEOMAwGA1UECxMF
-VXNlcnMxDjAMBgNVBAMTBXJrdWhuMQ8wDQYDVQQDEwY1Nzg4NDcxFDASBgNVBAMTC1JvbGFuZCBL
-dWhuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsxeKSFlg3DexXFatyivnuM4Cny5T
-wPQ2PfpxmEPxycXaGHlM+gVtSYRYll8nl/sJ/+etmw5H7cwxWSX1n2TLphDsxWIg9LDfRPgWJdfY
-NtT3SclmEiwOAE934HmbuZ08X/xRmnz0D3Df2fbDCVQLRra3u1ZLGvzhT835Wx7+uKme/GPlZdPZ
-QUBKN/xRlMyywvIBJtdoHmTDv93B4o+yaR+JjT5h0YOLS+2GA9vbS6YdXw38+pche/D3SD20zZP8
-K78f3YWltka/PpEqq4JGvtlOdrr4BZ3i9/UusblVBGZJFTTznIRtUvPW29D9DTngutH6JQQazurR
-MePYBzsjVQIDAQABo4IEJjCCBCIwHQYDVR0OBBYEFP67uXXCxYdJS7PG+73J0TsKDmhQMB8GA1Ud
-IwQYMBaAFJjMktBGMDaMsO2YDXJRqUdM3b4hMIIBNAYDVR0fBIIBKzCCAScwggEjoIIBH6CCARuG
-R2h0dHA6Ly9jYS5jZXJuLmNoL2NhL2NybC9DRVJOJTIwVHJ1c3RlZCUyMENlcnRpZmljYXRpb24l
-MjBBdXRob3JpdHkuY3JshoHPbGRhcDovLy9DTj1DRVJOJTIwVHJ1c3RlZCUyMENlcnRpZmljYXRp
-b24lMjBBdXRob3JpdHksQ049Y2VybnBraTAxLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2
-aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPWNlcm4sREM9Y2g/Y2VydGlmaWNh
-dGVSZXZvY2F0aW9uTGlzdD9iYXNlP29iamVjdENsYXNzPWNSTERpc3RyaWJ1dGlvblBvaW50MIIB
-RAYIKwYBBQUHAQEEggE2MIIBMjBoBggrBgEFBQcwAoZcaHR0cDovL2NhLmNlcm4uY2gvY2EvY3Js
-L2Nlcm5wa2kwMS5jZXJuLmNoX0NFUk4lMjBUcnVzdGVkJTIwQ2VydGlmaWNhdGlvbiUyMEF1dGhv
-cml0eSgyKS5jcnQwgcUGCCsGAQUFBzAChoG4bGRhcDovLy9DTj1DRVJOJTIwVHJ1c3RlZCUyMENl
-cnRpZmljYXRpb24lMjBBdXRob3JpdHksQ049QUlBLENOPVB1YmxpYyUyMEtleSUyMFNlcnZpY2Vz
-LENOPVNlcnZpY2VzLENOPUNvbmZpZ3VyYXRpb24sREM9Y2VybixEQz1jaD9jQUNlcnRpZmljYXRl
-P2Jhc2U/b2JqZWN0Q2xhc3M9Y2VydGlmaWNhdGlvbkF1dGhvcml0eTAMBgNVHRMBAf8EAjAAMA4G
-A1UdDwEB/wQEAwIFoDA9BgkrBgEEAYI3FQcEMDAuBiYrBgEEAYI3FQiDvdAJgu2NDYbtiyuB3vU3
-hYDQYh6Fv7oDhMTMTAIBZAIBBTApBgNVHSUEIjAgBggrBgEFBQcDAgYIKwYBBQUHAwQGCisGAQQB
-gjcKAwQwNQYJKwYBBAGCNxUKBCgwJjAKBggrBgEFBQcDAjAKBggrBgEFBQcDBDAMBgorBgEEAYI3
-CgMEMFsGA1UdEQRUMFKgLwYKKwYBBAGCNxQCA6AhDB9ya3VobkBlMTgucGh5c2lrLnR1LW11ZW5j
-aGVuLmRlgR9ya3VobkBlMTgucGh5c2lrLnR1LW11ZW5jaGVuLmRlMEQGCSqGSIb3DQEJDwQ3MDUw
-DgYIKoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBzANBgkq
-hkiG9w0BAQUFAAOCAQEAsrZltdEJvGNe4SpJEjeXFLSM14WByMtIlw5kJkPZWiPs0CppsUzNotgg
-Mf8O09OgH+3awFL/fMfQiO4RugrRtW0qqi7+8Poo1hWrQ1m4lQgXLRkSh2VQkqQMV+hiM8I+py6h
-RbJuFZgx7GBScRUSzAtLFZAMbcw9J5x08syed4j3qEPpeuRbOpdUHVchMCg6dcQjBT5PpddN1C+i
-V0JnXI9x0+vIPgz2+V4NgLJ1763pEZzcdDOkqz4uTAJsLQdJxjuqcg35u2jpzDElrzxHH2tzg7H7
-a6V+I+vkYR+IvLYHJkBKPj9IwDabBpjUGUP33nDNmPE42cBa5LP2yvR9YDGCAuEwggLdAgEBMGcw
-WTESMBAGCgmSJomT8ixkARkWAmNoMRQwEgYKCZImiZPyLGQBGRYEY2VybjEtMCsGA1UEAxMkQ0VS
-TiBUcnVzdGVkIENlcnRpZmljYXRpb24gQXV0aG9yaXR5AgpyGYEeAAIAAAJmMAkGBSsOAwIaBQCg
-ggFPMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA3MDEyMjA4MjU0
-OVowIwYJKoZIhvcNAQkEMRYEFN9XbAs2qXfP/Kz/SDUDoUtPghElMHYGCSsGAQQBgjcQBDFpMGcw
-WTESMBAGCgmSJomT8ixkARkWAmNoMRQwEgYKCZImiZPyLGQBGRYEY2VybjEtMCsGA1UEAxMkQ0VS
-TiBUcnVzdGVkIENlcnRpZmljYXRpb24gQXV0aG9yaXR5AgpyGYEeAAIAAAJmMHgGCyqGSIb3DQEJ
-EAILMWmgZzBZMRIwEAYKCZImiZPyLGQBGRYCY2gxFDASBgoJkiaJk/IsZAEZFgRjZXJuMS0wKwYD
-VQQDEyRDRVJOIFRydXN0ZWQgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkCCnIZgR4AAgAAAmYwDQYJ
-KoZIhvcNAQEBBQAEggEAPVW4sA9kmIHHUsWwi0C6Q5XF8+cb/mms4CFNKLZHBywlNY9fVaFGH3CU
-AU+rui/EF7jqqWtwRILYV1Bh7zdBqXq97ZKzgKnuHwV48lKOlmxPVt6EOX0B04+X3Aa1Hy/dNJk0
-uKz1geuDGhQ5bb13wLP2i9TRKVcRHsH7bNlsBTyNxYCyMFOzgCAph+h7V8MxBmfTEkxeTiDkH7XY
-1DCceLY6aZoJSdiFJ0HaQrFOloBNrg4mKaqbMZrpHZU6Pf/FI0e814BavH0bIBwzILCIP9C3zKj/
-x5V1n2QIU4JyeXH6W7FfVUnmiFwcPGioeJLPvIIawDQmxqCAgDOYmhCAHAAAAAAAAA==
+As I said before... this behaviour of having the remote device files work...
+seems a security problem and I don't think is desirable, other than that it
+seems to work well on my PowerPC, I'll try to run the tests on a normal x86
+client and report back.
 
---Apple-Mail-202-21104594--
-
---Apple-Mail-203-21104622
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (Darwin)
-
-iD8DBQFFtHURI4MWO8QIRP0RAsaxAJ4oWyWqVBRZiNjDmZHWkDPYGbt5OwCfXBEq
-IydVdfO0My886kNnhLes45c=
-=v0Jx
------END PGP SIGNATURE-----
-
---Apple-Mail-203-21104622--
+Regards...
+-- 
+Santiago García Mantiñán

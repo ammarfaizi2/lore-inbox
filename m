@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751816AbXAVAfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751819AbXAVAgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751816AbXAVAfw (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 19:35:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbXAVAfw
+	id S1751819AbXAVAgl (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 19:36:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbXAVAgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 19:35:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33364 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751816AbXAVAfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 19:35:51 -0500
-Subject: Re: [PATCH] Undo some of the pseudo-security madness
-From: Arjan van de Ven <arjan@infradead.org>
-To: Samium Gromoff <_deepfire@feelingofgreen.ru>
-Cc: linux-kernel@vger.kernel.org, David Wagner <daw@cs.berkeley.edu>
-In-Reply-To: <87tzykuj49.wl@betelheise.deep.net>
-References: <87y7nxvk65.wl@betelheise.deep.net>
-	 <1169345764.3055.935.camel@laptopd505.fenrus.org>
-	 <87tzykuj49.wl@betelheise.deep.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 22 Jan 2007 01:35:46 +0100
-Message-Id: <1169426146.3055.1163.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Sun, 21 Jan 2007 19:36:41 -0500
+Received: from smtpout.mac.com ([17.250.248.186]:57397 "EHLO smtpout.mac.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751819AbXAVAgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 19:36:40 -0500
+In-Reply-To: <ep0tb0$f6e$1@taverner.cs.berkeley.edu>
+References: <87r6toufpp.wl@betelheise.deep.net> <ep0tb0$f6e$1@taverner.cs.berkeley.edu>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1D317613-B0B6-4517-81B5-DBF3978FA413@mac.com>
+Cc: LKML Kernel <linux-kernel@vger.kernel.org>,
+       Samium Gromoff <_deepfire@feelingofgreen.ru>
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] Undo some of the pseudo-security madness
+Date: Sun, 21 Jan 2007 19:36:27 -0500
+To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jan 21, 2007, at 18:34:56, David Wagner wrote:
+> [1] In comparison, suidperl was designed to be installed setuid- 
+> root, and it takes special precautions to be safe in this usage.   
+> (And even it has had some security vulnerabilities, despite its  
+> best efforts, which illustrates how tricky this business can be.)   
+> Setting the setuid-root bit on a large complex interpreter that  
+> wasn't designed to be setuid-root seems like a pretty dubious  
+> proposition to me.
 
-> the core of the problem are the cores which are customarily
-> dumped by lisps during the environment generation (or modification) stage,
-> and then mapped back, every time the environment is invoked.
+Well, there's also the fact that Linux does *NOT* need suidperl, as  
+it has proper secure support for suid pound-bang scripts anyways.   
+The only reason for suidperl in the first place was broken operating  
+systems which had a race condition between the operating system  
+checking the suid bits and reading the '#! /usr/bin/perl' line in the  
+file, and the interpreter getting executed and opening a different  
+file (think symlink redirection attacks).  I believe Linux jumps  
+through some special hoops to ensure that can't happen.
 
-> 
-> at the current step of evolution, those core files are not relocatable
-> in certain natively compiling lisp systems.
-
-nor will they work if the sysadmin applies a security update and glibc
-or another library changes one page in size. Or changes the stack rlimit
-or .. or ..
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Cheers,
+Kyle Moffett
 

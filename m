@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751631AbXAVQIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751892AbXAVQMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751631AbXAVQIg (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 11:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbXAVQIg
+	id S1751892AbXAVQMq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 11:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751936AbXAVQMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 11:08:36 -0500
-Received: from mail.alkar.net ([195.248.191.95]:59269 "EHLO mail.alkar.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751631AbXAVQIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 11:08:35 -0500
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-To: reiserfs-list@namesys.com, tdwebste2@yahoo.com
-Subject: Re: reiserfs4 primary contact
-Date: Mon, 22 Jan 2007 20:08:06 +0300
-User-Agent: KMail/1.8.2
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <330384.6532.qm@web51313.mail.yahoo.com>
-In-Reply-To: <330384.6532.qm@web51313.mail.yahoo.com>
+	Mon, 22 Jan 2007 11:12:46 -0500
+Received: from mail.gmx.net ([213.165.64.20]:36396 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751892AbXAVQMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 11:12:45 -0500
+X-Authenticated: #5039886
+Date: Mon, 22 Jan 2007 17:12:40 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Jeff Garzik <jeff@garzik.org>, Chr <chunkeey@web.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
+       lwalton@real.com, pomac@vapor.com
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Message-ID: <20070122161239.GA2402@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+	Chr <chunkeey@web.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	linux-kernel@vger.kernel.org, htejun@gmail.com,
+	jens.axboe@oracle.com, lwalton@real.com, pomac@vapor.com
+References: <200701202332.58719.chunkeey@web.de> <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org> <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca> <20070121083618.GA2434@atjola.homenet> <20070121184032.GA3220@atjola.homenet> <45B3C5C9.4010007@shaw.ca> <20070121222714.GA2473@atjola.homenet> <45B4027D.30805@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200701222008.07087.vs@namesys.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45B4027D.30805@shaw.ca>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-
-On Monday 22 January 2007 18:48, Timothy Webster wrote:
-> I am curious, who is coordinating reiserfs4 bug fixes, 
-> testing and kernel integration work at this point?  
-> I would like to help out with auto testing the reiserfs4 builds. 
-
-Thanks
-
-> Who is coordinating this work?  
-
-All reiserfs/reiser4 related posts are to go to reiserfs-dev@namesys.com or reiserfs-list@namesys.com
-
+On 2007.01.21 18:17:01 -0600, Robert Hancock wrote:
+> Björn Steinbrink wrote:
+> >On 2007.01.21 13:58:01 -0600, Robert Hancock wrote:
+> >>Björn Steinbrink wrote:
+> >>>All kernels were bad using that approach. So back to square 1. :/
+> >>>
+> >>>Björn
+> >>>
+> >>OK guys, here's a new patch to try against 2.6.20-rc5:
+> >>
+> >>Right now when switching between ADMA mode and legacy mode (i.e. when 
+> >>going from doing normal DMA reads/writes to doing a FLUSH CACHE) we just 
+> >>set the ADMA GO register bit appropriately and continue with no delay. 
+> >>It looks like in some cases the controller doesn't respond to this 
+> >>immediately, it takes some nanoseconds for the controller's status 
+> >>registers to reflect the change that was made. It's possible that if we 
+> >>were trying to issue commands during this time, the controller might not 
+> >>react properly. This patch adds some code to wait for the status 
+> >>register to change to the state we asked for before continuing.
+> >
+> >Just got two exceptions with your patch, none of the debug messages were
+> >issued.
+> >
+> >Björn
 > 
-> Tim 
+> Hmm, another miss, apparently.. Has anyone tried removing these lines
+> >from nv_host_intr in 2.6.20-rc5 sata_nv.c and see what that does?
 > 
->  
-> ---------------------------------
-> We won't tell. Get more on shows you hate to love
-> (and love to hate): Yahoo! TV's Guilty Pleasures list.
+>     /* bail out if not our interrupt */
+>     if (!(irq_stat & NV_INT_DEV))
+>         return 0;
+
+Running a kernel with the return statement replace by a line that prints
+the irq_stat instead.
+
+Currently I'm seeing lots of 0x10 on ata1 and 0x0 on ata2.
+
+Björn

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751395AbXAVKU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751448AbXAVKVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbXAVKU3 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 05:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbXAVKU3
+	id S1751448AbXAVKVw (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 05:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbXAVKVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 05:20:29 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:1335 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751395AbXAVKU2 (ORCPT
+	Mon, 22 Jan 2007 05:21:52 -0500
+Received: from aa013msr.fastwebnet.it ([85.18.95.73]:43213 "EHLO
+	aa013msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751448AbXAVKVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 05:20:28 -0500
-Date: Mon, 22 Jan 2007 11:20:49 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       "J.H." <warthog9@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [KORG] Linux history trees
-Message-Id: <20070122112049.56e885d9.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+	Mon, 22 Jan 2007 05:21:51 -0500
+Date: Mon, 22 Jan 2007 11:21:46 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-15?B?Qmr2cm4=?= Steinbrink <B.Steinbrink@gmx.de>,
+       Jens Axboe <jens.axboe@oracle.com>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA exceptions triggered by XFS (since 2.6.18)
+Message-ID: <20070122112146.089cffff@localhost>
+In-Reply-To: <45B48549.1080209@gmail.com>
+References: <20070121152932.6dc1d9fb@localhost>
+	<20070121174023.68402ade@localhost>
+	<45B3A392.6050609@shaw.ca>
+	<20070121202552.14cc29fe@localhost>
+	<45B42569.6030902@gmail.com>
+	<20070122093823.1241be05@localhost>
+	<45B48549.1080209@gmail.com>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Thomas, all,
+On Mon, 22 Jan 2007 18:35:05 +0900
+Tejun Heo <htejun@gmail.com> wrote:
 
-It appears that kernel.org is hosting two git repositories with the
-history of the linux kernel development, up to 2.6.12-rc2, which was
-originally in bitkeeper. The first one is owned by Linus:
-http://www2.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=summary
+> Yeap, certainly.  I'll ask people first before actually proceeding with 
+> the blacklisting.  I'm just getting a bit tired of tides of NCQ firmware 
+> problems.
 
-The second one is owned by Thomas:
-http://www2.kernel.org/git/?p=linux/kernel/git/tglx/history.git;a=summary
+Another interesting thing: it seems that I'm unable to reproduce the
+problem mounting XFS with "nobarrier" (using sda queue_depth = 31).
 
-As both trees serve the same purpose, I was thinking that we could have
-a single copy. I see two benefits in doing so:
-* Thomas' version is better as far as I can see (it has the author
-  names which are missing from Linus' version for example) but I
-  suspect most people don't know about it and use Linus' version,
-  as I have been doing myself until very recently.
-* It might help lower the load on the kernel.org servers (by increasing
-  the cache hits.)
+So it looks like a problem with NCQ combined with cache flush command...
 
-So I suggest that Linus deletes his old-2.6-bkcvs tree. What do you
-think?
-
-Thanks,
 -- 
-Jean Delvare
+	Paolo Ornati
+	Linux 2.6.20-rc5 on x86_64

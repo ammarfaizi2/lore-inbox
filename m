@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751564AbXAVKsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751603AbXAVKtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbXAVKsf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 05:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbXAVKse
+	id S1751603AbXAVKtx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 05:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbXAVKtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 05:48:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46425 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751561AbXAVKse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 05:48:34 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Heikki Orsila <shdl@zakalwe.fi>,
-       Bodo Eggert <7eggert@gmx.de>, Tony Foiani <tkil@scrye.com>,
-       Leon Woestenberg <leon.woestenberg@gmail.com>,
-       linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
-Subject: Re: PROBLEM: KB->KiB, MB -> MiB, ... (IEC 60027-2)
-References: <7FsPf-51s-9@gated-at.bofh.it> <7FxlV-3sb-1@gated-at.bofh.it>
-	<7FyUF-5XD-21@gated-at.bofh.it> <E1H8a7s-0000at-Jx@be1.lrz>
-	<20070121150618.GA11613@zakalwe.fi>
-	<Pine.LNX.4.61.0701212223340.29213@yvahk01.tjqt.qr>
-	<m38xfvrfhm.fsf@maximus.localdomain>
-X-Yow: My polyvinyl cowboy wallet was made in Hong Kong by Montgomery Clift!
-Date: Mon, 22 Jan 2007 11:48:24 +0100
-In-Reply-To: <m38xfvrfhm.fsf@maximus.localdomain> (Krzysztof Halasa's message
-	of "Mon, 22 Jan 2007 02:56:37 +0100")
-Message-ID: <jemz4bmj5z.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
+	Mon, 22 Jan 2007 05:49:53 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:46636 "EHLO
+	relay01.mail-hub.dodo.com.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751603AbXAVKtw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 05:49:52 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Santiago Garcia Mantinan <manty@debian.org>
+Cc: Willy Tarreau <w@1wt.eu>, Santiago Garcia Mantinan <manty@debian.org>,
+       Grant Coady <gcoady.lk@gmail.com>, dann frazier <dannf@dannf.org>,
+       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: problems with latest smbfs changes on 2.4.34 and security backports
+Date: Mon, 22 Jan 2007 21:49:50 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <ti59r21s1r87qtd854d6keiakr34donbcq@4ax.com>
+References: <20070117100030.GA11251@clandestino.aytolacoruna.es> <20070117215519.GX24090@1wt.eu> <20070119010040.GR16053@colo> <20070120010544.GY26210@colo> <t1r7r2thimh3gpuhtfc9l3aehjdd6dqkp8@4ax.com> <20070121230321.GC2480@1wt.eu> <20070122085400.GA16302@clandestino.aytolacoruna.es> <20070122091816.GA5144@1wt.eu> <20070122093630.GA20431@clandestino.aytolacoruna.es>
+In-Reply-To: <20070122093630.GA20431@clandestino.aytolacoruna.es>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> writes:
+On Mon, 22 Jan 2007 10:36:30 +0100, Santiago Garcia Mantinan <manty@debian.org> wrote:
 
-> Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+>> > As you can see I now can see the symbolic links perfectly and they work as
+>> > expected.
+>> > 
+>> > In fact, this patch is working so well that it poses a security risk, as now
+>> > the devices on my /mnt/dev directory are not only seen as devices (like they
+>> > were seen on 2.4.33) but they also work (which didn't happen on 2.4.33).
+>> 
+>> Why do you consider this a security problem ? Is any user able to create a
+>> device entry with enough permissions ? As a general rule of thumb, networked
+>> file systems should be mounted with the "nodev" option.
 >
->> It's just that storage vendors broke the computer rule and went with 1000.
+>You are completely right on that, it is just that I thought those devices
+>didn't work on 2.4.33, but I just retested again and they work ok, only that
+>they were not working to me on the PC I tested the other day and it was
+>because of a nodev option :-) just that.
 >
-> 1024 etc. is (should be) natural to disks because the sector size
-> is 512 B, 2048 B or something like that.
+>So... I have finised with my tests, I have tested an x86 client on which it
+>worked ok, just like on the PowerPC client, both working perfectly just like
+>they used to do on 2.4.33.
+>
+>> Grant, just to be sure, are you really certain that you tried the fixed kernel ?
+>> It is possible that you booted a wrong kernel during one of your tests. I'm
+>> intrigued by the fact that it changed nothing for you and that it fixed the
+>> problem for Santiago.
+>
+>Maybe he had also applied some of the earlier patches you had sent and that
+>I did not apply to mine?
+>
+>Just to clear things up a bit, I'm sure I'm with the 2.4.34 kernel and...
+>I'm running a pristine kernel with just this latest patch applied, the one
+>that changes S_IFREG for (fattr->f_mode & S_IFMT).
 
-But other than the sector size there is no natural power of 2 connected to
-disk size.  A disk can have any odd number of sectors.
+Same kernel + patch here for latest results posting :)  We seem to get 
+similar results now -- though I query the file execute bits coming up.
 
-Andreas.
+Grant.
+>
+>Regards...
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751806AbXAVAS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751823AbXAVAZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbXAVAS1 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 19:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbXAVAS1
+	id S1751823AbXAVAZO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 19:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbXAVAZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 19:18:27 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:35896 "EHLO
-	pd4mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751806AbXAVAS0 (ORCPT
+	Sun, 21 Jan 2007 19:25:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42338 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751812AbXAVAZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 19:18:26 -0500
-Date: Sun, 21 Jan 2007 18:17:01 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: SATA exceptions with 2.6.20-rc5
-In-reply-to: <20070121222714.GA2473@atjola.homenet>
-To: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
-Cc: Jeff Garzik <jeff@garzik.org>, Chr <chunkeey@web.de>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org, htejun@gmail.com, jens.axboe@oracle.com,
-       lwalton@real.com, pomac@vapor.com
-Message-id: <45B4027D.30805@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <200701191505.33480.s0348365@sms.ed.ac.uk>
- <45B18160.9020602@shaw.ca> <200701202332.58719.chunkeey@web.de>
- <45B2C6E1.9000901@shaw.ca> <45B2DF43.8080304@garzik.org>
- <20070121045437.GA7387@atjola.homenet> <45B30A98.3030206@shaw.ca>
- <20070121083618.GA2434@atjola.homenet> <20070121184032.GA3220@atjola.homenet>
- <45B3C5C9.4010007@shaw.ca> <20070121222714.GA2473@atjola.homenet>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Sun, 21 Jan 2007 19:25:12 -0500
+Message-ID: <45B40458.9010107@torque.net>
+Date: Sun, 21 Jan 2007 19:24:56 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Boaz Harrosh <bharrosh@panasas.com>
+CC: Jens Axboe <jens.axboe@oracle.com>, Christoph Hellwig <hch@infradead.org>,
+       Mike Christie <michaelc@cs.wisc.edu>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, open-iscsi@googlegroups.com,
+       Daniel.E.Messinger@seagate.com, Liran Schour <LIRANS@il.ibm.com>,
+       Benny Halevy <bhalevy@panasas.com>
+Subject: Re: [RFC 1/6] bidi support: request dma_data_direction
+References: <45B3F578.7090109@panasas.com>
+In-Reply-To: <45B3F578.7090109@panasas.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Björn Steinbrink wrote:
-> On 2007.01.21 13:58:01 -0600, Robert Hancock wrote:
->> Björn Steinbrink wrote:
->>> All kernels were bad using that approach. So back to square 1. :/
->>>
->>> Björn
->>>
->> OK guys, here's a new patch to try against 2.6.20-rc5:
->>
->> Right now when switching between ADMA mode and legacy mode (i.e. when 
->> going from doing normal DMA reads/writes to doing a FLUSH CACHE) we just 
->> set the ADMA GO register bit appropriately and continue with no delay. 
->> It looks like in some cases the controller doesn't respond to this 
->> immediately, it takes some nanoseconds for the controller's status 
->> registers to reflect the change that was made. It's possible that if we 
->> were trying to issue commands during this time, the controller might not 
->> react properly. This patch adds some code to wait for the status 
->> register to change to the state we asked for before continuing.
-> 
-> Just got two exceptions with your patch, none of the debug messages were
-> issued.
-> 
-> Björn
+Boaz Harrosh wrote:
+> - Introduce a new enum dma_data_direction data_dir member in struct request.
+>   and remove the RW bit from request->cmd_flag
+> - Add new API to query request direction.
+> - Adjust existing API and implementation.
+> - Cleanup wrong use of DMA_BIDIRECTIONAL
+> - Introduce new blk_rq_init_unqueued_req() and use it in places ad-hoc
+>   requests were used and bzero'ed.
 
-Hmm, another miss, apparently.. Has anyone tried removing these lines
-from nv_host_intr in 2.6.20-rc5 sata_nv.c and see what that does?
+With a bi-directional transfer is it always unambiguous
+which transfer occurs first (or could they occur at
+the same time)?
 
-     /* bail out if not our interrupt */
-     if (!(irq_stat & NV_INT_DEV))
-         return 0;
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
-
+Doug Gilbert

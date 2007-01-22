@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751766AbXAVPoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751763AbXAVPwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751766AbXAVPoV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 10:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbXAVPoV
+	id S1751763AbXAVPwq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 10:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbXAVPwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 10:44:21 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52784 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751533AbXAVPoU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 10:44:20 -0500
-Date: Mon, 22 Jan 2007 15:53:26 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI seagate.c: remove SEAGATE_USE_ASM
-Message-ID: <20070122155326.4b0dbf30@localhost.localdomain>
-In-Reply-To: <20070122153813.GT9093@stusta.de>
-References: <20070121191300.GL9093@stusta.de>
-	<20070122151841.6d0473e4@localhost.localdomain>
-	<20070122153813.GT9093@stusta.de>
-X-Mailer: Claws Mail 2.7.1 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Jan 2007 10:52:45 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:38959 "EHLO iradimed.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751763AbXAVPwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 10:52:45 -0500
+Message-ID: <45B4DDBF.8040706@cfl.rr.com>
+Date: Mon, 22 Jan 2007 10:52:31 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+MIME-Version: 1.0
+To: Denis Vlasenko <vda.linux@googlemail.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Aubrey <aubreylee@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, kenneth.w.chen@intel.com, akpm@osdl.org,
+       mjt@tls.msk.ru
+Subject: Re: O_DIRECT question
+References: <6d6a94c50701101857v2af1e097xde69e592135e54ae@mail.gmail.com> <45A5D4A7.7020202@yahoo.com.au> <Pine.LNX.4.64.0701110746360.3594@woody.osdl.org> <200701201719.15341.vda.linux@googlemail.com>
+In-Reply-To: <200701201719.15341.vda.linux@googlemail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jan 2007 15:53:07.0898 (UTC) FILETIME=[690179A0:01C73E3D]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14950.003
+X-TM-AS-Result: No--3.739600-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The C codepaths are essentially untested on this driver.
+Denis Vlasenko wrote:
+> What will happen if we just make open ignore O_DIRECT? ;)
 > 
-> Has any part of this driver ever be tested with kernel 2.6?
-> Or compiled with gcc 4?
+> And then anyone who feels sad about is advised to do it
+> like described here:
+> 
+> http://lkml.org/lkml/2002/5/11/58
 
-The C code paths have never been tested at all, the asm ones certainly
-worked in late 2.4, but I don't; have an ISA box any more.
+Then database and other high performance IO users will be broken.  Most 
+of Linus's rant there is being rehashed now in this thread, and it has 
+been pointed out that using mmap instead is unacceptable because it is 
+inherently _synchronous_ and the app can not tolerate the page faults on 
+read, and handling IO errors during the page fault is impossible/highly 
+problematic.
+
+

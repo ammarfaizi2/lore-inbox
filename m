@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751421AbXAVMSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751145AbXAVMc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbXAVMSN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 07:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbXAVMSN
+	id S1751145AbXAVMc4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 07:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbXAVMc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 07:18:13 -0500
-Received: from lucidpixels.com ([66.45.37.187]:34377 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750778AbXAVMSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 07:18:12 -0500
-Date: Mon, 22 Jan 2007 07:18:10 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: kyle <kylewong@southa.com>
-cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: change strip_cache_size freeze the whole raid
-In-Reply-To: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f>
-Message-ID: <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
-References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f>
+	Mon, 22 Jan 2007 07:32:56 -0500
+Received: from fmmailgate02.web.de ([217.72.192.227]:39718 "EHLO
+	fmmailgate02.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751145AbXAVMcz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 07:32:55 -0500
+From: Chr <chunkeey@web.de>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: SATA exceptions with 2.6.20-rc5
+Date: Mon, 22 Jan 2007 13:32:51 +0100
+User-Agent: KMail/1.9.5
+Cc: =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Robert Hancock <hancockr@shaw.ca>, Jeff Garzik <jeff@garzik.org>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, jens.axboe@oracle.com, lwalton@real.com,
+       chunkeey@web.de
+References: <fa.hif5u4ZXua+b0mVNaWEcItWv9i0@ifi.uio.no> <200701212113.22965.chunkeey@web.de> <45B423CB.9020106@gmail.com>
+In-Reply-To: <45B423CB.9020106@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701221332.52228.chunkeey@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 22 Jan 2007, kyle wrote:
-
-> Hi,
+On Monday, 22. January 2007 03:39, Tejun Heo wrote:
+> Hello,
 > 
-> Yesterday I tried to increase the value of strip_cache_size to see if I can
-> get better performance or not. I increase the value from 2048 to something
-> like 16384. After I did that, the raid5 freeze. Any proccess read / write to
-> it stucked at D state. I tried to change it back to 2048, read
-> strip_cache_active, cat /proc/mdstat, mdadm stop, etc. All didn't return back.
-> I even cannot shutdown the machine. Finally I need to press the reset button
-> in order to get back my control.
+> Chr wrote:
+> > Ok, you won't believe this... I opened my case and rewired my drives... 
+> > And guess what, my second (aka the "good") HDD is now failing! 
+> > I guess, my mainboard has a (but maybe two, or three :( ) "bad" sata-port(s)!  
 > 
-> Kernel is 2.6.17.8 x86-64, running at AMD Athlon3000+, 2GB Ram, 8 x Seagate
-> 8200.10 250GB HDD, nvidia chipset.
+> Or, you have power related problem.  Try to rewire the power lines or 
+> connect harddrives to a separate powersupply.  It's often useful to 
+> change one component at a time and watch which change the problem 
+> follows.  Anyways, you seem to be suffering transmission failures, not a 
+> driver problem.
 > 
-> cat /proc/mdstat (after reboot):
-> Personalities : [raid1] [raid5] [raid4]
-> md1 : active raid1 hdc2[1] hda2[0]
->      6144768 blocks [2/2] [UU]
-> 
-> md2 : active raid5 sdf1[7] sde1[6] sdd1[5] sdc1[4] sdb1[3] sda1[2] hdc4[1]
-> hda4[0]
->      1664893440 blocks level 5, 512k chunk, algorithm 2 [8/8] [UUUUUUUU]
-> 
-> md0 : active raid1 hdc1[1] hda1[0]
->      104320 blocks [2/2] [UU]
-> 
-> Kyle
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Thanks.
 > 
 
-Yes, I noticed this bug too, if you change it too many times or change it 
-at the 'wrong' time, it hangs up when you echo numbr > 
-/proc/stripe_cache_size.
+Yes and no, it's probably not a power problem, I've tried another
+PSU with the same result :( . Futhermore, the RAID0 setup makes
+it impossible to try only one drive alone :(. 
 
-Basically don't run it more than once and don't run it at the 'wrong' time 
-and it works.  Not sure where the bug lies, but yeah I've seen that on 3 
-different machines!
+Anyway,the WD2500KS is known to have some strange bugs in the FW.
+e.g.: It reports 255°C right after a cold start. 
+( http://www.bugtrack.almico.com/view.php?id=468 ).
 
-Justin.
-
+Thanks,
+	Chr.
+ 

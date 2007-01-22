@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750971AbXAVF3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750804AbXAVGIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbXAVF3p (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 00:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbXAVF3p
+	id S1750804AbXAVGIO (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 01:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbXAVGIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 00:29:45 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:49679 "EHLO
-	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750840AbXAVF3o (ORCPT
+	Mon, 22 Jan 2007 01:08:14 -0500
+Received: from gw-e.panasas.com ([65.194.124.178]:53698 "EHLO
+	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750804AbXAVGIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 00:29:44 -0500
-Date: Mon, 22 Jan 2007 07:29:39 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Boaz Harrosh <bharrosh@panasas.com>
-Cc: Jens Axboe <jens.axboe@oracle.com>, Christoph Hellwig <hch@infradead.org>,
+	Mon, 22 Jan 2007 01:08:13 -0500
+Message-ID: <45B4547A.3020105@panasas.com>
+Date: Mon, 22 Jan 2007 08:06:50 +0200
+From: Benny Halevy <bhalevy@panasas.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: dougg@torque.net
+CC: Boaz Harrosh <bharrosh@panasas.com>, Jens Axboe <jens.axboe@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
        Mike Christie <michaelc@cs.wisc.edu>, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org, open-iscsi@googlegroups.com,
-       Daniel.E.Messinger@seagate.com, Liran Schour <LIRANS@il.ibm.com>,
-       Benny Halevy <bhalevy@panasas.com>
+       Daniel.E.Messinger@seagate.com, Liran Schour <LIRANS@il.ibm.com>
 Subject: Re: [RFC 1/6] bidi support: request dma_data_direction
-Message-ID: <20070122052938.GJ3531@rhun.ibm.com>
-References: <45B3F578.7090109@panasas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45B3F578.7090109@panasas.com>
-User-Agent: Mutt/1.5.11
+References: <45B3F578.7090109@panasas.com> <45B40458.9010107@torque.net>
+In-Reply-To: <45B40458.9010107@torque.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jan 2007 06:06:28.0641 (UTC) FILETIME=[749D1910:01C73DEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 22, 2007 at 01:21:28AM +0200, Boaz Harrosh wrote:
-
-> - Introduce a new enum dma_data_direction data_dir member in struct request.
->   and remove the RW bit from request->cmd_flag
-
-Some architecture use 'enum dma_data_direction' and some 'int
-dma_data_direction'. The consensus was to move to int over
-time. Please use 'int dma_data_direction'.
-
-> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-> index ff203c4..abbca7b 100644
-> --- a/include/linux/dma-mapping.h
-> +++ b/include/linux/dma-mapping.h
-> @@ -13,6 +13,28 @@ enum dma_data_direction {
->  	DMA_NONE = 3,
->  };
+Douglas Gilbert wrote:
+> Boaz Harrosh wrote:
+>> - Introduce a new enum dma_data_direction data_dir member in struct request.
+>>   and remove the RW bit from request->cmd_flag
+>> - Add new API to query request direction.
+>> - Adjust existing API and implementation.
+>> - Cleanup wrong use of DMA_BIDIRECTIONAL
+>> - Introduce new blk_rq_init_unqueued_req() and use it in places ad-hoc
+>>   requests were used and bzero'ed.
 > 
-> +static inline int dma_write_dir(enum dma_data_direction dir)
-> +{
-> +	return (dir == DMA_TO_DEVICE) || (dir == DMA_BIDIRECTIONAL);
-> +}
+> With a bi-directional transfer is it always unambiguous
+> which transfer occurs first (or could they occur at
+> the same time)?
 
-"write" can mean "write to device" or "write to memory", depending on
-context. Not exactly something which should be a generic
-helper. Rename to 'dma_to_device(int dir)'?
+The bidi transfers can occur in any order and in parallel.
 
-> +static inline int dma_uni_dir(enum dma_data_direction dir)
-> +{
-> +	return (dir == DMA_TO_DEVICE) || (dir == DMA_FROM_DEVICE) ||
-> +	       (dir == DMA_NONE);
-> +}
+> 
+> Doug Gilbert
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-While this doesn't look very useful. Why is "DMA_NONE" a uni-dir? I
-suggest replacing this with an open coded (dir != DMA_BIDIRECTIONAL).
-
-Cheers,
-Muli

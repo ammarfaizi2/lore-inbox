@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751935AbXAVPWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751039AbXAVPdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751935AbXAVPWN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 10:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751930AbXAVPWN
+	id S1751039AbXAVPdA (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 10:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbXAVPdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 10:22:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44908 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751935AbXAVPWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 10:22:12 -0500
-Date: Mon, 22 Jan 2007 10:22:09 -0500
-From: Prarit Bhargava <prarit@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: matt_domsch@dell.com, matthew.e.tolentino@intel.com,
-       anil.s.keshavamurthy@intel.com, Prarit Bhargava <prarit@redhat.com>
-Message-Id: <20070122152209.29717.52473.sendpatchset@prarit.boston.redhat.com>
-Subject: [PATCH] Fix race in efi variable delete code.
+	Mon, 22 Jan 2007 10:33:00 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:47975 "EHLO
+	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750840AbXAVPc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 10:32:59 -0500
+Subject: Re: [RFC 1/6] bidi support: request dma_data_direction
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: dougg@torque.net
+Cc: Benny Halevy <bhalevy@panasas.com>, Boaz Harrosh <bharrosh@panasas.com>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Mike Christie <michaelc@cs.wisc.edu>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, open-iscsi@googlegroups.com,
+       Daniel.E.Messinger@seagate.com, Liran Schour <LIRANS@il.ibm.com>
+In-Reply-To: <45B4D2A0.4080201@torque.net>
+References: <45B3F578.7090109@panasas.com> <45B40458.9010107@torque.net>
+	 <45B4547A.3020105@panasas.com>  <45B4D2A0.4080201@torque.net>
+Content-Type: text/plain
+Date: Mon, 22 Jan 2007 09:31:43 -0600
+Message-Id: <1169479903.2769.20.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix race when deleting an EFI variable and issuing another EFI command on the
-same variable.  The removal of the variable from the efivars_list should be
-done in efivar_delete and not delayed until the kprobes release.
+On Mon, 2007-01-22 at 10:05 -0500, Douglas Gilbert wrote:
+> Perhaps the right use of DMA_BIRECTIONAL needs to be
+> defined.
+> 
+> Could it be used with a XDWRITE(10) SCSI command
+> defined in sbc3r07.pdf at http://www.t10.org ? I suspect
+> using two scatter gather lists would be a better approach.
+> 
+> >>> - Introduce new blk_rq_init_unqueued_req() and use it in places ad-hoc
+> >>>   requests were used and bzero'ed.
+> >> With a bi-directional transfer is it always unambiguous
+> >> which transfer occurs first (or could they occur at
+> >> the same time)?
+> > 
+> > The bidi transfers can occur in any order and in parallel.
 
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+> Then it is not sufficient for modern SCSI transports in which
+> certain bidirectional commands (probably most) have a well
+> defined order.
 
-diff --git a/drivers/firmware/efivars.c b/drivers/firmware/efivars.c
-index 5ab5e39..bf2ca97 100644
---- a/drivers/firmware/efivars.c
-+++ b/drivers/firmware/efivars.c
-@@ -385,10 +385,8 @@ static struct sysfs_ops efivar_attr_ops = {
- 
- static void efivar_release(struct kobject *kobj)
- {
--	struct efivar_entry *var = container_of(kobj, struct efivar_entry, kobj);
--	spin_lock(&efivars_lock);
--	list_del(&var->list);
--	spin_unlock(&efivars_lock);
-+	struct efivar_entry *var = container_of(kobj, struct efivar_entry,
-+						kobj);
- 	kfree(var);
- }
- 
-@@ -537,6 +535,9 @@ efivar_delete(struct subsystem *sub, const char *buf, size_t count)
- 		spin_unlock(&efivars_lock);
- 		return -EIO;
- 	}
-+
-+	list_del(&search_efivar->list);
-+
- 	/* We need to release this lock before unregistering. */
- 	spin_unlock(&efivars_lock);
- 
+Right, that's why I think bi-directional needs to be one way op followed
+by one way op ... even if it is to the same buffer.  That should be a
+general enough paradigm for everything.
+
+> So DMA_BIDIRECTIONAL looks PCI specific and it may have
+> been a mistake to replace other subsystem's direction flags
+> with it. RDMA might be an interesting case.
+
+It's bus specific ... it means that the bus must be programmed to expect
+the device to transfer both to and from the memory buffer.  There are a
+very few drivers which do this when they don't know the actual transfer
+direction, so it might be reasonably tested on architectures ... but
+we'd probably have to check.
+
+James
+
+

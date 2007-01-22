@@ -1,71 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751845AbXAVOmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751857AbXAVOxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751845AbXAVOmS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 09:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbXAVOmS
+	id S1751857AbXAVOxa (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 09:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbXAVOxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 09:42:18 -0500
-Received: from xylophone.i-cable.com ([203.83.115.99]:43894 "HELO
-	xylophone.i-cable.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751845AbXAVOmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 09:42:17 -0500
-Message-ID: <005501c73e33$7d9046d0$28df0f3d@kylecea1512a3f>
-From: "kyle" <kylewong@southa.com>
-To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f> <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
-Subject: Re: change strip_cache_size freeze the whole raid
-Date: Mon, 22 Jan 2007 21:09:58 +0800
+	Mon, 22 Jan 2007 09:53:30 -0500
+Received: from ra.tuxdriver.com ([70.61.120.52]:3873 "EHLO ra.tuxdriver.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751857AbXAVOxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 09:53:30 -0500
+Date: Mon, 22 Jan 2007 09:52:59 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH] select: fix sys_select to not leak ERESTARTNOHAND to userspace
+Message-ID: <20070122145259.GB21059@hmsreliant.homelinux.net>
+References: <20070116201332.GA28523@hmsreliant.homelinux.net> <20070122145956.4a68762d@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070122145956.4a68762d@localhost>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> On Mon, 22 Jan 2007, kyle wrote:
->
->> Hi,
->>
->> Yesterday I tried to increase the value of strip_cache_size to see if I 
->> can
->> get better performance or not. I increase the value from 2048 to 
->> something
->> like 16384. After I did that, the raid5 freeze. Any proccess read / write 
->> to
->> it stucked at D state. I tried to change it back to 2048, read
->> strip_cache_active, cat /proc/mdstat, mdadm stop, etc. All didn't return 
->> back.
->> I even cannot shutdown the machine. Finally I need to press the reset 
->> button
->> in order to get back my control.
+On Mon, Jan 22, 2007 at 02:59:56PM +0100, Paolo Ornati wrote:
+> On Tue, 16 Jan 2007 15:13:32 -0500
+> Neil Horman <nhorman@tuxdriver.com> wrote:
+> 
+> > As it is currently written, sys_select checks its return code to convert
+> > ERESTARTNOHAND to EINTR.  However, the check is within an if (tvp) clause, and
+> > so if select is called from userspace with a NULL timeval, then it is possible
+> > for the ERESTARTNOHAND errno to leak into userspace, which is incorrect.  This
+> > patch moves that check outside of the conditional, and prevents the errno leak.
+> 
+> the ERESTARTNOHAND thing is handled in arch specific signal code,
 
-> Yes, I noticed this bug too, if you change it too many times or change it
-> at the 'wrong' time, it hangs up when you echo numbr >
-> /proc/stripe_cache_size.
->
-> Basically don't run it more than once and don't run it at the 'wrong' time
-> and it works.  Not sure where the bug lies, but yeah I've seen that on 3
-> different machines!
->
-> Justin.
->
->
+In the signal handling path yes.
+Not always in the case of select, though.  Check core_sys_select:
 
-I just change it once, then it freeze. It's hard to get the 'right time'
+if (!ret) {
+                ret = -ERESTARTNOHAND;
+                if (signal_pending(current))
+                        goto out;
+                ret = 0;
+        }
+...
 
-Actually I tried it several times before. As I remember there was once it 
-freezed for around 1 or 2 minutes , then back to normal operation. This is 
-the first time it completely freezed and I waited after around 10 minutes it 
-still didn't wake up.
+out:
+        if (bits != stack_fds)
+                kfree(bits);
+out_nofds:
+        return ret;
 
-Kyle
+Its possible for core_sys_select to return ERESTARTNOHAND to sys_select, which
+will in turn (as its currently written), return that value back to user space.
 
+> syscalls can return -ERESTARTNOHAND as much as they want (and your
+> change breaks the current behaviour of select()).
+> 
+
+It doesn't break it, it fixes it.  select isn't meant to ever return
+ERESTARTNOHAND to user space:
+http://www.opengroup.org/onlinepubs/009695399/functions/select.html
+
+And ENORESTARTHAND isn't defined in the userspace errno.h, so this causes all
+sorts of confusion for apps that don't expect it.
+
+Neil
+
+> For example:
+> 
+> arch/x86_64/kernel/signal.c
+> 
+>         /* Are we from a system call? */
+>         if ((long)regs->orig_rax >= 0) {
+>                 /* If so, check system call restarting.. */
+>                 switch (regs->rax) {
+>                         case -ERESTART_RESTARTBLOCK:
+>                         case -ERESTARTNOHAND:
+>                                 regs->rax = -EINTR;
+>                                 break;
+> 
+> -- 
+> 	Paolo Ornati
+> 	Linux 2.6.20-rc5 on x86_64

@@ -1,104 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751263AbXAVIDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751057AbXAVIHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbXAVIDy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 03:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbXAVIDx
+	id S1751057AbXAVIHk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 03:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbXAVIHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 03:03:53 -0500
-Received: from py-out-1112.google.com ([64.233.166.176]:54662 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751145AbXAVIDw (ORCPT
+	Mon, 22 Jan 2007 03:07:40 -0500
+Received: from server077.de-nserver.de ([62.27.12.245]:55040 "EHLO
+	server077.de-nserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750821AbXAVIHk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 03:03:52 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        d=gmail.com; s=beta;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XAZMDQMwO/EdIDFqW3pJuJ89M6rqouHB73vecd85srg2r6TBwDY/9POTObrdK5s/7wEhCmIDCDL/TTJ+LWVTlYfWQY2ND7JRgxMsVDCPgVN44MvVEtqZuwtPS0kIkabLVwdapI2icprfoLHvS2xwb7Ctk7n20XyZSgkDTOSYCyA=
-Message-ID: <34781ae60701220003v76bd43c8h79c59b2b474b3c57@mail.gmail.com>
-Date: Mon, 22 Jan 2007 16:03:51 +0800
-From: "yang yin" <yinyang801120@gmail.com>
-To: linux-raid@vger.kernel.org
-Subject: [patch] md: bitmap read_page error
-Cc: linux-kernel@vger.kernel.org
+	Mon, 22 Jan 2007 03:07:40 -0500
+Message-ID: <45B470BB.8000208@profihost.com>
+Date: Mon, 22 Jan 2007 09:07:23 +0100
+From: Stefan Priebe - FH <studium@profihost.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
+To: David Chinner <dgc@sgi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XFS or Kernel Problem / Bug
+References: <20060801143212.D2326184@wobbly.melbourne.sgi.com> <44CEDA1D.5060607@profihost.com> <20060801143803.E2326184@wobbly.melbourne.sgi.com> <44CF36FB.6070606@profihost.com> <20060802090915.C2344877@wobbly.melbourne.sgi.com> <44D07AB7.3020409@profihost.com> <20060802201805.A2360409@wobbly.melbourne.sgi.com> <45B35CD7.4080801@profihost.com> <20070122061852.GT33919298@melbourne.sgi.com> <45B46CEE.4090808@profihost.com> <20070122080306.GW33919298@melbourne.sgi.com>
+In-Reply-To: <20070122080306.GW33919298@melbourne.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-User-Auth: Auth by hostmaster@profihost.com through 84.134.23.182
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the bitmap size is less than one page including super_block and
-bitmap and the inode's i_blkbits is also small, when doing the
-read_page function call to read the sb_page, it may return a error.
-For example, if the device is 12800 chunks, its bitmap file size is
-about 1.6KB include the bitmap super block. But the inode i_blkbits
-value of the bitmap file is 10,  the read_page will submit 4 bh to
-load the sb_page. Because the size of bitmap is only 1.6KB, in the
-while loop, the error will ocurr when do bmap operation for the block
-2, which will  return 0. Then the bitmap can't be initated because of
-ther read sb page fail.
+Hi!
 
-Another error is in the bitmap_init_from_disk function.  Before doing
-read_page,. calculating the count value misses the size of super
-block. When the bitmap just needs one page, It will read two pages
-adding the super block. But at the second read, the count value will
-be set to 0, and not all the bitmap will be read from the disk and
-some bitmap will missed at the second page.
+The update of the IDE layer was in 2.6.19. I don't think it is a 
+hardware bug cause all these 5 machines runs fine since a few years with 
+2.6.16.X and before. We switch to 2.6.18.6 on monday last week and all 
+machines began to crash periodically. On friday last week we downgraded 
+them all to 2.6.16.37 and all 5 machines runs fine again. So i don't 
+believe it is a hardware problem. Do you really think that could be?
 
-I give a patch as following:
+Stefan
 
----------
-diff -Nur linux-2.6.19.2.orig/drivers/md/bitmap.c
-linux-2.6.19.2/drivers/md/bitmap.c
---- linux-2.6.19.2.orig/drivers/md/bitmap.c     2007-01-11
-03:10:37.000000000 +0800
-+++ linux-2.6.19.2/drivers/md/bitmap.c  2007-01-20 20:45:32.000000000 +0800
-@@ -352,6 +352,7 @@
-        struct inode *inode = file->f_dentry->d_inode;
-        struct buffer_head *bh;
-        sector_t block;
-+       loff_t read_size = 0;
+David Chinner schrieb:
+> On Mon, Jan 22, 2007 at 08:51:10AM +0100, Stefan Priebe - FH wrote:
+>> Hi!
+>>
+>> I'm  not shure but perhaps it isn't an XFS Bug.
+>>
+>> Here is what i find out:
+>>
+>> We've about 300 servers at the momentan and 5 of them are "old" Intel 
+>> Pentium 4 Machines with a DFI PM-12 Mainboard with VIA chipset. It only 
+>> happens on THESE Machines.
+> 
+> Hmmm - that points more to a hardware problem than a software problem;
+> crashes in generic_file_buffered_write() are relatively uncommon, and
+> to have them all isolated to a specific type of hardware is suspicious....
+> 
+> Wasn't there a major update of the IDE layer in 2.6.18? or was that
+> 2.6.19 that I'm thinking of? BTW, have you run memtest86 on these
+> boxes to rule out dodgy memory?
+> 
+> Cheers,
+> 
+> Dave.
 
-        PRINTK("read bitmap file (%dB @ %Lu)\n", (int)PAGE_SIZE,
-                        (unsigned long long)index << PAGE_SHIFT);
-@@ -371,7 +372,7 @@
-        attach_page_buffers(page, bh);
-        block = index << (PAGE_SHIFT - inode->i_blkbits);
-        while (bh) {
--               if (count == 0)
-+               if (count == 0 || (read_size >= (inode->i_size -
-(index << PAGE_SHIFT))))
-                        bh->b_blocknr = 0;
-                else {
-                        bh->b_blocknr = bmap(inode, block);
-@@ -394,6 +395,7 @@
-                        set_buffer_mapped(bh);
-                        submit_bh(READ, bh);
-                }
-+               read_size += (1 << inode->i_blkbits);
-                block++;
-                bh = bh->b_this_page;
-        }
-@@ -877,7 +879,7 @@
-                        int count;
-                        /* unmap the old page, we're done with it */
-                        if (index == num_pages-1)
--                               count = bytes - index * PAGE_SIZE;
-+                               count = bytes + sizeof(bitmap_super_t)
-- index * PAGE_SIZE;
-                        else
-                                count = PAGE_SIZE;
-                        if (index == 0) {
-
-
-yinyang
-
-________________________________
-Tel: (86)10-62600547
-Fax: (86)10-6265-7255
-Mailing: P. O. Box 2704# Beijing
-Postcode: 100080
-National Research Centre for High Performance Computer
-Institute of Computing Technology,Chinese Academy of Sciences
-6,South Kexueyuan Road,
-Haidian District, Beijing, China

@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932106AbXAVRja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932107AbXAVRwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbXAVRja (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 12:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbXAVRja
+	id S932107AbXAVRwg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 12:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbXAVRwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 12:39:30 -0500
-Received: from 69-100-st.zelcom.ru ([80.92.100.69]:1457 "EHLO
+	Mon, 22 Jan 2007 12:52:35 -0500
+Received: from 69-100-st.zelcom.ru ([80.92.100.69]:4543 "EHLO
 	etherstorm.feelingofgreen.ru" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932106AbXAVRj3 (ORCPT
+	by vger.kernel.org with ESMTP id S932107AbXAVRwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 12:39:29 -0500
-Date: Mon, 22 Jan 2007 20:39:21 +0300
-Message-ID: <871wlnq7ue.wl@betelheise.deep.net>
+	Mon, 22 Jan 2007 12:52:35 -0500
+Date: Mon, 22 Jan 2007 20:52:31 +0300
+Message-ID: <87sle3x82o.wl@betelheise.deep.net>
 From: Samium Gromoff <_deepfire@feelingofgreen.ru>
-To: Valdis.Kletnieks@vt.edu
-Cc: Samium Gromoff <_deepfire@feelingofgreen.ru>,
-       David Wagner <daw@cs.berkeley.edu>, linux-kernel@vger.kernel.org
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Samium Gromoff <_deepfire@feelingofgreen.ru>, linux-kernel@vger.kernel.org,
+       David Wagner <daw@cs.berkeley.edu>
 Subject: Re: [PATCH] Undo some of the pseudo-security madness
-In-Reply-To: <200701221520.l0MFKLdK032645@turing-police.cc.vt.edu>
-References: <87r6toufpp.wl@betelheise.deep.net>
-	<200701221520.l0MFKLdK032645@turing-police.cc.vt.edu>
+In-Reply-To: <1169426146.3055.1163.camel@laptopd505.fenrus.org>
+References: <87y7nxvk65.wl@betelheise.deep.net>	<1169345764.3055.935.camel@laptopd505.fenrus.org>	<87tzykuj49.wl@betelheise.deep.net>	<1169426146.3055.1163.camel@laptopd505.fenrus.org>
 User-Agent: Wanderlust/2.15.5 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.8 (=?ISO-8859-4?Q?Shij=F2?=) APEL/10.6 Emacs/23.0.51
  (i486-pc-linux-gnu) MULE/5.0 (SAKAKI)
@@ -29,36 +28,35 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Mon, 22 Jan 2007 10:20:21 -0500,
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 22 Jan 2007 02:23:30 +0300, Samium Gromoff said:
-> >
-> > not "core-dumps" but "core files", in the lispspeak, but anyway.
+At Mon, 22 Jan 2007 01:35:46 +0100,
+Arjan van de Ven wrote:
+> 
+> 
+> > the core of the problem are the cores which are customarily
+> > dumped by lisps during the environment generation (or modification) stage,
+> > and then mapped back, every time the environment is invoked.
+> 
 > > 
-> > the reason is trivial -- if i can write programs enjoying setuid
-> > privileges in C, i want to be able to do the same in Lisp.
+> > at the current step of evolution, those core files are not relocatable
+> > in certain natively compiling lisp systems.
 > 
-> Go read up on how the XEmacs crew designed their "portable dumper",
-> specifically to get around a lot of these sorts of problems because the
-> old Emacs 'unexec' code was incredibly fragile.
+> nor will they work if the sysadmin applies a security update and glibc
+> or another library changes one page in size. Or changes the stack rlimit
+> or .. or ..
 
-I should take the freedom to respond in your manner :-)
+Now, i figured out, there is a certain reasonable safety gap which works
+for people, because the libraries depended on are well known.
 
-Are you saying that the usefulness of AS randomisation is
-overall exceeding that of MAP_FIXED, and the latter should be
-abolished?
+What happens with AS randomisation, is that the variance is simply too
+large. But what is more important, is that vendors do modifications
+which change the amount of randomisation, which means that potentially
+no MAP_FIXED is safe, generally.
 
-Did we silently enter an era where support for buggy software
-is more important than a basic mmap feature?
+Yes, there is uncertainty in both cases -- library variance or AS randomisation,
+but the latter arguably crosses a practical manageability boundary.
 
-> > the only way to achieve this i see, is to directly setuid root
-> > the lisp system executable itself -- because the lisp code
-> > is read, compiled and executed in the process of the lisp
-> > system executable.
-> 
-> If that's the only way you can see to do it, maybe you should think a
-> bit harder before making kernel hacks to do something.
-
-I want equal grounds for platforms, that`s all.
+> -- 
+> if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+> Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
 regards, Samium Gromoff

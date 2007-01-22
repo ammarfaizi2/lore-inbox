@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751917AbXAVPUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751927AbXAVPTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751917AbXAVPUa (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 10:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbXAVPUa
+	id S1751927AbXAVPTN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 10:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbXAVPTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 10:20:30 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33306 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751917AbXAVPU3 (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 10:20:29 -0500
-Message-Id: <200701221520.l0MFKLdK032645@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Samium Gromoff <_deepfire@feelingofgreen.ru>
-Cc: David Wagner <daw@cs.berkeley.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Undo some of the pseudo-security madness
-In-Reply-To: Your message of "Mon, 22 Jan 2007 02:23:30 +0300."
-             <87r6toufpp.wl@betelheise.deep.net>
-From: Valdis.Kletnieks@vt.edu
-References: <87r6toufpp.wl@betelheise.deep.net>
+	Mon, 22 Jan 2007 10:19:13 -0500
+Received: from mail.gmx.net ([213.165.64.20]:47682 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751927AbXAVPTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 10:19:12 -0500
+X-Authenticated: #14349625
+Subject: Re: [PATCH] Introduce simple TRUE and FALSE boolean macros.
+From: Mike Galbraith <efault@gmx.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Nicholas Miell <nmiell@comcast.net>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linville@tuxdriver.com
+In-Reply-To: <Pine.LNX.4.64.0701220556580.22914@CPE00045a9c397f-CM001225dbafb6>
+References: <Pine.LNX.4.64.0701210454590.2844@CPE00045a9c397f-CM001225dbafb6>
+	 <1169401892.2999.1.camel@entropy>
+	 <Pine.LNX.4.64.0701211430020.17235@CPE00045a9c397f-CM001225dbafb6>
+	 <45B495F9.4@yahoo.com.au>
+	 <Pine.LNX.4.64.0701220556580.22914@CPE00045a9c397f-CM001225dbafb6>
+Content-Type: text/plain
+Date: Mon, 22 Jan 2007 16:18:43 +0100
+Message-Id: <1169479123.15483.42.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1169479221_4202P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.8.2 
 Content-Transfer-Encoding: 7bit
-Date: Mon, 22 Jan 2007 10:20:21 -0500
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1169479221_4202P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 22 Jan 2007 02:23:30 +0300, Samium Gromoff said:
->
-> not "core-dumps" but "core files", in the lispspeak, but anyway.
+On Mon, 2007-01-22 at 06:02 -0500, Robert P. J. Day wrote:
+> On Mon, 22 Jan 2007, Nick Piggin wrote:
 > 
-> the reason is trivial -- if i can write programs enjoying setuid
-> privileges in C, i want to be able to do the same in Lisp.
+> > Robert P. J. Day wrote:
+> >
+> > > by adding (temporarily) the definitions of TRUE and FALSE to
+> > > types.h, you should then (theoretically) be able to delete over
+> > > 100 instances of those same macros being *defined* throughout the
+> > > source tree. you're not going to be deleting the hundreds and
+> > > hundreds of *uses* of TRUE and FALSE (not yet, anyway) but, at the
+> > > very least, by adding two lines to types.h, you can delete all
+> > > those redundant *definitions* and make sure that nothing breaks.
+> > > (it shouldn't, of course, but it's always nice to be sure.)
+> >
+> > Doesn't seem very worthwhile, and it legitimises this definition
+> > we're trying to get rid of.
+> 
+> hmmmmmmmm ... apparently, you totally missed my use of the important
+> word "temporarily":
+> 
+>   $ grep -r "temporary hack" . | wc -l
+>   16
 
-Go read up on how the XEmacs crew designed their "portable dumper",
-specifically to get around a lot of these sorts of problems because the
-old Emacs 'unexec' code was incredibly fragile.
+That's a pretty good argument _against_ adding another one :)  I wonder
+how old those "temporary hacks" are (the ones you missed as well).
 
-> the only way to achieve this i see, is to directly setuid root
-> the lisp system executable itself -- because the lisp code
-> is read, compiled and executed in the process of the lisp
-> system executable.
+To make TRUE/FALSE go away, you or someone will have to visit them all,
+which will take time.  Why add an intermediate step where you or others
+can end up getting interrupted (indefinitely), leaving the "temporary"
+definition lying around for folks to use?
 
-If that's the only way you can see to do it, maybe you should think a
-bit harder before making kernel hacks to do something.
+	-Mike
 
-
-
-
-
---==_Exmh_1169479221_4202P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFtNY1cC3lWbTT17ARAnZPAJ9WfSqrYVwRsGbB6H3Ata1ZH2NcvwCgnz/c
-NGI9G3RajTN1ej0V9+GcBbs=
-=+eMc
------END PGP SIGNATURE-----
-
---==_Exmh_1169479221_4202P--

@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751756AbXAVMBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751421AbXAVMSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbXAVMBS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 07:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbXAVMBS
+	id S1751421AbXAVMSN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 07:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbXAVMSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 07:01:18 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:46035 "HELO
-	smtp102.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751756AbXAVMBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 07:01:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=tpiltJ3P0BcuFHeQe4wilBaY6xEQ7xYSsoU242m0qEH4tR3W0uN6MYC7D3aZr4dNYAbEoYCHdrqEsY4LCjfVxozULJniaR9s0Pv5xwJx2ANionm2IP0cdVxoxBU87eiw/lrBmg7YhodyslSbNsIIwyiljG/puLXBtfvQTMAy6bw=  ;
-X-YMail-OSG: PTjboQ0VM1mhznIXJBPjDie2U6G9UpnsDCVwhXDBam8lHtkjMW9RJJvAo8uP9PMxlNUn4qD1gla4i1qhv8V6CEOdaNF0AUoFHRviTxFvgSy9NlCbY_oX_iMFQZt_W2s-
-Message-ID: <45B4A76A.4070102@yahoo.com.au>
-Date: Mon, 22 Jan 2007 23:00:42 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 22 Jan 2007 07:18:13 -0500
+Received: from lucidpixels.com ([66.45.37.187]:34377 "EHLO lucidpixels.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750778AbXAVMSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 07:18:12 -0500
+Date: Mon, 22 Jan 2007 07:18:10 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: kyle <kylewong@southa.com>
+cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: change strip_cache_size freeze the whole raid
+In-Reply-To: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f>
+Message-ID: <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
+References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f>
 MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: Nicholas Miell <nmiell@comcast.net>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linville@tuxdriver.com
-Subject: Re: [PATCH] Introduce simple TRUE and FALSE boolean macros.
-References: <Pine.LNX.4.64.0701210454590.2844@CPE00045a9c397f-CM001225dbafb6> <1169401892.2999.1.camel@entropy> <Pine.LNX.4.64.0701211430020.17235@CPE00045a9c397f-CM001225dbafb6> <45B495F9.4@yahoo.com.au> <Pine.LNX.4.64.0701220556580.22914@CPE00045a9c397f-CM001225dbafb6>
-In-Reply-To: <Pine.LNX.4.64.0701220556580.22914@CPE00045a9c397f-CM001225dbafb6>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day wrote:
-> On Mon, 22 Jan 2007, Nick Piggin wrote:
-> 
-> 
->>Robert P. J. Day wrote:
->>
->>
->>>by adding (temporarily) the definitions of TRUE and FALSE to
->>>types.h, you should then (theoretically) be able to delete over
->>>100 instances of those same macros being *defined* throughout the
->>>source tree. you're not going to be deleting the hundreds and
->>>hundreds of *uses* of TRUE and FALSE (not yet, anyway) but, at the
->>>very least, by adding two lines to types.h, you can delete all
->>>those redundant *definitions* and make sure that nothing breaks.
->>>(it shouldn't, of course, but it's always nice to be sure.)
->>
->>Doesn't seem very worthwhile, and it legitimises this definition
->>we're trying to get rid of.
-> 
-> 
-> hmmmmmmmm ... apparently, you totally missed my use of the important
-> word "temporarily":
 
-No, I didn't.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+On Mon, 22 Jan 2007, kyle wrote:
+
+> Hi,
+> 
+> Yesterday I tried to increase the value of strip_cache_size to see if I can
+> get better performance or not. I increase the value from 2048 to something
+> like 16384. After I did that, the raid5 freeze. Any proccess read / write to
+> it stucked at D state. I tried to change it back to 2048, read
+> strip_cache_active, cat /proc/mdstat, mdadm stop, etc. All didn't return back.
+> I even cannot shutdown the machine. Finally I need to press the reset button
+> in order to get back my control.
+> 
+> Kernel is 2.6.17.8 x86-64, running at AMD Athlon3000+, 2GB Ram, 8 x Seagate
+> 8200.10 250GB HDD, nvidia chipset.
+> 
+> cat /proc/mdstat (after reboot):
+> Personalities : [raid1] [raid5] [raid4]
+> md1 : active raid1 hdc2[1] hda2[0]
+>      6144768 blocks [2/2] [UU]
+> 
+> md2 : active raid5 sdf1[7] sde1[6] sdd1[5] sdc1[4] sdb1[3] sda1[2] hdc4[1]
+> hda4[0]
+>      1664893440 blocks level 5, 512k chunk, algorithm 2 [8/8] [UUUUUUUU]
+> 
+> md0 : active raid1 hdc1[1] hda1[0]
+>      104320 blocks [2/2] [UU]
+> 
+> Kyle
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
+Yes, I noticed this bug too, if you change it too many times or change it 
+at the 'wrong' time, it hangs up when you echo numbr > 
+/proc/stripe_cache_size.
+
+Basically don't run it more than once and don't run it at the 'wrong' time 
+and it works.  Not sure where the bug lies, but yeah I've seen that on 3 
+different machines!
+
+Justin.
+

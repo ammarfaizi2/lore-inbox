@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751923AbXAVPSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751917AbXAVPUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751923AbXAVPSu (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 10:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751930AbXAVPSt
+	id S1751917AbXAVPUa (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 10:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbXAVPUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 10:18:49 -0500
-Received: from apollo.i-cable.com ([203.83.115.103]:41517 "HELO
-	apollo.i-cable.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751926AbXAVPSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 10:18:49 -0500
-Message-ID: <00c201c73e38$95dcba70$28df0f3d@kylecea1512a3f>
-From: "kyle" <kylewong@southa.com>
-To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f> <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan> <005501c73e33$7d9046d0$28df0f3d@kylecea1512a3f> <Pine.LNX.4.64.0701220954540.1711@p34.internal.lan>
-Subject: Re: change strip_cache_size freeze the whole raid
-Date: Mon, 22 Jan 2007 23:18:35 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Mon, 22 Jan 2007 10:20:30 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:33306 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751917AbXAVPU3 (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 10:20:29 -0500
+Message-Id: <200701221520.l0MFKLdK032645@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Samium Gromoff <_deepfire@feelingofgreen.ru>
+Cc: David Wagner <daw@cs.berkeley.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Undo some of the pseudo-security madness
+In-Reply-To: Your message of "Mon, 22 Jan 2007 02:23:30 +0300."
+             <87r6toufpp.wl@betelheise.deep.net>
+From: Valdis.Kletnieks@vt.edu
+References: <87r6toufpp.wl@betelheise.deep.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1169479221_4202P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Date: Mon, 22 Jan 2007 10:20:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>
->> > Yes, I noticed this bug too, if you change it too many times or change 
->> > it
->> > at the 'wrong' time, it hangs up when you echo numbr >
->> > /proc/stripe_cache_size.
->> >
->> > Basically don't run it more than once and don't run it at the 'wrong' 
->> > time
->> > and it works.  Not sure where the bug lies, but yeah I've seen that on 
->> > 3
->> > different machines!
->> >
->> > Justin.
->> >
->> >
->>
->> I just change it once, then it freeze. It's hard to get the 'right time'
->>
->> Actually I tried it several times before. As I remember there was once it
->> freezed for around 1 or 2 minutes , then back to normal operation. This 
->> is the
->> first time it completely freezed and I waited after around 10 minutes it 
->> still
->> didn't wake up.
->>
->> Kyle
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->
-> What kernel version are you using?  It normally works the first time for
-> me, I put it in my startup scripts, as one of the last items.  However, if
-> I change it a few times, it will hang and there is no way to reboot except
-> via SYSRQ or pressing the reboot button on the machine.
->
-> This seems to be true of 2.6.19.1 and 2.6.19.2, I did not try under
-> 2.6.20-rc5 because I am tired of hanging my machine :)
->
-> Justin.
->
+--==_Exmh_1169479221_4202P
+Content-Type: text/plain; charset=us-ascii
 
-It was 2.6.17.8. Now it's 2.6.7.13 but I won't touch it now! It's around 
-15km from me!
+On Mon, 22 Jan 2007 02:23:30 +0300, Samium Gromoff said:
+>
+> not "core-dumps" but "core files", in the lispspeak, but anyway.
+> 
+> the reason is trivial -- if i can write programs enjoying setuid
+> privileges in C, i want to be able to do the same in Lisp.
 
+Go read up on how the XEmacs crew designed their "portable dumper",
+specifically to get around a lot of these sorts of problems because the
+old Emacs 'unexec' code was incredibly fragile.
+
+> the only way to achieve this i see, is to directly setuid root
+> the lisp system executable itself -- because the lisp code
+> is read, compiled and executed in the process of the lisp
+> system executable.
+
+If that's the only way you can see to do it, maybe you should think a
+bit harder before making kernel hacks to do something.
+
+
+
+
+
+--==_Exmh_1169479221_4202P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFtNY1cC3lWbTT17ARAnZPAJ9WfSqrYVwRsGbB6H3Ata1ZH2NcvwCgnz/c
+NGI9G3RajTN1ej0V9+GcBbs=
+=+eMc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1169479221_4202P--

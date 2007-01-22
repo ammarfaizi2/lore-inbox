@@ -1,84 +1,119 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751867AbXAVO4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751859AbXAVO7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751867AbXAVO4K (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 09:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbXAVO4K
+	id S1751859AbXAVO7V (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 09:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751862AbXAVO7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 09:56:10 -0500
-Received: from lucidpixels.com ([66.45.37.187]:57481 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751858AbXAVO4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 09:56:08 -0500
-Date: Mon, 22 Jan 2007 09:56:05 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: kyle <kylewong@southa.com>
-cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: change strip_cache_size freeze the whole raid
-In-Reply-To: <005501c73e33$7d9046d0$28df0f3d@kylecea1512a3f>
-Message-ID: <Pine.LNX.4.64.0701220954540.1711@p34.internal.lan>
-References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f>
- <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
- <005501c73e33$7d9046d0$28df0f3d@kylecea1512a3f>
+	Mon, 22 Jan 2007 09:59:21 -0500
+Received: from mx1-2.mail.ru ([194.67.23.121]:23509 "EHLO mx1.mail.ru"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751859AbXAVO7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 09:59:20 -0500
+Date: Mon, 22 Jan 2007 18:04:54 +0300
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/3]: ufs: alloc metadata null page fix
+Message-ID: <20070122150454.GA10752@rain>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These series of patches result of 
+UFS1 write support stress testing, like running
+fsx-linux, untar and build linux kernel etc
 
 
-On Mon, 22 Jan 2007, kyle wrote:
+We pass from ufs::get_block_t to levels below:
+pointer to the current page, to make possible things like
+reallocation of blocks on the fly, and we also uses this pointer
+for indication, what actually we allocate data block or 
+meta data block,
+but currently we make decision about what we allocate on
+the wrong level, this may and cause oops if we allocate
+blocks in some special order.
 
-> >
-> > On Mon, 22 Jan 2007, kyle wrote:
-> >
-> > > Hi,
-> > >
-> > > Yesterday I tried to increase the value of strip_cache_size to see if I
-> > > can
-> > > get better performance or not. I increase the value from 2048 to something
-> > > like 16384. After I did that, the raid5 freeze. Any proccess read / write
-> > > to
-> > > it stucked at D state. I tried to change it back to 2048, read
-> > > strip_cache_active, cat /proc/mdstat, mdadm stop, etc. All didn't return
-> > > back.
-> > > I even cannot shutdown the machine. Finally I need to press the reset
-> > > button
-> > > in order to get back my control.
-> 
-> > Yes, I noticed this bug too, if you change it too many times or change it
-> > at the 'wrong' time, it hangs up when you echo numbr >
-> > /proc/stripe_cache_size.
-> >
-> > Basically don't run it more than once and don't run it at the 'wrong' time
-> > and it works.  Not sure where the bug lies, but yeah I've seen that on 3
-> > different machines!
-> >
-> > Justin.
-> >
-> >
-> 
-> I just change it once, then it freeze. It's hard to get the 'right time'
-> 
-> Actually I tried it several times before. As I remember there was once it
-> freezed for around 1 or 2 minutes , then back to normal operation. This is the
-> first time it completely freezed and I waited after around 10 minutes it still
-> didn't wake up.
-> 
-> Kyle
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>                                                  
+                                                                                                  
+--- 
 
-What kernel version are you using?  It normally works the first time for 
-me, I put it in my startup scripts, as one of the last items.  However, if 
-I change it a few times, it will hang and there is no way to reboot except 
-via SYSRQ or pressing the reboot button on the machine.
+Index: linux-2.6.20-rc5/fs/ufs/balloc.c
+===================================================================
+--- linux-2.6.20-rc5.orig/fs/ufs/balloc.c
++++ linux-2.6.20-rc5/fs/ufs/balloc.c
+@@ -233,7 +233,7 @@ static void ufs_change_blocknr(struct in
+ {
+ 	unsigned int blk_per_page = 1 << (PAGE_CACHE_SHIFT - inode->i_blkbits);
+ 	struct address_space *mapping = inode->i_mapping;
+-	pgoff_t index, cur_index = locked_page->index;
++	pgoff_t index, cur_index;
+ 	unsigned int i, j;
+ 	struct page *page;
+ 	struct buffer_head *head, *bh;
+@@ -241,8 +241,11 @@ static void ufs_change_blocknr(struct in
+ 	UFSD("ENTER, ino %lu, count %u, oldb %u, newb %u\n",
+ 	      inode->i_ino, count, oldb, newb);
+ 
++	BUG_ON(!locked_page);
+ 	BUG_ON(!PageLocked(locked_page));
+ 
++	cur_index = locked_page->index;
++
+ 	for (i = 0; i < count; i += blk_per_page) {
+ 		index = (baseblk+i) >> (PAGE_CACHE_SHIFT - inode->i_blkbits);
+ 
+Index: linux-2.6.20-rc5/fs/ufs/inode.c
+===================================================================
+--- linux-2.6.20-rc5.orig/fs/ufs/inode.c
++++ linux-2.6.20-rc5/fs/ufs/inode.c
+@@ -242,7 +242,8 @@ repeat:
+ 			goal = tmp + uspi->s_fpb;
+ 		tmp = ufs_new_fragments (inode, p, fragment - blockoff, 
+ 					 goal, required + blockoff,
+-					 err, locked_page);
++					 err,
++					 phys != NULL ? locked_page : NULL);
+ 	}
+ 	/*
+ 	 * We will extend last allocated block
+@@ -250,7 +251,7 @@ repeat:
+ 	else if (lastblock == block) {
+ 		tmp = ufs_new_fragments(inode, p, fragment - (blockoff - lastblockoff),
+ 					fs32_to_cpu(sb, *p), required +  (blockoff - lastblockoff),
+-					err, locked_page);
++					err, phys != NULL ? locked_page : NULL);
+ 	} else /* (lastblock > block) */ {
+ 	/*
+ 	 * We will allocate new block before last allocated block
+@@ -261,7 +262,8 @@ repeat:
+ 				goal = tmp + uspi->s_fpb;
+ 		}
+ 		tmp = ufs_new_fragments(inode, p, fragment - blockoff,
+-					goal, uspi->s_fpb, err, locked_page);
++					goal, uspi->s_fpb, err,
++					phys != NULL ? locked_page : NULL);
+ 	}
+ 	if (!tmp) {
+ 		if ((!blockoff && *p) || 
+@@ -438,9 +440,11 @@ int ufs_getfrag_block(struct inode *inod
+ 	 * it much more readable:
+ 	 */
+ #define GET_INODE_DATABLOCK(x) \
+-	ufs_inode_getfrag(inode, x, fragment, 1, &err, &phys, &new, bh_result->b_page)
++	ufs_inode_getfrag(inode, x, fragment, 1, &err, &phys, &new,\
++			  bh_result->b_page)
+ #define GET_INODE_PTR(x) \
+-	ufs_inode_getfrag(inode, x, fragment, uspi->s_fpb, &err, NULL, NULL, NULL)
++	ufs_inode_getfrag(inode, x, fragment, uspi->s_fpb, &err, NULL, NULL,\
++			  bh_result->b_page)
+ #define GET_INDIRECT_DATABLOCK(x) \
+ 	ufs_inode_getblock(inode, bh, x, fragment,	\
+ 			  &err, &phys, &new, bh_result->b_page)
+-- 
+/Evgeniy
 
-This seems to be true of 2.6.19.1 and 2.6.19.2, I did not try under 
-2.6.20-rc5 because I am tired of hanging my machine :)
-
-Justin.

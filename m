@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751881AbXAVQqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751957AbXAVQrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751881AbXAVQqG (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 11:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbXAVQqG
+	id S1751957AbXAVQrW (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 11:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbXAVQrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 11:46:06 -0500
-Received: from styx.suse.cz ([82.119.242.94]:49637 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751881AbXAVQqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 11:46:05 -0500
-Date: Mon, 22 Jan 2007 17:44:19 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] HID fixes
-Message-ID: <Pine.LNX.4.64.0701221741060.31347@jikos.suse.cz>
+	Mon, 22 Jan 2007 11:47:22 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:8419 "EHLO
+	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751957AbXAVQrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 11:47:21 -0500
+X-AuditID: d80ac21c-a4510bb00000330a-76-45b4ea989228 
+Date: Mon, 22 Jan 2007 16:47:32 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+cc: Andrew Morton <akpm@osdl.org>, Franck Bui-Huu <fbuihuu@gmail.com>,
+       Nadia Derbey <Nadia.Derbey@bull.net>, Andi Kleen <ak@suse.de>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: revert "Fix up" of mmap_kmem
+Message-ID: <Pine.LNX.4.64.0701221642320.27059@blonde.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Jan 2007 16:47:20.0027 (UTC) FILETIME=[FB6CFAB0:01C73E44]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Please revert 2.6.19's 99a10a60ba9bedcf5d70ef81414d3e03816afa3f (shown
+below) for 2.6.20.  Nadia Derbey has reported that mmap of /dev/kmem no
+longer works with the kernel virtual address as offset, and Franck has
+confirmed that his patch came from a misunderstanding of what an offset
+means to /dev/kmem - whereas his patch description seems to say that he
+was correcting the offset on a few plaforms, there was no such problem
+to correct, and his patch was in fact changing its API on all platforms.
 
-could you please pull from 'for-linus' branch of
+Suggested-by: Hugh Dickins <hugh@veritas.com>
+---
+From: Franck Bui-Huu <fbuihuu@gmail.com>
+Date: Thu, 12 Oct 2006 19:06:33 +0000 (+0200)
+Subject: [PATCH] Fix up mmap_kmem
+X-Git-Tag: v2.6.19-rc2^0~6
+X-Git-Url: http://127.0.0.1:1234/?p=.git;a=commitdiff_plain;h=99a10a60ba9bedcf5d70ef81414d3e03816afa3f;hp=a5344a9555fffd045218aced89afd6ca0f884e10
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-linus
+[PATCH] Fix up mmap_kmem
 
-or
-   master.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-linus
+vma->vm_pgoff is an pfn _offset_ relatif to the begining
+of the memory start. The previous code was doing at first:
 
-to receive bugfixes for HID code.
+	vma->vm_pgoff << PAGE_SHIFT
 
-Thanks.
+which results into a wrong physical address since some
+platforms have a physical mem start that can be different
+from 0. After that the previous call __pa() on this
+wrong physical address, however __pa() is used to convert
+a _virtual_ address into a physical one.
 
---- 
+This patch rewrites this convertion. It calculates the
+pfn of PAGE_OFFSET which is the pfn of the mem start
+then it adds the vma->vm_pgoff to it.
 
- MAINTAINERS                  |    5 ++---
- drivers/hid/hid-core.c       |    6 +++++-
- drivers/hid/hid-input.c      |   20 ++++++++++++++++----
- drivers/usb/input/Kconfig    |    2 +-
- drivers/usb/input/hid-core.c |   40 ++++++++++++++++++++++++----------------
- drivers/usb/input/hid-ff.c   |    5 +++--
- drivers/usb/input/hiddev.c   |    2 +-
- drivers/usb/input/usbhid.h   |    3 +++
- include/linux/hid-debug.h    |    7 ++++---
- 9 files changed, 59 insertions(+), 31 deletions(-)
+It also uses virt_to_phys() instead of __pa() since the
+latter shouldn't be used by drivers.
 
-Adrian Friedli (1):
-      HID: GEYSER4_ISO needs quirk
+Signed-off-by: Franck Bui-Huu <fbuihuu@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+---
 
-Anssi Hannula (1):
-      HID: put usb_interface instead of usb_device into hid->dev to fix udevinfo breakage
-
-Jeremy Roberson (1):
-      hid-core.c: Adds GTCO CalComp Interwrite IPanel PIDs to blacklist
-
-Jiri Kosina (3):
-      HID: update MAINTAINERS entry for USB-HID
-      HID: compilation fix when DEBUG_DATA is defined
-      HID: hid/hid-input.c doesn't need to include linux/usb/input.h
-
-Russell King (1):
-      HID: fix some ARM builds due to HID brokenness - make USB_HID depend on INPUT
-
-Simon Budig (2):
-      HID: proper LED-mapping for SpaceNavigator
-      HID: add missing RX, RZ and RY enum values to hid-debug output
-
+diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+index 6511012..a89cb52 100644
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -292,8 +292,8 @@ static int mmap_kmem(struct file * file,
+ {
+ 	unsigned long pfn;
+ 
+-	/* Turn a kernel-virtual address into a physical page frame */
+-	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
++	/* Turn a pfn offset into an absolute pfn */
++	pfn = PFN_DOWN(virt_to_phys((void *)PAGE_OFFSET)) + vma->vm_pgoff;
+ 
+ 	/*
+ 	 * RED-PEN: on some architectures there is more mapped memory

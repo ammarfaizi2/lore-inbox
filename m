@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751819AbXAVAgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751827AbXAVAlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbXAVAgl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 21 Jan 2007 19:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbXAVAgl
+	id S1751827AbXAVAlc (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 21 Jan 2007 19:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbXAVAlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Jan 2007 19:36:41 -0500
-Received: from smtpout.mac.com ([17.250.248.186]:57397 "EHLO smtpout.mac.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751819AbXAVAgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Jan 2007 19:36:40 -0500
-In-Reply-To: <ep0tb0$f6e$1@taverner.cs.berkeley.edu>
-References: <87r6toufpp.wl@betelheise.deep.net> <ep0tb0$f6e$1@taverner.cs.berkeley.edu>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1D317613-B0B6-4517-81B5-DBF3978FA413@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>,
-       Samium Gromoff <_deepfire@feelingofgreen.ru>
+	Sun, 21 Jan 2007 19:41:32 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:17490 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751813AbXAVAlb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Jan 2007 19:41:31 -0500
+Date: Sun, 21 Jan 2007 16:37:19 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: bjdouma@xs4all.nl
+Cc: linux-kernel@vger.kernel.org, osst@riede.org,
+       osst-users@lists.sourceforge.net, scsi <linux-scsi@vger.kernel.org>
+Subject: Re: OnStream DI30: undescriptive message: CoD != 0 in
+ idescsi_pc_intr
+Message-Id: <20070121163719.6c4defd8.randy.dunlap@oracle.com>
+In-Reply-To: <45B2CC89.1020305@xs4all.nl>
+References: <45B2CC89.1020305@xs4all.nl>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] Undo some of the pseudo-security madness
-Date: Sun, 21 Jan 2007 19:36:27 -0500
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 21, 2007, at 18:34:56, David Wagner wrote:
-> [1] In comparison, suidperl was designed to be installed setuid- 
-> root, and it takes special precautions to be safe in this usage.   
-> (And even it has had some security vulnerabilities, despite its  
-> best efforts, which illustrates how tricky this business can be.)   
-> Setting the setuid-root bit on a large complex interpreter that  
-> wasn't designed to be setuid-root seems like a pretty dubious  
-> proposition to me.
+On Sun, 21 Jan 2007 03:14:33 +0100 Bauke Jan Douma wrote:
 
-Well, there's also the fact that Linux does *NOT* need suidperl, as  
-it has proper secure support for suid pound-bang scripts anyways.   
-The only reason for suidperl in the first place was broken operating  
-systems which had a race condition between the operating system  
-checking the suid bits and reading the '#! /usr/bin/perl' line in the  
-file, and the interpreter getting executed and opening a different  
-file (think symlink redirection attacks).  I believe Linux jumps  
-through some special hoops to ensure that can't happen.
+> OnStream Di30 (using ide-scsi and osst drivers), when reading
+> or writing I regularly get these kernel messages:
+> 
+> <3>ide-scsi: CoD != 0 in idescsi_pc_intr
+> 
+> Let's assume flaky hardware; nothing we can hold the kernel to
+> blame for (which is 2.6.19.1) -- it's a good thing it's calling
+> our attention.  There's no data corruption, btw.
+> 
+> However, said message is quite useless because undescriptive
+> and too terse.
 
-Cheers,
-Kyle Moffett
+Not sure that this helps much.
+
+---
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Expand on a terse ide-scsi message.
+Something is confused.
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/scsi/ide-scsi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2619-work.orig/drivers/scsi/ide-scsi.c
++++ linux-2619-work/drivers/scsi/ide-scsi.c
+@@ -528,7 +528,7 @@ static ide_startstop_t idescsi_pc_intr (
+ 	ireason.all	= HWIF(drive)->INB(IDE_IREASON_REG);
+ 
+ 	if (ireason.b.cod) {
+-		printk(KERN_ERR "ide-scsi: CoD != 0 in idescsi_pc_intr\n");
++		printk(KERN_ERR "ide-scsi: CoD(Command/Data flag) != 0(Data) in idescsi_pc_intr\n");
+ 		return ide_do_reset (drive);
+ 	}
+ 	if (ireason.b.io) {
 

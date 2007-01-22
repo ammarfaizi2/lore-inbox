@@ -1,142 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751087AbXAVJ03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751125AbXAVJfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbXAVJ03 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 04:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbXAVJ03
+	id S1751125AbXAVJfS (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 04:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbXAVJfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 04:26:29 -0500
-Received: from gw.exalead.com ([193.47.80.25]:14812 "EHLO exalead.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751087AbXAVJ02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 04:26:28 -0500
-X-Greylist: delayed 1754 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Jan 2007 04:26:28 EST
-Message-ID: <45B47C68.2000903@exalead.com>
-Date: Mon, 22 Jan 2007 09:57:12 +0100
-From: Xavier Roche <roche+kml2@exalead.com>
-Organization: Exalead
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1b2) Gecko/20060821 SeaMonkey/1.1a
+	Mon, 22 Jan 2007 04:35:18 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:4430 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751125AbXAVJfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 04:35:17 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=beta;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mfzPRkyJmIStfOafeqVcHMktEplvqovYLH8KwJSDTl/UXxJL25Hr0G01+bE2azUgmBFcSOFXHzgXgGpeMpHnTUZl6N8qeH1rKc1xTJl6HtMquV0s25iihWgrOYc9O8Cg2ifbbq+fFrqm6kwHPyH7BmHjHXmoFNRxGg6BpjRXpRI=
+Message-ID: <45B48549.1080209@gmail.com>
+Date: Mon, 22 Jan 2007 18:35:05 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sigaction's ucontext_t with incorrect stack reference when SA_SIGINFO
- is being used ?
-Content-Type: multipart/mixed;
- boundary="------------070005040304070505060800"
+To: Paolo Ornati <ornati@fastwebnet.it>
+CC: Robert Hancock <hancockr@shaw.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Jens Axboe <jens.axboe@oracle.com>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA exceptions triggered by XFS (since 2.6.18)
+References: <20070121152932.6dc1d9fb@localhost>	<20070121174023.68402ade@localhost>	<45B3A392.6050609@shaw.ca>	<20070121202552.14cc29fe@localhost>	<45B42569.6030902@gmail.com> <20070122093823.1241be05@localhost>
+In-Reply-To: <20070122093823.1241be05@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070005040304070505060800
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Paolo Ornati wrote:
+>>> === START OF INFORMATION SECTION ===
+>>> Model Family:     Seagate Barracuda 7200.7 and 7200.7 Plus family
+>>> Device Model:     ST380817AS
+>> I'll blacklist it.  Thanks.
+> 
+> Ok. It will be better if someone else with the same HD could confirm.
+> 
+> It looks so strange that an HD that works fine, and should support NCQ,
+> have so big troubles that I can "freeze" it in less than a second by
+> using XFS (while with ext3 I cannot, or at least it's very hard).
 
-Hi folks,
+Yeap, certainly.  I'll ask people first before actually proceeding with 
+the blacklisting.  I'm just getting a bit tired of tides of NCQ firmware 
+problems.
 
-I have a probably louzy question regarding sigaction() behaviour when an
-alternate signal stack is used: it seems that I can not get the user
-stack reference in the ucontext_t stack context ; ie. the uc_stack
-member contains reference of the alternate signal stack, not the stack
-that was used before the crash.
+Anyways, for the time being, you can easily turn off NCQ using sysfs. 
+Please take a look at http://linux-ata.org/faq.html
 
-Is this is a normal behaviour ? Is there a way to retrieve the original
-user's stack inside the signal callback ?
-
-The example given below demonstrates the issue:
-top of stack==0x7fffff3d7000, alternative_stack==0x501010
-SEGV==0x7fffff3d6ff8; sp==0x501010; current stack is the alternate stack
-
-It is obvious that the SEGV was a stack overflow: the si_addr address is
-just on the page below the stack limit.
-
---------------070005040304070505060800
-Content-Type: text/x-csrc;
- name="stacktest.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="stacktest.c"
-
-/* gcc -g [ -D_REENTRANT ] stacktest.c [ -lpthread ] -o stacktest */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/resource.h>
-#include <sys/ucontext.h>
-
-#ifdef _REENTRANT
-#include <pthread.h>
-#endif
-
-/* the alternative stack reference */
-static stack_t ss;
-
-/* this function does nasty things */
-static void overflow(void) { overflow(); }
-
-/* test entry point */
-static void* threadEntry(void* parg) {
-  struct rlimit rlim;
-  /* setup alternative strack for the current thread */
-  ss.ss_flags = 0;
-  ss.ss_size = SIGSTKSZ;
-  ss.ss_sp = malloc(ss.ss_size);
-  if (ss.ss_sp == NULL) {
-    abort();
-  }
-  if (sigaltstack(&ss, NULL) == -1) {
-    abort();
-  }
-  /* print current stack limit */
-  if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-    const unsigned long page_size = (unsigned long) sysconf(_SC_PAGE_SIZE);
-    const unsigned long stack_bottom =
-      (((unsigned long)&rlim-rlim.rlim_cur+page_size-1)/page_size)*page_size;
-    printf("bottom of stack==%p, alternative_stack==%p\n", (void*)stack_bottom,
-           (void*)ss.ss_sp);
-  }
-  /* do something very nasty */
-  overflow();
-  /* we may not reach this point */
-  return NULL;
-}
-
-/* SEGV handler */
-static void saHandler(int code, siginfo_t *si, void *sc_) {
-  void *kenny = (void*) &code;
-  ucontext_t * const sc = (ucontext_t*) sc_;
-  printf("SEGV==%p; sp==%p; current stack is the %s\n", (void*)si->si_addr,
-         (void*)((ucontext_t*)sc_)->uc_stack.ss_sp,
-         ( kenny >= ss.ss_sp && kenny < ss.ss_sp + SIGSTKSZ )
-         ? "alternate stack" : "original stack");
-  abort();
-}
-
-/* main entry point */
-int main(void) {
-  /* catch SEGV with SA_ONSTACK enabled */
-  struct sigaction s;
-  memset(&s, 0, sizeof(s));
-  sigemptyset(&s.sa_mask);
-  s.sa_flags = SA_SIGINFO | SA_ONSTACK;
-  s.sa_sigaction = saHandler;
-  if(sigaction (SIGSEGV, &s, NULL)) {
-    abort();
-  }
-
-#ifdef _REENTRANT
-  /* threaded version */
-  {
-    pthread_t t;
-    pthread_create(&t, NULL, threadEntry, NULL);
-    pause();  /* wait (almost) endlessly */
-  }
-#else
-  /* single threaded version */
-  (void) threadEntry(NULL);
-#endif
-
-  /* not reached */
-  abort();
-  return 0;
-}
-
---------------070005040304070505060800--
+-- 
+tejun

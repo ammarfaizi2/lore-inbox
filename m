@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751045AbXAVR6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932111AbXAVR7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbXAVR6a (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 12:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbXAVR6a
+	id S932111AbXAVR7z (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 12:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbXAVR7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 12:58:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60014 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751045AbXAVR63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 12:58:29 -0500
-Subject: Re: [PATCH] Remove final reference to superfluous smp_commence().
-From: Ingo Molnar <mingo@redhat.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701201326330.24479@CPE00045a9c397f-CM001225dbafb6>
-References: <Pine.LNX.4.64.0701201326330.24479@CPE00045a9c397f-CM001225dbafb6>
-Content-Type: text/plain
-Date: Mon, 22 Jan 2007 18:57:50 +0100
-Message-Id: <1169488670.15515.17.camel@earth>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Jan 2007 12:59:55 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34934 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932148AbXAVR7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 12:59:53 -0500
+Date: Mon, 22 Jan 2007 09:59:27 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, pj@sgi.com
+Subject: Re: [PATCH] nfs: fix congestion control -v3
+In-Reply-To: <1169276500.6197.159.camel@twins>
+Message-ID: <Pine.LNX.4.64.0701220956590.24578@schroedinger.engr.sgi.com>
+References: <20070116054743.15358.77287.sendpatchset@schroedinger.engr.sgi.com>
+  <20070116135325.3441f62b.akpm@osdl.org> <1168985323.5975.53.camel@lappy> 
+ <Pine.LNX.4.64.0701171158290.7397@schroedinger.engr.sgi.com> 
+ <1169070763.5975.70.camel@lappy>  <1169070886.6523.8.camel@lade.trondhjem.org>
+  <1169126868.6197.55.camel@twins>  <1169135375.6105.15.camel@lade.trondhjem.org>
+  <1169199234.6197.129.camel@twins> <1169212022.6197.148.camel@twins> 
+ <Pine.LNX.4.64.0701190912540.14617@schroedinger.engr.sgi.com> 
+ <1169229461.6197.154.camel@twins>  <1169231212.5775.29.camel@lade.trondhjem.org>
+ <1169276500.6197.159.camel@twins>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2007-01-20 at 13:28 -0500, Robert P. J. Day wrote:
-> Remove the last (and commented out) invocation of the obsolete
-> smp_commence() call.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+On Sat, 20 Jan 2007, Peter Zijlstra wrote:
 
-thanks,
+> Subject: nfs: fix congestion control
 
-Acked-by: Ingo Molnar <mingo@redhat.com>
+I am not sure if its too valuable since I have limited experience with NFS 
+but it looks fine to me.
 
-	Ingo
+Acked-by: Christoph Lameter <clameter@sgi.com>
 

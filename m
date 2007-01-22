@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751039AbXAVPdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751089AbXAVPew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbXAVPdA (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 10:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbXAVPdA
+	id S1751089AbXAVPew (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 10:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbXAVPew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 10:33:00 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:47975 "EHLO
-	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750840AbXAVPc7 (ORCPT
+	Mon, 22 Jan 2007 10:34:52 -0500
+Received: from chert.unet.maine.edu ([130.111.32.28]:55456 "EHLO
+	chert.unet.maine.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751089AbXAVPev (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 10:32:59 -0500
-Subject: Re: [RFC 1/6] bidi support: request dma_data_direction
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: dougg@torque.net
-Cc: Benny Halevy <bhalevy@panasas.com>, Boaz Harrosh <bharrosh@panasas.com>,
-       Jens Axboe <jens.axboe@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Mike Christie <michaelc@cs.wisc.edu>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, open-iscsi@googlegroups.com,
-       Daniel.E.Messinger@seagate.com, Liran Schour <LIRANS@il.ibm.com>
-In-Reply-To: <45B4D2A0.4080201@torque.net>
-References: <45B3F578.7090109@panasas.com> <45B40458.9010107@torque.net>
-	 <45B4547A.3020105@panasas.com>  <45B4D2A0.4080201@torque.net>
-Content-Type: text/plain
-Date: Mon, 22 Jan 2007 09:31:43 -0600
-Message-Id: <1169479903.2769.20.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Mon, 22 Jan 2007 10:34:51 -0500
+X-Greylist: delayed 2062 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Jan 2007 10:34:51 EST
+Message-ID: <45B4D0ED.7030500@maine.edu>
+Date: Mon, 22 Jan 2007 09:57:49 -0500
+From: Steve Cousins <steve.cousins@maine.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+CC: kyle <kylewong@southa.com>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: change strip_cache_size freeze the whole raid
+References: <001801c73e14$c3177170$28df0f3d@kylecea1512a3f> <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0701220717200.30260@p34.internal.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-DCC-UniversityOfMaineSystem-Metrics: chert.unet.maine.edu 1003; Body=1
+	Fuz1=1 Fuz2=1
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner-From: steve.cousins@maine.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-22 at 10:05 -0500, Douglas Gilbert wrote:
-> Perhaps the right use of DMA_BIRECTIONAL needs to be
-> defined.
+
+
+Justin Piszcz wrote:
+> Yes, I noticed this bug too, if you change it too many times or change it 
+> at the 'wrong' time, it hangs up when you echo numbr > 
+> /proc/stripe_cache_size.
 > 
-> Could it be used with a XDWRITE(10) SCSI command
-> defined in sbc3r07.pdf at http://www.t10.org ? I suspect
-> using two scatter gather lists would be a better approach.
-> 
-> >>> - Introduce new blk_rq_init_unqueued_req() and use it in places ad-hoc
-> >>>   requests were used and bzero'ed.
-> >> With a bi-directional transfer is it always unambiguous
-> >> which transfer occurs first (or could they occur at
-> >> the same time)?
-> > 
-> > The bidi transfers can occur in any order and in parallel.
+> Basically don't run it more than once and don't run it at the 'wrong' time 
+> and it works.  Not sure where the bug lies, but yeah I've seen that on 3 
+> different machines!
 
-> Then it is not sufficient for modern SCSI transports in which
-> certain bidirectional commands (probably most) have a well
-> defined order.
+Can you tell us when the "right" time is or maybe what the "wrong" time 
+is?  Also, is this kernel specific?  Does it (increasing 
+stripe_cache_size) work with RAID6 too?
 
-Right, that's why I think bi-directional needs to be one way op followed
-by one way op ... even if it is to the same buffer.  That should be a
-general enough paradigm for everything.
+Thanks,
 
-> So DMA_BIDIRECTIONAL looks PCI specific and it may have
-> been a mistake to replace other subsystem's direction flags
-> with it. RDMA might be an interesting case.
-
-It's bus specific ... it means that the bus must be programmed to expect
-the device to transfer both to and from the memory buffer.  There are a
-very few drivers which do this when they don't know the actual transfer
-direction, so it might be reasonably tested on architectures ... but
-we'd probably have to check.
-
-James
+Steve
+-- 
+______________________________________________________________________
+  Steve Cousins, Ocean Modeling Group    Email: cousins@umit.maine.edu
+  Marine Sciences, 452 Aubert Hall       http://rocky.umeoce.maine.edu
+  Univ. of Maine, Orono, ME 04469        Phone: (207) 581-4302
 
 

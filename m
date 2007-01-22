@@ -1,86 +1,149 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751911AbXAVHv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750837AbXAVIC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751911AbXAVHv1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 02:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751917AbXAVHv1
+	id S1750837AbXAVIC6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 03:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbXAVIC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 02:51:27 -0500
-Received: from server077.de-nserver.de ([62.27.12.245]:43181 "EHLO
+	Mon, 22 Jan 2007 03:02:58 -0500
+Received: from server077.de-nserver.de ([62.27.12.245]:53409 "EHLO
 	server077.de-nserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751911AbXAVHv0 (ORCPT
+	with ESMTP id S1750837AbXAVIC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 02:51:26 -0500
-Message-ID: <45B46CEE.4090808@profihost.com>
-Date: Mon, 22 Jan 2007 08:51:10 +0100
+	Mon, 22 Jan 2007 03:02:57 -0500
+Message-ID: <45B46FA0.2060901@profihost.com>
+Date: Mon, 22 Jan 2007 09:02:40 +0100
 From: Stefan Priebe - FH <studium@profihost.com>
 User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: XFS or Kernel Problem / Bug
-References: <20060801142755.C2326184@wobbly.melbourne.sgi.com> <44CED8F4.9080208@profihost.com> <20060801143212.D2326184@wobbly.melbourne.sgi.com> <44CEDA1D.5060607@profihost.com> <20060801143803.E2326184@wobbly.melbourne.sgi.com> <44CF36FB.6070606@profihost.com> <20060802090915.C2344877@wobbly.melbourne.sgi.com> <44D07AB7.3020409@profihost.com> <20060802201805.A2360409@wobbly.melbourne.sgi.com> <45B35CD7.4080801@profihost.com> <20070122061852.GT33919298@melbourne.sgi.com>
-In-Reply-To: <20070122061852.GT33919298@melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: SATA ahci Bug in 2.6.19.x
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 X-User-Auth: Auth by hostmaster@profihost.com through 84.134.23.182
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-I'm  not shure but perhaps it isn't an XFS Bug.
+I've an Asus A8V Mainboard which works wonderful with a 2.6.18.X kernel. 
+But i cannot use the SATA Controller with a 2.6.19.x Kernel.
 
-Here is what i find out:
+dmesg output from 2.6.18.3 where it works perfectly:
+libata version 2.00 loaded.
+ahci 0000:00:0f.0: version 2.0
+GSI 19 sharing vector 0xD9 and IRQ 19
+ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI
+21 (level, low) -> IRQ 217
+ahci 0000:00:0f.0: AHCI 0001.0000 32 slots 4
+ports 3 Gbps 0xf impl IDE mode
+ahci 0000:00:0f.0: flags: 64bit ncq pm led
+clo pmp pio slum part
+ata1: SATA max UDMA/133 cmd
+0xFFFFC20000004D00 ctl 0x0 bmdma 0x0 irq 225
+ata2: SATA max UDMA/133 cmd
+0xFFFFC20000004D80 ctl 0x0 bmdma 0x0 irq 225
+ata3: SATA max UDMA/133 cmd
+0xFFFFC20000004E00 ctl 0x0 bmdma 0x0 irq 225
+ata4: SATA max UDMA/133 cmd
+0xFFFFC20000004E80 ctl 0x0 bmdma 0x0 irq 225
+scsi0 : ahci
+ata1: SATA link up 3.0 Gbps (SStatus 123
+SControl 300)
+ata1.00: ATA-7, max UDMA7, 312581808
+sectors: LBA48 NCQ (depth 0/32)
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/133
+scsi1 : ahci
+ata2: SATA link up 3.0 Gbps (SStatus 123
+SControl 300)
+ata2.00: ATA-7, max UDMA7, 312581808
+sectors: LBA48 NCQ (depth 0/32)
+ata2.00: ata2: dev 0 multi count 16
+ata2.00: configured for UDMA/133
+scsi2 : ahci
+ata3: SATA link down (SStatus 0 SControl 300)
+scsi3 : ahci
+ata4: SATA link down (SStatus 0 SControl 300)
+   Vendor: ATA       Model: SAMSUNG HD160JJ
+  Rev: ZM10
+   Type:   Direct-Access
+  ANSI SCSI revision: 05
+   Vendor: ATA       Model: SAMSUNG HD160JJ
+  Rev: ZM10
+   Type:   Direct-Access
+  ANSI SCSI revision: 05
+SCSI device sda: 312581808 512-byte hdwr
+sectors (160042 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 312581808 512-byte hdwr
+sectors (160042 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+  sda: sda1 < sda5 sda6 sda7 >
+sd 0:0:0:0: Attached scsi disk sda
+SCSI device sdb: 312581808 512-byte hdwr
+sectors (160042 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 312581808 512-byte hdwr
+sectors (160042 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+  sdb: sdb1 < sdb5 sdb6 sdb7 >
+sd 1:0:0:0: Attached scsi disk sdb
 
-We've about 300 servers at the momentan and 5 of them are "old" Intel 
-Pentium 4 Machines with a DFI PM-12 Mainboard with VIA chipset. It only 
-happens on THESE Machines. Other P4 Machines with a Tyan Mainboard or a 
-Gigabyte Mainboard are not affected. All 300 machines runs the same 
-Debian 3.0 with self build kernel. Some of these 5 use a 3ware 
-controller and some of them the mainboardcontroller. All systems are 
-using IDE.
 
-But i cannot say what happens to these machines at the time of failure. 
-Sometimes these servers crashed directly after a few minutes. Sometimes 
-they run about 2-3 days... i've now downgraded all servers to 2.6.16.37. 
-Cause they are production machines... but i have one machine where we 
-can test - if you need something.
+Output with 2.6.19.2 (logged via netconsole cause the system can't boot):
 
-Here is the output running 2.6.16.37 at the moment:
-xfs_growfs -n /
+"ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI 21 (level, low) -> IRQ 21"
+"ahci 0000:00:0f.0: AHCI 0001.0000 32 slots 4 ports 3 Gbps 0xf impl IDE 
+mode"
+"ahci 0000:00:0f.0: flags: 64bit ncq pm led clo pmp pio slum part "
+"ata1: SATA max UDMA/133 cmd 0xFFFFC20000004D00 ctl 0x0 bmdma 0x0 irq 1277"
+"ata2: SATA max UDMA/133 cmd 0xFFFFC20000004D80 ctl 0x0 bmdma 0x0 irq 1277"
+"ata3: SATA max UDMA/133 cmd 0xFFFFC20000004E00 ctl 0x0 bmdma 0x0 irq 1277"
+"ata4: SATA max UDMA/133 cmd 0xFFFFC20000004E80 ctl 0x0 bmdma 0x0 irq 1277"
+"scsi0 : ahci"
+"ata1: SATA link up 3.0 Gbps (SStatus 123 SControl 300)"
+"ata1.00: qc timeout (cmd 0xec)"
+"ata1.00: failed to IDENTIFY (I/O error, err_mask=0x104)"
+"ata1: port is slow to respond, please be patient (Status 0x80)"
+"ata1: port failed to respond (30 secs, Status 0x80)"
+"ata1: COMRESET failed (device not ready)"
+"ata1: hardreset failed, retrying in 5 secs"
+"ata1: port is slow to respond, please be patient (Status 0x80)"
+"ata1: port failed to respond (30 secs, Status 0x80)"
+"ata1: COMRESET failed (device not ready)"
+"ata1: hardreset failed, retrying in 5 secs"
+"ata1: port is slow to respond, please be patient (Status 0x80)"
+"ata1: port failed to respond (30 secs, Status 0x80)"
+"ata1: COMRESET failed (device not ready)"
+"ata1: reset failed, giving up"
+"scsi1 : ahci"
+"ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)"
+"ata2.00: qc timeout (cmd 0xec)"
+"ata2.00: failed to IDENTIFY (I/O error, err_mask=0x104)"
+"ata2: port is slow to respond, please be patient (Status 0x80)"
+"ata2: port failed to respond (30 secs, Status 0x80)"
+"ata2: COMRESET failed (device not ready)"
+"ata2: hardreset failed, retrying in 5 secs"
+"ata2: port is slow to respond, please be patient (Status 0x80)"
+"ata2: port failed to respond (30 secs, Status 0x80)"
+"ata2: COMRESET failed (device not ready)"
+"ata2: hardreset failed, retrying in 5 secs"
+"ata2: port is slow to respond, please be patient (Status 0x80)"
+"ata2: port failed to respond (30 secs, Status 0x80)"
+"ata2: COMRESET failed (device not ready)"
+"ata2: reset failed, giving up"
+"scsi2 : ahci"
+"ata3: SATA link down (SStatus 0 SControl 300)"
+"scsi3 : ahci"
+"ata4: SATA link down (SStatus 0 SControl 300)"
 
-meta-data=/dev/root              isize=256    agcount=16, agsize=603855 blks
-          =                       sectsz=512   attr=0
-data     =                       bsize=4096   blocks=9661680, imaxpct=25
-          =                       sunit=0      swidth=0 blks, unwritten=1
-naming   =version 2              bsize=4096
-log      =internal               bsize=4096   blocks=4717, version=1
-          =                       sectsz=512   sunit=0 blks
-realtime =none                   extsz=65536  blocks=0, rtextents=0
 
 Stefan
-
-David Chinner schrieb:
-> On Sun, Jan 21, 2007 at 01:30:15PM +0100, Stefan Priebe - FH wrote:
->> Hello!
->>
->> I've 3 Servers which works wonderful with 2.6.16.X (also testet the
->> latest 2.6.16.37)
->>
->> but with 2.6.18.6 i get these errors:
-> 
-> [ EIP is at xfs_bmap_add_extent_hole_delay+0x58d/0x59b ]
-> [ EIP is at generic_file_buffered_write+0x390/0x6cf ]
-> 
-> Do you have a reproducable test case for these? if not,
-> do you have any idea what is going on in the system at the time
-> of the failure?
-> 
-> Can you describe the storage subsystem you are using and post the
-> output of xfs_growfs -n <mntpt> on the filesystem that is causing
-> problems?
-> 
-> Cheers,
-> 
-> Dave.
-

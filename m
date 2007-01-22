@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750860AbXAVGTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751440AbXAVGea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbXAVGTS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 22 Jan 2007 01:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbXAVGTS
+	id S1751440AbXAVGea (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 22 Jan 2007 01:34:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbXAVGea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Jan 2007 01:19:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58352 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750788AbXAVGTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Jan 2007 01:19:17 -0500
-Date: Mon, 22 Jan 2007 17:18:52 +1100
-From: David Chinner <dgc@sgi.com>
-To: Stefan Priebe - FH <studium@profihost.com>
-Cc: linux-kernel@vger.kernel.org, stefan@priebe.ws
-Subject: Re: XFS or Kernel Problem / Bug
-Message-ID: <20070122061852.GT33919298@melbourne.sgi.com>
-References: <20060801142755.C2326184@wobbly.melbourne.sgi.com> <44CED8F4.9080208@profihost.com> <20060801143212.D2326184@wobbly.melbourne.sgi.com> <44CEDA1D.5060607@profihost.com> <20060801143803.E2326184@wobbly.melbourne.sgi.com> <44CF36FB.6070606@profihost.com> <20060802090915.C2344877@wobbly.melbourne.sgi.com> <44D07AB7.3020409@profihost.com> <20060802201805.A2360409@wobbly.melbourne.sgi.com> <45B35CD7.4080801@profihost.com>
-Mime-Version: 1.0
+	Mon, 22 Jan 2007 01:34:30 -0500
+Received: from ns2.suse.de ([195.135.220.15]:35539 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751440AbXAVGe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Jan 2007 01:34:29 -0500
+Date: Sun, 21 Jan 2007 22:33:38 -0800
+From: Greg KH <greg@kroah.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: thunder7@xs4all.nl, Avuton Olrich <avuton@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: 2.6.19.2, cp 18gb_file 18gb_file.2 = OOM killer, 100% reproducible (multi-threaded USB no go)
+Message-ID: <20070122063338.GA32300@kroah.com>
+References: <Pine.LNX.4.64.0701201516450.3684@p34.internal.lan> <3aa654a40701201245s72b2f76hc70ddd94b70ba99c@mail.gmail.com> <Pine.LNX.4.64.0701201602570.4910@p34.internal.lan> <20070121155219.GA7413@amd64.of.nowhere> <Pine.LNX.4.64.0701211146530.15334@p34.internal.lan> <20070121170249.GA19956@amd64.of.nowhere> <Pine.LNX.4.64.0701211208310.15334@p34.internal.lan> <Pine.LNX.4.64.0701211228320.3666@p34.internal.lan>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45B35CD7.4080801@profihost.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0701211228320.3666@p34.internal.lan>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2007 at 01:30:15PM +0100, Stefan Priebe - FH wrote:
-> Hello!
+On Sun, Jan 21, 2007 at 12:29:51PM -0500, Justin Piszcz wrote:
 > 
-> I've 3 Servers which works wonderful with 2.6.16.X (also testet the
-> latest 2.6.16.37)
 > 
-> but with 2.6.18.6 i get these errors:
+> On Sun, 21 Jan 2007, Justin Piszcz wrote:
+> 
+> > 
+> > 
+> > > 
+> > > Good luck,
+> > > Jurriaan
+> > > -- 
+> > > > What does ELF stand for (in respect to Linux?)
+> > > ELF is the first rock group that Ronnie James Dio performed with back in 
+> > > the early 1970's.  In constrast, a.out is a misspelling	 of the French word 
+> > > for the month of August.  What the two have in common is beyond me, but 
+> > > Linux users seem to use the two words together.
+> > > 	seen on c.o.l.misc
+> > > Debian (Unstable) GNU/Linux 2.6.20-rc5 2x2011 bogomips load 0.83
+> > > the Jack Vance Integral Edition: http://www.integralarchive.org
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > 
+> > 
+> > Thanks, I'll give it another go in a bit!
+> > 
+> > Justin.
+> > -
+> 
+> Running 2.6.20-rc5 now, the multi-threaded USB probing causes my UPS not 
+> to work, probably because udev has problems or something, it is also the 
+> only USB device I have plugged into the machine.
 
-[ EIP is at xfs_bmap_add_extent_hole_delay+0x58d/0x59b ]
-[ EIP is at generic_file_buffered_write+0x390/0x6cf ]
+multi-threaded USB is about to go away as it caused too many problems
+for people, and they didn't read the Kconfig help entry about it :(
 
-Do you have a reproducable test case for these? if not,
-do you have any idea what is going on in the system at the time
-of the failure?
+thanks,
 
-Can you describe the storage subsystem you are using and post the
-output of xfs_growfs -n <mntpt> on the filesystem that is causing
-problems?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+greg k-h

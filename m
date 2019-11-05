@@ -7,59 +7,58 @@ X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C19C9C5DF60
-	for <io-uring@archiver.kernel.org>; Tue,  5 Nov 2019 23:43:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29BF2C5DF60
+	for <io-uring@archiver.kernel.org>; Tue,  5 Nov 2019 23:45:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 563C32087E
-	for <io-uring@archiver.kernel.org>; Tue,  5 Nov 2019 23:43:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9C7B21A49
+	for <io-uring@archiver.kernel.org>; Tue,  5 Nov 2019 23:45:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XIOZpJw4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XuS5DBEM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729823AbfKEXng (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 5 Nov 2019 18:43:36 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:53175 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729701AbfKEXng (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 5 Nov 2019 18:43:36 -0500
-Received: by mail-wm1-f67.google.com with SMTP id c17so1325727wmk.2;
-        Tue, 05 Nov 2019 15:43:33 -0800 (PST)
+        id S1729688AbfKEXpO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 5 Nov 2019 18:45:14 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44239 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728965AbfKEXpO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 5 Nov 2019 18:45:14 -0500
+Received: by mail-wr1-f65.google.com with SMTP id f2so14660800wrs.11;
+        Tue, 05 Nov 2019 15:45:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to;
-        bh=j4dNR7LASW9I4N5arv4r0p/xc9NcmekwQTe0qVj09a0=;
-        b=XIOZpJw48+rzztba7KwgNUlYhesS6WuUiK4RFKxIKwwmDm+kpU/MKsYusuyLVGvp5n
-         8PKUVOpSc6NRsz+EwdJvi5VJkTKEeLm8LL2m5cIa1Ag7AppamiP7zXGIfU9Kd64jIs0w
-         EcnTvee1T+c+K3mjlrqdO4HjH2t/Ii9NmYgltTcxJ+FnPMjZd6Deyio3yXnyGacAZ4px
-         RaXXUJsysroLV1jNxLyBXRdCcOu3UgLWPZp6mZigj3kpsrgfXyxHFtOQhij8wwr7PbXq
-         z/ySgLqWJaQqaCCQ66LjvVJJky2+2yHE3i9OdJpMD9sC8ddljdaz1enn5yI0mRpuK1XQ
-         dSIg==
+        bh=gRPouBGtjSiZ16Jnj0l3vdZ5zLnhr+ynhqiLZJYnQg4=;
+        b=XuS5DBEM5O8J9shhX1CwVfwiCctmTWmG8fNtemsXp65g99fuSq/uaRJjBgc9OvIQP8
+         WUuE6bdGcAEUUc8eYAcbQaVoXlCGdPp93DFpcvx3whqjp+Uk/Tk79W2XmA2c0otemrG3
+         554TBbTJ1gcFbqmWOtszNKrXJ03M1dOLgUNafdSanrprh8Q64pGBNxOUzQFhwvR4RZ+J
+         S29N8HGOrrIttvMr0ZSJKpGeOkZqbhijubtXi2QovdXFmP++Nhs4X1ot6ChbevOM65/L
+         w6gF1hPmQ7q6z4GjczrFKNhcluUIc5y1wGaZfcCOghAWxz+gnTmQkjcFXOTevOeu6VcK
+         QjAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
          :date:user-agent:mime-version:in-reply-to;
-        bh=j4dNR7LASW9I4N5arv4r0p/xc9NcmekwQTe0qVj09a0=;
-        b=jTvVtoJADRDVyLyl1QJVKNs/ag44jYPdjo7dhE2BHDsxtPxLkXYwVuglKXKkxr26f+
-         zL1PGg61tNqIl2U/vU0VDUR1d+OGwrnUED3HAvFqCVa1qUtJssq1X4zOJMFCE2EwREFU
-         YsVlixV4Zxi38yZAZ93nqO12NMsmWLoxcDcKukNadyzva/R4FCI7lsbIyspHp0v5p88F
-         3IZ1ttwMP18113GPLESBMaE/BaGpaRB8JGjq9c4gZ0alpunxZx63Vc6eJU9pasPZfzRs
-         602zk9S5R4+EPbrMKalEvTGnMjTmOo4AuwXsGEZxI8V/PaLDnpNwCK3sZc8rtElP9qFh
-         bY5g==
-X-Gm-Message-State: APjAAAWVLKwrF6OTQUYG1rZu9GKe5OZUCxr4UUVG+LdqAiRUwXTl4wrF
-        gwb7mfw6JkHv3rrodyOOxsTFKg+z
-X-Google-Smtp-Source: APXvYqwF/bL2IqNbm7hMs7WLCHidnJZ670X3JfhiJpnDU+KdMd/aPjIPrnRorhODSX1EPqNBkK2NeA==
-X-Received: by 2002:a7b:c24b:: with SMTP id b11mr1270106wmj.125.1572997412594;
-        Tue, 05 Nov 2019 15:43:32 -0800 (PST)
+        bh=gRPouBGtjSiZ16Jnj0l3vdZ5zLnhr+ynhqiLZJYnQg4=;
+        b=Fu8t8TeLMUtznRVmeRV/NGGMqR6OTSTMR+tBRiQ/9OJtOayMvVgmt/fwzz7z7c53ga
+         XIeGAScxa6R5Gve6JzaoTe/CU8lWt0L95/fckr12n9tj3FvHo3lY8QNFK035iOodeYxo
+         l3G6moiP3Do8TXujy0XmDu3y+hj53fV7fbhlIyceMB8grdwD/rstYsOqdt2PT2szHdEF
+         ShlsN/ejpi7zehDdF8pM8blw2mJZdwGI8Tk/xiBIr1aG3j1GbtrII2eDYE6CbWRYkym9
+         h/bduOJynQ46Q3cuZsA6saCMKkGZ3aEOenRksX4FuLj7diXPdqVr9zTGxPHlwTeOl2Xs
+         PLmA==
+X-Gm-Message-State: APjAAAXED5zImNuvoWsb2vcdWrE9g2CvpVc/kWSOEiIiaz5/yxAFU+sY
+        7AzUfvoDn9he5WIEfbG2Sl452wUv
+X-Google-Smtp-Source: APXvYqz++0gOdn7u7ydSpGM/upqcOs0eK7J98yGn8n4ggENvD7pJwS+0p1gXYIkFWj0njCpPDz/Sfg==
+X-Received: by 2002:a5d:5742:: with SMTP id q2mr3090916wrw.311.1572997511123;
+        Tue, 05 Nov 2019 15:45:11 -0800 (PST)
 Received: from [192.168.43.132] ([109.126.129.81])
-        by smtp.gmail.com with ESMTPSA id z6sm23447096wro.18.2019.11.05.15.43.31
+        by smtp.gmail.com with ESMTPSA id b3sm820071wmj.44.2019.11.05.15.45.09
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Nov 2019 15:43:32 -0800 (PST)
-Subject: Re: [PATCH 3/3] io_uring: use inlined struct sqe_submit
+        Tue, 05 Nov 2019 15:45:10 -0800 (PST)
+Subject: Re: [RFC 0/3] Inline sqe_submit
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-block@vger.kernel.org
 References: <cover.1572993994.git.asml.silence@gmail.com>
- <e9f1f564ec60748c4ad266ec6bace9b2df392b58.1572993994.git.asml.silence@gmail.com>
- <589994ea-6528-eac0-e0c6-b496ee5bebd2@kernel.dk>
+ <a0393f05-dff2-6c34-4ba1-f6dba67955d2@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -104,111 +103,83 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <da1ab11d-d1c1-6e3f-4083-6cf06d03ceee@gmail.com>
-Date:   Wed, 6 Nov 2019 02:43:23 +0300
+Message-ID: <1cc9dc92-3468-a780-e8ca-cb0f559a053f@gmail.com>
+Date:   Wed, 6 Nov 2019 02:45:04 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <589994ea-6528-eac0-e0c6-b496ee5bebd2@kernel.dk>
+In-Reply-To: <a0393f05-dff2-6c34-4ba1-f6dba67955d2@kernel.dk>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="WlVl7eLDMKVyvfWUhS6y6TFezwOYpedLu"
+ boundary="A79lQxqbtwn6MjiLO7gCCC18miYcIfp8r"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---WlVl7eLDMKVyvfWUhS6y6TFezwOYpedLu
-Content-Type: multipart/mixed; boundary="WkrlIt2ORJKwerlhxjDy7oduk0TfsEiyh";
+--A79lQxqbtwn6MjiLO7gCCC18miYcIfp8r
+Content-Type: multipart/mixed; boundary="7UzG1V5qRNanlEUk2ZOweNz6lapf8GLn1";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
 To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
  linux-block@vger.kernel.org
-Message-ID: <da1ab11d-d1c1-6e3f-4083-6cf06d03ceee@gmail.com>
-Subject: Re: [PATCH 3/3] io_uring: use inlined struct sqe_submit
+Message-ID: <1cc9dc92-3468-a780-e8ca-cb0f559a053f@gmail.com>
+Subject: Re: [RFC 0/3] Inline sqe_submit
 References: <cover.1572993994.git.asml.silence@gmail.com>
- <e9f1f564ec60748c4ad266ec6bace9b2df392b58.1572993994.git.asml.silence@gmail.com>
- <589994ea-6528-eac0-e0c6-b496ee5bebd2@kernel.dk>
-In-Reply-To: <589994ea-6528-eac0-e0c6-b496ee5bebd2@kernel.dk>
+ <a0393f05-dff2-6c34-4ba1-f6dba67955d2@kernel.dk>
+In-Reply-To: <a0393f05-dff2-6c34-4ba1-f6dba67955d2@kernel.dk>
 
---WkrlIt2ORJKwerlhxjDy7oduk0TfsEiyh
+--7UzG1V5qRNanlEUk2ZOweNz6lapf8GLn1
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
 On 06/11/2019 02:37, Jens Axboe wrote:
 > On 11/5/19 4:04 PM, Pavel Begunkov wrote:
->> @@ -2475,31 +2475,30 @@ static int __io_queue_sqe(struct io_ring_ctx *=
-ctx, struct io_kiocb *req,
->>   	return ret;
->>   }
->>  =20
->> -static int io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req=
-,
->> -			struct sqe_submit *s)
->> +static int io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req=
-)
->>   {
->>   	int ret;
->>  =20
->> -	ret =3D io_req_defer(ctx, req, s->sqe);
->> +	ret =3D io_req_defer(ctx, req);
->>   	if (ret) {
->>   		if (ret !=3D -EIOCBQUEUED) {
->>   			io_free_req(req, NULL);
->> -			io_cqring_add_event(ctx, s->sqe->user_data, ret);
->> +			io_cqring_add_event(ctx, req->submit.sqe->user_data, ret);
+>> The proposal is to not pass struct sqe_submit as a separate entity,
+>> but always use req->submit instead, so there will be less stuff to
+>> care about. The reasoning begind is code simplification.
+>>
+>> Also, I've got steady +1% throughput improvement for nop tests.
+>> Though, it's highly system-dependent, and I wouldn't count on it.
+>>
+>> P.S. I'll double check the patches, if the idea is accepted.
 >=20
-> Cases like these are now (or can be) use-after-free. Same with this one=
-:
->=20
-Hmm, lost this in rebasing. Good catch!
+> I like the idea (a lot), makes the whole thing easier to follow as well=
+=2E
 
->> @@ -2507,12 +2506,12 @@ static int io_queue_link_head(struct io_ring_c=
-tx *ctx, struct io_kiocb *req,
->>   	 * list.
->>   	 */
->>   	req->flags |=3D REQ_F_IO_DRAIN;
->> -	ret =3D io_req_defer(ctx, req, s->sqe);
->> +	ret =3D io_req_defer(ctx, req);
->>   	if (ret) {
->>   		if (ret !=3D -EIOCBQUEUED) {
->>   			io_free_req(req, NULL);
->>   			__io_free_req(shadow);
->> -			io_cqring_add_event(ctx, s->sqe->user_data, ret);
->> +			io_cqring_add_event(ctx, req->submit.sqe->user_data, ret);
->>   			return 0;
->=20
-> Free the req, then deref it...
+Great, than I'll prepare the patches properly and resend it
+
+> Just one comment on patch 3, that needs fixing.
 >=20
 
 --=20
 Pavel Begunkov
 
 
---WkrlIt2ORJKwerlhxjDy7oduk0TfsEiyh--
+--7UzG1V5qRNanlEUk2ZOweNz6lapf8GLn1--
 
---WlVl7eLDMKVyvfWUhS6y6TFezwOYpedLu
+--A79lQxqbtwn6MjiLO7gCCC18miYcIfp8r
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3CCRwACgkQWt5b1Glr
-+6WTMw//T7HN+y3UDhFDuxrRjcmxqdU7b4SpzIT4LeC358tlbFXoHD+yVvOaiK5z
-73gVuas+9gFSgMzoFywtKgawBjuwsFgul8DwWru4/9deBfMKs1TG2+Ep8RGOp6Tm
-Zyqc1gcnwikD+sND1qPDabVu4YGWI3CO0msnRWhCcQjTnCJZOYAtSKn+O6K52m8A
-PJ0zEOR4+1rXLW2c1O3aElMNSfeWyxPSET3I/bn78djq8rdfgCn20Ocw2RcCkaJJ
-y61JrctA92sv/zv/Ur9QCVVMbNn9f+r0JT5CVbSwbGcJ2oqmYEMejVnKqY4tjkFX
-4vdDUFpELx8UuhiHoVL91zlxGntoEIrF1fUiVEgb2qWvY9PdLR9N3wBWIJUnYeFA
-kEP+s2VxyCsK6p5HGHymjui/WAdecJHODlEH8+RXbwplvI/MtBMqIwXshfa/AzLU
-/ZP3NutwcBs6wTDlC5LphzoEk38jSmOx5tufKyw982R1TyCdrga5xn1X3FWjB5oy
-1cZxPHPW9OmZuyyC76SPn98KDjeuOJnCHv6x/XN07uo8bvcgXAlUBGxirWocy9Kx
-W822dWYao02Y7YRPYSR28T99t5fTZ/6nw05FYSzitPTJ5uOusl1ivj4W/wL/e6PZ
-E/oDpXtDfHoPzYE+HjxdK8NS08nnJTE7urn/M1z2IYDGX/Tu4rs=
-=RCku
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3CCYAACgkQWt5b1Glr
++6UwJQ//fUhzRbauImwakRDbpin0Ex6cnk0XOjXw6+HFsfTLOfmIBRUyCPJ861LO
+fQRbj/HCwVBcs1sliZatAm0cm51lSOHzRcfZ8VpacIDT9aRzvUgFBSzw9EqHecRi
+h90MeUj0/eJ9H6doX1AMJIzeFR6P3parf01/AYTmYZZpvHjH/VCOcvhRm5IllhMY
+VFuniW2uFvnmZidNXfUpb3ZXtNVVPBs7kvMBVWSKlFWcX7JBYpNwGflHfB7bwwfw
+yM7k78zp6YT97LcBKuf+hX5VlAdngVOF811iv7ETO+4yGlUaIK6d7OWnvY4c4cvv
+xS2WifVoA70kI0euCrjeenY9BauaXQv/3Ub+3IOfzy1ddRnvf4jD14fSISkFmGi6
+fWdH2QEg6wa7gK+uxsFSSrrK37MkKq9jVMhLvVMPVjt+iSC/ZgIHVI0Qry3Djwl5
+YjDlOB1YUfaJX6mBGjOzmkCZmsvvoNH/yto4vtBZ1hUNHWyozxblYzZyCpSYy0Bz
+Bf3Mp3ZYLhNs+Mnzag85Smn9RNfOxoAQ5hR2nmSJQrVp/qvQxuF7jyF3H01rOpLF
+epiSU03fSWmwfLva2nqlHR6FqDfDdMBriFfa/hUWM5i8OEMS6t+nsMlBOWRKKd5q
+ZvAUrU6Ujck6EJGHwmFGddKOFtDXrSicZMKbJtVW+oeZva+9CNI=
+=FCON
 -----END PGP SIGNATURE-----
 
---WlVl7eLDMKVyvfWUhS6y6TFezwOYpedLu--
+--A79lQxqbtwn6MjiLO7gCCC18miYcIfp8r--

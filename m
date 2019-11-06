@@ -2,65 +2,63 @@ Return-Path: <SRS0=PUae=Y6=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10BDCC5DF63
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7705EC5DF63
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:10:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF3322173E
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:05:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 393E72173E
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:10:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UlIsE9GA"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nvRuIUJA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbfKFWFT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Nov 2019 17:05:19 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:38160 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726957AbfKFWFT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 17:05:19 -0500
-Received: by mail-wm1-f68.google.com with SMTP id z19so5512704wmk.3;
-        Wed, 06 Nov 2019 14:05:16 -0800 (PST)
+        id S1727123AbfKFWKO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Nov 2019 17:10:14 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36947 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726798AbfKFWKO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 17:10:14 -0500
+Received: by mail-wr1-f65.google.com with SMTP id t1so471639wrv.4;
+        Wed, 06 Nov 2019 14:10:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:from:to:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to;
-        bh=p1r/b7AjfwEhrGrY3zSynTTOyFEJ8wM7kRl+FezclwM=;
-        b=UlIsE9GABqebt1jTYV4w/mMYfLRNFiwzM2jwHPg53JGxGnFgeaX5vz1KCgvChazLUo
-         AgQLQp/EgNjkyp9ouNieeOZ/CgvYBUb801kv0VfZz2VnHpAj1vmuvgn9Q+OdCstnl6H6
-         j9qiiIB1oZRvqSMoy4dIZyYZ+dTZOmdA6qMeeh20Ug0NzjOa7IluR+iciEo2aI7udwh7
-         MVQAKPKbsVGPzB766Sexwo5M+it4PM99eG1kE+xMe0nSu52Np62itpVI5M6UQ7GJRST+
-         GG25FuIo7xvqFMeJKAfAv/ll/manLU0yXHM5bGhBt/vFi2G0AFW/g9sENpaDHrRYJRXE
-         K/vA==
+        bh=8qClmsBtFRsruHyukpzEgVK713WuMHxwPi7XiFLznyM=;
+        b=nvRuIUJA7TkPAa9wxQzHKXWxVfLNTybPDX7vBGQa7u/T4CkNyAChlcPOdL6EErCUyi
+         t4id5d2f44MNPE07F1+y2kw4qXyOiYXm7q7xH9s1fB16iIlq4qg+siBvYMNWMmQ1UCIA
+         8e99QYZUTXz71rsgWVZzIuVHER6sCvo6kp4TaiNzhpZQnx515S+OCGhvxNSNS+bZ9Sfv
+         K3gP9XERwZPQ3wAWvcEPF8nNXmYj0x01aiB+CdFP4Vp+w+NvttF4g5I3a46JSbuFwKa+
+         O9NNweaKyJ/Xql7BxGe96NzsaCgOQBoZUsZecBH7eXTasiujxgpQDc9tMvvF+9dcOlzt
+         Bb3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:references:autocrypt:message-id
          :date:user-agent:mime-version:in-reply-to;
-        bh=p1r/b7AjfwEhrGrY3zSynTTOyFEJ8wM7kRl+FezclwM=;
-        b=pC0+2Hu5jkYcNz4K5k4LfJhY8sH5hRyJCXyQowuja8l3zv3CWonvslMte1lacpU1YD
-         CKdzBhA/8k92uOPq44L2stCfsfIxSP5XoxBYBkOHRBlu5/3Ae5yhzQrrAdn1Mbd9wDnM
-         ZqFHBHJIHdprVy1nQ5LYD5fH59wqP6dezmMh9QjwjRRxJzXFjhPo36GzQ3wsn7qY2Pqk
-         Qcx8x3YgYdAfgMh6FEzsdyo3YweEV+Uu5mu9H0+e41SqvQF075JWl3YaqoTi23ZIDZr9
-         ATFeerUsbaGUPqGTmPDOqJ6e+4s9EK9g77OZNPeTTiK7TIUQVC8DzPi9DUzHBPX7sj1W
-         W2bw==
-X-Gm-Message-State: APjAAAVaqdjO4S1I6+WsTUqM2DHROaP2s/tD/I3F1l8w7rH5tDMOWY7N
-        G7YsbzmLMQom+AZf7p9bPU3+IGzHFmk=
-X-Google-Smtp-Source: APXvYqyKx4Cr8/cPVeM2ocbZ0IXrBfMBdtVdag5XO9pMnbFymE0VpWUxFud0zl3AKqSJfAL3WWE/9g==
-X-Received: by 2002:a7b:ce12:: with SMTP id m18mr4860287wmc.130.1573077915621;
-        Wed, 06 Nov 2019 14:05:15 -0800 (PST)
+        bh=8qClmsBtFRsruHyukpzEgVK713WuMHxwPi7XiFLznyM=;
+        b=Io0Z4XUgtw5dDHZmOzQkJRFmQIP8ScU8nxixoNsIrBM3ioY1Y8Y1wDRpe3f2riJdDh
+         wM6TGFOj1xLj+BHbvwSkoEJvkRlikF3yvURVyrdSz9O+H/4aF7hjLucr03A4nbMQu5nc
+         R1emqVoUqpPNIJlzOh+XmxCG18zD/QCrdQOBwYWekgKoGsYghPizDrO/vCId4FcNQrZ3
+         OBO/e28g+6nd5/06kpPuTM84q6ghADfwduk3NJp6kTL4YVcCzkX7INtbdNKSYfdONBNy
+         LnN4MuGeXMR92sa5CGTlv+9ddKAqR6zvk1BN571ZDldKD589e7d/SpXFhGPGdA4dlWJi
+         GeNQ==
+X-Gm-Message-State: APjAAAVeO/O4vT63O+qTtEW+dTiluJo98OylTd9lwf3/4YFh3iSl/+d4
+        3UDt0Sfuds15EODjNZCfhB+TMtJy06w=
+X-Google-Smtp-Source: APXvYqyBlLFPI3aPDzIHb9seMCqLXZYB9dxX8kvEQO41fvghvWhf9Ad5MiJvsAsOBssexl0vnS+/AA==
+X-Received: by 2002:a05:6000:1048:: with SMTP id c8mr4763040wrx.349.1573078212056;
+        Wed, 06 Nov 2019 14:10:12 -0800 (PST)
 Received: from [192.168.43.132] ([109.126.141.164])
-        by smtp.gmail.com with ESMTPSA id q5sm118142wmc.27.2019.11.06.14.05.14
+        by smtp.gmail.com with ESMTPSA id z8sm48368wrp.49.2019.11.06.14.10.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Nov 2019 14:05:15 -0800 (PST)
-Subject: Re: [PATCH v2 1/3] io_uring: allocate io_kiocb upfront
+        Wed, 06 Nov 2019 14:10:11 -0800 (PST)
+Subject: Re: [PATCH v2 0/3] Inline sqe_submit
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-block@vger.kernel.org
 References: <cover.1573077364.git.asml.silence@gmail.com>
- <ed30899d479bf40c6d386cac5d9401892836c3b5.1573077364.git.asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -104,152 +102,89 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <3ba4d378-db8c-27ac-e7a1-ac13f361bd91@gmail.com>
-Date:   Thu, 7 Nov 2019 01:05:02 +0300
+Message-ID: <ae78b0f8-88f5-7bc8-5f8c-d156be0098fc@gmail.com>
+Date:   Thu, 7 Nov 2019 01:10:03 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <ed30899d479bf40c6d386cac5d9401892836c3b5.1573077364.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1573077364.git.asml.silence@gmail.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="sUrP5cOkW2HQWcm0jxCQKGwPNg2ua0gU7"
+ boundary="YbNOYq8HPruUZk6rRE5uiE9jcmgOuike6"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---sUrP5cOkW2HQWcm0jxCQKGwPNg2ua0gU7
-Content-Type: multipart/mixed; boundary="XXeTZNjBoPkxpeGZ1kQnwcKXRq0d8Ghm8";
+--YbNOYq8HPruUZk6rRE5uiE9jcmgOuike6
+Content-Type: multipart/mixed; boundary="NSlzYbVErR6pVFBZL5xbTLJl96MbMm6Zl";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
 To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
  linux-block@vger.kernel.org
-Message-ID: <3ba4d378-db8c-27ac-e7a1-ac13f361bd91@gmail.com>
-Subject: Re: [PATCH v2 1/3] io_uring: allocate io_kiocb upfront
+Message-ID: <ae78b0f8-88f5-7bc8-5f8c-d156be0098fc@gmail.com>
+Subject: Re: [PATCH v2 0/3] Inline sqe_submit
 References: <cover.1573077364.git.asml.silence@gmail.com>
- <ed30899d479bf40c6d386cac5d9401892836c3b5.1573077364.git.asml.silence@gmail.com>
-In-Reply-To: <ed30899d479bf40c6d386cac5d9401892836c3b5.1573077364.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1573077364.git.asml.silence@gmail.com>
 
---XXeTZNjBoPkxpeGZ1kQnwcKXRq0d8Ghm8
+--NSlzYbVErR6pVFBZL5xbTLJl96MbMm6Zl
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-This one changes behaviour a bit. If we haven't been able to allocate
-req before, it would post an completion event with -EAGAIN. Now it will
-break imidiately without consuming sqe. So the user will see, that 0
-sqes was submitted/consumed.
-
-Is that ok or we need to do something about it?=20
-
 On 07/11/2019 01:00, Pavel Begunkov wrote:
-> Let io_submit_sqes() to allocate io_kiocb before fetching an sqe.
+> The idea is to not pass struct sqe_submit as a separate entity,
+> but always use req->submit instead, so there will be less stuff to
+> care about.
 >=20
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  fs/io_uring.c | 25 ++++++++++++-------------
->  1 file changed, 12 insertions(+), 13 deletions(-)
+
+Hope, I didn't missed anything here. In the meantime I'll run
+tests and will let you know when it's done.
+
+
+> Also, I've got steady +1% throughput improvement for nop tests.
+> Though, it's highly system-dependent, and I wouldn't count on it.
 >=20
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 6524898831e0..0289bb3cc697 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -2551,30 +2551,23 @@ static int io_queue_link_head(struct io_ring_ct=
-x *ctx, struct io_kiocb *req,
-> =20
->  #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK=
-)
-> =20
-> -static void io_submit_sqe(struct io_ring_ctx *ctx, struct sqe_submit *=
-s,
-> -			  struct io_submit_state *state, struct io_kiocb **link)
-> +static void io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *re=
-q,
-> +			  struct sqe_submit *s, struct io_submit_state *state,
-> +			  struct io_kiocb **link)
->  {
->  	struct io_uring_sqe *sqe_copy;
-> -	struct io_kiocb *req;
->  	int ret;
-> =20
->  	/* enforce forwards compatibility on users */
->  	if (unlikely(s->sqe->flags & ~SQE_VALID_FLAGS)) {
->  		ret =3D -EINVAL;
-> -		goto err;
-> -	}
-> -
-> -	req =3D io_get_req(ctx, state);
-> -	if (unlikely(!req)) {
-> -		ret =3D -EAGAIN;
-> -		goto err;
-> +		goto err_req;
->  	}
-> =20
->  	ret =3D io_req_set_file(ctx, s, state, req);
->  	if (unlikely(ret)) {
->  err_req:
->  		io_free_req(req, NULL);
-> -err:
->  		io_cqring_add_event(ctx, s->sqe->user_data, ret);
->  		return;
->  	}
-> @@ -2710,9 +2703,15 @@ static int io_submit_sqes(struct io_ring_ctx *ct=
-x, unsigned int nr,
-> =20
->  	for (i =3D 0; i < nr; i++) {
->  		struct sqe_submit s;
-> +		struct io_kiocb *req;
-> =20
-> -		if (!io_get_sqring(ctx, &s))
-> +		req =3D io_get_req(ctx, statep);
-> +		if (unlikely(!req))
->  			break;
-> +		if (!io_get_sqring(ctx, &s)) {
-> +			__io_free_req(req);
-> +			break;
-> +		}
-> =20
->  		if (io_sqe_needs_user(s.sqe) && !*mm) {
->  			mm_fault =3D mm_fault || !mmget_not_zero(ctx->sqo_mm);
-> @@ -2740,7 +2739,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx=
-, unsigned int nr,
->  		s.in_async =3D async;
->  		s.needs_fixed_file =3D async;
->  		trace_io_uring_submit_sqe(ctx, s.sqe->user_data, true, async);
-> -		io_submit_sqe(ctx, &s, statep, &link);
-> +		io_submit_sqe(ctx, req, &s, statep, &link);
->  		submitted++;
-> =20
->  		/*
+> v2: fix use-after-free catched by Jens
+>=20
+>=20
+> Pavel Begunkov (3):
+>   io_uring: allocate io_kiocb upfront
+>   io_uring: Use submit info inlined into req
+>   io_uring: use inlined struct sqe_submit
+>=20
+>  fs/io_uring.c | 132 +++++++++++++++++++++++++-------------------------=
+
+>  1 file changed, 65 insertions(+), 67 deletions(-)
 >=20
 
 --=20
 Pavel Begunkov
 
 
---XXeTZNjBoPkxpeGZ1kQnwcKXRq0d8Ghm8--
+--NSlzYbVErR6pVFBZL5xbTLJl96MbMm6Zl--
 
---sUrP5cOkW2HQWcm0jxCQKGwPNg2ua0gU7
+--YbNOYq8HPruUZk6rRE5uiE9jcmgOuike6
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3DQ44ACgkQWt5b1Glr
-+6WMlQ/+PMogv5RyePk3ok4faFLnTFlkoPJ3N8cpxIyQpim6zN7DsGli/BnN+ZGx
-DrZSNJEfw6rEPRW+0At2PWdqhqRkBmUMF4DpymPqB38UQS7jEd83+GxpfR8P4XYU
-cL9Q+ETfJTW2+UTpwT924uKV7qNlpgxYfGm9nFPa5HWUg1qfxISamlkRPeh9U6N+
-RfyUps6BxL0npEReZ1H2IKLz9b9lo7XaJcMfT52+pa2exLVVWlp93GevjICKy3ow
-wFVALiKIQjvjBCay5DiY9x4+UoNyZGykxpDT27KqdN7sVYTwUbxRGCi4s/TvGDP+
-m61oI84Hqnw364ExYHaiEYlVELmvQjryj/H2iGTML7VVX3/LhDuiCSQ3/D+iYuXa
-ltcn+RMEhncg4734zYJiY+DdWHzjIjthXzB2wTCw+7rkDrhErcryHcsgb36YI3U0
-MUIw3if/eaQPSSXK3PUS95XyAWJgZ4rjcNkqlnIUs8IbAr5K8QJZbT+5+EaGFs3B
-NPc+IMnJd8dnwCFg9ATq07eX+PjbhSWhCqHx54f+cmRn54ywoYdb9P37p2wY0zy0
-9uPyNzi5mAEOd/yj+WnWBylbUaYsiA5N+ErSBT9a8ww6B06V48+whmoC07zU9u2e
-uyCCOi6j4TwDjObmVPQiy7XUJaZXlXm60XJyqcs3e1aRTvV7KxI=
-=q8js
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3DRLsACgkQWt5b1Glr
++6U3NA/9GfwXlaMtf3Vxkqmnfn7TQH5nA2LyjE7xqllnl8zkpAFI0Dfz+r3e3YE7
+ujUd/huGGem3P76fx4VyVFA0Simrn/LG2rQv60zF42xajIQmerT38pmlFi/ruqNa
+bUlcW0/Rtaf6DeldGH65TnLqVc9d88d6USjebpzT93DIqj4opubxBwpfms3KqFU/
+qdewK7+L4lj/6p9RvrCd8aYep+yySiBD77SZU0rGmZtivpUR4lOYQulaVVW4zkpj
+63iz+8Jj0HMN6yGAwrIvuyKO96Dv6Uw2EQPQUGw4vJbrN7687Rrkvr+HGMupavTE
+UjTfciEvmyKYTwMkYcIOQ64EWqBOjqNmPFPFonahZ97KKr/hlqpV0Pv1+5fk9SAj
+XOl2jHcFmOsfBDB2XL2dKOqVVrxHOpwUuXCobDgnEu2X6+t80ql9VucOZKYIayqT
+CcfNaIt17f07524hI/cwd9UywuLGO2o6U4dDXs04zP37H4I/nZ+RxLdfjif3/h+q
+sGKmpmiBkV+LykRZo0Pvh/x2CzCJkMN22UmvYmGHEUTcWDlhTM/bhnj5kLDCBG5X
+/AAHnXTca48vhRc/mA6TLNByc+4wVulbptJSCIlSfRtEPz4aakEoV6BvEun88iSr
+iz+EPOnBill4wVKANUCOBfgyayOWQ7TixjjCc77kG3K6VCQ8rkY=
+=A/Bh
 -----END PGP SIGNATURE-----
 
---sUrP5cOkW2HQWcm0jxCQKGwPNg2ua0gU7--
+--YbNOYq8HPruUZk6rRE5uiE9jcmgOuike6--

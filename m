@@ -2,62 +2,61 @@ Return-Path: <SRS0=PUae=Y6=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA09EC5DF63
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 18:45:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03FB5C5DF63
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:12:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 87ECA217F4
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 18:45:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B235D2075C
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:12:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sn9mMAd9"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WRMf5yBT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727438AbfKFSpN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Nov 2019 13:45:13 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:40539 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727376AbfKFSpM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 13:45:12 -0500
-Received: by mail-wm1-f67.google.com with SMTP id f3so4668390wmc.5;
-        Wed, 06 Nov 2019 10:45:10 -0800 (PST)
+        id S1727422AbfKFTMV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Nov 2019 14:12:21 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40121 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727411AbfKFTMV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 14:12:21 -0500
+Received: by mail-wr1-f66.google.com with SMTP id i10so6674021wrs.7;
+        Wed, 06 Nov 2019 11:12:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        h=to:references:from:autocrypt:subject:message-id:date:user-agent
          :mime-version:in-reply-to;
-        bh=pTtcjzE4gcfXY2oC9auH4Lg58vX66UWVnO46DhTh4V8=;
-        b=sn9mMAd9WWyJY+KtfCKwzz1QvgeztH1G6Dn0MS0tEKAxim+QfZq6SdVMT9YBAzF4Yn
-         ADEo+1osru+BiAjsqiBb4hvSezS5K6So2wlBlywjH6oWbh8VOfxIUc8GYfP4/5fWtCWb
-         jJdOhwPOU8Eg6W2pyTJz3JvU8KUwhGJPDPJ2q5E/1AyrB8LMpZ7jrYTz11gJeQIe4XnX
-         ckW/rtv82PCYKKDOYw6KKL7RDbY7Jwmnuv502h4An3wYd6c90oO8/FMrE53UH12mai8W
-         7F9dfhQ/MAt0i3cWYi1GnV7lKML1VtrZxbDpiLkx300Js6udt/t4csSK6caSowGT0N9t
-         GvKg==
+        bh=cjrE0jgP309rjp36iwwbVTcgzX6EZqWkvy/dHkUe4l0=;
+        b=WRMf5yBTjGeBxdI7imJ/bum8+co4o+bdZGrfMEOp97DV7kPRGgHslV+3zedEpyNi18
+         2mDv/MTNOKz6zHLppswfx3adJBCjXJlXWANeCup8JLMxXJkWbvHRXyNpDltF1ch8hlj1
+         gX4Bz635kS//LW9xvT1QjCgruvT4mngaO70wWQebX3EOcdruNARk1nA9UG+tdosDm/ei
+         mDnUmqaIf2g0GLYgNG6PgE4KtydJSdDAMiHvTyE6rQiVscx0P8fINYivDsn6XMOH0ClD
+         1N3O7Hvkk3PRsZUOsjPWdcxhtiZXnRjJCeB7HfuvoJJmYmAFTU4CkL95qM0rPHvWzmIo
+         pHIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to;
-        bh=pTtcjzE4gcfXY2oC9auH4Lg58vX66UWVnO46DhTh4V8=;
-        b=KxFyMTG4M374q6ZMwkcQY1Et7Wp1aqPe0+zSuwO9/woUA74YqRTh81z+jxN7vqxGRs
-         btBnQmchNThdq2SymnzVSeCUaz30VKfNAprPclp8wI0iXXy27vZHD8XeMVrwDGyz9k0X
-         2RUeIYHuXsUi3Jc2Oyvl6oLi/d8VbZFAe73w8BGCQAN6TnwnDVdv0JymN2zHjpji6G7h
-         YrK7JCNjfRZuAqCJxBRajO4GsWCsitr2QCjearinH4YfkeF2PtVg7gipoWiJR18vN41T
-         aHIpY7iQ7RzKoJb33dzSgrtQ8exZ87ovXalLDY/BvfbuuJU7gYU3DZ4s5ScIb/vGHJz7
-         1PZQ==
-X-Gm-Message-State: APjAAAWdhQlstskxK1Od5Etp7XTZLUDejCFcCnU3mVNB0HY0Zh6tUx2q
-        oL9ndO32hnbBjWJYztfgNRoUxr+D
-X-Google-Smtp-Source: APXvYqwJE3IxbJZW6tMZ3PW1hLz9bVGJZ4CD4BT/V4SUO8isNL+2/2o2F8mlMiNXFlrUgt/UvF2aUQ==
-X-Received: by 2002:a7b:cd04:: with SMTP id f4mr3832224wmj.91.1573065909454;
-        Wed, 06 Nov 2019 10:45:09 -0800 (PST)
+        h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
+         :date:user-agent:mime-version:in-reply-to;
+        bh=cjrE0jgP309rjp36iwwbVTcgzX6EZqWkvy/dHkUe4l0=;
+        b=k22EEOfyoeIbU7ubTwfmLVz7srVQcPjq6ixuAaVV6Mld6t6RvGe5kP2xodpfWLFPKk
+         jUX0BqEFriwm9VujEfl/R1hVnjA7k4tBku2fTO+TY+O56am6hRZjm6vJb7e6QM6GQYGO
+         E4PX1hfwURgvckezme4yIAjpG9I0AWmKGJBYakErcwlqNcux25y1V7206M7KYW6zcHd4
+         AXY5BDHQKYCpBYGTwiNrD+GZnqEIA8GtGk/9mk962TUwVwxfqHzAN5LkzxXVx0AlJgWH
+         l9fOU7eYZ4vqh2B0OGJwb4VLP3O0wuUeWZmyvowWS/IAOhj6HuoBIEtWlB8DnwLi5yeq
+         4JuQ==
+X-Gm-Message-State: APjAAAXbegPByrLj/2H212b9ZXOyQoZYdnYGBsDAFIwGNGbjZctWTFZ7
+        lpknAt1Ny7AKQHWB06t3uLd4vjF0
+X-Google-Smtp-Source: APXvYqwoRkybyNKueOTufjCLkDRcrGErfRL5SDzVGbDvWmDTv2OC8Z4xW4Vqck/ahYREAFUnqFkyAg==
+X-Received: by 2002:adf:9381:: with SMTP id 1mr4166292wrp.10.1573067536273;
+        Wed, 06 Nov 2019 11:12:16 -0800 (PST)
 Received: from [192.168.43.132] ([109.126.141.164])
-        by smtp.gmail.com with ESMTPSA id h8sm25989285wrc.73.2019.11.06.10.45.07
+        by smtp.gmail.com with ESMTPSA id o18sm28093485wrm.11.2019.11.06.11.12.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Nov 2019 10:45:08 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
-References: <b10f96d7-ecc4-e835-555e-739f22d3e505@kernel.dk>
+        Wed, 06 Nov 2019 11:12:15 -0800 (PST)
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+References: <37d8ba3d-27c7-7636-0343-23ec56e4bee7@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -102,148 +101,340 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH] io_uring: fixup a few spots where link failure isn't
- flagged
-Message-ID: <ee474592-8e97-eb11-0f95-84607bed033d@gmail.com>
-Date:   Wed, 6 Nov 2019 21:44:54 +0300
+Subject: Re: [RFC] io_uring CQ ring backpressure
+Message-ID: <412439b3-5626-f016-71e7-6100e7a6feef@gmail.com>
+Date:   Wed, 6 Nov 2019 22:12:00 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <b10f96d7-ecc4-e835-555e-739f22d3e505@kernel.dk>
+In-Reply-To: <37d8ba3d-27c7-7636-0343-23ec56e4bee7@kernel.dk>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="D3zAmtLzjVYjDmYZSzsxkD8gQNYgFCyKB"
+ boundary="EShPOEFbhHY0CK2BcxPn0hnMsGK9M4jk0"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---D3zAmtLzjVYjDmYZSzsxkD8gQNYgFCyKB
-Content-Type: multipart/mixed; boundary="mS2t0GKemTQ7AVHG13nyzjc5nUf10xjRF";
+--EShPOEFbhHY0CK2BcxPn0hnMsGK9M4jk0
+Content-Type: multipart/mixed; boundary="s1YQz4YqNHTiElWf4j021odKFWt9IGFIb";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
-To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc: "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
-Message-ID: <ee474592-8e97-eb11-0f95-84607bed033d@gmail.com>
-Subject: Re: [PATCH] io_uring: fixup a few spots where link failure isn't
- flagged
-References: <b10f96d7-ecc4-e835-555e-739f22d3e505@kernel.dk>
-In-Reply-To: <b10f96d7-ecc4-e835-555e-739f22d3e505@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+ "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+Message-ID: <412439b3-5626-f016-71e7-6100e7a6feef@gmail.com>
+Subject: Re: [RFC] io_uring CQ ring backpressure
+References: <37d8ba3d-27c7-7636-0343-23ec56e4bee7@kernel.dk>
+In-Reply-To: <37d8ba3d-27c7-7636-0343-23ec56e4bee7@kernel.dk>
 
---mS2t0GKemTQ7AVHG13nyzjc5nUf10xjRF
+--s1YQz4YqNHTiElWf4j021odKFWt9IGFIb
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 06/11/2019 06:32, Jens Axboe wrote:
-> If a request fails, we need to ensure we set REQ_F_FAIL_LINK on it if
-> REQ_F_LINK is set. Any failure in the chain should break the chain.
+On 06/11/2019 19:21, Jens Axboe wrote:
+> Currently we drop completion events, if the CQ ring is full. That's fin=
+e
+> for requests with bounded completion times, but it may make it harder t=
+o
+> use io_uring with networked IO where request completion times are
+> generally unbounded. Or with POLL, for example, which is also unbounded=
+=2E
 >=20
-> We were missing a few spots where this should be done. It might be nice=
-
-> to generalize this somewhat at some point, as long as we factor in the
-> fact that failure looks different for each request type.
+> This patch adds IORING_SETUP_CQ_NODROP, which changes the behavior a bi=
+t
+> for CQ ring overflows. First of all, it doesn't overflow the ring, it
+> simply stores backlog of completions that we weren't able to put into
+> the CQ ring. To prevent the backlog from growing indefinitely, if the
+> backlog is non-empty, we apply back pressure on IO submissions. Any
+> attempt to submit new IO with a non-empty backlog will get an -EBUSY
+> return from the kernel.
 >=20
-
-The completion path also starts to get complicated, especially
-non-uniform handling of links there.
-
-i.e. io_put_req() -> io_put_req_find_next() ->
-	io_free_req() -> __io_free_req()
-Plus, io_free_req_many(), which can be used only in some cases.
-
-My compiler didn't even inlined it, so there are 4 CALLs.
-Though, still in TODO list.
-
-
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> I think that makes for a pretty sane API in terms of how the applicatio=
+n
+> can handle it. With CQ_NODROP enabled, we'll never drop a completion
+> event (well unless we're totally out of memory...), but we'll also not
+> allow submissions with a completion backlog.
 >=20
-> --
->=20
+> ---
 >=20
 > diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index bda27b52fd5b..4edc94aab17e 100644
+> index b647cdf0312c..12e9fe2479f4 100644
 > --- a/fs/io_uring.c
 > +++ b/fs/io_uring.c
-> @@ -1672,6 +1672,8 @@ static int io_send_recvmsg(struct io_kiocb *req, =
-const struct io_uring_sqe *sqe,
+> @@ -207,6 +207,7 @@ struct io_ring_ctx {
+> =20
+>  		struct list_head	defer_list;
+>  		struct list_head	timeout_list;
+> +		struct list_head	cq_overflow_list;
+> =20
+>  		wait_queue_head_t	inflight_wait;
+>  	} ____cacheline_aligned_in_smp;
+> @@ -414,6 +415,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct=
+ io_uring_params *p)
+> =20
+>  	ctx->flags =3D p->flags;
+>  	init_waitqueue_head(&ctx->cq_wait);
+> +	INIT_LIST_HEAD(&ctx->cq_overflow_list);
+>  	init_completion(&ctx->ctx_done);
+>  	init_completion(&ctx->sqo_thread_started);
+>  	mutex_init(&ctx->uring_lock);
+> @@ -588,6 +590,77 @@ static struct io_uring_cqe *io_get_cqring(struct i=
+o_ring_ctx *ctx)
+>  	return &rings->cqes[tail & ctx->cq_mask];
+>  }
+> =20
+> +static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+> +{
+> +	if (waitqueue_active(&ctx->wait))
+> +		wake_up(&ctx->wait);
+> +	if (waitqueue_active(&ctx->sqo_wait))
+> +		wake_up(&ctx->sqo_wait);
+> +	if (ctx->cq_ev_fd)
+> +		eventfd_signal(ctx->cq_ev_fd, 1);
+> +}
+> +
+> +struct cqe_drop {
+> +	struct list_head list;
+> +	u64 user_data;
+> +	s32 res;
+> +};
+
+How about to use io_kiocb instead of new structure?
+It already has valid req->user_data and occasionaly used
+req->result. But this would probably take more work to do.
+
+> +
+> +static void io_cqring_overflow_flush(struct io_ring_ctx *ctx)
+> +{
+> +	struct io_rings *rings =3D ctx->rings;
+> +	struct io_uring_cqe *cqe;
+> +	struct cqe_drop *drop;
+> +	unsigned long flags;
+> +
+> +	if (list_empty_careful(&ctx->cq_overflow_list))
+> +		return;
+> +	if (ctx->cached_cq_tail - READ_ONCE(rings->cq.head) =3D=3D
+> +	    rings->cq_ring_entries)
+> +		return;
+> +
+> +	spin_lock_irqsave(&ctx->completion_lock, flags);
+> +
+> +	while (!list_empty(&ctx->cq_overflow_list)) {
+> +		drop =3D list_first_entry(&ctx->cq_overflow_list, struct cqe_drop,
+> +						list);
+> +		cqe =3D io_get_cqring(ctx);
+> +		if (!cqe)
+> +			break;
+> +		list_del(&drop->list);
+> +		WRITE_ONCE(cqe->user_data, drop->user_data);
+> +		WRITE_ONCE(cqe->res, drop->res);
+> +		WRITE_ONCE(cqe->flags, 0);
+> +		kfree(drop);
+> +	}
+> +
+> +	io_commit_cqring(ctx);
+> +	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+> +	io_cqring_ev_posted(ctx);
+> +}
+> +
+> +static void io_cqring_overflow(struct io_ring_ctx *ctx, u64 ki_user_da=
+ta,
+> +			       long res)
+> +	__must_hold(&ctx->completion_lock)
+> +{
+> +	struct cqe_drop *drop;
+> +
+> +	if (!(ctx->flags & IORING_SETUP_CQ_NODROP)) {
+> +log_overflow:
+> +		WRITE_ONCE(ctx->rings->cq_overflow,
+> +				atomic_inc_return(&ctx->cached_cq_overflow));
+> +		return;
+> +	}
+> +
+> +	drop =3D kmalloc(sizeof(*drop), GFP_ATOMIC);
+> +	if (!drop)
+> +		goto log_overflow;
+> +
+> +	drop->user_data =3D ki_user_data;
+> +	drop->res =3D res;
+> +	list_add_tail(&drop->list, &ctx->cq_overflow_list);
+> +}
+> +
+>  static void io_cqring_fill_event(struct io_ring_ctx *ctx, u64 ki_user_=
+data,
+>  				 long res)
+>  {
+> @@ -601,26 +674,15 @@ static void io_cqring_fill_event(struct io_ring_c=
+tx *ctx, u64 ki_user_data,
+>  	 * the ring.
+>  	 */
+>  	cqe =3D io_get_cqring(ctx);
+> -	if (cqe) {
+> +	if (likely(cqe)) {
+>  		WRITE_ONCE(cqe->user_data, ki_user_data);
+>  		WRITE_ONCE(cqe->res, res);
+>  		WRITE_ONCE(cqe->flags, 0);
+>  	} else {
+> -		WRITE_ONCE(ctx->rings->cq_overflow,
+> -				atomic_inc_return(&ctx->cached_cq_overflow));
+> +		io_cqring_overflow(ctx, ki_user_data, res);
 >  	}
-> =20
->  	io_cqring_add_event(req->ctx, sqe->user_data, ret);
-> +	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +		req->flags |=3D REQ_F_FAIL_LINK;
->  	io_put_req(req, nxt);
->  	return 0;
 >  }
-> @@ -1787,6 +1789,8 @@ static int io_poll_remove(struct io_kiocb *req, c=
-onst struct io_uring_sqe *sqe)
->  	spin_unlock_irq(&ctx->completion_lock);
 > =20
->  	io_cqring_add_event(req->ctx, sqe->user_data, ret);
-> +	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +		req->flags |=3D REQ_F_FAIL_LINK;
->  	io_put_req(req, NULL);
->  	return 0;
->  }
-> @@ -1994,6 +1998,8 @@ static enum hrtimer_restart io_timeout_fn(struct =
-hrtimer *timer)
->  	spin_unlock_irqrestore(&ctx->completion_lock, flags);
-> =20
->  	io_cqring_ev_posted(ctx);
-> +	if (req->flags & REQ_F_LINK)
-> +		req->flags |=3D REQ_F_FAIL_LINK;
->  	io_put_req(req, NULL);
->  	return HRTIMER_NORESTART;
->  }
-> @@ -2035,6 +2041,8 @@ static int io_timeout_remove(struct io_kiocb *req=
+> -static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+> -{
+> -	if (waitqueue_active(&ctx->wait))
+> -		wake_up(&ctx->wait);
+> -	if (waitqueue_active(&ctx->sqo_wait))
+> -		wake_up(&ctx->sqo_wait);
+> -	if (ctx->cq_ev_fd)
+> -		eventfd_signal(ctx->cq_ev_fd, 1);
+> -}
+> -
+>  static void io_cqring_add_event(struct io_ring_ctx *ctx, u64 user_data=
 ,
->  		io_commit_cqring(ctx);
->  		spin_unlock_irq(&ctx->completion_lock);
->  		io_cqring_ev_posted(ctx);
-> +		if (req->flags & REQ_F_LINK)
-> +			req->flags |=3D REQ_F_FAIL_LINK;
->  		io_put_req(req, NULL);
->  		return 0;
+>  				long res)
+>  {
+> @@ -859,8 +921,13 @@ static void io_put_req(struct io_kiocb *req, struc=
+t io_kiocb **nxtptr)
 >  	}
-> @@ -2328,6 +2336,8 @@ static void io_wq_submit_work(struct io_wq_work *=
-*workptr)
->  	io_put_req(req, NULL);
+>  }
 > =20
->  	if (ret) {
-> +		if (req->flags & REQ_F_LINK)
-> +			req->flags |=3D REQ_F_FAIL_LINK;
->  		io_cqring_add_event(ctx, sqe->user_data, ret);
->  		io_put_req(req, NULL);
+> -static unsigned io_cqring_events(struct io_rings *rings)
+> +static unsigned io_cqring_events(struct io_ring_ctx *ctx)
+>  {
+> +	struct io_rings *rings =3D ctx->rings;
+> +
+> +	if (ctx->flags & IORING_SETUP_CQ_NODROP)
+> +		io_cqring_overflow_flush(ctx);
+> +
+>  	/* See comment at the top of this file */
+>  	smp_rmb();
+>  	return READ_ONCE(rings->cq.tail) - READ_ONCE(rings->cq.head);
+> @@ -1016,7 +1083,7 @@ static int __io_iopoll_check(struct io_ring_ctx *=
+ctx, unsigned *nr_events,
+>  		 * If we do, we can potentially be spinning for commands that
+>  		 * already triggered a CQE (eg in error).
+>  		 */
+> -		if (io_cqring_events(ctx->rings))
+> +		if (io_cqring_events(ctx))
+>  			break;
+> =20
+>  		/*
+> @@ -2873,6 +2940,10 @@ static int io_submit_sqes(struct io_ring_ctx *ct=
+x, unsigned int nr,
+>  	int i, submitted =3D 0;
+>  	bool mm_fault =3D false;
+> =20
+> +	if ((ctx->flags & IORING_SETUP_CQ_NODROP) &&
+> +	    !list_empty(&ctx->cq_overflow_list))
+> +		return -EBUSY;
+> +
+>  	if (nr > IO_PLUG_THRESHOLD) {
+>  		io_submit_state_start(&state, ctx, nr);
+>  		statep =3D &state;
+> @@ -2952,6 +3023,7 @@ static int io_sq_thread(void *data)
+>  	timeout =3D inflight =3D 0;
+>  	while (!kthread_should_park()) {
+>  		unsigned int to_submit;
+> +		int ret;
+> =20
+>  		if (inflight) {
+>  			unsigned nr_events =3D 0;
+> @@ -3036,8 +3108,10 @@ static int io_sq_thread(void *data)
+>  		}
+> =20
+>  		to_submit =3D min(to_submit, ctx->sq_entries);
+> -		inflight +=3D io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm,
+> -					   true);
+> +		ret =3D io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm, true);
+> +		if (ret < 0)
+> +			continue;
+> +		inflight +=3D ret;
+> =20
+
+After rebase could be simplified to=20
+if (ret >=3D 0)
+	inflight +=3D ret;
+
+
+>  		/* Commit SQ ring head once we've consumed all SQEs */
+>  		io_commit_sqring(ctx);
+> @@ -3070,7 +3144,7 @@ static inline bool io_should_wake(struct io_wait_=
+queue *iowq)
+>  	 * started waiting. For timeouts, we always want to return to userspa=
+ce,
+>  	 * regardless of event count.
+>  	 */
+> -	return io_cqring_events(ctx->rings) >=3D iowq->to_wait ||
+> +	return io_cqring_events(ctx) >=3D iowq->to_wait ||
+>  			atomic_read(&ctx->cq_timeouts) !=3D iowq->nr_timeouts;
+>  }
+> =20
+> @@ -3105,7 +3179,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx=
+, int min_events,
+>  	struct io_rings *rings =3D ctx->rings;
+>  	int ret =3D 0;
+> =20
+> -	if (io_cqring_events(rings) >=3D min_events)
+> +	if (io_cqring_events(ctx) >=3D min_events)
+>  		return 0;
+> =20
+>  	if (sig) {
+> @@ -4406,7 +4480,8 @@ static long io_uring_setup(u32 entries, struct io=
+_uring_params __user *params)
 >  	}
+> =20
+>  	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
+> -			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE))
+> +			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
+> +			IORING_SETUP_CQ_NODROP))
+>  		return -EINVAL;
+> =20
+>  	ret =3D io_uring_create(entries, &p);
+> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_urin=
+g.h
+> index f1a118b01d18..3d8517eb376e 100644
+> --- a/include/uapi/linux/io_uring.h
+> +++ b/include/uapi/linux/io_uring.h
+> @@ -56,6 +56,7 @@ struct io_uring_sqe {
+>  #define IORING_SETUP_SQPOLL	(1U << 1)	/* SQ poll thread */
+>  #define IORING_SETUP_SQ_AFF	(1U << 2)	/* sq_thread_cpu is valid */
+>  #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
+> +#define IORING_SETUP_CQ_NODROP	(1U << 4)	/* no CQ drops */
+> =20
+>  #define IORING_OP_NOP		0
+>  #define IORING_OP_READV		1
 >=20
 
 --=20
 Pavel Begunkov
 
 
---mS2t0GKemTQ7AVHG13nyzjc5nUf10xjRF--
+--s1YQz4YqNHTiElWf4j021odKFWt9IGFIb--
 
---D3zAmtLzjVYjDmYZSzsxkD8gQNYgFCyKB
+--EShPOEFbhHY0CK2BcxPn0hnMsGK9M4jk0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3DFKYACgkQWt5b1Glr
-+6VxfA//ZcBrUxeAwlt+DZeoJha48M6YVxNgUKAFmoVFI8Z71Er2xlpoNNze/agj
-WL5hiLorfaMgyXB+KFJ8Le9IlBzI5qdsJjGCVmjDDFBdZPQNV3KiyriCQiokzy5j
-3s94GrzBLLmiKyORSCq0StrF91X7EGUaMLDsJX1ec9AgQJG53zL5xwTZD1kNhFmJ
-IN1DFysJk19pdKrbptUnCoKjE88IlTOIMv6j4F6/q13kLh6YLLr/4MRx/bbSeol0
-/hKPkkoUCzsSw5eLciqQV7JVZZAoKZMcGACJ7Xp+j3YXyU6fKhORW0s+f33QV+kL
-5ry9HWmWtk/+LTwTNon0yfuYectG4WOAOrJ3TQpPkjdsZ9gH0deRLaVeqd+k3sgG
-V3kKEWsneSmwC98jm83H6+9LLBAiVl9twUE7vVdNRQcLsH/O73ME9EewjCktk+UE
-/huvhLG1DrTqVBv774BIdGX+oAGHwnUlAAVhf5GfYKHPg6OF/wAjJJX8IJazN0md
-y7S1mTbmsDSKO7ojgdWVZlqdhNu/HPP6nqIFhu3rLN866DNm1UL4zeMbBhI4HR9V
-DLSX0Dz2l7LtTc4dm7ENoJnAIEoPHfpmV68eLrX3oUmKPFUqm9feaeZOuapV0yf8
-00re0AGD+kFiGV3zSm5S1enMoTJscnuKtQk8pwXp7ohPmGYfqnU=
-=/5Ib
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3DGwAACgkQWt5b1Glr
++6Vo5w//YvfNGyO/mGyiNDDEn7vajzIs+p674Z7usFIqD8GFf+TYahfs2KnUyW/8
++/rqLrOPpNW076Z/OavhoPaHx2NoYS3k/ctvn1774QtOOo5WjMo19EhQ0LKDVW95
+edZHMOgH5zk2NAPjfL1P2sm7OVevCHczYdZoMFVdXxdhM/Cwr7QCQfQzAWLJzsAu
+88Y7JIXuhl+mRrn0kM1NA+ev+GzVS63AMOPvEqbOegHF8DOeCpRPPP0uEDcbJ0pJ
+ygbI8jUrvPIEnfcndpck2G9BpugbQ6t4Sd2c3epYMJZoZ69S4CM/fLR2dO7ruS+2
+IG3ZvZEHOqi71pCn46r3sLhmI1qQ9EsclWtn/yN+NEYtH03Bbx4D6k+9SJs7a6nW
+xsUAjX5b/8vlDKJRo/D6jdRrifIzi0+TSOGLDGwaNn9+vaizvCfhzs4o05zlRRB6
+qfB9G/pBDIzy96YZcqQ5Zi2LVWyUwdWahnWRB2y2B7YMizTpcAvnt7+7GBzEs7CP
+tauQ009Hetqw4uaMy8GWlKwThkR6GasfJpVB2uJqCefoMp+54mjAugGX3gJma4Eq
+S/fDBA9+tvO5gGHoWaDABBYeF91/KQM4JvdSCYxscuvAoWvCxh//jZU51leBaPnA
+GPrtSuaIo2yDX6lHEVwAouoEpKrzt3SQJLJTo1BR/dx/uCDi3mQ=
+=/s9B
 -----END PGP SIGNATURE-----
 
---D3zAmtLzjVYjDmYZSzsxkD8gQNYgFCyKB--
+--EShPOEFbhHY0CK2BcxPn0hnMsGK9M4jk0--

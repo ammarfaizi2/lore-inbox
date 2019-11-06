@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8544EC43331
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:41:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BEAEFC6196
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:41:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5653B2173E
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:41:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63C852173E
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 22:41:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WRP1Y5ap"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sw3bmPTy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732749AbfKFWls (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Nov 2019 17:41:48 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:52296 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726779AbfKFWls (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 17:41:48 -0500
-Received: by mail-wm1-f66.google.com with SMTP id c17so2159wmk.2;
-        Wed, 06 Nov 2019 14:41:45 -0800 (PST)
+        id S1732764AbfKFWlt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Nov 2019 17:41:49 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:51356 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727412AbfKFWlt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 17:41:49 -0500
+Received: by mail-wm1-f68.google.com with SMTP id q70so8949wme.1;
+        Wed, 06 Nov 2019 14:41:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=6uIpjY/pq/iQLmwdPqDltAW8AoMiUoPeEA4dWU108eo=;
-        b=WRP1Y5appSSReUesYeSp4pRxsQbO7g6F2ZpxXh6+U5THi8XYdkCKRXM8+RTqz4MYxV
-         WL1TYZw1VZnCR9bjL0zpf19dA79GAcd/iLPC/iRwserzbFtoWdpCnQ4xstDtsSwPAMaf
-         kfyeiZA5zqY5KElxmXuT+c9W1hYHn5aaOMA6cfMcCK4MhjljPFpAZD8ggCC0KS70qMm0
-         /gaqtgMZ9xc0GzUlQ+XQlnsV2iDSuTa5jXLFDwD1jEcX/z7XQwx58TmMgzNYDgNQsukI
-         bYTyUsTjWgDzSOxH6z/K6Pwd86o/RztdNN6UmBG8dDG+CdmWqAx3Q51AMBjmkE/Hzv8n
-         Uxyw==
+        bh=BJUO+4STjtuSZ2Fe5R2yrdF6JVhW+iolCJYQxrmi8lI=;
+        b=Sw3bmPTyzvkdxBKFaa7EA/nkLVh1Yvz1iEXLjyUvic5Ti1UnxlgwooSo6WrerJbKof
+         MZkG5kWzVEymCntm/IaxYtUmoAcN0yqvN9NP0I5IV8d+oLkvJ5TLFYsPOqe9WMoxFewy
+         Z7p/H0zBypjjImCtlWhCw/JoRsusDrKmTjf3ssTPuKVbhNifl+QrDNuoxkCnQpzAqSUt
+         LebtzSPIKZA2l6dT3jIhARdvASBBx7CyevsPwih9A/pH6ABdSgvAkka6HzDlc4oxfAMp
+         lQ8RG0YpXt8UAxxFbco8Oj5j8u02D/DZne1rQj31cv/SVemOGijYicr7lfB4kdWoq10i
+         lBFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6uIpjY/pq/iQLmwdPqDltAW8AoMiUoPeEA4dWU108eo=;
-        b=LqOdVw52UuMAB94FuFhvGG7R26fvPUL3BbmrumJdkduVxa4/3Ugei6yugAEp7TLlni
-         YtxGHVkWI8WF81pEQHIhTh7Pu8FWNVLTPX1/yeyxbB+U9xGBx5QGlfifOwZxdbse1TRa
-         TsMpOuMqa6/uZHBbG/j1B77rqk4CRvG5iDkxvznULDQlJrM8QzwALYD/4Ynii+Y43vn1
-         Ftjd/HGyG0dIjnzHbZj7ZU2SU4l3CsKGzYlRfLlned/aM2DB9WCpqHFttJ/yTu2ezl66
-         h9ejZcXeuRpVt9WAgbfSzNk9Us9bzAZ67RimtizgPjBEbXzU3oKb18A8rszfdDJrn+0w
-         gO6A==
-X-Gm-Message-State: APjAAAV9+DPrVlIM2kcBs6zeKngsC5E3VbtwOezwHTo164z7jU+QATE3
-        RZjYhXLodsZ8llyoT7156Ao=
-X-Google-Smtp-Source: APXvYqx88SDljSkxGxCd2ZCaruGLlL8cCMvhrAtIosoAR1x049xsmSQqU8Nrw3NXtcJsd4vJnHm/TA==
-X-Received: by 2002:a05:600c:23ce:: with SMTP id p14mr4703542wmb.176.1573080104571;
-        Wed, 06 Nov 2019 14:41:44 -0800 (PST)
+        bh=BJUO+4STjtuSZ2Fe5R2yrdF6JVhW+iolCJYQxrmi8lI=;
+        b=WZa77AkWPo39K+bO5uZKY3IsLtgTWwbffBekCmLpbIUifGOUblAvXqyicisk+YSiYO
+         XsPeOkykix7bru5/9uR4CIN7eVS83cF5Txs83BRCi2/ijFLd4mC+gdg2sj2XM4TF7nL6
+         QtdSSP3/LoW7UyPecN3VNeviLn9wmt2Zn8z0+EwZOrVHELiBRw2c/WYMAvD3JqtLrNjd
+         IAs+WaOMgCCWXzYrBcNdbpajIdfeKZrRhUN7kJl4b7/n1Hl+GBGy9kkbTWsGk2TqOnRV
+         WZRO/3i2900ozOrFytOwQb+cQ2fEtfVQGy1XpaZ+2R4Du0Ajji8YnPr//3iiy5tia3Yh
+         xaBw==
+X-Gm-Message-State: APjAAAXBR8uN1MfLxVjNqBzITZ7jDMIzJT/0/Pe05SKVzIRpxEgjPhO1
+        VsSBwZsgxy8DiQY8MeMaO88=
+X-Google-Smtp-Source: APXvYqzFsieCvrvFZZEwaFjGGmGwVwhjnHPjh+dCWWGRlCjM5IvNlloJ4doNk+d+GNDAWZUqy/4MPw==
+X-Received: by 2002:a1c:f602:: with SMTP id w2mr4503298wmc.83.1573080105781;
+        Wed, 06 Nov 2019 14:41:45 -0800 (PST)
 Received: from localhost.localdomain ([109.126.141.164])
-        by smtp.gmail.com with ESMTPSA id h140sm23469wme.22.2019.11.06.14.41.43
+        by smtp.gmail.com with ESMTPSA id h140sm23469wme.22.2019.11.06.14.41.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2019 14:41:44 -0800 (PST)
+        Wed, 06 Nov 2019 14:41:45 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-block@vger.kernel.org
-Subject: [PATCH v3 2/3] io_uring: Use submit info inlined into req
-Date:   Thu,  7 Nov 2019 01:41:07 +0300
-Message-Id: <34fa74c60ca5b605eaa1c0b1b9d5d976cbd2de20.1573079844.git.asml.silence@gmail.com>
+Subject: [PATCH v3 3/3] io_uring: use inlined struct sqe_submit
+Date:   Thu,  7 Nov 2019 01:41:08 +0300
+Message-Id: <ecee5ea82fa6675129d6565144216ab1a5e7f572.1573079844.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <cover.1573079844.git.asml.silence@gmail.com>
 References: <cover.1573079844.git.asml.silence@gmail.com>
@@ -71,125 +71,322 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Stack allocated struct sqe_submit is passed down to the submission path
-along with a request (a.k.a. struct io_kiocb), and will be copied into
-req->submit for async requests.
-
-As space for it is already allocated, fill req->submit in the first
-place instead of using on-stack one. As a result:
-
-1. sqe->submit is the only place for sqe_submit and is always valid,
-so we don't need to track which one to use.
-2. don't need to copy in case of async
-3. allows to simplify the code by not carrying it as an argument all
-the way down
-4. allows to reduce number of function arguments / potentially improve
-spilling
-
-The downside is that stack is most probably be cached, that's not true
-for just allocated memory for a request. Another concern is cache
-pollution. Though, a request would be touched and fetched along with
-req->submit at some point anyway, so shouldn't be a problem.
+req->submit is always up-to-date, use it directly
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 87 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 43 insertions(+), 44 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ceb616dbe710..c0d2601dc17b 100644
+index c0d2601dc17b..2c56c3b9c828 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2456,7 +2456,6 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+@@ -1155,10 +1155,9 @@ static bool io_file_supports_async(struct file *file)
+ 	return false;
+ }
+ 
+-static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
+-		      bool force_nonblock)
++static int io_prep_rw(struct io_kiocb *req, bool force_nonblock)
+ {
+-	const struct io_uring_sqe *sqe = s->sqe;
++	const struct io_uring_sqe *sqe = req->submit.sqe;
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct kiocb *kiocb = &req->rw;
+ 	unsigned ioprio;
+@@ -1406,8 +1405,8 @@ static ssize_t loop_rw_iter(int rw, struct file *file, struct kiocb *kiocb,
+ 	return ret;
+ }
+ 
+-static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+-		   struct io_kiocb **nxt, bool force_nonblock)
++static int io_read(struct io_kiocb *req, struct io_kiocb **nxt,
++		   bool force_nonblock)
+ {
+ 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+ 	struct kiocb *kiocb = &req->rw;
+@@ -1416,7 +1415,7 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 	size_t iov_count;
+ 	ssize_t read_size, ret;
+ 
+-	ret = io_prep_rw(req, s, force_nonblock);
++	ret = io_prep_rw(req, force_nonblock);
+ 	if (ret)
+ 		return ret;
+ 	file = kiocb->ki_filp;
+@@ -1424,7 +1423,7 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 	if (unlikely(!(file->f_mode & FMODE_READ)))
+ 		return -EBADF;
+ 
+-	ret = io_import_iovec(req->ctx, READ, s, &iovec, &iter);
++	ret = io_import_iovec(req->ctx, READ, &req->submit, &iovec, &iter);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1456,7 +1455,7 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 			ret2 = -EAGAIN;
+ 		/* Catch -EAGAIN return for forced non-blocking submission */
+ 		if (!force_nonblock || ret2 != -EAGAIN)
+-			kiocb_done(kiocb, ret2, nxt, s->in_async);
++			kiocb_done(kiocb, ret2, nxt, req->submit.in_async);
+ 		else
+ 			ret = -EAGAIN;
+ 	}
+@@ -1464,8 +1463,8 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 	return ret;
+ }
+ 
+-static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+-		    struct io_kiocb **nxt, bool force_nonblock)
++static int io_write(struct io_kiocb *req, struct io_kiocb **nxt,
++		    bool force_nonblock)
+ {
+ 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+ 	struct kiocb *kiocb = &req->rw;
+@@ -1474,7 +1473,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 	size_t iov_count;
+ 	ssize_t ret;
+ 
+-	ret = io_prep_rw(req, s, force_nonblock);
++	ret = io_prep_rw(req, force_nonblock);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1482,7 +1481,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 	if (unlikely(!(file->f_mode & FMODE_WRITE)))
+ 		return -EBADF;
+ 
+-	ret = io_import_iovec(req->ctx, WRITE, s, &iovec, &iter);
++	ret = io_import_iovec(req->ctx, WRITE, &req->submit, &iovec, &iter);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1519,7 +1518,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 		else
+ 			ret2 = loop_rw_iter(WRITE, file, kiocb, &iter);
+ 		if (!force_nonblock || ret2 != -EAGAIN)
+-			kiocb_done(kiocb, ret2, nxt, s->in_async);
++			kiocb_done(kiocb, ret2, nxt, req->submit.in_async);
+ 		else
+ 			ret = -EAGAIN;
+ 	}
+@@ -2188,9 +2187,9 @@ static int io_async_cancel(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	return 0;
+ }
+ 
+-static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			const struct io_uring_sqe *sqe)
++static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req)
+ {
++	const struct io_uring_sqe *sqe = req->submit.sqe;
+ 	struct io_uring_sqe *sqe_copy;
+ 
+ 	if (!io_sequence_defer(ctx, req) && list_empty(&ctx->defer_list))
+@@ -2217,10 +2216,10 @@ static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ }
+ 
+ static int __io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			   const struct sqe_submit *s, struct io_kiocb **nxt,
+-			   bool force_nonblock)
++			   struct io_kiocb **nxt, bool force_nonblock)
+ {
+ 	int ret, opcode;
++	struct sqe_submit *s = &req->submit;
+ 
+ 	req->user_data = READ_ONCE(s->sqe->user_data);
+ 
+@@ -2232,18 +2231,18 @@ static int __io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	case IORING_OP_READV:
+ 		if (unlikely(s->sqe->buf_index))
+ 			return -EINVAL;
+-		ret = io_read(req, s, nxt, force_nonblock);
++		ret = io_read(req, nxt, force_nonblock);
+ 		break;
+ 	case IORING_OP_WRITEV:
+ 		if (unlikely(s->sqe->buf_index))
+ 			return -EINVAL;
+-		ret = io_write(req, s, nxt, force_nonblock);
++		ret = io_write(req, nxt, force_nonblock);
+ 		break;
+ 	case IORING_OP_READ_FIXED:
+-		ret = io_read(req, s, nxt, force_nonblock);
++		ret = io_read(req, nxt, force_nonblock);
+ 		break;
+ 	case IORING_OP_WRITE_FIXED:
+-		ret = io_write(req, s, nxt, force_nonblock);
++		ret = io_write(req, nxt, force_nonblock);
+ 		break;
+ 	case IORING_OP_FSYNC:
+ 		ret = io_fsync(req, s->sqe, nxt, force_nonblock);
+@@ -2318,7 +2317,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
+ 		s->has_user = (work->flags & IO_WQ_WORK_HAS_MM) != 0;
+ 		s->in_async = true;
+ 		do {
+-			ret = __io_submit_sqe(ctx, req, s, &nxt, false);
++			ret = __io_submit_sqe(ctx, req, &nxt, false);
+ 			/*
+ 			 * We can get EAGAIN for polled IO even though we're
+ 			 * forcing a sync submission from here, since we can't
+@@ -2372,9 +2371,10 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
+ 	return table->files[index & IORING_FILE_TABLE_MASK];
+ }
+ 
+-static int io_req_set_file(struct io_ring_ctx *ctx, const struct sqe_submit *s,
++static int io_req_set_file(struct io_ring_ctx *ctx,
+ 			   struct io_submit_state *state, struct io_kiocb *req)
+ {
++	struct sqe_submit *s = &req->submit;
+ 	unsigned flags;
+ 	int fd;
+ 
+@@ -2438,12 +2438,11 @@ static int io_grab_files(struct io_ring_ctx *ctx, struct io_kiocb *req)
+ 	return ret;
+ }
+ 
+-static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			struct sqe_submit *s)
++static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req)
+ {
+ 	int ret;
+ 
+-	ret = __io_submit_sqe(ctx, req, s, NULL, true);
++	ret = __io_submit_sqe(ctx, req, NULL, true);
+ 
+ 	/*
+ 	 * We async punt it if the file wasn't marked NOWAIT, or if the file
+@@ -2451,6 +2450,7 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	 */
+ 	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
+ 	    (req->flags & REQ_F_MUST_PUNT))) {
++		struct sqe_submit *s = &req->submit;
+ 		struct io_uring_sqe *sqe_copy;
+ 
  		sqe_copy = kmemdup(s->sqe, sizeof(*sqe_copy), GFP_KERNEL);
- 		if (sqe_copy) {
- 			s->sqe = sqe_copy;
--			memcpy(&req->submit, s, sizeof(*s));
- 			if (req->work.flags & IO_WQ_WORK_NEEDS_FILES) {
- 				ret = io_grab_files(ctx, req);
- 				if (ret) {
-@@ -2591,13 +2590,11 @@ static void io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+@@ -2488,31 +2488,30 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	return ret;
+ }
+ 
+-static int io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			struct sqe_submit *s)
++static int io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req)
+ {
+ 	int ret;
+ 
+-	ret = io_req_defer(ctx, req, s->sqe);
++	ret = io_req_defer(ctx, req);
+ 	if (ret) {
+ 		if (ret != -EIOCBQUEUED) {
++			io_cqring_add_event(ctx, req->submit.sqe->user_data, ret);
+ 			io_free_req(req, NULL);
+-			io_cqring_add_event(ctx, s->sqe->user_data, ret);
  		}
+ 		return 0;
+ 	}
  
- 		s->sqe = sqe_copy;
--		memcpy(&req->submit, s, sizeof(*s));
- 		trace_io_uring_link(ctx, req, prev);
- 		list_add_tail(&req->list, &prev->link_list);
- 	} else if (s->sqe->flags & IOSQE_IO_LINK) {
- 		req->flags |= REQ_F_LINK;
+-	return __io_queue_sqe(ctx, req, s);
++	return __io_queue_sqe(ctx, req);
+ }
  
--		memcpy(&req->submit, s, sizeof(*s));
+ static int io_queue_link_head(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			      struct sqe_submit *s, struct io_kiocb *shadow)
++			      struct io_kiocb *shadow)
+ {
+ 	int ret;
+ 	int need_submit = false;
+ 
+ 	if (!shadow)
+-		return io_queue_sqe(ctx, req, s);
++		return io_queue_sqe(ctx, req);
+ 
+ 	/*
+ 	 * Mark the first IO in link list as DRAIN, let all the following
+@@ -2520,12 +2519,12 @@ static int io_queue_link_head(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	 * list.
+ 	 */
+ 	req->flags |= REQ_F_IO_DRAIN;
+-	ret = io_req_defer(ctx, req, s->sqe);
++	ret = io_req_defer(ctx, req);
+ 	if (ret) {
+ 		if (ret != -EIOCBQUEUED) {
++			io_cqring_add_event(ctx, req->submit.sqe->user_data, ret);
+ 			io_free_req(req, NULL);
+ 			__io_free_req(shadow);
+-			io_cqring_add_event(ctx, s->sqe->user_data, ret);
+ 			return 0;
+ 		}
+ 	} else {
+@@ -2543,7 +2542,7 @@ static int io_queue_link_head(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+ 	if (need_submit)
+-		return __io_queue_sqe(ctx, req, s);
++		return __io_queue_sqe(ctx, req);
+ 
+ 	return 0;
+ }
+@@ -2551,10 +2550,10 @@ static int io_queue_link_head(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK)
+ 
+ static void io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			  struct sqe_submit *s, struct io_submit_state *state,
+-			  struct io_kiocb **link)
++			  struct io_submit_state *state, struct io_kiocb **link)
+ {
+ 	struct io_uring_sqe *sqe_copy;
++	struct sqe_submit *s = &req->submit;
+ 	int ret;
+ 
+ 	/* enforce forwards compatibility on users */
+@@ -2563,11 +2562,11 @@ static void io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 		goto err_req;
+ 	}
+ 
+-	ret = io_req_set_file(ctx, s, state, req);
++	ret = io_req_set_file(ctx, state, req);
+ 	if (unlikely(ret)) {
+ err_req:
+-		io_free_req(req, NULL);
+ 		io_cqring_add_event(ctx, s->sqe->user_data, ret);
++		io_free_req(req, NULL);
+ 		return;
+ 	}
+ 
+@@ -2598,7 +2597,7 @@ static void io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
  		INIT_LIST_HEAD(&req->link_list);
  		*link = req;
  	} else {
-@@ -2702,18 +2699,18 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+-		io_queue_sqe(ctx, req, s);
++		io_queue_sqe(ctx, req);
  	}
+ }
  
- 	for (i = 0; i < nr; i++) {
--		struct sqe_submit s;
- 		struct io_kiocb *req;
-+		unsigned int sqe_flags;
- 
- 		req = io_get_req(ctx, statep);
- 		if (unlikely(!req))
- 			break;
--		if (!io_get_sqring(ctx, &s)) {
-+		if (!io_get_sqring(ctx, &req->submit)) {
- 			__io_free_req(req);
- 			break;
- 		}
- 
--		if (io_sqe_needs_user(s.sqe) && !*mm) {
-+		if (io_sqe_needs_user(req->submit.sqe) && !*mm) {
- 			mm_fault = mm_fault || !mmget_not_zero(ctx->sqo_mm);
- 			if (!mm_fault) {
- 				use_mm(ctx->sqo_mm);
-@@ -2721,7 +2718,9 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			}
- 		}
- 
--		if (link && (s.sqe->flags & IOSQE_IO_DRAIN)) {
-+		sqe_flags = req->submit.sqe->flags;
-+
-+		if (link && (sqe_flags & IOSQE_IO_DRAIN)) {
- 			if (!shadow_req) {
- 				shadow_req = io_get_req(ctx, NULL);
- 				if (unlikely(!shadow_req))
-@@ -2729,24 +2728,25 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 				shadow_req->flags |= (REQ_F_IO_DRAIN | REQ_F_SHADOW_DRAIN);
- 				refcount_dec(&shadow_req->refs);
- 			}
--			shadow_req->sequence = s.sequence;
-+			shadow_req->sequence = req->submit.sequence;
- 		}
- 
- out:
--		s.ring_file = ring_file;
--		s.ring_fd = ring_fd;
--		s.has_user = *mm != NULL;
--		s.in_async = async;
--		s.needs_fixed_file = async;
--		trace_io_uring_submit_sqe(ctx, s.sqe->user_data, true, async);
--		io_submit_sqe(ctx, req, &s, statep, &link);
-+		req->submit.ring_file = ring_file;
-+		req->submit.ring_fd = ring_fd;
-+		req->submit.has_user = *mm != NULL;
-+		req->submit.in_async = async;
-+		req->submit.needs_fixed_file = async;
-+		trace_io_uring_submit_sqe(ctx, req->submit.sqe->user_data,
-+					  true, async);
-+		io_submit_sqe(ctx, req, &req->submit, statep, &link);
+@@ -2739,7 +2738,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 		req->submit.needs_fixed_file = async;
+ 		trace_io_uring_submit_sqe(ctx, req->submit.sqe->user_data,
+ 					  true, async);
+-		io_submit_sqe(ctx, req, &req->submit, statep, &link);
++		io_submit_sqe(ctx, req, statep, &link);
  		submitted++;
  
  		/*
- 		 * If previous wasn't linked and we have a linked command,
+@@ -2747,14 +2746,14 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
  		 * that's the end of the chain. Submit the previous link.
  		 */
--		if (!(s.sqe->flags & IOSQE_IO_LINK) && link) {
-+		if (!(sqe_flags & IOSQE_IO_LINK) && link) {
- 			io_queue_link_head(ctx, link, &link->submit, shadow_req);
+ 		if (!(sqe_flags & IOSQE_IO_LINK) && link) {
+-			io_queue_link_head(ctx, link, &link->submit, shadow_req);
++			io_queue_link_head(ctx, link, shadow_req);
  			link = NULL;
  			shadow_req = NULL;
+ 		}
+ 	}
+ 
+ 	if (link)
+-		io_queue_link_head(ctx, link, &link->submit, shadow_req);
++		io_queue_link_head(ctx, link, shadow_req);
+ 	if (statep)
+ 		io_submit_state_end(&state);
+ 
 -- 
 2.23.0
 

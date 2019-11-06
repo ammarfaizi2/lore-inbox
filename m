@@ -2,366 +2,177 @@ Return-Path: <SRS0=PUae=Y6=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4605CC5DF65
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:40:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E699C5DF63
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:43:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0FF7820869
-	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:40:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B1F820869
+	for <io-uring@archiver.kernel.org>; Wed,  6 Nov 2019 19:43:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="ucb0NRr2"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="DJl00mEc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727411AbfKFTkt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Nov 2019 14:40:49 -0500
-Received: from mail-il1-f194.google.com ([209.85.166.194]:36930 "EHLO
+        id S1727411AbfKFTn2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Nov 2019 14:43:28 -0500
+Received: from mail-il1-f194.google.com ([209.85.166.194]:35745 "EHLO
         mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727720AbfKFTkt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 14:40:49 -0500
-Received: by mail-il1-f194.google.com with SMTP id s5so12589635iln.4
-        for <io-uring@vger.kernel.org>; Wed, 06 Nov 2019 11:40:48 -0800 (PST)
+        with ESMTP id S1726713AbfKFTn2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Nov 2019 14:43:28 -0500
+Received: by mail-il1-f194.google.com with SMTP id z12so10893673ilp.2
+        for <io-uring@vger.kernel.org>; Wed, 06 Nov 2019 11:43:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=EjPO4QGMU1DUkG3NOfSlQzoiYgK/klA/PbFh8I6Gp7E=;
-        b=ucb0NRr2LeEymGb8msx0bgKSraZ3nTLBeoIishUzhfstpPqq9XtGUupaLCjRFdNiUm
-         nZ49j3czZ+PfytMrTMjQc/X/oiJAHmv55Qis27F5Mjs8XSf4Ov3y0nr+ZHJhBIyiPMGX
-         OQQRJmJjyzHdWdoljzm4kZWGrHDW8gvSjGvG8HMsgH0VvX2eCkDkb3oczx+P5Wom8zqL
-         o3DgiAzR4/J8+WNiHelmQab4adF7vSBKfdsqftrV0SXthi3zQJFRdlIQQZ5ycmtqiv2J
-         /Yocwqp9FP2sT9dR44tQS+ZqP5s6DnI5qpSn/Rv0N592LjZGg9/x7GepGJDDH/9gzrxp
-         nLSQ==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=fq9vErcTaf25MgmnIdQ2JQPtM0db2t652SngVUT5H5E=;
+        b=DJl00mEc6G+PHVRRssOyzoFPVBf7f/dxZ8Rij86oXraqTX+2kBgyI/DKo2pFsfbYzG
+         O+d9PPjnKldMMyee0nzTLqpqDch6qjHKoXFL+A1QsP/HX+7yewyjKyF2UsWwKWUuRb8W
+         3figgESrsRRasY0UJTBozzzfyxz2kKxiHPVTKQoTODg5MBBN+pE0ckxVypOeCTdZLHUC
+         eOIqusQbd12IvEepjvwWieWPRiTjhPWUMsfGUJ2JkXvgRUE7qDcrqmFf4T+keFwxhxK1
+         umUsq2AWczUJa6X/uZNo25+fHg6Chu/WIc/MHxr87IzJGR7uPIuuyfAQ9ACwjhL9J2VM
+         FxQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=EjPO4QGMU1DUkG3NOfSlQzoiYgK/klA/PbFh8I6Gp7E=;
-        b=sbIPJWofVzgTQ+prqJyL/PyhTiDI17aLkAa2189Hmwo01N1Txn0fZztoYakhpr+ys4
-         t59XBotLHZmg35RVIVuC8gjN39i9GBB49OCWd52xhe9BNKMyP4Z5r1Et67BNg78zl6Rx
-         f17fzriMGp6FG8kQsn1unIxxbnZOQiGVFB4BBurvqRxc/PKWztqGgN438RtMqM9rfu3P
-         HqcAXIWmHgoiTapc/MOqqrZ5Umje0oQ/TPPAu9BnQ1IpqQ3lSjux5UCU609Lx4oS5TDa
-         dMfuc/sq2VSst/kX/llZmhMSVNzHX/8oifs5b9mBQ/lntY6s8srrg9D4TxnvCGPTdfaZ
-         WUBQ==
-X-Gm-Message-State: APjAAAV0AqC2yBPxe6cXa0vUeMEx8oIsa8goyaiuqS0KksgNrVA0gLl5
-        ynabiTNOuu0Z0Uq/g2Y1oKLb3jU7H0w=
-X-Google-Smtp-Source: APXvYqwxshu4LjyeateSyP2kKfh9erUw/YQzpSImvfSuZw2S7E58obX3aEyiWFzLWPrFRyGaRHfXpg==
-X-Received: by 2002:a92:1711:: with SMTP id u17mr4982416ill.192.1573069247523;
-        Wed, 06 Nov 2019 11:40:47 -0800 (PST)
-Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id k22sm911298iot.34.2019.11.06.11.40.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2019 11:40:46 -0800 (PST)
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fq9vErcTaf25MgmnIdQ2JQPtM0db2t652SngVUT5H5E=;
+        b=uPSX6J4KjPW60KC5ZKqvoUgQtBgY6jQaWUbf2AnvmyvOsdiEHCTKGxIVIoXDALCz7V
+         al1Pk++LWjVCewBLJpyJr2n/KTXokYLevGp83dx/ccRO5X0zDxovC6toljo1OUlnGcBZ
+         fGuZAPw77/AZmbOzaB9JPFrda86DrEN8pDJiOHQUWlab+VcqT224Wr9ok7aWrb/ynQHJ
+         K13WxhcPx0OSra9WV9t60aRETdFATPV4wqnCqOM75ktxPxhLIiz6jmJlH92zGcQQLRI4
+         GgMCTy2gKWhDL9l1DeSYf2Z/Lr23+S0l5KBCYhCve+1iiuv4S+bhkjC7g/UXZihUdqkZ
+         4z6g==
+X-Gm-Message-State: APjAAAVKEbOiH6rhJ/W3lI5FF494uHbknCM3GHj4MdJaoNH4aXBwRhcU
+        HZSTPDVKGVr9klJMIIIOnNr6nLqKVvs=
+X-Google-Smtp-Source: APXvYqxIZCP7ENHcLDRaGy8ZU4ecdCSWN5fa6yA5qr5KAD9KuQ63i7Fg5Nrn9RQxJ3cJRKwadD4LXA==
+X-Received: by 2002:a92:881c:: with SMTP id h28mr4797423ild.289.1573069406223;
+        Wed, 06 Nov 2019 11:43:26 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id l64sm3596815ilh.2.2019.11.06.11.43.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 06 Nov 2019 11:43:25 -0800 (PST)
+Subject: Re: [RFC] io_uring CQ ring backpressure
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+References: <37d8ba3d-27c7-7636-0343-23ec56e4bee7@kernel.dk>
+ <412439b3-5626-f016-71e7-6100e7a6feef@gmail.com>
 From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/2] io_uring: use separate io_wq's for bounded and unbounded request times
-Date:   Wed,  6 Nov 2019 12:40:40 -0700
-Message-Id: <20191106194040.26723-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191106194040.26723-1-axboe@kernel.dk>
-References: <20191106194040.26723-1-axboe@kernel.dk>
+Message-ID: <666db8fa-0483-321e-ba2c-a1a9ddf15a6d@kernel.dk>
+Date:   Wed, 6 Nov 2019 12:43:24 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <412439b3-5626-f016-71e7-6100e7a6feef@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We currently have just the one io_wq for the ctx, which is used for
-both disk and network IO. Generally it can be a problem to mix the two,
-since disk IO is bounded in time, and network IO is not. This can lead
-to situations where we could tie up all workers with unbounded work,
-leaving no room for bounded work.
+On 11/6/19 12:12 PM, Pavel Begunkov wrote:
+> On 06/11/2019 19:21, Jens Axboe wrote:
+>> Currently we drop completion events, if the CQ ring is full. That's fine
+>> for requests with bounded completion times, but it may make it harder to
+>> use io_uring with networked IO where request completion times are
+>> generally unbounded. Or with POLL, for example, which is also unbounded.
+>>
+>> This patch adds IORING_SETUP_CQ_NODROP, which changes the behavior a bit
+>> for CQ ring overflows. First of all, it doesn't overflow the ring, it
+>> simply stores backlog of completions that we weren't able to put into
+>> the CQ ring. To prevent the backlog from growing indefinitely, if the
+>> backlog is non-empty, we apply back pressure on IO submissions. Any
+>> attempt to submit new IO with a non-empty backlog will get an -EBUSY
+>> return from the kernel.
+>>
+>> I think that makes for a pretty sane API in terms of how the application
+>> can handle it. With CQ_NODROP enabled, we'll never drop a completion
+>> event (well unless we're totally out of memory...), but we'll also not
+>> allow submissions with a completion backlog.
+>>
+>> ---
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index b647cdf0312c..12e9fe2479f4 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -207,6 +207,7 @@ struct io_ring_ctx {
+>>   
+>>   		struct list_head	defer_list;
+>>   		struct list_head	timeout_list;
+>> +		struct list_head	cq_overflow_list;
+>>   
+>>   		wait_queue_head_t	inflight_wait;
+>>   	} ____cacheline_aligned_in_smp;
+>> @@ -414,6 +415,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+>>   
+>>   	ctx->flags = p->flags;
+>>   	init_waitqueue_head(&ctx->cq_wait);
+>> +	INIT_LIST_HEAD(&ctx->cq_overflow_list);
+>>   	init_completion(&ctx->ctx_done);
+>>   	init_completion(&ctx->sqo_thread_started);
+>>   	mutex_init(&ctx->uring_lock);
+>> @@ -588,6 +590,77 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+>>   	return &rings->cqes[tail & ctx->cq_mask];
+>>   }
+>>   
+>> +static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+>> +{
+>> +	if (waitqueue_active(&ctx->wait))
+>> +		wake_up(&ctx->wait);
+>> +	if (waitqueue_active(&ctx->sqo_wait))
+>> +		wake_up(&ctx->sqo_wait);
+>> +	if (ctx->cq_ev_fd)
+>> +		eventfd_signal(ctx->cq_ev_fd, 1);
+>> +}
+>> +
+>> +struct cqe_drop {
+>> +	struct list_head list;
+>> +	u64 user_data;
+>> +	s32 res;
+>> +};
+> 
+> How about to use io_kiocb instead of new structure?
+> It already has valid req->user_data and occasionaly used
+> req->result. But this would probably take more work to do.
 
-Add a separate io_wq for unbounded work times.
+I did consider that, we could use both those fields. But we can't just
+take ownership of the io_kiocb at this point, so it's much easier (and
+less error prone) to just stuff in this new structure. The downside is
+of course that we could still have an overflow, but if an atomic
+allocation of this size fails, then the system is hosed anyway.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 139 ++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 102 insertions(+), 37 deletions(-)
+This is also a somewhat more slow path. We don't really expect to have
+constant overflows, but we need to be able to handle them. Otherwise CQ
+ring sizing must be worst case, and maybe that isn't even enough. This
+allows use cases that we could not support before.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ad452be9f3bc..4418139c1fce 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -213,7 +213,7 @@ struct io_ring_ctx {
- 	} ____cacheline_aligned_in_smp;
- 
- 	/* IO offload */
--	struct io_wq		*io_wq;
-+	struct io_wq		*io_wq[2];
- 	struct task_struct	*sqo_thread;	/* if using sq thread polling */
- 	struct mm_struct	*sqo_mm;
- 	wait_queue_head_t	sqo_wait;
-@@ -496,37 +496,55 @@ static inline bool io_sqe_needs_user(const struct io_uring_sqe *sqe)
- 		 opcode == IORING_OP_WRITE_FIXED);
- }
- 
--static inline bool io_prep_async_work(struct io_kiocb *req)
-+static inline struct io_wq *io_prep_async_work(struct io_ring_ctx *ctx,
-+					       struct io_kiocb *req,
-+					       bool *do_hashed)
- {
--	bool do_hashed = false;
-+	struct io_wq *wq = ctx->io_wq[0];
- 
-+	*do_hashed = false;
- 	if (req->submit.sqe) {
- 		switch (req->submit.sqe->opcode) {
- 		case IORING_OP_WRITEV:
- 		case IORING_OP_WRITE_FIXED:
--			do_hashed = true;
-+			*do_hashed = true;
-+			/* fall-through */
-+		case IORING_OP_READV:
-+		case IORING_OP_READ_FIXED:
-+		case IORING_OP_SENDMSG:
-+		case IORING_OP_RECVMSG:
-+		case IORING_OP_ACCEPT:
-+		case IORING_OP_POLL_ADD:
-+			/*
-+			 * We know REQ_F_ISREG is not set on some of these
-+			 * opcodes, but this enables us to keep the check in
-+			 * just one place.
-+			 */
-+			if (!(req->flags & REQ_F_ISREG))
-+				wq = ctx->io_wq[1];
- 			break;
- 		}
- 		if (io_sqe_needs_user(req->submit.sqe))
- 			req->work.flags |= IO_WQ_WORK_NEEDS_USER;
- 	}
- 
--	return do_hashed;
-+	return wq;
- }
- 
- static inline void io_queue_async_work(struct io_ring_ctx *ctx,
- 				       struct io_kiocb *req)
- {
--	bool do_hashed = io_prep_async_work(req);
-+	struct io_wq *wq;
-+	bool do_hashed;
-+
-+	wq = io_prep_async_work(ctx, req, &do_hashed);
- 
- 	trace_io_uring_queue_async_work(ctx, do_hashed, req, &req->work,
- 					req->flags);
--	if (!do_hashed) {
--		io_wq_enqueue(ctx->io_wq, &req->work);
--	} else {
--		io_wq_enqueue_hashed(ctx->io_wq, &req->work,
--					file_inode(req->file));
--	}
-+	if (!do_hashed)
-+		io_wq_enqueue(wq, &req->work);
-+	else
-+		io_wq_enqueue_hashed(wq, &req->work, file_inode(req->file));
- }
- 
- static void io_kill_timeout(struct io_kiocb *req)
-@@ -2282,12 +2300,12 @@ static bool io_cancel_cb(struct io_wq_work *work, void *data)
- 	return req->user_data == (unsigned long) data;
- }
- 
--static int io_async_cancel_one(struct io_ring_ctx *ctx, void *sqe_addr)
-+static int io_async_cancel_one(struct io_wq *wq, void *sqe_addr)
- {
- 	enum io_wq_cancel cancel_ret;
- 	int ret = 0;
- 
--	cancel_ret = io_wq_cancel_cb(ctx->io_wq, io_cancel_cb, sqe_addr);
-+	cancel_ret = io_wq_cancel_cb(wq, io_cancel_cb, sqe_addr);
- 	switch (cancel_ret) {
- 	case IO_WQ_CANCEL_OK:
- 		ret = 0;
-@@ -2308,7 +2326,7 @@ static int io_async_cancel(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	void *sqe_addr;
--	int ret;
-+	int i, ret;
- 
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
-@@ -2317,7 +2335,11 @@ static int io_async_cancel(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		return -EINVAL;
- 
- 	sqe_addr = (void *) (unsigned long) READ_ONCE(sqe->addr);
--	ret = io_async_cancel_one(ctx, sqe_addr);
-+	for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++) {
-+		ret = io_async_cancel_one(ctx->io_wq[i], sqe_addr);
-+		if (ret != IO_WQ_CANCEL_NOTFOUND)
-+			break;
-+	}
- 
- 	if (ret < 0 && (req->flags & REQ_F_LINK))
- 		req->flags |= REQ_F_FAIL_LINK;
-@@ -2481,10 +2503,20 @@ static void io_wq_submit_work(struct io_wq *wq, struct io_wq_work **workptr)
- 	/* async context always use a copy of the sqe */
- 	kfree(sqe);
- 
--	/* if a dependent link is ready, pass it back */
-+	/*
-+	 * If a dependent link is ready and is on the same io_wq as us, pass it
-+	 * back for immediate execution. If it's on a different io_wq, enqueue
-+	 * it separately.
-+	 */
- 	if (!ret && nxt) {
--		io_prep_async_work(nxt);
--		*workptr = &nxt->work;
-+		struct io_wq *nxt_wq;
-+		bool do_hashed;
-+
-+		nxt_wq = io_prep_async_work(ctx, nxt, &do_hashed);
-+		if (nxt_wq == wq)
-+			*workptr = &nxt->work;
-+		else
-+			io_wq_enqueue(nxt_wq, &nxt->work);
- 	}
- }
- 
-@@ -2598,8 +2630,13 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 
- 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
- 
--	if (prev)
--		ret = io_async_cancel_one(ctx, (void *) prev->user_data);
-+	if (prev) {
-+		struct io_wq *wq;
-+		bool tmp;
-+
-+		wq = io_prep_async_work(ctx, prev, &tmp);
-+		ret = io_async_cancel_one(wq, (void *) prev->user_data);
-+	}
- 
- 	io_cqring_add_event(ctx, req->user_data, ret);
- 	io_put_req(req, NULL);
-@@ -3274,11 +3311,15 @@ static void io_sq_thread_stop(struct io_ring_ctx *ctx)
- 
- static void io_finish_async(struct io_ring_ctx *ctx)
- {
-+	int i;
-+
- 	io_sq_thread_stop(ctx);
- 
--	if (ctx->io_wq) {
--		io_wq_destroy(ctx->io_wq);
--		ctx->io_wq = NULL;
-+	for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++) {
-+		if (ctx->io_wq[i]) {
-+			io_wq_destroy(ctx->io_wq[i]);
-+			ctx->io_wq[i] = NULL;
-+		}
- 	}
- }
- 
-@@ -3286,9 +3327,11 @@ static void io_finish_async(struct io_ring_ctx *ctx)
- static void io_destruct_skb(struct sk_buff *skb)
- {
- 	struct io_ring_ctx *ctx = skb->sk->sk_user_data;
-+	int i;
- 
--	if (ctx->io_wq)
--		io_wq_flush(ctx->io_wq);
-+	for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++)
-+		if (ctx->io_wq[i])
-+			io_wq_flush(ctx->io_wq[i]);
- 
- 	unix_destruct_scm(skb);
- }
-@@ -3731,12 +3774,27 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
- 		goto err;
- 	}
- 
--	/* Do QD, or 4 * CPUS, whatever is smallest */
-+	/*
-+	 * This is for the bounded time requests, generally disk IO.
-+	 * Do QD, or 4 * CPUS, whatever is smallest
-+	 */
- 	concurrency = min(ctx->sq_entries, 4 * num_online_cpus());
--	ctx->io_wq = io_wq_create(concurrency, ctx->sqo_mm);
--	if (IS_ERR(ctx->io_wq)) {
--		ret = PTR_ERR(ctx->io_wq);
--		ctx->io_wq = NULL;
-+	ctx->io_wq[0] = io_wq_create(concurrency, ctx->sqo_mm);
-+	if (IS_ERR(ctx->io_wq[0])) {
-+		ret = PTR_ERR(ctx->io_wq[0]);
-+		ctx->io_wq[0] = NULL;
-+		goto err;
-+	}
-+
-+	/*
-+	 * This pool is for unbounded request times, things that could
-+	 * take an indeterminite amount of time to complete. Use a separate
-+	 * pool for those, to provide fairness with the bounded queue.
-+	 */
-+	ctx->io_wq[1] = io_wq_create(ctx->cq_entries, ctx->sqo_mm);
-+	if (IS_ERR(ctx->io_wq[1])) {
-+		ret = PTR_ERR(ctx->io_wq[1]);
-+		ctx->io_wq[1] = NULL;
- 		goto err;
- 	}
- 
-@@ -4114,6 +4172,8 @@ static int io_uring_fasync(int fd, struct file *file, int on)
- 
- static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- {
-+	int i;
-+
- 	mutex_lock(&ctx->uring_lock);
- 	percpu_ref_kill(&ctx->refs);
- 	mutex_unlock(&ctx->uring_lock);
-@@ -4121,8 +4181,9 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 	io_kill_timeouts(ctx);
- 	io_poll_remove_all(ctx);
- 
--	if (ctx->io_wq)
--		io_wq_cancel_all(ctx->io_wq);
-+	for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++)
-+		if (ctx->io_wq[i])
-+			io_wq_cancel_all(ctx->io_wq[i]);
- 
- 	io_iopoll_reap_events(ctx);
- 	wait_for_completion(&ctx->ctx_done);
-@@ -4138,7 +4199,7 @@ static int io_uring_release(struct inode *inode, struct file *file)
- 	return 0;
- }
- 
--static void io_uring_cancel_files(struct io_ring_ctx *ctx,
-+static void io_uring_cancel_files(struct io_ring_ctx *ctx, struct io_wq *wq,
- 				  struct files_struct *files)
- {
- 	struct io_kiocb *req;
-@@ -4150,7 +4211,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 		spin_lock_irq(&ctx->inflight_lock);
- 		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
- 			if (req->work.files == files) {
--				ret = io_wq_cancel_work(ctx->io_wq, &req->work);
-+				ret = io_wq_cancel_work(wq, &req->work);
- 				break;
- 			}
- 		}
-@@ -4178,10 +4239,14 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- static int io_uring_flush(struct file *file, void *data)
- {
- 	struct io_ring_ctx *ctx = file->private_data;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++)
-+		io_uring_cancel_files(ctx, ctx->io_wq[i], data);
- 
--	io_uring_cancel_files(ctx, data);
- 	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
--		io_wq_cancel_all(ctx->io_wq);
-+		for (i = 0; i < ARRAY_SIZE(ctx->io_wq); i++)
-+			io_wq_cancel_all(ctx->io_wq[i]);
- 	return 0;
- }
- 
+>> @@ -3036,8 +3108,10 @@ static int io_sq_thread(void *data)
+>>   		}
+>>   
+>>   		to_submit = min(to_submit, ctx->sq_entries);
+>> -		inflight += io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm,
+>> -					   true);
+>> +		ret = io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm, true);
+>> +		if (ret < 0)
+>> +			continue;
+>> +		inflight += ret;
+>>   
+> 
+> After rebase could be simplified to
+> if (ret >= 0)
+> 	inflight += ret;
+
+Heh, that's exactly that I did:
+
+https://git.kernel.dk/cgit/linux-block/commit/?h=for-5.5/io_uring-test&id=f491ca28c78b7ff2dcd288847a212bb49f256500
+
+Thanks for the review!
+
 -- 
-2.24.0
+Jens Axboe
 

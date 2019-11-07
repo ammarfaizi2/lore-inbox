@@ -2,106 +2,109 @@ Return-Path: <SRS0=nqv2=Y7=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C24B1C5DF60
-	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 13:16:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFC61C43331
+	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 16:00:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8FA972187F
-	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 13:16:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC17721D7B
+	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 16:00:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="lxJ5Vrhk"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cW07Huvu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727142AbfKGNQl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Nov 2019 08:16:41 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:39519 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727278AbfKGNQl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 08:16:41 -0500
-Received: by mail-pg1-f194.google.com with SMTP id 29so2165611pgm.6
-        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 05:16:40 -0800 (PST)
+        id S1730299AbfKGQAu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 7 Nov 2019 11:00:50 -0500
+Received: from mail-il1-f172.google.com ([209.85.166.172]:36661 "EHLO
+        mail-il1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726231AbfKGQAu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 11:00:50 -0500
+Received: by mail-il1-f172.google.com with SMTP id s75so2275501ilc.3
+        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 08:00:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6QjnBCQTxUtt0o5npapNIoHxcFFWQcZq1wOJ/hQRn0E=;
-        b=lxJ5Vrhk2jZu3Ruvu7Zf6E2BhLa83KQ/QdRHIgykF10syN/Vjs00bZZGWuko/zWVNH
-         Nav2yEW7RO+X0RjzhKGMMBhLXubYGL0wdjpmH/qpID+JWLyPiCFTNRMf6udcPt9SSAw3
-         G/piOImitALYm3vvcZr8K4GiSBc/JY7upVAMALfuSzyxxvFEzIfVKBBUwcK3Ii9r4JgV
-         WNn+ISyf5zfrPOnn5aooMRxYw3MutLkxQKB/VUwXFn8/3w4C0vk7yDRD5isVxC4EZ/yB
-         6iD+QtbVUEImLdGCEoqpDZSvDcb34KMICSlA+GyVRSBEcpF6Tl/peuWtDdhrjQ/2sNsZ
-         L3xg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hWiaoxJzJr6AurYYp7FjIq/mWHaDg/ddtYufF1Rigrs=;
+        b=cW07HuvuTNBCjd1dw+r4nhfKUYZFMAUscTgjvFNpgsR4tlvMnxh5tpIiirfT+32c1r
+         U5cDlLXS+xCBuvpEUWuzJcEgPNztW3KKsPxpXiqINXIiC8idVUFz4Ouf/qn+DLjbZy9v
+         VYKtPApPORJF1wRm8F4u+Ivx5ChD0OgjZl7tlnq+FY9Rc59VgL/QWVImXAD/1s23anw8
+         v/+mEGc7Dktzxr3TwJz9L1mdPCGyELYGX4ADgZkDy7RH+KDiiQFGAcwPoXN7loiLHPCt
+         qdST6ZzikfhhLXVKDt0DrWVhY61zYJ47DuTBC9OMeYnAW42KZ3e+g8Oix7Ip1XvtTqtZ
+         eeHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6QjnBCQTxUtt0o5npapNIoHxcFFWQcZq1wOJ/hQRn0E=;
-        b=hd9i9u+bsbdZwoZqQDM/TektTbC5jk0wu4Fz50sTgRm0i571O+Xv4iz5Av+DiSdXcX
-         GIu7grNS2RZx2gB1s9vrligZ8C6GYN5thWnY1z8g1hBxt/QTMcKcaPzQMCeac3HThqRN
-         arjN6MnQiFjO429XmF2oO6Nt3Ifc0UIq8kzCWOaFBTZ/Fcu5iJLFNqaTLYgmzKxpXiUx
-         Egf0ge9lABAaoxngT6sZcSfag4GsWTtvKQs4uQORG7PRsvai0DR/GKBlaI2nxvUWkqTM
-         /7hjOHBfumtOUNqqMWvVaIEndtdIpL648O7mit8e5BdvFvx74GgcMSJ0prJn0REw/v/s
-         /vTA==
-X-Gm-Message-State: APjAAAWZrMWyFCSecg/tp17QMopjM9QC2x9Kz3Ris4ywF5PvPs0xCchN
-        0A7CaQUKGaeTqAQ/yjbRjnKl+w==
-X-Google-Smtp-Source: APXvYqwgiE+3OpiuyuXB9dcHTUTkJgN5BIIL3J7KH3ngNzWH6yKL/eQkRBQsDnTFKhwBGi6qiF+Q1g==
-X-Received: by 2002:a62:174d:: with SMTP id 74mr3906060pfx.145.1573132599684;
-        Thu, 07 Nov 2019 05:16:39 -0800 (PST)
-Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id l72sm2232942pjb.18.2019.11.07.05.16.37
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 Nov 2019 05:16:38 -0800 (PST)
-Subject: Re: [PATCH 2/3] io_uring: pass in io_kiocb to fill/add CQ handlers
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, jannh@google.com
-References: <20191106235307.32196-1-axboe@kernel.dk>
- <20191106235307.32196-3-axboe@kernel.dk>
- <df4352ab-2670-e69f-cc92-5e72f1cd6229@gmail.com>
+        bh=hWiaoxJzJr6AurYYp7FjIq/mWHaDg/ddtYufF1Rigrs=;
+        b=gHBtT3pRZkEHbzzZfBLl0CiCFRNlhdo86BW6FY9TfyTwn69RSS5iR48giff7tTmBNd
+         N8nbSB/D6KPty0xvLkL8SJzYGOj5QVyup6mSSRjeEEsF17AfklXTvgVPiZcKRrIUQ28J
+         utESM37MMVcl1EtgvWVQiYtG893+9dcPP8NjgLBMlAcVSCXq9Z1T5oY2Ys3nfapxuiFV
+         SlHgutxEwNY+s4wP1dvB/JYIPuI82gh6ZD5bq/ZvResNve6xxQ3TfNbaWxxzY5ZtR6wD
+         /odKcM6+MfvaPRQk8YaOgi95xaXiHaMFo8SDEKjHGXs2LAHddzdhG5HE00jenVfKduBY
+         9LwQ==
+X-Gm-Message-State: APjAAAVSkYnEKzzsfV20QX9Cd5FaKTbxm+w1nXDFS9915c/OdsraHqOl
+        tQHO8PV6fo6r9lTSRDdl6DJsQDRysXE=
+X-Google-Smtp-Source: APXvYqz+Vm4tBA37hhSWQC4GGytsxsYORfBP/94O7A3ETJXnXvD6mGP7Q/Ubg4Ka6iUhFJA7k773bg==
+X-Received: by 2002:a92:ad12:: with SMTP id w18mr5541669ilh.230.1573142447882;
+        Thu, 07 Nov 2019 08:00:47 -0800 (PST)
+Received: from x1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id v130sm210438iod.32.2019.11.07.08.00.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Nov 2019 08:00:47 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <2a723bbc-f031-6d2a-ef8b-96f9a5cfc70e@kernel.dk>
-Date:   Thu, 7 Nov 2019 06:16:36 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+To:     io-uring@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, asml.silence@gmail.com,
+        jannh@google.com
+Subject: [PATCHSET v3 0/3] io_uring CQ ring backpressure
+Date:   Thu,  7 Nov 2019 09:00:40 -0700
+Message-Id: <20191107160043.31725-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <df4352ab-2670-e69f-cc92-5e72f1cd6229@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/7/19 2:53 AM, Pavel Begunkov wrote:
->> @@ -804,8 +803,10 @@ static void io_fail_links(struct io_kiocb *req)
->>   		    link->submit.sqe->opcode == IORING_OP_LINK_TIMEOUT) {
->>   			io_link_cancel_timeout(ctx, link);
->>   		} else {
->> -			io_cqring_fill_event(ctx, link->user_data, -ECANCELED);
->> -			__io_free_req(link);
->> +			io_cqring_fill_event(link, -ECANCELED);
->> +			/* drop both submit and complete references */
->> +			io_put_req(link, NULL);
->> +			io_put_req(link, NULL);
-> 
-> io_put_req() -> ... -> io_free_req() -> io_fail_links() -> io_put_req()
-> 
-> It shouldn't recurse further, but probably it would be better to avoid
-> it at all.
+Currently we drop completion events, if the CQ ring is full. That's fine
+for requests with bounded completion times, but it may make it harder to
+use io_uring with networked IO where request completion times are
+generally unbounded. Or with POLL, for example, which is also unbounded.
 
-Not sure how to improve that. We could do something ala:
+This patch adds IORING_SETUP_CQ_NODROP, which changes the behavior a bit
+for CQ ring overflows. First of all, it doesn't overflow the ring, it
+simply stores backlog of completions that we weren't able to put into
+the CQ ring. To prevent the backlog from growing indefinitely, if the
+backlog is non-empty, we apply back pressure on IO submissions. Any
+attempt to submit new IO with a non-empty backlog will get an -EBUSY
+return from the kernel.
 
-if (refcount_sub_and_test(2, &link->refs))
-	__io_free_req(link);
+I think that makes for a pretty sane API in terms of how the application
+can handle it. With CQ_NODROP enabled, we'll never drop a completion
+event, but we'll also not allow submissions with a completion backlog.
 
-to make it clear and more resistant against recursion.
+Changes since v2:
 
-I also think we need to put that link path out-of-line in io_free_req().
-I'll make those two changes.
+- Add io_double_put_req() helper for the cases where we need to drop both
+  the submit and complete reference. We didn't need this before as we
+  could just free the request unconditionally, but we don't know if that's
+  the case anymore if add/fill grabs a reference to it.
+- Fix linked request dropping.
+
+Changes since v1:
+
+- Drop the cqe_drop structure and allocation, simply use the io_kiocb
+  for the overflow backlog
+- Rebase on top of Pavel's series which made this cleaner
+- Add prep patch for the fill/add CQ handler changes
+
+ fs/io_uring.c                 | 209 +++++++++++++++++++++++-----------
+ include/uapi/linux/io_uring.h |   1 +
+ 2 files changed, 143 insertions(+), 67 deletions(-)
 
 -- 
 Jens Axboe
+
 

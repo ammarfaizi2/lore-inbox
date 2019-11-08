@@ -2,167 +2,99 @@ Return-Path: <SRS0=cPsQ=ZA=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50956C43331
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 01:24:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8A01C43331
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 02:12:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2796E21D7E
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 01:24:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72DD32084C
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 02:12:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="xquxuHOW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727024AbfKHBY0 convert rfc822-to-8bit (ORCPT
-        <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Nov 2019 20:24:26 -0500
-Received: from smtpbg702.qq.com ([203.205.195.102]:39759 "EHLO
-        smtpproxy21.qq.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726094AbfKHBYZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 20:24:25 -0500
-X-Greylist: delayed 2460 seconds by postgrey-1.27 at vger.kernel.org; Thu, 07 Nov 2019 20:24:24 EST
-X-QQ-mid: bizesmtp26t1573176259tcfhr4wb
-Received: from [192.168.142.168] (unknown [218.76.23.26])
-        by esmtp10.qq.com (ESMTP) with 
-        id ; Fri, 08 Nov 2019 09:24:18 +0800 (CST)
-X-QQ-SSF: 00400000002000S0ZU90000A0000000
-X-QQ-FEAT: JYOFLJLLthhaOXZmuR17vavtLIQLgxWxnJb8ElaNk2NJobA6kmmmGcZg6pNFM
-        asyESvBWd4moSaGVt5SUtGgXq3+q7kHDXALBQKvVBRn5It6MW/2rovfT/tjHa7t/pRyedK0
-        ilE5fOzUKBAk6Yy32OizPhADPVC5eKmTTK0w4HQK6UC6Ge2YgnQApnh2aYJbok9WdPR/kyN
-        GfpfBd5Sec3vKATdYTcjlZa5gHhvv376jPVsJPcc9elLIpCoSW7hhRT5mt03tm9MqXmzdw9
-        gta/DsXXfXGdkMh7SYSzzfdM7szVusdQF54ee5Zhv9TF3Y6lDM7y68dgPb+YtXVA0NnicBU
-        JmvFxO0c9WmVIO/7moaart81bdQTw==
-X-QQ-GoodBg: 2
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601.0.10\))
+        id S1726504AbfKHCMk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 7 Nov 2019 21:12:40 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:39417 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725940AbfKHCMk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 21:12:40 -0500
+Received: by mail-pl1-f194.google.com with SMTP id o9so2964560plk.6
+        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 18:12:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3uN53Doe3jOnu0uX3awWlpMxfbd2hmw5TJnhaW7Ip2A=;
+        b=xquxuHOWyXWrN8SZPD8zlvIMZt/5UL0xvhB1CVq/3PJzTWcMvQLQv412y+j0Pt9RD7
+         VQGKXA4OhXM5Nus3QUVj7ElgRwVanq2Zg+FdutKvUDkKT5JovJIhgD2BX7FMWEw2a42k
+         Xnw63ku0M1F5QdY+ikQruElvpN7U0bq995n8fixcsfnMbst7a1LpQu79FThU8upGyvw+
+         Ig8j7B6Lqb//Ud7KUzE9Gv1fq4K4uG5GFqfk2X8/VGD9sa2TiBG6Vz5CBi4B74vbGxTZ
+         gplxfBKppqPt6v3P38UHOd7O+9AOp4kzFiQUbSLiaPTjVJ9kIjmRHRf0HwkDTENmCNE6
+         2hJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3uN53Doe3jOnu0uX3awWlpMxfbd2hmw5TJnhaW7Ip2A=;
+        b=UsfT75KKhp5AhcUBqkRTCoHCn8/ZvjupV/8EhhnZ9XIolDov9XwxmK8TV/33rX6Og2
+         7iUDdxIsL9RL46wjXo2jYa8mshxyJ4yfeLQ1mXToaKO4x3oIKg7YYkmwA1Nadrf/hI+N
+         U2tHki4C5XF8/3BT5K/1iwA9hGimhzO0zM2Wz+y/8cYSzUJTmE/863WmPCp1X7DFR/vl
+         zzghcdNAvOjr7aDTeWCqI0JNznaOtiS7BvqWXyvmpCpnk39iXj5GxBQgR4/PzbQWI4Xd
+         HIFZQbZwaUliWByyqKYPsMVKxSCbJw3Zx7XwqWiD1HSaj6/B1TyHhZsEFJ5SCbREUllr
+         tMNQ==
+X-Gm-Message-State: APjAAAVnLxhmwLYpnt/YsSkrKva67NyZU1Nbl6ERZeReNeYlMbnzjdMg
+        mKn60rZAZYS5DpLrvXrMaidY+1Xiue0=
+X-Google-Smtp-Source: APXvYqy12vquYPenW403dAr2+LPZxCLKkng/eyv4o1kesAOvsVQMf2278uk8EhIC2cyGKcgEsZ4/8w==
+X-Received: by 2002:a17:90a:bd10:: with SMTP id y16mr9367956pjr.111.1573179156813;
+        Thu, 07 Nov 2019 18:12:36 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.79])
+        by smtp.gmail.com with ESMTPSA id o125sm3626429pfg.118.2019.11.07.18.12.34
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 Nov 2019 18:12:35 -0800 (PST)
 Subject: Re: [PATCH v2] io_uring: add support for linked SQE timeouts
-From:   Jackie Liu <liuyun01@kylinos.cn>
-In-Reply-To: <a7a32933-10fb-9c90-04ce-3f64ecad2421@kernel.dk>
-Date:   Fri, 8 Nov 2019 09:24:20 +0800
+To:     Jackie Liu <liuyun01@kylinos.cn>
 Cc:     io-uring@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <C0C26DA7-DD02-46EE-A398-51A50962A724@kylinos.cn>
 References: <a7a32933-10fb-9c90-04ce-3f64ecad2421@kernel.dk>
-To:     Jens Axboe <axboe@kernel.dk>
-X-Mailer: Apple Mail (2.3601.0.10)
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign5
-X-QQ-Bgrelay: 1
+ <C0C26DA7-DD02-46EE-A398-51A50962A724@kylinos.cn>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <f5930ec1-d3b3-4cd9-0648-fa835b347318@kernel.dk>
+Date:   Thu, 7 Nov 2019 19:12:33 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <C0C26DA7-DD02-46EE-A398-51A50962A724@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+On 11/7/19 6:24 PM, Jackie Liu wrote:
+>> @@ -734,11 +755,23 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+>> 		 * If we're in async work, we can continue processing the chain
+>> 		 * in this context instead of having to queue up new async work.
+>> 		 */
+>> -		if (nxtptr && current_work())
+>> +		if (req->flags & REQ_F_LINK_TIMEOUT) {
+>> +			wake_ev = io_link_cancel_timeout(ctx, nxt);
+>> +
+>> +			/* we dropped this link, get next */
+>> +			nxt = list_first_entry_or_null(&req->link_list,
+>> +							struct io_kiocb, list);
+>> +		} else if (nxtptr && current_work()) {
+>> 			*nxtptr = nxt;
+>> -		else
+>> +			nxt = NULL;
+> 
+> Use 'break' is more better? no need to set variables and compare.
 
+Fine with me, I'll make that change. Happy with it otherwise?
 
-> 2019年11月7日 10:05，Jens Axboe <axboe@kernel.dk> 写道：
-> 
-> While we have support for generic timeouts, we don't have a way to tie
-> a timeout to a specific SQE. The generic timeouts simply trigger wakeups
-> on the CQ ring.
-> 
-> This adds support for IORING_OP_LINK_TIMEOUT. This command is only valid
-> as a link to a previous command. The timeout specific can be either
-> relative or absolute, following the same rules as IORING_OP_TIMEOUT. If
-> the timeout triggers before the dependent command completes, it will
-> attempt to cancel that command. Likewise, if the dependent command
-> completes before the timeout triggers, it will cancel the timeout.
-> 
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> 
-> ---
-> 
-> Changes since v1:
-> - Move required locking outside of io_req_link_next(), it's much
->  cleaner this way and avoids sparse complaining.
-> - Avoid 32-bit complaint on casting to pointer of different size
-> - Fix IORING_TIMEOUT_ABS, used sqe->flags instead of timeout_flags
-> - Rebase on top of current tree
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index c39d1c50a3be..e29ecc1b0218 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -329,6 +329,7 @@ struct io_kiocb {
-> #define REQ_F_IO_DRAIN		16	/* drain existing IO first */
-> #define REQ_F_IO_DRAINED	32	/* drain done */
-> #define REQ_F_LINK		64	/* linked sqes */
-> +#define REQ_F_LINK_TIMEOUT	128	/* has linked timeout */
-> #define REQ_F_FAIL_LINK		256	/* fail rest of links */
-> #define REQ_F_SHADOW_DRAIN	512	/* link-drain shadow req */
-> #define REQ_F_TIMEOUT		1024	/* timeout request */
-> @@ -371,6 +372,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr);
-> static void io_cqring_fill_event(struct io_ring_ctx *ctx, u64 ki_user_data,
-> 				 long res);
-> static void __io_free_req(struct io_kiocb *req);
-> +static void io_put_req(struct io_kiocb *req, struct io_kiocb **nxtptr);
-> 
-> static struct kmem_cache *req_cachep;
-> 
-> @@ -712,9 +714,28 @@ static void __io_free_req(struct io_kiocb *req)
-> 	kmem_cache_free(req_cachep, req);
-> }
-> 
-> +static bool io_link_cancel_timeout(struct io_ring_ctx *ctx,
-> +				   struct io_kiocb *req)
-> +{
-> +	int ret;
-> +
-> +	ret = hrtimer_try_to_cancel(&req->timeout.timer);
-> +	if (ret != -1) {
-> +		io_cqring_fill_event(ctx, req->user_data, -ECANCELED);
-> +		io_commit_cqring(ctx);
-> +		req->flags &= ~REQ_F_LINK;
-> +		__io_free_req(req);
-> +		return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
-> {
-> +	struct io_ring_ctx *ctx = req->ctx;
-> 	struct io_kiocb *nxt;
-> +	bool wake_ev = false;
-> 
-> 	/*
-> 	 * The list should never be empty when we are called here. But could
-> @@ -722,7 +743,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
-> 	 * safe side.
-> 	 */
-> 	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
-> -	if (nxt) {
-> +	while (nxt) {
-> 		list_del(&nxt->list);
-> 		if (!list_empty(&req->link_list)) {
-> 			INIT_LIST_HEAD(&nxt->link_list);
-> @@ -734,11 +755,23 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
-> 		 * If we're in async work, we can continue processing the chain
-> 		 * in this context instead of having to queue up new async work.
-> 		 */
-> -		if (nxtptr && current_work())
-> +		if (req->flags & REQ_F_LINK_TIMEOUT) {
-> +			wake_ev = io_link_cancel_timeout(ctx, nxt);
-> +
-> +			/* we dropped this link, get next */
-> +			nxt = list_first_entry_or_null(&req->link_list,
-> +							struct io_kiocb, list);
-> +		} else if (nxtptr && current_work()) {
-> 			*nxtptr = nxt;
-> -		else
-> +			nxt = NULL;
-
-Use 'break' is more better? no need to set variables and compare.
-
-> +		} else {
-> 			io_queue_async_work(req->ctx, nxt);
-> +			nxt = NULL;
-> +		}
-> 	}
-
---
-BR, Jackie Liu
-
-
+-- 
+Jens Axboe
 

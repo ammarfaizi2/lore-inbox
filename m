@@ -6,49 +6,47 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 414C5C43331
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:43:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50956C43331
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 01:24:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 11F982084C
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:43:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2796E21D7E
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 01:24:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727813AbfKHAnc convert rfc822-to-8bit (ORCPT
+        id S1727024AbfKHBY0 convert rfc822-to-8bit (ORCPT
         <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Nov 2019 19:43:32 -0500
-Received: from smtpbgeu1.qq.com ([52.59.177.22]:38451 "EHLO smtpbgeu1.qq.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725940AbfKHAnc (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 7 Nov 2019 19:43:32 -0500
-X-QQ-mid: bizesmtp27t1573173796tc666suw
+        Thu, 7 Nov 2019 20:24:26 -0500
+Received: from smtpbg702.qq.com ([203.205.195.102]:39759 "EHLO
+        smtpproxy21.qq.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726094AbfKHBYZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 20:24:25 -0500
+X-Greylist: delayed 2460 seconds by postgrey-1.27 at vger.kernel.org; Thu, 07 Nov 2019 20:24:24 EST
+X-QQ-mid: bizesmtp26t1573176259tcfhr4wb
 Received: from [192.168.142.168] (unknown [218.76.23.26])
         by esmtp10.qq.com (ESMTP) with 
-        id ; Fri, 08 Nov 2019 08:43:15 +0800 (CST)
-X-QQ-SSF: 00400000002000S0ZU90B00A0000000
-X-QQ-FEAT: nRXnH7lDr4fS8RhsDbEwg+XYZ0+e9sbjIrGQylqBLyO6PD8XEAVAa30YYn/CY
-        L3lpFfKOd5F74EWIsdXEFvvMGCPcjOu4rYBvoBPBpU8xrnIynKK5uaz/Qi2ZJscePw5QTe4
-        UMMreJp5BLzZD5AHIjH0D8j+Ctz8f1nCy/D0INQ7zbnxNRSm6QsvffWaPMNk8+K4FrTcdYf
-        5/bLNEJmhlejPHTH5+Fb+FNQ2YiZO1NL/9lvNB6+UpiE/AEg4fhQnn/k2mLy8cdf1OvFGh7
-        qIfw/KZ6XuOxGcr2f3FTmzXBLc8e0Lxd8cd5uvYDW4/1BcGy2/59sKncIRaC8jVcwYf3KBw
-        CQZs4UFmrGNRfkQq4qVtWCOmX425Q==
+        id ; Fri, 08 Nov 2019 09:24:18 +0800 (CST)
+X-QQ-SSF: 00400000002000S0ZU90000A0000000
+X-QQ-FEAT: JYOFLJLLthhaOXZmuR17vavtLIQLgxWxnJb8ElaNk2NJobA6kmmmGcZg6pNFM
+        asyESvBWd4moSaGVt5SUtGgXq3+q7kHDXALBQKvVBRn5It6MW/2rovfT/tjHa7t/pRyedK0
+        ilE5fOzUKBAk6Yy32OizPhADPVC5eKmTTK0w4HQK6UC6Ge2YgnQApnh2aYJbok9WdPR/kyN
+        GfpfBd5Sec3vKATdYTcjlZa5gHhvv376jPVsJPcc9elLIpCoSW7hhRT5mt03tm9MqXmzdw9
+        gta/DsXXfXGdkMh7SYSzzfdM7szVusdQF54ee5Zhv9TF3Y6lDM7y68dgPb+YtXVA0NnicBU
+        JmvFxO0c9WmVIO/7moaart81bdQTw==
 X-QQ-GoodBg: 2
 Content-Type: text/plain;
         charset=utf-8
 Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601.0.10\))
-Subject: Re: [PATCH] io_uring: reduce/pack size of io_ring_ctx
+Subject: Re: [PATCH v2] io_uring: add support for linked SQE timeouts
 From:   Jackie Liu <liuyun01@kylinos.cn>
-In-Reply-To: <2b059341-09f7-3810-435c-ef749cafedef@kernel.dk>
-Date:   Fri, 8 Nov 2019 08:43:16 +0800
+In-Reply-To: <a7a32933-10fb-9c90-04ce-3f64ecad2421@kernel.dk>
+Date:   Fri, 8 Nov 2019 09:24:20 +0800
 Cc:     io-uring@vger.kernel.org
 Content-Transfer-Encoding: 8BIT
-Message-Id: <8492EF8D-FB1F-46E3-AF89-E634D262173D@kylinos.cn>
-References: <1031c163-abd1-f42c-370d-8801f5fd2440@kernel.dk>
- <EB274748-0796-4D09-A568-D7A16A0C22D7@kylinos.cn>
- <253b27a9-55a2-c88e-3ccb-625c104934bb@kernel.dk>
- <2b059341-09f7-3810-435c-ef749cafedef@kernel.dk>
+Message-Id: <C0C26DA7-DD02-46EE-A398-51A50962A724@kylinos.cn>
+References: <a7a32933-10fb-9c90-04ce-3f64ecad2421@kernel.dk>
 To:     Jens Axboe <axboe@kernel.dk>
 X-Mailer: Apple Mail (2.3601.0.10)
 X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign7
+Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign5
 X-QQ-Bgrelay: 1
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
@@ -57,87 +55,111 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 
 
-> 2019年11月8日 08:35，Jens Axboe <axboe@kernel.dk> 写道：
+> 2019年11月7日 10:05，Jens Axboe <axboe@kernel.dk> 写道：
 > 
-> On 11/7/19 5:06 PM, Jens Axboe wrote:
->> On 11/7/19 5:00 PM, Jackie Liu wrote:
->>> This patch looks good, but I prefer sqo_thread_started instead of sqo_done,
->>> because we are marking the thread started, not the end of the thread.
->>> 
->>> Anyway, Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
->> 
->> Yeah, let's retain the old name. I'll make that change and add your
->> reviewed-by, thanks.
+> While we have support for generic timeouts, we don't have a way to tie
+> a timeout to a specific SQE. The generic timeouts simply trigger wakeups
+> on the CQ ring.
 > 
-> Actually, would you mind if we just make it ->completions[2] instead?
-> That saves a kmalloc per ctx setup, I think that's worthwhile enough
-> to bundle them together:
+> This adds support for IORING_OP_LINK_TIMEOUT. This command is only valid
+> as a link to a previous command. The timeout specific can be either
+> relative or absolute, following the same rules as IORING_OP_TIMEOUT. If
+> the timeout triggers before the dependent command completes, it will
+> attempt to cancel that command. Likewise, if the dependent command
+> completes before the timeout triggers, it will cancel the timeout.
 > 
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
 > 
-> commit 3b830211e99976650d5da0613dfca105c5007f8b
-> Author: Jens Axboe <axboe@kernel.dk>
-> Date:   Thu Nov 7 17:27:39 2019 -0700
+> ---
 > 
->    io_uring: reduce/pack size of io_ring_ctx
-> 
->    With the recent flurry of additions and changes to io_uring, the
->    layout of io_ring_ctx has become a bit stale. We're right now at
->    704 bytes in size on my x86-64 build, or 11 cachelines. This
->    patch does two things:
-> 
->    - We have to completion structs embedded, that we only use for
->      quiesce of the ctx (or shutdown) and for sqthread init cases.
->      That 2x32 bytes right there, let's dynamically allocate them.
-> 
->    - Reorder the struct a bit with an eye on cachelines, use cases,
->      and holes.
-> 
->    With this patch, we're down to 512 bytes, or 8 cachelines.
-> 
->    Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
->    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Changes since v1:
+> - Move required locking outside of io_req_link_next(), it's much
+>  cleaner this way and avoids sparse complaining.
+> - Avoid 32-bit complaint on casting to pointer of different size
+> - Fix IORING_TIMEOUT_ABS, used sqe->flags instead of timeout_flags
+> - Rebase on top of current tree
 > 
 > diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 4c488bf6e889..2b784262eaff 100644
+> index c39d1c50a3be..e29ecc1b0218 100644
 > --- a/fs/io_uring.c
 > +++ b/fs/io_uring.c
-> @@ -213,24 +213,13 @@ struct io_ring_ctx {
-> 		wait_queue_head_t	inflight_wait;
-> 	} ____cacheline_aligned_in_smp;
+> @@ -329,6 +329,7 @@ struct io_kiocb {
+> #define REQ_F_IO_DRAIN		16	/* drain existing IO first */
+> #define REQ_F_IO_DRAINED	32	/* drain done */
+> #define REQ_F_LINK		64	/* linked sqes */
+> +#define REQ_F_LINK_TIMEOUT	128	/* has linked timeout */
+> #define REQ_F_FAIL_LINK		256	/* fail rest of links */
+> #define REQ_F_SHADOW_DRAIN	512	/* link-drain shadow req */
+> #define REQ_F_TIMEOUT		1024	/* timeout request */
+> @@ -371,6 +372,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr);
+> static void io_cqring_fill_event(struct io_ring_ctx *ctx, u64 ki_user_data,
+> 				 long res);
+> static void __io_free_req(struct io_kiocb *req);
+> +static void io_put_req(struct io_kiocb *req, struct io_kiocb **nxtptr);
 > 
-> +	struct io_rings	*rings;
+> static struct kmem_cache *req_cachep;
+> 
+> @@ -712,9 +714,28 @@ static void __io_free_req(struct io_kiocb *req)
+> 	kmem_cache_free(req_cachep, req);
+> }
+> 
+> +static bool io_link_cancel_timeout(struct io_ring_ctx *ctx,
+> +				   struct io_kiocb *req)
+> +{
+> +	int ret;
 > +
-> 	/* IO offload */
-> 	struct io_wq		*io_wq;
-> 	struct task_struct	*sqo_thread;	/* if using sq thread polling */
-> 	struct mm_struct	*sqo_mm;
-> 	wait_queue_head_t	sqo_wait;
-> -	struct completion	sqo_thread_started;
-> -
-> -	struct {
-> -		unsigned		cached_cq_tail;
-> -		unsigned		cq_entries;
-> -		unsigned		cq_mask;
-> -		atomic_t		cq_timeouts;
-> -		struct wait_queue_head	cq_wait;
-> -		struct fasync_struct	*cq_fasync;
-> -		struct eventfd_ctx	*cq_ev_fd;
-> -	} ____cacheline_aligned_in_smp;
-> -
-> -	struct io_rings	*rings;
+> +	ret = hrtimer_try_to_cancel(&req->timeout.timer);
+> +	if (ret != -1) {
+> +		io_cqring_fill_event(ctx, req->user_data, -ECANCELED);
+> +		io_commit_cqring(ctx);
+> +		req->flags &= ~REQ_F_LINK;
+> +		__io_free_req(req);
+> +		return true;
+> +	}
+> +
+> +	return false;
+> +}
+> +
+> static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+> {
+> +	struct io_ring_ctx *ctx = req->ctx;
+> 	struct io_kiocb *nxt;
+> +	bool wake_ev = false;
 > 
 > 	/*
-> 	 * If used, fixed file set. Writers must ensure that ->refs is dead,
-> @@ -246,7 +235,22 @@ struct io_ring_ctx {
-> 
-> 	struct user_struct	*user;
-> 
-> -	struct completion	ctx_done;
-> +	/* 0 is for ctx quiesce/reinit/free, 1 is for sqo_thread started */
-> +	struct completion	*completions;
+> 	 * The list should never be empty when we are called here. But could
+> @@ -722,7 +743,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+> 	 * safe side.
+> 	 */
+> 	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
+> -	if (nxt) {
+> +	while (nxt) {
+> 		list_del(&nxt->list);
+> 		if (!list_empty(&req->link_list)) {
+> 			INIT_LIST_HEAD(&nxt->link_list);
+> @@ -734,11 +755,23 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+> 		 * If we're in async work, we can continue processing the chain
+> 		 * in this context instead of having to queue up new async work.
+> 		 */
+> -		if (nxtptr && current_work())
+> +		if (req->flags & REQ_F_LINK_TIMEOUT) {
+> +			wake_ev = io_link_cancel_timeout(ctx, nxt);
 > +
+> +			/* we dropped this link, get next */
+> +			nxt = list_first_entry_or_null(&req->link_list,
+> +							struct io_kiocb, list);
+> +		} else if (nxtptr && current_work()) {
+> 			*nxtptr = nxt;
+> -		else
+> +			nxt = NULL;
 
-I think it's okay, it's clear through comments here.
+Use 'break' is more better? no need to set variables and compare.
+
+> +		} else {
+> 			io_queue_async_work(req->ctx, nxt);
+> +			nxt = NULL;
+> +		}
+> 	}
 
 --
 BR, Jackie Liu

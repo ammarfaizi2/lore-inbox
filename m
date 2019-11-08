@@ -2,69 +2,72 @@ Return-Path: <SRS0=cPsQ=ZA=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DFCDC43331
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:20:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE40EC43331
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:35:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A14C02084C
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:20:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEA2820674
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:35:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="G2Dv5sON"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="BsYr4xJ9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbfKHAUD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Nov 2019 19:20:03 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:35022 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726054AbfKHAUD (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 19:20:03 -0500
-Received: by mail-pl1-f195.google.com with SMTP id s10so2792013plp.2
-        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 16:20:02 -0800 (PST)
+        id S1725946AbfKHAfU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 7 Nov 2019 19:35:20 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38199 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727695AbfKHAfT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 19:35:19 -0500
+Received: by mail-pf1-f195.google.com with SMTP id c13so3567679pfp.5
+        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 16:35:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:references:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=iT8KTat3rvuSmzK173prI1k3B/Q0JRSCNCAU8p1uN1o=;
-        b=G2Dv5sONy5EwCX9OI7OoP6W01H+e/d8SFp+e3cR6d9R8SAUDQ6b8vOs4gDtjjm4bKc
-         NMxucTj7uw5uUf1YzTslzyMxVektgnHdS5qcMOlf9PKsOS38LrqpRfzyEjeW9CDhw8TG
-         CwmUakg5IYcGXLjU+7K+ULdeGVSJRqx+q7NYoKg4jHQSL97WDn/88korVfMLgEXunr+b
-         I3ge3hDD2MaSAmgxlFqQZTBV/VqPEn+QJjlO/3xCB2Gbrjg6meUJgvlFIUjPh+nH1BGW
-         W1ypozCVDRZDFB+FWtVRlelqZModLPDIBaUNbDr0onch1BOU+pRnCW4UIH3zZ5xfsvR3
-         pWkg==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=mbrMZz4bbTdmfnVgj3z/3Inr3TH+sGUVXtg9X7cyhR4=;
+        b=BsYr4xJ9EMg2BcPd34MdRf/bvyv/2Cej39BEfknRMhw68LFS7PJeBNIlaVSLyKBbFk
+         wSkDVABlc3eOgww+zYHbob/mXb0gUTu5v1uv+8jexVVckoAWNWgMn15TDQ/JmGQt4i+f
+         17P/U7MJS4iUdLctSL9EGd9O9PwWhqGjaOw+eGKkIjeJJmz/5PoRsqWZKOy9rsg2OWJn
+         52c6tTjRUE5PMBwUkuRsfrKDtvQKqryrVEI4ytj5OVk/3kaSnFiB+6BvNQyUJXeWHOQE
+         tKNiA/tXY+JhfOcdPt9Yn9D2PPrePdCQ0bhbl98OgoTOpA9DL9dKPTBW+muq65i86R1+
+         7cVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:references:message-id:date
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=iT8KTat3rvuSmzK173prI1k3B/Q0JRSCNCAU8p1uN1o=;
-        b=e+dXJHwlvlXzQoTLwJpFjnv00kTIsP5fxI5Nf72XymlDZs/7NzXGFG4utF4vvp9FkV
-         Xwq6wasiYwgL+bwtSsxaBKGuuun7ahm/V2x8RyrgFdj6NtVh78r7rOgrZXYm+s2EqCjl
-         NBO6OfcKYBggQV4cWcJkX8WjjwnsLgWo9uVIM+3HIdKU45GhrUxh4dhWgzGApYrXL3sG
-         5avfxuZHgi0h3BKN924s6SfRPpK4wUl677l9p4bv/GYG/qh9IVSfIWs19lMEo9OgWDpw
-         wmt7dBkQEGRb4eimiQYrFCfzQfJ64UAHo4KYN9nFEIU0VR8+xhqKCJZwHLq+4zC6DSyH
-         o9GQ==
-X-Gm-Message-State: APjAAAX/1HICiB8KYlNGxHK/QXdzdl4G3KNEMRGy42+j1a98WKoAvmLc
-        B/FG4LKybauenUp19YNEaYQ4HKmPckg=
-X-Google-Smtp-Source: APXvYqyTl3YUk9hQ+tcriormbAzCz9ucYAPMFNdeFFrLBx8jWib6Q4k9oFxbVx7u3oL5ArPN3ZLRAw==
-X-Received: by 2002:a17:90a:2e03:: with SMTP id q3mr9187036pjd.63.1573172401162;
-        Thu, 07 Nov 2019 16:20:01 -0800 (PST)
+        bh=mbrMZz4bbTdmfnVgj3z/3Inr3TH+sGUVXtg9X7cyhR4=;
+        b=jQsy5THm2CHgoXAb//YQHUBImn70tgbhzWa3NAdCs90w/h8a4SLq3z/4903kgwATAl
+         rugJ8GJ4TcA96p0QpA7PmOkCyb4Edf3yK7KedbFRQnuNzXGLF0lYhPYs3fSjr7Kt/TKS
+         okfLSZ6IAxoKl/zHy9GRHCSOVEh7CtWTqlUMnt0BtE9Kzccyw1Eh+VRtPljeidR9Ot0n
+         dfAAVjPskM9YR5fqxeMELuUohA7JoSciMdv5bE24Z+lyG0RryEmAM1fmmGHKYH7/1u1l
+         Wy9SbuMUXXaDOwuWN1y/RAGChEI2sDD/C0Y6CIqLVppbybqosOOZxVSLfTUA/TcRIfpd
+         Pi+A==
+X-Gm-Message-State: APjAAAUfnhYy5m5/3uUzEC0gJGBWQsygUT0kTckRuIOMq4T+oPzC/uOp
+        abcyQKp+xfsKuKHKSQQUOzhiIGVHe0w=
+X-Google-Smtp-Source: APXvYqxnRD+Ze6FG87Gbt6VrTDO1kHO6V4VIYhEM7EOdv2ooCVRXnT8Mai01geL37ILLi9W6GIUAIQ==
+X-Received: by 2002:a63:6744:: with SMTP id b65mr8216669pgc.13.1573173316934;
+        Thu, 07 Nov 2019 16:35:16 -0800 (PST)
 Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id w15sm3793841pfn.13.2019.11.07.16.19.59
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id 9sm3249227pfn.113.2019.11.07.16.35.14
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 Nov 2019 16:20:00 -0800 (PST)
-Subject: Re: [PATCH RFC] io_uring: limit inflight IO
+        Thu, 07 Nov 2019 16:35:15 -0800 (PST)
+Subject: Re: [PATCH] io_uring: reduce/pack size of io_ring_ctx
 From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
-Message-ID: <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
-Date:   Thu, 7 Nov 2019 17:19:58 -0700
+To:     Jackie Liu <liuyun01@kylinos.cn>
+Cc:     io-uring@vger.kernel.org
+References: <1031c163-abd1-f42c-370d-8801f5fd2440@kernel.dk>
+ <EB274748-0796-4D09-A568-D7A16A0C22D7@kylinos.cn>
+ <253b27a9-55a2-c88e-3ccb-625c104934bb@kernel.dk>
+Message-ID: <2b059341-09f7-3810-435c-ef749cafedef@kernel.dk>
+Date:   Thu, 7 Nov 2019 17:35:13 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
+In-Reply-To: <253b27a9-55a2-c88e-3ccb-625c104934bb@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -73,150 +76,209 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/7/19 4:21 PM, Jens Axboe wrote:
-> I'd like some feedback on this one. Even tith the overflow backpressure
-> patch, we still have a potentially large gap where applications can
-> submit IO before we get any dropped events in the CQ ring. This is
-> especially true if the execution time of those requests are long
-> (unbounded).
+On 11/7/19 5:06 PM, Jens Axboe wrote:
+> On 11/7/19 5:00 PM, Jackie Liu wrote:
+>> This patch looks good, but I prefer sqo_thread_started instead of sqo_done,
+>> because we are marking the thread started, not the end of the thread.
+>>
+>> Anyway, Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
 > 
-> This adds IORING_SETUP_INFLIGHT, which if set, will return -EBUSY if we
-> have more IO pending than we can feasibly support. This is normally the
-> CQ ring size, but of IORING_SETUP_CQ_NODROP is enabled, then it's twice
-> the CQ ring size.
-> 
-> This helps manage the pending queue size instead of letting it grow
-> indefinitely.
-> 
-> Note that we could potentially just make this the default behavior -
-> applications need to handle -EAGAIN returns already, in case we run out
-> of memory, and if we change this to return -EAGAIN as well, then it
-> doesn't introduce any new failure cases. I'm tempted to do that...
-> 
-> Anyway, comments solicited!
+> Yeah, let's retain the old name. I'll make that change and add your
+> reviewed-by, thanks.
 
-After a little deliberation, I think we should go with the one that
-doesn't require users to opt-in. As mentioned, let's change it to
--EAGAIN to not introduce a new errno for this. They essentially mean
-the same thing anyway.
+Actually, would you mind if we just make it ->completions[2] instead?
+That saves a kmalloc per ctx setup, I think that's worthwhile enough
+to bundle them together:
 
+
+commit 3b830211e99976650d5da0613dfca105c5007f8b
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Thu Nov 7 17:27:39 2019 -0700
+
+    io_uring: reduce/pack size of io_ring_ctx
+    
+    With the recent flurry of additions and changes to io_uring, the
+    layout of io_ring_ctx has become a bit stale. We're right now at
+    704 bytes in size on my x86-64 build, or 11 cachelines. This
+    patch does two things:
+    
+    - We have to completion structs embedded, that we only use for
+      quiesce of the ctx (or shutdown) and for sqthread init cases.
+      That 2x32 bytes right there, let's dynamically allocate them.
+    
+    - Reorder the struct a bit with an eye on cachelines, use cases,
+      and holes.
+    
+    With this patch, we're down to 512 bytes, or 8 cachelines.
+    
+    Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f8344f95817e..4c488bf6e889 100644
+index 4c488bf6e889..2b784262eaff 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -203,6 +203,7 @@ struct io_ring_ctx {
- 		unsigned		sq_mask;
- 		unsigned		sq_thread_idle;
- 		unsigned		cached_sq_dropped;
-+		atomic_t		cached_cq_overflow;
- 		struct io_uring_sqe	*sq_sqes;
- 
- 		struct list_head	defer_list;
-@@ -221,13 +222,12 @@ struct io_ring_ctx {
- 
- 	struct {
- 		unsigned		cached_cq_tail;
--		atomic_t		cached_cq_overflow;
- 		unsigned		cq_entries;
- 		unsigned		cq_mask;
-+		atomic_t		cq_timeouts;
- 		struct wait_queue_head	cq_wait;
- 		struct fasync_struct	*cq_fasync;
- 		struct eventfd_ctx	*cq_ev_fd;
--		atomic_t		cq_timeouts;
+@@ -213,24 +213,13 @@ struct io_ring_ctx {
+ 		wait_queue_head_t	inflight_wait;
  	} ____cacheline_aligned_in_smp;
  
- 	struct io_rings	*rings;
-@@ -705,16 +705,39 @@ static void io_cqring_add_event(struct io_kiocb *req, long res)
- 	io_cqring_ev_posted(ctx);
- }
++	struct io_rings	*rings;
++
+ 	/* IO offload */
+ 	struct io_wq		*io_wq;
+ 	struct task_struct	*sqo_thread;	/* if using sq thread polling */
+ 	struct mm_struct	*sqo_mm;
+ 	wait_queue_head_t	sqo_wait;
+-	struct completion	sqo_thread_started;
+-
+-	struct {
+-		unsigned		cached_cq_tail;
+-		unsigned		cq_entries;
+-		unsigned		cq_mask;
+-		atomic_t		cq_timeouts;
+-		struct wait_queue_head	cq_wait;
+-		struct fasync_struct	*cq_fasync;
+-		struct eventfd_ctx	*cq_ev_fd;
+-	} ____cacheline_aligned_in_smp;
+-
+-	struct io_rings	*rings;
  
-+static bool io_req_over_limit(struct io_ring_ctx *ctx)
-+{
-+	unsigned limit, inflight;
+ 	/*
+ 	 * If used, fixed file set. Writers must ensure that ->refs is dead,
+@@ -246,7 +235,22 @@ struct io_ring_ctx {
+ 
+ 	struct user_struct	*user;
+ 
+-	struct completion	ctx_done;
++	/* 0 is for ctx quiesce/reinit/free, 1 is for sqo_thread started */
++	struct completion	*completions;
 +
-+	/*
-+	 * This doesn't need to be super precise, so only check every once
-+	 * in a while.
-+	 */
-+	if (ctx->cached_sq_head & ctx->sq_mask)
-+		return false;
++#if defined(CONFIG_UNIX)
++	struct socket		*ring_sock;
++#endif
 +
-+	if (ctx->flags & IORING_SETUP_CQ_NODROP)
-+		limit = 2 * ctx->cq_entries;
-+	else
-+		limit = ctx->cq_entries;
-+
-+	inflight = ctx->cached_sq_head -
-+		  (ctx->cached_cq_tail + atomic_read(&ctx->cached_cq_overflow));
-+	return inflight >= limit;
-+}
-+
- static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
--				   struct io_submit_state *state)
-+				   struct io_submit_state *state, bool force)
++	struct {
++		unsigned		cached_cq_tail;
++		unsigned		cq_entries;
++		unsigned		cq_mask;
++		atomic_t		cq_timeouts;
++		struct wait_queue_head	cq_wait;
++		struct fasync_struct	*cq_fasync;
++		struct eventfd_ctx	*cq_ev_fd;
++	} ____cacheline_aligned_in_smp;
+ 
+ 	struct {
+ 		struct mutex		uring_lock;
+@@ -268,10 +272,6 @@ struct io_ring_ctx {
+ 		spinlock_t		inflight_lock;
+ 		struct list_head	inflight_list;
+ 	} ____cacheline_aligned_in_smp;
+-
+-#if defined(CONFIG_UNIX)
+-	struct socket		*ring_sock;
+-#endif
+ };
+ 
+ struct sqe_submit {
+@@ -396,7 +396,7 @@ static void io_ring_ctx_ref_free(struct percpu_ref *ref)
  {
- 	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 	struct io_kiocb *req;
+ 	struct io_ring_ctx *ctx = container_of(ref, struct io_ring_ctx, refs);
  
- 	if (!percpu_ref_tryget(&ctx->refs))
--		return NULL;
-+		return ERR_PTR(-ENXIO);
- 
- 	if (!state) {
-+		if (unlikely(!force && io_req_over_limit(ctx)))
-+			goto out;
- 		req = kmem_cache_alloc(req_cachep, gfp);
- 		if (unlikely(!req))
- 			goto out;
-@@ -722,6 +745,8 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 		size_t sz;
- 		int ret;
- 
-+		if (unlikely(!force && io_req_over_limit(ctx)))
-+			goto out;
- 		sz = min_t(size_t, state->ios_left, ARRAY_SIZE(state->reqs));
- 		ret = kmem_cache_alloc_bulk(req_cachep, gfp, sz, state->reqs);
- 
-@@ -754,7 +779,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 	return req;
- out:
- 	percpu_ref_put(&ctx->refs);
--	return NULL;
-+	return ERR_PTR(-EAGAIN);
+-	complete(&ctx->ctx_done);
++	complete(&ctx->completions[0]);
  }
  
- static void io_free_req_many(struct io_ring_ctx *ctx, void **reqs, int *nr)
-@@ -2963,10 +2988,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		struct io_kiocb *req;
- 		unsigned int sqe_flags;
+ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+@@ -407,17 +407,19 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	if (!ctx)
+ 		return NULL;
  
--		req = io_get_req(ctx, statep);
--		if (unlikely(!req)) {
-+		req = io_get_req(ctx, statep, false);
-+		if (unlikely(IS_ERR(req))) {
- 			if (!submitted)
--				submitted = -EAGAIN;
-+				submitted = PTR_ERR(req);
-+			req = NULL;
- 			break;
- 		}
- 		if (!io_get_sqring(ctx, &req->submit)) {
-@@ -2986,9 +3012,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
++	ctx->completions = kmalloc(2 * sizeof(struct completion), GFP_KERNEL);
++	if (!ctx->completions)
++		goto err;
++
+ 	if (percpu_ref_init(&ctx->refs, io_ring_ctx_ref_free,
+-			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
+-		kfree(ctx);
+-		return NULL;
+-	}
++			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
++		goto err;
  
- 		if (link && (sqe_flags & IOSQE_IO_DRAIN)) {
- 			if (!shadow_req) {
--				shadow_req = io_get_req(ctx, NULL);
--				if (unlikely(!shadow_req))
-+				shadow_req = io_get_req(ctx, NULL, true);
-+				if (unlikely(IS_ERR(shadow_req))) {
-+					shadow_req = NULL;
- 					goto out;
-+				}
- 				shadow_req->flags |= (REQ_F_IO_DRAIN | REQ_F_SHADOW_DRAIN);
- 				refcount_dec(&shadow_req->refs);
- 			}
+ 	ctx->flags = p->flags;
+ 	init_waitqueue_head(&ctx->cq_wait);
+ 	INIT_LIST_HEAD(&ctx->cq_overflow_list);
+-	init_completion(&ctx->ctx_done);
+-	init_completion(&ctx->sqo_thread_started);
++	init_completion(&ctx->completions[0]);
++	init_completion(&ctx->completions[1]);
+ 	mutex_init(&ctx->uring_lock);
+ 	init_waitqueue_head(&ctx->wait);
+ 	spin_lock_init(&ctx->completion_lock);
+@@ -429,6 +431,10 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	spin_lock_init(&ctx->inflight_lock);
+ 	INIT_LIST_HEAD(&ctx->inflight_list);
+ 	return ctx;
++err:
++	kfree(ctx->completions);
++	kfree(ctx);
++	return NULL;
+ }
+ 
+ static inline bool __io_sequence_defer(struct io_ring_ctx *ctx,
+@@ -3065,7 +3071,7 @@ static int io_sq_thread(void *data)
+ 	unsigned inflight;
+ 	unsigned long timeout;
+ 
+-	complete(&ctx->sqo_thread_started);
++	complete(&ctx->completions[1]);
+ 
+ 	old_fs = get_fs();
+ 	set_fs(USER_DS);
+@@ -3304,7 +3310,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ static void io_sq_thread_stop(struct io_ring_ctx *ctx)
+ {
+ 	if (ctx->sqo_thread) {
+-		wait_for_completion(&ctx->sqo_thread_started);
++		wait_for_completion(&ctx->completions[1]);
+ 		/*
+ 		 * The park is a bit of a work-around, without it we get
+ 		 * warning spews on shutdown with SQPOLL set and affinity
+@@ -4126,6 +4132,7 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ 		io_unaccount_mem(ctx->user,
+ 				ring_pages(ctx->sq_entries, ctx->cq_entries));
+ 	free_uid(ctx->user);
++	kfree(ctx->completions);
+ 	kfree(ctx);
+ }
+ 
+@@ -4169,7 +4176,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 		io_wq_cancel_all(ctx->io_wq);
+ 
+ 	io_iopoll_reap_events(ctx);
+-	wait_for_completion(&ctx->ctx_done);
++	wait_for_completion(&ctx->completions[0]);
+ 	io_ring_ctx_free(ctx);
+ }
+ 
+@@ -4573,7 +4580,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	 * no new references will come in after we've killed the percpu ref.
+ 	 */
+ 	mutex_unlock(&ctx->uring_lock);
+-	wait_for_completion(&ctx->ctx_done);
++	wait_for_completion(&ctx->completions[0]);
+ 	mutex_lock(&ctx->uring_lock);
+ 
+ 	switch (opcode) {
+@@ -4616,7 +4623,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	}
+ 
+ 	/* bring the ctx back to life */
+-	reinit_completion(&ctx->ctx_done);
++	reinit_completion(&ctx->completions[0]);
+ 	percpu_ref_reinit(&ctx->refs);
+ 	return ret;
+ }
 
 -- 
 Jens Axboe

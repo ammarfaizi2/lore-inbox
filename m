@@ -1,256 +1,257 @@
-Return-Path: <SRS0=nqv2=Y7=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=cPsQ=ZA=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C72C9C43331
-	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 23:21:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0CB2C43331
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:00:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 87FA9214D8
-	for <io-uring@archiver.kernel.org>; Thu,  7 Nov 2019 23:21:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="qp7HSKwG"
+	by mail.kernel.org (Postfix) with ESMTP id 5B691214DB
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 00:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725928AbfKGXV6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Nov 2019 18:21:58 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:37802 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725930AbfKGXV6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 18:21:58 -0500
-Received: by mail-pl1-f193.google.com with SMTP id p13so2692398pll.4
-        for <io-uring@vger.kernel.org>; Thu, 07 Nov 2019 15:21:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=fdcZ1FoxipusDYi2PCIrnx3/jA3OOWo0scJjWrptLi4=;
-        b=qp7HSKwGvEv3Y4bQfjnq6m79MyoMBBFhy1t80f5h1vHc5IS5/Vn/l3hyZ1tlOuoqEn
-         eBGRxFWfizwcIcvHmz8rWtFRcCuiXW6XuNKoPDzf2uf9FHfJwxwZaU4vY8+xtCcKWU3e
-         hVWDSe+QsRINBuQV8cTqo9nCoJNLWbXk92l3V0vZQwu5aHlQagoJ3J/ekGialhlId5r+
-         14IegpNQPOlqkpD9SwpiMjUoF83aZNwAT1nuZqHvm2FoYagl8Tp/47gumh92OM4xv+IV
-         qOTyOx3h9rfJe8qi/epkwxqp22LEj8OCXZuYWGWRrOp6rEOnRAA99NThMFWDQ4SYbR3j
-         VGBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=fdcZ1FoxipusDYi2PCIrnx3/jA3OOWo0scJjWrptLi4=;
-        b=cLPml6XWpwBZ1f4Mmv2VC7jB6vJ2FnRp/A1JGZBPZFPZUdhMxh14aAWIeG/0ub9dv1
-         p4DHdX69DSv59iI6fBJNrsIVi50fW+PBdY4G5LI1Yp4Z2L9PVtqT1CzDUIkny5MfWybE
-         HW5XscLRQtoIjVz+P5FesTbghSORNrXXa+HoSebl+RbUgGzzzAEpLq+upvpKXLtqxT7N
-         +4Ir0blookvZKdPEOYP9uL+L3d9XMpyAug9kc8mwgQxDaGt7+QRAXyJY+QNXQLo4O1RZ
-         pyKlFJRmINIirgVEz1U3PvDHppxh6F6oxYrAx3XPsXszZTwyXJwzSMB30q51PqoL0ZUb
-         P16Q==
-X-Gm-Message-State: APjAAAV1hte2Q6U9Wq6q9xElguswNg8NXJXg0/M3jiCtrjii1WR4RIBQ
-        0S74TsLlvcCv24aR+7UfSIxpn2rY8Fo=
-X-Google-Smtp-Source: APXvYqyEFPBPTeGCy1ceyNsrk8etGrqHVnxYClSi9SaP5xD6lq9KjbGSTDpk3a6Y40gYSY9jRD5Qxg==
-X-Received: by 2002:a17:90a:9a81:: with SMTP id e1mr9112401pjp.59.1573168916789;
-        Thu, 07 Nov 2019 15:21:56 -0800 (PST)
-Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id x125sm4134017pfb.93.2019.11.07.15.21.55
-        for <io-uring@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 Nov 2019 15:21:56 -0800 (PST)
-To:     io-uring@vger.kernel.org
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH RFC] io_uring: limit inflight IO
-Message-ID: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
-Date:   Thu, 7 Nov 2019 16:21:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1727994AbfKHAAM convert rfc822-to-8bit (ORCPT
+        <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 7 Nov 2019 19:00:12 -0500
+Received: from smtpbguseast2.qq.com ([54.204.34.130]:44494 "EHLO
+        smtpbguseast2.qq.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727992AbfKHAAL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Nov 2019 19:00:11 -0500
+X-QQ-mid: bizesmtp21t1573171204tz9lxjka
+Received: from [192.168.142.168] (unknown [218.76.23.26])
+        by esmtp6.qq.com (ESMTP) with 
+        id ; Fri, 08 Nov 2019 08:00:03 +0800 (CST)
+X-QQ-SSF: 00400000002000S0ZU90B00A0000000
+X-QQ-FEAT: kt6gOBlTESkybYe3xp/Yi73heXThwhPrvVZvF7OkELBiyybg0bqzg3g8W8SZd
+        JGzamtPxZl6eq7dkxwOv2Tf/f5o+uRlL3rsy17v2NrZswONY3jFBQrsa1EZTQrxGRPx1jJB
+        CoWLIZXC1O8h0pjijs1yraISzFSpUCmygdfsklLNVrb0U+23XsWptecRl71Nb2Vze4JETE+
+        jfz9N5e5wyuTC1Kl0AgSY/eh8P+dIJmjC6ffZqCTc0EtnK4T7T25ezvzrbW/fyzde+qvd5I
+        8xHjJb/aQK3eAI7nkUsd8oVnkq5l2OQf7InGvG2frvFB963UF3J/4Mr0AxcP9OOK6c2RsuV
+        HO7/9+5xBkXQjphLz4=
+X-QQ-GoodBg: 2
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601.0.10\))
+Subject: Re: [PATCH] io_uring: reduce/pack size of io_ring_ctx
+From:   Jackie Liu <liuyun01@kylinos.cn>
+In-Reply-To: <1031c163-abd1-f42c-370d-8801f5fd2440@kernel.dk>
+Date:   Fri, 8 Nov 2019 08:00:05 +0800
+Cc:     io-uring@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <EB274748-0796-4D09-A568-D7A16A0C22D7@kylinos.cn>
+References: <1031c163-abd1-f42c-370d-8801f5fd2440@kernel.dk>
+To:     Jens Axboe <axboe@kernel.dk>
+X-Mailer: Apple Mail (2.3601.0.10)
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign7
+X-QQ-Bgrelay: 1
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-I'd like some feedback on this one. Even tith the overflow backpressure
-patch, we still have a potentially large gap where applications can
-submit IO before we get any dropped events in the CQ ring. This is
-especially true if the execution time of those requests are long
-(unbounded).
 
-This adds IORING_SETUP_INFLIGHT, which if set, will return -EBUSY if we
-have more IO pending than we can feasibly support. This is normally the
-CQ ring size, but of IORING_SETUP_CQ_NODROP is enabled, then it's twice
-the CQ ring size.
 
-This helps manage the pending queue size instead of letting it grow
-indefinitely.
+> 2019年11月8日 04:23，Jens Axboe <axboe@kernel.dk> 写道：
+> 
+> With the recent flurry of additions and changes to io_uring, the
+> layout of io_ring_ctx has become a bit stale. We're right now at
+> 704 bytes in size on my x86-64 build, or 11 cachelines. This
+> patch does two things:
+> 
+> - We have to completion structs embedded, that we only use for
+>  quiesce of the ctx (or shutdown) and for sqthread init cases.
+>  That 2x32 bytes right there, let's dynamically allocate them.
+> 
+> - Reorder the struct a bit with an eye on cachelines, use cases,
+>  and holes.
+> 
+> With this patch, we're down to 512 bytes, or 8 cachelines.
+> 
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> 
+> --
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index f8344f95817e..2dbc108fa27b 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -212,25 +212,14 @@ struct io_ring_ctx {
+> 		wait_queue_head_t	inflight_wait;
+> 	} ____cacheline_aligned_in_smp;
+> 
+> +	struct io_rings	*rings;
+> +
+> 	/* IO offload */
+> 	struct io_wq		*io_wq;
+> 	struct task_struct	*sqo_thread;	/* if using sq thread polling */
+> 	struct mm_struct	*sqo_mm;
+> 	wait_queue_head_t	sqo_wait;
+> -	struct completion	sqo_thread_started;
+> -
+> -	struct {
+> -		unsigned		cached_cq_tail;
+> -		atomic_t		cached_cq_overflow;
+> -		unsigned		cq_entries;
+> -		unsigned		cq_mask;
+> -		struct wait_queue_head	cq_wait;
+> -		struct fasync_struct	*cq_fasync;
+> -		struct eventfd_ctx	*cq_ev_fd;
+> -		atomic_t		cq_timeouts;
+> -	} ____cacheline_aligned_in_smp;
+> -
+> -	struct io_rings	*rings;
+> +	struct completion	*sqo_done;
+> 
+> 	/*
+> 	 * If used, fixed file set. Writers must ensure that ->refs is dead,
+> @@ -246,7 +235,22 @@ struct io_ring_ctx {
+> 
+> 	struct user_struct	*user;
+> 
+> -	struct completion	ctx_done;
+> +	struct completion	*ctx_done;
+> +
+> +#if defined(CONFIG_UNIX)
+> +	struct socket		*ring_sock;
+> +#endif
+> +
+> +	struct {
+> +		unsigned		cached_cq_tail;
+> +		atomic_t		cached_cq_overflow;
+> +		unsigned		cq_entries;
+> +		unsigned		cq_mask;
+> +		struct wait_queue_head	cq_wait;
+> +		struct fasync_struct	*cq_fasync;
+> +		struct eventfd_ctx	*cq_ev_fd;
+> +		atomic_t		cq_timeouts;
+> +	} ____cacheline_aligned_in_smp;
+> 
+> 	struct {
+> 		struct mutex		uring_lock;
+> @@ -268,10 +272,6 @@ struct io_ring_ctx {
+> 		spinlock_t		inflight_lock;
+> 		struct list_head	inflight_list;
+> 	} ____cacheline_aligned_in_smp;
+> -
+> -#if defined(CONFIG_UNIX)
+> -	struct socket		*ring_sock;
+> -#endif
+> };
+> 
+> struct sqe_submit {
+> @@ -396,7 +396,7 @@ static void io_ring_ctx_ref_free(struct percpu_ref *ref)
+> {
+> 	struct io_ring_ctx *ctx = container_of(ref, struct io_ring_ctx, refs);
+> 
+> -	complete(&ctx->ctx_done);
+> +	complete(ctx->ctx_done);
+> }
+> 
+> static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+> @@ -407,17 +407,20 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+> 	if (!ctx)
+> 		return NULL;
+> 
+> +	ctx->ctx_done = kmalloc(sizeof(struct completion), GFP_KERNEL);
+> +	ctx->sqo_done = kmalloc(sizeof(struct completion), GFP_KERNEL);
+> +	if (!ctx->ctx_done || !ctx->sqo_done)
+> +		goto err;
+> +
+> 	if (percpu_ref_init(&ctx->refs, io_ring_ctx_ref_free,
+> -			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
+> -		kfree(ctx);
+> -		return NULL;
+> -	}
+> +			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
+> +		goto err;
+> 
+> 	ctx->flags = p->flags;
+> 	init_waitqueue_head(&ctx->cq_wait);
+> 	INIT_LIST_HEAD(&ctx->cq_overflow_list);
+> -	init_completion(&ctx->ctx_done);
+> -	init_completion(&ctx->sqo_thread_started);
+> +	init_completion(ctx->ctx_done);
+> +	init_completion(ctx->sqo_done);
+> 	mutex_init(&ctx->uring_lock);
+> 	init_waitqueue_head(&ctx->wait);
+> 	spin_lock_init(&ctx->completion_lock);
+> @@ -429,6 +432,11 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+> 	spin_lock_init(&ctx->inflight_lock);
+> 	INIT_LIST_HEAD(&ctx->inflight_list);
+> 	return ctx;
+> +err:
+> +	kfree(ctx->ctx_done);
+> +	kfree(ctx->sqo_done);
+> +	kfree(ctx);
+> +	return NULL;
+> }
+> 
+> static inline bool __io_sequence_defer(struct io_ring_ctx *ctx,
+> @@ -3037,7 +3045,7 @@ static int io_sq_thread(void *data)
+> 	unsigned inflight;
+> 	unsigned long timeout;
+> 
+> -	complete(&ctx->sqo_thread_started);
+> +	complete(ctx->sqo_done);
+> 
+> 	old_fs = get_fs();
+> 	set_fs(USER_DS);
+> @@ -3276,7 +3284,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+> static void io_sq_thread_stop(struct io_ring_ctx *ctx)
+> {
+> 	if (ctx->sqo_thread) {
+> -		wait_for_completion(&ctx->sqo_thread_started);
+> +		wait_for_completion(ctx->sqo_done);
+> 		/*
+> 		 * The park is a bit of a work-around, without it we get
+> 		 * warning spews on shutdown with SQPOLL set and affinity
+> @@ -4098,6 +4106,8 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+> 		io_unaccount_mem(ctx->user,
+> 				ring_pages(ctx->sq_entries, ctx->cq_entries));
+> 	free_uid(ctx->user);
+> +	kfree(ctx->ctx_done);
+> +	kfree(ctx->sqo_done);
+> 	kfree(ctx);
+> }
+> 
+> @@ -4141,7 +4151,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+> 		io_wq_cancel_all(ctx->io_wq);
+> 
+> 	io_iopoll_reap_events(ctx);
+> -	wait_for_completion(&ctx->ctx_done);
+> +	wait_for_completion(ctx->ctx_done);
+> 	io_ring_ctx_free(ctx);
+> }
+> 
+> @@ -4545,7 +4555,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+> 	 * no new references will come in after we've killed the percpu ref.
+> 	 */
+> 	mutex_unlock(&ctx->uring_lock);
+> -	wait_for_completion(&ctx->ctx_done);
+> +	wait_for_completion(ctx->ctx_done);
+> 	mutex_lock(&ctx->uring_lock);
+> 
+> 	switch (opcode) {
+> @@ -4588,7 +4598,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+> 	}
+> 
+> 	/* bring the ctx back to life */
+> -	reinit_completion(&ctx->ctx_done);
+> +	reinit_completion(ctx->ctx_done);
+> 	percpu_ref_reinit(&ctx->refs);
+> 	return ret;
+> }
 
-Note that we could potentially just make this the default behavior -
-applications need to handle -EAGAIN returns already, in case we run out
-of memory, and if we change this to return -EAGAIN as well, then it
-doesn't introduce any new failure cases. I'm tempted to do that...
+This patch looks good, but I prefer sqo_thread_started instead of sqo_done,
+because we are marking the thread started, not the end of the thread.
 
-Anyway, comments solicited!
+Anyway, Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
 
-Not-yet-signed-off-by
+--
+BR, Jackie Liu
 
----
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f8344f95817e..db8b7e06f36d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -203,6 +203,7 @@ struct io_ring_ctx {
- 		unsigned		sq_mask;
- 		unsigned		sq_thread_idle;
- 		unsigned		cached_sq_dropped;
-+		atomic_t		cached_cq_overflow;
- 		struct io_uring_sqe	*sq_sqes;
- 
- 		struct list_head	defer_list;
-@@ -221,13 +222,12 @@ struct io_ring_ctx {
- 
- 	struct {
- 		unsigned		cached_cq_tail;
--		atomic_t		cached_cq_overflow;
- 		unsigned		cq_entries;
- 		unsigned		cq_mask;
-+		atomic_t		cq_timeouts;
- 		struct wait_queue_head	cq_wait;
- 		struct fasync_struct	*cq_fasync;
- 		struct eventfd_ctx	*cq_ev_fd;
--		atomic_t		cq_timeouts;
- 	} ____cacheline_aligned_in_smp;
- 
- 	struct io_rings	*rings;
-@@ -705,23 +705,53 @@ static void io_cqring_add_event(struct io_kiocb *req, long res)
- 	io_cqring_ev_posted(ctx);
- }
- 
-+static bool io_req_over_limit(struct io_ring_ctx *ctx)
-+{
-+	unsigned limit, inflight;
-+
-+	if (!(ctx->flags & IORING_SETUP_INFLIGHT))
-+		return false;
-+	/* only do checks every once in a while */
-+	if (ctx->cached_sq_head & ctx->sq_mask)
-+		return false;
-+
-+	if (ctx->flags & IORING_SETUP_CQ_NODROP)
-+		limit = 2 * ctx->cq_entries;
-+	else
-+		limit = ctx->cq_entries;
-+
-+	inflight = ctx->cached_sq_head -
-+		  (ctx->cached_cq_tail + atomic_read(&ctx->cached_cq_overflow));
-+	return inflight >= limit;
-+}
-+
- static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
--				   struct io_submit_state *state)
-+				   struct io_submit_state *state, bool force)
- {
- 	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 	struct io_kiocb *req;
- 
- 	if (!percpu_ref_tryget(&ctx->refs))
--		return NULL;
-+		return ERR_PTR(-ENXIO);
- 
- 	if (!state) {
-+		if (!force && io_req_over_limit(ctx)) {
-+			req = ERR_PTR(-EBUSY);
-+			goto out;
-+		}
- 		req = kmem_cache_alloc(req_cachep, gfp);
--		if (unlikely(!req))
-+		if (unlikely(!req)) {
-+			req = ERR_PTR(-EAGAIN);
- 			goto out;
-+		}
- 	} else if (!state->free_reqs) {
- 		size_t sz;
- 		int ret;
- 
-+		if (!force && io_req_over_limit(ctx)) {
-+			req = ERR_PTR(-EBUSY);
-+			goto out;
-+		}
- 		sz = min_t(size_t, state->ios_left, ARRAY_SIZE(state->reqs));
- 		ret = kmem_cache_alloc_bulk(req_cachep, gfp, sz, state->reqs);
- 
-@@ -731,8 +761,10 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 		 */
- 		if (unlikely(ret <= 0)) {
- 			state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
--			if (!state->reqs[0])
-+			if (!state->reqs[0]) {
-+				req = ERR_PTR(-EAGAIN);
- 				goto out;
-+			}
- 			ret = 1;
- 		}
- 		state->free_reqs = ret - 1;
-@@ -754,7 +786,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 	return req;
- out:
- 	percpu_ref_put(&ctx->refs);
--	return NULL;
-+	return req;
- }
- 
- static void io_free_req_many(struct io_ring_ctx *ctx, void **reqs, int *nr)
-@@ -2963,10 +2995,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		struct io_kiocb *req;
- 		unsigned int sqe_flags;
- 
--		req = io_get_req(ctx, statep);
--		if (unlikely(!req)) {
-+		req = io_get_req(ctx, statep, false);
-+		if (unlikely(IS_ERR(req))) {
- 			if (!submitted)
--				submitted = -EAGAIN;
-+				submitted = PTR_ERR(req);
-+			req = NULL;
- 			break;
- 		}
- 		if (!io_get_sqring(ctx, &req->submit)) {
-@@ -2986,9 +3019,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 
- 		if (link && (sqe_flags & IOSQE_IO_DRAIN)) {
- 			if (!shadow_req) {
--				shadow_req = io_get_req(ctx, NULL);
--				if (unlikely(!shadow_req))
-+				shadow_req = io_get_req(ctx, NULL, true);
-+				if (unlikely(IS_ERR(shadow_req))) {
-+					shadow_req = NULL;
- 					goto out;
-+				}
- 				shadow_req->flags |= (REQ_F_IO_DRAIN | REQ_F_SHADOW_DRAIN);
- 				refcount_dec(&shadow_req->refs);
- 			}
-@@ -4501,7 +4536,7 @@ static long io_uring_setup(u32 entries, struct io_uring_params __user *params)
- 
- 	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
- 			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
--			IORING_SETUP_CQ_NODROP))
-+			IORING_SETUP_CQ_NODROP | IORING_SETUP_INFLIGHT))
- 		return -EINVAL;
- 
- 	ret = io_uring_create(entries, &p);
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 3d8517eb376e..e7d8e16f9e22 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -57,6 +57,7 @@ struct io_uring_sqe {
- #define IORING_SETUP_SQ_AFF	(1U << 2)	/* sq_thread_cpu is valid */
- #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
- #define IORING_SETUP_CQ_NODROP	(1U << 4)	/* no CQ drops */
-+#define IORING_SETUP_INFLIGHT	(1U << 5)	/* reject IO over limit */
- 
- #define IORING_OP_NOP		0
- #define IORING_OP_READV		1
-
--- 
-Jens Axboe
 

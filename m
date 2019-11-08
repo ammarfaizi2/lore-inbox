@@ -2,67 +2,71 @@ Return-Path: <SRS0=cPsQ=ZA=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 333F7FA372C
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 15:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7845EFA372C
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 17:45:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 06544206BA
-	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 15:51:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48E2A2178F
+	for <io-uring@archiver.kernel.org>; Fri,  8 Nov 2019 17:45:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Ln49KVBu"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="wejFCMIb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfKHPv4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 8 Nov 2019 10:51:56 -0500
-Received: from mail-io1-f66.google.com ([209.85.166.66]:44516 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725941AbfKHPv4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 8 Nov 2019 10:51:56 -0500
-Received: by mail-io1-f66.google.com with SMTP id j20so6583592ioo.11
-        for <io-uring@vger.kernel.org>; Fri, 08 Nov 2019 07:51:54 -0800 (PST)
+        id S1726349AbfKHRpZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 8 Nov 2019 12:45:25 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:38589 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726232AbfKHRpZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 8 Nov 2019 12:45:25 -0500
+Received: by mail-io1-f68.google.com with SMTP id i13so5909155ioj.5
+        for <io-uring@vger.kernel.org>; Fri, 08 Nov 2019 09:45:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=ewnQLBOtmqxRtitCK2+xDFF2M+e/JWMxe99Hmp/P9aw=;
-        b=Ln49KVBuaDfgR4tkoY9r58fl6XO1896zqppO72YOLN1GaquGPQ9LPBcDvoqRtpluT2
-         aN7htIZp0Gi39lANHlb9Us0/C7VXKoMVGHhMGXGVtjiWXGPl4t8SPpEBpEVRrmj8ofv6
-         eWpQS9NoLk36dsV8X0q+5WsQpklhFjM1/jHWW+JgmAjXTRo/PMtIRgjfdzazcnly+0Lj
-         KxXAcEMDQkFrBjy3AiTLWPD5tCJAiMsdi7znux9Z/N5eCgFc3AKkDS/zKpUuFv2ab6/X
-         FD6uSQ9jLyTJAL8TULuN9irCV3ygyigfxzkSfJ1XoC/5t+bMczb8ItW6Fd+F/bRUWMch
-         qsaw==
+        h=subject:from:to:references:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=BQEgD5mEk5MEYrC47/WQtrP4JGHx96kY2Ks+cBAhl8o=;
+        b=wejFCMIb7f/2iTubcJiIjqfjzliN12xiOchkywfAC5wXZd+XhyPJ7OIy04TwIrQxu7
+         R5aLaJmER+fFtYMp0o8fqIcLp0cMrD8NGRv9VfbbbzSngAEmUaBBHuK6OFy+W4tfO7rP
+         v/hsk79dT7bhvoJp1Ds2TaqcGZrP/ryzsxf7vD4fDO6rb3lA4kNwuIPgtz3bsrFLDyf1
+         aFGgNmLjyJCPozUTm2BOYSNIadVg4AJsi1VjgWVZaUwLP7d8LEX3axXOxz76cf3VTQ9y
+         bjqJYA3qn7wuMlmhOviWsD/uHJYTRgFng83EVi6TjvMYgQ1kcUOXF++vVoqJeBy6Vg7Q
+         jsZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=ewnQLBOtmqxRtitCK2+xDFF2M+e/JWMxe99Hmp/P9aw=;
-        b=cpfH6AWVXUI7+9rxsdSI6OIdJF80FPjDSCS7nCkmR6XBysYDs9aOWJhhqytHu6IV/j
-         JyzPZAONa6IPIBj9KLndTjQ6T00JODQkMbKCLrXtF2E9dowS40HavPH6MDhRdthfmXEB
-         FVQnSsRNHbTK87gtiASmriJI2m8j3sRGun9fWbWYlSe0nCjgsQUqrZqdY97q2+MGg521
-         UBve5nCasu0wmcsoey0k9KoYW0yLZVFNKZjuslCoF6ilCJAnVSa2L+jPOwkJeEEJzn16
-         dPO5dZKiKhUR8vUix+lGZZNYLVk3Bf58DTmA2JEwrsCJHrSZWW03i4ATBgds0hrQtAbw
-         389Q==
-X-Gm-Message-State: APjAAAUTfu4/jMz8cUptVsGt2eJUOTFOmSTz3Tw8XixRSbG60kzlD/1W
-        3m6Zb6UO1HFldzQAf/Yy4/CjFJ1JDXk=
-X-Google-Smtp-Source: APXvYqwB/yIwafwPojYaUaQGTIP2QZgQLIrSa2zowy1DR4bOqe9t1QMik/hPFDCd/bomvPYYWClhBQ==
-X-Received: by 2002:a6b:18d:: with SMTP id 135mr10849998iob.201.1573228313877;
-        Fri, 08 Nov 2019 07:51:53 -0800 (PST)
+        h=x-gm-message-state:subject:from:to:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=BQEgD5mEk5MEYrC47/WQtrP4JGHx96kY2Ks+cBAhl8o=;
+        b=pagio2QX25JF8KS9SLtr4UtjeIZixWQxYxQbgRBR34rwrxkW6VKy1lPxDEUPRUi6w+
+         GkZMOSSBsbjxWPZSmGjVlnANXOfm8OO9i5kWwERtWRJkRXqgXnl6CSwV/jV+QuESO0Jw
+         oip63c50utOBNvTey+Gk1jYRhIz/9O/DuWdZdZBI53R/FRvCwo/RpuadZIgI8Zar0Gbx
+         INpFRPUoz5pTcCMdZBYowI3WNFe9reTc871vHQw0Tbvdn7gHR85kKji9ZQYZQo/9YCeH
+         u4daIyM2qKpFqQGlWmcy5Ut91S+2GEtSJvr30TYJ2u/xD49RcKlVN8B77tSYXz3QOv4x
+         lfZw==
+X-Gm-Message-State: APjAAAVxB9flZciPwAyNesaiAhZgwy/qTjYjxnbwdSB8/T2ocuydvsNw
+        v+GQQ9250mBOP3I9V+JdNnJWuyfvc3Y=
+X-Google-Smtp-Source: APXvYqyVw1I/iw8qwGgwe8PvX5+wjhCp4+8EONaJtCjNiv3nNwddwkWo3UAWrMeHP9ATlq76UGlXEw==
+X-Received: by 2002:a6b:770b:: with SMTP id n11mr7779136iom.154.1573235121941;
+        Fri, 08 Nov 2019 09:45:21 -0800 (PST)
 Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id y5sm819593ill.86.2019.11.08.07.51.52
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id m4sm365909ilf.18.2019.11.08.09.45.20
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Nov 2019 07:51:53 -0800 (PST)
-To:     io-uring@vger.kernel.org
+        Fri, 08 Nov 2019 09:45:21 -0800 (PST)
+Subject: Re: [PATCH RFC] io_uring: limit inflight IO
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: account overflows even with IORING_SETUP_CQ_NODROP
-Message-ID: <16c996fa-61e9-74b9-bc61-b31ecc085c87@kernel.dk>
-Date:   Fri, 8 Nov 2019 08:51:52 -0700
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
+ <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
+ <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
+ <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
+Message-ID: <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+Date:   Fri, 8 Nov 2019 10:45:19 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
+In-Reply-To: <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -71,42 +75,88 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It's useful for the application to know if the kernel had to dip into
-using the backlog to prevent overflows. Let's keep on accounting any
-overflow in cq_ring->overflow, even if we handled it correctly. As it's
-impossible to get dropped events with IORING_SETUP_CQ_NODROP, overflow
-with CQ_NODROP enabled simply provides a hint to the application that it
-may reconsider using a bigger ring.
+On 11/8/19 7:05 AM, Jens Axboe wrote:
+> On 11/8/19 2:56 AM, Pavel Begunkov wrote:
+>> On 08/11/2019 03:19, Jens Axboe wrote:
+>>> On 11/7/19 4:21 PM, Jens Axboe wrote:
+>>>> I'd like some feedback on this one. Even tith the overflow backpressure
+>>>> patch, we still have a potentially large gap where applications can
+>>>> submit IO before we get any dropped events in the CQ ring. This is
+>>>> especially true if the execution time of those requests are long
+>>>> (unbounded).
+>>>>
+>>>> This adds IORING_SETUP_INFLIGHT, which if set, will return -EBUSY if we
+>>>> have more IO pending than we can feasibly support. This is normally the
+>>>> CQ ring size, but of IORING_SETUP_CQ_NODROP is enabled, then it's twice
+>>>> the CQ ring size.
+>>>>
+>>>> This helps manage the pending queue size instead of letting it grow
+>>>> indefinitely.
+>>>>
+>>>> Note that we could potentially just make this the default behavior -
+>>>> applications need to handle -EAGAIN returns already, in case we run out
+>>>> of memory, and if we change this to return -EAGAIN as well, then it
+>>>> doesn't introduce any new failure cases. I'm tempted to do that...
+>>>>
+>>>> Anyway, comments solicited!
+>> What's wrong with giving away overflow handling to the userspace? It
+>> knows its inflight count, and it shouldn't be a problem to allocate
+>> large enough rings. The same goes for the backpressure patch. Do you
+>> have a particular requirement/user for this?
+> 
+> There are basically two things at play here:
+> 
+> - The backpressure patch helps with users that can't easily size the
+>    ring. This could be library use cases, or just normal use cases that
+>    don't necessarily know how big the ring needs to be. Hence they need
+>    to size for the worst case, which is wasteful.
+> 
+> - For this case, it's different. I just want to avoid having the
+>    application having potential tons of requests in flight. Before the
+>    backpressure patch, if you had more than the CQ ring size inflight,
+>    you'd get dropped events. Once you get dropped events, it's game over,
+>    the application has totally lost track. Hence I think it's safe to
+>    unconditionally return -EBUSY if we exceed that limit.
+> 
+> The first one helps use cases that couldn't really io_uring before, the
+> latter helps protect against use cases that would use a lot of memory.
+> If the request for the latter use case takes a long time to run, the
+> problem is even worse.
+> 
+>> Awhile something could be done {efficiently,securely,etc} in the
+>> userspace, I would prefer to keep the kernel part simpler.
+> 
+> For this particular patch, the majority of issues will just read the sq
+> head and mask, which we will just now anyway. The extra cost is
+> basically a branch and cmp instruction. There's no way you can do that
+> in userspace that efficiently, and it helps protect the kernel.
+> 
+> I'm not a fan of adding stuff we don't need either, but I do believe we
+> need this one.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+I've been struggling a bit with how to make this reliable, and I'm not
+so sure there's a way to do that. Let's say an application sets up a
+ring with 8 sq entries, which would then default to 16 cq entries. With
+this patch, we'd allow 16 ios inflight. But what if the application does
 
----
+for (i = 0; i < 32; i++) {
+	sqe = get_sqe();
+	prep_sqe();
+	submit_sqe();
+}
 
-Since this hasn't been released yet, we can tweak the behavior a bit. I
-think it makes sense to still account the overflows, even if we handled
-it correctly. If the application doesn't care, it simply doesn't need to
-look at cq_ring->overflow if it is using CQ_NODROP. But it may care, as
-it is less efficient than a suitably sized ring.
+And then directly proceeds to:
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 94ec44caac00..aa3b6149dfe9 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -666,10 +666,10 @@ static void io_cqring_overflow(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 			       long res)
- 	__must_hold(&ctx->completion_lock)
- {
--	if (!(ctx->flags & IORING_SETUP_CQ_NODROP)) {
--		WRITE_ONCE(ctx->rings->cq_overflow,
--				atomic_inc_return(&ctx->cached_cq_overflow));
--	} else {
-+	WRITE_ONCE(ctx->rings->cq_overflow,
-+			atomic_inc_return(&ctx->cached_cq_overflow));
-+
-+	if (ctx->flags & IORING_SETUP_CQ_NODROP) {
- 		refcount_inc(&req->refs);
- 		req->result = res;
- 		list_add_tail(&req->list, &ctx->cq_overflow_list);
+do {
+	get_completions();
+} while (has_completions);
+
+As long as fewer than 16 requests complete before we start reaping,
+we don't lose any events. Hence there's a risk of breaking existing
+setups with this, even though I don't think that's a high risk.
+
+We probably want to add some sysctl limit for this instead. But then
+the question is, what should that entry (or entries) be?
 
 -- 
 Jens Axboe

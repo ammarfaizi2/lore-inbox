@@ -2,61 +2,66 @@ Return-Path: <SRS0=jnAq=ZB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9D77C43331
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 19:17:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E1E5C43331
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 19:25:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7193421882
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 19:17:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6252D21882
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 19:25:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ycy8MjY0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AgTGdqS6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726349AbfKITRS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 9 Nov 2019 14:17:18 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:33573 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726240AbfKITRR (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 14:17:17 -0500
-Received: by mail-wr1-f65.google.com with SMTP id w9so3733796wrr.0
-        for <io-uring@vger.kernel.org>; Sat, 09 Nov 2019 11:17:14 -0800 (PST)
+        id S1726372AbfKITZV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 9 Nov 2019 14:25:21 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:36907 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726292AbfKITZV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 14:25:21 -0500
+Received: by mail-wm1-f68.google.com with SMTP id b17so1193213wmj.2
+        for <io-uring@vger.kernel.org>; Sat, 09 Nov 2019 11:25:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=to:references:from:autocrypt:subject:message-id:date:user-agent
          :mime-version:in-reply-to;
-        bh=Msp37BDhCrnmC8p/9b+BDoxma2uQba8L1E8A5FfVRWM=;
-        b=Ycy8MjY0RjCwXxMYSVOQyCmSmwP02xf2OQsxUjL1LfzGUR1WNZf3g4lPbSTyEuMGwZ
-         19MYAFgZxkOvTUTUl3RBGmqgMdF5fBg5caYHjKRd47lSF39Of5/7/5st1qmsftenu7Rw
-         5Bdhf4Fn/uJB1PYc1hHQoPjBu6aqSQapExYwI2zU9O/iDjZrGSBgQg4GtjEFBYSP2Ta6
-         EnEykRcO9DL0eohPr6qJWrHDtIwAETx32arSiJDAOvhBkRTOOVWBbfkJOgUt7i3dn8Ym
-         zmvsivIVOxhSAnYH6ISnRRg5GYYW5IMYUamGq8gzKAbElHROFS4twrFQIPTy7XLLoobF
-         PtEA==
+        bh=T7FlVyZ5S8RdlkH9cNNelNWaq19X1Rq3em1QgAS28VQ=;
+        b=AgTGdqS6knSsriI9YKu4N2np05prXKKUKyCgD4Bfohvm+UUq+M5EqzImMBDbE6DooH
+         8FQV0Hy9Ubl7n/dC9CJ7U5qIFY8OxNqziUGb3/MCCn5+NIa1YLZk/43kx9tMb6kzZKWC
+         kqtI6XGJ43VGDE3Dp33jzbRSnjXxfxpt0BsCw7611Bd4McHas3rzS/B+NvfFLueDovaK
+         hxlHV1nvCC13Vtfjjp1IEYVJsbgXH4h9aP3ZKd3DvSAogB88Ps7Nqiwj87Vpt484Kghv
+         VMjfu29SLfK8onAzmiTBh5tsLHiTH68WFNEgWNeTHXVEr5HqV4pqFU87VBxHrAhJoNur
+         ZBOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
          :date:user-agent:mime-version:in-reply-to;
-        bh=Msp37BDhCrnmC8p/9b+BDoxma2uQba8L1E8A5FfVRWM=;
-        b=hPkL7msVkwSIuCmph052QTP+XczSvvLy/EJd8YkAe26XO2ELmVbFrO0SzOXC6e1Zrg
-         bzl3HGSSiHO36VVdW/mcddgCeAMU/ut/wRggfd2TraIQFDYz2/QX/lEnZHaQqB4V215c
-         PCgKIbzkvr4nehsCMyiyv8sbGSU5gAoz5NJHhUDZMEJMPGvzKlbamezuL9ZmzchTsOZu
-         an7Ye9VzAQC0odqcudML8l+Ll8gl7YUIiJzm1D7pSV8Roq/ruGb7xUqxb1sOrqE0/DBs
-         dXv+vJ3wii2WqjuJI3BC8kVD+YqifFAGyZLgoOtdGz8dD4P0WlCPeRlnEjzLvgrOBliV
-         GGzw==
-X-Gm-Message-State: APjAAAUBXD+cYTJ83zlzWCZZSdFZKzZ1oDH5t+cSD0PBwewKytEsFcYo
-        guGQ8CGVgUuVc73cSBeSmTZ8XDDe
-X-Google-Smtp-Source: APXvYqzq5qR0YbbRF5+jFNM2La0NK3xh5JE/JZUpMuL6rAqC7Put2ZkW4IHwP7bzyBWbXyPgD9syCg==
-X-Received: by 2002:adf:ab41:: with SMTP id r1mr15065117wrc.281.1573327033666;
-        Sat, 09 Nov 2019 11:17:13 -0800 (PST)
+        bh=T7FlVyZ5S8RdlkH9cNNelNWaq19X1Rq3em1QgAS28VQ=;
+        b=swT78Dd6Ux7WXtWHe4wmnATvnbzHKcURzB/IZzaamKG++TnuX5Q48/hrNSi9LBJjXr
+         EeoBaQVKPRZ2VZok2DBQJ5siqFSTFFB33wBps9MUaGTsG8XMA58SuhEQyxMu0Phrrkiv
+         Ux7fZRAinFscdDS6PF96htRJ0AjjsfszlJVXV3FlAHeuEwoH4dvMIhu/WJRGxhWWuKpK
+         mO7f9aH4AbkE4W8mIUXTTurJuQIVGtVfpOqVhK/NC2v4AJsfYSULeCHFEHaH/ZBrbszr
+         B60yfAyV6FbUGuI6BRxGmNLbZwcXr1D+fvJd4EHkpiWwMOCBmTLd74SJROWC6Lw87RDL
+         A6Mg==
+X-Gm-Message-State: APjAAAWSy9aMyR13W4zUdZ9CkUI4eVz3IQanzPUfEG1macvwvPyAoz7F
+        8pQrDWDF2CeUJGs3GUBTNQjoFKC7
+X-Google-Smtp-Source: APXvYqwkJC5sDFux+KEz1xAplHmLQiZPl0K3BaFGk7hxvHJF3dLI8jSrHK/sr7yxG43MsK7QQw3/yw==
+X-Received: by 2002:a7b:c768:: with SMTP id x8mr14347149wmk.26.1573327518391;
+        Sat, 09 Nov 2019 11:25:18 -0800 (PST)
 Received: from [192.168.43.77] ([109.126.135.169])
-        by smtp.gmail.com with ESMTPSA id z11sm8868276wrg.0.2019.11.09.11.17.11
+        by smtp.gmail.com with ESMTPSA id n23sm9457543wmc.18.2019.11.09.11.25.16
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 09 Nov 2019 11:17:12 -0800 (PST)
+        Sat, 09 Nov 2019 11:25:17 -0800 (PST)
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <ecf5959a-9853-5526-9764-ac273649a5f4@kernel.dk>
+References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
+ <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
+ <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
+ <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
+ <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+ <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
+ <d8002007-7641-3e9d-0560-123358300e66@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -101,210 +106,127 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH v3] io_uring: limit inflight IO
-Message-ID: <8d4610ab-48b0-8f55-27f0-ca760ff5be5f@gmail.com>
-Date:   Sat, 9 Nov 2019 22:16:53 +0300
+Subject: Re: [PATCH RFC] io_uring: limit inflight IO
+Message-ID: <45560c7f-08a3-afc9-c078-a5cc944d6455@gmail.com>
+Date:   Sat, 9 Nov 2019 22:24:59 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.0
 MIME-Version: 1.0
-In-Reply-To: <ecf5959a-9853-5526-9764-ac273649a5f4@kernel.dk>
+In-Reply-To: <d8002007-7641-3e9d-0560-123358300e66@kernel.dk>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="OrScgFeg6WSHVa0XElPmR6J8HhxrGAA1S"
+ boundary="ug3r0ZohTrTfYrDKiDlAXInT0eH7wZr9i"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---OrScgFeg6WSHVa0XElPmR6J8HhxrGAA1S
-Content-Type: multipart/mixed; boundary="OUK9XpncAAGyFc3GUHchY4ROUXqdskUN3";
+--ug3r0ZohTrTfYrDKiDlAXInT0eH7wZr9i
+Content-Type: multipart/mixed; boundary="PSE8Jai5f3mL55DAquEeL0f2PQO4cnDZ8";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
 To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Message-ID: <8d4610ab-48b0-8f55-27f0-ca760ff5be5f@gmail.com>
-Subject: Re: [PATCH v3] io_uring: limit inflight IO
-References: <ecf5959a-9853-5526-9764-ac273649a5f4@kernel.dk>
-In-Reply-To: <ecf5959a-9853-5526-9764-ac273649a5f4@kernel.dk>
+Message-ID: <45560c7f-08a3-afc9-c078-a5cc944d6455@gmail.com>
+Subject: Re: [PATCH RFC] io_uring: limit inflight IO
+References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
+ <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
+ <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
+ <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
+ <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+ <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
+ <d8002007-7641-3e9d-0560-123358300e66@kernel.dk>
+In-Reply-To: <d8002007-7641-3e9d-0560-123358300e66@kernel.dk>
 
---OUK9XpncAAGyFc3GUHchY4ROUXqdskUN3
+--PSE8Jai5f3mL55DAquEeL0f2PQO4cnDZ8
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 09/11/2019 18:21, Jens Axboe wrote:
-> With unbounded request times, we can potentially have a lot of IO
-> inflight. As we provide no real backpressure unless
-> IORING_SETUP_CQ_NODROP is set, and even there there's quite some delay
-> between overflows and backpressure being applied, let's put some safety=
+On 09/11/2019 17:23, Jens Axboe wrote:
+> On 11/9/19 4:16 AM, Pavel Begunkov wrote:
+>>> I've been struggling a bit with how to make this reliable, and I'm no=
+t
+>>> so sure there's a way to do that. Let's say an application sets up a
+>>> ring with 8 sq entries, which would then default to 16 cq entries. Wi=
+th
+>>> this patch, we'd allow 16 ios inflight. But what if the application d=
+oes
+>>>
+>>> for (i =3D 0; i < 32; i++) {
+>>> 	sqe =3D get_sqe();
+>>> 	prep_sqe();
+>>> 	submit_sqe();
+>>> }
+>>>
+>>> And then directly proceeds to:
+>>>
+>>> do {
+>>> 	get_completions();
+>>> } while (has_completions);
+>>>
+>>> As long as fewer than 16 requests complete before we start reaping,
+>>> we don't lose any events. Hence there's a risk of breaking existing
+>>> setups with this, even though I don't think that's a high risk.
+>>>
+>>
+>> I think, this should be considered as an erroneous usage of the API.
+>> It's better to fail ASAP than to be surprised in a production
+>> system, because of non-deterministic nature of such code. Even worse
+>> with trying to debug such stuff.
+>>
+>> As for me, cases like below are too far-fetched
+>>
+>> for (i =3D 0; i < n; i++)
+>> 	submit_read_sqe()
+>> for (i =3D 0; i < n; i++) {
+>> 	device_allow_next_read()
+>> 	get_single_cqe()
+>> }
+>=20
+> I can't really disagree with that, it's a use case that's bound to fail=
 
-> in place to avoid going way overboard.
+> every now and then...
 >=20
-> This limits the maximum number of inflight IO for any given io_ring_ctx=
-
-> to twice the CQ ring size. This is a losely managed limit, we only chec=
-k
-> for every SQ ring size number of events. That should be good enough to
-> achieve our goal, which is to prevent massively deep queues. If these
-> are async requests, they would just be waiting for an execution slot
-> anyway.
+> But if we agree that's the case, then we should be able to just limit
+> based on the cq ring size in question.
 >=20
-> We return -EBUSY if we can't queue anymore IO. The caller should reap
-> some completions and retry the operation after that. Note that this is
-> a "should never hit this" kind of condition, as driving the depth into
-> CQ overflow situations is unreliable.
+> Do we make it different fro CQ_NODROP and !CQ_NODROP or not? Because th=
+e
+> above case would work with CQ_NODROP, reliably. At least CQ_NODROP is
+> new so we get to set the rules for that one, they just have to make
+> sense.
 >=20
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->=20
-> ---
->=20
-> Changes since v2:
->=20
-> - Check upfront if we're going over the limit, use the same kind of
->   cost amortization logic except something that's appropriate for
->   once-per-batch.
->=20
-> - Fold in with the backpressure -EBUSY logic
->=20
-> - Use twice setup CQ ring size as the rough limit
->=20
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 81457913e9c9..9dd0f5b5e5b2 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -744,7 +744,7 @@ static struct io_kiocb *io_get_req(struct io_ring_c=
-tx *ctx,
->  	struct io_kiocb *req;
-> =20
->  	if (!percpu_ref_tryget(&ctx->refs))
-> -		return NULL;
-> +		return ERR_PTR(-ENXIO);
-> =20
->  	if (!state) {
->  		req =3D kmem_cache_alloc(req_cachep, gfp);
-> @@ -790,7 +790,7 @@ static struct io_kiocb *io_get_req(struct io_ring_c=
-tx *ctx,
->  	if (req)
->  		goto got_it;
->  	percpu_ref_put(&ctx->refs);
-> -	return NULL;
-> +	return ERR_PTR(-EBUSY);
->  }
-> =20
->  static void io_free_req_many(struct io_ring_ctx *ctx, void **reqs, int=
- *nr)
-> @@ -2992,6 +2992,30 @@ static bool io_get_sqring(struct io_ring_ctx *ct=
-x, struct sqe_submit *s)
->  	return false;
->  }
-> =20
-> +static bool io_sq_over_limit(struct io_ring_ctx *ctx, unsigned to_subm=
-it)
-> +{
-> +	unsigned inflight;
-> +
-> +	if ((ctx->flags & IORING_SETUP_CQ_NODROP) &&
-> +	    !list_empty(&ctx->cq_overflow_list))
-> +		return true;
-> +
-> +	/*
-> +	 * This doesn't need to be super precise, so only check every once
-> +	 * in a while.
-> +	 */
-> +	if ((ctx->cached_sq_head & ctx->sq_mask) !=3D
-> +	    ((ctx->cached_sq_head + to_submit) & ctx->sq_mask))
-> +		return false;
-
-ctx->sq_mask =3D sq_entries - 1, e.g. 0x0000...ffff.
-Thus the code above is modular arithmetic (% sq_entries) and
-equivalent to:
-
-if (to_submit !=3D sq_entries)
-	return false;
-=20
-I suggest, the intention was:
-
-if ((sq_head & ~mask) =3D=3D ((sq_head + to_submit) & ~mask))
-	return false;
-
-
-> +
-> +	/*
-> +	 * Limit us to 2x the CQ ring size
-> +	 */
-> +	inflight =3D ctx->cached_sq_head -
-> +		  (ctx->cached_cq_tail + atomic_read(&ctx->cached_cq_overflow));
-> +	return inflight > 2 * ctx->cq_entries;
-> +}
-> +
->  static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
->  			  struct file *ring_file, int ring_fd,
->  			  struct mm_struct **mm, bool async)
-> @@ -3002,8 +3026,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx=
-, unsigned int nr,
->  	int i, submitted =3D 0;
->  	bool mm_fault =3D false;
-> =20
-> -	if ((ctx->flags & IORING_SETUP_CQ_NODROP) &&
-> -	    !list_empty(&ctx->cq_overflow_list))
-> +	if (unlikely(io_sq_over_limit(ctx, nr)))
->  		return -EBUSY;
-> =20
->  	if (nr > IO_PLUG_THRESHOLD) {
-> @@ -3016,9 +3039,9 @@ static int io_submit_sqes(struct io_ring_ctx *ctx=
-, unsigned int nr,
->  		unsigned int sqe_flags;
-> =20
->  		req =3D io_get_req(ctx, statep);
-> -		if (unlikely(!req)) {
-> +		if (unlikely(IS_ERR(req))) {
->  			if (!submitted)
-> -				submitted =3D -EAGAIN;
-> +				submitted =3D PTR_ERR(req);
->  			break;
->  		}
->  		if (!io_get_sqring(ctx, &req->submit)) {
-> @@ -3039,8 +3062,10 @@ static int io_submit_sqes(struct io_ring_ctx *ct=
-x, unsigned int nr,
->  		if (link && (sqe_flags & IOSQE_IO_DRAIN)) {
->  			if (!shadow_req) {
->  				shadow_req =3D io_get_req(ctx, NULL);
-> -				if (unlikely(!shadow_req))
-> +				if (unlikely(IS_ERR(shadow_req))) {
-> +					shadow_req =3D NULL;
->  					goto out;
-> +				}
->  				shadow_req->flags |=3D (REQ_F_IO_DRAIN | REQ_F_SHADOW_DRAIN);
->  				refcount_dec(&shadow_req->refs);
->  			}
->=20
+=2E..would work reliably... and also would let user know about
+stalling (-EBUSY). I thinks it's a good idea to always do
+CQ_NODROP, as in the backlogged patch update.
 
 --=20
 Pavel Begunkov
 
 
---OUK9XpncAAGyFc3GUHchY4ROUXqdskUN3--
+--PSE8Jai5f3mL55DAquEeL0f2PQO4cnDZ8--
 
---OrScgFeg6WSHVa0XElPmR6J8HhxrGAA1S
+--ug3r0ZohTrTfYrDKiDlAXInT0eH7wZr9i
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3HEKoACgkQWt5b1Glr
-+6VAvQ/9GtwRyUdQbXdoJK7tvDBFmKwE/YVBgyvjJg/C7bH5et4ZmkWs3MLyLjvd
-8VGD+J3+51GxyOWHJyUZDi07bvwumr3gLWrribQc8Ch30tCO98JWAO+GjU4awLtC
-NlxkqtS9u4t3QkToIEc42e/543ElBHdkf++KifkSHtmWMhAEJ6MW+blxyLRAwsNS
-AHiFzdXSequaqTRCpEfjCQyyXuSFJbwPF9h3Cz81KAdOkNUc0rnq1OZUtNAWBdVq
-8GhImlLIBWlIja9E+f71BxAOwxM68oK/nxXBwe9AqZqNzt0J8/K4/Md7CIN5GQjO
-DRgCmXQ2XPuqszzHmSudTLcwQR9jqeRJ+E+n5tKMmiyiAH6sGEsa6vSD7wdtSp5S
-AqdqTwy0J1DQEGIPdUC7Q6CHQlxQCxO7TwkuIhn2cC5OoLCJktjSUFU4KmdxMwDh
-SmgKnItprqp1+yZFn2+HinSn0bCal80DEdpUck1Ygv+ddhYQjQRYZlxc8sCLIWu/
-xlBtHSx1uP/U5FrQTZ2Ut08+WkIgEVbUugxFqC0/o3YED5StqcKp8wLZiYCgPu2F
-FcG1ENJ70b/OxQmfXKhm6TyASyVB9oCDwPCe077rl6KwaB1Rdx4TFEBhyFGFP6Ns
-dvkrndTWaN9PTj2AAogFeXW6e0izyHKDu4Zx4f/TchP353Xjtfw=
-=BISr
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3HEowACgkQWt5b1Glr
++6VkwA//e7Gfr85JpaFUE7yPHHjAua1HnjxO7FMoip7HOF+kZBwJjUtR3VVhN0iC
+GCU0nkU6CUUW7wyACufVqC0/wJJAkpxOCrddnJORW4oqXZ3MZJCO9UWezLe87oQS
+deKHRPnrweu+clvsNEbwu/03Xl1TvEK6x+1yjA0AwJZTMX5ildcZZZac8cmXzMrv
+MKMxdQijNqsBxQInMcUSQgawtWCKmVDOtxx80spq74Fl3QGcAWjnNCy8SA68CIVe
+YHQM2Ykx++O0iv+yPMN/m2VW3jr0lIj4AL6wBIG9BzYSmuzyMaf+2B/KKC4wfSoQ
+oOAak5V/PatsT0drtku91qahFrnlvmALBbSU+fA+gXDSo+YFH+EmbevGIEM+BXPs
+EwRvYmETHRxcF/j97ds15XBB+R3JFyABPVDT0p0g0ze+8EmntjX00xf4Qrqr8koU
+bKLrXAN0obKxGGdsrl8o5lz7LOtP3WOtpxyPAKHrGvcs5vk3og661sf00KbHLOu+
+qUmrwBzB83Ml8w5jdfb/XqOTyeZu/BMJwRKhCYEjhyOPaTXZ+YDZkDIjEzA36YT/
+hA4GcL6atqZkvr5QyhjNRbLu5BBkCYhCN46lAZVxOjAp/hx6a0sJdqreUsfAjcP3
+heZDFli8o2YhIz9C2FBydbN+alXdTuE2Dp30OAENsbIO0a7Fr1k=
+=f7kk
 -----END PGP SIGNATURE-----
 
---OrScgFeg6WSHVa0XElPmR6J8HhxrGAA1S--
+--ug3r0ZohTrTfYrDKiDlAXInT0eH7wZr9i--

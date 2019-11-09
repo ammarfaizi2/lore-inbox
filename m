@@ -2,212 +2,298 @@ Return-Path: <SRS0=jnAq=ZB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11F92C17440
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 11:16:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5595C43331
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 12:25:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB4D6215EA
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 11:16:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D37520659
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 12:25:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tsFCmgeB"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cLVOZsdZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726149AbfKILQw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 9 Nov 2019 06:16:52 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:51453 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726145AbfKILQw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 06:16:52 -0500
-Received: by mail-wm1-f68.google.com with SMTP id q70so8669363wme.1
-        for <io-uring@vger.kernel.org>; Sat, 09 Nov 2019 03:16:48 -0800 (PST)
+        id S1726458AbfKIMZI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 9 Nov 2019 07:25:08 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:46218 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726296AbfKIMZH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 07:25:07 -0500
+Received: by mail-lj1-f195.google.com with SMTP id e9so8933825ljp.13;
+        Sat, 09 Nov 2019 04:25:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to;
-        bh=UwMnhGhPlkCWtmBur6lzxw1lYf+ASFVViH2CkL5+wIc=;
-        b=tsFCmgeBQLaMOILbhp/K30za9qSygfNc+QmI6WtZqW9CZ1MxYNrzP8FwPf/Y7UNRtq
-         LiX3j3FdIA75A3l9lV2C697exKCUiOX1gOEs6VMIqhXzn06qw863v74etGSsnP2hQzoV
-         h2W+0PhB2H/rKq+0pEI6NrEe39kFDlrw31EGv09eCcRjukC55YgvuKGs1+hY81Lc5xjC
-         kVE4QsA+PieHzDfX7C2HqtRatK5K4aeWzoE47iD6kvQvaKbQZg9HgDwm/1WLEstaBi2+
-         Fe7Fn3xRv0Ruxf3UOMzE+MImw2F9cLpIqUfkRhtw+Xbijxr8w85EXH8Gex0eBbo1etZ7
-         MsDw==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cqZWDexuhPPuiGCF/N9j/OA63pBQXUccM1dtWhxED8s=;
+        b=cLVOZsdZuw0Lyfp6gL7weqVy3YWnrOLlR1/zqhpKJROEIcLyhZgE+4HVInU3uyzGLs
+         enXoCIlHdvN5PHBq4hFfGvlJWJTM0My0NeHNqx1CFCQnr69Axxq0z8980pUIgiKBt24S
+         d3Bn+qvDIp/pfGDt7PpwqAy4KgCoCZPUagJCVVhhRfpIW9rnXX718EWGSjB0Sxl8VtxH
+         AYd9vL3sGZHmz+m9yAHCzyE5r68K3ko9cFiHrxN8NyTeAeQA69TCzPr/uiiUmedwnHWO
+         TRpIWfxMeyVS8y4DatiCNMsWIViXEAPvgNzQEkQIyFTtZoyTKPOu4qMStf3s5BFeCFeS
+         mdng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
-         :date:user-agent:mime-version:in-reply-to;
-        bh=UwMnhGhPlkCWtmBur6lzxw1lYf+ASFVViH2CkL5+wIc=;
-        b=Z0C1ERudYGEXo1y/kMfLnFNZ+FBLFtWUg1BJ2D+yOGXLRqe492OoOUl1SGi2HfBXrq
-         g2QorgBF8I7A7bhWQekMoZG1/gdsJXJI4xCupR2LnWtBUlUW4DiHxLvqowLNcioTun86
-         7HlV3fAkrt9+w9i1ED5hzHvdXlnXyrwHrx1Z4PN+XNhVfXAWjNHLy+fM+x9m+9BcSI9+
-         LZ4ZgLrglCqOQ/XY34Ek+JFWazIPEmtL+v800+nNSnMLQNpfAUHxp7p4z0aeD2Pjoocn
-         eFE39sixI/jI5m2gnBcDtoeqIeswOLC1RjB5ABnFA+ZwapZwveFyFX0P10H+Vg32nI98
-         SLgg==
-X-Gm-Message-State: APjAAAUcaCxWLsFS6oNfCisNIJoI1CCb2Q9fjkykjyaKrJHeT8/ul9Zm
-        k7cg/BOuzvDd5CFxe6QfmFa0VU4E
-X-Google-Smtp-Source: APXvYqwGgLPk5akBE1UiON2pz1+FlykgdQqa0JZag7ZvZiFMhEncNWR8Fo+DmG6cQyZZ0nND43fiBw==
-X-Received: by 2002:a1c:a78b:: with SMTP id q133mr12305890wme.115.1573298207721;
-        Sat, 09 Nov 2019 03:16:47 -0800 (PST)
-Received: from [192.168.43.163] ([109.126.130.90])
-        by smtp.gmail.com with ESMTPSA id l26sm1474241wme.6.2019.11.09.03.16.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 09 Nov 2019 03:16:47 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cqZWDexuhPPuiGCF/N9j/OA63pBQXUccM1dtWhxED8s=;
+        b=gPDa0eN08RRQuIlQMmw6eVeDZ2BKpCW+0KG4DhzAVUDQ7JCureifwOssb5Ysu35T+W
+         F5erl+pMCMiMSiHpabdAMh6fHk3sT1q+9ncHfrnCBHm/R/5NFpmSzxlxM298EmMnHu//
+         /L6fGaIRyDv4Y77v3iClKaVv0n6L39hNq5kSqsee3gvcq+rE1XTv0IqgYqrNv7a/elMr
+         YDeQQ/2BtV8//elxHtac4sOJJSljWT3e9qlnBub4RXChJbGhnc+dNjXMS6ibPyjPYbjn
+         kdbxVIapwNSo1B0f5ch1NKiyq03Qoq9IdLWjZd0D1edsskeLUtW4DGNwPkTTg5qx6M0f
+         1d7Q==
+X-Gm-Message-State: APjAAAWOLwVQErBQELxLd29e7jvCqKyWW7GMjgIqFWjq6dAY4WzHDYA7
+        2eG4JhstrEXnj/Ws/j6FN60=
+X-Google-Smtp-Source: APXvYqzm6lQaDL8GCHjpR2Ze9j/wVnAfHcfD50s+ZHQGbSTaI/6f1stKkEdmYD8euEsGgOr8AAgYpg==
+X-Received: by 2002:a2e:9151:: with SMTP id q17mr5304795ljg.156.1573302304417;
+        Sat, 09 Nov 2019 04:25:04 -0800 (PST)
+Received: from [172.31.190.83] ([86.57.146.226])
+        by smtp.gmail.com with ESMTPSA id u5sm4274436ljg.68.2019.11.09.04.25.03
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 09 Nov 2019 04:25:03 -0800 (PST)
+Subject: Re: [PATCH 3/3] io_uring: add support for backlogged CQ ring
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
- <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
- <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
- <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
- <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+Cc:     linux-block@vger.kernel.org, jannh@google.com
+References: <20191107160043.31725-1-axboe@kernel.dk>
+ <20191107160043.31725-4-axboe@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH RFC] io_uring: limit inflight IO
-Message-ID: <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
-Date:   Sat, 9 Nov 2019 14:16:28 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+Message-ID: <e9469ed1-dec0-c8ee-ee0a-5e81ee10d1bc@gmail.com>
+Date:   Sat, 9 Nov 2019 15:25:02 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="eW7EDb5mt7jaRM6T1INnGG1Kbj1KPEhhe"
+In-Reply-To: <20191107160043.31725-4-axboe@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---eW7EDb5mt7jaRM6T1INnGG1Kbj1KPEhhe
-Content-Type: multipart/mixed; boundary="cxrDoc9UWTMq07gbLIrLfM3mlT73TPq0k";
- protected-headers="v1"
-From: Pavel Begunkov <asml.silence@gmail.com>
-To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Message-ID: <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
-Subject: Re: [PATCH RFC] io_uring: limit inflight IO
-References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
- <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
- <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
- <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
- <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
-In-Reply-To: <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+On 11/7/2019 7:00 PM, Jens Axboe wrote:
+> Currently we drop completion events, if the CQ ring is full. That's fine
+> for requests with bounded completion times, but it may make it harder to
+> use io_uring with networked IO where request completion times are
+> generally unbounded. Or with POLL, for example, which is also unbounded.
+> 
+> This patch adds IORING_SETUP_CQ_NODROP, which changes the behavior a bit
+> for CQ ring overflows. First of all, it doesn't overflow the ring, it
+> simply stores a backlog of completions that we weren't able to put into
+> the CQ ring. To prevent the backlog from growing indefinitely, if the
+> backlog is non-empty, we apply back pressure on IO submissions. Any
+> attempt to submit new IO with a non-empty backlog will get an -EBUSY
+> return from the kernel. This is a signal to the application that it has
+> backlogged CQ events, and that it must reap those before being allowed
+> to submit more IO.>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> ---
+>  fs/io_uring.c                 | 103 ++++++++++++++++++++++++++++------
+>  include/uapi/linux/io_uring.h |   1 +
+>  2 files changed, 87 insertions(+), 17 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index f69d9794ce17..ff0f79a57f7b 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -207,6 +207,7 @@ struct io_ring_ctx {
+>  
+>  		struct list_head	defer_list;
+>  		struct list_head	timeout_list;
+> +		struct list_head	cq_overflow_list;
+>  
+>  		wait_queue_head_t	inflight_wait;
+>  	} ____cacheline_aligned_in_smp;
+> @@ -414,6 +415,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+>  
+>  	ctx->flags = p->flags;
+>  	init_waitqueue_head(&ctx->cq_wait);
+> +	INIT_LIST_HEAD(&ctx->cq_overflow_list);
+>  	init_completion(&ctx->ctx_done);
+>  	init_completion(&ctx->sqo_thread_started);
+>  	mutex_init(&ctx->uring_lock);
+> @@ -588,6 +590,72 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+>  	return &rings->cqes[tail & ctx->cq_mask];
+>  }
+>  
+> +static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+> +{
+> +	if (waitqueue_active(&ctx->wait))
+> +		wake_up(&ctx->wait);
+> +	if (waitqueue_active(&ctx->sqo_wait))
+> +		wake_up(&ctx->sqo_wait);
+> +	if (ctx->cq_ev_fd)
+> +		eventfd_signal(ctx->cq_ev_fd, 1);
+> +}
+> +
+> +static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+> +{
+> +	struct io_rings *rings = ctx->rings;
+> +	struct io_uring_cqe *cqe;
+> +	struct io_kiocb *req;
+> +	unsigned long flags;
+> +	LIST_HEAD(list);
+> +
+> +	if (list_empty_careful(&ctx->cq_overflow_list))
+> +		return;
+> +	if (ctx->cached_cq_tail - READ_ONCE(rings->cq.head) ==
+> +	    rings->cq_ring_entries)
+> +		return;
+> +
+> +	spin_lock_irqsave(&ctx->completion_lock, flags);
+> +
+> +	while (!list_empty(&ctx->cq_overflow_list)) {
+> +		cqe = io_get_cqring(ctx);
+> +		if (!cqe && !force)
+> +			break;> +
+> +		req = list_first_entry(&ctx->cq_overflow_list, struct io_kiocb,
+> +						list);
+> +		list_move(&req->list, &list);
+> +		if (cqe) {
+> +			WRITE_ONCE(cqe->user_data, req->user_data);
+> +			WRITE_ONCE(cqe->res, req->result);
+> +			WRITE_ONCE(cqe->flags, 0);
+> +		}
 
---cxrDoc9UWTMq07gbLIrLfM3mlT73TPq0k
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Hmm, second thought. We should account overflow here.
 
-> I've been struggling a bit with how to make this reliable, and I'm not
-> so sure there's a way to do that. Let's say an application sets up a
-> ring with 8 sq entries, which would then default to 16 cq entries. With=
-
-> this patch, we'd allow 16 ios inflight. But what if the application doe=
-s
->=20
-> for (i =3D 0; i < 32; i++) {
-> 	sqe =3D get_sqe();
-> 	prep_sqe();
-> 	submit_sqe();
-> }
->=20
-> And then directly proceeds to:
->=20
-> do {
-> 	get_completions();
-> } while (has_completions);
->=20
-> As long as fewer than 16 requests complete before we start reaping,
-> we don't lose any events. Hence there's a risk of breaking existing
-> setups with this, even though I don't think that's a high risk.
->=20
-
-I think, this should be considered as an erroneous usage of the API.
-It's better to fail ASAP than to be surprised in a production
-system, because of non-deterministic nature of such code. Even worse
-with trying to debug such stuff.=20
-
-As for me, cases like below are too far-fetched
-
-for (i =3D 0; i < n; i++)
-	submit_read_sqe()
-for (i =3D 0; i < n; i++) {
-	device_allow_next_read()
-	get_single_cqe()
-}
-
-
-> We probably want to add some sysctl limit for this instead. But then
-> the question is, what should that entry (or entries) be?
->=20
-
---=20
-Pavel Begunkov
-
-
---cxrDoc9UWTMq07gbLIrLfM3mlT73TPq0k--
-
---eW7EDb5mt7jaRM6T1INnGG1Kbj1KPEhhe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3GoAwACgkQWt5b1Glr
-+6VUng/+L/Jv05p8kJwMI5R4EpmCf6mizhRAc3n/AwQ2z8fNigMwp3/GYrSKlr4M
-rd3PhytHs4VCDq552jW+/RcJAAspT0+vzgAafcvjQsQOYzpbdAyM4YXQq0uUNRLe
-9I+vt9tekOvzUTot1eYyMLmBQg+OksoSSVJWc4krlzFajBI1w46+x7nfLwgLRvRy
-gKF4y5MsfEz9q7Yi+Sw3rhzFLDhSwnlbSB4YAx8/rxhwBAQ/PouBnVclrHkVpXLq
-fUqvPCKDZJpuaNXVDsMcLaLlcjPrCJVVHfPWnOtA7gFldWxXzoXxFwyFVeXMVqB1
-AbtIk7+lPtc3hqCBz+Nx9hWkjF2llDOMpjDGArQqliBH9lWru9msXWKT/rjhhjsW
-16SkrVl836DEwNGSaKIvY36ASeOLfVWN+JbfXzTw2yCF0E+Ng3KBYASsH1VFFhZz
-VezWYkIoXB5zg/mpSzj5ZZ5yqoa/XUGDJct19asA6cnrvaH3qSuDWzOnXKEiHxeP
-8my3oRKqyVnyiLGr3cWM8DJHnvnYdXJ30C4Vb8RhHDdPNqCb0T3nTK3v8dmTPUOJ
-ujPCIjfR4a+S9BSVV6hozROvGngtll88bvTk2kT81IoXar3bw+iU+DQ1INNyONx/
-grjefyMjGJ3Mdyj83B8GEQtIvx+KcSsMwYxOQq4nyeM2O6HhbMU=
-=q1XF
------END PGP SIGNATURE-----
-
---eW7EDb5mt7jaRM6T1INnGG1Kbj1KPEhhe--
+> +	}
+> +
+> +	io_commit_cqring(ctx);
+> +	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+> +	io_cqring_ev_posted(ctx);
+> +
+> +	while (!list_empty(&list)) {
+> +		req = list_first_entry(&list, struct io_kiocb, list);
+> +		list_del(&req->list);
+> +		io_put_req(req, NULL);
+> +	}
+> +}
+> +
+> +static void io_cqring_overflow(struct io_ring_ctx *ctx, struct io_kiocb *req,
+> +			       long res)
+> +	__must_hold(&ctx->completion_lock)
+> +{
+> +	if (!(ctx->flags & IORING_SETUP_CQ_NODROP)) {
+> +		WRITE_ONCE(ctx->rings->cq_overflow,
+> +				atomic_inc_return(&ctx->cached_cq_overflow));
+> +	} else {
+> +		refcount_inc(&req->refs);
+> +		req->result = res;
+> +		list_add_tail(&req->list, &ctx->cq_overflow_list);
+> +	}
+> +}
+> +
+>  static void io_cqring_fill_event(struct io_kiocb *req, long res)
+>  {
+>  	struct io_ring_ctx *ctx = req->ctx;
+> @@ -601,26 +669,15 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res)
+>  	 * the ring.
+>  	 */
+>  	cqe = io_get_cqring(ctx);
+> -	if (cqe) {
+> +	if (likely(cqe)) {
+>  		WRITE_ONCE(cqe->user_data, req->user_data);
+>  		WRITE_ONCE(cqe->res, res);
+>  		WRITE_ONCE(cqe->flags, 0);
+>  	} else {
+> -		WRITE_ONCE(ctx->rings->cq_overflow,
+> -				atomic_inc_return(&ctx->cached_cq_overflow));
+> +		io_cqring_overflow(ctx, req, res);
+>  	}
+>  }
+>  
+> -static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+> -{
+> -	if (waitqueue_active(&ctx->wait))
+> -		wake_up(&ctx->wait);
+> -	if (waitqueue_active(&ctx->sqo_wait))
+> -		wake_up(&ctx->sqo_wait);
+> -	if (ctx->cq_ev_fd)
+> -		eventfd_signal(ctx->cq_ev_fd, 1);
+> -}
+> -
+>  static void io_cqring_add_event(struct io_kiocb *req, long res)
+>  {
+>  	struct io_ring_ctx *ctx = req->ctx;
+> @@ -877,6 +934,9 @@ static unsigned io_cqring_events(struct io_ring_ctx *ctx)
+>  {
+>  	struct io_rings *rings = ctx->rings;
+>  
+> +	if (ctx->flags & IORING_SETUP_CQ_NODROP)
+> +		io_cqring_overflow_flush(ctx, false);
+> +
+>  	/* See comment at the top of this file */
+>  	smp_rmb();
+>  	return READ_ONCE(rings->cq.tail) - READ_ONCE(rings->cq.head);
+> @@ -2876,6 +2936,10 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+>  	int i, submitted = 0;
+>  	bool mm_fault = false;
+>  
+> +	if ((ctx->flags & IORING_SETUP_CQ_NODROP) &&
+> +	    !list_empty(&ctx->cq_overflow_list))
+> +		return -EBUSY;
+> +
+>  	if (nr > IO_PLUG_THRESHOLD) {
+>  		io_submit_state_start(&state, ctx, nr);
+>  		statep = &state;
+> @@ -2967,6 +3031,7 @@ static int io_sq_thread(void *data)
+>  	timeout = inflight = 0;
+>  	while (!kthread_should_park()) {
+>  		unsigned int to_submit;
+> +		int ret;
+>  
+>  		if (inflight) {
+>  			unsigned nr_events = 0;
+> @@ -3051,8 +3116,9 @@ static int io_sq_thread(void *data)
+>  		}
+>  
+>  		to_submit = min(to_submit, ctx->sq_entries);
+> -		inflight += io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm,
+> -					   true);
+> +		ret = io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm, true);
+> +		if (ret > 0)
+> +			inflight += ret;
+>  	}
+>  
+>  	set_fs(old_fs);
+> @@ -4116,8 +4182,10 @@ static int io_uring_flush(struct file *file, void *data)
+>  	struct io_ring_ctx *ctx = file->private_data;
+>  
+>  	io_uring_cancel_files(ctx, data);
+> -	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
+> +	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
+> +		io_cqring_overflow_flush(ctx, true);
+>  		io_wq_cancel_all(ctx->io_wq);
+> +	}
+>  	return 0;
+>  }
+>  
+> @@ -4418,7 +4486,8 @@ static long io_uring_setup(u32 entries, struct io_uring_params __user *params)
+>  	}
+>  
+>  	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
+> -			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE))
+> +			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
+> +			IORING_SETUP_CQ_NODROP))
+>  		return -EINVAL;
+>  
+>  	ret = io_uring_create(entries, &p);
+> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+> index f1a118b01d18..3d8517eb376e 100644
+> --- a/include/uapi/linux/io_uring.h
+> +++ b/include/uapi/linux/io_uring.h
+> @@ -56,6 +56,7 @@ struct io_uring_sqe {
+>  #define IORING_SETUP_SQPOLL	(1U << 1)	/* SQ poll thread */
+>  #define IORING_SETUP_SQ_AFF	(1U << 2)	/* sq_thread_cpu is valid */
+>  #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
+> +#define IORING_SETUP_CQ_NODROP	(1U << 4)	/* no CQ drops */
+>  
+>  #define IORING_OP_NOP		0
+>  #define IORING_OP_READV		1
+> 

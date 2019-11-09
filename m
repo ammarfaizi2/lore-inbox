@@ -2,67 +2,73 @@ Return-Path: <SRS0=jnAq=ZB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F2EAC43331
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 14:20:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5623FC43331
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 14:23:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 72AB520869
-	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 14:20:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EF1B20869
+	for <io-uring@archiver.kernel.org>; Sat,  9 Nov 2019 14:23:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="fsDtIgAj"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="XTa/sdpV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726349AbfKIOUw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 9 Nov 2019 09:20:52 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:46041 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726282AbfKIOUw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 09:20:52 -0500
-Received: by mail-pg1-f194.google.com with SMTP id w11so6022279pga.12
-        for <io-uring@vger.kernel.org>; Sat, 09 Nov 2019 06:20:50 -0800 (PST)
+        id S1726372AbfKIOXu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 9 Nov 2019 09:23:50 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:46670 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726282AbfKIOXu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Nov 2019 09:23:50 -0500
+Received: by mail-pl1-f194.google.com with SMTP id l4so5565120plt.13
+        for <io-uring@vger.kernel.org>; Sat, 09 Nov 2019 06:23:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=+J0TIHAU/h4U5QOiy6//7+OXhxUGaPDeOukNgI2tVVo=;
-        b=fsDtIgAj5mpCYVrFmWyFXSoPnW/I9F+r4F8Y+PkwB17t5YF53mnrcwoIUNibjk9knw
-         bqdk//rNP8wuZd9iEmdPNcl6bsnOGri+BTB/GptwClHWUVmTwPwLS/fmfXPRT+Ic2s+f
-         /etNr7lP6zH1NFzH00FYdlNdj9RB52EJxez3Yp1Z8Vy/1LYf5/U0NoVrBV2aepP7QmKs
-         45l1qFyfRVpFeUcElIi4SnzM95si/IlXovp/X2XdJtqCoKyROgsxOp2q0g8k4Y75xyIG
-         JFl6IVIMGyZN//BK+r6Ns8oi1bBlYFrGbCnOTJqCvA4VSMLPrsKE/drKX0MZ14CduFmq
-         6gxQ==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=4fmby/QYRW0yMpQtBKFcxsErehCBHHpCyuKoLFHGHXQ=;
+        b=XTa/sdpVT4lewu+rD7gSlha13mQL4Pj20H3bkpFSAsLQvh/zRkJ8wjYxTwsr5psIPN
+         PVwyf8nEg3SH7UD27NJoPGKKaaO3N7JsPEhp/KdlfHAA7DDL0q9K0jhNZT7cGImkdVgK
+         7b5MVocXcMPBkIIM9cOdXuO0pK4Lc2TLvww2UcpjNinWaPgelZYlallOBTOBab+GkCSD
+         W5HYy94UvN8M3kM8hM95IIm7ITbSYiGGqSqibkSh3L5HXvFn//VlbLAoCXqQ1SblOz9W
+         qlVf8lmK2cJRxZfsIfSisnZJZsE1ihUnfzw0hmEJyClWxfVrjlKvEsJey2I0Nsfvr6sM
+         zPfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=+J0TIHAU/h4U5QOiy6//7+OXhxUGaPDeOukNgI2tVVo=;
-        b=juW7r0HSf+9P+Xses4jRbmFkCKQXkpYxvZ7dk0ZXd4+Wm/vKG+hWAx2Z7OU8vLELlO
-         FlwT8n3uouYFtHkVCrzLAbAW40Dbhe7VHxoSBvVexwdTui5zwbv571KkDJr7BmurgsDe
-         681NRh1kgJXRvCCiYlI3iTV577dK3QVHeuN4H1YyJH/phJgPpaGLhyus3r/3DTzWAUS5
-         TW1kIXVPG6K8j2msXwUO57EsVOogSl3Z4qk5ElDWdUS5r7uTAB15xZ+5t+9KgyNEvhnm
-         gW9hhanBmKyIBYX1EYk6WNaEl12ifGcfwNg7+/ltP17waIUh3Sn6WxYbhXe0on82JHvu
-         yvag==
-X-Gm-Message-State: APjAAAVwbwfVsvZT3VA4lD7LGtTok2eWZsz7PBK+l6WDS8NhNSa0j3aO
-        DDrsdvPYAsKiPVuNSDXDCcRlww==
-X-Google-Smtp-Source: APXvYqzb/86f5B5xECJYGNnXpdgOwbR2r30ALBUQxchhnOByu9Cu78O45D1cSlajQ1A1lq29Ak8UBw==
-X-Received: by 2002:a63:1703:: with SMTP id x3mr18855118pgl.263.1573309249328;
-        Sat, 09 Nov 2019 06:20:49 -0800 (PST)
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=4fmby/QYRW0yMpQtBKFcxsErehCBHHpCyuKoLFHGHXQ=;
+        b=IKUD6F6W4b7TX4umCoPgzaaxkJCSGrUh26kkfrOseaWtWAFKC+QcUk/OPe8Tejns42
+         qiQYty0xBQAsmnYq1ErIyS8kih/KwNNv/N/ZdKblENMTnNTPSt5n2iqePrk/VhHyMbhB
+         nhgSX1nnHL77Z4kEyl4Z1fFS7cCZOOYyR00eBvgcV53mPiijx4ymJW1jZWCmNxFgrG2f
+         Gy78uoJ9MTOSxXO7k16/H1gbqO7Ln9e1JgRgWskxjcfPOS6w/QFrBcBXvI6nGD74IHei
+         0ptqe94JGtyBzjrA9rZE8V7g9itA354NN+kNGCLhl/Qt3WA4aIfUhkE2pQBr+ODSfs8l
+         Djbw==
+X-Gm-Message-State: APjAAAWLl65sA9o7fPcLvSSvbPjjJbdkVRLr8ACChqjhfvV7kqaYk+5A
+        hcy1P5gucj7Ax0KJnGDy7XJLVb0zhHk=
+X-Google-Smtp-Source: APXvYqxP8P9nEp/1OrBhOxnKLAzlJukmrNdyJppy0E0hQHZYg5ll11f7r19jl5uI/jNPlAr+s4/IgA==
+X-Received: by 2002:a17:902:6ac6:: with SMTP id i6mr16215763plt.183.1573309427854;
+        Sat, 09 Nov 2019 06:23:47 -0800 (PST)
 Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id e1sm9098762pgv.82.2019.11.09.06.20.47
+        by smtp.gmail.com with ESMTPSA id o15sm13586898pgn.49.2019.11.09.06.23.46
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 09 Nov 2019 06:20:48 -0800 (PST)
-To:     io-uring@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>
+        Sat, 09 Nov 2019 06:23:47 -0800 (PST)
+Subject: Re: [PATCH RFC] io_uring: limit inflight IO
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <e7f01b7b-5915-606f-b5b4-0d59f8e096b6@kernel.dk>
+ <33958a03-6714-ce51-9856-1dcbf53f67d5@kernel.dk>
+ <273391a6-1def-3c29-986c-8efca569fc16@gmail.com>
+ <cc6b368b-10e3-504c-4895-feefe6311004@kernel.dk>
+ <bdfdad32-91b7-7721-ccdf-0dd399e7e051@kernel.dk>
+ <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: fix accounting of dropped CQEs in backlog flush
-Message-ID: <1031d393-b7b0-f2e3-9c7b-82142895e13a@kernel.dk>
-Date:   Sat, 9 Nov 2019 07:20:47 -0700
+Message-ID: <d8002007-7641-3e9d-0560-123358300e66@kernel.dk>
+Date:   Sat, 9 Nov 2019 07:23:45 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
+In-Reply-To: <69985522-3e8e-102b-c8e9-ea9046cd22c6@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -71,30 +77,54 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We really should increment the overflow count if we drop events from
-the overflow backlog, even if we only do this from the path where
-either the task or the ring is going way.
+On 11/9/19 4:16 AM, Pavel Begunkov wrote:
+>> I've been struggling a bit with how to make this reliable, and I'm not
+>> so sure there's a way to do that. Let's say an application sets up a
+>> ring with 8 sq entries, which would then default to 16 cq entries. With
+>> this patch, we'd allow 16 ios inflight. But what if the application does
+>>
+>> for (i = 0; i < 32; i++) {
+>> 	sqe = get_sqe();
+>> 	prep_sqe();
+>> 	submit_sqe();
+>> }
+>>
+>> And then directly proceeds to:
+>>
+>> do {
+>> 	get_completions();
+>> } while (has_completions);
+>>
+>> As long as fewer than 16 requests complete before we start reaping,
+>> we don't lose any events. Hence there's a risk of breaking existing
+>> setups with this, even though I don't think that's a high risk.
+>>
+> 
+> I think, this should be considered as an erroneous usage of the API.
+> It's better to fail ASAP than to be surprised in a production
+> system, because of non-deterministic nature of such code. Even worse
+> with trying to debug such stuff.
+> 
+> As for me, cases like below are too far-fetched
+> 
+> for (i = 0; i < n; i++)
+> 	submit_read_sqe()
+> for (i = 0; i < n; i++) {
+> 	device_allow_next_read()
+> 	get_single_cqe()
+> }
 
-Fixes: c28f37817b7c ("io_uring: add support for backlogged CQ ring")
-Reported-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+I can't really disagree with that, it's a use case that's bound to fail
+every now and then...
 
----
+But if we agree that's the case, then we should be able to just limit
+based on the cq ring size in question.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 321ccc38397c..f2769f5f9662 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -628,6 +628,9 @@ static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 			WRITE_ONCE(cqe->user_data, req->user_data);
- 			WRITE_ONCE(cqe->res, req->result);
- 			WRITE_ONCE(cqe->flags, 0);
-+		} else {
-+			WRITE_ONCE(ctx->rings->cq_overflow,
-+				atomic_inc_return(&ctx->cached_cq_overflow));
- 		}
- 	}
- 
+Do we make it different fro CQ_NODROP and !CQ_NODROP or not? Because the
+above case would work with CQ_NODROP, reliably. At least CQ_NODROP is
+new so we get to set the rules for that one, they just have to make
+sense.
+
 -- 
 Jens Axboe
 

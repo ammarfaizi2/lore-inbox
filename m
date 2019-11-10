@@ -6,175 +6,73 @@ X-Spam-Status: No, score=-0.4 required=3.0 tests=FROM_LOCAL_HEX,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47B99C43331
-	for <io-uring@archiver.kernel.org>; Sun, 10 Nov 2019 09:04:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E36CDC17442
+	for <io-uring@archiver.kernel.org>; Sun, 10 Nov 2019 11:49:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 10B1A20842
-	for <io-uring@archiver.kernel.org>; Sun, 10 Nov 2019 09:04:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B998120B7C
+	for <io-uring@archiver.kernel.org>; Sun, 10 Nov 2019 11:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726648AbfKJJEJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 10 Nov 2019 04:04:09 -0500
-Received: from mail-il1-f200.google.com ([209.85.166.200]:45970 "EHLO
-        mail-il1-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726612AbfKJJEJ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 10 Nov 2019 04:04:09 -0500
-Received: by mail-il1-f200.google.com with SMTP id n84so13273602ila.12
-        for <io-uring@vger.kernel.org>; Sun, 10 Nov 2019 01:04:08 -0800 (PST)
+        id S1726810AbfKJLtC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 10 Nov 2019 06:49:02 -0500
+Received: from mail-il1-f198.google.com ([209.85.166.198]:33796 "EHLO
+        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726656AbfKJLtB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 10 Nov 2019 06:49:01 -0500
+Received: by mail-il1-f198.google.com with SMTP id m12so10473609ilq.1
+        for <io-uring@vger.kernel.org>; Sun, 10 Nov 2019 03:49:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=+8ZnohStVkL6tapO0JWTtDMt8kk/Lc635P0c1MxZABA=;
-        b=d/TNr7WTYR7XTigg5frnrwNG99vB3it+sroJJ7+XsxFdO3kG+ikuqPghUGAR4MixG7
-         jhZ5Uo8h2vJEnBB6XJa3FyP2AraM5tQna8WcvxLXaJUq+IisWus3QKbSHvAjICxnseuH
-         GAGUZvvOFSw9Sb+PaTZfz7tH2OkfzLAGT2QttrMQDqGHYfvsTiClrXVwaIy5g+IhJTiV
-         bENkV9ojKNQ3oKwPDzYfQR54l6gtD/nKa5FWg41k6vjDBEKnurG0lNvYt/2JhxbsQIIg
-         aJWDIJtpMzCDyqnSnT49VitXTgc8t2ivfnppvrMSJRr3d5N5oNCx2aa/YAV2Gn60TvFB
-         bPVg==
-X-Gm-Message-State: APjAAAVebQqbD4cQRai+QyH1UzWkDamtn1duoI0cRFHD/23mfVIqqz0m
-        1oEYHdB0qk0muOkHwrPGP2AhdTaiAAon9yEROHcaXrTRur+P
-X-Google-Smtp-Source: APXvYqy+AUqg0wSDZpVB9rBKoOGN6mwXueF3kL6EZqJOUJOzS2PLb8Q4d1jrez3tl2/CGtb1vjfX8OG4rblTD+NhDrEaGBDP2DsH
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=muS40/M+U7unS7Nwdhba7+0opY/I2Z2pZGBBgPUq8C0=;
+        b=Fg/PTwaP0noVHF5Na6hjzIk9qZdPp9dBu94updq7nSObJ8xfey978mYMWZzgsfXU9u
+         vEcP4lyblsCXHcpOJM6BwdfpdNLZI5rI6wE2xCPT8gqTRm8nQdkj+AVnUwvP7ctAbVoh
+         RnHKe3UD0pH+bjLeE/sxK+YFLZ6wI6ywA9rxSU0wWuLjtNg1FGpN7jQ31KfQpcdQOXS0
+         xTPWpzJ3Lxv37p88TwnZxE9vkIHM3iLm9BtpGFIuIOxccRe52ATr52iPRcvVU4VNxx4v
+         sP9bNEHL+N05X+QxTFsFEY5bHPiNTLFPN7X6eeIkgPA8Py4UKLwcomB4dGojGqLNNNcR
+         /NAA==
+X-Gm-Message-State: APjAAAVkAtqWc4z35h5KtJ8047Hh4xjsOfXyOCQzz+6PIv34hD8U47pz
+        VTfHltbyleFcobPZ6Jb2PKIvd6CM8+bgqsEW/dtnM/OzMSgv
+X-Google-Smtp-Source: APXvYqwG7iOuXUzrPn9C7IQw34I7LSwhAIRpMFyONIfQ9Z8ZWhdhx/QqVwYg/S2UFNW58oOzV3uQTeJdrwTJ/Pza/72hGbJAuyfE
 MIME-Version: 1.0
-X-Received: by 2002:a6b:e403:: with SMTP id u3mr20170199iog.130.1573376648171;
- Sun, 10 Nov 2019 01:04:08 -0800 (PST)
-Date:   Sun, 10 Nov 2019 01:04:08 -0800
+X-Received: by 2002:a92:16d4:: with SMTP id 81mr24840022ilw.198.1573386541143;
+ Sun, 10 Nov 2019 03:49:01 -0800 (PST)
+Date:   Sun, 10 Nov 2019 03:49:01 -0800
+In-Reply-To: <0000000000003659ef0596fa4cae@google.com>
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000003659ef0596fa4cae@google.com>
-Subject: KASAN: invalid-free in io_sqe_files_unregister
+Message-ID: <000000000000e11df90596fc9955@google.com>
+Subject: Re: KASAN: invalid-free in io_sqe_files_unregister
 From:   syzbot <syzbot+3254bc44113ae1e331ee@syzkaller.appspotmail.com>
 To:     axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+        linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+        viro@zeniv.linux.org.uk
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+syzbot has bisected this bug to:
 
-syzbot found the following crash on:
+commit 65e19f54d29cd8559ce60cfd0d751bef7afbdc5c
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Sat Oct 26 13:20:21 2019 +0000
 
-HEAD commit:    5591cf00 Add linux-next specific files for 20191108
+     io_uring: support for larger fixed file sets
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=154f483ce00000
+start commit:   5591cf00 Add linux-next specific files for 20191108
 git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=176bdbece00000
+final crash:    https://syzkaller.appspot.com/x/report.txt?x=174f483ce00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=134f483ce00000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=e1036c6ef52866f9
 dashboard link: https://syzkaller.appspot.com/bug?extid=3254bc44113ae1e331ee
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=116bb33ae00000
 C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=173f133ae00000
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
 Reported-by: syzbot+3254bc44113ae1e331ee@syzkaller.appspotmail.com
+Fixes: 65e19f54d29c ("io_uring: support for larger fixed file sets")
 
-RBP: 0000000000000005 R08: 0000000000000001 R09: 00007ffd5b970032
-R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000401ef0
-R13: 0000000000401f80 R14: 0000000000000000 R15: 0000000000000000
-==================================================================
-BUG: KASAN: double-free or invalid-free in  
-io_sqe_files_unregister+0x20b/0x300 fs/io_uring.c:3185
-
-CPU: 1 PID: 8819 Comm: syz-executor452 Not tainted 5.4.0-rc6-next-20191108  
-#0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x197/0x210 lib/dump_stack.c:118
-  print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
-  kasan_report_invalid_free+0x65/0xa0 mm/kasan/report.c:468
-  __kasan_slab_free+0x13a/0x150 mm/kasan/common.c:450
-  kasan_slab_free+0xe/0x10 mm/kasan/common.c:480
-  __cache_free mm/slab.c:3426 [inline]
-  kfree+0x10a/0x2c0 mm/slab.c:3757
-  io_sqe_files_unregister+0x20b/0x300 fs/io_uring.c:3185
-  io_ring_ctx_free fs/io_uring.c:3998 [inline]
-  io_ring_ctx_wait_and_kill+0x348/0x700 fs/io_uring.c:4060
-  io_uring_release+0x42/0x50 fs/io_uring.c:4068
-  __fput+0x2ff/0x890 fs/file_table.c:280
-  ____fput+0x16/0x20 fs/file_table.c:313
-  task_work_run+0x145/0x1c0 kernel/task_work.c:113
-  exit_task_work include/linux/task_work.h:22 [inline]
-  do_exit+0x904/0x2e60 kernel/exit.c:817
-  do_group_exit+0x135/0x360 kernel/exit.c:921
-  __do_sys_exit_group kernel/exit.c:932 [inline]
-  __se_sys_exit_group kernel/exit.c:930 [inline]
-  __x64_sys_exit_group+0x44/0x50 kernel/exit.c:930
-  do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x43f2c8
-Code: 31 b8 c5 f7 ff ff 48 8b 5c 24 28 48 8b 6c 24 30 4c 8b 64 24 38 4c 8b  
-6c 24 40 4c 8b 74 24 48 4c 8b 7c 24 50 48 83 c4 58 c3 66 <0f> 1f 84 00 00  
-00 00 00 48 8d 35 59 ca 00 00 0f b6 d2 48 89 fb 48
-RSP: 002b:00007ffd5b976008 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 000000000043f2c8
-RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
-RBP: 00000000004bf0a8 R08: 00000000000000e7 R09: ffffffffffffffd0
-R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000001
-R13: 00000000006d1180 R14: 0000000000000000 R15: 0000000000000000
-
-Allocated by task 8819:
-  save_stack+0x23/0x90 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  __kasan_kmalloc mm/kasan/common.c:510 [inline]
-  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:483
-  kasan_kmalloc+0x9/0x10 mm/kasan/common.c:524
-  __do_kmalloc mm/slab.c:3656 [inline]
-  __kmalloc+0x163/0x770 mm/slab.c:3665
-  kmalloc_array include/linux/slab.h:598 [inline]
-  kcalloc include/linux/slab.h:609 [inline]
-  io_sqe_files_register fs/io_uring.c:3373 [inline]
-  __io_uring_register+0x11d4/0x3120 fs/io_uring.c:4474
-  __do_sys_io_uring_register fs/io_uring.c:4526 [inline]
-  __se_sys_io_uring_register fs/io_uring.c:4508 [inline]
-  __x64_sys_io_uring_register+0x1a1/0x570 fs/io_uring.c:4508
-  do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 8819:
-  save_stack+0x23/0x90 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  kasan_set_free_info mm/kasan/common.c:332 [inline]
-  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:471
-  kasan_slab_free+0xe/0x10 mm/kasan/common.c:480
-  __cache_free mm/slab.c:3426 [inline]
-  kfree+0x10a/0x2c0 mm/slab.c:3757
-  io_sqe_files_register fs/io_uring.c:3379 [inline]
-  __io_uring_register+0x13a7/0x3120 fs/io_uring.c:4474
-  __do_sys_io_uring_register fs/io_uring.c:4526 [inline]
-  __se_sys_io_uring_register fs/io_uring.c:4508 [inline]
-  __x64_sys_io_uring_register+0x1a1/0x570 fs/io_uring.c:4508
-  do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8880a7619140
-  which belongs to the cache kmalloc-32 of size 32
-The buggy address is located 0 bytes inside of
-  32-byte region [ffff8880a7619140, ffff8880a7619160)
-The buggy address belongs to the page:
-page:ffffea00029d8640 refcount:1 mapcount:0 mapping:ffff8880aa4001c0  
-index:0xffff8880a7619fc1
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea00025b2488 ffffea0002975c88 ffff8880aa4001c0
-raw: ffff8880a7619fc1 ffff8880a7619000 0000000100000024 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8880a7619000: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
-  ffff8880a7619080: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
-> ffff8880a7619100: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
-                                            ^
-  ffff8880a7619180: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
-  ffff8880a7619200: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
-==================================================================
-
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection

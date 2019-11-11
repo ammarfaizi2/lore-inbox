@@ -2,177 +2,261 @@ Return-Path: <SRS0=oqI+=ZD=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0555C43331
-	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 04:19:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9747FC43331
+	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 06:39:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B305120818
-	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 04:19:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C41320818
+	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 06:39:51 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="MB6mwn3y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726756AbfKKET1 convert rfc822-to-8bit (ORCPT
-        <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 10 Nov 2019 23:19:27 -0500
-Received: from smtpbgsg2.qq.com ([54.254.200.128]:54395 "EHLO smtpbgsg2.qq.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726754AbfKKET1 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Sun, 10 Nov 2019 23:19:27 -0500
-X-QQ-mid: bizesmtp17t1573445961tabenr2u
-Received: from [192.168.142.168] (unknown [218.76.23.26])
-        by esmtp6.qq.com (ESMTP) with 
-        id ; Mon, 11 Nov 2019 12:19:20 +0800 (CST)
-X-QQ-SSF: 00400000002000T0ZU90000A0000000
-X-QQ-FEAT: 8EH74LRXnGwJzwqDgsyfOqBPv3P3CAci3xmrrqnBF3su//jSAMhEwHWT26yQc
-        p3h2HVX/itw2/exXsMqDreZ5oqqP6CYc+otEWFIwbaNfKygofZO5ww2htDFFMRiObiHh5Q7
-        JK+L9qj5Innb9w0PqmHMIxrp7GxFiMiVd/wsZHP7odTZ7ulOyDvgxwYh5AYofZbmWnT5tZN
-        Jm+lqHfYRViVQ0o/xCNODRWVKv35K9Vi20o9LcffwJAfnm47/i3zkbUP4NzA8XUL+578umZ
-        KCBSf7pQWrYjUIWtYJzb66frUc0nT8ORgof2qEsOJ4qQttsgzDhJXcciQoTYhC3taNJwQX2
-        VCw6E2NboleX9EJCwlqEmct7z0Vfg==
-X-QQ-GoodBg: 2
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601.0.10\))
-Subject: Re: [PATCH] io_uring: fix error clear of ->file_table in
- io_sqe_files_register()
-From:   Jackie Liu <liuyun01@kylinos.cn>
-In-Reply-To: <834e83ff-e03c-24a0-0f50-1995d944056a@kernel.dk>
-Date:   Mon, 11 Nov 2019 12:19:19 +0800
-Cc:     Bob Liu <bob.liu@oracle.com>, io-uring@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <5F7B4358-5805-4D83-AE99-5222A109B68D@kylinos.cn>
-References: <9851837d-47f3-abfe-8c19-f518e0935b22@kernel.dk>
- <e2309d10-73bf-0af3-5687-b701d6d6cb3a@oracle.com>
- <dd9711ef-cc21-1177-8aae-59e3b9a19447@kernel.dk>
- <A20A2F95-A658-44B9-B859-370832A072A0@kylinos.cn>
- <834e83ff-e03c-24a0-0f50-1995d944056a@kernel.dk>
-To:     Jens Axboe <axboe@kernel.dk>
-X-Mailer: Apple Mail (2.3601.0.10)
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign7
-X-QQ-Bgrelay: 1
+        id S1726770AbfKKGjv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 11 Nov 2019 01:39:51 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:40677 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726768AbfKKGju (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 11 Nov 2019 01:39:50 -0500
+Received: by mail-pg1-f194.google.com with SMTP id 15so8816878pgt.7
+        for <io-uring@vger.kernel.org>; Sun, 10 Nov 2019 22:39:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=mAY2fRh438L3O0yL9MohpsT1p6DON3CzjxbJUlgi4aw=;
+        b=MB6mwn3y6EjMEM7PA+X5e1+ScSemylxFdAcYk0pmGMdpijhdebkmNoriHP5V152Z0d
+         kpqazDLcqdtnQPSE1gaU7Ed3rBIROzQS7gcWVswEZrHaWkrTSVnCfg5Pm8kvcb4uZ+vq
+         2tejITjqwehEcutAbuc7ehHig7jTUTmF6vapVh5N/pElLuLkzMNm05lnhs7t6jQvze4k
+         vnyPkycV+nmqqGDS2SKJ03Iz2FaOo0u7oOU7i9Wv2OnAsE3LS3gXymnMtUL05qetIGDb
+         YP6DdfepO2IxrP7r5asNmRzrpKV9XwQgMx6pLZ7S6W0sw2TawOeKW3H4GaFPp0hThQuN
+         MzsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=mAY2fRh438L3O0yL9MohpsT1p6DON3CzjxbJUlgi4aw=;
+        b=Fiz9X/a7E0OsalvmFpIOx9DPgIERe3Bp/Hv1j2duPTFn9G0OU7QV3sDiPJAZTwGHna
+         rwku8i1/XHRfRTuTFR+j3Exc8CcLP9gYmHBYnrm27jdkAsT3jpfQnQNmWtCuPY4qd8T+
+         GAC2l7mcUmQ4jDUm4KM/d5lvNplsJjWb6sCadD6xcGIGxTsoVbOpkVsVwwaJ4iLYz7Cl
+         U6A+o0B4nEClAXlWM7EZDgUt5tfoi1uIZIn6+uCRSV/RgXG5+BK1pyd7aLZkziALNNC+
+         ApGGVE0yqUeVHMLQSTzO5fM0e0mvmBvVVqlbo2SVcpK/sb4GOfr9sW3uDG18po46Ytjy
+         3DZw==
+X-Gm-Message-State: APjAAAXrKE14KjHCIjs5FkgxPS8gUE8tzjwrfe49OEnezebS1/KvCzJD
+        l/vzoYqYbzl4/FNC61wbpXnMYw==
+X-Google-Smtp-Source: APXvYqyNYnVhXNKLaXefmTzH//wF6EPY21CQIUtQ38ZeuPdJk58qpCBoNdXmiBP0xGvlPJGiJ35Jow==
+X-Received: by 2002:a17:90b:30ca:: with SMTP id hi10mr32394798pjb.143.1573454389698;
+        Sun, 10 Nov 2019 22:39:49 -0800 (PST)
+Received: from [192.168.201.136] ([50.234.116.4])
+        by smtp.gmail.com with ESMTPSA id 70sm15745962pfw.160.2019.11.10.22.39.48
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Nov 2019 22:39:48 -0800 (PST)
+To:     io-uring@vger.kernel.org
+Cc:     Hrvoje Zeba <zeba.hrvoje@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH] io_uring: fix -ENOENT issue with linked timer with short
+ timeout
+Message-ID: <8527992c-7485-aa8a-5050-a7d4b07f9e8b@kernel.dk>
+Date:   Sun, 10 Nov 2019 22:39:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+If you prep a read (for example) that needs to get punted to async
+context with a timer, if the timeout is sufficiently short, the timer
+request will get completed with -ENOENT as it could not find the read.
 
+The issue is that we prep and start the timer before we start the read.
+Hence the timer can trigger before the read is even started, and the end
+result is then that the timer completes with -ENOENT, while the read
+starts instead of being cancelled by the timer.
 
-> 2019年11月11日 12:09，Jens Axboe <axboe@kernel.dk> 写道：
-> 
-> On 11/10/19 9:02 PM, Jackie Liu wrote:
->> 
->> 
->>> 2019年11月11日 11:54，Jens Axboe <axboe@kernel.dk> 写道：
->>> 
->>> On 11/10/19 4:44 PM, Bob Liu wrote:
->>>> On 11/10/19 11:46 PM, Jens Axboe wrote:
->>>>> syzbot reports that when using failslab and friends, we can get a double
->>>>> free in io_sqe_files_unregister():
->>>>> 
->>>>> BUG: KASAN: double-free or invalid-free in
->>>>> io_sqe_files_unregister+0x20b/0x300 fs/io_uring.c:3185
->>>>> 
->>>>> CPU: 1 PID: 8819 Comm: syz-executor452 Not tainted 5.4.0-rc6-next-20191108
->>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
->>>>> Google 01/01/2011
->>>>> Call Trace:
->>>>>   __dump_stack lib/dump_stack.c:77 [inline]
->>>>>   dump_stack+0x197/0x210 lib/dump_stack.c:118
->>>>>   print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
->>>>>   kasan_report_invalid_free+0x65/0xa0 mm/kasan/report.c:468
->>>>>   __kasan_slab_free+0x13a/0x150 mm/kasan/common.c:450
->>>>>   kasan_slab_free+0xe/0x10 mm/kasan/common.c:480
->>>>>   __cache_free mm/slab.c:3426 [inline]
->>>>>   kfree+0x10a/0x2c0 mm/slab.c:3757
->>>>>   io_sqe_files_unregister+0x20b/0x300 fs/io_uring.c:3185
->>>>>   io_ring_ctx_free fs/io_uring.c:3998 [inline]
->>>>>   io_ring_ctx_wait_and_kill+0x348/0x700 fs/io_uring.c:4060
->>>>>   io_uring_release+0x42/0x50 fs/io_uring.c:4068
->>>>>   __fput+0x2ff/0x890 fs/file_table.c:280
->>>>>   ____fput+0x16/0x20 fs/file_table.c:313
->>>>>   task_work_run+0x145/0x1c0 kernel/task_work.c:113
->>>>>   exit_task_work include/linux/task_work.h:22 [inline]
->>>>>   do_exit+0x904/0x2e60 kernel/exit.c:817
->>>>>   do_group_exit+0x135/0x360 kernel/exit.c:921
->>>>>   __do_sys_exit_group kernel/exit.c:932 [inline]
->>>>>   __se_sys_exit_group kernel/exit.c:930 [inline]
->>>>>   __x64_sys_exit_group+0x44/0x50 kernel/exit.c:930
->>>>>   do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
->>>>>   entry_SYSCALL_64_after_hwframe+0x49/0xbe
->>>>> RIP: 0033:0x43f2c8
->>>>> Code: 31 b8 c5 f7 ff ff 48 8b 5c 24 28 48 8b 6c 24 30 4c 8b 64 24 38 4c 8b
->>>>> 6c 24 40 4c 8b 74 24 48 4c 8b 7c 24 50 48 83 c4 58 c3 66 <0f> 1f 84 00 00
->>>>> 00 00 00 48 8d 35 59 ca 00 00 0f b6 d2 48 89 fb 48
->>>>> RSP: 002b:00007ffd5b976008 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
->>>>> RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 000000000043f2c8
->>>>> RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
->>>>> RBP: 00000000004bf0a8 R08: 00000000000000e7 R09: ffffffffffffffd0
->>>>> R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000001
->>>>> R13: 00000000006d1180 R14: 0000000000000000 R15: 0000000000000000
->>>>> 
->>>>> This happens if we fail allocating the file tables. For that case we do
->>>>> free the file table correctly, but we forget to set it to NULL. This
->>>>> means that ring teardown will see it as being non-NULL, and attempt to
->>>>> free it again.
->>>>> 
->>>>> Fix this by clearing the file_table pointer if we free the table.
->>>>> 
->>>>> Reported-by: syzbot+3254bc44113ae1e331ee@syzkaller.appspotmail.com
->>>>> Fixes: 65e19f54d29c ("io_uring: support for larger fixed file sets")
->>>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->>>>> 
->>>> 
->>>> Reviewed-by: Bob Liu <bob.liu@oracle.com>
->>> 
->>> Thanks, added.
->>> 
->>>> By the way, there are many place(besides io_uring.c) which need to set
->>>> pointer to NULL after free.  I saw similar fix from time to time.
->>>> 
->>>> Do you think a safe_free() is worth? e.g
->>>> #define SAFE_FREE(p) { if (p) { free(p); (p)=NULL; } }
->>> 
->>> Hmm not sure, and would probably be better as:
->>> 
->>> kfree_safe(&ptr);
->>> 
->>> or something instead. I seem to recall discussions about that ages ago,
->>> probably worth while to try and search and see if you can find those. I
->>> suspect Linus hates it, reasons not remembered ;-)
->>> 
->> 
->> I think this may be a worthwhile solution, but kfree can handle NULL, we can
->> set it to NULL directly after free is finished.
->> 
->> void kfree_safe(const void *ptr)
->> {
->> 	kfree(ptr);
->> 	ptr = NULL;
->> }
-> 
-> Sure, but that doesn't change the ptr in the caller, which was my point.
-> You need to pass in a pointer to the pointer for that, otherwise
-> clearing it in kfree_safe() is pointless:
-> 
-> void kfree_safe(const void **ptr)
-> {
-> 	kfree(*ptr);
-> 	*ptr = NULL;
-> }
+Fix this by splitting the linked timer into two parts:
 
-Yes, you are right. If it is set to NULL directly, if it is wrong, it can be
-panic immediately, which is convenient for debugging.
+1) Prep and validate the linked timer
+2) Start timer
 
-> 
-> and then you run into all sorts of fun, since void ** isn't the same as
-> 'struct foo **'.
-> 
+The read is then started between steps 1 and 2, so we know that the
+timer will always have a consistent view of the read request state.
 
+Reported-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
---
-BR, Jackie Liu
+---
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 83c8c6b98026..55e0cb03615e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2688,13 +2688,17 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	 */
+ 	if (!list_empty(&req->list)) {
+ 		prev = list_entry(req->list.prev, struct io_kiocb, link_list);
+-		list_del_init(&req->list);
++		if (refcount_inc_not_zero(&prev->refs))
++			list_del_init(&req->list);
++		else
++			prev = NULL;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 	if (prev) {
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, NULL);
++		io_put_req(prev);
+ 	} else {
+ 		io_cqring_add_event(req, -ETIME);
+ 		io_put_req(req);
+@@ -2702,78 +2706,70 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	return HRTIMER_NORESTART;
+ }
+ 
+-static int io_queue_linked_timeout(struct io_kiocb *req, struct io_kiocb *nxt)
++static void io_queue_linked_timeout(struct io_kiocb *req, struct timespec64 *ts,
++				    enum hrtimer_mode *mode)
+ {
+-	const struct io_uring_sqe *sqe = nxt->submit.sqe;
+-	enum hrtimer_mode mode;
+-	struct timespec64 ts;
+-	int ret = -EINVAL;
++	req->timeout.timer.function = io_link_timeout_fn;
++	hrtimer_start(&req->timeout.timer, timespec64_to_ktime(*ts), *mode);
++}
+ 
++static int io_validate_link_timeout(const struct io_uring_sqe *sqe,
++				    struct timespec64 *ts)
++{
+ 	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 || sqe->off)
+-		goto err;
++		return -EINVAL;
+ 	if (sqe->timeout_flags & ~IORING_TIMEOUT_ABS)
+-		goto err;
+-	if (get_timespec64(&ts, u64_to_user_ptr(sqe->addr))) {
+-		ret = -EFAULT;
+-		goto err;
+-	}
+-
+-	req->flags |= REQ_F_LINK_TIMEOUT;
+-
+-	if (sqe->timeout_flags & IORING_TIMEOUT_ABS)
+-		mode = HRTIMER_MODE_ABS;
+-	else
+-		mode = HRTIMER_MODE_REL;
+-	hrtimer_init(&nxt->timeout.timer, CLOCK_MONOTONIC, mode);
+-	nxt->timeout.timer.function = io_link_timeout_fn;
+-	hrtimer_start(&nxt->timeout.timer, timespec64_to_ktime(ts), mode);
+-	ret = 0;
+-err:
+-	/* drop submission reference */
+-	io_put_req(nxt);
+-
+-	if (ret) {
+-		struct io_ring_ctx *ctx = req->ctx;
+-
+-		/*
+-		 * Break the link and fail linked timeout, parent will get
+-		 * failed by the regular submission path.
+-		 */
+-		list_del(&nxt->list);
+-		io_cqring_fill_event(nxt, ret);
+-		trace_io_uring_fail_link(req, nxt);
+-		io_commit_cqring(ctx);
+-		io_put_req(nxt);
+-		ret = -ECANCELED;
+-	}
++		return -EINVAL;
++	if (get_timespec64(ts, u64_to_user_ptr(sqe->addr)))
++		return -EFAULT;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+-static inline struct io_kiocb *io_get_linked_timeout(struct io_kiocb *req)
++static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req,
++					       struct timespec64 *ts,
++					       enum hrtimer_mode *mode)
+ {
+ 	struct io_kiocb *nxt;
++	int ret;
+ 
+ 	if (!(req->flags & REQ_F_LINK))
+ 		return NULL;
+ 
+ 	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
+-	if (nxt && nxt->submit.sqe->opcode == IORING_OP_LINK_TIMEOUT)
+-		return nxt;
++	if (!nxt || nxt->submit.sqe->opcode != IORING_OP_LINK_TIMEOUT)
++		return NULL;
+ 
+-	return NULL;
++	ret = io_validate_link_timeout(nxt->submit.sqe, ts);
++	if (ret) {
++		list_del_init(&nxt->list);
++		io_cqring_add_event(nxt, ret);
++		io_double_put_req(nxt);
++		return ERR_PTR(-ECANCELED);
++	}
++
++	if (nxt->submit.sqe->timeout_flags & IORING_TIMEOUT_ABS)
++		*mode = HRTIMER_MODE_ABS;
++	else
++		*mode = HRTIMER_MODE_REL;
++
++	req->flags |= REQ_F_LINK_TIMEOUT;
++	hrtimer_init(&nxt->timeout.timer, CLOCK_MONOTONIC, *mode);
++	io_put_req(nxt);
++	return nxt;
+ }
+ 
+ static int __io_queue_sqe(struct io_kiocb *req)
+ {
++	enum hrtimer_mode mode;
+ 	struct io_kiocb *nxt;
++	struct timespec64 ts;
+ 	int ret;
+ 
+-	nxt = io_get_linked_timeout(req);
+-	if (unlikely(nxt)) {
+-		ret = io_queue_linked_timeout(req, nxt);
+-		if (ret)
+-			goto err;
++	nxt = io_prep_linked_timeout(req, &ts, &mode);
++	if (IS_ERR(nxt)) {
++		ret = PTR_ERR(nxt);
++		goto err;
+ 	}
+ 
+ 	ret = __io_submit_sqe(req, NULL, true);
+@@ -2803,12 +2799,16 @@ static int __io_queue_sqe(struct io_kiocb *req)
+ 			 * submit reference when the iocb is actually submitted.
+ 			 */
+ 			io_queue_async_work(req);
++
++			if (nxt)
++				io_queue_linked_timeout(nxt, &ts, &mode);
++
+ 			return 0;
+ 		}
+ 	}
+ 
+-	/* drop submission reference */
+ err:
++	/* drop submission reference */
+ 	io_put_req(req);
+ 
+ 	/* and drop final reference, if we failed */
 
+-- 
+Jens Axboe
 

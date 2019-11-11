@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9747FC43331
-	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 06:39:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC66C43331
+	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 16:16:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C41320818
-	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 06:39:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C5F3320856
+	for <io-uring@archiver.kernel.org>; Mon, 11 Nov 2019 16:16:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="MB6mwn3y"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="GTWZFS0K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbfKKGjv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 11 Nov 2019 01:39:51 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:40677 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726768AbfKKGju (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 11 Nov 2019 01:39:50 -0500
-Received: by mail-pg1-f194.google.com with SMTP id 15so8816878pgt.7
-        for <io-uring@vger.kernel.org>; Sun, 10 Nov 2019 22:39:50 -0800 (PST)
+        id S1726889AbfKKQQI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 11 Nov 2019 11:16:08 -0500
+Received: from mail-pf1-f176.google.com ([209.85.210.176]:43209 "EHLO
+        mail-pf1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726878AbfKKQQI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 11 Nov 2019 11:16:08 -0500
+Received: by mail-pf1-f176.google.com with SMTP id 3so10967017pfb.10
+        for <io-uring@vger.kernel.org>; Mon, 11 Nov 2019 08:16:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=to:cc:from:subject:message-id:date:user-agent:mime-version
          :content-language:content-transfer-encoding;
-        bh=mAY2fRh438L3O0yL9MohpsT1p6DON3CzjxbJUlgi4aw=;
-        b=MB6mwn3y6EjMEM7PA+X5e1+ScSemylxFdAcYk0pmGMdpijhdebkmNoriHP5V152Z0d
-         kpqazDLcqdtnQPSE1gaU7Ed3rBIROzQS7gcWVswEZrHaWkrTSVnCfg5Pm8kvcb4uZ+vq
-         2tejITjqwehEcutAbuc7ehHig7jTUTmF6vapVh5N/pElLuLkzMNm05lnhs7t6jQvze4k
-         vnyPkycV+nmqqGDS2SKJ03Iz2FaOo0u7oOU7i9Wv2OnAsE3LS3gXymnMtUL05qetIGDb
-         YP6DdfepO2IxrP7r5asNmRzrpKV9XwQgMx6pLZ7S6W0sw2TawOeKW3H4GaFPp0hThQuN
-         MzsA==
+        bh=TmXdzr3Io7jW9Ekjy2h5WCzMLzY4bvyXgdFvPrMvLug=;
+        b=GTWZFS0KbVHuLIpHCBos1l6PoWLkWy6iYGYwIb4sQRDKofm5PtceyZdLBYuZIARxBb
+         eNPn53gEQVXvBGSl6RwyM94a0V5mUE41x78feK8cXJLPkK7AjJdAt4whF6xBUJMsLZuf
+         lj3UF2ZpSpl//sMjW8VokIVEk3vZYi37GTKlfraLaGJ+4rqHKBIle8w+6Hpia551i3I9
+         9il0/3pOYIcNDMUPyAxFVXnaxrmC4/m8QnGq2a4xFoIkztbUBalMaAYkTsgWb+x04J/h
+         1UZ2RtWjQGkKKQdYZWB7CSbnU/r/N2ho8nZLjvUre0yva6OEsHEbanmVn/L03kOv+IiV
+         3WpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
          :mime-version:content-language:content-transfer-encoding;
-        bh=mAY2fRh438L3O0yL9MohpsT1p6DON3CzjxbJUlgi4aw=;
-        b=Fiz9X/a7E0OsalvmFpIOx9DPgIERe3Bp/Hv1j2duPTFn9G0OU7QV3sDiPJAZTwGHna
-         rwku8i1/XHRfRTuTFR+j3Exc8CcLP9gYmHBYnrm27jdkAsT3jpfQnQNmWtCuPY4qd8T+
-         GAC2l7mcUmQ4jDUm4KM/d5lvNplsJjWb6sCadD6xcGIGxTsoVbOpkVsVwwaJ4iLYz7Cl
-         U6A+o0B4nEClAXlWM7EZDgUt5tfoi1uIZIn6+uCRSV/RgXG5+BK1pyd7aLZkziALNNC+
-         ApGGVE0yqUeVHMLQSTzO5fM0e0mvmBvVVqlbo2SVcpK/sb4GOfr9sW3uDG18po46Ytjy
-         3DZw==
-X-Gm-Message-State: APjAAAXrKE14KjHCIjs5FkgxPS8gUE8tzjwrfe49OEnezebS1/KvCzJD
-        l/vzoYqYbzl4/FNC61wbpXnMYw==
-X-Google-Smtp-Source: APXvYqyNYnVhXNKLaXefmTzH//wF6EPY21CQIUtQ38ZeuPdJk58qpCBoNdXmiBP0xGvlPJGiJ35Jow==
-X-Received: by 2002:a17:90b:30ca:: with SMTP id hi10mr32394798pjb.143.1573454389698;
-        Sun, 10 Nov 2019 22:39:49 -0800 (PST)
+        bh=TmXdzr3Io7jW9Ekjy2h5WCzMLzY4bvyXgdFvPrMvLug=;
+        b=hYhpVyJw9IeD98UM9CbHY6iRtJykgS59ktXEjvYhSmiEeflMGodQFDWsP/nL6pEtUh
+         4/TdQviMpayKFq3ArZGLhCHyop9VmnTlqZNXnXcJpy9C2AlfxdQVCGvzWqIy76vXesBB
+         g5G9dNiTeGR+ZkiIwH9n+/nzUNl3Q1wAxMT5YbKqyiTXLh2AZdcfcUg0o2b7aZJksPfv
+         FvF+x1pM6p+cM7H9e5sNOhl3MeY5hHrxpVx8Rsn7Dr7sHgZ/Tpl+Xdy4FWCIkDop5k5c
+         7ZH9BMaCnHvFBXkOJ75Y78+TuHdqoDhAXy9ThqA2W/Gx20Dqu3YbUAq3NEYluLBOLlGA
+         5oiw==
+X-Gm-Message-State: APjAAAUYb8+aZGQII3JcOrYwbb/jrihad1H3hEHMErk/8jTk1pGQoMLC
+        iQEUn9ZYNvruPDOvmk9jnwIttYO68aY=
+X-Google-Smtp-Source: APXvYqzTEPOQGOFimQJxqIg1yR4UizrHiO/AC8+OFzZotcYwfhGSw/Tc8RJ1JE00MwoSAB023zNYjw==
+X-Received: by 2002:a63:cb4f:: with SMTP id m15mr30721149pgi.325.1573488966624;
+        Mon, 11 Nov 2019 08:16:06 -0800 (PST)
 Received: from [192.168.201.136] ([50.234.116.4])
-        by smtp.gmail.com with ESMTPSA id 70sm15745962pfw.160.2019.11.10.22.39.48
+        by smtp.gmail.com with ESMTPSA id o1sm13634135pgm.1.2019.11.11.08.16.04
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 10 Nov 2019 22:39:48 -0800 (PST)
+        Mon, 11 Nov 2019 08:16:05 -0800 (PST)
 To:     io-uring@vger.kernel.org
 Cc:     Hrvoje Zeba <zeba.hrvoje@gmail.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: fix -ENOENT issue with linked timer with short
+Subject: [PATCH v2] io_uring: fix -ENOENT issue with linked timer with short
  timeout
-Message-ID: <8527992c-7485-aa8a-5050-a7d4b07f9e8b@kernel.dk>
-Date:   Sun, 10 Nov 2019 22:39:47 -0800
+Message-ID: <8bcfb958-deb3-1ec9-1dc7-b7b02d29767d@kernel.dk>
+Date:   Mon, 11 Nov 2019 08:16:04 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
@@ -94,10 +94,22 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 ---
 
+Changes since v1:
+- Handle race with early completion
+
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 83c8c6b98026..55e0cb03615e 100644
+index 83c8c6b98026..8da854d2f295 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
+@@ -855,7 +855,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ 	 */
+ 	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
+ 	while (nxt) {
+-		list_del(&nxt->list);
++		list_del_init(&nxt->list);
+ 		if (!list_empty(&req->link_list)) {
+ 			INIT_LIST_HEAD(&nxt->link_list);
+ 			list_splice(&req->link_list, &nxt->link_list);
 @@ -2688,13 +2688,17 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
  	 */
  	if (!list_empty(&req->list)) {
@@ -117,7 +129,7 @@ index 83c8c6b98026..55e0cb03615e 100644
  	} else {
  		io_cqring_add_event(req, -ETIME);
  		io_put_req(req);
-@@ -2702,78 +2706,70 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+@@ -2702,78 +2706,84 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
  	return HRTIMER_NORESTART;
  }
  
@@ -129,23 +141,27 @@ index 83c8c6b98026..55e0cb03615e 100644
 -	enum hrtimer_mode mode;
 -	struct timespec64 ts;
 -	int ret = -EINVAL;
-+	req->timeout.timer.function = io_link_timeout_fn;
-+	hrtimer_start(&req->timeout.timer, timespec64_to_ktime(*ts), *mode);
-+}
++	struct io_ring_ctx *ctx = req->ctx;
  
-+static int io_validate_link_timeout(const struct io_uring_sqe *sqe,
-+				    struct timespec64 *ts)
-+{
- 	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 || sqe->off)
+-	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 || sqe->off)
 -		goto err;
-+		return -EINVAL;
- 	if (sqe->timeout_flags & ~IORING_TIMEOUT_ABS)
+-	if (sqe->timeout_flags & ~IORING_TIMEOUT_ABS)
 -		goto err;
 -	if (get_timespec64(&ts, u64_to_user_ptr(sqe->addr))) {
 -		ret = -EFAULT;
 -		goto err;
--	}
--
++	/*
++	 * If the list is now empty, then our linked request finished before
++	 * we got a chance to setup the timer
++	 */
++	spin_lock_irq(&ctx->completion_lock);
++	if (!list_empty(&req->list)) {
++		req->timeout.timer.function = io_link_timeout_fn;
++		hrtimer_start(&req->timeout.timer, timespec64_to_ktime(*ts),
++				*mode);
+ 	}
++	spin_unlock_irq(&ctx->completion_lock);
+ 
 -	req->flags |= REQ_F_LINK_TIMEOUT;
 -
 -	if (sqe->timeout_flags & IORING_TIMEOUT_ABS)
@@ -157,12 +173,14 @@ index 83c8c6b98026..55e0cb03615e 100644
 -	hrtimer_start(&nxt->timeout.timer, timespec64_to_ktime(ts), mode);
 -	ret = 0;
 -err:
--	/* drop submission reference */
+ 	/* drop submission reference */
 -	io_put_req(nxt);
 -
 -	if (ret) {
 -		struct io_ring_ctx *ctx = req->ctx;
--
++	io_put_req(req);
++}
+ 
 -		/*
 -		 * Break the link and fail linked timeout, parent will get
 -		 * failed by the regular submission path.
@@ -174,6 +192,12 @@ index 83c8c6b98026..55e0cb03615e 100644
 -		io_put_req(nxt);
 -		ret = -ECANCELED;
 -	}
++static int io_validate_link_timeout(const struct io_uring_sqe *sqe,
++				    struct timespec64 *ts)
++{
++	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 || sqe->off)
++		return -EINVAL;
++	if (sqe->timeout_flags & ~IORING_TIMEOUT_ABS)
 +		return -EINVAL;
 +	if (get_timespec64(ts, u64_to_user_ptr(sqe->addr)))
 +		return -EFAULT;
@@ -215,7 +239,6 @@ index 83c8c6b98026..55e0cb03615e 100644
 +
 +	req->flags |= REQ_F_LINK_TIMEOUT;
 +	hrtimer_init(&nxt->timeout.timer, CLOCK_MONOTONIC, *mode);
-+	io_put_req(nxt);
 +	return nxt;
  }
  
@@ -234,11 +257,12 @@ index 83c8c6b98026..55e0cb03615e 100644
 +	nxt = io_prep_linked_timeout(req, &ts, &mode);
 +	if (IS_ERR(nxt)) {
 +		ret = PTR_ERR(nxt);
++		nxt = NULL;
 +		goto err;
  	}
  
  	ret = __io_submit_sqe(req, NULL, true);
-@@ -2803,12 +2799,16 @@ static int __io_queue_sqe(struct io_kiocb *req)
+@@ -2803,14 +2813,21 @@ static int __io_queue_sqe(struct io_kiocb *req)
  			 * submit reference when the iocb is actually submitted.
  			 */
  			io_queue_async_work(req);
@@ -255,7 +279,12 @@ index 83c8c6b98026..55e0cb03615e 100644
 +	/* drop submission reference */
  	io_put_req(req);
  
++	if (nxt)
++		io_put_req(nxt);
++
  	/* and drop final reference, if we failed */
+ 	if (ret) {
+ 		io_cqring_add_event(req, ret);
 
 -- 
 Jens Axboe

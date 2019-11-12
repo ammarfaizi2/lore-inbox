@@ -2,69 +2,67 @@ Return-Path: <SRS0=vuSH=ZE=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BB42C43331
-	for <io-uring@archiver.kernel.org>; Tue, 12 Nov 2019 16:43:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E024C43331
+	for <io-uring@archiver.kernel.org>; Tue, 12 Nov 2019 16:48:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B7BA21872
-	for <io-uring@archiver.kernel.org>; Tue, 12 Nov 2019 16:43:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1072E2196E
+	for <io-uring@archiver.kernel.org>; Tue, 12 Nov 2019 16:48:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="wiYLfAlr"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="y91iFLhM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfKLQnl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 12 Nov 2019 11:43:41 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:38608 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726008AbfKLQnl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Nov 2019 11:43:41 -0500
-Received: by mail-pl1-f195.google.com with SMTP id w8so9651628plq.5
-        for <io-uring@vger.kernel.org>; Tue, 12 Nov 2019 08:43:40 -0800 (PST)
+        id S1726738AbfKLQsD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 12 Nov 2019 11:48:03 -0500
+Received: from mail-pg1-f170.google.com ([209.85.215.170]:36812 "EHLO
+        mail-pg1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726388AbfKLQsD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Nov 2019 11:48:03 -0500
+Received: by mail-pg1-f170.google.com with SMTP id k13so12240620pgh.3
+        for <io-uring@vger.kernel.org>; Tue, 12 Nov 2019 08:48:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:references:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=2mntLGjBynSbRiA6lBdjXgzVUzQjxpPjHmpOopsy2XM=;
-        b=wiYLfAlrSdepZoQQTrAkYoZQpw7eOwPlFZxV81UrAyZHk9h+fzRQo7U2jAqIad/Xt5
-         ZeyhCB6pKxUz70+RAjida2eGqaJdSlLSu+d/J1Ycei2DhscUfxBgMeCQdnCU7I+j7Lyw
-         Q+hYtD32Ymtroo5mTPnx1Z7Te9BJ7Wqbk2ZEmVLKl59np2eReUGxoU1Kfo2oRtFDYBM/
-         8wtwcaQqO+F0Ud0fV3ERaiRcy2MKqgloY/qpfaAcO33UVczTYtNPdb8kGgt517vsHCVV
-         ms89gxhyHIYlmusC+fsKQyBZGWxg8ME18U4tI1feJsJu5o4P8DY7WXGSMsCYPc2Pidua
-         bkyA==
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=GY/3VRPjXoczoujjypW/bjexDwN/oQKcoHLKXV+FTj8=;
+        b=y91iFLhME5FEnocbcvN4LNJBA14VenbRntP+2Bw8U3ksSe6B5XdSEqPWuNqwqwsXg7
+         g8KjuPEDgnOP+ApVRRCv4JDldj3N8blQIxlJZvOyEeeWlkIqt3yZ1LUKphXePj03muGY
+         LXYBOhqr0aPeoH65FXkZApnAA1jVI6dXM/WaR4zgyjT6WkHoW0uwkzMPpm9TEUs75vG3
+         BaImKCYRAt25HMDm9LnRcY4tWdb48TTNVmU0fS7KpO7T0FTfBFt8oie1Tg18i29HWlsu
+         z/gP5dDJvHnqVJcKZ4oqUiwTrA49P6UQ0t2tDs43sG8xb1jlen67CdDobfL8NKhPKLoB
+         QnNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2mntLGjBynSbRiA6lBdjXgzVUzQjxpPjHmpOopsy2XM=;
-        b=q9uu2q7CgLbrD4N0/242VPdCVBKW4XfrH4kOVPo35AGQk1DTh6TbsSLE7RpZxXQ62J
-         eDxkLUTMk1Oyk0a95/AAjL3rIym+BYn7wcWPJLEc4+IVkog120ZJ0A2p9GtrJIGya2IP
-         /0jEyTWsVH48q0ZM9gwQKAHPULOubf1aCVsoqM6gIdBkXQ5YkWFCBVouwXDVQqdJ8bTl
-         F7JlucAjQywcBi3kWofvDz9g1EkPC2z6zF0yZnEsamRGnU84B6RQV/2Ew2BA4Pvoiq0c
-         aDWNFDwDuQFrYxQqUyAAX77bZBkR4h4yAeN7nNgtV6cndWa+BzaRdBWOdqmNdDU0IPV4
-         XfFw==
-X-Gm-Message-State: APjAAAUWz7SdOzYlT+mfG8XmM48Bpu0ULhm6GvRXvtFNRmErFrCof6kI
-        Pv3UuZNAFRdNcGts8cEKKIbC0hg0sq4=
-X-Google-Smtp-Source: APXvYqw/py3pn5u3qymGhcoEPWbViDM0ZR1RtrwvJT1XThRkuq19VEYy2muX5bdVrcWmhoZ0jQDBJg==
-X-Received: by 2002:a17:902:fe0f:: with SMTP id g15mr33133583plj.198.1573577018976;
-        Tue, 12 Nov 2019 08:43:38 -0800 (PST)
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=GY/3VRPjXoczoujjypW/bjexDwN/oQKcoHLKXV+FTj8=;
+        b=JX2rf4Qm1kaWihu16jBYfGVKFnNisFNcmHyyWQBIcaL+t+uzqBbjeLrQ4HvFB4YfbX
+         vGuUBYSFhtFKFEOqggAdVCraFULmg3eTq4NPdiEBZmA96asxlvIzjUVmClQgEHCuls2x
+         Vf780RLLQjWOATH5L3Jr8hrMWuri8b31ewnqCUDi7FxwtcLH3thWXmu/9zd3OMt4TZjr
+         v8AI5FOUzosaAeDDHlZAxmAWrU0QGOnn/mhJSnGi8ys2oEHBk03MmRXuDrweiu+9F4oZ
+         B1S3rRHWq4yA4uZw4D26bz/a8bDYTTNwFajpcs/0H6KbWsTm8/xClgPG+CVzxBNdMDj5
+         iMOg==
+X-Gm-Message-State: APjAAAUvyoilu/2DbeY+gtQUEeBX1mC1RM6FDLbn2o0peaNHUED5Bt9n
+        pFFMmd1vRQeo95szyDb/nx2Nhf/jrkg=
+X-Google-Smtp-Source: APXvYqyT6GKdLaJpP1I5sjZMVJya7FWaC0Bl5vpDdw+67AJzO6haliIveBY3SCwTq1v/quDbq01ptg==
+X-Received: by 2002:a62:1841:: with SMTP id 62mr36709098pfy.108.1573577280995;
+        Tue, 12 Nov 2019 08:48:00 -0800 (PST)
 Received: from [10.47.172.222] ([156.39.10.47])
-        by smtp.gmail.com with ESMTPSA id 13sm7701525pgu.53.2019.11.12.08.43.37
+        by smtp.gmail.com with ESMTPSA id d139sm27415908pfd.162.2019.11.12.08.47.59
         for <io-uring@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Nov 2019 08:43:38 -0800 (PST)
-Subject: Re: [PATCH] io_uring: fix potential deadlock in io_poll_wake()
-From:   Jens Axboe <axboe@kernel.dk>
+        Tue, 12 Nov 2019 08:48:00 -0800 (PST)
 To:     io-uring@vger.kernel.org
-References: <4c601e0b-1ee7-d97e-54dc-2280d6643e30@kernel.dk>
-Message-ID: <a6c76ea6-8fdf-04ab-ac5a-ff11707865c0@kernel.dk>
-Date:   Tue, 12 Nov 2019 08:43:36 -0800
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH] io_uring: fix potential deadlock in io_poll_wake()
+Message-ID: <e3c30838-6823-a4d8-48f7-47171cd94524@kernel.dk>
+Date:   Tue, 12 Nov 2019 08:47:58 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <4c601e0b-1ee7-d97e-54dc-2280d6643e30@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -73,20 +71,80 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/12/19 7:18 AM, Jens Axboe wrote:
-> We attempt to run the poll completion inline, but we're using trylock to
-> do so. This avoids a deadlock since we're grabbing the locks in reverse
-> order at this point, we already hold the poll wq lock and we're trying
-> to grab the completion lock, while the normal rules are the reverse of
-> that order.
-> 
-> IO completion for a timeout link will need to grab the completion lock,
-> so it's not safe to use from this particular context. If the poll
-> request has a timeout link, don't attempt complete inline.
+We attempt to run the poll completion inline, but we're using trylock to
+do so. This avoids a deadlock since we're grabbing the locks in reverse
+order at this point, we already hold the poll wq lock and we're trying
+to grab the completion lock, while the normal rules are the reverse of
+that order.
 
-It's a shame to lose the inline run with a linked timer, I'm going to
-send a v2 that retains this.
+IO completion for a timeout link will need to grab the completion lock,
+but that's not safe from this context. Put the completion under the
+completion_lock om io_poll_wake(), and mark the request as entering
+the completion with completion_lock already held.
 
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+---
+
+Changes since v1:
+
+- Retain the inline running, use REQ_F_COMP_LOCKED instead to tell
+  io_free_req_find_next() that we are already holding the completion
+  lock when entered.
+- Correct protection -> protect in comment
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 3c573f0578a8..247e5e1137a3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -341,6 +341,7 @@ struct io_kiocb {
+ #define REQ_F_ISREG		2048	/* regular file */
+ #define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
+ #define REQ_F_INFLIGHT		8192	/* on inflight list */
++#define REQ_F_COMP_LOCKED	16384	/* completion under lock */
+ 	u64			user_data;
+ 	u32			result;
+ 	u32			sequence;
+@@ -931,14 +932,15 @@ static void io_free_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
+ 	 */
+ 	if (req->flags & REQ_F_FAIL_LINK) {
+ 		io_fail_links(req);
+-	} else if (req->flags & REQ_F_LINK_TIMEOUT) {
++	} else if ((req->flags & (REQ_F_LINK_TIMEOUT | REQ_F_COMP_LOCKED)) ==
++			REQ_F_LINK_TIMEOUT) {
+ 		struct io_ring_ctx *ctx = req->ctx;
+ 		unsigned long flags;
+ 
+ 		/*
+ 		 * If this is a timeout link, we could be racing with the
+ 		 * timeout timer. Grab the completion lock for this case to
+-		 * protection against that.
++		 * protect against that.
+ 		 */
+ 		spin_lock_irqsave(&ctx->completion_lock, flags);
+ 		io_req_link_next(req, nxt);
+@@ -2064,13 +2066,20 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 
+ 	list_del_init(&poll->wait.entry);
+ 
++	/*
++	 * Run completion inline if we can. We're using trylock here because
++	 * we are violating the completion_lock -> poll wq lock ordering.
++	 * If we have a link timeout we're going to need the completion_lock
++	 * for finalizing the request, mark us as having grabbed that already.
++	 */
+ 	if (mask && spin_trylock_irqsave(&ctx->completion_lock, flags)) {
+ 		list_del(&req->list);
+ 		io_poll_complete(req, mask);
++		req->flags |= REQ_F_COMP_LOCKED;
++		io_put_req(req);
+ 		spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 		io_cqring_ev_posted(ctx);
+-		io_put_req(req);
+ 	} else {
+ 		io_queue_async_work(req);
+ 	}
 -- 
 Jens Axboe
 

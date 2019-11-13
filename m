@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0704C43141
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:32:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0927CC43141
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:32:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CED29206E3
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:32:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5FA3206ED
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:32:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="c9YQiY1o"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="tROX8GEH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726162AbfKMVcM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 13 Nov 2019 16:32:12 -0500
-Received: from mail-il1-f195.google.com ([209.85.166.195]:45055 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726189AbfKMVcM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 16:32:12 -0500
-Received: by mail-il1-f195.google.com with SMTP id i6so3200137ilr.11
-        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 13:32:11 -0800 (PST)
+        id S1726189AbfKMVcP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 13 Nov 2019 16:32:15 -0500
+Received: from mail-il1-f193.google.com ([209.85.166.193]:39503 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726291AbfKMVcP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 16:32:15 -0500
+Received: by mail-il1-f193.google.com with SMTP id a7so3212489ild.6
+        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 13:32:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=PXleKxJHnAMFj+IImco3GMPRbLovDZwkpuyp6sbad9M=;
-        b=c9YQiY1o2ekHYcRcdyqvE789/Kq0YXtSKsAcugFmUp8AK0Pl0fEEWHPuXMLcM/Di9z
-         XrNx2ox47MVzfhCAk3yVd8fBc3GiEDybtTi9U9alJUY/jN6Y+Mopb4heoh/WfJtoCzM9
-         VbYJ+4X8hO+pzsJJVMDshMPDoazQB5UozowZpnp1YusozSqOLix/rhUZl6Dspe9lY7KB
-         Fd5c0g/MaT7ylDxQDca2zO34bCwctI8laPbcAYhTelt3zIt9bgaPIYbUaoXq9kP90OfB
-         bY0w9utuAbwc5TXvz9GzR17ST6NxQqEL2DIF6e7Y7/7fU8+i7gqRV4xS+ZQvqrzSD/pg
-         1bdA==
+        bh=sIfo+zthV9khLJLPc1TkK5OvuqRmFBkpUuRZErtsSFY=;
+        b=tROX8GEHwW+HqqBHUp8BGegfYyFWUUZ0IlhThw6hCKXUSyJN7Gay6i2lVy8yJP1OXe
+         GWvpn7SHmNq/19ANmySm5rqnl84MXXPjA0MXu6bRey+0dAyrs9ZcTpKjnerr0veHrfa2
+         fnT5ARbcmo7CJ5Kvo3/BslVpSfm7xY6VmSE9Hi0w0fVF80xkhwCsZDhU4Arf6NCcmAxa
+         /+b1IeVehdQhH65aazaogr/DRiXEF8t70ChA9Rzq7DoVHzgVVhkgNIDrso3ymY1ubpDx
+         vtE+GWlEP8mTFq2MyHIFrdJtNmrhsqf8XfxiMfaBjH+/4NvKNe7oImNZra47aoaUfipP
+         yOOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PXleKxJHnAMFj+IImco3GMPRbLovDZwkpuyp6sbad9M=;
-        b=q9NAyyFra/lOv2RVYO5norCQHWAG6TWjAKwPKXZk4yv0GC5uVkUkGpPaLJzrtfYeTx
-         FoLj+ggbH0lirI+DPDHLhku3yRmOl4cnYjtg8zfsmePXKJTTys0daSJTLLi4vS65EqV5
-         e4i6uOPKOAoxk1fEZqEo2ufS3CXrHYrvnSsWR9a66RDW2UF8CSsGgNHpO4ugwocym12I
-         QrOLeYkvvrmKTzwGAN7FYccMb/oRNuUq7GiHj52SfjnF5tmsGs3mrNBtdQ8/9hJbzVv/
-         wrU6B9lsZv3FLkXUeIGqRvU13JCFYXJwLj5W2W8QUlmIdRMNsXHdAVod9u+0z6U9terC
-         osIQ==
-X-Gm-Message-State: APjAAAVfUe2Dcg9vag/D+Qpd7f3ulTd9t/ZOgzBp2NS0vtFShL05vQDJ
-        +QRAhd5lRbF98XMi+zTeoH4HTmEm8nc=
-X-Google-Smtp-Source: APXvYqyHFkzZw95vrk2arvUuOtr9sx8sMeSKGr1be8aokmxGCF/QbTVSPqzVjBmZ10Qw0eQWvynQlQ==
-X-Received: by 2002:a92:d7c2:: with SMTP id g2mr6902073ilq.81.1573680730683;
-        Wed, 13 Nov 2019 13:32:10 -0800 (PST)
+        bh=sIfo+zthV9khLJLPc1TkK5OvuqRmFBkpUuRZErtsSFY=;
+        b=epZ3O0CuF/3iof1hqLUnaAQ1xW5jaoozQS4UsMLbnDY881SGTNz4+J9GfjeoVcIXAi
+         Y4Jlzg/V3Sif2kE3klv5Wq3hPptoIN4AyFzz2IOp1NC3Do69qgk1pYupZghoVdQwg6We
+         rUWShfjrcYNYdmHNTwIeAaFFcBTdCV0tWyUv7zYfsgYPTYWelOLAGEtiuAT4lYFrihVB
+         +nqr80qR0r+Yvck2f7zZ++wECSQSyuDyCPEXAv3DPSNApM18Mvb6XADTPWX+MxnQcvzL
+         zsHzfsAsWcktTzqLE0WLTl3d8LL/wZem3YrPbK6gAqYY5KgjWSl2dC6fjejQzmJUYZxd
+         yqzQ==
+X-Gm-Message-State: APjAAAVr9uxAPrWpMBppR5IPVk6A9M3jpxgvy+FrxmY0qjpg2OF1KQaP
+        8yH2iDFScjz8+YtE+h8TcWQsrYOKhZc=
+X-Google-Smtp-Source: APXvYqyIdob0WBBkk5aPIVA8IWymYE/OLzB8YXaqBslwhjoLd5RBFPBNUpDK7NHZvA2BTlM/nvVLtw==
+X-Received: by 2002:a92:cf4a:: with SMTP id c10mr6119941ilr.181.1573680732331;
+        Wed, 13 Nov 2019 13:32:12 -0800 (PST)
 Received: from x1.thefacebook.com ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id 6sm304872iov.45.2019.11.13.13.32.09
+        by smtp.gmail.com with ESMTPSA id 6sm304872iov.45.2019.11.13.13.32.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Nov 2019 13:32:09 -0800 (PST)
+        Wed, 13 Nov 2019 13:32:11 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     paulmck@kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/3] io_wq: add get/put_work handlers to io_wq_create()
-Date:   Wed, 13 Nov 2019 14:32:04 -0700
-Message-Id: <20191113213206.2415-2-axboe@kernel.dk>
+Subject: [PATCH 2/3] io-wq: ensure we have a stable view of ->cur_work for cancellations
+Date:   Wed, 13 Nov 2019 14:32:05 -0700
+Message-Id: <20191113213206.2415-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191113213206.2415-1-axboe@kernel.dk>
 References: <20191113213206.2415-1-axboe@kernel.dk>
@@ -70,168 +70,149 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For cancellation, we need to ensure that the work item stays valid for
-as long as ->cur_work is valid. Right now we can't safely dereference
-the work item even under the wqe->lock, because while the ->cur_work
-pointer will remain valid, the work could be completing and be freed
-in parallel.
+worker->cur_work is currently protected by the lock of the wqe that the
+worker belongs to. When we send a signal to a worker, we need a stable
+view of ->cur_work, so we need to hold that lock. But this doesn't work
+so well, since we have the opposite order potentially on queueing work.
+If POLL_ADD is used with a signalfd, then io_poll_wake() is called with
+the signal lock, and that sometimes needs to insert work items.
 
-Only invoke ->get/put_work() on items we know that the caller queued
-themselves. Add IO_WQ_WORK_INTERNAL for io-wq to use, which is needed
-when we're queueing a flush item, for instance.
+Add a specific worker lock that protects the current work item. Then we
+can guarantee that the task we're sending a signal is currently
+processing the exact work we think it is.
 
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
+Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c    | 25 +++++++++++++++++++++++--
- fs/io-wq.h    |  7 ++++++-
- fs/io_uring.c | 17 ++++++++++++++++-
- 3 files changed, 45 insertions(+), 4 deletions(-)
+ fs/io-wq.c | 47 ++++++++++++++++++++++++++++-------------------
+ 1 file changed, 28 insertions(+), 19 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 33b14b85752b..26d81540c1fc 100644
+index 26d81540c1fc..4031b75541be 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -106,6 +106,9 @@ struct io_wq {
- 	unsigned long state;
- 	unsigned nr_wqes;
- 
-+	get_work_fn *get_work;
-+	put_work_fn *put_work;
+@@ -49,7 +49,9 @@ struct io_worker {
+ 	struct task_struct *task;
+ 	wait_queue_head_t wait;
+ 	struct io_wqe *wqe;
 +
- 	struct task_struct *manager;
- 	struct user_struct *user;
+ 	struct io_wq_work *cur_work;
++	spinlock_t lock;
+ 
+ 	struct rcu_head rcu;
  	struct mm_struct *mm;
-@@ -392,7 +395,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe, unsigned *hash)
- static void io_worker_handle_work(struct io_worker *worker)
- 	__releases(wqe->lock)
- {
--	struct io_wq_work *work, *old_work;
-+	struct io_wq_work *work, *old_work = NULL, *put_work = NULL;
- 	struct io_wqe *wqe = worker->wqe;
- 	struct io_wq *wq = wqe->wq;
+@@ -323,7 +325,6 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 		hlist_nulls_add_head_rcu(&worker->nulls_node,
+ 						&wqe->busy_list.head);
+ 	}
+-	worker->cur_work = work;
  
-@@ -424,6 +427,8 @@ static void io_worker_handle_work(struct io_worker *worker)
- 			wqe->flags |= IO_WQE_FLAG_STALLED;
+ 	/*
+ 	 * If worker is moving from bound to unbound (or vice versa), then
+@@ -402,17 +403,6 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 	do {
+ 		unsigned hash = -1U;
  
- 		spin_unlock_irq(&wqe->lock);
-+		if (put_work && wq->put_work)
-+			wq->put_work(old_work);
+-		/*
+-		 * Signals are either sent to cancel specific work, or to just
+-		 * cancel all work items. For the former, ->cur_work must
+-		 * match. ->cur_work is NULL at this point, since we haven't
+-		 * assigned any work, so it's safe to flush signals for that
+-		 * case. For the latter case of cancelling all work, the caller
+-		 * wil have set IO_WQ_BIT_CANCEL.
+-		 */
+-		if (signal_pending(current))
+-			flush_signals(current);
+-
+ 		/*
+ 		 * If we got some work, mark us as busy. If we didn't, but
+ 		 * the list isn't empty, it means we stalled on hashed work.
+@@ -432,6 +422,14 @@ static void io_worker_handle_work(struct io_worker *worker)
  		if (!work)
  			break;
  next:
-@@ -444,6 +449,11 @@ static void io_worker_handle_work(struct io_worker *worker)
- 		if (worker->mm)
- 			work->flags |= IO_WQ_WORK_HAS_MM;
- 
-+		if (wq->get_work && !(work->flags & IO_WQ_WORK_INTERNAL)) {
-+			put_work = work;
-+			wq->get_work(work);
-+		}
++		/* flush any pending signals before assigning new work */
++		if (signal_pending(current))
++			flush_signals(current);
 +
++		spin_lock_irq(&worker->lock);
++		worker->cur_work = work;
++		spin_unlock_irq(&worker->lock);
++
+ 		if ((work->flags & IO_WQ_WORK_NEEDS_FILES) &&
+ 		    current->files != work->files) {
+ 			task_lock(current);
+@@ -457,8 +455,12 @@ static void io_worker_handle_work(struct io_worker *worker)
  		old_work = work;
  		work->func(&work);
  
-@@ -455,6 +465,12 @@ static void io_worker_handle_work(struct io_worker *worker)
- 		}
- 		if (work && work != old_work) {
- 			spin_unlock_irq(&wqe->lock);
+-		spin_lock_irq(&wqe->lock);
++		spin_lock_irq(&worker->lock);
+ 		worker->cur_work = NULL;
++		spin_unlock_irq(&worker->lock);
 +
-+			if (put_work && wq->put_work) {
-+				wq->put_work(put_work);
-+				put_work = NULL;
-+			}
++		spin_lock_irq(&wqe->lock);
 +
- 			/* dependent work not hashed */
- 			hash = -1U;
- 			goto next;
-@@ -950,13 +966,15 @@ void io_wq_flush(struct io_wq *wq)
+ 		if (hash != -1U) {
+ 			wqe->hash_map &= ~BIT_ULL(hash);
+ 			wqe->flags &= ~IO_WQE_FLAG_STALLED;
+@@ -577,6 +579,7 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ 	worker->nulls_node.pprev = NULL;
+ 	init_waitqueue_head(&worker->wait);
+ 	worker->wqe = wqe;
++	spin_lock_init(&worker->lock);
  
- 		init_completion(&data.done);
- 		INIT_IO_WORK(&data.work, io_wq_flush_func);
-+		data.work.flags |= IO_WQ_WORK_INTERNAL;
- 		io_wqe_enqueue(wqe, &data.work);
- 		wait_for_completion(&data.done);
+ 	worker->task = kthread_create_on_node(io_wqe_worker, worker, wqe->node,
+ 				"io_wqe_worker-%d/%d", index, wqe->node);
+@@ -783,21 +786,20 @@ struct io_cb_cancel_data {
+ static bool io_work_cancel(struct io_worker *worker, void *cancel_data)
+ {
+ 	struct io_cb_cancel_data *data = cancel_data;
+-	struct io_wqe *wqe = data->wqe;
+ 	unsigned long flags;
+ 	bool ret = false;
+ 
+ 	/*
+ 	 * Hold the lock to avoid ->cur_work going out of scope, caller
+-	 * may deference the passed in work.
++	 * may dereference the passed in work.
+ 	 */
+-	spin_lock_irqsave(&wqe->lock, flags);
++	spin_lock_irqsave(&worker->lock, flags);
+ 	if (worker->cur_work &&
+ 	    data->cancel(worker->cur_work, data->caller_data)) {
+ 		send_sig(SIGINT, worker->task, 1);
+ 		ret = true;
  	}
+-	spin_unlock_irqrestore(&wqe->lock, flags);
++	spin_unlock_irqrestore(&worker->lock, flags);
+ 
+ 	return ret;
+ }
+@@ -864,13 +866,20 @@ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ {
+ 	struct io_wq_work *work = data;
++	unsigned long flags;
++	bool ret = false;
+ 
++	if (worker->cur_work != work)
++		return false;
++
++	spin_lock_irqsave(&worker->lock, flags);
+ 	if (worker->cur_work == work) {
+ 		send_sig(SIGINT, worker->task, 1);
+-		return true;
++		ret = true;
+ 	}
++	spin_unlock_irqrestore(&worker->lock, flags);
+ 
+-	return false;
++	return ret;
  }
  
- struct io_wq *io_wq_create(unsigned bounded, struct mm_struct *mm,
--			   struct user_struct *user)
-+			   struct user_struct *user, get_work_fn *get_work,
-+			   put_work_fn *put_work)
- {
- 	int ret = -ENOMEM, i, node;
- 	struct io_wq *wq;
-@@ -972,6 +990,9 @@ struct io_wq *io_wq_create(unsigned bounded, struct mm_struct *mm,
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-+	wq->get_work = get_work;
-+	wq->put_work = put_work;
-+
- 	/* caller must already hold a reference to this */
- 	wq->user = user;
- 
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index cc50754d028c..4b29f922f80c 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -10,6 +10,7 @@ enum {
- 	IO_WQ_WORK_NEEDS_USER	= 8,
- 	IO_WQ_WORK_NEEDS_FILES	= 16,
- 	IO_WQ_WORK_UNBOUND	= 32,
-+	IO_WQ_WORK_INTERNAL	= 64,
- 
- 	IO_WQ_HASH_SHIFT	= 24,	/* upper 8 bits are used for hash key */
- };
-@@ -34,8 +35,12 @@ struct io_wq_work {
- 		(work)->files = NULL;			\
- 	} while (0)					\
- 
-+typedef void (get_work_fn)(struct io_wq_work *);
-+typedef void (put_work_fn)(struct io_wq_work *);
-+
- struct io_wq *io_wq_create(unsigned bounded, struct mm_struct *mm,
--				struct user_struct *user);
-+				struct user_struct *user,
-+				get_work_fn *get_work, put_work_fn *put_work);
- void io_wq_destroy(struct io_wq *wq);
- 
- void io_wq_enqueue(struct io_wq *wq, struct io_wq_work *work);
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 99822bf89924..e1a3b8b667e0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3822,6 +3822,20 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
- 	return done ? done : err;
- }
- 
-+static void io_put_work(struct io_wq_work *work)
-+{
-+	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
-+
-+	io_put_req(req);
-+}
-+
-+static void io_get_work(struct io_wq_work *work)
-+{
-+	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
-+
-+	refcount_inc(&req->refs);
-+}
-+
- static int io_sq_offload_start(struct io_ring_ctx *ctx,
- 			       struct io_uring_params *p)
- {
-@@ -3871,7 +3885,8 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
- 
- 	/* Do QD, or 4 * CPUS, whatever is smallest */
- 	concurrency = min(ctx->sq_entries, 4 * num_online_cpus());
--	ctx->io_wq = io_wq_create(concurrency, ctx->sqo_mm, ctx->user);
-+	ctx->io_wq = io_wq_create(concurrency, ctx->sqo_mm, ctx->user,
-+					io_get_work, io_put_work);
- 	if (IS_ERR(ctx->io_wq)) {
- 		ret = PTR_ERR(ctx->io_wq);
- 		ctx->io_wq = NULL;
+ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
 -- 
 2.24.0
 

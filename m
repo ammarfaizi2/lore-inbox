@@ -7,66 +7,64 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 129E4C17447
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B1FDC17449
 	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 10:07:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D4682222D0
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 10:07:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F6A22245B
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 10:07:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Dv2+F7vw"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Nk4nRMoR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727472AbfKMKHC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 13 Nov 2019 05:07:02 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:38892 "EHLO
+        id S1727673AbfKMKHA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 13 Nov 2019 05:07:00 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:38854 "EHLO
         aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727063AbfKMKHB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 05:07:01 -0500
+        with ESMTP id S1727531AbfKMKHA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 05:07:00 -0500
 Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xADA4VXC054291;
-        Wed, 13 Nov 2019 10:06:59 GMT
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xADA4ttf054710;
+        Wed, 13 Nov 2019 10:06:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2019-08-05;
- bh=ga1N26yOsYHUA40BUveygxxOytRbe1Lyri9uHHu7Y64=;
- b=Dv2+F7vwtLhbYMncf7gl5WwgmLm4k5HHFbR7XrUjj8tnZXABJMomaMyvoP68FVv8nGxr
- ffbRu6MDayMaujRUe75qrkWSztLZBrjNT67CGrZ3yDGGzso0BDb+Y0W3QJ+El59cQbM3
- Zu59LOPwGzTWJJw1Fk1AMBBRqr5KkB9aaU9OZsYk6VidLiuaGzlra0UHbIfMVnZE7/dK
- 38SjMYa2sNGEbkiAQ6G1rX+BYcr3ZLQVhlrEnw/T8TnUq+5LvAPcnC0eGnSrh+hIxpwu
- iHm32qd+rqeo/XMMbVzpJr0g/Ey65WOPMyr+uMlDmEPhrk94Q8YgDoUpQCP2fD0o8EK/ og== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 2w5ndqbadt-1
+ subject : date : message-id; s=corp-2019-08-05;
+ bh=B3yR34pcNWGb75lTikQ66jB5OHl8cgbjoFgPMFXfraY=;
+ b=Nk4nRMoRCSastXCpniC2FrmBZak7dXnb6lw6kHUN4l+8XmL+U6zLiLcCkMyS99G4lhTF
+ Pok9KtyIPZZc0F2tewO55oVZo2RjUYcVeCYA8lavN/7nNRlLoqD7fmHHkvUflMvKG8wf
+ KsGvtW4sjf/oStely4iAEtKbHjzzJEA2UBL3LpjgQcqQinC3OIPIr5AdwuQ26eUyDsV0
+ qN3gmKbZaV7HZxeEdbLwKeSqIEbPWM/82kKxGxIiSCZDRyKU34vmhPCkvySTFTpkeqKJ
+ jy5p/Ptwn04yXM53Wyf5lUN22TdccugheXEl4a8Mv7W3Dnxm1bewiIdnjvA2Jbrfa2kh sg== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 2w5ndqbadm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Nov 2019 10:06:59 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xADA3skA154898;
-        Wed, 13 Nov 2019 10:06:58 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 2w7vpp0ry9-1
+        Wed, 13 Nov 2019 10:06:57 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xADA3mED061621;
+        Wed, 13 Nov 2019 10:06:56 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3020.oracle.com with ESMTP id 2w7j06ddgx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Nov 2019 10:06:58 +0000
+        Wed, 13 Nov 2019 10:06:56 +0000
 Received: from abhmp0018.oracle.com (abhmp0018.oracle.com [141.146.116.24])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xADA6wWj003070;
-        Wed, 13 Nov 2019 10:06:58 GMT
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xADA6upS013983;
+        Wed, 13 Nov 2019 10:06:56 GMT
 Received: from localhost.localdomain (/114.88.246.185)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 13 Nov 2019 02:06:57 -0800
+        with ESMTP ; Wed, 13 Nov 2019 02:06:55 -0800
 From:   Bob Liu <bob.liu@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org, Bob Liu <bob.liu@oracle.com>
-Subject: [PATCH 2/2] fs: io_uring: introduce req_need_defer()
-Date:   Wed, 13 Nov 2019 18:06:25 +0800
-Message-Id: <20191113100625.10774-2-bob.liu@oracle.com>
+Subject: [PATCH 1/2] fs:io_uring: clean up io_uring_cancel_files
+Date:   Wed, 13 Nov 2019 18:06:24 +0800
+Message-Id: <20191113100625.10774-1-bob.liu@oracle.com>
 X-Mailer: git-send-email 2.9.5
-In-Reply-To: <20191113100625.10774-1-bob.liu@oracle.com>
-References: <20191113100625.10774-1-bob.liu@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9439 signatures=668685
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=911
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
  adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.0.1-1910280000 definitions=main-1911130094
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9439 signatures=668685
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
  suspectscore=1 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=974 adultscore=0
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1910280000
  definitions=main-1911130095
 Sender: io-uring-owner@vger.kernel.org
@@ -74,80 +72,44 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Make the code easier to read.
+return val is not used, drop it.
+Also drop unnecessary if (cancel_req).
 
 Signed-off-by: Bob Liu <bob.liu@oracle.com>
 ---
- fs/io_uring.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5781bfe..742f6a7 100644
+index 247e5e1..5781bfe 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -448,7 +448,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	return NULL;
- }
+@@ -4286,7 +4286,6 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 	DEFINE_WAIT(wait);
  
--static inline bool __io_sequence_defer(struct io_kiocb *req)
-+static inline bool __req_need_defer(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
+ 	while (!list_empty_careful(&ctx->inflight_list)) {
+-		enum io_wq_cancel ret = IO_WQ_CANCEL_NOTFOUND;
+ 		struct io_kiocb *cancel_req = NULL;
  
-@@ -456,12 +456,12 @@ static inline bool __io_sequence_defer(struct io_kiocb *req)
- 					+ atomic_read(&ctx->cached_cq_overflow);
- }
+ 		spin_lock_irq(&ctx->inflight_lock);
+@@ -4304,14 +4303,12 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 						TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(&ctx->inflight_lock);
  
--static inline bool io_sequence_defer(struct io_kiocb *req)
-+static inline bool req_need_defer(struct io_kiocb *req)
- {
--	if ((req->flags & (REQ_F_IO_DRAIN|REQ_F_IO_DRAINED)) != REQ_F_IO_DRAIN)
--		return false;
-+	if ((req->flags & (REQ_F_IO_DRAIN|REQ_F_IO_DRAINED)) == REQ_F_IO_DRAIN)
-+		return __req_need_defer(req);
- 
--	return __io_sequence_defer(req);
-+	return false;
- }
- 
- static struct io_kiocb *io_get_deferred_req(struct io_ring_ctx *ctx)
-@@ -469,7 +469,7 @@ static struct io_kiocb *io_get_deferred_req(struct io_ring_ctx *ctx)
- 	struct io_kiocb *req;
- 
- 	req = list_first_entry_or_null(&ctx->defer_list, struct io_kiocb, list);
--	if (req && !io_sequence_defer(req)) {
-+	if (req && !req_need_defer(req)) {
- 		list_del_init(&req->list);
- 		return req;
+-		if (cancel_req) {
+-			ret = io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
+-			io_put_req(cancel_req);
+-		}
+-
+ 		/* We need to keep going until we don't find a matching req */
+ 		if (!cancel_req)
+ 			break;
++
++		io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
++		io_put_req(cancel_req);
+ 		schedule();
  	}
-@@ -482,7 +482,7 @@ static struct io_kiocb *io_get_timeout_req(struct io_ring_ctx *ctx)
- 	struct io_kiocb *req;
- 
- 	req = list_first_entry_or_null(&ctx->timeout_list, struct io_kiocb, list);
--	if (req && !__io_sequence_defer(req)) {
-+	if (req && !__req_need_defer(req)) {
- 		list_del_init(&req->list);
- 		return req;
- 	}
-@@ -2436,7 +2436,8 @@ static int io_req_defer(struct io_kiocb *req)
- 	struct io_uring_sqe *sqe_copy;
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	if (!io_sequence_defer(req) && list_empty(&ctx->defer_list))
-+	/* Still need defer if there is pending req in defer list. */
-+	if (!req_need_defer(req) && list_empty(&ctx->defer_list))
- 		return 0;
- 
- 	sqe_copy = kmalloc(sizeof(*sqe_copy), GFP_KERNEL);
-@@ -2444,7 +2445,7 @@ static int io_req_defer(struct io_kiocb *req)
- 		return -EAGAIN;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	if (!io_sequence_defer(req) && list_empty(&ctx->defer_list)) {
-+	if (!req_need_defer(req) && list_empty(&ctx->defer_list)) {
- 		spin_unlock_irq(&ctx->completion_lock);
- 		kfree(sqe_copy);
- 		return 0;
+ 	finish_wait(&ctx->inflight_wait, &wait);
 -- 
 2.9.5
 

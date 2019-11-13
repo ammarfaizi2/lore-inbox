@@ -2,88 +2,99 @@ Return-Path: <SRS0=KKPr=ZF=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0F93C432C3
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 19:37:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A6DC432C3
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 19:44:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14C51206DC
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 19:37:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A131206EC
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 19:44:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="N1Cu772v"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="VJLaxljG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbfKMThu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 13 Nov 2019 14:37:50 -0500
-Received: from mail-il1-f193.google.com ([209.85.166.193]:42023 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726190AbfKMThu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 14:37:50 -0500
-Received: by mail-il1-f193.google.com with SMTP id n18so2893288ilt.9
-        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 11:37:49 -0800 (PST)
+        id S1726270AbfKMToA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 13 Nov 2019 14:44:00 -0500
+Received: from mail-il1-f181.google.com ([209.85.166.181]:32978 "EHLO
+        mail-il1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726210AbfKMTn7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 14:43:59 -0500
+Received: by mail-il1-f181.google.com with SMTP id m5so2948182ilq.0
+        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 11:43:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=pI7piCtI6WYI9kIPI0gDMcrmyPRHl7iOrc9WhlQg160=;
-        b=N1Cu772vrDyKSaos+ZmT2Lj5We36/Xc9BGltmRgEZigzIHLBDGifsSTdVdd/zdJ7xP
-         lwB26GQPMoj6F22Jvtk25PgTQ0zZRSvRyCjTxIqRTtGQT7zXStgUAITaL76K3UjaOoJY
-         3hAto0BcRKbNfvpHIaaWkQs3CS11VkDbCnU6YYr/uij898akocI/DIl4HnkvYfd4PaNs
-         itPXDqrBJmC/CZUuChdfZABVVd/594KGV2VjIqFQRHZnTzJ/XOrDKa5vt5n9ptAL2OfX
-         lUDkAcKsj00lJ5nY1krqEAl4L1Yqmeymv2QgMZg6n7vGVSI+SWgWYyV3eOP922tG5Ex9
-         JDXQ==
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1gIE5pObmaB9nKbwRpxfYUGdFYC18JPT+HArca8CK88=;
+        b=VJLaxljGZ+mW5mrrIVCpCJBGnuIA59nkOmOA5cv/uRGBmHXbINcNxESIixIxPXYHvN
+         UrLBIv038ZjSwe/grAlMVNYBBi2TVdF1ocCmFg3bI4rYeevbWbJ7qDCY/p0lWqit+tqz
+         iNS3fMesncG01ohKMJ25DZ0qbp6uzFLRI/DaS8EPqYv4Lqe9nIBQG3qDnk96Gzvri3am
+         rNcYJGf1k6vmCaBRpMhNsJfAw7JwGwH/Vz9+hSuVtxNajLUbt6WeWeQ5/xibgScG4ljG
+         jjPYaidC+Hb8YGayTKZfskitIdzX3kvI15w2D9CAPnRjdsBvZLGVCCN1yrvrSUOYL6Dj
+         /PEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=pI7piCtI6WYI9kIPI0gDMcrmyPRHl7iOrc9WhlQg160=;
-        b=sYRdkRrAxH8hsUCHkD3hBciCgWTsv6kJKE8NfyZwEylVmpRMSxsQF4OPmqhf4ZLtZ0
-         gfYfKG7u9XKnhzOziydaEeTfRK6q1opvaXxPc48L9EbVqHbsYD5LLTgTTApX62o1rAIY
-         qvA2BCyi4mVcng5VqPxrWwFbR2MjbsC4+xVBmB2WfAZIyyMzffbsQPsjkDPWe+Z2w6PD
-         NKDCZMEOhGaAU4NlILU+TGmHhNh1BiIGMguwhpL+zO4ge0HxgkJG1G/QjWPHKC/SZ2Vk
-         LhSYVR6ViRtQP+qWiZFHMMEHoIsmHJL+zcGzj5xB9ZW03QmzR5AHnpViy/YLgEbpdCpr
-         NhaQ==
-X-Gm-Message-State: APjAAAXS8XIs9bweikDk1/X7D9d7MYvcOGgTT3nKmBS4gZRWhGpBYNm+
-        hcatpQXtlOY0LvOyw6y1owqGH50sUM4=
-X-Google-Smtp-Source: APXvYqwDISCSDXvfh8YSHjn7hSnuDEres9hGZyMmDTIGzK32JQz0jDj2a7Zv6vWYvwJQo7ekHa26RQ==
-X-Received: by 2002:a92:814f:: with SMTP id e76mr5837245ild.163.1573673867809;
-        Wed, 13 Nov 2019 11:37:47 -0800 (PST)
-Received: from [192.168.1.163] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id l205sm415938ill.50.2019.11.13.11.37.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 Nov 2019 11:37:46 -0800 (PST)
-Subject: Re: [PATCH 1/2] fs:io_uring: clean up io_uring_cancel_files
-To:     Bob Liu <bob.liu@oracle.com>
-Cc:     io-uring@vger.kernel.org
-References: <20191113100625.10774-1-bob.liu@oracle.com>
+        bh=1gIE5pObmaB9nKbwRpxfYUGdFYC18JPT+HArca8CK88=;
+        b=WObQ7RErklPv8s0l76TI5ome69ScZsqr60+MpUXPaFT/vdU6uBRkOa8oZUQwLm7gO0
+         cvv5rxstFZrHI1xh9TN8jTRfYTDgcIzMA1biaK4pOiMzGLXUV5bgV/pjELvuWA32nvHN
+         m77/nhOlFSiuu+sHGDNYxP4KVt5OaLSeZAMsxcWrYCxrlMnRhv5nDIJ78YI1Ijjeg8zo
+         2e0sWmPIOrdzoLjfZIvkG+QgGbReTIMDIyj//YExcg8b+yWK2LF7xU5cjLcmi02kJ4Ts
+         MonjqPou+eNBl9479mQ+/a+T0MOswIfTn1j7ZpkMsPV7Dov2zoQDeHH7sZs1mJCic9FE
+         yUlA==
+X-Gm-Message-State: APjAAAXgwuCw53ODxfMo9ZgPkvn+pg8pELYtDe45M1NLrCPSC13BBeF7
+        +Pk3yWIhO9njWgdVfA+ALN1IZhofx2A=
+X-Google-Smtp-Source: APXvYqx2Oac273WiSGWZOUTZqwLYgEXkZWW/IGh8aWwpGjucSNZ6yEi8yxncFRlqjzIwAjkEfFmN+Q==
+X-Received: by 2002:a92:a189:: with SMTP id b9mr6179439ill.259.1573674238541;
+        Wed, 13 Nov 2019 11:43:58 -0800 (PST)
+Received: from x1.thefacebook.com ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id p2sm295812iod.39.2019.11.13.11.43.57
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Nov 2019 11:43:57 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <f7cc573e-e1db-1e13-1d6c-debd19a522fa@kernel.dk>
-Date:   Wed, 13 Nov 2019 12:37:46 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+To:     io-uring@vger.kernel.org
+Subject: [PATCHSET] Improve io_uring cancellations
+Date:   Wed, 13 Nov 2019 12:43:53 -0700
+Message-Id: <20191113194355.12107-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <20191113100625.10774-1-bob.liu@oracle.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/13/19 3:06 AM, Bob Liu wrote:
-> return val is not used, drop it.
-> Also drop unnecessary if (cancel_req).
+We have a few issues currently:
 
-Applied both of these, reworded the commit messages a bit. Thanks for
-sending them in. A few notes for next time:
+- While the wqe->lock protects the stability of the worker->cur_work
+  pointer, it does NOT stabilize the actual work item. For cancelling
+  specific work, io_uring needs to dereference it to see if it matches.
 
-- Please use a cover letter if you send more than 1 patch
-- Patch subject should be "io_uring: bla bla", no fs, and use the same
-  style for both (you have fs:io_uring and fs: io_uring
+- While we know the worker structure won't go away under the RCU read
+  lock, the worker might exit. It's not safe to wake up or signal this
+  process without ensuring it's still alive.
+
+- We're not consistent in comparing worker->cur_work and sending a
+  signal to cancel it.
+
+These two patches fix the above issues. The first is a prep patch that
+adds referencing of work items, which makes it safe to dereference
+->cur_work if we ensure that ->cur_work itself is stable. The other
+patch reworks how we ensure that tasks are alive for signaling, and
+that we have a consistent view of ->cur_work while sending a signal.
+
+We add a new lock for ->cur_work, as we cannot safely use wqe->lock
+for this. See comment in patch 2 on signalfd usage.
+
+ fs/io-wq.c    | 91 +++++++++++++++++++++++++++++++++++++--------------
+ fs/io-wq.h    |  7 +++-
+ fs/io_uring.c | 17 +++++++++-
+ 3 files changed, 89 insertions(+), 26 deletions(-)
 
 -- 
 Jens Axboe
+
 

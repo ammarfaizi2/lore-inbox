@@ -2,90 +2,95 @@ Return-Path: <SRS0=KKPr=ZF=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BDCBC432C3
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:54:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31241C432C3
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:59:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F72B206F0
-	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:54:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26C11206E5
+	for <io-uring@archiver.kernel.org>; Wed, 13 Nov 2019 21:59:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="0a2mda0v"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pyCwHyXv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726628AbfKMVyd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 13 Nov 2019 16:54:33 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43892 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726162AbfKMVyd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 16:54:33 -0500
-Received: by mail-pg1-f196.google.com with SMTP id l24so2198246pgh.10
-        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 13:54:33 -0800 (PST)
+        id S1726303AbfKMV7r (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 13 Nov 2019 16:59:47 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45605 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbfKMV7r (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 13 Nov 2019 16:59:47 -0500
+Received: by mail-wr1-f66.google.com with SMTP id z10so4134346wrs.12
+        for <io-uring@vger.kernel.org>; Wed, 13 Nov 2019 13:59:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=9unNiExIi2tQ1XnIF2EKghq/xz12WBIbLWYJ/FLMCRg=;
-        b=0a2mda0vKpzBdYZSw0gYdVTGzJ/HOhL1xyKxnLNcNtdd/Qlw95eRd+zls9sA5c+WM/
-         L4D2aCz+vAqaOnK8dssc9qJly+E7uQiZGwnHzY8RI6h8JCMpNBIli3xoTKFUVxD9QV0F
-         tR5IaFbJlO0YG1cMiugXGX5TjQC+ZkRdOtoHk4b3GqZrDlrO3cjb7Ra5hu5IY/WurVhz
-         Py4OSZvnN3VbkSOxJicOIxzjTEc4gFy1QI9SFxRnHu1YLA85rARAOKc3t416P88Djtnn
-         xDxZsWTIVzJjjQArytkHJrn2AF8/g1yzaHsutCadlOrd57NWSbPu9S3Xytl5QxMKd/ga
-         DWmg==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=u689XSv4l2/RrqK+et2vg9gAn+64wLMQdnrdyseEV6M=;
+        b=pyCwHyXv80rrMHqhEAG/rh+bNrz59Tn+rqS7tDrmqaP4auWWcgqLAD/0yziZtr+Z6B
+         rdv7eUXmivsVuhvSuNLyu9mwp1jKH7N075ZqWZ6lNCGJKhkkAoOX37SJw0Z8Cb0YVm8n
+         7vPDK45AdNCU+rLr7lNVvrFWCg5wlRuztMod9uDz+tk9a3vtovw78v1yPdYcWDZvgI3W
+         wshuiF928dFGAmWzxAt4cP9dYrWzv3op98W5PJmYOe/MJ56c+J3F2+E8l+7yAswjCMhj
+         Eu6IWqtNLKOFYfjG8RoX8u4C0yiyOph7q4zL0XQtPyYgLTqg/wOQkaolzU2AJ8N+FXag
+         0aCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=9unNiExIi2tQ1XnIF2EKghq/xz12WBIbLWYJ/FLMCRg=;
-        b=gXauMckXusGg/V536m6MPulN3o7DK7kIxAOjNy+miU/WsKBYWkck8vzHaN8iWuisIu
-         1dUbtyU+9RuMygU284VMvMev1gGhvAOhFtx/voyIaLplXoaKwG9HvCScJ36Sab7b2ljF
-         p2Y52VgGd9SKz/NUF3BrCanh7CT808P/+aCiMeyV1SYd0A1AW9k5pWNT1SiJ1r+rBGwF
-         952v145bX3vbI50vFsQYmLhxMEnuCAac8ncjqW6cwo6p/H+OnNFUkQqkRt6TIN6QIzHZ
-         U33bfCuJDrQL1eea/jzyDgtfjsN+gNXJ+qtpbBjByP0CixBkJWbCdlvYeK5W1Dd32oqK
-         rWaQ==
-X-Gm-Message-State: APjAAAX1YMnnEKQgjmpQV5upU2DeSrpePKYza3qtsVxAz0R6onugfMZP
-        pDIj5HL7orfHM35BYRpQBfQN3xSqMzo=
-X-Google-Smtp-Source: APXvYqzp/bWePWetO8j0Vekg3+3NEzh9coPr+riGuZErRC/Qm0RC44DMHQXelzpaFis0QueOox5c9g==
-X-Received: by 2002:aa7:9189:: with SMTP id x9mr7137394pfa.41.1573682072073;
-        Wed, 13 Nov 2019 13:54:32 -0800 (PST)
-Received: from ?IPv6:2600:380:4b46:8e06:188c:864b:aa3c:f7b? ([2600:380:4b46:8e06:188c:864b:aa3c:f7b])
-        by smtp.gmail.com with ESMTPSA id o15sm3472271pjs.24.2019.11.13.13.54.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 13 Nov 2019 13:54:31 -0800 (PST)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Jens Axboe <axboe@kernel.dk>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH] io_uring: Fix getting file for timeout
-Date:   Wed, 13 Nov 2019 14:54:29 -0700
-Message-Id: <22C89598-0237-49ED-B020-9DD01D7EA31E@kernel.dk>
-References: <5b145d14-59e8-041e-9b8a-21ec1d71e082@gmail.com>
-Cc:     io-uring@vger.kernel.org
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=u689XSv4l2/RrqK+et2vg9gAn+64wLMQdnrdyseEV6M=;
+        b=YCkAhqryiH7MGvOtaNdtxUoG7PN5TzdfpmQfr6wBUwoER8yNNBS66/jQbYTwL7+rzO
+         XSnaU4zQ94INJ1pyckxT4o1LVHC0Wtesf8W1ZWUKD/aERwnuHkqR4rdD04nwCKDMDw1f
+         qULyX6PAhOqIuc2369MWIieM7PE3G+Z/BccDhRoovz5myuW7W4bxkTFFbsHfIzM4A5hU
+         /zqP3lzzw4y9pnTGegooa83Cp/h1F2r77WXbRcAHGpGU4OyTLVtnzCB76rxnzy21LM4l
+         BxFjryT6X0ub5fsIedSki30iiyA4C9jF5gS+mQ2DGod1rc+h8hReBq6pmnzMW+caDLlq
+         qHbQ==
+X-Gm-Message-State: APjAAAXTTxn+dwQqzgTYOGpWfBoDA/EEIwVLet/spFyjoPEn53Ep7GAg
+        SuXvon8a7mThN6yfwGjPe+5CHP+6
+X-Google-Smtp-Source: APXvYqwcfLYNz/QoTzYM4e7oy7eqHLwnllG9lPRwL0OTZrGheC8Jh+lm3s0B03XhHS+XQVkrjGPLFw==
+X-Received: by 2002:adf:e40e:: with SMTP id g14mr5271078wrm.264.1573682385383;
+        Wed, 13 Nov 2019 13:59:45 -0800 (PST)
+Received: from localhost.localdomain ([109.126.149.223])
+        by smtp.gmail.com with ESMTPSA id a186sm3288643wmc.48.2019.11.13.13.59.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Nov 2019 13:59:44 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH for-linus] io_uring: Fix getting file for timeout
+Date:   Thu, 14 Nov 2019 00:59:19 +0300
+Message-Id: <df7029d394c63cb6f5fcab9282f37e2caa033d94.1573681962.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 In-Reply-To: <5b145d14-59e8-041e-9b8a-21ec1d71e082@gmail.com>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-X-Mailer: iPhone Mail (17C5038a)
+References: <5b145d14-59e8-041e-9b8a-21ec1d71e082@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Nov 13, 2019, at 2:48 PM, Pavel Begunkov <asml.silence@gmail.com> wrote:
->=20
-> =EF=BB=BFOn 14/11/2019 00:37, Jens Axboe wrote:
->>> On 11/13/19 2:33 PM, Jens Axboe wrote:
->>> On 11/13/19 2:11 PM, Pavel Begunkov wrote:
->>>> For timeout requests and bunch of others io_uring tries to grab a file
->>>> with specified fd, which is usually stdin/fd=3D0.
->>>> Update io_op_needs_file()
->>>=20
->>> Good catch, thanks, applied.
->>=20
->> Care to send one asap for 5.4 as well? It'd just be TIMEOUT for that
->> one, but we need it fixed there, too.
->>=20
-> Sure, I'll split this into 2 incremental patches then
+For timeout requests io_uring tries to grab a file with specified fd,
+which is usually stdin/fd=0.
+Update io_op_needs_file()
 
-Just one patch is fine, it=E2=80=99ll be a conflict anyway. So no point in d=
-oing two patches for 5.5.=20
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f9a38998f2fc..9dfc6d8a2444 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2283,6 +2283,7 @@ static bool io_op_needs_file(const struct io_uring_sqe *sqe)
+ 	switch (op) {
+ 	case IORING_OP_NOP:
+ 	case IORING_OP_POLL_REMOVE:
++	case IORING_OP_TIMEOUT:
+ 		return false;
+ 	default:
+ 		return true;
+-- 
+2.24.0
 

@@ -2,58 +2,58 @@ Return-Path: <SRS0=FaGP=ZG=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25053C432C3
-	for <io-uring@archiver.kernel.org>; Thu, 14 Nov 2019 15:27:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB00BC432C3
+	for <io-uring@archiver.kernel.org>; Thu, 14 Nov 2019 15:51:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E45BC206DC
-	for <io-uring@archiver.kernel.org>; Thu, 14 Nov 2019 15:27:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C6E320637
+	for <io-uring@archiver.kernel.org>; Thu, 14 Nov 2019 15:51:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="rDovllyb"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cteXF1eM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbfKNP1G (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 14 Nov 2019 10:27:06 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:40056 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726330AbfKNP1G (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 14 Nov 2019 10:27:06 -0500
-Received: by mail-io1-f67.google.com with SMTP id p6so7209005iod.7
-        for <io-uring@vger.kernel.org>; Thu, 14 Nov 2019 07:27:04 -0800 (PST)
+        id S1726984AbfKNPvJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 14 Nov 2019 10:51:09 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:39253 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726444AbfKNPvJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 14 Nov 2019 10:51:09 -0500
+Received: by mail-io1-f68.google.com with SMTP id k1so7319113ioj.6
+        for <io-uring@vger.kernel.org>; Thu, 14 Nov 2019 07:51:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:from:to:cc:references:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Pb54/52KiePo49EfwninY5VWqB/XGPD0qnr9bLS7S8k=;
-        b=rDovllybZqP1ZDWSHLZO6REyTT9oYLVsCxmcdg0WVk1ON7+4YYdxZU+I7l/0XAUoJF
-         tmcEP6qLPv2dEzCfH04xvQpTf5Sbw85Kpn3OnVNT5YgESlrv20DxTucx6+EeAT8w3r9z
-         lNMBxbUVDl4tQZx6P/rmmzppXh/cBEWrh/zOuc68bss/MPoI1B9xRWUiLM6wJUiXe9uo
-         TpjdAI0/OSvNka5ShdqM5Wkzc6gRP60UGMC3IfA6llkqWpnRZRZKukjE/ohBrdK6qTrI
-         e4gfzoFBUvL3r2A7PyfoAjpCphwcunR48nIaKrIJIKE+ml7Bnf1orU/t4tvyjQNVNbK1
-         sjPA==
+        bh=+RprlYzhSDEqjzZjpfI3XGa25r7ZTr5XLWPzcC7ZwH0=;
+        b=cteXF1eMCEYr0oXOfcP1lDv1V3S5fzBjYUjSfH0IIN9GvX9xSomMJJnxLA8dQE7b7C
+         TcgraWfimEC/gCZ8OT3NOTaAYpwTRdbo8kvdF39A/2jqo5bWAf78QHTpw7ZevshLYbxh
+         ayiBs9Zsa7IvzmfUHJVPwHgS3p+53zDbAQ68EIOBw63WnqvMbViZ/ctH8v7t+qQlSH5t
+         hnODKvP9lBhLsQKgjNosMu6fQtgZGrzQypGYLVF5hlen9z2WXVG2W94xg+bQQiFbTS5i
+         jeJMtrw3pu4ebbifrprAi53C+mmFefphATmFiYaCTYSa6XGuUE6rtIasK6NjvIMmg+8f
+         IwTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=Pb54/52KiePo49EfwninY5VWqB/XGPD0qnr9bLS7S8k=;
-        b=cxp7/twDLhrx2itO0NgfBGWMjl4kophb1gmXCK1X4XP1wDJeUtTCLMg8CxhzQpgmHK
-         hjGOAV7/YClBIuPR2lkue7yQRl3jZA27oOpfL5/afonYmXW0HGC+RNw8GVjOhM+1uSBg
-         e2W68zT83sD5Ot5zwDv5+lmnNfMPB+qzJrYnCmYI/yGuS/DipP5ZrMJt4Lo1npf/OV4v
-         ERx12BOCLrxyvOvxYujAZrPDjrTYhfLjWkPBPv2Hof/sN3YmHVJvGbJhboUUOomXI+Ft
-         Q16rw2nYsNmjNOJG0wha9Mf9YEDG0mzfH5WKeui11riOG6QeI+MsWQYlzBa/VJ4HeYs9
-         ixAg==
-X-Gm-Message-State: APjAAAXhsSASOHWmtP1fFDelTKLuGFR6JvYc/ZFy2LUd6DReCw3wLExV
-        SJFYTptiuGZYsbvs6kKoI+8RDG3Y2cg=
-X-Google-Smtp-Source: APXvYqx1+iuEaN6EUrTxHKiCZEEYpCjAm3a95rr/NdSaR3TjFHN0j33g5FebNu1FhXcgleCf8DQBxQ==
-X-Received: by 2002:a02:a086:: with SMTP id g6mr8065764jah.56.1573745223480;
-        Thu, 14 Nov 2019 07:27:03 -0800 (PST)
+        bh=+RprlYzhSDEqjzZjpfI3XGa25r7ZTr5XLWPzcC7ZwH0=;
+        b=N5a56nThRZySV9zEAJ487YXPzW/Yidc1dVGRIn5EJlyOMfLPfUyf23GoBFQlezhU73
+         S5I8hECxrGcBXG/SiaZNrNqOzJt994nTp3UX+oNEegCruykgphTpScsbhXtmXwj/XJAd
+         lfJ2q7HVdVUxsy59SHwnd99mSWx72RuFEBMwCmqkeqrO1VKkXNqJqsFkCPTH2BgzNGSF
+         3JtikgTwN2dEclfUsD7faUIXgkWzk3035P129S/RQXA5IJxd4cdHrd1GlGiRRhs3bdQD
+         OeNNbAjBx1slKtis6QAv03WPxw01EB6ZXAl4HA9Fg7fO3zj6YAa+i0qQAi+EVCKNT7gz
+         rLvw==
+X-Gm-Message-State: APjAAAXnABt1y0U4cPsFApWS2YMKA8uzMsiWqezdyTgiTOgvhRluEdb1
+        ghRM9xmEkM+gFnNKLGhwnsrQzQ==
+X-Google-Smtp-Source: APXvYqzUZbP6xqV2wJ1GNw3wRScPbvb6W/DH56obL15Pg1biAa4jRE2hISaLh7LK+EAxdYhN5OHs8w==
+X-Received: by 2002:a5d:8b85:: with SMTP id p5mr9482626iol.9.1573746667749;
+        Thu, 14 Nov 2019 07:51:07 -0800 (PST)
 Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id l63sm505052ioa.19.2019.11.14.07.27.02
+        by smtp.gmail.com with ESMTPSA id g11sm827035ilq.39.2019.11.14.07.51.05
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 14 Nov 2019 07:27:02 -0800 (PST)
+        Thu, 14 Nov 2019 07:51:06 -0800 (PST)
 Subject: Re: [PATCH RFC] io_uring: make signalfd work with io_uring (and aio)
  POLL
 From:   Jens Axboe <axboe@kernel.dk>
@@ -73,12 +73,13 @@ References: <58059c9c-adf9-1683-99f5-7e45280aea87@kernel.dk>
  <e568a403-3712-4612-341a-a6f22af877ae@kernel.dk>
  <0f74341f-76fa-93ee-c03e-554d02707053@rasmusvillemoes.dk>
  <6243eb59-3340-deb5-d4b8-08501be01f34@kernel.dk>
-Message-ID: <85e8e954-d09c-f0b4-0944-598208098c8c@kernel.dk>
-Date:   Thu, 14 Nov 2019 08:27:01 -0700
+ <85e8e954-d09c-f0b4-0944-598208098c8c@kernel.dk>
+Message-ID: <1a5b156a-fde5-507b-d5cf-f42ba3eacf1a@kernel.dk>
+Date:   Thu, 14 Nov 2019 08:51:05 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <6243eb59-3340-deb5-d4b8-08501be01f34@kernel.dk>
+In-Reply-To: <85e8e954-d09c-f0b4-0944-598208098c8c@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -87,124 +88,119 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/14/19 8:20 AM, Jens Axboe wrote:
-> On 11/14/19 8:19 AM, Rasmus Villemoes wrote:
->> On 14/11/2019 16.09, Jens Axboe wrote:
->>> On 11/14/19 7:12 AM, Rasmus Villemoes wrote:
->>
->>>> So, I can't really think of anybody that might be relying on inheriting
->>>> a signalfd instead of just setting it up in the child, but changing the
->>>> semantics of it now seems rather dangerous. Also, I _can_ imagine
->>>> threads in a process sharing a signalfd (initial thread sets it up and
->>>> blocks the signals, all threads subsequently use that same fd), and for
->>>> that case it would be wrong for one thread to dequeue signals directed
->>>> at the initial thread. Plus the lifetime problems.
+On 11/14/19 8:27 AM, Jens Axboe wrote:
+> On 11/14/19 8:20 AM, Jens Axboe wrote:
+>> On 11/14/19 8:19 AM, Rasmus Villemoes wrote:
+>>> On 14/11/2019 16.09, Jens Axboe wrote:
+>>>> On 11/14/19 7:12 AM, Rasmus Villemoes wrote:
 >>>
->>> What if we just made it specific SFD_CLOEXEC?
+>>>>> So, I can't really think of anybody that might be relying on inheriting
+>>>>> a signalfd instead of just setting it up in the child, but changing the
+>>>>> semantics of it now seems rather dangerous. Also, I _can_ imagine
+>>>>> threads in a process sharing a signalfd (initial thread sets it up and
+>>>>> blocks the signals, all threads subsequently use that same fd), and for
+>>>>> that case it would be wrong for one thread to dequeue signals directed
+>>>>> at the initial thread. Plus the lifetime problems.
+>>>>
+>>>> What if we just made it specific SFD_CLOEXEC?
+>>>
+>>> O_CLOEXEC can be set and removed afterwards. Sure, we're far into
+>>> "nobody does that" land, but having signalfd() have wildly different
+>>> semantics based on whether it was initially created with O_CLOEXEC seems
+>>> rather dubious.
+>>>
+>>>     I don't want to break
+>>>> existing applications, even if the use case is nonsensical, but it is
+>>>> important to allow signalfd to be properly used with use cases that are
+>>>> already in the kernel (aio with IOCB_CMD_POLL, io_uring with
+>>>> IORING_OP_POLL_ADD). Alternatively, if need be, we could add a specific
+>>>> SFD_ flag for this.
+>>>
+>>> Yeah, if you want another signalfd flavour, adding it via a new SFD_
+>>> flag seems the way to go. Though I can't imagine the resulting code
+>>> would be very pretty.
 >>
->> O_CLOEXEC can be set and removed afterwards. Sure, we're far into
->> "nobody does that" land, but having signalfd() have wildly different
->> semantics based on whether it was initially created with O_CLOEXEC seems
->> rather dubious.
->>
->>    I don't want to break
->>> existing applications, even if the use case is nonsensical, but it is
->>> important to allow signalfd to be properly used with use cases that are
->>> already in the kernel (aio with IOCB_CMD_POLL, io_uring with
->>> IORING_OP_POLL_ADD). Alternatively, if need be, we could add a specific
->>> SFD_ flag for this.
->>
->> Yeah, if you want another signalfd flavour, adding it via a new SFD_
->> flag seems the way to go. Though I can't imagine the resulting code
->> would be very pretty.
+>> Well, it's currently _broken_ for the listed in-kernel use cases, so
+>> I think making it work is the first priority here.
 > 
-> Well, it's currently _broken_ for the listed in-kernel use cases, so
-> I think making it work is the first priority here.
+> How about something like this, then? Not tested.
 
-How about something like this, then? Not tested.
+Tested, works for me. Here's the test case I used. We setup a signalfd
+with SIGALRM, and arm a timer for 100msec. Then we queue a poll for the
+signalfd, and wait for that to complete with a timeout of 1 second. If
+we time out waiting for the completion, we failed. If we do get a
+completion but we don't have POLLIN set, we failed.
 
-diff --git a/fs/signalfd.c b/fs/signalfd.c
-index 44b6845b071c..d8b183ec1d4e 100644
---- a/fs/signalfd.c
-+++ b/fs/signalfd.c
-@@ -50,6 +50,8 @@ void signalfd_cleanup(struct sighand_struct *sighand)
- 
- struct signalfd_ctx {
- 	sigset_t sigmask;
-+	struct task_struct *task;
-+	u32 task_exec_id;
- };
- 
- static int signalfd_release(struct inode *inode, struct file *file)
-@@ -61,16 +63,22 @@ static int signalfd_release(struct inode *inode, struct file *file)
- static __poll_t signalfd_poll(struct file *file, poll_table *wait)
- {
- 	struct signalfd_ctx *ctx = file->private_data;
-+	struct task_struct *tsk = ctx->task ?: current;
- 	__poll_t events = 0;
- 
--	poll_wait(file, &current->sighand->signalfd_wqh, wait);
-+	if (ctx->task && ctx->task->self_exec_id == ctx->task_exec_id)
-+		tsk = ctx->task;
-+	else
-+		tsk = current;
- 
--	spin_lock_irq(&current->sighand->siglock);
--	if (next_signal(&current->pending, &ctx->sigmask) ||
--	    next_signal(&current->signal->shared_pending,
-+	poll_wait(file, &tsk->sighand->signalfd_wqh, wait);
-+
-+	spin_lock_irq(&tsk->sighand->siglock);
-+	if (next_signal(&tsk->pending, &ctx->sigmask) ||
-+	    next_signal(&tsk->signal->shared_pending,
- 			&ctx->sigmask))
- 		events |= EPOLLIN;
--	spin_unlock_irq(&current->sighand->siglock);
-+	spin_unlock_irq(&tsk->sighand->siglock);
- 
- 	return events;
- }
-@@ -267,19 +275,26 @@ static int do_signalfd4(int ufd, sigset_t *mask, int flags)
- 	/* Check the SFD_* constants for consistency.  */
- 	BUILD_BUG_ON(SFD_CLOEXEC != O_CLOEXEC);
- 	BUILD_BUG_ON(SFD_NONBLOCK != O_NONBLOCK);
-+	BUILD_BUG_ON(SFD_TASK & (SFD_CLOEXEC | SFD_NONBLOCK));
- 
--	if (flags & ~(SFD_CLOEXEC | SFD_NONBLOCK))
-+	if (flags & ~(SFD_CLOEXEC | SFD_NONBLOCK | SFD_TASK))
-+		return -EINVAL;
-+	if ((flags & (SFD_CLOEXEC | SFD_TASK)) == SFD_TASK)
- 		return -EINVAL;
- 
- 	sigdelsetmask(mask, sigmask(SIGKILL) | sigmask(SIGSTOP));
- 	signotset(mask);
- 
- 	if (ufd == -1) {
--		ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
-+		ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 		if (!ctx)
- 			return -ENOMEM;
- 
- 		ctx->sigmask = *mask;
-+		if (flags & SFD_TASK) {
-+			ctx->task = current;
-+			ctx->task_exec_id = current->self_exec_id;
-+		}
- 
- 		/*
- 		 * When we call this, the initialization must be complete, since
-diff --git a/include/uapi/linux/signalfd.h b/include/uapi/linux/signalfd.h
-index 83429a05b698..064c5dc3eb99 100644
---- a/include/uapi/linux/signalfd.h
-+++ b/include/uapi/linux/signalfd.h
-@@ -16,6 +16,7 @@
- /* Flags for signalfd4.  */
- #define SFD_CLOEXEC O_CLOEXEC
- #define SFD_NONBLOCK O_NONBLOCK
-+#define SFD_TASK 00000001
- 
- struct signalfd_siginfo {
- 	__u32 ssi_signo;
+
+#include <unistd.h>
+#include <sys/signalfd.h>
+#include <sys/poll.h>
+#include <sys/time.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <liburing.h>
+
+#define SFD_TASK	00000001
+
+int main(int argc, char *argv[])
+{
+	struct __kernel_timespec ts;
+	struct io_uring_sqe *sqe;
+	struct io_uring_cqe *cqe;
+	struct io_uring ring;
+	struct itimerval itv;
+	sigset_t mask;
+	int sfd, ret;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGALRM);
+	sigprocmask(SIG_BLOCK, &mask, NULL);
+
+	sfd = signalfd(-1, &mask, SFD_NONBLOCK | SFD_CLOEXEC | SFD_TASK);
+	if (sfd < 0) {
+		if (errno == EINVAL) {
+			printf("Not supported\n");
+			return 0;
+		}
+		perror("signalfd");
+		return 1;
+	}
+
+	memset(&itv, 0, sizeof(itv));
+	itv.it_value.tv_sec = 0;
+	itv.it_value.tv_usec = 100000;
+	setitimer(ITIMER_REAL, &itv, NULL);
+
+	io_uring_queue_init(32, &ring, 0);
+	sqe = io_uring_get_sqe(&ring);
+	io_uring_prep_poll_add(sqe, sfd, POLLIN);
+	io_uring_submit(&ring);
+
+	ts.tv_sec = 1;
+	ts.tv_nsec = 0;
+	ret = io_uring_wait_cqe_timeout(&ring, &cqe, &ts);
+	if (ret < 0) {
+		fprintf(stderr, "Timed out waiting for cqe\n");
+		ret = 1;
+	} else {
+		if (cqe->res < 0) {
+			fprintf(stderr, "cqe failed with %d\n", cqe->res);
+			ret = 1;
+		} else if (!(cqe->res & POLLIN)) {
+			fprintf(stderr, "POLLIN not set in result mask?\n");
+			ret = 1;
+		} else {
+			ret = 0;
+		}
+	}
+	io_uring_cqe_seen(&ring, cqe);
+
+	io_uring_queue_exit(&ring);
+	close(sfd);
+	return ret;
+}
 
 -- 
 Jens Axboe

@@ -7,61 +7,62 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AABC2C432C3
-	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 16:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E40F7C432C3
+	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 17:12:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 78B3B2077B
-	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 16:36:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1B9B206D6
+	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 17:12:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ejI9PeWn"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XYxHnovF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbfKOQgJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 15 Nov 2019 11:36:09 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:37662 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727531AbfKOQgI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Nov 2019 11:36:08 -0500
-Received: by mail-wr1-f65.google.com with SMTP id t1so11670972wrv.4
-        for <io-uring@vger.kernel.org>; Fri, 15 Nov 2019 08:36:06 -0800 (PST)
+        id S1727540AbfKORMQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 15 Nov 2019 12:12:16 -0500
+Received: from mail-wm1-f49.google.com ([209.85.128.49]:52377 "EHLO
+        mail-wm1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727528AbfKORMQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Nov 2019 12:12:16 -0500
+Received: by mail-wm1-f49.google.com with SMTP id l1so10386201wme.2;
+        Fri, 15 Nov 2019 09:12:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
          :mime-version:in-reply-to;
-        bh=6mzduWxyG+hJf+e3KUo+jGMAipWF2xkVlOKcRNsVZ/8=;
-        b=ejI9PeWn/rP3jIN8jDGHLA8GJatQPUL7KN4CKConLmI+TKnQzmFgPa8r7jzzWfzx4T
-         LgNO64IuPnOUOKhh2zaLkOVi5dRRUMQzsTyPXM1CC7Juw6na2k2KEswGhwJRsQJndoG0
-         BIvntEQYJ0a47rb0lhvh64iyyYEZYfAXbmGW7tsnqF0bgRwcI5aXTBDCgIJNP44A9LHK
-         /0oAiTPYXg6kppmtbUV6tOeoHXO1J9tORyRmnBzH+WNDtafrAwwFqy08BxVhIwuhGSs5
-         +lwJuYsIIOoj6Mu7XqAKLAoe3Zquq0v8zovPuGvH3SvO3f3eWG9Zt7pIZyR6MVKYMxnu
-         DDyw==
+        bh=wUCRAnh9SXFop5nqWtHc5auIvv1qJaj7Mu1awOQyvl8=;
+        b=XYxHnovF8Ou62Cv+aPkEMyUn8wPuz+kkyCAErTWWnEjhRtj+X0bvYplVABR2CeWPfn
+         t0SGQnrPVlM5BcjHvHx7QjNSCChl43gdDelFWyrXj/I+acpZPlj8JqDg0AY8WTlgNqPu
+         0LT7RsFOi1jqMn0ZYbrAAsrndNY5fTi4zdhbjxR1yylqd8YbuBqPiUFoSzbqGaQa0vm/
+         fIjQhHob3BX6jCqRhA/sNnXmkTSvwA31yDSJq9lmAy1AxyoZrkLO4CnKv+LkiSg0NptV
+         oG4BLMk4QrYKvS7Lnn3UZ7HfJypZaVlv0KTbS3YB34zwbfu5FNoB4YCNVaygGJMJlr3j
+         JN6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
          :message-id:date:user-agent:mime-version:in-reply-to;
-        bh=6mzduWxyG+hJf+e3KUo+jGMAipWF2xkVlOKcRNsVZ/8=;
-        b=g+HzeG1AWq/JNuW/qqsYOFfMxMN5+Np3UyF9IuPE2YAyH5jlUnkxzK3ybXNUH61ssK
-         HmcRQ5oCw1nwg0tkfF6TvCS/yKWOapA73t+w5nufFFClXsSSN0jf5FrtTaCdMizKIypp
-         8VFw8mlnqjrJ8YuLsV6h7bPnfI0GNwfOB8oztY+83xqIMt+bzeUol8xMXbM1dD+AE0pp
-         zLG6Go2/OXjO1/tsYBJv7CWdy97uaTxhea2P00+urBXC03BDSY1RQEXFEYttIkl9fTG8
-         DwK9OFlfdAmQem8Eo7imGMJi4zAVhOAoUiIRbTeBdCcjMxEzdNF7jfWKwO33yyS7mdLa
-         19kA==
-X-Gm-Message-State: APjAAAU8Q0+2YredbFQsu2o5o20cmyGJlMwGl+BAeAZfLACvaPFHMWsx
-        ZApi2p+pKP4KomwhALiarvDF+9wC
-X-Google-Smtp-Source: APXvYqybCi3bG5O8tz21HTJT5E9QXHEgiyySHaV7P21GUf6++olD7XK2RJHsb/7ApuStI31aGvlpDg==
-X-Received: by 2002:adf:df09:: with SMTP id y9mr16878493wrl.25.1573835765761;
-        Fri, 15 Nov 2019 08:36:05 -0800 (PST)
+        bh=wUCRAnh9SXFop5nqWtHc5auIvv1qJaj7Mu1awOQyvl8=;
+        b=qaqioh2dJKUkWoc6+NLowiuWBoGUBoG6RnMWh1llYrBYkAJiod2WoV3z4FyCx1YSAy
+         AsgvHCGowkNe5L0nGuN8QMehC0kp/xaPlYNeEHnL5h0Hz89WwC/3+uibbaNWZuSaD8fR
+         +wanZHOlruG7oY8wPKw6eoNsWceHaDvFEk8NGWhGLKLsrumXs7Gh2UE8z5UzqMPh0VFa
+         TBHKIrvm3mXt1UiL+AyjmF+O34KBmDw8+y3v07X1WdB2KmXVRA5fUXvhxHPvP3SDfk//
+         DWsNXfALITCSpr6Xgo7IjdtiwENiu793kFyT/VvPFgZeGH1EBenGxfGk9YMBstmhuqbz
+         fx0w==
+X-Gm-Message-State: APjAAAWrw250YGJgKsLOqqCcMRkqqe2Mf4GJa7lUJ+N965Llg0HqU+T0
+        iLu5wJnGMAwhJU+O8SmvgblwIA3K
+X-Google-Smtp-Source: APXvYqwfQKqFb0WnPE/Al6mcHSTlTBoHDuWvjc7QwnkvFNhHY1OB8WBIyosX/wysb+xkSaPOwOUBeA==
+X-Received: by 2002:a7b:c5d2:: with SMTP id n18mr7494206wmk.37.1573837932873;
+        Fri, 15 Nov 2019 09:12:12 -0800 (PST)
 Received: from [192.168.43.69] ([109.126.151.234])
-        by smtp.gmail.com with ESMTPSA id x205sm11972525wmb.5.2019.11.15.08.36.04
+        by smtp.gmail.com with ESMTPSA id v9sm11696497wrs.95.2019.11.15.09.12.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Nov 2019 08:36:04 -0800 (PST)
-Subject: Re: [PATCH] io_uring: fix duplicated increase of cached_cq_overflow
-To:     Bob Liu <bob.liu@oracle.com>, axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org
-References: <20191115093733.18396-1-bob.liu@oracle.com>
- <9ba5abd2-94c2-585a-b55c-d97dc5f429a6@gmail.com>
- <7ed5d143-c9ba-7d0a-03fe-57af65e88a54@oracle.com>
- <c88f9b89-4749-fd3b-0ac8-e6824077ec26@gmail.com>
- <e09c3cb3-1368-1e77-6207-78487b31ffe1@oracle.com>
+        Fri, 15 Nov 2019 09:12:11 -0800 (PST)
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-block@vger.kernel.org
+Cc:     zeba.hrvoje@gmail.com, liuyun01@kylinos.cn
+References: <20191105211130.6130-1-axboe@kernel.dk>
+ <4566889a-7e12-9bfd-b2a1-716d8b934684@gmail.com>
+ <9b6cd06b-cd6c-d7e5-157b-32c1e2e9ceac@kernel.dk>
+ <3c0ef10d-9524-e2e2-abf2-e1b0bcee9223@gmail.com>
+ <178bae7d-3162-7de2-8bb8-037bac70469b@gmail.com>
+ <d0f1065e-f295-6c0d-66cc-a424ec72751b@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -106,83 +107,158 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <e7fe841d-6103-b6e8-a37b-9a368ad801c5@gmail.com>
-Date:   Fri, 15 Nov 2019 19:35:49 +0300
+Subject: Re: [PATCHSET 0/2] io_uring support for linked timeouts
+Message-ID: <aabbed5f-db68-4a48-1596-28ac4110ce95@gmail.com>
+Date:   Fri, 15 Nov 2019 20:11:50 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.0
 MIME-Version: 1.0
-In-Reply-To: <e09c3cb3-1368-1e77-6207-78487b31ffe1@oracle.com>
+In-Reply-To: <d0f1065e-f295-6c0d-66cc-a424ec72751b@kernel.dk>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="eOObdFf5oH1V963wD2KNBO1fhyJWU2aUT"
+ boundary="TN2sznfti6AuMbALsTe3Llvpg0b2S6csi"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---eOObdFf5oH1V963wD2KNBO1fhyJWU2aUT
-Content-Type: multipart/mixed; boundary="x8r3cQpHCDBGRNncBpNShLexWGHCnLyy3";
+--TN2sznfti6AuMbALsTe3Llvpg0b2S6csi
+Content-Type: multipart/mixed; boundary="eTtXEYmp1UhJKZVIm5uEqT55EL7v4H40B";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
-To: Bob Liu <bob.liu@oracle.com>, axboe@kernel.dk
-Cc: io-uring@vger.kernel.org
-Message-ID: <e7fe841d-6103-b6e8-a37b-9a368ad801c5@gmail.com>
-Subject: Re: [PATCH] io_uring: fix duplicated increase of cached_cq_overflow
-References: <20191115093733.18396-1-bob.liu@oracle.com>
- <9ba5abd2-94c2-585a-b55c-d97dc5f429a6@gmail.com>
- <7ed5d143-c9ba-7d0a-03fe-57af65e88a54@oracle.com>
- <c88f9b89-4749-fd3b-0ac8-e6824077ec26@gmail.com>
- <e09c3cb3-1368-1e77-6207-78487b31ffe1@oracle.com>
-In-Reply-To: <e09c3cb3-1368-1e77-6207-78487b31ffe1@oracle.com>
+To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: zeba.hrvoje@gmail.com, liuyun01@kylinos.cn
+Message-ID: <aabbed5f-db68-4a48-1596-28ac4110ce95@gmail.com>
+Subject: Re: [PATCHSET 0/2] io_uring support for linked timeouts
+References: <20191105211130.6130-1-axboe@kernel.dk>
+ <4566889a-7e12-9bfd-b2a1-716d8b934684@gmail.com>
+ <9b6cd06b-cd6c-d7e5-157b-32c1e2e9ceac@kernel.dk>
+ <3c0ef10d-9524-e2e2-abf2-e1b0bcee9223@gmail.com>
+ <178bae7d-3162-7de2-8bb8-037bac70469b@gmail.com>
+ <d0f1065e-f295-6c0d-66cc-a424ec72751b@kernel.dk>
+In-Reply-To: <d0f1065e-f295-6c0d-66cc-a424ec72751b@kernel.dk>
 
---x8r3cQpHCDBGRNncBpNShLexWGHCnLyy3
+--eTtXEYmp1UhJKZVIm5uEqT55EL7v4H40B
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 15/11/2019 16:10, Bob Liu wrote:
->>> io_cqring_overflow_flush(force=3Dtrue) must have been called when thi=
-s branch is executed,
->>> since io_cqring_overflow_flush() is the only place can set 'ctx->cq_o=
-verflow_flushed' to true.
+>>>> I just think we need to make sure the ground rules are sane. I'm goi=
+ng
+>>>> to write a few test cases to make sure we do the right thing.
+>>>>
 >>>
->> Yes, it should have been called, but it sets this flag for the future
->> users of io_cqring_fill_event(), so any _new_ requests in
->> io_cqring_fill_event() will overflow instead of being added to
->> @overflow_list.
+>> Ok, let me try to state some rules to discuss:
+>=20
+>> 1. REQ -> LINK_TIMEOUT
+>> is a valid use case
+>=20
+> Yes
+>=20
+>> 2. timeout is set at the moment of starting execution of operation.
+>> e.g. REQ1, REQ2|DRAIN -> LINK_TIMEOUT
 >>
+>> Timer is set at the moment, when everything is drained and we
+>> sending REQ. i.e. after completion of REQ1
 >=20
-> Oh, I see..Thanks for the kindly explanation.
+> Right, the timeout is prepped before REQ2 is started, armed when it is
+> started (if not already done). The prep + arm split is important to
+> ensure that a short timeout doesn't even find REQ2.
+I've got (and seen the patch) for prep + arm split. Could a
+submission block/take a long time? If so, it's probably not what
+user would want.
+
+e.g. WRITE -> LINK_TIMEOUT (1s)
+- submit write (blocking, takes 2s)
+- and only after this 2s have a chance to arm the timeout.
+
 >=20
-Sure, no problem
+>> 3. REQ1 -> LINK_TIMEOUT1 -> REQ2 -> LINK_TIMEOUT2
+>>
+>> is valid, and LINK_TIMEOUT2 will be set, at the moment of
+>> start of REQ2's execution. It also mean, that if
+>> LINK_TIMEOUT1 fires, it will cancel REQ1, and REQ2
+>> with LINK_TIMEOUT2 (with proper return values)
+>=20
+> That's not valid with the patches I sent. It could be, but we'd need to=
+
+> fix that bit.
+>=20
+It should almost work, if we move linked timeout init/arm code=20
+into __io_submit_sqe(). There is also a problem, which it'll solve:
+
+If a request is deferred, it will skip timeout initialisation,
+because io_req_defer() happens before __io_queue_sqe().
+io_wq_submit_work() won't initialise/arm the timeout as well,
+as it use __io_submit_sqe() directly. So
+- rule 2. doesn't work
+- free_req() calls io_link_cancel_timeout() for an non-inititialised
+timeout
+
+
+The case I keep in mind is:
+read file -> SEND (+LINK_TIMEOUT)=20
+	-> RECV (+LINK_TIMEOUT) -> write file ...
+
+We don't care how long file read/write would take,
+but would want to limit execution time for network operations.
+
+
+>> 4. REQ1, LINK_TIMEOUT
+>> is invalid, fail it
+>=20
+> Correct
+>=20
+>> 5. LINK_TIMEOUT1 -> LINK_TIMEOUT2
+>> Fail first, link-fail (aka cancelled) for the second one
+>=20
+> Correct
+>=20
+>> 6. REQ1 -> LINK_TIMEOUT1 -> LINK_TIMEOUT2
+>> execute REQ1+LINK_TIMEOUT1, and then fail LINK_TIMEOUT2 as
+>> invalid. Also, LINK_TIMEOUT2 could be just cancelled
+>> (e.g. if fail_links for REQ1)
+>=20
+> Given case 5, why would this one be legal?
+>=20
+This one is different if we conceptually consider
+REQ + following LINK_TIMEOUT as a single operation with timeout.
+If so, it can be said that (REQ1 -> LINK_TIMEOUT1) is valid
+pair, but LINK_TIMEOUT2 is a following single link timeout,
+that's more like in 4.
+
+
+7. If we decide to not implement 3., what's about the case below?
+REQ1 -> REQ2 -> LINK_TIMEOUT
 
 --=20
 Pavel Begunkov
 
 
---x8r3cQpHCDBGRNncBpNShLexWGHCnLyy3--
+--eTtXEYmp1UhJKZVIm5uEqT55EL7v4H40B--
 
---eOObdFf5oH1V963wD2KNBO1fhyJWU2aUT
+--TN2sznfti6AuMbALsTe3Llvpg0b2S6csi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3O0+YACgkQWt5b1Glr
-+6Ui0RAAguaCP/5zfFLXdGxAc5gypWmOQIyEZwQTrzCkkZw2EW9T+tXkuYYe8KaJ
-kaXta4o1Cz4c9F+R32esxjema+moJmrvFP7GOLvC54qOCPC75ODHTW9aoroHFimN
-RS9VEGH0cMqVWSvAKSMqcf0FRswoKtisd0FGQhXUcWwlzcMkf4aaVlUHJIbDLT/U
-vrCAPB1EvjOdubzKkhlVhVHu1CkE/82/mIRqwBDaOv6HUvBsTUgTXtvlmcN1MDZ7
-9q2yQAMQe/l2tXlYQCJ+oQk5rda3cjPnYe63FyJ2Wo93+mQVo6kSYPrrJnCiKe5v
-PJ0nJW+6+Hy33/dyn9VC+HrGm2jslQYXw9mKs6BlFvBY6B1lT/Qc4ummHiM5kHQr
-ndOH4VyYz56WrtAPRudSjug1dW/RB/sdofFeg6Ehj/3nNboJL0a2kJ2rDvZqGe69
-Os9lMXHKlOGorwdTGELQMKC3YYHFNxE+rR0QSF2++GYHB5/QfB8C10aL8m5H8rA8
-UFJagdCfNLldSMWkGXZDK5sn7dOIROTcV7Jma6XRsWrP5xTCuq2aUD8RD0DY4BMM
-Dt4aWkucpao59DO4Bs/oq320CQivvTppwPNCCO8Kc0fCGhQijojIF0GuVZu8plXf
-A7WkCbHWEGXlYOKTLzJbbgADhs9tbdkJr6lZWuI1Z1LSs0QtWJo=
-=KDpt
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3O3FYACgkQWt5b1Glr
++6VRKw/7BS5ovVDpbmzq+U0rYdbVSidnigsrCCyep+BecswWSHfHFXv2fPlJgC2a
+SjqNB+kQ8qOcEAGeUegwMKMQAi1ftpkhIcTz7xbz5EdV7gIpXts4MPIesQ0ZkVOA
+o/fKn7r4/csldyNoCflpaENtcQaKBDfX6JiparnsxndfxJ6Um2HE+nHTpLoUWhGN
+eEQ+oQBef/uP4BYMT+GBvCln1o8QtdltAa3g3yHnILzGp/3/o1WaIS4v7dMA+ivh
+fy5N5DUUwTnQgo1CWjlpMUkDBSpnRbb/e8043+1AbEtytXiHWe8XybjEbX5fHS2q
+MoNuIaPuvQZL4fMsqp4/++4815A8cDY0xbACJSVVzYXJh3Qon/9G7s5N3s8bDVgG
++cYuDoEQD4fqU20hGA1tgcZ3iFsroA7tUah068jRSxZ5NKPQltEoZUzOkF7U+yu0
+vmRCJ38z+szvNwsodTo7y6qOIL/ATv67856kTTVLupUnoAWTiBOHU4jiTuF0GUvz
+qg/lsoKvgECIPqG5W9xJrVBXH9aCbeCqzj0ED3wtQuvBf03Tl7024zrhjVIjVR2z
+KHEEQK8YJ+4cszZY3p9raLS/HxUpjXvapzTnV6EBuumMn284HHBvy9GeNz5DjkE2
+EpaLM9UVbyk1PI2CsMRXeA1R/64uR+X3ZY1W1O/7bq4Xa9GcS74=
+=j61P
 -----END PGP SIGNATURE-----
 
---eOObdFf5oH1V963wD2KNBO1fhyJWU2aUT--
+--TN2sznfti6AuMbALsTe3Llvpg0b2S6csi--

@@ -2,97 +2,155 @@ Return-Path: <SRS0=yjkE=ZH=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D72FDC432C3
-	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 09:38:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 551BEC432C3
+	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 09:40:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 995272073B
-	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 09:38:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25B4520732
+	for <io-uring@archiver.kernel.org>; Fri, 15 Nov 2019 09:40:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="r0oIWqAx"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fAxgTl8j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726980AbfKOJiB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 15 Nov 2019 04:38:01 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:34750 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727022AbfKOJiB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Nov 2019 04:38:01 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAF9YQix176778;
-        Fri, 15 Nov 2019 09:37:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id; s=corp-2019-08-05;
- bh=ym4O2zYhDbJC8bmdjKxgB3r62TXhmYMVIXTuLFRvCLs=;
- b=r0oIWqAxGwew9zNzty+yYZUAgVlJl8NQQlEhkWZEUVPa67a9psEbx7P0epWWPDChI1KL
- i6gCuA8Ys1I2rRVIyxc1PtcP4v26Q1801it+VL1R5YnrKXBd6db8SCfFuYhm3Iw+igvR
- Rm+ECmJBD53zTwYMaP3p47eNBaDulvWEZCgOLDk+IV+xh6PJUW4oWBCU7vHQENm1bOKv
- Ec6E2qRKYUB8WDaA9fc6CvL8Lnxdqh0jnAdFfpB3MB8oAan9p1TXhv5KOFVN5GqvPWQb
- Uq8WqcvCD07Nox484gfTjjc4V07QVqVgOKIe1QLPhx15kiXRL4gqdmIJVuix3X4acm2w Kg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 2w9gxpj4w0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 Nov 2019 09:37:56 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAF9XqJx112489;
-        Fri, 15 Nov 2019 09:37:56 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 2w9h146t87-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 Nov 2019 09:37:56 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xAF9btGL013466;
-        Fri, 15 Nov 2019 09:37:55 GMT
-Received: from localhost.localdomain (/114.88.246.185)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 15 Nov 2019 01:37:54 -0800
-From:   Bob Liu <bob.liu@oracle.com>
-To:     axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org, Bob Liu <bob.liu@oracle.com>
-Subject: [PATCH] io_uring: fix duplicated increase of cached_cq_overflow
-Date:   Fri, 15 Nov 2019 17:37:33 +0800
-Message-Id: <20191115093733.18396-1-bob.liu@oracle.com>
-X-Mailer: git-send-email 2.9.5
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9441 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=896
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1911150089
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9441 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=1 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=981 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1911150090
+        id S1727081AbfKOJkG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 15 Nov 2019 04:40:06 -0500
+Received: from mail-lj1-f170.google.com ([209.85.208.170]:44371 "EHLO
+        mail-lj1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726930AbfKOJkG (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Nov 2019 04:40:06 -0500
+Received: by mail-lj1-f170.google.com with SMTP id g3so9952669ljl.11;
+        Fri, 15 Nov 2019 01:40:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=I2bY8wt44U8gioXslAWPn4SYSC87I8ddc2E8Vr5B1O8=;
+        b=fAxgTl8jg0+RgGouq+X0RuB/Qa2RIj07JqtPgIjxKUGEYy41OUalLRSGLdVmG4p6CE
+         YbHB189zeZoc36pTjUMQzzh2zOKvbPy5KFrGKHz7NQ9+/vH36VrNc4ayKqyzn0Onvjuu
+         5vvnjG5Bx0XXM5p/kVFC7W7Oc1maaDZTgji4bqhPs14vJCF0FaZrIl+u8tJBbigiN5tq
+         1yVXrHsG5Myiy29XyLsC4d2XVBlPq2degCiBMch4Lh0uGAJ+P8pRCbNVOJVrOIyF5hWh
+         /32HHjpm5wo8RwHTjc2XOB1n5D41AU+wNCgxqdU+NvWFBZxLqi5xVqt6SGsrl+1kJeP/
+         S0fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=I2bY8wt44U8gioXslAWPn4SYSC87I8ddc2E8Vr5B1O8=;
+        b=GweTl3rbCbXvBXA+raQZ1pgdc6j32YmeyzUtbuuZAsESDrssywHTnGKdRSaeKLBbFK
+         nmIZfO32YThIY8QCMrmIq+XpKO1vKOt3lE8rLY2mDs215GuMzdvifm6++ErJCZblnjOD
+         815ZiEJjkRPsl980R9l811wf1onv35+Qwtsyw5PSDsVint8tk+7MacerMaaBTKCT2K4Q
+         eU8CQcAtau19DLkLWi3mE3sstWTelibi0l5rNsv7rxTnA1ilY6fVDM13hAV4ZOKjlv8u
+         9B4FOujdfkZhWhOnFxKBmJqMUjM+/9KHPidhDT0w2lFfi9ABa5spnoWW9VImIz1OGz8U
+         jSYQ==
+X-Gm-Message-State: APjAAAVqTVIDBs/YvfGZdj3Cjl8beKh/bCRRM20driZGhjpejW3R5vEe
+        p9oRGF0vy8n6vd72dFYe1aiwiRju
+X-Google-Smtp-Source: APXvYqwE4izGIZu2wzmyollnmujJrbxz6DyP9k1peKUm0dMaerDS582LkgreFOefXzIt/g1EnlTW7Q==
+X-Received: by 2002:a2e:9f4c:: with SMTP id v12mr1645813ljk.167.1573810804047;
+        Fri, 15 Nov 2019 01:40:04 -0800 (PST)
+Received: from [172.31.190.83] ([86.57.146.226])
+        by smtp.gmail.com with ESMTPSA id b80sm4162838lfg.49.2019.11.15.01.40.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 15 Nov 2019 01:40:03 -0800 (PST)
+Subject: Re: [PATCHSET 0/2] io_uring support for linked timeouts
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-block@vger.kernel.org
+Cc:     zeba.hrvoje@gmail.com, liuyun01@kylinos.cn
+References: <20191105211130.6130-1-axboe@kernel.dk>
+ <4566889a-7e12-9bfd-b2a1-716d8b934684@gmail.com>
+ <9b6cd06b-cd6c-d7e5-157b-32c1e2e9ceac@kernel.dk>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Message-ID: <3c0ef10d-9524-e2e2-abf2-e1b0bcee9223@gmail.com>
+Date:   Fri, 15 Nov 2019 12:40:02 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+MIME-Version: 1.0
+In-Reply-To: <9b6cd06b-cd6c-d7e5-157b-32c1e2e9ceac@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-cached_cq_overflow already be increased in function
-io_cqring_overflow_flush().
+>> Finally got to this patch. I think, find it adding too many edge cases
+>> and it isn't integrated consistently into what we have now. I would love
+>> to hear your vision, but I'd try to implement them in such a way, that it
+>> doesn't need to modify the framework, at least for some particular case.
+>> In other words, as opcodes could have been added from the outside with a
+>> function table.
+> 
+> I agree, it could do with a bit of cleanup. Incrementals would be
+> appreciated!
+> 
+>> Also, it's not so consistent with the userspace API as well.
+>>
+>> 1. If we specified drain for the timeout, should its start be delayed
+>> until then? I would prefer so.
+>>
+>> E.g. send_msg + drained linked_timeout, which would set a timeout from the
+>> start of the send.
+> 
+> What cases would that apply to, what would the timeout even do in this
+> case? The point of the linked timeout is to abort the previous command.
+> Maybe I'm not following what you mean here.
+> 
+Hmm, got it a bit wrong with defer. io_queue_link_head() can defer it
+without setting timeout. However, it seems that io_wq_submit_work()
+won't set a timer, as it uses __io_submit_sqe(), but not
+__io_queue_sqe(), which handles all this with linked timeouts.
 
-Signed-off-by: Bob Liu <bob.liu@oracle.com>
----
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Indeed, maybe it be, that you wanted to place it in __io_submit_sqe?
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 55f8b1d..eb23451 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -701,7 +701,7 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res)
- 		WRITE_ONCE(cqe->flags, 0);
- 	} else if (ctx->cq_overflow_flushed) {
- 		WRITE_ONCE(ctx->rings->cq_overflow,
--				atomic_inc_return(&ctx->cached_cq_overflow));
-+				atomic_read(&ctx->cached_cq_overflow));
- 	} else {
- 		refcount_inc(&req->refs);
- 		req->result = res;
+>> 2. Why it could be only the second one in a link? May we want to cancel
+>> from a certain point?
+>> e.g. "op1 -> op2 -> timeout -> op3" cancels op2 and op3
+> 
+> Logically it need not be the second, it just has to follow another
+> request. Is there a bug there?
+> 
+__io_queue_sqe looks only for the second one in a link. Other linked
+timeouts will be ignored, if I get the code right.
+
+Also linking may (or __may not__) be an issue. As you remember, the head
+is linked through link_list, and all following with list.
+i.e. req_head.link_list <-> req.list <-> req.list <-> req.list
+
+free_req() (last time I saw it), expects that timeout's previous request
+is linked with link_list. If a timeout can fire in the middle of a link
+(during execution), this could be not the case. But it depends on when
+we set an timeout.
+
+BTW, personally I'd link them all through link_list. E.g. may get rid of
+splicing in free_req(). I'll try to make it later.
+
+>> 3. It's a bit strange, that the timeout affects a request from the left,
+>> and after as an consequence cancels everything on the right (i.e. chain).
+>> Could we place it in the head? So it would affect all requests on the right
+>> from it.
+> 
+> But that's how links work, though. If you keep linking, then everything
+> that depends on X will fail, if X itself isn't succesful.
+> 
+Right. That's about what userspace API would be saner. To place timeout
+on the left of a request, or on the right, with the same resulting effect.
+
+Let put this question away until the others are clear.
+
+>> 4. I'd prefer to handle it as a new generic command and setting a timer
+>> in __io_submit_sqe().
+>>
+>> I believe we can do it more gracefully, and at the same moment giving
+>> more freedom to the user. What do you think?
+> 
+> I just think we need to make sure the ground rules are sane. I'm going
+> to write a few test cases to make sure we do the right thing.
+> 
+
 -- 
-2.9.5
+Pavel Begunkov
 

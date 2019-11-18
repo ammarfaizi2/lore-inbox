@@ -2,238 +2,104 @@ Return-Path: <SRS0=qbCF=ZK=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94292C432C0
-	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 06:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5406CC432C0
+	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 14:32:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E8572075E
-	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 06:57:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28D5D2075E
+	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 14:32:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="b1+FApPy"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="jlf0kzvt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726740AbfKRG5N (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 18 Nov 2019 01:57:13 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:37694 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726483AbfKRG5M (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 18 Nov 2019 01:57:12 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAI6sLBY188241;
-        Mon, 18 Nov 2019 06:57:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2019-08-05;
- bh=LXsWMY8mgMd7/nL8114RICzRvsSGuoH9vWgcBN06dQI=;
- b=b1+FApPyqRSCcCEcFbUbtDWAYzB3bKG+8+WAUFYR2dIkaXM8F5T2/LeVwzeeOAP+rufm
- IMECGJcAX4ad4wyyMbQIR76z4rZv7bHHMtfmphAJIDDtgeuix8WVIMQvQpXYB/VrGvVy
- NnyGLsXU+WoKkXWCx+8SZGw5ahrgDQCZn7woPz7buoacqhNyyvuExY97rl1xpYns0i90
- pCyVKfrexz6wD7+xmsphcyHoEJtKNGAA7F+A55pbbxIS3ognMu/lYykixhGlxxP2e099
- RM2SEJzrU7hDRr8BPdQCHnevcpFdRfMKXTqakmsfhfe0xgwL9zV3+PSUFzX4/fvvhbjx aQ== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 2wa9rq61e5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 Nov 2019 06:57:09 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAI6sAuF013035;
-        Mon, 18 Nov 2019 06:57:09 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 2watjwx7sg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 Nov 2019 06:57:09 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xAI6v5a1024633;
-        Mon, 18 Nov 2019 06:57:06 GMT
-Received: from [192.168.1.14] (/114.88.246.185)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Sun, 17 Nov 2019 22:57:05 -0800
+        id S1726712AbfKROc2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 18 Nov 2019 09:32:28 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:36093 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726654AbfKROc1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 18 Nov 2019 09:32:27 -0500
+Received: by mail-io1-f68.google.com with SMTP id s3so18983630ioe.3
+        for <io-uring@vger.kernel.org>; Mon, 18 Nov 2019 06:32:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=YFuZXKHEZDZiros51MQ/+Eq9pFOMO+KvkdLuCUrnIk0=;
+        b=jlf0kzvtz8qydTumwPYO91Fr9FrwFXxN0Ia5nBMhqPszOZ+ms4xNm37Ydm5IoKeXNA
+         8YOvXWre6RWGi+dgNNoBCUKX3qXcNA45UrunzEPZV0XqENYAbnAxEHYXtZVcOU49M/Dz
+         f7a7yQ4YsFi7r4NG3IeBHap3wyUk5RGHJHv8mKMZ489gdtJe5rF/IeQmDr8m+w1/s42e
+         68BGt1IF2iFrlfwVymnsz0HdywbQ8fojWruGLurklxtBXf4MgbCHroSSki0RFbN8ragz
+         i3WaXvhQaLI6nUpeJ2dyNBWm9gylzcpWIM2rvbkX6OJjag+fZEGFF8W3aA8n3pXgfrEP
+         Dn7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=YFuZXKHEZDZiros51MQ/+Eq9pFOMO+KvkdLuCUrnIk0=;
+        b=iUvvH0dPrrYCB6IwPLRXkOJQqk7JaXaYBvo7G16yIJJGfb/kaNRvCZIZkRqZxl5+EY
+         nbrL8A+jeg+69m81gHoBpBX60Ep+DTef0/tltyaeB8rc4LY3PxN3bjZa7bUNoD7W7gFt
+         9p4kwMvXAHVMXNqNHNSLPvKYxde5V+9mZTkOOKvVfztF+hyVjCaz6cfyg0FIQnziOUgZ
+         9CkIVh7AViIbxBMWEUX61Y0Wd2aF5mzuHUfhSkkizBrZGGVS4OtAamOOYSq2cs9yar+8
+         jGGzXSvTZbdThHM0VS1zUkq0NzrhAoMq0px5SPO7N9a6/8KY4VqyyBflHQyBl0ZkrPl9
+         RYfQ==
+X-Gm-Message-State: APjAAAWYmLPlmPXvE2mkweLmOYtcFnhJYje5jiqlFeXkDaam0WTJ3vQX
+        pFnlCCXKIou7DCGVGEnS/ub0EhOsJY4=
+X-Google-Smtp-Source: APXvYqxm3z77Y8mKz/LZF3CGrb/zi+eK4ut1BRWFJ6ztF+923CgAwIjQvYmgATd8vRfrThF5hIJTBg==
+X-Received: by 2002:a5e:8f0a:: with SMTP id c10mr13569291iok.115.1574087544911;
+        Mon, 18 Nov 2019 06:32:24 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id o11sm3619787ioo.58.2019.11.18.06.32.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Nov 2019 06:32:24 -0800 (PST)
 Subject: Re: [PATCH v2] io_uring: provide fallback request for OOM situations
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+To:     Bob Liu <bob.liu@oracle.com>, io-uring@vger.kernel.org
 References: <55798841-7303-525c-fe38-c3fb4fc47a65@kernel.dk>
-From:   Bob Liu <bob.liu@oracle.com>
-Message-ID: <d86e30fb-6c33-a9cf-40bf-28a0350eef52@oracle.com>
-Date:   Mon, 18 Nov 2019 14:57:00 +0800
+ <d86e30fb-6c33-a9cf-40bf-28a0350eef52@oracle.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <8fe5df76-d89b-5792-8f2f-8e1ccf74a4ba@kernel.dk>
+Date:   Mon, 18 Nov 2019 07:32:22 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.1
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <55798841-7303-525c-fe38-c3fb4fc47a65@kernel.dk>
+In-Reply-To: <d86e30fb-6c33-a9cf-40bf-28a0350eef52@oracle.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9444 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1911180060
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9444 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1911180060
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/9/19 5:25 AM, Jens Axboe wrote:
-> One thing that really sucks for userspace APIs is if the kernel passes
-> back -ENOMEM/-EAGAIN for resource shortages. The application really has
-> no idea of what to do in those cases. Should it try and reap
-> completions? Probably a good idea. Will it solve the issue? Who knows.
+On 11/17/19 11:57 PM, Bob Liu wrote:
+> On 11/9/19 5:25 AM, Jens Axboe wrote:
+>> One thing that really sucks for userspace APIs is if the kernel passes
+>> back -ENOMEM/-EAGAIN for resource shortages. The application really has
+>> no idea of what to do in those cases. Should it try and reap
+>> completions? Probably a good idea. Will it solve the issue? Who knows.
+>>
+>> This patch adds a simple fallback mechanism if we fail to allocate
+>> memory for a request. If we fail allocating memory from the slab for a
+>> request, we punt to a pre-allocated request. There's just one of these
+>> per io_ring_ctx, but the important part is if we ever return -EBUSY to
+>> the application, the applications knows that it can wait for events and
+>> make forward progress when events have completed. This is the important
+>> part.
+>>
 > 
-> This patch adds a simple fallback mechanism if we fail to allocate
-> memory for a request. If we fail allocating memory from the slab for a
-> request, we punt to a pre-allocated request. There's just one of these
-> per io_ring_ctx, but the important part is if we ever return -EBUSY to
-> the application, the applications knows that it can wait for events and
-> make forward progress when events have completed. This is the important
-> part.
-> 
+> I'm lost how -EBUSY will be returned if allocating from the pre-allocated request.
+> Could you please explain a bit more?
 
-I'm lost how -EBUSY will be returned if allocating from the pre-allocated request.
-Could you please explain a bit more? 
+The patch actually returns -EAGAIN, not -EBUSY... The last -EBUSY
+mention in that commit message should be -EAGAIN.
 
-Thanks, -Bob
+But the point is that if you get a busy return back, then you know that
+things are moving forward as we have a backup request. This is a similar
+concept to the mempools we have in the kernel, have any kind of reserve
+guarantees forward progress.
 
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> 
-> ---
-> 
-> Changes since v1:
-> - Get rid of the GFP_ATOMIC fallback, just provide the fallback. That
->   should be plenty, and we probably don't want to dip into the atomic
->   pool if GFP_KERNEL failed.
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 1e4c1b7eac6e..81457913e9c9 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -238,6 +238,9 @@ struct io_ring_ctx {
->  	/* 0 is for ctx quiesce/reinit/free, 1 is for sqo_thread started */
->  	struct completion	*completions;
->  
-> +	/* if all else fails... */
-> +	struct io_kiocb		*fallback_req;
-> +
->  #if defined(CONFIG_UNIX)
->  	struct socket		*ring_sock;
->  #endif
-> @@ -407,6 +410,10 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
->  	if (!ctx)
->  		return NULL;
->  
-> +	ctx->fallback_req = kmem_cache_alloc(req_cachep, GFP_KERNEL);
-> +	if (!ctx->fallback_req)
-> +		goto err;
-> +
->  	ctx->completions = kmalloc(2 * sizeof(struct completion), GFP_KERNEL);
->  	if (!ctx->completions)
->  		goto err;
-> @@ -432,6 +439,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
->  	INIT_LIST_HEAD(&ctx->inflight_list);
->  	return ctx;
->  err:
-> +	if (ctx->fallback_req)
-> +		kmem_cache_free(req_cachep, ctx->fallback_req);
->  	kfree(ctx->completions);
->  	kfree(ctx);
->  	return NULL;
-> @@ -711,6 +720,23 @@ static void io_cqring_add_event(struct io_kiocb *req, long res)
->  	io_cqring_ev_posted(ctx);
->  }
->  
-> +static inline bool io_is_fallback_req(struct io_kiocb *req)
-> +{
-> +	return req == (struct io_kiocb *)
-> +			((unsigned long) req->ctx->fallback_req & ~1UL);
-> +}
-> +
-> +static struct io_kiocb *io_get_fallback_req(struct io_ring_ctx *ctx)
-> +{
-> +	struct io_kiocb *req;
-> +
-> +	req = ctx->fallback_req;
-> +	if (!test_and_set_bit_lock(0, (unsigned long *) ctx->fallback_req))
-> +		return req;
-> +
-> +	return NULL;
-> +}
-> +
->  static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
->  				   struct io_submit_state *state)
->  {
-> @@ -723,7 +749,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
->  	if (!state) {
->  		req = kmem_cache_alloc(req_cachep, gfp);
->  		if (unlikely(!req))
-> -			goto out;
-> +			goto fallback;
->  	} else if (!state->free_reqs) {
->  		size_t sz;
->  		int ret;
-> @@ -738,7 +764,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
->  		if (unlikely(ret <= 0)) {
->  			state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
->  			if (!state->reqs[0])
-> -				goto out;
-> +				goto fallback;
->  			ret = 1;
->  		}
->  		state->free_reqs = ret - 1;
-> @@ -750,6 +776,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
->  		state->cur_req++;
->  	}
->  
-> +got_it:
->  	req->file = NULL;
->  	req->ctx = ctx;
->  	req->flags = 0;
-> @@ -758,7 +785,10 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
->  	req->result = 0;
->  	INIT_IO_WORK(&req->work, io_wq_submit_work);
->  	return req;
-> -out:
-> +fallback:
-> +	req = io_get_fallback_req(ctx);
-> +	if (req)
-> +		goto got_it;
->  	percpu_ref_put(&ctx->refs);
->  	return NULL;
->  }
-> @@ -788,7 +818,10 @@ static void __io_free_req(struct io_kiocb *req)
->  		spin_unlock_irqrestore(&ctx->inflight_lock, flags);
->  	}
->  	percpu_ref_put(&ctx->refs);
-> -	kmem_cache_free(req_cachep, req);
-> +	if (likely(!io_is_fallback_req(req)))
-> +		kmem_cache_free(req_cachep, req);
-> +	else
-> +		clear_bit_unlock(0, (unsigned long *) ctx->fallback_req);
->  }
->  
->  static bool io_link_cancel_timeout(struct io_kiocb *req)
-> @@ -1000,8 +1033,8 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
->  			 * completions for those, only batch free for fixed
->  			 * file and non-linked commands.
->  			 */
-> -			if ((req->flags & (REQ_F_FIXED_FILE|REQ_F_LINK)) ==
-> -			    REQ_F_FIXED_FILE) {
-> +			if (((req->flags & (REQ_F_FIXED_FILE|REQ_F_LINK)) ==
-> +			    REQ_F_FIXED_FILE) && !io_is_fallback_req(req)) {
->  				reqs[to_free++] = req;
->  				if (to_free == ARRAY_SIZE(reqs))
->  					io_free_req_many(ctx, reqs, &to_free);
-> @@ -4119,6 +4152,7 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
->  				ring_pages(ctx->sq_entries, ctx->cq_entries));
->  	free_uid(ctx->user);
->  	kfree(ctx->completions);
-> +	kmem_cache_free(req_cachep, ctx->fallback_req);
->  	kfree(ctx);
->  }
->  
-> 
+-- 
+Jens Axboe
 

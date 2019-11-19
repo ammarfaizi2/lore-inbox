@@ -1,116 +1,110 @@
-Return-Path: <SRS0=qbCF=ZK=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=5OhC=ZL=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 936EEC432C0
-	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 19:25:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D93EC432C0
+	for <io-uring@archiver.kernel.org>; Tue, 19 Nov 2019 06:22:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 660C522304
-	for <io-uring@archiver.kernel.org>; Mon, 18 Nov 2019 19:25:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51F2F20857
+	for <io-uring@archiver.kernel.org>; Tue, 19 Nov 2019 06:22:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="F0ZiBNdk"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="SpsxFGdp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfKRTZx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 18 Nov 2019 14:25:53 -0500
-Received: from mail-il1-f170.google.com ([209.85.166.170]:38954 "EHLO
-        mail-il1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726541AbfKRTZx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 18 Nov 2019 14:25:53 -0500
-Received: by mail-il1-f170.google.com with SMTP id a7so17091835ild.6
-        for <io-uring@vger.kernel.org>; Mon, 18 Nov 2019 11:25:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=lj4X6tMV0lVYUzuEqZtweMBrD+Aq3LwiDPXSWpptqKg=;
-        b=F0ZiBNdk1pRv5ixMqyWZWUVPLhX+ffHK7WNvdK/eVdhMIdeaZU+E3PCEJCnDGN3Ygn
-         /8OJvP7/hnEK3NaZ62Cz/e7qUeBkdzUdx3OkFbbEOZSm0piWdN9LXHq3jkRNB5wjKg3L
-         h7p43X04zaBqxPMrURFuPNP+nehjHlV0BXhGCKUEPhYCLi+kDZgIG7Z9BjJudPJ0mJ2V
-         hMOX2TlMlMLpEfGtWcTUeQWk8XPNEdks/8uXbnSCgWQC40PwRhdLqLBsuDj3BvtT7IFp
-         ge0PtkJ7qKxGPqpWe5G1kiHKSGzi/jOOz59W/ccMCC1wqfuGTZ+lXqIDTlDHs3Zfd0bH
-         RSIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=lj4X6tMV0lVYUzuEqZtweMBrD+Aq3LwiDPXSWpptqKg=;
-        b=FzO8ILAeiMDTVqgR9HamKpqRIYMECyUOeuOAy2mNeG+ZvJGDOQ81tzdvMMiJnaw2lT
-         GKorlm4MjAdTIwmHzpJdX4cNIHlJ0HcLDNp9Dt/2AN4XWd3vDzNWKIntoWqTrmDJc+vu
-         oik0DxsjuUeaVINhuai1DVz+CGbp97001Q+Fv/Lmzakfb6vUc91PZTIUgYeo56UiX1q1
-         /S5/N/ONtM19lI3enjYYW8193ondlAUeeFkyZHxkR+X0GuTVLkK2D2MgtbHxwoDud+m7
-         jFB/texda5Cgz+ceVKCV5iFjG/WqZ3TD8NKAP74+xf+dYZWvS9ToVcJkHlKOGj0yumA5
-         v1FQ==
-X-Gm-Message-State: APjAAAWAdtKTWI8NTIjhe0Us/Xs8GjYWCkIfYHFwyvj5PGVYGTAyzaM1
-        RWArvmHuiPOJWwOE7SnMg6eCrXyanEg=
-X-Google-Smtp-Source: APXvYqzYL8L0e7fFnnmScOurWB/HMp/qMO73cmb+DNmwHYmDfYn9R6s5XhNP8YQiM6Np4ZeufJy+XQ==
-X-Received: by 2002:a92:868f:: with SMTP id l15mr17970393ilh.199.1574105150027;
-        Mon, 18 Nov 2019 11:25:50 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id k4sm3598397iof.61.2019.11.18.11.25.48
-        for <io-uring@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Nov 2019 11:25:48 -0800 (PST)
-To:     io-uring@vger.kernel.org
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: request cancellations should break links
-Message-ID: <78cb69d4-81e1-5cda-7b43-bba5d4ce76ef@kernel.dk>
-Date:   Mon, 18 Nov 2019 12:25:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1727121AbfKSGWe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Nov 2019 01:22:34 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:33616 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726671AbfKSGWd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Nov 2019 01:22:33 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAJ69GPn164783;
+        Tue, 19 Nov 2019 06:22:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : mime-version : content-type; s=corp-2019-08-05;
+ bh=wy+lF6MYsnlvt3ZFLCMryc3CssDPfdNSh6CIREwmXoY=;
+ b=SpsxFGdpVfY67u71UbRQ99zRWPdoBJH/1+t27vsdZA6o7KqmA5dB+4ceDK2jyrRBE9nu
+ /l4bvHNZVgjFiwYbrLk2L77UBWpMhEtB+3sy7xrHv1KTqkrFOJ60MnNTXDpb4CmoSfW9
+ kcnUcf8+BB1fseU8Wp2wQ+Th37JZvm9UnuGOjHi9+kdS9FOX8LIdnUDxXGji0qYVhMWD
+ 7yoU0aoiRJx09TzYtN+FGzAh7S82KfpiRahzFK3W7ntpMtJe7Yj/PQKIcI1UVZV9j0/g
+ DsMOPASnV02zxaioYF2MOnqgivq3ibz8qadhP9OiQ9PvHJooRJEfqlATxNMXET9ZRq6u 3w== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2130.oracle.com with ESMTP id 2wa8htmtqn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Nov 2019 06:22:27 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAJ68iYj034560;
+        Tue, 19 Nov 2019 06:22:26 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3030.oracle.com with ESMTP id 2wc0afu0w9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Nov 2019 06:22:26 +0000
+Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xAJ6MPsM026518;
+        Tue, 19 Nov 2019 06:22:25 GMT
+Received: from kili.mountain (/41.210.141.188)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 18 Nov 2019 22:22:25 -0800
+Date:   Tue, 19 Nov 2019 09:22:16 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+Subject: [PATCH] io-wq: remove extra space characters
+Message-ID: <20191119062216.qhxmnrt2rdioirja@kili.mountain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9445 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=987
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-1911190057
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9445 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-1911190057
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We currently don't explicitly break links if a request is cancelled, but
-we should. Add explicitly link breakage for all types of request
-cancellations that we support.
+These lines are indented an extra space character.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 ---
+We often see this where the lines after a comment are indented one
+space extra.  I don't know if it's an editor thing maybe?
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c9f810a75ef6..ebc58f896088 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2112,6 +2112,8 @@ static void io_poll_complete_work(struct io_wq_work **workptr)
- 
- 	io_cqring_ev_posted(ctx);
- 
-+	if (ret < 0 && req->flags & REQ_F_LINK)
-+		req->flags |= REQ_F_FAIL_LINK;
- 	io_put_req_find_next(req, &nxt);
- 	if (nxt)
- 		*workptr = &nxt->work;
-@@ -2325,6 +2327,8 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- 	if (ret == -1)
- 		return -EALREADY;
- 
-+	if (req->flags & REQ_F_LINK)
-+		req->flags |= REQ_F_FAIL_LINK;
- 	io_cqring_fill_event(req, -ECANCELED);
- 	io_put_req(req);
- 	return 0;
-@@ -2826,6 +2830,8 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
- 
- 	if (prev) {
-+		if (prev->flags & REQ_F_LINK)
-+			prev->flags |= REQ_F_FAIL_LINK;
- 		io_async_find_and_cancel(ctx, req, prev->user_data, NULL,
- 						-ETIME);
- 		io_put_req(prev);
+ fs/io-wq.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index fcb6c74209da..6d8f5e6c8167 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -333,9 +333,9 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 	 * If worker is moving from bound to unbound (or vice versa), then
+ 	 * ensure we update the running accounting.
+ 	 */
+-	 worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
+-	 work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
+-	 if (worker_bound != work_bound) {
++	worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
++	work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
++	if (worker_bound != work_bound) {
+ 		io_wqe_dec_running(wqe, worker);
+ 		if (work_bound) {
+ 			worker->flags |= IO_WORKER_F_BOUND;
 -- 
-Jens Axboe
+2.11.0
 

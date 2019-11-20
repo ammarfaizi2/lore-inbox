@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3399C432C0
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 20:09:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF04DC43215
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 20:09:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 774BC2075E
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 20:09:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B4822075E
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 20:09:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="I+9wocZz"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="OMkir3o5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726979AbfKTUJw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 Nov 2019 15:09:52 -0500
-Received: from mail-io1-f68.google.com ([209.85.166.68]:43499 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726634AbfKTUJw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 15:09:52 -0500
-Received: by mail-io1-f68.google.com with SMTP id r2so598447iot.10
-        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 12:09:51 -0800 (PST)
+        id S1727179AbfKTUJx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 Nov 2019 15:09:53 -0500
+Received: from mail-il1-f194.google.com ([209.85.166.194]:37676 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726634AbfKTUJx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 15:09:53 -0500
+Received: by mail-il1-f194.google.com with SMTP id s5so873324iln.4
+        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 12:09:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ik5XcjTy71gxzhPruo51C1MXiDESR5Nb2Gjfnjx5Ozo=;
-        b=I+9wocZzmaPBcL8hUw9LAEJ1sOj3YRXdcxCACs0irvEmzH8Sw+9AduVCOyKKcTyE2/
-         3iufeN0OPDYm7uXERFzK/o7JamUoKWZe7+XJ8itnc2Pd658bJpFdkmnasUimGODhYc5H
-         WHoAyFAxiV84xhO3Jo1zgpCvLEBU3Vl5z1Jpdxa7n+ZfCqD06u2SGgKR60QQ4qSmIsdO
-         3XscYVF0Zy5CleQZQaA0OATk/G9wcWWbOeUj8b26JC4GYfFZ+xrD9X1MMpckgux19hHJ
-         wm+GSqkVFr2rlLYicK/SeRXYuM8DFp2ldGJUurZuY2rN/4Uj8QQEhdiyh9umrMdMnF33
-         SHyw==
+        bh=xw+nr8IoUPO7BUZAplZBKLjjSduKoITOhRe8sSruUyA=;
+        b=OMkir3o5JIXhBU7r5EWmPndGej58XkehmDKgBEfCl4I8qIGG58pcujlFChod7QUsbw
+         p+8h+JEsZyJUTa/gHQD7Kf+58UQgSjKN8mFz/WqDRJoDoZiUi0hf0ri13K4EyEDIDxsy
+         iBlZzIhPNWkGJWdwmuZmYc2Oa478+7AKuQFh6wm+rW8zi+3o6cTd+1DIAtBkgQqwN6I8
+         YresPI78uLTNK5w2yS05/8uC/9+wjvv+aA8pYvDS+WrEaxGQ8J/lkOHbzjRq3FfoYxvX
+         UQSF5C1pYZE/fG2rsc5bIzeRIJsBwe/54pliMyDWqvH8pQM17BuZzVeCsdiIRfCDl3fU
+         IJnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ik5XcjTy71gxzhPruo51C1MXiDESR5Nb2Gjfnjx5Ozo=;
-        b=TBh7FD6SlRSK0JhqL7SXIeawCYTeNT5gGKWHv9QzTR+YBPP9gwNPJel4851H1B6BV+
-         eH2XVDWpr0LBOJizbY+qTAt6RDvCvPKFdQz/c7b0pTyUw23oeJmCfuTQibg27VMcGI0m
-         1K5XR67zg9cTFDqVj5bspUciz1pOP3SMBipkIADCTcsFWwpwXXsytJkO1ZhtB6SkQ2bM
-         G0STo/c4Qm1bnZILslkm9M2m1xmvkgmS1chrGOAUBHz2vOR8lgNtdnGgHUStO6tJuyBp
-         3xH0ZObN3XnsSx/ZAO7BdHHHZiB6PQmMy60ab0l7p12svLwoU9VSjdfix0B5W7epelBz
-         /s1g==
-X-Gm-Message-State: APjAAAVK3B+QRdmhbeE4a/e29+wNs9FG/ZKMqhlk+f7UA27+chKu1UvL
-        PXfvqNLuiKOhqdoeknXlsjDrkYe1r2+7aA==
-X-Google-Smtp-Source: APXvYqyTSSjFccEYpOPDzKbT3YuyLDm5sz+laWGDoG9D27AT64Jb7Hq6YcEwmLz0mRCIn2rL60dEkA==
-X-Received: by 2002:a02:c98e:: with SMTP id b14mr4835942jap.133.1574280590311;
-        Wed, 20 Nov 2019 12:09:50 -0800 (PST)
+        bh=xw+nr8IoUPO7BUZAplZBKLjjSduKoITOhRe8sSruUyA=;
+        b=OxLFuF9E8AntbF1kDSHykSobp/eHOtVOM59Uo7krt0oIw/4VALATyeYegwivKGWaa8
+         EGXKA0/Ump/d7pd9c6wFtXbd7WlixVGXJNPy5oDSEht6Fmjh5xj5dhQ58XotOZlXex0O
+         CUO78sc+RyWKfoy41BNagQJi4iDX8Df71h4UFX7gBbEbTqwyaDx+VS9ZIU4gI45ss5CD
+         W932G971k0WM5dLsCrmiSGBY+cJGxW3hp1sfhcfKx6j7KrPlmqdbMZ3TNhQwNFOdlKQZ
+         kVHGyOjJe7vPHt879GoOa3Qax3P4cBpLtBjeEfI0lMAQ6OPNizu3BZ4mFHQCDjwCdjs1
+         FGRQ==
+X-Gm-Message-State: APjAAAXTkgrsh99Eu+qTahj6Z10ZfjMXOCw/RDHtBFqnQe/RS77UIeEi
+        TWKlsB0fT3yRFZKoVHWSEEcW0eWnwXKtMw==
+X-Google-Smtp-Source: APXvYqw3LVWAKEFUYHRUm/n28mZZAdk55Flg2wkeDo6nQ1FLd3xoimRmVDcLoHENKxOLPhSsdCd0mg==
+X-Received: by 2002:a92:690c:: with SMTP id e12mr5364309ilc.153.1574280591923;
+        Wed, 20 Nov 2019 12:09:51 -0800 (PST)
 Received: from x1.thefacebook.com ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id e25sm48012iol.36.2019.11.20.12.09.48
+        by smtp.gmail.com with ESMTPSA id e25sm48012iol.36.2019.11.20.12.09.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Nov 2019 12:09:49 -0800 (PST)
+        Wed, 20 Nov 2019 12:09:50 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     asml.silence@gmail.com, Jens Axboe <axboe@kernel.dk>,
-        syzbot+0f1cc17f85154f400465@syzkaller.appspotmail.com
-Subject: [PATCH 1/7] io-wq: wait for io_wq_create() to setup necessary workers
-Date:   Wed, 20 Nov 2019 13:09:29 -0700
-Message-Id: <20191120200936.22588-2-axboe@kernel.dk>
+Cc:     asml.silence@gmail.com, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/2] io_uring: allow finding next link independent of req reference count
+Date:   Wed, 20 Nov 2019 13:09:30 -0700
+Message-Id: <20191120200936.22588-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191120200936.22588-1-axboe@kernel.dk>
 References: <20191120200936.22588-1-axboe@kernel.dk>
@@ -71,148 +70,89 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We currently have a race where if setup is really slow, we can be
-calling io_wq_destroy() before we're done setting up. This will cause
-the caller to get stuck waiting for the manager to set things up, but
-the manager already exited.
+We currently try and start the next link when we put the request, and
+only if we were going to free it. This means that the optimization to
+continue executing requests from the same context often fails, as we're
+not putting the final reference.
 
-Fix this by doing a sync setup of the manager. This also fixes the case
-where if we failed creating workers, we'd also get stuck.
+Add REQ_F_LINK_NEXT to keep track of this, and allow io_uring to find the
+next request more efficiently.
 
-In practice this race window was really small, as we already wait for
-the manager to start. Hence someone would have to call io_wq_destroy()
-after the task has started, but before it started the first loop. The
-reported test case forked tons of these, which is why it became an
-issue.
-
-Reported-by: syzbot+0f1cc17f85154f400465@syzkaller.appspotmail.com
-Fixes: 771b53d033e8 ("io-wq: small threadpool implementation for io_uring")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c | 38 ++++++++++++++++++++++++++------------
- 1 file changed, 26 insertions(+), 12 deletions(-)
+ fs/io_uring.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 9174007ce107..1f640c489f7c 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -33,6 +33,7 @@ enum {
- enum {
- 	IO_WQ_BIT_EXIT		= 0,	/* wq exiting */
- 	IO_WQ_BIT_CANCEL	= 1,	/* cancel work on list */
-+	IO_WQ_BIT_ERROR		= 2,	/* error on setup */
- };
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 066b59ffb54e..132a890368bf 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -340,6 +340,7 @@ struct io_kiocb {
+ #define REQ_F_NOWAIT		1	/* must not punt to workers */
+ #define REQ_F_IOPOLL_COMPLETED	2	/* polled IO has completed */
+ #define REQ_F_FIXED_FILE	4	/* ctx owns file */
++#define REQ_F_LINK_NEXT		8	/* already grabbed next link */
+ #define REQ_F_IO_DRAIN		16	/* drain existing IO first */
+ #define REQ_F_IO_DRAINED	32	/* drain done */
+ #define REQ_F_LINK		64	/* linked sqes */
+@@ -874,6 +875,10 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ 	struct io_kiocb *nxt;
+ 	bool wake_ev = false;
  
- enum {
-@@ -562,14 +563,14 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
- 	spin_unlock_irq(&wqe->lock);
- }
- 
--static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
-+static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- {
- 	struct io_wqe_acct *acct =&wqe->acct[index];
- 	struct io_worker *worker;
- 
- 	worker = kcalloc_node(1, sizeof(*worker), GFP_KERNEL, wqe->node);
- 	if (!worker)
--		return;
-+		return false;
- 
- 	refcount_set(&worker->ref, 1);
- 	worker->nulls_node.pprev = NULL;
-@@ -581,7 +582,7 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 				"io_wqe_worker-%d/%d", index, wqe->node);
- 	if (IS_ERR(worker->task)) {
- 		kfree(worker);
--		return;
-+		return false;
- 	}
- 
- 	spin_lock_irq(&wqe->lock);
-@@ -599,6 +600,7 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 		atomic_inc(&wq->user->processes);
- 
- 	wake_up_process(worker->task);
-+	return true;
- }
- 
- static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
-@@ -606,9 +608,6 @@ static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
- {
- 	struct io_wqe_acct *acct = &wqe->acct[index];
- 
--	/* always ensure we have one bounded worker */
--	if (index == IO_WQ_ACCT_BOUND && !acct->nr_workers)
--		return true;
- 	/* if we have available workers or no work, no need */
- 	if (!hlist_nulls_empty(&wqe->free_list) || !io_wqe_run_queue(wqe))
- 		return false;
-@@ -621,10 +620,19 @@ static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
- static int io_wq_manager(void *data)
- {
- 	struct io_wq *wq = data;
-+	int i;
- 
--	while (!kthread_should_stop()) {
--		int i;
-+	/* create fixed workers */
-+	for (i = 0; i < wq->nr_wqes; i++) {
-+		if (create_io_worker(wq, wq->wqes[i], IO_WQ_ACCT_BOUND))
-+			continue;
-+		goto err;
-+	}
- 
-+	refcount_set(&wq->refs, wq->nr_wqes);
-+	complete(&wq->done);
++	/* Already got next link */
++	if (req->flags & REQ_F_LINK_NEXT)
++		return;
 +
-+	while (!kthread_should_stop()) {
- 		for (i = 0; i < wq->nr_wqes; i++) {
- 			struct io_wqe *wqe = wq->wqes[i];
- 			bool fork_worker[2] = { false, false };
-@@ -644,6 +652,10 @@ static int io_wq_manager(void *data)
- 		schedule_timeout(HZ);
+ 	/*
+ 	 * The list should never be empty when we are called here. But could
+ 	 * potentially happen if the chain is messed up, check to be on the
+@@ -910,6 +915,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ 		break;
  	}
  
-+	return 0;
-+err:
-+	set_bit(IO_WQ_BIT_ERROR, &wq->state);
-+	complete(&wq->done);
- 	return 0;
++	req->flags |= REQ_F_LINK_NEXT;
+ 	if (wake_ev)
+ 		io_cqring_ev_posted(ctx);
+ }
+@@ -946,12 +952,10 @@ static void io_fail_links(struct io_kiocb *req)
+ 	io_cqring_ev_posted(ctx);
  }
  
-@@ -982,7 +994,6 @@ struct io_wq *io_wq_create(unsigned bounded, struct mm_struct *mm,
- 	wq->user = user;
- 
- 	i = 0;
--	refcount_set(&wq->refs, wq->nr_wqes);
- 	for_each_online_node(node) {
- 		struct io_wqe *wqe;
- 
-@@ -1020,6 +1031,10 @@ struct io_wq *io_wq_create(unsigned bounded, struct mm_struct *mm,
- 	wq->manager = kthread_create(io_wq_manager, wq, "io_wq_manager");
- 	if (!IS_ERR(wq->manager)) {
- 		wake_up_process(wq->manager);
-+		wait_for_completion(&wq->done);
-+		if (test_bit(IO_WQ_BIT_ERROR, &wq->state))
-+			goto err;
-+		reinit_completion(&wq->done);
- 		return wq;
- 	}
- 
-@@ -1041,10 +1056,9 @@ void io_wq_destroy(struct io_wq *wq)
+-static void io_free_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
++static void io_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
  {
- 	int i;
- 
--	if (wq->manager) {
--		set_bit(IO_WQ_BIT_EXIT, &wq->state);
-+	set_bit(IO_WQ_BIT_EXIT, &wq->state);
-+	if (wq->manager)
- 		kthread_stop(wq->manager);
+-	if (likely(!(req->flags & REQ_F_LINK))) {
+-		__io_free_req(req);
++	if (likely(!(req->flags & REQ_F_LINK)))
+ 		return;
 -	}
  
- 	rcu_read_lock();
- 	for (i = 0; i < wq->nr_wqes; i++) {
+ 	/*
+ 	 * If LINK is set, we have dependent requests in this chain. If we
+@@ -977,7 +981,11 @@ static void io_free_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
+ 	} else {
+ 		io_req_link_next(req, nxt);
+ 	}
++}
+ 
++static void io_free_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
++{
++	io_req_find_next(req, nxt);
+ 	__io_free_req(req);
+ }
+ 
+@@ -994,8 +1002,10 @@ static void io_put_req_find_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ {
+ 	struct io_kiocb *nxt = NULL;
+ 
++	io_req_find_next(req, &nxt);
++
+ 	if (refcount_dec_and_test(&req->refs))
+-		io_free_req_find_next(req, &nxt);
++		__io_free_req(req);
+ 
+ 	if (nxt) {
+ 		if (nxtptr)
 -- 
 2.24.0
 

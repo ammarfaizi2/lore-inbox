@@ -2,67 +2,72 @@ Return-Path: <SRS0=jdTg=ZM=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9A3EC432C0
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 16:28:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54A10C432C0
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 17:19:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9DF4220715
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 16:28:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2084720878
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 17:19:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="P3PLCRvj"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="0VooOCZB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729857AbfKTQ2Z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 Nov 2019 11:28:25 -0500
-Received: from mail-io1-f66.google.com ([209.85.166.66]:37069 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729397AbfKTQ2Z (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 11:28:25 -0500
-Received: by mail-io1-f66.google.com with SMTP id 1so28310104iou.4
-        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 08:28:24 -0800 (PST)
+        id S1726771AbfKTRTU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 Nov 2019 12:19:20 -0500
+Received: from mail-il1-f194.google.com ([209.85.166.194]:38324 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728142AbfKTRTU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 12:19:20 -0500
+Received: by mail-il1-f194.google.com with SMTP id u17so361579ilq.5
+        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 09:19:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=9CdKL+7bmWYLkA6nTpQYIf300RqKGDgWTQHsjyx754k=;
-        b=P3PLCRvj+9jNZr6oSoqhgmx3Td8cesIp97ty028AgWp36xAYJ3cszo/dBp/DgEvoif
-         T7nkMw3WOUnRYhm3cJ1PyQvLb6ARJ+0Nbw+JTdZxh9voeyn3XaaTxSjh6nQlD0ReYZ6D
-         vcLDSWIBCW3dPrbWEVfQJEzEXrviCSqpMuTDWfj+VSPPZujyc5NyyGCldJtAg93faMGS
-         Q23K1VJXbbHcLPPxHiIFJdFod40CbPhLwHRJkOJlzd6NvdclBogVN70NOO+b2qXZiaX2
-         NyJo3gqiDGB3IZsIazO81J7QHoD0h7ASkyLVFxBDw3tE0rmeEUqN8EY3itQbf6OEe/Hq
-         q2bg==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=rK8mECBCSGqzquyDZulskWQVqqh35iX5G6zP6lQLGoA=;
+        b=0VooOCZBpr3y9m1hLDy8oCc1d5Rbl65Hp3XJP4o1sfuFrXqnxes5mw1+A9wdjXzMYx
+         3aAc3jeobkmGsayJBIFbH0Grt1Pn1ylpIAcJ7DOnstAoybwYclLvZ34LThYEeiuczuhH
+         Meuc17ehT0jBp9yqFuUQQIGvw9NAm9pC1aUG0TXklmhs3F9bbLmzfbNsXzWZ0XPXxHOl
+         2d96B1c/u0WCIj9xz8ronl9kYnIfbBGUY5WTkbPG7465ApJnyXzAKMLJOwKELX+bjKZN
+         cnfFKjnDFhHkMJm66CWb5wlEuBhuRYLBU/Rv4VX4atTzBEVAKKG2KIZk/S+ZbDL4HIdh
+         /yzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=9CdKL+7bmWYLkA6nTpQYIf300RqKGDgWTQHsjyx754k=;
-        b=UayK8tuSrsc2wtSDZ9oe/mxz20btwSqQQVe43LB1gXNmh4KdiXiXM7BoGylA+3G66N
-         fLOiJlCCKV46Qmd6fA2U1ek+yMyWPIsYURBW2qcrszMCxsOeHQE58tQdj97JKq9OnNmJ
-         yo1QBeJ45PxLCDBpntah0E65srs8o1l0sUTYtOIoqLpheUiKezTdsBF223sNRmsiT5nC
-         Jfs83G2Qc9ekrSg0ihN01tPm6lmQzbKsIq+Kho8FqCc59Vo9OYs9mnDkzjNZzQjzpjGs
-         FLHhAAJ0+6UjvOxrbTarQAYkdmUc3huMa87MEQ9VxJFOEsaywBLAM7ANB3ZKltjzFNOb
-         sapQ==
-X-Gm-Message-State: APjAAAVMfQzhJJWtIh9nyM6sf1v6C0Wx+BFxwreTB6id7LqCjUQsCgrk
-        XfzxVVrybJaGyXGXf5eA3qQsgYWq6jlEig==
-X-Google-Smtp-Source: APXvYqw/0IVHtFpv+GRLyHmN3vgW6RgBVgHf9WDystI//fnkrOhtCb2uS2V5wBfRx2pGRZBb8y7doA==
-X-Received: by 2002:a6b:6002:: with SMTP id r2mr2761888iog.148.1574267303377;
-        Wed, 20 Nov 2019 08:28:23 -0800 (PST)
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rK8mECBCSGqzquyDZulskWQVqqh35iX5G6zP6lQLGoA=;
+        b=RHNVVMJfgVkOjcfHsABu3gC/2nRRDhTnfGZARW9M1Jqzoc/yz19iPEJZrZAdDAYyF0
+         9cD/ErgzOv/cxjgOyaNodVzs9Cd9mizaORsuWHCVwoblm+DxqVuuE/H4sckwo0y9Xkz1
+         y0yv+F7tqMX4tQ51R6Gq3HehgvsTmeDtk+WY2ssnNnBZoMNcYvPRzq6eDkjj8VHIDHmz
+         qTXsuMEVzEkEyUT2KWtnIIYPEufrZN1rXkLtpzKJCzyLfp5sWOTefgvtue5fJzuMmGqr
+         W0iZKnEFhY/sCk5bkbPMMzVJ5C0jjpSOkhCDVHSz6AfnDM3dXQSDWpEVEKriQCc4aQQY
+         37QA==
+X-Gm-Message-State: APjAAAU54ItjZ2Jo6mXwcXsNevSHkaUlIWwTG/4gsCSRt6DotN+E6t9Y
+        DrtTaUWfTnh588Nhv9xqACFwORes8h5tyA==
+X-Google-Smtp-Source: APXvYqx+Z/9+UesOUz/AE0ZI4cQtLoCe8BK0R9cArvg56Ivh2aZxioCJqYCTfjR7S1ARUCa40qT5aw==
+X-Received: by 2002:a92:9a85:: with SMTP id c5mr4298970ill.99.1574270358381;
+        Wed, 20 Nov 2019 09:19:18 -0800 (PST)
 Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id b3sm5141748ioh.72.2019.11.20.08.28.22
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id t7sm5081916iog.85.2019.11.20.09.19.16
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Nov 2019 08:28:22 -0800 (PST)
-To:     io-uring@vger.kernel.org
+        Wed, 20 Nov 2019 09:19:17 -0800 (PST)
+Subject: Re: [PATCH 7/8] io_uring: fix sequencing issues with linked timeouts
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <20191116015314.24276-1-axboe@kernel.dk>
+ <20191116015314.24276-8-axboe@kernel.dk>
+ <ccf48def-1a4a-9cb1-aa9a-467294487856@gmail.com>
+ <b98a91cd-54c1-49ef-d75d-8007dcc470c1@kernel.dk>
+ <66547def-073c-8c4f-da68-17be900a192d@gmail.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: io_allocate_scq_urings() should return a sane state
-Message-ID: <714885ab-3e2b-5de0-274a-3a71e737d65a@kernel.dk>
-Date:   Wed, 20 Nov 2019 09:28:21 -0700
+Message-ID: <f961fd7a-53f1-37fe-f540-10a220535517@kernel.dk>
+Date:   Wed, 20 Nov 2019 10:19:16 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
+In-Reply-To: <66547def-073c-8c4f-da68-17be900a192d@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -71,43 +76,87 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We currently rely on the ring destroy on cleaning things up in case of
-failure, but io_allocate_scq_urings() can leave things half initialized
-if only parts of it fails.
+On 11/20/19 5:42 AM, Pavel Begunkov wrote:
+> On 11/20/2019 1:13 AM, Jens Axboe wrote:
+>> On 11/19/19 1:51 PM, Pavel Begunkov wrote:
+>>> On 16/11/2019 04:53, Jens Axboe wrote:
+>>>> We have an issue with timeout links that are deeper in the submit chain,
+>>>> because we only handle it upfront, not from later submissions. Move the
+>>>> prep + issue of the timeout link to the async work prep handler, and do
+>>>> it normally for non-async queue. If we validate and prepare the timeout
+>>>> links upfront when we first see them, there's nothing stopping us from
+>>>> supporting any sort of nesting.
+>>>>
+>>>> Fixes: 2665abfd757f ("io_uring: add support for linked SQE timeouts")
+>>>> Reported-by: Pavel Begunkov <asml.silence@gmail.com>
+>>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>>> ---
+>>>
+>>>> @@ -923,6 +942,7 @@ static void io_fail_links(struct io_kiocb *req)
+>>>>    			io_cqring_fill_event(link, -ECANCELED);
+>>>>    			__io_double_put_req(link);
+>>>>    		}
+>>>> +		kfree(sqe_to_free);
+>>>>    	}
+>>>>    
+>>>>    	io_commit_cqring(ctx);
+>>>> @@ -2668,8 +2688,12 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
+>>>>    
+>>>>    	/* if a dependent link is ready, pass it back */
+>>>>    	if (!ret && nxt) {
+>>>> -		io_prep_async_work(nxt);
+>>>> +		struct io_kiocb *link;
+>>>> +
+>>>> +		io_prep_async_work(nxt, &link);
+>>>>    		*workptr = &nxt->work;
+>>> Are we safe here without synchronisation?
+>>> Probably io_link_timeout_fn() may miss the new value
+>>> (doing io-wq cancel).
+>>
+>> Miss what new value? Don't follow that part.
+>>
+> 
+> As I've got the idea of postponing:
+> at the moment of io_queue_linked_timeout(), a request should be either
+> in io-wq or completed. So, @nxt->work after the assignment above should
+> be visible to asynchronously called io_wq_cancel_work().
+> 
+>>>>   *workptr = &nxt->work;
+> However, there is no synchronisation for this assignment, and it could
+> be not visible from a parallel thread. Is it somehow handled in io-wq?
+> 
+> The pseudo code is below (th1, th2 - parallel threads)
+> th1: *workptr = &req->work;
+> // non-atomic assignment, the new value of workptr (i.e. &req->work)
+> // isn't yet propagated to th2
+> 
+> th1: io_queue_linked_timeout()
+> th2: io_linked_timeout_fn(), calls io_wq_cancel_work(), @req not found
+> th2: // memory model finally propagated *workptr = &req->work to @th2
+> 
+> 
+> Please, let me know if that's also not clear.
 
-Be nice and return with either everything setup in success, or return an
-error with things nicely cleaned up.
+OK, so I see what you're saying, but I don't think it's missing locking.
+There is, however, a gap where we won't be able to find the request.
+What we need is a way to assign the io-wq current work before we call
+io_queue_linked_timeout(). Something ala:
 
-Reported-by: syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+	io_prep_async_work(nxt, &link);
+	*workptr = &nxt->work;
++	io_wq_assign_cur();
+	if (link)
+		io_queue_linked_timeout(link);
 
----
+where io_wq_assign_cur() ensures that worker->cur_work is set to the new
+work, so we know it's discoverable before calling
+io_queue_linked_timeout(). Probably also needs to include the
+->get_work() call as part of that, so moving the logic around a bit in
+io_worker_handle_work().
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 100931b40301..066b59ffb54e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4568,12 +4568,18 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
- 	ctx->cq_entries = rings->cq_ring_entries;
- 
- 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
--	if (size == SIZE_MAX)
-+	if (size == SIZE_MAX) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -EOVERFLOW;
-+	}
- 
- 	ctx->sq_sqes = io_mem_alloc(size);
--	if (!ctx->sq_sqes)
-+	if (!ctx->sq_sqes) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -ENOMEM;
-+	}
- 
- 	return 0;
- }
+If we do that, then by the time we arm the linked timer, we know we'll
+be able to find the new work item. The old work is done at this point
+anyway, so doing this a bit earlier is fine.
 
 -- 
 Jens Axboe

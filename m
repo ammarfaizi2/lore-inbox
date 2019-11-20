@@ -6,36 +6,36 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5F2EC43215
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 03:14:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12310C432C0
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 03:14:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 89A642240E
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 03:14:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E42DF2240E
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 03:14:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbfKTDOd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Nov 2019 22:14:33 -0500
-Received: from smtpbg704.qq.com ([203.205.195.105]:53240 "EHLO
-        smtpproxy21.qq.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727336AbfKTDOd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Nov 2019 22:14:33 -0500
-X-QQ-mid: bizesmtp12t1574219668tqqf9bh5
+        id S1727298AbfKTDOh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Nov 2019 22:14:37 -0500
+Received: from smtpbguseast2.qq.com ([54.204.34.130]:42225 "EHLO
+        smtpbguseast2.qq.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727336AbfKTDOh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Nov 2019 22:14:37 -0500
+X-QQ-mid: bizesmtp12t1574219666t3ksz79r
 Received: from localhost.localdomain (unknown [218.76.23.26])
         by esmtp6.qq.com (ESMTP) with 
-        id ; Wed, 20 Nov 2019 11:14:28 +0800 (CST)
+        id ; Wed, 20 Nov 2019 11:14:26 +0800 (CST)
 X-QQ-SSF: 01400000002000T0ZVF0000A0000000
-X-QQ-FEAT: dMLGSgzcGovQ0zrdTU0J3i+mzsgkP5V3SQigowX1EdxjncGPYn0bJaS3+k8ju
-        DL5twP6BziCcLp/NAIByVQB/G8x2Nj/CWMBFANb9TICcy2YdxE1rlj2drZbqVbEaiDz90Jz
-        JeLHlmnORw94ti/s1orK5KOtWCpGnNxa32aCUqBjC4snqxZFbmZrCGoD9iSsZQUpnyu9L+V
-        oCCko9lup9Ngljx4lXaYr0DYM5fHGMXo6ajVG9gaqtocl6pgtDuk30DoXUhd8FRMf2/bclF
-        dTZmC6zyvg8ykahu9Wnvw5yPHu553kFC3gyWZgMaDEPtXcHECG6F2vLxw4MGSdTdeZQTKAy
-        n0feYh11wmJhg3N6mC33wQSmsLYhQ==
+X-QQ-FEAT: ekydxxszt+9k+IliPyB+e/nh+JpYSFRHMhyiEA0RhmJBkVVpRJSmwSOzKssBE
+        ImDou9cvGSYZa2fe3ZP2TZ8FgpGt3sVUaMgnjjMP4j/2ANz4Gulchjv1sVDMocjXSaJBayk
+        fLHuyyo6ipV3B3eNreYNuOHofYIXGcv1BKUhJukxPOLHQxuJShrv2Q0aPPeX5565jPxPVmn
+        2mBZMGo+yNZ3L3R5yiKBUYbAHh0dp0Dg+Ku6BGu5lnpiU8BvFCKfHyBKlpRYL6AwT83/ZB8
+        /ewjVXK7JFzunzY0YMua+9YOZsW/CEogsOm+cl2qfh0lXqvS0swZiT+zlkGHTrA2UeNxWSi
+        CrslgiGfvUQWWDNPwjL9/xdGvMryA==
 X-QQ-GoodBg: 2
 From:   Jackie Liu <liuyun01@kylinos.cn>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH liburing 3/3] built liburing.so and test binary first when runtests
-Date:   Wed, 20 Nov 2019 11:14:22 +0800
-Message-Id: <20191120031422.49382-3-liuyun01@kylinos.cn>
+Subject: [PATCH liburing 2/3] Avoid redefined warning of "SIGSTKSZ"
+Date:   Wed, 20 Nov 2019 11:14:21 +0800
+Message-Id: <20191120031422.49382-2-liuyun01@kylinos.cn>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191120031422.49382-1-liuyun01@kylinos.cn>
 References: <20191120031422.49382-1-liuyun01@kylinos.cn>
@@ -47,39 +47,33 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+ucontext-cp.c:24:0: warning: "SIGSTKSZ" redefined
+ #define SIGSTKSZ 8192
+
+In file included from /usr/include/signal.h:316:0,
+                 from ucontext-cp.c:13:
+/usr/include/aarch64-linux-gnu/bits/sigstack.h:30:0: note: this is the location of the previous definition
+ #define SIGSTKSZ 16384
+
 Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
 ---
- Makefile      | 2 +-
- test/Makefile | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ examples/ucontext-cp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 8af1c3a..9e13218 100644
---- a/Makefile
-+++ b/Makefile
-@@ -13,7 +13,7 @@ all:
- 	@$(MAKE) -C test
- 	@$(MAKE) -C examples
+diff --git a/examples/ucontext-cp.c b/examples/ucontext-cp.c
+index 3e95b15..d521e94 100644
+--- a/examples/ucontext-cp.c
++++ b/examples/ucontext-cp.c
+@@ -21,7 +21,9 @@
+ #define QD	64
+ #define BS	1024
  
--runtests:
-+runtests: all
- 	@$(MAKE) -C test runtests
- runtests-loop:
- 	@$(MAKE) -C test runtests-loop
-diff --git a/test/Makefile b/test/Makefile
-index 97e88ea..60ae08f 100644
---- a/test/Makefile
-+++ b/test/Makefile
-@@ -41,7 +41,7 @@ accept-link: XCFLAGS = -lpthread
- clean:
- 	rm -f $(all_targets) $(test_objs)
++#ifndef SIGSTKSZ
+ #define SIGSTKSZ 8192
++#endif
  
--runtests:
-+runtests: all
- 	@./runtests.sh $(all_targets)
--runtests-loop:
-+runtests-loop: all
- 	@./runtests-loop.sh $(all_targets)
+ typedef struct {
+ 	struct io_uring *ring;
 -- 
 2.17.1
 

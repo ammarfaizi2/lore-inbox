@@ -2,71 +2,71 @@ Return-Path: <SRS0=jdTg=ZM=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82DC0C432C0
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 08:44:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BA6BC432C0
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 09:03:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 522B4223CA
-	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 08:44:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D8552243F
+	for <io-uring@archiver.kernel.org>; Wed, 20 Nov 2019 09:03:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b/oa1PyC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QViYxQsC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727777AbfKTIoR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 Nov 2019 03:44:17 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:33544 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726687AbfKTIoQ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 03:44:16 -0500
-Received: by mail-lj1-f195.google.com with SMTP id t5so26570803ljk.0
-        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 00:44:13 -0800 (PST)
+        id S1728025AbfKTJDe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 Nov 2019 04:03:34 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:34882 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727814AbfKTJDe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Nov 2019 04:03:34 -0500
+Received: by mail-lf1-f65.google.com with SMTP id q28so5585406lfp.2
+        for <io-uring@vger.kernel.org>; Wed, 20 Nov 2019 01:03:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
+        h=from:subject:to:references:message-id:date:user-agent:mime-version
          :in-reply-to:content-language:content-transfer-encoding;
-        bh=8ROSzcPUvYBvRlmXFaGWzJIcmMtF/PR2QjtS3/HVi90=;
-        b=b/oa1PyCIi8YuMQdpfXMPqesJGqAmR7hwaaj99yHVMOj30r0s5jfUCojw4PAushp1I
-         oGKj2VZk7D7jDHmCwakyYIhrhmzYXmgjuFRWV6MNC1qNRfGZD6Fbfbz0ilKicGv0KfeS
-         lttnzlsKpdSJ+7xjSaEOnoUyzAFO3NzDUp/106G2fPHckvkX2Aq/SQVTALyS2a9Y0okN
-         EXZ6foRmmMHvAc+/3k/CgoggWtSTtpKcC5GoL+NMm0XaTfb5Tea/y6+iHdmZhB7C6LSb
-         9/TMJh1+NxdFMJrWfPJWZcHCIMG0K+5HVQv5IEbx+DZN6EnRhTGGjUv7ZV6aBsABZ2IO
-         UGYA==
+        bh=PBOccnL9bkQM2dZLi8sQ0EtGmtYFuPNbB54cvycZySM=;
+        b=QViYxQsCZO5NUWGF3eJIiN6V5RLbMsJYq6IO8G3ygRPab0qgE7MbyC0AtBgdLOXNh8
+         s4ba2Ks6lT0a4gT6t7FfjzGm8QLQKhQpqOd88ykUwDKi885QMIuG60b+FTdwgUi0IFwB
+         3DxtrNH7cLLLZ8xmVbK/lTBm1dYAEObxKGcldD+qsdApVbGeuP1Z/nhRrr2nufhCZfSh
+         XUzEK3clDtLZszCgRvhlN1BdwRIBz/sH/Dg4JQXXCDWQMkqdhgrwzUeEKHM+Iwd4F8v4
+         /o4jng7/Ktxmi6E+OvRvcTzBcmytpYQnrdCuAboyBFeFWXWOoLxa6jROeB1mZVXz50VC
+         6OPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
+        h=x-gm-message-state:from:subject:to:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=8ROSzcPUvYBvRlmXFaGWzJIcmMtF/PR2QjtS3/HVi90=;
-        b=FKYpxVMK5KdEnMEgtmF7G0SIFYm0vW+Es8t7lIbnsC5LyY+44bY59OLKABKlLza5XD
-         u0ayAfwcuJuy8WVQ3BQBZP9h2q/zLAiEN+MqPSOuV27HVJuo1ip9QfX9m4SF4WmEdkPV
-         LMlYRBtNtbKip//alDYGBXXHAFkQtHd1LQRlcFX8469sM3olsGc14eZuWoVnvdelTtT4
-         IViRlckJ+Z6AIg15D5DT+Lj2Xcuu8FVCl/ot6Gy91tXYN/nFz2V261o6/8PSWCPqvRfS
-         CmEdywPXsf9CX6V/3CtiwFierWlK8+u3RUlE8rUiISV5+UIAofyfRUekVhmJieeogpGe
-         fgiA==
-X-Gm-Message-State: APjAAAVFUgdQFpgEDXB+b0OBKxm1k4Ng3L+Bc+lyTXQpiYMkZghVG1OI
-        zsYI1eju5KpLL+4aC/fiqT9JaAfE
-X-Google-Smtp-Source: APXvYqwHKkryXWF56MBA9ATz0gZVPfDSEUeE14l03AFRHegAewtUyLqL9t5CsnyxVaF1lWFC1Z0Psw==
-X-Received: by 2002:a2e:9ec3:: with SMTP id h3mr1638469ljk.203.1574239452728;
-        Wed, 20 Nov 2019 00:44:12 -0800 (PST)
+        bh=PBOccnL9bkQM2dZLi8sQ0EtGmtYFuPNbB54cvycZySM=;
+        b=BDbHmLeFx5e/dDfAdru0xaAMEHz/uQ5sQnjEsJ/CvmWBNjqg8NKfiN8JV3unyckpIu
+         GQKJsJ9gLjHYiSiiTKH2vY5vSNYukmgfT0HhquC1qJouMzk7JnrCsRCl1AqZNh2DMfY5
+         QCzC+cUzJcAXjDNFr7NGD5Ty02XgyZBg3i6kf+OolDQc//4k0vl67KQw3jdWAms4WUJf
+         /Ey+Gd6JBF3sovNvT0J8tMifqH4MdwrMWbU2iwL62YMXbXraKgfXh1Vq2PQjpsGbMyIt
+         0zneSD5+z2fnJYSaFqd+D2LZskgI1wQLZXbBJ8nuaAnp9nEKlJ0WMFEY4RaQAMmEGdU/
+         W7eA==
+X-Gm-Message-State: APjAAAW+rNPiqz5q90YTEvvjRFBzMvfbKEdb4sJj7vWMgAoQ66wHE3Wf
+        7rWecQ8AgaOVQjNypxCUddk9HVzA
+X-Google-Smtp-Source: APXvYqzatTIuSoS/cI1wu71TVqEn9k4naQYGDbSDEE+rt8odL4evuTx4xAP4ysQcGCgCpVb1endNfw==
+X-Received: by 2002:a19:c514:: with SMTP id w20mr1855441lfe.143.1574240612500;
+        Wed, 20 Nov 2019 01:03:32 -0800 (PST)
 Received: from [172.31.190.83] ([86.57.146.226])
-        by smtp.gmail.com with ESMTPSA id c193sm2327928lfd.48.2019.11.20.00.44.11
+        by smtp.gmail.com with ESMTPSA id 80sm5365295lfh.86.2019.11.20.01.03.31
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Nov 2019 00:44:12 -0800 (PST)
-Subject: Re: io_uring: io_fail_links() should only consider first linked
- timeout
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <efca87b0-3b8a-9614-c4c7-a341a2882b58@kernel.dk>
+        Wed, 20 Nov 2019 01:03:31 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <b8b1c8cf-5120-c4b2-e74b-4d0545b7a1f8@gmail.com>
-Date:   Wed, 20 Nov 2019 11:44:11 +0300
+Subject: Re: [PATCH 1/4] io_uring: Always REQ_F_FREE_SQE for allocated sqe
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+References: <cover.1574195129.git.asml.silence@gmail.com>
+ <d879b9ce9ea9d47129d8f0a093bc96ce5dc3f54d.1574195129.git.asml.silence@gmail.com>
+ <0655d5c5-e241-034c-6ec2-ad97012fd2f1@kernel.dk>
+Message-ID: <4eea8a32-68dc-4d34-f69d-5a2281594844@gmail.com>
+Date:   Wed, 20 Nov 2019 12:03:30 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.1
 MIME-Version: 1.0
-In-Reply-To: <efca87b0-3b8a-9614-c4c7-a341a2882b58@kernel.dk>
+In-Reply-To: <0655d5c5-e241-034c-6ec2-ad97012fd2f1@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -75,55 +75,21 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/20/2019 1:33 AM, Jens Axboe wrote:
-> We currently clear the linked timeout field if we cancel such a timeout,
-> but we should only attempt to cancel if it's the first one we see.
-> Others should simply be freed like other requests, as they haven't
-> been started yet.
-> 
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> 
-> ---
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index a79ef43367b1..d1085e4e8ae9 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -937,12 +937,12 @@ static void io_fail_links(struct io_kiocb *req)
->  		if ((req->flags & REQ_F_LINK_TIMEOUT) &&
->  		    link->submit.sqe->opcode == IORING_OP_LINK_TIMEOUT) {
->  			io_link_cancel_timeout(link);
-> -			req->flags &= ~REQ_F_LINK_TIMEOUT;
->  		} else {
->  			io_cqring_fill_event(link, -ECANCELED);
->  			__io_double_put_req(link);
->  		}
->  		kfree(sqe_to_free);
-> +		req->flags &= ~REQ_F_LINK_TIMEOUT;
+On 11/20/2019 1:10 AM, Jens Axboe wrote:
+> and it is tempting as a cleanup, but it
+> also moves it into the fastpath instead of keeping it in the slow
+> link fail path. Any allocated sqe is normally freed when the work
+> is processed, which is generally also a better path to do it in as
+> we know we're not under locks/irq disabled.
 
-That's not necessary, but maybe would safer to keep. If
-REQ_F_LINK_TIMEOUT is set, than there was a link timeout request,
-and for it and only for it io_link_cancel_timeout() will be called.
+Good point with locks/irq, but io_put_req() is usually called out of
+locking. Isn't it? E.g. @completion_lock is taken mainly by *add_cq_event().
 
-However, this is only true if linked timeout isn't fired. Otherwise,
-there is another bug, which isn't fixed by either of the patches. We
-need to clear REQ_F_LINK_TIMEOUT in io_link_timeout_fn() as well.
+SQE needs to be freed in any case, and there is only one extra "if",
+what we really should not worry about. There are much heavier parts.
+e.g. excessive atomics/locking, I'll send an RFC for that, if needed.
 
-Let: REQ -> L_TIMEOUT1 -> L_TIMEOUT2
-1. L_TIMEOUT1 fired before REQ is completed
-
-2. io_link_timeout_fn() removes L_TIMEOUT1 from the list:
-REQ|REQ_F_LINK_TIMEOUT -> L_TIMEOUT2
-
-3. free_req(REQ) then call io_link_cancel_timeout(L_TIMEOUT2)
-leaking it (as described in my patch).
-
-P.S. haven't tried to test nor reproduce it yet.
-
->  	}
->  
->  	io_commit_cqring(ctx);
-> 
+I find the complexity of much more concern here.
 
 -- 
 Pavel Begunkov

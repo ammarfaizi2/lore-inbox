@@ -2,61 +2,61 @@ Return-Path: <SRS0=BBHt=ZN=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33C29C432C0
-	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:24:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E77B3C432C0
+	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:26:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 08C8B20674
-	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:24:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7C8120674
+	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:26:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IJCgUf/j"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="tHXKGFrW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbfKUPYC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 21 Nov 2019 10:24:02 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:44769 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726563AbfKUPYB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Nov 2019 10:24:01 -0500
-Received: by mail-lj1-f196.google.com with SMTP id g3so3633382ljl.11
-        for <io-uring@vger.kernel.org>; Thu, 21 Nov 2019 07:24:00 -0800 (PST)
+        id S1726716AbfKUP0A (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 21 Nov 2019 10:26:00 -0500
+Received: from mail-il1-f193.google.com ([209.85.166.193]:36241 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726658AbfKUP0A (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Nov 2019 10:26:00 -0500
+Received: by mail-il1-f193.google.com with SMTP id s75so3670810ilc.3
+        for <io-uring@vger.kernel.org>; Thu, 21 Nov 2019 07:25:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=AQbPtfF2zEY07pxSXgtUDt2X382iPcyeBX3+EeDPu+U=;
-        b=IJCgUf/jHAqwpLfOcxEngu+t6rHjylm0tpu9f6MQgGWxd92jzFhqy7ufCjfuH9WkAm
-         he13Z0dJ6CP5rM3NEsFlMeB/7WKo6+e+aqwyWj5iCE8jvBH0kEsYivl+/1KLZ/Sn7A8f
-         7KJz5b3GG/wvAqdTptJYyvAiPNu27XW/NqcS7s0qr3XsR2amf/O6D8CyrZWPMpf1safK
-         6TyYXiwXuN7NWug0vVInOp9fuvUhWEmFf2p/O1Ec2uCOurWDS++uffJgJ8jPFfXQfIBS
-         XjL/GE5/EOhGASD7i/6+QgIEyV9bU648/4Kcz7uoNkpn80Lpq+i5EPvsl3ocf4JrxYRw
-         umGg==
+        bh=7hhEaTNgvN1+N8FqUN7TDDkL4pibxMZ7pe90gonPtx0=;
+        b=tHXKGFrWYeIKexMWSveTX0dSDRlZJBCfTwoRQzQ1XRRerc0SI2e7MaLYX/HcCz6WSZ
+         S6vmdMoyTCnFo1B9SH/kBg249vty95ETUTzvILU45vuOZWUoqEwCwVkECTP7TYttItdY
+         GsiRqy6IIWUqnYXGg6nwYmnFLlMUuTzrJANAOLLMoqcCk8DsmHPq1qHAm8ugmN2kQST+
+         Hdgqwg04g5Azky2lPfhTVk8QIEit6G9JCCM1z7UCvjUsCQBGMlLVa/UDvt7WBcVtfiCi
+         iEYBkyGIjIkC10AX0LXrHberG0PkhEobAHUfZVn1vOH/XLTwH85VtkkFN9nqBIu1SkYf
+         iUTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=AQbPtfF2zEY07pxSXgtUDt2X382iPcyeBX3+EeDPu+U=;
-        b=t8rhAUJBa/lTUOctGTthr1C+AiWwLXbf3Adza17m0kB5rasXRhGHf0F6dpIgBspb4Z
-         cPCeT33dZOe6YrKLVzg3JpeiDKA3BaLsX/RtM+FXBxZw/uWz8oEQm0cz8g0XZ5g48V3M
-         rSnAb2Q+wYhrGsC1X2pUkxSvFiu/ubCUhyJv2QyZ2XRYME/iBOahi5OKok2uhim+WEJd
-         t3uTf5ngh+iL/O+WF4wo4J5l6nyTnYC5QV9pBEMvmSwhtsUlTB50uWzezjqR0klR+yor
-         OvayAGWoZkxLJvFmKApIIxCcuiS6gTkrT5wsH8pGCSvH+Xv/WwdEdM2JxIaCAofSJwTX
-         np/g==
-X-Gm-Message-State: APjAAAWs0bjYlS8f/T514LtmbRNsP12LNGBlD/VUdNch1W+J7TUhg/Wd
-        WmT9/ueNDPr1rRevrnhPb64JdkpTxOA=
-X-Google-Smtp-Source: APXvYqyKyzQxzgoaVdNIa+9j+bPpyCIajrhK7hizLbfFY1NNg/vdSXO7pqRpjKLBngl6XaXeuZIw3A==
-X-Received: by 2002:a05:651c:205b:: with SMTP id t27mr8226016ljo.143.1574349839055;
-        Thu, 21 Nov 2019 07:23:59 -0800 (PST)
-Received: from [172.31.190.83] ([86.57.146.226])
-        by smtp.gmail.com with ESMTPSA id m12sm1557328lfb.60.2019.11.21.07.23.58
+        bh=7hhEaTNgvN1+N8FqUN7TDDkL4pibxMZ7pe90gonPtx0=;
+        b=LAP0LB+jiD8UNLBga6jdsOcry0TbqR5nY+YlED1p7VjyD6DB7LjWlNG7OW+WGEAaoB
+         y1Zdk/E/pwlb/ymHkvLvT1Ofd43X6b7l/zQKOmpoTlBAIhmOtqaE0TwK+64ZyqB94fL0
+         bAtnTyBxdLBZUTQa/FANTMrO8Ro3UT+BYSfAgHqoiIrR5kacGwIUMWf5ersOumNT7+p0
+         O2YtPxB1UIVf0Fi3ApWEFB7sGSchUgSLRsgWX/x4Mg6YSlrNBJP3xSGXXPZrxAnf2Wpw
+         lBfwjBLdkIqiSBnbn4VtcgzEccfqKViKve/20BTAvGNncBm+jubxjej9AC95gTLlUxsl
+         +Q2A==
+X-Gm-Message-State: APjAAAVJO0SoxAirzLAsf9Y3JQoFjt+630DATB1sj74/l32GuQPcpC+F
+        UcSOBsv6LgFP7afuo8PRfJTbHNv71jynaQ==
+X-Google-Smtp-Source: APXvYqw+PGoREDjZt6HypAXDW/UZutxsH4DW6ucRAHpDv/oF+jWOyJUkJY3yoOmpG7BjyD5sjujP0Q==
+X-Received: by 2002:a92:9a17:: with SMTP id t23mr10791158ili.40.1574349957655;
+        Thu, 21 Nov 2019 07:25:57 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id v13sm1328584ili.65.2019.11.21.07.25.56
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Nov 2019 07:23:58 -0800 (PST)
+        Thu, 21 Nov 2019 07:25:56 -0800 (PST)
 Subject: Re: [PATCH] io_uring: drain next sqe instead of shadowing
-To:     Jens Axboe <axboe@kernel.dk>, Jackie Liu <liuyun01@kylinos.cn>
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jackie Liu <liuyun01@kylinos.cn>
 Cc:     io-uring@vger.kernel.org
 References: <2005c339-5ed3-6c2e-f011-5bc89dac3f5c@kernel.dk>
  <5e8a8176e29a61ec79004521bc2ef28e4d9715b1.1574325863.git.asml.silence@gmail.com>
@@ -69,13 +69,14 @@ References: <2005c339-5ed3-6c2e-f011-5bc89dac3f5c@kernel.dk>
  <5dd69c43.1c69fb81.6589a.b4f1SMTPIN_ADDED_BROKEN@mx.google.com>
  <1feba72a-08f9-14c3-91c6-7efe4d5b1d8b@gmail.com>
  <dc17c870-d7e0-44c5-e27b-d358d04a3ddf@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <b3387cf7-7cf6-eeb4-5513-1e1240a88321@gmail.com>
-Date:   Thu, 21 Nov 2019 18:23:57 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+ <b3387cf7-7cf6-eeb4-5513-1e1240a88321@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <309dbce5-aec4-dc0e-c86e-042416ee143d@kernel.dk>
+Date:   Thu, 21 Nov 2019 06:50:49 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <dc17c870-d7e0-44c5-e27b-d358d04a3ddf@kernel.dk>
+In-Reply-To: <b3387cf7-7cf6-eeb4-5513-1e1240a88321@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -84,27 +85,34 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/21/2019 4:53 PM, Jens Axboe wrote:
-> On 11/21/19 7:28 AM, Pavel Begunkov wrote:
+On 11/21/19 8:23 AM, Pavel Begunkov wrote:
+> On 11/21/2019 4:53 PM, Jens Axboe wrote:
+>> On 11/21/19 7:28 AM, Pavel Begunkov wrote:
+>>>>>
+>>>>> Was that a reviewed-by from you? It'd be nice to get these more
+>>>>> formally so I can add the attributes. I'll drop the other patch.
 >>>>
->>>> Was that a reviewed-by from you? It'd be nice to get these more
->>>> formally so I can add the attributes. I'll drop the other patch.
->>>
->>> I want to do more tests. There is no test machine at this time, at least
->>> until tomorrow morning.
->>>
->> BTW, aside from the locking problem, that it fixes another one. If
->> allocation for a shadow req is failed, io_submit_sqes() just continues
->> without it ignoring draining.
+>>>> I want to do more tests. There is no test machine at this time, at least
+>>>> until tomorrow morning.
+>>>>
+>>> BTW, aside from the locking problem, that it fixes another one. If
+>>> allocation for a shadow req is failed, io_submit_sqes() just continues
+>>> without it ignoring draining.
+>>
+>> Indeed. BTW, your commit message is way too weak for this patch. It
+>> doesn't explain why we're making this change at all. I'm going to fix
+>> it up.
+>>
+> Yeah, I were going to do that today. This one is of quick-before-leaving
+> kind, I didn't even looked up into the problem discussion properly.
 > 
-> Indeed. BTW, your commit message is way too weak for this patch. It
-> doesn't explain why we're making this change at all. I'm going to fix
-> it up.
-> 
-Yeah, I were going to do that today. This one is of quick-before-leaving
-kind, I didn't even looked up into the problem discussion properly.
+> It needs 2 problems statements + reported-by
 
-It needs 2 problems statements + reported-by
+Here's what I have:
+
+https://git.kernel.dk/cgit/linux-block/commit/?h=for-5.5/io_uring-post&id=b1417baddedff723b22a4817753625350cfa895a
+
 
 -- 
-Pavel Begunkov
+Jens Axboe
+

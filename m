@@ -2,160 +2,140 @@ Return-Path: <SRS0=BBHt=ZN=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E435DC432C3
-	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:12:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E59AAC432C0
+	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:23:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8DA9206F4
-	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:12:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA5AA20674
+	for <io-uring@archiver.kernel.org>; Thu, 21 Nov 2019 15:23:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="kPjbYopq"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="rCtiVDCD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbfKUPMt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 21 Nov 2019 10:12:49 -0500
-Received: from mail-io1-f48.google.com ([209.85.166.48]:43728 "EHLO
-        mail-io1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726676AbfKUPMt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Nov 2019 10:12:49 -0500
-Received: by mail-io1-f48.google.com with SMTP id r2so3768828iot.10
-        for <io-uring@vger.kernel.org>; Thu, 21 Nov 2019 07:12:48 -0800 (PST)
+        id S1726967AbfKUPXh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 21 Nov 2019 10:23:37 -0500
+Received: from mail-il1-f193.google.com ([209.85.166.193]:37047 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726714AbfKUPXh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Nov 2019 10:23:37 -0500
+Received: by mail-il1-f193.google.com with SMTP id s5so3648908iln.4
+        for <io-uring@vger.kernel.org>; Thu, 21 Nov 2019 07:23:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=FKmA1dj5ul8c9B7/AW1SeCE2cpRR3rxrM0o5i/Y/WKw=;
-        b=kPjbYopquByXxCpTTv4yW6ae0DzuMCCGFTqwC83zxvmsyx8WrHMiEdgOaJr24m5K0Z
-         AG/KSf0wjRpe06+EIKYX2SPxBwqicHeWqeiOBBACFSN1+adFlpUm4zfDob5aAruGwTkh
-         HDamk9xy8JroO5Sahk4I5I651OaxVlxlpNBbbuRvuTgdav+K3kYZwKop/a7K/MC4jk18
-         c5yI1apmxjtDvfiBxRiS19n80FR/n/azXeb6PH/PGgDJ3ByG0YZLiMmarajeJVfyuTya
-         DPXCMxV0EQ62vBolL6QxQGuoz6Sy/ulpVal1Y/uRSdMGxt8aDRIs/fweW2Tz9OFu2/IQ
-         eYdw==
+        bh=UpfAosZS6iQlPtZZS9GXKULQxVlO0K11DjbUJSUYewE=;
+        b=rCtiVDCD3lxmRPxU1AA7Qh4uQzIhda/H0PXcR08RSvomAmdrKFXtpa+cM0x8YLtPNO
+         amwl58xEln7YqGdKcSc4J7A9wBGDWXvxwYX+fSCUP1pqLZ70pDi1yel0IfWoa+l9S6H8
+         fPN5IKm3kBjTSJFjkjes/CqJuVrgF4tRLA/HcumE7e9wV9sIBYOiNrGeuBnmj6yr8n6l
+         t/zy/hlgkrsXQievUH3GjMRnYoE3BU13IAN4v44OzI0a7zwG8YJ4wrxQY4+4hYgqQ2g0
+         p/vVY1dbWcQaUCQMoxlnxKpWPAtD9GjVPg5QVOOyVwn5bIlr0dvcGT/4TvoW78oEa8ED
+         GJNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=FKmA1dj5ul8c9B7/AW1SeCE2cpRR3rxrM0o5i/Y/WKw=;
-        b=RyBCdmiutUC7VxKimkw2GTyfgkrcxueTIotR21LomM7yRtqGIc6GfiQc9/TywxNBAS
-         lCb2mtS2wA4S8SW5B2J6wHEGSaMmP1fxpgR+uGZ8dZWsafBWVhnStg6uD8GxWNCLk4mI
-         VpXC4gYBluXWWlsDrDWqsD76mKG393Be7sPqON/S4fyR3eXMT0Gnl+H4hHnjo5gqId3L
-         6QewNvVabI1k0sKV5BPqQKT6zY40v8eEVziwdpLUVUeQIBIX9lgfDz968PtfZaYjTA0W
-         82tRbJ3h7+DdauEIfygKRK8DuLrGBoJHqA0iO4QQ/V5MvOmGehcrFoxCDhx6syECxObT
-         AQLg==
-X-Gm-Message-State: APjAAAVQVjtOzFrnRsQLoY3HGAXKbzubVCDzEPBgR27tVVbxuJg6gQfy
-        5tz9waD/R47gePiGQV+nBqskE8icaFzFaA==
-X-Google-Smtp-Source: APXvYqxEdS90T8xK24DILdvLmLtAXt1mypIl4z907MN6f4VHjxfG7Uo1byqt/5792BYm3irrfWg9Cg==
-X-Received: by 2002:a5d:8555:: with SMTP id b21mr8346818ios.22.1574349167334;
-        Thu, 21 Nov 2019 07:12:47 -0800 (PST)
+        bh=UpfAosZS6iQlPtZZS9GXKULQxVlO0K11DjbUJSUYewE=;
+        b=lH/ghA+0ujyRvCLBt3EAcisNIPC21yg4aVfIgqFwOw5+18C1uez9YWnkfZyWQVneoJ
+         LoT5nLozkg5a/o5g+LI6ZKg2bH18sBCAyXEm9NI8RCsmz6UndsYltKzrpdoQlpvaTYMJ
+         52NOT8q9xyC3WL73+9dZkpYxGUtjFGs+EjyDdaIAzWiz5MVqaYdSQh5eAqyTOAaab0Nb
+         SeQbThOPaiRAtq1SZTfrB5oUjeHblI/AiDVqhzEE0Wt6hokpcjNjRN/Ekjo+/RnVSomG
+         mO5IXMU5wXUzos14h2ntglBWbZTIP2Tvv6MiVQ/rFzRxO3dpoSzHikusEr1mL2IEaTc7
+         Rocg==
+X-Gm-Message-State: APjAAAX8R8xsZXqREc8NB9uVeEgDcraw1UIdGo2VnnJpML1Hunkmjalj
+        OqfJ2lAe06FGxFF6eWRDFkclsYUTxNQEuw==
+X-Google-Smtp-Source: APXvYqwHNvfOBs35aMIxk7k5j+GzBpdj0SqfvpXEG6Go/5GcBFadBtvsSN8Fp4pVFBYQ6Lu8uZno5A==
+X-Received: by 2002:a92:1b49:: with SMTP id b70mr10413090ilb.180.1574349815178;
+        Thu, 21 Nov 2019 07:23:35 -0800 (PST)
 Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id r18sm1264449ilq.75.2019.11.21.07.12.46
+        by smtp.gmail.com with ESMTPSA id z10sm1293745ill.73.2019.11.21.07.23.33
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Nov 2019 07:12:46 -0800 (PST)
-Subject: Re: [PATCH] io_uring: drain next sqe instead of shadowing
-To:     Jackie Liu <liuyun01@kylinos.cn>,
-        Pavel Begunkov <asml.silence@gmail.com>
+        Thu, 21 Nov 2019 07:23:34 -0800 (PST)
+Subject: Re: [PATCH] io_uring: introduce add/post event and put function
+To:     Bob Liu <bob.liu@oracle.com>
 Cc:     io-uring@vger.kernel.org
-References: <2005c339-5ed3-6c2e-f011-5bc89dac3f5c@kernel.dk>
- <5e8a8176e29a61ec79004521bc2ef28e4d9715b1.1574325863.git.asml.silence@gmail.com>
- <A12FD0FF-3C4F-46BE-8ABB-AA732002A9CA@kylinos.cn>
- <bb367887-ed2c-1da3-59f5-c66f12ab7c5c@gmail.com>
- <5dd68282.1c69fb81.110a.43a7SMTPIN_ADDED_BROKEN@mx.google.com>
- <6da3585e-b419-ea9b-4246-1ee5ca14f5b9@gmail.com>
- <5dd68820.1c69fb81.64e0b.4340SMTPIN_ADDED_BROKEN@mx.google.com>
- <b129f1ba-b82c-d8cf-7dbd-efd14fd3fe8f@kernel.dk>
- <5dd69c7f.1c69fb81.8868.e3c2SMTPIN_ADDED_BROKEN@mx.google.com>
+References: <20191121090004.20139-1-bob.liu@oracle.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <4b90e56e-1190-eeb5-f61a-c8d3a0f2d969@kernel.dk>
-Date:   Thu, 21 Nov 2019 06:54:44 -0700
+Message-ID: <c8e29da5-7f87-5e1d-6f1a-9b0cf4120120@kernel.dk>
+Date:   Thu, 21 Nov 2019 07:05:32 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <5dd69c7f.1c69fb81.8868.e3c2SMTPIN_ADDED_BROKEN@mx.google.com>
+In-Reply-To: <20191121090004.20139-1-bob.liu@oracle.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/21/19 7:16 AM, Jackie Liu wrote:
-> 在 2019/11/21 21:47, Jens Axboe 写道:
->> On 11/21/19 5:49 AM, Jackie Liu wrote:
->>>
->>>
->>> On 2019/11/21 20:40, Pavel Begunkov wrote:
->>>>> 在 2019/11/21 17:43, Pavel Begunkov 写道:
->>>>>> On 11/21/2019 12:26 PM, Jackie Liu wrote:
->>>>>>> 2019年11月21日 16:54，Pavel Begunkov <asml.silence@gmail.com> 写道：
->>>>>>>>
->>>>>>>> If there is a DRAIN in the middle of a link, it uses shadow req. Defer
->>>>>>>> the next request/link instead. This:
->>>>>>>>
->>>>>>>> Pros:
->>>>>>>> 1. removes semi-duplicated code
->>>>>>>> 2. doesn't allocate memory for shadows
->>>>>>>> 3. works better if only the head marked for drain
->>>>>>>
->>>>>>> I thought about this before, just only drain the head, but if the
->>>>>>> latter IO depends
->>>>>>> on the link-list, then latter IO will run in front of the link-list.
->>>>>>> If we think it
->>>>>>> is acceptable, then I think it is ok for me.
->>>>>>
->>>>>> If I got your point right, latter requests won't run ahead of the
->>>>>> link-list. There shouldn't be change of behaviour.
->>>>>>
->>>>>> The purpose of shadow requests is to mark some request right ahead of
->>>>>> the link for draining. This patch uses not a specially added shadow
->>>>>> request, but the following regular one. And, as drained IO shouldn't be
->>>>>> issued until every request behind completed, this should give the same
->>>>>> effect.
->>>>>>
->>>>>> Am I missed something?
->>>>>
->>>>> Thanks for explaining. This is also correct, if I understand
->>>>> correctly, It seems that other IOs will wait for all the links are
->>>>> done. this is a little different, is it?
->>>>
->>>> Yes, you're right, it also was briefly stated in the patch description
->>>> (see Cons). I hope, links + drain in the middle is an uncommon case.
->>>> But it can be added back, but may become a little bit uglier.
->>>>
->>>> What do you think, should we care about this case?
->>>
->>> Yes, this is a very tiny scene. When I first time wrote this part of the
->>> code, my suggestion was to ban it directly.
->>>
->>> For this patch, I am fine, Jens, what do you think.
->>
->> I am fine with it as well, it'd be nice to get rid of needing that
->> extra request.
->>
->> Was that a reviewed-by from you? It'd be nice to get these more
->> formally so I can add the attributes. I'll drop the other patch.
+On 11/21/19 2:00 AM, Bob Liu wrote:
+> * Only complie-tested right now. *
+> There are so many duplicated code doing add/post event and then put req.
+> Put them to common funcs io_cqring_event_posted_and_put() and
+> io_cqring_add_event_and_put().
 > 
-> I want to do more tests. There is no test machine at this time, at least
-> until tomorrow morning.
-
-OK, no worries, for the record I did run it through testing this morning
-and it passes for me. Before this (or my) patch, we'd stall pretty
-quickly in the link_drain tested if run repeatedly.
-
->>> The mailing list always rejects my mail, is my smtp server IP banned?
->>
->> Probably because you have text/html in your email, the list is pretty
->> picky when it comes to anything that isn't just text/plain.
+> Signed-off-by: Bob Liu <bob.liu@oracle.com>
+> ---
+>   fs/io_uring.c | 145 ++++++++++++++++++++++++++++++----------------------------
+>   1 file changed, 74 insertions(+), 71 deletions(-)
 > 
-> I don't know, I use thunderbird to write emails, and it has been set to
-> plain text, perhaps because of the signature, I have to check my mail
-> client.
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 299a218..816eef3 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -1039,6 +1039,56 @@ static void io_double_put_req(struct io_kiocb *req)
+>   		io_free_req(req);
+>   }
+>   
+> +/*
+> + * Add event to io_cqring and put req.
+> + */
+> +static void io_cqring_add_event_and_put(struct io_kiocb *req, long ret,
+> +		int should_fail_link, bool double_put, struct io_kiocb **nxt)
+> +{
+> +	if (should_fail_link == 1) {
+> +		if (ret < 0 && (req->flags & REQ_F_LINK))
+> +			req->flags |= REQ_F_FAIL_LINK;
+> +	} else if (should_fail_link == 2) {
+> +		/* Don't care about ret < 0 when should_fail_link == 2 */
+> +		if (req->flags & REQ_F_LINK)
+> +			req->flags |= REQ_F_FAIL_LINK;
+> +	}
+> +
+> +	io_cqring_add_event(req, ret);
+> +
+> +	if (double_put)
+> +		io_double_put_req(req);
+> +	else {
+> +		if (nxt)
+> +			io_put_req_find_next(req, nxt);
+> +		else
+> +			io_put_req(req);
+> +	}
+> +}
 
-Feel free to try and send an email to me personally, then I can see what
-it looks like.
+I'd really like to clean up this part, as it's both duplicated a lot and
+also fragile in terms of places forgetting to do part of the necessary
+dance. However, this helper is a bit of a monster (and the other one as
+well), it's hard to know what this does:
+
+	io_cqring_add_event_and_put(req, ret, 1, false, nxt);
+
+without looking up what '1' and 'false' might be. Having multiple int
+values for should_fail_link is also a bit, well, tricky. Maybe it needs
+to be two helpers?
+
+And if it does need something like 'should_fail_link', I think that'd be
+done cleaner by using some sort of mask. IO_PUT_ERROR_ON_NEGATIVE,
+IO_PUT_ERROR_ALWAYS, or something like that. Then you can tell in the
+caller what it's going to do, rather than having to look up if what '1'
+or '2' as the argument means.
 
 -- 
 Jens Axboe

@@ -6,41 +6,41 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D5EC432C0
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 047F2C432C0
+	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 081812068E
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBD9F2070E
+	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729294AbfKVGLk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 Nov 2019 01:11:40 -0500
-Received: from smtpbg512.qq.com ([203.205.250.48]:52438 "EHLO smtpbg.qq.com"
+        id S1726018AbfKVI1O (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:27:14 -0500
+Received: from smtpbg518.qq.com ([203.205.250.104]:44312 "EHLO smtpbg.qq.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728788AbfKVGLk (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:11:40 -0500
-X-QQ-mid: Xesmtp7t1574402491tpkaq4i5r
+        id S1727116AbfKVI1M (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 22 Nov 2019 03:27:12 -0500
+X-QQ-mid: Xesmtp6t1574410686t3z396zsu
 Received: from byteisland.com (unknown [218.76.23.26])
         by esmtp4.qq.com (ESMTP) with 
-        id ; Fri, 22 Nov 2019 14:01:29 +0800 (CST)
+        id ; Fri, 22 Nov 2019 16:18:04 +0800 (CST)
 X-QQ-SSF: 01000000000000B0SF101F00000000K
-X-QQ-FEAT: ECcPpPTfzVBO0XSvv1EFrdjg34KeINXq+uD9JX91aCeNqs6WMC8LtT8jBldJZ
-        xtrctMwcFM6YVO6VHsJRCkRbGHadh2lkvMs8/Ql9uJR4VbPWel4AfzYrX8vGvDTO5ouy8Rr
-        OLRrKawXFN5qCCNT+WUq6s6Efn3yhv4XCE3P+F0ce3WeyC6IviPe8/ACrJxlbXndxhrWTiy
-        SLa14NZik+HG3FE4UHiO2NY9bLxmmf/dji51m9osh7YbeTXMNGvYy1UT4MK9K17IAdycED/
-        HBY+0pKDw6X2ZNxUycQyRgr+FXHAi6tY4a5j630a4pgDCT
+X-QQ-FEAT: TSAZtYu/fxMifg85IMqXPdkoT+HpjgoyycxI44SGiowl1z5dTB7uvQTbR57Ex
+        ssuUIX2M/iI6F98UtpL45g3ewWqiCl0pFeBEgaaxBdvqN0sGzuFANDtj2It71AF6uzohSP1
+        1xyHzniivU3CyZgrAc1QVr/kdDBDfx9aVlcg1nAT8lBY2HaqbR/s4UmYuvEmdA3UdCDpBKR
+        k+xypk9ZHOSTl/uAI8qyUfJJxqNfytPrW60L2L2wILDcdeJN4p8f/ox6SkUcuPz9xutGMRG
+        r83GYi4xeaDry1F5o4WJWYDY+VpOEYhiG/RWVvO2Hdc66M
 X-QQ-GoodBg: 0
 From:   Jackie Liu <jackieliu@byteisland.com>
 To:     axboe@kernel.dk
 Cc:     asml.silence@gmail.com, io-uring@vger.kernel.org,
         liuyun01@kylinos.cn
-Subject: [PATCH liburing RESEND] Update link_drain with new kernel method
-Date:   Fri, 22 Nov 2019 14:01:28 +0800
-Message-Id: <20191122060129.40251-1-jackieliu@byteisland.com>
+Subject: [PATCH liburing v2] Update link_drain with new kernel method
+Date:   Fri, 22 Nov 2019 16:18:04 +0800
+Message-Id: <20191122081804.41292-1-jackieliu@byteisland.com>
 X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
-Feedback-ID: Xesmtp:byteisland.com:bgweb:bgweb4
+Feedback-ID: Xesmtp:byteisland.com:bgweb:bgweb5
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
@@ -56,13 +56,13 @@ and some dead code has been modified, like commit e1420b89c do.
 
 Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
 ---
- resend that patch, because reject by mail-list.
+ v2: fix miss dead code.
 
- test/link_drain.c | 129 ++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 113 insertions(+), 16 deletions(-)
+ test/link_drain.c | 133 +++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 115 insertions(+), 18 deletions(-)
 
 diff --git a/test/link_drain.c b/test/link_drain.c
-index c192a5d..ebc000b 100644
+index c192a5d..cc6f73f 100644
 --- a/test/link_drain.c
 +++ b/test/link_drain.c
 @@ -11,13 +11,7 @@
@@ -88,19 +88,23 @@ index c192a5d..ebc000b 100644
  
  	fd = open("testfile", O_WRONLY | O_CREAT, 0644);
  	if (fd < 0) {
-@@ -67,10 +62,10 @@ static int test_link_drain(struct io_uring *ring)
+@@ -66,12 +61,12 @@ static int test_link_drain(struct io_uring *ring)
+ 	sqe[4]->user_data = 4;
  
  	ret = io_uring_submit(ring);
- 	if (ret < 5) {
+-	if (ret < 5) {
 -		printf("Submitted only %d\n", ret);
-+		printf("sqe submit failed\n");
+-		goto err;
+-	} else if (ret < 0) {
++	if (ret < 0) {
+ 		printf("sqe submit failed\n");
  		goto err;
- 	} else if (ret < 0) {
--		printf("sqe submit failed\n");
++	} else if (ret < 5) {
 +		printf("Submitted only %d\n", ret);
- 		goto err;
++		goto err;
  	}
  
+ 	for (i = 0; i < 5; i++) {
 @@ -85,21 +80,121 @@ static int test_link_drain(struct io_uring *ring)
  		io_uring_cqe_seen(ring, cqe);
  	}

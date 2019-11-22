@@ -2,131 +2,251 @@ Return-Path: <SRS0=nrYQ=ZO=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FE9EC432C3
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D5EC432C0
+	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D606C2068F
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="HeOz17fG"
+	by mail.kernel.org (Postfix) with ESMTP id 081812068E
+	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 06:11:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727344AbfKVGLT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 Nov 2019 01:11:19 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:42048 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728014AbfKVGLS (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 22 Nov 2019 01:11:18 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAM6955Q098207;
-        Fri, 22 Nov 2019 06:11:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2019-08-05;
- bh=ZygRY/vGhsEEc6XD19TUQSlzY96sGPpLa3odngpElnY=;
- b=HeOz17fGPc+0sXoV9Ph2GXv1W+uCrraPQIBlHbM4rJRULybj/QQcdzTwvAEAeGHNio4G
- SWrd261hIoCMQ4AVSxjI7JQvRyrw8CLXvUkey+cQGiZbAtfGt65uU4COjp3XjdF8pf5F
- EDWcjPPZJSf5R4FvNFyLW2HASyXYxouY7edaD21OihuPDFfMEBIXvSNn2JRS3HjwFxPa
- rqrZG/CNqcBwPMkX+0IbCQ59TpkBVa01H9r/1uSkaO0erCmesJD54Ct0eFEdffJy3I8h
- sXQu4DS5prIC52BzRA/hyrC0s24dh1Nyz7HtmWLIBsug8WCitIKUdQWNoZFH/D6U1AwZ qA== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2120.oracle.com with ESMTP id 2wa92q8jkj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 22 Nov 2019 06:11:11 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xAM698LL167035;
-        Fri, 22 Nov 2019 06:11:11 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 2wda07bqpb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 22 Nov 2019 06:11:10 +0000
-Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xAM6B8FJ007098;
-        Fri, 22 Nov 2019 06:11:08 GMT
-Received: from [192.168.1.14] (/114.88.246.185)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 21 Nov 2019 22:11:07 -0800
-Subject: Re: [PATCH] io_uring: rename __io_submit_sqe()
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <228a5ae5d63c61dd4f7349594012bfc7691028a7.1574360634.git.asml.silence@gmail.com>
-From:   Bob Liu <bob.liu@oracle.com>
-Message-ID: <4af9f749-218e-b0a7-07cb-1aee65fdd999@oracle.com>
-Date:   Fri, 22 Nov 2019 14:11:04 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.1
+        id S1729294AbfKVGLk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 22 Nov 2019 01:11:40 -0500
+Received: from smtpbg512.qq.com ([203.205.250.48]:52438 "EHLO smtpbg.qq.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728788AbfKVGLk (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:11:40 -0500
+X-QQ-mid: Xesmtp7t1574402491tpkaq4i5r
+Received: from byteisland.com (unknown [218.76.23.26])
+        by esmtp4.qq.com (ESMTP) with 
+        id ; Fri, 22 Nov 2019 14:01:29 +0800 (CST)
+X-QQ-SSF: 01000000000000B0SF101F00000000K
+X-QQ-FEAT: ECcPpPTfzVBO0XSvv1EFrdjg34KeINXq+uD9JX91aCeNqs6WMC8LtT8jBldJZ
+        xtrctMwcFM6YVO6VHsJRCkRbGHadh2lkvMs8/Ql9uJR4VbPWel4AfzYrX8vGvDTO5ouy8Rr
+        OLRrKawXFN5qCCNT+WUq6s6Efn3yhv4XCE3P+F0ce3WeyC6IviPe8/ACrJxlbXndxhrWTiy
+        SLa14NZik+HG3FE4UHiO2NY9bLxmmf/dji51m9osh7YbeTXMNGvYy1UT4MK9K17IAdycED/
+        HBY+0pKDw6X2ZNxUycQyRgr+FXHAi6tY4a5j630a4pgDCT
+X-QQ-GoodBg: 0
+From:   Jackie Liu <jackieliu@byteisland.com>
+To:     axboe@kernel.dk
+Cc:     asml.silence@gmail.com, io-uring@vger.kernel.org,
+        liuyun01@kylinos.cn
+Subject: [PATCH liburing RESEND] Update link_drain with new kernel method
+Date:   Fri, 22 Nov 2019 14:01:28 +0800
+Message-Id: <20191122060129.40251-1-jackieliu@byteisland.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <228a5ae5d63c61dd4f7349594012bfc7691028a7.1574360634.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9448 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1911220053
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9448 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1911220053
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: Xesmtp:byteisland.com:bgweb:bgweb4
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/22/19 2:24 AM, Pavel Begunkov wrote:
-> __io_submit_sqe() is issuing requests, so call it as
-> such. Moreover, it ends by calling io_iopoll_req_issued().
-> 
-> Rename it and make terminology clearer.
-> 
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-The new name is more straightforward.
-Reviewed-by: Bob Liu <bob.liu@oralce.com>
+Now we are dealing with link-drain in a much simpler way,
+so the test program is updated as well.
 
->  fs/io_uring.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index dd220f415c39..fa1cf7263959 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -2579,8 +2579,8 @@ static int io_req_defer(struct io_kiocb *req)
->  	return -EIOCBQUEUED;
->  }
->  
-> -static int __io_submit_sqe(struct io_kiocb *req, struct io_kiocb **nxt,
-> -			   bool force_nonblock)
-> +static int io_issue_sqe(struct io_kiocb *req, struct io_kiocb **nxt,
-> +			bool force_nonblock)
->  {
->  	int ret, opcode;
->  	struct sqe_submit *s = &req->submit;
-> @@ -2685,7 +2685,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
->  		s->has_user = (work->flags & IO_WQ_WORK_HAS_MM) != 0;
->  		s->in_async = true;
->  		do {
-> -			ret = __io_submit_sqe(req, &nxt, false);
-> +			ret = io_issue_sqe(req, &nxt, false);
->  			/*
->  			 * We can get EAGAIN for polled IO even though we're
->  			 * forcing a sync submission from here, since we can't
-> @@ -2896,7 +2896,7 @@ static void __io_queue_sqe(struct io_kiocb *req)
->  	struct io_kiocb *nxt = io_prep_linked_timeout(req);
->  	int ret;
->  
-> -	ret = __io_submit_sqe(req, NULL, true);
-> +	ret = io_issue_sqe(req, NULL, true);
->  
->  	/*
->  	 * We async punt it if the file wasn't marked NOWAIT, or if the file
-> 
+Also fixed a bug that did not close fd when an error occurred.
+and some dead code has been modified, like commit e1420b89c do.
+
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+---
+ resend that patch, because reject by mail-list.
+
+ test/link_drain.c | 129 ++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 113 insertions(+), 16 deletions(-)
+
+diff --git a/test/link_drain.c b/test/link_drain.c
+index c192a5d..ebc000b 100644
+--- a/test/link_drain.c
++++ b/test/link_drain.c
+@@ -11,13 +11,7 @@
+ 
+ #include "liburing.h"
+ 
+-char expect[3][5] = {
+-	{ 0, 1, 2, 3, 4 },
+-	{ 0, 1, 2, 4, 3 },
+-	{ 0, 1, 4, 2, 3 }
+-};
+-
+-static int test_link_drain(struct io_uring *ring)
++static int test_link_drain_one(struct io_uring *ring)
+ {
+ 	struct io_uring_cqe *cqe;
+ 	struct io_uring_sqe *sqe[5];
+@@ -25,6 +19,7 @@ static int test_link_drain(struct io_uring *ring)
+ 	int i, fd, ret;
+ 	off_t off = 0;
+ 	char data[5] = {0};
++	char expect[5] = {0, 1, 2, 3, 4};
+ 
+ 	fd = open("testfile", O_WRONLY | O_CREAT, 0644);
+ 	if (fd < 0) {
+@@ -67,10 +62,10 @@ static int test_link_drain(struct io_uring *ring)
+ 
+ 	ret = io_uring_submit(ring);
+ 	if (ret < 5) {
+-		printf("Submitted only %d\n", ret);
++		printf("sqe submit failed\n");
+ 		goto err;
+ 	} else if (ret < 0) {
+-		printf("sqe submit failed\n");
++		printf("Submitted only %d\n", ret);
+ 		goto err;
+ 	}
+ 
+@@ -85,21 +80,121 @@ static int test_link_drain(struct io_uring *ring)
+ 		io_uring_cqe_seen(ring, cqe);
+ 	}
+ 
++	if (memcmp(data, expect, 5) != 0)
++		goto err;
++
+ 	free(iovecs.iov_base);
+ 	close(fd);
++	unlink("testfile");
++	return 0;
++err:
++	free(iovecs.iov_base);
++	close(fd);
++	unlink("testfile");
++	return 1;
++}
++
++int test_link_drain_multi(struct io_uring *ring)
++{
++	struct io_uring_cqe *cqe;
++	struct io_uring_sqe *sqe[9];
++	struct iovec iovecs;
++	int i, fd, ret;
++	off_t off = 0;
++	char data[9] = {0};
++	char expect[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+ 
+-	for (i = 0; i < 3; i++) {
+-		if (memcmp(data, expect[i], 5) == 0)
+-			break;
++	fd = open("testfile", O_WRONLY | O_CREAT, 0644);
++	if (fd < 0) {
++		perror("open");
++		return 1;
++	}
++
++	iovecs.iov_base = malloc(4096);
++	iovecs.iov_len = 4096;
++
++	for (i = 0; i < 9; i++) {
++		sqe[i] = io_uring_get_sqe(ring);
++		if (!sqe[i]) {
++			printf("get sqe failed\n");
++			goto err;
++		}
+ 	}
+-	if (i == 3)
++
++	/* normal heavy io */
++	io_uring_prep_writev(sqe[0], fd, &iovecs, 1, off);
++	sqe[0]->user_data = 0;
++
++	/* link1 io head */
++	io_uring_prep_nop(sqe[1]);
++	sqe[1]->flags |= IOSQE_IO_LINK;
++	sqe[1]->user_data = 1;
++
++	/* link1 drain io */
++	io_uring_prep_nop(sqe[2]);
++	sqe[2]->flags |= (IOSQE_IO_LINK | IOSQE_IO_DRAIN);
++	sqe[2]->user_data = 2;
++
++	/* link1 io end*/
++	io_uring_prep_nop(sqe[3]);
++	sqe[3]->user_data = 3;
++
++	/* link2 io head */
++	io_uring_prep_nop(sqe[4]);
++	sqe[4]->flags |= IOSQE_IO_LINK;
++	sqe[4]->user_data = 4;
++
++	/* link2 io */
++	io_uring_prep_nop(sqe[5]);
++	sqe[5]->flags |= IOSQE_IO_LINK;
++	sqe[5]->user_data = 5;
++
++	/* link2 drain io */
++	io_uring_prep_writev(sqe[6], fd, &iovecs, 1, off);
++	sqe[6]->flags |= (IOSQE_IO_LINK | IOSQE_IO_DRAIN);
++	sqe[6]->user_data = 6;
++
++	/* link2 io end */
++	io_uring_prep_nop(sqe[7]);
++	sqe[7]->user_data = 7;
++
++	/* normal io */
++	io_uring_prep_nop(sqe[8]);
++	sqe[8]->user_data = 8;
++
++	ret = io_uring_submit(ring);
++	if (ret < 0) {
++		printf("sqe submit failed\n");
++		goto err;
++	} else if (ret < 9) {
++		printf("Submitted only %d\n", ret);
++		goto err;
++	}
++
++	for (i = 0; i < 9; i++) {
++		ret = io_uring_wait_cqe(ring, &cqe);
++		if (ret < 0) {
++			printf("child: wait completion %d\n", ret);
++			goto err;
++		}
++
++		data[i] = cqe->user_data;
++		io_uring_cqe_seen(ring, cqe);
++	}
++
++	if (memcmp(data, expect, 9) != 0)
+ 		goto err;
+ 
++	free(iovecs.iov_base);
++	close(fd);
+ 	unlink("testfile");
+ 	return 0;
+ err:
++	free(iovecs.iov_base);
++	close(fd);
+ 	unlink("testfile");
+ 	return 1;
++
+ }
+ 
+ int main(int argc, char *argv[])
+@@ -107,14 +202,16 @@ int main(int argc, char *argv[])
+ 	struct io_uring ring;
+ 	int i, ret;
+ 
+-	ret = io_uring_queue_init(5, &ring, 0);
++	ret = io_uring_queue_init(100, &ring, 0);
+ 	if (ret) {
+ 		printf("ring setup failed\n");
+ 		return 1;
+ 	}
+ 
+-	for (i = 0; i < 1000; i++)
+-		ret |= test_link_drain(&ring);
++	for (i = 0; i < 1000; i++) {
++		ret |= test_link_drain_one(&ring);
++		ret |= test_link_drain_multi(&ring);
++	}
+ 
+ 	if (ret)
+ 		return ret;
+-- 
+2.17.1
 

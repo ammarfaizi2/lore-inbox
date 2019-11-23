@@ -2,68 +2,65 @@ Return-Path: <SRS0=JfP8=ZP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D38BDC432C3
-	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 21:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6374C432C0
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:42:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9C08F20672
-	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 21:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68FFA20706
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:42:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="yU1tw9us"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g1rhsxVW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbfKWV1U (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 Nov 2019 16:27:20 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:41828 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbfKWV1U (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 23 Nov 2019 16:27:20 -0500
-Received: by mail-pf1-f195.google.com with SMTP id p26so5346904pfq.8
-        for <io-uring@vger.kernel.org>; Sat, 23 Nov 2019 13:27:20 -0800 (PST)
+        id S1726759AbfKWWmd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 Nov 2019 17:42:33 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:53634 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726638AbfKWWmc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 23 Nov 2019 17:42:32 -0500
+Received: by mail-wm1-f68.google.com with SMTP id u18so11319685wmc.3
+        for <io-uring@vger.kernel.org>; Sat, 23 Nov 2019 14:42:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=UR0UVLJ/IUMWn5l60pc0zwFWn8/sSH1s224oij3hpAM=;
-        b=yU1tw9usSS8pHAUxiyMghvfPl9agwLDQlGDGDrZUcnwFlxNbugiJLyFne8oc8OA++R
-         toBQmjX4ZkL8k/TNT6DfFyGIW71oAVMEHy7zIC/KuPxxWP7p49dFpxSFRqLgV2MFLbCH
-         ugZo05HKbJQJdTRNk0ebtbj4dbnVetxGYu9M+c3mIXgcZchd+i6oQc0b0OA8JUVRa4Tm
-         /hhSVcn4z7YzH/NwbI3M1Ai7CoF7IRFVfQJESSZEao+D9TYNKdeTeFs8Pb0vuCiHo8pz
-         AxPBK7i/4G08ndlcc67b3qESSGRDXqsJSvXQzoC5oh4hcGPP1FmDGcfwx8NjJDqloyCp
-         61sg==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=L4eieCF1jL2rwxXeKJ/I6g1C6TfbyVjHSblcmpnP88U=;
+        b=g1rhsxVW1dCC0W21bU1bvdEIaI969y8KLMUrs+um+Z2pBuUUUTwXY3CKzolfBmhg58
+         WlYT+1Ja+0XTn1igvB2MpwbRY/ZOM6x/tRbwmL3QCl/bK9Jw4QZndsD0Dv8EsixnhEJG
+         zZ4We+GuZHsXsqwqxC9oU4ysfp7ttJ2Lfc+0+omj89LrXpgAJArvBqC+YuqeH1CsrVdA
+         a/+39Q53ewGRmlOZ72O177VJxgmePy1elMbxz0Xsj5ToDVnMUjui3n6GxS+rvKOpWTg3
+         wbApQHq1n9dldDT1k56qk9/8u0j40fLbtgaHcWFqWGPb2wS4WXidf3FGoODm0rl9TU/P
+         lXcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UR0UVLJ/IUMWn5l60pc0zwFWn8/sSH1s224oij3hpAM=;
-        b=j7U9nDOiYjz+/1cfjCmgLhH+82v8y3Q9jsgDS/neB/7oS9kYZO/l3O8V8NL5XYoSiY
-         Y0oDMw6A0yVuo2p6FjBxyLR27odhw0vv2a3WrgpjM5FW44bC0VWi+1oLfOqooKHDycCW
-         Q9LIWCe4bMepHZOHEVViP0HKmSInJoIo6ihHFMAy3uhfzmyomCKc5fElo4wd8ZjmuczF
-         ODwBrPF6bbHag8f/5DEPose5aIuwBelEljfPvKUCqBmdQKxebFDE2ElJmmu44zJ7fr49
-         7eo0ZA164prUX9y1J+oxd82J41JLYAf8jfcDix1596oiKVXPERwSWEcF0OvTtYHj1f0f
-         nLHw==
-X-Gm-Message-State: APjAAAVwdnS/a2Fzb3GrNV3LZn1cYi1+Zo6Qs/djK/roDnC6xUEt+UXK
-        4SkcUvPo6C+RpkOs1Pow//K5YuPUTN7guQ==
-X-Google-Smtp-Source: APXvYqxQHtPuijF5lw+QxGLslaUuwSbemBzgSxJB9ARi0Tx6pdmy2IK2/xaCyymVvoZ+wzDNdBxnNw==
-X-Received: by 2002:a65:520d:: with SMTP id o13mr9352862pgp.433.1574544439102;
-        Sat, 23 Nov 2019 13:27:19 -0800 (PST)
-Received: from x1.thefacebook.com ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id gx16sm2981169pjb.10.2019.11.23.13.27.17
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=L4eieCF1jL2rwxXeKJ/I6g1C6TfbyVjHSblcmpnP88U=;
+        b=iEOeGyfK0vgpIdtxF+xFpC0oSgit0T/87MMrw9YD81MgP3OxAk0j7SH2pPysUQNgdd
+         iMiwAUrXlKPTskg7+mslsByWkT9ulOixIJg0JAwMBNs41ip6O768kL3h0r5KApotE6dw
+         0R+FMjqJiLut+BVmg6eq/9Vr+8h3XfhdOt1JXnloZ5K8NYsinYwSzvBrFClB9uWy9acc
+         6heMJys6rGwsYFs5Ks8HlIi5r6m4dFyMQ/UhOchbqFkKVsiECX6FmZpr8u+wuWxkj9Io
+         67qHibEXY4GuKshGQT3GAW/pu5rQRxjnv3jKbJDMNCrYSmMOcvp23Qmhf+N9E705tGGh
+         ZtCg==
+X-Gm-Message-State: APjAAAX+/ONx9hqDNIImN5bYk0k2xMql7EkBvdiYDqkFzjNATov32bef
+        GIfP4aJvXQSmqqZsk7MTRMI=
+X-Google-Smtp-Source: APXvYqxJ3bXVAg8HjtXAd/IvH1RxIuB9e8hm5tcv5eANeqZXkTYpZAeGzi6IdEpidoHs1bj5QSBEZQ==
+X-Received: by 2002:a05:600c:22d1:: with SMTP id 17mr23832368wmg.31.1574548950471;
+        Sat, 23 Nov 2019 14:42:30 -0800 (PST)
+Received: from localhost.localdomain ([109.126.143.74])
+        by smtp.gmail.com with ESMTPSA id 11sm3319694wmb.34.2019.11.23.14.42.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Nov 2019 13:27:18 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     davem@davemloft.net, netdev@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/2] io_uring: add support for IORING_OP_CONNECT
-Date:   Sat, 23 Nov 2019 14:27:09 -0700
-Message-Id: <20191123212709.4598-3-axboe@kernel.dk>
+        Sat, 23 Nov 2019 14:42:29 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH] io_uring: Fix linked fixed-read/write
+Date:   Sun, 24 Nov 2019 01:42:00 +0300
+Message-Id: <38fe471ecc3212c334fa60ff88a73896f11ec355.1574548888.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191123212709.4598-1-axboe@kernel.dk>
-References: <20191123212709.4598-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,83 +68,56 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This allows an application to call connect() in an async fashion. Like
-other opcodes, we first try a non-blocking accept, then punt to async
-context if we have to.
+Dependant links of a fixed-read/write are always cancelled. The reason
+is that io_complete_rw_common() uses req->result to decide whether to
+fail links, which is set as res=io_import_iovec(). However,
+io_import_fixed() doesn't return size, but error code.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c                 | 37 +++++++++++++++++++++++++++++++++++
- include/uapi/linux/io_uring.h |  1 +
- 2 files changed, 38 insertions(+)
+ fs/io_uring.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0c66cd6ed0b0..5ceec1a4faad 100644
+index 5ceec1a4faad..8119cbae4fb6 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1968,6 +1968,40 @@ static int io_accept(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- #endif
+@@ -1484,9 +1484,9 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret, struct io_kiocb **nxt,
+ 		io_rw_done(kiocb, ret);
  }
  
-+static int io_connect(struct io_kiocb *req, const struct io_uring_sqe *sqe,
-+		      struct io_kiocb **nxt, bool force_nonblock)
-+{
-+#if defined(CONFIG_NET)
-+	struct sockaddr __user *addr;
-+	unsigned file_flags;
-+	int addr_len, ret;
-+
-+	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index || sqe->flags)
-+		return -EINVAL;
-+
-+	addr = (struct sockaddr __user *) (unsigned long) READ_ONCE(sqe->addr);
-+	addr_len = READ_ONCE(sqe->addr2);
-+	file_flags = force_nonblock ? O_NONBLOCK : 0;
-+
-+	ret = __sys_connect_file(req->file, addr, addr_len, file_flags);
-+	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
-+		req->work.flags |= IO_WQ_WORK_NEEDS_FILES;
-+		return -EAGAIN;
-+	}
-+	if (ret == -ERESTARTSYS)
-+		ret = -EINTR;
-+	if (ret < 0 && (req->flags & REQ_F_LINK))
-+		req->flags |= REQ_F_FAIL_LINK;
-+	io_cqring_add_event(req, ret);
-+	io_put_req_find_next(req, nxt);
-+	return 0;
-+#else
-+	return -EOPNOTSUPP;
-+#endif
-+}
-+
- static inline void io_poll_remove_req(struct io_kiocb *req)
+-static int io_import_fixed(struct io_ring_ctx *ctx, int rw,
+-			   const struct io_uring_sqe *sqe,
+-			   struct iov_iter *iter)
++static ssize_t io_import_fixed(struct io_ring_ctx *ctx, int rw,
++				const struct io_uring_sqe *sqe,
++				struct iov_iter *iter)
  {
- 	if (!RB_EMPTY_NODE(&req->rb_node)) {
-@@ -2622,6 +2656,9 @@ static int io_issue_sqe(struct io_kiocb *req, struct io_kiocb **nxt,
- 	case IORING_OP_ACCEPT:
- 		ret = io_accept(req, s->sqe, nxt, force_nonblock);
- 		break;
-+	case IORING_OP_CONNECT:
-+		ret = io_connect(req, s->sqe, nxt, force_nonblock);
-+		break;
- 	case IORING_OP_ASYNC_CANCEL:
- 		ret = io_async_cancel(req, s->sqe, nxt);
- 		break;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 2a1569211d87..4637ed1d9949 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -73,6 +73,7 @@ struct io_uring_sqe {
- #define IORING_OP_ACCEPT	13
- #define IORING_OP_ASYNC_CANCEL	14
- #define IORING_OP_LINK_TIMEOUT	15
-+#define IORING_OP_CONNECT	16
+ 	size_t len = READ_ONCE(sqe->len);
+ 	struct io_mapped_ubuf *imu;
+@@ -1555,7 +1555,7 @@ static int io_import_fixed(struct io_ring_ctx *ctx, int rw,
+ 		}
+ 	}
  
- /*
-  * sqe->fsync_flags
+-	return 0;
++	return iter->count;
+ }
+ 
+ static ssize_t io_import_iovec(struct io_ring_ctx *ctx, int rw,
+@@ -1576,11 +1576,9 @@ static ssize_t io_import_iovec(struct io_ring_ctx *ctx, int rw,
+ 	 * flag.
+ 	 */
+ 	opcode = READ_ONCE(sqe->opcode);
+-	if (opcode == IORING_OP_READ_FIXED ||
+-	    opcode == IORING_OP_WRITE_FIXED) {
+-		ssize_t ret = io_import_fixed(ctx, rw, sqe, iter);
++	if (opcode == IORING_OP_READ_FIXED || opcode == IORING_OP_WRITE_FIXED) {
+ 		*iovec = NULL;
+-		return ret;
++		return io_import_fixed(ctx, rw, sqe, iter);
+ 	}
+ 
+ 	if (!s->has_user)
 -- 
 2.24.0
 

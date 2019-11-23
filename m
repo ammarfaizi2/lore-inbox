@@ -1,90 +1,83 @@
-Return-Path: <SRS0=nrYQ=ZO=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=JfP8=ZP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28D9BC432C0
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 14:24:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36983C432C3
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 21:27:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E4C0020707
-	for <io-uring@archiver.kernel.org>; Fri, 22 Nov 2019 14:24:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F198F206D4
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 21:27:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="NUYSjsEK"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="nPXvOTmB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726100AbfKVOYu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 Nov 2019 09:24:50 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:34806 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726045AbfKVOYu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 22 Nov 2019 09:24:50 -0500
-Received: by mail-il1-f196.google.com with SMTP id p6so7130421ilp.1
-        for <io-uring@vger.kernel.org>; Fri, 22 Nov 2019 06:24:48 -0800 (PST)
+        id S1726846AbfKWV1S (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 Nov 2019 16:27:18 -0500
+Received: from mail-pl1-f176.google.com ([209.85.214.176]:43631 "EHLO
+        mail-pl1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726638AbfKWV1S (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 23 Nov 2019 16:27:18 -0500
+Received: by mail-pl1-f176.google.com with SMTP id q16so534860plr.10
+        for <io-uring@vger.kernel.org>; Sat, 23 Nov 2019 13:27:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=cCR5UP4Jr7O/jBTvtMPa3eMfbER2ad4DIRiNxwAEYyQ=;
-        b=NUYSjsEKlQxASz1oVDXTLhU0ZWYHdKnuWZQhQR48FC6jttTJ5QtdcN2AwTYdh1SajW
-         VSMwgGwguK+mUybpEAuDrJN7rqEqyVYmwLXQnAIyPm77MLMRl1BzvhjlJt6aY944OSo3
-         xiQ2WzIp2Fq7v8kPMUzsxS9x1pHP6NJiX3hc1odGlyj1kUrSimHpm2/Wv0Z5AOyXZ0n+
-         +NNOgBrZ8UzycI9pKK8U8xL9aDXKgumMMfRCZlQs6vE/cy2VX9BcFWJu39RVCv63t/Y4
-         SenbGhEPN5WuCYVQOwWtzh7b6s4vz2sfGSd18b2YPUMjBpuxHjTQ/zginEz+aDUop5tx
-         6A3g==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pdR+fOWOXTaHGK56KazV3JC50sh8Nx5JD/1Vsro/I3g=;
+        b=nPXvOTmB+ToT5tep2B45o6uHDZuqO09bZVj1j1M0iiawyQZz2L5qmc+8LC5Eim/9CP
+         XcAnQZMkPy0Z76af+tlVrHg5hWrjWKm0OhUU/OrPu+aKidQy7goWkkZ/T4q/EZBwfDIZ
+         drBAa0DK/YZq343S45/KVkwkkOIta0blCibdcoFgUowToRYP2pWJQLkJQCdtvwpfweV6
+         M9aHFfOmbN7yTFXkuLdwOgABgh9U2C9IjLyu3vZwy6VrzXHOZLXUQVb57p1dNoQT2fYE
+         iE6MzxWiLwHNgxM5mD3tW/unYv/icyW1T7w85n0oeNRIBcdhW1PgLPf37T3VTR/hx6CS
+         p7xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=cCR5UP4Jr7O/jBTvtMPa3eMfbER2ad4DIRiNxwAEYyQ=;
-        b=Z6u6HC/1EVUzuCahjl6R9McAsWIxQDpwOFCS2Vih6lRrHcvNxo5BkvdtwRWGZqZVvm
-         ZCNlNtaCA0X0KHnq7ziA+g5+Q5NM3qH6jsRXflSkqky6ABrCzHLlt/W7EssXxqilZ9TU
-         wm71s7/JBqvp//E7lzYIC1WaOgD11Z9pN6r81lJwVvyniN27HwyaBrHgODESyN4cKnlN
-         4ds9n2SB7dHCDyQAwh8IZHW7vx3Wf2WlHPwbLwi1ayJ364BLt9z7ytYqjKEJw+Eiivkf
-         EEbfWKS9fVI1qEHo/6M2F9lCZcfMkBTB9G5eAeyq4NDziyNX6R3Q4Cg35NjF/ZE1dsIr
-         lr4Q==
-X-Gm-Message-State: APjAAAUU7Y/S8sx0jHiSr0c+LyrAltVaTRYe8HeqsHJ23D15wBTA8NTM
-        c1BLLH3NUOvLF8D1GKQLGmRwcg==
-X-Google-Smtp-Source: APXvYqwsoq8DMTkR6pGcAA+wt3LgX9INKpjqpoH5ZQxf9OXkI/Y6b8NWpY6Mubtep+rhRrNQAaQ3ew==
-X-Received: by 2002:a92:5a0c:: with SMTP id o12mr17708442ilb.113.1574432687932;
-        Fri, 22 Nov 2019 06:24:47 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id c13sm998977iob.69.2019.11.22.06.24.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Nov 2019 06:24:46 -0800 (PST)
-Subject: Re: [PATCH liburing v2] Update link_drain with new kernel method
-To:     Jackie Liu <jackieliu@byteisland.com>
-Cc:     asml.silence@gmail.com, io-uring@vger.kernel.org,
-        liuyun01@kylinos.cn
-References: <20191122081804.41292-1-jackieliu@byteisland.com>
+        bh=pdR+fOWOXTaHGK56KazV3JC50sh8Nx5JD/1Vsro/I3g=;
+        b=Ikap7DxxRSlyHLWHDYnz4nbrzNvuSdGnGTb2Pt2b0R/Q4uXox/Xh418pyUOO3e0KKY
+         EIvYSTXBTbgeT0KXRfYcryRgOA9ZkBiZWFuytc5oLzyFKy2DWXba14/KGUg5KbcZPS86
+         WbqjBX3eg0pGamCX+VIUXqjLfQ1/YwkN9fgkC8w2aORJjgI1uvl9IzMo3FNyzLCXDcmL
+         yfo/AoM+N2yE9fsjSXPiMkL7pFiFtqWS4gB4+Mfo5fEKS53srmnC6yb2NnNNh/EDQ7hj
+         wEBPfnYb4t778DuUVyjL1qbvWioYr/nnxWu1b1LZfQEem9mmVG4iyWy5I2yh7rcREEKS
+         TeKQ==
+X-Gm-Message-State: APjAAAXRWo4Mipak3fNxmX0HIvXQFFigLhbElfBVw10ASYVlxCgcal9R
+        LUWQ97LFrhmSoJRcrJncRO2XdlLrO+wMUw==
+X-Google-Smtp-Source: APXvYqwGG4ole6+3DlOJeO7VR3vTKapuCsbcjekkYaKxdF52tagORWOrUXg1GsyzHscM//z41qdCaA==
+X-Received: by 2002:a17:90b:3d3:: with SMTP id go19mr27965056pjb.78.1574544435357;
+        Sat, 23 Nov 2019 13:27:15 -0800 (PST)
+Received: from x1.thefacebook.com ([66.219.217.79])
+        by smtp.gmail.com with ESMTPSA id gx16sm2981169pjb.10.2019.11.23.13.27.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 Nov 2019 13:27:14 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <f9fe0c91-c857-7211-4a40-62b6223235b1@kernel.dk>
-Date:   Fri, 22 Nov 2019 07:24:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+To:     io-uring@vger.kernel.org
+Cc:     davem@davemloft.net, netdev@vger.kernel.org
+Subject: [PATCHSET 0/2] io_uring: add support for connect()
+Date:   Sat, 23 Nov 2019 14:27:07 -0700
+Message-Id: <20191123212709.4598-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <20191122081804.41292-1-jackieliu@byteisland.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/22/19 1:18 AM, Jackie Liu wrote:
-> From: Jackie Liu <liuyun01@kylinos.cn>
-> 
-> Now we are dealing with link-drain in a much simpler way,
-> so the test program is updated as well.
-> 
-> Also fixed a bug that did not close fd when an error occurred.
-> and some dead code has been modified, like commit e1420b89c do.
+Pretty trivially done, now that we support file table inheritance.
+This is done in a similar fashion to the accept4() support, by adding
+a __sys_connect_file() helper and using that from io_uring.
 
-Applied, thanks.
+ fs/io_uring.c                 | 37 +++++++++++++++++++++++++++++++++++
+ include/linux/socket.h        |  3 +++
+ include/uapi/linux/io_uring.h |  1 +
+ net/socket.c                  | 30 ++++++++++++++++++++--------
+ 4 files changed, 63 insertions(+), 8 deletions(-)
 
 -- 
 Jens Axboe
+
 

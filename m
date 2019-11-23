@@ -2,188 +2,91 @@ Return-Path: <SRS0=JfP8=ZP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A428C432C0
-	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:50:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E3D2C432C0
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:52:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 002A120706
-	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:50:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DA672064B
+	for <io-uring@archiver.kernel.org>; Sat, 23 Nov 2019 22:52:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lcpcAqCc"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="q1hnjF/1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbfKWWuR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 Nov 2019 17:50:17 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:38639 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726759AbfKWWuR (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 23 Nov 2019 17:50:17 -0500
-Received: by mail-wr1-f68.google.com with SMTP id i12so12927858wro.5
-        for <io-uring@vger.kernel.org>; Sat, 23 Nov 2019 14:50:14 -0800 (PST)
+        id S1726921AbfKWWwT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 Nov 2019 17:52:19 -0500
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:40030 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726638AbfKWWwS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 23 Nov 2019 17:52:18 -0500
+Received: by mail-pl1-f195.google.com with SMTP id f9so4766352plr.7
+        for <io-uring@vger.kernel.org>; Sat, 23 Nov 2019 14:52:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=qB5U9QK8IFWliKpOTyjb5xqvh6hw4LKNN50FWFFmUW8=;
-        b=lcpcAqCcIee157okYQ+NRIikf5rdFlo5FAFFLjDjRGRFhtbRECTdJjFiZ+kkGH7Ok5
-         NiG5bJjaZ5TB98h1TDQ/Q7TRZ9jMm7LcG7Q5B4s9rzyixy6vpGwwNil6VnjoeTcDckCU
-         8GxzX6LHfs/PgJU/XeT1R+sjtKPORw9JyUnXG2v5vJvf7CCfby4ppxHNjcL4FhpjdXg/
-         uUWtcGPZ4pSQ8kM5V2mH8KUdYoYAsK+IBHL1eGrib+XwhxJLkC7gqtUZoZ0APdQfd68K
-         828jKfDOh0HtgJ7xcqIfZQeAbAD4SNLc7X0cShhT/FBR64UrvFzgFblTPmPO9LKB3dcd
-         al8A==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=253rXmbcHMUnMzo2rz5S/az3QiZ8uGRt4vAggyUF2KE=;
+        b=q1hnjF/1t0SHYJnBpWULxcsKXwvxggh1aUan8QM4mnTQ7w7nvRPf8fnftvYPwweYwu
+         b0C1aKb+ikMAZ7eDqdDCfnmNvc9fC6Geo6+uLgPlZ/qWu0GhGL5kBzaAphIFhuJpqzBu
+         MGw9G0+40ANCpSfTfxktahQvjiOr4c57mjLDpB08NaA0g0lDvWhWgmFMmYwkt7N52JtB
+         +SMK4Dj1yKyKWQeh9D2gFuFWpoIFDL2mRctr3S4OGRks9tjLIsHEwMfVFJ7ITYFCN8fo
+         RcRp2P7Azjxq4wRAWM+xtxqBFMzjTVytl9KGylE0G93ygxOa6OofrdVavTwI+lAJScL6
+         NfkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=qB5U9QK8IFWliKpOTyjb5xqvh6hw4LKNN50FWFFmUW8=;
-        b=nU8EuGgUk5KXalBQnWwkebQ4qSlbdwn0zVKnNZbM6HwEj705WbG4F18TBaaqdy8zW4
-         s1HlCe2549GJvq1/ikhtohPwYtqZlqw62dSxmSttL7DERHEbtEI/57ZSFH9o7zzu+AYe
-         JDZz+Z+B5EQD/qk1U7FAQ2N15Cd+odz9RegSxrvBIaxUNQqpr5BjtxfdxMaTiUELURQ0
-         jhW+qnmDwVgGZMW9+L8e7WU9XXn9undoiUePIKay03eib0mvKbWNKwBwuKcyVNtZE6BY
-         oVviUmUvE/k4fm1VZ0HAZdi3OBK4F/lQEO1DHWifkryF9s/D6ji6dBRPgH5Ev5jB1xss
-         meMg==
-X-Gm-Message-State: APjAAAV9v+X1aRBCVWW+9xGVNHjXOqFM0wzEZ0aqeCLkHR/fZ85+7U0Y
-        a2rKKmrACNzivwN0EoqP4YVWb0LO
-X-Google-Smtp-Source: APXvYqz+3NrXC1+daKbklh2QB4EdF07lkbhCzM32nq0trzmROv47yaUc0Y79qXy2xoAg3wTj4aqa4g==
-X-Received: by 2002:adf:f987:: with SMTP id f7mr24101760wrr.284.1574549413816;
-        Sat, 23 Nov 2019 14:50:13 -0800 (PST)
-Received: from localhost.localdomain ([109.126.143.74])
-        by smtp.gmail.com with ESMTPSA id l10sm4110745wrg.90.2019.11.23.14.50.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Nov 2019 14:50:13 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: fix linked fixed !iter rw
-Date:   Sun, 24 Nov 2019 01:49:44 +0300
-Message-Id: <b3c25be83a015fd511bb84857af1eb8babf0a864.1574549055.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1574549055.git.asml.silence@gmail.com>
-References: <cover.1574549055.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=253rXmbcHMUnMzo2rz5S/az3QiZ8uGRt4vAggyUF2KE=;
+        b=Lzgsga+fEiu+hPmjOs9J9a7V+OeHLinDZD8ot1y8VI4NJm+TC0fnMDXfE3PzpWVv4w
+         9cH8+Q9Wv0fz5t9Yp2p23zD8awdoIW9yDVtRyV3GmUf6DOQojtMZAYvcpQ0vUlrF7WxE
+         +heWq4Cqn7xB6yF7N5ZUP9BniHjUVFosacl3j2PCZNP2k0djyFlTDTb0qPOK5gv86SnZ
+         ah0pMVLlXvawrwA7vfufiUMGJYbVhmrJ3PZaZ9/8gAhS8JyxLgHPotAAuPwt5GuZNU0q
+         FizawFjZiP6uJjOQ6lHdcaWuJSOPACtAKID4yx0nUy+LVeLtUgR1Dad79oLqzXt4uUGJ
+         1QfQ==
+X-Gm-Message-State: APjAAAUamYPbfD7yUgKoG2rw+RgLDLQa7+Y1KLTm77j2EGhf/En9TlYB
+        9ozlXFXVd4SNxMxazuL3wGSMMnV1vKwWbQ==
+X-Google-Smtp-Source: APXvYqyfTdPfRdLOSD75UZBYtBBMOv05CaerflUz1et+FaQUFNIc2OcRN+gz6B3MZOHhAA3uLbx2xA==
+X-Received: by 2002:a17:902:a70b:: with SMTP id w11mr21553588plq.27.1574549535037;
+        Sat, 23 Nov 2019 14:52:15 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.79])
+        by smtp.gmail.com with ESMTPSA id x21sm2689421pfi.122.2019.11.23.14.52.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 23 Nov 2019 14:52:14 -0800 (PST)
+Subject: Re: [PATCH] io_uring: Fix linked fixed-read/write
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <38fe471ecc3212c334fa60ff88a73896f11ec355.1574548888.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <5e30dba1-0411-5db4-2bb9-ebb80a8cdd6e@kernel.dk>
+Date:   Sat, 23 Nov 2019 15:52:12 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <38fe471ecc3212c334fa60ff88a73896f11ec355.1574548888.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As loop_rw_iter() may need mm even for fixed requests, update
-io_req_needs_user(), so the offloading thread and io-wq can handle it as
-well.
+On 11/23/19 3:42 PM, Pavel Begunkov wrote:
+> Dependant links of a fixed-read/write are always cancelled. The reason
+> is that io_complete_rw_common() uses req->result to decide whether to
+> fail links, which is set as res=io_import_iovec(). However,
+> io_import_fixed() doesn't return size, but error code.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 41 ++++++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 17 deletions(-)
+See:
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 566e987c6dab..d84b69872967 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -525,12 +525,13 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
- 	}
- }
- 
--static inline bool io_sqe_needs_user(const struct io_uring_sqe *sqe)
-+static inline bool io_req_needs_user(struct io_kiocb *req)
- {
--	u8 opcode = READ_ONCE(sqe->opcode);
-+	struct file *f = req->file;
-+	u8 opcode = READ_ONCE(req->submit.sqe->opcode);
- 
--	return !(opcode == IORING_OP_READ_FIXED ||
--		 opcode == IORING_OP_WRITE_FIXED);
-+	return !((opcode == IORING_OP_READ_FIXED && f->f_op->read_iter) ||
-+		(opcode == IORING_OP_WRITE_FIXED && f->f_op->write_iter));
- }
- 
- static inline bool io_prep_async_work(struct io_kiocb *req,
-@@ -559,7 +560,7 @@ static inline bool io_prep_async_work(struct io_kiocb *req,
- 				req->work.flags |= IO_WQ_WORK_UNBOUND;
- 			break;
- 		}
--		if (io_sqe_needs_user(req->submit.sqe))
-+		if (io_req_needs_user(req))
- 			req->work.flags |= IO_WQ_WORK_NEEDS_USER;
- 	}
- 
-@@ -1625,11 +1626,11 @@ static ssize_t loop_rw_iter(int rw, struct file *file, struct kiocb *kiocb,
- 		struct iovec iovec;
- 		ssize_t nr;
- 
--		if (iter_is_iovec(&iter->it)) {
--			iovec = iov_iter_iovec(&iter->it);
--		} else {
-+		if (iov_iter_is_bvec(&iter->it)) {
- 			iovec.iov_base = (void __user *)iter->ubuf;
- 			iovec.iov_len = iov_iter_count(&iter->it);
-+		} else {
-+			iovec = iov_iter_iovec(&iter->it);
- 		}
- 
- 		if (rw == READ) {
-@@ -3041,14 +3042,6 @@ static void io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
- 		goto err_req;
- 	}
- 
--	ret = io_req_set_file(state, req);
--	if (unlikely(ret)) {
--err_req:
--		io_cqring_add_event(req, ret);
--		io_double_put_req(req);
--		return;
--	}
--
- 	/*
- 	 * If we already have a head request, queue this one for async
- 	 * submittal once the head completes. If we don't have a head but
-@@ -3092,6 +3085,11 @@ static void io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
- 	} else {
- 		io_queue_sqe(req);
- 	}
-+
-+	return;
-+err_req:
-+	io_cqring_add_event(req, ret);
-+	io_double_put_req(req);
- }
- 
- /*
-@@ -3197,6 +3195,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	for (i = 0; i < nr; i++) {
- 		struct io_kiocb *req;
- 		unsigned int sqe_flags;
-+		int ret;
- 
- 		req = io_get_req(ctx, statep);
- 		if (unlikely(!req)) {
-@@ -3209,7 +3208,14 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			break;
- 		}
- 
--		if (io_sqe_needs_user(req->submit.sqe) && !*mm) {
-+		ret = io_req_set_file(statep, req);
-+		if (unlikely(ret)) {
-+			io_cqring_add_event(req, ret);
-+			__io_free_req(req);
-+			break;
-+		}
-+
-+		if (io_req_needs_user(req) && !*mm) {
- 			mm_fault = mm_fault || !mmget_not_zero(ctx->sqo_mm);
- 			if (!mm_fault) {
- 				use_mm(ctx->sqo_mm);
-@@ -3217,6 +3223,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			}
- 		}
- 
-+
- 		sqe_flags = req->submit.sqe->flags;
- 
- 		req->submit.ring_file = ring_file;
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5e559561a8d7e6d4adfce6aa8fbf3daa3dec1577
+
+Just not in the 5.5 branches. We probably do want to make it ssize_t to
+be more proper, but IO in Linux is capped at 2G anyway so doesn't make
+a difference right now.
+
 -- 
-2.24.0
+Jens Axboe
 

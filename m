@@ -2,82 +2,82 @@ Return-Path: <SRS0=pC3Y=ZR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 403C7C432C0
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 19:42:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35B4BC432C0
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 20:15:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E99D02071E
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 19:42:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 068DB20659
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 20:15:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="FT1QQV4w"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cXh7Ni0W"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbfKYTmt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Nov 2019 14:42:49 -0500
-Received: from mail-io1-f68.google.com ([209.85.166.68]:36639 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725818AbfKYTmt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 14:42:49 -0500
-Received: by mail-io1-f68.google.com with SMTP id s3so17676992ioe.3
-        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 11:42:47 -0800 (PST)
+        id S1726029AbfKYUPI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Nov 2019 15:15:08 -0500
+Received: from mail-wm1-f48.google.com ([209.85.128.48]:37053 "EHLO
+        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725924AbfKYUPI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 15:15:08 -0500
+Received: by mail-wm1-f48.google.com with SMTP id f129so732811wmf.2
+        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 12:15:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=B1Bi8hqVfQsDHhQj9zSvVEaf+zaMtKm9RTMtiE0/naI=;
-        b=FT1QQV4wQmx0o1h0UgphUeH8CewTZBbPvZKJI0+YwB3f7UeyaHWtFi+y8BFi1Ux5Em
-         AufRQyT0W2h2FBgBOFZPczbWsQlKo3MeOX5tu9tnwK2jE/xhNYnLDGS/WkfX89GeRv73
-         N7R9YN9mWM6rLCt3I4Q25HZc7J7CdYfGpjJYIYvffH1IxZC6exHr2hUC7jwJJuAO21uz
-         jH0vKt9Tqymgv4LnNArpretgrvQ2LCVoJHY2W/TANQ+OEZAnBWF9IMmf5NPtjQQ7JMxS
-         hxMHcPYKhuzzJu6Jq1OFcQ/sL+KUe3jZ7BWMWh+9ZdfDxaUD4vYT1T+aCtcjY9rebbLE
-         WzRQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GHVh+PNnim8ehMq4maake9r2qSZZFmrWNYmN5qAtsIc=;
+        b=cXh7Ni0W1eU4G61P9rhtDo5GOE+WQLFToH7qHOEYzx+fhGoW/Yr7f1Z5LRqD1c+xe1
+         EMwrcRXGuYcq6zTgWPe2j5KyCaFtXldiVybzUrYk4p9Ne7MvlcFGD0CQTPKOKU1b8Q5X
+         z3/cPWK5ZSl+CKQQXu/Dy2KhglfzdFddObjY2IIXc7NAGW63JLnEV4Fs1OknVMzgf2IN
+         VRIfJVMqB2U/5B7COK/XJJInGAPVoG6aWMFYqDqAWpfQrtG4v05zAT7CZPPp6Yaqae1o
+         rXnq0YcoVuLSmZgXm8e306NXpJ5mSsq4IcRgt7U1r6zQ1TurUmiEYhqUGG4yjNpfzT7j
+         n+3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=B1Bi8hqVfQsDHhQj9zSvVEaf+zaMtKm9RTMtiE0/naI=;
-        b=M1cEi9iIAWKkS+cLLP6RVMNhGrGZrHa5DiIqSB5oe1MDzClbaDDrwNG31pwROtbNVH
-         TNhNlpnJ4wktnkPv9/r6hgxawL4PS0R68H9uK7XaZ3frde4kJ/NQas9rWVeSbxeu6Jwi
-         Snx43hOZwixJEsI3JmfJcU/udifz3GI70sdVQcYWT+dJsxys3uav1zrPcfecArRniTuI
-         YIiEQq12+W0SALyqT3nGkPHcU8oWYjw8MVologU0k/v85Dm5j6KCWIoZhSLjQKOhJXSO
-         cWDfgxvHXgkHvCU+LEH/fscNLU7oJV7i0RGPVnJBqo+p+fVVe0PrG55fVF/I3DG3S6Jc
-         HLeQ==
-X-Gm-Message-State: APjAAAWZwUnoZA4TShW8eyx8DTkg673gXvHkCuBOEIdmgbMZzNHG+gRl
-        hL+4pNEuq/PEh3j10JICYB/ycCf+owEtBw==
-X-Google-Smtp-Source: APXvYqy3DPEJ8hT34jjIXSkfHFOupEvFz0flKLVnInj9inNFDwlT5H59+pqWrsWKys3yka9AJ6KfkA==
-X-Received: by 2002:a5d:8c8d:: with SMTP id g13mr28523711ion.100.1574710967041;
-        Mon, 25 Nov 2019 11:42:47 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m85sm2468849ilh.16.2019.11.25.11.42.45
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 25 Nov 2019 11:42:46 -0800 (PST)
-Subject: Re: [PATCH] Remove superfluous check for sqe->off in io_accept()
-To:     Hrvoje Zeba <zeba.hrvoje@gmail.com>, io-uring@vger.kernel.org
-References: <20191125194022.441739-1-zeba.hrvoje@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <a3833628-50e2-5c44-6e14-5894bd8ccf32@kernel.dk>
-Date:   Mon, 25 Nov 2019 12:42:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        bh=GHVh+PNnim8ehMq4maake9r2qSZZFmrWNYmN5qAtsIc=;
+        b=G7X1NHbrv21WaGzu2f+GD99Ug6De7qv1Cucf3sUech+qp3ZN9sYSK6/ZrMUGTxIQq6
+         4ZkUIE6PnDoM/yS3z6uAOf5DBMHkGxPCZEHfu2FFxTUPvy/fOHV6SaAUytqrR+iUqaIy
+         msWLm8nl6VbPapbgptHlpWgzhKJKm21fQ2Dyvk2MzIbpp7ZlWLh073Wj9fN7RQR8aZPm
+         qYg6Km1G5LPB412RLBpp31bKcOMbab/pKQIkKQAKhmDFq2FKvKh7Kt2TwSlLdACboE+P
+         aQ1wXrKOH7EbytI8c1859guytkHb0eBceXF1wZaXrxUIHlFvZM38CQFhaQjo1jy0e6Ok
+         3Svg==
+X-Gm-Message-State: APjAAAVp8evJ1igpcbKhlRImvVEL4YXmTRno/f4T+F6kmsWeIHzgL6Sl
+        aEkktR46TRT0FffWbl+0dQg=
+X-Google-Smtp-Source: APXvYqyWZnv5luxKv6QOOQCa1Axxmgm7ucY2o+jtIl/G5btlhI+D8uwdxUJznstjinUuRw2g3UQ8qQ==
+X-Received: by 2002:a1c:7709:: with SMTP id t9mr592803wmi.80.1574712906325;
+        Mon, 25 Nov 2019 12:15:06 -0800 (PST)
+Received: from localhost.localdomain ([109.126.143.74])
+        by smtp.gmail.com with ESMTPSA id x7sm11584407wrq.41.2019.11.25.12.15.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Nov 2019 12:15:05 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCHSET 0/3] io_uring minor cleanup
+Date:   Mon, 25 Nov 2019 23:14:37 +0300
+Message-Id: <cover.1574712375.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <20191125194022.441739-1-zeba.hrvoje@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/25/19 12:40 PM, Hrvoje Zeba wrote:
-> This field contains a pointer to addrlen and checking to see if it's set
-> returns -EINVAL if the caller sets addr & addrlen pointers.
+A set of a bit bulky but straightward cleanups.
+The main part is removing/inlining struct sqe_submit.
 
-Thanks, applied with a Fixes tag added (and io_uring: prefix on subject).
+Pavel Begunkov (3):
+  io_uring: store timeout's sqe->off in proper place
+  io_uring: inline struct sqe_submit
+  io_uring: cleanup io_import_fixed()
+
+ fs/io_uring.c | 188 +++++++++++++++++++++++---------------------------
+ 1 file changed, 87 insertions(+), 101 deletions(-)
 
 -- 
-Jens Axboe
+2.24.0
 

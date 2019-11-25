@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C0A5C432C0
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 16:48:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C0E6C432C0
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 16:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 34B472068E
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 16:48:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12F122068E
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 16:48:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cvXjA6mM"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="de0lDEWK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728876AbfKYQs1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Nov 2019 11:48:27 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:33503 "EHLO
+        id S1728911AbfKYQs2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Nov 2019 11:48:28 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:37591 "EHLO
         mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728860AbfKYQs0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 11:48:26 -0500
-Received: by mail-io1-f67.google.com with SMTP id j13so17050927ioe.0
-        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 08:48:25 -0800 (PST)
+        with ESMTP id S1728860AbfKYQs2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 11:48:28 -0500
+Received: by mail-io1-f67.google.com with SMTP id k24so6359817ioc.4
+        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 08:48:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=vhpTeuOA1GpRMng8r9BTuksctnFgh1g7Dr54Kb56Ya8=;
-        b=cvXjA6mMM7Y6XtYDyhm+OxpuwQEeKpNb9L4AMArjDpqAUFNakMdrYboMjxa7BNoUPN
-         iIiSfeNboHtm8Ub+3QNi4vZAW1AV/359syVGSreVeouBC9d0L5B10PrERQEFbcHtJ4mp
-         Pe75+dMShSnx6AKlxt+9Luki8UI4d/9e+IkBVdzaCWpIFfV1zpvSqIIrk/1S/jjRA2EP
-         pENzL/3OBAKdoRhN+GPKix1xEKvfDrr1PCgpY96nFeE40YZkVVQ0t6AdUenQB3pqDddq
-         F+IcL1QRYg2u1o1NHMdAIn8koj4Y7P8KHdHA2Oe6/3PI1Znm+UNdO30o+Xuu+bLT7j+T
-         FGng==
+        bh=i/Nn4KPoO6d2avLi8YeilyrpapR+do+CuEzcXz+87NY=;
+        b=de0lDEWKCsN6TAgftsYgd4nIZTx3Bn5blgXtj6PEswAnaf3OKa71eKcrUtIxo5QE5l
+         miMLZI38bpViw8GRFXfYTy9iFekWVu9VlLGw1ibx/LVMz7t1A/fak6cstmmSdZpFmRZE
+         d5d2EEBcgbiBUi5j4Eh5FfpmIR+2p1/PU/8oOEi8Flgs0G0oLIoqYYIOqPnfNpquQj60
+         gCFF7NT5Voz8qi69lrDBqki+TojIE0DcNKrvsnkO3AFtCQ9SSfaWT4FM1QGkwSXwbtsQ
+         yjkp+M4FUclINEbI1+l0gOk2hrbb92RQHh4uh3NBlMegXeBOIQjnCi4ZC9i+KIfxdu/0
+         y6mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=vhpTeuOA1GpRMng8r9BTuksctnFgh1g7Dr54Kb56Ya8=;
-        b=tbc4Maqsnwu0BrQW8BL4+PjtOvi0J2aILs7pP+V8dhJfvo74Vvf81XBBWCi08M+pWH
-         9OFOY65qDhffOHpCNjFV/91xqXJRYEjS+iv3U8kyBexMpPUIdMRz/nWkDq4KjqLpvRic
-         lL1W+DBSXEgMtvmcv9f3Hvl9EG5/kSAh8hO2ccri/YhjwowvIbmPQihRm6/i1BNzkKae
-         CRCThwLvg0weJ94sqB8edI0R4cS0HDX+UQuy0opWME8fP+Ejc+nZ1RlcIbg+pzmXxFgm
-         lbzE1rC7i4bAAhOFtWih0Pz4sGAo1ZUENsZ31qMrKe3fyiYg5aUX2LowgSOf2EtDB7Lo
-         +stg==
-X-Gm-Message-State: APjAAAWABFPPv/KkqEaNlJg4fJ5zfr48YAB8ue6bmtTpb8K0ZFu3Hgba
-        E+JbFWRENATib/GV2ffcpLl+ITjB4RhEKg==
-X-Google-Smtp-Source: APXvYqwQqUxpu7N8B0buWGCB33BuQEfnRa7ywsKlhLxeaXUUfWIwLhyQ1a/NAgzDc3Uulvg0S4IQLA==
-X-Received: by 2002:a6b:cf0f:: with SMTP id o15mr11023793ioa.229.1574700504208;
-        Mon, 25 Nov 2019 08:48:24 -0800 (PST)
+        bh=i/Nn4KPoO6d2avLi8YeilyrpapR+do+CuEzcXz+87NY=;
+        b=twL95DiJr5UVtV36yJONcbDWJHiuvW2aK1Ye72BN81LQAtrFJ/f4rPAphTqkQ7NNDg
+         YrpVzyOhNlkku8hdC7e6ZqcQD0P0Ime9UlBGUtmU+9qZ6rjzXgHmZK6WBqN0I6D3RQHV
+         ccnyI19SHxn7BuE7yw4h+06iJ65+PODqz8cOuFHhCVUXrEqP1BkfbrsAZaPfJNl11z7N
+         4Gv4TANkcnthmrvOwQczXdqZeI3dUfvUN5iOwYTZA4Zs6vIphtzSX3XULeL4j472kE31
+         T/ceRXydYYrBIrBMbA19QmGyLnguj/DSq66BJXnqyA2WEgvYTfWCdsyuzAlUS/EuCYVZ
+         pBZA==
+X-Gm-Message-State: APjAAAXriOHAdxe3QPcuqoV/iB6CKsygxOUjcdy1A7bAxOfqAUlIm62i
+        IhD/Vb2eC+wOFgHsj77wYGq0QxIaAA+qiw==
+X-Google-Smtp-Source: APXvYqzE8stPkIZCxLvDBIpd+UeV9TtZLAlh2LlKdEWT+pLrOuOYO8e+hYySqikDrRn5vrSyWkmGKQ==
+X-Received: by 2002:a6b:b294:: with SMTP id b142mr26331486iof.243.1574700505511;
+        Mon, 25 Nov 2019 08:48:25 -0800 (PST)
 Received: from localhost.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id k4sm1944788iof.61.2019.11.25.08.48.22
+        by smtp.gmail.com with ESMTPSA id k4sm1944788iof.61.2019.11.25.08.48.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 08:48:23 -0800 (PST)
+        Mon, 25 Nov 2019 08:48:24 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: async workers should inherit the user creds
-Date:   Mon, 25 Nov 2019 09:48:17 -0700
-Message-Id: <20191125164818.16414-3-axboe@kernel.dk>
+Subject: [PATCH 2/2] io_uring: async workers should inherit the user creds
+Date:   Mon, 25 Nov 2019 09:48:18 -0700
+Message-Id: <20191125164818.16414-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191125164818.16414-1-axboe@kernel.dk>
 References: <20191125164818.16414-1-axboe@kernel.dk>
@@ -77,107 +77,127 @@ identical aio issue.
 Link: https://lore.kernel.org/linux-fsdevel/26f0d78e-99ca-2f1b-78b9-433088053a61@scylladb.com/T/#u
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ fs/io-wq.c    | 10 ++++++++++
+ fs/io-wq.h    |  1 +
+ fs/io_uring.c | 14 ++++++++++++++
+ 3 files changed, 25 insertions(+)
 
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 49ca58c714da..85c0090b2717 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -57,6 +57,7 @@ struct io_worker {
+ 
+ 	struct rcu_head rcu;
+ 	struct mm_struct *mm;
++	const struct cred *creds;
+ 	struct files_struct *restore_files;
+ };
+ 
+@@ -111,6 +112,7 @@ struct io_wq {
+ 
+ 	struct task_struct *manager;
+ 	struct user_struct *user;
++	struct cred *creds;
+ 	struct mm_struct *mm;
+ 	refcount_t refs;
+ 	struct completion done;
+@@ -136,6 +138,11 @@ static bool __io_worker_unuse(struct io_wqe *wqe, struct io_worker *worker)
+ {
+ 	bool dropped_lock = false;
+ 
++	if (worker->creds) {
++		revert_creds(worker->creds);
++		worker->creds = NULL;
++	}
++
+ 	if (current->files != worker->restore_files) {
+ 		__acquire(&wqe->lock);
+ 		spin_unlock_irq(&wqe->lock);
+@@ -442,6 +449,8 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 			set_fs(USER_DS);
+ 			worker->mm = wq->mm;
+ 		}
++		if (!worker->creds)
++			worker->creds = override_creds(wq->creds);
+ 		if (test_bit(IO_WQ_BIT_CANCEL, &wq->state))
+ 			work->flags |= IO_WQ_WORK_CANCEL;
+ 		if (worker->mm)
+@@ -995,6 +1004,7 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 
+ 	/* caller must already hold a reference to this */
+ 	wq->user = data->user;
++	wq->creds = data->creds;
+ 
+ 	i = 0;
+ 	for_each_online_node(node) {
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 6db81f0f44e2..e09c6a54648c 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -51,6 +51,7 @@ typedef void (put_work_fn)(struct io_wq_work *);
+ struct io_wq_data {
+ 	struct mm_struct *mm;
+ 	struct user_struct *user;
++	struct cred *creds;
+ 
+ 	get_work_fn *get_work;
+ 	put_work_fn *put_work;
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 84efb8956734..9bead1717949 100644
+index a9a1fb9954cc..26bfba729a1e 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -255,6 +255,8 @@ struct io_ring_ctx {
+@@ -237,6 +237,8 @@ struct io_ring_ctx {
  
  	struct user_struct	*user;
  
 +	struct cred		*creds;
 +
- 	struct completion	ctx_done;
+ 	/* 0 is for ctx quiesce/reinit/free, 1 is for sqo_thread started */
+ 	struct completion	*completions;
  
- 	struct {
-@@ -1294,8 +1296,11 @@ static void io_poll_complete_work(struct work_struct *work)
- 	struct io_poll_iocb *poll = &req->poll;
- 	struct poll_table_struct pt = { ._key = poll->events };
- 	struct io_ring_ctx *ctx = req->ctx;
-+	const struct cred *old_cred;
- 	__poll_t mask = 0;
- 
-+	old_cred = override_creds(ctx->creds);
-+
- 	if (!READ_ONCE(poll->canceled))
- 		mask = vfs_poll(poll->file, &pt) & poll->events;
- 
-@@ -1310,7 +1315,7 @@ static void io_poll_complete_work(struct work_struct *work)
- 	if (!mask && !READ_ONCE(poll->canceled)) {
- 		add_wait_queue(poll->head, &poll->wait);
- 		spin_unlock_irq(&ctx->completion_lock);
--		return;
-+		goto out;
- 	}
- 	list_del_init(&req->list);
- 	io_poll_complete(ctx, req, mask);
-@@ -1318,6 +1323,8 @@ static void io_poll_complete_work(struct work_struct *work)
- 
- 	io_cqring_ev_posted(ctx);
- 	io_put_req(req);
-+out:
-+	revert_creds(old_cred);
- }
- 
- static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
-@@ -1528,10 +1535,12 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct mm_struct *cur_mm = NULL;
- 	struct async_list *async_list;
-+	const struct cred *old_cred;
- 	LIST_HEAD(req_list);
- 	mm_segment_t old_fs;
- 	int ret;
- 
-+	old_cred = override_creds(ctx->creds);
- 	async_list = io_async_list_from_sqe(ctx, req->submit.sqe);
- restart:
- 	do {
-@@ -1633,6 +1642,7 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 		unuse_mm(cur_mm);
- 		mmput(cur_mm);
- 	}
-+	revert_creds(old_cred);
- }
- 
- /*
-@@ -1881,6 +1891,7 @@ static int io_sq_thread(void *data)
- 	struct sqe_submit sqes[IO_IOPOLL_BATCH];
+@@ -3251,6 +3253,7 @@ static int io_sq_thread(void *data)
+ {
  	struct io_ring_ctx *ctx = data;
  	struct mm_struct *cur_mm = NULL;
 +	const struct cred *old_cred;
  	mm_segment_t old_fs;
  	DEFINE_WAIT(wait);
  	unsigned inflight;
-@@ -1888,6 +1899,7 @@ static int io_sq_thread(void *data)
+@@ -3261,6 +3264,7 @@ static int io_sq_thread(void *data)
  
  	old_fs = get_fs();
  	set_fs(USER_DS);
 +	old_cred = override_creds(ctx->creds);
  
- 	timeout = inflight = 0;
- 	while (!kthread_should_stop() && !ctx->sqo_stop) {
-@@ -2001,6 +2013,7 @@ static int io_sq_thread(void *data)
+ 	ret = timeout = inflight = 0;
+ 	while (!kthread_should_park()) {
+@@ -3367,6 +3371,7 @@ static int io_sq_thread(void *data)
  		unuse_mm(cur_mm);
  		mmput(cur_mm);
  	}
 +	revert_creds(old_cred);
  
- 	if (kthread_should_park())
- 		kthread_parkme();
-@@ -2645,6 +2658,8 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ 	kthread_parkme();
+ 
+@@ -3993,6 +3998,7 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ 
+ 	data.mm = ctx->sqo_mm;
+ 	data.user = ctx->user;
++	data.creds = ctx->creds;
+ 	data.get_work = io_get_work;
+ 	data.put_work = io_put_work;
+ 
+@@ -4347,6 +4353,8 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
  		io_unaccount_mem(ctx->user,
  				ring_pages(ctx->sq_entries, ctx->cq_entries));
  	free_uid(ctx->user);
 +	if (ctx->creds)
 +		put_cred(ctx->creds);
+ 	kfree(ctx->completions);
+ 	kmem_cache_free(req_cachep, ctx->fallback_req);
  	kfree(ctx);
- }
- 
-@@ -2924,6 +2939,12 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p)
+@@ -4700,6 +4708,12 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p)
  	ctx->account_mem = account_mem;
  	ctx->user = user;
  

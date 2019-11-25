@@ -2,94 +2,83 @@ Return-Path: <SRS0=pC3Y=ZR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5B52C432C0
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 22:10:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90F3AC432C3
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 22:19:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8767E20740
-	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 22:10:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FC9120740
+	for <io-uring@archiver.kernel.org>; Mon, 25 Nov 2019 22:19:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e5DtnVtX"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Mm1mKuU3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbfKYWKB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Nov 2019 17:10:01 -0500
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:45437 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726876AbfKYWKB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 17:10:01 -0500
-Received: by mail-qt1-f194.google.com with SMTP id 30so19045303qtz.12
-        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 14:10:00 -0800 (PST)
+        id S1725930AbfKYWTC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Nov 2019 17:19:02 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:33807 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725912AbfKYWTC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Nov 2019 17:19:02 -0500
+Received: by mail-pj1-f67.google.com with SMTP id bo14so7265960pjb.1
+        for <io-uring@vger.kernel.org>; Mon, 25 Nov 2019 14:19:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=MoaEl+GQR2yFWmkWhQRTKyLL+QebAe24MOqvuMmpR4o=;
-        b=e5DtnVtXqMYkiDGi4isws34K6lSpkRqT60s2O0c1r9ZB56Y4tiJBkORf0xQ5c+O0Fz
-         IWRbXco9P5OoWDfaAqRk6S/jo/BQw8q0ccThPw7SJkxLEJ4p5IxKxYv9QK7VUS0PqQF9
-         3VTUlNzW3I7pXFJvWky5KbZdaiKUH+U+VqBAan7zoOHV1s61refn9i9SgGMjdkVSuije
-         2frtki0rahmuts0wdpoO/fABE4IuRqAIZ+/a1i94dXjEosAuLmWkq57p9K+2Gsuco+7/
-         Qq6syEO9Vo3H94KmtRCnNFhG2GHwXxhmkenx6WalSZjBke06Pf/GfTCBUh9qi5j2ele+
-         PFRg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=grspVAXDmkE0dNZL/P1XqXodoDp9HEjt+Jc2GQOCYbk=;
+        b=Mm1mKuU3clKjnlOVtjm02hwUVI9T6YnO6lc21REe00lsi4017mlSAOsU2BwzI4xbZC
+         QO4VI5y6alVYrzE0saOXTLl1Lyqm+hfpmpMvukuNzSSnsunJ3DK6eYxBNAeAsbqKngrG
+         NbcHfy5vGywSrKdvKbbrN+63F1bgKr+omWjUNfQOGZ4rl2QyiYbHSCwWZu4c02FyVnE6
+         jo+c0mge9jOLYMnneFCn0aa2yeTiuR7V0+o/hiKPu24sWovpOAytPl/K4lvEiczl9iFJ
+         mio4fcG5r8nOybSKYGiOfDGZ9YeG32TjYqnZhRu0P9LsAEmQMv1a5ecFRXNYIHNlOWKk
+         XLjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=MoaEl+GQR2yFWmkWhQRTKyLL+QebAe24MOqvuMmpR4o=;
-        b=jlR10NU6xw3x9UJBgJGfJTB10WYAWu/YCtiHlWCdXJFzkyedIPGwqQPoYTyDKHXj3p
-         B6EPpYUV++89MQrCKdQ4BLx0gEfDsQZ5CV7L/DJmr728GOghhdo3jIycf1jGNmWOWcx1
-         Gt03S4S8nKVUk3amjgo/Z2AaQUQ9LLTDILSm6/AQq/V+nN2Ne9zFsHnlkOJhF4z/2Gca
-         lhJgIW9qL426qZ1I+7AOnzPVTwVlUtHP4+ieBNjRMB+v1vV+q7e9tsSl2AVfTnZlwLG5
-         Aju8PC3dMzyKnHrixluLmR5e6BiQP+HLuWDsM1t3wmLVXXQfUHi/cPVCxaMiT1IstE9r
-         6fDg==
-X-Gm-Message-State: APjAAAV3fdC/RId04jl49RATMW9cS4OIea2rSv/2MQKIv0pbazoJOu0X
-        BNv3pADWLIiF/5rRtCIKL4NCIm827nE=
-X-Google-Smtp-Source: APXvYqweJLwPXcfiZIx6EnP4qvABnSutISgxN1N5tq007NGRcDeHCs3XsiNzqOOMniAFyNPl9Y0KaQ==
-X-Received: by 2002:ac8:2441:: with SMTP id d1mr21205803qtd.386.1574719799809;
-        Mon, 25 Nov 2019 14:09:59 -0800 (PST)
-Received: from bigtwo.lan ([2604:6000:150e:c9aa::fed])
-        by smtp.gmail.com with ESMTPSA id k3sm4080969qkj.119.2019.11.25.14.09.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 14:09:59 -0800 (PST)
-From:   Hrvoje Zeba <zeba.hrvoje@gmail.com>
-To:     io-uring@vger.kernel.org
-Cc:     Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Subject: [PATCH] io_uring: Remove superfluous check for sqe->off in io_connect()
-Date:   Mon, 25 Nov 2019 17:09:56 -0500
-Message-Id: <20191125220956.167347-1-zeba.hrvoje@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=grspVAXDmkE0dNZL/P1XqXodoDp9HEjt+Jc2GQOCYbk=;
+        b=JFcsFO7FwP2azk1JV4nlXAoo5dOIB1SgIntbGW2ny/XKHuCx80RCIBOAt+x9X7aCcS
+         SaEVeG0YzIsUQh/UZsy20T+sle9+82PQqtR3tS52+IVSOuMMEthpW9bpqenDGa6SUbGI
+         5VCRrM7s3+HNX1uTquhUj0QBUopylBzuK+PjYYf5/zpLGnCzJ+2gPsjKHRRzp2/qy9eW
+         a8nrNjVqfGhfqvN097Jls5Un6qKrisgjqe1JegvCCOrw9FdnPcU/FwgL8crKJYe1FuJf
+         Eyv5jMUomYJy6Geut3DoikrykfXJPJpxhmKBk2+WYUOsgqBo01KYtASapHJk1yz8qYWi
+         wCDg==
+X-Gm-Message-State: APjAAAVDyEsrdiKijPlztKGXI4yBUnebq7W6GiSkUF+GkfB9EvO/MaKm
+        BZhvJmgykCpj1JG3acgetPDs/3jxc2ShCg==
+X-Google-Smtp-Source: APXvYqzG95HC/QXFdC9DLYA3mgNiiPBBRiANFrrkxXk66ABUw0Ol4pyGWx1t6lB+YMJvOkDBfxmc5A==
+X-Received: by 2002:a17:902:ff15:: with SMTP id f21mr14744507plj.163.1574720340003;
+        Mon, 25 Nov 2019 14:19:00 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.79])
+        by smtp.gmail.com with ESMTPSA id k14sm9852754pgt.54.2019.11.25.14.18.58
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 25 Nov 2019 14:18:59 -0800 (PST)
+Subject: Re: [PATCH] io_uring: Remove superfluous check for sqe->off in
+ io_connect()
+To:     Hrvoje Zeba <zeba.hrvoje@gmail.com>, io-uring@vger.kernel.org
+References: <20191125220956.167347-1-zeba.hrvoje@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <500f88f9-cc5a-15d6-595e-394d44b66cb1@kernel.dk>
+Date:   Mon, 25 Nov 2019 15:18:57 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191125220956.167347-1-zeba.hrvoje@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This field contains addrlen value and checking to see if it's set
-returns -EINVAL.
+On 11/25/19 3:09 PM, Hrvoje Zeba wrote:
+> This field contains addrlen value and checking to see if it's set
+> returns -EINVAL.
 
-Signed-off-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
----
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Folded in, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8cb8f3898c77..f5e81b5511e1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1998,7 +1998,7 @@ static int io_connect(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 
- 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index ||
-+	if (sqe->ioprio || sqe->len || sqe->buf_index ||
- 	    sqe->rw_flags)
- 		return -EINVAL;
- 
 -- 
-2.24.0
+Jens Axboe
 

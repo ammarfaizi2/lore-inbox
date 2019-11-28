@@ -7,58 +7,59 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E54C432C0
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 19:19:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C56FC432C0
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 22:47:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F0E9720880
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 19:19:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11EE7206BF
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 22:47:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="F8QNZvQZ"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Y8Ea/smQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbfK1TT1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Nov 2019 14:19:27 -0500
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:39869 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726633AbfK1TT1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 14:19:27 -0500
-Received: by mail-oi1-f193.google.com with SMTP id a67so5343431oib.6
-        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 11:19:26 -0800 (PST)
+        id S1726610AbfK1Wra (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Nov 2019 17:47:30 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:42800 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726609AbfK1Wra (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 17:47:30 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 66so17241846otd.9
+        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 14:47:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Sa7Qo9GWk7jIcVb/UqPiStHbvEoHinr+Eez2kcCOf1c=;
-        b=F8QNZvQZFDC4R29kvG1rBgKm1kpx6PZbsIqFU0WaDGkxK0KPMas53EVmUrCxZEWKu+
-         TyLjB1Ji+sFJdqf10OEg/Jozf5L3+00M4S1V7iG1JEs3oz9wCN28WolNCGBvlMTdIfFE
-         bCJSycpiYuwAopQg9Lp7fG1kSZUha7EtNo2xhBUGQxHctbro13ju+XhNyk2oV0lydZPA
-         7tAjfzfqTCfQ8IlhZZ5l5iKkHtTTOt3RdXbCxk14A3d3bohxQt8+j1GpA3cJOQ0/5B1z
-         fRu4mh07clHKxnURShciN+a3Sjz8/CkJmxPsT2gWtE03/BSgjSI3V1fToG8TUdB/kN8q
-         mkWw==
+        bh=CUk7v7UPe6VTRCevALfgnUC9KL2cGJpFHn8mL3idLe0=;
+        b=Y8Ea/smQHjouC6SBRXFZkjwTn2tarmmechSnFeym66dooOOnkxhT2nHCmkSARtdQUe
+         ZXdW78yhSFGWQa9ZEKD+TSdGevk4bhR+ccadD5qPzyAVHBSeBpKWvJNNtVxHxWYdKSlw
+         tsLHHiQ1/WZPQ7fJQVfpJxtzU5skIztwBNzX5XZeRT1BCWYgL3D14cJyuo171iKI4apV
+         7E/2u7t3FvJMNVr/zLBD1kmeCWN/E3GUMZmzjsEZ0yKeEv5iUJpSKP1JivJYGprcKcsb
+         cVpqaAEL62COc9FyK1lg2vZAtfyTW3MfKZ4yqB7r/BorGWp6TDqqVlQRslci132N+iyF
+         Zafw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Sa7Qo9GWk7jIcVb/UqPiStHbvEoHinr+Eez2kcCOf1c=;
-        b=fo5in90JNNbA1SBxmhJZcAZlK68Xn3ORm1/lknsQBvWguX9C4SKpBvmYDxYVMsPen1
-         YHSbfKdPYNh5HKjQvO9QfrND3j+a7nC2LXwHC4hpTpZxBP7CqzHmSEAJReFY5BXr38qs
-         X3jkH4kcDPn0R114DJWxLR9YK5ySNBc3LDKTBxlnxnfzaVz20xACWtbOCid1fU3LUdRA
-         CFNEs2hI1uS/IY22LFZmzZ09OvVeJ7kpsxd5ZACogrv7bX6jK2yTUMyHOcmurFX17JVr
-         GC3UeLqjjIwO9dqlRNFyBjUB6Knpzl11sqrgUmuPnK9oYlT/1leFb9001sa0kCeP1/N1
-         nDFg==
-X-Gm-Message-State: APjAAAUAeR5ttLFXpaBD6sToBsbnAwIpYSjJga4Dn7yMdD/DzK43idSJ
-        EkKV7jYTWDfcdNTc3A82Fzg/Ws3a/DeQvktBMjB0ysEFpSs=
-X-Google-Smtp-Source: APXvYqzumrng90jkIfbBLU7fDZd/qU3JI2V43WqgFg86Aeyg+t0BewnS9HPGkbBeXtjVOMeJs9BXjig5wfJCdgaE2LI=
-X-Received: by 2002:aca:ccd1:: with SMTP id c200mr9810023oig.157.1574968766126;
- Thu, 28 Nov 2019 11:19:26 -0800 (PST)
+        bh=CUk7v7UPe6VTRCevALfgnUC9KL2cGJpFHn8mL3idLe0=;
+        b=eWzySjCXXrkR/AfPoKIN/9Zj/S+LUnI0x5fGmyiSJKtz0uetC+yK+ptWXOUEi6b/1B
+         z5I3PkfIVsC+gU/6DmVhCoWawIi1gSyYjYwlOwwInhYDW629ZeHIgtC5Fa6geGzlWb6j
+         BnzaTWKsg+W63EuBCrYC/pi4JskP832YuAOWKFf8gwXxGe10V8sxYnBgMCN0s49bNne7
+         aqpSBAKAQEwx7Qn3mefUCgyg2rKOzQXPECl2GlRerhkwcFWtN25BMoudbaRXPDa3TExy
+         2UmaS9XCLGn7XQKwWYIcPVk0Ybh6mHD8fSWTrjASzTXtgSToxEV2XGpWCV5cQTi6ubwB
+         tdCA==
+X-Gm-Message-State: APjAAAUiskyAedOR9iX82k3kBcfk+tbFdwBKkLBEKX3zxoiZ63kqBjVW
+        7DmZP0p6PxK//lId5lfvS03DcWCiArIQUNHYif9+BLqj9onnKg==
+X-Google-Smtp-Source: APXvYqwtrGRoVpfoYUQbpfscgR1YvjNIoEJwTjGpNh374JxCwGJYz8mI0UDKMJGK2aEAi5yUqMGk7HFD34Er13qtUfQ=
+X-Received: by 2002:a9d:4801:: with SMTP id c1mr8740496otf.32.1574981248999;
+ Thu, 28 Nov 2019 14:47:28 -0800 (PST)
 MIME-Version: 1.0
 References: <254505c9-2b76-ebeb-306c-02aaf1704b88@kernel.dk>
  <CAG48ez33ewwQB26cag+HhjbgGfQCdOLt6CvfmV1A5daCJoXiZQ@mail.gmail.com>
  <1d3a458a-fa79-5e33-b5ce-b473122f6d1a@kernel.dk> <CAG48ez2VBS4bVJqdCU9cUhYePYCiUURvXZWneBx2KGkg3L9d4g@mail.gmail.com>
  <f4144a96-58ef-fba7-79f0-e5178147b6bb@rasmusvillemoes.dk> <CAG48ez1v5EmuSvn+LY8od_ZMt1QVdUWqi9DWLSp0CgMxkL=sNg@mail.gmail.com>
-In-Reply-To: <CAG48ez1v5EmuSvn+LY8od_ZMt1QVdUWqi9DWLSp0CgMxkL=sNg@mail.gmail.com>
+ <CAG48ez1FK6h4tEv=cGGtm84NXDkeiMV+woFmqQYPbcsOZjKxZw@mail.gmail.com>
+In-Reply-To: <CAG48ez1FK6h4tEv=cGGtm84NXDkeiMV+woFmqQYPbcsOZjKxZw@mail.gmail.com>
 From:   Jann Horn <jannh@google.com>
-Date:   Thu, 28 Nov 2019 20:18:55 +0100
-Message-ID: <CAG48ez1FK6h4tEv=cGGtm84NXDkeiMV+woFmqQYPbcsOZjKxZw@mail.gmail.com>
+Date:   Thu, 28 Nov 2019 23:46:59 +0100
+Message-ID: <CAG48ez11PjWtaFrPqtU6yPKsm0_0Sb3Te-8bvVQLEozDzx7cFw@mail.gmail.com>
 Subject: Re: [PATCH RFC] signalfd: add support for SFD_TASK
 To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Cc:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>,
@@ -70,43 +71,39 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Nov 28, 2019 at 11:07 AM Jann Horn <jannh@google.com> wrote:
-> On Thu, Nov 28, 2019 at 10:02 AM Rasmus Villemoes
-> <linux@rasmusvillemoes.dk> wrote:
-> > On 28/11/2019 00.27, Jann Horn wrote:
-> >
-> > > One more thing, though: We'll have to figure out some way to
-> > > invalidate the fd when the target goes through execve(), in particular
-> > > if it's a setuid execution. Otherwise we'll be able to just steal
-> > > signals that were intended for the other task, that's probably not
-> > > good.
+On Thu, Nov 28, 2019 at 8:18 PM Jann Horn <jannh@google.com> wrote:
+> On Thu, Nov 28, 2019 at 11:07 AM Jann Horn <jannh@google.com> wrote:
+> > On Thu, Nov 28, 2019 at 10:02 AM Rasmus Villemoes
+> > <linux@rasmusvillemoes.dk> wrote:
+> > > On 28/11/2019 00.27, Jann Horn wrote:
 > > >
-> > > So we should:
-> > >  a) prevent using ->wait() on an old signalfd once the task has gone
-> > > through execve()
-> > >  b) kick off all existing waiters
-> > >  c) most importantly, prevent ->read() on an old signalfd once the
-> > > task has gone through execve()
+> > > > One more thing, though: We'll have to figure out some way to
+> > > > invalidate the fd when the target goes through execve(), in particular
+> > > > if it's a setuid execution. Otherwise we'll be able to just steal
+> > > > signals that were intended for the other task, that's probably not
+> > > > good.
+> > > >
+> > > > So we should:
+> > > >  a) prevent using ->wait() on an old signalfd once the task has gone
+> > > > through execve()
+> > > >  b) kick off all existing waiters
+> > > >  c) most importantly, prevent ->read() on an old signalfd once the
+> > > > task has gone through execve()
+> > > >
+> > > > We probably want to avoid using the cred_guard_mutex here, since it is
+> > > > quite broad and has some deadlocking issues; it might make sense to
+> > > > put the update of ->self_exec_id in fs/exec.c under something like the
+> > > > siglock,
 > > >
-> > > We probably want to avoid using the cred_guard_mutex here, since it is
-> > > quite broad and has some deadlocking issues; it might make sense to
-> > > put the update of ->self_exec_id in fs/exec.c under something like the
-> > > siglock,
+> > > What prevents one from exec'ing a trivial helper 2^32-1 times before
+> > > exec'ing into the victim binary?
 > >
-> > What prevents one from exec'ing a trivial helper 2^32-1 times before
-> > exec'ing into the victim binary?
+> > Uh, yeah... that thing should probably become 64 bits wide, too.
 >
-> Uh, yeah... that thing should probably become 64 bits wide, too.
+> Actually, that'd still be wrong even with the existing kernel code for
+> two reasons:
+>
+>  - if you reparent to a subreaper, the existing exec_id comparison breaks
 
-Actually, that'd still be wrong even with the existing kernel code for
-two reasons:
-
- - if you reparent to a subreaper, the existing exec_id comparison breaks
- - the new check here is going to break if a non-leader thread goes
-through execve(), because of the weird magic where the thread going
-through execve steals the thread id (PID) of the leader
-
-I'm gone for the day, but will try to dust off the years-old patch for
-this that I have lying around somewhere tomorrow. I should probably
-send it through akpm's tree with cc stable, given that this is already
-kinda broken in existing releases...
+... actually, I was wrong about this, this case is fine because the
+->exit_signal is reset in reparent_leader().

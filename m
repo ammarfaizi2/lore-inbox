@@ -2,235 +2,184 @@ Return-Path: <SRS0=GIeg=ZU=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=FROM_LOCAL_DIGITS,
+	FROM_LOCAL_HEX,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 004CFC432C0
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 00:41:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5DF0C432C0
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 08:35:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE1AC208E4
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 00:41:38 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="X3xB36e4"
+	by mail.kernel.org (Postfix) with ESMTP id 7BEE42176D
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 08:35:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbfK1Ali (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 27 Nov 2019 19:41:38 -0500
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:42414 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727176AbfK1Ali (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Nov 2019 19:41:38 -0500
-Received: by mail-pj1-f67.google.com with SMTP id y21so10990294pjn.9
-        for <io-uring@vger.kernel.org>; Wed, 27 Nov 2019 16:41:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=FCiDCrNWk1YCTMlC7xjXzOvPP0i1Om+8u3DnK4v7/Qc=;
-        b=X3xB36e4EQWqCYVF4OXJnwgar73VGA54bTqvkE8LL2j1oEMZboe2ttwzLWtciDJdAZ
-         Qv3Fi2IFeqquyLNfJ88tXGfczCgu+p1U7LQu40GdmZ6wCw6Img2BAuy/Da47COsn7x4A
-         LV2c1NhNio+K6Cb+U3ToCE1il7CLnHmyI8Q+pRUQVOLeePwv1T+nO11Aiaf2ODTPtqxY
-         xTPp5GCbJcnmTgNIXZnZExM1UWMIMlvC2mEiKNFDyqAsLNjVcAf3ENOlGU7xEZ5G+3y3
-         TmDmbkArdyeql1RQx8xSw9JPHGd9CzJWrpNu3oBHJxYmpql+C8r6lPPwiGJhEOrX4rx7
-         AZrg==
+        id S1727430AbfK1IfJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Nov 2019 03:35:09 -0500
+Received: from mail-io1-f70.google.com ([209.85.166.70]:41957 "EHLO
+        mail-io1-f70.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726301AbfK1IfI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 03:35:08 -0500
+Received: by mail-io1-f70.google.com with SMTP id p2so17592250ioh.8
+        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 00:35:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=FCiDCrNWk1YCTMlC7xjXzOvPP0i1Om+8u3DnK4v7/Qc=;
-        b=rmYN8EtsFKYtOlH109Pyrjh4N8SI1dfO6Brkbh9g3Tn7W2AizxCRbXr55WancflOXS
-         mgXhnUcMymQbPcQbAd5BpW3eURiTNc5+5cfmZ5DQcWgSwFjYXG/X13ctvFkQ+YGu+kad
-         ktj/HsO7DHAvby+dlkmTB5hb5CATntkCGLhmiK1P0iso7pdjGpK3ckBpIPUAa05TBwnM
-         E5DTTVcytqPNvWlOIKFjU8QSN7/uqu8igpRaBIK7ml9uTWL5yZvM2xJDUwpKf9g2imWR
-         izzEsR0BO6RJhG7APQOq1eTb4qFMfKB9yd+s2XlZw+zR4FYIa7eHS1RNpeVR7T4S4x7O
-         kXvw==
-X-Gm-Message-State: APjAAAWUG0iKcX39ZVR6OqggsU5/tvAoxY6rrpD2U3omuSemCXHPqCSC
-        ZNAAUjeFwBro9uyILZ/5lD/rWw==
-X-Google-Smtp-Source: APXvYqyRUIpejqSYzX0mOTGgo+FLGivwtk2CiUOFjGkaOSvo9BAqGUZB8aiNen60atz+pjwaI+X4aQ==
-X-Received: by 2002:a17:90a:1982:: with SMTP id 2mr9749179pji.30.1574901695752;
-        Wed, 27 Nov 2019 16:41:35 -0800 (PST)
-Received: from ?IPv6:2605:e000:100e:8c61:51d8:c1d0:d39b:624d? ([2605:e000:100e:8c61:51d8:c1d0:d39b:624d])
-        by smtp.gmail.com with ESMTPSA id f26sm16757441pgf.22.2019.11.27.16.41.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Nov 2019 16:41:34 -0800 (PST)
-Subject: Re: [PATCH RFC] signalfd: add support for SFD_TASK
-To:     Jann Horn <jannh@google.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-References: <254505c9-2b76-ebeb-306c-02aaf1704b88@kernel.dk>
- <CAG48ez33ewwQB26cag+HhjbgGfQCdOLt6CvfmV1A5daCJoXiZQ@mail.gmail.com>
- <1d3a458a-fa79-5e33-b5ce-b473122f6d1a@kernel.dk>
- <CAG48ez2VBS4bVJqdCU9cUhYePYCiUURvXZWneBx2KGkg3L9d4g@mail.gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <75dec576-9339-af9c-89fc-1e60f8ec8066@kernel.dk>
-Date:   Wed, 27 Nov 2019 16:41:33 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=QmXjKv7M6nqqNmvXkPQVCxOuNV7WKnfrtoxgOJfZtEg=;
+        b=ZEVC293LhmQvDWflGBd0daPlLd35UG94vbVY/53xrj/KozBBLZE1NiIWeNDm2y4xAA
+         JxEHjsW1CYrJcOy5xu9XtsQ2osiG8WRTkQ6u6dZlJi8hyvQdrD7Oi0XGI7lifXuTtiLp
+         5bbAxU8PZv7I+2vxInRC/cLfFldCdlaIyYHM10bwuJgqza2iprAAU+rh730rlRVLw9Yr
+         J8o4Cg+UQGgUx1KI50pzX9pLXSf/nq+nDaKaV08ShgPAKcUxEuIs29LuDAZYTiK7UMf5
+         WaP5Sa7y5975hu+C3WbORa/H3WBP4IgffXstIpoz2aj7qjNTpsQ8f/MPEJQQLpxrPjFV
+         VfBQ==
+X-Gm-Message-State: APjAAAU3ntkY634reFBeKfexsIIzP4uxx7hPbYW/yEQg7fhHZR16T9oJ
+        WDFatFsk7vc6n/Hu/dyppwdsCc0qSVus8b59q+fHJwUWja5E
+X-Google-Smtp-Source: APXvYqyIdgOCA0tuO0n5sRaQO4ovvnXCrdNxvvCn5ZCYA3AFUqqTSZv0ESezVrAUMbRRI59XhfsRRJcVIR56gUdy044LYXfMmHgp
 MIME-Version: 1.0
-In-Reply-To: <CAG48ez2VBS4bVJqdCU9cUhYePYCiUURvXZWneBx2KGkg3L9d4g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a6b:ea05:: with SMTP id m5mr26928063ioc.109.1574930107809;
+ Thu, 28 Nov 2019 00:35:07 -0800 (PST)
+Date:   Thu, 28 Nov 2019 00:35:07 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000009f46d4059863fdea@google.com>
+Subject: INFO: trying to register non-static key in io_cqring_overflow_flush
+From:   syzbot <syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com>
+To:     axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/27/19 4:27 PM, Jann Horn wrote:
-> On Wed, Nov 27, 2019 at 9:48 PM Jens Axboe <axboe@kernel.dk> wrote:
->> On 11/27/19 12:23 PM, Jann Horn wrote:
->>> On Wed, Nov 27, 2019 at 6:11 AM Jens Axboe <axboe@kernel.dk> wrote:
->>>> I posted this a few weeks back, took another look at it and refined it a
->>>> bit. I'd like some input on the viability of this approach.
->>>>
->>>> A new signalfd setup flag is added, SFD_TASK. This is only valid if used
->>>> with SFD_CLOEXEC. If set, the task setting up the signalfd descriptor is
->>>> remembered in the signalfd context, and will be the one we use for
->>>> checking signals in the poll/read handlers in signalfd.
->>>>
->>>> This is needed to make signalfd useful with io_uring and aio, of which
->>>> the former in particular has my interest.
->>>>
->>>> I _think_ this is sane. To prevent the case of a task clearing O_CLOEXEC
->>>> on the signalfd descriptor, forking, and then exiting, we grab a
->>>> reference to the task when we assign it. If that original task exits, we
->>>> catch it in signalfd_flush() and ensure waiters are woken up.
->>>
->>> Mh... that's not really reliable, because you only get ->flush() from
->>> the last exiting thread (or more precisely, the last exiting task that
->>> shares the files_struct).
->>>
->>> What is your goal here? To have a reference to a task without keeping
->>> the entire task_struct around in memory if someone leaks the signalfd
->>> to another process - basically like a weak pointer? If so, you could
->>> store a refcounted reference to "struct pid" instead of a refcounted
->>> reference to the task_struct, and then do the lookup of the
->>> task_struct on ->poll and ->read (similar to what procfs does).
->>
->> Yeah, I think that works out much better (and cleaner). How about this,
->> then? Follows your advice and turns it into a struct pid instead. I
->> don't particularly like the -ESRCH in dequeue and setup, what do you
->> think? For poll, POLLERR seems like a prudent choice.
-> 
-> -ESRCH may be kinda weird, but I also can't think of anything
-> better... and it does describe the problem pretty accurately: The task
-> whose signal state you're trying to inspect is gone. I went through
-> the list of errnos, and everything else sounded more weird...
+Hello,
 
-Right, that's why I ultimately ended up with -ESRCH. But I'll take that
-as concensus :-)
+syzbot found the following crash on:
 
-> One more thing, though: We'll have to figure out some way to
-> invalidate the fd when the target goes through execve(), in particular
-> if it's a setuid execution. Otherwise we'll be able to just steal
-> signals that were intended for the other task, that's probably not
-> good.
-> 
-> So we should:
->   a) prevent using ->wait() on an old signalfd once the task has gone
-> through execve()
->   b) kick off all existing waiters
->   c) most importantly, prevent ->read() on an old signalfd once the
-> task has gone through execve()
-> 
-> We probably want to avoid using the cred_guard_mutex here, since it is
-> quite broad and has some deadlocking issues; it might make sense to
-> put the update of ->self_exec_id in fs/exec.c under something like the
-> siglock, and then for a) and c) we can check whether the
-> ->self_exec_id changed while holding the siglock, and for b) we can
-> add a call to signalfd_cleanup() after the ->self_exec_id change.
+HEAD commit:    d7688697 Merge tag 'for-linus' of git://git.kernel.org/pub..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=145e5fcee00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=12f2051e3d8cdb3f
+dashboard link: https://syzkaller.appspot.com/bug?extid=be9e13497969768c0e6e
+compiler:       clang version 9.0.0 (/home/glider/llvm/clang  
+80fee25776c2fb61e74c1ecb1a523375c2500b69)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=146c517ae00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16550b12e00000
 
-OK, that seems like one for after the break. Was hoping there'd be a
-more trivial way to accomplish that, I'll give it some thought.
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com
 
->> +static void signalfd_put_task(struct signalfd_ctx *ctx, struct task_struct *tsk)
->> +{
->> +       if (ctx->task_pid)
->> +               put_task_struct(tsk);
->> +}
->> +
->> +static struct task_struct *signalfd_get_task(struct signalfd_ctx *ctx)
->> +{
->> +       if (ctx->task_pid)
->> +               return get_pid_task(ctx->task_pid, PIDTYPE_PID);
->> +
->> +       return current;
->> +}
-> 
-> This works, and I guess it's a question of coding style... but I'd
-> kinda prefer to do the refcount operation in both cases, so that the
-> semantics of the returned reference are simply "holds a reference"
-> instead of "either holds a reference or borrows from current depending
-> on ctx->task_pid". But if you feel strongly about it, feel free to
-> keep it as-is.
+RSP: 002b:00007ffc426dee68 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441259
+RDX: 0000000000000002 RSI: 00000000200005c0 RDI: 0000000000000df3
+RBP: 00007ffc426dee80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: ffffffffffffffff
+R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 0 PID: 7968 Comm: syz-executor745 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1fb/0x318 lib/dump_stack.c:118
+  register_lock_class+0x6ec/0xea0 kernel/locking/lockdep.c:443
+  __lock_acquire+0x116/0x1be0 kernel/locking/lockdep.c:3837
+  lock_acquire+0x158/0x250 kernel/locking/lockdep.c:4485
+  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+  _raw_spin_lock_irqsave+0xa1/0xc0 kernel/locking/spinlock.c:159
+  __wake_up_common_lock kernel/sched/wait.c:122 [inline]
+  __wake_up+0xb8/0x150 kernel/sched/wait.c:142
+  io_cqring_ev_posted fs/io_uring.c:637 [inline]
+  io_cqring_overflow_flush+0x7bc/0xa80 fs/io_uring.c:684
+  io_ring_ctx_wait_and_kill+0x4c6/0xb10 fs/io_uring.c:4344
+  io_uring_create fs/io_uring.c:4681 [inline]
+  io_uring_setup fs/io_uring.c:4707 [inline]
+  __do_sys_io_uring_setup fs/io_uring.c:4720 [inline]
+  __se_sys_io_uring_setup+0x1ccb/0x2490 fs/io_uring.c:4717
+  __x64_sys_io_uring_setup+0x5b/0x70 fs/io_uring.c:4717
+  do_syscall_64+0xf7/0x1c0 arch/x86/entry/common.c:294
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x441259
+Code: e8 5c ae 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 bb 0a fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffc426dee68 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441259
+RDX: 0000000000000002 RSI: 00000000200005c0 RDI: 0000000000000df3
+RBP: 00007ffc426dee80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: ffffffffffffffff
+R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 7968 Comm: syz-executor745 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+RIP: 0010:__wake_up_common+0x2bf/0x4d0 kernel/sched/wait.c:87
+Code: e8 d6 91 57 00 48 ba 00 00 00 00 00 fc ff df eb 43 66 2e 0f 1f 84 00  
+00 00 00 00 4c 89 e3 4d 8d 74 24 e8 4c 89 e0 48 c1 e8 03 <80> 3c 10 00 74  
+12 48 89 df e8 c3 91 57 00 48 ba 00 00 00 00 00 fc
+RSP: 0018:ffff8880915afb78 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: dffffc0000000000 RSI: 0000000000000003 RDI: ffff888093164120
+RBP: ffff8880915afbd0 R08: 0000000000000000 R09: ffff8880915afbe8
+R10: ffffed10122b5f6f R11: 0000000000000000 R12: 0000000000000000
+R13: ffff888093164158 R14: ffffffffffffffe8 R15: ffff8880915afbe8
+FS:  0000000001aed880(0000) GS:ffff8880aea00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000200005c0 CR3: 000000009328e000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  __wake_up_common_lock kernel/sched/wait.c:123 [inline]
+  __wake_up+0xd3/0x150 kernel/sched/wait.c:142
+  io_cqring_ev_posted fs/io_uring.c:637 [inline]
+  io_cqring_overflow_flush+0x7bc/0xa80 fs/io_uring.c:684
+  io_ring_ctx_wait_and_kill+0x4c6/0xb10 fs/io_uring.c:4344
+  io_uring_create fs/io_uring.c:4681 [inline]
+  io_uring_setup fs/io_uring.c:4707 [inline]
+  __do_sys_io_uring_setup fs/io_uring.c:4720 [inline]
+  __se_sys_io_uring_setup+0x1ccb/0x2490 fs/io_uring.c:4717
+  __x64_sys_io_uring_setup+0x5b/0x70 fs/io_uring.c:4717
+  do_syscall_64+0xf7/0x1c0 arch/x86/entry/common.c:294
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x441259
+Code: e8 5c ae 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 bb 0a fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffc426dee68 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441259
+RDX: 0000000000000002 RSI: 00000000200005c0 RDI: 0000000000000df3
+RBP: 00007ffc426dee80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: ffffffffffffffff
+R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace d0de30dce4e623c2 ]---
+RIP: 0010:__wake_up_common+0x2bf/0x4d0 kernel/sched/wait.c:87
+Code: e8 d6 91 57 00 48 ba 00 00 00 00 00 fc ff df eb 43 66 2e 0f 1f 84 00  
+00 00 00 00 4c 89 e3 4d 8d 74 24 e8 4c 89 e0 48 c1 e8 03 <80> 3c 10 00 74  
+12 48 89 df e8 c3 91 57 00 48 ba 00 00 00 00 00 fc
+RSP: 0018:ffff8880915afb78 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: dffffc0000000000 RSI: 0000000000000003 RDI: ffff888093164120
+RBP: ffff8880915afbd0 R08: 0000000000000000 R09: ffff8880915afbe8
+R10: ffffed10122b5f6f R11: 0000000000000000 R12: 0000000000000000
+R13: ffff888093164158 R14: ffffffffffffffe8 R15: ffff8880915afbe8
+FS:  0000000001aed880(0000) GS:ffff8880aea00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000200005c0 CR3: 000000009328e000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-I don't feel super strongly about it, but I wanted to avoid adding an
-unnecessary get/put of the current task for the existing use cases of
-signalfd. So I'll probably just keep it as-is.
 
->> -       add_wait_queue(&current->sighand->signalfd_wqh, &wait);
->> +       add_wait_queue(&tsk->sighand->signalfd_wqh, &wait);
->>          for (;;) {
->>                  set_current_state(TASK_INTERRUPTIBLE);
->> -               ret = dequeue_signal(current, &ctx->sigmask, info);
->> +               ret = dequeue_signal(tsk, &ctx->sigmask, info);
->>                  if (ret != 0)
->>                          break;
->>                  if (signal_pending(current)) {
->>                          ret = -ERESTARTSYS;
->>                          break;
->>                  }
->> -               spin_unlock_irq(&current->sighand->siglock);
->> +               spin_unlock_irq(&tsk->sighand->siglock);
->>                  schedule();
-> 
-> Should we be dropping the reference to the task before schedule() and
-> re-acquiring it afterwards so that if we're blocked on a signalfd read
-> and then the corresponding task dies, the refcount can drop to zero
-> and we can get woken up? Probably doesn't matter, but seems a bit
-> cleaner to me.
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-That would be simple enough to do, as we know that tsk is either still
-the same, or we need to abort. Hence no need to fiddle waitqueues at
-that point. I'll make that change.
-
->> -               spin_lock_irq(&current->sighand->siglock);
->> +               spin_lock_irq(&tsk->sighand->siglock);
->>          }
->> -       spin_unlock_irq(&current->sighand->siglock);
->> +       spin_unlock_irq(&tsk->sighand->siglock);
->>
->> -       remove_wait_queue(&current->sighand->signalfd_wqh, &wait);
->> +       remove_wait_queue(&tsk->sighand->signalfd_wqh, &wait);
->>          __set_current_state(TASK_RUNNING);
->>
->> +       signalfd_put_task(ctx, tsk);
->>          return ret;
->>    }
->>
->> @@ -267,19 +296,24 @@ static int do_signalfd4(int ufd, sigset_t *mask, int flags)
->>          /* Check the SFD_* constants for consistency.  */
->>          BUILD_BUG_ON(SFD_CLOEXEC != O_CLOEXEC);
->>          BUILD_BUG_ON(SFD_NONBLOCK != O_NONBLOCK);
->> +       BUILD_BUG_ON(SFD_TASK & (SFD_CLOEXEC | SFD_NONBLOCK));
->>
->> -       if (flags & ~(SFD_CLOEXEC | SFD_NONBLOCK))
->> +       if (flags & ~(SFD_CLOEXEC | SFD_NONBLOCK | SFD_TASK))
->> +               return -EINVAL;
->> +       if ((flags & (SFD_CLOEXEC | SFD_TASK)) == SFD_TASK)
->>                  return -EINVAL;
-> 
-> (non-actionable comment: It seems kinda weird that you can specify
-> these parameters with no effect for the `uffd != -1` case... but since
-> the existing parameters already work that way, I guess it's
-> consistent.)
-
-Yeah, just following what it already does, though I do agree it is weird
-with the two separate cases and it only impacting one of them. Didn't
-want to make it behave differently.
-
--- 
-Jens Axboe
-
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

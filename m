@@ -2,99 +2,174 @@ Return-Path: <SRS0=GIeg=ZU=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 898A2C43215
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:29:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B71BC432C0
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 17:05:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C7B121787
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:29:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF43C21771
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 17:05:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="N+fcqeko"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="dlnOGDPZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbfK1P3c (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Nov 2019 10:29:32 -0500
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:41687 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726756AbfK1P3c (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 10:29:32 -0500
-Received: by mail-oi1-f196.google.com with SMTP id e9so23617539oif.8
-        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 07:29:30 -0800 (PST)
+        id S1726556AbfK1RFg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Nov 2019 12:05:36 -0500
+Received: from mail-pj1-f48.google.com ([209.85.216.48]:38818 "EHLO
+        mail-pj1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726446AbfK1RFg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 12:05:36 -0500
+Received: by mail-pj1-f48.google.com with SMTP id l4so762377pjt.5
+        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 09:05:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=8jbWiJP8zuPwo1h57bhn9bSCas9rrkjtaMb7mPh1IdA=;
-        b=N+fcqekoOxQDhlpJGKAWkheEt+gN07VZ81/73rXPn1PTzGgsLa3Rcmh9TY+xjk+3Ih
-         qDS65BfoaV4kxITCwQ9aynD1HSih7wmCgb7HKN1o0H2yuxRclj9Ujkcv+DZ9XG9qqLfs
-         gYcHNBi7EmNxtYpBo1DwprVnLxrTtjU6Ewc2Z1bEnBpr9dgcHgNpZdxeFGtuNGpYZLXB
-         hvMrqTF858ayZPTPJw8NVYywiC4NY9H/sx9/Hg0jnT8HOwWZT4svLjw62xcIlt+rlAQX
-         SzBMJVlbbVULZs/zzvLYp6VnC0pl64WDBL9U0f3CF54c3vg/K2F81DElVEZbPOtUntZY
-         PnQQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=UTrbLlUU5oQGe5GDYk+NyCIAtZo35o2Te6th8V78ruw=;
+        b=dlnOGDPZY1KX0aCASOArQF7EOwkUXohdOWQu+j9xHdDlK2Omgz+GlV8FrSz8k2MPR6
+         xBHq0s+pdB5XcFTOKZP1oOBUUseYQtCpuQqfm0p8XMRrhlI638gPAn3ZEGdFwjsm0o37
+         gSBap58X9VBlYk8mJ/3OevibWTU30gFqTiukSysneZ31rXeDXJdIdVqaBJKhjC+RjWZE
+         2Q3nvIcBUjxG8tYkKmsLT0KH7KQjxUXDlbKWYrL9L+ho3U9FAPIoGeOwl2SQbG4S6P8I
+         d62Eurqyo3HSml6chRjnXV5+r3zHyP3sLnDBHGJU7qhWTScGN54eyHbl243sFhvgdXL6
+         +GWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8jbWiJP8zuPwo1h57bhn9bSCas9rrkjtaMb7mPh1IdA=;
-        b=hvkBu1bBY+liiTz4n6d6reBVhR3bgFbN+iAbViWp6iFIFFDWS7ynhpUw/q8TSoowh7
-         gPgRj4s29gM/uCu8W3seLaS5qooiHIaUl1iXaMWgVIIldUJ5xdaVbTUa+FbuI/71UYWE
-         kSbPiAA/X42Pj5Z2YRwh5fxBCMD6kN5S2pP5C7u9ApkxOs9phdlaP2eJjw8sEUD4lgof
-         jRz/RjQGgknGqstgvr6PdWxH9+brrIIM7s8Z3LQ587BX8kmLpYHEBiTSHMeP1E6vK+4/
-         cEqKrAeRp7aiX/n7QRGx1R3JrHRq2uqPqIaEFnDtGRL/8TCGUtJ86k3LfFrjZ1qYhwRx
-         GC7A==
-X-Gm-Message-State: APjAAAUldGhKJbX3J8l5CH8G0VWMCDS5TnLGkwJLSNAnGhMrcwkG1pH+
-        fTOk+g9t1we27A/BlrWAMDBVY4HbWAyHfE8gpkTM/A==
-X-Google-Smtp-Source: APXvYqwQF8gySZpP3ML3y1V5QupQwMNy5TOx2Z2uDdHPjHuyVgwkY34m3prkUOx4mIROyml0+fITWq8uzCmVDZn6HVs=
-X-Received: by 2002:aca:d783:: with SMTP id o125mr1403513oig.68.1574954969803;
- Thu, 28 Nov 2019 07:29:29 -0800 (PST)
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=UTrbLlUU5oQGe5GDYk+NyCIAtZo35o2Te6th8V78ruw=;
+        b=StxOA62Rk7p9GMCU5ltgqlJ5AcrF2k6Z/opxllfCMW+Ve/53VRi/lKR0CGMCYjNDSf
+         d9u4FDutymnvULpDP+5II8JZuZIsl1ZbocIsJXKJVh7qUKznHsQFUh3q/0qmaevr/RSM
+         FsO2DtB5i7/N564ToVNIocJwDatNJUFexeOI2q3aPx1AJIiwkiSWPFsOg0Qj1G7aLAyb
+         FGYcJXoTAn9g4xL2Ipo2Mi2Q4n8h6oCsl23Eo/A9PUZBvl/fej7n0kI4dGH1wgrf1/q+
+         GrD63vic3VvQ3AHomdbyjglXTrwwGB5Bd6HHjpC4I3mp3klhzqIJNDs9mu4fjso3a05i
+         EKeQ==
+X-Gm-Message-State: APjAAAVp4mrVJ9/M53Us3v104ehrvYHiw3N9FjDfKLsqWPtw/eB7OZAZ
+        SFVKFlxNvSOg26hJnG2GLU2EhLPsz13iKw==
+X-Google-Smtp-Source: APXvYqxerujh3tKSfyZyKbdeRF674f9+vi3rw9XAurvRzRZcw8PuYJF46wDXkIeECNpe5XeZ+7XZZA==
+X-Received: by 2002:a17:902:68:: with SMTP id 95mr10411904pla.117.1574960733013;
+        Thu, 28 Nov 2019 09:05:33 -0800 (PST)
+Received: from ?IPv6:2605:e000:100e:8c61:a930:60a8:686e:252a? ([2605:e000:100e:8c61:a930:60a8:686e:252a])
+        by smtp.gmail.com with ESMTPSA id h5sm4742009pfk.30.2019.11.28.09.05.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Nov 2019 09:05:31 -0800 (PST)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     io-uring <io-uring@vger.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [GIT PULL] Final io_uring bits for 5.5-rc1
+Message-ID: <7976eeb9-b8b5-753b-0d8f-203a00fc1118@kernel.dk>
+Date:   Thu, 28 Nov 2019 09:05:30 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-References: <0000000000009f46d4059863fdea@google.com> <71b86056-944f-c5e1-b4cf-35833a82761c@kernel.dk>
-In-Reply-To: <71b86056-944f-c5e1-b4cf-35833a82761c@kernel.dk>
-From:   Jann Horn <jannh@google.com>
-Date:   Thu, 28 Nov 2019 16:29:03 +0100
-Message-ID: <CAG48ez09ZN2v2rTvnSgybrZu7BAa28vcnkcOU=Z7549rbpqz1A@mail.gmail.com>
-Subject: Re: INFO: trying to register non-static key in io_cqring_overflow_flush
-To:     Jens Axboe <axboe@kernel.dk>,
-        syzbot <syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Nov 28, 2019 at 4:19 PM Jens Axboe <axboe@kernel.dk> wrote:
-> On 11/28/19 12:35 AM, syzbot wrote:
-> > Hello,
-> >
-> > syzbot found the following crash on:
-> >
-> > HEAD commit:    d7688697 Merge tag 'for-linus' of git://git.kernel.org/pub..
-> > git tree:       upstream
-> > console output: https://syzkaller.appspot.com/x/log.txt?x=145e5fcee00000
-> > kernel config:  https://syzkaller.appspot.com/x/.config?x=12f2051e3d8cdb3f
-> > dashboard link: https://syzkaller.appspot.com/bug?extid=be9e13497969768c0e6e
-> > compiler:       clang version 9.0.0 (/home/glider/llvm/clang
-> > 80fee25776c2fb61e74c1ecb1a523375c2500b69)
-> > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=146c517ae00000
-> > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16550b12e00000
-> >
-> > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> > Reported-by: syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com
->
-> This is the same as:
->
-> syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
+Hi Linus,
 
-syzbot listens to specific commands, see
-<https://github.com/google/syzkaller/blob/master/docs/syzbot.md#status>
-(linked in the report):
+As mentioned in the first pull request, there was a later batch as well.
+This contains fixes to the stuff that already went in, cleanups, and a
+few later additions. In particular, this pull request contains:
 
-#syz dup: INFO: trying to register non-static key in io_cqring_ev_posted
+- Cleanups/fixes/unification of the submission and completion
+   path (Pavel,me)
+
+- Linked timeouts improvements (Pavel,me)
+
+- Error path fixes (me)
+
+- Fix lookup window where cancellations wouldn't work (me)
+
+- Improve DRAIN support (Pavel)
+
+- Fix backlog flushing -EBUSY on submit (me)
+
+- Add support for connect(2) (me)
+
+- Fix for non-iter based fixed IO (Pavel)
+
+- creds inheritance for async workers (me)
+
+- Disable cmsg/ancillary data for sendmsg/recvmsg (me)
+
+- Shrink io_kiocb to 3 cachelines (me)
+
+- NUMA fix for io-wq (Jann)
+
+Please pull!
+
+
+   git://git.kernel.dk/linux-block.git tags/for-5.5/io_uring-post-20191128
+
+
+----------------------------------------------------------------
+Dan Carpenter (1):
+       io-wq: remove extra space characters
+
+Hrvoje Zeba (1):
+       io_uring: remove superfluous check for sqe->off in io_accept()
+
+Jann Horn (2):
+       io_uring: use kzalloc instead of kcalloc for single-element allocations
+       io-wq: fix handling of NUMA node IDs
+
+Jens Axboe (23):
+       io_uring: io_async_cancel() should pass in 'nxt' request pointer
+       io_uring: cleanup return values from the queueing functions
+       io_uring: make io_double_put_req() use normal completion path
+       io_uring: make req->timeout be dynamically allocated
+       io_uring: fix sequencing issues with linked timeouts
+       io_uring: remove dead REQ_F_SEQ_PREV flag
+       io_uring: correct poll cancel and linked timeout expiration completion
+       io_uring: request cancellations should break links
+       io-wq: wait for io_wq_create() to setup necessary workers
+       io_uring: io_fail_links() should only consider first linked timeout
+       io_uring: io_allocate_scq_urings() should return a sane state
+       io_uring: allow finding next link independent of req reference count
+       io_uring: close lookup gap for dependent next work
+       io_uring: improve trace_io_uring_defer() trace point
+       io_uring: only return -EBUSY for submit on non-flushed backlog
+       net: add __sys_connect_file() helper
+       io_uring: add support for IORING_OP_CONNECT
+       io-wq: have io_wq_create() take a 'data' argument
+       io_uring: async workers should inherit the user creds
+       net: separate out the msghdr copy from ___sys_{send,recv}msg()
+       net: disallow ancillary data for __sys_{send,recv}msg_file()
+       io-wq: shrink io_wq_work a bit
+       io_uring: make poll->wait dynamically allocated
+
+Pavel Begunkov (15):
+       io_uring: break links for failed defer
+       io_uring: remove redundant check
+       io_uring: Fix leaking linked timeouts
+       io_uring: Always REQ_F_FREE_SQE for allocated sqe
+       io_uring: drain next sqe instead of shadowing
+       io_uring: rename __io_submit_sqe()
+       io_uring: add likely/unlikely in io_get_sqring()
+       io_uring: remove io_free_req_find_next()
+       io_uring: pass only !null to io_req_find_next()
+       io_uring: simplify io_req_link_next()
+       io_uring: only !null ptr to io_issue_sqe()
+       io_uring: fix dead-hung for non-iter fixed rw
+       io_uring: store timeout's sqe->off in proper place
+       io_uring: inline struct sqe_submit
+       io_uring: cleanup io_import_fixed()
+
+  fs/io-wq.c                      | 187 ++++++----
+  fs/io-wq.h                      |  63 +++-
+  fs/io_uring.c                   | 776 ++++++++++++++++++++++------------------
+  include/linux/socket.h          |   3 +
+  include/trace/events/io_uring.h |  16 +-
+  include/uapi/linux/io_uring.h   |   1 +
+  net/socket.c                    | 214 +++++++----
+  7 files changed, 757 insertions(+), 503 deletions(-)
+
+-- 
+Jens Axboe
+

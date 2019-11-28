@@ -2,129 +2,107 @@ Return-Path: <SRS0=GIeg=ZU=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3A42C432C0
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:08:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 841C8C43215
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:18:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D2DEF21741
-	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:08:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C14021781
+	for <io-uring@archiver.kernel.org>; Thu, 28 Nov 2019 15:18:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="ghfm9r4D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbfK1PIl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Nov 2019 10:08:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39730 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726401AbfK1PIl (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 28 Nov 2019 10:08:41 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id D99FEB035;
-        Thu, 28 Nov 2019 15:08:38 +0000 (UTC)
-Subject: Re: [PATCH liburing] liburing: create an installation target for
- tests
-To:     Jens Axboe <axboe@fb.com>
-Cc:     Linux Block Layer Mailinglist <linux-block@vger.kernel.org>,
-        io-uring <io-uring@vger.kernel.org>
-References: <20191128102606.26353-1-jthumshirn@suse.de>
- <711e7644-1e65-c1d7-fb13-679e3fce7b6d@fb.com>
-From:   Johannes Thumshirn <jthumshirn@suse.de>
-Openpgp: preference=signencrypt
-Autocrypt: addr=jthumshirn@suse.de; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <7fdfe790-5e2b-61f8-265a-289e60af71cd@suse.de>
-Date:   Thu, 28 Nov 2019 16:08:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726510AbfK1PSe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Nov 2019 10:18:34 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:47069 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726556AbfK1PSe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Nov 2019 10:18:34 -0500
+Received: by mail-pg1-f195.google.com with SMTP id k1so4684680pga.13
+        for <io-uring@vger.kernel.org>; Thu, 28 Nov 2019 07:18:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=Vz09qS99hyvV+5cErCqS+LojQyYSm3WMnbpZQwjAQlI=;
+        b=ghfm9r4DFsb5fHfnc7g/ko5YJHWygsZv/hcBNlfcXpfFlyQiVMMlre6OpoJDyEbw8K
+         Q4sx8HPS+CiM/ZpJ+APk4eKAqEJdDWSNmB43GmpDJ2+LW2A6DEpKnbHxBp3ijXaGOWv1
+         sktDV5DC+ccHnARwl9EStR4Br0fwqX9bBHQ3155uy+xUB+yjfSKRPk+OXL9F4r2zywkW
+         P8unVis3ScqzW8ZAzsZjRCAwHisRBGEVzMhrlcVt0djct49hzEi8VnFkkOzL13FVWu8Z
+         /Xf0LC/h6I0YVUE+R5LoIKId8sa2tAaRzgk8TFvP5/nwRTjhbQ1Q7OZyviiab8oW8gJb
+         JCOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Vz09qS99hyvV+5cErCqS+LojQyYSm3WMnbpZQwjAQlI=;
+        b=e9GpfpteGNRuKZ9EjrsZP8/Sh3CPusuYZNuEUDzEG2aqeBOItRv/j+RAPDI0us2+Im
+         k6yFDlYkYxqJ8v1dtACnJeORejBxpI5pASGLQgrAEPKmkTltwna+TCANgtU8dAUle3Y0
+         I9PqR71BWxONMn/tLirXTeNc8FFtpN8rb0OwII5hmSxWbaqjrhwPjEzjsYmtljz+KEK3
+         L6dBxRJrTHCkweU5V6ZVdihHnMXC/2Yui7wJDN8wwV8M0Y6Sut0yowvmm2bDJu0iv1Qf
+         INUKsRRexfUqTznaiUPeOtSY/e5GtNKq7Ib5qIGRMdW45lvKe+NqM6NbZhrN1VGtE4Za
+         tGsQ==
+X-Gm-Message-State: APjAAAWlSYiB3iD9pjnIAsKzswJ+MDZJwMo0rdh3ByT5I1ILgD/aQTZG
+        RMVF4bA99N1xntFbm/4Uw7l6Qg==
+X-Google-Smtp-Source: APXvYqzDYfEjpOkxYsikOF3AlK0ttrBHAuqSaebABsl7aoIPyBRlEbusIMhiOewSWE05ceC8nHS3UA==
+X-Received: by 2002:a65:6815:: with SMTP id l21mr11337032pgt.283.1574954312463;
+        Thu, 28 Nov 2019 07:18:32 -0800 (PST)
+Received: from ?IPv6:2605:e000:100e:8c61:bc69:2e63:573c:4afd? ([2605:e000:100e:8c61:bc69:2e63:573c:4afd])
+        by smtp.gmail.com with ESMTPSA id w2sm21460471pgm.18.2019.11.28.07.18.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Nov 2019 07:18:31 -0800 (PST)
+Subject: Re: INFO: trying to register non-static key in
+ io_cqring_overflow_flush
+To:     syzbot <syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+        viro@zeniv.linux.org.uk
+References: <0000000000009f46d4059863fdea@google.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <71b86056-944f-c5e1-b4cf-35833a82761c@kernel.dk>
+Date:   Thu, 28 Nov 2019 07:18:28 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <711e7644-1e65-c1d7-fb13-679e3fce7b6d@fb.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <0000000000009f46d4059863fdea@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 28/11/2019 16:00, Jens Axboe wrote:
-> On 11/28/19 2:26 AM, Johannes Thumshirn wrote:
->> Create an installation target for liburing's regressen test suite.
->                                                 ^^^^^^^^^
-> regression, will fix it up.
-
-Thanks
-
+On 11/28/19 12:35 AM, syzbot wrote:
+> Hello,
 > 
-> Applied, thanks. BTW, io-uring@vger.kernel.org is the io_uring mailing
-> list. Since it has nothing to do with linux-block, I've stopped using
-> that list.
+> syzbot found the following crash on:
+> 
+> HEAD commit:    d7688697 Merge tag 'for-linus' of git://git.kernel.org/pub..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=145e5fcee00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=12f2051e3d8cdb3f
+> dashboard link: https://syzkaller.appspot.com/bug?extid=be9e13497969768c0e6e
+> compiler:       clang version 9.0.0 (/home/glider/llvm/clang
+> 80fee25776c2fb61e74c1ecb1a523375c2500b69)
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=146c517ae00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16550b12e00000
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+be9e13497969768c0e6e@syzkaller.appspotmail.com
 
-Yes I more or less knew, but I couldn't find the address any-more
-(get_maintainers.pl would have helped...)
+This is the same as:
 
-Anyway, thanks
+syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
+
+which is fixed by eb065d301e8c83643367bdb0898becc364046bda in my
+for-5.5/io_uring-post branch, which will go upstream soon. Letting
+you know so we don't have duplicate entries for this one.
 
 -- 
-Johannes Thumshirn                            SUSE Labs Filesystems
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5
-90409 Nürnberg
-Germany
-(HRB 36809, AG Nürnberg)
-Geschäftsführer: Felix Imendörffer
-Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+Jens Axboe
+

@@ -2,65 +2,67 @@ Return-Path: <SRS0=qbp9=ZY=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2769CC432C0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55880C43215
 	for <io-uring@archiver.kernel.org>; Mon,  2 Dec 2019 22:31:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E1F9E206F0
-	for <io-uring@archiver.kernel.org>; Mon,  2 Dec 2019 22:31:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FFF22070B
+	for <io-uring@archiver.kernel.org>; Mon,  2 Dec 2019 22:31:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="MiF3C3H0"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="R8/KvzuR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725853AbfLBWbH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 2 Dec 2019 17:31:07 -0500
-Received: from mail-io1-f48.google.com ([209.85.166.48]:41726 "EHLO
-        mail-io1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725834AbfLBWbH (ORCPT
+        id S1725834AbfLBWbI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 2 Dec 2019 17:31:08 -0500
+Received: from mail-io1-f65.google.com ([209.85.166.65]:38305 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725835AbfLBWbH (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Mon, 2 Dec 2019 17:31:07 -0500
-Received: by mail-io1-f48.google.com with SMTP id z26so1297807iot.8
-        for <io-uring@vger.kernel.org>; Mon, 02 Dec 2019 14:31:05 -0800 (PST)
+Received: by mail-io1-f65.google.com with SMTP id u24so1322658iob.5
+        for <io-uring@vger.kernel.org>; Mon, 02 Dec 2019 14:31:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kqeezy/+lwDvnMk76buES953jUJ3LmuOeI47STi9xg0=;
-        b=MiF3C3H0CLspn7nhBiz0wBEHADGEmPWzGb7xBCxrNYg7U2XGk55tgtAqbn5Vr2jNam
-         vUuBYkupYL+fMbnoVqq0cNG/EEAWs9fW+DqrYgCKo5I2wIDdn2/e8iuFZI/MND2Co209
-         38w3LFv1AZmw1kuYGfdmhxEuJ4pHMTeOQRGYLLE7feyJpc0qVGnp3SiLA+V1MreiY7Ej
-         ebspkN4+RYyi0YgJm3KS+HwnC30Dzo0NLIcnCLy4Pwr8z/VZR72/nkCf83gEB+lk65U/
-         +JJ6A+ePhP0tBpwQdav9P+bQl5aDDCQ1lynkySjsG3+w0slehbhXx1o+VdKRf+TcoI3e
-         Zl/A==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=CeHkmcwXbzaL6mvYztyBn4Xv3Ynx0XNtqAXufLmo0UM=;
+        b=R8/KvzuRpC/CWIAmgLOejPIenrfMFOxKZI5kSuz1dUpZ7cWeFhWXzHCdmFemwbSThz
+         5qOT66aVQv10fV2ry2clIWYLzkEV9ilidXALx6BmNmCnRIoR8REo2lyX21kiWm78ltMR
+         3QBpeewU4MFZLQtd9CVKgzoCScuuPIaSdtc0s2NO2hh//W0QCbBiP5im1+Vqh+3Or6Uy
+         UgMYPkgnL76rLnq8xJPcYsF1QLXoBUABtxInNqA+C1ILWE6ecoo3/TdLloeuscJDF1dJ
+         N1QVowcWd6qDekwvgtmNzL9o9K7wNbIDumKLjnE1yzZr7E0K8UTIeQ6xha7BfMDnc6ht
+         V4/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kqeezy/+lwDvnMk76buES953jUJ3LmuOeI47STi9xg0=;
-        b=tdNXzThketUQxJ0EjaaUjL9AdcPDUpS+F64OaZkHdb1xIQWJuOnd216jWu7sfxWvwq
-         ZC8QPtU2QQNhOh7LPmCbCjANtqdkphYTV3YFDPqXe4cUmxv5X0J+/9+h4NeXnOVkPbSx
-         R/qF/h1JRGqOxuaEZUCIHlAYuPMjfkiPdVxN4P2WVvHt/30YqaFlEa/7dmJHImFhknvg
-         hl0Xu7uO/MkzObN5zWI9pUxhjY7PT6tRqkjOjcYe114jAOctX/7cyrjsF+QX2nRzZqZg
-         xYY6hxejghY/tfMs9rbH0rifarqWzh3wQFGXzxBoYMqAOVGHgtQOTPReANwvw0u8bomV
-         I0fQ==
-X-Gm-Message-State: APjAAAWGxe++iuyrvltoqla0hsNwG7L2H7edgLW+3KCCVxvRmrkUmpLH
-        ecD2A6jXfIkWeQjUYkjAemSPey7B3T5C9w==
-X-Google-Smtp-Source: APXvYqxiTtaGGEq+HJEQ+AwpHljQqAyAdkIZSZeusj07b5AOIYbLTrg3cKYPiGKXHx2lQmbIGQMfcw==
-X-Received: by 2002:a6b:d119:: with SMTP id l25mr1172041iob.44.1575325864515;
-        Mon, 02 Dec 2019 14:31:04 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=CeHkmcwXbzaL6mvYztyBn4Xv3Ynx0XNtqAXufLmo0UM=;
+        b=LyiV42g8cybZtBHsYv85OEO94FvRN0TzP3r2ZUJd1/hQCiBS2MSBgEPOoIcc6zTmnk
+         4E5bUz0VERqpSV0Efc8jajmywaySVyQfECoGBkmuvMcKqJ9oHfQNAMIyc7D1F+8lwVMv
+         oQunrebhPXv8aj2CkxRC/ynYNnRZS/cdO5c23tefs5qptRP0dDkoFqSrbfx4fMbSR+df
+         HlyVuemHlcXVQBkaQ4RO7M0AuRq/bwNzOLsXskbDfkT6fAxNkLKJa1/0+qsntjrmsqYo
+         4nBWZIL+yxt4ghzx5b0QPfLkIHbCD7zZDOrJRDe0ZuHKYz24/AqCeeumAR5ItkqvPkNA
+         WsRw==
+X-Gm-Message-State: APjAAAVHb7PjyBpOQlLCDeqWzivbLrNyH1GlO7Ivbtbo9xRJm4GFo4nX
+        hm+GxYDmrv9fCXoY4Hq9bojDzVEEyinnPg==
+X-Google-Smtp-Source: APXvYqzAGt0eqQPVcjjqx+rWEaUv7Dt2tvQ498cmFgTtKGPej0Cm4vpsNWOurStszih7Ovir6hQdvQ==
+X-Received: by 2002:a6b:610e:: with SMTP id v14mr1129565iob.171.1575325866277;
+        Mon, 02 Dec 2019 14:31:06 -0800 (PST)
 Received: from localhost.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id k6sm191184iom.52.2019.12.02.14.31.03
+        by smtp.gmail.com with ESMTPSA id k6sm191184iom.52.2019.12.02.14.31.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 14:31:03 -0800 (PST)
+        Mon, 02 Dec 2019 14:31:04 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     carter.li@eoitek.com
-Subject: [PATCHSET 0/2] Ensure all needed read/write data is stable
-Date:   Mon,  2 Dec 2019 15:30:59 -0700
-Message-Id: <20191202223101.10836-1-axboe@kernel.dk>
+Cc:     carter.li@eoitek.com, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/2] io_uring: add general async offload context
+Date:   Mon,  2 Dec 2019 15:31:00 -0700
+Message-Id: <20191202223101.10836-2-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191202223101.10836-1-axboe@kernel.dk>
+References: <20191202223101.10836-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -68,21 +70,177 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Currently we don't copy the associated iovecs when we punt to async
-context, and this can prove problematic if the caller only ensures
-the iovec is valid for the submission. This is a perfectly valid
-assumption, and I think io_uring should make sure that this is safe
-to do.
+Right now we just copy the sqe for async offload, but we want to store
+more context across an async punt. In preparation for doing so, put the
+sqe copy inside a structure that we can expand. With this pointer added,
+we can get rid of REQ_F_FREE_SQE, as that is now indicated by whether
+req->io is NULL or not.
 
-First patch is a prep patch, second patch adds the necessary support
-for IORING_OP_READV and IORING_OP_WRITEV to handle this appropriately.
-We really need to do the same for the other calls that pass in pointers
-to structs, like sendmsg/recvmsg, connect, and accept. I will deal with
-those next.
+No functional changes in this patch.
 
-Also see: https://github.com/axboe/liburing/issues/27
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 56 +++++++++++++++++++++++++++++----------------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5cab7a047317..0328f565c0c9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -308,6 +308,10 @@ struct io_timeout {
+ 	struct io_timeout_data		*data;
+ };
+ 
++struct io_async_ctx {
++	struct io_uring_sqe		sqe;
++};
++
+ /*
+  * NOTE! Each of the iocb union members has the file pointer
+  * as the first entry in their struct definition. So you can
+@@ -323,6 +327,7 @@ struct io_kiocb {
+ 	};
+ 
+ 	const struct io_uring_sqe	*sqe;
++	struct io_async_ctx		*io;
+ 	struct file			*ring_file;
+ 	int				ring_fd;
+ 	bool				has_user;
+@@ -353,7 +358,6 @@ struct io_kiocb {
+ #define REQ_F_TIMEOUT_NOSEQ	8192	/* no timeout sequence */
+ #define REQ_F_INFLIGHT		16384	/* on inflight list */
+ #define REQ_F_COMP_LOCKED	32768	/* completion under lock */
+-#define REQ_F_FREE_SQE		65536	/* free sqe if not async queued */
+ 	u64			user_data;
+ 	u32			result;
+ 	u32			sequence;
+@@ -806,6 +810,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+ 	}
+ 
+ got_it:
++	req->io = NULL;
+ 	req->ring_file = NULL;
+ 	req->file = NULL;
+ 	req->ctx = ctx;
+@@ -836,8 +841,8 @@ static void __io_free_req(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+-	if (req->flags & REQ_F_FREE_SQE)
+-		kfree(req->sqe);
++	if (req->io)
++		kfree(req->io);
+ 	if (req->file && !(req->flags & REQ_F_FIXED_FILE))
+ 		fput(req->file);
+ 	if (req->flags & REQ_F_INFLIGHT) {
+@@ -1079,9 +1084,9 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 			 * completions for those, only batch free for fixed
+ 			 * file and non-linked commands.
+ 			 */
+-			if (((req->flags &
+-				(REQ_F_FIXED_FILE|REQ_F_LINK|REQ_F_FREE_SQE)) ==
+-			    REQ_F_FIXED_FILE) && !io_is_fallback_req(req)) {
++			if (((req->flags & (REQ_F_FIXED_FILE|REQ_F_LINK)) ==
++			    REQ_F_FIXED_FILE) && !io_is_fallback_req(req) &&
++			    !req->io) {
+ 				reqs[to_free++] = req;
+ 				if (to_free == ARRAY_SIZE(reqs))
+ 					io_free_req_many(ctx, reqs, &to_free);
+@@ -2257,7 +2262,7 @@ static int io_poll_add(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	if (!poll->wait)
+ 		return -ENOMEM;
+ 
+-	req->sqe = NULL;
++	req->io = NULL;
+ 	INIT_IO_WORK(&req->work, io_poll_complete_work);
+ 	events = READ_ONCE(sqe->poll_events);
+ 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
+@@ -2600,27 +2605,27 @@ static int io_async_cancel(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 
+ static int io_req_defer(struct io_kiocb *req)
+ {
+-	struct io_uring_sqe *sqe_copy;
+ 	struct io_ring_ctx *ctx = req->ctx;
++	struct io_async_ctx *io;
+ 
+ 	/* Still need defer if there is pending req in defer list. */
+ 	if (!req_need_defer(req) && list_empty(&ctx->defer_list))
+ 		return 0;
+ 
+-	sqe_copy = kmalloc(sizeof(*sqe_copy), GFP_KERNEL);
+-	if (!sqe_copy)
++	io = kmalloc(sizeof(*io), GFP_KERNEL);
++	if (!io)
+ 		return -EAGAIN;
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+ 	if (!req_need_defer(req) && list_empty(&ctx->defer_list)) {
+ 		spin_unlock_irq(&ctx->completion_lock);
+-		kfree(sqe_copy);
++		kfree(io);
+ 		return 0;
+ 	}
+ 
+-	memcpy(sqe_copy, req->sqe, sizeof(*sqe_copy));
+-	req->flags |= REQ_F_FREE_SQE;
+-	req->sqe = sqe_copy;
++	memcpy(&io->sqe, req->sqe, sizeof(io->sqe));
++	req->sqe = &io->sqe;
++	req->io = io;
+ 
+ 	trace_io_uring_defer(ctx, req, req->user_data);
+ 	list_add_tail(&req->list, &ctx->defer_list);
+@@ -2953,14 +2958,16 @@ static void __io_queue_sqe(struct io_kiocb *req)
+ 	 */
+ 	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
+ 	    (req->flags & REQ_F_MUST_PUNT))) {
+-		struct io_uring_sqe *sqe_copy;
++		struct io_async_ctx *io;
+ 
+-		sqe_copy = kmemdup(req->sqe, sizeof(*sqe_copy), GFP_KERNEL);
+-		if (!sqe_copy)
++		io = kmalloc(sizeof(*io), GFP_KERNEL);
++		if (!io)
+ 			goto err;
+ 
+-		req->sqe = sqe_copy;
+-		req->flags |= REQ_F_FREE_SQE;
++		memcpy(&io->sqe, req->sqe, sizeof(io->sqe));
++
++		req->sqe = &io->sqe;
++		req->io = io;
+ 
+ 		if (req->work.flags & IO_WQ_WORK_NEEDS_FILES) {
+ 			ret = io_grab_files(req);
+@@ -3061,7 +3068,7 @@ static void io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
+ 	 */
+ 	if (*link) {
+ 		struct io_kiocb *prev = *link;
+-		struct io_uring_sqe *sqe_copy;
++		struct io_async_ctx *io;
+ 
+ 		if (req->sqe->flags & IOSQE_IO_DRAIN)
+ 			(*link)->flags |= REQ_F_DRAIN_LINK | REQ_F_IO_DRAIN;
+@@ -3077,14 +3084,15 @@ static void io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
+ 			}
+ 		}
+ 
+-		sqe_copy = kmemdup(req->sqe, sizeof(*sqe_copy), GFP_KERNEL);
+-		if (!sqe_copy) {
++		io = kmalloc(sizeof(*io), GFP_KERNEL);
++		if (!io) {
+ 			ret = -EAGAIN;
+ 			goto err_req;
+ 		}
+ 
+-		req->sqe = sqe_copy;
+-		req->flags |= REQ_F_FREE_SQE;
++		memcpy(&io->sqe, req->sqe, sizeof(io->sqe));
++		req->sqe = &io->sqe;
++		req->io = io;
+ 		trace_io_uring_link(ctx, req, prev);
+ 		list_add_tail(&req->list, &prev->link_list);
+ 	} else if (req->sqe->flags & IOSQE_IO_LINK) {
 -- 
-Jens Axboe
-
+2.24.0
 

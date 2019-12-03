@@ -4,62 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4835BC432C3
-	for <io-uring@archiver.kernel.org>; Tue,  3 Dec 2019 02:55:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE4D6C33CA0
+	for <io-uring@archiver.kernel.org>; Tue,  3 Dec 2019 02:55:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 20F41206E1
-	for <io-uring@archiver.kernel.org>; Tue,  3 Dec 2019 02:55:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97469206E1
+	for <io-uring@archiver.kernel.org>; Tue,  3 Dec 2019 02:55:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cLd5Msku"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="p/5FgJ48"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbfLCCzC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 2 Dec 2019 21:55:02 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:36280 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726395AbfLCCzB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 2 Dec 2019 21:55:01 -0500
-Received: by mail-pg1-f196.google.com with SMTP id k13so921244pgh.3
-        for <io-uring@vger.kernel.org>; Mon, 02 Dec 2019 18:55:01 -0800 (PST)
+        id S1726534AbfLCCzG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 2 Dec 2019 21:55:06 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:37339 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbfLCCzF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 2 Dec 2019 21:55:05 -0500
+Received: by mail-pl1-f193.google.com with SMTP id bb5so1046335plb.4
+        for <io-uring@vger.kernel.org>; Mon, 02 Dec 2019 18:55:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=TE6I6G93atKYVf6ZV9OVwH1JZ1SZk7mrg0So4NCD+aI=;
-        b=cLd5MskuKqroUsrBy9eja2MEDEnN7EiT4936/12jxsELKaq4pYreM2Xjoe1flfLQWH
-         A2K0Qah7ZYy5w8tI6vNu5fCv9zoyg2DTEN+ATjaUo7iCKmDDMtEQ0fr1As4BAKwTwzM+
-         ljpszP+5DyOJMzUnYihx9mZXgVk5TR1PvFif2i3isoM2iNBSwTEpzcDSMoNpB5iuoJWA
-         z5eTEP/NRvlomOCLbQ7m4l5+ApGfu41Yv+ihy3K6ycgFRLz5M8aLF935qNP/tZwW/7PG
-         G9lyIf7Hzh+3VdV2nzpnurM2LFy9sFJg46l2V5OixFM3kvUhIym6ILAYpeexefpNHau5
-         aDKQ==
+        bh=IF8hGJehe62RZyEGQomk3G52X2m/adfbrRr0tleNlkg=;
+        b=p/5FgJ48ZFhBzLYzeO9F4L3B7m4ViZoWUQR4miaDO9q8W75DIebx34dn5ky65m111W
+         BQbzbKsr3POWha6jTlwe9Pgs7ImCnhVM/0DbEvRcSDnDHiD2f2MjLvOyNfbZz9D4Lo7v
+         QjrPfOdStTkmQzH0cti2SxlxROX9RmmzVrSwGaToJ/1DUakMxPSnZxOrWAfZPHqsYZXJ
+         fXV5ZytEbiv2qvL9So5GAuapJD2J2Zb1acgB1wcaoNevJYO7KCt0ZgYb/9m37jandcz+
+         hggwRIe78YVn+zXiHOM/eO3JpJajCsjIWRDEKnHgv3Lu6TZevE4iWGiVbRj4e3KOXsrd
+         jlXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=TE6I6G93atKYVf6ZV9OVwH1JZ1SZk7mrg0So4NCD+aI=;
-        b=f4FBKN/stHuzfqPioILBpQk7rP337rpwW06YF7ayri1/b3nSmD3bE6gxwe5pXSb03P
-         po2gEzopMNHrvZifKpPOEw97xylJv1LBVOopalgpC7gqacrCiGCvgFTPR2WMnN/fZgzU
-         Vq3sYk7RT8pJ03gMl/HNKUBnD9+4zNq6Z3EHZteuWRvvb9QF8d6rIOOUNTsxg28GXr6X
-         BFmzXd7rv8tSJHRnciJI6SjQaPgDpSg6cCUnCjO7fkHilcdOpFXXdVCAdZ73u1YI9+mu
-         4I88KlvhXFo9/VKB/yMt1oPT5HvgeDGCQ36CpBRK2jTkLO3hu/Di8lkLWknSDcBRK2UP
-         poKw==
-X-Gm-Message-State: APjAAAX8EjYz9CibUMQykQhi++5gU2f5gLBUHpiYYR0L1mumvYKPd2ns
-        MOnhzLaxofBFUM/qwkcuqQ7XknPbzSGlgw==
-X-Google-Smtp-Source: APXvYqyfyXbRcijZFBa+KEem2BjfnMisTJq5PpH4Z+piPGajMt+y1osQ4DAiyQWDPLneJgyDK56Q0A==
-X-Received: by 2002:a65:6081:: with SMTP id t1mr2865427pgu.391.1575341700017;
-        Mon, 02 Dec 2019 18:55:00 -0800 (PST)
+        bh=IF8hGJehe62RZyEGQomk3G52X2m/adfbrRr0tleNlkg=;
+        b=PeaMTMVmE88xUoTB01qo+HPgmQEMLVR+oKeGtgoW8OZRUVVgY11ayGwXsxclM1j+SJ
+         0Qol/pdojWBDtSpKLk1Wa2gmu2Cmn+C01ItzarYleO1zoPk/XnXrzyisszdk5lUWFHBx
+         rgg/+k9g7cVOeAFCfplwQP3M0RvQvArtLvK4xEBgt8roNRyLAmnErhQI/3q4TyksrY+i
+         8CVIQvBBTjZWb51P26/hCrTR52ENWVzSDX27Dxr5J527wcVGNnz3TW578O+vy2sf1vQY
+         Kf1GxHCRdYpBWLhoOYfz0up1Y7KxQ+Phy3Da2yDRMapLWMbTGfsemec+uzx05cxThnNX
+         h4aw==
+X-Gm-Message-State: APjAAAU1p9Jgw5CneToH7kdE7CMqvHCZBhIEYY5LyjWmQmRCda0288lh
+        RA/X7V0YpHMcPjJRlAlUT8Vp7BhXEeXptw==
+X-Google-Smtp-Source: APXvYqyIHYVZf9GRIuCN4OywaBFJKL/aAXS4GlDMkU6KCuqNtTIhV/aw/Ozyre/1uGuacK/Vfqs7mg==
+X-Received: by 2002:a17:902:bc86:: with SMTP id bb6mr2719674plb.199.1575341704574;
+        Mon, 02 Dec 2019 18:55:04 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id z7sm959364pfk.41.2019.12.02.18.54.57
+        by smtp.gmail.com with ESMTPSA id z7sm959364pfk.41.2019.12.02.18.55.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 18:54:58 -0800 (PST)
+        Mon, 02 Dec 2019 18:55:02 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     netdev@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 3/5] io_uring: ensure async punted sendmsg/recvmsg requests copy data
-Date:   Mon,  2 Dec 2019 19:54:42 -0700
-Message-Id: <20191203025444.29344-4-axboe@kernel.dk>
+Subject: [PATCH 5/5] io_uring: mark us with IORING_FEAT_SUBMIT_STABLE
+Date:   Mon,  2 Dec 2019 19:54:44 -0700
+Message-Id: <20191203025444.29344-6-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203025444.29344-1-axboe@kernel.dk>
 References: <20191203025444.29344-1-axboe@kernel.dk>
@@ -70,356 +70,42 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Just like commit bd26dacbd5ce for read/write requests, this one ensures
-that the msghdr data is fully copied if we need to punt a recvmsg or
-sendmsg system call to async context.
+If this flag is set, applications can be certain that any data for
+async offload has been consumed when the kernel has consumed the
+SQE.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c          | 145 +++++++++++++++++++++++++++++++++++------
- include/linux/socket.h |  15 +++--
- net/socket.c           |  60 +++++------------
- 3 files changed, 152 insertions(+), 68 deletions(-)
+ fs/io_uring.c                 | 3 ++-
+ include/uapi/linux/io_uring.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bd8fab9277d6..11d181ed2076 100644
+index d5cd338ac8bf..cc3bfa13a1f3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -308,6 +308,13 @@ struct io_timeout {
- 	struct io_timeout_data		*data;
- };
+@@ -5063,7 +5063,8 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p)
+ 	if (ret < 0)
+ 		goto err;
  
-+struct io_async_msghdr {
-+	struct iovec			fast_iov[UIO_FASTIOV];
-+	struct iovec			*iov;
-+	struct sockaddr __user		*uaddr;
-+	struct msghdr			msg;
-+};
-+
- struct io_async_rw {
- 	struct iovec			fast_iov[UIO_FASTIOV];
- 	struct iovec			*iov;
-@@ -319,6 +326,7 @@ struct io_async_ctx {
- 	struct io_uring_sqe		sqe;
- 	union {
- 		struct io_async_rw	rw;
-+		struct io_async_msghdr	msg;
- 	};
- };
+-	p->features = IORING_FEAT_SINGLE_MMAP | IORING_FEAT_NODROP;
++	p->features = IORING_FEAT_SINGLE_MMAP | IORING_FEAT_NODROP |
++			IORING_FEAT_SUBMIT_STABLE;
+ 	trace_io_uring_create(ret, ctx, p->sq_entries, p->cq_entries, p->flags);
+ 	return ret;
+ err:
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 4637ed1d9949..eabccb46edd1 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -157,6 +157,7 @@ struct io_uring_params {
+  */
+ #define IORING_FEAT_SINGLE_MMAP		(1U << 0)
+ #define IORING_FEAT_NODROP		(1U << 1)
++#define IORING_FEAT_SUBMIT_STABLE	(1U << 2)
  
-@@ -1991,12 +1999,21 @@ static int io_sync_file_range(struct io_kiocb *req,
- 	return 0;
- }
- 
--#if defined(CONFIG_NET)
--static int io_send_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
--			   struct io_kiocb **nxt, bool force_nonblock,
--		   long (*fn)(struct socket *, struct user_msghdr __user *,
--				unsigned int))
-+static int io_sendmsg_prep(struct io_kiocb *req, struct io_async_ctx *io)
- {
-+	const struct io_uring_sqe *sqe = req->sqe;
-+	struct user_msghdr __user *msg;
-+	unsigned flags;
-+
-+	flags = READ_ONCE(sqe->msg_flags);
-+	msg = (struct user_msghdr __user *)(unsigned long) READ_ONCE(sqe->addr);
-+	return sendmsg_copy_msghdr(&io->msg.msg, msg, flags, &io->msg.iov);
-+}
-+
-+static int io_sendmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
-+		      struct io_kiocb **nxt, bool force_nonblock)
-+{
-+#if defined(CONFIG_NET)
- 	struct socket *sock;
- 	int ret;
- 
-@@ -2005,7 +2022,9 @@ static int io_send_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 
- 	sock = sock_from_file(req->file, &ret);
- 	if (sock) {
--		struct user_msghdr __user *msg;
-+		struct io_async_ctx io, *copy;
-+		struct sockaddr_storage addr;
-+		struct msghdr *kmsg;
- 		unsigned flags;
- 
- 		flags = READ_ONCE(sqe->msg_flags);
-@@ -2014,41 +2033,119 @@ static int io_send_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		else if (force_nonblock)
- 			flags |= MSG_DONTWAIT;
- 
--		msg = (struct user_msghdr __user *) (unsigned long)
--			READ_ONCE(sqe->addr);
-+		if (req->io) {
-+			kmsg = &req->io->msg.msg;
-+			kmsg->msg_name = &addr;
-+		} else {
-+			kmsg = &io.msg.msg;
-+			kmsg->msg_name = &addr;
-+			io.msg.iov = io.msg.fast_iov;
-+			ret = io_sendmsg_prep(req, &io);
-+			if (ret)
-+				goto out;
-+		}
- 
--		ret = fn(sock, msg, flags);
--		if (force_nonblock && ret == -EAGAIN)
-+		ret = __sys_sendmsg_sock(sock, kmsg, flags);
-+		if (force_nonblock && ret == -EAGAIN) {
-+			copy = kmalloc(sizeof(*copy), GFP_KERNEL);
-+			if (!copy) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+			memcpy(&copy->msg, &io.msg, sizeof(copy->msg));
-+			req->io = copy;
-+			memcpy(&req->io->sqe, req->sqe, sizeof(*req->sqe));
-+			req->sqe = &req->io->sqe;
- 			return ret;
-+		}
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
- 	}
- 
-+out:
- 	io_cqring_add_event(req, ret);
- 	if (ret < 0 && (req->flags & REQ_F_LINK))
- 		req->flags |= REQ_F_FAIL_LINK;
- 	io_put_req_find_next(req, nxt);
- 	return 0;
--}
--#endif
--
--static int io_sendmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
--		      struct io_kiocb **nxt, bool force_nonblock)
--{
--#if defined(CONFIG_NET)
--	return io_send_recvmsg(req, sqe, nxt, force_nonblock,
--				__sys_sendmsg_sock);
- #else
- 	return -EOPNOTSUPP;
- #endif
- }
- 
-+static int io_recvmsg_prep(struct io_kiocb *req, struct io_async_ctx *io)
-+{
-+	const struct io_uring_sqe *sqe = req->sqe;
-+	struct user_msghdr __user *msg;
-+	unsigned flags;
-+
-+	flags = READ_ONCE(sqe->msg_flags);
-+	msg = (struct user_msghdr __user *)(unsigned long) READ_ONCE(sqe->addr);
-+	return recvmsg_copy_msghdr(&io->msg.msg, msg, flags, &io->msg.uaddr,
-+					&io->msg.iov);
-+}
-+
- static int io_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		      struct io_kiocb **nxt, bool force_nonblock)
- {
- #if defined(CONFIG_NET)
--	return io_send_recvmsg(req, sqe, nxt, force_nonblock,
--				__sys_recvmsg_sock);
-+	struct socket *sock;
-+	int ret;
-+
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
-+		return -EINVAL;
-+
-+	sock = sock_from_file(req->file, &ret);
-+	if (sock) {
-+		struct user_msghdr __user *msg;
-+		struct io_async_ctx io, *copy;
-+		struct sockaddr_storage addr;
-+		struct msghdr *kmsg;
-+		unsigned flags;
-+
-+		flags = READ_ONCE(sqe->msg_flags);
-+		if (flags & MSG_DONTWAIT)
-+			req->flags |= REQ_F_NOWAIT;
-+		else if (force_nonblock)
-+			flags |= MSG_DONTWAIT;
-+
-+		msg = (struct user_msghdr __user *) (unsigned long)
-+			READ_ONCE(sqe->addr);
-+		if (req->io) {
-+			kmsg = &req->io->msg.msg;
-+			kmsg->msg_name = &addr;
-+		} else {
-+			kmsg = &io.msg.msg;
-+			kmsg->msg_name = &addr;
-+			io.msg.iov = io.msg.fast_iov;
-+			ret = io_recvmsg_prep(req, &io);
-+			if (ret)
-+				goto out;
-+		}
-+
-+		ret = __sys_recvmsg_sock(sock, kmsg, msg, io.msg.uaddr, flags);
-+		if (force_nonblock && ret == -EAGAIN) {
-+			copy = kmalloc(sizeof(*copy), GFP_KERNEL);
-+			if (!copy) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+			memcpy(copy, &io, sizeof(*copy));
-+			req->io = copy;
-+			memcpy(&req->io->sqe, req->sqe, sizeof(*req->sqe));
-+			req->sqe = &req->io->sqe;
-+			return ret;
-+		}
-+		if (ret == -ERESTARTSYS)
-+			ret = -EINTR;
-+	}
-+
-+out:
-+	io_cqring_add_event(req, ret);
-+	if (ret < 0 && (req->flags & REQ_F_LINK))
-+		req->flags |= REQ_F_FAIL_LINK;
-+	io_put_req_find_next(req, nxt);
-+	return 0;
- #else
- 	return -EOPNOTSUPP;
- #endif
-@@ -2719,6 +2816,12 @@ static int io_req_defer_prep(struct io_kiocb *req, struct io_async_ctx *io)
- 	case IORING_OP_WRITEV:
- 		ret = io_write_prep(req, &iovec, &iter, true);
- 		break;
-+	case IORING_OP_SENDMSG:
-+		ret = io_sendmsg_prep(req, io);
-+		break;
-+	case IORING_OP_RECVMSG:
-+		ret = io_recvmsg_prep(req, io);
-+		break;
- 	default:
- 		req->io = io;
- 		return 0;
-diff --git a/include/linux/socket.h b/include/linux/socket.h
-index 4bde63021c09..903507fb901f 100644
---- a/include/linux/socket.h
-+++ b/include/linux/socket.h
-@@ -378,12 +378,19 @@ extern int __sys_recvmmsg(int fd, struct mmsghdr __user *mmsg,
- extern int __sys_sendmmsg(int fd, struct mmsghdr __user *mmsg,
- 			  unsigned int vlen, unsigned int flags,
- 			  bool forbid_cmsg_compat);
--extern long __sys_sendmsg_sock(struct socket *sock,
--			       struct user_msghdr __user *msg,
-+extern long __sys_sendmsg_sock(struct socket *sock, struct msghdr *msg,
- 			       unsigned int flags);
--extern long __sys_recvmsg_sock(struct socket *sock,
--			       struct user_msghdr __user *msg,
-+extern long __sys_recvmsg_sock(struct socket *sock, struct msghdr *msg,
-+			       struct user_msghdr __user *umsg,
-+			       struct sockaddr __user *uaddr,
- 			       unsigned int flags);
-+extern int sendmsg_copy_msghdr(struct msghdr *msg,
-+			       struct user_msghdr __user *umsg, unsigned flags,
-+			       struct iovec **iov);
-+extern int recvmsg_copy_msghdr(struct msghdr *msg,
-+			       struct user_msghdr __user *umsg, unsigned flags,
-+			       struct sockaddr __user **uaddr,
-+			       struct iovec **iov);
- 
- /* helpers which do the actual work for syscalls */
- extern int __sys_recvfrom(int fd, void __user *ubuf, size_t size,
-diff --git a/net/socket.c b/net/socket.c
-index ea28cbb9e2e7..0fb0820edeec 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2346,9 +2346,9 @@ static int ____sys_sendmsg(struct socket *sock, struct msghdr *msg_sys,
- 	return err;
- }
- 
--static int sendmsg_copy_msghdr(struct msghdr *msg,
--			       struct user_msghdr __user *umsg, unsigned flags,
--			       struct iovec **iov)
-+int sendmsg_copy_msghdr(struct msghdr *msg,
-+			struct user_msghdr __user *umsg, unsigned flags,
-+			struct iovec **iov)
- {
- 	int err;
- 
-@@ -2390,27 +2390,14 @@ static int ___sys_sendmsg(struct socket *sock, struct user_msghdr __user *msg,
  /*
-  *	BSD sendmsg interface
-  */
--long __sys_sendmsg_sock(struct socket *sock, struct user_msghdr __user *umsg,
-+long __sys_sendmsg_sock(struct socket *sock, struct msghdr *msg,
- 			unsigned int flags)
- {
--	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
--	struct sockaddr_storage address;
--	struct msghdr msg = { .msg_name = &address };
--	ssize_t err;
--
--	err = sendmsg_copy_msghdr(&msg, umsg, flags, &iov);
--	if (err)
--		return err;
- 	/* disallow ancillary data requests from this path */
--	if (msg.msg_control || msg.msg_controllen) {
--		err = -EINVAL;
--		goto out;
--	}
-+	if (msg->msg_control || msg->msg_controllen)
-+		return -EINVAL;
- 
--	err = ____sys_sendmsg(sock, &msg, flags, NULL, 0);
--out:
--	kfree(iov);
--	return err;
-+	return ____sys_sendmsg(sock, msg, flags, NULL, 0);
- }
- 
- long __sys_sendmsg(int fd, struct user_msghdr __user *msg, unsigned int flags,
-@@ -2516,10 +2503,10 @@ SYSCALL_DEFINE4(sendmmsg, int, fd, struct mmsghdr __user *, mmsg,
- 	return __sys_sendmmsg(fd, mmsg, vlen, flags, true);
- }
- 
--static int recvmsg_copy_msghdr(struct msghdr *msg,
--			       struct user_msghdr __user *umsg, unsigned flags,
--			       struct sockaddr __user **uaddr,
--			       struct iovec **iov)
-+int recvmsg_copy_msghdr(struct msghdr *msg,
-+			struct user_msghdr __user *umsg, unsigned flags,
-+			struct sockaddr __user **uaddr,
-+			struct iovec **iov)
- {
- 	ssize_t err;
- 
-@@ -2609,28 +2596,15 @@ static int ___sys_recvmsg(struct socket *sock, struct user_msghdr __user *msg,
-  *	BSD recvmsg interface
-  */
- 
--long __sys_recvmsg_sock(struct socket *sock, struct user_msghdr __user *umsg,
--			unsigned int flags)
-+long __sys_recvmsg_sock(struct socket *sock, struct msghdr *msg,
-+			struct user_msghdr __user *umsg,
-+			struct sockaddr __user *uaddr, unsigned int flags)
- {
--	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
--	struct sockaddr_storage address;
--	struct msghdr msg = { .msg_name = &address };
--	struct sockaddr __user *uaddr;
--	ssize_t err;
--
--	err = recvmsg_copy_msghdr(&msg, umsg, flags, &uaddr, &iov);
--	if (err)
--		return err;
- 	/* disallow ancillary data requests from this path */
--	if (msg.msg_control || msg.msg_controllen) {
--		err = -EINVAL;
--		goto out;
--	}
-+	if (msg->msg_control || msg->msg_controllen)
-+		return -EINVAL;
- 
--	err = ____sys_recvmsg(sock, &msg, umsg, uaddr, flags, 0);
--out:
--	kfree(iov);
--	return err;
-+	return ____sys_recvmsg(sock, msg, umsg, uaddr, flags, 0);
- }
- 
- long __sys_recvmsg(int fd, struct user_msghdr __user *msg, unsigned int flags,
+  * io_uring_register(2) opcodes and arguments
 -- 
 2.24.0
 

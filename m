@@ -2,193 +2,86 @@ Return-Path: <SRS0=lMt9=Z3=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D881FC43603
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 13:17:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 808DFC43603
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AA3B620675
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 13:17:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 424142245C
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N3G7CSIO"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="setkwnPY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729260AbfLENRI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 5 Dec 2019 08:17:08 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:32776 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729165AbfLENRI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 08:17:08 -0500
-Received: by mail-wr1-f68.google.com with SMTP id b6so3582416wrq.0;
-        Thu, 05 Dec 2019 05:17:05 -0800 (PST)
+        id S1729406AbfLEOJn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Dec 2019 09:09:43 -0500
+Received: from mail-il1-f176.google.com ([209.85.166.176]:39260 "EHLO
+        mail-il1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729187AbfLEOJm (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 09:09:42 -0500
+Received: by mail-il1-f176.google.com with SMTP id a7so3088312ild.6
+        for <io-uring@vger.kernel.org>; Thu, 05 Dec 2019 06:09:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bNVy28uDYQvmGOvC3k7avc+06MFa2IjqLxanx0z2n2k=;
-        b=N3G7CSIOH4avKnU+pKRcoavsjJB3q1iZL5SvMPfuqkU77Eb3XULeIbvPaOrZmqKjil
-         wVkDRPjLY5EquVQ6wBpyV4sLRsAnMrj8bOq63IZXY1e1lnX4tETHWUKA6AYhwe7er2sb
-         u5B5oV+KnRljkMonOFideS63CZo47qsoJMzMZ7XFlsbqJ4SgEIdsXjKJgycV5Rsv9z8r
-         uDollXuaN7182huRLAcp9jLs+Q37eSOV3DfRQN13c04nVOT9Tirs/2oVIHBKknCEJlSz
-         y6VRAKncPjN9mCHZFtEw/f732bSJxJA2jLSq+gkn8XcyEOGct/cLIP9ry2AjpFgOzl2F
-         duLA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=MvmXn3vA06JJuvncBy8YecE2bcU2drPRJVa/0fEIgac=;
+        b=setkwnPYqKc/uECxpPYNuChG4RIUv7ZvpV4y66XdujO0cYNQGgHQ38iuY5l3JHSwqW
+         hnvR2XCyDpABknTrKWZ79hIaulpxM7dEH3uwHRaqlgGNsX/97ISpLsMZy401AUUkYLY8
+         48+V4sBwqhv2h+Dc+775KlsvoJTP7UgTpsVSebNqoL48oU6w59JKqFs1jyQNBwlLtbwk
+         XPbKSMsASrYFVVegYZoL5S88WQzvE8476NQMHQOzyI/1CGKRXWEFNBXqoYm/FTyTnO25
+         bl49cO4hPefxhr4tZl2aWEli0tjUDpyXHiAF8uKxh5WRGE+H9QmOOm0HIn15hVjKea8N
+         rSfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=bNVy28uDYQvmGOvC3k7avc+06MFa2IjqLxanx0z2n2k=;
-        b=HedTYlgied7rLppF7V88eg0mZPT9EfP/lmR203t+uHj20XxksjUb01QkXyGs+oaEB4
-         EyQWkE32xGd57YONKoesoqNjGFFLxktB/bxavWmBaoZHI94sGtWJbt4Og+RlHJ7jOVwJ
-         XwiEIWp4uCKjAL0xjjICkH4urRThePvNO85nGfISmguQTfJq7j9uuJdwcbg7xzwVml2j
-         q21VXUoaV6to4muwh/HMSXnZLJQVDTv0HzAMXy/uVslA/glySneuecR2Q8aAVClGYMq8
-         mR5wusjniaL+zmIhyNdHrfvUpwcP4AwySfsgxXmF2/OCjzs1P5CntFhNBaSIYpNcO4cW
-         TwKw==
-X-Gm-Message-State: APjAAAW83GCNxRzVODhX37nAm/dPKP5h/ygPWh0XW1QO9npeSor5epxc
-        xW1LXyPcY8vai8306hSZULQ=
-X-Google-Smtp-Source: APXvYqyX/Q9DbbSwBDnsHR4XeRRskSshAkQo8iMxGADyt/KjKHcr5eADrnvv8w8C2vIUSUOWw33TAQ==
-X-Received: by 2002:adf:e6c5:: with SMTP id y5mr9969287wrm.210.1575551824947;
-        Thu, 05 Dec 2019 05:17:04 -0800 (PST)
-Received: from localhost.localdomain ([109.126.146.231])
-        by smtp.gmail.com with ESMTPSA id l7sm12208003wrq.61.2019.12.05.05.17.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Dec 2019 05:17:04 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        bh=MvmXn3vA06JJuvncBy8YecE2bcU2drPRJVa/0fEIgac=;
+        b=JHcvbIKfT7JI5dcUuhmv4d0vDH7cgiXgLzH7eA7bjj4/L4SZHsPYQwTJLbyVhrLa7o
+         FG9sjzXQAQqiKMddk3niCeWhclivezEn/pKRoXEcGqZ2fwt8ycKP3L65/89v8ee2QAV/
+         OXvNu79HHoQFW5mGyE4ypfJLYy6/ESS4SbUhyTcRlu4w3BsQg98ykqB77pEfzX8DbNqm
+         o8oIGDXLQydjj8xOV52pzmP1clG8NH/uy+49ppU/5/QD54sB8MNIMNV2R/jTlFGawaBa
+         VCOc3P7bm9nGFGrB4njcRzbWg6YQvdcubxkmwFkHxXSSfX9IeFzcTlXraoUCG/pJ7Gew
+         cVJA==
+X-Gm-Message-State: APjAAAWnQb/wGq/W4hxixR53Kn/aIuKTtS56S7HnOkMoIrK/bzYYn/MM
+        Q0ylbRimSerQ7ig+9s2SFl0I0YobWmdUFQ==
+X-Google-Smtp-Source: APXvYqxv6CDNoUlmNBUfG1rcU23fhGFBGg0k6+9uqMgeMXfYom9gBdmkS5I75hcynnNcSAXzdbkg0A==
+X-Received: by 2002:a92:2904:: with SMTP id l4mr9196199ilg.166.1575554981757;
+        Thu, 05 Dec 2019 06:09:41 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id o12sm2306394ioh.42.2019.12.05.06.09.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Dec 2019 06:09:40 -0800 (PST)
+Subject: Re: [PATCH] io_uring: fix error handling in io_queue_link_head
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] io_uring: hook all linked requests via link_list
-Date:   Thu,  5 Dec 2019 16:16:35 +0300
-Message-Id: <49ba20e17803a7caf1cb87792b36dd40b4a99806.1575551693.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+References: <d3151624354a37ec5510af32b00475574aa60aca.1575551692.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <d8bd2795-bd46-cad1-d78d-344d2df5a9f2@kernel.dk>
+Date:   Thu, 5 Dec 2019 07:09:39 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d3151624354a37ec5510af32b00475574aa60aca.1575551692.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Links are created by chaining requests through req->list with an
-exception that head uses req->link_list. (e.g. link_list->list->list)
-Because of that, io_req_link_next() needs complex splicing to advance.
+On 12/5/19 6:15 AM, Pavel Begunkov wrote:
+> In case of an error io_submit_sqe() drops a request and continues
+> without it, even if the request was a part of a link. Not only it
+> doesn't cancel links, but also may execute wrong sequence of actions.
+> 
+> Stop consuming sqes, and let the user handle errors.
 
-Link them all through list_list. Also, it seems to be simpler and more
-consistent IMHO.
+Thanks, applied.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 42 ++++++++++++++++++++----------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6c2b2afe985e..806d9c72d0c9 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -899,7 +899,6 @@ static bool io_link_cancel_timeout(struct io_kiocb *req)
- static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
--	struct io_kiocb *nxt;
- 	bool wake_ev = false;
- 
- 	/* Already got next link */
-@@ -911,24 +910,21 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
- 	 * potentially happen if the chain is messed up, check to be on the
- 	 * safe side.
- 	 */
--	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
--	while (nxt) {
--		list_del_init(&nxt->list);
-+	while (!list_empty(&req->link_list)) {
-+		struct io_kiocb *nxt = list_first_entry(&req->link_list,
-+						struct io_kiocb, link_list);
- 
--		if ((req->flags & REQ_F_LINK_TIMEOUT) &&
--		    (nxt->flags & REQ_F_TIMEOUT)) {
-+		if (unlikely((req->flags & REQ_F_LINK_TIMEOUT) &&
-+			     (nxt->flags & REQ_F_TIMEOUT))) {
-+			list_del_init(&nxt->link_list);
- 			wake_ev |= io_link_cancel_timeout(nxt);
--			nxt = list_first_entry_or_null(&req->link_list,
--							struct io_kiocb, list);
- 			req->flags &= ~REQ_F_LINK_TIMEOUT;
- 			continue;
- 		}
--		if (!list_empty(&req->link_list)) {
--			INIT_LIST_HEAD(&nxt->link_list);
--			list_splice(&req->link_list, &nxt->link_list);
--			nxt->flags |= REQ_F_LINK;
--		}
- 
-+		list_del_init(&req->link_list);
-+		if (!list_empty(&nxt->link_list))
-+			nxt->flags |= REQ_F_LINK;
- 		*nxtptr = nxt;
- 		break;
- 	}
-@@ -944,15 +940,15 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
- static void io_fail_links(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
--	struct io_kiocb *link;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&ctx->completion_lock, flags);
- 
- 	while (!list_empty(&req->link_list)) {
--		link = list_first_entry(&req->link_list, struct io_kiocb, list);
--		list_del_init(&link->list);
-+		struct io_kiocb *link = list_first_entry(&req->link_list,
-+						struct io_kiocb, link_list);
- 
-+		list_del_init(&link->link_list);
- 		trace_io_uring_fail_link(req, link);
- 
- 		if ((req->flags & REQ_F_LINK_TIMEOUT) &&
-@@ -3173,10 +3169,11 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	 * We don't expect the list to be empty, that will only happen if we
- 	 * race with the completion of the linked work.
- 	 */
--	if (!list_empty(&req->list)) {
--		prev = list_entry(req->list.prev, struct io_kiocb, link_list);
-+	if (!list_empty(&req->link_list)) {
-+		prev = list_entry(req->link_list.prev, struct io_kiocb,
-+				  link_list);
- 		if (refcount_inc_not_zero(&prev->refs)) {
--			list_del_init(&req->list);
-+			list_del_init(&req->link_list);
- 			prev->flags &= ~REQ_F_LINK_TIMEOUT;
- 		} else
- 			prev = NULL;
-@@ -3206,7 +3203,7 @@ static void io_queue_linked_timeout(struct io_kiocb *req)
- 	 * we got a chance to setup the timer
- 	 */
- 	spin_lock_irq(&ctx->completion_lock);
--	if (!list_empty(&req->list)) {
-+	if (!list_empty(&req->link_list)) {
- 		struct io_timeout_data *data = &req->io->timeout;
- 
- 		data->timer.function = io_link_timeout_fn;
-@@ -3226,7 +3223,8 @@ static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req)
- 	if (!(req->flags & REQ_F_LINK))
- 		return NULL;
- 
--	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb, list);
-+	nxt = list_first_entry_or_null(&req->link_list, struct io_kiocb,
-+					link_list);
- 	if (!nxt || nxt->sqe->opcode != IORING_OP_LINK_TIMEOUT)
- 		return NULL;
- 
-@@ -3367,7 +3365,7 @@ static bool io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
- 			goto err_req;
- 		}
- 		trace_io_uring_link(ctx, req, prev);
--		list_add_tail(&req->list, &prev->link_list);
-+		list_add_tail(&req->link_list, &prev->link_list);
- 	} else if (req->sqe->flags & IOSQE_IO_LINK) {
- 		req->flags |= REQ_F_LINK;
- 
 -- 
-2.24.0
+Jens Axboe
 

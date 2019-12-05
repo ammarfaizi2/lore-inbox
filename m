@@ -6,65 +6,65 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 808DFC43603
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AA45C43603
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 424142245C
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33B6A2245C
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 14:09:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="setkwnPY"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="s2a2GSfz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbfLEOJn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 5 Dec 2019 09:09:43 -0500
-Received: from mail-il1-f176.google.com ([209.85.166.176]:39260 "EHLO
-        mail-il1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729187AbfLEOJm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 09:09:42 -0500
-Received: by mail-il1-f176.google.com with SMTP id a7so3088312ild.6
-        for <io-uring@vger.kernel.org>; Thu, 05 Dec 2019 06:09:42 -0800 (PST)
+        id S1729396AbfLEOJ7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Dec 2019 09:09:59 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:34392 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729240AbfLEOJ6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 09:09:58 -0500
+Received: by mail-il1-f195.google.com with SMTP id w13so3116220ilo.1
+        for <io-uring@vger.kernel.org>; Thu, 05 Dec 2019 06:09:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:references:from:message-id:date:user-agent:mime-version
          :in-reply-to:content-language:content-transfer-encoding;
-        bh=MvmXn3vA06JJuvncBy8YecE2bcU2drPRJVa/0fEIgac=;
-        b=setkwnPYqKc/uECxpPYNuChG4RIUv7ZvpV4y66XdujO0cYNQGgHQ38iuY5l3JHSwqW
-         hnvR2XCyDpABknTrKWZ79hIaulpxM7dEH3uwHRaqlgGNsX/97ISpLsMZy401AUUkYLY8
-         48+V4sBwqhv2h+Dc+775KlsvoJTP7UgTpsVSebNqoL48oU6w59JKqFs1jyQNBwlLtbwk
-         XPbKSMsASrYFVVegYZoL5S88WQzvE8476NQMHQOzyI/1CGKRXWEFNBXqoYm/FTyTnO25
-         bl49cO4hPefxhr4tZl2aWEli0tjUDpyXHiAF8uKxh5WRGE+H9QmOOm0HIn15hVjKea8N
-         rSfQ==
+        bh=NdRk0/WJY6q/NMtsungMXpX9nQb52EUzCZp5dxdBiDo=;
+        b=s2a2GSfzBzKRVsd+y4on5r5AAqvHvkht2ps+r4RS1KKyGeBVN8Z1qlKDyUziyi3Zc6
+         yWi9p9aDDyvVmDydac/apXnIR6wLQp9kVdSOBVNS5iVPCj4kXHoPV/ngMBUO/ZLO777X
+         jwsvUMR29lHN5ATMpbKzK0E6rACPmzSnbGftP9d4Dq24+RqiRHs6gusv8y2h6PVQjn0G
+         adNZbUX8kpKRnIt8RPYyE4dBcheAx8CAlQH16U+BZvIk0IcCeUdDw/l9FRBJaDZlOVg1
+         p9ZAKiSGSXdObAu/1NIPuiNMTq5Ca1rr0x5jRS57Rk8WGym72d6zio+txaRLEOgsueSB
+         0ZRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=MvmXn3vA06JJuvncBy8YecE2bcU2drPRJVa/0fEIgac=;
-        b=JHcvbIKfT7JI5dcUuhmv4d0vDH7cgiXgLzH7eA7bjj4/L4SZHsPYQwTJLbyVhrLa7o
-         FG9sjzXQAQqiKMddk3niCeWhclivezEn/pKRoXEcGqZ2fwt8ycKP3L65/89v8ee2QAV/
-         OXvNu79HHoQFW5mGyE4ypfJLYy6/ESS4SbUhyTcRlu4w3BsQg98ykqB77pEfzX8DbNqm
-         o8oIGDXLQydjj8xOV52pzmP1clG8NH/uy+49ppU/5/QD54sB8MNIMNV2R/jTlFGawaBa
-         VCOc3P7bm9nGFGrB4njcRzbWg6YQvdcubxkmwFkHxXSSfX9IeFzcTlXraoUCG/pJ7Gew
-         cVJA==
-X-Gm-Message-State: APjAAAWnQb/wGq/W4hxixR53Kn/aIuKTtS56S7HnOkMoIrK/bzYYn/MM
-        Q0ylbRimSerQ7ig+9s2SFl0I0YobWmdUFQ==
-X-Google-Smtp-Source: APXvYqxv6CDNoUlmNBUfG1rcU23fhGFBGg0k6+9uqMgeMXfYom9gBdmkS5I75hcynnNcSAXzdbkg0A==
-X-Received: by 2002:a92:2904:: with SMTP id l4mr9196199ilg.166.1575554981757;
-        Thu, 05 Dec 2019 06:09:41 -0800 (PST)
+        bh=NdRk0/WJY6q/NMtsungMXpX9nQb52EUzCZp5dxdBiDo=;
+        b=GZAMNNxHrogfu+kTFINCT+5E9o4Fm916oPuXF2klNMZPoi487dvEMLKLs5psF32VAG
+         6wDijs4HPK1W/RLKM12BTGBGiqZkul25gr+Xyhh+P4pJ55s5vWn/QualuqHbuH3uAchw
+         2sTQBcqEfrqcL60cmNT/jtsNSZllbwUAqhb8IZ5XrfPzIsUxpCo8rpKiyzYjgjqmM8wh
+         wJhYxedIbiB36WUsg30CgR9e8fAGp6JRrMXPdhvQHaGBflOfUsI+Mx09i1hA/XC5trro
+         RnMMkAcmIbdOEHDBrZMxVK+UKy1KVa3/Jx7pkUbFE8KyT0lujt+MtQHdZjtH2t7yzYpu
+         8r+Q==
+X-Gm-Message-State: APjAAAVZhuqjbALs0L8vdRt8mSkgwa+8TRzQtxFWLkNEFy6VZqGjnWAV
+        0f9AdFDTtJBUKYp1JjEPZy4kKw==
+X-Google-Smtp-Source: APXvYqxka6pf9MNXTzfSzkKUdtu/jgSk3q+8bdm4H/e/EfMW/H5sh1ar7k3KBKI1kLw1wDMVkjBH0g==
+X-Received: by 2002:a92:9107:: with SMTP id t7mr9019531ild.51.1575554998080;
+        Thu, 05 Dec 2019 06:09:58 -0800 (PST)
 Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o12sm2306394ioh.42.2019.12.05.06.09.40
+        by smtp.gmail.com with ESMTPSA id s8sm2814777ilq.14.2019.12.05.06.09.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Dec 2019 06:09:40 -0800 (PST)
-Subject: Re: [PATCH] io_uring: fix error handling in io_queue_link_head
+        Thu, 05 Dec 2019 06:09:57 -0800 (PST)
+Subject: Re: [PATCH] io_uring: hook all linked requests via link_list
 To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <d3151624354a37ec5510af32b00475574aa60aca.1575551692.git.asml.silence@gmail.com>
+References: <49ba20e17803a7caf1cb87792b36dd40b4a99806.1575551693.git.asml.silence@gmail.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <d8bd2795-bd46-cad1-d78d-344d2df5a9f2@kernel.dk>
-Date:   Thu, 5 Dec 2019 07:09:39 -0700
+Message-ID: <d09eae06-b2e4-051e-359c-efff1ef957a7@kernel.dk>
+Date:   Thu, 5 Dec 2019 07:09:56 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <d3151624354a37ec5510af32b00475574aa60aca.1575551692.git.asml.silence@gmail.com>
+In-Reply-To: <49ba20e17803a7caf1cb87792b36dd40b4a99806.1575551693.git.asml.silence@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -73,14 +73,15 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 12/5/19 6:15 AM, Pavel Begunkov wrote:
-> In case of an error io_submit_sqe() drops a request and continues
-> without it, even if the request was a part of a link. Not only it
-> doesn't cancel links, but also may execute wrong sequence of actions.
+On 12/5/19 6:16 AM, Pavel Begunkov wrote:
+> Links are created by chaining requests through req->list with an
+> exception that head uses req->link_list. (e.g. link_list->list->list)
+> Because of that, io_req_link_next() needs complex splicing to advance.
 > 
-> Stop consuming sqes, and let the user handle errors.
+> Link them all through list_list. Also, it seems to be simpler and more
+> consistent IMHO.
 
-Thanks, applied.
+Agree, much easier to grok and verify. Applied, thanks.
 
 -- 
 Jens Axboe

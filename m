@@ -2,135 +2,90 @@ Return-Path: <SRS0=lMt9=Z3=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0D13C43603
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 11:09:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3EA0C2BD09
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 12:28:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5DDBB2245C
-	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 11:09:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C913120707
+	for <io-uring@archiver.kernel.org>; Thu,  5 Dec 2019 12:28:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="oZu/8YhN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dPjxrbyL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729017AbfLELJ2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 5 Dec 2019 06:09:28 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:46436 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728735AbfLELJ1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 06:09:27 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB5B9OtM059330;
-        Thu, 5 Dec 2019 11:09:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2019-08-05;
- bh=spceSgKURiY0yP5WdlVrEb1hiHITAlyGNnoLMw+XmH4=;
- b=oZu/8YhNK5+kx/xGiQ7opEr4CZOaBt+RRqWXmVJurxsJIb2zVIObrQXsvGmNXsFItpOQ
- 0W/Adc/SJogGQ1uMSxTzikImxy/sFrz3+JEmAyUNkhO4W4KOdnEWBtn+0GRpn0yTGe/E
- UrgkpkzbBYgX4AP4aqZck4TB5/eZ7q2+ggYujgBXv1iJebPOslH6Cw0avODthnvxCnS3
- 3UfR6x5ay4QboNuV8WmWznlfnSNqd6GSxuNqDYS59hRNll1msimkum4ixnO2SU6XDdSe
- 3b5e8MfzLOUX5Y+g+I6U5HAtIy6JUioGLr6EFlNAsO5lWlk1kggeSkr9GhzH1hgLefsW OA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2120.oracle.com with ESMTP id 2wkgcqmc4b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 05 Dec 2019 11:09:24 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB5B9Ma8050844;
-        Thu, 5 Dec 2019 11:09:23 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3020.oracle.com with ESMTP id 2wptpu6119-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 05 Dec 2019 11:09:22 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xB5B8cpg030459;
-        Thu, 5 Dec 2019 11:08:39 GMT
-Received: from kadam (/129.205.23.165)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 05 Dec 2019 03:08:38 -0800
-Date:   Thu, 5 Dec 2019 14:08:32 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [bug report] io_uring: ensure async punted read/write requests
- copy iovec
-Message-ID: <20191205110832.GN1787@kadam>
-References: <20191205110035.pghb4acsbfr43ycw@kili.mountain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191205110035.pghb4acsbfr43ycw@kili.mountain>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9461 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=810
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1912050092
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9461 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=1 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=866 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1912050092
+        id S1729096AbfLEM2B (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Dec 2019 07:28:01 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:42902 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729048AbfLEM2B (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Dec 2019 07:28:01 -0500
+Received: by mail-pl1-f194.google.com with SMTP id x13so1193861plr.9
+        for <io-uring@vger.kernel.org>; Thu, 05 Dec 2019 04:28:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=2H5uQY2E80fHvPfqFfjVfUXp73NqnijtY6LQhNvu5Ug=;
+        b=dPjxrbyLMxKXSv8B3l/TjcFovJd7EX212oYyttLvnSDmIE2dsismyFWwzzvQdl+vll
+         3TnsBkJWOxzqVLE2fxRkgv0LnDpuqs25ZN9vgP2zqABj2eyhshx+eTJ0FLf855vebnLu
+         7S9LvRg4qk21RTSYL+k2UCIZVwBUdrENqhBK2789uj829F7S0yfnfoQIILKZAAHXLkq2
+         Utb6MLcUuZ3KKNS5p9FL74yoSzJ/X/6Dfx3imZFHyW+hHJr18Sd75Eirq6Ibi9z+M5KT
+         qIOsZ+/END17WHCL8bgKdXChnivHdNUmgmJhfFAW2Hp7vjvo7UH6BTZ1kKn5l4WuOKK5
+         OGUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=2H5uQY2E80fHvPfqFfjVfUXp73NqnijtY6LQhNvu5Ug=;
+        b=FMPjK+NHYfw9rtZhEfNSVgQmP10u3r0qve1sh2VBdwEXaRM7U9epv+pXx4Tcm76wpu
+         7jVG0O0x++uJHNR46vMdi4TDaWmRJtYMJNQdMZ2fXWhfjaCeFttgVjEGdaoTv9rYlyC/
+         oTbLEZK+VnWgpcgSCst7QX5MEMXd49PPnrmH1MA24G3eyuKwLOW9Amx96bgqVuGA+N0y
+         336SkK0ibhkmPuN8BIGbGcJeSCKAwECzyG20A/jr/KkdMyvtkcXOHItJz7+X9ojO9Dtz
+         +Pa1olvUg/6bTfp9m7blF0tXH9lfGQHp5y7ZnWm8SN5FoogYwTQ89Pqe53nBWOZZMJJf
+         HFiQ==
+X-Gm-Message-State: APjAAAUj+pzUp6/0MW/0frlEeQ9MoMA1xjOnDI62WE7zYFk/ChfYJ2qf
+        cwdl84SvsD2XReixCgdGnwWkpsTJ
+X-Google-Smtp-Source: APXvYqwBdTmMJlASPWKJwN1HUjsGYjt91qR/iF0JEEros6D40FYfhY6cFXOthe2ugz9fekvLk4m8UA==
+X-Received: by 2002:a17:90a:628c:: with SMTP id d12mr9091276pjj.107.1575548880558;
+        Thu, 05 Dec 2019 04:28:00 -0800 (PST)
+Received: from localhost.localdomain.localdomain (144.34.238.174.16clouds.com. [144.34.238.174])
+        by smtp.gmail.com with ESMTPSA id g6sm623704pjl.25.2019.12.05.04.27.59
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Dec 2019 04:28:00 -0800 (PST)
+From:   wu860403@gmail.com
+To:     io-uring@vger.kernel.org
+Cc:     LimingWu <19092205@suning.com>
+Subject: [PATCH] fix a typo
+Date:   Thu,  5 Dec 2019 20:18:18 +0800
+Message-Id: <1575548298-8229-1-git-send-email-wu860403@gmail.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-I see this was fixed in today's linux-next.  That was quick.  :)
+From: LimingWu <19092205@suning.com>
 
-regards,
-dan caprenter
+ thatn -> than
+Signed-off-by: Liming Wu <19092205@suning.com>
+---
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4fd4cf9..b4d7f01 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -145,7 +145,7 @@ struct io_rings {
+ 	/*
+ 	 * Number of completion events lost because the queue was full;
+ 	 * this should be avoided by the application by making sure
+-	 * there are not more requests pending thatn there is space in
++	 * there are not more requests pending than there is space in
+ 	 * the completion queue.
+ 	 *
+ 	 * Written by the kernel, shouldn't be modified by the
+-- 
+1.8.3.1
 
-On Thu, Dec 05, 2019 at 02:00:35PM +0300, Dan Carpenter wrote:
-> Hello Jens Axboe,
-> 
-> The patch f67676d160c6: "io_uring: ensure async punted read/write
-> requests copy iovec" from Dec 2, 2019, leads to the following static
-> checker warning:
-> 
-> 	fs/io_uring.c:2919 io_req_defer()
-> 	warn: inconsistent returns 'irq'.
-> 
-> fs/io_uring.c
->   2891  static int io_req_defer(struct io_kiocb *req)
->   2892  {
->   2893          struct io_ring_ctx *ctx = req->ctx;
->   2894          struct io_async_ctx *io;
->   2895          int ret;
->   2896  
->   2897          /* Still need defer if there is pending req in defer list. */
->   2898          if (!req_need_defer(req) && list_empty(&ctx->defer_list))
->   2899                  return 0;
->   2900  
->   2901          io = kmalloc(sizeof(*io), GFP_KERNEL);
->   2902          if (!io)
->   2903                  return -EAGAIN;
->   2904  
->   2905          spin_lock_irq(&ctx->completion_lock);
->   2906          if (!req_need_defer(req) && list_empty(&ctx->defer_list)) {
->   2907                  spin_unlock_irq(&ctx->completion_lock);
->   2908                  kfree(io);
->   2909                  return 0;
->   2910          }
->   2911  
->   2912          ret = io_req_defer_prep(req, io);
->   2913          if (ret < 0)
->   2914                  return ret;
-> 
-> We need to spin_unlock_irq(&ctx->completion_lock); before returning.
-> The question of if we need to kfree(io) is more complicated to me
-> because I'm not sure how kiocb->ki_complete gets called...
-> 
->   2915  
->   2916          trace_io_uring_defer(ctx, req, req->user_data);
->   2917          list_add_tail(&req->list, &ctx->defer_list);
->   2918          spin_unlock_irq(&ctx->completion_lock);
->   2919          return -EIOCBQUEUED;
->   2920  }
-> 
-> regards,
-> dan carpenter

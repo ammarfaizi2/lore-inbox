@@ -2,176 +2,79 @@ Return-Path: <SRS0=l6sb=2A=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55AF3C43603
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 15:13:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21C58C43603
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 15:57:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 269D02053B
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 15:13:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE5FA2053B
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 15:57:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="RgWVRade"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="CWTH+xD+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727332AbfLJPNZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 10 Dec 2019 10:13:25 -0500
-Received: from mail-il1-f195.google.com ([209.85.166.195]:40465 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727211AbfLJPNY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 10:13:24 -0500
-Received: by mail-il1-f195.google.com with SMTP id b15so16408577ila.7
-        for <io-uring@vger.kernel.org>; Tue, 10 Dec 2019 07:13:24 -0800 (PST)
+        id S1727211AbfLJP5r (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 10 Dec 2019 10:57:47 -0500
+Received: from mail-io1-f45.google.com ([209.85.166.45]:44415 "EHLO
+        mail-io1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727178AbfLJP5r (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 10:57:47 -0500
+Received: by mail-io1-f45.google.com with SMTP id z23so19250961iog.11
+        for <io-uring@vger.kernel.org>; Tue, 10 Dec 2019 07:57:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=FluuqedFsDG2KxFI/2uK9kxG/iDZm0NhrUd3U8p+PGU=;
-        b=RgWVRadeDQjBu1BGZ1cVSL3ENFUnLuhp90whbsIXBhKP9l3uRkHuLcoQu2lT+vPlnX
-         K4IN0tpWhwtvcFboaYo3Y3D6XzSOCzSQJpNB7ZTVfME1ajpGQ4riwI/YPPtRRF/OVJ4o
-         kCRI/qhMDuq0vMLdAyAJk/95JGHyNhx/IypKMgN5Iohrb3v98Yl9WItSeqyQaKeKmOJ1
-         laUuGoar4OPkLWVZHaBFN0y4rCtZrx3J6j8reLZmH0IWjXG/H8xXFFcf1acUbsTir/SC
-         4Kvj775BUcPh7w/wW8PCrbzRSo28Ev5oWAfG4MyGkfNmagk34a/M1DsjzaNE4Emt15Tq
-         n5mA==
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HuDXucHckgeeAXB1fxAFyJJDQE4Ncc2mRn8uM+PjxBY=;
+        b=CWTH+xD+Yiiz+3NdIiqqi+8DOKAYZgMIzgX3cZRGYY/MA1w9CQRV6bfg4M9AY9acLE
+         pULUc0XDsGYbuEH0wgual5cATAjp83TLBKXMvPkWIXzVehwNjbNVrQCqdjvVdnBCdtNg
+         e/iDG39jfC3BzZhB3VXHr+6qXVNUCSGwQHYz/k6oR/KITGHlj3H38nT3qDyI4Zzxp6wf
+         vt0TC0I1NKN5ujArIUQSQO8M6oXNg/7tZLEtggvApL486b/INou/LTZlbnvYIQ2E64XC
+         C1jAKVbQofUUiNsFRpqhRRQOoFIICfszeA7XhLt8pf+hm27TmdK4uTSg2JjJbA7TEJ4l
+         koOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=FluuqedFsDG2KxFI/2uK9kxG/iDZm0NhrUd3U8p+PGU=;
-        b=K//+kNCuxmb6K78FRODW8zv8BoLLm3gYIKL2FY8Z5tdQHGjkV55xsAmJZjs0ud7na6
-         UR0Pwuhh0qNBcT9IfTyMwxOAPOxOGmRuNWQAfRlr+XlGIYdQ0knoZLe3ZSAq21g+N3+b
-         Rlco1hXBBid0xMgcadn/f2FA36APhYQ2ZQqeKcmikO7YiuL8sOVSSqGx9GB+1C/XkCMA
-         ApD+cw9JLRSPoVnKyymUUNAPtnGaCIF3jiWx5V022ECLkwycg3ktCAsD7F8oKdpxhE6G
-         HLtXA2lFJPonRF2joBvOFMuKFdtdlqw49C32UvtfMzionu/yvJ9HGuR6G9HvIcHZOMA1
-         Zb5A==
-X-Gm-Message-State: APjAAAVVCXN0bPUeTGDiKyfbZOzJf+dBHVZCtp+E1ISDxS0ELz7OQrIe
-        F2oaj/E0BhFCDGy8AcznTg2QOA==
-X-Google-Smtp-Source: APXvYqwA6KsgxhpSxh7cHUhuaWTUaw28H99GYAp3/7OCgeZLGK4kWP8ivU/jL55Q0AZdsIfyxs37tA==
-X-Received: by 2002:a92:246:: with SMTP id 67mr10334165ilc.155.1575990803619;
-        Tue, 10 Dec 2019 07:13:23 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id l7sm746380iol.22.2019.12.10.07.13.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Dec 2019 07:13:22 -0800 (PST)
-Subject: Re: [PATCH 1/4] io_uring: allow unbreakable links
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?B?5p2O6YCa5rSy?= <carter.li@eoitek.com>
-References: <20191209231854.3767-1-axboe@kernel.dk>
- <20191209231854.3767-2-axboe@kernel.dk>
- <809147c7-58b2-6e21-66ab-edf09e1757b9@gmail.com>
+        bh=HuDXucHckgeeAXB1fxAFyJJDQE4Ncc2mRn8uM+PjxBY=;
+        b=BaRdKkLTfgtsne05i1L8+R0mXkW9hky35KZjPc0aCbmi+3hR+AGsQhgsJPkcvLwT9+
+         9hiyzf3sVgRTxAp35mKZdWmSMYHmD0Ebd566edYsaay0XhMbFv51GHWYgPFkkXLPxBcA
+         xTh1dDv0GFg0vV5BiVt//4b0T05UN5SUDpdwxbXDYGwEgZyAPspVc/Ph7PETeQu+0tQ5
+         A+RWJledZZaItvouMdIPxDnoqJJJ/BiA5njCAIkTjrabfjMAnAqzke9rfLQQ62/ahoLr
+         VVekL4wCE22PSovJk9lK2Ga1CbL3eAtXKdhWQbe0y8okN5kcElCXp2bTirAroKLV1E+/
+         zRww==
+X-Gm-Message-State: APjAAAXHdOSukJZofkxyoWvNv+vTaVgDLcoTH3F0APE7Min1nLoKOvL5
+        I1+jcgCXytnLiwtjmZx5e0shSLYjr/Q1fw==
+X-Google-Smtp-Source: APXvYqwhwNCZsqhj9vtBOA/xqdO0nnbz63J/4CgQYAg8qVkZL04qI0CurKkduTgsfnEY9zjHAYa7gg==
+X-Received: by 2002:a5e:8e04:: with SMTP id a4mr5377748ion.155.1575993466217;
+        Tue, 10 Dec 2019 07:57:46 -0800 (PST)
+Received: from x1.thefacebook.com ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id w6sm770953ioa.16.2019.12.10.07.57.44
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2019 07:57:45 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b17ac667-d916-51e6-1f19-8a38726d18e0@kernel.dk>
-Date:   Tue, 10 Dec 2019 08:13:21 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+To:     io-uring@vger.kernel.org
+Subject: [PATCHSET 0/11] io_uring improvements/fixes for 5.5-rc
+Date:   Tue, 10 Dec 2019 08:57:31 -0700
+Message-Id: <20191210155742.5844-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <809147c7-58b2-6e21-66ab-edf09e1757b9@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 12/10/19 3:13 AM, Pavel Begunkov wrote:
-> On 12/10/2019 2:18 AM, Jens Axboe wrote:
->> Some commands will invariably end in a failure in the sense that the
->> completion result will be less than zero. One such example is timeouts
->> that don't have a completion count set, they will always complete with
->> -ETIME unless cancelled.
->>
->> For linked commands, we sever links and fail the rest of the chain if
->> the result is less than zero. Since we have commands where we know that
->> will happen, add IOSQE_IO_HARDLINK as a stronger link that doesn't sever
->> regardless of the completion result. Note that the link will still sever
->> if we fail submitting the parent request, hard links are only resilient
->> in the presence of completion results for requests that did submit
->> correctly.
->>
->> Cc: stable@vger.kernel.org # v5.4
->> Reported-by: 李通洲 <carter.li@eoitek.com>
->> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->> ---
->>  fs/io_uring.c                 | 54 +++++++++++++++++++++--------------
->>  include/uapi/linux/io_uring.h |  1 +
->>  2 files changed, 33 insertions(+), 22 deletions(-)
->>
->> diff --git a/fs/io_uring.c b/fs/io_uring.c
->> index 405be10da73d..662404854571 100644
->> --- a/fs/io_uring.c
->> +++ b/fs/io_uring.c
->> @@ -377,6 +377,7 @@ struct io_kiocb {
->>  #define REQ_F_TIMEOUT_NOSEQ	8192	/* no timeout sequence */
->>  #define REQ_F_INFLIGHT		16384	/* on inflight list */
->>  #define REQ_F_COMP_LOCKED	32768	/* completion under lock */
->> +#define REQ_F_HARDLINK		65536	/* doesn't sever on completion < 0 */
->>  	u64			user_data;
->>  	u32			result;
->>  	u32			sequence;
->> @@ -941,7 +942,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
->>  
->>  		list_del_init(&req->link_list);
->>  		if (!list_empty(&nxt->link_list))
->> -			nxt->flags |= REQ_F_LINK;
->> +			nxt->flags |= req->flags & (REQ_F_LINK|REQ_F_HARDLINK);
-> 
-> I'm not sure we want to unconditionally propagate REQ_F_HARDLINK further.
-> 
-> E.g. timeout|REQ_F_HARDLINK -> read -> write
-> REQ_F_HARDLINK will be set to the following read and its fail won't
-> cancel the write, that seems strange. If users want such behaviour, they
-> can set REQ_F_HARDLINK when needed by hand.
+Here's a list of patches I'm propsing for 5.5. The first 4 are the same
+as the v1 posting, except I've made changes to the HARDLINK support
+after Pavel's review.
 
-Yeah you're right, how about if we set REQ_F_HARDLINK in io_submit_sqe()
-if IOSQE_IO_HARDLINK is set, and just keep the above as it is. We need
-to ensure we're correctly keeping hard link if it's set in the sqe, not
-carry over like the above if it wasn't set.
-
->>  		*nxtptr = nxt;
->>  		break;
->>  	}
->> @@ -1292,6 +1293,11 @@ static void kiocb_end_write(struct io_kiocb *req)
->>  	file_end_write(req->file);
->>  }
->>  
->> +static inline bool req_fail_links(struct io_kiocb *req)
->> +{
->> +	return (req->flags & (REQ_F_LINK | REQ_F_HARDLINK)) == REQ_F_LINK;
->> +}
->> +
-> 
-> req_fail_links() sounds like it not only do checking, but actually fails
-> links. How about as follows?
-> 
-> +static inline void req_set_fail_links(struct io_kiocb *req)
-> +{
-> +	if (req->flags & (REQ_F_LINK | REQ_F_HARDLINK)) == REQ_F_LINK)
-> +		req->flags |= REQ_F_FAIL_LINK;
-> +}
-> 
-> And it would be less code below
-
-That's cleaner, I'll make the change.
-
->> @@ -3518,7 +3528,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
->>  		 * If previous wasn't linked and we have a linked command,
->>  		 * that's the end of the chain. Submit the previous link.
->>  		 */
->> -		if (!(sqe_flags & IOSQE_IO_LINK) && link) {
->> +		if (!(sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) && link) {
-> 
-> IMHO, requests shouldn't have IOSQE_IO_HARDLINK without IOSQE_IO_LINK,
-> the same is in the code. Then, it's sufficient check only IOSQE_IO_LINK.
-
-IOSQE_IO_HARDLINK implies link behavior, it's really just a modifier. So
-yes, I agree, and that change should then also be removable.
-
-I'll post a v2, thanks for your review.
+The rest is just little tweaks and fixes. Also find them in my
+io_uring-5.5 branch.
 
 -- 
 Jens Axboe
+
 

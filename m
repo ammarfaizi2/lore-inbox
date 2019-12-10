@@ -2,190 +2,459 @@ Return-Path: <SRS0=l6sb=2A=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 770F7C00454
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 343A4C43603
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:30:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3CBC1205C9
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:29:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6D36206D5
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:30:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pT1+e13m"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="L5LusMnh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726062AbfLJV3P (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 10 Dec 2019 16:29:15 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:50338 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728512AbfLJV3O (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 16:29:14 -0500
-Received: by mail-wm1-f65.google.com with SMTP id p9so4849580wmg.0;
-        Tue, 10 Dec 2019 13:29:13 -0800 (PST)
+        id S1727303AbfLJVaW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 10 Dec 2019 16:30:22 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:39621 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727637AbfLJVJ4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 16:09:56 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 77so16843799oty.6
+        for <io-uring@vger.kernel.org>; Tue, 10 Dec 2019 13:09:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to;
-        bh=FG/XZKIFSMMTDUz+JIMGQpdpmGDcAae/yQlubLTKfz0=;
-        b=pT1+e13mG3d8gvRjhN55ZWLQyc0EHeXc8FG8iRNGPsEtyIgs975QAMCTfRU69yuapI
-         cDeFSAGsi/F0qb+Hcn1c/zdDVgq9Ce0q62aKOiVXE+PVmDnfDeB69/scO8yGHBrNeRK+
-         HVS+ni/CwxPNRCGN059BD1pR+sX/H7H3xL7IwQn05I/d1IC4XT14gwRgZ1G+caUgMXIi
-         WpU20ToqbUIkxEaAtwBn3oNxOav6mrewHbxP54q0LlBWCI9bgHfMlPGBzLX+gf8Cg6/y
-         v6ByWpgQlozroQMKXRo343ZdKI7jU1PpH5cb2wspnjjXkkfNJULzXzvR698BdagPS3yD
-         nsVA==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sz83zlf+Qc4HI/UvJA/oK7GYq0TXVgRf5WE2WEm5qGM=;
+        b=L5LusMnhQKItUSLtLl2cA3z7UIxH0trl/aUTBRAhX4o+6jop42HD+aLvvjA4ANAb9a
+         5mqBQ4/dgH/7wJCBVjfGr1FTxWom9eyIZo76msTOnEx+YnKF2rTud4GORV4QZvX0IBYV
+         pM09o71xTExTKlquM6UR3+ZrspkXL+TnhF5gncGZZQScJWNl0M4QPjlmbSWzkEGkUfyC
+         Jh/Hq6SMy4i0pTcuSwFqrhECkqaICB9QJ6ghg4+1A2Ci86Te6Xm0p+XfzCBkr6yZh9jQ
+         ikXCfHHHO8dFTtS9u9dz1XQ81Kfb7TNe4sVxccfCrycM2f/7PlRsK6C1nAC2hK31iECt
+         AJ+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to;
-        bh=FG/XZKIFSMMTDUz+JIMGQpdpmGDcAae/yQlubLTKfz0=;
-        b=Xgn3kcS3neSyzD+1G2qzHoReygzOKSMBZNF08TxVwLXpuY5JwxIBU+ZplWb37WV91h
-         +Ul6UKaD2rX8nvL1I/lNONP69uGIChEf6RBK6l/9Uf0lYMKJSkaKwoNciG2Oh5bllX89
-         CAy3hkqMXwDJlK3wuNEUsV7L56mFKMJkqZpkt9Fom0j/b4HJBEnZfD5JGdXKF7PljifD
-         VBgp5p2o8YuZWLB/MYeDwaydDmzRdKIxVusuRq15BaLbeCXM5RmKFMhK6GK8q3im6NqA
-         pJrh48YekGA8i95juiC0dst8XbeJLgTGq/OIUWMXId3eGXMzLPz4vN93h5gJphH34xTT
-         MouQ==
-X-Gm-Message-State: APjAAAXS4SYe+6w35u3tHPnmnNSVbsDvDQu1tquToSbXxZVYVovt5+Up
-        TBatowsdPG8BmPBAEdyWWrI=
-X-Google-Smtp-Source: APXvYqzV+LatBQfezPk2Eegm4eL7MJFg3+zlDs63o1pYh2mpvtO9ZXoEeVhIS17IngnvAsPbrk6Q8A==
-X-Received: by 2002:a7b:c955:: with SMTP id i21mr7261918wml.172.1576013352456;
-        Tue, 10 Dec 2019 13:29:12 -0800 (PST)
-Received: from [192.168.43.162] ([109.126.132.112])
-        by smtp.gmail.com with ESMTPSA id x1sm4632142wru.50.2019.12.10.13.29.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Dec 2019 13:29:11 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?B?5p2O6YCa5rSy?= <carter.li@eoitek.com>
-References: <20191210155742.5844-1-axboe@kernel.dk>
- <20191210155742.5844-2-axboe@kernel.dk>
- <e562048a-b81d-cd6f-eb59-879003641be3@gmail.com>
- <15eb9647-8a71-fba7-6726-082c6a398298@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH 01/11] io_uring: allow unbreakable links
-Message-ID: <75ef6963-a9d7-33ef-cfdd-9770c09fc266@gmail.com>
-Date:   Wed, 11 Dec 2019 00:28:43 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sz83zlf+Qc4HI/UvJA/oK7GYq0TXVgRf5WE2WEm5qGM=;
+        b=knPmLl04g1Bh322UN625rkK4eD5BdhXJTelsmwQuDAHrruXlDPyt5DsjXadzJlfc+Q
+         fcF2cM4zbU7iVbMcpbUTDzg+HwMJHAoPMbKbF+Gthe77lhTNs0jpDQT4h2+KT5Dx8xd3
+         SvzVai5EupXVeYcv6uHNA3t4ovyOULxolVva6lPR4xIZ78Em9bOFCLSVOOsJDUBYShoN
+         flhVlhSHpc9+ZTZj52oqRJb/5ezU2syqG2W22fRfIXqPFVKiGZX5WY/F40MWruCB17sR
+         uTMh+FTUkJKULB0fKzTUZu30k6a7+IbFldbdlHq5G0Qf1EL4SwSDFN951rVRMy9tg+v3
+         ghjQ==
+X-Gm-Message-State: APjAAAUPkB1aVSJoFHq7tSbUO/1S3H5y8P/vZ1sIBLzz37Jko1aF/zPy
+        yZBexHAaUQ5Htmkx6EPUs6QkLdf4UZ2305werMD5iNI8
+X-Google-Smtp-Source: APXvYqzKakQbLnjvY/lNsqrRfTCQbGieQ3SmignsSu81Fg3h8jJz61DWJoZwtgkbAQqDWNj0shrvpEt+dsxoQUvfCyM=
+X-Received: by 2002:a9d:4789:: with SMTP id b9mr28524129otf.110.1576012194253;
+ Tue, 10 Dec 2019 13:09:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <15eb9647-8a71-fba7-6726-082c6a398298@kernel.dk>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="Rfl9zpAbw7BYzuX3AB1wwbpw7gv9487Xs"
+References: <0e64d3be-c6b0-dc0d-57f7-da3312bfa743@kernel.dk>
+In-Reply-To: <0e64d3be-c6b0-dc0d-57f7-da3312bfa743@kernel.dk>
+From:   Jann Horn <jannh@google.com>
+Date:   Tue, 10 Dec 2019 22:09:28 +0100
+Message-ID: <CAG48ez3ezOA2nDazwLXJgz36fzZfU7Po8vSGxfsO3JL2HiTz=g@mail.gmail.com>
+Subject: Re: [PATCH] io_uring: avoid ring quiesce for fixed file set
+ unregister and update
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring <io-uring@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Rfl9zpAbw7BYzuX3AB1wwbpw7gv9487Xs
-Content-Type: multipart/mixed; boundary="wjofozT2qlxaGPflrivFiHv28simLHqDQ";
- protected-headers="v1"
-From: Pavel Begunkov <asml.silence@gmail.com>
-To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc: stable@vger.kernel.org, =?UTF-8?B?5p2O6YCa5rSy?= <carter.li@eoitek.com>
-Message-ID: <75ef6963-a9d7-33ef-cfdd-9770c09fc266@gmail.com>
-Subject: Re: [PATCH 01/11] io_uring: allow unbreakable links
-References: <20191210155742.5844-1-axboe@kernel.dk>
- <20191210155742.5844-2-axboe@kernel.dk>
- <e562048a-b81d-cd6f-eb59-879003641be3@gmail.com>
- <15eb9647-8a71-fba7-6726-082c6a398298@kernel.dk>
-In-Reply-To: <15eb9647-8a71-fba7-6726-082c6a398298@kernel.dk>
+On Tue, Dec 10, 2019 at 5:06 PM Jens Axboe <axboe@kernel.dk> wrote:
+> We currently fully quiesce the ring before an unregister or update of
+> the fixed fileset. This is very expensive, and we can be a bit smarter
+> about this.
+>
+> Add a percpu refcount for the file tables as a whole. Grab a percpu ref
+> when we use a registered file, and put it on completion. This is cheap
+> to do. Upon removal of a file from a set, switch the ref count to atomic
+> mode. When we hit zero ref on the completion side, then we know we can
+> drop the previously registered files. When the old files have been
+> dropped, switch the ref back to percpu mode for normal operation.
+>
+> Since there's a period between doing the update and the kernel being
+> done with it, add a IORING_OP_FILES_UPDATE opcode that can perform the
+> same action. The application knows the update has completed when it gets
+> the CQE for it. Between doing the update and receiving this completion,
+> the application must continue to use the unregistered fd if submitting
+> IO on this particular file.
+>
+> This takes the runtime of test/file-register from liburing from 14s to
+> about 0.7s.
 
---wjofozT2qlxaGPflrivFiHv28simLHqDQ
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Uwaaah, the lifetimes and stuff in uring are a maze... this code could
+really use some more comments. I haven't really been looking at it for
+the last few months, and it's really hard to understand what's going
+on now.
 
-Remembered my earlier comment. If the intention is to set HARDLINK,
-must it go with REQ_F_LINK? And if not, is it ever valid to set
-them both?
+[...]
+> @@ -456,7 +467,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+>         if (!ctx->fallback_req)
+>                 goto err;
+>
+> -       ctx->completions = kmalloc(2 * sizeof(struct completion), GFP_KERNEL);
+> +       ctx->completions = kmalloc(3 * sizeof(struct completion), GFP_KERNEL);
+>         if (!ctx->completions)
+>                 goto err;
 
-That's not like there is a preference, but as it affects userspace,
-it'd be better to state it clearly and make code to check it.
+Not new in this patch, but wouldn't it be better to just make the
+completions members of ctx instead of allocating them separately? And
+then it'd also be easier to give them proper names instead of
+addressing them as array members, which currently makes it very
+unclear what's going on. commit 206aefde4f88 ("io_uring: reduce/pack
+size of io_ring_ctx") moved them away because, according to the commit
+message, they aren't always necessary and can be allocated
+dynamically; but actually, they're still allocated in
+io_ring_ctx_alloc() and freed in io_ring_ctx_free(), together with the
+context.
 
+[...]
+> @@ -881,8 +893,12 @@ static void __io_free_req(struct io_kiocb *req)
+>
+>         if (req->io)
+>                 kfree(req->io);
+> -       if (req->file && !(req->flags & REQ_F_FIXED_FILE))
+> -               fput(req->file);
+> +       if (req->file) {
+> +               if (req->flags & REQ_F_FIXED_FILE)
+> +                       percpu_ref_put(&ctx->file_data->refs);
+> +               else
+> +                       fput(req->file);
+> +       }
+>         if (req->flags & REQ_F_INFLIGHT) {
+>                 unsigned long flags;
+[...]
+> @@ -3090,8 +3140,8 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
+>  {
+>         struct fixed_file_table *table;
+>
+> -       table = &ctx->file_table[index >> IORING_FILE_TABLE_SHIFT];
+> -       return table->files[index & IORING_FILE_TABLE_MASK];
+> +       table = &ctx->file_data->table[index >> IORING_FILE_TABLE_SHIFT];
+> +       return READ_ONCE(table->files[index & IORING_FILE_TABLE_MASK]);
 
-On 11/12/2019 00:12, Jens Axboe wrote:
-> On 12/10/19 2:10 PM, Pavel Begunkov wrote:
->> Apart from debug code (see comments below) io_uring part of
->> the patchset looks good.
->=20
-> Hah, oops!
->=20
->> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
->=20
-> Thanks
->=20
+What is this READ_ONCE() for? Aren't the table entries fully protected
+by the uring_lock?
 
---=20
-Pavel Begunkov
+>  }
+>
+>  static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
+> @@ -3110,7 +3160,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
+>                 return 0;
+>
+>         if (flags & IOSQE_FIXED_FILE) {
+> -               if (unlikely(!ctx->file_table ||
+> +               if (unlikely(!ctx->file_data ||
+>                     (unsigned) fd >= ctx->nr_user_files))
+>                         return -EBADF;
+>                 fd = array_index_nospec(fd, ctx->nr_user_files);
+> @@ -3118,6 +3168,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
+>                 if (!req->file)
+>                         return -EBADF;
+>                 req->flags |= REQ_F_FIXED_FILE;
+> +               percpu_ref_get(&ctx->file_data->refs);
+>         } else {
+>                 if (req->needs_fixed_file)
+>                         return -EBADF;
+> @@ -3796,15 +3847,18 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+>  {
+>         unsigned nr_tables, i;
+>
+> -       if (!ctx->file_table)
+> +       if (!ctx->file_data)
+>                 return -ENXIO;
+>
+> +       percpu_ref_kill(&ctx->file_data->refs);
+> +       wait_for_completion(&ctx->completions[2]);
+>         __io_sqe_files_unregister(ctx);
+>         nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
+>         for (i = 0; i < nr_tables; i++)
+> -               kfree(ctx->file_table[i].files);
+> -       kfree(ctx->file_table);
+> -       ctx->file_table = NULL;
+> +               kfree(ctx->file_data->table[i].files);
+> +       kfree(ctx->file_data->table);
+> +       kfree(ctx->file_data);
+> +       ctx->file_data = NULL;
+>         ctx->nr_user_files = 0;
+>         return 0;
+>  }
+[...]
+> +static void io_ring_file_ref_switch(struct io_wq_work **workptr)
+> +{
+> +       struct fixed_file_data *data;
+> +       struct llist_node *node;
+> +       struct file *file, *tmp;
+> +
+> +       data = container_of(*workptr, struct fixed_file_data, ref_work);
+> +
+> +       clear_bit_unlock(0, (unsigned long *) &data->ref_work.files);
 
+Starting at this point, multiple executions of this function can race
+with each other, right? Which means that the complete() call further
+down can happen multiple times? Is that okay?
 
---wjofozT2qlxaGPflrivFiHv28simLHqDQ--
+> +       smp_mb__after_atomic();
+> +
+> +       while ((node = llist_del_all(&data->put_llist)) != NULL) {
+> +               llist_for_each_entry_safe(file, tmp, node, f_u.fu_llist)
+> +                       io_ring_file_put(data->ctx, file);
+> +       }
 
---Rfl9zpAbw7BYzuX3AB1wwbpw7gv9487Xs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Why "while"? You expect someone to place new stuff on the ->put_llist
+while in the llist_for_each_entry_safe() loop and don't want to wait
+for the next execution of io_ring_file_ref_switch()? Or am I missing
+something here?
 
------BEGIN PGP SIGNATURE-----
+> +       percpu_ref_switch_to_percpu(&data->refs);
+> +       if (percpu_ref_is_dying(&data->refs))
+> +               complete(&data->ctx->completions[2]);
+> +}
+> +
+> +static void io_file_data_ref_zero(struct percpu_ref *ref)
+> +{
+> +       struct fixed_file_data *data;
+> +
+> +       data = container_of(ref, struct fixed_file_data, refs);
+> +       if (test_and_set_bit_lock(0, (unsigned long *) &data->ref_work.files))
+> +               return;
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl3wDhQACgkQWt5b1Glr
-+6WC0Q/+Oynl/kf1rEGZF7BLJXDS6MoPqPneypoFQv2o8H7OLRrAtsbjS7HIexyV
-AT7Qc2QBZ2FsWCqknfk+M3srT/GflFStbGTI1sRSfISHZb+lpDkOXxFUJ9xP4v06
-qyrF8HjWGvJwYvFhUQPEuyCDmKPBj1ZmBEKCnfNCJkopAZv17IXjH3xL+exSomuP
-0wepVMZM0h9bQYWCg06dEIL1t+8qazeS2zSCk8HAxwqxJ+D8GyG5jnGuje9VpPkc
-UGnSDVfjf6EhZoc4PKu25WZZNJTZkKDnx8HgSUtrD/CnOwudO60pW9i1UT9m+YmP
-WfYZXZkLI4RWV1Mwje98f4kqmx4Npixd4GZpx9ziz+QzPTVQwpmzGDzcMmRkkpjZ
-F0b2E2I6Ekjl12yeu/xweB+8mdrHqt/UkWEiiUptFfh8kZYfKjJxOhUEBYdN6xUc
-V2+seh5tg8pAQMkm5GjB8i+0KNd84ygNY51WEKwsS8gbQP2nGT2vlWWVQePvIKEx
-XfGAlpSW+xYNtvcoolscr+kI+72TZkA0YVdmnnXDzNd1zHGqu8tPpDpHFplbP8Tw
-08on6qFSYQTbh56hsT97sRB3pMDoa39LrZI1vgJweE1WsFT6Sx62B7VoI58eDmr/
-OFfwCdLgMteT/GsX7CXSQCbTQjH9neiy/PIxGulW7+uTK20SRhw=
-=O8Lf
------END PGP SIGNATURE-----
+You're reusing the low bit of a pointer field in io_wq_work as an
+atomic flag? If I understand correctly, io_ring_file_ref_switch work
+items just use that field to store this flag and don't use it as a
+pointer, right? In that case, shouldn't the field be a union instead
+of using such a cast? (You could make it an unnamed union if you're
+worried about having to rename stuff everywhere.)
 
---Rfl9zpAbw7BYzuX3AB1wwbpw7gv9487Xs--
+> +       if (!llist_empty(&data->put_llist)) {
+> +               percpu_ref_get(&data->refs);
+> +               io_wq_enqueue(data->ctx->io_wq, &data->ref_work);
+> +       } else {
+> +               clear_bit_unlock(0, (unsigned long *) &data->ref_work.files);
+> +               if (percpu_ref_is_dying(&data->refs))
+> +                       complete(&data->ctx->completions[2]);
+> +       }
+> +}
+> +
+>  static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+>                                  unsigned nr_args)
+>  {
+>         __s32 __user *fds = (__s32 __user *) arg;
+>         unsigned nr_tables;
+> +       struct file *file;
+>         int fd, ret = 0;
+>         unsigned i;
+>
+> -       if (ctx->file_table)
+> +       if (ctx->file_data)
+>                 return -EBUSY;
+>         if (!nr_args)
+>                 return -EINVAL;
+>         if (nr_args > IORING_MAX_FIXED_FILES)
+>                 return -EMFILE;
+>
+> +       ctx->file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
+> +       if (!ctx->file_data)
+> +               return -ENOMEM;
+> +       ctx->file_data->ctx = ctx;
+> +
+>         nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+> -       ctx->file_table = kcalloc(nr_tables, sizeof(struct fixed_file_table),
+> +       ctx->file_data->table = kcalloc(nr_tables,
+> +                                       sizeof(struct fixed_file_table),
+>                                         GFP_KERNEL);
+> -       if (!ctx->file_table)
+> +       if (!ctx->file_data->table) {
+> +               kfree(ctx->file_data);
+> +               ctx->file_data = NULL;
+>                 return -ENOMEM;
+> +       }
+> +
+> +       if (percpu_ref_init(&ctx->file_data->refs, io_file_data_ref_zero,
+> +                               PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
+> +               kfree(ctx->file_data->table);
+> +               kfree(ctx->file_data);
+> +               ctx->file_data = NULL;
+> +       }
+> +       ctx->file_data->put_llist.first = NULL;
+> +       INIT_IO_WORK(&ctx->file_data->ref_work, io_ring_file_ref_switch);
+> +       ctx->file_data->ref_work.flags = IO_WQ_WORK_INTERNAL;
+
+Why are you punting the ref switch onto a workqueue? Is this in case
+the refcount is still in the middle of switching from percpu mode to
+atomic?
+
+>         if (io_sqe_alloc_file_tables(ctx, nr_tables, nr_args)) {
+> -               kfree(ctx->file_table);
+> -               ctx->file_table = NULL;
+> +               percpu_ref_exit(&ctx->file_data->refs);
+
+You call percpu_ref_exit() in this failure path, but nowhere else?
+That seems to me like it implies at least a memory leak, if not worse.
+
+> +               kfree(ctx->file_data->table);
+> +               kfree(ctx->file_data);
+> +               ctx->file_data = NULL;
+>                 return -ENOMEM;
+>         }
+>
+> @@ -4015,13 +4191,14 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+>                         continue;
+>                 }
+>
+> -               table = &ctx->file_table[i >> IORING_FILE_TABLE_SHIFT];
+> +               table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+>                 index = i & IORING_FILE_TABLE_MASK;
+> -               table->files[index] = fget(fd);
+> +               file = fget(fd);
+>
+>                 ret = -EBADF;
+> -               if (!table->files[index])
+> +               if (!file)
+>                         break;
+
+Not new in this commit, but it seems kinda awkward to have to
+open-code the table lookup here... this might be nicer if instead of
+"struct file *io_file_from_index(...)", you had "struct file
+**io_file_ref_from_index(...)".
+
+>                 /*
+>                  * Don't allow io_uring instances to be registered. If UNIX
+>                  * isn't enabled, then this causes a reference cycle and this
+> @@ -4029,26 +4206,26 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+>                  * handle it just fine, but there's still no point in allowing
+>                  * a ring fd as it doesn't support regular read/write anyway.
+>                  */
+> -               if (table->files[index]->f_op == &io_uring_fops) {
+> -                       fput(table->files[index]);
+> +               if (file->f_op == &io_uring_fops) {
+> +                       fput(file);
+>                         break;
+>                 }
+>                 ret = 0;
+> +               WRITE_ONCE(table->files[index], file);
+
+Why WRITE_ONCE()? There are no readers who can see the file at this
+point, right?
+
+>         }
+>
+>         if (ret) {
+>                 for (i = 0; i < ctx->nr_user_files; i++) {
+> -                       struct file *file;
+> -
+>                         file = io_file_from_index(ctx, i);
+>                         if (file)
+>                                 fput(file);
+>                 }
+>                 for (i = 0; i < nr_tables; i++)
+> -                       kfree(ctx->file_table[i].files);
+> +                       kfree(ctx->file_data->table[i].files);
+>
+> -               kfree(ctx->file_table);
+> -               ctx->file_table = NULL;
+> +               kfree(ctx->file_data->table);
+> +               kfree(ctx->file_data);
+> +               ctx->file_data = NULL;
+>                 ctx->nr_user_files = 0;
+>                 return ret;
+>         }
+[...]
+> @@ -4169,12 +4283,16 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
+>  static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
+>                                unsigned nr_args)
+>  {
+> +       struct fixed_file_data *data = ctx->file_data;
+> +       unsigned long __percpu *percpu_count;
+>         struct io_uring_files_update up;
+> +       bool did_unregister = false;
+> +       struct file *file;
+>         __s32 __user *fds;
+>         int fd, i, err;
+>         __u32 done;
+>
+> -       if (!ctx->file_table)
+> +       if (!data)
+>                 return -ENXIO;
+>         if (!nr_args)
+>                 return -EINVAL;
+> @@ -4197,15 +4315,15 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
+>                         break;
+>                 }
+>                 i = array_index_nospec(up.offset, ctx->nr_user_files);
+> -               table = &ctx->file_table[i >> IORING_FILE_TABLE_SHIFT];
+> +               table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+>                 index = i & IORING_FILE_TABLE_MASK;
+>                 if (table->files[index]) {
+> -                       io_sqe_file_unregister(ctx, i);
+> -                       table->files[index] = NULL;
+> +                       file = io_file_from_index(ctx, index);
+> +                       llist_add(&file->f_u.fu_llist, &data->put_llist);
+
+How can it be safe to implement this with a linked list through a
+member of struct file? What happens if someone, for example, uses the
+same file in two different uring instances and then calls this update
+helper on both of them in parallel? file->f_u.fu_llist will be put on
+one list, and then, without removing it from the first list, be
+connected to the second list, right? At which point the two lists will
+be weirdly spliced together.
+
+> +                       WRITE_ONCE(table->files[index], NULL);
+> +                       did_unregister = true;
+>                 }
+>                 if (fd != -1) {
+> -                       struct file *file;
+> -
+>                         file = fget(fd);
+>                         if (!file) {
+>                                 err = -EBADF;
+> @@ -4224,7 +4342,7 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
+>                                 err = -EBADF;
+>                                 break;
+>                         }
+> -                       table->files[index] = file;
+> +                       WRITE_ONCE(table->files[index], file);
+
+(Again, I don't get the WRITE_ONCE() part.)
+
+>                         err = io_sqe_file_register(ctx, file, i);
+>                         if (err)
+>                                 break;
+> @@ -4234,6 +4352,11 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
+>                 up.offset++;
+>         }
+>
+> +       if (did_unregister && __ref_is_percpu(&data->refs, &percpu_count)) {
+> +               percpu_ref_put(&data->refs);
+> +               percpu_ref_switch_to_atomic(&data->refs, NULL);
+> +       }
+
+There's a comment on __ref_is_percpu() saying "Internal helper.  Don't
+use outside percpu-refcount proper.", and it is some lockless helper
+thing that normally only has a meaning when used inside an RCU-sched
+read-side critical section. If you want to use that helper outside the
+internals of percpu-refcount, I think you'll have to at least change
+the documentation of that helper and document under which conditions
+it means what.
+
+But I also don't really understand the intent here. It looks like the
+idea is that if we've just removed a file from the uring instance, we
+want to detect when the number of pending I/O items that use files is
+at zero so that we can throw away our reference to the file? And we
+hope that we're somehow protected against concurrent mode switches
+(which would mean that we must somehow be protected against concurrent
+io_ring_file_ref_switch())?
+
+I wonder whether an alternative scheme might be that instead of having
+the percpu refcounting logic for the entire file table and keeping
+files open until no file I/O is being executed for a moment, you could
+iterate through all pending work items (including ones that are
+currently being executed) under appropriate locks, and if they use
+fixed files that are to-be-removed, flip the type to non-fixed and
+increment the file's refcount?

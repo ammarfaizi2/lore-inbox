@@ -2,459 +2,200 @@ Return-Path: <SRS0=l6sb=2A=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 343A4C43603
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:30:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01579C00454
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 22:06:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E6D36206D5
-	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 21:30:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE1622053B
+	for <io-uring@archiver.kernel.org>; Tue, 10 Dec 2019 22:06:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="L5LusMnh"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oQoy24F4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727303AbfLJVaW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 10 Dec 2019 16:30:22 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:39621 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727637AbfLJVJ4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 16:09:56 -0500
-Received: by mail-ot1-f68.google.com with SMTP id 77so16843799oty.6
-        for <io-uring@vger.kernel.org>; Tue, 10 Dec 2019 13:09:55 -0800 (PST)
+        id S1726595AbfLJWGi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 10 Dec 2019 17:06:38 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:40917 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729580AbfLJWFZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Dec 2019 17:05:25 -0500
+Received: by mail-ot1-f65.google.com with SMTP id i15so16987987oto.7
+        for <io-uring@vger.kernel.org>; Tue, 10 Dec 2019 14:05:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=sz83zlf+Qc4HI/UvJA/oK7GYq0TXVgRf5WE2WEm5qGM=;
-        b=L5LusMnhQKItUSLtLl2cA3z7UIxH0trl/aUTBRAhX4o+6jop42HD+aLvvjA4ANAb9a
-         5mqBQ4/dgH/7wJCBVjfGr1FTxWom9eyIZo76msTOnEx+YnKF2rTud4GORV4QZvX0IBYV
-         pM09o71xTExTKlquM6UR3+ZrspkXL+TnhF5gncGZZQScJWNl0M4QPjlmbSWzkEGkUfyC
-         Jh/Hq6SMy4i0pTcuSwFqrhECkqaICB9QJ6ghg4+1A2Ci86Te6Xm0p+XfzCBkr6yZh9jQ
-         ikXCfHHHO8dFTtS9u9dz1XQ81Kfb7TNe4sVxccfCrycM2f/7PlRsK6C1nAC2hK31iECt
-         AJ+w==
+        bh=E8j1utx508S5/TvNItlGvK7J8skQp+XJtz585eAmQOY=;
+        b=oQoy24F4W+3HEnQHY3kqxhyCRrgbihW2p+NtMsvMO+yWUSnGsN7KjaZ/j12OZqylPG
+         RDTSD78gK1nTi8JszGUq2QB3PcUE5yKacpkgCSbhkdr+OMP/LIf1oBF3QHqfa5HN5H4X
+         V98yTsV/FAVlwMRhY5YVG7FsTnJO9UEbXI3XWtVx7U9BMHQkZMLRKChzan7V91XQWURr
+         1aPZgtmtuhs9aHOC66Ef62wcCUDJXaLLJwwWih8PMjugAGqOnJb/X+O0jLbIinIqwhH1
+         WsP7k1R2W5hFniX99RJGyvIkpX/mJTbd59jsax0I2eS0lBUOoKtwQPHvuEcRn0H1jt3W
+         l3qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=sz83zlf+Qc4HI/UvJA/oK7GYq0TXVgRf5WE2WEm5qGM=;
-        b=knPmLl04g1Bh322UN625rkK4eD5BdhXJTelsmwQuDAHrruXlDPyt5DsjXadzJlfc+Q
-         fcF2cM4zbU7iVbMcpbUTDzg+HwMJHAoPMbKbF+Gthe77lhTNs0jpDQT4h2+KT5Dx8xd3
-         SvzVai5EupXVeYcv6uHNA3t4ovyOULxolVva6lPR4xIZ78Em9bOFCLSVOOsJDUBYShoN
-         flhVlhSHpc9+ZTZj52oqRJb/5ezU2syqG2W22fRfIXqPFVKiGZX5WY/F40MWruCB17sR
-         uTMh+FTUkJKULB0fKzTUZu30k6a7+IbFldbdlHq5G0Qf1EL4SwSDFN951rVRMy9tg+v3
-         ghjQ==
-X-Gm-Message-State: APjAAAUPkB1aVSJoFHq7tSbUO/1S3H5y8P/vZ1sIBLzz37Jko1aF/zPy
-        yZBexHAaUQ5Htmkx6EPUs6QkLdf4UZ2305werMD5iNI8
-X-Google-Smtp-Source: APXvYqzKakQbLnjvY/lNsqrRfTCQbGieQ3SmignsSu81Fg3h8jJz61DWJoZwtgkbAQqDWNj0shrvpEt+dsxoQUvfCyM=
-X-Received: by 2002:a9d:4789:: with SMTP id b9mr28524129otf.110.1576012194253;
- Tue, 10 Dec 2019 13:09:54 -0800 (PST)
+        bh=E8j1utx508S5/TvNItlGvK7J8skQp+XJtz585eAmQOY=;
+        b=tdGsWmcVYrPhIOJ9sIYrXrjatwpA9eiRhfIdrYFfaBm6cB2tDiX+it8D0PqsNywEoe
+         VceVwUeEtlSypPLtI2WHcrKhVqGF+OmUktrEiUtABdUnUz5Noum69b0/JH4Uium0ioDm
+         QaqfxiQVtRGI/LZQ0azQFB1b4RlFK9sCs20gdhqXEfO2QvG/u6SdqjdgBXXMJxEedUyM
+         gHG1P8Jpgc4/BugeWlikiwqkwc0nCGjot199CxDeQQFLyI7LHUqVKn56FjY3OJAcFAKq
+         Zxp4c2Qa7BEskvLhS9feNHEUjncMv+XDHAExIVM7/fV1haozHkUjEkMwhYbVkF9IXCH3
+         cJxg==
+X-Gm-Message-State: APjAAAWZ1TRrieHwTIILYeo1UgmCPUegQWRQ/D6tl+EUGzyTRYBOXjXo
+        zjQLN8yI23GGLGKP+ElgE2s3S71fFVjDg9BYR/Ty5Q==
+X-Google-Smtp-Source: APXvYqw9AHcZc7P3F/ugnCZTqo/2VwWhuZ4lejg+yte3f6J4FIMjtd/N6HKWzeO7qr80QJRuV8TXt6qnPUCzanMfF5o=
+X-Received: by 2002:a9d:6481:: with SMTP id g1mr29371otl.180.1576015524724;
+ Tue, 10 Dec 2019 14:05:24 -0800 (PST)
 MIME-Version: 1.0
-References: <0e64d3be-c6b0-dc0d-57f7-da3312bfa743@kernel.dk>
-In-Reply-To: <0e64d3be-c6b0-dc0d-57f7-da3312bfa743@kernel.dk>
+References: <20191210155742.5844-1-axboe@kernel.dk> <20191210155742.5844-8-axboe@kernel.dk>
+In-Reply-To: <20191210155742.5844-8-axboe@kernel.dk>
 From:   Jann Horn <jannh@google.com>
-Date:   Tue, 10 Dec 2019 22:09:28 +0100
-Message-ID: <CAG48ez3ezOA2nDazwLXJgz36fzZfU7Po8vSGxfsO3JL2HiTz=g@mail.gmail.com>
-Subject: Re: [PATCH] io_uring: avoid ring quiesce for fixed file set
- unregister and update
+Date:   Tue, 10 Dec 2019 23:04:58 +0100
+Message-ID: <CAG48ez3yh7zRhMyM+VhH1g9Gp81_3FMjwAyj3TB6HQYETpxHmA@mail.gmail.com>
+Subject: Re: [PATCH 07/11] io_uring: use atomic_t for refcounts
 To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring <io-uring@vger.kernel.org>
+Cc:     io-uring <io-uring@vger.kernel.org>, Will Deacon <will@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 5:06 PM Jens Axboe <axboe@kernel.dk> wrote:
-> We currently fully quiesce the ring before an unregister or update of
-> the fixed fileset. This is very expensive, and we can be a bit smarter
-> about this.
->
-> Add a percpu refcount for the file tables as a whole. Grab a percpu ref
-> when we use a registered file, and put it on completion. This is cheap
-> to do. Upon removal of a file from a set, switch the ref count to atomic
-> mode. When we hit zero ref on the completion side, then we know we can
-> drop the previously registered files. When the old files have been
-> dropped, switch the ref back to percpu mode for normal operation.
->
-> Since there's a period between doing the update and the kernel being
-> done with it, add a IORING_OP_FILES_UPDATE opcode that can perform the
-> same action. The application knows the update has completed when it gets
-> the CQE for it. Between doing the update and receiving this completion,
-> the application must continue to use the unregistered fd if submitting
-> IO on this particular file.
->
-> This takes the runtime of test/file-register from liburing from 14s to
-> about 0.7s.
+[context preserved for additional CCs]
 
-Uwaaah, the lifetimes and stuff in uring are a maze... this code could
-really use some more comments. I haven't really been looking at it for
-the last few months, and it's really hard to understand what's going
-on now.
+On Tue, Dec 10, 2019 at 4:57 PM Jens Axboe <axboe@kernel.dk> wrote:
+> Recently had a regression that turned out to be because
+> CONFIG_REFCOUNT_FULL was set.
 
-[...]
-> @@ -456,7 +467,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
->         if (!ctx->fallback_req)
->                 goto err;
->
-> -       ctx->completions = kmalloc(2 * sizeof(struct completion), GFP_KERNEL);
-> +       ctx->completions = kmalloc(3 * sizeof(struct completion), GFP_KERNEL);
->         if (!ctx->completions)
->                 goto err;
+I assume "regression" here refers to a performance regression? Do you
+have more concrete numbers on this? Is one of the refcounting calls
+particularly problematic compared to the others?
 
-Not new in this patch, but wouldn't it be better to just make the
-completions members of ctx instead of allocating them separately? And
-then it'd also be easier to give them proper names instead of
-addressing them as array members, which currently makes it very
-unclear what's going on. commit 206aefde4f88 ("io_uring: reduce/pack
-size of io_ring_ctx") moved them away because, according to the commit
-message, they aren't always necessary and can be allocated
-dynamically; but actually, they're still allocated in
-io_ring_ctx_alloc() and freed in io_ring_ctx_free(), together with the
-context.
+I really don't like it when raw atomic_t is used for refcounting
+purposes - not only because that gets rid of the overflow checks, but
+also because it is less clear semantically.
 
-[...]
-> @@ -881,8 +893,12 @@ static void __io_free_req(struct io_kiocb *req)
->
->         if (req->io)
->                 kfree(req->io);
-> -       if (req->file && !(req->flags & REQ_F_FIXED_FILE))
-> -               fput(req->file);
-> +       if (req->file) {
-> +               if (req->flags & REQ_F_FIXED_FILE)
-> +                       percpu_ref_put(&ctx->file_data->refs);
-> +               else
-> +                       fput(req->file);
-> +       }
->         if (req->flags & REQ_F_INFLIGHT) {
->                 unsigned long flags;
-[...]
-> @@ -3090,8 +3140,8 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
->  {
->         struct fixed_file_table *table;
->
-> -       table = &ctx->file_table[index >> IORING_FILE_TABLE_SHIFT];
-> -       return table->files[index & IORING_FILE_TABLE_MASK];
-> +       table = &ctx->file_data->table[index >> IORING_FILE_TABLE_SHIFT];
-> +       return READ_ONCE(table->files[index & IORING_FILE_TABLE_MASK]);
+> Our ref count usage is really simple,
 
-What is this READ_ONCE() for? Aren't the table entries fully protected
-by the uring_lock?
+In my opinion, for a refcount to qualify as "really simple", it must
+be possible to annotate each relevant struct member and local variable
+with the (fixed) bias it carries when alive and non-NULL. This
+refcount is more complicated than that.
 
->  }
+> so let's just use atomic_t and get rid of the dependency on the full
+> reference count checking being enabled or disabled.
 >
->  static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
-> @@ -3110,7 +3160,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
->                 return 0;
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> ---
+>  fs/io_uring.c | 22 +++++++++++-----------
+>  1 file changed, 11 insertions(+), 11 deletions(-)
 >
->         if (flags & IOSQE_FIXED_FILE) {
-> -               if (unlikely(!ctx->file_table ||
-> +               if (unlikely(!ctx->file_data ||
->                     (unsigned) fd >= ctx->nr_user_files))
->                         return -EBADF;
->                 fd = array_index_nospec(fd, ctx->nr_user_files);
-> @@ -3118,6 +3168,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req)
->                 if (!req->file)
->                         return -EBADF;
->                 req->flags |= REQ_F_FIXED_FILE;
-> +               percpu_ref_get(&ctx->file_data->refs);
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 9a596b819334..05419a152b32 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -360,7 +360,7 @@ struct io_kiocb {
+>         };
+>         struct list_head        link_list;
+>         unsigned int            flags;
+> -       refcount_t              refs;
+> +       atomic_t                refs;
+>  #define REQ_F_NOWAIT           1       /* must not punt to workers */
+>  #define REQ_F_IOPOLL_COMPLETED 2       /* polled IO has completed */
+>  #define REQ_F_FIXED_FILE       4       /* ctx owns file */
+> @@ -770,7 +770,7 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res)
+>                 WRITE_ONCE(ctx->rings->cq_overflow,
+>                                 atomic_inc_return(&ctx->cached_cq_overflow));
 >         } else {
->                 if (req->needs_fixed_file)
->                         return -EBADF;
-> @@ -3796,15 +3847,18 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+> -               refcount_inc(&req->refs);
+> +               atomic_inc(&req->refs);
+>                 req->result = res;
+>                 list_add_tail(&req->list, &ctx->cq_overflow_list);
+>         }
+> @@ -852,7 +852,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+>         req->ctx = ctx;
+>         req->flags = 0;
+>         /* one is dropped after submission, the other at completion */
+> -       refcount_set(&req->refs, 2);
+> +       atomic_set(&req->refs, 2);
+>         req->result = 0;
+>         INIT_IO_WORK(&req->work, io_wq_submit_work);
+>         return req;
+> @@ -1035,13 +1035,13 @@ static void io_put_req_find_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
 >  {
->         unsigned nr_tables, i;
+>         io_req_find_next(req, nxtptr);
 >
-> -       if (!ctx->file_table)
-> +       if (!ctx->file_data)
->                 return -ENXIO;
->
-> +       percpu_ref_kill(&ctx->file_data->refs);
-> +       wait_for_completion(&ctx->completions[2]);
->         __io_sqe_files_unregister(ctx);
->         nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
->         for (i = 0; i < nr_tables; i++)
-> -               kfree(ctx->file_table[i].files);
-> -       kfree(ctx->file_table);
-> -       ctx->file_table = NULL;
-> +               kfree(ctx->file_data->table[i].files);
-> +       kfree(ctx->file_data->table);
-> +       kfree(ctx->file_data);
-> +       ctx->file_data = NULL;
->         ctx->nr_user_files = 0;
->         return 0;
+> -       if (refcount_dec_and_test(&req->refs))
+> +       if (atomic_dec_and_test(&req->refs))
+>                 __io_free_req(req);
 >  }
-[...]
-> +static void io_ring_file_ref_switch(struct io_wq_work **workptr)
-> +{
-> +       struct fixed_file_data *data;
-> +       struct llist_node *node;
-> +       struct file *file, *tmp;
-> +
-> +       data = container_of(*workptr, struct fixed_file_data, ref_work);
-> +
-> +       clear_bit_unlock(0, (unsigned long *) &data->ref_work.files);
-
-Starting at this point, multiple executions of this function can race
-with each other, right? Which means that the complete() call further
-down can happen multiple times? Is that okay?
-
-> +       smp_mb__after_atomic();
-> +
-> +       while ((node = llist_del_all(&data->put_llist)) != NULL) {
-> +               llist_for_each_entry_safe(file, tmp, node, f_u.fu_llist)
-> +                       io_ring_file_put(data->ctx, file);
-> +       }
-
-Why "while"? You expect someone to place new stuff on the ->put_llist
-while in the llist_for_each_entry_safe() loop and don't want to wait
-for the next execution of io_ring_file_ref_switch()? Or am I missing
-something here?
-
-> +       percpu_ref_switch_to_percpu(&data->refs);
-> +       if (percpu_ref_is_dying(&data->refs))
-> +               complete(&data->ctx->completions[2]);
-> +}
-> +
-> +static void io_file_data_ref_zero(struct percpu_ref *ref)
-> +{
-> +       struct fixed_file_data *data;
-> +
-> +       data = container_of(ref, struct fixed_file_data, refs);
-> +       if (test_and_set_bit_lock(0, (unsigned long *) &data->ref_work.files))
-> +               return;
-
-You're reusing the low bit of a pointer field in io_wq_work as an
-atomic flag? If I understand correctly, io_ring_file_ref_switch work
-items just use that field to store this flag and don't use it as a
-pointer, right? In that case, shouldn't the field be a union instead
-of using such a cast? (You could make it an unnamed union if you're
-worried about having to rename stuff everywhere.)
-
-> +       if (!llist_empty(&data->put_llist)) {
-> +               percpu_ref_get(&data->refs);
-> +               io_wq_enqueue(data->ctx->io_wq, &data->ref_work);
-> +       } else {
-> +               clear_bit_unlock(0, (unsigned long *) &data->ref_work.files);
-> +               if (percpu_ref_is_dying(&data->refs))
-> +                       complete(&data->ctx->completions[2]);
-> +       }
-> +}
-> +
->  static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
->                                  unsigned nr_args)
+>
+>  static void io_put_req(struct io_kiocb *req)
 >  {
->         __s32 __user *fds = (__s32 __user *) arg;
->         unsigned nr_tables;
-> +       struct file *file;
->         int fd, ret = 0;
->         unsigned i;
+> -       if (refcount_dec_and_test(&req->refs))
+> +       if (atomic_dec_and_test(&req->refs))
+>                 io_free_req(req);
+>  }
 >
-> -       if (ctx->file_table)
-> +       if (ctx->file_data)
->                 return -EBUSY;
->         if (!nr_args)
->                 return -EINVAL;
->         if (nr_args > IORING_MAX_FIXED_FILES)
->                 return -EMFILE;
->
-> +       ctx->file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
-> +       if (!ctx->file_data)
-> +               return -ENOMEM;
-> +       ctx->file_data->ctx = ctx;
-> +
->         nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
-> -       ctx->file_table = kcalloc(nr_tables, sizeof(struct fixed_file_table),
-> +       ctx->file_data->table = kcalloc(nr_tables,
-> +                                       sizeof(struct fixed_file_table),
->                                         GFP_KERNEL);
-> -       if (!ctx->file_table)
-> +       if (!ctx->file_data->table) {
-> +               kfree(ctx->file_data);
-> +               ctx->file_data = NULL;
->                 return -ENOMEM;
-> +       }
-> +
-> +       if (percpu_ref_init(&ctx->file_data->refs, io_file_data_ref_zero,
-> +                               PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
-> +               kfree(ctx->file_data->table);
-> +               kfree(ctx->file_data);
-> +               ctx->file_data = NULL;
-> +       }
-> +       ctx->file_data->put_llist.first = NULL;
-> +       INIT_IO_WORK(&ctx->file_data->ref_work, io_ring_file_ref_switch);
-> +       ctx->file_data->ref_work.flags = IO_WQ_WORK_INTERNAL;
-
-Why are you punting the ref switch onto a workqueue? Is this in case
-the refcount is still in the middle of switching from percpu mode to
-atomic?
-
->         if (io_sqe_alloc_file_tables(ctx, nr_tables, nr_args)) {
-> -               kfree(ctx->file_table);
-> -               ctx->file_table = NULL;
-> +               percpu_ref_exit(&ctx->file_data->refs);
-
-You call percpu_ref_exit() in this failure path, but nowhere else?
-That seems to me like it implies at least a memory leak, if not worse.
-
-> +               kfree(ctx->file_data->table);
-> +               kfree(ctx->file_data);
-> +               ctx->file_data = NULL;
->                 return -ENOMEM;
->         }
->
-> @@ -4015,13 +4191,14 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
->                         continue;
->                 }
->
-> -               table = &ctx->file_table[i >> IORING_FILE_TABLE_SHIFT];
-> +               table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
->                 index = i & IORING_FILE_TABLE_MASK;
-> -               table->files[index] = fget(fd);
-> +               file = fget(fd);
->
->                 ret = -EBADF;
-> -               if (!table->files[index])
-> +               if (!file)
->                         break;
-
-Not new in this commit, but it seems kinda awkward to have to
-open-code the table lookup here... this might be nicer if instead of
-"struct file *io_file_from_index(...)", you had "struct file
-**io_file_ref_from_index(...)".
-
->                 /*
->                  * Don't allow io_uring instances to be registered. If UNIX
->                  * isn't enabled, then this causes a reference cycle and this
-> @@ -4029,26 +4206,26 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
->                  * handle it just fine, but there's still no point in allowing
->                  * a ring fd as it doesn't support regular read/write anyway.
->                  */
-> -               if (table->files[index]->f_op == &io_uring_fops) {
-> -                       fput(table->files[index]);
-> +               if (file->f_op == &io_uring_fops) {
-> +                       fput(file);
->                         break;
->                 }
->                 ret = 0;
-> +               WRITE_ONCE(table->files[index], file);
-
-Why WRITE_ONCE()? There are no readers who can see the file at this
-point, right?
-
->         }
->
->         if (ret) {
->                 for (i = 0; i < ctx->nr_user_files; i++) {
-> -                       struct file *file;
-> -
->                         file = io_file_from_index(ctx, i);
->                         if (file)
->                                 fput(file);
->                 }
->                 for (i = 0; i < nr_tables; i++)
-> -                       kfree(ctx->file_table[i].files);
-> +                       kfree(ctx->file_data->table[i].files);
->
-> -               kfree(ctx->file_table);
-> -               ctx->file_table = NULL;
-> +               kfree(ctx->file_data->table);
-> +               kfree(ctx->file_data);
-> +               ctx->file_data = NULL;
->                 ctx->nr_user_files = 0;
->                 return ret;
->         }
-[...]
-> @@ -4169,12 +4283,16 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
->  static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
->                                unsigned nr_args)
+> @@ -1052,14 +1052,14 @@ static void io_put_req(struct io_kiocb *req)
+>  static void __io_double_put_req(struct io_kiocb *req)
 >  {
-> +       struct fixed_file_data *data = ctx->file_data;
-> +       unsigned long __percpu *percpu_count;
->         struct io_uring_files_update up;
-> +       bool did_unregister = false;
-> +       struct file *file;
->         __s32 __user *fds;
->         int fd, i, err;
->         __u32 done;
+>         /* drop both submit and complete references */
+> -       if (refcount_sub_and_test(2, &req->refs))
+> +       if (atomic_sub_and_test(2, &req->refs))
+>                 __io_free_req(req);
+>  }
 >
-> -       if (!ctx->file_table)
-> +       if (!data)
->                 return -ENXIO;
->         if (!nr_args)
->                 return -EINVAL;
-> @@ -4197,15 +4315,15 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
+>  static void io_double_put_req(struct io_kiocb *req)
+>  {
+>         /* drop both submit and complete references */
+> -       if (refcount_sub_and_test(2, &req->refs))
+> +       if (atomic_sub_and_test(2, &req->refs))
+>                 io_free_req(req);
+>  }
+>
+> @@ -1108,7 +1108,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+>                 io_cqring_fill_event(req, req->result);
+>                 (*nr_events)++;
+>
+> -               if (refcount_dec_and_test(&req->refs)) {
+> +               if (atomic_dec_and_test(&req->refs)) {
+>                         /* If we're not using fixed files, we have to pair the
+>                          * completion part with the file put. Use regular
+>                          * completions for those, only batch free for fixed
+> @@ -3169,7 +3169,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+>         if (!list_empty(&req->link_list)) {
+>                 prev = list_entry(req->link_list.prev, struct io_kiocb,
+>                                   link_list);
+> -               if (refcount_inc_not_zero(&prev->refs)) {
+> +               if (atomic_inc_not_zero(&prev->refs)) {
+>                         list_del_init(&req->link_list);
+>                         prev->flags &= ~REQ_F_LINK_TIMEOUT;
+>                 } else
+> @@ -4237,7 +4237,7 @@ static void io_get_work(struct io_wq_work *work)
+>  {
+>         struct io_kiocb *req = container_of(work, struct io_kiocb, work);
+>
+> -       refcount_inc(&req->refs);
+> +       atomic_inc(&req->refs);
+>  }
+>
+>  static int io_sq_offload_start(struct io_ring_ctx *ctx,
+> @@ -4722,7 +4722,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+>                         if (req->work.files != files)
+>                                 continue;
+>                         /* req is being completed, ignore */
+> -                       if (!refcount_inc_not_zero(&req->refs))
+> +                       if (!atomic_inc_not_zero(&req->refs))
+>                                 continue;
+>                         cancel_req = req;
 >                         break;
->                 }
->                 i = array_index_nospec(up.offset, ctx->nr_user_files);
-> -               table = &ctx->file_table[i >> IORING_FILE_TABLE_SHIFT];
-> +               table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
->                 index = i & IORING_FILE_TABLE_MASK;
->                 if (table->files[index]) {
-> -                       io_sqe_file_unregister(ctx, i);
-> -                       table->files[index] = NULL;
-> +                       file = io_file_from_index(ctx, index);
-> +                       llist_add(&file->f_u.fu_llist, &data->put_llist);
-
-How can it be safe to implement this with a linked list through a
-member of struct file? What happens if someone, for example, uses the
-same file in two different uring instances and then calls this update
-helper on both of them in parallel? file->f_u.fu_llist will be put on
-one list, and then, without removing it from the first list, be
-connected to the second list, right? At which point the two lists will
-be weirdly spliced together.
-
-> +                       WRITE_ONCE(table->files[index], NULL);
-> +                       did_unregister = true;
->                 }
->                 if (fd != -1) {
-> -                       struct file *file;
-> -
->                         file = fget(fd);
->                         if (!file) {
->                                 err = -EBADF;
-> @@ -4224,7 +4342,7 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
->                                 err = -EBADF;
->                                 break;
->                         }
-> -                       table->files[index] = file;
-> +                       WRITE_ONCE(table->files[index], file);
-
-(Again, I don't get the WRITE_ONCE() part.)
-
->                         err = io_sqe_file_register(ctx, file, i);
->                         if (err)
->                                 break;
-> @@ -4234,6 +4352,11 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
->                 up.offset++;
->         }
+> --
+> 2.24.0
 >
-> +       if (did_unregister && __ref_is_percpu(&data->refs, &percpu_count)) {
-> +               percpu_ref_put(&data->refs);
-> +               percpu_ref_switch_to_atomic(&data->refs, NULL);
-> +       }
-
-There's a comment on __ref_is_percpu() saying "Internal helper.  Don't
-use outside percpu-refcount proper.", and it is some lockless helper
-thing that normally only has a meaning when used inside an RCU-sched
-read-side critical section. If you want to use that helper outside the
-internals of percpu-refcount, I think you'll have to at least change
-the documentation of that helper and document under which conditions
-it means what.
-
-But I also don't really understand the intent here. It looks like the
-idea is that if we've just removed a file from the uring instance, we
-want to detect when the number of pending I/O items that use files is
-at zero so that we can throw away our reference to the file? And we
-hope that we're somehow protected against concurrent mode switches
-(which would mean that we must somehow be protected against concurrent
-io_ring_file_ref_switch())?
-
-I wonder whether an alternative scheme might be that instead of having
-the percpu refcounting logic for the entire file table and keeping
-files open until no file I/O is being executed for a moment, you could
-iterate through all pending work items (including ones that are
-currently being executed) under appropriate locks, and if they use
-fixed files that are to-be-removed, flip the type to non-fixed and
-increment the file's refcount?

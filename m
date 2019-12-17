@@ -2,106 +2,94 @@ Return-Path: <SRS0=rTNh=2H=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3977C43603
-	for <io-uring@archiver.kernel.org>; Tue, 17 Dec 2019 19:27:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5050AC43603
+	for <io-uring@archiver.kernel.org>; Tue, 17 Dec 2019 21:16:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A8B7C218AC
-	for <io-uring@archiver.kernel.org>; Tue, 17 Dec 2019 19:27:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15388206E0
+	for <io-uring@archiver.kernel.org>; Tue, 17 Dec 2019 21:16:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MUbpjkpZ"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="TLNJgIMJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728047AbfLQT1q (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 17 Dec 2019 14:27:46 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42771 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727402AbfLQT1g (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 17 Dec 2019 14:27:36 -0500
-Received: by mail-wr1-f67.google.com with SMTP id q6so12539002wro.9;
-        Tue, 17 Dec 2019 11:27:35 -0800 (PST)
+        id S1727580AbfLQVP7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 17 Dec 2019 16:15:59 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:46625 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726634AbfLQVP7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 17 Dec 2019 16:15:59 -0500
+Received: by mail-io1-f67.google.com with SMTP id t26so12264319ioi.13
+        for <io-uring@vger.kernel.org>; Tue, 17 Dec 2019 13:15:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=w8z6Z+q5AMgohv9HEXOzFkf7StlaTie6vN3wWqRf/BE=;
-        b=MUbpjkpZZL/HXRE99eYO1MJI+SH72A/qUyCkbUHxZruUaMt9qT4Pbeypu/veK8IXSp
-         4JuUcQoVnKm3emXQ0ZYAhM1WvhLArkv585TgfRgm//n15eYZ3vkJBoQQ+RWz0xMheiqi
-         kMsfEQM8SC1tW0xMeFjmhyBA4ZfcjpoECLqlVttc3Mb7+fY3uvmQEnL9lVuLpOWxFDxm
-         /Gb0Y1/UCfLk6/lnzAaz7CQmAsS09FouK0lIGiCsxaw9tAVS7K8mBSfsuleQlGwNfvqX
-         j6bC1JWY1MLlvRQUKz0A49pFrT3sKmtIPacsTDUTWYGW+d7sl1vXZ8gti/U+pTn22cIk
-         rtBg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=xbAkSu6f1FSOslLya3pTTccEqoCnU4AjqEM/vMBrMyE=;
+        b=TLNJgIMJynuhiwVr1/XlYoykNt9D99M2LRmTmoeZKuT+fGTHSBOtQvEQGBrSY93YWe
+         LENtrKEX67EIvXBHGclFKGlMv8momP86nTJXhudBEVQTN0TiWYbk2d61WmLcUkW3TrbJ
+         uTDgcP0yPb3hDGhgWyCmOl1OCG4ZO3vfEnkDXjRkip3m11glDIrL18JiDBC65w2HV7rP
+         cnkQCIdZqFAOJT4/9c4EWzmBKgpdOBAvfT4/PfxFFQzBL4tLba8VNikgBcbt+zx4RxK+
+         1VYXvawDr+4td1qvdPZaaH1Az2jhug0IhWNu1s5g4hxnWB2/19ptSJEurfcm2NBTotVY
+         /NEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=w8z6Z+q5AMgohv9HEXOzFkf7StlaTie6vN3wWqRf/BE=;
-        b=hczmZNHHsMLTv+bXWMiLyMIcMgeIwXeIrf3GljTwZ+2Q4kbwK3+E/F/XAlips9h1xD
-         kYSYv+vl+hYjUA9EKfNskEfRHFolUXOucEp8bS433pDPLgHt/vEsZxXNX5x0i9JXXeSn
-         KGkplELum0sc7lfiBAjz9LDD4wgLXmk9FDNMD/ayXEQeoBFFKBdyK6AZ/9ItuN1ZtySD
-         iDPyXC1nS2X7F7+bvs7GMtq4afhPBYomssABpuqYpPYpzbbeWWC/HnUaCL1eaA3Ca3e/
-         dzFvGHNcsrJILMYbiXU8eqBtIbsAr01MzJ7B7vURv1R9n3i3eTJYoX+oTdTZDjTmhnqc
-         OoSw==
-X-Gm-Message-State: APjAAAVT7sAw40095qvUbcSglXvkcbyuXamgDYUlKWgNDPQeqjuFXhBA
-        nTFy8etn+xhRTLxmaIHQFfymuExl
-X-Google-Smtp-Source: APXvYqxcMmsBKxF7ZZah0FsdQzbYmDGmyqLjwd+qLGAbDj1f0nzxeLuH98h1CP61XhGEiaf9SXIX6w==
-X-Received: by 2002:a5d:4c85:: with SMTP id z5mr37787660wrs.42.1576610855010;
-        Tue, 17 Dec 2019 11:27:35 -0800 (PST)
-Received: from localhost.localdomain ([109.126.149.134])
-        by smtp.gmail.com with ESMTPSA id w13sm26711822wru.38.2019.12.17.11.27.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Dec 2019 11:27:34 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xbAkSu6f1FSOslLya3pTTccEqoCnU4AjqEM/vMBrMyE=;
+        b=T7+JSVp9BN8h0L/kmHt0TFKteJMz0T0zuBTMlmp/QhJVJtKASv1ZPMdwGGLaI9VsZi
+         rqiycuuWWYNr98FOV45504YdWlMAnHIZrtVevpZOfheBMOr6bGYBKOe6Ur1nmM/+BzwK
+         R50OccVBIsu4N2C/y/yTjukze8Uxs5SEYI5MY7Ih/nu/b+qdRRJd/06VKuq2bLebiZsK
+         vBm6d4/XFdCP7Q3gxUVNwgBUJ0LYat7ed4tuEnqZy16Ups50i+/8RjbO/YRQffnEX/Yu
+         jJCIvaV4SO5EOc0x4dFE9rMf8Ja1XOwQ8KJ8xPm1W4HMHdJEpy9yd51Mf9lUQY4BDdFt
+         9w6g==
+X-Gm-Message-State: APjAAAU0k4fPo+KI6/32m0UrBFzC3bhK8ezALGSKAY1t8H8QpdNjQtiK
+        U8EKaFBI/Sp55CTMPI5aU38C6Q==
+X-Google-Smtp-Source: APXvYqy0MlEoUx4H8cdLwfMVyi9Q6OhXqJUbWIVNTr7vmIKTkHeZfPGz32+NaXqhNDofDU6EhUxOHg==
+X-Received: by 2002:a05:6602:101:: with SMTP id s1mr5431540iot.262.1576617358453;
+        Tue, 17 Dec 2019 13:15:58 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id o70sm1421442ilb.8.2019.12.17.13.15.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Dec 2019 13:15:58 -0800 (PST)
+Subject: Re: [PATCH v2 0/3] io_uring: submission path cleanup
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] io_uring: move trace_submit_sqe into submit_sqe
-Date:   Tue, 17 Dec 2019 22:26:57 +0300
-Message-Id: <ad4921dbe500cab48e81e62fc648c526a3e7f21b.1576610536.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1576610536.git.asml.silence@gmail.com>
-References: <cover.1576610536.git.asml.silence@gmail.com>
+References: <cover.1576538176.git.asml.silence@gmail.com>
+ <cover.1576610536.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a81b3a8f-562c-02f4-522e-9c2dd51e33f8@kernel.dk>
+Date:   Tue, 17 Dec 2019 14:15:57 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1576610536.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For better locality, call trace_io_uring_submit_sqe() from submit_sqe()
-rather than io_submit_sqes(). No functional change.
+On 12/17/19 12:26 PM, Pavel Begunkov wrote:
+> Pretty straighforward cleanups. The last patch saves the exact behaviour,
+> but do link enqueuing from a more suitable place.
+> 
+> v2: rebase
+> 
+> Pavel Begunkov (3):
+>   io_uring: rename prev to head
+>   io_uring: move trace_submit_sqe into submit_sqe
+>   io_uring: move *queue_link_head() from common path
+> 
+>  fs/io_uring.c | 47 +++++++++++++++++++++--------------------------
+>  1 file changed, 21 insertions(+), 26 deletions(-)
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Applied, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e8ce224dc82c..ee461bcd3121 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3375,7 +3375,8 @@ static bool io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
- 	struct io_ring_ctx *ctx = req->ctx;
- 	int ret;
- 
--	req->user_data = req->sqe->user_data;
-+	req->user_data = READ_ONCE(req->sqe->user_data);
-+	trace_io_uring_submit_sqe(ctx, req->user_data, true, req->in_async);
- 
- 	/* enforce forwards compatibility on users */
- 	if (unlikely(req->sqe->flags & ~SQE_VALID_FLAGS)) {
-@@ -3569,8 +3570,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		req->has_user = *mm != NULL;
- 		req->in_async = async;
- 		req->needs_fixed_file = async;
--		trace_io_uring_submit_sqe(ctx, req->sqe->user_data,
--					  true, async);
- 		if (!io_submit_sqe(req, statep, &link))
- 			break;
- 		/*
 -- 
-2.24.0
+Jens Axboe
 

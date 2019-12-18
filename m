@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 779E5C2D0BF
-	for <io-uring@archiver.kernel.org>; Wed, 18 Dec 2019 17:18:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D310C2D0BF
+	for <io-uring@archiver.kernel.org>; Wed, 18 Dec 2019 17:18:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5199F2082E
-	for <io-uring@archiver.kernel.org>; Wed, 18 Dec 2019 17:18:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA1B42082E
+	for <io-uring@archiver.kernel.org>; Wed, 18 Dec 2019 17:18:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Hyf+mAys"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="okjGVFkO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbfLRRSx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 18 Dec 2019 12:18:53 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:36706 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726996AbfLRRSx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Dec 2019 12:18:53 -0500
-Received: by mail-io1-f67.google.com with SMTP id r13so2794152ioa.3
-        for <io-uring@vger.kernel.org>; Wed, 18 Dec 2019 09:18:52 -0800 (PST)
+        id S1727130AbfLRRSy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 18 Dec 2019 12:18:54 -0500
+Received: from mail-io1-f65.google.com ([209.85.166.65]:45890 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726996AbfLRRSy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Dec 2019 12:18:54 -0500
+Received: by mail-io1-f65.google.com with SMTP id i11so2752462ioi.12
+        for <io-uring@vger.kernel.org>; Wed, 18 Dec 2019 09:18:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=iHPiskbCZfPIW2GflonUQH3yV+ITStqgSkUt84nkGBA=;
-        b=Hyf+mAysWji/9vgA2dorDWoelyi1wNbojm7bADQTbhkriqJjIRb6YNrpyrexAYRdk4
-         MiRsqYlpBCi6kO2Cyd3/CGFN9KlAbUdqYWYgRDAb3fdyCe9Ogisfk7QXRYkdLBykaqYZ
-         ME/6xZn9zAaCJXO4bDyPUbobDsnxa1fIMVR9K5Gd8z6swb7p/9jmoBY8Dk8hxXk0kcJJ
-         CSsp0rLMzUmSn4I0Ijq5KGyrGklkU9mBacbXBFyzWVXtijVLT+bDyhLDIri3jcE9lnZt
-         IG05FBF1zm3Lxzqqi8Ndb2QdO1vP9X/pWBLSO2xSd9RKaMQVgpc59i1DVXjUUq6ExrXv
-         fUTQ==
+        bh=j2Y5wZeu1fsI0u5DYdrTxT+NRE4vgiU7iCU3Xv/0qRM=;
+        b=okjGVFkOVDKICUIfHGqq07sK1ghsBlP7SYdYT0JN5d6svdN3qWXTK9dA1Fg4uyQr51
+         09E9ceolieNNd9Wol9Apd8YC9EecHGf0EyT3A/tv2J9lVJart9BS75YugpPQqW7yjPAc
+         8U8HTr1dCjOYFydeKJJ+8uwj+90nBkoAlqdaMtaDqk5Fzbs0kqTyRU4Jk9d/dgm252bF
+         I5s5Ti2vzywa2q8bYS9aJ6ZXHiQBtWPbzsi/qNRDVedUOatLjVGFg06I0w+hY02aXbgG
+         zDwZ38P4rFbC++ziKjB0wX4ag4XSnOwIDQ3m0qDncMalhblY/xAkbgkYid749cSTUUnC
+         wi4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=iHPiskbCZfPIW2GflonUQH3yV+ITStqgSkUt84nkGBA=;
-        b=P469V69j1hOZ8zdYgXupW73jy0vHJ2OBmccPLLBPdN1RsRuR5Rg56K9SyF6xjfNH2F
-         G5WzGFm3vUb5+F/QxERwTSsaknaTG9/R6o7t9zAcKtI9IntgY0Tc+ah2saVHrPYcaVL6
-         Pnw2GUEJQghOPVfjMGzzeaBAGIZfcaBWxNDpM+6pUrEej8LqlB2rZeGt1+e1e96BeB8J
-         JJqzoxwch8RnNTdKG4xWHVS7YpsXCPEAc0XihgKx/M3WDOtSymV6+9kNqveENp7Dv+9Y
-         P1jAet2vCPz2gRyCgXru+d1pDYP1XFOYurUWjAAo9uq1gVTWRmTGjmonuwGYX5C6HChS
-         BbaQ==
-X-Gm-Message-State: APjAAAWcxCu8tWUbLV4zaLwbwyYdP06vwTEFZHI8y+01E2EIMs8PWlAO
-        yYw0V2oHjpE1NVS6pCAH4DKl0aE7DbG44w==
-X-Google-Smtp-Source: APXvYqy7zvH9/tkYjWSw6H6cW/lg1cCzp/lBaCKIdQVIDhcGRzijP0cS31aQn65erbd/YPzaxXVVtg==
-X-Received: by 2002:a5e:920a:: with SMTP id y10mr2552787iop.292.1576689532089;
-        Wed, 18 Dec 2019 09:18:52 -0800 (PST)
+        bh=j2Y5wZeu1fsI0u5DYdrTxT+NRE4vgiU7iCU3Xv/0qRM=;
+        b=Ev17W13oWmduzp18cv+FCQBOi0O4WqwT9W4KFG+Lnw83pwXjVW95DUKw7zecI2x9gj
+         lj/93j4Tzx7bc3YG0QiHZE3q2N6MfinKBjEqkXrzeQR3bRZYZZz/RBd3Vy1ox+FJNzXY
+         WzK4sDYwN5hvwel0dNk9v+ja1NWUNY714aq5v2c+51iiaLoGo5QtFBGMI1qf+1BFsYuz
+         iAz0xtCM0UXRuCNfC0P4AUV+JW3cz1DRRTB/c1pv1Ta7CXKoU4I55W+8hj4LqkX6j9pf
+         GwbpMWpYiy66E0ZmEpayQGJhRtUha1jMDU8Tp2JZ2pqQ+X9dSYYsEvRt8jAAm3WgG0t5
+         Rz1w==
+X-Gm-Message-State: APjAAAWdcIDIsbbVRYBbpDCPbghhanejZV4QW1MFHp4WjyRvj6GNzdwB
+        YgIFNaKjzKYkPJTdI/gQjldBjE/0KFTy0w==
+X-Google-Smtp-Source: APXvYqy8w95T+DetDweuSLvr/lq80PvnBRuKdhBvCIcgsR+a5k1+Zh8o6Gtehb3jNRg2RqmWMRePpw==
+X-Received: by 2002:a6b:cf03:: with SMTP id o3mr1386585ioa.184.1576689533717;
+        Wed, 18 Dec 2019 09:18:53 -0800 (PST)
 Received: from x1.thefacebook.com ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o12sm577488ioh.42.2019.12.18.09.18.51
+        by smtp.gmail.com with ESMTPSA id o12sm577488ioh.42.2019.12.18.09.18.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2019 09:18:51 -0800 (PST)
+        Wed, 18 Dec 2019 09:18:53 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 10/13] io_uring: make IORING_OP_TIMEOUT_REMOVE deferrable
-Date:   Wed, 18 Dec 2019 10:18:32 -0700
-Message-Id: <20191218171835.13315-11-axboe@kernel.dk>
+Subject: [PATCH 12/13] io_uring: warn about unhandled opcode
+Date:   Wed, 18 Dec 2019 10:18:34 -0700
+Message-Id: <20191218171835.13315-13-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191218171835.13315-1-axboe@kernel.dk>
 References: <20191218171835.13315-1-axboe@kernel.dk>
@@ -70,101 +70,43 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If we defer this command as part of a link, we have to make sure that
-the SQE data has been read upfront. Integrate the timeout remove op into
-the prep handling to make it safe for SQE reuse.
+Now that we have all the opcodes handled in terms of command prep and
+SQE reuse, add a printk_once() to warn about any potentially new and
+unhandled ones.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 44 ++++++++++++++++++++++++++++++++++----------
- 1 file changed, 34 insertions(+), 10 deletions(-)
+ fs/io_uring.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5ae8408a0240..c269229e45ef 100644
+index 9f10f5a9da8d..74dc9de94117 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -326,6 +326,12 @@ struct io_cancel {
- 	u64				addr;
- };
+@@ -3077,9 +3077,11 @@ static int io_req_defer_prep(struct io_kiocb *req)
+ 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+ 	struct io_async_ctx *io = req->io;
+ 	struct iov_iter iter;
+-	ssize_t ret;
++	ssize_t ret = 0;
  
-+struct io_timeout {
-+	struct file			*file;
-+	u64				addr;
-+	int				flags;
-+};
-+
- struct io_async_connect {
- 	struct sockaddr_storage		address;
- };
-@@ -368,6 +374,7 @@ struct io_kiocb {
- 		struct io_accept	accept;
- 		struct io_sync		sync;
- 		struct io_cancel	cancel;
-+		struct io_timeout	timeout;
- 	};
- 
- 	const struct io_uring_sqe	*sqe;
-@@ -2816,26 +2823,40 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- 	return 0;
- }
- 
-+static int io_timeout_remove_prep(struct io_kiocb *req)
-+{
-+	const struct io_uring_sqe *sqe = req->sqe;
-+
-+	if (req->flags & REQ_F_PREPPED)
-+		return 0;
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
-+		return -EINVAL;
-+	if (sqe->flags || sqe->ioprio || sqe->buf_index || sqe->len)
-+		return -EINVAL;
-+
-+	req->timeout.addr = READ_ONCE(sqe->addr);
-+	req->timeout.flags = READ_ONCE(sqe->timeout_flags);
-+	if (req->timeout.flags)
-+		return -EINVAL;
-+
-+	req->flags |= REQ_F_PREPPED;
-+	return 0;
-+}
-+
- /*
-  * Remove or update an existing timeout command
-  */
- static int io_timeout_remove(struct io_kiocb *req)
- {
--	const struct io_uring_sqe *sqe = req->sqe;
- 	struct io_ring_ctx *ctx = req->ctx;
--	unsigned flags;
- 	int ret;
- 
--	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
--		return -EINVAL;
--	if (sqe->flags || sqe->ioprio || sqe->buf_index || sqe->len)
--		return -EINVAL;
--	flags = READ_ONCE(sqe->timeout_flags);
--	if (flags)
--		return -EINVAL;
-+	ret = io_timeout_remove_prep(req);
-+	if (ret)
-+		return ret;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	ret = io_timeout_cancel(ctx, READ_ONCE(sqe->addr));
-+	ret = io_timeout_cancel(ctx, req->timeout.addr);
- 
- 	io_cqring_fill_event(req, ret);
- 	io_commit_cqring(ctx);
-@@ -3106,6 +3127,9 @@ static int io_req_defer_prep(struct io_kiocb *req)
- 	case IORING_OP_TIMEOUT:
- 		ret = io_timeout_prep(req, io, false);
- 		break;
-+	case IORING_OP_TIMEOUT_REMOVE:
-+		ret = io_timeout_remove_prep(req);
+ 	switch (req->opcode) {
++	case IORING_OP_NOP:
 +		break;
- 	case IORING_OP_ASYNC_CANCEL:
- 		ret = io_async_cancel_prep(req);
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 		/* ensure prep does right import */
+@@ -3139,7 +3141,9 @@ static int io_req_defer_prep(struct io_kiocb *req)
+ 		ret = io_accept_prep(req);
  		break;
+ 	default:
+-		ret = 0;
++		printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
++				req->opcode);
++		ret = -EINVAL;
+ 		break;
+ 	}
+ 
 -- 
 2.24.1
 

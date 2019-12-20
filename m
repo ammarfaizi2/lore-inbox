@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B541BC2D0C8
-	for <io-uring@archiver.kernel.org>; Fri, 20 Dec 2019 17:47:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A70F0C2D0C8
+	for <io-uring@archiver.kernel.org>; Fri, 20 Dec 2019 17:47:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9039B206CB
-	for <io-uring@archiver.kernel.org>; Fri, 20 Dec 2019 17:47:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73046206CB
+	for <io-uring@archiver.kernel.org>; Fri, 20 Dec 2019 17:47:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="DSsuF2RC"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="aJVtD57k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727422AbfLTRrq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 20 Dec 2019 12:47:46 -0500
-Received: from mail-il1-f194.google.com ([209.85.166.194]:38509 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727388AbfLTRrq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 20 Dec 2019 12:47:46 -0500
-Received: by mail-il1-f194.google.com with SMTP id f5so8654795ilq.5
-        for <io-uring@vger.kernel.org>; Fri, 20 Dec 2019 09:47:45 -0800 (PST)
+        id S1727388AbfLTRrs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 20 Dec 2019 12:47:48 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:40363 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727434AbfLTRrs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 20 Dec 2019 12:47:48 -0500
+Received: by mail-io1-f68.google.com with SMTP id x1so10203883iop.7
+        for <io-uring@vger.kernel.org>; Fri, 20 Dec 2019 09:47:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=toYbZ9nsYURizkZNrcDLJ0JCrFbz/r75TjxzKNeXVAQ=;
-        b=DSsuF2RCz9cCuMSuHdv62qT3C54RJ7zF8K7yiCzE5Cfzx2Q+PnMnWyMcsLFtQ8N6sv
-         3DATJdTWGwJNeBSDlcdqnE8Lr4xWpVZItveCyAiJh3HF40fPvcoZACcH3fJEXbBpqRAG
-         bIhWQKTNf7rYTTHk61zDm9cOg4mQcZZrDhHnfnk2UY9+ZZUoxXylsPi8UnxuFTE18wPs
-         i+fOBVoaz5zMs1nMvBao6I5u+xEeTQAt0CyYQDm66YqPQnUXn1c7PaVDjtXqAcABzoaS
-         qrvDj2Wscy14vsNfuRRb8VYlLID/fJfYF38A9nVHruCTDybCqpr7WrYe7ZHzUr80rvq/
-         fGOQ==
+        bh=3Nn5p181q86/g/6fP6feiYYJjedDp6onNrnjkykO+ns=;
+        b=aJVtD57k4rLYWM268Yy9EbZC/1EPn26TMhIKRlaao5cXIUcsfd1qPY6ebXsVwjAigs
+         I6A5v65EgIZebnqI010ov8OqdrC+BAdjMF9qO0q4QWelSn5NnlDgitgIh6T1TYBM+wbM
+         jEjwB7KpEMcoUD245osElGqX3GLBEwRLxK0LNJL9bcEQvCRnJWipn6Ms9cGP8Lpf++Ld
+         ER9pv7qyRCE3O7lzI04IL8dxFhlF9oFcKpNtdUpJl0qUSwhG0a7pf1b0put6hC1j23Aw
+         Zqasvga+VFm4oGHmvpJ1Xd+zXhhJ/qqGO6A8uKLm/p6FfmjpP9y843NbllhvzoxMj799
+         piPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=toYbZ9nsYURizkZNrcDLJ0JCrFbz/r75TjxzKNeXVAQ=;
-        b=m/k2CiGSCorUWqWjAA8w317I3bY1l4UyVXP0mQ0NfDQTWzrGf0ZWqRyJ+blsFZ5xRm
-         W9sSfNqludOP0edWfP9ER+TOXuj8Xp49FaGrO2FsbeXK9dmsByeB2iLsNnq5ByIwgGHu
-         r8b8HOPydU3cskWVMkEc1uDr++Se8robiQhMR/DIdifSoRNBBVID8ePR6k/wX+XlmcY8
-         insly30au7dYrAwjbXg3t8VoIXCaW+hNwjPnnEhnryUlk9HTiFfxDR1VWJDYoEAXkU18
-         llHSSeuJnK//use/WgEmtZvVbgJtiQT7eo8vL1ObxcyXEG0wnSl6U4gorC3+gOM3W24D
-         8WLw==
-X-Gm-Message-State: APjAAAXYpYM1FWRgzasv6loIgd5P5DshRbvDXIx9DWaTx6fYcqoq+pl8
-        sC06fMFk33Xjm3HWHTZMkIeih4KaNasBiQ==
-X-Google-Smtp-Source: APXvYqwB0e35NQaIOh63Ed9EjhaQ0Qmxn3rqyL8evlBQ3DmDLqLSe1zrV5R4sYQ76Eywffb9G8ZFXg==
-X-Received: by 2002:a92:1553:: with SMTP id v80mr13774973ilk.49.1576864065273;
-        Fri, 20 Dec 2019 09:47:45 -0800 (PST)
+        bh=3Nn5p181q86/g/6fP6feiYYJjedDp6onNrnjkykO+ns=;
+        b=OIbvzGs62rMrF+TQs4Ry8wzbf6Z3QJVuyvMoOZ6M5quo8nk+TcK3Gw3enB9grp9vJA
+         cH54zsUVzeGjAf/n+E88tfx5ie79A56mo8RX/VoelN4pdJFzJqtjCUl1844vdH4wj7yF
+         EEI9Epc5axepC2sIKwZxyPkTlSDHK0TnvxG9LwJL7HsHo6N+pTKI00nIMjcwZFVhaho7
+         ipV4E9r4z2f/jfPM8ZZH6Ic1jOSWlT5KpZugIiqA3JrulKRPCIRlhZhZ3VFltd8IOO0y
+         wzIwW1xY+LQNbOTnJBZkYJO/azfamKG0p4GppOn3kA5ds0cG1LA9pJCDB2Tj06mtivkv
+         GCqg==
+X-Gm-Message-State: APjAAAVAb0bX4sPAYOA+cm6U52GWMTRcI4zi+nXY6uHfHAkAl+1u7cLn
+        kDa7/St3VgzCBwAe0yhKQKE6r6M4bPXMDA==
+X-Google-Smtp-Source: APXvYqxEuPOdzeOmkOUXHcwt95HGzlxl2BZKLc8AMiUrEKu6q8Zq2JviCQnYlOdBm4tbLcLCWRENTw==
+X-Received: by 2002:a05:6638:618:: with SMTP id g24mr13042117jar.87.1576864067304;
+        Fri, 20 Dec 2019 09:47:47 -0800 (PST)
 Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id j88sm4969677ilf.83.2019.12.20.09.47.44
+        by smtp.gmail.com with ESMTPSA id j88sm4969677ilf.83.2019.12.20.09.47.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Dec 2019 09:47:44 -0800 (PST)
+        Fri, 20 Dec 2019 09:47:46 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/7] io_uring: use u64_to_user_ptr() consistently
-Date:   Fri, 20 Dec 2019 10:47:36 -0700
-Message-Id: <20191220174742.7449-2-axboe@kernel.dk>
+Subject: [PATCH 3/7] io_uring: move all prep state for IORING_OP_CONNECT to prep handler
+Date:   Fri, 20 Dec 2019 10:47:38 -0700
+Message-Id: <20191220174742.7449-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191220174742.7449-1-axboe@kernel.dk>
 References: <20191220174742.7449-1-axboe@kernel.dk>
@@ -70,78 +70,97 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We use it in some spots, but not consistently. Convert the rest over,
-makes it easier to read as well.
-
-No functional changes in this patch.
+Add struct io_connect in our io_kiocb per-command union, and ensure
+that io_connect_prep() has grabbed what it needs from the SQE.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 40 ++++++++++++++++++++++------------------
+ 1 file changed, 22 insertions(+), 18 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6f084e3cf835..7a23d2351be2 100644
+index b5f91d21fd04..2a173f54ec8e 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2157,7 +2157,7 @@ static int io_sendmsg_prep(struct io_kiocb *req, struct io_async_ctx *io)
- 	unsigned flags;
+@@ -339,6 +339,12 @@ struct io_rw {
+ 	u64				len;
+ };
  
- 	flags = READ_ONCE(sqe->msg_flags);
--	msg = (struct user_msghdr __user *)(unsigned long) READ_ONCE(sqe->addr);
-+	msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	io->msg.iov = io->msg.fast_iov;
- 	return sendmsg_copy_msghdr(&io->msg.msg, msg, flags, &io->msg.iov);
++struct io_connect {
++	struct file			*file;
++	struct sockaddr __user		*addr;
++	int				addr_len;
++};
++
+ struct io_async_connect {
+ 	struct sockaddr_storage		address;
+ };
+@@ -382,6 +388,7 @@ struct io_kiocb {
+ 		struct io_sync		sync;
+ 		struct io_cancel	cancel;
+ 		struct io_timeout	timeout;
++		struct io_connect	connect;
+ 	};
+ 
+ 	const struct io_uring_sqe	*sqe;
+@@ -2406,14 +2413,18 @@ static int io_connect_prep(struct io_kiocb *req, struct io_async_ctx *io)
+ {
+ #if defined(CONFIG_NET)
+ 	const struct io_uring_sqe *sqe = req->sqe;
+-	struct sockaddr __user *addr;
+-	int addr_len;
+ 
+-	addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+-	addr_len = READ_ONCE(sqe->addr2);
+-	return move_addr_to_kernel(addr, addr_len, &io->connect.address);
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
++	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
++		return -EINVAL;
++
++	req->connect.addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
++	req->connect.addr_len =  READ_ONCE(sqe->addr2);
++	return move_addr_to_kernel(req->connect.addr, req->connect.addr_len,
++					&io->connect.address);
  #else
-@@ -2239,7 +2239,7 @@ static int io_recvmsg_prep(struct io_kiocb *req, struct io_async_ctx *io)
- 	unsigned flags;
+-	return 0;
++	return -EOPNOTSUPP;
+ #endif
+ }
  
- 	flags = READ_ONCE(sqe->msg_flags);
--	msg = (struct user_msghdr __user *)(unsigned long) READ_ONCE(sqe->addr);
-+	msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	io->msg.iov = io->msg.fast_iov;
- 	return recvmsg_copy_msghdr(&io->msg.msg, msg, flags, &io->msg.uaddr,
- 					&io->msg.iov);
-@@ -2273,8 +2273,7 @@ static int io_recvmsg(struct io_kiocb *req, struct io_kiocb **nxt,
- 		else if (force_nonblock)
- 			flags |= MSG_DONTWAIT;
+@@ -2421,18 +2432,9 @@ static int io_connect(struct io_kiocb *req, struct io_kiocb **nxt,
+ 		      bool force_nonblock)
+ {
+ #if defined(CONFIG_NET)
+-	const struct io_uring_sqe *sqe = req->sqe;
+ 	struct io_async_ctx __io, *io;
+ 	unsigned file_flags;
+-	int addr_len, ret;
+-
+-	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
+-		return -EINVAL;
+-	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
+-		return -EINVAL;
+-
+-	addr_len = READ_ONCE(sqe->addr2);
+-	file_flags = force_nonblock ? O_NONBLOCK : 0;
++	int ret;
  
--		msg = (struct user_msghdr __user *) (unsigned long)
--			READ_ONCE(sqe->addr);
-+		msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 		if (req->io) {
- 			kmsg = &req->io->msg;
- 			kmsg->msg.msg_name = &addr;
-@@ -2331,9 +2330,8 @@ static int io_accept_prep(struct io_kiocb *req)
- 	if (sqe->ioprio || sqe->len || sqe->buf_index)
- 		return -EINVAL;
- 
--	accept->addr = (struct sockaddr __user *)
--				(unsigned long) READ_ONCE(sqe->addr);
--	accept->addr_len = (int __user *) (unsigned long) READ_ONCE(sqe->addr2);
-+	accept->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
-+	accept->addr_len = u64_to_user_ptr(READ_ONCE(sqe->addr2));
- 	accept->flags = READ_ONCE(sqe->accept_flags);
- 	req->flags |= REQ_F_PREPPED;
- 	return 0;
-@@ -2407,7 +2405,7 @@ static int io_connect_prep(struct io_kiocb *req, struct io_async_ctx *io)
- 	struct sockaddr __user *addr;
- 	int addr_len;
- 
--	addr = (struct sockaddr __user *) (unsigned long) READ_ONCE(sqe->addr);
-+	addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	addr_len = READ_ONCE(sqe->addr2);
- 	return move_addr_to_kernel(addr, addr_len, &io->connect.address);
- #else
-@@ -4702,7 +4700,7 @@ static int io_copy_iov(struct io_ring_ctx *ctx, struct iovec *dst,
- 		if (copy_from_user(&ciov, &ciovs[index], sizeof(ciov)))
- 			return -EFAULT;
- 
--		dst->iov_base = (void __user *) (unsigned long) ciov.iov_base;
-+		dst->iov_base = u64_to_user_ptr((u64)ciov.iov_base);
- 		dst->iov_len = ciov.iov_len;
- 		return 0;
+ 	if (req->io) {
+ 		io = req->io;
+@@ -2443,8 +2445,10 @@ static int io_connect(struct io_kiocb *req, struct io_kiocb **nxt,
+ 		io = &__io;
  	}
+ 
+-	ret = __sys_connect_file(req->file, &io->connect.address, addr_len,
+-					file_flags);
++	file_flags = force_nonblock ? O_NONBLOCK : 0;
++
++	ret = __sys_connect_file(req->file, &io->connect.address,
++					req->connect.addr_len, file_flags);
+ 	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
+ 		if (req->io)
+ 			return -EAGAIN;
 -- 
 2.24.1
 

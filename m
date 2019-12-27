@@ -1,115 +1,58 @@
-Return-Path: <SRS0=XNNH=2Q=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=zpF9=2R=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13D6DC2D0DA
-	for <io-uring@archiver.kernel.org>; Thu, 26 Dec 2019 18:21:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7C4AC2D0DC
+	for <io-uring@archiver.kernel.org>; Fri, 27 Dec 2019 00:42:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D2594206CB
-	for <io-uring@archiver.kernel.org>; Thu, 26 Dec 2019 18:21:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="oJ/eq3wi"
+	by mail.kernel.org (Postfix) with ESMTP id 95C0720838
+	for <io-uring@archiver.kernel.org>; Fri, 27 Dec 2019 00:42:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726511AbfLZSVx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 26 Dec 2019 13:21:53 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:37319 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726453AbfLZSVx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 26 Dec 2019 13:21:53 -0500
-Received: by mail-pl1-f196.google.com with SMTP id c23so10719519plz.4
-        for <io-uring@vger.kernel.org>; Thu, 26 Dec 2019 10:21:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=9WPJkjaBWeuoiIg8eHRKiDJaYeZQujvSEBablONAzYA=;
-        b=oJ/eq3wi4oRIJfY1g6s8yHvYXlPtrFonI2CoxcBKrM9P6hfR8ml2Tt1cEC9F1uoDnG
-         W+gN/ZE0/n0dFDNKojBdAKpE+xU90ouuGuvtxDPCOd+/21I1AfZyOsJGfkP3c7oD7wT2
-         AhCMwbjd2MtFJ6dpR436h8VWnXeUDF6nt4Xzdf4H0+8UAVObnChkasj8hXADftLdqzHA
-         O8jzA1RGKPYXZc5DUaQcGLyHicYFrfz7G5njiFXf3dzNODYIzQV22ehhrzSPxMtZoVHY
-         4q6XJxkiC0QPz8393mmEPRBgCeiJepoTxMX4ixbB6vBvb6FpAZLUm3rPVcQ3QYdtLxpQ
-         EiGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=9WPJkjaBWeuoiIg8eHRKiDJaYeZQujvSEBablONAzYA=;
-        b=WP7qOw82UypuIlKr1S73kvUz/UaVFc9oPPWUJEolXnJA3ar40iYrDYey8bHcSfKb6e
-         JuySZvEy7ZT7XS4zd7j1woTxn13PFjTp/k5DydHWwf/1T/ie5mtWoV+41irx5D4a6cw9
-         nW/m8upcH2fGG+w0usictTPmoWiyUcLYNxTsgntm3uoLIZexj8sB70cIWjI7oBP/Mueq
-         OzfbLl001fvadBIC34VCYtUYmskHUKoGhI0QH+WWRwj+Y/DNDsAXm+3mR+0CpyUVVyR1
-         0SgyxEPAfp+hbC4AGax5q9UE9qS8SoGkzTN8jbtpxaVIYA7mm3B2ukeo7PiI227aNpTf
-         8nTw==
-X-Gm-Message-State: APjAAAUXatFbpcYscHZXrutsT4LygsUL6SM7QjmjnvCXO1mFboVCxC5g
-        oaiGNn9JzrSPLjwpbxzBzrctgYudtUeq0A==
-X-Google-Smtp-Source: APXvYqzZmedAr3Pa9CVJkfEeAX4xC35rLvR0X62FCYedvP0o0hP1zIhztN8Y8HlEzCnTVOxZ83qnnQ==
-X-Received: by 2002:a17:90a:2486:: with SMTP id i6mr21782674pje.9.1577384512656;
-        Thu, 26 Dec 2019 10:21:52 -0800 (PST)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id q63sm15458330pfb.149.2019.12.26.10.21.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Dec 2019 10:21:52 -0800 (PST)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     io-uring <io-uring@vger.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [GIT PULL] io_uring fixes for 5.5-rc4
-Message-ID: <69cdbfdc-da7d-a3fe-f196-3c0819757908@kernel.dk>
-Date:   Thu, 26 Dec 2019 11:21:51 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1727274AbfL0AmJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 26 Dec 2019 19:42:09 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:52754 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726277AbfL0AmI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 26 Dec 2019 19:42:08 -0500
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1ikdhe-0003Py-7X; Fri, 27 Dec 2019 00:42:06 +0000
+Date:   Fri, 27 Dec 2019 00:42:06 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 03/10] fs: add namei support for doing a non-blocking
+ path lookup
+Message-ID: <20191227004206.GT4203@ZenIV.linux.org.uk>
+References: <20191213183632.19441-1-axboe@kernel.dk>
+ <20191213183632.19441-4-axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191213183632.19441-4-axboe@kernel.dk>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Linus,
+On Fri, Dec 13, 2019 at 11:36:25AM -0700, Jens Axboe wrote:
+> If the fast lookup fails, then return -EAGAIN to have the caller retry
+> the path lookup. This is in preparation for supporting non-blocking
+> open.
 
-This pull request:
+NAK.  We are not littering fs/namei.c with incremental broken bits
+and pieces with uncertain eventual use.
 
-- Removal of now unused busy wqe list (Hillf)
+And it's broken - lookup_slow() is *NOT* the only place that can and
+does block.  For starters, ->d_revalidate() can very well block and
+it is called outside of lookup_slow().  So does ->d_automount().
+So does ->d_manage().
 
-- Add cond_resched() to io-wq work processing (Hillf)
-
-- And then the series that I hinted at from last week, which removes the
-  sqe from the io_kiocb and keeps all sqe handling on the prep side.
-  This guarantees that an opcode can't do the wrong thing and read the
-  sqe more than once. This is unchanged from last week, no issues have
-  been observed with this in testing. Hence I really think we should
-  fold this into 5.5.
-
-Please pull!
-
-
-  git://git.kernel.dk/linux-block.git tags/io_uring-5.5-20191226
-
-
-----------------------------------------------------------------
-Hillf Danton (2):
-      io-wq: remove unused busy list from io_sqe
-      io-wq: add cond_resched() to worker thread
-
-Jens Axboe (7):
-      io_uring: use u64_to_user_ptr() consistently
-      io_uring: add and use struct io_rw for read/writes
-      io_uring: move all prep state for IORING_OP_CONNECT to prep handler
-      io_uring: move all prep state for IORING_OP_{SEND,RECV}_MGS to prep handler
-      io_uring: read 'count' for IORING_OP_TIMEOUT in prep handler
-      io_uring: standardize the prep methods
-      io_uring: pass in 'sqe' to the prep handlers
-
- fs/io-wq.c    |  10 +-
- fs/io_uring.c | 690 ++++++++++++++++++++++++++++++----------------------------
- 2 files changed, 357 insertions(+), 343 deletions(-)
-
--- 
-Jens Axboe
-
+I'm rather sceptical about the usefulness of non-blocking open, to be
+honest, but in any case, one thing that is absolutely not going to
+happen is piecewise introduction of such stuff without a discussion
+of the entire design.

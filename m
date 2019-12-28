@@ -2,67 +2,68 @@ Return-Path: <SRS0=LCsk=2S=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0B7C2D0C6
-	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FBE3C2D0D1
+	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3B37920748
-	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35FBE207E0
+	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZeVIBTUe"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vh/EItAj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726220AbfL1LNk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Dec 2019 06:13:40 -0500
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:40616 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbfL1LNk (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Dec 2019 06:13:40 -0500
-Received: by mail-wm1-f41.google.com with SMTP id t14so10273166wmi.5;
-        Sat, 28 Dec 2019 03:13:39 -0800 (PST)
+        id S1726100AbfL1LNp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Dec 2019 06:13:45 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:44685 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726584AbfL1LNn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Dec 2019 06:13:43 -0500
+Received: by mail-wr1-f67.google.com with SMTP id q10so28349970wrm.11;
+        Sat, 28 Dec 2019 03:13:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=KElmZM5dkNAHQpTzzrjHnML4RPBEKGzTVPP1i0RJr8E=;
-        b=ZeVIBTUeg+eAWruRVTTD2sDc52dRhuO1XtufRbTQ6WWy3kCgKjw+SSwflPcflZ/IzK
-         j4Z5XNY0kaU43IoTsXvWJXDd65wQMAJiqQwtyjMAeGrEdLkwhHok45Ce3Kx7nFkJV4us
-         xmrssh1k7RteUSB2MAXLhUn9UW/MwAPumOPG6fX1Cj874GB2V/cua6XwYiFZdcsiBBeE
-         knB0ejaTWScka1/aciLT+4YCa5j2h7QjHRDfeCxEb+sUTDgRE5BX/lh68J2a79sBckFb
-         0o2jJHC8zR2xtC+luLHOXz5UW6Q55s2ct0u4+Sq3XprSRDEtG02/F97zWlTK4pzgETZg
-         Qg8A==
+        bh=YHYJcDrGIHRFm53VlzRjbvCMqJEk7QWJgVaPxjySsxc=;
+        b=vh/EItAjQHTrj6A1QVr/MzFGHyyT1AZ/5rFAYS6FzVX0jGjJuT7XEYbILe0wmT223f
+         JymM28x1E4Ce3elN0tD8rYghuKahsyIqZ8535CCo3MI3AWP9vwvX6BBBOR4s9VNBhchn
+         VFpw2LEfI9nEIvdI8Pqwq9nk9L6hnLdRWfFEcsKpyDAvU34serb3ZHwWjNauJQR7oMH6
+         3ViPay0FJPt8yHQZbJooMr8m6//bECsCcIX8jagbicuOVqIK/Md4ww3/bRZUdV6oJJFO
+         XjoyrjN26SgGAufOckjNX9tcqRPeqTxmEs7gIbrFOndjU8scRk/06FaWywGNMMpz1jS8
+         RM7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=KElmZM5dkNAHQpTzzrjHnML4RPBEKGzTVPP1i0RJr8E=;
-        b=co2Ygu9080BoyNtF/gzCIPA9ximJa5vtPmwx5PPYrIdNTGTmf9+zqQxgyZnpb7qxqG
-         tsSfwZr3e4neZ5bwCfrTUqKW11mbPpp11U/KHJ8cmyj1v0B8ntXZCelRxSWL7AY3Dgm2
-         K/liNeTtCx0WnmW1j42+B7KSpUMf1d9c28V7O1tPCeOx2J1qimo7IfTM5J+eb/HLeQmm
-         XL/b2dHWA4KtaD6lm/6oKXpMdfY7wQ3ka/aOXxhVfozTArxIIjWdcZCRWYO/hh5MI8rc
-         TTfwt9/PJnnUi5W6hBont2INyEl1kaNFyRtivLDDAcJ8dEoXxtltuinpH3EbNqGz10aZ
-         ycPg==
-X-Gm-Message-State: APjAAAUALNUVVTAnfYP+fTYDtTdyd4ZLV+0caLYg6N617VSJa/fz3tE9
-        guA+Wo8sANHIi3JRq0uXIl9zRRkI
-X-Google-Smtp-Source: APXvYqwHDiWz56gLSReUATaFd7iR5Bga0tyJTpWEZW5vJa7oiLijQN3a2ZO8bnlvqdfjw0QIpQxDsA==
-X-Received: by 2002:a1c:f009:: with SMTP id a9mr23143964wmb.73.1577531618221;
-        Sat, 28 Dec 2019 03:13:38 -0800 (PST)
+        bh=YHYJcDrGIHRFm53VlzRjbvCMqJEk7QWJgVaPxjySsxc=;
+        b=XejUUGlBfDsQZdh7BHKCxCPE2ZWAp2kkTlU/P/v4T7vxMZROPtraIZGMKuae9p51mi
+         PqFxA7eSfJ362ImEpS02bYaBT7seN0pi043PyeNSlZsdP/5zhpX94BhWcg5eQ7sD/+U+
+         1TVay05K6/FL+F2UR1cwXTcpg6Tiayk5+nVEI9lXQxaUeTs++XwcYoLKa/CXHYvcwcqz
+         9UKP8l8cbJh07XF0fzW8JjI8x4gRCfBBtkv8u+0yrJYlwxDcjLdek8B737+NOLLtVFaT
+         YJTGHaHrxzXV4HGO9y88WHF5yNX4SRIeKT2Vam2kD2AmOen6li1QAQm4M6UWEZxxPIE+
+         upkA==
+X-Gm-Message-State: APjAAAVt9BSMEjMbEwo9Y/Va4g0gmKIU2rWLq497JQ85dMo8dbdVoBV4
+        WLMFE8C2TcKdQYtTIyXp1uw=
+X-Google-Smtp-Source: APXvYqwXnlafFfHpV4myorXxHzbctCqnnbxoeLtbqQwzU3btdl1WbZrKGRtpSufWrgl7Pu7p37rKdQ==
+X-Received: by 2002:a5d:5283:: with SMTP id c3mr57755497wrv.148.1577531621873;
+        Sat, 28 Dec 2019 03:13:41 -0800 (PST)
 Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id q11sm37432622wrp.24.2019.12.28.03.13.37
+        by smtp.gmail.com with ESMTPSA id q11sm37432622wrp.24.2019.12.28.03.13.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Dec 2019 03:13:37 -0800 (PST)
+        Sat, 28 Dec 2019 03:13:41 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v4 0/2] optimise ctx's refs grabbing in io_uring
-Date:   Sat, 28 Dec 2019 14:13:01 +0300
-Message-Id: <cover.1577528535.git.asml.silence@gmail.com>
+Subject: [PATCH v4 2/2] io_uring: batch getting pcpu references
+Date:   Sat, 28 Dec 2019 14:13:03 +0300
+Message-Id: <1250dad37e9b73d39066a8b464f6d2cab26eef8a.1577528535.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1576958402.git.asml.silence@gmail.com>
-References: <cover.1576958402.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1577528535.git.asml.silence@gmail.com>
+References: <cover.1577528535.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -70,26 +71,88 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Optimise percpu_ref_tryget() by not calling it for each request, but
-batching it. This gave a measurable ~5% performance boost for large QD.
+percpu_ref_tryget() has its own overhead. Instead getting a reference
+for each request, grab a bunch once per io_submit_sqes().
 
-v2: fix uncommited plug (Jens Axboe)
-    better comments for percpu_ref_tryget_many (Dennis Zhou)
-    amortise across io_uring_enter() boundary
+~5% throughput boost for a "submit and wait 128 nops" benchmark.
 
-v3: drop "batching across syscalls"
-    remove error handling in io_submit_sqes() from common path
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-v4: fix error handling
-
-Pavel Begunkov (2):
-  pcpu_ref: add percpu_ref_tryget_many()
-  io_uring: batch getting pcpu references
-
- fs/io_uring.c                   | 26 +++++++++++++++++---------
- include/linux/percpu-refcount.h | 26 +++++++++++++++++++++-----
- 2 files changed, 38 insertions(+), 14 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7fc1158bf9a4..404946080e86 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1080,9 +1080,6 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+ 	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
+ 	struct io_kiocb *req;
+ 
+-	if (!percpu_ref_tryget(&ctx->refs))
+-		return NULL;
+-
+ 	if (!state) {
+ 		req = kmem_cache_alloc(req_cachep, gfp);
+ 		if (unlikely(!req))
+@@ -1141,6 +1138,14 @@ static void io_free_req_many(struct io_ring_ctx *ctx, void **reqs, int *nr)
+ 	}
+ }
+ 
++static void __io_req_free_empty(struct io_kiocb *req)
++{
++	if (likely(!io_is_fallback_req(req)))
++		kmem_cache_free(req_cachep, req);
++	else
++		clear_bit_unlock(0, (unsigned long *) req->ctx->fallback_req);
++}
++
+ static void __io_free_req(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+@@ -1162,11 +1167,9 @@ static void __io_free_req(struct io_kiocb *req)
+ 			wake_up(&ctx->inflight_wait);
+ 		spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+ 	}
+-	percpu_ref_put(&ctx->refs);
+-	if (likely(!io_is_fallback_req(req)))
+-		kmem_cache_free(req_cachep, req);
+-	else
+-		clear_bit_unlock(0, (unsigned long *) ctx->fallback_req);
++
++	percpu_ref_put(&req->ctx->refs);
++	__io_req_free_empty(req);
+ }
+ 
+ static bool io_link_cancel_timeout(struct io_kiocb *req)
+@@ -4551,6 +4554,9 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			return -EBUSY;
+ 	}
+ 
++	if (!percpu_ref_tryget_many(&ctx->refs, nr))
++		return -EAGAIN;
++
+ 	if (nr > IO_PLUG_THRESHOLD) {
+ 		io_submit_state_start(&state, nr);
+ 		statep = &state;
+@@ -4567,7 +4573,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			break;
+ 		}
+ 		if (!io_get_sqring(ctx, req, &sqe)) {
+-			__io_free_req(req);
++			__io_req_free_empty(req);
+ 			break;
+ 		}
+ 
+@@ -4598,6 +4604,8 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			break;
+ 	}
+ 
++	if (submitted != nr)
++		percpu_ref_put_many(&ctx->refs, nr - submitted);
+ 	if (link)
+ 		io_queue_link_head(link);
+ 	if (statep)
 -- 
 2.24.0
 

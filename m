@@ -2,147 +2,211 @@ Return-Path: <SRS0=LCsk=2S=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F49BC2D0C6
-	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2794DC2D0C6
+	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:16:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E5B7320748
-	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:13:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3A7A20748
+	for <io-uring@archiver.kernel.org>; Sat, 28 Dec 2019 11:16:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BaHAUPx+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N135beCa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726597AbfL1LNn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Dec 2019 06:13:43 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:43052 "EHLO
+        id S1726607AbfL1LQZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Dec 2019 06:16:25 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37794 "EHLO
         mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbfL1LNm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Dec 2019 06:13:42 -0500
-Received: by mail-wr1-f66.google.com with SMTP id d16so28333467wre.10;
-        Sat, 28 Dec 2019 03:13:41 -0800 (PST)
+        with ESMTP id S1726248AbfL1LQZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Dec 2019 06:16:25 -0500
+Received: by mail-wr1-f66.google.com with SMTP id w15so15727462wru.4;
+        Sat, 28 Dec 2019 03:16:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Ncxg9b/1MfJvBW44JauWnlBevZqV28zJC8M4jJXK7AU=;
-        b=BaHAUPx+4KshLERmtGWu41IFl51q0SA9VBlPqlEA72NfKzWAQHE1Ajioq3dAxUXnNS
-         Yqd8ws/vsXQXDCFYiobkLscDXb56/cxBiPgQIk4qMZBFeSlyugKt5PKSywVZu5STZJy8
-         /3fvrCXOBS6rrcPoNzhmuQrTvaVDFCc5WdZyYWjsECP7UK+dez21MXz/IS1E+vS8ZU6A
-         NLoOKbifFbssMtUdDucMZ7zs1lwEB9gubRJPlIYQSxtT/8aDrTZmWIkiHQpUtDNg6+e/
-         v00kUGXHLrwNrHdtpPOMwWIo2aADULmrweBTjqytrqe2dkjmjQTWITT/lcbqupJybwqL
-         1zTg==
+        h=subject:from:to:references:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Cps8bvJoj3nIGDxDxbINAK/1T/Mo3oxy8efE17E3EPU=;
+        b=N135beCaijCCWOcve1nYHJuQ+Y2BiVEDypZhcCdY+CD3GQjOzLIQPZHoHG4Bz78S0q
+         ZS/8VS1rdSsJISoYdn2JNfeeOgpMjBUPQ53WL5dQgG024Vl1TdnBM8MPXgTOs564rWBU
+         bvUsLGqkq2DEM40HdkFXG7CfJAiM55u16KHXzYTqVMYGFUCgWnPLgT9kYWaEL1UjpVms
+         tSId4YWyqXFaQKVfJKtdiHE2GeXNBWAvtRUmdAC0YIMDtRe1hncYg/00mQIFga4PjC9t
+         TsLVgj8BAwP6gX24yWk4i/MVIxWMwW5D8VGCGvgdZD/2iyNtddLP9fmTU2FBP+PNQHNH
+         k24A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Ncxg9b/1MfJvBW44JauWnlBevZqV28zJC8M4jJXK7AU=;
-        b=NElM8GodMPaEGDdRPP6SiNl7Xr9tl2FfLrnkQbjiBuXSF74ja8eNMdWg40apisqlxb
-         ErTo70xzTmZKRXKQ5bzsu1KLO+FufP5nutvZua0vpdyjhptgn1Dl4uP9w45h2ox9Hzam
-         ZhPt9GGJE4IPMx6TRHjZouR0w7DK+PZFlcSn9F4pCuiVjZKna4vLMb+jdwq4z9Xfx0rL
-         6r7PY9RMvhZr/bni4tGLawGnXFab6uGqa8FiJvy7Qdk1E1viwmcMZHv0fcAmH4Xw/R8S
-         555DzFrzQXB1Gq5FHl9lAbtV9zoHyBZprxtk2Ixtk9mi4zcMM5ys+NYGIcpJlSnf0TWW
-         pM1g==
-X-Gm-Message-State: APjAAAUmZgc61ds3uuun+ofxljovcTP8d+wUzugonGNZEAx7VIh9lYoG
-        bxsIaf2ilVj8O7nfp/tQeKk=
-X-Google-Smtp-Source: APXvYqxeq20SHzRUQ8hiISSOX/ARks7467N/F1xiBr4hbPZ4EfZEVbuBLR4Tw5V9CaBXOOFcoAYNNw==
-X-Received: by 2002:adf:f6c1:: with SMTP id y1mr59751007wrp.17.1577531620651;
-        Sat, 28 Dec 2019 03:13:40 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id q11sm37432622wrp.24.2019.12.28.03.13.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Dec 2019 03:13:40 -0800 (PST)
+        h=x-gm-message-state:subject:from:to:references:autocrypt:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Cps8bvJoj3nIGDxDxbINAK/1T/Mo3oxy8efE17E3EPU=;
+        b=RB1usDvABLsWnhmP6C+ZqYS79jI7OErAJpTyrPNHnHexvkvbjlaIQ4MaeDFOybfIlw
+         YYnu8QyDN3I6BhIt/Z9gGq0UXfKIdDHGBJ2K56iBkfLGrZm1f80y2e29XjY51buPlGyS
+         4eSxMgXSb7UOCjAAWgJer5avqvbm85uzR5EChRERmr/WnIssnaaAwejzAkGwPouetTOf
+         Kr5Uu6GOeDmi1ROrnB4c3vpkcP4D4yHcKFvON19L1DCUIpn6ugNeHqKIEf5ViDcEWr0/
+         8gwulwoTjjWwd4AimDO8gwLIJXJrRyADSM0CroWVIqN4+DcybH1jUnEciqn3k9KyDsfj
+         XkSQ==
+X-Gm-Message-State: APjAAAUssAF3t1UXr5U1dNQtcwhM9auBa10+fa7yXzB6O7iW3Bg2BImx
+        uO8jMC9qsmSPB13gPqDGbWyoqgt+
+X-Google-Smtp-Source: APXvYqyXsbDjswaC5u2/YTs9+ArjU9k3Q5BsHJgo93GHwemveKowyqMfl8n/bqlUH2BEv/ho+bbJmA==
+X-Received: by 2002:a05:6000:367:: with SMTP id f7mr54173646wrf.174.1577531782665;
+        Sat, 28 Dec 2019 03:16:22 -0800 (PST)
+Received: from [192.168.43.144] ([109.126.145.157])
+        by smtp.gmail.com with ESMTPSA id b15sm13930002wmj.13.2019.12.28.03.16.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 28 Dec 2019 03:16:22 -0800 (PST)
+Subject: Re: [PATCH v4 2/2] io_uring: batch getting pcpu references
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Cc:     Tejun Heo <tj@kernel.org>, Dennis Zhou <dennis@kernel.org>,
-        Christoph Lameter <cl@linux.com>
-Subject: [PATCH v4 1/2] pcpu_ref: add percpu_ref_tryget_many()
-Date:   Sat, 28 Dec 2019 14:13:02 +0300
-Message-Id: <9db688ebaea49de5e794d082aca351cc278ed2ed.1577528535.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1577528535.git.asml.silence@gmail.com>
 References: <cover.1577528535.git.asml.silence@gmail.com>
+ <1250dad37e9b73d39066a8b464f6d2cab26eef8a.1577528535.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <6facf552-924f-2af1-03e5-99957a90bfd0@gmail.com>
+Date:   Sat, 28 Dec 2019 14:15:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
+In-Reply-To: <1250dad37e9b73d39066a8b464f6d2cab26eef8a.1577528535.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add percpu_ref_tryget_many(), which works the same way as
-percpu_ref_tryget(), but grabs specified number of refs.
+On 28/12/2019 14:13, Pavel Begunkov wrote:
+> percpu_ref_tryget() has its own overhead. Instead getting a reference
+> for each request, grab a bunch once per io_submit_sqes().
+> 
+> ~5% throughput boost for a "submit and wait 128 nops" benchmark.
+> 
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+>  fs/io_uring.c | 26 +++++++++++++++++---------
+>  1 file changed, 17 insertions(+), 9 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 7fc1158bf9a4..404946080e86 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -1080,9 +1080,6 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+>  	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
+>  	struct io_kiocb *req;
+>  
+> -	if (!percpu_ref_tryget(&ctx->refs))
+> -		return NULL;
+> -
+>  	if (!state) {
+>  		req = kmem_cache_alloc(req_cachep, gfp);
+>  		if (unlikely(!req))
+> @@ -1141,6 +1138,14 @@ static void io_free_req_many(struct io_ring_ctx *ctx, void **reqs, int *nr)
+>  	}
+>  }
+>  
+> +static void __io_req_free_empty(struct io_kiocb *req)
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Acked-by: Dennis Zhou <dennis@kernel.org>
-Cc: Christoph Lameter <cl@linux.com>
----
- include/linux/percpu-refcount.h | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+If anybody have better naming (or a better approach at all), I'm all ears.
 
-diff --git a/include/linux/percpu-refcount.h b/include/linux/percpu-refcount.h
-index 390031e816dc..22d9d183950d 100644
---- a/include/linux/percpu-refcount.h
-+++ b/include/linux/percpu-refcount.h
-@@ -210,15 +210,17 @@ static inline void percpu_ref_get(struct percpu_ref *ref)
- }
- 
- /**
-- * percpu_ref_tryget - try to increment a percpu refcount
-+ * percpu_ref_tryget_many - try to increment a percpu refcount
-  * @ref: percpu_ref to try-get
-+ * @nr: number of references to get
-  *
-- * Increment a percpu refcount unless its count already reached zero.
-+ * Increment a percpu refcount  by @nr unless its count already reached zero.
-  * Returns %true on success; %false on failure.
-  *
-  * This function is safe to call as long as @ref is between init and exit.
-  */
--static inline bool percpu_ref_tryget(struct percpu_ref *ref)
-+static inline bool percpu_ref_tryget_many(struct percpu_ref *ref,
-+					  unsigned long nr)
- {
- 	unsigned long __percpu *percpu_count;
- 	bool ret;
-@@ -226,10 +228,10 @@ static inline bool percpu_ref_tryget(struct percpu_ref *ref)
- 	rcu_read_lock();
- 
- 	if (__ref_is_percpu(ref, &percpu_count)) {
--		this_cpu_inc(*percpu_count);
-+		this_cpu_add(*percpu_count, nr);
- 		ret = true;
- 	} else {
--		ret = atomic_long_inc_not_zero(&ref->count);
-+		ret = atomic_long_add_unless(&ref->count, nr, 0);
- 	}
- 
- 	rcu_read_unlock();
-@@ -237,6 +239,20 @@ static inline bool percpu_ref_tryget(struct percpu_ref *ref)
- 	return ret;
- }
- 
-+/**
-+ * percpu_ref_tryget - try to increment a percpu refcount
-+ * @ref: percpu_ref to try-get
-+ *
-+ * Increment a percpu refcount unless its count already reached zero.
-+ * Returns %true on success; %false on failure.
-+ *
-+ * This function is safe to call as long as @ref is between init and exit.
-+ */
-+static inline bool percpu_ref_tryget(struct percpu_ref *ref)
-+{
-+	return percpu_ref_tryget_many(ref, 1);
-+}
-+
- /**
-  * percpu_ref_tryget_live - try to increment a live percpu refcount
-  * @ref: percpu_ref to try-get
+
+> +{
+> +	if (likely(!io_is_fallback_req(req)))
+> +		kmem_cache_free(req_cachep, req);
+> +	else
+> +		clear_bit_unlock(0, (unsigned long *) req->ctx->fallback_req);
+> +}
+> +
+>  static void __io_free_req(struct io_kiocb *req)
+>  {
+>  	struct io_ring_ctx *ctx = req->ctx;
+> @@ -1162,11 +1167,9 @@ static void __io_free_req(struct io_kiocb *req)
+>  			wake_up(&ctx->inflight_wait);
+>  		spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+>  	}
+> -	percpu_ref_put(&ctx->refs);
+> -	if (likely(!io_is_fallback_req(req)))
+> -		kmem_cache_free(req_cachep, req);
+> -	else
+> -		clear_bit_unlock(0, (unsigned long *) ctx->fallback_req);
+> +
+> +	percpu_ref_put(&req->ctx->refs);
+> +	__io_req_free_empty(req);
+>  }
+>  
+>  static bool io_link_cancel_timeout(struct io_kiocb *req)
+> @@ -4551,6 +4554,9 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+>  			return -EBUSY;
+>  	}
+>  
+> +	if (!percpu_ref_tryget_many(&ctx->refs, nr))
+> +		return -EAGAIN;
+> +
+>  	if (nr > IO_PLUG_THRESHOLD) {
+>  		io_submit_state_start(&state, nr);
+>  		statep = &state;
+> @@ -4567,7 +4573,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+>  			break;
+>  		}
+>  		if (!io_get_sqring(ctx, req, &sqe)) {
+> -			__io_free_req(req);
+> +			__io_req_free_empty(req);
+>  			break;
+>  		}
+>  
+> @@ -4598,6 +4604,8 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+>  			break;
+>  	}
+>  
+> +	if (submitted != nr)
+> +		percpu_ref_put_many(&ctx->refs, nr - submitted);
+>  	if (link)
+>  		io_queue_link_head(link);
+>  	if (statep)
+> 
+
 -- 
-2.24.0
-
+Pavel Begunkov

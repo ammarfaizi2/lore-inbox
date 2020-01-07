@@ -2,87 +2,293 @@ Return-Path: <SRS0=Xlws=24=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 640B4C33C8C
-	for <io-uring@archiver.kernel.org>; Tue,  7 Jan 2020 16:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E834C33C8C
+	for <io-uring@archiver.kernel.org>; Tue,  7 Jan 2020 17:00:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 325C5207E0
-	for <io-uring@archiver.kernel.org>; Tue,  7 Jan 2020 16:00:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC75F206DB
+	for <io-uring@archiver.kernel.org>; Tue,  7 Jan 2020 17:00:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b="qDPlar2Q"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="UNWzIE7R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbgAGQAN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 7 Jan 2020 11:00:13 -0500
-Received: from mr85p00im-ztdg06011801.me.com ([17.58.23.199]:46357 "EHLO
-        mr85p00im-ztdg06011801.me.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727974AbgAGQAN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Jan 2020 11:00:13 -0500
-X-Greylist: delayed 302 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Jan 2020 11:00:13 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
-        s=1a1hai; t=1578412510;
-        bh=4+NRPIXioapR/C/ukFQWhjHYZ3q91zMOMY5bmZRwe+w=;
-        h=From:Content-Type:Subject:Message-Id:Date:To;
-        b=qDPlar2QddQOsazX4pCspNH4H5jCwcf3fOk//MJuCuIH1iLcW/dqGaoN1pRLXWT3/
-         OmIU5zI1JwfPrQSui+KiZ5eodPcQMnxBN8BUSj06R4HMJMIOAcG5EPYddNW2oS7SIz
-         tcn86nmUrTLgEiQpY3zmoetrHpg4+ggwY6VATKpeTkImi1QR1V7Kvb8RXJHF680QlN
-         hYf1AjDuGfX7u6QO4tYEqY2aKxIlleLnMY6HPGkZkBxwN76+xRtCo5DDk0G2SA2mIx
-         7ddN6LE3AfBupCOLGCQJ7KmEhIKnxsQkUmZ/4fxq+HDM4Bt4ZDlw93C2WQ/lxKYNiC
-         S2bZaLLC2qAkw==
-Received: from [192.168.10.177] (louloudi.phaistosnetworks.gr [139.91.200.222])
-        by mr85p00im-ztdg06011801.me.com (Postfix) with ESMTPSA id 5D021C1168
-        for <io-uring@vger.kernel.org>; Tue,  7 Jan 2020 15:55:09 +0000 (UTC)
-From:   Mark Papadakis <markuspapadakis@icloud.com>
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601.0.10\))
-Subject: io_uring and spurious wake-ups from eventfd
-Message-Id: <2005CB9A-0883-4C35-B975-1931C3640AA1@icloud.com>
-Date:   Tue, 7 Jan 2020 17:55:31 +0200
+        id S1728397AbgAGRAk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 7 Jan 2020 12:00:40 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:33252 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728211AbgAGRAk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Jan 2020 12:00:40 -0500
+Received: by mail-io1-f68.google.com with SMTP id z8so95847ioh.0
+        for <io-uring@vger.kernel.org>; Tue, 07 Jan 2020 09:00:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=kLAa950381IHiWSMUCFQoLvVLA8UvLKXWI1RYKTGU10=;
+        b=UNWzIE7R4TpHwJwLYvaRc60Hg38NY0sj28tsFEcq7DRYWHysxyr6WKZ8nOVmNhop3V
+         jBsvdQLFqXDkfm7wRFBA9asKzJFIX0N4S6tHZ5FqQetJ9QD4sXFyEs/E4/syWD2Vcyy7
+         pMC9tR9Efzp8EezRKY9sdy4Re+VPJBO1KzAab/DO1Lf0FObmCYOLC/3LLQ9TEFWzCC2/
+         8Q3PocJGGtSIOMlYITUQ1yDqLJjZ2gIm4YbBN+JmGiFIH0PPZBLkwUuHHLmMk9kOIKxS
+         FcFPi0AIoazdu3GxlQaWd2ekPrdAqicekrnqWFV7dRg/fsUzdW6cElVDYwE70z/Mhk9I
+         r34A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=kLAa950381IHiWSMUCFQoLvVLA8UvLKXWI1RYKTGU10=;
+        b=NaYehtudzbCzosN5PacKXJUPBwjgUmm8OEddoVsqyZlei9y0kswlYAW0ebKpntdkEj
+         XqtS2x2aCS1mCJSI48of3jFQzQSorgztIP5PkiDJ4+waAYjM/EU6iagfmxUjzmUWy+nM
+         ZjaMfgHkuJcDaeAXeDjpGmDvSLoEobfYJKMRKbAmjyDvaaXaI9oLEmQ9eccDUywemFIj
+         5bfZeklr+Ku2mOwLmi40zQIsNviPdWy8NcGMHdGM6gfmbWZYl78VTBJKDMnyBwCJBEP0
+         c2HaisC2UEz18rwF6PBVpFY1K3XJPfL9HIQA4bIps0dkZnvcEL++s9e23IhMclJlQShn
+         GQsw==
+X-Gm-Message-State: APjAAAVgo87PjZIPNtrzYHmI+ae2D9akgmmKeRm78idWQQiwXkAU2Op3
+        1T7F8l5rPkGa69LbJS+I04RfeeJJT1E=
+X-Google-Smtp-Source: APXvYqza5WKNNqZbpiRhQg6I3g6gfQedkb94vmr6kTCTXtmY0g/1fwyuxcjbZ3PiV8z/+KuUG6QxjA==
+X-Received: by 2002:a5d:844d:: with SMTP id w13mr75321336ior.83.1578416439246;
+        Tue, 07 Jan 2020 09:00:39 -0800 (PST)
+Received: from x1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id g4sm42547iln.81.2020.01.07.09.00.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2020 09:00:38 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-X-Mailer: Apple Mail (2.3601.0.10)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2020-01-07_05:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 clxscore=1011 mlxscore=0
- mlxlogscore=721 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-2001070132
+Cc:     linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 3/6] io_uring: add support for IORING_OP_OPENAT
+Date:   Tue,  7 Jan 2020 10:00:31 -0700
+Message-Id: <20200107170034.16165-4-axboe@kernel.dk>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200107170034.16165-1-axboe@kernel.dk>
+References: <20200107170034.16165-1-axboe@kernel.dk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is perhaps an odd request, but if it=E2=80=99s trivial to implement =
-support for this described feature, it could help others like it =E2=80=98=
-d help me (I =E2=80=98ve been experimenting with io_uring for some time =
-now).
+This works just like openat(2), except it can be performed async. For
+the normal case of a non-blocking path lookup this will complete
+inline. If we have to do IO to perform the open, it'll be done from
+async context.
 
-Being able to register an eventfd with an io_uring context is very =
-handy, if you e.g have some sort of reactor thread multiplexing I/O =
-using epoll etc, where you want to be notified when there are pending =
-CQEs to drain. The problem, such as it is, is that this can result in =
-un-necessary/spurious wake-ups.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c                 | 107 +++++++++++++++++++++++++++++++++-
+ include/uapi/linux/io_uring.h |   2 +
+ 2 files changed, 107 insertions(+), 2 deletions(-)
 
-If, for example, you are monitoring some sockets for EPOLLIN, and when =
-poll says you have pending bytes to read from their sockets, and said =
-sockets are non-blocking, and for each some reported event you reserve =
-an SQE for preadv() to read that data and then you io_uring_enter to =
-submit the SQEs, because the data is readily available, as soon as =
-io_uring_enter returns, you will have your completions available - which =
-you can process.
-The =E2=80=9Cproblem=E2=80=9D is that poll will wake up immediately =
-thereafter in the next reactor loop iteration because eventfd was =
-tripped (which is reasonable but un-necessary).
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 1822bf9aba12..53ff67ab5c4b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -70,6 +70,8 @@
+ #include <linux/sizes.h>
+ #include <linux/hugetlb.h>
+ #include <linux/highmem.h>
++#include <linux/namei.h>
++#include <linux/fsnotify.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/io_uring.h>
+@@ -353,6 +355,15 @@ struct io_sr_msg {
+ 	int				msg_flags;
+ };
+ 
++struct io_open {
++	struct file			*file;
++	int				dfd;
++	umode_t				mode;
++	const char __user		*fname;
++	struct filename			*filename;
++	int				flags;
++};
++
+ struct io_async_connect {
+ 	struct sockaddr_storage		address;
+ };
+@@ -371,12 +382,17 @@ struct io_async_rw {
+ 	ssize_t				size;
+ };
+ 
++struct io_async_open {
++	struct filename			*filename;
++};
++
+ struct io_async_ctx {
+ 	union {
+ 		struct io_async_rw	rw;
+ 		struct io_async_msghdr	msg;
+ 		struct io_async_connect	connect;
+ 		struct io_timeout_data	timeout;
++		struct io_async_open	open;
+ 	};
+ };
+ 
+@@ -397,6 +413,7 @@ struct io_kiocb {
+ 		struct io_timeout	timeout;
+ 		struct io_connect	connect;
+ 		struct io_sr_msg	sr_msg;
++		struct io_open		open;
+ 	};
+ 
+ 	struct io_async_ctx		*io;
+@@ -2135,6 +2152,79 @@ static int io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt,
+ 	return 0;
+ }
+ 
++static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++{
++	int ret;
++
++	if (sqe->ioprio || sqe->buf_index)
++		return -EINVAL;
++
++	req->open.dfd = READ_ONCE(sqe->fd);
++	req->open.mode = READ_ONCE(sqe->len);
++	req->open.fname = u64_to_user_ptr(READ_ONCE(sqe->addr));
++	req->open.flags = READ_ONCE(sqe->open_flags);
++
++	req->open.filename = getname(req->open.fname);
++	if (IS_ERR(req->open.filename)) {
++		ret = PTR_ERR(req->open.filename);
++		req->open.filename = NULL;
++		return ret;
++	}
++
++	return 0;
++}
++
++static void io_openat_async(struct io_wq_work **workptr)
++{
++	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
++	struct filename *filename = req->open.filename;
++
++	io_wq_submit_work(workptr);
++	putname(filename);
++}
++
++static int io_openat(struct io_kiocb *req, struct io_kiocb **nxt,
++		     bool force_nonblock)
++{
++	struct open_flags op;
++	struct open_how how;
++	struct file *file;
++	int ret;
++
++	how = build_open_how(req->open.flags, req->open.mode);
++	ret = build_open_flags(&how, &op);
++	if (ret)
++		goto err;
++	if (force_nonblock)
++		op.lookup_flags |= LOOKUP_NONBLOCK;
++
++	ret = get_unused_fd_flags(how.flags);
++	if (ret < 0)
++		goto err;
++
++	file = do_filp_open(req->open.dfd, req->open.filename, &op);
++	if (IS_ERR(file)) {
++		put_unused_fd(ret);
++		ret = PTR_ERR(file);
++		if (ret == -EAGAIN) {
++			req->work.flags |= IO_WQ_WORK_NEEDS_FILES;
++			req->work.func = io_openat_async;
++			return -EAGAIN;
++		}
++	} else {
++		fsnotify_open(file);
++		fd_install(ret, file);
++	}
++err:
++	if (!io_wq_current_is_worker())
++		putname(req->open.filename);
++	if (ret < 0)
++		req_set_fail_links(req);
++	io_cqring_add_event(req, ret);
++	io_put_req_find_next(req, nxt);
++	return 0;
++}
++
+ static int io_prep_sfr(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+@@ -3160,6 +3250,9 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ 	case IORING_OP_FALLOCATE:
+ 		ret = io_fallocate_prep(req, sqe);
+ 		break;
++	case IORING_OP_OPENAT:
++		ret = io_openat_prep(req, sqe);
++		break;
+ 	default:
+ 		printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
+ 				req->opcode);
+@@ -3322,6 +3415,14 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		}
+ 		ret = io_fallocate(req, nxt, force_nonblock);
+ 		break;
++	case IORING_OP_OPENAT:
++		if (sqe) {
++			ret = io_openat_prep(req, sqe);
++			if (ret)
++				break;
++		}
++		ret = io_openat(req, nxt, force_nonblock);
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+@@ -3403,7 +3504,7 @@ static bool io_req_op_valid(int op)
+ 	return op >= IORING_OP_NOP && op < IORING_OP_LAST;
+ }
+ 
+-static int io_req_needs_file(struct io_kiocb *req)
++static int io_req_needs_file(struct io_kiocb *req, int fd)
+ {
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
+@@ -3413,6 +3514,8 @@ static int io_req_needs_file(struct io_kiocb *req)
+ 	case IORING_OP_ASYNC_CANCEL:
+ 	case IORING_OP_LINK_TIMEOUT:
+ 		return 0;
++	case IORING_OP_OPENAT:
++		return fd != -1;
+ 	default:
+ 		if (io_req_op_valid(req->opcode))
+ 			return 1;
+@@ -3442,7 +3545,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+ 	if (flags & IOSQE_IO_DRAIN)
+ 		req->flags |= REQ_F_IO_DRAIN;
+ 
+-	ret = io_req_needs_file(req);
++	ret = io_req_needs_file(req, fd);
+ 	if (ret <= 0)
+ 		return ret;
+ 
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index bdbe2b130179..02af580754ce 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -34,6 +34,7 @@ struct io_uring_sqe {
+ 		__u32		timeout_flags;
+ 		__u32		accept_flags;
+ 		__u32		cancel_flags;
++		__u32		open_flags;
+ 	};
+ 	__u64	user_data;	/* data to be passed back at completion time */
+ 	union {
+@@ -77,6 +78,7 @@ enum {
+ 	IORING_OP_LINK_TIMEOUT,
+ 	IORING_OP_CONNECT,
+ 	IORING_OP_FALLOCATE,
++	IORING_OP_OPENAT,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
+-- 
+2.24.1
 
-What if there was a flag for io_uring_setup() so that the eventfd would =
-only be tripped for CQEs that were processed asynchronously, or, if =
-that=E2=80=99s non-trivial, only for CQEs that reference file FDs?
-
-That=E2=80=99d help with that spurious wake-up.
-
-Thank you,
-@markpapadakis=

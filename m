@@ -2,96 +2,82 @@ Return-Path: <SRS0=OnTE=3D=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD22C33C9E
-	for <io-uring@archiver.kernel.org>; Tue, 14 Jan 2020 21:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0A3AC33C9E
+	for <io-uring@archiver.kernel.org>; Tue, 14 Jan 2020 21:27:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 536BA24656
-	for <io-uring@archiver.kernel.org>; Tue, 14 Jan 2020 21:24:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579037068;
-	bh=T4mKbdk3//UcfIzdvp4mpLugamu5k+cxX1gfTJDXVx8=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=ls0aSkQBWhS1jlFnEkAPxFH3xmNBQ/ONHZmrxviditu48FvWkteMxBNYSwwJr5uIt
-	 TJoc9/XbBThTRl6ye2matgwtSB+O7+7N+UCyIZm/Liz8IOih6k0h3+OzsqOtc9p2Qi
-	 i5d6SFv17o+xaU8c2ynzXKJmJudNJRT25vQ8zLuE=
+	by mail.kernel.org (Postfix) with ESMTP id 673AF24656
+	for <io-uring@archiver.kernel.org>; Tue, 14 Jan 2020 21:27:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="HDJhwoUg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728757AbgANVY2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 14 Jan 2020 16:24:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726491AbgANVY2 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Tue, 14 Jan 2020 16:24:28 -0500
-Received: from dhcp-10-100-145-180.wdl.wdc.com (unknown [199.255.45.60])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A28124656;
-        Tue, 14 Jan 2020 21:24:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579037067;
-        bh=T4mKbdk3//UcfIzdvp4mpLugamu5k+cxX1gfTJDXVx8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LjckkEKLARsfNl5vK+Ij2IUUKu9pbDqFMxuSgkjr+h4Aq6krrlnEoOwUnPma70ZB7
-         yZ8QRZpQmPYa2onaIt9vDoKW+7b+JX2KIEzTr/efh2Tx9G2jwQszaOEH8PDaC/vi9O
-         L3bHLS68X5isxFhy9/LpzCq7hzWA1HT5epCat1RM=
-From:   Keith Busch <kbusch@kernel.org>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>
-Subject: [PATCH] fio: Use fixed opcodes for pre-mapped buffers
-Date:   Tue, 14 Jan 2020 13:24:24 -0800
-Message-Id: <20200114212424.8067-1-kbusch@kernel.org>
-X-Mailer: git-send-email 2.24.1
+        id S1728748AbgANV1o (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 14 Jan 2020 16:27:44 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:44030 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbgANV1o (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 14 Jan 2020 16:27:44 -0500
+Received: by mail-io1-f68.google.com with SMTP id n21so15486763ioo.10
+        for <io-uring@vger.kernel.org>; Tue, 14 Jan 2020 13:27:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=PNvthDK3XPKoyLuqFvFlayImRnOtyUVVw2nLWW5ztoA=;
+        b=HDJhwoUgoulliYTpzn50bLaTQZBGuvxwx3B95UxPd88s/KfhnBU95pLMv+80DrTmI5
+         +A+TfVKPLENsMLvsDgLqQIeM6to3I/W/b8vx39NEozsGVDC4xOJjDF1v+u3HCQRODAdb
+         Z4mRYd863BWi/JlShS/MifC4OskrqsI8ihH0xB7X2OVtfM3ZPKfFoiHnGh8g+/JX7pnL
+         SwR/80cWiHCd3eK2y4E2cLJrmopEVDvvx31UJZkEjfJ+3l1JzPK7DLbfV9Cf5bIVbhqn
+         ceYvA+n/xC9DLwROqdZtBCftI+yeHpHpEZ13ZOLqTNO2yhJoh+nWIjtDQrpEhRyo1v/7
+         /Phg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PNvthDK3XPKoyLuqFvFlayImRnOtyUVVw2nLWW5ztoA=;
+        b=R4UVrZd4/Rmsf1E2sr61UvYW/egoebIAe913IWxoEzRMk61xLMbgbYTijcF4wRTvA5
+         BTdNgw1tLUtlAt3EdqXr+60ocwuBOcE4XaqxtA1pqtaGR1IG6HDTzts5cIBmXnGCSECi
+         Ailm7e0/hbazLGQTehwrmAUxChX+kjBnUnPVXcgr00+JK3x49W4m7NBeGlMHBmLDcVFR
+         yPsY7o2Hyp/YnuICQnHJnFUQ0grKdll0iAlQYx9M0vlEdb8Cl/qksfryQCfGPY3rft39
+         TP70g3+hWelmyE2QUmFB54JefSo07EG5iJtEywB+WchfCilDHCUgfIH33SmslIiZFxZn
+         P9uA==
+X-Gm-Message-State: APjAAAXcNxMMKUin3oXhPSqCrtKlzA6kOLn8GoZ4Uts/TdLE4QVN7Gz6
+        VwvUDf+y5MF8GyWWpknAp5DYlzLoES8=
+X-Google-Smtp-Source: APXvYqw05dd45wEH107bSyFlY5J6BT8b84pQiAm2zNa8VUDtW2R0nn5xoeH2yX9RFB1yBUdaT+9GlQ==
+X-Received: by 2002:a5e:8703:: with SMTP id y3mr18432756ioj.308.1579037262922;
+        Tue, 14 Jan 2020 13:27:42 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id e184sm3710652iof.77.2020.01.14.13.27.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jan 2020 13:27:42 -0800 (PST)
+Subject: Re: [PATCH] fio: Use fixed opcodes for pre-mapped buffers
+To:     Keith Busch <kbusch@kernel.org>, io-uring@vger.kernel.org
+References: <20200114212424.8067-1-kbusch@kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <5fbb0b20-1464-01e7-34f1-023caa139030@kernel.dk>
+Date:   Tue, 14 Jan 2020 14:27:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200114212424.8067-1-kbusch@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Use the correct opcode when for reads and writes using the fixedbuf
-option, otherwise EINVAL errors will be returned to these requests.
+On 1/14/20 2:24 PM, Keith Busch wrote:
+> Use the correct opcode when for reads and writes using the fixedbuf
+> option, otherwise EINVAL errors will be returned to these requests.
 
-Fixes: b10b1e70a ("io_uring: add option for non-vectored read/write commands")
-Signed-off-by: Keith Busch <kbusch@kernel.org>
----
- engines/io_uring.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Oops, thanks for fixing!
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 4f6a9678..329f2f07 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -84,6 +84,11 @@ static const int ddir_to_op[2][2] = {
- 	{ IORING_OP_WRITEV, IORING_OP_WRITE }
- };
- 
-+static const int fixed_ddir_to_op[2] = {
-+	IORING_OP_READ_FIXED,
-+	IORING_OP_WRITE_FIXED
-+};
-+
- static int fio_ioring_sqpoll_cb(void *data, unsigned long long *val)
- {
- 	struct ioring_options *o = data;
-@@ -189,12 +194,13 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
--		sqe->opcode = ddir_to_op[io_u->ddir][!!o->nonvectored];
- 		if (o->fixedbufs) {
-+			sqe->opcode = fixed_ddir_to_op[io_u->ddir];
- 			sqe->addr = (unsigned long) io_u->xfer_buf;
- 			sqe->len = io_u->xfer_buflen;
- 			sqe->buf_index = io_u->index;
- 		} else {
-+			sqe->opcode = ddir_to_op[io_u->ddir][!!o->nonvectored];
- 			if (o->nonvectored) {
- 				sqe->addr = (unsigned long)
- 						ld->iovecs[io_u->index].iov_base;
 -- 
-2.24.1
+Jens Axboe
 

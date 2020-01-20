@@ -2,80 +2,76 @@ Return-Path: <SRS0=Znc1=3J=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E36BBC2D0DB
-	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 13:04:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D0FC32771
+	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 23:54:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B550620678
-	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 13:04:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3801206A5
+	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 23:54:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPEoGq4n"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="xthRybHM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbgATNEs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 20 Jan 2020 08:04:48 -0500
-Received: from mail-lf1-f48.google.com ([209.85.167.48]:44650 "EHLO
-        mail-lf1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbgATNEs (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 20 Jan 2020 08:04:48 -0500
-Received: by mail-lf1-f48.google.com with SMTP id v201so23982446lfa.11;
-        Mon, 20 Jan 2020 05:04:47 -0800 (PST)
+        id S1728655AbgATXyG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 20 Jan 2020 18:54:06 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:44651 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727144AbgATXyG (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 20 Jan 2020 18:54:06 -0500
+Received: by mail-pf1-f193.google.com with SMTP id 62so490046pfu.11
+        for <io-uring@vger.kernel.org>; Mon, 20 Jan 2020 15:54:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=uIDh6673+36Mkl2ZvEw5xAC4bzmHdxN5e8zYJYWTzbs=;
-        b=jPEoGq4nYojIAgVyPNmZxMeMDEhxW3IZXP2gd361txL8qpwK4SgihzYhK/7/wgvabX
-         XftxodJlGYWrbE7BvxsJMDy2ETMfzgtnOUHLH2IRLEqNy1DkdK4svYENw+p8xHcSDzkY
-         j51bN0cQ3l8oBuz1ZneBLH3iCSll82DdNdzxhbCZ8DajuztfuZro4bxEZc2ss87li6g8
-         0UY/+lmXTJMKCFZvPnTtgn6XjphyxXnArSa4C3HhcwG0b4QJO/vPSb0R1CxuG8TKOabc
-         E5OEpDYWmO/Cl05UWMJSFC+TQl0EVmJe72XabgMN52gDOncjcMR0rsj4qmvyVZU+P012
-         SaMQ==
+        bh=1HBSmKU6VWJGusJnZgNPYHvJl6U+C5QqbmbrNFUjXtk=;
+        b=xthRybHMqUIJNhqfPBYcYwztkyKr8+8ajjlSNJ6UjpH4OmxIcm437+hwTsgWL9TChQ
+         Y/rLMqSDuhYcSJDfdb9wE4iPQEoKdVjqIXADIQLhSSfaCkOswWLp/RQ7s0WNdM0YlsCc
+         tVDJx2qLcIcJxggHsvGqOYhtdJy+WDIpk3HFI+mK1Dp9TX3Y8A74KBeD8hqizpEi+iLm
+         mKOw6TV2KYVHbO2uuRrZwzcAZldFfaqysfnP2/YxwVpYvp3jwxzw8yX1J1HY67gDLpF5
+         27JVuHnGyAbTG83SNXq2hZmfodnXDCo7j4HZ9CS7r/1Nahb+Pu8GZaP2pRL4K3zaA+Py
+         ICvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=uIDh6673+36Mkl2ZvEw5xAC4bzmHdxN5e8zYJYWTzbs=;
-        b=JLytokWsjKajAj2mvaGRTfsCKXT4kpQzOHs/aWE178bKAL/ALzINbihMw6eqDbqwd1
-         K49H1L4Z/EmYWt8apQ1bVKaqaSXq17VcLYDGzjqRroNx05wRWQ/PGaffEdirwjamhhM+
-         Nl6M0KjV/T2OWO/uCSEjtBjTiZUPAKI2IvSJewabV/McWBtTosaTJtIJN6beOVrso0w6
-         yuxK7eREfyKdKAknzDrBSNftIG8qCAH0KvmRiYh1KQS5dRm429mxSgut+o9bvgITEXQA
-         KA7Md/9P8nPcm8KmfiVLMPKrZ0ZBGi2VGeS5d0CKa65PztCZTVDS7E1dOIPCCFSh8sbS
-         8G5g==
-X-Gm-Message-State: APjAAAXGoKgR5mr0YbBm6OXCUcvuSVAcA9wHKsuTRp7pau1aSFbmIDhG
-        NAywadNTFWzW5SE5zBb3KlA=
-X-Google-Smtp-Source: APXvYqzFcIFzaEGo+wir8nSnvFOnz1W7nJsaZmNG4xQLmGT26eGdig80DhljY5xF1nECTgan8nQVmw==
-X-Received: by 2002:ac2:5ec3:: with SMTP id d3mr13751765lfq.176.1579525486492;
-        Mon, 20 Jan 2020 05:04:46 -0800 (PST)
-Received: from [172.31.190.83] ([86.57.146.226])
-        by smtp.gmail.com with ESMTPSA id t7sm5562049ljo.7.2020.01.20.05.04.45
+        bh=1HBSmKU6VWJGusJnZgNPYHvJl6U+C5QqbmbrNFUjXtk=;
+        b=TDVUzaufWKh5rn5kL2SwsFnvxA/9Gfcn00h6bgX0/NqnGBjYhyQ/kdxycaWCt0Gf/p
+         053nJ2q7HziHA7dSUGFOUSkKpNYonzOLyDfTSbXhoCH6GSHccsswfJESKjhQ+JuTFy9T
+         /lwLWYxUuUx3p2mIKGT+xJJo8LqgQRYqsO4JL9aHXtFALvV9VoJxPaKuhzL6PR/iDZK5
+         VTHSTNYNrxI52silI1kFj+qHA+eA/yWt6UgDGu+wWhgDlDBgpNJvrcq+kU9OweinIN3W
+         7e5mu1nCd/FiqajQGbZ92kaQYEnCVuWqzrKyVhcpkzyb+Pjs3e5bhOXektefqMqAVvix
+         4UXw==
+X-Gm-Message-State: APjAAAV1XGE5uhFG2qgAhllwqCWokF7+YmkNLcNmhbDSev5X1fUYyiMB
+        E0JwmjomU3ALgO8bU8mnQiA+Kw==
+X-Google-Smtp-Source: APXvYqwh4IP0P2LQk3C0ppEeB6sPqpE/3ZKVaGx/ha45D3S0aKVy0xXWq+G0hiXpLhXU4vJdtIhPZg==
+X-Received: by 2002:a63:e4f:: with SMTP id 15mr2221691pgo.398.1579564444923;
+        Mon, 20 Jan 2020 15:54:04 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id n4sm38125483pgg.88.2020.01.20.15.54.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jan 2020 05:04:45 -0800 (PST)
-Subject: Re: [PATCHSET v2 0/6] io_uring: add support for open/close
-To:     Stefan Metzmacher <metze@samba.org>, Jens Axboe <axboe@kernel.dk>,
-        io-uring@vger.kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
-References: <20200107170034.16165-1-axboe@kernel.dk>
- <e4fb6287-8216-529e-9666-5ec855db02fb@samba.org>
- <4adb30f4-2ab3-6029-bc94-c72736b9004a@kernel.dk>
- <4dffd58e-5602-62d5-d1af-343c4a091ed9@samba.org>
- <eb99e387-f385-c36d-b1d9-f99ec470eba6@kernel.dk>
- <9a407238-5505-c446-80b7-086646dd15be@kernel.dk>
- <d4d3fa40-1c59-a48a-533b-c8b221e0f221@samba.org>
- <7324bbb7-8f7b-c0c6-6a45-48b8b77c4be8@kernel.dk>
- <da05b8e8-4ef4-7527-36d5-511a192460f0@samba.org>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <2fae1d5a-4dad-6435-04e9-e544c6c17f27@gmail.com>
-Date:   Mon, 20 Jan 2020 16:04:44 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        Mon, 20 Jan 2020 15:54:04 -0800 (PST)
+Subject: Re: [PATCH] io_uring: fix compat for IORING_REGISTER_FILES_UPDATE
+To:     "Dmitry V. Levin" <ldv@altlinux.org>
+Cc:     Eugene Syromiatnikov <esyr@redhat.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-kernel@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>
+References: <20200115163538.GA13732@asgard.redhat.com>
+ <cce5ac48-641d-3051-d22c-dab7aaa5704c@kernel.dk>
+ <20200115165017.GI1333@asgard.redhat.com>
+ <a039f869-6377-b8b0-e170-0b5c17ebd4da@kernel.dk>
+ <20200120235146.GA12351@altlinux.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ef31935e-7b4e-9e28-cf8f-ed3cb954db22@kernel.dk>
+Date:   Mon, 20 Jan 2020 16:54:02 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <da05b8e8-4ef4-7527-36d5-511a192460f0@samba.org>
+In-Reply-To: <20200120235146.GA12351@altlinux.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -84,46 +80,46 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/20/2020 3:15 PM, Stefan Metzmacher wrote:
-> Hi Jens,
-> 
->>> Thanks!
+On 1/20/20 4:51 PM, Dmitry V. Levin wrote:
+> On Wed, Jan 15, 2020 at 09:53:27AM -0700, Jens Axboe wrote:
+>> On 1/15/20 9:50 AM, Eugene Syromiatnikov wrote:
+>>> On Wed, Jan 15, 2020 at 09:41:58AM -0700, Jens Axboe wrote:
+>>>> On 1/15/20 9:35 AM, Eugene Syromiatnikov wrote:
+>>>>> fds field of struct io_uring_files_update is problematic with regards
+>>>>> to compat user space, as pointer size is different in 32-bit, 32-on-64-bit,
+>>>>> and 64-bit user space.  In order to avoid custom handling of compat in
+>>>>> the syscall implementation, make fds __u64 and use u64_to_user_ptr in
+>>>>> order to retrieve it.  Also, align the field naturally and check that
+>>>>> no garbage is passed there.
+>>>>
+>>>> Good point, it's an s32 pointer so won't align nicely. But how about
+>>>> just having it be:
+>>>>
+>>>> struct io_uring_files_update {
+>>>> 	__u32 offset;
+>>>> 	__u32 resv;
+>>>> 	__s32 *fds;
+>>>> };
+>>>>
+>>>> which should align nicely on both 32 and 64-bit?
 >>>
->>> Another great feature would the possibility to make use of the
->>> generated fd in the following request.
->>>
->>> This is a feature that's also available in the SMB3 protocol
->>> called compound related requests.
->>>
->>> The client can compound a chain with open, getinfo, read, close
->>> getinfo, read and close get an file handle of -1 and implicitly
->>> get the fd generated/used in the previous request.
+>>> The issue is that 32-bit user space would pass a 12-byte structure with
+>>> a 4-byte pointer in it to the 64-bit kernel, that, in turn, would treat it
+>>> as a 8-byte value (which might sometimes work on little-endian architectures,
+>>> if there are happen to be zeroes after the pointer, but will be always broken
+>>> on big-endian ones). __u64 is used in order to avoid special compat wrapper;
+>>> see, for example, __u64 usage in btrfs or BPF for similar purposes.
 >>
->> Right, the "plan" there is to utilize BPF to make this programmable.
->> We really need something more expressive to be able to pass information
->> between SQEs that are linked, or even to decide which link to run
->> depending on the outcome of the parent.
->>
->> There's a lot of potential there!
+>> Ah yes, I'm an idiot, apparently not enough coffee yet. We'd need it in
+>> a union for this to work. I'll just go with yours, it'll work just fine.
+>> I will fold it in, I need to make some updates and rebase anyway.
 > 
-> I guess so, but I don't yet understand how BPF works in real life.
-> 
-> Is it possible to do that as normal user without special privileges?
-> 
-> My naive way would be using some flags and get res and pass fd by reference.
-> 
-Just have been discussing related stuff. See the link if curious
-https://github.com/axboe/liburing/issues/58
+> I see the patch has missed v5.5-rc7.
+> Jens, please make sure a fix is merged before v5.5 is out.
 
-To summarise, there won't be enough flags to cover all use-cases and it
-will slow down the common path. There should be something with
-zero-overhead if the feature is not used, and that's not the case with
-flags. That's why it'd be great to have a custom eBPF program
-(in-kernel) controlling what and how to do next.
-
-I don't much about eBPF internals, but probably we will be able to
-attach an eBPF program to io_uring instance. Though, not sure whether it
-could be done without privileges.
+Ah shoot, I actually thought I added it for 5.6 only, but you are right,
+it's in 5.5-rc as well. I'll ship a patch this week for 5.5.
 
 -- 
-Pavel Begunkov
+Jens Axboe
+

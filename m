@@ -1,88 +1,84 @@
-Return-Path: <SRS0=Znc1=3J=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=pmpl=3K=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C2AC32771
-	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 23:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DF68C2D0DB
+	for <io-uring@archiver.kernel.org>; Tue, 21 Jan 2020 07:50:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E870B206A5
-	for <io-uring@archiver.kernel.org>; Mon, 20 Jan 2020 23:56:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D2532253D
+	for <io-uring@archiver.kernel.org>; Tue, 21 Jan 2020 07:50:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b="WlRS+koT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727075AbgATX44 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 20 Jan 2020 18:56:56 -0500
-Received: from vmicros1.altlinux.org ([194.107.17.57]:55550 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727045AbgATX44 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 20 Jan 2020 18:56:56 -0500
-X-Greylist: delayed 307 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Jan 2020 18:56:55 EST
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id B565F72CC6C;
-        Tue, 21 Jan 2020 02:51:46 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-        id 8A2B77CC68F; Tue, 21 Jan 2020 02:51:46 +0300 (MSK)
-Date:   Tue, 21 Jan 2020 02:51:46 +0300
-From:   "Dmitry V. Levin" <ldv@altlinux.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Eugene Syromiatnikov <esyr@redhat.com>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-kernel@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>
-Subject: Re: [PATCH] io_uring: fix compat for IORING_REGISTER_FILES_UPDATE
-Message-ID: <20200120235146.GA12351@altlinux.org>
-References: <20200115163538.GA13732@asgard.redhat.com>
- <cce5ac48-641d-3051-d22c-dab7aaa5704c@kernel.dk>
- <20200115165017.GI1333@asgard.redhat.com>
- <a039f869-6377-b8b0-e170-0b5c17ebd4da@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a039f869-6377-b8b0-e170-0b5c17ebd4da@kernel.dk>
+        id S1726729AbgAUHu5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 21 Jan 2020 02:50:57 -0500
+Received: from mr85p00im-zteg06021901.me.com ([17.58.23.194]:37170 "EHLO
+        mr85p00im-zteg06021901.me.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726052AbgAUHu5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 21 Jan 2020 02:50:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
+        s=1a1hai; t=1579593057;
+        bh=n7vfXMRClMw4n+fIEJaetT2FJfeZ5VhDXZpEr2E1W7k=;
+        h=From:Content-Type:Subject:Message-Id:Date:To;
+        b=WlRS+koTCrknyYe47Pd/soj3b9KrKPco+896OMxVfELG+VrqD8u0vxMkN9jwYP8yp
+         nnASjgn8/OWo0omVhz+tHIk4ikbpVSvrGfd7m9FjTElpEp5DHSGSDmdPPWiCOoqP/W
+         TH00aQ0lcSqAMOZKNiP7fMv+E1X3/IW0ehZQFl4PE1/MY3BDL4S68pvWxU4UmuVdr9
+         CNFPiEcMpmBVPKK81NCCfr9LGAZ21XKZzc3IoG8rLhwChMA2vsfKOwhFhUWtj+nsCk
+         MF9gwJasuWCU+M5i6YU07G+vHSz6vLieXRGvY51NOIlY++TGNCegqMUgw1bm2thY0v
+         bjmJDIkR4uGew==
+Received: from [192.168.10.177] (louloudi.phaistosnetworks.gr [139.91.200.222])
+        by mr85p00im-zteg06021901.me.com (Postfix) with ESMTPSA id 9754F7206D6
+        for <io-uring@vger.kernel.org>; Tue, 21 Jan 2020 07:50:56 +0000 (UTC)
+From:   Mark Papadakis <markuspapadakis@icloud.com>
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.40.2.2.4\))
+Subject: Extending the functionality of some SQE OPs
+Message-Id: <30608E23-1CE9-4830-BC95-8D57BCB4CCE8@icloud.com>
+Date:   Tue, 21 Jan 2020 09:50:54 +0200
+To:     io-uring <io-uring@vger.kernel.org>
+X-Mailer: Apple Mail (2.3608.40.2.2.4)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2020-01-21_01:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 clxscore=1015 mlxscore=0
+ mlxlogscore=566 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-2001210068
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 09:53:27AM -0700, Jens Axboe wrote:
-> On 1/15/20 9:50 AM, Eugene Syromiatnikov wrote:
-> > On Wed, Jan 15, 2020 at 09:41:58AM -0700, Jens Axboe wrote:
-> >> On 1/15/20 9:35 AM, Eugene Syromiatnikov wrote:
-> >>> fds field of struct io_uring_files_update is problematic with regards
-> >>> to compat user space, as pointer size is different in 32-bit, 32-on-64-bit,
-> >>> and 64-bit user space.  In order to avoid custom handling of compat in
-> >>> the syscall implementation, make fds __u64 and use u64_to_user_ptr in
-> >>> order to retrieve it.  Also, align the field naturally and check that
-> >>> no garbage is passed there.
-> >>
-> >> Good point, it's an s32 pointer so won't align nicely. But how about
-> >> just having it be:
-> >>
-> >> struct io_uring_files_update {
-> >> 	__u32 offset;
-> >> 	__u32 resv;
-> >> 	__s32 *fds;
-> >> };
-> >>
-> >> which should align nicely on both 32 and 64-bit?
-> > 
-> > The issue is that 32-bit user space would pass a 12-byte structure with
-> > a 4-byte pointer in it to the 64-bit kernel, that, in turn, would treat it
-> > as a 8-byte value (which might sometimes work on little-endian architectures,
-> > if there are happen to be zeroes after the pointer, but will be always broken
-> > on big-endian ones). __u64 is used in order to avoid special compat wrapper;
-> > see, for example, __u64 usage in btrfs or BPF for similar purposes.
-> 
-> Ah yes, I'm an idiot, apparently not enough coffee yet. We'd need it in
-> a union for this to work. I'll just go with yours, it'll work just fine.
-> I will fold it in, I need to make some updates and rebase anyway.
+Would it make sense to extend the semantics of some OPS of specific =
+syscalls to, for example, return in the CQE more than just an int =
+(matching the semantics of the specific syscall they represent)?
+For example, the respective OP for accept/accept4 returns an int for =
+error or the fd of the accepted connection=E2=80=99s socket FD. But, =
+given the clean-room implementation of io_uring, this may be a good =
+opportunity to expand on it. Maybe there should be another field in the =
+CQEs e.g
+union {
+	int i32;
+	uint64_t u64;
+	// whatever makes sense
+} ret_ex;
+Where the implementation of some OPs would access and set accordingly. =
+For example, the OP for accept could set ret_ex.i32 to 1 if there are =
+more outstanding FDs to be dequeued from the accepted connections queue, =
+so that the application should accept again thereby draining it - as =
+opposed to being woken up multiple times to do so. Other OPs may take =
+advantage of this for other reasons.
 
-I see the patch has missed v5.5-rc7.
-Jens, please make sure a fix is merged before v5.5 is out.
-Thanks,
+Maybe it doesn=E2=80=99t make as much sense as I think it does, but if =
+anything, it could become very useful down the road, once more =
+syscalls(even OPs that are entirely new are not otherwise represent =
+existing syscalls?) are implemented(invented?).=20
 
+@markpapadakis
 
--- 
-ldv

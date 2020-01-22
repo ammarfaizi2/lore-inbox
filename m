@@ -2,96 +2,106 @@ Return-Path: <SRS0=hAot=3L=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 639DEC2D0DB
-	for <io-uring@archiver.kernel.org>; Wed, 22 Jan 2020 18:11:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B665FC2D0DB
+	for <io-uring@archiver.kernel.org>; Wed, 22 Jan 2020 18:22:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3E8AC2465A
-	for <io-uring@archiver.kernel.org>; Wed, 22 Jan 2020 18:11:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 91E8624125
+	for <io-uring@archiver.kernel.org>; Wed, 22 Jan 2020 18:22:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="vukrzSTx"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="erJ/uiZv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgAVSL1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 22 Jan 2020 13:11:27 -0500
-Received: from mail-io1-f66.google.com ([209.85.166.66]:35470 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725802AbgAVSL0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 22 Jan 2020 13:11:26 -0500
-Received: by mail-io1-f66.google.com with SMTP id h8so228583iob.2
-        for <io-uring@vger.kernel.org>; Wed, 22 Jan 2020 10:11:26 -0800 (PST)
+        id S1725933AbgAVSWp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 22 Jan 2020 13:22:45 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:36530 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725883AbgAVSWp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 22 Jan 2020 13:22:45 -0500
+Received: by mail-qk1-f194.google.com with SMTP id a203so695386qkc.3
+        for <io-uring@vger.kernel.org>; Wed, 22 Jan 2020 10:22:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=jqXPtP0DSRmVKhqphPBt4y7dwJM01Y30wLczhsxzbME=;
-        b=vukrzSTxKaE4XaoBk6bU3Nlf+smUPHMtGWeavBG3yJaXK87HmyYZj9WbWbALBk9NW8
-         lIU1kY9DqAxUV6r5xWtTwfty9QP4n9qo/hQX9svNvg7uvl3wnjlecqGQYJrK4Y1jiwH9
-         Hl9vWMOWM6bl7sUWhrECXRkieOL+RcB0FHk3PhDmpweUNbhhFioCK+fINwMr6D4kUUYP
-         e9FSjZuBHfBrXLRyNtlCHpaPgi3cizhbvf/Mzw9ev6ROryeXq0fNqF9It0fS8LdwJUBn
-         IKgxVXzdtZ+zguPv+m4m/E0DMHkAXC4MrlHe47pJEppBd0RPoUDeFaaoSl6bK/LxrQsF
-         Gzow==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=/d28B8yyvZAdMcA1SY8sdyiXZW+LLIU+XVej7Qh48tU=;
+        b=erJ/uiZvSj0ZrgPRdm+V2UV0Ki7V8nyiGny9Xb941ajphOy2QNT5eepZ9DB8DSShiK
+         Ppx6yLID0hihmkt5MwboPEP5ibzOEmFxMwLAoOHhadHVE0nBlI+myrRs9AJeQ/LC54mq
+         ldahtkI4OHbB0Kugpu94KwbUbHyWUtqWRG+xaxygjL1IxDBCTb5WRL+nfX9QYIJflLv7
+         q+aC+BCFiWd8eGr9qf2JFhqnwYmVMsedP74mwrXgB4qDdkmK0RMGf2BLOtqUUnKjlCO3
+         /EQVGtOCO1wmOLDMFUlsg0pE8Laqt2EXrO7Mn0yMC9fcBHn3VW9TdmOIcgdx2rPle4zB
+         0K3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=jqXPtP0DSRmVKhqphPBt4y7dwJM01Y30wLczhsxzbME=;
-        b=bHewfh+TfJtUWEAlRC1HH6WtKZigcpLQUenenpqWwaNToLDDtgMQXqBIcQeS168N9k
-         JWJA8TVcZbAhzwC51IN7twT/m2i5+8aKnnQwqi2+lNbmnMoct3PmbO/sn9764jlupgCi
-         kdCrVhKy9pIIjTfjNqV8FWfQo1Tv5olaWrQdmhgZiELBR8xWCYNmFppX9PUZeAgu84DY
-         GRZLjG9sgayVtNBfmnS+MfBsHcVagoAtWQ3bUT3sXOuqij0Mlymz+myOU9lnejZ5XBLa
-         NSI4x3CQYyVMwMvKtnPoSEH3Uu/KCi6ShFbWZUUxSKxFKZmZk8+9khc+HQoAwL0Ay3xy
-         gFHg==
-X-Gm-Message-State: APjAAAWneAiJC4TlEMeTBBLYx49bvtbEifu5yYAURLiXPTLiVBAl1a5Z
-        A40sMhMi5EYJyuYV2oYZ9vKZPLC+3DM=
-X-Google-Smtp-Source: APXvYqzlYzfSDltE9JTwlj7N+/Alss17UInp16VlGmtujj3bMuTfHv32U3EO3e9zORRLYeEIWfCunw==
-X-Received: by 2002:a02:6055:: with SMTP id d21mr4698519jaf.21.1579716685670;
-        Wed, 22 Jan 2020 10:11:25 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id a6sm14598490iln.87.2020.01.22.10.11.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jan 2020 10:11:24 -0800 (PST)
-Subject: Re: First kernel version with uring sockets support
-To:     Dmitry Sychov <dmitry.sychov@gmail.com>, io-uring@vger.kernel.org
-References: <CADPKF+cOiZ9ydRVzpj1GN4amjzoyH1Y_NRA7PZ4CLPpb-FrYfQ@mail.gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <7a6ee3ab-6786-7fdd-05d4-a5ee9f078e6a@kernel.dk>
-Date:   Wed, 22 Jan 2020 11:11:23 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=/d28B8yyvZAdMcA1SY8sdyiXZW+LLIU+XVej7Qh48tU=;
+        b=FQI1b/LCumx4dCs4v4cQtvD7WAC5xBgPQ2TtmzaQROKl1l/B4BHXxxFI7Zd3ovGUWR
+         vHWIn/Oz1jQNFiz2JqXV7fUTNgmAArFl6kKqoDujmaZTiiEOxcU7KHyJKOdW6nEnBzz8
+         3DT7Kp7zDURDaXikFQXN6up1qWmjFV8F2oiDzC8G9yMB08oW1iGxg+Pyk18M/b3vxrN5
+         lhGZeH3w6tJqYzm9WM41Oa2kIAN6M7Id5zdGkiM4c30NH0cWBk56GeDw86l12DDz4NVJ
+         oEy3r8QaeH4RpgUrO8Aj/4+ygnkDq03P/zsXCwDIlbBJHkxprV9XR/Nz6RtX5bMb6Oo1
+         Gj/Q==
+X-Gm-Message-State: APjAAAXgiaBcUuWbcAjX9s3LsdOPDaVOXi1COyZH5cBt/WLuRoYKWoyU
+        xXNZG+ul8U6BL34Md9yhGtg7HbIMtRVc+k3NK+jD863jaPixf2M=
+X-Google-Smtp-Source: APXvYqwCXbsrTgTWggEPDfsl+wWczr+0Y7wAkdBQQgPh68ZOXS2ke3bpQrIKKzlVakywtB3G6SyJ9AQaQdxhHugl06o=
+X-Received: by 2002:a05:620a:4db:: with SMTP id 27mr11920089qks.146.1579717364069;
+ Wed, 22 Jan 2020 10:22:44 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CADPKF+cOiZ9ydRVzpj1GN4amjzoyH1Y_NRA7PZ4CLPpb-FrYfQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CADPKF+cOiZ9ydRVzpj1GN4amjzoyH1Y_NRA7PZ4CLPpb-FrYfQ@mail.gmail.com>
+ <7a6ee3ab-6786-7fdd-05d4-a5ee9f078e6a@kernel.dk>
+In-Reply-To: <7a6ee3ab-6786-7fdd-05d4-a5ee9f078e6a@kernel.dk>
+From:   Dmitry Sychov <dmitry.sychov@gmail.com>
+Date:   Wed, 22 Jan 2020 21:22:12 +0300
+Message-ID: <CADPKF+d_B=CqL1cYttB-8H2n5XTHth_auUMM3B+2yPuc3g9q4w@mail.gmail.com>
+Subject: Re: First kernel version with uring sockets support
+To:     io-uring@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/22/20 11:08 AM, Dmitry Sychov wrote:
-> It's unclear starting from what version the kernel and headers
-> were updated with sockets support(IORING_OP_ACCEPT etc).
-> 
-> I just checked today 2020/01/22 Focal Rossa Ubuntu and the last OP is
-> only IORING_OP_TIMEOUT (still on kernel 5.4.0-12) ;(
+> You mean the one in liburing?
 
-Yeah, you'll need 5.5 for that.
+I'am referring to
+https://github.com/frevib/io_uring-echo-server/blob/master/src/include/liburing/io_uring.h
+with sockets OPs as the latest interface reference, thinking it will
+help the io_uring newcomers if
+IORING_OP_* lines will have corresponding comments of the minimum
+kernel requirement for now and the future.
 
-> So maybe it's a good idea to comment-update every io_uring.h OP with
-> minimum kernel version requirement...
+For example I was almost totally sure that sockets were the first
+uring-supported thing.
 
-You mean the one in liburing?
+> Yeah, you'll need 5.5 for that.
 
-> p.s. Not every Linux user is a kernel hacker ;)
+I see, thanks :)
 
-Definitely! This will be solved with 5.6 that introduces a probe
-command, so you can query the running kernel for what opcodes it
-supports. For now, it's not that easy, unfortunately...
-
--- 
-Jens Axboe
-
+On Wed, Jan 22, 2020 at 9:11 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 1/22/20 11:08 AM, Dmitry Sychov wrote:
+> > It's unclear starting from what version the kernel and headers
+> > were updated with sockets support(IORING_OP_ACCEPT etc).
+> >
+> > I just checked today 2020/01/22 Focal Rossa Ubuntu and the last OP is
+> > only IORING_OP_TIMEOUT (still on kernel 5.4.0-12) ;(
+>
+> Yeah, you'll need 5.5 for that.
+>
+> > So maybe it's a good idea to comment-update every io_uring.h OP with
+> > minimum kernel version requirement...
+>
+> You mean the one in liburing?
+>
+> > p.s. Not every Linux user is a kernel hacker ;)
+>
+> Definitely! This will be solved with 5.6 that introduces a probe
+> command, so you can query the running kernel for what opcodes it
+> supports. For now, it's not that easy, unfortunately...
+>
+> --
+> Jens Axboe
+>

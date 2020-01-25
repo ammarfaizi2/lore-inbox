@@ -5,62 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C023C2D0DB
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 19:55:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78730C2D0DB
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 19:55:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1006D2071A
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 19:55:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C4872071E
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 19:55:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bEXIEQYY"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FTw0xHtH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727440AbgAYTyf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 25 Jan 2020 14:54:35 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:46732 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726448AbgAYTye (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jan 2020 14:54:34 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z7so6096876wrl.13;
-        Sat, 25 Jan 2020 11:54:33 -0800 (PST)
+        id S1728925AbgAYTy7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 25 Jan 2020 14:54:59 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:56317 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728449AbgAYTyn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jan 2020 14:54:43 -0500
+Received: by mail-wm1-f68.google.com with SMTP id q9so2754403wmj.5;
+        Sat, 25 Jan 2020 11:54:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8RoD2H7qPI6zulor9SzhU8VE6jlNRdcnq7GpQz8w048=;
-        b=bEXIEQYYqfky7P8l5UlFGMVVqyFEMOHehRjw04BkYmM1bsbMyXzgz3lmRhidXnpBkP
-         sXftcM7b/ISwx9VV2Zd/TL4yd4+I3lIuROc3ahhG+/89BdN9AfEkSASH1jjMy7UlWRoW
-         f4nlCjZV+opqDnK2oIG1hhqPqRtGonTnx4aYtHDcLsv3ujMVoiFcZH7lbt/994wmj/lr
-         itRZwSArZSjEScdbPKyKqMgoJ1hNxgWXKvVe1CdsIZ9U3szqAOKaPpJir4Pr7Ym+b1YW
-         9RkoLqSWIkKAxkW9/9gdouIV33cpyoLHUegnZRMMcidX7B/D9i72deHQfvsiE5BfEl/v
-         Rcmw==
+        bh=mnYreOf4qLTvHSCPF33ma4KYvKiUKV+GebuEk6tceUk=;
+        b=FTw0xHtHT0FI/HznR24JqGJraOzLmsOvZXvSF/CN8Vat0M3gNYUpmpULDBJYUILL2U
+         SKodhhuOAtiD8bMIbGJH5rdfE2nUprXDwPvoHakHGowU2pH3Rwbj2RENoo6UsbL09QvU
+         DkYvGq1KEHmKfHVmZR0NUYsp8u8OiucRlRtboDnMPnKuAqEJmPpSA15PTU2gnMEZjVYw
+         WELZyhptU2IyPXU6e7iRxjHdOz3y6RnTMwgXzFUy/aRXid9SYU3GDIv/VhwLOnxOzwbG
+         gEfv8UBbuYrn/RT/eVyJEqqDmFGc7AlEACypcBq6F+en+FkReSn2UN3Rx7AcSJrJo4+M
+         aYjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8RoD2H7qPI6zulor9SzhU8VE6jlNRdcnq7GpQz8w048=;
-        b=T1Dn2rNiFSEZf1UlnNZERJBOvjuOtZkKQYjE/Ko6nAhdZxIUsbioKsuRphygZPNQnQ
-         OIZ+OPb8Y2bs34jsKqBlZCbG3Sxcs3PkLGiOwzl54dbmVmX7b9I31RPkyV8lS6bAJAh7
-         4cAFNUaKL+8Yr/j+7WmnPWfFcq9/Taj4plEdWyO2sutgA5OE6pDQ6cvZmV2X0LJBbmMo
-         xb3nlLHBnusb53eOfvNpA8JgML9LEm+IPUhnd+PkYqwam9S01SQ1ffvuSv/okixm+xhX
-         xTVvGQ/cIYxAbrmm9N32nNWDqBoyEox4DiStz20uomE6BiFqpcIbYGxwvuIB8TBbkd2d
-         HiTA==
-X-Gm-Message-State: APjAAAUZoGfXxfVMoMxiqVZWYFG6ybiG8u+3h6tuDTdai0yxE6CxBSPT
-        MYfAGm02e3OpWNz9lGv+k6Gk1PGa
-X-Google-Smtp-Source: APXvYqzPy0hxvhKLKHBtGZUdTMIUHOKvXj+rY4kSQvCdkNktl4wdwBeP70ll0P2PrkI5Qg6VDUECDQ==
-X-Received: by 2002:adf:df83:: with SMTP id z3mr11545495wrl.389.1579982072556;
-        Sat, 25 Jan 2020 11:54:32 -0800 (PST)
+        bh=mnYreOf4qLTvHSCPF33ma4KYvKiUKV+GebuEk6tceUk=;
+        b=nRwf6sxxzPWX4iEPtu4cUfcMdj1BhZV4PahQ1eHLIkq5rkW1/4VdT/CPaLY+OX64ba
+         wV1vlHkrI5zhz1tRTiFATF76Cx3hNi+M4wjEWxaYrRbfASRSJcUr3WevHzRiRj2ARYi3
+         SxZBSwTBmnz8nHQKT1I0EQ4yh2MOjmBjSjuLnE79T/pYgdiEiVWggAwjju7gsDN3xiYB
+         vT0w1iQUJEpK6coVzclkxQUZJyD8pUpWoGEMjcq0SkbJZq6owJNv5H9INwoTZxowmjyj
+         F4cDUlqOWAsQATjb/lIfdDfvlEfTbjLtrPzo2dSC2sd5bSZRrNyOGLXwRDjYLBFp1m4n
+         3i3Q==
+X-Gm-Message-State: APjAAAWyq4O+LfkSx/SLZ+qFF0fhT2xeGETQtT4mTAbJdzWEjCCPcc/V
+        /f2N9QFLn3PUPfg1BtokJnI=
+X-Google-Smtp-Source: APXvYqz1n5M6hc4+slLK4huM1W4U7lZIT36HBxtrrWduCzjZUTSt78E2ufC5+mnnUcNoC/InXvRXlA==
+X-Received: by 2002:a7b:cbd6:: with SMTP id n22mr5627788wmi.118.1579982081165;
+        Sat, 25 Jan 2020 11:54:41 -0800 (PST)
 Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id m21sm11883712wmi.27.2020.01.25.11.54.30
+        by smtp.gmail.com with ESMTPSA id m21sm11883712wmi.27.2020.01.25.11.54.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jan 2020 11:54:32 -0800 (PST)
+        Sat, 25 Jan 2020 11:54:40 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/8] io_uring: leave a comment for drain_next
-Date:   Sat, 25 Jan 2020 22:53:38 +0300
-Message-Id: <fba3559e833b7d220cf6a12ecbf9ac3856154979.1579981749.git.asml.silence@gmail.com>
+Subject: [PATCH v2 5/8] io_uring: move cur_mm into io_submit_state
+Date:   Sat, 25 Jan 2020 22:53:42 +0300
+Message-Id: <6c35a5a4bf7d0f501c64cab8d971ff282d83c4ac.1579981749.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1579981749.git.asml.silence@gmail.com>
 References: <cover.1579981749.git.asml.silence@gmail.com>
@@ -71,31 +71,145 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Draining the middle of a link is tricky, so leave a comment there
+cur_mm is only used per submission, so it could be place into
+io_submit_state. There is the reasoning behind:
+- it's more convenient, don't need to pass it down the call stack
+- it's passed as a pointer, so in either case needs memory read/write
+- now uses heap (ctx->submit_state) instead of stack
+- set only once for non-IORING_SETUP_SQPOLL case.
+- generates pretty similar code as @ctx is hot and always somewhere in a
+register
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/io_uring.c | 46 ++++++++++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e79d6e47dc7b..bc1cab6a256a 100644
+index 4597f556d277..880c0e9bbe9e 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4702,6 +4702,13 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (*link) {
- 		struct io_kiocb *head = *link;
+@@ -219,6 +219,8 @@ struct io_submit_state {
  
-+		/*
-+		 * Taking sequential execution of a link, draining both sides
-+		 * of the link also fullfils IOSQE_IO_DRAIN semantics for all
-+		 * requests in the link. So, it drains the head and the
-+		 * next after the link request. The last one is done via
-+		 * drain_next flag to persist the effect across calls.
-+		 */
- 		if (sqe_flags & IOSQE_IO_DRAIN) {
- 			head->flags |= REQ_F_IO_DRAIN;
- 			ctx->drain_next = 1;
+ 	struct file		*ring_file;
+ 	int			ring_fd;
++
++	struct mm_struct	*mm;
+ };
+ 
+ struct io_ring_ctx {
+@@ -4834,8 +4836,7 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ }
+ 
+ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+-			  struct file *ring_file, int ring_fd,
+-			  struct mm_struct **mm, bool async)
++			  struct file *ring_file, int ring_fd, bool async)
+ {
+ 	struct blk_plug plug;
+ 	struct io_kiocb *link = NULL;
+@@ -4883,15 +4884,15 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			break;
+ 		}
+ 
+-		if (io_op_defs[req->opcode].needs_mm && !*mm) {
++		if (io_op_defs[req->opcode].needs_mm && !ctx->submit_state.mm) {
+ 			mm_fault = mm_fault || !mmget_not_zero(ctx->sqo_mm);
+ 			if (!mm_fault) {
+ 				use_mm(ctx->sqo_mm);
+-				*mm = ctx->sqo_mm;
++				ctx->submit_state.mm = ctx->sqo_mm;
+ 			}
+ 		}
+ 
+-		req->has_user = *mm != NULL;
++		req->has_user = (ctx->submit_state.mm != NULL);
+ 		req->in_async = async;
+ 		req->needs_fixed_file = async;
+ 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
+@@ -4921,7 +4922,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ static int io_sq_thread(void *data)
+ {
+ 	struct io_ring_ctx *ctx = data;
+-	struct mm_struct *cur_mm = NULL;
++	struct io_submit_state *submit = &ctx->submit_state;
+ 	const struct cred *old_cred;
+ 	mm_segment_t old_fs;
+ 	DEFINE_WAIT(wait);
+@@ -4996,10 +4997,15 @@ static int io_sq_thread(void *data)
+ 			 * adding ourselves to the waitqueue, as the unuse/drop
+ 			 * may sleep.
+ 			 */
+-			if (cur_mm) {
+-				unuse_mm(cur_mm);
+-				mmput(cur_mm);
+-				cur_mm = NULL;
++			if (submit->mm) {
++				/*
++				 * this thread is the only submitter, thus
++				 * it's safe to change submit->mm without
++				 * taking ctx->uring_lock
++				 */
++				unuse_mm(submit->mm);
++				mmput(submit->mm);
++				submit->mm = NULL;
+ 			}
+ 
+ 			prepare_to_wait(&ctx->sqo_wait, &wait,
+@@ -5030,16 +5036,17 @@ static int io_sq_thread(void *data)
+ 		}
+ 
+ 		mutex_lock(&ctx->uring_lock);
+-		ret = io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm, true);
++		ret = io_submit_sqes(ctx, to_submit, NULL, -1, true);
+ 		mutex_unlock(&ctx->uring_lock);
+ 		if (ret > 0)
+ 			inflight += ret;
+ 	}
+ 
+ 	set_fs(old_fs);
+-	if (cur_mm) {
+-		unuse_mm(cur_mm);
+-		mmput(cur_mm);
++	if (submit->mm) {
++		unuse_mm(submit->mm);
++		mmput(submit->mm);
++		submit->mm = NULL;
+ 	}
+ 	revert_creds(old_cred);
+ 
+@@ -5760,6 +5767,10 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ 	mmgrab(current->mm);
+ 	ctx->sqo_mm = current->mm;
+ 
++	ctx->submit_state.mm = NULL;
++	if (!(ctx->flags & IORING_SETUP_SQPOLL))
++		ctx->submit_state.mm = ctx->sqo_mm;
++
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		ret = -EPERM;
+ 		if (!capable(CAP_SYS_ADMIN))
+@@ -6372,8 +6383,6 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 			wake_up(&ctx->sqo_wait);
+ 		submitted = to_submit;
+ 	} else if (to_submit) {
+-		struct mm_struct *cur_mm;
+-
+ 		if (current->mm != ctx->sqo_mm ||
+ 		    current_cred() != ctx->creds) {
+ 			ret = -EPERM;
+@@ -6381,10 +6390,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 		}
+ 
+ 		mutex_lock(&ctx->uring_lock);
+-		/* already have mm, so io_submit_sqes() won't try to grab it */
+-		cur_mm = ctx->sqo_mm;
+-		submitted = io_submit_sqes(ctx, to_submit, f.file, fd,
+-					   &cur_mm, false);
++		submitted = io_submit_sqes(ctx, to_submit, f.file, fd, false);
+ 		mutex_unlock(&ctx->uring_lock);
+ 
+ 		if (submitted != to_submit)
 -- 
 2.24.0
 

@@ -1,170 +1,103 @@
-Return-Path: <SRS0=Wmq2=3N=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=mvU7=3O=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68BD9C32771
-	for <io-uring@archiver.kernel.org>; Fri, 24 Jan 2020 21:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC4AC35241
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 06:14:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 38E6B2087E
-	for <io-uring@archiver.kernel.org>; Fri, 24 Jan 2020 21:42:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C845F2071A
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jan 2020 06:14:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z/Cg0gbd"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="LXJ1SWh/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729146AbgAXVmE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 24 Jan 2020 16:42:04 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:34659 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726191AbgAXVli (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Jan 2020 16:41:38 -0500
-Received: by mail-wm1-f65.google.com with SMTP id s144so4868252wme.1;
-        Fri, 24 Jan 2020 13:41:38 -0800 (PST)
+        id S1727295AbgAYGOz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 25 Jan 2020 01:14:55 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:55052 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725781AbgAYGOz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jan 2020 01:14:55 -0500
+Received: by mail-pj1-f67.google.com with SMTP id dw13so297135pjb.4
+        for <io-uring@vger.kernel.org>; Fri, 24 Jan 2020 22:14:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=fOFHOZZ2wx6aiUkxZCBRIqEIuPor2Hq1154qnUaUt5c=;
-        b=Z/Cg0gbdCsO+6CCI26k2fgfcHxLiI+w4k3Dbl3+L/Q3k3e+NhJ4fIY0wWrvWmUeQqV
-         Iz5qafra1ghZzjmA+X0wXJFRqZNboCPh1g9Hl+dtItehougMZWNqwZwVR8hJlruxTCAR
-         an/3eRYMo713aLxDLrUAliKmBCnFtEQsTGbRfq2/hFus37nRXvR0p5lBf7p3Oetz+h8c
-         MmEE4cgehHlUKHapl9HuArManZkQZxnGDU3aG/9rXdYDoWMl6hePF2EfqFAUCJuHl4+n
-         AZgNN0gPrGAZp6gBokyHSA4kcEFbbBAaRmBWd5kAQuKyBoHkrMWhWirJ9jdWmMaDfFba
-         /8rw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=FAKFlcYVYdI0VmjebDNmDqSAN9JunbJMIDMS51223G4=;
+        b=LXJ1SWh/WVUEQxvI/5RTa6yFJdQM6Ej9vyo6EKAGOTCxu2iB2hMoaZheR5RDtsSKhr
+         HeslNnPl8CkELkcnRXLXkqMQY6BGqsACDdBKMVwoNEzz8I7cTKgF4C1c/kmcmD1d1wkl
+         B/8PTVfjkX1SCQiVCJeQRq7i166FUnSj7VB73hpkaWCqonvSfKvFy8YXk8GLs0MmXAbN
+         4M5cpEqXv8zSZEs2z6AMrMmAGQ4Rjw5Nn6RNF9cDxI5xLLCW4rKw51SONIqdDW/M+/bj
+         /do7OkkqohLyxOwbEs4HzptixLOHZqqLj5aPpLBbCI6CoSVvPSoEWFzip2QiE9y07tJp
+         qo1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=fOFHOZZ2wx6aiUkxZCBRIqEIuPor2Hq1154qnUaUt5c=;
-        b=eSZIIv87IhTO6/azEZb5CG9dg1jh/+QUWIM0bDgGunuQW3r5DjB0EYb+O+2KJ91t38
-         aGtWQIfTtOJPUzqaCLnX8x8c77uAlfWzTMxYarBy8/G5gnYDty7J5oiSGyNjzZGscZv7
-         gf+1HHgtpba6K2GRt5RrzYOtzhSvNAVWk7/MhhyNbk70vXk2faVH5c05gJ7wqDM9pr54
-         clqxXPkzU2MX/GUce/dqroE0Uy4ubNcYdG+xpSmCeJcZ5blwsupTtGD8akq2LJERlG54
-         xS4Mtl5bUqm03p7On0kXXUr7nz1RANUTOrpvYuxzygfVRevSXVZplmFTSsoFJzM3F/rS
-         SvJA==
-X-Gm-Message-State: APjAAAUGX6VCc1ejRlU8rDsVwSPLml69nGU7/6Bb0zQ5zzAexd6x3I3w
-        EajUI7V1WlaVW6oE5NsWbzc=
-X-Google-Smtp-Source: APXvYqy3pYf/WDdVQDt9awisHuK2QJwEIkP7giS+EqWMgSRqWHR83SkZSMEaLq+H7/MUNtqP8vhXkg==
-X-Received: by 2002:a05:600c:2042:: with SMTP id p2mr1095116wmg.79.1579902097314;
-        Fri, 24 Jan 2020 13:41:37 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id f16sm9203055wrm.65.2020.01.24.13.41.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jan 2020 13:41:36 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 4/8] io_uring: move ring_fd  into io_submit_state
-Date:   Sat, 25 Jan 2020 00:40:27 +0300
-Message-Id: <45c8b99ebc9133588ba8cf265f59c768b87a1f81.1579901866.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1579901866.git.asml.silence@gmail.com>
-References: <cover.1579901866.git.asml.silence@gmail.com>
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=FAKFlcYVYdI0VmjebDNmDqSAN9JunbJMIDMS51223G4=;
+        b=rJwHrMx+ujNepWaysHgfZsGlA/tk6fxDo3BT2qBU3XN8oB9JIgmon2lvZMaVIeyiMB
+         qJrr/S/5q6k8kKfnbdn/L1jhZR/ppvFMWhEIBDwrTHxbXNkuj+NyRGrID4ue2E+UqMba
+         WtQtv3yAaa24flrD3PubPF/Y/Dfmlrbn2tilc45ds12ajUYQQUkRLfhr504EIQ+955nh
+         k8udvqPRUY4b9bM5RRft0jINri6SUwUemaApHGruNAUS1Duo0/sjG399aH9I+QrMGPaL
+         dNtu7F1oFkvxfdBVXMyfbepTIKnJ9egZksV9XCn0+3YJRcmM9PuSexQ7VF9vqkIt0paO
+         3vXg==
+X-Gm-Message-State: APjAAAUFgTBB5bEF15CvImaITft3iZMs0AF4tao3mxfEMVJbaRjjJOaL
+        NiR+9lKvjS8vbIHB4gZxYckAgYY9pps=
+X-Google-Smtp-Source: APXvYqzze0xJPkYnDnCsOH/l2BpIH3tesvjURwKn7hjFBJn8+0xG9k4sJ0Z2mKsEKwqiwk6VMZOuZA==
+X-Received: by 2002:a17:902:8a8d:: with SMTP id p13mr7285386plo.159.1579932892995;
+        Fri, 24 Jan 2020 22:14:52 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id u3sm8659949pga.72.2020.01.24.22.14.52
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Jan 2020 22:14:52 -0800 (PST)
+To:     io-uring <io-uring@vger.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH] io_uring: don't attempt to copy iovec for READ/WRITE
+Message-ID: <3e074be7-e282-9e1d-72e2-5002fadd53ec@kernel.dk>
+Date:   Fri, 24 Jan 2020 23:14:51 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-ring_fd and ring_file are set per submission, so move them into
-the submission state.
+For the non-vectored variant of READV/WRITEV, we don't need to setup an
+async io context, and we flag that appropriately in the io_op_defs
+array. However, in fixing this for the 5.5 kernel in commit 74566df3a71c
+we didn't have these opcodes, so the check there was added just for the
+READ_FIXED and WRITE_FIXED opcodes. Replace that check with just a
+single check for needing async context, that covers all four of these
+read/write variants that don't use an iovec.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
 ---
- fs/io_uring.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c1d905b33b29..951c2fc7b5b7 100644
+index 3dad12906db3..c1d1de2a2968 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -216,6 +216,9 @@ struct io_submit_state {
- 	unsigned int		has_refs;
- 	unsigned int		used_refs;
- 	unsigned int		ios_left;
-+
-+	struct file		*ring_file;
-+	int			ring_fd;
- };
- 
- struct io_ring_ctx {
-@@ -274,8 +277,6 @@ struct io_ring_ctx {
- 	 */
- 	struct fixed_file_data	*file_data;
- 	unsigned		nr_user_files;
--	int 			ring_fd;
--	struct file 		*ring_file;
- 
- 	/* if used, fixed mapped user buffers */
- 	unsigned		nr_user_bufs;
-@@ -2783,7 +2784,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	req->close.fd = READ_ONCE(sqe->fd);
- 	if (req->file->f_op == &io_uring_fops ||
--	    req->close.fd == req->ctx->ring_fd)
-+	    req->close.fd == req->ctx->submit_state.ring_fd)
- 		return -EBADF;
- 
- 	return 0;
-@@ -4460,8 +4461,9 @@ static int io_grab_files(struct io_kiocb *req)
+@@ -2112,8 +2112,7 @@ static int io_setup_async_rw(struct io_kiocb *req, ssize_t io_size,
+ 			     struct iovec *iovec, struct iovec *fast_iov,
+ 			     struct iov_iter *iter)
  {
- 	int ret = -EBADF;
- 	struct io_ring_ctx *ctx = req->ctx;
-+	struct io_submit_state *state = &ctx->submit_state;
- 
--	if (!ctx->ring_file)
-+	if (!state->ring_file)
- 		return -EBADF;
- 
- 	rcu_read_lock();
-@@ -4472,7 +4474,7 @@ static int io_grab_files(struct io_kiocb *req)
- 	 * the fd has changed since we started down this path, and disallow
- 	 * this operation if it has.
- 	 */
--	if (fcheck(ctx->ring_fd) == ctx->ring_file) {
-+	if (fcheck(state->ring_fd) == state->ring_file) {
- 		list_add(&req->inflight_entry, &ctx->inflight_list);
- 		req->flags |= REQ_F_INFLIGHT;
- 		req->work.files = current->files;
-@@ -4762,13 +4764,17 @@ static void io_submit_end(struct io_ring_ctx *ctx)
- /*
-  * Start submission side cache.
-  */
--static void io_submit_start(struct io_ring_ctx *ctx, unsigned int max_ios)
-+static void io_submit_start(struct io_ring_ctx *ctx, unsigned int max_ios,
-+			    struct file *ring_file, int ring_fd)
- {
- 	struct io_submit_state *state = &ctx->submit_state;
- 
- 	state->free_reqs = 0;
- 	state->file = NULL;
- 	state->ios_left = max_ios;
-+
-+	state->ring_file = ring_file;
-+	state->ring_fd = ring_fd;
- }
- 
- static void io_commit_sqring(struct io_ring_ctx *ctx)
-@@ -4849,13 +4855,10 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	if (!percpu_ref_tryget_many(&ctx->refs, nr))
- 		return -EAGAIN;
- 
--	io_submit_start(ctx, nr);
-+	io_submit_start(ctx, nr, ring_file, ring_fd);
- 	if (nr > IO_PLUG_THRESHOLD)
- 		blk_start_plug(&plug);
- 
--	ctx->ring_fd = ring_fd;
--	ctx->ring_file = ring_file;
--
- 	for (i = 0; i < nr; i++) {
- 		const struct io_uring_sqe *sqe;
- 		struct io_kiocb *req;
+-	if (req->opcode == IORING_OP_READ_FIXED ||
+-	    req->opcode == IORING_OP_WRITE_FIXED)
++	if (!io_op_defs[req->opcode].async_ctx)
+ 		return 0;
+ 	if (!req->io && io_alloc_async_ctx(req))
+ 		return -ENOMEM;
+
 -- 
-2.24.0
+Jens Axboe
 

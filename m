@@ -2,65 +2,69 @@ Return-Path: <SRS0=4B3G=3R=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94976C32771
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jan 2020 00:07:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69508C47409
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jan 2020 00:07:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5BACD207FD
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jan 2020 00:07:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40039207FD
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jan 2020 00:07:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jtfW+GqM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cZk+g3LG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726101AbgA1AHl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 27 Jan 2020 19:07:41 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:52519 "EHLO
+        id S1728235AbgA1AHo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 27 Jan 2020 19:07:44 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:53683 "EHLO
         mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgA1AHl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Jan 2020 19:07:41 -0500
-Received: by mail-wm1-f66.google.com with SMTP id p9so584892wmc.2;
-        Mon, 27 Jan 2020 16:07:39 -0800 (PST)
+        with ESMTP id S1725955AbgA1AHo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Jan 2020 19:07:44 -0500
+Received: by mail-wm1-f66.google.com with SMTP id s10so577948wmh.3;
+        Mon, 27 Jan 2020 16:07:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uTXjr8tVOQkfJHSo0XVMrHJqxoUMxLgLf0oJacyLO7A=;
-        b=jtfW+GqMm/Mvc/t2CEymMRh5dGbQuxyxifXIfOMTYelP5m+D/2VolhId6Su50/h1Ja
-         6DzL1xOgWy8KHf4ckuBH8Gx3GqPkLtYnT0ypSac/sCJyyVOn512Bfxg9dTqRtEFTM+b2
-         xphFCgTiQX8r+TDvfBQZwZDN647xrsVCQ9aSEUlwQNsbW6lKjjSJEBH2AUAm4o/FfdON
-         ye6H7cVT8KBYhrmkdAHlZ087P2IAnYgfZTqz6u6hr4892C2ss2FRp+uecjhUw9uj2nKt
-         z+3jKhS0kYx5Xlai6Kl+P4OnhQ2g7HEmr6lN4XyWQp93mOhzQKu1m0rGsrnas7qqFTUY
-         ECNA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=UtoLU1ieWHohWTYWc4Uh4sM3C3PGjWGdXBYbs3AGHXM=;
+        b=cZk+g3LG+ykePr2mfm2quQSbZjPK6oQU+dNY4eVhUXBs4j4qaV2Yn86JV5dYiJmhqd
+         7WYWQe908h5hj1GtCU6s5QX7JWKnV6g42nF/yTGzYfcGQ8wt0sZcXbHHU/RWWWOl8Dgu
+         S69YbAOao8s2NuhuY7P5kYv5Ecl2zepvnZGH8vZvAnKEI8pfCLvj0wHHTUeXUuw09L29
+         wbLpqkodo7v8N51YU5Vd9X3UBgLP2TlyDt8C95B+z7FWdLrUvxF+1/0UBQRAlNaCAXLp
+         ov+fn79Fw8dOAX27ukwR4FvXcpfr+nqYyLaTcQdsL+kthMSYgrsf1TV1NyhlGgXf0a3C
+         tWXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uTXjr8tVOQkfJHSo0XVMrHJqxoUMxLgLf0oJacyLO7A=;
-        b=H8wk1oK4Gu4FOzmcnBP1cAI8ovGErg54AsiRL0RN/NruV3Uk6LZGuzf7TxOrp7La3N
-         oi06vy7mb+sExXcYCgRciOlMjsBjtKG8sBJ+jdOgwU1WqvKD6rVre3ZVDzSl8fT4tv2V
-         cvK7P6CAlEqNv6xmqo13d6pxkvbJDcB2aKA68ZMnVjBkVOYWavr69iNab8AqiahgbhXy
-         eKplTB0e3MnRei48lzTz/t5x9i/YfaNSEmLRN2mTh+6sbIPiWP66UYjg02u82fhJr2ND
-         t6wm8mF2fNuABA/lhwPNq5aigpOD/q7OkZRh9ZW32djW5IjMooEX6QSa/3ne42D3v5s7
-         YFeQ==
-X-Gm-Message-State: APjAAAWsS7OZ2y2rCgCYYid8iMfjauOy23d78U5XqHqbqA3P8lNBoJqT
-        e0zCX0REE64IOBE/oQMZGWg=
-X-Google-Smtp-Source: APXvYqx2UKoDfaskogAMKvMcI4rOKS1mQc/PBTe02SfAoz5FVpNjyJLR4KTxhg9pyAJYK0M2GG38/g==
-X-Received: by 2002:a05:600c:2150:: with SMTP id v16mr1163280wml.156.1580170058994;
-        Mon, 27 Jan 2020 16:07:38 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=UtoLU1ieWHohWTYWc4Uh4sM3C3PGjWGdXBYbs3AGHXM=;
+        b=uDCasRayDP+MFiGU2xxE4BK35j2akZCEkw+lpuede+PnlMkASwVOzQ+KPtxBxwWkgi
+         15yQ52iLNwb9/RCAkn+89EOVlC/OSlJCrnmQGrwRnATMGjuiwR3rH52Ke6oOhyNf15p4
+         agkuPamzWGM74ldvnfublX9pMuk8oH/UffoJHdZGE7ys1U9qinNilQOQmYgESNyGN0u6
+         59wDvDv5kDpJvc5ge53rHJQ0xhRTA6G/AiO3B73saARg8HBMNvVglhIg1J2oLb7QgR1m
+         XvPoAIYxBE3C3F+TSrV8a1qgkOICpgB4Zxc0gU+t2SPfRWwQ9am3cSEJ2QDByXcH6cb2
+         cCAQ==
+X-Gm-Message-State: APjAAAU3mjWnSmAaIlmxC8O5+CviP99Ma4WxYT5cv8audOjKKFmmFjLR
+        lo1s6RwR7jTVYVF+Wv1yrmUJHix4
+X-Google-Smtp-Source: APXvYqxOWy4T07L8fibnDNMc3hhRs/D9Pt9omN1atxitlf6UhBRLDNgwyVhw5CLpxVCfxD4YtrMBig==
+X-Received: by 2002:a7b:cc82:: with SMTP id p2mr1127391wma.159.1580170061589;
+        Mon, 27 Jan 2020 16:07:41 -0800 (PST)
 Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id y20sm577193wmj.23.2020.01.27.16.07.37
+        by smtp.gmail.com with ESMTPSA id y20sm577193wmj.23.2020.01.27.16.07.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2020 16:07:38 -0800 (PST)
+        Mon, 27 Jan 2020 16:07:41 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] io-wq sharing
-Date:   Tue, 28 Jan 2020 03:06:50 +0300
-Message-Id: <cover.1580169415.git.asml.silence@gmail.com>
+Cc:     Daurnimator <quae@daurnimator.com>
+Subject: [PATCH 2/2] io_uring: add io-wq workqueue sharing
+Date:   Tue, 28 Jan 2020 03:06:52 +0300
+Message-Id: <3463822cb712109a594cd72eb2a33777045cd5e0.1580169415.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1580169415.git.asml.silence@gmail.com>
+References: <cover.1580169415.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -68,25 +72,142 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-rip-off of Jens io-wq sharing patches allowing multiple io_uring
-instances to be bound to a single io-wq. The differences are:
-- io-wq, which we would like to be shared, is passed as io_uring fd
-- fail, if can't share. IMHO, it's always better to fail fast and loud
+If IORING_SETUP_ATTACH_WQ is set, it expects wq_fd in io_uring_params to
+be a valid io_uring fd io-wq of which will be shared with the newly
+created io_uring instance. If the flag is set but it can't share io-wq,
+it fails.
 
-I didn't tested it after rebasing, but hopefully won't be a problem.
+This allows creation of "sibling" io_urings, where we prefer to keep the
+SQ/CQ private, but want to share the async backend to minimize the amount
+of overhead associated with having multiple rings that belong to the same
+backend.
 
-p.s. on top of ("io_uring/io-wq: don't use static creds/mm assignments")
-
-Pavel Begunkov (2):
-  io-wq: allow grabbing existing io-wq
-  io_uring: add io-wq workqueue sharing
-
- fs/io-wq.c                    | 10 ++++++
- fs/io-wq.h                    |  1 +
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Daurnimator <quae@daurnimator.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
  fs/io_uring.c                 | 67 +++++++++++++++++++++++++++--------
  include/uapi/linux/io_uring.h |  4 ++-
- 4 files changed, 67 insertions(+), 15 deletions(-)
+ 2 files changed, 56 insertions(+), 15 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5ec6428933c3..b9fd6efe9d90 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5692,11 +5692,55 @@ static void io_get_work(struct io_wq_work *work)
+ 	refcount_inc(&req->refs);
+ }
+ 
++static int io_init_wq_offload(struct io_ring_ctx *ctx,
++			      struct io_uring_params *p)
++{
++	struct io_wq_data data;
++	struct fd f;
++	struct io_ring_ctx *ctx_attach;
++	unsigned int concurrency;
++	int ret = 0;
++
++	data.user = ctx->user;
++	data.get_work = io_get_work;
++	data.put_work = io_put_work;
++
++	if (!(p->flags & IORING_SETUP_ATTACH_WQ)) {
++		/* Do QD, or 4 * CPUS, whatever is smallest */
++		concurrency = min(ctx->sq_entries, 4 * num_online_cpus());
++
++		ctx->io_wq = io_wq_create(concurrency, &data);
++		if (IS_ERR(ctx->io_wq)) {
++			ret = PTR_ERR(ctx->io_wq);
++			ctx->io_wq = NULL;
++		}
++		return ret;
++	}
++
++	f = fdget(p->wq_fd);
++	if (!f.file)
++		return -EBADF;
++
++	if (f.file->f_op != &io_uring_fops) {
++		ret = -EOPNOTSUPP;
++		goto out_fput;
++	}
++
++	ctx_attach = f.file->private_data; /* @io_wq is protected the fd */
++	if (!io_wq_get(ctx_attach->io_wq, &data)) {
++		ret = -EINVAL;
++		goto out_fput;
++	}
++
++	ctx->io_wq = ctx_attach->io_wq;
++out_fput:
++	fdput(f);
++	return ret;
++}
++
+ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ 			       struct io_uring_params *p)
+ {
+-	struct io_wq_data data;
+-	unsigned concurrency;
+ 	int ret;
+ 
+ 	init_waitqueue_head(&ctx->sqo_wait);
+@@ -5740,18 +5784,9 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ 		goto err;
+ 	}
+ 
+-	data.user = ctx->user;
+-	data.get_work = io_get_work;
+-	data.put_work = io_put_work;
+-
+-	/* Do QD, or 4 * CPUS, whatever is smallest */
+-	concurrency = min(ctx->sq_entries, 4 * num_online_cpus());
+-	ctx->io_wq = io_wq_create(concurrency, &data);
+-	if (IS_ERR(ctx->io_wq)) {
+-		ret = PTR_ERR(ctx->io_wq);
+-		ctx->io_wq = NULL;
++	ret = io_init_wq_offload(ctx, p);
++	if (ret)
+ 		goto err;
+-	}
+ 
+ 	return 0;
+ err:
+@@ -6577,7 +6612,11 @@ static long io_uring_setup(u32 entries, struct io_uring_params __user *params)
+ 
+ 	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
+ 			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
+-			IORING_SETUP_CLAMP))
++			IORING_SETUP_CLAMP | IORING_SETUP_ATTACH_WQ))
++		return -EINVAL;
++
++	/* id isn't valid without ATTACH_WQ being set */
++	if (!(p.flags & IORING_SETUP_ATTACH_WQ) && p.wq_fd)
+ 		return -EINVAL;
+ 
+ 	ret = io_uring_create(entries, &p);
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 9988e82f858b..e067b92af5ad 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -75,6 +75,7 @@ enum {
+ #define IORING_SETUP_SQ_AFF	(1U << 2)	/* sq_thread_cpu is valid */
+ #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
+ #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
++#define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
+ 
+ enum {
+ 	IORING_OP_NOP,
+@@ -183,7 +184,8 @@ struct io_uring_params {
+ 	__u32 sq_thread_cpu;
+ 	__u32 sq_thread_idle;
+ 	__u32 features;
+-	__u32 resv[4];
++	__u32 wq_fd;
++	__u32 resv[3];
+ 	struct io_sqring_offsets sq_off;
+ 	struct io_cqring_offsets cq_off;
+ };
 -- 
 2.24.0
 

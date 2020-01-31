@@ -2,95 +2,83 @@ Return-Path: <SRS0=7B/2=3U=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE7D3C2D0DB
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:22:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07A0BC2D0DB
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:24:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 82DA620707
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:22:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC07520707
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:24:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qc8wxFe0"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="he0YCpvP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726163AbgAaWW6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 31 Jan 2020 17:22:58 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:36434 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726202AbgAaWW6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:22:58 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z3so10480277wru.3;
-        Fri, 31 Jan 2020 14:22:56 -0800 (PST)
+        id S1726202AbgAaWYI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 31 Jan 2020 17:24:08 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:40362 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726180AbgAaWYI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:24:08 -0500
+Received: by mail-pf1-f194.google.com with SMTP id q8so4070696pfh.7
+        for <io-uring@vger.kernel.org>; Fri, 31 Jan 2020 14:24:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6YW2lBCoKgOsrfSohMX0v2q7APytYZCatXkac5w4d9U=;
-        b=Qc8wxFe09FqegQ+WDFuYg5q/pY1HugyRaVjC0ElRry3Gx3rw2h0A0oAtRxcYDnD24R
-         xOnJQvLOvX9nueqI8gxIHoFd6DGqEJ2oLdYEuO39TX7RzQN+hd9i8tG0U5xU7XFCh47h
-         UVpB91/4eTtXN2COLb89H+Muqs/6xIzFOmyf8gNxAJPoMEFvNl6uQSuBTlzA+H3OIg4t
-         rp9gq24rBxxGWPu2hLYpOGDYVPEg02IhFJ4K9GuDz/qFtN498g45w5ksyrPiQ792grCS
-         ZNIclPPABa6pazAmyYD3NYW3wpvm4ihuXWQknO29RG451QRe7zeQRU2B2wbpOtRNWpiv
-         4WvA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=oNPDXr5T2F3ltBr6ZWUFkUTRD5GIjwn23cg1EDJm7Qc=;
+        b=he0YCpvPIXitkS2gkBPL7SoeIrDKJ6TyukF76x/Odh2lowB7nunGusPhq/d4ccAJKo
+         w9snSRWXHEqoPw0uC4UfmOa/YxRkzBM4y0IncMjvWnm8BTlSvbpz0kIOJTF5NBwvzt1I
+         GFarbrT5hGOVCKGgTj+B64Zxc3ObuJR5Wxvlf4nXLAuH/stizMkhu9XxTr0NMywPpGXa
+         FgMjJjW0oai/+kJeUc99yV5YVuA3PGQX61Hj3YLkNCkqfzheOYSA052mK5tcZsh9iHQR
+         n+wzROfVBw1/+JU/QpCXDwSiqH3LfEKAIZrcEkTP3flw7WJ6c6HCJRYTIlO/htosbNVJ
+         jnuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=6YW2lBCoKgOsrfSohMX0v2q7APytYZCatXkac5w4d9U=;
-        b=k3TK1wmpqRBrVYPY/Jkz3SydQ8qkkwd1xs5E5PgWXuyG6lscHbz5bFkekvxY3VrnG2
-         /vjzqLIU0wBHGyGA2lmyKSNRqwmq9CJ//5bZQ+9TqiHtOAzb1KIHpbmk4doYo2tlFIoN
-         iQrucIqKrGFgz8wp3m6lI7Tp4HjgMog2fUC+8sCXhMCbVUNCI/u5QwNFVanA5uBUaanM
-         dFqccyhlQSSCw2oUT1Ca5PSKnmZr7bOcAgSNPqz2PjJ/UjKc9m9+2nVzP7ldUHlsL2b0
-         bD0g8eNxJMxWlpnBEoVaoHUEWKEXnGpbloV3V8LBOYokGdLlWCb1W6Rrhu9VL2SiwqIa
-         Sd5Q==
-X-Gm-Message-State: APjAAAXUve7wbqO6D5miYgYl9CmIPsKxhJD61QgoTb6MpI7d5GfY+xxv
-        sOIHDorfOBvBLoXveG6tFvl2uvP/
-X-Google-Smtp-Source: APXvYqwUYXtLFGlM5rdV7JEMokq/c3cNqakr1Yd52pUgexie7tp4V7m2tae+VnXuUEYkl2KW+iUKJg==
-X-Received: by 2002:adf:f10b:: with SMTP id r11mr496125wro.307.1580509375799;
-        Fri, 31 Jan 2020 14:22:55 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id k8sm6071084wrq.67.2020.01.31.14.22.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jan 2020 14:22:55 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        bh=oNPDXr5T2F3ltBr6ZWUFkUTRD5GIjwn23cg1EDJm7Qc=;
+        b=cIb/NxyeoD1kOnuiIthYE83Yz3z00F1ckbv5lEMIt59AZdQ4A9SdzA0OgO3R+KyJOJ
+         9B8Yz24uM5UyAC0ktH7tO8LMh06JBNLjRFzEYk4V+JUseVpJD/bYByQT9Iig6+E6nCDM
+         rfupX5lbYPRUddXYie51g4eyUpGMt1MKLMI6Pe1Xi2Y0Zc/kdvZ7LITboWZLLx7wtNDL
+         XVL0L5jhcDPu8u6wa46jxZCpxHMfxdgpLqI8ZVXWP9gpoQiUT1nRjsjvI1WoOw6Bx1V4
+         cBlbAIe6TkObJEauzOgwr6THXVvl8LjAY+lD+Buvtv+sMiQYg+N2Xmlf1t6/nn9o0Aee
+         VQ6g==
+X-Gm-Message-State: APjAAAU/8UGWBdOvdeLlkMbd0G2/eAUftsXjCubNVNwMkppFAwdeq6fH
+        fJAdVR7rZEA8d5ALYM5zNts0FQ==
+X-Google-Smtp-Source: APXvYqzqKO/A1Xn8xjFjOlUoV7dczVeMJ+fz7E71+uwn7PFxZK4KZm22X7LcGl3v3xEtRmZxo51WHA==
+X-Received: by 2002:a63:2309:: with SMTP id j9mr2382056pgj.54.1580509447440;
+        Fri, 31 Jan 2020 14:24:07 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id j7sm966255pji.7.2020.01.31.14.24.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jan 2020 14:24:06 -0800 (PST)
+Subject: Re: [PATCH 1/1] io_uring: remove extra ->file check
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] io_uring: remove extra ->file check
-Date:   Sat,  1 Feb 2020 01:22:08 +0300
-Message-Id: <e21d4c192e0fb12af00cbb4c1ed7d517385ec160.1580509300.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+References: <e21d4c192e0fb12af00cbb4c1ed7d517385ec160.1580509300.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <649d912f-704b-d362-2bc7-1217840de672@kernel.dk>
+Date:   Fri, 31 Jan 2020 15:24:05 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <e21d4c192e0fb12af00cbb4c1ed7d517385ec160.1580509300.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It won't ever get into io_prep_rw() when req->file haven't been set in
-io_req_set_file(), hence remove the check.
+On 1/31/20 3:22 PM, Pavel Begunkov wrote:
+> It won't ever get into io_prep_rw() when req->file haven't been set in
+> io_req_set_file(), hence remove the check.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 ---
- 1 file changed, 3 deletions(-)
+Applied for 5.6, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 799e80e85027..426b0dd81cca 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1868,9 +1868,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	unsigned ioprio;
- 	int ret;
- 
--	if (!req->file)
--		return -EBADF;
--
- 	if (S_ISREG(file_inode(req->file)->i_mode))
- 		req->flags |= REQ_F_ISREG;
- 
 -- 
-2.24.0
+Jens Axboe
 

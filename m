@@ -2,65 +2,68 @@ Return-Path: <SRS0=7B/2=3U=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4069FC2D0DB
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:16:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B44EC35240
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:16:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0B1F02082E
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:16:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E42EC2082E
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:16:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M6zJ9J3P"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g9njLTaN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbgAaWQr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 31 Jan 2020 17:16:47 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42329 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726330AbgAaWQr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:16:47 -0500
-Received: by mail-wr1-f67.google.com with SMTP id k11so10415203wrd.9;
-        Fri, 31 Jan 2020 14:16:44 -0800 (PST)
+        id S1726590AbgAaWQw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 31 Jan 2020 17:16:52 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:46072 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726475AbgAaWQt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:16:49 -0500
+Received: by mail-wr1-f68.google.com with SMTP id a6so10376647wrx.12;
+        Fri, 31 Jan 2020 14:16:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=z0qLNjKELTzo8V2eDuoK6TJ0KaPfo8HAQpIU4qVlhvY=;
-        b=M6zJ9J3PkavUndeMp2TByATRmXERrJR1X50HtK8gCQBCcY/04qFM/74E8Ud7SAWNtw
-         I5CAoqdGFvw/iy2hL62ZZaFHyb3BSRPB1inwnl82G658k3kmf2X7uoMI958n44ZmFwS9
-         0zTE4pPmg1fI4PgkeLLatHnc75jp6Au4XWgfmBNCH2cEjLr5oO6oWoS9Drm/n314ibVc
-         PlGwcbsLmhRdhCoBdXFTuilXSl01Rb/Ep5CxTgH7WCDvXilNTsrrK4hCvLU2JseZDXc8
-         MSKpwanmiHKeh0FUZeWAZ7e2sJ5ALDbIsqPGO3PXF9b2NlhPkcTIOfMrPZf/w6ft7JoE
-         nW2Q==
+        bh=qnyUc6ol87k8+efpVeEpe7PR5Szno0jpYJYIrJc5/NI=;
+        b=g9njLTaNFaO0QIt4QHgnSwDWvQgubQIAU6zPZVqvO+0FzmKIfflLHNmYUO+lr9mNfU
+         pUVCFVhPTeyZys15k54WaJn7IOuk14M4NF37ZqLdZsAR8kHpH4QpqMbN7qaXCy8qkA+C
+         I2HnAMjI6gwPDdCwmYTyOc3A0nt0+E/EjgCdx0AkDodQAVxUsT0sqRYuT6c2/jdQRXV7
+         aH3vTnLmhro6eD2VSDOlXaHCXmNr87LQCwcp/IWh3GpuXgA7YvpPvuaWTAK6QeJYc2Ja
+         x4oDrZX3LqDnVhf0v5jyMuhma4pShQdZ3NbdOUD5n0HNJLB5UTNzSKngsjnOmsMhqeJx
+         GjeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z0qLNjKELTzo8V2eDuoK6TJ0KaPfo8HAQpIU4qVlhvY=;
-        b=CWmJ95Ywn6XozFC8CuN/PknPKtw06sALTrL84Xoxi8UE/Y8scLYpy5bgdWc3PJDR30
-         KL2T03qbBS4K8xW4J5um9o/u03SrPHOOpTEELW3wZLgtFJNUz7NS70fraEq1HuCWYXWH
-         w99QI7rWBbPr96uEvSHt8JWsnqhrvg4eVjMLDTGyBxCzAjBKNFWSu5N2RroSQrm1w6nb
-         Bi/V42UsAb1pifoyO8EVucSFsg6IORn/3MOjEscao0tKB1dMokCtHaUhgloCuW0Z1pNF
-         b32j9I0W6nIFLEjykYhkvvRBMU33g7IZQ7TLWUYzfaV8BQspAjl8rmPLUUeEcAYBCm0D
-         x1lw==
-X-Gm-Message-State: APjAAAX/2dtcA5Y1+Hw0l5wvyWkboDOSpRk1REj0JEzgIeYzRcOd6e0F
-        fRPjAmRseqr7zFe8gl8TsUshDcY6
-X-Google-Smtp-Source: APXvYqzk2ib0orQl1T3z77LcmZgoVPYGS6LGaOwmy4coPw/4BGyHwZhg0T4GsEi8Elz9myuqK6FJAQ==
-X-Received: by 2002:adf:fe0e:: with SMTP id n14mr568702wrr.116.1580509003978;
-        Fri, 31 Jan 2020 14:16:43 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=qnyUc6ol87k8+efpVeEpe7PR5Szno0jpYJYIrJc5/NI=;
+        b=IeTInHWyWROrxkXfSHm/1ZIPtk8D7Sb2O6hb53OH/J2aczdW4yPBYgrVOcAmR3Wygt
+         D1WOQwwbNQtPt2UWt24eVBEjMkBvm3uDrncGRTk/YVvyApI5UwCTd7L3z+kx62a5L4RG
+         rtjfcZamhno0kT0OjsCbYQQGLpGWShofheJEYmsWPcntOMleG6waOWcWwYuhuOd/Lg97
+         u34gs3Vfdftc/pvhb+lO8m7jpHm0Cc1f4LgF/PoB8+ra6vxEnPq0xYht7sk7UamzUg7b
+         SQvLOvFkvzDTVRkHhEMW2U2hnF0YjBQMp4mfNR/SrQw2ceS8rhdtjSZgAUSC8FDsW02v
+         uaZg==
+X-Gm-Message-State: APjAAAUrze8Abcmxu+ZtsqDdDd/L7xqpCf2dMCbGVbsFbHNYnCGwMblm
+        MnDQkNd3eCOHP+rV0lqzZaI=
+X-Google-Smtp-Source: APXvYqw63tAwR5aBfC2d8a73AYspsQaLn7Job68gOmGLNLRZB/3SXQ+kUH1rp8lIqmG/QcanDykJbg==
+X-Received: by 2002:adf:d4c7:: with SMTP id w7mr117403wrk.101.1580509008279;
+        Fri, 31 Jan 2020 14:16:48 -0800 (PST)
 Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id e6sm12328001wme.3.2020.01.31.14.16.40
+        by smtp.gmail.com with ESMTPSA id e6sm12328001wme.3.2020.01.31.14.16.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jan 2020 14:16:43 -0800 (PST)
+        Fri, 31 Jan 2020 14:16:47 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/6] add persistent submission state
-Date:   Sat,  1 Feb 2020 01:15:49 +0300
-Message-Id: <cover.1580508735.git.asml.silence@gmail.com>
+Subject: [PATCH v3 3/6] io_uring: move ring_fd into io_submit_state
+Date:   Sat,  1 Feb 2020 01:15:52 +0300
+Message-Id: <b5f01a0c66b53f5bdc503fb0fbda848dbd6d3ece.1580508735.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1580508735.git.asml.silence@gmail.com>
+References: <cover.1580508735.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -68,30 +71,102 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Apart from unrelated first patch, this persues two goals:
+ring_fd and ring_file are set per submission, so move them into
+the submission state.
 
-1. start preparing io_uring to move resources handling into
-opcode specific functions
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-2. make the first step towards long-standing optimisation ideas
-
-Basically, it makes struct io_submit_state embedded into ctx, so
-easily accessible and persistent, and then plays a bit around that.
-
-v2: rebase
-v3: drop the mm-related patch and rebase
-
-Pavel Begunkov (6):
-  io_uring: always pass non-null io_submit_state
-  io_uring: place io_submit_state into ctx
-  io_uring: move ring_fd into io_submit_state
-  io_uring: move *link into io_submit_state
-  io_uring: persistent req bulk allocation cache
-  io_uring: optimise req bulk allocation cache
-
- fs/io_uring.c | 166 +++++++++++++++++++++++++++-----------------------
- 1 file changed, 89 insertions(+), 77 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6109969709ff..725e852e22c5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -216,6 +216,9 @@ struct io_submit_state {
+ 	unsigned int		has_refs;
+ 	unsigned int		used_refs;
+ 	unsigned int		ios_left;
++
++	struct file		*ring_file;
++	int			ring_fd;
+ };
+ 
+ struct io_ring_ctx {
+@@ -274,8 +277,6 @@ struct io_ring_ctx {
+ 	 */
+ 	struct fixed_file_data	*file_data;
+ 	unsigned		nr_user_files;
+-	int 			ring_fd;
+-	struct file 		*ring_file;
+ 
+ 	/* if used, fixed mapped user buffers */
+ 	unsigned		nr_user_bufs;
+@@ -2822,7 +2823,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	req->close.fd = READ_ONCE(sqe->fd);
+ 	if (req->file->f_op == &io_uring_fops ||
+-	    req->close.fd == req->ctx->ring_fd)
++	    req->close.fd == req->ctx->submit_state.ring_fd)
+ 		return -EBADF;
+ 
+ 	return 0;
+@@ -4517,10 +4518,11 @@ static int io_grab_files(struct io_kiocb *req)
+ {
+ 	int ret = -EBADF;
+ 	struct io_ring_ctx *ctx = req->ctx;
++	struct io_submit_state *state = &ctx->submit_state;
+ 
+ 	if (req->work.files)
+ 		return 0;
+-	if (!ctx->ring_file)
++	if (!state->ring_file)
+ 		return -EBADF;
+ 
+ 	rcu_read_lock();
+@@ -4531,7 +4533,7 @@ static int io_grab_files(struct io_kiocb *req)
+ 	 * the fd has changed since we started down this path, and disallow
+ 	 * this operation if it has.
+ 	 */
+-	if (fcheck(ctx->ring_fd) == ctx->ring_file) {
++	if (fcheck(state->ring_fd) == state->ring_file) {
+ 		list_add(&req->inflight_entry, &ctx->inflight_list);
+ 		req->flags |= REQ_F_INFLIGHT;
+ 		req->work.files = current->files;
+@@ -4839,13 +4841,17 @@ static void io_submit_end(struct io_ring_ctx *ctx)
+ /*
+  * Start submission side cache.
+  */
+-static void io_submit_start(struct io_ring_ctx *ctx, unsigned int max_ios)
++static void io_submit_start(struct io_ring_ctx *ctx, unsigned int max_ios,
++			    struct file *ring_file, int ring_fd)
+ {
+ 	struct io_submit_state *state = &ctx->submit_state;
+ 
+ 	state->free_reqs = 0;
+ 	state->file = NULL;
+ 	state->ios_left = max_ios;
++
++	state->ring_file = ring_file;
++	state->ring_fd = ring_fd;
+ }
+ 
+ static void io_commit_sqring(struct io_ring_ctx *ctx)
+@@ -4926,13 +4932,10 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 	if (!percpu_ref_tryget_many(&ctx->refs, nr))
+ 		return -EAGAIN;
+ 
+-	io_submit_start(ctx, nr);
++	io_submit_start(ctx, nr, ring_file, ring_fd);
+ 	if (nr > IO_PLUG_THRESHOLD)
+ 		blk_start_plug(&plug);
+ 
+-	ctx->ring_fd = ring_fd;
+-	ctx->ring_file = ring_file;
+-
+ 	for (i = 0; i < nr; i++) {
+ 		const struct io_uring_sqe *sqe;
+ 		struct io_kiocb *req;
 -- 
 2.24.0
 

@@ -2,192 +2,95 @@ Return-Path: <SRS0=7B/2=3U=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34CB6C47409
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B51A0C33CB7
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:22:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 09F0D20CC7
-	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:17:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89687214D8
+	for <io-uring@archiver.kernel.org>; Fri, 31 Jan 2020 22:22:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ua7KiMfS"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="AbeaxiAX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726387AbgAaWQs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 31 Jan 2020 17:16:48 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:34862 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726180AbgAaWQr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:16:47 -0500
-Received: by mail-wr1-f65.google.com with SMTP id g17so10477371wro.2;
-        Fri, 31 Jan 2020 14:16:45 -0800 (PST)
+        id S1726881AbgAaWWc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 31 Jan 2020 17:22:32 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:38989 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726239AbgAaWWc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 31 Jan 2020 17:22:32 -0500
+Received: by mail-pf1-f196.google.com with SMTP id 84so4075995pfy.6
+        for <io-uring@vger.kernel.org>; Fri, 31 Jan 2020 14:22:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=6MeHJyDXmp1NZj7XQrK6TMcMB6wCFDU/56SpsuKEG+o=;
-        b=Ua7KiMfS8pI32/zmiTMy+XKt0rIP7MqRqcHhVu5owfJsKX8bch8jPcSIVjufzOaCXt
-         rUh+X3KL+E0ZjbCK84KnIWEC1run+hTYsU1DPhf5O1XEJOOfQIp76VhauPa/q+GhUbH0
-         Aa0yBHoPLsLt5p/sNRex/bVct1Lxfb6YsYFfYSJGvee+Ho9zW3gYzBXocut5BHvLNhSc
-         t8WAyq/iHJCkS+EIMr3sAM/HetypMJiCrs6kuAOFbk4HTUyAPoJR/FY6XD85CCV7CBzT
-         6ocfL8mN055qnOLN4KXG9nKjRiyqA+dKpwBcwLKf/yE75MPoalIEerfs5mPFOUSw/+WN
-         l8fg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=ym4CATryr3QJbBXCpmH+mWSLbQwwdB6r4IiJNjhJKxM=;
+        b=AbeaxiAXSmyiyWHNUbJzYqLQg8oCe/1I9MYoknkNjSSPvw9PWYJllaHHOTXONw12vW
+         N7IVuUFhIeoFuznn5PPdckAaTra7JYdCZdxcDpe12Ek/R4Pn7uyMW6bdd2pZ+A7N0lk6
+         xfJWkSkh8RSWWOO9Cbdn8cRbOBsWA5bUs8wzjfKvrhOWvDsZnskFKOGLGA731rNjTiiT
+         nK5Eyc9z4+Sw0N2W2l1JaNdyXM1uhKMKp0jwX7qgsi7FONnqpsddAwyEyNEJh7/BPI6a
+         S88kJycsXPYxc/2R5u+zip6zxGOncmgqexxtkknyJA4KsXGpDfbkrp4f+TVwovCXrjhr
+         OF7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=6MeHJyDXmp1NZj7XQrK6TMcMB6wCFDU/56SpsuKEG+o=;
-        b=awxk6KvmDdXHTjvkUjIdQzgYgksi1KEmbF3c7LGrT8oIBFxIM3sLtq9QNuWlHxSrGY
-         pEDJxoWVqhRrvL16DeHQcbDhotwIIm1YcfoX8UI+xxF9EPeIFe4Z3qR6LldbgJBhV7XZ
-         RgqBDDceRjV3LPlTktuansDwYPxQOhaf9h7JCY0QVKldY7N3vaCc31XuJ59SrxI+T4Kb
-         8/hZVSZSdLg4KsDwbr36FsP7jzhXKSr10svAW01jRV7CGlvGWbeKNJaNYbHQTT8v2hBk
-         zs2ez33ZhQaYaauKAX7GSitHeymr9ilZkL8efgGVnZFCKqOrAv0oRAA7LVEUzbelK5cU
-         xUGg==
-X-Gm-Message-State: APjAAAVYjupw/msaHff8J21Hp/G8RMiERndTL+XCoMlQ2SSdXYAAqD3u
-        2g1ixeBKIE53InFkXC+D+MP7Lyzi
-X-Google-Smtp-Source: APXvYqwHHfp36sm1OsJ21wLh1FqsyBqBrTGOvf5K7CQkpIH5b6Lazb5ZcfzuMFqfPDlxuN/DZJ21+Q==
-X-Received: by 2002:a5d:4ed0:: with SMTP id s16mr554556wrv.144.1580509005243;
-        Fri, 31 Jan 2020 14:16:45 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.157])
-        by smtp.gmail.com with ESMTPSA id e6sm12328001wme.3.2020.01.31.14.16.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jan 2020 14:16:44 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ym4CATryr3QJbBXCpmH+mWSLbQwwdB6r4IiJNjhJKxM=;
+        b=WyB3nDYy3qqcOQCDYi3UgoUtCH8StS6aEaIgcCnz4Wv9XsInuq/OpfLt26kz3UeNOJ
+         Ugwj/Od3Gs7HYYRdz9zjVNwgAZvFZfzy4+n8ljDSBlAroGw5Zmp5rzQ7gNEdpOj9KRKs
+         MYr6AENjnwMO2Ows2kU0F6PIGcO7nGjkxlnEHyLKazTKvEAN5GEc2f/dlhEos2NWV6d/
+         G+C0eTXpdHvPqVYYNfEhJcl8lKv8S6iR4Zy0Rrvx5TaCTlGh6pC0LU5JaBn63uzMHn39
+         2msbMlrSB3DqjeO7Ctx1IY0wFcSs6rwg9Xrs+pduOdbJdtRwJzSnVq53zcJpzMAx5mws
+         u85A==
+X-Gm-Message-State: APjAAAXB1fnjLbN6zB/DAkzvsgkfmfI79iwGeplnDS8OfsGpUKF5PYMj
+        UnBr1ajL4TUebaCn3UtJ9rcIVQ==
+X-Google-Smtp-Source: APXvYqxTillDlW/mS8lPlT9SG5wZBL0oehI9eN5JpPJ1IpJJMPh4VPircIzIYcxv85ZTCYsJ2zICWQ==
+X-Received: by 2002:aa7:9205:: with SMTP id 5mr12785889pfo.213.1580509350445;
+        Fri, 31 Jan 2020 14:22:30 -0800 (PST)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id l10sm11260963pjy.5.2020.01.31.14.22.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jan 2020 14:22:29 -0800 (PST)
+Subject: Re: [PATCH v3 0/6] add persistent submission state
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/6] io_uring: always pass non-null io_submit_state
-Date:   Sat,  1 Feb 2020 01:15:50 +0300
-Message-Id: <d88bfd05c00ea072ddaced3a40226bfb29b611f7.1580508735.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1580508735.git.asml.silence@gmail.com>
 References: <cover.1580508735.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <6492ccd2-e829-df13-ab6e-e62590375fd1@kernel.dk>
+Date:   Fri, 31 Jan 2020 15:22:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1580508735.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There is more harm than merit from conditionally passing
-io_submit_state. Always pass non-null pointer. It shouldn't affect
-performance, but even if so the gap will be closed by the following
-commits. Also, in prepartion move plugging out of it.
+On 1/31/20 3:15 PM, Pavel Begunkov wrote:
+> Apart from unrelated first patch, this persues two goals:
+> 
+> 1. start preparing io_uring to move resources handling into
+> opcode specific functions
+> 
+> 2. make the first step towards long-standing optimisation ideas
+> 
+> Basically, it makes struct io_submit_state embedded into ctx, so
+> easily accessible and persistent, and then plays a bit around that.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+Do you have any perf/latency numbers for this? Just curious if we
+see any improvements on that front, cross submit persistence of
+alloc caches should be a nice sync win, for example, or even
+for peak iops by not having to replenish the pool for each batch.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 05b9fb0764e1..6f3998e6475a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -579,8 +579,6 @@ struct io_kiocb {
- #define IO_IOPOLL_BATCH			8
- 
- struct io_submit_state {
--	struct blk_plug		plug;
--
- 	/*
- 	 * io_kiocb alloc cache
- 	 */
-@@ -1166,11 +1164,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 	struct io_kiocb *req;
- 
--	if (!state) {
--		req = kmem_cache_alloc(req_cachep, gfp);
--		if (unlikely(!req))
--			goto fallback;
--	} else if (!state->free_reqs) {
-+	if (!state->free_reqs) {
- 		size_t sz;
- 		int ret;
- 
-@@ -1813,9 +1807,6 @@ static void io_file_put(struct io_submit_state *state)
-  */
- static struct file *io_file_get(struct io_submit_state *state, int fd)
- {
--	if (!state)
--		return fget(fd);
--
- 	if (state->file) {
- 		if (state->fd == fd) {
- 			state->used_refs++;
-@@ -4834,7 +4825,6 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
-  */
- static void io_submit_state_end(struct io_submit_state *state)
- {
--	blk_finish_plug(&state->plug);
- 	io_file_put(state);
- 	if (state->free_reqs)
- 		kmem_cache_free_bulk(req_cachep, state->free_reqs,
-@@ -4847,7 +4837,6 @@ static void io_submit_state_end(struct io_submit_state *state)
- static void io_submit_state_start(struct io_submit_state *state,
- 				  unsigned int max_ios)
- {
--	blk_start_plug(&state->plug);
- 	state->free_reqs = 0;
- 	state->file = NULL;
- 	state->ios_left = max_ios;
-@@ -4913,7 +4902,8 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			  struct file *ring_file, int ring_fd,
- 			  struct mm_struct **mm, bool async)
- {
--	struct io_submit_state state, *statep = NULL;
-+	struct blk_plug plug;
-+	struct io_submit_state state;
- 	struct io_kiocb *link = NULL;
- 	int i, submitted = 0;
- 	bool mm_fault = false;
-@@ -4931,10 +4921,9 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	if (!percpu_ref_tryget_many(&ctx->refs, nr))
- 		return -EAGAIN;
- 
--	if (nr > IO_PLUG_THRESHOLD) {
--		io_submit_state_start(&state, nr);
--		statep = &state;
--	}
-+	io_submit_state_start(&state, nr);
-+	if (nr > IO_PLUG_THRESHOLD)
-+		blk_start_plug(&plug);
- 
- 	ctx->ring_fd = ring_fd;
- 	ctx->ring_file = ring_file;
-@@ -4943,7 +4932,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		const struct io_uring_sqe *sqe;
- 		struct io_kiocb *req;
- 
--		req = io_get_req(ctx, statep);
-+		req = io_get_req(ctx, &state);
- 		if (unlikely(!req)) {
- 			if (!submitted)
- 				submitted = -EAGAIN;
-@@ -4976,7 +4965,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		req->needs_fixed_file = async;
- 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
- 						true, async);
--		if (!io_submit_sqe(req, sqe, statep, &link))
-+		if (!io_submit_sqe(req, sqe, &state, &link))
- 			break;
- 	}
- 
-@@ -4987,8 +4976,10 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	}
- 	if (link)
- 		io_queue_link_head(link);
--	if (statep)
--		io_submit_state_end(&state);
-+
-+	io_submit_state_end(&state);
-+	if (nr > IO_PLUG_THRESHOLD)
-+		blk_finish_plug(&plug);
- 
- 	 /* Commit SQ ring head once we've consumed and submitted all SQEs */
- 	io_commit_sqring(ctx);
+I can try and run some here too.
+
 -- 
-2.24.0
+Jens Axboe
 

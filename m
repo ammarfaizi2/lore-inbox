@@ -2,164 +2,135 @@ Return-Path: <SRS0=oRv8=3Z=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4632C352A2
-	for <io-uring@archiver.kernel.org>; Wed,  5 Feb 2020 19:08:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29D39C35247
+	for <io-uring@archiver.kernel.org>; Wed,  5 Feb 2020 21:26:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BC060218AC
-	for <io-uring@archiver.kernel.org>; Wed,  5 Feb 2020 19:08:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE0132072B
+	for <io-uring@archiver.kernel.org>; Wed,  5 Feb 2020 21:26:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P8wu2z5+"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="0ptMGK8j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbgBETIc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 5 Feb 2020 14:08:32 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51141 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727104AbgBETIb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 5 Feb 2020 14:08:31 -0500
-Received: by mail-wm1-f66.google.com with SMTP id a5so3690448wmb.0;
-        Wed, 05 Feb 2020 11:08:29 -0800 (PST)
+        id S1727441AbgBEV0e (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 5 Feb 2020 16:26:34 -0500
+Received: from mail-io1-f41.google.com ([209.85.166.41]:37620 "EHLO
+        mail-io1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727116AbgBEV0b (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 5 Feb 2020 16:26:31 -0500
+Received: by mail-io1-f41.google.com with SMTP id k24so3894140ioc.4
+        for <io-uring@vger.kernel.org>; Wed, 05 Feb 2020 13:26:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=g6L+rbiNcdTBVsL6kM+kxRr5RcsPRbao2r368VHF3VU=;
-        b=P8wu2z5+bnBUNwlbxEku7azWnc176dPXBpkEd7UYdgv01rNRdvlokB/3y08YelaRPh
-         k6mLAfop46KJc4Xwsr/5Zz+ZYLn9SC1NTlT9FQiI/H38eQxi0oB+AZcDCG3QNdilx7Qu
-         eMaCe+TJLMrRNQUtL+OQztH2eovFh7wbK8aka1Cd0BgGX9Apq7Zs440iMK9moeFf0jI6
-         D3zAxRTbCxcX2jCnJ7VXlxaSyA4w+Ok8W9JDWO1Snn+W94tgVIW1qXRoHMs8gMjxUgy0
-         I1G2a5TZol0RNAG6aB2zf3dSww8lUHad/R0h4EbTdYKE4SDuPVMMbugGjC1OZ093O/Q7
-         xDUQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=tJmiO/yRHhnwlodxj+avzdgR3GE4PT9F+7F0LzH0k+g=;
+        b=0ptMGK8jhKOJbEn5RUbmutn53A7d5gaVf9HFzvlU5n8JuxFAR3wWhEBwBNGUoDDe8F
+         Elj6qtj7QzMR0tqQUUugRNyLLbBlfQzqC+AwaDI9OxZrftgGPSJJoZSjuMCttGHayIs9
+         /tQNtqtSGUN2m07JWu5HloN8yVV50NEWCdZQaLoGS2ZA7AiJ855WtXe6LhRaE/lCLIf9
+         hDvVO1nd1P0bRmXm36Xp2lx5rFectdcoaH9176MobHi1QiqK3xbnmbdasoc0qKicdHpc
+         8E6HWUtIS3cBW0b2sHp7sHFi68AjUwUPJwsasmLOlCfbD5pUmAt9nXv0fsMPYnZV0iEw
+         BWsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=g6L+rbiNcdTBVsL6kM+kxRr5RcsPRbao2r368VHF3VU=;
-        b=cXq479zVgE4KtnkTU/bF/CjAB6d5SdMjAESBrlsxt4oQy0eR+vs8PitXolZ3wyIxlB
-         ZOiPqfqU0TgGSBHdgPFkSSsrQ3Qm3hUetdBPRloE+Rc87DyfX1JPzHuXQ09iaIUeUj/W
-         BR9Jx2IxLaYDumYuCQuFF54WdhQp8FGLB+Tby97AnsO2GX5QMEK5SD/1ASVgwckWYyxn
-         kc/AKlaPt8a6I28VhNqJUYZOzR0RxcQ4UVOT2DdzHhpvUME/5idYDK2DQgzxgzqHo0Jv
-         RREIc5AVY+4A1dQVLC0Ml75Yw9Fbxq0gaQJcxFOwkn4viYstFi2wQElAzRZ4JbKScwpI
-         a43w==
-X-Gm-Message-State: APjAAAVym8WK32arTTJ4KpRT0fH9Dt9KbQ26yMfqzlAjCVoX9T/mPrAx
-        gzWympLN3QXt0gGPtRcloMw=
-X-Google-Smtp-Source: APXvYqy3SpASx381GST6MjPbT70uWHMQXmjK3127CWOOJp2tMv2TPJKN+epcZsx4qG9h34ix0mYsRA==
-X-Received: by 2002:a1c:bb82:: with SMTP id l124mr7140850wmf.176.1580929708758;
-        Wed, 05 Feb 2020 11:08:28 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.62])
-        by smtp.gmail.com with ESMTPSA id b10sm915568wrw.61.2020.02.05.11.08.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Feb 2020 11:08:28 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] io_uring: pass sqe for link head
-Date:   Wed,  5 Feb 2020 22:07:31 +0300
-Message-Id: <c9654d6a79898d5f8aa8b9dabcb76d9f23faa149.1580928112.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1580928112.git.asml.silence@gmail.com>
-References: <cover.1580928112.git.asml.silence@gmail.com>
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=tJmiO/yRHhnwlodxj+avzdgR3GE4PT9F+7F0LzH0k+g=;
+        b=MjKUODV1frnVlm3YvIifiOUZeRtRVm7nsyRqAQmhYX0Bvc1Ke2bOGKEQbTM7IIun9x
+         7z3JvgEg1fqSndkrosD+nGbRAlDxAE+SjZDTJ6zkOzGT6zArqSd6EQRJsqfa8yDuUft6
+         S1PHSfKpGUjc2NPEDNKUYeJirYVVL7KNJe2/ls/mMSNMcGPdKo1kucWvhSsuZ+Pjgmig
+         7jWXUqDRUbOgr7qwgX60QFmFvzIUj1bqUBcObOLV6lhzm/Lo1NDCCp8zE/4/BnVR/s5e
+         9KY65dForxKcB0IZ6c23T0HfMpQ3/LM4MlDSO+SisZtWa1Txmo8EdcBRRUFRDbVlBckY
+         OQ7A==
+X-Gm-Message-State: APjAAAWs7CTcwJL2idFLl5V9fdU9dYEJGV+Q5pW5vMaLrO/rrP77QBF+
+        LQqJrwVZFod7u3QkIastZzfTmA==
+X-Google-Smtp-Source: APXvYqxItk6NNe4N9n6njIHHOtNEy3OeZwjfl3bBDogSMzlXIqN5iT6pmDVqIz2tBC/Tg/tACUPs1g==
+X-Received: by 2002:a6b:7902:: with SMTP id i2mr28220048iop.67.1580937990618;
+        Wed, 05 Feb 2020 13:26:30 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id k16sm287338ili.35.2020.02.05.13.26.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Feb 2020 13:26:30 -0800 (PST)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     io-uring <io-uring@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [GIT PULL] io_uring fixes for 5.6-rc1
+Message-ID: <457eea2f-d344-fa09-7ddb-77ce4cb85aff@kernel.dk>
+Date:   Wed, 5 Feb 2020 14:26:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Save an sqe for a head of a link, so it doesn't go through switch in
-io_req_defer_prep() nor allocating an async context in advance.
+Hi Linus,
 
-Also, it's fixes potenial memleak for double-preparing head requests.
-E.g. prep in io_submit_sqe() and then prep in io_req_defer(),
-which leaks iovec for vectored read/writes.
+Some later fixes for io_uring that should go into this merge window.
+This pull request contains:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+- Small cleanup series from Pavel
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f00c2c9c67c0..e18056af5672 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4721,20 +4721,22 @@ static void io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	}
- }
- 
--static inline void io_queue_link_head(struct io_kiocb *req)
-+static inline void io_queue_link_head(struct io_kiocb *req,
-+				      const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(req->flags & REQ_F_FAIL_LINK)) {
- 		io_cqring_add_event(req, -ECANCELED);
- 		io_double_put_req(req);
- 	} else
--		io_queue_sqe(req, NULL);
-+		io_queue_sqe(req, sqe);
- }
- 
- #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
- 				IOSQE_IO_HARDLINK | IOSQE_ASYNC)
- 
- static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
--			  struct io_submit_state *state, struct io_kiocb **link)
-+			  struct io_submit_state *state, struct io_kiocb **link,
-+			  const struct io_uring_sqe **link_sqe)
- {
- 	const struct cred *old_creds = NULL;
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -4812,7 +4814,7 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 
- 		/* last request of a link, enqueue the link */
- 		if (!(sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK))) {
--			io_queue_link_head(head);
-+			io_queue_link_head(head, *link_sqe);
- 			*link = NULL;
- 		}
- 	} else {
-@@ -4823,10 +4825,8 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		if (sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) {
- 			req->flags |= REQ_F_LINK;
- 			INIT_LIST_HEAD(&req->link_list);
--			ret = io_req_defer_prep(req, sqe);
--			if (ret)
--				req->flags |= REQ_F_FAIL_LINK;
- 			*link = req;
-+			*link_sqe = sqe;
- 		} else {
- 			io_queue_sqe(req, sqe);
- 		}
-@@ -4924,6 +4924,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	struct io_kiocb *link = NULL;
- 	int i, submitted = 0;
- 	bool mm_fault = false;
-+	const struct io_uring_sqe *link_sqe = NULL;
- 
- 	/* if we have a backlog and couldn't flush it all, return BUSY */
- 	if (test_bit(0, &ctx->sq_check_overflow)) {
-@@ -4983,7 +4984,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		req->needs_fixed_file = async;
- 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
- 						true, async);
--		if (!io_submit_sqe(req, sqe, statep, &link))
-+		if (!io_submit_sqe(req, sqe, statep, &link, &link_sqe))
- 			break;
- 	}
- 
-@@ -4993,7 +4994,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		percpu_ref_put_many(&ctx->refs, nr - ref_used);
- 	}
- 	if (link)
--		io_queue_link_head(link);
-+		io_queue_link_head(link, link_sqe);
- 	if (statep)
- 		io_submit_state_end(&state);
- 
+- Belt and suspenders build time check of sqe size and layout (Stefan)
+
+- Addition of ->show_fdinfo() on request of Jann Horn, to aid in
+  understanding mapped personalities
+
+- eventfd recursion/deadlock fix, for both io_uring and aio
+
+- Fixup for send/recv handling
+
+- Fixup for double deferral of read/write request
+
+- Fix for potential double completion event for close request
+
+- Adjust fadvise advice async/inline behavior
+
+- Fix for shutdown hang with SQPOLL thread
+
+- Fix for potential use-after-free of fixed file table
+
+Please pull!
+
+
+  git://git.kernel.dk/linux-block.git tags/io_uring-5.6-2020-02-05
+
+
+----------------------------------------------------------------
+Jens Axboe (10):
+      io_uring: add ->show_fdinfo() for the io_uring file descriptor
+      eventfd: track eventfd_signal() recursion depth
+      io_uring: prevent potential eventfd recursion on poll
+      io_uring: use the proper helpers for io_send/recv
+      io_uring: don't map read/write iovec potentially twice
+      io_uring: fix sporadic double CQE entry for close
+      io_uring: punt even fadvise() WILLNEED to async context
+      aio: prevent potential eventfd recursion on poll
+      io_uring: spin for sq thread to idle on shutdown
+      io_uring: cleanup fixed file data table references
+
+Pavel Begunkov (3):
+      io_uring: remove extra ->file check
+      io_uring: iterate req cache backwards
+      io_uring: put the flag changing code in the same spot
+
+Stefan Metzmacher (1):
+      io_uring: add BUILD_BUG_ON() to assert the layout of struct io_uring_sqe
+
+ fs/aio.c                |  20 +++-
+ fs/eventfd.c            |  15 +++
+ fs/io_uring.c           | 254 ++++++++++++++++++++++++++++++++++++++----------
+ include/linux/eventfd.h |  14 +++
+ 4 files changed, 251 insertions(+), 52 deletions(-)
+
 -- 
-2.24.0
+Jens Axboe
 

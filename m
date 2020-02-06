@@ -2,95 +2,69 @@ Return-Path: <SRS0=v7gf=32=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,URIBL_DBL_ABUSE_MALW,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D0C3C2D0B1
-	for <io-uring@archiver.kernel.org>; Thu,  6 Feb 2020 04:57:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A1F7C2D0B1
+	for <io-uring@archiver.kernel.org>; Thu,  6 Feb 2020 08:00:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0885720838
-	for <io-uring@archiver.kernel.org>; Thu,  6 Feb 2020 04:57:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="i7DoUdgb"
+	by mail.kernel.org (Postfix) with ESMTP id 1E02721775
+	for <io-uring@archiver.kernel.org>; Thu,  6 Feb 2020 08:00:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1580976029;
+	bh=3Z4nVUCvy1AmCLhgXTrp7YHVxDv1FFUtpXKT3OzbeOw=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=XyPS1UQkzud9tSNF/AtSZcOFJJHI2Qa1dLkogVXggSmVVYfzOh8qITQLNR+DcuE6L
+	 JT4osT5Onw3CB8hjiUFv5SdHdYHOb5J+4DALN3fiG6VYQF5uYPg6zI0qmLAz55MeEf
+	 sySpnrK2z7Jyg+DUH4mF2ecYPucnhv4yrWaknnHI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbgBFE5N (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 5 Feb 2020 23:57:13 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:58646 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbgBFE5N (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 5 Feb 2020 23:57:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        Content-Type:MIME-Version:Date:Message-ID:Subject:From:To:Sender:Reply-To:Cc:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=qCN7yVOVetZZAawoWe0NROxUZNBW+rfsd8LEb6PrkI4=; b=i7DoUdgbFBRLxlRX6FMRyrGEfM
-        9L9flbNNuDLXVKSRXJSodSUdUh4FGXlEZiV9/+sxFigRTwAPYKV3rcuIc8JjDL6I59JSvNVI5llHW
-        L0NSnlZMe4YcSiFoL92HhISTTsI4O+zbySXoHzOAcEUYI+uK0okv/M1Me3KGsqRtLO/vm14jqcBXI
-        xgXMjSCmxF9sUuD3sPnFjA4lAJV1ircwrPm+YpRgYwke40tRFokP1YsPa4RRyZbEyJ+mwaw1eKnpI
-        PQ9o7Bq5dDxcWGcqBXwiGqUFKOndZCiM1YywsBeoLzYr9DQkEryb7b63sljYxgRNOXu1mOotBcxIg
-        +FqDqUag==;
-Received: from [2601:1c0:6280:3f0::19c2]
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1izZDz-0000SW-Q9; Thu, 06 Feb 2020 04:57:11 +0000
-To:     LKML <linux-kernel@vger.kernel.org>, axboe <axboe@kernel.dk>,
-        io-uring@vger.kernel.org
-From:   Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] io_uring: fix 1-bit bitfields to be unsigned
-Message-ID: <3917704d-2149-881c-f9e5-2a7764dccd3f@infradead.org>
-Date:   Wed, 5 Feb 2020 20:57:10 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728152AbgBFIAS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 6 Feb 2020 03:00:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727874AbgBFIAR (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Thu, 6 Feb 2020 03:00:17 -0500
+Subject: Re: [GIT PULL] io_uring fixes for 5.6-rc1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580976016;
+        bh=3Z4nVUCvy1AmCLhgXTrp7YHVxDv1FFUtpXKT3OzbeOw=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=MyB53JI0phGl3H+PyH6CaRTz1l4jtqO9ue14B6cozc/Dfm94MXSl4VFfGcs0bZe6s
+         f8L0mg6NyCUXv35w+c+OQ4QJ0T+BE0jD5/rv2g8hXvZsW0g8Cb3/oe1gu83qdrAW+w
+         paunmJ//VMfMRpxIm9DV8QU5b9i2x1pCmIXMIHO0=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <457eea2f-d344-fa09-7ddb-77ce4cb85aff@kernel.dk>
+References: <457eea2f-d344-fa09-7ddb-77ce4cb85aff@kernel.dk>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <457eea2f-d344-fa09-7ddb-77ce4cb85aff@kernel.dk>
+X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git
+ tags/io_uring-5.6-2020-02-05
+X-PR-Tracked-Commit-Id: 2faf852d1be8a4960d328492298da6448cca0279
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: c1ef57a3a3f5e69e98baf89055b423da62791c13
+Message-Id: <158097601679.20426.12262983573989939498.pr-tracker-bot@kernel.org>
+Date:   Thu, 06 Feb 2020 08:00:16 +0000
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+The pull request you sent on Wed, 5 Feb 2020 14:26:29 -0700:
 
-Make bitfields of size 1 bit be unsigned (since there is no room
-for the sign bit).
-This clears up the sparse warnings:
+> git://git.kernel.dk/linux-block.git tags/io_uring-5.6-2020-02-05
 
-  CHECK   ../fs/io_uring.c
-../fs/io_uring.c:207:50: error: dubious one-bit signed bitfield
-../fs/io_uring.c:208:55: error: dubious one-bit signed bitfield
-../fs/io_uring.c:209:63: error: dubious one-bit signed bitfield
-../fs/io_uring.c:210:54: error: dubious one-bit signed bitfield
-../fs/io_uring.c:211:57: error: dubious one-bit signed bitfield
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/c1ef57a3a3f5e69e98baf89055b423da62791c13
 
-Found by sight and then verified with sparse.
+Thank you!
 
-Fixes: 69b3e546139a ("io_uring: change io_ring_ctx bool fields into bit fields")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: io-uring@vger.kernel.org
----
- fs/io_uring.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
---- linux-next-20200205.orig/fs/io_uring.c
-+++ linux-next-20200205/fs/io_uring.c
-@@ -204,11 +204,11 @@ struct io_ring_ctx {
- 
- 	struct {
- 		unsigned int		flags;
--		int			compat: 1;
--		int			account_mem: 1;
--		int			cq_overflow_flushed: 1;
--		int			drain_next: 1;
--		int			eventfd_async: 1;
-+		unsigned int		compat: 1;
-+		unsigned int		account_mem: 1;
-+		unsigned int		cq_overflow_flushed: 1;
-+		unsigned int		drain_next: 1;
-+		unsigned int		eventfd_async: 1;
- 
- 		/*
- 		 * Ring buffer of indices into array of io_uring_sqe, which is
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker

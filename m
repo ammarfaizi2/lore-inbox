@@ -7,53 +7,58 @@ X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C0DFC2BA83
-	for <io-uring@archiver.kernel.org>; Fri,  7 Feb 2020 20:53:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FFA4C35250
+	for <io-uring@archiver.kernel.org>; Fri,  7 Feb 2020 20:56:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4609320720
-	for <io-uring@archiver.kernel.org>; Fri,  7 Feb 2020 20:53:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DC17217BA
+	for <io-uring@archiver.kernel.org>; Fri,  7 Feb 2020 20:56:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gnxVJuJp"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NaUFCQC6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726987AbgBGUxa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 7 Feb 2020 15:53:30 -0500
-Received: from mail-ed1-f53.google.com ([209.85.208.53]:36847 "EHLO
-        mail-ed1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726947AbgBGUx3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 7 Feb 2020 15:53:29 -0500
-Received: by mail-ed1-f53.google.com with SMTP id j17so996144edp.3
-        for <io-uring@vger.kernel.org>; Fri, 07 Feb 2020 12:53:27 -0800 (PST)
+        id S1727068AbgBGU4I (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 7 Feb 2020 15:56:08 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:42826 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726947AbgBGU4H (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 7 Feb 2020 15:56:07 -0500
+Received: by mail-ed1-f65.google.com with SMTP id e10so966967edv.9;
+        Fri, 07 Feb 2020 12:56:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:from:autocrypt:subject:message-id:date:user-agent:mime-version;
-        bh=p+2uFoLXelvqXf1KYHxytZzJWUMavE1z0wLMy6oY0dQ=;
-        b=gnxVJuJptQ+4eA5lc+Xel/hBsCzrk69ethkP0zsMHZiFKbkCHwIgdkANChZkoHzKSY
-         trYRjMIlfBVE2cuDZwTYQ1PEscqRRpE+Uf8oGTf0OsI6nsY0u4m0wp7HjjvpGzhUykiu
-         16rtEYHqaTiv70Cjni1FL2/wcFeyRrcz2tP1lzQfleGO6t2SA0tQJpQkPWHOYSmIdF6k
-         yMoWB548AoKpdkYPQ83hZxZW4Li6+WtdvSmGTmt1c59ln9XbvT9nGIJjvx41S7H4w+3u
-         iwGGTA8jTEMRvaqRSQIZrLvyQ9m4hlV4XE13QCe3WXZs1elmz1A5qIIUhxd+9QTi5+FU
-         jJSw==
+        h=subject:to:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to;
+        bh=5riQ67SdTsnh0GsBZWiljabEtGy2R/wq70X4S9XXoZ4=;
+        b=NaUFCQC6AHJiGV/05hY1AVi/cyC1sz15akpqcg5UQYzmQSU/aKevd87WLF7UFtxcUM
+         awPX+xBFwivhKTX7oQreSsMJI6qmjcFOIFPhGlBrr6y8YYaBXDzXMcDdPELn9BDcntMI
+         KL6IDTAllNq9m64XLqqgeWx9VHRsImRfWRfljQxN9v3S6qsYTDdGptDUWT85jR1N7G37
+         4nFHX+ueNiPo7cBJkGbh8Cgo7oQGvnhQoyhB+9pp6CZ5JqRf1FVwml8GMe9IIU4+pfoK
+         Qy2MCPzvAESkJ92Ii+UPHAp+JTZIdJV5b0xa+08V1x/AqOfz65EBu0VUQF/haIYxURzX
+         6tEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:autocrypt:subject:message-id:date
-         :user-agent:mime-version;
-        bh=p+2uFoLXelvqXf1KYHxytZzJWUMavE1z0wLMy6oY0dQ=;
-        b=dVmML90E12RF3pJsMg0aZaXpYGaqMmEngttX/ZvdWjy1Y43tMfaKZYSi+kIRP1yHdk
-         v+UJzT5aw5OJXKzxkEfyFPQEv7idqEj8knE92KHPndQU8DecWaW3rVfoqYl33KbAu8gk
-         5rGWzF6Lyle3GMPW6vqyzypCGCkxkCe5JLZFiSjdT/SKlBavnEPzYARYuY9cabBtTeuT
-         NHdxD6ZxLL1WmgaahQeDd6bfeqUTvQ1KBebYPF7hWLU3jU+63clj19+Ho5IM8DZ8x5CK
-         qU0VO7wmkKkOA0mRY6/N0M90PQW0wGYVQ2SfeqbIE+Ko+IIpnY8G0ac0GOE+fmjqSio1
-         eKqw==
-X-Gm-Message-State: APjAAAXmbiocmreK2hsiKQayTzXCnyHvLn6C02L3q0jf+QL+FUbHW4/5
-        OkIBHSGAi2VfUB20b0bW+F1dWoop
-X-Google-Smtp-Source: APXvYqxD7b2tmVBYOuG37iWCHAI56cCQdOK052BaWNdignG2SPwHr4QUxUPlVrGh9+ez/j9pwo317A==
-X-Received: by 2002:a17:906:3ec4:: with SMTP id d4mr1036295ejj.173.1581108807035;
-        Fri, 07 Feb 2020 12:53:27 -0800 (PST)
+        h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
+         :date:user-agent:mime-version:in-reply-to;
+        bh=5riQ67SdTsnh0GsBZWiljabEtGy2R/wq70X4S9XXoZ4=;
+        b=m5CWQZ9BdvT9RnSZ/avKPh53xUOHKxrUMRquiMsYSfgaT1xL9VqIdkJ42cVKltmJRe
+         Ljyr5HjWWgnwLJV4qPkxesPXRyI9He8VPhfv7hjCMbzfST+kiQJajzyF8LlWjcX4SAhb
+         ulHcGk7yaGQ43DknES5qWt7vO1vaee4VmKtGi4UGdWhMvbhN1sTHoi5C7pd2qGFvZLHL
+         fwIqVWZXVsaTP6Xck1BhzwXQq6ixi0OXTvzOl+19F/pePZp0tCSvdJAQdCC4gW3YnoZZ
+         6D9N9eeHdnAyvCITzlJZO7q3GJfFhQgQI9oPXodU45uIX3JN6nTr2NUYcjpOVEnqpcWc
+         x7eA==
+X-Gm-Message-State: APjAAAUFxGsPpQ1qk+IXBwayxMuazKYbxuQ3SNs24u0UT0g3ihaWuZKm
+        y9c0f1uZU6t9Q6yiqlrtC3dUnhSg
+X-Google-Smtp-Source: APXvYqxpg89rXfbMBvvGyqFcq3kOnqzSH56RL4Oj8wxpANJKtsTCutxMIuFh5zoSZ04CKgAOWIy3IA==
+X-Received: by 2002:a17:906:6942:: with SMTP id c2mr1165794ejs.12.1581108965643;
+        Fri, 07 Feb 2020 12:56:05 -0800 (PST)
 Received: from [192.168.43.117] ([109.126.145.62])
-        by smtp.gmail.com with ESMTPSA id lc20sm481729ejb.78.2020.02.07.12.53.25
+        by smtp.gmail.com with ESMTPSA id a40sm213373edf.90.2020.02.07.12.56.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 07 Feb 2020 12:53:26 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>
+        Fri, 07 Feb 2020 12:56:05 -0800 (PST)
+Subject: Re: [PATCH] io_uring: add cleanup for openat()
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <d3916b5d2c04e7c0387b9dce0453f762317dd412.1581108147.git.asml.silence@gmail.com>
+ <6729b8f1-f048-8cba-8a7a-45ef1d8c3256@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -98,70 +103,74 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: io_close()
-Message-ID: <45f22c50-1ffe-4b73-f213-08dd49233597@gmail.com>
-Date:   Fri, 7 Feb 2020 23:52:34 +0300
+Message-ID: <e1ef3e54-4668-a269-2dfb-ce7b952be413@gmail.com>
+Date:   Fri, 7 Feb 2020 23:55:25 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
+In-Reply-To: <6729b8f1-f048-8cba-8a7a-45ef1d8c3256@kernel.dk>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="cWb018YvvgsxMQzfzjhqlXxtsVa5pLkIZ"
+ boundary="GlkJcoxwMWq9787WhjIcTHSGyXMXSrsQO"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---cWb018YvvgsxMQzfzjhqlXxtsVa5pLkIZ
-Content-Type: multipart/mixed; boundary="8eYfPbq0Y048gZyPAnWhHXiNNcQJXvP8y";
+--GlkJcoxwMWq9787WhjIcTHSGyXMXSrsQO
+Content-Type: multipart/mixed; boundary="BUNFkmzAcO4gXvLZ9TK1OZgV12ofYMrtC";
  protected-headers="v1"
 From: Pavel Begunkov <asml.silence@gmail.com>
-To: Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>
-Message-ID: <45f22c50-1ffe-4b73-f213-08dd49233597@gmail.com>
-Subject: io_close()
+To: Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Message-ID: <e1ef3e54-4668-a269-2dfb-ce7b952be413@gmail.com>
+Subject: Re: [PATCH] io_uring: add cleanup for openat()
+References: <d3916b5d2c04e7c0387b9dce0453f762317dd412.1581108147.git.asml.silence@gmail.com>
+ <6729b8f1-f048-8cba-8a7a-45ef1d8c3256@kernel.dk>
+In-Reply-To: <6729b8f1-f048-8cba-8a7a-45ef1d8c3256@kernel.dk>
 
---8eYfPbq0Y048gZyPAnWhHXiNNcQJXvP8y
+--BUNFkmzAcO4gXvLZ9TK1OZgV12ofYMrtC
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On 07/02/2020 23:53, Jens Axboe wrote:
+> On 2/7/20 1:45 PM, Pavel Begunkov wrote:
+>> openat() have allocated ->open.filename, which need to be put.
+>> Add cleanup handlers for it.
+>=20
+> Should this include statx too?
 
-I noticed, that io_close() is broken for some use cases, and was thinking=
- about
-the best way to fix it. Is fput(req->close.put_file) really need to be do=
-ne in
-wq? It seems, fput_many() implementation just calls schedule_delayed_work=
-(), so
-it's already delayed.
+It should. Missed, that statx uses the same struct.
+I'll resend.
 
 --=20
 Pavel Begunkov
 
 
---8eYfPbq0Y048gZyPAnWhHXiNNcQJXvP8y--
+--BUNFkmzAcO4gXvLZ9TK1OZgV12ofYMrtC--
 
---cWb018YvvgsxMQzfzjhqlXxtsVa5pLkIZ
+--GlkJcoxwMWq9787WhjIcTHSGyXMXSrsQO
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl49ziAACgkQWt5b1Glr
-+6XaXxAAjyzEvDnpTaQDcHfI7JqsTWt7b47GyyTpHRgi1h9saMS1W9x4nNrOMHT6
-dDzHVXEn11dj5hT3kZgZfhrCC91UvLfgTAy1a28+lWPJcNyrYsFnyqQt74G1qBsA
-+6EBjOJHPP/X8QfnCVu+LVqzLBtnjkh7TNBX2fSodLrzs3QxgaxMcQ/ih250QlBC
-ATXmAjrtplRq5l2ubHQ9cqWoTrI0GqtcurH30GdZ/wGXCQWYSjFe+QDCSMOPQD1s
-psyn4PHdchf/Hhay3Cku3g/z5dsfzjLM6smsq/VOG+hBV5AfT28YOBqwn3UI+QpF
-7vmdWiGSdN/bNd0VlhyNFZKCzL015xj0+vm5XEpokuPpUvdH1FZvlNDsVgfJkhCm
-tzechHMGk1F8wSNFndC7JpvjfIujN0y6Bq6OSE+dvNzfRJfVnnrVSM/2I2e6gk7K
-wAAtmCEmP0iWIe5oT1tEDPf1zYxNdOmOgVWOAmbCnJbfli9qz7BaFyCYqhXBOgN8
-zrTJCHcivMCEV9CBw61iEOjxsc6Tdnt/c0RJD/W5yr010g7Zxkf3Og7YgVnqkNIP
-qG0ex5w3FxgP2XlfTY/fqCVoVnXjwJpA3bPqjutpX4vk1XCUICL7T9Epsx/IGu/f
-2Nc15VGkttr8Py1ks3h/9FWOmskmVbvPfUV1Ow6ZX9DxKlFwTiA=
-=8CUI
+iQIzBAEBCAAdFiEE+6JuPTjTbx479o3OWt5b1Glr+6UFAl49zr4ACgkQWt5b1Glr
++6WFERAAkTNwy4n6EQxwsIyRzDd+CmlogBBDZeXJBdU1gdgDgczIoT/jkg/xM+Cx
+yCtLIm9H2R6o+OYuLesF0rg8Hy3RlRAdbxmVPA/a6BgebhRS9VHMPzzyaTiG467b
+nsT1xfOg2R0nrVWPCX15xNKB2GbON5Jh7xYmlT2Fj6mFk2boCAV5Wel0E8B01aDd
+EgYGmudJRjtlT83eBO180uJzCO8LwtRe5FVgMY+zuuws6a173AglC3n+nINjrn0Y
+SPhp1eq3tr12oWA2ffPu7NUVicKl9wAS6I3VLSmtbZtOwVuJEMkg6R8zqEi1Sf/p
+9julOmyZH+cE652GScA79SpY7vwJD9ihZW7TKlF0bMhbb66Xekcj6YGtHJWGLx8g
+FpTTGRUdFd74ImwHY1JlwLoKzaA9DKgDW8wXZsJ1PRRJk+NjA9KKEZxmQtgD32E8
+E6V24WZcid30b5xvyqKAS6GTtOi7Y/75IGGvkCvwk37Fh8LiARF8zWHOFt7ozWxo
+NJ4leX2d+MRv4m2qZizq7/AjPguEt2yuoylF5u5OfmtShXOCRGZVHM2MHKNpeaK4
+dBr0rtIThA4/JP+N+7GiG9PhUY52KtzKiXgLMzU9X8aFjsL/VJHfHdTmcSBb7syW
+d/uVoB8UAkXXWr9plm0EJjOmKd2cOIWBpaCqXizeQJsz5HMthwI=
+=dzvK
 -----END PGP SIGNATURE-----
 
---cWb018YvvgsxMQzfzjhqlXxtsVa5pLkIZ--
+--GlkJcoxwMWq9787WhjIcTHSGyXMXSrsQO--

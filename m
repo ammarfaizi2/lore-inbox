@@ -2,105 +2,102 @@ Return-Path: <SRS0=xqoz=37=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE9F7C3B187
-	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:03:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D5AEC35242
+	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:06:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF08B20842
-	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:03:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28CF620842
+	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:06:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ielnlRFK"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="KRHyrqNS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729881AbgBKUDF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 11 Feb 2020 15:03:05 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:55648 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730912AbgBKUCz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 11 Feb 2020 15:02:55 -0500
-Received: by mail-wm1-f66.google.com with SMTP id q9so5266377wmj.5;
-        Tue, 11 Feb 2020 12:02:53 -0800 (PST)
+        id S1728211AbgBKUGD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 11 Feb 2020 15:06:03 -0500
+Received: from mail-io1-f54.google.com ([209.85.166.54]:44197 "EHLO
+        mail-io1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727762AbgBKUGD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 11 Feb 2020 15:06:03 -0500
+Received: by mail-io1-f54.google.com with SMTP id z16so13205665iod.11
+        for <io-uring@vger.kernel.org>; Tue, 11 Feb 2020 12:06:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=OiH+02ziKtnOG8xgRb7M30iMhSugqwUS+kAPH3uo6xE=;
-        b=ielnlRFKPlRS7XN3izTLQLFmjbKK8WMP872CwhuwIi0M5AYP4JG2PNz0xbKn2/lfxC
-         O/vM5Vxnip39X7w8jkvTy3fQ1Rx5o7Mj1nUaLLj072+GSYy92CT1Yt5JUbrLOwpeHyiX
-         ZkY7QICICj8Cll9UeC0a9BhyyYNXzw9LwAz+ymJLK34ZKODFI6fV/R9AMYTjq++Peu/a
-         HTWevZSnbNdWiZ0KrBp7IhNhdUiPsLRcEb36GB9bPHYBlHP59kfJ4+aDvLoToygKJ8uD
-         NAjONvGnXcgElHlbXS5W9XSsgf+aayT1zxRNFwAfdlG4JjXZrX0aTQUGcJYQEkN4BJT3
-         ZfXg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=FpfPq3R5BrbBpww0mfOuGDw22fVDFzP/524w9CLu6mQ=;
+        b=KRHyrqNSDxIMsZdwtDfUcrGNHZX8fO5+AMBBp77tQ3BImF8myvb9Tlg5pGaGwQXaMe
+         7Z6QAGZrkxn1EAvFgKDrRNiPPsQAvD2kS8VGHyeJJSsSRgg47fnXny2Sys72PdKn8DyM
+         F8nMer356fLFhGFu9PEStq5NEQYBGvOBpNF3ntireRy+DKjyBRvvznmnRAJmoVsZzlwD
+         e8JjeznJrSf0G7TgKKZ/16espGwF4ngs4rvBicb2gIGlJp7RWp6Lggse4BUkBVFq1pel
+         x70gbS/2wUZ8Pmq8HMkwf8Wu6BjpKnHwoGgDhF4fSjebREYgvuGUC7UF0bdyxeYxgjDS
+         lvwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=OiH+02ziKtnOG8xgRb7M30iMhSugqwUS+kAPH3uo6xE=;
-        b=VQ35Le0Y+SAIf1JvnpB7x3N3xCD9WldOEOvUHiWnKkKOPo4eUzsHKYJWCX4lzdohvC
-         Cwu78mFEE5FRTe28clmjUrzl/iDdKAmyNzI/M9qlFvHfYC0XLU6HqrjSUpZolDlmjmbV
-         avtWf/zz/zF3+8/41BPjHgBLa0jTDov9zuisvbYqz8GlqV7KFrrdp9X+cgDspmEvcnNs
-         0NaDIoJ9lvLNscHIWZUSOYQTpVTy7ZdXhkDVuC+YKHFz6yaWBYWyN+KEUoj7z28f5Dg/
-         px2sWahTYsNg8T1jPgZcr2QOmVmkRlzY/XiPm8si1ZUs+lNl+6XIkRYdlJWF2OlJo7Vj
-         EauA==
-X-Gm-Message-State: APjAAAVKTPyHPgpxKysnd0rJ82ItLx4l5+R6o2i7Pcvi8yD90iE1ykFV
-        xaJpcYxtM7y7PqstnY8lauQ=
-X-Google-Smtp-Source: APXvYqyzJuDfzjvW2+rfty1C+evPWsoiWOWwUIYZ3RoQa7ydIAi0d6gDDk/DKntfMPt+rP/ZNcn3sw==
-X-Received: by 2002:a1c:688a:: with SMTP id d132mr7990674wmc.189.1581451372841;
-        Tue, 11 Feb 2020 12:02:52 -0800 (PST)
-Received: from localhost.localdomain ([109.126.145.62])
-        by smtp.gmail.com with ESMTPSA id 4sm4955101wmg.22.2020.02.11.12.02.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2020 12:02:52 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] io_uring: add missing io_req_cancelled()
-Date:   Tue, 11 Feb 2020 23:01:57 +0300
-Message-Id: <0a34342f63cd7a535cc54e5e1fe3ab73907a7da9.1581450491.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1581450491.git.asml.silence@gmail.com>
-References: <cover.1581450491.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FpfPq3R5BrbBpww0mfOuGDw22fVDFzP/524w9CLu6mQ=;
+        b=Z2xYvCg22eO8XeldLK+3jrZFf7vUxiHTNOcOuRLvAyyv1RCC0xNFczBdrEGVUy2Eqh
+         xZvF/JXC7Tu7m9oSMiZ/XER4fwkiTvnzebzgdD+92fKXmzMzq4dxxTZFNnaJhUj7Xs4T
+         WnitC2/2Pkhd19EypUqEOHIA2jPREUfHd344jhcuk42753zcmaxV+N7ND2dXyBe/qbJK
+         JEjS8DRiC4wIxDEjkQ/2sh+KoBz/x2DA91SZ/E91rUR8PJ5XLMWqpPy7aKp3Z5vo0XkA
+         nj3e5aZ0O0L89U/5jZqXSSz6mJf97C7bdzZbzNJUlO2Lm8oMEQ6wqpy93SZAIIrb0W5B
+         +gIg==
+X-Gm-Message-State: APjAAAWLy7z0V+F/RfmsLTGq6K0pVbjfc09R1+p9K/i6rBDGqGGoBb8z
+        rgZMbGrMT/T8Yy6l+xD8fcYjqlwFelU=
+X-Google-Smtp-Source: APXvYqxVxu/yxM3wBRIjOc54AlbRq5Iqa4VCNcxvPsMIP8KrZ84ouSrPOHT529K1Ogdp83RpAOPeQw==
+X-Received: by 2002:a6b:e601:: with SMTP id g1mr14593759ioh.55.1581451562546;
+        Tue, 11 Feb 2020 12:06:02 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id a21sm1289717ioh.29.2020.02.11.12.06.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Feb 2020 12:06:02 -0800 (PST)
+Subject: Re: [PATCHSET 0/3] io_uring: make POLL_ADD support multiple waitqs
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <20200210205650.14361-1-axboe@kernel.dk>
+ <c3fd3aa0-4358-6148-7486-ea52b410a5a6@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <692a561c-9176-63fa-3c48-7f37a8214057@kernel.dk>
+Date:   Tue, 11 Feb 2020 13:06:00 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <c3fd3aa0-4358-6148-7486-ea52b410a5a6@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-fallocate_finish() is missing cancellation check. Add it.
-It's safe to do that, as only flags setup and sqe fields copy are done
-before it gets into __io_fallocate().
+On 2/11/20 1:01 PM, Pavel Begunkov wrote:
+> On 10/02/2020 23:56, Jens Axboe wrote:
+>> As mentioned in the previous email, here are the three patches that add
+>> support for multiple waitqueues for polling with io_uring.
+>>
+>> Patches 1-2 are just basic prep patches, and should not have any
+>> functional changes in them. Patch 3 adds support for allocating a new
+>> io_poll_iocb unit if we get multiple additions through our queue proc
+>> for the wait queues. This new 'poll' addition is queued up as well, and
+>> it grabs a reference to the original poll request.
+>>
+>> Please do review, would love to get this (long standing) issue fixed as
+>> it's a real problem for various folks.
+>>
+> 
+> I need to dig a bit deeper into poll to understand some moments, but there is a
+> question: don't we won't to support arbitrary number of waitqueues then?
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 +++
- 1 file changed, 3 insertions(+)
+In theory, probably. But in practice, don't think anything exists with > 2
+waitqueues. As mentioned, even the 2 waitqueue case is limited to less than
+a handful of users.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f3108bce4afe..b33f2521040e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2529,6 +2529,8 @@ static void io_fallocate_finish(struct io_wq_work **workptr)
- 	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
- 	struct io_kiocb *nxt = NULL;
- 
-+	if (io_req_cancelled(req))
-+		return;
- 	__io_fallocate(req, &nxt);
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
-@@ -2905,6 +2907,7 @@ static void io_close_finish(struct io_wq_work **workptr)
- 	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
- 	struct io_kiocb *nxt = NULL;
- 
-+	/* not cancellable, don't io_req_cancelled() */
- 	__io_close_finish(req, &nxt);
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+But the patch should for sure check this, and -EINVAL if we get a third
+entry attempted.
+
 -- 
-2.24.0
+Jens Axboe
 

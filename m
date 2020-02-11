@@ -5,62 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30A41C35242
-	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:02:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F27AC35242
+	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:03:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0613520659
-	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:02:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EF8720659
+	for <io-uring@archiver.kernel.org>; Tue, 11 Feb 2020 20:03:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rdaUQf+w"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JhItJE9v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731727AbgBKUCz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 11 Feb 2020 15:02:55 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42318 "EHLO
+        id S1731734AbgBKUC4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 11 Feb 2020 15:02:56 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37913 "EHLO
         mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727955AbgBKUCx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 11 Feb 2020 15:02:53 -0500
-Received: by mail-wr1-f68.google.com with SMTP id k11so14034495wrd.9;
-        Tue, 11 Feb 2020 12:02:51 -0800 (PST)
+        with ESMTP id S1731722AbgBKUC4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 11 Feb 2020 15:02:56 -0500
+Received: by mail-wr1-f68.google.com with SMTP id y17so14056196wrh.5;
+        Tue, 11 Feb 2020 12:02:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=JoJVONI9ynzOQnCp/Q3VBaIx3fqD2PLhYmRbsdZ0IMM=;
-        b=rdaUQf+wDobwiG7cRBhwJRYvsUOxx0oNOJwo0P03pFApmIjdSKxEu0f9fNxn0IdTxL
-         sMtLew8pF6MKkWpS/tpeMNpC2BsP5csjcLqZntO1sEkktQ6aeM8OLr8lw9plB1n96lmD
-         C2cQtPpq8wlFOxa5SCwd6uFS2Cw6oWS9aHV3Fh74UMGj7AW6PpKvG2omcZweE8fjRD4x
-         LgtMSyqYENBhqdtaL5bCJBJM3HBYnJlYQRphndrCrX7Ce1OT3nOXQVRygDw8WrnnQPf9
-         WLZirWiyyqWP3sRFuWXxNfXfreA6SgK2XaKxqUaFhLD0MknInA7IAkvhnLEcyPtP/Jzu
-         XgAw==
+        bh=qMiSHIRbdzW3UGsV0CTSItDQk6U8dFeQqM5nwbwYTLk=;
+        b=JhItJE9v3lQu9D40opOS6v9TouSFMBTYwvO1dSj/Jw1E2q2tySJVLIEDAgYL0/Ldr7
+         dOAT7q+AG6ZjLCFhR/PcLwje5nrkbyXi45EqG4lSrXvauA/pe354mh9MLOH8LvxAcFG3
+         aTL+58dd46iwnUx1/CyL4LHrq4QqNzmxQeVotzwtnlr3tRVh6H5XnGa/ME8pZmqK2duW
+         rQG/UM0xfQDkQJHElzpFdNzPAODmpGKzo2b0PwffYhwo8iEEjg3BCVYFOEBx3Q8dV/Hb
+         EyKeZwwMyBwHZUMvXYSL1e/qZA8dt5y6eJKqWRQIw3NlxSBsFRlhC2JdmbnzQYhS80Bo
+         8Wbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=JoJVONI9ynzOQnCp/Q3VBaIx3fqD2PLhYmRbsdZ0IMM=;
-        b=r/HEcomw4BQv8x+G1QwJahb+SxwNztvnjKo6llegbJkGdIzTDV97KYyKWB66GK4POK
-         QIbx7LdewJp6bDWcj1xaBBwbk0pEcDA2a/T/LaNKdY2uiSXSZEe8dXaaPFlffpFxg9wy
-         BKoTUNI7JMfTL5tmbuxG4DMBoUpHZdFdVGJT6vix5hjT+2tAq0WSp6Os8Ek04QJgpfVc
-         OT175eWXfFiGYQA0xJNINInPBENa6Jk/z+U2ZjPgzf2hmACaVJMMaLxNEgvjtE0I2Ix7
-         tgu47Sf/waKoxXj17xX0DHBL0KQk1S11y8OUA17LjYLvsOK5ttFlKdQTQqSv4X1xizNU
-         xJXw==
-X-Gm-Message-State: APjAAAUeR2e04hyTErL7L8uU/b/oYWkvjTQRrdaSLvBuGUmDG7y2q+zI
-        HtscZqk3Adg6BiIv3fm+EB1g+uDc
-X-Google-Smtp-Source: APXvYqyEm/aUq2S5+C5q3JwTuvzsUeaUELJnuGSq8hsA4hWF0bgU4oljaG6AsyckNEdkZNYT2CeLxw==
-X-Received: by 2002:a5d:61cf:: with SMTP id q15mr10050833wrv.74.1581451370644;
-        Tue, 11 Feb 2020 12:02:50 -0800 (PST)
+        bh=qMiSHIRbdzW3UGsV0CTSItDQk6U8dFeQqM5nwbwYTLk=;
+        b=LCgS7IVDIjlzo2ULsOjh+GK78ARnmRMIZwEtW0vYmLJEtrWLxLlNLcLYsZ54X9WbAQ
+         3Zhw3pUmiFZ2u36Nfb4NCx0RVwB5+kpOQC3Rh4/veeD4nbYLadcgjRpJA3lPqVghzKxu
+         scziNUnTLUkbQ19+7yze24b2h8ROLXDOR/2dn4ByajUFSlhWqWvNrU7928/lB5wYAt8v
+         nfKiE2P/1gDo3vsdZ6bzxPMNnZY5vtWI2CxLPy4gW4Q7nQmra7E5YRJQrTmudNYzsjn8
+         w+qBluFOfI2PRyRWyWW5twtd5RWb5QETwYjaX+mnOOkqI/8XquHwZrUjTJsBEIKp9mVQ
+         3Fzg==
+X-Gm-Message-State: APjAAAU39s7bKNGd6Eyz19wOHrZIecD6wyzExQOD8F2uRUMheo0iFzv2
+        YrSduarA947PvCPuu/p0nBXpPo8P
+X-Google-Smtp-Source: APXvYqzyVSJFs9k3jXMni0lOF58D9WNghqgSRDIWYrxWCBrA+Hye+zfx8cJo7CRXQel+EB1d9azW4A==
+X-Received: by 2002:a5d:6ac4:: with SMTP id u4mr10145014wrw.318.1581451374009;
+        Tue, 11 Feb 2020 12:02:54 -0800 (PST)
 Received: from localhost.localdomain ([109.126.145.62])
-        by smtp.gmail.com with ESMTPSA id 4sm4955101wmg.22.2020.02.11.12.02.49
+        by smtp.gmail.com with ESMTPSA id 4sm4955101wmg.22.2020.02.11.12.02.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2020 12:02:50 -0800 (PST)
+        Tue, 11 Feb 2020 12:02:53 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/5] io_uring: don't call work.func from sync ctx
-Date:   Tue, 11 Feb 2020 23:01:55 +0300
-Message-Id: <ef53fa1d05e92d333f20d75a682570565945348f.1581450491.git.asml.silence@gmail.com>
+Subject: [PATCH 5/5] io_uring: purge req->in_async
+Date:   Tue, 11 Feb 2020 23:01:58 +0300
+Message-Id: <4ec21bcc4b477808d918efa6ec691469207b1db1.1581450491.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1581450491.git.asml.silence@gmail.com>
 References: <cover.1581450491.git.asml.silence@gmail.com>
@@ -71,186 +71,77 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Many operations define custom work.func before getting into an io-wq.
-There are several points against:
-- it calls io_wq_assign_next() from outside io-wq, that may be confusing
-- sync context would go unnecessary through io_req_cancelled()
-- prototypes are quite different, so work!=old_work looks strange
-- makes async/sync responsibilities fuzzy
-- adds extra overhead
-
-Don't call generic path and io-wq handlers from each other, but use
-helpers instead
+req->in_async is not really needed, it only prevents propagation of
+@nxt for fast not-blocked submissions. Remove it.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 76 +++++++++++++++++++++++++--------------------------
- 1 file changed, 38 insertions(+), 38 deletions(-)
+ fs/io_uring.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 98da478ae56c..04680d2c205c 100644
+index b33f2521040e..a50e7ac41668 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2462,23 +2462,28 @@ static void io_wq_assign_next(struct io_wq_work **workptr, struct io_kiocb *nxt)
+@@ -550,7 +550,6 @@ struct io_kiocb {
+ 	 * llist_node is only used for poll deferred completions
+ 	 */
+ 	struct llist_node		llist_node;
+-	bool				in_async;
+ 	bool				needs_fixed_file;
+ 	u8				opcode;
+ 
+@@ -1974,14 +1973,13 @@ static inline void io_rw_done(struct kiocb *kiocb, ssize_t ret)
  	}
  }
  
--static void io_fsync_finish(struct io_wq_work **workptr)
-+static void __io_fsync(struct io_kiocb *req, struct io_kiocb **nxt)
+-static void kiocb_done(struct kiocb *kiocb, ssize_t ret, struct io_kiocb **nxt,
+-		       bool in_async)
++static void kiocb_done(struct kiocb *kiocb, ssize_t ret, struct io_kiocb **nxt)
  {
--	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
- 	loff_t end = req->sync.off + req->sync.len;
--	struct io_kiocb *nxt = NULL;
- 	int ret;
+ 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw.kiocb);
  
--	if (io_req_cancelled(req))
--		return;
--
- 	ret = vfs_fsync_range(req->file, req->sync.off,
- 				end > 0 ? end : LLONG_MAX,
- 				req->sync.flags & IORING_FSYNC_DATASYNC);
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	io_cqring_add_event(req, ret);
--	io_put_req_find_next(req, &nxt);
-+	io_put_req_find_next(req, nxt);
-+}
-+
-+static void io_fsync_finish(struct io_wq_work **workptr)
-+{
-+	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
-+	struct io_kiocb *nxt = NULL;
-+
-+	if (io_req_cancelled(req))
-+		return;
-+	__io_fsync(req, &nxt);
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
- }
-@@ -2486,26 +2491,18 @@ static void io_fsync_finish(struct io_wq_work **workptr)
- static int io_fsync(struct io_kiocb *req, struct io_kiocb **nxt,
- 		    bool force_nonblock)
- {
--	struct io_wq_work *work, *old_work;
--
- 	/* fsync always requires a blocking context */
- 	if (force_nonblock) {
- 		io_put_req(req);
- 		req->work.func = io_fsync_finish;
- 		return -EAGAIN;
- 	}
--
--	work = old_work = &req->work;
--	io_fsync_finish(&work);
--	if (work && work != old_work)
--		*nxt = container_of(work, struct io_kiocb, work);
-+	__io_fsync(req, nxt);
- 	return 0;
- }
+ 	if (req->flags & REQ_F_CUR_POS)
+ 		req->file->f_pos = kiocb->ki_pos;
+-	if (in_async && ret >= 0 && kiocb->ki_complete == io_complete_rw)
++	if (ret >= 0 && kiocb->ki_complete == io_complete_rw)
+ 		*nxt = __io_complete_rw(kiocb, ret);
+ 	else
+ 		io_rw_done(kiocb, ret);
+@@ -2274,7 +2272,7 @@ static int io_read(struct io_kiocb *req, struct io_kiocb **nxt,
  
--static void io_fallocate_finish(struct io_wq_work **workptr)
-+static void __io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt)
- {
--	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
--	struct io_kiocb *nxt = NULL;
- 	int ret;
- 
- 	ret = vfs_fallocate(req->file, req->sync.mode, req->sync.off,
-@@ -2513,7 +2510,15 @@ static void io_fallocate_finish(struct io_wq_work **workptr)
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	io_cqring_add_event(req, ret);
--	io_put_req_find_next(req, &nxt);
-+	io_put_req_find_next(req, nxt);
-+}
-+
-+static void io_fallocate_finish(struct io_wq_work **workptr)
-+{
-+	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
-+	struct io_kiocb *nxt = NULL;
-+
-+	__io_fallocate(req, &nxt);
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
- }
-@@ -2533,8 +2538,6 @@ static int io_fallocate_prep(struct io_kiocb *req,
- static int io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt,
- 			bool force_nonblock)
- {
--	struct io_wq_work *work, *old_work;
--
- 	/* fallocate always requiring blocking context */
- 	if (force_nonblock) {
- 		io_put_req(req);
-@@ -2542,11 +2545,7 @@ static int io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt,
- 		return -EAGAIN;
+ 		/* Catch -EAGAIN return for forced non-blocking submission */
+ 		if (!force_nonblock || ret2 != -EAGAIN) {
+-			kiocb_done(kiocb, ret2, nxt, req->in_async);
++			kiocb_done(kiocb, ret2, nxt);
+ 		} else {
+ copy_iov:
+ 			ret = io_setup_async_rw(req, io_size, iovec,
+@@ -2387,7 +2385,7 @@ static int io_write(struct io_kiocb *req, struct io_kiocb **nxt,
+ 		if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
+ 			ret2 = -EAGAIN;
+ 		if (!force_nonblock || ret2 != -EAGAIN) {
+-			kiocb_done(kiocb, ret2, nxt, req->in_async);
++			kiocb_done(kiocb, ret2, nxt);
+ 		} else {
+ copy_iov:
+ 			ret = io_setup_async_rw(req, io_size, iovec,
+@@ -4523,7 +4521,6 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
  	}
  
--	work = old_work = &req->work;
--	io_fallocate_finish(&work);
--	if (work && work != old_work)
--		*nxt = container_of(work, struct io_kiocb, work);
--
-+	__io_fallocate(req, nxt);
- 	return 0;
- }
+ 	if (!ret) {
+-		req->in_async = true;
+ 		do {
+ 			ret = io_issue_sqe(req, NULL, &nxt, false);
+ 			/*
+@@ -5059,7 +5056,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			*mm = ctx->sqo_mm;
+ 		}
  
-@@ -2949,21 +2948,27 @@ static int io_prep_sfr(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	return 0;
- }
- 
--static void io_sync_file_range_finish(struct io_wq_work **workptr)
-+static void __io_sync_file_range(struct io_kiocb *req, struct io_kiocb **nxt)
- {
--	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
--	struct io_kiocb *nxt = NULL;
- 	int ret;
- 
--	if (io_req_cancelled(req))
--		return;
--
- 	ret = sync_file_range(req->file, req->sync.off, req->sync.len,
- 				req->sync.flags);
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	io_cqring_add_event(req, ret);
--	io_put_req_find_next(req, &nxt);
-+	io_put_req_find_next(req, nxt);
-+}
-+
-+
-+static void io_sync_file_range_finish(struct io_wq_work **workptr)
-+{
-+	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
-+	struct io_kiocb *nxt = NULL;
-+
-+	if (io_req_cancelled(req))
-+		return;
-+	__io_sync_file_range(req, &nxt);
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
- }
-@@ -2971,8 +2976,6 @@ static void io_sync_file_range_finish(struct io_wq_work **workptr)
- static int io_sync_file_range(struct io_kiocb *req, struct io_kiocb **nxt,
- 			      bool force_nonblock)
- {
--	struct io_wq_work *work, *old_work;
--
- 	/* sync_file_range always requires a blocking context */
- 	if (force_nonblock) {
- 		io_put_req(req);
-@@ -2980,10 +2983,7 @@ static int io_sync_file_range(struct io_kiocb *req, struct io_kiocb **nxt,
- 		return -EAGAIN;
- 	}
- 
--	work = old_work = &req->work;
--	io_sync_file_range_finish(&work);
--	if (work && work != old_work)
--		*nxt = container_of(work, struct io_kiocb, work);
-+	__io_sync_file_range(req, nxt);
- 	return 0;
- }
- 
+-		req->in_async = async;
+ 		req->needs_fixed_file = async;
+ 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
+ 						true, async);
 -- 
 2.24.0
 

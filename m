@@ -5,65 +5,65 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A55DC71153
-	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:08:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A14CC352A3
+	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:17:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 304F32073A
-	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:08:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 03131207FF
+	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:17:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dN4Y0XyN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QoT9Ba5v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727858AbgBOWIf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Feb 2020 17:08:35 -0500
-Received: from mail-wr1-f53.google.com ([209.85.221.53]:42711 "EHLO
-        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726254AbgBOWIe (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Feb 2020 17:08:34 -0500
-Received: by mail-wr1-f53.google.com with SMTP id k11so15163799wrd.9;
-        Sat, 15 Feb 2020 14:08:33 -0800 (PST)
+        id S1726254AbgBOWRo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Feb 2020 17:17:44 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:37090 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726273AbgBOWRo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Feb 2020 17:17:44 -0500
+Received: by mail-wm1-f65.google.com with SMTP id a6so14604083wme.2;
+        Sat, 15 Feb 2020 14:17:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=sbvEo/naFERjUYOPHspLHaY1gFUk55B/2BCDQMZwrgQ=;
-        b=dN4Y0XyNBftlvGyup8AQoXBIxj4AiztPyAuswFhHsdvAyvYNgyX6L88EiLQq+xoKY4
-         e7RjK/ohm+ADK1MGG6kRqyFvFOY6PiWvaVI82Tjrjmhia1bczujPPy7/UuFB618G8dmW
-         K6GXDbRW4TogQnX0ZtCCPF9qygvLZU6G5foz+gtPAwS3Qyt/mh258Kfz/FaPFr882tBt
-         ev18lYt13Q0B7MPyo0iNkkKl3HxJw1rSqGqx8JR5xTocUllniZzcqmLoUjfbbgkytdse
-         Wqq0XX0VxEmO8YtqMq+j8mBLfKS81tVAdMNmMltz8isGJ8zzKkW06sDvPAjBk8ce9P3v
-         TI7w==
+        bh=6CyS3ovMTI3rLTwxaFUWikmoGbQY45rGievk0K7pkXs=;
+        b=QoT9Ba5vwhWGe5BhQyrXiNAb4BHAJciC3YyMro1VVl0leRo63jYo2Be+uiIikz289g
+         i4FlxPcBDaTlmn7BSZNvB8zZJPqDXGnHvNpRHO6JEPKhu3qxaEhinW96BQ1Uhbog3gSy
+         U9Hc8Fv2DNkYAPPGYjLNppDTBRSsfTcBFwTCJLdTPK2EQOSHQnhyXkyaG1vRvWBJgtSg
+         uLUYI2EEkKuxtxfoqJFKuiZOhB0d2tlhqi3kBKLAN1HgvJJciqYF1N8xvojuqvvVLW3Q
+         byNkQ9IvqNEHnRQu5agcmhqPeWWddWMkg6Q8i0zVlBYZ9i8i2FaZX7yhC/aUX/t1hMGZ
+         nCgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sbvEo/naFERjUYOPHspLHaY1gFUk55B/2BCDQMZwrgQ=;
-        b=QEaC5uDMJfpjKko6NJMqN0hIAL396en2AmCQX2En/O2JCy4Af3mDY1GveexV7wZ2yl
-         +LZZU78vu2rAzJ31414cF7LAa7w0L4SZAMlkRFPxfOJySv6WOvjFlUw3QMvnyeSxxzVH
-         lUUfYDu6dbUrcGjanBU1fb12AOhhKAdmombTZMAi6MqDRUxPFdLOoUZ7hrlLr99nb8E5
-         q9WgG8OiX51jv1J47aRIk2Tw2t4ysVtyiJJysroTiYgJ5QyRI5C6+8BcnPh1cVDmLFP2
-         zbLMzxbswJzBjADn7xNoTZl7g84eMHYlCm+B/Xjl0xCv+kEgOc3dvM+7CKd1YymBJzwz
-         lDeA==
-X-Gm-Message-State: APjAAAWKngycVfRpRXUvfFzKXUFKvUilL2oNE26JQunKZQ1HRZ9Gq1r9
-        whtE0HDaTSWfTHB0XFWRUGY=
-X-Google-Smtp-Source: APXvYqzjcs6J41+pdTy0r4885gbARd86VIVEpHrGk8yYS4CaSmrrnsGdZWgvBxLiCt/mImUM0jjsig==
-X-Received: by 2002:adf:9c8d:: with SMTP id d13mr12498254wre.392.1581804512455;
-        Sat, 15 Feb 2020 14:08:32 -0800 (PST)
+        bh=6CyS3ovMTI3rLTwxaFUWikmoGbQY45rGievk0K7pkXs=;
+        b=GjC+VYCEpyiIVsI/rNP4LhWCf18ABhr58ar3Q2Dhr7U5pdoOGkqpm0Omui2LaNfDrp
+         P1saYO9PYC+v0Ju/fRoe/+iO05GAIxH3h2mACFkhklJOoVN/3GqJb4mHxGs0sqC1wlNk
+         LxNDC4NvqYIcu1dCyHs5Lbkcjnp+ZOfsx256YQkS1B7fsTFTuXrOSdCmuqd/W6NzMxLT
+         azEQA1D5KNRwYTAb+F85DmIkz/tj61+cKXILxd4KJfTEk299taKKRqlyp9SKTXaIlLIU
+         56TNMlxBsBGIut1Ph8qp4jSZktEAtPPzTPBnQrGThd1aMKPdo+OVl8yMJKypV+3v7qxX
+         +Xbw==
+X-Gm-Message-State: APjAAAWc0ZQ1a3GgmnKnIlAakXjPnMYRd97OksjbPJN1Va3QL7+kOM5n
+        6kuyl4mmsjsJglmXeU2AGBg=
+X-Google-Smtp-Source: APXvYqwB0GmNLQ3gRXb6Nnv1U7xrRXgUT0KVZYH9DYmJv29qnWT/qNBPoOyJ/ea5dsP9oOa4iJDCRg==
+X-Received: by 2002:a1c:9ed7:: with SMTP id h206mr12281354wme.67.1581805061815;
+        Sat, 15 Feb 2020 14:17:41 -0800 (PST)
 Received: from localhost.localdomain ([109.126.146.5])
-        by smtp.gmail.com with ESMTPSA id h71sm14539719wme.26.2020.02.15.14.08.31
+        by smtp.gmail.com with ESMTPSA id u14sm12888802wrm.51.2020.02.15.14.17.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Feb 2020 14:08:32 -0800 (PST)
+        Sat, 15 Feb 2020 14:17:41 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH liburing  1/2] splice: add splice(2) helpers
-Date:   Sun, 16 Feb 2020 01:07:35 +0300
-Message-Id: <c37123d3112a1c438a7d588a36e021ab8ea03007.1581803684.git.asml.silence@gmail.com>
+Subject: [PATCH liburing 1/2] splice: add splice(2) helpers
+Date:   Sun, 16 Feb 2020 01:16:53 +0300
+Message-Id: <bbb5b5bb4344d931c0296855c5ba8ae2eb0e89ff.1581804801.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1581803684.git.asml.silence@gmail.com>
-References: <cover.1581803684.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1581804801.git.asml.silence@gmail.com>
+References: <cover.1581804801.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -75,15 +75,18 @@ Add splice helpers and update io_uring.h
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- src/include/liburing.h          | 12 ++++++++++++
+
+Quick update for extra newline and the fixed fd comment
+
+ src/include/liburing.h          | 11 +++++++++++
  src/include/liburing/io_uring.h | 14 +++++++++++++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/src/include/liburing.h b/src/include/liburing.h
-index 8ca6cd9..16ccadd 100644
+index 8ca6cd9..0628255 100644
 --- a/src/include/liburing.h
 +++ b/src/include/liburing.h
-@@ -191,6 +191,18 @@ static inline void io_uring_prep_rw(int op, struct io_uring_sqe *sqe, int fd,
+@@ -191,6 +191,17 @@ static inline void io_uring_prep_rw(int op, struct io_uring_sqe *sqe, int fd,
  	sqe->__pad2[0] = sqe->__pad2[1] = sqe->__pad2[2] = 0;
  }
  
@@ -98,12 +101,11 @@ index 8ca6cd9..16ccadd 100644
 +	sqe->splice_flags = splice_flags;
 +}
 +
-+
  static inline void io_uring_prep_readv(struct io_uring_sqe *sqe, int fd,
  				       const struct iovec *iovecs,
  				       unsigned nr_vecs, off_t offset)
 diff --git a/src/include/liburing/io_uring.h b/src/include/liburing/io_uring.h
-index 424fb4b..0623e00 100644
+index 424fb4b..dc78697 100644
 --- a/src/include/liburing/io_uring.h
 +++ b/src/include/liburing/io_uring.h
 @@ -23,7 +23,10 @@ struct io_uring_sqe {
@@ -150,7 +152,7 @@ index 424fb4b..0623e00 100644
 + * sqe->splice_flags
 + * extends splice(2) flags
 + */
-+#define SPLICE_F_FD_IN_FIXED	(1U << 31) /* last bit for __u32 */
++#define SPLICE_F_FD_IN_FIXED	(1U << 31) /* the last bit of __u32 */
 +
  /*
   * IO completion data structure (Completion Queue Entry)

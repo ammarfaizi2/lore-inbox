@@ -8,62 +8,64 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4F3DC71150
-	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:02:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05F32C7114E
+	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:06:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8CCB92084E
-	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:02:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6F252073A
+	for <io-uring@archiver.kernel.org>; Sat, 15 Feb 2020 22:06:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hbem07l4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kPSdhig2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727799AbgBOWCk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Feb 2020 17:02:40 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:44248 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726273AbgBOWCZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Feb 2020 17:02:25 -0500
-Received: by mail-wr1-f67.google.com with SMTP id m16so15136418wrx.11;
-        Sat, 15 Feb 2020 14:02:24 -0800 (PST)
+        id S1727884AbgBOWGo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Feb 2020 17:06:44 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:34797 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727804AbgBOWGn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Feb 2020 17:06:43 -0500
+Received: by mail-wr1-f68.google.com with SMTP id n10so13228148wrm.1;
+        Sat, 15 Feb 2020 14:06:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Mjj1IxLNFWUTyDB8HRS0Csc4RBUjRWyDOD91E1pMNvA=;
-        b=hbem07l4r8PvKkWVTdXDfXgermLK3/Ba3RvreWQvH15cUuY88hKR1ZA4wYYyB7gJxM
-         b9syaFeTJctWtSZylT8pJfVTYIZx1z7M70jbN5lzv9VDpuspUPe9Aq54MiXSKY46OYoH
-         bjdTM+QiItOx+C1ww1QBhpy6ccKt39K8BjB/LawtbKMtLXRMb9F+T+fk8aX8+Larr3yR
-         QylW+0oNehqEFn07BKPcBi+Jii0iV9KXmOIiQ3Fw2Upu8HYEX6rLCAH48DHpdAYTwls3
-         vJYVfBR+mLmDw4T0u3FbP+zK6Y/nwmJoxxvvJZBoQoCZHNRZBlxSXBl0xgOiQrr1vNNa
-         yYng==
+        bh=fc1GAnpw884550NPulN3RKMom4ysjGxVOe69KHdCWnw=;
+        b=kPSdhig2gFchvsr1r3rAqyKoR0AGehdQtwyyYqAv6qBhxcOg4P2k/lzlfhK01lLjMv
+         zfLvzVRwtNUWcVWx/BOyuAdZBhrK1jOgywqued2MA3ebpS5rAfk6G4fDLT65kqQMs+Pz
+         poKWz+EFUStanQRdXaYcAv1eULA8IsJxrO8hXIJv9RR17hKspyJKUdLdlxbHFMI4bxwz
+         MA6MSB43VcCno2tY5P4tK8D32QQydR5yWN3OzUrPghKuJl6+vIdHMaXA4pvRj0DUFJco
+         PJolMLWgN+2rjMNF7vuYeo08KddxwuboID8w+s7YKyzEXUOtz+P6cfYa+G10jd0gKvZw
+         AdeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Mjj1IxLNFWUTyDB8HRS0Csc4RBUjRWyDOD91E1pMNvA=;
-        b=g2+lHQ2eO+mAYBw91A40E02c35SsfjUuxbQUzvyK/8Yw2bW+vCEbchfc4RP/aZCS04
-         Dkl0iZoZhmKKnJkr6cJrynWB1LjGWwkoeviVQSJEaUeNsAsBiqQiGTn7QR1izBzOcX3h
-         Gmo4hHKftxC+BBqhsVl+ws4pk6DpAQaImvEYmsvmAbmH0Q+vaEOazjvdh2JjtUV+w4sf
-         m/sGxpIv8OS1R2VB2P3eusDIj1vncTOz2PvBeefUOy96AjgjgJAvlilYpF6xnmdfmDIb
-         nFwOgzDY4QiMh8lK7P5MrnV9AdevyYfTFBSrZtRSI079tXKpxivDMdzaa7aJH0M5M94y
-         /SxQ==
-X-Gm-Message-State: APjAAAX1hWmJJwRjFGVON8EmPFugFDH/8IJw4gQJyvd7AuivmMpp8io6
-        Ko3h+LFVCrplatc9YyPyQ92Yr2P2
-X-Google-Smtp-Source: APXvYqyTtwPn8W7bV0kTfLaIHamgJXTjo/2ADXM42ozfJF+19dTj1DNdasmJ79lhVBju3KrRTFlv4A==
-X-Received: by 2002:adf:fe50:: with SMTP id m16mr12331824wrs.217.1581804143946;
-        Sat, 15 Feb 2020 14:02:23 -0800 (PST)
+        bh=fc1GAnpw884550NPulN3RKMom4ysjGxVOe69KHdCWnw=;
+        b=ThVs1DcRbZBSy8fu7wLhYYb0PI2bDdAcLW539B1Xj6jiWU2xDPlZetKCN5Qpre/Xsr
+         cxOc/1uzhDSTm3mqLS8DjesukH4E8NUWAm84eTCbk+qLi4rrd9+X0BNn+yQ4BZxHtRTZ
+         EQ4pgqqA2sUcqoCx5zJ6hDaOtnCSbIJaLbyu/FK9d3/Qv9BgppevSewobbx3rq1MaG25
+         5a/LTM9G+1Lqm358XgYpww95QoAvwND3XDzCSEdcxSD/GaJQKG7tZxrmKtYYO/H42Pl4
+         tLq/sFApm+HDA4iEJPnBkdzf81TWx8/Wmcs4IzCmlxH7K0QA+Y74DfUp2pvTURIgrbw+
+         HEbQ==
+X-Gm-Message-State: APjAAAXa2aj7RW0nSGYvJBjMNl+5c3M7X0bKaWHsIKk60yqIpeXJQTwk
+        JS42mKz1PsPeJgsP/c4zFLA=
+X-Google-Smtp-Source: APXvYqySxtg4e/nOZ1ShjkArnqXh4BaopPO8rXz6BEiVXZXuHBZi92RXrMySWTnqbMJmNRzNd8pMXg==
+X-Received: by 2002:a5d:534b:: with SMTP id t11mr11675488wrv.120.1581804401041;
+        Sat, 15 Feb 2020 14:06:41 -0800 (PST)
 Received: from localhost.localdomain ([109.126.146.5])
-        by smtp.gmail.com with ESMTPSA id b18sm13377021wru.50.2020.02.15.14.02.22
+        by smtp.gmail.com with ESMTPSA id v15sm13281923wrf.7.2020.02.15.14.06.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Feb 2020 14:02:23 -0800 (PST)
+        Sat, 15 Feb 2020 14:06:40 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+To:     Jens Axboe <axboe@kernel.dk>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/5] io_uring: remove REQ_F_MUST_PUNT
-Date:   Sun, 16 Feb 2020 01:01:19 +0300
-Message-Id: <f0d8ec082bc4cf7057c5ac071756d952be908217.1581785642.git.asml.silence@gmail.com>
+Subject: [PATCH v2 2/3] io_uring: add interface for getting files
+Date:   Sun, 16 Feb 2020 01:05:40 +0300
+Message-Id: <f81a1d89d08b9919dc831c4c65b0985af8e45ded.1581802973.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1581785642.git.asml.silence@gmail.com>
-References: <cover.1581785642.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1581802973.git.asml.silence@gmail.com>
+References: <cover.1581802973.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,76 +73,121 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-REQ_F_MUST_PUNT is needed to ignore REQ_F_NOWAIT and thus always punt
-async if have got -EAGAIN. It's enough to clear REQ_F_NOWAIT instead of
-having yet another flag.
+Preparation without functional changes. Adds io_get_file(), that allows
+to grab files not only into req->file.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 66 ++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 41 insertions(+), 25 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7a132be72863..1dc83d887183 100644
+index 5ff7c602ad4d..389db6f5568b 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -477,7 +477,6 @@ enum {
- 	REQ_F_LINK_TIMEOUT_BIT,
- 	REQ_F_TIMEOUT_BIT,
- 	REQ_F_ISREG_BIT,
--	REQ_F_MUST_PUNT_BIT,
- 	REQ_F_TIMEOUT_NOSEQ_BIT,
- 	REQ_F_COMP_LOCKED_BIT,
- 	REQ_F_NEED_CLEANUP_BIT,
-@@ -514,8 +513,6 @@ enum {
- 	REQ_F_TIMEOUT		= BIT(REQ_F_TIMEOUT_BIT),
- 	/* regular file */
- 	REQ_F_ISREG		= BIT(REQ_F_ISREG_BIT),
--	/* must be punted even for NONBLOCK */
--	REQ_F_MUST_PUNT		= BIT(REQ_F_MUST_PUNT_BIT),
- 	/* no timeout sequence */
- 	REQ_F_TIMEOUT_NOSEQ	= BIT(REQ_F_TIMEOUT_NOSEQ_BIT),
- 	/* completion under lock */
-@@ -2252,11 +2249,11 @@ static int io_read(struct io_kiocb *req, struct io_kiocb **nxt,
- 		req->result = io_size;
+@@ -1255,6 +1255,15 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+ 	return NULL;
+ }
  
- 	/*
--	 * If the file doesn't support async, mark it as REQ_F_MUST_PUNT so
--	 * we know to async punt it even if it was opened O_NONBLOCK
-+	 * If the file doesn't support async, async punt it even if it
-+	 * was opened O_NONBLOCK
- 	 */
- 	if (force_nonblock && !io_file_supports_async(req->file)) {
--		req->flags |= REQ_F_MUST_PUNT;
-+		req->flags &= ~REQ_F_NOWAIT;
- 		goto copy_iov;
++static inline void io_put_file(struct io_ring_ctx *ctx, struct file *file,
++			  bool fixed)
++{
++	if (fixed)
++		percpu_ref_put(&ctx->file_data->refs);
++	else
++		fput(file);
++}
++
+ static void __io_req_do_free(struct io_kiocb *req)
+ {
+ 	if (likely(!io_is_fallback_req(req)))
+@@ -1268,12 +1277,8 @@ static void __io_req_aux_free(struct io_kiocb *req)
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+ 	kfree(req->io);
+-	if (req->file) {
+-		if (req->flags & REQ_F_FIXED_FILE)
+-			percpu_ref_put(&ctx->file_data->refs);
+-		else
+-			fput(req->file);
+-	}
++	if (req->file)
++		io_put_file(ctx, req->file, (req->flags & REQ_F_FIXED_FILE));
+ 
+ 	io_req_work_drop_env(req);
+ }
+@@ -4573,41 +4578,52 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
+ 	return table->files[index & IORING_FILE_TABLE_MASK];;
+ }
+ 
+-static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+-			   const struct io_uring_sqe *sqe)
++static int io_get_file(struct io_submit_state *state, struct io_ring_ctx *ctx,
++			int fd, struct file **out_file, bool fixed)
+ {
+-	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned flags;
+-	int fd;
+-
+-	flags = READ_ONCE(sqe->flags);
+-	fd = READ_ONCE(sqe->fd);
+-
+-	if (!io_req_needs_file(req, fd))
+-		return 0;
++	struct file *file;
+ 
+-	if (flags & IOSQE_FIXED_FILE) {
++	if (fixed) {
+ 		if (unlikely(!ctx->file_data ||
+ 		    (unsigned) fd >= ctx->nr_user_files))
+ 			return -EBADF;
+ 		fd = array_index_nospec(fd, ctx->nr_user_files);
+-		req->file = io_file_from_index(ctx, fd);
+-		if (!req->file)
++		file = io_file_from_index(ctx, fd);
++		if (!file)
+ 			return -EBADF;
+-		req->flags |= REQ_F_FIXED_FILE;
+ 		percpu_ref_get(&ctx->file_data->refs);
+ 	} else {
+-		if (req->needs_fixed_file)
+-			return -EBADF;
+ 		trace_io_uring_file_get(ctx, fd);
+-		req->file = io_file_get(state, fd);
+-		if (unlikely(!req->file))
++		file = io_file_get(state, fd);
++		if (unlikely(!file))
+ 			return -EBADF;
  	}
  
-@@ -2341,11 +2338,11 @@ static int io_write(struct io_kiocb *req, struct io_kiocb **nxt,
- 		req->result = io_size;
++	*out_file = file;
+ 	return 0;
+ }
  
- 	/*
--	 * If the file doesn't support async, mark it as REQ_F_MUST_PUNT so
--	 * we know to async punt it even if it was opened O_NONBLOCK
-+	 * If the file doesn't support async, async punt it even if it
-+	 * was opened O_NONBLOCK
- 	 */
- 	if (force_nonblock && !io_file_supports_async(req->file)) {
--		req->flags |= REQ_F_MUST_PUNT;
-+		req->flags &= ~REQ_F_NOWAIT;
- 		goto copy_iov;
- 	}
- 
-@@ -4725,8 +4722,7 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	 * We async punt it if the file wasn't marked NOWAIT, or if the file
- 	 * doesn't support non-blocking read/write attempts
- 	 */
--	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
--	    (req->flags & REQ_F_MUST_PUNT))) {
-+	if (ret == -EAGAIN && !(req->flags & REQ_F_NOWAIT)) {
- punt:
- 		if (io_op_defs[req->opcode].file_table) {
- 			ret = io_grab_files(req);
++static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
++			   const struct io_uring_sqe *sqe)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++	unsigned flags;
++	int fd;
++	bool fixed;
++
++	flags = READ_ONCE(sqe->flags);
++	fd = READ_ONCE(sqe->fd);
++
++	if (!io_req_needs_file(req, fd))
++		return 0;
++
++	fixed = (flags & IOSQE_FIXED_FILE);
++	if (unlikely(!fixed && req->needs_fixed_file))
++		return -EBADF;
++
++	return io_get_file(state, ctx, fd, &req->file, fixed);
++}
++
+ static int io_grab_files(struct io_kiocb *req)
+ {
+ 	int ret = -EBADF;
 -- 
 2.24.0
 

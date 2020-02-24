@@ -2,67 +2,70 @@ Return-Path: <SRS0=rEWw=4M=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DF3C35679
-	for <io-uring@archiver.kernel.org>; Mon, 24 Feb 2020 08:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B12E9C35679
+	for <io-uring@archiver.kernel.org>; Mon, 24 Feb 2020 08:33:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC5622072D
-	for <io-uring@archiver.kernel.org>; Mon, 24 Feb 2020 08:33:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 887D420838
+	for <io-uring@archiver.kernel.org>; Mon, 24 Feb 2020 08:33:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f9F5h86U"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RzvpyPT7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727168AbgBXIdn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 24 Feb 2020 03:33:43 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37262 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbgBXIdn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 24 Feb 2020 03:33:43 -0500
-Received: by mail-wr1-f67.google.com with SMTP id l5so5015994wrx.4;
-        Mon, 24 Feb 2020 00:33:41 -0800 (PST)
+        id S1727324AbgBXIds (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 24 Feb 2020 03:33:48 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:37266 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726216AbgBXIdr (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 24 Feb 2020 03:33:47 -0500
+Received: by mail-wr1-f65.google.com with SMTP id l5so5016225wrx.4;
+        Mon, 24 Feb 2020 00:33:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=nymHRd519oEr/2Ol/xDdmyiQN5tOm+qHNfWBj7Ts3V0=;
-        b=f9F5h86Uonh3ZWKSL+1FCIP03WC4MMNfKcSmK25Xr0N791WFzTrf2v66QMzZh2Jfl9
-         JJNRhxQtuh72EIjk5glA0KYpFknjSsmDgXCRxV//qj1aAnqZSz+OEkXCOrraCMjLaNy6
-         XCOBCAyjmwAKvaPw9tQthGqqYUfvGj/GBTygchwX9h0wtS5TU/QpZdOqfs28gPUTXoH9
-         cUlfNSRBU2wZTpG7pZUbwN5auFruRHJxmqiNg4eP1Im9ntsdt96Nt3EmxPhjDL0cpBM6
-         WHE/7/FCLs2HNCePWMYlDYQtBqfZe5HVqsCbbkpHwEIrrNBG/lqeu6shzgkl+kngVmOC
-         FkkQ==
+        bh=bd6+MsJgJb6j62/7s4OD3XWNsdcKTbXmu9jaTIjzZIo=;
+        b=RzvpyPT7XAfDTmJLUy6D2/fxHiX102cueGX5Eeh3v9YLVLxOAydfMUyOvk9nyr1jb9
+         HHgDmMN2AGrMD8xc55FY8k8VUTfvn//IeXHRCyoPVCxCxrI/8i0cUf4XdV5wXDcqp77t
+         pr7waXrGbBUb21oeW3LmewSW9TyQudTFXEKv+DpibQ2mpcMRN8RGauwezVbVaCjb+aHE
+         ArbPV5kq838uG4BEjpzrkbDYbUrOx06/hVvJdW0xf17ixB3oqt0nbl3JiPzugn12nVdg
+         /mdFTkdfSP+7mEGpf0sej7V0uevbPMv0RPRGOcuGYnkUiVfbMC+lXB32ivKmj4MhJuSe
+         nEZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nymHRd519oEr/2Ol/xDdmyiQN5tOm+qHNfWBj7Ts3V0=;
-        b=KjnuwkLxMmN6qxHmbXqZopXN6NmSscNZ96BAHcfWt+0NGJhjby6o1kHqII7frnfwfQ
-         mR+XFa+BnHMEE3GXH9e/Swo92m3JlFwMi0X9Xt991MYCfqvBv3VgVQlBKbDoTD4OzLlo
-         eWzijsyq4Rpc/nKWY3XWC1sNNgLkiV2cr+9YGdc+IN/gYyqH1oDRpWS5HzxQaKJ/XIFR
-         0l2pYm8Bp9/+3sr8wjGkAXHrQHcF+kYnv6F1ZIjvwIXDPAyVgthMNLrQioyt523fy9mL
-         z8fx6O0gXM6VcaIv9WFWdzPafJxpdTW1Hf1NtPvOGGnS86FReT2WDr8B2A/pOUAbJN63
-         69Pw==
-X-Gm-Message-State: APjAAAXlUMa3LMnmrB7Uz5GTVx7AGq9bgTtWDiK643oti6Minl1xXA+b
-        UnLnf0HUUI/MxC01nL+FveE=
-X-Google-Smtp-Source: APXvYqx6/EIheiy/mnQqM+vtj3ky8o4pyJEHDw44B4na02N1359EweZ63qj/IwFcV5ldpqL4GHrwHA==
-X-Received: by 2002:adf:f744:: with SMTP id z4mr60283849wrp.318.1582533220739;
-        Mon, 24 Feb 2020 00:33:40 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=bd6+MsJgJb6j62/7s4OD3XWNsdcKTbXmu9jaTIjzZIo=;
+        b=pX3etl+1mzs27h8vbcvfCYHASKKh8EgW45svQsOhgxbb2H3hma1wTznaW3lNa0TXBo
+         dOqpV70R6L6NdwpSr8VBbX1cxGzKqWonGA9KXNnhxhlVeJBFoBkfZI9zqqE57CqZDwr1
+         2G8iWvzwEBwtt6dw7eJrmltK6W20Gwm42KZKq19pYsmig32PfoFJGQA1MUYMDmzJigga
+         drZ6U5uEvVcHRK94CJ7k3aJ63sfGLGHK7CVSg7Keb/XOL9QeMurQCJrZMYB2+iJ6iFK7
+         xN75zxtTn42KrHEzGubQZGRugGZZGicLWvkrxGZM+0k4JaDWWxhT8fS2zkNPekIZBR5E
+         p3Ug==
+X-Gm-Message-State: APjAAAVzbghTnlUU9G5CwowVXT2tS54OuyG5tOB5xStiRR1YYR+q0f8E
+        UfavoO5SUwkXhiTjMoW7gIc=
+X-Google-Smtp-Source: APXvYqznhW+GMtJiZMeOBcGVAcnunZYfNP2neR3xzE3tjQ1BC3S/2aqQIEX3JmybTbPPRp6qm+andg==
+X-Received: by 2002:a5d:4085:: with SMTP id o5mr64689573wrp.321.1582533225042;
+        Mon, 24 Feb 2020 00:33:45 -0800 (PST)
 Received: from localhost.localdomain ([109.126.137.65])
-        by smtp.gmail.com with ESMTPSA id p15sm16695353wma.40.2020.02.24.00.33.38
+        by smtp.gmail.com with ESMTPSA id p15sm16695353wma.40.2020.02.24.00.33.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Feb 2020 00:33:40 -0800 (PST)
+        Mon, 24 Feb 2020 00:33:44 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Stefan Metzmacher <metze@samba.org>, io-uring@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 0/3] io_uring: add splice(2) support
-Date:   Mon, 24 Feb 2020 11:32:42 +0300
-Message-Id: <cover.1582530525.git.asml.silence@gmail.com>
+Subject: [PATCH v4 2/3] io_uring: add interface for getting files
+Date:   Mon, 24 Feb 2020 11:32:44 +0300
+Message-Id: <038c211a59c0dfb2408a8d6f717af5336aaf0b50.1582530525.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1582530525.git.asml.silence@gmail.com>
+References: <cover.1582530525.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -70,43 +73,146 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-*on top of for-5.6 + async patches*
+Preparation without functional changes. Adds io_get_file(), that allows
+to grab files not only into req->file.
 
-Not the fastets implementation, but I'd need to stir up/duplicate
-splice.c bits to do it more efficiently.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 72 ++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 43 insertions(+), 29 deletions(-)
 
-note: rebase on top of the recent inflight patchset.
-
-v2:
-- u32 len and SQE layout changes (Jens)
-- output file is in sqe->fd for automatic hash_reg_file support
-- handle unbound_nonreg_file for the second fd
-- file leaks fixed with REQ_F_NEED_CLEANUP
-- place SPLICE_F_FD_IN_FIXED in splice flags (Jens)
-- loff_t* -> loff_t, -1 means not specified offset
-
-v3: [PATCH 3/3] changes
-- fd u32 -> s32 (Stefan Metzmacher)
-- add BUILD_BUG_SQE_ELEM() (Stefan Metzmacher)
-- accept and ignore ioprio (Stefan Metzmacher)
-- off_in -> splice_off_in
-
-v4:
-- rebase + a bit of function renaming
-- make file_get/put accept req instead of ctx (Jens)
-- fix lost REQ_F_FIXED_FILE
-
-Pavel Begunkov (3):
-  splice: make do_splice public
-  io_uring: add interface for getting files
-  io_uring: add splice(2) support
-
- fs/io_uring.c                 | 181 ++++++++++++++++++++++++++++------
- fs/splice.c                   |   6 +-
- include/linux/splice.h        |   3 +
- include/uapi/linux/io_uring.h |  14 ++-
- 4 files changed, 171 insertions(+), 33 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b149b6e080c5..443870e0dc46 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1258,6 +1258,15 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
+ 	return NULL;
+ }
+ 
++static inline void io_put_file(struct io_kiocb *req, struct file *file,
++			  bool fixed)
++{
++	if (fixed)
++		percpu_ref_put(&req->ctx->file_data->refs);
++	else
++		fput(file);
++}
++
+ static void __io_req_do_free(struct io_kiocb *req)
+ {
+ 	if (likely(!io_is_fallback_req(req)))
+@@ -1268,18 +1277,12 @@ static void __io_req_do_free(struct io_kiocb *req)
+ 
+ static void __io_req_aux_free(struct io_kiocb *req)
+ {
+-	struct io_ring_ctx *ctx = req->ctx;
+-
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		io_cleanup_req(req);
+ 
+ 	kfree(req->io);
+-	if (req->file) {
+-		if (req->flags & REQ_F_FIXED_FILE)
+-			percpu_ref_put(&ctx->file_data->refs);
+-		else
+-			fput(req->file);
+-	}
++	if (req->file)
++		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
+ 
+ 	io_req_work_drop_env(req);
+ }
+@@ -1849,7 +1852,7 @@ static void io_file_put(struct io_submit_state *state)
+  * assuming most submissions are for one file, or at least that each file
+  * has more than one submission.
+  */
+-static struct file *io_file_get(struct io_submit_state *state, int fd)
++static struct file *__io_file_get(struct io_submit_state *state, int fd)
+ {
+ 	if (!state)
+ 		return fget(fd);
+@@ -4567,41 +4570,52 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
+ 	return table->files[index & IORING_FILE_TABLE_MASK];;
+ }
+ 
+-static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+-			   const struct io_uring_sqe *sqe)
++static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
++			int fd, struct file **out_file, bool fixed)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned flags;
+-	int fd;
+-
+-	flags = READ_ONCE(sqe->flags);
+-	fd = READ_ONCE(sqe->fd);
+-
+-	if (!io_req_needs_file(req, fd))
+-		return 0;
++	struct file *file;
+ 
+-	if (flags & IOSQE_FIXED_FILE) {
++	if (fixed) {
+ 		if (unlikely(!ctx->file_data ||
+ 		    (unsigned) fd >= ctx->nr_user_files))
+ 			return -EBADF;
+ 		fd = array_index_nospec(fd, ctx->nr_user_files);
+-		req->file = io_file_from_index(ctx, fd);
+-		if (!req->file)
++		file = io_file_from_index(ctx, fd);
++		if (!file)
+ 			return -EBADF;
+-		req->flags |= REQ_F_FIXED_FILE;
+ 		percpu_ref_get(&ctx->file_data->refs);
+ 	} else {
+-		if (req->needs_fixed_file)
+-			return -EBADF;
+ 		trace_io_uring_file_get(ctx, fd);
+-		req->file = io_file_get(state, fd);
+-		if (unlikely(!req->file))
++		file = __io_file_get(state, fd);
++		if (unlikely(!file))
+ 			return -EBADF;
+ 	}
+ 
++	*out_file = file;
+ 	return 0;
+ }
+ 
++static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
++			   const struct io_uring_sqe *sqe)
++{
++	unsigned flags;
++	int fd;
++	bool fixed;
++
++	flags = READ_ONCE(sqe->flags);
++	fd = READ_ONCE(sqe->fd);
++
++	if (!io_req_needs_file(req, fd))
++		return 0;
++
++	fixed = (flags & IOSQE_FIXED_FILE);
++	if (unlikely(!fixed && req->needs_fixed_file))
++		return -EBADF;
++
++	return io_file_get(state, req, fd, &req->file, fixed);
++}
++
+ static int io_grab_files(struct io_kiocb *req)
+ {
+ 	int ret = -EBADF;
+@@ -4846,8 +4860,8 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	}
+ 
+ 	/* same numerical values with corresponding REQ_F_*, safe to copy */
+-	req->flags |= sqe_flags & (IOSQE_IO_DRAIN|IOSQE_IO_HARDLINK|
+-					IOSQE_ASYNC);
++	req->flags |= sqe_flags & (IOSQE_IO_DRAIN | IOSQE_IO_HARDLINK |
++					IOSQE_ASYNC | IOSQE_FIXED_FILE);
+ 
+ 	ret = io_req_set_file(state, req, sqe);
+ 	if (unlikely(ret)) {
 -- 
 2.24.0
 

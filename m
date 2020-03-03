@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8320DC3F2D1
-	for <io-uring@archiver.kernel.org>; Tue,  3 Mar 2020 18:34:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D05B7C3F2C6
+	for <io-uring@archiver.kernel.org>; Tue,  3 Mar 2020 18:34:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 544602073B
-	for <io-uring@archiver.kernel.org>; Tue,  3 Mar 2020 18:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 970DA2073B
+	for <io-uring@archiver.kernel.org>; Tue,  3 Mar 2020 18:34:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DFPTaK2G"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gf5brpw4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbgCCSeU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 3 Mar 2020 13:34:20 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:54999 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727079AbgCCSeU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 3 Mar 2020 13:34:20 -0500
-Received: by mail-wm1-f67.google.com with SMTP id i9so3041706wml.4
-        for <io-uring@vger.kernel.org>; Tue, 03 Mar 2020 10:34:18 -0800 (PST)
+        id S1729865AbgCCSeY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 3 Mar 2020 13:34:24 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:40682 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729772AbgCCSeY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 3 Mar 2020 13:34:24 -0500
+Received: by mail-wr1-f68.google.com with SMTP id r17so5705968wrj.7
+        for <io-uring@vger.kernel.org>; Tue, 03 Mar 2020 10:34:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=LiVaYMYbUqVkP59cyO56jsLqHdgbJcbPk8cCf+c5iQk=;
-        b=DFPTaK2GsI0pLTzoL7v2XoYTglmqZqYi1yhHDZ2OdxmdmAhpiZGyLVrtLH1kj8UTwk
-         nYwOjTFl81veZMdryUbXZg+Rc/IDEhExdmGYJ14Mvrnvln7XOi/0FlRiZKxi9MjiDiRv
-         3BWO63zhAOOJVEcA27maWUG2nW1umrYXat+Wg77p+xLZexyl8QFPK4PWu22Y+Hh8m0ph
-         P7vmbFip7DsxpGLBisKUk1m43diSTISWLiOW/jYprTxBY5otdtFHZL1O840VMwvMgUQq
-         mt1YZmIg6ujiPfPDO4brGJQqPIf+aMh1D3sCx1nLGP738L5fJVg0vjP3Vp2DuDQnvnep
-         +Aag==
+        bh=+u4z0iJrqj8uDmX1h+hftX7tm26kHKBzY39JGDn7Oik=;
+        b=Gf5brpw4thH/Sirx2yUsF0cgJIaSoTAZZhDJQqmFB4IMuAJyVrf2ig4IEtuS1INA+V
+         VmG4WeCTjG4gdLmEpmQnW+FbZMrStRUIbFmyEeb16pa2O96FQPF6WEVY0cdtQoZBHVAY
+         iBQry3m+uVGAYHeByzRrNhnqP0Ki9P1KdXJg0nZxIK0oSpAScJdxlupKV0wiOat6jOGL
+         +2cntWAr1fA6CG/nvqb9awy83+zVhnmTebdZ19+vplS0lUzrtpDuTD7gbcrF7rSsxSMZ
+         Sg0ezU2qmKCj16dVUZa+AwJ4OlbDKdRl09CyvSe36Rn2jZIifJd5uTbqQalVoeDood1Y
+         BSww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LiVaYMYbUqVkP59cyO56jsLqHdgbJcbPk8cCf+c5iQk=;
-        b=gR4G1PEPmqMe5+5ZepTwt/r+IuV4RYxwkw+xy/nRUBIBaffUGow0GCfV8X8Hcc2UqO
-         UQcwkAddkvQlSlDya1kkgiXtTMnTDFxswHvbUShh5bxqjsvqbhdPOJVlAKx1juYogLfu
-         mfGt/KlVEzkCBHH3dFWcizS6IEaqw4K78Yzv7WlvLG0rsfL3IFXJrtL//0faMOz3Tojf
-         SnIiJRt/Efw9+fPusVkfDLGc/6d8bhHwwWtTy4eBM/tNNSgehM3d8Evc3HFrrQe39YFS
-         XAVb2PpChKO7zT1Pl7FHWz8nif6gVv5v/RlrhkrRgSHztW8IWXtp04PL0DAp9mJh1meV
-         J+Lw==
-X-Gm-Message-State: ANhLgQ1ajxmTR5yvSLa11Ah6CeSBRo0+52AiyOc0rEaAlYQ0qjGUWZoU
-        vv41kiSNIeUElZiXlk1ex2t86cYQ
-X-Google-Smtp-Source: ADFU+vtZ9bYVWqMOn2LmfDgMwDVvu/NfjytF42xQetTAdmTZ6Mb5PP2aogZDcNJkorau6v/wKaZbrg==
-X-Received: by 2002:a05:600c:205:: with SMTP id 5mr5257384wmi.157.1583260457219;
-        Tue, 03 Mar 2020 10:34:17 -0800 (PST)
+        bh=+u4z0iJrqj8uDmX1h+hftX7tm26kHKBzY39JGDn7Oik=;
+        b=W18fwmSqflKis/pCEOlavhngRvWl5Ixg2fyPzYkcsPTc7rRS9hQ65y+hASfl+J1B9A
+         3nxNtslf09Q45/4DdAWRwRXSLfBxsPREXBmpz3BRAtPzonSwTA1SwseTJOgqAhiM5pIY
+         lQZtTcGVK75/2zopmz2VAuuXmFEOZNmu6YwaXYr8dHHm49s7Ny200A9KTLTtz7//3VL1
+         EnGyZ7LyRBXiv0jd6u8oTdxJ1fG4FLa8To+UBJFO1CTmpSfc3hOQwYkRvVtxzEJkFGCW
+         foLC+iIP72fNCWGjIfeAujEnas3/D/vT3JRk+woOYUxj/eraNdE6Jpp1/EnsQmStHZ2P
+         0hqw==
+X-Gm-Message-State: ANhLgQ1AZ1DXiiOL3U1Yv6wmgpOsjcWyOPu/vlgIQadnNlJDWgPZXVf8
+        0SGajwfxFCDLFTUudWVY8vI=
+X-Google-Smtp-Source: ADFU+vvStIYgs1SlqkXv/+s5oRBma7uwlQfgiCvEymhi7u55+Ppi6uhosTP52Wnwl9n9mRBVrZ4uXA==
+X-Received: by 2002:adf:90ee:: with SMTP id i101mr6527500wri.417.1583260461123;
+        Tue, 03 Mar 2020 10:34:21 -0800 (PST)
 Received: from localhost.localdomain ([109.126.130.242])
-        by smtp.gmail.com with ESMTPSA id f3sm4548191wrs.26.2020.03.03.10.34.15
+        by smtp.gmail.com with ESMTPSA id f3sm4548191wrs.26.2020.03.03.10.34.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2020 10:34:16 -0800 (PST)
+        Tue, 03 Mar 2020 10:34:20 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v3 1/3] io_uring: make submission ref putting consistent
-Date:   Tue,  3 Mar 2020 21:33:11 +0300
-Message-Id: <cacd5ebe32f0ba8771362c1d2f91e5bbc25f6f9b.1583258348.git.asml.silence@gmail.com>
+Subject: [PATCH v3 3/3] io_uring: get next work with submission ref drop
+Date:   Tue,  3 Mar 2020 21:33:13 +0300
+Message-Id: <39af77a7e9adab698d338f95799d034fce44cc94.1583258348.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1583258348.git.asml.silence@gmail.com>
 References: <cover.1583258348.git.asml.silence@gmail.com>
@@ -70,140 +70,192 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The rule is simple, any async handler gets a submission ref and should
-put it at the end. Make them all follow it, and so more consistent.
-
-This is a preparation patch, and as io_wq_assign_next() currently won't
-ever work, this doesn't care to use io_put_req_find_next() instead of
-io_put_req().
+If after dropping the submission reference req->refs == 1, the request
+is done, because this one is for io_put_work() and will be dropped
+synchronously shortly after. In this case it's safe to steal a next
+work from the request.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ fs/io_uring.c | 89 +++++++++++++++++++++++++++------------------------
+ 1 file changed, 48 insertions(+), 41 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ff6cc05b86c7..ad8046a9bc0f 100644
+index daf7c2095523..5c6169abcc61 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2550,7 +2550,7 @@ static bool io_req_cancelled(struct io_kiocb *req)
- 	if (req->work.flags & IO_WQ_WORK_CANCEL) {
- 		req_set_fail_links(req);
- 		io_cqring_add_event(req, -ECANCELED);
--		io_put_req(req);
-+		io_double_put_req(req);
- 		return true;
- 	}
+@@ -1518,6 +1518,27 @@ static void io_free_req(struct io_kiocb *req)
+ 		io_queue_async_work(nxt);
+ }
  
-@@ -2600,6 +2600,7 @@ static void io_fsync_finish(struct io_wq_work **workptr)
++static void io_link_work_cb(struct io_wq_work **workptr)
++{
++	struct io_wq_work *work = *workptr;
++	struct io_kiocb *link = work->data;
++
++	io_queue_linked_timeout(link);
++	io_wq_submit_work(workptr);
++}
++
++static void io_wq_assign_next(struct io_wq_work **workptr, struct io_kiocb *nxt)
++{
++	struct io_kiocb *link;
++
++	*workptr = &nxt->work;
++	link = io_prep_linked_timeout(nxt);
++	if (link) {
++		nxt->work.func = io_link_work_cb;
++		nxt->work.data = link;
++	}
++}
++
+ /*
+  * Drop reference to request, return next in chain (if there is one) if this
+  * was the last reference to this request.
+@@ -1537,6 +1558,27 @@ static void io_put_req(struct io_kiocb *req)
+ 		io_free_req(req);
+ }
+ 
++static void io_put_req_async_completion(struct io_kiocb *req,
++					struct io_wq_work **workptr)
++{
++	/*
++	 * It's in an io-wq worker, so there always should be at least
++	 * one reference, which will be dropped in io_put_work() just
++	 * after the current handler returns.
++	 *
++	 * It also means, that if the counter dropped to 1, then there is
++	 * no asynchronous users left, so it's safe to steal the next work.
++	 */
++	refcount_dec(&req->refs);
++	if (refcount_read(&req->refs) == 1) {
++		struct io_kiocb *nxt = NULL;
++
++		io_req_find_next(req, &nxt);
++		if (nxt)
++			io_wq_assign_next(workptr, nxt);
++	}
++}
++
+ /*
+  * Must only be used if we don't need to care about links, usually from
+  * within the completion handling itself.
+@@ -2543,27 +2585,6 @@ static bool io_req_cancelled(struct io_kiocb *req)
+ 	return false;
+ }
+ 
+-static void io_link_work_cb(struct io_wq_work **workptr)
+-{
+-	struct io_wq_work *work = *workptr;
+-	struct io_kiocb *link = work->data;
+-
+-	io_queue_linked_timeout(link);
+-	io_wq_submit_work(workptr);
+-}
+-
+-static void io_wq_assign_next(struct io_wq_work **workptr, struct io_kiocb *nxt)
+-{
+-	struct io_kiocb *link;
+-
+-	*workptr = &nxt->work;
+-	link = io_prep_linked_timeout(nxt);
+-	if (link) {
+-		nxt->work.func = io_link_work_cb;
+-		nxt->work.data = link;
+-	}
+-}
+-
+ static void __io_fsync(struct io_kiocb *req)
+ {
+ 	loff_t end = req->sync.off + req->sync.len;
+@@ -2581,14 +2602,11 @@ static void __io_fsync(struct io_kiocb *req)
+ static void io_fsync_finish(struct io_wq_work **workptr)
+ {
+ 	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
+-	struct io_kiocb *nxt = NULL;
+ 
  	if (io_req_cancelled(req))
  		return;
- 	__io_fsync(req, &nxt);
-+	io_put_req(req); /* drop submission reference */
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+ 	__io_fsync(req);
+-	io_put_req(req); /* drop submission reference */
+-	if (nxt)
+-		io_wq_assign_next(workptr, nxt);
++	io_put_req_async_completion(req, workptr);
  }
-@@ -2609,7 +2610,6 @@ static int io_fsync(struct io_kiocb *req, struct io_kiocb **nxt,
- {
- 	/* fsync always requires a blocking context */
- 	if (force_nonblock) {
--		io_put_req(req);
- 		req->work.func = io_fsync_finish;
- 		return -EAGAIN;
- 	}
-@@ -2621,9 +2621,6 @@ static void __io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt)
- {
- 	int ret;
  
--	if (io_req_cancelled(req))
--		return;
--
- 	ret = vfs_fallocate(req->file, req->sync.mode, req->sync.off,
- 				req->sync.len);
- 	if (ret < 0)
-@@ -2637,7 +2634,10 @@ static void io_fallocate_finish(struct io_wq_work **workptr)
+ static int io_fsync(struct io_kiocb *req, bool force_nonblock)
+@@ -2617,14 +2635,11 @@ static void __io_fallocate(struct io_kiocb *req)
+ static void io_fallocate_finish(struct io_wq_work **workptr)
+ {
  	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
- 	struct io_kiocb *nxt = NULL;
+-	struct io_kiocb *nxt = NULL;
  
-+	if (io_req_cancelled(req))
-+		return;
- 	__io_fallocate(req, &nxt);
-+	io_put_req(req); /* drop submission reference */
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+ 	if (io_req_cancelled(req))
+ 		return;
+ 	__io_fallocate(req);
+-	io_put_req(req); /* drop submission reference */
+-	if (nxt)
+-		io_wq_assign_next(workptr, nxt);
++	io_put_req_async_completion(req, workptr);
  }
-@@ -2659,7 +2659,6 @@ static int io_fallocate(struct io_kiocb *req, struct io_kiocb **nxt,
+ 
+ static int io_fallocate_prep(struct io_kiocb *req,
+@@ -2988,13 +3003,10 @@ static void __io_close_finish(struct io_kiocb *req)
+ static void io_close_finish(struct io_wq_work **workptr)
  {
- 	/* fallocate always requiring blocking context */
- 	if (force_nonblock) {
--		io_put_req(req);
- 		req->work.func = io_fallocate_finish;
- 		return -EAGAIN;
- 	}
-@@ -3015,6 +3014,7 @@ static void io_close_finish(struct io_wq_work **workptr)
+ 	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
+-	struct io_kiocb *nxt = NULL;
  
  	/* not cancellable, don't do io_req_cancelled() */
- 	__io_close_finish(req, &nxt);
-+	io_put_req(req); /* drop submission reference */
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+ 	__io_close_finish(req);
+-	io_put_req(req); /* drop submission reference */
+-	if (nxt)
+-		io_wq_assign_next(workptr, nxt);
++	io_put_req_async_completion(req, workptr);
  }
-@@ -3038,6 +3038,8 @@ static int io_close(struct io_kiocb *req, struct io_kiocb **nxt,
- 		 * the file again and cause a double CQE entry for this request
- 		 */
- 		io_queue_async_work(req);
-+		/* submission ref will be dropped, take it for async */
-+		refcount_inc_not_zero(&req->refs);
- 		return 0;
- 	}
  
-@@ -3088,6 +3090,7 @@ static void io_sync_file_range_finish(struct io_wq_work **workptr)
- 	if (io_req_cancelled(req))
- 		return;
- 	__io_sync_file_range(req, &nxt);
-+	io_put_req(req); /* put submission ref */
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
- }
-@@ -3097,7 +3100,6 @@ static int io_sync_file_range(struct io_kiocb *req, struct io_kiocb **nxt,
+ static int io_close(struct io_kiocb *req, bool force_nonblock)
+@@ -3435,14 +3447,11 @@ static int __io_accept(struct io_kiocb *req, bool force_nonblock)
+ static void io_accept_finish(struct io_wq_work **workptr)
  {
- 	/* sync_file_range always requires a blocking context */
- 	if (force_nonblock) {
--		io_put_req(req);
- 		req->work.func = io_sync_file_range_finish;
- 		return -EAGAIN;
- 	}
-@@ -3464,11 +3466,10 @@ static void io_accept_finish(struct io_wq_work **workptr)
  	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
- 	struct io_kiocb *nxt = NULL;
+-	struct io_kiocb *nxt = NULL;
  
--	io_put_req(req);
--
  	if (io_req_cancelled(req))
  		return;
- 	__io_accept(req, &nxt, false);
-+	io_put_req(req); /* drop submission reference */
- 	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+ 	__io_accept(req, false);
+-	io_put_req(req); /* drop submission reference */
+-	if (nxt)
+-		io_wq_assign_next(workptr, nxt);
++	io_put_req_async_completion(req, workptr);
  }
-@@ -4733,17 +4734,14 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
- 		} while (1);
- 	}
+ #endif
  
--	/* drop submission reference */
--	io_put_req(req);
--
- 	if (ret) {
- 		req_set_fail_links(req);
- 		io_cqring_add_event(req, ret);
+@@ -4680,7 +4689,6 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
+ {
+ 	struct io_wq_work *work = *workptr;
+ 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
+-	struct io_kiocb *nxt = NULL;
+ 	int ret = 0;
+ 
+ 	/* if NO_CANCEL is set, we must still run the work */
+@@ -4709,9 +4717,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
  		io_put_req(req);
  	}
  
--	/* if a dependent link is ready, pass it back */
--	if (!ret && nxt)
-+	io_put_req(req); /* drop submission reference */
-+	if (nxt)
- 		io_wq_assign_next(workptr, nxt);
+-	io_put_req(req); /* drop submission reference */
+-	if (nxt)
+-		io_wq_assign_next(workptr, nxt);
++	io_put_req_async_completion(req, workptr);
+ }
+ 
+ static int io_req_needs_file(struct io_kiocb *req, int fd)
+@@ -6101,6 +6107,7 @@ static void io_put_work(struct io_wq_work *work)
+ {
+ 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
+ 
++	/* Consider that io_put_req_async_completion() relies on this ref */
+ 	io_put_req(req);
  }
  
 -- 

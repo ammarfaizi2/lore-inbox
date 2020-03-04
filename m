@@ -2,65 +2,68 @@ Return-Path: <SRS0=iUzr=4V=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DAF8C3F2D1
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 722F1C3F2D1
+	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EB49C20838
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 487272166E
+	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D1Aislna"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pChR2iAc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388019AbgCDNPN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 4 Mar 2020 08:15:13 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:45366 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387992AbgCDNPN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 4 Mar 2020 08:15:13 -0500
-Received: by mail-wr1-f66.google.com with SMTP id v2so2321370wrp.12;
-        Wed, 04 Mar 2020 05:15:11 -0800 (PST)
+        id S2388104AbgCDNPR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 4 Mar 2020 08:15:17 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:42254 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388097AbgCDNPQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 4 Mar 2020 08:15:16 -0500
+Received: by mail-wr1-f68.google.com with SMTP id v11so389750wrm.9;
+        Wed, 04 Mar 2020 05:15:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=dRuvXTjD/bPv3Dn/8R1C/YZLNUqFpK4uHKwIIFfjLvE=;
-        b=D1AislnaQYm2mm20PGFzfIW/Hz7YC7gS3iGO/8K5V7ZY7Dii2b/iZX/2UwIXkbMrCj
-         yLCHKIBsHLGUnMmWXqzScHao8dskVH46wtNjOPD7hN+w6rqajScN+4hyfF/DU1fVH1m7
-         kdQxk1+SNjC7D7tlpu9ZJZ5HwFqB3vMY3tqljWkNhohmfT8zhcws+ki2bTzeBNahfDnv
-         gUd8Lh4EVoAExg9co7IYIQmW+0z5JV7IxB8du9evvs1mqwV7GwuFR6JY666sr7+4FBpo
-         tlLyAhjl7WkFQ/succ8ddIs/SRwo0a6CjvcQcDgv72pn4KRdealOw5O/dT70LCE9SR6Q
-         LSRA==
+        bh=yvd1qcy7+dlyPpqW9WsWcvGKMgkr1aBgo5o930iSsj4=;
+        b=pChR2iAc4G7nRIHIohmqYlndTcLbWMTRoae8Xpjq1DOB/xrztyT/PW26Oquu6JrIoP
+         nXf+26eUyI5stfcgIf5X7L+AcjEvNbk9H8sB/d7ednt7nwyn2ZUZeLiRyw9E2fQ8SlUb
+         zT9anY8VIzgOXxSFNfmPj/0KKLCf0F1yEzVL35uzQNlz8UfEVfZq+ltyjnLnXEOl6W3L
+         XzwKZ0CTiVUp9TDYUIEaMcaqFxrkIiIVjjDD+uf6WbxWIw6sCPTN4U3A6HWXcTB03Ujm
+         NZIRh7UAlTblqQdCeG8TL5t3H6ubt5zIx+aJMQ4AqfMPXuasNrT8M/ZQftFwRojh0sm2
+         q3sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dRuvXTjD/bPv3Dn/8R1C/YZLNUqFpK4uHKwIIFfjLvE=;
-        b=H3tzicVBBdql3mdeICEkjhgNclGloFEB2ZSRIA07VRiTkyWnwhxUk2qbHpqtiQ8SY7
-         pnAYImZX6LU3VB2G558qQR1Q+ujnPunHgbC7yoqV6lMjt5KJedcK1xCEhWxx3G982lx5
-         EZVRFuRCUpaEWfg2WU+7FjvbCvFXAwOPy8ZyvXTIB3hw2i7RM3ZP/BDYbBQ0FMkFnQXM
-         XsZnpWgqa7Ejcf4GG6FcI5cFIXR/p5TElyn4hNnJCFWzEHXazQVTmuMFNAN8nO+m1aP5
-         yrTglKgum49oP8S+sVIZVspPXfNoLUEUI3MVjFEimFykx5t6cuBDFhQqV8UpOBj4GiAx
-         XW+g==
-X-Gm-Message-State: ANhLgQ37v757jkOzhh6pnW+dk14BJvuyzm1frvgVmfzKRH2ruz4FfuVd
-        sVCww9HhiyLjIaCn3JnqmeA=
-X-Google-Smtp-Source: ADFU+vufuO491PqFldO6XhiGin1UqHD5LSSt9/l2D8Gc6MfsEewAdg/CMfFVQbqHAzQHnpzzDJaK1g==
-X-Received: by 2002:adf:e742:: with SMTP id c2mr4066931wrn.262.1583327711343;
-        Wed, 04 Mar 2020 05:15:11 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=yvd1qcy7+dlyPpqW9WsWcvGKMgkr1aBgo5o930iSsj4=;
+        b=cXpz5WiwmgnNPm/E4Lz7jL5iuCq1SybdCa3gvfsgEo2oVMf6mgqw4tfjUzoEHYf0mr
+         +a7iEFIJDUXdzgwJVKCA41P6lBMQFsEUpSjQMNlY7oLqwJjceZLV+btvYs6gsyPAIbUD
+         YFXu+Q6gsT2uHJLVMQeBIiJ92ANXGHyvmWmWjyTd/XZFVwT4Kr/WXgpKD0S94DWuLhDi
+         9Z5/QBWPeQNNaxSDDNVepUMqIOJ5G3VDrCS7UPTQtrjtUSUsT4leIXn6Os2z8yX+j31B
+         X90UvNW+S4knd3E5alCZEFjwrz8gjMM4m0b/Zmxdy3325vWAGyTpTo4k+zIiT/HTl1ie
+         nlyQ==
+X-Gm-Message-State: ANhLgQ3vNvJK8U3jW65fWtFpPEkt68cgthESz53iW/fLRkzyvrrc3+LS
+        U/yKfgVtY733e7DMzb+UyR6l9Bnv
+X-Google-Smtp-Source: ADFU+vva4m9ywSSoYa2bHkt7fHmq0gxjLf7vaGuvLp55T396dvKJPg9edTGVjrr9Yed4H4BPEqwsHw==
+X-Received: by 2002:adf:e74e:: with SMTP id c14mr4283728wrn.128.1583327715105;
+        Wed, 04 Mar 2020 05:15:15 -0800 (PST)
 Received: from localhost.localdomain ([109.126.130.242])
-        by smtp.gmail.com with ESMTPSA id c14sm24746746wro.36.2020.03.04.05.15.07
+        by smtp.gmail.com with ESMTPSA id c14sm24746746wro.36.2020.03.04.05.15.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Mar 2020 05:15:10 -0800 (PST)
+        Wed, 04 Mar 2020 05:15:14 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/4] io-wq/io_uring locking optimisation
-Date:   Wed,  4 Mar 2020 16:14:08 +0300
-Message-Id: <cover.1583314087.git.asml.silence@gmail.com>
+Subject: [PATCH 2/4] io-wq: optimise locking in io_worker_handle_work()
+Date:   Wed,  4 Mar 2020 16:14:10 +0300
+Message-Id: <ca39ae1c7b5cb8c86666e3aa9b80bf191949d4c6.1583314087.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1583314087.git.asml.silence@gmail.com>
+References: <cover.1583314087.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -68,24 +71,72 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-[1-3] are shedding excessive locking of @wqe's and @worker's spinlocks
-from io_worker_handle_work().
+There are 2 optimisations:
+- Now, io_worker_handler_work() do io_assign_current_work() twice per
+request, and each one adds lock/unlock(worker->lock) pair. The first is
+to reset worker->cur_work to NULL, and the second to set a real work
+shortly after. If there is a dependant work, set it immediately, that
+effectively removes the extra NULL'ing.
 
-[4] removes an extra pair of refcount get/put by making former io_put_work()
-to own the submission reference. It also changes io-wq get/put API
-and renames io_put_work() into io_free_work() to reflect it.
+- And there is no use in taking wqe->lock for linked works, as they are
+not hashed now. Optimise it out.
 
-Pavel Begunkov (4):
-  io-wq: shuffle io_worker_handle_work() code
-  io-wq: optimise locking in io_worker_handle_work()
-  io-wq: optimise out *next_work() double lock
-  io_uring/io-wq: forward submission ref to async
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io-wq.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
- fs/io-wq.c    | 148 ++++++++++++++++++++++++++------------------------
- fs/io-wq.h    |   6 +-
- fs/io_uring.c |  31 ++++-------
- 3 files changed, 90 insertions(+), 95 deletions(-)
-
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index e438dc4d7cb3..473af080470a 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -476,7 +476,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 	struct io_wq *wq = wqe->wq;
+ 
+ 	do {
+-		struct io_wq_work *work, *old_work;
++		struct io_wq_work *work;
+ 		unsigned hash = -1U;
+ 
+ 		/*
+@@ -495,12 +495,13 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 		spin_unlock_irq(&wqe->lock);
+ 		if (!work)
+ 			break;
++		io_assign_current_work(worker, work);
+ 
+ 		/* handle a whole dependent link */
+ 		do {
+-			io_assign_current_work(worker, work);
+-			io_impersonate_work(worker, work);
++			struct io_wq_work *old_work;
+ 
++			io_impersonate_work(worker, work);
+ 			/*
+ 			 * OK to set IO_WQ_WORK_CANCEL even for uncancellable
+ 			 * work, the worker function will do the right thing.
+@@ -513,10 +514,8 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 
+ 			old_work = work;
+ 			work->func(&work);
+-
+-			spin_lock_irq(&worker->lock);
+-			worker->cur_work = NULL;
+-			spin_unlock_irq(&worker->lock);
++			work = (old_work == work) ? NULL : work;
++			io_assign_current_work(worker, work);
+ 
+ 			if (wq->put_work)
+ 				wq->put_work(old_work);
+@@ -529,7 +528,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 				/* dependent work is not hashed */
+ 				hash = -1U;
+ 			}
+-		} while (work && work != old_work);
++		} while (work);
+ 
+ 		spin_lock_irq(&wqe->lock);
+ 	} while (1);
 -- 
 2.24.0
 

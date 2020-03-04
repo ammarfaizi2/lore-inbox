@@ -2,240 +2,172 @@ Return-Path: <SRS0=iUzr=4V=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CFA4C3F2D1
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A17FC3F2CD
+	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:27:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7495A21741
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:15:28 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gJaFgFl6"
+	by mail.kernel.org (Postfix) with ESMTP id 37AE420848
+	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 13:27:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388108AbgCDNPR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 4 Mar 2020 08:15:17 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:37321 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387992AbgCDNPQ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 4 Mar 2020 08:15:16 -0500
-Received: by mail-wm1-f65.google.com with SMTP id a141so1829186wme.2;
-        Wed, 04 Mar 2020 05:15:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=4MRxcOtUBZRfL8XeDiKqHk9pIsUgKAvPhPg7wgLoFXY=;
-        b=gJaFgFl64uvl+2cI+O7bTfcmGvwwmZ+bN5fm7BsJ22AP+gfZpSCPqXoC19n78UY2B8
-         TjFyj+x7IApCZ1XPt7yO1I+ZMcQuFoPG0PjUig3/tOgMoVDMPisE/PF5gHVvEZJ4ZGBy
-         bxBJ/Lg1NaPkjpanadBl50l/fZH7ail7Xas1w7NLbwmt0tUJ8v8jTVicKS8AMNTrd+Xp
-         C4iGCuZ0FjHRwkZcKo/FHZH13n8bmhdPChxsAUQXhdUKBr1A14QctPItj4/Cf5kV7y+H
-         F2ovnGhj136FkPlP8ks9RoyhuS/BWO/q1SCks+Y5egnFPfMJexk8BBPNQ3g6ufnDpdbr
-         jTPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4MRxcOtUBZRfL8XeDiKqHk9pIsUgKAvPhPg7wgLoFXY=;
-        b=Tt0Q2gM+xiNomjCgHe/F/p3sS64GPzysoa8YezOPbM/DX4D3Z1kDExNeKTZSzo0nsV
-         ItYA/C7RpILeWrBkn6fOrlr/EmZoXmAFrQU7X8gw1u+kElg/GI2nZrv69tRQf3K0fljN
-         zsB2+9E1TlNphPQ2FuBvUpPAaSSoglJ2C0/l6JCkUpND8G6xfiCr/bydapaWagrm8M78
-         JjsuuapSnHysHmDraUnmRnetPLh3mU7+mfDRMemFvLFD1d57ksY10MLMXxUYHUVU1vUl
-         mNn7JHYeXtMfGhIdQZ40E772UM/MJZxywZnXkrpXofq5VahW1SDZUOAGGKcXDPSEzNyJ
-         O1GA==
-X-Gm-Message-State: ANhLgQ0ZFP2RChtAmS5gKMqaoa4WJwU/RPJ1z5azPMa5Z15xi3NYVIDL
-        FdWhIOzl5A7xnGGXFK5DPn38hMYi
-X-Google-Smtp-Source: ADFU+vsSKMJwO2ZYSrzPZD93NHqDSNFufTwcu5qEEwVMRazdnxqyBHAgCpT4lMmvHipnW3vFY/oLjQ==
-X-Received: by 2002:a1c:ba87:: with SMTP id k129mr3719703wmf.102.1583327713411;
-        Wed, 04 Mar 2020 05:15:13 -0800 (PST)
-Received: from localhost.localdomain ([109.126.130.242])
-        by smtp.gmail.com with ESMTPSA id c14sm24746746wro.36.2020.03.04.05.15.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Mar 2020 05:15:13 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] io-wq: shuffle io_worker_handle_work() code
-Date:   Wed,  4 Mar 2020 16:14:09 +0300
-Message-Id: <3b47f33c640d19d197e19ec566a619f21a7b1df4.1583314087.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1583314087.git.asml.silence@gmail.com>
-References: <cover.1583314087.git.asml.silence@gmail.com>
+        id S2387910AbgCDN1Q (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 4 Mar 2020 08:27:16 -0500
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:38848 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387938AbgCDN1P (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 4 Mar 2020 08:27:15 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04428;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0TreGDIN_1583328425;
+Received: from 30.0.153.8(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0TreGDIN_1583328425)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 04 Mar 2020 21:27:06 +0800
+Subject: Re: [PATCH] __io_uring_get_cqe: eliminate unnecessary
+ io_uring_enter() syscalls
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     joseph.qi@linux.alibaba.com
+References: <20200302041811.13330-1-xiaoguang.wang@linux.alibaba.com>
+ <91e11a5a-1880-8ce3-18c5-6843abd2cf2b@kernel.dk>
+ <5370d9cf-2ca6-53bc-0e32-544a43ca88a3@kernel.dk>
+ <1c4ff425-a5a9-1e5a-a07c-24c8f3aa0f2e@kernel.dk>
+From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Message-ID: <40b6ef0c-7e13-a476-0916-3ec293c244d0@linux.alibaba.com>
+Date:   Wed, 4 Mar 2020 21:27:05 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
+In-Reply-To: <1c4ff425-a5a9-1e5a-a07c-24c8f3aa0f2e@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is a preparation patch, it adds some helpers and makes
-the next patches cleaner.
+hi，
 
-- extract io_impersonate_work() and io_assign_current_work()
-- replace @next label with nested do-while
-- move put_work() right after NULL'ing cur_work.
+> On 3/2/20 8:24 AM, Jens Axboe wrote:
+>> On 3/2/20 7:05 AM, Jens Axboe wrote:
+>>> On 3/1/20 9:18 PM, Xiaoguang Wang wrote:
+>>>> When user applis programming mode, like sumbit one sqe and wait its
+>>>> completion event, __io_uring_get_cqe() will result in many unnecessary
+>>>> syscalls, see below test program:
+>>>>
+>>>>      int main(int argc, char *argv[])
+>>>>      {
+>>>>              struct io_uring ring;
+>>>>              int fd, ret;
+>>>>              struct io_uring_sqe *sqe;
+>>>>              struct io_uring_cqe *cqe;
+>>>>              struct iovec iov;
+>>>>              off_t offset, filesize = 0;
+>>>>              void *buf;
+>>>>
+>>>>              if (argc < 2) {
+>>>>                      printf("%s: file\n", argv[0]);
+>>>>                      return 1;
+>>>>              }
+>>>>
+>>>>              ret = io_uring_queue_init(4, &ring, 0);
+>>>>              if (ret < 0) {
+>>>>                      fprintf(stderr, "queue_init: %s\n", strerror(-ret));
+>>>>                      return 1;
+>>>>              }
+>>>>
+>>>>              fd = open(argv[1], O_RDONLY | O_DIRECT);
+>>>>              if (fd < 0) {
+>>>>                      perror("open");
+>>>>                      return 1;
+>>>>              }
+>>>>
+>>>>              if (posix_memalign(&buf, 4096, 4096))
+>>>>                      return 1;
+>>>>              iov.iov_base = buf;
+>>>>              iov.iov_len = 4096;
+>>>>
+>>>>              offset = 0;
+>>>>              do {
+>>>>                      sqe = io_uring_get_sqe(&ring);
+>>>>                      if (!sqe) {
+>>>>                              printf("here\n");
+>>>>                              break;
+>>>>                      }
+>>>>                      io_uring_prep_readv(sqe, fd, &iov, 1, offset);
+>>>>
+>>>>                      ret = io_uring_submit(&ring);
+>>>>                      if (ret < 0) {
+>>>>                              fprintf(stderr, "io_uring_submit: %s\n", strerror(-ret));
+>>>>                              return 1;
+>>>>                      }
+>>>>
+>>>>                      ret = io_uring_wait_cqe(&ring, &cqe);
+>>>>                      if (ret < 0) {
+>>>>                              fprintf(stderr, "io_uring_wait_cqe: %s\n", strerror(-ret));
+>>>>                              return 1;
+>>>>                      }
+>>>>
+>>>>                      if (cqe->res <= 0) {
+>>>>                              if (cqe->res < 0) {
+>>>>                                      fprintf(stderr, "got eror: %d\n", cqe->res);
+>>>>                                      ret = 1;
+>>>>                              }
+>>>>                              io_uring_cqe_seen(&ring, cqe);
+>>>>                              break;
+>>>>                      }
+>>>>                      offset += cqe->res;
+>>>>                      filesize += cqe->res;
+>>>>                      io_uring_cqe_seen(&ring, cqe);
+>>>>              } while (1);
+>>>>
+>>>>              printf("filesize: %ld\n", filesize);
+>>>>              close(fd);
+>>>>              io_uring_queue_exit(&ring);
+>>>>              return 0;
+>>>>      }
+>>>>
+>>>> dd if=/dev/zero of=testfile bs=4096 count=16
+>>>> ./test  testfile
+>>>> and use bpftrace to trace io_uring_enter syscalls, in original codes,
+>>>> [lege@localhost ~]$ sudo bpftrace -e "tracepoint:syscalls:sys_enter_io_uring_enter {@c[tid] = count();}"
+>>>> Attaching 1 probe...
+>>>> @c[11184]: 49
+>>>> Above test issues 49 syscalls, it's counterintuitive. After looking
+>>>> into the codes, it's because __io_uring_get_cqe issue one more syscall,
+>>>> indded when __io_uring_get_cqe issues the first syscall, one cqe should
+>>>> already be ready, we don't need to wait again.
+>>>>
+>>>> To fix this issue, after the first syscall, set wait_nr to be zero, with
+>>>> tihs patch, bpftrace shows the number of io_uring_enter syscall is 33.
+>>>
+>>> Thanks, that's a nice fix, we definitely don't want to be doing
+>>> 50% more system calls than we have to...
+>>
+>> Actually, don't think the fix is quite safe. For one, if we get an error
+>> on the __io_uring_enter(), then we may not have waited for entries. Or if
+>> we submitted less than we thought we would, we would not have waited
+>> either. So we need to check for full success before deeming it safe to
+>> clear wait_nr.
+> 
+> Unrelated fix:
+> 
+> https://git.kernel.dk/cgit/liburing/commit/?id=0edcef5700fd558d2548532e0e5db26cb74d19ca
+> 
+> and then a fix for your patch on top:
+> 
+> https://git.kernel.dk/cgit/liburing/commit/?id=dc14e30a086082b6aebc3130948e2453e3bd3b2a
+In this patch, seesms that you forgot to delete:
+     if (wait_nr)
+         wait_nr = 0;
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io-wq.c | 123 ++++++++++++++++++++++++++++-------------------------
- 1 file changed, 64 insertions(+), 59 deletions(-)
+With these two codes removed, my original test case still produces the same amount
+of io_uring_enter syscalls, so you can just remove them safely.
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 042c7e2057ef..e438dc4d7cb3 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -440,14 +440,43 @@ static void io_wq_switch_creds(struct io_worker *worker,
- 		worker->saved_creds = old_creds;
- }
- 
-+static void io_impersonate_work(struct io_worker *worker,
-+				struct io_wq_work *work)
-+{
-+	if (work->files && current->files != work->files) {
-+		task_lock(current);
-+		current->files = work->files;
-+		task_unlock(current);
-+	}
-+	if (work->fs && current->fs != work->fs)
-+		current->fs = work->fs;
-+	if (work->mm != worker->mm)
-+		io_wq_switch_mm(worker, work);
-+	if (worker->cur_creds != work->creds)
-+		io_wq_switch_creds(worker, work);
-+}
-+
-+static void io_assign_current_work(struct io_worker *worker,
-+				   struct io_wq_work *work)
-+{
-+	/* flush pending signals before assigning new work */
-+	if (signal_pending(current))
-+		flush_signals(current);
-+	cond_resched();
-+
-+	spin_lock_irq(&worker->lock);
-+	worker->cur_work = work;
-+	spin_unlock_irq(&worker->lock);
-+}
-+
- static void io_worker_handle_work(struct io_worker *worker)
- 	__releases(wqe->lock)
- {
--	struct io_wq_work *work, *old_work = NULL, *put_work = NULL;
- 	struct io_wqe *wqe = worker->wqe;
- 	struct io_wq *wq = wqe->wq;
- 
- 	do {
-+		struct io_wq_work *work, *old_work;
- 		unsigned hash = -1U;
- 
- 		/*
-@@ -464,69 +493,45 @@ static void io_worker_handle_work(struct io_worker *worker)
- 			wqe->flags |= IO_WQE_FLAG_STALLED;
- 
- 		spin_unlock_irq(&wqe->lock);
--		if (put_work && wq->put_work)
--			wq->put_work(old_work);
- 		if (!work)
- 			break;
--next:
--		/* flush any pending signals before assigning new work */
--		if (signal_pending(current))
--			flush_signals(current);
--
--		cond_resched();
- 
--		spin_lock_irq(&worker->lock);
--		worker->cur_work = work;
--		spin_unlock_irq(&worker->lock);
--
--		if (work->files && current->files != work->files) {
--			task_lock(current);
--			current->files = work->files;
--			task_unlock(current);
--		}
--		if (work->fs && current->fs != work->fs)
--			current->fs = work->fs;
--		if (work->mm != worker->mm)
--			io_wq_switch_mm(worker, work);
--		if (worker->cur_creds != work->creds)
--			io_wq_switch_creds(worker, work);
--		/*
--		 * OK to set IO_WQ_WORK_CANCEL even for uncancellable work,
--		 * the worker function will do the right thing.
--		 */
--		if (test_bit(IO_WQ_BIT_CANCEL, &wq->state))
--			work->flags |= IO_WQ_WORK_CANCEL;
--
--		if (wq->get_work) {
--			put_work = work;
--			wq->get_work(work);
--		}
--
--		old_work = work;
--		work->func(&work);
--
--		spin_lock_irq(&worker->lock);
--		worker->cur_work = NULL;
--		spin_unlock_irq(&worker->lock);
--
--		spin_lock_irq(&wqe->lock);
--
--		if (hash != -1U) {
--			wqe->hash_map &= ~BIT(hash);
--			wqe->flags &= ~IO_WQE_FLAG_STALLED;
--		}
--		if (work && work != old_work) {
--			spin_unlock_irq(&wqe->lock);
--
--			if (put_work && wq->put_work) {
--				wq->put_work(put_work);
--				put_work = NULL;
-+		/* handle a whole dependent link */
-+		do {
-+			io_assign_current_work(worker, work);
-+			io_impersonate_work(worker, work);
-+
-+			/*
-+			 * OK to set IO_WQ_WORK_CANCEL even for uncancellable
-+			 * work, the worker function will do the right thing.
-+			 */
-+			if (test_bit(IO_WQ_BIT_CANCEL, &wq->state))
-+				work->flags |= IO_WQ_WORK_CANCEL;
-+
-+			if (wq->get_work)
-+				wq->get_work(work);
-+
-+			old_work = work;
-+			work->func(&work);
-+
-+			spin_lock_irq(&worker->lock);
-+			worker->cur_work = NULL;
-+			spin_unlock_irq(&worker->lock);
-+
-+			if (wq->put_work)
-+				wq->put_work(old_work);
-+
-+			if (hash != -1U) {
-+				spin_lock_irq(&wqe->lock);
-+				wqe->hash_map &= ~BIT_ULL(hash);
-+				wqe->flags &= ~IO_WQE_FLAG_STALLED;
-+				spin_unlock_irq(&wqe->lock);
-+				/* dependent work is not hashed */
-+				hash = -1U;
- 			}
-+		} while (work && work != old_work);
- 
--			/* dependent work not hashed */
--			hash = -1U;
--			goto next;
--		}
-+		spin_lock_irq(&wqe->lock);
- 	} while (1);
- }
- 
--- 
-2.24.0
+Regards,
+Xiaoguang Wang
 
+
+
+> 
+> Can you double check that your original test case still produces the
+> same amount of system calls with the fix in place?
+> 

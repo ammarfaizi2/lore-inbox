@@ -2,215 +2,117 @@ Return-Path: <SRS0=pn4g=4W=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D644DC3F2D9
-	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 17:22:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54B6FC3F2D2
+	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 20:06:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ABFED20848
-	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 17:22:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428923;
-	bh=WM3B9THmEF55zk3OTZZderU0nlzCLh950wnLGPA8kgM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=jheaIQKBZrEwcKIpRrS6YzTjYqADhdrfADCWNO98dUPv5tGHE4+OXy1GGFBrJFD/T
-	 NO+cAdgcypXjRKkXNbVBblUN4BISjhBce3wxLf5cS08uQODi8VgwJI3IFzCHQfinS5
-	 +hCd/Z9m+NNpKTZRaBcp8pBjjSIFA7FyWpyWjkTI=
+	by mail.kernel.org (Postfix) with ESMTP id 2A0D12072D
+	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 20:06:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="qw5KAu+5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727469AbgCEROG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:14:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39928 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727540AbgCEROF (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:05 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF9DD2187F;
-        Thu,  5 Mar 2020 17:14:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428444;
-        bh=WM3B9THmEF55zk3OTZZderU0nlzCLh950wnLGPA8kgM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsoiJEiDMVvzMKMFY2nJgrR4cG3HF9wNjzcOoz1e0N34wU6sMD1X9Igkk0f+ohy/l
-         BY0YEjF+vQVgCqFU7d+s2CvMk8zxMVk5Um2JfLyThvNTgiblZn51/JZnYBgEZDy1qw
-         CWaEtwfhTxDXDfSGlJcR7/XmPkKYyjAJ50BMxgw8=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 40/67] io_uring: fix poll_list race for SETUP_IOPOLL|SETUP_SQPOLL
-Date:   Thu,  5 Mar 2020 12:12:41 -0500
-Message-Id: <20200305171309.29118-40-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
-References: <20200305171309.29118-1-sashal@kernel.org>
+        id S1726083AbgCEUF7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Mar 2020 15:05:59 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:55160 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725977AbgCEUF7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Mar 2020 15:05:59 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 025K3Dvk022598;
+        Thu, 5 Mar 2020 20:05:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
+ bh=t8CAWsgw/ELAbr5QnCrpPBQ505nk1Vu1ytI4BAQPrjk=;
+ b=qw5KAu+5x/mirpb96LhLseOQBeoE1g3KqE56X2xHk0uyspvS/7d79kx9XbhpTUcU7uj3
+ dvVo/KBxCSR/2onyknlNQJSLw325k5akEGJ/QT2uC9/SkdupNuXCdQwRCpVEkizLrZF9
+ 6ewlsMmbqeNpMWBFXrIpQA3d1cjozQq6CFYv0+NVRD5HPArWkNpPxmURjVvgxOXZxEWN
+ e/H4O4ZZp9I/kabwHM/XtyLc2NPfxv63pFsl13+SjpeA5JUGyhoI/bGsWHfw9sWnMsQq
+ Ky358/r857GJoJ90QY0CwjiuGBf3vNOzjIiROeHrsuO/CxErp6Ce4w8po/6ZjBGator+ Yw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2120.oracle.com with ESMTP id 2yghn3k7ck-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 05 Mar 2020 20:05:55 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 025K3BNE121033;
+        Thu, 5 Mar 2020 20:05:55 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 2yg1h48kdp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 05 Mar 2020 20:05:54 +0000
+Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 025K5sBK007254;
+        Thu, 5 Mar 2020 20:05:54 GMT
+Received: from kili.mountain (/41.210.146.162)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 05 Mar 2020 12:05:53 -0800
+Date:   Thu, 5 Mar 2020 23:05:44 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [PATCH] io_uring: Fix error handling in
+ __io_compat_recvmsg_copy_hdr()
+Message-ID: <20200305200544.5wmrfo7hbfybp3w5@kili.mountain>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9551 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0
+ suspectscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2003050116
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9551 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 phishscore=0 spamscore=0
+ impostorscore=0 mlxscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 bulkscore=0 clxscore=1015 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2003050116
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+We need to check if __get_compat_msghdr() fails and return immediately
+on error.  Also if compat_import_iovec() fails then we should return a
+negative error code, but the current behavior is to just return
+success.
 
-[ Upstream commit bdcd3eab2a9ae0ac93f27275b6895dd95e5bf360 ]
-
-After making ext4 support iopoll method:
-  let ext4_file_operations's iopoll method be iomap_dio_iopoll(),
-we found fio can easily hang in fio_ioring_getevents() with below fio
-job:
-    rm -f testfile; sync;
-    sudo fio -name=fiotest -filename=testfile -iodepth=128 -thread
--rw=write -ioengine=io_uring  -hipri=1 -sqthread_poll=1 -direct=1
--bs=4k -size=10G -numjobs=8 -runtime=2000 -group_reporting
-with IORING_SETUP_SQPOLL and IORING_SETUP_IOPOLL enabled.
-
-There are two issues that results in this hang, one reason is that
-when IORING_SETUP_SQPOLL and IORING_SETUP_IOPOLL are enabled, fio
-does not use io_uring_enter to get completed events, it relies on
-kernel io_sq_thread to poll for completed events.
-
-Another reason is that there is a race: when io_submit_sqes() in
-io_sq_thread() submits a batch of sqes, variable 'inflight' will
-record the number of submitted reqs, then io_sq_thread will poll for
-reqs which have been added to poll_list. But note, if some previous
-reqs have been punted to io worker, these reqs will won't be in
-poll_list timely. io_sq_thread() will only poll for a part of previous
-submitted reqs, and then find poll_list is empty, reset variable
-'inflight' to be zero. If app just waits these deferred reqs and does
-not wake up io_sq_thread again, then hang happens.
-
-For app that entirely relies on io_sq_thread to poll completed requests,
-let io_iopoll_req_issued() wake up io_sq_thread properly when adding new
-element to poll_list, and when io_sq_thread prepares to sleep, check
-whether poll_list is empty again, if not empty, continue to poll.
-
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ede6c476b57d ("io_uring: add IOSQE_BUFFER_SELECT support for IORING_OP_RECVMSG")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 ---
- fs/io_uring.c | 59 +++++++++++++++++++++++----------------------------
- 1 file changed, 27 insertions(+), 32 deletions(-)
+ fs/io_uring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 678c62782ba3b..95df7026ac5aa 100644
+index d7c42bd04c78..c1a59cde2d88 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1435,6 +1435,10 @@ static void io_iopoll_req_issued(struct io_kiocb *req)
- 		list_add(&req->list, &ctx->poll_list);
- 	else
- 		list_add_tail(&req->list, &ctx->poll_list);
-+
-+	if ((ctx->flags & IORING_SETUP_SQPOLL) &&
-+	    wq_has_sleeper(&ctx->sqo_wait))
-+		wake_up(&ctx->sqo_wait);
- }
+@@ -3684,6 +3684,8 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
+ 	msg_compat = (struct compat_msghdr __user *) sr->msg;
+ 	ret = __get_compat_msghdr(&io->msg.msg, msg_compat, &io->msg.uaddr,
+ 					&ptr, &len);
++	if (ret)
++		return ret;
  
- static void io_file_put(struct io_submit_state *state)
-@@ -3847,9 +3851,8 @@ static int io_sq_thread(void *data)
- 	const struct cred *old_cred;
- 	mm_segment_t old_fs;
- 	DEFINE_WAIT(wait);
--	unsigned inflight;
- 	unsigned long timeout;
--	int ret;
-+	int ret = 0;
- 
- 	complete(&ctx->completions[1]);
- 
-@@ -3857,39 +3860,19 @@ static int io_sq_thread(void *data)
- 	set_fs(USER_DS);
- 	old_cred = override_creds(ctx->creds);
- 
--	ret = timeout = inflight = 0;
-+	timeout = jiffies + ctx->sq_thread_idle;
- 	while (!kthread_should_park()) {
- 		unsigned int to_submit;
- 
--		if (inflight) {
-+		if (!list_empty(&ctx->poll_list)) {
- 			unsigned nr_events = 0;
- 
--			if (ctx->flags & IORING_SETUP_IOPOLL) {
--				/*
--				 * inflight is the count of the maximum possible
--				 * entries we submitted, but it can be smaller
--				 * if we dropped some of them. If we don't have
--				 * poll entries available, then we know that we
--				 * have nothing left to poll for. Reset the
--				 * inflight count to zero in that case.
--				 */
--				mutex_lock(&ctx->uring_lock);
--				if (!list_empty(&ctx->poll_list))
--					io_iopoll_getevents(ctx, &nr_events, 0);
--				else
--					inflight = 0;
--				mutex_unlock(&ctx->uring_lock);
--			} else {
--				/*
--				 * Normal IO, just pretend everything completed.
--				 * We don't have to poll completions for that.
--				 */
--				nr_events = inflight;
--			}
--
--			inflight -= nr_events;
--			if (!inflight)
-+			mutex_lock(&ctx->uring_lock);
-+			if (!list_empty(&ctx->poll_list))
-+				io_iopoll_getevents(ctx, &nr_events, 0);
-+			else
- 				timeout = jiffies + ctx->sq_thread_idle;
-+			mutex_unlock(&ctx->uring_lock);
- 		}
- 
- 		to_submit = io_sqring_entries(ctx);
-@@ -3918,7 +3901,7 @@ static int io_sq_thread(void *data)
- 			 * more IO, we should wait for the application to
- 			 * reap events and wake us up.
- 			 */
--			if (inflight ||
-+			if (!list_empty(&ctx->poll_list) ||
- 			    (!time_after(jiffies, timeout) && ret != -EBUSY &&
- 			    !percpu_ref_is_dying(&ctx->refs))) {
- 				cond_resched();
-@@ -3928,6 +3911,19 @@ static int io_sq_thread(void *data)
- 			prepare_to_wait(&ctx->sqo_wait, &wait,
- 						TASK_INTERRUPTIBLE);
- 
-+			/*
-+			 * While doing polled IO, before going to sleep, we need
-+			 * to check if there are new reqs added to poll_list, it
-+			 * is because reqs may have been punted to io worker and
-+			 * will be added to poll_list later, hence check the
-+			 * poll_list again.
-+			 */
-+			if ((ctx->flags & IORING_SETUP_IOPOLL) &&
-+			    !list_empty_careful(&ctx->poll_list)) {
-+				finish_wait(&ctx->sqo_wait, &wait);
-+				continue;
-+			}
-+
- 			/* Tell userspace we may need a wakeup call */
- 			ctx->rings->sq_flags |= IORING_SQ_NEED_WAKEUP;
- 			/* make sure to read SQ tail after writing flags */
-@@ -3956,8 +3952,7 @@ static int io_sq_thread(void *data)
- 		mutex_lock(&ctx->uring_lock);
- 		ret = io_submit_sqes(ctx, to_submit, NULL, -1, &cur_mm, true);
- 		mutex_unlock(&ctx->uring_lock);
+ 	uiov = compat_ptr(ptr);
+ 	if (req->flags & REQ_F_BUFFER_SELECT) {
+@@ -3703,8 +3705,8 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
+ 		ret = compat_import_iovec(READ, uiov, len, UIO_FASTIOV,
+ 						&io->msg.iov,
+ 						&io->msg.msg.msg_iter);
 -		if (ret > 0)
--			inflight += ret;
-+		timeout = jiffies + ctx->sq_thread_idle;
+-			ret = 0;
++		if (ret < 0)
++			return ret;
  	}
  
- 	set_fs(old_fs);
+ 	return 0;
 -- 
-2.20.1
+2.11.0
 

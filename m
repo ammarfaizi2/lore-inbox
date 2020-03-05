@@ -1,161 +1,114 @@
-Return-Path: <SRS0=iUzr=4V=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=pn4g=4W=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE8AC3F2CE
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 20:14:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5273CC3F2D2
+	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 17:22:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 436D620870
-	for <io-uring@archiver.kernel.org>; Wed,  4 Mar 2020 20:14:45 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="yGz2amRr"
+	by mail.kernel.org (Postfix) with ESMTP id 22F0D2072D
+	for <io-uring@archiver.kernel.org>; Thu,  5 Mar 2020 17:22:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1583428920;
+	bh=Fd5mXYSIkdYOZviVLVfQIG/AbZvQecDxCTGdLIxVWH4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=tJmtH6rzEGVt8vFOFcE9YgJUQqtuonCkIWlowNYRR/CqqFdpLI19BdCFe4nLe5HmY
+	 FjpIhFoYH+F9ESK1gkb7yTTPBY93QZrMfUML9Nc6qqflEnjiNHXCT+0VP9T5EyQD0S
+	 ZDcoGwVrTaDJ0vVLGUcltkr6bUW0eWwOB+v1oF7w=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727137AbgCDUOp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 4 Mar 2020 15:14:45 -0500
-Received: from mail-io1-f65.google.com ([209.85.166.65]:39282 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726561AbgCDUOo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 4 Mar 2020 15:14:44 -0500
-Received: by mail-io1-f65.google.com with SMTP id h3so3852274ioj.6
-        for <io-uring@vger.kernel.org>; Wed, 04 Mar 2020 12:14:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=nAztYb774WsRpkB+kATuYDeAaIxkEfk/WJzTJiyRWW0=;
-        b=yGz2amRrTZYm7zqKyq6bbG+n9kOXzqpyGSHZmSlwWip1EMmuT/8oh5Nxs79FLAJJZZ
-         HP5KTCGzbG3INvyTt6iVZry1fHVz4D1GG6Efd1Q+K6rbNBxUAmkSAxQkeJLhKgZJUreH
-         Isz8o65RH8kPGJU9QlcvFYGOtBjlJZN4T7PBMwU+KM2hSgJW+i338cL/VsEnIu+t7UG0
-         V9iuRN0YJXXwQ/eoYaqh/arqzQPpvKaWndldtTQbAk0Mlv6jECaZXj3NgIQIc9zJQ285
-         XpfM7FYiqQktu7jRxhbkxx+uESJ6diop7OqrrD/F+aQdbQDboJmq+LuiLzrP52Sg/m66
-         qBDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nAztYb774WsRpkB+kATuYDeAaIxkEfk/WJzTJiyRWW0=;
-        b=uBU9jNUW/lcjEPedPDapKh2ttXaEH4pValYnc+W3pdrndmOuLm4owJ8ZBDti1blO9U
-         b3g8xwVL6uo//6Y1Z1hxV8uOG/cBe5WeBPOObfJaPdhMIxbAqAMDVcv7BIEuzYwpuwkW
-         rYkomEkWbP9793EKRBWcWeTKbAIHEGalnxs6WFpYoOrcrjPITQZ7XPdpMJ+C+pkinpdS
-         UXsMfHLg+Dy6MZaKReXuGlMEdxowYRTtdHhkCD4hlpwIOk7mEdJlp+A+TyJz1lrr3R7v
-         UCIW/a98WxMvGcreOekOSa9w1k+rrpy9oITcbiGf3q2lrpVntv7OE8epQWUXyd2f4V5X
-         mkuA==
-X-Gm-Message-State: ANhLgQ1ZjFQUQ++MjPYYW+DOcy0DQa7OkaSp26SwCXdRo8pnK8Ecsl0h
-        0B8mM2NQKHniX/vP8rPDhIlBVhAczqc=
-X-Google-Smtp-Source: ADFU+vtgNRTbQtwuKhfc/c1YvnaaEWydf8K4qxtU62lm/oERdWfqFTnroNhT1pdimLvS+h4VDiO6ww==
-X-Received: by 2002:a6b:d117:: with SMTP id l23mr3412035iob.217.1583352882487;
-        Wed, 04 Mar 2020 12:14:42 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id t28sm5912856ill.19.2020.03.04.12.14.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Mar 2020 12:14:42 -0800 (PST)
-Subject: Re: [PATCHSET v2 0/6] Support selectable file descriptors
-To:     Josh Triplett <josh@joshtriplett.org>
-Cc:     io-uring@vger.kernel.org, jlayton@kernel.org
-References: <20200304180016.28212-1-axboe@kernel.dk>
- <20200304190341.GB16251@localhost>
- <121d15a7-4b21-368c-e805-a0660b1c851a@kernel.dk>
- <20200304195642.GB16527@localhost>
- <ed5c490f-4faf-afc7-bfab-d58aed061fc6@kernel.dk>
- <20200304200934.GC16527@localhost>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <c1cbbd5d-2be0-d724-7866-60b08e27852e@kernel.dk>
-Date:   Wed, 4 Mar 2020 13:14:40 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727569AbgCEROI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:14:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727557AbgCEROH (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:07 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A6F32146E;
+        Thu,  5 Mar 2020 17:14:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583428446;
+        bh=Fd5mXYSIkdYOZviVLVfQIG/AbZvQecDxCTGdLIxVWH4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DJSup7gQwVkhjRiSWeH1J9Z1W7EpfjdmlddKsQFaev1Bfj7LauEFJ3bH1tERiQoK6
+         KCuAiWvPfyU/LzH6IdAIfpKggGNfJdhJPvxNGsyxHx+T5+pNE0jICHyxqYDgXqpDBV
+         YjKjaUpjDixEkuWdBApTkJy4/tfokBHERbE6UWmQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 42/67] io_uring: pick up link work on submit reference drop
+Date:   Thu,  5 Mar 2020 12:12:43 -0500
+Message-Id: <20200305171309.29118-42-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
+References: <20200305171309.29118-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200304200934.GC16527@localhost>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/4/20 1:09 PM, Josh Triplett wrote:
-> On Wed, Mar 04, 2020 at 01:00:05PM -0700, Jens Axboe wrote:
->> On 3/4/20 12:56 PM, Josh Triplett wrote:
->>> On Wed, Mar 04, 2020 at 12:10:08PM -0700, Jens Axboe wrote:
->>>> On 3/4/20 12:03 PM, Josh Triplett wrote:
->>>>> On Wed, Mar 04, 2020 at 11:00:10AM -0700, Jens Axboe wrote:
->>>>>> One of the fabled features with chains has long been the desire to
->>>>>> support things like:
->>>>>>
->>>>>> <open fileX><read from fileX><close fileX>
->>>>>>
->>>>>> in a single chain. This currently doesn't work, since the read/close
->>>>>> depends on what file descriptor we get on open.
->>>>>>
->>>>>> The original attempt at solving this provided a means to pass
->>>>>> descriptors between chains in a link, this version takes a different
->>>>>> route. Based on Josh's support for O_SPECIFIC_FD, we can instead control
->>>>>> what fd value we're going to get out of open (or accept). With that in
->>>>>> place, we don't need to do any magic to make this work. The above chain
->>>>>> then becomes:
->>>>>>
->>>>>> <open fileX with fd Y><read from fd Y><close fd Y>
->>>>>>
->>>>>> which is a lot more useful, and allows any sort of weird chains without
->>>>>> needing to nest "last open" file descriptors.
->>>>>>
->>>>>> Updated the test program to use this approach:
->>>>>>
->>>>>> https://git.kernel.dk/cgit/liburing/plain/test/orc.c?h=fd-select
->>>>>>
->>>>>> which forces the use of fd==89 for the open, and then uses that for the
->>>>>> read and close.
->>>>>>
->>>>>> Outside of this adaptation, fixed a few bugs and cleaned things up.
->>>>>
->>>>> I posted one comment about an issue in patch 6.
->>>>>
->>>>> Patches 2-5 look great; for those:
->>>>> Reviewed-by: Josh Triplett <josh@joshtriplett.org>
->>>>>
->>>>> Thanks for picking this up and running with it!
->>>>
->>>> Thanks for doing the prep work! I think it turned out that much better
->>>> for it.
->>>>
->>>> Are you going to post your series for general review? I just stole
->>>> your 1 patch that was needed for me.
->>>
->>> Since your patch series depends on mine, please feel free to run with
->>> the series. Would you mind adding my patch 1 and 3 at the end of your
->>> series? You need patch 1 to make this more usable for userspace, and
->>> patch 3 would allow for an OP_PIPE which I'd love to have.
->>
->> Let me add patch 1 to the top of the stack, for the pipe part that
->> probably should be taken in separately. But not a huge deal to me,
->> as long as we can get it reviewed.
-> 
-> That works for me; I don't mind if the pipe support goes in a bit later.
-> And there are many other fd-producing syscalls that need support for
-> userspace-selected FDs, including signalfd4, eventfd2, timerfd_create,
-> epoll_create1, memfd_create, userfaultfd, and the pidfd family.
+From: Jens Axboe <axboe@kernel.dk>
 
-Right, at least on the io_uring front, adding IORING_OP_SOCKET and
-providing support for SOCK_SPECIFIC_FD through that would be trivial and
-a few lines of change. In general, we can more easily do all that
-through io_uring, as we have room to shove in that extra 'fd'.
+[ Upstream commit 2a44f46781617c5040372b59da33553a02b1f46d ]
 
-I've queued up patch 1 as well.
+If work completes inline, then we should pick up a dependent link item
+in __io_queue_sqe() as well. If we don't do so, we're forced to go async
+with that item, which is suboptimal.
 
->>> Do you plan to submit this during the next merge window?
->>
->> Maybe? In terms of timing, I think we're well within the opportunity
->> to do so, at least.
-> 
-> I look forward to seeing it go in.
+This also fixes an issue with io_put_req_find_next(), which always looks
+up the next work item. That should only be done if we're dropping the
+last reference to the request, to prevent multiple lookups of the same
+work item.
 
-Me too :-)
+Outside of being a fix, this also enables a good cleanup series for 5.7,
+where we never have to pass 'nxt' around or into the work handlers.
 
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 95df7026ac5aa..39b18ab928210 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1099,10 +1099,10 @@ static void io_free_req(struct io_kiocb *req)
+ __attribute__((nonnull))
+ static void io_put_req_find_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ {
+-	io_req_find_next(req, nxtptr);
+-
+-	if (refcount_dec_and_test(&req->refs))
++	if (refcount_dec_and_test(&req->refs)) {
++		io_req_find_next(req, nxtptr);
+ 		__io_free_req(req);
++	}
+ }
+ 
+ static void io_put_req(struct io_kiocb *req)
+@@ -3559,7 +3559,7 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ err:
+ 	/* drop submission reference */
+-	io_put_req(req);
++	io_put_req_find_next(req, &nxt);
+ 
+ 	if (linked_timeout) {
+ 		if (!ret)
 -- 
-Jens Axboe
+2.20.1
 

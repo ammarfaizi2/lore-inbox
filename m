@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B1CC3F2D0
-	for <io-uring@archiver.kernel.org>; Tue, 10 Mar 2020 15:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4747C18E5C
+	for <io-uring@archiver.kernel.org>; Tue, 10 Mar 2020 15:04:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8FC1D21927
-	for <io-uring@archiver.kernel.org>; Tue, 10 Mar 2020 15:04:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCA3D20675
+	for <io-uring@archiver.kernel.org>; Tue, 10 Mar 2020 15:04:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="I+nmKcUp"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="y/mYhcUu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbgCJPEj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 10 Mar 2020 11:04:39 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:32875 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727849AbgCJPEi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Mar 2020 11:04:38 -0400
-Received: by mail-il1-f194.google.com with SMTP id k29so7090533ilg.0
-        for <io-uring@vger.kernel.org>; Tue, 10 Mar 2020 08:04:38 -0700 (PDT)
+        id S1727409AbgCJPEk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 10 Mar 2020 11:04:40 -0400
+Received: from mail-il1-f193.google.com ([209.85.166.193]:39163 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727714AbgCJPEk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 10 Mar 2020 11:04:40 -0400
+Received: by mail-il1-f193.google.com with SMTP id a14so9161505ilk.6
+        for <io-uring@vger.kernel.org>; Tue, 10 Mar 2020 08:04:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=l514IrcApzP58j83EjjHprocgNUYX0xcvH3LdD3Ambw=;
-        b=I+nmKcUpnAIMRvdkAa9YyD0rzCcIQsdWT4/PESStcZJMica21yoWulR1eNq7VyU0Q2
-         cE8ny9dkGzIVJFjNTdSwOB2srMoVqsqO4aSOCkajcxfuslS3kdpVwYeIkmmRKidiDzSt
-         U5HRFVyyG4cvd2iVuGNamXg07V2OJhDyMT5WQKS74KvcAooBq16LaeOWl3QtfzlvT0Yv
-         uxmB00LbfeA/75Ot6Yqw9io+JXbwsPOUW0nKByXrevUkBWIem9IOf/WqlYID1Bmn3zGV
-         ZFSnAzbjY4uSvqXPxIbf5keu1s5QayL8RU3wFg0/Tv+PDLRL2/iShdqe+bRC/LUSXisF
-         a/Fw==
+        bh=yyOEnf49QhhLVKOTyuwvQLPuRjRYfOr/CFDh0kb+/U0=;
+        b=y/mYhcUuHZ4rWxQfiIceZRUX94FeuOpijzA10FC/eRXmEHlyRnYzTi2PvllEPQX5qh
+         kpDfv6nqHAt0s+2GtDjqm/pU8ZsY1s6a/OebkcZ7FI9W3lzubty+E/0bV9GiSdouTjRd
+         abzABaagbovNbN+5ZheyJc5uwhxT2J5/Al57AQv7sYA1tc9Gwffl8nKxcIsw+e8AvK/l
+         DZmyHzlvXrMnHwrDAGiAZB8TGMeOxETWkn54NY8IKYeIYlw5y0e3KSgECx2e4fiHeGbP
+         YwJXXyBGx+Ui06rQ1b9KC8AnaA5rDRwKfR9vom4ir883jMI2Ejp9zdKD1ivbvlt0VEkC
+         w2ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=l514IrcApzP58j83EjjHprocgNUYX0xcvH3LdD3Ambw=;
-        b=Ft9Mrfk4BWjBstoeZ/z+jv5QPjeWzqGJ8svjIMvYvKduRWS0AYJ2wntTVEnfqBwxtp
-         RtHh1q9l4zgiotGr+qcl8sGIyxYoLdlLWxqkK1uHXd87sjBrrZQUuQOAAwMvAOZJyv3y
-         JC8sQo2odIcbGqot8bevEBhUWsqyEZ0GMDf0ifOrJW2yMPvN7OrVqhXA3s7mdH1RKdBi
-         lejGaLbK9182+r2kvBgMgGxlfABGe1FVZyx/zCe8zY/yJ58IblSULKrOW+SKqqs9TB+6
-         tza0RH+R0Roknhaxu4JDxBeNGoQH90kmEagMl1TTxVcClQM2G0UbDddq6lLfg50NJ0tD
-         O32g==
-X-Gm-Message-State: ANhLgQ2AtYO2HL9tlGa37sQbN9+677p27MnbF9Ud4scxmAOxIgBswib0
-        8VVJ5IP8HgY18XycSTSGHiZwKRHmcbg25A==
-X-Google-Smtp-Source: ADFU+vuZHNqk7H22Zq6S6BzK0JyYsvs7FqQ29vbL1lWzK10uG8MuhD/n47c0DZ/cxiTzoWtjC/ebdw==
-X-Received: by 2002:a92:7911:: with SMTP id u17mr14632433ilc.44.1583852672949;
-        Tue, 10 Mar 2020 08:04:32 -0700 (PDT)
+        bh=yyOEnf49QhhLVKOTyuwvQLPuRjRYfOr/CFDh0kb+/U0=;
+        b=GtIkVhYQD9CqyoC1l3xM1GXKZvI19OHg9mHRQHCfTC7o9ujet6j47YbpnoGs94nvic
+         +4q3SACi0P/6OvZBHUPiDeqlVjny9Isq3vqnfAgUkxdaRa86vb7PCJlWPdlCxCwpAbJ2
+         KlIxBQGDs9qm6hjx6evVv3aIqEtIfxH4YbWVuJ2oD9cagYwuh9pCT/VNKSebMzI2iy7N
+         oNzS9+FNX8iFjG5uqCn1XtIYERomgpo66NGRXVz06nqjPWm5E05QHS5cMflEfW5JZjMg
+         bMQYcYxuDm5KugtLrr/cJILjdm2bwUWxYXTCRW0CeMfCOc7vXV+W9iih/1IJHufpa17K
+         zG+Q==
+X-Gm-Message-State: ANhLgQ0djKkYVQFIPZ4E/yqiSit1vTHT1oKgevpyOkbqaR2aOJiqkbM4
+        P/RiKwjVNtbEVxjl5B79cnL+WmipI0SC8Q==
+X-Google-Smtp-Source: ADFU+vvGUkgoaPSlSEo0yU/VBRmhaWK3f9Uzxdj2bMGO3AGWuwu66/sc1I7yIlsG7FhIeFbV3qo9nQ==
+X-Received: by 2002:a92:5e44:: with SMTP id s65mr20259156ilb.148.1583852677423;
+        Tue, 10 Mar 2020 08:04:37 -0700 (PDT)
 Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id e16sm4684750ioh.7.2020.03.10.08.04.32
+        by smtp.gmail.com with ESMTPSA id e16sm4684750ioh.7.2020.03.10.08.04.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2020 08:04:32 -0700 (PDT)
+        Tue, 10 Mar 2020 08:04:36 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     andres@anarazel.de, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/9] io_uring: buffer registration infrastructure
-Date:   Tue, 10 Mar 2020 09:04:18 -0600
-Message-Id: <20200310150427.28489-2-axboe@kernel.dk>
+Cc:     andres@anarazel.de, Jens Axboe <axboe@kernel.dk>,
+        David Miller <davem@davemloft.net>
+Subject: [PATCH 5/9] net: abstract out normal and compat msghdr import
+Date:   Tue, 10 Mar 2020 09:04:22 -0600
+Message-Id: <20200310150427.28489-6-axboe@kernel.dk>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310150427.28489-1-axboe@kernel.dk>
 References: <20200310150427.28489-1-axboe@kernel.dk>
@@ -70,91 +71,142 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This just prepares the ring for having lists of buffers associated with
-it, that the application can provide for SQEs to consume instead of
-providing their own.
+This splits it into two parts, one that imports the message, and one
+that imports the iovec. This allows a caller to only do the first part,
+and import the iovec manually afterwards.
 
-The buffers are organized by group ID.
+No functional changes in this patch.
 
+Acked-by: David Miller <davem@davemloft.net>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ include/linux/socket.h |  4 ++++
+ include/net/compat.h   |  3 +++
+ net/compat.c           | 30 +++++++++++++++++++++++-------
+ net/socket.c           | 25 +++++++++++++++++++++----
+ 4 files changed, 51 insertions(+), 11 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0d6f4b3b8f13..1f3ae208f6a6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -195,6 +195,13 @@ struct fixed_file_data {
- 	struct completion		done;
- };
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 2d2313403101..fc59ac825561 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -391,6 +391,10 @@ extern int recvmsg_copy_msghdr(struct msghdr *msg,
+ 			       struct user_msghdr __user *umsg, unsigned flags,
+ 			       struct sockaddr __user **uaddr,
+ 			       struct iovec **iov);
++extern int __copy_msghdr_from_user(struct msghdr *kmsg,
++				   struct user_msghdr __user *umsg,
++				   struct sockaddr __user **save_addr,
++				   struct iovec __user **uiov, size_t *nsegs);
  
-+struct io_buffer {
-+	struct list_head list;
-+	__u64 addr;
-+	__s32 len;
-+	__u16 bid;
-+};
-+
- struct io_ring_ctx {
- 	struct {
- 		struct percpu_ref	refs;
-@@ -272,6 +279,8 @@ struct io_ring_ctx {
- 	struct socket		*ring_sock;
- #endif
+ /* helpers which do the actual work for syscalls */
+ extern int __sys_recvfrom(int fd, void __user *ubuf, size_t size,
+diff --git a/include/net/compat.h b/include/net/compat.h
+index f277653c7e17..e341260642fe 100644
+--- a/include/net/compat.h
++++ b/include/net/compat.h
+@@ -38,6 +38,9 @@ struct compat_cmsghdr {
+ #define compat_mmsghdr	mmsghdr
+ #endif /* defined(CONFIG_COMPAT) */
  
-+	struct idr		io_buffer_idr;
-+
- 	struct idr		personality_idr;
++int __get_compat_msghdr(struct msghdr *kmsg, struct compat_msghdr __user *umsg,
++			struct sockaddr __user **save_addr, compat_uptr_t *ptr,
++			compat_size_t *len);
+ int get_compat_msghdr(struct msghdr *, struct compat_msghdr __user *,
+ 		      struct sockaddr __user **, struct iovec **);
+ struct sock_fprog __user *get_compat_bpf_fprog(char __user *optval);
+diff --git a/net/compat.c b/net/compat.c
+index 47d99c784947..4bed96e84d9a 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -33,10 +33,10 @@
+ #include <linux/uaccess.h>
+ #include <net/compat.h>
  
- 	struct {
-@@ -875,6 +884,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_LIST_HEAD(&ctx->cq_overflow_list);
- 	init_completion(&ctx->completions[0]);
- 	init_completion(&ctx->completions[1]);
-+	idr_init(&ctx->io_buffer_idr);
- 	idr_init(&ctx->personality_idr);
- 	mutex_init(&ctx->uring_lock);
- 	init_waitqueue_head(&ctx->wait);
-@@ -6524,6 +6534,30 @@ static int io_eventfd_unregister(struct io_ring_ctx *ctx)
- 	return -ENXIO;
- }
+-int get_compat_msghdr(struct msghdr *kmsg,
+-		      struct compat_msghdr __user *umsg,
+-		      struct sockaddr __user **save_addr,
+-		      struct iovec **iov)
++int __get_compat_msghdr(struct msghdr *kmsg,
++			struct compat_msghdr __user *umsg,
++			struct sockaddr __user **save_addr,
++			compat_uptr_t *ptr, compat_size_t *len)
+ {
+ 	struct compat_msghdr msg;
+ 	ssize_t err;
+@@ -79,10 +79,26 @@ int get_compat_msghdr(struct msghdr *kmsg,
+ 		return -EMSGSIZE;
  
-+static int __io_destroy_buffers(int id, void *p, void *data)
-+{
-+	struct io_ring_ctx *ctx = data;
-+	struct io_buffer *buf = p;
-+
-+	/* the head kbuf is the list itself */
-+	while (!list_empty(&buf->list)) {
-+		struct io_buffer *nxt;
-+
-+		nxt = list_first_entry(&buf->list, struct io_buffer, list);
-+		list_del(&nxt->list);
-+		kfree(nxt);
-+	}
-+	kfree(buf);
-+	idr_remove(&ctx->io_buffer_idr, id);
+ 	kmsg->msg_iocb = NULL;
++	*ptr = msg.msg_iov;
++	*len = msg.msg_iovlen;
 +	return 0;
 +}
 +
-+static void io_destroy_buffers(struct io_ring_ctx *ctx)
++int get_compat_msghdr(struct msghdr *kmsg,
++		      struct compat_msghdr __user *umsg,
++		      struct sockaddr __user **save_addr,
++		      struct iovec **iov)
 +{
-+	idr_for_each(&ctx->io_buffer_idr, __io_destroy_buffers, ctx);
-+	idr_destroy(&ctx->io_buffer_idr);
++	compat_uptr_t ptr;
++	compat_size_t len;
++	ssize_t err;
++
++	err = __get_compat_msghdr(kmsg, umsg, save_addr, &ptr, &len);
++	if (err)
++		return err;
+ 
+-	err = compat_import_iovec(save_addr ? READ : WRITE,
+-				   compat_ptr(msg.msg_iov), msg.msg_iovlen,
+-				   UIO_FASTIOV, iov, &kmsg->msg_iter);
++	err = compat_import_iovec(save_addr ? READ : WRITE, compat_ptr(ptr),
++				   len, UIO_FASTIOV, iov, &kmsg->msg_iter);
+ 	return err < 0 ? err : 0;
+ }
+ 
+diff --git a/net/socket.c b/net/socket.c
+index b79a05de7c6e..70ede74ab24b 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2226,10 +2226,10 @@ struct used_address {
+ 	unsigned int name_len;
+ };
+ 
+-static int copy_msghdr_from_user(struct msghdr *kmsg,
+-				 struct user_msghdr __user *umsg,
+-				 struct sockaddr __user **save_addr,
+-				 struct iovec **iov)
++int __copy_msghdr_from_user(struct msghdr *kmsg,
++			    struct user_msghdr __user *umsg,
++			    struct sockaddr __user **save_addr,
++			    struct iovec __user **uiov, size_t *nsegs)
+ {
+ 	struct user_msghdr msg;
+ 	ssize_t err;
+@@ -2271,6 +2271,23 @@ static int copy_msghdr_from_user(struct msghdr *kmsg,
+ 		return -EMSGSIZE;
+ 
+ 	kmsg->msg_iocb = NULL;
++	*uiov = msg.msg_iov;
++	*nsegs = msg.msg_iovlen;
++	return 0;
 +}
 +
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- {
- 	io_finish_async(ctx);
-@@ -6534,6 +6568,7 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	io_sqe_buffer_unregister(ctx);
- 	io_sqe_files_unregister(ctx);
- 	io_eventfd_unregister(ctx);
-+	io_destroy_buffers(ctx);
- 	idr_destroy(&ctx->personality_idr);
++static int copy_msghdr_from_user(struct msghdr *kmsg,
++				 struct user_msghdr __user *umsg,
++				 struct sockaddr __user **save_addr,
++				 struct iovec **iov)
++{
++	struct user_msghdr msg;
++	ssize_t err;
++
++	err = __copy_msghdr_from_user(kmsg, umsg, save_addr, &msg.msg_iov,
++					&msg.msg_iovlen);
++	if (err)
++		return err;
  
- #if defined(CONFIG_UNIX)
+ 	err = import_iovec(save_addr ? READ : WRITE,
+ 			    msg.msg_iov, msg.msg_iovlen,
 -- 
 2.25.1
 

@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B1CC2BB1D
-	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:32:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAF74C10DCE
+	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:32:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2840A20663
-	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:32:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADE352074F
+	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:32:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g4wd3Hcj"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HFQFQ6EC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727459AbgCMVcP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 13 Mar 2020 17:32:15 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:44528 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726480AbgCMVcP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 13 Mar 2020 17:32:15 -0400
-Received: by mail-wr1-f65.google.com with SMTP id l18so13853570wru.11;
-        Fri, 13 Mar 2020 14:32:12 -0700 (PDT)
+        id S1727519AbgCMVcS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 13 Mar 2020 17:32:18 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39285 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726480AbgCMVcR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 13 Mar 2020 17:32:17 -0400
+Received: by mail-wr1-f67.google.com with SMTP id r15so13919033wrx.6;
+        Fri, 13 Mar 2020 14:32:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8khDX0zguZrOlxAUt6xpu1sxtgNiPNQNNt6SjsyrRj0=;
-        b=g4wd3Hcj138srG/HA1xKC7mQLEP3G0Wj+AiIqrAyQ4I5IIb14Jcqb2XWAAfCf9HEUz
-         fiAdplxbhJs26+Gd2EVVAe3M91rQBgPledkmeQdG1XfMCx8qfx4aumY10xKRoUyBMz7e
-         4WWYPmRzwUdsOP9AWKcW+sqaumhg2qa158BH8ZNiRTVtXQR3IcPNjoWo3T+MNQu95Diw
-         Xp3ftFbyf4RNX4JY36V3uRYtkTSnt7ZsKXiqnfZQwk13feTMd1eIDsdrYfwWXvIKRSNa
-         Z4f/sIdtfXXUDqiobaHpyccwQkKZlSMHX5tygiCOL2O1TPajLio7n5QGj2TrkJJU1aVU
-         K05w==
+        bh=7DbGWN2+kF//whEgQr03cv2/aBaOQJUED7KmNiLDrJM=;
+        b=HFQFQ6ECQPVAtjvEJKfBh6yX1cWMdvL8+ZyH9fnSgC3vD0DUeTSJIvBSGW7EynkjIK
+         G9CQRvUCtoUvcRDypNwqLvmI2KcE94CgwGZEQ+yB0o+MCRzrRh6OwB6nT/W6ubYNWIcq
+         KTB6fIBTr/Rtwt1MvUnGoAYa0lJPV7tEK/iMVlDtXe87mgYIzDuchwxbrW5hq4rl/l0B
+         q1gERZngvA5mXJAAWaeEK2J3Xn8iQAfEBmfPhVRihpyQxXosqSNP1pWWY7sDZmh01Rll
+         Cgi8XZOWLEP+SCNnwnWbcUAapDt6RwIe8f98L8x/rJjOeCqHqIn9UPp/iyW55wXoXvW4
+         fPVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8khDX0zguZrOlxAUt6xpu1sxtgNiPNQNNt6SjsyrRj0=;
-        b=mR3ho1hxwnwHQtbr5NuXsBOy8mXCYuV5HwKubnRE8gVARYCNJn4Qk7qlPrynU9VH3V
-         DTe1+SQkZnVfUhzhOlV4+BCJxUN5p9pJ7RemCcvY6yUHTQXuq0iTosb0RPz1/rTSM3Dx
-         9jYeXzxeQ3cPVeqOI+eAstmabONR/33hv6WAK7jYelQB8TRzHbr8fmXknhFJZkquD1FV
-         415Ma66kRZ29aRsFfI3QuwI6cAGP9T5/Z8VF7mNBQtqDsk/rFG+LmjV5ocXYeFv62dGO
-         t/emnBOu/KcF7OkrrDaoJdy0k1MX0U4qM0VJwAX0UdxQ3IQNl/q8nPhsdnMzpDoQ5w4w
-         4rHA==
-X-Gm-Message-State: ANhLgQ2CxEt24Rlz1ZTQxtw3xaOWpR4pDogPJCTCtwUObnSqEp2NNzZi
-        JFz9xWJHfvNpJtHUvrohn0EdTuvr
-X-Google-Smtp-Source: ADFU+vth4URq8X6X+GCquXtPHcRxj1rXHg2MlvBQAZCzyE5Iar8h5g/1IU4G6iOpGZGhwJaqK7vNhw==
-X-Received: by 2002:a5d:4104:: with SMTP id l4mr20985102wrp.55.1584135132057;
-        Fri, 13 Mar 2020 14:32:12 -0700 (PDT)
+        bh=7DbGWN2+kF//whEgQr03cv2/aBaOQJUED7KmNiLDrJM=;
+        b=JX7HUU/oeuIUHyKGyoR6OXN2N+ZScKmXJqN81QK3Vhq6l5OjUdBxlRHTWWN8jbYw4S
+         JLRAPsooObQaMY9c25+wQSw3yv6F3pepz2CChdUBd9X2M/lfAUMrnQgx+ww9T1wp8OlK
+         KvZQB89bfL6Cq+31doq5XVVkMkW2qlZMPpCm3TY9q/rJfuDCzcG3rUIUeKmNQ7Kwuc8g
+         9jRbK5H8qvDOXFZJuln1JYwpsPPw/aSuy+PDcz8IGwxGypPYv2KeIZB3mhPL1EmfTW1D
+         Y0AhGaIhF7sjVNPuiwOJdRqHIzX2nn16dJ0iCTHA9fktiNwpm/97EgFrzA5UAKOFtGMc
+         /7eQ==
+X-Gm-Message-State: ANhLgQ3hSKSWpr/3Mrt9N+XNfWqKQ+QAGOdBfY8UfwP5OTeWYJKrCxvS
+        1POqYs6GoLRzXLqtUyh1yao48v7r
+X-Google-Smtp-Source: ADFU+vsdqvGcGZnMvy/iI5fV6q4dPiZe2QdHpASETZVqfBOwi6V/Ks9vRLF1vc11oY7cMkqf/rFOFQ==
+X-Received: by 2002:a05:6000:12c6:: with SMTP id l6mr20860050wrx.217.1584135135770;
+        Fri, 13 Mar 2020 14:32:15 -0700 (PDT)
 Received: from localhost.localdomain ([109.126.140.227])
-        by smtp.gmail.com with ESMTPSA id v8sm78676011wrw.2.2020.03.13.14.32.10
+        by smtp.gmail.com with ESMTPSA id v8sm78676011wrw.2.2020.03.13.14.32.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2020 14:32:11 -0700 (PDT)
+        Fri, 13 Mar 2020 14:32:15 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] io-wq: don't reshed if there is no work
-Date:   Sat, 14 Mar 2020 00:31:03 +0300
-Message-Id: <96c4e978564b3bf3674e2dbecb60b012c8e79f81.1584130466.git.asml.silence@gmail.com>
+Subject: [PATCH 3/3] io-wq: hash dependant works
+Date:   Sat, 14 Mar 2020 00:31:05 +0300
+Message-Id: <395f8af8d6133c69cb7a6ef2082e4d7a5c08e8d8.1584130466.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1584130466.git.asml.silence@gmail.com>
 References: <cover.1584130466.git.asml.silence@gmail.com>
@@ -71,37 +71,95 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This little tweak restores the behaviour that was before the recent
-io_worker_handle_work() optimisation patches. It makes the function do
-cond_resched() and flush_signals() only if there is an actual work to
-execute.
+Enable io-wq hashing stuff for dependant works simply by re-enqueueing
+such requests.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io-wq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/io-wq.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 0e7c6277afcb..8afe5565f57a 100644
+index e26ceef53cbd..9541df2729de 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -458,10 +458,12 @@ static void io_impersonate_work(struct io_worker *worker,
- static void io_assign_current_work(struct io_worker *worker,
- 				   struct io_wq_work *work)
- {
--	/* flush pending signals before assigning new work */
--	if (signal_pending(current))
--		flush_signals(current);
--	cond_resched();
-+	if (work) {
-+		/* flush pending signals before assigning new work */
-+		if (signal_pending(current))
-+			flush_signals(current);
-+		cond_resched();
-+	}
+@@ -375,11 +375,17 @@ static bool __io_worker_idle(struct io_wqe *wqe, struct io_worker *worker)
+ 	return __io_worker_unuse(wqe, worker);
+ }
  
- 	spin_lock_irq(&worker->lock);
- 	worker->cur_work = work;
+-static struct io_wq_work *io_get_next_work(struct io_wqe *wqe, unsigned *hash)
++static inline unsigned int io_get_work_hash(struct io_wq_work *work)
++{
++	return work->flags >> IO_WQ_HASH_SHIFT;
++}
++
++static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
+ 	__must_hold(wqe->lock)
+ {
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
++	unsigned int hash;
+ 
+ 	wq_list_for_each(node, prev, &wqe->work_list) {
+ 		work = container_of(node, struct io_wq_work, list);
+@@ -391,9 +397,9 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe, unsigned *hash)
+ 		}
+ 
+ 		/* hashed, can run if not already running */
+-		*hash = work->flags >> IO_WQ_HASH_SHIFT;
+-		if (!(wqe->hash_map & BIT(*hash))) {
+-			wqe->hash_map |= BIT(*hash);
++		hash = io_get_work_hash(work);
++		if (!(wqe->hash_map & BIT(hash))) {
++			wqe->hash_map |= BIT(hash);
+ 			wq_node_del(&wqe->work_list, node, prev);
+ 			return work;
+ 		}
+@@ -470,15 +476,17 @@ static void io_assign_current_work(struct io_worker *worker,
+ 	spin_unlock_irq(&worker->lock);
+ }
+ 
++static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work);
++
+ static void io_worker_handle_work(struct io_worker *worker)
+ 	__releases(wqe->lock)
+ {
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+-	unsigned hash = -1U;
+ 
+ 	do {
+ 		struct io_wq_work *work;
++		unsigned int hash;
+ get_next:
+ 		/*
+ 		 * If we got some work, mark us as busy. If we didn't, but
+@@ -487,7 +495,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 		 * can't make progress, any work completion or insertion will
+ 		 * clear the stalled flag.
+ 		 */
+-		work = io_get_next_work(wqe, &hash);
++		work = io_get_next_work(wqe);
+ 		if (work)
+ 			__io_worker_busy(wqe, worker, work);
+ 		else if (!wq_list_empty(&wqe->work_list))
+@@ -511,11 +519,16 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 				work->flags |= IO_WQ_WORK_CANCEL;
+ 
+ 			old_work = work;
++			hash = io_get_work_hash(work);
+ 			work->func(&work);
+ 			work = (old_work == work) ? NULL : work;
+ 			io_assign_current_work(worker, work);
+ 			wq->free_work(old_work);
+ 
++			if (work && io_wq_is_hashed(work)) {
++				io_wqe_enqueue(wqe, work);
++				work = NULL;
++			}
+ 			if (hash != -1U) {
+ 				spin_lock_irq(&wqe->lock);
+ 				wqe->hash_map &= ~BIT_ULL(hash);
 -- 
 2.24.0
 

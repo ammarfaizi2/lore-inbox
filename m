@@ -1,177 +1,89 @@
-Return-Path: <SRS0=xEy3=46=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=87e+=5A=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56996C10DCE
-	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7D6C0044D
+	for <io-uring@archiver.kernel.org>; Sun, 15 Mar 2020 01:42:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 19C7F20663
-	for <io-uring@archiver.kernel.org>; Fri, 13 Mar 2020 21:33:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED83220637
+	for <io-uring@archiver.kernel.org>; Sun, 15 Mar 2020 01:42:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=fb.com header.i=@fb.com header.b="KbHhbruP";
-	dkim=pass (1024-bit key) header.d=fb.onmicrosoft.com header.i=@fb.onmicrosoft.com header.b="lJMf5S7X"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="E/h3JWyS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbgCMVdQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 13 Mar 2020 17:33:16 -0400
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:23310 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726480AbgCMVdQ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 13 Mar 2020 17:33:16 -0400
-Received: from pps.filterd (m0089730.ppops.net [127.0.0.1])
-        by m0089730.ppops.net (8.16.0.42/8.16.0.42) with SMTP id 02DLNlHw008775;
-        Fri, 13 Mar 2020 14:33:13 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=facebook;
- bh=9eot6XuRO9xzJK5tkc47l+yTmb1JYsicJZJXW3GFXKE=;
- b=KbHhbruP9ukZyEE+CmCKmX7ZrZjOdjVE+t+wxXtWIsLb0m8DMb4Yqvhq4EqLhea/pcoJ
- dq5i11rMwcsED4dhodFpPXIqAldE95BUmQpO58p9s3mBvG5uWe6VNgdC3WYCZ5wwpuFo
- g/qFdzDadfS6uKv2qY4Sp0EO5Pa5KxP3ddg= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by m0089730.ppops.net with ESMTP id 2yqt7eefxm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Fri, 13 Mar 2020 14:33:13 -0700
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (100.104.31.183)
- by o365-in.thefacebook.com (100.104.36.101) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1847.3; Fri, 13 Mar 2020 14:33:12 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Vo0Ky02LHQ/RnUQfubjwVL9K14YJtvLIksL9G83i9OdGh7EKPud1fwX3ppVao0AdrVvH2ZzuqMcD2+xkteBRc3G34SgsezaC6WHWE/Ot+cCvJNT1ng1bTAiUANdHyDiQTRLrC5jqb0HJRWwSMLNJ00pUl68PMkJVTJN9F+fyUbtwEckIPwt1CQI4QRmfyapYbRM8RP1eDUrucSB+nHEniBKYHiR0AHHzIk/LKLa3H3bxEg02geY8O+a4fc8UkslZr6NYRHizrguczgwaYdjVsl5sceHRq/EojTxASPj0GvUHfpVxG5kXcGjckgGpHhnHjfoBPo8eVrnvTpDvlTiN5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9eot6XuRO9xzJK5tkc47l+yTmb1JYsicJZJXW3GFXKE=;
- b=AA/SobSVzMqoaqKis8Hzv4GR5jVRHaf47gPeWr+l8LKPUu6Ap5p23IoLEcMFQwOzYcf2RshyA2fOGiiBGUS8WijjHncHPgDoB3z+6GCCe4WfZmT6tcRAn983MYlpe64k6edZ06BmtBJjO8xc5F1TnP7IeCekUZWBqD1VpVyMy05NiXd+EvbOGDHkhCwSVA941GEgVKHe5b1WgbPhTJqQcOXuDmQb4fAJTafUvvzBF0bPD/McTa5KX0Nqvx5/UyhEA5AD4+xFDjLZ6QwtBEa6QcQSIGBJO/gpQYQf+4ldaCa31QALv+J4XXyyDudDYoKo6Gq256hKOqis26CMgpTSjw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
- s=selector2-fb-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9eot6XuRO9xzJK5tkc47l+yTmb1JYsicJZJXW3GFXKE=;
- b=lJMf5S7XGdF4/EfJWGSWQXZvXwcj4bK8Ld5ZE4tS94oXqSLjNcVF1ts5hoVX7C/s/044h4hzBZpXXwkFZP2/f9/hYkhQ94iVJ1LYABs0xoMD0GS8nz6YIIfWqJY9AnGAV8yOsYMq9QsfTPBiSVKW+aGheumkyO6USa0pkhR4rHE=
-Received: from BYAPR15MB2790.namprd15.prod.outlook.com (2603:10b6:a03:15a::31)
- by BYAPR15MB2599.namprd15.prod.outlook.com (2603:10b6:a03:15a::25) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.18; Fri, 13 Mar
- 2020 21:33:11 +0000
-Received: from BYAPR15MB2790.namprd15.prod.outlook.com
- ([fe80::4c56:ea:2fa5:88f5]) by BYAPR15MB2790.namprd15.prod.outlook.com
- ([fe80::4c56:ea:2fa5:88f5%2]) with mapi id 15.20.2814.007; Fri, 13 Mar 2020
- 21:33:11 +0000
-Subject: Re: [GIT PULL] io_uring fixes for 5.6-rc
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>, Tejun Heo <tj@kernel.org>
-CC:     io-uring <io-uring@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <00e5ab7d-f0ad-bc94-204a-d2b7fb88f594@fb.com>
- <CAHk-=wgGN-9dmso4L+6RWdouEg4zQfd74m23K6c9E_=Qua+H1Q@mail.gmail.com>
-From:   Jens Axboe <axboe@fb.com>
-Message-ID: <cb853c40-820a-b05e-1a1b-50770565e69c@fb.com>
-Date:   Fri, 13 Mar 2020 15:33:09 -0600
+        id S1726705AbgCOBmA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 14 Mar 2020 21:42:00 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:40303 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726530AbgCOBmA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 14 Mar 2020 21:42:00 -0400
+Received: by mail-pf1-f195.google.com with SMTP id l184so7675511pfl.7
+        for <io-uring@vger.kernel.org>; Sat, 14 Mar 2020 18:41:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=+/247cTfFPmb6HzvLpP0YBhAOHansbCR7qRIbohrXkI=;
+        b=E/h3JWySV60dxpGI2gxROTmY2mZeLVVOoioeXtEAq5DSRgyFBnAaTzBmVeIOUJNDYl
+         pUNhavjej7XYrSfD7CWWOuCQN17b3T9dPhuBnfOH76BnRFd+wRSYWOVsmliAt0etk6gg
+         DYJ9Nv8nF8GNuZpxgUZhrLeusJaLQzZk3lUmayLRYGH1E/E/grkRjfJTS3je8tzmbuNT
+         Ys2H/0GpAbMCnru4/QcjKJ9ceya9viY3VelMvPMhmkU80VYVbvQPyyt1+sCejng8cLnA
+         uCL0+aT+3hLuQZPQ2jhC27DjOTakBFMCjqAPDGe7DidgAz3Dl9rvTVjknDflOsLeEvbr
+         IbhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+/247cTfFPmb6HzvLpP0YBhAOHansbCR7qRIbohrXkI=;
+        b=swcTS+7arDVcLGl3pej8m7Xjp8wUZmLWuq1uAsTrmVbl3oB/XSX4B52CaC6QOrrOP8
+         E+9g1udba0p8NI8hw4ZVdzFBqwgy2CVraXgzjH5EU+7RMJVYtOiGDK/eMq2GPuixau0c
+         lYYHbaSTbQuQcKnQdglSdhTmJuNiJrhHISSMGN4l7aPIoZw703DAy09I0kwsSsEG4XNb
+         XwWVU/4WMalPNAfI1Y5zI2I+9Q5bsg+2uR+UZFVbkJBOJdMDwmypOC0miYdcBAbD19je
+         U2aRjxCznWgSJAcRHq9hpaZj+wAErD0mCHPCJgdvx/04qIyMQpqTyjqqNNoUwlF0BdFk
+         jhJQ==
+X-Gm-Message-State: ANhLgQ1EihYOzvMKKTu/Tvs1AbuzbbhQkZIuccXWMa6GD2x9E5VK1IkM
+        HOze7S+2QsujQGVMR3KSfSSJ/aUDk5EUUQ==
+X-Google-Smtp-Source: ADFU+vs4bDd5BE7tlACCr4VBGaQq1i1YtcLAWyKDg8BNV4CX7P6+yrkgL79vVx2ZqcEl5BQ5gzfj3w==
+X-Received: by 2002:a63:8b42:: with SMTP id j63mr19006128pge.27.1584226866175;
+        Sat, 14 Mar 2020 16:01:06 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id g6sm12179905pjv.13.2020.03.14.16.01.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 14 Mar 2020 16:01:05 -0700 (PDT)
+Subject: Re: [PATCH 5.6] io_uring: NULL-deref for IOSQE_{ASYNC,DRAIN}
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <3fff749b19ae1c3c2d59e88462a8a5bfc9e6689f.1584127615.git.asml.silence@gmail.com>
+ <bc3baf1c-0629-3989-c7c1-bc7c84ac8ae5@gmail.com>
+ <6ebc5e8a-7a6c-2537-9050-fe4e5c4f014d@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ade19964-58fa-93fd-312f-cd12b69e3a8b@kernel.dk>
+Date:   Sat, 14 Mar 2020 17:01:03 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
-In-Reply-To: <CAHk-=wgGN-9dmso4L+6RWdouEg4zQfd74m23K6c9E_=Qua+H1Q@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <6ebc5e8a-7a6c-2537-9050-fe4e5c4f014d@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BYAPR07CA0075.namprd07.prod.outlook.com
- (2603:10b6:a03:12b::16) To BYAPR15MB2790.namprd15.prod.outlook.com
- (2603:10b6:a03:15a::31)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.188] (66.219.217.145) by BYAPR07CA0075.namprd07.prod.outlook.com (2603:10b6:a03:12b::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.18 via Frontend Transport; Fri, 13 Mar 2020 21:33:10 +0000
-X-Originating-IP: [66.219.217.145]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 31260096-3f88-403d-c3aa-08d7c7962116
-X-MS-TrafficTypeDiagnostic: BYAPR15MB2599:
-X-Microsoft-Antispam-PRVS: <BYAPR15MB25997B75CFA7C7844B4351ADC0FA0@BYAPR15MB2599.namprd15.prod.outlook.com>
-X-FB-Source: Internal
-X-MS-Oob-TLC-OOBClassifiers: OLM:2043;
-X-Forefront-PRVS: 034119E4F6
-X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(396003)(136003)(376002)(346002)(39860400002)(366004)(199004)(956004)(6486002)(16526019)(4326008)(31696002)(186003)(31686004)(86362001)(36756003)(26005)(2616005)(5660300002)(54906003)(478600001)(110136005)(8676002)(2906002)(81166006)(52116002)(53546011)(16576012)(316002)(81156014)(66556008)(66476007)(8936002)(66946007);DIR:OUT;SFP:1102;SCL:1;SRVR:BYAPR15MB2599;H:BYAPR15MB2790.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-Received-SPF: None (protection.outlook.com: fb.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8fSTk2lrt6/O8CaR+eeU1BEhkA9KrL4LcahSln61E4Dk1j5SNKLaruAKXxuFoyly+Phsu4jkKoZGXvNg2eddNOFuwWASNP8/RIFDSCKh3V1Y1NzAmXrDzq8O00Lf1QaoHSuDX+ADsQvlP+FeNhiMFfIMk4fIM5u6quakvYnEc1cKJHNK+6Jm9Irl26/4yy7JQwkzpMrCoRxF+BKrD7JVagfeN0zM9Gsis3hmzIKd7F2XiD0nIpANb/ljPcCswwNBa34U4YXtAXDwstBXaDNgnON+osMggXnPAEztmTnKCy8Yizm1kGEGLbZ7+71Gc0k593rderz6GRYAk/26F9deLFYneDEqVcJa9haMm36eTYqgi7CpwtulDgJp2bbn80q8d4JvCLHj89LJVrXnYk9a+Wch+F0ADjiWyX8j+431iYh1gb2WRmcLS5t+IOjfS8GW
-X-MS-Exchange-AntiSpam-MessageData: XjqIu85qzosJ3bKpE+VdYJH/Xvue5fVxVB8mEuBPSmMv4Tvlwzitl0svBLGn0+6xUiuZYZih02PCiIe2QICMJFDwzkH48bISMdmGBCBDOObJVCkCGTk9IJjMtF3S1x2S3UA5KTPhDwtcq6IY7+Xy+g==
-X-MS-Exchange-CrossTenant-Network-Message-Id: 31260096-3f88-403d-c3aa-08d7c7962116
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Mar 2020 21:33:11.1935
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EHKdrm88yxiE+is5mt+6bnzIRCNIfcwpOonavSvG2oQq5p+Ko59MAbH2BWv9ZoEp
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB2599
-X-OriginatorOrg: fb.com
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-03-13_09:2020-03-12,2020-03-13 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 phishscore=0 bulkscore=0 clxscore=1011
- adultscore=0 impostorscore=0 mlxlogscore=999 spamscore=0 malwarescore=0
- suspectscore=2 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2003130096
-X-FB-Internal: deliver
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/13/20 2:18 PM, Linus Torvalds wrote:
-> On Fri, Mar 13, 2020 at 10:50 AM Jens Axboe <axboe@fb.com> wrote:
->>
->> Just a single fix here, improving the RCU callback ordering from last
->> week. After a bit more perusing by Paul, he poked a hole in the
->> original.
+On 3/13/20 3:29 PM, Pavel Begunkov wrote:
+> On 13/03/2020 23:28, Pavel Begunkov wrote:
+>> Hmm, found unreliably failing the across-fork test. I don't know whether it's
+>> this patch specific, but need to take a look there first.
 > 
-> Ouch.
-> 
-> If I read this patch correctly, you're now adding a rcu_barrier() onto
-> the system workqueue for each io_uring context freeing op.
+> It's good to go, just used outdated tests.
+> The reproducer is attached.
 
-It's actually not quite that bad, it's for every context that's used
-registered file. That will generally be long term use cases, like server
-backend kind of stuff, not for short lived or "normal" use cases.
-
-> This makes me worry:
-> 
->  - I think system_wq is unordered, so does it even guarantee that the
-> rcu_barrier happens after whatever work you're expecting it to be
-> after?
-
-The ordering is wrt an rcu callback that's already queued. So we don't
-care about ordering of other work at all, we just care about issuing
-that rcu_barrier() before we exit + free, so we know that the existing
-(if any) rcu callback has run.
-
-> Or is it using a workqueue not because it wants to serialize with any
-> other work, but because it needs to use rcu_barrier in a context where
-> it can't sleep?
-
-Really just using a workqueue because we already have one for this
-particular item, and that takes the latency of needing the rcu barrier
-out of the fast path for the application.
-
-> But the commit message does seem to imply that ordering is important..
-
-Only for a previous rcu callback, not for work items!
-
->  - doesn't this have the potential to flood the system_wq be full of
-> flushing things that all could take a while..
-> 
-> I've pulled it, and it may all be correct, just chalk this message up
-> to "Linus got nervous looking at it".
-
-All good, always appreciate extra eyes on it! We could do the
-rcu_barrier() inline and just take the hit there, and there's also room
-to be a bit smarter and only do the barrier if we know we have to. But
-since this is 5.6 material, I didn't want to complicate things further.
+I integrated this into the existing read-write in liburing, thanks.
 
 -- 
 Jens Axboe

@@ -1,83 +1,96 @@
-Return-Path: <SRS0=87e+=5A=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=21/G=5B=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCFFFC4CECE
-	for <io-uring@archiver.kernel.org>; Sun, 15 Mar 2020 01:58:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DDA1C18E5B
+	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 02:40:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AAEEF2076F
-	for <io-uring@archiver.kernel.org>; Sun, 15 Mar 2020 01:58:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="xgAlfPF/"
+	by mail.kernel.org (Postfix) with ESMTP id 16D2E205C9
+	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 02:40:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1584326412;
+	bh=cCg0M0loROU58Zt2BRB0MoP92hqsihIZYRkM3zwyyRk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=V0zLNDfSryoLudRKKSSdUpb1Xd46jfGwYMOJA4lJSn1uuVDp8JOkctZci8fHxKPiv
+	 BasLzjZe88tpKiM5T2of0Xn9WJHFP86v3hbk5x000hjM1PEslxatUI1zyX/7mjD3fM
+	 QER2Im8+GMX0M8pSaoX3fw1mpCUszdaKD7QnIxG0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbgCOB6Z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 14 Mar 2020 21:58:25 -0400
-Received: from mail-qv1-f65.google.com ([209.85.219.65]:45392 "EHLO
-        mail-qv1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727049AbgCOB6Z (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 14 Mar 2020 21:58:25 -0400
-Received: by mail-qv1-f65.google.com with SMTP id h20so2982335qvr.12
-        for <io-uring@vger.kernel.org>; Sat, 14 Mar 2020 18:58:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=SdOYsMZFDHe9vqNvSdxRkcSwQBXCi2657j9Xa2tK9oA=;
-        b=xgAlfPF/jH19mCf3oilauqnvertvFGN4reqpz1II3RvLTUdEG1XjtuLT8GB+7rw/DG
-         ZzU1/5ECQCzgWimMdZiq5PqAGKOk28z0eOks95Ksf0BVFzH+8qujmfqN9KJ3Cl4iKO3h
-         5Ca0xO2QG14yS0E6801I5dT6odvBnpqmEDYRU6fZC0ZwEvPRNrxJ5vG+99jI/DBYxSUN
-         KdG2cWMcoWd6plprhdjoQZD4Y0jM9jZFSvU73u33d7mEyvCpLxv3pOSAL9tRBVI8E1DK
-         hZ3Lwvu41Jm6NJsEL8pA/aqJsnZwC3AenvE05fCvwm+llph+hEg+oC7T4/CjW8PzaiY1
-         +6vg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SdOYsMZFDHe9vqNvSdxRkcSwQBXCi2657j9Xa2tK9oA=;
-        b=HqOk1IrlmaU2iNSL+MVHEoycW53lXY1geUNtJKdxC4SHNrIRZ5XVyf0JFfPQJRxzzv
-         /i11u6LlyAvV98lPkIQwfil5lHoyJN1mhuw4VnW5Whh/pMCwQ1Q/dpOo9O8cxrG11n1f
-         EIlkKMvg00lrUmiwJcaRHjObUu1p7A+Xiu7TyrB9txK1EU53wQCjUTeBMvsOERgJbecs
-         G1z5bmQCF3BMi3jfIoHZLvA9UA2tT0itw3v9h8I4eCfokejuCyR/MXqfEa1d6OciyHSD
-         zHrlGd4aA7nLM4NppD7DTf0IDT25OW3gn84qwtZ2c4B4alIGrXzb7y2TxSqJ6CQmuF1m
-         y2XA==
-X-Gm-Message-State: ANhLgQ0tvgcixrd2A6oOMBXWExMX0NqHvTVdsndCtbSTiR1W0Gr/2P5e
-        bp7psoCWWk3XsBb3db7+4Dsb2zR2L1jR0g==
-X-Google-Smtp-Source: ADFU+vv8d06cooYnEyYmyLwJ5MAPGncbMbhQYSytgYgCc67JuVz17NdDF+7aY/joqlDV2aEOjDBwZw==
-X-Received: by 2002:a17:902:2e:: with SMTP id 43mr20495125pla.326.1584227898541;
-        Sat, 14 Mar 2020 16:18:18 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id u3sm15469459pjv.32.2020.03.14.16.18.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 14 Mar 2020 16:18:18 -0700 (PDT)
-Subject: Re: [PATCH 0/3] support hashing for linked requests
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1584130466.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <a6af1ae2-dfdc-00b3-4b33-f6d5a2f63f0c@kernel.dk>
-Date:   Sat, 14 Mar 2020 17:18:16 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1729783AbgCPCeK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 15 Mar 2020 22:34:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37370 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729777AbgCPCeJ (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:09 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7030120726;
+        Mon, 16 Mar 2020 02:34:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584326049;
+        bh=cCg0M0loROU58Zt2BRB0MoP92hqsihIZYRkM3zwyyRk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KWL3pWbjXJfFfFs+oJnvQLlToapXO9JKU6+KSTFIMbNLLfYcJCQ5lxyTkl3J7J+ae
+         RFbT65nzR1DX93pmt6vjUiEs7yZRBmHkABjh9Ax3Ct8iUIPsm8VssQJPRYulEqZqqy
+         wvIctqijqI48aXudkADLDrEND9hnUSymkxF4ADHs=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 41/41] io_uring: fix lockup with timeouts
+Date:   Sun, 15 Mar 2020 22:33:19 -0400
+Message-Id: <20200316023319.749-41-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200316023319.749-1-sashal@kernel.org>
+References: <20200316023319.749-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <cover.1584130466.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/13/20 3:31 PM, Pavel Begunkov wrote:
-> That's it, honour hashing for dependant works in io-wq.
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-Looks good to me, applied for 5.7, thanks.
+[ Upstream commit f0e20b8943509d81200cef5e30af2adfddba0f5c ]
 
+There is a recipe to deadlock the kernel: submit a timeout sqe with a
+linked_timeout (e.g.  test_single_link_timeout_ception() from liburing),
+and SIGKILL the process.
+
+Then, io_kill_timeouts() takes @ctx->completion_lock, but the timeout
+isn't flagged with REQ_F_COMP_LOCKED, and will try to double grab it
+during io_put_free() to cancel the linked timeout. Probably, the same
+can happen with another io_kill_timeout() call site, that is
+io_commit_cqring().
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 60a4832089982..fd28f85677225 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -688,6 +688,7 @@ static void io_kill_timeout(struct io_kiocb *req)
+ 	if (ret != -1) {
+ 		atomic_inc(&req->ctx->cq_timeouts);
+ 		list_del_init(&req->list);
++		req->flags |= REQ_F_COMP_LOCKED;
+ 		io_cqring_fill_event(req, 0);
+ 		io_put_req(req);
+ 	}
 -- 
-Jens Axboe
+2.20.1
 

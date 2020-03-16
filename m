@@ -2,131 +2,148 @@ Return-Path: <SRS0=21/G=5B=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD276C18E5B
-	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 02:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 554AAC18E5B
+	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 12:14:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A4670206E9
-	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 02:41:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1584326466;
-	bh=6h5MTVyaKyz4i4lsW9DXrzFXoUBWZQhfBhzWyfVeCLQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=wZswMmxp7fyKF9CzloirucnxePOFFMrp+SuBPaB6kP3Ou73naFrlGnRhGF3xDukky
-	 kQhLwnKjVWYIWUmPOPrYjw0QaliabtrZBqt64SOAYwjjwDzXKP0L/jcR69r9Qq5d9B
-	 PAzIca01y2+sy/2PpgZ+/ZV1pW/OrjVZ6xVORY4c=
+	by mail.kernel.org (Postfix) with ESMTP id 2EC2D2051A
+	for <io-uring@archiver.kernel.org>; Mon, 16 Mar 2020 12:14:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730478AbgCPClG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 15 Mar 2020 22:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729632AbgCPCds (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:33:48 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE76C20746;
-        Mon, 16 Mar 2020 02:33:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326027;
-        bh=6h5MTVyaKyz4i4lsW9DXrzFXoUBWZQhfBhzWyfVeCLQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URk591NVGcVyVwEB0aUr5wl0htT9LUfliNxr4ZJX46qkJGXvRS3CAVzFdFiS5hPL3
-         pGbzmHH1BsnLNG79Spp/wWL/i2D5IcKBu23kBiSKwnj6TTbn3L4m+y77h5KUkR7yBF
-         1j9uKATdRlNZfj0sGeO1BnX0AgL4AP9JWI+cRwJI=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 23/41] io-wq: fix IO_WQ_WORK_NO_CANCEL cancellation
-Date:   Sun, 15 Mar 2020 22:33:01 -0400
-Message-Id: <20200316023319.749-23-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200316023319.749-1-sashal@kernel.org>
-References: <20200316023319.749-1-sashal@kernel.org>
+        id S1730909AbgCPMOT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 16 Mar 2020 08:14:19 -0400
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:57627 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730889AbgCPMOS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 16 Mar 2020 08:14:18 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04452;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Tsn-vqS_1584360845;
+Received: from 30.5.112.45(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0Tsn-vqS_1584360845)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 16 Mar 2020 20:14:05 +0800
+To:     io-uring@vger.kernel.org
+Cc:     "axboe@kernel.dk" <axboe@kernel.dk>,
+        joseph qi <joseph.qi@linux.alibaba.com>
+From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Subject: bug report about patch "io_uring: avoid ring quiesce for fixed file
+ set unregister and update"
+Message-ID: <2b1834e3-1870-66a4-bbf4-70ab8a5109a6@linux.alibaba.com>
+Date:   Mon, 16 Mar 2020 20:14:05 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+hi,
 
-[ Upstream commit fc04c39bae01a607454f7619665309870c60937a ]
+While diving into iouring file register/unregister/update codes, seems that
+there is one bug in __io_sqe_files_update():
+     if (ref_switch)
+         percpu_ref_switch_to_atomic(&data->refs, io_atomic_switch);
 
-To cancel a work, io-wq sets IO_WQ_WORK_CANCEL and executes the
-callback. However, IO_WQ_WORK_NO_CANCEL works will just execute and may
-return next work, which will be ignored and lost.
+The initial fixed_file_data's refs is 1, assume there are no requests
+to get/put this refs, and we firstly register 10 files and later update
+these 10 files, and no memory allocations fails, then above two line of
+codes in __io_sqe_files_update() will be called, before entering
+percpu_ref_switch_to_atomic(), the count of refs is still one, and
+|--> percpu_ref_switch_to_atomic
+|----> __percpu_ref_switch_mode
+|------> __percpu_ref_switch_to_atomic
+|-------- > percpu_ref_get(ref), # now the count of refs will be 2.
 
-Cancel the whole link.
+a while later
+|--> percpu_ref_switch_to_atomic_rcu
+|----> percpu_ref_call_confirm_rcu
+|------ > confirm_switch(), # calls io_atomic_switch, note that the count of refs is 2.
+|------ > percpu_ref_put # drop one ref
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/io-wq.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+static void io_atomic_switch(struct percpu_ref *ref)
+{
+	struct fixed_file_data *data;
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 25ffb6685baea..1f46fe663b287 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -733,6 +733,17 @@ static bool io_wq_can_queue(struct io_wqe *wqe, struct io_wqe_acct *acct,
- 	return true;
- }
- 
-+static void io_run_cancel(struct io_wq_work *work)
-+{
-+	do {
-+		struct io_wq_work *old_work = work;
-+
-+		work->flags |= IO_WQ_WORK_CANCEL;
-+		work->func(&work);
-+		work = (work == old_work) ? NULL : work;
-+	} while (work);
-+}
-+
- static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- {
- 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
-@@ -745,8 +756,7 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- 	 * It's close enough to not be an issue, fork() has the same delay.
- 	 */
- 	if (unlikely(!io_wq_can_queue(wqe, acct, work))) {
--		work->flags |= IO_WQ_WORK_CANCEL;
--		work->func(&work);
-+		io_run_cancel(work);
- 		return;
- 	}
- 
-@@ -882,8 +892,7 @@ static enum io_wq_cancel io_wqe_cancel_cb_work(struct io_wqe *wqe,
- 	spin_unlock_irqrestore(&wqe->lock, flags);
- 
- 	if (found) {
--		work->flags |= IO_WQ_WORK_CANCEL;
--		work->func(&work);
-+		io_run_cancel(work);
- 		return IO_WQ_CANCEL_OK;
- 	}
- 
-@@ -957,8 +966,7 @@ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
- 	spin_unlock_irqrestore(&wqe->lock, flags);
- 
- 	if (found) {
--		work->flags |= IO_WQ_WORK_CANCEL;
--		work->func(&work);
-+		io_run_cancel(work);
- 		return IO_WQ_CANCEL_OK;
- 	}
- 
--- 
-2.20.1
+	/*
+	 * Juggle reference to ensure we hit zero, if needed, so we can
+	 * switch back to percpu mode
+	 */
+	data = container_of(ref, struct fixed_file_data, refs);
+	percpu_ref_put(&data->refs);
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+After this operation, the count of refs is 1 now, still not zero, so
+io_file_data_ref_zero won't be called, then io_ring_file_ref_flush()
+won't be called, this fixed_file_data's refs will always be in atomic mode,
+which is bad.
 
+	percpu_ref_get(&data->refs);
+}
+
+To confirm this bug, I did a hack to kernel:
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5812,7 +5812,10 @@ static bool io_queue_file_removal(struct fixed_file_data *data,
+          * If we fail allocating the struct we need for doing async reomval
+          * of this file, just punt to sync and wait for it.
+          */
++       /*
+         pfile = kzalloc(sizeof(*pfile), GFP_KERNEL);
++       */
++       pfile = NULL;
+         if (!pfile) {
+                 pfile = &pfile_stack;
+                 pfile->done = &done;
+To simulate memory allocation failures, then run liburing/test/file-update,
+
+[lege@localhost test]$ sudo cat /proc/2091/stack
+[sudo] password for lege:
+[<0>] __io_sqe_files_update.isra.85+0x175/0x330
+[<0>] __io_uring_register+0x178/0xe20
+[<0>] __x64_sys_io_uring_register+0xa0/0x160
+[<0>] do_syscall_64+0x55/0x1b0
+[<0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+(gdb) list * __io_sqe_files_update+0x175
+0xffffffff812ec255 is in __io_sqe_files_update (fs/io_uring.c:5830).
+5825            llist_add(&pfile->llist, &data->put_llist);
+5826
+5827            if (pfile == &pfile_stack) {
+5828                    percpu_ref_switch_to_atomic(&data->refs, io_atomic_switch);
+5829                    wait_for_completion(&done);
+5830                    flush_work(&data->ref_work);
+5831                    return false;
+
+file-update will always hang in wait_for_completion(&done), it's because
+io_ring_file_ref_flush never has a chance to run.
+
+I think how to fix this issue a while, doesn't find a elegant method yet.
+And applications may issue requests continuously, then fixed_file_data's refs
+may never have a chance to reach zero, refs will always be in atomic mode.
+Or the simplest method is to use percpu_ref per registered file :)
+
+Regards,
+Xiaoguang Wang
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Regards,
+Xiaoguang Wang

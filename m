@@ -2,64 +2,69 @@ Return-Path: <SRS0=kClH=5X=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E01C2BA80
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 118C2C2BB85
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1364E2075E
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D80402075E
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="jnWQIpub"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="qfqV+qbG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727966AbgDGQDF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 7 Apr 2020 12:03:05 -0400
-Received: from mail-pj1-f47.google.com ([209.85.216.47]:56200 "EHLO
-        mail-pj1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726889AbgDGQDF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Apr 2020 12:03:05 -0400
-Received: by mail-pj1-f47.google.com with SMTP id fh8so937908pjb.5
-        for <io-uring@vger.kernel.org>; Tue, 07 Apr 2020 09:03:03 -0700 (PDT)
+        id S1727992AbgDGQDH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 7 Apr 2020 12:03:07 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:52927 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726889AbgDGQDH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Apr 2020 12:03:07 -0400
+Received: by mail-pj1-f68.google.com with SMTP id ng8so942839pjb.2
+        for <io-uring@vger.kernel.org>; Tue, 07 Apr 2020 09:03:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TNKxZJmrjHfu+XUeU88xo28pJIKSnJJV0Uga7bioYT0=;
-        b=jnWQIpub/ys9PZB1W6WDDOqiaHEo2UEdl4eC2e6OwPn5hhZvl092Mgzv5/bMgSAcwj
-         r9WprBM6dumAeDa1zQpcqefkb0jvKNgzLjaBfACXJ1u8FYyhQQMuuX6g+Zx9gMWZv4Bz
-         2BwtakeOXZDYloeMXBhHf+Un4S6niSbcvaO90Lp3jt6ZQIbHBz8ejeWGTj4on1kmKPkQ
-         MwTDwTrx+S0KpkTOYtM2Tr9IqLJoU1dbAfhW++prpE4k+ZPBiBFZoh4iPfn3fAD/EwWm
-         ZJW8+skf2iuT4UkKGra+8G3fwBYFhdGIfrI1z65IhD+ecMi81KUAPWDYRq/5Q6Bx7/Aw
-         kJ8w==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=PO/WcQSK3jIV6+mEeW/X0pv1XXoeNuIRAZlC7WSdLM4=;
+        b=qfqV+qbGsZQhEfXJPus85N2QSLoHhVH6ifQ3fOnNREcjkNOq69TrAjrusnT578+t5z
+         vTGcS6pGh9uNDDAStk0QIDYmFqX34ABEKk0AILlzIlmBDFxzNram5ZKO+EEK9p/Gsb8O
+         Us3P4KHlkV2M6JCRqjkBAftaaBueAXPwPe5HmbexGuIlLKPrZAlwdCJKKJAqI9k4Mrw3
+         sOI9Xlt1m2zWlWgKq0mAKQjTPZyw8nWkx2+7kdENsWZqKgJonNegWIFFoUn3SIkS7t9Q
+         kT18/5gbXSqYF71YR1A5R45hQV/+MxdLp8viZ8VgtVPPfR904D1Xju0B7AY8f1YHp0j9
+         bvsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TNKxZJmrjHfu+XUeU88xo28pJIKSnJJV0Uga7bioYT0=;
-        b=Vanzz7dD+Wlf7w4mn0uyFOttaf0abOQ2ggFo6NmaBTu946sOAw2pSA+k5k2b+sfSpr
-         aSlQlF4udEntDCG1c+RA7jLJZwO1ipJ8jVR03qPwUEp154rLGEhzvrFkhlt+FonqH7Hc
-         Ez6Ia507ITigwZB8/sJeHFt94DHKp/k20HmzFYYkRZtllqMKUODNnzkb8akcV6LP4/KY
-         S9XZh8rdoxst/jdLE/1Y/1AWbGWpAtksTiPBRrTSjiIn+4/pnT9rthYrsLpQrMnBN1By
-         DHrMLzlN4iqD7Cwh+Q0kbMiF2DfaD+YxxZ9n7Qt9uzLB9W7BiaopSPzdMO5AX5+hFaxH
-         bogw==
-X-Gm-Message-State: AGi0PuZAYbnm4eIs1XvcZt8pfXmkTWy+3k9eUIZ0Z6nWGW6Sv5T+o9Su
-        CmAh5QKwnZRpDndJg5P/J2LjXHIS0SHWYA==
-X-Google-Smtp-Source: APiQypJ5UwKiNgv5+PdsUOspeEa8oplOUyeR3vnqp2+InaUdTTKVrWNg5TkDOMZw/vewA3JN2sMCgA==
-X-Received: by 2002:a17:902:690c:: with SMTP id j12mr2889127plk.296.1586275381113;
-        Tue, 07 Apr 2020 09:03:01 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=PO/WcQSK3jIV6+mEeW/X0pv1XXoeNuIRAZlC7WSdLM4=;
+        b=RREhbV8xTuaCwphhVi1JAqC+94sCeUCwbBc1qRGNDudDwGOOumSY8q9s2VU2INM8m4
+         mY1/n1okCyjI+lRu6SXHX8sKrIrBryxvjp8FN20f1CKDquIqYv4+TVs5CIK6AcwWz5Vf
+         V81Obf/WfMJEnYJjo49ANwnU/jDhEzDzYQ8G0QeoOaritQ/DR65BzJ7oTmX4uUF3avVF
+         YUgk4r/Yq3rvId7SoTZL0an5WfjgTe9yNxY+K8qObnaDB7SUPEk3+cZnwQqnQWNZjMev
+         14DdcsthgUhteVJI4Wfvoh2duUHWZE8IXNKmH6tPo3LDLt8X3aIQgVP6ziBKtMKKrqxN
+         PlFA==
+X-Gm-Message-State: AGi0PuaUITKU0ZrQIHs6OQ2ppnb0zDw0P3rmfh5YalY5idbKdILvMBxH
+        2L06uFyIptltT+keysG3IXL3UuRMGJ6DZg==
+X-Google-Smtp-Source: APiQypK9PoydroftiRL4O7vRBnsw2GHrshMQ2+7FXzqYsyntrYiGYbg3+X+7+0xM3F7qLFmGgGvsHw==
+X-Received: by 2002:a17:902:aa94:: with SMTP id d20mr3075321plr.313.1586275384679;
+        Tue, 07 Apr 2020 09:03:04 -0700 (PDT)
 Received: from x1.lan ([2605:e000:100e:8c61:ec7d:96d3:6e2d:dcab])
-        by smtp.gmail.com with ESMTPSA id y22sm14366955pfr.68.2020.04.07.09.03.00
+        by smtp.gmail.com with ESMTPSA id y22sm14366955pfr.68.2020.04.07.09.03.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 09:03:00 -0700 (PDT)
+        Tue, 07 Apr 2020 09:03:04 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     viro@zeniv.linux.org.uk
-Subject: [PATCHSET v2] io_uring and task_work interactions
-Date:   Tue,  7 Apr 2020 10:02:54 -0600
-Message-Id: <20200407160258.933-1-axboe@kernel.dk>
+Cc:     viro@zeniv.linux.org.uk, Jens Axboe <axboe@kernel.dk>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 3/4] task_work: make exit_work externally visible
+Date:   Tue,  7 Apr 2020 10:02:57 -0600
+Message-Id: <20200407160258.933-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200407160258.933-1-axboe@kernel.dk>
+References: <20200407160258.933-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -67,20 +72,72 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There's a case for io_uring where we want to run the task_work on ring
-exit, but we can't easily do that as we don't know if the task_works has
-work, or if exit work has already been queued.
+If task_work has already been run on task exit, we don't always know
+if it's safe to run again. Most call paths don't really care as they
+can never hit this condition, but io_uring would like to call task
+work from the fops->release() handler, which can get invoked off
+do_exit() where we could have already run exit_task_work().
 
-First two are just cleanups, third one makes task_work_exited externally
-visible, and fourth one let's io_uring call task_work_run() off the
-fops->release() path to fix an issue where we need to potentially flush
-work here.
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ include/linux/task_work.h | 2 ++
+ kernel/task_work.c        | 8 ++++----
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-Since v1:
-- Don't add task_work_exited check to the fast path
-- Ensure exit_task_work() always runs
-
+diff --git a/include/linux/task_work.h b/include/linux/task_work.h
+index 088538590e65..893c916d8677 100644
+--- a/include/linux/task_work.h
++++ b/include/linux/task_work.h
+@@ -7,6 +7,8 @@
+ 
+ typedef void (*task_work_func_t)(struct callback_head *);
+ 
++extern struct callback_head task_work_exited;
++
+ static inline void
+ init_task_work(struct callback_head *twork, task_work_func_t func)
+ {
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 9620333423a3..d6a8b4ab4858 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -3,7 +3,7 @@
+ #include <linux/task_work.h>
+ #include <linux/tracehook.h>
+ 
+-static struct callback_head work_exited; /* all we need is ->next == NULL */
++struct callback_head task_work_exited = { };
+ 
+ /**
+  * task_work_add - ask the @task to execute @work->func()
+@@ -31,7 +31,7 @@ task_work_add(struct task_struct *task, struct callback_head *work, bool notify)
+ 
+ 	do {
+ 		head = READ_ONCE(task->task_works);
+-		if (unlikely(head == &work_exited))
++		if (unlikely(head == &task_work_exited))
+ 			return -ESRCH;
+ 		work->next = head;
+ 	} while (cmpxchg(&task->task_works, head, work) != head);
+@@ -95,14 +95,14 @@ void __task_work_run(void)
+ 	for (;;) {
+ 		/*
+ 		 * work->func() can do task_work_add(), do not set
+-		 * work_exited unless the list is empty.
++		 * task_work_exited unless the list is empty.
+ 		 */
+ 		do {
+ 			head = NULL;
+ 			work = READ_ONCE(task->task_works);
+ 			if (!work) {
+ 				if (task->flags & PF_EXITING)
+-					head = &work_exited;
++					head = &task_work_exited;
+ 				else
+ 					break;
+ 			}
 -- 
-Jens Axboe
-
+2.26.0
 

@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96131C2BA80
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DFAEC2BA1A
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6BFC52075E
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 092752075E
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 16:03:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="OY+o5Kl2"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="1dy/aQUz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgDGQDI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 7 Apr 2020 12:03:08 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:37752 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727991AbgDGQDI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Apr 2020 12:03:08 -0400
-Received: by mail-pg1-f193.google.com with SMTP id r4so1938733pgg.4
-        for <io-uring@vger.kernel.org>; Tue, 07 Apr 2020 09:03:05 -0700 (PDT)
+        id S1727993AbgDGQDK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 7 Apr 2020 12:03:10 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:42897 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727991AbgDGQDK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Apr 2020 12:03:10 -0400
+Received: by mail-pg1-f195.google.com with SMTP id g6so1926585pgs.9
+        for <io-uring@vger.kernel.org>; Tue, 07 Apr 2020 09:03:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=151owXNTO53jByuuGSr5GWu4XC2mXE43fBblB5HhEno=;
-        b=OY+o5Kl2wRP4YUXEIdYYuK8hE7brEtaS7WwrCHTtQ28ywV3po50N+au6Dd372AdWCw
-         FhHPFQ5ZPbLru6o2a0A9NgtuV2v3r61QldAV96NYLhRfTokTvE5fj0OdavVknzXCn55k
-         8dv7v660higYF+SkPLu+CqJ0Bl4PJ5TKWQ2Wo/1NYXmzatH8hdSQ8umF8otg0HNohGlM
-         jTst8h/8Cb8FcuqMlS17t9/RYDR2QrkdRKjSToglY1egafxza9eJqkf92wMjWJUnBLgY
-         0GoKbl6hU2L1FOA+hDu7JHWrUB8/inpyoozAMgsI/BN2pp+ZaVT13AVbl3YAkAukMdVy
-         zIrQ==
+        bh=m278NEfPURnLfLcoq5XUdI3T/R4WKj93EFAmMOODL4A=;
+        b=1dy/aQUzmLs3PVQjjVh2uTPPVr+wvQwYYwTTDqa5oEfcOt/wOHRsD1V0kjQ75bnv5d
+         mm7+MJD+cMqd0Yv/KPlN10pBb5FDGlWxvKTs9SFtpRAegn3QYnlosFaEp+//YP/if6JI
+         GSJc6hmNdrvN7dJpnEMxeIlYqNQl6anIslAADcp1pHHonk0b6B1goUyN5iKYJyxhG5ur
+         3rK+Cf4T0DC5I21Ln/0qEZFGDJauJOEd1hxBQheDXWyI2AHXrJwCu8lB39sGoES2SUmo
+         tYaRLbQbidtff9VfI6zgqNe3sEDOqWGwGqJkZh5HOsoIyY/oqZxpYgwGxDHgcVBzqVtH
+         fppQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=151owXNTO53jByuuGSr5GWu4XC2mXE43fBblB5HhEno=;
-        b=fcYZyfaNresr4TeaLPEryQ2y0iQjYC/9DE41v242Cq75+VVT2+7m2FDRJiPiRsoOfe
-         m/adVh3Szt5Zo5oV08O9UpOddKtZIOCUIIZ86nsm6kCzFP0YO9xKsWDWuH6nAIOwofUN
-         H6EUZd4gaaBhgTIV28xy/Nx7ozk/0zSZEqTSGViccCRQWbpk8/FuW45vuuE8ogTmOHRp
-         EWgR8fpZnULMEhc0UE7zaNhvwpg/SrP0z9GVQ8wZzJ+GqufDIbn8lvNWnTvdsAyxIPC0
-         IJe1ErymDcMM+8RyzCEH46J+kLj9lfLhKfKl2KA4r2W1YBggbT2jQ7Ndue+PnHjCUVfZ
-         y3jA==
-X-Gm-Message-State: AGi0PuY7BcwSr7oDP2LBh8TDjHq3P0cwgVLsN+CVIoCdDQ7e1S7p1ORL
-        lbAYYW/Jbj3u3/lAS5sTXSNsYzBRvQny4Q==
-X-Google-Smtp-Source: APiQypLBbRatft4nupqcNiU2zQxxPySHqLHcaR+nzDfGMmvAZDtnC6yie1XsCEAEzHLpG16utACQHg==
-X-Received: by 2002:a63:7e58:: with SMTP id o24mr23849pgn.3.1586275383560;
-        Tue, 07 Apr 2020 09:03:03 -0700 (PDT)
+        bh=m278NEfPURnLfLcoq5XUdI3T/R4WKj93EFAmMOODL4A=;
+        b=FmQIdiZ8NtgnHTE/EJ4sH/ovMoI+DQDIiN6sV5yOzidA+XKrBhS0msoEMe1zcarSXf
+         Hq9+e86suoGieP+RdTzmrIsMixdBKOn0tedoens/8gYNf+KMShP35L/659bAF5gr+Wbu
+         S9hHKkxxeDu9YPBnqkAOhLRNvm79Yj7nJJFm+ZGQPUFlsHBBvyA7EBHKs9xmLKgYBhcU
+         18Ql7e/r94WZF2q69KJr5iSBJPaoFpK6lHcRrFRcUjOViLYGjNExjTq25mFWWIPhRtLR
+         /RBBW4MFj5nttgWZXaieduLk+mLi1RYOhY5O838Unu1Dxu26NAzr9l09LTzp9XFf8Oo3
+         lzYw==
+X-Gm-Message-State: AGi0PubIlLhBLnRjVgEbHKDY1HoHcx435Xqkkj/k2reZE3lOefUSRuHm
+        pYKiHx0pPJBeYbPG769czBAjV1gyapLyVw==
+X-Google-Smtp-Source: APiQypL1s7OVh4+WrnR0D6PBZ0ZpZ8Ml3ZCNkqkyUAo5EXQk4vG8Ti8RMt9ct3ngHCv0z2Kg+t8Vkw==
+X-Received: by 2002:a63:bf4a:: with SMTP id i10mr2863918pgo.120.1586275385838;
+        Tue, 07 Apr 2020 09:03:05 -0700 (PDT)
 Received: from x1.lan ([2605:e000:100e:8c61:ec7d:96d3:6e2d:dcab])
-        by smtp.gmail.com with ESMTPSA id y22sm14366955pfr.68.2020.04.07.09.03.02
+        by smtp.gmail.com with ESMTPSA id y22sm14366955pfr.68.2020.04.07.09.03.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 09:03:03 -0700 (PDT)
+        Tue, 07 Apr 2020 09:03:05 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     viro@zeniv.linux.org.uk, Jens Axboe <axboe@kernel.dk>,
         Oleg Nesterov <oleg@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 2/4] task_work: kill current->task_works checking in callers
-Date:   Tue,  7 Apr 2020 10:02:56 -0600
-Message-Id: <20200407160258.933-3-axboe@kernel.dk>
+Subject: [PATCH 4/4] io_uring: flush task work before waiting for ring exit
+Date:   Tue,  7 Apr 2020 10:02:58 -0600
+Message-Id: <20200407160258.933-5-axboe@kernel.dk>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407160258.933-1-axboe@kernel.dk>
 References: <20200407160258.933-1-axboe@kernel.dk>
@@ -72,151 +72,43 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If the callsite cares, use task_work_pending(). If not, just call
-task_work_run() unconditionally, that makes the check inline and
-doesn't add any extra overhead.
+We could have triggered task work when we removed poll completions.
+Be sure to check if we're called off the exit path, as the exit task
+work could have already been queued. If it is, then the poll flush
+will have queued to the io-wq helper thread, so there's no need to run
+the work.
+
+Ensure we do so before flushing the CQ ring overflow, in case the poll
+flush puts us into overflow mode.
 
 Cc: Oleg Nesterov <oleg@redhat.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c                |  7 ++-----
- fs/io_uring.c             | 20 ++++++++------------
- include/linux/tracehook.h |  3 +--
- kernel/signal.c           |  7 +++----
- 4 files changed, 14 insertions(+), 23 deletions(-)
+ fs/io_uring.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 4023c9846860..5bee3f5f67e1 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -717,8 +717,7 @@ static int io_wq_manager(void *data)
- 	complete(&wq->done);
- 
- 	while (!kthread_should_stop()) {
--		if (current->task_works)
--			task_work_run();
-+		task_work_run();
- 
- 		for_each_node(node) {
- 			struct io_wqe *wqe = wq->wqes[node];
-@@ -742,9 +741,7 @@ static int io_wq_manager(void *data)
- 		schedule_timeout(HZ);
- 	}
- 
--	if (current->task_works)
--		task_work_run();
--
-+	task_work_run();
- 	return 0;
- err:
- 	set_bit(IO_WQ_BIT_ERROR, &wq->state);
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 773f55c49cd8..7fb51c383e51 100644
+index 7fb51c383e51..4e760b7cd772 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5964,8 +5964,7 @@ static int io_sq_thread(void *data)
- 			if (!list_empty(&ctx->poll_list) ||
- 			    (!time_after(jiffies, timeout) && ret != -EBUSY &&
- 			    !percpu_ref_is_dying(&ctx->refs))) {
--				if (current->task_works)
--					task_work_run();
-+				task_work_run();
- 				cond_resched();
- 				continue;
- 			}
-@@ -5997,8 +5996,8 @@ static int io_sq_thread(void *data)
- 					finish_wait(&ctx->sqo_wait, &wait);
- 					break;
- 				}
--				if (current->task_works) {
--					task_work_run();
-+				if (task_work_pending()) {
-+					__task_work_run();
- 					finish_wait(&ctx->sqo_wait, &wait);
- 					continue;
- 				}
-@@ -6021,8 +6020,7 @@ static int io_sq_thread(void *data)
- 		timeout = jiffies + ctx->sq_thread_idle;
- 	}
+@@ -7293,10 +7293,15 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 		io_wq_cancel_all(ctx->io_wq);
  
--	if (current->task_works)
--		task_work_run();
-+	task_work_run();
- 
- 	set_fs(old_fs);
- 	if (cur_mm) {
-@@ -6091,9 +6089,9 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	do {
- 		if (io_cqring_events(ctx, false) >= min_events)
- 			return 0;
--		if (!current->task_works)
-+		if (!task_work_pending())
- 			break;
--		task_work_run();
-+		__task_work_run();
- 	} while (1);
- 
- 	if (sig) {
-@@ -6114,8 +6112,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	do {
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
--		if (current->task_works)
--			task_work_run();
-+		task_work_run();
- 		if (io_should_wake(&iowq, false))
- 			break;
- 		schedule();
-@@ -7465,8 +7462,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 	int submitted = 0;
- 	struct fd f;
- 
--	if (current->task_works)
--		task_work_run();
-+	task_work_run();
- 
- 	if (flags & ~(IORING_ENTER_GETEVENTS | IORING_ENTER_SQ_WAKEUP))
- 		return -EINVAL;
-diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
-index 36fb3bbed6b2..608a2d12bc14 100644
---- a/include/linux/tracehook.h
-+++ b/include/linux/tracehook.h
-@@ -184,8 +184,7 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
- 	 * hlist_add_head(task->task_works);
- 	 */
- 	smp_mb__after_atomic();
--	if (unlikely(current->task_works))
--		task_work_run();
-+	task_work_run();
- 
- #ifdef CONFIG_KEYS_REQUEST_CACHE
- 	if (unlikely(current->cached_requested_key)) {
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 5b2396350dd1..e927cfae3151 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2271,8 +2271,8 @@ static void ptrace_do_notify(int signr, int exit_code, int why)
- void ptrace_notify(int exit_code)
- {
- 	BUG_ON((exit_code & (0x7f | ~0xffff)) != SIGTRAP);
--	if (unlikely(current->task_works))
--		task_work_run();
+ 	io_iopoll_reap_events(ctx);
++	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
 +
-+	task_work_run();
- 
- 	spin_lock_irq(&current->sighand->siglock);
- 	ptrace_do_notify(SIGTRAP, exit_code, CLD_TRAPPED);
-@@ -2529,8 +2529,7 @@ bool get_signal(struct ksignal *ksig)
- 	struct signal_struct *signal = current->signal;
- 	int signr;
- 
--	if (unlikely(current->task_works))
--		task_work_run();
-+	task_work_run();
- 
- 	if (unlikely(uprobe_deny_signal()))
- 		return false;
++	if (current->task_works != &task_work_exited)
++		task_work_run();
++
+ 	/* if we failed setting up the ctx, we might not have any rings */
+ 	if (ctx->rings)
+ 		io_cqring_overflow_flush(ctx, true);
+-	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
++
+ 	wait_for_completion(&ctx->completions[0]);
+ 	io_ring_ctx_free(ctx);
+ }
 -- 
 2.26.0
 

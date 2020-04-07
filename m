@@ -2,83 +2,102 @@ Return-Path: <SRS0=kClH=5X=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-7.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B0AC2BB1D
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 20:54:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0701C2D0EC
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 21:41:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9200120730
-	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 20:54:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0B6220748
+	for <io-uring@archiver.kernel.org>; Tue,  7 Apr 2020 21:41:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=cert.org header.i=@cert.org header.b="k8GyfcYP"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="sd4MktDh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726393AbgDGUyt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 7 Apr 2020 16:54:49 -0400
-Received: from veto.sei.cmu.edu ([147.72.252.17]:46460 "EHLO veto.sei.cmu.edu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726380AbgDGUyt (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Tue, 7 Apr 2020 16:54:49 -0400
-X-Greylist: delayed 1075 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Apr 2020 16:54:48 EDT
-Received: from korb.sei.cmu.edu (korb.sei.cmu.edu [10.64.21.30])
-        by veto.sei.cmu.edu (8.14.7/8.14.7) with ESMTP id 037KarA4022582
-        for <io-uring@vger.kernel.org>; Tue, 7 Apr 2020 16:36:53 -0400
-DKIM-Filter: OpenDKIM Filter v2.11.0 veto.sei.cmu.edu 037KarA4022582
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cert.org;
-        s=yc2bmwvrj62m; t=1586291813;
-        bh=aPj8y38zej6ZZz4LeIysicSbyiZ4oHbQosugdnA6cGQ=;
-        h=From:To:Subject:Date:From;
-        b=k8GyfcYPfBtuWqL0TeiRSSKfYkxr/8JDxJBqL+6ftfgLwZIN8cq7nur18IrgUm1gN
-         pPnl7+rhW/K0pL225HfZewZCa9dKnJ8Rbj2WOzRAscBkmZyaXkopxUJS6588w+sBuH
-         gO/oQNW1qb2CirvkJfRdW7fxvWp3NapINjqwr0fg=
-Received: from CASCADE.ad.sei.cmu.edu (cascade.ad.sei.cmu.edu [10.64.28.248])
-        by korb.sei.cmu.edu (8.14.7/8.14.7) with ESMTP id 037KaqEh019408
-        for <io-uring@vger.kernel.org>; Tue, 7 Apr 2020 16:36:52 -0400
-Received: from MURIEL.ad.sei.cmu.edu (147.72.252.47) by CASCADE.ad.sei.cmu.edu
- (10.64.28.248) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 7 Apr
- 2020 16:36:51 -0400
-Received: from MORRIS.ad.sei.cmu.edu (147.72.252.46) by MURIEL.ad.sei.cmu.edu
- (147.72.252.47) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1847.3; Tue, 7 Apr 2020
- 16:36:51 -0400
-Received: from MORRIS.ad.sei.cmu.edu ([fe80::555b:9498:552e:d1bb]) by
- MORRIS.ad.sei.cmu.edu ([fe80::555b:9498:552e:d1bb%22]) with mapi id
- 15.01.1847.007; Tue, 7 Apr 2020 16:36:51 -0400
-From:   Joseph Christopher Sible <jcsible@cert.org>
-To:     "'io-uring@vger.kernel.org'" <io-uring@vger.kernel.org>
-Subject: Spurious/undocumented EINTR from io_uring_enter
-Thread-Topic: Spurious/undocumented EINTR from io_uring_enter
-Thread-Index: AdYNHCB8t2qqN/asQKmA7dRl2D+7cw==
-Date:   Tue, 7 Apr 2020 20:36:51 +0000
-Message-ID: <43b339d3dc0c4b6ab15652faf12afa30@cert.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.64.64.23]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726475AbgDGVlo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 7 Apr 2020 17:41:44 -0400
+Received: from mail-pj1-f50.google.com ([209.85.216.50]:37445 "EHLO
+        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726393AbgDGVln (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 7 Apr 2020 17:41:43 -0400
+Received: by mail-pj1-f50.google.com with SMTP id k3so306768pjj.2
+        for <io-uring@vger.kernel.org>; Tue, 07 Apr 2020 14:41:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=tS+TlVOd7aIy1vUa5jDzKH6KdKlFSnYfAmgGmCwg0MQ=;
+        b=sd4MktDhQuFjZKn/dt63EgD+Gt0T6W9fSKxGFDq1gG9Czbqn2gO1+uXxK0+ErMxrHJ
+         m/C8XhLRZdkZk0DAtQirwT090+NhqDWHlhGqgekUVbUFdSAldD6u6UNfDwdLgMh9v65C
+         BvKw3mvy7iKcTz/YL6YIlBbqRUal0hN6S6l4QlPwRP4Rl6yDHDNuonvvCt0OfTy3YqYB
+         4aVcFAsDW/eR4jLG87vwWj9EmGwZ1m1MfXkHmLd7pjy5FbKTHXMw8m9F2m9q9M89P+gf
+         FyB6BQnOuMs18SpW3F+4CmNokJuByiwmJNMCauplJFuuX7+XrvmCTXACisnFNgCVE+TW
+         R3pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=tS+TlVOd7aIy1vUa5jDzKH6KdKlFSnYfAmgGmCwg0MQ=;
+        b=Qpy2USKTygAnTAjgGW03Jy7OgViet3MQRF8v/YKNVuDHxAWWrQM0wTF8Z6ccPFJ4wn
+         6x6ZrTrxyjTgzZPqKEyIr460uM4CIUQUc7P6Msa+XY1ShdR13LhWdmBsP+Htc1wDu9S3
+         U1nusaiFfrwi0Q31BpLaN/k2tkHWIdkUEAgE0Jb5rT7tKFxuI8YvywVmkqTJV2HhU9ta
+         D0JaH70S8wcM6MiJMNyHcfy2xqNGWmNtNfF+G2Un2bnZB4bmc91OGv69i80SoOFL+FuY
+         j1kyyxJjhRgOYxCpsBhzO4Y7bShFfAdJ6BoOeVFNSLOks7fu/hLZ2WB/AxxUxFIYctBZ
+         7Fyg==
+X-Gm-Message-State: AGi0Pube778+fDtI0Meg4UXFF4Iw0cyoSXR0a7VkM9n6BAumGuO+mSkj
+        0USgO8U1T/lhovcgs9HJmhans0imUuvRUg==
+X-Google-Smtp-Source: APiQypIK+Z87HSv2+rtYgLoRPKRC7k5ClaVBM4KlGxiDYDKusejKG4bT6iDnKGats4CEChHGck44Ug==
+X-Received: by 2002:a17:90a:350d:: with SMTP id q13mr1381142pjb.171.1586295700952;
+        Tue, 07 Apr 2020 14:41:40 -0700 (PDT)
+Received: from ?IPv6:2605:e000:100e:8c61:ec7d:96d3:6e2d:dcab? ([2605:e000:100e:8c61:ec7d:96d3:6e2d:dcab])
+        by smtp.gmail.com with ESMTPSA id u3sm223416pjy.9.2020.04.07.14.41.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Apr 2020 14:41:40 -0700 (PDT)
+Subject: Re: Spurious/undocumented EINTR from io_uring_enter
+To:     Joseph Christopher Sible <jcsible@cert.org>,
+        "'io-uring@vger.kernel.org'" <io-uring@vger.kernel.org>
+References: <43b339d3dc0c4b6ab15652faf12afa30@cert.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <b9ee42f0-cd94-9410-0de1-1bbfd50a6040@kernel.dk>
+Date:   Tue, 7 Apr 2020 14:41:39 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
+In-Reply-To: <43b339d3dc0c4b6ab15652faf12afa30@cert.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-When a process is blocking in io_uring_enter, and a signal stops it for
-any reason, it returns -EINTR to userspace. Two comments about this:
+On 4/7/20 1:36 PM, Joseph Christopher Sible wrote:
+> When a process is blocking in io_uring_enter, and a signal stops it for
+> any reason, it returns -EINTR to userspace. Two comments about this:
+> 
+> 1. https://github.com/axboe/liburing/blob/master/man/io_uring_enter.2
+>    doesn't mention EINTR as a possible error that it can return.
 
-1. https://github.com/axboe/liburing/blob/master/man/io_uring_enter.2
-   doesn't mention EINTR as a possible error that it can return.
-2. When there's no signal handler, and a signal stopped the syscall for
-   some other reason (e.g., SIGSTOP, SIGTSTP, or any signal when the
-   process is being traced), other syscalls (e.g., read) will be
-   restarted transparently, but this one will return to userspace
-   with -EINTR just as if there were a signal handler.
+I'll add it to the man page.
 
-Point 1 seems like a no-brainer. I'm not sure if point 2 is possible
-to fix, though, especially since some other syscalls (e.g., epoll_wait)
-have the same problem as this one.
+> 2. When there's no signal handler, and a signal stopped the syscall for
+>    some other reason (e.g., SIGSTOP, SIGTSTP, or any signal when the
+>    process is being traced), other syscalls (e.g., read) will be
+>    restarted transparently, but this one will return to userspace
+>    with -EINTR just as if there were a signal handler.
+> 
+> Point 1 seems like a no-brainer. I'm not sure if point 2 is possible
+> to fix, though, especially since some other syscalls (e.g., epoll_wait)
+> have the same problem as this one.
 
-Joseph C. Sible
+Lots of system calls return -EINTR if interrupted by a signal, don't
+think there's anything worth fixing there. For the wait part, the
+application may want to handle the signal before we can wait again.
+We can't go to sleep with a pending signal.
+
+-- 
+Jens Axboe
+

@@ -2,179 +2,106 @@ Return-Path: <SRS0=tf6j=5Y=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 187FDC2BA1B
-	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FBBBC2D0EA
+	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:56:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E4A4C20692
-	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjVCjF+N"
+	by mail.kernel.org (Postfix) with ESMTP id 1C2C2206A1
+	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:56:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726555AbgDHGAL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 8 Apr 2020 02:00:11 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:39305 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726680AbgDHGAC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Apr 2020 02:00:02 -0400
-Received: by mail-wm1-f68.google.com with SMTP id y24so41680wma.4;
-        Tue, 07 Apr 2020 23:00:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=0GRl9hplB7dTuIb/0RMEadqZcZYJpa7Pjh6TqfFWfDU=;
-        b=FjVCjF+Nc3E3GqeQBjQVVimZ9W4DU7MXFg46Slo9lJplg8Z0AByeiHQqASYgEITYRq
-         BZtckQbgItEKZ/bvDP8bGqmli8nVl5SdZ1Wuu6zlUCDx5EJ7l/hIXMFNodngFSk5Qiyj
-         xz6KJjJoKkUo1mf5q/q1boP+xbrASOzfg/NX1MX7yCrKPNTHA6+2lsdEVKrb8VjBNGn1
-         ArcWtQNmvvlvueNffxEQJY0APE+aAk+PrIGuEUVUYNBjwqLlwJ3xdWUpc26lsuTQWWpF
-         Dynoiv/cTI62jq7dt+X2OXADN4KEE1cIBH773r956hUreupyhbmTmrIDsIpEDUoqPV18
-         PfwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0GRl9hplB7dTuIb/0RMEadqZcZYJpa7Pjh6TqfFWfDU=;
-        b=pGrSvpp6z9cEgxkizX1dvGoUE0HRvmZwmtaP6naFfdkmM27gSjuYp28SAJwh7CrJ+6
-         /37V2HMNgdnmRjZAXh7Gom0VEridHcT9PBjMigWUXDAe3v7lRudJHjetqlB5hcsw8Y/b
-         4nWY12XExEKeymXsbKe9nPAyE61CH3xtqY1EPgJzNjCA5K8t+S3xgBF9oZ51zuM06jmS
-         B1Inx+vIqbvVTZ7eQ+ECO4FabzqxQG2VTQoyOT82U3r8DoBueTCgeq+MfS2QrEOO9xaP
-         4SN3rnNMa43b6AuEzJV5zoQ2Lb+FbqsZ95qxU7FsW9dc1Du346Df5vordtcQ9acnGrXV
-         zT/Q==
-X-Gm-Message-State: AGi0PuYQskirmRc6015/UInWfbUD6gWYnEn3JfZ/bf3Y95/3TOLdcJzQ
-        qQ7qXxDhSWD2RD2zsUl9Ui5uIMQp
-X-Google-Smtp-Source: APiQypI+3fa52zGMHOwuiUaGH9naPnYkrzfOeWCAM055EPTdsu3GXBF3z/24bg0SQ2T4fK/z3lcmDA==
-X-Received: by 2002:a05:600c:22d6:: with SMTP id 22mr2817761wmg.121.1586325600426;
-        Tue, 07 Apr 2020 23:00:00 -0700 (PDT)
-Received: from localhost.localdomain ([109.126.129.227])
-        by smtp.gmail.com with ESMTPSA id b15sm33454986wru.70.2020.04.07.22.59.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 23:00:00 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] io_uring: remove req init from io_get_req()
-Date:   Wed,  8 Apr 2020 08:58:45 +0300
-Message-Id: <c30d8b27f0cf836dbb3be6079a3e4e2c37c7f726.1586325467.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1586325467.git.asml.silence@gmail.com>
-References: <cover.1586325467.git.asml.silence@gmail.com>
+        id S1726586AbgDHG4j (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 8 Apr 2020 02:56:39 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:60995 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726477AbgDHG4j (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Apr 2020 02:56:39 -0400
+X-Originating-IP: 50.39.163.217
+Received: from localhost (50-39-163-217.bvtn.or.frontiernet.net [50.39.163.217])
+        (Authenticated sender: josh@joshtriplett.org)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 2E360C0007;
+        Wed,  8 Apr 2020 06:56:32 +0000 (UTC)
+Date:   Tue, 7 Apr 2020 23:56:29 -0700
+From:   Josh Triplett <josh@joshtriplett.org>
+To:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        io-uring@vger.kernel.org, linux-arch@vger.kernel.org
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH v3 0/3] Support userspace-selected fds
+Message-ID: <cover.1586321767.git.josh@joshtriplett.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_get_req() do two different things: io_kiocb allocation and
-initialisation. Move init part out of it and rename into
-io_alloc_req(). It's simpler this way and also have better data
-locality.
+(Note: numbering this updated version v3, to avoid confusion with Jens'
+v2 that built on my v1. Jens, if you like this approach, please feel
+free to stack your additional patches from the io_uring-fd-select branch
+atop this series. 5.8 material, not intended for the current merge window.)
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 53 ++++++++++++++++++++++++++-------------------------
- 1 file changed, 27 insertions(+), 26 deletions(-)
+Inspired by the X protocol's handling of XIDs, allow userspace to select
+the file descriptor opened by a call like openat2, so that it can use
+the resulting file descriptor in subsequent system calls without waiting
+for the response to the initial openat2 syscall.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9c3e920e789f..072e002f1184 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1293,8 +1293,8 @@ static struct io_kiocb *io_get_fallback_req(struct io_ring_ctx *ctx)
- 	return NULL;
- }
- 
--static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
--				   struct io_submit_state *state)
-+static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx,
-+				     struct io_submit_state *state)
- {
- 	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 	struct io_kiocb *req;
-@@ -1327,22 +1327,9 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 		req = state->reqs[state->free_reqs];
- 	}
- 
--got_it:
--	req->io = NULL;
--	req->file = NULL;
--	req->ctx = ctx;
--	req->flags = 0;
--	/* one is dropped after submission, the other at completion */
--	refcount_set(&req->refs, 2);
--	req->task = NULL;
--	req->result = 0;
--	INIT_IO_WORK(&req->work, io_wq_submit_work);
- 	return req;
- fallback:
--	req = io_get_fallback_req(ctx);
--	if (req)
--		goto got_it;
--	return NULL;
-+	return io_get_fallback_req(ctx);
- }
- 
- static inline void io_put_file(struct io_kiocb *req, struct file *file,
-@@ -5801,6 +5788,28 @@ static inline void io_consume_sqe(struct io_ring_ctx *ctx)
- 	ctx->cached_sq_head++;
- }
- 
-+static void io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
-+			const struct io_uring_sqe *sqe)
-+{
-+	/*
-+	 * All io need record the previous position, if LINK vs DARIN,
-+	 * it can be used to mark the position of the first IO in the
-+	 * link list.
-+	 */
-+	req->sequence = ctx->cached_sq_head;
-+	req->opcode = READ_ONCE(sqe->opcode);
-+	req->user_data = READ_ONCE(sqe->user_data);
-+	req->io = NULL;
-+	req->file = NULL;
-+	req->ctx = ctx;
-+	req->flags = 0;
-+	/* one is dropped after submission, the other at completion */
-+	refcount_set(&req->refs, 2);
-+	req->task = NULL;
-+	req->result = 0;
-+	INIT_IO_WORK(&req->work, io_wq_submit_work);
-+}
-+
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			  struct file *ring_file, int ring_fd,
- 			  struct mm_struct **mm, bool async)
-@@ -5841,23 +5850,15 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			io_consume_sqe(ctx);
- 			break;
- 		}
--		req = io_get_req(ctx, statep);
-+		req = io_alloc_req(ctx, statep);
- 		if (unlikely(!req)) {
- 			if (!submitted)
- 				submitted = -EAGAIN;
- 			break;
- 		}
- 
--		/*
--		 * All io need record the previous position, if LINK vs DARIN,
--		 * it can be used to mark the position of the first IO in the
--		 * link list.
--		 */
--		req->sequence = ctx->cached_sq_head;
--		req->opcode = READ_ONCE(sqe->opcode);
--		req->user_data = READ_ONCE(sqe->user_data);
-+		io_init_req(ctx, req, sqe);
- 		io_consume_sqe(ctx);
--
- 		/* will complete beyond this point, count as submitted */
- 		submitted++;
- 
+The first patch is independent of the other two; it allows reserving
+file descriptors below a certain minimum for userspace-selected fd
+allocation only.
+
+The second patch implements userspace-selected fd allocation for
+openat2, introducing a new O_SPECIFIC_FD flag and an fd field in struct
+open_how. In io_uring, this allows sequences like openat2/read/close
+without waiting for the openat2 to complete. Multiple such sequences can
+overlap, as long as each uses a distinct file descriptor.
+
+The third patch adds userspace-selected fd allocation to pipe2 as well.
+I did this partly as a demonstration of how simple it is to wire up
+O_SPECIFIC_FD support for any fd-allocating system call, and partly in
+the hopes that this may make it more useful to wire up io_uring support
+for pipe2 in the future.
+
+If this gets accepted, I'm happy to also write corresponding manpage
+patches.
+
+v3:
+This new version has an API to atomically increase the minimum fd and
+return the previous minimum, rather than just getting and setting the
+minimum; this makes it easier to allocate a range. (A library that might
+initialize after the program has already opened other file descriptors
+may need to check for existing open fds in the range after reserving it,
+and reserve more fds if needed; this can be done entirely in userspace,
+and we can't really do anything simpler in the kernel due to limitations
+on file-descriptor semantics, so this patch series avoids introducing
+any extra complexity in the kernel.)
+
+This new version also supports a __get_specific_unused_fd_flags call
+which accepts the limit for RLIMIT_NOFILE as an argument, analogous to
+__get_unused_fd_flags, since io_uring needs that to correctly handle
+RLIMIT_NOFILE.
+
+Josh Triplett (3):
+  fs: Support setting a minimum fd for "lowest available fd" allocation
+  fs: openat2: Extend open_how to allow userspace-selected fds
+  fs: pipe2: Support O_SPECIFIC_FD
+
+ fs/fcntl.c                       |  2 +-
+ fs/file.c                        | 62 ++++++++++++++++++++++++++++----
+ fs/io_uring.c                    |  3 +-
+ fs/open.c                        |  6 ++--
+ fs/pipe.c                        | 16 ++++++---
+ include/linux/fcntl.h            |  5 +--
+ include/linux/fdtable.h          |  1 +
+ include/linux/file.h             |  4 +++
+ include/uapi/asm-generic/fcntl.h |  4 +++
+ include/uapi/linux/openat2.h     |  2 ++
+ include/uapi/linux/prctl.h       |  3 ++
+ kernel/sys.c                     |  5 +++
+ 12 files changed, 97 insertions(+), 16 deletions(-)
+
 -- 
-2.24.0
-
+2.26.0

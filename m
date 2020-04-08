@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1507EC2BA16
-	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 551F7C2BA16
+	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DDF8E206C0
-	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27540206C0
+	for <io-uring@archiver.kernel.org>; Wed,  8 Apr 2020 06:00:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="basSX834"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SJJNR4ct"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbgDHGAC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 8 Apr 2020 02:00:02 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:40982 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726627AbgDHGAB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Apr 2020 02:00:01 -0400
-Received: by mail-wr1-f68.google.com with SMTP id h9so6354094wrc.8;
-        Tue, 07 Apr 2020 22:59:59 -0700 (PDT)
+        id S1726699AbgDHGAG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 8 Apr 2020 02:00:06 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:53046 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726627AbgDHGAF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Apr 2020 02:00:05 -0400
+Received: by mail-wm1-f65.google.com with SMTP id t203so3883001wmt.2;
+        Tue, 07 Apr 2020 23:00:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=sUUvCvoLtB9BgaxbdgLhXAQ6BgnLG9M3Jlf9kyZEpjI=;
-        b=basSX8349jAmNVvct8Z0NUGQkNURfxXaR1mPKb3TobK7R/Dk9VWnP3/NdLOYFD8WuE
-         OeKSmx18g5Rj/XIgicLEbQu+qLNh3Z+IdhOKEbYnOMY8T3mbLeeM0ymjgrN7zXtTZD87
-         ZG8JgVKK4Nhsp6ijeJZEnNSjiAV3fYYILXU5TTxq+hJ9iJmc9URkpvgdNtNOmwt9WSOz
-         e5ULGgGy5jGOQbNHs2M+sYmW62QMKPnU61sKNp2oN4VYmc3JCyW3CjnVplE1m+/X6mGu
-         u+XUD3YJk4dJU9uxMBKVS9w0TqXvMq3jlDNhyZqGt3ep5GWA3baMSHoxv2Ut65289KTJ
-         nPVQ==
+        bh=G6WvhC+hLx+3fIEi91fNw0FdlNcxoEn+fi468tTSdAQ=;
+        b=SJJNR4ctvIgUv+WdIn5W6KW3yaOG814VSb3pIr0+O3Q8k1g+xzBWEaNMASG7dmMTrQ
+         WJBX548T+un7tw+C1jS90LbTTF4CPHVWZwOGfmHRB4+7SB3Z4uh8QWye3+TuW6HE+6h7
+         jz74PK57x+8iIPx4ntd39czAxda0See2GAaZuBEE5qQPJc6s4iCQtDr8guYOgZdWssHJ
+         NAHFr/1CZetr3QwhMF34VHUNCHifLAHsCdmjUdFVXv1E8gLXPpHgYzi7/eKa0UKV6IPo
+         BxpZJhgAiZJUXzSjvpYB07pPY9GV6XLzgbgO3HEgK+iMywJ3bUVUExNGucePP1smxzQp
+         voTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sUUvCvoLtB9BgaxbdgLhXAQ6BgnLG9M3Jlf9kyZEpjI=;
-        b=jYrrqNrzrEJgwbs7BGc1bALyFfOIts67S+J31uHPS+6spN2YYfGrlH6JYoJ4LO+/R9
-         UKc1g6BFtZvRCumhTCJllLSTtTjxUALhI1GY2JTkaSsHZdGxfh+H9D9hT88CLR+08ojj
-         I7Ko1EVkxxOCIWtvZDXGKplNMznp32c5A5Nn9/sDs2sYD+NXBnaBEFanKegXbNnuabKa
-         FyDo8MdhQcFurCcyxL3FUoGlxx4ai+SFd1nJc49ZvdxMqsido4hlDGnt8o8GDeR3lqGI
-         6qhlsiW7KWnZ9OADHPfQVqIEZ9fPfwKyTbzhRWaCm66fItdkF8nLhQJwjzEWMgzNwCLp
-         GILg==
-X-Gm-Message-State: AGi0PuY4tcwdXsQKfATHWb38UySv+b0Sraj1l8S0JaDFVOuD+gfdDnMz
-        AIz/d1YvcULO3lS359DRm3c=
-X-Google-Smtp-Source: APiQypIlWnbhqK+g7qAB49Q/aDrrqNeRdBW8mI9fjJ325GlY8a0lTy5jkVVLQ22TOXS3PhLnxdmGRA==
-X-Received: by 2002:a05:6000:2:: with SMTP id h2mr6332546wrx.112.1586325599141;
-        Tue, 07 Apr 2020 22:59:59 -0700 (PDT)
+        bh=G6WvhC+hLx+3fIEi91fNw0FdlNcxoEn+fi468tTSdAQ=;
+        b=BS0zV4svhM1UzhpnqI8FksD7jOKfh90JzJaFLR+T0Zj4AHxmrTFESbi370dq6XVDek
+         fOuL6TU0I0ufsvEaUNlxcQL/enlGuLK+qtdWG9W6+/w0e9DTSrVvF1Fi3/38msWjucue
+         Ox7LOwrigZpKruUObvnmxbAI/8Mz9Tgq0mZvWEUCjlmVLf138q7NwN3tgFELwW5tvrnA
+         yoKusHtdk+dW9V77j64ViHIFILcT3HXKkv2qCcZ+UEvafE2tqtTzpIYOxHT5lCZMdNWS
+         tRfARvOCTSL4XomgGLO6A2+Nvmi5/tZrOvz5bD5M7zeJ62kUp5a3QKPZQF7rd4cbClC6
+         eRcg==
+X-Gm-Message-State: AGi0PuZ1gmH8eCgS4kqFDrYeJP9L/jhReHcZ99QqY18C3wSKAjHsMTUj
+        E9vaLqpfP8dRVPND12YUTkXzI5tB
+X-Google-Smtp-Source: APiQypJ2uh8qINLBjl/1LJg0a9yT0VX2xInOlK01Xlb7bcP8dVT1XEXdIK8krxCWeEJB5ViZ/aBgnw==
+X-Received: by 2002:a7b:c3cb:: with SMTP id t11mr2792517wmj.40.1586325601400;
+        Tue, 07 Apr 2020 23:00:01 -0700 (PDT)
 Received: from localhost.localdomain ([109.126.129.227])
-        by smtp.gmail.com with ESMTPSA id b15sm33454986wru.70.2020.04.07.22.59.57
+        by smtp.gmail.com with ESMTPSA id b15sm33454986wru.70.2020.04.07.23.00.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 22:59:58 -0700 (PDT)
+        Tue, 07 Apr 2020 23:00:01 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] io_uring: alloc req only after getting sqe
-Date:   Wed,  8 Apr 2020 08:58:44 +0300
-Message-Id: <378c7980b103152954e4dfd71a46732b51b84254.1586325467.git.asml.silence@gmail.com>
+Subject: [PATCH 4/4] io_uring: don't read user-shared sqe flags twice
+Date:   Wed,  8 Apr 2020 08:58:46 +0300
+Message-Id: <d4f7cf7ff796e3cfdd54db36153dac29ea9f3a56.1586325467.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1586325467.git.asml.silence@gmail.com>
 References: <cover.1586325467.git.asml.silence@gmail.com>
@@ -71,70 +71,91 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As io_get_sqe() split into 2 stage get/consume, get an sqe before
-allocating io_kiocb, so no free_req*() for a failure case is needed,
-and inline back __io_req_do_free(), which has only 1 user.
+Don't re-read userspace-shared sqe->flags, it can be exploited.
+sqe->flags are copied into req->flags in io_submit_sqe(), check them
+instead.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ fs/io_uring.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fa6b7bb62616..9c3e920e789f 100644
+index 072e002f1184..f8173a77434c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1354,14 +1354,6 @@ static inline void io_put_file(struct io_kiocb *req, struct file *file,
- 		fput(file);
- }
+@@ -2930,7 +2930,7 @@ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
--static void __io_req_do_free(struct io_kiocb *req)
--{
--	if (likely(!io_is_fallback_req(req)))
--		kmem_cache_free(req_cachep, req);
--	else
--		clear_bit_unlock(0, (unsigned long *) req->ctx->fallback_req);
--}
--
- static void __io_req_aux_free(struct io_kiocb *req)
- {
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+-	if (sqe->flags & IOSQE_FIXED_FILE)
++	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
  	if (req->flags & REQ_F_NEED_CLEANUP)
-@@ -1392,7 +1384,10 @@ static void __io_free_req(struct io_kiocb *req)
- 	}
+ 		return 0;
+@@ -2961,7 +2961,7 @@ static int io_openat2_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
- 	percpu_ref_put(&req->ctx->refs);
--	__io_req_do_free(req);
-+	if (likely(!io_is_fallback_req(req)))
-+		kmem_cache_free(req_cachep, req);
-+	else
-+		clear_bit_unlock(0, (unsigned long *) req->ctx->fallback_req);
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+-	if (sqe->flags & IOSQE_FIXED_FILE)
++	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+@@ -3315,7 +3315,7 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+-	if (sqe->flags & IOSQE_FIXED_FILE)
++	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+@@ -3392,7 +3392,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
+ 	    sqe->rw_flags || sqe->buf_index)
+ 		return -EINVAL;
+-	if (sqe->flags & IOSQE_FIXED_FILE)
++	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+ 
+ 	req->close.fd = READ_ONCE(sqe->fd);
+@@ -5363,15 +5363,10 @@ static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
  }
  
- struct req_batch {
-@@ -5841,18 +5836,17 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		struct io_kiocb *req;
- 		int err;
+ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+-			   const struct io_uring_sqe *sqe)
++			   int fd, unsigned int flags)
+ {
+-	unsigned flags;
+-	int fd;
+ 	bool fixed;
  
-+		sqe = io_get_sqe(ctx);
-+		if (unlikely(!sqe)) {
-+			io_consume_sqe(ctx);
-+			break;
-+		}
- 		req = io_get_req(ctx, statep);
- 		if (unlikely(!req)) {
- 			if (!submitted)
- 				submitted = -EAGAIN;
- 			break;
- 		}
--		sqe = io_get_sqe(ctx);
--		if (!sqe) {
--			__io_req_do_free(req);
--			io_consume_sqe(ctx);
--			break;
--		}
+-	flags = READ_ONCE(sqe->flags);
+-	fd = READ_ONCE(sqe->fd);
+-
+ 	if (!io_req_needs_file(req, fd))
+ 		return 0;
  
- 		/*
- 		 * All io need record the previous position, if LINK vs DARIN,
+@@ -5613,7 +5608,7 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	unsigned int sqe_flags;
+-	int ret, id;
++	int ret, id, fd;
+ 
+ 	sqe_flags = READ_ONCE(sqe->flags);
+ 
+@@ -5644,7 +5639,8 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 					IOSQE_ASYNC | IOSQE_FIXED_FILE |
+ 					IOSQE_BUFFER_SELECT);
+ 
+-	ret = io_req_set_file(state, req, sqe);
++	fd = READ_ONCE(sqe->fd);
++	ret = io_req_set_file(state, req, fd, sqe_flags);
+ 	if (unlikely(ret)) {
+ err_req:
+ 		io_cqring_add_event(req, ret);
 -- 
 2.24.0
 

@@ -2,143 +2,257 @@ Return-Path: <SRS0=Io5O=53=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BA17C2BA19
-	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:00:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C612C2BBC7
+	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:06:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F3FE20787
-	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:00:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B1BE21841
+	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:06:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cz2y1Xdv"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EIP5I5qj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbgDKXAa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 11 Apr 2020 19:00:30 -0400
-Received: from mail-il1-f169.google.com ([209.85.166.169]:35508 "EHLO
-        mail-il1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726155AbgDKXAa (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Apr 2020 19:00:30 -0400
-Received: by mail-il1-f169.google.com with SMTP id t10so5435040iln.2
-        for <io-uring@vger.kernel.org>; Sat, 11 Apr 2020 16:00:29 -0700 (PDT)
+        id S1727296AbgDKXGZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 11 Apr 2020 19:06:25 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54601 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728358AbgDKXGY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Apr 2020 19:06:24 -0400
+Received: by mail-wm1-f65.google.com with SMTP id h2so5968026wmb.4;
+        Sat, 11 Apr 2020 16:06:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=IST4gKpAA2mBd2083Fah0iwY0lS4FWAufZb2lCaE8H4=;
-        b=cz2y1XdvcSRBK6SrPSKLzFLJhNVneVFcK3YZkNtq/qmIjQ5CQMa5QpOj+uizIWvEcE
-         a/PpSarHlIdYblGo36d1sVwT2XV2L//oFYEMnxG1rbMkDHTQNL4R4pYRpfUQSoIb7GGe
-         ynKQXqFSQ1Lgpalw+sv/s+tOY5SsgRwwVfov2q1LNxJTChfaBLTl3hMBIteEQwTXgJvd
-         E/7RabbRw6hTQ1vMGd4m9OF8eVsDKLj53Q+ze7Qy5iB9VuOkCQ2C+4epeHltD8CsU+Ve
-         OpcDmSQi4txOikERKSNnMU267mTpSy1UYXSCscdAhPD+6SOjevuL5eWKY0FzdeVtlMWc
-         e4aQ==
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=hzqK+SI1g1DiPgUbeXNICnK2Y3grd5OZcA1bbrAzQy0=;
+        b=EIP5I5qjwusmpZsLSJYCpSqReJvKdiUOoopTnZRQ1E1mwDqSlrPGhFzhHTDAkK448c
+         2rjwUKAlY3c3J8FwkXNosUPhZ8mOisnZqDq3v1neh0zpmKFT7VV2hXgaPCDHK7sEx4f1
+         IZD6jb9t+TPUJFSOcDs0+2jYzge6ViOFahprESMFAj0fQI3E4lQHwlFN8TByx4CmcGtB
+         +jAXBwhMQhYXnM+xO1Ee/KkDEuhrvzQfQIDNyuC1Oz/ioMkDd8c08SjSrammkt2Ignai
+         ABlLRcJ5aZHqFykFDTSCyZcuFFZOKv4GXOVXgf7jfdwo7Xyg3yIdMOKVw9pqfT4uU/kq
+         wG+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=IST4gKpAA2mBd2083Fah0iwY0lS4FWAufZb2lCaE8H4=;
-        b=ag+PYMY0tX4rcg/blaJ0yO0yc4JFHKTThKH5kXqbfm3Tb206JQTfK49eyfk959c7mx
-         +NWkB562d+24S/EKtSHoQ6b96ZLR13yF9MfuWWwROdF3d4L2OR3nLLYYABQDd9AceXRv
-         YgH+If9tgjofIkb2gf6QlLMuGmRlkaVNcCV3NxCGJLxmE87AraBEoNdrpTujn+g+0L/S
-         +D1+hoQCzWvSp0kIGob3lfUhczgoCQNjUBUXjGERqLDPilPwuaAVbaZew8U//bdfOQbW
-         o7Rdm4a5Fna+kXevTHikXfxWDE0dGSQ6COPLA3f2vG4lfZsNIzPe9c+ljY3aXEIDAz0z
-         ru5Q==
-X-Gm-Message-State: AGi0PubjUN87qFUYqntF5x3nGPS8aIu7GN1K1X//AuU1Ot5tjgr1ykWZ
-        y63XoBhGkDw1Ie1YUZqdRMmxCgaEkJU81jkRcdhGCh1DFVA=
-X-Google-Smtp-Source: APiQypL4Qng9OaGG16feAvA8jp5dTWpMxP0YAPJlA6Pn/qxWt6khl9w8oJOwm6cHkkFFzDXK+3d/d322hufv08xFVnY=
-X-Received: by 2002:a92:5ddc:: with SMTP id e89mr10272070ilg.15.1586646028433;
- Sat, 11 Apr 2020 16:00:28 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=hzqK+SI1g1DiPgUbeXNICnK2Y3grd5OZcA1bbrAzQy0=;
+        b=WOz786AjIQfpQzTo6mMq61zVR5YGe5Ef2Jh4BDPF+ih8rybK1Oey1seflA9oMG8hSM
+         i7Ly91HRiAu5xwHABqaWQutWs/BBQbSfcHnBcaKY4WwlCYOplirsiIPEZjQf37dGcuOo
+         JkS2Q4j7Bu+8Dj9hlAIULTygvuyCULEEMw7Cm1U9iv8B1jahP0ztqvQgezFIqqHDxkbs
+         lxFjkecvfdYvhTwUdmYOP6LRDiUQPkfFsfywM9FnkKExyIGSAH6WpksVstLOUvj1/Pyh
+         YsVeCk93iukAR2Sv9q8KwCZQ2n8OsjRIdRUoZ1kcHhTB1uoex9E3Oy9XSdCDbIJ2kKoF
+         dPaQ==
+X-Gm-Message-State: AGi0Pubjzxg9kdtgiWCJ44OmZlSihHlm+D/DlKWyvtYhmm7MKYHeOULE
+        KDrEQwAUXoKH+rBR8trfxnM=
+X-Google-Smtp-Source: APiQypLB26qNkI5+PyvL5Jhf9reuG5n1nsrMylag7uIbwz0iZKHVwE9GsCRKLF74yQF2aFXsrRAWOg==
+X-Received: by 2002:a1c:bb08:: with SMTP id l8mr12621315wmf.168.1586646383014;
+        Sat, 11 Apr 2020 16:06:23 -0700 (PDT)
+Received: from localhost.localdomain ([109.126.129.227])
+        by smtp.gmail.com with ESMTPSA id k133sm8992741wma.0.2020.04.11.16.06.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 11 Apr 2020 16:06:22 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 5/5] io_uring: move all request init code in one place
+Date:   Sun, 12 Apr 2020 02:05:05 +0300
+Message-Id: <7c1f30a035acaae3f61ac9b0e25bb179f2d3b0f6.1586645520.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1586645520.git.asml.silence@gmail.com>
+References: <cover.1586645520.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-From:   Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Date:   Sat, 11 Apr 2020 19:00:17 -0400
-Message-ID: <CAEsUgYgTSVydbQdjVn1QuqFSHZp_JfDZxRk7KwWVSZikxY+hYg@mail.gmail.com>
-Subject: Odd timeout behavior
-To:     io-uring@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000e8dfd305a30bd088"
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
---000000000000e8dfd305a30bd088
-Content-Type: text/plain; charset="UTF-8"
+Requests initialisation is scattered across several functions, namely
+io_init_req(), io_submit_sqes(), io_submit_sqe(). Put it
+in io_init_req() for better data locality and code clarity.
 
-Hi,
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 104 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 52 insertions(+), 52 deletions(-)
 
-I've been looking at timeouts and found a case I can't wrap my head around.
-
-Basically, If you submit OPs in a certain order, timeout fires before
-time elapses where I wouldn't expect it to. The order is as follows:
-
-poll(listen_socket, POLLIN) <- this never fires
-nop(async)
-timeout(1s, count=X)
-
-If you set X to anything but 0xffffffff/(unsigned)-1, the timeout does
-not fire (at least not immediately). This is expected apart from maybe
-setting X=1 which would potentially allow the timeout to fire if nop
-executes after the timeout is setup.
-
-If you set it to 0xffffffff, it will always fire (at least on my
-machine). Test program I'm using is attached.
-
-The funny thing is that, if you remove the poll, timeout will not fire.
-
-I'm using Linus' tree (v5.6-12604-gab6f762f0f53).
-
-Could anybody shine a bit of light here?
-
-
-Thank you,
-Hrvoje
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 9118a0210e0a..f593a37665f3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5605,44 +5605,11 @@ static inline void io_queue_link_head(struct io_kiocb *req)
+ 		io_queue_sqe(req, NULL);
+ }
+ 
+-#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
+-				IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
+-				IOSQE_BUFFER_SELECT)
+-
+ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 			  struct io_submit_state *state, struct io_kiocb **link)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned int sqe_flags;
+-	int ret, id, fd;
+-
+-	sqe_flags = READ_ONCE(sqe->flags);
+-
+-	/* enforce forwards compatibility on users */
+-	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
+-		return -EINVAL;
+-
+-	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
+-	    !io_op_defs[req->opcode].buffer_select)
+-		return -EOPNOTSUPP;
+-
+-	id = READ_ONCE(sqe->personality);
+-	if (id) {
+-		req->work.creds = idr_find(&ctx->personality_idr, id);
+-		if (unlikely(!req->work.creds))
+-			return -EINVAL;
+-		get_cred(req->work.creds);
+-	}
+-
+-	/* same numerical values with corresponding REQ_F_*, safe to copy */
+-	req->flags |= sqe_flags & (IOSQE_IO_DRAIN | IOSQE_IO_HARDLINK |
+-					IOSQE_ASYNC | IOSQE_FIXED_FILE |
+-					IOSQE_BUFFER_SELECT | IOSQE_IO_LINK);
+-
+-	fd = READ_ONCE(sqe->fd);
+-	ret = io_req_set_file(state, req, fd, sqe_flags);
+-	if (unlikely(ret))
+-		return ret;
++	int ret;
+ 
+ 	/*
+ 	 * If we already have a head request, queue this one for async
+@@ -5661,7 +5628,7 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		 * next after the link request. The last one is done via
+ 		 * drain_next flag to persist the effect across calls.
+ 		 */
+-		if (sqe_flags & IOSQE_IO_DRAIN) {
++		if (req->flags & REQ_F_IO_DRAIN) {
+ 			head->flags |= REQ_F_IO_DRAIN;
+ 			ctx->drain_next = 1;
+ 		}
+@@ -5678,16 +5645,16 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		list_add_tail(&req->link_list, &head->link_list);
+ 
+ 		/* last request of a link, enqueue the link */
+-		if (!(sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK))) {
++		if (!(req->flags & (REQ_F_LINK | REQ_F_HARDLINK))) {
+ 			io_queue_link_head(head);
+ 			*link = NULL;
+ 		}
+ 	} else {
+ 		if (unlikely(ctx->drain_next)) {
+ 			req->flags |= REQ_F_IO_DRAIN;
+-			req->ctx->drain_next = 0;
++			ctx->drain_next = 0;
+ 		}
+-		if (sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) {
++		if (req->flags & (REQ_F_LINK | REQ_F_HARDLINK)) {
+ 			req->flags |= REQ_F_LINK_HEAD;
+ 			INIT_LIST_HEAD(&req->link_list);
+ 
+@@ -5777,9 +5744,17 @@ static inline void io_consume_sqe(struct io_ring_ctx *ctx)
+ 	ctx->cached_sq_head++;
+ }
+ 
+-static void io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-			const struct io_uring_sqe *sqe)
++#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
++				IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
++				IOSQE_BUFFER_SELECT)
++
++static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
++		       const struct io_uring_sqe *sqe,
++		       struct io_submit_state *state, bool async)
+ {
++	unsigned int sqe_flags;
++	int id, fd;
++
+ 	/*
+ 	 * All io need record the previous position, if LINK vs DARIN,
+ 	 * it can be used to mark the position of the first IO in the
+@@ -5796,7 +5771,42 @@ static void io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	refcount_set(&req->refs, 2);
+ 	req->task = NULL;
+ 	req->result = 0;
++	req->needs_fixed_file = async;
+ 	INIT_IO_WORK(&req->work, io_wq_submit_work);
++
++	if (unlikely(req->opcode >= IORING_OP_LAST))
++		return -EINVAL;
++
++	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
++		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
++			return -EFAULT;
++		use_mm(ctx->sqo_mm);
++	}
++
++	sqe_flags = READ_ONCE(sqe->flags);
++	/* enforce forwards compatibility on users */
++	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
++		return -EINVAL;
++
++	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
++	    !io_op_defs[req->opcode].buffer_select)
++		return -EOPNOTSUPP;
++
++	id = READ_ONCE(sqe->personality);
++	if (id) {
++		req->work.creds = idr_find(&ctx->personality_idr, id);
++		if (unlikely(!req->work.creds))
++			return -EINVAL;
++		get_cred(req->work.creds);
++	}
++
++	/* same numerical values with corresponding REQ_F_*, safe to copy */
++	req->flags |= sqe_flags & (IOSQE_IO_DRAIN | IOSQE_IO_HARDLINK |
++					IOSQE_ASYNC | IOSQE_FIXED_FILE |
++					IOSQE_BUFFER_SELECT | IOSQE_IO_LINK);
++
++	fd = READ_ONCE(sqe->fd);
++	return io_req_set_file(state, req, fd, sqe_flags);
+ }
+ 
+ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+@@ -5844,28 +5854,18 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			break;
+ 		}
+ 
+-		io_init_req(ctx, req, sqe);
++		err = io_init_req(ctx, req, sqe, statep, async);
+ 		io_consume_sqe(ctx);
+ 		/* will complete beyond this point, count as submitted */
+ 		submitted++;
+ 
+-		if (unlikely(req->opcode >= IORING_OP_LAST)) {
+-			err = -EINVAL;
++		if (unlikely(err)) {
+ fail_req:
+ 			io_cqring_add_event(req, err);
+ 			io_double_put_req(req);
+ 			break;
+ 		}
+ 
+-		if (io_op_defs[req->opcode].needs_mm && !current->mm) {
+-			if (unlikely(!mmget_not_zero(ctx->sqo_mm))) {
+-				err = -EFAULT;
+-				goto fail_req;
+-			}
+-			use_mm(ctx->sqo_mm);
+-		}
+-
+-		req->needs_fixed_file = async;
+ 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
+ 						true, async);
+ 		err = io_submit_sqe(req, sqe, statep, &link);
 -- 
-I doubt, therefore I might be.
+2.24.0
 
---000000000000e8dfd305a30bd088
-Content-Type: text/x-csrc; charset="US-ASCII"; name="nop-timeout.c"
-Content-Disposition: attachment; filename="nop-timeout.c"
-Content-Transfer-Encoding: base64
-Content-ID: <f_k8w81k8r0>
-X-Attachment-Id: f_k8w81k8r0
-
-I2luY2x1ZGUgPGFzc2VydC5oPgojaW5jbHVkZSA8ZXJybm8uaD4KI2luY2x1ZGUgPHN0ZGlvLmg+
-CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN0ZGxpYi5oPgojaW5jbHVkZSA8c3RyaW5n
-Lmg+CiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8dGltZS5oPgojaW5jbHVkZSA8cG9sbC5o
-PgojaW5jbHVkZSA8c3lzL3RpbWUuaD4KI2luY2x1ZGUgPHN5cy9zb2NrZXQuaD4KI2luY2x1ZGUg
-PGFycGEvaW5ldC5oPgoKI2luY2x1ZGUgImxpYnVyaW5nLmgiCgpzdHJ1Y3QgaW9fdXJpbmdfc3Fl
-KiBnZXRfc3FlKHN0cnVjdCBpb191cmluZyogcmluZykKewoJc3RydWN0IGlvX3VyaW5nX3NxZSog
-c3FlID0gaW9fdXJpbmdfZ2V0X3NxZShyaW5nKTsKCWFzc2VydChzcWUgIT0gTlVMTCk7CglyZXR1
-cm4gc3FlOwp9Cgp2b2lkIGVucXVldWVfbm9wKHN0cnVjdCBpb191cmluZyogcmluZykKewoJc3Ry
-dWN0IGlvX3VyaW5nX3NxZSogc3FlID0gZ2V0X3NxZShyaW5nKTsKCglpb191cmluZ19wcmVwX25v
-cChzcWUpOwoJaW9fdXJpbmdfc3FlX3NldF9kYXRhKHNxZSwgKHZvaWQqKTEpOwoJaW9fdXJpbmdf
-c3FlX3NldF9mbGFncyhzcWUsIElPU1FFX0FTWU5DKTsKfQoKdm9pZCBlbnF1ZXVlX3RpbWVvdXQo
-c3RydWN0IGlvX3VyaW5nKiByaW5nKQp7CglzdHJ1Y3QgaW9fdXJpbmdfc3FlKiBzcWUgPSBnZXRf
-c3FlKHJpbmcpOwoJc3RhdGljIHN0cnVjdCBfX2tlcm5lbF90aW1lc3BlYyB0czsKCgl0cy50dl9z
-ZWMgPSAxOwoJdHMudHZfbnNlYyA9IDA7CgoJaW9fdXJpbmdfcHJlcF90aW1lb3V0KHNxZSwgJnRz
-LCAodW5zaWduZWQpLTEsIDApOwoJaW9fdXJpbmdfc3FlX3NldF9kYXRhKHNxZSwgKHZvaWQqKTIp
-Owp9Cgp2b2lkIGVucXVldWVfcG9sbChzdHJ1Y3QgaW9fdXJpbmcqIHJpbmcsIGludCBmZCkKewoJ
-c3RydWN0IGlvX3VyaW5nX3NxZSogc3FlID0gZ2V0X3NxZShyaW5nKTsKCglpb191cmluZ19wcmVw
-X3BvbGxfYWRkKHNxZSwgZmQsIFBPTExJTiB8IFBPTExFUlIgfCBQT0xMSFVQKTsKCWlvX3VyaW5n
-X3NxZV9zZXRfZGF0YShzcWUsICh2b2lkKikzKTsKfQoKaW50IGNyZWF0ZV9zb2NrZXQoKQp7Cglp
-bnQgcyA9IHNvY2tldChBRl9JTkVULCBTT0NLX1NUUkVBTSB8IFNPQ0tfQ0xPRVhFQywgSVBQUk9U
-T19UQ1ApOwoJYXNzZXJ0KHMgIT0gLTEpOwoKCWludCBmbGFncyA9IGZjbnRsKHMsIEZfR0VURkws
-IDApOwoJYXNzZXJ0KGZsYWdzICE9IC0xKTsKCglmbGFncyB8PSBPX05PTkJMT0NLOwoKCWFzc2Vy
-dChmY250bChzLCBGX1NFVEZMLCBmbGFncykgIT0gLTEpOwoKCXN0cnVjdCBzb2NrYWRkcl9pbiBh
-ZGRyOwoKCWFkZHIuc2luX2ZhbWlseSA9IEFGX0lORVQ7CglhZGRyLnNpbl9wb3J0ID0gMHgxMjM2
-OwoJYWRkci5zaW5fYWRkci5zX2FkZHIgPSAweDAxMDAwMDdmVTsKCglhc3NlcnQoYmluZChzLCAo
-c3RydWN0IHNvY2thZGRyKikmYWRkciwgc2l6ZW9mKGFkZHIpKSAhPSAtMSk7Cglhc3NlcnQobGlz
-dGVuKHMsIDEwMjQpICE9IC0xKTsKCglyZXR1cm4gczsKfQoKaW50IG1haW4oaW50IGFyZ2MsIGNo
-YXIgKmFyZ3ZbXSkKewoJc3RydWN0IGlvX3VyaW5nIHJpbmc7CglpbnQgcmV0OwoKCXJldCA9IGlv
-X3VyaW5nX3F1ZXVlX2luaXQoNCwgJnJpbmcsIDApOwoJaWYgKHJldCkgewoJCWZwcmludGYoc3Rk
-ZXJyLCAicmluZyBzZXR1cCBmYWlsZWRcbiIpOwoJCXJldHVybiAxOwoJfQoKCWludCBzID0gY3Jl
-YXRlX3NvY2tldCgpOwoJZW5xdWV1ZV9wb2xsKCZyaW5nLCBzKTsKCgllbnF1ZXVlX25vcCgmcmlu
-Zyk7CgllbnF1ZXVlX3RpbWVvdXQoJnJpbmcpOwoKCXJldCA9IGlvX3VyaW5nX3N1Ym1pdF9hbmRf
-d2FpdCgmcmluZywgMSk7CglpZiAocmV0ID09IC0xKSB7CgkJZnByaW50ZihzdGRlcnIsICJzdWJt
-aXQgZmFpbGVkXG4iKTsKCQlyZXR1cm4gMTsKCX0KCglzdHJ1Y3QgaW9fdXJpbmdfY3FlKiBjcWU7
-Cgl1aW50MzJfdCBoZWFkOwoJdWludDMyX3QgY291bnQgPSAwOwoKCWlvX3VyaW5nX2Zvcl9lYWNo
-X2NxZSgmcmluZywgaGVhZCwgY3FlKSB7CgkJaWYgKGlvX3VyaW5nX2NxZV9nZXRfZGF0YShjcWUp
-ID09ICh2b2lkKikyKQoJCQlmcHJpbnRmKHN0ZGVyciwgIlRpbWVvdXQgdHJpZ2dlcmVkIVxuIik7
-CgoJCWNvdW50Kys7Cgl9CgoJaW9fdXJpbmdfY3FfYWR2YW5jZSgmcmluZywgY291bnQpOwoKCWlv
-X3VyaW5nX3F1ZXVlX2V4aXQoJnJpbmcpOwoJcmV0dXJuIDA7Cn0K
---000000000000e8dfd305a30bd088--

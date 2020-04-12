@@ -1,87 +1,112 @@
-Return-Path: <SRS0=Io5O=53=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=qa75=54=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BE7DC2BB86
-	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:43:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 467CEC2BA19
+	for <io-uring@archiver.kernel.org>; Sun, 12 Apr 2020 02:07:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 08C58206E9
-	for <io-uring@archiver.kernel.org>; Sat, 11 Apr 2020 23:43:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 162A520753
+	for <io-uring@archiver.kernel.org>; Sun, 12 Apr 2020 02:07:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kf3XC0ka"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="xuINY7C+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728311AbgDKXGP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 11 Apr 2020 19:06:15 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:38715 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728323AbgDKXGP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Apr 2020 19:06:15 -0400
-Received: by mail-wr1-f65.google.com with SMTP id k11so5670159wrp.5;
-        Sat, 11 Apr 2020 16:06:14 -0700 (PDT)
+        id S1726689AbgDLCHo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 11 Apr 2020 22:07:44 -0400
+Received: from mail-pl1-f179.google.com ([209.85.214.179]:43435 "EHLO
+        mail-pl1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726155AbgDLCHo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Apr 2020 22:07:44 -0400
+Received: by mail-pl1-f179.google.com with SMTP id z6so2119790plk.10
+        for <io-uring@vger.kernel.org>; Sat, 11 Apr 2020 19:07:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PaGtkGJZGIax0HkhiC3JEbE5dhQwfZdRNpvR3UC345s=;
-        b=Kf3XC0kaXm39dEFLi0s5a1fVAl5PKVNz19sCnvh6ThyBEMMZY8yzzIL+ZXVVGzxdJN
-         0UF6Nn59j1BlezcqqZNALN6RpYlXqkkiJc8k+CSUIMCuwlLZZU6UfM9Ky/w8NWEIXOHK
-         e++8kjEwQcwUFFvVbUl5HLubymEDZAhGQfxIkcBESHmp5iAaJx5e/Sr1jiAqvEctrbcu
-         koGbEhjb0BU7K6BUkFf6yDzzKFbcBwyMf1HXtJUkxyLHfh1/VR5VYAAsnTklpqVfUzuV
-         UpeZfH/qkr4dfc7v+xy/UqC08WnZqxcDWV2Z59SKmPkoSe5etSy58V9W+MWxAl+JAdKX
-         YJMw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=MJkeVaCjtJEc3yNw921FlHG88krDP9fP/xlRD6YHEgI=;
+        b=xuINY7C+MXIl42ypNiwBGJVta6Zd2g1HMsHMKIl4bk9drYEfpY9odLtKZ0PvWRi5UJ
+         qwH+vsnO4JsQzQveVtzdp8noNR5wQbs5FFnGzZspnPCQ4YkASXR9UNH6nBfAjSKTAFjh
+         HmSWIlwP6HtcDyCYAZfb4OW+4eXlW2wi5wekq57WSOgko8E45Mv2btaWuF4Y5sc4GEnM
+         9KGGjM3bUkta12jq6IS8qFfM0acPqcSi5GwkLS4897m2QgXhOpFR2wqPMDqHNcd43X+9
+         g+ci4kx4/TEhMY6YIBJNhJ+c3um3aNiyzedVO82Uh6WqRLC/Fr5dCU/Q7mgbTxHObtk5
+         fJwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=PaGtkGJZGIax0HkhiC3JEbE5dhQwfZdRNpvR3UC345s=;
-        b=ErWN7wGNV6+hmvrkR2jemrgZl2VI7zjI8atlKywRyjcqINRY9KdITnLFzNmPgok6KP
-         Ri9vyHnNTWj1Yl8K0FS5nzmOuNZqkLCpTm+ffRoXp22cjbiIo5c2HsBTAMJvAwHsJ+55
-         3oRVksnOuLqiKQABqYl3r5jB3gljHyInrU6mvb7jF8h1CxCKynE3Pyo6k1souydR4JTu
-         VnU0nZ+v0V1oGVdm7sGixfnxUnhn7DQJeHOBxUR5MwNVe48Q+jXs53LwgT8YrYj1V6tF
-         gjJKbKqO4iNKgtSOgEq7x/znbrDwOOROHxdOUUJlYoSvMmWgnPzb6wD7YETw3820D4p6
-         P05A==
-X-Gm-Message-State: AGi0PuYU6pQVm1Bhs76fDmeQkhomt7ogKYDDdXPLWo+OTG3iiQqliiD9
-        wmEQ9B9ahq/MSAKZEDsRZrM=
-X-Google-Smtp-Source: APiQypJWTgNjc4ZCznDIDupY5H4O2bVnW5vSZegtDGOtlGdh0Uj2U1dnSE0Stcy/Se8p+s0pSBfkqw==
-X-Received: by 2002:a05:6000:108f:: with SMTP id y15mr12207690wrw.423.1586646374167;
-        Sat, 11 Apr 2020 16:06:14 -0700 (PDT)
-Received: from localhost.localdomain ([109.126.129.227])
-        by smtp.gmail.com with ESMTPSA id k133sm8992741wma.0.2020.04.11.16.06.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Apr 2020 16:06:13 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] submission path refactoring pt.2
-Date:   Sun, 12 Apr 2020 02:05:00 +0300
-Message-Id: <cover.1586645520.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=MJkeVaCjtJEc3yNw921FlHG88krDP9fP/xlRD6YHEgI=;
+        b=C5KUzs2t5s/d4Q7zrp6XovSEANccQjFOVNyAICN4L9OJJDHKoGybNJWsCrbhg1YiNh
+         SUgXx6tI/hCa1j1ORKRk0Cd1oIt25sI29UWlEDSDwWLWwHc9659Om7H2K+Hmm5oPStHg
+         YAh4XTusOL0fzgRKjjw69e6aX9qMfoKE6SnfOTF/FJjOwkVsF4rSMMqtxcPkKAwTs4W4
+         b/w39QXY/WJqAvuvzwWyclIv7DhE1PoUlYIiGh2SDjLTqNCRejKhPM4S5fTDC+jNtBKb
+         htl+osYM+VmepADWS3CY2Nj3dcPn11ViVPHqbt7+pwsJjuB1xfoATiSD0+gkANS0dJ0P
+         BjDA==
+X-Gm-Message-State: AGi0PuZQLRPi5Y5ZYvopCUstVIM5W188dw8xQVKoEOIaZkDc2pMjoPYC
+        Ns3cbMlTB8IrV7R94Ch/yemQvA==
+X-Google-Smtp-Source: APiQypLWV82UyC+m1c6rdDcXZVPNIZHo/sNDh7vxcs2xHYU5DWCXLxlujw0msB61IiXnNnysCnb8bg==
+X-Received: by 2002:a17:90a:1a10:: with SMTP id 16mr14582853pjk.31.1586657263340;
+        Sat, 11 Apr 2020 19:07:43 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id u26sm4678379pga.3.2020.04.11.19.07.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 11 Apr 2020 19:07:42 -0700 (PDT)
+Subject: Re: Odd timeout behavior
+To:     Hrvoje Zeba <zeba.hrvoje@gmail.com>, io-uring@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        "zhangyi (F)" <yi.zhang@huawei.com>
+References: <CAEsUgYgTSVydbQdjVn1QuqFSHZp_JfDZxRk7KwWVSZikxY+hYg@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <e146dd8a-f6b6-a101-a40e-ece22b7fe320@kernel.dk>
+Date:   Sat, 11 Apr 2020 20:07:41 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEsUgYgTSVydbQdjVn1QuqFSHZp_JfDZxRk7KwWVSZikxY+hYg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The 2nd and last part of submission path refactoring. This moves
-request initialisation bits into io_init_req(), doing better job
-logically segmenting the code. Keeping negative diffstat as a bonus.
+On 4/11/20 5:00 PM, Hrvoje Zeba wrote:
+> Hi,
+> 
+> I've been looking at timeouts and found a case I can't wrap my head around.
+> 
+> Basically, If you submit OPs in a certain order, timeout fires before
+> time elapses where I wouldn't expect it to. The order is as follows:
+> 
+> poll(listen_socket, POLLIN) <- this never fires
+> nop(async)
+> timeout(1s, count=X)
+> 
+> If you set X to anything but 0xffffffff/(unsigned)-1, the timeout does
+> not fire (at least not immediately). This is expected apart from maybe
+> setting X=1 which would potentially allow the timeout to fire if nop
+> executes after the timeout is setup.
+> 
+> If you set it to 0xffffffff, it will always fire (at least on my
+> machine). Test program I'm using is attached.
+> 
+> The funny thing is that, if you remove the poll, timeout will not fire.
+> 
+> I'm using Linus' tree (v5.6-12604-gab6f762f0f53).
+> 
+> Could anybody shine a bit of light here?
 
-Pavel Begunkov (5):
-  io_uring: remove obsolete @mm_fault
-  io_uring: track mm through current->mm
-  io_uring: DRY early submission req fail code
-  io_uring: keep all sqe->flags in req->flags
-  io_uring: move all request init code in one place
+Thinking about this, I think the mistake here is using the SQ side for
+the timeouts. Let's say you queue up N requests that are waiting, like
+the poll. Then you arm a timeout, it'll now be at N + count before it
+fires. We really should be using the CQ side for the timeouts.
 
- fs/io_uring.c | 196 +++++++++++++++++++++++---------------------------
- 1 file changed, 90 insertions(+), 106 deletions(-)
+Adding Pavel and Yi Zhang.
 
 -- 
-2.24.0
+Jens Axboe
 

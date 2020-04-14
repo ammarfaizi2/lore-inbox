@@ -2,128 +2,145 @@ Return-Path: <SRS0=cFWb=56=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0FF8C2BA19
-	for <io-uring@archiver.kernel.org>; Tue, 14 Apr 2020 18:56:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B45FC2BB1D
+	for <io-uring@archiver.kernel.org>; Tue, 14 Apr 2020 21:41:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9F332074D
-	for <io-uring@archiver.kernel.org>; Tue, 14 Apr 2020 18:56:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 617EF20767
+	for <io-uring@archiver.kernel.org>; Tue, 14 Apr 2020 21:41:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uxgNpJ+g"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYvSSw53"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504508AbgDNSz7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 14 Apr 2020 14:55:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52004 "EHLO
+        id S2634000AbgDNVlU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 14 Apr 2020 17:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732445AbgDNSzx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 14 Apr 2020 14:55:53 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9A2C061A0C
-        for <io-uring@vger.kernel.org>; Tue, 14 Apr 2020 11:55:53 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id np9so5692462pjb.4
-        for <io-uring@vger.kernel.org>; Tue, 14 Apr 2020 11:55:53 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S2633994AbgDNVlE (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 14 Apr 2020 17:41:04 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D09C061A10;
+        Tue, 14 Apr 2020 14:41:03 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id t14so3137481wrw.12;
+        Tue, 14 Apr 2020 14:41:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-transfer-encoding:content-language;
-        bh=6wv8HlesqshsceO0B8jc95jCIlro5/8/4HQDOxhJH98=;
-        b=uxgNpJ+gGrjiyPbEmGylrjkUck2eVu6toLnrqA9xd0XjxrKQQs5AlyBqeEzyYWull8
-         NI9mITZZEJ3nvZ2zB4rNv6MuVE5lbn4wE95Jm+4t0WbvKdgtP2BNlJkEx6wU9aIjtVBI
-         ebVnbAidXfYlq9ov1MqArpHvCw9eFOWXnmBmpvYZ2UOVihoNeeV3o8FrSkwgCCkBUKhd
-         zfdVaDMZdt50XQVSpBaDkQ8Pe67eMcy339Z9b6JxCAFcHcLVqfNjQXoIbMAyGZNRVjrH
-         AOCX6XoaKZHWjn0Rd2OPv/Cd3kAro42GNvwXCoCo4OFzyIFooYw37VpcPdDJ0wOmJUBn
-         tYbA==
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=5oGa0W5Fsbmz/lO6hF1+2jTv7urB98e3nfs+3wn0Vig=;
+        b=UYvSSw53Fe7TxkT0l/l25seIAe1fEVK8A4lNJp7QByB4h9zfjJgXKCXLfEdMz3urVO
+         K/C1fKrtWd+dVTxDp/rcN+rMTLnhBMGVt1QqQzxy55Gaf8E0ad0WR3KWNlvr1rrIiJ0n
+         yXdiVTt+vWoxcEoTkLzbAiVISDlspLik5RFp2B4uHF9Hsv4PTAI9wmjzLERFVCj3mK1R
+         ECymRv4ejPeHXK6sFgsjCoDTpEBihBxM45GAjaMe0zijNBs/7BkKJ01svc5wKK/XYznr
+         7D72XHKv3/cW7yQx+mW2BGv5KK8eRMbigCDKKJLZ+rKK/V63VHV5kNLnuLc/rm/hlggT
+         jHqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=6wv8HlesqshsceO0B8jc95jCIlro5/8/4HQDOxhJH98=;
-        b=oiQ0CT+d3MS/r3sGenYfFmG8eity8YWvuCCam2fyPKXvC3cBfWmv4ZHoSd+CojQN8I
-         hDut/ZSRnepTVbtQpK5jw3Bzw0yqDnle9YbI/aZNNHlBPOKeFBl0lUdvBeYCYQ3xYvdk
-         zreTQz11x6+mr4CJV/LNCv/P7UqeCkgOp8zO7pE8GTawFg2ngSiQw0A/5A8r6cnnt26j
-         xthn+YQBSzqy20DwfunwSw07B4B/LaPkK3wTOgViPdPTyigBlKMGjdIHBCisHvg7ul9H
-         n0iaGDgaXm/1THpaKVBSj+KqzAfWLUBFU4JhdZOvRmeVzO5R5HtcfJ34B5IgdYRscHqV
-         62SA==
-X-Gm-Message-State: AGi0PuaJxZQ1LCnGrpo2Cho2qyL/+uE0CqR3K92/xfADVWXV9XRi3K7T
-        vGhoJMVPzvQCFvG3pfMf5U8=
-X-Google-Smtp-Source: APiQypIBJjt4AlLtCWrZsH7OHLFaoVJ6TiUQoXYwrcZar/UDHG/aW6SsV7+Ml/Oc9cofLDXyPxISlQ==
-X-Received: by 2002:a17:902:7487:: with SMTP id h7mr1389536pll.25.1586890552779;
-        Tue, 14 Apr 2020 11:55:52 -0700 (PDT)
-Received: from [192.168.1.32] ([116.88.148.100])
-        by smtp.gmail.com with ESMTPSA id h14sm2889090pjc.46.2020.04.14.11.55.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Apr 2020 11:55:52 -0700 (PDT)
-Subject: Re: Should io_sq_thread belongs to specific cpu, not io_uring
- instance
-To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        io-uring@vger.kernel.org, "axboe@kernel.dk" <axboe@kernel.dk>,
-        joseph qi <joseph.qi@linux.alibaba.com>,
-        asaf.cidon@columbia.edu, stutsman@cs.utah.edu
-References: <16ed5a58-e011-97f3-0ed7-e57fa37cede1@linux.alibaba.com>
-From:   Yu Jian Wu <yujian.wu1@gmail.com>
-Message-ID: <e876a7e8-982b-a193-f4dc-56e7e990b7c5@gmail.com>
-Date:   Tue, 14 Apr 2020 14:55:25 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=5oGa0W5Fsbmz/lO6hF1+2jTv7urB98e3nfs+3wn0Vig=;
+        b=tb2vzZ+eewt+Or3Ir6tlr+yiZNY4laaOjmj2eGZZ82sBNreT4mvbvRMAUGu5ccQzv3
+         x4dJAex8Ue+x2N5jT2LdJ/N3E2pJ9J6LbI8nN2vp0l1UtZKIDnV73bSFjJ7QKD7bSQTv
+         pc0H5na90f0sM2x0Jgy/nWGiGDb+VHWu23EeQBA/ZJXIjjuTS31zpnuxoN4Jjl5SE6US
+         sljnJq4+zQDSuYIAPSv4E0DSAEYO+J22IcDZ5tB1m1yl35RwXe1GND8jo2n7JaT9N/xl
+         e9s3YzX464aPaTs22PabOsE03oxqujqtL+v0NaOh9FjdcN1thoGH6L7EbjGwsqnzcsww
+         GTkg==
+X-Gm-Message-State: AGi0PuYDPVroeY9Tejoa85XorPzY53fRPtOq9a5X7GRMuBFhP4U5VQQL
+        JIZAVGXy69+8A03GvV1PXiN4auyG
+X-Google-Smtp-Source: APiQypItW45WYuXZncl4kfqerD6okM58sIxIEne+4I2UT+ItdNwk77XEC07LR1Pz+sIcWu61K9PWow==
+X-Received: by 2002:a5d:4645:: with SMTP id j5mr8777977wrs.282.1586900462404;
+        Tue, 14 Apr 2020 14:41:02 -0700 (PDT)
+Received: from localhost.localdomain ([109.126.129.227])
+        by smtp.gmail.com with ESMTPSA id l185sm20320540wml.44.2020.04.14.14.41.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2020 14:41:02 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] io_uring: kill already cached timeout.seq_offset
+Date:   Wed, 15 Apr 2020 00:39:49 +0300
+Message-Id: <1a62f615d10d81ff2b99eb1bcb087a620c96ab69.1586899625.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1586899625.git.asml.silence@gmail.com>
+References: <cover.1586899625.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <16ed5a58-e011-97f3-0ed7-e57fa37cede1@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+req->timeout.count and req->io->timeout.seq_offset store the same value,
+which is sqe->off. Kill the second one
 
-On 4/14/20 9:08 AM, Xiaoguang Wang wrote:
-> hi，
->
-> Currently we can create multiple io_uring instances which all have SQPOLL
-> enabled and make them run in the same cpu core by setting sq_thread_cpu
-> argument, but I think this behaviour maybe not efficient. Say we create two
-> io_uring instances, which both have sq_thread_cpu set to 1 and sq_thread_idle
-> set to 1000 milliseconds, there maybe such scene below:
->   For example, in 0-1s time interval, io_uring instance0 has neither sqes
-> nor cqes, so it just busy waits for new sqes in 0-1s time interval, but
-> io_uring instance1 have work to do, submitting sqes or polling issued requests,
-> then io_uring instance0 will impact io_uring instance1. Of cource io_uring
-> instance1 may impact iouring instance0 as well, which is not efficient. I think
-> the complete disorder of multiple io_uring instances running in same cpu core is
-> not good.
->
-> How about we create one io_sq_thread for user specified cpu for multiple io_uring
-> instances which try to share this cpu core, that means this io_sq_thread does not
-> belong to specific io_uring instance, it belongs to specific cpu and will
-> handle requests from mulpile io_uring instance, see simple running flow:
->   1, for cpu 1, now there are no io_uring instances bind to it, so do not create io_sq_thread
->   2, io_uring instance1 is created and bind to cpu 1, then create cpu1's io_sq_thread
->   3, io_sq_thread will handle io_uring instance1's requests
->   4, io_uring instance2 is created and bind to cpu 1, since there are already an
->      io_sq_thread for cpu 1, will not create an io_sq_thread for cpu1.
->   5. now io_sq_thread in cpu1 will handle both io_uring instances' requests.
->
-> What do you think about it? Thanks.
->
-> Regards,
-> Xiaoguang Wang
->
-Hi Xiaoguang,
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-We (a group of researchers at Utah and Columbia) are currently trying that right now.
-
-We have an initial prototype going, and we are assessing the performance impact now to see if we can see gains. Basically, have a rcu-list of io_uring_ctx and then traverse the list and do work in a shared io_sq_thread. We are starting experiments on a machine with fast SSDs where we hope to see some performance benefits.
-
-We will send the list of patches soon, once we are sure the approach works and we finish cleaning it up. (There is a subtlety of what to do with the timeouts and resched() when not pinning.)
-
-We'll keep you in the loop on any updates. Feel free to contact any of us.
-
-Thanks,
-
-Yu Jian Wu
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fcc320d67606..e69cb70c11d4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -357,7 +357,6 @@ struct io_timeout_data {
+ 	struct hrtimer			timer;
+ 	struct timespec64		ts;
+ 	enum hrtimer_mode		mode;
+-	u32				seq_offset;
+ };
+ 
+ struct io_accept {
+@@ -385,7 +384,7 @@ struct io_timeout {
+ 	struct file			*file;
+ 	u64				addr;
+ 	int				flags;
+-	unsigned			count;
++	u32				count;
+ };
+ 
+ struct io_rw {
+@@ -4668,11 +4667,11 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 
+ static int io_timeout(struct io_kiocb *req)
+ {
+-	unsigned count;
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct io_timeout_data *data;
+ 	struct list_head *entry;
+ 	unsigned span = 0;
++	u32 count = req->timeout.count;
+ 	u32 seq = req->sequence;
+ 
+ 	data = &req->io->timeout;
+@@ -4682,7 +4681,6 @@ static int io_timeout(struct io_kiocb *req)
+ 	 * timeout event to be satisfied. If it isn't set, then this is
+ 	 * a pure timeout request, sequence isn't used.
+ 	 */
+-	count = req->timeout.count;
+ 	if (!count) {
+ 		req->flags |= REQ_F_TIMEOUT_NOSEQ;
+ 		spin_lock_irq(&ctx->completion_lock);
+@@ -4691,7 +4689,6 @@ static int io_timeout(struct io_kiocb *req)
+ 	}
+ 
+ 	req->sequence = seq + count;
+-	data->seq_offset = count;
+ 
+ 	/*
+ 	 * Insertion sort, ensuring the first entry in the list is always
+@@ -4702,7 +4699,7 @@ static int io_timeout(struct io_kiocb *req)
+ 		struct io_kiocb *nxt = list_entry(entry, struct io_kiocb, list);
+ 		unsigned nxt_seq;
+ 		long long tmp, tmp_nxt;
+-		u32 nxt_offset = nxt->io->timeout.seq_offset;
++		u32 nxt_offset = nxt->timeout.count;
+ 
+ 		if (nxt->flags & REQ_F_TIMEOUT_NOSEQ)
+ 			continue;
+-- 
+2.24.0
 

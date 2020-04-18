@@ -2,293 +2,152 @@ Return-Path: <SRS0=2Epd=6C=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02A49C38A29
-	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 071E8C352BE
+	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 18:19:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDA76221E9
-	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C5F6321BE5
+	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 18:19:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DhqbnYVA"
+	dkim=pass (2048-bit key) header.d=fastmail.com header.i=@fastmail.com header.b="PqiRQsbX";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="EaJ+3SS4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726601AbgDRRV0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 18 Apr 2020 13:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57218 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725887AbgDRRVZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Apr 2020 13:21:25 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D380C061A0C;
-        Sat, 18 Apr 2020 10:21:25 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id u127so5277101wmg.1;
-        Sat, 18 Apr 2020 10:21:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=2qln2BrWKe8omgaN13hNRjkAUAOmpf7mNlE4/eWuU6Y=;
-        b=DhqbnYVAUZUKc9v2CE7vfq//B4GKa6Qupn5d0rus0xYHK/7OTJ7WDcov9aB+Ipebo3
-         ydRuBM/Jap5fqsrH/ezbZ9oUnB7dSrMIeCTuBlCVTIs1rSRU0k70tsdZUDAQgPSpaiq1
-         l2ZPUVpNvXqGZdn/4wGNgRuhLMvXepSrdgFgxm7KHL8FdiWLm3v5+ZZm+lyW6Cb2k60I
-         bBfER8nt2YMQt5/67Q8zKw2KBuao53lPysHjwB2Q4/DYuD/6U0AOg3nrG4Wyt/N0j8PZ
-         0e/deWIQT1L7M+Tot4IVsnUeVH6oEBvdP+TWtgwlL1H6vaZZb0TFvy4IKh1ckcIR8FO9
-         hdLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=2qln2BrWKe8omgaN13hNRjkAUAOmpf7mNlE4/eWuU6Y=;
-        b=aQwbMuJ4rnDna6UmUhis1bO/18RHKVhMygVIKi6blmabwvt3JDBg4f6eiHWKTFD3Ug
-         38JR9DBtaBK65GE6KynO/SFF3GUF7rvxdLcWWFoOmilDXn7U/jbr8PJ8XgYWAkD7rb75
-         /akuFQark+o/Gfdr03ROpc24odlyLBJI6D/q0+nddCGHipmh3r45cAEzqBSxsan17GdU
-         qsNyQFaq8xaMkMmzlbDoA4NSEK/jZjh4CHhRsiQpYb7pC12xADHQD3dfhdPRdu4ah5Gv
-         OQST5CnHjCnLAOwE2W1VBcOaMEKF5H/E7sp5FgY5a6wyrYBcx1FHsWU7z3xWnRVidyFp
-         lLmQ==
-X-Gm-Message-State: AGi0PuYwPqeYiA+oOrgaKHyRlg0AmDfzSeC/GlA1cyt1/hB5r72+k/Dm
-        JY0mB5s9+pJjqCx9gcEkZ6U=
-X-Google-Smtp-Source: APiQypLzJcnSVlfLgNK8ib4jKI7WBrE2VctjUK7WSiAhl4oDee5Y/ENoqJp7vADh3LMmuL0KelDONQ==
-X-Received: by 2002:a1c:2e07:: with SMTP id u7mr8918307wmu.74.1587230483728;
-        Sat, 18 Apr 2020 10:21:23 -0700 (PDT)
-Received: from localhost.localdomain ([109.126.129.227])
-        by smtp.gmail.com with ESMTPSA id b85sm12538247wmb.21.2020.04.18.10.21.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Apr 2020 10:21:23 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] io_uring: trigger timeout after any sqe->off CQEs
-Date:   Sat, 18 Apr 2020 20:20:10 +0300
-Message-Id: <28005ea0de63e15dbffd87a49fe9b671f1afa87e.1587229607.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1587229607.git.asml.silence@gmail.com>
-References: <cover.1587229607.git.asml.silence@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726036AbgDRSTP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 18 Apr 2020 14:19:15 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:47965 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725824AbgDRSTP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Apr 2020 14:19:15 -0400
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0780C5C00D4;
+        Sat, 18 Apr 2020 14:19:14 -0400 (EDT)
+Received: from imap21 ([10.202.2.71])
+  by compute7.internal (MEProxy); Sat, 18 Apr 2020 14:19:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=
+        mime-version:message-id:in-reply-to:references:date:from:to:cc
+        :subject:content-type:content-transfer-encoding; s=fm2; bh=VtsLA
+        ZYUyfcBaXYjFlEj1dPwFTtei1tGcP9cncva88Y=; b=PqiRQsbXQr993ADXbbBqD
+        lVsaekSeB/UYZ7VLAq4DIR9Q0v6DGFcTVC7ZnhOtpHAtX8KBT2z9I95w83e5UUcm
+        36cIFz5WAg3vdKMJr42P6UveOug1hbig34WjYO/wO7sUoJr5ypJRb6nrQz8n0HeP
+        cRqfCcYnPBOd5oj8LwkDWKkNW743VXB8PVlDcTLZboZgp0obNCaIhDSAouOIyHt5
+        HTJz0sup1xSo7r9LLo7bYN+TTO4w1L/caC32SUrSW3auRC5JT+gdPi8hQvjYsEGl
+        UEJjmWwpuf3k716+UAlq71RZVZbxz+Z5pD0WhrH1KN7DcWBPFZ616fIr6Jjx852f
+        g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=VtsLAZYUyfcBaXYjFlEj1dPwFTtei1tGcP9cncva8
+        8Y=; b=EaJ+3SS4vWevZ9d/i1qz+9Rr5/Xjgsk38Npu20TX6iVISFsUYiKaS02Ej
+        eBNlkGR2k4WqnUaXJ8COYrK5vnTacKhvYCa8FTfq4YnW0j9UeVfv3qMEQDTCSy36
+        yH0P2Jl9I/tbq2IWpBrp9K33jROcDYAfG6FbkxSpbvxPu0msRq3UCm0nzM1bMGXZ
+        1a7+YkF/Pny/Mny5mthox4Sb5SWRM44iRr6QVvOuRlXhAfYLx2RD6czNFqSKS+5o
+        hJQD65v/2xcQM1N28dNVN5yoEXKZmlQ4nQTv49JOpwt+5JzvXPnzDGGbH77uIm6W
+        41DW2OhcMENaTXMKc+nh8bykG8z+Q==
+X-ME-Sender: <xms:oUSbXmCd8KqnvPiG3A5eD64k1KFj03Kt7xWWfES-9gm290BoPgrdQg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeelgdduvdejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefofgggkfgjfhffhffvufgtgfesth
+    hqredtreerjeenucfhrhhomhepfdfjrdcuuggvucggrhhivghsfdcuoehhuggvvhhrihgv
+    shesfhgrshhtmhgrihhlrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpd
+    htfihithhtvghrrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
+    rghilhhfrhhomhephhguvghvrhhivghssehfrghsthhmrghilhdrtghomh
+X-ME-Proxy: <xmx:oUSbXmi5WSOB3pa_2nRqw9DtD9deO-h_doHKBDJM362aEMQL5LQGrg>
+    <xmx:oUSbXkbKZ1n4qsN8Sh28bBs4K61EsIfXVFhiZfuemXhq_XVjX58tzg>
+    <xmx:oUSbXnkU5j9aSj824L7KD83O8ZHFSctfZYRnpN19r8RuEQDUvRy3kQ>
+    <xmx:okSbXmiOugCRPSdgJo-le-PuqGV6CwtTPhTAQq6OZrar0y0u0rNKvQ>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 748CA660069; Sat, 18 Apr 2020 14:19:13 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.1.7-1131-g3221b37-fmstable-20200415v1
+Mime-Version: 1.0
+Message-Id: <44ccd560-e00a-47d9-a728-89380f2ba2e3@www.fastmail.com>
+In-Reply-To: <50567b86-fa5d-b8a7-863d-978420b3e0f8@gmail.com>
+References: <08ef10c8-90f3-4777-89ab-f9245dc03466@www.fastmail.com>
+ <50567b86-fa5d-b8a7-863d-978420b3e0f8@gmail.com>
+Date:   Sat, 18 Apr 2020 20:18:53 +0200
+From:   "H. de Vries" <hdevries@fastmail.com>
+To:     "Pavel Begunkov" <asml.silence@gmail.com>,
+        io-uring <io-uring@vger.kernel.org>
+Cc:     axboe@kernel.dk
+Subject: Re: Suggestion: chain SQEs - single CQE for N chained SQEs
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-sequence mode timeouts wait not for sqe->off CQEs, but rather
-sqe->off + number of prior inflight requests with a quirk ignoring other
-timeouts completions. Wait exactly for sqe->off using completion count
-(tail) for accounting.
+Hi Pavel,
 
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 120 +++++++++++++++++++-------------------------------
- 1 file changed, 46 insertions(+), 74 deletions(-)
+Yes, [1] is what I mean. In an event loop every CQE is handled by a new =
+iteration in the loop, this is the "expensive" part. Less CQEs, less ite=
+rations. It is nice to see possible kernel performance gains [2] as well=
+, but I suggested this specifically in the case of event loops.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8ee7b4f72b8f..c34c5dcc90fc 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -384,7 +384,8 @@ struct io_timeout {
- 	struct file			*file;
- 	u64				addr;
- 	int				flags;
--	u32				count;
-+	u32				off;
-+	u32				target_cq;
- };
- 
- struct io_rw {
-@@ -982,23 +983,6 @@ static struct io_kiocb *io_get_deferred_req(struct io_ring_ctx *ctx)
- 	return NULL;
- }
- 
--static struct io_kiocb *io_get_timeout_req(struct io_ring_ctx *ctx)
--{
--	struct io_kiocb *req;
--
--	req = list_first_entry_or_null(&ctx->timeout_list, struct io_kiocb, list);
--	if (req) {
--		if (req->flags & REQ_F_TIMEOUT_NOSEQ)
--			return NULL;
--		if (!__req_need_defer(req)) {
--			list_del_init(&req->list);
--			return req;
--		}
--	}
--
--	return NULL;
--}
--
- static void __io_commit_cqring(struct io_ring_ctx *ctx)
- {
- 	struct io_rings *rings = ctx->rings;
-@@ -1114,12 +1098,42 @@ static void io_kill_timeouts(struct io_ring_ctx *ctx)
- 	spin_unlock_irq(&ctx->completion_lock);
- }
- 
-+static inline bool io_check_in_range(u32 pos, u32 start, u32 end)
-+{
-+	/* if @end < @start, check for [end, MAX_UINT] + [MAX_UINT, start] */
-+	return (pos - start) <= (end - start);
-+}
-+
-+static void __io_flush_timeouts(struct io_ring_ctx *ctx)
-+{
-+	u32 end, start;
-+
-+	start = end = ctx->cached_cq_tail;
-+	do {
-+		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
-+							struct io_kiocb, list);
-+
-+		if (req->flags & REQ_F_TIMEOUT_NOSEQ)
-+			break;
-+		/*
-+		 * multiple timeouts may have the same target,
-+		 * check that @req is in [first_tail, cur_tail]
-+		 */
-+		if (!io_check_in_range(req->timeout.target_cq, start, end))
-+			break;
-+
-+		list_del_init(&req->list);
-+		io_kill_timeout(req);
-+		end = ctx->cached_cq_tail;
-+	} while (!list_empty(&ctx->timeout_list));
-+}
-+
- static void io_commit_cqring(struct io_ring_ctx *ctx)
- {
- 	struct io_kiocb *req;
- 
--	while ((req = io_get_timeout_req(ctx)) != NULL)
--		io_kill_timeout(req);
-+	if (!list_empty(&ctx->timeout_list))
-+		__io_flush_timeouts(ctx);
- 
- 	__io_commit_cqring(ctx);
- 
-@@ -4540,20 +4554,8 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
- 	 * We could be racing with timeout deletion. If the list is empty,
- 	 * then timeout lookup already found it and will be handling it.
- 	 */
--	if (!list_empty(&req->list)) {
--		struct io_kiocb *prev;
--
--		/*
--		 * Adjust the reqs sequence before the current one because it
--		 * will consume a slot in the cq_ring and the cq_tail
--		 * pointer will be increased, otherwise other timeout reqs may
--		 * return in advance without waiting for enough wait_nr.
--		 */
--		prev = req;
--		list_for_each_entry_continue_reverse(prev, &ctx->timeout_list, list)
--			prev->sequence++;
-+	if (!list_empty(&req->list))
- 		list_del_init(&req->list);
--	}
- 
- 	io_cqring_fill_event(req, -ETIME);
- 	io_commit_cqring(ctx);
-@@ -4633,18 +4635,19 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- {
- 	struct io_timeout_data *data;
- 	unsigned flags;
-+	u32 off = READ_ONCE(sqe->off);
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->buf_index || sqe->len != 1)
- 		return -EINVAL;
--	if (sqe->off && is_timeout_link)
-+	if (off && is_timeout_link)
- 		return -EINVAL;
- 	flags = READ_ONCE(sqe->timeout_flags);
- 	if (flags & ~IORING_TIMEOUT_ABS)
- 		return -EINVAL;
- 
--	req->timeout.count = READ_ONCE(sqe->off);
-+	req->timeout.off = off;
- 
- 	if (!req->io && io_alloc_async_ctx(req))
- 		return -ENOMEM;
-@@ -4668,68 +4671,37 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- static int io_timeout(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
--	struct io_timeout_data *data;
-+	struct io_timeout_data *data = &req->io->timeout;
- 	struct list_head *entry;
--	unsigned span = 0;
--	u32 count = req->timeout.count;
--	u32 seq = req->sequence;
-+	u32 tail, off = req->timeout.off;
- 
--	data = &req->io->timeout;
-+	spin_lock_irq(&ctx->completion_lock);
- 
- 	/*
- 	 * sqe->off holds how many events that need to occur for this
- 	 * timeout event to be satisfied. If it isn't set, then this is
- 	 * a pure timeout request, sequence isn't used.
- 	 */
--	if (!count) {
-+	if (!off) {
- 		req->flags |= REQ_F_TIMEOUT_NOSEQ;
--		spin_lock_irq(&ctx->completion_lock);
- 		entry = ctx->timeout_list.prev;
- 		goto add;
- 	}
- 
--	req->sequence = seq + count;
-+	tail = ctx->cached_cq_tail;
-+	req->timeout.target_cq = tail + off;
- 
- 	/*
- 	 * Insertion sort, ensuring the first entry in the list is always
- 	 * the one we need first.
- 	 */
--	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_prev(entry, &ctx->timeout_list) {
- 		struct io_kiocb *nxt = list_entry(entry, struct io_kiocb, list);
--		unsigned nxt_seq;
--		long long tmp, tmp_nxt;
--		u32 nxt_offset = nxt->timeout.count;
--
--		if (nxt->flags & REQ_F_TIMEOUT_NOSEQ)
--			continue;
--
--		/*
--		 * Since seq + count can overflow, use type long
--		 * long to store it.
--		 */
--		tmp = (long long)seq + count;
--		nxt_seq = nxt->sequence - nxt_offset;
--		tmp_nxt = (long long)nxt_seq + nxt_offset;
-+		u32 nxt_off = nxt->timeout.target_cq - tail;
- 
--		/*
--		 * cached_sq_head may overflow, and it will never overflow twice
--		 * once there is some timeout req still be valid.
--		 */
--		if (seq < nxt_seq)
--			tmp += UINT_MAX;
--
--		if (tmp > tmp_nxt)
-+		if (!(nxt->flags & REQ_F_TIMEOUT_NOSEQ) && (off >= nxt_off))
- 			break;
--
--		/*
--		 * Sequence of reqs after the insert one and itself should
--		 * be adjusted because each timeout req consumes a slot.
--		 */
--		span++;
--		nxt->sequence++;
- 	}
--	req->sequence -= span;
- add:
- 	list_add(&req->list, entry);
- 	data->timer.function = io_timeout_fn;
--- 
-2.24.0
+Can you elaborate on =E2=80=9Chandling links from the user side=E2=80=9D=
+?=20
 
+[2]=20
+https://lore.kernel.org/io-uring/56a18348-2949-e9da-b036-600b5bb4dad2@ke=
+rnel.dk/#t
+
+--
+Hielke de Vries
+
+
+On Sat, Apr 18, 2020, at 15:50, Pavel Begunkov wrote:
+> On 4/18/2020 3:49 PM, H. de Vries wrote:
+> > Hi,
+> >=20
+> > Following up on the discussion from here: https://twitter.com/i/stat=
+us/1234135064323280897 and https://twitter.com/hielkedv/status/125044564=
+7565729793
+> >=20
+> > Using io_uring in event loops with IORING_FEAT_FAST_POLL can give a =
+performance boost compared to epoll (https://twitter.com/hielkedv/status=
+/1234135064323280897). However we need some way to manage 'in-flight' bu=
+ffers, and IOSQE_BUFFER_SELECT is a solution for this.=20
+> >=20
+> > After a buffer has been used, it can be re-registered using IOSQE_BU=
+FFER_SELECT by giving it a buffer ID (BID). We can also initially regist=
+er a range of buffers, with e.g. BIDs 0-1000 . When buffer registration =
+for this range is completed, this will result in a single CQE.=20
+> >=20
+> > However, because (network) events complete quite random, we cannot r=
+e-register a range of buffers. Maybe BIDs 3, 7, 39 and 420 are ready to =
+be reused, but the rest of the buffers is still in-flight. So in each it=
+eration of the event loop we need to re-register the buffer, which will =
+result in one additional CQE for each event. The amount of CQEs to be ha=
+ndled in the event loop now becomes 2 times as much. If you're dealing w=
+ith 200k requests per second, this can result in quite some performance =
+loss.
+> >=20
+> > If it would be possible to register multiple buffers by e.g. chainin=
+g multiple SQEs that would result in a single CQE, we could save many ev=
+ent loop iterations and increase performance of the event loop.
+>=20
+> I've played with the idea before [1], it always returns only one CQE p=
+er
+> link, (for the last request on success, or for a failed one otherwise)=
+.
+> Looks like what you're suggesting. Is that so? As for me, it's just
+> simpler to deal with links on the user side.
+>=20
+> It's actually in my TODO for 5.8, but depends on some changes for
+> sequences/drains/timeouts, that hopefully we'll push soon. We just nee=
+d
+> to be careful to e.g. not lose CQEs with BIDs for IOSQE_BUFFER_SELECT
+> requests.
+>=20
+> [1]
+> https://lore.kernel.org/io-uring/1a9a6022-7175-8ed3-4668-e4de3a2b9ff7@=
+gmail.com/
+>=20
+> --=20
+> Pavel Begunkov
+>

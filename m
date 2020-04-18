@@ -2,68 +2,71 @@ Return-Path: <SRS0=2Epd=6C=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3F3CC38A29
-	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD6A6C38A29
+	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD0E020776
-	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D02A221E9
+	for <io-uring@archiver.kernel.org>; Sat, 18 Apr 2020 17:21:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PKlV8rD5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NFhrdY0b"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725903AbgDRRVY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 18 Apr 2020 13:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57212 "EHLO
+        id S1725887AbgDRRV3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 18 Apr 2020 13:21:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725887AbgDRRVY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Apr 2020 13:21:24 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64B9C061A0C;
-        Sat, 18 Apr 2020 10:21:23 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id z6so6384698wml.2;
-        Sat, 18 Apr 2020 10:21:23 -0700 (PDT)
+        with ESMTP id S1726677AbgDRRV0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Apr 2020 13:21:26 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566A0C061A0C;
+        Sat, 18 Apr 2020 10:21:26 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id j2so6730493wrs.9;
+        Sat, 18 Apr 2020 10:21:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=3Mmyrgp0gwbPy6iOJUPF/mmRY393aiDlZLAI44AwPnY=;
-        b=PKlV8rD5CiWKWjGUgZHEn7MV3BvKjxu5WxiIqR1UnvYtq3UeE/1Np9m4rHOGycHAcz
-         Qv02GlkcSHX34Obl14fZcil8Yn2wuBVtJ/Df8WudJ+mONpXAhQXH3gjbXTMhd9cjmGVM
-         vke2AET9Wk63y+GQcxFmPgRplSNAy28LR5bAPL2T9PkFy1ymGI5q/wU+JM3ZVov42GjV
-         kSNAWf+2KRNXz7gzS9K2PnAO9kifPYoBPjV8EqPSokrH+JsGc0hPuL6NmePyWmcTgx+C
-         ucRLyIxrmMXzRHYu7qjtAb5yhGskSoa/PdiQ7q6lAg4ITP0JYT937x5Vckzvy+1YGybJ
-         cW3Q==
+        bh=opwq7WaemVsGEJNw3wCSS+8VjmvBFuq9wKON3tO4pE8=;
+        b=NFhrdY0b5xd8EReKFIhJHKMBtlbDK6n4dbLwv1AEz7zogoE1E5G/BGD+V/FoLrXYAg
+         gLi2Quz9eAaQLJmLOzKCgtdgdNdVbT7mWprDUe8CpyFQZKhS6aBeV8zKFZzNCHPvTKe6
+         v2vJDsohwq03JnOzZrDCQd/xdlONAlIWh0laxM1VprLTIXc39fsEMt1Kvyrw0pUdZw3j
+         sfsaQHQZRJhxoJSajjB/N325IUBapACIm2ZigFpvGxOkeH8+dLyWTNXp3KOhxJ5Dbrov
+         0PNTbAPYeNTDk5vA8D+umvEcAxsDqnAtF9djnSwhF/DC/PHms2/RZ087QjHjpdw1Z2yj
+         fhVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3Mmyrgp0gwbPy6iOJUPF/mmRY393aiDlZLAI44AwPnY=;
-        b=FFahLyrNtWF5MrL4YAzJAOPYOsJK0Gtt025obq2X85VJ0MXWGUUjw0F/t3Q7tdT/P7
-         +kRUf9x1jOyXpKewtN3rqJbTdUgLrtNPTIx0lzH7tJSFkff6Ftiso+Xh7bl5JbLMFb4l
-         rlVFBFMzBHLE4EuXRW2u6OVx1FmMrjieL45MGTBn/EAfnFiWhpsz862ks2RUlrWs/CNE
-         kKkz0aI2PHE5uBcCI8NbFcGu8O1giEvBc0+d0xZvHjEtRYgvHa6/868U8x97ejQDQja7
-         mf/9loiW4TuqjiiZbp2LlFQOMUxzKwElb7mbjbncDYrnLln+xj7Rkr9bYYeC9gDCcQJN
-         wskg==
-X-Gm-Message-State: AGi0PuaFe/BQbpTVeyp9frH/8vn4agrMQgp2J+jqoFxd+HJcuF7aVF2B
-        7VEE9DM5O+hHMBEuV3HgyWBmuSuO
-X-Google-Smtp-Source: APiQypIRlBCTZlXxHVqWq17ZY/wPksDEr9J5qLbuTCyeGbBLxwEaquHKaj9BCAioBLUjmVAeDNGuIg==
-X-Received: by 2002:a7b:c944:: with SMTP id i4mr9501673wml.144.1587230482199;
-        Sat, 18 Apr 2020 10:21:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=opwq7WaemVsGEJNw3wCSS+8VjmvBFuq9wKON3tO4pE8=;
+        b=APvKcJqta6suGG6CLx01NST02Kk++TRjhEwsy8EZcGsPyQOQFUdIGxSYnoZNqjn7+L
+         601AgLP5/q/Y35RyO7W3Nn4Hu/uiC/0T1RyQgEbMgmkYEcnOZG8CSiE/kheMJIgSBwLw
+         y4YRAuL2qctTkLMtttMhrEw7+9pxmoBMySfIOXv5HcB5TVCzBWMUuhoimgfJaGB9K7q8
+         firfgWe+XEAk0FElrVpRkbc8V4UFlGfrlw1P7xLdFEF6dSpU+x+saepszDOUPJ4d985t
+         9r99DRb8j9dJitV/pcbrq1xO9J7lvJ0MtS5qWj7g4ECQiLbzT6ccj3Rw6upspqkESrSX
+         2RQg==
+X-Gm-Message-State: AGi0PuYlqB6TgUp1vrKYk6Mi+cCj3leAP3872SMovkWX+67KZX8DVgZv
+        TyHcHQXSZ5hXgZrhpOYepW6O0zUy
+X-Google-Smtp-Source: APiQypI7GMOOOS78s5pGpgv6Ud1dHvPJHI0i3erQhI/DkAJaavNBqWiQ2OvqhXT+DLOoU28t2ND/7Q==
+X-Received: by 2002:adf:82a6:: with SMTP id 35mr9437869wrc.378.1587230484932;
+        Sat, 18 Apr 2020 10:21:24 -0700 (PDT)
 Received: from localhost.localdomain ([109.126.129.227])
-        by smtp.gmail.com with ESMTPSA id b85sm12538247wmb.21.2020.04.18.10.21.20
+        by smtp.gmail.com with ESMTPSA id b85sm12538247wmb.21.2020.04.18.10.21.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Apr 2020 10:21:21 -0700 (PDT)
+        Sat, 18 Apr 2020 10:21:24 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] CQ vs SQ timeout accounting
-Date:   Sat, 18 Apr 2020 20:20:09 +0300
-Message-Id: <cover.1587229607.git.asml.silence@gmail.com>
+Subject: [PATCH 2/2] io_uring: don't trigger timeout with another t-out
+Date:   Sat, 18 Apr 2020 20:20:11 +0300
+Message-Id: <bcbbaa59d9edd2174c6d6a5303f76dba191b00c8.1587229607.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1587229607.git.asml.silence@gmail.com>
+References: <cover.1587229607.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,22 +74,63 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The first patch do the job, and triggers after __any__ CQEs, including
-ones from other timeouts. And it obviously fails to pass the tests. The
-second patch makes it to count only non-timeout CQEs, and passes
-the tests. Feel free to squash them.
+When deciding whether to fire a timeout basing on number of completions,
+ignore CQEs emitted by other timeouts.
 
-Fixes Hrvoje's issue. Also, there is one more bug to be fixed.
-It's related to bulk completion, and manifests itself with both
-implementations.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
-Pavel Begunkov (2):
-  io_uring: trigger timeout after any sqe->off CQEs
-  io_uring: don't trigger timeout with another t-out
-
- fs/io_uring.c | 107 ++++++++++++++++----------------------------------
- 1 file changed, 33 insertions(+), 74 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c34c5dcc90fc..d72f82c09ce3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1098,33 +1098,20 @@ static void io_kill_timeouts(struct io_ring_ctx *ctx)
+ 	spin_unlock_irq(&ctx->completion_lock);
+ }
+ 
+-static inline bool io_check_in_range(u32 pos, u32 start, u32 end)
+-{
+-	/* if @end < @start, check for [end, MAX_UINT] + [MAX_UINT, start] */
+-	return (pos - start) <= (end - start);
+-}
+-
+ static void __io_flush_timeouts(struct io_ring_ctx *ctx)
+ {
+-	u32 end, start;
+-
+-	start = end = ctx->cached_cq_tail;
+ 	do {
+ 		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
+ 							struct io_kiocb, list);
+ 
+ 		if (req->flags & REQ_F_TIMEOUT_NOSEQ)
+ 			break;
+-		/*
+-		 * multiple timeouts may have the same target,
+-		 * check that @req is in [first_tail, cur_tail]
+-		 */
+-		if (!io_check_in_range(req->timeout.target_cq, start, end))
++		if (req->timeout.target_cq != ctx->cached_cq_tail
++					- atomic_read(&ctx->cq_timeouts))
+ 			break;
+ 
+ 		list_del_init(&req->list);
+ 		io_kill_timeout(req);
+-		end = ctx->cached_cq_tail;
+ 	} while (!list_empty(&ctx->timeout_list));
+ }
+ 
+@@ -4688,7 +4675,7 @@ static int io_timeout(struct io_kiocb *req)
+ 		goto add;
+ 	}
+ 
+-	tail = ctx->cached_cq_tail;
++	tail = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
+ 	req->timeout.target_cq = tail + off;
+ 
+ 	/*
 -- 
 2.24.0
 

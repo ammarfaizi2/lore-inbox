@@ -2,103 +2,93 @@ Return-Path: <SRS0=dnaJ=6P=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DATE_IN_PAST_06_12,
-	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C577C4724C
-	for <io-uring@archiver.kernel.org>; Fri,  1 May 2020 13:57:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FF9DC4724C
+	for <io-uring@archiver.kernel.org>; Fri,  1 May 2020 14:10:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63E942054F
-	for <io-uring@archiver.kernel.org>; Fri,  1 May 2020 13:57:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCE74206D6
+	for <io-uring@archiver.kernel.org>; Fri,  1 May 2020 14:10:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="sWO4PNY9"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jOHWzx9B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730159AbgEAN5K (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 1 May 2020 09:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
+        id S1728856AbgEAOKw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 1 May 2020 10:10:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730564AbgEANe1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 1 May 2020 09:34:27 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91320C061A0C
-        for <io-uring@vger.kernel.org>; Fri,  1 May 2020 06:34:27 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id hi11so2300209pjb.3
-        for <io-uring@vger.kernel.org>; Fri, 01 May 2020 06:34:27 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728840AbgEAOKw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 1 May 2020 10:10:52 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC50C061A0C;
+        Fri,  1 May 2020 07:10:51 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id x17so11658434wrt.5;
+        Fri, 01 May 2020 07:10:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=+bmrtSHAyFI7P6ziJ3xGe8cTwBT8YOneJTOxmYdhGZc=;
-        b=sWO4PNY9YAPlMcmQTFYRy58u3AGk/QRym0idM1ioVic2+sgGTcaVvxbRjP529xqfKo
-         QIY5xGGj0avqcE8fEdZEcmZttXUyjQhoKQFJR8zc9ocM8keWbLpJ0KDLD+j8WjDDtsdI
-         dhgVsmF0w2V2wqVrSe1MY711Uebu0smXDe3nolZ7UvkpSYjcA29No4nXX1zShE5IrBmO
-         uZcnPFpxjsowt25d6A/HMu+4gw5oTHDNekrJ6CNLntaDKePyVY0pXPTh1+kG2osYMl+H
-         B+RXPJVdTonCU3tSlVFljHkrXOVfL+OHrakrJolGC6ifg5LdN24VKGVbQyp3In3GQjpl
-         TvPA==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8v3kVI4yLmXq/VIVZwurKp05HhbRXPIJFuU6oZF2NPM=;
+        b=jOHWzx9BhQ4y8ZGz0PWAWBQ2u6f3ts0FjGwtdsiTWqULyIFsmvDcGqroerFHny9RFD
+         od6tzLLbejqoaVOTh9BlQUtOVLUNeSusPasRvGSIP3REroL/32aTrBfo7uC7RUxTVq/b
+         FTD7J6lUxNX8QxEz1scF/nMAYV+vsNLFLI+n1PwpI70d2TEWh4aqFg8+Hz09ApHA94lN
+         x6ZLS9zAfSfUFsGolxnFmXrX7pw1OLZq1sQ8KLCgwO6TGdylQToQ6G856CZCknZ+4xD3
+         aDZs41cSEEBL6wobgF0YtE8WkITIThOzcVQuNjGEEYL4kJLgB+sHxd1CgXhF2ecySs+t
+         gGiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=+bmrtSHAyFI7P6ziJ3xGe8cTwBT8YOneJTOxmYdhGZc=;
-        b=GQOescM7jYqIeemHcYisZfhjJF+HrmO78NeYJG3sBfFJ53RZOMv4sB+PHPLMW5iTQl
-         QyVbatMSPqypErg1cBpdP49q0ed8hPwFZoPhKNTx8WOF5cC+oX15RbPTDHOJJwWdKlDG
-         qv0XBgpi/Vdi9rLXl4Qs6F7KApuGehMXQJk2Zoq8QYsnalQ7z40IsvqBi1yLShwHONzo
-         Bfz7TZYdTyIhP7iq7tJwASqy/H9w8yx98GDtvVCd0eGCV76QMfsq1JB7nXYH+CjbV3/B
-         ehZkxHS/dlhRfYo3XcXUxnZ5y8s0DlEKBOxVFIMqLALoW/qeCZIMHywCFW1b7MA2dMDx
-         VITw==
-X-Gm-Message-State: AGi0Pua/gWZtCY89IYtb7g5YIicvshoJzWe3pn5sgzAjs4yoPd/dIE2c
-        rvC5jY3MyBMalBdKaytbhYIv/+iqdp1c0A==
-X-Google-Smtp-Source: APiQypLxg0DxSuXSZ6n95JDcUikNRX6xaAN5w06xsc1r2DmCej7hLmZ2BDXQTy8ezdmV4N/JvVd9Ag==
-X-Received: by 2002:a17:902:20b:: with SMTP id 11mr4070767plc.209.1588340067042;
-        Fri, 01 May 2020 06:34:27 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id i190sm2323153pfe.114.2020.05.01.06.34.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 May 2020 06:34:26 -0700 (PDT)
-Subject: Re: [PATCH 0/5] timeout fixes
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
+        bh=8v3kVI4yLmXq/VIVZwurKp05HhbRXPIJFuU6oZF2NPM=;
+        b=FeNAUNAKL0kVHip8bC7hCqmDEeNAKMLq0O9DX8fjKOvYnCy2PtcxMOCHTKI30+xHJq
+         f2KNTpIb1Zu8GpGLq7Fpd2jZntzsW/vlHbk+MXpJFlmmH4i+EOQ6uQDXIk3dDWeMl+le
+         Q+/t50746RxvwtN5GNNR1Al4foHQ72D8zXun1yxst/xmYZTabUSKh1dEcvKZwqJdPWFL
+         Mg1/6nr7NHg4Edco7YKvC+owoulqPpCvP4jlmiIpg1WhKkDjpg8SLhgoch0aXtLf/Fyd
+         Ph4sqCPIo0j7pbq+eVXuzCKe8Osf8qkYYhCVf3layslmVIYFTo1mjmR/LpfTUPgxxmzo
+         DYgA==
+X-Gm-Message-State: AGi0PuZaGxSrz4831kwz0tw8NY/sgJ7/D+XDHcqCkeuUicGu/m5t6Bvw
+        wfYE2IuIiQYTJJJlSlythx0=
+X-Google-Smtp-Source: APiQypIiZxYqL0xDav+nSqLdWkN2TrUAx4mxObBQYgpVo4Bmyb35Do6Re75IAp97MY1niDRgjBM/3w==
+X-Received: by 2002:adf:9d83:: with SMTP id p3mr4566152wre.142.1588342250199;
+        Fri, 01 May 2020 07:10:50 -0700 (PDT)
+Received: from localhost.localdomain ([109.126.133.135])
+        by smtp.gmail.com with ESMTPSA id j17sm4837390wrb.46.2020.05.01.07.10.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 May 2020 07:10:49 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <cover.1588253029.git.asml.silence@gmail.com>
- <8665e87d-98f8-5973-d11a-03cca3fdf66f@gmail.com>
- <8d9b5e06-4100-c49a-c9ca-0efc389edaf3@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <c7aefe37-d740-5324-905f-1b095cfb4ea7@kernel.dk>
-Date:   Thu, 30 Apr 2020 22:26:11 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Subject: [PATCH 0/3] small fixes for-5.7
+Date:   Fri,  1 May 2020 17:09:35 +0300
+Message-Id: <cover.1588341674.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <8d9b5e06-4100-c49a-c9ca-0efc389edaf3@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 5/1/20 3:38 AM, Pavel Begunkov wrote:
-> On 01/05/2020 11:21, Pavel Begunkov wrote:
->> On 30/04/2020 22:31, Pavel Begunkov wrote:
->>> [1,2] are small random patches.
->>> [3,4] are the last 2 timeout patches, but with 1 var renamed.
->>> [5] fixes a timeout problem related to batched CQ commits. From
->>> what I see, this should be the last fixing timeouts.
->>
->> Something gone wrong with testing or rebasing. Never mind this.
-> 
-> io_uring-5.7 hangs the first test in link_timeout.c. I'll debug it today,
-> but by any chance, does anyone happen to know something?
+I split the sent patchset, please consider this part for current.
 
-That's not your stuff, see:
+I'll send a test for [1] in a day or so.
 
-https://lore.kernel.org/linux-fsdevel/269ef3a5-e30f-ceeb-5f5e-58563e7c5367@kernel.dk/T/#ma61d47f59eaaa7f04ae686c117fab69c957e0d7d
+Regarding [3], Jens, I haven't looked properly yet, how long
+splice can wait on a inode mutex, but it can be problematic,
+especially for latencies. How about go safe for-5.7, and
+maybe think something out for next?
 
-which then just turned into a modification to a patch in io_uring-5.7
-instead. Just force rebase that branch and it should work fine.
+
+Pavel Begunkov (3):
+  io_uring: fix extra put in sync_file_range()
+  io_uring: check non-sync defer_list carefully
+  io_uring: punt splice async because of inode mtx
+
+ fs/io_uring.c | 20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
 
 -- 
-Jens Axboe
+2.24.0
 

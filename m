@@ -2,70 +2,73 @@ Return-Path: <SRS0=Klsc=6Q=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2275FC47258
-	for <io-uring@archiver.kernel.org>; Sat,  2 May 2020 12:10:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 841FDC47254
+	for <io-uring@archiver.kernel.org>; Sat,  2 May 2020 12:10:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE1E9218AC
-	for <io-uring@archiver.kernel.org>; Sat,  2 May 2020 12:10:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63A6C21973
+	for <io-uring@archiver.kernel.org>; Sat,  2 May 2020 12:10:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PQzYJ9ix"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r+QdoZKQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbgEBMKl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 2 May 2020 08:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
+        id S1726654AbgEBMKm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 2 May 2020 08:10:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726654AbgEBMKl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 2 May 2020 08:10:41 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDCC7C061A0C;
-        Sat,  2 May 2020 05:10:40 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id d17so14983515wrg.11;
-        Sat, 02 May 2020 05:10:40 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1727951AbgEBMKm (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 2 May 2020 08:10:42 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9189C061A0C;
+        Sat,  2 May 2020 05:10:41 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id e26so2912613wmk.5;
+        Sat, 02 May 2020 05:10:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=vJlyhcAhYMixlcJSF8vt+n4ES0FGQmrD3QGfxwqt3zI=;
-        b=PQzYJ9ix6jV9aU5NI5U7YFAX6vy8MEnu5LTAvyPNe3YHy7RyAMprIJBeycs/4Bf+KA
-         nIQkMcPbQlhvRnhGfenNyl7SpB0qMz9g0derJ1PTYPKj48gRpC5qa0I9C7aSIX40mqK1
-         Py+utPjQzPdlc1j45co6E2/S2k+/ncdBFbbY5R/DwEHeKAlgWpKPr79x3UuInhcPFXTo
-         86a0LzJZe0ylzHz4kyES0Dd1KpkIeSTNfIsSajTC6QnhIF6gstkhc58hiO3a81ee1TzA
-         SWC+p/Sc7q+8goJW2dQdhJlpAF43cx2t0qJWy9ZyJpAB4TrKxHBNKQh5j52znI4opexQ
-         jOpg==
+        bh=KpfvJecLL3a77wRaEiE1iD1YWA6MRqbUFAwQ0V5rD8U=;
+        b=r+QdoZKQ3oV2+/dqyF9Q3ZPu7/x2VEIRUn2uWg0aEpfVMc975LtdWxKusSEWm+zFnh
+         3MJdfLLu/K/AhjZBr9w4ynM5LF3mQFxi/+qWORR/+IZQ5CdYgzzYXWzuKRFYTnkolhY/
+         DAfrnxESyd3hdYujeJEifJvIjQZE+BUemuu1HJXKKDhJRmQDT8cjA4+n4aXDBJCm0lxz
+         Vm0k8dI9R0hNt91uBMnuyf7ked/Q1SEz/n2Uf72fJa6YYdw5zSpPKy6yXzU7euytKnLN
+         FEjCPXW+RQx8X2vTrcxIsmc5dEct+Ks+09BkPWWaSCfrKZ3SQCHUTyFx0ksgVdids4XY
+         uvOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vJlyhcAhYMixlcJSF8vt+n4ES0FGQmrD3QGfxwqt3zI=;
-        b=uFrz/eN4KiM+QRKWAJPo/iqDLTTTYzwxYnf4hs8PLY9cQMM+xTLEAz5jsk4Y9pilcY
-         cNgttIPSieVGQMVhSlylynN6QQlw+Yt9Z266KGAMXIw9b5yhTGxtZAWd+ckOwlRVU6V7
-         64Nu4tX02xJMk9j8LUcYGD2RTBcBdKxTg0Ig42hY2B1cjSMm3D0Dii1TFohiMqH7fnt2
-         ZT2hXNgUxdicCalA8mHj0JGxDPLPp1M9tMGBY0k95tfYTEftHvbRQqNUdUtT2iBGi86U
-         zP7F6jTvmCcx90tOXUWMWDoCtVi7WaRWLMW92JVStk19C3ptL+FgNFQVM5XkjjlNllWQ
-         z5jQ==
-X-Gm-Message-State: AGi0PuZorXrh6AnAWNuZk/ZExQueIsk11B/MoGLPd1Cvnnb0wNdexoQM
-        8338JZdF/hKhP1vhGs8ENSE=
-X-Google-Smtp-Source: APiQypIwCyHAm1w5bTLfIb0CFsuT+6IqwKZq5xo/9jwFYpoqiWfZE9tl41owZS9plmv5cQlNZQgYZA==
-X-Received: by 2002:adf:df82:: with SMTP id z2mr9913988wrl.58.1588421436926;
-        Sat, 02 May 2020 05:10:36 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=KpfvJecLL3a77wRaEiE1iD1YWA6MRqbUFAwQ0V5rD8U=;
+        b=FDhzR692EHcOqnUDUXmhwR+vFdz4U7mvHa3fpD8tCcOnU4DVnqSDYZDyFFxJ/XMHyJ
+         EmFKkBTTBNBb/3meSIB+tDyw8Sp02bxLD9zUuEFGNNip6WsoAHvsEtHVgSJoHqP3gbDW
+         bXniBZj/AhQUP1F0qRRP3Ynowfa5ST0mQsA+eiJN5ZC9PXzsm3pTklcteOfo0EvbM3V7
+         yyZvAYYirf7f7fU/DkP+5l67+e+fTfpmrXX+HhjssmZGbOtTWIi3IGiAUcyfQ3lMk7o6
+         qq7Jf5N8PrgQAUN1JZi20fImCUUBhPUXQNNumc3lhSrc1RftWgHdTtV9zi8sWAdoXn2L
+         +iiQ==
+X-Gm-Message-State: AGi0PuYUnXWWBDlGPd4ZuGV1gJtvyOqW3tPOhXYtW2YjX3Ninxlj5vio
+        PIVaVak24Qd/YPd3Or5Vffk=
+X-Google-Smtp-Source: APiQypLiYFkxgSfD8yXv1FY3q2MHs/3gjyCgFdoNZjDplObNqqNEJw95OsTWpXJWZc4pgGxlvVtfTQ==
+X-Received: by 2002:a1c:1c8:: with SMTP id 191mr4178633wmb.37.1588421440464;
+        Sat, 02 May 2020 05:10:40 -0700 (PDT)
 Received: from localhost.localdomain ([109.126.133.135])
-        by smtp.gmail.com with ESMTPSA id m15sm3858297wmc.35.2020.05.02.05.10.35
+        by smtp.gmail.com with ESMTPSA id m15sm3858297wmc.35.2020.05.02.05.10.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 May 2020 05:10:36 -0700 (PDT)
+        Sat, 02 May 2020 05:10:40 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-fsdevel@vger.kernel.org, Clay Harris <bugs@claycon.org>
-Subject: [PATCH 0/2] add tee(2) support
-Date:   Sat,  2 May 2020 15:09:24 +0300
-Message-Id: <cover.1588421219.git.asml.silence@gmail.com>
+Subject: [PATCH 2/2] io_uring: add tee(2) support
+Date:   Sat,  2 May 2020 15:09:26 +0300
+Message-Id: <ea033201ae4e8359420ab1b50bce95ed47c8cd90.1588421219.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1588421219.git.asml.silence@gmail.com>
+References: <cover.1588421219.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -73,18 +76,144 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add tee() reusing splice() bits. Pretty straightforward.
+Add IORING_OP_TEE implementing tee(2) support. Almost identical to
+splice bits, but without offsets.
 
-Pavel Begunkov (2):
-  splice: export do_tee()
-  io_uring: add tee(2) support
-
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
  fs/io_uring.c                 | 64 +++++++++++++++++++++++++++++++++--
- fs/splice.c                   |  3 +-
- include/linux/splice.h        |  3 ++
  include/uapi/linux/io_uring.h |  1 +
- 4 files changed, 66 insertions(+), 5 deletions(-)
+ 2 files changed, 62 insertions(+), 3 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4ed82d39540b..dc314f66fbc9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -855,6 +855,11 @@ static const struct io_op_def io_op_defs[] = {
+ 	},
+ 	[IORING_OP_PROVIDE_BUFFERS] = {},
+ 	[IORING_OP_REMOVE_BUFFERS] = {},
++	[IORING_OP_TEE] = {
++		.needs_file		= 1,
++		.hash_reg_file		= 1,
++		.unbound_nonreg_file	= 1,
++	},
+ };
+ 
+ static void io_wq_submit_work(struct io_wq_work **workptr);
+@@ -2754,7 +2759,8 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
+ 	return ret;
+ }
+ 
+-static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static int __io_splice_prep(struct io_kiocb *req,
++			    const struct io_uring_sqe *sqe)
+ {
+ 	struct io_splice* sp = &req->splice;
+ 	unsigned int valid_flags = SPLICE_F_FD_IN_FIXED | SPLICE_F_ALL;
+@@ -2764,8 +2770,6 @@ static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 		return 0;
+ 
+ 	sp->file_in = NULL;
+-	sp->off_in = READ_ONCE(sqe->splice_off_in);
+-	sp->off_out = READ_ONCE(sqe->off);
+ 	sp->len = READ_ONCE(sqe->len);
+ 	sp->flags = READ_ONCE(sqe->splice_flags);
+ 
+@@ -2784,6 +2788,48 @@ static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	return 0;
+ }
+ 
++static int io_tee_prep(struct io_kiocb *req,
++		       const struct io_uring_sqe *sqe)
++{
++	if (READ_ONCE(sqe->splice_off_in) || READ_ONCE(sqe->off))
++		return -EINVAL;
++	return __io_splice_prep(req, sqe);
++}
++
++static int io_tee(struct io_kiocb *req, bool force_nonblock)
++{
++	struct io_splice *sp = &req->splice;
++	struct file *in = sp->file_in;
++	struct file *out = sp->file_out;
++	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
++	long ret;
++
++	if (force_nonblock)
++		return -EAGAIN;
++
++	ret = do_tee(in, out, sp->len, flags);
++	if (force_nonblock && ret == -EAGAIN)
++		return -EAGAIN;
++
++	io_put_file(req, in, (sp->flags & SPLICE_F_FD_IN_FIXED));
++	req->flags &= ~REQ_F_NEED_CLEANUP;
++
++	io_cqring_add_event(req, ret);
++	if (ret != sp->len)
++		req_set_fail_links(req);
++	io_put_req(req);
++	return 0;
++}
++
++static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++{
++	struct io_splice* sp = &req->splice;
++
++	sp->off_in = READ_ONCE(sqe->splice_off_in);
++	sp->off_out = READ_ONCE(sqe->off);
++	return __io_splice_prep(req, sqe);
++}
++
+ static int io_splice(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	struct io_splice *sp = &req->splice;
+@@ -4978,6 +5024,9 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ 	case IORING_OP_REMOVE_BUFFERS:
+ 		ret = io_remove_buffers_prep(req, sqe);
+ 		break;
++	case IORING_OP_TEE:
++		ret = io_tee_prep(req, sqe);
++		break;
+ 	default:
+ 		printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
+ 				req->opcode);
+@@ -5051,6 +5100,7 @@ static void io_cleanup_req(struct io_kiocb *req)
+ 		putname(req->open.filename);
+ 		break;
+ 	case IORING_OP_SPLICE:
++	case IORING_OP_TEE:
+ 		io_put_file(req, req->splice.file_in,
+ 			    (req->splice.flags & SPLICE_F_FD_IN_FIXED));
+ 		break;
+@@ -5281,6 +5331,14 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		}
+ 		ret = io_remove_buffers(req, force_nonblock);
+ 		break;
++	case IORING_OP_TEE:
++		if (sqe) {
++			ret = io_tee_prep(req, sqe);
++			if (ret < 0)
++				break;
++		}
++		ret = io_tee(req, force_nonblock);
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index e48d746b8e2a..a279151437fc 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -129,6 +129,7 @@ enum {
+ 	IORING_OP_SPLICE,
+ 	IORING_OP_PROVIDE_BUFFERS,
+ 	IORING_OP_REMOVE_BUFFERS,
++	IORING_OP_TEE,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 -- 
 2.24.0
 

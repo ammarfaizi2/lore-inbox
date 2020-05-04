@@ -2,118 +2,114 @@ Return-Path: <SRS0=n3s8=6S=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEE00C3A5A9
-	for <io-uring@archiver.kernel.org>; Mon,  4 May 2020 15:25:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81D45C3A5A9
+	for <io-uring@archiver.kernel.org>; Mon,  4 May 2020 15:39:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AABE6206D9
-	for <io-uring@archiver.kernel.org>; Mon,  4 May 2020 15:25:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CF06206D7
+	for <io-uring@archiver.kernel.org>; Mon,  4 May 2020 15:39:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="vpCJWCcI"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="pzLzkbHm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729276AbgEDPZ3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 4 May 2020 11:25:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729265AbgEDPZ3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 4 May 2020 11:25:29 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A51FC061A0E
-        for <io-uring@vger.kernel.org>; Mon,  4 May 2020 08:25:29 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id m5so11605684ilj.10
-        for <io-uring@vger.kernel.org>; Mon, 04 May 2020 08:25:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=1D6ZTlzAS5HkUezZq1d69+4ZI9fkn6KXF485uBa6Wb4=;
-        b=vpCJWCcIJezmGQ/p3n8j3sNcRcaIqyVKXOJ7w7db8gP/UBvO5jIYrQE8TmB+ZbrVJ4
-         yt7WQB29zl923U4tE4aW2wXa+oJILUBPFeI+PZ3Cc1MMK7Hrlnuz4v2s21a9fgXRrL91
-         lsKc/wBzNJp7NV7lUp+hbdmHzTeT8TWzRbf42I9CfncjpZvyAq13woPfTGZvPaXbLsFg
-         1Ypd6SD1Dln2/KB30PQcMJWtse0ybZgNIlCf9gDpbLMc7hZs9AE5skkqHbav6t8gwO9R
-         bS5DfvH6DuhDoo/iRSGy2SimyuYdqWnVYwuK1yMBI3XWM0rMWz/0GqBoj673fbXVr/ZC
-         fY3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=1D6ZTlzAS5HkUezZq1d69+4ZI9fkn6KXF485uBa6Wb4=;
-        b=UzQgu0zbW4HPwe8+a6pUKT5FEX9Id1XY1q7L9AOqF7vgXyvVAgY6EnK4dkGR6PWsFN
-         rQ45zzbRDWOty4+vu6EPeusDt/4n1CePFLcwOYAZk3mvV6sDQ3y2rUsPTAiRFJ4eQiKR
-         yIFGUwKkh7QLG5NC1/qR4pNgMsQ2wZXkooCIVFFOYEa1jUuj7etmmz4jtqUfUsJz95F+
-         Qx/p4fHJvBA7tZWkqIJ+72qVrzGwf0LS1f0AskP/TMvOhe4G1lgzyp/5/H1tUK42BhZz
-         40K8iZ1jRqc2JL9H/5UI7dfpYbQco+c1FMd/NJCSA4hLTWLF0L21zGvfjZtJaZhQZzl7
-         fUZQ==
-X-Gm-Message-State: AGi0PubYyS9CfW2Cp3FF9o9RaPFymz+sLo57BfRQQ0UeJaN7lVEi8+C5
-        GtY1YX6qbG2hnLT8cZ63PuY3tw==
-X-Google-Smtp-Source: APiQypJvJRK186D9XWYvVBKoUDgGWOQugwpDAZB2tbbwlSi7OBFGdZTUwIibCv0T3/bRtM9QcnRvew==
-X-Received: by 2002:a92:898c:: with SMTP id w12mr17264192ilk.139.1588605928210;
-        Mon, 04 May 2020 08:25:28 -0700 (PDT)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id l14sm4084365ioj.12.2020.05.04.08.25.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 May 2020 08:25:27 -0700 (PDT)
-Subject: Re: [PATCH][next] io_uring: Remove logically dead code in io_splice
-To:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        id S1728158AbgEDPjm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 4 May 2020 11:39:42 -0400
+Received: from gateway21.websitewelcome.com ([192.185.45.228]:27271 "EHLO
+        gateway21.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728294AbgEDPjl (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 4 May 2020 11:39:41 -0400
+X-Greylist: delayed 1491 seconds by postgrey-1.27 at vger.kernel.org; Mon, 04 May 2020 11:39:41 EDT
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway21.websitewelcome.com (Postfix) with ESMTP id 27A80400C80C0
+        for <io-uring@vger.kernel.org>; Mon,  4 May 2020 10:14:48 -0500 (CDT)
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with SMTP
+        id VcnwjVw4uVQh0VcnwjcNxS; Mon, 04 May 2020 10:14:48 -0500
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=embeddedor.com; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:
+        Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=0aRQZfEcxHyBj7xnDiHsle71WyIV/i7sE6OjfEdSZt4=; b=pzLzkbHmwXQ0GeUH5+6kvnEZha
+        ZteJlMux6TZSH/AikoPvYp7CfasYeff9LU8ME9UZabFJYAmM7iDAk7Dtzd1vcIfYWHlGDQY9xj3GQ
+        5RQhnx3brUKeJUoSly0atiiJYFBRueb3lIe9AnwHP3GZhpKpOkex+UUG7cURDZKkkyZSOGI34bbT+
+        sMAWxPOItDndSR3yBtlBp4nQrF6rnfpHM92U0XDIxpf0NELlZFcENRtKk5veV6UZSCEUExxMFhIkX
+        3+fCN6loSsmy2E8ZSbIySndGn2+G7B46iRqgNRMUeAzgUzoe/VZDGtBaJKHJpAgPBPYX3K56srXBL
+        OLWqf/Qg==;
+Received: from [189.207.59.248] (port=60896 helo=embeddedor)
+        by gator4166.hostgator.com with esmtpa (Exim 4.92)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1jVcnv-003tgs-Q8; Mon, 04 May 2020 10:14:47 -0500
+Date:   Mon, 4 May 2020 10:19:12 -0500
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To:     Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Pavel Begunkov <asml.silence@gmail.com>
 Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20200504151912.GA22779@embeddedor>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b26c33c8-e636-edf6-3d43-7b3394850d7a@kernel.dk>
-Date:   Mon, 4 May 2020 09:25:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH][next] io_uring: Remove logically dead code in io_splice
+Message-ID: <20200504151912.GA22779@embeddedor>
 MIME-Version: 1.0
-In-Reply-To: <20200504151912.GA22779@embeddedor>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 189.207.59.248
+X-Source-L: No
+X-Exim-ID: 1jVcnv-003tgs-Q8
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: (embeddedor) [189.207.59.248]:60896
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 14
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 5/4/20 9:19 AM, Gustavo A. R. Silva wrote:
-> In case force_nonblock happens to be true, the function returns
-> at:
-> 
->  2779         if (force_nonblock)
->  2780                 return -EAGAIN;
-> 
-> before reaching this line of code. So, the null check on force_nonblock
-> at 2785, is never actually being executed.
-> 
-> Addresses-Coverity-ID: 1492838 ("Logically dead code")
-> Fixes: 2fb3e82284fc ("io_uring: punt splice async because of inode mutex")
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> ---
->  fs/io_uring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index e5dfbbd2aa34..4b1efb062f7f 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -2782,7 +2782,7 @@ static int io_splice(struct io_kiocb *req, bool force_nonblock)
->  	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
->  	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
->  	ret = do_splice(in, poff_in, out, poff_out, sp->len, flags);
-> -	if (force_nonblock && ret == -EAGAIN)
-> +	if (ret == -EAGAIN)
->  		return -EAGAIN;
+In case force_nonblock happens to be true, the function returns
+at:
 
-This isn't right, it should just remove the two lines completely. But
-also see:
+ 2779         if (force_nonblock)
+ 2780                 return -EAGAIN;
 
-https://lore.kernel.org/io-uring/529ea928-88a6-2cbe-ba8c-72b4c68cc7e8@kernel.dk/T/#u
+before reaching this line of code. So, the null check on force_nonblock
+at 2785, is never actually being executed.
 
+Addresses-Coverity-ID: 1492838 ("Logically dead code")
+Fixes: 2fb3e82284fc ("io_uring: punt splice async because of inode mutex")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index e5dfbbd2aa34..4b1efb062f7f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2782,7 +2782,7 @@ static int io_splice(struct io_kiocb *req, bool force_nonblock)
+ 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
+ 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
+ 	ret = do_splice(in, poff_in, out, poff_out, sp->len, flags);
+-	if (force_nonblock && ret == -EAGAIN)
++	if (ret == -EAGAIN)
+ 		return -EAGAIN;
+ 
+ 	io_put_file(req, in, (sp->flags & SPLICE_F_FD_IN_FIXED));
 -- 
-Jens Axboe
+2.26.0
 

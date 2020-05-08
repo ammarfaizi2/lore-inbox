@@ -4,39 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B57FC38A2A
-	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E07A5C38A2A
+	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44EA224955
-	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6E5024953
+	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kXvLegnP"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="r/T2Qu4D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728152AbgEHPgr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 8 May 2020 11:36:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58408 "EHLO
+        id S1728285AbgEHPg7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 8 May 2020 11:36:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728050AbgEHPgq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 8 May 2020 11:36:46 -0400
+        with ESMTP id S1728264AbgEHPgy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 8 May 2020 11:36:54 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC95C061A0C;
-        Fri,  8 May 2020 08:36:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E19C061A0C;
+        Fri,  8 May 2020 08:36:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=gdo1CI68NGJpSv9H2lBuA2msCSuabwKNVFFgXf1S+fQ=; b=kXvLegnPNvMN1Xbz6imxQGM4XM
-        Z8HFAC7hxbTwBWprI5Zanbre5K5ZwnCBBb4002EVizfDHTsu7wogMSR3nHOL7Ph1/16Aya6Jhb4dJ
-        Eux8v6F6qPyHNsXqCoATHO+bgojB6GwUxNrouxkwQPZklS6F4DXUwsKb7vxpKNcraqET5L2x04Rqu
-        nEUOVezhcTYa4Zw/6XTkgLDACTmIpGAZ1rX0Rl5VqNFyF/wKFnxjiNP/rhXXEmYd753MOqRvCuUvS
-        OO7jQSd/2NZJu8y8Qss0YVUQz5fsROiTd5y+++Ve6eHFR2VVNhw2NSaRKJVviaOwWCwlhMrw3OLBv
-        eNQEao8g==;
+        bh=Y6GByYBpY6pH5k9QcdAJgxxwyoCDdXaPGt39GnAtfcU=; b=r/T2Qu4Dq2EPB6e8g5rt10rdUS
+        xxIMdT2OcwOzQanXgb4lV4q1HK2YMY6jUhqZw4kqLXgZCPDWdZw6jUGIRcchb87UWGNEuuzBouvX4
+        4YS6XQKp60nPAtzrXWUhDMdzUDn2lFo59J/30GXVF9vyt86zvxErfvhDIjdhWfDQu5QTV2MczwT2x
+        fGalI5f7Wmy57824Eoy61rqGOadOiirp9dqXejOb+NK5CiWjdMnCeU4VkmDWFCec3wc6SAXB9cpOu
+        qVjmdlypsglLL/MZUS2SpJ5wA9C0Z291fcC9yHzmdGJanj/2UhJ/FJKsXGQ6ggPMKfRpM8NzQ3VrW
+        aO9USAMw==;
 Received: from [2001:4bb8:180:9d3f:90d7:9df8:7cd:3504] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jX53N-00048d-Lx; Fri, 08 May 2020 15:36:46 +0000
+        id 1jX53V-0004Cz-VR; Fri, 08 May 2020 15:36:54 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>
 Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-rdma@vger.kernel.org, kvm@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH 03/12] pidfd: use __anon_inode_getfd
-Date:   Fri,  8 May 2020 17:36:25 +0200
-Message-Id: <20200508153634.249933-4-hch@lst.de>
+Subject: [PATCH 06/12] eventpoll: use __anon_inode_getfd
+Date:   Fri,  8 May 2020 17:36:28 +0200
+Message-Id: <20200508153634.249933-7-hch@lst.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508153634.249933-1-hch@lst.de>
 References: <20200508153634.249933-1-hch@lst.de>
@@ -63,35 +63,40 @@ get_unused_fd_flags + anon_inode_getfile.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- kernel/fork.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ fs/eventpoll.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 4385f3d639f23..31e0face01072 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2113,19 +2113,11 @@ static __latent_entropy struct task_struct *copy_process(
- 	 * if the fd table isn't shared).
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 8c596641a72b0..8abdb9fff611a 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2055,23 +2055,14 @@ static int do_epoll_create(int flags)
+ 	 * Creates all the items needed to setup an eventpoll file. That is,
+ 	 * a file structure and a free file descriptor.
  	 */
- 	if (clone_flags & CLONE_PIDFD) {
--		retval = get_unused_fd_flags(O_RDWR | O_CLOEXEC);
-+		retval = __anon_inode_getfd("[pidfd]", &pidfd_fops, pid,
-+				O_RDWR | O_CLOEXEC, &pidfile);
- 		if (retval < 0)
- 			goto bad_fork_free_pid;
--
- 		pidfd = retval;
--
--		pidfile = anon_inode_getfile("[pidfd]", &pidfd_fops, pid,
--					      O_RDWR | O_CLOEXEC);
--		if (IS_ERR(pidfile)) {
--			put_unused_fd(pidfd);
--			retval = PTR_ERR(pidfile);
--			goto bad_fork_free_pid;
--		}
- 		get_pid(pid);	/* held by pidfile now */
+-	fd = get_unused_fd_flags(O_RDWR | (flags & O_CLOEXEC));
+-	if (fd < 0) {
+-		error = fd;
++	fd = __anon_inode_getfd("[eventpoll]", &eventpoll_fops, ep,
++				 O_RDWR | (flags & O_CLOEXEC), &file);
++	if (fd < 0)
+ 		goto out_free_ep;
+-	}
+-	file = anon_inode_getfile("[eventpoll]", &eventpoll_fops, ep,
+-				 O_RDWR | (flags & O_CLOEXEC));
+-	if (IS_ERR(file)) {
+-		error = PTR_ERR(file);
+-		goto out_free_fd;
+-	}
+ 	ep->file = file;
+ 	fd_install(fd, file);
+ 	return fd;
  
- 		retval = put_user(pidfd, args->pidfd);
+-out_free_fd:
+-	put_unused_fd(fd);
+ out_free_ep:
+ 	ep_free(ep);
+ 	return error;
 -- 
 2.26.2
 

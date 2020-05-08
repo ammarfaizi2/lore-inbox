@@ -2,40 +2,41 @@ Return-Path: <SRS0=dMkf=6W=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E5DDC38A2A
-	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B57FC38A2A
+	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06BFF21841
-	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44EA224955
+	for <io-uring@archiver.kernel.org>; Fri,  8 May 2020 15:36:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qjaMFrDy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kXvLegnP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726736AbgEHPgi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 8 May 2020 11:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
+        id S1728152AbgEHPgr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 8 May 2020 11:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726636AbgEHPgi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 8 May 2020 11:36:38 -0400
+        with ESMTP id S1728050AbgEHPgq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 8 May 2020 11:36:46 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C809C061A0C;
-        Fri,  8 May 2020 08:36:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC95C061A0C;
+        Fri,  8 May 2020 08:36:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=JYdyu02dksbSjvmwcDV7qt06YZ68oFogfc0H7mUbdmw=; b=qjaMFrDyUaIDFFR/VB6EcmHWKy
-        i7SNi7MXJSxWZd67zL2J2Gh5qxlCPOfUB/brJjc9qw0qCSj+PTbugVE9jz0KiQ2oqhxOOa8aTHUQ3
-        ThGxZkMVHc76uL6GbcUHqnVe+rTIi7sL59bJ6sJz6aiCsH++7jcarqChqxpRdgsZYeVS8o0yd6Mnz
-        6o3XSSDb1dwZLKBmGh1LxpTwE4WFuM/rtR3AP/6d+yxVs+OqH4P//yiYxaw74Q9XxEu9VqkFPaoA1
-        3p7q9DDeka6ZIKq2wx1h4PJO2yBoVi5v5BL7kWCpFCNkfv+nhQ5AQ+dr/XVDRLLmJjiHT/JqVD5j9
-        UeqibLWg==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=gdo1CI68NGJpSv9H2lBuA2msCSuabwKNVFFgXf1S+fQ=; b=kXvLegnPNvMN1Xbz6imxQGM4XM
+        Z8HFAC7hxbTwBWprI5Zanbre5K5ZwnCBBb4002EVizfDHTsu7wogMSR3nHOL7Ph1/16Aya6Jhb4dJ
+        Eux8v6F6qPyHNsXqCoATHO+bgojB6GwUxNrouxkwQPZklS6F4DXUwsKb7vxpKNcraqET5L2x04Rqu
+        nEUOVezhcTYa4Zw/6XTkgLDACTmIpGAZ1rX0Rl5VqNFyF/wKFnxjiNP/rhXXEmYd753MOqRvCuUvS
+        OO7jQSd/2NZJu8y8Qss0YVUQz5fsROiTd5y+++Ve6eHFR2VVNhw2NSaRKJVviaOwWCwlhMrw3OLBv
+        eNQEao8g==;
 Received: from [2001:4bb8:180:9d3f:90d7:9df8:7cd:3504] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jX53F-00046s-CU; Fri, 08 May 2020 15:36:37 +0000
+        id 1jX53N-00048d-Lx; Fri, 08 May 2020 15:36:46 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>
 Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -43,10 +44,12 @@ Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-rdma@vger.kernel.org, kvm@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: Add a __anon_inode_getfd helper
-Date:   Fri,  8 May 2020 17:36:22 +0200
-Message-Id: <20200508153634.249933-1-hch@lst.de>
+Subject: [PATCH 03/12] pidfd: use __anon_inode_getfd
+Date:   Fri,  8 May 2020 17:36:25 +0200
+Message-Id: <20200508153634.249933-4-hch@lst.de>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200508153634.249933-1-hch@lst.de>
+References: <20200508153634.249933-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -55,10 +58,40 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Al,
+Use __anon_inode_getfd instead of opencoding the logic using
+get_unused_fd_flags + anon_inode_getfile.
 
-this series (against your work.epoll branch), adds a new
-__anon_inode_getfd helper, which exposes the functionality in
-anon_inode_getfd minus installing the file descriptor.  This
-allows to clean up a lot of the places that currently open code
-the functionality.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ kernel/fork.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 4385f3d639f23..31e0face01072 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2113,19 +2113,11 @@ static __latent_entropy struct task_struct *copy_process(
+ 	 * if the fd table isn't shared).
+ 	 */
+ 	if (clone_flags & CLONE_PIDFD) {
+-		retval = get_unused_fd_flags(O_RDWR | O_CLOEXEC);
++		retval = __anon_inode_getfd("[pidfd]", &pidfd_fops, pid,
++				O_RDWR | O_CLOEXEC, &pidfile);
+ 		if (retval < 0)
+ 			goto bad_fork_free_pid;
+-
+ 		pidfd = retval;
+-
+-		pidfile = anon_inode_getfile("[pidfd]", &pidfd_fops, pid,
+-					      O_RDWR | O_CLOEXEC);
+-		if (IS_ERR(pidfile)) {
+-			put_unused_fd(pidfd);
+-			retval = PTR_ERR(pidfile);
+-			goto bad_fork_free_pid;
+-		}
+ 		get_pid(pid);	/* held by pidfile now */
+ 
+ 		retval = put_user(pidfd, args->pidfd);
+-- 
+2.26.2
+

@@ -5,65 +5,65 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91339C433E0
-	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3298C433E0
+	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 62B4D20671
-	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D9182065F
+	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X6g//psF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uMYYswb4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727978AbgEQLPL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 17 May 2020 07:15:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58008 "EHLO
+        id S1727929AbgEQLPF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 17 May 2020 07:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727966AbgEQLPI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 17 May 2020 07:15:08 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B4FC061A0C;
-        Sun, 17 May 2020 04:15:08 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id v5so5463655lfp.13;
-        Sun, 17 May 2020 04:15:08 -0700 (PDT)
+        with ESMTP id S1727832AbgEQLPF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 17 May 2020 07:15:05 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9486AC061A0C;
+        Sun, 17 May 2020 04:15:04 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id x27so5379008lfg.9;
+        Sun, 17 May 2020 04:15:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=9FMn8rDj4mlz2ncywpsHUDI1Lr6iaXbglOWZhSk2bnc=;
-        b=X6g//psFeEijs6rN378GerBQyW29EyOZm+NkJSmSdbV9jM4CCsNbwXrzE8Jb65X09c
-         HBFt3EzfUmJr57wKQMTSy0JctxnjI+LGlaQ5/ELC1SBqpoc4+/bl4nQ0f4axQ77xSzb2
-         IT0CDpSHR9QFxijPFXQTcIhe41063s/IeYHNHGiwo8UQfUCLBaQIoBsJPJnxOSUbZePk
-         dppPv7E7ciLlBnTRrPudrDkUTjMi1anWAnxb2kW8gFhg3tYsSNQQ7+GnfWK3fGoD8dnq
-         R/tihqBiOMurN0QHkwPB/Nxh85g5kcj/bv0E287xQSsHlnRhC+BjWMFu7IyV38QrOAFe
-         MafQ==
+        bh=M+qpSkBYpmxFEZtgoh/nztF0arwafxT5xyE4pzgMNGE=;
+        b=uMYYswb4A3vQC/qhAU/KTnbU6ENUiENswRD8VCeTp4fFYYmfrqj7QI71oWKLIIZaFI
+         ewoe642GOgqoCSg3mVVkHGhvkPN8uHITWUAKb0jD0SlJfEOaVbCBt+881YTDB9Rhgt25
+         6a1lVpNQTZy8s67VbhknQv210afgpLpUDdlh64B+BLyBlrJrquwnazfcjBVWi9IIYSGT
+         7ic6km4bVIu14AKRC6G/II2Uk30EU8AiWswXOpExuMJvHxFaxvftZ55JeI1rZbWSDHIp
+         Cr5yA+awbgTLokS4zTxCmRhzG5AXwRYohxZnJDzHDwEQbezK0jccjbUHfMaze9yT0yLo
+         kQMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=9FMn8rDj4mlz2ncywpsHUDI1Lr6iaXbglOWZhSk2bnc=;
-        b=OsNqgg+qNuOfsmX/Ib9D/OxDtVmVFEY4HkZqBeJhpXFeAQ4X5rE8jncvX3yjmsZ+R9
-         /sjtjs7UYdsp5Dr8GvV85rGyJ/cWwWxShnAcgttiG9LR+7dV3pyLOIm7OkWtUcUAjZvp
-         4vnq7B8z5n4qJJ6seSXdKwMxUDT3v5XfiGed1DscwC1yVALFbzjUhMRh0a1+Z1b1aMAh
-         o5kF0m7l84mKN2YY5PY27P/sIE0sdm4DfQfla+tQ1IsoFTZlkogekA9CnhL5dEygxaBe
-         Vb6j4xln++iqcx3CkRSl49kY5HZRvTyDjURwCjw1PJEatOufvh9tFWOeJ9Jh04OFcKOF
-         NwAw==
-X-Gm-Message-State: AOAM533TRZmHxdhDkiyF7eONE4zP19cf1N/wi3kW5pRq8sjTk7s9mrJD
-        DC9eEVM5Reiifl3GZKcAxwkD1Sd3
-X-Google-Smtp-Source: ABdhPJzrxLuYg3CIvB42NPjeYM9+DN57d7sYFFyfjMk4qroy8GTPdnykTA6PliMG2yLV4pFF0io8Sw==
-X-Received: by 2002:a05:6512:308e:: with SMTP id z14mr8436850lfd.29.1589714106711;
-        Sun, 17 May 2020 04:15:06 -0700 (PDT)
+        bh=M+qpSkBYpmxFEZtgoh/nztF0arwafxT5xyE4pzgMNGE=;
+        b=TM4iFMoz5Bn9IPS/+sd/s4PHXkXBsP29yriqQqc2g2ofUtPzMkgrDLTqucdvu+GDPF
+         lB7yJ/CYzUBsziUSxvWhLVmOL0JYCdrn1HnGnkzwZn5Pv7ILW1X9bwHx31k2eOAjlPcV
+         rxWdq3TJiVMOoG1C2d7BCZG+iXvldRJ/hHLEAlmHnMWTfZqRETrMQ0RVl+cKDi2gcebF
+         MlGPr0h68lbd7uJ5Sy3VCZ64xsZqGzg5doeYydBt8pYAb4bcaE1I+iooCXvGrL6aDSSK
+         k5kpNwr8ZNkE9KFpmjGZYCsGjfno7A1Fy13gEV1PPfWPin7yHnbYYG2DKpvbtxRZAyr8
+         0mng==
+X-Gm-Message-State: AOAM531Q7MSSdRyLw75FOIKGozoJd9XkJPaWtDpr4ubTCmcirvBs41x5
+        rPUEgqONWyUwfcEHqmI9/0NzrGjJ
+X-Google-Smtp-Source: ABdhPJwP5bgoVxTG4eeWzIg0XvRvoFxF+xfKe//I4gs+h6/ONpbPAc5XQdOtk39WnnP4qqiLB2orwQ==
+X-Received: by 2002:a19:5206:: with SMTP id m6mr1287228lfb.144.1589714103004;
+        Sun, 17 May 2020 04:15:03 -0700 (PDT)
 Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id v2sm3970990ljv.86.2020.05.17.04.15.05
+        by smtp.gmail.com with ESMTPSA id v2sm3970990ljv.86.2020.05.17.04.15.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 May 2020 04:15:06 -0700 (PDT)
+        Sun, 17 May 2020 04:15:02 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] io_uring: don't repeat valid flag list
-Date:   Sun, 17 May 2020 14:13:42 +0300
-Message-Id: <68d4e966edfecad390f0367e71f9fc874dccb01a.1589713554.git.asml.silence@gmail.com>
+Subject: [PATCH 1/3] io_uring: remove req->needs_fixed_files
+Date:   Sun, 17 May 2020 14:13:40 +0300
+Message-Id: <f694f6b81e555c15ee0e75ffbe9509bbfa8d4f27.1589713554.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1589713554.git.asml.silence@gmail.com>
 References: <cover.1589713554.git.asml.silence@gmail.com>
@@ -74,30 +74,109 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-req->flags stores all sqe->flags. After checking that sqe->flags are
-valid set if IOSQE* flags, no need to double check it, just forward them
-all.
+A submission is "async" IIF it's done by SQPOLL thread. Instead of
+passing @async flag into io_submit_sqes(), deduce it from ctx->flags.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/io_uring.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9c5a95414cbd..83b599815cf0 100644
+index 3d0a08560689..739aae7070c1 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5924,9 +5924,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+@@ -626,7 +626,6 @@ struct io_kiocb {
+ 
+ 	struct io_async_ctx		*io;
+ 	int				cflags;
+-	bool				needs_fixed_file;
+ 	u8				opcode;
+ 
+ 	struct io_ring_ctx	*ctx;
+@@ -891,6 +890,11 @@ EXPORT_SYMBOL(io_uring_get_socket);
+ 
+ static void io_file_put_work(struct work_struct *work);
+ 
++static inline bool io_async_submit(struct io_ring_ctx *ctx)
++{
++	return ctx->flags & IORING_SETUP_SQPOLL;
++}
++
+ static void io_ring_ctx_ref_free(struct percpu_ref *ref)
+ {
+ 	struct io_ring_ctx *ctx = container_of(ref, struct io_ring_ctx, refs);
+@@ -5487,7 +5491,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+ 	bool fixed;
+ 
+ 	fixed = (req->flags & REQ_F_FIXED_FILE) != 0;
+-	if (unlikely(!fixed && req->needs_fixed_file))
++	if (unlikely(!fixed && io_async_submit(req->ctx)))
+ 		return -EBADF;
+ 
+ 	return io_file_get(state, req, fd, &req->file, fixed);
+@@ -5866,7 +5870,7 @@ static inline void io_consume_sqe(struct io_ring_ctx *ctx)
+ 
+ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 		       const struct io_uring_sqe *sqe,
+-		       struct io_submit_state *state, bool async)
++		       struct io_submit_state *state)
+ {
+ 	unsigned int sqe_flags;
+ 	int id;
+@@ -5887,7 +5891,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	refcount_set(&req->refs, 2);
+ 	req->task = NULL;
+ 	req->result = 0;
+-	req->needs_fixed_file = async;
+ 	INIT_IO_WORK(&req->work, io_wq_submit_work);
+ 
+ 	if (unlikely(req->opcode >= IORING_OP_LAST))
+@@ -5928,7 +5931,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ }
+ 
+ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+-			  struct file *ring_file, int ring_fd, bool async)
++			  struct file *ring_file, int ring_fd)
+ {
+ 	struct io_submit_state state, *statep = NULL;
+ 	struct io_kiocb *link = NULL;
+@@ -5972,7 +5975,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 			break;
+ 		}
+ 
+-		err = io_init_req(ctx, req, sqe, statep, async);
++		err = io_init_req(ctx, req, sqe, statep);
+ 		io_consume_sqe(ctx);
+ 		/* will complete beyond this point, count as submitted */
+ 		submitted++;
+@@ -5985,7 +5988,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 		}
+ 
+ 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
+-						true, async);
++						true, io_async_submit(ctx));
+ 		err = io_submit_sqe(req, sqe, &link);
+ 		if (err)
+ 			goto fail_req;
+@@ -6124,7 +6127,7 @@ static int io_sq_thread(void *data)
+ 		}
+ 
+ 		mutex_lock(&ctx->uring_lock);
+-		ret = io_submit_sqes(ctx, to_submit, NULL, -1, true);
++		ret = io_submit_sqes(ctx, to_submit, NULL, -1);
+ 		mutex_unlock(&ctx->uring_lock);
+ 		timeout = jiffies + ctx->sq_thread_idle;
  	}
+@@ -7635,7 +7638,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 		submitted = to_submit;
+ 	} else if (to_submit) {
+ 		mutex_lock(&ctx->uring_lock);
+-		submitted = io_submit_sqes(ctx, to_submit, f.file, fd, false);
++		submitted = io_submit_sqes(ctx, to_submit, f.file, fd);
+ 		mutex_unlock(&ctx->uring_lock);
  
- 	/* same numerical values with corresponding REQ_F_*, safe to copy */
--	req->flags |= sqe_flags & (IOSQE_IO_DRAIN | IOSQE_IO_HARDLINK |
--					IOSQE_ASYNC | IOSQE_FIXED_FILE |
--					IOSQE_BUFFER_SELECT | IOSQE_IO_LINK);
-+	req->flags |= sqe_flags;
- 
- 	if (!io_op_defs[req->opcode].needs_file)
- 		return 0;
+ 		if (submitted != to_submit)
 -- 
 2.24.0
 

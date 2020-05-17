@@ -2,71 +2,68 @@ Return-Path: <SRS0=RIOT=67=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3298C433E0
-	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86475C433E0
+	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:19:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D9182065F
-	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:15:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BB5F206F4
+	for <io-uring@archiver.kernel.org>; Sun, 17 May 2020 11:19:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uMYYswb4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="inBG7pM1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727929AbgEQLPF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 17 May 2020 07:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57996 "EHLO
+        id S1727845AbgEQLT2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 17 May 2020 07:19:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727832AbgEQLPF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 17 May 2020 07:15:05 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9486AC061A0C;
-        Sun, 17 May 2020 04:15:04 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id x27so5379008lfg.9;
-        Sun, 17 May 2020 04:15:04 -0700 (PDT)
+        with ESMTP id S1727785AbgEQLT2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 17 May 2020 07:19:28 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDE1C061A0C;
+        Sun, 17 May 2020 04:19:27 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id d22so5489606lfm.11;
+        Sun, 17 May 2020 04:19:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=M+qpSkBYpmxFEZtgoh/nztF0arwafxT5xyE4pzgMNGE=;
-        b=uMYYswb4A3vQC/qhAU/KTnbU6ENUiENswRD8VCeTp4fFYYmfrqj7QI71oWKLIIZaFI
-         ewoe642GOgqoCSg3mVVkHGhvkPN8uHITWUAKb0jD0SlJfEOaVbCBt+881YTDB9Rhgt25
-         6a1lVpNQTZy8s67VbhknQv210afgpLpUDdlh64B+BLyBlrJrquwnazfcjBVWi9IIYSGT
-         7ic6km4bVIu14AKRC6G/II2Uk30EU8AiWswXOpExuMJvHxFaxvftZ55JeI1rZbWSDHIp
-         Cr5yA+awbgTLokS4zTxCmRhzG5AXwRYohxZnJDzHDwEQbezK0jccjbUHfMaze9yT0yLo
-         kQMA==
+        bh=e6etauvJHI/BRbBrWveTIlcowv32UOIt40/wJV6YqrY=;
+        b=inBG7pM1uL4IAfP2V7PvN5p2K4wKGfOW4orM/yP3udwv+ayN0OL8C9246wPSYc4R5x
+         LlJ/Zc8GvWXA993/Wkkb87yyFwMte20tZiPnsfyEquFG7Sl+bwq7qG8FkWhf1wJOyWPs
+         pVXbyysgngmf8NQI5univO20trlL7zQSiXb9qN5bkT3sus1cyMyl2i0jWibeMIe+lckB
+         58MwEGZFOiF4Iq7votkjZ4yFe6Aaj/WBasokuK4FY3bpL8glFS3/mGc6QbKDeskObzvO
+         Ni6ljIYP9qomyS9j1az7RL5EaC4PHyJL32KSKjIiV5u3GbOWDzfsjpIFeYp/llIg201T
+         eQgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=M+qpSkBYpmxFEZtgoh/nztF0arwafxT5xyE4pzgMNGE=;
-        b=TM4iFMoz5Bn9IPS/+sd/s4PHXkXBsP29yriqQqc2g2ofUtPzMkgrDLTqucdvu+GDPF
-         lB7yJ/CYzUBsziUSxvWhLVmOL0JYCdrn1HnGnkzwZn5Pv7ILW1X9bwHx31k2eOAjlPcV
-         rxWdq3TJiVMOoG1C2d7BCZG+iXvldRJ/hHLEAlmHnMWTfZqRETrMQ0RVl+cKDi2gcebF
-         MlGPr0h68lbd7uJ5Sy3VCZ64xsZqGzg5doeYydBt8pYAb4bcaE1I+iooCXvGrL6aDSSK
-         k5kpNwr8ZNkE9KFpmjGZYCsGjfno7A1Fy13gEV1PPfWPin7yHnbYYG2DKpvbtxRZAyr8
-         0mng==
-X-Gm-Message-State: AOAM531Q7MSSdRyLw75FOIKGozoJd9XkJPaWtDpr4ubTCmcirvBs41x5
-        rPUEgqONWyUwfcEHqmI9/0NzrGjJ
-X-Google-Smtp-Source: ABdhPJwP5bgoVxTG4eeWzIg0XvRvoFxF+xfKe//I4gs+h6/ONpbPAc5XQdOtk39WnnP4qqiLB2orwQ==
-X-Received: by 2002:a19:5206:: with SMTP id m6mr1287228lfb.144.1589714103004;
-        Sun, 17 May 2020 04:15:03 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=e6etauvJHI/BRbBrWveTIlcowv32UOIt40/wJV6YqrY=;
+        b=GnX/WQI64JtRKuy4yCjyzeSBVoic3cf3hwTkw3W3+3wYBzb7Kfa5NTKGq1c9PP6O1q
+         B9ZCH8vCWnzRgfyPzerYr4xLB9Lgx2wUVowbH/01Ukr0tp2Fal0Fvye2HAxtObLEdTEa
+         6te5IIel2aMOCG6Dmyx+/A8XYw4RoXGukKKKGKQxlrS85S+JP9/mC5t7+VeyBoVCMCVs
+         0ChIX4iVFg6KORSD/RbgR4Sc9gW/R/OmuwlFY5/RC1ngi5b7mr/Y//K8LKBoq2ONyOnp
+         uhbl/y2iZYDKMkOAVrjQ0cjOWyLdHuvdwBnX6uhXXfHUjcuXATCLCvDVjOLtNRb6/AEF
+         vDzw==
+X-Gm-Message-State: AOAM533SzDUe4eLmMUKDFRe7WnAuyBa1yJNky5nv6erxkKKXIcP+m24c
+        FJ8c4XkRkpv1TFYNjk9FHov+syhg
+X-Google-Smtp-Source: ABdhPJw63H4zVFB0r61kD5Mq2AxYy1X8QrxZ4hCSDoa5OK1aVda/RYd25KFCmyV5C1Ppyg2VVqaH+Q==
+X-Received: by 2002:a19:987:: with SMTP id 129mr8119429lfj.8.1589714366200;
+        Sun, 17 May 2020 04:19:26 -0700 (PDT)
 Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id v2sm3970990ljv.86.2020.05.17.04.15.01
+        by smtp.gmail.com with ESMTPSA id f24sm5534246lfk.36.2020.05.17.04.19.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 May 2020 04:15:02 -0700 (PDT)
+        Sun, 17 May 2020 04:19:25 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] io_uring: remove req->needs_fixed_files
-Date:   Sun, 17 May 2020 14:13:40 +0300
-Message-Id: <f694f6b81e555c15ee0e75ffbe9509bbfa8d4f27.1589713554.git.asml.silence@gmail.com>
+Subject: [PATCH v2 0/2] io_uring tee support
+Date:   Sun, 17 May 2020 14:18:04 +0300
+Message-Id: <cover.1589714180.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1589713554.git.asml.silence@gmail.com>
-References: <cover.1589713554.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -74,109 +71,20 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-A submission is "async" IIF it's done by SQPOLL thread. Instead of
-passing @async flag into io_submit_sqes(), deduce it from ctx->flags.
+Add tee support.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+v2: handle zero-len tee
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3d0a08560689..739aae7070c1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -626,7 +626,6 @@ struct io_kiocb {
- 
- 	struct io_async_ctx		*io;
- 	int				cflags;
--	bool				needs_fixed_file;
- 	u8				opcode;
- 
- 	struct io_ring_ctx	*ctx;
-@@ -891,6 +890,11 @@ EXPORT_SYMBOL(io_uring_get_socket);
- 
- static void io_file_put_work(struct work_struct *work);
- 
-+static inline bool io_async_submit(struct io_ring_ctx *ctx)
-+{
-+	return ctx->flags & IORING_SETUP_SQPOLL;
-+}
-+
- static void io_ring_ctx_ref_free(struct percpu_ref *ref)
- {
- 	struct io_ring_ctx *ctx = container_of(ref, struct io_ring_ctx, refs);
-@@ -5487,7 +5491,7 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
- 	bool fixed;
- 
- 	fixed = (req->flags & REQ_F_FIXED_FILE) != 0;
--	if (unlikely(!fixed && req->needs_fixed_file))
-+	if (unlikely(!fixed && io_async_submit(req->ctx)))
- 		return -EBADF;
- 
- 	return io_file_get(state, req, fd, &req->file, fixed);
-@@ -5866,7 +5870,7 @@ static inline void io_consume_sqe(struct io_ring_ctx *ctx)
- 
- static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 		       const struct io_uring_sqe *sqe,
--		       struct io_submit_state *state, bool async)
-+		       struct io_submit_state *state)
- {
- 	unsigned int sqe_flags;
- 	int id;
-@@ -5887,7 +5891,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	refcount_set(&req->refs, 2);
- 	req->task = NULL;
- 	req->result = 0;
--	req->needs_fixed_file = async;
- 	INIT_IO_WORK(&req->work, io_wq_submit_work);
- 
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
-@@ -5928,7 +5931,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- }
- 
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
--			  struct file *ring_file, int ring_fd, bool async)
-+			  struct file *ring_file, int ring_fd)
- {
- 	struct io_submit_state state, *statep = NULL;
- 	struct io_kiocb *link = NULL;
-@@ -5972,7 +5975,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			break;
- 		}
- 
--		err = io_init_req(ctx, req, sqe, statep, async);
-+		err = io_init_req(ctx, req, sqe, statep);
- 		io_consume_sqe(ctx);
- 		/* will complete beyond this point, count as submitted */
- 		submitted++;
-@@ -5985,7 +5988,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 		}
- 
- 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
--						true, async);
-+						true, io_async_submit(ctx));
- 		err = io_submit_sqe(req, sqe, &link);
- 		if (err)
- 			goto fail_req;
-@@ -6124,7 +6127,7 @@ static int io_sq_thread(void *data)
- 		}
- 
- 		mutex_lock(&ctx->uring_lock);
--		ret = io_submit_sqes(ctx, to_submit, NULL, -1, true);
-+		ret = io_submit_sqes(ctx, to_submit, NULL, -1);
- 		mutex_unlock(&ctx->uring_lock);
- 		timeout = jiffies + ctx->sq_thread_idle;
- 	}
-@@ -7635,7 +7638,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		submitted = to_submit;
- 	} else if (to_submit) {
- 		mutex_lock(&ctx->uring_lock);
--		submitted = io_submit_sqes(ctx, to_submit, f.file, fd, false);
-+		submitted = io_submit_sqes(ctx, to_submit, f.file, fd);
- 		mutex_unlock(&ctx->uring_lock);
- 
- 		if (submitted != to_submit)
+Pavel Begunkov (2):
+  splice: export do_tee()
+  io_uring: add tee(2) support
+
+ fs/io_uring.c                 | 62 +++++++++++++++++++++++++++++++++--
+ fs/splice.c                   |  3 +-
+ include/linux/splice.h        |  3 ++
+ include/uapi/linux/io_uring.h |  1 +
+ 4 files changed, 64 insertions(+), 5 deletions(-)
+
 -- 
 2.24.0
 

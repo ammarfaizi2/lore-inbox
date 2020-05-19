@@ -7,172 +7,102 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16234C433E1
-	for <io-uring@archiver.kernel.org>; Tue, 19 May 2020 21:52:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBB20C433E0
+	for <io-uring@archiver.kernel.org>; Tue, 19 May 2020 21:52:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3EB02072C
-	for <io-uring@archiver.kernel.org>; Tue, 19 May 2020 21:52:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93F102072C
+	for <io-uring@archiver.kernel.org>; Tue, 19 May 2020 21:52:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="yii879+0"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="HwN2Z8BM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726203AbgESVwb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 May 2020 17:52:31 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:47178 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726199AbgESVwb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 May 2020 17:52:31 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JLpT1k142605;
-        Tue, 19 May 2020 21:52:29 GMT
+        id S1726723AbgESVwi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 May 2020 17:52:38 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:36954 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726199AbgESVwi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 May 2020 17:52:38 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JLpjc5041389;
+        Tue, 19 May 2020 21:52:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=jSmSmRPmMDO7m85YjHzVX979hZlekn4HkpKtmEK6rkc=;
- b=yii879+0Si4ws0+M7TTHRf1PiHiDpMV/L8Exc0Jfya5fMkaxpmUnn6kZHlXAXVsq3rgV
- w6pwXv/hopHlRM4HjqsxK8JAdhSe3HN1Nkec2XShzGKHLe9wV7MuYOfuKEk+cLBhnA7k
- e9OQHpGNKtXiSyn0ERIBx2DW4hkTEL8vXp9nshBtGscmknTrX3kCz/IUNZnvfkCg+esA
- 8H0qGsgzS1iWJWeqE+wqn9BKJEe9zrGc4euew8ps5+pVIRz8fxqkVbABMOYcXTK4eiwM
- eJZ1clew56G3dj6wTxIUP5vzu09faG0UHfrcXMyjBZ1iAOcTZBUlpF+0bM6kjgT5+7xu yg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 3128tnfwmr-1
+ bh=eV2bhWSKnOffRXGHvxHMCGGK5w22ZFmqk4UFRDSMYJU=;
+ b=HwN2Z8BMdOSkk4jlTXtJi+CUv17/NcZewuh32V6x7zI8kuZISqRbyA8CMc5TlLAv6jSn
+ ipKJHw/ohCoJehuCObRyS96v9CBG4Sb1Vmmec57PzzKXITuH7vsogbsEjAiX372SBnaJ
+ REy8IFPlxhfF+L9qjzAz3dPs0aFGgI3BFYBXDm1j0/9pZYRyJPd5mYQOWKvf2u6iy3xC
+ 1bYQjlUBa2iBJ6XEP/Eu1PQyqmVluCWd0DO4E51yKQ+N+FCjnVGUNwQQzbeVZ0y52xCp
+ klAZiLkUZxca9NA6XAaYziJf0/sWgsK+xpwl/hw0uiNBNeRtsyx4WeFqyOcIbseDdkrM Gw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 31284m00bm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 19 May 2020 21:52:29 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JLqPgo020027;
-        Tue, 19 May 2020 21:52:29 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 314gm5vnpv-1
+        Tue, 19 May 2020 21:52:36 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JLqYbD116560;
+        Tue, 19 May 2020 21:52:35 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 313gj2cm0b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 May 2020 21:52:28 +0000
+        Tue, 19 May 2020 21:52:35 +0000
 Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04JLqSsD021401;
-        Tue, 19 May 2020 21:52:28 GMT
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04JLqRIr005490;
+        Tue, 19 May 2020 21:52:27 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 19 May 2020 14:52:28 -0700
+        with ESMTP ; Tue, 19 May 2020 14:52:27 -0700
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH liburing 3/3] remove duplicate call to __io_uring_peek_cqe()
-Date:   Tue, 19 May 2020 14:52:21 -0700
-Message-Id: <1589925141-48552-4-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH liburing 1/3] preseve wait_nr if SETUP_IOPOLL is set
+Date:   Tue, 19 May 2020 14:52:19 -0700
+Message-Id: <1589925141-48552-2-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1589925141-48552-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1589925141-48552-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9626 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
- adultscore=0 phishscore=0 mlxscore=0 spamscore=0 suspectscore=1
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005190184
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 malwarescore=0
+ mlxscore=0 adultscore=0 bulkscore=0 suspectscore=1 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005190184
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9626 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 bulkscore=0 spamscore=0
- clxscore=1015 cotscore=-2147483648 suspectscore=1 lowpriorityscore=0
- adultscore=0 phishscore=0 mlxlogscore=999 mlxscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005190184
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 mlxscore=0
+ cotscore=-2147483648 impostorscore=0 malwarescore=0 mlxlogscore=999
+ lowpriorityscore=0 phishscore=0 spamscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005190184
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Remove the __io_uring_peek_cqe() call from io_uring_wait_cqe_nr()
-since the former is unconditionally called from io_uring_wait_cqe_nr()
--> __io_uring_get_cqe(). Also move __io_uring_get_cqe() together with
-__io_uring_get_cqe() since that's now the only caller.
+When SETUP_IOPOLL is set, __sys_io_uring_enter() must be called to reap
+new completions but the call won't be made if both wait_nr and submit
+are zero, so preserve wait_nr.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- src/include/liburing.h | 32 --------------------------------
- src/queue.c            | 27 +++++++++++++++++++++++++++
- 2 files changed, 27 insertions(+), 32 deletions(-)
+ src/queue.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/src/include/liburing.h b/src/include/liburing.h
-index dd85f7b..4311325 100644
---- a/src/include/liburing.h
-+++ b/src/include/liburing.h
-@@ -444,32 +444,6 @@ static inline unsigned io_uring_cq_ready(struct io_uring *ring)
- 	return io_uring_smp_load_acquire(ring->cq.ktail) - *ring->cq.khead;
- }
- 
--static int __io_uring_peek_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_ptr)
--{
--	struct io_uring_cqe *cqe;
--	unsigned head;
--	int err = 0;
--
--	do {
--		io_uring_for_each_cqe(ring, head, cqe)
--			break;
--		if (cqe) {
--			if (cqe->user_data == LIBURING_UDATA_TIMEOUT) {
--				if (cqe->res < 0)
--					err = cqe->res;
--				io_uring_cq_advance(ring, 1);
--				if (!err)
--					continue;
--				cqe = NULL;
--			}
--		}
--		break;
--	} while (1);
--
--	*cqe_ptr = cqe;
--	return err;
--}
--
- /*
-  * Return an IO completion, waiting for 'wait_nr' completions if one isn't
-  * readily available. Returns 0 with cqe_ptr filled in on success, -errno on
-@@ -479,12 +453,6 @@ static inline int io_uring_wait_cqe_nr(struct io_uring *ring,
- 				      struct io_uring_cqe **cqe_ptr,
- 				      unsigned wait_nr)
- {
--	int err;
--
--	err = __io_uring_peek_cqe(ring, cqe_ptr);
--	if (err || *cqe_ptr)
--		return err;
--
- 	return __io_uring_get_cqe(ring, cqe_ptr, 0, wait_nr, NULL);
- }
- 
 diff --git a/src/queue.c b/src/queue.c
-index da2f405..3db52bd 100644
+index 14a0777..c7473c0 100644
 --- a/src/queue.c
 +++ b/src/queue.c
-@@ -32,6 +32,33 @@ static inline bool sq_ring_needs_enter(struct io_uring *ring,
- 	return false;
- }
- 
-+static int __io_uring_peek_cqe(struct io_uring *ring,
-+			       struct io_uring_cqe **cqe_ptr)
-+{
-+	struct io_uring_cqe *cqe;
-+	unsigned head;
-+	int err = 0;
-+
-+	do {
-+		io_uring_for_each_cqe(ring, head, cqe)
-+			break;
-+		if (cqe) {
-+			if (cqe->user_data == LIBURING_UDATA_TIMEOUT) {
-+				if (cqe->res < 0)
-+					err = cqe->res;
-+				io_uring_cq_advance(ring, 1);
-+				if (!err)
-+					continue;
-+				cqe = NULL;
-+			}
-+		}
-+		break;
-+	} while (1);
-+
-+	*cqe_ptr = cqe;
-+	return err;
-+}
-+
- int __io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_ptr,
- 		       unsigned submit, unsigned wait_nr, sigset_t *sigmask)
- {
+@@ -60,7 +60,14 @@ int __io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_ptr,
+ 			err = -errno;
+ 		} else if (ret == (int)submit) {
+ 			submit = 0;
+-			wait_nr = 0;
++			/*
++			 * When SETUP_IOPOLL is set, __sys_io_uring enter()
++			 * must be called to reap new completions but the call
++			 * won't be made if both wait_nr and submit are zero
++			 * so preserve wait_nr.
++			 */
++			if (!(ring->flags & IORING_SETUP_IOPOLL))
++				wait_nr = 0;
+ 		} else {
+ 			submit -= ret;
+ 		}
 -- 
 1.8.3.1
 

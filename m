@@ -2,54 +2,99 @@ Return-Path: <SRS0=QUj5=7C=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88DDCC433DF
-	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 15:31:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA2FDC433E0
+	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 17:07:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6FF60206F1
-	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 15:31:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 684B0206B6
+	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 17:07:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HKN5cKwh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726881AbgETPb1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 May 2020 11:31:27 -0400
-Received: from verein.lst.de ([213.95.11.211]:50373 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726596AbgETPb0 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Wed, 20 May 2020 11:31:26 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 69DAB68BEB; Wed, 20 May 2020 17:31:23 +0200 (CEST)
-Date:   Wed, 20 May 2020 17:31:23 +0200
-From:   Christoph Hellwig <hch@lst.de>
+        id S1726846AbgETRHY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 May 2020 13:07:24 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:31334 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726436AbgETRHW (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 May 2020 13:07:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589994441;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=enl1W2uIu4fZuLT8iyT7NS/nMICLBarNGTfzsJ5XBJ0=;
+        b=HKN5cKwh2Q8JRPbGvTBX6T8Ec1ueBvnd//Saf8QnSci31tzVqX5024kpF9nE17SqNypXWm
+        YCEHMefFUy1LPf1V0cST1jC9dghDweDL/yjb5KvgspKqYkjd4u/H9vrzNg/iHhG0+ylZ7s
+        7UKqC1WSN9KEABMqPjvrFGBiboCfwy0=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-497-YpOvpHrnOCO07kVZFOiubA-1; Wed, 20 May 2020 13:07:20 -0400
+X-MC-Unique: YpOvpHrnOCO07kVZFOiubA-1
+Received: by mail-wm1-f72.google.com with SMTP id f9so1501369wml.9
+        for <io-uring@vger.kernel.org>; Wed, 20 May 2020 10:07:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=enl1W2uIu4fZuLT8iyT7NS/nMICLBarNGTfzsJ5XBJ0=;
+        b=uU7BdiCMnDU+eOWP69HJAMq67nXaSRBjVGsUUCBLpaBr93Nocm2H0Y4LJH7RQYQw4t
+         bchYt071uZcoeo6+aHSUUgbWKuQHhWUP2jQweWkJVzcpYH/9ScDkGiRCEAcwDOgNvxeb
+         AL2lBUbkwZp6UYEBg6N6VXBDcH06nF4H0a8ypo8AjNMico3y4QcdrT6JiMvSP/gOZNam
+         HKL8SRhVzjgMijjVUGf5GPTGmuIjFG+Dai2NaM5DhCLtbjmIbtvwlXTxonSNWOdx3y1m
+         FSEKwcBFJK/3PkDU0PKYTyT3HbQPOl2H6s0mfoBh53z27FXD2gEPmU+0za1cBzTnCKYh
+         DJVg==
+X-Gm-Message-State: AOAM533m/XIGGsKaiaKgOTPPIqf092iMPSgtawUM/aZH9TKD5NQyH2Qd
+        y50GrrdDDxZyVrqB/cSDeddRqJiKtIGPxu40P5y3Ag3JgRCoNeyU2OKaRYWsycyvekTYKB5kSQQ
+        OupuWi8uFhQYO+8oMZuA=
+X-Received: by 2002:a05:6000:4:: with SMTP id h4mr4863658wrx.36.1589994438801;
+        Wed, 20 May 2020 10:07:18 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw/oL0fpnDNlWDRl/DQpqVURE2ukinpGD7z7G2S6eeKrBlnPSAq1QGG74sJXqhvE+E43M0SYg==
+X-Received: by 2002:a05:6000:4:: with SMTP id h4mr4863645wrx.36.1589994438575;
+        Wed, 20 May 2020 10:07:18 -0700 (PDT)
+Received: from steredhat.redhat.com ([79.49.207.108])
+        by smtp.gmail.com with ESMTPSA id u74sm3768614wmu.13.2020.05.20.10.07.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 May 2020 10:07:17 -0700 (PDT)
+From:   Stefano Garzarella <sgarzare@redhat.com>
 To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        linux-block@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>, io-uring@vger.kernel.org
-Subject: Re: io_uring vs CPU hotplug, was Re: [PATCH 5/9] blk-mq: don't set
- data->ctx and data->hctx in blk_mq_alloc_request_hctx
-Message-ID: <20200520153123.GA2340@lst.de>
-References: <20200518131634.GA645@lst.de> <20200518141107.GA50374@T590> <20200518165619.GA17465@lst.de> <20200519015420.GA70957@T590> <20200519153000.GB22286@lst.de> <20200520011823.GA415158@T590> <20200520030424.GI416136@T590> <20200520080357.GA4197@lst.de> <8f893bb8-66a9-d311-ebd8-d5ccd8302a0d@kernel.dk> <448d3660-0d83-889b-001f-a09ea53fa117@kernel.dk>
+Cc:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH liburing v2 2/5] man/io_uring_setup.2: add 'flags' field in the struct io_cqring_offsets
+Date:   Wed, 20 May 2020 19:07:11 +0200
+Message-Id: <20200520170714.68156-3-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20200520170714.68156-1-sgarzare@redhat.com>
+References: <20200520170714.68156-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448d3660-0d83-889b-001f-a09ea53fa117@kernel.dk>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Wed, May 20, 2020 at 09:20:50AM -0600, Jens Axboe wrote:
-> Just checked, and it works fine for me. If I create an SQPOLL ring with
-> SQ_AFF set and bound to CPU 3, if CPU 3 goes offline, then the kthread
-> just appears unbound but runs just fine. When CPU 3 comes online again,
-> the mask appears correct.
-> 
-> So don't think there's anything wrong on that side. The affinity is a
-> performance optimization, not a correctness issue. Really not much we
-> can do if the chosen CPU is offlined, apart from continue to chug along.
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ man/io_uring_setup.2 | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Ok, that sounds pretty sensible.
+diff --git a/man/io_uring_setup.2 b/man/io_uring_setup.2
+index d48bb32..c929cb7 100644
+--- a/man/io_uring_setup.2
++++ b/man/io_uring_setup.2
+@@ -325,7 +325,8 @@ struct io_cqring_offsets {
+     __u32 ring_entries;
+     __u32 overflow;
+     __u32 cqes;
+-    __u32 resv[4];
++    __u32 flags;
++    __u32 resv[3];
+ };
+ .EE
+ .in
+-- 
+2.25.4
+

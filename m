@@ -2,94 +2,153 @@ Return-Path: <SRS0=QUj5=7C=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AF0FC433DF
-	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 13:14:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91077C433DF
+	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 13:16:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 499A72070A
-	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 13:14:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="jksE4Xwi"
+	by mail.kernel.org (Postfix) with ESMTP id 6B9EA20756
+	for <io-uring@archiver.kernel.org>; Wed, 20 May 2020 13:16:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbgETNOJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 May 2020 09:14:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44452 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726435AbgETNOI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 May 2020 09:14:08 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0D4C061A0E
-        for <io-uring@vger.kernel.org>; Wed, 20 May 2020 06:14:08 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id a13so1314475pls.8
-        for <io-uring@vger.kernel.org>; Wed, 20 May 2020 06:14:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=itYQ9Ad5DlZ53sgnqKZUBDjddneQB2MMq6HEh5Hrogo=;
-        b=jksE4XwiYjUhV09Sz7Eu6a4F5lv5JsKXWwIfHpwM6d8/OJDLVT8x91ZQf6or6s8e/0
-         GT92RIa3s/QSak0WOdurffKm+gZrt9/TVV68j0sdIZu02NLShY5wNI3CGHIt2sERiM/L
-         phwsGAmUnbLfef27qwNsmFkNIoW8rWUIp7dfdHlTi/mczdCBnKZP3WRidm1Qzys1H7Gs
-         4RNh+CZ4q5NiVkZmCPJhmW051y6AjxrtziXMLfbsXtm/s6y2rM9h+KDv2plsRUtlYu8m
-         lrcm0abWZpJgxQqsmKQ9wpWtylpxViRTZFl4lm4Q16wc6x3zmrB5at8P6HiL0kRr0oXK
-         NMuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=itYQ9Ad5DlZ53sgnqKZUBDjddneQB2MMq6HEh5Hrogo=;
-        b=lwSu2Yn1qEEGQsmxrjWeGdnisXgnEzilcjPnrL8Ed/+L2mDizRFHg1kjFNyxIE3Fpy
-         k2LRrpWusAi1xDVCikHJLO5PGTlUXvqdi1qZMnl69OQcrvcYgjBwGBmbS/AadoWWgnVi
-         npmNWusrBgrHjkC/goWU2efxnMKqkB2ezqWDAjJq96UyRQrFwQYTOO+57+i2joT4wMVF
-         XDabseUSakBwhwfDME6M7yHVsnEBIYeBD/Kzc40GXYulx5+uxTgkbXj20IfOUQR5nVJQ
-         wPqlBPgKxZ4JtaAU3G70pOXZTt1PcEwIFHSZE/Stv0QJnGLrKX+pQ8fJnCLvBMuo/sZ3
-         NbTg==
-X-Gm-Message-State: AOAM533Wr8x3KssVDLkUVNV0opwPhODKiOWP6pGlMrui3STTJiYcfvRc
-        UsUI2opcOm9qTjpzZc5YUMrCoLAqTcY=
-X-Google-Smtp-Source: ABdhPJwVSKOwl+5YC20UlxnpAOxr4ZLiPdd3DHbtsSFaGjP4dONE24aTClK/aOpQIJKylcMLsOOayQ==
-X-Received: by 2002:a17:902:8546:: with SMTP id d6mr4265505plo.164.1589980447832;
-        Wed, 20 May 2020 06:14:07 -0700 (PDT)
-Received: from [192.168.86.156] (cpe-75-85-219-51.dc.res.rr.com. [75.85.219.51])
-        by smtp.gmail.com with ESMTPSA id c14sm2110311pfp.122.2020.05.20.06.14.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 May 2020 06:14:07 -0700 (PDT)
-Subject: Re: [PATCH v2] io_uring: don't submit sqes when ctx->refs is dying
-To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        io-uring@vger.kernel.org
+        id S1726436AbgETNQp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 May 2020 09:16:45 -0400
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:44194 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726435AbgETNQo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 May 2020 09:16:44 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04397;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Tz6U4jg_1589980590;
+Received: from 30.225.32.165(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0Tz6U4jg_1589980590)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 20 May 2020 21:16:30 +0800
+Subject: Re: [PATCH] io_uring: reset -EBUSY error when io sq thread is waken
+ up
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
 Cc:     joseph.qi@linux.alibaba.com
-References: <20200520073503.19087-1-xiaoguang.wang@linux.alibaba.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <35f7dafb-fdff-15f5-94aa-6f1efef5eadd@kernel.dk>
-Date:   Wed, 20 May 2020 07:11:52 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+References: <20200520044059.2308-1-xiaoguang.wang@linux.alibaba.com>
+ <5d119755-01dc-e3e5-f15c-8002e26a8487@kernel.dk>
+From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Message-ID: <56da287b-adab-d9dd-e727-2d39dfdd4b7d@linux.alibaba.com>
+Date:   Wed, 20 May 2020 21:16:30 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200520073503.19087-1-xiaoguang.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <5d119755-01dc-e3e5-f15c-8002e26a8487@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 5/20/20 1:35 AM, Xiaoguang Wang wrote:
-> When IORING_SETUP_SQPOLL is enabled, io_ring_ctx_wait_and_kill() will wait
-> for sq thread to idle by busy loop:
->     while (ctx->sqo_thread && !wq_has_sleeper(&ctx->sqo_wait))
->         cond_resched();
-> Above codes are not friendly, indeed I think this busy loop will introduce a
-> cpu burst in current cpu, though it maybe short.
+hi,
+
+> On 5/19/20 10:40 PM, Xiaoguang Wang wrote:
+>> In io_sq_thread(), currently if we get an -EBUSY error, we will
+>> won't clear it again, which will result in io_sq_thread() will
+>> never have a chance to submit sqes again. Below test program test.c
+>> can reveal this bug:
+>>
+>> int main(int argc, char *argv[])
+>> {
+>>          struct io_uring ring;
+>>          int i, fd, ret;
+>>          struct io_uring_sqe *sqe;
+>>          struct io_uring_cqe *cqe;
+>>          struct iovec *iovecs;
+>>          void *buf;
+>>          struct io_uring_params p;
+>>
+>>          if (argc < 2) {
+>>                  printf("%s: file\n", argv[0]);
+>>                  return 1;
+>>          }
+>>
+>>          memset(&p, 0, sizeof(p));
+>>          p.flags = IORING_SETUP_SQPOLL;
+>>          ret = io_uring_queue_init_params(4, &ring, &p);
+>>          if (ret < 0) {
+>>                  fprintf(stderr, "queue_init: %s\n", strerror(-ret));
+>>                  return 1;
+>>          }
+>>
+>>          fd = open(argv[1], O_RDONLY | O_DIRECT);
+>>          if (fd < 0) {
+>>                  perror("open");
+>>                  return 1;
+>>          }
+>>
+>>          iovecs = calloc(10, sizeof(struct iovec));
+>>          for (i = 0; i < 10; i++) {
+>>                  if (posix_memalign(&buf, 4096, 4096))
+>>                          return 1;
+>>                  iovecs[i].iov_base = buf;
+>>                  iovecs[i].iov_len = 4096;
+>>          }
+>>
+>>          ret = io_uring_register_files(&ring, &fd, 1);
+>>          if (ret < 0) {
+>>                  fprintf(stderr, "%s: register %d\n", __FUNCTION__, ret);
+>>                  return ret;
+>>          }
+>>
+>>          for (i = 0; i < 10; i++) {
+>>                  sqe = io_uring_get_sqe(&ring);
+>>                  if (!sqe)
+>>                          break;
+>>
+>>                  io_uring_prep_readv(sqe, 0, &iovecs[i], 1, 0);
+>>                  sqe->flags |= IOSQE_FIXED_FILE;
+>>
+>>                  ret = io_uring_submit(&ring);
+>>                  sleep(1);
+>>                  printf("submit %d\n", i);
+>>          }
+>>
+>>          for (i = 0; i < 10; i++) {
+>>                  io_uring_wait_cqe(&ring, &cqe);
+>>                  printf("receive: %d\n", i);
+>>                  if (cqe->res != 4096) {
+>>                          fprintf(stderr, "ret=%d, wanted 4096\n", cqe->res);
+>>                          ret = 1;
+>>                  }
+>>                  io_uring_cqe_seen(&ring, cqe);
+>>          }
+>>
+>>          close(fd);
+>>          io_uring_queue_exit(&ring);
+>>          return 0;
+>> }
+>> sudo ./test testfile
+>> above command will hang on the tenth request, to fix this bug, when io
+>> sq_thread is waken up, we reset the variable 'ret' to be zero.
+>>
+>> Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+>> ---
+>>   fs/io_uring.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index 6e51140a5722..747de5cdf38a 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -6045,6 +6045,8 @@ static int io_sq_thread(void *data)
+>>   				finish_wait(&ctx->sqo_wait, &wait);
+>>   
+>>   				ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
+>> +				if (ret == -EBUSY)
+>> +					ret = 0;
+>>   				continue;
+>>   			}
+>>   			finish_wait(&ctx->sqo_wait, &wait);
 > 
-> In this patch, if ctx->refs is dying, we forbids sq_thread from submitting
-> sqes anymore, just discard leftover sqes.
+> How about just unconditionally clearing it? There's nothing we
+> need to preserve at this point, it should just get set to zero
+> regardless of the value.
+OK, agree, will send a new version soon, thanks.
 
-Applied for 5.8, thanks.
-
--- 
-Jens Axboe
-
+Regards,
+Xiaoguang Wang
+> 

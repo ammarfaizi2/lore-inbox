@@ -2,69 +2,71 @@ Return-Path: <SRS0=m5vF=7F=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A06D3C433DF
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 01:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D482C433E1
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 01:51:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 593DA2072C
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 01:50:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7576820776
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 01:51:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="LAvGq9CG"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="kBqllv8u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387475AbgEWBu6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 May 2020 21:50:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46912 "EHLO
+        id S2387554AbgEWBvF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 22 May 2020 21:51:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387453AbgEWBu6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 22 May 2020 21:50:58 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83079C05BD43
-        for <io-uring@vger.kernel.org>; Fri, 22 May 2020 18:50:58 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id a13so5119263pls.8
-        for <io-uring@vger.kernel.org>; Fri, 22 May 2020 18:50:58 -0700 (PDT)
+        with ESMTP id S2387540AbgEWBvC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 22 May 2020 21:51:02 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58FDC05BD43
+        for <io-uring@vger.kernel.org>; Fri, 22 May 2020 18:51:00 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id c75so5830287pga.3
+        for <io-uring@vger.kernel.org>; Fri, 22 May 2020 18:51:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7l3Vl4XUCnVrv5zLlaIS2TAqW4v3YGdr3s+ckhxwo3k=;
-        b=LAvGq9CG4T4SASualjrsfImwFHjrZ23/6PxdRJIQJ4CB67r5pCfVQlfHkmlkhrE17o
-         vlrG0IeVUqgfrC0LHjA+Flocnfg3Z03dOs44FH3RPLcrPB9l8he10iFWcqjhkLfP3ZPI
-         lkX6+1Gsd1Ny65q3n+Cu5/d2VSd36EV1pcSsbHCqYL0jCoKysJLQTtXwcVHTtO06HjF9
-         cr8h4KWHzcRkYb2Fc+NBSvWGcc4/gX6ZqX4d71d/Ybwur2aMHfV+aUt6J4jPxQ+IAS2p
-         9I2oqK48BHRVuQH/vFIjLYDuT+t0Ky0uAi5UG2mdfd0qP78H9zQUhHra4ZnPk4cE2L2w
-         q+qg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=TvoN8a3WZmoogVlnFEo2G3/jPQNtfJ5pQXb6VgaLeNI=;
+        b=kBqllv8uys4gT00yGgiunqjeponh5Nq8C8hpBlk3I4cc90Q/f4dSIrnyLUyS/Afz+r
+         0RJjV5F56+x6vupgwbgihJ4FmQ+NkFT9yuigJ6Nrmv3UBWv/0wNOHnYiCzYr1tDtGjo4
+         9QNHGjZJ73Y4XECmG7jLNdlmlEi4tPrvSdreIls5bnHJThbD/p6olZ03f+MUeQeVDE0I
+         fOxDlTpgsFLX4TUxiHF9FjuRx6OsKHlg1Buy7Ts/XS6Ufe5If00TpoJC+Nr3HjuUQ2OT
+         CVD6/VP0MSTt+JfzQ458ZhXnJAR2xxZGCO3gBrUjQrNTGpi1xfAoufFvveKQSv3Db8J8
+         hfag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7l3Vl4XUCnVrv5zLlaIS2TAqW4v3YGdr3s+ckhxwo3k=;
-        b=sv8VVNoCdYe/sc4ui4vFNbqc6qYPrGxrd8fhVT14Gg+RuwrYclEDfS8C60PeWz/GjG
-         KPVdPUomkvCdQ43/f3qP5hEXsBMRtJ8EwnBh3pIEhNn2WuZnzh1RkzgweAVOOHwxTcJl
-         DqmFoSqrCfW/Vn3/iPvLr1oFOULMroQOK7xnAUfk1Du3Y6ZeLLjfAWdXzczCztFpkgFP
-         iKiTYyuwf5g4OLdapZiRn723ASgMbWOAZlJjRN8d+YN8P9VixMNek6mzP2zAkTC8fi4V
-         4qe14+hVfIbopR/KUedFyn8Qr8c/HuVBlvw6Ep32rqvmACBrQ9NX/g6bgaBqSXRmp9gg
-         BkKw==
-X-Gm-Message-State: AOAM533i7fzyPNOsrsfC/4lfwMyIF3b8qViBOywA3KvlqArPELwLM9wh
-        BE2gW3cFxtg6eeUp7ASVWke7wBYW5s8=
-X-Google-Smtp-Source: ABdhPJzbVANbqitIh8v7v51fEGKGFyBynVcF+TbM0Ms1gwAamMyyZ0DbB1Z9x3LfCBk3dayD3vcwSw==
-X-Received: by 2002:a17:90b:e0c:: with SMTP id ge12mr8085637pjb.3.1590198657579;
-        Fri, 22 May 2020 18:50:57 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=TvoN8a3WZmoogVlnFEo2G3/jPQNtfJ5pQXb6VgaLeNI=;
+        b=TbxW/BTXJwSImGf0lQ8qFF8N05dO2oGvcNvgcmR4vuiUk+ea/OtB2VA/Yom/2zqOCA
+         gIGXCPSyuqu17TZM1j9ewnjIdfT+/rGVD4ozsTXzE4/ZkkNq8IrBI0p27RyActKJCQ+g
+         zUvPGtCa1CPc1s9T5WrpOmv3tubHUzsSOQhBGLEooUMoJkxVX4DYna4yPwaYQ6w9QKgg
+         kW8no4pnjAa25f+2rlYYa7axKIQTfQTl/LLTsFFCEoy2SzCQUSNWZ0KKNlmee3r6Opnz
+         ws5zPc83tD+kqgqjKaj/+M7OQsBKBFGb8AmHlwtjE2vGB0QvYmTUzZmmnTMLRq2ErrNI
+         E0+Q==
+X-Gm-Message-State: AOAM532ZuiQ6Sjsg19vJrkovQ4aQewgrihQCatqsi2OrMrw+qN+yKvGY
+        EsJX5LKspevu+YF5919+p/7e5e5sVXI=
+X-Google-Smtp-Source: ABdhPJwELIq6E78ugR6AHpeggJ/RDId6psVvcflU5HJfCYBxWSeXZtdKisZBE0iaGFRnuziLQ5YBKA==
+X-Received: by 2002:a62:754f:: with SMTP id q76mr6783393pfc.14.1590198660209;
+        Fri, 22 May 2020 18:51:00 -0700 (PDT)
 Received: from x1.lan ([2605:e000:100e:8c61:e0db:da55:b0a4:601])
-        by smtp.gmail.com with ESMTPSA id a71sm8255477pje.0.2020.05.22.18.50.55
+        by smtp.gmail.com with ESMTPSA id a71sm8255477pje.0.2020.05.22.18.50.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2020 18:50:56 -0700 (PDT)
+        Fri, 22 May 2020 18:50:59 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: [PATCHSET v2 RFC 0/11] Add support for async buffered reads
-Date:   Fri, 22 May 2020 19:50:38 -0600
-Message-Id: <20200523015049.14808-1-axboe@kernel.dk>
+        linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 02/11] mm: allow read-ahead with IOCB_NOWAIT set
+Date:   Fri, 22 May 2020 19:50:40 -0600
+Message-Id: <20200523015049.14808-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200523015049.14808-1-axboe@kernel.dk>
+References: <20200523015049.14808-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -72,86 +74,27 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We technically support this already through io_uring, but it's
-implemented with a thread backend to support cases where we would
-block. This isn't ideal.
+The read-ahead shouldn't block, so allow it to be done even if
+IOCB_NOWAIT is set in the kiocb.
 
-After a few prep patches, the core of this patchset is adding support
-for async callbacks on page unlock. With this primitive, we can simply
-retry the IO operation. With io_uring, this works a lot like poll based
-retry for files that support it. If a page is currently locked and
-needed, -EIOCBQUEUED is returned with a callback armed. The callers
-callback is responsible for restarting the operation.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ mm/filemap.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-With this callback primitive, we can add support for
-generic_file_buffered_read(), which is what most file systems end up
-using for buffered reads. XFS/ext4/btrfs/bdev is wired up, but probably
-trivial to add more.
-
-The file flags support for this by setting FMODE_BUF_RASYNC, similar
-to what we do for FMODE_NOWAIT. Open to suggestions here if this is
-the preferred method or not.
-
-In terms of results, I wrote a small test app that randomly reads 4G
-of data in 4K chunks from a file hosted by ext4. The app uses a queue
-depth of 32.
-
-preadv for comparison:
-	real    1m13.821s
-	user    0m0.558s
-	sys     0m11.125s
-	CPU	~13%
-
-Mainline:
-	real    0m12.054s
-	user    0m0.111s
-	sys     0m5.659s
-	CPU	~32% + ~50% == ~82%
-
-This patchset:
-	real    0m9.283s
-	user    0m0.147s
-	sys     0m4.619s
-	CPU	~52%
-													
-The CPU numbers are just a rough estimate. For the mainline io_uring
-run, this includes the app itself and all the threads doing IO on its
-behalf (32% for the app, ~1.6% per worker and 32 of them). Context
-switch rate is much smaller with the patchset, since we only have the
-one task performing IO.
-
-The goal here is efficiency. Async thread offload adds latency, and
-it also adds noticable overhead on items such as adding pages to the
-page cache. By allowing proper async buffered read support, we don't
-have X threads hammering on the same inode page cache, we have just
-the single app actually doing IO.
-
-Series can also be found here:
-
-https://git.kernel.dk/cgit/linux-block/log/?h=async-buffered.2
-
-or pull from:
-
-git://git.kernel.dk/linux-block async-buffered.2
-
- fs/block_dev.c            |   2 +-
- fs/btrfs/file.c           |   2 +-
- fs/ext4/file.c            |   2 +-
- fs/io_uring.c             | 102 ++++++++++++++++++++++++++++++++++++++
- fs/xfs/xfs_file.c         |   2 +-
- include/linux/blk_types.h |   3 +-
- include/linux/fs.h        |   5 ++
- include/linux/pagemap.h   |  39 +++++++++++++++
- mm/filemap.c              |  83 +++++++++++++++++++++++++------
- 9 files changed, 219 insertions(+), 21 deletions(-)
-
-Changes since v1:
-
-- Fix an issue with inline page locking
-- Fix a potential race with __wait_on_page_locked_async()
-- Fix a hang related to not setting page_match, thus missing a wakeup
-
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 23a051a7ef0f..80747f1377d5 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2031,8 +2031,6 @@ static ssize_t generic_file_buffered_read(struct kiocb *iocb,
+ 
+ 		page = find_get_page(mapping, index);
+ 		if (!page) {
+-			if (iocb->ki_flags & IOCB_NOWAIT)
+-				goto would_block;
+ 			page_cache_sync_readahead(mapping,
+ 					ra, filp,
+ 					index, last_index - index);
 -- 
-Jens Axboe
-
+2.26.2
 

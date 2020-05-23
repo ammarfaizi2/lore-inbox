@@ -2,183 +2,122 @@ Return-Path: <SRS0=m5vF=7F=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE400C433DF
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD2F4C433E2
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A63CF206DD
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DFA12071C
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="xrX2ydrb"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="xXH53Mx3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387575AbgEWEbn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 May 2020 00:31:43 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:50848 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387460AbgEWEbn (ORCPT
+        id S2387460AbgEWEbo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 May 2020 00:31:44 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:49384 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387559AbgEWEbn (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 23 May 2020 00:31:43 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4RtPM071742;
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4VgJc106512;
         Sat, 23 May 2020 04:31:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=BTz7ve27debhRuQSPj2mXcFroKc/phwU4uSR+HqbnYA=;
- b=xrX2ydrbDeU7ltsGQI8PrikTmL1R7qqTIioIqgAjnE3pHlYXWXaIwkxZj89OQ1kmTipQ
- 6RABg7rQ148E2JwwIdng6s11g2aJTY3MdqpORDGyGrQ60daEO47poSexHqrD8Sc98RIa
- 0cGHRod+PtahSwIrwwTAcDg3H83HkhUDLAXmmVW1kLKuF9ZND/F684JddiUB+7FPHQvq
- AZ6lOeJlOJdwXVa8ldzadwfIjIit455C8DniOdwrb3xXyPSonIxNiRBmBV8Cg9qh6cv9
- CXDdDjds7EdiJa3qtJDGGFqaqmDCqpMuNsxVij+hF7YyMotqwBq8N7dAHWXLBrQlyxaY Pg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 316uskg2q9-1
+ bh=tMPhRUznemQYR8I0qfmrrxDkqLn+onW192ks+8m3fWI=;
+ b=xXH53Mx3ZdmlnnidzgCOS6pusNkEAX7xWMv88ugfyplqTWT55hju4UrGvXq5PFXg67Za
+ 4N9YF3FqYStC2V1FMo9gs8o/Wfm/yXGf56kTimvaIuwwFqCtsBh1RjUPgL/fecMt4xE1
+ 5hCC+cnj5XVx8gCVWr06ljdR8bZ211GO2PVE2Z03lIj47AkGr/1vtQGMaX/fjLyXDk+K
+ dAHPKdtTRMKdyLYpsbxjtaEHSKM/GAD3c3AkgmDF8bzVgVrOps/i90gEaSx0daKNgiwS
+ G/9cz8PNdP4xJA2tOQDmZZMJs1MN27MjxtQhbA15/qVW6AiTq1e8L1nsfvfh8gSH62By yw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2130.oracle.com with ESMTP id 316u8qg436-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
         Sat, 23 May 2020 04:31:42 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4SjC8128420;
-        Sat, 23 May 2020 04:31:41 GMT
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4TJ6Y043039;
+        Sat, 23 May 2020 04:31:42 GMT
 Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 316sv8pet3-1
+        by userp3020.oracle.com with ESMTP id 316u5gw4rm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 23 May 2020 04:31:41 +0000
+        Sat, 23 May 2020 04:31:42 +0000
 Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04N4VcvA014354;
-        Sat, 23 May 2020 04:31:38 GMT
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04N4Vdgf014356;
+        Sat, 23 May 2020 04:31:39 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 22 May 2020 21:31:38 -0700
+        with ESMTP ; Fri, 22 May 2020 21:31:39 -0700
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v2 1/4] io_uring: add io_statx structure
-Date:   Fri, 22 May 2020 21:31:16 -0700
-Message-Id: <1590208279-33811-2-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v2 4/4] statx: hide interfaces no longer used by io_uring
+Date:   Fri, 22 May 2020 21:31:19 -0700
+Message-Id: <1590208279-33811-5-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=1
- adultscore=0 phishscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 malwarescore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=1 adultscore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
  definitions=main-2005230035
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 lowpriorityscore=0
- suspectscore=1 spamscore=0 priorityscore=1501 clxscore=1015
- impostorscore=0 bulkscore=0 mlxlogscore=999 phishscore=0
- cotscore=-2147483648 adultscore=0 mlxscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005230035
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
+ priorityscore=1501 spamscore=0 cotscore=-2147483648 suspectscore=1
+ phishscore=0 clxscore=1015 mlxlogscore=999 bulkscore=0 adultscore=0
+ lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005230036
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Separate statx data from open in io_kiocb. No functional changes.
+The io_uring interfaces have been replaced by do_statx() and are no
+longer needed.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 38 ++++++++++++++++++++++----------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+ fs/internal.h | 2 --
+ fs/stat.c     | 5 +++--
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 654e1c7..fba0ddb 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -424,11 +424,7 @@ struct io_sr_msg {
- struct io_open {
- 	struct file			*file;
- 	int				dfd;
--	union {
--		unsigned		mask;
--	};
- 	struct filename			*filename;
--	struct statx __user		*buffer;
- 	struct open_how			how;
- 	unsigned long			nofile;
- };
-@@ -480,6 +476,15 @@ struct io_provide_buf {
- 	__u16				bid;
- };
+diff --git a/fs/internal.h b/fs/internal.h
+index 614a559..fcb47cc 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -199,7 +199,5 @@ int do_fchownat(int dfd, const char __user *filename, uid_t user, gid_t group,
+ /*
+  * fs/stat.c:
+  */
+-unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags, int flags);
+-int cp_statx(const struct kstat *stat, struct statx __user *buffer);
+ int do_statx(int dfd, const char __user *filename, unsigned flags,
+ 	     unsigned int mask, struct statx __user *buffer);
+diff --git a/fs/stat.c b/fs/stat.c
+index bc5d2e81..44f8ad3 100644
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -156,7 +156,8 @@ int vfs_statx_fd(unsigned int fd, struct kstat *stat,
+ }
+ EXPORT_SYMBOL(vfs_statx_fd);
  
-+struct io_statx {
-+	struct file			*file;
-+	int				dfd;
-+	unsigned int			mask;
-+	unsigned int			flags;
-+	struct filename			*filename;
-+	struct statx __user		*buffer;
-+};
-+
- struct io_async_connect {
- 	struct sockaddr_storage		address;
- };
-@@ -621,6 +626,7 @@ struct io_kiocb {
- 		struct io_epoll		epoll;
- 		struct io_splice	splice;
- 		struct io_provide_buf	pbuf;
-+		struct io_statx		statx;
- 	};
- 
- 	struct io_async_ctx		*io;
-@@ -3379,19 +3385,19 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (req->flags & REQ_F_NEED_CLEANUP)
- 		return 0;
- 
--	req->open.dfd = READ_ONCE(sqe->fd);
--	req->open.mask = READ_ONCE(sqe->len);
-+	req->statx.dfd = READ_ONCE(sqe->fd);
-+	req->statx.mask = READ_ONCE(sqe->len);
- 	fname = u64_to_user_ptr(READ_ONCE(sqe->addr));
--	req->open.buffer = u64_to_user_ptr(READ_ONCE(sqe->addr2));
--	req->open.how.flags = READ_ONCE(sqe->statx_flags);
-+	req->statx.buffer = u64_to_user_ptr(READ_ONCE(sqe->addr2));
-+	req->statx.flags = READ_ONCE(sqe->statx_flags);
- 
--	if (vfs_stat_set_lookup_flags(&lookup_flags, req->open.how.flags))
-+	if (vfs_stat_set_lookup_flags(&lookup_flags, req->statx.flags))
- 		return -EINVAL;
- 
--	req->open.filename = getname_flags(fname, lookup_flags, NULL);
--	if (IS_ERR(req->open.filename)) {
--		ret = PTR_ERR(req->open.filename);
--		req->open.filename = NULL;
-+	req->statx.filename = getname_flags(fname, lookup_flags, NULL);
-+	if (IS_ERR(req->statx.filename)) {
-+		ret = PTR_ERR(req->statx.filename);
-+		req->statx.filename = NULL;
- 		return ret;
- 	}
- 
-@@ -3401,7 +3407,7 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- static int io_statx(struct io_kiocb *req, bool force_nonblock)
+-inline unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags, int flags)
++static inline unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags,
++						 int flags)
  {
--	struct io_open *ctx = &req->open;
-+	struct io_statx *ctx = &req->statx;
- 	unsigned lookup_flags;
- 	struct path path;
- 	struct kstat stat;
-@@ -3414,7 +3420,7 @@ static int io_statx(struct io_kiocb *req, bool force_nonblock)
- 		return -EAGAIN;
- 	}
+ 	if ((flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
+ 		       AT_EMPTY_PATH | KSTAT_QUERY_FLAGS)) != 0)
+@@ -542,7 +543,7 @@ static long cp_new_stat64(struct kstat *stat, struct stat64 __user *statbuf)
+ }
+ #endif /* __ARCH_WANT_STAT64 || __ARCH_WANT_COMPAT_STAT64 */
  
--	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->how.flags))
-+	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->flags))
- 		return -EINVAL;
- 
- retry:
-@@ -3426,7 +3432,7 @@ static int io_statx(struct io_kiocb *req, bool force_nonblock)
- 	if (ret)
- 		goto err;
- 
--	ret = vfs_getattr(&path, &stat, ctx->mask, ctx->how.flags);
-+	ret = vfs_getattr(&path, &stat, ctx->mask, ctx->flags);
- 	path_put(&path);
- 	if (retry_estale(ret, lookup_flags)) {
- 		lookup_flags |= LOOKUP_REVAL;
+-noinline_for_stack int
++static noinline_for_stack int
+ cp_statx(const struct kstat *stat, struct statx __user *buffer)
+ {
+ 	struct statx tmp;
 -- 
 1.8.3.1
 

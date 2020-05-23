@@ -2,186 +2,194 @@ Return-Path: <SRS0=m5vF=7F=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 798C6C433E0
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A94AFC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 18:58:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44B8D206DD
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:33:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88FE920735
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 18:58:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="X26SHZfc"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="IoUb1h2v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387446AbgEWEdo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 May 2020 00:33:44 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:51938 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387430AbgEWEdn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 23 May 2020 00:33:43 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4X79R075131;
-        Sat, 23 May 2020 04:33:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=csR/9uQq7g8oWxg9R0qkRysbmLcV7PGtH5ro26drzUA=;
- b=X26SHZfcC5ceklgwnHLJdETBKFWMQtAQ6Wgg5Wi+r0BRtkr3ou3e9bz9BnE3YArJW0JE
- SH4lui60C1CBn/gBVtgrlyjMwzJIodStCXOmCj3/v2WdNH9mDZcRVPLZlbmK9Ha53Jxn
- Q7mguJZYxNIzaCnn9zz0/HmSDXqrA7U5JqQvm6RLLMs5iLPaST+U+K80ul2FerB72SI4
- nPXCcRUToiX2ilX5Chx4eTNDRvi0s5S3ZydGEMpfyx7rUcwdt3SgGkqK+W/phZDPgm8s
- f7vNwE8JAg99ra0dOBdMMBrTSKn8BxBhmkarrz+K5iXVt6B+F9ZTtHUV1AR7oUNT5tQF rQ== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 316uskg2t0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 23 May 2020 04:33:42 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4StMX128581;
-        Sat, 23 May 2020 04:31:41 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 316sv8pet2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 23 May 2020 04:31:41 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04N4VdXh014355;
-        Sat, 23 May 2020 04:31:39 GMT
-Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 22 May 2020 21:31:39 -0700
-From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-To:     axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v2 3/4] io_uring: call statx directly
-Date:   Fri, 22 May 2020 21:31:18 -0700
-Message-Id: <1590208279-33811-4-git-send-email-bijan.mottahedeh@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
-References: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=1
- adultscore=0 phishscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005230035
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 lowpriorityscore=0
- suspectscore=1 spamscore=0 priorityscore=1501 clxscore=1015
- impostorscore=0 bulkscore=0 mlxlogscore=999 phishscore=0
- cotscore=-2147483648 adultscore=0 mlxscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005230036
+        id S1728595AbgEWS6H (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 May 2020 14:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387867AbgEWS6F (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 23 May 2020 14:58:05 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9A3C08C5C0
+        for <io-uring@vger.kernel.org>; Sat, 23 May 2020 11:58:05 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id t16so5754393plo.7
+        for <io-uring@vger.kernel.org>; Sat, 23 May 2020 11:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=hENt+q3Sn8CtA9tFAzdLO364i6JHcfhAdPtfDTKZjEw=;
+        b=IoUb1h2vKy+f0dtwmFTBDbGpNkk2wMhwXrlubxdrni8AO8E3DlT5YodBAgH9Bo0lAb
+         lW1WJtaBGZfKwnRBxn+qBzZenE2peUkQgkHh9d5nebmKYs9YNDiCd8dvOvjDpj5rbO/n
+         s0s7FihoaBqMkq0rzhjJcs2EnEd0abWfbDYSs2ekcPcCYLeB3N4zFnamKz+cGsxj8eNn
+         F1ChMVdkAafH9S53RqNorXpYaYMzFBN1kPsG+QlVPUMBDg9DTew082jQfzOc2ih2Qb/r
+         3M+n7gPxJSlSImnvwlieeQzY2ObPa3uuVP6JcfMVBkARc9hJaWxZEAFois6e3Jy0h+Ct
+         G8EQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=hENt+q3Sn8CtA9tFAzdLO364i6JHcfhAdPtfDTKZjEw=;
+        b=amVVSjgFF+pBwGkwmhALQTsnYKuakCIIQHuhehYZHmXM3FG3QJFDH6RkIahvAU0xjW
+         Ui6MmQzKScfcV910EZbCkO2HwI6cdicPokbTKO9KhqQSp+TqbVPTrnx9RXdI3JduSzV4
+         G1mSrcb2kzVRUnljUbAX+hHtaPKCrNE4ScQhE62BCYBQHrD9ybmfFZgpn/db+lEutSQz
+         m2k+ICRgizpApLo256kRI9LOzHlqLbL053HD+a8mRINw5/31UcEKMVYXipk2JmU7py0k
+         jIL6tJjTQmyuurWdqTouErtoxP1uYDbd44M7szbxyzck5gHB254UTceXrFl6UYNlMdxl
+         BWkA==
+X-Gm-Message-State: AOAM531SpuKG5V1fcLOHPZWyDGSCYlZCqyptkk1juPiFTML7Cx908Ml8
+        bSYHAl1Z1cRVQnqXFF/Qp/tgcvlmkWA/kg==
+X-Google-Smtp-Source: ABdhPJz0eo745gK+bLfHgAeIdJu+l6vnctKVtOYWF0tbpRSPS4ji6QlFp3fk/3FEBowyABl4PmcaOg==
+X-Received: by 2002:a17:90b:1897:: with SMTP id mn23mr11837825pjb.84.1590260284702;
+        Sat, 23 May 2020 11:58:04 -0700 (PDT)
+Received: from x1.lan ([2605:e000:100e:8c61:c94:a67a:9209:cf5f])
+        by smtp.gmail.com with ESMTPSA id 25sm9297319pjk.50.2020.05.23.11.58.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 May 2020 11:58:04 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 04/12] mm: add support for async page locking
+Date:   Sat, 23 May 2020 12:57:47 -0600
+Message-Id: <20200523185755.8494-5-axboe@kernel.dk>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200523185755.8494-1-axboe@kernel.dk>
+References: <20200523185755.8494-1-axboe@kernel.dk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Calling statx directly both simplifies the interface and avoids potential
-incompatibilities between sync and async invokations.
+Normally waiting for a page to become unlocked, or locking the page,
+requires waiting for IO to complete. Add support for lock_page_async()
+and wait_on_page_locked_async(), which are callback based instead. This
+allows a caller to get notified when a page becomes unlocked, rather
+than wait for it.
 
-Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+We use the iocb->private field to pass in this necessary data for this
+to happen. struct wait_page_key is made public, and we define struct
+wait_page_async as the interface between the caller and the core.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 50 ++++----------------------------------------------
- 1 file changed, 4 insertions(+), 46 deletions(-)
+ include/linux/fs.h      |  2 ++
+ include/linux/pagemap.h |  9 +++++++++
+ mm/filemap.c            | 41 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 52 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fba0ddb..e068ee5 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -481,7 +481,7 @@ struct io_statx {
- 	int				dfd;
- 	unsigned int			mask;
- 	unsigned int			flags;
--	struct filename			*filename;
-+	const char __user		*filename;
- 	struct statx __user		*buffer;
- };
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 7e84d823c6a8..82b989695ab9 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -314,6 +314,8 @@ enum rw_hint {
+ #define IOCB_SYNC		(1 << 5)
+ #define IOCB_WRITE		(1 << 6)
+ #define IOCB_NOWAIT		(1 << 7)
++/* iocb->private holds wait_page_async struct */
++#define IOCB_WAITQ		(1 << 8)
  
-@@ -3374,43 +3374,23 @@ static int io_fadvise(struct io_kiocb *req, bool force_nonblock)
+ struct kiocb {
+ 	struct file		*ki_filp;
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 53d980f2208d..d3e63c9c61ae 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -495,6 +495,7 @@ static inline int wake_page_match(struct wait_page_queue *wait_page,
  
- static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
--	const char __user *fname;
--	unsigned lookup_flags;
--	int ret;
--
- 	if (sqe->ioprio || sqe->buf_index)
- 		return -EINVAL;
- 	if (req->flags & REQ_F_FIXED_FILE)
- 		return -EBADF;
--	if (req->flags & REQ_F_NEED_CLEANUP)
--		return 0;
- 
- 	req->statx.dfd = READ_ONCE(sqe->fd);
- 	req->statx.mask = READ_ONCE(sqe->len);
--	fname = u64_to_user_ptr(READ_ONCE(sqe->addr));
-+	req->statx.filename = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	req->statx.buffer = u64_to_user_ptr(READ_ONCE(sqe->addr2));
- 	req->statx.flags = READ_ONCE(sqe->statx_flags);
- 
--	if (vfs_stat_set_lookup_flags(&lookup_flags, req->statx.flags))
--		return -EINVAL;
--
--	req->statx.filename = getname_flags(fname, lookup_flags, NULL);
--	if (IS_ERR(req->statx.filename)) {
--		ret = PTR_ERR(req->statx.filename);
--		req->statx.filename = NULL;
--		return ret;
--	}
--
--	req->flags |= REQ_F_NEED_CLEANUP;
+ extern void __lock_page(struct page *page);
+ extern int __lock_page_killable(struct page *page);
++extern int __lock_page_async(struct page *page, struct wait_page_queue *wait);
+ extern int __lock_page_or_retry(struct page *page, struct mm_struct *mm,
+ 				unsigned int flags);
+ extern void unlock_page(struct page *page);
+@@ -531,6 +532,14 @@ static inline int lock_page_killable(struct page *page)
  	return 0;
  }
  
- static int io_statx(struct io_kiocb *req, bool force_nonblock)
- {
- 	struct io_statx *ctx = &req->statx;
--	unsigned lookup_flags;
--	struct path path;
--	struct kstat stat;
- 	int ret;
++static inline int lock_page_async(struct page *page,
++				  struct wait_page_queue *wait)
++{
++	if (!trylock_page(page))
++		return __lock_page_async(page, wait);
++	return 0;
++}
++
+ /*
+  * lock_page_or_retry - Lock the page, unless this would block and the
+  * caller indicated that it can handle a retry.
+diff --git a/mm/filemap.c b/mm/filemap.c
+index e891b5bee8fd..c746541b1d49 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -1183,6 +1183,42 @@ int wait_on_page_bit_killable(struct page *page, int bit_nr)
+ }
+ EXPORT_SYMBOL(wait_on_page_bit_killable);
  
- 	if (force_nonblock) {
-@@ -3420,29 +3400,9 @@ static int io_statx(struct io_kiocb *req, bool force_nonblock)
- 		return -EAGAIN;
- 	}
++static int __wait_on_page_locked_async(struct page *page,
++				       struct wait_page_queue *wait, bool set)
++{
++	struct wait_queue_head *q = page_waitqueue(page);
++	int ret = 0;
++
++	wait->page = page;
++	wait->bit_nr = PG_locked;
++
++	spin_lock_irq(&q->lock);
++	if (set)
++		ret = !trylock_page(page);
++	else
++		ret = PageLocked(page);
++	if (ret) {
++		__add_wait_queue_entry_tail(q, &wait->wait);
++		SetPageWaiters(page);
++		if (set)
++			ret = !trylock_page(page);
++		else
++			ret = PageLocked(page);
++		/*
++		 * If we were succesful now, we know we're still on the
++		 * waitqueue as we're still under the lock. This means it's
++		 * safe to remove and return success, we know the callback
++		 * isn't going to trigger.
++		 */
++		if (!ret)
++			__remove_wait_queue(q, &wait->wait);
++		else
++			ret = -EIOCBQUEUED;
++	}
++	spin_unlock_irq(&q->lock);
++	return ret;
++}
++
+ /**
+  * put_and_wait_on_page_locked - Drop a reference and wait for it to be unlocked
+  * @page: The page to wait for.
+@@ -1345,6 +1381,11 @@ int __lock_page_killable(struct page *__page)
+ }
+ EXPORT_SYMBOL_GPL(__lock_page_killable);
  
--	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->flags))
--		return -EINVAL;
--
--retry:
--	/* filename_lookup() drops it, keep a reference */
--	ctx->filename->refcnt++;
--
--	ret = filename_lookup(ctx->dfd, ctx->filename, lookup_flags, &path,
--				NULL);
--	if (ret)
--		goto err;
-+	ret = do_statx(ctx->dfd, ctx->filename, ctx->flags, ctx->mask,
-+		       ctx->buffer);
- 
--	ret = vfs_getattr(&path, &stat, ctx->mask, ctx->flags);
--	path_put(&path);
--	if (retry_estale(ret, lookup_flags)) {
--		lookup_flags |= LOOKUP_REVAL;
--		goto retry;
--	}
--	if (!ret)
--		ret = cp_statx(&stat, ctx->buffer);
--err:
--	putname(ctx->filename);
--	req->flags &= ~REQ_F_NEED_CLEANUP;
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	io_cqring_add_event(req, ret);
-@@ -5204,8 +5164,6 @@ static void io_cleanup_req(struct io_kiocb *req)
- 		break;
- 	case IORING_OP_OPENAT:
- 	case IORING_OP_OPENAT2:
--	case IORING_OP_STATX:
--		putname(req->open.filename);
- 		break;
- 	case IORING_OP_SPLICE:
- 	case IORING_OP_TEE:
++int __lock_page_async(struct page *page, struct wait_page_queue *wait)
++{
++	return __wait_on_page_locked_async(page, wait, true);
++}
++
+ /*
+  * Return values:
+  * 1 - page is locked; mmap_sem is still held.
 -- 
-1.8.3.1
+2.26.2
 

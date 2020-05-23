@@ -2,122 +2,116 @@ Return-Path: <SRS0=m5vF=7F=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD2F4C433E2
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39E19C433E5
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DFA12071C
-	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 190132071C
+	for <io-uring@archiver.kernel.org>; Sat, 23 May 2020 04:31:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="xXH53Mx3"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="zKrtr+tB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387460AbgEWEbo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 May 2020 00:31:44 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:49384 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387559AbgEWEbn (ORCPT
+        id S2387565AbgEWEbp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 May 2020 00:31:45 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:36118 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387430AbgEWEbn (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 23 May 2020 00:31:43 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4VgJc106512;
-        Sat, 23 May 2020 04:31:42 GMT
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4VfB5015315;
+        Sat, 23 May 2020 04:31:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=tMPhRUznemQYR8I0qfmrrxDkqLn+onW192ks+8m3fWI=;
- b=xXH53Mx3ZdmlnnidzgCOS6pusNkEAX7xWMv88ugfyplqTWT55hju4UrGvXq5PFXg67Za
- 4N9YF3FqYStC2V1FMo9gs8o/Wfm/yXGf56kTimvaIuwwFqCtsBh1RjUPgL/fecMt4xE1
- 5hCC+cnj5XVx8gCVWr06ljdR8bZ211GO2PVE2Z03lIj47AkGr/1vtQGMaX/fjLyXDk+K
- dAHPKdtTRMKdyLYpsbxjtaEHSKM/GAD3c3AkgmDF8bzVgVrOps/i90gEaSx0daKNgiwS
- G/9cz8PNdP4xJA2tOQDmZZMJs1MN27MjxtQhbA15/qVW6AiTq1e8L1nsfvfh8gSH62By yw== 
+ subject : date : message-id; s=corp-2020-01-29;
+ bh=mWgNTQumQ1encShq6SogN6drXIr1/uryGkMcf27ofJ4=;
+ b=zKrtr+tBkK+GLVbkzFwDFkwTEwU/42CAwv3yt39oJK44txwAmu/1vXt7uEDmwz510lKV
+ wsTFcpRQSWH/fTncRiyuOM9Fz7fRnR4rBMku/EdoTiUC7jJ8ESEBdYHPoe3fG4AoYD6N
+ FsoOi/34/ulTKGdYtARGC3P5kNqpsdmkFzR5Ynkxge/3Zqmi8nljHUeYvZe1NC3RyXDW
+ y+Ejy8/myJ/yeqQcqzdQRK//wRYuMV597/os6EJSCNU7z3qqOwIO4Vqpf9V0A7ne0spZ
+ NVbrKCbU81lJgSeLiFX6s/qzuZidmGveTFwVv5tuRzd5LKq7dB4I4PBndzCRO9S2zSkP Sw== 
 Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 316u8qg436-1
+        by userp2120.oracle.com with ESMTP id 316vfn010w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 23 May 2020 04:31:42 +0000
+        Sat, 23 May 2020 04:31:41 +0000
 Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4TJ6Y043039;
-        Sat, 23 May 2020 04:31:42 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 316u5gw4rm-1
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04N4Tng3043501;
+        Sat, 23 May 2020 04:31:41 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3020.oracle.com with ESMTP id 316u5gw4qx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 23 May 2020 04:31:42 +0000
+        Sat, 23 May 2020 04:31:41 +0000
 Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04N4Vdgf014356;
-        Sat, 23 May 2020 04:31:39 GMT
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04N4Vcrv013966;
+        Sat, 23 May 2020 04:31:38 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 22 May 2020 21:31:39 -0700
+        with ESMTP ; Fri, 22 May 2020 21:31:38 -0700
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v2 4/4] statx: hide interfaces no longer used by io_uring
-Date:   Fri, 22 May 2020 21:31:19 -0700
-Message-Id: <1590208279-33811-5-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v2 0/4] io_uring: call statx directly
+Date:   Fri, 22 May 2020 21:31:15 -0700
+Message-Id: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
-References: <1590208279-33811-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 malwarescore=0
- mlxlogscore=999 bulkscore=0 suspectscore=1 adultscore=0 phishscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=3 adultscore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
  definitions=main-2005230035
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9629 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
- priorityscore=1501 spamscore=0 cotscore=-2147483648 suspectscore=1
- phishscore=0 clxscore=1015 mlxlogscore=999 bulkscore=0 adultscore=0
- lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2005230036
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 malwarescore=0 spamscore=0 impostorscore=0
+ mlxlogscore=999 lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=3
+ cotscore=-2147483648 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2005230036
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The io_uring interfaces have been replaced by do_statx() and are no
-longer needed.
+v1 -> v2
 
-Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
----
- fs/internal.h | 2 --
- fs/stat.c     | 5 +++--
- 2 files changed, 3 insertions(+), 4 deletions(-)
+- Separate statx and open in io_kiocb 
+- Remove external declarations for unused statx interfaces
 
-diff --git a/fs/internal.h b/fs/internal.h
-index 614a559..fcb47cc 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -199,7 +199,5 @@ int do_fchownat(int dfd, const char __user *filename, uid_t user, gid_t group,
- /*
-  * fs/stat.c:
-  */
--unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags, int flags);
--int cp_statx(const struct kstat *stat, struct statx __user *buffer);
- int do_statx(int dfd, const char __user *filename, unsigned flags,
- 	     unsigned int mask, struct statx __user *buffer);
-diff --git a/fs/stat.c b/fs/stat.c
-index bc5d2e81..44f8ad3 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -156,7 +156,8 @@ int vfs_statx_fd(unsigned int fd, struct kstat *stat,
- }
- EXPORT_SYMBOL(vfs_statx_fd);
- 
--inline unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags, int flags)
-+static inline unsigned vfs_stat_set_lookup_flags(unsigned *lookup_flags,
-+						 int flags)
- {
- 	if ((flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
- 		       AT_EMPTY_PATH | KSTAT_QUERY_FLAGS)) != 0)
-@@ -542,7 +543,7 @@ static long cp_new_stat64(struct kstat *stat, struct stat64 __user *statbuf)
- }
- #endif /* __ARCH_WANT_STAT64 || __ARCH_WANT_COMPAT_STAT64 */
- 
--noinline_for_stack int
-+static noinline_for_stack int
- cp_statx(const struct kstat *stat, struct statx __user *buffer)
- {
- 	struct statx tmp;
+This patch set is a fix for the liburing statx test failure.
+
+The test fails with a "Miscompare between io_uring and statx" error
+because the statx system call path has additional processing in vfs_statx():
+
+        stat->result_mask |= STATX_MNT_ID;
+        if (path.mnt->mnt_root == path.dentry)
+                stat->attributes |= STATX_ATTR_MOUNT_ROOT;
+        stat->attributes_mask |= STATX_ATTR_MOUNT_ROOT;
+
+which then results in different result_mask values.
+
+Allowing the system call to be invoked directly simplifies the io_uring
+interface and avoids potential future incompatibilities.  I'm not sure
+if there was other reasoning fort not doing so initially.
+
+One issue I cannot account for is the difference in "used" memory reported
+by free(1) after running the statx a large (10000) number of times.
+
+The difference is significant ~100k and doesn't really change after
+dropping caches.
+
+I enabled memory leak detection and couldn't see anything related to the test.
+
+Bijan Mottahedeh (4):
+  io_uring: add io_statx structure
+  statx: allow system call to be invoked from io_uring
+  io_uring: call statx directly
+  statx: hide interfaces no longer used by io_uring
+
+ fs/internal.h |  4 ++--
+ fs/io_uring.c | 72 +++++++++++++++--------------------------------------------
+ fs/stat.c     | 37 +++++++++++++++++-------------
+ 3 files changed, 42 insertions(+), 71 deletions(-)
+
 -- 
 1.8.3.1
 

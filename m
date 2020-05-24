@@ -2,99 +2,93 @@ Return-Path: <SRS0=0TsM=7G=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89688C433E0
-	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:23:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85711C433E1
+	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:24:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67DA720787
-	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:23:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6450F20787
+	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:24:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="gxGduZqo"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="e+VnPB6K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388090AbgEXTXF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 24 May 2020 15:23:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36936 "EHLO
+        id S2388029AbgEXTYq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 24 May 2020 15:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387854AbgEXTWQ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 24 May 2020 15:22:16 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6886C08C5C2
-        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:14 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id ci21so7674182pjb.3
-        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:14 -0700 (PDT)
+        with ESMTP id S2388009AbgEXTYp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 24 May 2020 15:24:45 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCFEC05BD43
+        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:24:44 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id p21so7761173pgm.13
+        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:24:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DT9kV8IQxC/D+uhFJsefv+iJT3TxYB4ReZ7s4ZFOil0=;
-        b=gxGduZqosF0z63K53o9awU20QA6ufSZ5TTqRe+tv3AOsZ2QlQ979YXr+1dskXq52Jk
-         HS3I9zTGgZsmogN4rJCO292dN+jQ4Bh81nqndOGDqgUTCuNwtxtCzXuJPlAMKQRJ58uA
-         DuMNOBDX6nN/HrDjMdSSysjmoxpz5chCYgMsvnmdpOOufOk2jA7gdSzJR/TzXpAMz7Lj
-         M0TIw38/7f79f2cKH+xUDuzBnClVTmIWWKOLweF65hex28srdE77jZIapgVeALrqEfAA
-         ocGg0o8OhrW4mbtznbLks7cKK3H/ZDmHlmgcJ/0qYgXMDuB9nDi7913IThDZ9hVUMz+H
-         0p2w==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Dgc3lxr2w8bqe7nZRW8lKjFTzqIALZXVaHjKz6zro3w=;
+        b=e+VnPB6Ko1789GSjUbC5PBmmKMbZDoprtwNwSYo6Modwe+qUJSLxKRvETyHOsx+iaF
+         F2i5yehyv8rgJtaiUIFt0U92bf4Y5FVCL12fqCATHKChX6SYTalfaewnHHp3WxkHY83Q
+         7rxj7BdB829+EV8HmJlzz3qXZuE1Kk1rwt9gsxkugR7A/ykv3wiBBXdnq49s4dF9AYiX
+         zId1SRMwlerW6+8br+rRS0jlsnjPXnzaG3yvz3afr3UK1+yKvGRZ138GUItgFUZtfaB7
+         d0oCLOSKrQttJKYA4jTReghoh6HdrAQrRrEzkzf+s4FT7Fz1DWHL6drtw54iBaSWbMfq
+         ICTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DT9kV8IQxC/D+uhFJsefv+iJT3TxYB4ReZ7s4ZFOil0=;
-        b=Czbqx2xcNeckqqJvUIMEHuh5Wc2kiuKQeaxgpp2t8dQJjWATlhDbWI4E00zx5/e93U
-         xvJrVYqo4kjgIEDiMvFXQVIo0rMHTXbkA36TX/2M8WdJ+ybBHakLSCS9qhd9fv1TjhKg
-         wArFbX6mmEIsfgjXEMNXGYlxrgkKPo+JHjNn/F1bu+WNu8LmZGPr6s3Zm9+P9QsSkV4a
-         DBL9EvvXbdvSK7x8hX0Tnd4K/R9bR6VJjFoSiQgcgl7l6NXNm0GtrKUlr3J5H7fqUfG/
-         PA7/Yoi/RNrO91SGa5Qx2lOIYQn93aln8ZsZQdIGSWId7JojCtaqxDkBHA3INIvyFlff
-         OkXw==
-X-Gm-Message-State: AOAM533E4kRhEHstoDPkBE71UEIQxOJGHoJ2K/OTYM57BSugcK5EfMUN
-        H+AT/+I8K++S+m86mTNEKLm3rWs99W0eKA==
-X-Google-Smtp-Source: ABdhPJyWrtKyXRFlA4SwqdiGTTumD68oCqrgZnBOzPkJTTFSdRxzhdggPB+vLC5MAtEqdrvZvv1y/Q==
-X-Received: by 2002:a17:90a:648c:: with SMTP id h12mr17363317pjj.229.1590348133979;
-        Sun, 24 May 2020 12:22:13 -0700 (PDT)
-Received: from x1.lan ([2605:e000:100e:8c61:c871:e701:52fa:2107])
-        by smtp.gmail.com with ESMTPSA id t21sm10312426pgu.39.2020.05.24.12.22.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 May 2020 12:22:13 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Dgc3lxr2w8bqe7nZRW8lKjFTzqIALZXVaHjKz6zro3w=;
+        b=I0+ol30ctiBdxZwSdOMvIdctm9IkaWL/GRN2ecP53MZuV/hyx/Pp/Ppi5CN9/z+AeX
+         KXW7Cwgunb5SNd9M2NJbeKJ88U05CstydBkrg2FFJ64N46BM+dAIvrTkKTuvKvHxy20V
+         uuU3L8uwVFNK3kSEU5cO7zPR6ncGRqPBOBcC+7W+hcFfq4R+iaAhudGaZ0WBlshtyFDZ
+         qH4nkpWMBeQCYa4ZqVNuc8K6+D1s2+l/2LXzYwja42HbIkkYYciXTX4QWtOa9yZjXqJb
+         qSGmb7N6543GU5SsPFWIEqZwZNnPVw5wWi3P4ODhTzEh/GtplUdA+MFEMOecCJpfpuZm
+         Wz3w==
+X-Gm-Message-State: AOAM533xiUNTvONJTZBqOdgUJYBJPugXWM1yx6QE0oTgu5Q9AkQS7JB9
+        ZaO47eQDVYqq968hKMRBbmR9jA==
+X-Google-Smtp-Source: ABdhPJzxor4BiLVaXHSh4qj7gDp1AJs+eMT8WKofeCCw54L99wJmJlkXn8O1bc5hT4IwWo1ovoT1sw==
+X-Received: by 2002:a63:da50:: with SMTP id l16mr22609989pgj.198.1590348284045;
+        Sun, 24 May 2020 12:24:44 -0700 (PDT)
+Received: from ?IPv6:2605:e000:100e:8c61:343d:8ab7:4cee:d96f? ([2605:e000:100e:8c61:343d:8ab7:4cee:d96f])
+        by smtp.gmail.com with ESMTPSA id g18sm10134116pgn.47.2020.05.24.12.24.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 24 May 2020 12:24:43 -0700 (PDT)
+Subject: Re: [PATCHSET v2 0/12] Add support for async buffered reads
+To:     Chris Panayis <chris@movency.com>, io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 01/12] block: read-ahead submission should imply no-wait as well
-Date:   Sun, 24 May 2020 13:21:55 -0600
-Message-Id: <20200524192206.4093-2-axboe@kernel.dk>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200524192206.4093-1-axboe@kernel.dk>
-References: <20200524192206.4093-1-axboe@kernel.dk>
+        linux-mm@kvack.org
+References: <20200523185755.8494-1-axboe@kernel.dk>
+ <2b42c0c3-5d3c-e381-4193-83cb3f971399@kernel.dk>
+ <43ee202c-ffd1-2276-3c8d-7d5201b60684@movency.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ba854ebb-b4d3-1982-9602-61888ba77a5f@kernel.dk>
+Date:   Sun, 24 May 2020 13:24:42 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <43ee202c-ffd1-2276-3c8d-7d5201b60684@movency.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As read-ahead is opportunistic, don't block for request allocation.
+On 5/24/20 3:46 AM, Chris Panayis wrote:
+> Yes! Jens & Team! Yes!
+> 
+> My code has never looked so beautiful, been so efficient and run so well 
+> since switching to io_uring/async awesome-ness.. Really, really is a 
+> game-changer in terms of software design, control, performance, 
+> expressiveness... so many levels. Really, really great work! Thank you!
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- include/linux/blk_types.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Thanks! Glad you like it.
 
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index ccb895f911b1..c296463c15eb 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -374,7 +374,8 @@ enum req_flag_bits {
- #define REQ_INTEGRITY		(1ULL << __REQ_INTEGRITY)
- #define REQ_FUA			(1ULL << __REQ_FUA)
- #define REQ_PREFLUSH		(1ULL << __REQ_PREFLUSH)
--#define REQ_RAHEAD		(1ULL << __REQ_RAHEAD)
-+#define REQ_RAHEAD		\
-+	((1ULL << __REQ_RAHEAD) | (1ULL << __REQ_NOWAIT))
- #define REQ_BACKGROUND		(1ULL << __REQ_BACKGROUND)
- #define REQ_NOWAIT		(1ULL << __REQ_NOWAIT)
- #define REQ_CGROUP_PUNT		(1ULL << __REQ_CGROUP_PUNT)
 -- 
-2.26.2
+Jens Axboe
 

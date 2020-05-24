@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C65EC433E3
-	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A103C433E0
+	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:22:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DD31208B6
-	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:22:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E87E20787
+	for <io-uring@archiver.kernel.org>; Sun, 24 May 2020 19:22:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="gwUf5uPg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="AYei7bDK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387755AbgEXTWf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 24 May 2020 15:22:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36962 "EHLO
+        id S2388303AbgEXTWk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 24 May 2020 15:22:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388257AbgEXTW3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 24 May 2020 15:22:29 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399ADC08C5C0
-        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:29 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id w20so2751366pga.6
-        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:29 -0700 (PDT)
+        with ESMTP id S2388233AbgEXTW0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 24 May 2020 15:22:26 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56165C08C5C5
+        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:25 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id fs4so711846pjb.5
+        for <io-uring@vger.kernel.org>; Sun, 24 May 2020 12:22:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=kF6sqIhK1kfWOOpnyDDaJ/ad9nyWKxvOfw+GwZJVlBw=;
-        b=gwUf5uPgRtpjmEmdekl/X9t1p9KbSX8a5FZv451K+HmJ+E2Dxys7Iv+FahH6uXL921
-         Rl0Y5qaKfAJ0eZcvKH/3dgpG1oRJgXwwEQ7iU6vxiUjCHxy0LS/4Ic8jVU2Eu3LjGmN+
-         rldYhIDm4b83DiavFv7abtxG5uSAqnGPy1LA2qmghBtOgoOmXtFwoiT5QoL4RP+GyKi5
-         1QI5nAo9rFdzTXerS1E2gsghoGegqw49q0HHU6kI2nExtUVM3eLuYmzJ1n/wMbwh8yfT
-         eVLUkBm32Dohxe4j71zdA/Dwmp7n/74hzA14Gx+QYz6Ec4eNIJvrlpSZtpUFZSxOOiyo
-         U7Fg==
+        bh=39qQrTBLEctUrGanLy/C45/WjdVfQkC7faPzmr+qhpI=;
+        b=AYei7bDKo4OkFtepp3xg4zfIw0hnd0Ebv9o/8vOyKbFHZ8InT64M5SLPyKbX5X3sUK
+         Fkh7pM1hAJFMjnux/MH3PsrYNU/IaoreI0I/UUZHTe9NxJWQKmxRBMtdWR0udtiIbeCb
+         FbxxIyYfHNT7MeXwmxuPM/7LHoWK8VkstsOX8wEOu3N5XhIfsuTIrmRWTVi0+n8wkRb7
+         DNDwTBRW8SzP5mVNKj3+C6xyivFrnnJeUTG5ro7J3AmMh1Q5eZRP+8NIJUqmNnigS3cu
+         DHQtC5SBLkYMeJN9r23BQVb8ndCYHRhxM7a0nMmr6b8oFKNZjU2N+KNcXWF6qvyESK5u
+         YF5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kF6sqIhK1kfWOOpnyDDaJ/ad9nyWKxvOfw+GwZJVlBw=;
-        b=Ywblc9Lw1lUXdcmtH/esnKObKLHFSvoUpjA07enErcsasrAHKqWPN++elBfDf4pcHD
-         px3XOPZapUmYLCXs/Lkgu3GnnCXCX1iME9QF5Oz8Hyz1TVIlSHg/8T2uTQWEnpvh9O9u
-         tt9WlGFw8mhkO4bw+bs6ftraFqo6S0cs7Fev4fQXJWglXpNnOgg+AcZ92ickFXTnG8V+
-         h1Lb0aT/Ea4B/4BcgBJL3s0Jq3VjYLbfmdor7colRbfWD6nVT1260l9PnvYOiOSKxNiM
-         zdIhegSPlSDjksNC7TXKDqSQ3f9ABE4YyJ0ndHpqskzwGUplwlpYfKdKb0+MwM5LXx0O
-         VIgQ==
-X-Gm-Message-State: AOAM533r9zGPTDI6HHpAvxjUAAqwVSqLPa2Xx4RX4wNz8XL1B5cP8Voy
-        +tDR8BWDwpl12QIF8H2N94zCoMZI66vt2w==
-X-Google-Smtp-Source: ABdhPJw949rfc/hqYgfl8eQoUT5vJ4BjzwrkpBKSe+ivpeT8GSGdsUzSxxCDQRY+v8G1lA3nTvPojA==
-X-Received: by 2002:a63:5b0e:: with SMTP id p14mr2275730pgb.43.1590348148417;
-        Sun, 24 May 2020 12:22:28 -0700 (PDT)
+        bh=39qQrTBLEctUrGanLy/C45/WjdVfQkC7faPzmr+qhpI=;
+        b=HSKS2ymlZU69iZzWN/41gIv9B1SY2/dH6JR9vOQlFq5W0zdmX3uGCo6Rf6wbUOY2Ns
+         bsuKfBIijpfmta1yOvG7TJBbQLUWaLBo1zgHSesKN+11hWobHeI3TaJ6Kwxdm0QDRuJy
+         ++l8qw+/4L+HqUR54fzsf2B3Znx3KWxtLCD+olAEkGhxoYsNYfZIYENWPsNDQCPS6s4I
+         7FGDbY5WwNuNDv+i6jRzuMgaKQySmWTa1XRb6BRbqG20OiqlYOOI4IX9YSAkm75AK3pN
+         WmZ4aBRozDelPi/8Cs0FHRtWs2lZ5vE/mdgNMcL2GIsTHRRzhsYp25J5XuuCB1wDqfmr
+         AUkg==
+X-Gm-Message-State: AOAM533z2DSqRwY1BwSpQrvowoqjmg/YOyD5gWW9YUia3ckcXHWIW3Hc
+        M3Wvcta5RTWrGhi78K/Lr2a+RUvKCZ6mQw==
+X-Google-Smtp-Source: ABdhPJz6bGpR32ObwKt+551KDTdoAZNVR9ZlVB3PlXK2+knHsCmS9S73FZQgm9i0pCo/tlaxVlOxZQ==
+X-Received: by 2002:a17:90a:2e8a:: with SMTP id r10mr6482101pjd.33.1590348144618;
+        Sun, 24 May 2020 12:22:24 -0700 (PDT)
 Received: from x1.lan ([2605:e000:100e:8c61:c871:e701:52fa:2107])
-        by smtp.gmail.com with ESMTPSA id t21sm10312426pgu.39.2020.05.24.12.22.27
+        by smtp.gmail.com with ESMTPSA id t21sm10312426pgu.39.2020.05.24.12.22.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 May 2020 12:22:27 -0700 (PDT)
+        Sun, 24 May 2020 12:22:24 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 12/12] io_uring: support true async buffered reads, if file provides it
-Date:   Sun, 24 May 2020 13:22:06 -0600
-Message-Id: <20200524192206.4093-13-axboe@kernel.dk>
+Subject: [PATCH 09/12] xfs: flag files as supporting buffered async reads
+Date:   Sun, 24 May 2020 13:22:03 -0600
+Message-Id: <20200524192206.4093-10-axboe@kernel.dk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200524192206.4093-1-axboe@kernel.dk>
 References: <20200524192206.4093-1-axboe@kernel.dk>
@@ -74,164 +74,26 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If the file is flagged with FMODE_BUF_RASYNC, then we don't have to punt
-the buffered read to an io-wq worker. Instead we can rely on page
-unlocking callbacks to support retry based async IO. This is a lot more
-efficient than doing async thread offload.
-
-The retry is done similarly to how we handle poll based retry. From
-the unlock callback, we simply queue the retry to a task_work based
-handler.
+XFS uses generic_file_read_iter(), which already supports this.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 112 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 112 insertions(+)
+ fs/xfs/xfs_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e95481c552ff..23073857239c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -498,6 +498,8 @@ struct io_async_rw {
- 	struct iovec			*iov;
- 	ssize_t				nr_segs;
- 	ssize_t				size;
-+	struct wait_page_queue		wpq;
-+	struct callback_head		task_work;
- };
- 
- struct io_async_ctx {
-@@ -2568,6 +2570,112 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index 4b8bdecc3863..97f44fbf17f2 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -1080,7 +1080,7 @@ xfs_file_open(
+ 		return -EFBIG;
+ 	if (XFS_FORCED_SHUTDOWN(XFS_M(inode->i_sb)))
+ 		return -EIO;
+-	file->f_mode |= FMODE_NOWAIT;
++	file->f_mode |= FMODE_NOWAIT | FMODE_BUF_RASYNC;
  	return 0;
  }
  
-+static void io_async_buf_cancel(struct callback_head *cb)
-+{
-+	struct io_async_rw *rw;
-+	struct io_ring_ctx *ctx;
-+	struct io_kiocb *req;
-+
-+	rw = container_of(cb, struct io_async_rw, task_work);
-+	req = rw->wpq.wait.private;
-+	ctx = req->ctx;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	io_cqring_fill_event(req, -ECANCELED);
-+	io_commit_cqring(ctx);
-+	spin_unlock_irq(&ctx->completion_lock);
-+
-+	io_cqring_ev_posted(ctx);
-+	req_set_fail_links(req);
-+	io_double_put_req(req);
-+}
-+
-+static void io_async_buf_retry(struct callback_head *cb)
-+{
-+	struct io_async_rw *rw;
-+	struct io_ring_ctx *ctx;
-+	struct io_kiocb *req;
-+
-+	rw = container_of(cb, struct io_async_rw, task_work);
-+	req = rw->wpq.wait.private;
-+	ctx = req->ctx;
-+
-+	__set_current_state(TASK_RUNNING);
-+	mutex_lock(&ctx->uring_lock);
-+	__io_queue_sqe(req, NULL);
-+	mutex_unlock(&ctx->uring_lock);
-+}
-+
-+static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
-+			     int sync, void *arg)
-+{
-+	struct wait_page_queue *wpq;
-+	struct io_kiocb *req = wait->private;
-+	struct io_async_rw *rw = &req->io->rw;
-+	struct wait_page_key *key = arg;
-+	struct task_struct *tsk;
-+	int ret;
-+
-+	wpq = container_of(wait, struct wait_page_queue, wait);
-+
-+	ret = wake_page_match(wpq, key);
-+	if (ret != 1)
-+		return ret;
-+
-+	list_del_init(&wait->entry);
-+
-+	init_task_work(&rw->task_work, io_async_buf_retry);
-+	/* submit ref gets dropped, acquire a new one */
-+	refcount_inc(&req->refs);
-+	tsk = req->task;
-+	ret = task_work_add(tsk, &rw->task_work, true);
-+	if (unlikely(ret)) {
-+		/* queue just for cancelation */
-+		init_task_work(&rw->task_work, io_async_buf_cancel);
-+		tsk = io_wq_get_task(req->ctx->io_wq);
-+		task_work_add(tsk, &rw->task_work, true);
-+	}
-+	wake_up_process(tsk);
-+	return 1;
-+}
-+
-+static bool io_rw_should_retry(struct io_kiocb *req)
-+{
-+	struct kiocb *kiocb = &req->rw.kiocb;
-+	int ret;
-+
-+	/* never retry for NOWAIT, we just complete with -EAGAIN */
-+	if (req->flags & REQ_F_NOWAIT)
-+		return false;
-+
-+	/* already tried, or we're doing O_DIRECT */
-+	if (kiocb->ki_flags & (IOCB_DIRECT | IOCB_WAITQ))
-+		return false;
-+	/*
-+	 * just use poll if we can, and don't attempt if the fs doesn't
-+	 * support callback based unlocks
-+	 */
-+	if (file_can_poll(req->file) || !(req->file->f_mode & FMODE_BUF_RASYNC))
-+		return false;
-+
-+	/*
-+	 * If request type doesn't require req->io to defer in general,
-+	 * we need to allocate it here
-+	 */
-+	if (!req->io && __io_alloc_async_ctx(req))
-+		return false;
-+
-+	ret = kiocb_wait_page_queue_init(kiocb, &req->io->rw.wpq,
-+						io_async_buf_func, req);
-+	if (!ret) {
-+		get_task_struct(current);
-+		req->task = current;
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
- static int io_read(struct io_kiocb *req, bool force_nonblock)
- {
- 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
-@@ -2601,6 +2709,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 	if (!ret) {
- 		ssize_t ret2;
- 
-+retry:
- 		if (req->file->f_op->read_iter)
- 			ret2 = call_read_iter(req->file, kiocb, &iter);
- 		else
-@@ -2619,6 +2728,9 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 			if (!(req->flags & REQ_F_NOWAIT) &&
- 			    !file_can_poll(req->file))
- 				req->flags |= REQ_F_MUST_PUNT;
-+			if (io_rw_should_retry(req))
-+				goto retry;
-+			kiocb->ki_flags &= ~IOCB_WAITQ;
- 			return -EAGAIN;
- 		}
- 	}
 -- 
 2.26.2
 

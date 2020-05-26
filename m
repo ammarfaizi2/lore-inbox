@@ -2,100 +2,132 @@ Return-Path: <SRS0=0Or6=7I=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D74FDC433E0
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7383C433E0
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:57:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD50C2088E
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A32D6207D8
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:57:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="EEzkohF3"
+	dkim=pass (1024-bit key) header.d=fb.com header.i=@fb.com header.b="M5tWjRXf";
+	dkim=pass (1024-bit key) header.d=fb.onmicrosoft.com header.i=@fb.onmicrosoft.com header.b="aAtuAwpk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390170AbgEZTva (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 May 2020 15:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390039AbgEZTv3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 15:51:29 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A65C03E96F
-        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:29 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id x11so8123577plv.9
-        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=TvoN8a3WZmoogVlnFEo2G3/jPQNtfJ5pQXb6VgaLeNI=;
-        b=EEzkohF3SUyIeVc607D1E79iz7OYkD/uy0I4GSnchfP+t2/8/jBtqFox0ipMXW7gmS
-         ofFyzP3GFe0yYbASDLZaxrNNYrAZioS6+qyZzi3BNWoxV7sx7HqmGaPk0jbEdJvgnKeB
-         LS9UwziDdS5h+5MFwXcOepQDNcjfOPRuuNqKL+56cp6TcQw3V1rzfELuJiMDiQxFYBUv
-         vodgm8HTVNcfKt1cQ9mCuLi6iS5R/Q8g3QwtsGY6bO7P1eejUGE4Bg2SUpBDQd14zfM1
-         K3pATJ3oH3ooIkQY7kB2SG6VI0b8+IfGy1HVnsFn7Li+LHrtGMCLBa+H3phkx45yiFvC
-         NeTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=TvoN8a3WZmoogVlnFEo2G3/jPQNtfJ5pQXb6VgaLeNI=;
-        b=LHz42H2Pn7Zm/cQVKZ1ew3gJIgNrRRzTN/XD199pOpOkGfaCJNtZjbPPJDTqC8Z1+2
-         gLVIWuetGFzfqw42bUNdU5mHqKveBwodFm3jcVZxyliqKJ9knLlUmvO4zxFeLxYpo5Fg
-         mSy8GKlWVZusJYaMlg2idnJ/WfP0dqQJkrLQrkZ35cE/AVWZf3NYbJ5gJE8kLmdoh02m
-         MDEBgkPSJtzwyi6CAiTNVUd7L1wa/SCmv7mn/1Zdxa0BxZN9Wwkg18io7qqJ7TFSDeZF
-         zoUk0hbhYeO0De5J3R3FQEtfJsGcqaJ87f6Cf7x3iO/wiSg2QqfL3ouf9mT0wm55b83c
-         URcg==
-X-Gm-Message-State: AOAM533VkEBtugtfdI5nfgUHqq13R+ZvoEB4XGORHN1aoVZN+myanmQB
-        jUTTO0btyOcMUCIgM4fW9hOrBN3pBeilrw==
-X-Google-Smtp-Source: ABdhPJzlKhcLATAMmx3CWvH61LMiVxHHoRlGG4C3q4JS7w38d9LDkh0jn/mRK3Wz+nSKoQ/Hn6XBsQ==
-X-Received: by 2002:a17:90a:1b25:: with SMTP id q34mr920742pjq.12.1590522688801;
-        Tue, 26 May 2020 12:51:28 -0700 (PDT)
-Received: from x1.lan ([2605:e000:100e:8c61:94bb:59d2:caf6:70e1])
-        by smtp.gmail.com with ESMTPSA id c184sm313943pfc.57.2020.05.26.12.51.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 12:51:28 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, akpm@linux-foundation.org,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 02/12] mm: allow read-ahead with IOCB_NOWAIT set
-Date:   Tue, 26 May 2020 13:51:13 -0600
-Message-Id: <20200526195123.29053-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526195123.29053-1-axboe@kernel.dk>
+        id S2390705AbgEZT5n (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 May 2020 15:57:43 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:5920 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389442AbgEZT5m (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 15:57:42 -0400
+Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04QJnDEs011172;
+        Tue, 26 May 2020 12:57:39 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-type :
+ mime-version; s=facebook; bh=eMG9lHG3IOuhOz7NnllvpNvp1QEdyjbUEuwtGDVOhkc=;
+ b=M5tWjRXfQBKGPCkpXoRkhrOm7LI1g/8b+/HhqRMPwj7hRlcoiJXaXiX8Ucxn0dja3wZe
+ LDWB3NY19V/gtlN9gWaIJXbBeXt9iLlwJo4F80W3XrFPetkDOoDgbdjEGT5KO99AxErm
+ RH8soMLwHSU28OrlJim0e7XcHdUuKvyihAs= 
+Received: from mail.thefacebook.com ([163.114.132.120])
+        by mx0a-00082601.pphosted.com with ESMTP id 3171jpkk7u-2
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Tue, 26 May 2020 12:57:39 -0700
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (100.104.98.9) by
+ o365-in.thefacebook.com (100.104.94.199) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Tue, 26 May 2020 12:57:37 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VhLkaouoQYBzSCmW1Xy2F4VldmN3Y+Su0vunp0HtJnIxjh5JV2Fm2T5pl5ece33h5PT4NLcyZ1bdwZMvMxxtFEgQX4MEIPttnwLJRaZmry83/OFt3gpuQ95Pzaq36WWJ+JQriK3+M7htgVggqAUAE22uIhx+uFteVaONQVUliEhr+hmKlJFdFAjLtVbLwk4fv8HEEcHoanSbrAwk3agPRyn2F0KdnZS8mfaAftxxxv1/fjwDddT8MlfD/0hMW5UeCoBQ9VEc/ANVmUjjrhayEsQ9kmNLPnZBQoPfG026gNy4QQGtbpsok32IaNdaomVDhYK+V5k/Gt5jUTLlNUgT+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eMG9lHG3IOuhOz7NnllvpNvp1QEdyjbUEuwtGDVOhkc=;
+ b=WVBYebz7h1XPkyT7vsb6q7lbApGmcX+bBHmaommLzY72bf4/HkTKFHaKqvFMK0QfHgAzV1MfzMlk/vDd+5dSPRGVGhipOLP0wi2nx/5ZZhvZOLnNmFlstsahIhrTh5z1PKWoqTp0WVrfkzldC5gBixu4qUYhvEnwrMG78I6uUbPRA+kpbrjKEyU/MuOA9pjMrkeFin6YdsiMAYtQkhesxqTJ17NgcZnNk5/aTChFx7Xei5Xhqqad4TbeXnF1rHoZDycZPozSDp5nK58axDgGpH/jRvKuFKt0pUsIwFURhSeVO2/PODVO6oOw17TQSNUHo6B2uioOYz02v5BPCJbI3A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
+ header.d=fb.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
+ s=selector2-fb-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eMG9lHG3IOuhOz7NnllvpNvp1QEdyjbUEuwtGDVOhkc=;
+ b=aAtuAwpk+nrUemSXPQ1TtQRRJQlT5BoUwcb1+qFPfk/fMI6HjRE0dBsGJd4TBRqBAJBeUOkhEVzNgpCStQo100GcSwgYnR7/WSa3L08mVqCXqceccFf+gAjlqkmHzGCyL0dPrbxB3kKnaXKm2rBntDoQRv7Os0V++s4j9jFJvRw=
+Authentication-Results: kernel.dk; dkim=none (message not signed)
+ header.d=none;kernel.dk; dmarc=none action=none header.from=fb.com;
+Received: from CH2PR15MB3608.namprd15.prod.outlook.com (2603:10b6:610:12::11)
+ by CH2PR15MB3607.namprd15.prod.outlook.com (2603:10b6:610:a::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3021.23; Tue, 26 May
+ 2020 19:57:36 +0000
+Received: from CH2PR15MB3608.namprd15.prod.outlook.com
+ ([fe80::5800:a4ef:d5b3:4dd1]) by CH2PR15MB3608.namprd15.prod.outlook.com
+ ([fe80::5800:a4ef:d5b3:4dd1%5]) with mapi id 15.20.3021.029; Tue, 26 May 2020
+ 19:57:36 +0000
+From:   "Chris Mason" <clm@fb.com>
+To:     Jens Axboe <axboe@kernel.dk>
+CC:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        <akpm@linux-foundation.org>
+Subject: Re: [PATCH 10/12] btrfs: flag files as supporting buffered async
+ reads
+Date:   Tue, 26 May 2020 15:57:33 -0400
+X-Mailer: MailMate (1.13.1r5671)
+Message-ID: <2C2CDFF4-F736-4B19-B00F-D9244CDB3E21@fb.com>
+In-Reply-To: <20200526195123.29053-11-axboe@kernel.dk>
 References: <20200526195123.29053-1-axboe@kernel.dk>
+ <20200526195123.29053-11-axboe@kernel.dk>
+Content-Type: text/plain
+X-ClientProxiedBy: MN2PR16CA0015.namprd16.prod.outlook.com
+ (2603:10b6:208:134::28) To CH2PR15MB3608.namprd15.prod.outlook.com
+ (2603:10b6:610:12::11)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [100.109.101.106] (2620:10d:c091:480::1:f13c) by MN2PR16CA0015.namprd16.prod.outlook.com (2603:10b6:208:134::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3021.26 via Frontend Transport; Tue, 26 May 2020 19:57:35 +0000
+X-Mailer: MailMate (1.13.1r5671)
+X-Originating-IP: [2620:10d:c091:480::1:f13c]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: dc0d8129-11f9-4b81-c774-08d801af0939
+X-MS-TrafficTypeDiagnostic: CH2PR15MB3607:
+X-Microsoft-Antispam-PRVS: <CH2PR15MB3607D9DE5536DD4DB810EF17D3B00@CH2PR15MB3607.namprd15.prod.outlook.com>
+X-FB-Source: Internal
+X-MS-Oob-TLC-OOBClassifiers: OLM:962;
+X-Forefront-PRVS: 041517DFAB
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: lqDQxuEgtoDUVPIG6FDWFK1AtYj4MXHZRISHfj+FlbZbKZQWBu1+YZO1knhCpf84YH6BdY9bpc9Ca9NA4tPtmRrVp7L9nWPt2F9R9GKwZ0qqFXZkLgWEUVEdw5w4pyDmkNOmuLPEdhYYNHdxHpzildlgyDpl37XMg41SrDNa8S2bTj0SE7KntmM2y8xYrd63usar7Hx6gyiK/upxM3l1irmarRk8UEian2imjf8iBk99JU3k96/9Wv1ufnlpk/gtK0aTbaHih/o90tCKlbL/nXuBY+yRjA5Z58lJX9pgcT0can4NIWTdjbgDkftdgILemNRKJo6U2uH8phIQRv90QCW39QolsM3JCGleflCWxDqsEbKLH1dKmexQNYYwNpYrU9Dc3dOLiwHEuoModw7aoH4Q8cFNUoaSfJflgSdsEko=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR15MB3608.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(136003)(396003)(39860400002)(346002)(376002)(366004)(186003)(16526019)(2906002)(86362001)(8936002)(36756003)(478600001)(33656002)(66476007)(66556008)(66946007)(53546011)(52116002)(316002)(8676002)(558084003)(6916009)(956004)(2616005)(5660300002)(4326008)(6486002)(78286006);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: T2LslvBluQ3bjsHzwY81J+BRNRSeQuOr7cb0ewHM2rWed2WrjSC0t2BvmuCvkfTZT6faMLZbnE5MyQnZGg3WU1M5+aBXnpmPWHyNJrVHg9M9RxN86/xvfMLM0mQODYMWBWMptb29BF0IpxuMR+VUaXl/EbD0WV3PRmLbbWgHlyPGznfLQ5UbBIcxsksVBPF8UkzcB0M/s6QvzzkpOxIxyXYerTEqdNx95cgOR/yzqLt8+6StvRg8ULkTCBYIeqF0EMabb4rVFLU8dUrf6vvcfae2Hm+USn58w+G+egbxcexcUwuVM6v7Cx315i5OTHLIaQzs/2bL2/m8ghwHQJyjhhawxG/tZiw/Q5kvvBZV2FJ4uSLZ57o1I09QdE4tTqHk0kWnOcNJe5awBBN73evQZe563B2UmMfrckOupn8NI6zEMArRgF0STyEP52I7g9fm6v/ne698T37yRVqugAoQGw0gCP+6Q7BcR3O8rVXnn4H4kY8t/nA9fPdRL56Mfw4pmif8PKs4WN6FJaBMb5fczQ==
+X-MS-Exchange-CrossTenant-Network-Message-Id: dc0d8129-11f9-4b81-c774-08d801af0939
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2020 19:57:36.0320
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: iC603E26yZbOsLXjrB5carCscG0KTlaJcbtsV8//zBvCCCejzJGvfTa/ijbspSrY
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR15MB3607
+X-OriginatorOrg: fb.com
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
+ definitions=2020-05-26_02:2020-05-26,2020-05-26 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 bulkscore=0 spamscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ mlxscore=0 clxscore=1011 impostorscore=0 mlxlogscore=663
+ cotscore=-2147483648 lowpriorityscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005260155
+X-FB-Internal: deliver
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The read-ahead shouldn't block, so allow it to be done even if
-IOCB_NOWAIT is set in the kiocb.
+On 26 May 2020, at 15:51, Jens Axboe wrote:
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- mm/filemap.c | 2 --
- 1 file changed, 2 deletions(-)
+> btrfs uses generic_file_read_iter(), which already supports this.
+>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 23a051a7ef0f..80747f1377d5 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2031,8 +2031,6 @@ static ssize_t generic_file_buffered_read(struct kiocb *iocb,
- 
- 		page = find_get_page(mapping, index);
- 		if (!page) {
--			if (iocb->ki_flags & IOCB_NOWAIT)
--				goto would_block;
- 			page_cache_sync_readahead(mapping,
- 					ra, filp,
- 					index, last_index - index);
--- 
-2.26.2
+Really looking forward to this!
 
+Acked-by: Chris Mason <clm@fb.com>

@@ -2,71 +2,68 @@ Return-Path: <SRS0=0Or6=7I=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81C61C433E1
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 17:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 137C8C433DF
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 17:36:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F27220873
+	by mail.kernel.org (Postfix) with ESMTP id DBE7820873
 	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 17:36:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Psm6/u9J"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eSRk60Z5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389359AbgEZRgF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 May 2020 13:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47580 "EHLO
+        id S2389224AbgEZRfp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 May 2020 13:35:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389243AbgEZRfp (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 13:35:45 -0400
+        with ESMTP id S2388784AbgEZRfn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 13:35:43 -0400
 Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49623C03E96D;
-        Tue, 26 May 2020 10:35:45 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id nr22so8370588ejb.6;
-        Tue, 26 May 2020 10:35:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA8AC03E96D;
+        Tue, 26 May 2020 10:35:42 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id l21so24730596eji.4;
+        Tue, 26 May 2020 10:35:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=cF/H22IrH4Q++fp1tOhrxsdESk3Jt5D36vD3e1cvXpU=;
-        b=Psm6/u9JyWiod1LQIXrR0p6geR/OTP/AXtstHIqJ2z5f4vmvyHd8/hyNWBC1LQpCWk
-         eMuyrvCGP4XwfEymacF1sxMOGa6ckZOHvjAdEtnQVRUojgj57TDZ5Ibbizufk2jOoOKU
-         nboqv2csyoPVN21/GJYoKRlE+M03MyBi6jT4IfjbYHR4QKhsHNYkojDWpU9L0goJbn4G
-         530wcFy+P31pZBLHwSmBaG56Uc2lia+61IKvFurGtcFusOxFDsQaWkwkSak0gcxnz0yV
-         uqRKQWRtA0ok3Po5baAFT3YSVDbXQyirfeVXbBcBWG4o4F/uX0mD6nPg1Eyolv5tfhWD
-         RFRw==
+        bh=vcMNbORvIjJ2la5oap9DjFcpa/YIWrMblMOSotFUClk=;
+        b=eSRk60Z5I56xBZBdTUOJ4envTL5Y2lMwiTIgL3XrXP55VyO69IGkjPTk3A2j28qsls
+         WxDRQHHyqrRmj4zaTjZpWvMXu70IX2Vn4G32CRw/BDz90FS2TKchSp0zUMio8tS2pJMr
+         JyJHt7ArONILqWOmA3/NHq0lN6QOxuZYQBp/kRqi41D7m7Kr78WSodKMNODAtijMrl3d
+         b5+V0hxU2Cs/Fje9MyjVUlpyS/RBOW9cmjMTIn22l3/OLzbklxTJ6VslXi01IHWPSXkT
+         XhcgWQJl+tUZVzcXWnX5U0+ydAaWif7uuzysOw3Vp2bDo7v27HF4+uvaGjn8TgZj1DLr
+         PJuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=cF/H22IrH4Q++fp1tOhrxsdESk3Jt5D36vD3e1cvXpU=;
-        b=cNKKT/KrghBMKubsxyNLWcT/CnFp+7yYYrwTHvtNMQhPEfenKsC1niV2FZTeYO54Qm
-         S8tgKHdkWRiME3VslhmrTghh8RFstNKSXhitmUsxmpbgDRW7SSon+3lhAEactZZ+60dm
-         LNjbxI2dEVDBrEQa/SQNxoDIOBlQj/DyTwaaQz37xB+YA5xS9SWpPkbQwKqAxzzgbzDm
-         oqyWmabphJqK1ugyKfBfQ1bxEAxpZPY/MRM5jXdE976awkyBqdI84SK0TDqi3os3CNoU
-         /KmpGbWOgZC5ygwxDzCq5x2Kzij78BFtvs4fKTaq3UY26TZbSW4vA/NJvsUJKIY86MQE
-         Xsmg==
-X-Gm-Message-State: AOAM532PXnGUAYZN5yNbYPPzdSVX+rtQ09qYIqNFRjbfW3V6pff7zadv
-        BwiGz7Tgy6H4P8q3HPpsspU=
-X-Google-Smtp-Source: ABdhPJytD61Yw291LkD8z776m83gt45LaQp113EgOfSPIqZRJ+7XU7Du+iRwX5pYRp6NKP6f3LdWfw==
-X-Received: by 2002:a17:906:944e:: with SMTP id z14mr2051658ejx.86.1590514543968;
-        Tue, 26 May 2020 10:35:43 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vcMNbORvIjJ2la5oap9DjFcpa/YIWrMblMOSotFUClk=;
+        b=lVDJgcGgaiA/fIxi2exF4KbFR+AD5iMhFr6+SEC2ax5FTXlcm57l/4q0pADXgycpzt
+         f7VAAGfa8MF2B9n6ovBPtaQk1/WZOpNVsdaI+0a1vtoZDKPrhfW7yD6GFKSVTVZDapBn
+         aRF1lJb2areeudQuWjlUdS9LHHfguIEnzhPi3/6bUPBmtmaIPDfK+k6kSC5P58RWzd1Y
+         ZddTeTzp1n0X1uPWTCUGyBCIwsl5C2iXSmtZ4xQ3toCC4l7T1uQtTXFSiSyccjOAGfee
+         aMBWMx5yoEyTFWcb8/hZpBhkg9E9gKPGrSZR1bJHC+6f5emtIa4IsIgThAFRfLeMMopP
+         HP9g==
+X-Gm-Message-State: AOAM5330Y+lUcWPgJpT0hz54+lK294FC67lTCdYfwEB0MzGH3f4+ZUFX
+        XdQWNAvfvPmZAj/waI6217c=
+X-Google-Smtp-Source: ABdhPJyK0sQ6Non1RS6u11ZqHLO9HSHJJemplDjJkxZGjagrE5vFaLeEv/X6XvyHlterzThMRcBJ/g==
+X-Received: by 2002:a17:906:4088:: with SMTP id u8mr2156486ejj.444.1590514541446;
+        Tue, 26 May 2020 10:35:41 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id bz8sm391326ejc.94.2020.05.26.10.35.43
+        by smtp.gmail.com with ESMTPSA id bz8sm391326ejc.94.2020.05.26.10.35.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 10:35:43 -0700 (PDT)
+        Tue, 26 May 2020 10:35:40 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/6] io_uring: simplify io_timeout locking
-Date:   Tue, 26 May 2020 20:34:03 +0300
-Message-Id: <a34d6960cbd39aed1361b7cfd0a606acddfec193.1590513806.git.asml.silence@gmail.com>
+Subject: [PATCH 0/6] random patches for 5.8
+Date:   Tue, 26 May 2020 20:34:01 +0300
+Message-Id: <cover.1590513806.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1590513806.git.asml.silence@gmail.com>
-References: <cover.1590513806.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -74,42 +71,20 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move spin_lock_irq() earlier to have only 1 call site of it in
-io_timeout(). It makes the flow easier.
+Nothing insteresting in particular, just start flushing stashed patches.
+Ones in this series are pretty easy and short.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Pavel Begunkov (6):
+  io_uring: fix flush req->refs underflow
+  io_uring: simplify io_timeout locking
+  io_uring: don't re-read sqe->off in timeout_prep()
+  io_uring: separate DRAIN flushing into a cold path
+  io_uring: get rid of manual punting in io_close
+  io_uring: let io_req_aux_free() handle fixed files
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 42b5603ee410..e30fc17dd268 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4845,6 +4845,7 @@ static int io_timeout(struct io_kiocb *req)
- 	u32 seq = req->sequence;
- 
- 	data = &req->io->timeout;
-+	spin_lock_irq(&ctx->completion_lock);
- 
- 	/*
- 	 * sqe->off holds how many events that need to occur for this
-@@ -4853,7 +4854,6 @@ static int io_timeout(struct io_kiocb *req)
- 	 */
- 	if (!count) {
- 		req->flags |= REQ_F_TIMEOUT_NOSEQ;
--		spin_lock_irq(&ctx->completion_lock);
- 		entry = ctx->timeout_list.prev;
- 		goto add;
- 	}
-@@ -4864,7 +4864,6 @@ static int io_timeout(struct io_kiocb *req)
- 	 * Insertion sort, ensuring the first entry in the list is always
- 	 * the one we need first.
- 	 */
--	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_prev(entry, &ctx->timeout_list) {
- 		struct io_kiocb *nxt = list_entry(entry, struct io_kiocb, list);
- 		unsigned nxt_seq;
+ fs/io_uring.c | 64 ++++++++++++++++++++-------------------------------
+ 1 file changed, 25 insertions(+), 39 deletions(-)
+
 -- 
 2.24.0
 

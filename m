@@ -2,100 +2,95 @@ Return-Path: <SRS0=0Or6=7I=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B43C433DF
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 17:36:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C26A9C433E0
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 18:03:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B829220704
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 17:36:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90F7220721
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 18:03:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uQnXDtLs"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="u/ZRPnBT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389243AbgEZRgK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 May 2020 13:36:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+        id S1728761AbgEZSDP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 May 2020 14:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389220AbgEZRfo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 13:35:44 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F2C5C03E96E;
-        Tue, 26 May 2020 10:35:44 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id l27so2607729ejc.1;
-        Tue, 26 May 2020 10:35:44 -0700 (PDT)
+        with ESMTP id S1728445AbgEZSDP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 14:03:15 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6364C03E96D
+        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 11:03:13 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id q9so119614pjm.2
+        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 11:03:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=44M/lrAxl1LLe2QftqBq8tLTI0t8rZO366uKD3inpLs=;
-        b=uQnXDtLsn3G1i6JdSMW105s+/Y0LKw23IyaavSfNP84Wh+KOTLQeUqgwdFV2pTLybY
-         wUMgMyIF0aJT+/D2g1PQkOhJMk+i7jF75QggLD7Opngyv/RmZkNlQk/MJ+hT8e+sRrgy
-         cegTWVSZALylqmKNO4CSaLRR14b3dk+juXxnu8Lb7X7HnWF3y3GW0Gx/W+j51meIRzIA
-         35sXa87OgxkJGVpVe4jco7QcexPi80An8CpMaEUrFsXNhmEN6BBUJTghSGlA3snU88ul
-         +D+XHE4+rCvvhOnnzM+hFT7Zb0zdtojlNuF5w8Im0gNE5c503/5FZP9lqH/IZZNRsaUn
-         0ykw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=+3D93OdvzuNAS+/2pVk3LjUucF4nmiUUGgFK0NpFcMw=;
+        b=u/ZRPnBTRQI4xng9kUTbPBygrFkOgmR+gilKAQglT/PMcwMAIpPff2+accAg07GIPs
+         kONvnDsrwwCzXkYnYUHhkfqkGO26bQkCPaKt3/DPVWuVzasMnH7Uo9cNaU0BqcmLXj9z
+         jnBtvfYnWEx29e6l/rmHGJ7PCyNK/OYUclekxMrbUAh5Ilh8PMuEneblUHlmjWSEyMxX
+         C/9VTL/RZ9QLE7IOBg62OGhsxaT9cY9EvMBZY7crhviPo+aW9jXO8Quyl+l/wuRQwwLQ
+         HyJAX0HhbVCfEwzbUubIGUO31TL5dxqCFtUGvDLllffArudoCfOIFhiTS6JsIEnFwhDt
+         N7xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=44M/lrAxl1LLe2QftqBq8tLTI0t8rZO366uKD3inpLs=;
-        b=adUqMxkndWQhlWUFeEoEVlSkWJ7AJAwEzRb/7MsiTEVPBDDy4CStHzxfQqdV7y+rhp
-         5S5P9ALI63tH4BF4hZgckVud4c/2PwIamz3Sd7ur6NNBpQC/87TAHS3oHplNyUD0J71P
-         TQP02b4+7vaAJJIGQoSROg5Qz26nbQkPR+fhM9FluWNEs4LhemQAhKy4B07zViYPqnHE
-         K5TWWi0Cj+imdPxR9o/v6NwpLMZjV3OY2n+O3uKQM4gvmm5/rwdYu/rIR/+n0fkdev1G
-         Yf0Hdffc7F8Na8GvhsSm7FdcIhfLdPjD2GYBg3zCKtE9nifjmgSUsjyDZSPExRVvze2Q
-         jwZg==
-X-Gm-Message-State: AOAM530tjjdRPzCtGNxmZx3MD4Xif6xT24x8GjpeK66Ayxxb9YaoIap2
-        y9bY5bUY+wxjXRT/Z9NRHak=
-X-Google-Smtp-Source: ABdhPJwATgozz3vdxhmnjTNKYmFgR58E3eQTb1NwghWVfY/bNR+aD/m/h7c/+UJB+EEp6etj4JR3IA==
-X-Received: by 2002:a17:906:4bc1:: with SMTP id x1mr2020248ejv.13.1590514542829;
-        Tue, 26 May 2020 10:35:42 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id bz8sm391326ejc.94.2020.05.26.10.35.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 10:35:42 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+3D93OdvzuNAS+/2pVk3LjUucF4nmiUUGgFK0NpFcMw=;
+        b=dSHpWN8XvljZnfWpX3EqdDyr23V1exWthDJBmvLSam1MtVAFf88iFAi9qhpoA29FZB
+         98xkARKwiHxgOYi3jkT535HVl4c+vldjj9EHOq/cRVnxNOjXtzWi2RqwJcbO5mAzwcM/
+         XBM9PPqA7njpiF1eqyiakXJetzOsl1ufukmKq2vb41TyiXimRrzQks9XD5kjBE6SC2Fx
+         yOn94ORr3A0De2fVBckitCEUL2gIoinbZECF5uSfprLDGTN4dfrLPQIoLJJbL1pfHHaw
+         wo/rUHzeF6uauVhOM90gKegPl4kRT5FunLEPhA9kCsLIRoVjg702K1lkxWoHsBWAmBUx
+         O7WA==
+X-Gm-Message-State: AOAM530NB/Qvm8Jw4SADVBsF6ja9/YmYxfEO51iUpPSgog+Ce0TC5T+7
+        P80dsUQYfe/t+ZWhpwWnbMAt4g==
+X-Google-Smtp-Source: ABdhPJzQMLqb4bFrLyBbxKGDwPw9C8NipoMqeJ7xNPTsBkJi5NjPuG27JQYf1w7A/zdPoLEj/xRjMQ==
+X-Received: by 2002:a17:90a:5d06:: with SMTP id s6mr513034pji.88.1590516193211;
+        Tue, 26 May 2020 11:03:13 -0700 (PDT)
+Received: from ?IPv6:2600:380:495a:792b:6476:7a3a:9257:12c7? ([2600:380:495a:792b:6476:7a3a:9257:12c7])
+        by smtp.gmail.com with ESMTPSA id i197sm182611pfe.30.2020.05.26.11.03.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 May 2020 11:03:12 -0700 (PDT)
+Subject: Re: [PATCH 6/6] io_uring: let io_req_aux_free() handle fixed files
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/6] io_uring: fix flush req->refs underflow
-Date:   Tue, 26 May 2020 20:34:02 +0300
-Message-Id: <be790e01cf63bc0d04bc4577e15ef50ea2c3ac53.1590513806.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1590513806.git.asml.silence@gmail.com>
 References: <cover.1590513806.git.asml.silence@gmail.com>
+ <3e06564a15ca706f5f71ed25e8e3f5ea1520117e.1590513806.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <7c1727c0-43c2-b4dc-8093-55030ae49057@kernel.dk>
+Date:   Tue, 26 May 2020 12:03:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3e06564a15ca706f5f71ed25e8e3f5ea1520117e.1590513806.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-In io_uring_cancel_files(), after refcount_sub_and_test() leaves 0
-req->refs, it calls io_put_req(), which would also put a ref. Call
-io_free_req() instead.
+On 5/26/20 11:34 AM, Pavel Begunkov wrote:
+> Remove duplicated code putting fixed files in io_free_req_many(),
+> __io_req_aux_free() does the same thing, let it handle them.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This one is already changed in mainline:
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bf75ac753b9d..42b5603ee410 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7534,7 +7534,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 			 * all we had, then we're done with this request.
- 			 */
- 			if (refcount_sub_and_test(2, &cancel_req->refs)) {
--				io_put_req(cancel_req);
-+				io_free_req(cancel_req);
- 				finish_wait(&ctx->inflight_wait, &wait);
- 				continue;
- 			}
+
+> commit 9d9e88a24c1f20ebfc2f28b1762ce78c0b9e1cb3 (tag: io_uring-5.7-2020-05-15)
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Wed May 13 12:53:19 2020 -0600
+
+    io_uring: polled fixed file must go through free iteration
+
+
 -- 
-2.24.0
+Jens Axboe
 

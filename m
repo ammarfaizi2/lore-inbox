@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E77EAC433E1
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F895C433E0
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB8AE207CB
-	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2E52D207CB
+	for <io-uring@archiver.kernel.org>; Tue, 26 May 2020 19:52:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="rFyVjlx1"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="QGGh7eDv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728694AbgEZTwL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 May 2020 15:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40528 "EHLO
+        id S2389528AbgEZTvh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 May 2020 15:51:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389111AbgEZTvi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 15:51:38 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF35C03E979
-        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:38 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id 131so2261083pfv.13
-        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:38 -0700 (PDT)
+        with ESMTP id S2389215AbgEZTvf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 May 2020 15:51:35 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913F9C03E97A
+        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:35 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id d10so10571116pgn.4
+        for <io-uring@vger.kernel.org>; Tue, 26 May 2020 12:51:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LpuXvU/PwSGQGjarIP5I58hv7Zj24N1R3UNEgL0jNDI=;
-        b=rFyVjlx1z2FAJn581hW2m8bZ9qQeVyi56a/pWp00XB5VUt4lek5ugSoCmtZrlde+kL
-         tqa+1PfUl7M2/e9l+7pKHpZQtgFYG4+bog1h7E0GzkngfisOv6OenkOwIP49E+Nby6+f
-         n3A60kLcYP3f42QbUwlhziWKSrx9XE0R68EGvyIxzXWOUrQT6B0FfWHTWWDCwdxgu/93
-         ZQMy6v5XLA5PHMfQ8913VJLQtb5tlNTD/giDskk7TgQrwjFvlPGLsUSQCT2W4wbP22Be
-         mdo47Iq7BMkJzVco7I1VX/a7oWaZcUGsobhAzz8Kq1gdvewllJ0BMVepmGsBwrX++cOp
-         OxHw==
+        bh=pJi+qFrBerZp7lBzD9z2X8A704PrrK58u6ckL/rX8b0=;
+        b=QGGh7eDvuMEBseMP4f9z7p3YtnoMdEdl9ZhyIAyPiRAlOPWyjOt58ZYAEOyE5NGpZ+
+         VbiVeaEvFBaRPyUFJs+jXjd5VlpU+FnFUdGnRwd4iM9vS4L8882zLFU0dJLNP83bH/7X
+         Hr9aSoECE600nn2BUNPRRieqpYPuc2kJasfGr0Oad4cVuC7JJqYajXm+cBZv+VfHISga
+         vLPJeD20yZMDEi0ileA+x1DrR5XEs54TlbjSVb6dXpEJAnHRCLPDGSG+Q65Af5so6wyt
+         UoNhrMBuw8SKSezT9NYfONZtHHhz+/qyOtkgNQTZkmJfGXNjvokqDQxWupSNHXy0H+/a
+         mcwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LpuXvU/PwSGQGjarIP5I58hv7Zj24N1R3UNEgL0jNDI=;
-        b=k8EdjdVD9TGXDLlJAdnUk4goAosWhEiFES4iLoVUbx22hx3JTnqhCg6z3Kfp/So8gI
-         8uSvGPqhdi6ZGkv8uZ/8AeFPO7oYnzPYOIGjaYmeDF0gazVjVHUqIopVAzhnPcHqdmK/
-         H2FBLVLcRMSe/MTAwn/H4YrUyCfM9zxZoGuoCcXj8gFwk6YDrajoePvOND6f/7mi967O
-         VK/z5DtMeijxXZ3iKZ3K+YZ9LyuOhraxe6g398rsSX7uo2zElbhxYGCJ6uDiLdAPBtnp
-         QpXxWSmZpPrwh5BGo2IQrq/aKPH9IsqJNRStqXXQ2WCzLFWaCmCqLPSvZyqAaQm4DLds
-         OVqg==
-X-Gm-Message-State: AOAM532rJRWfna6azGzrx3DK6AL+2BI2+kkC3C/n7ogW4MKxLle8WalI
-        ZTFCjsRXHxQBuUG3XHvcw4J7C+ML4jVMTg==
-X-Google-Smtp-Source: ABdhPJxpwoTNNsMNmh/v14vfI6qih++e4eczlzPNldN5B/zhIcZmJK8bBxIbqtxwi5eARBPbplx1tw==
-X-Received: by 2002:a62:e408:: with SMTP id r8mr392923pfh.213.1590522697426;
-        Tue, 26 May 2020 12:51:37 -0700 (PDT)
+        bh=pJi+qFrBerZp7lBzD9z2X8A704PrrK58u6ckL/rX8b0=;
+        b=igf5shQn1iTw8gC1jL800crfui8h+R+Rkd41IaIwvTRD1Et/tYX1zif3C96eObi9TI
+         R3cN+5UBLaz/qqWN56QWyjjP0LYaL3keT3E9KiijjtoTDpxhbbd3HodOj2zSQb6nCaF6
+         R33dSiVGDD02e+ys0QopTYF2VMFJmoPEzlSRihnjPYb5FPTgpHloXjVGedBekUH9ulct
+         ML0eYTutGPcQxFh0oYqVuvNtO1t62OgbhUCwUCDWvf0YuHJU2Juug5ynsXx1JTBr+onv
+         m0/c/fP5egcydEiZmehTozTbM8RMAoDI0QKxzI2fYrNG7KW5pDdsXk+HvNI1BdRTs5z0
+         /p5g==
+X-Gm-Message-State: AOAM531rkDcZsGn5iFY4twxa6TCvag7f8wRo2a1m3vEiJBJMAKJVrf2+
+        4qeH6ciOuVUS5MGLsbaHxwTCXjWDN0Bbng==
+X-Google-Smtp-Source: ABdhPJzJqSQxVJW7x8nTJ31d7qT/FMci6We/odd5NaY49/EasjZOkFDNFy9QZL38JZHs/iDqJ2x1gQ==
+X-Received: by 2002:a63:5245:: with SMTP id s5mr481181pgl.394.1590522694841;
+        Tue, 26 May 2020 12:51:34 -0700 (PDT)
 Received: from x1.lan ([2605:e000:100e:8c61:94bb:59d2:caf6:70e1])
-        by smtp.gmail.com with ESMTPSA id c184sm313943pfc.57.2020.05.26.12.51.36
+        by smtp.gmail.com with ESMTPSA id c184sm313943pfc.57.2020.05.26.12.51.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 12:51:36 -0700 (PDT)
+        Tue, 26 May 2020 12:51:34 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, akpm@linux-foundation.org,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/12] block: flag block devices as supporting IOCB_WAITQ
-Date:   Tue, 26 May 2020 13:51:19 -0600
-Message-Id: <20200526195123.29053-9-axboe@kernel.dk>
+Subject: [PATCH 06/12] fs: add FMODE_BUF_RASYNC
+Date:   Tue, 26 May 2020 13:51:17 -0600
+Message-Id: <20200526195123.29053-7-axboe@kernel.dk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526195123.29053-1-axboe@kernel.dk>
 References: <20200526195123.29053-1-axboe@kernel.dk>
@@ -75,24 +75,28 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+If set, this indicates that the file system supports IOCB_WAITQ for
+buffered reads.
+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/block_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/fs.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index d1e08bba925a..980cfce01c9a 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1851,7 +1851,7 @@ static int blkdev_open(struct inode * inode, struct file * filp)
- 	 */
- 	filp->f_flags |= O_LARGEFILE;
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index ba1fff0e7bca..5ffc6d236b01 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -175,6 +175,9 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
+ /* File does not contribute to nr_files count */
+ #define FMODE_NOACCOUNT		((__force fmode_t)0x20000000)
  
--	filp->f_mode |= FMODE_NOWAIT;
-+	filp->f_mode |= FMODE_NOWAIT | FMODE_BUF_RASYNC;
- 
- 	if (filp->f_flags & O_NDELAY)
- 		filp->f_mode |= FMODE_NDELAY;
++/* File supports async buffered reads */
++#define FMODE_BUF_RASYNC	((__force fmode_t)0x40000000)
++
+ /*
+  * Flag for rw_copy_check_uvector and compat_rw_copy_check_uvector
+  * that indicates that they should check the contents of the iovec are
 -- 
 2.26.2
 

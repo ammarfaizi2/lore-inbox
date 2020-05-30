@@ -2,98 +2,283 @@ Return-Path: <SRS0=jLGh=7M=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45B8AC433DF
-	for <io-uring@archiver.kernel.org>; Sat, 30 May 2020 13:50:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 626BBC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 30 May 2020 14:40:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25C492074A
-	for <io-uring@archiver.kernel.org>; Sat, 30 May 2020 13:50:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="XNy4Wqw1"
+	by mail.kernel.org (Postfix) with ESMTP id 38CF8206EB
+	for <io-uring@archiver.kernel.org>; Sat, 30 May 2020 14:40:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgE3Nus (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 30 May 2020 09:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729029AbgE3Nul (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 30 May 2020 09:50:41 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E64C03E969
-        for <io-uring@vger.kernel.org>; Sat, 30 May 2020 06:50:40 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id v24so328745plo.6
-        for <io-uring@vger.kernel.org>; Sat, 30 May 2020 06:50:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=RXgrwt9PbbSX3t/ukylqmDcsnfwgGXpqGngrByB2Wxs=;
-        b=XNy4Wqw1hnA+o/lKZ7o8W+5cd0PzsWvQzvNKSj3dpld7fyif/tu6FrPeovOnHH5uLn
-         20Coo7jd5wT2fP+GZawqHJMRIOXZcSFzPpB1abmWTxwvQ5FPO/HGazssPeqMCY7Tn68O
-         6tGzacVWhx/zzYtdhaAh2vRC57t7VynCSqG+d7Liu5ENSwhPcWD9c1xdVy8JFc5c0jjb
-         XwIGrEg2jAI2GvwZYtnSVRSgrnwUgfI9Z6r6oYItb3ymKtSkpdTes7Lyj3INWKsn27jL
-         wx29fvGrTnsGpGsGAYgVAEHytFerKSBSDC7g59aIXRp2Ah7ONnE09OLK1r4nqLdKkUUt
-         cyYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RXgrwt9PbbSX3t/ukylqmDcsnfwgGXpqGngrByB2Wxs=;
-        b=O3T6uKyufowUKB6HASMnOBsJPWVPtw3DHt7Hh6JT+yPq0se0QWEU9eu1mNcqRkCxcm
-         MqzHuJ+dixQ9BrW+3BxKoUGmPVoiO6DIGHbOlt5P5N9Z8+ypCR1kamehCzzLU0nWVI0J
-         z5BJzWM/+WVLFZNYOdxVYDVVAHdIXSlMZAz9e8fUmEsH7XiQ/u8FUYre35GXZ+v4n7hM
-         ZNuGhffZTA3fULLbMizbXmyoAVR1YlVZT5hU9LVbliKx0bGhhxe6/F33Ena8K+yGlk2g
-         CLYs/5rPQvxZQhnCcVuHYV7zlOREz//FYhy4z2kvM1SV3mY5UMcrnNAfJGurgUNuyISg
-         cU8g==
-X-Gm-Message-State: AOAM533KTbrVNHFIjLUAFUDwE/jJ36lZBLjZtpisaGKNLPuZ3Z3uvCkf
-        fUs4aM7cQGRovkKo0EFXYnHmmw==
-X-Google-Smtp-Source: ABdhPJwkZm5zTsn0XdJ46Ne0zVIWPxOBE/ToR+NK/aeIgt3NP9C3vuKcwkQzDbsc8p4oSKGZ3cAlUg==
-X-Received: by 2002:a17:90b:ec4:: with SMTP id gz4mr14883884pjb.36.1590846639987;
-        Sat, 30 May 2020 06:50:39 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id a14sm9585928pfc.133.2020.05.30.06.50.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 30 May 2020 06:50:39 -0700 (PDT)
-Subject: Re: [PATCH v3 0/2] CQ-seq only based timeouts
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1590839530.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <d1a637d7-e16e-ce08-fad6-9423bb52d1e7@kernel.dk>
-Date:   Sat, 30 May 2020 07:50:23 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <cover.1590839530.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728998AbgE3OkB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 30 May 2020 10:40:01 -0400
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:55918 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728927AbgE3OkA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 30 May 2020 10:40:00 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0U-2rI3C_1590849592;
+Received: from localhost(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0U-2rI3C_1590849592)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 30 May 2020 22:39:56 +0800
+From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+To:     io-uring@vger.kernel.org
+Cc:     axboe@kernel.dk, asml.silence@gmail.com,
+        joseph.qi@linux.alibaba.com,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Subject: [PATCH v4 1/2] io_uring: avoid whole io_wq_work copy for requests completed inline
+Date:   Sat, 30 May 2020 22:39:46 +0800
+Message-Id: <20200530143947.21224-1-xiaoguang.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.17.2
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 5/30/20 5:54 AM, Pavel Begunkov wrote:
-> The old series that makes timeouts to trigger exactly after N
-> non-timeout CQEs, but not (#inflight + req->off).
-> 
-> v2: variables renaming
-> v3: fix ordering with REQ_F_TIMEOUT_NOSEQ reqs
->     squash 2 commits (core + ingnoring timeouts completions)
->     extract a prep patch (makes diffs easier to follow)
-> 
-> Pavel Begunkov (2):
->   io_uring: move timeouts flushing to a helper
->   io_uring: off timeouts based only on completions
-> 
->  fs/io_uring.c | 97 ++++++++++++++-------------------------------------
->  1 file changed, 27 insertions(+), 70 deletions(-)
+If requests can be submitted and completed inline, we don't need to
+initialize whole io_wq_work in io_init_req(), which is an expensive
+operation, add a new 'REQ_F_WORK_INITIALIZED' to control whether
+io_wq_work is initialized.
 
-Applied, thanks.
+I use /dev/nullb0 to evaluate performance improvement in my physical
+machine:
+  modprobe null_blk nr_devices=1 completion_nsec=0
+  sudo taskset -c 60 fio  -name=fiotest -filename=/dev/nullb0 -iodepth=128
+  -thread -rw=read -ioengine=io_uring -direct=1 -bs=4k -size=100G -numjobs=1
+  -time_based -runtime=120
 
+before this patch:
+Run status group 0 (all jobs):
+   READ: bw=724MiB/s (759MB/s), 724MiB/s-724MiB/s (759MB/s-759MB/s),
+   io=84.8GiB (91.1GB), run=120001-120001msec
+
+With this patch:
+Run status group 0 (all jobs):
+   READ: bw=761MiB/s (798MB/s), 761MiB/s-761MiB/s (798MB/s-798MB/s),
+   io=89.2GiB (95.8GB), run=120001-120001msec
+
+About 5% improvement.
+
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+
+---
+V4:
+  add io_req_init_async() helper
+---
+ fs/io-wq.h    |  5 ----
+ fs/io_uring.c | 66 ++++++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 50 insertions(+), 21 deletions(-)
+
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 5ba12de7572f..3d85d365d764 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -94,11 +94,6 @@ struct io_wq_work {
+ 	pid_t task_pid;
+ };
+ 
+-#define INIT_IO_WORK(work, _func)				\
+-	do {							\
+-		*(work) = (struct io_wq_work){ .func = _func };	\
+-	} while (0)						\
+-
+ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
+ {
+ 	if (!work->list.next)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 95df63b0b2ce..12296ce3e8b9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -538,6 +538,7 @@ enum {
+ 	REQ_F_POLLED_BIT,
+ 	REQ_F_BUFFER_SELECTED_BIT,
+ 	REQ_F_NO_FILE_TABLE_BIT,
++	REQ_F_WORK_INITIALIZED_BIT,
+ 
+ 	/* not a real bit, just to check we're not overflowing the space */
+ 	__REQ_F_LAST_BIT,
+@@ -593,6 +594,8 @@ enum {
+ 	REQ_F_BUFFER_SELECTED	= BIT(REQ_F_BUFFER_SELECTED_BIT),
+ 	/* doesn't need file table for this request */
+ 	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
++	/* io_wq_work is initialized */
++	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
+ };
+ 
+ struct async_poll {
+@@ -638,6 +641,7 @@ struct io_kiocb {
+ 	unsigned int		flags;
+ 	refcount_t		refs;
+ 	struct task_struct	*task;
++	const struct cred	*creds;
+ 	unsigned long		fsize;
+ 	u64			user_data;
+ 	u32			result;
+@@ -900,6 +904,17 @@ EXPORT_SYMBOL(io_uring_get_socket);
+ 
+ static void io_file_put_work(struct work_struct *work);
+ 
++static inline void io_req_init_async(struct io_kiocb *req,
++			void (*func)(struct io_wq_work **))
++{
++	if (req->flags & REQ_F_WORK_INITIALIZED)
++		req->work.func = func;
++	else {
++		req->work = (struct io_wq_work){ .func = func };
++		req->flags |= REQ_F_WORK_INITIALIZED;
++	}
++}
++
+ static inline bool io_async_submit(struct io_ring_ctx *ctx)
+ {
+ 	return ctx->flags & IORING_SETUP_SQPOLL;
+@@ -1025,8 +1040,15 @@ static inline void io_req_work_grab_env(struct io_kiocb *req,
+ 		mmgrab(current->mm);
+ 		req->work.mm = current->mm;
+ 	}
+-	if (!req->work.creds)
+-		req->work.creds = get_current_cred();
++
++	if (!req->work.creds) {
++		if (!req->creds)
++			req->work.creds = get_current_cred();
++		else {
++			req->work.creds = req->creds;
++			req->creds = NULL;
++		}
++	}
+ 	if (!req->work.fs && def->needs_fs) {
+ 		spin_lock(&current->fs->lock);
+ 		if (!current->fs->in_exec) {
+@@ -1043,6 +1065,9 @@ static inline void io_req_work_grab_env(struct io_kiocb *req,
+ 
+ static inline void io_req_work_drop_env(struct io_kiocb *req)
+ {
++	if (!(req->flags & REQ_F_WORK_INITIALIZED))
++		return;
++
+ 	if (req->work.mm) {
+ 		mmdrop(req->work.mm);
+ 		req->work.mm = NULL;
+@@ -3045,7 +3070,7 @@ static int io_fsync(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	/* fsync always requires a blocking context */
+ 	if (force_nonblock) {
+-		req->work.func = io_fsync_finish;
++		io_req_init_async(req, io_fsync_finish);
+ 		return -EAGAIN;
+ 	}
+ 	__io_fsync(req);
+@@ -3093,7 +3118,7 @@ static int io_fallocate(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	/* fallocate always requiring blocking context */
+ 	if (force_nonblock) {
+-		req->work.func = io_fallocate_finish;
++		io_req_init_async(req, io_fallocate_finish);
+ 		return -EAGAIN;
+ 	}
+ 
+@@ -3618,7 +3643,7 @@ static int io_close(struct io_kiocb *req, bool force_nonblock)
+ 	if (req->close.put_file->f_op->flush && force_nonblock) {
+ 		/* avoid grabbing files - we don't need the files */
+ 		req->flags |= REQ_F_NO_FILE_TABLE | REQ_F_MUST_PUNT;
+-		req->work.func = io_close_finish;
++		io_req_init_async(req, io_close_finish);
+ 		return -EAGAIN;
+ 	}
+ 
+@@ -3675,7 +3700,7 @@ static int io_sync_file_range(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	/* sync_file_range always requires a blocking context */
+ 	if (force_nonblock) {
+-		req->work.func = io_sync_file_range_finish;
++		io_req_init_async(req, io_sync_file_range_finish);
+ 		return -EAGAIN;
+ 	}
+ 
+@@ -4144,7 +4169,7 @@ static int io_accept(struct io_kiocb *req, bool force_nonblock)
+ 
+ 	ret = __io_accept(req, force_nonblock);
+ 	if (ret == -EAGAIN && force_nonblock) {
+-		req->work.func = io_accept_finish;
++		io_req_init_async(req, io_accept_finish);
+ 		return -EAGAIN;
+ 	}
+ 	return 0;
+@@ -5144,6 +5169,8 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ 	if (!sqe)
+ 		return 0;
+ 
++	io_req_init_async(req, io_wq_submit_work);
++
+ 	if (io_op_defs[req->opcode].file_table) {
+ 		ret = io_grab_files(req);
+ 		if (unlikely(ret))
+@@ -5779,19 +5806,24 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	struct io_kiocb *linked_timeout;
+ 	struct io_kiocb *nxt;
+-	const struct cred *old_creds = NULL;
++	const struct cred *creds, *old_creds = NULL;
+ 	int ret;
+ 
+ again:
+ 	linked_timeout = io_prep_linked_timeout(req);
+ 
+-	if (req->work.creds && req->work.creds != current_cred()) {
++	if (req->flags & REQ_F_WORK_INITIALIZED)
++		creds = req->work.creds;
++	else
++		creds = req->creds;
++
++	if (creds && creds != current_cred()) {
+ 		if (old_creds)
+ 			revert_creds(old_creds);
+-		if (old_creds == req->work.creds)
++		if (old_creds == creds)
+ 			old_creds = NULL; /* restored original creds */
+ 		else
+-			old_creds = override_creds(req->work.creds);
++			old_creds = override_creds(creds);
+ 	}
+ 
+ 	ret = io_issue_sqe(req, sqe, true);
+@@ -5808,6 +5840,8 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 			goto exit;
+ 		}
+ punt:
++		io_req_init_async(req, io_wq_submit_work);
++
+ 		if (io_op_defs[req->opcode].file_table) {
+ 			ret = io_grab_files(req);
+ 			if (ret)
+@@ -6060,7 +6094,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	refcount_set(&req->refs, 2);
+ 	req->task = NULL;
+ 	req->result = 0;
+-	INIT_IO_WORK(&req->work, io_wq_submit_work);
+ 
+ 	if (unlikely(req->opcode >= IORING_OP_LAST))
+ 		return -EINVAL;
+@@ -6082,11 +6115,12 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 
+ 	id = READ_ONCE(sqe->personality);
+ 	if (id) {
+-		req->work.creds = idr_find(&ctx->personality_idr, id);
+-		if (unlikely(!req->work.creds))
++		req->creds = idr_find(&ctx->personality_idr, id);
++		if (unlikely(!req->creds))
+ 			return -EINVAL;
+-		get_cred(req->work.creds);
+-	}
++		get_cred(req->creds);
++	} else
++		req->creds = NULL;
+ 
+ 	/* same numerical values with corresponding REQ_F_*, safe to copy */
+ 	req->flags |= sqe_flags;
 -- 
-Jens Axboe
+2.17.2
 

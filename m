@@ -2,87 +2,96 @@ Return-Path: <SRS0=15L2=7P=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE800C433DF
-	for <io-uring@archiver.kernel.org>; Tue,  2 Jun 2020 01:49:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D797BC433E0
+	for <io-uring@archiver.kernel.org>; Tue,  2 Jun 2020 12:35:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7EBF20734
-	for <io-uring@archiver.kernel.org>; Tue,  2 Jun 2020 01:49:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD9CC20678
+	for <io-uring@archiver.kernel.org>; Tue,  2 Jun 2020 12:35:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="LnZuSMPe"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KbaAXzlc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726450AbgFBBtN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 1 Jun 2020 21:49:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54488 "EHLO
+        id S1726007AbgFBMfb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 2 Jun 2020 08:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725915AbgFBBtM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Jun 2020 21:49:12 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798DFC08C5C0
-        for <io-uring@vger.kernel.org>; Mon,  1 Jun 2020 18:49:12 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id n2so665614pld.13
-        for <io-uring@vger.kernel.org>; Mon, 01 Jun 2020 18:49:12 -0700 (PDT)
+        with ESMTP id S1725940AbgFBMfb (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Jun 2020 08:35:31 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A4EC061A0E;
+        Tue,  2 Jun 2020 05:35:29 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id k26so2943439wmi.4;
+        Tue, 02 Jun 2020 05:35:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=oAacEMkc6iH6G+PGZQ4e+RX3FY7H8/j8gGJw9mm+Qng=;
-        b=LnZuSMPeDmjd9+wWQU7Mt9Lx8jqnzQyk2rgeMPu/pcRrL5WwtVj3EzItbcWmPSJNpU
-         v6M419VD/rnhL03pxXQrCPAwH5EOBoyGoitFDs/JTOu2SCOYsdV18bzHke9S7LGc5u+O
-         if7GtH8pU/F9EOBnn6krB3N6AsIouGd4F39YUAPvyPh16iShJczenVFiBN8hrKRaWrxU
-         ZkXHTPXnwkev2jHQHkLKrZfF1tMF7Fhm1vTrJHRADQQA5Sf2ilVE98eiAKfKRdtYRCYN
-         MWuKkP7/FbZblnL2JF9+ffT9KavU7rZvTYz2ckvkfj0mK84F3eMApSy3DcltldxeVdCO
-         OuLA==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=k5Q568n3WGM5Rw6G3hGSgRG/IVyA9rqbq+xRfmkcbdc=;
+        b=KbaAXzlcqDz0zEECfG9LjimjIO0peoezbtspI4izEw/tXV160dZ4VOH/YKxJU463IJ
+         +PKgvmUhcWeLyukKueQYw1v5/EVE3gs/RVBDyBEGgKAzkbFIuT7f5rnkXi+0S4g3FjIZ
+         ldxSfXoamQ4/Tf4y+kmr8IPbpiu4b3Y1yWEMiBbH1eFdU67LZXpahK76EszXiRu341W3
+         d9iMBBdTZlrx0uj+gbas16ME/j2+/y/x8o2xekDLVHjCwQv8uXn0e/HmL+OqXutQlAeD
+         siW2UfgpHZgYLPrxOdkUoYL/L1U7B43L6tFaPZ7Ggkt5nPm3QncW6C1eisjoNVSdvjD5
+         R2cQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=oAacEMkc6iH6G+PGZQ4e+RX3FY7H8/j8gGJw9mm+Qng=;
-        b=JDQRr8ObYW1DJpqpEk2XHtXoW5VujmUx8RY6G3mzTiJxT74HEpl2SxhV/GTz2fwv+J
-         /tih8nynD1JK9clat//LinLNH5bGbj9fguO3taJqHx9fZ1PNZH1iT1yWTNpdywZ04p8h
-         Fy0W76dPVe/2jAKWuZvQiJAvclnl+TKpusosBHhidFwTFDtrZSViHR4B0mZy1trTDm9Z
-         9yZ47lc7/h1890+vFy3QreG+WFe0Pn1ndPuWnX9aHOkV4jHvkcVbfvivwl3K+6e6o8Ku
-         LnqiDn+vmUcV//mmMl8iDRx4H05OCB5fZl5KcYZTZwj2zJd2X54GYjTnkdCB7eGL7mnJ
-         CaXw==
-X-Gm-Message-State: AOAM5311WLJpSFAyIii1cgZLwPRYP/z3pAePaFIviZtuszLPmRsTpuun
-        zagkg39skZftr6H4kYbchpDQDSyNa6r+cg==
-X-Google-Smtp-Source: ABdhPJyJa1A2Mw+LHkr8LMhjsDKMqy1ohA7JgTbFwP9gw4AVkEmDdDJdRVVfwd/nUAEe2STWVfj9Fw==
-X-Received: by 2002:a17:90a:8089:: with SMTP id c9mr2698514pjn.126.1591062551455;
-        Mon, 01 Jun 2020 18:49:11 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id u4sm1408133pjf.3.2020.06.01.18.49.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Jun 2020 18:49:10 -0700 (PDT)
-Subject: Re: io_uring: open/close and SQPOLL
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring <io-uring@vger.kernel.org>
-References: <b5860d6a-8db7-edf2-d58a-2d7d8b35edc1@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <675e74df-e272-2cb5-3681-ce6547c49477@kernel.dk>
-Date:   Mon, 1 Jun 2020 19:49:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        bh=k5Q568n3WGM5Rw6G3hGSgRG/IVyA9rqbq+xRfmkcbdc=;
+        b=txOqELCgkpbrtp+9SRLBm8Nvc/tEog4k31vaWMz8RGUvBHOZ+7HTCGdpmEdE1ZZ2rk
+         Foi26Uqnb0cbsQW+6nrqhNN14zSBWsDHVEVTp6qQTwWO0EmUXE5P5TqO3wa8UFuXk0zx
+         KloLTp+XHBqdPW0Ur2xP8mT+1uhOPKAcfF/sQpMQMWJcGQVcw5HdL+dvbOJFr6NrLHld
+         3nUevMZnRZEpzZSzZ18s+RT3Jf/4SAuGFBlN61aqznhuUkW1pcaQm1HK3tCbTgMlKP1t
+         hjkUY2GSa8SOZxZYaTxlH2NRpYP8lWpwFQgzTTgyFQRJYwzRXd1BkypVOBBP8oNH8J7J
+         wd5w==
+X-Gm-Message-State: AOAM531zva5GcVXChbgpoxmgXruB3wwEo0Jvu57SqWu8h0mHdsdiNmYs
+        Z2e3UQgMixv45thONNl85NeYNYfN
+X-Google-Smtp-Source: ABdhPJyhPZgH9xPEGDOxTY7MdxvaWsaZMMuoWTczETtp5FN/4pK1uECPdklzQRynWrqIJqVGlOvbYQ==
+X-Received: by 2002:a1c:6884:: with SMTP id d126mr3920973wmc.121.1591101328090;
+        Tue, 02 Jun 2020 05:35:28 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.151])
+        by smtp.gmail.com with ESMTPSA id z22sm3347711wmf.9.2020.06.02.05.35.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2020 05:35:27 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 0/4] forbid using open/close/statx with {SQ,IO}POLL
+Date:   Tue,  2 Jun 2020 15:34:00 +0300
+Message-Id: <cover.1591100205.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <b5860d6a-8db7-edf2-d58a-2d7d8b35edc1@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 5/30/20 1:45 PM, Pavel Begunkov wrote:
-> Do I miss something, or open/close/etc need an explicit check
-> for IORING_SETUP_SQPOLL? E.g., now an open() request somehow
-> returns -EFAULT, and that doesn't seem good.
+The first one adds checks {SQPOLL,IOPOLL} for open, close, etc.
+And 3 others are just cleanups on top.
 
-Probably best just to disable them - can you send a real patch?
+notes:
+- it cures symptoms, but would be great what's with null-deref in [1/4]
+
+- need to look whether epoll and sfr are affected by {SQ,IO}POLL
+
+- it still allows statx with SQPOLL, because it has a bunchg of rules
+for ignoring dirfd, e.g. when absolute path is specified.
+Let's handle it separately.
+
+Pavel Begunkov (4):
+  io_uring: fix open/close/statx with {SQ,IO}POLL
+  io_uring: do build_open_how() only once
+  io_uring: deduplicate io_openat{,2}_prep()
+  io_uring: move send/recv IOPOLL check into prep
+
+ fs/io_uring.c | 78 +++++++++++++++++++++------------------------------
+ 1 file changed, 32 insertions(+), 46 deletions(-)
 
 -- 
-Jens Axboe
+2.24.0
 

@@ -2,126 +2,148 @@ Return-Path: <SRS0=DWAt=7Q=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76170C433E1
-	for <io-uring@archiver.kernel.org>; Wed,  3 Jun 2020 15:05:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49E9EC433DF
+	for <io-uring@archiver.kernel.org>; Wed,  3 Jun 2020 15:15:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F4C220870
-	for <io-uring@archiver.kernel.org>; Wed,  3 Jun 2020 15:05:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E7F120772
+	for <io-uring@archiver.kernel.org>; Wed,  3 Jun 2020 15:15:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="asQmWpCc"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VUGyhDIv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726177AbgFCPE7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Jun 2020 11:04:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33782 "EHLO
+        id S1726077AbgFCPPe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Jun 2020 11:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726138AbgFCPE6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Jun 2020 11:04:58 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE92C08C5C0;
-        Wed,  3 Jun 2020 08:04:58 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id k26so2446073wmi.4;
-        Wed, 03 Jun 2020 08:04:58 -0700 (PDT)
+        with ESMTP id S1726066AbgFCPPe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Jun 2020 11:15:34 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CBDC08C5C0;
+        Wed,  3 Jun 2020 08:15:34 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id x14so2800197wrp.2;
+        Wed, 03 Jun 2020 08:15:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=CQNjlpqZXaTAQwDtY6Cs+PqAcVnrG7XerCH5kJph2Hw=;
-        b=asQmWpCckqhFkkfyMXh7svskO7984rwLqQL4BjE/HSrECGu4hnUsA91EqHoKFTYMk+
-         egHmRGAsOdErbRq6pO04OKGKatR3UeDWooCTnOdVriXEBGXqbjaxqsDCnWVldYjRfDT6
-         Jy2BmzD4OA5RsBGHXvnUyW/yZ4xKdfzrm4rvak9/z5gqcgBM4G+cECM0chnAMw+1Nwzj
-         zAvOpECv0zXd/UpDli8JgRvfvYYRUalZMkTYO6nWd8k5IC7jCvQNio0cWCePj6E4K5sw
-         H6f6uRFacyoVe15ImtHvGrC6AN3s+TU/99Znik3bxGhxSrH2a9GPwJVPJn2tpdravHea
-         R0gA==
+        h=subject:from:to:references:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=L0LB6MyehuyXB36O9vf01XZE3qb7dIb4GL7F2F7n2G4=;
+        b=VUGyhDIvX8yOL7+xB/AsuUl4TO4ve0rprLeLKlA0pGDCoLSXk1zpiN9JaerNsMdPba
+         5OCe4navtECv48PUrRG7eIu3M1BSsE1kSnSId0ROfdRbEIrKEkah92QxhdwzZcDdMGzl
+         Sx7mjsXHcEDQ3pPCZ3p0I7iEXFGIMuoOLTApTQvppz/ZlJYk2xqz3vXrOITd1xIU7wiD
+         hmd1nz/Glime8ph7muk2tRrqdROsPBMZC6B0xOOXo5oeqTXtsp0iPUfXuj+qkgVnnxrx
+         u0DQHrAJ8zCQdU9ClFlyJZVO/S/XXDdcnbAajnRPdGHrsRODu3YhJzIqBMyucKv/bfbs
+         bISw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=CQNjlpqZXaTAQwDtY6Cs+PqAcVnrG7XerCH5kJph2Hw=;
-        b=RczJAQGPd+EBRzj9xTXCqoit4EHFMOCJa2eC33uGSqOdMIpVM4uvK/M77K+iwNTXYA
-         XLE62ZL/XEW5Trz6YJvNXViXcCQSKp7ehr/uVgO+LebHquRWmT6FVxSA9N4yXQq30oc4
-         dRcYSSZJozOe667z4FsLztisOST4xXxmANc8/15R7xkwOm1o3u/2LmxXQQECFnsSNVs0
-         rrClLJ1d7yN7jZdCpi6p9bgvib9eKNxMrqzRH6u2sEKQTqDUgwWuv1lspS1EXCXFZhIy
-         tQj+ROXbu9lpDXk6lwfqWJP0ftaw0e6yLWVSGMYmd5/Da/r1X/4Y9z7JfaeJKswrBK6e
-         gWtw==
-X-Gm-Message-State: AOAM5303Nd4N+CUuLE6iI56xsnH0+Fs6KnGyuLRSyEXQxDYv6COOQOxn
-        F1p02ndBZ1lecFBNTstdYrLPqJQv
-X-Google-Smtp-Source: ABdhPJwyRdrGGUWaqwGhyfB0uIkexaVq+MInBkB+P0pmgV5RjhsGvIAvf+3AgEgI6GTMix7RhTk7fw==
-X-Received: by 2002:a05:600c:2945:: with SMTP id n5mr9884484wmd.189.1591196696897;
-        Wed, 03 Jun 2020 08:04:56 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id f71sm3074808wmf.22.2020.06.03.08.04.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jun 2020 08:04:55 -0700 (PDT)
+        h=x-gm-message-state:subject:from:to:references:autocrypt:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=L0LB6MyehuyXB36O9vf01XZE3qb7dIb4GL7F2F7n2G4=;
+        b=rz9ce74bxkpYUubgylALKI5yPoEPxZ0mnlQeVn/gwq7WjVoDEssjtPLkN1h7tuBSKq
+         Wue2/oNZ9xPjI4Q+2Q0rQldzS7X5JoDPmkrcTUNEsG4fRLK61xHX4JDL0RebHnsW41+Y
+         Cf5TmKjCsrzaIfsTQz7ie3fWS5auJta1JIxgQZ/+UFC/J0c73rDRxxnh+L0ykjjV1li/
+         IhDzbfA4BKGogVU5h6LWj99UPAkdkLMm9tRgqCVoOcuYdSsw0XS87DTxlaXzNHQ5BcAK
+         YoL9E3ZAW6+yrmSu6nS2KnaHj7qvX40AODzgkkb0UGjsbDH6O0QblKfItcP/ZQADk8KM
+         Q5bQ==
+X-Gm-Message-State: AOAM533RnE2ICbNauH3zNKVMubd2LeGhSLzAMUhOtD0nG7K3dhFkysvo
+        6GhKwQPRDRoHesLc6BWc4t8A/+ZW
+X-Google-Smtp-Source: ABdhPJw2vW7fYjSxVcqdhCQZCmnq+SAguDl3AK3yU+jAKzUogeWc3VX2jzol4oJ7My7IgBBGoH3ubg==
+X-Received: by 2002:adf:e64b:: with SMTP id b11mr31066314wrn.402.1591197332395;
+        Wed, 03 Jun 2020 08:15:32 -0700 (PDT)
+Received: from [192.168.43.207] ([5.100.193.151])
+        by smtp.gmail.com with ESMTPSA id z22sm3442319wmf.9.2020.06.03.08.15.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 03 Jun 2020 08:15:31 -0700 (PDT)
+Subject: Re: [PATCH v3 0/4] forbid fix {SQ,IO}POLL
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/4] io_uring: do build_open_how() only once
-Date:   Wed,  3 Jun 2020 18:03:23 +0300
-Message-Id: <792a5db759dc99e42aefa3719a4d2779294f8240.1591196426.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1591196426.git.asml.silence@gmail.com>
 References: <cover.1591196426.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <128dce39-c847-5cc3-42e7-e4eeb51b60ba@gmail.com>
+Date:   Wed, 3 Jun 2020 18:14:13 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1591196426.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-build_open_how() is just adjusting open_flags/mode. Do it once during
-prep. It looks better than storing raw values for the future.
+Not sure how this strange cv subject got copy-pasted, but
+hopefully it's clear what it does from the description.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+On 03/06/2020 18:03, Pavel Begunkov wrote:
+> The first one adds checks {SQPOLL,IOPOLL}. IOPOLL check can be
+> moved in the common path later, or rethinked entirely, e.g.
+> not io_iopoll_req_issued()'ed for unsupported opcodes.
+> 
+> 3 others are just cleanups on top.
+> 
+> 
+> v2: add IOPOLL to the whole bunch of opcodes in [1/4].
+>     dirty and effective.
+> v3: sent wrong set in v2, re-sending right one 
+> 
+> Pavel Begunkov (4):
+>   io_uring: fix {SQ,IO}POLL with unsupported opcodes
+>   io_uring: do build_open_how() only once
+>   io_uring: deduplicate io_openat{,2}_prep()
+>   io_uring: move send/recv IOPOLL check into prep
+> 
+>  fs/io_uring.c | 94 ++++++++++++++++++++++++++-------------------------
+>  1 file changed, 48 insertions(+), 46 deletions(-)
+> 
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fc55c44dcafe..e3cd914557ae 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2992,6 +2992,7 @@ static int io_fallocate(struct io_kiocb *req, bool force_nonblock)
- static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	const char __user *fname;
-+	u64 flags, mode;
- 	int ret;
- 
- 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-@@ -3003,13 +3004,14 @@ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (req->flags & REQ_F_NEED_CLEANUP)
- 		return 0;
- 
--	req->open.dfd = READ_ONCE(sqe->fd);
--	req->open.how.mode = READ_ONCE(sqe->len);
--	fname = u64_to_user_ptr(READ_ONCE(sqe->addr));
--	req->open.how.flags = READ_ONCE(sqe->open_flags);
-+	mode = READ_ONCE(sqe->len);
-+	flags = READ_ONCE(sqe->open_flags);
- 	if (force_o_largefile())
--		req->open.how.flags |= O_LARGEFILE;
-+		flags |= O_LARGEFILE;
-+	req->open.how = build_open_how(flags, mode);
- 
-+	req->open.dfd = READ_ONCE(sqe->fd);
-+	fname = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	req->open.filename = getname(fname);
- 	if (IS_ERR(req->open.filename)) {
- 		ret = PTR_ERR(req->open.filename);
-@@ -3103,7 +3105,6 @@ static int io_openat2(struct io_kiocb *req, bool force_nonblock)
- 
- static int io_openat(struct io_kiocb *req, bool force_nonblock)
- {
--	req->open.how = build_open_how(req->open.how.flags, req->open.how.mode);
- 	return io_openat2(req, force_nonblock);
- }
- 
 -- 
-2.24.0
-
+Pavel Begunkov

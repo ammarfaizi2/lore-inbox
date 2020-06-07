@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CF6EC433DF
-	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A986CC433E0
+	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A0FF20663
-	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8947220663
+	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p16z8a/7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="clpcWgvE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726835AbgFGPeU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Jun 2020 11:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53884 "EHLO
+        id S1726528AbgFGPeY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 7 Jun 2020 11:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726760AbgFGPeL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Jun 2020 11:34:11 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0649C08C5C3;
-        Sun,  7 Jun 2020 08:34:10 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id j198so12548290wmj.0;
-        Sun, 07 Jun 2020 08:34:10 -0700 (PDT)
+        with ESMTP id S1726714AbgFGPeJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Jun 2020 11:34:09 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F30AC08C5C3;
+        Sun,  7 Jun 2020 08:34:08 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id x6so14672883wrm.13;
+        Sun, 07 Jun 2020 08:34:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=2VFniMBWr4YYnHsQG7lbIfuNGaVb+0VDuaYkys35pC4=;
-        b=p16z8a/73K+KH7R8jDZH9EOVt7QT5/mLZ9EUfcEUA3muZ/OkIWTk6yXkxyYRREf4Sr
-         ldhB6+phOLMQcPiIz0MCUep4ZmGXph8ntI5a8ELypCPTvIx1ZwsGZ2uAhlC0ukSxC9rI
-         DhB9E2ySrJjhL0gxBLRJuNxZfRNN0zrT1pe7w77JrXgfMK27uE2OckrLFIFSPza/aVoz
-         cULIViBtKkS0tvjvt8Fx9lOITleGKq1uaV/FNkQ+pD2jUP8EuzVT46s4dPoQE8B2nqZx
-         eEOvIp9RFqF9kALqCJjcczi0iIkhD3WyVntJvLlIrUg6mnvsBRSH2L2eHPBiruGy7hUh
-         81ZQ==
+        bh=C3aCZY+VITj7C4JItC4Fgt+Bj4MVRdBKF8f/Zz68P+4=;
+        b=clpcWgvEsZLyg5pL8qXsCoM5iQp/C/TsvDbvJEhaxmT0VYHmzdHx+H3f1BGFIcNOsX
+         LjrDIw5vHzoJzzUTftsR7Cdv9NQlkbv6wrhrmpdrjtE2O2/brlI018/Pt4hVBn7h6HW3
+         pBauvaC8WePu+ftpt5YjOXy05Kyn2OJX6gSh+yzKBCgOLKcoDgNo7SsQjzymSzrhTj1c
+         c5PhbQoojzODRwuMx8KT0kvNqNxMJsw63XGzLNC+gpMBWbXqGQ7dfXfSjIppyV7VE3vs
+         K73gZ0X4Z4lo3XNynYowMYdDtLsKDyfsj/Zgmd80lgGtJsROSfsOb0x+f8jskZ4s5A58
+         HHSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2VFniMBWr4YYnHsQG7lbIfuNGaVb+0VDuaYkys35pC4=;
-        b=UoSx41JE0o2KW2bU1AifBUk5/9wqJzKKJq5pCBhe7FW6QxDm43fMcJVrDUArW2g841
-         2P6DpuXpUsbM+nf4Ps+ls6AAZT4eDx1e1T8qLmqo5HeXmnx+SqodL+uk94I4UE0X/YV4
-         4O1KK3mgrkMsmVRTN3W7Ps5VOmVAz3+BSSHUdb/CjL9uyIWzlCWkJGRPeihMJ/DV0jCo
-         710VSkqY9i57kguvO/PZo3eBIwkowPyKr1rF7aRvFEHDGk4NoN6sPcuPWztMoR/KVtjs
-         qLjL+Gq2fF+mo5gKqznYGCP5mHoSqPezypibxff7klZNWXi7ocabh4usX0/nQoCeumnO
-         QxCw==
-X-Gm-Message-State: AOAM5302QVM+8bG6nYIdhF+Hh68BmXW/GaIGlr+7PBqYMpoKuRC5eC6l
-        uJidCdQosoDx7wJWLjk3J0Rhpb8G
-X-Google-Smtp-Source: ABdhPJyHx2JXo85wKiGMezezztt3d9srlpTrbiXeWl/LWJoFBYBHfMkQ0kY4BxC3sULGFxvnUxZi/Q==
-X-Received: by 2002:a1c:7515:: with SMTP id o21mr12025038wmc.52.1591544049430;
-        Sun, 07 Jun 2020 08:34:09 -0700 (PDT)
+        bh=C3aCZY+VITj7C4JItC4Fgt+Bj4MVRdBKF8f/Zz68P+4=;
+        b=fRSyum3c+YtlxsDeqvq6uF5KNRR3NjPRmnSCcjbO9Kh6d5H8rc9uWhajfREa8fgjjv
+         guidk2716yX2Hu03bGst9LolnCcF+g1yiNQ13dHlM4l5BBW3Nl7lkw9UmxtuBkBF2X+4
+         nOxnqjvYy3zj1Wv4uvvmCTPBTM/Wu5A4++PVAaDqzQrgCQKQRtfO/JSpCS9etujNXOe/
+         VrOeokj7yzphCWIP+blP1UdvwdNIdzlPI3QSfgDSHQSXwM1PR/PwgFsX8XzN3hTnyNL5
+         nivMKu+L/8bOKBerp7jq6UN+utSAZGb1QlnQFqwh7TpJHCy7Ng/FPwLW5IOdVyZNAx1o
+         m5OQ==
+X-Gm-Message-State: AOAM530cBgF6THyJk8QCKFvv/JOlKyWkvOwT+B9ye2IP/79X2100JOK0
+        RApigZSTYS1zaNhAt56Wo9M=
+X-Google-Smtp-Source: ABdhPJw1LdN+FBG+kt9GK5YA2HX3rrxobVovURYwMaN9JoKOKYaBsQiVzDIv5vUxkojvavNQ8ldRew==
+X-Received: by 2002:a5d:4e87:: with SMTP id e7mr18323418wru.427.1591544046951;
+        Sun, 07 Jun 2020 08:34:06 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id 1sm19589015wmz.13.2020.06.07.08.34.08
+        by smtp.gmail.com with ESMTPSA id 1sm19589015wmz.13.2020.06.07.08.34.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Jun 2020 08:34:09 -0700 (PDT)
+        Sun, 07 Jun 2020 08:34:06 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] io_uring: cancel all task's requests on exit
-Date:   Sun,  7 Jun 2020 18:32:24 +0300
-Message-Id: <13b130e031aaf5eea418bc4be55e1eb03bdaa100.1591541128.git.asml.silence@gmail.com>
+Subject: [PATCH 1/4] io-wq: reorder cancellation pending -> running
+Date:   Sun,  7 Jun 2020 18:32:22 +0300
+Message-Id: <4d250faf3029d6bd31973276701d5971db696004.1591541128.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1591541128.git.asml.silence@gmail.com>
 References: <cover.1591541128.git.asml.silence@gmail.com>
@@ -74,85 +74,112 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If a process is going away, io_uring_flush() will cancel only 1
-request with a matching pid. Cancel all of them
+Go all over all pending lists and cancel works there, and only then
+try to match running requests. No functional changes here, just a
+preparation for bulk cancellation.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io-wq.c    | 14 --------------
- fs/io-wq.h    |  1 -
- fs/io_uring.c | 14 ++++++++++++--
- 3 files changed, 12 insertions(+), 17 deletions(-)
+ fs/io-wq.c | 54 ++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 6d2e8ccc229e..2bfa9117bc28 100644
+index 4023c9846860..3283f8c5b5a1 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -1022,20 +1022,6 @@ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork)
- 	return io_wq_cancel_cb(wq, io_wq_io_cb_cancel_data, (void *)cwork, false);
+@@ -931,19 +931,14 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ 	return ret;
  }
  
--static bool io_wq_pid_match(struct io_wq_work *work, void *data)
--{
--	pid_t pid = (pid_t) (unsigned long) data;
--
--	return work->task_pid == pid;
--}
--
--enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid)
--{
--	void *data = (void *) (unsigned long) pid;
--
--	return io_wq_cancel_cb(wq, io_wq_pid_match, data, false);
--}
--
- struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+-static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+-					    struct io_cb_cancel_data *match)
++static bool io_wqe_cancel_pending_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
  {
- 	int ret = -ENOMEM, node;
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 8902903831f2..df8a4cd3236d 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -129,7 +129,6 @@ static inline bool io_wq_is_hashed(struct io_wq_work *work)
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
+ 	unsigned long flags;
+ 	bool found = false;
  
- void io_wq_cancel_all(struct io_wq *wq);
- enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork);
--enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid);
- 
- typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
- 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8b0c9a5bcec1..bcfb3b14b888 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7577,6 +7577,13 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+-	/*
+-	 * First check pending list, if we're lucky we can just remove it
+-	 * from there. CANCEL_OK means that the work is returned as-new,
+-	 * no completion will be posted for it.
+-	 */
+ 	spin_lock_irqsave(&wqe->lock, flags);
+ 	wq_list_for_each(node, prev, &wqe->work_list) {
+ 		work = container_of(node, struct io_wq_work, list);
+@@ -956,21 +951,20 @@ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
  	}
- }
+ 	spin_unlock_irqrestore(&wqe->lock, flags);
  
-+static bool io_cancel_pid_cb(struct io_wq_work *work, void *data)
-+{
-+	pid_t pid = (pid_t) (unsigned long) data;
-+
-+	return work->task_pid == pid;
+-	if (found) {
++	if (found)
+ 		io_run_cancel(work, wqe);
+-		return IO_WQ_CANCEL_OK;
+-	}
++	return found;
 +}
 +
- static int io_uring_flush(struct file *file, void *data)
- {
- 	struct io_ring_ctx *ctx = file->private_data;
-@@ -7586,8 +7593,11 @@ static int io_uring_flush(struct file *file, void *data)
- 	/*
- 	 * If the task is going away, cancel work it may have pending
- 	 */
--	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
--		io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
-+	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
-+		void *data = (void *) (unsigned long)task_pid_vnr(current);
-+
-+		io_wq_cancel_cb(ctx->io_wq, io_cancel_pid_cb, data, true);
-+	}
++static bool io_wqe_cancel_running_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
++{
++	bool found;
  
- 	return 0;
+-	/*
+-	 * Now check if a free (going busy) or busy worker has the work
+-	 * currently running. If we find it there, we'll return CANCEL_RUNNING
+-	 * as an indication that we attempt to signal cancellation. The
+-	 * completion will run normally in this case.
+-	 */
+ 	rcu_read_lock();
+ 	found = io_wq_for_each_worker(wqe, io_wq_worker_cancel, match);
+ 	rcu_read_unlock();
+-	return found ? IO_WQ_CANCEL_RUNNING : IO_WQ_CANCEL_NOTFOUND;
++	return found;
  }
+ 
+ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+@@ -980,18 +974,34 @@ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ 		.fn	= cancel,
+ 		.data	= data,
+ 	};
+-	enum io_wq_cancel ret = IO_WQ_CANCEL_NOTFOUND;
+ 	int node;
+ 
++	/*
++	 * First check pending list, if we're lucky we can just remove it
++	 * from there. CANCEL_OK means that the work is returned as-new,
++	 * no completion will be posted for it.
++	 */
+ 	for_each_node(node) {
+ 		struct io_wqe *wqe = wq->wqes[node];
+ 
+-		ret = io_wqe_cancel_work(wqe, &match);
+-		if (ret != IO_WQ_CANCEL_NOTFOUND)
+-			break;
++		if (io_wqe_cancel_pending_work(wqe, &match))
++			return IO_WQ_CANCEL_OK;
+ 	}
+ 
+-	return ret;
++	/*
++	 * Now check if a free (going busy) or busy worker has the work
++	 * currently running. If we find it there, we'll return CANCEL_RUNNING
++	 * as an indication that we attempt to signal cancellation. The
++	 * completion will run normally in this case.
++	 */
++	for_each_node(node) {
++		struct io_wqe *wqe = wq->wqes[node];
++
++		if (io_wqe_cancel_running_work(wqe, &match))
++			return IO_WQ_CANCEL_RUNNING;
++	}
++
++	return IO_WQ_CANCEL_NOTFOUND;
+ }
+ 
+ static bool io_wq_io_cb_cancel_data(struct io_wq_work *work, void *data)
 -- 
 2.24.0
 

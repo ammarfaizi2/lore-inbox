@@ -2,216 +2,149 @@ Return-Path: <SRS0=UoSQ=7U=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2D39C433DF
-	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01FDCC433DF
+	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:38:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D20A20663
-	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:34:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCEBA2067B
+	for <io-uring@archiver.kernel.org>; Sun,  7 Jun 2020 15:38:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mZDUJvhF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DycoCDvg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726715AbgFGPeI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Jun 2020 11:34:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53868 "EHLO
+        id S1726643AbgFGPiC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 7 Jun 2020 11:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726590AbgFGPeH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Jun 2020 11:34:07 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7431C08C5C3;
-        Sun,  7 Jun 2020 08:34:06 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id r7so14747618wro.1;
-        Sun, 07 Jun 2020 08:34:06 -0700 (PDT)
+        with ESMTP id S1726610AbgFGPiC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Jun 2020 11:38:02 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE304C08C5C3
+        for <io-uring@vger.kernel.org>; Sun,  7 Jun 2020 08:38:01 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id r15so13959025wmh.5
+        for <io-uring@vger.kernel.org>; Sun, 07 Jun 2020 08:38:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=9s7KhI5vPLtATNHxZx+Ggu/v5wUXaWs1QuIcEHVtVjI=;
-        b=mZDUJvhFPu1sE9sM07ARXY7uxXaCDlfATkVD6AeXQ1OhsAAO8MdQ+pZ7ZZj+xLpm9l
-         dspCK+V55UAFZ+FFtFxkr+hPBG2uXDzVJRbA8JWLZsHlIDLDfA4fMrkREi7lyOWh0Emc
-         Es9sIo+JvhBqyerOhryTO5ToYJqipDp1RH/ueYMHDlue6Xetg4wrjiB2LC/BMvz9YDpP
-         g/ly38tSsQ5zt/pdV2sH+cyulN7PS3X+5bEEuboVrNwsVMuKwbdmqNI2oQxabAhmUE8u
-         xSGvNK7JmMppyUQaRNgdJyFVQJPd9Wytt1GRaY2jmFa0r83yJoVhFCdX9HYJnAyLX/i+
-         eifw==
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=+5nD44ZpViHFo7/bacHrR4Io6/Ips4S3K4ZmmBsE9JY=;
+        b=DycoCDvgDgYjbxQscNIhFLZ5iLKJEfwgH6q0OkljyHTrpopBcq6dnfn1NDwHibx7sY
+         yOQgn0mNPBEM/L6HdaS98ZW+LXfEnbZvL9FXwriXeFUKHlpIL2GqpBfqLSMZixttNThV
+         EkxqCJxFyeGjl60up62qlqQ0RCuLZULPcQpV6KU0cQ3Qu1zxbX48hn/8UdYjexxBnnjL
+         0XNaCwntM+tUEiK3+NbzjgwmHrAIZXdDnKF1zE9KpaE3bs0rcKCsUpTiXAj6dpPzA4Xz
+         KGdiiQdlyK+66SwXoUZu/kshkg+viGGEN0vnGQvfhem1nUawjpQwvjApSMCh6uKuqO8U
+         fuSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=9s7KhI5vPLtATNHxZx+Ggu/v5wUXaWs1QuIcEHVtVjI=;
-        b=shbRG/tqZznSgkC04XBOn5lEuh/BGC8RJWqt1GgDWyiXtfGDJI3yHEUQcBVv7bi5gT
-         YpVuG8Vjnf08RN+teodq6RlDbI7V8WuPrQOJG1DshsVxjIyLX8JJjR8gNBwOBoK6jL24
-         nzhIRFHAboNIyc3sZBY5Ql1xjxaUKsyQkK3a+E3m2l/zdzIcT4W/cZUvSCt+Fwzy1f7s
-         FSAGAK3zMh5bWIsr6AGFOAYeS6vmfz0ZkiHG2q4s1WliboKJqqZQXnslscWCNtlGdmoT
-         Z/toQfgTVUCach4V4g3B6D22ypo97293oi9y7Kn3ahBrD1dM1HqUy7mjVw8y0sK6AneA
-         bLIQ==
-X-Gm-Message-State: AOAM533kPEp5uOoMV9d1cTqQk1zUDmGCAe7M1SC8d5G70NIOwuQ+coO3
-        nAe7DNnRjANfVuwpc4joVcdXF3Yr
-X-Google-Smtp-Source: ABdhPJx5E3sX/HJCs/UWv1Cwm+jXbfE48MLL9+ygRY1yx224DLfXO9us/H5C7iBsT3nYyYNGEdp0PQ==
-X-Received: by 2002:adf:dd46:: with SMTP id u6mr17990482wrm.44.1591544045556;
-        Sun, 07 Jun 2020 08:34:05 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id 1sm19589015wmz.13.2020.06.07.08.34.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Jun 2020 08:34:05 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=+5nD44ZpViHFo7/bacHrR4Io6/Ips4S3K4ZmmBsE9JY=;
+        b=uUP3ubq/SIR2LrAI7/2L9reZ8/LWd9+r/tmPt3sRfmenec0kyFWsObg33shpeOZHBh
+         o3mIGRwpqiX/DN7tgcN0mO6gckKYfTWCJ3AXCWBhhUu3ZsESmB9Heiz/RftPsvEKwmv1
+         D3eWG2P6l2Wlu0Ek+qNJtJeI64jBVdwCpUSyInvGG2nNwtNACCb7ZG30CQfl9NfFrHI6
+         NysINLZQwp8CoeVo8wJRPtWjXJjO9d4yLHzUHczxcKClCl14FOCGWSaEfWujBntfyTaO
+         WWQvzI1upxE5mHwPnrHYmz49asjxCAZFxboxCIRHM9VPYBA/LsrfS64EuZ96MfWPJRwv
+         lIlg==
+X-Gm-Message-State: AOAM530Q49Chla3e+wsDEM0GxJH0xjAD2O8kCRp9H7SyAzP7v+xvllpA
+        JdBJLDkScQojvIfW87iOJlVc/fjb
+X-Google-Smtp-Source: ABdhPJzoVZXEKGwcF4pGhszNUGLtfSraOveINCdUD3SmFyk9gs6IWP2ibMsugP+CGfIMhCSd6EmYpA==
+X-Received: by 2002:a1c:ddc1:: with SMTP id u184mr11717609wmg.115.1591544280248;
+        Sun, 07 Jun 2020 08:38:00 -0700 (PDT)
+Received: from [192.168.43.101] ([5.100.193.151])
+        by smtp.gmail.com with ESMTPSA id y80sm21152626wmc.34.2020.06.07.08.37.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 07 Jun 2020 08:37:59 -0700 (PDT)
+Subject: Re: [PATCH] io_uring: execute task_work_run() before dropping mm
+To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        io-uring@vger.kernel.org
+Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
+References: <20200606151248.17663-1-xiaoguang.wang@linux.alibaba.com>
+ <350132ea-aade-27f4-1fcc-ba0539a459a1@gmail.com>
+ <96f61793-3b44-6de1-c3b6-b54e86d4c203@linux.alibaba.com>
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [liburing PATCH] flush/test: test flush of dying process
-Date:   Sun,  7 Jun 2020 18:32:21 +0300
-Message-Id: <b8223d3555dd47160ba5daf1f0a0f9080dcbf13c.1591537421.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1591541128.git.asml.silence@gmail.com>
-References: <cover.1591541128.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <87c92562-b862-08d7-ce32-7c09280f0ba5@gmail.com>
+Date:   Sun, 7 Jun 2020 18:36:41 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <96f61793-3b44-6de1-c3b6-b54e86d4c203@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Make sure all requests of a going away process are cancelled.
+On 07/06/2020 15:37, Xiaoguang Wang wrote:
+>>> The reason is that once io_sq_thread has a valid mm, schedule subsystem
+>>> may call task_tick_numa() adding a task_numa_work() callback, which will
+>>> visit mm, then above panic will happen.
+>>>
+>>> To fix this bug, only call task_work_run() before dropping mm.
+>>
+>> So, the problem is that poll/async paths re-issue requests with
+>> __io_queue_sqe(), which doesn't care about current->mm, and which
+>> can be NULL for io_sq_thread(). Right?
+> No, above panic is not triggered by poll/async paths.
+> See below code path:
+> ==> task_tick_fair()
+> ====> task_tick_numa()
+> ======> task_work_add, work is task_numa_work, which will visit mm.
+> 
+> In sqpoll mode, there maybe are sqes that need mm, then above codes
+> maybe executed by schedule subsystem. In io_sq_thread, we drop mm before
+> task_work_run, if there is a task_numa_work, panic occurs.
+> 
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- test/io-cancel.c | 102 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 102 insertions(+)
+Got it, thanks for explaining
 
-diff --git a/test/io-cancel.c b/test/io-cancel.c
-index 75fbf43..d8b04d9 100644
---- a/test/io-cancel.c
-+++ b/test/io-cancel.c
-@@ -10,6 +10,8 @@
- #include <fcntl.h>
- #include <sys/types.h>
- #include <sys/time.h>
-+#include <sys/mman.h>
-+#include <sys/wait.h>
- 
- #include "liburing.h"
- 
-@@ -17,6 +19,8 @@
- #define BS		4096
- #define BUFFERS		(FILE_SIZE / BS)
- 
-+#define NR_REQS 10
-+
- static struct iovec *vecs;
- 
- static int create_buffers(void)
-@@ -228,10 +232,108 @@ err:
- 	return 1;
- }
- 
-+static void submit_child(struct io_uring *ring, int fds[2])
-+{
-+	struct io_uring_sqe *sqe;
-+	int ret, i;
-+	char buffer[128];
-+
-+	for (i = 0; i < NR_REQS; ++i) {
-+		sqe = io_uring_get_sqe(ring);
-+		if (!sqe) {
-+			fprintf(stderr, "get sqe failed\n");
-+			goto err;
-+		}
-+		io_uring_prep_read(sqe, fds[0], buffer, sizeof(buffer), 0);
-+		sqe->flags |= IOSQE_ASYNC;
-+	}
-+
-+	ret = io_uring_submit(ring);
-+	if (ret != NR_REQS) {
-+		printf("sqe submit failed: %d\n", ret);
-+		goto err;
-+	}
-+
-+	exit(0);
-+err:
-+	exit(-1);
-+}
-+
-+/* make sure requests of a going away task are cancelled */
-+static int test_cancel_exiting_task(void)
-+{
-+	struct io_uring *ring;
-+	int ret, i;
-+	pid_t p;
-+	int fds[2];
-+
-+	ring = mmap(0, sizeof(*ring), PROT_READ|PROT_WRITE,
-+		    MAP_SHARED | MAP_ANONYMOUS, 0, 0);
-+	if (!ring) {
-+		fprintf(stderr, "mmap failed\n");
-+		return 1;
-+	}
-+
-+	ret = io_uring_queue_init(NR_REQS * 2, ring, 0);
-+	if (ret < 0) {
-+		fprintf(stderr, "queue init failed\n");
-+		return 1;
-+	}
-+
-+	if (pipe(fds)) {
-+		perror("pipe() failed");
-+		exit(1);
-+	}
-+
-+	p = fork();
-+	if (p < 0) {
-+		printf("fork() failed\n");
-+		return 1;
-+	}
-+
-+	if (p == 0) {
-+		/* child */
-+		submit_child(ring, fds);
-+	} else {
-+		int wstatus;
-+		struct io_uring_cqe *cqe;
-+
-+		waitpid(p, &wstatus, 0);
-+		if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0) {
-+			fprintf(stderr, "child failed\n");
-+			return 1;
-+		}
-+
-+		for (i = 0; i < NR_REQS; ++i) {
-+			ret = io_uring_wait_cqe(ring, &cqe);
-+			if (ret < 0) {
-+				printf("wait_cqes: wait completion %d\n", ret);
-+				return 1;
-+			}
-+			if (cqe->res != -ECANCELED && cqe->res != -EINTR) {
-+				fprintf(stderr, "invalid CQE: %i\n", cqe->res);
-+				return 1;
-+			}
-+			io_uring_cqe_seen(ring, cqe);
-+		}
-+	}
-+
-+	close(fds[0]);
-+	close(fds[1]);
-+	io_uring_queue_exit(ring);
-+	munmap(ring, sizeof(*ring));
-+	return 0;
-+}
-+
- int main(int argc, char *argv[])
- {
- 	int i, ret;
- 
-+	if (test_cancel_exiting_task()) {
-+		fprintf(stderr, "test_cancel_exiting_task failed\n");
-+		return 1;
-+	}
-+
- 	if (create_file(".basic-rw")) {
- 		fprintf(stderr, "file creation failed\n");
- 		goto err;
 -- 
-2.24.0
-
+Pavel Begunkov

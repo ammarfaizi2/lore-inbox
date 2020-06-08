@@ -2,72 +2,117 @@ Return-Path: <SRS0=hnZG=7V=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D98B1C433DF
-	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 00:12:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C384DC433DF
+	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 07:36:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFF442067B
-	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 00:12:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96C6B206A4
+	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 07:36:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="KPqyMWHk"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="umBGfh/3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727982AbgFHAMW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Jun 2020 20:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51298 "EHLO
+        id S1728958AbgFHHg5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Jun 2020 03:36:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727919AbgFHAMV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Jun 2020 20:12:21 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 051C4C08C5C3
-        for <io-uring@vger.kernel.org>; Sun,  7 Jun 2020 17:12:20 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id v24so5948569plo.6
-        for <io-uring@vger.kernel.org>; Sun, 07 Jun 2020 17:12:20 -0700 (PDT)
+        with ESMTP id S1727977AbgFHHg4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Jun 2020 03:36:56 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84340C08C5C3;
+        Mon,  8 Jun 2020 00:36:56 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id n21so2682828ejg.3;
+        Mon, 08 Jun 2020 00:36:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=2bBx3oE3gryLWooYTH15H8cxF9VXrlwb1RvtH9y7Z+s=;
-        b=KPqyMWHkfciBDZTgSEXOHpGN3LCkrHlf/M3HDNSBBRW/GLUfunaR1hDRMwFOw381M9
-         Ig2i5htWvMU606ThPuPrTdPIBInX8ZPKk0AXMIt1odNlHb32R6caKpvlh47wjFpwy+mi
-         LHgrMEWMEopcrpqKYTf8QolWI5cnAZLp6Fx+aJ/G4CiPyq8TWzn9NLlT8lfzQV80poQ5
-         aC7tWIn1ZvThmRNeUOF64xBBRgRuEYsCbpKGLucUnBmgiT7hKq7rAJe3wm2SKnt9FcaA
-         OMgC4sqCdyvw8mWPReRTKnF3SFgOtHYBgROoQM0+Pt935pAFMPOADRUjc1TMe8fDPQzC
-         17og==
+        d=gmail.com; s=20161025;
+        h=subject:to:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZIEVPByf7q2KBEmomKulfdMrwJXv/E4f3FAMpa/LInw=;
+        b=umBGfh/3Mi0JmJ/6+2BcJDyow0tcHLXFbH/6MoST2AS20JpDr4hEFbaulEnZJObhgx
+         mcrK/4z9XOeLNiYxvpMnjtWrIeRZ4BirGx8dKaC2cZ2mV14oK015MwgUQV0mFbGGjF0G
+         f/YckSKBML8gP1v5AxhFfOryE/LJijMEo8uQH25bmjnTZek2mo49u/YnOf8kRtATUcwq
+         5kDljKv1ZMpuVFAsGIapcNEdmSWzrql5kPVuFgIG5HjcKGrsR0A5EXHLfRQS6xuEYqQb
+         /HXZ5rI5HK177mFOZmkuMf7g7f1ILhJ67RRWhqxHe/3i8rVG5dQU2QiYbL+ilY6jQjPQ
+         ENTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=2bBx3oE3gryLWooYTH15H8cxF9VXrlwb1RvtH9y7Z+s=;
-        b=NlQnVWrkJYvQXcZM/hZeHTGme+JLTWt2YU73RMDS/PvRbEeWEFbbYio/Pqko72QT2P
-         VQodakkYhEuX+b6hcOASyL31OLQLTv1FYukm7zvX8BmlYgvqt4Gfz595s5ReSc3WUOhS
-         HQr/4TZLbifOsksFQOWP3rY9aDhPfaAcIR7NLPbxX7ydgPHTDtlY5X/LhLD2XHmjb5CL
-         h5kk4m4LrRcD/2Ndwuy0oY6Fl+9EOuFlnu7e5cUPuWgTm8JHiIVIlcRnZx83k8Y9Bw3S
-         IE9lOlCijJ8Xig2REfJnPMMCC3eYcOHSDIhG3PNCn196kwQg6Mf8Rg6Bk3tqrRx0/+sL
-         vrmg==
-X-Gm-Message-State: AOAM533oa768jrXSa+kOk5gtJTtt4+QPF2oKwyB+qV0vd2pnDtagAFH0
-        pzi785CVWsj17OwKJkpWAYTEuw==
-X-Google-Smtp-Source: ABdhPJzW69he1vfY4B5YhoTgmVyQ0cgXOhFVX/CZU/4m+uzWaEQJ1RUd5JpbdG0VfkZKhGMsfP2Idg==
-X-Received: by 2002:a17:90b:e05:: with SMTP id ge5mr14523293pjb.49.1591575140157;
-        Sun, 07 Jun 2020 17:12:20 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id k126sm5293462pfd.129.2020.06.07.17.12.19
+        bh=ZIEVPByf7q2KBEmomKulfdMrwJXv/E4f3FAMpa/LInw=;
+        b=PCj6KBqR2T49IDc8iHTy3gv7m+Pw06SyMQKMCBwgYpxNslMtKOmT6OQ32+2EWFvGnN
+         G8gxbH7KpUiJd6u2FbkgYEVYmx0df1cdWLmgHISo1sZD3WLtZ8P9UW9UJiJ5ZQbzCn0Z
+         RvycqM4tvrXLkYNqJ50zhj6kMw8W3Epy5RXH1CSs/0asl7SNwSnD85ObcDEatTUxHZLz
+         6QX2qnV1IG+JazuBBn6Re23heeqXAVBrsmEdkFFWjFbKlDjMrCRu2y7NkX5kEdo1Zw4M
+         9Bljo3oSXhlieRrlkvwojdlLeIrq6dISUFuZoF7Zyv8vQGNSUQmfK3FTYXsc4LXw1Bpb
+         bkqw==
+X-Gm-Message-State: AOAM532fB1UZa5dCdzRAM2HAf+J2WNvjgwAtJLAsoyZVZwO8DfYhBfD+
+        0vmjIOy6X+1cflZzrx0JenR5XMYJ
+X-Google-Smtp-Source: ABdhPJxjqlnRAaXr/QjBWyRDLRzvdah9Q4LN1m7nrp0y993GA3ntu55tCfanmwXYyuhAqhbBjDpFwQ==
+X-Received: by 2002:a17:907:1110:: with SMTP id qu16mr20354098ejb.539.1591601814879;
+        Mon, 08 Jun 2020 00:36:54 -0700 (PDT)
+Received: from [192.168.43.135] ([5.100.193.151])
+        by smtp.gmail.com with ESMTPSA id k8sm11311716edn.28.2020.06.08.00.36.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Jun 2020 17:12:19 -0700 (PDT)
+        Mon, 08 Jun 2020 00:36:54 -0700 (PDT)
 Subject: Re: [PATCH 0/4] cancel all reqs of an exiting task
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <cover.1591541128.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <3924c8b4-fb37-0d85-b8ce-4183e6fff317@kernel.dk>
-Date:   Sun, 7 Jun 2020 18:12:17 -0600
+ <3924c8b4-fb37-0d85-b8ce-4183e6fff317@kernel.dk>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <7bbbb26c-6584-16d9-76c4-a2ca00d994f3@gmail.com>
+Date:   Mon, 8 Jun 2020 10:35:34 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <cover.1591541128.git.asml.silence@gmail.com>
+In-Reply-To: <3924c8b4-fb37-0d85-b8ce-4183e6fff317@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -76,39 +121,42 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 6/7/20 9:32 AM, Pavel Begunkov wrote:
-> io_uring_flush() {
->         ...
->         if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
->                 io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
-> }
+On 08/06/2020 03:12, Jens Axboe wrote:
+> On 6/7/20 9:32 AM, Pavel Begunkov wrote:
+>> io_uring_flush() {
+>>         ...
+>>         if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
+>>                 io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
+>> }
+>>
+>> This cancels only the first matched request. The pathset is mainly
+>> about fixing that. [1,2] are preps, [3/4] is the fix.
+>>
+>> The [4/4] tries to improve the worst case for io_uring_cancel_files(),
+>> that's when they are a lot of inflights with ->files. Instead of doing
+>> {kill(); wait();} one by one, it cancels all of them at once.
+>>
+>> Pavel Begunkov (4):
+>>   io-wq: reorder cancellation pending -> running
+>>   io-wq: add an option to cancel all matched reqs
+>>   io_uring: cancel all task's requests on exit
+>>   io_uring: batch cancel in io_uring_cancel_files()
+>>
+>>  fs/io-wq.c    | 108 ++++++++++++++++++++++++++------------------------
+>>  fs/io-wq.h    |   3 +-
+>>  fs/io_uring.c |  29 ++++++++++++--
+>>  3 files changed, 83 insertions(+), 57 deletions(-)
 > 
-> This cancels only the first matched request. The pathset is mainly
-> about fixing that. [1,2] are preps, [3/4] is the fix.
+> Can you rebase this to include the changing of using ->task_pid to
+> ->task instead? See:
 > 
-> The [4/4] tries to improve the worst case for io_uring_cancel_files(),
-> that's when they are a lot of inflights with ->files. Instead of doing
-> {kill(); wait();} one by one, it cancels all of them at once.
+> https://lore.kernel.org/io-uring/87a71jjbzr.fsf@x220.int.ebiederm.org/T/#u
 > 
-> Pavel Begunkov (4):
->   io-wq: reorder cancellation pending -> running
->   io-wq: add an option to cancel all matched reqs
->   io_uring: cancel all task's requests on exit
->   io_uring: batch cancel in io_uring_cancel_files()
-> 
->  fs/io-wq.c    | 108 ++++++++++++++++++++++++++------------------------
->  fs/io-wq.h    |   3 +-
->  fs/io_uring.c |  29 ++++++++++++--
->  3 files changed, 83 insertions(+), 57 deletions(-)
+> Might as well do it at the same time, imho, since the cancel-by-task is
+> being reworked anyway.
 
-Can you rebase this to include the changing of using ->task_pid to
-->task instead? See:
+Ok, I was thinking to look there after anyway
 
-https://lore.kernel.org/io-uring/87a71jjbzr.fsf@x220.int.ebiederm.org/T/#u
-
-Might as well do it at the same time, imho, since the cancel-by-task is
-being reworked anyway.
 
 -- 
-Jens Axboe
-
+Pavel Begunkov

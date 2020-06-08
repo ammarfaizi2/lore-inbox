@@ -1,115 +1,100 @@
-Return-Path: <SRS0=hnZG=7V=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=bTi1=7W=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F33DC433E0
-	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 20:20:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79B61C433E1
+	for <io-uring@archiver.kernel.org>; Tue,  9 Jun 2020 00:45:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52949206A4
-	for <io-uring@archiver.kernel.org>; Mon,  8 Jun 2020 20:20:00 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="lFAQgcFo"
+	by mail.kernel.org (Postfix) with ESMTP id 4ACF220737
+	for <io-uring@archiver.kernel.org>; Tue,  9 Jun 2020 00:45:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1591663554;
+	bh=WoBvXvBT7w5MB1Ci7HGCPSvkE9k4I+qGx8ouhuGbpBE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=ift+VtqJLCplQ5uAVJl9grt8RLcchUvWcrS8APVvC37EOYMPMRWQFx9+FeMfZ/jVv
+	 4SpDgwU8AiG4Qa176I48mRNK/atOIOo+EDDFv0OTBSpRpfzVgr2uAXUlfNtJze6Oy7
+	 zniGPdKNCmvKmgkojtAUJs8FX7e1yshIO4U7WZsM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbgFHUUA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Jun 2020 16:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726415AbgFHUT7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Jun 2020 16:19:59 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B159CC08C5C2
-        for <io-uring@vger.kernel.org>; Mon,  8 Jun 2020 13:19:59 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id d8so3917764plo.12
-        for <io-uring@vger.kernel.org>; Mon, 08 Jun 2020 13:19:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ZZx5yvm0LERNWG/JYc2qibmsm0u6bJFtDVKihdjnxtw=;
-        b=lFAQgcFoPXkfTGEjM/PvnSt1qtkawGtAYhu3iop0pZgkwHwR4jE4itm+uOXdIGuudX
-         ai+oUrrZsQUXEo4JU/A/uJ2nZo7+dbdfZWPws26B2dDRYf7w9enhr3kB5s9almq46KGc
-         Ecxe5Ni4HpDNR4ePxpJYUuLhC9m54nn3ho9obFDWzblaKWxfhlygqg32Wh7b7yAEkpON
-         nK+iHkU0ruCcqPCTVs0eNrWvz1hxx/P4OxEn2ITSrIvayxvmGJWKDdOG6VmxLF+WhBIR
-         Hlkv2CurD8tbVdqWQCOBo0CI3DtyFapiwXSevEzud/8xacPizPRAq6OYJh82TNsRlxhB
-         7SyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZZx5yvm0LERNWG/JYc2qibmsm0u6bJFtDVKihdjnxtw=;
-        b=TsxxkZ8Iq2Pb61mqSWE9zUDkO+9yeoqyRyj+mvpYxeu++iKua6/gMlprNi0FPsQBWE
-         rtr0RLutQo0dHeAX2oP8BwC6GqBSqzTdA5zIbhQKVpbqDRUIDeSqHmeSl6AbKbbBZcys
-         eWKWm0hWGNS2uGgNcHw5krPQBMJvlukaidqMkybOvKdLDu8t3zbjAI5yOZWsTt5OpLwP
-         io1QvdnJUS8a6T3hN9M4JiQeww8B9FbKXXxFuTGek2X4S+xSO9lHR37XFXvFgP8mT3JZ
-         cc86ic8Wr+QpSro4J1oRIjzFU1S8QPkqPgSWeiTvxFgghT4ukKgXBRNNlis0Jb4EgJAs
-         ZfPQ==
-X-Gm-Message-State: AOAM531LMwZmFM1wqRMlIxV9T8C4AI8iMiOlAIYaaqEtv+fglEta7/zU
-        zDSEzBH6daAPEX/GyxOAEp+O2yjJF2i0fg==
-X-Google-Smtp-Source: ABdhPJzw2DHoSweIn/oZCzwkkuzXO+dqbAHywLph7u0wbH59UmAZ3recAQEJ64zn7XqwHBLKxp8acg==
-X-Received: by 2002:a17:902:9885:: with SMTP id s5mr417889plp.204.1591647598729;
-        Mon, 08 Jun 2020 13:19:58 -0700 (PDT)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id x14sm7952168pfq.80.2020.06.08.13.19.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2020 13:19:58 -0700 (PDT)
-Subject: Re: IORING_OP_CLOSE fails on fd opened with O_PATH
-To:     Clay Harris <bugs@claycon.org>
-Cc:     io-uring@vger.kernel.org
-References: <20200531124740.vbvc6ms7kzw447t2@ps29521.dreamhostps.com>
- <5d8c06cb-7505-e0c5-a7f4-507e7105ce5e@kernel.dk>
- <20200608112135.itxseus73zgqspys@ps29521.dreamhostps.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <4e72f006-418d-91bc-1d6f-c15bce360575@kernel.dk>
-Date:   Mon, 8 Jun 2020 14:19:56 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1729550AbgFIApn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Jun 2020 20:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58782 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728975AbgFHXLq (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:46 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 661652151B;
+        Mon,  8 Jun 2020 23:11:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591657906;
+        bh=WoBvXvBT7w5MB1Ci7HGCPSvkE9k4I+qGx8ouhuGbpBE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KADOENpzi4cxP4t4Fq7cuHlZ+5+7c1TbQP4G88ziw1qCEC+1L9sJp2GKhvxGgdMQ2
+         l4eA1wsaLnUV3WAsW4j5Cgcha+p0byqn6nqlFFaNd3Q6SH2HHJSuOmk5hNMC+a95ga
+         jKtfn/peoNXyE3+wmbjOHOwWjB2T35S+OQRVoqO4=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 258/274] io_uring: fix overflowed reqs cancellation
+Date:   Mon,  8 Jun 2020 19:05:51 -0400
+Message-Id: <20200608230607.3361041-258-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200608112135.itxseus73zgqspys@ps29521.dreamhostps.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 6/8/20 5:21 AM, Clay Harris wrote:
-> On Sun, May 31 2020 at 08:46:03 -0600, Jens Axboe quoth thus:
-> 
->> On 5/31/20 6:47 AM, Clay Harris wrote:
->>> Tested on kernel 5.6.14
->>>
->>> $ ./closetest closetest.c
->>>
->>> path closetest.c open on fd 3 with O_RDONLY
->>>  ---- io_uring close(3)
->>>  ---- ordinary close(3)
->>> ordinary close(3) failed, errno 9: Bad file descriptor
->>>
->>>
->>> $ ./closetest closetest.c opath
->>>
->>> path closetest.c open on fd 3 with O_PATH
->>>  ---- io_uring close(3)
->>> io_uring close() failed, errno 9: Bad file descriptor
->>>  ---- ordinary close(3)
->>> ordinary close(3) returned 0
->>
->> Can you include the test case, please? Should be an easy fix, but no
->> point rewriting a test case if I can avoid it...
-> 
-> Sure.  Here's a cleaned-up test program.
-> https://claycon.org/software/io_uring/tests/close_opath.c
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-Thanks for sending this - but it's GPL v3, I can't take that. I'll
-probably just add an O_PATH test case to the existing open-close test
-cases.
+[ Upstream commit 7b53d59859bc932b37895d2d37388e7fa29af7a5 ]
 
+Overflowed requests in io_uring_cancel_files() should be shed only of
+inflight and overflowed refs. All other left references are owned by
+someone else.
+
+If refcount_sub_and_test() fails, it will go further and put put extra
+ref, don't do that. Also, don't need to do io_wq_cancel_work()
+for overflowed reqs, they will be let go shortly anyway.
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dd90c3fcd4f5..4038ed0a5c39 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7467,10 +7467,11 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				finish_wait(&ctx->inflight_wait, &wait);
+ 				continue;
+ 			}
++		} else {
++			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
++			io_put_req(cancel_req);
+ 		}
+ 
+-		io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
+-		io_put_req(cancel_req);
+ 		schedule();
+ 		finish_wait(&ctx->inflight_wait, &wait);
+ 	}
 -- 
-Jens Axboe
+2.25.1
 

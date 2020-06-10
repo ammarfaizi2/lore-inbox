@@ -2,131 +2,61 @@ Return-Path: <SRS0=gTtz=7X=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3AB8C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 03:10:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EADCEC433DF
+	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 05:42:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87FA42076A
-	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 03:10:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=claycon.org header.i=@claycon.org header.b="HxKQZZhg"
+	by mail.kernel.org (Postfix) with ESMTP id C5C5A207F9
+	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 05:42:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbgFJDKb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 9 Jun 2020 23:10:31 -0400
-Received: from lavender.maple.relay.mailchannels.net ([23.83.214.99]:52820
-        "EHLO lavender.maple.relay.mailchannels.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726030AbgFJDKb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Jun 2020 23:10:31 -0400
-X-Sender-Id: dreamhost|x-authsender|cosmos@claycon.org
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-        by relay.mailchannels.net (Postfix) with ESMTP id 777BE1E14F8;
-        Wed, 10 Jun 2020 03:10:29 +0000 (UTC)
-Received: from pdx1-sub0-mail-a89.g.dreamhost.com (100-96-6-17.trex.outbound.svc.cluster.local [100.96.6.17])
-        (Authenticated sender: dreamhost)
-        by relay.mailchannels.net (Postfix) with ESMTPA id 2BA8C1E1393;
-        Wed, 10 Jun 2020 03:10:25 +0000 (UTC)
-X-Sender-Id: dreamhost|x-authsender|cosmos@claycon.org
-Received: from pdx1-sub0-mail-a89.g.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384)
-        by 0.0.0.0:2500 (trex/5.18.8);
-        Wed, 10 Jun 2020 03:10:29 +0000
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|cosmos@claycon.org
-X-MailChannels-Auth-Id: dreamhost
-X-Blushing-Wide-Eyed: 720ac0b4460540e5_1591758629286_3215069295
-X-MC-Loop-Signature: 1591758629286:3055526191
-X-MC-Ingress-Time: 1591758629286
-Received: from pdx1-sub0-mail-a89.g.dreamhost.com (localhost [127.0.0.1])
-        by pdx1-sub0-mail-a89.g.dreamhost.com (Postfix) with ESMTP id D502FA21F0;
-        Tue,  9 Jun 2020 20:10:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=claycon.org; h=date:from
-        :to:cc:subject:message-id:references:mime-version:content-type
-        :in-reply-to; s=claycon.org; bh=XO97ZKwXsl2oRlp3OZIZTf6n7gM=; b=
-        HxKQZZhgU5I2Md0wa8rBI/2NWUFCR1gOEF9CeOFnt9KJ0ZHidjT5NXHMk0bWd1qN
-        mLtBUBw5RPSsXsJS5N8DbnOsn+aNcH4uw8O02n9vUtv1F4gqd04ozTCtGR/b4+6X
-        u6WfLE9D5vXDEYEFyMM28422h1p5/qNwihYu8FNsicA=
-Received: from ps29521.dreamhostps.com (ps29521.dreamhostps.com [69.163.186.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: cosmos@claycon.org)
-        by pdx1-sub0-mail-a89.g.dreamhost.com (Postfix) with ESMTPSA id 9B27FA21D4;
-        Tue,  9 Jun 2020 20:10:24 -0700 (PDT)
-Date:   Tue, 9 Jun 2020 22:10:25 -0500
-X-DH-BACKEND: pdx1-sub0-mail-a89
-From:   Clay Harris <bugs@claycon.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org
-Subject: Re: io_uring_queue_exit is REALLY slow
-Message-ID: <20200610031025.k45qe5slgqxxl7m4@ps29521.dreamhostps.com>
-References: <20200607035555.tusxvwejhnb5lz2m@ps29521.dreamhostps.com>
- <c9446121-3229-565c-b946-f0efe6da52ce@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c9446121-3229-565c-b946-f0efe6da52ce@kernel.dk>
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-VR-OUT-STATUS: OK
-X-VR-OUT-SCORE: -100
-X-VR-OUT-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduhedrudehhedgieekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuggftfghnshhusghstghrihgsvgdpffftgfetoffjqffuvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepvehlrgihucfjrghrrhhishcuoegsuhhgshestghlrgihtghonhdrohhrgheqnecuggftrfgrthhtvghrnhepgfdtkeejhefffedvhfehtddtheekjefggeeitdejtdfhuedvgfeiveekkedvhfdvnecukfhppeeiledrudeifedrudekiedrjeegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhppdhhvghlohepphhsvdelhedvuddrughrvggrmhhhohhsthhpshdrtghomhdpihhnvghtpeeiledrudeifedrudekiedrjeegpdhrvghtuhhrnhdqphgrthhhpeevlhgrhicujfgrrhhrihhsuceosghughhssegtlhgrhigtohhnrdhorhhgqedpmhgrihhlfhhrohhmpegsuhhgshestghlrgihtghonhdrohhrghdpnhhrtghpthhtohepihhoqdhurhhinhhgsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+        id S1725844AbgFJFmB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Jun 2020 01:42:01 -0400
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:57045 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725270AbgFJFmB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Jun 2020 01:42:01 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01355;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U.9K-kq_1591767719;
+Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U.9K-kq_1591767719)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 10 Jun 2020 13:41:59 +0800
+From:   Jiufei Xue <jiufei.xue@linux.alibaba.com>
+To:     io-uring@vger.kernel.org
+Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
+Subject: [PATCH] io_uring: check file O_NONBLOCK state for accept
+Date:   Wed, 10 Jun 2020 13:41:59 +0800
+Message-Id: <1591767719-22583-1-git-send-email-jiufei.xue@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Sun, Jun 07 2020 at 08:37:30 -0600, Jens Axboe quoth thus:
+If the socket is O_NONBLOCK, we should complete the accept request
+with -EAGAIN when data is not ready.
 
-> On 6/6/20 9:55 PM, Clay Harris wrote:
-> > So, I realize that this probably isn't something that you've looked
-> > at yet.  But, I was interested in a different criteria looking at
-> > io_uring.  That is how efficient it is for small numbers of requests
-> > which don't transfer much data.  In other words, what is the minimum
-> > amount of io_uring work for which a program speed-up can be obtained.
-> > I realize that this is highly dependent on how much overlap can be
-> > gained with async processing.
-> > 
-> > In order to get a baseline, I wrote a test program which performs
-> > 4 opens, followed by 4 read + closes.  For the baseline I
-> > intentionally used files in /proc so that there would be minimum
-> > async and I could set IOSQE_ASYNC later.  I was quite surprised
-> > by the result:  Almost the entire program wall time was used in
-> > the io_uring_queue_exit() call.
-> > 
-> > I wrote another test program which does just inits followed by exits.
-> > There are clock_gettime()s around the io_uring_queue_init(8, &ring, 0)
-> > and io_uring_queue_exit() calls and I printed the ratio of the
-> > io_uring_queue_exit() elapsed time and the sum of elapsed time of
-> > both calls.
-> > 
-> > The result varied between 0.94 and 0.99.  In other words, exit is
-> > between 16 and 100 times slower than init.  Average ratio was
-> > around 0.97.  Looking at the liburing code, exit does just what
-> > I'd expect (unmap pages and close io_uring fd).
-> > 
-> > I would have bet the ratio would be less than 0.50.  No
-> > operations were ever performed by the ring, so there should be
-> > minimal cleanup.  Even if the kernel needed to do a bunch of
-> > cleanup, it shouldn't need the pages mapped into user space to work;
-> > same thing for the fd being open in the user process.
-> > 
-> > Seems like there is some room for optimization here.
-> 
-> Can you share your test case? And what kernel are you using, that's
-> kind of important.
-> 
-> There's no reason for teardown to be slow, except if you have
-> pending IO that we need to either cancel or wait for. Due to
-> other reasons, newer kernels will have most/some parts of
-> the teardown done out-of-line.
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+---
+ fs/io_uring.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I'm working up a test program for you.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a476112..b8102b2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3969,6 +3969,9 @@ static int io_accept(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	int ret;
+ 
++	if (req->file->f_flags & O_NONBLOCK)
++		req->flags |= REQ_F_NOWAIT;
++
+ 	ret = __io_accept(req, force_nonblock);
+ 	if (ret == -EAGAIN && force_nonblock) {
+ 		req->work.func = io_accept_finish;
+-- 
+1.8.3.1
 
-Just FYI:
-My initial analysis indicates that closing the io_uring fd is what's
-taking all the extra time.
-
-> -- 
-> Jens Axboe

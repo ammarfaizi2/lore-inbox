@@ -1,227 +1,90 @@
-Return-Path: <SRS0=gTtz=7X=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=oBCy=7Y=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCC54C433DF
-	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 11:41:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F40BC433E0
+	for <io-uring@archiver.kernel.org>; Thu, 11 Jun 2020 00:01:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4120204EC
-	for <io-uring@archiver.kernel.org>; Wed, 10 Jun 2020 11:41:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4928220747
+	for <io-uring@archiver.kernel.org>; Thu, 11 Jun 2020 00:01:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="yY1Ra5sW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728510AbgFJLlw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Jun 2020 07:41:52 -0400
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:52510 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728481AbgFJLlw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Jun 2020 07:41:52 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0U.AhY9s_1591789297;
-Received: from localhost(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0U.AhY9s_1591789297)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 10 Jun 2020 19:41:39 +0800
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-To:     io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, asml.silence@gmail.com,
-        joseph.qi@linux.alibaba.com,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Subject: [PATCH v7 1/2] io_uring: avoid whole io_wq_work copy for requests completed inline
-Date:   Wed, 10 Jun 2020 19:41:19 +0800
-Message-Id: <20200610114120.7518-1-xiaoguang.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.17.2
+        id S1726845AbgFKABz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Jun 2020 20:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39334 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726768AbgFKABy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Jun 2020 20:01:54 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602CCC08C5C1
+        for <io-uring@vger.kernel.org>; Wed, 10 Jun 2020 17:01:54 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id m1so1721475pgk.1
+        for <io-uring@vger.kernel.org>; Wed, 10 Jun 2020 17:01:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=RreJrUeG+o7wNboJvYBhDZ2wkvEQWCMADu44Ur/NXR8=;
+        b=yY1Ra5sWWZIJonv04k0cs3fCpKZLCtue5MRZgJs5MegdNsNr0jv5nXdli+glxR4Cpu
+         ugWfkkAVLcE/kPrbSaR/jOGajDTHYIwHvjBihue+ESC+wj2BZhjrtcosP17LGdkJqV4U
+         UtQ7CAbaWl028Nlt3MwQY+2RAbusEI3yX/WCNNSEXUE+vfxE+tW75VcCun0rJrIv4CaL
+         sSBbZyqYTeBnShCejDTNxTZmUXQBj1ngAbqyco6k/ygZatC+1AwR7QCq9fWHPRU6G4bB
+         Mao8hMa0vzld4wVUIfahQYQQgMGXuY240CFB+VwqbCuLXSsMUn8+XzLBEUeStHKPAVkx
+         aO5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RreJrUeG+o7wNboJvYBhDZ2wkvEQWCMADu44Ur/NXR8=;
+        b=Z7uqC4lXAR4xcoeaWKMwOZnW40Bvpf0jKqh2DB6WBvf81VTmWn0QF7FWe7WsZnhuoF
+         S8ZZsqYMkGSBDGOR+hLZiva/5ODaJn05Ka75oW6l8CBJhG4bu2mh7iZ6OCCYP7wcaHXi
+         yqdek3aviRxpzGe6mjdcbEe6NnnJc+Rx5Thn3+jX2eQrIdO1Flg/uqInFjrqBl+rrve6
+         s1H1uYhzOoL0y3DhTwMd+kqI4rPiXxKnvINmDYBs7t4kfua7UjGdzqxpMRlRp2iiEUz/
+         zikN5GNoUdjpYlriAPvB3sMbQlpf/JLbbPNSMwvE0EIMRXHb3jM47B3MDp/aqWuTIvwm
+         IVaA==
+X-Gm-Message-State: AOAM5309mUAx2JP4ErtwrDqaS7Pyid+IgOMJIJ+wJGSFcKe71n7+0gmb
+        pSYhgicOHW/AaJw1IOxfelfeyze6BziZRQ==
+X-Google-Smtp-Source: ABdhPJy3hjggdqIJwt61m1XudtE8od/8X78xS2KPCIsvylatKLuJqZV5FLF4tyM4gMaS87k10X6OFg==
+X-Received: by 2002:a65:4102:: with SMTP id w2mr4702016pgp.47.1591833713876;
+        Wed, 10 Jun 2020 17:01:53 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id a12sm764915pjw.35.2020.06.10.17.01.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jun 2020 17:01:52 -0700 (PDT)
+Subject: Re: [PATCH] io_uring: add EPOLLEXCLUSIVE flag to aoid thundering herd
+ type behavior
+To:     Jiufei Xue <jiufei.xue@linux.alibaba.com>, io-uring@vger.kernel.org
+Cc:     joseph.qi@linux.alibaba.com
+References: <1591769708-55768-1-git-send-email-jiufei.xue@linux.alibaba.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <fba0cf9c-1d9a-52d9-29d9-fce01b0a8a06@kernel.dk>
+Date:   Wed, 10 Jun 2020 18:01:50 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <1591769708-55768-1-git-send-email-jiufei.xue@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If requests can be submitted and completed inline, we don't need to
-initialize whole io_wq_work in io_init_req(), which is an expensive
-operation, add a new 'REQ_F_WORK_INITIALIZED' to determine whether
-io_wq_work is initialized and add a helper io_req_init_async(), users
-must call io_req_init_async() for the first time touching any members
-of io_wq_work.
+On 6/10/20 12:15 AM, Jiufei Xue wrote:
+> Applications can use this flag to avoid accept thundering herd.
 
-I use /dev/nullb0 to evaluate performance improvement in my physical
-machine:
-  modprobe null_blk nr_devices=1 completion_nsec=0
-  sudo taskset -c 60 fio  -name=fiotest -filename=/dev/nullb0 -iodepth=128
-  -thread -rw=read -ioengine=io_uring -direct=1 -bs=4k -size=100G -numjobs=1
-  -time_based -runtime=120
+So with this, any IORING_OP_POLL_ADD will be exclusive. Seems to me
+that the other poll path we have could use it too by default, and
+at that point, we could clean this up (and improve) it further by
+including that?
 
-before this patch:
-Run status group 0 (all jobs):
-   READ: bw=724MiB/s (759MB/s), 724MiB/s-724MiB/s (759MB/s-759MB/s),
-   io=84.8GiB (91.1GB), run=120001-120001msec
-
-With this patch:
-Run status group 0 (all jobs):
-   READ: bw=761MiB/s (798MB/s), 761MiB/s-761MiB/s (798MB/s-798MB/s),
-   io=89.2GiB (95.8GB), run=120001-120001msec
-
-About 5% improvement.
-
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-
----
-V4:
-  add io_req_init_async() helper
-
-V5:
-  refactor io_req_init_async() to io_init_req_work() and io_init_req_work_func
-  in case we need to change io_wq_work.func separately.
-
-V6:
-  Drop the refactor work in V5, and rebase to io_uring-5.8.
-
-V7:
-  drop 'creds' in struct io_kiocb, as suggested by Pavel.
----
- fs/io-wq.h    |  5 -----
- fs/io_uring.c | 40 ++++++++++++++++++++++++++++++++++++----
- 2 files changed, 36 insertions(+), 9 deletions(-)
-
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 2db24d31fbc5..8e138fa88b9f 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -93,11 +93,6 @@ struct io_wq_work {
- 	pid_t task_pid;
- };
- 
--#define INIT_IO_WORK(work)					\
--	do {							\
--		*(work) = (struct io_wq_work){};		\
--	} while (0)						\
--
- static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
- {
- 	if (!work->list.next)
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3ffe03194c1e..2e906914f573 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -542,6 +542,7 @@ enum {
- 	REQ_F_BUFFER_SELECTED_BIT,
- 	REQ_F_NO_FILE_TABLE_BIT,
- 	REQ_F_QUEUE_TIMEOUT_BIT,
-+	REQ_F_WORK_INITIALIZED_BIT,
- 
- 	/* not a real bit, just to check we're not overflowing the space */
- 	__REQ_F_LAST_BIT,
-@@ -599,6 +600,8 @@ enum {
- 	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
- 	/* needs to queue linked timeout */
- 	REQ_F_QUEUE_TIMEOUT	= BIT(REQ_F_QUEUE_TIMEOUT_BIT),
-+	/* io_wq_work is initialized */
-+	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
- };
- 
- struct async_poll {
-@@ -911,6 +914,19 @@ EXPORT_SYMBOL(io_uring_get_socket);
- 
- static void io_file_put_work(struct work_struct *work);
- 
-+/*
-+ * Note: must call io_req_init_async() for the first time you
-+ * touch any members of io_wq_work.
-+ */
-+static inline void io_req_init_async(struct io_kiocb *req)
-+{
-+	if (req->flags & REQ_F_WORK_INITIALIZED)
-+		return;
-+
-+	memset(&req->work, 0, sizeof(req->work));
-+	req->flags |= REQ_F_WORK_INITIALIZED;
-+}
-+
- static inline bool io_async_submit(struct io_ring_ctx *ctx)
- {
- 	return ctx->flags & IORING_SETUP_SQPOLL;
-@@ -1037,6 +1053,9 @@ static inline void io_req_work_grab_env(struct io_kiocb *req,
- 
- static inline void io_req_work_drop_env(struct io_kiocb *req)
- {
-+	if (!(req->flags & REQ_F_WORK_INITIALIZED))
-+		return;
-+
- 	if (req->work.mm) {
- 		mmdrop(req->work.mm);
- 		req->work.mm = NULL;
-@@ -2781,8 +2800,14 @@ static int __io_splice_prep(struct io_kiocb *req,
- 		return ret;
- 	req->flags |= REQ_F_NEED_CLEANUP;
- 
--	if (!S_ISREG(file_inode(sp->file_in)->i_mode))
-+	if (!S_ISREG(file_inode(sp->file_in)->i_mode)) {
-+		/*
-+		 * Splice operation will be punted aync, and here need to
-+		 * modify io_wq_work.flags, so initialize io_wq_work firstly.
-+		 */
-+		io_req_init_async(req);
- 		req->work.flags |= IO_WQ_WORK_UNBOUND;
-+	}
- 
- 	return 0;
- }
-@@ -3368,8 +3393,10 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	/*
- 	 * If we queue this for async, it must not be cancellable. That would
--	 * leave the 'file' in an undeterminate state.
-+	 * leave the 'file' in an undeterminate state, and here need to modify
-+	 * io_wq_work.flags, so initialize io_wq_work firstly.
- 	 */
-+	io_req_init_async(req);
- 	req->work.flags |= IO_WQ_WORK_NO_CANCEL;
- 
- 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-@@ -4847,6 +4874,8 @@ static int io_req_defer_prep(struct io_kiocb *req,
- 	if (!sqe)
- 		return 0;
- 
-+	io_req_init_async(req);
-+
- 	if (io_op_defs[req->opcode].file_table) {
- 		ret = io_grab_files(req);
- 		if (unlikely(ret))
-@@ -5501,7 +5530,8 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- again:
- 	linked_timeout = io_prep_linked_timeout(req);
- 
--	if (req->work.creds && req->work.creds != current_cred()) {
-+	if ((req->flags & REQ_F_WORK_INITIALIZED) && req->work.creds &&
-+	    req->work.creds != current_cred()) {
- 		if (old_creds)
- 			revert_creds(old_creds);
- 		if (old_creds == req->work.creds)
-@@ -5524,6 +5554,8 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 			goto exit;
- 		}
- punt:
-+		io_req_init_async(req);
-+
- 		if (io_op_defs[req->opcode].file_table) {
- 			ret = io_grab_files(req);
- 			if (ret)
-@@ -5776,7 +5808,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	refcount_set(&req->refs, 2);
- 	req->task = NULL;
- 	req->result = 0;
--	INIT_IO_WORK(&req->work);
- 
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
- 		return -EINVAL;
-@@ -5798,6 +5829,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 
- 	id = READ_ONCE(sqe->personality);
- 	if (id) {
-+		io_req_init_async(req);
- 		req->work.creds = idr_find(&ctx->personality_idr, id);
- 		if (unlikely(!req->work.creds))
- 			return -EINVAL;
 -- 
-2.17.2
+Jens Axboe
 

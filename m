@@ -1,70 +1,111 @@
-Return-Path: <SRS0=oBCy=7Y=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=miIQ=7Z=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D130C433DF
-	for <io-uring@archiver.kernel.org>; Thu, 11 Jun 2020 23:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DAF4C433E1
+	for <io-uring@archiver.kernel.org>; Fri, 12 Jun 2020 02:24:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 23BFB2074B
-	for <io-uring@archiver.kernel.org>; Thu, 11 Jun 2020 23:45:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591919134;
-	bh=rh++QD3no6/c2Rn8xTt0Lqp/lXa3+BKDFfk10RqPw6I=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=Hlja7WiNjUGM35W8ZMQHEWg5nTbkwHyVGLmV3lLLiUQCNS3oNf53sJhOp7l9zIACT
-	 ohhBJEgJ2QaKsO9hHd4yS7wTitQPo8YEzggznLgZcFe59E0b9kPqjiC70lTw5u+k0M
-	 jAwQk1IGmKfgyQ6ShOoI2YqBhjc7ZovtU7PdMHKc=
+	by mail.kernel.org (Postfix) with ESMTP id ECE7620835
+	for <io-uring@archiver.kernel.org>; Fri, 12 Jun 2020 02:24:09 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="GfHdEkel"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726362AbgFKXp2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Jun 2020 19:45:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726513AbgFKXpZ (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 11 Jun 2020 19:45:25 -0400
-Subject: Re: [GIT PULL] io_uring fixes for 5.8-rc1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591919124;
-        bh=rh++QD3no6/c2Rn8xTt0Lqp/lXa3+BKDFfk10RqPw6I=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=M1s1FOMRfM0SqKtqBnNAmq9hB+0f/D7YbTLG7SzksfQGaXg3vCy61ArvKF2CmAEce
-         jfyEj70rSVis7bOTAxoIYb5yGWZc7UIGlimxIhhiHknKmuNWvvAtSMZK/JnKbdokdK
-         b1/tpYrgNGoym0FCBwumH98TOkvVcU2nnfkpwKTc=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <75aa6bc8-488a-07dd-feea-545500e51966@kernel.dk>
-References: <75aa6bc8-488a-07dd-feea-545500e51966@kernel.dk>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <75aa6bc8-488a-07dd-feea-545500e51966@kernel.dk>
-X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git
- tags/io_uring-5.8-2020-06-11
-X-PR-Tracked-Commit-Id: 65a6543da386838f935d2f03f452c5c0acff2a68
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b961f8dc8976c091180839f4483d67b7c2ca2578
-Message-Id: <159191912451.19194.10586193761310545264.pr-tracker-bot@kernel.org>
-Date:   Thu, 11 Jun 2020 23:45:24 +0000
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        io-uring <io-uring@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+        id S1726332AbgFLCYJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 11 Jun 2020 22:24:09 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:60296 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbgFLCYJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Jun 2020 22:24:09 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05C2HMdh185946;
+        Fri, 12 Jun 2020 02:24:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
+ bh=FwWCp6vjt8nvo7eDqU99TKCY8vUQrKGn8Aof7HXGwMc=;
+ b=GfHdEkelyFTiuAD0wZWHTfb5t+4d7xsz4tiDaPmlOG00xBjnwFHmgXNpegzUMw4J2M6e
+ SBEgs+cXuDstuapYMGHLfqz3jlvGpCDl36uVPb62N/LD39nKSERh0A4AFx0rSoc2KcGC
+ W59COXAhSfJDttH+dBFsNtG/H6Xr1Q6jcgt6obKs+dqfvJYiG/yyKRCunvfO7iR+SqhQ
+ pdmR+rZoIjqLBm7KC1hPzaO1up3WjdMg2lUq851pqWYlhAuLGcX1cTY2a2OVty7z00XO
+ kZ3Myy1A3CPEaAi9voAJRuuqITcmhWnHDhre+/09noAjGJ4sGzTzYXoSH13Wu3QtMsZp cQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 31jepp4p12-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 12 Jun 2020 02:24:07 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05C2MrI1146802;
+        Fri, 12 Jun 2020 02:24:07 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3020.oracle.com with ESMTP id 31m0vdg3xj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 12 Jun 2020 02:24:06 +0000
+Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 05C2NhhZ009634;
+        Fri, 12 Jun 2020 02:23:43 GMT
+Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 11 Jun 2020 19:23:42 -0700
+From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+To:     axboe@kernel.dk
+Cc:     io-uring@vger.kernel.org
+Subject: [RFC 2/2] io_uring: report pinned memory usage
+Date:   Thu, 11 Jun 2020 19:23:37 -0700
+Message-Id: <1591928617-19924-3-git-send-email-bijan.mottahedeh@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1591928617-19924-1-git-send-email-bijan.mottahedeh@oracle.com>
+References: <1591928617-19924-1-git-send-email-bijan.mottahedeh@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9649 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 spamscore=0
+ mlxlogscore=999 mlxscore=0 adultscore=0 suspectscore=1 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2006120017
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9649 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 suspectscore=1
+ priorityscore=1501 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ malwarescore=0 mlxscore=0 cotscore=-2147483648 adultscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2006120016
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The pull request you sent on Thu, 11 Jun 2020 15:35:22 -0600:
+Long term, it makes sense to separate reporting and enforcing of pinned
+memory usage.
 
-> git://git.kernel.dk/linux-block.git tags/io_uring-5.8-2020-06-11
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b961f8dc8976c091180839f4483d67b7c2ca2578
+It is useful to view
+---
+ fs/io_uring.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Thank you!
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4248726..cf3acaa 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7080,6 +7080,8 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ static void io_unaccount_mem(struct user_struct *user, unsigned long nr_pages)
+ {
+ 	atomic_long_sub(nr_pages, &user->locked_vm);
++	if (current->mm)
++		atomic_long_sub(nr_pages, &current->mm->pinned_vm);
+ }
+ 
+ static int io_account_mem(struct user_struct *user, unsigned long nr_pages)
+@@ -7096,6 +7098,8 @@ static int io_account_mem(struct user_struct *user, unsigned long nr_pages)
+ 			return -ENOMEM;
+ 	} while (atomic_long_cmpxchg(&user->locked_vm, cur_pages,
+ 					new_pages) != cur_pages);
++	if (current->mm)
++		atomic_long_add(nr_pages, &current->mm->pinned_vm);
+ 
+ 	return 0;
+ }
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+1.8.3.1
+

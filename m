@@ -2,144 +2,187 @@ Return-Path: <SRS0=q7Pc=74=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 965BEC433DF
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 16:02:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AF27C433E0
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 16:51:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7114C20679
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 16:02:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBD892078E
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 16:51:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nMaO84Wg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="x6NjyQzx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729772AbgFOQC5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Jun 2020 12:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52534 "EHLO
+        id S1729966AbgFOQvy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Jun 2020 12:51:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727785AbgFOQC4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 12:02:56 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E5DC061A0E;
-        Mon, 15 Jun 2020 09:02:55 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id l26so96162wme.3;
-        Mon, 15 Jun 2020 09:02:55 -0700 (PDT)
+        with ESMTP id S1729772AbgFOQvy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 12:51:54 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8791C061A0E
+        for <io-uring@vger.kernel.org>; Mon, 15 Jun 2020 09:51:53 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id k6so2072715pll.9
+        for <io-uring@vger.kernel.org>; Mon, 15 Jun 2020 09:51:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:cc:references:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=yfcCKaucoA6v6PXTOyrVw4fPVNJuLtSZLZ0wP0tPQdc=;
-        b=nMaO84WgfekrZjOPPeI/Qs+fhmD3kK6QK8UbK8VI5oK2KG0/7nRjpO7OIHpN9lHE4x
-         /AhKOE+eVaKigf0qA+g/acWwm52keZ1gLIoLzMaPoFsNjdcdEQcx62pD6kFfcBt3Z4bw
-         NtFaI8s9dgxL3iWi7JFNpMQicBvZLF404PrqhGGwdyTduzmvGmL2O6r6j2vZf9Kh7cKy
-         oFsXTKv64RPbBzR70MJqnmJqpvt7j6N0kAsaQNbvdt98j1jId9nDmjmkZ/Y7E/6vdXm3
-         /8re1u0jhzb3ybokeDFuMj3l92003GsVqIdgoXsp+1x6+HlgEnPjczOVziajXKLOq6zN
-         AW/Q==
+        bh=bI9knqin4SVEz2sO25WZuXzvqF1z3bbauAb12n97a60=;
+        b=x6NjyQzxF6NhQcLXz+p+O9OboL0ReHVuraXiGaL/7OiBLyvMThIgvBjxNeR84CLqIx
+         tTGmKoXGxbYzSzmJpR0KHsmk/UPEu/l2iHzPclK5d+HJNF+P5UoM9lLGpzvcgjV9VK6+
+         MeWPXHgThWYnRhSdHQDg8BDBaionpIfQmNX/nDUfnfnFbY8UaU+FISDlS+DCIoYzCd7i
+         /81wZM6ZUZUAfJQujSq+SP4F5SFU+jZVN4JOMaitzD2tQ+qFh54OE7Ph7GeGhYMg79Es
+         kU4zSdMAyUY5MilTQsOev6tStAAFpfJQkneHCveF7kkzcyvycqu1JFJ4fk7QvFgeL+3p
+         31Nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=yfcCKaucoA6v6PXTOyrVw4fPVNJuLtSZLZ0wP0tPQdc=;
-        b=tl+CVGYJ1bc65sY4WoZxU7590jBWLGpzYMdnR4jD0bv/qdmXz0Q7A2+gagpUVj6BGG
-         BJp3A1OaMJs13x8V/uqY0q9qYBNXhK4Z+riW7Fow9ejvvQ4sGVeLRBqzS2rpzYxRQY4V
-         zN7qEX5DTq9aQaHiFMSX+xgi51CF4KKM7Ny500i8MyLBkinRJh7ZqlSx/4T/DcCsXg75
-         JvilschDvLGT3bPIR6GwJpnLdNj9BzvvrqbAAs2jpB3JqtJilgSKLyzW8pPfWmDFoUxE
-         mkMZ87lTIl84t6xHwTJ0F8Ks6FeoFCGAB1NJlWTeCYPM7HO2i5D/ChjCHubbs3iHdf7c
-         0InQ==
-X-Gm-Message-State: AOAM533f/O0ri5L2UGJtTtluicauMYuBc7HBZrJUYU8Nt+yDFyysNNOA
-        hBfIrSVBLGmHROi/hlmVIveuFMMo
-X-Google-Smtp-Source: ABdhPJzCdEwG6IrGDXzZQRMuLrV2Nb8fggbZtUAsd8+PsEdrc959sKHVN8NW8U/fv5foole+SsGaTg==
-X-Received: by 2002:a7b:c204:: with SMTP id x4mr50748wmi.22.1592236973798;
-        Mon, 15 Jun 2020 09:02:53 -0700 (PDT)
-Received: from [192.168.43.243] ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id w10sm25207741wrp.16.2020.06.15.09.02.52
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=bI9knqin4SVEz2sO25WZuXzvqF1z3bbauAb12n97a60=;
+        b=e9+SDDPd2mVEDDZ7CRFDLejzeh8y7ypcOXJ/0fR+UXOPBU07GDoAC7McmqmKUQxmVL
+         nKbdVck3T4XsFZlGILM5k6ZoBq/tWBHanBRNCn2BowgYDzVdBJ45POuaq3E2zFzqDkzs
+         YG6A1d0KehxVK/ftl6YNr30mBsxHNe3QjpbADYaf+PpbcaqfMDBAzYmsN+3Ic4ZDAHxu
+         94IuRT491bFAqh9+DQaCdmjlldFfCZuaxN9Bxr72N9DVL/4vbtxOS0mbbuYS6HTSQxm8
+         dcLacvAovK/UFDLzmGCmK+7GAvjEBVosuArUr/CVoDfeBdIy6wXguR8/C9YoUF0vtXzJ
+         siRg==
+X-Gm-Message-State: AOAM533XAG+o8svdXSJysy/yajjJuocv88mmX7d6TorUOPNj8Wk9mUWj
+        7yImK8xZrR/96uZ488lgbMl1XHDq5tWJAQ==
+X-Google-Smtp-Source: ABdhPJxIBl3IK8ib/V5xcVPOFGPb7buZThMSIad0MXhi3FwJ6k6FRWlHMRhIWm0nHEs2VZMkXqFV3A==
+X-Received: by 2002:a17:90a:1546:: with SMTP id y6mr258495pja.92.1592239912263;
+        Mon, 15 Jun 2020 09:51:52 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id m22sm15378675pfk.216.2020.06.15.09.51.51
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Jun 2020 09:02:53 -0700 (PDT)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     ebiederm@xmission.com
-References: <cover.1592206077.git.asml.silence@gmail.com>
- <9b90fd1d-c60d-523a-b6b5-6c960ae52cc6@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH 0/2] don't use pid for request cancellation
-Message-ID: <d710004e-78be-67eb-283b-46949f34ecef@gmail.com>
-Date:   Mon, 15 Jun 2020 19:01:29 +0300
+        Mon, 15 Jun 2020 09:51:51 -0700 (PDT)
+Subject: Re: [PATCH 2/2] io_uring: add memory barrier to synchronize
+ io_kiocb's result and iopoll_completed
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        io-uring@vger.kernel.org
+Cc:     joseph.qi@linux.alibaba.com
+References: <20200615092450.3241-1-xiaoguang.wang@linux.alibaba.com>
+ <20200615092450.3241-3-xiaoguang.wang@linux.alibaba.com>
+ <a11acc23-1ad6-2281-4712-e78e46f414d7@kernel.dk>
+ <e47dd9c1-60a6-8365-6754-88437cf828f5@linux.alibaba.com>
+ <97cfe28d-cbbe-680a-2f4f-8794d4f90728@kernel.dk>
+ <d37647d3-da74-7c30-94c8-f18d0afcd958@linux.alibaba.com>
+ <2d6f383f-a033-fe30-f4cb-e5b9439dbbac@kernel.dk>
+Message-ID: <c529d919-e70c-3e79-77c8-b5cb7ffead4d@kernel.dk>
+Date:   Mon, 15 Jun 2020 10:51:50 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <9b90fd1d-c60d-523a-b6b5-6c960ae52cc6@kernel.dk>
+In-Reply-To: <2d6f383f-a033-fe30-f4cb-e5b9439dbbac@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 15/06/2020 18:04, Jens Axboe wrote:
-> On 6/15/20 1:33 AM, Pavel Begunkov wrote:
->> Cancel requests of an extiting task based on ->task address. As
->> reported by Eric W. Biederman, using pid for this purpose is not
->> right.
+On 6/15/20 9:35 AM, Jens Axboe wrote:
+> On 6/15/20 9:32 AM, Xiaoguang Wang wrote:
+>> hi,
 >>
->> note: rebased on top of "cancel all" patches
+>>> On 6/15/20 8:48 AM, Xiaoguang Wang wrote:
+>>>> hi,
+>>>>
+>>>>> On 6/15/20 3:24 AM, Xiaoguang Wang wrote:
+>>>>>> In io_complete_rw_iopoll(), stores to io_kiocb's result and iopoll
+>>>>>> completed are two independent store operations, to ensure that once
+>>>>>> iopoll_completed is ture and then req->result must been perceived by
+>>>>>> the cpu executing io_do_iopoll(), proper memory barrier should be used.
+>>>>>>
+>>>>>> And in io_do_iopoll(), we check whether req->result is EAGAIN, if it is,
+>>>>>> we'll need to issue this io request using io-wq again. In order to just
+>>>>>> issue a single smp_rmb() on the completion side, move the re-submit work
+>>>>>> to io_iopoll_complete().
+>>>>>
+>>>>> Did you actually test this one?
+>>>> I only run test cases in liburing/test in a vm.
+>>>>
+>>>>>
+>>>>>> @@ -1736,11 +1748,20 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+>>>>>>    {
+>>>>>>    	struct req_batch rb;
+>>>>>>    	struct io_kiocb *req;
+>>>>>> +	LIST_HEAD(again);
+>>>>>> +
+>>>>>> +	/* order with ->result store in io_complete_rw_iopoll() */
+>>>>>> +	smp_rmb();
+>>>>>>    
+>>>>>>    	rb.to_free = rb.need_iter = 0;
+>>>>>>    	while (!list_empty(done)) {
+>>>>>>    		int cflags = 0;
+>>>>>>    
+>>>>>> +		if (READ_ONCE(req->result) == -EAGAIN) {
+>>>>>> +			req->iopoll_completed = 0;
+>>>>>> +			list_move_tail(&req->list, &again);
+>>>>>> +			continue;
+>>>>>> +		}
+>>>>>>    		req = list_first_entry(done, struct io_kiocb, list);
+>>>>>>    		list_del(&req->list);
+>>>>>>    
+>>>>>
+>>>>> You're using 'req' here before you initialize it...
+>>>> Sorry, next time when I submit patches, I'll construct test cases which
+>>>> will cover my codes changes.
+>>>
+>>> I'm surprised the compiler didn't complain, or that the regular testing
+>>> didn't barf on it.
+>> I'm also surprised, will try to find the reason.
+>> And indeed the iopoll test case failed, but below command displayed nothing:
+>> [lege@localhost test]$ sudo ./iopoll
+>> Then I considered this test case pass wrongly.
+>>
+>> dmesg show errors:
+>> [  127.806945] ==================================================================
+>> [  127.806983] BUG: KASAN: use-after-free in io_iopoll_complete+0xbb/0x980
+>> [  127.806989] Read of size 4 at addr ffff8886e3e98808 by task io_uring-sq/1643
+>>
+>> [  127.806999] CPU: 16 PID: 1643 Comm: io_uring-sq Not tainted 5.7.0+ #501
+>> [  127.807013] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.1-0-g0551a4be2c-prebuilt.qemu-project.org 04/01/2014
+>> [  127.807021] Call Trace:
+>> [  127.807040]  dump_stack+0x75/0xa0
+>> [  127.807047]  ? io_iopoll_complete+0xbb/0x980
+>> [  127.807062]  print_address_description.constprop.6+0x1a/0x220
+>> [  127.807086]  ? _raw_write_lock_irqsave+0xd0/0xd0
+>> [  127.807092]  ? io_free_req_many.part.79+0x208/0x2a0
+>> [  127.807107]  ? __rcu_read_unlock+0x37/0x200
+>> [  127.807112]  ? io_iopoll_complete+0xbb/0x980
+>> [  127.807117]  ? io_iopoll_complete+0xbb/0x980
+>> [  127.807122]  kasan_report.cold.9+0x1f/0x42
+>> [  127.807128]  ? io_iopoll_complete+0xbb/0x980
+>> [  127.807133]  io_iopoll_complete+0xbb/0x980
+>> [  127.807138]  ? io_timeout_fn+0x140/0x140
+>> [  127.807150]  ? __switch_to+0x2e9/0x5a0
+>> [  127.807157]  io_iopoll_getevents+0x287/0x310
+>> [  127.807163]  ? io_iopoll_complete+0x980/0x980
+>> [  127.807172]  ? finish_wait+0xcb/0xf0
+>> [  127.807179]  io_sq_thread+0x1c1/0x600
+>> [  127.807185]  ? __ia32_sys_io_uring_enter+0x450/0x450
+>> [  127.807194]  ? preempt_count_add+0x77/0xd0
+>> [  127.807200]  ? _raw_spin_lock_irqsave+0x84/0xd0
+>> [  127.807206]  ? _raw_write_lock_irqsave+0xd0/0xd0
+>> [  127.807210]  ? finish_wait+0xf0/0xf0
+>> [  127.807215]  ? preempt_count_sub+0x18/0xc0
+>> [  127.807224]  ? __kthread_parkme+0xaf/0xd0
+>> [  127.807231]  ? __ia32_sys_io_uring_enter+0x450/0x450
+>> [  127.807235]  kthread+0x1e4/0x210
+>> [  127.807241]  ? kthread_create_on_node+0xa0/0xa0
+>> [  127.807246]  ret_from_fork+0x22/0x30
 > 
-> Looks good, and I had the same thought of not grabbing a ref to the
-> task for the cancel case where we don't need to dereference it.
+> There you go, so it did fail, just didn't register as a failure. I should
+> probably add a dmesg check for the liburing tests, and fail a test if
+> we trigger a WARNING or BUG condition. I'll look into that.
 
-I'm afraid of ABA problem, but this particular case @current shouldn't
-go away until ->close is finished.
-
-I was thinking about not get_task() it at all, but it would _at least_
-need a way to add a callback on exit of tasks using io_uring to
-cancel everything related there. Similarly to how it's done for
-work->files using ->close().
+I pushed a commit to liburing so that it should now catch dmesg
+errors logged while running a test.
 
 -- 
-Pavel Begunkov
+Jens Axboe
+

@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94174C433E4
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:26:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF74C433E0
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:26:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D7FD20707
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:26:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BF1B20707
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:26:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mcRv+X7A"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tLrDJLkZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728717AbgFOHZ6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Jun 2020 03:25:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57138 "EHLO
+        id S1728678AbgFOHZm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Jun 2020 03:25:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728691AbgFOHZn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 03:25:43 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A74C061A0E;
-        Mon, 15 Jun 2020 00:25:42 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id r9so13524587wmh.2;
-        Mon, 15 Jun 2020 00:25:42 -0700 (PDT)
+        with ESMTP id S1728568AbgFOHZj (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 03:25:39 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0157C05BD43;
+        Mon, 15 Jun 2020 00:25:38 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id l11so15932088wru.0;
+        Mon, 15 Jun 2020 00:25:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=nrh+VH9Rpne9AeXibjb2Get1XJmLZmC1Vowuq2L/jKw=;
-        b=mcRv+X7A/ZM6fqOx4VPVM1qDOj2FoAhG4CP07CLLRe0JCa7Nt0m7wOlSFBsHJt/9DH
-         mT5SgSJ4XK6hleonnKFLUtEJpzsPr4U0S1+YUPy2Mg+6l2CdOyIsZcARuHE7MBs4Q4MC
-         0qcCmPDkOZJQf6D6oKtLiWUCbStWJYcXSuq/ydD/gM4gy+RleyIky4GsvdNc2+PMFcI2
-         7rHAez/dEc/zar8KYpl5IzZWjJsKzmuafNjHL4Xuk7DRzwDXNZIK186htsu3AO9MS49o
-         c8YVW4zR2E3GL2p0CWu0w9XFMV5EAtXOJ1ecfA8YJG4EQ35UdJYKKsYrAiEpZu4PT72b
-         lHlg==
+        bh=PLjL6HSHY4IJ365TM4h+lxLSvM2NbFHY6SA4XyxEBB4=;
+        b=tLrDJLkZDRVnjFxFLmgsQ3ULT2ojxnNmYewJdXdS24AvQama1uwWVUVMV/HYsMZM4m
+         VqT51cc4fFsFh8BFwfxjM8YwX1jMmflJeAyCVVae7kDXxH/6aHPeHPavG84pB2mMrhlE
+         mEz2M5Eldfhe7VOKp5OhOCM8TcHOxss8d3TbFTdrk4oT+C6RZIlJkhh3MF7hd2WcfHJ5
+         QvzvGN5J5z2Am5Ug9H6/ZA+oEFTorU5LOANQeI17QDUpnZPU7+uSMxKyxKDd7fu27/Cr
+         zgeqBaemS9SEa/A2JUNau6lb4DH6Uv9i5QYoAxEYVx4jtfHnbLXi+BABU5zIEHl7xsRt
+         JC0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nrh+VH9Rpne9AeXibjb2Get1XJmLZmC1Vowuq2L/jKw=;
-        b=IL5ixvgLT1IEOZAC7ZvnFfev2L/oBIjykfwIaPBjn/iSLFFfJsQmnZJeWxdE4IW0Nx
-         7StUTyLyfOkyY+yruEYzMtCREhuPRb/9G9K0W9G5kl1LLTAx+Kf+V40Bq77aLYzMoAbC
-         QGR5HrTqNAth0/F8E/0/Fd0k0ONX/lO09Kb9CuDArhE0rG2oEQyGAsnqwJIhqbYTgqyB
-         c8qZAind2GSPEzIqL9KUx7BMz9NW/YjTmlZQf3zmsMaz1Ya38wxZ7ytuq4bNTacYRL65
-         SkGae/jBOONgTNTnqf0HnFoaFWEqADOaVjcmx1SlZus0Qtd97QWzkU9baqOYFLhKMqqh
-         U6eA==
-X-Gm-Message-State: AOAM531zke4/aGsvP73AGbYmIvYe+JNWYpZPoghOaLJ7Dj8xWcUwVwsT
-        FSXJhqxAOD2lpi+NyGAmwVk=
-X-Google-Smtp-Source: ABdhPJw69GmKDnkNOBDeGO8+BPsO+6KwCF1weSEWiW5UKWSop4ukcMUpDqt2J+kGKUsTqToel4vzig==
-X-Received: by 2002:a7b:c041:: with SMTP id u1mr12352924wmc.56.1592205941536;
-        Mon, 15 Jun 2020 00:25:41 -0700 (PDT)
+        bh=PLjL6HSHY4IJ365TM4h+lxLSvM2NbFHY6SA4XyxEBB4=;
+        b=C/YMIihNYi/bqKdLU8zn+hGyoRnYSCpH3BNQ92bTYuIKz4eRcBi8QZhZa/BdCU030q
+         zpQTsSB5UD+9AVjqQA5C/Hxx6jsSBENu4fYJg8prHfTwCcKHERtEWj1uS5mibRWLvjx3
+         qnIHQn4LraVRkhU3OJh3s/3LBnf1iFTgwHC/3Pf5hLVFY5aOSu1s+dkMp3fLnMdNA0c/
+         3/8OA06qU5wHNiMrn8XryAGykA4BTATWw+f/4cIFa17QXw2DVLSh23BDAuohQT+RCtpi
+         0W9IVO1bxcLXJCP2BH+RWOTNxhhv+rt6OQqR44f9X+tbo+auI6dMTOVFHrr04WjHqQHh
+         lu1g==
+X-Gm-Message-State: AOAM5314FjRY4ggFw4iGVlTSlu7Opw0CL/OZBcMDMFSZpAC4+638F+Qf
+        2H3Fj9zRQ4PIw5wUFnJSJDk=
+X-Google-Smtp-Source: ABdhPJwBM+6QlpShroHFAuWaKW8NClQbcN/fCHd+9QF3ysgA3y/xoXRO/Ji52WmKkqjUiEXe2CHp/g==
+X-Received: by 2002:a5d:61d0:: with SMTP id q16mr28828521wrv.182.1592205937383;
+        Mon, 15 Jun 2020 00:25:37 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id b187sm21897402wmd.26.2020.06.15.00.25.40
+        by smtp.gmail.com with ESMTPSA id b187sm21897402wmd.26.2020.06.15.00.25.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2020 00:25:41 -0700 (PDT)
+        Mon, 15 Jun 2020 00:25:37 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 4/4] io_uring: batch cancel in io_uring_cancel_files()
-Date:   Mon, 15 Jun 2020 10:24:05 +0300
-Message-Id: <893d62893aab92d7a2e01e26868230621d265220.1592205754.git.asml.silence@gmail.com>
+Subject: [PATCH v2 1/4] io-wq: reorder cancellation pending -> running
+Date:   Mon, 15 Jun 2020 10:24:02 +0300
+Message-Id: <56dea8bebbbc4d960519dacb07ad5062f5d14906.1592205754.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1592205754.git.asml.silence@gmail.com>
 References: <cover.1592205754.git.asml.silence@gmail.com>
@@ -74,42 +74,112 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Instead of waiting for each request one by one, first try to cancel all
-of them in a batched manner, and then go over inflight_list/etc to reap
-leftovers.
+Go all over all pending lists and cancel works there, and only then
+try to match running requests. No functional changes here, just a
+preparation for bulk cancellation.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/io-wq.c | 54 ++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8bde42775693..5b5cab6691d2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7370,9 +7370,22 @@ static int io_uring_release(struct inode *inode, struct file *file)
- 	return 0;
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index d7dc638f4b8e..9e7d277de248 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -932,19 +932,14 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ 	return ret;
  }
  
-+static bool io_wq_files_match(struct io_wq_work *work, void *data)
-+{
-+	struct files_struct *files = data;
-+
-+	return work->files == files;
+-static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+-					    struct io_cb_cancel_data *match)
++static bool io_wqe_cancel_pending_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
+ {
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
+ 	unsigned long flags;
+ 	bool found = false;
+ 
+-	/*
+-	 * First check pending list, if we're lucky we can just remove it
+-	 * from there. CANCEL_OK means that the work is returned as-new,
+-	 * no completion will be posted for it.
+-	 */
+ 	spin_lock_irqsave(&wqe->lock, flags);
+ 	wq_list_for_each(node, prev, &wqe->work_list) {
+ 		work = container_of(node, struct io_wq_work, list);
+@@ -957,21 +952,20 @@ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+ 	}
+ 	spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+-	if (found) {
++	if (found)
+ 		io_run_cancel(work, wqe);
+-		return IO_WQ_CANCEL_OK;
+-	}
++	return found;
 +}
 +
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
-+	if (list_empty_careful(&ctx->inflight_list))
-+		return;
++static bool io_wqe_cancel_running_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
++{
++	bool found;
+ 
+-	/*
+-	 * Now check if a free (going busy) or busy worker has the work
+-	 * currently running. If we find it there, we'll return CANCEL_RUNNING
+-	 * as an indication that we attempt to signal cancellation. The
+-	 * completion will run normally in this case.
+-	 */
+ 	rcu_read_lock();
+ 	found = io_wq_for_each_worker(wqe, io_wq_worker_cancel, match);
+ 	rcu_read_unlock();
+-	return found ? IO_WQ_CANCEL_RUNNING : IO_WQ_CANCEL_NOTFOUND;
++	return found;
+ }
+ 
+ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+@@ -981,18 +975,34 @@ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ 		.fn	= cancel,
+ 		.data	= data,
+ 	};
+-	enum io_wq_cancel ret = IO_WQ_CANCEL_NOTFOUND;
+ 	int node;
+ 
++	/*
++	 * First check pending list, if we're lucky we can just remove it
++	 * from there. CANCEL_OK means that the work is returned as-new,
++	 * no completion will be posted for it.
++	 */
+ 	for_each_node(node) {
+ 		struct io_wqe *wqe = wq->wqes[node];
+ 
+-		ret = io_wqe_cancel_work(wqe, &match);
+-		if (ret != IO_WQ_CANCEL_NOTFOUND)
+-			break;
++		if (io_wqe_cancel_pending_work(wqe, &match))
++			return IO_WQ_CANCEL_OK;
+ 	}
+ 
+-	return ret;
++	/*
++	 * Now check if a free (going busy) or busy worker has the work
++	 * currently running. If we find it there, we'll return CANCEL_RUNNING
++	 * as an indication that we attempt to signal cancellation. The
++	 * completion will run normally in this case.
++	 */
++	for_each_node(node) {
++		struct io_wqe *wqe = wq->wqes[node];
 +
-+	/* cancel all at once, should be faster than doing it one by one*/
-+	io_wq_cancel_cb(ctx->io_wq, io_wq_files_match, files, true);
++		if (io_wqe_cancel_running_work(wqe, &match))
++			return IO_WQ_CANCEL_RUNNING;
++	}
 +
- 	while (!list_empty_careful(&ctx->inflight_list)) {
- 		struct io_kiocb *cancel_req = NULL, *req;
- 		DEFINE_WAIT(wait);
++	return IO_WQ_CANCEL_NOTFOUND;
+ }
+ 
+ static bool io_wq_io_cb_cancel_data(struct io_wq_work *work, void *data)
 -- 
 2.24.0
 

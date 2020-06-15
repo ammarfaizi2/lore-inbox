@@ -2,176 +2,142 @@ Return-Path: <SRS0=q7Pc=74=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 586B3C433DF
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:34:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0EEFC433DF
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 09:04:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 387012067B
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:34:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC13A2065F
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 09:04:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VHHHozs/"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ixfqp8u8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728541AbgFOHeu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Jun 2020 03:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58528 "EHLO
+        id S1729100AbgFOJEf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Jun 2020 05:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbgFOHet (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 03:34:49 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E62B3C061A0E;
-        Mon, 15 Jun 2020 00:34:48 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id y17so15919173wrn.11;
-        Mon, 15 Jun 2020 00:34:48 -0700 (PDT)
+        with ESMTP id S1728872AbgFOJEe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 05:04:34 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B7BC05BD43
+        for <io-uring@vger.kernel.org>; Mon, 15 Jun 2020 02:04:34 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id c21so9073775lfb.3
+        for <io-uring@vger.kernel.org>; Mon, 15 Jun 2020 02:04:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Z/scpk3kR4iex4ERTM3utzKEgc0eR+GVe9poH6YwaP0=;
-        b=VHHHozs/xph4kV5lNCnVW2cZ0R2bEeNTlz+sXL6mNB646wm9n/7fEnROvTFIOq1cmY
-         DGnpIfaChwgeOSK3Jzui1mKBrLRwOpdqTeITNuYsEFvjIh4d4eAGlTPjxGVrUeCMot91
-         OFg9YEwJYgV1RHvHHC6rWMMpwxIEeYww3+NOpD5gjNPrsYCNARiVK87Q+CFjqXLls9Af
-         MXWvtqTA8grQNVhiJmCzF7TFB1povvY1/1UsqPItry8wAMyDR2VznMYZRdPqSUU6Zmxu
-         tjCuEfirIjfhtnOffzSyFwBNTJcHlbji1KrW2PCZGwhMqgZLmZE7r6/NuwBVru6C6TU4
-         FqdQ==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=V7Vksm3yVsusCZGLEEjTvbEqPOS/06Z5wknpkPUtdlk=;
+        b=Ixfqp8u8Rl69K6PKy1mGZQOiZmh0ZJEtQdb7NAeRQuN3byG4vcJX1x3182X8EWE6jI
+         ctSYCsBiVysxQAFCxd2JbwmFPvsqu3ZdcXcRN4V1DTf7L6tvIlfYH4vkACTrGWYux+o4
+         ZJG4mM/covrF4jrDg4ZHg2luZQ7epBMJvYdbsRSPDEUOC2OufyZ00Jrar6HZvhcc+YkS
+         XleRd6bSGFkUqu/0q4SekjyF2ywdF7PVg+a5z4xf38yMOVfsya8nM6sGlFC2AyMl/0lV
+         CaNRl4a4oQq08sLtbDyGRTDjS6sgUpMCVNtpYDG+qRofp+ueNkYwxjqOPJHIRH4Wgjvs
+         ugOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Z/scpk3kR4iex4ERTM3utzKEgc0eR+GVe9poH6YwaP0=;
-        b=neN5DQVn0NV7LthWpRTkO2aHxGnTj3cdDdAAOLgrjbqW+2Lf1Mkkrsujt4q6CruBpW
-         YNIDHY5xQvxybL3fMEYrfWsjMaz57ZnPqP7Zp/lyYtQxOyf71y1peTEgXXDvw1nX+/hI
-         225YW9B/uqa8gC+n5ICxlIkns3mpR2xxzmsF/eDl2sqSVwaNmaGSY5PSy0qbXbAtSpez
-         +9Yrsu5IRcCWWGGgk0vWoDBMRQol81p+zbXaYc+CswPsmRFGhpFWHPpIqS6Ep+EcAcjP
-         vsz17C90s+qeBmFsEY5yr67Z6nOpUrUd3NirSU0y73RHw4I3IKQFxbBLQ8sh4dayDL3k
-         SpmA==
-X-Gm-Message-State: AOAM531m5UkLODaTAI2BlndayzU56E2/0X9dloZEUI9NCshrh5DqrNcW
-        BsIaLjwnDUnHkclUXMvAHjM=
-X-Google-Smtp-Source: ABdhPJxotSJ15l+OVBaATNGacY+Zs+4rd2S3Y/VYQmcmRWdTf0aw6aFFI3zUVsOU0uQJH8+VEdI3xA==
-X-Received: by 2002:adf:dfcf:: with SMTP id q15mr26646674wrn.373.1592206487675;
-        Mon, 15 Jun 2020 00:34:47 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id l17sm20271324wmi.16.2020.06.15.00.34.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2020 00:34:47 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     ebiederm@xmission.com
-Subject: [PATCH 1/2] io_uring: lazy get task
-Date:   Mon, 15 Jun 2020 10:33:13 +0300
-Message-Id: <2185c03aec46afef0a914674f0e2904ede6bbbba.1592206077.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1592206077.git.asml.silence@gmail.com>
-References: <cover.1592206077.git.asml.silence@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=V7Vksm3yVsusCZGLEEjTvbEqPOS/06Z5wknpkPUtdlk=;
+        b=BvCdJeQg4CPsIIXMx0sMud22rN0q788QsToJEG+0ib/hWK1hF2QHXtLpj/6YTcr69x
+         1tkxTj6TLiO0MwVt4Wrj6a+90UkGe9gcWYKgj3cqfrX5LmSYtoLEbclcz/poQBgxoJWm
+         mjk9xsLJZHgZIGadsQnl/64N2tYHIa0bwTpoMpVqZbyyGKqPH2nL+ZdEcCRXBaWfeSrK
+         VwyvkbyjM81bQEoJGJdFiUODpgO6nTalhTZVZUR4L228NwDmHgIFeBv0D+4jp3FCzBYi
+         V3bGG7jnhnb6r5jLA5+iyGgax+6lBXHtOU6yfxu6fOq+DqPLtZUL8SttAif995hM5PFX
+         STig==
+X-Gm-Message-State: AOAM530/GheGoXzLH0kE/DyinSuOD4G2EBMeA9hImEA65WNC5tndlJN+
+        mgW+L/qJHMcJaDsy3n1BuxYq+szdbFs7BPVxtAJ5QQ==
+X-Google-Smtp-Source: ABdhPJzk8pDwMUC1U4/hmyURlQzg8+VVDMlW+27NBx3jZLR+glDX42DgRR9QPDbR/Oz7srTuWj/giUBnVQDOSQLim9U=
+X-Received: by 2002:a19:a405:: with SMTP id q5mr12790536lfc.164.1592211872518;
+ Mon, 15 Jun 2020 02:04:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200609142406.upuwpfmgqjeji4lc@steredhat>
+In-Reply-To: <20200609142406.upuwpfmgqjeji4lc@steredhat>
+From:   Jann Horn <jannh@google.com>
+Date:   Mon, 15 Jun 2020 11:04:06 +0200
+Message-ID: <CAG48ez3kdNKjif==MbX36cKNYDpZwEPMZaJQ1rrpXZZjGZwbKw@mail.gmail.com>
+Subject: Re: [RFC] io_uring: add restrictions to support untrusted
+ applications and guests
+To:     Stefano Garzarella <sgarzare@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Aleksa Sarai <asarai@suse.de>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        io-uring <io-uring@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There will be multiple places where req->task is used, so refcount-pin
-it lazily with introduced *io_{get,put}_req_task(). We need to always
-have valid ->task for cancellation reasons, but don't care about pinning
-it in some cases. That's why it sets req->task in io_req_init() and
-implements get/put laziness with a flag.
++Kees, Christian, Sargun, Aleksa, kernel-hardening for their opinions
+on seccomp-related aspects
 
-This also removes using @current from polling io_arm_poll_handler(),
-etc., but doesn't change observable behaviour
+On Tue, Jun 9, 2020 at 4:24 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+> Hi Jens,
+> Stefan and I have a proposal to share with io_uring community.
+> Before implementing it we would like to discuss it to receive feedbacks and
+> to see if it could be accepted:
+>
+> Adding restrictions to io_uring
+> =====================================
+> The io_uring API provides submission and completion queues for performing
+> asynchronous I/O operations. The queues are located in memory that is
+> accessible to both the host userspace application and the kernel, making it
+> possible to monitor for activity through polling instead of system calls. This
+> design offers good performance and this makes exposing io_uring to guests an
+> attractive idea for improving I/O performance in virtualization.
+[...]
+> Restrictions
+> ------------
+> This document proposes io_uring API changes that safely allow untrusted
+> applications or guests to use io_uring. io_uring's existing security model is
+> that of kernel system call handler code. It is designed to reject invalid
+> inputs from host userspace applications. Supporting guests as io_uring API
+> clients adds a new trust domain with access to even fewer resources than host
+> userspace applications.
+>
+> Guests do not have direct access to host userspace application file descriptors
+> or memory. The host userspace application, a Virtual Machine Monitor (VMM) such
+> as QEMU, grants access to a subset of its file descriptors and memory. The
+> allowed file descriptors are typically the disk image files belonging to the
+> guest. The memory is typically the virtual machine's RAM that the VMM has
+> allocated on behalf of the guest.
+>
+> The following extensions to the io_uring API allow the host application to
+> grant access to some of its file descriptors.
+>
+> These extensions are designed to be applicable to other use cases besides
+> untrusted guests and are not virtualization-specific. For example, the
+> restrictions can be used to allow only a subset of sqe operations available to
+> an application similar to seccomp syscall whitelisting.
+>
+> An address translation and memory restriction mechanism would also be
+> necessary, but we can discuss this later.
+>
+> The IOURING_REGISTER_RESTRICTIONS opcode
+> ----------------------------------------
+> The new io_uring_register(2) IOURING_REGISTER_RESTRICTIONS opcode permanently
+> installs a feature whitelist on an io_ring_ctx. The io_ring_ctx can then be
+> passed to untrusted code with the knowledge that only operations present in the
+> whitelist can be executed.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+This approach of first creating a normal io_uring instance and then
+installing restrictions separately in a second syscall means that it
+won't be possible to use seccomp to restrict newly created io_uring
+instances; code that should be subject to seccomp restrictions and
+uring restrictions would only be able to use preexisting io_uring
+instances that have already been configured by trusted code.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5b5cab6691d2..f05d2e45965e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -543,6 +543,7 @@ enum {
- 	REQ_F_NO_FILE_TABLE_BIT,
- 	REQ_F_QUEUE_TIMEOUT_BIT,
- 	REQ_F_WORK_INITIALIZED_BIT,
-+	REQ_F_TASK_PINNED_BIT,
- 
- 	/* not a real bit, just to check we're not overflowing the space */
- 	__REQ_F_LAST_BIT,
-@@ -602,6 +603,8 @@ enum {
- 	REQ_F_QUEUE_TIMEOUT	= BIT(REQ_F_QUEUE_TIMEOUT_BIT),
- 	/* io_wq_work is initialized */
- 	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
-+	/* req->task is refcounted */
-+	REQ_F_TASK_PINNED	= BIT(REQ_F_TASK_PINNED_BIT),
- };
- 
- struct async_poll {
-@@ -912,6 +915,21 @@ struct sock *io_uring_get_socket(struct file *file)
- }
- EXPORT_SYMBOL(io_uring_get_socket);
- 
-+static void io_get_req_task(struct io_kiocb *req)
-+{
-+	if (req->flags & REQ_F_TASK_PINNED)
-+		return;
-+	get_task_struct(req->task);
-+	req->flags |= REQ_F_TASK_PINNED;
-+}
-+
-+/* not idempotent -- it doesn't clear REQ_F_TASK_PINNED */
-+static void __io_put_req_task(struct io_kiocb *req)
-+{
-+	if (req->flags & REQ_F_TASK_PINNED)
-+		put_task_struct(req->task);
-+}
-+
- static void io_file_put_work(struct work_struct *work);
- 
- /*
-@@ -1400,9 +1418,7 @@ static void __io_req_aux_free(struct io_kiocb *req)
- 	kfree(req->io);
- 	if (req->file)
- 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
--	if (req->task)
--		put_task_struct(req->task);
--
-+	__io_put_req_task(req);
- 	io_req_work_drop_env(req);
- }
- 
-@@ -4367,8 +4383,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 		memcpy(&apoll->work, &req->work, sizeof(req->work));
- 	had_io = req->io != NULL;
- 
--	get_task_struct(current);
--	req->task = current;
-+	io_get_req_task(req);
- 	req->apoll = apoll;
- 	INIT_HLIST_NODE(&req->hash_node);
- 
-@@ -4556,8 +4571,7 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 	events = READ_ONCE(sqe->poll_events);
- 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
- 
--	get_task_struct(current);
--	req->task = current;
-+	io_get_req_task(req);
- 	return 0;
- }
- 
-@@ -5818,7 +5832,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	req->flags = 0;
- 	/* one is dropped after submission, the other at completion */
- 	refcount_set(&req->refs, 2);
--	req->task = NULL;
-+	req->task = current;
- 	req->result = 0;
- 
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
--- 
-2.24.0
-
+So I think that from the seccomp perspective, it might be preferable
+to set up these restrictions in the io_uring_setup() syscall. It might
+also be a bit nicer from a code cleanliness perspective, since you
+won't have to worry about concurrently changing restrictions.

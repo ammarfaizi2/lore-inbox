@@ -2,68 +2,71 @@ Return-Path: <SRS0=q7Pc=74=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 355E5C433E0
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:25:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9693C433E2
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:25:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 094672068E
-	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:25:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C660B206E2
+	for <io-uring@archiver.kernel.org>; Mon, 15 Jun 2020 07:25:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jdW1SHup"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bmmzQQ/G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728580AbgFOHZj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Jun 2020 03:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57116 "EHLO
+        id S1728701AbgFOHZp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Jun 2020 03:25:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728465AbgFOHZi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 03:25:38 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED609C061A0E;
-        Mon, 15 Jun 2020 00:25:37 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id l11so15932038wru.0;
-        Mon, 15 Jun 2020 00:25:37 -0700 (PDT)
+        with ESMTP id S1728465AbgFOHZm (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Jun 2020 03:25:42 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10057C05BD1E;
+        Mon, 15 Jun 2020 00:25:41 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id t18so15927266wru.6;
+        Mon, 15 Jun 2020 00:25:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=NMLq/9XIcyyjvzmMHTslVdNcPYlPlXmCK0RGCpT01yE=;
-        b=jdW1SHupzWb9yWtx3UWvAyHXkP8PLIdElohOR9xEDSDXMU6UL9egRUJRg40JUq+B7A
-         VQJYZ509JLeMCt7vHsUcNJuaiODuT8ND1lXlRrQN3VljSdWuAe1ZvRefcb2VIszfy/TI
-         1A5rM0XJC1w101aGKeUCsrMBVUOlZZuuoo1oBr9wMtXvKtA742idAd3dBoL3iqXv2Ctd
-         OnNEQ6/SZt9duX5yS1R3LOkJsPPWKvJy4Ai4hM64R+bmFd8rj+dViLYGBXvhhtYrAJK5
-         GdAWPzSf+o1wV9w8nkS/h26+2XDrBzQpK8zO4OjPHpEEEyVfpV+1hyuuWQeomgCuh0sB
-         RF0w==
+        bh=nb16NTER+xpaHsVhWoWJPF4ib0zB+sCmpD4uKPsQK90=;
+        b=bmmzQQ/GjlL2wJU6lF6sbg5E28rEUR1tyA0WHuN5wVeFKIeEl6N/tltEu8U8uORn2r
+         TBgQdbVhPpknpuUOER9QYdPJtaH8QxFlt7qh9CCdVo9DejN9s0bv8MQAdXntK0XYbxvP
+         0oDCbBGWp9pxOawH0oSCOqiHGA+oGwcrHNg3ekpvGSO2SnqB7lVKG2uP39qKB3fdo3jS
+         CaP/58DkjQzLdLzVKtydVWsceDQr5FWMmXO4HLC1M/q9htw7zMnz6GvPJesYGZVin690
+         N2rIJ0JlAK6xlrLwkcdaVyw2UxMAJ0lVWlIWjF0564BLMiS21gwUW45BvgJHrF3TNZ+i
+         x6lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NMLq/9XIcyyjvzmMHTslVdNcPYlPlXmCK0RGCpT01yE=;
-        b=pGZCrXMUocrCy7MOF+R0nMJjAl9N1aMdAlb91o2fzbs/h/FPHEvKEfAi2roGUAzh9Q
-         AkgeNEwu8L8lBQyGOQu/rJh6zdNTAuccCPfB+tK1FXae+Ef58FTl+LUTjKpUtr6l2tu4
-         Yia29B3MGDLlj6uSn9EmWp1Rk28cEykKP/HNqsgclfow80FyjEwSxxEUC4y+KoImcbxt
-         7D4DvPfkGJFksbVVcyx1Lzdf2F+FAjjVivSp9tJQeer5NE0+YBNL2EJwGOEbOGRkbaLj
-         vM7mC0i8IODpFqF0C3TjIOkm6BYL6RSHyQ1zHtKRMXNDuEukVbtWQvqMjCCkqugAcnKO
-         7J7g==
-X-Gm-Message-State: AOAM532Z5tyE/jOzOIPKhOI6FPewT7mFjrw5X+35Dc0+tNPgMZkmag9z
-        9vfCp3YGIp3ii78AZzn0K5KCU/e+
-X-Google-Smtp-Source: ABdhPJw7QNcn4UO8OzvQEpDnbZ2+dLCp9L9OxAwofXDk8ujYEQo+ToGUvRkYkrsK8uzaEQ6l79u0bw==
-X-Received: by 2002:adf:9795:: with SMTP id s21mr29213904wrb.166.1592205936172;
-        Mon, 15 Jun 2020 00:25:36 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nb16NTER+xpaHsVhWoWJPF4ib0zB+sCmpD4uKPsQK90=;
+        b=cVgLF98NOxw1eVrVci9oHNq+XxMYUo9BDPOc9CUGUETaBDaiCQnL48Yc4QWUrFkuSs
+         S3R0yIrAnQjj1FBRJ7r+Hdcfr2x0uMg3pAMxr/v4+zvzGjg4GISTtaXIji+6mk9nLDwa
+         etogHsmDXp+lz3tEpAbqufE0OJrM9iwThuloohL8V0I3MlIK8CeUFTZywD06WaIA0j95
+         +I3MSWePSQrmEXMSNjjl45KGVHoLzTB9wQsjv6WxF1iUu1a71LuBe0Y7o8c7EThZjUvP
+         2UMyyOz0+lObeZSYlzPyjKRAJj0wjorZ5zzV7w/oZ/tBLYOCydAmj+gDi9abPoeFw80E
+         kECQ==
+X-Gm-Message-State: AOAM531evOLHBVN9kn3TRyYoRSLI0Bv2xR+hCsxiGaRSZ4+4D1Xe0cCZ
+        5gLDaMk36EarDs/5xjrQvRXxRvNH
+X-Google-Smtp-Source: ABdhPJye24RWgWJOgiZeU4B2GS5O9/UD8w/lbkYYMMsJKl9O2KsFaKRS02bo9zC1imfhULIKKambsw==
+X-Received: by 2002:a5d:6550:: with SMTP id z16mr29326696wrv.392.1592205939801;
+        Mon, 15 Jun 2020 00:25:39 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.151])
-        by smtp.gmail.com with ESMTPSA id b187sm21897402wmd.26.2020.06.15.00.25.35
+        by smtp.gmail.com with ESMTPSA id b187sm21897402wmd.26.2020.06.15.00.25.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2020 00:25:35 -0700 (PDT)
+        Mon, 15 Jun 2020 00:25:39 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/4][RESEND] cancel all reqs of an exiting task
-Date:   Mon, 15 Jun 2020 10:24:01 +0300
-Message-Id: <cover.1592205754.git.asml.silence@gmail.com>
+Subject: [PATCH v2 3/4] io_uring: cancel all task's requests on exit
+Date:   Mon, 15 Jun 2020 10:24:04 +0300
+Message-Id: <c587cf1bfa2e842a207efd50abdbc7d81e033463.1592205754.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1592205754.git.asml.silence@gmail.com>
+References: <cover.1592205754.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,32 +74,85 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_uring_flush() {
-        ...
-        if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
-                io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
-}
+If a process is going away, io_uring_flush() will cancel only 1
+request with a matching pid. Cancel all of them
 
-This cancels only the first matched request. The pathset is mainly
-about fixing that. [1,2] are preps, [3/4] is the fix.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io-wq.c    | 14 --------------
+ fs/io-wq.h    |  1 -
+ fs/io_uring.c | 14 ++++++++++++--
+ 3 files changed, 12 insertions(+), 17 deletions(-)
 
-The [4/4] tries to improve the worst case for io_uring_cancel_files(),
-that's when they are a lot of inflights with ->files. Instead of doing
-{kill(); wait();} one by one, it cancels all of them at once.
-
-v2: rebase
-
-Pavel Begunkov (4):
-  io-wq: reorder cancellation pending -> running
-  io-wq: add an option to cancel all matched reqs
-  io_uring: cancel all task's requests on exit
-  io_uring: batch cancel in io_uring_cancel_files()
-
- fs/io-wq.c    | 108 ++++++++++++++++++++++++++------------------------
- fs/io-wq.h    |   3 +-
- fs/io_uring.c |  29 ++++++++++++--
- 3 files changed, 83 insertions(+), 57 deletions(-)
-
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 3b0bd956e539..a44ad3b98886 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -1023,20 +1023,6 @@ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork)
+ 	return io_wq_cancel_cb(wq, io_wq_io_cb_cancel_data, (void *)cwork, false);
+ }
+ 
+-static bool io_wq_pid_match(struct io_wq_work *work, void *data)
+-{
+-	pid_t pid = (pid_t) (unsigned long) data;
+-
+-	return work->task_pid == pid;
+-}
+-
+-enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid)
+-{
+-	void *data = (void *) (unsigned long) pid;
+-
+-	return io_wq_cancel_cb(wq, io_wq_pid_match, data, false);
+-}
+-
+ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ {
+ 	int ret = -ENOMEM, node;
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 7d5bd431c5e3..b72538fe5afd 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -125,7 +125,6 @@ static inline bool io_wq_is_hashed(struct io_wq_work *work)
+ 
+ void io_wq_cancel_all(struct io_wq *wq);
+ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork);
+-enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid);
+ 
+ typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
+ 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7f18c29388d6..8bde42775693 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7428,6 +7428,13 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 	}
+ }
+ 
++static bool io_cancel_pid_cb(struct io_wq_work *work, void *data)
++{
++	pid_t pid = (pid_t) (unsigned long) data;
++
++	return work->task_pid == pid;
++}
++
+ static int io_uring_flush(struct file *file, void *data)
+ {
+ 	struct io_ring_ctx *ctx = file->private_data;
+@@ -7437,8 +7444,11 @@ static int io_uring_flush(struct file *file, void *data)
+ 	/*
+ 	 * If the task is going away, cancel work it may have pending
+ 	 */
+-	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
+-		io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
++	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
++		void *data = (void *) (unsigned long)task_pid_vnr(current);
++
++		io_wq_cancel_cb(ctx->io_wq, io_cancel_pid_cb, data, true);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.24.0
 

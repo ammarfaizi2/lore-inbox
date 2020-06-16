@@ -2,49 +2,49 @@ Return-Path: <SRS0=K8tU=75=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E15EDC433DF
-	for <io-uring@archiver.kernel.org>; Tue, 16 Jun 2020 23:36:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A54FC433E0
+	for <io-uring@archiver.kernel.org>; Tue, 16 Jun 2020 23:36:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BBE03207E8
+	by mail.kernel.org (Postfix) with ESMTP id E2AF720810
 	for <io-uring@archiver.kernel.org>; Tue, 16 Jun 2020 23:36:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Otv2S0+7"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="hg7Nc1g3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbgFPXgV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1726271AbgFPXgV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Tue, 16 Jun 2020 19:36:21 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:48578 "EHLO
+Received: from userp2120.oracle.com ([156.151.31.85]:48580 "EHLO
         userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726271AbgFPXgU (ORCPT
+        with ESMTP id S1726515AbgFPXgU (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Tue, 16 Jun 2020 19:36:20 -0400
 Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNWnrI133223;
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNVkjS132636;
         Tue, 16 Jun 2020 23:36:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=oAFz4xdYUWxrngAlOHZwAhWrZ0QaH01dlglc3ObDIdE=;
- b=Otv2S0+7df6nG57SJhqzfS/S+JyM3WVKLL1npVKw3UuDRy8e+4w21i3F/wpdLUPD8pbC
- ZMArzsBxMixRFxRBz1HUh1cr4NBspbVBmYQ8OqiKn1JxbUi+Sp+3jXPE/fRyYlXdRxmv
- p3a4EJKVvBKt5FQWDe+EzPSb0yIM2YQLJYX7WCqjY2uVIEdrzfu8R3oCdKUzJQ9IdqLk
- LhbfA6zkFk1/J8eLiqKWcUHCjGxtmtgEeqwZB4hJjIT0gxtydPppyxXfsQYH7RYFNTb9
- xSLL7ibe6hyTxcFAjx1Ixh9I5Pd3CjD+BMGfKRJ6WpOQKi+M5PJdD/+I/5xe8SVJ9GKw 8A== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 31q63y8aft-1
+ subject : date : message-id; s=corp-2020-01-29;
+ bh=tm3AvGmoVJE4TYkBNYqNhKgQB2CAZGe3uf8z43jsHZk=;
+ b=hg7Nc1g3B5H3gDqHHAPaLq0yqLYN90CKbtko2aveTLVnlj7zZn53kr+7Aj0GmyjydhNp
+ Mw+8xVSR6rqe/6yWNXHvopER8x6VSXHKIKnZbkgdxQf7Ao8H2WrfHpZa3pwItV/bUCfn
+ WkhTYlAKq3Zo1gWaWdpbIuwT5lLwcB13pyESW6xSSQO1Bbo7HziZgoAtV5Ec18Uo81ZI
+ exl9YAPwwr1YgXV0gsOB7LIgVxx1AM/Hwe/TymGBZc/QaxtBuF1+IwlBiXidg8sS/o/T
+ 6IuhA5/bYsG2fKquaWcIJvjcIxFT6IfeqUO0zyZwSOSziFyAkd6WhgzRUV0WMYfJ3wNs 9Q== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2120.oracle.com with ESMTP id 31q63y8afq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
         Tue, 16 Jun 2020 23:36:17 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNSCa9173480;
-        Tue, 16 Jun 2020 23:36:17 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 31q667nr88-1
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNT3o5193498;
+        Tue, 16 Jun 2020 23:36:16 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3020.oracle.com with ESMTP id 31q66m863r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 Jun 2020 23:36:17 +0000
+        Tue, 16 Jun 2020 23:36:16 +0000
 Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 05GNaG6h024025;
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 05GNaGwf019772;
         Tue, 16 Jun 2020 23:36:16 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
@@ -52,21 +52,19 @@ Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: add wrappers for memory accounting
-Date:   Tue, 16 Jun 2020 16:36:07 -0700
-Message-Id: <1592350570-24396-2-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH 0/4] io_uring: report locked memory usage
+Date:   Tue, 16 Jun 2020 16:36:06 -0700
+Message-Id: <1592350570-24396-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1592350570-24396-1-git-send-email-bijan.mottahedeh@oracle.com>
-References: <1592350570-24396-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9654 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0
- suspectscore=3 bulkscore=0 adultscore=0 mlxlogscore=999 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=892
+ bulkscore=0 adultscore=0 phishscore=0 suspectscore=1 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2004280000 definitions=main-2006160162
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9654 signatures=668680
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 impostorscore=0
- mlxlogscore=999 priorityscore=1501 adultscore=0 malwarescore=0 spamscore=0
- clxscore=1015 cotscore=-2147483648 bulkscore=0 suspectscore=3
+ mlxlogscore=930 priorityscore=1501 adultscore=0 malwarescore=0 spamscore=0
+ clxscore=1015 cotscore=-2147483648 bulkscore=0 suspectscore=1
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2004280000 definitions=main-2006160162
 Sender: io-uring-owner@vger.kernel.org
@@ -74,140 +72,25 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Facilitate separation of locked memory usage reporting vs. limiting for
-upcoming patches.  No functional changes.
+This patch set adds support for reporting of locked memory usage.
 
-Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
----
- fs/io_uring.c | 48 ++++++++++++++++++++++++++++--------------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+Patches 1 and 2 are prep patches to facilitate the reporting.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a07c44e..ebd3f62 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7028,12 +7028,14 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
- 	return ret;
- }
- 
--static void io_unaccount_mem(struct user_struct *user, unsigned long nr_pages)
-+static inline void __io_unaccount_mem(struct user_struct *user,
-+				      unsigned long nr_pages)
- {
- 	atomic_long_sub(nr_pages, &user->locked_vm);
- }
- 
--static int io_account_mem(struct user_struct *user, unsigned long nr_pages)
-+static inline int __io_account_mem(struct user_struct *user,
-+				   unsigned long nr_pages)
- {
- 	unsigned long page_limit, cur_pages, new_pages;
- 
-@@ -7051,6 +7053,20 @@ static int io_account_mem(struct user_struct *user, unsigned long nr_pages)
- 	return 0;
- }
- 
-+static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
-+{
-+	if (ctx->account_mem)
-+		__io_unaccount_mem(ctx->user, nr_pages);
-+}
-+
-+static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
-+{
-+	if (ctx->account_mem)
-+		return (__io_account_mem(ctx->user, nr_pages));
-+
-+	return 0;
-+}
-+
- static void io_mem_free(void *ptr)
- {
- 	struct page *page;
-@@ -7125,8 +7141,7 @@ static int io_sqe_buffer_unregister(struct io_ring_ctx *ctx)
- 		for (j = 0; j < imu->nr_bvecs; j++)
- 			unpin_user_page(imu->bvec[j].bv_page);
- 
--		if (ctx->account_mem)
--			io_unaccount_mem(ctx->user, imu->nr_bvecs);
-+		io_unaccount_mem(ctx, imu->nr_bvecs);
- 		kvfree(imu->bvec);
- 		imu->nr_bvecs = 0;
- 	}
-@@ -7209,11 +7224,9 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 		start = ubuf >> PAGE_SHIFT;
- 		nr_pages = end - start;
- 
--		if (ctx->account_mem) {
--			ret = io_account_mem(ctx->user, nr_pages);
--			if (ret)
--				goto err;
--		}
-+		ret = io_account_mem(ctx, nr_pages);
-+		if (ret)
-+			goto err;
- 
- 		ret = 0;
- 		if (!pages || nr_pages > got_pages) {
-@@ -7226,8 +7239,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 					GFP_KERNEL);
- 			if (!pages || !vmas) {
- 				ret = -ENOMEM;
--				if (ctx->account_mem)
--					io_unaccount_mem(ctx->user, nr_pages);
-+				io_unaccount_mem(ctx, nr_pages);
- 				goto err;
- 			}
- 			got_pages = nr_pages;
-@@ -7237,8 +7249,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 						GFP_KERNEL);
- 		ret = -ENOMEM;
- 		if (!imu->bvec) {
--			if (ctx->account_mem)
--				io_unaccount_mem(ctx->user, nr_pages);
-+			io_unaccount_mem(ctx, nr_pages);
- 			goto err;
- 		}
- 
-@@ -7269,8 +7280,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 			 */
- 			if (pret > 0)
- 				unpin_user_pages(pages, pret);
--			if (ctx->account_mem)
--				io_unaccount_mem(ctx->user, nr_pages);
-+			io_unaccount_mem(ctx, nr_pages);
- 			kvfree(imu->bvec);
- 			goto err;
- 		}
-@@ -7375,9 +7385,7 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	io_mem_free(ctx->sq_sqes);
- 
- 	percpu_ref_exit(&ctx->refs);
--	if (ctx->account_mem)
--		io_unaccount_mem(ctx->user,
--				ring_pages(ctx->sq_entries, ctx->cq_entries));
-+	io_unaccount_mem(ctx, ring_pages(ctx->sq_entries, ctx->cq_entries));
- 	free_uid(ctx->user);
- 	put_cred(ctx->creds);
- 	kfree(ctx->cancel_hash);
-@@ -7916,7 +7924,7 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 	account_mem = !capable(CAP_IPC_LOCK);
- 
- 	if (account_mem) {
--		ret = io_account_mem(user,
-+		ret = __io_account_mem(user,
- 				ring_pages(p->sq_entries, p->cq_entries));
- 		if (ret) {
- 			free_uid(user);
-@@ -7927,7 +7935,7 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 	ctx = io_ring_ctx_alloc(p);
- 	if (!ctx) {
- 		if (account_mem)
--			io_unaccount_mem(user, ring_pages(p->sq_entries,
-+			__io_unaccount_mem(user, ring_pages(p->sq_entries,
- 								p->cq_entries));
- 		free_uid(user);
- 		return -ENOMEM;
+Patch 3 reports all locked memory as pinned.
+
+Patch 4 reports ring memory as locked and registered memory as pinned.
+This seems more appropriate but kept it a separate patch in case it
+should be dropped.
+
+Bijan Mottahedeh (4):
+  io_uring: add wrappers for memory accounting
+  io_uring: rename ctx->account_mem field
+  io_uring: report pinned memory usage
+  io_uring: separate reporting of ring pages from registered pages
+
+ fs/io_uring.c | 93 ++++++++++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 66 insertions(+), 27 deletions(-)
+
 -- 
 1.8.3.1
 

@@ -1,146 +1,135 @@
-Return-Path: <SRS0=K8tU=75=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=3AE1=76=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7431C433E0
-	for <io-uring@archiver.kernel.org>; Tue, 16 Jun 2020 23:38:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50275C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 00:06:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3B93207E8
-	for <io-uring@archiver.kernel.org>; Tue, 16 Jun 2020 23:38:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29D7E207C4
+	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 00:06:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="X2Xp0cM5"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="dAqEJc2Q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726134AbgFPXiU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 16 Jun 2020 19:38:20 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:49684 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725849AbgFPXiU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Jun 2020 19:38:20 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNbQ9r149847;
-        Tue, 16 Jun 2020 23:38:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=kHjdKVxZD7+dSLLMQY0co8+gV93yGxRYcxYjXO+ucAY=;
- b=X2Xp0cM5Mmo9o7EEZaQvBPjCLnm+XFmpiNB+tBpLQ+kiPsma8CimPUWomtVt3Wpx2trt
- ATdFKwLqdkcqW/PXtWu2BSgedPtwF4EI9fqPc4Upbru6MhB9/v0HFJ9l2PziqMUqPSpl
- 2nzomtie7XGHOdoI7o6SiAw8ObULx4krCSInOYDH84kjvZqDFJsg2HMOIyUMLdF89jr8
- 5efeCadVGhoW7R0zl/UoYvA6sBASvxdpdDvfhN5jUx90ZVzektz65OrTcOld3NPjgCK3
- w3A0XyUdbpSEB2D8+a3HO5zMXMw5iP810YMQqcM4ptRnMzxJJWuuW2yMxe7EhcE12kg5 bQ== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2120.oracle.com with ESMTP id 31q63y8amw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 16 Jun 2020 23:38:18 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05GNT32c193480;
-        Tue, 16 Jun 2020 23:36:17 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3020.oracle.com with ESMTP id 31q66m8641-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 Jun 2020 23:36:17 +0000
-Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 05GNaHNI019778;
-        Tue, 16 Jun 2020 23:36:17 GMT
-Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 16 Jun 2020 16:36:16 -0700
-From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-To:     axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 3/4] io_uring: report pinned memory usage
-Date:   Tue, 16 Jun 2020 16:36:09 -0700
-Message-Id: <1592350570-24396-4-git-send-email-bijan.mottahedeh@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1592350570-24396-1-git-send-email-bijan.mottahedeh@oracle.com>
-References: <1592350570-24396-1-git-send-email-bijan.mottahedeh@oracle.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9654 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
- bulkscore=0 adultscore=0 phishscore=0 suspectscore=3 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2006160162
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9654 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 impostorscore=0
- mlxlogscore=999 priorityscore=1501 adultscore=0 malwarescore=0 spamscore=0
- clxscore=1015 cotscore=-2147483648 bulkscore=0 suspectscore=3
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2006160163
+        id S1726134AbgFQAGj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 16 Jun 2020 20:06:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39180 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725894AbgFQAGi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Jun 2020 20:06:38 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44490C061573
+        for <io-uring@vger.kernel.org>; Tue, 16 Jun 2020 17:06:37 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id d66so235818pfd.6
+        for <io-uring@vger.kernel.org>; Tue, 16 Jun 2020 17:06:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=o5cL/wljkdzLZJg8BTtawQouizAIFcb4eBsKvx7sCz8=;
+        b=dAqEJc2QMjY22Bg4C2udH+VO2RTEPWFBvTvD4LOa8EQ1JV6mD9D85dgW77aysOvLg1
+         RPjvn+UTZj9OTWQ3IgE1u92khq5nMgI6PLb11l4CFDX6CIE8oVuwEOaZQQ7vlqabxCP3
+         +qNUjWu3sYqIkyPDLTBAh/zhrI1zqrT4u8L4i8Bz1UtyzOz57I9xEI1MrsymJteWDIh5
+         5M4pFxgsRRHo5Dq3/JY0OVFoOo+4RhRlb4xBzdOm67U3GlgPrqDQkjy+4sYdhkhP6RnJ
+         /vzHZpkjYXzXiCgMXuW81XSoWVhLDCGzIvJ3WoVnltzJgOg2kDj8cZEIcJTyz9BhXeYJ
+         jCDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=o5cL/wljkdzLZJg8BTtawQouizAIFcb4eBsKvx7sCz8=;
+        b=CXDNfOVNC7DIoJhshxVnTtRriniZg6RHEHwX5pvDmYUvk0EqtjjdTCtppSjkZOuLEz
+         pULCOCuofL1Vqr199yZIzSiWeSM4IIEbuI3TjN+uTLO3WoiONakqEBThaoox8qgsDjHA
+         Rz+bHRsOZTUt3UA9zprGKEpWCPV/UV44T+3PWhkhzsc4Cco+2VXQJc2Fe4qoVoAdUagt
+         HxDmf66DQB73pGvyGBf3WauAz4VkgGa21pHqPnA5hBuBJiDS8xWfXp1xlXL9bu860bmL
+         oMl++mPUiWkjCtm8ILMRqwaiIpeqbTkdv1ihUowJgCrKnvaj3hKnD4xp0cwwMBE4GV3B
+         EbSA==
+X-Gm-Message-State: AOAM53217vvd71IZzvs4kNXtkGDkUbyM6sNkXAssA5+zNUcOSEjjHBaj
+        wdaMHNuQiHVrrHNEnB4JoOmbKA==
+X-Google-Smtp-Source: ABdhPJxqFWAfCcXCzuLnyIlVrt/YcdnYdoEriD9x4CBtWzxrG7XVOqQC7HyQCp6ygoYQ3M1Vvf7sCQ==
+X-Received: by 2002:aa7:96e9:: with SMTP id i9mr4422229pfq.232.1592352396673;
+        Tue, 16 Jun 2020 17:06:36 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id q16sm18290563pfg.49.2020.06.16.17.06.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Jun 2020 17:06:36 -0700 (PDT)
+Subject: Re: [PATCH v3 1/2] io_uring: change the poll events to be 32-bits
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        io-uring@vger.kernel.org
+Cc:     joseph.qi@linux.alibaba.com
+References: <1591929018-73954-1-git-send-email-jiufei.xue@linux.alibaba.com>
+ <1591929018-73954-2-git-send-email-jiufei.xue@linux.alibaba.com>
+ <9e251ae9-ffe1-d9ea-feb5-cb9e641aeefb@kernel.dk>
+ <f6d3c7bb-1a10-10ed-9ab3-3d7b3b78b808@kernel.dk>
+ <ec18b7b6-a931-409b-6113-334974442036@linux.alibaba.com>
+ <b98ae1ed-c2b5-cfba-9a58-2fa64ffd067a@kernel.dk>
+ <7a311161-839c-3927-951d-3ce2bc7aa5d4@linux.alibaba.com>
+ <967819fd-84c5-9329-60b6-899a2708849e@kernel.dk>
+ <659bda5d-2da0-b092-9a66-1c4c4d89501a@kernel.dk>
+ <5fc59f0b-7437-ac2c-a142-8cd7a532960c@kernel.dk>
+ <d0d05303-e31c-7113-9805-df5602ecd86d@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <131ee21f-1a15-2f5b-42f8-2e8791491818@kernel.dk>
+Date:   Tue, 16 Jun 2020 18:06:34 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <d0d05303-e31c-7113-9805-df5602ecd86d@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Report pinned memory usage always, regardless of whether locked memory
-limit is enforced.
+On 6/16/20 3:46 PM, Pavel Begunkov wrote:
+> On 16/06/2020 22:21, Jens Axboe wrote:
+>>
+>> Nah this won't work, as the BE layout will be different. So how about
+>> this, just add a 16-bit poll_events_hi instead. App/liburing will set
+>> upper bits there. Something like the below, then just needs the
+>> exclusive wait change on top.
+>>
+>> Only downside I can see is that newer applications on older kernels will
+>> set EPOLLEXCLUSIVE but the kernel will ignore it. That's not a huge
+>> concern for this particular bit, but could be a concern if there are
+>> others that prove useful.
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index de1175206807..a9d74330ad6b 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -4809,6 +4809,9 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+>>  	events = READ_ONCE(sqe->poll_events);
+>>  	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
+>>  
+>> +	if (READ_ONCE(sqe->poll_events_hi) & EPOLLEXCLUSIVE)
+> 
+> poll_events_hi is 16 bit, EPOLLEXCLUSIVE is (1 << 28). It's always false.
+> Do you look for something like below?
+> 
+> 
+> union {
+> 	...
+> 	__u32		fsync_flags;
+> 	__u16		poll_events;  /* compatibility */
+> 	__u32		poll32_events; /* word-reversed for BE */
+> };
+> 
+> u32 evs = READ_ONCE(poll32_events);
+> if (BIG_ENDIAN)
+> 	evs = swahw32(evs); // swap 16-bit halves
+> 
+> // use as always, e.g. if (evs & EPOLLEXCLUSIVE) { ... }
 
-Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
----
- fs/io_uring.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+Duh yes, that's much better. Thanks for the clue bat.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0bcbc1a..851ff21 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7057,12 +7057,23 @@ static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
- {
- 	if (ctx->limit_mem)
- 		__io_unaccount_mem(ctx->user, nr_pages);
-+
-+	if (ctx->sqo_mm)
-+		atomic64_sub(nr_pages, &ctx->sqo_mm->pinned_vm);
- }
- 
- static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
- {
--	if (ctx->limit_mem)
--		return (__io_account_mem(ctx->user, nr_pages));
-+	int ret;
-+
-+	if (ctx->limit_mem) {
-+		ret = __io_account_mem(ctx->user, nr_pages);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	if (ctx->sqo_mm)
-+		atomic64_add(nr_pages, &ctx->sqo_mm->pinned_vm);
- 
- 	return 0;
- }
-@@ -7364,8 +7375,10 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- {
- 	io_finish_async(ctx);
--	if (ctx->sqo_mm)
-+	if (ctx->sqo_mm) {
- 		mmdrop(ctx->sqo_mm);
-+		ctx->sqo_mm = NULL;
-+	}
- 
- 	io_iopoll_reap_events(ctx);
- 	io_sqe_buffer_unregister(ctx);
-@@ -7941,7 +7954,6 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 		return -ENOMEM;
- 	}
- 	ctx->compat = in_compat_syscall();
--	ctx->limit_mem = limit_mem;
- 	ctx->user = user;
- 	ctx->creds = get_current_cred();
- 
-@@ -7988,6 +8000,8 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 		goto err;
- 
- 	trace_io_uring_create(ret, ctx, p->sq_entries, p->cq_entries, p->flags);
-+	io_account_mem(ctx, ring_pages(p->sq_entries, p->cq_entries));
-+	ctx->limit_mem = limit_mem;
- 	return ret;
- err:
- 	io_ring_ctx_wait_and_kill(ctx);
 -- 
-1.8.3.1
+Jens Axboe
 

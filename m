@@ -2,42 +2,75 @@ Return-Path: <SRS0=3AE1=76=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FA98C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 09:54:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C106EC433E1
+	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 09:54:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8142D2078D
-	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 09:54:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A10822078D
+	for <io-uring@archiver.kernel.org>; Wed, 17 Jun 2020 09:54:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726538AbgFQJyA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 17 Jun 2020 05:54:00 -0400
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:52799 "EHLO
+        id S1726541AbgFQJyB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 17 Jun 2020 05:54:01 -0400
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:44599 "EHLO
         out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726523AbgFQJyA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Jun 2020 05:54:00 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U.rPv22_1592387638;
-Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U.rPv22_1592387638)
+        by vger.kernel.org with ESMTP id S1726540AbgFQJyB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Jun 2020 05:54:01 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U.rPv2F_1592387639;
+Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U.rPv2F_1592387639)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 17 Jun 2020 17:53:58 +0800
+          Wed, 17 Jun 2020 17:53:59 +0800
 From:   Jiufei Xue <jiufei.xue@linux.alibaba.com>
 To:     io-uring@vger.kernel.org
 Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
-Subject: [PATCH v4 0/2] io_uring: add EPOLLEXCLUSIVE flag for POLL_ADD operation 
-Date:   Wed, 17 Jun 2020 17:53:54 +0800
-Message-Id: <1592387636-80105-1-git-send-email-jiufei.xue@linux.alibaba.com>
+Subject: [PATCH v4 2/2] io_uring: use EPOLLEXCLUSIVE flag to aoid thundering herd type behavior
+Date:   Wed, 17 Jun 2020 17:53:56 +0800
+Message-Id: <1592387636-80105-3-git-send-email-jiufei.xue@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1592387636-80105-1-git-send-email-jiufei.xue@linux.alibaba.com>
+References: <1592387636-80105-1-git-send-email-jiufei.xue@linux.alibaba.com>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Applications can use this flag to avoid accept thundering herd type
-behavior.
+Applications can pass this flag in to avoid accept thundering herd.
 
-Jiufei Xue (2):
-  io_uring: change the poll type to be 32-bits
-  io_uring: use EPOLLEXCLUSIVE flag to aoid thundering
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+---
+ fs/io_uring.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fe935cf..f156eba 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4225,7 +4225,11 @@ static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
+ 
+ 	pt->error = 0;
+ 	poll->head = head;
+-	add_wait_queue(head, &poll->wait);
++
++	if (poll->events & EPOLLEXCLUSIVE)
++		add_wait_queue_exclusive(head, &poll->wait);
++	else
++		add_wait_queue(head, &poll->wait);
+ }
+ 
+ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
+@@ -4556,7 +4560,8 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ #ifdef __BIG_ENDIAN
+ 	events = swahw32(events);
+ #endif
+-	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
++	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP |
++		       (events & EPOLLEXCLUSIVE);
+ 
+ 	get_task_struct(current);
+ 	req->task = current;
+-- 
+1.8.3.1
 

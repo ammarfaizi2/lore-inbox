@@ -4,67 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F04C433E0
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:46:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37CCEC433DF
+	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:46:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BC1E20888
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:46:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1683920888
+	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:46:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="uL0fwmVf"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="XjGUImD9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730949AbgFROqS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 18 Jun 2020 10:46:18 -0400
+        id S1730886AbgFROq1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 18 Jun 2020 10:46:27 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730946AbgFROoG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 18 Jun 2020 10:44:06 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D7CC061796
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:04 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id jz3so2649940pjb.0
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:04 -0700 (PDT)
+        with ESMTP id S1730927AbgFROoC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 18 Jun 2020 10:44:02 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00BB5C061794
+        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:02 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id ne5so2633285pjb.5
+        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references:reply-to
          :mime-version:content-transfer-encoding;
-        bh=HUMIpAnpDXTm7durxzsxq78uIppsf6NP0VS0tAu1naU=;
-        b=uL0fwmVf7za35bF7WmhIeuLwTRYPYomNz3qpWAcNPJ4MG8GTRnh40j/G/FSQGZeqHn
-         yQkV1IezTLpFjD50TYMgv1HY78G4RgY498zLaJMuA+l8xEee6zj/2I82z6xH0BShFzod
-         Jw88wuY/pILeFUtVbhY9sbTrVoWY7AC3u3FJAQooqqxLaL58sSt1DjQd+DiakJiej111
-         3QKNAaz9kpVK0JkkwmB/tU2PK7EUI1l3/XQW2Hhdy1LlQkxSISsyAWXCpJiSM6HpaavS
-         QcI6gfKDo0Ou2qvSuNEV0Pw2sksh+dDzkS5v9GpxMofkwta1H+6MYdHHM9azIlc5CFhg
-         lSog==
+        bh=AMBC//GM9TUmKqc/Ee7MUTX4MVxXaivvBIm8XTKWtjI=;
+        b=XjGUImD9rS9VeH3ATYR5UN46KsG/kGd5i8ObOVULAJ3bWbAHLUKz+Nt/bzRQeCC7k+
+         q4pmWPc7rGRsnlJnmLarBBAj7QbxKCn+OtJBti2v/itk1DKcuvDFfV26CpsOgPwwVj46
+         oKdSZT+E6O3bgsFXk2UysYjSDRy6zj4yUK78Rv1eqtIwgcAQ5nn/tpiH68Y8GD4/iHUw
+         3O1/2ihPs06whdoc10VZDpvDnnO0QVgM3L+4vMq/X6KTuGPCEjHx9ydMZTrOPjVK9Bkv
+         Qkf+MhMg3TkdzkCd8QX51qCa7+tmj/0j1O1H3Kj4Zv1sGjsxfa6mxtY9/zGOSIjiER3+
+         piRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:reply-to:mime-version:content-transfer-encoding;
-        bh=HUMIpAnpDXTm7durxzsxq78uIppsf6NP0VS0tAu1naU=;
-        b=RnBxPBXd1lioroDKHtOtTVb34C0Vd2+gaYpCOsXPrBQS/YFP+QdttC3q/cTTdCLbaN
-         qv+p5pALmfV7driaMJmyxOd1J5il0M0JNtygALsOrLuEOWXuuJ8xRP6JOGdWeawEPA7M
-         cmhXnMP5SG5RcwJaFHxzsf191X6CPZGryFE99yniI08iKjE8ykzWd/lyAgY2ZC3bEg6f
-         k5NEVJ69KDjtvYM4imTrXwr3uIAVoqFIdvnjcHKOP+/14nZHYRt7G58wMjKD76Hm8gB4
-         comPkedq/VLQBDDxrtg4seySuOE5uvl04xA+ytwIkIvlEYcoQFwLv2zYVGt2pW3mzF3r
-         XUAQ==
-X-Gm-Message-State: AOAM531yWwHtl/ycs2RqE1zoh1y/KsBqySr8jDHHiVpaJxqkoicSBSaL
-        54gNk4Dl2Z0l1PeHHrkGPTtDTR/e62GoVg==
-X-Google-Smtp-Source: ABdhPJzURLyFzMozy7yIPWEvSTKNlwHInRbt5PeVmy/Fa+Ew58olXOewrYlOoVFbj5T5wAt30tH4HQ==
-X-Received: by 2002:a17:90a:de1:: with SMTP id 88mr4809422pjv.124.1592491443796;
-        Thu, 18 Jun 2020 07:44:03 -0700 (PDT)
+        bh=AMBC//GM9TUmKqc/Ee7MUTX4MVxXaivvBIm8XTKWtjI=;
+        b=cLtzlrK+pgbQeYv/F2FuhLPgq+SG5E5ylZGpYfDcrUN/abBN96v3v1n6glQgja0sQT
+         9buL5NhiOaWQcKnJzhpJlnzP6sClEHUVm66M89Gq72FhEzxbV6yCV6/Tdt68esT9q+HT
+         UwKiFAqdkFhkGL9ElfTI6uzUuiX+/MSFLyCiyZMiVwA50/Zq0NoFv0Z3vvuN32/k2Vok
+         0JddVCybY6eJtFWK9G+gxsIJ4bkShPZ3uifL7I57x99545SToG/xxZtSWJ+Ikob/C9Gc
+         fC4kmNiuLy2i8YNWEB70cZBgm39cxGJ00ge+HirsXjRBiU+Z7SqTce0ShWifddn4nKUx
+         ax/w==
+X-Gm-Message-State: AOAM531y6/vG2YMSrrZS4/3LWQ+RDU9lB/HMxsD/aRDd0D6ZhoxR3gWl
+        lWSmxY5IwnwtUNjZLxbEAs7YDhspFruy6w==
+X-Google-Smtp-Source: ABdhPJxPg9RpVdrGQ4Z6ww3Iq/Db4vGVv54cHwt8FNsBk1NOsUw3hrbUnoL/Xc/AmyjDRE+S7btjoQ==
+X-Received: by 2002:a17:90b:3004:: with SMTP id hg4mr5050010pjb.208.1592491440947;
+        Thu, 18 Jun 2020 07:44:00 -0700 (PDT)
 Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g9sm3127197pfm.151.2020.06.18.07.44.02
+        by smtp.gmail.com with ESMTPSA id g9sm3127197pfm.151.2020.06.18.07.44.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2020 07:44:03 -0700 (PDT)
+        Thu, 18 Jun 2020 07:44:00 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, akpm@linux-foundation.org,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 03/15] io_uring: catch -EIO from buffered issue request failure
-Date:   Thu, 18 Jun 2020 08:43:43 -0600
-Message-Id: <20200618144355.17324-4-axboe@kernel.dk>
+Subject: [PATCH 01/15] block: provide plug based way of signaling forced no-wait semantics
+Date:   Thu, 18 Jun 2020 08:43:41 -0600
+Message-Id: <20200618144355.17324-2-axboe@kernel.dk>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200618144355.17324-1-axboe@kernel.dk>
 References: <20200618144355.17324-1-axboe@kernel.dk>
@@ -79,81 +79,58 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
--EIO bubbles up like -EAGAIN if we fail to allocate a request at the
-lower level. Play it safe and treat it like -EAGAIN in terms of sync
-retry, to avoid passing back an errant -EIO.
-
-Catch some of these early for block based file, as non-mq devices
-generally do not support NOWAIT. That saves us some overhead by
-not first trying, then retrying from async context. We can go straight
-to async punt instead.
+Provide a way for the caller to specify that IO should be marked
+with REQ_NOWAIT to avoid blocking on allocation.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ block/blk-core.c       | 6 ++++++
+ include/linux/blkdev.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ca78dd7c79da..2e257c5a1866 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2088,6 +2088,15 @@ static struct file *__io_file_get(struct io_submit_state *state, int fd)
- 	return state->file;
- }
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 03252af8c82c..62a4904db921 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -958,6 +958,7 @@ generic_make_request_checks(struct bio *bio)
+ 	struct request_queue *q;
+ 	int nr_sectors = bio_sectors(bio);
+ 	blk_status_t status = BLK_STS_IOERR;
++	struct blk_plug *plug;
+ 	char b[BDEVNAME_SIZE];
  
-+static bool io_bdev_nowait(struct block_device *bdev)
-+{
-+#ifdef CONFIG_BLOCK
-+	return !bdev || queue_is_mq(bdev_get_queue(bdev));
-+#else
-+	return true;
-+#endif
-+}
+ 	might_sleep();
+@@ -971,6 +972,10 @@ generic_make_request_checks(struct bio *bio)
+ 		goto end_io;
+ 	}
+ 
++	plug = blk_mq_plug(q, bio);
++	if (plug && plug->nowait)
++		bio->bi_opf |= REQ_NOWAIT;
 +
- /*
-  * If we tracked the file through the SCM inflight mechanism, we could support
-  * any file. For now, just ensure that anything potentially problematic is done
-@@ -2097,10 +2106,19 @@ static bool io_file_supports_async(struct file *file, int rw)
- {
- 	umode_t mode = file_inode(file)->i_mode;
+ 	/*
+ 	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
+ 	 * if queue is not a request based queue.
+@@ -1800,6 +1805,7 @@ void blk_start_plug(struct blk_plug *plug)
+ 	INIT_LIST_HEAD(&plug->cb_list);
+ 	plug->rq_count = 0;
+ 	plug->multiple_queues = false;
++	plug->nowait = false;
  
--	if (S_ISBLK(mode) || S_ISCHR(mode) || S_ISSOCK(mode))
--		return true;
--	if (S_ISREG(mode) && file->f_op != &io_uring_fops)
-+	if (S_ISBLK(mode)) {
-+		if (io_bdev_nowait(file->f_inode->i_bdev))
-+			return true;
-+		return false;
-+	}
-+	if (S_ISCHR(mode) || S_ISSOCK(mode))
- 		return true;
-+	if (S_ISREG(mode)) {
-+		if (io_bdev_nowait(file->f_inode->i_sb->s_bdev) &&
-+		    file->f_op != &io_uring_fops)
-+			return true;
-+		return false;
-+	}
- 
- 	/* any ->read/write should understand O_NONBLOCK */
- 	if (file->f_flags & O_NONBLOCK)
-@@ -2650,7 +2668,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 	iov_count = iov_iter_count(&iter);
- 	ret = rw_verify_area(READ, req->file, &kiocb->ki_pos, iov_count);
- 	if (!ret) {
--		ssize_t ret2;
-+		ssize_t ret2 = 0;
- 
- 		if (req->file->f_op->read_iter)
- 			ret2 = call_read_iter(req->file, kiocb, &iter);
-@@ -2658,7 +2676,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 			ret2 = loop_rw_iter(READ, req->file, kiocb, &iter);
- 
- 		/* Catch -EAGAIN return for forced non-blocking submission */
--		if (!force_nonblock || ret2 != -EAGAIN) {
-+		if (!force_nonblock || (ret2 != -EAGAIN && ret2 != -EIO)) {
- 			kiocb_done(kiocb, ret2);
- 		} else {
- copy_iov:
+ 	/*
+ 	 * Store ordering should not be needed here, since a potential
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 8fd900998b4e..6e067dca94cf 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1189,6 +1189,7 @@ struct blk_plug {
+ 	struct list_head cb_list; /* md requires an unplug callback */
+ 	unsigned short rq_count;
+ 	bool multiple_queues;
++	bool nowait;
+ };
+ #define BLK_MAX_REQUEST_COUNT 16
+ #define BLK_PLUG_FLUSH_SIZE (128 * 1024)
 -- 
 2.27.0
 

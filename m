@@ -4,67 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A41C433E0
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B338FC433DF
+	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D7A120897
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9063320888
+	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="yzp2+WvV"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="TF887Y4c"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730954AbgFROoI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 18 Jun 2020 10:44:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57350 "EHLO
+        id S1730996AbgFROoV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 18 Jun 2020 10:44:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730934AbgFROoD (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 18 Jun 2020 10:44:03 -0400
+        with ESMTP id S1730951AbgFROoH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 18 Jun 2020 10:44:07 -0400
 Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F6EC0613EE
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:03 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id d8so2512432plo.12
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEFC1C061798
+        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:06 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id y18so2525177plr.4
+        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references:reply-to
          :mime-version:content-transfer-encoding;
-        bh=aZaDFCszZJWwvw+YU15551W6DS/tp5Q0zZ/e2mzcPKg=;
-        b=yzp2+WvVYDYAjxYEzGcL7PkavHxDy3cpr9qzW1IWcotTTR9f4VhesgN5dhZI94+PsU
-         D9XrCxqsfO+3+KrzN5/i59EGbZklLXhJ8EEfRkcKjS+RSy9l3JJAAb3DNGy49QESvyup
-         y+54KKaMpJCnfzL+F+KC8Nq7RiZ+0vIr9IiDsumf++0aVkCJenAnaKTtA3JP5ygXQhYB
-         2HbmH52rlEtjDxPlJY6OwsA0PBg77wgg7/2VGxIMl44vnzaycw7+hUNxlA6Vq9Gzvp1p
-         BDytFguC2D8/8IQpvQ3NiTjxRjsGSXn+74N6mA5zAWSn0EOSGif2RsltVaUOkZ/y9GnI
-         oyUw==
+        bh=kQSBvSrh7q7DQwM3udW0mgxqiTGah8xT/7K+LzTiHfI=;
+        b=TF887Y4cr//mvXhTI5c5VEIRfZElOkM2eJr4igs7tYzM3I8rEROoL5414jXEsJNQ1d
+         6jCCrNh5fQhPQ07otOWMKTLuwned62gpZzcQSnGz+AtcAsFIRf8kVJYMZrFYkSHJEstI
+         EF+Ln2Q+pUkq3tXurup9X6YD2LWffkOldc8tPFPnSONqddrmM/DgTfaNjc16nR3q5d4t
+         hPjBvp3o4ycBlrYr8QUDl2U7jqa+BlqD3TbE19T3/QnC95yw4ECXM/85GcpiBdM2DbqP
+         8OM2osLFz5ebGolhbCSR09DpxT7wJ8dhnp+kF1wWM32/wq3hn9RugfvhthZyfIx3RxdO
+         JS+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:reply-to:mime-version:content-transfer-encoding;
-        bh=aZaDFCszZJWwvw+YU15551W6DS/tp5Q0zZ/e2mzcPKg=;
-        b=ml5jlMxFFrz7HoA3MFgUJG2mosHDQENovWU/MjaVl3JoUn+/VzSuHmS0Klbai/cmXF
-         /D6jOI6+MBa8/xZrkyAcGZvAbCXf8KAWIBgUxAqIGjo023QvghlCOStB0SiaCo6GeaLg
-         DGYCHwcC7abK9kbqe7BeEUI6Dqylr6b2rKYHQx1dMC7nCAqCfHaOSKS/O8IlLBhb3Npu
-         CHJM5nGkbcF3rZGFqNyMmxGc41wd/i955K39uEqu29i+Ip2R0GHcZ7WAzq2YCzhL+LM6
-         +39xlueUS/iltpAJFWT77Px8qWcJi/ySFDRC9dzHo8gq7Ots2brvwAc11x8YyaDfpN0p
-         fKMg==
-X-Gm-Message-State: AOAM53292t0FcOM6Lnws8ioypoVtvmF2e6w/L0xEbKRNM9HLUX+j7Ljo
-        0vqqLSjrvF+Wix0EXr2fkj4epSOjnTqlcA==
-X-Google-Smtp-Source: ABdhPJwcpBuWJToBprbE+kBnwBY9JxdUaCcM4SRk7uPRoXVsDbkErSY+i9Q0PI2mKLg9/3NhPQrRsQ==
-X-Received: by 2002:a17:90b:915:: with SMTP id bo21mr4702163pjb.52.1592491442581;
-        Thu, 18 Jun 2020 07:44:02 -0700 (PDT)
+        bh=kQSBvSrh7q7DQwM3udW0mgxqiTGah8xT/7K+LzTiHfI=;
+        b=ctYfzF+/MFJzvAHvCom5QTntkDY+1re7gKnFNqc3KmRwOclNHu/VgHposleMawrPeK
+         4TH6URpbllxenxe1w7QhDPyqarCco7f3S5tsmBkF3LDNnbiLanQuZ+/9Q1iifu6s+WIY
+         roiw3qwt91T8Kw0knnwy0tiaKuBi8AtrHff+2D0oqjxG60uM7ovb/bBECtlUBY1CPlWu
+         Eq6GIPV4BaQbrw3BFXZgUxOCoEhii08rpxyi3+6zIcOqViM4rFrDc4qMohuBQ9oqDHXQ
+         gzG47iaWDUZN8T++AljFpQZhw7Px0uZgLw2zz96TJb7coMWDuSDR4CFOA768VDCvKIfi
+         1UCA==
+X-Gm-Message-State: AOAM531zUfPRC57qeRDx78LyVl97Blk1H+hUmkGl2nZHgybdX9u3KH4a
+        FbTzeSaPBLL4qzZMcikKRLtsRexKJopKXw==
+X-Google-Smtp-Source: ABdhPJxFiInSxSM7iPuZuYhM5oN9cIihl9Wh6hIowfIxeUrII9w3vL4Xc8G06h5ebNdfyunElMZGlg==
+X-Received: by 2002:a17:902:eed1:: with SMTP id h17mr4012771plb.172.1592491446303;
+        Thu, 18 Jun 2020 07:44:06 -0700 (PDT)
 Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g9sm3127197pfm.151.2020.06.18.07.44.01
+        by smtp.gmail.com with ESMTPSA id g9sm3127197pfm.151.2020.06.18.07.44.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2020 07:44:01 -0700 (PDT)
+        Thu, 18 Jun 2020 07:44:05 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, akpm@linux-foundation.org,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 02/15] io_uring: always plug for any number of IOs
-Date:   Thu, 18 Jun 2020 08:43:42 -0600
-Message-Id: <20200618144355.17324-3-axboe@kernel.dk>
+        Jens Axboe <axboe@kernel.dk>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Subject: [PATCH 05/15] mm: allow read-ahead with IOCB_NOWAIT set
+Date:   Thu, 18 Jun 2020 08:43:45 -0600
+Message-Id: <20200618144355.17324-6-axboe@kernel.dk>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200618144355.17324-1-axboe@kernel.dk>
 References: <20200618144355.17324-1-axboe@kernel.dk>
@@ -79,75 +80,28 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Currently we only plug if we're doing more than two request. We're going
-to be relying on always having the plug there to pass down information,
-so plug unconditionally.
+The read-ahead shouldn't block, so allow it to be done even if
+IOCB_NOWAIT is set in the kiocb.
 
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ mm/filemap.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b14a8e6a0e15..ca78dd7c79da 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -676,7 +676,6 @@ struct io_kiocb {
- 	};
- };
+diff --git a/mm/filemap.c b/mm/filemap.c
+index f0ae9a6308cb..3378d4fca883 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2028,8 +2028,6 @@ ssize_t generic_file_buffered_read(struct kiocb *iocb,
  
--#define IO_PLUG_THRESHOLD		2
- #define IO_IOPOLL_BATCH			8
- 
- struct io_submit_state {
-@@ -5914,7 +5913,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			  struct file *ring_file, int ring_fd)
- {
--	struct io_submit_state state, *statep = NULL;
-+	struct io_submit_state state;
- 	struct io_kiocb *link = NULL;
- 	int i, submitted = 0;
- 
-@@ -5931,10 +5930,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	if (!percpu_ref_tryget_many(&ctx->refs, nr))
- 		return -EAGAIN;
- 
--	if (nr > IO_PLUG_THRESHOLD) {
--		io_submit_state_start(&state, nr);
--		statep = &state;
--	}
-+	io_submit_state_start(&state, nr);
- 
- 	ctx->ring_fd = ring_fd;
- 	ctx->ring_file = ring_file;
-@@ -5949,14 +5945,14 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 			io_consume_sqe(ctx);
- 			break;
- 		}
--		req = io_alloc_req(ctx, statep);
-+		req = io_alloc_req(ctx, &state);
- 		if (unlikely(!req)) {
- 			if (!submitted)
- 				submitted = -EAGAIN;
- 			break;
- 		}
- 
--		err = io_init_req(ctx, req, sqe, statep);
-+		err = io_init_req(ctx, req, sqe, &state);
- 		io_consume_sqe(ctx);
- 		/* will complete beyond this point, count as submitted */
- 		submitted++;
-@@ -5982,8 +5978,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	}
- 	if (link)
- 		io_queue_link_head(link);
--	if (statep)
--		io_submit_state_end(&state);
-+	io_submit_state_end(&state);
- 
- 	 /* Commit SQ ring head once we've consumed and submitted all SQEs */
- 	io_commit_sqring(ctx);
+ 		page = find_get_page(mapping, index);
+ 		if (!page) {
+-			if (iocb->ki_flags & IOCB_NOWAIT)
+-				goto would_block;
+ 			page_cache_sync_readahead(mapping,
+ 					ra, filp,
+ 					index, last_index - index);
 -- 
 2.27.0
 

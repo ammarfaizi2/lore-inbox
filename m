@@ -5,65 +5,65 @@ X-Spam-Level:
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FDD6C433E1
-	for <io-uring@archiver.kernel.org>; Sun, 21 Jun 2020 10:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABEDC433E0
+	for <io-uring@archiver.kernel.org>; Sun, 21 Jun 2020 10:11:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DFAAF23D22
-	for <io-uring@archiver.kernel.org>; Sun, 21 Jun 2020 10:11:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8D8523D22
+	for <io-uring@archiver.kernel.org>; Sun, 21 Jun 2020 10:11:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P7vxIP2d"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VXBPYJyH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729842AbgFUKLo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 21 Jun 2020 06:11:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50362 "EHLO
+        id S1729845AbgFUKLp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 21 Jun 2020 06:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729784AbgFUKLc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Jun 2020 06:11:32 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A374C061795;
-        Sun, 21 Jun 2020 03:11:30 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id dr13so14919026ejc.3;
-        Sun, 21 Jun 2020 03:11:30 -0700 (PDT)
+        with ESMTP id S1729787AbgFUKLd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Jun 2020 06:11:33 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C20C061797;
+        Sun, 21 Jun 2020 03:11:32 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id a1so878624ejg.12;
+        Sun, 21 Jun 2020 03:11:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=LTC8WIRe2SvRxOQDsI5QqZufGpx2iiQGCpDsMSVsUVY=;
-        b=P7vxIP2dRSkGnsZkQwzSa7GefIC2hru2h68cDu5Uo7PBRM4AsrmY8czlHgELNHVbaK
-         5RfqADGiCEbw5lw/U64Q8Cr35/JSYgKxzu7BvUcwczY/oUnK8hRyFl4YNUuqLtpc+PMu
-         hajFN1t9jWDKTGKRJh+3/BzLLdLWj/UQ6IRxdL6wPi3Q9vmMRMYlvXxIqSpTWogAzznm
-         L+WOALX9alaaSPLDITAWHRjo5qK7cRNRnp47HhRPeL9dBXDE6umdRZmIDlm0hdoAcwsc
-         BcCXmVAeJYvpAeuVPWMGa/TgX2+WZG6ibRP01+jr+xV6Sfe3w4E8UCBGPo2PnwlADf8+
-         +eLg==
+        bh=9kHXcDCGApwkqj7YR7sl1xVeCbFuJErIvk3ogUF1w5k=;
+        b=VXBPYJyH7d+CMYKRnbArMtUk4ZOwzU3W+00ax4AKY4qFqsBt34N0Xi8NqjlqB54VS9
+         z9J0y92Dqa/iWvgu613l6vpI6eLsuAD6mB2xmVfz/LXokfYbVwjf5dY++3jHdGZlvv4B
+         GvrmmiKXRh7ARUAJ33C/5qNdLsunn6iO9GSPgo21Z6+jueVFWVrnKjUd4cILVji0lyZl
+         1DGruBdgCADQX/nNiXS27ijdXs6TBnHOn2Cj9D/ShZX0w9JCHglwDkOg+/o80/1QzVDg
+         1GawoiQ7ocpTFfxfGbKxn54n2Ej5kGnTmH12MmLFnT+PERZWDN9HUuzMuNCGk3gocXzD
+         /uqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LTC8WIRe2SvRxOQDsI5QqZufGpx2iiQGCpDsMSVsUVY=;
-        b=eSDbgZ3+q1Hoxe/ug4Kcp6apY/ZDKQREV2wrCYQnBV43acN4wc4wf4QZWH/TDXQX+M
-         76rDjCWf5cEr04BGUUK8U1SRqyXvYRBoe8JI3YbTeLhp4aqIlbB5HyLBXqGQvkwVcVY2
-         0NmGDkbUBCAnITWRjAAKIaWLNt/6HaWEvQI0ycZLHumV3D8mAPNWM7SGblZYT3sOPjb8
-         01/G5OAgRD7HCwcgu/YKFqckFzJih/cGoCG42pzTo4FO5sFI7xhZu9f9T0gHGx9dTFVz
-         Rna8IsIUN71fXF90czEI0kD7L+6JSxXsMJ+48FY0qAq6EZor9j4EeUHcd4+zS/MJPPlM
-         oKxQ==
-X-Gm-Message-State: AOAM532vtDrHpYD/3ALnttck+Y94RX9KdJesNgSQIEn2aVeL148VkPSv
-        hN98fLwcQSWk05Mn4nDtsFQ=
-X-Google-Smtp-Source: ABdhPJwnbXfowAWtAtEszmu4NOD6C9xbGgQUSWBvEX6Emf5CNpXm+ytOuJBMUGgMSx12okmRVHhfxg==
-X-Received: by 2002:a17:906:7e04:: with SMTP id e4mr2817464ejr.502.1592734289177;
-        Sun, 21 Jun 2020 03:11:29 -0700 (PDT)
+        bh=9kHXcDCGApwkqj7YR7sl1xVeCbFuJErIvk3ogUF1w5k=;
+        b=YAtxuRYCubZUb15SpzgjBiBopVbh5M8qFJY0Kbyf3paqOtRhIq8Jp8NO5ZWNcy48Op
+         1lR+mooIpb58kKuicCrurQ5Sq86lSEDc/7IFIT/fVDf+FLlBEZ6+mxFPztE/hW4cHYFQ
+         ZbW7udR1LvG21Els4Hz77/cLGu9mxlweyBwcmE48B5NbHluWPfoMLNl7L0JcscdVED3Y
+         SrJTSroUAdoaSLRygR7M3Eoo8IKsInHDW94x+YwGVNH3NHAhcF/tdrr3FhJ4rTJS/2BD
+         vcVQjQOjfzrZEYEcn4gqNEi8OBZRdKoiItZHuUuam/CHM4PoL6hchGz9bOLvkX9mPl5j
+         1a2A==
+X-Gm-Message-State: AOAM532nSVhsjuwwQ0Zf0iQ0b6nTetY6vzpETXRwdyca71Ylswlfroii
+        l6S0KuezSzj9AQ2/P1bg/ls=
+X-Google-Smtp-Source: ABdhPJy56eVRXVUpB3NMDGcjsHjLeGs8lKV4gIcnGC4Nv4bsJzy6gBSebeVrXdceF/sSKSGYlAhsRA==
+X-Received: by 2002:a17:906:9243:: with SMTP id c3mr11123675ejx.400.1592734291428;
+        Sun, 21 Jun 2020 03:11:31 -0700 (PDT)
 Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id y26sm9717201edv.91.2020.06.21.03.11.28
+        by smtp.gmail.com with ESMTPSA id y26sm9717201edv.91.2020.06.21.03.11.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Jun 2020 03:11:28 -0700 (PDT)
+        Sun, 21 Jun 2020 03:11:31 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: remove setting REQ_F_MUST_PUNT in rw
-Date:   Sun, 21 Jun 2020 13:09:50 +0300
-Message-Id: <c302765282443434e8a0dc4a83f73bf2b5c7845c.1592733956.git.asml.silence@gmail.com>
+Subject: [PATCH 3/4] io_uring: set @poll->file after @poll init
+Date:   Sun, 21 Jun 2020 13:09:52 +0300
+Message-Id: <663d6d6c6f3d1c8ddde158f7c171d3a2034c5453.1592733956.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1592733956.git.asml.silence@gmail.com>
 References: <cover.1592733956.git.asml.silence@gmail.com>
@@ -74,52 +74,29 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_{read,write}() {
-	...
-copy_iov: // prep async
-  	if (!(flags & REQ_F_NOWAIT) && !file_can_poll(file))
-		flags |= REQ_F_MUST_PUNT;
-}
-
-REQ_F_MUST_PUNT there is pointless, because if it happens then
-REQ_F_NOWAIT is known to be _not_ set, and the request will go
-async path in __io_queue_sqe() anyway. file_can_poll() check
-is also repeated in arm_poll*(), so don't need it.
-
-Remove the mentioned assignment REQ_F_MUST_PUNT in preparation
-for killing the flag.
+It's a good practice to modify fields of a struct after but not before
+it was initialised. Even though io_init_poll_iocb() doesn't touch
+poll->file, call it first.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 44614571e285..e7ce1608087f 100644
+index 84b39109bc30..676911260f60 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2915,10 +2915,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 						inline_vecs, &iter);
- 			if (ret)
- 				goto out;
--			/* any defer here is final, must blocking retry */
--			if (!(req->flags & REQ_F_NOWAIT) &&
--			    !file_can_poll(req->file))
--				req->flags |= REQ_F_MUST_PUNT;
- 			/* if we can retry, do so with the callbacks armed */
- 			if (io_rw_should_retry(req)) {
- 				ret2 = io_iter_do_read(req, &iter);
-@@ -3050,10 +3046,6 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
- 						inline_vecs, &iter);
- 			if (ret)
- 				goto out_free;
--			/* any defer here is final, must blocking retry */
--			if (!(req->flags & REQ_F_NOWAIT) &&
--			    !file_can_poll(req->file))
--				req->flags |= REQ_F_MUST_PUNT;
- 			return -EAGAIN;
- 		}
- 	}
+@@ -4585,8 +4585,8 @@ static __poll_t __io_arm_poll_handler(struct io_kiocb *req,
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	bool cancel = false;
+ 
+-	poll->file = req->file;
+ 	io_init_poll_iocb(poll, mask, wake_func);
++	poll->file = req->file;
+ 	poll->wait.private = req;
+ 
+ 	ipt->pt._key = mask;
 -- 
 2.24.0
 

@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D814FC433E1
-	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB87C433DF
+	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B5CA120738
-	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F53720738
+	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZXpzppos"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E1nm3tEr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730970AbgFVWSR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 22 Jun 2020 18:18:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45500 "EHLO
+        id S1731013AbgFVWSW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 22 Jun 2020 18:18:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730832AbgFVWSR (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 22 Jun 2020 18:18:17 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5F3C061795;
-        Mon, 22 Jun 2020 15:18:16 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id a1so5556909ejg.12;
-        Mon, 22 Jun 2020 15:18:16 -0700 (PDT)
+        with ESMTP id S1730832AbgFVWSV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 22 Jun 2020 18:18:21 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D57BC061573;
+        Mon, 22 Jun 2020 15:18:20 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id mb16so19614296ejb.4;
+        Mon, 22 Jun 2020 15:18:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=PwAx1lggtUloHQ28uvRcmSf+olc6Ik90k7hCHmYJ3ho=;
-        b=ZXpzppos7OZlEpux/3v4UWDRb0ziwyUSApLeRXMpKtutWUdSDqChibzHOvqHagtNzg
-         OXR5T8dszPKTmwKXCTpzV5exzxDpPADPkrEZ7XpbtEoiWwAIh/BUPsOustEhE2fuFU7k
-         cC6o2i0B9owU6IS1q0pnpGni5wvgyz4+mvrKZO40IHFuiLL5fb5KTT/7Ao++o0fqTvsk
-         aOpRpFpslPs7AQZojD+iyLBEUovwzZzs/qub8phG3rjfev47J3aRxOw+fP8lHRCt1N1S
-         RIUD1FpmYKgZ49TOSiBDK6h9dYeTo80DUoktIzGaZ2diotAngv218FitzvKqRue1lAkp
-         i0Cw==
+        bh=MFsWP2CoxlGaT4tcqPsf9CLk6g/qtxlZndI2BGlIXaM=;
+        b=E1nm3tErVJzuWxTyN0k5zN7Rv3cA8xKb587dfOpeJFGoFPzTXsolGQy40zPT+YaaxG
+         OPVLdKea70YlfV5m5pJ24WgDYSM9iUdccUMAOwvQxFUwwvtYOdUxklUEW97LfmHpfBDX
+         OgpLnfXXCUsqUmQp36WVpzZcE54n+R0aSdaCSGGZUxlBhzc0dCv4Hfsmd4o0aC1vK+dA
+         BaZKPkbQ55tBSIEawKqcZ8L9InPm4Evjzp2V+B+O1JlGVzt3UyPBNxNvgfSy4xxIMG3P
+         LxUAwTaIhw0Ptd5Q4KM83vGobgFEMr8mN3g5h7Uv1+WnBA6rOl4XT0OJx2fouZZ5zq2k
+         4b2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PwAx1lggtUloHQ28uvRcmSf+olc6Ik90k7hCHmYJ3ho=;
-        b=I3mLwZscpzRq27xZ4mfp0xpU0TUZRsYofi4Laaxgnp0u8Rw4U6FvFpWF6XXfnDHhe/
-         IHlHHqLsPYAsyUW2ioag13ZwUWxieQTu/csHQiqOEPs6pzis+WMIcVQyuNOC2E9xJ4Vs
-         Ao+tI/zgDGIvWFkJQWFeRLTULeAcV7OO2lsGvUqUmZ53PMu4K6oVK42mLuIEZvSKNpce
-         1sDmfsN9Sxc8kSfOO+6MPHmezyeLvzkiMz26aokf9ZL8xNR2dAmAgI9M2LhTSRCwjJPX
-         jMtgdPTRI6PTtNWCkkRKmVj/RW9TNXWKNnYHBdYjNGs6soKrAtmJ7iNArKbt/DeDRkT9
-         og1g==
-X-Gm-Message-State: AOAM532R8x7pf2KsE6bAuvQwVHu7ch5QoePeIWHOf66XFuWdsuHl31Jf
-        txm9vBaNgwlHlN5gyzAc+Mw=
-X-Google-Smtp-Source: ABdhPJz4OqTwguCg/23SeF4gHF119hDp+QcGN0MM8yc/8R0AAA6Zz8YmlFaMMAJclkiUDmDj+VqYFw==
-X-Received: by 2002:a17:907:35c2:: with SMTP id ap2mr16642972ejc.530.1592864295389;
-        Mon, 22 Jun 2020 15:18:15 -0700 (PDT)
+        bh=MFsWP2CoxlGaT4tcqPsf9CLk6g/qtxlZndI2BGlIXaM=;
+        b=MERFrs1cZE7aiTY5vQjjQmZFxDi9V4DIccpFHJvTodKEH/rrOWxFvPoBShWICZA0+v
+         QjFgFTYGlvBgYkXCE29Psv2KEgM6BSBgUixybUAerg6oc4r0cDNEO5SXcQ2qL1K86mRv
+         KdY7lv5ducFXv1P3qOPHRuM8JQwiVYq9tLNGIXWX/KC7t8EaGiB0GNbZI698fR9uNbwi
+         XJYYDZv6GmcfdSVwQmH/WgD3s/ugwl8q540jRabgrxm/Wot3YgulW+lrMDRzcNNBYJJl
+         xkgKhsvOuYEn2FgAh7jgmS57ELVxgI1ar69/JM6oPJNIHUQ96Ka8DLUhJqs1a3WrBBae
+         O8Zg==
+X-Gm-Message-State: AOAM533VwkHuL5QVRs3oLvP24fyS65PBqw65MyuUCz+AvhtJ4uIrfOob
+        B0w0Mr6PLK55LoeyXBtgYfM=
+X-Google-Smtp-Source: ABdhPJw66W4Y1Eb1h+64F9r+nAkEkWbq82A+vmvloHgt3CCLPmacJhRYZ7L+Wnzwdk/MWfNtZZyZsw==
+X-Received: by 2002:a17:906:4c42:: with SMTP id d2mr18356834ejw.474.1592864299004;
+        Mon, 22 Jun 2020 15:18:19 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id dm1sm13314421ejc.99.2020.06.22.15.18.14
+        by smtp.gmail.com with ESMTPSA id dm1sm13314421ejc.99.2020.06.22.15.18.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 15:18:14 -0700 (PDT)
+        Mon, 22 Jun 2020 15:18:18 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: fix hanging iopoll in case of -EAGAIN
-Date:   Tue, 23 Jun 2020 01:16:32 +0300
-Message-Id: <0301f35644823a01cbae87e440df7d58ebcf2279.1592863245.git.asml.silence@gmail.com>
+Subject: [PATCH 3/4] io-wq: compact io-wq flags numbers
+Date:   Tue, 23 Jun 2020 01:16:34 +0300
+Message-Id: <a07c3937d318a9f89744ce23c804f9bb0e69d380.1592863245.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1592863245.git.asml.silence@gmail.com>
 References: <cover.1592863245.git.asml.silence@gmail.com>
@@ -74,35 +74,32 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_do_iopoll() won't do anything with a request unless
-req->iopoll_completed is set. So io_complete_rw_iopoll() has to set
-it, otherwise io_do_iopoll() will poll a file again and again even
-though the request of interest was completed long ago.
+Renumerate IO_WQ flags, so they take adjacent bits
 
-Fixes: bbde017a32b3 ("io_uring: add memory barrier to synchronize
-io_kiocb's result and iopoll_completed")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/io-wq.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c686061c3762..bb0dfc450db5 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2104,10 +2104,8 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 071f1a997800..04239dfb12b0 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -5,10 +5,10 @@ struct io_wq;
  
- 	WRITE_ONCE(req->result, res);
- 	/* order with io_poll_complete() checking ->result */
--	if (res != -EAGAIN) {
--		smp_wmb();
--		WRITE_ONCE(req->iopoll_completed, 1);
--	}
-+	smp_wmb();
-+	WRITE_ONCE(req->iopoll_completed, 1);
- }
+ enum {
+ 	IO_WQ_WORK_CANCEL	= 1,
+-	IO_WQ_WORK_HASHED	= 4,
+-	IO_WQ_WORK_UNBOUND	= 32,
+-	IO_WQ_WORK_NO_CANCEL	= 256,
+-	IO_WQ_WORK_CONCURRENT	= 512,
++	IO_WQ_WORK_HASHED	= 2,
++	IO_WQ_WORK_UNBOUND	= 4,
++	IO_WQ_WORK_NO_CANCEL	= 8,
++	IO_WQ_WORK_CONCURRENT	= 16,
  
- /*
+ 	IO_WQ_HASH_SHIFT	= 24,	/* upper 8 bits are used for hash key */
+ };
 -- 
 2.24.0
 

@@ -1,135 +1,94 @@
-Return-Path: <SRS0=0suZ=AD=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=6Nn4=AE=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90713C433DF
-	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4074BC433E0
+	for <io-uring@archiver.kernel.org>; Tue, 23 Jun 2020 02:07:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6DE9220738
-	for <io-uring@archiver.kernel.org>; Mon, 22 Jun 2020 22:18:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 199C020720
+	for <io-uring@archiver.kernel.org>; Tue, 23 Jun 2020 02:07:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ljRD/dgg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="0k8t0i4R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731009AbgFVWSV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 22 Jun 2020 18:18:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45508 "EHLO
+        id S1731364AbgFWCHe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 22 Jun 2020 22:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731000AbgFVWST (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 22 Jun 2020 18:18:19 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA94CC061573;
-        Mon, 22 Jun 2020 15:18:18 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id d15so14859925edm.10;
-        Mon, 22 Jun 2020 15:18:18 -0700 (PDT)
+        with ESMTP id S1731319AbgFWCHc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 22 Jun 2020 22:07:32 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978D0C061573
+        for <io-uring@vger.kernel.org>; Mon, 22 Jun 2020 19:07:32 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id x207so9345657pfc.5
+        for <io-uring@vger.kernel.org>; Mon, 22 Jun 2020 19:07:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=DrdHv0etgRdTJRMloebb5ELWSIQHSLCBHrC1nPqKOBo=;
-        b=ljRD/dggkGGC6rHkjwQMDDIbl5xa+NBZ0vRdcGDpdbjhdmVQkaGzEMzg85DYu0C5pS
-         z46Dw/EoXmibGavRy5/VcnpLbxq43oxMc3CAdt01NPp+ghP0avuW2L2tc2rs315VReVM
-         fdlTed/3nrX2VXjXD88iZ2SbZRBaEQJUrHQsRmyMDFcd8mvhhViBw6fW5Ug+0XzESgXt
-         jRyT+/i/P0I6/wCTuLlvCHfn75dns9yh7sckH297dNiqfxvRYsdzVcsyBGkWmsfv8ByC
-         n5A0A3BVQ9BsKU/gipdKuBUuL1tapwNPXUvEOA4uxVCjnbs6ci0DpRuoUQwBRr0UM50V
-         YY9w==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=QOm5EabQil79oRIDyKLFUlCceVcbXjoYyZLpqvTcrjY=;
+        b=0k8t0i4RvIrBtM3Mt4Yr1bNh2TVQcxKikDQz2GdlyuTA1VOTnNt5XAFyGMcSI5uR6k
+         n0uIPouIzW5HYMzkNdics+757VMBE5uPliYM8WgGq88yThdkuvyQRmCElcrxoO77GCq4
+         2FLfiT255DJQUvWmdcnNJizv1VQCgJwJtGjv4A8MpW9FnhLIKbx04z/rQt0ht2gI52dF
+         lvvA/3FTJWUt65LbFg9e9qUs6qZ4W0KjYtcLQUU7AXxiKr61OW05zpaonAHT2t7J7KG8
+         yPpaSK1UOFD00EK7BU8ASUZA59xw6e+tA773ckc8kbeu8ifvW7D/bYlZk2Io8AEYBaBN
+         RAgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DrdHv0etgRdTJRMloebb5ELWSIQHSLCBHrC1nPqKOBo=;
-        b=HUPRXvEZiZAZYR8N5Q7SnkMz2Q0FTQ57Dso0Yr0rEVvAjS5WqMwKZKU87L/iv7dzzt
-         +1z5xX6MeLE5jUcVUeF0ukNXaGCVjW2lVz1GsbGDHmAfBb/eJ7fgNTaIjJvdrm7Ocy/P
-         zz821zOlhT8EoeCuhNdVkhCX5+dx53WgfeGjexhJtWLLkgRdx8CGa8JH7SI5U52oaVML
-         B+EcpVgX21xqhzwNoGokpoY9Ah+BrvqCMpuLVfDv/P7A5FrbaqxQqV4tsNQm9GELLD65
-         /9qbUC7CtjLanrVCX3TDLl38UlRAFd3vp3YCwJV0GRo2Pmc8yX8EtP/jzrqNVkyzeXu2
-         sPXQ==
-X-Gm-Message-State: AOAM530frdNrXSYIRiv6cTPcOZxgiSCN12bOQjM5cdo4sRmKtM+SlFaM
-        5sYHvCRMPlB/T37DIFAh4KSfczd+
-X-Google-Smtp-Source: ABdhPJy2ais4FMuLolM4qlciAJwKyK2tSH5KjUyP5qU350a2lLuJt2PFNe1wps5KJsWiEVZjCXy2hw==
-X-Received: by 2002:a05:6402:1217:: with SMTP id c23mr18974965edw.270.1592864297499;
-        Mon, 22 Jun 2020 15:18:17 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id dm1sm13314421ejc.99.2020.06.22.15.18.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 15:18:17 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=QOm5EabQil79oRIDyKLFUlCceVcbXjoYyZLpqvTcrjY=;
+        b=qRwAE9Cmwz3ZaEOkxP+bqswntdWwbhy060cpfYDmNogFMFTCdAm+M4+K1GKCJqiDOo
+         SlkOuGbDBwW9rjFoDMXgIRq0I2fsTDigQCYn0CGmwA/g5aupr10kqJqVDqHp4mhImiyZ
+         BTPqct34N8/phOUUSgxY6q77fb0bHWW+2xsdWBArLiTNnC8o9ce/LyVf9tTnHbnh1abD
+         OhQtvkbdBlomTEMEIKsxir6d+SES7EA/81ku3bReyg6bR3/UOdL91Gw5J6Kil7kzJ9sX
+         6GhTQGBiq8OoRABeqjIK0sgF1M6r/zBJK8nB4PNP7rZR7wW3Ht0N4N8sv4In/ku4umuL
+         PBGQ==
+X-Gm-Message-State: AOAM530ZhzHTZbkIQSURkvWXKEM2CZrJfCaGbyeCDfBNgpaRmXvfeVji
+        HNc7kmzJZIO4QQPZdbJVRXshYuUbyBo=
+X-Google-Smtp-Source: ABdhPJw94uoq/K9Iipm65Xe0Q66mVD78trrCzAi227lmGlTt329brjR6l7a0Vyww+n+kXhULniizvA==
+X-Received: by 2002:a63:b956:: with SMTP id v22mr12208931pgo.242.1592878051945;
+        Mon, 22 Jun 2020 19:07:31 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y12sm15273461pfm.158.2020.06.22.19.07.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Jun 2020 19:07:31 -0700 (PDT)
+Subject: Re: [PATCH 1/4] io_uring: fix hanging iopoll in case of -EAGAIN
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] io_uring: handle EAGAIN iopoll
-Date:   Tue, 23 Jun 2020 01:16:33 +0300
-Message-Id: <d9ab20194c0189c2d585a9e9173a147d156f129c.1592863245.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1592863245.git.asml.silence@gmail.com>
 References: <cover.1592863245.git.asml.silence@gmail.com>
+ <0301f35644823a01cbae87e440df7d58ebcf2279.1592863245.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <95b720a6-926c-a208-e929-1d0203fa8701@kernel.dk>
+Date:   Mon, 22 Jun 2020 20:07:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <0301f35644823a01cbae87e440df7d58ebcf2279.1592863245.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-req->iopoll() is not necessarily called by a task that submitted a
-request. Because of that, it's dangerous to grab_env() and punt async
-on -EGAIN, potentially grabbinf another task's mm and corrupting its
-memory.
+On 6/22/20 4:16 PM, Pavel Begunkov wrote:
+> io_do_iopoll() won't do anything with a request unless
+> req->iopoll_completed is set. So io_complete_rw_iopoll() has to set
+> it, otherwise io_do_iopoll() will poll a file again and again even
+> though the request of interest was completed long ago.
 
-Do resubmit from the submitter task context.
+I need to look at this again, because with this change, I previously
+got various use-after-free. I haven't seen any issues with it, but
+I agree, from a quick look that I'm not quite sure how it's currently
+not causing hangs. Yet I haven't seen any, with targeted -EAGAIN
+testing.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bb0dfc450db5..595d2bbb31b1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -884,6 +884,8 @@ enum io_mem_account {
- 	ACCT_PINNED,
- };
- 
-+static void io_complete_rw_common(struct kiocb *kiocb, long res);
-+static bool io_rw_reissue(struct io_kiocb *req, long res);
- static void io_wq_submit_work(struct io_wq_work **workptr);
- static void io_cqring_fill_event(struct io_kiocb *req, long res);
- static void io_put_req(struct io_kiocb *req);
-@@ -1756,8 +1758,11 @@ static void io_iopoll_queue(struct list_head *again)
- 	do {
- 		req = list_first_entry(again, struct io_kiocb, list);
- 		list_del(&req->list);
--		refcount_inc(&req->refs);
--		io_queue_async_work(req);
-+
-+		if (!io_rw_reissue(req, -EAGAIN)) {
-+			io_complete_rw_common(&req->rw.kiocb, -EAGAIN);
-+			io_put_req(req);
-+		}
- 	} while (!list_empty(again));
- }
- 
-@@ -1930,6 +1935,8 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
- 		 */
- 		if (!(++iters & 7)) {
- 			mutex_unlock(&ctx->uring_lock);
-+			if (current->task_works)
-+				task_work_run();
- 			mutex_lock(&ctx->uring_lock);
- 		}
- 
-@@ -2288,6 +2295,7 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		kiocb->ki_complete = io_complete_rw_iopoll;
- 		req->result = 0;
- 		req->iopoll_completed = 0;
-+		io_get_req_task(req);
- 	} else {
- 		if (kiocb->ki_flags & IOCB_HIPRI)
- 			return -EINVAL;
 -- 
-2.24.0
+Jens Axboe
 

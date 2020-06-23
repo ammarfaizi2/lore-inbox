@@ -1,215 +1,153 @@
-Return-Path: <SRS0=792S=77=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=6Nn4=AE=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68AB0C433E0
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADB7BC433DF
+	for <io-uring@archiver.kernel.org>; Tue, 23 Jun 2020 14:38:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4015220888
-	for <io-uring@archiver.kernel.org>; Thu, 18 Jun 2020 14:44:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82C0F206EB
+	for <io-uring@archiver.kernel.org>; Tue, 23 Jun 2020 14:38:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="LaeOybvg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="i8Xvf0dO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730933AbgFROoD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 18 Jun 2020 10:44:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57332 "EHLO
+        id S1732869AbgFWOie (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 23 Jun 2020 10:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730920AbgFROoB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 18 Jun 2020 10:44:01 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5D4C0613EE
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:00 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id b5so2997156pgm.8
-        for <io-uring@vger.kernel.org>; Thu, 18 Jun 2020 07:44:00 -0700 (PDT)
+        with ESMTP id S1732858AbgFWOid (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Jun 2020 10:38:33 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D17C061795
+        for <io-uring@vger.kernel.org>; Tue, 23 Jun 2020 07:38:33 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id y5so23779302iob.12
+        for <io-uring@vger.kernel.org>; Tue, 23 Jun 2020 07:38:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:reply-to:mime-version
-         :content-transfer-encoding;
-        bh=QtQZj6qHx4NyNp4faebxEBGjQhFGouVk8vIR/YM0OZ0=;
-        b=LaeOybvgVFUedJ618PM1GTEUXkMXPY3qF3zemK0oPI0t/5c3IyDHmKKjFSXMlllNpg
-         u4+VdHvZcEwrYY6QLxMvN9QNbcQkL40jfHhhwKnfjkRjaCBH/fdF2CXYNuGlJe/1qagv
-         GOuftdx/mhTGZ0CDkYYM/BzpHCtO3WgFPHV5MzKmJusZp3RHe6UsIOj2jqBaJqopy9w1
-         8dyb1/ZNKWuCGje3eaRAvZHyHC8hhvG7uaNyzR+WZLwsMfnWHwLZir4H4MXYeJ5kkTgv
-         S21Bzwg3kx7/cgMp23f6Z1a2ySJ2w9JTPWvpySOoRC3V8WNU7ZClsM3eXev1LkALavYt
-         hZcA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=GO6VqQ1k5DfT8B3Hft14D4L5hj9uXyjCb94sDmddrkY=;
+        b=i8Xvf0dO3HlBgVkDMm2UdFWATb6q5c49Gp1uR5t24gxH4xjYC+5ei4BkAqzDM2KSv/
+         2gx/lezU+C8XyNWRfTI2XMPTKj6pxrB0XjEi8ZEynRWETcpvFmmMuGNdUvh/OrI+i/w5
+         vwWn6nfaeBN2WmpS8aNmJKRPO4tUJvKILSS4Hvp003kdC/j3G3kbQiCz9bHiXZCSdqLh
+         wIuxpVhhkSZ4J9U47uB+OkiyAa7fBy0f0ZDAIFve5z+1F2Hhm0G1n/FAMOS6UM/N4x95
+         PT9eFcXR5AxlX0ghw/EevRefdUSRw1vMHUuPnw5mrl2JdpHHK03FgT984eqxkUrvctEj
+         1eGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :mime-version:content-transfer-encoding;
-        bh=QtQZj6qHx4NyNp4faebxEBGjQhFGouVk8vIR/YM0OZ0=;
-        b=W8l8nrYXKa35MIYbRs08GmtH20cTR5Y5dd6JU/oOvi51kC6IrSLswXEEt+eiochJrQ
-         6pugBpY68pzE9IUiutamf2rV1FzCeVO73NzynlDMI9XPnj+XrpICBGO0jMp39dK4z9KY
-         ClflD319POOctytNjFk8h9HZy8gbcT2Xxfq2q8iVyQ5PwBDnn5ZLa/AcrXXlnIRuquIC
-         wRS/T/njge0W+3UxqihHK164ZYWpPATBNKGLsaof+rRXlgIEyW0FhwCuWsjZwQEa1Zy2
-         a3XyyL/7S05AnvG6n1aOb3FCH9FQuQaedfpM3AbeiHg77j8v/JsGZSqznL9vz9hfl73t
-         VqKw==
-X-Gm-Message-State: AOAM530FOar24+YHvgYhZme6Jqby5c82xZCdmVWRIghBUAZrIxLiufuS
-        CpeovybWHzv35+WpGmCIrvFms2NPGov7Dw==
-X-Google-Smtp-Source: ABdhPJwVlCUbORgsthBtt/igrlr5i7l6tNK0VhZZRDtHj5c1nyTVCxDwaDg3pXHR9uxp5F9dJc2YrQ==
-X-Received: by 2002:a62:191:: with SMTP id 139mr3946645pfb.94.1592491439786;
-        Thu, 18 Jun 2020 07:43:59 -0700 (PDT)
-Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g9sm3127197pfm.151.2020.06.18.07.43.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2020 07:43:59 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=GO6VqQ1k5DfT8B3Hft14D4L5hj9uXyjCb94sDmddrkY=;
+        b=l39U3K/cdmI0Sadju5kujuO7atRSkMT1tG2c36Mt2ayIOTv0ICXhFhgafpX1mk63Sa
+         294hSokSZxHNlpfS9zpFedLu2KlhaMcymyfNec1Py288XDyZG4v9Rz9jMkUXD9F79tZe
+         3FBVq7wn+hd/2hX4gYxqD9UkbPAniE92BfF3belSwJJzNExnex3PB5xAJuBJ6yWnXMch
+         ffYs9W/EXfoZ6ZTi66O+e3XieEsAPvWZ7WpnRP10C4QiqrlznVT2FnzL5OwsqlikXd8Z
+         4pv3AfHC+QnVlfjnYTheio6Fd1NB3cmrGTJxiOF8EBEuBss/OPP0QbnyVbUI8C86Um6m
+         MD+w==
+X-Gm-Message-State: AOAM531SU9swkGMgPJW3/xeX1bBSW2F+gdloNRVOcrNfbJmavCGdz7mF
+        pwnat8fBFAc4F4ohtbU37mJmGg==
+X-Google-Smtp-Source: ABdhPJxMOLP/f8YqjcdyvCnPvoh/iJidBaJRFad2O/9s6/oq7uoN5bcHuwnQcqjMnRJ+y18nv3dkKQ==
+X-Received: by 2002:a02:2417:: with SMTP id f23mr25134322jaa.28.1592923113020;
+        Tue, 23 Jun 2020 07:38:33 -0700 (PDT)
+Received: from [192.168.1.56] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id a20sm6546352ila.5.2020.06.23.07.38.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Jun 2020 07:38:31 -0700 (PDT)
+Subject: Re: [PATCH 15/15] io_uring: support true async buffered reads, if
+ file provides it
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, akpm@linux-foundation.org
-Subject: 
-Date:   Thu, 18 Jun 2020 08:43:40 -0600
-Message-Id: <20200618144355.17324-1-axboe@kernel.dk>
-X-Mailer: git-send-email 2.27.0
-Reply-To: "[PATCHSET v7 0/15]"@vger.kernel.org, Add@vger.kernel.org,
-          support@vger.kernel.org, for@vger.kernel.org,
-          async@vger.kernel.org, buffered@vger.kernel.org,
-          reads@vger.kernel.org
+References: <20200618144355.17324-1-axboe@kernel.dk>
+ <20200618144355.17324-16-axboe@kernel.dk>
+ <029947e3-7615-e446-3194-d48827730e1d@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <9c368ff8-b867-d40e-cd3b-6dacbecc0515@kernel.dk>
+Date:   Tue, 23 Jun 2020 08:38:30 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <029947e3-7615-e446-3194-d48827730e1d@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We technically support this already through io_uring, but it's
-implemented with a thread backend to support cases where we would
-block. This isn't ideal.
+On 6/23/20 6:39 AM, Pavel Begunkov wrote:
+> On 18/06/2020 17:43, Jens Axboe wrote:
+>> If the file is flagged with FMODE_BUF_RASYNC, then we don't have to punt
+>> the buffered read to an io-wq worker. Instead we can rely on page
+>> unlocking callbacks to support retry based async IO. This is a lot more
+>> efficient than doing async thread offload.
+>>
+>> The retry is done similarly to how we handle poll based retry. From
+>> the unlock callback, we simply queue the retry to a task_work based
+>> handler.
+>>
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>> ---
+>>  fs/io_uring.c | 145 +++++++++++++++++++++++++++++++++++++++++++++++---
+>>  1 file changed, 137 insertions(+), 8 deletions(-)
+>>
+> ...
+>>  static int io_read(struct io_kiocb *req, bool force_nonblock)
+>>  {
+>>  	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+>> @@ -2784,10 +2907,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
+>>  		unsigned long nr_segs = iter.nr_segs;
+>>  		ssize_t ret2 = 0;
+>>  
+>> -		if (req->file->f_op->read_iter)
+>> -			ret2 = call_read_iter(req->file, kiocb, &iter);
+>> -		else
+>> -			ret2 = loop_rw_iter(READ, req->file, kiocb, &iter);
+>> +		ret2 = io_iter_do_read(req, &iter);
+>>  
+>>  		/* Catch -EAGAIN return for forced non-blocking submission */
+>>  		if (!force_nonblock || (ret2 != -EAGAIN && ret2 != -EIO)) {
+>> @@ -2799,17 +2919,26 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
+>>  			ret = io_setup_async_rw(req, io_size, iovec,
+>>  						inline_vecs, &iter);
+>>  			if (ret)
+>> -				goto out_free;
+>> +				goto out;
+>>  			/* any defer here is final, must blocking retry */
+>>  			if (!(req->flags & REQ_F_NOWAIT) &&
+>>  			    !file_can_poll(req->file))
+>>  				req->flags |= REQ_F_MUST_PUNT;
+>> +			/* if we can retry, do so with the callbacks armed */
+>> +			if (io_rw_should_retry(req)) {
+>> +				ret2 = io_iter_do_read(req, &iter);
+>> +				if (ret2 == -EIOCBQUEUED) {
+>> +					goto out;
+>> +				} else if (ret2 != -EAGAIN) {
+>> +					kiocb_done(kiocb, ret2);
+>> +					goto out;
+>> +				}
+>> +			}
+>> +			kiocb->ki_flags &= ~IOCB_WAITQ;
+>>  			return -EAGAIN;
+>>  		}
+>>  	}
+>> -out_free:
+>> -	kfree(iovec);
+>> -	req->flags &= ~REQ_F_NEED_CLEANUP;
+> 
+> This looks fishy. For instance, if it fails early on rw_verify_area(), how would
+> it free yet on-stack iovec? Is it handled somehow?
 
-After a few prep patches, the core of this patchset is adding support
-for async callbacks on page unlock. With this primitive, we can simply
-retry the IO operation. With io_uring, this works a lot like poll based
-retry for files that support it. If a page is currently locked and
-needed, -EIOCBQUEUED is returned with a callback armed. The callers
-callback is responsible for restarting the operation.
+This was tweaked and rebased on top of the REQ_F_NEED_CLEANUP change,
+it should be correct in the tree:
 
-With this callback primitive, we can add support for
-generic_file_buffered_read(), which is what most file systems end up
-using for buffered reads. XFS/ext4/btrfs/bdev is wired up, but probably
-trivial to add more.
-
-The file flags support for this by setting FMODE_BUF_RASYNC, similar
-to what we do for FMODE_NOWAIT. Open to suggestions here if this is
-the preferred method or not.
-
-In terms of results, I wrote a small test app that randomly reads 4G
-of data in 4K chunks from a file hosted by ext4. The app uses a queue
-depth of 32. If you want to test yourself, you can just use buffered=1
-with ioengine=io_uring with fio. No application changes are needed to
-use the more optimized buffered async read.
-
-preadv for comparison:
-	real    1m13.821s
-	user    0m0.558s
-	sys     0m11.125s
-	CPU	~13%
-
-Mainline:
-	real    0m12.054s
-	user    0m0.111s
-	sys     0m5.659s
-	CPU	~32% + ~50% == ~82%
-
-This patchset:
-	real    0m9.283s
-	user    0m0.147s
-	sys     0m4.619s
-	CPU	~52%
-
-The CPU numbers are just a rough estimate. For the mainline io_uring
-run, this includes the app itself and all the threads doing IO on its
-behalf (32% for the app, ~1.6% per worker and 32 of them). Context
-switch rate is much smaller with the patchset, since we only have the
-one task performing IO.
-
-Also ran a simple fio based test case, varying the queue depth from 1
-to 16, doubling every time:
-
-[buf-test]
-filename=/data/file
-direct=0
-ioengine=io_uring
-norandommap
-rw=randread
-bs=4k
-iodepth=${QD}
-randseed=89
-runtime=10s
-
-QD/Test		Patchset IOPS		Mainline IOPS
-1		9046			8294
-2		19.8k			18.9k
-4		39.2k			28.5k
-8		64.4k			31.4k
-16		65.7k			37.8k
-
-Outside of my usual environment, so this is just running on a virtualized
-NVMe device in qemu, using ext4 as the file system. NVMe isn't very
-efficient virtualized, so we run out of steam at ~65K which is why we
-flatline on the patched side (nvme_submit_cmd() eats ~75% of the test app
-CPU). Before that happens, it's a linear increase. Not shown is context
-switch rate, which is massively lower with the new code. The old thread
-offload adds a blocking thread per pending IO, so context rate quickly
-goes through the roof.
-
-The goal here is efficiency. Async thread offload adds latency, and
-it also adds noticable overhead on items such as adding pages to the
-page cache. By allowing proper async buffered read support, we don't
-have X threads hammering on the same inode page cache, we have just
-the single app actually doing IO.
-
-Been beating on this and it's solid for me, and I'm now pretty happy
-with how it all turned out. Not aware of any missing bits/pieces or
-code cleanups that need doing.
-
-Series can also be found here:
-
-https://git.kernel.dk/cgit/linux-block/log/?h=async-buffered.7
-
-or pull from:
-
-git://git.kernel.dk/linux-block async-buffered.7
-
- block/blk-core.c        |   6 +
- fs/block_dev.c          |   2 +-
- fs/btrfs/file.c         |   2 +-
- fs/ext4/file.c          |   2 +-
- fs/io_uring.c           | 336 ++++++++++++++++++++++++++++++++++------
- fs/xfs/xfs_file.c       |   2 +-
- include/linux/blkdev.h  |   1 +
- include/linux/fs.h      |  10 +-
- include/linux/pagemap.h |  75 +++++++++
- mm/filemap.c            | 110 ++++++++-----
- 10 files changed, 454 insertions(+), 92 deletions(-)
-
-Changes since v6:
-- Properly catch and resubmit requests that would have blocked in
-  submission.
-- Fix sqthread mm usage for async buffered retry
-- Fix a retry condition iter setup
-- Rebase on master + for-5.9/io_uring
-Changes since v5:
-- Correct commit message, iocb->private -> iocb->ki_waitq
-- Get rid of io_uring goto, use an iter read helper
-Changes since v3:
-- io_uring: don't retry if REQ_F_NOWAIT is set
-- io_uring: alloc req->io if the request type didn't already
-- Add iocb->ki_waitq instead of (ab)using iocb->private
-Changes since v2:
-- Get rid of unnecessary wait_page_async struct, just use wait_page_async
-- Add another prep handler, adding wake_page_match()
-- Use wake_page_match() in both callers
-Changes since v1:
-- Fix an issue with inline page locking
-- Fix a potential race with __wait_on_page_locked_async()
-- Fix a hang related to not setting page_match, thus missing a wakeup
+https://git.kernel.dk/cgit/linux-block/tree/fs/io_uring.c?h=for-5.9/io_uring#n2908
 
 -- 
 Jens Axboe
-
-
 

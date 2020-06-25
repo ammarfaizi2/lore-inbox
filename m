@@ -2,86 +2,206 @@ Return-Path: <SRS0=da/i=AG=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D20C433E0
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F12F0C433DF
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 17:18:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 443FB206C0
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9033320707
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 17:18:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mdyHNzLV"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="MTbK/Uqf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405742AbgFYPXL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Jun 2020 11:23:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405359AbgFYPXL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 11:23:11 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D32E5C08C5DB;
-        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id j94so6299013wrj.0;
-        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vo+qhqZWFGjWoiOqnFYx6rC9T2u5bhyVmXxaUCAoQyw=;
-        b=mdyHNzLVGborKGIx3RFAfmPFRplBJWpiiMTBh9Xq45KLigBjp+s1wXzOmmlghEEgQC
-         fiwVruFttVGBnCC0vghQ2gfkwjDsHKntS/LmquNAAj/Wqqxd+cmKetiYAbpmcp9rmnvk
-         GLUzHtjbqDvd3pcdCT8buzUJIlLrHObGCVxMz8FeRKBk4q+AWt7iaE+01ANzjIU9dzH1
-         6jJ5Z8UvDep67p1ET/mwlhl/ZYC9R9RDVr1KeXxXH23xB/XbuakovPum7Kqx1DDzjule
-         ai8NBrZHSv4yhMcBxR5AeiuJ4vP82d3wQem/gvzGPFcFX2tEHo4SJSCg3BUwxgQIoWpM
-         X9fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vo+qhqZWFGjWoiOqnFYx6rC9T2u5bhyVmXxaUCAoQyw=;
-        b=N4X8NmdbZxNmNDPiNS/J5NEj7vlt1+F78VYIqJEoR/alJRaI7T9BWROJvZpf451p1E
-         w2xAjUBUT04Dy6cWLsslZdq0nC1hh7cma6ZSqoiXEJkxN3L+JplimD9pn0V62/AsyU1U
-         1zo+iN6uukCoNvIDZURj81VghREegPUzhOwroXfW/1mW4KyMfJgc9KuZ3BNO5YoitTN5
-         LPRRtS8J+QKveerTA6wWni2hgr0m5IL2o8QPOQG+dOGd/Ja8w5gbAroegQ5tF7fWRSyR
-         Zddgp7n2gkao6F6hW1z5Eduf+9cuptuAP3EiT4cWkp8mjizOBp0EnoYFuET8ZVzyKqWY
-         Jamw==
-X-Gm-Message-State: AOAM530lHfQbY33WVp9e3T4dqYv9YY5ozERRRz0ggECW8cJUc3yaRdpK
-        ydJ1QRJOrYa0sIQTCeIVUoi8ECXe
-X-Google-Smtp-Source: ABdhPJz+In0MpxwJQerxA308OX/Df0w5fv+DABgOPpUAhCtqNDQFbJQoB9/oWbD2s/lNJ9tBUwPfyw==
-X-Received: by 2002:a5d:5483:: with SMTP id h3mr38040824wrv.10.1593098588097;
-        Thu, 25 Jun 2020 08:23:08 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id r1sm31560403wrn.29.2020.06.25.08.23.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2020 08:23:07 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH for-5.9 0/2] clean io_wq->do_work()
-Date:   Thu, 25 Jun 2020 18:20:52 +0300
-Message-Id: <cover.1593095572.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S2406699AbgFYRSh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Jun 2020 13:18:37 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:38720 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404404AbgFYRSg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 13:18:36 -0400
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20200625171832epoutp0143c480e86f41b801ac25b7478a963464~b2QXOr8lD1996019960epoutp01Z
+        for <io-uring@vger.kernel.org>; Thu, 25 Jun 2020 17:18:32 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20200625171832epoutp0143c480e86f41b801ac25b7478a963464~b2QXOr8lD1996019960epoutp01Z
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1593105512;
+        bh=e1UqTC42OgOEeURf7nmkwWqj9cfZtAkWqrw5aq0Mhtw=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=MTbK/UqfwnrIintISo0Qq9F5oWQw/2ViUmpbYJmx9zb2/uOmtjc90l7/Zz726eHkL
+         fDrqAwndH0PGjEMHlrYYWUbbsK8iqdVueRYug+9qMXuqgA/OuABeDHki8+atmxM7pB
+         pySPpxmm5Yyk/VM9w+jOC3o/q6YTlF7IVzY5tkoE=
+Received: from epsmges5p1new.samsung.com (unknown [182.195.42.73]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20200625171830epcas5p193baf1ccde11b9d8242203f667294d34~b2QV5xku11015710157epcas5p1z;
+        Thu, 25 Jun 2020 17:18:30 +0000 (GMT)
+Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        F2.33.09467.66CD4FE5; Fri, 26 Jun 2020 02:18:30 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+        20200625171829epcas5p268486a0780571edb4999fc7b3caab602~b2QUuXNpR2484524845epcas5p2K;
+        Thu, 25 Jun 2020 17:18:29 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20200625171829epsmtrp18d779d7491e2a3427a39cd2050bf1022~b2QUtjpYj1577615776epsmtrp1G;
+        Thu, 25 Jun 2020 17:18:29 +0000 (GMT)
+X-AuditID: b6c32a49-a29ff700000024fb-3e-5ef4dc66819a
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        4C.77.08382.56CD4FE5; Fri, 26 Jun 2020 02:18:29 +0900 (KST)
+Received: from localhost.localdomain (unknown [107.110.206.5]) by
+        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20200625171826epsmtip20eb790a1bfe3be2f7ce238420f3475ec~b2QSSxx4q1929119291epsmtip2c;
+        Thu, 25 Jun 2020 17:18:26 +0000 (GMT)
+From:   Kanchan Joshi <joshi.k@samsung.com>
+To:     axboe@kernel.dk, viro@zeniv.linux.org.uk, bcrl@kvack.org
+Cc:     asml.silence@gmail.com, Damien.LeMoal@wdc.com, hch@infradead.org,
+        linux-fsdevel@vger.kernel.org, mb@lightnvm.io,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-block@vger.kernel.org,
+        selvakuma.s1@samsung.com, nj.shetty@samsung.com,
+        javier.gonz@samsung.com, Kanchan Joshi <joshi.k@samsung.com>
+Subject: [PATCH v2 0/2] zone-append support in io-uring and aio
+Date:   Thu, 25 Jun 2020 22:45:47 +0530
+Message-Id: <1593105349-19270-1-git-send-email-joshi.k@samsung.com>
+X-Mailer: git-send-email 2.7.4
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprMKsWRmVeSWpSXmKPExsWy7bCmlm7anS9xBlOPqVn8nj6F1WLOqm2M
+        Fqvv9rNZdP3bwmLR2v6NyeL0hEVMFu9az7FYPL7zmd3i6P+3bBZTpjUxWuy9pW2xZ+9JFovL
+        u+awWazYfoTFYtvv+cwWV6YsYrZ4/eMkm8X5v8dZHYQ8ds66y+6xeYWWx+WzpR6bPk1i9+i+
+        +oPRo2/LKkaPz5vkPNoPdDN5bHrylimAM4rLJiU1J7MstUjfLoEr40vrB9aC58oVv2/uYG5g
+        XCDTxcjJISFgIrFsxnzmLkYuDiGB3YwSt54th3I+MUose7qCFcL5xigxc+4iFpiWIzefM0Ik
+        9gIlWpayQTifGSW2XmoEauHgYBPQlLgwuRTEFBGwkdi5RAWkhFngCpPE8xmzWUEGCQvYS/y7
+        d40NpIZFQFXi/GQ2kDCvgLNE85/JULvkJG6e6wS7SEJgLofE8bbFTBAJF4kFRy5B2cISr45v
+        YYewpSRe9rdB2cUSv+4chWruYJS43jATaqq9xMU9f5lAFjMD3bl+lz5ImFmAT6L39xOwsIQA
+        r0RHmxBEtaLEvUlPWSFscYmHM5ZA2R4S1yZOBJsoJBArsexQE/sERplZCEMXMDKuYpRMLSjO
+        TU8tNi0wzEst1ytOzC0uzUvXS87P3cQITjdanjsY7z74oHeIkYmD8RCjBAezkghviNunOCHe
+        lMTKqtSi/Pii0pzU4kOM0hwsSuK8Sj/OxAkJpCeWpGanphakFsFkmTg4pRqYqkzeCHtnfpy5
+        +qrGJ19Dbcdu3ryN5nIbzqr1qE2foFhT1ntmuSxDRcd0fW9miRu2KstnMRzwfCPEfkQoZ/Xl
+        OsaekweSvf1uHSh9Zsa15FN/2z313Yc2qjxW61C+v1dd4XBRkYBymdL0xj/bt6y/0cVZa3jS
+        6NDlGUe45wiaW382X2quqKndM3VrTciD/fuXPnDWvBh5JvxamlC9Bc/2SVtFryW+SVxho/Bu
+        lotf7c8XKvsmuFS7aoRNial8oP6h7YVJkV9hqZrsskL36e9OdSxZo/8g6QrL+3v+t3Iq1cKu
+        ZJ1QsHn60VYv3aRSXdeFcX76q6n3ln35sFKh+vLclPhQ9Yf3rj6Qj/l0/0mlEktxRqKhFnNR
+        cSIAlrSUF6YDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGLMWRmVeSWpSXmKPExsWy7bCSvG7qnS9xBpcvi1v8nj6F1WLOqm2M
+        Fqvv9rNZdP3bwmLR2v6NyeL0hEVMFu9az7FYPL7zmd3i6P+3bBZTpjUxWuy9pW2xZ+9JFovL
+        u+awWazYfoTFYtvv+cwWV6YsYrZ4/eMkm8X5v8dZHYQ8ds66y+6xeYWWx+WzpR6bPk1i9+i+
+        +oPRo2/LKkaPz5vkPNoPdDN5bHrylimAM4rLJiU1J7MstUjfLoEr40vrB9aC58oVv2/uYG5g
+        XCDTxcjJISFgInHk5nPGLkYuDiGB3YwSnTd/sEMkxCWar8HYwhIr/z1nhyj6yChx/fEBli5G
+        Dg42AU2JC5NLQWpEBBwkuo4/ZgKpYRZ4wiTR+W0jI0hCWMBe4t+9a2wg9SwCqhLnJ7OBhHkF
+        nCWa/0xmgZgvJ3HzXCfzBEaeBYwMqxglUwuKc9Nziw0LDPNSy/WKE3OLS/PS9ZLzczcxgoNa
+        S3MH4/ZVH/QOMTJxMB5ilOBgVhLhDXH7FCfEm5JYWZValB9fVJqTWnyIUZqDRUmc90bhwjgh
+        gfTEktTs1NSC1CKYLBMHp1QDU/sBh6LDARe/XHAz2ris3Znx3cS8xX/9NsxJ2aFabpt/eLbV
+        S/bF/i9WVtcd+ZXUX/7/ZdXhDFXnpZuXv2vq/PRnJ8cyJ9O4ldznY75MX1sn+FvOPn3BLP/n
+        m2+t9m403FnE6SI/KeLdrt/Cikm7WXMO/vo237dNSst3XvHtBx6BOqkXnUMTHtlEPLMq2vx+
+        0a6VG+6UuzT+vjNvEY/O/NNG5zbmzThr3HU+rWOqIq9BgfoL9cOrik6snbUzbHfbg3ufTGZc
+        Wej37/ohYfnYQp37l3YxTtZaJBYrmqQ8N+Coe9VKRduUvZs4T+24Gv/jg8DePJ2NTbcnPdtf
+        sv/wFD+xol0RB9d0H9H8WNsiabRJiaU4I9FQi7moOBEAsInSN9kCAAA=
+X-CMS-MailID: 20200625171829epcas5p268486a0780571edb4999fc7b3caab602
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+X-CMS-RootMailID: 20200625171829epcas5p268486a0780571edb4999fc7b3caab602
+References: <CGME20200625171829epcas5p268486a0780571edb4999fc7b3caab602@epcas5p2.samsung.com>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Small io-wq cleanups after getting rid of per-work callbacks.
+[Revised as per feedback from Damien, Pavel, Jens, Christoph, Matias, Wilcox]
 
-Pavel Begunkov (2):
-  io-wq: compact io-wq flags numbers
-  io-wq: return next work from ->do_work() directly
+This patchset enables zone-append using io-uring/linux-aio, on block IO path.
+Purpose is to provide zone-append consumption ability to applications which are
+using zoned-block-device directly.
 
- fs/io-wq.c    |  8 +++-----
- fs/io-wq.h    | 10 +++++-----
- fs/io_uring.c | 53 ++++++++++++++++++++-------------------------------
- 3 files changed, 29 insertions(+), 42 deletions(-)
+The application may specify RWF_ZONE_APPEND flag with write when it wants to
+send zone-append. RWF_* flags work with a certain subset of APIs e.g. uring,
+aio, and pwritev2. An error is reported if zone-append is requested using
+pwritev2. It is not in the scope of this patchset to support pwritev2 or any
+other sync write API for reasons described later.
+
+Zone-append completion result --->
+With zone-append, where write took place can only be known after completion.
+So apart from usual return value of write, additional mean is needed to obtain
+the actual written location.
+
+In aio, this is returned to application using res2 field of io_event -
+
+struct io_event {
+        __u64           data;           /* the data field from the iocb */
+        __u64           obj;            /* what iocb this event came from */
+        __s64           res;            /* result code for this event */
+        __s64           res2;           /* secondary result */
+};
+
+In io-uring, cqe->flags is repurposed for zone-append result.
+
+struct io_uring_cqe {
+        __u64   user_data;      /* sqe->data submission passed back */
+        __s32   res;            /* result code for this event */
+        __u32   flags;
+};
+
+Since 32 bit flags is not sufficient, we choose to return zone-relative offset
+in sector/512b units. This can cover zone-size represented by chunk_sectors.
+Applications will have the trouble to combine this with zone start to know
+disk-relative offset. But if more bits are obtained by pulling from res field
+that too would compel application to interpret res field differently, and it
+seems more painstaking than the former option.
+To keep uniformity, even with aio, zone-relative offset is returned.
+
+Append using io_uring fixed-buffer --->
+This is flagged as not-supported at the moment. Reason being, for fixed-buffer
+io-uring sends iov_iter of bvec type. But current append-infra in block-layer
+does not support such iov_iter.
+
+Block IO vs File IO --->
+For now, the user zone-append interface is supported only for zoned-block-device.
+Regular files/block-devices are not supported. Regular file-system (e.g. F2FS)
+will not need this anyway, because zone peculiarities are abstracted within FS.
+At this point, ZoneFS also likes to use append implicitly rather than explicitly.
+But if/when ZoneFS starts supporting explicit/on-demand zone-append, the check
+allowing-only-block-device should be changed.
+
+Semantics --->
+Zone-append, by its nature, may perform write on a different location than what
+was specified. It does not fit into POSIX, and trying to fit may just undermine
+its benefit. It may be better to keep semantics as close to zone-append as
+possible i.e. specify zone-start location, and obtain the actual-write location
+post completion. Towards that goal, existing async APIs seem to fit fine.
+Async APIs (uring, linux aio) do not work on implicit write-pointer and demand
+explicit write offset (which is what we need for append). Neither write-pointer
+is taken as input, nor it is updated on completion. And there is a clear way to
+get zone-append result. Zone-aware applications while using these async APIs
+can be fine with, for the lack of better word, zone-append semantics itself.
+
+Sync APIs work with implicit write-pointer (at least few of those), and there is
+no way to obtain zone-append result, making it hard for user-space zone-append.
+
+Tests --->
+Using new interface in fio (uring and libaio engine) by extending zbd tests
+for zone-append: https://github.com/axboe/fio/pull/1026
+
+Changes since v1:
+- No new opcodes in uring or aio. Use RWF_ZONE_APPEND flag instead.
+- linux-aio changes vanish because of no new opcode
+- Fixed the overflow and other issues mentioned by Damien
+- Simplified uring support code, fixed the issues mentioned by Pavel
+- Added error checks
+
+Kanchan Joshi (1):
+  fs,block: Introduce RWF_ZONE_APPEND and handling in direct IO path
+
+Selvakumar S (1):
+  io_uring: add support for zone-append
+
+ fs/block_dev.c          | 28 ++++++++++++++++++++++++----
+ fs/io_uring.c           | 32 ++++++++++++++++++++++++++++++--
+ include/linux/fs.h      |  9 +++++++++
+ include/uapi/linux/fs.h |  5 ++++-
+ 4 files changed, 67 insertions(+), 7 deletions(-)
 
 -- 
-2.24.0
+2.7.4
 

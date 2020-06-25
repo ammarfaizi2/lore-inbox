@@ -2,71 +2,68 @@ Return-Path: <SRS0=da/i=AG=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0581DC433DF
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D20C433E0
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1F68208C7
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 443FB206C0
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eGGX204q"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mdyHNzLV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405777AbgFYPXO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Jun 2020 11:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55218 "EHLO
+        id S2405742AbgFYPXL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Jun 2020 11:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405760AbgFYPXM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 11:23:12 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B026AC08C5C1;
-        Thu, 25 Jun 2020 08:23:11 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id a6so6275617wrm.4;
-        Thu, 25 Jun 2020 08:23:11 -0700 (PDT)
+        with ESMTP id S2405359AbgFYPXL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 11:23:11 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D32E5C08C5DB;
+        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id j94so6299013wrj.0;
+        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=X8M6Z9iS/wBC6CKH2GRHd5qZp57FkKWtOwBt90Zk34A=;
-        b=eGGX204qFkOgyfuDXmuEIHM3gp2j6rzf6EVhLDf2lT4vUGzyo4LoVxjk5IDG5T/HgV
-         SHimEsv/KFvCv2upk6p5TQ390K8YusD35xhmdERCP8hevDc/3N7fiKYsyqlCpwxcJNTL
-         fV2AObbJaTbEN8bxHJZRxk58LgI0PlNboQZh1Tn68esJ3FSkZGyoCkncLRRlkyrXbuld
-         afGWQ1KWnI8r9P8z1Is4xIf+DBfjVP67ziRjXCxl5sKm+69jmK3PRHBmkvNbvB1T8Gd4
-         M0eOcCgRCGXK9eQlZTvrfe9RlBulIJpxQjT6+5BxJ1PXQ9b17QFXLVLbtVQPYN/Gu4Vw
-         6xxQ==
+        bh=vo+qhqZWFGjWoiOqnFYx6rC9T2u5bhyVmXxaUCAoQyw=;
+        b=mdyHNzLVGborKGIx3RFAfmPFRplBJWpiiMTBh9Xq45KLigBjp+s1wXzOmmlghEEgQC
+         fiwVruFttVGBnCC0vghQ2gfkwjDsHKntS/LmquNAAj/Wqqxd+cmKetiYAbpmcp9rmnvk
+         GLUzHtjbqDvd3pcdCT8buzUJIlLrHObGCVxMz8FeRKBk4q+AWt7iaE+01ANzjIU9dzH1
+         6jJ5Z8UvDep67p1ET/mwlhl/ZYC9R9RDVr1KeXxXH23xB/XbuakovPum7Kqx1DDzjule
+         ai8NBrZHSv4yhMcBxR5AeiuJ4vP82d3wQem/gvzGPFcFX2tEHo4SJSCg3BUwxgQIoWpM
+         X9fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=X8M6Z9iS/wBC6CKH2GRHd5qZp57FkKWtOwBt90Zk34A=;
-        b=brhjRVW/pdNcptaT0fbiOOh7hWyQ/bQ7ZfhpAM/dli7px/+GpTwukYovrIQcuVjY24
-         LzeRpvi8eUxJ8vn28CYKUqx0ZpojmZUNComHb2vUzLcPkHVNo6/qyEbBEvmQPXv4fYf/
-         2j8J8iUMA1DNBZwYlK5bkfd0i59CPp6FldR9mGT4WtFolbhIinSA6lZHeUncOtYg884a
-         lgfR3PS3jpyXfDWzBbPh9AzAHOG8nub9mIhfQE6hSFi87+2yjvey0Gb4lZ9sWO8W7vUR
-         YD10pM7++YW37h1P7gnFtjJDAK4eNZgSiV/boMAc3MUX4n/Tski5kuLCgLPZ3PMTwGwB
-         vyMw==
-X-Gm-Message-State: AOAM533GObuj7mYDEFYrrthBf4/Tvk09nSeZQC3896xS/izaxPUEfNVW
-        lp2yeDCSN/AV8xhKEWj0/uEpQIz1
-X-Google-Smtp-Source: ABdhPJzM93nI+H9Ck3LePOxdqtbGMfMU0BS4r+j7X5nPzR4AuPATmo/3bvl9L036VUGx/3t/0qsCeg==
-X-Received: by 2002:adf:e8ce:: with SMTP id k14mr35021864wrn.93.1593098590375;
-        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vo+qhqZWFGjWoiOqnFYx6rC9T2u5bhyVmXxaUCAoQyw=;
+        b=N4X8NmdbZxNmNDPiNS/J5NEj7vlt1+F78VYIqJEoR/alJRaI7T9BWROJvZpf451p1E
+         w2xAjUBUT04Dy6cWLsslZdq0nC1hh7cma6ZSqoiXEJkxN3L+JplimD9pn0V62/AsyU1U
+         1zo+iN6uukCoNvIDZURj81VghREegPUzhOwroXfW/1mW4KyMfJgc9KuZ3BNO5YoitTN5
+         LPRRtS8J+QKveerTA6wWni2hgr0m5IL2o8QPOQG+dOGd/Ja8w5gbAroegQ5tF7fWRSyR
+         Zddgp7n2gkao6F6hW1z5Eduf+9cuptuAP3EiT4cWkp8mjizOBp0EnoYFuET8ZVzyKqWY
+         Jamw==
+X-Gm-Message-State: AOAM530lHfQbY33WVp9e3T4dqYv9YY5ozERRRz0ggECW8cJUc3yaRdpK
+        ydJ1QRJOrYa0sIQTCeIVUoi8ECXe
+X-Google-Smtp-Source: ABdhPJz+In0MpxwJQerxA308OX/Df0w5fv+DABgOPpUAhCtqNDQFbJQoB9/oWbD2s/lNJ9tBUwPfyw==
+X-Received: by 2002:a5d:5483:: with SMTP id h3mr38040824wrv.10.1593098588097;
+        Thu, 25 Jun 2020 08:23:08 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id r1sm31560403wrn.29.2020.06.25.08.23.09
+        by smtp.gmail.com with ESMTPSA id r1sm31560403wrn.29.2020.06.25.08.23.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2020 08:23:09 -0700 (PDT)
+        Thu, 25 Jun 2020 08:23:07 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] io-wq: return next work from ->do_work() directly
-Date:   Thu, 25 Jun 2020 18:20:54 +0300
-Message-Id: <e55e676995251f1269de6e69ac7ab42d3b04aff5.1593095572.git.asml.silence@gmail.com>
+Subject: [PATCH for-5.9 0/2] clean io_wq->do_work()
+Date:   Thu, 25 Jun 2020 18:20:52 +0300
+Message-Id: <cover.1593095572.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1593095572.git.asml.silence@gmail.com>
-References: <cover.1593095572.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -74,153 +71,17 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It's easier to return next work from ->do_work() than
-having an in-out argument. Looks nicer and easier to compile.
-Also, merge io_wq_assign_next() into its only user.
+Small io-wq cleanups after getting rid of per-work callbacks.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+Pavel Begunkov (2):
+  io-wq: compact io-wq flags numbers
+  io-wq: return next work from ->do_work() directly
+
  fs/io-wq.c    |  8 +++-----
- fs/io-wq.h    |  2 +-
+ fs/io-wq.h    | 10 +++++-----
  fs/io_uring.c | 53 ++++++++++++++++++++-------------------------------
- 3 files changed, 25 insertions(+), 38 deletions(-)
+ 3 files changed, 29 insertions(+), 42 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 47c5f3aeb460..72f759e1d6eb 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -523,9 +523,8 @@ static void io_worker_handle_work(struct io_worker *worker)
- 				work->flags |= IO_WQ_WORK_CANCEL;
- 
- 			hash = io_get_work_hash(work);
--			linked = old_work = work;
--			wq->do_work(&linked);
--			linked = (old_work == linked) ? NULL : linked;
-+			old_work = work;
-+			linked = wq->do_work(work);
- 
- 			work = next_hashed;
- 			if (!work && linked && !io_wq_is_hashed(linked)) {
-@@ -781,8 +780,7 @@ static void io_run_cancel(struct io_wq_work *work, struct io_wqe *wqe)
- 		struct io_wq_work *old_work = work;
- 
- 		work->flags |= IO_WQ_WORK_CANCEL;
--		wq->do_work(&work);
--		work = (work == old_work) ? NULL : work;
-+		work = wq->do_work(work);
- 		wq->free_work(old_work);
- 	} while (work);
- }
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 04239dfb12b0..114f12ec2d65 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -101,7 +101,7 @@ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
- }
- 
- typedef void (free_work_fn)(struct io_wq_work *);
--typedef void (io_wq_work_fn)(struct io_wq_work **);
-+typedef struct io_wq_work *(io_wq_work_fn)(struct io_wq_work *);
- 
- struct io_wq_data {
- 	struct user_struct *user;
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e7b1e696fecd..62130dfbc0e7 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -884,7 +884,6 @@ enum io_mem_account {
- 	ACCT_PINNED,
- };
- 
--static void io_wq_submit_work(struct io_wq_work **workptr);
- static void io_cqring_fill_event(struct io_kiocb *req, long res);
- static void io_put_req(struct io_kiocb *req);
- static void __io_double_put_req(struct io_kiocb *req);
-@@ -1623,20 +1622,6 @@ static void io_free_req(struct io_kiocb *req)
- 		io_queue_async_work(nxt);
- }
- 
--static void io_wq_assign_next(struct io_wq_work **workptr, struct io_kiocb *nxt)
--{
--	struct io_kiocb *link;
--	const struct io_op_def *def = &io_op_defs[nxt->opcode];
--
--	if ((nxt->flags & REQ_F_ISREG) && def->hash_reg_file)
--		io_wq_hash_work(&nxt->work, file_inode(nxt->file));
--
--	*workptr = &nxt->work;
--	link = io_prep_linked_timeout(nxt);
--	if (link)
--		nxt->flags |= REQ_F_QUEUE_TIMEOUT;
--}
--
- /*
-  * Drop reference to request, return next in chain (if there is one) if this
-  * was the last reference to this request.
-@@ -1656,24 +1641,29 @@ static void io_put_req(struct io_kiocb *req)
- 		io_free_req(req);
- }
- 
--static void io_steal_work(struct io_kiocb *req,
--			  struct io_wq_work **workptr)
-+static struct io_wq_work *io_steal_work(struct io_kiocb *req)
- {
-+	struct io_kiocb *link, *nxt = NULL;
-+
- 	/*
--	 * It's in an io-wq worker, so there always should be at least
--	 * one reference, which will be dropped in io_put_work() just
--	 * after the current handler returns.
--	 *
--	 * It also means, that if the counter dropped to 1, then there is
--	 * no asynchronous users left, so it's safe to steal the next work.
-+	 * A ref is owned by io-wq in which context we're. So, if that's the
-+	 * last one, it's safe to steal next work. False negatives are Ok,
-+	 * it just will be re-punted async in io_put_work()
- 	 */
--	if (refcount_read(&req->refs) == 1) {
--		struct io_kiocb *nxt = NULL;
-+	if (refcount_read(&req->refs) != 1)
-+		return NULL;
- 
--		io_req_find_next(req, &nxt);
--		if (nxt)
--			io_wq_assign_next(workptr, nxt);
--	}
-+	io_req_find_next(req, &nxt);
-+	if (!nxt)
-+		return NULL;
-+
-+	if ((nxt->flags & REQ_F_ISREG) && io_op_defs[nxt->opcode].hash_reg_file)
-+		io_wq_hash_work(&nxt->work, file_inode(nxt->file));
-+
-+	link = io_prep_linked_timeout(nxt);
-+	if (link)
-+		nxt->flags |= REQ_F_QUEUE_TIMEOUT;
-+	return &nxt->work;
- }
- 
- /*
-@@ -5631,9 +5621,8 @@ static void io_arm_async_linked_timeout(struct io_kiocb *req)
- 	io_queue_linked_timeout(link);
- }
- 
--static void io_wq_submit_work(struct io_wq_work **workptr)
-+static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
- {
--	struct io_wq_work *work = *workptr;
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
- 	int ret = 0;
- 
-@@ -5665,7 +5654,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
- 		io_put_req(req);
- 	}
- 
--	io_steal_work(req, workptr);
-+	return io_steal_work(req);
- }
- 
- static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
 -- 
 2.24.0
 

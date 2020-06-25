@@ -2,89 +2,104 @@ Return-Path: <SRS0=da/i=AG=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD473C433E2
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 13:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A56C433E0
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BA8D20702
-	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 13:24:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A04B206C0
+	for <io-uring@archiver.kernel.org>; Thu, 25 Jun 2020 15:23:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="TXs317Ch"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LtvuZSfM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404923AbgFYNY1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Jun 2020 09:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
+        id S2405502AbgFYPXL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Jun 2020 11:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404740AbgFYNY0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 09:24:26 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FC1C08C5C1
-        for <io-uring@vger.kernel.org>; Thu, 25 Jun 2020 06:24:26 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id cv18so544685pjb.1
-        for <io-uring@vger.kernel.org>; Thu, 25 Jun 2020 06:24:26 -0700 (PDT)
+        with ESMTP id S2405253AbgFYPXL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Jun 2020 11:23:11 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBB3C08C5C1;
+        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id j18so5964765wmi.3;
+        Thu, 25 Jun 2020 08:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=eWSfWI4wpEme8MrwfvQ7LPuMKGxIgLayOyX6JwETS9k=;
-        b=TXs317Chw7NlZME2mN7859gja5QL9DFyQzGIbvLyC0Z35kZPOYP34joAI5KMOaN5PK
-         Y77JHyvhP0f0iy4PPvYyb3iqfJhnEeW3XAc/Yq4Mo6Plmgmrc3xGo58DDXeQ85sneA47
-         PJPwd2z3+2sBXiPkmSRiEmNcu7THXZR/EyE43riF8IF51yLxi9ckeQh1tzSL36Zp2OZd
-         Y2WdMe051I5Rir1G6lfaQ5QnuC0igLb9IuHs4cFtpBkSN02avQR1M/U9A7IsJQ3qWikQ
-         QO54UdFpQW+EBxCNjZ11lXroQgTPm+3/aPJPO+A6aI0CijcjTfwCCGbumI9waZ7JDcp4
-         gMog==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=MFsWP2CoxlGaT4tcqPsf9CLk6g/qtxlZndI2BGlIXaM=;
+        b=LtvuZSfMtdEk92pgtiCi2GlzvvBr2UN24cusNA4BHxVcY+zGWCECr5gP54u3Tr9Ilf
+         +n6aOqLruWMomyNVfEraaAH7FbaUzf7y8l4wmlOkw5lfaCYUMj0azCDd31VxoP5BCeiR
+         WYN0Ia6dkghmiGAhcM0z+6iUNmAF1KQky/fr11duSezetKTLN+omoY/uGZ10lznd4P/n
+         Re8zvYZlCAoWNbK7k+4lnfAhtNaF0+JroR6Qm8jJEr/E6cfVDtNHgsbhcnT3KWGXN6gs
+         0BwJ9uF8zqSWK05lVJQEpiilY2dGQhB66ByqOMZdylEfhnvAq0Fl64Ks9CkjTTmULCf5
+         JmWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=eWSfWI4wpEme8MrwfvQ7LPuMKGxIgLayOyX6JwETS9k=;
-        b=AMKWyzQ6/IVEFDQuekT8wpMPKLgLlgiM1vx7vW5UMaGsB283ldtK4hrLzSODs+ogYf
-         qYeizZElVvTXR4w+mLbBfvD1eFyzWxWrOxRAvUHFYY9WSrUG4sWfbxu8JU2RKKorBlMs
-         08J8QISXfbmR8HwpRMFOF3I+Mc1+7E42ZxJDluBMo/93rYI2JhVdWJnqy9PaytC5F4tG
-         sCj4DLnwCtfQ1U4NikPQGUZDLUI0rMr3TpLPVf5e3qgxLNmrRsXqlDaZxYV5xsBsDLjF
-         01eUHg4lfeHbBXfPMHgQaTfYrCtjYcd3q4GQorufzRdTPW4GWVgvUBXe10sM3RPD/PQN
-         1u0g==
-X-Gm-Message-State: AOAM530m3xZwDXvdkjGqyvvaJMbyXoIgGzOdXhEX7/cPIarjtDfUhv96
-        FWzlxGffxi1bhyABBPrPist52GMsIwjU6g==
-X-Google-Smtp-Source: ABdhPJxz6W6AkCZ4Vb3R22w+iIOiwz8jbFDCPrudgODkVLqlhWeN9HIjLKRDHz7pD59URGE0+fPI5g==
-X-Received: by 2002:a17:902:8690:: with SMTP id g16mr33052502plo.257.1593091465728;
-        Thu, 25 Jun 2020 06:24:25 -0700 (PDT)
-Received: from ?IPv6:2600:380:6c49:6812:d113:f43c:df53:19ee? ([2600:380:6c49:6812:d113:f43c:df53:19ee])
-        by smtp.gmail.com with ESMTPSA id h5sm24249689pfb.120.2020.06.25.06.24.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Jun 2020 06:24:24 -0700 (PDT)
-Subject: Re: [PATCH 5.9] io_uring: fix NULL-mm for linked reqs
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=MFsWP2CoxlGaT4tcqPsf9CLk6g/qtxlZndI2BGlIXaM=;
+        b=pntJBRydjgYrKR8DPGvNAsuUvWxaa9b22FJG8PhWFBb0qfZmxd/zNQNeKU0pXRUHAI
+         5NnHPg2butIXRYL/kEPgySlSSb/afo3Y9rmZrgCGW+cmT6C/cIm+6v1/bec/OrM6Ej66
+         kG56aMggfQwochpqZ/OmIcAQGR0H0vcsayyD4lM3W98zvgV9g5EU2Qp7fDsbWN5FW/KF
+         OBGfHpzxPEg1MxiEsYVmMIRHVThRRzgzcXTKuknz8paXuf08l726zUCu/xXVYjglorzY
+         Otb03Ip1iuF1rX69o0b9+cfT4xbDgm+OXAs4BVXB4HPEsicWYS4ID4TDGZ3kSWun62uf
+         yERQ==
+X-Gm-Message-State: AOAM530VY91s1tD2ZnTLafMtMx1/+tAuaODvU5lAW9irR6MHhvF8s7hL
+        Mc1DNRoQKpx/fvJStO5ieac=
+X-Google-Smtp-Source: ABdhPJzm0KLKIftp0YBXaTlyB25sQQjJydC77qHH+bVEdOkHIDvHFIHLCdYzqOU9KNyTmNqRTbIW4w==
+X-Received: by 2002:a05:600c:4408:: with SMTP id u8mr4084958wmn.183.1593098589208;
+        Thu, 25 Jun 2020 08:23:09 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.85])
+        by smtp.gmail.com with ESMTPSA id r1sm31560403wrn.29.2020.06.25.08.23.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jun 2020 08:23:08 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <f7d8272bcf142fe2c11c85ecd86f7f75f6e48316.1593077850.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <41f3f2db-bc1c-22cc-d93c-4ed31cfb225f@kernel.dk>
-Date:   Thu, 25 Jun 2020 07:24:21 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+Subject: [PATCH 1/2] io-wq: compact io-wq flags numbers
+Date:   Thu, 25 Jun 2020 18:20:53 +0300
+Message-Id: <03b97523fd6821a0e9cc4306e04d4a5ad1530de5.1593095572.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1593095572.git.asml.silence@gmail.com>
+References: <cover.1593095572.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <f7d8272bcf142fe2c11c85ecd86f7f75f6e48316.1593077850.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 6/25/20 3:38 AM, Pavel Begunkov wrote:
-> __io_queue_sqe() tries to handle all request of a link,
-> so it's not enough to grab mm in io_sq_thread_acquire_mm()
-> based just on the head.
-> 
-> Don't check req->needs_mm and do it always.
+Renumerate IO_WQ flags, so they take adjacent bits
 
-Applied, thanks.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io-wq.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 071f1a997800..04239dfb12b0 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -5,10 +5,10 @@ struct io_wq;
+ 
+ enum {
+ 	IO_WQ_WORK_CANCEL	= 1,
+-	IO_WQ_WORK_HASHED	= 4,
+-	IO_WQ_WORK_UNBOUND	= 32,
+-	IO_WQ_WORK_NO_CANCEL	= 256,
+-	IO_WQ_WORK_CONCURRENT	= 512,
++	IO_WQ_WORK_HASHED	= 2,
++	IO_WQ_WORK_UNBOUND	= 4,
++	IO_WQ_WORK_NO_CANCEL	= 8,
++	IO_WQ_WORK_CONCURRENT	= 16,
+ 
+ 	IO_WQ_HASH_SHIFT	= 24,	/* upper 8 bits are used for hash key */
+ };
 -- 
-Jens Axboe
+2.24.0
 

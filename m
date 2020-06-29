@@ -2,178 +2,122 @@ Return-Path: <SRS0=cBPF=AK=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F8E8C433E4
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 18:35:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1900C433E0
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 18:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE8E4255D8
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 18:35:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EA14204EC
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 18:47:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="s2IxXCxl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m03YPK7w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbgF2SfJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Jun 2020 14:35:09 -0400
-Received: from mailout1.samsung.com ([203.254.224.24]:63878 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726033AbgF2SfF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 14:35:05 -0400
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20200629183500epoutp015adeb389b939229751e238b6190b0116~dF4RqBjdu1331313313epoutp01n
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 18:35:00 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20200629183500epoutp015adeb389b939229751e238b6190b0116~dF4RqBjdu1331313313epoutp01n
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1593455700;
-        bh=GOb5F6IEPqqUzppfmpm5q/EtUDLSZpl8Hl/nDzpT/II=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=s2IxXCxlP0DxRQWjQCAElJjGgGLZwVziDdmjh6WwL1NUfVg7PtLaxqxPj1yS/b9Jq
-         6K3jcZ/sVaZ4EPg5JmlFC/cvjxywO9MEnxDx/ErMuDRGPqlEnZc2N1z8LPV9jaQMkq
-         //6kLW40RNAyxr4Aewxvu0iXbnU0qA2JxQ4N7SZk=
-Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20200629183459epcas5p3e5d54b1bd9edce6f19f739b187e730bb~dF4Q0gKG30377803778epcas5p3y;
-        Mon, 29 Jun 2020 18:34:59 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        DB.07.09703.3543AFE5; Tue, 30 Jun 2020 03:34:59 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20200629183459epcas5p464fdcdf272ea360bcd50901ccc79ca6e~dF4QV4RQj0162001620epcas5p4P;
-        Mon, 29 Jun 2020 18:34:59 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200629183459epsmtrp29abb784126e5b438d6071a9f61937274~dF4QU9PJ80229002290epsmtrp2j;
-        Mon, 29 Jun 2020 18:34:59 +0000 (GMT)
-X-AuditID: b6c32a4a-4b5ff700000025e7-6e-5efa34533fce
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        A1.55.08303.3543AFE5; Tue, 30 Jun 2020 03:34:59 +0900 (KST)
-Received: from test-zns (unknown [107.110.206.5]) by epsmtip2.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20200629183456epsmtip268cd4e9ea0911be74ab0ec579850ff0c~dF4OJ4uE21597515975epsmtip2a;
-        Mon, 29 Jun 2020 18:34:56 +0000 (GMT)
-Date:   Tue, 30 Jun 2020 00:02:02 +0530
-From:   Kanchan Joshi <joshi.k@samsung.com>
-To:     Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "bcrl@kvack.org" <bcrl@kvack.org>,
-        "asml.silence@gmail.com" <asml.silence@gmail.com>,
-        "hch@infradead.org" <hch@infradead.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "mb@lightnvm.io" <mb@lightnvm.io>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-aio@kvack.org" <linux-aio@kvack.org>,
-        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "selvakuma.s1@samsung.com" <selvakuma.s1@samsung.com>,
-        "nj.shetty@samsung.com" <nj.shetty@samsung.com>,
-        "javier.gonz@samsung.com" <javier.gonz@samsung.com>,
-        Arnav Dawn <a.dawn@samsung.com>
-Subject: Re: [PATCH v2 1/2] fs,block: Introduce RWF_ZONE_APPEND and handling
- in direct IO path
-Message-ID: <20200629183202.GA24003@test-zns>
+        id S1729374AbgF2Sru (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Jun 2020 14:47:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729359AbgF2Srq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 14:47:46 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B409AC030F0C
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 09:20:28 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id k6so17147915wrn.3
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 09:20:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=zsJIB+sr6qcF1Cnm/Z22+LEx1JCGv/IuC3fy5e6CyuI=;
+        b=m03YPK7w6/d0v32y3VemEr8yFIHEsN5r8wUiA55b9HjTW4IAEZDtu/8ewB/ujsrMqk
+         Zrj2JRe3WwMR+9YYQBcTB2rP2N12/eGboDhaj1xTDNQ2jQg4lJJc35EsZLnssMrCrp6E
+         +xZLbqvYWj93dL0n2CIRfhGPtuOSHrdKseHIfWZnZsLu4tn6DKCCoXS2V4Jdgeo1ZR6Z
+         CEpHENrOS911AxbQyjSAmprQitK+B94do0W62YKdZA88bNKyIJEUHqweW9OZq8HyuYh0
+         A9ZxUZwSr8KNROzV3iC1YN/oTsZA2nHVY3xSpYtkjuaLrlTvv5CzfHAubXP8QNPq4aB2
+         krrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=zsJIB+sr6qcF1Cnm/Z22+LEx1JCGv/IuC3fy5e6CyuI=;
+        b=i4WPV9yFODKL0fpaJWW0aFxDgsfWKlL+vrBik5WBfSd2C+ripZLt2BZYduYEFGljUr
+         JC2p2SqIDKLmziZmN0SIVmjhPPBa5upRlF4R6KhhJg1DgZWfeno18mnDLH7HmOHq201C
+         bLAf/MaVIc0MJsAcs/8f6jQTkzWu5m3QQYLIo15RVE7aw1KM22d6cQYLywH8iLkEmrDi
+         oHjsv12AMcmKKpgUJWFx70+MqnCiLLCgYQN7Us1BRN6PUH9bXpa79yEPOwUowi+mG2qA
+         XX0KKW7Wq3LTL9fXEwJhinHpHJDFeFhDG3cjrAEdMEwPtPqbqEpJug36VvsZbxTWwruP
+         FmfA==
+X-Gm-Message-State: AOAM532aaH5ZK1czoPRLQvcvqmZ/Ld2PDd+KpiuvGkE+ZFPBwykdfk3r
+        ngjb8w+uvr7Q2av+1N5opYbQi98x
+X-Google-Smtp-Source: ABdhPJwDu7h3z677Rp7RoKzPExCY43tKOV1Eze6Fa4eLLo/dcXdGarIfurp1Ap6YRgbouctEvvQkpg==
+X-Received: by 2002:adf:b6a4:: with SMTP id j36mr18007355wre.260.1593447627506;
+        Mon, 29 Jun 2020 09:20:27 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.85])
+        by smtp.gmail.com with ESMTPSA id 2sm282333wmo.44.2020.06.29.09.20.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2020 09:20:27 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/4] io_uring: don't pass def into io_req_work_grab_env
+Date:   Mon, 29 Jun 2020 19:18:40 +0300
+Message-Id: <52993246c2877df208cef47ea576ef3ea7ab911c.1593446892.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1593446892.git.asml.silence@gmail.com>
+References: <cover.1593446892.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CY4PR04MB37511FB1D3B3491A2CED5470E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrIKsWRmVeSWpSXmKPExsWy7bCmum6wya84g20vVC1+b3vEYjFn1TZG
-        i9V3+9ksuv5tYbFobf/GZHF6wiImi3et51gsHt/5zG4xZVoTo8XeW9oWe/aeZLG4vGsOm8WK
-        7UdYLLb9ns9s8frHSTaL83+PszoIeOycdZfdY/MKLY/LZ0s9Nn2axO7RffUHo0ffllWMHp83
-        yXm0H+hm8tj05C1TAGcUl01Kak5mWWqRvl0CV8ah8xuYC+YJVqxceo+xgXEXXxcjJ4eEgInE
-        wqurmLsYuTiEBHYzSjxesJcFwvnEKLF54QVWCOczo0Tnne0sMC3fH74Es4UEdjFKfN7OAVH0
-        jFHi2L5XrCAJFgFViWW/O9i6GDk42AQ0JS5MLgUJiwhoSSzb9w5sKLPAZ1aJ1jvrwWqEBRIk
-        1n72BKnhFdCVmP20iQXCFpQ4OfMJmM0pECvx+NBuMFtUQFniwLbjTCBzJARucEhMn70N6jgX
-        ibN/HkHZwhKvjm9hh7ClJD6/28sGYRdL/LpzlBmiuYNR4nrDTKgGe4mLe/4ygdjMAhkSC6Zc
-        hLL5JHp/P2ECOVRCgFeio00IolxR4t6kp6wQtrjEwxlLoGwPiWP7+9kgAbSESeLK9KIJjHKz
-        kPwzC8kGCNtKovNDE+ssoA3MAtISy/9xQJiaEut36S9gZF3FKJlaUJybnlpsWmCUl1quV5yY
-        W1yal66XnJ+7iRGc6rS8djA+fPBB7xAjEwfjIUYJDmYlEd7TBr/ihHhTEiurUovy44tKc1KL
-        DzFKc7AoifMq/TgTJySQnliSmp2aWpBaBJNl4uCUamBauZNXf6/s58OZcRmpPrzCgi+uvght
-        WJd37p6TBtOZ3aYvGb68yzLe6L//XHmI1eu/PRrHDAsy1LWDPV46vDMS6DvAkLAwf17c1rN3
-        Jnw/4mBZHWk+4UH65leh/9sPP7r/PFf+84U1EWG2V7VPKP/W3vTwQ+keJcFtO3bn/jOwmm6X
-        I7vplNdtiek+S6q8nRef5jgVVzGjm+nkGbPj6jrLxbVnqt/nXH/vYkbQa5FNN/f5vFthECC6
-        +vu6iGjNwgTezGNPb6wtnd75m5Ox1P1zmahCk83jW/aHGPItmEs3q6eslWXxM9vDvVJPrTU0
-        rtXitqPNXvHNAR9u+xQlSz6KiDG9Vejkxfuqp3xZcL4SS3FGoqEWc1FxIgCanNv45AMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprNIsWRmVeSWpSXmKPExsWy7bCSvG6wya84g7fX2S1+b3vEYjFn1TZG
-        i9V3+9ksuv5tYbFobf/GZHF6wiImi3et51gsHt/5zG4xZVoTo8XeW9oWe/aeZLG4vGsOm8WK
-        7UdYLLb9ns9s8frHSTaL83+PszoIeOycdZfdY/MKLY/LZ0s9Nn2axO7RffUHo0ffllWMHp83
-        yXm0H+hm8tj05C1TAGcUl01Kak5mWWqRvl0CV0bz5EbGggt8FRdmvWNpYGzj6WLk5JAQMJH4
-        /vAlSxcjF4eQwA5GiUWv5rNAJMQlmq/9YIewhSVW/nvODlH0hFHizJKTTCAJFgFViWW/O9i6
-        GDk42AQ0JS5MLgUJiwhoSSzb944VpJ5Z4CerxKUfGxhBaoQFEiTWfvYEqeEV0JWY/bQJavES
-        JomLH+6zQSQEJU7OfAJ2BLOAmcS8zQ+ZQXqZBaQllv/jAAlzCsRKPD60G6xEVEBZ4sC240wT
-        GAVnIemehaR7FkL3AkbmVYySqQXFuem5xYYFRnmp5XrFibnFpXnpesn5uZsYwfGnpbWDcc+q
-        D3qHGJk4GA8xSnAwK4nwnjb4FSfEm5JYWZValB9fVJqTWnyIUZqDRUmc9+ushXFCAumJJanZ
-        qakFqUUwWSYOTqkGJjbJG7cM+jIOWtrnMTw7aMCbOivG5RObtItF8CZDLhMFj05fsWXO6xfM
-        cpBYExTwRjrh0fc0V2eWNQmhlQ55DEUrb64Qm/7wX2arFneq88TLr5dyy6pX+DtPm8u2/Upc
-        3P8mmxypK/8kijslOfcEP/LhibU1WMQh076vxLMhefqTlIuZBqJzM1uaNFtz4w0etOWULJX3
-        sW7YWanv/vgGr9vO3YX+xSucqv5PzXr05UMtJ0eEwt7QHaK79gud2arydN5spp/3JXfw96R9
-        rjrBofVQ6rXEmXO8+RUzFarjygV/Km0WTReYcSJHrifUy5BPRHi6QaTX+uqau027lbQXcfld
-        le9fqCv2O+LEbSWW4oxEQy3mouJEAFK+Z2ouAwAA
-X-CMS-MailID: 20200629183459epcas5p464fdcdf272ea360bcd50901ccc79ca6e
-X-Msg-Generator: CA
-Content-Type: multipart/mixed;
-        boundary="----nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_aa309_"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20200625171834epcas5p226a24dfcb84cfa83fe29a2bd17795d85
-References: <1593105349-19270-1-git-send-email-joshi.k@samsung.com>
-        <CGME20200625171834epcas5p226a24dfcb84cfa83fe29a2bd17795d85@epcas5p2.samsung.com>
-        <1593105349-19270-2-git-send-email-joshi.k@samsung.com>
-        <CY4PR04MB37511FB1D3B3491A2CED5470E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_aa309_
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
+Remove struct io_op_def *def parameter from io_req_work_grab_env(),
+it's trivially deducible from req->opcode and fast. The API is
+cleaner this way, and also helps the complier to understand
+that it's a real constant and could be register-cached.
 
-On Fri, Jun 26, 2020 at 02:50:20AM +0000, Damien Le Moal wrote:
->On 2020/06/26 2:18, Kanchan Joshi wrote:
->> Introduce RWF_ZONE_APPEND flag to represent zone-append. User-space
->> sends this with write. Add IOCB_ZONE_APPEND which is set in
->> kiocb->ki_flags on receiving RWF_ZONE_APPEND.
->> Make direct IO submission path use IOCB_ZONE_APPEND to send bio with
->> append op. Direct IO completion returns zone-relative offset, in sector
->> unit, to upper layer using kiocb->ki_complete interface.
->> Report error if zone-append is requested on regular file or on sync
->> kiocb (i.e. one without ki_complete).
->>
->> Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
->> Signed-off-by: SelvaKumar S <selvakuma.s1@samsung.com>
->> Signed-off-by: Arnav Dawn <a.dawn@samsung.com>
->> Signed-off-by: Nitesh Shetty <nj.shetty@samsung.com>
->> Signed-off-by: Javier Gonzalez <javier.gonz@samsung.com>
->> ---
->>  fs/block_dev.c          | 28 ++++++++++++++++++++++++----
->>  include/linux/fs.h      |  9 +++++++++
->>  include/uapi/linux/fs.h |  5 ++++-
->>  3 files changed, 37 insertions(+), 5 deletions(-)
->>
->> diff --git a/fs/block_dev.c b/fs/block_dev.c
->> index 47860e5..5180268 100644
->> --- a/fs/block_dev.c
->> +++ b/fs/block_dev.c
->> @@ -185,6 +185,10 @@ static unsigned int dio_bio_write_op(struct kiocb *iocb)
->>  	/* avoid the need for a I/O completion work item */
->>  	if (iocb->ki_flags & IOCB_DSYNC)
->>  		op |= REQ_FUA;
->> +
->> +	if (iocb->ki_flags & IOCB_ZONE_APPEND)
->> +		op |= REQ_OP_ZONE_APPEND;
->
->This is wrong. REQ_OP_WRITE is already set in the declaration of "op". How can
->this work ?
-REQ_OP_ZONE_APPEND will override the REQ_WRITE op, while previously set op
-flags (REQ_FUA etc.) will be retained. But yes, this can be made to look
-cleaner.
-V3 will include the other changes you pointed out. Thanks for the review.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 013f31e35e78..ecee44a97c29 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1101,9 +1101,10 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
+ 	}
+ }
+ 
+-static inline void io_req_work_grab_env(struct io_kiocb *req,
+-					const struct io_op_def *def)
++static inline void io_req_work_grab_env(struct io_kiocb *req)
+ {
++	const struct io_op_def *def = &io_op_defs[req->opcode];
++
+ 	if (!req->work.mm && def->needs_mm) {
+ 		mmgrab(current->mm);
+ 		req->work.mm = current->mm;
+@@ -1161,7 +1162,7 @@ static inline void io_prep_async_work(struct io_kiocb *req,
+ 	}
+ 
+ 	io_req_init_async(req);
+-	io_req_work_grab_env(req, def);
++	io_req_work_grab_env(req);
+ 
+ 	*link = io_prep_linked_timeout(req);
+ }
+@@ -5232,7 +5233,7 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ 
+ 	if (for_async || (req->flags & REQ_F_WORK_INITIALIZED)) {
+ 		io_req_init_async(req);
+-		io_req_work_grab_env(req, &io_op_defs[req->opcode]);
++		io_req_work_grab_env(req);
+ 	}
+ 
+ 	switch (req->opcode) {
+-- 
+2.24.0
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_aa309_
-Content-Type: text/plain; charset="utf-8"
-
-
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_aa309_--

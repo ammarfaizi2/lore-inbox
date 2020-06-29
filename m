@@ -2,117 +2,237 @@ Return-Path: <SRS0=cBPF=AK=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DCB0C433DF
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 19:05:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E8E1C433E0
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 19:13:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 393512064B
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 19:05:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6100F206E2
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 19:13:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="CVxyYSJ+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r6lF+nZr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729987AbgF2TEa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Jun 2020 15:04:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41748 "EHLO
+        id S1731308AbgF2TNR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Jun 2020 15:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730530AbgF2TCn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:02:43 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1443C030F25
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 09:37:02 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id d194so5170673pga.13
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 09:37:02 -0700 (PDT)
+        with ESMTP id S1731269AbgF2TNH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:13:07 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0413CC008652
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:48 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id j4so13488467wrp.10
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=9AwUE/+wB437cDHDRYWEKxxfemWIYQx+DW7Qy/UDGk4=;
-        b=CVxyYSJ+i5VCNp6Jjmkbsj92o6F8bKx6JiZ2++G3PjyIgyl8J4VOCqWadWpGwkcSlE
-         l88Aj/7NcP+G0rkdL7+FAt1LbKbYfMK8l1ouAACRHBnGW+QJRu2OEszY8Bl3FMyyj6KE
-         gLUbFui3za+f2FbJ+E+x4qtEHeT87w0zcF+3KQCvoIeepgRb+y38p6cAIXtjaWqH9o6y
-         SfIXbdTbAJ5jfK9xUI6Ky7Mip1E/PcSVe+ocxncZWYaRvzqLmqlzyU5kci+j1NVb05eG
-         w7yrAxLVx3J2OM5NgODZ3S2FQFC0oi0iH+4oR9pnwqyOoS1THsxfsU54JZRtN8yPKDKq
-         q8LQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=L7zA/jj5w324uEdXTwdkOrlCFVnkHfSweaUVQAy+I1o=;
+        b=r6lF+nZrXstr9VXn7EBJ3Ti1elYOQ6eQq3Zt5eN4+ZU4mYloSI9oiT+ljDJ3qOWX95
+         GT5YxCQ/izok2AeG0RUC3lvrCsBhUwR1bT3yeTlJuA1tL/uwhmvezS3zytuQWb1m2/07
+         5F4kIIonDfJ+rvV/xUGy8zjTvDOwvc/FuZzkzZwlxyQtYv8X+CJaplw+Km1EioRNGANt
+         zbdB8Q39PcgmGUUmDZDP5F/duopatYJTe0iFHDZe779Q5kWoNXF1OmyoQsuHSqo6lr5d
+         h4048nrf9iY1gLGbyKnCgvQqhWIDw0lStaMdHBVHFIwd1qA1SFX5CGnfy558bKbNGMlh
+         59xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9AwUE/+wB437cDHDRYWEKxxfemWIYQx+DW7Qy/UDGk4=;
-        b=uRZPnvm/mDLToHRdKazZLxv374se9upr+8zDKQT1b6YXikik66sSRWHdzAq1T2rCCn
-         89ZaiXu5kdCdrFGL9vDLgWqXkeFiaHTddvJmrdegOftBVOyEQLzhfLs57T5Ez7cyyuV0
-         XrrQQ39pRUSEBGrSyuoxTaVK/pM0oe3ygYZFKbdVhzNZToebKnkv4wJTjEYmM8p0c2OX
-         d5b0tZgrfhoPOPDdeXW+AI82mNJT+dJNh4LkBODpE9SYbZakQ3EWpoOEOznjsmCVOUZq
-         ChLPEMTSdtXP8oGm1HHNFEfDP+xnuAg3QkimFAI8qMt7NSQ4bILdnJAz7AGjtghoxtA0
-         JRRQ==
-X-Gm-Message-State: AOAM532Zl21Snx/N3TIRIo0JPXGTuW6BXhqMtj9Dp7PrLLL+7TI7CX+m
-        evi1/9ehs1prRqkW4Abpg6yOd5Veh0jm0w==
-X-Google-Smtp-Source: ABdhPJzdPAliH2HLCs/TPJqKvKgOl5zGdaeP3Gq+uMgc8JivapoJK4AqiDiP0WYjTdz4jfl4M+s9qw==
-X-Received: by 2002:a63:5623:: with SMTP id k35mr11704106pgb.325.1593448621908;
-        Mon, 29 Jun 2020 09:37:01 -0700 (PDT)
-Received: from [192.168.86.197] (cpe-75-85-219-51.dc.res.rr.com. [75.85.219.51])
-        by smtp.gmail.com with ESMTPSA id n89sm110269pjb.1.2020.06.29.09.37.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jun 2020 09:37:01 -0700 (PDT)
-Subject: Re: [PATCH 0/5] "task_work for links" fixes
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1593253742.git.asml.silence@gmail.com>
- <05084aea-c517-4bcf-1e87-5a26033ba8eb@kernel.dk>
- <328bbfe9-514e-1a50-9268-b52c95f02876@gmail.com>
- <14de7964-8d8d-9c10-7998-c06617ef5800@gmail.com>
- <23051425-13b5-fd2c-94f7-6f28677cfc6c@kernel.dk>
- <258f09ee-9d1a-9c47-47e1-9263c7e4ba99@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b7ea8fb9-9680-958a-906a-58bbc93b94cd@kernel.dk>
-Date:   Mon, 29 Jun 2020 10:37:00 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=L7zA/jj5w324uEdXTwdkOrlCFVnkHfSweaUVQAy+I1o=;
+        b=MdNVWcOH5WF3z0s9iEyZ6Awsaj8o+SbzAPw6/snLSVupBfzgg7W6b2Df/f7wAS//mm
+         92A8ZHR4tdUMVn2bUO35buasxKRjJlRXuuNsQb3J9+Kc7zOZUglloktYoMEu0uqf+srY
+         qI7YgQAYM0j1JVXSzEGJeqhA1fz3C0Nzjahk7TGQOZ8k53vaRD5BYuOj/ZGwMHT+O/mC
+         JvuhQnsY0V0OhNz9o+gLwTfOZZvADWr4x0HkCSO3qNn3HmGHqZPEmXI4jsVhBfbK+L6r
+         YcPuIiSkKFVbSFOYB7ZoLMTY1Tw3Lx+gHAZoaZNvf860jEpgK3e+3AuWfPQ/3ucjET/I
+         bkIA==
+X-Gm-Message-State: AOAM530uC/mAv6nsdISFm77dn+dXfpYyu9/+kRbN45ipiO6mEAs+zA/L
+        Jr7U6x6pmkWlTH+Fi/U1KhaLWSBG
+X-Google-Smtp-Source: ABdhPJxPvDGluIVAE7xmZ6u/gvXp51NTF+LOUafLg6rMIYUcRzanemXCQVPx9KgLj4h4Uzzg7FxHkg==
+X-Received: by 2002:adf:f5ce:: with SMTP id k14mr15611728wrp.234.1593425686669;
+        Mon, 29 Jun 2020 03:14:46 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.85])
+        by smtp.gmail.com with ESMTPSA id a12sm37807233wrv.41.2020.06.29.03.14.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2020 03:14:46 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/5] io_uring: deduplicate freeing linked timeouts
+Date:   Mon, 29 Jun 2020 13:12:59 +0300
+Message-Id: <86b71d0daee05c56fc298798e9983c5c47c867d3.1593424923.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1593424923.git.asml.silence@gmail.com>
+References: <cover.1593424923.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <258f09ee-9d1a-9c47-47e1-9263c7e4ba99@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 6/29/20 10:32 AM, Pavel Begunkov wrote:
-> On 29/06/2020 18:52, Jens Axboe wrote:
->> On 6/29/20 4:21 AM, Pavel Begunkov wrote:
->>> On 28/06/2020 17:46, Pavel Begunkov wrote:
->>>> On 28/06/2020 16:49, Jens Axboe wrote:
->>>>> On 6/27/20 5:04 AM, Pavel Begunkov wrote:
->>>>>> All but [3/5] are different segfault fixes for
->>>>>> c40f63790ec9 ("io_uring: use task_work for links if possible")
->>>>>
->>>>> Looks reasonable, too bad about the task_work moving out of the
->>>>> union, but I agree there's no other nice way to avoid this. BTW,
->>>>> fwiw, I've moved that to the head of the series.
->>>>
->>>> I think I'll move it back, but that would need more work to be
->>>> done. I've described the idea in the other thread.
->>>
->>> BTW, do you know any way to do grab_files() from task_work context?
->>> The problem is that nobody sets ctx->ring_{fd,file} there. Using stale
->>> values won't do, as ring_fd can be of another process at that point.
->>
->> We probably have to have them grabbed up-front. Which should be easy
->> enough to do now, since task_work and work are no longer in a union.
-> 
-> Yep, and it's how it's done. Just looking how to handle req.work better.
-> e.g. if we can grab_files() from task_work, then it's one step from
-> moving back req.work into union + totally removing memcpy(work, apoll)
-> from io_arm_poll_handler().
+Linked timeout cancellation code is repeated in in io_req_link_next()
+and io_fail_links(), and they differ in details even though shouldn't.
+Basing on the fact that there is maximum one armed linked timeout in
+a link, and it immediately follows the head, extract a function that
+will check for it and defuse.
 
-Indeed, and both of those are very worthy goals fwiw. If at all possible,
-it'd be nicer to get rid of the restriction of having to check ring_fd
-and file, but that doesn't seem possible without making the general
-io_ring_enter() system call more expensive.
+Justification:
+- DRY and cleaner
+- better inlining for io_req_link_next() (just 1 call site now)
+- isolates linked_timeouts from common path
+- reduces time under spinlock for failed links
+- actually less code
 
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 88 +++++++++++++++++++++++----------------------------
+ 1 file changed, 40 insertions(+), 48 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6710097564de..4cd6d24276c3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1552,37 +1552,49 @@ static bool io_link_cancel_timeout(struct io_kiocb *req)
+ 	return false;
+ }
+ 
+-static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
++static void io_kill_linked_timeout(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
++	struct io_kiocb *link;
+ 	bool wake_ev = false;
++	unsigned long flags = 0; /* false positive warning */
++
++	if (!(req->flags & REQ_F_COMP_LOCKED))
++		spin_lock_irqsave(&ctx->completion_lock, flags);
++
++	if (list_empty(&req->link_list))
++		goto out;
++	link = list_first_entry(&req->link_list, struct io_kiocb, link_list);
++	if (link->opcode != IORING_OP_LINK_TIMEOUT)
++		goto out;
++
++	list_del_init(&link->link_list);
++	wake_ev = io_link_cancel_timeout(link);
++	req->flags &= ~REQ_F_LINK_TIMEOUT;
++out:
++	if (!(req->flags & REQ_F_COMP_LOCKED))
++		spin_unlock_irqrestore(&ctx->completion_lock, flags);
++	if (wake_ev)
++		io_cqring_ev_posted(ctx);
++}
++
++static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
++{
++	struct io_kiocb *nxt;
+ 
+ 	/*
+ 	 * The list should never be empty when we are called here. But could
+ 	 * potentially happen if the chain is messed up, check to be on the
+ 	 * safe side.
+ 	 */
+-	while (!list_empty(&req->link_list)) {
+-		struct io_kiocb *nxt = list_first_entry(&req->link_list,
+-						struct io_kiocb, link_list);
+-
+-		if (unlikely((req->flags & REQ_F_LINK_TIMEOUT) &&
+-			     (nxt->flags & REQ_F_TIMEOUT))) {
+-			list_del_init(&nxt->link_list);
+-			wake_ev |= io_link_cancel_timeout(nxt);
+-			req->flags &= ~REQ_F_LINK_TIMEOUT;
+-			continue;
+-		}
+-
+-		list_del_init(&req->link_list);
+-		if (!list_empty(&nxt->link_list))
+-			nxt->flags |= REQ_F_LINK_HEAD;
+-		*nxtptr = nxt;
+-		break;
+-	}
++	if (unlikely(list_empty(&req->link_list)))
++		return;
+ 
+-	if (wake_ev)
+-		io_cqring_ev_posted(ctx);
++	nxt = list_first_entry(&req->link_list, struct io_kiocb, link_list);
++	list_del_init(&req->link_list);
++	if (!list_empty(&nxt->link_list))
++		nxt->flags |= REQ_F_LINK_HEAD;
++	*nxtptr = nxt;
+ }
+ 
+ /*
+@@ -1591,9 +1603,6 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ static void io_fail_links(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ctx->completion_lock, flags);
+ 
+ 	while (!list_empty(&req->link_list)) {
+ 		struct io_kiocb *link = list_first_entry(&req->link_list,
+@@ -1602,18 +1611,12 @@ static void io_fail_links(struct io_kiocb *req)
+ 		list_del_init(&link->link_list);
+ 		trace_io_uring_fail_link(req, link);
+ 
+-		if ((req->flags & REQ_F_LINK_TIMEOUT) &&
+-		    link->opcode == IORING_OP_LINK_TIMEOUT) {
+-			io_link_cancel_timeout(link);
+-		} else {
+-			io_cqring_fill_event(link, -ECANCELED);
+-			__io_double_put_req(link);
+-		}
++		io_cqring_fill_event(link, -ECANCELED);
++		__io_double_put_req(link);
+ 		req->flags &= ~REQ_F_LINK_TIMEOUT;
+ 	}
+ 
+ 	io_commit_cqring(ctx);
+-	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 	io_cqring_ev_posted(ctx);
+ }
+ 
+@@ -1623,30 +1626,19 @@ static void io_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
+ 		return;
+ 	req->flags &= ~REQ_F_LINK_HEAD;
+ 
++	if (req->flags & REQ_F_LINK_TIMEOUT)
++		io_kill_linked_timeout(req);
++
+ 	/*
+ 	 * If LINK is set, we have dependent requests in this chain. If we
+ 	 * didn't fail this request, queue the first one up, moving any other
+ 	 * dependencies to the next request. In case of failure, fail the rest
+ 	 * of the chain.
+ 	 */
+-	if (req->flags & REQ_F_FAIL_LINK) {
++	if (req->flags & REQ_F_FAIL_LINK)
+ 		io_fail_links(req);
+-	} else if ((req->flags & (REQ_F_LINK_TIMEOUT | REQ_F_COMP_LOCKED)) ==
+-			REQ_F_LINK_TIMEOUT) {
+-		struct io_ring_ctx *ctx = req->ctx;
+-		unsigned long flags;
+-
+-		/*
+-		 * If this is a timeout link, we could be racing with the
+-		 * timeout timer. Grab the completion lock for this case to
+-		 * protect against that.
+-		 */
+-		spin_lock_irqsave(&ctx->completion_lock, flags);
+-		io_req_link_next(req, nxt);
+-		spin_unlock_irqrestore(&ctx->completion_lock, flags);
+-	} else {
++	else
+ 		io_req_link_next(req, nxt);
+-	}
+ }
+ 
+ static void __io_req_task_cancel(struct io_kiocb *req, int error)
 -- 
-Jens Axboe
+2.24.0
 

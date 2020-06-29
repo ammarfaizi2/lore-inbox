@@ -2,70 +2,67 @@ Return-Path: <SRS0=cBPF=AK=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A21CAC433DF
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 20:43:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D219DC433E1
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 20:45:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BD3920663
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 20:43:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A784920663
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 20:45:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="untGSkEV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p+947iT9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731631AbgF2TOC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Jun 2020 15:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43390 "EHLO
+        id S1731577AbgF2TN5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Jun 2020 15:13:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730821AbgF2TOA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:14:00 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E03FC008601
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:52 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id w3so3083227wmi.4
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:52 -0700 (PDT)
+        with ESMTP id S1731547AbgF2TNx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:13:53 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEFAC008650
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:46 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id z13so15943968wrw.5
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=N+4UOWBZzrgwQGhMntSqcuSTT1fw5zdmbfmsAaddoMM=;
-        b=untGSkEVjoHF2vPy/QKR/5Ufi1Tb6E/IN9MWFa5wyHplk31pxkyiUpD20wsS9A9Ul4
-         VS4V4B/T7zdo1JG424i8rfU46TEIsXZFq+MTmB16NEByOAJP93DpacCUaGXhRC73VcHA
-         7wJK9rRN/3SSt1YCytevxoSBQVG6UemMbU4R9c5mujB9pKJ7Rh70PLjEtMeyMmVbaSVm
-         0I+qI+jpLzaQjyiBqtwjVty5ATTsSNUsCQZCcdbQ313pgnF9xrICoqWwlRzgkDNLK5F9
-         atkyVOCRGgMKwoq5WeP+0r/TaMEoMD+Hgij2F+Bj7mqZmrZOJFu242uAEZVP3thv94xJ
-         PQdw==
+        bh=BR2OpAztIc9wXxVF298i//d4RrKAEU4vmYe9QjrF4DE=;
+        b=p+947iT9RdxPVO3oZgORf6lwqQLZ9uGVLumjUafxW2lYzpCVUWQUMb00f06XfW90QI
+         UW5DKGvoccXh530eyXxfaTnIQ3mXtlSfn2YfW2o9Y9NYTM173kv5ysXUidJSAlFsQsq7
+         KIY4q45mQFLB9paTWwDwJlWgY7JjQV9cZVw39MPW1Svvk7wNOBN2Uf82pKI6Usps/NK7
+         XvxNORJaqlJypoS6urt4Z5h9WxdQDFa2A/xuzaHvJ5SYl8u+65cAdh1Q9I782Z0oNJXG
+         +gpB2HnhY+X6KZxLARq5BG9nSjHVTGgL065j4lckqJjF99TiAHgJK2Riw6Y5ktRdLRUw
+         gWPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=N+4UOWBZzrgwQGhMntSqcuSTT1fw5zdmbfmsAaddoMM=;
-        b=pT6ezgQ/SIHqjexdoGeg1pv3puYBdr4VO/XHhsU+J69d7jShwjuDyv/YHKEf/QeaWs
-         zqzirAYzyYetZNcKQyrsrJB7VNvt3cpZWJ8ezs6CoyJhwEX0HoS7GaYKRqO43f+Uw347
-         7PZv7Jigzl5VjFdCHIfWL/WpqZWzr5jdNoClk/0LDe6JsNrxp0itwmZUmf6E5Z7nP4Dn
-         REeamt5QrwvbM8LxhhgzLKrpQdeXPwvp1OQihNbJF6rYq2kNZEr4JrlisrEpKODuLBQ1
-         OzJeQsT14Dik0wprVvv26tG2+FYyMP/wryR4Dtd9RVvtd0O4aJgP7bxhv6LWTkRONZJH
-         QaHg==
-X-Gm-Message-State: AOAM531eg28tl22r/4G9vbEMVlX3YXZ3vMLq14UipgHV7Z6xcr+E84VL
-        +W5ixqEYUdrFhMpXsTNRj0gOEwqL
-X-Google-Smtp-Source: ABdhPJwWJVWxNZva2emC3nn1zbAW4baqoaeSlQxdRFPWNdy/WkNrousN7P/pNUEDeXko4rhHk1z88A==
-X-Received: by 2002:a1c:63c2:: with SMTP id x185mr16281284wmb.68.1593425691193;
-        Mon, 29 Jun 2020 03:14:51 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BR2OpAztIc9wXxVF298i//d4RrKAEU4vmYe9QjrF4DE=;
+        b=J/rxq98LSXMP2JtEjikCrcf3GqKqUAOFLoMLeLK04fTIeMaIDd904ZmJVG5VnQhsCF
+         EIJ9fvFxpqRQbUQo4UDJ404ufbQFQdM357QEPkrC3nogpreI6BZLpQ3mnHbLPKBHzsYW
+         1mYcm1Em7hX6ab1CJzMkRr88JujBJCNLqPnBkEZW6cqxiw7HSQUfebDanF8+UNTfEajv
+         3Kq/bKz1FVswOAYTMh/XC4O8xVnB3V50oOvLQnxEun77QNB4S/wGb/1LNlP7TnW4K9W0
+         1Zp2KrSF6BwJSbE7NPCTDwXHhBxQ4RXD8yii+xT3/YPytGntzrmMJzzM4PrZBq45gzQj
+         FLfw==
+X-Gm-Message-State: AOAM532WF4Anxyu0k1fCn+naGfheZ995yEpII0bWztAv8IQ8ngb11gIk
+        Foe0htikF2jZkmvHr6UzLdnl9drJ
+X-Google-Smtp-Source: ABdhPJzOvWnDjT3RkumoTLt6x8Skv/bblaKnvr71eRMBFDN9syGvDUzlFzrtD7/5ybEBkXiLcJaKHA==
+X-Received: by 2002:adf:ec90:: with SMTP id z16mr16263544wrn.52.1593425685186;
+        Mon, 29 Jun 2020 03:14:45 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id a12sm37807233wrv.41.2020.06.29.03.14.50
+        by smtp.gmail.com with ESMTPSA id a12sm37807233wrv.41.2020.06.29.03.14.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2020 03:14:50 -0700 (PDT)
+        Mon, 29 Jun 2020 03:14:44 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5/5] io_uring: fix use after free
-Date:   Mon, 29 Jun 2020 13:13:03 +0300
-Message-Id: <1221be71ac8977607748d381f90439af4781c1e5.1593424923.git.asml.silence@gmail.com>
+Subject: [PATCH 0/5] cleanup for req_free/find_next
+Date:   Mon, 29 Jun 2020 13:12:58 +0300
+Message-Id: <cover.1593424923.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1593424923.git.asml.silence@gmail.com>
-References: <cover.1593424923.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -73,37 +70,22 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-After __io_free_req() put a ctx ref, it should assumed that the ctx may
-already be gone. However, it can be accessed to put back fallback req.
-Free req first and then put a req.
+Cleans a bit up completion path.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Regarding [5/5], it's so unlikely to happen, that I don't even try
+to port it for 5.8, there would be merge conflicts. However, if anyone
+think otherwise or this ever showed itself -- let me know.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 40996f25822e..013f31e35e78 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1526,12 +1526,15 @@ static void io_dismantle_req(struct io_kiocb *req)
- 
- static void __io_free_req(struct io_kiocb *req)
- {
-+	struct io_ring_ctx *ctx;
-+
- 	io_dismantle_req(req);
--	percpu_ref_put(&req->ctx->refs);
-+	ctx = req->ctx;
- 	if (likely(!io_is_fallback_req(req)))
- 		kmem_cache_free(req_cachep, req);
- 	else
--		clear_bit_unlock(0, (unsigned long *) &req->ctx->fallback_req);
-+		clear_bit_unlock(0, (unsigned long *) &ctx->fallback_req);
-+	percpu_ref_put(&ctx->refs);
- }
- 
- static bool io_link_cancel_timeout(struct io_kiocb *req)
+Pavel Begunkov (5):
+  io_uring: deduplicate freeing linked timeouts
+  io_uring: replace find_next() out param with ret
+  io_uring: kill REQ_F_TIMEOUT
+  io_uring: kill REQ_F_TIMEOUT_NOSEQ
+  io_uring: fix use after free
+
+ fs/io_uring.c | 140 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 66 insertions(+), 74 deletions(-)
+
 -- 
 2.24.0
 

@@ -8,62 +8,64 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08D19C433E1
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 21:00:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66E39C433E0
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 21:03:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D696220724
-	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 21:00:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A2D0206F1
+	for <io-uring@archiver.kernel.org>; Mon, 29 Jun 2020 21:03:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ujRRSFLh"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RDwOZFU+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388290AbgF2VAd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Jun 2020 17:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
+        id S1731981AbgF2VDM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Jun 2020 17:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731219AbgF2TM7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:12:59 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2193FC008647
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:01:33 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id k6so15914591wrn.3
-        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:01:33 -0700 (PDT)
+        with ESMTP id S1731143AbgF2TMs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Jun 2020 15:12:48 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87262C008653
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:49 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id b6so15922543wrs.11
+        for <io-uring@vger.kernel.org>; Mon, 29 Jun 2020 03:14:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=jYiqsBcTaPhVIZel9cCd93c5KGa6W2zWMrFlxTxb1Ko=;
-        b=ujRRSFLhgHpSIRo0h6DaHLFsH8hnQq9keSRstfucMwl1wKciJ2ClBkbqP+6aEZJs/y
-         GOIiGdcnFfuAuhLVySFNfpquf6FTdutRCn+PNBkU+2CGN6ZwpVSqx9i/SRs6A1/pqeFB
-         ViwWWD4Pi9UNK9p/75bcrZIzBadhftgdCH2X2RdtsOJbc7PNtfPULWGFLN+Gej/nbo7o
-         SB6PoMIbhB0n6y1O5RwRT5ZHuJtnUHl0o73oJ8yOvnSX1gx7Nn5rafDGvxrOJ4KfIioS
-         EY6AE3QMrl0ZbXQI28NAI7xZcYAAsmjHN1HvBpx3/q50eEbL34M0ZtCPBruEeWPADuff
-         h2kA==
+        bh=q+Qkef4bGbBNJwiv+4EzsFQ8aQx2kFKr6I4V03HsYuc=;
+        b=RDwOZFU+v/lDxbfwpJRgHq2DOF4A08zajtVK1v32r/RsmvWzUp08S0od8Fv1g1WiTv
+         bJonFpsuT8CMLj7vyiNZOBRmRuM2Lz/pH5S8IO2iwu2t2cmyymkxIOUpr4J7BmJ9ZKMe
+         HllVBl5UR4KASCpNT046oW0YCuzqLy5UbAG+NXtiwNODPf4HC6+koIIhFpWoIFfJa3EU
+         99r2XFFzgPj3dJ/bGCMee+Atl7OWfd66hYRDyB8ZyUId5RKgNEjBtPcKOeozl6l73Qf9
+         fapJ5mAVP2KKVIYJR/erzZNdo6JA/cUbnnoyvWppqdHRDjcFxJpvkzoSWy/CBCofmP9O
+         TrMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jYiqsBcTaPhVIZel9cCd93c5KGa6W2zWMrFlxTxb1Ko=;
-        b=FsPRGwJOgFIx0sLv6vZ1od0rAypQn9JAYQQs2sTRD5gO4IsqxY0jiP1USymjfS7/OY
-         YufPQo364O7YuGCSAjRanRz1YXxY7SvA9lqby7vcbRlYXlIxObwq5mMY2srYoTEPNNr7
-         Tr6hiDgSn7VpzBuKwckOCPb5oy2rI6yuWLJshTmdnnkPMNqdxq50dY368sqQLKc9x3nr
-         pRrfws1NYGc5jihyibXjEupZA21HAUtAUC8sK7FKRcR942CLGrQvk05GR2naHXOYyXRg
-         URMlnILZwn2cVzRg/HXtwNVaKZW/4L6nCHanm5wTorqyE4FVtUtBUPw4Ri7Ul/cgmCs6
-         4Xqw==
-X-Gm-Message-State: AOAM532BnL4jCTHIVDvVhMOD3CGhRsTDBni4Sp17CI8sI5HEx2iPtv6h
-        zaTtQu3isMcdBcbXX8BHTieLNjyy
-X-Google-Smtp-Source: ABdhPJwKuKBVcpZHKA6nYsh5KaSLNRrDgsFs2I3YiiHI+kJEm/ZMdMPahR+zENUQ4quMcHJMFgBWcg==
-X-Received: by 2002:adf:8501:: with SMTP id 1mr17876467wrh.153.1593424891674;
-        Mon, 29 Jun 2020 03:01:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=q+Qkef4bGbBNJwiv+4EzsFQ8aQx2kFKr6I4V03HsYuc=;
+        b=mUqKh9iXqE3HC9hbFO4tFjVIR9zPRWkrSxad3pXDFCHpTq+ZspR6U0ukETZLmluMv4
+         QPmZ4AKOYkH4kY7shxkTArFCf5bvatwWWttVIpP1chMAFJJP751kfh3+8HKKyhgsTJbn
+         ktN2iPWbC/53DNqotDF+BVX3bY5YZ7jwiHjR1uun+kQju2n+YaUAKwnwsEFFs0HJA1cO
+         aUDLTutgpnyLtfcX+27Hugu9zwpWx2zI60wJGPpCKdSWzWYKnRLy+KwlptHMa2H4rtQs
+         97OInhjGKDKr4z/5mYEY9+1gfKeKBxf7ZXlAkQJ418uROBUJx9SpbAs3GdEb+i3TvwUx
+         9hKg==
+X-Gm-Message-State: AOAM532v523buq4lJVOOSsv3+Jjtif5hpuHziYoKJu6uclXfxp/MODOG
+        v9KtBH0ygNANg2n9Q8tINmc=
+X-Google-Smtp-Source: ABdhPJxOnx0WTJGJL3MVRyTaquRlgeFw+lB8r6H4WFj7QHUBE71KL4srmbPFye8OQxybbKhgTGc6TA==
+X-Received: by 2002:adf:fe4b:: with SMTP id m11mr16008315wrs.36.1593425688256;
+        Mon, 29 Jun 2020 03:14:48 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.85])
-        by smtp.gmail.com with ESMTPSA id n5sm24054855wmi.34.2020.06.29.03.01.29
+        by smtp.gmail.com with ESMTPSA id a12sm37807233wrv.41.2020.06.29.03.14.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2020 03:01:30 -0700 (PDT)
+        Mon, 29 Jun 2020 03:14:47 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2] io_uring: fix missing wake_up io_rw_reissue()
-Date:   Mon, 29 Jun 2020 12:59:48 +0300
-Message-Id: <b455c5ffdc7398eb61460669c4a19301320258f6.1593424638.git.asml.silence@gmail.com>
+Subject: [PATCH 2/5] io_uring: replace find_next() out param with ret
+Date:   Mon, 29 Jun 2020 13:13:00 +0300
+Message-Id: <1dfd65994ba9c5d72fabc51e3f0a0bdab36bff0d.1593424923.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1593424923.git.asml.silence@gmail.com>
+References: <cover.1593424923.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,33 +73,134 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't forget to wake up a process to which io_rw_reissue() added
-task_work.
+Generally, it's better to return a value directly than having out
+parameter. It's cleaner and saves from some kinds of ugly bugs.
+May also be faster.
+
+Return next request from io_req_find_next() and friends directly
+instead of passing out parameter.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
-
-v2: wake on success path not fail (Jens)
-
- fs/io_uring.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3bbadc3247b4..6710097564de 100644
+index 4cd6d24276c3..52e5c8730dd5 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2168,8 +2168,10 @@ static bool io_rw_reissue(struct io_kiocb *req, long res)
- 	tsk = req->task;
- 	init_task_work(&req->task_work, io_rw_resubmit);
- 	ret = task_work_add(tsk, &req->task_work, true);
--	if (!ret)
-+	if (!ret) {
-+		wake_up_process(tsk);
- 		return true;
-+	}
- #endif
- 	return false;
+@@ -1578,7 +1578,7 @@ static void io_kill_linked_timeout(struct io_kiocb *req)
+ 		io_cqring_ev_posted(ctx);
  }
+ 
+-static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
++static struct io_kiocb *io_req_link_next(struct io_kiocb *req)
+ {
+ 	struct io_kiocb *nxt;
+ 
+@@ -1588,13 +1588,13 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
+ 	 * safe side.
+ 	 */
+ 	if (unlikely(list_empty(&req->link_list)))
+-		return;
++		return NULL;
+ 
+ 	nxt = list_first_entry(&req->link_list, struct io_kiocb, link_list);
+ 	list_del_init(&req->link_list);
+ 	if (!list_empty(&nxt->link_list))
+ 		nxt->flags |= REQ_F_LINK_HEAD;
+-	*nxtptr = nxt;
++	return nxt;
+ }
+ 
+ /*
+@@ -1620,10 +1620,10 @@ static void io_fail_links(struct io_kiocb *req)
+ 	io_cqring_ev_posted(ctx);
+ }
+ 
+-static void io_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
++static struct io_kiocb *io_req_find_next(struct io_kiocb *req)
+ {
+ 	if (likely(!(req->flags & REQ_F_LINK_HEAD)))
+-		return;
++		return NULL;
+ 	req->flags &= ~REQ_F_LINK_HEAD;
+ 
+ 	if (req->flags & REQ_F_LINK_TIMEOUT)
+@@ -1635,10 +1635,10 @@ static void io_req_find_next(struct io_kiocb *req, struct io_kiocb **nxt)
+ 	 * dependencies to the next request. In case of failure, fail the rest
+ 	 * of the chain.
+ 	 */
+-	if (req->flags & REQ_F_FAIL_LINK)
+-		io_fail_links(req);
+-	else
+-		io_req_link_next(req, nxt);
++	if (likely(!(req->flags & REQ_F_FAIL_LINK)))
++		return io_req_link_next(req);
++	io_fail_links(req);
++	return NULL;
+ }
+ 
+ static void __io_req_task_cancel(struct io_kiocb *req, int error)
+@@ -1701,9 +1701,8 @@ static void io_req_task_queue(struct io_kiocb *req)
+ 
+ static void io_queue_next(struct io_kiocb *req)
+ {
+-	struct io_kiocb *nxt = NULL;
++	struct io_kiocb *nxt = io_req_find_next(req);
+ 
+-	io_req_find_next(req, &nxt);
+ 	if (nxt)
+ 		io_req_task_queue(nxt);
+ }
+@@ -1753,13 +1752,15 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+  * Drop reference to request, return next in chain (if there is one) if this
+  * was the last reference to this request.
+  */
+-__attribute__((nonnull))
+-static void io_put_req_find_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
++static struct io_kiocb *io_put_req_find_next(struct io_kiocb *req)
+ {
++	struct io_kiocb *nxt = NULL;
++
+ 	if (refcount_dec_and_test(&req->refs)) {
+-		io_req_find_next(req, nxtptr);
++		nxt = io_req_find_next(req);
+ 		__io_free_req(req);
+ 	}
++	return nxt;
+ }
+ 
+ static void io_put_req(struct io_kiocb *req)
+@@ -1780,7 +1781,7 @@ static struct io_wq_work *io_steal_work(struct io_kiocb *req)
+ 	if (refcount_read(&req->refs) != 1)
+ 		return NULL;
+ 
+-	io_req_find_next(req, &nxt);
++	nxt = io_req_find_next(req);
+ 	if (!nxt)
+ 		return NULL;
+ 
+@@ -4465,7 +4466,7 @@ static void io_poll_task_handler(struct io_kiocb *req, struct io_kiocb **nxt)
+ 	hash_del(&req->hash_node);
+ 	io_poll_complete(req, req->result, 0);
+ 	req->flags |= REQ_F_COMP_LOCKED;
+-	io_put_req_find_next(req, nxt);
++	*nxt = io_put_req_find_next(req);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+ 	io_cqring_ev_posted(ctx);
+@@ -5915,9 +5916,8 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	}
+ 
+ err:
+-	nxt = NULL;
+ 	/* drop submission reference */
+-	io_put_req_find_next(req, &nxt);
++	nxt = io_put_req_find_next(req);
+ 
+ 	if (linked_timeout) {
+ 		if (!ret)
 -- 
 2.24.0
 

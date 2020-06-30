@@ -2,67 +2,72 @@ Return-Path: <SRS0=m81N=AL=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BCE2C433DF
-	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9447EC433E1
+	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C37962068F
-	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 719D92068F
+	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="haZm16Fa"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="HSk0m6OA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726285AbgF3Sp2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Jun 2020 14:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36610 "EHLO
+        id S1725930AbgF3Spb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 30 Jun 2020 14:45:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726019AbgF3Sp1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Jun 2020 14:45:27 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E29C03E979
-        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:24 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id l6so6758209pjq.1
-        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:24 -0700 (PDT)
+        with ESMTP id S1726361AbgF3Sp2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Jun 2020 14:45:28 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C8CC08C5DB
+        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:28 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id u9so5209448pls.13
+        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=36Pf7vLOoIjmkl5ILc1j+cAKoyh9jGyx3eicyZDkpLY=;
-        b=haZm16FaN7L9wBGzn287iJdsYlLzqIRf1clHPgVmRu18KeNPfsyv3Mzx8qzBOvAWZ+
-         ZEiMv7f0mBIn95G8IcVh8rewTPJUNMx5gqf7cNPBCuwsmwGfctuC2Gq/Hkb6XKVDAo+4
-         6Q+6EhAhKdDq+8tAsPyclmZxtHDQeRaU94NiVLmuIEtzldU4qBjyUdFANxnJK1sw9zxG
-         ZZPQpQojp6TyBuRyNGkR2jVdlEBFEwf7QRKSANrTSJMMcP5bo/Tceilwrcgm1vKO3wu6
-         vvK2Z0z0SRFOH35GcASBAYR2wn6LNI1ZqTb6aRrJMJ0elkquw9/cDPrQRpjb1eug0OoA
-         nEmg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=d7I8pJNhdwZ1WVh11yPP8w2P3ehbAYaUNBi/wYOdLCg=;
+        b=HSk0m6OAx02qjZfQmduXnzb3y/Zvo3RqE2TrMcht6FFY5929bole20JFYDkJPGw3bn
+         clGaHf63I3JOJ1BFn4RDRVUt8bIjo4uCO13XQKHZ4A4fuopAi6K8wmFC2UYQGOPdmRLs
+         le4f0NAps3BnQxaJVEWu21quUgQ5rMAj4zvh4dgSY2a2gdDyr1GTUIuk4TOyoDPUPEf6
+         kjwn1mpfFCwql+rYMIJbcQ9zbJW3UykvfMkP3xf5EAVSOPBHBI+u0n2NljT1fTbwlZHs
+         P9DjQCDGzkG+c2WLBoM2Bf0liJqD/i8DtX47x81UxGEKZ21NJ3oO6bv/RCaoZ9Ukdutn
+         nyRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=36Pf7vLOoIjmkl5ILc1j+cAKoyh9jGyx3eicyZDkpLY=;
-        b=AZsLkftY8I4PQMQ0sP0+wg8JACxzxm39KTkjwhwx/lHClFjwajNW32M3uC5/l2qHTG
-         9iNzOdgP0FDrRQ6vWOaQjE1qE3sisN4HFnAnVq4Ip0QI8um+r5Yl/NjsWNvfLlP7uct/
-         bo1OatnirM/vOkYfXyX0bEB8FLPAks7MNXX/Ht5pqGXHcJhp+ACQo5RL62yvE8KIBkwh
-         7lDFIcUb27kRT47NS0R9U8GkhdR8auzgHKJNJWRVwF7cVv8pmRbXmXdT5wN3a9tCNK7Z
-         ZCy4Yiwp0Ge3nskKpqPld7CePsu+hBY3/8TdWdsSq41mwWBM7OGqIDXGXp0dAYljCjI0
-         OUcg==
-X-Gm-Message-State: AOAM530pt2TLDanIy3wmaaeEpICthB8hCV8tsHvxbsDdQWV7NCXDYj/A
-        7U3skqgAOxOR783pxm9LNPJN7p8mRX33mA==
-X-Google-Smtp-Source: ABdhPJwPaD/fLLXkzmsb4f+8hOMS05fApeg/LQl99uaMgVqHMvdpjIK/hEk3OxycS1sLEIU8isGIXg==
-X-Received: by 2002:a17:90a:1acc:: with SMTP id p70mr13487771pjp.210.1593542724210;
-        Tue, 30 Jun 2020 11:45:24 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=d7I8pJNhdwZ1WVh11yPP8w2P3ehbAYaUNBi/wYOdLCg=;
+        b=SvQtHN9Ekt4VyyJJg4DnuEWUR4Pc/OWyd4/vxt3XOKJnm3DFzDYAlTRg3aBjXj86j7
+         D6vMJlLeGcKpt3pxk0I4JCEftXUFz+KaaZSWfoXleDfzciGPgcKezCfDYda+JWsvXn0g
+         eUoBiFpaSGn6G4VZ5U93eI7UuMI4uCsvN7CkNExG67gbSODpQqlVhDSQ4yU84xF/KCQb
+         GorPmabSZNJQbyHzOlULioWiqGYoUmq859h+8YmF7g6gUJ/XPi6xaup6fVCi/d1S4Fw3
+         WRrRx0fRwp0Zrv4RbNoC2qgeUMLLICZADhygRRzEduzgaTyUO1jKbKOkp70UTJDoIi4G
+         HZCg==
+X-Gm-Message-State: AOAM533QnYF+NAINj+qjXofKVZM2hF3cmZKOU4Derjy5dzeOQLJGCb96
+        5M4lTkUVaB0hqbyI4xrkUwJtii1gKUMZbw==
+X-Google-Smtp-Source: ABdhPJxr0QgHgqzll8LBSzmH1eUWXWQWL85e5LF5vnDi6zMASgXc9Z3ZRlNOENIQZU56fRYo+kHaaw==
+X-Received: by 2002:a17:90a:f2c3:: with SMTP id gt3mr6259782pjb.92.1593542727849;
+        Tue, 30 Jun 2020 11:45:27 -0700 (PDT)
 Received: from localhost.localdomain ([2605:e000:100e:8c61:4113:50ea:3eb3:a39b])
-        by smtp.gmail.com with ESMTPSA id n7sm2898108pjq.22.2020.06.30.11.45.23
+        by smtp.gmail.com with ESMTPSA id n7sm2898108pjq.22.2020.06.30.11.45.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2020 11:45:23 -0700 (PDT)
+        Tue, 30 Jun 2020 11:45:27 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     oleg@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCHSET 0/2] Use signal based task_work running
-Date:   Tue, 30 Jun 2020 12:45:16 -0600
-Message-Id: <20200630184518.696101-1-axboe@kernel.dk>
+Cc:     oleg@redhat.com, peterz@infradead.org,
+        linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] io_uring: use signal based task_work running
+Date:   Tue, 30 Jun 2020 12:45:18 -0600
+Message-Id: <20200630184518.696101-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200630184518.696101-1-axboe@kernel.dk>
+References: <20200630184518.696101-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -70,11 +75,93 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This fixes a regression in 5.7 with io_uring, introduced by the
-addition of using task_work for certain async events. Details are
-in patch 2/2.
+Since 5.7, we've been using task_work to trigger async running of
+requests in the context of the original task. This generally works
+great, but there's a case where if the task is currently blocked
+in the kernel waiting on a condition to become true, it won't process
+task_work. Even though the task is woken, it just checks whatever
+condition it's waiting on, and goes back to sleep if it's still false.
 
+This is a problem if that very condition only becomes true when that
+task_work is run. An example of that is the task registering an eventfd
+with io_uring, and it's now blocked waiting on an eventfd read. That
+read could depend on a completion event, and that completion event
+won't get trigged until task_work has been run.
+
+Use the TWA_SIGNAL notification for task_work, so that we ensure that
+the task always runs the work when queued.
+
+Cc: stable@vger.kernel.org # v5.7
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index e507737f044e..476f03b42777 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4072,6 +4072,23 @@ struct io_poll_table {
+ 	int error;
+ };
+ 
++static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb,
++				int notify)
++{
++	const bool is_sqthread = (req->ctx->flags & IORING_SETUP_SQPOLL) != 0;
++	struct task_struct *tsk = req->task;
++	int ret;
++
++	if (is_sqthread)
++		notify = 0;
++
++	ret = task_work_add(tsk, cb, notify);
++
++	if (!ret && is_sqthread)
++		wake_up_process(tsk);
++	return ret;
++}
++
+ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
+ 			   __poll_t mask, task_work_func_t func)
+ {
+@@ -4095,13 +4112,13 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
+ 	 * of executing it. We can't safely execute it anyway, as we may not
+ 	 * have the needed state needed for it anyway.
+ 	 */
+-	ret = task_work_add(tsk, &req->task_work, true);
++	ret = io_req_task_work_add(req, &req->task_work, TWA_SIGNAL);
+ 	if (unlikely(ret)) {
+ 		WRITE_ONCE(poll->canceled, true);
+ 		tsk = io_wq_get_task(req->ctx->io_wq);
+-		task_work_add(tsk, &req->task_work, true);
++		task_work_add(tsk, &req->task_work, 0);
++		wake_up_process(tsk);
+ 	}
+-	wake_up_process(tsk);
+ 	return 1;
+ }
+ 
+@@ -6182,15 +6199,16 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 	do {
+ 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
+ 						TASK_INTERRUPTIBLE);
++		/* make sure we run task_work before checking for signals */
+ 		if (current->task_works)
+ 			task_work_run();
+-		if (io_should_wake(&iowq, false))
+-			break;
+-		schedule();
+ 		if (signal_pending(current)) {
+ 			ret = -EINTR;
+ 			break;
+ 		}
++		if (io_should_wake(&iowq, false))
++			break;
++		schedule();
+ 	} while (1);
+ 	finish_wait(&ctx->wait, &iowq.wq);
+ 
 -- 
-Jens Axboe
-
+2.27.0
 

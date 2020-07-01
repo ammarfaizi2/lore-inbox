@@ -1,209 +1,103 @@
-Return-Path: <SRS0=m81N=AL=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=DPmh=AM=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FD79C433E2
-	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDCC2C433DF
+	for <io-uring@archiver.kernel.org>; Wed,  1 Jul 2020 12:47:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E38DF2068F
-	for <io-uring@archiver.kernel.org>; Tue, 30 Jun 2020 18:45:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="tM+dHm+G"
+	by mail.kernel.org (Postfix) with ESMTP id 96B4120702
+	for <io-uring@archiver.kernel.org>; Wed,  1 Jul 2020 12:47:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726305AbgF3Spc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Jun 2020 14:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726274AbgF3Sp1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Jun 2020 14:45:27 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB6A4C03E97E
-        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:26 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id l6so6758252pjq.1
-        for <io-uring@vger.kernel.org>; Tue, 30 Jun 2020 11:45:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=6mvVREkDVIeNCrD7qi8PMtAVT+USyRgLji8dDcK1MZI=;
-        b=tM+dHm+GPgciq6qnWfKbJo4Kq5Tayh8q0IFFz6A7wCZjuzwVo/FSrLEbDCu/fnQyBQ
-         jqsvcSJWViFdBp1grNeoyvO7uDBJqWq551Ws9xRJ4INAtpeDu14PXZD4DTga/5DppuZ/
-         JGneIRzbaZq5NBpkuP4eRsx52aJsUUWyO3n0AFdbCyM4AFTjnYBY8SpWrfh6R8G7P8s5
-         zLO6a0RrsmwbyZ7b4KwKEQhXLgFxo9rfv/nod+0In7WVqCKZj5EzcL7UkqwEmFU8/bHH
-         Ct2lJoZQXQvMzl/3hHA4JdyGPr8pudetykENgjEM3wfLX5z9C24aUMVSzFVD70zO47wi
-         1Rzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=6mvVREkDVIeNCrD7qi8PMtAVT+USyRgLji8dDcK1MZI=;
-        b=C0wv832G6KtR7/pnV4gxfmbHkh/ghATFlc4Olf/S3Gm0EzJWrcXOAk/Wfh2NPJqNWZ
-         N8xtik6XlBG0UzCQPqnHp5a7ORnXYgTfChBMoeUAQwOzSwC1D1owJZtHcDZz2+6FXuTM
-         rAfEWPJPE7i3wjiD5dajE/9uTT0FmIqHOnnG1j31HAAPRWHgIKZsgzZPML+KFkQXuGob
-         Pip4DvTwpDc66DzWDpD6OF+E+DDvoMQ5fHX/PusWDjFyALxDpaBti3M1rW7XewrlPQLG
-         3Hr4rVXQq+lcZ7szvLpB2jdF5Q7IBxBblRmoGdgORygPfr89RnowQe6EMshmDIHn32az
-         lGkA==
-X-Gm-Message-State: AOAM531IyaL8YEvHEToU10lZoYFAyMHRaOAMKxIl2pfuq2K2IEhCihdj
-        iVPyVgNrfOnNvRncaNVXySOG0ifONwOfJw==
-X-Google-Smtp-Source: ABdhPJyq42/4G38YKmmdE3qsIa6PN0u2bg0XuBD4ozWyinzBPeXVqQCsyzLFwjhKG9yVm+5zjUzYnQ==
-X-Received: by 2002:a17:90a:1ac3:: with SMTP id p61mr24724332pjp.23.1593542726013;
-        Tue, 30 Jun 2020 11:45:26 -0700 (PDT)
-Received: from localhost.localdomain ([2605:e000:100e:8c61:4113:50ea:3eb3:a39b])
-        by smtp.gmail.com with ESMTPSA id n7sm2898108pjq.22.2020.06.30.11.45.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2020 11:45:25 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     oleg@redhat.com, peterz@infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/2] task_work: teach task_work_add() to do signal_wake_up()
-Date:   Tue, 30 Jun 2020 12:45:17 -0600
-Message-Id: <20200630184518.696101-2-axboe@kernel.dk>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200630184518.696101-1-axboe@kernel.dk>
-References: <20200630184518.696101-1-axboe@kernel.dk>
+        id S1730687AbgGAMr0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 1 Jul 2020 08:47:26 -0400
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:54722 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730671AbgGAMrZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Jul 2020 08:47:25 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01419;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U1MtaPW_1593607641;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0U1MtaPW_1593607641)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 01 Jul 2020 20:47:21 +0800
+Date:   Wed, 1 Jul 2020 20:47:21 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     io-uring <io-uring@vger.kernel.org>
+Subject: Re: [PATCH] io_uring: fix req cannot arm poll after polled
+Message-ID: <20200701124721.tn5oymcoslfabifo@e02h04398.eu6sqa>
+References: <2ebb186ebbef9c5a01e27317aae664e9011acf86.1593520864.git.xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2ebb186ebbef9c5a01e27317aae664e9011acf86.1593520864.git.xuanzhuo@linux.alibaba.com>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
 
-So that the target task will exit the wait_event_interruptible-like
-loop and call task_work_run() asap.
+It is true that this path is not perfect for poll, I mainly want to
+solve this bug first.
 
-The patch turns "bool notify" into 0,TWA_RESUME,TWA_SIGNAL enum, the
-new TWA_SIGNAL flag implies signal_wake_up().  However, it needs to
-avoid the race with recalc_sigpending(), so the patch also adds the
-new JOBCTL_TASK_WORK bit included in JOBCTL_PENDING_MASK.
+I have considered to prevent the network fd from entering io-wq. It
+is more reasonable to use poll for network fd. And since there is no
+relationship between the sqes of the same network fd, each will receive
+an EAGAIN and then arm poll, It is unreasonable to be wakeup at the same
+time.  Although link can solve some problems.
 
-TODO: once this patch is merged we need to change all current users
-of task_work_add(notify = true) to use TWA_RESUME.
+Back to this question, I was able to reproduce this bug yesterday, but it
+is strange that I tried various versions today, and I can't reproduce it
+anymore.
 
-Cc: stable@vger.kernel.org # v5.7
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- include/linux/sched/jobctl.h |  4 +++-
- include/linux/task_work.h    |  5 ++++-
- kernel/signal.c              | 10 +++++++---
- kernel/task_work.c           | 16 ++++++++++++++--
- 4 files changed, 28 insertions(+), 7 deletions(-)
+The analysis at the time was that io_uring_release was not triggered. I
+guess it is because mm refers to io_uring fd, and worker refers to mm and
+enters schedule, which causes io_uring not to be completely closed.
 
-diff --git a/include/linux/sched/jobctl.h b/include/linux/sched/jobctl.h
-index fa067de9f1a9..d2b4204ba4d3 100644
---- a/include/linux/sched/jobctl.h
-+++ b/include/linux/sched/jobctl.h
-@@ -19,6 +19,7 @@ struct task_struct;
- #define JOBCTL_TRAPPING_BIT	21	/* switching to TRACED */
- #define JOBCTL_LISTENING_BIT	22	/* ptracer is listening for events */
- #define JOBCTL_TRAP_FREEZE_BIT	23	/* trap for cgroup freezer */
-+#define JOBCTL_TASK_WORK_BIT	24	/* set by TWA_SIGNAL */
- 
- #define JOBCTL_STOP_DEQUEUED	(1UL << JOBCTL_STOP_DEQUEUED_BIT)
- #define JOBCTL_STOP_PENDING	(1UL << JOBCTL_STOP_PENDING_BIT)
-@@ -28,9 +29,10 @@ struct task_struct;
- #define JOBCTL_TRAPPING		(1UL << JOBCTL_TRAPPING_BIT)
- #define JOBCTL_LISTENING	(1UL << JOBCTL_LISTENING_BIT)
- #define JOBCTL_TRAP_FREEZE	(1UL << JOBCTL_TRAP_FREEZE_BIT)
-+#define JOBCTL_TASK_WORK	(1UL << JOBCTL_TASK_WORK_BIT)
- 
- #define JOBCTL_TRAP_MASK	(JOBCTL_TRAP_STOP | JOBCTL_TRAP_NOTIFY)
--#define JOBCTL_PENDING_MASK	(JOBCTL_STOP_PENDING | JOBCTL_TRAP_MASK)
-+#define JOBCTL_PENDING_MASK	(JOBCTL_STOP_PENDING | JOBCTL_TRAP_MASK | JOBCTL_TASK_WORK)
- 
- extern bool task_set_jobctl_pending(struct task_struct *task, unsigned long mask);
- extern void task_clear_jobctl_trapping(struct task_struct *task);
-diff --git a/include/linux/task_work.h b/include/linux/task_work.h
-index bd9a6a91c097..0fb93aafa478 100644
---- a/include/linux/task_work.h
-+++ b/include/linux/task_work.h
-@@ -13,7 +13,10 @@ init_task_work(struct callback_head *twork, task_work_func_t func)
- 	twork->func = func;
- }
- 
--int task_work_add(struct task_struct *task, struct callback_head *twork, bool);
-+#define TWA_RESUME	1
-+#define TWA_SIGNAL	2
-+int task_work_add(struct task_struct *task, struct callback_head *twork, int);
-+
- struct callback_head *task_work_cancel(struct task_struct *, task_work_func_t);
- void task_work_run(void);
- 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 5ca48cc5da76..ee22ec78fd6d 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2529,9 +2529,6 @@ bool get_signal(struct ksignal *ksig)
- 	struct signal_struct *signal = current->signal;
- 	int signr;
- 
--	if (unlikely(current->task_works))
--		task_work_run();
--
- 	if (unlikely(uprobe_deny_signal()))
- 		return false;
- 
-@@ -2544,6 +2541,13 @@ bool get_signal(struct ksignal *ksig)
- 
- relock:
- 	spin_lock_irq(&sighand->siglock);
-+	current->jobctl &= ~JOBCTL_TASK_WORK;
-+	if (unlikely(current->task_works)) {
-+		spin_unlock_irq(&sighand->siglock);
-+		task_work_run();
-+		goto relock;
-+	}
-+
- 	/*
- 	 * Every stopped thread goes here after wakeup. Check to see if
- 	 * we should notify the parent, prepare_signal(SIGCONT) encodes
-diff --git a/kernel/task_work.c b/kernel/task_work.c
-index 825f28259a19..5c0848ca1287 100644
---- a/kernel/task_work.c
-+++ b/kernel/task_work.c
-@@ -25,9 +25,10 @@ static struct callback_head work_exited; /* all we need is ->next == NULL */
-  * 0 if succeeds or -ESRCH.
-  */
- int
--task_work_add(struct task_struct *task, struct callback_head *work, bool notify)
-+task_work_add(struct task_struct *task, struct callback_head *work, int notify)
- {
- 	struct callback_head *head;
-+	unsigned long flags;
- 
- 	do {
- 		head = READ_ONCE(task->task_works);
-@@ -36,8 +37,19 @@ task_work_add(struct task_struct *task, struct callback_head *work, bool notify)
- 		work->next = head;
- 	} while (cmpxchg(&task->task_works, head, work) != head);
- 
--	if (notify)
-+	switch (notify) {
-+	case TWA_RESUME:
- 		set_notify_resume(task);
-+		break;
-+	case TWA_SIGNAL:
-+		if (lock_task_sighand(task, &flags)) {
-+			task->jobctl |= JOBCTL_TASK_WORK;
-+			signal_wake_up(task, 0);
-+			unlock_task_sighand(task, &flags);
-+		}
-+		break;
-+	}
-+
- 	return 0;
- }
- 
--- 
-2.27.0
+But when I test today, it cannot be reproduced. When the process exits,
+the network connection will always close automatically then the worker
+exits the schedule. I don't know why it was not closed yesterday.
 
+Sorry, I will test it later, if there is a conclusion I will report this
+problem again.
+
+Thanks jens and pavel for your time.
+
+On Tue, Jun 30, 2020 at 08:41:14PM +0800, Xuan Zhuo wrote:
+> For example, there are multiple sqes recv with the same connection.
+> When there is no data in the connection, the reqs of these sqes will
+> be armed poll. Then if only a little data is received, only one req
+> receives the data, and the other reqs get EAGAIN again. However,
+> due to this flags REQ_F_POLLED, these reqs cannot enter the
+> io_arm_poll_handler function. These reqs will be put into wq by
+> io_queue_async_work, and the flags passed by io_wqe_worker when recv
+> is called are BLOCK, which may make io_wqe_worker enter schedule in the
+> network protocol stack. When the main process of io_uring exits,
+> these io_wqe_workers still cannot exit. The connection will not be
+> actively released until the connection is closed by the peer.
+>
+> So we should allow req to arm poll again.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  fs/io_uring.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index e507737..a309832 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -4406,7 +4406,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+>
+>  	if (!req->file || !file_can_poll(req->file))
+>  		return false;
+> -	if (req->flags & (REQ_F_MUST_PUNT | REQ_F_POLLED))
+> +	if (req->flags & REQ_F_MUST_PUNT)
+>  		return false;
+>  	if (!def->pollin && !def->pollout)
+>  		return false;
+> --
+> 1.8.3.1

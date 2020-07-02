@@ -1,103 +1,135 @@
-Return-Path: <SRS0=DPmh=AM=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=yY1C=AN=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDCC2C433DF
-	for <io-uring@archiver.kernel.org>; Wed,  1 Jul 2020 12:47:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07455C433DF
+	for <io-uring@archiver.kernel.org>; Thu,  2 Jul 2020 01:24:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 96B4120702
-	for <io-uring@archiver.kernel.org>; Wed,  1 Jul 2020 12:47:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9AC920874
+	for <io-uring@archiver.kernel.org>; Thu,  2 Jul 2020 01:24:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1593653091;
+	bh=FeJYSWpPkEj16ll5EuwSvsmJPTgeQNhCZZ/l+eCp2w8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=BvanW/y8HTjDN4/LeGUTlsVetQI1NtmwABIlPn7ytMxRbCX8QaHTJANDzwTBjLF7g
+	 fqds2WGjrWxtCIJG5cerBY8Meu/hf2LEUBb48bPMJ8YPyoDuaBv2fZWr8ARrrLE2ir
+	 30K/mijAoCYuueTGdhxRY8+dagv01wUf9bczB7Bw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730687AbgGAMr0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 1 Jul 2020 08:47:26 -0400
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:54722 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730671AbgGAMrZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Jul 2020 08:47:25 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01419;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U1MtaPW_1593607641;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0U1MtaPW_1593607641)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 01 Jul 2020 20:47:21 +0800
-Date:   Wed, 1 Jul 2020 20:47:21 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Cc:     io-uring <io-uring@vger.kernel.org>
-Subject: Re: [PATCH] io_uring: fix req cannot arm poll after polled
-Message-ID: <20200701124721.tn5oymcoslfabifo@e02h04398.eu6sqa>
-References: <2ebb186ebbef9c5a01e27317aae664e9011acf86.1593520864.git.xuanzhuo@linux.alibaba.com>
+        id S1728552AbgGBBX5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 1 Jul 2020 21:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728536AbgGBBX4 (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:23:56 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BBF12145D;
+        Thu,  2 Jul 2020 01:23:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593653036;
+        bh=FeJYSWpPkEj16ll5EuwSvsmJPTgeQNhCZZ/l+eCp2w8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LEpsozyf6RMXApLZrXyeYiLc92fWqrtut31jAJvEuJWAkkmqigAyOkVoLeeC3tlyZ
+         dbsKuOiparlf1nZNc5FGSCY0M0nfXijdvlJf7HpZRUbm/5GLkMcq6+d/Ko1ZHSPMid
+         8XvdYLkzpXXGEMWTTLVpE71faGWImnyXBx5jgZ1A=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 49/53] io_uring: fix current->mm NULL dereference on exit
+Date:   Wed,  1 Jul 2020 21:21:58 -0400
+Message-Id: <20200702012202.2700645-49-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
+References: <20200702012202.2700645-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2ebb186ebbef9c5a01e27317aae664e9011acf86.1593520864.git.xuanzhuo@linux.alibaba.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-It is true that this path is not perfect for poll, I mainly want to
-solve this bug first.
+[ Upstream commit d60b5fbc1ce8210759b568da49d149b868e7c6d3 ]
 
-I have considered to prevent the network fd from entering io-wq. It
-is more reasonable to use poll for network fd. And since there is no
-relationship between the sqes of the same network fd, each will receive
-an EAGAIN and then arm poll, It is unreasonable to be wakeup at the same
-time.  Although link can solve some problems.
+Don't reissue requests from io_iopoll_reap_events(), the task may not
+have mm, which ends up with NULL. It's better to kill everything off on
+exit anyway.
 
-Back to this question, I was able to reproduce this bug yesterday, but it
-is strange that I tried various versions today, and I can't reproduce it
-anymore.
+[  677.734670] RIP: 0010:io_iopoll_complete+0x27e/0x630
+...
+[  677.734679] Call Trace:
+[  677.734695]  ? __send_signal+0x1f2/0x420
+[  677.734698]  ? _raw_spin_unlock_irqrestore+0x24/0x40
+[  677.734699]  ? send_signal+0xf5/0x140
+[  677.734700]  io_iopoll_getevents+0x12f/0x1a0
+[  677.734702]  io_iopoll_reap_events.part.0+0x5e/0xa0
+[  677.734703]  io_ring_ctx_wait_and_kill+0x132/0x1c0
+[  677.734704]  io_uring_release+0x20/0x30
+[  677.734706]  __fput+0xcd/0x230
+[  677.734707]  ____fput+0xe/0x10
+[  677.734709]  task_work_run+0x67/0xa0
+[  677.734710]  do_exit+0x35d/0xb70
+[  677.734712]  do_group_exit+0x43/0xa0
+[  677.734713]  get_signal+0x140/0x900
+[  677.734715]  do_signal+0x37/0x780
+[  677.734717]  ? enqueue_hrtimer+0x41/0xb0
+[  677.734718]  ? recalibrate_cpu_khz+0x10/0x10
+[  677.734720]  ? ktime_get+0x3e/0xa0
+[  677.734721]  ? lapic_next_deadline+0x26/0x30
+[  677.734723]  ? tick_program_event+0x4d/0x90
+[  677.734724]  ? __hrtimer_get_next_event+0x4d/0x80
+[  677.734726]  __prepare_exit_to_usermode+0x126/0x1c0
+[  677.734741]  prepare_exit_to_usermode+0x9/0x40
+[  677.734742]  idtentry_exit_cond_rcu+0x4c/0x60
+[  677.734743]  sysvec_reschedule_ipi+0x92/0x160
+[  677.734744]  ? asm_sysvec_reschedule_ipi+0xa/0x20
+[  677.734745]  asm_sysvec_reschedule_ipi+0x12/0x20
 
-The analysis at the time was that io_uring_release was not triggered. I
-guess it is because mm refers to io_uring fd, and worker refers to mm and
-enters schedule, which causes io_uring not to be completely closed.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/io_uring.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-But when I test today, it cannot be reproduced. When the process exits,
-the network connection will always close automatically then the worker
-exits the schedule. I don't know why it was not closed yesterday.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6cf9d509371e2..43dc745727408 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -858,6 +858,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				 struct io_uring_files_update *ip,
+ 				 unsigned nr_args);
+ static int io_grab_files(struct io_kiocb *req);
++static void io_complete_rw_common(struct kiocb *kiocb, long res);
+ static void io_cleanup_req(struct io_kiocb *req);
+ static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
+ 		       int fd, struct file **out_file, bool fixed);
+@@ -1697,6 +1698,14 @@ static void io_iopoll_queue(struct list_head *again)
+ 	do {
+ 		req = list_first_entry(again, struct io_kiocb, list);
+ 		list_del(&req->list);
++
++		/* shouldn't happen unless io_uring is dying, cancel reqs */
++		if (unlikely(!current->mm)) {
++			io_complete_rw_common(&req->rw.kiocb, -EAGAIN);
++			io_put_req(req);
++			continue;
++		}
++
+ 		refcount_inc(&req->refs);
+ 		io_queue_async_work(req);
+ 	} while (!list_empty(again));
+-- 
+2.25.1
 
-Sorry, I will test it later, if there is a conclusion I will report this
-problem again.
-
-Thanks jens and pavel for your time.
-
-On Tue, Jun 30, 2020 at 08:41:14PM +0800, Xuan Zhuo wrote:
-> For example, there are multiple sqes recv with the same connection.
-> When there is no data in the connection, the reqs of these sqes will
-> be armed poll. Then if only a little data is received, only one req
-> receives the data, and the other reqs get EAGAIN again. However,
-> due to this flags REQ_F_POLLED, these reqs cannot enter the
-> io_arm_poll_handler function. These reqs will be put into wq by
-> io_queue_async_work, and the flags passed by io_wqe_worker when recv
-> is called are BLOCK, which may make io_wqe_worker enter schedule in the
-> network protocol stack. When the main process of io_uring exits,
-> these io_wqe_workers still cannot exit. The connection will not be
-> actively released until the connection is closed by the peer.
->
-> So we should allow req to arm poll again.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  fs/io_uring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index e507737..a309832 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -4406,7 +4406,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
->
->  	if (!req->file || !file_can_poll(req->file))
->  		return false;
-> -	if (req->flags & (REQ_F_MUST_PUNT | REQ_F_POLLED))
-> +	if (req->flags & REQ_F_MUST_PUNT)
->  		return false;
->  	if (!def->pollin && !def->pollout)
->  		return false;
-> --
-> 1.8.3.1

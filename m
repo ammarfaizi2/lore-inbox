@@ -2,311 +2,94 @@ Return-Path: <SRS0=yVW0=AT=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD56C433E0
-	for <io-uring@archiver.kernel.org>; Wed,  8 Jul 2020 22:27:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AA1AC433E1
+	for <io-uring@archiver.kernel.org>; Wed,  8 Jul 2020 22:33:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFDF620772
-	for <io-uring@archiver.kernel.org>; Wed,  8 Jul 2020 22:27:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C52320772
+	for <io-uring@archiver.kernel.org>; Wed,  8 Jul 2020 22:33:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="J6R1jXtg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="aKLNGyqb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726257AbgGHW04 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 8 Jul 2020 18:26:56 -0400
-Received: from casper.infradead.org ([90.155.50.34]:45766 "EHLO
-        casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726215AbgGHW0w (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Jul 2020 18:26:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=F0tAChMmj4QXzdRFsnSO800dOqSabaCWqBgONS8U2jg=; b=J6R1jXtgY3K0k0AR/u0bAhO46I
-        7ZqbuJtTxnkJWg13JiFg/ClCk9FUMIBIEuk9Z261nBkbkjPQn6CoFHSC78oK2fXEjqwKwiPqYDdPL
-        58KmGk/TugulXejmGYpU5PuzfyxRHy+hYm0RfmeRMSlTAqv304qcVrKtibghjewpDeyrt0vSBklFq
-        e9KF38CHYRPDFhHrsQzfGVgB1mqdh2pEk69NY2cgmurC8POw+QpRlvR7B5j2om5pcvHWT2h8v4zwM
-        12O7KGxbC7yRWM/0QSQi6b9/pkYn4swbgVaMmkoRW3vofKtcXLr0TDoq2KxqFrG8Q2vjdEwiZOuEC
-        F70VfWAQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jtIWV-00060a-Np; Wed, 08 Jul 2020 22:26:39 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        id S1726263AbgGHWdX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 8 Jul 2020 18:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726081AbgGHWdW (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 8 Jul 2020 18:33:22 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD591C08C5C1
+        for <io-uring@vger.kernel.org>; Wed,  8 Jul 2020 15:33:22 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id o13so50977pgf.0
+        for <io-uring@vger.kernel.org>; Wed, 08 Jul 2020 15:33:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cXCFTCxGdtV8MyFCzLPx+cLEa/wOMXI2VsbmUQ1pcc4=;
+        b=aKLNGyqbfjlfypU3XSMi37ElWycSd5QOuRPRrHJZ4agy9sAPP83A9uImVzcMrPsCyW
+         v4YrXUXCFMXFV1OPnsI6cv6ewTt2HnhMuY8YGdzuPwtivUTysB/nKgsLLCTDm5GGAfs4
+         FwEZP9zGAZc1EbElR2XmPp0/xhwzO08Yc1gtgUKbC7+cN7/oLMht6hdbtTqJ1LHZFP75
+         pK4yzqjIliJ8DsH8cNHobVsZaYyZWgTSGzQ7tS4t2UZYxVPxgNmD/45Rz9eSMRxIZ1Ta
+         D477T9OBtjhr0bN/mqQaZX8WtKPXbQ+ZtnMtbID3Gat5wHy72kqpQR8TXvXdq5rk2wlR
+         v1zA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cXCFTCxGdtV8MyFCzLPx+cLEa/wOMXI2VsbmUQ1pcc4=;
+        b=NwcD0avkrV5MLvFuAe20hD4ITOvr0yFuXt3VzAhIFX4P2A9DWjKBTXoLyMx7L7Qp2u
+         eVgXEHf47lra0ORvHod/rowA7W+mWp2NXOSNhVfqvbMzS/yTK7SkM0EcmR8Yuld9psc1
+         H/9L+4Go2+Uyr/YlmEE2jQiJAx810eq4xNYVIn2pXEce46OxJbknu7T41mtxCpEcUYBL
+         P7zYObt0g4B1mqDSH+wrJYNKlpoFdLodzzVDXpgO6G8uS5A9VLTiYuQGolYyewdgsQs6
+         +mncukk3syDMDP4lZzQjsmBbWpskGjG7ciA2TRYpemZ+wXE+uVfcBnhh+/XIqpenawB3
+         nqOw==
+X-Gm-Message-State: AOAM530S0uKCX8InEsJklJFxYh1A3nxhY8svc7yC1uZ7tXkQE4CZnJda
+        WPyvjRyyGr7mN7tESIChvMzomg==
+X-Google-Smtp-Source: ABdhPJwmW+0eXcpEdnrPdMds8vC0mMjfwyN7OLN0bdEGS8KuBNIQf3vaSkBw9U+RNKl+HF922AzeHg==
+X-Received: by 2002:a62:140e:: with SMTP id 14mr12167903pfu.196.1594247602171;
+        Wed, 08 Jul 2020 15:33:22 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id s22sm697987pfm.164.2020.07.08.15.33.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jul 2020 15:33:21 -0700 (PDT)
+Subject: Re: [PATCH 0/2] Remove kiocb ki_complete
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-aio@kvack.org, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, Kanchan Joshi <joshi.k@samsung.com>,
         Javier Gonzalez <javier.gonz@samsung.com>
-Subject: [PATCH 1/2] fs: Abstract calling the kiocb completion function
-Date:   Wed,  8 Jul 2020 23:26:35 +0100
-Message-Id: <20200708222637.23046-2-willy@infradead.org>
-X-Mailer: git-send-email 2.21.3
-In-Reply-To: <20200708222637.23046-1-willy@infradead.org>
 References: <20200708222637.23046-1-willy@infradead.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <807e622e-429f-28a0-5756-765648fc5bcb@kernel.dk>
+Date:   Wed, 8 Jul 2020 16:33:20 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200708222637.23046-1-willy@infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Introduce complete_kiocb() to abstract the calls to ->ki_complete().
+On 7/8/20 4:26 PM, Matthew Wilcox (Oracle) wrote:
+> Save a pointer in the kiocb by using a few bits in ki_flags to index
+> a table of completion functions.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- crypto/af_alg.c                    | 2 +-
- drivers/block/loop.c               | 2 +-
- drivers/usb/gadget/function/f_fs.c | 2 +-
- drivers/usb/gadget/legacy/inode.c  | 4 ++--
- fs/aio.c                           | 2 +-
- fs/block_dev.c                     | 2 +-
- fs/ceph/file.c                     | 2 +-
- fs/cifs/file.c                     | 4 ++--
- fs/direct-io.c                     | 2 +-
- fs/fuse/file.c                     | 2 +-
- fs/io_uring.c                      | 2 +-
- fs/iomap/direct-io.c               | 3 +--
- fs/nfs/direct.c                    | 2 +-
- fs/overlayfs/file.c                | 2 +-
- fs/read_write.c                    | 6 ++++++
- include/linux/fs.h                 | 2 ++
- 16 files changed, 24 insertions(+), 17 deletions(-)
+I ran polled and regular IO testing through io_uring, which exercises
+both completions that we have in there, and it works just fine for
+me.
 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index b1cd3535c525..590dbbcd0e9f 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -1045,7 +1045,7 @@ void af_alg_async_cb(struct crypto_async_request *_req, int err)
- 	af_alg_free_resources(areq);
- 	sock_put(sk);
- 
--	iocb->ki_complete(iocb, err ? err : (int)resultlen, 0);
-+	complete_kiocb(iocb, err ? err : (int)resultlen, 0);
- }
- EXPORT_SYMBOL_GPL(af_alg_async_cb);
- 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a943207705dd..f7a76e82c88c 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -591,7 +591,7 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
- 	kthread_associate_blkcg(NULL);
- 
- 	if (ret != -EIOCBQUEUED)
--		cmd->iocb.ki_complete(&cmd->iocb, ret, 0);
-+		complete_kiocb(&cmd->iocb, ret, 0);
- 	return 0;
- }
- 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 490d353d5fde..6b0c128fdb7e 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -829,7 +829,7 @@ static void ffs_user_copy_worker(struct work_struct *work)
- 		kthread_unuse_mm(io_data->mm);
- 	}
- 
--	io_data->kiocb->ki_complete(io_data->kiocb, ret, ret);
-+	complete_kiocb(io_data->kiocb, ret, ret);
- 
- 	if (io_data->ffs->ffs_eventfd && !kiocb_has_eventfd)
- 		eventfd_signal(io_data->ffs->ffs_eventfd, 1);
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 9ee0bfe7bcda..d16ce03c872a 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -469,7 +469,7 @@ static void ep_user_copy_worker(struct work_struct *work)
- 		ret = -EFAULT;
- 
- 	/* completing the iocb can drop the ctx and mm, don't touch mm after */
--	iocb->ki_complete(iocb, ret, ret);
-+	complete_kiocb(iocb, ret, ret);
- 
- 	kfree(priv->buf);
- 	kfree(priv->to_free);
-@@ -498,7 +498,7 @@ static void ep_aio_complete(struct usb_ep *ep, struct usb_request *req)
- 		iocb->private = NULL;
- 		/* aio_complete() reports bytes-transferred _and_ faults */
- 
--		iocb->ki_complete(iocb, req->actual ? req->actual : req->status,
-+		complete_kiocb(iocb, req->actual ? req->actual : req->status,
- 				req->status);
- 	} else {
- 		/* ep_copy_to_user() won't report both; we hide some faults */
-diff --git a/fs/aio.c b/fs/aio.c
-index 91e7cc4a9f17..ca3b123d83f7 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1513,7 +1513,7 @@ static inline void aio_rw_done(struct kiocb *req, ssize_t ret)
- 		ret = -EINTR;
- 		/*FALLTHRU*/
- 	default:
--		req->ki_complete(req, ret, 0);
-+		complete_kiocb(req, ret, 0);
- 	}
- }
- 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 182ddf82938f..76c55cd14ad1 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -304,7 +304,7 @@ static void blkdev_bio_end_io(struct bio *bio)
- 				ret = blk_status_to_errno(dio->bio.bi_status);
- 			}
- 
--			dio->iocb->ki_complete(iocb, ret, 0);
-+			complete_kiocb(iocb, ret, 0);
- 			if (dio->multi_bio)
- 				bio_put(&dio->bio);
- 		} else {
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 160644ddaeed..4e379c385202 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -1040,7 +1040,7 @@ static void ceph_aio_complete(struct inode *inode,
- 	ceph_put_cap_refs(ci, (aio_req->write ? CEPH_CAP_FILE_WR :
- 						CEPH_CAP_FILE_RD));
- 
--	aio_req->iocb->ki_complete(aio_req->iocb, ret, 0);
-+	complete_kiocb(aio_req->iocb, ret, 0);
- 
- 	ceph_free_cap_flush(aio_req->prealloc_cf);
- 	kfree(aio_req);
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 9b0f8f33f832..cbf36a8a23aa 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3116,7 +3116,7 @@ static void collect_uncached_write_data(struct cifs_aio_ctx *ctx)
- 	mutex_unlock(&ctx->aio_mutex);
- 
- 	if (ctx->iocb && ctx->iocb->ki_complete)
--		ctx->iocb->ki_complete(ctx->iocb, ctx->rc, 0);
-+		complete_kiocb(ctx->iocb, ctx->rc, 0);
- 	else
- 		complete(&ctx->done);
- }
-@@ -3849,7 +3849,7 @@ collect_uncached_read_data(struct cifs_aio_ctx *ctx)
- 	mutex_unlock(&ctx->aio_mutex);
- 
- 	if (ctx->iocb && ctx->iocb->ki_complete)
--		ctx->iocb->ki_complete(ctx->iocb, ctx->rc, 0);
-+		complete_kiocb(ctx->iocb, ctx->rc, 0);
- 	else
- 		complete(&ctx->done);
- }
-diff --git a/fs/direct-io.c b/fs/direct-io.c
-index 183299892465..b17dceaeebe5 100644
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -308,7 +308,7 @@ static ssize_t dio_complete(struct dio *dio, ssize_t ret, unsigned int flags)
- 
- 		if (ret > 0 && dio->op == REQ_OP_WRITE)
- 			ret = generic_write_sync(dio->iocb, ret);
--		dio->iocb->ki_complete(dio->iocb, ret, 0);
-+		complete_kiocb(dio->iocb, ret, 0);
- 	}
- 
- 	kmem_cache_free(dio_cache, dio);
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index e573b0cd2737..7eac77d950fb 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -655,7 +655,7 @@ static void fuse_aio_complete(struct fuse_io_priv *io, int err, ssize_t pos)
- 			spin_unlock(&fi->lock);
- 		}
- 
--		io->iocb->ki_complete(io->iocb, res, 0);
-+		complete_kiocb(io->iocb, res, 0);
- 	}
- 
- 	kref_put(&io->refcnt, fuse_io_release);
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6e3169834bf7..f06915fcb6b6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2469,7 +2469,7 @@ static inline void io_rw_done(struct kiocb *kiocb, ssize_t ret)
- 		ret = -EINTR;
- 		/* fall through */
- 	default:
--		kiocb->ki_complete(kiocb, ret, 0);
-+		complete_kiocb(kiocb, ret, 0);
- 	}
- }
- 
-diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
-index ec7b78e6feca..3b7edd9c3c11 100644
---- a/fs/iomap/direct-io.c
-+++ b/fs/iomap/direct-io.c
-@@ -133,9 +133,8 @@ static ssize_t iomap_dio_complete(struct iomap_dio *dio)
- static void iomap_dio_complete_work(struct work_struct *work)
- {
- 	struct iomap_dio *dio = container_of(work, struct iomap_dio, aio.work);
--	struct kiocb *iocb = dio->iocb;
- 
--	iocb->ki_complete(iocb, iomap_dio_complete(dio), 0);
-+	complete_kiocb(dio->iocb, iomap_dio_complete(dio), 0);
- }
- 
- /*
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 3d113cf8908a..498a58b989cf 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -273,7 +273,7 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
- 			res = (long) dreq->count;
- 			WARN_ON_ONCE(dreq->count < 0);
- 		}
--		dreq->iocb->ki_complete(dreq->iocb, res, 0);
-+		complete_kiocb(dreq->iocb, res, 0);
- 	}
- 
- 	complete(&dreq->completion);
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 01820e654a21..78e7439fc4e2 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -275,7 +275,7 @@ static void ovl_aio_rw_complete(struct kiocb *iocb, long res, long res2)
- 	struct kiocb *orig_iocb = aio_req->orig_iocb;
- 
- 	ovl_aio_cleanup_handler(aio_req);
--	orig_iocb->ki_complete(orig_iocb, res, res2);
-+	complete_kiocb(orig_iocb, res, res2);
- }
- 
- static ssize_t ovl_read_iter(struct kiocb *iocb, struct iov_iter *iter)
-diff --git a/fs/read_write.c b/fs/read_write.c
-index bbfa9b12b15e..89151de19f77 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -363,6 +363,12 @@ SYSCALL_DEFINE5(llseek, unsigned int, fd, unsigned long, offset_high,
- }
- #endif
- 
-+void complete_kiocb(struct kiocb *iocb, long ret, long ret2)
-+{
-+	iocb->ki_complete(iocb, ret, ret2);
-+}
-+EXPORT_SYMBOL(complete_kiocb);
-+
- int rw_verify_area(int read_write, struct file *file, const loff_t *ppos, size_t count)
- {
- 	struct inode *inode;
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index da90323b9f92..846135aa328d 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -346,6 +346,8 @@ static inline bool is_sync_kiocb(struct kiocb *kiocb)
- 	return kiocb->ki_complete == NULL;
- }
- 
-+void complete_kiocb(struct kiocb *kiocb, long ret, long ret2);
-+
- /*
-  * "descriptor" for what we're up to with a read.
-  * This allows us to use the same read code yet
+Didn't test anything beyond that, outside of ensuring the kernel also
+booted ;-)
+
 -- 
-2.27.0
+Jens Axboe
 

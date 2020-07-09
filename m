@@ -5,59 +5,61 @@ X-Spam-Level:
 X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B129FC433E0
-	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 18:52:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 529C5C433DF
+	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 18:55:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 81E3C20774
-	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 18:52:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A0B620774
+	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 18:55:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c2yhO+oQ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="t8VQvHq2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbgGISwM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 9 Jul 2020 14:52:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
+        id S1726345AbgGISze (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 9 Jul 2020 14:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726116AbgGISwL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 9 Jul 2020 14:52:11 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845F2C08C5CE;
-        Thu,  9 Jul 2020 11:52:11 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id r12so3435508wrj.13;
-        Thu, 09 Jul 2020 11:52:11 -0700 (PDT)
+        with ESMTP id S1726116AbgGISzd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 9 Jul 2020 14:55:33 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 438E2C08C5CE;
+        Thu,  9 Jul 2020 11:55:33 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id z2so3497244wrp.2;
+        Thu, 09 Jul 2020 11:55:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=CJepc6A83Iz0pdQgNa7dRuCWww2waSENfIEOCoF1gDU=;
-        b=c2yhO+oQ//29y6bXkX5HOgKsdwpZYAAzJS+jR9jCtInRLU3w7TS+7wRSajZHh2lnF1
-         DORDAMtoV1IRz6ZED8N36G4xDB0lao+MAIoNg5rTP0olB4BL5P4rpeDUE2z0O2PGiE17
-         H06cBoQlEfSSiMSMkiq+7F4l3xMlBS2ulDi9kFwParTtCGIiiOhtIrN8y0cjYOWNcmkv
-         V0XjLwwLnDaesF5gVoJZuSF5N8GUHh/CJtvd3H0J/xofrgvjTNlVWCy2LyXcdKbNrjUV
-         oPIRfT0wc9aPKndcfasFTcYJKRs8hJD9CkQ39/UxMw6WJZUj+j7skFqfcaXeTSlNOX1T
-         G50Q==
+        bh=ZWQkR/cdHEX/idT93FTs7op9XG66/r1l68vwm8AtW4Q=;
+        b=t8VQvHq2IsjyH+L982eXLkXjoVH8HbAvy3seVHWfY6AyMt4HmMFZrtpM797p+WsM2h
+         4Lvc4Lq3mt0M9ZfNStD/pPoHqhpia5K1WP70dyOErorAkakukyUGF3XVHSzBKytG+gYp
+         hzDZS/mTCzPGv/J1RibqWdYp3NA/I90gLVwl21d1CFVDPBvgRB+30I+z524r1e/t4m5B
+         X0v5wHh4JJclRqmlvDN2kTUgHh56TZP1VG3uMMTcg9++sCbDBef/VB+BtP+H79853VKh
+         wLuQcZGndpa7uax+9UmNisdWx0Ohv6JrwyaZ/q/Pr+DE7i0kw7UAPMHMC9ovdxOdBrDD
+         1/og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=CJepc6A83Iz0pdQgNa7dRuCWww2waSENfIEOCoF1gDU=;
-        b=cIZLuBW87iaqOg7wcHk7mTNW/hQ9fUwy5fdvBjBxPymSMDNWCLLEW9C9YDmtYFB5WB
-         lWFm2naER6jJV0aBeCIfzMraE0ryHEfVA/6wsng5ykop/7wzY5pi4n1QsUiq6aUmMeA0
-         alcxID0Xy3xt/XE0pZDdRhlMqiocyyv2EK4f8mOqvNPiQTsszCg5eycKAn2i30YYQSwd
-         M7qKzYezsww7YXSmcxgM+ze9xgfFw+RF5f+Br7r1+9yR9j1CIaC0ZLem/pzs8Y15wqds
-         og6qeXd+8FTYfG7A9J3YlnVG/NsksDk66NYju9YXZ1RofCCHEMDjgS27C2In5+fO6oNZ
-         EAbA==
-X-Gm-Message-State: AOAM533qwuv4nyp2T7/HyYNWPERlARCUSv2CorX8jQC2rFgr9Aey7MA8
-        U5719iryxB7imXO0obryTlhoZKfExFw=
-X-Google-Smtp-Source: ABdhPJzTAII5TrIt2XZVqrl691tjd9S+tAIDpJysVXmdMLiiiSZKyej4OI4ZUnTU4hvk2P1gC5lv/w==
-X-Received: by 2002:adf:80c2:: with SMTP id 60mr48022011wrl.388.1594320730176;
-        Thu, 09 Jul 2020 11:52:10 -0700 (PDT)
+        bh=ZWQkR/cdHEX/idT93FTs7op9XG66/r1l68vwm8AtW4Q=;
+        b=LdBdRVUHJH5IbxPlLRIzaFN1Zpg9HY5oKt33LXNtsw+Z4gTkS4uEwEBf/ZB6iyUyzA
+         9sh1SK8ueeclxlJkcA4ViP/B1fjQOG+3l2YIM7IVkgo/qk89LbiSh5tQ+NqhaBmBv2SO
+         0G6Ws17YPJ2ONvXZovngG8VLaS2ZsqLeAkhq6AbhS9SaAlLqlPXe/+ZxZM6cIGYPeOlN
+         JOTEMoc+l4KfKHj1OBd9xKNb+LYL3VVuxvX4dma1n+Foeqd0linPJzrUCVmGoEZZjwi6
+         x+d81RXVLtAAp3/zAYCd2E1513eoHqkUvycDiND4m0rOLSdUiFknriSf43GAAsNzlhiH
+         7W0w==
+X-Gm-Message-State: AOAM533hsvE8swBu5tk4TIggl2OcFOY3TRwp2AfXLCcZUJbEgBUhVl3u
+        BW0rFJqSFcZ4fV2bFrFljz8=
+X-Google-Smtp-Source: ABdhPJzCf8MphNlRjb3U5R+NihXICQOcT4MESC9eb0AG6V3FeuPjSDgpMDekaHvTi3Uc3ahAlBtAqg==
+X-Received: by 2002:adf:efcc:: with SMTP id i12mr63734846wrp.349.1594320931977;
+        Thu, 09 Jul 2020 11:55:31 -0700 (PDT)
 Received: from [192.168.43.42] ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id w13sm6593839wrr.67.2020.07.09.11.52.07
+        by smtp.gmail.com with ESMTPSA id u186sm6456409wmu.10.2020.07.09.11.55.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Jul 2020 11:52:09 -0700 (PDT)
+        Thu, 09 Jul 2020 11:55:31 -0700 (PDT)
+Subject: Re: [PATCH v3 4/4] io_uring: add support for zone-append
+From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Kanchan Joshi <joshiiitr@gmail.com>, Jens Axboe <axboe@kernel.dk>
 Cc:     Christoph Hellwig <hch@infradead.org>,
         Kanchan Joshi <joshi.k@samsung.com>, viro@zeniv.linux.org.uk,
@@ -78,7 +80,7 @@ References: <1593974870-18919-1-git-send-email-joshi.k@samsung.com>
  <20200709140053.GA7528@infradead.org>
  <2270907f-670c-5182-f4ec-9756dc645376@kernel.dk>
  <CA+1E3r+H7WEyfTufNz3xBQQynOVV-uD3myYynkfp7iU+D=Svuw@mail.gmail.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
+ <4c26deb4-65c6-57c0-2b51-02861ef8558c@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -122,77 +124,84 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH v3 4/4] io_uring: add support for zone-append
-Message-ID: <4c26deb4-65c6-57c0-2b51-02861ef8558c@gmail.com>
-Date:   Thu, 9 Jul 2020 21:50:25 +0300
+Message-ID: <a8af4a0e-f18e-2d5f-17a3-3bbc546559e3@gmail.com>
+Date:   Thu, 9 Jul 2020 21:53:47 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <CA+1E3r+H7WEyfTufNz3xBQQynOVV-uD3myYynkfp7iU+D=Svuw@mail.gmail.com>
+In-Reply-To: <4c26deb4-65c6-57c0-2b51-02861ef8558c@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 09/07/2020 21:36, Kanchan Joshi wrote:
-> On Thu, Jul 9, 2020 at 7:36 PM Jens Axboe <axboe@kernel.dk> wrote:
->>
->> On 7/9/20 8:00 AM, Christoph Hellwig wrote:
->>> On Thu, Jul 09, 2020 at 07:58:04AM -0600, Jens Axboe wrote:
->>>>> We don't actually need any new field at all.  By the time the write
->>>>> returned ki_pos contains the offset after the write, and the res
->>>>> argument to ->ki_complete contains the amount of bytes written, which
->>>>> allow us to trivially derive the starting position.
-> 
-> Deriving starting position was not the purpose at all.
-> But yes, append-offset is not needed, for a different reason.
-> It was kept for uring specific handling. Completion-result from lower
-> layer was always coming to uring in ret2 via ki_complete(....,ret2).
-> And ret2 goes to CQE (and user-space) without any conversion in between.
-> For polled-completion, there is a short window when we get ret2 but cannot
-> write into CQE immediately, so thought of storing that in append_offset
-> (but should not have done, solving was possible without it).
-
-fwiw, there are more cases when it's postponed.
-
-> FWIW, if we move to indirect-offset approach, append_offset gets
-> eliminated automatically, because there is no need to write to CQE
-> itself.
-
-Right, for the indirect approach we can write offset right after getting it.
-If not, then it's somehow stored in an CQE, so may be placed into
-existing req->{result,cflags}, which mimic CQE's fields.
-
-> 
->>>> Then let's just do that instead of jumping through hoops either
->>>> justifying growing io_rw/io_kiocb or turning kiocb into a global
->>>> completion thing.
+On 09/07/2020 21:50, Pavel Begunkov wrote:
+> On 09/07/2020 21:36, Kanchan Joshi wrote:
+>> On Thu, Jul 9, 2020 at 7:36 PM Jens Axboe <axboe@kernel.dk> wrote:
 >>>
->>> Unfortunately that is a totally separate issue - the in-kernel offset
->>> can be trivially calculated.  But we still need to figure out a way to
->>> pass it on to userspace.  The current patchset does that by abusing
->>> the flags, which doesn't really work as the flags are way too small.
->>> So we somewhere need to have an address to do the put_user to.
+>>> On 7/9/20 8:00 AM, Christoph Hellwig wrote:
+>>>> On Thu, Jul 09, 2020 at 07:58:04AM -0600, Jens Axboe wrote:
+>>>>>> We don't actually need any new field at all.  By the time the write
+>>>>>> returned ki_pos contains the offset after the write, and the res
+>>>>>> argument to ->ki_complete contains the amount of bytes written, which
+>>>>>> allow us to trivially derive the starting position.
 >>
->> Right, we're just trading the 'append_offset' for a 'copy_offset_here'
->> pointer, which are stored in the same spot...
+>> Deriving starting position was not the purpose at all.
+>> But yes, append-offset is not needed, for a different reason.
+>> It was kept for uring specific handling. Completion-result from lower
+>> layer was always coming to uring in ret2 via ki_complete(....,ret2).
+>> And ret2 goes to CQE (and user-space) without any conversion in between.
+>> For polled-completion, there is a short window when we get ret2 but cannot
+>> write into CQE immediately, so thought of storing that in append_offset
+>> (but should not have done, solving was possible without it).
 > 
-> The address needs to be stored somewhere. And there does not seem
-> other option but to use io_kiocb?
-> The bigger problem with address/indirect-offset is to be able to write to it
-> during completion as process-context is different. Will that require entering
-> into task_work_add() world, and may make it costly affair?
+> fwiw, there are more cases when it's postponed.
 > 
-> Using flags have not been liked here, but given the upheaval involved so
-> far I have begun to feel - it was keeping things simple. Should it be
-> reconsidered?
+>> FWIW, if we move to indirect-offset approach, append_offset gets
+>> eliminated automatically, because there is no need to write to CQE
+>> itself.
 > 
+> Right, for the indirect approach we can write offset right after getting it.
+
+Take it back, as you mentioned with task_work, we may need the right context.
+
+BTW, there is one more way to get space for it, and it would also shed 8 bytes
+from io_kiocb, but that would need some work to be done.
+
+> If not, then it's somehow stored in an CQE, so may be placed into
+> existing req->{result,cflags}, which mimic CQE's fields.
 > 
-> --
-> Joshi
+>>
+>>>>> Then let's just do that instead of jumping through hoops either
+>>>>> justifying growing io_rw/io_kiocb or turning kiocb into a global
+>>>>> completion thing.
+>>>>
+>>>> Unfortunately that is a totally separate issue - the in-kernel offset
+>>>> can be trivially calculated.  But we still need to figure out a way to
+>>>> pass it on to userspace.  The current patchset does that by abusing
+>>>> the flags, which doesn't really work as the flags are way too small.
+>>>> So we somewhere need to have an address to do the put_user to.
+>>>
+>>> Right, we're just trading the 'append_offset' for a 'copy_offset_here'
+>>> pointer, which are stored in the same spot...
+>>
+>> The address needs to be stored somewhere. And there does not seem
+>> other option but to use io_kiocb?
+>> The bigger problem with address/indirect-offset is to be able to write to it
+>> during completion as process-context is different. Will that require entering
+>> into task_work_add() world, and may make it costly affair?
+>>
+>> Using flags have not been liked here, but given the upheaval involved so
+>> far I have begun to feel - it was keeping things simple. Should it be
+>> reconsidered?
+>>
+>>
+>> --
+>> Joshi
+>>
 > 
 
 -- 

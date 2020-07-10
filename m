@@ -1,138 +1,84 @@
-Return-Path: <SRS0=2KDX=AU=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=wdjZ=AV=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DATE_IN_FUTURE_06_12,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA34C433E0
-	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 21:34:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 737EAC433E0
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 06:15:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7D20206A1
-	for <io-uring@archiver.kernel.org>; Thu,  9 Jul 2020 21:34:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5641820720
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 06:15:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgGIVez (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 9 Jul 2020 17:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726193AbgGIVez (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 9 Jul 2020 17:34:55 -0400
-Received: from sym2.noone.org (sym2.noone.org [IPv6:2a01:4f8:120:4161::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95AEC08C5CE
-        for <io-uring@vger.kernel.org>; Thu,  9 Jul 2020 14:34:54 -0700 (PDT)
-Received: by sym2.noone.org (Postfix, from userid 1002)
-        id 4B2qFm1xKhzvjc1; Thu,  9 Jul 2020 23:34:52 +0200 (CEST)
-From:   Tobias Klauser <tklauser@distanz.ch>
-To:     io-uring@vger.kernel.org
-Subject: [PATCH] test/statx: verify against statx(2) on all archs
-Date:   Thu,  9 Jul 2020 23:34:52 +0200
-Message-Id: <20200709213452.21290-1-tklauser@distanz.ch>
-X-Mailer: git-send-email 2.11.0
+        id S1726004AbgGJGPP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 10 Jul 2020 02:15:15 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:7830 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725851AbgGJGPP (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 10 Jul 2020 02:15:15 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id F20893357126DAC07796;
+        Fri, 10 Jul 2020 14:15:09 +0800 (CST)
+Received: from huawei.com (10.175.124.27) by DGGEMS406-HUB.china.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server id 14.3.487.0; Fri, 10 Jul 2020
+ 14:15:04 +0800
+From:   Yang Yingliang <yangyingliang@huawei.com>
+To:     <io-uring@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <axboe@kernel.dk>
+Subject: [PATCH] io_uring: fix memleak in io_sqe_files_register()
+Date:   Fri, 10 Jul 2020 14:14:20 +0000
+Message-ID: <20200710141420.3987063-1-yangyingliang@huawei.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.124.27]
+X-CFilter-Loop: Reflected
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Use __NR_statx in do_statx and unconditionally use it to check the
-result on all architectures, not just x86_64. This relies on the
-fact that __NR_statx should be defined if struct statx and STATX_ALL are
-available as well.
+I got a memleak report when doing some fuzz test:
 
-Don't fail the test if the statx syscall returns EOPNOTSUPP though.
+BUG: memory leak
+unreferenced object 0x607eeac06e78 (size 8):
+  comm "test", pid 295, jiffies 4294735835 (age 31.745s)
+  hex dump (first 8 bytes):
+    00 00 00 00 00 00 00 00                          ........
+  backtrace:
+    [<00000000932632e6>] percpu_ref_init+0x2a/0x1b0
+    [<0000000092ddb796>] __io_uring_register+0x111d/0x22a0
+    [<00000000eadd6c77>] __x64_sys_io_uring_register+0x17b/0x480
+    [<00000000591b89a6>] do_syscall_64+0x56/0xa0
+    [<00000000864a281d>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+
+Call percpu_ref_exit() on error path to avoid
+refcount memleak.
+
+Fixes: 05f3fb3c5397 ("io_uring: avoid ring quiesce for fixed file set unregister and update")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 ---
- test/statx.c | 27 ++++++++++-----------------
- 1 file changed, 10 insertions(+), 17 deletions(-)
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/test/statx.c b/test/statx.c
-index a397593f7c11..d354d19fb095 100644
---- a/test/statx.c
-+++ b/test/statx.c
-@@ -15,13 +15,11 @@
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d37d7ea5ebe5..ea81be3c14af 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6693,6 +6693,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		for (i = 0; i < nr_tables; i++)
+ 			kfree(ctx->file_data->table[i].files);
  
- #include "liburing.h"
- 
--#if defined(__x86_64)
- static int do_statx(int dfd, const char *path, int flags, unsigned mask,
- 		    struct statx *statxbuf)
- {
--	return syscall(332, dfd, path, flags, mask, statxbuf);
-+	return syscall(__NR_statx, dfd, path, flags, mask, statxbuf);
- }
--#endif
- 
- static int create_file(const char *file, size_t size)
- {
-@@ -42,14 +40,16 @@ static int create_file(const char *file, size_t size)
- 	return ret != size;
- }
- 
-+static int statx_syscall_supported(void)
-+{
-+	return errno == EOPNOTSUPP ? 0 : -1;
-+}
-+
- static int test_statx(struct io_uring *ring, const char *path)
- {
- 	struct io_uring_cqe *cqe;
- 	struct io_uring_sqe *sqe;
--	struct statx x1;
--#if defined(__x86_64)
--	struct statx x2;
--#endif
-+	struct statx x1, x2;
- 	int ret;
- 
- 	sqe = io_uring_get_sqe(ring);
-@@ -74,15 +74,13 @@ static int test_statx(struct io_uring *ring, const char *path)
- 	io_uring_cqe_seen(ring, cqe);
- 	if (ret)
- 		return ret;
--#if defined(__x86_64)
- 	ret = do_statx(-1, path, 0, STATX_ALL, &x2);
- 	if (ret < 0)
--		return -1;
-+		return statx_syscall_supported();
- 	if (memcmp(&x1, &x2, sizeof(x1))) {
- 		fprintf(stderr, "Miscompare between io_uring and statx\n");
- 		goto err;
- 	}
--#endif
- 	return 0;
- err:
- 	return -1;
-@@ -92,10 +90,7 @@ static int test_statx_fd(struct io_uring *ring, const char *path)
- {
- 	struct io_uring_cqe *cqe;
- 	struct io_uring_sqe *sqe;
--	struct statx x1;
--#if defined(__x86_64)
--	struct statx x2;
--#endif
-+	struct statx x1, x2;
- 	int ret, fd;
- 
- 	fd = open(path, O_RDONLY);
-@@ -128,16 +123,14 @@ static int test_statx_fd(struct io_uring *ring, const char *path)
- 	io_uring_cqe_seen(ring, cqe);
- 	if (ret)
- 		return ret;
--#if defined(__x86_64)
- 	memset(&x2, 0, sizeof(x2));
- 	ret = do_statx(fd, "", AT_EMPTY_PATH, STATX_ALL, &x2);
- 	if (ret < 0)
--		return -1;
-+		return statx_syscall_supported();
- 	if (memcmp(&x1, &x2, sizeof(x1))) {
- 		fprintf(stderr, "Miscompare between io_uring and statx\n");
- 		goto err;
- 	}
--#endif
- 	return 0;
- err:
- 	return -1;
++		percpu_ref_exit(&ctx->file_data->refs);
+ 		kfree(ctx->file_data->table);
+ 		kfree(ctx->file_data);
+ 		ctx->file_data = NULL;
 -- 
-2.27.0
+2.25.1
 

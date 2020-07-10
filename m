@@ -2,83 +2,87 @@ Return-Path: <SRS0=wdjZ=AV=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DATE_IN_FUTURE_06_12,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 737EAC433E0
-	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 06:15:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECBF7C433E3
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:09:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5641820720
-	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 06:15:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C04B52082E
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:09:33 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="tr6Eaqfm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgGJGPP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 10 Jul 2020 02:15:15 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:7830 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725851AbgGJGPP (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 10 Jul 2020 02:15:15 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id F20893357126DAC07796;
-        Fri, 10 Jul 2020 14:15:09 +0800 (CST)
-Received: from huawei.com (10.175.124.27) by DGGEMS406-HUB.china.huawei.com
- (10.3.19.206) with Microsoft SMTP Server id 14.3.487.0; Fri, 10 Jul 2020
- 14:15:04 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <io-uring@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <axboe@kernel.dk>
-Subject: [PATCH] io_uring: fix memleak in io_sqe_files_register()
-Date:   Fri, 10 Jul 2020 14:14:20 +0000
-Message-ID: <20200710141420.3987063-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726872AbgGJNJc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 10 Jul 2020 09:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59672 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726828AbgGJNJb (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 10 Jul 2020 09:09:31 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D3EEC08C5CE;
+        Fri, 10 Jul 2020 06:09:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=NZEm5kzXLSFX2uBu54Q0aqlOoQJepX9jlZjRW+QQTkw=; b=tr6Eaqfm9KyxXHuJMhAte2ZWyv
+        aVsZJEWGYxlDflnFN4o7pToRfOf2n3IgeEy9QK+jOxSUH0v6L9rNedztx5aw2zYTrGcRzPrR4eROj
+        Ek+Ub/VhMABoNVTenSTaf524sNeUiWS5MiA7EqjQw6ppbOyfc7fzB2KorQNu3s5+wgF1dP6JCSlHY
+        bjDNfOO6JS4T4XL8+yUwKU3Oxuy2mASVyYxVouUPt4VPpz6L1J4bMtMOCl4ejE/e061xHf7G4aOi5
+        yA/koxNGruZrjBLNKp4qg2UDUelZV9PpNAzuyUK2O6rtoG0L4HV3D6Z2na03mPGQRKQQq99yry4Bf
+        jDHufJqg==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jtsm8-000266-Hp; Fri, 10 Jul 2020 13:09:12 +0000
+Date:   Fri, 10 Jul 2020 14:09:12 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Kanchan Joshi <joshiiitr@gmail.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Kanchan Joshi <joshi.k@samsung.com>, viro@zeniv.linux.org.uk,
+        bcrl@kvack.org, Damien.LeMoal@wdc.com, asml.silence@gmail.com,
+        linux-fsdevel@vger.kernel.org, Matias Bj??rling <mb@lightnvm.io>,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-block@vger.kernel.org,
+        Selvakumar S <selvakuma.s1@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Javier Gonzalez <javier.gonz@samsung.com>
+Subject: Re: [PATCH v3 4/4] io_uring: add support for zone-append
+Message-ID: <20200710130912.GA7491@infradead.org>
+References: <1593974870-18919-1-git-send-email-joshi.k@samsung.com>
+ <CGME20200705185227epcas5p16fba3cb92561794b960184c89fdf2bb7@epcas5p1.samsung.com>
+ <1593974870-18919-5-git-send-email-joshi.k@samsung.com>
+ <fe0066b7-5380-43ee-20b2-c9b17ba18e4f@kernel.dk>
+ <20200709085501.GA64935@infradead.org>
+ <adc14700-8e95-10b2-d914-afa5029ae80c@kernel.dk>
+ <20200709140053.GA7528@infradead.org>
+ <2270907f-670c-5182-f4ec-9756dc645376@kernel.dk>
+ <CA+1E3r+H7WEyfTufNz3xBQQynOVV-uD3myYynkfp7iU+D=Svuw@mail.gmail.com>
+ <f5e3e931-ef1b-2eb6-9a03-44dd5589c8d3@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.124.27]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f5e3e931-ef1b-2eb6-9a03-44dd5589c8d3@kernel.dk>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-I got a memleak report when doing some fuzz test:
+On Thu, Jul 09, 2020 at 12:50:27PM -0600, Jens Axboe wrote:
+> It might, if you have IRQ context for the completion. task_work isn't
+> expensive, however. It's not like a thread offload.
+> 
+> > Using flags have not been liked here, but given the upheaval involved so
+> > far I have begun to feel - it was keeping things simple. Should it be
+> > reconsidered?
+> 
+> It's definitely worth considering, especially since we can use cflags
+> like Pavel suggested upfront and not need any extra storage. But it
+> brings us back to the 32-bit vs 64-bit discussion, and then using blocks
+> instead of bytes. Which isn't exactly super pretty.
 
-BUG: memory leak
-unreferenced object 0x607eeac06e78 (size 8):
-  comm "test", pid 295, jiffies 4294735835 (age 31.745s)
-  hex dump (first 8 bytes):
-    00 00 00 00 00 00 00 00                          ........
-  backtrace:
-    [<00000000932632e6>] percpu_ref_init+0x2a/0x1b0
-    [<0000000092ddb796>] __io_uring_register+0x111d/0x22a0
-    [<00000000eadd6c77>] __x64_sys_io_uring_register+0x17b/0x480
-    [<00000000591b89a6>] do_syscall_64+0x56/0xa0
-    [<00000000864a281d>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-
-Call percpu_ref_exit() on error path to avoid
-refcount memleak.
-
-Fixes: 05f3fb3c5397 ("io_uring: avoid ring quiesce for fixed file set unregister and update")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
----
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d37d7ea5ebe5..ea81be3c14af 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6693,6 +6693,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		for (i = 0; i < nr_tables; i++)
- 			kfree(ctx->file_data->table[i].files);
- 
-+		percpu_ref_exit(&ctx->file_data->refs);
- 		kfree(ctx->file_data->table);
- 		kfree(ctx->file_data);
- 		ctx->file_data = NULL;
--- 
-2.25.1
-
+block doesn't work for the case of writes to files that don't have
+to be aligned in any way.  And that I think is the more broadly
+applicable use case than zone append on block devices.

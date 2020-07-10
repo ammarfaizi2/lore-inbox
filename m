@@ -6,36 +6,36 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86FE3C433E5
-	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:51:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48F0BC433E7
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:48:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66199207D0
-	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:51:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25B1E20767
+	for <io-uring@archiver.kernel.org>; Fri, 10 Jul 2020 13:48:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ucDfWFoR"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="pPiM8bMa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbgGJNv1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 10 Jul 2020 09:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
+        id S1726950AbgGJNse (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 10 Jul 2020 09:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727780AbgGJNv0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 10 Jul 2020 09:51:26 -0400
+        with ESMTP id S1726840AbgGJNsd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 10 Jul 2020 09:48:33 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB2CC08C5DC;
-        Fri, 10 Jul 2020 06:51:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B281C08C5CE;
+        Fri, 10 Jul 2020 06:48:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=GzHj4CEVr0oUdolRmXviOzvrbW+eqpTTu5OyjK0tKsE=; b=ucDfWFoRjeYNSOVqTXosnNhriM
-        WQDGoFaij3+kJn+YGVd1wlY2XgK6k0T07jwYz6xR2Cwm07yXp582rbktduPDkqzjvj2vdc1STGGQW
-        HxTfEAXSByu1MasCJdFWlWpm5udkli+OVbbzf9WZTHYFzQoYcbLOWTr5nVMwzMWBgm76vo85KXF/o
-        WHGt5JglwzU/rFb4ba2riO/WODj0BEZtk583pZMP4JlTY1wuCHGknNxhtW3tojtsdRGdt/ebMrFbM
-        lu+RLZ8XjbW1K9OPfIJgO1fel7KpbhdIpsInu++IcroKbkYqDBs6y0B3CLzJkLWXZylTo7HmBhCDo
-        XOJePRvQ==;
+        bh=3sEWKCgSSIJlrf5jylxGAqRUeqaTvOph1wbVl9BPw2U=; b=pPiM8bMasRSGqygx9oUy8tC8Xm
+        Li5gj0nNDz6jJRK0BaXcFZHy75weUBw1+Ahkd4xRXqnqt0JTU1LOENkF34flVjVBrrpffQAF9A3V/
+        8Z92+xOx9CQW4XI47QxeCT3HI4Maa9xtfSuGl9gLyqSMm8mDkyS/IZJ8eZ940C/OvAwkk+85X10OT
+        H5/RwtnNGC5E6AjtyATcbpvbe4Jj0Iiv2bDDh8W678THbJELC6cHqsILZ45eWwlHQRyQcxo4ldroY
+        adRZX9LVQR98oIQ3LC8/6TJ6fIuSfk+uMONEpV0jWrweSZH/e74OzdGH85K1ADlQnvrHN3CQlteac
+        EJlYC0Ng==;
 Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jttQt-0004Pi-Cf; Fri, 10 Jul 2020 13:51:19 +0000
-Date:   Fri, 10 Jul 2020 14:51:19 +0100
+        id 1jttO4-0004DD-TF; Fri, 10 Jul 2020 13:48:24 +0000
+Date:   Fri, 10 Jul 2020 14:48:24 +0100
 From:   Matthew Wilcox <willy@infradead.org>
 To:     Christoph Hellwig <hch@infradead.org>
 Cc:     Kanchan Joshi <joshiiitr@gmail.com>, Jens Axboe <axboe@kernel.dk>,
@@ -48,8 +48,10 @@ Cc:     Kanchan Joshi <joshiiitr@gmail.com>, Jens Axboe <axboe@kernel.dk>,
         Nitesh Shetty <nj.shetty@samsung.com>,
         Javier Gonzalez <javier.gonz@samsung.com>
 Subject: Re: [PATCH v3 4/4] io_uring: add support for zone-append
-Message-ID: <20200710135119.GL12769@casper.infradead.org>
-References: <20200709085501.GA64935@infradead.org>
+Message-ID: <20200710134824.GK12769@casper.infradead.org>
+References: <1593974870-18919-5-git-send-email-joshi.k@samsung.com>
+ <fe0066b7-5380-43ee-20b2-c9b17ba18e4f@kernel.dk>
+ <20200709085501.GA64935@infradead.org>
  <adc14700-8e95-10b2-d914-afa5029ae80c@kernel.dk>
  <20200709140053.GA7528@infradead.org>
  <2270907f-670c-5182-f4ec-9756dc645376@kernel.dk>
@@ -57,39 +59,48 @@ References: <20200709085501.GA64935@infradead.org>
  <f5e3e931-ef1b-2eb6-9a03-44dd5589c8d3@kernel.dk>
  <CA+1E3rLna6VVuwMSHVVEFmrgsTyJN=U4CcZtxSGWYr_UYV7AmQ@mail.gmail.com>
  <20200710131054.GB7491@infradead.org>
- <20200710134824.GK12769@casper.infradead.org>
- <20200710134932.GA16257@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200710134932.GA16257@infradead.org>
+In-Reply-To: <20200710131054.GB7491@infradead.org>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Fri, Jul 10, 2020 at 02:49:32PM +0100, Christoph Hellwig wrote:
-> On Fri, Jul 10, 2020 at 02:48:24PM +0100, Matthew Wilcox wrote:
-> > If we're going to go the route of changing the CQE, how about:
+On Fri, Jul 10, 2020 at 02:10:54PM +0100, Christoph Hellwig wrote:
+> On Fri, Jul 10, 2020 at 12:35:43AM +0530, Kanchan Joshi wrote:
+> > Append required special treatment (conversion for sector to bytes) for io_uring.
+> > And we were planning a user-space wrapper to abstract that.
 > > 
-> >  struct io_uring_cqe {
-> >          __u64   user_data;      /* sqe->data submission passed back */
-> > -        __s32   res;            /* result code for this event */
-> > -        __u32   flags;
-> > +	union {
-> > +		struct {
-> > +		        __s32   res;            /* result code for this event */
-> > +		        __u32   flags;
-> > +		};
-> > +		__s64	res64;
-> > +	};
-> >  };
-> > 
-> > then we don't need to change the CQE size and it just depends on the SQE
-> > whether the CQE for it uses res+flags or res64.
+> > But good part (as it seems now) was: append result went along with cflags at
+> > virtually no additional cost. And uring code changes became super clean/minimal
+> > with further revisions.
+> > While indirect-offset requires doing allocation/mgmt in application,
+> > io-uring submission
+> > and in completion path (which seems trickier), and those CQE flags
+> > still get written
+> > user-space and serve no purpose for append-write.
 > 
-> How do you return a status code or short write when you just have
-> a u64 that is needed for the offset?
+> I have to say that storing the results in the CQE generally make
+> so much more sense.  I wonder if we need a per-fd "large CGE" flag
+> that adds two extra u64s to the CQE, and some ops just require this
+> version.
 
-it's an s64 not a u64 so you can return a negative errno.  i didn't
-think we allowed short writes for objects-which-have-a-pos.
+If we're going to go the route of changing the CQE, how about:
+
+ struct io_uring_cqe {
+         __u64   user_data;      /* sqe->data submission passed back */
+-        __s32   res;            /* result code for this event */
+-        __u32   flags;
++	union {
++		struct {
++		        __s32   res;            /* result code for this event */
++		        __u32   flags;
++		};
++		__s64	res64;
++	};
+ };
+
+then we don't need to change the CQE size and it just depends on the SQE
+whether the CQE for it uses res+flags or res64.

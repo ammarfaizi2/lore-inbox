@@ -4,69 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBB3AC433E1
-	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B34CC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:52:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97293207DD
-	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:56:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B38020786
+	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:52:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (4096-bit key) header.d=venev.name header.i=@venev.name header.b="bcl1DYjp"
+	dkim=fail reason="signature verification failed" (4096-bit key) header.d=venev.name header.i=@venev.name header.b="tZYX4iWC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728441AbgGKP4v (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 11 Jul 2020 11:56:51 -0400
-Received: from mtel-bg02.venev.name ([77.70.28.44]:40402 "EHLO
+        id S1728415AbgGKPwb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 11 Jul 2020 11:52:31 -0400
+Received: from mtel-bg02.venev.name ([77.70.28.44]:37644 "EHLO
         mtel-bg02.venev.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728412AbgGKP4v (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Jul 2020 11:56:51 -0400
+        with ESMTP id S1728390AbgGKPwb (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Jul 2020 11:52:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=venev.name;
-         s=default; h=Message-ID:From:CC:To:Subject:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:In-Reply-To:Date:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=LWff+HXIDnpT1C9yV637FSFXwGVa57bMP6uhGSmlnX4=; b=bcl1DYjpD/fjSkSbdSREysTakP
-        8LYqF+5B6XS3qc4NfOglP/2QyEXVHLWF7PbrMSqlR74p1Ue4Fg2Z+zmzeXJO+09yb+ue1p7Yl8nP8
-        DmL1cxdOUPK8G+DwG5S4o7NjQa0x9CcRvK1fwiTIM01dKWTJSgx8GJ2rqN3flb+D3wHW59oMJQMje
-        yARx26ZMoRlLtwFfm4HvBo7NSZWtBrGZthU4T5mQbI3q79S6Z3eRZ4pgY3IbF0yuUGuHEeopXrED2
-        utWzxeE4sO86eCANiWauWr7tp/QHSDgoadraHUiyyzgLy91K2EJZxjbGWYU2QnUfRREtwIEYMRlUj
-        DuJKYv1pr0mnA1hJp3NVjKTsmTvO54IFflIJmqNArw0gYTWHKQzsguluURURtFFm6hfHerBUhyDS7
-        8fB3A/nUoSP962DAG6DwBeMByLKiYYgHblvpULb4JvPNP9CVfjPobYsSJJ5jjMfNqCEpWHrnHV3wA
-        LIIsWZLBm8/JKBsmqLH9L3pMusBlK4oPT1fAydNNH0k9areNcsFLSDdwNYm+Pw2lb5313SiQRkdFR
-        tKXSJigonios7SJyHxMH9radeDQrp0qG7OOFA2G2n7eGBfyHRzH41p4vpNYO+JLiguKm+KnSZ6Uzp
-        rSds+p6WJaPM/E1NYdo8ek1veVYCW7hXiBiHRXDjE=;
+         s=default; h=MIME-Version:Content-Type:References:In-Reply-To:Date:Cc:To:
+        From:Subject:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=rEPqBCwZONQ6AYSXcYS8o2o8OQwz8FfbDMCeocDNvWQ=; b=tZYX4iWC40Qvfm5tkYTqhEFWIE
+        icFUCUVWLizCLw6W3wmkgZ8ncj0je3r7tzlFOGZmdQQU3YGmK8NfVDaTevq1rdXQUZJaxiqYdpbOf
+        iUbWp/4smWmv9TEGpTB6byQ7O0VieS3rFv9EhznH3jguIQBiVmKgBba/j7QeCcx0teO0Rtk2qjTFw
+        Cba74xef6A0/1xonWKUlZAxNfE7Pvb3myjgPk9Vl3QPqJo4IE9wgeIbfvEi5RpRPaHkOkEArFUv7M
+        PmPqBWKtaXfXPypoNC1+c5CQ8JoBoES5hCx0juDPc7a/lKg42EYMmwI5LAylkWyWkh+av2u/cMOxk
+        3kpvXgCY9OAcE37PeXMPVgykVg9vgvUUDgBnF7SSJdeov3aDTenatyoN9BblYF2Tul2J35LGMqscG
+        IE3ffX0HA9xF5xFU90WU7CXCME8TrtcpnuqzcmxKF44MiX9XNw21CWxgcfIfi/ckAJA9BV44fCZrI
+        sC6JVPH4xZL2xl/wArkR6/mYQr3PM9KHrJxV8lqjP3c18jEn+e+8H20c9XKjsF3TIsv5VqWBR8zjA
+        1+IFphL6QQ/KRhiKLezhG0oBBODZ9nF7S32jp5R0b9qGgXVbPlDRIw9pZS1i7XSShqPyaLtgSGsCd
+        mIyFs+dO2VgmENYWF0fvXcDRPztMTm+yA2JhEquAE=;
 X-Check-Malware: ok
 Received: from mtel-bg02.venev.name
         by mtel-bg02.venev.name with esmtpsa
-        (TLS1.3:TLS_AES_128_GCM_SHA256:128)
+        (TLS1.3:TLS_AES_256_GCM_SHA384:256)
         (envelope-from <hristo@venev.name>)
-        id 1juHri-000bJN-0h; Sat, 11 Jul 2020 15:56:48 +0000
-Date:   Sat, 11 Jul 2020 18:56:37 +0300
-User-Agent: K-9 Mail for Android
-In-Reply-To: <7f128319f405358aa448a869a3a634a6cbc1469f.camel@venev.name>
-References: <20200711093111.2490946-1-dvyukov@google.com> <7d4e4f01-17d4-add1-5643-1df6a6868cb3@kernel.dk> <CACT4Y+YGwr+1k=rsJhMsnyQL4C+S2s9t7Cz5Axwc9fO5Ap4HbQ@mail.gmail.com> <7f128319f405358aa448a869a3a634a6cbc1469f.camel@venev.name>
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+        id 1juHnc-000bGq-UY; Sat, 11 Jul 2020 15:52:25 +0000
+Message-ID: <7f128319f405358aa448a869a3a634a6cbc1469f.camel@venev.name>
 Subject: Re: [PATCH] io_uring: fix sq array offset calculation
-To:     Dmitry Vyukov <dvyukov@google.com>, Jens Axboe <axboe@kernel.dk>
-CC:     Necip Fazil Yildiran <necip@google.com>, io-uring@vger.kernel.org
 From:   Hristo Venev <hristo@venev.name>
-Message-ID: <D5603995-0AD3-4CD9-9D93-9A9F84B2FF45@venev.name>
+To:     Dmitry Vyukov <dvyukov@google.com>, Jens Axboe <axboe@kernel.dk>
+Cc:     Necip Fazil Yildiran <necip@google.com>, io-uring@vger.kernel.org
+Date:   Sat, 11 Jul 2020 18:52:19 +0300
+In-Reply-To: <CACT4Y+YGwr+1k=rsJhMsnyQL4C+S2s9t7Cz5Axwc9fO5Ap4HbQ@mail.gmail.com>
+References: <20200711093111.2490946-1-dvyukov@google.com>
+         <7d4e4f01-17d4-add1-5643-1df6a6868cb3@kernel.dk>
+         <CACT4Y+YGwr+1k=rsJhMsnyQL4C+S2s9t7Cz5Axwc9fO5Ap4HbQ@mail.gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-7aVTSutN4x7dkjL4pPhK"
+User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+MIME-Version: 1.0
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 
+--=-7aVTSutN4x7dkjL4pPhK
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On July 11, 2020 6:52:19 PM GMT+03:00, Hristo Venev <hristo@venev=2Ename> =
-wrote:
->On Sat, 2020-07-11 at 17:31 +0200, Dmitry=20
->    PAGE_ALIGN(192 + (32 << n) + (4 << n) + (4 << n))
->    !=3D
->    PAGE_ALIGN(192 + (32 << n) + (4 << n))
+On Sat, 2020-07-11 at 17:31 +0200, Dmitry Vyukov wrote:
+> Looking at the code more, I am not sure how it may not corrupt
+> memory.
+> There definitely should be some combinations where accessing
+> sq_entries*sizeof(u32) more memory won't be OK.
+> May be worth adding a test that allocates all possible sizes for
+> sq/cq
+> and fills both rings.
 
-* also power-of-2 aligned=2E
+The layout (after the fix) is roughly as follows:
+
+1. struct io_rings - ~192 bytes, maybe 256
+2. cqes - (32 << n) bytes
+3. sq_array - (4 << n) bytes
+
+The bug was that the sq_array was offset by (4 << n) bytes. I think
+issues can only occur when
+
+    PAGE_ALIGN(192 + (32 << n) + (4 << n) + (4 << n))
+    !=3D
+    PAGE_ALIGN(192 + (32 << n) + (4 << n))
+
+It looks like this never happens. We got lucky.
+
+--=-7aVTSutN4x7dkjL4pPhK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJGBAABCgAwFiEEWGQszEdDPeR3PQQhxqlBR4WW3HoFAl8J4DMSHGhyaXN0b0B2
+ZW5ldi5uYW1lAAoJEMapQUeFltx6BRgQAI98gSXP66zxBGMu4WxCd1Nl2gcO/LXa
+koEsg+Kyq2STWgQ3ySk0wwrZ79ZRqZWbqosZQ5oii8DaobgAg2ob04l2U7XhlJfv
+Q/eU/qjKrWt3ZzeLvVi8WQNXA0RbDBwUtjtrRm+aQ8IKoctZclr9/n1jFsgsbSjk
+22eU7FNiGbZ5jj6sA/qccRjn83teTsJJC9MBIweV1opY9lCxbSFdiShWTQCO2Q8m
+CmacbquwBXiQTcYkY4q61x+qdZRjU77nB/E4q5Tk2Ep42BD2TeosViuaxNsQ8fi1
+O4HinD1L9POkcZUS1kvmqKE7E3oLDW0jIdPQDfSvndqhZhOOXGrepY4QR5Hk9D+T
+rAbUIYr2l0kbqsJ98Cg1r/mx1VI4+/hTvgLLpyWaNtHykjtPkHPK0l+RSMtUGkZ5
+uqngt59PU7gIecAHhf5Ozv5A9aX9uWiXpnzF6TNQoRhmczifE1be2UXPTQPA1HZo
+mIkxD3D0DNLadZY0b4D9dWtWaR740+ICDza3oXu0YbFK+SJf8josFnu4+Ialioo9
+eWOkWD3F8fD2x3zNk0sXOlQcmhUu2Pj5W6l8wxiQeOn6JApi4e7+nMZN4Su2fzhh
+vxEtIUByoE7LCEphHMj8Ixe8ysuMNcttLYubW2KaOFYlv8xJM6IreRKzm7cA9hVO
+ch0ynFIma+pS
+=CeTe
+-----END PGP SIGNATURE-----
+
+--=-7aVTSutN4x7dkjL4pPhK--
+

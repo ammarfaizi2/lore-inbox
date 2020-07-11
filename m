@@ -2,77 +2,76 @@ Return-Path: <SRS0=if9V=AW=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C382DC433E0
-	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:47:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BE2C433E2
+	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:55:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 982F1207DD
-	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:47:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 981B2207FB
+	for <io-uring@archiver.kernel.org>; Sat, 11 Jul 2020 15:55:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="C76noFlc"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Cj5TBxVG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728449AbgGKPrJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 11 Jul 2020 11:47:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
+        id S1728548AbgGKPzX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 11 Jul 2020 11:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728441AbgGKPrJ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Jul 2020 11:47:09 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC359C08C5DD
-        for <io-uring@vger.kernel.org>; Sat, 11 Jul 2020 08:47:08 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id b9so3465775plx.6
-        for <io-uring@vger.kernel.org>; Sat, 11 Jul 2020 08:47:08 -0700 (PDT)
+        with ESMTP id S1728412AbgGKPzW (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 11 Jul 2020 11:55:22 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97C4C08C5DD
+        for <io-uring@vger.kernel.org>; Sat, 11 Jul 2020 08:55:22 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id mn17so3870282pjb.4
+        for <io-uring@vger.kernel.org>; Sat, 11 Jul 2020 08:55:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
+        h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=jxMjkqN1zCXHmIxhYd7vQaL5SxQgJ4Y1Ox07mYbjzBk=;
-        b=C76noFlcqllIAvQI0LGUH0EIjE/XivNVK8ZU2oSL/+O3iO2wt75+wSb1Iez+Qpy4O6
-         sxS0QMuEPXccBhWZcgYHVKLx97GpO6JTAmw6TtQdaeg7rFkj5KqYqgWdf5h0DmTQxZr3
-         CObtkl4ZiyeTrV52usbOUd2XClBmMNbttJ3Q6mYomtQyZRGyBC08FmQ6F3UqaLswvPhF
-         9pgihF5GmQLcz4FcRwk70in0/kA6pr0KVEW67kIjIQogvnOkj1b5UCD1bibZi1cvKwDb
-         eRfVA2KIpw1uWGV5ME47LPK5LSMW3XIED2JVXuNtYNMxEWXFb4bWBKer/0X8+qACZSlz
-         uu3A==
+        bh=alzNp7BjevbmMSm3BIk6CSZIU655udTC00mRpVOaJcU=;
+        b=Cj5TBxVGGGkbMkLv00wFrJhDk5HLoGHElAjWUbRmB9ieWRVvfkhc2C//86OSNjr83/
+         Tblr4szDl8gImfG3DEBjvy4LGzp3J2xoHQHmv/yyVbd088YADJLIe9zuhdQYcrQ+9QcV
+         maolRJjwuNbGbhC9mjw2Gjm6/cvs/Iy/SSNGl4UJkoq3vwR3XmqNbIEpIy05Jz3OH+1J
+         +cVt5GEQV69cloV7CUVxmMepPtBWGmTC3j6ZrSlVYLevnKqiZphO7j+/wzTfUNmZaTqF
+         meMB/BR/aOcYPb4z33zKcdJp0800XllNnQziEbvjEtifKMEAUEm1JhvPwR1wlSTqyxOo
+         oFTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=jxMjkqN1zCXHmIxhYd7vQaL5SxQgJ4Y1Ox07mYbjzBk=;
-        b=nhs9rTQj2MaxhP2uC+woQ5JDpRSyRB03UE9vdSZqe+ipf7AyA/GB7QQZYfd2ZTxNGU
-         Rez+v6stVfrT6c3JGKvb7B/fPz0wqOfAoZOz2FZghO0a4PH8MXFvZkX7xOQDfn0FXxZU
-         uIbT3BHs4DWgAzwyPSJFdZDFNLooKu+V1+0HCRgaURdxxoRCxSu2WcrlqJnE9g+WpZFX
-         BnYb0qVtSXTTTfx9qHjHsjZnyYco2hvjTPIVh438BSxF3dhjDO/x3NZPLsYyX7ZhsMGH
-         puuo5KwMc+PGnCu/kKj8Nty8RJurQ2U55T58pGihCXxsqeD2AkMmFoIyNR0XZ5cWRQy8
-         GnTA==
-X-Gm-Message-State: AOAM530s4wQ7Em18L7gPgB3zknrS5A5oSXe3t2w+V/4FFTo8GathtY+w
-        a445sKNJvcYpRRqUGX7/qi6Sww==
-X-Google-Smtp-Source: ABdhPJwrOhdpGJ4la2rIv/FAasHVZ8ciiDiBtGgQsWkeWlY1RHjqcOPzNn1SDMsGRY8P76SH/CtToQ==
-X-Received: by 2002:a17:90b:11d8:: with SMTP id gv24mr11141974pjb.131.1594482428235;
-        Sat, 11 Jul 2020 08:47:08 -0700 (PDT)
+        bh=alzNp7BjevbmMSm3BIk6CSZIU655udTC00mRpVOaJcU=;
+        b=cK+N+/uAH3uwy/CIDN43WsQRScNEhOZpm1ABceK3XRq0gbe/gPYs05crOUgp8UlILJ
+         QkVtekMgoEew6lsA8lTpfbBrCyWBKtZFhn8Hgo5n8FtFOOlntjACXNpw6curLtd6dak6
+         4gdQJVyJRV43uNh0MgfQujTx7TbgJN598B2d0FbijjMlM8x3nZXmFxBNd9fFzjUxSpHv
+         IcL1VWUsPktBqJkLlZ/A17hEoNT2OcprIhpE0oJERF1JYQGmnGm8UbwOJlZLjemoC8Zi
+         37bLEkAz2ZS9tvACAsMrV3n5N1wC4K+edWmzXUymHU7wWhwiOvMzifDaEstCM9vtXVMB
+         GUtg==
+X-Gm-Message-State: AOAM530Ncd86gJYlaadhgJGow3ijEp59YBI0Jqq03q5gwxy/uJaJzF6K
+        4181/WGzl4Qkr5kcLnbO+s5aM/FzO6KwZQ==
+X-Google-Smtp-Source: ABdhPJxs5PyBkf6wVlPLaKhuYSAmrbheVrXPSGtNxPyM+sRRBwSTO9Cix2Z/vzyfr0IkaEuhfVR60w==
+X-Received: by 2002:a17:902:9305:: with SMTP id bc5mr21717734plb.21.1594482921729;
+        Sat, 11 Jul 2020 08:55:21 -0700 (PDT)
 Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id s194sm9065668pgs.24.2020.07.11.08.47.07
+        by smtp.gmail.com with ESMTPSA id p11sm8709631pjb.3.2020.07.11.08.55.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Jul 2020 08:47:07 -0700 (PDT)
+        Sat, 11 Jul 2020 08:55:21 -0700 (PDT)
 Subject: Re: [PATCH] io_uring: fix sq array offset calculation
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Dmitry Vyukov <dvyukov@google.com>
-Cc:     Necip Fazil Yildiran <necip@google.com>, io-uring@vger.kernel.org,
-        Hristo Venev <hristo@venev.name>
+To:     Hristo Venev <hristo@venev.name>,
+        Dmitry Vyukov <dvyukov@google.com>
+Cc:     Necip Fazil Yildiran <necip@google.com>, io-uring@vger.kernel.org
 References: <20200711093111.2490946-1-dvyukov@google.com>
  <7d4e4f01-17d4-add1-5643-1df6a6868cb3@kernel.dk>
  <CACT4Y+YGwr+1k=rsJhMsnyQL4C+S2s9t7Cz5Axwc9fO5Ap4HbQ@mail.gmail.com>
- <09c57874-9176-0e9d-4260-2072b91275a8@kernel.dk>
-Message-ID: <ce790156-2faa-637b-2dbd-bddc853564e3@kernel.dk>
-Date:   Sat, 11 Jul 2020 09:47:06 -0600
+ <7f128319f405358aa448a869a3a634a6cbc1469f.camel@venev.name>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <4620d87d-1862-ed28-9f42-7b98bd49179b@kernel.dk>
+Date:   Sat, 11 Jul 2020 09:55:20 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <09c57874-9176-0e9d-4260-2072b91275a8@kernel.dk>
+In-Reply-To: <7f128319f405358aa448a869a3a634a6cbc1469f.camel@venev.name>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -81,48 +80,34 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/11/20 9:36 AM, Jens Axboe wrote:
-> On 7/11/20 9:31 AM, Dmitry Vyukov wrote:
->> On Sat, Jul 11, 2020 at 5:16 PM Jens Axboe <axboe@kernel.dk> wrote:
->>>
->>> On 7/11/20 3:31 AM, Dmitry Vyukov wrote:
->>>> rings_size() sets sq_offset to the total size of the rings
->>>> (the returned value which is used for memory allocation).
->>>> This is wrong: sq array should be located within the rings,
->>>> not after them. Set sq_offset to where it should be.
->>>>
->>>> Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
->>>> Cc: io-uring@vger.kernel.org
->>>> Cc: Hristo Venev <hristo@venev.name>
->>>> Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
->>>>
->>>> ---
->>>> This looks so wrong and yet io_uring works.
->>>> So I am either missing something very obvious here,
->>>> or io_uring worked only due to lucky side-effects
->>>> of rounding size to power-of-2 number of pages
->>>> (which gave it enough slack at the end),
->>>> maybe reading/writing some unrelated memory
->>>> with some sizes.
->>>> If I am wrong, please poke my nose into what I am not seeing.
->>>> Otherwise, we probably need to CC stable as well.
->>>
->>> Well that's a noodle scratcher, it's definitely been working fine,
->>> and I've never seen any out-of-bounds on any of the testing I do.
->>> I regularly run anything with KASAN enabled too.
->>
->> Looking at the code more, I am not sure how it may not corrupt memory.
+On 7/11/20 9:52 AM, Hristo Venev wrote:
+> On Sat, 2020-07-11 at 17:31 +0200, Dmitry Vyukov wrote:
+>> Looking at the code more, I am not sure how it may not corrupt
+>> memory.
 >> There definitely should be some combinations where accessing
 >> sq_entries*sizeof(u32) more memory won't be OK.
->> May be worth adding a test that allocates all possible sizes for sq/cq
+>> May be worth adding a test that allocates all possible sizes for
+>> sq/cq
 >> and fills both rings.
 > 
-> Yeah, actually doing that right now just to verify it.
+> The layout (after the fix) is roughly as follows:
+> 
+> 1. struct io_rings - ~192 bytes, maybe 256
+> 2. cqes - (32 << n) bytes
+> 3. sq_array - (4 << n) bytes
+> 
+> The bug was that the sq_array was offset by (4 << n) bytes. I think
+> issues can only occur when
+> 
+>     PAGE_ALIGN(192 + (32 << n) + (4 << n) + (4 << n))
+>     !=
+>     PAGE_ALIGN(192 + (32 << n) + (4 << n))
+> 
+> It looks like this never happens. We got lucky.
 
-Did that, full utilization of the sq ring and the cq ring, and not
-seeing anything trigger or wrong. I'd need to look closer, but it
-just might be that the power-of-2 sizes end up saving us from doom
-and gloom.
+A bit of luck, but if that wasn't the case, then I'm sure we would
+have found it when the original patch was tested. But thanks for
+double checking!
 
 -- 
 Jens Axboe

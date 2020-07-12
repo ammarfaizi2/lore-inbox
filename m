@@ -8,64 +8,62 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B969AC433E2
-	for <io-uring@archiver.kernel.org>; Sun, 12 Jul 2020 17:43:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3172DC433DF
+	for <io-uring@archiver.kernel.org>; Sun, 12 Jul 2020 17:44:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9AA11206F4
-	for <io-uring@archiver.kernel.org>; Sun, 12 Jul 2020 17:43:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0ABE32063A
+	for <io-uring@archiver.kernel.org>; Sun, 12 Jul 2020 17:44:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UgNCjvfh"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p1+O4pgH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbgGLRnC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 12 Jul 2020 13:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34422 "EHLO
+        id S1729272AbgGLRn7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 12 Jul 2020 13:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728882AbgGLRnB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 12 Jul 2020 13:43:01 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B004C08C5DB
-        for <io-uring@vger.kernel.org>; Sun, 12 Jul 2020 10:43:01 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id bm28so7260669edb.2
-        for <io-uring@vger.kernel.org>; Sun, 12 Jul 2020 10:43:01 -0700 (PDT)
+        with ESMTP id S1728882AbgGLRn7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 12 Jul 2020 13:43:59 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A96C061794
+        for <io-uring@vger.kernel.org>; Sun, 12 Jul 2020 10:43:59 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id w16so12176680ejj.5
+        for <io-uring@vger.kernel.org>; Sun, 12 Jul 2020 10:43:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=tSsLE8uAL+vqf/qk4m7aqo+UZald5576zaDQNejHLYY=;
-        b=UgNCjvfh7zWO4VDrHtBJ9rYRP5opzoEllX7aI+IqXixFquwILi9F2zKGXLZpM0nHYV
-         +ySwO1hZqfR8FItgidm9pWHCioTBSHBoqvc5nOsMEmwc2rFTc6WlvoLGvZG08X426KsW
-         nfb132N7JkIEf9yg4HDFEUYkSauD8G7dhek8eTU5uD+/CPWx6KzxT1xY4yDNT/C9N/6U
-         P9g3DY1dzjY3zHsYmQOefVdQZ7j4IoeX0rzZJTKmCHv2FsUn+soHSdigAbZNR7VRBFdS
-         jKfmpKmreVhpe4uVS5a89VOMqTUz2BLz3VuBobR3bfBlFI+qTpJOvqxk+Hr6a5D7xdsa
-         HlhQ==
+        bh=Tb9x1TMIhgTcFYTrnDCW87Q084HgoH5eU8BgCs8Y9EY=;
+        b=p1+O4pgHz94La+gXnnWV9hVqpOXTfDA2Blzm6u0m1xqKOi2BymM/JaZ8Q4UJHwonl1
+         YInICIsVCqTHeqmj0DbCj95KlyU/vEgbQyh+9VHzUlp0As/Cpo4vhNHpMidBN0PXjY/L
+         xfuW+GCVFN2wiDwZ9t21GIkdSZj3vi/QirvOh7HmcwugW4kctQkJJ0sDXeRnbibqv28e
+         bLJcoE5kaYVUnbRZFExMKV2fGaE7iSz7UTQ+DgGVYnspAqHoOqAtn/mpFuJZInpxC1e5
+         OGY2GCpbn2hcP8HW8bSZ4D4Q3pDJQT5yx6NBxXWAJ1gNuHRRwZmmVhIOcjWJ7pVpSNlg
+         QhPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tSsLE8uAL+vqf/qk4m7aqo+UZald5576zaDQNejHLYY=;
-        b=UONuUrjdOZKfdSJi6UQjS1RYizNqhYtqPFwXxnetWzSte22X5DO36tQc2CDcuzpYCe
-         /5QJZkxEqfs6F/jRTx0L6X6WsTIKF1G2/FweGCyj2jFWj7IVvT67fOIiMCI6XCEzT9hB
-         Lf9OHgGteZP8j4Qb5W1Ez3yPqtMw8uRQrAUlkiRTofWYlR5mfX84hD+v8AIlB/J1buri
-         hGWbEccIW+XN/QbBYgG7gbSur6j7i+OuxG+aHwC2HluXnsuW/3ocVivEvQYhkq7k36MD
-         OnA9A2mzfI9cOe8IpaiSk6AZm0nJPkDItpw1ykXKlq+czgIwzPMWuyvGAYYcABn6VuNZ
-         vuHA==
-X-Gm-Message-State: AOAM532xSrJgD0WGQfa4BZIlTVaUvK85qI356S7LkfEEsWcsbsg0BkZu
-        1uvHrFQUeiwizMQdKP7I7gLE51/u
-X-Google-Smtp-Source: ABdhPJwHmHqj4bfixJg6rIyhgFYCuuSenD8sSquIOspn7kbuQXtpMH19jtN8IpYe02JtMNz35dYDHA==
-X-Received: by 2002:a50:8d5a:: with SMTP id t26mr92264892edt.282.1594575778734;
-        Sun, 12 Jul 2020 10:42:58 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Tb9x1TMIhgTcFYTrnDCW87Q084HgoH5eU8BgCs8Y9EY=;
+        b=tuFsrLPIZ50II02+g5wIl059UMcwt5Tk6k/ehPoOuakg234yj40GDlEgmsKx0A2b0T
+         Alnck8ad05jxdL+bqWKz69V22AeVWtUEG6Vece7Z/dcsIyCnLYwO0v26qBUS4+zTGBB+
+         2RBe5J3qVx17ysuKAYW0f08SIUUPHj7eB9bGo5bIqFLY6cNraKVQ0dDG2pbZ+tj6IEjG
+         Zzq7nwnNpbD4BK572i3hihiz/mm6uu6npNs/0CKBffIwoo28W/wX+ZM8xpdIL8/zyLWk
+         0/B6q754GFMkczl/oN5XsHs/Nc1V9cs8oR2cub9qVv/X6hfbQCzSQibhEm/3VZEvZMZ/
+         Vu5A==
+X-Gm-Message-State: AOAM532LjL4zSehU1vZRSbTTAAqaoLxaYv0SdyKNC6p5UhCiauvKkmO7
+        5AMh0tocQ0B/HKZ32vDNNcqtNbsA
+X-Google-Smtp-Source: ABdhPJyAEeNfmb+E8NcwhxLkK2MruVB6BKtj6iIxwCtRzUZHmaZG/N43W37RCDYeVHmYYbaaerkmrw==
+X-Received: by 2002:a17:906:aac9:: with SMTP id kt9mr65687498ejb.488.1594575837930;
+        Sun, 12 Jul 2020 10:43:57 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id q7sm7957349eja.69.2020.07.12.10.42.57
+        by smtp.gmail.com with ESMTPSA id fi29sm7871767ejb.83.2020.07.12.10.43.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jul 2020 10:42:58 -0700 (PDT)
+        Sun, 12 Jul 2020 10:43:57 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/3] io_uring: rename sr->msg into umsg
-Date:   Sun, 12 Jul 2020 20:41:04 +0300
-Message-Id: <8662a169a78ea40d673270c78a7f45edd05bb25e.1594571075.git.asml.silence@gmail.com>
+Subject: [PATCH 5.9] io_uring: replace rw->task_work with rq->task_work
+Date:   Sun, 12 Jul 2020 20:42:04 +0300
+Message-Id: <6cd829a0f19a26aa1c40b06dde74af949e8c68a5.1594574510.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1594571075.git.asml.silence@gmail.com>
-References: <cover.1594571075.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -73,93 +71,84 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Every second field in send/recv is called msg, make it a bit more
-understandable by renaming ->msg, which is a user provided ptr,
-to ->umsg.
+io_kiocb::task_work was de-unionised, and is not planned to be shared
+back, because it's too useful and commonly used. Hence, instead of
+keeping a separate task_work in struct io_async_rw just reuse
+req->task_work.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 31 ++++---------------------------
+ 1 file changed, 4 insertions(+), 27 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c03e953751cc..2cfcf111f58f 100644
+index fda2089f7b13..6eae2fb469f9 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -414,7 +414,7 @@ struct io_connect {
- struct io_sr_msg {
- 	struct file			*file;
- 	union {
--		struct user_msghdr __user *msg;
-+		struct user_msghdr __user *umsg;
- 		void __user		*buf;
- 	};
- 	int				msg_flags;
-@@ -3899,7 +3899,7 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 		return -EINVAL;
+@@ -505,7 +505,6 @@ struct io_async_rw {
+ 	ssize_t				nr_segs;
+ 	ssize_t				size;
+ 	struct wait_page_queue		wpq;
+-	struct callback_head		task_work;
+ };
  
- 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
--	sr->msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
-+	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	sr->len = READ_ONCE(sqe->len);
+ struct io_async_ctx {
+@@ -2900,33 +2899,11 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	return 0;
+ }
  
- #ifdef CONFIG_COMPAT
-@@ -3915,7 +3915,7 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	io->msg.msg.msg_name = &io->msg.addr;
- 	io->msg.iov = io->msg.fast_iov;
--	ret = sendmsg_copy_msghdr(&io->msg.msg, sr->msg, sr->msg_flags,
-+	ret = sendmsg_copy_msghdr(&io->msg.msg, sr->umsg, sr->msg_flags,
- 					&io->msg.iov);
- 	if (!ret)
- 		req->flags |= REQ_F_NEED_CLEANUP;
-@@ -3948,7 +3948,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 			kmsg->msg.msg_name = &io.msg.addr;
- 
- 			io.msg.iov = io.msg.fast_iov;
--			ret = sendmsg_copy_msghdr(&io.msg.msg, sr->msg,
-+			ret = sendmsg_copy_msghdr(&io.msg.msg, sr->umsg,
- 					sr->msg_flags, &io.msg.iov);
- 			if (ret)
- 				return ret;
-@@ -4026,8 +4026,8 @@ static int __io_recvmsg_copy_hdr(struct io_kiocb *req, struct io_async_ctx *io)
- 	size_t iov_len;
+-static void io_async_buf_cancel(struct callback_head *cb)
+-{
+-	struct io_async_rw *rw;
+-	struct io_kiocb *req;
+-
+-	rw = container_of(cb, struct io_async_rw, task_work);
+-	req = rw->wpq.wait.private;
+-	__io_req_task_cancel(req, -ECANCELED);
+-}
+-
+-static void io_async_buf_retry(struct callback_head *cb)
+-{
+-	struct io_async_rw *rw;
+-	struct io_kiocb *req;
+-
+-	rw = container_of(cb, struct io_async_rw, task_work);
+-	req = rw->wpq.wait.private;
+-
+-	__io_req_task_submit(req);
+-}
+-
+ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
+ 			     int sync, void *arg)
+ {
+ 	struct wait_page_queue *wpq;
+ 	struct io_kiocb *req = wait->private;
+-	struct io_async_rw *rw = &req->io->rw;
+ 	struct wait_page_key *key = arg;
  	int ret;
  
--	ret = __copy_msghdr_from_user(&io->msg.msg, sr->msg, &io->msg.uaddr,
--					&uiov, &iov_len);
-+	ret = __copy_msghdr_from_user(&io->msg.msg, sr->umsg,
-+					&io->msg.uaddr, &uiov, &iov_len);
- 	if (ret)
- 		return ret;
+@@ -2938,17 +2915,17 @@ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
  
-@@ -4061,7 +4061,7 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
- 	compat_size_t len;
- 	int ret;
+ 	list_del_init(&wait->entry);
  
--	msg_compat = (struct compat_msghdr __user *) sr->msg;
-+	msg_compat = (struct compat_msghdr __user *) sr->umsg;
- 	ret = __get_compat_msghdr(&io->msg.msg, msg_compat, &io->msg.uaddr,
- 					&ptr, &len);
- 	if (ret)
-@@ -4138,7 +4138,7 @@ static int io_recvmsg_prep(struct io_kiocb *req,
- 		return -EINVAL;
+-	init_task_work(&rw->task_work, io_async_buf_retry);
++	init_task_work(&req->task_work, io_req_task_submit);
+ 	/* submit ref gets dropped, acquire a new one */
+ 	refcount_inc(&req->refs);
+-	ret = io_req_task_work_add(req, &rw->task_work);
++	ret = io_req_task_work_add(req, &req->task_work);
+ 	if (unlikely(ret)) {
+ 		struct task_struct *tsk;
  
- 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
--	sr->msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
-+	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	sr->len = READ_ONCE(sqe->len);
- 	sr->bgid = READ_ONCE(sqe->buf_group);
- 
-@@ -4203,7 +4203,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 		else if (force_nonblock)
- 			flags |= MSG_DONTWAIT;
- 
--		ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.msg,
-+		ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.umsg,
- 						kmsg->uaddr, flags);
- 		if (force_nonblock && ret == -EAGAIN)
- 			return io_setup_async_msg(req, kmsg);
+ 		/* queue just for cancelation */
+-		init_task_work(&rw->task_work, io_async_buf_cancel);
++		init_task_work(&req->task_work, io_req_task_cancel);
+ 		tsk = io_wq_get_task(req->ctx->io_wq);
+-		task_work_add(tsk, &rw->task_work, 0);
++		task_work_add(tsk, &req->task_work, 0);
+ 		wake_up_process(tsk);
+ 	}
+ 	return 1;
 -- 
 2.24.0
 

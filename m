@@ -2,68 +2,71 @@ Return-Path: <SRS0=EEhg=AY=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 318C9C433E1
-	for <io-uring@archiver.kernel.org>; Mon, 13 Jul 2020 23:43:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B3A3C433E3
+	for <io-uring@archiver.kernel.org>; Mon, 13 Jul 2020 23:43:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0354A2137B
-	for <io-uring@archiver.kernel.org>; Mon, 13 Jul 2020 23:43:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3814C21473
+	for <io-uring@archiver.kernel.org>; Mon, 13 Jul 2020 23:43:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lBa3zh8p"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cmkFJQ2B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726358AbgGMXnx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 13 Jul 2020 19:43:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58874 "EHLO
+        id S1726803AbgGMXn6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 13 Jul 2020 19:43:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726356AbgGMXnw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 13 Jul 2020 19:43:52 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FE90C061755;
-        Mon, 13 Jul 2020 16:43:52 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id e22so15318938edq.8;
-        Mon, 13 Jul 2020 16:43:52 -0700 (PDT)
+        with ESMTP id S1726768AbgGMXn5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 13 Jul 2020 19:43:57 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9EBC061794;
+        Mon, 13 Jul 2020 16:43:56 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id rk21so19468140ejb.2;
+        Mon, 13 Jul 2020 16:43:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8KeWQ1zmwnCGeSFmZkNh22mp9FY3EEORcVlV54nSLWg=;
-        b=lBa3zh8pAY5TFzsY0/VFb/jl7N/tSYtZ0hUM4cY2YeewiXpT2IPdc+MkoFFc9T9irx
-         EIUlVCmlzmjlopWG9Nl8BgTmqFXYKEZrqmeCht2Dmp41046LDoAMa2ZwrGKQRQshimL/
-         122ST+ok5YK7wLp2eGJCc9BX8dV7ImYazmouiZVRQX2Hl6e7p4+nyXqVZpCnKHxttngG
-         9MxkRCt2qd45CKEP9WTiEszr8XuvzgJ0Wo8vLkArjhQooGldcu1SW8DYFR8DJ8ATB8QC
-         RBAYK7JZwjtOq9VMRvjBlDIjs6kJQEzwH7b7FaXpCXnDyJrqW+aGqcmfUlj6jV4p6jJ5
-         jZxw==
+        bh=AQ59hBww2K7N+eQ6R6wFF6Z+SK5DzT4zGxt9Mv/aFmo=;
+        b=cmkFJQ2BxxvxUD4N7FIpmExHP9WCkQuXlJoH709aZl8ChIkT7MQxUfgljM79Jr0wSB
+         ZFsm92Z6JczErc2rDbokZZt2/sm9ChbxvVZDV94qstrv0FSq7bh+CAOuEApbB8pXKWap
+         83RQM7WVMV/I+w3Bb/GPIZXaHl4ytWbzkCZNIPjHSTGpLh0smcA3uFpMPTIVc6NWoVZK
+         MEkvhuysbwh/3o9Czj8q7XmkA0SO9vTjzOhzj8w11xKStGkxvBx8eSK8DPHmQMJOiw30
+         QdOlOqtIX+nynUdWRpmCH2ejU0GntJ142xtdQp/9Gv0Qo29nYmVdTaODHSHDj58i0Ty5
+         UIOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8KeWQ1zmwnCGeSFmZkNh22mp9FY3EEORcVlV54nSLWg=;
-        b=GlNZQ5M5BB1GWNM+dr9gBsyC1MTgY72eLHfGMgDqZguIkO/cqzNYOHaiGe/m0Aqgy2
-         AD6NRNIDOQPlOYEy9zeI2ryOlf6iBHnh7M1xg3K7UTAZtCKkRRF4ZLmjJWKAxeisK0V0
-         a9yzl1EXBJAX0D/LHzJ9Jl25NOfGy6xY3p2IReiqohcAO9IKCD4vfaoJhY+afY+WjakF
-         jOQ5Js99VWHK5Wmur9TIx/Cf6vwTwUKUgk+ifd6faTjgH8BFDOyVmf3m2Or6rts10A9C
-         qzJD8Ign378TPnDfnIKuLRfMaKH1XVCSq7fsqIEELQc4B9OtV3UQcoTN45jopAn+rcKU
-         4ASA==
-X-Gm-Message-State: AOAM530OBlcufxTxI/qDyydqQfZjD9HIZpltbRZlCYNs6Yt86YV7CmSt
-        4v3rOsNW1rCx3RQN7HHrI3/E2y86
-X-Google-Smtp-Source: ABdhPJx8ozTuI9yV1iazQFUMtYeoEvMNeyZt0x8IJ0kXeuhhQwFeZygd58qgyK5lUCh85TBehpNdBQ==
-X-Received: by 2002:a50:d0cc:: with SMTP id g12mr1798169edf.57.1594683830898;
-        Mon, 13 Jul 2020 16:43:50 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=AQ59hBww2K7N+eQ6R6wFF6Z+SK5DzT4zGxt9Mv/aFmo=;
+        b=iIzPtgKdSlWsWfwf1WLF/Rpq6JkzGb5V1tE8sXI/vF7a1bWAsswrkrx1oxrw5C6AER
+         U1SayxpQIL716hJFkdhLOE2oe2GvdTcKAPxm9AsPxrLAIOw9u26i/0Cd5k8Zep3uWv6s
+         g8dPqQDE16YQZHH9yIIwHgBLlbZMoh8nOBK77Vo4IOK4jBVm2mTt7Kp6NHwz76rbRVCH
+         ElO/hSiBrarSYFDetgUWj24v5qM+iiYHGuJc3TjTVxfZCfaiVE9ZxaseC9M3HtE7AsoX
+         XOq8IWZ81zmdNUgBdf5WxBIBdjwnO/YpO4MJdQnTNTQfiL8Nh9c7q7m1t4sU6IKwB/3H
+         trqg==
+X-Gm-Message-State: AOAM5326Axu2dctcRU9rXyJxdVWfqZg6kXxux9/739tpdXuMznENy4+c
+        Hf1eJoLq3yABqU72HKMis/M=
+X-Google-Smtp-Source: ABdhPJzdkMKwAr1aiD1+3rrTXDfCXrX1mowAFUECBXqYL3SsYkCzRnSIV6rhozxw5LmIVPTpshM50A==
+X-Received: by 2002:a17:906:6558:: with SMTP id u24mr1893542ejn.364.1594683835417;
+        Mon, 13 Jul 2020 16:43:55 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id a13sm12964712edk.58.2020.07.13.16.43.49
+        by smtp.gmail.com with ESMTPSA id a13sm12964712edk.58.2020.07.13.16.43.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2020 16:43:50 -0700 (PDT)
+        Mon, 13 Jul 2020 16:43:55 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] batch completion + freeing improvements
-Date:   Tue, 14 Jul 2020 02:41:51 +0300
-Message-Id: <cover.1594683622.git.asml.silence@gmail.com>
+Subject: [PATCH 3/5] io_uring: batch free in batched completion
+Date:   Tue, 14 Jul 2020 02:41:54 +0300
+Message-Id: <2c4f704c045d000a26a526eaaac1af8a68216b90.1594683622.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1594683622.git.asml.silence@gmail.com>
+References: <cover.1594683622.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,25 +74,42 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Different batching improvements, that's it.
+io_submit_flush_completions() already does batching, hence also bundle
+freeing reusing batch_free from iopoll.
 
-Unfortunately, I don't have a decent SSD/setup at hand to
-benchmark it properly.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-p.s. if extra 32 pointers on stack would be a problem, I wanted for
-long to put submit_state into ctx itself.
-
-Pavel Begunkov (5):
-  io_uring: move io_req_complete() definition
-  io_uring: replace list with array for compl batch
-  io_uring: batch free in batched completion
-  tasks: add put_task_struct_many()
-  io_uring: batch put_task_struct()
-
- fs/io_uring.c              | 129 ++++++++++++++++++++++---------------
- include/linux/sched/task.h |   6 ++
- 2 files changed, 82 insertions(+), 53 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 3277a06e2fb6..6f767781351f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1795,6 +1795,7 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+ 
+ static void io_submit_flush_completions(struct io_comp_state *cs)
+ {
++	struct req_batch rb;
+ 	struct io_kiocb *req;
+ 	struct io_ring_ctx *ctx = cs->ctx;
+ 	int i, nr = cs->nr;
+@@ -1808,8 +1809,13 @@ static void io_submit_flush_completions(struct io_comp_state *cs)
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 	io_cqring_ev_posted(ctx);
+ 
+-	for (i = 0; i < nr; ++i)
+-		io_put_req(cs->reqs[i]);
++	rb.to_free = 0;
++	for (i = 0; i < nr; ++i) {
++		req = cs->reqs[i];
++		if (refcount_dec_and_test(&req->refs))
++			io_req_free_batch(&rb, req);
++	}
++	io_req_free_batch_finish(ctx, &rb);
+ 	cs->nr = 0;
+ }
+ 
 -- 
 2.24.0
 

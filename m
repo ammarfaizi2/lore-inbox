@@ -2,97 +2,73 @@ Return-Path: <SRS0=Bxfd=A2=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 720C0C433EA
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 15:44:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84495C433E1
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 16:08:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 42CF620663
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 15:44:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 643B32078C
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 16:08:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="1fI7iOV4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M8vH00uJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725861AbgGOPoX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Jul 2020 11:44:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbgGOPoX (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 11:44:23 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681BDC061755
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 08:44:23 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id t4so2389858iln.1
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 08:44:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=5VDzqNDhtdaEbf6M4ISMd6Vo5LLgkMPqTWY+wSFErh8=;
-        b=1fI7iOV4BTV02RxF4CsFEMYGHURsTDhtW7pXgR6j4mE6nX7mo61HYRGzuL8Opn5fsc
-         kzk+Aq16eHC7UcGb0Z8XEICz6u6fNzTuZTgRS+lEupKIvaL4Nb6agszYqM7nnYeyiUus
-         1QW5wwHAm/glAsn1m7o8eT+NFtQlJ2KatZvs08Oe0ADllxaLdRaLnszBMWOFgLhYwhv6
-         xpWp/pPxybuWEu2B4xhQm8BgnztqUiI3c6h2NI0t7Szk+R6bfR131sQ8YAv+i6q8+m9M
-         YZ42NpG1lxQbXVyZYrfZRYnkGYWZhiothALKkmyz6T6mrR8ikuQ/ywKymTBQfutTUsuG
-         VHRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5VDzqNDhtdaEbf6M4ISMd6Vo5LLgkMPqTWY+wSFErh8=;
-        b=QNMd/OrEhsnp+44d/VHIi0waa8ztH7JDIwu95lOB3+fT52sYHb72A3oI5TchsoLlbk
-         dB6o0cuvG9LL8+FXxdBnPxJuMfYfcnMqbk6rf3tcEGRFw2v3P/UdAYthhKbaicO9sw5V
-         mfJypq3QsUCQaw1DaZf1XgadPvfiN8NQRdpP2lJwJ7ZWgCs0jBK5sycaW60m7ek9q8Qp
-         8wL3Z7TnHU6w3th8/gDB5a3WJf58q4YERqbHKTP/bznDSOSAVXimL95thOJ7x0jAUYzW
-         cKrRiD5OPi66fBDiZ7OUT0QR94x5nCoZNuxZPHJpEEyGRoQgWuVcHa++mpgsoXt73Y1l
-         KgQw==
-X-Gm-Message-State: AOAM5322hMgpLPxZaSyYcPDgcSCKJTrGBVhGzVtjr9QiRZMDON4CZqOK
-        qOqpJo5gGbUR1fzQZotdTISD+hVrSKw6Pg==
-X-Google-Smtp-Source: ABdhPJwca4eHkTdehyy79HQHMtbJC2GWkzIHkHlubF7tiGOPo7HRTPnWhw3JsaehubxQoo5LNKj5dA==
-X-Received: by 2002:a92:dc90:: with SMTP id c16mr122762iln.202.1594827862418;
-        Wed, 15 Jul 2020 08:44:22 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id u65sm1265579iod.45.2020.07.15.08.44.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jul 2020 08:44:21 -0700 (PDT)
-Subject: Re: [PATCH 0/4] quick unrelated cleanups
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1594806332.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <839dc20d-6fbf-b8d1-f16b-05d78e1a984b@kernel.dk>
-Date:   Wed, 15 Jul 2020 09:44:21 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726506AbgGOQIs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Jul 2020 12:08:48 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:60241 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726820AbgGOQIq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 12:08:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594829290;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=IopR+z5meSdmN/y04bfMEJ745CxUYAGPVXvhH7z7Ulo=;
+        b=M8vH00uJmg+xbyIonm8F8GUto1zM7W7biX1lN5DX9UcTamAvozo9YsScZfrqhGDpBCU8pt
+        I+aGFB2GybICfqXXv8QPR0Ck0m8dhK/pQwuGfuSjx8/Q4R6alQSUrNOuwGYHB6xuHaFlhE
+        wBMx5S8JwEGb71jkiq6h7f6hc8CTt50=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-363-jtGalE7DPDC0eh_8Br_pTg-1; Wed, 15 Jul 2020 12:08:08 -0400
+X-MC-Unique: jtGalE7DPDC0eh_8Br_pTg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8E96B100AA23;
+        Wed, 15 Jul 2020 16:08:00 +0000 (UTC)
+Received: from bogon.redhat.com (ovpn-13-249.pek2.redhat.com [10.72.13.249])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 07E7F6FDD1;
+        Wed, 15 Jul 2020 16:07:58 +0000 (UTC)
+From:   Zorro Lang <zlang@redhat.com>
+To:     fstests@vger.kernel.org
+Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH 0/3] fsstress: add io_uring test and do some fix
+Date:   Thu, 16 Jul 2020 00:07:52 +0800
+Message-Id: <20200715160755.14392-1-zlang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <cover.1594806332.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/15/20 3:46 AM, Pavel Begunkov wrote:
-> Probably, can be picked separately, but bundled for
-> convenience.
-> 
-> Pavel Begunkov (4):
->   io_uring: inline io_req_work_grab_env()
->   io_uring: remove empty cleanup of OP_OPEN* reqs
->   io_uring: alloc ->io in io_req_defer_prep()
->   io_uring/io-wq: move RLIMIT_FSIZE to io-wq
-> 
->  fs/io-wq.c    |  1 +
->  fs/io-wq.h    |  1 +
->  fs/io_uring.c | 95 +++++++++++++++++++--------------------------------
->  3 files changed, 37 insertions(+), 60 deletions(-)
+This patchset tries to add new IO_URING test into fsstress [1/3]. And
+then do some changes and bug fix by the way [2/3 and 3/3].
 
-Look (and test) fine, applied. Thanks!
+fsstress is an important tool in xfstests to do random filesystem I/Os
+test, lots of test cases use it. So add IO_URING operation into fsstress
+will help to make lots of test cases cover IO_URING test naturally.
 
--- 
-Jens Axboe
+I'm not an IO_URING expert, so cc io-uring@ list, please feel free to
+tell me if you find something wrong or have any suggestions to improve
+the test.
+
+Thanks,
+Zorro
+
+
 

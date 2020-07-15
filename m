@@ -2,116 +2,106 @@ Return-Path: <SRS0=Bxfd=A2=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B96A6C433E4
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 16:13:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3009C433E1
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 17:11:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93BCE20663
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 16:13:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A5E52065E
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 17:11:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="YBXdXkCb"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MAVaNZA+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725861AbgGOQNz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Jul 2020 12:13:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
+        id S1725838AbgGORLl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Jul 2020 13:11:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725831AbgGOQNy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 12:13:54 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D02C08C5DE
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 09:07:38 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id l1so2809017ioh.5
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 09:07:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=MDdE/VlcZEnbJj86wVxB052Y/+LiFl2x6lAJALEQ0jU=;
-        b=YBXdXkCbrlg83yZ/lSpv8hvbRP3sNJMukN+04o5YtKaBWdonOZhS6JqHKfXXYagapK
-         TQq9SlgejpwsPzt/Yv6j+NeZBjeAxvBWVcHWMTOIxvKS9oj9PQIKm+qR6ELQM73AmDCq
-         o0baI2feqxYbStu6YFHfL/SrNvUlH3eb0NL6jrjL1JaPd7TKVSgS0mTfrQJcdnwEYxU2
-         /4o5/ilVq+Y74DA2MXMTXWURh/LloCG8mWSuO/KW083WDJNMYKrUc9u85qut5jQjV4bQ
-         R+O0Fp1vIkvlMhaBohvkenRo3fe/Riccx6DXnHZPI3W8awzQFcnm2nV0Pbmae0Xtkf+j
-         ZurQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=MDdE/VlcZEnbJj86wVxB052Y/+LiFl2x6lAJALEQ0jU=;
-        b=t6V2wau+9uusz8P/cSQ9LdhodmRqd3Xe0V1jK1jFyLR/PODkDdFP141j5/p9S8vvpX
-         OLHLfd3mqgWxbNIN1+D4UsKMV3blHUGAb5GPQ07lSN0EURnas7uIJNXtCMvbnXIwV2Jb
-         /4cyi0eJjonLtMC7PQ6A/ZH6WYoC7ZJxnSHcAPcbVbH6bd8KzoN8s5DSA3pPKhVBy98c
-         XJcH1arB76pI79hcL4HK6N4qLHA9WJPHxK6INUELCh0ROkJ7gHhFPzYhFBYDLB32FfAv
-         EZdimcpFLl2m0NocDNPaVmB2JmBClrQHIK1IiP/a6LQBOLPXbbQcLNpF+VPC4GSZQyYZ
-         NEqg==
-X-Gm-Message-State: AOAM530gneO+GkaqSL/cqZ3/euDc3hAYp85fDZDqZ0UProvWrsBXlJgh
-        2o4vxd1YJGEVJnAbDdUskm6lQtUYohgzmw==
-X-Google-Smtp-Source: ABdhPJzO5mx3Viu9bARpn0nx6FK/5eUYlLdvHZwjq8pIX+qgVny6XNBfMEbdh/ATrDh5xmETbvB/EQ==
-X-Received: by 2002:a05:6638:2615:: with SMTP id m21mr108213jat.134.1594829257130;
-        Wed, 15 Jul 2020 09:07:37 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id p124sm1333941iod.32.2020.07.15.09.07.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jul 2020 09:07:36 -0700 (PDT)
-Subject: Re: [WIP PATCH] io_uring: Support opening a file into the fixed-file
- table
-To:     Josh Triplett <josh@joshtriplett.org>
-Cc:     io-uring@vger.kernel.org
-References: <5e04f8fc6b0a2e218ace517bc9acf0d44530c430.1594759879.git.josh@joshtriplett.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <3f88f01e-0867-1ff9-a252-35903e8042a1@kernel.dk>
-Date:   Wed, 15 Jul 2020 10:07:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S1725770AbgGORLk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 13:11:40 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4394C061755;
+        Wed, 15 Jul 2020 10:11:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=/3C71ZT3/i2h5AJy/cEm92ILo4xf+uGspmUX8gIFfeA=; b=MAVaNZA+4wpy8N4a8DV7/Ey1CO
+        GcBUwEULIN7wwZiVhAlrDdIJFQD9VpE3iPyjIIGRbhVdrbIZuUM38ANGXN5h7cYqbCSfuiKOa/nqA
+        fmwc29uOkslNoqgBO46J36qQjj44j+13NO7DbCzSI+GnahliapIMXgNYoHkZ6MM7Jw1O9gwKlyqna
+        TfloKaHI+Mqvj+ASJdKE89s34OEQ0qPFsHatLjeKnZoULJs77ihoOz1LmVhGvxpsEotOUlx/CCC2I
+        X3mBTnliBCoyp9ymhP+9TSGaUc+j+L2wOHjgrvaoMPJmMFy7xGA1TUlTtz3X8DpGZT2lNo5ZWdUGD
+        uLnap6ng==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jvkwM-00022G-Uq; Wed, 15 Jul 2020 17:11:31 +0000
+Date:   Wed, 15 Jul 2020 18:11:30 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Stefano Garzarella <sgarzare@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        strace-devel@lists.strace.io, io-uring@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: strace of io_uring events?
+Message-ID: <20200715171130.GG12769@casper.infradead.org>
+References: <CAJfpegu3EwbBFTSJiPhm7eMyTK2MzijLUp1gcboOo3meMF_+Qg@mail.gmail.com>
+ <D9FAB37B-D059-4137-A115-616237D78640@amacapital.net>
 MIME-Version: 1.0
-In-Reply-To: <5e04f8fc6b0a2e218ace517bc9acf0d44530c430.1594759879.git.josh@joshtriplett.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <D9FAB37B-D059-4137-A115-616237D78640@amacapital.net>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/14/20 3:08 PM, Josh Triplett wrote:
-> Add a new operation IORING_OP_OPENAT2_FIXED_FILE, which opens a file
-> into the fixed-file table rather than installing a file descriptor.
-> Using a new operation avoids having an IOSQE flag that almost all
-> operations will need to ignore; io_openat2_fixed_file also has
-> substantially different control-flow than io_openat2, and it can avoid
-> requiring the file table if not needed for the dirfd.
+On Wed, Jul 15, 2020 at 07:35:50AM -0700, Andy Lutomirski wrote:
+> > On Jul 15, 2020, at 4:12 AM, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> > 
+> > <feff>Hi,
+
+feff?  Are we doing WTF-16 in email now?  ;-)
+
+> > 
+> > This thread is to discuss the possibility of stracing requests
+> > submitted through io_uring.   I'm not directly involved in io_uring
+> > development, so I'm posting this out of  interest in using strace on
+> > processes utilizing io_uring.
+> > 
+> > io_uring gives the developer a way to bypass the syscall interface,
+> > which results in loss of information when tracing.  This is a strace
+> > fragment on  "io_uring-cp" from liburing:
+> > 
+> > io_uring_enter(5, 40, 0, 0, NULL, 8)    = 40
+> > io_uring_enter(5, 1, 0, 0, NULL, 8)     = 1
+> > io_uring_enter(5, 1, 0, 0, NULL, 8)     = 1
+> > ...
+> > 
+> > What really happens are read + write requests.  Without that
+> > information the strace output is mostly useless.
+> > 
+> > This loss of information is not new, e.g. calls through the vdso or
+> > futext fast paths are also invisible to strace.  But losing filesystem
+> > I/O calls are a major blow, imo.
+> > 
+> > What do people think?
+> > 
+> > From what I can tell, listing the submitted requests on
+> > io_uring_enter() would not be hard.  Request completion is
+> > asynchronous, however, and may not require  io_uring_enter() syscall.
+> > Am I correct?
+> > 
+> > Is there some existing tracing infrastructure that strace could use to
+> > get async completion events?  Should we be introducing one?
+> > 
+> > 
 > 
-> (This intentionally does not use the IOSQE_FIXED_FILE flag, because
-> semantically, IOSQE_FIXED_FILE for openat2 should mean to interpret the
-> dirfd as a fixed-file-table index, and that would be useful future
-> behavior for both IORING_OP_OPENAT2 and IORING_OP_OPENAT2_FIXED_FILE.)
-> 
-> Create a new io_sqe_files_add_new function to add a single new file to
-> the fixed-file table. This function returns -EBUSY if attempting to
-> overwrite an existing file.
-> 
-> Provide a new field to pass along the fixed-file-table index for an
-> open-like operation; future operations such as
-> IORING_OP_ACCEPT_FIXED_FILE can use the same index.
+> Let’s add some seccomp folks. We probably also want to be able to run seccomp-like filters on io_uring requests. So maybe io_uring should call into seccomp-and-tracing code for each action.
 
-I like this, I think it's really nifty! Private fds are fast fds, and
-not only does this allow links to propagate the fds nicely, it also
-enables you go avoid the expensive fget/fput for system calls if you
-stay within the realm of io_uring for the requests that you are doing.
-
-We do need to preface this with a cleanup that moves the file assignment
-out of the prep side of the op handling and into the main part of it
-instead. That'll fix those issues associated with needing to do two
-bundles in your test case, it could all just be linked at that point.
-
-Some of this is repeats of what we discussed outside of the list emails,
-repeating it here for the general audience as well.
-
--- 
-Jens Axboe
-
+Adding Stefano since he had a complementary proposal for iouring
+restrictions that weren't exactly seccomp.

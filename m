@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5253DC433E2
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 09:48:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D34C433E7
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 09:49:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 305BF2067D
-	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 09:48:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 504372067D
+	for <io-uring@archiver.kernel.org>; Wed, 15 Jul 2020 09:49:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EJirLhsP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ficD/5VP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730846AbgGOJsz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Jul 2020 05:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S1730852AbgGOJtB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Jul 2020 05:49:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730824AbgGOJsy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 05:48:54 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7B5C061755
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 02:48:54 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id b15so1126256edy.7
-        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 02:48:54 -0700 (PDT)
+        with ESMTP id S1730612AbgGOJtA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Jul 2020 05:49:00 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79C32C061755
+        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 02:49:00 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id b15so1126458edy.7
+        for <io-uring@vger.kernel.org>; Wed, 15 Jul 2020 02:49:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=G//ZNk9Ks0UW6XkdRmQRsymk/LSiVO7ak/jFTLjHaY0=;
-        b=EJirLhsP8YNm8x49d93ieA1Xl4G3hca8kKMtw03x8k5+mV8N2izOQiL8e5JIfKYjvi
-         AzWDnrOhRsHSO8rEwSPeZ3OZR+3JvMOdqwErrZbHZXrIgPu2zW9VoETvgmEHkViikGPP
-         LMVR6Rsz1E1fx9SA3ffSXvEHkBl8S2KKPJczg5PxEVDuIiUkB7o6PUaQj6jgy3aGy6ep
-         NMY9PVWlYQNfNfNzBmXUQHWuOd5Phbxm8YUImwL+ZnF7RNG815oJ/otc3P5Vh6PkwlOf
-         dCWWB+58WJPk4Y2l3EpuvMiJQ8QdaAXLxHlwUH6XXtkRy0ZXi0HKDR25p8fZyDPGfyLS
-         VrwA==
+        bh=vnzfwtq5LMQnPpWDqPKLJsoNGiqJupUQaIbGIfDo8nc=;
+        b=ficD/5VPfNiQgQdi2oFE9qXEEKx5zCG15mFgOsuOwBTxIGYFyiqqpMpGEFztCswS/3
+         EFbvvWLQRm6LK6F6pBPR0wQVYiyqfjQJ6acGRpRICZToCjXfX/XFMVpl9/0uIHRFdvRS
+         yWIQt7fzZ4x62JvfMMnVhZ2pbzAxVd23rQhgux5obs9UJ7R5vjSnYrMug6KrZ3xASnid
+         niyO1aMc+cBamRfkykhFlDLBU7wQQeF4TLPq3uTaHYta8b1oOniRUWYj0fF2CWGh0b4d
+         29aY+KrNoptZUm5toZQItLu5k9x5qs0CoKhNDh2ToSMn/rmTmvd0tkN+YUE3H+rDgyY0
+         Ywmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=G//ZNk9Ks0UW6XkdRmQRsymk/LSiVO7ak/jFTLjHaY0=;
-        b=T2ZmA3N6vXgxFTX78mktbz5UFIsIpupEyj51guCykh1t1hLfJdA2/eySUW9bbXBQko
-         nhUxo3VRgLCRAVBeIOymUM1+6TbnKRqLrFCs5ov7qnu/pCWA6aUXygdqd//L3UPthF3y
-         sNzGo7z8FLshDTyS3AWAIQiXHwc672+HG6StEYXwBhacTAq7y2ZkUx+OY5CNbBY1Q7r1
-         kh28E9N4IJ1fL7jNtiUyXIPiihYCIC2Cf6LWVdZsenxwSo7LyH+BbUSgvaYHxS9a8FBJ
-         MsIPbXQ6MhvLii4cHlGF+qZ3PfrbZSmy4CguDYjcklEhQGdWMDfFPBaDfC8jpzk3BTYr
-         Tv3w==
-X-Gm-Message-State: AOAM532/Ir5p2xcbFASc3wOyO93uvVssBT0LOSwXZomc7gfgh+iFvsja
-        5SRQUMInn0Tltn3satTPU5KFU+w/
-X-Google-Smtp-Source: ABdhPJzKr3cXgP7vx4GFc5jSAAp/B+Sz/2yLdddjQrqaZwierkgu6JHwFNwehWzyVCMW/RI0MqnPSA==
-X-Received: by 2002:a05:6402:304a:: with SMTP id bu10mr8540634edb.70.1594806533008;
-        Wed, 15 Jul 2020 02:48:53 -0700 (PDT)
+        bh=vnzfwtq5LMQnPpWDqPKLJsoNGiqJupUQaIbGIfDo8nc=;
+        b=VS6X8hkSRRUT5hxNGchwcPoZi75mWIOx3dfidgboX2ixfMp55YucyY6hrtZAr+kyI4
+         aIcLm1/4OKUO3bH11zbLvMFv4gbF/ihaUYYU2kYEGZEpZYWTxOk4J1rrhHLcSQuXahQU
+         rzqMWSdFW0JX54G3H1NCUiF7b25jNRc57FF2Dgp1exp6IcW/eKAx3PTxBn7i4kbsbXZL
+         00E4fSaZEcrWGSgESqyNkK9q/B4YNPCAhYoIAWitSC8QCccl76GgpgssIt6rYUDjucek
+         lMC24PkKzFt602KTyb+dr9FLpD4K3csRYnUSsJsWoack7Xa6loxiN7A9bWBOvRDluPxW
+         7RPA==
+X-Gm-Message-State: AOAM532GGUo0RtA8+IP/jyIriopzi9JEG1sqzSVAl4CCoKcsLMKn0DDs
+        f6d2tDT+HFhmoyclDh6axoldIPxW
+X-Google-Smtp-Source: ABdhPJw45goe6fIIAG2SpVggvt3uYeyX7+NqK4sev+a//V5Qvg739Cp8Ic13uhNpnfd/0255W3xmOQ==
+X-Received: by 2002:a50:c044:: with SMTP id u4mr2334586edd.366.1594806539129;
+        Wed, 15 Jul 2020 02:48:59 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id d13sm1635690edv.12.2020.07.15.02.48.51
+        by smtp.gmail.com with ESMTPSA id d13sm1635690edv.12.2020.07.15.02.48.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2020 02:48:52 -0700 (PDT)
+        Wed, 15 Jul 2020 02:48:58 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/4] io_uring: remove empty cleanup of OP_OPEN* reqs
-Date:   Wed, 15 Jul 2020 12:46:50 +0300
-Message-Id: <d977a8b0d7533e76b669a554fca24c51ef13f8c2.1594806332.git.asml.silence@gmail.com>
+Subject: [PATCH 4/4] io_uring/io-wq: move RLIMIT_FSIZE to io-wq
+Date:   Wed, 15 Jul 2020 12:46:52 +0300
+Message-Id: <99d19babe8efe05e3ec85c440705801b40ba40e6.1594806332.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1594806332.git.asml.silence@gmail.com>
 References: <cover.1594806332.git.asml.silence@gmail.com>
@@ -73,28 +73,150 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-A switch in __io_clean_op() doesn't have default, it's pointless to list
-opcodes that doesn't do any cleanup. Remove IORING_OP_OPEN* from there.
+RLIMIT_SIZE in needed only for execution from an io-wq context, hence
+move all preparations from hot path to io-wq work setup.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/io-wq.c    |  1 +
+ fs/io-wq.h    |  1 +
+ fs/io_uring.c | 22 +++++++++-------------
+ 3 files changed, 11 insertions(+), 13 deletions(-)
 
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 72f759e1d6eb..8702d3c3b291 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -462,6 +462,7 @@ static void io_impersonate_work(struct io_worker *worker,
+ 		io_wq_switch_mm(worker, work);
+ 	if (worker->cur_creds != work->creds)
+ 		io_wq_switch_creds(worker, work);
++	current->signal->rlim[RLIMIT_FSIZE].rlim_cur = work->fsize;
+ }
+ 
+ static void io_assign_current_work(struct io_worker *worker,
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 114f12ec2d65..ddaf9614cf9b 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -89,6 +89,7 @@ struct io_wq_work {
+ 	struct mm_struct *mm;
+ 	const struct cred *creds;
+ 	struct fs_struct *fs;
++	unsigned long fsize;
+ 	unsigned flags;
+ };
+ 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 149a1c37665e..a3157028c591 100644
+index 0e6bbf3367b9..ce63e1389568 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5453,9 +5453,6 @@ static void __io_clean_op(struct io_kiocb *req)
- 		if (req->flags & REQ_F_BUFFER_SELECTED)
- 			kfree(req->sr_msg.kbuf);
- 		break;
--	case IORING_OP_OPENAT:
--	case IORING_OP_OPENAT2:
--		break;
- 	case IORING_OP_SPLICE:
- 	case IORING_OP_TEE:
- 		io_put_file(req, req->splice.file_in,
+@@ -644,7 +644,6 @@ struct io_kiocb {
+ 	unsigned int		flags;
+ 	refcount_t		refs;
+ 	struct task_struct	*task;
+-	unsigned long		fsize;
+ 	u64			user_data;
+ 
+ 	struct list_head	link_list;
+@@ -735,6 +734,7 @@ struct io_op_def {
+ 	unsigned		pollout : 1;
+ 	/* op supports buffer selection */
+ 	unsigned		buffer_select : 1;
++	unsigned		needs_fsize : 1;
+ };
+ 
+ static const struct io_op_def io_op_defs[] = {
+@@ -754,6 +754,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.hash_reg_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
++		.needs_fsize		= 1,
+ 	},
+ 	[IORING_OP_FSYNC] = {
+ 		.needs_file		= 1,
+@@ -768,6 +769,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.hash_reg_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
++		.needs_fsize		= 1,
+ 	},
+ 	[IORING_OP_POLL_ADD] = {
+ 		.needs_file		= 1,
+@@ -820,6 +822,7 @@ static const struct io_op_def io_op_defs[] = {
+ 	},
+ 	[IORING_OP_FALLOCATE] = {
+ 		.needs_file		= 1,
++		.needs_fsize		= 1,
+ 	},
+ 	[IORING_OP_OPENAT] = {
+ 		.file_table		= 1,
+@@ -851,6 +854,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
++		.needs_fsize		= 1,
+ 	},
+ 	[IORING_OP_FADVISE] = {
+ 		.needs_file		= 1,
+@@ -1168,6 +1172,10 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 		}
+ 		spin_unlock(&current->fs->lock);
+ 	}
++	if (def->needs_fsize)
++		req->work.fsize = rlimit(RLIMIT_FSIZE);
++	else
++		req->work.fsize = RLIM_INFINITY;
+ }
+ 
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -3071,8 +3079,6 @@ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
+ 		return -EBADF;
+ 
+-	req->fsize = rlimit(RLIMIT_FSIZE);
+-
+ 	/* either don't need iovec imported or already have it */
+ 	if (!req->io || req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+@@ -3129,17 +3135,11 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
+ 		}
+ 		kiocb->ki_flags |= IOCB_WRITE;
+ 
+-		if (!force_nonblock)
+-			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = req->fsize;
+-
+ 		if (req->file->f_op->write_iter)
+ 			ret2 = call_write_iter(req->file, kiocb, &iter);
+ 		else
+ 			ret2 = loop_rw_iter(WRITE, req->file, kiocb, &iter);
+ 
+-		if (!force_nonblock)
+-			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+-
+ 		/*
+ 		 * Raw bdev writes will return -EOPNOTSUPP for IOCB_NOWAIT. Just
+ 		 * retry them without IOCB_NOWAIT.
+@@ -3334,7 +3334,6 @@ static int io_fallocate_prep(struct io_kiocb *req,
+ 	req->sync.off = READ_ONCE(sqe->off);
+ 	req->sync.len = READ_ONCE(sqe->addr);
+ 	req->sync.mode = READ_ONCE(sqe->len);
+-	req->fsize = rlimit(RLIMIT_FSIZE);
+ 	return 0;
+ }
+ 
+@@ -3345,11 +3344,8 @@ static int io_fallocate(struct io_kiocb *req, bool force_nonblock)
+ 	/* fallocate always requiring blocking context */
+ 	if (force_nonblock)
+ 		return -EAGAIN;
+-
+-	current->signal->rlim[RLIMIT_FSIZE].rlim_cur = req->fsize;
+ 	ret = vfs_fallocate(req->file, req->sync.mode, req->sync.off,
+ 				req->sync.len);
+-	current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+ 	if (ret < 0)
+ 		req_set_fail_links(req);
+ 	io_req_complete(req, ret);
 -- 
 2.24.0
 

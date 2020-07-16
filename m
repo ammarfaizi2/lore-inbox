@@ -2,176 +2,118 @@ Return-Path: <SRS0=Z6pD=A3=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06764C433EB
-	for <io-uring@archiver.kernel.org>; Thu, 16 Jul 2020 20:30:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB63CC433E2
+	for <io-uring@archiver.kernel.org>; Thu, 16 Jul 2020 20:31:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3859207E8
-	for <io-uring@archiver.kernel.org>; Thu, 16 Jul 2020 20:30:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D48C207E8
+	for <io-uring@archiver.kernel.org>; Thu, 16 Jul 2020 20:31:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVGKyGEf"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="bs/S3dI+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726233AbgGPUaN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 16 Jul 2020 16:30:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47062 "EHLO
+        id S1726559AbgGPUbp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 16 Jul 2020 16:31:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725921AbgGPUaN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 16 Jul 2020 16:30:13 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF29DC061755
-        for <io-uring@vger.kernel.org>; Thu, 16 Jul 2020 13:30:12 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id j18so11532942wmi.3
-        for <io-uring@vger.kernel.org>; Thu, 16 Jul 2020 13:30:12 -0700 (PDT)
+        with ESMTP id S1725921AbgGPUbp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 16 Jul 2020 16:31:45 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5C0C061755
+        for <io-uring@vger.kernel.org>; Thu, 16 Jul 2020 13:31:44 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id x9so6266601ila.3
+        for <io-uring@vger.kernel.org>; Thu, 16 Jul 2020 13:31:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=bd5YwfYBnD2e7RFCsF9/crf/aCBJ/H0ho5U0ZLaAiNM=;
-        b=AVGKyGEfMxR5VvF14xc6kbWbpaco37IEaj5iiLWkbuIWUJ4VCXpO6vKUwA//THYoOM
-         Be6iWV7ITRUDdCk+NVoSfVEDQ18uBEsJPE76C+lCq3Ox5gWn+c9pKqQlfFeuRgJLb8yp
-         hT3krOmDbZm6VsPuk/7H4pL36e8fdF87fMF+2/DlfQxym4JQ8rs5gs77H/zDFir136KK
-         i9xR/Bzc35/1CEGysgiNsCg3QfU7p3mEfjUCurVfgcL7Y1WwnylyG3jUSUvd2uK0rctS
-         DhxLF64XzcHfSKPd/DyueYwKyIle0akNzbCFeIvzfJeNXN4YVUWqqdy3Aya24xe/MSB8
-         a6IA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=erNl6hZDsGZx08fj3dVbVXSdNWT1MhkTq2CGdMmto4w=;
+        b=bs/S3dI+wluetM4515KeV7CD9/piU8DXGOprnDLa+3bmzfW9Fj7EDZvVgMfpATZMww
+         xs4KrvZiJtwfvdVVC+yVU1uL+QnYcLAn1HG2sXeJpWanydRcnQ3m9Jw5KfDBSxtQcUT5
+         RQPcfiwdA/wXvg7FbCCJqSA23fOLIA5iAVM8jd0wNlKdWu4hW83WXJwCYDq/8rpdeAxo
+         NVBphRic95oA4KtsPBraI9Cap9lWy1/PL9X8dMA5rOFDIU/q7iGmW+sBKUkx3VTA1igU
+         kopf4NswyBF3oL7pNAMYnSdDp6JUnwp7ItY7R1is6YiJlc8lk5WaWepggtK0/IfbmINm
+         eSZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bd5YwfYBnD2e7RFCsF9/crf/aCBJ/H0ho5U0ZLaAiNM=;
-        b=D+cJRJLkfjfFIOMbifyKYBBdduicMHJZxFIvqMwnbq2AZrg2w92E/aajLbmst+lvm8
-         Pw6FQ9t2M/k4S+DFg+4nQNZHkry37UN73ftJRR6R9P03L3y3xlvco7NfC1PXShaixdm3
-         GoeLqhXmN2o7LrcVrcQ6Xn2xprc6v+7ok9atF4V3HmQ15e4BPfW04XMuo09/YBm0e8FH
-         M9lTWFhTThgABnP58Bd6hto48RlacmM0KmphMb2LlIN3ncwa5ke6NMwZw3Kj71l9H+om
-         spGleE6kZBMthrSFQRC2/HRmN0jIQDWNSkAM1VvI4Ll3L663OCoqT0uVF/329laUFtWI
-         fmmA==
-X-Gm-Message-State: AOAM5335k5ViVnvNqV9lXmt7LzirncsXHAXAVUENK1KOVw1PgjCjaADX
-        P5JVXloccCHrnH6yu30BOQA5A7B8wdo=
-X-Google-Smtp-Source: ABdhPJzmutzJJVPMLqdt6yW4/Hk0HkLu1JRTdfXSj6c8+diqeiUVb9Z8QYszbHq89HjhSB8ETQXx+w==
-X-Received: by 2002:a1c:1b0d:: with SMTP id b13mr5648229wmb.169.1594931411588;
-        Thu, 16 Jul 2020 13:30:11 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id v5sm9939823wmh.12.2020.07.16.13.30.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2020 13:30:11 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 7/7] io_uring: don't open-code recv kbuf managment
-Date:   Thu, 16 Jul 2020 23:28:05 +0300
-Message-Id: <9d0def3d71bba5410dfcb70f409fd4873c858245.1594930020.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1594930020.git.asml.silence@gmail.com>
-References: <cover.1594930020.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=erNl6hZDsGZx08fj3dVbVXSdNWT1MhkTq2CGdMmto4w=;
+        b=YJUAu0roIxeyCMKMnrzELgIDhLfx+3mUi/FQoLfgY8gqlXim+V5hCqNwrHCjIyyHJK
+         r1hs3sbhuPM/pm/VN9VHInK1r0UH/hmn4mDK0ynKM+UV+yNF3WlcGMkZCurd6UibM6zn
+         xSrSkF8WGqJ7ssQjaVGXi356sLJ6AhL6BJ9r/bmN99XkAuKGji4LWL6JxvLjkPrf2A5a
+         ii6u4mDG7irphdVgYJljEEKrbrK7DDYjueHkA4R4MLjUeCZJGfSFCXtYXePA7kbws8fU
+         4ytgdM9F+ZyEFP8fGoFIr2/VjcBBq0xXh9ze+y9wk8mSsOYCLgqo/8PQV7YeFTpCbb0v
+         yc2Q==
+X-Gm-Message-State: AOAM531UeI8E+KqUPdY7cfx2TIh5SrcP207J7kcTdM37YBekKvebo6N9
+        022oa3yMFLX8B8QUBDNtln4pyChNECk1tQ==
+X-Google-Smtp-Source: ABdhPJxPeXMbTQYTZdgrQBiE4chULZHCFEWtQECQWnz+ftsJ45fGbJsiVwcMdPdeQBz48ix9nFvteA==
+X-Received: by 2002:a92:9f06:: with SMTP id u6mr6398955ili.29.1594931503887;
+        Thu, 16 Jul 2020 13:31:43 -0700 (PDT)
+Received: from [192.168.1.58] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id e16sm3525135iow.37.2020.07.16.13.31.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jul 2020 13:31:43 -0700 (PDT)
+Subject: Re: io_uring_setup spuriously returning ENOMEM for one user
+To:     Andres Freund <andres@anarazel.de>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     io-uring@vger.kernel.org
+References: <20200716200543.iyrurpmcvrycekom@alap3.anarazel.de>
+ <af57a2d2-86d2-96f7-5f63-19b02d800e71@gmail.com>
+ <20200716202002.ccuidrqbknvzhxiv@alap3.anarazel.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <1ed06f59-5289-3caf-3b74-9ef216ac1b88@kernel.dk>
+Date:   Thu, 16 Jul 2020 14:31:42 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200716202002.ccuidrqbknvzhxiv@alap3.anarazel.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't implement fast path of kbuf free'ing and management
-inlined into io_recv{,msg}(), that's error prone and duplicates
-handling. Replace it with a helper io_put_recv_kbuf(), which
-mimics io_put_rw_kbuf() in the io_read/write().
+On 7/16/20 2:20 PM, Andres Freund wrote:
+> Hi,
+> 
+> On 2020-07-16 23:12:41 +0300, Pavel Begunkov wrote:
+>> On 16/07/2020 23:05, Andres Freund wrote:
+>>> Hi,
+>>>
+>>> While testing the error handling of my uring using postgres branch I
+>>> just encountered the situation that io_uring_setup() always fails with
+>>> ENOMEN.
+>>>
+>>> It only does so for the user I did the testing on and not for other
+>>> users. During the testing a few io_uring using processes were kill -9'd
+>>> and a few core-dumped after abort(). No io_uring using processes are
+>>> still alive.
+>>>
+>>> As the issue only happens to the one uid I suspect that
+>>> current_user()->locked_mem got corrupted, perhaps after hitting the
+>>> limit for real.
+>>
+>> Any chance it's using SQPOLL mode?
+> 
+> No. It's a "plain" uring. The only thing that could be considered
+> special is that one of the rings is shared between processes (which all
+> run as the same user).
 
-This also keeps cflags calculation in one place, removing duplication
-between rw and recv/send.
+Do you have this one:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ommit 309fc03a3284af62eb6082fb60327045a1dabf57 (tag: io_uring-5.8-2020-07-10)
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Fri Jul 10 09:13:34 2020 -0600
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c723f15c5463..e4ffb9c3f04d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4101,7 +4101,7 @@ static int io_recvmsg_copy_hdr(struct io_kiocb *req,
- }
- 
- static struct io_buffer *io_recv_buffer_select(struct io_kiocb *req,
--					       int *cflags, bool needs_lock)
-+					       bool needs_lock)
- {
- 	struct io_sr_msg *sr = &req->sr_msg;
- 	struct io_buffer *kbuf;
-@@ -4112,12 +4112,14 @@ static struct io_buffer *io_recv_buffer_select(struct io_kiocb *req,
- 
- 	sr->kbuf = kbuf;
- 	req->flags |= REQ_F_BUFFER_SELECTED;
--
--	*cflags = kbuf->bid << IORING_CQE_BUFFER_SHIFT;
--	*cflags |= IORING_CQE_F_BUFFER;
- 	return kbuf;
- }
- 
-+static inline unsigned int io_put_recv_kbuf(struct io_kiocb *req)
-+{
-+	return io_put_kbuf(req, req->sr_msg.kbuf);
-+}
-+
- static int io_recvmsg_prep(struct io_kiocb *req,
- 			   const struct io_uring_sqe *sqe)
- {
-@@ -4155,7 +4157,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- {
- 	struct io_async_msghdr iomsg, *kmsg;
- 	struct socket *sock;
--	struct io_buffer *kbuf = NULL;
-+	struct io_buffer *kbuf;
- 	unsigned flags;
- 	int ret, cflags = 0;
- 
-@@ -4178,7 +4180,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	}
- 
- 	if (req->flags & REQ_F_BUFFER_SELECT) {
--		kbuf = io_recv_buffer_select(req, &cflags, !force_nonblock);
-+		kbuf = io_recv_buffer_select(req, !force_nonblock);
- 		if (IS_ERR(kbuf))
- 			return PTR_ERR(kbuf);
- 		kmsg->fast_iov[0].iov_base = u64_to_user_ptr(kbuf->addr);
-@@ -4199,12 +4201,11 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
- 
--	if (kbuf)
--		kfree(kbuf);
-+	if (req->flags & REQ_F_BUFFER_SELECTED)
-+		cflags = io_put_recv_kbuf(req);
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
--	req->flags &= ~(REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED);
--
-+	req->flags &= ~REQ_F_NEED_CLEANUP;
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
-@@ -4228,7 +4229,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 		return ret;
- 
- 	if (req->flags & REQ_F_BUFFER_SELECT) {
--		kbuf = io_recv_buffer_select(req, &cflags, !force_nonblock);
-+		kbuf = io_recv_buffer_select(req, !force_nonblock);
- 		if (IS_ERR(kbuf))
- 			return PTR_ERR(kbuf);
- 		buf = u64_to_user_ptr(kbuf->addr);
-@@ -4257,9 +4258,8 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
- out_free:
--	if (kbuf)
--		kfree(kbuf);
--	req->flags &= ~REQ_F_NEED_CLEANUP;
-+	if (req->flags & REQ_F_BUFFER_SELECTED)
-+		cflags = io_put_recv_kbuf(req);
- 	if (ret < 0)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
+    io_uring: account user memory freed when exit has been queued
+
 -- 
-2.24.0
+Jens Axboe
 

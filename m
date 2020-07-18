@@ -2,105 +2,155 @@ Return-Path: <SRS0=TYfi=A5=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C736AC433E4
-	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 14:37:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D56DDC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 17:29:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9C3E620684
-	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 14:37:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B07092073A
+	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 17:29:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="q2pKauGP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VaL2r5sb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgGROhH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 18 Jul 2020 10:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40108 "EHLO
+        id S1726690AbgGRR3e (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 18 Jul 2020 13:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726574AbgGROhG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Jul 2020 10:37:06 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD195C0619D2
-        for <io-uring@vger.kernel.org>; Sat, 18 Jul 2020 07:37:06 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id l6so6673720plt.7
-        for <io-uring@vger.kernel.org>; Sat, 18 Jul 2020 07:37:06 -0700 (PDT)
+        with ESMTP id S1726648AbgGRR3d (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Jul 2020 13:29:33 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2BC6C0619D2
+        for <io-uring@vger.kernel.org>; Sat, 18 Jul 2020 10:29:33 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id c80so18614642wme.0
+        for <io-uring@vger.kernel.org>; Sat, 18 Jul 2020 10:29:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=OBxVyEg3bdADV2OFLorxOQYOlQLEYNXuUZHrmed//Yw=;
-        b=q2pKauGPutsq7X/osxzAdP5R7jcR5hBKTkgNFUITBMeyRr7tGwBmdGB9kN2OFkPtVo
-         gC4XGaD+1zUxruSNgagkQNlrOkj0vn70BB/iKFO0RKgU3zU3jPVdgOnviczuueRHXohG
-         Y+6GFTAcJRjMeoZFOGGfkUpD8sAsx6enVEwELdO4zoPNdjxGCr6Ad0z4DxarEjMBlwBM
-         n9/vveTB0K+Dn4nbCUTi07m+MAQC3gMss5Iaa+sx/RA6IrYz9HBoiX7WAcj3lLQ6IJzi
-         QBpKtiGi/Lma/Vqhkkl/DUhrKgTFI188Ed2YhkainYCc8LisQ6magBWtWF/HAw+3loww
-         rKlw==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zxR/M1uGKBQ+DjHs2ip29WULr/5SFv0EuoLzf8ctuBo=;
+        b=VaL2r5sby0VGu+2FRNrp4ZuIfDdWl79oj6P43+WAqBtwPNx/5YXbocDlX3QXfE6vl0
+         XEVQ7ABtV47yWJprJupE6dknVcVdZefnDSz4SyjmOVZ0hTbDe48oCkZE/UK84JZIButG
+         Z5p+v6Wy7/mT4pCIhWgFMQXlRnOKNXIWi3PX2njNIGuNIZsnPLqLVir5KHK7AIB7+Qfv
+         VY0awD8g+iLhN0AMhR4ywKuo7GYygrPBe37OSVaUmkYyVDl6p14zJ5Hfj9laqRtP8wRz
+         B6u8e8ZzF4966R9J/TT0vzzvxdRDVGfK54J7WqsNvSrDcomHEmuiwjPp+a3sFPopDTTk
+         3HZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=OBxVyEg3bdADV2OFLorxOQYOlQLEYNXuUZHrmed//Yw=;
-        b=JROmCngTJkbS4fXy5xA7lspwz8HMZg9QZRI7dSfRvZjKul4+TTuniNXIB5rfC5lcc0
-         0bhnPfe2ye3nWiTuPGYX0qXj2OplrCwSdVyrORTeshnoEb/YmyOGnAGagWNYBC+21/J0
-         ExKbCC3baF6ECo3desxxXSFxo9SwzdHVGYuUwJnDkaPMxhCckUImuVHgTL7dMMe3Kr4N
-         dMKnw9pwwRDDSinY6js+6c5lx5KYeZXfC521gJL0dxnvQzxEsPRdAMdXoFjsnqTvCQOk
-         hTlwh9VlHqouvQK3cjPXIi/164hX0fl/h9GS3zrZcGq0IQiUJxGeU91KOu+83FoQTLOp
-         oOhQ==
-X-Gm-Message-State: AOAM5313VVi3GexBYl61OFVvZ6MHxuVUwRLrrAY0NjsTNja9iXSF7ZxJ
-        qReyhjww6rzwCW/sghDO8TwXFr4seubWXA==
-X-Google-Smtp-Source: ABdhPJwXzTRqkExLgXXpeJ9pKSnTxCd2wGCBsaRl6vw30r3m2wm8UvlbYoxwS/CEUBpUgKiBOWi6WA==
-X-Received: by 2002:a17:90a:ea05:: with SMTP id w5mr14758483pjy.175.1595083026148;
-        Sat, 18 Jul 2020 07:37:06 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id y18sm10841886pff.10.2020.07.18.07.37.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 18 Jul 2020 07:37:05 -0700 (PDT)
-Subject: Re: [PATCH 0/2] task_put batching
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1595021626.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <cf209c59-547e-0a69-244d-7c1fec00a978@kernel.dk>
-Date:   Sat, 18 Jul 2020 08:37:04 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zxR/M1uGKBQ+DjHs2ip29WULr/5SFv0EuoLzf8ctuBo=;
+        b=MJgmHp66ZbMJ+CRCvRqmAaX/cACF6WTwNsK7n3ngzslfzIdCVGt3VGpPBxROylG6sj
+         LQGkXIeBvFR3uQd+hDPYW5t6jEEJGBl0oNKZppR8lsZqD3aKbrdV8gOx+9VX/Mdyn6FB
+         zvfWXbLzYDcoZFvexNCgigRI144ISPlAXtDWfb5+2apbtegHMK2FyQ0kkJt91mixQWhn
+         9LHstdYMK8984E4sjtaKoDPpEAQvrQjy0tzroCsJNASlH34Uz/uUebQlDPtUOYKdg09j
+         2z1NIeqfDP08KrXaumdA5/paaheI1nh73xDHa/uZVkjt6zL5K6FrwqwJF/kfSAeZXMG3
+         6fXA==
+X-Gm-Message-State: AOAM532W9zwJsKpEzIL+J8muEvl1cSqocUv/fKHoV1RsfRavOG4PcWf0
+        +6OYjNlr7o3IPYLH+1PRH49iWvJYbRYWbwEjsLZnt/gE
+X-Google-Smtp-Source: ABdhPJyVj7pMOUc517EiLtJiJfv5vrodYznhD9/GF9hXyVPG/JqNmWktpfPB/sbBV+iAQJ7mnFBNUHWfoYjQnu6kQYM=
+X-Received: by 2002:a1c:e143:: with SMTP id y64mr14195647wmg.90.1595093370931;
+ Sat, 18 Jul 2020 10:29:30 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cover.1595021626.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAKq9yRh2Q2fJuEM1X6GV+G7dAyGv2=wdGbPQ4X0y_CP=wJcKwg@mail.gmail.com>
+ <CAKq9yRiSyHJu7voNUiXbwm36cRjU+VdcSXYkGPDGWai0w8BG=w@mail.gmail.com>
+ <bf3df7ce-7127-2481-602c-ee18733b02bd@kernel.dk> <CAKq9yRhrqMv44sHK-P_A7=OUvLXf=3dZxPysVrPP=sL43ZGiDQ@mail.gmail.com>
+ <4f0f5fba-797b-5505-b4fa-6e46b2b036e6@kernel.dk>
+In-Reply-To: <4f0f5fba-797b-5505-b4fa-6e46b2b036e6@kernel.dk>
+From:   Daniele Salvatore Albano <d.albano@gmail.com>
+Date:   Sat, 18 Jul 2020 18:29:04 +0100
+Message-ID: <CAKq9yRjwp6_hYbG3j11ekAg_1iJ8h_aLM+Kq7uCmgYvOHESFaA@mail.gmail.com>
+Subject: Re: [PATCH] io_files_update_prep shouldn't consider all the flags invalid
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring <io-uring@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/18/20 2:32 AM, Pavel Begunkov wrote:
-> For my a bit exaggerated test case perf continues to show high CPU
-> cosumption by io_dismantle(), and so calling it io_iopoll_complete().
-> Even though the patch doesn't yield throughput increase for my setup,
-> probably because the effect is hidden behind polling, but it definitely
-> improves relative percentage. And the difference should only grow with
-> increasing number of CPUs. Another reason to have this is that atomics
-> may affect other parallel tasks (e.g. which doesn't use io_uring)
-> 
-> before:
-> io_iopoll_complete: 5.29%
-> io_dismantle_req:   2.16%
-> 
-> after:
-> io_iopoll_complete: 3.39%
-> io_dismantle_req:   0.465%
+On Fri, 17 Jul 2020 at 23:48, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 7/17/20 4:39 PM, Daniele Salvatore Albano wrote:
+> > Sure thing, tomorrow I will put it together, review all the other ops
+> > as well, just in case (although I believe you may already have done
+> > it), and test it.
+>
+> I did take a quick look and these were the three I found. There
+> shouldn't be others, so I think we're good there.
+>
+> > For the test cases, should I submit a separate patch for liburing or
+> > do you prefer to use pull requests on gh?
+>
+> Either one is fine, I can work with either.
+>
+> --
+> Jens Axboe
+>
 
-Still not seeing a win here, but it's clean and it _should_ work. For
-some reason I end up getting the offset in task ref put growing the
-fput_many(). Which doesn't (on the surface) make a lot of sense, but
-may just mean that we have some weird side effects.
+I changed the patch name considering that is now affecting multiple
+functions, I will also create the PR for the test cases but it may
+take a few days, I wasn't using the other 2 functions and need to do
+some testing.
 
-I have applied it, thanks.
+---
 
--- 
-Jens Axboe
+[PATCH] allow flags in io_timeout_remove_prep, io_async_cancel_prep
+ and io_files_update_prep
 
+io_timeout_remove_prep, io_async_cancel_prep and io_files_update_prep
+should allow valid flags.
+
+Signed-off-by: Daniele Albano <d.albano@gmail.com>
+---
+ fs/io_uring.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index ba70dc62f15f..3101b4a36bc9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5010,7 +5010,11 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
+ {
+        if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+                return -EINVAL;
+-       if (sqe->flags || sqe->ioprio || sqe->buf_index || sqe->len)
++
++    if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
++        return -EINVAL;
++
++    if (unlikely(sqe->ioprio || sqe->buf_index || sqe->len))
+                return -EINVAL;
+
+        req->timeout.addr = READ_ONCE(sqe->addr);
+@@ -5186,8 +5190,11 @@ static int io_async_cancel_prep(struct io_kiocb *req,
+ {
+        if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+                return -EINVAL;
+-       if (sqe->flags || sqe->ioprio || sqe->off || sqe->len ||
+-           sqe->cancel_flags)
++
++    if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
++        return -EINVAL;
++
++    if (unlikely(sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags))
+                return -EINVAL;
+
+        req->cancel.addr = READ_ONCE(sqe->addr);
+@@ -5205,7 +5212,10 @@ static int io_async_cancel(struct io_kiocb *req)
+ static int io_files_update_prep(struct io_kiocb *req,
+                                const struct io_uring_sqe *sqe)
+ {
+-       if (sqe->flags || sqe->ioprio || sqe->rw_flags)
++    if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
++        return -EINVAL;
++
++    if (unlikely(sqe->ioprio || sqe->rw_flags))
+                return -EINVAL;
+
+        req->files_update.offset = READ_ONCE(sqe->off);
+--
+2.25.1

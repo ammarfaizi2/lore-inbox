@@ -2,68 +2,71 @@ Return-Path: <SRS0=TYfi=A5=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 080E1C433E2
-	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 08:34:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0865C433E6
+	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 08:34:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD33A2073E
-	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 08:34:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E8C42073E
+	for <io-uring@archiver.kernel.org>; Sat, 18 Jul 2020 08:34:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iU4puuJ1"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M2s4NCYD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728925AbgGRIet (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 18 Jul 2020 04:34:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41374 "EHLO
+        id S1728749AbgGRIe4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 18 Jul 2020 04:34:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728749AbgGRIet (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Jul 2020 04:34:49 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E228BC0619D2;
-        Sat, 18 Jul 2020 01:34:48 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id h22so15263180lji.9;
-        Sat, 18 Jul 2020 01:34:48 -0700 (PDT)
+        with ESMTP id S1729015AbgGRIev (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 18 Jul 2020 04:34:51 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C62C0619D3;
+        Sat, 18 Jul 2020 01:34:50 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id q7so15309077ljm.1;
+        Sat, 18 Jul 2020 01:34:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8LxBXucu22MekJzjcm9McVLQ6xx8d1C2UxhUn5AUQVA=;
-        b=iU4puuJ1t9aQMFxcrQUpwAs55vm9CVnCD+SxkQcdPDYW5ntHPRX0LUfd0sKfC71g1g
-         DckdRLgA9DgEKRohMh5hy2PUfgl5+HH/dcJqJRIXgPYa5agDwpAwdA6xJSKtQIccyaXJ
-         vshX+FmSy0o70KEY8Fvh2j9p5t4yECPswn4rh1g+vEPTX4VnoAgLl5O9uGcxoq2HgbV4
-         Vrxfh0mKMUGq86Hglo5ypwPKHrJBHmrzzSKPMS7HGACzXjbHGtn20ykZfhVsgZHgZUhQ
-         iEXhlWxHfXj3lMfnI/dKxPlb95aqYYv1qu2SYILEfMffZoH6ziqjSt7938R8szpinQhr
-         3qMg==
+        bh=QYsmohHX4ln1V0gQOEGp8gE+5TZzMMGOeU8S/vpgEPo=;
+        b=M2s4NCYDfJimKFQMOmTfY4Xvpulv2i8U+qQt4ANGT+CErJXdML4ivd78j/XVD9R77I
+         W4ajBPu2Ltwo45UJmlIgGXukRnpsrNcGdev+JoCiW/kSfIeS6AFCcYbsBOWs9+1Rlj0n
+         ig2imsD1/aLyTR5qqIiFIlNNwU0DOwCjqxfE3op/xPhoPFHDZfRmjvF/nPO0kJmfyhSJ
+         YYg2O/8NQFbmp//EeDUhMrY1iySIE2R0pJ54UdToBiXWd90aREXDDa65QxVcuK0ZH+fn
+         dScO79Xhmlp4LaRN9Yxpy/Ng9fiScLZIogznwO37C+4YwjFamjep0PluMJvYsnJUrNGP
+         Oh7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8LxBXucu22MekJzjcm9McVLQ6xx8d1C2UxhUn5AUQVA=;
-        b=sDSwhFH3HAV1ZHRaQwbKqe/9Myt0gfYKgaBLyes5Lj74Qd1mzh3J5bAgazzJrvQiZ+
-         /eoLWU46bo+yRKLjJYOxdbiGmhfow2PeowX0iQsd2Sidq2zMLxKB6gAR6rm2G6c+1iRw
-         Iz4kofBtoYjhbRaOeCK3lh8FQtHy3JSlN+T7j+nOT5nBzm8ICxC1PwXywkMRQJDwRIKS
-         Jiqw3NNIDu/7ZG2IUy/uA0H9y8SsDkfT7+FU9VZYh2P/yFMJmVH2dJPbrZAf+8qF9i8D
-         PdHFSJBKc+toyEuAH4EJ9OJ63wsmSYhiyM1FHAaEpH1oTZwm3p7oSB268Dy3Rg0Q2sjY
-         nvew==
-X-Gm-Message-State: AOAM5321n+W2BSvUtBgMm0pJWF0GwfcUPN5tSGwj+DKFweqiDT4UKfVk
-        m9lgAiQbYv1ZZOBGV2YFsl/MO3xN
-X-Google-Smtp-Source: ABdhPJwfdy/KeGasBEr5jNeY291r6rmQZNvkJfzhUpsbYSckT2da/NemRlp8JGmePxIYJmPxAtS5AA==
-X-Received: by 2002:a2e:93d5:: with SMTP id p21mr5560378ljh.239.1595061287383;
-        Sat, 18 Jul 2020 01:34:47 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=QYsmohHX4ln1V0gQOEGp8gE+5TZzMMGOeU8S/vpgEPo=;
+        b=N8AibMJ2cZSnUTfOjbaNhCGHJH1lK0/2RVW3UBAUYjBSpEqdo7y269RnSarLiyDjs3
+         XLOhZWYwbqudzSYx3+RGfuU7ToG+iMQo9YN+lPV863JzqY0U0AUZ1hR4/pUKw9puvf93
+         qMGUS/A2Ybsu2kb4SnmzMafZ1ZZ8zWKwGsEjD65I5SUDkTmZc6y13tXlbCyMbsbmb3kR
+         kmDIJ/pAQTj46nuPFDQ6c5hMfe4YaacN8TArlV5j5FCPR192fz6Xs5R6vKkRIn54/lPr
+         SnsU71KdZ0iHSn9Mprql1yvdfQ/69jUHl47itJx+rRgyGzpAFsYyYqiKfRs4d9TDnAUQ
+         51jw==
+X-Gm-Message-State: AOAM533y4T0qQ3VKG7B4Z6kduRVO+Qo55TtWqfjBQrs/ZXtIfgbIz0Nm
+        V8O6We36ucAGQ+s/jWVusTA/Qqyb
+X-Google-Smtp-Source: ABdhPJyQ5aDJMIiAzOmkliORJIVZKK6iYVcEk3DBcZzY7O/fEaLm3XtksjIeGlZuOczK5ku4yNiZ9A==
+X-Received: by 2002:a2e:9a0f:: with SMTP id o15mr6279795lji.450.1595061289390;
+        Sat, 18 Jul 2020 01:34:49 -0700 (PDT)
 Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id u26sm2789226lfq.72.2020.07.18.01.34.46
+        by smtp.gmail.com with ESMTPSA id u26sm2789226lfq.72.2020.07.18.01.34.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2020 01:34:46 -0700 (PDT)
+        Sat, 18 Jul 2020 01:34:48 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] task_put batching
-Date:   Sat, 18 Jul 2020 11:32:50 +0300
-Message-Id: <cover.1595021626.git.asml.silence@gmail.com>
+Subject: [PATCH 2/2] io_uring: batch put_task_struct()
+Date:   Sat, 18 Jul 2020 11:32:52 +0300
+Message-Id: <8a0e399414ec362ee0c587f4bdca968d4fa04be7.1595021626.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1595021626.git.asml.silence@gmail.com>
+References: <cover.1595021626.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,31 +74,91 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For my a bit exaggerated test case perf continues to show high CPU
-cosumption by io_dismantle(), and so calling it io_iopoll_complete().
-Even though the patch doesn't yield throughput increase for my setup,
-probably because the effect is hidden behind polling, but it definitely
-improves relative percentage. And the difference should only grow with
-increasing number of CPUs. Another reason to have this is that atomics
-may affect other parallel tasks (e.g. which doesn't use io_uring)
+As every iopoll request have a task ref, it becomes expensive to put
+them one by one, instead we can put several at once integrating that
+into io_req_free_batch().
 
-before:
-io_iopoll_complete: 5.29%
-io_dismantle_req:   2.16%
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-after:
-io_iopoll_complete: 3.39%
-io_dismantle_req:   0.465%
-
-
-Pavel Begunkov (2):
-  tasks: add put_task_struct_many()
-  io_uring: batch put_task_struct()
-
- fs/io_uring.c              | 28 ++++++++++++++++++++++++++--
- include/linux/sched/task.h |  6 ++++++
- 2 files changed, 32 insertions(+), 2 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 57e1f26b6a6b..b52aa0d8b09d 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1543,7 +1543,6 @@ static void io_dismantle_req(struct io_kiocb *req)
+ 		kfree(req->io);
+ 	if (req->file)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
+-	__io_put_req_task(req);
+ 	io_req_clean_work(req);
+ 
+ 	if (req->flags & REQ_F_INFLIGHT) {
+@@ -1563,6 +1562,7 @@ static void __io_free_req(struct io_kiocb *req)
+ 	struct io_ring_ctx *ctx;
+ 
+ 	io_dismantle_req(req);
++	__io_put_req_task(req);
+ 	ctx = req->ctx;
+ 	if (likely(!io_is_fallback_req(req)))
+ 		kmem_cache_free(req_cachep, req);
+@@ -1806,8 +1806,18 @@ static void io_free_req(struct io_kiocb *req)
+ struct req_batch {
+ 	void *reqs[IO_IOPOLL_BATCH];
+ 	int to_free;
++
++	struct task_struct	*task;
++	int			task_refs;
+ };
+ 
++static inline void io_init_req_batch(struct req_batch *rb)
++{
++	rb->to_free = 0;
++	rb->task_refs = 0;
++	rb->task = NULL;
++}
++
+ static void __io_req_free_batch_flush(struct io_ring_ctx *ctx,
+ 				      struct req_batch *rb)
+ {
+@@ -1821,6 +1831,10 @@ static void io_req_free_batch_finish(struct io_ring_ctx *ctx,
+ {
+ 	if (rb->to_free)
+ 		__io_req_free_batch_flush(ctx, rb);
++	if (rb->task) {
++		put_task_struct_many(rb->task, rb->task_refs);
++		rb->task = NULL;
++	}
+ }
+ 
+ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+@@ -1832,6 +1846,16 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+ 	if (req->flags & REQ_F_LINK_HEAD)
+ 		io_queue_next(req);
+ 
++	if (req->flags & REQ_F_TASK_PINNED) {
++		if (req->task != rb->task && rb->task) {
++			put_task_struct_many(rb->task, rb->task_refs);
++			rb->task = req->task;
++			rb->task_refs = 0;
++		}
++		rb->task_refs++;
++		req->flags &= ~REQ_F_TASK_PINNED;
++	}
++
+ 	io_dismantle_req(req);
+ 	rb->reqs[rb->to_free++] = req;
+ 	if (unlikely(rb->to_free == ARRAY_SIZE(rb->reqs)))
+@@ -1977,7 +2001,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 	/* order with ->result store in io_complete_rw_iopoll() */
+ 	smp_rmb();
+ 
+-	rb.to_free = 0;
++	io_init_req_batch(&rb);
+ 	while (!list_empty(done)) {
+ 		int cflags = 0;
+ 
 -- 
 2.24.0
 

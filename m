@@ -2,179 +2,204 @@ Return-Path: <SRS0=mWdv=BD=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BA93C433E0
-	for <io-uring@archiver.kernel.org>; Fri, 24 Jul 2020 14:25:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13582C433DF
+	for <io-uring@archiver.kernel.org>; Fri, 24 Jul 2020 16:22:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 278CD20578
-	for <io-uring@archiver.kernel.org>; Fri, 24 Jul 2020 14:25:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3D6A206D8
+	for <io-uring@archiver.kernel.org>; Fri, 24 Jul 2020 16:22:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dDV7KV/L"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="iMyLrAai"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726726AbgGXOZL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 24 Jul 2020 10:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46304 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726676AbgGXOZL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Jul 2020 10:25:11 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECB4C0619D3
-        for <io-uring@vger.kernel.org>; Fri, 24 Jul 2020 07:25:11 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id l4so10124682ejd.13
-        for <io-uring@vger.kernel.org>; Fri, 24 Jul 2020 07:25:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=zMKBMzBJbe6N8cT39LZfnwDKmJExWzWP3i3XUyXbwoQ=;
-        b=dDV7KV/Lxk5ZhLzhUbTLjDMZaTXH8Hil50GNI3HGAXlSNogpzUV66n7b+o8d+iWD7a
-         h0YQ3CBhvt8pQkSoKamvgiLX41c4k18zwmd7gxsJaX2ZyKur2oVjkcBu0jhX+YlcArk6
-         xs9xy/EOPM9iYLC4bLsMfVjZpVtcgyUWUPU5SP3ZfHultkzDwZBTUd5ZX0GLJfEtiPx9
-         wVWzeH9jFhhLfyx803IeCYUl5nJ/OgeEoiBkp4tIDWqsU2jiTZqlg4issUet5Ws114tM
-         B1zunT1/WlYaxiQek4X0npmLU7t0iW2EPKes2Ynk3vastEgmGIaA5YG1xcVCdvG1MIAf
-         Uy5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zMKBMzBJbe6N8cT39LZfnwDKmJExWzWP3i3XUyXbwoQ=;
-        b=WNGLa/ENy6OSJkSdEu1lsuG0WnsJfCxiUoSQUjdI8l3Vey3+fmFoiNukhDWWFa+hhw
-         aWEz7rCcY2ImZ4ubjbeQwttvvp5Srsk/80Nc6p+MswoqXhaPOssCFnqa5/OWmzX0e0Kj
-         nBd/arnwpLynlylFjMeFeozS2jRB58XvsmEyeK5Y2E7WCQOCbh6VXhcalSDC56N0obLJ
-         WMiBKUFHkrHNs+S+GzodH/Qw8hiz8OejO33IP/087EqwV35iBhkACCmUsGkEW4QMK6KJ
-         B9Taoofb4h2lauOrL5UHfevIWzF6MnigkVWT4XU0OLttno0/GuJL7FCwv7YZbfFj6Tsx
-         QT8g==
-X-Gm-Message-State: AOAM530iKyW99gylQtdfG7c5bZ2BCdh9B05aJ9ri/A908Poh2gWNajYE
-        QvYW31Qa0F4ehNwN3ldRMhNOlTNh
-X-Google-Smtp-Source: ABdhPJxqnbXACRHZZ0vUdPBAVUQ3P+jWLX+7V5653YG2Xbv9YFAyZ/mcry1QFLFNlqzO8wvS2dUkFA==
-X-Received: by 2002:a17:906:413:: with SMTP id d19mr2197657eja.523.1595600709627;
-        Fri, 24 Jul 2020 07:25:09 -0700 (PDT)
-Received: from [192.168.43.57] ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id u13sm825032ejx.3.2020.07.24.07.25.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Jul 2020 07:25:09 -0700 (PDT)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <eaa5b0f65c739072b3f0c9165ff4f9110ae399c4.1595527863.git.asml.silence@gmail.com>
- <57971720-992a-593c-dc3e-9f5fe8c76f1f@kernel.dk>
- <0c52fec1-48a3-f9fe-0d35-adf6da600c2c@kernel.dk>
- <ae6eca27-c0e2-384f-df89-2cd8b46bd6e6@gmail.com>
- <209efa89-fb7f-3be3-4be1-f67477b220f1@gmail.com>
- <2563f701-8bac-b2b0-f3fa-420af545ef26@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [RFC][BUG] io_uring: fix work corruption for poll_add
-Message-ID: <713415a3-ef07-639b-9653-893a02443674@gmail.com>
-Date:   Fri, 24 Jul 2020 17:23:17 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
-MIME-Version: 1.0
-In-Reply-To: <2563f701-8bac-b2b0-f3fa-420af545ef26@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S1726652AbgGXQWh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 24 Jul 2020 12:22:37 -0400
+Received: from mailout3.samsung.com ([203.254.224.33]:10950 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726618AbgGXQWh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Jul 2020 12:22:37 -0400
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20200724162233epoutp03a4947f522df01e538703e979d73d47e3~kvMxV-fJa0314403144epoutp03G
+        for <io-uring@vger.kernel.org>; Fri, 24 Jul 2020 16:22:33 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20200724162233epoutp03a4947f522df01e538703e979d73d47e3~kvMxV-fJa0314403144epoutp03G
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1595607753;
+        bh=NpX7UIFijjINqb3RWh4VijxgxpUkaoRam/J9yuwq45w=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=iMyLrAais4clOXdyCr14MKC66+MzicmVz0j1aPLQqbMecHdRR6JcA2C8DhQacApyZ
+         oxS3sgvoUC+8J/WyAqphqb9sV6hjMTwlrj9VL8ysjN+g7Uh1Zzud3qZmxVR+ADG8Kj
+         Hoyl4aKiivcPhPrrIeoSctcyXEZZrtdoTLzC+GmE=
+Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20200724162233epcas5p25a3465dd26c4fee9658f3b92f13833eb~kvMwnEXZj2133721337epcas5p2v;
+        Fri, 24 Jul 2020 16:22:33 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        7F.BE.40333.8CA0B1F5; Sat, 25 Jul 2020 01:22:32 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+        20200724155244epcas5p2902f57e36e490ee8772da19aa9408cdc~kuyu_vaUD1470214702epcas5p2W;
+        Fri, 24 Jul 2020 15:52:44 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20200724155244epsmtrp1b58587ff618d981a15758dd145d2b24b~kuyu96uhd3045430454epsmtrp1R;
+        Fri, 24 Jul 2020 15:52:44 +0000 (GMT)
+X-AuditID: b6c32a4a-9a7ff70000019d8d-20-5f1b0ac88328
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        75.02.08382.CC30B1F5; Sat, 25 Jul 2020 00:52:44 +0900 (KST)
+Received: from localhost.localdomain (unknown [107.110.206.5]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20200724155242epsmtip185a0b33a5d3780b627934a3288559d7f~kuysrDUXM0434604346epsmtip14;
+        Fri, 24 Jul 2020 15:52:41 +0000 (GMT)
+From:   Kanchan Joshi <joshi.k@samsung.com>
+To:     axboe@kernel.dk, viro@zeniv.linux.org.uk, bcrl@kvack.org
+Cc:     willy@infradead.org, hch@infradead.org, Damien.LeMoal@wdc.com,
+        asml.silence@gmail.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-api@vger.kernel.org, Kanchan Joshi <joshi.k@samsung.com>
+Subject: [PATCH v4 0/6] zone-append support in io-uring and aio
+Date:   Fri, 24 Jul 2020 21:19:16 +0530
+Message-Id: <1595605762-17010-1-git-send-email-joshi.k@samsung.com>
+X-Mailer: git-send-email 2.7.4
+X-Brightmail-Tracker: H4sIAAAAAAAAA0WSWUwTURiFc2em07GxOhah1yI1VI2CsahxuZpGUTFOfHGJD2CiUGUCRqi1
+        QxXFGFyQWrUiqwJxCyRSE8BSBVnUVIkgWlCMpGxCBCMQt6KFQAtapsS37/zn/v85D5fCJdcF
+        MuqwJonVadQJClJEPH4RsnR5gygwesVXD0LjedkCVGh+DNCDrmskMk5YCZSW7sJQU8Y9DH1P
+        sxOofvIbibJzzwFUMWIgUV37MlRb10ig1upCEn3IvoejZs8rARofLSTDaeZJfpeQqbgfyrS+
+        1TMWZ6aQMVnNgBm2yJn055cxxtL3DdtF7ROpYtmEw8dZXdjGGFF85Uu3UOtZkOz6UyVMBW6p
+        EcygIL0amkvfk0YgoiR0DYAVmc2AF04Ae85+9wkXgB3dpWB6pakkB+eNOgAvDHYSvBgGsL7Y
+        8U9QFEmHwJYsvRfn0ir4pGiR9wlOmzH4u+0C4T3kR2+CfQVlU0zQi+G44+pUgJjeCpsmPb4w
+        OXTYL02FQTqNgoPlFgFvRMDerIckz35w8JVVyLMMDly76GMOjnXW+5YNALal3iR4YxN8V+vB
+        vO3wf0XLqsP4cRDMeV2KeRmnZ8Gr430YPxfDqlvTHAy7M/t9HaSw90aRwHsG0gwc6tzmHUvo
+        /dCd1STIAEH5/wPuAGAG81gtlxjHcmu0qzTsCSWnTuT0mjjloaOJFjD1a0J3VIHenp9KG8Ao
+        YAOQwhVzxfddsmiJOFZ98hSrOxqt0yewnA0EUoRCKlaMvjkgoePUSewRltWyumkXo2bIUjEi
+        WGk10D+OCd50xKyTx+RXT0jD5O1nZp23O01nx25X7Zv4cz2lZ4l8bOMeUYdGgSv78nI16f7F
+        +mO9EbNXjJYowpNHKpuNAZWNKSNf9g5EFvxKmL17w+bTFf7Lc/tBGvusv//RM1P7HWJwKGrn
+        FX9VY15nsGqrLjiFvbt9UXFGQGly68+a4trYofnxjoZHpqxD2+zHtc6F52Xu7KIc6+nyIreJ
+        Dgl4WaMowW2upJgA45boj3Mc6sKvBS2qp4kLdkz6tRyI0NVFxckMUWR45bD0U9tawYbVIWKw
+        /v38zM93bweOGiLNK+1z9jpnUmWRv209OVwDddEmOiiSlA8FDSgILl69MhTXceq/Avp+86QD
+        AAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrOLMWRmVeSWpSXmKPExsWy7bCSnO4ZZul4g54jEha/p09htZizahuj
+        xeq7/WwWXf+2sFi0tn9jsjg9YRGTxbvWcywWR/+/ZbOYMq2J0WLz9w42i723tC327D3JYnF5
+        1xw2iytTFjFbnP97nNXi9485bA4CHjtn3WX32LxCy+Py2VKPTZ8msXv0bVnF6PF5k5xH+4Fu
+        Jo9NT94yBXBEcdmkpOZklqUW6dslcGVsP/KHveCvfMW3rzvYGxj/iHcxcnJICJhInF45lbmL
+        kYtDSGA3o0RTw2cWiIS4RPO1H+wQtrDEyn/PwWwhgY+MEn3vDboYOTjYBDQlLkwuBQmLCDhI
+        dB1/zAQyh1lgG5PE08Z2sHphAXuJJ7PXg81kEVCV+H2zlxHE5hVwljj9/y8jxHw5iZvnOpkn
+        MPIsYGRYxSiZWlCcm55bbFhgmJdarlecmFtcmpeul5yfu4kRHLZamjsYt6/6oHeIkYmD8RCj
+        BAezkgjvim9S8UK8KYmVValF+fFFpTmpxYcYpTlYlMR5bxQujBMSSE8sSc1OTS1ILYLJMnFw
+        SjUw6U+cEHRS0q15YrWZTE9q8+aYUzUXdx3dn/hpXnVokML7h59Nkt4yyR1W23P+pV7DZ1/d
+        Upsdcg1L+NZZsyXxTFnHbXKfsWSW28NunxU3Ix3l+EXWbbx168/rdf/ubPOY2lHr6hk0/4Op
+        jt/WYMFjZ09ucsw22FozQ/9wxDyegH9PK7Z/9sk1tvsktFx7/vYu4bCL17OEIs7vkfdI+rrZ
+        0IKzWDikQcX3q1NTzr6D5+xObgxWyXj4ki+7Z1Hm+um31m1eUNq7JGfqQ2buu38OOTTwhh/8
+        OcNUVOvSVfb3p1hi94SdOLwjS0JzS8KGc2qvhDJ6djWtEVn1vuRBEldG1sdJ6/W0/t6ZE+P3
+        WtOvWYmlOCPRUIu5qDgRAHQYDHzKAgAA
+X-CMS-MailID: 20200724155244epcas5p2902f57e36e490ee8772da19aa9408cdc
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+X-CMS-RootMailID: 20200724155244epcas5p2902f57e36e490ee8772da19aa9408cdc
+References: <CGME20200724155244epcas5p2902f57e36e490ee8772da19aa9408cdc@epcas5p2.samsung.com>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 24/07/2020 17:12, Jens Axboe wrote:
-> On 7/24/20 6:52 AM, Pavel Begunkov wrote:
->> On 24/07/2020 15:46, Pavel Begunkov wrote:
->>> On 24/07/2020 01:24, Jens Axboe wrote:
->>>> On 7/23/20 4:16 PM, Jens Axboe wrote:
->>>>> On 7/23/20 12:12 PM, Pavel Begunkov wrote:
->>>>>> poll_add can have req->work initialised, which will be overwritten in
->>>>>> __io_arm_poll_handler() because of the union. Luckily, hash_node is
->>>>>> zeroed in the end, so the damage is limited to lost put for work.creds,
->>>>>> and probably corrupted work.list.
->>>>>>
->>>>>> That's the easiest and really dirty fix, which rearranges members in the
->>>>>> union, arm_poll*() modifies and zeroes only work.files and work.mm,
->>>>>> which are never taken for poll add.
->>>>>> note: io_kiocb is exactly 4 cachelines now.
->>>>>
->>>>> I don't think there's a way around moving task_work out, just like it
->>>
->>> +hash_node. I was thinking to do apoll alloc+memcpy as for rw, but this
->>> one is ugly.
->>>
->>>>> was done on 5.9. The problem is that we could put the environment bits
->>>>> before doing task_work_add(), but we might need them if the subsequent
->>>>> queue ends up having to go async. So there's really no know when we can
->>>>> put them, outside of when the request finishes. Hence, we are kind of
->>>>> SOL here.
->>>>
->>>> Actually, if we do go async, then we can just grab the environment
->>>> again. We're in the same task at that point. So maybe it'd be better to
->>>> work on ensuring that the request is either in the valid work state, or
->>>> empty work if using task_work.
->>>>
->>>> Only potential complication with that is doing io_req_work_drop_env()
->>>> from the waitqueue handler, at least the ->needs_fs part won't like that
->>>> too much.
->>>
->>> Considering that work->list is removed before executing io_wq_work, it
->>> should work. And if done only for poll_add, which needs nothing and ends up
->>> with creds, there shouldn't be any problems. I'll try this out
->>
->> Except for custom ->creds assigned at the beginning with the personality
->> feature. Does poll ever use it?
-> 
-> It's kind of annoying how we don't have a def->needs_creds, because lots
-> of things would never use it. For poll, it wouldn't be used at all,
-> which makes this issue doubly annoying.
+Changes since v3:
+- Return absolute append offset in bytes, in both io_uring and aio
+- Repurpose cqe's res/flags and introduce res64 to send 64bit append-offset
+- Change iov_iter_truncate to report whether it actually truncated
+- Prevent short write and return failure if zone-append is spanning
+beyond end-of-device
+- Change ki_complete(...,long ret2) interface to support 64bit ret2
 
-Then we don't have to care which one it has, and the scheme should work
-good enough for a quick fix.
-I still don't like overwriting work.list until it leaves io-wq, but that's
-to think about for 5.9
+v3: https://lore.kernel.org/lkml/1593974870-18919-1-git-send-email-joshi.k@samsung.com/
+
+Changes since v2:
+- Use file append infra (O_APPEND/RWF_APPEND) to trigger zone-append
+(Christoph, Wilcox)
+- Added Block I/O path changes (Damien). Avoided append split into multi-bio.
+- Added patch to extend zone-append in block-layer to support bvec iov_iter.
+Append using io-uring fixed-buffer is enabled with this.
+- Made io-uring support code more concise, added changes mentioned by Pavel.
+
+v2: https://lore.kernel.org/io-uring/1593105349-19270-1-git-send-email-joshi.k@samsung.com/
+
+Changes since v1:
+- No new opcodes in uring or aio. Use RWF_ZONE_APPEND flag instead.
+- linux-aio changes vanish because of no new opcode
+- Fixed the overflow and other issues mentioned by Damien
+- Simplified uring support code, fixed the issues mentioned by Pavel
+- Added error checks for io-uring fixed-buffer and sync kiocb
+
+v1: https://lore.kernel.org/io-uring/1592414619-5646-1-git-send-email-joshi.k@samsung.com/
+
+Cover letter (updated):
+
+This patchset enables zone-append using io-uring/linux-aio, on block IO path.
+Purpose is to provide zone-append consumption ability to applications which are
+using zoned-block-device directly.
+Application can send write with existing O/RWF_APPEND;On a zoned-block-device
+this will trigger zone-append. On regular block device, existing file-append
+behavior is retained. However, infra allows zone-append to be triggered on
+any file if FMODE_ZONE_APPEND (new kernel-only fmode) is set during open.
+
+With zone-append, written-location within zone is known only after completion.
+So apart from the usual return value of write, additional means are
+needed to obtain the actual written-location.
+
+In aio, 64bit append-offset is returned to application using res2
+field of io_event -
+
+struct io_event {
+        __u64           data;           /* the data field from the iocb */
+        __u64           obj;            /* what iocb this event came from */
+        __s64           res;            /* result code for this event */
+        __s64           res2;           /* secondary result */
+};
+
+In io-uring, [cqe->res, cqq->flags] repurposed into res64 to return
+64bit append-offset to user-space.
+
+struct io_uring_cqe {
+        __u64   user_data;      /* sqe->data submission passed back */
+        union {
+                struct {
+                        __s32   res;    /* result code for this event */
+                        __u32   flags;
+                };
+                __s64   res64;  /* appending offset for zone append */
+        };
+};
+Zone-append write is ensured not to be a short-write.
+
+Kanchan Joshi (3):
+  fs: introduce FMODE_ZONE_APPEND and IOCB_ZONE_APPEND
+  block: add zone append handling for direct I/O path
+  block: enable zone-append for iov_iter of bvec type
+
+SelvaKumar S (3):
+  fs: change ki_complete interface to support 64bit ret2
+  uio: return status with iov truncation
+  io_uring: add support for zone-append
+
+ block/bio.c                       | 31 ++++++++++++++++++++---
+ drivers/block/loop.c              |  2 +-
+ drivers/nvme/target/io-cmd-file.c |  2 +-
+ drivers/target/target_core_file.c |  2 +-
+ fs/aio.c                          |  2 +-
+ fs/block_dev.c                    | 51 +++++++++++++++++++++++++++++--------
+ fs/io_uring.c                     | 53 +++++++++++++++++++++++++++++++--------
+ fs/overlayfs/file.c               |  2 +-
+ include/linux/fs.h                | 16 +++++++++---
+ include/linux/uio.h               |  7 ++++--
+ include/uapi/linux/io_uring.h     |  9 +++++--
+ 11 files changed, 142 insertions(+), 35 deletions(-)
 
 -- 
-Pavel Begunkov
+2.7.4
+

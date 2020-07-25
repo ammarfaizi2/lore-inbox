@@ -8,64 +8,64 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10DEBC433E3
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 08:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92E36C433E1
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 11:44:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3D37206D8
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 08:33:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7384C206EB
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 11:44:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fT77vSbC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ps0KVdq/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726607AbgGYIdZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 25 Jul 2020 04:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46166 "EHLO
+        id S1726837AbgGYLoC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 25 Jul 2020 07:44:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726540AbgGYIdZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jul 2020 04:33:25 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F03AC0619E4
-        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 01:33:25 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id dg28so8606864edb.3
-        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 01:33:25 -0700 (PDT)
+        with ESMTP id S1726583AbgGYLoC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jul 2020 07:44:02 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D911C0619D3
+        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 04:44:02 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id o18so12489354eje.7
+        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 04:44:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=LuTTDSj5JKT/UGbz0hgFL8Ce7rkUhYSB3MksXoz3JqQ=;
-        b=fT77vSbCW0/Z3jdfn2fiwsW7r4eDSboxYa6s8DYye1DG9I+qFAWLbogBhElhLm+0F6
-         yiVBFnoKEKpxEFdSodx7X9bdyhQVsgypPAKkX6DaTPlwe/ieZrDkUj8e+mcQkCB6GF9b
-         3RCO4Oa4gqumnnHbagbpBlLUZJO2ZHtnITdkjflFlvc1MH95rSvrAl9cNte/30w5lq3G
-         ykeVwJNKbdNv+2XPJvOpFkLg+nhch4U5g8q5GRQSDCEhgY32/sQbNxyPS4IGqZ2hR2+4
-         quWjFVZzgQCTDh/p9BrxKtGfI9Wt7W5SHXf7iIlPMLMMXXkeqcamM0fgi+LjeDWr4MsI
-         q/iQ==
+        bh=siucFBffCucr0sTHAaz41rUxPS3Q5trrDLF/bepug3I=;
+        b=ps0KVdq/ZDpPuiU/IK7UJY+tHaGgevlCfWd3jIkHUVJLr6HITijRCd1O5ddeR4EKz2
+         4FyaFOmXWpIOmHuo3CXJV8S6PM0OH9X5XEjZo53cswZXkfdDUffEAcQyhDi5o6gQys6Z
+         +ftO0tMr/Xu6+eiLW4COnKWK03mCASVAna36w9FLbRkzwTBh0I3E2DBpnJZ0MwwkkegX
+         S66+2QGn2WPI+e+8XPeKtfskzlpoi5tSFjzKrDL2O9fet2bp5LcE1M3VQVdEXAcxsdDL
+         7XmSGu0DX25jI6Duz1nRwFoBa6RHml7Zz0U3c71IecRjp3/KoHFHVnaFumID7bTHZ6bw
+         l6Ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LuTTDSj5JKT/UGbz0hgFL8Ce7rkUhYSB3MksXoz3JqQ=;
-        b=muPsDSfXOC2DUUCOxtOv2OZHIyQk0fSii84j1g/HHleMinhVqpsONACcKVmj6kRRO7
-         1JxnnC8ovuQBinpzWFZeJx22S+74MmgEQtatecfdQtooPHY5dYwpm+akywG+j/G1nEK9
-         Yq7MiWctVGG+CXWahoO60i45E9yjrYtJ7g0hcsJ+c33mtVp6+wKOe1fZyx01e6MgRKI2
-         ktPMkTxWwzT4wXhILMUXouL6l8Aj0HbUguvs5N09CZFm3FjNgGL2DARCjxh//tP4kkEf
-         sw5p8oGUp+U4it2th7qGqXTogfKH/yRuwq9TLPRLwxhfBCMZYBk2D8S17HAXWfHim8O4
-         G5rQ==
-X-Gm-Message-State: AOAM531VzEfWSrDu6Y2ZjLaS2OTpvAtUSoUbbQPTco3cVy15g7t5bRyN
-        X8+R0D5o2psqVbmL1eBYHAg=
-X-Google-Smtp-Source: ABdhPJx4pLrIC79x5LHSc6NPyJf/IZ5A4gR1X0+OnabQXj5abSGxNk4/jdTKN03iJyryRcYqhLbDJA==
-X-Received: by 2002:a05:6402:228d:: with SMTP id cw13mr12680167edb.343.1595666003847;
-        Sat, 25 Jul 2020 01:33:23 -0700 (PDT)
+        bh=siucFBffCucr0sTHAaz41rUxPS3Q5trrDLF/bepug3I=;
+        b=J1I9oXa/EUF7RV9gcPv4Sgqto2G+I+3lj3l36C8HA+ymokfpEoY6laiU8C230bycxH
+         zQUgDuZbSqRulsgBi7gf16e8oRNKVZER2+BgDDQm0aalHFtyzAUBJ53RltbskYQS2np5
+         f28ICKIKrlGpvX2XHzzFh8bTWblYdVbhrmoAOPpoj5VvUQP42bc3jhOPLZXKRY47X5gd
+         VVlyVRejTd1ntN7KgaNwc3vxYWs40aiUi0ojx/UXlcMgEMpEODNpTZGHRmdQehs2ACAr
+         B6FDHOfNq7/2kVcJBuNWGlOIEz4ESU/p4wuLw5SafDZKp3xbTVHAxKV9HWcIlXtUxGcn
+         DDug==
+X-Gm-Message-State: AOAM531g5mPB6Wmm2qsW6HTMQszohkeziTKolE9VMZACUn7bnjlgEzlY
+        ph+ROtz4ck3+kVZ/VpL2e2Y=
+X-Google-Smtp-Source: ABdhPJzul+8MwYjFG/cxzLMVH29+NsiR67KEeGUecVlvMCmd0/jHXbdEkl2KUp2hwKNDTp1zo+a74A==
+X-Received: by 2002:a17:906:8595:: with SMTP id v21mr13695544ejx.333.1595677440866;
+        Sat, 25 Jul 2020 04:44:00 -0700 (PDT)
 Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id r17sm2403597edw.68.2020.07.25.01.33.22
+        by smtp.gmail.com with ESMTPSA id i7sm2743601eds.91.2020.07.25.04.44.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2020 01:33:23 -0700 (PDT)
+        Sat, 25 Jul 2020 04:44:00 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: unionise ->apoll and ->work
-Date:   Sat, 25 Jul 2020 11:31:23 +0300
-Message-Id: <fcb1403b24e2b118bdc04aeae466772536edc235.1595664743.git.asml.silence@gmail.com>
+Subject: [PATCH 2/4] io_uring: fix missing io_queue_linked_timeout()
+Date:   Sat, 25 Jul 2020 14:41:59 +0300
+Message-Id: <9408827d175b704f27a7577f8d12e755f9910162.1595677308.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1595664743.git.asml.silence@gmail.com>
-References: <cover.1595664743.git.asml.silence@gmail.com>
+In-Reply-To: <cover.1595677308.git.asml.silence@gmail.com>
+References: <cover.1595677308.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -73,84 +73,54 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Save a bit of space by placing ->apoll and ->work ptrs into a union,
-making io_kiocb to take 192B (3 cachelines)
+Whoever called io_prep_linked_timeout() should also do
+io_queue_linked_timeout(). __io_queue_sqe() doesn't follow that for the
+punting path leaving linked timeouts prepared but never queued.
 
-note: this patch is just for reference, there are other probably better
-ways to save 8B.
-
+Fixes: 6df1db6b54243 ("io_uring: fix mis-refcounting linked timeouts")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ef4c6e50aa4f..6894a9a5db30 100644
+index 59f1f473ffc7..3e406bc1f855 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -597,6 +597,7 @@ enum {
- struct async_poll {
- 	struct io_poll_iocb	poll;
- 	struct io_poll_iocb	*double_poll;
-+	struct io_wq_work	*work;
- };
- 
- /*
-@@ -658,8 +659,10 @@ struct io_kiocb {
- 	 * async armed poll handlers for regular commands.
+@@ -5987,20 +5987,20 @@ static void __io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	 * doesn't support non-blocking read/write attempts
  	 */
- 	struct hlist_node	hash_node;
--	struct async_poll	*apoll;
--	struct io_wq_work	*work;
-+	union {
-+		struct async_poll	*apoll;
-+		struct io_wq_work	*work;
-+	};
- 	struct callback_head	task_work;
- };
- 
-@@ -4676,6 +4679,8 @@ static void io_async_task_func(struct callback_head *cb)
- 	io_poll_remove_double(req, apoll->double_poll);
- 	spin_unlock_irq(&ctx->completion_lock);
- 
-+	req->work = apoll->work;
+ 	if (ret == -EAGAIN && !(req->flags & REQ_F_NOWAIT)) {
+-		if (io_arm_poll_handler(req)) {
+-			if (linked_timeout)
+-				io_queue_linked_timeout(linked_timeout);
+-			goto exit;
+-		}
++		if (!io_arm_poll_handler(req)) {
+ punt:
+-		ret = io_prep_work_files(req);
+-		if (unlikely(ret))
+-			goto err;
+-		/*
+-		 * Queued up for async execution, worker will release
+-		 * submit reference when the iocb is actually submitted.
+-		 */
+-		io_queue_async_work(req);
++			ret = io_prep_work_files(req);
++			if (unlikely(ret))
++				goto err;
++			/*
++			 * Queued up for async execution, worker will release
++			 * submit reference when the iocb is actually submitted.
++			 */
++			io_queue_async_work(req);
++		}
 +
- 	if (!READ_ONCE(apoll->poll.canceled))
- 		__io_req_task_submit(req);
- 	else
-@@ -4765,6 +4770,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	if (unlikely(!apoll))
- 		return false;
- 	apoll->double_poll = NULL;
-+	apoll->work = req->work;
++		if (linked_timeout)
++			io_queue_linked_timeout(linked_timeout);
+ 		goto exit;
+ 	}
  
- 	req->flags |= REQ_F_POLLED;
- 	io_get_req_task(req);
-@@ -4785,6 +4791,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	if (ret) {
- 		io_poll_remove_double(req, apoll->double_poll);
- 		spin_unlock_irq(&ctx->completion_lock);
-+		req->work = apoll->work;
- 		kfree(apoll->double_poll);
- 		kfree(apoll);
- 		return false;
-@@ -4826,6 +4833,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- 		/* non-poll requests have submit ref still */
- 		do_complete = __io_poll_remove_one(req, &apoll->poll);
- 		if (do_complete) {
-+			req->work = apoll->work;
- 			io_put_req(req);
- 			kfree(apoll->double_poll);
- 			kfree(apoll);
-@@ -4962,7 +4970,7 @@ static int io_poll_add(struct io_kiocb *req)
- 
- 	/* ->work is in union with hash_node and others */
- 	io_req_clean_work(req);
--	req->flags &= ~REQ_F_WORK_INITIALIZED;
-+	req->work = NULL;
- 
- 	INIT_HLIST_NODE(&req->hash_node);
- 	ipt.pt._qproc = io_poll_queue_proc;
 -- 
 2.24.0
 

@@ -2,86 +2,85 @@ Return-Path: <SRS0=2U/+=BE=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E48A4C433E0
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 11:44:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3C13C433E1
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 15:48:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B5ED9206EB
-	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 11:44:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAAB120674
+	for <io-uring@archiver.kernel.org>; Sat, 25 Jul 2020 15:48:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n1ov1dop"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="pE05VwZV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbgGYLoB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 25 Jul 2020 07:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47352 "EHLO
+        id S1726870AbgGYPsP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 25 Jul 2020 11:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726583AbgGYLoA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jul 2020 07:44:00 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF28C0619D3
-        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 04:44:00 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id g11so741385ejr.0
-        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 04:44:00 -0700 (PDT)
+        with ESMTP id S1726727AbgGYPsP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 25 Jul 2020 11:48:15 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F41C08C5C0
+        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 08:48:15 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id f9so908794pju.4
+        for <io-uring@vger.kernel.org>; Sat, 25 Jul 2020 08:48:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x/ZMHT559HyIkp2b0Jgv4ja/z4eNZ5RzvZ15qstfIDc=;
-        b=n1ov1dopmmDUAXl1kt8y3h4YWIplL5g1DgIggWlJHg5B1krwTOIlrc9W/nqK6O7UVn
-         5w89R+AXMF+jQvPoU3jGc9CgO3BEJihOWXk7jIc5OWv4MvaicXcOYPrFK9bVG4tqaKpd
-         gHzQJvZ2cozwB7J7HGreYdtA9ONi+/WK+/LlY1gKJ3rZy1xvcOBVpVGc73L9fWvpBTj5
-         U9x1pGu4eUGJ/n8Ej7OxqAD6XWI2IqVFRRrUX4Eeol7txU+U3yfwDrpvCXeMq1L28/9B
-         2kB1EG/ZS3s8WHDzODGXfYDENJTBMUnrd4mNQhAAqw3trkC75nFpHN01v9tH2wcV+xGj
-         Sizw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=UjGjOTucuQx950dHaC8N3Lkjpl0aSUSZWvHB3qkH3og=;
+        b=pE05VwZVZ3pTG+KetVi2rGuGnUqF49dVJZJkrlM12F/l+zMdzqPM9Btv+0LcqIBirw
+         aTzBSwcksmTQyjwzbZkQfrfT01f7JZ9lk/WiRFMXFoGQ8bht1ogHBlTP8dxWuji3xo8Y
+         Xp0SR5BpvnhrEQn8hogfQ3Nj25m5vcEri0g/XN17teQHDpzfDlj+XiNV+ZuLMUExiy+M
+         wvtvYgYVaIDEwfLIm/pwyQrKxD7iVi541FSyoaRIHEh7CXqUW1ze4gYpJnRpjKq8GTpm
+         LkFR8nV50A1/hzCTt6qz8Ucwu3SMpL3/1+ikemmeYgaOx+dI2SG8s5j+bdvSxj06GiAh
+         RI9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=x/ZMHT559HyIkp2b0Jgv4ja/z4eNZ5RzvZ15qstfIDc=;
-        b=RZTKnIH9tU6jI8qcBnrcGnTCZhEniTo3z8ndY2xlygexesjFT1wSc5RZQp9UhX7v4T
-         jND5OdKhVYZ2BpDWDH/K0GtFmQvRvfR2IWpUiPUX9Dk+5wmjkw6tyUkgU/enRUSyQQ2e
-         0uHHEmwY1cgwUyW2CeqXGybRMALhJ6iGjVnO3Kc6BTY4wm6I3Mdh8mBfsJQ1eJHl30Zp
-         iYOyq8po6D5czfnPnoAnsiAKpKbivDWHaINTkzNFEMKCeWABQMZnxnNTfTCUTcmuuvxt
-         ARS0wqbzXuy5S9CdmYcB3TToUwzBiYgYO9EnPIpAqRmv+62RZGhdaJXcgJIyWJaAmpGr
-         8AbQ==
-X-Gm-Message-State: AOAM5302MCU8CqtanFpCiiWBlsfT5HDuXAVtbgIf21R4nV/9atqPzUjo
-        P//SGYUZ1i6D/EucRyqAX0k=
-X-Google-Smtp-Source: ABdhPJyBahhlkaAScqGauWV9tJ2+4jxc8NCVYTow1rVRqiZJNZ2I4RXxv20gNfGLt24ojxOklYNE+A==
-X-Received: by 2002:a17:906:2b04:: with SMTP id a4mr12537726ejg.199.1595677438941;
-        Sat, 25 Jul 2020 04:43:58 -0700 (PDT)
-Received: from localhost.localdomain ([82.209.196.123])
-        by smtp.gmail.com with ESMTPSA id i7sm2743601eds.91.2020.07.25.04.43.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2020 04:43:58 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 0/4] 5.9 fixes
-Date:   Sat, 25 Jul 2020 14:41:57 +0300
-Message-Id: <cover.1595677308.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=UjGjOTucuQx950dHaC8N3Lkjpl0aSUSZWvHB3qkH3og=;
+        b=atsWH0AymecBr0cv5I8Vw8QUwoWddRTjFnLdW3SIxZTlS6KoUwbe0QkfvOHO1dGYr8
+         94I0zxljSUF9oL1R6DBgXhXf3cnOvLDSk888o8q3oaMtrH4v2F6bFTArU+r3QMFgc9nq
+         FEHDfgb/v1xC1nWECVFBjxSI9KzShqv4abWFg28g4hl1XF3OE+KfF2k9GzJvbpJcAzuT
+         MX3EReGhlmrAqSl2wFRt+uS4QM6MVpvfZ1tNKqdI3vcEbTLmQRACXUbhhfbYLycx6E2U
+         IQsDIQ7RkBvYf6hIF92tzLAJDEVUHrVUajrHhLvmfOkN+QZMceNUuTHBIcB4q9oIvx4p
+         vX6Q==
+X-Gm-Message-State: AOAM530ARe39GA8oRNljh527Y90RyGj4AUkV3lGYN2uEUwEXnwqKevO0
+        mX5GQBb+WCLahS3XVQ+7tpxiBHzchf4=
+X-Google-Smtp-Source: ABdhPJzBdvDH/gooqy/AHwqCfe7ZSfKBvupl2/SL2kh4lexPMn66uI3Xspqaje9jPoFmSnM6HiH5ag==
+X-Received: by 2002:a17:90a:d081:: with SMTP id k1mr3077482pju.177.1595692093096;
+        Sat, 25 Jul 2020 08:48:13 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id n18sm10078140pfd.99.2020.07.25.08.48.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 25 Jul 2020 08:48:12 -0700 (PDT)
+Subject: Re: [PATCH 0/4] 5.9 fixes
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <cover.1595677308.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <11b4d4e1-b93f-81bf-4307-4482e1400898@kernel.dk>
+Date:   Sat, 25 Jul 2020 09:48:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1595677308.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Unrelated to each other fixes/cleanups for 5.9
+On 7/25/20 5:41 AM, Pavel Begunkov wrote:
+> Unrelated to each other fixes/cleanups for 5.9
 
-Pavel Begunkov (4):
-  io_uring: mark ->work uninitialised after cleanup
-  io_uring: fix missing io_queue_linked_timeout()
-  io-wq: update hash bits
-  io_uring: fix racy req->flags modification
-
- fs/io-wq.c    |  5 +----
- fs/io_uring.c | 38 +++++++++++++++++++++-----------------
- 2 files changed, 22 insertions(+), 21 deletions(-)
+Applied, thanks.
 
 -- 
-2.24.0
+Jens Axboe
 

@@ -1,119 +1,75 @@
-Return-Path: <SRS0=zrSU=BG=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=eeP5=BH=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14803C3275B
-	for <io-uring@archiver.kernel.org>; Mon, 27 Jul 2020 23:29:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1FC6C433DF
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 01:50:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAE4E20786
-	for <io-uring@archiver.kernel.org>; Mon, 27 Jul 2020 23:29:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595892598;
-	bh=VmwA5yULAMfmhKYTXg6cCjOLNQZggdm0KXFjrBNk3fc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=G+9gD+AA3iXoQc8Au6VMZtbNiJrD93jwUxcoNdwga5W5XFIyRv6zDaeyIWQtL/1/F
-	 z8KoHt+1WauqpRJO3ZfwmqmOzRrY2egifZR16rO6KhIj7tfguH46Y0DtfOfcJsl+cg
-	 F+z6QYAwhIgAFiyQHDGaaOnl9JDnWC89lBu9t5q8=
+	by mail.kernel.org (Postfix) with ESMTP id 9519620714
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 01:50:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="EQh16+tJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727972AbgG0XX6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 27 Jul 2020 19:23:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34770 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727957AbgG0XX5 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:23:57 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CDCD2173E;
-        Mon, 27 Jul 2020 23:23:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892236;
-        bh=VmwA5yULAMfmhKYTXg6cCjOLNQZggdm0KXFjrBNk3fc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yH+jdhM5WeD6RmgMIWTdb9Q7NXHyoqYrNCF5Ekiq6I2QOKBYLu7PfN9h3bXE0AH/x
-         0/EQjjKgdeXS+2Jmh0CqYs+qP6ISNDMjkb0E+MSXhblckwWeu2ZKTJ1SNUqqTZ57PU
-         yyEkVOtgrix8D273163RBCuI4zHfC1OeuhN7mkmU=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniele Albano <d.albano@gmail.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 07/25] io_uring: always allow drain/link/hardlink/async sqe flags
-Date:   Mon, 27 Jul 2020 19:23:27 -0400
-Message-Id: <20200727232345.717432-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200727232345.717432-1-sashal@kernel.org>
-References: <20200727232345.717432-1-sashal@kernel.org>
+        id S1726932AbgG1BuK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 27 Jul 2020 21:50:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59472 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726196AbgG1BuK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Jul 2020 21:50:10 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017BAC061794;
+        Mon, 27 Jul 2020 18:50:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=sO5DBW8cKfAwrO4ChCjI6ktCdvfob49E/MQneeyqWGA=; b=EQh16+tJezpBCQzOPoGKRmK7tx
+        rUU9S+ewLhBxfY8sfxvrACb0HgWQEPyDfriXZeY+1Qcy4tXecE1iY6bb6bP9rKhRfcA9karWizDFU
+        X34xVM3QWYJJgdaxRjX7FiNqBbKem5a6KzCdvnt3EDLC43aUe4/uPzlusL2HHlvG7A+4sjD+ArBK9
+        hBhsC+AiRxftL568fyevrFOI6ONxLd//10BOX7rIcO04xzcTZpuTsfRj9Rqgx35X42iaxgXILc+Fm
+        /TZi9plKEEjDqiXHrQYcehpFRjT7NCFWeL1PjxuyH+wPoP9Ax8AkSMVN9NZEoOMb+izFu2nk2kb05
+        uWWJ+D6Q==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k0Ekh-00070f-DB; Tue, 28 Jul 2020 01:50:00 +0000
+Date:   Tue, 28 Jul 2020 02:49:59 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Kanchan Joshi <joshi.k@samsung.com>, axboe@kernel.dk,
+        viro@zeniv.linux.org.uk, bcrl@kvack.org, Damien.LeMoal@wdc.com,
+        asml.silence@gmail.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-api@vger.kernel.org, Selvakumar S <selvakuma.s1@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Javier Gonzalez <javier.gonz@samsung.com>
+Subject: Re: [PATCH v4 1/6] fs: introduce FMODE_ZONE_APPEND and
+ IOCB_ZONE_APPEND
+Message-ID: <20200728014959.GO23808@casper.infradead.org>
+References: <1595605762-17010-1-git-send-email-joshi.k@samsung.com>
+ <CGME20200724155258epcas5p1a75b926950a18cd1e6c8e7a047e6c589@epcas5p1.samsung.com>
+ <1595605762-17010-2-git-send-email-joshi.k@samsung.com>
+ <20200726151810.GA25328@infradead.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200726151810.GA25328@infradead.org>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Daniele Albano <d.albano@gmail.com>
+On Sun, Jul 26, 2020 at 04:18:10PM +0100, Christoph Hellwig wrote:
+> Zone append is a protocol context that ha not business showing up
+> in a file system interface.  The right interface is a generic way
+> to report the written offset for an append write for any kind of file.
+> So we should pick a better name like FMODE_REPORT_APPEND_OFFSET
+> (not that I particularly like that name, but it is the best I could
+> quickly come up with).
 
-[ Upstream commit 61710e437f2807e26a3402543bdbb7217a9c8620 ]
-
-We currently filter these for timeout_remove/async_cancel/files_update,
-but we only should be filtering for fixed file and buffer select. This
-also causes a second read of sqe->flags, which isn't needed.
-
-Just check req->flags for the relevant bits. This then allows these
-commands to be used in links, for example, like everything else.
-
-Signed-off-by: Daniele Albano <d.albano@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 51be3a20ade17..12ab983474dff 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4803,7 +4803,9 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->flags || sqe->ioprio || sqe->buf_index || sqe->len)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->buf_index || sqe->len)
- 		return -EINVAL;
- 
- 	req->timeout.addr = READ_ONCE(sqe->addr);
-@@ -5009,8 +5011,9 @@ static int io_async_cancel_prep(struct io_kiocb *req,
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->flags || sqe->ioprio || sqe->off || sqe->len ||
--	    sqe->cancel_flags)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags)
- 		return -EINVAL;
- 
- 	req->cancel.addr = READ_ONCE(sqe->addr);
-@@ -5028,7 +5031,9 @@ static int io_async_cancel(struct io_kiocb *req)
- static int io_files_update_prep(struct io_kiocb *req,
- 				const struct io_uring_sqe *sqe)
- {
--	if (sqe->flags || sqe->ioprio || sqe->rw_flags)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->rw_flags)
- 		return -EINVAL;
- 
- 	req->files_update.offset = READ_ONCE(sqe->off);
--- 
-2.25.1
-
+Is it necessarily *append*?  There were a spate of papers about ten
+years ago for APIs that were "write anywhere and I'll tell you where it
+ended up".  So FMODE_ANONYMOUS_WRITE perhaps?

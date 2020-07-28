@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C478EC433F7
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:24:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35BB0C433EA
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:23:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A84B320A8B
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:24:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17417207F5
+	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:23:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U18+WEj5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jTpkDH9D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732329AbgG1SYG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 28 Jul 2020 14:24:06 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49079 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732330AbgG1SYG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 28 Jul 2020 14:24:06 -0400
+        id S1732332AbgG1SXx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 28 Jul 2020 14:23:53 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45889 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728829AbgG1SXx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 28 Jul 2020 14:23:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1595960644;
+        s=mimecast20190719; t=1595960632;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=aVoD3y4kOCshIo8lcBU/KTt1LmlEMfo8MFxOod4Zloc=;
-        b=U18+WEj5ijkce1F7SJEweFOI4781euP2bvelFnI3ovfd56P2CA8RKTYIEMH0gI++Uhj00w
-        q+p+bss5NtiL1CywUtAhD0qphhIFP4nyRCp7oInEvLuGoNtl6JcT98y2+OpLyYxDRLQhU8
-        Tik7DUrxWihS2i5ui9dk+hBnp8io1Pc=
+        bh=Hm3D3FsNVTEKu1cGCyBdM4Nc3R4HmkSQ9iUobZnA6n8=;
+        b=jTpkDH9D7FQwS9vOEENWW3GuDq5wjW8EGdPTFuRDlb9GoSlj7bs1UCEOTNJws9QaqCqkKf
+        e4ogXt/GrMdXjZsE/qrWKg4AA+46Kz8+DbzMRdx3y4Hz9+0PEKJqQNL4qqxNz3T2iIg+FI
+        miOYH9lwW1ycn+aom6yDvPjEmmtRNrM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-428-M01RfwhPMgK455d95Y6nyQ-1; Tue, 28 Jul 2020 14:24:02 -0400
-X-MC-Unique: M01RfwhPMgK455d95Y6nyQ-1
+ us-mta-384-q0sPd0y0NKqp9Ax5d7tOHQ-1; Tue, 28 Jul 2020 14:23:50 -0400
+X-MC-Unique: q0sPd0y0NKqp9Ax5d7tOHQ-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D9A78E91A;
-        Tue, 28 Jul 2020 18:24:00 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3A0B48017FB;
+        Tue, 28 Jul 2020 18:23:49 +0000 (UTC)
 Received: from bogon.redhat.com (ovpn-12-108.pek2.redhat.com [10.72.12.108])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 54DCA5D993;
-        Tue, 28 Jul 2020 18:23:59 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A31945D993;
+        Tue, 28 Jul 2020 18:23:47 +0000 (UTC)
 From:   Zorro Lang <zlang@redhat.com>
 To:     fstests@vger.kernel.org
 Cc:     io-uring@vger.kernel.org, jmoyer@redhat.com
-Subject: [PATCH 4/4] fsx: add IO_URING test
-Date:   Wed, 29 Jul 2020 02:23:20 +0800
-Message-Id: <20200728182320.8762-5-zlang@redhat.com>
+Subject: [PATCH 2/4] fsstress: reduce the number of events when io_setup
+Date:   Wed, 29 Jul 2020 02:23:18 +0800
+Message-Id: <20200728182320.8762-3-zlang@redhat.com>
 In-Reply-To: <20200728182320.8762-1-zlang@redhat.com>
 References: <20200728182320.8762-1-zlang@redhat.com>
 MIME-Version: 1.0
@@ -59,254 +59,49 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-New IO_URING test for fsx, use -U option to enable IO_URING test.
+The original number(128) of aio events for io_setup is a little big.
+When try to run lots of fsstress processes(e.g. -p 1000) always hit
+io_setup EAGAIN error, due to the nr_events exceeds the limit of
+available events. So reduce it from 128 to 64, to make more fsstress
+processes can do AIO test.
 
 Signed-off-by: Zorro Lang <zlang@redhat.com>
 ---
- ltp/fsx.c | 154 +++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 140 insertions(+), 14 deletions(-)
+ ltp/fsstress.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/ltp/fsx.c b/ltp/fsx.c
-index 7c76655a..1b7401a2 100644
---- a/ltp/fsx.c
-+++ b/ltp/fsx.c
-@@ -34,6 +34,9 @@
+diff --git a/ltp/fsstress.c b/ltp/fsstress.c
+index 388ace50..a11206d4 100644
+--- a/ltp/fsstress.c
++++ b/ltp/fsstress.c
+@@ -28,6 +28,7 @@
+ #endif
  #ifdef AIO
  #include <libaio.h>
++#define AIO_ENTRIES	64
+ io_context_t	io_ctx;
  #endif
-+#ifdef URING
-+#include <liburing.h>
-+#endif
- #include <sys/syscall.h>
- 
- #ifndef MAP_FILE
-@@ -176,21 +179,17 @@ int	integrity = 0;			/* -i flag */
- int	fsxgoodfd = 0;
- int	o_direct;			/* -Z */
- int	aio = 0;
-+int	uring = 0;
- int	mark_nr = 0;
- 
- int page_size;
- int page_mask;
- int mmap_mask;
--#ifdef AIO
--int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset);
-+int fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset);
- #define READ 0
- #define WRITE 1
--#define fsxread(a,b,c,d)	aio_rw(READ, a,b,c,d)
--#define fsxwrite(a,b,c,d)	aio_rw(WRITE, a,b,c,d)
--#else
--#define fsxread(a,b,c,d)	read(a,b,c)
--#define fsxwrite(a,b,c,d)	write(a,b,c)
--#endif
-+#define fsxread(a,b,c,d)	fsx_rw(READ, a,b,c,d)
-+#define fsxwrite(a,b,c,d)	fsx_rw(WRITE, a,b,c,d)
- 
- const char *replayops = NULL;
- const char *recordops = NULL;
-@@ -2242,7 +2241,7 @@ void
- usage(void)
- {
- 	fprintf(stdout, "usage: %s",
--		"fsx [-dknqxABEFJLOWZ] [-b opnum] [-c Prob] [-g filldata] [-i logdev] [-j logid] [-l flen] [-m start:end] [-o oplen] [-p progressinterval] [-r readbdy] [-s style] [-t truncbdy] [-w writebdy] [-D startingop] [-N numops] [-P dirpath] [-S seed] fname\n\
-+		"fsx [-dknqxBEFJLOWZ][-A|-U] [-b opnum] [-c Prob] [-g filldata] [-i logdev] [-j logid] [-l flen] [-m start:end] [-o oplen] [-p progressinterval] [-r readbdy] [-s style] [-t truncbdy] [-w writebdy] [-D startingop] [-N numops] [-P dirpath] [-S seed] fname\n\
- 	-b opnum: beginning operation number (default 1)\n\
- 	-c P: 1 in P chance of file close+open at each op (default infinity)\n\
- 	-d: debug output for all operations\n\
-@@ -2265,7 +2264,10 @@ usage(void)
- 	-y synchronize changes to a file\n"
- 
+ #ifdef URING
+@@ -699,8 +700,8 @@ int main(int argc, char **argv)
+ 			}
+ 			procid = i;
  #ifdef AIO
--"	-A: Use the AIO system calls\n"
-+"	-A: Use the AIO system calls, -A excludes -U\n"
-+#endif
-+#ifdef URING
-+"	-U: Use the IO_URING system calls, -U excludes -A\n"
+-			if (io_setup(128, &io_ctx) != 0) {
+-				fprintf(stderr, "io_setup failed");
++			if (io_setup(AIO_ENTRIES, &io_ctx) != 0) {
++				fprintf(stderr, "io_setup failed\n");
+ 				exit(1);
+ 			}
  #endif
- "	-D startingop: debug output starting at specified operation\n"
- #ifdef HAVE_LINUX_FALLOC_H
-@@ -2425,13 +2427,127 @@ out_error:
- 	errno = -ret;
- 	return -1;
- }
-+#endif
-+
-+#ifdef URING
-+struct io_uring ring;
-+#define URING_ENTRIES	1024
-+int
-+uring_setup()
-+{
-+	int ret;
-+
-+	ret = io_uring_queue_init(URING_ENTRIES, &ring, 0);
-+	if (ret != 0) {
-+		fprintf(stderr, "uring_setup: io_uring_queue_init failed: %s\n",
-+                        strerror(ret));
-+                return -1;
-+        }
-+        return 0;
-+}
- 
--int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-+int
-+__uring_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
- {
-+        struct io_uring_sqe	*sqe;
-+        struct io_uring_cqe	*cqe;
- 	int ret;
-+	int res, res2 = 0;
-+	char *p = buf;
-+	unsigned l = len;
-+	unsigned o = offset;
-+
-+	/*
-+	 * Due to io_uring tries non-blocking IOs (especially read), that
-+	 * always cause 'normal' short reading. To avoid this short read
-+	 * fail, try to loop read/write (escpecilly read) data.
-+	 */
-+ uring_loop:
-+	sqe = io_uring_get_sqe(&ring);
-+	if (!sqe) {
-+		fprintf(stderr, "uring_rw: io_uring_get_sqe failed: %s\n",
-+		        strerror(errno));
-+		return -1;
-+        }
-+
-+	if (rw == READ) {
-+		io_uring_prep_read(sqe, fd, p, l, o);
-+	} else {
-+		io_uring_prep_write(sqe, fd, p, l, o);
-+	}
-+
-+	ret = io_uring_submit(&ring);
-+	if (ret != 1) {
-+		fprintf(stderr, "errcode=%d\n", -ret);
-+		fprintf(stderr, "uring %s: io_uring_submit failed: %s\n",
-+		        rw == READ ? "read":"write", strerror(-ret));
-+		goto uring_error;
-+	}
-+
-+	ret = io_uring_wait_cqe(&ring, &cqe);
-+	if (ret < 0) {
-+		if (ret == 0)
-+			fprintf(stderr, "uring %s: no events available\n",
-+			        rw == READ ? "read":"write");
-+		else {
-+			fprintf(stderr, "errcode=%d\n", -ret);
-+			fprintf(stderr, "uring %s: io_uring_wait_cqe failed: %s\n",
-+			        rw == READ ? "read":"write", strerror(-ret));
-+		}
-+		goto uring_error;
-+	}
-+	res = cqe->res;
-+	io_uring_cqe_seen(&ring, cqe);
-+
-+	res2 += res;
-+	if (len != res2) {
-+		if (res > 0) {
-+			o += res;
-+			l -= res;
-+			p += res;
-+			if (l > 0)
-+				goto uring_loop;
-+		} else if (res < 0) {
-+			ret = res;
-+			fprintf(stderr, "errcode=%d\n", -ret);
-+			fprintf(stderr, "uring %s: io_uring failed: %s\n",
-+			        rw == READ ? "read":"write", strerror(-ret));
-+			goto uring_error;
-+		} else {
-+			fprintf(stderr, "uring %s bad io length: %d instead of %u\n",
-+			        rw == READ ? "read":"write", res2, len);
-+		}
-+	}
-+	return res2;
-+
-+ uring_error:
-+	/*
-+	 * The caller expects error return in traditional libc
-+	 * convention, i.e. -1 and the errno set to error.
-+	 */
-+	errno = -ret;
-+	return -1;
-+}
-+#endif
-+
-+int fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-+{
-+	int ret = -1;
- 
- 	if (aio) {
-+#ifdef AIO
- 		ret = __aio_rw(rw, fd, buf, len, offset);
-+#elif
-+		fprintf(stderr, "io_rw: need AIO support!\n");
-+		exit(111);
-+#endif
-+	} else if (uring) {
-+#ifdef URING
-+		ret = __uring_rw(rw, fd, buf, len, offset);
-+#elif
-+		fprintf(stderr, "io_rw: need IO_URING support!\n");
-+		exit(111);
-+#endif
- 	} else {
- 		if (rw == READ)
- 			ret = read(fd, buf, len);
-@@ -2441,8 +2557,6 @@ int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
- 	return ret;
- }
- 
--#endif
--
- #define test_fallocate(mode) __test_fallocate(mode, #mode)
- 
- int
-@@ -2496,7 +2610,7 @@ main(int argc, char **argv)
- 	setvbuf(stdout, (char *)0, _IOLBF, 0); /* line buffered stdout */
- 
- 	while ((ch = getopt_long(argc, argv,
--				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:WXZ",
-+				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:UWXZ",
- 				 longopts, NULL)) != EOF)
- 		switch (ch) {
- 		case 'b':
-@@ -2604,6 +2718,9 @@ main(int argc, char **argv)
- 		case 'A':
- 		        aio = 1;
- 			break;
-+		case 'U':
-+		        uring = 1;
-+			break;
- 		case 'D':
- 			debugstart = getnum(optarg, &endp);
- 			if (debugstart < 1)
-@@ -2694,6 +2811,11 @@ main(int argc, char **argv)
- 	if (argc != 1)
- 		usage();
- 
-+	if (aio && uring) {
-+		fprintf(stderr, "-A and -U shouldn't be used together\n");
-+		usage();
-+	}
-+
- 	if (integrity && !dirpath) {
- 		fprintf(stderr, "option -i <logdev> requires -P <dirpath>\n");
- 		usage();
-@@ -2784,6 +2906,10 @@ main(int argc, char **argv)
- 	if (aio) 
- 		aio_setup();
+@@ -714,7 +715,7 @@ int main(int argc, char **argv)
+ 				doproc();
+ #ifdef AIO
+ 			if(io_destroy(io_ctx) != 0) {
+-				fprintf(stderr, "io_destroy failed");
++				fprintf(stderr, "io_destroy failed\n");
+ 				return 1;
+ 			}
  #endif
-+#ifdef URING
-+	if (uring)
-+		uring_setup();
-+#endif
- 
- 	if (!(o_flags & O_TRUNC)) {
- 		off_t ret;
 -- 
 2.20.1
 

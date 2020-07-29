@@ -1,360 +1,194 @@
-Return-Path: <SRS0=eeP5=BH=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=IQQj=BI=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01C83C433ED
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:23:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E74ADC433DF
+	for <io-uring@archiver.kernel.org>; Wed, 29 Jul 2020 09:55:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8966207F5
-	for <io-uring@archiver.kernel.org>; Tue, 28 Jul 2020 18:23:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JFe6P8eR"
+	by mail.kernel.org (Postfix) with ESMTP id CB4AF207E8
+	for <io-uring@archiver.kernel.org>; Wed, 29 Jul 2020 09:55:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbgG1SXz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 28 Jul 2020 14:23:55 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:23291 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732329AbgG1SXz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 28 Jul 2020 14:23:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1595960632;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=o7CFWEUmUP2jjwdE/iP09O0q9WUnBZjdBgJ78vUEHRQ=;
-        b=JFe6P8eR8exAQqpzdjwAtmmiw2TQy6Tv2ip3+KT6Fl3y40PgoI4g3m+5iHCNUqxKc7t5Ju
-        MT1axcr9PB64ZaDISoO8N0k1qjppNoTHIlMD6S2WePcShQpMNVHZsVfG4MqKcOmGiQ3xxu
-        QErtrI7fePLNqgLgYwWYfX5c2w35xQo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-188-hfiysWaKNQ6kQ-jRzOCBpw-1; Tue, 28 Jul 2020 14:23:41 -0400
-X-MC-Unique: hfiysWaKNQ6kQ-jRzOCBpw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E16C880046C;
-        Tue, 28 Jul 2020 18:23:40 +0000 (UTC)
-Received: from bogon.redhat.com (ovpn-12-108.pek2.redhat.com [10.72.12.108])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 218A75DA72;
-        Tue, 28 Jul 2020 18:23:38 +0000 (UTC)
-From:   Zorro Lang <zlang@redhat.com>
-To:     fstests@vger.kernel.org
-Cc:     io-uring@vger.kernel.org, jmoyer@redhat.com
-Subject: [PATCH 1/4] fsstress: add IO_URING read and write operations
-Date:   Wed, 29 Jul 2020 02:23:17 +0800
-Message-Id: <20200728182320.8762-2-zlang@redhat.com>
-In-Reply-To: <20200728182320.8762-1-zlang@redhat.com>
-References: <20200728182320.8762-1-zlang@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+        id S1726342AbgG2JzD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 29 Jul 2020 05:55:03 -0400
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:34543 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726054AbgG2JzD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 29 Jul 2020 05:55:03 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07425;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U48nllf_1596016490;
+Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U48nllf_1596016490)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 29 Jul 2020 17:54:50 +0800
+From:   Jiufei Xue <jiufei.xue@linux.alibaba.com>
+To:     axboe@kernel.dk
+Cc:     io-uring@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Subject: [PATCH] io_uring: add timeout support for io_uring_enter()
+Date:   Wed, 29 Jul 2020 17:54:49 +0800
+Message-Id: <1596016489-25231-1-git-send-email-jiufei.xue@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-IO_URING is a new feature of curent linux kernel, add basic IO_URING
-read/write into fsstess to cover this kind of IO testing.
+Now users who want to get woken when waiting for events should submit a
+timeout command first. It is not safe for applications that split SQ and
+CQ handling between two threads, such as mysql. Users should synchronize
+the two threads explicitly to protect SQ and that will impact the
+performance.
 
-Signed-off-by: Zorro Lang <zlang@redhat.com>
+This patch adds support for timeout to existing io_uring_enter(). To
+avoid overloading arguments, it introduces a new parameter structure
+which contains sigmask and timeout.
+
+I have tested the workloads with one thread submiting nop requests
+while the other reaping the cqe with timeout. It shows 1.8~2x faster
+when the iodepth is 16.
+
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 ---
- README                 |   4 +-
- configure.ac           |   1 +
- include/builddefs.in   |   1 +
- ltp/Makefile           |   5 ++
- ltp/fsstress.c         | 139 ++++++++++++++++++++++++++++++++++++++++-
- m4/Makefile            |   1 +
- m4/package_liburing.m4 |   4 ++
- 7 files changed, 152 insertions(+), 3 deletions(-)
- create mode 100644 m4/package_liburing.m4
+ fs/io_uring.c                 | 49 +++++++++++++++++++++++++++++++++++++------
+ include/uapi/linux/io_uring.h |  2 ++
+ 2 files changed, 45 insertions(+), 6 deletions(-)
 
-diff --git a/README b/README
-index d0e23fcd..ae0f804d 100644
---- a/README
-+++ b/README
-@@ -8,13 +8,13 @@ _______________________
- 	sudo apt-get install xfslibs-dev uuid-dev libtool-bin \
- 	e2fsprogs automake gcc libuuid1 quota attr libattr1-dev make \
- 	libacl1-dev libaio-dev xfsprogs libgdbm-dev gawk fio dbench \
--	uuid-runtime python sqlite3
-+	uuid-runtime python sqlite3 liburing-dev
-   For Fedora, RHEL, or CentOS:
- 	yum install acl attr automake bc dbench dump e2fsprogs fio \
- 	gawk gcc indent libtool lvm2 make psmisc quota sed \
- 	xfsdump xfsprogs \
- 	libacl-devel libattr-devel libaio-devel libuuid-devel \
--	xfsprogs-devel btrfs-progs-devel python sqlite
-+	xfsprogs-devel btrfs-progs-devel python sqlite liburing-devel
- 	(Older distributions may require xfsprogs-qa-devel as well.)
- 	(Note that for RHEL and CentOS, you may need the EPEL repo.)
- - run make
-diff --git a/configure.ac b/configure.ac
-index 4bb50b32..8922c47e 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -61,6 +61,7 @@ AC_PACKAGE_NEED_ACLINIT_LIBACL
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 32b0064..c65fd0f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6191,7 +6191,8 @@ static int io_wake_function(struct wait_queue_entry *curr, unsigned int mode,
+  * application must reap them itself, as they reside on the shared cq ring.
+  */
+ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+-			  const sigset_t __user *sig, size_t sigsz)
++			  const sigset_t __user *sig, size_t sigsz,
++			  struct __kernel_timespec __user *uts)
+ {
+ 	struct io_wait_queue iowq = {
+ 		.wq = {
+@@ -6203,6 +6204,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 		.to_wait	= min_events,
+ 	};
+ 	struct io_rings *rings = ctx->rings;
++	struct timespec64 ts;
++	signed long timeout = 0;
+ 	int ret = 0;
  
- AC_PACKAGE_WANT_GDBM
- AC_PACKAGE_WANT_AIO
-+AC_PACKAGE_WANT_URING
- AC_PACKAGE_WANT_DMAPI
- AC_PACKAGE_WANT_LINUX_FIEMAP_H
- AC_PACKAGE_WANT_FALLOCATE
-diff --git a/include/builddefs.in b/include/builddefs.in
-index e7894b1a..fded3230 100644
---- a/include/builddefs.in
-+++ b/include/builddefs.in
-@@ -61,6 +61,7 @@ RPM_VERSION     = @rpm_version@
- ENABLE_SHARED = @enable_shared@
- HAVE_DB = @have_db@
- HAVE_AIO = @have_aio@
-+HAVE_URING = @have_uring@
- HAVE_FALLOCATE = @have_fallocate@
- HAVE_OPEN_BY_HANDLE_AT = @have_open_by_handle_at@
- HAVE_DMAPI = @have_dmapi@
-diff --git a/ltp/Makefile b/ltp/Makefile
-index ebf40336..198d930f 100644
---- a/ltp/Makefile
-+++ b/ltp/Makefile
-@@ -24,6 +24,11 @@ LCFLAGS += -DAIO
- LLDLIBS += -laio -lpthread
- endif
+ 	do {
+@@ -6226,6 +6229,12 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 			return ret;
+ 	}
  
-+ifeq ($(HAVE_URING), true)
-+LCFLAGS += -DURING
-+LLDLIBS += -luring
-+endif
++	if (uts) {
++		if (get_timespec64(&ts, uts))
++			return -EFAULT;
++		timeout = timespec64_to_jiffies(&ts);
++	}
 +
- ifeq ($(HAVE_LIBBTRFSUTIL), true)
- LLDLIBS += -lbtrfsutil
- endif
-diff --git a/ltp/fsstress.c b/ltp/fsstress.c
-index 709fdeec..388ace50 100644
---- a/ltp/fsstress.c
-+++ b/ltp/fsstress.c
-@@ -30,6 +30,11 @@
- #include <libaio.h>
- io_context_t	io_ctx;
- #endif
-+#ifdef URING
-+#include <liburing.h>
-+#define URING_ENTRIES	64
-+struct io_uring	ring;
-+#endif
- #include <sys/syscall.h>
- #include <sys/xattr.h>
- 
-@@ -139,6 +144,8 @@ typedef enum {
- 	OP_TRUNCATE,
- 	OP_UNLINK,
- 	OP_UNRESVSP,
-+	OP_URING_READ,
-+	OP_URING_WRITE,
- 	OP_WRITE,
- 	OP_WRITEV,
- 	OP_LAST
-@@ -267,6 +274,8 @@ void	sync_f(int, long);
- void	truncate_f(int, long);
- void	unlink_f(int, long);
- void	unresvsp_f(int, long);
-+void	uring_read_f(int, long);
-+void	uring_write_f(int, long);
- void	write_f(int, long);
- void	writev_f(int, long);
- char	*xattr_flag_to_string(int);
-@@ -335,6 +344,8 @@ opdesc_t	ops[] = {
- 	{ OP_TRUNCATE, "truncate", truncate_f, 2, 1 },
- 	{ OP_UNLINK, "unlink", unlink_f, 1, 1 },
- 	{ OP_UNRESVSP, "unresvsp", unresvsp_f, 1, 1 },
-+	{ OP_URING_READ, "uring_read", uring_read_f, 1, 0 },
-+	{ OP_URING_WRITE, "uring_write", uring_write_f, 1, 1 },
- 	{ OP_WRITE, "write", write_f, 4, 1 },
- 	{ OP_WRITEV, "writev", writev_f, 4, 1 },
- }, *ops_end;
-@@ -692,6 +703,12 @@ int main(int argc, char **argv)
- 				fprintf(stderr, "io_setup failed");
- 				exit(1);
- 			}
-+#endif
-+#ifdef URING
-+			if (io_uring_queue_init(URING_ENTRIES, &ring, 0)) {
-+				fprintf(stderr, "io_uring_queue_init failed\n");
-+				exit(1);
+ 	iowq.nr_timeouts = atomic_read(&ctx->cq_timeouts);
+ 	trace_io_uring_cqring_wait(ctx, min_events);
+ 	do {
+@@ -6247,7 +6256,14 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 		}
+ 		if (io_should_wake(&iowq, false))
+ 			break;
+-		schedule();
++		if (uts) {
++			if ((timeout = schedule_timeout(timeout)) == 0) {
++				ret = -ETIME;
++				break;
 +			}
- #endif
- 			for (i = 0; !loops || (i < loops); i++)
- 				doproc();
-@@ -701,7 +718,9 @@ int main(int argc, char **argv)
- 				return 1;
- 			}
- #endif
--
-+#ifdef URING
-+			io_uring_queue_exit(&ring);
-+#endif
- 			cleanup_flist();
- 			free(freq_table);
- 			return 0;
-@@ -2170,6 +2189,108 @@ do_aio_rw(int opno, long r, int flags)
- }
- #endif
++		} else {
++			schedule();
++		}
+ 	} while (1);
+ 	finish_wait(&ctx->wait, &iowq.wq);
  
-+#ifdef URING
-+void
-+do_uring_rw(int opno, long r, int flags)
-+{
-+	char		*buf;
-+	int		e;
-+	pathname_t	f;
-+	int		fd;
-+	size_t		len;
-+	int64_t		lr;
-+	off64_t		off;
-+	struct stat64	stb;
-+	int		v;
-+	char		st[1024];
-+	struct io_uring_sqe	*sqe;
-+	struct io_uring_cqe	*cqe;
-+	struct iovec	iovec;
-+	int		iswrite = (flags & (O_WRONLY | O_RDWR)) ? 1 : 0;
-+
-+	init_pathname(&f);
-+	if (!get_fname(FT_REGFILE, r, &f, NULL, NULL, &v)) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - no filename\n", procid, opno);
-+		goto uring_out3;
-+	}
-+	fd = open_path(&f, flags);
-+	e = fd < 0 ? errno : 0;
-+	check_cwd();
-+	if (fd < 0) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - open %s failed %d\n",
-+			       procid, opno, f.path, e);
-+		goto uring_out3;
-+	}
-+	if (fstat64(fd, &stb) < 0) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - fstat64 %s failed %d\n",
-+			       procid, opno, f.path, errno);
-+		goto uring_out2;
-+	}
-+	inode_info(st, sizeof(st), &stb, v);
-+	if (!iswrite && stb.st_size == 0) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - %s%s zero size\n", procid, opno,
-+			       f.path, st);
-+		goto uring_out2;
-+	}
-+	sqe = io_uring_get_sqe(&ring);
-+	if (!sqe) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - io_uring_get_sqe failed\n",
-+			       procid, opno);
-+		goto uring_out2;
-+	}
-+	lr = ((int64_t)random() << 32) + random();
-+	len = (random() % FILELEN_MAX) + 1;
-+	buf = malloc(len);
-+	if (!buf) {
-+		if (v)
-+			printf("%d/%d: do_uring_rw - malloc failed\n",
-+			       procid, opno);
-+		goto uring_out2;
-+	}
-+	iovec.iov_base = buf;
-+	iovec.iov_len = len;
-+	if (iswrite) {
-+		off = (off64_t)(lr % MIN(stb.st_size + (1024 * 1024), MAXFSIZE));
-+		off %= maxfsize;
-+		memset(buf, nameseq & 0xff, len);
-+		io_uring_prep_writev(sqe, fd, &iovec, 1, off);
+@@ -7644,20 +7660,40 @@ static unsigned long io_uring_nommu_get_unmapped_area(struct file *file,
+ #endif /* !CONFIG_MMU */
+ 
+ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+-		u32, min_complete, u32, flags, const sigset_t __user *, sig,
++		u32, min_complete, u32, flags, const void __user *, argp,
+ 		size_t, sigsz)
+ {
+ 	struct io_ring_ctx *ctx;
+ 	long ret = -EBADF;
+ 	int submitted = 0;
+ 	struct fd f;
++	const sigset_t __user *sig;
++	struct __kernel_timespec __user *ts;
++	struct {
++		sigset_t __user *sigmask;
++		struct __kernel_timespec __user *ts;
++	} arg;
+ 
+ 	if (current->task_works)
+ 		task_work_run();
+ 
+-	if (flags & ~(IORING_ENTER_GETEVENTS | IORING_ENTER_SQ_WAKEUP))
++	if (flags & ~(IORING_ENTER_GETEVENTS | IORING_ENTER_SQ_WAKEUP |
++		      IORING_ENTER_GETEVENTS_TIMEOUT))
+ 		return -EINVAL;
+ 
++	/* deal with IORING_ENTER_GETEVENTS_TIMEOUT */
++	if (flags & IORING_ENTER_GETEVENTS_TIMEOUT) {
++		if (!(flags & IORING_ENTER_GETEVENTS))
++			return -EINVAL;
++		if (copy_from_user(&arg, argp, sizeof(arg)))
++			return -EFAULT;
++		sig = arg.sigmask;
++		ts = arg.ts;
 +	} else {
-+		off = (off64_t)(lr % stb.st_size);
-+		io_uring_prep_readv(sqe, fd, &iovec, 1, off);
++		sig = (const sigset_t __user *)argp;
++		ts = NULL;
 +	}
 +
-+	if ((e = io_uring_submit(&ring)) != 1) {
-+		if (v)
-+			printf("%d/%d: %s - io_uring_submit failed %d\n", procid, opno,
-+			       iswrite ? "uring_write" : "uring_read", e);
-+		goto uring_out1;
-+	}
-+	if ((e = io_uring_wait_cqe(&ring, &cqe)) < 0) {
-+		if (v)
-+			printf("%d/%d: %s - io_uring_wait_cqe failed %d\n", procid, opno,
-+			       iswrite ? "uring_write" : "uring_read", e);
-+		goto uring_out1;
-+	}
-+	if (v)
-+		printf("%d/%d: %s %s%s [%lld, %d(res=%d)] %d\n",
-+		       procid, opno, iswrite ? "uring_write" : "uring_read",
-+		       f.path, st, (long long)off, (int)len, cqe->res, e);
-+	io_uring_cqe_seen(&ring, cqe);
-+
-+ uring_out1:
-+	free(buf);
-+ uring_out2:
-+	close(fd);
-+ uring_out3:
-+	free_pathname(&f);
-+}
-+#endif
-+
- void
- aread_f(int opno, long r)
- {
-@@ -5044,6 +5165,22 @@ unresvsp_f(int opno, long r)
- 	close(fd);
- }
+ 	f = fdget(fd);
+ 	if (!f.file)
+ 		return -EBADF;
+@@ -7706,7 +7742,7 @@ static unsigned long io_uring_nommu_get_unmapped_area(struct file *file,
+ 		    !(ctx->flags & IORING_SETUP_SQPOLL)) {
+ 			ret = io_iopoll_check(ctx, &nr_events, min_complete);
+ 		} else {
+-			ret = io_cqring_wait(ctx, min_complete, sig, sigsz);
++			ret = io_cqring_wait(ctx, min_complete, sig, sigsz, ts);
+ 		}
+ 	}
  
-+void
-+uring_read_f(int opno, long r)
-+{
-+#ifdef URING
-+	do_uring_rw(opno, r, O_RDONLY);
-+#endif
-+}
-+
-+void
-+uring_write_f(int opno, long r)
-+{
-+#ifdef URING
-+	do_uring_rw(opno, r, O_WRONLY);
-+#endif
-+}
-+
- void
- write_f(int opno, long r)
- {
-diff --git a/m4/Makefile b/m4/Makefile
-index 7fbff822..0352534d 100644
---- a/m4/Makefile
-+++ b/m4/Makefile
-@@ -14,6 +14,7 @@ LSRCFILES = \
- 	package_dmapidev.m4 \
- 	package_globals.m4 \
- 	package_libcdev.m4 \
-+	package_liburing.m4 \
- 	package_ncurses.m4 \
- 	package_pthread.m4 \
- 	package_ssldev.m4 \
-diff --git a/m4/package_liburing.m4 b/m4/package_liburing.m4
-new file mode 100644
-index 00000000..c92cc02a
---- /dev/null
-+++ b/m4/package_liburing.m4
-@@ -0,0 +1,4 @@
-+AC_DEFUN([AC_PACKAGE_WANT_URING],
-+  [ AC_CHECK_HEADERS(liburing.h, [ have_uring=true ], [ have_uring=false ])
-+    AC_SUBST(have_uring)
-+  ])
+@@ -8000,7 +8036,8 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 
+ 	p->features = IORING_FEAT_SINGLE_MMAP | IORING_FEAT_NODROP |
+ 			IORING_FEAT_SUBMIT_STABLE | IORING_FEAT_RW_CUR_POS |
+-			IORING_FEAT_CUR_PERSONALITY | IORING_FEAT_FAST_POLL;
++			IORING_FEAT_CUR_PERSONALITY | IORING_FEAT_FAST_POLL |
++			IORING_FEAT_GETEVENTS_TIMEOUT;
+ 
+ 	if (copy_to_user(params, p, sizeof(*p))) {
+ 		ret = -EFAULT;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 7843742..1bf31bf 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -223,6 +223,7 @@ struct io_cqring_offsets {
+  */
+ #define IORING_ENTER_GETEVENTS	(1U << 0)
+ #define IORING_ENTER_SQ_WAKEUP	(1U << 1)
++#define IORING_ENTER_GETEVENTS_TIMEOUT	(1U << 2)
+ 
+ /*
+  * Passed in for io_uring_setup(2). Copied back with updated info on success
+@@ -249,6 +250,7 @@ struct io_uring_params {
+ #define IORING_FEAT_RW_CUR_POS		(1U << 3)
+ #define IORING_FEAT_CUR_PERSONALITY	(1U << 4)
+ #define IORING_FEAT_FAST_POLL		(1U << 5)
++#define IORING_FEAT_GETEVENTS_TIMEOUT	(1U << 7)
+ 
+ /*
+  * io_uring_register(2) opcodes and arguments
 -- 
-2.20.1
+1.8.3.1
 

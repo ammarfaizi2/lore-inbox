@@ -2,128 +2,117 @@ Return-Path: <SRS0=mDqB=BJ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C3CAC433E0
-	for <io-uring@archiver.kernel.org>; Thu, 30 Jul 2020 15:28:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F15EEC433E0
+	for <io-uring@archiver.kernel.org>; Thu, 30 Jul 2020 15:46:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE6B620838
-	for <io-uring@archiver.kernel.org>; Thu, 30 Jul 2020 15:28:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C85C52082E
+	for <io-uring@archiver.kernel.org>; Thu, 30 Jul 2020 15:46:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="ZKunuK+b"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bhTrv+2x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbgG3P2M (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 30 Jul 2020 11:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36036 "EHLO
+        id S1729942AbgG3PqF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 30 Jul 2020 11:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726353AbgG3P2L (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 30 Jul 2020 11:28:11 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB3BC061574
-        for <io-uring@vger.kernel.org>; Thu, 30 Jul 2020 08:28:11 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id d18so28637308ion.0
-        for <io-uring@vger.kernel.org>; Thu, 30 Jul 2020 08:28:11 -0700 (PDT)
+        with ESMTP id S1729997AbgG3PqD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 30 Jul 2020 11:46:03 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A22C061574
+        for <io-uring@vger.kernel.org>; Thu, 30 Jul 2020 08:46:02 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id bs17so1534582edb.1
+        for <io-uring@vger.kernel.org>; Thu, 30 Jul 2020 08:46:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=8jVoi6AWRWaySKq/Z1wuxDTaOTt1Y7QgccSLt54IWfc=;
-        b=ZKunuK+bgRqulQJyQ/52V0Tfub2LItE2A1kONAgrGXJH/dEeKBLgS9ODX7XMedo4O1
-         vNdfk98mVrH+q8ODYtwwFJGj4Mb6tsSdwBVEegA4VOrER4ac6mM+EHsMUf7HOUm+k9eL
-         7xhQLMayRDmyxlM/BH4qdGyABE7i/UMkaqrJ5MSusqEhG0imNV3MMyZlUaihwyf4MMZy
-         7bJDdJmH76rneXhLVawBR0pukePIa9yksHEe2S2cQMgO+rW1n3eTQV6V0DCMyAH3vtBc
-         AW1z6N7UocM4SQlgJGtuBF6d3CLqAJqVAULIGqapsYW0PDNSnFbJur+tI9N/t9v0sUiq
-         OGnQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=1erUX3jejIaxwOAtt+kP1fEG8b/qpjNCHxbYf9oWeko=;
+        b=bhTrv+2x0TmlgKY2uiXlcxu3iwRPcSnV5KYWJdWpllVWKVgxoh5inpbOHvnsJ7/ymA
+         /cjJWeLnHYEF+mfJcXsKrwpFs8UyLLycC3G7XvconhKb+QFjOi1tkV7pbYBQdJY9V/0R
+         XxOdUYqMzOdNmOH4dHB93hPggNaCgeUyEpEsc+WV3d2wGVcpKEOwT9hr7296moi9t5L4
+         1eX/jJwIaQmTSftrq/avZ95JqwNAYe85qkl3vexg4ZOSNVb4eAKMBDsmtHXH6FdIxNW5
+         PjwtamLLrnVdDOKDx4v8fzHzyjUehLFDuHInwlqKUzkfyuXE+PY9fe9gmArSrd0owmhD
+         hJJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=8jVoi6AWRWaySKq/Z1wuxDTaOTt1Y7QgccSLt54IWfc=;
-        b=RLaalSy2rtOKcuZvk2UtzWUqyxFngrakUbTE357gR0KCKYZDb6g0DA6S4gqPs91Fz2
-         NaPmYofEu/DI/Q4mO+IznionRAAJQBBJ2l+GP/HYvD3BA/qddbOgw8YtnhJjv7xDzP8i
-         vn3iW/KHYu/TWT300Rl+K/myvWA6RkTHOxjqN4iK2n4RR3Kvw6Rv/YCMBv02uR5tVbJy
-         MEDK0xgaQKKyKFuoFv2FPiJgsMqTZX/TtLvn/hYIk3b3La0kRS78tZlzjf4HaLugrJqc
-         +diPifbN/KrtP4ySejeO/YROZg4pWms7Nqa9WS2jFum3yV8qr3cJzZo5Zof5nNev6CZ4
-         cxOw==
-X-Gm-Message-State: AOAM530FDrP19EI4g6BREUexVJUD4FfkogJo8UQ6gPrmGBu1ZsflTYNF
-        TmN2oVakbt0n4RPmdT1HaEq329d09nU=
-X-Google-Smtp-Source: ABdhPJyw9cEq0+24YPRIVk7Rjs4W+mG3iMm65ftVv2sSJ2zRsq6VgaT0iunrkphhYtqvNamHfSy0GQ==
-X-Received: by 2002:a6b:ce01:: with SMTP id p1mr38278694iob.19.1596122890837;
-        Thu, 30 Jul 2020 08:28:10 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id n10sm2794967iom.21.2020.07.30.08.28.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2020 08:28:10 -0700 (PDT)
-Subject: Re: [PATCH liburing 1/2] io_uring_enter: add timeout support
-To:     Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Cc:     io-uring@vger.kernel.org
-References: <1596017415-39101-1-git-send-email-jiufei.xue@linux.alibaba.com>
- <1596017415-39101-2-git-send-email-jiufei.xue@linux.alibaba.com>
- <0f6cdf31-fbec-d447-989d-969bb936838a@kernel.dk>
- <0002bd2c-1375-2b95-fe98-41ee0895141e@linux.alibaba.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <252c29a9-9fb4-a61f-6899-129fd04db4a0@kernel.dk>
-Date:   Thu, 30 Jul 2020 09:28:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=1erUX3jejIaxwOAtt+kP1fEG8b/qpjNCHxbYf9oWeko=;
+        b=RwS3IRdFQzSCUP+OlEr9ViLvQ93FJpOEFt0xiwN4mTCOpRxC+JkVU0qQXbpviVNLMM
+         ytNt9w1WQaAiMNBWdmm/52gIWSM8aFCa7wMU/6ki2QD6XAZVH2Y2tmF8sR10YZKE21Mp
+         3QnfF14UHuJLmOYUiIRDBaBbn6laXizOat8GeXWDyY34ww4yKBUXX/v90JixHkB51SUg
+         zaEXToGcXFUFAu7NZgpqJKjHBPzkSDLwH+VIIAigUFwEfAHZnr0hR3dkCL5PXYj6fROt
+         8q8t1Q83ox1j++LR4bKLksFuPM/5MKapJvS4TihRFR8dqfGQeQNWPoimIW4ZBtydBHoI
+         TGpg==
+X-Gm-Message-State: AOAM532XbbOk5kfDXf7vtm0xIp8b2/q0ptnykKy8s4FohcJF80qSTegD
+        rJ/4BaK4EW+oB7lXQ2qsXzhNNm5z
+X-Google-Smtp-Source: ABdhPJx+9FFszS/58rD1Xwttsm5ySWR80PA3kuVGv+7LbTnydkN01mj8soEI5VGaIkriYfuh1og+uQ==
+X-Received: by 2002:a05:6402:3ca:: with SMTP id t10mr3201773edw.298.1596123961488;
+        Thu, 30 Jul 2020 08:46:01 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.69])
+        by smtp.gmail.com with ESMTPSA id g25sm6740962edp.22.2020.07.30.08.45.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2020 08:46:00 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 2/6] io_uring: deduplicate __io_complete_rw()
+Date:   Thu, 30 Jul 2020 18:43:46 +0300
+Message-Id: <571f3037d6b7fa885dc075e56224cafcdfd68eaf.1596123376.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1596123376.git.asml.silence@gmail.com>
+References: <cover.1596123376.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <0002bd2c-1375-2b95-fe98-41ee0895141e@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/29/20 8:32 PM, Jiufei Xue wrote:
-> Hi Jens,
-> 
-> On 2020/7/30 上午1:51, Jens Axboe wrote:
->> On 7/29/20 4:10 AM, Jiufei Xue wrote:
->>> Kernel can handle timeout when feature IORING_FEAT_GETEVENTS_TIMEOUT
->>> supported. Add two new interfaces: io_uring_wait_cqes2(),
->>> io_uring_wait_cqe_timeout2() for applications to use this feature.
->>
->> Why add new new interfaces, when the old ones already pass in the
->> timeout? Surely they could just use this new feature, instead of the
->> internal timeout, if it's available?
->>
-> Applications use the old one may not call io_uring_submit() because
-> io_uring_wait_cqes() will do it. So I considered to add a new one.
+Call __io_complete_rw() in io_iopoll_queue() instead of hand coding it.
 
-Not sure I see how that's a problem - previously, you could not do that
-either, if you were doing separate submit/complete threads. So this
-doesn't really add any new restrictions. The app can check for the
-feature flag to see if it's safe to do so now.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
->>> diff --git a/src/include/liburing.h b/src/include/liburing.h
->>> index 0505a4f..6176a63 100644
->>> --- a/src/include/liburing.h
->>> +++ b/src/include/liburing.h
->>> @@ -56,6 +56,7 @@ struct io_uring {
->>>  	struct io_uring_sq sq;
->>>  	struct io_uring_cq cq;
->>>  	unsigned flags;
->>> +	unsigned features;
->>>  	int ring_fd;
->>>  };
->>
->> This breaks the API, as it changes the size of the ring...
->>
-> Oh, yes, I haven't considering that before. So could I add this feature
-> bit to io_uring.flags. Any suggestion?
-
-Either that, or we add this (and add pad that we can use later) and just
-say that for the next release you have to re-compile against the lib.
-That will break existing applications, unless they are recompiled... But
-it might not be a bad idea to do so, just so we can pad io_uring out a
-little bit to provide for future flexibility.
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 86ec5669fe50..11f4ab87e08f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -891,7 +891,8 @@ enum io_mem_account {
+ 	ACCT_PINNED,
+ };
+ 
+-static bool io_rw_reissue(struct io_kiocb *req, long res);
++static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
++			     struct io_comp_state *cs);
+ static void io_cqring_fill_event(struct io_kiocb *req, long res);
+ static void io_put_req(struct io_kiocb *req);
+ static void io_double_put_req(struct io_kiocb *req);
+@@ -902,8 +903,6 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				 struct io_uring_files_update *ip,
+ 				 unsigned nr_args);
+ static int io_prep_work_files(struct io_kiocb *req);
+-static void io_complete_rw_common(struct kiocb *kiocb, long res,
+-				  struct io_comp_state *cs);
+ static void __io_clean_op(struct io_kiocb *req);
+ static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
+ 		       int fd, struct file **out_file, bool fixed);
+@@ -1976,8 +1975,7 @@ static void io_iopoll_queue(struct list_head *again)
+ 	do {
+ 		req = list_first_entry(again, struct io_kiocb, inflight_entry);
+ 		list_del(&req->inflight_entry);
+-		if (!io_rw_reissue(req, -EAGAIN))
+-			io_complete_rw_common(&req->rw.kiocb, -EAGAIN, NULL);
++		__io_complete_rw(req, -EAGAIN, 0, NULL);
+ 	} while (!list_empty(again));
+ }
+ 
 -- 
-Jens Axboe
+2.24.0
 

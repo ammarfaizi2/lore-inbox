@@ -2,79 +2,169 @@ Return-Path: <SRS0=V/+L=BP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B644DC433E0
-	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 19:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 341ACC433E0
+	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 19:56:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B3BE20842
-	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 19:06:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DF7F20842
+	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 19:56:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Jh8OfJOi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZzlJ8kJo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbgHETGq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 5 Aug 2020 15:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
+        id S1728607AbgHETzr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 5 Aug 2020 15:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728544AbgHETEr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 5 Aug 2020 15:04:47 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71558C0617A3
-        for <io-uring@vger.kernel.org>; Wed,  5 Aug 2020 12:04:34 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id t10so20570368plz.10
-        for <io-uring@vger.kernel.org>; Wed, 05 Aug 2020 12:04:34 -0700 (PDT)
+        with ESMTP id S1728043AbgHEQqQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 5 Aug 2020 12:46:16 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49672C061757;
+        Wed,  5 Aug 2020 03:53:57 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id t10so19702088plz.10;
+        Wed, 05 Aug 2020 03:53:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fKWjZ5BtbhMHOhQ0I7iPtI61Wg+c1D+aKSmLPn5xY/U=;
-        b=Jh8OfJOiR4zDnJqZ5xlfwu+E6T/xHH2Lbu8XidLSiMxbTgBBr3nyELr9E/fn7yMf0g
-         dnQKr9mA1GFLkLrDqX4ipzBPolUaSPx7izuyBmaBrvL0d7uFqrblhXlDwdVb99VEwJu7
-         4rcbXVfcmxJ/yNm5ZKcUor2p8K99ZQ/1PLPI3wuTMPO4jhEGsPDiZL0Q5/C4buPzdUsr
-         gYsyD3uROGS3g0ovThXhnO64HOOTFuEGuZlAcNxiSuI7Ca9wdlXUfnJ0lLhz0vUE7K5j
-         nTKjT39R01gyyU5C8zkVWu5tJ0Bv8XFsI3cxb4I0MtAQ50c8v1jVMEUfZbyWaYbxDd6S
-         uBJw==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=n6eJX7kP2wSPXMfsAV6wxlSNMqm5O3KWO3aWCRlizZw=;
+        b=ZzlJ8kJoS7x+Dr6GTqIhchPVuBKmZlR0zUuECW0cbKEhBrYElwE7LQ7jHTErhJ2kQl
+         HVQnpAfXI+4M6TyxQykGyIWV17dv2YXk0J5lTE69XNDRBK1LXR0ximX3GaeNG22uFydr
+         Ok3z75gZLQbISvYmmqbaV8a5heyCDdNjeOWBaKc0+opsTD+mbUh7CtRNmRPhtkIwOuMG
+         dx04lDe4XSlsBbdWF8ZOdG5ItJ0gSmBe0Pq1nnheKKv4mTaT+zeDTyaNbciggbhd/rcG
+         Lc8JSrmCjV1KbqbJi1/NV+Nm4P/P1CRcg8AemG9hRxKK2zDn99xZmgc4m5/u2GoEItk2
+         GPJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fKWjZ5BtbhMHOhQ0I7iPtI61Wg+c1D+aKSmLPn5xY/U=;
-        b=Ijirr5zndEa6XJ8dhRYC/XdSMo8Rm4OOBp9Wd1CrlwY6bMmLGvfB8dzbFBwIZR3tge
-         hNlykxzDScinv6yvixI8mxWhBE0jYc0T7Aemq0ijw4DE8V9AVYYR9zJYBhhBZgSRMJRz
-         1XRV2oktJ28CHPKjm0mkfFwqYeUZT6fm4T3qJ3QjwB5muyvfalbI6dBXFhC6qfBeCo8o
-         /T+OocYtteVvRWN7GNOpt1zmV/dK7L9ADsybHLWAFCZ++H+/GSjH4ITEWooiVcFQknEc
-         hpTqBDlFTJohqv1It7QZsFaFU2FMNlHozz4BOAZP8Hn/PNoGCak7u4MaTHWmYfzSPw9h
-         uUmw==
-X-Gm-Message-State: AOAM531Q/aO+A374Ho7QcZJdSOuWCaxr8wMVIZNRTBLlyS65B4GeSALz
-        cIQrQJxW+QRn/wRqZePFiKtmLOVJzz0=
-X-Google-Smtp-Source: ABdhPJwZtJ8mZKq1Pfa2I6507Aj8mWUzON4cQI4EFh1RDexfelcSqka264e3FEyCrbu5DYz9IRs/1A==
-X-Received: by 2002:a17:902:b943:: with SMTP id h3mr4558433pls.38.1596654267654;
-        Wed, 05 Aug 2020 12:04:27 -0700 (PDT)
-Received: from localhost.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id b15sm4071881pgk.14.2020.08.05.12.04.26
-        for <io-uring@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=n6eJX7kP2wSPXMfsAV6wxlSNMqm5O3KWO3aWCRlizZw=;
+        b=e5O2msKvhjNQIJGwkKYmDI9kFjPhe/fF79YhuHi5TfW1y9XEKWONSOURpUgnH3hmjo
+         ZUiXL01mhX2v9+BdB206RDWAWifm57bVoFaQqYGDCz4J4hN9n+Dh0L4H9NBAlIBmDhdl
+         dPqiQbH3HkVa/+9kWnREPDVjZx/Lr0SOoi22vnLPn5YrOfr3RIJiDMFxHawGatuo4CfS
+         3hk6hvhmPY0cN6nRr7a0tdOtsqVoW/W1OlJleJO9tsnPm0Lsvr8y/4gQo2Pf049mVdez
+         jhZcHgC4Vuocm3L86o7v/ZR44D/sUPyWwbRIELBRemL0MgGEXrYRSfBF4PEXiMbJUjaz
+         WOSw==
+X-Gm-Message-State: AOAM532skLEgb8PIog7ltvzatOmMAStVqOKgKEO1l7d0fh9OXD/wrf/U
+        /GSF7gvS+A3uCCQlsruppmhxMXqv9Tc=
+X-Google-Smtp-Source: ABdhPJx8eWt5XQbC91jHW+PQBpRVhEPK391Djy5BqFygVS6+lYLLwe83RtbnRNGUGjnUrVZMyGDKEA==
+X-Received: by 2002:a17:90a:5d15:: with SMTP id s21mr2766192pji.154.1596624835362;
+        Wed, 05 Aug 2020 03:53:55 -0700 (PDT)
+Received: from localhost ([104.192.108.10])
+        by smtp.gmail.com with ESMTPSA id n25sm2978818pff.51.2020.08.05.03.53.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 12:04:27 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Subject: [PATCH 0/2] io_uring memory accounting fixes
-Date:   Wed,  5 Aug 2020 13:02:22 -0600
-Message-Id: <20200805190224.401962-1-axboe@kernel.dk>
-X-Mailer: git-send-email 2.28.0
+        Wed, 05 Aug 2020 03:53:54 -0700 (PDT)
+Date:   Wed, 5 Aug 2020 03:53:50 -0700
+From:   Guoyu Huang <hgy5945@gmail.com>
+To:     viro@zeniv.linux.org.uk, axboe@kernel.dk
+Cc:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] io_uring: Fix NULL pointer dereference in loop_rw_write()
+Message-ID: <20200805105350.GA102801@ubuntu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-First one is something that should go into stable, to avoid
-discrepancies between accounted and unaccounted memory. The second one
-is just for 5.9.
+loop_rw_iter() does not check whether the file has a read or
+write function. This can lead to NULL pointer dereference
+when the user passes in a file descriptor that does not have
+read or write function.
 
--- 
-Jens Axboe
+The crash log looks like this:
 
+[   99.834071] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[   99.835364] #PF: supervisor instruction fetch in kernel mode
+[   99.836522] #PF: error_code(0x0010) - not-present page
+[   99.837771] PGD 8000000079d62067 P4D 8000000079d62067 PUD 79d8c067 PMD 0
+[   99.839649] Oops: 0010 [#2] SMP PTI
+[   99.840591] CPU: 1 PID: 333 Comm: io_wqe_worker-0 Tainted: G      D           5.8.0 #2
+[   99.842622] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
+[   99.845140] RIP: 0010:0x0
+[   99.845840] Code: Bad RIP value.
+[   99.846672] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
+[   99.848018] RAX: 0000000000000000 RBX: ffff92363bd67300 RCX: ffff92363d461208
+[   99.849854] RDX: 0000000000000010 RSI: 00007ffdbf696bb0 RDI: ffff92363bd67300
+[   99.851743] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
+[   99.853394] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
+[   99.855148] R13: 0000000000000000 R14: ffff92363d461208 R15: ffffa1c7c01ebc68
+[   99.856914] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
+[   99.858651] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   99.860032] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
+[   99.861979] Call Trace:
+[   99.862617]  loop_rw_iter.part.0+0xad/0x110
+[   99.863838]  io_write+0x2ae/0x380
+[   99.864644]  ? kvm_sched_clock_read+0x11/0x20
+[   99.865595]  ? sched_clock+0x9/0x10
+[   99.866453]  ? sched_clock_cpu+0x11/0xb0
+[   99.867326]  ? newidle_balance+0x1d4/0x3c0
+[   99.868283]  io_issue_sqe+0xd8f/0x1340
+[   99.869216]  ? __switch_to+0x7f/0x450
+[   99.870280]  ? __switch_to_asm+0x42/0x70
+[   99.871254]  ? __switch_to_asm+0x36/0x70
+[   99.872133]  ? lock_timer_base+0x72/0xa0
+[   99.873155]  ? switch_mm_irqs_off+0x1bf/0x420
+[   99.874152]  io_wq_submit_work+0x64/0x180
+[   99.875192]  ? kthread_use_mm+0x71/0x100
+[   99.876132]  io_worker_handle_work+0x267/0x440
+[   99.877233]  io_wqe_worker+0x297/0x350
+[   99.878145]  kthread+0x112/0x150
+[   99.878849]  ? __io_worker_unuse+0x100/0x100
+[   99.879935]  ? kthread_park+0x90/0x90
+[   99.880874]  ret_from_fork+0x22/0x30
+[   99.881679] Modules linked in:
+[   99.882493] CR2: 0000000000000000
+[   99.883324] ---[ end trace 4453745f4673190b ]---
+[   99.884289] RIP: 0010:0x0
+[   99.884837] Code: Bad RIP value.
+[   99.885492] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
+[   99.886851] RAX: 0000000000000000 RBX: ffff92363acd7f00 RCX: ffff92363d461608
+[   99.888561] RDX: 0000000000000010 RSI: 00007ffe040d9e10 RDI: ffff92363acd7f00
+[   99.890203] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
+[   99.891907] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
+[   99.894106] R13: 0000000000000000 R14: ffff92363d461608 R15: ffffa1c7c01ebc68
+[   99.896079] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
+[   99.898017] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   99.899197] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
+
+Signed-off-by: Guoyu Huang <hgy5945@gmail.com>
+---
+ fs/io_uring.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 493e5047e67c..3c21e2e002b4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2661,8 +2661,10 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
+
+ 		if (req->file->f_op->read_iter)
+ 			ret2 = call_read_iter(req->file, kiocb, &iter);
+-		else
++		else if (req->file->f_op->read)
+ 			ret2 = loop_rw_iter(READ, req->file, kiocb, &iter);
++		else
++			ret2 = -EINVAL;
+
+ 		/* Catch -EAGAIN return for forced non-blocking submission */
+ 		if (!force_nonblock || ret2 != -EAGAIN) {
+@@ -2776,8 +2778,10 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
+
+ 		if (req->file->f_op->write_iter)
+ 			ret2 = call_write_iter(req->file, kiocb, &iter);
+-		else
++		else if (req->file->f_op->write)
+ 			ret2 = loop_rw_iter(WRITE, req->file, kiocb, &iter);
++		else
++			ret2 = -EINVAL;
+
+ 		if (!force_nonblock)
+ 			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+--
+2.25.1
 

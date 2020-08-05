@@ -2,46 +2,189 @@ Return-Path: <SRS0=V/+L=BP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A2A6C433E0
-	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 03:04:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00AD7C433E0
+	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 03:04:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25EAF206D4
-	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 03:04:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6356206D4
+	for <io-uring@archiver.kernel.org>; Wed,  5 Aug 2020 03:04:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726150AbgHEDEo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 4 Aug 2020 23:04:44 -0400
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:35379 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726027AbgHEDEo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 4 Aug 2020 23:04:44 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0U4n7KHM_1596596682;
-Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U4n7KHM_1596596682)
+        id S1727032AbgHEDEu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 4 Aug 2020 23:04:50 -0400
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:39820 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725950AbgHEDEu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 4 Aug 2020 23:04:50 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07488;MF=jiufei.xue@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0U4mvJ5L_1596596685;
+Received: from localhost(mailfrom:jiufei.xue@linux.alibaba.com fp:SMTPD_---0U4mvJ5L_1596596685)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 05 Aug 2020 11:04:42 +0800
+          Wed, 05 Aug 2020 11:04:45 +0800
 From:   Jiufei Xue <jiufei.xue@linux.alibaba.com>
 To:     axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org, metze@samba.org
-Subject: [PATCH liburing v3 0/2] add support for new timeout feature
-Date:   Wed,  5 Aug 2020 11:04:38 +0800
-Message-Id: <1596596680-116411-1-git-send-email-jiufei.xue@linux.alibaba.com>
+Cc:     io-uring@vger.kernel.org, metze@samba.org,
+        Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Subject: [PATCH liburing v3 2/2] test/timeout: add testcase for new timeout feature
+Date:   Wed,  5 Aug 2020 11:04:40 +0800
+Message-Id: <1596596680-116411-3-git-send-email-jiufei.xue@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1596596680-116411-1-git-send-email-jiufei.xue@linux.alibaba.com>
+References: <1596596680-116411-1-git-send-email-jiufei.xue@linux.alibaba.com>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Kernel can handle timeout when feature IORING_FEAT_GETEVENTS_TIMEOUT
-supported. Applications should use io_uring_set_cqwait_timeout()
-explicitly to asked for the new feature.
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+---
+ test/Makefile  |  1 +
+ test/timeout.c | 97 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+)
 
-Changes since v2:
-- bump the version to 2.0.7 since we have changed the size of io_uring
-- add more pad to structure io_uring for future flexibility
+diff --git a/test/Makefile b/test/Makefile
+index a693d6f..8892ee9 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -89,6 +89,7 @@ submit-reuse: XCFLAGS = -lpthread
+ poll-v-poll: XCFLAGS = -lpthread
+ across-fork: XCFLAGS = -lpthread
+ ce593a6c480a-test: XCFLAGS = -lpthread
++timeout: XCFLAGS = -lpthread
+ 
+ install: $(all_targets) runtests.sh runtests-loop.sh
+ 	$(INSTALL) -D -d -m 755 $(datadir)/liburing-test/
+diff --git a/test/timeout.c b/test/timeout.c
+index 7e9f11d..008acc5 100644
+--- a/test/timeout.c
++++ b/test/timeout.c
+@@ -10,6 +10,7 @@
+ #include <string.h>
+ #include <fcntl.h>
+ #include <sys/time.h>
++#include <pthread.h>
+ 
+ #include "liburing.h"
+ #include "../src/syscall.h"
+@@ -18,6 +19,11 @@
+ static int not_supported;
+ static int no_modify;
+ 
++struct thread_data {
++	struct io_uring *ring;
++	volatile int do_exit;
++};
++
+ static void msec_to_ts(struct __kernel_timespec *ts, unsigned int msec)
+ {
+ 	ts->tv_sec = msec / 1000;
+@@ -232,6 +238,91 @@ err:
+ 	return 1;
+ }
+ 
++static void *test_reap_thread_fn(void *__data)
++{
++	struct thread_data *data = __data;
++	struct io_uring *ring = (struct io_uring *)data->ring;
++	struct io_uring_cqe *cqe;
++	struct __kernel_timespec ts;
++	int ret, i = 0;
++
++	msec_to_ts(&ts, TIMEOUT_MSEC);
++	while (!data->do_exit) {
++		ret = io_uring_wait_cqes(ring, &cqe, 2, &ts, NULL);
++		if (ret == -ETIME) {
++			if (i == 2)
++				break;
++			else
++				continue;
++		} else if (ret < 0) {
++			fprintf(stderr, "%s: wait timeout failed: %d\n", __FUNCTION__, ret);
++			goto err;
++		}
++		ret = cqe->res;
++		if (ret < 0) {
++			fprintf(stderr, "res: %d\n", ret);
++			goto err;
++		}
++
++		io_uring_cqe_seen(ring, cqe);
++		i++;
++	}
++
++	if (i != 2) {
++		fprintf(stderr, "got %d completions\n", i);
++		ret = 1;
++		goto err;
++	}
++	return NULL;
++
++err:
++	return (void *)(intptr_t)ret;
++}
++
++static int test_single_timeout_wait_new(struct io_uring *ring)
++{
++	struct thread_data data;
++	struct io_uring_sqe *sqe;
++	pthread_t reap_thread;
++	int ret;
++	void *retval;
++
++	if (!(ring->features & IORING_FEAT_GETEVENTS_TIMEOUT)) {
++		fprintf(stdout, "feature IORING_FEAT_GETEVENTS_TIMEOUT not supported.\n");
++		return 0;
++	}
++	if (io_uring_set_cqwait_timeout(ring)) {
++		fprintf(stdout, "o_uring_set_cqwait_timeout failed.\n");
++		return 1;
++	}
++
++	data.ring = ring;
++	data.do_exit = 0;
++
++	sqe = io_uring_get_sqe(ring);
++	io_uring_prep_nop(sqe);
++	io_uring_sqe_set_data(sqe, (void *) 1);
++
++	sqe = io_uring_get_sqe(ring);
++	io_uring_prep_nop(sqe);
++	io_uring_sqe_set_data(sqe, (void *) 1);
++
++	pthread_create(&reap_thread, NULL, test_reap_thread_fn, &data);
++
++	ret = io_uring_submit(ring);
++	if (ret <= 0) {
++		fprintf(stderr, "%s: sqe submit failed: %d\n", __FUNCTION__, ret);
++		goto err;
++	}
++
++	sleep(1);
++	data.do_exit = 1;
++	pthread_join(reap_thread, &retval);
++	return (int)(intptr_t)retval;
++err:
++	return 1;
++}
++
+ /*
+  * Test single timeout waking us up
+  */
+@@ -1054,6 +1145,12 @@ int main(int argc, char *argv[])
+ 		return ret;
+ 	}
+ 
++	ret = test_single_timeout_wait_new(&ring);
++	if (ret) {
++		fprintf(stderr, "test_single_timeout_wait_new failed\n");
++		return ret;
++	}
++
+ 	/*
+ 	 * this test must go last, it kills the ring
+ 	 */
+-- 
+1.8.3.1
 
-Jiufei Xue (2):
-io_uring_enter: add timeout support
-test/timeout: add testcase for new timeout feature

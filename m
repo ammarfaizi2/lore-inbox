@@ -2,123 +2,135 @@ Return-Path: <SRS0=k712=BQ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49636C433DF
-	for <io-uring@archiver.kernel.org>; Thu,  6 Aug 2020 17:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33E0AC433DF
+	for <io-uring@archiver.kernel.org>; Thu,  6 Aug 2020 17:23:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A40C22311C
-	for <io-uring@archiver.kernel.org>; Thu,  6 Aug 2020 17:13:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 928F523119
+	for <io-uring@archiver.kernel.org>; Thu,  6 Aug 2020 17:23:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fsFfmu2j"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="vgYFrfKU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728846AbgHFRN0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 6 Aug 2020 13:13:26 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:33539 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730441AbgHFRNU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 6 Aug 2020 13:13:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596733999;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=h6VQ+ld8K59/1Mk6GQHZQGHAZ42eDceDi77a6JENzsY=;
-        b=fsFfmu2jmiNnLM+jm3Kn5OHrPqBUndirlU4CCVaOLygQXJhj1E6eyLfzrGp/UPzqI6803o
-        u5xXKNnJnkQJql/w4fCMJwPnQ8WafEfIFtqZIBUcE90RpCH7rMEh8J+ayWjjvg2S6pYMVs
-        DPK4iWgKj546ohUXMzTIXulkLBJVLXc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-513-c-RS1nUoPsGLybWQ45oy-Q-1; Thu, 06 Aug 2020 09:38:53 -0400
-X-MC-Unique: c-RS1nUoPsGLybWQ45oy-Q-1
-Received: by mail-wr1-f72.google.com with SMTP id t3so13778105wrr.5
-        for <io-uring@vger.kernel.org>; Thu, 06 Aug 2020 06:38:53 -0700 (PDT)
+        id S1728044AbgHFRX3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 6 Aug 2020 13:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729959AbgHFRFI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 6 Aug 2020 13:05:08 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53F8C034617
+        for <io-uring@vger.kernel.org>; Thu,  6 Aug 2020 06:20:32 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id c6so6665975pje.1
+        for <io-uring@vger.kernel.org>; Thu, 06 Aug 2020 06:20:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=bx2+PmwZa1OtGv3itEqCRg9j5lI+TVeLmlYRsYMctuY=;
+        b=vgYFrfKU6hefukTGaE/nrWZCZcNEl0bRMcHS6opgOxqKZFMdoZnkDGfTd4P6UHsTZf
+         kqycsru2ehwIzpLH/aUxogiVUvPx97ahCiJFdAFoVJxnKvk09S2iUC9vkftVsYEGV4+u
+         Jv/XpLrTaIAUcQaEjVtsaS2j0BACQGg0D1vlvt21T/SjPNq42P89ofypB/U2nTp+agtQ
+         nAOuMdVTZ997pYRPJckHz2CtR5byLDLmONWv50aya2G4iWA62ksHZ9IDihvaIYPxEJYo
+         OqUdfrtsMKQJFVAFTBkHkgCHL8eML/LaXgdbrpFbrSiirhG/9ecWoRS0KAnqTC39T2pJ
+         rJ6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=h6VQ+ld8K59/1Mk6GQHZQGHAZ42eDceDi77a6JENzsY=;
-        b=Zihja/sWRJ/LT/L6GA4SRHU+cszMmeeHOssTKmEL7hsT5YK95cfbFey9EFwzZ1zeTs
-         LF0NKpmvyn0tw++27iyzL5rzGQBP4Fr9US04a+jWPmAl2i9uQTB+1JB9PrPM3X7S31w9
-         Z4fPA/eZiN+P2TKa7cIzIB3U06WvbKbm+qMat0LISF4ojgiYRNK5C4l6eyh4HI70ILYC
-         akIZnsM0ucn8mBLim9JZd6p6AgH4BPrllsrpkyrzQNZ7sDrk99ky6+/bz4kyZV1/7Yqr
-         czFIuUSEt96lsZrelPoSqd4hXWIRu3D6niTRC9tXKyvqjclbKPViM+vKOWw+ownI8N1W
-         BVyQ==
-X-Gm-Message-State: AOAM531udiw0gxJSBBmBZtO8KinszuO0PXfsGwWsuCvRn81lnN1gYyMa
-        M8qg+A1+yVJPAX3zORlx8n/n5rWf3SCMPzdxD6uU05X9Dh316+TmHhDyklX+rFpMG8gH9bSQKgF
-        MEv/I3POaYlPjQm6Sf4o=
-X-Received: by 2002:a1c:6a03:: with SMTP id f3mr8555077wmc.181.1596721132251;
-        Thu, 06 Aug 2020 06:38:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzjUWjNqPuJoUz/5m+CIYONmWRM16fFw7/ffqb4yNn7NjFPjcfPwUdNEfsqqUxYNC74sJNXyQ==
-X-Received: by 2002:a1c:6a03:: with SMTP id f3mr8555062wmc.181.1596721132024;
-        Thu, 06 Aug 2020 06:38:52 -0700 (PDT)
-Received: from steredhat ([5.171.234.104])
-        by smtp.gmail.com with ESMTPSA id i7sm6802096wrs.25.2020.08.06.06.38.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2020 06:38:51 -0700 (PDT)
-Date:   Thu, 6 Aug 2020 15:38:48 +0200
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org
-Subject: Re: [PATCH 2/2] io_uring: account locked memory before potential
- error case
-Message-ID: <20200806133848.xbpueoydtemjgofy@steredhat>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=bx2+PmwZa1OtGv3itEqCRg9j5lI+TVeLmlYRsYMctuY=;
+        b=hYYU9nBZRj1sUbMhl5JOqHhDx1GsVy0lQGiVozsY08mlBd6QMG1YV0gB3Y3rQfLm26
+         OYi9Hv2zqXOR8jteXB2RzX+WEcH0qViGQFP1FK8z0brLrInA3PkGAHuQwr60J5uoyOkK
+         tnkoOdnKo+MB42H/I0sd3BpSUH/4Aa1m/uKCD0tpRubUSym8EWIBlBAeCCUQ16i0gaDo
+         nUcbrZMO/T8+5gH3BkFLB6+NTU5vX3o8sJcJuNb8/A391atMfhXipZhNX75v/VHxQy7R
+         uvXEtXPeFTP2ZkXtTb6Ondz67CeGexeUogjZtxC5OsEeuocvUa3Nd2HyTztF/60ak8Yt
+         dOYw==
+X-Gm-Message-State: AOAM533W+4OGOcLKPKI4bw38+wuoQAgQQuOT3Hlaiz+iZJAJO/75VTDb
+        kznC3Ci7ZYYapBL6nkcbqJWlMg==
+X-Google-Smtp-Source: ABdhPJyouGBPqU8zyXa83rQM3O8SKSIiLRlfUaA3UuuXpjLZg6BDDNO+r2qzqMWtxGqjYiSTn2N0dA==
+X-Received: by 2002:a17:902:8d95:: with SMTP id v21mr7843652plo.108.1596720031923;
+        Thu, 06 Aug 2020 06:20:31 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id x8sm8817351pfp.101.2020.08.06.06.20.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Aug 2020 06:20:30 -0700 (PDT)
+Subject: Re: [PATCH 1/2] io_uring: set ctx sq/cq entry count earlier
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org
 References: <20200805190224.401962-1-axboe@kernel.dk>
- <20200805190224.401962-3-axboe@kernel.dk>
- <20200806074231.mlmfbsl4shvvzodm@steredhat>
- <e7d046e3-8202-4c70-c6fb-760e3da63f24@kernel.dk>
+ <20200805190224.401962-2-axboe@kernel.dk>
+ <20200806073933.khoasyujngaxbcq4@steredhat>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <8277cc52-b591-e577-6a99-dd9c8a8146ab@kernel.dk>
+Date:   Thu, 6 Aug 2020 07:20:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e7d046e3-8202-4c70-c6fb-760e3da63f24@kernel.dk>
+In-Reply-To: <20200806073933.khoasyujngaxbcq4@steredhat>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Aug 06, 2020 at 07:21:30AM -0600, Jens Axboe wrote:
-> On 8/6/20 1:42 AM, Stefano Garzarella wrote:
-> > On Wed, Aug 05, 2020 at 01:02:24PM -0600, Jens Axboe wrote:
-> >> The tear down path will always unaccount the memory, so ensure that we
-> >> have accounted it before hitting any of them.
-> >>
-> >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> >> ---
-> >>  fs/io_uring.c | 16 ++++++++--------
-> >>  1 file changed, 8 insertions(+), 8 deletions(-)
-> >>
-> >> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> >> index 0d857f7ca507..7c42f63fbb0a 100644
-> >> --- a/fs/io_uring.c
-> >> +++ b/fs/io_uring.c
-> >> @@ -8341,6 +8341,14 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
-> >>  	ctx->user = user;
-> >>  	ctx->creds = get_current_cred();
-> >>  
-> >> +	/*
-> >> +	 * Account memory _before_ installing the file descriptor. Once
-> >> +	 * the descriptor is installed, it can get closed at any time.
-> >> +	 */
-> > 
-> > What about update a bit the comment?
-> > Maybe adding the commit description in this comment.
+On 8/6/20 1:39 AM, Stefano Garzarella wrote:
+> On Wed, Aug 05, 2020 at 01:02:23PM -0600, Jens Axboe wrote:
+>> If we hit an earlier error path in io_uring_create(), then we will have
+>> accounted memory, but not set ctx->{sq,cq}_entries yet. Then when the
+>> ring is torn down in error, we use those values to unaccount the memory.
+>>
+>> Ensure we set the ctx entries before we're able to hit a potential error
+>> path.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>> ---
+>>  fs/io_uring.c | 6 ++++--
+>>  1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index 8f96566603f3..0d857f7ca507 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -8193,6 +8193,10 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
+>>  	struct io_rings *rings;
+>>  	size_t size, sq_array_offset;
+>>  
+>> +	/* make sure these are sane, as we already accounted them */
+>> +	ctx->sq_entries = p->sq_entries;
+>> +	ctx->cq_entries = p->cq_entries;
+>> +
+>>  	size = rings_size(p->sq_entries, p->cq_entries, &sq_array_offset);
+>>  	if (size == SIZE_MAX)
+>>  		return -EOVERFLOW;
+>> @@ -8209,8 +8213,6 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
+>>  	rings->cq_ring_entries = p->cq_entries;
+>>  	ctx->sq_mask = rings->sq_ring_mask;
+>>  	ctx->cq_mask = rings->cq_ring_mask;
+>> -	ctx->sq_entries = rings->sq_ring_entries;
+>> -	ctx->cq_entries = rings->cq_ring_entries;
+>>  
+>>  	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
+>>  	if (size == SIZE_MAX) {
+>> -- 
+>> 2.28.0
+>>
 > 
-> I updated the comment:
-> 
-> /*
->  * Account memory _before_ installing the file descriptor. Once
->  * the descriptor is installed, it can get closed at any time. Also
->  * do this before hitting the general error path, as ring freeing
->  * will un-account as well.
-> */
+> While reviewing I was asking if we should move io_account_mem() before
+> io_allocate_scq_urings(), then I saw the second patch :-)
 
-Now it looks better!
+Indeed, just split it in two to avoid any extra issues around backporting.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Thanks,
-Stefano
+Thanks, added.
+
+-- 
+Jens Axboe
 

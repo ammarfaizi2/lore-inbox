@@ -2,52 +2,55 @@ Return-Path: <SRS0=TEES=BT=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 310E1C433DF
-	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:30:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E257C433E0
+	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:30:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 078E820768
-	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:30:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 447E82070B
+	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:30:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BRP6ultZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X1pVvkoe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbgHIGau (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 9 Aug 2020 02:30:50 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52787 "EHLO
+        id S1726120AbgHIGa5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 9 Aug 2020 02:30:57 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26885 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725988AbgHIGau (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 9 Aug 2020 02:30:50 -0400
+        with ESMTP id S1725988AbgHIGa5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 9 Aug 2020 02:30:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596954649;
+        s=mimecast20190719; t=1596954656;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=2qDBS5d6Q0gEY+bHXuulW7mVau/4p+SJT0xaNESHjYc=;
-        b=BRP6ultZHAUgfz6w2RsX6l4aFGTcpMVroD0bS1cB9+2bRRiQRBmH+jvvlgmYYFpN4g5Phv
-        cWpwlQvjLA2whZhL4Q04uQMVm3mW9xLkJe4FRvVvNB9VqsOlhS84a5RbICKEOu0BG5dn3c
-        CRhTW+vGLRZXlcOFJiLVg948UD3EoR4=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HZ3iGdp7OPMi+6kd9idtublBxHGrjAF6VXW9ZEuiXd8=;
+        b=X1pVvkoebFA2L23Mb+QxpEv03dW/DG/lds5fH+W1pvDXIvUqHUyI7BUHAqQ31ycamT7W4L
+        CEaOD2gWchMlUUYyIWCPnXpLQ7wF0t+xnDLFZhvH+upYLursXXSVckAxkmUXUN0RkKRi3X
+        GTv9loqnk3fYF/RETCxalAJ4wz+MUaU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-pbfF6HrCM_2ePmjdxPuwkQ-1; Sun, 09 Aug 2020 02:30:47 -0400
-X-MC-Unique: pbfF6HrCM_2ePmjdxPuwkQ-1
+ us-mta-355-PmCrZAXOM9-BDZdJmV-bVQ-1; Sun, 09 Aug 2020 02:30:54 -0400
+X-MC-Unique: PmCrZAXOM9-BDZdJmV-bVQ-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1CC0480183C;
-        Sun,  9 Aug 2020 06:30:46 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 13D5A107B806;
+        Sun,  9 Aug 2020 06:30:53 +0000 (UTC)
 Received: from localhost.localdomain.com (ovpn-12-33.pek2.redhat.com [10.72.12.33])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 886731C4;
-        Sun,  9 Aug 2020 06:30:44 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7F91F5C6DD;
+        Sun,  9 Aug 2020 06:30:51 +0000 (UTC)
 From:   Zorro Lang <zlang@redhat.com>
 To:     fstests@vger.kernel.org
 Cc:     io-uring@vger.kernel.org, jmoyer@redhat.com
-Subject: [PATCH v2 0/4] fsstress,fsx: add io_uring test and do some fix
-Date:   Sun,  9 Aug 2020 14:30:36 +0800
-Message-Id: <20200809063040.15521-1-zlang@redhat.com>
+Subject: [PATCH v2 2/4] fsstress: reduce the number of events when io_setup
+Date:   Sun,  9 Aug 2020 14:30:38 +0800
+Message-Id: <20200809063040.15521-3-zlang@redhat.com>
+In-Reply-To: <20200809063040.15521-1-zlang@redhat.com>
+References: <20200809063040.15521-1-zlang@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
@@ -56,25 +59,41 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This patchset tries to add new IO_URING test into fsstress [1/4] and fsx [4/4].
-And then do some changes and bug fix by the way [2/4 and 3/4].
+The original number(128) of aio events for io_setup too big. When try
+to run lots of fsstress processes(e.g. -p 1000) always hit io_setup
+EAGAIN error, due to the nr_events exceeds the limit of available
+events. Due to each fsstress process only does once libaio read/write
+operation each time. So reduce the aio events number to 1, to make more
+fsstress processes can do AIO test.
 
-fsstress and fsx are important tools in xfstests to do filesystem I/Os test,
-lots of test cases use it. So add IO_URING operation into fsstress and fsx
-will help to cover IO_URING test from fs side.
+Signed-off-by: Zorro Lang <zlang@redhat.com>
+---
+ ltp/fsstress.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-I'm not an IO_URING expert, so cc io-uring@ list, please feel free to
-tell me if you find something wrong or have any suggestions to improve
-the test.
-
-V2 did below changes:
-1) 1/4 change the definition of URING_ENTRIES to 1
-2) 2/4 change the difinition of AIO_ENTRIES to 1, undo an unrelated changed line
-3) 4/4 turn to use io_uring_prep_readv/io_uring_prep_writev, due to old
-       liburing(0.2-2) doesn't support io_uring_prep_read/io_uring_prep_write.
-
-Thanks,
-Zorro
-
-
+diff --git a/ltp/fsstress.c b/ltp/fsstress.c
+index a4188e1c..0e7be6bb 100644
+--- a/ltp/fsstress.c
++++ b/ltp/fsstress.c
+@@ -28,6 +28,7 @@
+ #endif
+ #ifdef AIO
+ #include <libaio.h>
++#define AIO_ENTRIES	1
+ io_context_t	io_ctx;
+ #endif
+ #ifdef URING
+@@ -699,8 +700,8 @@ int main(int argc, char **argv)
+ 			}
+ 			procid = i;
+ #ifdef AIO
+-			if (io_setup(128, &io_ctx) != 0) {
+-				fprintf(stderr, "io_setup failed");
++			if (io_setup(AIO_ENTRIES, &io_ctx) != 0) {
++				fprintf(stderr, "io_setup failed\n");
+ 				exit(1);
+ 			}
+ #endif
+-- 
+2.20.1
 

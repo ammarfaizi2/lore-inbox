@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49402C433DF
-	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:31:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0EB6C433DF
+	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:31:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FA66206C0
-	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:31:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA9FC206C0
+	for <io-uring@archiver.kernel.org>; Sun,  9 Aug 2020 06:31:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ap0hZYTc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fY6F0vVe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726200AbgHIGbE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 9 Aug 2020 02:31:04 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:31489 "EHLO
+        id S1726209AbgHIGbI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 9 Aug 2020 02:31:08 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:37282 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726199AbgHIGbE (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 9 Aug 2020 02:31:04 -0400
+        by vger.kernel.org with ESMTP id S1725988AbgHIGbI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 9 Aug 2020 02:31:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596954662;
+        s=mimecast20190719; t=1596954665;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=+ELvlo8LS2gOVwdB1fdETxuQKV4QUKLJ++eGuDLSmDU=;
-        b=ap0hZYTcIdWnEzk775o7YuSZLSofBZ2UHwRzZ54EvAxC5OAKfdrc6xiY6tSvLxYg3CNl5B
-        aQGQltvUXoTgHLhiTCMtVzZc+Igt7eM8iDhv0Tm00B4yp0kK1Ig9vRfHT37QWmpyFu4iuT
-        WNCn119csBTFF6my4O/iNDJGh0WoFPQ=
+        bh=Jg2onTdkbTF7vO+lIBSmKY0XWjQFIp7tSGuQvPchvXM=;
+        b=fY6F0vVeQTXI4q5VOC0AOdaBUspuw7ZSL1eXcvdQF1AcDjQTsMJmMXpD8pPgn9UCpgoxJD
+        DzsCbZ3low5JurC5P6Pyz6g/PoRYi3vbzowaenh8xGAYPP1OuxxmmRNotCZPmQqyKnjVby
+        zzXbjnmQLQzJWns/qgMbPp/b2CXsRJE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-409-4UTok5RnM_KZ82AJAoV-dQ-1; Sun, 09 Aug 2020 02:31:00 -0400
-X-MC-Unique: 4UTok5RnM_KZ82AJAoV-dQ-1
+ us-mta-148-45lqglAFMPy6-UM2V7d2yw-1; Sun, 09 Aug 2020 02:30:50 -0400
+X-MC-Unique: 45lqglAFMPy6-UM2V7d2yw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4FA898015CE;
-        Sun,  9 Aug 2020 06:30:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9203D100A8C1;
+        Sun,  9 Aug 2020 06:30:49 +0000 (UTC)
 Received: from localhost.localdomain.com (ovpn-12-33.pek2.redhat.com [10.72.12.33])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C507E1C4;
-        Sun,  9 Aug 2020 06:30:57 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B31C25C6DD;
+        Sun,  9 Aug 2020 06:30:47 +0000 (UTC)
 From:   Zorro Lang <zlang@redhat.com>
 To:     fstests@vger.kernel.org
 Cc:     io-uring@vger.kernel.org, jmoyer@redhat.com
-Subject: [PATCH v2 4/4] fsx: add IO_URING test
-Date:   Sun,  9 Aug 2020 14:30:40 +0800
-Message-Id: <20200809063040.15521-5-zlang@redhat.com>
+Subject: [PATCH v2 1/4] fsstress: add IO_URING read and write operations
+Date:   Sun,  9 Aug 2020 14:30:37 +0800
+Message-Id: <20200809063040.15521-2-zlang@redhat.com>
 In-Reply-To: <20200809063040.15521-1-zlang@redhat.com>
 References: <20200809063040.15521-1-zlang@redhat.com>
 MIME-Version: 1.0
@@ -59,258 +59,302 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-New IO_URING test for fsx, use -U option to enable IO_URING test.
+IO_URING is a new feature of curent linux kernel, add basic IO_URING
+read/write into fsstess to cover this kind of IO testing.
 
 Signed-off-by: Zorro Lang <zlang@redhat.com>
 ---
- ltp/fsx.c | 158 +++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 144 insertions(+), 14 deletions(-)
+ README                 |   4 +-
+ configure.ac           |   1 +
+ include/builddefs.in   |   1 +
+ ltp/Makefile           |   5 ++
+ ltp/fsstress.c         | 139 ++++++++++++++++++++++++++++++++++++++++-
+ m4/Makefile            |   1 +
+ m4/package_liburing.m4 |   4 ++
+ 7 files changed, 152 insertions(+), 3 deletions(-)
+ create mode 100644 m4/package_liburing.m4
 
-diff --git a/ltp/fsx.c b/ltp/fsx.c
-index 7c76655a..7475bf9d 100644
---- a/ltp/fsx.c
-+++ b/ltp/fsx.c
-@@ -34,6 +34,9 @@
- #ifdef AIO
+diff --git a/README b/README
+index d0e23fcd..ae0f804d 100644
+--- a/README
++++ b/README
+@@ -8,13 +8,13 @@ _______________________
+ 	sudo apt-get install xfslibs-dev uuid-dev libtool-bin \
+ 	e2fsprogs automake gcc libuuid1 quota attr libattr1-dev make \
+ 	libacl1-dev libaio-dev xfsprogs libgdbm-dev gawk fio dbench \
+-	uuid-runtime python sqlite3
++	uuid-runtime python sqlite3 liburing-dev
+   For Fedora, RHEL, or CentOS:
+ 	yum install acl attr automake bc dbench dump e2fsprogs fio \
+ 	gawk gcc indent libtool lvm2 make psmisc quota sed \
+ 	xfsdump xfsprogs \
+ 	libacl-devel libattr-devel libaio-devel libuuid-devel \
+-	xfsprogs-devel btrfs-progs-devel python sqlite
++	xfsprogs-devel btrfs-progs-devel python sqlite liburing-devel
+ 	(Older distributions may require xfsprogs-qa-devel as well.)
+ 	(Note that for RHEL and CentOS, you may need the EPEL repo.)
+ - run make
+diff --git a/configure.ac b/configure.ac
+index 4bb50b32..8922c47e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -61,6 +61,7 @@ AC_PACKAGE_NEED_ACLINIT_LIBACL
+ 
+ AC_PACKAGE_WANT_GDBM
+ AC_PACKAGE_WANT_AIO
++AC_PACKAGE_WANT_URING
+ AC_PACKAGE_WANT_DMAPI
+ AC_PACKAGE_WANT_LINUX_FIEMAP_H
+ AC_PACKAGE_WANT_FALLOCATE
+diff --git a/include/builddefs.in b/include/builddefs.in
+index e7894b1a..fded3230 100644
+--- a/include/builddefs.in
++++ b/include/builddefs.in
+@@ -61,6 +61,7 @@ RPM_VERSION     = @rpm_version@
+ ENABLE_SHARED = @enable_shared@
+ HAVE_DB = @have_db@
+ HAVE_AIO = @have_aio@
++HAVE_URING = @have_uring@
+ HAVE_FALLOCATE = @have_fallocate@
+ HAVE_OPEN_BY_HANDLE_AT = @have_open_by_handle_at@
+ HAVE_DMAPI = @have_dmapi@
+diff --git a/ltp/Makefile b/ltp/Makefile
+index ebf40336..198d930f 100644
+--- a/ltp/Makefile
++++ b/ltp/Makefile
+@@ -24,6 +24,11 @@ LCFLAGS += -DAIO
+ LLDLIBS += -laio -lpthread
+ endif
+ 
++ifeq ($(HAVE_URING), true)
++LCFLAGS += -DURING
++LLDLIBS += -luring
++endif
++
+ ifeq ($(HAVE_LIBBTRFSUTIL), true)
+ LLDLIBS += -lbtrfsutil
+ endif
+diff --git a/ltp/fsstress.c b/ltp/fsstress.c
+index 709fdeec..a4188e1c 100644
+--- a/ltp/fsstress.c
++++ b/ltp/fsstress.c
+@@ -30,6 +30,11 @@
  #include <libaio.h>
+ io_context_t	io_ctx;
  #endif
 +#ifdef URING
 +#include <liburing.h>
++#define URING_ENTRIES	1
++struct io_uring	ring;
 +#endif
  #include <sys/syscall.h>
+ #include <sys/xattr.h>
  
- #ifndef MAP_FILE
-@@ -176,21 +179,17 @@ int	integrity = 0;			/* -i flag */
- int	fsxgoodfd = 0;
- int	o_direct;			/* -Z */
- int	aio = 0;
-+int	uring = 0;
- int	mark_nr = 0;
- 
- int page_size;
- int page_mask;
- int mmap_mask;
--#ifdef AIO
--int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset);
-+int fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset);
- #define READ 0
- #define WRITE 1
--#define fsxread(a,b,c,d)	aio_rw(READ, a,b,c,d)
--#define fsxwrite(a,b,c,d)	aio_rw(WRITE, a,b,c,d)
--#else
--#define fsxread(a,b,c,d)	read(a,b,c)
--#define fsxwrite(a,b,c,d)	write(a,b,c)
--#endif
-+#define fsxread(a,b,c,d)	fsx_rw(READ, a,b,c,d)
-+#define fsxwrite(a,b,c,d)	fsx_rw(WRITE, a,b,c,d)
- 
- const char *replayops = NULL;
- const char *recordops = NULL;
-@@ -2242,7 +2241,7 @@ void
- usage(void)
- {
- 	fprintf(stdout, "usage: %s",
--		"fsx [-dknqxABEFJLOWZ] [-b opnum] [-c Prob] [-g filldata] [-i logdev] [-j logid] [-l flen] [-m start:end] [-o oplen] [-p progressinterval] [-r readbdy] [-s style] [-t truncbdy] [-w writebdy] [-D startingop] [-N numops] [-P dirpath] [-S seed] fname\n\
-+		"fsx [-dknqxBEFJLOWZ][-A|-U] [-b opnum] [-c Prob] [-g filldata] [-i logdev] [-j logid] [-l flen] [-m start:end] [-o oplen] [-p progressinterval] [-r readbdy] [-s style] [-t truncbdy] [-w writebdy] [-D startingop] [-N numops] [-P dirpath] [-S seed] fname\n\
- 	-b opnum: beginning operation number (default 1)\n\
- 	-c P: 1 in P chance of file close+open at each op (default infinity)\n\
- 	-d: debug output for all operations\n\
-@@ -2265,7 +2264,10 @@ usage(void)
- 	-y synchronize changes to a file\n"
- 
- #ifdef AIO
--"	-A: Use the AIO system calls\n"
-+"	-A: Use the AIO system calls, -A excludes -U\n"
+@@ -139,6 +144,8 @@ typedef enum {
+ 	OP_TRUNCATE,
+ 	OP_UNLINK,
+ 	OP_UNRESVSP,
++	OP_URING_READ,
++	OP_URING_WRITE,
+ 	OP_WRITE,
+ 	OP_WRITEV,
+ 	OP_LAST
+@@ -267,6 +274,8 @@ void	sync_f(int, long);
+ void	truncate_f(int, long);
+ void	unlink_f(int, long);
+ void	unresvsp_f(int, long);
++void	uring_read_f(int, long);
++void	uring_write_f(int, long);
+ void	write_f(int, long);
+ void	writev_f(int, long);
+ char	*xattr_flag_to_string(int);
+@@ -335,6 +344,8 @@ opdesc_t	ops[] = {
+ 	{ OP_TRUNCATE, "truncate", truncate_f, 2, 1 },
+ 	{ OP_UNLINK, "unlink", unlink_f, 1, 1 },
+ 	{ OP_UNRESVSP, "unresvsp", unresvsp_f, 1, 1 },
++	{ OP_URING_READ, "uring_read", uring_read_f, 1, 0 },
++	{ OP_URING_WRITE, "uring_write", uring_write_f, 1, 1 },
+ 	{ OP_WRITE, "write", write_f, 4, 1 },
+ 	{ OP_WRITEV, "writev", writev_f, 4, 1 },
+ }, *ops_end;
+@@ -692,6 +703,12 @@ int main(int argc, char **argv)
+ 				fprintf(stderr, "io_setup failed");
+ 				exit(1);
+ 			}
 +#endif
 +#ifdef URING
-+"	-U: Use the IO_URING system calls, -U excludes -A\n"
++			if (io_uring_queue_init(URING_ENTRIES, &ring, 0)) {
++				fprintf(stderr, "io_uring_queue_init failed\n");
++				exit(1);
++			}
  #endif
- "	-D startingop: debug output starting at specified operation\n"
- #ifdef HAVE_LINUX_FALLOC_H
-@@ -2425,13 +2427,131 @@ out_error:
- 	errno = -ret;
- 	return -1;
- }
-+#endif
-+
+ 			for (i = 0; !loops || (i < loops); i++)
+ 				doproc();
+@@ -701,7 +718,9 @@ int main(int argc, char **argv)
+ 				return 1;
+ 			}
+ #endif
+-
 +#ifdef URING
-+struct io_uring ring;
-+#define URING_ENTRIES	1024
-+int
-+uring_setup()
-+{
-+	int ret;
-+
-+	ret = io_uring_queue_init(URING_ENTRIES, &ring, 0);
-+	if (ret != 0) {
-+		fprintf(stderr, "uring_setup: io_uring_queue_init failed: %s\n",
-+                        strerror(ret));
-+                return -1;
-+        }
-+        return 0;
-+}
++			io_uring_queue_exit(&ring);
++#endif
+ 			cleanup_flist();
+ 			free(freq_table);
+ 			return 0;
+@@ -2170,6 +2189,108 @@ do_aio_rw(int opno, long r, int flags)
+ }
+ #endif
  
--int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-+int
-+__uring_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
- {
++#ifdef URING
++void
++do_uring_rw(int opno, long r, int flags)
++{
++	char		*buf;
++	int		e;
++	pathname_t	f;
++	int		fd;
++	size_t		len;
++	int64_t		lr;
++	off64_t		off;
++	struct stat64	stb;
++	int		v;
++	char		st[1024];
 +	struct io_uring_sqe	*sqe;
 +	struct io_uring_cqe	*cqe;
-+	struct iovec		iovec;
- 	int ret;
-+	int res, res2 = 0;
-+	char *p = buf;
-+	unsigned l = len;
-+	unsigned o = offset;
++	struct iovec	iovec;
++	int		iswrite = (flags & (O_WRONLY | O_RDWR)) ? 1 : 0;
 +
-+
-+	/*
-+	 * Due to io_uring tries non-blocking IOs (especially read), that
-+	 * always cause 'normal' short reading. To avoid this short read
-+	 * fail, try to loop read/write (escpecilly read) data.
-+	 */
-+ uring_loop:
++	init_pathname(&f);
++	if (!get_fname(FT_REGFILE, r, &f, NULL, NULL, &v)) {
++		if (v)
++			printf("%d/%d: do_uring_rw - no filename\n", procid, opno);
++		goto uring_out3;
++	}
++	fd = open_path(&f, flags);
++	e = fd < 0 ? errno : 0;
++	check_cwd();
++	if (fd < 0) {
++		if (v)
++			printf("%d/%d: do_uring_rw - open %s failed %d\n",
++			       procid, opno, f.path, e);
++		goto uring_out3;
++	}
++	if (fstat64(fd, &stb) < 0) {
++		if (v)
++			printf("%d/%d: do_uring_rw - fstat64 %s failed %d\n",
++			       procid, opno, f.path, errno);
++		goto uring_out2;
++	}
++	inode_info(st, sizeof(st), &stb, v);
++	if (!iswrite && stb.st_size == 0) {
++		if (v)
++			printf("%d/%d: do_uring_rw - %s%s zero size\n", procid, opno,
++			       f.path, st);
++		goto uring_out2;
++	}
 +	sqe = io_uring_get_sqe(&ring);
 +	if (!sqe) {
-+		fprintf(stderr, "uring_rw: io_uring_get_sqe failed: %s\n",
-+		        strerror(errno));
-+		return -1;
-+        }
-+
-+	iovec.iov_base = p;
-+	iovec.iov_len = l;
-+	if (rw == READ) {
-+		io_uring_prep_readv(sqe, fd, &iovec, 1, o);
++		if (v)
++			printf("%d/%d: do_uring_rw - io_uring_get_sqe failed\n",
++			       procid, opno);
++		goto uring_out2;
++	}
++	lr = ((int64_t)random() << 32) + random();
++	len = (random() % FILELEN_MAX) + 1;
++	buf = malloc(len);
++	if (!buf) {
++		if (v)
++			printf("%d/%d: do_uring_rw - malloc failed\n",
++			       procid, opno);
++		goto uring_out2;
++	}
++	iovec.iov_base = buf;
++	iovec.iov_len = len;
++	if (iswrite) {
++		off = (off64_t)(lr % MIN(stb.st_size + (1024 * 1024), MAXFSIZE));
++		off %= maxfsize;
++		memset(buf, nameseq & 0xff, len);
++		io_uring_prep_writev(sqe, fd, &iovec, 1, off);
 +	} else {
-+		io_uring_prep_writev(sqe, fd, &iovec, 1, o);
++		off = (off64_t)(lr % stb.st_size);
++		io_uring_prep_readv(sqe, fd, &iovec, 1, off);
 +	}
 +
-+	ret = io_uring_submit(&ring);
-+	if (ret != 1) {
-+		fprintf(stderr, "errcode=%d\n", -ret);
-+		fprintf(stderr, "uring %s: io_uring_submit failed: %s\n",
-+		        rw == READ ? "read":"write", strerror(-ret));
-+		goto uring_error;
++	if ((e = io_uring_submit(&ring)) != 1) {
++		if (v)
++			printf("%d/%d: %s - io_uring_submit failed %d\n", procid, opno,
++			       iswrite ? "uring_write" : "uring_read", e);
++		goto uring_out1;
 +	}
-+
-+	ret = io_uring_wait_cqe(&ring, &cqe);
-+	if (ret < 0) {
-+		if (ret == 0)
-+			fprintf(stderr, "uring %s: no events available\n",
-+			        rw == READ ? "read":"write");
-+		else {
-+			fprintf(stderr, "errcode=%d\n", -ret);
-+			fprintf(stderr, "uring %s: io_uring_wait_cqe failed: %s\n",
-+			        rw == READ ? "read":"write", strerror(-ret));
-+		}
-+		goto uring_error;
++	if ((e = io_uring_wait_cqe(&ring, &cqe)) < 0) {
++		if (v)
++			printf("%d/%d: %s - io_uring_wait_cqe failed %d\n", procid, opno,
++			       iswrite ? "uring_write" : "uring_read", e);
++		goto uring_out1;
 +	}
-+	res = cqe->res;
++	if (v)
++		printf("%d/%d: %s %s%s [%lld, %d(res=%d)] %d\n",
++		       procid, opno, iswrite ? "uring_write" : "uring_read",
++		       f.path, st, (long long)off, (int)len, cqe->res, e);
 +	io_uring_cqe_seen(&ring, cqe);
 +
-+	res2 += res;
-+	if (len != res2) {
-+		if (res > 0) {
-+			o += res;
-+			l -= res;
-+			p += res;
-+			if (l > 0)
-+				goto uring_loop;
-+		} else if (res < 0) {
-+			ret = res;
-+			fprintf(stderr, "errcode=%d\n", -ret);
-+			fprintf(stderr, "uring %s: io_uring failed: %s\n",
-+			        rw == READ ? "read":"write", strerror(-ret));
-+			goto uring_error;
-+		} else {
-+			fprintf(stderr, "uring %s bad io length: %d instead of %u\n",
-+			        rw == READ ? "read":"write", res2, len);
-+		}
-+	}
-+	return res2;
-+
-+ uring_error:
-+	/*
-+	 * The caller expects error return in traditional libc
-+	 * convention, i.e. -1 and the errno set to error.
-+	 */
-+	errno = -ret;
-+	return -1;
++ uring_out1:
++	free(buf);
++ uring_out2:
++	close(fd);
++ uring_out3:
++	free_pathname(&f);
 +}
 +#endif
 +
-+int fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-+{
-+	int ret = -1;
- 
- 	if (aio) {
-+#ifdef AIO
- 		ret = __aio_rw(rw, fd, buf, len, offset);
-+#elif
-+		fprintf(stderr, "io_rw: need AIO support!\n");
-+		exit(111);
-+#endif
-+	} else if (uring) {
-+#ifdef URING
-+		ret = __uring_rw(rw, fd, buf, len, offset);
-+#elif
-+		fprintf(stderr, "io_rw: need IO_URING support!\n");
-+		exit(111);
-+#endif
- 	} else {
- 		if (rw == READ)
- 			ret = read(fd, buf, len);
-@@ -2441,8 +2561,6 @@ int aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
- 	return ret;
+ void
+ aread_f(int opno, long r)
+ {
+@@ -5044,6 +5165,22 @@ unresvsp_f(int opno, long r)
+ 	close(fd);
  }
  
--#endif
--
- #define test_fallocate(mode) __test_fallocate(mode, #mode)
- 
- int
-@@ -2496,7 +2614,7 @@ main(int argc, char **argv)
- 	setvbuf(stdout, (char *)0, _IOLBF, 0); /* line buffered stdout */
- 
- 	while ((ch = getopt_long(argc, argv,
--				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:WXZ",
-+				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:UWXZ",
- 				 longopts, NULL)) != EOF)
- 		switch (ch) {
- 		case 'b':
-@@ -2604,6 +2722,9 @@ main(int argc, char **argv)
- 		case 'A':
- 		        aio = 1;
- 			break;
-+		case 'U':
-+		        uring = 1;
-+			break;
- 		case 'D':
- 			debugstart = getnum(optarg, &endp);
- 			if (debugstart < 1)
-@@ -2694,6 +2815,11 @@ main(int argc, char **argv)
- 	if (argc != 1)
- 		usage();
- 
-+	if (aio && uring) {
-+		fprintf(stderr, "-A and -U shouldn't be used together\n");
-+		usage();
-+	}
-+
- 	if (integrity && !dirpath) {
- 		fprintf(stderr, "option -i <logdev> requires -P <dirpath>\n");
- 		usage();
-@@ -2784,6 +2910,10 @@ main(int argc, char **argv)
- 	if (aio) 
- 		aio_setup();
- #endif
++void
++uring_read_f(int opno, long r)
++{
 +#ifdef URING
-+	if (uring)
-+		uring_setup();
++	do_uring_rw(opno, r, O_RDONLY);
 +#endif
- 
- 	if (!(o_flags & O_TRUNC)) {
- 		off_t ret;
++}
++
++void
++uring_write_f(int opno, long r)
++{
++#ifdef URING
++	do_uring_rw(opno, r, O_WRONLY);
++#endif
++}
++
+ void
+ write_f(int opno, long r)
+ {
+diff --git a/m4/Makefile b/m4/Makefile
+index 7fbff822..0352534d 100644
+--- a/m4/Makefile
++++ b/m4/Makefile
+@@ -14,6 +14,7 @@ LSRCFILES = \
+ 	package_dmapidev.m4 \
+ 	package_globals.m4 \
+ 	package_libcdev.m4 \
++	package_liburing.m4 \
+ 	package_ncurses.m4 \
+ 	package_pthread.m4 \
+ 	package_ssldev.m4 \
+diff --git a/m4/package_liburing.m4 b/m4/package_liburing.m4
+new file mode 100644
+index 00000000..c92cc02a
+--- /dev/null
++++ b/m4/package_liburing.m4
+@@ -0,0 +1,4 @@
++AC_DEFUN([AC_PACKAGE_WANT_URING],
++  [ AC_CHECK_HEADERS(liburing.h, [ have_uring=true ], [ have_uring=false ])
++    AC_SUBST(have_uring)
++  ])
 -- 
 2.20.1
 

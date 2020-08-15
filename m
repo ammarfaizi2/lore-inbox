@@ -2,66 +2,136 @@ Return-Path: <SRS0=PDRo=BZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0564CC433E4
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 431BEC433E3
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5AD8204FD
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:55:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 220FB2053B
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:33 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Mf/a2wpU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729159AbgHOVzl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Aug 2020 17:55:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45624 "EHLO
+        id S1729036AbgHOVwN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Aug 2020 17:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729070AbgHOVwZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:52:25 -0400
-Received: from mail-il1-x146.google.com (mail-il1-x146.google.com [IPv6:2607:f8b0:4864:20::146])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0DCC0F26F4
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:15:01 -0700 (PDT)
-Received: by mail-il1-x146.google.com with SMTP id u13so569552ilc.3
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:15:01 -0700 (PDT)
+        with ESMTP id S1728998AbgHOVwI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:52:08 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61905C09B042
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 08:12:18 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id i92so6518421pje.0
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 08:12:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=axupiLoVzvsjPFb5imUaqcJ2MpbZV9xAGepnN4tXK2Q=;
+        b=Mf/a2wpUSMB+HK5kR4QFE/R0txdQ3Ig9Pp+xzr5M0tn+mi+9H348447ff7bXugmnX3
+         DZprioxdKmczoY5uUwYOL1ff4BbGkeRuar1qWa274a4uUQ2e9n7sxFDkCA/s/JLwGPKr
+         UED90xc51vuUlAR0YSGyMZG48lNxNYPEHcKU1vSDlxVF+I145ZpcwfBrKMsHVhN+4BWy
+         4Zaon5QbRq7xsmDgU7aOG2B8mR/161djMf+OJ8zrk5TL1DulV/QZvYPcCk1jt0NePtQ1
+         2qTwV/Z5cpKfS12f1/hzRS6S/De2VONJmJJA8yItaYq8ReTI4dysAtSGVwfkMfF/CaLE
+         zs4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to:cc;
-        bh=oxh1zcQhSSj1sRDYKLj8pdLk064Zf9K9zDx2kCQjG6E=;
-        b=eeCoX8MZ15EUKkWpRAUpYgkdH9xz96c+pwffKRMaddRCfZ2Cpce9CB8KUtv4HpyWFt
-         1d2S/jgbEKQIJxar05YGamaETsoPFs1wLo9jpkxpNTgEfyrtrMbezH4jjg2MPsB7cR54
-         2kvRXvCnow0vWro6BIoIxq+qn6zBBU9LCkEv0OtKFqliaAXrFP4xyKfsivLXC4So30kd
-         NzCvn1Wf+Zxwjnw4NDA6k5GQMQnsRYUR0D3UKMHtdgPwHUDYU7zshVowGaBlaihlan//
-         lHAZs5EOu7CTUzzRi2ocAVdaDhqPMTS10dbHF5OQ42siRxsDMG4+NlkyawkMmsT1Oinf
-         6FQQ==
-X-Gm-Message-State: AOAM530RwqtFLqtA64xN2ce1mBRW9Zo2n1okilQugYsTDFmCQCrL+AQr
-        6Y7XJiUl4NL3yHKvZfcCWeN8Os8sp1500OkMvBtq5qTX4tLe
-X-Google-Smtp-Source: ABdhPJwKIeEtMwp1Y8DbX5t31FAG0vSEIhEefpQF/pyBQ5lBtW1+CfErzIxRKUS8nmtkvSnig51XIfvJAMACW2/7etVGb8cI+Crj
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=axupiLoVzvsjPFb5imUaqcJ2MpbZV9xAGepnN4tXK2Q=;
+        b=hac3VBSzms90Z+iy4JxrvBmHTb4ceIOLVSHOBR1o2N5jSN1GjVZZcrbiUTBB4l+6ot
+         BdnFitbyQz4ubjaxeQgMr4cUp3h6/dmaX9RTPcgeMKk36fXqLIrLOqUp8Ldih0m19WJO
+         F35rAkyq6fYa5R8MtEz6HVT0das8YVp7++QCkMLd94edauGYNwyN3g8A+6DxefiRmvwl
+         6X2wPOAjmSpze6oKkDkLs/QhpjNWZfUbBMpDQ8ut4wDZaqFkcVv+HsZZBixqrUR+mST6
+         VifMll1CX9SP4LXqvGWdOnQqEjWsqCvUcwY+X+HluG34RPW8Cs+Ha+2T2VALwrjEVspg
+         wliQ==
+X-Gm-Message-State: AOAM532HdpTZ5uvjzjATJomE+aG9siWLQ/teml7Ts3T5ig2yUqKZ160K
+        0JDfje7SMqwKZWuzwumLwVpG9w==
+X-Google-Smtp-Source: ABdhPJwOrD99UiW/rZbnQFjqMcBpDHsuY1xHB6/Ysn0qhidykBW4uBgIZORytN0uw3HRZPXOtc45LA==
+X-Received: by 2002:a17:902:744c:: with SMTP id e12mr5759365plt.38.1597504337679;
+        Sat, 15 Aug 2020 08:12:17 -0700 (PDT)
+Received: from ?IPv6:2605:e000:100e:8c61:6299:2df1:e468:6351? ([2605:e000:100e:8c61:6299:2df1:e468:6351])
+        by smtp.gmail.com with ESMTPSA id i14sm1305141pfu.50.2020.08.15.08.12.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 15 Aug 2020 08:12:17 -0700 (PDT)
+Subject: Re: io_uring process termination/killing is not working
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Josef <josef.grieb@gmail.com>, io-uring@vger.kernel.org
+Cc:     norman@apache.org
+References: <CAAss7+pf+CGQiSDM8_fhsHRwjWUxESPcJMhOOsDOitqePQxCrg@mail.gmail.com>
+ <dc3562d8-dc67-c623-36ee-38885b4c1682@kernel.dk>
+ <8e734ada-7f28-22df-5f30-027aca3695d1@gmail.com>
+ <5fa9e01f-137d-b0f8-211a-975c7ed56419@gmail.com>
+ <d0d1f797-c958-ac17-1f11-96f6ba6dbf37@gmail.com>
+ <d0621b79-4277-a9ad-208e-b60153c08d15@kernel.dk>
+ <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <d06c7f29-726b-d46a-8c51-0dc47ef374ad@kernel.dk>
+Date:   Sat, 15 Aug 2020 08:12:15 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-Received: by 2002:a5e:dd4c:: with SMTP id u12mr6289294iop.93.1597515300962;
- Sat, 15 Aug 2020 11:15:00 -0700 (PDT)
-Date:   Sat, 15 Aug 2020 11:15:00 -0700
-In-Reply-To: <e3494c53-f84e-5152-42b0-f8ddd3ad4ccb@kernel.dk>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000009878b05acee84c0@google.com>
-Subject: Re: Re: possible deadlock in io_poll_double_wake
-From:   syzbot <syzbot+0d56cfeec64f045baffc@syzkaller.appspotmail.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-> #syz dupe general protection fault in io_poll_double_wake
+On 8/15/20 12:45 AM, Pavel Begunkov wrote:
+> On 13/08/2020 02:32, Jens Axboe wrote:
+>> On 8/12/20 12:28 PM, Pavel Begunkov wrote:
+>>> On 12/08/2020 21:22, Pavel Begunkov wrote:
+>>>> On 12/08/2020 21:20, Pavel Begunkov wrote:
+>>>>> On 12/08/2020 21:05, Jens Axboe wrote:
+>>>>>> On 8/12/20 11:58 AM, Josef wrote:
+>>>>>>> Hi,
+>>>>>>>
+>>>>>>> I have a weird issue on kernel 5.8.0/5.8.1, SIGINT even SIGKILL
+>>>>>>> doesn't work to kill this process(always state D or D+), literally I
+>>>>>>> have to terminate my VM because even the kernel can't kill the process
+>>>>>>> and no issue on 5.7.12-201, however if IOSQE_IO_LINK is not set, it
+>>>>>>> works
+>>>>>>>
+>>>>>>> I've attached a file to reproduce it
+>>>>>>> or here
+>>>>>>> https://gist.github.com/1Jo1/15cb3c63439d0c08e3589cfa98418b2c
+>>>>>>
+>>>>>> Thanks, I'll take a look at this. It's stuck in uninterruptible
+>>>>>> state, which is why you can't kill it.
+>>>>>
+>>>>> It looks like one of the hangs I've been talking about a few days ago,
+>>>>> an accept is inflight but can't be found by cancel_files() because it's
+>>>>> in a link.
+>>>>
+>>>> BTW, I described it a month ago, there were more details.
+>>>
+>>> https://lore.kernel.org/io-uring/34eb5e5a-8d37-0cae-be6c-c6ac4d85b5d4@gmail.com
+>>
+>> Yeah I think you're right. How about something like the below? That'll
+>> potentially cancel more than just the one we're looking for, but seems
+>> kind of silly to only cancel from the file table holding request and to
+>> the end.
+> 
+> The bug is not poll/t-out related, IIRC my test reproduces it with
+> read(pipe)->open(). See the previously sent link.
 
-unknown command "dupe"
+Right, but in this context for poll, I just mean any request that has a
+poll handler armed. Not necessarily only a pure poll. The patch should
+fix your case, too.
 
->
-> -- 
-> Jens Axboe
->
+> As mentioned, I'm going to patch that up, if you won't beat me on that.
+
+Please test and send a fix if you find something! I'm going to ship what
+I have this weekend, but we can always add a fix on top if we need
+anything.
+
+-- 
+Jens Axboe
+

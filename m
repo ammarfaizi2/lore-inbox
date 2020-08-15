@@ -2,209 +2,150 @@ Return-Path: <SRS0=PDRo=BZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3390C433DF
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:43:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4C49C433E1
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:50:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88F8823B24
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:43:22 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l9tfmPjY"
+	by mail.kernel.org (Postfix) with ESMTP id BAAC0204FD
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:50:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726429AbgHOVnV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Aug 2020 17:43:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44444 "EHLO
+        id S1726772AbgHOVut (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Aug 2020 17:50:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726004AbgHOVnV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:43:21 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F12C03D1C5
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 14:43:20 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id o22so9651632qtt.13
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 14:43:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=A2pjSIi0V+WxuISit7Z3mDAAp/laGecQN3RIlMayV1g=;
-        b=l9tfmPjYmJjjZtS1G0ArsTl0ihOWkhMfT8yQtyXT/lXcYiyq4yb54ITB+qWy4gW6m9
-         wKXqXdyVNjBhrgqg+sTMPp/aB6AVPg0G/eTEp24sWg5R+dG4b9SEi2P4u/bQbbil+8T4
-         Xl/MXAY+V9Guh34exIri9+vTYrr2CPGiA5VdMpJN7XbvY4fq5emVqX2gEuokwtx+PBxq
-         pWuMOMtnpM2zRMX+lM7/EmvNkdiC81em2PGD6vtKx95nLSbdoHOt247CjI6GV7BcVhgb
-         hWS4Qn9Z6YMMFHl7HFoj1Zm7unA8A9GQnOb/p5DAxyPpELIGlciLyzsnM/yTqx8gN/DF
-         ytHQ==
+        with ESMTP id S1728236AbgHOVun (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:50:43 -0400
+Received: from mail-io1-xd45.google.com (mail-io1-xd45.google.com [IPv6:2607:f8b0:4864:20::d45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A5FC0A88B8
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 10:00:23 -0700 (PDT)
+Received: by mail-io1-xd45.google.com with SMTP id k10so7780765iow.15
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 10:00:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=A2pjSIi0V+WxuISit7Z3mDAAp/laGecQN3RIlMayV1g=;
-        b=B+AAGDo0taNnVPQg3+vhfVPlvLibPu3/W8+lr8S6FXEoCh6zEBeXpfh4LPlFgRkma7
-         Vmz8xtOpgG2CvNQcFArFHiUbaoIvVN10d9AqBHjMZhL8d1i28O/JeK4quWJJT7wZum8G
-         37kfAw7gpj80675fowQXuOkYFsD1VmVC7wwRPcFE8N2F/hpOXoNWH+xiLIav3uvB19at
-         p8sZ3loDkt4a2y97yAD6bIAhTWYYlY3QOuZZ9iAn+YffyisAIBCMI3h5bSt2vqRzzJE7
-         zhVeEqQhTd/MDVG8n7BJPxPYVYKR62RtyhJmK7Vo+eZciPhN0IcNBfr0atIbDlHkSPnh
-         oHUA==
-X-Gm-Message-State: AOAM533nWJnrUc2psg4lvt1Vc58ACs5SadpxEXQnAMND6dYJDbReuDQt
-        zcdJI0FYMOKSBsCTo5a/FYQ1eRMNjGqj1ucu7Bo=
-X-Google-Smtp-Source: ABdhPJzRbxKI+sUoHwdYVDTfNfVjFnUb09CIqjszujfmwB09WY0c6J7TlMCkUUiZmFz/A8sqJX/M7bRQnQFBaZa8n5c=
-X-Received: by 2002:ac8:4b4d:: with SMTP id e13mr7536382qts.256.1597527799812;
- Sat, 15 Aug 2020 14:43:19 -0700 (PDT)
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=Mh2vQL3nRBAlnAPp8z2LGMEgL0fvTMye3F0Sdv/V8c4=;
+        b=NFsSHo/CBS7o3kabITvsOEEu0EzN2J0+W5nW5FHqKYY1ITFsFIhrj9wBZrxkrJaNqa
+         vcuZSMgGQ8KIcz1Akq+mZwzpQJgq+ylBMVNXZDd1QirRbpNgOGqQEM/VrBYqAVD00BPj
+         HiqIwu4EL+UL6hcsGQakEzfAQvtk/wHB20vX6keeXwHWtBGifOhJcgl+GXCUsgHQ/U2s
+         8OY4ZB8NHCkIcIGNle/W8LdjaXhRv2Ai24lT+GREUvgpQtLVbLn1GyNHQM2RRX2D72dR
+         hzrYkey+IWJtSpoZLQf1ap9cSgjaEtOb+jxwKWBcdPVES2GT4ewJMih7NL1MWYE7Ik6y
+         OTmw==
+X-Gm-Message-State: AOAM532Y2lRsme4dlmpP6q0oJk4Xa5DInaxXLokvIqVevHICVKEGMdeN
+        6BRtW+bG1Bci2KyzhPQO2jgvEEmuxLelLN4L+E12UYWSud1l
+X-Google-Smtp-Source: ABdhPJzYyX274OX+l37DAqsUHvwTM1HpTiSokWdE2OgfUedsairrIn4fwpGyYcMtJA4kqyI06NGJa+9Z4lGRakde0IBTseGBbLAO
 MIME-Version: 1.0
-References: <CAAss7+pf+CGQiSDM8_fhsHRwjWUxESPcJMhOOsDOitqePQxCrg@mail.gmail.com>
- <dc3562d8-dc67-c623-36ee-38885b4c1682@kernel.dk> <8e734ada-7f28-22df-5f30-027aca3695d1@gmail.com>
- <5fa9e01f-137d-b0f8-211a-975c7ed56419@gmail.com> <d0d1f797-c958-ac17-1f11-96f6ba6dbf37@gmail.com>
- <d0621b79-4277-a9ad-208e-b60153c08d15@kernel.dk> <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
- <d06c7f29-726b-d46a-8c51-0dc47ef374ad@kernel.dk> <63024e23-2b71-937a-6759-17916743c16c@gmail.com>
-In-Reply-To: <63024e23-2b71-937a-6759-17916743c16c@gmail.com>
-From:   Josef <josef.grieb@gmail.com>
-Date:   Sat, 15 Aug 2020 23:43:08 +0200
-Message-ID: <CAAss7+qGqCpp8dWpDR2rVJERwtV7r=9vEajOMqbhkSQ8Y-yteQ@mail.gmail.com>
-Subject: Re: io_uring process termination/killing is not working
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     norman@apache.org
-Content-Type: multipart/mixed; boundary="00000000000006f59c05acf16dbe"
+X-Received: by 2002:a6b:5d05:: with SMTP id r5mr6221528iob.14.1597510822456;
+ Sat, 15 Aug 2020 10:00:22 -0700 (PDT)
+Date:   Sat, 15 Aug 2020 10:00:22 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000018f60505aced798e@google.com>
+Subject: general protection fault in io_poll_double_wake
+From:   syzbot <syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com>
+To:     axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
---00000000000006f59c05acf16dbe
-Content-Type: text/plain; charset="UTF-8"
+Hello,
 
-it seems to be that read event doesn't work properly, but I'm not sure
-if it is related to what Pavel mentioned
-poll<link>accept works but not poll<link>read -> cqe still receives
-poll event but no read event, however I received a read event after
-the third request via telnet
+syzbot found the following issue on:
 
-I just tested https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=io_uring-5.9&id=d4e7cd36a90e38e0276d6ce0c20f5ccef17ec38c
-and
-https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=io_uring-5.9&id=227c0c9673d86732995474d277f84e08ee763e46
-(but it works on Linux 5.7)
+HEAD commit:    7fca4dee Merge tag 'powerpc-5.9-2' of git://git.kernel.org..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1264d116900000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=21f0d1d2df6d5fc
+dashboard link: https://syzkaller.appspot.com/bug?extid=7f617d4a9369028b8a2c
+compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10f211d2900000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1721b0ce900000
+
+The issue was bisected to:
+
+commit 18bceab101adde8f38de76016bc77f3f25cf22f4
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Fri May 15 17:56:54 2020 +0000
+
+    io_uring: allow POLL_ADD with double poll_wait() users
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1498125e900000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=1698125e900000
+console output: https://syzkaller.appspot.com/x/log.txt?x=1298125e900000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com
+Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
+
+general protection fault, probably for non-canonical address 0xdffffc0000000008: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000040-0x0000000000000047]
+CPU: 0 PID: 6842 Comm: syz-executor006 Not tainted 5.8.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:io_poll_double_wake+0x6b/0x360 fs/io_uring.c:4589
+Code: 8d 9d b8 00 00 00 48 89 d8 48 c1 e8 03 42 80 3c 20 00 74 08 48 89 df e8 53 64 de ff 48 8b 1b 48 83 c3 40 48 89 d8 48 c1 e8 03 <42> 80 3c 20 00 74 08 48 89 df e8 36 64 de ff 4c 8b 33 31 ff 44 89
+RSP: 0018:ffffc90001717b20 EFLAGS: 00010002
+RAX: 0000000000000008 RBX: 0000000000000040 RCX: ffff88809e0fe4c0
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8880a2e7dc98
+RBP: ffff8880a2e7dc98 R08: 0000000000000000 R09: ffffc90001717be8
+R10: fffff520002e2f70 R11: 0000000000000000 R12: dffffc0000000000
+R13: ffff88809a429e40 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000002640880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f2629c956c0 CR3: 000000009e4e7000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ __wake_up_common+0x30a/0x4e0 kernel/sched/wait.c:93
+ __wake_up_common_lock kernel/sched/wait.c:123 [inline]
+ __wake_up+0xd4/0x150 kernel/sched/wait.c:142
+ n_tty_set_termios+0xa60/0x1080 drivers/tty/n_tty.c:1874
+ tty_set_termios+0xcac/0x1510 drivers/tty/tty_ioctl.c:341
+ set_termios+0x4a1/0x580 drivers/tty/tty_ioctl.c:414
+ tty_mode_ioctl+0x7b2/0xa80 drivers/tty/tty_ioctl.c:770
+ tty_ioctl+0xf81/0x15c0 drivers/tty/tty_io.c:2665
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x4405d9
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffe5f581ef8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000401ed0 RCX: 00000000004405d9
+RDX: 0000000020000080 RSI: 0000000000005404 RDI: 0000000000000004
+RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000003e69 R11: 0000000000000246 R12: 0000000000401e40
+R13: 0000000000401ed0 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace 9d629bc7ccf35892 ]---
+RIP: 0010:io_poll_double_wake+0x6b/0x360 fs/io_uring.c:4589
+Code: 8d 9d b8 00 00 00 48 89 d8 48 c1 e8 03 42 80 3c 20 00 74 08 48 89 df e8 53 64 de ff 48 8b 1b 48 83 c3 40 48 89 d8 48 c1 e8 03 <42> 80 3c 20 00 74 08 48 89 df e8 36 64 de ff 4c 8b 33 31 ff 44 89
+RSP: 0018:ffffc90001717b20 EFLAGS: 00010002
+RAX: 0000000000000008 RBX: 0000000000000040 RCX: ffff88809e0fe4c0
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8880a2e7dc98
+RBP: ffff8880a2e7dc98 R08: 0000000000000000 R09: ffffc90001717be8
+R10: fffff520002e2f70 R11: 0000000000000000 R12: dffffc0000000000
+R13: ffff88809a429e40 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000002640880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f2629c956c0 CR3: 000000009e4e7000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
 
-On Sat, 15 Aug 2020 at 18:50, Pavel Begunkov <asml.silence@gmail.com> wrote:
->
-> On 15/08/2020 18:12, Jens Axboe wrote:
-> > On 8/15/20 12:45 AM, Pavel Begunkov wrote:
-> >> On 13/08/2020 02:32, Jens Axboe wrote:
-> >>> On 8/12/20 12:28 PM, Pavel Begunkov wrote:
-> >>>> On 12/08/2020 21:22, Pavel Begunkov wrote:
-> >>>>> On 12/08/2020 21:20, Pavel Begunkov wrote:
-> >>>>>> On 12/08/2020 21:05, Jens Axboe wrote:
-> >>>>>>> On 8/12/20 11:58 AM, Josef wrote:
-> >>>>>>>> Hi,
-> >>>>>>>>
-> >>>>>>>> I have a weird issue on kernel 5.8.0/5.8.1, SIGINT even SIGKILL
-> >>>>>>>> doesn't work to kill this process(always state D or D+), literally I
-> >>>>>>>> have to terminate my VM because even the kernel can't kill the process
-> >>>>>>>> and no issue on 5.7.12-201, however if IOSQE_IO_LINK is not set, it
-> >>>>>>>> works
-> >>>>>>>>
-> >>>>>>>> I've attached a file to reproduce it
-> >>>>>>>> or here
-> >>>>>>>> https://gist.github.com/1Jo1/15cb3c63439d0c08e3589cfa98418b2c
-> >>>>>>>
-> >>>>>>> Thanks, I'll take a look at this. It's stuck in uninterruptible
-> >>>>>>> state, which is why you can't kill it.
-> >>>>>>
-> >>>>>> It looks like one of the hangs I've been talking about a few days ago,
-> >>>>>> an accept is inflight but can't be found by cancel_files() because it's
-> >>>>>> in a link.
-> >>>>>
-> >>>>> BTW, I described it a month ago, there were more details.
-> >>>>
-> >>>> https://lore.kernel.org/io-uring/34eb5e5a-8d37-0cae-be6c-c6ac4d85b5d4@gmail.com
-> >>>
-> >>> Yeah I think you're right. How about something like the below? That'll
-> >>> potentially cancel more than just the one we're looking for, but seems
-> >>> kind of silly to only cancel from the file table holding request and to
-> >>> the end.
-> >>
-> >> The bug is not poll/t-out related, IIRC my test reproduces it with
-> >> read(pipe)->open(). See the previously sent link.
-> >
-> > Right, but in this context for poll, I just mean any request that has a
-> > poll handler armed. Not necessarily only a pure poll. The patch should
-> > fix your case, too.
->
-> Ok. I was thinking about sleeping in io_read(), etc. from io-wq context.
-> That should have the same effect.
->
-> >
-> >> As mentioned, I'm going to patch that up, if you won't beat me on that.
-> >
-> > Please test and send a fix if you find something! I'm going to ship what
-> > I have this weekend, but we can always add a fix on top if we need
-> > anything.
->
-> Sure
->
-> --
-> Pavel Begunkov
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
---
-Josef Grieb
-
---00000000000006f59c05acf16dbe
-Content-Type: application/octet-stream; name="io_uring_read_issue.c"
-Content-Disposition: attachment; filename="io_uring_read_issue.c"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kdw6o1l60>
-X-Attachment-Id: f_kdw6o1l60
-
-I2luY2x1ZGUgPGVycm5vLmg+CiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8bmV0aW5ldC9p
-bi5oPgojaW5jbHVkZSA8c3RkaW8uaD4KI2luY2x1ZGUgPHN0ZGxpYi5oPgojaW5jbHVkZSA8c3Ry
-aW5nLmg+CiNpbmNsdWRlIDxzdHJpbmdzLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNpbmNs
-dWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHBvbGwuaD4KI2luY2x1ZGUgImxpYnVyaW5nLmgiCgoj
-ZGVmaW5lIEJBQ0tMT0cgNTEyCgojZGVmaW5lIFBPUlQgOTMwMAoKc3RydWN0IGlvX3VyaW5nIHJp
-bmc7CgpjaGFyIGJ1ZlsxMDBdOwoKdm9pZCBhZGRfcG9sbChpbnQgZmQpIHsKICAgIHN0cnVjdCBp
-b191cmluZ19zcWUgKnNxZSA9IGlvX3VyaW5nX2dldF9zcWUoJnJpbmcpOwogICAgaW9fdXJpbmdf
-cHJlcF9wb2xsX2FkZChzcWUsIGZkLCBQT0xMSU4pOwogICAgc3FlLT51c2VyX2RhdGEgPSAxOwog
-ICAgc3FlLT5mbGFncyB8PSBJT1NRRV9JT19MSU5LOwp9Cgp2b2lkIGFkZF9hY2NlcHQoaW50IGZk
-KSB7CiAgICBzdHJ1Y3QgaW9fdXJpbmdfc3FlICpzcWUgPSBpb191cmluZ19nZXRfc3FlKCZyaW5n
-KTsKICAgIGlvX3VyaW5nX3ByZXBfYWNjZXB0KHNxZSwgZmQsIDAsIDAsIFNPQ0tfTk9OQkxPQ0sg
-fCBTT0NLX0NMT0VYRUMpOwogICAgc3FlLT51c2VyX2RhdGEgPSAyOwogICAgc3FlLT5mbGFncyB8
-PSBJT1NRRV9JT19MSU5LOwp9Cgp2b2lkIGFkZF9yZWFkKGludCBmZCkgewogICAgc3RydWN0IGlv
-X3VyaW5nX3NxZSAqc3FlID0gaW9fdXJpbmdfZ2V0X3NxZSgmcmluZyk7CiAgICBpb191cmluZ19w
-cmVwX3JlYWQoc3FlLCBmZCwgJmJ1ZiwgMTAwLCAwKTsKICAgIHNxZS0+dXNlcl9kYXRhID0gMzsK
-ICAgIHNxZS0+ZmxhZ3MgfD0gSU9TUUVfSU9fTElOSzsKfQoKaW50IHNldHVwX2lvX3VyaW5nKCkg
-ewogICAgaW50IHJldCA9IGlvX3VyaW5nX3F1ZXVlX2luaXQoMTYsICZyaW5nLCAwKTsKICAgIGlm
-IChyZXQpIHsKICAgICAgICBmcHJpbnRmKHN0ZGVyciwgIlVuYWJsZSB0byBzZXR1cCBpb191cmlu
-ZzogJXNcbiIsIHN0cmVycm9yKC1yZXQpKTsKICAgICAgICByZXR1cm4gMTsKICAgIH0KICAgIHJl
-dHVybiAwOwp9CgppbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKSB7CgogICAgc3RydWN0
-IHNvY2thZGRyX2luIHNlcnZfYWRkcjsKCiAgICBzZXR1cF9pb191cmluZygpOwogICAgCiAgICBp
-bnQgc29ja19saXN0ZW5fZmQgPSBzb2NrZXQoQUZfSU5FVCwgU09DS19TVFJFQU0gfCBTT0NLX05P
-TkJMT0NLLCAwKTsKICAgIGNvbnN0IGludCB2YWwgPSAxOwogICAgc2V0c29ja29wdChzb2NrX2xp
-c3Rlbl9mZCwgU09MX1NPQ0tFVCwgU09fUkVVU0VBRERSLCAmdmFsLCBzaXplb2YodmFsKSk7Cgog
-ICAgbWVtc2V0KCZzZXJ2X2FkZHIsIDAsIHNpemVvZihzZXJ2X2FkZHIpKTsKICAgIHNlcnZfYWRk
-ci5zaW5fZmFtaWx5ID0gQUZfSU5FVDsKICAgIHNlcnZfYWRkci5zaW5fcG9ydCA9IGh0b25zKFBP
-UlQpOwogICAgc2Vydl9hZGRyLnNpbl9hZGRyLnNfYWRkciA9IElOQUREUl9BTlk7CgogICAgaWYg
-KGJpbmQoc29ja19saXN0ZW5fZmQsIChzdHJ1Y3Qgc29ja2FkZHIgKikmc2Vydl9hZGRyLCBzaXpl
-b2Yoc2Vydl9hZGRyKSkgPCAwKSB7CiAgICAgICAgIHBlcnJvcigiRXJyb3IgYmluZGluZyBzb2Nr
-ZXRcbiIpOwogICAgICAgICBleGl0KDEpOwogICAgIH0KICAgIGlmIChsaXN0ZW4oc29ja19saXN0
-ZW5fZmQsIEJBQ0tMT0cpIDwgMCkgewogICAgICAgICBwZXJyb3IoIkVycm9yIGxpc3RlbmluZyBv
-biBzb2NrZXRcbiIpOwogICAgICAgICBleGl0KDEpOwogICAgfQoKICAgIHNldHVwX2lvX3VyaW5n
-KCk7CgogICAgYWRkX3BvbGwoc29ja19saXN0ZW5fZmQpOwogICAgYWRkX2FjY2VwdChzb2NrX2xp
-c3Rlbl9mZCk7CiAgICBpb191cmluZ19zdWJtaXQoJnJpbmcpOwoKICAgIHdoaWxlICgxKSB7CiAg
-ICAgICAgc3RydWN0IGlvX3VyaW5nX2NxZSAqY3FlOwogICAgICAgIGlvX3VyaW5nX3dhaXRfY3Fl
-KCZyaW5nLCAmY3FlKTsKCiAgICAgICAgcHJpbnRmKCJSZXM6IHJlczogJWRcbiIsIGNxZS0+cmVz
-KTsKICAgICAgICAKICAgICAgICBpZiAoY3FlLT51c2VyX2RhdGEgPT0gMSkgewogICAgICAgICAg
-ICBwcmludGYoIlBvbGwgRXZlbnRcbiIpOwogICAgICAgIH0KICAgICAgICAKICAgICAgICBpZiAo
-Y3FlLT51c2VyX2RhdGEgPT0gMiAmJiBjcWUtPnJlcyA+IDApIHsKICAgICAgICAgICAgcHJpbnRm
-KCJBY2NlcHQgRXZlbnRcbiIpOwogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICBhZGRf
-cG9sbChzb2NrX2xpc3Rlbl9mZCk7CiAgICAgICAgICAgIGFkZF9hY2NlcHQoc29ja19saXN0ZW5f
-ZmQpOwoKICAgICAgICAgICAgLy9hdm9pZCBsaW5rIGJldHdlZW4gYWRkX2FjY2VwdCBhbmQgYWRk
-X3BvbGwKICAgICAgICAgICAgc3RydWN0IGlvX3VyaW5nX3NxZSAqc3FlID0gaW9fdXJpbmdfZ2V0
-X3NxZSgmcmluZyk7CiAgICAgICAgICAgIGlvX3VyaW5nX3ByZXBfbm9wKHNxZSk7IAoKICAgICAg
-ICAgICAgYWRkX3BvbGwoY3FlLT5yZXMpOwogICAgICAgICAgICBhZGRfcmVhZChjcWUtPnJlcyk7
-CiAgICAgICAgfQoKICAgICAgICBpZiAoY3FlLT51c2VyX2RhdGEgPT0gMykgewogICAgICAgICAg
-ICBwcmludGYoIlJlYWQgQnVmOiAlcyBcbiIsIGJ1Zik7CiAgICAgICAgfQogICAgICAgIGlvX3Vy
-aW5nX3N1Ym1pdCgmcmluZyk7CgogICAgICAgIGlvX3VyaW5nX2NxZV9zZWVuKCZyaW5nLCBjcWUp
-OwogICAgfQoKICAgIGlvX3VyaW5nX3F1ZXVlX2V4aXQoJnJpbmcpOwoKICAgIHJldHVybiAwOwp9
---00000000000006f59c05acf16dbe--
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches

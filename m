@@ -1,309 +1,210 @@
-Return-Path: <SRS0=T52O=BY=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=PDRo=BZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 189BFC433E3
-	for <io-uring@archiver.kernel.org>; Fri, 14 Aug 2020 19:58:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3390C433DF
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:43:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF2B5206C0
-	for <io-uring@archiver.kernel.org>; Fri, 14 Aug 2020 19:58:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88F8823B24
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:43:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="x6CNQqTJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l9tfmPjY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727998AbgHNT64 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 14 Aug 2020 15:58:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60686 "EHLO
+        id S1726429AbgHOVnV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Aug 2020 17:43:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726636AbgHNT64 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 14 Aug 2020 15:58:56 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66767C061385
-        for <io-uring@vger.kernel.org>; Fri, 14 Aug 2020 12:58:56 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id j21so5021730pgi.9
-        for <io-uring@vger.kernel.org>; Fri, 14 Aug 2020 12:58:56 -0700 (PDT)
+        with ESMTP id S1726004AbgHOVnV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:43:21 -0400
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F12C03D1C5
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 14:43:20 -0700 (PDT)
+Received: by mail-qt1-x843.google.com with SMTP id o22so9651632qtt.13
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 14:43:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=AmWJYM1dJMlBGY8P6i/nthTIY+HSYzCY5b0ANWOSKM0=;
-        b=x6CNQqTJFkJHPGW8mC6s1UaamSSfAjoh8o54FzHQfw5W7O4xzGAed1aiR6xG4SOx3R
-         8ONVXDC3pul7PHLrFV59ivTgZn6gg4v9zj5WVVy+7wY5t77OFto61ePMSxXvTgWCHmwm
-         x5ZIeXostnTdKYwRf0gSR5j3zDi5trpwA394n0B5ZRqVjTeHJpoC6eeQNxjWo3qS/yHM
-         jxfP+LYgkQIagZbc8x34Y+UJS0Oo8iFiUwAQEsbFqyL+dbjFcxlkwOWf4CksUt9FnP+C
-         PaJNXbkOgivkQB5EsNEeArGEyRS3GoVqVT4iiJEsBxFVLO4BUMJqTyoYLfzRXUGFdQ6c
-         oSkQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=A2pjSIi0V+WxuISit7Z3mDAAp/laGecQN3RIlMayV1g=;
+        b=l9tfmPjYmJjjZtS1G0ArsTl0ihOWkhMfT8yQtyXT/lXcYiyq4yb54ITB+qWy4gW6m9
+         wKXqXdyVNjBhrgqg+sTMPp/aB6AVPg0G/eTEp24sWg5R+dG4b9SEi2P4u/bQbbil+8T4
+         Xl/MXAY+V9Guh34exIri9+vTYrr2CPGiA5VdMpJN7XbvY4fq5emVqX2gEuokwtx+PBxq
+         pWuMOMtnpM2zRMX+lM7/EmvNkdiC81em2PGD6vtKx95nLSbdoHOt247CjI6GV7BcVhgb
+         hWS4Qn9Z6YMMFHl7HFoj1Zm7unA8A9GQnOb/p5DAxyPpELIGlciLyzsnM/yTqx8gN/DF
+         ytHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=AmWJYM1dJMlBGY8P6i/nthTIY+HSYzCY5b0ANWOSKM0=;
-        b=XHJBMCiZGO46sinRp4DvfIVJhDw0Y2X+Tymb05ozyPSMveTXnHC22FWkCPL5Ss43cA
-         eNS5iN8WESONTSsaP4UPmH+C+90etnn5En2mNCQJUrohxLZHkwobst2pkPoheHv/qRFP
-         IbApIZidYwsn6c1XS2zAd2il4il/SGAWLUpR+8dw6IORFq3Grw6JauDAdbhlIO+eARNB
-         sqT2429R5AyjV4VlygiMS4sfLdcTcu/e0QSakWUbT7kHq6apFvEY+weyVZZtzjZh11Xi
-         K/GyW38dzmGqjShaTXHuSoLHEFkVnr9on8ZHLAwUkWlXoAAcnYajQFJe47Rh05conj5z
-         HIlw==
-X-Gm-Message-State: AOAM533RBTEHI0Q0Jiy9pYfloWdTocMefkng4gE/OAD/KqO0pVx9waA2
-        /JRlgiIl7MDoUMOGw3Izy+spGCzAn8G33w==
-X-Google-Smtp-Source: ABdhPJxompti+TT+dBX7uD7ziQAs9pKXlRdWg0J8mtvQYZQeq8NncZq7Hlq2OazNRTGN6RwCREirPw==
-X-Received: by 2002:a63:ab43:: with SMTP id k3mr1420030pgp.426.1597435135180;
-        Fri, 14 Aug 2020 12:58:55 -0700 (PDT)
-Received: from localhost.localdomain ([2605:e000:100e:8c61:58f:6be6:29b5:60da])
-        by smtp.gmail.com with ESMTPSA id t11sm9695219pfe.165.2020.08.14.12.58.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2020 12:58:54 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     david@fromorbit.com, jmoyer@redhat.com,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/2] io_uring: internally retry short reads
-Date:   Fri, 14 Aug 2020 12:54:49 -0700
-Message-Id: <20200814195449.533153-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200814195449.533153-1-axboe@kernel.dk>
-References: <20200814195449.533153-1-axboe@kernel.dk>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=A2pjSIi0V+WxuISit7Z3mDAAp/laGecQN3RIlMayV1g=;
+        b=B+AAGDo0taNnVPQg3+vhfVPlvLibPu3/W8+lr8S6FXEoCh6zEBeXpfh4LPlFgRkma7
+         Vmz8xtOpgG2CvNQcFArFHiUbaoIvVN10d9AqBHjMZhL8d1i28O/JeK4quWJJT7wZum8G
+         37kfAw7gpj80675fowQXuOkYFsD1VmVC7wwRPcFE8N2F/hpOXoNWH+xiLIav3uvB19at
+         p8sZ3loDkt4a2y97yAD6bIAhTWYYlY3QOuZZ9iAn+YffyisAIBCMI3h5bSt2vqRzzJE7
+         zhVeEqQhTd/MDVG8n7BJPxPYVYKR62RtyhJmK7Vo+eZciPhN0IcNBfr0atIbDlHkSPnh
+         oHUA==
+X-Gm-Message-State: AOAM533nWJnrUc2psg4lvt1Vc58ACs5SadpxEXQnAMND6dYJDbReuDQt
+        zcdJI0FYMOKSBsCTo5a/FYQ1eRMNjGqj1ucu7Bo=
+X-Google-Smtp-Source: ABdhPJzRbxKI+sUoHwdYVDTfNfVjFnUb09CIqjszujfmwB09WY0c6J7TlMCkUUiZmFz/A8sqJX/M7bRQnQFBaZa8n5c=
+X-Received: by 2002:ac8:4b4d:: with SMTP id e13mr7536382qts.256.1597527799812;
+ Sat, 15 Aug 2020 14:43:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAAss7+pf+CGQiSDM8_fhsHRwjWUxESPcJMhOOsDOitqePQxCrg@mail.gmail.com>
+ <dc3562d8-dc67-c623-36ee-38885b4c1682@kernel.dk> <8e734ada-7f28-22df-5f30-027aca3695d1@gmail.com>
+ <5fa9e01f-137d-b0f8-211a-975c7ed56419@gmail.com> <d0d1f797-c958-ac17-1f11-96f6ba6dbf37@gmail.com>
+ <d0621b79-4277-a9ad-208e-b60153c08d15@kernel.dk> <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
+ <d06c7f29-726b-d46a-8c51-0dc47ef374ad@kernel.dk> <63024e23-2b71-937a-6759-17916743c16c@gmail.com>
+In-Reply-To: <63024e23-2b71-937a-6759-17916743c16c@gmail.com>
+From:   Josef <josef.grieb@gmail.com>
+Date:   Sat, 15 Aug 2020 23:43:08 +0200
+Message-ID: <CAAss7+qGqCpp8dWpDR2rVJERwtV7r=9vEajOMqbhkSQ8Y-yteQ@mail.gmail.com>
+Subject: Re: io_uring process termination/killing is not working
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     norman@apache.org
+Content-Type: multipart/mixed; boundary="00000000000006f59c05acf16dbe"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We've had a few application cases of not handling short reads properly,
-and it is understandable as short reads aren't really expected if the
-application isn't doing non-blocking IO.
+--00000000000006f59c05acf16dbe
+Content-Type: text/plain; charset="UTF-8"
 
-Now that we retain the iov_iter over retries, we can implement internal
-retry pretty trivially. This ensures that we don't return a short read,
-even for buffered reads on page cache conflicts.
+it seems to be that read event doesn't work properly, but I'm not sure
+if it is related to what Pavel mentioned
+poll<link>accept works but not poll<link>read -> cqe still receives
+poll event but no read event, however I received a read event after
+the third request via telnet
 
-Cleanup the deep nesting and hard to read nature of io_read() as well,
-it's much more straight forward now to read and understand. Added a
-few comments explaining the logic as well.
+I just tested https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=io_uring-5.9&id=d4e7cd36a90e38e0276d6ce0c20f5ccef17ec38c
+and
+https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=io_uring-5.9&id=227c0c9673d86732995474d277f84e08ee763e46
+(but it works on Linux 5.7)
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 111 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 71 insertions(+), 40 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 409cfa1d6d90..e1aacc0b9bd0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -509,6 +509,7 @@ struct io_async_msghdr {
- struct io_async_rw {
- 	struct iovec			fast_iov[UIO_FASTIOV];
- 	struct iov_iter			iter;
-+	size_t				bytes_done;
- 	struct wait_page_queue		wpq;
- };
- 
-@@ -914,7 +915,7 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
- 			       struct iovec **iovec, struct iov_iter *iter,
- 			       bool needs_lock);
- static int io_setup_async_rw(struct io_kiocb *req, struct iovec *iovec,
--			     struct iov_iter *iter);
-+			     struct iov_iter *iter, bool force);
- 
- static struct kmem_cache *req_cachep;
- 
-@@ -2296,7 +2297,7 @@ static bool io_resubmit_prep(struct io_kiocb *req, int error)
- 	ret = io_import_iovec(rw, req, &iovec, &iter, false);
- 	if (ret < 0)
- 		goto end_req;
--	ret = io_setup_async_rw(req, iovec, &iter);
-+	ret = io_setup_async_rw(req, iovec, &iter, false);
- 	if (!ret)
- 		return true;
- 	kfree(iovec);
-@@ -2586,6 +2587,14 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw.kiocb);
- 
-+	/* add previously done IO, if any */
-+	if (req->io && req->io->rw.bytes_done > 0) {
-+		if (ret < 0)
-+			ret = req->io->rw.bytes_done;
-+		else
-+			ret += req->io->rw.bytes_done;
-+	}
-+
- 	if (req->flags & REQ_F_CUR_POS)
- 		req->file->f_pos = kiocb->ki_pos;
- 	if (ret >= 0 && kiocb->ki_complete == io_complete_rw)
-@@ -2932,6 +2941,7 @@ static void io_req_map_rw(struct io_kiocb *req, const struct iovec *iovec,
- 	struct io_async_rw *rw = &req->io->rw;
- 
- 	memcpy(&rw->iter, iter, sizeof(*iter));
-+	rw->bytes_done = 0;
- 	if (!iovec) {
- 		rw->iter.iov = rw->fast_iov;
- 		if (rw->fast_iov != iter->iov)
-@@ -2958,9 +2968,9 @@ static int io_alloc_async_ctx(struct io_kiocb *req)
- }
- 
- static int io_setup_async_rw(struct io_kiocb *req, struct iovec *iovec,
--			     struct iov_iter *iter)
-+			     struct iov_iter *iter, bool force)
- {
--	if (!io_op_defs[req->opcode].async_ctx)
-+	if (!force && !io_op_defs[req->opcode].async_ctx)
- 		return 0;
- 	if (!req->io) {
- 		if (__io_alloc_async_ctx(req))
-@@ -3084,8 +3094,7 @@ static inline int kiocb_wait_page_queue_init(struct kiocb *kiocb,
-  * succeed, or in rare cases where it fails, we then fall back to using the
-  * async worker threads for a blocking retry.
-  */
--static bool io_rw_should_retry(struct io_kiocb *req, struct iovec *iovec,
--			       struct iovec *fast_iov, struct iov_iter *iter)
-+static bool io_rw_should_retry(struct io_kiocb *req)
- {
- 	struct kiocb *kiocb = &req->rw.kiocb;
- 	int ret;
-@@ -3094,8 +3103,8 @@ static bool io_rw_should_retry(struct io_kiocb *req, struct iovec *iovec,
- 	if (req->flags & REQ_F_NOWAIT)
- 		return false;
- 
--	/* already tried, or we're doing O_DIRECT */
--	if (kiocb->ki_flags & (IOCB_DIRECT | IOCB_WAITQ))
-+	/* Only for buffered IO */
-+	if (kiocb->ki_flags & IOCB_DIRECT)
- 		return false;
- 	/*
- 	 * just use poll if we can, and don't attempt if the fs doesn't
-@@ -3104,16 +3113,6 @@ static bool io_rw_should_retry(struct io_kiocb *req, struct iovec *iovec,
- 	if (file_can_poll(req->file) || !(req->file->f_mode & FMODE_BUF_RASYNC))
- 		return false;
- 
--	/*
--	 * If request type doesn't require req->io to defer in general,
--	 * we need to allocate it here
--	 */
--	if (!req->io) {
--		if (__io_alloc_async_ctx(req))
--			return false;
--		io_req_map_rw(req, iovec, iter);
--	}
--
- 	ret = kiocb_wait_page_queue_init(kiocb, &req->io->rw.wpq,
- 						io_async_buf_func, req);
- 	if (!ret) {
-@@ -3140,8 +3139,8 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
- 	struct kiocb *kiocb = &req->rw.kiocb;
- 	struct iov_iter __iter, *iter = &__iter;
-+	ssize_t io_size, ret, ret2;
- 	size_t iov_count;
--	ssize_t io_size, ret, ret2 = 0;
- 
- 	if (req->io)
- 		iter = &req->io->rw.iter;
-@@ -3151,6 +3150,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 		return ret;
- 	io_size = ret;
- 	req->result = io_size;
-+	ret = 0;
- 
- 	/* Ensure we clear previously set non-block flag */
- 	if (!force_nonblock)
-@@ -3165,31 +3165,62 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	if (unlikely(ret))
- 		goto out_free;
- 
--	ret2 = io_iter_do_read(req, iter);
-+	ret = io_iter_do_read(req, iter);
- 
--	/* Catch -EAGAIN return for forced non-blocking submission */
--	if (!force_nonblock || (ret2 != -EAGAIN && ret2 != -EIO)) {
--		kiocb_done(kiocb, ret2, cs);
--	} else {
-+	if (!ret) {
-+		goto done;
-+	} else if (ret == -EIOCBQUEUED) {
-+		ret = 0;
-+		goto out_free;
-+	} else if (ret == -EAGAIN) {
-+		ret2 = io_setup_async_rw(req, iovec, iter, false);
-+		if (ret2 < 0)
-+			ret = ret2;
-+		goto out_free;
-+	} else if (ret < 0) {
-+		goto out_free;
-+	}
-+
-+	/* read it all, or we did blocking attempt. no retry. */
-+	if (!iov_iter_count(iter) || !force_nonblock)
-+		goto done;
-+
-+	io_size -= ret;
- copy_iov:
--		ret = io_setup_async_rw(req, iovec, iter);
--		if (ret)
--			goto out_free;
--		/* it's copied and will be cleaned with ->io */
--		iovec = NULL;
--		/* if we can retry, do so with the callbacks armed */
--		if (io_rw_should_retry(req, iovec, inline_vecs, iter)) {
--			ret2 = io_iter_do_read(req, iter);
--			if (ret2 == -EIOCBQUEUED) {
--				goto out_free;
--			} else if (ret2 != -EAGAIN) {
--				kiocb_done(kiocb, ret2, cs);
--				goto out_free;
--			}
--		}
-+	ret2 = io_setup_async_rw(req, iovec, iter, true);
-+	if (ret2) {
-+		ret = ret2;
-+		goto out_free;
-+	}
-+	/* it's copied and will be cleaned with ->io */
-+	iovec = NULL;
-+	/* now use our persistent iterator, if we aren't already */
-+	iter = &req->io->rw.iter;
-+retry:
-+	req->io->rw.bytes_done += ret;
-+	/* if we can retry, do so with the callbacks armed */
-+	if (!io_rw_should_retry(req)) {
- 		kiocb->ki_flags &= ~IOCB_WAITQ;
- 		return -EAGAIN;
- 	}
-+
-+	/*
-+	 * Now retry read with the IOCB_WAITQ parts set in the iocb. If we
-+	 * get -EIOCBQUEUED, then we'll get a notification when the desired
-+	 * page gets unlocked. We can also get a partial read here, and if we
-+	 * do, then just retry at the new offset.
-+	 */
-+	ret = io_iter_do_read(req, iter);
-+	if (ret == -EIOCBQUEUED) {
-+		ret = 0;
-+		goto out_free;
-+	} else if (ret > 0 && ret < io_size) {
-+		/* we got some bytes, but not all. retry. */
-+		goto retry;
-+	}
-+done:
-+	kiocb_done(kiocb, ret, cs);
-+	ret = 0;
- out_free:
- 	if (iovec)
- 		kfree(iovec);
-@@ -3282,7 +3313,7 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
- 		kiocb_done(kiocb, ret2, cs);
- 	} else {
- copy_iov:
--		ret = io_setup_async_rw(req, iovec, iter);
-+		ret = io_setup_async_rw(req, iovec, iter, false);
- 		if (ret)
- 			goto out_free;
- 		/* it's copied and will be cleaned with ->io */
--- 
-2.28.0
+On Sat, 15 Aug 2020 at 18:50, Pavel Begunkov <asml.silence@gmail.com> wrote:
+>
+> On 15/08/2020 18:12, Jens Axboe wrote:
+> > On 8/15/20 12:45 AM, Pavel Begunkov wrote:
+> >> On 13/08/2020 02:32, Jens Axboe wrote:
+> >>> On 8/12/20 12:28 PM, Pavel Begunkov wrote:
+> >>>> On 12/08/2020 21:22, Pavel Begunkov wrote:
+> >>>>> On 12/08/2020 21:20, Pavel Begunkov wrote:
+> >>>>>> On 12/08/2020 21:05, Jens Axboe wrote:
+> >>>>>>> On 8/12/20 11:58 AM, Josef wrote:
+> >>>>>>>> Hi,
+> >>>>>>>>
+> >>>>>>>> I have a weird issue on kernel 5.8.0/5.8.1, SIGINT even SIGKILL
+> >>>>>>>> doesn't work to kill this process(always state D or D+), literally I
+> >>>>>>>> have to terminate my VM because even the kernel can't kill the process
+> >>>>>>>> and no issue on 5.7.12-201, however if IOSQE_IO_LINK is not set, it
+> >>>>>>>> works
+> >>>>>>>>
+> >>>>>>>> I've attached a file to reproduce it
+> >>>>>>>> or here
+> >>>>>>>> https://gist.github.com/1Jo1/15cb3c63439d0c08e3589cfa98418b2c
+> >>>>>>>
+> >>>>>>> Thanks, I'll take a look at this. It's stuck in uninterruptible
+> >>>>>>> state, which is why you can't kill it.
+> >>>>>>
+> >>>>>> It looks like one of the hangs I've been talking about a few days ago,
+> >>>>>> an accept is inflight but can't be found by cancel_files() because it's
+> >>>>>> in a link.
+> >>>>>
+> >>>>> BTW, I described it a month ago, there were more details.
+> >>>>
+> >>>> https://lore.kernel.org/io-uring/34eb5e5a-8d37-0cae-be6c-c6ac4d85b5d4@gmail.com
+> >>>
+> >>> Yeah I think you're right. How about something like the below? That'll
+> >>> potentially cancel more than just the one we're looking for, but seems
+> >>> kind of silly to only cancel from the file table holding request and to
+> >>> the end.
+> >>
+> >> The bug is not poll/t-out related, IIRC my test reproduces it with
+> >> read(pipe)->open(). See the previously sent link.
+> >
+> > Right, but in this context for poll, I just mean any request that has a
+> > poll handler armed. Not necessarily only a pure poll. The patch should
+> > fix your case, too.
+>
+> Ok. I was thinking about sleeping in io_read(), etc. from io-wq context.
+> That should have the same effect.
+>
+> >
+> >> As mentioned, I'm going to patch that up, if you won't beat me on that.
+> >
+> > Please test and send a fix if you find something! I'm going to ship what
+> > I have this weekend, but we can always add a fix on top if we need
+> > anything.
+>
+> Sure
+>
+> --
+> Pavel Begunkov
 
+--
+Josef Grieb
+
+--00000000000006f59c05acf16dbe
+Content-Type: application/octet-stream; name="io_uring_read_issue.c"
+Content-Disposition: attachment; filename="io_uring_read_issue.c"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kdw6o1l60>
+X-Attachment-Id: f_kdw6o1l60
+
+I2luY2x1ZGUgPGVycm5vLmg+CiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8bmV0aW5ldC9p
+bi5oPgojaW5jbHVkZSA8c3RkaW8uaD4KI2luY2x1ZGUgPHN0ZGxpYi5oPgojaW5jbHVkZSA8c3Ry
+aW5nLmg+CiNpbmNsdWRlIDxzdHJpbmdzLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNpbmNs
+dWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHBvbGwuaD4KI2luY2x1ZGUgImxpYnVyaW5nLmgiCgoj
+ZGVmaW5lIEJBQ0tMT0cgNTEyCgojZGVmaW5lIFBPUlQgOTMwMAoKc3RydWN0IGlvX3VyaW5nIHJp
+bmc7CgpjaGFyIGJ1ZlsxMDBdOwoKdm9pZCBhZGRfcG9sbChpbnQgZmQpIHsKICAgIHN0cnVjdCBp
+b191cmluZ19zcWUgKnNxZSA9IGlvX3VyaW5nX2dldF9zcWUoJnJpbmcpOwogICAgaW9fdXJpbmdf
+cHJlcF9wb2xsX2FkZChzcWUsIGZkLCBQT0xMSU4pOwogICAgc3FlLT51c2VyX2RhdGEgPSAxOwog
+ICAgc3FlLT5mbGFncyB8PSBJT1NRRV9JT19MSU5LOwp9Cgp2b2lkIGFkZF9hY2NlcHQoaW50IGZk
+KSB7CiAgICBzdHJ1Y3QgaW9fdXJpbmdfc3FlICpzcWUgPSBpb191cmluZ19nZXRfc3FlKCZyaW5n
+KTsKICAgIGlvX3VyaW5nX3ByZXBfYWNjZXB0KHNxZSwgZmQsIDAsIDAsIFNPQ0tfTk9OQkxPQ0sg
+fCBTT0NLX0NMT0VYRUMpOwogICAgc3FlLT51c2VyX2RhdGEgPSAyOwogICAgc3FlLT5mbGFncyB8
+PSBJT1NRRV9JT19MSU5LOwp9Cgp2b2lkIGFkZF9yZWFkKGludCBmZCkgewogICAgc3RydWN0IGlv
+X3VyaW5nX3NxZSAqc3FlID0gaW9fdXJpbmdfZ2V0X3NxZSgmcmluZyk7CiAgICBpb191cmluZ19w
+cmVwX3JlYWQoc3FlLCBmZCwgJmJ1ZiwgMTAwLCAwKTsKICAgIHNxZS0+dXNlcl9kYXRhID0gMzsK
+ICAgIHNxZS0+ZmxhZ3MgfD0gSU9TUUVfSU9fTElOSzsKfQoKaW50IHNldHVwX2lvX3VyaW5nKCkg
+ewogICAgaW50IHJldCA9IGlvX3VyaW5nX3F1ZXVlX2luaXQoMTYsICZyaW5nLCAwKTsKICAgIGlm
+IChyZXQpIHsKICAgICAgICBmcHJpbnRmKHN0ZGVyciwgIlVuYWJsZSB0byBzZXR1cCBpb191cmlu
+ZzogJXNcbiIsIHN0cmVycm9yKC1yZXQpKTsKICAgICAgICByZXR1cm4gMTsKICAgIH0KICAgIHJl
+dHVybiAwOwp9CgppbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKSB7CgogICAgc3RydWN0
+IHNvY2thZGRyX2luIHNlcnZfYWRkcjsKCiAgICBzZXR1cF9pb191cmluZygpOwogICAgCiAgICBp
+bnQgc29ja19saXN0ZW5fZmQgPSBzb2NrZXQoQUZfSU5FVCwgU09DS19TVFJFQU0gfCBTT0NLX05P
+TkJMT0NLLCAwKTsKICAgIGNvbnN0IGludCB2YWwgPSAxOwogICAgc2V0c29ja29wdChzb2NrX2xp
+c3Rlbl9mZCwgU09MX1NPQ0tFVCwgU09fUkVVU0VBRERSLCAmdmFsLCBzaXplb2YodmFsKSk7Cgog
+ICAgbWVtc2V0KCZzZXJ2X2FkZHIsIDAsIHNpemVvZihzZXJ2X2FkZHIpKTsKICAgIHNlcnZfYWRk
+ci5zaW5fZmFtaWx5ID0gQUZfSU5FVDsKICAgIHNlcnZfYWRkci5zaW5fcG9ydCA9IGh0b25zKFBP
+UlQpOwogICAgc2Vydl9hZGRyLnNpbl9hZGRyLnNfYWRkciA9IElOQUREUl9BTlk7CgogICAgaWYg
+KGJpbmQoc29ja19saXN0ZW5fZmQsIChzdHJ1Y3Qgc29ja2FkZHIgKikmc2Vydl9hZGRyLCBzaXpl
+b2Yoc2Vydl9hZGRyKSkgPCAwKSB7CiAgICAgICAgIHBlcnJvcigiRXJyb3IgYmluZGluZyBzb2Nr
+ZXRcbiIpOwogICAgICAgICBleGl0KDEpOwogICAgIH0KICAgIGlmIChsaXN0ZW4oc29ja19saXN0
+ZW5fZmQsIEJBQ0tMT0cpIDwgMCkgewogICAgICAgICBwZXJyb3IoIkVycm9yIGxpc3RlbmluZyBv
+biBzb2NrZXRcbiIpOwogICAgICAgICBleGl0KDEpOwogICAgfQoKICAgIHNldHVwX2lvX3VyaW5n
+KCk7CgogICAgYWRkX3BvbGwoc29ja19saXN0ZW5fZmQpOwogICAgYWRkX2FjY2VwdChzb2NrX2xp
+c3Rlbl9mZCk7CiAgICBpb191cmluZ19zdWJtaXQoJnJpbmcpOwoKICAgIHdoaWxlICgxKSB7CiAg
+ICAgICAgc3RydWN0IGlvX3VyaW5nX2NxZSAqY3FlOwogICAgICAgIGlvX3VyaW5nX3dhaXRfY3Fl
+KCZyaW5nLCAmY3FlKTsKCiAgICAgICAgcHJpbnRmKCJSZXM6IHJlczogJWRcbiIsIGNxZS0+cmVz
+KTsKICAgICAgICAKICAgICAgICBpZiAoY3FlLT51c2VyX2RhdGEgPT0gMSkgewogICAgICAgICAg
+ICBwcmludGYoIlBvbGwgRXZlbnRcbiIpOwogICAgICAgIH0KICAgICAgICAKICAgICAgICBpZiAo
+Y3FlLT51c2VyX2RhdGEgPT0gMiAmJiBjcWUtPnJlcyA+IDApIHsKICAgICAgICAgICAgcHJpbnRm
+KCJBY2NlcHQgRXZlbnRcbiIpOwogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICBhZGRf
+cG9sbChzb2NrX2xpc3Rlbl9mZCk7CiAgICAgICAgICAgIGFkZF9hY2NlcHQoc29ja19saXN0ZW5f
+ZmQpOwoKICAgICAgICAgICAgLy9hdm9pZCBsaW5rIGJldHdlZW4gYWRkX2FjY2VwdCBhbmQgYWRk
+X3BvbGwKICAgICAgICAgICAgc3RydWN0IGlvX3VyaW5nX3NxZSAqc3FlID0gaW9fdXJpbmdfZ2V0
+X3NxZSgmcmluZyk7CiAgICAgICAgICAgIGlvX3VyaW5nX3ByZXBfbm9wKHNxZSk7IAoKICAgICAg
+ICAgICAgYWRkX3BvbGwoY3FlLT5yZXMpOwogICAgICAgICAgICBhZGRfcmVhZChjcWUtPnJlcyk7
+CiAgICAgICAgfQoKICAgICAgICBpZiAoY3FlLT51c2VyX2RhdGEgPT0gMykgewogICAgICAgICAg
+ICBwcmludGYoIlJlYWQgQnVmOiAlcyBcbiIsIGJ1Zik7CiAgICAgICAgfQogICAgICAgIGlvX3Vy
+aW5nX3N1Ym1pdCgmcmluZyk7CgogICAgICAgIGlvX3VyaW5nX2NxZV9zZWVuKCZyaW5nLCBjcWUp
+OwogICAgfQoKICAgIGlvX3VyaW5nX3F1ZXVlX2V4aXQoJnJpbmcpOwoKICAgIHJldHVybiAwOwp9
+--00000000000006f59c05acf16dbe--

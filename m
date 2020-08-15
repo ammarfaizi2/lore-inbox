@@ -2,193 +2,139 @@ Return-Path: <SRS0=PDRo=BZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB10C433DF
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 22:04:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5CC0C433E3
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 22:04:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EDED20639
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 22:04:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="sjznKTDi"
+	by mail.kernel.org (Postfix) with ESMTP id BEE232053B
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 22:04:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbgHOVvD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Aug 2020 17:51:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45600 "EHLO
+        id S1728956AbgHOWEe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Aug 2020 18:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728483AbgHOVuy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:50:54 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B7EC004596
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:49:34 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id h12so6062948pgm.7
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:49:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=ypW/qp3EFS6XvMcsSvKo5xeBkyB36mGGU5opoB45HhI=;
-        b=sjznKTDikuDyjiBMbjnEsvBVQ9LyYKthtpiDG3rS1ISXD4jwidCvlnnqto3vDDbVBC
-         7XN4ZS3IsUXf8TvrGfOzNWg0hO/2P54m2Zoa9tSLPYg5fxZNt5olqT18FTJwTUvgOm65
-         AT4SvzkT/oeHJVkWr+XCTC2wFHlGgXhog+MlHWYftxsrAhuRok8uYiYS3N4FNXbwx/xQ
-         onXaXPCsCIq8qqJq+Kw72+rQw9cjmvjw3MWKOKTGlnC59GsatnHOdAJspn1F4nwirLHT
-         xpl+QS4fyDDvM/HwTKLTG88iqJxGvqWzLrFtDJep3wNm73o9cfdXLdqpeHoErkG3mpwJ
-         YDpA==
+        with ESMTP id S1728547AbgHOVvB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:51:01 -0400
+Received: from mail-il1-x148.google.com (mail-il1-x148.google.com [IPv6:2607:f8b0:4864:20::148])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B89EC0F26ED
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:14:18 -0700 (PDT)
+Received: by mail-il1-x148.google.com with SMTP id t79so8897832ild.5
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:14:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=ypW/qp3EFS6XvMcsSvKo5xeBkyB36mGGU5opoB45HhI=;
-        b=mLcI5IVEnIjp/W0suPxFkx/VrCr1tF98jS8XEuQIVpyyEtCW+HzhP5+VJTFYJ6Xqmc
-         hMdCjK5TOFQyzC3XgU6MS46wfpo1zO5A38jtqxEomxtewPvyquSFutbNPKoVRyVgQgZP
-         V5h3GZz7RitgE61SqTQLJ0kC2UhYRYMFh1z4l/9THwbp6aAJx6yuBEw+EsYb+hfWp0lk
-         o47nkoVS/sCrRF5O2giBC3c2WlSPNLDLlsLMfts4/y7Dwlly1cZ1jbdf5iSjYYgsg/IH
-         Xjm9wvB+TRc9GDZN77tuPt/Ls0RY06Nn9ciwsxDbp5IqPmzJ4uB2wtaooO7jlVs6H5Qr
-         pV8Q==
-X-Gm-Message-State: AOAM533yFfTJ33re1mAcMrY9l7hsm0s1luLJznOmjYldm2KDnbfULg8p
-        Ph1tis3Syc6lGK3W/5w49tsilPlk91jG+A==
-X-Google-Smtp-Source: ABdhPJxeG8Xp8nBmGNCGMx5Zb8nrJTVFQ8aOJorZXfWkzhr4taeltW3t4PSWEptVDBXlbC3ejTo3vQ==
-X-Received: by 2002:aa7:9d85:: with SMTP id f5mr6047693pfq.218.1597517373776;
-        Sat, 15 Aug 2020 11:49:33 -0700 (PDT)
-Received: from ?IPv6:2605:e000:100e:8c61:6299:2df1:e468:6351? ([2605:e000:100e:8c61:6299:2df1:e468:6351])
-        by smtp.gmail.com with ESMTPSA id r77sm13020672pfc.193.2020.08.15.11.49.32
-        for <io-uring@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 15 Aug 2020 11:49:33 -0700 (PDT)
-To:     io-uring <io-uring@vger.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: sanitize double poll handling
-Message-ID: <94e050ea-ab3d-3ebf-4ecc-e7ce7f376219@kernel.dk>
-Date:   Sat, 15 Aug 2020 11:49:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=Tsrf0W3zdR8N6Sz4q9zL/K2/kh+E+ME01i4FhEUCMRQ=;
+        b=Rqw63jYX2IR6x2KOfNC3Udx6u3DqKzCukG1TpTtkFv1ub1rjiNXkAaQ6xo05dlU1ZG
+         pejNynwMCVlQ21bDiJYeW874nDDhaXEeqIA9F6HAlM7GUyr546tWa+yoogNKWX/71mIW
+         h3nOEpS7CrX69cs0kuKqZWVlfpOziGP0m7u/QWVo3wBAcNEUSUGkxfd9084VubsMCzKX
+         Lma4TU1iUutQwuhNwEke64RBnn+zRj/vtLUBUPMvtZ0GE5MNb0jGTaT3bmNMkAeAwjr9
+         KLqNtG7YqeMmVSzz3PGAXYVB4wXUsxfNWwfaFnwbbBOe/M7f5GGjwqHxCDpn6q2Hfbq+
+         3Bcg==
+X-Gm-Message-State: AOAM530z6aWvcSk5vXLfgEQPRU7mQT1Bmi/uYMl6qSEBW5hn7uWispUR
+        ylyxjMOE8AwHM7s512iCJiem0x4RSPz++jfYgCfKoHP3ioG2
+X-Google-Smtp-Source: ABdhPJxYqKqeKYXpBI+HjSS1BvnO9LP/5Zfu3IqMgkk1OcFJhfjveTF2PxtjTI1vWp6rJMeM+xx5/uYZ8rnvmalXEbxnC2kMkSXi
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a92:d4cc:: with SMTP id o12mr7100103ilm.90.1597515257724;
+ Sat, 15 Aug 2020 11:14:17 -0700 (PDT)
+Date:   Sat, 15 Aug 2020 11:14:17 -0700
+In-Reply-To: <000000000000923cee05acee6f61@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000075c7e805acee8158@google.com>
+Subject: Re: possible deadlock in io_poll_double_wake
+From:   syzbot <syzbot+0d56cfeec64f045baffc@syzkaller.appspotmail.com>
+To:     axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There's a bit of confusion on the matching pairs of poll vs double poll,
-depending on if the request is a pure poll (IORING_OP_POLL_ADD) or
-poll driven retry.
+syzbot has found a reproducer for the following issue on:
 
-Add io_poll_get_double() that returns the double poll waitqueue, if any,
-and io_poll_get_single() that returns the original poll waitqueue. With
-that, remove the argument to io_poll_remove_double().
+HEAD commit:    c9c9735c Merge tag 'scsi-misc' of git://git.kernel.org/pub..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=165d3b6a900000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=adea84f38e7bc8d
+dashboard link: https://syzkaller.appspot.com/bug?extid=0d56cfeec64f045baffc
+compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1018494a900000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15c8e1e2900000
 
-Finally ensure that wait->private is cleared once the double poll handler
-has run, so that remove knows it's already been seen.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0d56cfeec64f045baffc@syzkaller.appspotmail.com
 
-Cc: stable@vger.kernel.org # v5.8
-Reported-by: syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com
-Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+============================================
+WARNING: possible recursive locking detected
+5.8.0-syzkaller #0 Not tainted
+--------------------------------------------
+syz-executor639/6830 is trying to acquire lock:
+ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
+ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: io_poll_double_wake+0x108/0x360 fs/io_uring.c:4599
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7dd6df15bc49..cb030912bf5e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4649,9 +4649,24 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
- 	return false;
- }
- 
--static void io_poll_remove_double(struct io_kiocb *req, void *data)
-+static struct io_poll_iocb *io_poll_get_double(struct io_kiocb *req)
- {
--	struct io_poll_iocb *poll = data;
-+	/* pure poll stashes this in ->io, poll driven retry elsewhere */
-+	if (req->opcode == IORING_OP_POLL_ADD)
-+		return (struct io_poll_iocb *) req->io;
-+	return req->apoll->double_poll;
-+}
-+
-+static struct io_poll_iocb *io_poll_get_single(struct io_kiocb *req)
-+{
-+	if (req->opcode == IORING_OP_POLL_ADD)
-+		return &req->poll;
-+	return &req->apoll->poll;
-+}
-+
-+static void io_poll_remove_double(struct io_kiocb *req)
-+{
-+	struct io_poll_iocb *poll = io_poll_get_double(req);
- 
- 	lockdep_assert_held(&req->ctx->completion_lock);
- 
-@@ -4671,7 +4686,7 @@ static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	io_poll_remove_double(req, req->io);
-+	io_poll_remove_double(req);
- 	req->poll.done = true;
- 	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
- 	io_commit_cqring(ctx);
-@@ -4711,7 +4726,7 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
- 			       int sync, void *key)
- {
- 	struct io_kiocb *req = wait->private;
--	struct io_poll_iocb *poll = req->apoll->double_poll;
-+	struct io_poll_iocb *poll = io_poll_get_single(req);
- 	__poll_t mask = key_to_poll(key);
- 
- 	/* for instances that support it check for an event match first: */
-@@ -4725,6 +4740,8 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
- 		done = list_empty(&poll->wait.entry);
- 		if (!done)
- 			list_del_init(&poll->wait.entry);
-+		/* make sure double remove sees this as being gone */
-+		wait->private = NULL;
- 		spin_unlock(&poll->head->lock);
- 		if (!done)
- 			__io_async_wake(req, poll, mask, io_poll_task_func);
-@@ -4808,7 +4825,7 @@ static void io_async_task_func(struct callback_head *cb)
- 	if (hash_hashed(&req->hash_node))
- 		hash_del(&req->hash_node);
- 
--	io_poll_remove_double(req, apoll->double_poll);
-+	io_poll_remove_double(req);
- 	spin_unlock_irq(&ctx->completion_lock);
- 
- 	if (!READ_ONCE(apoll->poll.canceled))
-@@ -4919,7 +4936,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
- 					io_async_wake);
- 	if (ret || ipt.error) {
--		io_poll_remove_double(req, apoll->double_poll);
-+		io_poll_remove_double(req);
- 		spin_unlock_irq(&ctx->completion_lock);
- 		kfree(apoll->double_poll);
- 		kfree(apoll);
-@@ -4951,14 +4968,13 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- {
- 	bool do_complete;
- 
-+	io_poll_remove_double(req);
-+
- 	if (req->opcode == IORING_OP_POLL_ADD) {
--		io_poll_remove_double(req, req->io);
- 		do_complete = __io_poll_remove_one(req, &req->poll);
- 	} else {
- 		struct async_poll *apoll = req->apoll;
- 
--		io_poll_remove_double(req, apoll->double_poll);
--
- 		/* non-poll requests have submit ref still */
- 		do_complete = __io_poll_remove_one(req, &apoll->poll);
- 		if (do_complete) {
--- 
-2.28.0
+but task is already holding lock:
+ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up_common_lock kernel/sched/wait.c:122 [inline]
+ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up+0xb8/0x150 kernel/sched/wait.c:142
 
--- 
-Jens Axboe
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&tty->write_wait);
+  lock(&tty->write_wait);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+4 locks held by syz-executor639/6830:
+ #0: ffff8880a6bc5098 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x21/0x70 drivers/tty/tty_ldisc.c:267
+ #1: ffff8880a6bc52e8 (&tty->termios_rwsem){++++}-{3:3}, at: tty_set_termios+0xc5/0x1510 drivers/tty/tty_ioctl.c:328
+ #2: ffff8880a6bc5098 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref+0x18/0x80 drivers/tty/tty_ldisc.c:288
+ #3: ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up_common_lock kernel/sched/wait.c:122 [inline]
+ #3: ffff8880a6bc5530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up+0xb8/0x150 kernel/sched/wait.c:142
+
+stack backtrace:
+CPU: 0 PID: 6830 Comm: syz-executor639 Not tainted 5.8.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1f0/0x31e lib/dump_stack.c:118
+ print_deadlock_bug kernel/locking/lockdep.c:2391 [inline]
+ check_deadlock kernel/locking/lockdep.c:2432 [inline]
+ validate_chain+0x69a4/0x88a0 kernel/locking/lockdep.c:3202
+ __lock_acquire+0x1161/0x2ab0 kernel/locking/lockdep.c:4426
+ lock_acquire+0x160/0x730 kernel/locking/lockdep.c:5005
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
+ spin_lock include/linux/spinlock.h:354 [inline]
+ io_poll_double_wake+0x108/0x360 fs/io_uring.c:4599
+ __wake_up_common+0x30a/0x4e0 kernel/sched/wait.c:93
+ __wake_up_common_lock kernel/sched/wait.c:123 [inline]
+ __wake_up+0xd4/0x150 kernel/sched/wait.c:142
+ n_tty_set_termios+0xa60/0x1080 drivers/tty/n_tty.c:1874
+ tty_set_termios+0xcac/0x1510 drivers/tty/tty_ioctl.c:341
+ set_termios+0x4a1/0x580 drivers/tty/tty_ioctl.c:414
+ tty_mode_ioctl+0x7b2/0xa80 drivers/tty/tty_ioctl.c:770
+ tty_ioctl+0xf81/0x15c0 drivers/tty/tty_io.c:2665
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x4405b9
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffdae6bfd28 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00000000004405b9
+RDX: 0000000020000000 RSI: 0000000000005404 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000401e20
+R13: 0000000000401eb0 R14: 0000000000000000 R15: 0000000000000000
 

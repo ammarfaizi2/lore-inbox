@@ -2,136 +2,147 @@ Return-Path: <SRS0=PDRo=BZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 431BEC433E3
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41C04C433E1
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 220FB2053B
-	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Mf/a2wpU"
+	by mail.kernel.org (Postfix) with ESMTP id 284A6206B6
+	for <io-uring@archiver.kernel.org>; Sat, 15 Aug 2020 21:56:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729036AbgHOVwN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 15 Aug 2020 17:52:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
+        id S1726587AbgHOV4c (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 15 Aug 2020 17:56:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728998AbgHOVwI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:52:08 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61905C09B042
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 08:12:18 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id i92so6518421pje.0
-        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 08:12:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=axupiLoVzvsjPFb5imUaqcJ2MpbZV9xAGepnN4tXK2Q=;
-        b=Mf/a2wpUSMB+HK5kR4QFE/R0txdQ3Ig9Pp+xzr5M0tn+mi+9H348447ff7bXugmnX3
-         DZprioxdKmczoY5uUwYOL1ff4BbGkeRuar1qWa274a4uUQ2e9n7sxFDkCA/s/JLwGPKr
-         UED90xc51vuUlAR0YSGyMZG48lNxNYPEHcKU1vSDlxVF+I145ZpcwfBrKMsHVhN+4BWy
-         4Zaon5QbRq7xsmDgU7aOG2B8mR/161djMf+OJ8zrk5TL1DulV/QZvYPcCk1jt0NePtQ1
-         2qTwV/Z5cpKfS12f1/hzRS6S/De2VONJmJJA8yItaYq8ReTI4dysAtSGVwfkMfF/CaLE
-         zs4g==
+        with ESMTP id S1729033AbgHOVwN (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 15 Aug 2020 17:52:13 -0400
+Received: from mail-il1-x145.google.com (mail-il1-x145.google.com [IPv6:2607:f8b0:4864:20::145])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E3E0C0F26E9
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:09:18 -0700 (PDT)
+Received: by mail-il1-x145.google.com with SMTP id k8so5081407ili.21
+        for <io-uring@vger.kernel.org>; Sat, 15 Aug 2020 11:09:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=axupiLoVzvsjPFb5imUaqcJ2MpbZV9xAGepnN4tXK2Q=;
-        b=hac3VBSzms90Z+iy4JxrvBmHTb4ceIOLVSHOBR1o2N5jSN1GjVZZcrbiUTBB4l+6ot
-         BdnFitbyQz4ubjaxeQgMr4cUp3h6/dmaX9RTPcgeMKk36fXqLIrLOqUp8Ldih0m19WJO
-         F35rAkyq6fYa5R8MtEz6HVT0das8YVp7++QCkMLd94edauGYNwyN3g8A+6DxefiRmvwl
-         6X2wPOAjmSpze6oKkDkLs/QhpjNWZfUbBMpDQ8ut4wDZaqFkcVv+HsZZBixqrUR+mST6
-         VifMll1CX9SP4LXqvGWdOnQqEjWsqCvUcwY+X+HluG34RPW8Cs+Ha+2T2VALwrjEVspg
-         wliQ==
-X-Gm-Message-State: AOAM532HdpTZ5uvjzjATJomE+aG9siWLQ/teml7Ts3T5ig2yUqKZ160K
-        0JDfje7SMqwKZWuzwumLwVpG9w==
-X-Google-Smtp-Source: ABdhPJwOrD99UiW/rZbnQFjqMcBpDHsuY1xHB6/Ysn0qhidykBW4uBgIZORytN0uw3HRZPXOtc45LA==
-X-Received: by 2002:a17:902:744c:: with SMTP id e12mr5759365plt.38.1597504337679;
-        Sat, 15 Aug 2020 08:12:17 -0700 (PDT)
-Received: from ?IPv6:2605:e000:100e:8c61:6299:2df1:e468:6351? ([2605:e000:100e:8c61:6299:2df1:e468:6351])
-        by smtp.gmail.com with ESMTPSA id i14sm1305141pfu.50.2020.08.15.08.12.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 15 Aug 2020 08:12:17 -0700 (PDT)
-Subject: Re: io_uring process termination/killing is not working
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Josef <josef.grieb@gmail.com>, io-uring@vger.kernel.org
-Cc:     norman@apache.org
-References: <CAAss7+pf+CGQiSDM8_fhsHRwjWUxESPcJMhOOsDOitqePQxCrg@mail.gmail.com>
- <dc3562d8-dc67-c623-36ee-38885b4c1682@kernel.dk>
- <8e734ada-7f28-22df-5f30-027aca3695d1@gmail.com>
- <5fa9e01f-137d-b0f8-211a-975c7ed56419@gmail.com>
- <d0d1f797-c958-ac17-1f11-96f6ba6dbf37@gmail.com>
- <d0621b79-4277-a9ad-208e-b60153c08d15@kernel.dk>
- <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <d06c7f29-726b-d46a-8c51-0dc47ef374ad@kernel.dk>
-Date:   Sat, 15 Aug 2020 08:12:15 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=unqY6YUA6dN15yzdjEHwLUsw603J7sn/Dlnt+ztMhZk=;
+        b=BzzAxLqK4aleMkYITIKN4JIDc+KRcqSqq0HVjUsZIZKtD1Az5GKa935zZNpg+vJibx
+         Mi9EBIIqEYWdRTUnvlNTZVGkknwDfOLdWsBpIdzBwlG+aoroV+qEjWromfndphqR40wg
+         auPFh7MYnVzUtZnSAMm7nOQKba0720lbNfjz5jx5knioyqWKObGgd+XtkZozqCoAXkfE
+         cvXymtq9u9Rv0hgbWtYY/8NPBDXr6us5mbCvG1/0UllLqStalBlQzeuV3oN0N+69RB9R
+         SPR7/7BOiWzOdAk0ujMKI1LmDdjmTHZUky22KklJSieClOgPol8Dq97rOW1Y0hZBU5Pa
+         kFfw==
+X-Gm-Message-State: AOAM5315kwYGnmMN/GlOwcBosaPfWO2T6XttK7hJPwUKpnzdu0LwvCKs
+        W24dzzmsuvb0ZzRdsaHwibS+SveV1tI8X0r9FKnKhHwzIki/
+X-Google-Smtp-Source: ABdhPJyo0N5X3Rr63x6KSCF9oemLGrgNQNTncv3rJKuvDN2i4ehbpeDid+q3ScpJ7466Pv+uSxM9s3V5J1KUjpfsGtCJJtdgE45x
 MIME-Version: 1.0
-In-Reply-To: <bb45665c-1311-807d-5a03-459cf3cbd103@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a92:bf0c:: with SMTP id z12mr7149150ilh.151.1597514957600;
+ Sat, 15 Aug 2020 11:09:17 -0700 (PDT)
+Date:   Sat, 15 Aug 2020 11:09:17 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000923cee05acee6f61@google.com>
+Subject: possible deadlock in io_poll_double_wake
+From:   syzbot <syzbot+0d56cfeec64f045baffc@syzkaller.appspotmail.com>
+To:     axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/15/20 12:45 AM, Pavel Begunkov wrote:
-> On 13/08/2020 02:32, Jens Axboe wrote:
->> On 8/12/20 12:28 PM, Pavel Begunkov wrote:
->>> On 12/08/2020 21:22, Pavel Begunkov wrote:
->>>> On 12/08/2020 21:20, Pavel Begunkov wrote:
->>>>> On 12/08/2020 21:05, Jens Axboe wrote:
->>>>>> On 8/12/20 11:58 AM, Josef wrote:
->>>>>>> Hi,
->>>>>>>
->>>>>>> I have a weird issue on kernel 5.8.0/5.8.1, SIGINT even SIGKILL
->>>>>>> doesn't work to kill this process(always state D or D+), literally I
->>>>>>> have to terminate my VM because even the kernel can't kill the process
->>>>>>> and no issue on 5.7.12-201, however if IOSQE_IO_LINK is not set, it
->>>>>>> works
->>>>>>>
->>>>>>> I've attached a file to reproduce it
->>>>>>> or here
->>>>>>> https://gist.github.com/1Jo1/15cb3c63439d0c08e3589cfa98418b2c
->>>>>>
->>>>>> Thanks, I'll take a look at this. It's stuck in uninterruptible
->>>>>> state, which is why you can't kill it.
->>>>>
->>>>> It looks like one of the hangs I've been talking about a few days ago,
->>>>> an accept is inflight but can't be found by cancel_files() because it's
->>>>> in a link.
->>>>
->>>> BTW, I described it a month ago, there were more details.
->>>
->>> https://lore.kernel.org/io-uring/34eb5e5a-8d37-0cae-be6c-c6ac4d85b5d4@gmail.com
->>
->> Yeah I think you're right. How about something like the below? That'll
->> potentially cancel more than just the one we're looking for, but seems
->> kind of silly to only cancel from the file table holding request and to
->> the end.
-> 
-> The bug is not poll/t-out related, IIRC my test reproduces it with
-> read(pipe)->open(). See the previously sent link.
+Hello,
 
-Right, but in this context for poll, I just mean any request that has a
-poll handler armed. Not necessarily only a pure poll. The patch should
-fix your case, too.
+syzbot found the following issue on:
 
-> As mentioned, I'm going to patch that up, if you won't beat me on that.
+HEAD commit:    c9c9735c Merge tag 'scsi-misc' of git://git.kernel.org/pub..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=127399f6900000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=adea84f38e7bc8d
+dashboard link: https://syzkaller.appspot.com/bug?extid=0d56cfeec64f045baffc
+compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
 
-Please test and send a fix if you find something! I'm going to ship what
-I have this weekend, but we can always add a fix on top if we need
-anything.
+Unfortunately, I don't have any reproducer for this issue yet.
 
--- 
-Jens Axboe
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0d56cfeec64f045baffc@syzkaller.appspotmail.com
 
+============================================
+WARNING: possible recursive locking detected
+5.8.0-syzkaller #0 Not tainted
+--------------------------------------------
+syz-executor.1/9155 is trying to acquire lock:
+ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
+ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: io_poll_double_wake+0x108/0x360 fs/io_uring.c:4599
+
+but task is already holding lock:
+ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up_common_lock kernel/sched/wait.c:122 [inline]
+ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up+0xb8/0x150 kernel/sched/wait.c:142
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&tty->write_wait);
+  lock(&tty->write_wait);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+4 locks held by syz-executor.1/9155:
+ #0: ffff8880a1fcc098 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x21/0x70 drivers/tty/tty_ldisc.c:267
+ #1: ffff8880a1fcc2e8 (&tty->termios_rwsem){++++}-{3:3}, at: tty_set_termios+0xc5/0x1510 drivers/tty/tty_ioctl.c:328
+ #2: ffff8880a1fcc098 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref+0x18/0x80 drivers/tty/tty_ldisc.c:288
+ #3: ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up_common_lock kernel/sched/wait.c:122 [inline]
+ #3: ffff8880a1fcc530 (&tty->write_wait){-.-.}-{2:2}, at: __wake_up+0xb8/0x150 kernel/sched/wait.c:142
+
+stack backtrace:
+CPU: 0 PID: 9155 Comm: syz-executor.1 Not tainted 5.8.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1f0/0x31e lib/dump_stack.c:118
+ print_deadlock_bug kernel/locking/lockdep.c:2391 [inline]
+ check_deadlock kernel/locking/lockdep.c:2432 [inline]
+ validate_chain+0x69a4/0x88a0 kernel/locking/lockdep.c:3202
+ __lock_acquire+0x1161/0x2ab0 kernel/locking/lockdep.c:4426
+ lock_acquire+0x160/0x730 kernel/locking/lockdep.c:5005
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
+ spin_lock include/linux/spinlock.h:354 [inline]
+ io_poll_double_wake+0x108/0x360 fs/io_uring.c:4599
+ __wake_up_common+0x30a/0x4e0 kernel/sched/wait.c:93
+ __wake_up_common_lock kernel/sched/wait.c:123 [inline]
+ __wake_up+0xd4/0x150 kernel/sched/wait.c:142
+ n_tty_set_termios+0xa60/0x1080 drivers/tty/n_tty.c:1874
+ tty_set_termios+0xcac/0x1510 drivers/tty/tty_ioctl.c:341
+ set_termios+0x4a1/0x580 drivers/tty/tty_ioctl.c:414
+ tty_mode_ioctl+0x7b2/0xa80 drivers/tty/tty_ioctl.c:770
+ tty_ioctl+0xf81/0x15c0 drivers/tty/tty_io.c:2665
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45d239
+Code: 5d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f063db5fc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000017cc0 RCX: 000000000045d239
+RDX: 0000000020000000 RSI: 0000000000005404 RDI: 0000000000000003
+RBP: 000000000118cf80 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cf4c
+R13: 00007ffc7ff6341f R14: 00007f063db609c0 R15: 000000000118cf4c
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

@@ -2,165 +2,68 @@ Return-Path: <SRS0=xRDk=B2=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFDACC433DF
-	for <io-uring@archiver.kernel.org>; Sun, 16 Aug 2020 18:01:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D13DC433E1
+	for <io-uring@archiver.kernel.org>; Sun, 16 Aug 2020 18:02:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0EFB20674
-	for <io-uring@archiver.kernel.org>; Sun, 16 Aug 2020 18:01:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="G3Ljv1lG"
+	by mail.kernel.org (Postfix) with ESMTP id EA49D20674
+	for <io-uring@archiver.kernel.org>; Sun, 16 Aug 2020 18:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1597600930;
+	bh=oDHpnhiCVU4fwXJGrQozV6xTg5w0F66Ducy5HkCWjPo=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=htJ+j8wKF3kVE5ovHlNWT8+eVYWXTAgS8Z0rTSp5HwuEVF8NoDfSVi6Yh3CDupKc1
+	 BX8FG1GBJ1DCDvl+8c+X0G8wHWBtM8fM8TzIS915Mdw3YuVK3Z3lLgAUVCMxZuUf28
+	 kMkoXaNWUpGjBh8UKriRuCdVI4NuMP8ucRZZxt6o=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbgHPSBR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 16 Aug 2020 14:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726699AbgHPSBK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 16 Aug 2020 14:01:10 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E99C6C061786
-        for <io-uring@vger.kernel.org>; Sun, 16 Aug 2020 11:01:09 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id i92so6977348pje.0
-        for <io-uring@vger.kernel.org>; Sun, 16 Aug 2020 11:01:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=oKfrynH+Hm+mLsoqP6uWcUvSwKOt12FuIjlY+T2+81U=;
-        b=G3Ljv1lGk2ogZCs8XEjVkIl7Km8J3c4IreckGq7mpBhon15kqLVlIwEJ1ZrvIX/hp+
-         yXD8ggfZX+gaUuZRGky94zRrFlzju6ZpkLoI46HKSb1xsCpEo4GOn2WTCxBqIsuKM13z
-         c+BTre72KfyEEsCL/3wcVMLMJrgoMIImaWHgtnsEc1bdpsJrzXqXbkYlMOcSBeShMRG6
-         34aoYUVIfTvy6sfFQay1ilEQM0nXtJ9XfawNsVz8GJJKMThcRZm0QS3NgMn4CUrjNSr0
-         otN/TarNRuHINEEaGgrWM/dWWs+gaEc2+9GQqVV7+sUjxsDnpp6Psn+2/HZZv4A8QT4c
-         tXfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=oKfrynH+Hm+mLsoqP6uWcUvSwKOt12FuIjlY+T2+81U=;
-        b=TKYIBPy9KDz93gn/WCFZAWGVtaw8gIM7j8PBLb5G9uLue0NMtDMU5mHQ3oFVAOyHyP
-         BUEKLv1E2AzQFO+zMGCMOLR/TYjbImmbwD+1ebgaYFEJ7b4DGa0/F9YdISpM8s8eZPyr
-         V0xhLxbm/Rv2jjrdLXyY6c+iL2MyXXkwsLgE6TUGEoH6qlbl90TPNAPMCPlg1/dEp+s+
-         5v5F/KgUw+bNZKHAUhcLd2LqoWuqR86TB/27aKUo565qSclGRQRyrLVVaqOqZNbOhwDg
-         uIsGftvr1SE8WFnAgImLJRcRgb80aBST67cy8YiRD6op3GnRsrZRcWin42MwXJpW7Um/
-         diEA==
-X-Gm-Message-State: AOAM530sKo+lHvLiVKopz65WWmN5EPkr2v0sPHSwye5YcSBjyrpaDrj+
-        OFewfMArLOqycJ9r8D5y6/CMcWqiEXSKFA==
-X-Google-Smtp-Source: ABdhPJzsbqY9w9U/+v8slF8s2y22J86LGTj/H/y+LUw0qpv3RWFj1ofCVlnxJ2UE2aourtlCXib2Ig==
-X-Received: by 2002:a17:90b:4a4e:: with SMTP id lb14mr9718806pjb.228.1597600868800;
-        Sun, 16 Aug 2020 11:01:08 -0700 (PDT)
-Received: from ?IPv6:2605:e000:100e:8c61:80d9:87c:7a0f:8256? ([2605:e000:100e:8c61:80d9:87c:7a0f:8256])
-        by smtp.gmail.com with ESMTPSA id r15sm16912942pfq.189.2020.08.16.11.01.07
-        for <io-uring@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 16 Aug 2020 11:01:08 -0700 (PDT)
-To:     io-uring <io-uring@vger.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: get rid of kiocb_wait_page_queue_init()
-Message-ID: <9112b60f-c2ac-b40d-bb26-743fdc4fd434@kernel.dk>
-Date:   Sun, 16 Aug 2020 11:01:06 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726949AbgHPSCJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 16 Aug 2020 14:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57174 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726699AbgHPSCH (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Sun, 16 Aug 2020 14:02:07 -0400
+Subject: Re: [GIT PULL] Final io_uring changes for 5.9-rc1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597600927;
+        bh=oDHpnhiCVU4fwXJGrQozV6xTg5w0F66Ducy5HkCWjPo=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=dix51MOkZD62plMejkN8nxE7naT7N/QdEuexG0l/8PAEHf9ySsz3F7noZiTI76sSp
+         bfKNd3IhIigvr1IsPWVXJKiUt3TtxP0hzkw3ysuxR3ydc/HsmBYMGj9U+XTJcoo90t
+         a+uOgCCMeeruXFmwRu94LkDldOGjPmnX3auEXK4s=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <32d4a5ea-514f-cb79-94ff-83b0c4e1d47b@kernel.dk>
+References: <32d4a5ea-514f-cb79-94ff-83b0c4e1d47b@kernel.dk>
+X-PR-Tracked-List-Id: <io-uring.vger.kernel.org>
+X-PR-Tracked-Message-Id: <32d4a5ea-514f-cb79-94ff-83b0c4e1d47b@kernel.dk>
+X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/io_uring-5.9-2020-08-15
+X-PR-Tracked-Commit-Id: f91daf565b0e272a33bd3fcd19eaebd331c5cffd
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 2cc3c4b3c2e9c99e90aaf19cd801ff2c160f283c
+Message-Id: <159760092747.23276.15418199202357287216.pr-tracker-bot@kernel.org>
+Date:   Sun, 16 Aug 2020 18:02:07 +0000
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The 5.9 merge moved this function io_uring, which means that we don't
-need to retain the generic nature of it. Clean up this part by removing
-redundant checks, and just inlining the small remainder in
-io_rw_should_retry().
+The pull request you sent on Sun, 16 Aug 2020 05:22:09 -0700:
 
-No functional changes in this patch.
+> git://git.kernel.dk/linux-block.git tags/io_uring-5.9-2020-08-15
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/2cc3c4b3c2e9c99e90aaf19cd801ff2c160f283c
 
----
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 346a3eb84785..4b102d9ad846 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3074,27 +3074,6 @@ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
- 	return 1;
- }
- 
--static inline int kiocb_wait_page_queue_init(struct kiocb *kiocb,
--					     struct wait_page_queue *wait,
--					     wait_queue_func_t func,
--					     void *data)
--{
--	/* Can't support async wakeup with polled IO */
--	if (kiocb->ki_flags & IOCB_HIPRI)
--		return -EINVAL;
--	if (kiocb->ki_filp->f_mode & FMODE_BUF_RASYNC) {
--		wait->wait.func = func;
--		wait->wait.private = data;
--		wait->wait.flags = 0;
--		INIT_LIST_HEAD(&wait->wait.entry);
--		kiocb->ki_flags |= IOCB_WAITQ;
--		kiocb->ki_waitq = wait;
--		return 0;
--	}
--
--	return -EOPNOTSUPP;
--}
--
- /*
-  * This controls whether a given IO request should be armed for async page
-  * based retry. If we return false here, the request is handed to the async
-@@ -3109,16 +3088,17 @@ static inline int kiocb_wait_page_queue_init(struct kiocb *kiocb,
-  */
- static bool io_rw_should_retry(struct io_kiocb *req)
- {
-+	struct wait_page_queue *wait = &req->io->rw.wpq;
- 	struct kiocb *kiocb = &req->rw.kiocb;
--	int ret;
- 
- 	/* never retry for NOWAIT, we just complete with -EAGAIN */
- 	if (req->flags & REQ_F_NOWAIT)
- 		return false;
- 
- 	/* Only for buffered IO */
--	if (kiocb->ki_flags & IOCB_DIRECT)
-+	if (kiocb->ki_flags & (IOCB_DIRECT | IOCB_HIPRI))
- 		return false;
-+
- 	/*
- 	 * just use poll if we can, and don't attempt if the fs doesn't
- 	 * support callback based unlocks
-@@ -3126,14 +3106,15 @@ static bool io_rw_should_retry(struct io_kiocb *req)
- 	if (file_can_poll(req->file) || !(req->file->f_mode & FMODE_BUF_RASYNC))
- 		return false;
- 
--	ret = kiocb_wait_page_queue_init(kiocb, &req->io->rw.wpq,
--						io_async_buf_func, req);
--	if (!ret) {
--		io_get_req_task(req);
--		return true;
--	}
-+	wait->wait.func = io_async_buf_func;
-+	wait->wait.private = req;
-+	wait->wait.flags = 0;
-+	INIT_LIST_HEAD(&wait->wait.entry);
-+	kiocb->ki_flags |= IOCB_WAITQ;
-+	kiocb->ki_waitq = wait;
- 
--	return false;
-+	io_get_req_task(req);
-+	return true;
- }
- 
- static int io_iter_do_read(struct io_kiocb *req, struct iov_iter *iter)
+Thank you!
 
 -- 
-Jens Axboe
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html

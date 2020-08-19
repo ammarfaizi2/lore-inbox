@@ -2,85 +2,83 @@ Return-Path: <SRS0=uv1X=B5=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A992C433E1
-	for <io-uring@archiver.kernel.org>; Wed, 19 Aug 2020 12:49:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7535C433DF
+	for <io-uring@archiver.kernel.org>; Wed, 19 Aug 2020 13:23:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 74C71206B5
-	for <io-uring@archiver.kernel.org>; Wed, 19 Aug 2020 12:49:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2693205CB
+	for <io-uring@archiver.kernel.org>; Wed, 19 Aug 2020 13:23:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="aHM24PWp"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="NDiJILio"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbgHSMtG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 19 Aug 2020 08:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34546 "EHLO
+        id S1728192AbgHSNXH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 19 Aug 2020 09:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728361AbgHSMtC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 19 Aug 2020 08:49:02 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6230C061757
-        for <io-uring@vger.kernel.org>; Wed, 19 Aug 2020 05:49:01 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id r11so11620690pfl.11
-        for <io-uring@vger.kernel.org>; Wed, 19 Aug 2020 05:49:01 -0700 (PDT)
+        with ESMTP id S1727987AbgHSNSy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 19 Aug 2020 09:18:54 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39742C06134F
+        for <io-uring@vger.kernel.org>; Wed, 19 Aug 2020 06:18:15 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id t11so10814445plr.5
+        for <io-uring@vger.kernel.org>; Wed, 19 Aug 2020 06:18:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=S3U6q3yjc5fHGYE0wMX79t0QFPOSQxmM3tunXfU+Ycc=;
-        b=aHM24PWp9CxI/x5OorG9nK6teX/yuHGfBzb+B3z+1bLCbPm5Qn+HFYSCzUMUsReMW9
-         GvGsTw8zmjcP0hvJ2G7A973hXM3uy4YuLUAxFb8aBVMiF2wxfGoIemb0nO2HdybxNBaa
-         HuMXN7aAq6l870aLRraeH8YDD3EcGEzNlytHYHBfj+Xk93vbltDxCt33yYDB53tw4SXY
-         gBWehiHk16iitG/iP0GIN4Cs6/L2KoKHcIXYOYQYA68P0yRZzzLTbLrIuQS1C+QvlcJG
-         S6gIvIOac4l8LwCWWtaQW08X8lrqyIAhxDcvu6Huw0clJ/PzhIBaVQRDGYBjuHh6bSOI
-         Qo5A==
+        bh=EmsrMsejrteUQOaXizHGkEi5KXQjT4dl2svL7ypPlBc=;
+        b=NDiJILiosqIAscQE8wZykt6DbpS7YBnnC+G3dZiskRWDg56ceYJOsQGdMhN8aJ4v1s
+         eHtvgj/ZL8A6RoCJXjYGmEYhfXmChtBRxTJh+UMFZz0aeP1OXPlfuYqfHga4NDkZFxL0
+         GBL7tBDtP5vCG5nmKKHK5L/WJ0VcgLapSq4BYLtZ4LVj/FCx3VTQN9zaDe7EFZbvc8Mz
+         SMwVHM8sTcJNWruEnCVdBaUOPDvmnwYyRYSPbTKMq5/90/nz+ym7LR/rfGTQorWOlkh+
+         H3m+gUJTPN9DK1nksrYMnmY9YKoE7PsnMs5/zysG/SoRwSZ8WVfHvXoajcrNEtAu0F+7
+         +pTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=S3U6q3yjc5fHGYE0wMX79t0QFPOSQxmM3tunXfU+Ycc=;
-        b=FY/PSQxYHCQWWhRwMkkwCMWxT0HqQdfTEa4nShJgnBRA8aBH8btZ0oTbN6XuiGzmH1
-         76IubVq2KaH9oZtQM1WT1P6vhvWUb/Ix+OBmzbzHy2Iu9uEanhi9+r4mtrTDIR8tyfae
-         RMzRShrAtYhgChap0LUpSJdl6FCbjusGOn91vHeekeRLhPueW5Q/A4P0+NHk7N7srWf9
-         0ECTryniv9l1wlB+Y573VDUtyFEPxMXyuSPc4bsoWTV1FKMvzh2v+Tl+p5Hwi8LNIRGD
-         iR94iulc3zZM/N74SX6YZXpdQMTx654OoYQaj1LZFo7wT+lUV/Ni//H+FUnWVS4YgZCM
-         Opnw==
-X-Gm-Message-State: AOAM5331V1/R4Mz3G82Fbx8l9ICnxQPZID0sa4d5L+D0DkgUAijzoMYp
-        kj/BOLMbZQGpFJXOoZANV9hJb23SZe8byQjG
-X-Google-Smtp-Source: ABdhPJwHAoePUoscwlAh2dPm5jptF70LU873InZKJfXmrYV1QJU2ZKWa3kD0arxVytC9i8CaIe/+LA==
-X-Received: by 2002:a63:4e56:: with SMTP id o22mr15992294pgl.381.1597841341029;
-        Wed, 19 Aug 2020 05:49:01 -0700 (PDT)
+        bh=EmsrMsejrteUQOaXizHGkEi5KXQjT4dl2svL7ypPlBc=;
+        b=ol4FbufKo45YNqjtqeQw0kt2K52vbTM18Xdl9LAemOeg24HcCw1Z99L3K4BtAGMhev
+         uBgaUxu9rMBMvgxQU5Fqf4HsDxC4IenvU+v1e+b+jq9rW7dSaQA4wvctdk6Sd0jdhGKE
+         FIJzbNsE6N2eJ8PzcWwvzvXHx7PL7GWhvA3wHG/2n8Dr6q8Ge2lzZXPnTmhbRPE4mocE
+         5PXl/KNli22XjyJLLS2+nQ62TIz8c0feRTeirJvZXNDTFU5vzVp6VXUDLZEFUdRZdvXU
+         DST5O4Vi1dN1sGvIfJpyzMH1FU8lADBBPhiZColxLsBIFuKdlaIyO++gCaTCHryKH33b
+         iFjA==
+X-Gm-Message-State: AOAM533evE9cKZHBB0gMy396q7VLcp5895OVc5SUSf7kMC2QLo6wcwp3
+        Pf8m6+cTJOzCiBrViYg6wSwlvw==
+X-Google-Smtp-Source: ABdhPJyNNi7hvHginyDtQT0al1nbw/1nudCMk8Buqpi5CRRYPre01hagxHuWYAwWwaYdZCciL1m4xg==
+X-Received: by 2002:a17:90a:630c:: with SMTP id e12mr3989898pjj.17.1597843094764;
+        Wed, 19 Aug 2020 06:18:14 -0700 (PDT)
 Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id x28sm28753155pfq.141.2020.08.19.05.48.59
+        by smtp.gmail.com with ESMTPSA id l22sm3010080pjy.31.2020.08.19.06.18.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2020 05:49:00 -0700 (PDT)
-Subject: Re: [PATCHSET v2 0/2] io_uring: handle short reads internally
-To:     Stefan Metzmacher <metze@samba.org>,
-        Anoop C S <anoopcs@cryptolab.net>
-Cc:     david@fromorbit.com, jmoyer@redhat.com, io-uring@vger.kernel.org
-References: <20200814195449.533153-1-axboe@kernel.dk>
- <4c79f6b2-552c-f404-8298-33beaceb9768@samba.org>
- <8beb2687-5cc3-a76a-0f31-dcfa9fc4b84b@kernel.dk>
- <97c2c3ab-d25b-e6bb-e8aa-a551edecc7b5@kernel.dk>
- <e22220a8-669a-d302-f454-03a35c9582b4@kernel.dk>
- <5f6d3f16-cd0c-9598-4484-6003101eb47a@samba.org>
- <db051fac-da0f-9546-2c32-1756d9e74529@kernel.dk>
- <631dbeff8926dbef4fec5a12281843c8a66565e5.camel@cryptolab.net>
- <4ffd97f6-848d-69ff-f76c-2197abbd5e6d@kernel.dk>
- <d9bec86b-50a3-5dbd-ce67-84eebae1dbbc@kernel.dk>
- <ad6cd95adb2e7622860fd9a80c19e48230ae2747.camel@cryptolab.net>
- <d45cd537-187d-be96-ac3a-f8375fd893f5@samba.org>
+        Wed, 19 Aug 2020 06:18:14 -0700 (PDT)
+Subject: Re: [RFC PATCH] sched: Invoke io_wq_worker_sleeping() with enabled
+ preemption
+To:     peterz@infradead.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+References: <20200819123758.6v45rj2gvojddsnn@linutronix.de>
+ <20200819131507.GC2674@hirez.programming.kicks-ass.net>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <49aa35e5-347c-c1aa-a4d3-7dce328ea2b1@kernel.dk>
-Date:   Wed, 19 Aug 2020 06:48:58 -0600
+Message-ID: <f26205ac-9da9-253e-ea43-db2417714a94@kernel.dk>
+Date:   Wed, 19 Aug 2020 07:18:12 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <d45cd537-187d-be96-ac3a-f8375fd893f5@samba.org>
+In-Reply-To: <20200819131507.GC2674@hirez.programming.kicks-ass.net>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -89,44 +87,62 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/19/20 1:31 AM, Stefan Metzmacher wrote:
-> Hi Anoop,
+On 8/19/20 6:15 AM, peterz@infradead.org wrote:
+> On Wed, Aug 19, 2020 at 02:37:58PM +0200, Sebastian Andrzej Siewior wrote:
 > 
->> @metze,
->>
->> Looks like issue is fixed with patched version of v5.7.15. For the
->> record I am noting down the steps followed:
->>
->> Following is my configuration:
->> OS: Fedora 32
->> Kernel: 5.7.15 [5.7.15-200]
->>         5.7.15+patches from 5.7-stable branch [5.7.15-202]
->> Samba: 4.12.6 [4.12.6-0]
->>        4.12.6+git reverts for vfs_io_uring [4.12.6-1]
->> liburing: 0.7
->> Client: Win 10, build 1909
->> Issue: SHA256 mismatch on files copied from io_uring enabled Samba
->>        share using Windows explorer
->>
->> * Issue not seen with unpatched 5.7.15 and samba-4.12.6
->>
->> * prepared samba-4.12.6 build[1] with reverts(see attachment) for
->> vfs_io_uring(as per https://bugzilla.samba.org/show_bug.cgi?id=14361)
->> and reproduced issue with unpatched 5.7.15.
->>
->> * prepared kernel-5.7.15 build[2] with extra commits(see attachment) as
->> per 5.7-stable branch from git://git.kernel.dk/linux-block. SHA256
->> mismatch is no longer seen.
->>
->> [1] https://koji.fedoraproject.org/koji/taskinfo?taskID=49539069
->> [2] https://koji.fedoraproject.org/koji/taskinfo?taskID=49585679
+>> I don't see a significant reason why this lock should become a
+>> raw_spinlock_t therefore I suggest to move it after the
+>> tsk_is_pi_blocked() check.
 > 
-> Great, thanks!
+>> Any feedback on this vs raw_spinlock_t?
+>>
+>> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+>> ---
+>>  fs/io-wq.c          |  8 ++++----
+>>  kernel/sched/core.c | 10 +++++-----
+>>  2 files changed, 9 insertions(+), 9 deletions(-)
+>>
+> 
+>> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+>> index 3bbb60b97c73c..b76c0f27bd95e 100644
+>> --- a/kernel/sched/core.c
+>> +++ b/kernel/sched/core.c
+>> @@ -4694,18 +4694,18 @@ static inline void sched_submit_work(struct task_struct *tsk)
+>>  	 * in the possible wakeup of a kworker and because wq_worker_sleeping()
+>>  	 * requires it.
+>>  	 */
+>> -	if (tsk->flags & (PF_WQ_WORKER | PF_IO_WORKER)) {
+>> +	if (tsk->flags & PF_WQ_WORKER) {
+>>  		preempt_disable();
+>> -		if (tsk->flags & PF_WQ_WORKER)
+>> -			wq_worker_sleeping(tsk);
+>> -		else
+>> -			io_wq_worker_sleeping(tsk);
+>> +		wq_worker_sleeping(tsk);
+>>  		preempt_enable_no_resched();
+>>  	}
+>>  
+>>  	if (tsk_is_pi_blocked(tsk))
+>>  		return;
+>>  
+>> +	if (tsk->flags & PF_IO_WORKER)
+>> +		io_wq_worker_sleeping(tsk);
+>> +
+> 
+> Urgh, so this adds a branch in what is normally considered a fairly hot
+> path.
+>
+> 
+> I'm thinking that the raw_spinlock_t option would permit leaving that
+> single:
+> 
+> 	if (tsk->flags & (PF_WQ_WORKER | PF_IO_WORKER))
+> 
+> branch intact?
 
-Indeed, thanks a lot for retesting! It helps validate that the backport
-is sane in general, both from a "now handles short reads and retries them
-without issue" and the "didn't mess anything else up majorly" side
-of things :-)
+Yes, the raw spinlock would do it, and leave the single branch intact
+in the hot path. I'd be fine with going that route for io-wq.
+
 
 -- 
 Jens Axboe

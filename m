@@ -2,99 +2,86 @@ Return-Path: <SRS0=vpAz=B6=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A14F5C433DF
-	for <io-uring@archiver.kernel.org>; Thu, 20 Aug 2020 08:37:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76793C433DF
+	for <io-uring@archiver.kernel.org>; Thu, 20 Aug 2020 11:53:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7ED752173E
-	for <io-uring@archiver.kernel.org>; Thu, 20 Aug 2020 08:37:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B59A207BB
+	for <io-uring@archiver.kernel.org>; Thu, 20 Aug 2020 11:53:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+6jnRc+"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="tSI+sa5a"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726751AbgHTIhH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 20 Aug 2020 04:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
+        id S1728611AbgHTLxk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 20 Aug 2020 07:53:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbgHTIg7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 20 Aug 2020 04:36:59 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35F52C061383
-        for <io-uring@vger.kernel.org>; Thu, 20 Aug 2020 01:36:59 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id d6so1530494ejr.5
-        for <io-uring@vger.kernel.org>; Thu, 20 Aug 2020 01:36:59 -0700 (PDT)
+        with ESMTP id S1731012AbgHTLug (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 20 Aug 2020 07:50:36 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03AD5C061385
+        for <io-uring@vger.kernel.org>; Thu, 20 Aug 2020 04:50:35 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id ds1so863573pjb.1
+        for <io-uring@vger.kernel.org>; Thu, 20 Aug 2020 04:50:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wO6NnXVtyb9AZvjYFknb9/e0N0/k7bgPR+UVKM4wmco=;
-        b=A+6jnRc+Si+QufZf3MgKA72idPnOPsY+fGx0HLy9UmT4BaL5fSLq/y/2h2cF4KqVW5
-         5QK8uQj0EMW5ct2+cX4PV7u2PCH8luSC+2eY14B0p4q+16a1554a7QlpoMHE9J4yofme
-         Esk75DiT/fjh6xIivH3JQl7wwg05iGgImgsKFMAs8yY1mBxvM57LWShptLq5N9uuhcIK
-         b5+uf2H9drxKXJQQLkHA/WDaxZfjBDCX6PDgnQDouSb1eYIDCQ3MM7zwfg3rYSxDvATv
-         gTXvlPN1GumHK82OeXZqt3nLZ+38TKR8V0aIcxoV6WxqsrOHBkf1tAmOUsJOo3fvtJHw
-         Icyw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=FFXmvVk3cBNsboCVA02eCu9vXzyL+/4YJvadtLwzyiM=;
+        b=tSI+sa5aEFoC7MUVFBFYmyJjeXohpBlehOb8K1t8EYXRWo5XKs9wtgBQUMU4HiFhoR
+         1MgvHUiVJkofcPO80GhS3WMrBw99ur/2vB+oMdWNBBGZ7J2PfK+Mi9cpE/t3JN9ytUCO
+         noIGTF4HNtlSHaGDA7XbbbHk+BdKCXtqiyCzZZSxg6DOT34nOsCMj3TkMlN5Ky2LRph/
+         0bFb9M6cYMxCHrwm2daSAfpy2sxLx5XwFJCHybjgf2cyur0enJgvjpx7LPiR2kmL08bW
+         iHkvU0WQ75UFUD6XCeaz4noDzKQ4UnBju10uRCR3DkguKgiEFnJEJ0vVgsQNP6F1Cb7G
+         PDWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=wO6NnXVtyb9AZvjYFknb9/e0N0/k7bgPR+UVKM4wmco=;
-        b=fYFqzu0flP/BKmNJAfdVa9WObN5OIbCeHi278vmFKs3niA+VW245zN0vbglz/uEQgi
-         ksVfF/wvbKuP9x/IWm8oPLFc4DrWRTmR4mMK+hyXQ/bdvUT3U2AY5kV0dpxwAUkd6J9J
-         mkTWrmpZdezy1MPlqwomGqln69O72QcNew9nkscJ1VgLPt0OKvdZQv8dpqEnaF+KT7uI
-         +B5JtAbO5ApNF+1vyRLQg0plyk+MbJGC6RpqgvIFpGRey97Bo8VN+w2xj720klSBDKbZ
-         weukq9ou/vFbUymnFQzeO/DLFpwmSoLywu5L5laofNlBtcQiqSrNyVJYlBjbBFwu6rnv
-         iX2w==
-X-Gm-Message-State: AOAM532FMEBRDMo6SyJsbGkvn5iLeHG218+w9Z8GAZXVJQrUciTOmr5L
-        BRjzzY7MWzBOfYlLn0MQ7/A=
-X-Google-Smtp-Source: ABdhPJy9wzuh2Q/DB0aJe9CDnRHRK9aYGm+OQ0c+MxfYsLvFnd0BBgmXxcy7dNhPah7mGbLKvxF+9Q==
-X-Received: by 2002:a17:906:fb04:: with SMTP id lz4mr2298620ejb.394.1597912617870;
-        Thu, 20 Aug 2020 01:36:57 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.225])
-        by smtp.gmail.com with ESMTPSA id d23sm989879ejj.74.2020.08.20.01.36.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2020 01:36:57 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH] io_uring: kill extra iovec=NULL in import_iovec()
-Date:   Thu, 20 Aug 2020 11:34:39 +0300
-Message-Id: <c61315205aeac2a480ca8c49da92f7ec1dcf29db.1597912347.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=FFXmvVk3cBNsboCVA02eCu9vXzyL+/4YJvadtLwzyiM=;
+        b=kr30TEyRP5QsR6LQmcnay4qiA2DtR15JCZa9bZ+E564n3WWmk6wAhNHJFDYR/jFu1C
+         pHuRSkgjY0EAeiOZa5xxeFBNDImGWV11OT8Wk66zebiC+RHpGRcNvWa9hnn7RApSpEMM
+         d7w91wOH6sFnWo69LNUeXzX74k5vDMJwW/Or1O+iTXPeLk6f3cuMnmD1pWaUttx/TrAF
+         ltnD4/LfPQtq8La3wZnj2XZ5CHbBAuYfM0gA4Wa2dFAcaA5LEG4KYP/KQGE5zG0Dt7C7
+         I2y5SkUK9VzReuXFQS9QOJIhxnQTbwGjRUysfC+/CmIULGNA26kYg3nCEF/UF+ZpMCY2
+         aBqQ==
+X-Gm-Message-State: AOAM533rjjNjids7fIiz9McAowlRgWZIrEsqOdS2MrxyjTBF8ps/rhyC
+        hqSpk9edXauHe4iZVriuLnYDjb0Fwf4fyNbBsuU=
+X-Google-Smtp-Source: ABdhPJzXfhdpPuPlkh66Ox1A/zKM9vttOMqG0u+ZUat8zq03pBlMg6Z77iwB4NIFTtRPdUFl3K9tJA==
+X-Received: by 2002:a17:90a:9bc7:: with SMTP id b7mr1375649pjw.31.1597924234268;
+        Thu, 20 Aug 2020 04:50:34 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id z29sm2649199pfj.182.2020.08.20.04.50.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Aug 2020 04:50:33 -0700 (PDT)
+Subject: Re: [PATCH] io_uring: kill extra iovec=NULL in import_iovec()
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <c61315205aeac2a480ca8c49da92f7ec1dcf29db.1597912347.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <9cbc1ef7-5231-ff84-1aaf-109d9ed8f9ba@kernel.dk>
+Date:   Thu, 20 Aug 2020 05:50:31 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <c61315205aeac2a480ca8c49da92f7ec1dcf29db.1597912347.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If io_import_iovec() returns an error, return iovec is undefined and
-must not be used, so don't set it to NULL when failing.
+On 8/20/20 1:34 AM, Pavel Begunkov wrote:
+> If io_import_iovec() returns an error, return iovec is undefined and
+> must not be used, so don't set it to NULL when failing.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Applied, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ea2d1cb5c422..4fd3c68389cf 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2833,10 +2833,8 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
- 	if (opcode == IORING_OP_READ || opcode == IORING_OP_WRITE) {
- 		if (req->flags & REQ_F_BUFFER_SELECT) {
- 			buf = io_rw_buffer_select(req, &sqe_len, needs_lock);
--			if (IS_ERR(buf)) {
--				*iovec = NULL;
-+			if (IS_ERR(buf))
- 				return PTR_ERR(buf);
--			}
- 			req->rw.len = sqe_len;
- 		}
- 
 -- 
-2.24.0
+Jens Axboe
 

@@ -1,119 +1,84 @@
-Return-Path: <SRS0=b/di=CA=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=rwK+=CB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AEBAC433E1
-	for <io-uring@archiver.kernel.org>; Sat, 22 Aug 2020 18:05:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43F42C433E3
+	for <io-uring@archiver.kernel.org>; Sun, 23 Aug 2020 06:30:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 347282071A
-	for <io-uring@archiver.kernel.org>; Sat, 22 Aug 2020 18:05:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19227207CD
+	for <io-uring@archiver.kernel.org>; Sun, 23 Aug 2020 06:30:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="vbPpLGrD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TFafd/FF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728352AbgHVSFU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 22 Aug 2020 14:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45698 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727899AbgHVSFM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 22 Aug 2020 14:05:12 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E243CC061574
-        for <io-uring@vger.kernel.org>; Sat, 22 Aug 2020 11:05:11 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id j21so2528639pgi.9
-        for <io-uring@vger.kernel.org>; Sat, 22 Aug 2020 11:05:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=ihNBJDNPSWZRuoXh5a+5v17Soc4HFTOTJzR76aNE+O0=;
-        b=vbPpLGrDfJeCwpYqjLLxcj4OT7IiNMEK+vXxh2OLzJnQk38gW4F5Mefk5KHGceBuUG
-         wDlpv4XTxfyHN2n7NNidRCbT8xoFjtVKYlveD+qVTTdOkmDZCFjgHfcT/UmEIJzveNhm
-         QvviDcIHI0rtQCCYGtHnNE4iBDPW9xd/UC2y19AuY+moHyxOLLXT0p2mIYtjs7p68Tpu
-         eK4EcdK6MPbqpnu5dYtrqMQVN0VkEvibqhoQeK33YBn6afH9ox2F6jC5h++rGZmp7MPi
-         dkQT741HQhqdTEwYqMbabeiEz5m8PG0wT7UVW1bRQLNcXVsvbVoWBD24+7xx1bUXyrRn
-         mFyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ihNBJDNPSWZRuoXh5a+5v17Soc4HFTOTJzR76aNE+O0=;
-        b=Ai/vFF0QmSMRe6d10Zkb05ktnnblhB9O91qUR8hS+HRSuIfMdQhavXQvyhRoz5zlyw
-         RgpE9ILa8sliKz3Znqa50KfCA1MBbO4VQ4jHWuQHbFohsJ9goDZHZzHjTpadXd9AgBza
-         2EuvMkYHZU+P4V5CVn1jFcyYNK/Bd4ssmaBm86enoPsQJIibwHlh3fvRgF8xV6DXuBMH
-         rSg2/5WoIiKdmH+Gp/v4WzX5zYj8J6sUkhoZS43qJfNORv5pLNIHUoUzBRAnNyjGWdF6
-         TYkuWHJ5T5CifSVu22HVJju4/crzsT1LF2cWf8SZ8WA8k0ih6VlxCbuNZuAuig29ogJ+
-         8EcA==
-X-Gm-Message-State: AOAM530mkgC8smxmt5MqjG43c2NRiDH919HkDHvp0Kn4QEUafQdDqiEq
-        Bh8u4Z1OG4NdJDWk6hmytxN+tQ==
-X-Google-Smtp-Source: ABdhPJxOP6OJTTFVgEeCMuLru8GvBVOpXTB4PV/+kergfc3Qb0DZIXZBZui6BFwjVPttn/2KGhCL7Q==
-X-Received: by 2002:a63:3850:: with SMTP id h16mr5980618pgn.218.1598119511153;
-        Sat, 22 Aug 2020 11:05:11 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id u14sm6164124pfm.103.2020.08.22.11.05.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 22 Aug 2020 11:05:10 -0700 (PDT)
-Subject: Re: [PATCH v2 1/4] fsstress: add IO_URING read and write operations
-To:     fstests@vger.kernel.org, io-uring@vger.kernel.org,
-        jmoyer@redhat.com
-References: <20200809063040.15521-1-zlang@redhat.com>
- <20200809063040.15521-2-zlang@redhat.com>
- <01c7353f-338b-99cd-d7d1-fe92b0badd84@kernel.dk>
- <20200822181445.GS2937@dhcp-12-102.nay.redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <7739965c-e7a0-62a7-9c9e-1178bf280af0@kernel.dk>
-Date:   Sat, 22 Aug 2020 12:05:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1725648AbgHWGap (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 23 Aug 2020 02:30:45 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:51718 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725771AbgHWGap (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 23 Aug 2020 02:30:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1598164243;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=sS28LezY+j684F/FAJU1lZqJ92idSz1MMbcwM9ODCXg=;
+        b=TFafd/FF9Z263X+mQDqgsbK2fIzbKlOK6/Gl7m4krtZzhXerzFrudBgjUWQaWqv4s7Fob5
+        Dkd5S8TNN08uHFHvtumU/BG9LvlwZLpk6W+M9ivILOSKBeQoGWGTcNCfyqmX8uJJHBEkpU
+        uQiNMDgQdzsvJWz38HtIfxnDLRn20mA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-173-0JD-FRMHOQapgFQS43AeQA-1; Sun, 23 Aug 2020 02:30:39 -0400
+X-MC-Unique: 0JD-FRMHOQapgFQS43AeQA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4DE34425CD;
+        Sun, 23 Aug 2020 06:30:38 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-12-77.pek2.redhat.com [10.72.12.77])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A095460F96;
+        Sun, 23 Aug 2020 06:30:36 +0000 (UTC)
+From:   Zorro Lang <zlang@redhat.com>
+To:     fstests@vger.kernel.org
+Cc:     axboe@kernel.dk, io-uring@vger.kernel.org
+Subject: [PATCH v3 0/4] fsstress,fsx: add io_uring test and do some fix
+Date:   Sun, 23 Aug 2020 14:30:28 +0800
+Message-Id: <20200823063032.17297-1-zlang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200822181445.GS2937@dhcp-12-102.nay.redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/22/20 12:14 PM, Zorro Lang wrote:
->>> +	if ((e = io_uring_submit(&ring)) != 1) {
->>> +		if (v)
->>> +			printf("%d/%d: %s - io_uring_submit failed %d\n", procid, opno,
->>> +			       iswrite ? "uring_write" : "uring_read", e);
->>> +		goto uring_out1;
->>> +	}
->>> +	if ((e = io_uring_wait_cqe(&ring, &cqe)) < 0) {
->>> +		if (v)
->>> +			printf("%d/%d: %s - io_uring_wait_cqe failed %d\n", procid, opno,
->>> +			       iswrite ? "uring_write" : "uring_read", e);
->>> +		goto uring_out1;
->>> +	}
->>
->> You could use io_uring_submit_and_wait() here, that'll save a system
->> call for sync IO. Same comment goes for 4/4.
-> 
-> Hi Jens,
-> 
-> Sorry I think I haven't learned about io_uring enough, why the
-> io_uring_submit_and_wait can save a system call? Is it same with
-> io_uring_submit(), except a wait_nr ? The io_uring_wait_cqe() and
-> io_uring_cqe_seen() are still needed, right?
+This patchset tries to add new IO_URING test into fsstress [1/4] and fsx [4/4].
+And then do some changes and bug fix by the way [2/4 and 3/4].
 
-If you just call io_uring_submit(), it'll enter the kernel and submit
-that IO. Then right after that you're saying "I want to wait for
-completion of a request", which is then another system call. If you do
-io_uring_submit_and_wait() you're entering the kernel with the intent of
-"submit my request(s), and wait for N requests" hence only doing a
-single system call even though it's an async interface.
+fsstress and fsx are important tools in xfstests to do filesystem I/Os test,
+lots of test cases use it. So add IO_URING operation into fsstress and fsx
+will help to cover IO_URING test from fs side.
 
-Nothing else changes, io_uring_wait_cqe() will not enter the kernel if a
-cqe is available in the ring already.
+I'm not an IO_URING expert, so cc io-uring@ list, please feel free to
+tell me if you find something wrong or have any suggestions to improve
+the test.
 
--- 
-Jens Axboe
+V2 did below changes:
+1) 1/4 change the definition of URING_ENTRIES to 1
+2) 2/4 change the difinition of AIO_ENTRIES to 1, undo an unrelated changed line
+3) 4/4 turn to use io_uring_prep_readv/io_uring_prep_writev, due to old
+       liburing(0.2-2) doesn't support io_uring_prep_read/io_uring_prep_write.
+
+V3 changed io_uring_submit(&ring) to io_uring_submit_and_wait(&ring, 1). I'm
+not sure if this's the real mean of Jens Axboe's review point, please check.
+  https://marc.info/?l=fstests&m=159811932808057&w=2
+
+Thanks,
+Zorro
+
+
 

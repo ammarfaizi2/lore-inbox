@@ -2,128 +2,79 @@ Return-Path: <SRS0=ptrs=CD=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11F9CC433E1
-	for <io-uring@archiver.kernel.org>; Tue, 25 Aug 2020 14:34:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D6EAC433E1
+	for <io-uring@archiver.kernel.org>; Tue, 25 Aug 2020 15:00:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD7A92072D
-	for <io-uring@archiver.kernel.org>; Tue, 25 Aug 2020 14:34:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 126392075F
+	for <io-uring@archiver.kernel.org>; Tue, 25 Aug 2020 15:00:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="H9wa6TvB"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G4egCKSs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726514AbgHYOeC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 25 Aug 2020 10:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
+        id S1726645AbgHYPA6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 25 Aug 2020 11:00:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726497AbgHYOd7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 25 Aug 2020 10:33:59 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E67ABC061574
-        for <io-uring@vger.kernel.org>; Tue, 25 Aug 2020 07:33:57 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id i10so7078896iow.3
-        for <io-uring@vger.kernel.org>; Tue, 25 Aug 2020 07:33:57 -0700 (PDT)
+        with ESMTP id S1726633AbgHYPA5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 25 Aug 2020 11:00:57 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF69C061574
+        for <io-uring@vger.kernel.org>; Tue, 25 Aug 2020 08:00:56 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id l13so5597696qvt.10
+        for <io-uring@vger.kernel.org>; Tue, 25 Aug 2020 08:00:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=YgFgfzphgvms2dZS2+jVYy7+WnhILKweffObRGIKOSk=;
-        b=H9wa6TvBuytvflGfuBvt2Znf4t1iTnperOKwpMxpJOmcfOKSOqkeGKv87kaqS7hsb0
-         LPvxPGbB0Q5rzMSVPCTqz9bDttZYM/KJ4BSmDTa9q3bIIgGamd07r+8O06McXZ67roRh
-         nbG9UX/ntkOKTQ9EXdUdSvc9m6zbCCZmofz/zdGgl0a1Jpc7WH2aKA2js/w/rIVWZKFp
-         B2+LiEcNbDZZWuLxwjjVxJLb56ka6zpaGAhSSbR9NlFtB0TeQHXz3Pk1ykWoBR4ai8Mk
-         P7fjMYx34ruIQdiSwYHXvgrB8D8XP7zPL8HKVFmeqdDLr8H6qC+vzo5LIVgotYht18N5
-         iLJg==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=I+S/MKD67cQSMNIQNrwCtfE94w9V9BpiyRolqxN32YQ=;
+        b=G4egCKSs7na23YztnVk9uUCQblmyDqqy0Ubz/AiwX1S5Do6rz5SyOsZUJZsSaMoTPx
+         7ofUVzjVzBWl7KeiKd5iQK6cNqsYcYSvwKJ+r+gkqYcRKhcLM9riSEIStYc/qvskn+XB
+         eGxNxkz5/GCxxWxCobUXoEnWIxebrhrAiqXkiMhZ/JD2uDBIV7wZ4iIJuuEJo0lTzee0
+         9DNki8Wj+ifhZWF0yO7uQNfNf73kqSsIBBayw5RZJTkL9UN9dyHcBgK5b3BX+A9A2mFQ
+         SPVCoyAD7LOVwS7oGSEXDT34HZvWN0qtNDcFY8n9NmsVLgGoOn2XO8W5ROryyjuzbmn0
+         +l8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=YgFgfzphgvms2dZS2+jVYy7+WnhILKweffObRGIKOSk=;
-        b=LGGFQ0cp70MQ5Wf/27wnzHwBQV0/xWUKM3tVPdlCApvtB38LQEsb2ztHgL8qLRuKaA
-         wYTsjtBmp7P5rZHRIVeY4ECWhVrsvUlaLU52jxaGv6Ua+3RR/boNnnDMfUoCanD+CRXt
-         g9BEt0HparJjgZEsTAWhJwN/4Ub3nKwGh/cRs6fsSoypRc4k0qsd4SqWlGpogx1InVYn
-         BwzgoXk0/CPPfZuaNEZgBYQSu3WcH+J+wAc62vn+cZIfLE43v3ABnElSVEaWCNZFDuFS
-         h2GWndpQa6fac8pPDVibCwMrtADbi3lAYx4lGT8Xh7ucxB6ZzsTsEMS2Xe3UbCO4dV8d
-         GOyA==
-X-Gm-Message-State: AOAM530rGT68p2qo5oIGknGgQnPra5Q4VfgX9WhHR+qnZ/QnHE99p63k
-        WegxC5dOlBWvgDuiop0q/YOLVTVW2E/BuggH
-X-Google-Smtp-Source: ABdhPJwkhX3v7MONRujtwuew4oVEQhfi/7hgsCPpTaBXMe8LqFm8DSjbBgwF9ZAmU9BW6B4ifrDCMQ==
-X-Received: by 2002:a5d:954f:: with SMTP id a15mr9387362ios.53.1598366036662;
-        Tue, 25 Aug 2020 07:33:56 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id c4sm8459609ioi.44.2020.08.25.07.33.55
-        for <io-uring@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Aug 2020 07:33:55 -0700 (PDT)
-To:     io-uring <io-uring@vger.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] io_uring: fix unbalanced sqo_mm accounting
-Message-ID: <4e68f238-8814-f73f-df7c-8dae9fd6de00@kernel.dk>
-Date:   Tue, 25 Aug 2020 08:33:54 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=I+S/MKD67cQSMNIQNrwCtfE94w9V9BpiyRolqxN32YQ=;
+        b=SHaHIvlv6hdQSUMyEkUajkj5+/tUX9rSBxn+OXn/tCJejpcEjAM2iA9ABgeoSlxsJV
+         uXKPUW1Zoh+Mhbbj39mvNZP1+Adv4i8Pd5Vou8dr+fVirbi29VedjKgHKT62/MLeHkM8
+         4KPu4wAb/R0YXAr98w60gpj4HF/BGXt+GzkaIu4tJlT1r8sPbaWm/QgfDKPSznDqtKLO
+         ND9HarQou+R1I3rnZn57eRNr2pK+tA5J4Lv/Q7z89fiWslRks32YaLj9gVsd6UPWOx65
+         dJsNTaN5m2vraf2ggN0+iuNxOW8dWqP+ah44F61/zlQGDLa67GKULcpHntSYryLRq0Mh
+         Usfw==
+X-Gm-Message-State: AOAM530cKt0zhCUi07zjxZ9puhr/8wEzD/qUBtz/rfyLX2UCsagpOq/t
+        /25aGaxWHmEAeg9Bs44im489j2HA2pEug4Os7+o=
+X-Google-Smtp-Source: ABdhPJzidHJToiCZ9CzIk2Z3ZyMTTN2Px7CLqiOffJD5I36WITx3zinUDIcZOKfA9Bh8yvegMZtDfxSpowFjJQ+koC4=
+X-Received: by 2002:ad4:49aa:: with SMTP id u10mr9874207qvx.27.1598367655740;
+ Tue, 25 Aug 2020 08:00:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   Josef <josef.grieb@gmail.com>
+Date:   Tue, 25 Aug 2020 17:00:44 +0200
+Message-ID: <CAAss7+o=0zd9JQj+B0Fe1cONCtMJdKkfQuT+Hzx9X9jRigrfZQ@mail.gmail.com>
+Subject: io_uring file descriptor address already in use error
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     norman@apache.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We do the initial accounting of locked_vm and pinned_vm before we have
-setup ctx->sqo_mm, which means we can end up having not accounted the
-memory at setup time, but still decrement it when we exit.
+Hi,
 
-Setup ctx->sqo_mm earlier in io_uring_create(), before we do the first
-accounting it of.
+I found a bug submitting a server socket poll in io_uring. The file
+descriptor is not really closed when calling close(2), if I bind a new
+socket with the same address & port I'll get an "Already in use" error
+message
 
-Fixes: f74441e6311a ("io_uring: account locked memory before potential error case")
-Reported-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+example to reproduce it
+https://gist.github.com/1Jo1/3ace601884b86f7495fd5241190494dc
+
+tested on 5.9-rc2
 
 ---
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e030b33fa53e..384df86dfc69 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7447,9 +7447,6 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
- {
- 	int ret;
- 
--	mmgrab(current->mm);
--	ctx->sqo_mm = current->mm;
--
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		ret = -EPERM;
- 		if (!capable(CAP_SYS_ADMIN))
-@@ -7494,10 +7491,6 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
- 	return 0;
- err:
- 	io_finish_async(ctx);
--	if (ctx->sqo_mm) {
--		mmdrop(ctx->sqo_mm);
--		ctx->sqo_mm = NULL;
--	}
- 	return ret;
- }
- 
-@@ -8547,6 +8540,9 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 	ctx->user = user;
- 	ctx->creds = get_current_cred();
- 
-+	mmgrab(current->mm);
-+	ctx->sqo_mm = current->mm;
-+
- 	/*
- 	 * Account memory _before_ installing the file descriptor. Once
- 	 * the descriptor is installed, it can get closed at any time. Also
-
--- 
-Jens Axboe
-
+Josef

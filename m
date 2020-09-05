@@ -2,131 +2,131 @@ Return-Path: <SRS0=YIAO=CO=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A9A5C43461
-	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 17:38:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C78BC433E2
+	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 137352086A
-	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 17:38:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DB2E20796
+	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:47:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="qZoAa8ps"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qP7hIlni"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728323AbgIERih (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 5 Sep 2020 13:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55688 "EHLO
+        id S1728647AbgIEVrt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 5 Sep 2020 17:47:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728042AbgIERie (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 5 Sep 2020 13:38:34 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5640C061244
-        for <io-uring@vger.kernel.org>; Sat,  5 Sep 2020 10:38:34 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id n3so6202957pjq.1
-        for <io-uring@vger.kernel.org>; Sat, 05 Sep 2020 10:38:34 -0700 (PDT)
+        with ESMTP id S1728103AbgIEVrt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 5 Sep 2020 17:47:49 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68BCC061244
+        for <io-uring@vger.kernel.org>; Sat,  5 Sep 2020 14:47:47 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id j11so13126266ejk.0
+        for <io-uring@vger.kernel.org>; Sat, 05 Sep 2020 14:47:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=fn9/lKBSgrMzNby4mzPDI28J/z7bxKwR2SAr9ZNONXk=;
-        b=qZoAa8psB/dfKWch2iDnaXN7J7kUoPk+rOFglw/4J4K37uxslBy04XVAMt+JklkNI7
-         WdLIM3i/UyWr4Y6HKYEPDBBtRPA8O3eR8KHkJ4b7JPUoaiOOgmnpTUgW7GoVTTYNN4jZ
-         d9XHPfA9cWUla3NRs5A7YopdD4t0UhZEDolgqorZm7zhupQzdRlQ+2zKUamOdCSAP47Z
-         BJaEz/bo/Ih/1534q4me/h88e4peK6RWwLG1hWrvGVrbBIDtrMINvE03XIqjitv3yI5w
-         txH7UpT+2L+tv86rvmJi4g1k2Oo5WmwgXQyetm+rBAbqLrkMDMXOyR2bUNU6xFbiMcrp
-         feRQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=nA5Ow83Pgu2t0I0lG+CpUkeAdrtACi5ZL+p8nwATzHA=;
+        b=qP7hIlnis04Wtyq3Y6ErfUzyasDOLkHrPocub+zwE5zSMHgNImxpPiTUQVhzoKKsAf
+         sZCU+iEX7vO5DMn48kPHzdRtzQfo+otjaNeBD/wVTErO9SgOa4q/xz/nbwpH7L/MChV6
+         WdXi3oemgDuUi9S9Werk4Mp5TI9exgkp5uDGwWqHMQ508xqUUh4KJfpv66A2gW4YERcV
+         GYbUffiOXpnWxSHHIWl3bXfp/o+GzTOsxks7XV3TMyNildNt/vNySdg+FS9nhq/yIfsf
+         VSuM7KaUNG+snidjSCFAaellj2ATziwKMuyV60HI38gGVVz03CMo+rLupDWB4eNtZiuB
+         e69A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=fn9/lKBSgrMzNby4mzPDI28J/z7bxKwR2SAr9ZNONXk=;
-        b=fIgXr7Au5dGkN+UK5iOkbFVZFf6PF8X5GBgO83MzcjaVAlwIIDUn+tBuTi+auBR9Ko
-         5zm+rW/t0HFq+skwoySx39lyjcov8qLQ7UdT+DGciXtZdRQb30tbXNSt0b91VYi55awa
-         7FxQRCFIlLtsYNBrDwm1K/6A0FWBcrJjlx6C9xECzgSAk7rZJH+iybWnG3SlsrbtKR+I
-         ZC0v0lu335l6VKejYMTSKkc2aSrs0sWnn3xzOT6BwvKMl6dm/CmQvncgvDjyPG+8nf8A
-         3IXjoIzYUigklMp3oS3v9rjOZlX0JlsAtc8cLsvyYV4ppvB0HF2j8Hp40f64fK2I3LBp
-         lKDw==
-X-Gm-Message-State: AOAM530Wp89zsZ3QrPivWOTq3d5KmQCi5t1JZIcXb/ywoFRVPfGuceEU
-        LAs6wZ9izDmTA/i5JRqoefBRxLQ3qNfj1W7s
-X-Google-Smtp-Source: ABdhPJwhovvRjeyHxGqXtyZsPmhZof2q/BWEy3eDyQT6wKCXV2eo+rKxFRs0tuxIwTXwEzubiawshw==
-X-Received: by 2002:a17:902:e789:: with SMTP id cp9mr13306636plb.215.1599327508594;
-        Sat, 05 Sep 2020 10:38:28 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id y128sm9814958pfy.74.2020.09.05.10.38.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 05 Sep 2020 10:38:27 -0700 (PDT)
-To:     io-uring <io-uring@vger.kernel.org>
-Cc:     Jann Horn <jannh@google.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH for-next] io_uring: enable file table usage for SQPOLL rings
-Message-ID: <35aa7095-cb41-1ef4-1e3d-75e3e54656e8@kernel.dk>
-Date:   Sat, 5 Sep 2020 11:38:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nA5Ow83Pgu2t0I0lG+CpUkeAdrtACi5ZL+p8nwATzHA=;
+        b=IaX6XuftyZ6dp7g38NWqBSi6p2GyRWFRJu0Emm8YdfUXyoxgqBam/0MOvy106Ltj7g
+         Yz9JtN6k90XxX/Gn5d3iL+vo/1Aidc+jsuaYRqDzkLG5H/sGFe5yPGKz3CHI32ocH0Ol
+         MDFmG+HkQE+ixSynv52EKogJGGQSsNLBxTOkQ3ig78QC/NXPDgFYpFflyV97C3biCKdY
+         eomuul0BqUE92eBrdIA2LcXgNF6xTHstkK510N4JB888ZrUe57HKGAO5wD1jlp1vnEg7
+         rrdIILIrqKBoDqhxKDhGXVO3aOtajlnLY8hjROo8U0cqQHDO/TpgEdgNT64j1v4ipjWN
+         YPhQ==
+X-Gm-Message-State: AOAM530Ymw8qqgddeaJXHPoDkvae1y1AZZobM8pI4b3hSxmbgc0/zrZT
+        GoyGqYhwZ7iTDNP87hI1Qz41FPwxGnA=
+X-Google-Smtp-Source: ABdhPJzqN98OlTZIufKThmkIW8cNDpnHQSuEDKop4DaTEeklhSool6sJExJpEvyDX7hncMNS2mXmFg==
+X-Received: by 2002:a17:907:37b:: with SMTP id rs27mr14868421ejb.0.1599342466450;
+        Sat, 05 Sep 2020 14:47:46 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.192.56])
+        by smtp.gmail.com with ESMTPSA id c5sm2399121ejk.37.2020.09.05.14.47.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Sep 2020 14:47:46 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/2] io_uring: fix cancel of deferred reqs with ->files
+Date:   Sun,  6 Sep 2020 00:45:14 +0300
+Message-Id: <76a24f63b598c6e698ceb7cbdbe0aad012d412e0.1599340635.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1599340635.git.asml.silence@gmail.com>
+References: <cover.1599340635.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Now that SQPOLL supports non-registered files and grabs the file table,
-we can relax the restriction on open/close/accept/connect and allow
-them on a ring that is setup with IORING_SETUP_SQPOLL.
+While trying to cancel requests with ->files, it also should look for in
+->defer_list, otherwise it might end up hanging a thread.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cancel all requests in ->defer_list up to the last request there with
+matching ->files, that's needed to follow drain ordering semantics.
 
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
-
-Jann, I seem to recall some discussion on closing of files being tricky
-with this, maybe you can refresh my memory? If so, we could just
-continue excluding IORING_OP_CLOSE for this.
+ fs/io_uring.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9e989911a921..94cce793a17f 100644
+index 2e3adf9d17dd..20b647afe206 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3593,7 +3593,7 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 	const char __user *fname;
- 	int ret;
+@@ -8092,12 +8092,38 @@ static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
+ 	io_timeout_remove_link(ctx, req);
+ }
  
--	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (unlikely(sqe->ioprio || sqe->buf_index))
- 		return -EINVAL;
-@@ -4014,7 +4014,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	io_req_init_async(req);
- 	req->work.flags |= IO_WQ_WORK_NO_CANCEL;
- 
--	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
- 	    sqe->rw_flags || sqe->buf_index)
-@@ -4500,7 +4500,7 @@ static int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static void io_cancel_defer_files(struct io_ring_ctx *ctx,
++				  struct files_struct *files)
++{
++	struct io_defer_entry *de = NULL;
++	LIST_HEAD(list);
++
++	spin_lock_irq(&ctx->completion_lock);
++	list_for_each_entry_reverse(de, &ctx->defer_list, list)
++		if ((de->req->flags & REQ_F_WORK_INITIALIZED)
++			&& de->req->work.files == files) {
++			list_cut_position(&list, &ctx->defer_list, &de->list);
++			break;
++		}
++	spin_unlock_irq(&ctx->completion_lock);
++
++	while (!list_empty(&list)) {
++		de = list_first_entry(&list, struct io_defer_entry, list);
++		list_del_init(&de->list);
++		req_set_fail_links(de->req);
++		io_put_req(de->req);
++		io_req_complete(de->req, -ECANCELED);
++		kfree(de);
++	}
++}
++
+ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
  {
- 	struct io_accept *accept = &req->accept;
+ 	if (list_empty_careful(&ctx->inflight_list))
+ 		return;
  
--	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->len || sqe->buf_index)
- 		return -EINVAL;
-@@ -4541,7 +4541,7 @@ static int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	struct io_connect *conn = &req->connect;
- 	struct io_async_ctx *io = req->io;
++	io_cancel_defer_files(ctx, files);
+ 	/* cancel all at once, should be faster than doing it one by one*/
+ 	io_wq_cancel_cb(ctx->io_wq, io_wq_files_match, files, true);
  
--	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
- 		return -EINVAL;
-
 -- 
-Jens Axboe
+2.24.0
 

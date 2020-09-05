@@ -8,62 +8,64 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 099A8C43461
-	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA96C43461
+	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA9C520797
-	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:48:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9637920796
+	for <io-uring@archiver.kernel.org>; Sat,  5 Sep 2020 21:48:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TkxunJ2K"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IaoVF2SM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728724AbgIEVsF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 5 Sep 2020 17:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37200 "EHLO
+        id S1728663AbgIEVs3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 5 Sep 2020 17:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728103AbgIEVsE (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 5 Sep 2020 17:48:04 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5C3EC061244
-        for <io-uring@vger.kernel.org>; Sat,  5 Sep 2020 14:48:02 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id i26so13015635ejb.12
-        for <io-uring@vger.kernel.org>; Sat, 05 Sep 2020 14:48:02 -0700 (PDT)
+        with ESMTP id S1728103AbgIEVsV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 5 Sep 2020 17:48:21 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F610C061245
+        for <io-uring@vger.kernel.org>; Sat,  5 Sep 2020 14:48:20 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id n13so9195934edo.10
+        for <io-uring@vger.kernel.org>; Sat, 05 Sep 2020 14:48:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=EBjS6odIt+w3JNliiM+5qGLyn4i8qdKj3gERqcDpUHE=;
-        b=TkxunJ2KxlNL3mV8rJF0TWTZ9t4u+LES62mrq1t+98mhNbDNsvfRdrcFcK9IwmGEGJ
-         AIEsu+V2h6sYUHcekaFLdtp36hTwEf4K6eDV6UCqtYc0x0AqtbkU4RkT/bdOMpolZSJR
-         zes49Lpb4S1U9Q50vTGHd+1XMrO9fn7DDW4G+U0OcWtKCBDl6OJm5ZymVHPJCfI4xg/6
-         5mDoPE6IVELDAr5fl8JiFun6TI/3iGITJRJsmPTuJwJeubyVAFLieVgFqMP7EgSks8XL
-         MEu68gIw7GTbx1J1KSTNHXkdt427QvOyjHFVgmeMWvIHOdSVu7cS0IKm+xFq704/xeHW
-         XoMQ==
+        bh=2Oom0dNRtPrSBao4ztc8MzIu9gTZDAqmrmdVxOf+LpA=;
+        b=IaoVF2SMiaaBquNotswo7KormCz1QJOOfto9oVpNBc7NT3SGPC8QYKAqWcS51FPWsX
+         kFYoOLL+JWw/8m/Rk8BaPgsr0HU+/oSMkkg4Q3MEGHXg3ov12LsiXQAjKoVpUN+uHNrU
+         JKNdPYRQk2ymgOTzYpLwYL2HQzHp1jIymFYWnSngjvjJzb3fCSUpNPad1rGFI8yqAy6R
+         j/3gHOvYgGvS7vTb+5ELourLV7sPXCA1abQQXGEmif5GgjwbcQ7cyom8CsCktXzEE8eD
+         usreJiL01LIB7f9ici5FCjAvetXVk8N9DBrsWRi+i9zLnbYa5YZCHQjyWHAdyPwTOpiH
+         nHZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=EBjS6odIt+w3JNliiM+5qGLyn4i8qdKj3gERqcDpUHE=;
-        b=HD+fJlBI1rDep+/w+nJ7p3njdHa1nOGq5l/E8N+w/mjlKqKeOt5P1Wi2EJKBI6iUai
-         VtI7Jyr4ziWmZwDa5bedSUqRyPnmK9nP3cgppEpbKAXbBBjaRAalbrDJbNO/h1MOQWXw
-         7gfWqIP4bg/Wzi4z7vkG0bU6RnUO14e55CD2L1Fu+wctQMEwX0pp432yUwTU3owQhYxJ
-         9GVsSdOJgR6Ujfw1su83g4H/MvVNsn4d3ILLl32LsyNDb1OoShypQVCuuSKq+zhN52b5
-         RwQtJEmQ9xM8HfAOBJcixklgROibKrr/GWpap16eWsRCi5tuh/aUgwlagH83tOc390IW
-         1cUg==
-X-Gm-Message-State: AOAM533OWtBU9KUDcBITTD5umerR7Sh0j52MpbI6gPMhzS1XLngZlZ27
-        ZtI+sI8kz2w8e3yGhybz58E=
-X-Google-Smtp-Source: ABdhPJyCxM5myYmoI02Gzn84u0rmhTmb4WoDlstNsZanlJLBdqCYCqpMnrY7nzI2zTeZBezZPFp4jg==
-X-Received: by 2002:a17:907:72cc:: with SMTP id du12mr13693091ejc.150.1599342481442;
-        Sat, 05 Sep 2020 14:48:01 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=2Oom0dNRtPrSBao4ztc8MzIu9gTZDAqmrmdVxOf+LpA=;
+        b=A8xMS4uIHUPt1Afr+yR6Eo9bmkQstAt9TSX7hGHUVmWQPIrUrJHMkymbfRD3/fF48b
+         89sq0fsoqcof4lYy9TMe+x2mjoljYBlUCpITGuG3tQGk6GJ4VoGTB4Z5iyk7wERP/s1Z
+         l0Gz+8WxxqYpRAFUj0f1oR2JDYG57c1Yy8/NCKuSsoy+YM3MCMVPji/mF0XLWnnR8vf6
+         iTjiPNe8WC9S6qlJsB2cZ+aSpx1mNUZLM5Y4hXoYfp8MujVcWoPiY0wUdrWyAqOq3UAF
+         blX3VuqKvQJlqy8hRudWrsHq1BvwmppHWoFsDy2RR2fNZyFq3+QO6UfCBXRVDaRTVYAD
+         yQ8A==
+X-Gm-Message-State: AOAM532FUXoEs57kXpXR7mP1faa75U5jrOQxFE2byzvq/0trBRDB8+7t
+        ME3EfFJSIYzoLSsTW9bkAJI=
+X-Google-Smtp-Source: ABdhPJxCk9IwVGO+cMUSrvbfW1CRjV9dFdacDWFzHdRSUFT/WIy/CszTta/xG4cZuvTbohJim4ddeg==
+X-Received: by 2002:a05:6402:209:: with SMTP id t9mr11370863edv.208.1599342499192;
+        Sat, 05 Sep 2020 14:48:19 -0700 (PDT)
 Received: from localhost.localdomain ([5.100.192.56])
-        by smtp.gmail.com with ESMTPSA id ot19sm9962739ejb.121.2020.09.05.14.48.00
+        by smtp.gmail.com with ESMTPSA id g25sm7965603edu.53.2020.09.05.14.48.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Sep 2020 14:48:01 -0700 (PDT)
+        Sat, 05 Sep 2020 14:48:18 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH liburing] test/cancel: test cancellation of deferred reqs
-Date:   Sun,  6 Sep 2020 00:45:32 +0300
-Message-Id: <dd1698c9dbf0455775aecbb6d0c7e05e444c8ec7.1599342239.git.asml.silence@gmail.com>
+Subject: [PATCH 1/4] io_uring: simplify io_rw_prep_async()
+Date:   Sun,  6 Sep 2020 00:45:45 +0300
+Message-Id: <e465708d526db522f77c1c1082fafc9e0721ddec.1599341028.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1599341028.git.asml.silence@gmail.com>
+References: <cover.1599341028.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -71,138 +73,38 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Test that while cancelling requests with ->files in flush() it also
-finds deferred ones.
+Don't touch iter->iov and iov inbetween __io_import_iovec() and
+io_req_map_rw(), the former function aleady sets it right. because it
+creates one more case with NULL'ed iov to consider in io_req_map_rw().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- test/lfs-openat.c | 106 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 106 insertions(+)
+ fs/io_uring.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/test/lfs-openat.c b/test/lfs-openat.c
-index 4f1b3c4..468901c 100644
---- a/test/lfs-openat.c
-+++ b/test/lfs-openat.c
-@@ -129,6 +129,95 @@ static int test_linked_files(int dfd, const char *fn, bool async)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f703182df2d4..e45572fbb152 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2980,16 +2980,14 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw,
+ 				   bool force_nonblock)
+ {
+ 	struct io_async_rw *iorw = &req->io->rw;
+-	struct iovec *iov;
++	struct iovec *iov = iorw->fast_iov;
+ 	ssize_t ret;
+ 
+-	iorw->iter.iov = iov = iorw->fast_iov;
+ 	ret = __io_import_iovec(rw, req, &iov, &iorw->iter, !force_nonblock);
+ 	if (unlikely(ret < 0))
+ 		return ret;
+ 
+-	iorw->iter.iov = iov;
+-	io_req_map_rw(req, iorw->iter.iov, iorw->fast_iov, &iorw->iter);
++	io_req_map_rw(req, iov, iorw->fast_iov, &iorw->iter);
  	return 0;
  }
  
-+static int test_drained_files(int dfd, const char *fn, bool linked, bool prepend)
-+{
-+	struct io_uring ring;
-+	struct io_uring_sqe *sqe;
-+	struct io_uring_cqe *cqe;
-+	char buffer[128];
-+	struct iovec iov = {.iov_base = buffer, .iov_len = sizeof(buffer), };
-+	int i, ret, fd, fds[2], to_cancel = 0;
-+
-+	ret = io_uring_queue_init(10, &ring, 0);
-+	if (ret < 0)
-+		DIE("failed to init io_uring: %s\n", strerror(-ret));
-+
-+	if (pipe(fds)) {
-+		perror("pipe");
-+		return 1;
-+	}
-+
-+	sqe = io_uring_get_sqe(&ring);
-+	if (!sqe) {
-+		printf("get sqe failed\n");
-+		return -1;
-+	}
-+	io_uring_prep_readv(sqe, fds[0], &iov, 1, 0);
-+	sqe->user_data = 0;
-+
-+	if (prepend) {
-+		sqe = io_uring_get_sqe(&ring);
-+		if (!sqe) {
-+			fprintf(stderr, "failed to get sqe\n");
-+			return 1;
-+		}
-+		io_uring_prep_nop(sqe);
-+		sqe->flags |= IOSQE_IO_DRAIN;
-+		to_cancel++;
-+		sqe->user_data = to_cancel;
-+	}
-+
-+	if (linked) {
-+		sqe = io_uring_get_sqe(&ring);
-+		if (!sqe) {
-+			fprintf(stderr, "failed to get sqe\n");
-+			return 1;
-+		}
-+		io_uring_prep_nop(sqe);
-+		sqe->flags |= IOSQE_IO_DRAIN | IOSQE_IO_LINK;
-+		to_cancel++;
-+		sqe->user_data = to_cancel;
-+	}
-+
-+	sqe = io_uring_get_sqe(&ring);
-+	if (!sqe) {
-+		fprintf(stderr, "failed to get sqe\n");
-+		return 1;
-+	}
-+	io_uring_prep_openat(sqe, dfd, fn, OPEN_FLAGS, OPEN_MODE);
-+	sqe->flags |= IOSQE_IO_DRAIN;
-+	to_cancel++;
-+	sqe->user_data = to_cancel;
-+
-+
-+	ret = io_uring_submit(&ring);
-+	if (ret != 1 + to_cancel) {
-+		fprintf(stderr, "failed to submit openat: %s\n", strerror(-ret));
-+		return 1;
-+	}
-+
-+	fd = dup(ring.ring_fd);
-+	if (fd < 0) {
-+		fprintf(stderr, "dup() failed: %s\n", strerror(-fd));
-+		return 1;
-+	}
-+
-+	/* io_uring->flush() */
-+	close(fd);
-+
-+	for (i = 0; i < to_cancel; i++) {
-+		ret = io_uring_wait_cqe(&ring, &cqe);
-+		if (cqe->res != -ECANCELED) {
-+			fprintf(stderr, "fail cqe->res=%d\n", cqe->res);
-+			return 1;
-+		}
-+		io_uring_cqe_seen(&ring, cqe);
-+	}
-+
-+	io_uring_queue_exit(&ring);
-+	return 0;
-+}
-+
- int main(int argc, char *argv[])
- {
- 	const char *fn = "io_uring_openat_test";
-@@ -167,6 +256,23 @@ int main(int argc, char *argv[])
- 		goto out;
- 	}
- 
-+	ret = test_drained_files(dfd, fn, false, false);
-+	if (ret) {
-+		fprintf(stderr, "test_drained_files() failed\n");
-+		goto out;
-+	}
-+
-+	ret = test_drained_files(dfd, fn, false, true);
-+	if (ret) {
-+		fprintf(stderr, "test_drained_files() middle failed\n");
-+		goto out;
-+	}
-+
-+	ret = test_drained_files(dfd, fn, true, false);
-+	if (ret) {
-+		fprintf(stderr, "test_drained_files() linked failed\n");
-+		goto out;
-+	}
- out:
- 	io_uring_queue_exit(&ring);
- 	close(dfd);
 -- 
 2.24.0
 

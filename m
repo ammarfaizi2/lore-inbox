@@ -2,102 +2,93 @@ Return-Path: <SRS0=JVOE=CP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A06C43461
-	for <io-uring@archiver.kernel.org>; Sun,  6 Sep 2020 16:26:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64390C43461
+	for <io-uring@archiver.kernel.org>; Sun,  6 Sep 2020 17:55:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 50FD520709
-	for <io-uring@archiver.kernel.org>; Sun,  6 Sep 2020 16:26:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20E0020639
+	for <io-uring@archiver.kernel.org>; Sun,  6 Sep 2020 17:55:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="lAkgHsmL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GfmiETTK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726209AbgIFQ0B (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 6 Sep 2020 12:26:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38348 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725841AbgIFQZx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 6 Sep 2020 12:25:53 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC10C061573
-        for <io-uring@vger.kernel.org>; Sun,  6 Sep 2020 09:25:53 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id o20so7315112pfp.11
-        for <io-uring@vger.kernel.org>; Sun, 06 Sep 2020 09:25:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=vblChfoe/5kxvkqA7a1E3pQDxsnKHIsnz/PFgAgkjlg=;
-        b=lAkgHsmLLkVHMjlyqIsdiJfxNkpA3bdjo7NcikrwMifrI1SsU5wo0N44cMAEtX1Zw2
-         zJTE8H9oXXm9q55wt+tWet2373OscFGX7S67h6OhQ8JXAXA6ZTOGnIs+53sn9GEB5Xoz
-         yCAOz79m103HOja3szHjeYF4B4x/EV+YgKSWBD7CP1Ae2EDvPOCsXE0CWtKPUaUWCkf7
-         hJaBX6AHJXHvr/0feg0AuIa0s/HHlKgHdLYjnOI4Z7Qf31sDWQAiCgrRMhg2+leB4zoJ
-         DSWxpdT/AfNU2QX780Z861ibRqeo6+BVGivF9NDUE3UTiyfhNDWxvTeDa+oUqJLHR4jW
-         XfaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=vblChfoe/5kxvkqA7a1E3pQDxsnKHIsnz/PFgAgkjlg=;
-        b=SNGwXZNmLfzpam3kzHAqHZYB5RXtaN8/uZz6oiW836nbDrSsUS+d27PVrVi0l/quHr
-         6YCFPVGuL4vmiWjl96RFESxyP54PWXl6Qk/iiwEYPObGxytWY+uzAzoPXarvDxmraQlv
-         Weo4FtMWr9xe0FHsZnFslfLM5SjpUoBryu08ZpsPQxGsexycAYOSakDWBXkRQWxGen9j
-         vjaIxNywcm3TPzvep9M/aKrIzxnfKAvzw366zudRJOAlZ4wPsWSXPrFjM30YVUpCHPLn
-         5ZBteI0n+MsDKYxw61DdyG0WpltjPXY0xZDnlS6bI0Pjq4l2A367DKzQC2TcvQ2KJW/T
-         xgKQ==
-X-Gm-Message-State: AOAM531Yw0nki0A6cPORM16HV0M8VdiNv/fvO7KdQCqiO9Qs0cn0ShB1
-        g7O3ShEoD5MOeCk3baWTJ2oLXsBeqr9XREti
-X-Google-Smtp-Source: ABdhPJwjQbp4tgitXO547BRPgIpppo19yM1wuklduQEPaV47GbbuuLHf89Tv89o6QIpl0fvaAQzEwA==
-X-Received: by 2002:a63:5c1a:: with SMTP id q26mr14380720pgb.223.1599409550907;
-        Sun, 06 Sep 2020 09:25:50 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id a10sm12363701pfn.219.2020.09.06.09.25.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Sep 2020 09:25:50 -0700 (PDT)
-Subject: Re: SQPOLL question
-To:     Josef <josef.grieb@gmail.com>, io-uring@vger.kernel.org
-Cc:     norman@apache.org
-References: <CAAss7+p8iVOsP8Z7Yn2691-NU-OGrsvYd6VY9UM6qOgNwNF_1Q@mail.gmail.com>
- <68c62a2d-e110-94cc-f659-e8b34a244218@kernel.dk>
- <CAAss7+qjPqGMMLQAtdRDDpp_4s1RFexXtn7-5Sxo7SAdxHX3Zg@mail.gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <711545e2-4c07-9a16-3a1d-7704c901dd12@kernel.dk>
-Date:   Sun, 6 Sep 2020 10:25:49 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729041AbgIFRz0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 6 Sep 2020 13:55:26 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:29490 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726209AbgIFRzY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 6 Sep 2020 13:55:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599414922;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=i2fzJoK/5rqCoc2fDEyi/R2ZRblVt7u5wMJFb4+7B7o=;
+        b=GfmiETTKweqYf4XtrYBWBiHMor6Qe/QjGPeynViHSY76/sPmfvpFyHKXAN+5VNgFPcYDcO
+        HJFEA5zM5ZX6eA/NPItRadrMjIhxQW43UQHTvCsdriffsleSDIg07b2oAxf4kXISeVTbLL
+        BIAdzD0URnKMJqozHyjELzbQa0wqW6M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-344-5t8XIlnpNOq0G76iEUrC5g-1; Sun, 06 Sep 2020 13:55:18 -0400
+X-MC-Unique: 5t8XIlnpNOq0G76iEUrC5g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6F765802B5C;
+        Sun,  6 Sep 2020 17:55:17 +0000 (UTC)
+Received: from bogon.redhat.com (ovpn-12-98.pek2.redhat.com [10.72.12.98])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DCF589CBA;
+        Sun,  6 Sep 2020 17:55:15 +0000 (UTC)
+From:   Zorro Lang <zlang@redhat.com>
+To:     fstests@vger.kernel.org
+Cc:     bfoster@redhat.com, io-uring@vger.kernel.org
+Subject: [PATCH v4 0/5] fsstress,fsx: add io_uring test and do some fix
+Date:   Mon,  7 Sep 2020 01:55:08 +0800
+Message-Id: <20200906175513.17595-1-zlang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAAss7+qjPqGMMLQAtdRDDpp_4s1RFexXtn7-5Sxo7SAdxHX3Zg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/6/20 10:24 AM, Josef wrote:
->> You're using the 'fd' as the file descriptor, for registered files
->> you want to use the index instead. Since it's the only fd you
->> registered, the index would be 0 and that's what you should use.
-> 
-> oh..yeah it works, thanks :)
+This patchset tries to add new IO_URING test into fsstress [1/5] and fsx
+[4/5 and 5/5]. And then do some changes and bug fix by the way [2/5 and 3/5].
 
-Great!
+fsstress and fsx are important tools in xfstests to do filesystem I/Os test,
+lots of test cases use it. So add IO_URING operation into fsstress and fsx
+will help to cover IO_URING test from fs side.
 
->> It's worth mentioning that for 5.10 and on, SQPOLL will no longer
->> require registered files.
-> 
-> that's awesome, it would be really handy as I just implemented a kind
-> of workaround in netty :)
+I'm not an IO_URING expert, so cc io-uring@ list, please feel free to
+tell me if you find something wrong or have any suggestions to improve
+the test.
 
-On top of that, capabilities will also be reduced from root to
-CAP_SYS_NICE instead, and sharing across rings for the SQPOLL thread
-will be supported. So it'll be a lot more useful/flexible in general.
+V2 did below changes:
+1) 1/4 change the definition of URING_ENTRIES to 1
+2) 2/4 change the difinition of AIO_ENTRIES to 1, undo an unrelated changed line
+3) 4/4 turn to use io_uring_prep_readv/io_uring_prep_writev, due to old
+       liburing(0.2-2) doesn't support io_uring_prep_read/io_uring_prep_write.
 
--- 
-Jens Axboe
+V3 changed io_uring_submit(&ring) to io_uring_submit_and_wait(&ring, 1). I'm
+not sure if this's the real mean of Jens Axboe's review point, please check.
+  https://marc.info/?l=fstests&m=159811932808057&w=2
+
+V4 did below changes:
+1) 1/5 change the "goto" related code of do_uring_rw()
+2) 3/5 similar change as above
+3) 4/5 new patch, separated from original 4/4 patch
+3) 5/5 change #elif to #else
+4) 5/5 change __uring_rw to uring_rw.
+5) 5/5 change the loop logic in uring_rw().
+
+Thanks for Brian's review points.
+
+Thanks,
+Zorro
+
+
 

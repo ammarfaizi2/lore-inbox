@@ -2,209 +2,97 @@ Return-Path: <SRS0=T/hM=CQ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ACE9C433E2
-	for <io-uring@archiver.kernel.org>; Mon,  7 Sep 2020 17:25:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5998FC433E2
+	for <io-uring@archiver.kernel.org>; Mon,  7 Sep 2020 19:33:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 502782080A
-	for <io-uring@archiver.kernel.org>; Mon,  7 Sep 2020 17:25:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A6072145D
+	for <io-uring@archiver.kernel.org>; Mon,  7 Sep 2020 19:33:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OOsjfcto"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="O5GsyAia"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729562AbgIGRZa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 7 Sep 2020 13:25:30 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23227 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729314AbgIGNWf (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Sep 2020 09:22:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599484950;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=83OmKZf2FdZ//V/dEq/UmSuR25O9EgdYpQKvk/BV7eo=;
-        b=OOsjfctoG5+DFs7v77zWO64SK3dU8iYg97ixvpwVHiGNXP1QqQ37IMl8Aix9z6xUKCumk3
-        vfpfeVhlRKCE/LTWgV8oWQMdMKu0+LJhRgjkFLo3k2fN6qEoZYmhFWI9/q+giK2k7RKD0v
-        chbxzvTFA4J82THI6I5lxLy+Sd1tBeE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-351-KeEJI--OPG6eG9pZuwMj9g-1; Mon, 07 Sep 2020 09:22:29 -0400
-X-MC-Unique: KeEJI--OPG6eG9pZuwMj9g-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7508F18B9F2C
-        for <io-uring@vger.kernel.org>; Mon,  7 Sep 2020 13:22:28 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E4A8C5DAA6
-        for <io-uring@vger.kernel.org>; Mon,  7 Sep 2020 13:22:27 +0000 (UTC)
-From:   Lukas Czerner <lczerner@redhat.com>
-To:     io-uring@vger.kernel.org
-Subject: [PATCH 1/2] runtests: Small code cleanup
-Date:   Mon,  7 Sep 2020 15:22:24 +0200
-Message-Id: <20200907132225.4181-1-lczerner@redhat.com>
+        id S1728885AbgIGTde (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 7 Sep 2020 15:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728879AbgIGTde (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Sep 2020 15:33:34 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4534C061573
+        for <io-uring@vger.kernel.org>; Mon,  7 Sep 2020 12:33:33 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id m8so3153043pgi.3
+        for <io-uring@vger.kernel.org>; Mon, 07 Sep 2020 12:33:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3XwvDmKBzMp9+XSG30CgAy62dxOwhGjt/2z4l7F2zxA=;
+        b=O5GsyAiabSvRC66TIi/aFns2sOAORzr50Mw6YPtbLB7k3Bub8DtEtt9AKcibcThKSr
+         muQQdkVbf6aIml+E07AZsmLbnUQGZpu5jolfDJ2C7KOUCHq2gm2DbZLLFTkXnIRbK2v1
+         QXfiuk2N6G3EI9M3eAnFzOl3soWrZmFQmcrcVoS+sopx4FbXjSUOtDn1Y61Ho946Ye/c
+         HMCD1Ltk1+sqJnjtCzLk7gfY+0+sH/3UKMy6vcjOjtnojeVOAzVn2XIFiXTxbgP2zdpY
+         wy/XeWJ9L9hcMdKu7+hGQB+ZFEU6JZjAKXqagVkHbDavvOCfbsFEDmRFpSSB3uwfYXeW
+         p7jQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3XwvDmKBzMp9+XSG30CgAy62dxOwhGjt/2z4l7F2zxA=;
+        b=ifXum+HTREz0y++in1PQvfQ8eUpvlqh6ZsPAVx9/dmsSv4LL1hdMjCp3ybc6q3rRAm
+         S5Hz+nJnv3WhCcn0Ftm+36JWS0br6YdpPgM4WwFEty696gyiJm14XqdTYBCVhYxx7SH+
+         LiLpbqS0lObB80wdRHNkf6Mp0wMiM/jq1oJap4IMAELzcgacVDZC+Plc1WX+JLQ13yhc
+         Q4km0jgtXvG3I/8m48qLZVvjKBD/zjBvSb6pO+Jg4GDdxteExCKqnTMKbc3Y890VQV7Q
+         dnhHRptDs8gIdajrUiTtlJlFznxNxba9/suswAzja+0kXGucOFr5YMi6DHqeuJGb4WMU
+         mwkg==
+X-Gm-Message-State: AOAM531X5g3pLTFhc4VBKUNJDCzsiasGBlH3CP2tT1zjeIqb0Dvjd3U4
+        xvHI/Y3iBfv896TymEgnd4vaWL+ZPgtQPlQo
+X-Google-Smtp-Source: ABdhPJxzaHcvsqyDNPYNwpa1HV3DEFkNMELYQDPseKBDN7aCRl6Cehp3GqTwLkAN8TAdkVpq4FgFtg==
+X-Received: by 2002:a05:6a00:2bc:: with SMTP id q28mr16132322pfs.61.1599507213083;
+        Mon, 07 Sep 2020 12:33:33 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id u14sm16045837pfc.203.2020.09.07.12.33.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Sep 2020 12:33:32 -0700 (PDT)
+Subject: Re: [PATCH 2/2] runtests: add ability to exclude tests
+To:     Lukas Czerner <lczerner@redhat.com>
+Cc:     io-uring@vger.kernel.org
+References: <20200907132225.4181-1-lczerner@redhat.com>
+ <20200907132225.4181-2-lczerner@redhat.com>
+ <bfdf7e5e-06b6-f2e3-7f52-d2a6a32d719e@kernel.dk>
+ <20200907171349.bsnw3r4diak3nnab@work>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <14b46abe-0c2c-ebe2-4b37-391811e5747b@kernel.dk>
+Date:   Mon, 7 Sep 2020 13:33:31 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <20200907171349.bsnw3r4diak3nnab@work>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Use uppercase for global valiable consistently.
-Use lowercase local variables consistently.
-Don't use single letter variable names.
-Add some comments.
+On 9/7/20 11:13 AM, Lukas Czerner wrote:
+> On Mon, Sep 07, 2020 at 10:21:56AM -0600, Jens Axboe wrote:
+>> On 9/7/20 7:22 AM, Lukas Czerner wrote:
+>>> Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+>>
+>> Is there a cover letter and/or 1/2 patch that didn't go out?
+>>
+> 
+> There is 1/2 patch. Not sure why it didn't go through. I'll recheck and
+> try again.
 
-No functional changes.
+It's here now, just took many hours to get there. Weird!
 
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
----
- test/runtests.sh | 78 +++++++++++++++++++++++-------------------------
- 1 file changed, 38 insertions(+), 40 deletions(-)
-
-diff --git a/test/runtests.sh b/test/runtests.sh
-index 2cf1eb2..1eb3fda 100755
---- a/test/runtests.sh
-+++ b/test/runtests.sh
-@@ -2,18 +2,18 @@
- 
- TESTS="$@"
- RET=0
--
- TIMEOUT=60
-+DMESG_FILTER="cat"
-+TEST_DIR=$(dirname $0)
-+TEST_FILES=""
- FAILED=""
- MAYBE_FAILED=""
- 
--do_kmsg="1"
--if ! [ $(id -u) = 0 ]; then
--	do_kmsg="0"
--fi
-+# Only use /dev/kmsg if running as root
-+DO_KMSG="1"
-+[ "$(id -u)" != "0" ] && DO_KMSG="0"
- 
--TEST_DIR=$(dirname $0)
--TEST_FILES=""
-+# Include config.local if exists and check TEST_FILES for valid devices
- if [ -f "$TEST_DIR/config.local" ]; then
- 	. $TEST_DIR/config.local
- 	for dev in $TEST_FILES; do
-@@ -29,7 +29,7 @@ _check_dmesg()
- 	local dmesg_marker="$1"
- 	local seqres="$2.seqres"
- 
--	if [[ $do_kmsg -eq 0 ]]; then
-+	if [ $DO_KMSG -eq 0 ]; then
- 		return 0
- 	fi
- 
-@@ -56,68 +56,66 @@ _check_dmesg()
- 
- run_test()
- {
--	T="$1"
--	D="$2"
--	DMESG_FILTER="cat"
-+	local test_name="$1"
-+	local dev="$2"
- 
--	if [ "$do_kmsg" -eq 1 ]; then
--		if [ -z "$D" ]; then
--			local dmesg_marker="Running test $T:"
-+	if [ "$DO_KMSG" -eq 1 ]; then
-+		if [ -z "$dev" ]; then
-+			local dmesg_marker="Running test $test_name:"
- 		else
--			local dmesg_marker="Running test $T $D:"
-+			local dmesg_marker="Running test $test_name $dev:"
- 		fi
- 		echo $dmesg_marker | tee /dev/kmsg
- 	else
- 		local dmesg_marker=""
--		echo Running test $T $D
-+		echo Running test $test_name $dev
- 	fi
--	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$T $D
--	r=$?
--	if [ "${r}" -eq 124 ]; then
--		echo "Test $T timed out (may not be a failure)"
--	elif [ "${r}" -ne 0 ]; then
--		echo "Test $T failed with ret ${r}"
--		if [ -z "$D" ]; then
--			FAILED="$FAILED <$T>"
-+	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$test_name $dev
-+	local status=$?
-+	if [ "$status" -eq 124 ]; then
-+		echo "Test $test_name timed out (may not be a failure)"
-+	elif [ "$status" -ne 0 ]; then
-+		echo "Test $test_name failed with ret $status"
-+		if [ -z "$dev" ]; then
-+			FAILED="$FAILED <$test_name>"
- 		else
--			FAILED="$FAILED <$T $D>"
-+			FAILED="$FAILED <$test_name $dev>"
- 		fi
- 		RET=1
--	elif ! _check_dmesg "$dmesg_marker" "$T"; then
--		echo "Test $T failed dmesg check"
--		if [ -z "$D" ]; then
--			FAILED="$FAILED <$T>"
-+	elif ! _check_dmesg "$dmesg_marker" "$test_name"; then
-+		echo "Test $test_name failed dmesg check"
-+		if [ -z "$dev" ]; then
-+			FAILED="$FAILED <$test_name>"
- 		else
--			FAILED="$FAILED <$T $D>"
-+			FAILED="$FAILED <$test_name $dev>"
- 		fi
- 		RET=1
--	elif [ ! -z "$D" ]; then
-+	elif [ ! -z "$dev" ]; then
- 		sleep .1
- 		ps aux | grep "\[io_wq_manager\]" > /dev/null
--		R="$?"
--		if [ "$R" -eq 0 ]; then
--			MAYBE_FAILED="$MAYBE_FAILED $T"
-+		if [ $? -eq 0 ]; then
-+			MAYBE_FAILED="$MAYBE_FAILED $test_name"
- 		fi
- 	fi
- }
- 
--for t in $TESTS; do
--	run_test $t
-+# Run all specified tests
-+for tst in $TESTS; do
-+	run_test $tst
- 	if [ ! -z "$TEST_FILES" ]; then
- 		for dev in $TEST_FILES; do
--			run_test $t $dev
-+			run_test $tst $dev
- 		done
- 	fi
- done
- 
--if [ "${RET}" -ne 0 ]; then
-+if [ ${RET} -ne 0 ]; then
- 	echo "Tests $FAILED failed"
- 	exit $RET
- else
- 	sleep 1
- 	ps aux | grep "\[io_wq_manager\]" > /dev/null
--	R="$?"
--	if [ "$R" -ne 0 ]; then
-+	if [ $? -ne 0 ]; then
- 		MAYBE_FAILED=""
- 	fi
- 	if [ ! -z "$MAYBE_FAILED" ]; then
 -- 
-2.26.2
+Jens Axboe
 

@@ -2,99 +2,119 @@ Return-Path: <SRS0=dEr3=CR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D44D3C43461
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:03:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E807C43461
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:42:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 986012087C
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:03:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FD992078B
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:42:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Fc5KlT/Q"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TdV8B/1B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731387AbgIHRDf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 13:03:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36426 "EHLO
+        id S1730976AbgIHRmt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 8 Sep 2020 13:42:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731884AbgIHRCv (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 13:02:51 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C91C061755
-        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 10:02:50 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id u6so62290iow.9
-        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 10:02:50 -0700 (PDT)
+        with ESMTP id S1731833AbgIHRma (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 13:42:30 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A5CC061573
+        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 10:42:30 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id 16so6758137qkf.4
+        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 10:42:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6r8oY7P5aaaNjTS2Z3JuHAo/BodSW0G0Qz3+9SCpdcA=;
-        b=Fc5KlT/QgmDUw9wewiSXZGEfR0knpYXatiwTcFvCBfuTglDqwe97Xqfk0+3x8rqwqz
-         +7tuFM8H7/+AmHKFAaAgiLJ6SRjQRhYk33odBKaz/HYiH3Ner4l978qk7J5fVRCppZat
-         NzbCVkM8xF0xtOByqvqkwhwdQxGZyDDDgP822eVuJM4gG0Hcg8eiv1RslZap/Bek1+wl
-         Zo6pLSrd6Y9goqQPOoDIZfkmRDiwu8LSP2FkQezPzvHh4k3BUYgvl+MCayPCGDN/ggRH
-         EbcMddlY2Qg8dVmq7IG0F2iCUIwDUoScipcAw4Y7Ul6q0kcLqRY/IS7Ixd4PLxrKKOK1
-         TsFA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=E/mgPvL4jB2DhXNBjTqIcE+YX7i/1El/bm0AGxFt15I=;
+        b=TdV8B/1Bad6MxKzm7m2CP/Cj32euqLmeqvf0abpMLDphRinFAjAHKrL/ZR4eGU2bSb
+         1kkXWJUIVCLdcfJQE2oyxa4ccVrxI5PIajxhNDy3zNyTI9BVMfWrSDVtPvwgqUkqZh+f
+         a/mCkMXh4UJdcfBj9i+XyQ4sH8Ct8ItXT+XpsvWI+MRlR86dWXrfu9C2Gp2OakmGYp2U
+         RgkT4bTSeDn0yu1FZtSBYbNONt9CgQL6ItuHSZEtDkKutoRmXsc591YWtPXXozicnvac
+         mgm4CgGli5NCP/Rfl2cEw1nNEErN4PDYT9eNSjlinlgPHEGiPlWLIWxnN2PygPw/z9uS
+         A1iQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6r8oY7P5aaaNjTS2Z3JuHAo/BodSW0G0Qz3+9SCpdcA=;
-        b=eIF1Vl/AhVuotddP0/KptqcAJmi1VkL1M0URv6c1XTn3UO3dDv8V5v80QSn0QzASYX
-         Iy8W9CqkBBsOlZ404tCVVFU5C4bZUuP+dFIEO7cGqm3gnBCqL4PreDcxn03eUeQRWBIX
-         Jmhl8iCeT+A/i3ve4HvY+1uDEK9qzbZ5q8tjAHjgHzM1LU90SfpPi6VEFkBCYDpC6GTl
-         3n8kpoRMTIF7impFkDbREy5Dm6hqbm0q/YrMvmE3meJb09zNXsM7Qvtov0Hn4CVFjID5
-         mKR4SVj13MlKv70x2OaGOqKNKiaqIRm9vq3zHDNBMtJ6GSbYzFxnWFcCAiZVkQpaaxGE
-         l/Pw==
-X-Gm-Message-State: AOAM533MR0mGllQxNsEgUjvcGtMqle/KPix0+UBeti4/O4BT55C01O5H
-        KU7l6pvPgwMJksQFHa+bPXp80A==
-X-Google-Smtp-Source: ABdhPJwKYohUKj3l/8T5Uy0NjpVMb531t2l/rRzat+mZoQM4CjOho16dsxnLDc/YijlCusjH4qO8bQ==
-X-Received: by 2002:a02:9986:: with SMTP id a6mr23301374jal.28.1599584569815;
-        Tue, 08 Sep 2020 10:02:49 -0700 (PDT)
-Received: from [192.168.1.10] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id i14sm10669430ilb.28.2020.09.08.10.02.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2020 10:02:49 -0700 (PDT)
-Subject: Re: [PATCH for-next] io_uring: return EBADFD when ring isn't in the
- right state
-To:     Stefano Garzarella <sgarzare@redhat.com>
-Cc:     io-uring@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200908165242.124957-1-sgarzare@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <6e119be3-d9a3-06ea-1c76-4201816dde46@kernel.dk>
-Date:   Tue, 8 Sep 2020 11:02:48 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=E/mgPvL4jB2DhXNBjTqIcE+YX7i/1El/bm0AGxFt15I=;
+        b=AbeqTNMYj3qMpvrSMbaEwUmKggELMB0ZcE7y3Wx4doQuQ0sMiN5G+YAj5FvP3nE40F
+         LJg/UOXC82p3HcFHF+UeUnvCWDcoVDPP3IUzaJvfdi/mpTV8+nWvhLwRquOmABTnMpf3
+         fSSbdE2yweBfz1rrumFDc44euSXh7LA/ujewLy+u7o/+pApdLOD1bL8Fu5tjozck42CP
+         eQjo54KsGTKQlG7/JrAJWRvO5V+ju4vXkUFNnPAiJ3LyjKI370cBRI+Sqhe6kaLOihtE
+         WKyYJb5fsKn27bt8oalO0Eo+wAW073yHtUC7aEZ3IXcZUc3imSRKW6ft8IH9/kD4n4xS
+         ZBIQ==
+X-Gm-Message-State: AOAM531m7Gt8uFFVgHlXRSYX3TmPi7mtqt6/QmqpiNiOHsyOrfgVviQw
+        EXWFlezHVQ3OcPgxz6SUHKlbvTr0z9B5d3/AsjhC2cx8o8LPUw==
+X-Google-Smtp-Source: ABdhPJz/z4kPkX9eb31JhHNSN9wXo61BpQij1R9xuU5BU625r0B2/YQ4LYBvOTO/PYqClvf1YaN0Dg0wfrM0tv+k8zc=
+X-Received: by 2002:a37:60c5:: with SMTP id u188mr1106826qkb.412.1599586949167;
+ Tue, 08 Sep 2020 10:42:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200908165242.124957-1-sgarzare@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAAss7+p8iVOsP8Z7Yn2691-NU-OGrsvYd6VY9UM6qOgNwNF_1Q@mail.gmail.com>
+ <68c62a2d-e110-94cc-f659-e8b34a244218@kernel.dk> <CAAss7+qjPqGMMLQAtdRDDpp_4s1RFexXtn7-5Sxo7SAdxHX3Zg@mail.gmail.com>
+ <711545e2-4c07-9a16-3a1d-7704c901dd12@kernel.dk> <CAAss7+rgZ+9GsMq8rRN11FerWjMRosBgAv=Dokw+5QfBsUE4Uw@mail.gmail.com>
+ <93e9b2a2-b4b4-3cde-b5a7-64c8c504848d@kernel.dk> <CAAss7+oa=tyf00Kudp-4O=TiduDUFZueuYvwRQsAEWxLfWQc-g@mail.gmail.com>
+ <8f22db0e-e539-49b0-456a-fa74e2b56001@kernel.dk> <CAAss7+pjbh2puVsQTOt7ymKSmbruBZbaOvB8tqfw0z-cMuhJYg@mail.gmail.com>
+ <cd44ec4a-41b9-0fa0-877d-710991b206f1@kernel.dk> <dd59bd5e-cb81-98c1-4bc8-fa1a290429c2@kernel.dk>
+In-Reply-To: <dd59bd5e-cb81-98c1-4bc8-fa1a290429c2@kernel.dk>
+From:   Josef <josef.grieb@gmail.com>
+Date:   Tue, 8 Sep 2020 19:42:17 +0200
+Message-ID: <CAAss7+oJF-KMRAnkjMWmW9Zd-dNnTojFOeC7LR-AoHcJDOc36Q@mail.gmail.com>
+Subject: Re: SQPOLL question
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     norman@apache.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/8/20 10:52 AM, Stefano Garzarella wrote:
-> This patch uniforms the returned error (EBADFD) when the ring state
-> (enabled/disabled) is not the expected one.
-> 
-> The changes affect io_uring_enter() and io_uring_register() syscalls.
+> Are you using for-5.10 and SQEPOLL + ASYNC accept? I'll give that a
+> test spin.
 
-I added a Fixes line:
+yes exactly
 
-Fixes: 7ec3d1dd9378 ("io_uring: allow disabling rings during the creation")
+> This should do it for your testing, need to confirm this is absolutely
+> safe. But it'll make it work for the 5.10/io_uring setup of allowing
+> file open/closes.
+>
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 80913973337a..e21a7a9c6a59 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -6757,7 +6757,7 @@ static enum sq_ret __io_sq_thread(struct io_ring_ctx *ctx,
+>
+>         mutex_lock(&ctx->uring_lock);
+>         if (likely(!percpu_ref_is_dying(&ctx->refs)))
+> -               ret = io_submit_sqes(ctx, to_submit, NULL, -1);
+> +               ret = io_submit_sqes(ctx, to_submit, ctx->ring_file, ctx->ring_fd);
+>         mutex_unlock(&ctx->uring_lock);
+>
+>         if (!io_sqring_full(ctx) && wq_has_sleeper(&ctx->sqo_sq_wait))
+> @@ -8966,6 +8966,11 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+>                 goto err;
+>         }
+>
+> +       if (p->flags & IORING_SETUP_SQPOLL) {
+> +               ctx->ring_fd = fd;
+> +               ctx->ring_file = file;
+> +       }
+> +
+>         ret = io_sq_offload_create(ctx, p);
+>         if (ret)
+>                 goto err;
+>
 
-and applied it, thanks!
+sorry I couldn't apply this patch, my last commit is
+https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=for-5.10/io_uring&id=9c2446cffaf55da88e7a9a7c0a5aeb02a9eba2c0
+what's your last commit?
 
-> https://github.com/stefano-garzarella/liburing (branch: fix-disabled-ring-error)
+it's a small patch, so I'll try it manually :)
 
-I'll check and pull that one too.
-
--- 
-Jens Axboe
-
+---
+Josef

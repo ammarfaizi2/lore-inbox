@@ -2,90 +2,183 @@ Return-Path: <SRS0=dEr3=CR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F0AFC433E2
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:14:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D005C433E2
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:17:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B74C21D47
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:14:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4002921D7D
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:17:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VtkPdRhA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACs89HWA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729822AbgIHION (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 04:14:13 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31569 "EHLO
+        id S1729627AbgIHIRP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 8 Sep 2020 04:17:15 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50104 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729624AbgIHIOK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 04:14:10 -0400
+        with ESMTP id S1729257AbgIHIRO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 04:17:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599552848;
+        s=mimecast20190719; t=1599553032;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=g7XnmiL30sAnPcB3AzinB00t7FaVkVHEiXk7l9h6Wbo=;
-        b=VtkPdRhAgZ0nt2IJvcmSqmvx04wvQXCwtgrhoORdJCUAAh58AH23OCYFt2ubjKXNFyNWcB
-        5s9hIIkleSGatOo2j0MKKx6Ln2oHzo5DjUfKt2KpyM9NyJ1CPjhVGOVZ8HXG0dV56Ks06D
-        L5k8mGsXLNE23GrhMCQIkpVBSm6c1pg=
+        bh=sVOwyYecIwvyo2CCnOIOLnXjm72bgWFV5llOXzD82ek=;
+        b=ACs89HWAEKc1ZGmuy23qL6WNJOibyeJFp82EAKfcVH8kv4/TEImUU/z8OijF9rrAy0Ltzz
+        gQhe0PhM8t3uKUTzRCdbuf2hAPjRQdv84rurDPZOF0GoboF1xBhNGIWffpw40yLPEB3bXR
+        o3D1Ax067ZECM/mcuKly0EWfC/V9QRk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-449-4Y9dwhZQMJypELTz8dvtDQ-1; Tue, 08 Sep 2020 04:14:06 -0400
-X-MC-Unique: 4Y9dwhZQMJypELTz8dvtDQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+ us-mta-409-VRO8V4KxNn-6_BxqV-1dug-1; Tue, 08 Sep 2020 04:17:09 -0400
+X-MC-Unique: VRO8V4KxNn-6_BxqV-1dug-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C4FB41005E5B;
-        Tue,  8 Sep 2020 08:14:05 +0000 (UTC)
-Received: from work (unknown [10.40.192.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 15F1D7D8AE;
-        Tue,  8 Sep 2020 08:14:04 +0000 (UTC)
-Date:   Tue, 8 Sep 2020 10:14:00 +0200
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 864EF802B66
+        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 08:17:08 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.192.106])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 010E07ED84
+        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 08:17:07 +0000 (UTC)
 From:   Lukas Czerner <lczerner@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org
-Subject: Re: [PATCH 2/2] runtests: add ability to exclude tests
-Message-ID: <20200908081400.pytf6abmvp7ke7my@work>
-References: <20200907132225.4181-1-lczerner@redhat.com>
- <20200907132225.4181-2-lczerner@redhat.com>
- <9123fe5b-f57c-258a-64c3-71fa4859040b@kernel.dk>
+To:     io-uring@vger.kernel.org
+Subject: [PATCH v2 2/2] runtests: add ability to exclude tests
+Date:   Tue,  8 Sep 2020 10:17:03 +0200
+Message-Id: <20200908081703.6011-2-lczerner@redhat.com>
+In-Reply-To: <20200908081703.6011-1-lczerner@redhat.com>
+References: <20200908081703.6011-1-lczerner@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9123fe5b-f57c-258a-64c3-71fa4859040b@kernel.dk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Mon, Sep 07, 2020 at 01:34:38PM -0600, Jens Axboe wrote:
-> On 9/7/20 7:22 AM, Lukas Czerner wrote:
-> > Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-> 
-> This patch really needs some justification. I generally try to make sure
-> that older kernel skip tests appropriately, sometimes I miss some and I
-> fix them up when I find them.
-> 
-> So just curious what the use case is here for skipping tests? Not
-> adverse to doing it, just want to make sure it's for the right reasons.
+Add TEST_EXCLUDE configuration option to be able to skip specified
+tests. This is usefull in situations when certain tests are causing
+problems that are not yet fixed, but I'd still want to see if any of the
+changes made didn't break anything else.
 
-I think this is very useful, at least for me, in situation where some
-tests are causeing problems (like hangs, panics) that are not fixed yet,
-but I would still like to run entire tests suite to make sure my changes
-in didn't break anything else. I find it especially usefull in rapidly
-evolving project like this.
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+---
+v2: Add proper description
 
-I have a V2 patches with that justification in place and some minor
-changes. I'll be sending that (hopefuly it won't take hours this time).
+ test/config      |  7 +++++--
+ test/runtests.sh | 48 ++++++++++++++++++++++++++++++------------------
+ 2 files changed, 35 insertions(+), 20 deletions(-)
 
-Thanks!
--Lukas
-
-> 
-> -- 
-> Jens Axboe
-> 
+diff --git a/test/config b/test/config
+index 80a5f46..cab2703 100644
+--- a/test/config
++++ b/test/config
+@@ -1,4 +1,7 @@
+-# Define raw test devices (or files) for test cases, if any
+-# Copy this to config.local, and uncomment + define test files
++# Copy this to config.local, uncomment and define values
++#
++# Define tests to exclude from running
++# TEST_EXCLUDE=""
+ #
++# Define raw test devices (or files) for test cases, if any
+ # TEST_FILES="/dev/nvme0n1p2 /data/file"
+diff --git a/test/runtests.sh b/test/runtests.sh
+index f860766..fa240f2 100755
+--- a/test/runtests.sh
++++ b/test/runtests.sh
+@@ -7,6 +7,7 @@ DMESG_FILTER="cat"
+ TEST_DIR=$(dirname $0)
+ TEST_FILES=""
+ FAILED=""
++SKIPPED=""
+ MAYBE_FAILED=""
+ 
+ # Only use /dev/kmsg if running as root
+@@ -58,43 +59,50 @@ run_test()
+ {
+ 	local test_name="$1"
+ 	local dev="$2"
++	local test_string=$test_name
+ 
++	# Specify test string to print
++	if [ -n "$dev" ]; then
++		test_string="$test_name $dev"
++	fi
++
++	# Log start of the test
+ 	if [ "$DO_KMSG" -eq 1 ]; then
+-		if [ -z "$dev" ]; then
+-			local dmesg_marker="Running test $test_name:"
+-		else
+-			local dmesg_marker="Running test $test_name $dev:"
+-		fi
++		local dmesg_marker="Running test $test_string:"
+ 		echo $dmesg_marker | tee /dev/kmsg
+ 	else
+ 		local dmesg_marker=""
+ 		echo Running test $test_name $dev
+ 	fi
++
++	# Do we have to exclude the test ?
++	echo $TEST_EXCLUDE | grep -w "$test_name" > /dev/null 2>&1
++	if [ $? -eq 0 ]; then
++		echo "Test skipped"
++		SKIPPED="$SKIPPED <$test_string>"
++		return
++	fi
++
++	# Run the test
+ 	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$test_name $dev
+ 	local status=$?
++
++	# Check test status
+ 	if [ "$status" -eq 124 ]; then
+ 		echo "Test $test_name timed out (may not be a failure)"
+ 	elif [ "$status" -ne 0 ]; then
+ 		echo "Test $test_name failed with ret $status"
+-		if [ -z "$dev" ]; then
+-			FAILED="$FAILED <$test_name>"
+-		else
+-			FAILED="$FAILED <$test_name $dev>"
+-		fi
++		FAILED="$FAILED <$test_string>"
+ 		RET=1
+ 	elif ! _check_dmesg "$dmesg_marker" "$test_name"; then
+ 		echo "Test $test_name failed dmesg check"
+-		if [ -z "$dev" ]; then
+-			FAILED="$FAILED <$test_name>"
+-		else
+-			FAILED="$FAILED <$test_name $dev>"
+-		fi
++		FAILED="$FAILED <$test_string>"
+ 		RET=1
+-	elif [ ! -z "$dev" ]; then
++	elif [ -n "$dev" ]; then
+ 		sleep .1
+ 		ps aux | grep "\[io_wq_manager\]" > /dev/null
+ 		if [ $? -eq 0 ]; then
+-			MAYBE_FAILED="$MAYBE_FAILED $test_name"
++			MAYBE_FAILED="$MAYBE_FAILED $test_string"
+ 		fi
+ 	fi
+ }
+@@ -109,8 +117,12 @@ for tst in $TESTS; do
+ 	fi
+ done
+ 
++if [ -n "$SKIPPED" ]; then
++	echo "Tests skipped: $SKIPPED"
++fi
++
+ if [ "${RET}" -ne 0 ]; then
+-	echo "Tests $FAILED failed"
++	echo "Tests failed: $FAILED"
+ 	exit $RET
+ else
+ 	sleep 1
+-- 
+2.26.2
 

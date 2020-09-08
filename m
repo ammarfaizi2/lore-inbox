@@ -2,71 +2,84 @@ Return-Path: <SRS0=dEr3=CR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24147C43461
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:49:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6EEAC2D0A7
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:53:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4F1F2078B
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:49:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A01882078B
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 17:53:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cIJYcvyM"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="uJazPLWe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731733AbgIHRtJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 13:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43568 "EHLO
+        id S1731601AbgIHRwh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 8 Sep 2020 13:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731222AbgIHRtG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 13:49:06 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E24C061573
-        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 10:49:05 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id b6so249159iof.6
-        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 10:49:04 -0700 (PDT)
+        with ESMTP id S1731618AbgIHQNo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 12:13:44 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02B36C0619EB
+        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 06:57:14 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id m17so17158190ioo.1
+        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 06:57:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=ZNp1tC7FGYnR93LoeRP53k8Vq6vUHOWVJlI0MHfXLnw=;
-        b=cIJYcvyMmWC6CvAhUjxy55gA9XDQQfereR4T203nDT30azJzcwOlDpOPva0emt9sbD
-         WhkgKwJ8JMo9cOe4Oj6Enu7eiecV4HaKg6eRQ2rMPcpci/9iOfrGAZ2dr8kmiLZqYny7
-         Kg0XFduD1m/Tf/1I58RjAJNEICGzp6Hybg9jiNUY2pmHrHgrz/Sun9CuyNpZWGDjvTui
-         Sh1ONhfuhncGUWUzkrS0KOd2t9i2+Bjyy+J4Dv6mkOZEzfbPqpNV56GtANfHCkX5aMny
-         CGl7wD0AFLIvEb8shxW3toO7XdZV5eNHXndU1FOfCq0KBQu6RGWaZkP5O86eMY11jtYO
-         ZeMQ==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=lLPV/2TbMLCWwjxZmMjGQAv9RQQ5QdmKtS2Q2m060x4=;
+        b=uJazPLWezWgC/PxcgavzXTzULVjK+HH/0rnfAycuhBQCpgkDFk/fvQpqKS7RzEpiXG
+         ERAROiLm7VLunZJpzttkIeY7b1VyZ7vdAdTmly29bZuLWeEEHdxvjUkOpVL/XgnAQLYP
+         U563XLl1LCPU1Vs+xCapjB1tF5YvK5Li0o6rXx6tkcIIdFWG/q5TU59d1Vbfyhey0Iqk
+         FjDr8t0q6o0KqVSUzgviXQkWRhNR4U26NzOXYB0n6lNBNEhD4nJZeQCKGy7YfpsuHGrd
+         n/zLgKw2/0PIclu34Gpdgs81l5h979bDDAONUe9gK227ECpK+s8PjAKkmwpLLY/KXPFR
+         17Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=ZNp1tC7FGYnR93LoeRP53k8Vq6vUHOWVJlI0MHfXLnw=;
-        b=fNKHooY91G1FAA5aioWIqsKGNJ+k7UArJd37OSrSyj2Y1/j54vNbuMXOyVzbb15oN9
-         JvWYNZMIgTfgqY23kKNTuJH0h2hqtAOabtbZjCxhTrlBEJ4WTupEelMmM+ZFRI15fDpW
-         oOmVAfxDD2QBa1Z3kkidxXeD1SgxgW6p/irjKJL/Xdmfh9/bMCFWfn6uSy6nXzL6hAA1
-         Y237BLFt/RQ4J6slwj8K4+HBSyDs8uJarNEnIGBZiGUQKdh7+/UqCKJnep4FcqAnWxcj
-         rwltvGW00s5P2UICaEhQUUyfxD2jHE+WzSXxgf5ZfUukqr8FF7WBwJW0UiesvNzL9Cdi
-         jYAQ==
-X-Gm-Message-State: AOAM532bpeTQ/NOPBXYEngzE0gLaaFOGofLwBmOMuDpuuF8QiQf2lgkL
-        CqVxWGVmBYySUoRWMYdI0DwSyP1Sjlw8gACE
-X-Google-Smtp-Source: ABdhPJw2F/UCoeyOnSDQ6Gf1Hr4SUbNthEkZ+WU8aP+FrEgNVSMKXSfB9URQ8q1IUn6S3hPncjT4dA==
-X-Received: by 2002:a02:a04d:: with SMTP id f13mr101250jah.112.1599587343997;
-        Tue, 08 Sep 2020 10:49:03 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=lLPV/2TbMLCWwjxZmMjGQAv9RQQ5QdmKtS2Q2m060x4=;
+        b=BCORS1zN+pD/ZFT6DbtqCVS7MVucSwklBb8NTYGSKBlQeSG02m/4WOxMyeMQFYQ7gl
+         48vJMEoNrCfGUrl6bGT2he6ycoDWmlj6i8M70VzfeGshUJaXh9JQ2lqrtHFBaxvxWY7z
+         8o5T4QjdsdWphyzrUl7kvUqAPaSqrHNkMZSg00bTBZNoQ9H2fnYZwcsCc7vTuU2QY+st
+         cPY69cR1KgKCjGhtEqFPdy1Oj//Q7OPQI5txWsdSVf6I5Hg64NP7IPNJh15tMaRZbV6H
+         vMR5RF8ab7XgqFtCRixDLs+wesbaUWvZMbcC/xZeHl2ElpKIUjX2ph3DHXV+YOnSY7I6
+         Y90w==
+X-Gm-Message-State: AOAM532wLh4FdBmRE9p6RfwJ6QrqB+rSU0AH8Uxuy+r8WsHYhhXs22Mc
+        tMIQPJkC53Z1BCZzVGcOtMZJIQ==
+X-Google-Smtp-Source: ABdhPJxhox+LWrxM6t17Fh8h96lJUzdn1I3RGOvUMfkfWJnmtrv7CdbTJs/zo6NSzHwk+R3I3Syr5A==
+X-Received: by 2002:a6b:c8d6:: with SMTP id y205mr527426iof.177.1599573430313;
+        Tue, 08 Sep 2020 06:57:10 -0700 (PDT)
 Received: from [192.168.1.10] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o15sm9703349ilc.41.2020.09.08.10.49.03
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id e28sm10512528ill.79.2020.09.08.06.57.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2020 10:49:03 -0700 (PDT)
-To:     io-uring <io-uring@vger.kernel.org>
+        Tue, 08 Sep 2020 06:57:09 -0700 (PDT)
+Subject: Re: [PATCH v6 3/3] io_uring: allow disabling rings during the
+ creation
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Jann Horn <jannh@google.com>, Jeff Moyer <jmoyer@redhat.com>,
+        Aleksa Sarai <asarai@suse.de>,
+        Sargun Dhillon <sargun@sargun.me>,
+        linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>
+References: <20200827145831.95189-1-sgarzare@redhat.com>
+ <20200827145831.95189-4-sgarzare@redhat.com>
+ <20200908134448.sg7evdrfn6xa67sn@steredhat>
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH for-next] io_uring: cap SQ submit size for SQPOLL with
- multiple rings
-Message-ID: <6f4d634f-8b00-3f81-70b2-fb610ffdb793@kernel.dk>
-Date:   Tue, 8 Sep 2020 11:49:02 -0600
+Message-ID: <045e0907-4771-0b7f-d52a-4af8197e6954@kernel.dk>
+Date:   Tue, 8 Sep 2020 07:57:08 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <20200908134448.sg7evdrfn6xa67sn@steredhat>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -75,71 +88,107 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-In the spirit of fairness, cap the max number of SQ entries we'll submit
-for SQPOLL if we have multiple rings. If we don't do that, we could be
-submitting tons of entries for one ring, while others are waiting to get
-service.
+On 9/8/20 7:44 AM, Stefano Garzarella wrote:
+> Hi Jens,
+> 
+> On Thu, Aug 27, 2020 at 04:58:31PM +0200, Stefano Garzarella wrote:
+>> This patch adds a new IORING_SETUP_R_DISABLED flag to start the
+>> rings disabled, allowing the user to register restrictions,
+>> buffers, files, before to start processing SQEs.
+>>
+>> When IORING_SETUP_R_DISABLED is set, SQE are not processed and
+>> SQPOLL kthread is not started.
+>>
+>> The restrictions registration are allowed only when the rings
+>> are disable to prevent concurrency issue while processing SQEs.
+>>
+>> The rings can be enabled using IORING_REGISTER_ENABLE_RINGS
+>> opcode with io_uring_register(2).
+>>
+>> Suggested-by: Jens Axboe <axboe@kernel.dk>
+>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>> v4:
+>>  - fixed io_uring_enter() exit path when ring is disabled
+>>
+>> v3:
+>>  - enabled restrictions only when the rings start
+>>
+>> RFC v2:
+>>  - removed return value of io_sq_offload_start()
+>> ---
+>>  fs/io_uring.c                 | 52 ++++++++++++++++++++++++++++++-----
+>>  include/uapi/linux/io_uring.h |  2 ++
+>>  2 files changed, 47 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index 5f62997c147b..b036f3373fbe 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -226,6 +226,7 @@ struct io_restriction {
+>>  	DECLARE_BITMAP(sqe_op, IORING_OP_LAST);
+>>  	u8 sqe_flags_allowed;
+>>  	u8 sqe_flags_required;
+>> +	bool registered;
+>>  };
+>>  
+>>  struct io_ring_ctx {
+>> @@ -7497,8 +7498,8 @@ static int io_init_wq_offload(struct io_ring_ctx *ctx,
+>>  	return ret;
+>>  }
+>>  
+>> -static int io_sq_offload_start(struct io_ring_ctx *ctx,
+>> -			       struct io_uring_params *p)
+>> +static int io_sq_offload_create(struct io_ring_ctx *ctx,
+>> +				struct io_uring_params *p)
+>>  {
+>>  	int ret;
+>>  
+>> @@ -7532,7 +7533,6 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+>>  			ctx->sqo_thread = NULL;
+>>  			goto err;
+>>  		}
+>> -		wake_up_process(ctx->sqo_thread);
+>>  	} else if (p->flags & IORING_SETUP_SQ_AFF) {
+>>  		/* Can't have SQ_AFF without SQPOLL */
+>>  		ret = -EINVAL;
+>> @@ -7549,6 +7549,12 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+>>  	return ret;
+>>  }
+>>  
+>> +static void io_sq_offload_start(struct io_ring_ctx *ctx)
+>> +{
+>> +	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sqo_thread)
+>> +		wake_up_process(ctx->sqo_thread);
+>> +}
+>> +
+>>  static inline void __io_unaccount_mem(struct user_struct *user,
+>>  				      unsigned long nr_pages)
+>>  {
+>> @@ -8295,6 +8301,9 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+>>  	if (!percpu_ref_tryget(&ctx->refs))
+>>  		goto out_fput;
+>>  
+>> +	if (ctx->flags & IORING_SETUP_R_DISABLED)
+>> +		goto out_fput;
+>> +
+> 
+> While writing the man page paragraph, I discovered that if the rings are
+> disabled I returned ENXIO error in io_uring_enter(), coming from the previous
+> check.
+> 
+> I'm not sure it is the best one, maybe I can return EBADFD or another
+> error.
+> 
+> What do you suggest?
 
-The value of 8 is somewhat arbitrarily chosen as something that allows
-a fair bit of batching, without using an excessive time per ring.
+EBADFD seems indeed the most appropriate - the fd is valid, but not in the
+right state to do this.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+> I'll add a test for this case.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e21a7a9c6a59..ef86aa2a577d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6687,7 +6687,7 @@ enum sq_ret {
- };
- 
- static enum sq_ret __io_sq_thread(struct io_ring_ctx *ctx,
--				  unsigned long start_jiffies)
-+				  unsigned long start_jiffies, bool cap_entries)
- {
- 	unsigned long timeout = start_jiffies + ctx->sq_thread_idle;
- 	struct io_sq_data *sqd = ctx->sq_data;
-@@ -6755,6 +6755,10 @@ static enum sq_ret __io_sq_thread(struct io_ring_ctx *ctx,
- 		io_ring_clear_wakeup_flag(ctx);
- 	}
- 
-+	/* if we're handling multiple rings, cap submit size for fairness */
-+	if (cap_entries && to_submit > 8)
-+		to_submit = 8;
-+
- 	mutex_lock(&ctx->uring_lock);
- 	if (likely(!percpu_ref_is_dying(&ctx->refs)))
- 		ret = io_submit_sqes(ctx, to_submit, ctx->ring_file, ctx->ring_fd);
-@@ -6789,6 +6793,7 @@ static int io_sq_thread(void *data)
- 	start_jiffies = jiffies;
- 	while (!kthread_should_stop()) {
- 		enum sq_ret ret = 0;
-+		bool cap_entries;
- 
- 		/*
- 		 * Any changes to the sqd lists are synchronized through the
-@@ -6801,6 +6806,8 @@ static int io_sq_thread(void *data)
- 		if (unlikely(!list_empty(&sqd->ctx_new_list)))
- 			io_sqd_init_new(sqd);
- 
-+		cap_entries = !list_is_singular(&sqd->ctx_list);
-+
- 		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
- 			if (current->cred != ctx->creds) {
- 				if (old_cred)
-@@ -6814,7 +6821,7 @@ static int io_sq_thread(void *data)
- 				task_unlock(current);
- 			}
- 
--			ret |= __io_sq_thread(ctx, start_jiffies);
-+			ret |= __io_sq_thread(ctx, start_jiffies, cap_entries);
- 
- 			io_sq_thread_drop_mm();
- 		}
--- 
-2.28.0
+Thanks!
 
 -- 
 Jens Axboe

@@ -2,205 +2,109 @@ Return-Path: <SRS0=dEr3=CR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D6C8C43461
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:17:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FFFDC43461
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 14:17:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CC2F21D7D
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 08:17:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1905C222E9
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 14:17:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZDtc1o+r"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="G/Gy4Eh5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729257AbgIHIRQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 04:17:16 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:37261 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729432AbgIHIRP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 04:17:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599553033;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=BsxxnwV5VlJSyFgfsGXdxz6pjpOcfy2fMvIBaH0C0Bc=;
-        b=ZDtc1o+r++roOjgi7RZY4bC3se58EO14Hw8sXWBGEIaeHYycTAMkvVCD+dKD9A3CGEdF7h
-        4JUFIkGtFmgi6TPzJY3H7wxZjyZFdN3QXF5ckaxDzWgogSaUduTRtofoJK2vGBoUe9Lryx
-        eo5iTd3DeVixIBdG6NNXjCpD2ujOPmQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-24--BbcKTP2MwO7cbsr4zihZw-1; Tue, 08 Sep 2020 04:17:08 -0400
-X-MC-Unique: -BbcKTP2MwO7cbsr4zihZw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A1EC8802B60
-        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 08:17:07 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1D7C37ED84
-        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 08:17:06 +0000 (UTC)
-From:   Lukas Czerner <lczerner@redhat.com>
-To:     io-uring@vger.kernel.org
-Subject: [PATCH v2 1/2] runtests: Clean up code in runtests.sh
-Date:   Tue,  8 Sep 2020 10:17:02 +0200
-Message-Id: <20200908081703.6011-1-lczerner@redhat.com>
+        id S1729844AbgIHOPn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 8 Sep 2020 10:15:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36900 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729305AbgIHOPX (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 10:15:23 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13059C061A1E
+        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 07:10:34 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id x2so15515983ilm.0
+        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 07:10:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=SD2hzMO6T/4qOzewCneSHaqX5BbMpoVB67UFkCuqdr8=;
+        b=G/Gy4Eh5J4GyD0nvTqgc9eXcy1GSZ8wvRh5lIWYPCD/rwi7O0O1dTUDqlUrgw/7jzz
+         es54IrHYqaVXGAOo3DJAq5NbaCetGukqvK+WhllhnqFq/JAWdNu5XQyiyt98e3q3mxzW
+         mtHFVmrDQJhfsBqct48aAhuiKnl3sHSbZay0hxOAz1VqU+P7g84c8p1O620j0+QcC0m8
+         agEGLSlxA0PQQSklp0g0SQvdCsX9B49f/MA3cveU/9o6TxJVJYAHqBog6P0F3HJpmXZm
+         F7G8sGmyxjrC16wTuRNqNJWcLFM5UVjPYzY6n3PjYdk8kzUfALQIYbSXC0pL5KiW1J22
+         b5zA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=SD2hzMO6T/4qOzewCneSHaqX5BbMpoVB67UFkCuqdr8=;
+        b=OFSiE6Hb+Hg4PwMwy7Ddp4lwCo4Is+JQr2g54QW/FwwsaBts3/mg7YCBnlz3EEG+SP
+         0cQiDdUc3zhp1Eqc1/5RpV71BNse0jzq+gcp6E385qpLCsaWckzk0wBuA/YKn/h+1UfB
+         WeQR3+KcqDP5k9KJfknBlQ9EK/5IHmMeVsJvv66rjkhh+oStUp0/CcBWmtigA5oFOI14
+         klgoUlE4GjMVrFz+rWbRXAIRD70ZRlP+XuT0X3TgQG610tddiSPmQlLgLNq5e2P+1yai
+         zSbV+qy36j9XRbHNDm7XF+GSJgE7OgzU2zCGpKEgzgNo4sKaDBtpNXgXBNOkJhy6ilOO
+         bIhg==
+X-Gm-Message-State: AOAM530KRYfr+8aWeS1XJvKPLJItZNaQ0wrgTjdLSfd27ubpzMcy1pPf
+        6CcfKDya78440VJXlkPuEUoIxny2VSnBmLPT
+X-Google-Smtp-Source: ABdhPJygpa6/GbauAeVVJxbpIlrZ1r05xQZvIPxbLHOqJxstD3YgnZLy/Yny137+lWWUXvGaS4TCIg==
+X-Received: by 2002:a92:5eda:: with SMTP id f87mr22715650ilg.279.1599574233140;
+        Tue, 08 Sep 2020 07:10:33 -0700 (PDT)
+Received: from [192.168.1.10] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id c9sm10471525ili.31.2020.09.08.07.10.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Sep 2020 07:10:32 -0700 (PDT)
+Subject: Re: [PATCH 2/2] runtests: add ability to exclude tests
+To:     Lukas Czerner <lczerner@redhat.com>
+Cc:     io-uring@vger.kernel.org
+References: <20200907132225.4181-1-lczerner@redhat.com>
+ <20200907132225.4181-2-lczerner@redhat.com>
+ <9123fe5b-f57c-258a-64c3-71fa4859040b@kernel.dk>
+ <20200908081400.pytf6abmvp7ke7my@work>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <be7b75e7-1ce6-4890-a676-90dbc8d7b1d6@kernel.dk>
+Date:   Tue, 8 Sep 2020 08:10:31 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20200908081400.pytf6abmvp7ke7my@work>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Use uppercase for global and lowecase for local valiable consistently.
-Don't use single letter variable names and add some comments.
+On 9/8/20 2:14 AM, Lukas Czerner wrote:
+> On Mon, Sep 07, 2020 at 01:34:38PM -0600, Jens Axboe wrote:
+>> On 9/7/20 7:22 AM, Lukas Czerner wrote:
+>>> Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+>>
+>> This patch really needs some justification. I generally try to make sure
+>> that older kernel skip tests appropriately, sometimes I miss some and I
+>> fix them up when I find them.
+>>
+>> So just curious what the use case is here for skipping tests? Not
+>> adverse to doing it, just want to make sure it's for the right reasons.
+> 
+> I think this is very useful, at least for me, in situation where some
+> tests are causeing problems (like hangs, panics) that are not fixed yet,
+> but I would still like to run entire tests suite to make sure my changes
+> in didn't break anything else. I find it especially usefull in rapidly
+> evolving project like this.
 
-No functional changes.
+Yeah agree, that can be useful.
 
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
----
-v2: Update description and subject, don't remove quotes around RET variable
+> I have a V2 patches with that justification in place and some minor
+> changes. I'll be sending that (hopefuly it won't take hours this time).
 
- test/runtests.sh | 76 +++++++++++++++++++++++-------------------------
- 1 file changed, 37 insertions(+), 39 deletions(-)
+OK thanks, I'll take a look and get it applied if it looks good.
 
-diff --git a/test/runtests.sh b/test/runtests.sh
-index 2cf1eb2..f860766 100755
---- a/test/runtests.sh
-+++ b/test/runtests.sh
-@@ -2,18 +2,18 @@
- 
- TESTS="$@"
- RET=0
--
- TIMEOUT=60
-+DMESG_FILTER="cat"
-+TEST_DIR=$(dirname $0)
-+TEST_FILES=""
- FAILED=""
- MAYBE_FAILED=""
- 
--do_kmsg="1"
--if ! [ $(id -u) = 0 ]; then
--	do_kmsg="0"
--fi
-+# Only use /dev/kmsg if running as root
-+DO_KMSG="1"
-+[ "$(id -u)" != "0" ] && DO_KMSG="0"
- 
--TEST_DIR=$(dirname $0)
--TEST_FILES=""
-+# Include config.local if exists and check TEST_FILES for valid devices
- if [ -f "$TEST_DIR/config.local" ]; then
- 	. $TEST_DIR/config.local
- 	for dev in $TEST_FILES; do
-@@ -29,7 +29,7 @@ _check_dmesg()
- 	local dmesg_marker="$1"
- 	local seqres="$2.seqres"
- 
--	if [[ $do_kmsg -eq 0 ]]; then
-+	if [ $DO_KMSG -eq 0 ]; then
- 		return 0
- 	fi
- 
-@@ -56,56 +56,55 @@ _check_dmesg()
- 
- run_test()
- {
--	T="$1"
--	D="$2"
--	DMESG_FILTER="cat"
-+	local test_name="$1"
-+	local dev="$2"
- 
--	if [ "$do_kmsg" -eq 1 ]; then
--		if [ -z "$D" ]; then
--			local dmesg_marker="Running test $T:"
-+	if [ "$DO_KMSG" -eq 1 ]; then
-+		if [ -z "$dev" ]; then
-+			local dmesg_marker="Running test $test_name:"
- 		else
--			local dmesg_marker="Running test $T $D:"
-+			local dmesg_marker="Running test $test_name $dev:"
- 		fi
- 		echo $dmesg_marker | tee /dev/kmsg
- 	else
- 		local dmesg_marker=""
--		echo Running test $T $D
-+		echo Running test $test_name $dev
- 	fi
--	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$T $D
--	r=$?
--	if [ "${r}" -eq 124 ]; then
--		echo "Test $T timed out (may not be a failure)"
--	elif [ "${r}" -ne 0 ]; then
--		echo "Test $T failed with ret ${r}"
--		if [ -z "$D" ]; then
--			FAILED="$FAILED <$T>"
-+	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$test_name $dev
-+	local status=$?
-+	if [ "$status" -eq 124 ]; then
-+		echo "Test $test_name timed out (may not be a failure)"
-+	elif [ "$status" -ne 0 ]; then
-+		echo "Test $test_name failed with ret $status"
-+		if [ -z "$dev" ]; then
-+			FAILED="$FAILED <$test_name>"
- 		else
--			FAILED="$FAILED <$T $D>"
-+			FAILED="$FAILED <$test_name $dev>"
- 		fi
- 		RET=1
--	elif ! _check_dmesg "$dmesg_marker" "$T"; then
--		echo "Test $T failed dmesg check"
--		if [ -z "$D" ]; then
--			FAILED="$FAILED <$T>"
-+	elif ! _check_dmesg "$dmesg_marker" "$test_name"; then
-+		echo "Test $test_name failed dmesg check"
-+		if [ -z "$dev" ]; then
-+			FAILED="$FAILED <$test_name>"
- 		else
--			FAILED="$FAILED <$T $D>"
-+			FAILED="$FAILED <$test_name $dev>"
- 		fi
- 		RET=1
--	elif [ ! -z "$D" ]; then
-+	elif [ ! -z "$dev" ]; then
- 		sleep .1
- 		ps aux | grep "\[io_wq_manager\]" > /dev/null
--		R="$?"
--		if [ "$R" -eq 0 ]; then
--			MAYBE_FAILED="$MAYBE_FAILED $T"
-+		if [ $? -eq 0 ]; then
-+			MAYBE_FAILED="$MAYBE_FAILED $test_name"
- 		fi
- 	fi
- }
- 
--for t in $TESTS; do
--	run_test $t
-+# Run all specified tests
-+for tst in $TESTS; do
-+	run_test $tst
- 	if [ ! -z "$TEST_FILES" ]; then
- 		for dev in $TEST_FILES; do
--			run_test $t $dev
-+			run_test $tst $dev
- 		done
- 	fi
- done
-@@ -116,8 +115,7 @@ if [ "${RET}" -ne 0 ]; then
- else
- 	sleep 1
- 	ps aux | grep "\[io_wq_manager\]" > /dev/null
--	R="$?"
--	if [ "$R" -ne 0 ]; then
-+	if [ $? -ne 0 ]; then
- 		MAYBE_FAILED=""
- 	fi
- 	if [ ! -z "$MAYBE_FAILED" ]; then
 -- 
-2.26.2
+Jens Axboe
 

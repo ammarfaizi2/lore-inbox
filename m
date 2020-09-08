@@ -2,88 +2,88 @@ Return-Path: <SRS0=dEr3=CR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5DADC433E2
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 15:15:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F362C43461
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 15:33:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88CE323D5A
-	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 15:15:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D00352245B
+	for <io-uring@archiver.kernel.org>; Tue,  8 Sep 2020 15:33:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="I1P8mFPy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="pgKsLb/a"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730299AbgIHPPC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 11:15:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47038 "EHLO
+        id S1730478AbgIHPcx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 8 Sep 2020 11:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730192AbgIHPOM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 11:14:12 -0400
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B15C08C5E7
-        for <io-uring@vger.kernel.org>; Tue,  8 Sep 2020 07:17:33 -0700 (PDT)
-Received: by mail-il1-x12f.google.com with SMTP id q6so15481253ild.12
-        for <io-uring@vger.kernel.org>; Tue, 08 Sep 2020 07:17:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=rBttBKUTwd/zuUjgIu4QxUnhQUgfwILIGTv0etMXseQ=;
-        b=I1P8mFPy3016EYazok34Ad1QcUf2iLPYmeUp0PknXocOfDq2/GFtcnc4Qv05rpLMXk
-         7clC9DIsmJmPPwO/4cb6l2DEl1R5LwjtA166+CMzis389B8iJa6ZbSZdEUVvTBcEgviZ
-         WuXEJOKuyEkBsZiI1aJMDvtROnhPTvSsHyyB/4dLUpkv5U466ryISxkupc1HqCe1BxNB
-         j6lIuL/1VU/kGdlP6HOTn1O49S0kZbv/Cr8OJaJw364dr2n/D/uMa08hxyX/q9k23y0t
-         52zyBHPS339cFpZUGUB6e3kBMp2QyULeiGymNhlYOpLPoPoF4gAnzBfRjC+HGpEiI4Au
-         Sung==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=rBttBKUTwd/zuUjgIu4QxUnhQUgfwILIGTv0etMXseQ=;
-        b=eCy/+/cACVMo/6BcknbtZqQKeoi+6AQN6/+YjWk3BGAf3MTbYYkssj35ONnoXRv4kY
-         PtzV4F7kdf8EuxzumpaTmw8dGjjtBGbEQ4EZeN2TesV/uAx8v+X2/+EjJ4EG243rNsOm
-         bKQ4/aMom62dch+YWPV8Z2kADZeb6ZMffdU+gHs274TqwkqIZLJHnt/UEvVzYlhxFE29
-         PqJT5WGH0Rxz53I6yhxmiGDFmEHrVwioKTIGzxTVyykKrI4408afwjEbxoQs5yeizFgD
-         W3Igu16o/lRc+uvxgNx+tewO2UoxvgV6Gpa+N1hxzKKaZmjUhUE/pHnCrN1ebabcKaDg
-         v1cw==
-X-Gm-Message-State: AOAM531bCT3ILWwjUSLqTvyZU3MXNZ7VmbHBmPxQb209lQ/L8G4yxOr0
-        wvxp1G7L9UH0Fkowis8pUd6dorgMpMauSUs1
-X-Google-Smtp-Source: ABdhPJwWJqA6eJK+BxZepf3IZsUM9ec3a1t4cwwHWSsKvIkMk6CwZjW9DZYg1CTK4gukemU4b0LlMg==
-X-Received: by 2002:a92:4950:: with SMTP id w77mr22782624ila.93.1599574652987;
-        Tue, 08 Sep 2020 07:17:32 -0700 (PDT)
-Received: from [192.168.1.10] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m18sm9631083ilc.37.2020.09.08.07.17.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2020 07:17:32 -0700 (PDT)
-Subject: Re: [PATCH v2 1/2] runtests: Clean up code in runtests.sh
-To:     Lukas Czerner <lczerner@redhat.com>, io-uring@vger.kernel.org
-References: <20200908081703.6011-1-lczerner@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <f3f16e40-7c38-5eff-1e1a-7d67d3f62e3b@kernel.dk>
-Date:   Tue, 8 Sep 2020 08:17:31 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S1730283AbgIHPYH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 11:24:07 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83CC5C08C5ED;
+        Tue,  8 Sep 2020 08:18:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=hyoD9QmcI5oiNUeN3ikrG7yLEGezAUx3TNWi/z6zbWI=; b=pgKsLb/aVboApOOdFqn5zDVWgG
+        Snx9karx64Rd7CkJliDojwf8qA6Vh8rEzXBdRiZ8IQONB/Feeejk7hc6VphgfXzIdXRcmZqmEQSAj
+        5+cj7IfmEd2fNt84yK5+jgEZ9BGWTAAdzs+64KItaB1DXE5Kc0WjadecA0kyx3wIm0Py7BPINIWFK
+        K6h868Fkl8wsC8soHGKMlfCMsIA1vDWjYdnTq579hK/y7Muua+Oimtkv6XxgFIkUy04p3qROWpPGg
+        BhIPKafV1qYxUpaG3uBP5qGUxTfc4x7kGtPFdj3u0f6h5QbDHQSj5enIFCSO0WKCv3+p/khC8QmVr
+        ujFJjjAA==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kFfNh-0004N6-CU; Tue, 08 Sep 2020 15:18:01 +0000
+Date:   Tue, 8 Sep 2020 16:18:01 +0100
+From:   "hch@infradead.org" <hch@infradead.org>
+To:     Kanchan Joshi <joshiiitr@gmail.com>
+Cc:     "hch@infradead.org" <hch@infradead.org>,
+        Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Kanchan Joshi <joshi.k@samsung.com>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "bcrl@kvack.org" <bcrl@kvack.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        SelvaKumar S <selvakuma.s1@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Javier Gonzalez <javier.gonz@samsung.com>,
+        Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
+        Naohiro Aota <Naohiro.Aota@wdc.com>
+Subject: Re: [PATCH v4 6/6] io_uring: add support for zone-append
+Message-ID: <20200908151801.GA16742@infradead.org>
+References: <CA+1E3rLM4G4SwzD6RWsK6Ssp7NmhiPedZDjrqN3kORQr9fxCtw@mail.gmail.com>
+ <MWHPR04MB375863C20C1EF2CB27E62703E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731091416.GA29634@infradead.org>
+ <MWHPR04MB37586D39CA389296CE0252A4E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731094135.GA4104@infradead.org>
+ <MWHPR04MB3758A4B2967DB1FABAAD9265E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731125110.GA11500@infradead.org>
+ <CY4PR04MB37517D633920E4D31AC6EA0DE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <20200814081411.GA16943@infradead.org>
+ <CA+1E3r+WXC_MK5Zf2OZEv17ddJDjtXbhpRFoeDns4F341xMhow@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200908081703.6011-1-lczerner@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+1E3r+WXC_MK5Zf2OZEv17ddJDjtXbhpRFoeDns4F341xMhow@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/8/20 2:17 AM, Lukas Czerner wrote:
-> Use uppercase for global and lowecase for local valiable consistently.
-> Don't use single letter variable names and add some comments.
-> 
-> No functional changes.
+On Mon, Sep 07, 2020 at 12:31:42PM +0530, Kanchan Joshi wrote:
+> But there are use-cases which benefit from supporting zone-append on
+> raw block-dev path.
+> Certain user-space log-structured/cow FS/DB will use the device that
+> way. Aerospike is one example.
+> Pass-through is synchronous, and we lose the ability to use io-uring.
 
-Applied 1-2, thanks.
-
--- 
-Jens Axboe
-
+So use zonefs, which is designed exactly for that use case.

@@ -2,90 +2,217 @@ Return-Path: <SRS0=/ioG=CS=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DA9BC2D0A8
-	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 17:20:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA6FFC433E2
+	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 18:27:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 30FC421D92
-	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 17:20:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E3BA20732
+	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 18:27:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="SRwj4zfF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AbU4vC3W"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730168AbgIIRUk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 9 Sep 2020 13:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46128 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729913AbgIIPZN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Sep 2020 11:25:13 -0400
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDCDC061364
-        for <io-uring@vger.kernel.org>; Wed,  9 Sep 2020 07:06:23 -0700 (PDT)
-Received: by mail-io1-xd33.google.com with SMTP id d18so3221153iop.13
-        for <io-uring@vger.kernel.org>; Wed, 09 Sep 2020 07:06:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=eHcdzC1Vjr+eEnGNce0StnaH8r/3dCNL4SRhcQUMlRk=;
-        b=SRwj4zfFnrfJCYIIa0d/pBN8bUN1FeFiAh96+74cn1CriZXzI62ZHkuLvFCm6P31lL
-         AAOxNZRtYsFtarUskfSyDHgH5fLM4ZtWeKnXcmmKHIaiBKiZNP67+5fR0W0PYjWJIIEF
-         K/PWJr/LqEGo9WHPdegONBrkQLVHa0/EC+BlUxnGBk4/LmqeOO2PXhuT7v9pv2KWydkH
-         U8kkt+8qIX+hlCCV3yYb1+qmBEuPB5wRlccXD0ilVAlYXH8t6Ktl2UoYqQ4p2VJqrOAD
-         voO4N5MntQYmhAR4e36C1c+DcZIgl1QkLbYtrW1phmIzBa8UfN6iN2O5LDMLoySEEKMf
-         7/xg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=eHcdzC1Vjr+eEnGNce0StnaH8r/3dCNL4SRhcQUMlRk=;
-        b=KQ5OTFEE0HSwcmu2W4bOqtCkdmTdMDothc9YNdio2y9uQb5YMnFySvu+gfY7cwE35W
-         V8qR5I1EfJw5+wiviZP6qMMTGCEoIgCr49SMNDicD7OaUtbS0GU27FYKkA6VPWAPZumC
-         XyBE2ACxGhitY/2xpxkhLw7sTF2gU+w6PDOZs1C8YBtmfhsB7cx3Kxq+WmWMtvW9cRIG
-         Cd2r5cQWxXdEIFFJaKj+RVyOgTwbF8pJ4cAhKNO6VH9iZbkV9miQBfaQWC6sOj3ERRvz
-         u8L2QE4ypoopV3BYUbthqkEFQYtjHMhsKtD6y7CVV2p3lTihS2vXjPy+yU8CEKi8gpZP
-         56hw==
-X-Gm-Message-State: AOAM532P1dhDW3NAN5h5kaco/YGMe9Weg90tCvyZXlGxnOYGWGWbQrUL
-        POTMgs0JtgWemCdbg9p4GD8xYA==
-X-Google-Smtp-Source: ABdhPJwtzLv8bwenmUUA+lfQ5tOU/l3y2j8uN59etgpB1Dhk5UazCcenXSIw2/PDFTejToUeurv5fg==
-X-Received: by 2002:a05:6602:584:: with SMTP id v4mr3535381iox.195.1599660378888;
-        Wed, 09 Sep 2020 07:06:18 -0700 (PDT)
-Received: from [192.168.1.10] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id y19sm1373254ili.47.2020.09.09.07.06.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Sep 2020 07:06:18 -0700 (PDT)
-Subject: Re: [PATCH -next] io_uring: Remove unneeded semicolon
-To:     Zheng Bin <zhengbin13@huawei.com>, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     yi.zhang@huawei.com
-References: <20200909121237.39914-1-zhengbin13@huawei.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <cef491f9-0df7-ec9f-ebb2-0f62adcdc39d@kernel.dk>
-Date:   Wed, 9 Sep 2020 08:06:17 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728363AbgIIS1R (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 9 Sep 2020 14:27:17 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23618 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725772AbgIIS1O (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Sep 2020 14:27:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599676032;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=CYZ5JMSY2FFuHVs8u88U7no0/w4MDoHZyXU/VG8Mbsk=;
+        b=AbU4vC3WlW+MTqEsCFB0Z6oOf52XGDiwCoO3TSfu79J8XFjCAWiVJzvjNbcoa3MpFCRXwW
+        HTNfC1JeOw66BPOlRHMOJqTdC9eQEWuEBqf0lSKydYZ1CJmeewTiXRHtqCIvr+ebkzRArP
+        DAhHzDqoVoPMqXj9KWaKj1MNklR4dIc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-264-DTsmZyYpM4ikkz89GyVH2A-1; Wed, 09 Sep 2020 14:27:09 -0400
+X-MC-Unique: DTsmZyYpM4ikkz89GyVH2A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8A4A21DE01
+        for <io-uring@vger.kernel.org>; Wed,  9 Sep 2020 18:27:08 +0000 (UTC)
+Received: from work (unknown [10.40.192.106])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 03D7E838BF
+        for <io-uring@vger.kernel.org>; Wed,  9 Sep 2020 18:27:07 +0000 (UTC)
+Date:   Wed, 9 Sep 2020 20:27:03 +0200
+From:   Lukas Czerner <lczerner@redhat.com>
+To:     io-uring@vger.kernel.org
+Subject: A way to run liburing tests on emulated nvme in qemu
+Message-ID: <20200909182703.d3wjz3rxys6haij6@work>
 MIME-Version: 1.0
-In-Reply-To: <20200909121237.39914-1-zhengbin13@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/9/20 6:12 AM, Zheng Bin wrote:
-> Fixes coccicheck warning:
-> 
-> fs/io_uring.c:4242:13-14: Unneeded semicolon
+Hi,
 
-Thanks, applied.
+because I didn't have an acces to a nvme HW I created a simple set of
+scripts to help me run the liburing test suite on emulated nvme device
+in qemu. This has also an advantage of being able to test it on different
+architectures.
 
--- 
-Jens Axboe
+Here is a repository on gihub.
+https://github.com/lczerner/qemu-test-iouring
+
+I am attaching a README file to give you some sence of what it is.
+
+It is still work in progress and only supports x86_64 and ppc64 at the
+moment. It is very much Fedora centric as that's what I am using. But
+maybe someone find some use for it. Of course I accept patches/PRs.
+
+Cheers,
+-Lukas
+
+
+
+# Run liburing tests on emulated nvme in qemu
+
+> QEMU with nvme support is required (v5.1.0 and later)!
+> See <https://www.qemu.org/2020/08/11/qemu-5-1-0/>
+
+Since not everyone has access to the proper nvme HW, let alone on multiple
+architectures. This project aims to provide a convenient set of scripts to
+run liburing tests on qemu emulated nvme device with polling support on
+various architectures.
+
+Currently only x86_64 and ppc64 is supported, but I hope to expand it soon.
+
+> This is still very much work-in-progress. Use with caution!
+
+## How it works
+
+ 1. It takes an OS image (rpm based such as Fedora, or CentOS) and makes some
+    initial system preparations after which it will boot into the system.
+ 2. Qemu provides the system with a emulated nvme device with polling support.
+ 3. When booting for the first time it will install required tools to build
+    and test liburing, update kernel and optionally install provided
+    rpm packages. Then it reboots, possibly into new kernel.
+ 4. Assuming the installation was successful, it will create a partition on
+    a nvme drive. One to use for block device testing and the other for a
+    file based testing.
+ 5. Clone the liburing from a git repository and build it.
+ 6. Run the tests with `make runtests`
+ 7. After the test the virtual machine is shut down and the logs are copied
+    over to the local host.
+
+## Required tools
+
+The following tools are required by the script:
+
+* virt-sysprep
+* qemu-system-x86_64
+* qemu-system-ppc64
+* wget
+* virt-copy-out
+
+On Fedora you should be able to install all of that with the following command:
+
+> dnf -y install libguestfs-tools-c qemu-system-x86-core qemu-system-ppc-core wget
+
+## How to use it
+
+The configuration file provides a convenient way to have a different setup
+for a different OS and/or architecture.
+
+For example you can have multiple configuration files like this:
+
+ * config.fedora.x86_64
+ * config.rhel.x86_64
+ * config.rhel.ppc64
+
+Those can differ in ARCH, IMG etc. Additionally you can provide a custom rpm
+repository containing a custom kernel, or kernel rpm package directly and
+number of other options.
+
+Conveniently the IMG can be URL and the image is downloaded automatically
+if it does not exist yet.
+
+Then, you can run the tests for example like this:
+
+	./qemu-test-iouring.sh -C config.rhel.x86_64 -c
+
+	./qemu-test-iouring.sh -C config.fedora.x86_64 -c -p kernel-5.9.0_rc3+-1.x86_64.rpm
+
+	./qemu-test-iouring.sh -C config.rhel.ppc64 -c -r test.repo
+
+> Note that you can use the -c option to preserve the original OS image.
+> Otherwise the image will be changed directly and it currently does not
+> provide a way to reinstall kernel or add additional packaged once the
+> image is initialized. This is likely to change in the future.
+
+## Configuration file
+
+You can find example configuration file in `config.example`
+
+	# Configuration file for qemu-test-iouring. Copy this file to config.local,
+	# nncomment and specify values to change defaults.
+	#
+	# Default architecture
+	# ARCH="x86_64"
+	#
+	# Initialize the image before running virtual machine
+	# 1 - initialize the image (default)
+	# 0 - do not initialize the image
+	# IMG_INIT=1
+	#
+	# Do not run on spefified image, but rather create copy of it first
+	# and run on that.
+	# 0 - run on the provided image (default)
+	# 1 - run on the copy of the provided image
+	# COPY_IMG=0
+	#
+	# Specify additional file to copy into the virtual machine. See
+	# man virt-builder for more information on --copy-in option
+	# COPY_IN=""
+	#
+	# List of excluded tests
+	# TEST_EXCLUDE=""
+	#
+	# Default image to run with. Will be overriden by -I option
+	# IMG=""
+	#
+	# Default nvme image to run with. Will be overriden by -N option
+	# NVME_IMG=""
+	#
+	# Specify liburing git repository and optionaly branch
+	# LIBURING_GIT="git://git.kernel.dk/liburing -b master"
+
+## Usage
+
+You can see what options are supported using help `./qemu-test-iouring.sh -h`
+
+	Usage: ./qemu-test-iouring.sh [-h] [-n] [-d] [-c] [-a ARCH] [-I IMG] [-r REPO] [-N NVME]
+		-h		Print this help
+		-C CONFIG	Specify custom configuration file. This option
+				can only be specified once. (Default "./config.local")
+		-a ARCH		Specify architecture to run (default: x86_64).
+				Supported: x86_64 ppc64le
+		-I IMG		OS image with Fedora, Centos or Rhel. Can be
+				existing file, or http(s) url.
+		-N NVME		Nvme image to run on. It needs to be at least
+				1GB in size.
+		-r REPO		Specify yum repository file to include in guest.
+				Can be repeated to include multiple files and
+				implies image initialization.
+		-n		Do not initialize the image with virt-sysprep
+		-d		Do not run liburing tests on startup. Implies
+				image initialization.
+		-c		Do not run on specified image, but rather create
+				copy of it first.
+		-e		Exclude test. Can be repeated to exclude
+				multiple tests.
+		-p PKG		RPM package to install in guest
+
+	Example: ././qemu-test-iouring.sh -a ppc64le -r test.repo -c -I fedora.img -N nvme.img
 

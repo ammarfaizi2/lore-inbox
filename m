@@ -2,256 +2,103 @@ Return-Path: <SRS0=/ioG=CS=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8E33C43461
-	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 03:44:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3292C43461
+	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 07:09:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52BC720EDD
-	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 03:44:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 892F621919
+	for <io-uring@archiver.kernel.org>; Wed,  9 Sep 2020 07:09:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GkgHXFku"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iO84z27j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgIIDoc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 8 Sep 2020 23:44:32 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54733 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725984AbgIIDo2 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 8 Sep 2020 23:44:28 -0400
+        id S1725863AbgIIHJo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 9 Sep 2020 03:09:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:32879 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726060AbgIIHJk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Sep 2020 03:09:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599623066;
+        s=mimecast20190719; t=1599635377;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=kl3ykfqlCfmI1FYDEWFA5ocyrEq9f27pvma5ikAQwbE=;
-        b=GkgHXFkucu3w+9GZ65bghCcx5iaxKBQvL8JhsMsutJZTIrKB3y2liDjNBMg4vBNFTa/C3q
-        63spG0DZdp/ysHMLyAk/5HtgG0hRjJQQootWEUkyY9r4W6S2h9SntBnWP1+LcXOP/HWsqI
-        uPNMJmdKAtG7ne0SVM+5IAqpRMNyp6A=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-391-a_jamZHCMBKhDM0QnDJW-Q-1; Tue, 08 Sep 2020 23:44:24 -0400
-X-MC-Unique: a_jamZHCMBKhDM0QnDJW-Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 674561019632;
-        Wed,  9 Sep 2020 03:44:23 +0000 (UTC)
-Received: from localhost (dhcp-12-102.nay.redhat.com [10.66.12.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D4CEF7E46E;
-        Wed,  9 Sep 2020 03:44:22 +0000 (UTC)
-Date:   Wed, 9 Sep 2020 11:58:07 +0800
-From:   Zorro Lang <zlang@redhat.com>
-To:     Brian Foster <bfoster@redhat.com>
-Cc:     fstests@vger.kernel.org, io-uring@vger.kernel.org
-Subject: Re: [PATCH v4 5/5] fsx: add IO_URING test
-Message-ID: <20200909035807.GE2937@dhcp-12-102.nay.redhat.com>
-Mail-Followup-To: Brian Foster <bfoster@redhat.com>,
-        fstests@vger.kernel.org, io-uring@vger.kernel.org
-References: <20200906175513.17595-1-zlang@redhat.com>
- <20200906175513.17595-6-zlang@redhat.com>
- <20200908183625.GE737175@bfoster>
+        bh=sbNdgPGbXHtzNZzICD+kjhviJAeGSAESo3O2fIQqjns=;
+        b=iO84z27jpCNN3zPraC61ysbcmhTtf53E1Yp5lQiJ17aCOk91qHX0Bk1WwPAyFdYtUt3jXK
+        QQxpzyYOBZS/dgKy8EFyKEFOifVQ6HKU0MLFeW0aosxam2YUxCi/Wh26TljJK4QR1N7wXn
+        VdUY6dFj9hlCAVSro41EAHGMByww/L4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-116-0hzJc50OPKWQxN0oBLw_Uw-1; Wed, 09 Sep 2020 03:09:35 -0400
+X-MC-Unique: 0hzJc50OPKWQxN0oBLw_Uw-1
+Received: by mail-wr1-f70.google.com with SMTP id j7so615863wro.14
+        for <io-uring@vger.kernel.org>; Wed, 09 Sep 2020 00:09:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=sbNdgPGbXHtzNZzICD+kjhviJAeGSAESo3O2fIQqjns=;
+        b=pDq74cZOXJ8mOYXqdvOqUJWusgsMHnuUqlVqA86QJPNeQbpfTMD0nIbyGOPmFXwc3o
+         UFV4eqqyu8R9b2LkAkXxNOqe3pQiin0fJdm/bdchKSVn4Tzx4Qong7x2n6+Fach1SK1H
+         DMBMXk4VkVp1gLB2AZpdmwG9UH8pgGx+5L/lLlHH0Hnhx1+FlaNplEhMiTVNuKx074oW
+         7nWXLMjclU9IJv3M7gkdbEuMwZhK/CBDU/i8Nh735GeNW8pm10lOdcp571+haQFtwe56
+         wyxJL3tO0/lbd7oJz/8tonMmF+M3NqsS3HsI2StmPqtBOxDW2cb5uhhFXHjfilS2rStM
+         FomA==
+X-Gm-Message-State: AOAM532bZvFuQc73WlqWMkMngPhUNERrxfAmHX5NdWk5KZvvcZCS+cZj
+        tNiE6q2HOYDZNZOif7cSgaydfPT6JF2izZUlKhKSets/iwSVSEVfOHgSfTyfHe0pdK/iromtUD/
+        5r8aEUCMH9i9j/FyyBJI=
+X-Received: by 2002:a7b:c015:: with SMTP id c21mr2067386wmb.87.1599635373596;
+        Wed, 09 Sep 2020 00:09:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyJLuHsYjEO/DZDcJ9fpG8m8GGKEsIJck/ZRUcpgnZH8FyK9x7ubj3A2yaHiurY8F0uZqsI3w==
+X-Received: by 2002:a7b:c015:: with SMTP id c21mr2067369wmb.87.1599635373328;
+        Wed, 09 Sep 2020 00:09:33 -0700 (PDT)
+Received: from steredhat (host-79-53-225-185.retail.telecomitalia.it. [79.53.225.185])
+        by smtp.gmail.com with ESMTPSA id t4sm2631177wrr.26.2020.09.09.00.09.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2020 00:09:32 -0700 (PDT)
+Date:   Wed, 9 Sep 2020 09:09:30 +0200
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for-next] io_uring: return EBADFD when ring isn't in the
+ right state
+Message-ID: <20200909070930.mdbm7aeh7z5ckwhq@steredhat>
+References: <20200908165242.124957-1-sgarzare@redhat.com>
+ <6e119be3-d9a3-06ea-1c76-4201816dde46@kernel.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200908183625.GE737175@bfoster>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <6e119be3-d9a3-06ea-1c76-4201816dde46@kernel.dk>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 02:36:25PM -0400, Brian Foster wrote:
-> On Mon, Sep 07, 2020 at 01:55:13AM +0800, Zorro Lang wrote:
-> > New IO_URING test for fsx, use -U option to enable IO_URING test.
+On Tue, Sep 08, 2020 at 11:02:48AM -0600, Jens Axboe wrote:
+> On 9/8/20 10:52 AM, Stefano Garzarella wrote:
+> > This patch uniforms the returned error (EBADFD) when the ring state
+> > (enabled/disabled) is not the expected one.
 > > 
-> > Signed-off-by: Zorro Lang <zlang@redhat.com>
-> > ---
+> > The changes affect io_uring_enter() and io_uring_register() syscalls.
 > 
-> Just a couple nits...
+> I added a Fixes line:
 > 
-> >  ltp/fsx.c | 134 ++++++++++++++++++++++++++++++++++++++++++++++++++++--
-> >  1 file changed, 131 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/ltp/fsx.c b/ltp/fsx.c
-> > index 92f506ba..e7f23d15 100644
-> > --- a/ltp/fsx.c
-> > +++ b/ltp/fsx.c
-> ...
-> > @@ -2429,6 +2436,113 @@ aio_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-> ...
-> > +int
-> > +uring_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-> > +{
-> > +	struct io_uring_sqe     *sqe;
-> > +	struct io_uring_cqe     *cqe;
-> > +	struct iovec            iovec;
-> > +	int ret;
-> > +	int res, res2 = 0;
-> > +	char *p = buf;
-> > +	unsigned l = len;
-> > +	unsigned o = offset;
-> 
-> It looks a little odd that some variable names are aligned with tabs
-> while others use a single space.. I'm not sure we care one way or
-> another for xfstests, but perhaps use one approach or the other..?
-> 
-> > +
-> > +	/*
-> > +	 * Due to io_uring tries non-blocking IOs (especially read), that
-> > +	 * always cause 'normal' short reading. To avoid this short read
-> > +	 * fail, try to loop read/write (escpecilly read) data.
-> > +	 */
-> > +	while (l > 0) {
-> > +		sqe = io_uring_get_sqe(&ring);
-> > +		if (!sqe) {
-> > +			fprintf(stderr, "uring_rw: io_uring_get_sqe failed: %s\n",
-> > +					strerror(errno));
-> > +			return -1;
-> > +		}
-> > +
-> > +		iovec.iov_base = p;
-> > +		iovec.iov_len = l;
-> > +		if (rw == READ) {
-> > +			io_uring_prep_readv(sqe, fd, &iovec, 1, o);
-> > +		} else {
-> > +			io_uring_prep_writev(sqe, fd, &iovec, 1, o);
-> > +		}
-> > +
-> > +		ret = io_uring_submit_and_wait(&ring, 1);
-> > +		if (ret != 1) {
-> > +			fprintf(stderr, "errcode=%d\n", -ret);
-> > +			fprintf(stderr, "uring %s: io_uring_submit failed: %s\n",
-> > +					rw == READ ? "read":"write", strerror(-ret));
-> > +			goto uring_error;
-> > +		}
-> > +
-> > +		ret = io_uring_wait_cqe(&ring, &cqe);
-> > +		if (ret != 0) {
-> > +			fprintf(stderr, "errcode=%d\n", -ret);
-> > +			fprintf(stderr, "uring %s: io_uring_wait_cqe failed: %s\n",
-> > +					rw == READ ? "read":"write", strerror(-ret));
-> > +			goto uring_error;
-> > +		}
-> > +
-> > +		res = cqe->res;
-> 
-> If we assign ret here instead of res, it looks like we could optimize
-> away res entirely.
+> Fixes: 7ec3d1dd9378 ("io_uring: allow disabling rings during the creation")
 
-I think you're right, I'll think more about that, then send V5 patches out.
-As you've ACKed this patchset, I'll add "Reviewed-by Brian" in V5, many
-thanks for your review :)
+Oh right, I forgot!
 
 > 
-> Nits and my limited experience with uring aside, the patch otherwise
-> LGTM. Are you planning any new tests to take advantage of this,
-> particularly since it looks like -A (-U disabled) is the default? In any
-> event, a quick test run of fsstress/fsx doesn't seem to explode:
+> and applied it, thanks!
+> 
+> > https://github.com/stefano-garzarella/liburing (branch: fix-disabled-ring-error)
+> 
+> I'll check and pull that one too.
+> 
 
-Yes, I'm preparing more patches to use the -U option of fsx. I'll send them
-out after this patchset get merged :)
-
-> 
-> Reviewed-by: Brian Foster <bfoster@redhat.com>
-> 
-> > +		io_uring_cqe_seen(&ring, cqe);
-> > +
-> > +		if (res > 0) {
-> > +			o += res;
-> > +			l -= res;
-> > +			p += res;
-> > +			res2 += res;
-> > +		} else if (res < 0) {
-> > +			ret = res;
-> > +			fprintf(stderr, "errcode=%d\n", -ret);
-> > +			fprintf(stderr, "uring %s: io_uring failed: %s\n",
-> > +					rw == READ ? "read":"write", strerror(-ret));
-> > +			goto uring_error;
-> > +		} else {
-> > +			fprintf(stderr, "uring %s bad io length: %d instead of %u\n",
-> > +					rw == READ ? "read":"write", res2, len);
-> > +			break;
-> > +		}
-> > +	}
-> > +	return res2;
-> > +
-> > + uring_error:
-> > +	/*
-> > +	 * The caller expects error return in traditional libc
-> > +	 * convention, i.e. -1 and the errno set to error.
-> > +	 */
-> > +	errno = -ret;
-> > +	return -1;
-> > +}
-> > +#else
-> > +int
-> > +uring_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-> > +{
-> > +	fprintf(stderr, "io_rw: need IO_URING support!\n");
-> > +	exit(111);
-> > +}
-> > +#endif
-> > +
-> >  int
-> >  fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-> >  {
-> > @@ -2436,6 +2550,8 @@ fsx_rw(int rw, int fd, char *buf, unsigned len, unsigned offset)
-> >  
-> >  	if (aio) {
-> >  		ret = aio_rw(rw, fd, buf, len, offset);
-> > +	} else if (uring) {
-> > +		ret = uring_rw(rw, fd, buf, len, offset);
-> >  	} else {
-> >  		if (rw == READ)
-> >  			ret = read(fd, buf, len);
-> > @@ -2498,7 +2614,7 @@ main(int argc, char **argv)
-> >  	setvbuf(stdout, (char *)0, _IOLBF, 0); /* line buffered stdout */
-> >  
-> >  	while ((ch = getopt_long(argc, argv,
-> > -				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:WXZ",
-> > +				 "b:c:dfg:i:j:kl:m:no:p:qr:s:t:w:xyABD:EFJKHzCILN:OP:RS:UWXZ",
-> >  				 longopts, NULL)) != EOF)
-> >  		switch (ch) {
-> >  		case 'b':
-> > @@ -2606,6 +2722,9 @@ main(int argc, char **argv)
-> >  		case 'A':
-> >  			aio = 1;
-> >  			break;
-> > +		case 'U':
-> > +			uring = 1;
-> > +			break;
-> >  		case 'D':
-> >  			debugstart = getnum(optarg, &endp);
-> >  			if (debugstart < 1)
-> > @@ -2696,6 +2815,11 @@ main(int argc, char **argv)
-> >  	if (argc != 1)
-> >  		usage();
-> >  
-> > +	if (aio && uring) {
-> > +		fprintf(stderr, "-A and -U shouldn't be used together\n");
-> > +		usage();
-> > +	}
-> > +
-> >  	if (integrity && !dirpath) {
-> >  		fprintf(stderr, "option -i <logdev> requires -P <dirpath>\n");
-> >  		usage();
-> > @@ -2786,6 +2910,10 @@ main(int argc, char **argv)
-> >  	if (aio) 
-> >  		aio_setup();
-> >  #endif
-> > +#ifdef URING
-> > +	if (uring)
-> > +		uring_setup();
-> > +#endif
-> >  
-> >  	if (!(o_flags & O_TRUNC)) {
-> >  		off_t ret;
-> > -- 
-> > 2.20.1
-> > 
-> 
+Thanks,
+Stefano
 

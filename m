@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCF0EC43461
-	for <io-uring@archiver.kernel.org>; Fri, 11 Sep 2020 15:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B0CBC43461
+	for <io-uring@archiver.kernel.org>; Fri, 11 Sep 2020 15:46:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 861312075A
-	for <io-uring@archiver.kernel.org>; Fri, 11 Sep 2020 15:45:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 196352075A
+	for <io-uring@archiver.kernel.org>; Fri, 11 Sep 2020 15:46:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BP90ilNp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TiSNsMCR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726206AbgIKPpf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 11 Sep 2020 11:45:35 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:39396 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726591AbgIKPp0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 11 Sep 2020 11:45:26 -0400
+        id S1726605AbgIKPpx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 11 Sep 2020 11:45:53 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:39730 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726601AbgIKPpo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 11 Sep 2020 11:45:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599839125;
+        s=mimecast20190719; t=1599839143;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=hs42NkXRZXpSPiKst/2zaD4uLiz/DzuG1jt01Ktm7Qg=;
-        b=BP90ilNpAOwLWS4LFs1E34AWv+1WmI7stEr5xbn+Gbkvco42n8qMwMeMm7ixsSIsi0qd7E
-        mB9GbcmnffWFENdpXZ87kOKhw1QfjJ+TQvkTyWwb8Bi+fp8YFrkpmBWxWDP4Ipu7nIfdm+
-        vMN1N6ky1uE88kCWwKIIfnVAanmc3F8=
+        bh=5W1n/LAI37PNidmu7PHN5yniiE1Ma+spXoYQKKeGO2E=;
+        b=TiSNsMCRxH0L/StqNEO0VIDV3C5/utQJPv/EOt8PN/hVQ72UEUXR8BXNIFix5/n2Y4WUKC
+        zZ8TabE5/bnwAgiv4XeXcKE/13fsTu2lgla2IeoeW3StKM8haOWwJvOv9xdy1W3ahSzptF
+        f7IzgSa6vrTzqFDBm+g2vEn3BTBITo4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-461-a3y5Hp4xPASGV2JsrDWNEQ-1; Fri, 11 Sep 2020 09:34:15 -0400
-X-MC-Unique: a3y5Hp4xPASGV2JsrDWNEQ-1
+ us-mta-283-N7YjAhliNx2Hxk_820jgig-1; Fri, 11 Sep 2020 09:34:12 -0400
+X-MC-Unique: N7YjAhliNx2Hxk_820jgig-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BEA9918B9F02;
-        Fri, 11 Sep 2020 13:34:13 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 66A9C8D0311;
+        Fri, 11 Sep 2020 13:34:11 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-114-89.ams2.redhat.com [10.36.114.89])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DC1D05D9E8;
-        Fri, 11 Sep 2020 13:34:12 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9D9995D9E8;
+        Fri, 11 Sep 2020 13:34:10 +0000 (UTC)
 From:   Stefano Garzarella <sgarzare@redhat.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH liburing 3/3] man/io_uring_enter.2: add EACCES and EBADFD errors
-Date:   Fri, 11 Sep 2020 15:34:08 +0200
-Message-Id: <20200911133408.62506-4-sgarzare@redhat.com>
+Subject: [PATCH liburing 1/3] man/io_uring_setup.2: add IORING_SETUP_R_DISABLED description
+Date:   Fri, 11 Sep 2020 15:34:06 +0200
+Message-Id: <20200911133408.62506-2-sgarzare@redhat.com>
 In-Reply-To: <20200911133408.62506-1-sgarzare@redhat.com>
 References: <20200911133408.62506-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -59,50 +59,31 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-These new errors are added with the restriction series recently
-merged in io_uring (Linux 5.10).
+This new flag is available starting from Linux 5.10.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- man/io_uring_enter.2 | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ man/io_uring_setup.2 | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/man/io_uring_enter.2 b/man/io_uring_enter.2
-index 5443d5f..4773dfd 100644
---- a/man/io_uring_enter.2
-+++ b/man/io_uring_enter.2
-@@ -842,6 +842,16 @@ is set appropriately.
- .PP
- .SH ERRORS
- .TP
-+.B EACCES
-+The
-+.I flags
-+field or
-+.I opcode
-+in a submission queue entry is not allowed due to registered restrictions.
+diff --git a/man/io_uring_setup.2 b/man/io_uring_setup.2
+index f0aebde..a903b04 100644
+--- a/man/io_uring_setup.2
++++ b/man/io_uring_setup.2
+@@ -173,6 +173,13 @@ being set to an existing io_uring ring file descriptor. When set, the
+ io_uring instance being created will share the asynchronous worker
+ thread backend of the specified io_uring ring, rather than create a new
+ separate thread pool.
++.TP
++.B IORING_SETUP_R_DISABLED
++If this flag is specified, the io_uring ring starts in a disabled state.
++In this state, restrictions can be registered, but submissions are not allowed.
 +See
 +.BR io_uring_register (2)
-+for details on how restrictions work.
-+.TP
- .B EAGAIN
- The kernel was unable to allocate memory for the request, or otherwise ran out
- of resources to handle it. The application should wait for some completions and
-@@ -861,6 +871,14 @@ field in the submission queue entry is invalid, or the
- flag was set in the submission queue entry, but no files were registered
- with the io_uring instance.
- .TP
-+.B EBADFD
-+The
-+.I fd
-+field in the submission queue entry is valid, but the io_uring ring is not
-+in the right state (enabled). See
-+.BR io_uring_register (2)
-+for details on how to enable the ring.
-+.TP
- .B EFAULT
- buffer is outside of the process' accessible address space
- .TP
++for details on how to enable the ring. Available since 5.10.
+ .PP
+ If no flags are specified, the io_uring instance is setup for
+ interrupt driven I/O.  I/O may be submitted using
 -- 
 2.26.2
 

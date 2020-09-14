@@ -2,70 +2,67 @@ Return-Path: <SRS0=bGbs=CX=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C655DC433E2
-	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E13C2BC11
+	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8348D21D24
-	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DA5021974
+	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="zz5mPiZ2"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Gg6EIZdB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbgINQbb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Sep 2020 12:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56102 "EHLO
+        id S1725999AbgINQbh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Sep 2020 12:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726440AbgINQ0I (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Sep 2020 12:26:08 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8415C06178B
-        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:07 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id a19so105432ilq.10
-        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:07 -0700 (PDT)
+        with ESMTP id S1726423AbgINQ0H (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Sep 2020 12:26:07 -0400
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA75C061788
+        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
+Received: by mail-il1-x129.google.com with SMTP id a8so166850ilk.1
+        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=210/esXBpcQ81FnwB14NVVrED+udY/8GQjymUvVa4Ys=;
-        b=zz5mPiZ2KTTuFM3JYWM+N0FmCyAKihBtI9T9TUgO9/dzCCiXClzXhkLSr7NMPdQ5Qr
-         JEpp/d4IRXJhutqXbVEqR/9IKyqRZ6kZcd5wfTvUzQHxssxHtKH8MCbLaNoCxw5yLHgr
-         KRYBFOOkpV38HoeG4LPFuRF9X8DlpC59n9spA0Zrvy+mmmt0Ue3dx4+Zt73otQRfFzFD
-         v3Zt3Axl7JMLSGTwO2wfyU4CMOyKXlGc/yF/3u/FoGRmmWM6DvWfaUUkBr/OBw62//nu
-         GK3YWGhjfwK+1UPTuyvSg0nuWt9adp+YiWX61UegR/HwiHntuG90/EVplXw0ccwf8eBs
-         gPnA==
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RFnfZytjklQ+7pYys60IfyrHOHTrYbp9e4RL+6PGCH4=;
+        b=Gg6EIZdBLOL/uaIGKl7tzehKzT5MknOK9GS94ViLY5cfORngsyCcJUIUvgtYrx57xS
+         +vIMeytvZyqE6FDZXueSefO3C3ZB0suCi/DiGQV7l8MnnIZ2YbhnEzYMOxLJP5nntxJC
+         X2Ad6ragY++Wq2JuDJ+TgXmEYiNufb3h0iMEoxYX4P+xwluSJCITt5tprOF8vpz01gMP
+         9DhAm1xlYXF998SxqqfGpHCo0AKA5FmWTH2p8H0a46GZh8wx7iEKDYZPxc4BfXySfCPh
+         Luyh4+8i15RlDNLm6KqaqoD5kL/2JMAH5rvzCEsWK+fOF4RZ+rrWoc99Epx13WfzUd29
+         LV5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=210/esXBpcQ81FnwB14NVVrED+udY/8GQjymUvVa4Ys=;
-        b=jQqOZQB+0RSjPzycIzqDEPA1gcml+A/ClXoMHtGCjE3kZlBJJFmr5AwoUKGt5BTc1V
-         p1Zt+8M5T4Ad2F7U1J6r2JyevVlHWLiV9g9LctC150yE49d57QYsaPaTu5ZTi6W8BGZ6
-         FBnVgsUkvzMRg2ZUTAwhJgYiaxXpxhQC1ssC99Pydzb+BC53OQTafcdrl1QV2+wi/82g
-         pKGEZEJXX6gLCDnv5FH6VHG9tYYsPyyuDct73R+9/6nfh8AKxgncIxY81SB1BhXKhpr9
-         XW4qurFXsnvDSttuwNRm4ogBD++zD6eht1uhN7JDH1aDPF05GWQm4Ek54ejvzM2xNH4D
-         9U9g==
-X-Gm-Message-State: AOAM531OAxHU7Isjf2FayFh6JkfU0oJpZJWe0bawdQZpeMy9YoG+DDP7
-        vN4P5xZvTOxE6ydqEl9UyPYRED2niJJgIa7c
-X-Google-Smtp-Source: ABdhPJyNtPJZliU36OLS80F4OdI1Ib1ed91NmBoK9MZB81SU85X3zMFmUBMYy32OBI0oR8t0aExEfg==
-X-Received: by 2002:a92:9115:: with SMTP id t21mr11568814ild.33.1600100766973;
-        Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RFnfZytjklQ+7pYys60IfyrHOHTrYbp9e4RL+6PGCH4=;
+        b=igaTS1nWPeUvP/mrYdXgXlsifcX5HBYhd96bc1wyzbQjyjdEYNILdU52bErHNA8Dw8
+         8IowO1GogmTnrOij/VM9gNCgime5avxRYbPnRYLx+I8IU5QNzzBBERmanr3HnY1rMpWw
+         G1pt0yZCD+sLPxHtztzHFFOH3RH6+xk40ucFa+33G1EqtLpa+/YNkZbbIfSrJUNqgDfv
+         4BJ5lw5ao25DZWJdFFTHYrp0tjTNrYbGVbGpKpQWZYjgS4XRwBSOVoY/Vx4ji1hhmLW3
+         RRpgIIHFNrOj3Y0yxWV5Br7Ad9yiaV7SeWsXwMWGvWehN6P7+vNDav1cSHb8m62Qq9ut
+         SmVQ==
+X-Gm-Message-State: AOAM5322Xrqi1VS8/j0tRisEqNqJTspMK5/dNVET1LscYFe9kDXbILuV
+        2970BvI3wVuR+LBESIFfj7CYJ2a6wge0NvOV
+X-Google-Smtp-Source: ABdhPJzzVaDPC33B0FvgIpwE3PPGcUDRmwbLrGzu02v5rvqxXO74/MYuZwXgk60ZXe0gWRUhcTP9Kg==
+X-Received: by 2002:a92:105:: with SMTP id 5mr12070351ilb.36.1600100764805;
+        Mon, 14 Sep 2020 09:26:04 -0700 (PDT)
 Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o12sm7032261ilq.29.2020.09.14.09.26.05
+        by smtp.gmail.com with ESMTPSA id o12sm7032261ilq.29.2020.09.14.09.26.04
+        for <io-uring@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
+        Mon, 14 Sep 2020 09:26:04 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/5] io_uring: drop 'ctx' ref on task work cancelation
-Date:   Mon, 14 Sep 2020 10:25:52 -0600
-Message-Id: <20200914162555.1502094-3-axboe@kernel.dk>
+Subject: [PATCHSET 0/5] io_uring fixes for 5.9
+Date:   Mon, 14 Sep 2020 10:25:50 -0600
+Message-Id: <20200914162555.1502094-1-axboe@kernel.dk>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200914162555.1502094-1-axboe@kernel.dk>
-References: <20200914162555.1502094-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: io-uring-owner@vger.kernel.org
@@ -73,33 +70,10 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If task_work ends up being marked for cancelation, we go through a
-cancelation helper instead of the queue path. In converting task_work to
-always hold a ctx reference, this path was missed. Make sure that
-io_req_task_cancel() puts the reference that is being held against the
-ctx.
+Various fixes that were found through testing and inspection. Some by
+myself, others reported.
 
-Fixes: 6d816e088c35 ("io_uring: hold 'ctx' reference around task_work queue + execute")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index be9d628e7854..01756a131be6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1787,8 +1787,10 @@ static void __io_req_task_cancel(struct io_kiocb *req, int error)
- static void io_req_task_cancel(struct callback_head *cb)
- {
- 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
-+	struct io_ring_ctx *ctx = req->ctx;
- 
- 	__io_req_task_cancel(req, -ECANCELED);
-+	percpu_ref_put(&ctx->refs);
- }
- 
- static void __io_req_task_submit(struct io_kiocb *req)
 -- 
-2.28.0
+Jens Axboe
+
 

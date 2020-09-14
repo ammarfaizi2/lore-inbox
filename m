@@ -2,101 +2,154 @@ Return-Path: <SRS0=bGbs=CX=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11FDCC2D0E3
-	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4EF7C43461
+	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:33:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3E2821974
-	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:31:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67CBA21D1A
+	for <io-uring@archiver.kernel.org>; Mon, 14 Sep 2020 16:33:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="S6uKY270"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y5VgxWkL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726038AbgINQbh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Sep 2020 12:31:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56094 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726424AbgINQ0H (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Sep 2020 12:26:07 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C384DC06178A
-        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id r25so784016ioj.0
-        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:26:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=b6A8kuTVdHTJBvGzXju+QPO8VYtnLBOIBhdpvbm7Kxc=;
-        b=S6uKY270NFIUIdOVJea4hXqVzR+CltTNSHmZSXTjEREB63TBmG5RPyr1KV0oUZKL8B
-         cIWZkGih9fYoRUHjZzynYHbI1820OXzDnD5mOX9z9ctSZ4zAOD44Yz+Tejlr2fJrT+vs
-         Q/wxEGWmpHj77cJ1LNEjOBseqbdNEcA6sbkQAmTdJSCJqU4obVVtvcYW1G82XdonJRmW
-         UGMd+Rko28LESX+C+ALpfGY1H4paLEtKYcCfPDKc65ATEukWL3ON5lu05dhS81iJYwq0
-         ye9KxojASWI7lc9GpU5evjmpT9N+j+3UWBlcAY8Q6zWJI/4+P58HbacVEAHnZzLBAaCb
-         folw==
+        id S1726420AbgINQdT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Sep 2020 12:33:19 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38470 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726174AbgINQDT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Sep 2020 12:03:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1600099371;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=P4EcRJzHBVhG1AHJYDfhpMOIq/bL3fXRmHwzcE2CSEM=;
+        b=Y5VgxWkLap0b0opLPTFc6itOzUi3/SYaXTovYDENJqK4ULVh/IbQ4YbUZZu0HiVW/yE2rv
+        S8F1mZjXpbM5EBfjp8Xh5PUjsPjQz532xKgWUoIfCN7ypgXaWzQrmLhYSSkcl6Ekz4oSc/
+        kzUnmXrTYAaW67BXAgD7SmMgx4N8bEA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-592-UxjTy176N-WMZInuQFozSQ-1; Mon, 14 Sep 2020 12:02:49 -0400
+X-MC-Unique: UxjTy176N-WMZInuQFozSQ-1
+Received: by mail-wr1-f69.google.com with SMTP id f18so37773wrv.19
+        for <io-uring@vger.kernel.org>; Mon, 14 Sep 2020 09:02:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=b6A8kuTVdHTJBvGzXju+QPO8VYtnLBOIBhdpvbm7Kxc=;
-        b=S0i2MDy6xpLwV5zEcH0bEe90nhtI98pM3Auf8zkBhISnN467bOlkozPtKnHhNTlGOz
-         ozWwzaB4L7hIsHsZrimBF87h9Kp4fvd4htAYGanqyx3LrJXNCBoPaKMqOUwyP2Q6w29U
-         wUXrK03vdHx0OGD7V4tmgmYfm0tP9fmxQrmK0F2USggPJ4mbX32oKuEG2YDfvbDTy7/1
-         ccPJEsXznc1nuEyn6sWGsIG8NDucOZZ07+23He0vNEEHn4NLczpdnlu/Mm5czMvL51vZ
-         ovhqiK1La/Vwbw+Q1rpMJeqDAcGmPYSOuQvAcNsANPQvzG/u5DVB1jpxRaq7XHhWNtMb
-         bHmQ==
-X-Gm-Message-State: AOAM531yLCpCYMC82LZB85r7rApgl3miRqM+8UJShsh4NrO7jfHCQ7C3
-        /Rb3YjJrQyVenHx2/kCTvbziM/XOzRxf0hxP
-X-Google-Smtp-Source: ABdhPJyc8DY2vwiAz4U9bFIYlSDdwETDUQpv7xsawfn42jktSO3GqJtvIIudKTPsPc/fJOMFtMkBVA==
-X-Received: by 2002:a05:6638:224e:: with SMTP id m14mr13967640jas.101.1600100765717;
-        Mon, 14 Sep 2020 09:26:05 -0700 (PDT)
-Received: from x1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o12sm7032261ilq.29.2020.09.14.09.26.04
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=P4EcRJzHBVhG1AHJYDfhpMOIq/bL3fXRmHwzcE2CSEM=;
+        b=t0+Ofd5Mjok5uWbOmlSqsg5QHsd3iD61b4Xno4O1IGHosdz1AA0GqpOmwqESiX7eDa
+         lAtUXoP0Y6/PlfeLkc0Q1sVq+s1BOeRFe4szZXSppOg/p5MHCKg2oA34GgNVFmjiG/0q
+         M6iEZHnwYGy0P/FoifB8IsPAfYQMhESf3NfOH2is3qgoKCxDf2u1r4YVw99EeZv/OPBO
+         28XaU9ka/HdqHTwZ4Q/j5aLQEl8tSfffZxSIWyXaDZSp/JQrvl3ecebADE6VL8gz6D1o
+         rASuporDlb8A2B9aQ9T5RxTJoIGIMUM2A1xd8k4xsu2KK4x9jl26BD89v02O/LYWfM7N
+         Qd3w==
+X-Gm-Message-State: AOAM533wFRS30S7nDDSxoyKqHeIIEx1xMdpnws7ot1gLaVWenkX5gH/w
+        wI3UbAMeiVJK9VBtFOdXLJUsNyXoyJulvYSL2BoigVULg4KhMwGko7/TObprFbAeTlD4+GuapQ6
+        FiuVXx8WQ/EMI2+KnJfE=
+X-Received: by 2002:adf:e2c7:: with SMTP id d7mr16590262wrj.110.1600099367650;
+        Mon, 14 Sep 2020 09:02:47 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxWv8TNQN2mFtmo8Hg2xtFYV0CSgU4qFBX0CF5Vzsebbgi5NbuTSg8FAOuECiXvau4q8ieo6g==
+X-Received: by 2002:adf:e2c7:: with SMTP id d7mr16590232wrj.110.1600099367380;
+        Mon, 14 Sep 2020 09:02:47 -0700 (PDT)
+Received: from steredhat (host-79-51-197-141.retail.telecomitalia.it. [79.51.197.141])
+        by smtp.gmail.com with ESMTPSA id n10sm7467444wmk.7.2020.09.14.09.02.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 09:26:05 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/5] io_uring: grab any needed state during defer prep
-Date:   Mon, 14 Sep 2020 10:25:51 -0600
-Message-Id: <20200914162555.1502094-2-axboe@kernel.dk>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200914162555.1502094-1-axboe@kernel.dk>
-References: <20200914162555.1502094-1-axboe@kernel.dk>
+        Mon, 14 Sep 2020 09:02:46 -0700 (PDT)
+Date:   Mon, 14 Sep 2020 18:02:43 +0200
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org
+Subject: Re: [PATCH liburing 3/3] man/io_uring_enter.2: add EACCES and EBADFD
+ errors
+Message-ID: <20200914160243.o4vldl5isqktrvdd@steredhat>
+References: <20200911133408.62506-1-sgarzare@redhat.com>
+ <20200911133408.62506-4-sgarzare@redhat.com>
+ <d38ae8b4-cb3e-3ebf-63e3-08a1f24ddcbb@kernel.dk>
+ <20200914080537.2ybouuxtjvckorc2@steredhat>
+ <dc01a74f-db66-0da9-20b7-b6c6e6cb1640@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dc01a74f-db66-0da9-20b7-b6c6e6cb1640@kernel.dk>
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Always grab work environment for deferred links. The assumption that we
-will be running it always from the task in question is false, as exiting
-tasks may mean that we're deferring this one to a thread helper. And at
-that point it's too late to grab the work environment.
+On Mon, Sep 14, 2020 at 09:38:25AM -0600, Jens Axboe wrote:
+> On 9/14/20 2:05 AM, Stefano Garzarella wrote:
+> > On Fri, Sep 11, 2020 at 09:36:02AM -0600, Jens Axboe wrote:
+> >> On 9/11/20 7:34 AM, Stefano Garzarella wrote:
+> >>> These new errors are added with the restriction series recently
+> >>> merged in io_uring (Linux 5.10).
+> >>>
+> >>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> >>> ---
+> >>>  man/io_uring_enter.2 | 18 ++++++++++++++++++
+> >>>  1 file changed, 18 insertions(+)
+> >>>
+> >>> diff --git a/man/io_uring_enter.2 b/man/io_uring_enter.2
+> >>> index 5443d5f..4773dfd 100644
+> >>> --- a/man/io_uring_enter.2
+> >>> +++ b/man/io_uring_enter.2
+> >>> @@ -842,6 +842,16 @@ is set appropriately.
+> >>>  .PP
+> >>>  .SH ERRORS
+> >>>  .TP
+> >>> +.B EACCES
+> >>> +The
+> >>> +.I flags
+> >>> +field or
+> >>> +.I opcode
+> >>> +in a submission queue entry is not allowed due to registered restrictions.
+> >>> +See
+> >>> +.BR io_uring_register (2)
+> >>> +for details on how restrictions work.
+> >>> +.TP
+> >>>  .B EAGAIN
+> >>>  The kernel was unable to allocate memory for the request, or otherwise ran out
+> >>>  of resources to handle it. The application should wait for some completions and
+> >>> @@ -861,6 +871,14 @@ field in the submission queue entry is invalid, or the
+> >>>  flag was set in the submission queue entry, but no files were registered
+> >>>  with the io_uring instance.
+> >>>  .TP
+> >>> +.B EBADFD
+> >>> +The
+> >>> +.I fd
+> >>> +field in the submission queue entry is valid, but the io_uring ring is not
+> >>> +in the right state (enabled). See
+> >>> +.BR io_uring_register (2)
+> >>> +for details on how to enable the ring.
+> >>> +.TP
+> >>
+> >> I actually think some of this needs general updating. io_uring_enter()
+> >> will not return an error on behalf of an sqe, it'll only return an error
+> >> if one happened outside the context of a specific sqe. Any error
+> >> specific to an sqe will generate a cqe with the result.
+> > 
+> > Mmm, right.
+> > 
+> > For example in this case, EACCES is returned by a cqe and EBADFD is
+> > returned by io_uring_enter().
+> > 
+> > Should we create 2 error sections?
+> 
+> Yep, I think we should. One that describes that io_uring_enter() would
+> return in terms of errors, and one that describes cqe->res returns.
 
-Fixes: debb85f496c9 ("io_uring: factor out grab_env() from defer_prep()")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+Yeah, that would be much better!
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 175fb647d099..be9d628e7854 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5449,6 +5449,8 @@ static int io_req_defer_prep(struct io_kiocb *req,
- 	if (unlikely(ret))
- 		return ret;
- 
-+	io_prep_async_work(req);
-+
- 	switch (req->opcode) {
- 	case IORING_OP_NOP:
- 		break;
--- 
-2.28.0
+> 
+> Are you up for this? Would be a great change, making it a lot more
+> accurate.
+
+Sure! I'll prepare a patch with this change, and I'll also try to catch
+all possible return values, then I'll rebase this series on top of that.
+
+Thanks,
+Stefano
 

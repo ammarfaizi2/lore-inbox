@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18ABAC433E2
-	for <io-uring@archiver.kernel.org>; Tue, 15 Sep 2020 23:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA788C43461
+	for <io-uring@archiver.kernel.org>; Tue, 15 Sep 2020 23:03:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD2A520770
-	for <io-uring@archiver.kernel.org>; Tue, 15 Sep 2020 23:02:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 913B020770
+	for <io-uring@archiver.kernel.org>; Tue, 15 Sep 2020 23:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727491AbgIOXCB convert rfc822-to-8bit (ORCPT
+        id S1727387AbgIOXDB convert rfc822-to-8bit (ORCPT
         <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 15 Sep 2020 19:02:01 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:41453 "EHLO
+        Tue, 15 Sep 2020 19:03:01 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:57747 "EHLO
         eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727361AbgIOOzu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Sep 2020 10:55:50 -0400
+        by vger.kernel.org with ESMTP id S1727352AbgIOOz2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Sep 2020 10:55:28 -0400
 Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id uk-mta-5-ZlNQaq51PdSjWG-hec5MQA-1;
- Tue, 15 Sep 2020 15:55:31 +0100
-X-MC-Unique: ZlNQaq51PdSjWG-hec5MQA-1
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-37-dfVtB9cCPvahLiPigLatfA-1; Tue, 15 Sep 2020 15:55:25 +0100
+X-MC-Unique: dfVtB9cCPvahLiPigLatfA-1
 Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
  AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Tue, 15 Sep 2020 15:55:31 +0100
+ Server (TLS) id 15.0.1347.2; Tue, 15 Sep 2020 15:55:24 +0100
 Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
  AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 15 Sep 2020 15:55:31 +0100
+ Tue, 15 Sep 2020 15:55:24 +0100
 From:   David Laight <David.Laight@ACULAB.COM>
 To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
@@ -38,13 +38,12 @@ To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Al Viro <viro@zeniv.linux.org.uk>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH 7/9 next] mm/process_vm_access: Use iovec_import() instead of
+Subject: [PATCH 5/9 next] scsi: Use iovec_import() instead of import_iovec().
+Thread-Topic: [PATCH 5/9 next] scsi: Use iovec_import() instead of
  import_iovec().
-Thread-Topic: [PATCH 7/9 next] mm/process_vm_access: Use iovec_import()
- instead of import_iovec().
-Thread-Index: AdaLbliE1LQuFgQoRvuMh1ueXN8hpw==
-Date:   Tue, 15 Sep 2020 14:55:30 +0000
-Message-ID: <a8fbbfe542af48ee9bcd2d9c835e5c32@AcuMS.aculab.com>
+Thread-Index: AdaLbdBrrJnvb+q4Sa6RtPibF1KBcw==
+Date:   Tue, 15 Sep 2020 14:55:24 +0000
+Message-ID: <27be46ece36c42d6a7dabf62c6ac7a98@AcuMS.aculab.com>
 Accept-Language: en-GB, en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
@@ -53,7 +52,7 @@ x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
 Authentication-Results: relay.mimecast.com;
         auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
+X-Mimecast-Spam-Score: 0.001
 X-Mimecast-Originator: aculab.com
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8BIT
@@ -63,130 +62,79 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+
 iovec_import() has a safer calling convention than import_iovec().
 
 Signed-off-by: David Laight <david.laight@aculab.com>
 ---
- mm/process_vm_access.c | 81 ++++++++++++++++++++++--------------------
- 1 file changed, 42 insertions(+), 39 deletions(-)
+ block/scsi_ioctl.c | 14 ++++++++------
+ drivers/scsi/sg.c  | 14 +++++++-------
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/mm/process_vm_access.c b/mm/process_vm_access.c
-index 1cc3d6f66b31..048637944d47 100644
---- a/mm/process_vm_access.c
-+++ b/mm/process_vm_access.c
-@@ -260,10 +260,10 @@ static ssize_t process_vm_rw(pid_t pid,
- 			     unsigned long riovcnt,
- 			     unsigned long flags, int vm_write)
- {
--	struct iovec iovstack_l[UIO_FASTIOV];
--	struct iovec iovstack_r[UIO_FASTIOV];
--	struct iovec *iov_l = iovstack_l;
--	struct iovec *iov_r = iovstack_r;
-+	struct iovec_cache cache_l;
-+	struct iovec_cache cache_r;
-+	struct iovec *iov_l;
-+	struct iovec *iov_r;
- 	struct iov_iter iter_l, iter_r;
- 	ssize_t rc;
- 	int dir = vm_write ? WRITE : READ;
-@@ -272,24 +272,25 @@ static ssize_t process_vm_rw(pid_t pid,
- 		return -EINVAL;
+diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
+index ef722f04f88a..0343918a84d3 100644
+--- a/block/scsi_ioctl.c
++++ b/block/scsi_ioctl.c
+@@ -331,20 +331,22 @@ static int sg_io(struct request_queue *q, struct gendisk *bd_disk,
+ 	ret = 0;
+ 	if (hdr->iovec_count) {
+ 		struct iov_iter i;
+-		struct iovec *iov = NULL;
++		struct iovec *iov;
  
- 	/* Check iovecs */
--	rc = import_iovec(dir, lvec, liovcnt, UIO_FASTIOV, &iov_l, &iter_l);
--	if (rc < 0)
--		return rc;
--	if (!iov_iter_count(&iter_l))
--		goto free_iovecs;
--
--	rc = import_iovec(CHECK_IOVEC_ONLY, rvec, riovcnt, UIO_FASTIOV, &iov_r, &iter_r);
--	if (rc <= 0)
--		goto free_iovecs;
--
--	rc = process_vm_rw_core(pid, &iter_l, iter_r.iov, iter_r.nr_segs,
--				flags, vm_write);
-+	iov_l = iovec_import(dir, lvec, liovcnt, &cache_l, &iter_l);
-+	if (IS_ERR(iov_l))
-+		return PTR_ERR(iov_l);
-+	if (!iov_iter_count(&iter_l)) {
-+		rc = 0;
-+		goto free_iovec_l;
-+	}
+ #ifdef CONFIG_COMPAT
+ 		if (in_compat_syscall())
+-			ret = compat_import_iovec(rq_data_dir(rq),
++			iov = compat_iovec_import(rq_data_dir(rq),
+ 				   hdr->dxferp, hdr->iovec_count,
+-				   0, &iov, &i);
++				   NULL, &i);
+ 		else
+ #endif
+-			ret = import_iovec(rq_data_dir(rq),
++			iov = iovec_import(rq_data_dir(rq),
+ 				   hdr->dxferp, hdr->iovec_count,
+-				   0, &iov, &i);
+-		if (ret < 0)
++				   NULL, &i);
++		if (IS_ERR(iov)) {
++			ret = PTR_ERR(iov);
+ 			goto out_free_cdb;
++		}
  
--free_iovecs:
--	if (iov_r != iovstack_r)
-+	iov_r = iovec_import(CHECK_IOVEC_ONLY, rvec, riovcnt, &cache_r, &iter_r);
-+	if (IS_ERR(iov_r)) {
-+		rc = PTR_ERR(iov_r);
-+	} else {
-+		rc = process_vm_rw_core(pid, &iter_l, iter_r.iov,
-+				iter_r.nr_segs, flags, vm_write);
- 		kfree(iov_r);
--	if (iov_l != iovstack_l)
--		kfree(iov_l);
-+	}
-+
-+free_iovec_l:
-+	kfree(iov_l);
+ 		/* SG_IO howto says that the shorter of the two wins */
+ 		iov_iter_truncate(&i, hdr->dxfer_len);
+diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
+index 20472aaaf630..1dbc0a74add5 100644
+--- a/drivers/scsi/sg.c
++++ b/drivers/scsi/sg.c
+@@ -1817,19 +1817,19 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
+ 	}
  
- 	return rc;
- }
-@@ -319,10 +320,10 @@ compat_process_vm_rw(compat_pid_t pid,
- 		     unsigned long riovcnt,
- 		     unsigned long flags, int vm_write)
- {
--	struct iovec iovstack_l[UIO_FASTIOV];
--	struct iovec iovstack_r[UIO_FASTIOV];
--	struct iovec *iov_l = iovstack_l;
--	struct iovec *iov_r = iovstack_r;
-+	struct iovec_cache cache_l;
-+	struct iovec_cache cache_r;
-+	struct iovec *iov_l;
-+	struct iovec *iov_r;
- 	struct iov_iter iter_l, iter_r;
- 	ssize_t rc = -EFAULT;
- 	int dir = vm_write ? WRITE : READ;
-@@ -330,23 +331,25 @@ compat_process_vm_rw(compat_pid_t pid,
- 	if (flags != 0)
- 		return -EINVAL;
+ 	if (iov_count) {
+-		struct iovec *iov = NULL;
++		struct iovec *iov;
+ 		struct iov_iter i;
  
--	rc = compat_import_iovec(dir, lvec, liovcnt, UIO_FASTIOV, &iov_l, &iter_l);
--	if (rc < 0)
--		return rc;
--	if (!iov_iter_count(&iter_l))
--		goto free_iovecs;
--	rc = compat_import_iovec(0, rvec, riovcnt, UIO_FASTIOV, &iov_r, &iter_r);
--	if (rc <= 0)
--		goto free_iovecs;
--
--	rc = process_vm_rw_core(pid, &iter_l, iter_r.iov, iter_r.nr_segs,
--				flags, vm_write);
-+	iov_l = compat_iovec_import(dir, lvec, liovcnt, &cache_l, &iter_l);
-+	if (IS_ERR(iov_l))
-+		return PTR_ERR(iov_l);
-+	if (!iov_iter_count(&iter_l)) {
-+		rc = 0;
-+		goto free_iovec_l;
-+	}
+ #ifdef CONFIG_COMPAT
+ 		if (in_compat_syscall())
+-			res = compat_import_iovec(rw, hp->dxferp, iov_count,
+-						  0, &iov, &i);
++			iov = compat_iovec_import(rw, hp->dxferp, iov_count,
++						  NULL, &i);
+ 		else
+ #endif
+-			res = import_iovec(rw, hp->dxferp, iov_count,
+-					   0, &iov, &i);
+-		if (res < 0)
+-			return res;
++			iov = iovec_import(rw, hp->dxferp, iov_count,
++					   NULL, &i);
++		if (IS_ERR(iov))
++			return PTR_ERR(iov);
  
--free_iovecs:
--	if (iov_r != iovstack_r)
-+	iov_r = compat_iovec_import(0, rvec, riovcnt, &cache_r, &iter_r);
-+	if (IS_ERR(iov_r)) {
-+		rc = PTR_ERR(iov_r);
-+	} else {
-+		rc = process_vm_rw_core(pid, &iter_l, iter_r.iov,
-+				iter_r.nr_segs, flags, vm_write);
- 		kfree(iov_r);
--	if (iov_l != iovstack_l)
--		kfree(iov_l);
-+	}
-+
-+free_iovec_l:
-+	kfree(iov_l);
- 	return rc;
- }
- 
+ 		iov_iter_truncate(&i, hp->dxfer_len);
+ 		if (!iov_iter_count(&i)) {
 -- 
 2.25.1
 

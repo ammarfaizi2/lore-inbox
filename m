@@ -2,181 +2,196 @@ Return-Path: <SRS0=p23A=CZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C29B3C43461
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 18:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA3BFC43461
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:51:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 815B921655
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 18:13:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9470F21582
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:51:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="UY6SkYvZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFsrXVtT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727860AbgIPSM6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Sep 2020 14:12:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39658 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727851AbgIPSMy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 14:12:54 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B30C061756
-        for <io-uring@vger.kernel.org>; Wed, 16 Sep 2020 11:12:52 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id u126so9098249oif.13
-        for <io-uring@vger.kernel.org>; Wed, 16 Sep 2020 11:12:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Q8JqmRXfCEzzBTUwxRJ4JDVMKyc+q/iGHLSVKM7GCd8=;
-        b=UY6SkYvZ6n2kzBUbHshy2ytOTW0KCRfXMJJPn9/L7fMov1wNUErCNMQwldbSHaPSZr
-         Msh2YKHi81IJT8hjK84Bdx+luk/HHQ99IgCOzuo9c8gE5Zv3xBgr9NX6Z/4pD3XMkOPX
-         l68z0o5PSwzFghP80FcPuy7Z2sLBC63oFgcOQszv6+j9TgaJlxpeStL+UufW6jwp2h5d
-         +Gkj8hkfpIlbzBg7xMQGRYAP170On8Or79775TvHJKnQfrG7XYurXLB7d3+DxeFMoXeB
-         8jWG6XcqaaPfgOAYuYDyYa/qda+tQS22JIlorg7CDWwA+TdyyllnDpeM4taYgO4hUu5k
-         pjNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Q8JqmRXfCEzzBTUwxRJ4JDVMKyc+q/iGHLSVKM7GCd8=;
-        b=orkbOsJ8cpN3CF5EiUd30W3uija6vNgaaOGcsIjQrgNmhUT/KShxAIf3o4QKtUfWQK
-         Hfq+4cK8/IQxwbBR4FH5W/CVjkvFGWKl5k1X/sC2BAMtaElzGXjTwqdwwM7sQoJ8n8Lg
-         pQ07poKgSjefETnmHqU2lHrv823E55V2PD3RnJTLfH2tkiAkkW4C2dL1/wjupqsnef8N
-         y7jjHUAcKrsPqRv/H8VM8RXu4/32O+vMqoEuQYHheT7BLQ+bMXiiNIzrBc3IyI4L4NOV
-         Lxo5I63ToqvgihOK/5dc8D7asrq2VjbSFaL/zUsd3ePONw2G+5e0kX+1bHxJjyHUg2Sg
-         MtVQ==
-X-Gm-Message-State: AOAM533k/Y4OGiDgosQKC/hyKIhAupu8Lp5ITt406DCHFp2lLUKFnnwe
-        dbQRKMdbeNe/svywjFCsQ5Zp7W3daETZ9Lvt
-X-Google-Smtp-Source: ABdhPJxremX4JE+9hDeQ7AcQsaYym2VgREU+oX0qRb5YsN3wlaSJpaCFijD6V5/cIVLs/uFrlsbx0w==
-X-Received: by 2002:aca:220e:: with SMTP id b14mr3803325oic.97.1600279971620;
-        Wed, 16 Sep 2020 11:12:51 -0700 (PDT)
-Received: from [192.168.1.10] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m184sm9985622oig.29.2020.09.16.11.12.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Sep 2020 11:12:50 -0700 (PDT)
-Subject: Re: occasional metadata I/O errors (-EOPNOTSUPP) on XFS + io_uring
-To:     Brian Foster <bfoster@redhat.com>
-Cc:     linux-xfs@vger.kernel.org, io-uring@vger.kernel.org
-References: <20200915113327.GA1554921@bfoster>
- <20200916131957.GB1681377@bfoster>
- <0b6da658-54b1-32ea-b172-981c67aaf29e@kernel.dk>
- <20200916180539.GC1681377@bfoster>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b8fd5ba4-342a-8feb-4eb0-7e6f92081a82@kernel.dk>
-Date:   Wed, 16 Sep 2020 12:12:50 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727839AbgIPTvx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Sep 2020 15:51:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35918 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727207AbgIPRhd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 13:37:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1600277848;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y180oUkejY14cXgK4vjnfdc8RXLi2L7JY7EbjdRpGtM=;
+        b=BFsrXVtTkINbB08j+jdnEROTDs+4Fxx/ja/d4sKhJamDHfRV2wPy5KsiXegR4/Wre6tim0
+        Gm6AniZNde/2UBG9PNjMUBP2mlE1yXNbJsZ+v0h9vLErVrdW2AWHMpqta31nbChNbinvj2
+        qFjs6/gN0SX+Q35lY6GUwntd589tHnQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-423-CmdiD0hSOU-DVdBXjE3LdQ-1; Wed, 16 Sep 2020 09:11:49 -0400
+X-MC-Unique: CmdiD0hSOU-DVdBXjE3LdQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5333918C89C1;
+        Wed, 16 Sep 2020 13:11:48 +0000 (UTC)
+Received: from bogon.redhat.com (ovpn-13-242.pek2.redhat.com [10.72.13.242])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E35819D6C;
+        Wed, 16 Sep 2020 13:11:46 +0000 (UTC)
+From:   Zorro Lang <zlang@redhat.com>
+To:     fstests@vger.kernel.org
+Cc:     io-uring@vger.kernel.org
+Subject: [PATCH 1/3] src/feature: add IO_URING feature checking
+Date:   Wed, 16 Sep 2020 21:11:37 +0800
+Message-Id: <20200916131139.11497-2-zlang@redhat.com>
+In-Reply-To: <20200916131139.11497-1-zlang@redhat.com>
+References: <20200916131139.11497-1-zlang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200916180539.GC1681377@bfoster>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/16/20 12:05 PM, Brian Foster wrote:
-> On Wed, Sep 16, 2020 at 10:55:08AM -0600, Jens Axboe wrote:
->> On 9/16/20 7:19 AM, Brian Foster wrote:
->>> On Tue, Sep 15, 2020 at 07:33:27AM -0400, Brian Foster wrote:
->>>> Hi Jens,
->>>>
->>>> I'm seeing an occasional metadata (read) I/O error (EOPNOTSUPP) when
->>>> running Zorro's recent io_uring enabled fsstress on XFS (fsstress -d
->>>> <mnt> -n 99999999 -p 8). The storage is a 50GB dm-linear device on a
->>>> virtio disk (within a KVM guest). The full callstack of the I/O
->>>> submission path is appended below [2], acquired via inserting a
->>>> WARN_ON() in my local tree.
->>>>
->>>> From tracing around a bit, it looks like what happens is that fsstress
->>>> calls into io_uring, the latter starts a plug and sets plug.nowait =
->>>> true (via io_submit_sqes() -> io_submit_state_start()) and eventually
->>>> XFS needs to read an inode cluster buffer in the context of this task.
->>>> That buffer read ultimately fails due to submit_bio_checks() setting
->>>> REQ_NOWAIT on the bio and the following logic in the same function
->>>> causing a BLK_STS_NOTSUPP status:
->>>>
->>>> 	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q))
->>>> 		goto not_supported;
->>>>
->>>> In turn, this leads to the following behavior in XFS:
->>>>
->>>> [ 3839.273519] XFS (dm-2): metadata I/O error in "xfs_imap_to_bp+0x116/0x2c0 [xfs]" at daddr 0x323a5a0 len 32 error 95
->>>> [ 3839.303283] XFS (dm-2): log I/O error -95
->>>> [ 3839.321437] XFS (dm-2): xfs_do_force_shutdown(0x2) called from line 1196 of file fs/xfs/xfs_log.c. Return address = ffffffffc12dea8a
->>>> [ 3839.323554] XFS (dm-2): Log I/O Error Detected. Shutting down filesystem
->>>> [ 3839.324773] XFS (dm-2): Please unmount the filesystem and rectify the problem(s)
->>>>
->>>> I suppose it's possible fsstress is making an invalid request based on
->>>> my setup, but I find it a little strange that this state appears to leak
->>>> into filesystem I/O requests. What's more concerning is that this also
->>>> seems to impact an immediately subsequent log write submission, which is
->>>> a fatal error and causes the filesystem to shutdown.
->>>>
->>>> Finally, note that I've seen your patch associated with Zorro's recent
->>>> bug report [1] and that does seem to prevent the problem. I'm still
->>>> sending this report because the connection between the plug and that
->>>> change is not obvious to me, so I wanted to 1.) confirm this is intended
->>>> to fix this problem and 2.) try to understand whether this plugging
->>>> behavior introduces any constraints on the fs when invoked in io_uring
->>>> context. Thoughts? Thanks.
->>>>
->>>
->>> To expand on this a bit, I was playing more with the aforementioned fix
->>> yesterday while waiting for this email's several hour trip to the
->>> mailing list to complete and eventually realized that I don't think the
->>> plug.nowait thing properly accommodates XFS' use of multiple devices. A
->>> simple example is XFS on a data device with mq support and an external
->>> log device without mq support. Presumably io_uring requests could thus
->>> enter XFS with plug.nowait set to true, and then any log bio submission
->>> that happens to occur in that context is doomed to fail and shutdown the
->>> fs.
->>
->> Do we ever read from the logdev? It'll only be a concern on the read
->> side. And even from there, you'd need nested reads from the log device.
->>
-> 
-> We only read from the log device on log recovery (during filesystem
-> mount), but I don't follow why that matters since log writes originate
-> within XFS (not userspace). Do you mean to ask whether we access the log
-> in the context of userspace reads.. ?
-> 
-> We currently write to the log from various runtime contexts. I don't
-> _think_ that we currently ever do so during a file read, but log forces
-> can be async and buried under layers of indirection which makes it
-> difficult to reason about (and prevent in the future, if necessary). For
-> example, attempting to lock a stale buffer can issue an async log force.
-> 
-> FWIW and to confirm the above, a simple experiment to issue a log force
-> in XFS' read_iter() does reproduce the same shutdown condition described
-> above when XFS is mounted with a mq data device and !mq external log
-> device. That may or may not be a theoretical condition at the moment,
-> but it kind of looks like a landmine to me. Perhaps we'll need to come
-> up with a more explicit way of ensuring we never submit log bios from a
-> context where we know the block subsystem will swat them away...
-> 
->> In general, the 'can async' check should be advisory, the -EAGAIN
->> or -EOPNOTSUPP should be caught and reissued. The failure path was
->> just related to this happening off the retry path on arming for the
->> async buffered callback.
->>
-> 
-> I think the issue here is that io_uring is not in the path between XFS
-> and the log device. Therefore, XFS receives the log I/O error directly
-> and shuts down. I do think it's fair to argue that io_uring should not
-> be setting task level context that enforces strict device specific
-> requirements on I/O submission and then call into subsystems that can
-> submit I/O to disparate/unrelated devices. That said, I'm not intimately
-> familiar with the problem this is trying to solve...
+IO_URING is a new feature for GNU/Linux system, if someone case of
+xfstests tests this feature, better to check if current system
+supports it, or need _notrun.
 
-I agree (with both this and the above), we should make this stronger.
-I'll take a look.
+Signed-off-by: Zorro Lang <zlang@redhat.com>
+---
+ src/Makefile  |  4 ++++
+ src/feature.c | 41 ++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 42 insertions(+), 3 deletions(-)
 
+diff --git a/src/Makefile b/src/Makefile
+index 643c1916..f1422c5c 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -65,6 +65,10 @@ SUBDIRS += aio-dio-regress
+ LLDLIBS += -laio
+ endif
+ 
++ifeq ($(HAVE_URING), true)
++LLDLIBS += -luring
++endif
++
+ CFILES = $(TARGETS:=.c)
+ LDIRT = $(TARGETS) fssum
+ 
+diff --git a/src/feature.c b/src/feature.c
+index a7eb7595..df550cf6 100644
+--- a/src/feature.c
++++ b/src/feature.c
+@@ -19,6 +19,7 @@
+  *
+  * Test for machine features
+  *   -A  test whether AIO syscalls are available
++ *   -R  test whether IO_URING syscalls are available
+  *   -o  report a number of online cpus
+  *   -s  report pagesize
+  *   -w  report bits per long
+@@ -39,6 +40,10 @@
+ #include <libaio.h>
+ #endif
+ 
++#ifdef HAVE_LIBURING_H
++#include <liburing.h>
++#endif
++
+ #ifndef USRQUOTA
+ #define USRQUOTA  0
+ #endif
+@@ -59,7 +64,7 @@ usage(void)
+ 	fprintf(stderr, "Usage: feature [-v] -<q|u|g|p|U|G|P> <filesystem>\n");
+ 	fprintf(stderr, "       feature [-v] -c <file>\n");
+ 	fprintf(stderr, "       feature [-v] -t <file>\n");
+-	fprintf(stderr, "       feature -A | -o | -s | -w\n");
++	fprintf(stderr, "       feature -A | -R | -o | -s | -w\n");
+ 	exit(1);
+ }
+ 
+@@ -215,6 +220,29 @@ check_aio_support(void)
+ #endif
+ }
+ 
++static int
++check_uring_support(void)
++{
++#ifdef HAVE_LIBURING_H
++	struct io_uring ring;
++	int err;
++
++	err = io_uring_queue_init(1, &ring, 0);
++	if (err == 0)
++		return 0;
++
++	if (err == -ENOSYS) /* CONFIG_IO_URING=n */
++		return 1;
++
++	fprintf(stderr, "unexpected error from io_uring_queue_init(): %s\n",
++		strerror(-err));
++	return 2;
++#else
++	/* liburing is unavailable, assume IO_URING is unsupported */
++	return 1;
++#endif
++}
++
+ 
+ int
+ main(int argc, char **argv)
+@@ -228,6 +256,7 @@ main(int argc, char **argv)
+ 	int	pflag = 0;
+ 	int	Pflag = 0;
+ 	int	qflag = 0;
++	int	Rflag = 0;
+ 	int	sflag = 0;
+ 	int	uflag = 0;
+ 	int	Uflag = 0;
+@@ -235,7 +264,7 @@ main(int argc, char **argv)
+ 	int	oflag = 0;
+ 	char	*fs = NULL;
+ 
+-	while ((c = getopt(argc, argv, "ActgGopPqsuUvw")) != EOF) {
++	while ((c = getopt(argc, argv, "ActgGopPqRsuUvw")) != EOF) {
+ 		switch (c) {
+ 		case 'A':
+ 			Aflag++;
+@@ -264,6 +293,9 @@ main(int argc, char **argv)
+ 		case 'q':
+ 			qflag++;
+ 			break;
++		case 'R':
++			Rflag++;
++			break;
+ 		case 's':
+ 			sflag++;
+ 			break;
+@@ -289,7 +321,7 @@ main(int argc, char **argv)
+ 		if (optind != argc-1)	/* need a device */
+ 			usage();
+ 		fs = argv[argc-1];
+-	} else if (Aflag || wflag || sflag || oflag) {
++	} else if (Aflag || Rflag || wflag || sflag || oflag) {
+ 		if (optind != argc)
+ 			usage();
+ 	} else 
+@@ -317,6 +349,9 @@ main(int argc, char **argv)
+ 	if (Aflag)
+ 		return(check_aio_support());
+ 
++	if (Rflag)
++		return(check_uring_support());
++
+ 	if (sflag) {
+ 		printf("%d\n", getpagesize());
+ 		exit(0);
 -- 
-Jens Axboe
+2.20.1
 

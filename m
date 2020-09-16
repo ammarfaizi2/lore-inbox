@@ -2,55 +2,52 @@ Return-Path: <SRS0=p23A=CZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3951DC43461
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:53:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E0BC43461
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:53:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E549B21582
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:53:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 765CB21582
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 19:53:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NPnGrQQX"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A38pUete"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727904AbgIPTxE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Sep 2020 15:53:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60427 "EHLO
+        id S1727242AbgIPTxW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Sep 2020 15:53:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24937 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727242AbgIPRhd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 13:37:33 -0400
+        by vger.kernel.org with ESMTP id S1727241AbgIPRhc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 13:37:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1600277836;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QS+wO1bOb/MZuessqndV980gLlA0r3NSlKNgcyqbDF8=;
-        b=NPnGrQQXdR6FTOyuNkBzmVMnrSVrde+076pXKTGkRKo8lClF20l7yQTTm1DgIKnlh744BP
-        ALwM0O5qzgDUalWNLZLzn+3nSsls78LTO1NmZhDSs2dJkLYnazh2dC/AvtLtC8YUNDLbK8
-        N00ZvANpWQ464LBToJ/dgnnLDK6+zMc=
+         content-transfer-encoding:content-transfer-encoding;
+        bh=F9u9qYwCYGwnKvUW3Qwuq0EBArWLV1qdPypf2tsQD8g=;
+        b=A38pUeteqkQY52CFolA1loXcMCkTbvdxeN/IBnlbe0s3xbfUYeZehkoLUTLdlE7XcC260p
+        8c88RxlPoNpJ32kmzhI79CukJ2VLxsrAVQ/XY5BftqDwziX+St+YRX0wI0cvf7MLacceLr
+        iXFxVCXjX5ZcloVJQxbPRGuiJ06dNkg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-385-LPdRtvvdMm-GMhCf3U808g-1; Wed, 16 Sep 2020 09:11:53 -0400
-X-MC-Unique: LPdRtvvdMm-GMhCf3U808g-1
+ us-mta-596-9Rilj4t0OBON2eJ6IztSgQ-1; Wed, 16 Sep 2020 09:11:46 -0400
+X-MC-Unique: 9Rilj4t0OBON2eJ6IztSgQ-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0646E80F040;
-        Wed, 16 Sep 2020 13:11:51 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8D881801F9B;
+        Wed, 16 Sep 2020 13:11:45 +0000 (UTC)
 Received: from bogon.redhat.com (ovpn-13-242.pek2.redhat.com [10.72.13.242])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D0A2B1A4D7;
-        Wed, 16 Sep 2020 13:11:49 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 194A01A4D7;
+        Wed, 16 Sep 2020 13:11:42 +0000 (UTC)
 From:   Zorro Lang <zlang@redhat.com>
 To:     fstests@vger.kernel.org
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 2/3] generic: fsx IO_URING soak tests
-Date:   Wed, 16 Sep 2020 21:11:38 +0800
-Message-Id: <20200916131139.11497-3-zlang@redhat.com>
-In-Reply-To: <20200916131139.11497-1-zlang@redhat.com>
-References: <20200916131139.11497-1-zlang@redhat.com>
+Subject: [PATCH 0/3] xfstests: new io_uring fsx test
+Date:   Wed, 16 Sep 2020 21:11:36 +0800
+Message-Id: <20200916131139.11497-1-zlang@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
@@ -59,127 +56,24 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-After fsx supports IO_URING read/write, add a test to do IO_URING
-soak test of fsx.
+This patchset bases on https://patchwork.kernel.org/cover/11769847/, which
+makes xfstests fsstress and fsx supports IO_URING.
 
-Signed-off-by: Zorro Lang <zlang@redhat.com>
----
- common/rc             | 16 ++++++++++++
- tests/generic/609     | 58 +++++++++++++++++++++++++++++++++++++++++++
- tests/generic/609.out |  2 ++
- tests/generic/group   |  1 +
- 4 files changed, 77 insertions(+)
- create mode 100755 tests/generic/609
- create mode 100644 tests/generic/609.out
+The io_uring IOs in fsstress will be run automatically when fsstress get
+running. But fsx need a special option '-U' to run IO_URING read/write, so
+add two new cases to xfstests to do fsx buffered and direct IO IO_URING
+test.
 
-diff --git a/common/rc b/common/rc
-index aa5a7409..b6b39eba 100644
---- a/common/rc
-+++ b/common/rc
-@@ -1984,6 +1984,22 @@ _require_aiodio()
-     _require_odirect
- }
- 
-+# this test requires that the kernel supports IO_URING
-+_require_io_uring()
-+{
-+	$here/src/feature -R
-+	case $? in
-+	0)
-+		;;
-+	1)
-+		_notrun "kernel does not support IO_URING"
-+		;;
-+	*)
-+		_fail "unexpected error testing for IO_URING support"
-+		;;
-+	esac
-+}
-+
- # this test requires that a test program exists under src/
- # $1 - command (require)
- #
-diff --git a/tests/generic/609 b/tests/generic/609
-new file mode 100755
-index 00000000..1d9b6fed
---- /dev/null
-+++ b/tests/generic/609
-@@ -0,0 +1,58 @@
-+#! /bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+# Copyright (c) 2020 Red Hat Inc.  All Rights Reserved.
-+#
-+# FS QA Test 609
-+#
-+# IO_URING soak buffered fsx test
-+#
-+seq=`basename $0`
-+seqres=$RESULT_DIR/$seq
-+echo "QA output created by $seq"
-+
-+here=`pwd`
-+tmp=/tmp/$$
-+status=1	# failure is the default!
-+trap "_cleanup; exit \$status" 0 1 2 3 15
-+
-+_cleanup()
-+{
-+	cd /
-+	rm -f $tmp.*
-+}
-+
-+# get standard environment, filters and checks
-+. ./common/rc
-+. ./common/filter
-+
-+# remove previous $seqres.full before test
-+rm -f $seqres.full
-+
-+# real QA test starts here
-+
-+# Modify as appropriate.
-+_supported_fs generic
-+_supported_os Linux
-+_require_test
-+_require_io_uring
-+
-+# Run fsx for a million ops or more
-+nr_ops=$((100000 * TIME_FACTOR))
-+op_sz=$((128000 * LOAD_FACTOR))
-+file_sz=$((600000 * LOAD_FACTOR))
-+fsx_file=$TEST_DIR/fsx.$seq
-+
-+fsx_args=(-S 0)
-+fsx_args+=(-U)
-+fsx_args+=(-q)
-+fsx_args+=(-N $nr_ops)
-+fsx_args+=(-p $((nr_ops / 100)))
-+fsx_args+=(-o $op_sz)
-+fsx_args+=(-l $file_sz)
-+
-+run_fsx "${fsx_args[@]}" | sed -e '/^fsx.*/d'
-+
-+# success, all done
-+echo "Silence is golden"
-+status=0
-+exit
-diff --git a/tests/generic/609.out b/tests/generic/609.out
-new file mode 100644
-index 00000000..0d75b384
---- /dev/null
-+++ b/tests/generic/609.out
-@@ -0,0 +1,2 @@
-+QA output created by 609
-+Silence is golden
-diff --git a/tests/generic/group b/tests/generic/group
-index aa969bcb..cf50f4a1 100644
---- a/tests/generic/group
-+++ b/tests/generic/group
-@@ -611,3 +611,4 @@
- 606 auto attr quick dax
- 607 auto attr quick dax
- 608 auto attr quick dax
-+609 auto rw io_uring
--- 
-2.20.1
+[1/3] new helper to require io_uring feature
+[2/3] fsx buffered IO io_uring test
+[3/3] fsx direct IO io_uring test
+
+And the [2/3] just found an io_uring regression bug (need LVM TEST_DEV):
+https://bugzilla.kernel.org/show_bug.cgi?id=209243
+
+Feel free to tell me, if you have more suggestions to test io_uring on
+filesystem.
+
+Thanks,
+Zorro
 

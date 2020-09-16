@@ -2,78 +2,145 @@ Return-Path: <SRS0=p23A=CZ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 869DDC35257
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8973AC433E2
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:38:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3526E21973
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:29:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 274D621974
+	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:38:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bbyQ8Jq+"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="OqoBjfs8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgIPU34 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Sep 2020 16:29:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43984 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726939AbgIPRXw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 13:23:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600276987;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=F9u9qYwCYGwnKvUW3Qwuq0EBArWLV1qdPypf2tsQD8g=;
-        b=bbyQ8Jq+v1gtgQmHEJzIUpTygGNS+0gY20SwmVdi3OoFBFzHg2Y9iBxTUXzXEE27l7dvQG
-        soTA6UWsGNnOegEsjUXKYwx047O3Rj+ocKqU3EVIiJUGNfoJspejDgl3FGyMdJHRwCLTg2
-        WahJkLvzpdb6NDhU0Th6fdb3m7pc1KM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-276-kZoDv5SFO9qf6rrzv4ofjw-1; Wed, 16 Sep 2020 13:14:59 -0400
-X-MC-Unique: kZoDv5SFO9qf6rrzv4ofjw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 096DA425F3;
-        Wed, 16 Sep 2020 17:14:48 +0000 (UTC)
-Received: from bogon.redhat.com (ovpn-13-242.pek2.redhat.com [10.72.13.242])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C132660BFA;
-        Wed, 16 Sep 2020 17:14:46 +0000 (UTC)
-From:   Zorro Lang <zlang@redhat.com>
-To:     fstests@vger.kernel.org
+        id S1726891AbgIPUiq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Sep 2020 16:38:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726832AbgIPRHz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 13:07:55 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40CC2C02C2A9
+        for <io-uring@vger.kernel.org>; Wed, 16 Sep 2020 09:55:13 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id m7so8930851oie.0
+        for <io-uring@vger.kernel.org>; Wed, 16 Sep 2020 09:55:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=qziD80+3yMPY6N3ieS9kUVQGUHrCR+TyhU1kuZRn8ug=;
+        b=OqoBjfs8rO7Af3t0ecA1nZZHf2+27mXKGfPMRthnBvIndRIA93qknLOob6r2PMsEph
+         EZl8grJlukA7b5bNpmLXTFTgMnAnVSsX6rE/Vm8h2/vZM1uAr5azOuxLVB/ERCrpEZEC
+         hHcakEIjSRWDy+2N9GTxiZsqK6cw2pFM9XGhh2n37/gxq37MEOahl1mj45geboHujWun
+         5DNdH9fDNeIDPDYBpn7+nmlHaZkc89ljoS+DEWHlQTCyLr0DODUrxm3FlewOEmDBqXdg
+         FP3GNLv90EBOt6QjXNNXH28RNo6uHpf8H5c81J584mRkk2bbd/hLUuSMYz7sZbRQGj2E
+         R0ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qziD80+3yMPY6N3ieS9kUVQGUHrCR+TyhU1kuZRn8ug=;
+        b=c/8tPlW29CtHN5bK0lUqOIQBP30ASw4vl2MOIaKWtu7NMUp8WN7S/r2oGx5s55O5uF
+         nHr+W9vVnc1IkXx1dvSFimVNRKM8QLHPV5B0/WTgwadhMHFew55NfilZ5zgrH/kvnnBu
+         BjT+o6qbYc6ZgGfclvV3/+fsYckJa4rPXiDd24LQyIzxyoOdd3J12yuLsMaLsJDwxskG
+         vqP+Zd0jdhZ8BIaCVbOXTNGfHgVpDY7CefoEH7CFQcAZ15Wl3YMXpu1GEetgJ21svMsT
+         h+d1dyxGXoafvRtfonRbYryXE96eSQ3i/bSNGgubFgzFNO/GKWzUqqOnpTaJdOaxksZP
+         pWgA==
+X-Gm-Message-State: AOAM5339pU8fQ1wtytduxmqDhQ3BJlNBoGklYMr9P7RNB+crZrpS8AVb
+        3u5oTpB5HUWB1nSdCGIQPPBN1zdjMCwyY0Xs
+X-Google-Smtp-Source: ABdhPJwyy8X3oyKHbBasQ4BP9MBdAvvi77/SkAShqpXrzWESE810ovpS6kxTF4EhgRtRK6aGiaiZFQ==
+X-Received: by 2002:aca:48cc:: with SMTP id v195mr3941331oia.57.1600275310152;
+        Wed, 16 Sep 2020 09:55:10 -0700 (PDT)
+Received: from [192.168.1.10] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id r21sm9489292oie.15.2020.09.16.09.55.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Sep 2020 09:55:09 -0700 (PDT)
+Subject: Re: occasional metadata I/O errors (-EOPNOTSUPP) on XFS + io_uring
+To:     Brian Foster <bfoster@redhat.com>, linux-xfs@vger.kernel.org
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 0/3] xfstests: add IO_URING test cases
-Date:   Thu, 17 Sep 2020 01:14:40 +0800
-Message-Id: <20200916171443.29546-1-zlang@redhat.com>
+References: <20200915113327.GA1554921@bfoster>
+ <20200916131957.GB1681377@bfoster>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <0b6da658-54b1-32ea-b172-981c67aaf29e@kernel.dk>
+Date:   Wed, 16 Sep 2020 10:55:08 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <20200916131957.GB1681377@bfoster>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: io-uring-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This patchset bases on https://patchwork.kernel.org/cover/11769847/, which
-makes xfstests fsstress and fsx supports IO_URING.
+On 9/16/20 7:19 AM, Brian Foster wrote:
+> On Tue, Sep 15, 2020 at 07:33:27AM -0400, Brian Foster wrote:
+>> Hi Jens,
+>>
+>> I'm seeing an occasional metadata (read) I/O error (EOPNOTSUPP) when
+>> running Zorro's recent io_uring enabled fsstress on XFS (fsstress -d
+>> <mnt> -n 99999999 -p 8). The storage is a 50GB dm-linear device on a
+>> virtio disk (within a KVM guest). The full callstack of the I/O
+>> submission path is appended below [2], acquired via inserting a
+>> WARN_ON() in my local tree.
+>>
+>> From tracing around a bit, it looks like what happens is that fsstress
+>> calls into io_uring, the latter starts a plug and sets plug.nowait =
+>> true (via io_submit_sqes() -> io_submit_state_start()) and eventually
+>> XFS needs to read an inode cluster buffer in the context of this task.
+>> That buffer read ultimately fails due to submit_bio_checks() setting
+>> REQ_NOWAIT on the bio and the following logic in the same function
+>> causing a BLK_STS_NOTSUPP status:
+>>
+>> 	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q))
+>> 		goto not_supported;
+>>
+>> In turn, this leads to the following behavior in XFS:
+>>
+>> [ 3839.273519] XFS (dm-2): metadata I/O error in "xfs_imap_to_bp+0x116/0x2c0 [xfs]" at daddr 0x323a5a0 len 32 error 95
+>> [ 3839.303283] XFS (dm-2): log I/O error -95
+>> [ 3839.321437] XFS (dm-2): xfs_do_force_shutdown(0x2) called from line 1196 of file fs/xfs/xfs_log.c. Return address = ffffffffc12dea8a
+>> [ 3839.323554] XFS (dm-2): Log I/O Error Detected. Shutting down filesystem
+>> [ 3839.324773] XFS (dm-2): Please unmount the filesystem and rectify the problem(s)
+>>
+>> I suppose it's possible fsstress is making an invalid request based on
+>> my setup, but I find it a little strange that this state appears to leak
+>> into filesystem I/O requests. What's more concerning is that this also
+>> seems to impact an immediately subsequent log write submission, which is
+>> a fatal error and causes the filesystem to shutdown.
+>>
+>> Finally, note that I've seen your patch associated with Zorro's recent
+>> bug report [1] and that does seem to prevent the problem. I'm still
+>> sending this report because the connection between the plug and that
+>> change is not obvious to me, so I wanted to 1.) confirm this is intended
+>> to fix this problem and 2.) try to understand whether this plugging
+>> behavior introduces any constraints on the fs when invoked in io_uring
+>> context. Thoughts? Thanks.
+>>
+> 
+> To expand on this a bit, I was playing more with the aforementioned fix
+> yesterday while waiting for this email's several hour trip to the
+> mailing list to complete and eventually realized that I don't think the
+> plug.nowait thing properly accommodates XFS' use of multiple devices. A
+> simple example is XFS on a data device with mq support and an external
+> log device without mq support. Presumably io_uring requests could thus
+> enter XFS with plug.nowait set to true, and then any log bio submission
+> that happens to occur in that context is doomed to fail and shutdown the
+> fs.
 
-The io_uring IOs in fsstress will be run automatically when fsstress get
-running. But fsx need a special option '-U' to run IO_URING read/write, so
-add two new cases to xfstests to do fsx buffered and direct IO IO_URING
-test.
+Do we ever read from the logdev? It'll only be a concern on the read
+side. And even from there, you'd need nested reads from the log device.
 
-[1/3] new helper to require io_uring feature
-[2/3] fsx buffered IO io_uring test
-[3/3] fsx direct IO io_uring test
+In general, the 'can async' check should be advisory, the -EAGAIN
+or -EOPNOTSUPP should be caught and reissued. The failure path was
+just related to this happening off the retry path on arming for the
+async buffered callback.
 
-And the [2/3] just found an io_uring regression bug (need LVM TEST_DEV):
-https://bugzilla.kernel.org/show_bug.cgi?id=209243
-
-Feel free to tell me, if you have more suggestions to test io_uring on
-filesystem.
-
-Thanks,
-Zorro
+-- 
+Jens Axboe
 

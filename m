@@ -1,197 +1,75 @@
-Return-Path: <SRS0=p23A=CZ=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=YnSu=C2=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FEE7C433E2
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:58:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93916C43461
+	for <io-uring@archiver.kernel.org>; Thu, 17 Sep 2020 01:42:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D022522207
-	for <io-uring@archiver.kernel.org>; Wed, 16 Sep 2020 20:58:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZK9pAu5u"
+	by mail.kernel.org (Postfix) with ESMTP id 58CE72076C
+	for <io-uring@archiver.kernel.org>; Thu, 17 Sep 2020 01:42:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726601AbgIPU6G (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Sep 2020 16:58:06 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22941 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726543AbgIPQwV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 12:52:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600275088;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Y180oUkejY14cXgK4vjnfdc8RXLi2L7JY7EbjdRpGtM=;
-        b=ZK9pAu5uaJC4/JXU/Zz59l+oxEtsokjsxvema9BURVo/Qrz1Ie7NmDXUgt/mEw1GEvmywo
-        VPBEnHTRns3FWt54h5E+ZBFJGttSySijy9JxZqP1VllHHNwi9ZJopFType8Rhpnx45tGYq
-        /iesJOe8GV1Pw5SogejycECJ6xom9l0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-495-lVKny8I4MwG2X-wdA-bQAQ-1; Wed, 16 Sep 2020 08:30:15 -0400
-X-MC-Unique: lVKny8I4MwG2X-wdA-bQAQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E4CD11007C88;
-        Wed, 16 Sep 2020 12:30:13 +0000 (UTC)
-Received: from bogon.redhat.com (ovpn-13-242.pek2.redhat.com [10.72.13.242])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C98986887C;
-        Wed, 16 Sep 2020 12:30:12 +0000 (UTC)
-From:   Zorro Lang <zlang@redhat.com>
-To:     fstests@vger.kernel.org
-Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 1/3] src/feature: add IO_URING feature checking
-Date:   Wed, 16 Sep 2020 20:30:03 +0800
-Message-Id: <20200916123005.2139-2-zlang@redhat.com>
-In-Reply-To: <20200916123005.2139-1-zlang@redhat.com>
-References: <20200916123005.2139-1-zlang@redhat.com>
+        id S1726101AbgIQBmK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Sep 2020 21:42:10 -0400
+Received: from mail-io1-f80.google.com ([209.85.166.80]:33624 "EHLO
+        mail-io1-f80.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725886AbgIQBmJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Sep 2020 21:42:09 -0400
+Received: by mail-io1-f80.google.com with SMTP id l22so640466iol.0
+        for <io-uring@vger.kernel.org>; Wed, 16 Sep 2020 18:42:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=/sygnsQByh+EwXCfZR6Do2whKxLsSoSrY8B6J/yTUtY=;
+        b=KeNV1IG6SADDtV5cNJV5rKnOiB/eAPuKig8CzyzKogMfPhyfxDLRxzwO/9vR8BzKnV
+         3/4WrCwTRQCCILa0o/p4GOuq9TXahSLKy3BnAHtKNMqJ9zZlQ6mmIHfRAjKjwypFU01a
+         fHCjUHze47jWhAyBOx5mauglB3ufruYXWAd7CXJyC0DpjguIyJqLRhwI9LZaahJah8XW
+         dGpprSETNb8WkWNEVLur8/L9V7An8CihhurJhQJ1mA2gptqyoBLOpR4x7FMBP8zv4pJ7
+         JqTbBk5aX3lG8hXzLJtAoR8Abd8dir/GFoBWO/mzl5O42IZHDlnRdQyMv+kRB++a6j0y
+         Bt8Q==
+X-Gm-Message-State: AOAM533MPVSXzEUi3s6EMb6XIT8XasCnbooKdBillNnD1aCt/EDbOUF8
+        2qwax+8B4HNiNBYBgofR6J5EJE/VpeBbUY9AfuuRpHcEs0lV
+X-Google-Smtp-Source: ABdhPJxVMb+uOEerKF5s9Gb1ikE6JGsTujv7BAzkTlHPxkcCj/j3pCJ5o+iyWmzehBveVDnI38KnOrlXHDSc07kAYD3TL0Ym9yYi
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Sender: io-uring-owner@vger.kernel.org
+X-Received: by 2002:a02:6607:: with SMTP id k7mr24979424jac.91.1600306928703;
+ Wed, 16 Sep 2020 18:42:08 -0700 (PDT)
+Date:   Wed, 16 Sep 2020 18:42:08 -0700
+In-Reply-To: <000000000000391eaf05ac87b74d@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000004632a05af787ebf@google.com>
+Subject: Re: INFO: task hung in io_uring_flush
+From:   syzbot <syzbot+6338dcebf269a590b668@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-IO_URING is a new feature for GNU/Linux system, if someone case of
-xfstests tests this feature, better to check if current system
-supports it, or need _notrun.
+syzbot suspects this issue was fixed by commit:
 
-Signed-off-by: Zorro Lang <zlang@redhat.com>
----
- src/Makefile  |  4 ++++
- src/feature.c | 41 ++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 42 insertions(+), 3 deletions(-)
+commit b7ddce3cbf010edbfac6c6d8cc708560a7bcd7a4
+Author: Pavel Begunkov <asml.silence@gmail.com>
+Date:   Sat Sep 5 21:45:14 2020 +0000
 
-diff --git a/src/Makefile b/src/Makefile
-index 643c1916..f1422c5c 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -65,6 +65,10 @@ SUBDIRS += aio-dio-regress
- LLDLIBS += -laio
- endif
- 
-+ifeq ($(HAVE_URING), true)
-+LLDLIBS += -luring
-+endif
-+
- CFILES = $(TARGETS:=.c)
- LDIRT = $(TARGETS) fssum
- 
-diff --git a/src/feature.c b/src/feature.c
-index a7eb7595..df550cf6 100644
---- a/src/feature.c
-+++ b/src/feature.c
-@@ -19,6 +19,7 @@
-  *
-  * Test for machine features
-  *   -A  test whether AIO syscalls are available
-+ *   -R  test whether IO_URING syscalls are available
-  *   -o  report a number of online cpus
-  *   -s  report pagesize
-  *   -w  report bits per long
-@@ -39,6 +40,10 @@
- #include <libaio.h>
- #endif
- 
-+#ifdef HAVE_LIBURING_H
-+#include <liburing.h>
-+#endif
-+
- #ifndef USRQUOTA
- #define USRQUOTA  0
- #endif
-@@ -59,7 +64,7 @@ usage(void)
- 	fprintf(stderr, "Usage: feature [-v] -<q|u|g|p|U|G|P> <filesystem>\n");
- 	fprintf(stderr, "       feature [-v] -c <file>\n");
- 	fprintf(stderr, "       feature [-v] -t <file>\n");
--	fprintf(stderr, "       feature -A | -o | -s | -w\n");
-+	fprintf(stderr, "       feature -A | -R | -o | -s | -w\n");
- 	exit(1);
- }
- 
-@@ -215,6 +220,29 @@ check_aio_support(void)
- #endif
- }
- 
-+static int
-+check_uring_support(void)
-+{
-+#ifdef HAVE_LIBURING_H
-+	struct io_uring ring;
-+	int err;
-+
-+	err = io_uring_queue_init(1, &ring, 0);
-+	if (err == 0)
-+		return 0;
-+
-+	if (err == -ENOSYS) /* CONFIG_IO_URING=n */
-+		return 1;
-+
-+	fprintf(stderr, "unexpected error from io_uring_queue_init(): %s\n",
-+		strerror(-err));
-+	return 2;
-+#else
-+	/* liburing is unavailable, assume IO_URING is unsupported */
-+	return 1;
-+#endif
-+}
-+
- 
- int
- main(int argc, char **argv)
-@@ -228,6 +256,7 @@ main(int argc, char **argv)
- 	int	pflag = 0;
- 	int	Pflag = 0;
- 	int	qflag = 0;
-+	int	Rflag = 0;
- 	int	sflag = 0;
- 	int	uflag = 0;
- 	int	Uflag = 0;
-@@ -235,7 +264,7 @@ main(int argc, char **argv)
- 	int	oflag = 0;
- 	char	*fs = NULL;
- 
--	while ((c = getopt(argc, argv, "ActgGopPqsuUvw")) != EOF) {
-+	while ((c = getopt(argc, argv, "ActgGopPqRsuUvw")) != EOF) {
- 		switch (c) {
- 		case 'A':
- 			Aflag++;
-@@ -264,6 +293,9 @@ main(int argc, char **argv)
- 		case 'q':
- 			qflag++;
- 			break;
-+		case 'R':
-+			Rflag++;
-+			break;
- 		case 's':
- 			sflag++;
- 			break;
-@@ -289,7 +321,7 @@ main(int argc, char **argv)
- 		if (optind != argc-1)	/* need a device */
- 			usage();
- 		fs = argv[argc-1];
--	} else if (Aflag || wflag || sflag || oflag) {
-+	} else if (Aflag || Rflag || wflag || sflag || oflag) {
- 		if (optind != argc)
- 			usage();
- 	} else 
-@@ -317,6 +349,9 @@ main(int argc, char **argv)
- 	if (Aflag)
- 		return(check_aio_support());
- 
-+	if (Rflag)
-+		return(check_uring_support());
-+
- 	if (sflag) {
- 		printf("%d\n", getpagesize());
- 		exit(0);
--- 
-2.20.1
+    io_uring: fix cancel of deferred reqs with ->files
 
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=173d9b0d900000
+start commit:   9123e3a7 Linux 5.9-rc1
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3d400a47d1416652
+dashboard link: https://syzkaller.appspot.com/bug?extid=6338dcebf269a590b668
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1573f116900000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=144d3072900000
+
+If the result looks correct, please mark the issue as fixed by replying with:
+
+#syz fix: io_uring: fix cancel of deferred reqs with ->files
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection

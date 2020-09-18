@@ -7,36 +7,36 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8467CC43467
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:46:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BC7CC43463
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:46:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B498235FD
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:46:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8E83208B8
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:46:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="sY+q9nG0"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="asfKxViQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgIRMqA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Sep 2020 08:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39822 "EHLO
+        id S1726130AbgIRMqR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Sep 2020 08:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726714AbgIRMpt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 08:45:49 -0400
+        with ESMTP id S1726753AbgIRMpy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 08:45:54 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C586C061756;
-        Fri, 18 Sep 2020 05:45:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B81C06178A;
+        Fri, 18 Sep 2020 05:45:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=JS63/rqkwUNTXwLowQfzdacfYjAtRcLXlr++78o/BT4=; b=sY+q9nG0cOiCMUx60dsbMGVPCz
-        LVrYVhlOm2U0rDRkmCim2mpUjwSFA6xVzz7XwcQDo4SGRAVwynXQreWP6XBiVGi0g8W953f/N5oAl
-        fMg12npyy16DCpLmH5VyXk669QwmnN85j6R0RkgK4f6gMcC3WoQ2pca3RMQOVsobTRfwuN1EThzdb
-        jmGzqX9W6pU1MU4WfYmm+VGPkudgq8nJGWoYHdACNbyNatdhwXgx392LSabw4WcTao2KVrdLM7tlC
-        iBsImmimlsk8J7PE28Q6ManmOx7kcJttWHAavkEleNAMRyHiwRuRenktDL1zD4kI4xDUsqKE4hm8M
-        JLB9Xxjg==;
+        bh=7X3/qUs2y75UUlnvdA2vy1FAPs/IUNMhWXsjmEB0AzE=; b=asfKxViQlq1FD+ot58IVT8gZ94
+        dLEzCslIpXlEHDVY3AVvzeQWEaxRhvHNXoigPkGAIjK5bFpDNasQOxqoNgyABCmM6qqkkt51q64Dy
+        U/CK/Xw07dd/60lKM1KHzeS66iYZd7bcglc4ZdnqLXf8QC6JOmLB6SzsLsGPLZ4sGBlzYzOE9RXSt
+        DxcJwzh9T4OKXpp4G4seXuWqwOoYAwiUhcD6w3brKbgCkdH84kpJRUaaIBc95IuKO6lijNRqToZbP
+        HZ0MF5B2UTpvywzo+XWFmaKqS/cx8n+7oEw8/8/UxjpLmR3ZmNR4wU7av4yWOn2KaD4wu1ecjNXE6
+        nQMpYohw==;
 Received: from [80.122.85.238] (helo=localhost)
         by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kJFlk-0008T4-DQ; Fri, 18 Sep 2020 12:45:40 +0000
+        id 1kJFlr-0008Us-Db; Fri, 18 Sep 2020 12:45:47 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -51,9 +51,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         io-uring@vger.kernel.org, linux-arch@vger.kernel.org,
         linux-mm@kvack.org, netdev@vger.kernel.org,
         keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in rw_copy_check_uvector
-Date:   Fri, 18 Sep 2020 14:45:27 +0200
-Message-Id: <20200918124533.3487701-4-hch@lst.de>
+Subject: [PATCH 9/9] security/keys: remove compat_keyctl_instantiate_key_iov
+Date:   Fri, 18 Sep 2020 14:45:33 +0200
+Message-Id: <20200918124533.3487701-10-hch@lst.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200918124533.3487701-1-hch@lst.de>
 References: <20200918124533.3487701-1-hch@lst.de>
@@ -64,37 +64,99 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Explicitly check for the magic value insted of implicitly relying on
-its number representation.
+Now that import_iovec handles compat iovecs, the native version of
+keyctl_instantiate_key_iov can be used for the compat case as well.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/read_write.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ security/keys/compat.c   | 36 ++----------------------------------
+ security/keys/internal.h |  5 -----
+ security/keys/keyctl.c   |  2 +-
+ 3 files changed, 3 insertions(+), 40 deletions(-)
 
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 5db58b8c78d0dd..f153116bc5399b 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -840,8 +840,7 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
- 			ret = -EINVAL;
- 			goto out;
- 		}
--		if (type >= 0
--		    && unlikely(!access_ok(buf, len))) {
-+		if (type != CHECK_IOVEC_ONLY && unlikely(!access_ok(buf, len))) {
- 			ret = -EFAULT;
- 			goto out;
- 		}
-@@ -911,7 +910,7 @@ ssize_t compat_rw_copy_check_uvector(int type,
- 		}
- 		if (len < 0)	/* size_t not fitting in compat_ssize_t .. */
- 			goto out;
--		if (type >= 0 &&
-+		if (type != CHECK_IOVEC_ONLY &&
- 		    !access_ok(compat_ptr(buf), len)) {
- 			ret = -EFAULT;
- 			goto out;
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index 7ae531db031cf8..1545efdca56227 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -11,38 +11,6 @@
+ #include <linux/slab.h>
+ #include "internal.h"
+ 
+-/*
+- * Instantiate a key with the specified compatibility multipart payload and
+- * link the key into the destination keyring if one is given.
+- *
+- * The caller must have the appropriate instantiation permit set for this to
+- * work (see keyctl_assume_authority).  No other permissions are required.
+- *
+- * If successful, 0 will be returned.
+- */
+-static long compat_keyctl_instantiate_key_iov(
+-	key_serial_t id,
+-	const struct compat_iovec __user *_payload_iov,
+-	unsigned ioc,
+-	key_serial_t ringid)
+-{
+-	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
+-	struct iov_iter from;
+-	long ret;
+-
+-	if (!_payload_iov)
+-		ioc = 0;
+-
+-	ret = import_iovec(WRITE, (const struct iovec __user *)_payload_iov,
+-			   ioc, ARRAY_SIZE(iovstack), &iov, &from);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = keyctl_instantiate_key_common(id, &from, ringid);
+-	kfree(iov);
+-	return ret;
+-}
+-
+ /*
+  * The key control system call, 32-bit compatibility version for 64-bit archs
+  */
+@@ -113,8 +81,8 @@ COMPAT_SYSCALL_DEFINE5(keyctl, u32, option,
+ 		return keyctl_reject_key(arg2, arg3, arg4, arg5);
+ 
+ 	case KEYCTL_INSTANTIATE_IOV:
+-		return compat_keyctl_instantiate_key_iov(
+-			arg2, compat_ptr(arg3), arg4, arg5);
++		return keyctl_instantiate_key_iov(arg2, compat_ptr(arg3), arg4,
++						  arg5);
+ 
+ 	case KEYCTL_INVALIDATE:
+ 		return keyctl_invalidate_key(arg2);
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 338a526cbfa516..9b9cf3b6fcbb4d 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -262,11 +262,6 @@ extern long keyctl_instantiate_key_iov(key_serial_t,
+ 				       const struct iovec __user *,
+ 				       unsigned, key_serial_t);
+ extern long keyctl_invalidate_key(key_serial_t);
+-
+-struct iov_iter;
+-extern long keyctl_instantiate_key_common(key_serial_t,
+-					  struct iov_iter *,
+-					  key_serial_t);
+ extern long keyctl_restrict_keyring(key_serial_t id,
+ 				    const char __user *_type,
+ 				    const char __user *_restriction);
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 9febd37a168fd0..e26bbccda7ccee 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -1164,7 +1164,7 @@ static int keyctl_change_reqkey_auth(struct key *key)
+  *
+  * If successful, 0 will be returned.
+  */
+-long keyctl_instantiate_key_common(key_serial_t id,
++static long keyctl_instantiate_key_common(key_serial_t id,
+ 				   struct iov_iter *from,
+ 				   key_serial_t ringid)
+ {
 -- 
 2.28.0
 

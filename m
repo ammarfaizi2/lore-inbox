@@ -2,144 +2,107 @@ Return-Path: <SRS0=KIWy=C3=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 227D4C43465
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 13:46:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 396B4C43465
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 13:54:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BFF1D206D9
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 13:46:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="VfC/V5xl";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="tUfofqpL"
+	by mail.kernel.org (Postfix) with ESMTP id 0E6C323119
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 13:54:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbgIRNq6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Sep 2020 09:46:58 -0400
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:46115 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgIRNq5 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 09:46:57 -0400
-X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Sep 2020 09:46:56 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1600436818; x=1631972818;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=G8FZ0D3PP/OudJ5uuxCAz/C/vBHo8wESZoPwxTWqVEI=;
-  b=VfC/V5xlPo9IzTW7DETv5uxkcCw6ETiVphtYRaPUW/xTU+C6x0+/hDVe
-   I+dL/CjNJ9n5+I85TKoPSx0dhWdCF2LANV/pm6kAEB9AQpSEkMTWE0jzY
-   hc7TTPLpNCOVD0IRf2l+nXwzS8r2zDuCf3Sl6mPr6h8lRn7CmAWoj7ArU
-   F0zalqhMiyQh1yd6tFbN78ncDbIUUTIWYZTtZKZgXfacoITfP4/3gf7aR
-   3Sn8qFJDFJPSKuzTY8alOqycSBhKdpXiX0pJKYzz5NPm1b96bqn6s84j4
-   m9MO+VY6lL7Ps5AXa+FXGbF/8Ofdy0fgL8vu265Q5IZ/NtfA78AgHEyor
-   Q==;
-IronPort-SDR: vIeMwdqV3VNNKH7bvdxp5qvCFElvCEzBXSxc+rFYpZswmmDEyj4rmbXScYdfT1X/iwtFnDXJDA
- e55m5+7fR53FZTzTrjVSrLtrlqyXCZ8K8eKfwbmbq1ibgadyGwsMcwEA0ogwK1TKFVz8L8u36H
- 4838heaIXWQci9ycpXpgx0JtFFg/F1malogKVCUw3ZDB+ZnYnRQW0KwYyOP/1z0CXzHgGQ//EY
- 7b3zRF6/dI+2s80qxjAgzICYoFNvCuD/djtLAT1OG87jjSer9Eicdjx6WqhWA64/qsWcxgSeWg
- 58s=
-X-IronPort-AV: E=Sophos;i="5.77,274,1596470400"; 
-   d="scan'208";a="152092455"
-Received: from mail-co1nam04lp2055.outbound.protection.outlook.com (HELO NAM04-CO1-obe.outbound.protection.outlook.com) ([104.47.45.55])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Sep 2020 21:39:48 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FuCwmeO4rpbH3VjKgXaEf4qpzWk6GdyyKgqC9uyIKDfg1I3Kql8ENy+uLotQ+XXLZucrn2JdJH+UPeDJC3WexoqcC/UTf5rxy/Uysx1tQU/Ha6WEdt4pZXYK4+wofb+ThzmIurQGvUgR8ita2Ks2a3pCOcVKpcQFfPsYxfCrlFYVWevAQjeXiPRaLgSe4DVmxYS4LwXR782EX0A74/69nQJgMzG26iZgd9I10PVJrNdlfES5KuCvoUiZBopK00/zQ7pBnKcvF2Z1fyKbTuCWHWreNLGqfVDR+I/bezEXRlk7kcJUUlkUOb3l0/1ZZHFQQTR0+jMVITHD0+SnYPhV/A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G8FZ0D3PP/OudJ5uuxCAz/C/vBHo8wESZoPwxTWqVEI=;
- b=L7JGDg9SCFDWz7wodm09zPl2wqpo5QD3bdNL35QPXbqvY+W28NVYvLfJLqTAaLtA9MhWr9GmAVC4xDrH3nfngXLl5fWJoBp0mtkN5ddOYikjyKbPjL4hAxRZcIrsFVl5uXrtyjW+E/Adcz1y89dGaX9X+AL5oEvAdhjqy8sPxMNR0YLAkHPkiGTKnspYYilSrF6e2pwbikJHDclOZzwPtap8Yxd8BaH12kYMUW9U+Nl47ACRDqn0k8+Ehvc1rWRuX194cpdq8aJB1/K1ZltycOIQikq26fLFfubdxlc8+I5T6EdhyorbSsuJY2NZhDc/uLoURwRW8WQxsT4znayWSg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G8FZ0D3PP/OudJ5uuxCAz/C/vBHo8wESZoPwxTWqVEI=;
- b=tUfofqpLKA3xYlk55fkFmbhM8yxwbThnW3vo4N5NqHAchUxpyAAGpd/fu6SSw3rgYjycp8cn5NImAlBZaoeNAkiO9W1AMbBB+x2lLASeGCL0q7QY/dOfcG06B4O+tUa7DMD8Md90BWyP3g02yUwJxOot3tB/9xL2EWzTstJPIEo=
-Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
- (2603:10b6:803:47::21) by SN4PR0401MB3677.namprd04.prod.outlook.com
- (2603:10b6:803:45::16) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.11; Fri, 18 Sep
- 2020 13:39:46 +0000
-Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
- ([fe80::457e:5fe9:2ae3:e738]) by SN4PR0401MB3598.namprd04.prod.outlook.com
- ([fe80::457e:5fe9:2ae3:e738%7]) with mapi id 15.20.3370.019; Fri, 18 Sep 2020
- 13:39:46 +0000
-From:   Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
-To:     Christoph Hellwig <hch@lst.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>,
-        David Howells <dhowells@redhat.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-aio@kvack.org" <linux-aio@kvack.org>,
-        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in
- rw_copy_check_uvector
-Thread-Topic: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in
- rw_copy_check_uvector
-Thread-Index: AQHWjbmt6fIBeaY/cUK8wURv0z7SLg==
-Date:   Fri, 18 Sep 2020 13:39:46 +0000
-Message-ID: <SN4PR0401MB3598A3419ADDE8CBEBF011D89B3F0@SN4PR0401MB3598.namprd04.prod.outlook.com>
-References: <20200918124533.3487701-1-hch@lst.de>
- <20200918124533.3487701-4-hch@lst.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: lst.de; dkim=none (message not signed)
- header.d=none;lst.de; dmarc=none action=none header.from=wdc.com;
-x-originating-ip: [2001:a62:1460:3d01:8d9e:cb93:a2df:3de3]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 225c589d-e123-4dd1-9c05-08d85bd84ee9
-x-ms-traffictypediagnostic: SN4PR0401MB3677:
-x-microsoft-antispam-prvs: <SN4PR0401MB3677905D948DAB3FAF7E9B3E9B3F0@SN4PR0401MB3677.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:1728;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: /Pts8Ztsyn2UrRoufKPPkf1RDEy+4gqLt6hwM3dnltsZYj+Cwms0m9cO0REoefzWWFCW1vv2ExwIy/uapJC4QiZdL2bFL4xAy5N1E1EbxLUNeYiG0f3g/KGkM+WwmvxwdmbFuyQMkWeWMfUMcznmzXjLSfljItqlRkzjaQFm5UzWfCv3v/phDpknp/tVgVbwFyWTONIOagbpz1Fsx8kjklmUb3yi1bF+g6wdqHgNjls3Ip7k1hu6YBngHLNhUifxpnCFNZ87Xr4xm7NnnFP/TOYpgdIwkcrddlny3tzMI8dt8qlmprPyklq1s5tKDqpRivm+bTX3p2u/M1W4toDw2H3sGu7gR4Kk+b1SqGreLgfeeyXODjJalmh2PgYx1pv+
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0401MB3598.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(366004)(346002)(136003)(376002)(6506007)(76116006)(66556008)(64756008)(558084003)(55016002)(8676002)(9686003)(4326008)(91956017)(66446008)(4270600006)(110136005)(54906003)(7696005)(19618925003)(316002)(66946007)(66476007)(33656002)(71200400001)(86362001)(2906002)(8936002)(52536014)(5660300002)(186003)(478600001)(7416002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: CRJonTWzohX7//DS4fqazAMP3tn+lYrGVYwdjqTwW2NH6dFZdzo/oCX1b4p+46NhLdfZiPu0e9Kt+tnrvoMbY/5T6vYBZDk0cp9hIIliJf/c1ln2RPHF6rGHmDrZTU6NauXSfBJgXqNeo6LHwnLORmcvWCYp332yj+RDCwe0y3d0RTD1/8Z9UZGp8kxhOWagatoXCs5cSi77xB3Y/ajnUiF8n0ZrDCEvSK4cFghsnDtV463ja1pLB992pyxKXG52u/CkqRH6zaU72ix6sjsCZbRkw8vRyFLAQ2988lSUHa8rWzxUgNoyDdh3qIFAOODLWx5QFL7ncUpZx0ijMa4Fo7JVbH9YTBO6WixuJfcboPIIumuBVjHOBAg5swE2cghkoQFJxdZOyLQHIB6xhohnw3xRap9V41xhRO+IRLVHrCmixFZxbZ4wurqqtGvv8/6h6wJpp2uHRnkkILjeWPSVukqbCe6R9Q5mj5SG0kLxPjGYxBfrcgECJw+nSLqb2kGjUcuPFrfnAgWOwKgxP3YnVvu7uwKqDCJR6qHevRqqLWmf8CAlXVgVsx6k6pltD5olOS6VW6/0JA+sjpVfsPdN3UmE+3yYORkjpw/qvh15StHhiJGtSCriKmB7ENVdqJpNZassRq6Yv9BWJ1reHos8rZ9EBrqOmY/nRqSIQhAupxrvGjk7/UCtVJjndmXZeEmwEe7gwCvG2TavrUe3Ugeg5Q==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726471AbgIRNyD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Sep 2020 09:54:03 -0400
+Received: from mout.kundenserver.de ([212.227.17.13]:48359 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726121AbgIRNyC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 09:54:02 -0400
+X-Greylist: delayed 306 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Sep 2020 09:54:00 EDT
+Received: from mail-qt1-f172.google.com ([209.85.160.172]) by
+ mrelayeu.kundenserver.de (mreue106 [212.227.15.145]) with ESMTPSA (Nemesis)
+ id 1MrPVJ-1knbdq0vFn-00oYej; Fri, 18 Sep 2020 15:48:53 +0200
+Received: by mail-qt1-f172.google.com with SMTP id b2so4955831qtp.8;
+        Fri, 18 Sep 2020 06:48:51 -0700 (PDT)
+X-Gm-Message-State: AOAM531xWIKITHj3YUM+JIXBR8vgsqUe9SWmTjS6i03lCHMTteGlgg9h
+        Gesw4ojO5qB0qfK1QEzYh9lYuf98x4MuwjzO9A0=
+X-Google-Smtp-Source: ABdhPJwdeFcN0FjnibbBFg2qZA4+ButX9r5NAMFGHqmQR0795JOFdGKPWzC17cLOf78yKvN1tKg1lyeC+rdsG229l2M=
+X-Received: by 2002:aed:31e5:: with SMTP id 92mr24508630qth.18.1600436930879;
+ Fri, 18 Sep 2020 06:48:50 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN4PR0401MB3598.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 225c589d-e123-4dd1-9c05-08d85bd84ee9
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Sep 2020 13:39:46.5722
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mRjEHWEd2f8a65Sb3qM7RhJrazg4VTLNE0IAXYGgomx8udg2TH+zeFrnLQuH7rhCgnh3wU1fvN1HnOcKyQ968KgHjiceOTspA0ghnwa792w=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR0401MB3677
+References: <20200918124533.3487701-1-hch@lst.de> <20200918124533.3487701-9-hch@lst.de>
+In-Reply-To: <20200918124533.3487701-9-hch@lst.de>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Fri, 18 Sep 2020 15:48:35 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a07PbzpGfnVew7VAq2=iD418V-ryvOC94qAQzW0nQAbAA@mail.gmail.com>
+Message-ID: <CAK8P3a07PbzpGfnVew7VAq2=iD418V-ryvOC94qAQzW0nQAbAA@mail.gmail.com>
+Subject: Re: [PATCH 8/9] mm: remove compat_process_vm_{readv,writev}
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        David Howells <dhowells@redhat.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-block <linux-block@vger.kernel.org>,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>, io-uring@vger.kernel.org,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Networking <netdev@vger.kernel.org>, keyrings@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:Q8EZMOri4TBYhlknoKWRbdN7TbthGP/5lV4QZxZSCS2kXQRegOz
+ crn8YMEG3zY+yUU81E38PaQTIpBOkDxjR4XroOZtmLdN0eDr9iw1sb1kp54wedcGz880ckD
+ nAjWoeEwJOYtLfmGZr3pB0Z3r3MbVnaLhmYg9e1aO5sQM3zkJ/9qk+SG26nsCUabm4GA8jL
+ Uyq9nTZiW2tWCev0Ajn3w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:fyZnCuMlQ0U=:T4cV9ojRcQChU1kYa6Faz2
+ 2fHk2eqskdC7z9+Fqp1AQXIMGBCtnsDqy+BRk/MvcGQaiMrc3w9zYv31f5B5wvzpozAl84u6e
+ S8LucqVvth1SJFgI81/CEsjw9YFYm0643XN0VPT6TRGy+l+NL0qG6ZcKKOEFwARMfBu1hSK8o
+ Hy/bt+B8Hzb2tazcUxd/poYfDR/AzA/Mwge5rmE9k48648UV8YU1fTJaXyTFNj3gkhdyN//CN
+ gZ6kDJLM6GmGVmX3lMP8JJ4XmChZtNGdB6Fa5u7nqnM0lXNM76JtOgnfLhy3mNI6TlRZOdW2y
+ sUIVV3YgocvcrS6ShgH8YcWqc7Wj7x3sx/1XKvDPJpASKI2UBE5lR8oE6O6/pQY8eJMhwMwbU
+ 1wb499zYKc6lTCBsNJcFP/sdiKG2fuS0TfrWJ/xkcoLODp8SyWmY/ASM56WstVzqw2mm4lY21
+ 4ph1q19i/mvCLZm81ldIWsLHmhohTcLs2+LlBudCW/p0/XajI6RWRK81iPFwavHoiVuwBru9g
+ 4uhDjuOvpgtcGq9WUZFxckg/jvz8AiBNjMTt3uxe5IsJiN4Nx/rn+wkU5Noofd2jPiuqLy7Mg
+ P1bD/Mqc7PIf81rYi3f3WFVZR+dVbuI0MyTaXMyK+T3xcv91hgkhsTwWTcXgwf9klNzctZEB+
+ JbB2ZVHAzNpwT6+twOpsW4cxY82CLfJIBuS++bdjsxOzjXUN9NkrBQvzw1LGiykV1ZV6IXNw4
+ ku1mt4/uDZy0/S3R/WZVZE8lJUcRgt5Tj5EYKCaNMY8Nt432XGof7zyp1lgau1PjsygTu/w3O
+ FLhsC/Gvnrs8k9+5Wyh0c80vAcq515OKa9QV4EWbi00LTPrwKl35WMXHt4sA4nKbVfDSQZS
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Looks good,=0A=
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>=0A=
+On Fri, Sep 18, 2020 at 2:45 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Now that import_iovec handles compat iovecs, the native syscalls
+> can be used for the compat case as well.
+>
+> diff --git a/arch/x86/entry/syscall_x32.c b/arch/x86/entry/syscall_x32.c
+> index a4840b9d50ad14..f2fe0a33bcfdd5 100644
+> --- a/arch/x86/entry/syscall_x32.c
+> +++ b/arch/x86/entry/syscall_x32.c
+> @@ -17,6 +17,8 @@
+>  #define __x32_sys_getsockopt   __x64_sys_getsockopt
+>  #define __x32_sys_setsockopt   __x64_sys_setsockopt
+>  #define __x32_sys_vmsplice     __x64_sys_vmsplice
+> +#define __x32_sys_process_vm_readv     __x64_sys_process_vm_readv
+> +#define __x32_sys_process_vm_writev    __x64_sys_process_vm_writev
+>
+>  #define __SYSCALL_64(nr, sym)
+>
+
+I forgot this hack existed, and just sent a patch with subject "x86: add
+__X32_COND_SYSCALL() macro" instead.
+
+If I understand this right, the macros above should no longer be needed
+once my patch gets merged.
+
+        Arnd

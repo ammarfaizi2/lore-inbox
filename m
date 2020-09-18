@@ -2,44 +2,44 @@ Return-Path: <SRS0=KIWy=C3=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88AAFC43468
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:48:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFBBCC43463
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:56:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 289C22311A
-	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:48:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FA91207D3
+	for <io-uring@archiver.kernel.org>; Fri, 18 Sep 2020 12:56:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qsANdrRg"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Twr3txXo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726835AbgIRMr4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Sep 2020 08:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39818 "EHLO
+        id S1726354AbgIRM4S (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Sep 2020 08:56:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726656AbgIRMps (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 08:45:48 -0400
+        with ESMTP id S1726064AbgIRM4S (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Sep 2020 08:56:18 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0109CC06174A;
-        Fri, 18 Sep 2020 05:45:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A6EC06174A;
+        Fri, 18 Sep 2020 05:56:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=H4vmpg6xgkoXCLn5I2mItRATcwVmk1ozujrnZCuEUx0=; b=qsANdrRgc9TU4G6kpHm4Xqcx0V
-        cJ0JkyB7pFhKmxoghOAG+WhyELXw1o/GY9iOVdX3hadeGylJZuF+BeIYztvCSOfarnNoBQoubpbBb
-        yZtnSRzgHNzhu8n0Jp+M/2Ip6/rNa9BxUNaI1FN4nj9tmnOVUxMF0gAcvqzy+QpI54MPnybUSozTH
-        unZ7QUE8cHXgMuxpPH8ygbvyWRmCgn0s/qzJCOnrTbeK31mRWOEKiqU5vR7NbsioVGKSaUtJnOWkt
-        EcYT0DE8HLVxP7r5H4OGqMrGZ/gLJc+nbY61bFt1DN2QXl1wwKZpkjSFBkS+CVlnhlfzX+V+up3RT
-        +0m/YcRA==;
-Received: from [80.122.85.238] (helo=localhost)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kJFli-0008St-Ns; Fri, 18 Sep 2020 12:45:39 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=zoOf0E5vEVvypLQZvTu3Qa4P//IZej+JhDzkQ4SZUbU=; b=Twr3txXoOUgAutBdzGyZB+lY1J
+        jlGkbNw57ycQeyDICn1qQL9BIF49y+wvEY79YsJqm+klFYXfm0D4wJQy3SSrZuX4oN/X8scImOz1x
+        iAvwhjjALzGEztMeZqVmVcGLW9G+To4auxoqyNMS/2NkqC80s33Ta7xmNuQV1rY8qKanIvXoGLe8B
+        6fal0Zox8xpamGqpfYQasr4KUlD6H2FixgEIiyw2pdQ2ZDQlOzArXaJmv2bnI8JP8Jm2wf1+J0rcP
+        pG1NLuH/an00oo9pw7YDidPu4WRCYUnv3lQPu2dFwfhtiUQ2ogaw+KlPq/67Y5JGwwImp7XdmncP5
+        jHtexrUQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kJFvv-0001A7-Pu; Fri, 18 Sep 2020 12:56:11 +0000
+Date:   Fri, 18 Sep 2020 13:56:11 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>,
         David Howells <dhowells@redhat.com>,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
@@ -51,41 +51,25 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         io-uring@vger.kernel.org, linux-arch@vger.kernel.org,
         linux-mm@kvack.org, netdev@vger.kernel.org,
         keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: [PATCH 2/9] compat.h: fix a spelling error in <linux/compat.h>
-Date:   Fri, 18 Sep 2020 14:45:26 +0200
-Message-Id: <20200918124533.3487701-3-hch@lst.de>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200918124533.3487701-1-hch@lst.de>
+Subject: Re: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in
+ rw_copy_check_uvector
+Message-ID: <20200918125611.GE32101@casper.infradead.org>
 References: <20200918124533.3487701-1-hch@lst.de>
+ <20200918124533.3487701-4-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200918124533.3487701-4-hch@lst.de>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We only have not compat_sys_readv64v2 syscall, only a
-compat_sys_preadv64v2 syscall one.  This probably worked given that the
-syscall was not referenced from anywhere but the x86 syscall table.
+On Fri, Sep 18, 2020 at 02:45:27PM +0200, Christoph Hellwig wrote:
+>  		}
+> -		if (type >= 0
+> -		    && unlikely(!access_ok(buf, len))) {
+> +		if (type != CHECK_IOVEC_ONLY && unlikely(!access_ok(buf, len))) {
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/compat.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 685066f7ad325f..69968c124b3cad 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -812,7 +812,7 @@ asmlinkage ssize_t compat_sys_pwritev2(compat_ulong_t fd,
- 		const struct compat_iovec __user *vec,
- 		compat_ulong_t vlen, u32 pos_low, u32 pos_high, rwf_t flags);
- #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
--asmlinkage long  compat_sys_readv64v2(unsigned long fd,
-+asmlinkage long  compat_sys_preadv64v2(unsigned long fd,
- 		const struct compat_iovec __user *vec,
- 		unsigned long vlen, loff_t pos, rwf_t flags);
- #endif
--- 
-2.28.0
+drop the unlikely() at the same time?  if it's really advantageous,
+that should be embedded in the access_ok macro.
 

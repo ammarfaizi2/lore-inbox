@@ -5,38 +5,38 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F23A9C4346D
-	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 14:35:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2645C43466
+	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 14:35:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB25020708
-	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 14:35:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97A3D206E5
+	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 14:35:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MgZUjmbT"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Fj58CJcp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726592AbgIUOf1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42208 "EHLO
+        id S1726436AbgIUOfn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727420AbgIUOej (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 21 Sep 2020 10:34:39 -0400
+        with ESMTP id S1727378AbgIUOeh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 21 Sep 2020 10:34:37 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE82C061755;
-        Mon, 21 Sep 2020 07:34:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989B5C061755;
+        Mon, 21 Sep 2020 07:34:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=eYbWukmAQycX34XyKxavvEXuiIqEnCTZ/Qp+bmFekjs=; b=MgZUjmbTesnatuBySBClvB3xTr
-        w3/j5HVSh7Sqo24gmn+VnLr+Oq0fRNeneKRfxSIHYmVt7aJZQpfkBOqgXdfecKzBUToM7YmMoxmAw
-        wEeuOKmKAnhC2tH6bC5GekCjhLoDmusjxz3JBBNQiwxTo7/paHRhHU4HBfUaErpzq3tJUFYH7sOD6
-        ID2Any76rdQqWANZwdoE4Ps8I9ZG34BGOnnAliCG3+bOYosKdbKxCBcnq0YLSqevUOpfSEFGWqgk1
-        qvqKPYz+VjQIA59aiXViv4vuW7j8N/sL5sX7VEyUJ4rRUpAq5maf6MgoxYbSWlUKPA1OP4DQjE5U4
-        d529D/Uw==;
+        bh=Go9jhNaIOowAS6zneWVKxUnX9eeQI4Dg/fB924GqFYE=; b=Fj58CJcpE4sDehkNalXnmTWxw3
+        DGiFYIP4alu/yNV8DzWwojGGHVbkvpmKEO7O+v0+KEtvpmTaC/8+AUg0vCnlW8Wpv+pAOL+TIHAXs
+        Lf9zgvzv0nGbJApTt23suPBMJYvD/I52+eYKa80lYKU2kYmiupntzgNpmlacjuZmaAb/jexwc15yY
+        OjMhbL124H+1M/SLeR2CIAEo+Lf9JqavRm3CepjlI3zAdY9MdM0FPRHh4OAXo3OG8B1/qJAe/+KNI
+        w2LkgoRumDCz5RSjK0Fm3jjyQE6KRkOn4CicLrA3zvg0nRNU1GqT3jtXECzFud20JC5Wb2no3nlLO
+        4ZZEkf/w==;
 Received: from p4fdb0c34.dip0.t-ipconnect.de ([79.219.12.52] helo=localhost)
         by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kKMth-0007sD-7F; Mon, 21 Sep 2020 14:34:29 +0000
+        id 1kKMtd-0007rg-Jy; Mon, 21 Sep 2020 14:34:25 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -52,9 +52,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-arch@vger.kernel.org, linux-mm@kvack.org,
         netdev@vger.kernel.org, keyrings@vger.kernel.org,
         linux-security-module@vger.kernel.org
-Subject: [PATCH 08/11] fs: remove the compat readv/writev syscalls
-Date:   Mon, 21 Sep 2020 16:34:31 +0200
-Message-Id: <20200921143434.707844-9-hch@lst.de>
+Subject: [PATCH 05/11] iov_iter: merge the compat case into rw_copy_check_uvector
+Date:   Mon, 21 Sep 2020 16:34:28 +0200
+Message-Id: <20200921143434.707844-6-hch@lst.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921143434.707844-1-hch@lst.de>
 References: <20200921143434.707844-1-hch@lst.de>
@@ -65,303 +65,279 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Now that import_iovec handles compat iovecs, the native readv and writev
-syscalls can be used for the compat case as well.
+Stop duplicating the iovec verify code, and instead add add a
+__import_iovec helper that does the whole verify and import, but takes
+a bool compat to decided on the native or compat layout.  This also
+ends up massively simplifying the calling conventions.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm64/include/asm/unistd32.h                  |  4 ++--
- arch/mips/kernel/syscalls/syscall_n32.tbl          |  4 ++--
- arch/mips/kernel/syscalls/syscall_o32.tbl          |  4 ++--
- arch/parisc/kernel/syscalls/syscall.tbl            |  4 ++--
- arch/powerpc/kernel/syscalls/syscall.tbl           |  4 ++--
- arch/s390/kernel/syscalls/syscall.tbl              |  4 ++--
- arch/sparc/kernel/syscalls/syscall.tbl             |  4 ++--
- arch/x86/entry/syscall_x32.c                       |  2 ++
- arch/x86/entry/syscalls/syscall_32.tbl             |  4 ++--
- arch/x86/entry/syscalls/syscall_64.tbl             |  4 ++--
- fs/read_write.c                                    | 14 --------------
- include/linux/compat.h                             |  4 ----
- include/uapi/asm-generic/unistd.h                  |  4 ++--
- tools/include/uapi/asm-generic/unistd.h            |  4 ++--
- tools/perf/arch/powerpc/entry/syscalls/syscall.tbl |  4 ++--
- tools/perf/arch/s390/entry/syscalls/syscall.tbl    |  4 ++--
- tools/perf/arch/x86/entry/syscalls/syscall_64.tbl  |  4 ++--
- 17 files changed, 30 insertions(+), 46 deletions(-)
+ lib/iov_iter.c | 195 ++++++++++++++++++-------------------------------
+ 1 file changed, 70 insertions(+), 125 deletions(-)
 
-diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
-index 734860ac7cf9d5..4a236493dca5b9 100644
---- a/arch/arm64/include/asm/unistd32.h
-+++ b/arch/arm64/include/asm/unistd32.h
-@@ -301,9 +301,9 @@ __SYSCALL(__NR_flock, sys_flock)
- #define __NR_msync 144
- __SYSCALL(__NR_msync, sys_msync)
- #define __NR_readv 145
--__SYSCALL(__NR_readv, compat_sys_readv)
-+__SYSCALL(__NR_readv, sys_readv)
- #define __NR_writev 146
--__SYSCALL(__NR_writev, compat_sys_writev)
-+__SYSCALL(__NR_writev, sys_writev)
- #define __NR_getsid 147
- __SYSCALL(__NR_getsid, sys_getsid)
- #define __NR_fdatasync 148
-diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
-index f9df9edb67a407..c99a92646f8ee9 100644
---- a/arch/mips/kernel/syscalls/syscall_n32.tbl
-+++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
-@@ -25,8 +25,8 @@
- 15	n32	ioctl				compat_sys_ioctl
- 16	n32	pread64				sys_pread64
- 17	n32	pwrite64			sys_pwrite64
--18	n32	readv				compat_sys_readv
--19	n32	writev				compat_sys_writev
-+18	n32	readv				sys_readv
-+19	n32	writev				sys_writev
- 20	n32	access				sys_access
- 21	n32	pipe				sysm_pipe
- 22	n32	_newselect			compat_sys_select
-diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
-index 195b43cf27c848..075064d10661bf 100644
---- a/arch/mips/kernel/syscalls/syscall_o32.tbl
-+++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
-@@ -156,8 +156,8 @@
- 142	o32	_newselect			sys_select			compat_sys_select
- 143	o32	flock				sys_flock
- 144	o32	msync				sys_msync
--145	o32	readv				sys_readv			compat_sys_readv
--146	o32	writev				sys_writev			compat_sys_writev
-+145	o32	readv				sys_readv
-+146	o32	writev				sys_writev
- 147	o32	cacheflush			sys_cacheflush
- 148	o32	cachectl			sys_cachectl
- 149	o32	sysmips				__sys_sysmips
-diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
-index def64d221cd4fb..192abde0001d9d 100644
---- a/arch/parisc/kernel/syscalls/syscall.tbl
-+++ b/arch/parisc/kernel/syscalls/syscall.tbl
-@@ -159,8 +159,8 @@
- 142	common	_newselect		sys_select			compat_sys_select
- 143	common	flock			sys_flock
- 144	common	msync			sys_msync
--145	common	readv			sys_readv			compat_sys_readv
--146	common	writev			sys_writev			compat_sys_writev
-+145	common	readv			sys_readv
-+146	common	writev			sys_writev
- 147	common	getsid			sys_getsid
- 148	common	fdatasync		sys_fdatasync
- 149	common	_sysctl			sys_ni_syscall
-diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
-index c2d737ff2e7bec..6f1e2ecf0edad9 100644
---- a/arch/powerpc/kernel/syscalls/syscall.tbl
-+++ b/arch/powerpc/kernel/syscalls/syscall.tbl
-@@ -193,8 +193,8 @@
- 142	common	_newselect			sys_select			compat_sys_select
- 143	common	flock				sys_flock
- 144	common	msync				sys_msync
--145	common	readv				sys_readv			compat_sys_readv
--146	common	writev				sys_writev			compat_sys_writev
-+145	common	readv				sys_readv
-+146	common	writev				sys_writev
- 147	common	getsid				sys_getsid
- 148	common	fdatasync			sys_fdatasync
- 149	nospu	_sysctl				sys_ni_syscall
-diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
-index 10456bc936fb09..6101cf2e004cb4 100644
---- a/arch/s390/kernel/syscalls/syscall.tbl
-+++ b/arch/s390/kernel/syscalls/syscall.tbl
-@@ -134,8 +134,8 @@
- 142  64		select			sys_select			-
- 143  common	flock			sys_flock			sys_flock
- 144  common	msync			sys_msync			sys_msync
--145  common	readv			sys_readv			compat_sys_readv
--146  common	writev			sys_writev			compat_sys_writev
-+145  common	readv			sys_readv			sys_readv
-+146  common	writev			sys_writev			sys_writev
- 147  common	getsid			sys_getsid			sys_getsid
- 148  common	fdatasync		sys_fdatasync			sys_fdatasync
- 149  common	_sysctl			-				-
-diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
-index 4af114e84f2022..a87ddb282ab16f 100644
---- a/arch/sparc/kernel/syscalls/syscall.tbl
-+++ b/arch/sparc/kernel/syscalls/syscall.tbl
-@@ -149,8 +149,8 @@
- 117	common	getrusage		sys_getrusage			compat_sys_getrusage
- 118	common	getsockopt		sys_getsockopt			sys_getsockopt
- 119	common	getcwd			sys_getcwd
--120	common	readv			sys_readv			compat_sys_readv
--121	common	writev			sys_writev			compat_sys_writev
-+120	common	readv			sys_readv
-+121	common	writev			sys_writev
- 122	common	settimeofday		sys_settimeofday		compat_sys_settimeofday
- 123	32	fchown			sys_fchown16
- 123	64	fchown			sys_fchown
-diff --git a/arch/x86/entry/syscall_x32.c b/arch/x86/entry/syscall_x32.c
-index 1583831f61a9df..aa321444a41f63 100644
---- a/arch/x86/entry/syscall_x32.c
-+++ b/arch/x86/entry/syscall_x32.c
-@@ -12,6 +12,8 @@
-  * Reuse the 64-bit entry points for the x32 versions that occupy different
-  * slots in the syscall table.
-  */
-+#define __x32_sys_readv		__x64_sys_readv
-+#define __x32_sys_writev	__x64_sys_writev
- #define __x32_sys_getsockopt	__x64_sys_getsockopt
- #define __x32_sys_setsockopt	__x64_sys_setsockopt
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index a64867501a7483..8bfa47b63d39aa 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -10,6 +10,7 @@
+ #include <net/checksum.h>
+ #include <linux/scatterlist.h>
+ #include <linux/instrumented.h>
++#include <linux/compat.h>
  
-diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
-index 9d11028736661b..54ab4beb517f25 100644
---- a/arch/x86/entry/syscalls/syscall_32.tbl
-+++ b/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -156,8 +156,8 @@
- 142	i386	_newselect		sys_select			compat_sys_select
- 143	i386	flock			sys_flock
- 144	i386	msync			sys_msync
--145	i386	readv			sys_readv			compat_sys_readv
--146	i386	writev			sys_writev			compat_sys_writev
-+145	i386	readv			sys_readv
-+146	i386	writev			sys_writev
- 147	i386	getsid			sys_getsid
- 148	i386	fdatasync		sys_fdatasync
- 149	i386	_sysctl			sys_ni_syscall
-diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
-index f30d6ae9a6883c..b1e59957c5c51c 100644
---- a/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -371,8 +371,8 @@
- 512	x32	rt_sigaction		compat_sys_rt_sigaction
- 513	x32	rt_sigreturn		compat_sys_x32_rt_sigreturn
- 514	x32	ioctl			compat_sys_ioctl
--515	x32	readv			compat_sys_readv
--516	x32	writev			compat_sys_writev
-+515	x32	readv			sys_readv
-+516	x32	writev			sys_writev
- 517	x32	recvfrom		compat_sys_recvfrom
- 518	x32	sendmsg			compat_sys_sendmsg
- 519	x32	recvmsg			compat_sys_recvmsg
-diff --git a/fs/read_write.c b/fs/read_write.c
-index eab427b7cc0a3f..6c13f744c34a38 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1074,13 +1074,6 @@ SYSCALL_DEFINE6(pwritev2, unsigned long, fd, const struct iovec __user *, vec,
-  * in_compat_syscall().
-  */
- #ifdef CONFIG_COMPAT
--COMPAT_SYSCALL_DEFINE3(readv, compat_ulong_t, fd,
--		const struct iovec __user *, vec,
--		compat_ulong_t, vlen)
--{
--	return do_readv(fd, vec, vlen, 0);
--}
--
- #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64
- COMPAT_SYSCALL_DEFINE4(preadv64, unsigned long, fd,
- 		const struct iovec __user *, vec,
-@@ -1122,13 +1115,6 @@ COMPAT_SYSCALL_DEFINE6(preadv2, compat_ulong_t, fd,
- 	return do_preadv(fd, vec, vlen, pos, flags);
+ #define PIPE_PARANOIA /* for now */
+ 
+@@ -1650,43 +1651,76 @@ const void *dup_iter(struct iov_iter *new, struct iov_iter *old, gfp_t flags)
+ }
+ EXPORT_SYMBOL(dup_iter);
+ 
+-static ssize_t rw_copy_check_uvector(int type,
+-		const struct iovec __user *uvector, unsigned long nr_segs,
+-		unsigned long fast_segs, struct iovec *fast_pointer,
+-		struct iovec **ret_pointer)
++static int compat_copy_iovecs_from_user(struct iovec *iov,
++		const struct iovec __user *uvector, unsigned long nr_segs)
++{
++	const struct compat_iovec __user *uiov =
++		(const struct compat_iovec __user *)uvector;
++	unsigned long i;
++	int ret = -EFAULT;
++
++	if (!user_access_begin(uvector, nr_segs * sizeof(*uvector)))
++		return -EFAULT;
++
++	for (i = 0; i < nr_segs; i++) {
++		compat_uptr_t buf;
++		compat_ssize_t len;
++
++		unsafe_get_user(len, &uiov[i].iov_len, out);
++		unsafe_get_user(buf, &uiov[i].iov_base, out);
++
++		/* check for compat_size_t not fitting in compat_ssize_t .. */
++		if (len < 0) {
++			ret = -EINVAL;
++			goto out;
++		}
++		iov[i].iov_base = compat_ptr(buf);
++		iov[i].iov_len = len;
++	}
++	ret = 0;
++out:
++	user_access_end();
++	return ret;
++}
++
++static ssize_t __import_iovec(int type, const struct iovec __user *uvector,
++		unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
++		struct iov_iter *i, bool compat)
+ {
++	struct iovec *iov = *iovp;
+ 	unsigned long seg;
+-	ssize_t ret;
+-	struct iovec *iov = fast_pointer;
++	ssize_t ret = 0;
+ 
+ 	/*
+ 	 * SuS says "The readv() function *may* fail if the iovcnt argument
+ 	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
+ 	 * traditionally returned zero for zero segments, so...
+ 	 */
+-	if (nr_segs == 0) {
+-		ret = 0;
+-		goto out;
+-	}
++	if (nr_segs == 0)
++		goto done;
+ 
+ 	/*
+ 	 * First get the "struct iovec" from user memory and
+ 	 * verify all the pointers
+ 	 */
+-	if (nr_segs > UIO_MAXIOV) {
+-		ret = -EINVAL;
+-		goto out;
+-	}
++	ret = -EINVAL;
++	if (nr_segs > UIO_MAXIOV)
++		goto fail;
+ 	if (nr_segs > fast_segs) {
++		ret = -ENOMEM;
+ 		iov = kmalloc_array(nr_segs, sizeof(struct iovec), GFP_KERNEL);
+-		if (iov == NULL) {
+-			ret = -ENOMEM;
+-			goto out;
+-		}
++		if (!iov)
++			goto fail;
+ 	}
+-	if (copy_from_user(iov, uvector, nr_segs*sizeof(*uvector))) {
++
++	if (compat) {
++		ret = compat_copy_iovecs_from_user(iov, uvector, nr_segs);
++		if (ret)
++			goto fail;
++	} else {
+ 		ret = -EFAULT;
+-		goto out;
++		if (copy_from_user(iov, uvector, nr_segs * sizeof(*uvector)))
++			goto fail;
+ 	}
+ 
+ 	/*
+@@ -1707,11 +1741,11 @@ static ssize_t rw_copy_check_uvector(int type,
+ 		 * it's about to overflow ssize_t */
+ 		if (len < 0) {
+ 			ret = -EINVAL;
+-			goto out;
++			goto fail;
+ 		}
+ 		if (type != CHECK_IOVEC_ONLY && !access_ok(buf, len)) {
+ 			ret = -EFAULT;
+-			goto out;
++			goto fail;
+ 		}
+ 		if (len > MAX_RW_COUNT - ret) {
+ 			len = MAX_RW_COUNT - ret;
+@@ -1719,8 +1753,17 @@ static ssize_t rw_copy_check_uvector(int type,
+ 		}
+ 		ret += len;
+ 	}
+-out:
+-	*ret_pointer = iov;
++done:
++	iov_iter_init(i, type, iov, nr_segs, ret);
++	if (iov == *iovp)
++		*iovp = NULL;
++	else
++		*iovp = iov;
++	return ret;
++fail:
++	if (iov != *iovp)
++		kfree(iov);
++	*iovp = NULL;
+ 	return ret;
  }
  
--COMPAT_SYSCALL_DEFINE3(writev, compat_ulong_t, fd,
--		const struct iovec __user *, vec,
--		compat_ulong_t, vlen)
+@@ -1750,116 +1793,18 @@ ssize_t import_iovec(int type, const struct iovec __user * uvector,
+ 		 unsigned nr_segs, unsigned fast_segs,
+ 		 struct iovec **iov, struct iov_iter *i)
+ {
+-	ssize_t n;
+-	struct iovec *p;
+-	n = rw_copy_check_uvector(type, uvector, nr_segs, fast_segs,
+-				  *iov, &p);
+-	if (n < 0) {
+-		if (p != *iov)
+-			kfree(p);
+-		*iov = NULL;
+-		return n;
+-	}
+-	iov_iter_init(i, type, p, nr_segs, n);
+-	*iov = p == *iov ? NULL : p;
+-	return n;
++	return __import_iovec(type, uvector, nr_segs, fast_segs, iov, i, false);
+ }
+ EXPORT_SYMBOL(import_iovec);
+ 
+ #ifdef CONFIG_COMPAT
+-#include <linux/compat.h>
+-
+-static ssize_t compat_rw_copy_check_uvector(int type,
+-		const struct compat_iovec __user *uvector, unsigned long nr_segs,
+-		unsigned long fast_segs, struct iovec *fast_pointer,
+-		struct iovec **ret_pointer)
 -{
--	return do_writev(fd, vec, vlen, 0);
+-	compat_ssize_t tot_len;
+-	struct iovec *iov = *ret_pointer = fast_pointer;
+-	ssize_t ret = 0;
+-	int seg;
+-
+-	/*
+-	 * SuS says "The readv() function *may* fail if the iovcnt argument
+-	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
+-	 * traditionally returned zero for zero segments, so...
+-	 */
+-	if (nr_segs == 0)
+-		goto out;
+-
+-	ret = -EINVAL;
+-	if (nr_segs > UIO_MAXIOV)
+-		goto out;
+-	if (nr_segs > fast_segs) {
+-		ret = -ENOMEM;
+-		iov = kmalloc_array(nr_segs, sizeof(struct iovec), GFP_KERNEL);
+-		if (iov == NULL)
+-			goto out;
+-	}
+-	*ret_pointer = iov;
+-
+-	ret = -EFAULT;
+-	if (!access_ok(uvector, nr_segs*sizeof(*uvector)))
+-		goto out;
+-
+-	/*
+-	 * Single unix specification:
+-	 * We should -EINVAL if an element length is not >= 0 and fitting an
+-	 * ssize_t.
+-	 *
+-	 * In Linux, the total length is limited to MAX_RW_COUNT, there is
+-	 * no overflow possibility.
+-	 */
+-	tot_len = 0;
+-	ret = -EINVAL;
+-	for (seg = 0; seg < nr_segs; seg++) {
+-		compat_uptr_t buf;
+-		compat_ssize_t len;
+-
+-		if (__get_user(len, &uvector->iov_len) ||
+-		   __get_user(buf, &uvector->iov_base)) {
+-			ret = -EFAULT;
+-			goto out;
+-		}
+-		if (len < 0)	/* size_t not fitting in compat_ssize_t .. */
+-			goto out;
+-		if (type != CHECK_IOVEC_ONLY &&
+-		    !access_ok(compat_ptr(buf), len)) {
+-			ret = -EFAULT;
+-			goto out;
+-		}
+-		if (len > MAX_RW_COUNT - tot_len)
+-			len = MAX_RW_COUNT - tot_len;
+-		tot_len += len;
+-		iov->iov_base = compat_ptr(buf);
+-		iov->iov_len = (compat_size_t) len;
+-		uvector++;
+-		iov++;
+-	}
+-	ret = tot_len;
+-
+-out:
+-	return ret;
 -}
 -
- #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64
- COMPAT_SYSCALL_DEFINE4(pwritev64, unsigned long, fd,
- 		const struct iovec __user *, vec,
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index b930de791ff16b..fa39b7a5488d70 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -545,10 +545,6 @@ asmlinkage long compat_sys_getdents(unsigned int fd,
- 
- /* fs/read_write.c */
- asmlinkage long compat_sys_lseek(unsigned int, compat_off_t, unsigned int);
--asmlinkage ssize_t compat_sys_readv(compat_ulong_t fd,
--		const struct compat_iovec __user *vec, compat_ulong_t vlen);
--asmlinkage ssize_t compat_sys_writev(compat_ulong_t fd,
--		const struct compat_iovec __user *vec, compat_ulong_t vlen);
- /* No generic prototype for pread64 and pwrite64 */
- asmlinkage ssize_t compat_sys_preadv(compat_ulong_t fd,
- 		const struct compat_iovec __user *vec,
-diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-index 995b36c2ea7d8a..211c9eacbda6eb 100644
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -207,9 +207,9 @@ __SYSCALL(__NR_read, sys_read)
- #define __NR_write 64
- __SYSCALL(__NR_write, sys_write)
- #define __NR_readv 65
--__SC_COMP(__NR_readv, sys_readv, compat_sys_readv)
-+__SC_COMP(__NR_readv, sys_readv, sys_readv)
- #define __NR_writev 66
--__SC_COMP(__NR_writev, sys_writev, compat_sys_writev)
-+__SC_COMP(__NR_writev, sys_writev, sys_writev)
- #define __NR_pread64 67
- __SC_COMP(__NR_pread64, sys_pread64, compat_sys_pread64)
- #define __NR_pwrite64 68
-diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
-index 995b36c2ea7d8a..211c9eacbda6eb 100644
---- a/tools/include/uapi/asm-generic/unistd.h
-+++ b/tools/include/uapi/asm-generic/unistd.h
-@@ -207,9 +207,9 @@ __SYSCALL(__NR_read, sys_read)
- #define __NR_write 64
- __SYSCALL(__NR_write, sys_write)
- #define __NR_readv 65
--__SC_COMP(__NR_readv, sys_readv, compat_sys_readv)
-+__SC_COMP(__NR_readv, sys_readv, sys_readv)
- #define __NR_writev 66
--__SC_COMP(__NR_writev, sys_writev, compat_sys_writev)
-+__SC_COMP(__NR_writev, sys_writev, sys_writev)
- #define __NR_pread64 67
- __SC_COMP(__NR_pread64, sys_pread64, compat_sys_pread64)
- #define __NR_pwrite64 68
-diff --git a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-index 3ca6fe057a0b1f..46be68029587f9 100644
---- a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-@@ -189,8 +189,8 @@
- 142	common	_newselect			sys_select			compat_sys_select
- 143	common	flock				sys_flock
- 144	common	msync				sys_msync
--145	common	readv				sys_readv			compat_sys_readv
--146	common	writev				sys_writev			compat_sys_writev
-+145	common	readv				sys_readv
-+146	common	writev				sys_writev
- 147	common	getsid				sys_getsid
- 148	common	fdatasync			sys_fdatasync
- 149	nospu	_sysctl				sys_ni_syscall
-diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-index 6a0bbea225db0d..fb5e61ce9d5838 100644
---- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-@@ -134,8 +134,8 @@
- 142  64		select			sys_select			-
- 143  common	flock			sys_flock			sys_flock
- 144  common	msync			sys_msync			compat_sys_msync
--145  common	readv			sys_readv			compat_sys_readv
--146  common	writev			sys_writev			compat_sys_writev
-+145  common	readv			sys_readv
-+146  common	writev			sys_writev
- 147  common	getsid			sys_getsid			sys_getsid
- 148  common	fdatasync		sys_fdatasync			sys_fdatasync
- 149  common	_sysctl			-				-
-diff --git a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-index f30d6ae9a6883c..b1e59957c5c51c 100644
---- a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -371,8 +371,8 @@
- 512	x32	rt_sigaction		compat_sys_rt_sigaction
- 513	x32	rt_sigreturn		compat_sys_x32_rt_sigreturn
- 514	x32	ioctl			compat_sys_ioctl
--515	x32	readv			compat_sys_readv
--516	x32	writev			compat_sys_writev
-+515	x32	readv			sys_readv
-+516	x32	writev			sys_writev
- 517	x32	recvfrom		compat_sys_recvfrom
- 518	x32	sendmsg			compat_sys_sendmsg
- 519	x32	recvmsg			compat_sys_recvmsg
+ ssize_t compat_import_iovec(int type,
+ 		const struct compat_iovec __user * uvector,
+ 		unsigned nr_segs, unsigned fast_segs,
+ 		struct iovec **iov, struct iov_iter *i)
+ {
+-	ssize_t n;
+-	struct iovec *p;
+-	n = compat_rw_copy_check_uvector(type, uvector, nr_segs, fast_segs,
+-				  *iov, &p);
+-	if (n < 0) {
+-		if (p != *iov)
+-			kfree(p);
+-		*iov = NULL;
+-		return n;
+-	}
+-	iov_iter_init(i, type, p, nr_segs, n);
+-	*iov = p == *iov ? NULL : p;
+-	return n;
++	return __import_iovec(type, (const struct iovec __user *)uvector,
++			      nr_segs, fast_segs, iov, i, true);
+ }
+ EXPORT_SYMBOL(compat_import_iovec);
+ #endif
 -- 
 2.28.0
 

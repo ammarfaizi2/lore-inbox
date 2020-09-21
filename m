@@ -8,57 +8,59 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2777BC43466
-	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 16:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A9E9C43465
+	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 16:15:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4F6A20708
-	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 16:12:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 04192206CA
+	for <io-uring@archiver.kernel.org>; Mon, 21 Sep 2020 16:15:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KSBzV2lo"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o5WTk1UZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726913AbgIUQMz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 21 Sep 2020 12:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
+        id S1727419AbgIUQPz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 21 Sep 2020 12:15:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726341AbgIUQMz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 21 Sep 2020 12:12:55 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912D6C061755;
-        Mon, 21 Sep 2020 09:12:54 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id k15so13397629wrn.10;
-        Mon, 21 Sep 2020 09:12:54 -0700 (PDT)
+        with ESMTP id S1726419AbgIUQPw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 21 Sep 2020 12:15:52 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D5EAC061755;
+        Mon, 21 Sep 2020 09:15:52 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id z9so89440wmk.1;
+        Mon, 21 Sep 2020 09:15:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=k5RgKONYESk5WvaDyXPiSm78/qDZHfPWmfVg3ttgBfg=;
-        b=KSBzV2lo8cnmuvyEaOkVa90ube9JyAwhNzQ6SjrJ8mWdOMU0ZcGzdq+vT6njSGIvE2
-         UslULTxRFp0Q9zf28wwjuZmlCnDz2zJEjMripFnDNBw+v97xIQqQqpf9Fo/O/SHKE1QO
-         8/S2ZC/i9ShJMf3wE5z1T9QKE60kJV1amAByt13tTiGSE85p563qJ96uTzRDOmRqneJE
-         Fm1XdGjqmUpffhzagblNlbPlh6LG5u/1y914H/bKUL0ATY/LA5C8y5G9ZYMgCoH1IFYj
-         eIUhKZiRHMK7kxwnM7yfPBCHpsKjhQOHg+bVaj2lteMmcTOGsXhTsEUshtpby23/oJIp
-         DORA==
+        bh=IB9k0GNgZmyeui619LmhiuHHd6yar3Mfgh2t1QFPN8A=;
+        b=o5WTk1UZfk1TyHURvBVCz8H5doIjITvqxet0vb/7Jn5Ek5JVkYAIT7uTL6czL5JTnI
+         1pWEAB5YOvUOFDLPO2MPBYUEoFCX1SksfbAF8h7T6IdtFdDN0h2JxTisi8tLNUYNooFS
+         UXrk0MaaeNmAt66weqIgINDKKLf5f7fcDdxgopa+x6ygtbO0tjn3byK79joTXZiR4zDI
+         9Vf3gas0sRIjHJx25ZKX0zU3GuObQU8YGS8iMKku/0H+ZOBlUfnr+d0WlgNmCL3SbqM0
+         unLyen6sfN6RmieATBFjwwzJt1v4kEb6uHAAO8Ruf9udqWdElDqJyEgIFoXNcTb+FCng
+         UHoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=k5RgKONYESk5WvaDyXPiSm78/qDZHfPWmfVg3ttgBfg=;
-        b=XLSaBmylP3u4XAZEIILOZt3jcZGamWiqaUqRNTVBUh7sgF2zvDNDVCRpkjzzyc6oxE
-         r0rrUdpoSr7YVFH7h4QGYAklCURJk62rPXBkN2EPFFnrujnx65RO7TiVP5QF+J5gYZ+E
-         Kp38u30yVC1bL/M2Cl/axh6QWIzuC96YxGBfkGNL4w7Wj/66G8JGTsJPj5w757Xz3MUE
-         AxfX3IwEiYcNijwMqiBgfcw0AjV5OjthCE1f8SyMYXZ0/Wu87tjEaJtNqnjyiX+RoJQv
-         FaMP1HQ4t1kyX6xuuDqQAUf3FsYHG/MYMuw8URViFbJqF5tXrr10qFIQlgQ35gspzUfa
-         ubpA==
-X-Gm-Message-State: AOAM531ZZPUGhE3mjRdz/HyPO1XOvhmYFV4oBBFMdDgxyiWQacPyDs6i
-        bgXEEF3SnikBqsN97eNGAuLvSDceabh96g==
-X-Google-Smtp-Source: ABdhPJwep7p3WKBoCBxJxiupB/7FZsxW6Ld/QPB+qZnLfoEMIt0xJkj549/omV4mOkMT/3+xHRa8ig==
-X-Received: by 2002:a5d:4a0e:: with SMTP id m14mr518600wrq.313.1600704773004;
-        Mon, 21 Sep 2020 09:12:53 -0700 (PDT)
+        bh=IB9k0GNgZmyeui619LmhiuHHd6yar3Mfgh2t1QFPN8A=;
+        b=Z3gwg6jMuYVzubErK3dgGx5TP48Z7n9qYpt/4XtXcyxIJattcyoFd+0CBaYZGwO3Gi
+         UZ846If7XbUoQY4TnQLkY8ADycitehYieQNqJTW/grlraX0PFQ/pOatro24/UBAVTBmv
+         hGuZsHNaU1J/0BpT2VYUzzaPMj6iv9T2SlyINznSQHN4DKOybfVbVfyLMcqGRZ8xdcnR
+         wZFnz/8Wj1mPsFbscq8C16aQd0rVfFSfDsZ1ZD+nppjyMQHYaMH7MUeNhvQKPMEtGD+a
+         oodrpVoW/vtJ5AFfKbbYwfWQwl5HfoK7Tlk49zbIMCpDk/r/oEcMjB9uyRFpv8Vq/0GI
+         7K9w==
+X-Gm-Message-State: AOAM533GsuNJN4jGuoE82lvS4muiUxBYxPJYw7ctbKO0JYMB1WsMPL91
+        hgF7+CYf66lBEC5hxyDZdpbwGl2VrBfhjw==
+X-Google-Smtp-Source: ABdhPJy9exEsnJtsmYxTAyV818PBVT675Xt53QpLu9nxHWgGo6HH3OgaNUZSXnduzaBPPyFce3z+AA==
+X-Received: by 2002:a7b:cd93:: with SMTP id y19mr153145wmj.112.1600704950688;
+        Mon, 21 Sep 2020 09:15:50 -0700 (PDT)
 Received: from [192.168.43.240] ([5.100.192.97])
-        by smtp.gmail.com with ESMTPSA id b18sm22480621wrn.21.2020.09.21.09.12.50
+        by smtp.gmail.com with ESMTPSA id c25sm75687wml.31.2020.09.21.09.15.47
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Sep 2020 09:12:52 -0700 (PDT)
+        Mon, 21 Sep 2020 09:15:50 -0700 (PDT)
+Subject: Re: [PATCH 1/9] kernel: add a PF_FORCE_COMPAT flag
+From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Andy Lutomirski <luto@amacapital.net>,
         Arnd Bergmann <arnd@arndb.de>
 Cc:     Andy Lutomirski <luto@kernel.org>, Christoph Hellwig <hch@lst.de>,
@@ -84,7 +86,7 @@ Cc:     Andy Lutomirski <luto@kernel.org>, Christoph Hellwig <hch@lst.de>,
         LSM List <linux-security-module@vger.kernel.org>
 References: <CAK8P3a2Mi+1yttyGk4k7HxRVrMtmFqJewouVhynqUL0PJycmog@mail.gmail.com>
  <D0791499-1190-4C3F-A984-0A313ECA81C7@amacapital.net>
-From:   Pavel Begunkov <asml.silence@gmail.com>
+ <563138b5-7073-74bc-f0c5-b2bad6277e87@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -128,13 +130,12 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH 1/9] kernel: add a PF_FORCE_COMPAT flag
-Message-ID: <563138b5-7073-74bc-f0c5-b2bad6277e87@gmail.com>
-Date:   Mon, 21 Sep 2020 19:10:20 +0300
+Message-ID: <486c92d0-0f2e-bd61-1ab8-302524af5e08@gmail.com>
+Date:   Mon, 21 Sep 2020 19:13:18 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <D0791499-1190-4C3F-A984-0A313ECA81C7@amacapital.net>
+In-Reply-To: <563138b5-7073-74bc-f0c5-b2bad6277e87@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -142,47 +143,51 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 20/09/2020 01:22, Andy Lutomirski wrote:
+On 21/09/2020 19:10, Pavel Begunkov wrote:
+> On 20/09/2020 01:22, Andy Lutomirski wrote:
+>>
+>>> On Sep 19, 2020, at 2:16 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+>>>
+>>> ﻿On Sat, Sep 19, 2020 at 6:21 PM Andy Lutomirski <luto@kernel.org> wrote:
+>>>>> On Fri, Sep 18, 2020 at 8:16 AM Christoph Hellwig <hch@lst.de> wrote:
+>>>>> On Fri, Sep 18, 2020 at 02:58:22PM +0100, Al Viro wrote:
+>>>>>> Said that, why not provide a variant that would take an explicit
+>>>>>> "is it compat" argument and use it there?  And have the normal
+>>>>>> one pass in_compat_syscall() to that...
+>>>>>
+>>>>> That would help to not introduce a regression with this series yes.
+>>>>> But it wouldn't fix existing bugs when io_uring is used to access
+>>>>> read or write methods that use in_compat_syscall().  One example that
+>>>>> I recently ran into is drivers/scsi/sg.c.
+>>>
+>>> Ah, so reading /dev/input/event* would suffer from the same issue,
+>>> and that one would in fact be broken by your patch in the hypothetical
+>>> case that someone tried to use io_uring to read /dev/input/event on x32...
+>>>
+>>> For reference, I checked the socket timestamp handling that has a
+>>> number of corner cases with time32/time64 formats in compat mode,
+>>> but none of those appear to be affected by the problem.
+>>>
+>>>> Aside from the potentially nasty use of per-task variables, one thing
+>>>> I don't like about PF_FORCE_COMPAT is that it's one-way.  If we're
+>>>> going to have a generic mechanism for this, shouldn't we allow a full
+>>>> override of the syscall arch instead of just allowing forcing compat
+>>>> so that a compat syscall can do a non-compat operation?
+>>>
+>>> The only reason it's needed here is that the caller is in a kernel
+>>> thread rather than a system call. Are there any possible scenarios
+>>> where one would actually need the opposite?
+>>>
+>>
+>> I can certainly imagine needing to force x32 mode from a kernel thread.
+>>
+>> As for the other direction: what exactly are the desired bitness/arch semantics of io_uring?  Is the operation bitness chosen by the io_uring creation or by the io_uring_enter() bitness?
 > 
->> On Sep 19, 2020, at 2:16 PM, Arnd Bergmann <arnd@arndb.de> wrote:
->>
->> ﻿On Sat, Sep 19, 2020 at 6:21 PM Andy Lutomirski <luto@kernel.org> wrote:
->>>> On Fri, Sep 18, 2020 at 8:16 AM Christoph Hellwig <hch@lst.de> wrote:
->>>> On Fri, Sep 18, 2020 at 02:58:22PM +0100, Al Viro wrote:
->>>>> Said that, why not provide a variant that would take an explicit
->>>>> "is it compat" argument and use it there?  And have the normal
->>>>> one pass in_compat_syscall() to that...
->>>>
->>>> That would help to not introduce a regression with this series yes.
->>>> But it wouldn't fix existing bugs when io_uring is used to access
->>>> read or write methods that use in_compat_syscall().  One example that
->>>> I recently ran into is drivers/scsi/sg.c.
->>
->> Ah, so reading /dev/input/event* would suffer from the same issue,
->> and that one would in fact be broken by your patch in the hypothetical
->> case that someone tried to use io_uring to read /dev/input/event on x32...
->>
->> For reference, I checked the socket timestamp handling that has a
->> number of corner cases with time32/time64 formats in compat mode,
->> but none of those appear to be affected by the problem.
->>
->>> Aside from the potentially nasty use of per-task variables, one thing
->>> I don't like about PF_FORCE_COMPAT is that it's one-way.  If we're
->>> going to have a generic mechanism for this, shouldn't we allow a full
->>> override of the syscall arch instead of just allowing forcing compat
->>> so that a compat syscall can do a non-compat operation?
->>
->> The only reason it's needed here is that the caller is in a kernel
->> thread rather than a system call. Are there any possible scenarios
->> where one would actually need the opposite?
->>
-> 
-> I can certainly imagine needing to force x32 mode from a kernel thread.
-> 
-> As for the other direction: what exactly are the desired bitness/arch semantics of io_uring?  Is the operation bitness chosen by the io_uring creation or by the io_uring_enter() bitness?
+> It's rather the second one. Even though AFAIR it wasn't discussed
+> specifically, that how it works now (_partially_).
 
-It's rather the second one. Even though AFAIR it wasn't discussed
-specifically, that how it works now (_partially_).
+Double checked -- I'm wrong, that's the former one. Most of it is based
+on a flag that was set an creation.
 
 -- 
 Pavel Begunkov

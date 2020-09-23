@@ -1,68 +1,91 @@
-Return-Path: <SRS0=MtDY=C7=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=Qyix=DA=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A07E2C2D0E2
-	for <io-uring@archiver.kernel.org>; Tue, 22 Sep 2020 22:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63FA2C4741F
+	for <io-uring@archiver.kernel.org>; Wed, 23 Sep 2020 06:06:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CD17235FD
-	for <io-uring@archiver.kernel.org>; Tue, 22 Sep 2020 22:15:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600812925;
-	bh=UVJzguGCm44sfbkoHo41EuT7SFHdka4Xy+rfnaiGpOA=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=BJNqA9VOA71yUhkqBmxcttJS3fZPtdyqyB1QZuLV69bpYQh1ynaX8KN1R0UHyJyj/
-	 JuBMxXr2TkW6irGIIRw2rEkwgkLT97sjSEOuMhoLjRusfz87e+UYHTJMbWzejGWSGX
-	 tVCvOg4xXQSNAEJD9uuiU0EtE7h7oduIiOKy9n8I=
+	by mail.kernel.org (Postfix) with ESMTP id 0C9AD221E8
+	for <io-uring@archiver.kernel.org>; Wed, 23 Sep 2020 06:06:04 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="uvDI5uJj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbgIVWPY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 22 Sep 2020 18:15:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54788 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbgIVWPY (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Tue, 22 Sep 2020 18:15:24 -0400
-Subject: Re: [GIT PULL] io_uring fixes for 5.9-rc
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600812924;
-        bh=UVJzguGCm44sfbkoHo41EuT7SFHdka4Xy+rfnaiGpOA=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=frTxDX0JEbe2wEYp3edRiiErA3OqcQ4gxCQzP+Vs/6zHp/XKmVgPirUtrBeVynBTj
-         t5cuD+v5yvS2aylJk7xE9tklQwpNuoBwO2h88qGmCuIWreUK1PcnMDRBY26wPrDRFk
-         1XodOs7QFkg9psHZM2y3FoogKYSVsn7uVsiEuuKk=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <14cc3fb9-2f6e-ef49-c98b-994048c0b4d3@kernel.dk>
-References: <14cc3fb9-2f6e-ef49-c98b-994048c0b4d3@kernel.dk>
-X-PR-Tracked-List-Id: <io-uring.vger.kernel.org>
-X-PR-Tracked-Message-Id: <14cc3fb9-2f6e-ef49-c98b-994048c0b4d3@kernel.dk>
-X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/io_uring-5.9-2020-09-22
-X-PR-Tracked-Commit-Id: 4eb8dded6b82e184c09bb963bea0335fa3f30b55
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 0baca070068c58b95e342881d9da4840d5cf3bd1
-Message-Id: <160081292404.1950.8126323357580620009.pr-tracker-bot@kernel.org>
-Date:   Tue, 22 Sep 2020 22:15:24 +0000
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        io-uring <io-uring@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+        id S1726643AbgIWGGD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 23 Sep 2020 02:06:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40786 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726179AbgIWGGC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 23 Sep 2020 02:06:02 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C292C061755;
+        Tue, 22 Sep 2020 23:06:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=tfXqHGtFwgmM6UcSRx58+EM7ODTSdMOtwKoRg1u1yAY=; b=uvDI5uJjUUyytfSIz9Fh9itDBb
+        timhA1QL0/NVl3J6u5M2HW3nARnp+nrUU6+ecCci6CsZKmYqfYuR8gyHxpqyVNqrn3MdPeOsJJWvy
+        950qhPb+/2DfbCQgKlhKDtU5vmvNF+PDbFkHMp1mkRP3rWH8u6qUenY44fQojX6Uqtm4THbw20WLL
+        GWMBkRDZ1GR/JQbS9MCzRO2VxzTVrNvmchBhMbPURHpWCdmaGljvUGEu39WuHYi9z2ZiSxt+gaQQ+
+        D4nj+9YtljE0KpYVnHjo1Gui3cPa2uMIL3iJJ7yzazD7tzFlk3mevDknnUo1gBGah7VrboHOaGe8J
+        //9F2Zlw==;
+Received: from p4fdb0c34.dip0.t-ipconnect.de ([79.219.12.52] helo=localhost)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kKxua-0003TG-5D; Wed, 23 Sep 2020 06:05:52 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>,
+        David Howells <dhowells@redhat.com>,
+        David Laight <David.Laight@aculab.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-aio@kvack.org, io-uring@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        netdev@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH 1/9] compat.h: fix a spelling error in <linux/compat.h>
+Date:   Wed, 23 Sep 2020 08:05:39 +0200
+Message-Id: <20200923060547.16903-2-hch@lst.de>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200923060547.16903-1-hch@lst.de>
+References: <20200923060547.16903-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The pull request you sent on Tue, 22 Sep 2020 11:07:18 -0600:
+There is no compat_sys_readv64v2 syscall, only a compat_sys_preadv64v2
+one.
 
-> git://git.kernel.dk/linux-block.git tags/io_uring-5.9-2020-09-22
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/compat.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/0baca070068c58b95e342881d9da4840d5cf3bd1
-
-Thank you!
-
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index b354ce58966e2d..654c1ec36671a4 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -812,7 +812,7 @@ asmlinkage ssize_t compat_sys_pwritev2(compat_ulong_t fd,
+ 		const struct compat_iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high, rwf_t flags);
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
+-asmlinkage long  compat_sys_readv64v2(unsigned long fd,
++asmlinkage long  compat_sys_preadv64v2(unsigned long fd,
+ 		const struct compat_iovec __user *vec,
+ 		unsigned long vlen, loff_t pos, rwf_t flags);
+ #endif
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.28.0
+

@@ -2,134 +2,128 @@ Return-Path: <SRS0=4v4R=DB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7645CC4363D
-	for <io-uring@archiver.kernel.org>; Thu, 24 Sep 2020 10:07:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 389A5C2D0E2
+	for <io-uring@archiver.kernel.org>; Thu, 24 Sep 2020 17:20:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 328962399A
-	for <io-uring@archiver.kernel.org>; Thu, 24 Sep 2020 10:07:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB2EE238A1
+	for <io-uring@archiver.kernel.org>; Thu, 24 Sep 2020 17:19:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c3uYQYHV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qNlQD2VU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727333AbgIXKHQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 24 Sep 2020 06:07:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:60979 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727325AbgIXKHQ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Sep 2020 06:07:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600942035;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4iT/+LmTQkYz1dVybGRkqzSRFikZmjo7e6yd4w7JahI=;
-        b=c3uYQYHVpROSfYeAS3a7gHUAg5q2aHrLUeUs5IilgKiSIBsGBaNa+uIz0ITHtxEje8sTOj
-        6Sjd44YO+dcKdqNngvC7ewGAdwFQ9dy6eZ+BCArxgVI3WhFXUiqNtgMqSZMUPzupkBvhrh
-        CtrtUnlpdQwuY0ZkDWYpnqV0/VzcGT8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-120-0EmJsjcKNWWpSy0jki3iLw-1; Thu, 24 Sep 2020 06:04:28 -0400
-X-MC-Unique: 0EmJsjcKNWWpSy0jki3iLw-1
-Received: by mail-wr1-f72.google.com with SMTP id 33so1046587wre.0
-        for <io-uring@vger.kernel.org>; Thu, 24 Sep 2020 03:04:27 -0700 (PDT)
+        id S1728662AbgIXRT4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 24 Sep 2020 13:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727216AbgIXRT4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Sep 2020 13:19:56 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3EBC0613CE;
+        Thu, 24 Sep 2020 10:19:56 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id s12so4661299wrw.11;
+        Thu, 24 Sep 2020 10:19:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kAbZd3vS2mRaNP4IzKbD5ITPH51zcyuJzcimZuIDrHU=;
+        b=qNlQD2VUwuZlfp3QTbChXLwkrg3TPs4FW/cPGjFxkYsyIdgolpsVHCzK+JtmhzuOVy
+         pdi0dktqgCnXlIOv5hDbMPTnXdMBVdkZQoe7O2BW6Bbczk9+1s2DIwD9PrSuK6v+sEaF
+         DI5dYuyUqGJB5Cqg0RJ5MGE9wp6SI2DQKTHm83cS8wjNJQ+D8i9i22W5Wc0KAEJPt/lI
+         lMqIAU3dAoFQknurRyITwbWpD/XwQwQH7f+RMIfkHbp/eYOroyMTFqQ42nmLRTZ0AFEs
+         ZImi//w1eD9Vr/kJD930rSvZA6+0qyZXWvUYBdxkM9YPx/4j22h5EaLNGpyTSrXMbCwO
+         YKUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4iT/+LmTQkYz1dVybGRkqzSRFikZmjo7e6yd4w7JahI=;
-        b=g4yfJFEFmBQWxO/Pru8Zd7V1pyhzFpndhXqMO2UZ0O0v1wxiPy2jCaZTYLS4vMVh7F
-         nUZdR4HU1/6VxIYZTWEKSJIc9+NchNFh6jkyIVn4xH4MuG7FWKs09RfiGnmROHYEAhWO
-         4E837Un2WbzbTScmY0HIo7Zr3dKQiMBhCOETD31++/tTD3AbIvrKk2msocuMFJkFsJdm
-         mjn+cb7E0Pq079f/3lkbquVzcsjmxXx/zudXea47iPEg9SGUd/QNUkAXF+eI073aF2Wc
-         JMrAiyXmRPcI8f4VumjP4ki1TYbMdcq3ed/9Tn5nHMtZBHJNEV7URkLCJyKXWfl9XzXP
-         6EwQ==
-X-Gm-Message-State: AOAM531sLPpJ9VydzrzLQWbv4YQRUFruo4WdeECFp0LwIB56DBoVIzYn
-        DLtUC6LyRtFmPaEdaZhH50YJi3HKcqmFe9clhRrbTxXHnmdszHJIomp/ElnAh4byRgBI4meIwIO
-        iHsels2DsA3DwkhuK4OA=
-X-Received: by 2002:a1c:3505:: with SMTP id c5mr4131447wma.65.1600941866710;
-        Thu, 24 Sep 2020 03:04:26 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy4DzvvN2YwQ6KtvvDMCnKA4GxXXQOU7dZsfNIy0PVg9H21tlk1WVUkwuf5qI94NBq6wLIIMg==
-X-Received: by 2002:a1c:3505:: with SMTP id c5mr4131420wma.65.1600941866485;
-        Thu, 24 Sep 2020 03:04:26 -0700 (PDT)
-Received: from steredhat (host-80-116-189-193.retail.telecomitalia.it. [80.116.189.193])
-        by smtp.gmail.com with ESMTPSA id i14sm3077099wro.96.2020.09.24.03.04.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2020 03:04:25 -0700 (PDT)
-Date:   Thu, 24 Sep 2020 12:04:22 +0200
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Subject: Re: [PATCH RESEND] io_uring: show sqthread pid and cpu in fdinfo
-Message-ID: <20200924100422.owe7enrnhh5d2axz@steredhat>
-References: <1600916124-19563-1-git-send-email-joseph.qi@linux.alibaba.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kAbZd3vS2mRaNP4IzKbD5ITPH51zcyuJzcimZuIDrHU=;
+        b=V21uYvRbHZmmTSh3fWjo8BfbaL41yrIXH/LzNGG90j0d+TEjVPxei13O3cZ/CpZi+w
+         dsQ5Rxqv8mfkZ3D/pKzhGpeonQs2ixAtmuCBguC+xWnAICRlXSDVEll/jQrmPgCJYruh
+         KllSIWPU7j23jrqZi4AFt2/qZBce5bWkFU9a3e9ODDq1/ml3Fk0EI1QgXibidClGM8OI
+         ncDnarO0V5INSytdvFJnjZ4G59CJnm48s5WRI3gvbqYIF7dbkiI5xB80SlFjVubtCGSU
+         P9GYtyPCCG2iA5FhX7sSPkgXvlcTSlbcqbHQoXP3lT1DLMkkOzOkXMFH0cm0Akxu2jQv
+         TrMw==
+X-Gm-Message-State: AOAM530qgixWz+BMK83Ty3+x2kopAJJW9TEPB6zrRV56pBTp1V6WUU8e
+        VJqic41txBqV6JiPJvkwadNM0DDkiCM0YaRmwXf1XTevHy6UDYEwhJE=
+X-Google-Smtp-Source: ABdhPJxhIbv58SUHooN6WEjrkYW8U18ujKGcxnMYrWPH1bVWcmnQmjph4Yyi6hSpgSDoFyjg4oEh0yHOb+QZtev8xNw=
+X-Received: by 2002:adf:dd51:: with SMTP id u17mr834011wrm.355.1600967994708;
+ Thu, 24 Sep 2020 10:19:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1600916124-19563-1-git-send-email-joseph.qi@linux.alibaba.com>
+References: <CA+1E3rLM4G4SwzD6RWsK6Ssp7NmhiPedZDjrqN3kORQr9fxCtw@mail.gmail.com>
+ <MWHPR04MB375863C20C1EF2CB27E62703E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731091416.GA29634@infradead.org> <MWHPR04MB37586D39CA389296CE0252A4E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731094135.GA4104@infradead.org> <MWHPR04MB3758A4B2967DB1FABAAD9265E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
+ <20200731125110.GA11500@infradead.org> <CY4PR04MB37517D633920E4D31AC6EA0DE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <20200814081411.GA16943@infradead.org> <CA+1E3r+WXC_MK5Zf2OZEv17ddJDjtXbhpRFoeDns4F341xMhow@mail.gmail.com>
+ <20200908151801.GA16742@infradead.org>
+In-Reply-To: <20200908151801.GA16742@infradead.org>
+From:   Kanchan Joshi <joshiiitr@gmail.com>
+Date:   Thu, 24 Sep 2020 22:49:28 +0530
+Message-ID: <CA+1E3r+MSEW=-SL8L+pquq+cFAu+nQOULQ+HZoQsCvdjKMkrNw@mail.gmail.com>
+Subject: Re: [PATCH v4 6/6] io_uring: add support for zone-append
+To:     "hch@infradead.org" <hch@infradead.org>
+Cc:     Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Kanchan Joshi <joshi.k@samsung.com>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "bcrl@kvack.org" <bcrl@kvack.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        SelvaKumar S <selvakuma.s1@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Javier Gonzalez <javier.gonz@samsung.com>,
+        Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
+        Naohiro Aota <Naohiro.Aota@wdc.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Sep 24, 2020 at 10:55:24AM +0800, Joseph Qi wrote:
-> In most cases we'll specify IORING_SETUP_SQPOLL and run multiple
-> io_uring instances in a host. Since all sqthreads are named
-> "io_uring-sq", it's hard to distinguish the relations between
-> application process and its io_uring sqthread.
-> With this patch, application can get its corresponding sqthread pid
-> and cpu through show_fdinfo.
-> Steps:
-> 1. Get io_uring fd first.
-> $ ls -l /proc/<pid>/fd | grep -w io_uring
-> 2. Then get io_uring instance related info, including corresponding
-> sqthread pid and cpu.
-> $ cat /proc/<pid>/fdinfo/<io_uring_fd>
-> 
-> pos:	0
-> flags:	02000002
-> mnt_id:	13
-> SqThread:	6929
-> SqThreadCpu:	2
-> UserFiles:	1
->     0: testfile
-> UserBufs:	0
-> PollList:
-> 
-> Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-> ---
->  fs/io_uring.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 8b426aa..9c8b3b3 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -8415,6 +8415,10 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
->  	int i;
->  
->  	mutex_lock(&ctx->uring_lock);
-> +	seq_printf(m, "SqThread:\t%d\n", (ctx->flags & IORING_SETUP_SQPOLL) ?
-> +					 task_pid_nr(ctx->sqo_thread) : -1);
+On Tue, Sep 8, 2020 at 8:48 PM hch@infradead.org <hch@infradead.org> wrote:
+>
+> On Mon, Sep 07, 2020 at 12:31:42PM +0530, Kanchan Joshi wrote:
+> > But there are use-cases which benefit from supporting zone-append on
+> > raw block-dev path.
+> > Certain user-space log-structured/cow FS/DB will use the device that
+> > way. Aerospike is one example.
+> > Pass-through is synchronous, and we lose the ability to use io-uring.
+>
+> So use zonefs, which is designed exactly for that use case.
 
-What about 'SqThreadPID'?
+Not specific to zone-append, but in general it may not be good to lock
+new features/interfaces to ZoneFS alone, given that direct-block
+interface has its own merits.
+Mapping one file to a one zone is good for some use-cases, but
+limiting for others.
+Some user-space FS/DBs would be more efficient (less meta, indirection)
+with the freedom to decide file-to-zone mapping/placement.
+- Rocksdb and those LSM style DBs would map SSTable to zone, but
+SSTable file may be two small (initially) and may become too large
+(after compaction) for a zone.
+- The internal parallelism of a single zone is a design-choice, and
+depends on the drive. Writing multiple zones parallely (striped/raid
+way) can give better performance than writing on one. In that case one
+would want to file that seamlessly combines multiple-zones in a
+striped fashion.
 
-> +	seq_printf(m, "SqThreadCpu:\t%d\n", (ctx->flags & IORING_SETUP_SQPOLL) ?
-> +					    task_cpu(ctx->sqo_thread) : -1);
->  	seq_printf(m, "UserFiles:\t%u\n", ctx->nr_user_files);
->  	for (i = 0; i < ctx->nr_user_files; i++) {
->  		struct fixed_file_table *table;
-> -- 
-> 1.8.3.1
-> 
+Also it seems difficult (compared to block dev) to fit simple-copy TP
+in ZoneFS. The new
+command needs: one NVMe drive, list of source LBAs and one destination
+LBA. In ZoneFS, we would deal with N+1 file-descriptors (N source zone
+file, and one destination zone file) for that. While with block
+interface, we do not need  more than one file-descriptor representing
+the entire device. With more zone-files, we face open/close overhead too.
 
-With or without that changed, it looks good to me:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks,
-Stefano
-
+-- 
+Joshi

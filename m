@@ -2,275 +2,401 @@ Return-Path: <SRS0=3fu8=DC=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADB4AC4346E
-	for <io-uring@archiver.kernel.org>; Fri, 25 Sep 2020 02:52:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64A8FC4363D
+	for <io-uring@archiver.kernel.org>; Fri, 25 Sep 2020 04:52:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 459B820888
-	for <io-uring@archiver.kernel.org>; Fri, 25 Sep 2020 02:52:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 201D121D7A
+	for <io-uring@archiver.kernel.org>; Fri, 25 Sep 2020 04:52:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="QPKHphyR";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="ofuMjJ/B"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ltDau4pr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726704AbgIYCwv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 24 Sep 2020 22:52:51 -0400
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:47250 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726669AbgIYCwv (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Sep 2020 22:52:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1601002370; x=1632538370;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=18SQ0G1YpXb3pkcs5CP9xC7lBAzkKN5ZI6TjyfXbJ2U=;
-  b=QPKHphyR5U1n0p0D0sKvoOhvVyv/wCBJyQ8F/1KKVNlte6jukqARSdom
-   /pauds7YMdUnLxxb1i8oql10X2n5bGd9dMa3Nnkt12a0WPYM2x4XpSnL3
-   XNrnb2jU5Ae7AXQtAB1KEOZXK28Bt0WH8eCFB5i3iIpuCxBivGMrQmpEs
-   nRXrbkbnu2bau6XBqcR5BDsQgExCXZYjg6yAfQNc3QGadYpZ1K2PDQwb/
-   srOW7JQT4wS6hEgQIlhLKfx+5tajMZenA+82BMSsmwQebRhEzEP0b4PYe
-   uxmyIIf8kGXKRRvao0Df6zJ8+YWh1F9S3lh98fYza1fiviRTjdvnZWoA8
-   g==;
-IronPort-SDR: apmrPU3XlbZkWZkyH4Oo9ZJnLsxVDhqd7mYsg7EqPNvuzIEC0IVeFCiqbBYP3mFFSOrdIKeBL1
- /vq66CWXm6uZg3D9833mWzCpIew4Q1sCRRoP/oaZiabQeZ8sgPPxAbwR8ghbrbjwCj+jrXtSXP
- ZKtK2TQLXz1bEqVuqCQgfXl6W47EX/kzBDumdlXucQGYu5eE3iEOKOHBoKuC2ERjFtPzf+RQZm
- W5Cr4dnmguKvihylIEWW+GEWH2C8HifaI0mcX6cpbv3ncdW1W/04AFeqb2HmyYV+VIoc7fUySS
- TbU=
-X-IronPort-AV: E=Sophos;i="5.77,300,1596470400"; 
-   d="scan'208";a="257948027"
-Received: from mail-dm6nam12lp2176.outbound.protection.outlook.com (HELO NAM12-DM6-obe.outbound.protection.outlook.com) ([104.47.59.176])
-  by ob1.hgst.iphmx.com with ESMTP; 25 Sep 2020 10:52:49 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Jj7s86LZl1kq5JzlBkgrss8h9BUuU2A8Mm8Uci+Ch7BnPepNMxkVjnIiHdzliuFD6+lSw9kMB8/tVDTPHzHJVS8ie7v2EHIazrt9pp407cZDOBtsWoIK6jYXhtA7ZOWBdwqJROhkWbcl3zaOABmJtxjGntRK5Mx982y7bClJn3gUAUbrxe4Udj0sZ/0oO3oM5DUmwXgxN5rAV48JecZI28Ep99EX8LCWetMxv/r+JfJjQAtVdJm9tqe2vTlBLRVIhUG1p/JXVfqTNAuaPKgNst4k2uk2Mlae+qs750x9yN9proZOh8KjK3Dz/5rPVEqF9KXNNzvbz7NjL8m1DR7Y5w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U+PcJoikJ62zQjjfYccg+O2GcJQygmhxhLlIQ4QxluA=;
- b=TnC4FRheec4f9dIe89bkUv12emfSOePZqBFO9V7NJa+Gk30b6PIpWP47QJIG57tN7xgCMI8EiNqiwQjNAEYxx1l2VXRAlZoxfcfQHI/smyZzbPdv+XLbSVbNrJ9rOsPlOfzOXpVHaK/VlN7hzBo6hev9wwZX2S+vqs8BUgFw6VkMC4mbd5XNrc9SSPlC86I5Ys18Gyl8XketQyntF1ebTGl5THvO2f8Lhan3pmcjjsgUMnqFw7qqdSV77JnyE32uInzgatw9Spqwl5eBweKkam+yEmcbvGlODwzp3xpYEwAkdP56QaC3nRXMuEitvO8mJmnSuePjZhy8XbuMF2UHTQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U+PcJoikJ62zQjjfYccg+O2GcJQygmhxhLlIQ4QxluA=;
- b=ofuMjJ/BnIJAHduiI3O/j2jLiu2rrtvXhDLsKvf2OHdiZImjSbeVGT7GGS6ts0tefPWvU8V3K1Qjp4MbGXP96IVLmDDd2jdcRcv4sIw+CEz0Zj0xBQ+5+QnWSllan+EDxOAhfoyHKULR852TvwzuJS+ENlo8b2BQQRTbVHHKYxg=
-Received: from MWHPR04MB3758.namprd04.prod.outlook.com (2603:10b6:300:fb::8)
- by MWHPR04MB0369.namprd04.prod.outlook.com (2603:10b6:300:70::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.14; Fri, 25 Sep
- 2020 02:52:48 +0000
-Received: from MWHPR04MB3758.namprd04.prod.outlook.com
- ([fe80::30a6:9f87:e223:6468]) by MWHPR04MB3758.namprd04.prod.outlook.com
- ([fe80::30a6:9f87:e223:6468%6]) with mapi id 15.20.3412.021; Fri, 25 Sep 2020
- 02:52:48 +0000
-From:   Damien Le Moal <Damien.LeMoal@wdc.com>
-To:     Kanchan Joshi <joshiiitr@gmail.com>,
-        "hch@infradead.org" <hch@infradead.org>
-CC:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Kanchan Joshi <joshi.k@samsung.com>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "bcrl@kvack.org" <bcrl@kvack.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-aio@kvack.org" <linux-aio@kvack.org>,
-        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        SelvaKumar S <selvakuma.s1@samsung.com>,
-        Nitesh Shetty <nj.shetty@samsung.com>,
-        Javier Gonzalez <javier.gonz@samsung.com>,
-        Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
-        Naohiro Aota <Naohiro.Aota@wdc.com>
-Subject: Re: [PATCH v4 6/6] io_uring: add support for zone-append
-Thread-Topic: [PATCH v4 6/6] io_uring: add support for zone-append
-Thread-Index: AQHWYdbcc0q15qREKECGO7brHi6zEg==
-Date:   Fri, 25 Sep 2020 02:52:47 +0000
-Message-ID: <MWHPR04MB3758A78AFAED3543F8D38266E7360@MWHPR04MB3758.namprd04.prod.outlook.com>
-References: <CA+1E3rLM4G4SwzD6RWsK6Ssp7NmhiPedZDjrqN3kORQr9fxCtw@mail.gmail.com>
- <MWHPR04MB375863C20C1EF2CB27E62703E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
- <20200731091416.GA29634@infradead.org>
- <MWHPR04MB37586D39CA389296CE0252A4E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
- <20200731094135.GA4104@infradead.org>
- <MWHPR04MB3758A4B2967DB1FABAAD9265E74E0@MWHPR04MB3758.namprd04.prod.outlook.com>
- <20200731125110.GA11500@infradead.org>
- <CY4PR04MB37517D633920E4D31AC6EA0DE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
- <20200814081411.GA16943@infradead.org>
- <CA+1E3r+WXC_MK5Zf2OZEv17ddJDjtXbhpRFoeDns4F341xMhow@mail.gmail.com>
- <20200908151801.GA16742@infradead.org>
- <CA+1E3r+MSEW=-SL8L+pquq+cFAu+nQOULQ+HZoQsCvdjKMkrNw@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=wdc.com;
-x-originating-ip: [2400:2411:43c0:6000:61d4:c443:7ba:718]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: e261d011-e004-447a-82c3-08d860fe161c
-x-ms-traffictypediagnostic: MWHPR04MB0369:
-x-ld-processed: b61c8803-16f3-4c35-9b17-6f65f441df86,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MWHPR04MB03699AE76B5D2E4BA1AEF23BE7360@MWHPR04MB0369.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: T+U3gwRB1AYK19h6liB6rsuZRUjomEK9FAJ0IhrIpRoKLYAWizTthPZqcvffS2snkd9tgT5U7KtM/ZyAZu7898bjCzwEr5TaAn8C7m7StZRPqbEdcdHT7ft1/YUKKlKgbICXpS1NIUWbFz6rUY/tCGgnSsk1VmCejv16oilWvesfVq6leb9q6/3su+FPmmYZUQgU0tN7MTdLGyi/iJu6xO6YMm3d42ePNtgEeeYetLWRfnE06X4NEbQv8sw6toSdGDqnk3vfnBJ6frpmtAbJT8fOGc6lyndyr+PGQV5Cbw+JqyZWOOrDfP7P1Ve9fz+fJHmXhDdPtGr2axedmg2FE6glIIYCPD1Sc3hX86Lw32CFjOGxNnfnPjBb1d9K07AK
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR04MB3758.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(376002)(39860400002)(136003)(396003)(366004)(5660300002)(54906003)(186003)(316002)(4326008)(33656002)(66946007)(110136005)(8936002)(6506007)(8676002)(71200400001)(66446008)(76116006)(7696005)(53546011)(7416002)(91956017)(478600001)(66476007)(83380400001)(52536014)(2906002)(55016002)(86362001)(66556008)(9686003)(64756008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: JOpDsIdi+mJDrNAR7sqQwfMHSq5GlkEKr84A7U8MEelb/64sUSwS0RZOd+aUVy029nNuBOC8ybaGdnMf20k86fudJzzfNQCjhUwvfLfXwjwSrMn+yxHHoPOqDmzp8ZzNsg/GeaRlHvyRyGNXGtP3x48+diOt3N3Sp3S31JbvTBlt6GUNtZ1tF8SFY+ec/6inXGelv1ziFSIgzoY7uvYEonCEvvxGTFukYvJtaVgozHtPebagSSOa4AGiwzjpilfMmL3rJs8A3LDyNgUcLsvFIhBw5uDtABg+xkJplsrnAa0RYc0mcqPJs1cBjgT70tDep24YvUJWxUeCXG/sGF7yQUGAJeOXLxB6Ze6CZycy1AHAsD3lxEMrceUNtNC7REJdDtrRzF9v7nU4inrigzmoVucU/6LM9kLav1kNuICbJpqcKa4pshS3OiS/u34rwBZ5t24ddiVHbyyIEtjzPKJc0MLYVLD8QQwVrE3OOWCl43Zg0ftmVN5heHHUmXJzTM7Ekbyi4xMXpZgjDdLEMx2wh/zWpZun6LkVrqh/eMG1QbTDtBq0ClDZ9qBWnlmOloIQjtmRm4DcCugxlLhlO7Dplhj/08kAy7qWlKnfCkkaqeeopY8l84esSbangGW0NnXE+kRj2Wj4llLFe+6oHrZrX0JqgQYquluQbFMEkv+oYgUvT3H+PnzlcpGxoGf0efj4nYcbsGCF8LwqvEfZRfN9nA==
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1727056AbgIYEwB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 25 Sep 2020 00:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726983AbgIYEwA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 25 Sep 2020 00:52:00 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A49AC0613D3;
+        Thu, 24 Sep 2020 21:52:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=XLI4wWnTND6XjkdS+V7znPEFtJ3sYq4EUOFrFZbEOM4=; b=ltDau4prtIYwpMEhyb+cdqxWTK
+        GQAYP8faWYGCeQ5y9rXhu4VrSOuWAm8vpUTAaftV7VWf+gl59R8pGUhMazJ6EwpoQ++j9Ib+x6ibK
+        S6A7SODjHRYDevm7+f3DVFp2RheB04CY4/1cAtKGPpyqv8WK+Kgxef40BUZwoQwL5r7/pIT1j9rou
+        AOawdNyXcs7aXV/ZSST8iyc7ZCAA4+Ogm3x1GnUgJhgy9bAcFVkJ0cMiOO7TyZJwAo94yS2SU3UeL
+        AobxOj3YCPWJwKilFg5y8sTwcEZ8UObu76Bj3XdaY9tnU/TNtGH5YipPXhrIj7eTT7jQnIkdj0D6J
+        vVvtSS7Q==;
+Received: from p4fdb0c34.dip0.t-ipconnect.de ([79.219.12.52] helo=localhost)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kLfi6-0002qp-CZ; Fri, 25 Sep 2020 04:51:54 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>,
+        David Howells <dhowells@redhat.com>,
+        David Laight <David.Laight@aculab.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-aio@kvack.org, io-uring@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        netdev@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH 5/9] fs: remove various compat readv/writev helpers
+Date:   Fri, 25 Sep 2020 06:51:42 +0200
+Message-Id: <20200925045146.1283714-6-hch@lst.de>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200925045146.1283714-1-hch@lst.de>
+References: <20200925045146.1283714-1-hch@lst.de>
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR04MB3758.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e261d011-e004-447a-82c3-08d860fe161c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Sep 2020 02:52:48.0182
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 5ggSE7SrYqdR+YW1kI6XE5qJq8dEm7o/OTOg2oEOZ2t9Gc+OFH/9DCkZf/0FxvO6nTlUSL+62Bv7z3OXsJGAbg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR04MB0369
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 2020/09/25 2:20, Kanchan Joshi wrote:=0A=
-> On Tue, Sep 8, 2020 at 8:48 PM hch@infradead.org <hch@infradead.org> wrot=
-e:=0A=
->>=0A=
->> On Mon, Sep 07, 2020 at 12:31:42PM +0530, Kanchan Joshi wrote:=0A=
->>> But there are use-cases which benefit from supporting zone-append on=0A=
->>> raw block-dev path.=0A=
->>> Certain user-space log-structured/cow FS/DB will use the device that=0A=
->>> way. Aerospike is one example.=0A=
->>> Pass-through is synchronous, and we lose the ability to use io-uring.=
-=0A=
->>=0A=
->> So use zonefs, which is designed exactly for that use case.=0A=
-> =0A=
-> Not specific to zone-append, but in general it may not be good to lock=0A=
-> new features/interfaces to ZoneFS alone, given that direct-block=0A=
-> interface has its own merits.=0A=
-> Mapping one file to a one zone is good for some use-cases, but=0A=
-> limiting for others.=0A=
-> Some user-space FS/DBs would be more efficient (less meta, indirection)=
-=0A=
-> with the freedom to decide file-to-zone mapping/placement.=0A=
-=0A=
-There is no metadata in zonefs. One file =3D=3D one zone and the mapping be=
-tween=0A=
-zonefs files and zones is static, determined at mount time simply using rep=
-ort=0A=
-zones. Zonefs files cannot be renamed nor deleted in anyway. Choosing a zon=
-efs=0A=
-file *is* the same as choosing a zone. Zonfes is *not* a POSIX file system =
-doing=0A=
-dynamic block allocation to files. The backing storage of files in zonefs i=
-s=0A=
-static and fixed to the zone they represent. The difference between zonefs =
-vs=0A=
-raw zoned block device is the API that has to be used by the application, t=
-hat=0A=
-is, file descriptor representing the entire disk for raw disk vs file descr=
-iptor=0A=
-representing one zone in zonefs. Note that the later has *a lot* of advanta=
-ges=0A=
-over the former: enables O_APPEND use, protects against bugs with user writ=
-e=0A=
-offsets mistakes, adds consistency of cached data against zone resets, and =
-more.=0A=
-=0A=
-> - Rocksdb and those LSM style DBs would map SSTable to zone, but=0A=
-> SSTable file may be two small (initially) and may become too large=0A=
-> (after compaction) for a zone.=0A=
-=0A=
-You are contradicting yourself here. If a SSTable is mapped to a zone, then=
- its=0A=
-size cannot exceed the zone capacity, regardless of the interface used to a=
-ccess=0A=
-the zones. And except for L0 tables which can be smaller (and are in memory=
-=0A=
-anyway), all levels tables have the same maximum size, which for zoned driv=
-es=0A=
-must be the zone capacity. In any case, solving any problem in this area do=
-es=0A=
-not depend in any way on zonefs vs raw disk interface. The implementation w=
-ill=0A=
-differ depending on the chosen interface, but what needs to be done to map=
-=0A=
-SSTables to zones is the same in both cases.=0A=
-=0A=
-> - The internal parallelism of a single zone is a design-choice, and=0A=
-> depends on the drive. Writing multiple zones parallely (striped/raid=0A=
-> way) can give better performance than writing on one. In that case one=0A=
-> would want to file that seamlessly combines multiple-zones in a=0A=
-> striped fashion.=0A=
-=0A=
-Then write a FS for that... Or have a library do it in user space. For the=
-=0A=
-library case, the implementation will differ for zonefs vs raw disk due to =
-the=0A=
-different API (regular file vs block devicer file), but the principles to f=
-ollow=0A=
-for stripping zones into a single storage object remain the same.=0A=
-=0A=
-> Also it seems difficult (compared to block dev) to fit simple-copy TP=0A=
-> in ZoneFS. The new=0A=
-> command needs: one NVMe drive, list of source LBAs and one destination=0A=
-> LBA. In ZoneFS, we would deal with N+1 file-descriptors (N source zone=0A=
-> file, and one destination zone file) for that. While with block=0A=
-> interface, we do not need  more than one file-descriptor representing=0A=
-> the entire device. With more zone-files, we face open/close overhead too.=
-=0A=
-=0A=
-Are you expecting simple-copy to allow requests that are not zone aligned ?=
- I do=0A=
-not think that will ever happen. Otherwise, the gotcha cases for it would b=
-e far=0A=
-too numerous. Simple-copy is essentially an optimized regular write command=
-.=0A=
-Similarly to that command, it will not allow copies over zone boundaries an=
-d=0A=
-will need the destination LBA to be aligned to the destination zone WP. I h=
-ave=0A=
-not checked the TP though and given the NVMe NDA, I will stop the discussio=
-n here.=0A=
-=0A=
-filesend() could be used as the interface for simple-copy. Implementing tha=
-t in=0A=
-zonefs would not be that hard. What is your plan for simple-copy interface =
-for=0A=
-raw block device ? An  ioctl ? filesend() too ? As as with any other user l=
-evel=0A=
-API, we should not be restricted to a particular device type if we can avoi=
-d it,=0A=
-so in-kernel emulation of the feature is needed for devices that do not hav=
-e=0A=
-simple-copy or scsi extended copy. filesend() seems to me like the best cho=
-ice=0A=
-since all of that is already implemented there.=0A=
-=0A=
-As for the open()/close() overhead for zonefs, may be some use cases may su=
-ffer=0A=
-from it, but my tests with LevelDB+zonefs did not show any significant=0A=
-difference. zonefs open()/close() operations are way faster than for a regu=
-lar=0A=
-file system since there is no metadata and all inodes always exist in-memor=
-y.=0A=
-And zonefs() now supports MAR/MOR limits for O_WRONLY open(). That can simp=
-lify=0A=
-things for the user.=0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+Now that import_iovec handles compat iovecs as well, all the duplicated
+code in the compat readv/writev helpers is not needed.  Remove them
+and switch the compat syscall handlers to use the native helpers.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/read_write.c        | 179 +++++++----------------------------------
+ include/linux/compat.h |  20 ++---
+ 2 files changed, 40 insertions(+), 159 deletions(-)
+
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 0a68037580b455..eab427b7cc0a3f 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1068,226 +1068,107 @@ SYSCALL_DEFINE6(pwritev2, unsigned long, fd, const struct iovec __user *, vec,
+ 	return do_pwritev(fd, vec, vlen, pos, flags);
+ }
+ 
++/*
++ * Various compat syscalls.  Note that they all pretend to take a native
++ * iovec - import_iovec will properly treat those as compat_iovecs based on
++ * in_compat_syscall().
++ */
+ #ifdef CONFIG_COMPAT
+-static size_t compat_readv(struct file *file,
+-			   const struct compat_iovec __user *vec,
+-			   unsigned long vlen, loff_t *pos, rwf_t flags)
+-{
+-	struct iovec iovstack[UIO_FASTIOV];
+-	struct iovec *iov = iovstack;
+-	struct iov_iter iter;
+-	ssize_t ret;
+-
+-	ret = import_iovec(READ, (const struct iovec __user *)vec, vlen,
+-			   UIO_FASTIOV, &iov, &iter);
+-	if (ret >= 0) {
+-		ret = do_iter_read(file, &iter, pos, flags);
+-		kfree(iov);
+-	}
+-	if (ret > 0)
+-		add_rchar(current, ret);
+-	inc_syscr(current);
+-	return ret;
+-}
+-
+-static size_t do_compat_readv(compat_ulong_t fd,
+-				 const struct compat_iovec __user *vec,
+-				 compat_ulong_t vlen, rwf_t flags)
+-{
+-	struct fd f = fdget_pos(fd);
+-	ssize_t ret;
+-	loff_t pos;
+-
+-	if (!f.file)
+-		return -EBADF;
+-	pos = f.file->f_pos;
+-	ret = compat_readv(f.file, vec, vlen, &pos, flags);
+-	if (ret >= 0)
+-		f.file->f_pos = pos;
+-	fdput_pos(f);
+-	return ret;
+-
+-}
+-
+ COMPAT_SYSCALL_DEFINE3(readv, compat_ulong_t, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		compat_ulong_t, vlen)
+ {
+-	return do_compat_readv(fd, vec, vlen, 0);
+-}
+-
+-static long do_compat_preadv64(unsigned long fd,
+-				  const struct compat_iovec __user *vec,
+-				  unsigned long vlen, loff_t pos, rwf_t flags)
+-{
+-	struct fd f;
+-	ssize_t ret;
+-
+-	if (pos < 0)
+-		return -EINVAL;
+-	f = fdget(fd);
+-	if (!f.file)
+-		return -EBADF;
+-	ret = -ESPIPE;
+-	if (f.file->f_mode & FMODE_PREAD)
+-		ret = compat_readv(f.file, vec, vlen, &pos, flags);
+-	fdput(f);
+-	return ret;
++	return do_readv(fd, vec, vlen, 0);
+ }
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64
+ COMPAT_SYSCALL_DEFINE4(preadv64, unsigned long, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		unsigned long, vlen, loff_t, pos)
+ {
+-	return do_compat_preadv64(fd, vec, vlen, pos, 0);
++	return do_preadv(fd, vec, vlen, pos, 0);
+ }
+ #endif
+ 
+ COMPAT_SYSCALL_DEFINE5(preadv, compat_ulong_t, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high)
+ {
+ 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
+ 
+-	return do_compat_preadv64(fd, vec, vlen, pos, 0);
++	return do_preadv(fd, vec, vlen, pos, 0);
+ }
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
+ COMPAT_SYSCALL_DEFINE5(preadv64v2, unsigned long, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		unsigned long, vlen, loff_t, pos, rwf_t, flags)
+ {
+ 	if (pos == -1)
+-		return do_compat_readv(fd, vec, vlen, flags);
+-
+-	return do_compat_preadv64(fd, vec, vlen, pos, flags);
++		return do_readv(fd, vec, vlen, flags);
++	return do_preadv(fd, vec, vlen, pos, flags);
+ }
+ #endif
+ 
+ COMPAT_SYSCALL_DEFINE6(preadv2, compat_ulong_t, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high,
+ 		rwf_t, flags)
+ {
+ 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
+ 
+ 	if (pos == -1)
+-		return do_compat_readv(fd, vec, vlen, flags);
+-
+-	return do_compat_preadv64(fd, vec, vlen, pos, flags);
+-}
+-
+-static size_t compat_writev(struct file *file,
+-			    const struct compat_iovec __user *vec,
+-			    unsigned long vlen, loff_t *pos, rwf_t flags)
+-{
+-	struct iovec iovstack[UIO_FASTIOV];
+-	struct iovec *iov = iovstack;
+-	struct iov_iter iter;
+-	ssize_t ret;
+-
+-	ret = import_iovec(WRITE, (const struct iovec __user *)vec, vlen,
+-			   UIO_FASTIOV, &iov, &iter);
+-	if (ret >= 0) {
+-		file_start_write(file);
+-		ret = do_iter_write(file, &iter, pos, flags);
+-		file_end_write(file);
+-		kfree(iov);
+-	}
+-	if (ret > 0)
+-		add_wchar(current, ret);
+-	inc_syscw(current);
+-	return ret;
+-}
+-
+-static size_t do_compat_writev(compat_ulong_t fd,
+-				  const struct compat_iovec __user* vec,
+-				  compat_ulong_t vlen, rwf_t flags)
+-{
+-	struct fd f = fdget_pos(fd);
+-	ssize_t ret;
+-	loff_t pos;
+-
+-	if (!f.file)
+-		return -EBADF;
+-	pos = f.file->f_pos;
+-	ret = compat_writev(f.file, vec, vlen, &pos, flags);
+-	if (ret >= 0)
+-		f.file->f_pos = pos;
+-	fdput_pos(f);
+-	return ret;
++		return do_readv(fd, vec, vlen, flags);
++	return do_preadv(fd, vec, vlen, pos, flags);
+ }
+ 
+ COMPAT_SYSCALL_DEFINE3(writev, compat_ulong_t, fd,
+-		const struct compat_iovec __user *, vec,
++		const struct iovec __user *, vec,
+ 		compat_ulong_t, vlen)
+ {
+-	return do_compat_writev(fd, vec, vlen, 0);
+-}
+-
+-static long do_compat_pwritev64(unsigned long fd,
+-				   const struct compat_iovec __user *vec,
+-				   unsigned long vlen, loff_t pos, rwf_t flags)
+-{
+-	struct fd f;
+-	ssize_t ret;
+-
+-	if (pos < 0)
+-		return -EINVAL;
+-	f = fdget(fd);
+-	if (!f.file)
+-		return -EBADF;
+-	ret = -ESPIPE;
+-	if (f.file->f_mode & FMODE_PWRITE)
+-		ret = compat_writev(f.file, vec, vlen, &pos, flags);
+-	fdput(f);
+-	return ret;
++	return do_writev(fd, vec, vlen, 0);
+ }
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64
+ COMPAT_SYSCALL_DEFINE4(pwritev64, unsigned long, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		unsigned long, vlen, loff_t, pos)
+ {
+-	return do_compat_pwritev64(fd, vec, vlen, pos, 0);
++	return do_pwritev(fd, vec, vlen, pos, 0);
+ }
+ #endif
+ 
+ COMPAT_SYSCALL_DEFINE5(pwritev, compat_ulong_t, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *,vec,
+ 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high)
+ {
+ 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
+ 
+-	return do_compat_pwritev64(fd, vec, vlen, pos, 0);
++	return do_pwritev(fd, vec, vlen, pos, 0);
+ }
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64V2
+ COMPAT_SYSCALL_DEFINE5(pwritev64v2, unsigned long, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *, vec,
+ 		unsigned long, vlen, loff_t, pos, rwf_t, flags)
+ {
+ 	if (pos == -1)
+-		return do_compat_writev(fd, vec, vlen, flags);
+-
+-	return do_compat_pwritev64(fd, vec, vlen, pos, flags);
++		return do_writev(fd, vec, vlen, flags);
++	return do_pwritev(fd, vec, vlen, pos, flags);
+ }
+ #endif
+ 
+ COMPAT_SYSCALL_DEFINE6(pwritev2, compat_ulong_t, fd,
+-		const struct compat_iovec __user *,vec,
++		const struct iovec __user *,vec,
+ 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high, rwf_t, flags)
+ {
+ 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
+ 
+ 	if (pos == -1)
+-		return do_compat_writev(fd, vec, vlen, flags);
+-
+-	return do_compat_pwritev64(fd, vec, vlen, pos, flags);
++		return do_writev(fd, vec, vlen, flags);
++	return do_pwritev(fd, vec, vlen, pos, flags);
+ }
+-
+-#endif
++#endif /* CONFIG_COMPAT */
+ 
+ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
+ 		  	   size_t count, loff_t max)
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index b930de791ff16b..306ea7e1172d8d 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -546,25 +546,25 @@ asmlinkage long compat_sys_getdents(unsigned int fd,
+ /* fs/read_write.c */
+ asmlinkage long compat_sys_lseek(unsigned int, compat_off_t, unsigned int);
+ asmlinkage ssize_t compat_sys_readv(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec, compat_ulong_t vlen);
++		const struct iovec __user *vec, compat_ulong_t vlen);
+ asmlinkage ssize_t compat_sys_writev(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec, compat_ulong_t vlen);
++		const struct iovec __user *vec, compat_ulong_t vlen);
+ /* No generic prototype for pread64 and pwrite64 */
+ asmlinkage ssize_t compat_sys_preadv(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high);
+ asmlinkage ssize_t compat_sys_pwritev(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high);
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64
+ asmlinkage long compat_sys_preadv64(unsigned long fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		unsigned long vlen, loff_t pos);
+ #endif
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64
+ asmlinkage long compat_sys_pwritev64(unsigned long fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		unsigned long vlen, loff_t pos);
+ #endif
+ 
+@@ -800,20 +800,20 @@ asmlinkage long compat_sys_execveat(int dfd, const char __user *filename,
+ 		     const compat_uptr_t __user *argv,
+ 		     const compat_uptr_t __user *envp, int flags);
+ asmlinkage ssize_t compat_sys_preadv2(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high, rwf_t flags);
+ asmlinkage ssize_t compat_sys_pwritev2(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high, rwf_t flags);
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
+ asmlinkage long  compat_sys_preadv64v2(unsigned long fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		unsigned long vlen, loff_t pos, rwf_t flags);
+ #endif
+ 
+ #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64V2
+ asmlinkage long compat_sys_pwritev64v2(unsigned long fd,
+-		const struct compat_iovec __user *vec,
++		const struct iovec __user *vec,
+ 		unsigned long vlen, loff_t pos, rwf_t flags);
+ #endif
+ 
+-- 
+2.28.0
+

@@ -1,337 +1,206 @@
-Return-Path: <SRS0=unzx=DE=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=/tfB=DF=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2624DC2D0A8
-	for <io-uring@archiver.kernel.org>; Sun, 27 Sep 2020 02:26:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B78FC47423
+	for <io-uring@archiver.kernel.org>; Mon, 28 Sep 2020 07:17:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4BF422207
-	for <io-uring@archiver.kernel.org>; Sun, 27 Sep 2020 02:26:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5EC7F2311C
+	for <io-uring@archiver.kernel.org>; Mon, 28 Sep 2020 07:17:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727614AbgI0C0c (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 26 Sep 2020 22:26:32 -0400
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:38984 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726478AbgI0C0c (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 26 Sep 2020 22:26:32 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R931e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UAAO.ek_1601173587;
-Received: from 30.39.155.179(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0UAAO.ek_1601173587)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 27 Sep 2020 10:26:28 +0800
-Subject: Re: [RFC PATCH for-next v2] io_uring: support multiple rings to share
- same poll thread by specifying same cpu
-To:     io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, asml.silence@gmail.com,
-        joseph.qi@linux.alibaba.com
-References: <20200913130506.6321-1-xiaoguang.wang@linux.alibaba.com>
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Message-ID: <612daaf4-a4a0-7c18-d919-bbc227ec7a79@linux.alibaba.com>
-Date:   Sun, 27 Sep 2020 10:25:45 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1726500AbgI1HRh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 28 Sep 2020 03:17:37 -0400
+Received: from mail-io1-f77.google.com ([209.85.166.77]:45195 "EHLO
+        mail-io1-f77.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726547AbgI1HR0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 28 Sep 2020 03:17:26 -0400
+Received: by mail-io1-f77.google.com with SMTP id h21so98352iof.12
+        for <io-uring@vger.kernel.org>; Mon, 28 Sep 2020 00:17:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=XbPuch1ZotLQyYuXlwTI1LGYIWVJyxJ84pFPhbD6uyI=;
+        b=GjPVIYAs7Og/SbjUzn7j5fxpjnBxoHp8Cm/AljsXQumAPpm8q10l4Va+2LTyAeOlO1
+         KdAWfdf/+yOJ5vVLjSsquBSF6i/8uJBC4fb/GZgIdiZIZ8/V+IHlz3uCukt8TaM3m7qJ
+         JkUrVP1rxpuoYqrTrqv1NnDJzNpYF1WhSR43T/LVvhvyiqHGyyrWpmp+CkilB229c9aR
+         XGu6d0veUMqQxHlKjHPLTaj5LvWQwtmREUZxeaTc3mFbVw+od38/XbfLQIzUD+6KTdG9
+         PSS3nA1eQ/I4hi3FpDeW+N6c+q/fyqyLdXyEBMBhANjiObWWH0bGZ4+XKgzhlah4zY8z
+         pGHg==
+X-Gm-Message-State: AOAM5333fwwwYlnU4pzc+dWnqd8S7JPHKYKw8oXLGNJdQhcTzpoCwW3s
+        IdqaG+4bNJbPGozkXIN0JHyJ16JhvlZkirEo8yFStsR7s44b
+X-Google-Smtp-Source: ABdhPJyChCnLT+cKsSlDlT8aiZZa/myOgUNdCCATPU5nHYLGF/QEZx2D+Lpp5YJ+nao4wb44tZ6nd6D940VZyHnulusvdeQwdMW4
 MIME-Version: 1.0
-In-Reply-To: <20200913130506.6321-1-xiaoguang.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a92:d07:: with SMTP id 7mr51097iln.243.1601277445316; Mon,
+ 28 Sep 2020 00:17:25 -0700 (PDT)
+Date:   Mon, 28 Sep 2020 00:17:25 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000050a4fd05b05a7579@google.com>
+Subject: possible deadlock in io_write
+From:   syzbot <syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com>
+To:     axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-hi,
+Hello,
 
-> We have already supported multiple rings to share one same poll thread
-> by passing IORING_SETUP_ATTACH_WQ, but it's not that convenient to use.
-> IORING_SETUP_ATTACH_WQ needs users to ensure that a parent ring instance
-> has already existed, that means it will require app to regulate the
-> creation oder between uring instances.
-> 
-> Currently we can make this a bit simpler, for those rings which will
-> have SQPOLL enabled and are willing to be bound to one same cpu, add a
-> capability that these rings can share one poll thread by specifying
-> a new IORING_SETUP_SQPOLL_PERCPU flag, then we have 3 cases
->    1, IORING_SETUP_ATTACH_WQ: if user specifies this flag, we'll always
-> try to attach this ring to an existing ring's corresponding poll thread,
-> no matter whether IORING_SETUP_SQ_AFF or IORING_SETUP_SQPOLL_PERCPU is
-> set.
->    2, IORING_SETUP_SQ_AFF and IORING_SETUP_SQPOLL_PERCPU are both enabled,
-> for this case, we'll create a single poll thread to be shared by these
-> rings, and this poll thread is bound to a fixed cpu.
->    3, for any other cases, we'll just create one new poll thread for the
-> corresponding ring.
-> 
-> And for case 2, don't need to regulate creation oder of multiple uring
-> instances, we use a mutex to synchronize creation, for example, say five
-> rings which all have IORING_SETUP_SQ_AFF & IORING_SETUP_SQPOLL_PERCPU
-> enabled, and are willing to be bound same cpu, one ring that gets the
-> mutex lock will create one poll thread, the other four rings will just
-> attach themselves the previous created poll thread.
-> 
-> To implement above function, add one global hlist_head hash table, only
-> sqd that is created for IORING_SETUP_SQ_AFF & IORING_SETUP_SQPOLL_PERCPU
-> will be added to this global list, and its search key are current->files
-> and cpu number.
-This is a gentle ping.
-I just want to know whether you like this method, then I can do rebase work
-accordingly and resend it.
+syzbot found the following issue on:
 
-Regards,
-Xiaoguang Wang
+HEAD commit:    eeddbe68 Merge tag 's390-5.9-7' of git://git.kernel.org/pu..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=148c13d3900000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=240e2ebab67245c7
+dashboard link: https://syzkaller.appspot.com/bug?extid=2f8fa4e860edc3066aba
+compiler:       gcc (GCC) 10.1.0-syz 20200507
 
-> 
-> Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-> 
-> ---
-> V2:
->    1, rebase to for-5.10/io_uring branch.
-> ---
->   fs/io_uring.c                 | 129 +++++++++++++++++++++++++++++-----
->   include/uapi/linux/io_uring.h |   1 +
->   2 files changed, 111 insertions(+), 19 deletions(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 5ddb2cddc695..ae83d887c24d 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -233,6 +233,10 @@ struct io_sq_data {
->   	refcount_t		refs;
->   	struct mutex		lock;
->   
-> +	struct hlist_node	hash;
-> +	struct files_struct	*files;
-> +	int			sq_thread_cpu;
-> +
->   	/* ctx's that are using this sqd */
->   	struct list_head	ctx_list;
->   	struct list_head	ctx_new_list;
-> @@ -242,6 +246,12 @@ struct io_sq_data {
->   	struct wait_queue_head	wait;
->   };
->   
-> +static DEFINE_MUTEX(sqd_lock);
-> +
-> +#define	IORING_SQD_HASHTABLE_SIZE	256
-> +#define	IORING_SQD_HASHTABLE_BITS	8
-> +static struct hlist_head *sqd_hashtable;
-> +
->   struct io_ring_ctx {
->   	struct {
->   		struct percpu_ref	refs;
-> @@ -7045,6 +7055,11 @@ static void io_put_sq_data(struct io_sq_data *sqd)
->   			kthread_stop(sqd->thread);
->   		}
->   
-> +		if (!hlist_unhashed(&sqd->hash)) {
-> +			mutex_lock(&sqd_lock);
-> +			hlist_del(&sqd->hash);
-> +			mutex_unlock(&sqd_lock);
-> +		}
->   		kfree(sqd);
->   	}
->   }
-> @@ -7075,13 +7090,10 @@ static struct io_sq_data *io_attach_sq_data(struct io_uring_params *p)
->   	return sqd;
->   }
->   
-> -static struct io_sq_data *io_get_sq_data(struct io_uring_params *p)
-> +static struct io_sq_data *io_alloc_sq_data(void)
->   {
->   	struct io_sq_data *sqd;
->   
-> -	if (p->flags & IORING_SETUP_ATTACH_WQ)
-> -		return io_attach_sq_data(p);
-> -
->   	sqd = kzalloc(sizeof(*sqd), GFP_KERNEL);
->   	if (!sqd)
->   		return ERR_PTR(-ENOMEM);
-> @@ -7089,6 +7101,7 @@ static struct io_sq_data *io_get_sq_data(struct io_uring_params *p)
->   	refcount_set(&sqd->refs, 1);
->   	INIT_LIST_HEAD(&sqd->ctx_list);
->   	INIT_LIST_HEAD(&sqd->ctx_new_list);
-> +	INIT_HLIST_NODE(&sqd->hash);
->   	mutex_init(&sqd->ctx_lock);
->   	mutex_init(&sqd->lock);
->   	init_waitqueue_head(&sqd->wait);
-> @@ -7114,6 +7127,64 @@ static void io_sq_thread_park(struct io_sq_data *sqd)
->   	kthread_park(sqd->thread);
->   }
->   
-> +static inline void io_attach_ctx_to_sqd(struct io_sq_data *sqd, struct io_ring_ctx *ctx)
-> +{
-> +	io_sq_thread_park(sqd);
-> +	ctx->sq_data = sqd;
-> +	mutex_lock(&sqd->ctx_lock);
-> +	list_add(&ctx->sqd_list, &sqd->ctx_new_list);
-> +	mutex_unlock(&sqd->ctx_lock);
-> +	io_sq_thread_unpark(sqd);
-> +}
-> +
-> +/*
-> + * Only if IORING_SETUP_ATTACH_WQ is not specified and IORING_SETUP_SQ_AFF &
-> + * IORING_SETUP_SQPOLL_PERCPU are both enabled, can this function be called.
-> + *
-> + * This function finds the corresponding sqd in the global hash list in the
-> + * key of current->files and cpu number, if not find one, create a new sqd
-> + * and insert to the global hash list.
-> + */
-> +static struct io_sq_data *io_find_or_create_sq_data(struct io_ring_ctx *ctx,
-> +				struct io_uring_params *p)
-> +{
-> +	struct io_sq_data *sqd;
-> +	struct hlist_head *head;
-> +	int cpu = p->sq_thread_cpu;
-> +	struct task_struct *tsk;
-> +	struct files_struct *files = current->files;
-> +
-> +	mutex_lock(&sqd_lock);
-> +	head = sqd_hashtable + hash_ptr(files, IORING_SQD_HASHTABLE_BITS);
-> +	hlist_for_each_entry(sqd, head, hash) {
-> +		if ((sqd->files == files) && (sqd->sq_thread_cpu == cpu)) {
-> +			refcount_inc(&sqd->refs);
-> +			mutex_unlock(&sqd_lock);
-> +			return sqd;
-> +		}
-> +	}
-> +
-> +	sqd = io_alloc_sq_data();
-> +	if (IS_ERR(sqd))
-> +		goto out;
-> +
-> +	tsk = kthread_create_on_cpu(io_sq_thread, sqd, cpu, "io_uring-sq");
-> +	if (IS_ERR(tsk)) {
-> +		kfree(sqd);
-> +		sqd = ERR_PTR(PTR_ERR(tsk));
-> +		goto out;
-> +	}
-> +
-> +	sqd->thread = tsk;
-> +	sqd->files = files;
-> +	sqd->sq_thread_cpu = cpu;
-> +	hlist_add_head(&sqd->hash, head);
-> +
-> +out:
-> +	mutex_unlock(&sqd_lock);
-> +	return sqd;
-> +}
-> +
->   static void io_sq_thread_stop(struct io_ring_ctx *ctx)
->   {
->   	struct io_sq_data *sqd = ctx->sq_data;
-> @@ -7790,19 +7861,18 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
->   		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
->   			goto err;
->   
-> -		sqd = io_get_sq_data(p);
-> -		if (IS_ERR(sqd)) {
-> -			ret = PTR_ERR(sqd);
-> -			goto err;
-> +		if (p->flags & IORING_SETUP_ATTACH_WQ) {
-> +			sqd = io_attach_sq_data(p);
-> +			if (IS_ERR(sqd)) {
-> +				ret = PTR_ERR(sqd);
-> +				goto err;
-> +			}
-> +			io_attach_ctx_to_sqd(sqd, ctx);
-> +			WARN_ON(!sqd->thread);
-> +			if (sqd->thread)
-> +				goto done;
->   		}
->   
-> -		io_sq_thread_park(sqd);
-> -		ctx->sq_data = sqd;
-> -		mutex_lock(&sqd->ctx_lock);
-> -		list_add(&ctx->sqd_list, &sqd->ctx_new_list);
-> -		mutex_unlock(&sqd->ctx_lock);
-> -		io_sq_thread_unpark(sqd);
-> -
->   		/*
->   		 * We will exit the sqthread before current exits, so we can
->   		 * avoid taking a reference here and introducing weird
-> @@ -7814,8 +7884,14 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
->   		if (!ctx->sq_thread_idle)
->   			ctx->sq_thread_idle = HZ;
->   
-> -		if (sqd->thread)
-> -			goto done;
-> +		if (!(p->flags & IORING_SETUP_SQ_AFF) ||
-> +		    !(p->flags & IORING_SETUP_SQPOLL_PERCPU)) {
-> +			sqd = io_alloc_sq_data();
-> +			if (IS_ERR(sqd)) {
-> +				ret = PTR_ERR(sqd);
-> +				goto err;
-> +			}
-> +		}
->   
->   		if (p->flags & IORING_SETUP_SQ_AFF) {
->   			int cpu = p->sq_thread_cpu;
-> @@ -7826,7 +7902,14 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
->   			if (!cpu_online(cpu))
->   				goto err;
->   
-> -			sqd->thread = kthread_create_on_cpu(io_sq_thread, sqd,
-> +			if (p->flags & IORING_SETUP_SQPOLL_PERCPU) {
-> +				sqd = io_find_or_create_sq_data(ctx, p);
-> +				if (IS_ERR(sqd)) {
-> +					ret = PTR_ERR(sqd);
-> +					goto err;
-> +				}
-> +			} else
-> +				sqd->thread = kthread_create_on_cpu(io_sq_thread, sqd,
->   							cpu, "io_uring-sq");
->   		} else {
->   			sqd->thread = kthread_create(io_sq_thread, sqd,
-> @@ -7837,6 +7920,7 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
->   			sqd->thread = NULL;
->   			goto err;
->   		}
-> +		io_attach_ctx_to_sqd(sqd, ctx);
->   	} else if (p->flags & IORING_SETUP_SQ_AFF) {
->   		/* Can't have SQ_AFF without SQPOLL */
->   		ret = -EINVAL;
-> @@ -9119,7 +9203,7 @@ static long io_uring_setup(u32 entries, struct io_uring_params __user *params)
->   	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
->   			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
->   			IORING_SETUP_CLAMP | IORING_SETUP_ATTACH_WQ |
-> -			IORING_SETUP_R_DISABLED))
-> +			IORING_SETUP_R_DISABLED | IORING_SETUP_SQPOLL_PERCPU))
->   		return -EINVAL;
->   
->   	return  io_uring_create(entries, &p, params);
-> @@ -9454,6 +9538,8 @@ SYSCALL_DEFINE4(io_uring_register, unsigned int, fd, unsigned int, opcode,
->   
->   static int __init io_uring_init(void)
->   {
-> +	int i;
-> +
->   #define __BUILD_BUG_VERIFY_ELEMENT(stype, eoffset, etype, ename) do { \
->   	BUILD_BUG_ON(offsetof(stype, ename) != eoffset); \
->   	BUILD_BUG_ON(sizeof(etype) != sizeof_field(stype, ename)); \
-> @@ -9494,6 +9580,11 @@ static int __init io_uring_init(void)
->   	BUILD_BUG_ON(ARRAY_SIZE(io_op_defs) != IORING_OP_LAST);
->   	BUILD_BUG_ON(__REQ_F_LAST_BIT >= 8 * sizeof(int));
->   	req_cachep = KMEM_CACHE(io_kiocb, SLAB_HWCACHE_ALIGN | SLAB_PANIC);
-> +
-> +	sqd_hashtable = kvmalloc_array(IORING_SQD_HASHTABLE_SIZE,
-> +				sizeof(sqd_hashtable[0]), GFP_KERNEL);
-> +	for (i = 0; i < IORING_SQD_HASHTABLE_SIZE; i++)
-> +		INIT_HLIST_HEAD(&sqd_hashtable[i]);
->   	return 0;
->   };
->   __initcall(io_uring_init);
-> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-> index 2301c37e86cb..4147e5a5f752 100644
-> --- a/include/uapi/linux/io_uring.h
-> +++ b/include/uapi/linux/io_uring.h
-> @@ -96,6 +96,7 @@ enum {
->   #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
->   #define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
->   #define IORING_SETUP_R_DISABLED	(1U << 6)	/* start with ring disabled */
-> +#define IORING_SETUP_SQPOLL_PERCPU	(1U << 7)	/* use percpu SQ poll thread */
->   
->   enum {
->   	IORING_OP_NOP,
-> 
+Unfortunately, I don't have any reproducer for this issue yet.
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com
+
+======================================================
+WARNING: possible circular locking dependency detected
+5.9.0-rc6-syzkaller #0 Not tainted
+------------------------------------------------------
+syz-executor.2/19710 is trying to acquire lock:
+ffff888098ddc450 (sb_writers#4){.+.+}-{0:0}, at: io_write+0x6b5/0xb30 fs/io_uring.c:3296
+
+but task is already holding lock:
+ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (&ctx->uring_lock){+.+.}-{3:3}:
+       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
+       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
+       __io_uring_show_fdinfo fs/io_uring.c:8417 [inline]
+       io_uring_show_fdinfo+0x194/0xc70 fs/io_uring.c:8460
+       seq_show+0x4a8/0x700 fs/proc/fd.c:65
+       seq_read+0x432/0x1070 fs/seq_file.c:208
+       do_loop_readv_writev fs/read_write.c:734 [inline]
+       do_loop_readv_writev fs/read_write.c:721 [inline]
+       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
+       vfs_readv+0xe5/0x150 fs/read_write.c:1073
+       kernel_readv fs/splice.c:355 [inline]
+       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
+       do_splice_to+0x137/0x170 fs/splice.c:871
+       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
+       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
+       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
+       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
+       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
+       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+-> #1 (&p->lock){+.+.}-{3:3}:
+       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
+       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
+       seq_read+0x61/0x1070 fs/seq_file.c:155
+       pde_read fs/proc/inode.c:306 [inline]
+       proc_reg_read+0x221/0x300 fs/proc/inode.c:318
+       do_loop_readv_writev fs/read_write.c:734 [inline]
+       do_loop_readv_writev fs/read_write.c:721 [inline]
+       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
+       vfs_readv+0xe5/0x150 fs/read_write.c:1073
+       kernel_readv fs/splice.c:355 [inline]
+       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
+       do_splice_to+0x137/0x170 fs/splice.c:871
+       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
+       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
+       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
+       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
+       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
+       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+-> #0 (sb_writers#4){.+.+}-{0:0}:
+       check_prev_add kernel/locking/lockdep.c:2496 [inline]
+       check_prevs_add kernel/locking/lockdep.c:2601 [inline]
+       validate_chain kernel/locking/lockdep.c:3218 [inline]
+       __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
+       lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
+       percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
+       __sb_start_write+0x228/0x450 fs/super.c:1672
+       io_write+0x6b5/0xb30 fs/io_uring.c:3296
+       io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
+       __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
+       io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
+       io_submit_sqe fs/io_uring.c:6324 [inline]
+       io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
+       __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+other info that might help us debug this:
+
+Chain exists of:
+  sb_writers#4 --> &p->lock --> &ctx->uring_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&ctx->uring_lock);
+                               lock(&p->lock);
+                               lock(&ctx->uring_lock);
+  lock(sb_writers#4);
+
+ *** DEADLOCK ***
+
+1 lock held by syz-executor.2/19710:
+ #0: ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
+
+stack backtrace:
+CPU: 0 PID: 19710 Comm: syz-executor.2 Not tainted 5.9.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x198/0x1fd lib/dump_stack.c:118
+ check_noncircular+0x324/0x3e0 kernel/locking/lockdep.c:1827
+ check_prev_add kernel/locking/lockdep.c:2496 [inline]
+ check_prevs_add kernel/locking/lockdep.c:2601 [inline]
+ validate_chain kernel/locking/lockdep.c:3218 [inline]
+ __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
+ lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
+ percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
+ __sb_start_write+0x228/0x450 fs/super.c:1672
+ io_write+0x6b5/0xb30 fs/io_uring.c:3296
+ io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
+ __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
+ io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
+ io_submit_sqe fs/io_uring.c:6324 [inline]
+ io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
+ __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45e179
+Code: 3d b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 0b b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f1194e74c78 EFLAGS: 00000246 ORIG_RAX: 00000000000001aa
+RAX: ffffffffffffffda RBX: 00000000000082c0 RCX: 000000000045e179
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000004
+RBP: 000000000118cf98 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cf4c
+R13: 00007ffd1aa5756f R14: 00007f1194e759c0 R15: 000000000118cf4c
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

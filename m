@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6240C4741F
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C76AEC47420
+	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 769222072E
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50C132072E
+	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gf/lQ6Rn"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Azo6TTm2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730158AbgI3UAq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 30 Sep 2020 16:00:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56116 "EHLO
+        id S1730167AbgI3UAr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 30 Sep 2020 16:00:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgI3UAp (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 16:00:45 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28FCFC061755
-        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:44 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id k18so731095wmj.5
-        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:44 -0700 (PDT)
+        with ESMTP id S1725355AbgI3UAq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 16:00:46 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E47CC061755
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:46 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id z4so3147710wrr.4
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=S0pccyFfALH5e23YlFipnPD7zBuh/aMICPMSrVqfd8w=;
-        b=gf/lQ6Rn+3Wco/Nrcj6bJJ0qMxLn7jlVXQCOfVtjTkJdxP7vp0M+eEr8wB+WPkHG44
-         5kJHyXuD+dDD5b32AX6alrwf3pJghIGMvqzzjmps96LP9VUDg2N8TxB02va76+t4T5T3
-         yHvk346P9lrg3yZl5vFPbEvAE1FcuQpN4zTUFJqqN2QS1g+24Ei2WmIX/vreMfctDQw3
-         T2tBeKlqfyqLlE5VoX9F/WaqxyvYV5E1+V3ziX8r1aIVQekxSWB32ryhbVWC0nOVpOBi
-         2AVI2+X1PuIb6fzjV/9xL/BtbFxAmahKdVjo79jlJ6quD3/edREznow3YnAv56W+L3mN
-         Vg9w==
+        bh=ezLqihm2KgRitBbY3qHhfc43cqat9V6zjqZA3t75GnM=;
+        b=Azo6TTm2Vr/1VO9TZ24lLDCWpoSDdpCiQ6AKoex3d6QLSHcm3FYH+trtw/TXmIkkcJ
+         cI7zZ9Qna4uRjBjiyjzXipPYX58enkFxMzNRYNWDU2VOaAJKfonE5gMRHggFwS2yiEbE
+         HvhVjo2Z9xgLXXfAIICtZ8uUXdjxh8nnTjv8iFJVUXRMCDLZ7fwfshjW8W6JEobUw4r9
+         thNURWBrHqrs8IHRXISYAl1yD41+qx3cI1eqQOQ68ecGZ/lCN138b7M/hGUswccjzQ85
+         0rLc8ZO0ZTEjCPpJL4+hEWKc1pjPes3zyYlSpbxmsXyi6b9+lW0Dpq3lSEuLMWBuVSC+
+         h84A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=S0pccyFfALH5e23YlFipnPD7zBuh/aMICPMSrVqfd8w=;
-        b=UdfAFJHq18Gdjf1tkJNSbuU5hcjvP5zoXusnEO2drDdcFF9c9a4VuRjHPJYSXSZ2vC
-         gCUJT1piMR5LRFRIJdlCjU2g8RoMagJf123bYfAsHilawSjdilEXhfaIjO4WXU30P9ZP
-         W5ix8mPS2zmxh5MSwySmiOZKgbQQML4xYZbbWRD/9aTomR8AM3JxP7jiITAqzVez4j/s
-         /WRNjxDy3viJ+qzHhUc1FSCCv9ZiE6S1WsbYTeFsWeAAzrdF7I0vqAaTmVzzxsHuNSTK
-         qifZLyTwBoU3UJ75gG1nxKTyx3kGh/pRQzzRcQbnotDf9qYEFNDOpaWurUEOnchoXS58
-         f49A==
-X-Gm-Message-State: AOAM53036KkOLTPEvTR6y3LlybNoKtP6fxXa0WuKesWlh+AuqtFFKsTW
-        6XxUS04XU0Y7n1+H2qxIbm223Jj0wi8=
-X-Google-Smtp-Source: ABdhPJyVV0BP9NPY3go6eYTv36gtA4tXd7uc9MhUH5NDI24C+vsr+D0s/qQDZ5MWIXcPTlRJ67+DCA==
-X-Received: by 2002:a7b:cd8b:: with SMTP id y11mr4804571wmj.172.1601496042824;
-        Wed, 30 Sep 2020 13:00:42 -0700 (PDT)
+        bh=ezLqihm2KgRitBbY3qHhfc43cqat9V6zjqZA3t75GnM=;
+        b=njFNVV/V8O6wz4supiXPra6Jn2dol72AFBqGoC81cp6rfFgu+7KD8g1m+HVmMXujIi
+         GYEg6zmXyrbySmCWdVnvr3Ck3OeLPBauFj9iBWSr5hJw6o1Y8vT9Ks8x4A+uKQZA35KD
+         X7Lzsfhyz32KlcKtoEF00pM/3mzwWqRC+kLkKEMSnChpFERATN5n2PyV1r38Fu3DEYuz
+         wt5t7U/vNlZeNjKoNdchLWVCZYcTMA9NQVlm/RAmSgsy8tMzYx2KpaCl3NYNNOZ+5M0I
+         lKGQr0o3MVM+o4b8ib/q4e+Hnplrep3Q9dUl49ylkbHUBzxHj2dhK6VF2H7v4LNNW2Ov
+         j8/w==
+X-Gm-Message-State: AOAM5328DUzmugz4dqlm+gP5E+miA+qc7VESnOpLGVgHfiYVXZLZR25h
+        F8sSnA6NdOi1AEThRH2NPjw=
+X-Google-Smtp-Source: ABdhPJx9u5OOVEIBZctJnNHpiGsa5bcydecFXJHpoMNEx7yFZz1pg8KbL88s7TXxa3c9o2naQuDJZg==
+X-Received: by 2002:a5d:4591:: with SMTP id p17mr4791487wrq.408.1601496045104;
+        Wed, 30 Sep 2020 13:00:45 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-194.range109-152.btcentralplus.com. [109.152.100.194])
-        by smtp.gmail.com with ESMTPSA id x17sm5127176wrg.57.2020.09.30.13.00.41
+        by smtp.gmail.com with ESMTPSA id x17sm5127176wrg.57.2020.09.30.13.00.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2020 13:00:42 -0700 (PDT)
+        Wed, 30 Sep 2020 13:00:44 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: set/clear IOCB_NOWAIT into io_read/write
-Date:   Wed, 30 Sep 2020 22:57:53 +0300
-Message-Id: <84661a5e2224327d0e936639aaa996134d984515.1601495335.git.asml.silence@gmail.com>
+Subject: [PATCH 3/4] io_uring: decouple issuing and req preparation
+Date:   Wed, 30 Sep 2020 22:57:55 +0300
+Message-Id: <208eee65aa1139997518de0d1d2d5c00126fab29.1601495335.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1601495335.git.asml.silence@gmail.com>
 References: <cover.1601495335.git.asml.silence@gmail.com>
@@ -72,78 +72,432 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move setting IOCB_NOWAIT from io_prep_rw() into io_read()/io_write(), so
-it's set/cleared in a single place. Also remove @force_nonblock
-parameter from io_prep_rw().
+io_issue_sqe() does two things at once, trying to prepare request and
+issuing them. Split it in two and deduplicate with io_defer_prep().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ fs/io_uring.c | 266 +++++++++++---------------------------------------
+ 1 file changed, 55 insertions(+), 211 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e13692f692f5..2256ecec7299 100644
+index 24f411aa4d1f..0ce0ebee4808 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2531,8 +2531,7 @@ static bool io_file_supports_async(struct file *file, int rw)
- 	return file->f_op->write_iter != NULL;
+@@ -5519,121 +5519,94 @@ static int io_files_update(struct io_kiocb *req, bool force_nonblock,
+ 	return 0;
  }
  
--static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
--		      bool force_nonblock)
-+static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+-static int io_req_defer_prep(struct io_kiocb *req,
+-			     const struct io_uring_sqe *sqe)
++static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct kiocb *kiocb = &req->rw.kiocb;
-@@ -2570,9 +2569,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (kiocb->ki_flags & IOCB_DIRECT)
- 		io_get_req_task(req);
- 
--	if (force_nonblock)
--		kiocb->ki_flags |= IOCB_NOWAIT;
+-	ssize_t ret = 0;
 -
- 	if (ctx->flags & IORING_SETUP_IOPOLL) {
- 		if (!(kiocb->ki_flags & IOCB_DIRECT) ||
- 		    !kiocb->ki_filp->f_op->iopoll)
-@@ -3051,7 +3047,7 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- {
- 	ssize_t ret;
+-	if (!sqe)
+-		return 0;
+-
+-	if (io_alloc_async_data(req))
+-		return -EAGAIN;
+-	ret = io_prep_work_files(req);
+-	if (unlikely(ret))
+-		return ret;
+-
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
+-		break;
++		return 0;
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 	case IORING_OP_READ:
+-		ret = io_read_prep(req, sqe);
+-		break;
++		return io_read_prep(req, sqe);
+ 	case IORING_OP_WRITEV:
+ 	case IORING_OP_WRITE_FIXED:
+ 	case IORING_OP_WRITE:
+-		ret = io_write_prep(req, sqe);
+-		break;
++		return io_write_prep(req, sqe);
+ 	case IORING_OP_POLL_ADD:
+-		ret = io_poll_add_prep(req, sqe);
+-		break;
++		return io_poll_add_prep(req, sqe);
+ 	case IORING_OP_POLL_REMOVE:
+-		ret = io_poll_remove_prep(req, sqe);
+-		break;
++		return io_poll_remove_prep(req, sqe);
+ 	case IORING_OP_FSYNC:
+-		ret = io_prep_fsync(req, sqe);
+-		break;
++		return io_prep_fsync(req, sqe);
+ 	case IORING_OP_SYNC_FILE_RANGE:
+-		ret = io_prep_sfr(req, sqe);
+-		break;
++		return io_prep_sfr(req, sqe);
+ 	case IORING_OP_SENDMSG:
+ 	case IORING_OP_SEND:
+-		ret = io_sendmsg_prep(req, sqe);
+-		break;
++		return io_sendmsg_prep(req, sqe);
+ 	case IORING_OP_RECVMSG:
+ 	case IORING_OP_RECV:
+-		ret = io_recvmsg_prep(req, sqe);
+-		break;
++		return io_recvmsg_prep(req, sqe);
+ 	case IORING_OP_CONNECT:
+-		ret = io_connect_prep(req, sqe);
+-		break;
++		return io_connect_prep(req, sqe);
+ 	case IORING_OP_TIMEOUT:
+-		ret = io_timeout_prep(req, sqe, false);
+-		break;
++		return io_timeout_prep(req, sqe, false);
+ 	case IORING_OP_TIMEOUT_REMOVE:
+-		ret = io_timeout_remove_prep(req, sqe);
+-		break;
++		return io_timeout_remove_prep(req, sqe);
+ 	case IORING_OP_ASYNC_CANCEL:
+-		ret = io_async_cancel_prep(req, sqe);
+-		break;
++		return io_async_cancel_prep(req, sqe);
+ 	case IORING_OP_LINK_TIMEOUT:
+-		ret = io_timeout_prep(req, sqe, true);
+-		break;
++		return io_timeout_prep(req, sqe, true);
+ 	case IORING_OP_ACCEPT:
+-		ret = io_accept_prep(req, sqe);
+-		break;
++		return io_accept_prep(req, sqe);
+ 	case IORING_OP_FALLOCATE:
+-		ret = io_fallocate_prep(req, sqe);
+-		break;
++		return io_fallocate_prep(req, sqe);
+ 	case IORING_OP_OPENAT:
+-		ret = io_openat_prep(req, sqe);
+-		break;
++		return io_openat_prep(req, sqe);
+ 	case IORING_OP_CLOSE:
+-		ret = io_close_prep(req, sqe);
+-		break;
++		return io_close_prep(req, sqe);
+ 	case IORING_OP_FILES_UPDATE:
+-		ret = io_files_update_prep(req, sqe);
+-		break;
++		return io_files_update_prep(req, sqe);
+ 	case IORING_OP_STATX:
+-		ret = io_statx_prep(req, sqe);
+-		break;
++		return io_statx_prep(req, sqe);
+ 	case IORING_OP_FADVISE:
+-		ret = io_fadvise_prep(req, sqe);
+-		break;
++		return io_fadvise_prep(req, sqe);
+ 	case IORING_OP_MADVISE:
+-		ret = io_madvise_prep(req, sqe);
+-		break;
++		return io_madvise_prep(req, sqe);
+ 	case IORING_OP_OPENAT2:
+-		ret = io_openat2_prep(req, sqe);
+-		break;
++		return io_openat2_prep(req, sqe);
+ 	case IORING_OP_EPOLL_CTL:
+-		ret = io_epoll_ctl_prep(req, sqe);
+-		break;
++		return io_epoll_ctl_prep(req, sqe);
+ 	case IORING_OP_SPLICE:
+-		ret = io_splice_prep(req, sqe);
+-		break;
++		return io_splice_prep(req, sqe);
+ 	case IORING_OP_PROVIDE_BUFFERS:
+-		ret = io_provide_buffers_prep(req, sqe);
+-		break;
++		return io_provide_buffers_prep(req, sqe);
+ 	case IORING_OP_REMOVE_BUFFERS:
+-		ret = io_remove_buffers_prep(req, sqe);
+-		break;
++		return io_remove_buffers_prep(req, sqe);
+ 	case IORING_OP_TEE:
+-		ret = io_tee_prep(req, sqe);
+-		break;
++		return io_tee_prep(req, sqe);
+ 	case IORING_OP_SHUTDOWN:
+-		ret = io_shutdown_prep(req, sqe);
+-		break;
+-	default:
+-		printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
+-				req->opcode);
+-		ret = -EINVAL;
+-		break;
++		return io_shutdown_prep(req, sqe);
+ 	}
  
--	ret = io_prep_rw(req, sqe, force_nonblock);
-+	ret = io_prep_rw(req, sqe);
- 	if (ret)
- 		return ret;
- 
-@@ -3185,6 +3181,9 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	/* Ensure we clear previously set non-block flag */
- 	if (!force_nonblock)
- 		kiocb->ki_flags &= ~IOCB_NOWAIT;
-+	else
-+		kiocb->ki_flags |= IOCB_NOWAIT;
+-	return ret;
++	printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
++			req->opcode);
++	return -EINVAL;
++}
 +
++static int io_req_defer_prep(struct io_kiocb *req,
++			     const struct io_uring_sqe *sqe)
++{
++	int ret;
++
++	if (!sqe)
++		return 0;
++	if (io_alloc_async_data(req))
++		return -EAGAIN;
++
++	ret = io_prep_work_files(req);
++	if (unlikely(ret))
++		return ret;
++	return io_req_prep(req, sqe);
+ }
  
- 	/* If the file doesn't support async, just async punt */
- 	if (force_nonblock && !io_file_supports_async(req->file, READ))
-@@ -3273,7 +3272,7 @@ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- {
- 	ssize_t ret;
+ static u32 io_get_sequence(struct io_kiocb *req)
+@@ -5758,6 +5731,12 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	int ret;
  
--	ret = io_prep_rw(req, sqe, force_nonblock);
-+	ret = io_prep_rw(req, sqe);
- 	if (ret)
- 		return ret;
- 
-@@ -3308,7 +3307,9 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
- 
- 	/* Ensure we clear previously set non-block flag */
- 	if (!force_nonblock)
--		req->rw.kiocb.ki_flags &= ~IOCB_NOWAIT;
-+		kiocb->ki_flags &= ~IOCB_NOWAIT;
-+	else
-+		kiocb->ki_flags |= IOCB_NOWAIT;
- 
- 	/* If the file doesn't support async, just async punt */
- 	if (force_nonblock && !io_file_supports_async(req->file, WRITE))
++	if (sqe) {
++		ret = io_req_prep(req, sqe);
++		if (unlikely(ret < 0))
++			return ret;
++	}
++
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
+ 		ret = io_nop(req, cs);
+@@ -5765,62 +5744,27 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 	case IORING_OP_READ:
+-		if (sqe) {
+-			ret = io_read_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_read(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_WRITEV:
+ 	case IORING_OP_WRITE_FIXED:
+ 	case IORING_OP_WRITE:
+-		if (sqe) {
+-			ret = io_write_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_write(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_FSYNC:
+-		if (sqe) {
+-			ret = io_prep_fsync(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_fsync(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_POLL_ADD:
+-		if (sqe) {
+-			ret = io_poll_add_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_poll_add(req);
+ 		break;
+ 	case IORING_OP_POLL_REMOVE:
+-		if (sqe) {
+-			ret = io_poll_remove_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_poll_remove(req);
+ 		break;
+ 	case IORING_OP_SYNC_FILE_RANGE:
+-		if (sqe) {
+-			ret = io_prep_sfr(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_sync_file_range(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_SENDMSG:
+ 	case IORING_OP_SEND:
+-		if (sqe) {
+-			ret = io_sendmsg_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		if (req->opcode == IORING_OP_SENDMSG)
+ 			ret = io_sendmsg(req, force_nonblock, cs);
+ 		else
+@@ -5828,166 +5772,66 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		break;
+ 	case IORING_OP_RECVMSG:
+ 	case IORING_OP_RECV:
+-		if (sqe) {
+-			ret = io_recvmsg_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		if (req->opcode == IORING_OP_RECVMSG)
+ 			ret = io_recvmsg(req, force_nonblock, cs);
+ 		else
+ 			ret = io_recv(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_TIMEOUT:
+-		if (sqe) {
+-			ret = io_timeout_prep(req, sqe, false);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_timeout(req);
+ 		break;
+ 	case IORING_OP_TIMEOUT_REMOVE:
+-		if (sqe) {
+-			ret = io_timeout_remove_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_timeout_remove(req);
+ 		break;
+ 	case IORING_OP_ACCEPT:
+-		if (sqe) {
+-			ret = io_accept_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_accept(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_CONNECT:
+-		if (sqe) {
+-			ret = io_connect_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_connect(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_ASYNC_CANCEL:
+-		if (sqe) {
+-			ret = io_async_cancel_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_async_cancel(req);
+ 		break;
+ 	case IORING_OP_FALLOCATE:
+-		if (sqe) {
+-			ret = io_fallocate_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_fallocate(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_OPENAT:
+-		if (sqe) {
+-			ret = io_openat_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_openat(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_CLOSE:
+-		if (sqe) {
+-			ret = io_close_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_close(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_FILES_UPDATE:
+-		if (sqe) {
+-			ret = io_files_update_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_files_update(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_STATX:
+-		if (sqe) {
+-			ret = io_statx_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_statx(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_FADVISE:
+-		if (sqe) {
+-			ret = io_fadvise_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_fadvise(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_MADVISE:
+-		if (sqe) {
+-			ret = io_madvise_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_madvise(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_OPENAT2:
+-		if (sqe) {
+-			ret = io_openat2_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_openat2(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_EPOLL_CTL:
+-		if (sqe) {
+-			ret = io_epoll_ctl_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_epoll_ctl(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_SPLICE:
+-		if (sqe) {
+-			ret = io_splice_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_splice(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_PROVIDE_BUFFERS:
+-		if (sqe) {
+-			ret = io_provide_buffers_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_provide_buffers(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_REMOVE_BUFFERS:
+-		if (sqe) {
+-			ret = io_remove_buffers_prep(req, sqe);
+-			if (ret)
+-				break;
+-		}
+ 		ret = io_remove_buffers(req, force_nonblock, cs);
+ 		break;
+ 	case IORING_OP_TEE:
+-		if (sqe) {
+-			ret = io_tee_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_tee(req, force_nonblock);
+ 		break;
+ 	case IORING_OP_SHUTDOWN:
+-		if (sqe) {
+-			ret = io_shutdown_prep(req, sqe);
+-			if (ret < 0)
+-				break;
+-		}
+ 		ret = io_shutdown(req, force_nonblock);
+ 		break;
+ 	default:
 -- 
 2.24.0
 

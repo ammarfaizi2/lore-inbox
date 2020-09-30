@@ -2,89 +2,178 @@ Return-Path: <SRS0=4RX6=DH=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 676C3C4727E
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35BE7C4727C
+	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 146602072E
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DEA732072E
+	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 20:00:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UJTDCU2y"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8JHbd+7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730151AbgI3UAn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 30 Sep 2020 16:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
+        id S1730155AbgI3UAp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 30 Sep 2020 16:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgI3UAn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 16:00:43 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E220C061755
-        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:43 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id e17so741421wme.0
-        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:43 -0700 (PDT)
+        with ESMTP id S1725355AbgI3UAp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 16:00:45 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F242C0613D0
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:45 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id z4so3147641wrr.4
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 13:00:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=CgH5RBOiGN9qLFKuSpGxs1OYwUZTqijj+krgkYSzKq0=;
-        b=UJTDCU2y++jG4iVOnvEsN0d2OnrGG9te/MEPeZnQURoUJdqiHidJEl8zTG8/H6EFbJ
-         tZQ4yuAk+nEIeJfwrcf3Q22VJn8FVMmTaaupGY4qn1MFpxeeUf90f7oQsSWDUq+v9Cn5
-         89n27J1ym3IMGYktiheghGiDqlhloEC9uik3EKodiK+Q72WPE3O42WVgx21bXurbvDCM
-         yf+TpamDbI4oG2Th7ZIoVgJCJklzpZxkpWTm13uEwCdvvzdH/klbZeEcxjlT0tk0vyrt
-         sPKeCCv2D6Za9bHGSPVhrZY3iQhbp//MIXHR1WpGcFpbzxZZ701R89zTwiI8pNks+zfE
-         +s8Q==
+        bh=+13bri0T5NHswPhOGy5ksqOWWkx3uzzOza/jEFJpg+w=;
+        b=c8JHbd+7XESRvRtlTXVZb2a13RTvVXVG+ywPEmNJzQhCTOMcaIi3GYPhUAHuXT90wA
+         ixlJhjq3HL5o5Ao4h4OyEkZ660rxp1OQk7w5PiDKlFIOYoCyjtHgZTXh5Y1mGoLM79VO
+         udfJUASyr54EJqIh+DFRa45jTZBdQLv5e7Bk3zmobKD1NF2GiPI13uJxp1hmOUrQA3DJ
+         QlmSN3nhEq/tQthGRaXwulBFfHpP/LKTi2NzmiiGrYSIPJuSHNGQH6vJ9rWgdCgKcH5U
+         0DXWN03VbXRqJEsKWz4ZC4QttlIK+ZhbIKfgLpKimPfIaa3qLdAEsOPaIn4Kzfz5CqsM
+         3e3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=CgH5RBOiGN9qLFKuSpGxs1OYwUZTqijj+krgkYSzKq0=;
-        b=jcNKeccwWg1lg9+0wfOZD9QFXSlo4S61WZCc9XpVXbcIUIvUX+4HA8SjmDi4ODuqjj
-         X9NbLwxiN6YhLEm8iMRqQ15dABzHL5rPRnKZa/r/mO0QvtUSxG4S5u1eGhqW97ewTZHj
-         lQhQkc+VSN1U51oBGNalDopuiRVeawq1BYIZxSTba8pMHsYK/fHJSdhaVEr1G4nVrT/L
-         5Eiavxr5d+hmAvZBNBD9WytlnFQ9cpKOYSlrigs8ltDUkYwdgdorPFykWicmwQ1ZefGM
-         UWo1EThP6sc42ns2MHfX4QFw5VIeQuBvUh+2EtPdIoH2mW1OTfwR13X0WFfPX28Kq6HQ
-         PcOw==
-X-Gm-Message-State: AOAM530vPktviLAXBhr1uemTP2xsfsDe6wHI/5KXETsOX906cXHko8Wv
-        U9Bf1cmmWhpVNbs1WBm7Jr/PUti2ehs=
-X-Google-Smtp-Source: ABdhPJyDH1OJeOdaq46cohya69D5jWzA7Pua6oYxgHeCDxzNZK6JBvAioY1bxLlGBLajN/PnaDaBLg==
-X-Received: by 2002:a1c:4b17:: with SMTP id y23mr4631844wma.162.1601496041873;
-        Wed, 30 Sep 2020 13:00:41 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=+13bri0T5NHswPhOGy5ksqOWWkx3uzzOza/jEFJpg+w=;
+        b=skz5n9vG3ibk5QvBOiHQP9MDkTgz9fvRL/lVB6HQ9NAQBvHWFQtSvxG3TtzMBgp6Z0
+         AL+kYN9OoH6XWJG5avWPJmUfhwXR2P2ILG46USrAZreO4Rby9S/5p6J6qrD60oOQNqws
+         jnw24jVm5NiXRmgONm84DxOgwQyMmag3pyyjFLUHpdD74Xxmas9GzLnycQnTGT3BI0pc
+         pPtMX2+KhoomKPA/wDVWXbGgwRuKD251WJz+X2BWBPyzowhqUbBCg3keHXbLXtzt1WlH
+         nUrJ6s0ZsP+0jEIY0uakCTXdl8mdYZq1XUXBT01BY422HG09FGZOt8QrdrSC/GHq8wKY
+         Oi0Q==
+X-Gm-Message-State: AOAM532cJU7Ielm4XLrUFzSGVGCGFqi84RORediJeBRuPe0/mq54Poy+
+        Q2gLGDdF/wKzyLbtPprh6ho=
+X-Google-Smtp-Source: ABdhPJwxOeoxocH9UKzIi1IIYBbFN1AN65rTIK+ai0MamTQorVLFgzv/UF4bKXRLju1LbkQh9VE5Jw==
+X-Received: by 2002:adf:df05:: with SMTP id y5mr5251559wrl.39.1601496043841;
+        Wed, 30 Sep 2020 13:00:43 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-194.range109-152.btcentralplus.com. [109.152.100.194])
-        by smtp.gmail.com with ESMTPSA id x17sm5127176wrg.57.2020.09.30.13.00.40
+        by smtp.gmail.com with ESMTPSA id x17sm5127176wrg.57.2020.09.30.13.00.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2020 13:00:41 -0700 (PDT)
+        Wed, 30 Sep 2020 13:00:43 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH for-next 0/4] cleanups around request preps
-Date:   Wed, 30 Sep 2020 22:57:52 +0300
-Message-Id: <cover.1601495335.git.asml.silence@gmail.com>
+Subject: [PATCH 2/4] io_uring: remove nonblock arg from io_{rw}_prep()
+Date:   Wed, 30 Sep 2020 22:57:54 +0300
+Message-Id: <8067400436133d16931c5c8c29363b43ce182993.1601495335.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1601495335.git.asml.silence@gmail.com>
+References: <cover.1601495335.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-[3/4] is splitting io_issue_sqe() as someone once proposed. (I can't
-find who it was and the thread). Hopefully, it doesn't add much
-overhead.
+All io_*_prep() functions including io_{read,write}_prep() are called
+only during submission where @force_nonblock is always true. Don't keep
+propagating it and instead remove the @force_nonblock argument
+from prep() altogether.
 
-Apart from massive deduplication, this also reduces sqe propagation
-depth, that's a good thing.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
-Pavel Begunkov (4):
-  io_uring: set/clear IOCB_NOWAIT into io_read/write
-  io_uring: remove nonblock arg from io_{rw}_prep()
-  io_uring: decouple issuing and req preparation
-  io_uring: move req preps out of io_issue_sqe()
-
- fs/io_uring.c | 316 ++++++++++++--------------------------------------
- 1 file changed, 77 insertions(+), 239 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2256ecec7299..24f411aa4d1f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3024,14 +3024,13 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+ 	return 0;
+ }
+ 
+-static inline int io_rw_prep_async(struct io_kiocb *req, int rw,
+-				   bool force_nonblock)
++static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
+ {
+ 	struct io_async_rw *iorw = req->async_data;
+ 	struct iovec *iov = iorw->fast_iov;
+ 	ssize_t ret;
+ 
+-	ret = __io_import_iovec(rw, req, &iov, &iorw->iter, !force_nonblock);
++	ret = __io_import_iovec(rw, req, &iov, &iorw->iter, false);
+ 	if (unlikely(ret < 0))
+ 		return ret;
+ 
+@@ -3042,8 +3041,7 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw,
+ 	return 0;
+ }
+ 
+-static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+-			bool force_nonblock)
++static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	ssize_t ret;
+ 
+@@ -3057,7 +3055,7 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	/* either don't need iovec imported or already have it */
+ 	if (!req->async_data)
+ 		return 0;
+-	return io_rw_prep_async(req, READ, force_nonblock);
++	return io_rw_prep_async(req, READ);
+ }
+ 
+ /*
+@@ -3267,8 +3265,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 	return ret;
+ }
+ 
+-static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+-			 bool force_nonblock)
++static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	ssize_t ret;
+ 
+@@ -3282,7 +3279,7 @@ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	/* either don't need iovec imported or already have it */
+ 	if (!req->async_data)
+ 		return 0;
+-	return io_rw_prep_async(req, WRITE, force_nonblock);
++	return io_rw_prep_async(req, WRITE);
+ }
+ 
+ static int io_write(struct io_kiocb *req, bool force_nonblock,
+@@ -5542,12 +5539,12 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 	case IORING_OP_READ:
+-		ret = io_read_prep(req, sqe, true);
++		ret = io_read_prep(req, sqe);
+ 		break;
+ 	case IORING_OP_WRITEV:
+ 	case IORING_OP_WRITE_FIXED:
+ 	case IORING_OP_WRITE:
+-		ret = io_write_prep(req, sqe, true);
++		ret = io_write_prep(req, sqe);
+ 		break;
+ 	case IORING_OP_POLL_ADD:
+ 		ret = io_poll_add_prep(req, sqe);
+@@ -5769,7 +5766,7 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	case IORING_OP_READ_FIXED:
+ 	case IORING_OP_READ:
+ 		if (sqe) {
+-			ret = io_read_prep(req, sqe, force_nonblock);
++			ret = io_read_prep(req, sqe);
+ 			if (ret < 0)
+ 				break;
+ 		}
+@@ -5779,7 +5776,7 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	case IORING_OP_WRITE_FIXED:
+ 	case IORING_OP_WRITE:
+ 		if (sqe) {
+-			ret = io_write_prep(req, sqe, force_nonblock);
++			ret = io_write_prep(req, sqe);
+ 			if (ret < 0)
+ 				break;
+ 		}
 -- 
 2.24.0
 

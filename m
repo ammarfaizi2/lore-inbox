@@ -1,114 +1,135 @@
-Return-Path: <SRS0=4RX6=DH=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=zkJT=DI=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37106C4363D
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 22:29:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C25DC4363D
+	for <io-uring@archiver.kernel.org>; Thu,  1 Oct 2020 03:01:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ECEAC2075F
-	for <io-uring@archiver.kernel.org>; Wed, 30 Sep 2020 22:29:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2690121D43
+	for <io-uring@archiver.kernel.org>; Thu,  1 Oct 2020 03:01:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="rpk054gC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731600AbgI3W30 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 30 Sep 2020 18:29:26 -0400
-Received: from mail-io1-f77.google.com ([209.85.166.77]:43894 "EHLO
-        mail-io1-f77.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726992AbgI3W3X (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 18:29:23 -0400
-Received: by mail-io1-f77.google.com with SMTP id x13so2262545iom.10
-        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 15:29:21 -0700 (PDT)
+        id S1725799AbgJADBY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 30 Sep 2020 23:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbgJADBY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 30 Sep 2020 23:01:24 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 471DEC061755
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 20:01:24 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id v14so1070639pjd.4
+        for <io-uring@vger.kernel.org>; Wed, 30 Sep 2020 20:01:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=O5PUSLl8cGqQNtQPSxBlCUm6U7NUGIwB2DmbhFBVzCg=;
+        b=rpk054gCVZDL7E2m0WnmWvLqsINwF5bnaKsen7DWVg4JgzspU0iQ8FL3W2vapk2I0p
+         rBE6JK6kLps3Ubr9wQCBixdR7UV+P6v6ZYaLBxllAilTSVXG9Z0XnqqYoGj4B3aEs/H0
+         Ih/D1fCB1KKkmyIzKkKQVKhDTmIn+J+w5b1NqFJ++WrWDsqvE47b8LZymnirFHRdWr9p
+         WPRBzzUIOkohm2U5lzgd9uCBjH2DfDuKOfLqFlBPJqR8wZBn247sN5YYzea3bK2kQpfg
+         YzHALpn8v4tPBHrEGZ9BgkD01wXnEi0wQN3Vefu/WOOZkUFYhe7dCPIfBwALf9HnbBM1
+         ADIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=+0VlvcNRUBLPwYY+/l3iWps8TddUUFMalUbSMxo1nMc=;
-        b=hreyG6lxdbaHrTWcZG3It94/sQYpwlkBLJUgDJz2tSJlAtVvSSyrvqUI8zG3DswUQJ
-         uADSnXOLT07S7mHsVu31gNNWv+WDY3Y6o5L2GW8fx8P5iiiv2ZoEhOlC/10XuS7fiSRC
-         DBype0caqXvsVBI8A/VRzEDEUZ54RWAP5zEPBD7G2I4sOPoQYX01xfRLMEKHFOHZiWTQ
-         dEBB/Zdmduixj63czK59S1vvVMQ74PQxBEV6+xt3x/jEWZHOD9fooxyjlM8s90+0fpoE
-         yglYfrro9OqZWvB6EP9neI7V4x+wgRnN+9deROYdwWyJHFYDo70L8Vl6WFSkAXMjbs3p
-         fThw==
-X-Gm-Message-State: AOAM530fgcmw3WxxK7/jUROisRz1KdG46f769OfN7LZDU8tEQDwV7hXh
-        aBxccadYm98I+rkD8kPThFB+jnmHzbKwMuZpecBB3EpfZ3R5
-X-Google-Smtp-Source: ABdhPJxQ53hwefKNF6WE9W0GG8xHlmhPERFSu7t/v13Oo8rcSYfID9pDQh/morvR5iOb+/sczzfKsSw84sYfzhDoi8jBLmnKOSv5
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=O5PUSLl8cGqQNtQPSxBlCUm6U7NUGIwB2DmbhFBVzCg=;
+        b=pIOCDZvXkcmbt6oj37PniCAmzUR7jdNti8hjKnqW3NzvZ807VFRVwGcSmeSNLgLOe8
+         JjVxuQnGV9E4MDtbfg8/9+dQ+wQFcXSBrB/JEkgCZ8VD7Zfmz2KmqbdRaZmHPcXjqAbv
+         u3j50flkNQmo+geg2KknWJSxKtuHi//S+ktVptBUORrGECVy70IOuNaNg+qBa4ziTCsz
+         xM2JCsqSOrHhewbDB1zYnQMeaiXVi5NUQohRmylQagVILkLG96bGdVA9/uVgVhYNzume
+         FAZCr6woPD2Z8L861gpBPP3VsfUGI6ZeOm4IxAVPQD6QrT/aml69NNTUM3GMBBtyNo+f
+         GYgg==
+X-Gm-Message-State: AOAM5317q2E1nLdPcGGR6Leis+UjUW09nwgKJdO/FyA0CRT1Ya80cgtY
+        lfKJ9denQqccZQXeEoCDvVSG7vSojTVRnQRU
+X-Google-Smtp-Source: ABdhPJzDcTRxPV1riJDzCe0ItTR8k5u6PX/NqJBJNK1/PWCF565bYfTaRLy/LvDhBvgLVeEeE50y/Q==
+X-Received: by 2002:a17:90a:a58d:: with SMTP id b13mr5134480pjq.196.1601521283383;
+        Wed, 30 Sep 2020 20:01:23 -0700 (PDT)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id l3sm477537pjt.8.2020.09.30.20.01.22
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Sep 2020 20:01:22 -0700 (PDT)
+To:     io-uring <io-uring@vger.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH for-next] io_uring: kill callback_head argument for
+ io_req_task_work_add()
+Message-ID: <4004d378-331f-df42-c2c8-85b0433fabbe@kernel.dk>
+Date:   Wed, 30 Sep 2020 21:01:21 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-Received: by 2002:a92:de4b:: with SMTP id e11mr89152ilr.101.1601504961330;
- Wed, 30 Sep 2020 15:29:21 -0700 (PDT)
-Date:   Wed, 30 Sep 2020 15:29:21 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000053864e05b08f6e58@google.com>
-Subject: WARNING in kthread_park
-From:   syzbot <syzbot+e7eea402700c6db193be@syzkaller.appspotmail.com>
-To:     axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+We always use &req->task_work anyway, no point in passing it in.
 
-syzbot found the following issue on:
-
-HEAD commit:    d1d2220c Add linux-next specific files for 20200924
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=15b1918d900000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=254e028a642027c
-dashboard link: https://syzkaller.appspot.com/bug?extid=e7eea402700c6db193be
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+e7eea402700c6db193be@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 28162 at kernel/kthread.c:547 kthread_park+0x17c/0x1b0 kernel/kthread.c:547
-Modules linked in:
-CPU: 1 PID: 28162 Comm: syz-executor.3 Not tainted 5.9.0-rc6-next-20200924-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:kthread_park+0x17c/0x1b0 kernel/kthread.c:547
-Code: 2a 04 27 00 0f 0b e9 fb fe ff ff e8 1e 04 27 00 0f 0b e8 17 04 27 00 41 bc da ff ff ff 5b 44 89 e0 5d 41 5c c3 e8 04 04 27 00 <0f> 0b 41 bc f0 ff ff ff eb be e8 f5 03 27 00 0f 0b eb b2 e8 bc 74
-RSP: 0018:ffffc90017ebfd50 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff888092c0ca00 RCX: ffffffff814e2ccf
-RDX: ffff88804f30a040 RSI: ffffffff814e2d6c RDI: 0000000000000007
-RBP: ffff88804f46c440 R08: 0000000000000000 R09: ffff888092c0ca07
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000001
-R13: 0000000000000000 R14: ffff888096f7d000 R15: 0000000000000000
-FS:  0000000002a7e940(0000) GS:ffff8880ae500000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000001590004 CR3: 000000020a32f000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- io_sq_thread_park fs/io_uring.c:7145 [inline]
- io_sq_thread_park fs/io_uring.c:7139 [inline]
- io_uring_flush+0x10a6/0x1640 fs/io_uring.c:8596
- filp_close+0xb4/0x170 fs/open.c:1276
- __close_fd+0x2f/0x50 fs/file.c:671
- __do_sys_close fs/open.c:1295 [inline]
- __se_sys_close fs/open.c:1293 [inline]
- __x64_sys_close+0x69/0x100 fs/open.c:1293
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x417901
-Code: 75 14 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 a4 1a 00 00 c3 48 83 ec 08 e8 0a fc ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48 89 c2 e8 53 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
-RSP: 002b:00007fffe4c281e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000417901
-RDX: 0000000000000000 RSI: ffffffff8840e309 RDI: 0000000000000003
-RBP: 0000000000000001 R08: ffffffff8134e496 R09: 0000000092f8bb6d
-R10: 00007fffe4c282d0 R11: 0000000000000293 R12: 000000000118d9c0
-R13: 000000000118d9c0 R14: ffffffffffffffff R15: 000000000118cf4c
-
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f617f1a725e1..c409af7bd444 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1886,8 +1886,7 @@ static struct io_kiocb *io_req_find_next(struct io_kiocb *req)
+ 	return __io_req_find_next(req);
+ }
+ 
+-static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb,
+-				bool twa_signal_ok)
++static int io_req_task_work_add(struct io_kiocb *req, bool twa_signal_ok)
+ {
+ 	struct task_struct *tsk = req->task;
+ 	struct io_ring_ctx *ctx = req->ctx;
+@@ -1906,7 +1905,7 @@ static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb,
+ 	if (!(ctx->flags & IORING_SETUP_SQPOLL) && twa_signal_ok)
+ 		notify = TWA_SIGNAL;
+ 
+-	ret = task_work_add(tsk, cb, notify);
++	ret = task_work_add(tsk, &req->task_work, notify);
+ 	if (!ret)
+ 		wake_up_process(tsk);
+ 
+@@ -1965,7 +1964,7 @@ static void io_req_task_queue(struct io_kiocb *req)
+ 	init_task_work(&req->task_work, io_req_task_submit);
+ 	percpu_ref_get(&req->ctx->refs);
+ 
+-	ret = io_req_task_work_add(req, &req->task_work, true);
++	ret = io_req_task_work_add(req, true);
+ 	if (unlikely(ret)) {
+ 		struct task_struct *tsk;
+ 
+@@ -3185,7 +3184,7 @@ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
+ 
+ 	/* submit ref gets dropped, acquire a new one */
+ 	refcount_inc(&req->refs);
+-	ret = io_req_task_work_add(req, &req->task_work, true);
++	ret = io_req_task_work_add(req, true);
+ 	if (unlikely(ret)) {
+ 		struct task_struct *tsk;
+ 
+@@ -4752,7 +4751,7 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
+ 	 * of executing it. We can't safely execute it anyway, as we may not
+ 	 * have the needed state needed for it anyway.
+ 	 */
+-	ret = io_req_task_work_add(req, &req->task_work, twa_signal_ok);
++	ret = io_req_task_work_add(req, twa_signal_ok);
+ 	if (unlikely(ret)) {
+ 		struct task_struct *tsk;
+ 
+-- 
+Jens Axboe
+

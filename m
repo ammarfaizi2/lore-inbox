@@ -2,213 +2,182 @@ Return-Path: <SRS0=C7d3=DM=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A679DC4363A
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D90EFC47095
+	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 16:45:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D3E120674
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 908D520774
+	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 16:45:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="NI0qHIG+"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="kUFNpOQ9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbgJEPFG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 5 Oct 2020 11:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727050AbgJEPEr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Oct 2020 11:04:47 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C72C0613A7
-        for <io-uring@vger.kernel.org>; Mon,  5 Oct 2020 08:04:47 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id k25so9469824ioh.7
-        for <io-uring@vger.kernel.org>; Mon, 05 Oct 2020 08:04:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=nckRBTGeDDjcz+ETZlQhgF2+vU8phSO5Wlot907KKh8=;
-        b=NI0qHIG+x+V105yV6CIY8r8q2789zfyV4oFmCNEh9maLUBvgR9B3ZKhXJ41Q70Zt5e
-         Zjv/7gVzToXI9DKvjXunWz33dtTwPPzeGhJVk03x5aQjQwuTNCMxCAfVJnenWUHtYYWI
-         7UfbwmZFCdvhv+X7Wlm7lmv4DD/K5m+OufvFqlhezwuKosX4myrihrIDqcskwuIMOOB1
-         0oIbQZNXRR5EtiULeLUkVQ2GfxXthOQDjMU4YuarwiE8l5JzUxjG9yVm4dYR0KohCcAj
-         9OQ3L8fOfErn1UnnWBkSjEFa/o+1oxHN+77xdMHn/MdVzcsZSvJD2logAcm6oxii/wk2
-         /Iyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nckRBTGeDDjcz+ETZlQhgF2+vU8phSO5Wlot907KKh8=;
-        b=VCinXfkOJ2hMJwF5+dcRS5LRhrm70AjeMt3VvMYvnn8T2vyyAEkhdvM4j6QjjfV7xp
-         sabstRtsGQ8NCqepB4Oc2CTDXdnnalSbW9QlJ32QrRuATkLVSgyHRHgjXzpP6eaXNnxL
-         xloqWjdTtggYthYHDpBTlJbMV58k+8x3sljOqAi2ZY+23QbiKr/oVJG3aC4gOlb0A1L1
-         UoOZAoPuUQCXT2f6LKc7t5YYqOUwIrOTbvtzLIc2/mSUmrdpkMoQS0s48sY7NIRPE2aA
-         ALV/uneDaOpDEj9rAvvikO8Se2wkbSEemC56H1PYiH1J2bCJb14j/2PWPNRTmWKaK9Fx
-         h7Wg==
-X-Gm-Message-State: AOAM531w9yVVdGrxUeHJfLUba+iiuUNzcJHk6fWoCzdk1TT36v6+rKDu
-        vVLe9xVRxmn4kJ9h29SwXTg9cw==
-X-Google-Smtp-Source: ABdhPJwJkJ1C1akV4PeShn9PnVfu2A8L8gSmo4iJvYHZcyTzMT7bsKDXHcAOFE1szHMNz7ChGvuRqw==
-X-Received: by 2002:a5e:d606:: with SMTP id w6mr200118iom.67.1601910286760;
-        Mon, 05 Oct 2020 08:04:46 -0700 (PDT)
-Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id 15sm33140ilz.66.2020.10.05.08.04.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Oct 2020 08:04:46 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
-Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 3/6] kernel: split syscall restart from signal handling
-Date:   Mon,  5 Oct 2020 09:04:35 -0600
-Message-Id: <20201005150438.6628-4-axboe@kernel.dk>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005150438.6628-1-axboe@kernel.dk>
-References: <20201005150438.6628-1-axboe@kernel.dk>
+        id S1727069AbgJEQpN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 5 Oct 2020 12:45:13 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:42272 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726659AbgJEQpM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Oct 2020 12:45:12 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 095Ge8qN154387;
+        Mon, 5 Oct 2020 16:45:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=hLjK2hMGMtYoln2Xf+r7ll0kB2WsYowLHYRxYE4dHXQ=;
+ b=kUFNpOQ9xlQcalJ8TAxaVhLXK12X4R/w6CD/1RUpdTRrN0SnBVNyAkjVMmwty41Vfd+g
+ LYYTyUgk8OlrxCfZVv4LX6XbbrWTFNuC/OSn7IoxYGS/00RFyZy4Vssj8E697rIw2GJK
+ VdoOngB/w62+yqFzLK8dBHDgr+NnqDdxLCV165ScQhRh/rTWWkqDmNr9Qb4Aq8sqwRdv
+ 2DCoFUm60VMoR3nTCp5qaKjnhgbbmi4sBKX2mBC6seMSNwfLogdo2gupUQtXlIZvHP1+
+ VFKApHQDgh27v9+04IYjwgPUxgexhrdnuRkXxaIJkgtyZktJaicIS3G4ggNap+O2F+7M Jg== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 33xetaprxr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 05 Oct 2020 16:45:10 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 095GfCXM196370;
+        Mon, 5 Oct 2020 16:45:10 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3030.oracle.com with ESMTP id 33y2vkr8tc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 05 Oct 2020 16:45:10 +0000
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 095Gj9Z2014586;
+        Mon, 5 Oct 2020 16:45:09 GMT
+Received: from localhost (/67.169.218.210)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 05 Oct 2020 09:45:09 -0700
+Date:   Mon, 5 Oct 2020 09:45:10 -0700
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Zorro Lang <zlang@redhat.com>
+Cc:     fstests@vger.kernel.org, io-uring@vger.kernel.org
+Subject: Re: [PATCH 3/3] generic: IO_URING direct IO fsx test
+Message-ID: <20201005164510.GG49541@magnolia>
+References: <20200916171443.29546-1-zlang@redhat.com>
+ <20200916171443.29546-4-zlang@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200916171443.29546-4-zlang@redhat.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9765 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxlogscore=999
+ malwarescore=0 suspectscore=1 spamscore=0 phishscore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2010050122
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9765 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxscore=0
+ clxscore=1011 priorityscore=1501 adultscore=0 mlxlogscore=999 phishscore=0
+ impostorscore=0 malwarescore=0 suspectscore=1 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2010050122
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move the restart syscall logic into a separate generic entry helper,
-and handle that part separately from signal checking and delivery.
+On Thu, Sep 17, 2020 at 01:14:43AM +0800, Zorro Lang wrote:
+> After fsx supports IO_URING read/write, add IO_URING direct IO fsx
+> test with different read/write size and concurrent buffered IO.
+> 
+> Signed-off-by: Zorro Lang <zlang@redhat.com>
 
-This is in preparation for being able to do syscall restarting
-independently from handling signals.
+Funny, I would have expected this to be a clone of generic/521, much
+like the previous test was a clone of g/522.  I guess it's fine to test
+various fsx parameters, but in that case, is there a reason /not/ to
+have a long soak io_uring directio test?
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- arch/x86/kernel/signal.c     | 32 ++++++++++++++++++--------------
- include/linux/entry-common.h | 14 ++++++++++++--
- kernel/entry/common.c        | 11 ++++++++---
- 3 files changed, 38 insertions(+), 19 deletions(-)
+--D
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index be0d7d4152ec..5dc1eeaf0866 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -799,21 +799,8 @@ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
- #endif
- }
- 
--/*
-- * Note that 'init' is a special process: it doesn't get signals it doesn't
-- * want to handle. Thus you cannot kill init even with a SIGKILL even by
-- * mistake.
-- */
--void arch_do_signal(struct pt_regs *regs)
-+void arch_restart_syscall(struct pt_regs *regs)
- {
--	struct ksignal ksig;
--
--	if (get_signal(&ksig)) {
--		/* Whee! Actually deliver the signal.  */
--		handle_signal(&ksig, regs);
--		return;
--	}
--
- 	/* Did we come from a system call? */
- 	if (syscall_get_nr(current, regs) >= 0) {
- 		/* Restart the system call - no handlers present */
-@@ -831,12 +818,29 @@ void arch_do_signal(struct pt_regs *regs)
- 			break;
- 		}
- 	}
-+}
-+
-+/*
-+ * Note that 'init' is a special process: it doesn't get signals it doesn't
-+ * want to handle. Thus you cannot kill init even with a SIGKILL even by
-+ * mistake.
-+ */
-+bool arch_do_signal(struct pt_regs *regs)
-+{
-+	struct ksignal ksig;
-+
-+	if (get_signal(&ksig)) {
-+		/* Whee! Actually deliver the signal.  */
-+		handle_signal(&ksig, regs);
-+		return true;
-+	}
- 
- 	/*
- 	 * If there's no signal to deliver, we just put the saved sigmask
- 	 * back.
- 	 */
- 	restore_saved_sigmask();
-+	return false;
- }
- 
- void signal_fault(struct pt_regs *regs, void __user *frame, char *where)
-diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
-index 159c7476b11b..ccfcc4769925 100644
---- a/include/linux/entry-common.h
-+++ b/include/linux/entry-common.h
-@@ -262,9 +262,19 @@ static __always_inline void arch_exit_to_user_mode(void) { }
-  * arch_do_signal -  Architecture specific signal delivery function
-  * @regs:	Pointer to currents pt_regs
-  *
-- * Invoked from exit_to_user_mode_loop().
-+ * Invoked from exit_to_user_mode_loop(). Returns true if a signal was
-+ * handled.
-  */
--void arch_do_signal(struct pt_regs *regs);
-+bool arch_do_signal(struct pt_regs *regs);
-+
-+/**
-+ * arch_restart_syscall -  Architecture specific syscall restarting
-+ * @regs:	Pointer to currents pt_regs
-+ *
-+ * Invoked from exit_to_user_mode_loop(), if we need to restart the current
-+ * system call.
-+ */
-+void arch_restart_syscall(struct pt_regs *regs);
- 
- /**
-  * arch_syscall_exit_tracehook - Wrapper around tracehook_report_syscall_exit()
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index d20ab4ac7183..0c0cc3cf3eba 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -135,11 +135,13 @@ static __always_inline void exit_to_user_mode(void)
- }
- 
- /* Workaround to allow gradual conversion of architecture code */
--void __weak arch_do_signal(struct pt_regs *regs) { }
-+bool __weak arch_do_signal(struct pt_regs *regs) { return true; }
- 
- static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 					    unsigned long ti_work)
- {
-+	bool restart_sys = ti_work & _TIF_SIGPENDING;
-+
- 	/*
- 	 * Before returning to user space ensure that all pending work
- 	 * items have been completed.
-@@ -157,8 +159,8 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		if (ti_work & _TIF_PATCH_PENDING)
- 			klp_update_patch_state(current);
- 
--		if (ti_work & _TIF_SIGPENDING)
--			arch_do_signal(regs);
-+		if ((ti_work & _TIF_SIGPENDING) && arch_do_signal(regs))
-+			restart_sys = false;
- 
- 		if (ti_work & _TIF_NOTIFY_RESUME) {
- 			tracehook_notify_resume(regs);
-@@ -177,6 +179,9 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		ti_work = READ_ONCE(current_thread_info()->flags);
- 	}
- 
-+	if (restart_sys)
-+		arch_restart_syscall(regs);
-+
- 	/* Return the latest work state for arch_exit_to_user_mode() */
- 	return ti_work;
- }
--- 
-2.28.0
-
+> ---
+>  tests/generic/610     | 52 +++++++++++++++++++++++++++++++++++++++++++
+>  tests/generic/610.out |  7 ++++++
+>  tests/generic/group   |  1 +
+>  3 files changed, 60 insertions(+)
+>  create mode 100755 tests/generic/610
+>  create mode 100644 tests/generic/610.out
+> 
+> diff --git a/tests/generic/610 b/tests/generic/610
+> new file mode 100755
+> index 00000000..fc3f4c2a
+> --- /dev/null
+> +++ b/tests/generic/610
+> @@ -0,0 +1,52 @@
+> +#! /bin/bash
+> +# SPDX-License-Identifier: GPL-2.0
+> +# Copyright (c) 2020 YOUR NAME HERE.  All Rights Reserved.
+> +#
+> +# FS QA Test 610
+> +#
+> +# IO_URING direct IO fsx test
+> +#
+> +seq=`basename $0`
+> +seqres=$RESULT_DIR/$seq
+> +echo "QA output created by $seq"
+> +
+> +here=`pwd`
+> +tmp=/tmp/$$
+> +status=1	# failure is the default!
+> +trap "_cleanup; exit \$status" 0 1 2 3 15
+> +
+> +_cleanup()
+> +{
+> +	cd /
+> +	rm -f $tmp.*
+> +}
+> +
+> +# get standard environment, filters and checks
+> +. ./common/rc
+> +. ./common/filter
+> +
+> +# remove previous $seqres.full before test
+> +rm -f $seqres.full
+> +
+> +# real QA test starts here
+> +_supported_fs generic
+> +_supported_os Linux
+> +_require_test
+> +_require_odirect
+> +_require_io_uring
+> +
+> +psize=`$here/src/feature -s`
+> +bsize=`_min_dio_alignment $TEST_DEV`
+> +run_fsx -S 0 -U -N 20000           -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +run_fsx -S 0 -U -N 20000 -o 8192   -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +run_fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +
+> +# change readbdy/writebdy to double page size
+> +psize=$((psize * 2))
+> +run_fsx -S 0 -U -N 20000           -l 600000 -r PSIZE -w PSIZE -Z -R -W
+> +run_fsx -S 0 -U -N 20000 -o 256000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
+> +run_fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -W
+> +
+> +# success, all done
+> +status=0
+> +exit
+> diff --git a/tests/generic/610.out b/tests/generic/610.out
+> new file mode 100644
+> index 00000000..97ad41a3
+> --- /dev/null
+> +++ b/tests/generic/610.out
+> @@ -0,0 +1,7 @@
+> +QA output created by 610
+> +fsx -S 0 -U -N 20000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +fsx -S 0 -U -N 20000 -o 8192 -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
+> +fsx -S 0 -U -N 20000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
+> +fsx -S 0 -U -N 20000 -o 256000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
+> +fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -W
+> diff --git a/tests/generic/group b/tests/generic/group
+> index cf50f4a1..60280dc2 100644
+> --- a/tests/generic/group
+> +++ b/tests/generic/group
+> @@ -612,3 +612,4 @@
+>  607 auto attr quick dax
+>  608 auto attr quick dax
+>  609 auto rw io_uring
+> +610 auto rw io_uring
+> -- 
+> 2.20.1
+> 

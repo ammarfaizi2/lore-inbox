@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3F39C4363D
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2786C4727D
+	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FFFA208B6
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B410820674
+	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 15:05:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="tIMTDmTz"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Z/vWacxk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727041AbgJEPEv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 5 Oct 2020 11:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44922 "EHLO
+        id S1726617AbgJEPFG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 5 Oct 2020 11:05:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726604AbgJEPEr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Oct 2020 11:04:47 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AB0C0613A7
-        for <io-uring@vger.kernel.org>; Mon,  5 Oct 2020 08:04:46 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id t7so2871855ilf.10
-        for <io-uring@vger.kernel.org>; Mon, 05 Oct 2020 08:04:46 -0700 (PDT)
+        with ESMTP id S1727056AbgJEPEu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Oct 2020 11:04:50 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D29C0613A9
+        for <io-uring@vger.kernel.org>; Mon,  5 Oct 2020 08:04:49 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id q7so2745620ile.8
+        for <io-uring@vger.kernel.org>; Mon, 05 Oct 2020 08:04:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=OKHEwyhXDdp8uX1hEir8o6uX9DNPT+xN2S2hGhhzuBw=;
-        b=tIMTDmTzfwS7O3XCnluqjFDBpyKHZIDbOfqT737mh9wXmgemyUhXuOBlIgSfN18mgK
-         g617dRgIWiiGX987GCRpK/JAARRv34ZXwbuXjbYB3Ft7Q0FxbwrDGayyPjR5NipCAqL2
-         wAnnqGmhWtuGY1ftqQ6KspYK2c1s2r5CEHOg4nyTKCeauz7W1j27Waj3iYHMz0m1gXUn
-         B7X3C7E7NDp6WKzdUW2kmABEcIXw4On42PXnv+fGB24DZ9F1VudIWAaFZpMadtbWoNom
-         o8g0Vau2GMUN+knSnaK6nHOunBjQsQ8Z3cm4hgIAUWKS9lzbJdYd1WS3tXIG3Kpfi6kw
-         uxtA==
+        bh=azCwtwWl5ATB3D4FLVSirtqWYtNN30f962gtbhkaMz4=;
+        b=Z/vWacxk6ekQJqGbV1+HSfZcW7SM2RNnKcEQKh3ezyQsql+bUCLabWcRykl7LFH76U
+         E9JqNUhajy6vkhuFQP/dZo92Ewe4YaGw5LyAir1zo3x0Gm1RMtxIcL9TWrjaIyNTzYz+
+         D8U4pU18BP7n1seyOn/iPN9PXEnIotfRbQCXRTB6tQcBdEI10Ba3EOZPFhMS5dNM1ykI
+         KBK7J9lZGO0YegH86ejVQ9WO+zk604BW0hm2k5u+w02pq7E86BqNNiIQuPi9LgtEkVzG
+         fe1ZtnPY2pejUWUKuj+halGETuqhfX4yMUSj5Ar+TwvQ76kkKJXRQONX909cHC4d1BUr
+         FJhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=OKHEwyhXDdp8uX1hEir8o6uX9DNPT+xN2S2hGhhzuBw=;
-        b=mAfrPUghl2AbA8EZxuXJ2JDCxkQsFeKLY38zMtv7CzJLr+NhvN1/AdG7FcCIvGALef
-         +rHmb+uAO4ydBpMwHLvJ0NKP/P8teMH0Oms5g+CwS32OXfp6vR1Igs1ECY+Jc3kjVXhB
-         6TLJojOMuvJga2rI250g6cYVxoVFdiawfdV5KT/y+LQOqcbrdrYxM9mLo66nXhzoGtF6
-         jypyGPC0+AByNZgA3ii2Ip055NXasitp9sYabtf/4AP8nHxRdKdGNyZSPxnLxpWGfgNQ
-         Kv7l8fT6kyr2kDTpZdDIUpe5jTqpOf9l/oLltPbRB+xCPYK1g792iSZbvwotMTH8piV6
-         CRmA==
-X-Gm-Message-State: AOAM530tDAPZBbvqxv0beX9kMPqcZU5VzQczIuzkl7WWfcwHHVvyHWQW
-        Z8czDJFARfYDJTS/blQsSsfA8kzMpWVp0w==
-X-Google-Smtp-Source: ABdhPJwisHkH1ck+5kUQXkK8CqvLUdy6QGv8Fx/w34hqXi3pbdf1CcmnggEElptLJisMkm24giCHjA==
-X-Received: by 2002:a92:9859:: with SMTP id l86mr12800760ili.167.1601910285907;
-        Mon, 05 Oct 2020 08:04:45 -0700 (PDT)
+        bh=azCwtwWl5ATB3D4FLVSirtqWYtNN30f962gtbhkaMz4=;
+        b=lu6wkqPFlEarSipFUitRUD9D/fNXydblWAeM6XYS7pkziftWBUaU9dcvd41wPZpXq4
+         BMzkPfQdBqO5G0O/8ni3DSEKmB3FHSfQS6dDLLbyY2IYkQ0sCRef+7mcikiW4J9GHia0
+         lxUgfq3h8aOCv59UR1m6BBjnNCL5394XfyoBAxhX4KPaTdF2UNbNNzgwMkqyweSnHFkk
+         qmLockD/PgG2TiqCXyzjdjCf6b69MEGcS+h0G5HPPmKLZf+qMsX35TvsrvYLMWIhFG5e
+         T1jGkDI/xJzJZtqw5DT/cZjOBKF2d++5KJ9YL4Z0JDsjHqhtZHdro9foyGbsqliBV0L4
+         68yw==
+X-Gm-Message-State: AOAM530lWBZQMZCLqI2DGfAQhGEyJe/dhnb/dG//SrWNw9yjr1hz+tu/
+        4bpqMaRuhDvN0vKGn37wsO3YUVFVuXKfxQ==
+X-Google-Smtp-Source: ABdhPJyse3fhw5d/uhWcVuCiiOAU49VBlsslmtKgMJPOQ45lfuqLFm+fY0FnJGFCyuPJu5zNKY+ZEQ==
+X-Received: by 2002:a92:4448:: with SMTP id a8mr12205553ilm.73.1601910288673;
+        Mon, 05 Oct 2020 08:04:48 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id 15sm33140ilz.66.2020.10.05.08.04.44
+        by smtp.gmail.com with ESMTPSA id 15sm33140ilz.66.2020.10.05.08.04.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Oct 2020 08:04:45 -0700 (PDT)
+        Mon, 05 Oct 2020 08:04:48 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
 Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/6] kernel: add task_sigpending() helper
-Date:   Mon,  5 Oct 2020 09:04:34 -0600
-Message-Id: <20201005150438.6628-3-axboe@kernel.dk>
+Subject: [PATCH 5/6] x86: define _TIF_NOTIFY_SIGNAL
+Date:   Mon,  5 Oct 2020 09:04:37 -0600
+Message-Id: <20201005150438.6628-6-axboe@kernel.dk>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005150438.6628-1-axboe@kernel.dk>
 References: <20201005150438.6628-1-axboe@kernel.dk>
@@ -73,155 +73,34 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is in preparation for maintaining signal_pending() as the decider
-of whether or not a schedule() loop should be broken, or continue
-sleeping. This is different than the core signal use cases, where we
-really want to know if an actual signal is pending or not.
-task_sigpending() returns non-zero if TIF_SIGPENDING is set.
-
-Only core kernel use cases should care about the distinction between
-the two, make sure those use the task_sigpending() helper.
+The entry code is now ready for it, define _TIF_NOTIFY_SIGNAL for
+x86 to enable processing of signal based notifications.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- include/linux/sched/signal.h | 13 +++++++++----
- kernel/events/uprobes.c      |  2 +-
- kernel/ptrace.c              |  2 +-
- kernel/signal.c              | 12 ++++++------
- 4 files changed, 17 insertions(+), 12 deletions(-)
+ arch/x86/include/asm/thread_info.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 1bad18a1d8ba..e6f34d8fbf4d 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -353,11 +353,16 @@ static inline int restart_syscall(void)
- 	return -ERESTARTNOINTR;
- }
- 
--static inline int signal_pending(struct task_struct *p)
-+static inline int task_sigpending(struct task_struct *p)
- {
- 	return unlikely(test_tsk_thread_flag(p,TIF_SIGPENDING));
- }
- 
-+static inline int signal_pending(struct task_struct *p)
-+{
-+	return task_sigpending(p);
-+}
-+
- static inline int __fatal_signal_pending(struct task_struct *p)
- {
- 	return unlikely(sigismember(&p->pending.signal, SIGKILL));
-@@ -365,14 +370,14 @@ static inline int __fatal_signal_pending(struct task_struct *p)
- 
- static inline int fatal_signal_pending(struct task_struct *p)
- {
--	return signal_pending(p) && __fatal_signal_pending(p);
-+	return task_sigpending(p) && __fatal_signal_pending(p);
- }
- 
- static inline int signal_pending_state(long state, struct task_struct *p)
- {
- 	if (!(state & (TASK_INTERRUPTIBLE | TASK_WAKEKILL)))
- 		return 0;
--	if (!signal_pending(p))
-+	if (!task_sigpending(p))
- 		return 0;
- 
- 	return (state & TASK_INTERRUPTIBLE) || __fatal_signal_pending(p);
-@@ -389,7 +394,7 @@ static inline bool fault_signal_pending(vm_fault_t fault_flags,
- {
- 	return unlikely((fault_flags & VM_FAULT_RETRY) &&
- 			(fatal_signal_pending(current) ||
--			 (user_mode(regs) && signal_pending(current))));
-+			 (user_mode(regs) && task_sigpending(current))));
- }
- 
- /*
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index 0e18aaf23a7b..8bb26a338e06 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -1973,7 +1973,7 @@ bool uprobe_deny_signal(void)
- 
- 	WARN_ON_ONCE(utask->state != UTASK_SSTEP);
- 
--	if (signal_pending(t)) {
-+	if (task_sigpending(t)) {
- 		spin_lock_irq(&t->sighand->siglock);
- 		clear_tsk_thread_flag(t, TIF_SIGPENDING);
- 		spin_unlock_irq(&t->sighand->siglock);
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 43d6179508d6..583b8da4c207 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -773,7 +773,7 @@ static int ptrace_peek_siginfo(struct task_struct *child,
- 		data += sizeof(siginfo_t);
- 		i++;
- 
--		if (signal_pending(current))
-+		if (task_sigpending(current))
- 			break;
- 
- 		cond_resched();
-diff --git a/kernel/signal.c b/kernel/signal.c
-index a38b3edc6851..d57aafd9116c 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -983,7 +983,7 @@ static inline bool wants_signal(int sig, struct task_struct *p)
- 	if (task_is_stopped_or_traced(p))
- 		return false;
- 
--	return task_curr(p) || !signal_pending(p);
-+	return task_curr(p) || !task_sigpending(p);
- }
- 
- static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
-@@ -2822,7 +2822,7 @@ static void retarget_shared_pending(struct task_struct *tsk, sigset_t *which)
- 		/* Remove the signals this thread can handle. */
- 		sigandsets(&retarget, &retarget, &t->blocked);
- 
--		if (!signal_pending(t))
-+		if (!task_sigpending(t))
- 			signal_wake_up(t, 0);
- 
- 		if (sigisemptyset(&retarget))
-@@ -2856,7 +2856,7 @@ void exit_signals(struct task_struct *tsk)
- 
- 	cgroup_threadgroup_change_end(tsk);
- 
--	if (!signal_pending(tsk))
-+	if (!task_sigpending(tsk))
- 		goto out;
- 
- 	unblocked = tsk->blocked;
-@@ -2900,7 +2900,7 @@ long do_no_restart_syscall(struct restart_block *param)
- 
- static void __set_task_blocked(struct task_struct *tsk, const sigset_t *newset)
- {
--	if (signal_pending(tsk) && !thread_group_empty(tsk)) {
-+	if (task_sigpending(tsk) && !thread_group_empty(tsk)) {
- 		sigset_t newblocked;
- 		/* A set of now blocked but previously unblocked signals. */
- 		sigandnsets(&newblocked, newset, &current->blocked);
-@@ -4447,7 +4447,7 @@ SYSCALL_DEFINE0(pause)
- 		__set_current_state(TASK_INTERRUPTIBLE);
- 		schedule();
- 	}
--	return -ERESTARTNOHAND;
-+	return task_sigpending(current) ? -ERESTARTNOHAND : -ERESTARTSYS;
- }
- 
- #endif
-@@ -4462,7 +4462,7 @@ static int sigsuspend(sigset_t *set)
- 		schedule();
- 	}
- 	set_restore_sigmask();
--	return -ERESTARTNOHAND;
-+	return task_sigpending(current) ? -ERESTARTNOHAND : -ERESTARTSYS;
- }
- 
- /**
+diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+index 267701ae3d86..86ade67f21b7 100644
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -93,6 +93,7 @@ struct thread_info {
+ #define TIF_NOTSC		16	/* TSC is not accessible in userland */
+ #define TIF_IA32		17	/* IA32 compatibility process */
+ #define TIF_SLD			18	/* Restore split lock detection on context switch */
++#define TIF_NOTIFY_SIGNAL	19	/* signal notifications exist */
+ #define TIF_MEMDIE		20	/* is terminating due to OOM killer */
+ #define TIF_POLLING_NRFLAG	21	/* idle is polling for TIF_NEED_RESCHED */
+ #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
+@@ -123,6 +124,7 @@ struct thread_info {
+ #define _TIF_NOTSC		(1 << TIF_NOTSC)
+ #define _TIF_IA32		(1 << TIF_IA32)
+ #define _TIF_SLD		(1 << TIF_SLD)
++#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+ #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
+ #define _TIF_IO_BITMAP		(1 << TIF_IO_BITMAP)
+ #define _TIF_FORCED_TF		(1 << TIF_FORCED_TF)
 -- 
 2.28.0
 

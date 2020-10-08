@@ -1,183 +1,77 @@
-Return-Path: <SRS0=C7d3=DM=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=T8Kb=DP=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D90EFC47095
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 16:45:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37887C43467
+	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 12:37:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 908D520774
-	for <io-uring@archiver.kernel.org>; Mon,  5 Oct 2020 16:45:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C44392184D
+	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 12:37:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="kUFNpOQ9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SsGaG/sn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727069AbgJEQpN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 5 Oct 2020 12:45:13 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:42272 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726659AbgJEQpM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Oct 2020 12:45:12 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 095Ge8qN154387;
-        Mon, 5 Oct 2020 16:45:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=hLjK2hMGMtYoln2Xf+r7ll0kB2WsYowLHYRxYE4dHXQ=;
- b=kUFNpOQ9xlQcalJ8TAxaVhLXK12X4R/w6CD/1RUpdTRrN0SnBVNyAkjVMmwty41Vfd+g
- LYYTyUgk8OlrxCfZVv4LX6XbbrWTFNuC/OSn7IoxYGS/00RFyZy4Vssj8E697rIw2GJK
- VdoOngB/w62+yqFzLK8dBHDgr+NnqDdxLCV165ScQhRh/rTWWkqDmNr9Qb4Aq8sqwRdv
- 2DCoFUm60VMoR3nTCp5qaKjnhgbbmi4sBKX2mBC6seMSNwfLogdo2gupUQtXlIZvHP1+
- VFKApHQDgh27v9+04IYjwgPUxgexhrdnuRkXxaIJkgtyZktJaicIS3G4ggNap+O2F+7M Jg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 33xetaprxr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 05 Oct 2020 16:45:10 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 095GfCXM196370;
-        Mon, 5 Oct 2020 16:45:10 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3030.oracle.com with ESMTP id 33y2vkr8tc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 05 Oct 2020 16:45:10 +0000
-Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 095Gj9Z2014586;
-        Mon, 5 Oct 2020 16:45:09 GMT
-Received: from localhost (/67.169.218.210)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 05 Oct 2020 09:45:09 -0700
-Date:   Mon, 5 Oct 2020 09:45:10 -0700
-From:   "Darrick J. Wong" <darrick.wong@oracle.com>
-To:     Zorro Lang <zlang@redhat.com>
-Cc:     fstests@vger.kernel.org, io-uring@vger.kernel.org
-Subject: Re: [PATCH 3/3] generic: IO_URING direct IO fsx test
-Message-ID: <20201005164510.GG49541@magnolia>
-References: <20200916171443.29546-1-zlang@redhat.com>
- <20200916171443.29546-4-zlang@redhat.com>
+        id S1730083AbgJHMh4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 8 Oct 2020 08:37:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:25303 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729722AbgJHMh4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 8 Oct 2020 08:37:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602160675;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8BwNT4iYD45Vztv7nysdJWnSG8XKP2AwXG1rPxDEm6s=;
+        b=SsGaG/snu5V9vhw4GSLKi0qLq/km1LSFBgwkhvEhn12jiFlogdLDWdJ1bBEcEdwI362NuV
+        vqpbwnzfOI4lcqbg6kQ+HUv5FidSH2P2qYLOcuJWJjEkRvR7VtiRtkExtrD4MRWIljRTxt
+        TVlE4DzKGwgPtoGW22C78O07QqJJUy0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-49-irJx1NGON4yMAaVGgHGWHA-1; Thu, 08 Oct 2020 08:37:53 -0400
+X-MC-Unique: irJx1NGON4yMAaVGgHGWHA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 123021019626;
+        Thu,  8 Oct 2020 12:37:52 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.132])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 9706F5D9D5;
+        Thu,  8 Oct 2020 12:37:50 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Thu,  8 Oct 2020 14:37:51 +0200 (CEST)
+Date:   Thu, 8 Oct 2020 14:37:49 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+        peterz@infradead.org, tglx@linutronix.de
+Subject: Re: [PATCH 1/6] tracehook: clear TIF_NOTIFY_RESUME in
+ tracehook_notify_resume()
+Message-ID: <20201008123748.GD9995@redhat.com>
+References: <20201005150438.6628-1-axboe@kernel.dk>
+ <20201005150438.6628-2-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200916171443.29546-4-zlang@redhat.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9765 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxlogscore=999
- malwarescore=0 suspectscore=1 spamscore=0 phishscore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2010050122
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9765 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxscore=0
- clxscore=1011 priorityscore=1501 adultscore=0 mlxlogscore=999 phishscore=0
- impostorscore=0 malwarescore=0 suspectscore=1 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2010050122
+In-Reply-To: <20201005150438.6628-2-axboe@kernel.dk>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Sep 17, 2020 at 01:14:43AM +0800, Zorro Lang wrote:
-> After fsx supports IO_URING read/write, add IO_URING direct IO fsx
-> test with different read/write size and concurrent buffered IO.
-> 
-> Signed-off-by: Zorro Lang <zlang@redhat.com>
+Jens, sorry for delay..
 
-Funny, I would have expected this to be a clone of generic/521, much
-like the previous test was a clone of g/522.  I guess it's fine to test
-various fsx parameters, but in that case, is there a reason /not/ to
-have a long soak io_uring directio test?
+On 10/05, Jens Axboe wrote:
+>
+> All the callers currently do this, clean it up and move the clearing
+> into tracehook_notify_resume() instead.
 
---D
+To me this looks like a good cleanup regardless.
 
-> ---
->  tests/generic/610     | 52 +++++++++++++++++++++++++++++++++++++++++++
->  tests/generic/610.out |  7 ++++++
->  tests/generic/group   |  1 +
->  3 files changed, 60 insertions(+)
->  create mode 100755 tests/generic/610
->  create mode 100644 tests/generic/610.out
-> 
-> diff --git a/tests/generic/610 b/tests/generic/610
-> new file mode 100755
-> index 00000000..fc3f4c2a
-> --- /dev/null
-> +++ b/tests/generic/610
-> @@ -0,0 +1,52 @@
-> +#! /bin/bash
-> +# SPDX-License-Identifier: GPL-2.0
-> +# Copyright (c) 2020 YOUR NAME HERE.  All Rights Reserved.
-> +#
-> +# FS QA Test 610
-> +#
-> +# IO_URING direct IO fsx test
-> +#
-> +seq=`basename $0`
-> +seqres=$RESULT_DIR/$seq
-> +echo "QA output created by $seq"
-> +
-> +here=`pwd`
-> +tmp=/tmp/$$
-> +status=1	# failure is the default!
-> +trap "_cleanup; exit \$status" 0 1 2 3 15
-> +
-> +_cleanup()
-> +{
-> +	cd /
-> +	rm -f $tmp.*
-> +}
-> +
-> +# get standard environment, filters and checks
-> +. ./common/rc
-> +. ./common/filter
-> +
-> +# remove previous $seqres.full before test
-> +rm -f $seqres.full
-> +
-> +# real QA test starts here
-> +_supported_fs generic
-> +_supported_os Linux
-> +_require_test
-> +_require_odirect
-> +_require_io_uring
-> +
-> +psize=`$here/src/feature -s`
-> +bsize=`_min_dio_alignment $TEST_DEV`
-> +run_fsx -S 0 -U -N 20000           -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +run_fsx -S 0 -U -N 20000 -o 8192   -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +run_fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +
-> +# change readbdy/writebdy to double page size
-> +psize=$((psize * 2))
-> +run_fsx -S 0 -U -N 20000           -l 600000 -r PSIZE -w PSIZE -Z -R -W
-> +run_fsx -S 0 -U -N 20000 -o 256000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
-> +run_fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -W
-> +
-> +# success, all done
-> +status=0
-> +exit
-> diff --git a/tests/generic/610.out b/tests/generic/610.out
-> new file mode 100644
-> index 00000000..97ad41a3
-> --- /dev/null
-> +++ b/tests/generic/610.out
-> @@ -0,0 +1,7 @@
-> +QA output created by 610
-> +fsx -S 0 -U -N 20000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +fsx -S 0 -U -N 20000 -o 8192 -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -R -W
-> +fsx -S 0 -U -N 20000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
-> +fsx -S 0 -U -N 20000 -o 256000 -l 600000 -r PSIZE -w PSIZE -Z -R -W
-> +fsx -S 0 -U -N 20000 -o 128000 -l 600000 -r PSIZE -w BSIZE -Z -W
-> diff --git a/tests/generic/group b/tests/generic/group
-> index cf50f4a1..60280dc2 100644
-> --- a/tests/generic/group
-> +++ b/tests/generic/group
-> @@ -612,3 +612,4 @@
->  607 auto attr quick dax
->  608 auto attr quick dax
->  609 auto rw io_uring
-> +610 auto rw io_uring
-> -- 
-> 2.20.1
-> 
+Oleg.
+

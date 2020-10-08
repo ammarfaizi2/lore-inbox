@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC91DC46466
-	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 15:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 511D4C4363A
+	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 15:28:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B78121927
-	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 15:27:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1034A2184D
+	for <io-uring@archiver.kernel.org>; Thu,  8 Oct 2020 15:28:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="kwxP9CyP"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="pVezvOiI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730990AbgJHP17 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 8 Oct 2020 11:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37434 "EHLO
+        id S1731000AbgJHP2B (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 8 Oct 2020 11:28:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730958AbgJHP15 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 8 Oct 2020 11:27:57 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF6AC0613D2
-        for <io-uring@vger.kernel.org>; Thu,  8 Oct 2020 08:27:57 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id k25so6593249ioh.7
-        for <io-uring@vger.kernel.org>; Thu, 08 Oct 2020 08:27:57 -0700 (PDT)
+        with ESMTP id S1730998AbgJHP2B (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 8 Oct 2020 11:28:01 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDB6C0613D4
+        for <io-uring@vger.kernel.org>; Thu,  8 Oct 2020 08:27:59 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id k6so6606806ior.2
+        for <io-uring@vger.kernel.org>; Thu, 08 Oct 2020 08:27:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=45nHIG2A5suDPCfGmV4agcbVU36LBf7sDoqavCw/HAY=;
-        b=kwxP9CyP98WOBCwyeFn6s4tmYqvMwQ9AL8ZrrI3LsGFJqh/PaPDVaZMODQlHsayHD+
-         1bjkmvTeT/yzONMcJlZoR6CsSNYPBMwpb293WdOBadGcTTf5OGnh7JLWue3BEfP900KY
-         25R4pekOa+6PwbWrt9uB/jpF1EEeErQtCVEuELm0qVHWSEV8y8EIQnbFeT0+RftUw80P
-         59untY5CYyCGXcKZEASdF3jmIlZQv/7QRhmly6V74A1JKxWdMwtP/TNISLG6z2CocdmK
-         K2D2Z6YcHHUUNDSrkLyfGujc6dbDj3KpYAtiKPI+uvC4lZ6L5V6YL6bHswOy5IBsdsX3
-         Xp3Q==
+        bh=WdNU1/1s6MZ8klR4m0H2ADstj9Y1OQ9mPuj9tKk20pA=;
+        b=pVezvOiIaURw+DUbX9JEP3YVGuWO2zROTmevBe0w+81wMug4KZiRH8oCa0c41Yusxm
+         WBAdGoKQKTyNCWGKhtKBa0geWPAlAsop0ydosh4xytArI4Ko107Arx2d05C/R3P2Lb/c
+         02RGSYZDGefIKlBRJ5yB5cczFuFlvTHwkaFLsuHug3NhHHGDcRrEZw9I/0EiPoIyYox8
+         4UBJv3wDU0Eppa0LODVDaNRuwV7TT3tjzqjqvVI6a1kjcEQwyMlVl57YZVUhZWUgwSpn
+         tRA+t8xcda9KhsDydwjR3UoAHfIGSMg8otwbG9syYyYG7MVP0Pfu/3BotOib2IAbBoFA
+         iQ2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=45nHIG2A5suDPCfGmV4agcbVU36LBf7sDoqavCw/HAY=;
-        b=i2sSQ4u3PiD7tK8GC1iNNoGt9G9YYj4a/PEHcPTdFjbdKHuMOCm/0iqOmiAwg4AK04
-         NAN5u2ZXOyfNrIga8PyipxJ+LEDILhS9reBR6NgJTQEu4FjbpDLhZMJLiKxLiMudWkYf
-         mbryLrXRBI2j5EgYxNLIblyKS++EHCYGpFEagCxr2/h1yd2bH6BCnLDb/+Vbz0b5MZOW
-         a153/+MJz8oUv71RatFbPIbZbLfc9urchz0pG5rENCY6ivi32ivlKo8BAwh9eeHVEz4p
-         aDQlz8fZRQD73DKWHM7/dAC2NOb654s6OyBIQuQqgdjaQqa57bYyIn4pNAQpMlTxXt5i
-         0P8w==
-X-Gm-Message-State: AOAM530AtKzoiYbCjrP6STgrm71DetJSQAOTbP2HdcM76YpOW7Rd+dm/
-        RByC+DEdwK3ay5c0Dby8Q6NJO+Tt8pixnA==
-X-Google-Smtp-Source: ABdhPJykk94a3L3Vp7dBEA06xDEWAqBA7UCIUcxPHEY3kYveIRonCgXOQQAOteV1JBYJRnDjWS4uSw==
-X-Received: by 2002:a5d:9355:: with SMTP id i21mr6235075ioo.199.1602170876788;
-        Thu, 08 Oct 2020 08:27:56 -0700 (PDT)
+        bh=WdNU1/1s6MZ8klR4m0H2ADstj9Y1OQ9mPuj9tKk20pA=;
+        b=R7lAQ0EujMHsxGbtVSL3UeyUlLk/3r1YTxT35W3aqXOKScEQyO7ELDBLnHgKRLaN5k
+         G+nM0nA27RTo2NmmPqFvpZoJ06YJzeBbTnYZ4jw3XPFe1hE8vFnvxVkWZlD5XMdp3dpG
+         SazfkRO7QaogE/qhgmsNJkzV1N00bJJUPm5CgnSGxd04HgtbRbV6Ckp0dv086+hEiTWa
+         LIn9PcK+FXRBFswQnxdLbtBr8yutgeP2ZHWu+zdR9W8R15tna1HOOQdn08sF1A+ddv8k
+         BFd/LOAJjZ8jfAvWmXgls3dR+dbYjcGe2Fl09PCOfPJY2aeJsEmiurNIiA6bYqnauyhX
+         lAUQ==
+X-Gm-Message-State: AOAM530JvaBfMLYOHcAzfOP6Asn02xxOl8xqxyk4PXNfGmfnDHFqwaYE
+        Ok4J3gOAw1HzvKU3eZxxIW+oeg==
+X-Google-Smtp-Source: ABdhPJwosQopgV7CRkgemTnQ8LvLzkDhZjRmYQ7BWyy2luDuCbcjIxbp5Lr+3hqUivzP7l5JBZoYpA==
+X-Received: by 2002:a02:c785:: with SMTP id n5mr7430189jao.128.1602170878850;
+        Thu, 08 Oct 2020 08:27:58 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id l77sm2866260ill.4.2020.10.08.08.27.55
+        by smtp.gmail.com with ESMTPSA id l77sm2866260ill.4.2020.10.08.08.27.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2020 08:27:56 -0700 (PDT)
+        Thu, 08 Oct 2020 08:27:57 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
 Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/4] tracehook: clear TIF_NOTIFY_RESUME in tracehook_notify_resume()
-Date:   Thu,  8 Oct 2020 09:27:49 -0600
-Message-Id: <20201008152752.218889-2-axboe@kernel.dk>
+Subject: [PATCH 3/4] kernel: add support for TIF_NOTIFY_SIGNAL
+Date:   Thu,  8 Oct 2020 09:27:51 -0600
+Message-Id: <20201008152752.218889-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201008152752.218889-1-axboe@kernel.dk>
 References: <20201008152752.218889-1-axboe@kernel.dk>
@@ -73,395 +73,194 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-All the callers currently do this, clean it up and move the clearing
-into tracehook_notify_resume() instead.
+This adds TIF_NOTIFY_SIGNAL handling in the generic code, which if set,
+will return true if signal_pending() is used in a wait loop. That causes
+an exit of the loop so that notify_signal tracehooks can be run. If the
+wait loop is currently inside a system call, the system call is restarted
+once task_work has been processed.
+
+x86 is using the generic entry code, add the necessary TIF_NOTIFY_SIGNAL
+definitions for it.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- arch/alpha/kernel/signal.c      | 1 -
- arch/arc/kernel/signal.c        | 2 +-
- arch/arm/kernel/signal.c        | 1 -
- arch/arm64/kernel/signal.c      | 1 -
- arch/c6x/kernel/signal.c        | 4 +---
- arch/csky/kernel/signal.c       | 1 -
- arch/h8300/kernel/signal.c      | 4 +---
- arch/hexagon/kernel/process.c   | 1 -
- arch/ia64/kernel/process.c      | 2 +-
- arch/m68k/kernel/signal.c       | 2 +-
- arch/microblaze/kernel/signal.c | 2 +-
- arch/mips/kernel/signal.c       | 1 -
- arch/nds32/kernel/signal.c      | 4 +---
- arch/nios2/kernel/signal.c      | 2 +-
- arch/openrisc/kernel/signal.c   | 1 -
- arch/parisc/kernel/signal.c     | 4 +---
- arch/powerpc/kernel/signal.c    | 1 -
- arch/riscv/kernel/signal.c      | 4 +---
- arch/s390/kernel/signal.c       | 1 -
- arch/sh/kernel/signal_32.c      | 4 +---
- arch/sparc/kernel/signal_32.c   | 4 +---
- arch/sparc/kernel/signal_64.c   | 4 +---
- arch/um/kernel/process.c        | 2 +-
- arch/xtensa/kernel/signal.c     | 2 +-
- include/linux/tracehook.h       | 4 ++--
- kernel/entry/common.c           | 1 -
- kernel/entry/kvm.c              | 4 +---
- 27 files changed, 18 insertions(+), 46 deletions(-)
+ arch/x86/include/asm/thread_info.h |  2 ++
+ arch/x86/kernel/signal.c           |  5 ++++-
+ include/linux/entry-common.h       |  6 +++++-
+ include/linux/entry-kvm.h          |  4 ++--
+ include/linux/sched/signal.h       | 11 ++++++++++-
+ include/linux/tracehook.h          | 27 +++++++++++++++++++++++++++
+ kernel/entry/common.c              |  2 +-
+ kernel/entry/kvm.c                 |  3 +++
+ 8 files changed, 54 insertions(+), 6 deletions(-)
 
-diff --git a/arch/alpha/kernel/signal.c b/arch/alpha/kernel/signal.c
-index 15bc9d1e79f4..3739efce1ec0 100644
---- a/arch/alpha/kernel/signal.c
-+++ b/arch/alpha/kernel/signal.c
-@@ -531,7 +531,6 @@ do_work_pending(struct pt_regs *regs, unsigned long thread_flags,
- 				do_signal(regs, r0, r19);
- 				r0 = 0;
- 			} else {
--				clear_thread_flag(TIF_NOTIFY_RESUME);
- 				tracehook_notify_resume(regs);
- 			}
- 		}
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index 8222f8c54690..2be55fb96d87 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -394,6 +394,6 @@ void do_notify_resume(struct pt_regs *regs)
- 	 * ASM glue gaurantees that this is only called when returning to
- 	 * user mode
- 	 */
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
- }
-diff --git a/arch/arm/kernel/signal.c b/arch/arm/kernel/signal.c
-index c1892f733f20..585edbfccf6d 100644
---- a/arch/arm/kernel/signal.c
-+++ b/arch/arm/kernel/signal.c
-@@ -669,7 +669,6 @@ do_work_pending(struct pt_regs *regs, unsigned int thread_flags, int syscall)
- 			} else if (thread_flags & _TIF_UPROBE) {
- 				uprobe_notify_resume(regs);
- 			} else {
--				clear_thread_flag(TIF_NOTIFY_RESUME);
- 				tracehook_notify_resume(regs);
- 				rseq_handle_notify_resume(NULL, regs);
- 			}
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 3b4f31f35e45..4a6e1dc480c1 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -936,7 +936,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
- 				do_signal(regs);
- 
- 			if (thread_flags & _TIF_NOTIFY_RESUME) {
--				clear_thread_flag(TIF_NOTIFY_RESUME);
- 				tracehook_notify_resume(regs);
- 				rseq_handle_notify_resume(NULL, regs);
- 			}
-diff --git a/arch/c6x/kernel/signal.c b/arch/c6x/kernel/signal.c
-index d05c78eace1b..a3f15b9a79da 100644
---- a/arch/c6x/kernel/signal.c
-+++ b/arch/c6x/kernel/signal.c
-@@ -316,8 +316,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, u32 thread_info_flags,
- 	if (thread_info_flags & (1 << TIF_SIGPENDING))
- 		do_signal(regs, syscall);
- 
--	if (thread_info_flags & (1 << TIF_NOTIFY_RESUME)) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & (1 << TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/csky/kernel/signal.c b/arch/csky/kernel/signal.c
-index 970895df75ec..8b068cf37447 100644
---- a/arch/csky/kernel/signal.c
-+++ b/arch/csky/kernel/signal.c
-@@ -261,7 +261,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
- 		do_signal(regs);
- 
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
- 		tracehook_notify_resume(regs);
- 		rseq_handle_notify_resume(NULL, regs);
- 	}
-diff --git a/arch/h8300/kernel/signal.c b/arch/h8300/kernel/signal.c
-index 69e68949787f..75d9b7e626b2 100644
---- a/arch/h8300/kernel/signal.c
-+++ b/arch/h8300/kernel/signal.c
-@@ -282,8 +282,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, u32 thread_info_flags)
- 	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs);
- 
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
-index dfd322c5ce83..5a0a95d93ddb 100644
---- a/arch/hexagon/kernel/process.c
-+++ b/arch/hexagon/kernel/process.c
-@@ -180,7 +180,6 @@ int do_work_pending(struct pt_regs *regs, u32 thread_info_flags)
- 	}
- 
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
- 		tracehook_notify_resume(regs);
- 		return 1;
- 	}
-diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
-index f19cb97c0098..8f96cdda2f09 100644
---- a/arch/ia64/kernel/process.c
-+++ b/arch/ia64/kernel/process.c
-@@ -189,7 +189,7 @@ do_notify_resume_user(sigset_t *unused, struct sigscratch *scr, long in_syscall)
- 		ia64_do_signal(scr, in_syscall);
- 	}
- 
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME)) {
-+	if (test_thread_flag(TIF_NOTIFY_RESUME)) {
- 		local_irq_enable();	/* force interrupt enable */
- 		tracehook_notify_resume(&scr->pt);
- 	}
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index a98fca977073..29e174a80bf6 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -1134,6 +1134,6 @@ void do_notify_resume(struct pt_regs *regs)
- 	if (test_thread_flag(TIF_SIGPENDING))
- 		do_signal(regs);
- 
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
- }
-diff --git a/arch/microblaze/kernel/signal.c b/arch/microblaze/kernel/signal.c
-index 4a96b59f0bee..f11a0ccccabc 100644
---- a/arch/microblaze/kernel/signal.c
-+++ b/arch/microblaze/kernel/signal.c
-@@ -316,6 +316,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, int in_syscall)
- 	if (test_thread_flag(TIF_SIGPENDING))
- 		do_signal(regs, in_syscall);
- 
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
- }
-diff --git a/arch/mips/kernel/signal.c b/arch/mips/kernel/signal.c
-index a0262729cd4c..77d40126b8a9 100644
---- a/arch/mips/kernel/signal.c
-+++ b/arch/mips/kernel/signal.c
-@@ -901,7 +901,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, void *unused,
- 		do_signal(regs);
- 
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
- 		tracehook_notify_resume(regs);
- 		rseq_handle_notify_resume(NULL, regs);
- 	}
-diff --git a/arch/nds32/kernel/signal.c b/arch/nds32/kernel/signal.c
-index 36e25a410bb0..2acb94812af9 100644
---- a/arch/nds32/kernel/signal.c
-+++ b/arch/nds32/kernel/signal.c
-@@ -379,8 +379,6 @@ do_notify_resume(struct pt_regs *regs, unsigned int thread_flags)
- 	if (thread_flags & _TIF_SIGPENDING)
- 		do_signal(regs);
- 
--	if (thread_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/nios2/kernel/signal.c b/arch/nios2/kernel/signal.c
-index d8a087cf2b42..cf2dca2ac7c3 100644
---- a/arch/nios2/kernel/signal.c
-+++ b/arch/nios2/kernel/signal.c
-@@ -317,7 +317,7 @@ asmlinkage int do_notify_resume(struct pt_regs *regs)
- 			 */
- 			return restart;
- 		}
--	} else if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	} else if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
- 
- 	return 0;
-diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
-index c779364f0cd0..af66f968dd45 100644
---- a/arch/openrisc/kernel/signal.c
-+++ b/arch/openrisc/kernel/signal.c
-@@ -311,7 +311,6 @@ do_work_pending(struct pt_regs *regs, unsigned int thread_flags, int syscall)
- 				}
- 				syscall = 0;
- 			} else {
--				clear_thread_flag(TIF_NOTIFY_RESUME);
- 				tracehook_notify_resume(regs);
- 			}
- 		}
-diff --git a/arch/parisc/kernel/signal.c b/arch/parisc/kernel/signal.c
-index 3c037fc96038..9f43eaeb0b0a 100644
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -606,8 +606,6 @@ void do_notify_resume(struct pt_regs *regs, long in_syscall)
- 	if (test_thread_flag(TIF_SIGPENDING))
- 		do_signal(regs, in_syscall);
- 
--	if (test_thread_flag(TIF_NOTIFY_RESUME)) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/powerpc/kernel/signal.c b/arch/powerpc/kernel/signal.c
-index d15a98c758b8..74a94a125f0d 100644
---- a/arch/powerpc/kernel/signal.c
-+++ b/arch/powerpc/kernel/signal.c
-@@ -327,7 +327,6 @@ void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
- 	}
- 
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
- 		tracehook_notify_resume(regs);
- 		rseq_handle_notify_resume(NULL, regs);
- 	}
-diff --git a/arch/riscv/kernel/signal.c b/arch/riscv/kernel/signal.c
-index e996e08f1061..bc6841867b51 100644
---- a/arch/riscv/kernel/signal.c
-+++ b/arch/riscv/kernel/signal.c
-@@ -313,8 +313,6 @@ asmlinkage __visible void do_notify_resume(struct pt_regs *regs,
- 	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs);
- 
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-index b295090e2ce6..9e900a8977bd 100644
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -535,7 +535,6 @@ void do_signal(struct pt_regs *regs)
- 
- void do_notify_resume(struct pt_regs *regs)
+diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+index 267701ae3d86..86ade67f21b7 100644
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -93,6 +93,7 @@ struct thread_info {
+ #define TIF_NOTSC		16	/* TSC is not accessible in userland */
+ #define TIF_IA32		17	/* IA32 compatibility process */
+ #define TIF_SLD			18	/* Restore split lock detection on context switch */
++#define TIF_NOTIFY_SIGNAL	19	/* signal notifications exist */
+ #define TIF_MEMDIE		20	/* is terminating due to OOM killer */
+ #define TIF_POLLING_NRFLAG	21	/* idle is polling for TIF_NEED_RESCHED */
+ #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
+@@ -123,6 +124,7 @@ struct thread_info {
+ #define _TIF_NOTSC		(1 << TIF_NOTSC)
+ #define _TIF_IA32		(1 << TIF_IA32)
+ #define _TIF_SLD		(1 << TIF_SLD)
++#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+ #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
+ #define _TIF_IO_BITMAP		(1 << TIF_IO_BITMAP)
+ #define _TIF_FORCED_TF		(1 << TIF_FORCED_TF)
+diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
+index be0d7d4152ec..cd140bbf8520 100644
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -808,7 +808,10 @@ void arch_do_signal(struct pt_regs *regs)
  {
--	clear_thread_flag(TIF_NOTIFY_RESUME);
- 	tracehook_notify_resume(regs);
- 	rseq_handle_notify_resume(NULL, regs);
- }
-diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
-index 4fe3f00137bc..1add47fd31f6 100644
---- a/arch/sh/kernel/signal_32.c
-+++ b/arch/sh/kernel/signal_32.c
-@@ -502,8 +502,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, unsigned int save_r0,
- 	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs, save_r0);
+ 	struct ksignal ksig;
  
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
- }
-diff --git a/arch/sparc/kernel/signal_32.c b/arch/sparc/kernel/signal_32.c
-index d0e0025ee3ba..741d0701003a 100644
---- a/arch/sparc/kernel/signal_32.c
-+++ b/arch/sparc/kernel/signal_32.c
-@@ -523,10 +523,8 @@ void do_notify_resume(struct pt_regs *regs, unsigned long orig_i0,
+-	if (get_signal(&ksig)) {
++	if (test_thread_flag(TIF_NOTIFY_SIGNAL))
++		tracehook_notify_signal();
++
++	if (task_sigpending(current) && get_signal(&ksig)) {
+ 		/* Whee! Actually deliver the signal.  */
+ 		handle_signal(&ksig, regs);
+ 		return;
+diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
+index 159c7476b11b..f4234aaac36c 100644
+--- a/include/linux/entry-common.h
++++ b/include/linux/entry-common.h
+@@ -37,6 +37,10 @@
+ # define _TIF_UPROBE			(0)
+ #endif
+ 
++#ifndef _TIF_NOTIFY_SIGNAL
++# define _TIF_NOTIFY_SIGNAL		(0)
++#endif
++
+ /*
+  * TIF flags handled in syscall_enter_from_usermode()
+  */
+@@ -69,7 +73,7 @@
+ 
+ #define EXIT_TO_USER_MODE_WORK						\
+ 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |		\
+-	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING |			\
++	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING | _TIF_NOTIFY_SIGNAL |	\
+ 	 ARCH_EXIT_TO_USER_MODE_WORK)
+ 
+ /**
+diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
+index 0cef17afb41a..9b93f8584ff7 100644
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -11,8 +11,8 @@
+ # define ARCH_XFER_TO_GUEST_MODE_WORK	(0)
+ #endif
+ 
+-#define XFER_TO_GUEST_MODE_WORK					\
+-	(_TIF_NEED_RESCHED | _TIF_SIGPENDING |			\
++#define XFER_TO_GUEST_MODE_WORK						\
++	(_TIF_NEED_RESCHED | _TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL |	\
+ 	 _TIF_NOTIFY_RESUME | ARCH_XFER_TO_GUEST_MODE_WORK)
+ 
+ struct kvm_vcpu;
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index 404145dc536e..9bc13ade2ff9 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -360,6 +360,15 @@ static inline int task_sigpending(struct task_struct *p)
+ 
+ static inline int signal_pending(struct task_struct *p)
  {
- 	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs, orig_i0);
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
++#ifdef TIF_NOTIFY_SIGNAL
++	/*
++	 * TIF_NOTIFY_SIGNAL isn't really a signal, but it requires the same
++	 * behavior in terms of ensuring that we break out of wait loops
++	 * so that notify signal callbacks can be processed.
++	 */
++	if (unlikely(test_tsk_thread_flag(p, TIF_NOTIFY_SIGNAL)))
++		return 1;
++#endif
+ 	return task_sigpending(p);
  }
  
- asmlinkage int do_sys_sigstack(struct sigstack __user *ssptr,
-diff --git a/arch/sparc/kernel/signal_64.c b/arch/sparc/kernel/signal_64.c
-index 255264bcb46a..f7ef7edcd5c1 100644
---- a/arch/sparc/kernel/signal_64.c
-+++ b/arch/sparc/kernel/signal_64.c
-@@ -551,10 +551,8 @@ void do_notify_resume(struct pt_regs *regs, unsigned long orig_i0, unsigned long
- 		uprobe_notify_resume(regs);
- 	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs, orig_i0);
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
--		clear_thread_flag(TIF_NOTIFY_RESUME);
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--	}
- 	user_enter();
- }
- 
-diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
-index 26b5e243d3fc..3bed09538dd9 100644
---- a/arch/um/kernel/process.c
-+++ b/arch/um/kernel/process.c
-@@ -101,7 +101,7 @@ void interrupt_end(void)
- 		schedule();
- 	if (test_thread_flag(TIF_SIGPENDING))
- 		do_signal(regs);
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
- }
- 
-diff --git a/arch/xtensa/kernel/signal.c b/arch/xtensa/kernel/signal.c
-index b3b17d6c50f0..1fb1047f905c 100644
---- a/arch/xtensa/kernel/signal.c
-+++ b/arch/xtensa/kernel/signal.c
-@@ -501,6 +501,6 @@ void do_notify_resume(struct pt_regs *regs)
- 	if (test_thread_flag(TIF_SIGPENDING))
- 		do_signal(regs);
- 
--	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
-+	if (test_thread_flag(TIF_NOTIFY_RESUME))
- 		tracehook_notify_resume(regs);
+@@ -507,7 +516,7 @@ extern int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize);
+ static inline void restore_saved_sigmask_unless(bool interrupted)
+ {
+ 	if (interrupted)
+-		WARN_ON(!test_thread_flag(TIF_SIGPENDING));
++		WARN_ON(!signal_pending(current));
+ 	else
+ 		restore_saved_sigmask();
  }
 diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
-index 36fb3bbed6b2..b480e1a07ed8 100644
+index b480e1a07ed8..bec952f51439 100644
 --- a/include/linux/tracehook.h
 +++ b/include/linux/tracehook.h
-@@ -178,9 +178,9 @@ static inline void set_notify_resume(struct task_struct *task)
-  */
- static inline void tracehook_notify_resume(struct pt_regs *regs)
- {
-+	clear_thread_flag(TIF_NOTIFY_RESUME);
- 	/*
--	 * The caller just cleared TIF_NOTIFY_RESUME. This barrier
--	 * pairs with task_work_add()->set_notify_resume() after
-+	 * This barrier pairs with task_work_add()->set_notify_resume() after
- 	 * hlist_add_head(task->task_works);
- 	 */
- 	smp_mb__after_atomic();
+@@ -198,4 +198,31 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
+ 	blkcg_maybe_throttle_current();
+ }
+ 
++/*
++ * called by exit_to_user_mode_loop() if ti_work & _TIF_NOTIFY_SIGNAL. This
++ * is currently used by TWA_SIGNAL based task_work, which requires breaking
++ * wait loops to ensure that task_work is noticed and run.
++ */
++static inline void tracehook_notify_signal(void)
++{
++#ifdef TIF_NOTIFY_SIGNAL
++	clear_thread_flag(TIF_NOTIFY_SIGNAL);
++	smp_mb__after_atomic();
++	if (current->task_works)
++		task_work_run();
++#endif
++}
++
++/*
++ * Called when we have work to process from exit_to_user_mode_loop()
++ */
++static inline void set_notify_signal(struct task_struct *task)
++{
++#ifdef TIF_NOTIFY_SIGNAL
++	if (!test_and_set_tsk_thread_flag(task, TIF_NOTIFY_SIGNAL) &&
++	    !wake_up_state(task, TASK_INTERRUPTIBLE))
++		kick_process(task);
++#endif
++}
++
+ #endif	/* <linux/tracehook.h> */
 diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index 6fdb6105e6d6..d20ab4ac7183 100644
+index d20ab4ac7183..89a068252897 100644
 --- a/kernel/entry/common.c
 +++ b/kernel/entry/common.c
-@@ -161,7 +161,6 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+@@ -157,7 +157,7 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+ 		if (ti_work & _TIF_PATCH_PENDING)
+ 			klp_update_patch_state(current);
+ 
+-		if (ti_work & _TIF_SIGPENDING)
++		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
  			arch_do_signal(regs);
  
  		if (ti_work & _TIF_NOTIFY_RESUME) {
--			clear_thread_flag(TIF_NOTIFY_RESUME);
- 			tracehook_notify_resume(regs);
- 			rseq_handle_notify_resume(NULL, regs);
- 		}
 diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
-index eb1a8a4c867c..b6678a5e3cf6 100644
+index b6678a5e3cf6..49972ee99aff 100644
 --- a/kernel/entry/kvm.c
 +++ b/kernel/entry/kvm.c
-@@ -16,10 +16,8 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
- 		if (ti_work & _TIF_NEED_RESCHED)
- 			schedule();
+@@ -8,6 +8,9 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
+ 	do {
+ 		int ret;
  
--		if (ti_work & _TIF_NOTIFY_RESUME) {
--			clear_thread_flag(TIF_NOTIFY_RESUME);
-+		if (ti_work & _TIF_NOTIFY_RESUME)
- 			tracehook_notify_resume(NULL);
--		}
- 
- 		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
- 		if (ret)
++		if (ti_work & _TIF_NOTIFY_SIGNAL)
++			tracehook_notify_signal();
++
+ 		if (ti_work & _TIF_SIGPENDING) {
+ 			kvm_handle_signal_exit(vcpu);
+ 			return -EINTR;
 -- 
 2.28.0
 

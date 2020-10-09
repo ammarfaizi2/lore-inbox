@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1A84C9DC9D
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA6CC388D3
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6BA622B48
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36F5922B48
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391294AbgJITyO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 15:54:14 -0400
-Received: from mga14.intel.com ([192.55.52.115]:15724 "EHLO mga14.intel.com"
+        id S2391313AbgJITyq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 15:54:46 -0400
+Received: from mga12.intel.com ([192.55.52.136]:29419 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391245AbgJITyG (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:54:06 -0400
-IronPort-SDR: 7qaDjl2/ZxevUxp9SIgeuOAu8od3VQFfONS9RP6IrIk3xZmTXRvkzFi7/Qwdz+i1yGXcanWplh
- jXuBSYf4vxRQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="164744163"
+        id S2391275AbgJITyL (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:54:11 -0400
+IronPort-SDR: q1PZMJUmKFKlQ0BClGvwyzOjNwzGSo5B944T29UwXjVfp2YopDniYa7pTU6UFtwNvsti9h6T08
+ dfV2TT7Nz02w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="144851137"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="164744163"
+   d="scan'208";a="144851137"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:04 -0700
-IronPort-SDR: NEiErKYZfPZGqrWyxIZ0z43ef9+IKjrcXd9NJIRckxXQwdDEMd5poh/dknsqhifod6Ym/UoaZd
- Mu4h9c7DJvbA==
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:10 -0700
+IronPort-SDR: LoljxrxdEbdUiebRGt6guGtjo6SPfpWGHMJuLgTgYB7BeDU8CJtiGau7DzbQyZ+Y5gpHVnCtT5
+ urTwCEpflSRg==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="462301216"
+   d="scan'208";a="343972696"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:03 -0700
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:09 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -66,9 +66,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 56/58] dax: Stray access protection for dax_direct_access()
-Date:   Fri,  9 Oct 2020 12:50:31 -0700
-Message-Id: <20201009195033.3208459-57-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 58/58] [dax|pmem]: Enable stray access protection
+Date:   Fri,  9 Oct 2020 12:50:33 -0700
+Message-Id: <20201009195033.3208459-59-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -80,42 +80,52 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Ira Weiny <ira.weiny@intel.com>
 
-dax_direct_access() is a special case of accessing pmem via a page
-offset and without a struct page.
+Protecting against stray writes is particularly important for PMEM
+because, unlike writes to anonymous memory, writes to PMEM persists
+across a reboot.  Thus data corruption could result in permanent loss of
+data.
 
-Because the dax driver is well aware of the special protections it has
-mapped memory with, call dev_access_[en|dis]able() directly instead of
-the unnecessary overhead of trying to get a page to kmap.
+While stray writes are more serious than reads, protection is also
+enabled for reads.  This helps to detect bugs in code which would
+incorrectly access device memory and prevents a more serious machine
+checks should those bug reads from a poison page.
 
-Similar to kmap, we leverage existing functions, dax_read_[un]lock(),
-because they are already required to surround the use of the memory
-returned from dax_direct_access().
+Enable stray access protection by setting the flag in pgmap which
+requests it.  There is no option presented to the user.  If Zone Device
+Access Protection not be supported this flag will have no affect.
 
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- drivers/dax/super.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dax/device.c  | 2 ++
+ drivers/nvdimm/pmem.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index e84070b55463..0ddb3ee73e36 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -30,6 +30,7 @@ static DEFINE_SPINLOCK(dax_host_lock);
+diff --git a/drivers/dax/device.c b/drivers/dax/device.c
+index 1e89513f3c59..e6fb35b4f0fb 100644
+--- a/drivers/dax/device.c
++++ b/drivers/dax/device.c
+@@ -430,6 +430,8 @@ int dev_dax_probe(struct device *dev)
+ 	}
  
- int dax_read_lock(void)
- {
-+	dev_access_enable(false);
- 	return srcu_read_lock(&dax_srcu);
- }
- EXPORT_SYMBOL_GPL(dax_read_lock);
-@@ -37,6 +38,7 @@ EXPORT_SYMBOL_GPL(dax_read_lock);
- void dax_read_unlock(int id)
- {
- 	srcu_read_unlock(&dax_srcu, id);
-+	dev_access_disable(false);
- }
- EXPORT_SYMBOL_GPL(dax_read_unlock);
+ 	dev_dax->pgmap.type = MEMORY_DEVICE_GENERIC;
++	dev_dax->pgmap.flags |= PGMAP_PROT_ENABLED;
++
+ 	addr = devm_memremap_pages(dev, &dev_dax->pgmap);
+ 	if (IS_ERR(addr))
+ 		return PTR_ERR(addr);
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index e4dc1ae990fc..9fcd8338e23f 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -426,6 +426,8 @@ static int pmem_attach_disk(struct device *dev,
+ 		return -EBUSY;
+ 	}
  
++	pmem->pgmap.flags |= PGMAP_PROT_ENABLED;
++
+ 	q = blk_alloc_queue(dev_to_node(dev));
+ 	if (!q)
+ 		return -ENOMEM;
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

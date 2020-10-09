@@ -2,101 +2,154 @@ Return-Path: <SRS0=/ybh=DQ=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03E27C433DF
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 12:50:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DD7C43457
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 12:51:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D69C222B8
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 12:50:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B98AF222C2
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 12:51:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="iUdLIFHC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LnAKdX6m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387684AbgJIMuB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 08:50:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37988 "EHLO
+        id S1732242AbgJIMvn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 08:51:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387651AbgJIMt5 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 9 Oct 2020 08:49:57 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F818C0613D5;
-        Fri,  9 Oct 2020 05:49:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=bfmHnr+67smDeFgVvxSeiLOBplKDiUuPntx8EbzVRZM=; b=iUdLIFHChKHOwSPWz/wb0g8M8l
-        Mk7+6y7NEjJPP5ijadO5xNc8o1Gtp1y2+zymKn2ios/6maR5VguK9ZpCvQ/XjkLBsZuCMM3b/wzOc
-        NR9K85q2iXVvecJnJnJm/ncDJU6eTZqXcBVi2sqAjkfsfrUqBCKbnorQd/tKn+/B1A7MvGQuSbSKQ
-        dhOBIWJ8MjjgNcPAF0MIWvmwM3hciz4CzT3t/B0nW+FBwbK0LnKsn8kbEe58LunG4g3E4+eCYXz2n
-        00nEEUHI8FbwYMTTI8CfBv3LjhED+aRQzCT+U+UAXPIF8V3LxBHlUU1SxT9LPSBRL89R3DVi/UwkE
-        7K1vCKAQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kQrqN-0008IG-O2; Fri, 09 Oct 2020 12:49:55 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 3/3] io_uring: Convert advanced XArray uses to the normal API
-Date:   Fri,  9 Oct 2020 13:49:53 +0100
-Message-Id: <20201009124954.31830-3-willy@infradead.org>
-X-Mailer: git-send-email 2.21.3
-In-Reply-To: <20201009124954.31830-1-willy@infradead.org>
-References: <20201009124954.31830-1-willy@infradead.org>
+        with ESMTP id S1730740AbgJIMvn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 9 Oct 2020 08:51:43 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55DDAC0613D2;
+        Fri,  9 Oct 2020 05:51:41 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id h5so94816wrv.7;
+        Fri, 09 Oct 2020 05:51:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=l4ZXKMjg/m/2/oKO/FJW5fn59l9WHj+2kE6N+OHW648=;
+        b=LnAKdX6mGy0/uuAO+XaRbepY47bgIlZ5hTgQ5O7n+qpSKowjDR4au9DjiC/2JMeBVw
+         IaY9UwaNkS376AsyxuGQcwlXsRdcNpN30R5yzZJ3HCHRezVyhQecKW8hovUpovE74Roq
+         fRR0boALoZYr+6ZSdhzm03p0iecbKOjPHouxjG+f/pRQa26LCdhIKpqkIUN/+2lE85FT
+         Hpq0QgnShcn0U9/vuJye1EVC8pZ0af0q5zv/HDSO/DjydTTH37wmflG9dX0NBXz+ohS9
+         MAjpt+J7WFh7yfr1vUM5fqkSvZlaiZZ3kbkwbkjVqbO2gzsSVFVPqb5+Y4yP0acAT2R4
+         JNDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=l4ZXKMjg/m/2/oKO/FJW5fn59l9WHj+2kE6N+OHW648=;
+        b=iuMWZbeVbEOjuAQGrjTMRbilasKD4s0TYflsMS6caqqfoK2YnuJx6P8PST59XDDC+Y
+         AOuKnDfpjrP3DC8T9v36+9bl+T/8b+S7DfuAOiIrKCilj6NCw/L1EZaSMhFaLYt4eEfv
+         vt+rNmAMewoniS+2qBCGj6QgRkH8BNzmBcog0xVse3PmAERToD0C+FHwGfmt/7dnluJt
+         fMFi6SRnJRPO4AS2ThjP0e5QxX6iHYuqtl/BaqEKZPK46U3qis1PF6SYF9BGfizPY2tC
+         UfMpd8naAhOdhQ3/+rG7LIZ7UC7gLaB//rH1BcqzElqQ50XwhieZpKZSgSKJdX/rV0He
+         /7OA==
+X-Gm-Message-State: AOAM532MseRNluNgpYdh52PiO+UNYyBFn4y/k7yAgZwyXzs+EDAtxcUx
+        5hCdulaJJwEgCQ3qvbRB6IDBePboHmA=
+X-Google-Smtp-Source: ABdhPJx7ARjT91eFlCLTxAhwxckE9bmFVuBIQ/DdJ1rWFJu6ewirNZFae+sNER3RAd3KBVJr45xHfw==
+X-Received: by 2002:adf:ab46:: with SMTP id r6mr15521614wrc.360.1602247899968;
+        Fri, 09 Oct 2020 05:51:39 -0700 (PDT)
+Received: from [192.168.1.82] (host109-152-100-164.range109-152.btcentralplus.com. [109.152.100.164])
+        by smtp.gmail.com with ESMTPSA id z6sm6691940wrs.2.2020.10.09.05.51.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 09 Oct 2020 05:51:39 -0700 (PDT)
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     syzbot <syzbot+77efce558b2b9e6b6405@syzkaller.appspotmail.com>,
+        axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+References: <0000000000001a684d05b1385e71@google.com>
+ <3a98a77a-a507-954a-f2ec-e38af18c168f@gmail.com>
+ <20201009121211.GQ20115@casper.infradead.org>
+ <6da35bc9-d072-c18b-2268-15d37fa786df@gmail.com>
+ <20201009123537.GR20115@casper.infradead.org>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Subject: Re: KASAN: use-after-free Read in __io_uring_files_cancel
+Message-ID: <422ab1c5-b347-66a2-66e1-a3fb6b28f6e7@gmail.com>
+Date:   Fri, 9 Oct 2020 15:48:57 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
+In-Reply-To: <20201009123537.GR20115@casper.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are no bugs here that I've spotted, it's just easier to use the
-normal API and there are no performance advantages to using the more
-verbose advanced API.
+On 09/10/2020 15:35, Matthew Wilcox wrote:
+> On Fri, Oct 09, 2020 at 03:28:54PM +0300, Pavel Begunkov wrote:
+>> On 09/10/2020 15:12, Matthew Wilcox wrote:
+>>>> It seems this fails on "node->shift" in xas_next_entry(), that would
+>>>> mean that the node itself was freed while we're iterating on it.
+>>>>
+>>>> __io_uring_files_cancel() iterates with xas_next_entry() and creates
+>>>> XA_STATE once by hand, but it also removes entries in the loop with
+>>>> io_uring_del_task_file() -> xas_store(&xas, NULL); without updating
+>>>> the iterating XA_STATE. Could it be the problem? See a diff below
+>>>
+>>> No, the problem is that the lock is dropped after calling
+>>> xas_next_entry(), and at any point after calling xas_next_entry(),
+>>> the node that it's pointing to can be freed.
+>>
+>> Only the task itself clears/removes entries, others can only insert.
+>> So, could it be freed even though there are no parallel erases?
+> 
+> Not with today's implementation, but that's something that might
+> change in the future.  I agree it's probably the task itself that's
+> deleting the entry and causing the node to be deleted.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- fs/io_uring.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+I see, then it looks like I narrowed it down right. But your
+approach is cleaner anyway.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bcef6210bf67..1a894df526da 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8615,27 +8615,17 @@ static int io_uring_add_task_file(struct file *file)
- static void io_uring_del_task_file(struct file *file)
- {
- 	struct io_uring_task *tctx = current->io_uring;
--	XA_STATE(xas, &tctx->xa, (unsigned long) file);
- 
- 	if (tctx->last == file)
- 		tctx->last = NULL;
--
--	xas_lock(&xas);
--	file = xas_store(&xas, NULL);
--	xas_unlock(&xas);
--
-+	file = xa_erase(&tctx->xa, (unsigned long)file);
- 	if (file)
- 		fput(file);
- }
- 
- static void __io_uring_attempt_task_drop(struct file *file)
- {
--	XA_STATE(xas, &current->io_uring->xa, (unsigned long) file);
--	struct file *old;
--
--	rcu_read_lock();
--	old = xas_load(&xas);
--	rcu_read_unlock();
-+	struct file *old = xa_load(&current->io_uring->xa, (unsigned long)file);
- 
- 	if (old == file)
- 		io_uring_del_task_file(file);
 -- 
-2.28.0
-
+Pavel Begunkov

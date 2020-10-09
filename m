@@ -4,43 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 427C8C433E7
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 20:03:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DD73C433DF
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 20:03:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E79542225B
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 20:03:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE03C20732
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 20:03:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390421AbgJIUDg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 16:03:36 -0400
-Received: from mga11.intel.com ([192.55.52.93]:40561 "EHLO mga11.intel.com"
+        id S2391203AbgJIUDs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 16:03:48 -0400
+Received: from mga07.intel.com ([134.134.136.100]:56781 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390977AbgJITwj (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:52:39 -0400
-IronPort-SDR: Exjvp/k/vju92C/1HmDJJ3INkGiq2BDsyk1PJOB/fYIXN4StFZXIuvzbkTFTF8uhXPVM7irVri
- H8miumYbiukQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="162068015"
+        id S2388726AbgJITwe (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:52:34 -0400
+IronPort-SDR: k5n5dJgad3PH5z1nKWRCqhUQsH9CIT69v4l8qL7SJaW8QquVIZ7+Rkvin4YtVTXz0/2gWsqL9u
+ 0/qOsLBGzxnw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="229715221"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="162068015"
+   d="scan'208";a="229715221"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:52:38 -0700
-IronPort-SDR: y48WLHg756NhaQ3a3jufh8VKJ1E37wUwe8fJ/HzDHZ6hDk/W8p1+XzOieTDyZGUDdKxAAVZp75
- YdcYJzI+gesw==
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:52:30 -0700
+IronPort-SDR: R8dnd4Gi4VR6B2jqh++vX5H71gVtYpBk3ChyBwkq2ll0tg176OYljcvG78jHbXA7T9l0eBxuZS
+ YLX/odwmLDNw==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="349957490"
+   d="scan'208";a="329006590"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:52:36 -0700
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:52:29 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
-Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
+Cc:     Ira Weiny <ira.weiny@intel.com>,
+        David Howells <dhowells@redhat.com>, x86@kernel.org,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
@@ -66,9 +67,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 30/58] fs/romfs: Utilize new kmap_thread()
-Date:   Fri,  9 Oct 2020 12:50:05 -0700
-Message-Id: <20201009195033.3208459-31-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 28/58] fs/cachefiles: Utilize new kmap_thread()
+Date:   Fri,  9 Oct 2020 12:50:03 -0700
+Message-Id: <20201009195033.3208459-29-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -83,33 +84,28 @@ From: Ira Weiny <ira.weiny@intel.com>
 The kmap() calls in this FS are localized to a single thread.  To avoid
 the over head of global PKRS updates use the new kmap_thread() call.
 
+Cc: David Howells <dhowells@redhat.com>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- fs/romfs/super.c | 4 ++--
+ fs/cachefiles/rdwr.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/romfs/super.c b/fs/romfs/super.c
-index e582d001f792..9050074c6755 100644
---- a/fs/romfs/super.c
-+++ b/fs/romfs/super.c
-@@ -107,7 +107,7 @@ static int romfs_readpage(struct file *file, struct page *page)
- 	void *buf;
- 	int ret;
+diff --git a/fs/cachefiles/rdwr.c b/fs/cachefiles/rdwr.c
+index 3080cda9e824..2468e5c067ba 100644
+--- a/fs/cachefiles/rdwr.c
++++ b/fs/cachefiles/rdwr.c
+@@ -936,9 +936,9 @@ int cachefiles_write_page(struct fscache_storage *op, struct page *page)
+ 		}
+ 	}
  
--	buf = kmap(page);
-+	buf = kmap_thread(page);
- 	if (!buf)
- 		return -ENOMEM;
- 
-@@ -136,7 +136,7 @@ static int romfs_readpage(struct file *file, struct page *page)
- 		SetPageUptodate(page);
- 
- 	flush_dcache_page(page);
+-	data = kmap(page);
++	data = kmap_thread(page);
+ 	ret = kernel_write(file, data, len, &pos);
 -	kunmap(page);
 +	kunmap_thread(page);
- 	unlock_page(page);
- 	return ret;
- }
+ 	fput(file);
+ 	if (ret != len)
+ 		goto error_eio;
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

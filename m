@@ -7,41 +7,46 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C5D3C56204
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:51:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56DB0C388F7
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:51:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E842222C3
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:51:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24E2222282
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:51:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403899AbgJITvO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 15:51:14 -0400
-Received: from mga04.intel.com ([192.55.52.120]:43231 "EHLO mga04.intel.com"
+        id S2403913AbgJITvZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 15:51:25 -0400
+Received: from mga11.intel.com ([192.55.52.93]:40417 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403811AbgJITuy (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:50:54 -0400
-IronPort-SDR: TODn5nPyhBhMttOIv0R0R1Sxkxcpeku+IG0sPA74UvEwvhiUoQ5XH2zh3FOpLg7jGmc5VZIMhn
- fS90ytquo+OQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="162893208"
+        id S2403855AbgJITvJ (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:51:09 -0400
+IronPort-SDR: 5U3LdD8JD30Qiz2Xw/HSuDHohT2eTnGXIdf1M2uidm99cBYL2HhALZbtzhz8H9lsGnLyzZh9ts
+ a1oLaFItUWyw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="162067789"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="162893208"
+   d="scan'208";a="162067789"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:50:51 -0700
-IronPort-SDR: r9rFWs4LxSt/DLhc0vk8qSUxzY/hR2W3QZLi44jmj/rGXS9Mfwq/Fn231GdfrO+iUZYF22umi/
- 70MWS29lQZXg==
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:51:07 -0700
+IronPort-SDR: q86t8daZNt+V6d8RNukEYKSCMEs+oCo1U1vd6Yq1DOlnqrvHVUOvZ3CGMAsBzz1plldsK41yyY
+ 6uUXC42AACQg==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="529052813"
+   d="scan'208";a="317146961"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:50:50 -0700
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:51:06 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
-Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+Cc:     Ira Weiny <ira.weiny@intel.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
@@ -66,9 +71,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 02/58] x86/pks/test: Add testing for global option
-Date:   Fri,  9 Oct 2020 12:49:37 -0700
-Message-Id: <20201009195033.3208459-3-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 06/58] kmap: Introduce k[un]map_thread debugging
+Date:   Fri,  9 Oct 2020 12:49:41 -0700
+Message-Id: <20201009195033.3208459-7-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -80,205 +85,238 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Ira Weiny <ira.weiny@intel.com>
 
-Now that PKS can be enabled globaly (for all threads) add a test which
-spawns a thread and tests the same PKS functionality.
+Most kmap() callers use the map within a single thread and have no need
+for the protection domain to be enabled globally.
 
-The test enables/disables PKS in 1 thread while attempting to access the
-page in another thread.  We use the same test array as in the 'local'
-PKS testing.
+To differentiate these kmap users, new k[un]map_thread() calls were
+introduced which are thread local.
 
+To aid in debugging the new use of kmap_thread(), add a reference count,
+a check on that count, and tracing to ID where mapping errors occur.
+
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- arch/x86/mm/fault.c |   4 ++
- lib/pks/pks_test.c  | 128 +++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 124 insertions(+), 8 deletions(-)
+ include/linux/highmem.h            |  5 +++
+ include/linux/sched.h              |  5 +++
+ include/trace/events/kmap_thread.h | 56 ++++++++++++++++++++++++++++++
+ init/init_task.c                   |  3 ++
+ kernel/fork.c                      | 15 ++++++++
+ lib/Kconfig.debug                  |  8 +++++
+ mm/debug.c                         | 23 ++++++++++++
+ 7 files changed, 115 insertions(+)
+ create mode 100644 include/trace/events/kmap_thread.h
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 4b4ff9efa298..4c74f52fbc23 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -1108,6 +1108,10 @@ static int spurious_kernel_fault_check(unsigned long error_code, pte_t *pte,
- 		if (global_pkey_is_enabled(pte, is_write, irq_state))
- 			return 1;
- 
-+		/*
-+		 * NOTE: This must be after the global_pkey_is_enabled() call
-+		 * to allow the fixup code to be tested.
-+		 */
- 		if (handle_pks_testing(error_code, irq_state))
- 			return 1;
- 
-diff --git a/lib/pks/pks_test.c b/lib/pks/pks_test.c
-index 286c8b8457da..dfddccbe4cb6 100644
---- a/lib/pks/pks_test.c
-+++ b/lib/pks/pks_test.c
-@@ -154,7 +154,8 @@ static void check_exception(irqentry_state_t *irq_state)
- 	}
- 
- 	/* Check the exception state */
--	if (!check_pkrs(test_armed_key, PKEY_DISABLE_ACCESS)) {
-+	if (!check_pkrs(test_armed_key,
-+			PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE)) {
- 		pr_err("     FAIL: PKRS cache and MSR\n");
- 		test_exception_ctx->pass = false;
- 	}
-@@ -308,24 +309,29 @@ static int test_it(struct pks_test_ctx *ctx, struct pks_access_test *test, void
- 	return ret;
+diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+index ef7813544719..22d1c000802e 100644
+--- a/include/linux/highmem.h
++++ b/include/linux/highmem.h
+@@ -247,6 +247,10 @@ static inline void kunmap(struct page *page)
+ 	__kunmap(page, true);
  }
  
--static int run_access_test(struct pks_test_ctx *ctx,
--			   struct pks_access_test *test,
--			   void *ptr)
-+static void set_protection(int pkey, enum pks_access_mode mode, bool global)
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++void *kmap_thread(struct page *page);
++void kunmap_thread(struct page *page);
++#else
+ static inline void *kmap_thread(struct page *page)
  {
--	switch (test->mode) {
-+	switch (mode) {
- 		case PKS_TEST_NO_ACCESS:
--			pks_mknoaccess(ctx->pkey, false);
-+			pks_mknoaccess(pkey, global);
- 			break;
- 		case PKS_TEST_RDWR:
--			pks_mkrdwr(ctx->pkey, false);
-+			pks_mkrdwr(pkey, global);
- 			break;
- 		case PKS_TEST_RDONLY:
--			pks_mkread(ctx->pkey, false);
-+			pks_mkread(pkey, global);
- 			break;
- 		default:
- 			pr_err("BUG in test invalid mode\n");
- 			break;
- 	}
-+}
-+
-+static int run_access_test(struct pks_test_ctx *ctx,
-+			   struct pks_access_test *test,
-+			   void *ptr)
-+{
-+	set_protection(ctx->pkey, test->mode, false);
- 
- 	return test_it(ctx, test, ptr);
- }
-@@ -516,6 +522,110 @@ static void run_exception_test(void)
- 		 pass ? "PASS" : "FAIL");
- }
- 
-+struct shared_data {
-+	struct mutex lock;
-+	struct pks_test_ctx *ctx;
-+	void *kmap_addr;
-+	struct pks_access_test *test;
-+};
-+
-+static int thread_main(void *d)
-+{
-+	struct shared_data *data = d;
-+	struct pks_test_ctx *ctx = data->ctx;
-+
-+	while (!kthread_should_stop()) {
-+		mutex_lock(&data->lock);
-+		/*
-+		 * wait for the main thread to hand us the page
-+		 * We should be spinning so hopefully we will not have gotten
-+		 * the global value from a schedule in.
-+		 */
-+		if (data->kmap_addr) {
-+			if (test_it(ctx, data->test, data->kmap_addr))
-+				ctx->pass = false;
-+			data->kmap_addr = NULL;
-+		}
-+		mutex_unlock(&data->lock);
-+	}
-+
-+	return 0;
-+}
-+
-+static void run_thread_access_test(struct shared_data *data,
-+				   struct pks_test_ctx *ctx,
-+				   struct pks_access_test *test,
-+				   void *ptr)
-+{
-+	set_protection(ctx->pkey, test->mode, true);
-+
-+	pr_info("checking...  mode %s; write %s\n",
-+			get_mode_str(test->mode), test->write ? "TRUE" : "FALSE");
-+
-+	mutex_lock(&data->lock);
-+	data->test = test;
-+	data->kmap_addr = ptr;
-+	mutex_unlock(&data->lock);
-+
-+	while (data->kmap_addr) {
-+		msleep(10);
-+	}
-+}
-+
-+static void run_global_test(void)
-+{
-+	struct task_struct *other_task;
-+	struct pks_test_ctx *ctx;
-+	struct shared_data data;
-+	bool pass = true;
-+	void *ptr;
-+	int i;
-+
-+	pr_info("     ***** BEGIN: global pkey checking\n");
-+
-+	/* Set up context, data pgae, and thread */
-+	ctx = alloc_ctx("global pkey test");
-+	if (IS_ERR(ctx)) {
-+		pr_err("     FAIL: no context\n");
-+		pass = false;
-+		goto result;
-+	}
-+	ptr = alloc_test_page(ctx->pkey);
-+	if (!ptr) {
-+		pr_err("     FAIL: no vmalloc page\n");
-+		pass = false;
-+		goto free_context;
-+	}
-+	other_task = kthread_run(thread_main, &data, "PKRS global test");
-+	if (IS_ERR(other_task)) {
-+		pr_err("     FAIL: Failed to start thread\n");
-+		pass = false;
-+		goto free_page;
-+	}
-+
-+	memset(&data, 0, sizeof(data));
-+	mutex_init(&data.lock);
-+	data.ctx = ctx;
-+
-+	/* Start testing */
-+	ctx->pass = true;
-+
-+	for (i = 0; i < ARRAY_SIZE(pkey_test_ary); i++) {
-+		run_thread_access_test(&data, ctx, &pkey_test_ary[i], ptr);
-+	}
-+
-+	kthread_stop(other_task);
-+	pass = ctx->pass;
-+
-+free_page:
-+	vfree(ptr);
-+free_context:
-+	free_ctx(ctx);
-+result:
-+	pr_info("     ***** END: global pkey checking : %s\n",
-+		 pass ? "PASS" : "FAIL");
-+}
-+
- static void run_all(void)
+ 	return __kmap(page, false);
+@@ -255,6 +259,7 @@ static inline void kunmap_thread(struct page *page)
  {
- 	struct pks_test_ctx *ctx[PKS_NUM_KEYS];
-@@ -538,6 +648,8 @@ static void run_all(void)
- 	}
+ 	__kunmap(page, false);
+ }
++#endif
  
- 	run_exception_test();
+ /*
+  * Prevent people trying to call kunmap_atomic() as if it were kunmap()
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 25d97ab6c757..4627ea4a49e6 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1318,6 +1318,11 @@ struct task_struct {
+ #ifdef CONFIG_ZONE_DEVICE_ACCESS_PROTECTION
+ 	unsigned int			dev_page_access_ref;
+ #endif
 +
-+	run_global_test();
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++	unsigned int			kmap_thread_cnt;
++#endif
++
+ 	/*
+ 	 * New fields for task_struct should be added above here, so that
+ 	 * they are included in the randomized portion of task_struct.
+diff --git a/include/trace/events/kmap_thread.h b/include/trace/events/kmap_thread.h
+new file mode 100644
+index 000000000000..e7143cfe0daf
+--- /dev/null
++++ b/include/trace/events/kmap_thread.h
+@@ -0,0 +1,56 @@
++/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
++
++/*
++ * Copyright (c) 2020 Intel Corporation.  All rights reserved.
++ *
++ */
++
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM kmap_thread
++
++#if !defined(_TRACE_KMAP_THREAD_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_KMAP_THREAD_H
++
++#include <linux/tracepoint.h>
++
++DECLARE_EVENT_CLASS(kmap_thread_template,
++	TP_PROTO(struct task_struct *tsk, struct page *page,
++		 void *caller_addr, int cnt),
++	TP_ARGS(tsk, page, caller_addr, cnt),
++
++	TP_STRUCT__entry(
++		__field(int, pid)
++		__field(struct page *, page)
++		__field(void *, caller_addr)
++		__field(int, cnt)
++	),
++
++	TP_fast_assign(
++		__entry->pid = tsk->pid;
++		__entry->page = page;
++		__entry->caller_addr = caller_addr;
++		__entry->cnt = cnt;
++	),
++
++	TP_printk("PID %d; (%d) %pS %p",
++		__entry->pid,
++		__entry->cnt,
++		__entry->caller_addr,
++		__entry->page
++	)
++);
++
++DEFINE_EVENT(kmap_thread_template, kmap_thread,
++	TP_PROTO(struct task_struct *tsk, struct page *page,
++		 void *caller_addr, int cnt),
++	TP_ARGS(tsk, page, caller_addr, cnt));
++
++DEFINE_EVENT(kmap_thread_template, kunmap_thread,
++	TP_PROTO(struct task_struct *tsk, struct page *page,
++		 void *caller_addr, int cnt),
++	TP_ARGS(tsk, page, caller_addr, cnt));
++
++
++#endif /* _TRACE_KMAP_THREAD_H */
++
++#include <trace/define_trace.h>
+diff --git a/init/init_task.c b/init/init_task.c
+index 9b39f25de59b..19f09965eb34 100644
+--- a/init/init_task.c
++++ b/init/init_task.c
+@@ -212,6 +212,9 @@ struct task_struct init_task
+ #ifdef CONFIG_ZONE_DEVICE_ACCESS_PROTECTION
+ 	.dev_page_access_ref = 0,
+ #endif
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++	.kmap_thread_cnt = 0,
++#endif
+ };
+ EXPORT_SYMBOL(init_task);
+ 
+diff --git a/kernel/fork.c b/kernel/fork.c
+index b6a3ee328a89..2c66e49b7614 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -722,6 +722,17 @@ static inline void put_signal_struct(struct signal_struct *sig)
+ 		free_signal_struct(sig);
  }
  
- static void crash_it(void)
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++static void check_outstanding_kmap_thread(struct task_struct *tsk)
++{
++	if (tsk->kmap_thread_cnt)
++		pr_warn(KERN_ERR "WARNING: PID %d; Failed to kunmap_thread() [cnt %d]\n",
++			tsk->pid, tsk->kmap_thread_cnt);
++}
++#else
++static void check_outstanding_kmap_thread(struct task_struct *tsk) { }
++#endif
++
+ void __put_task_struct(struct task_struct *tsk)
+ {
+ 	WARN_ON(!tsk->exit_state);
+@@ -734,6 +745,7 @@ void __put_task_struct(struct task_struct *tsk)
+ 	exit_creds(tsk);
+ 	delayacct_tsk_free(tsk);
+ 	put_signal_struct(tsk->signal);
++	check_outstanding_kmap_thread(tsk);
+ 
+ 	if (!profile_handoff_task(tsk))
+ 		free_task(tsk);
+@@ -943,6 +955,9 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
+ #endif
+ #ifdef CONFIG_ZONE_DEVICE_ACCESS_PROTECTION
+ 	tsk->dev_page_access_ref = 0;
++#endif
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++	tsk->kmap_thread_cnt = 0;
+ #endif
+ 	return tsk;
+ 
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index f015c09ba5a1..6507b43d5b0c 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -858,6 +858,14 @@ config DEBUG_HIGHMEM
+ 	  This option enables additional error checking for high memory
+ 	  systems.  Disable for production systems.
+ 
++config DEBUG_KMAP_THREAD
++	bool "Kmap debugging"
++	depends on DEBUG_KERNEL
++	help
++	  This option enables additional error checking for kernel mapping code
++	  specifically the k[un]map_thread() calls.  Disable for production
++	  systems.
++
+ config HAVE_DEBUG_STACKOVERFLOW
+ 	bool
+ 
+diff --git a/mm/debug.c b/mm/debug.c
+index ca8d1cacdecc..68d186f3570e 100644
+--- a/mm/debug.c
++++ b/mm/debug.c
+@@ -320,3 +320,26 @@ void page_init_poison(struct page *page, size_t size)
+ }
+ EXPORT_SYMBOL_GPL(page_init_poison);
+ #endif		/* CONFIG_DEBUG_VM */
++
++#define CREATE_TRACE_POINTS
++#include <trace/events/kmap_thread.h>
++
++#ifdef CONFIG_DEBUG_KMAP_THREAD
++void *kmap_thread(struct page *page)
++{
++	trace_kmap_thread(current, page, __builtin_return_address(0),
++			  current->kmap_thread_cnt);
++	current->kmap_thread_cnt++;
++	return __kmap(page, false);
++}
++EXPORT_SYMBOL_GPL(kmap_thread);
++
++void kunmap_thread(struct page *page)
++{
++	__kunmap(page, false);
++	current->kmap_thread_cnt--;
++	trace_kunmap_thread(current, page, __builtin_return_address(0),
++			    current->kmap_thread_cnt);
++}
++EXPORT_SYMBOL_GPL(kunmap_thread);
++#endif
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

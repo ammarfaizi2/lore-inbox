@@ -7,43 +7,41 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EA9DC352BA
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D518C388CE
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:59:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8BF722B48
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:59:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F29BD22403
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733069AbgJIT7A (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 15:59:00 -0400
-Received: from mga11.intel.com ([192.55.52.93]:40581 "EHLO mga11.intel.com"
+        id S1733160AbgJIT7W (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 15:59:22 -0400
+Received: from mga01.intel.com ([192.55.52.88]:3593 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391084AbgJITxY (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:53:24 -0400
-IronPort-SDR: u2C4+hGb35+mtK+ndhIxjBMDcky7nNybvSNM6b4gqHKiqPmi0zpuRfougNCgV6H0aeq0l38fWM
- RPrL1Si+UaTw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="162068110"
+        id S2391078AbgJITxW (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:53:22 -0400
+IronPort-SDR: TuW6f/eUiPOWBVUWPJSST+0egNgNIn2HyrjOLitLNnO3XIXYcZZ7k6u/vtD7EeyPkkCEzhJArJ
+ zTM7g1ijBJ7w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="182976382"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="162068110"
+   d="scan'208";a="182976382"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:23 -0700
-IronPort-SDR: 1WKybDcesSB1sLOn62ClPw5Oz5roBPmtIQsa1XcymP/Rm5On5MJ4hIzRHLHnwze0O/9dY0G7BT
- oI/HBaoknNhQ==
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:02 -0700
+IronPort-SDR: bH2kRxXxeY8kuFBN5R8RneSpQbEQLW5eawptefbcIpm8xkU067aWcbaReXxx6/6TDXgDaxiIQ5
+ 8lenxDucas2g==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="355863255"
+   d="scan'208";a="519847131"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:21 -0700
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:02 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
-Cc:     Ira Weiny <ira.weiny@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sascha Sommer <saschasommer@freenet.de>, x86@kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+Cc:     Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.com>,
+        x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
@@ -68,9 +66,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 43/58] drivers/mmc: Utilize new kmap_thread()
-Date:   Fri,  9 Oct 2020 12:50:18 -0700
-Message-Id: <20201009195033.3208459-44-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 37/58] fs/ext2: Utilize new kmap_thread()
+Date:   Fri,  9 Oct 2020 12:50:12 -0700
+Message-Id: <20201009195033.3208459-38-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -83,56 +81,41 @@ X-Mailing-List: io-uring@vger.kernel.org
 From: Ira Weiny <ira.weiny@intel.com>
 
 These kmap() calls are localized to a single thread.  To avoid the over
-head of global PKRS updates use the new kmap_thread() call.
+head of global PKRS update use the new kmap_thread() call instead.
 
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Sascha Sommer <saschasommer@freenet.de>
+Cc: Jan Kara <jack@suse.com>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- drivers/mmc/host/mmc_spi.c    | 4 ++--
- drivers/mmc/host/sdricoh_cs.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/ext2/dir.c  | 2 +-
+ fs/ext2/ext2.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/mmc_spi.c b/drivers/mmc/host/mmc_spi.c
-index 18a850f37ddc..ab28e7103b8d 100644
---- a/drivers/mmc/host/mmc_spi.c
-+++ b/drivers/mmc/host/mmc_spi.c
-@@ -918,7 +918,7 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
- 		}
+diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
+index f3194bf20733..abe97ba458c8 100644
+--- a/fs/ext2/dir.c
++++ b/fs/ext2/dir.c
+@@ -196,7 +196,7 @@ static struct page * ext2_get_page(struct inode *dir, unsigned long n,
+ 	struct address_space *mapping = dir->i_mapping;
+ 	struct page *page = read_mapping_page(mapping, n, NULL);
+ 	if (!IS_ERR(page)) {
+-		kmap(page);
++		kmap_thread(page);
+ 		if (unlikely(!PageChecked(page))) {
+ 			if (PageError(page) || !ext2_check_page(page, quiet))
+ 				goto fail;
+diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+index 021ec8b42ac3..9bcb6714c255 100644
+--- a/fs/ext2/ext2.h
++++ b/fs/ext2/ext2.h
+@@ -749,7 +749,7 @@ extern struct ext2_dir_entry_2 * ext2_dotdot (struct inode *, struct page **);
+ extern void ext2_set_link(struct inode *, struct ext2_dir_entry_2 *, struct page *, struct inode *, int);
+ static inline void ext2_put_page(struct page *page)
+ {
+-	kunmap(page);
++	kunmap_thread(page);
+ 	put_page(page);
+ }
  
- 		/* allow pio too; we don't allow highmem */
--		kmap_addr = kmap(sg_page(sg));
-+		kmap_addr = kmap_thread(sg_page(sg));
- 		if (direction == DMA_TO_DEVICE)
- 			t->tx_buf = kmap_addr + sg->offset;
- 		else
-@@ -950,7 +950,7 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
- 		/* discard mappings */
- 		if (direction == DMA_FROM_DEVICE)
- 			flush_kernel_dcache_page(sg_page(sg));
--		kunmap(sg_page(sg));
-+		kunmap_thread(sg_page(sg));
- 		if (dma_dev)
- 			dma_unmap_page(dma_dev, dma_addr, PAGE_SIZE, dir);
- 
-diff --git a/drivers/mmc/host/sdricoh_cs.c b/drivers/mmc/host/sdricoh_cs.c
-index 76a8cd3a186f..7806bc69c4f1 100644
---- a/drivers/mmc/host/sdricoh_cs.c
-+++ b/drivers/mmc/host/sdricoh_cs.c
-@@ -312,11 +312,11 @@ static void sdricoh_request(struct mmc_host *mmc, struct mmc_request *mrq)
- 			int result;
- 			page = sg_page(data->sg);
- 
--			buf = kmap(page) + data->sg->offset + (len * i);
-+			buf = kmap_thread(page) + data->sg->offset + (len * i);
- 			result =
- 				sdricoh_blockio(host,
- 					data->flags & MMC_DATA_READ, buf, len);
--			kunmap(page);
-+			kunmap_thread(page);
- 			flush_dcache_page(page);
- 			if (result) {
- 				dev_err(dev, "sdricoh_request: cmd %i "
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

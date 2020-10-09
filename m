@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EA31C83BB7
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:56:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E23E2C388F8
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:57:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DFD1922B48
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:56:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACEEE225A9
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:57:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733168AbgJIT4a (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 15:56:30 -0400
-Received: from mga01.intel.com ([192.55.52.88]:3799 "EHLO mga01.intel.com"
+        id S2391162AbgJITxp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 15:53:45 -0400
+Received: from mga18.intel.com ([134.134.136.126]:42487 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391193AbgJITxu (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:53:50 -0400
-IronPort-SDR: MvNEL5UE1YZMf2FFryOugVO1MjMPvxhOr9+ZaSGMEz70R+AZvmLzfRjcHaH4uHG4JrQCtBf6H0
- UOe6thpPlnjQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="182976499"
+        id S2391153AbgJITxm (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:53:42 -0400
+IronPort-SDR: BgWZnFJZdvaz1CZmvfS/7De+hsUMEUJdT4/u/BWCM6C97yea5FfZV7v30SZ47vZG/wo8aIdnwg
+ re/Nlv5BC3sA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="153363823"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="182976499"
+   d="scan'208";a="153363823"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:48 -0700
-IronPort-SDR: hSLATPILKZexzU9UbulfkIo/q3wPUuwdHpgGfd67f9RjOUrzIM+GeKhbZtX4gmiSR0zMVEA6Pm
- bSqmX2bz2skQ==
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:41 -0700
+IronPort-SDR: t/zSGeR++7wfj+VtFM7nhfyp5h0blfdWqDlNHnP/5jl48Bm08GFuTiLpDu6MwkEQ7bZpMY8SQr
+ l7ztZVCdgy3g==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="529054109"
+   d="scan'208";a="419537249"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:46 -0700
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:40 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -41,8 +41,8 @@ To:     Andrew Morton <akpm@linux-foundation.org>,
         Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
 Cc:     Ira Weiny <ira.weiny@intel.com>,
-        Eric Biederman <ebiederm@xmission.com>, x86@kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
@@ -67,9 +67,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 51/58] kernel: Utilize new kmap_thread()
-Date:   Fri,  9 Oct 2020 12:50:26 -0700
-Message-Id: <20201009195033.3208459-52-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 49/58] drivers/misc: Utilize new kmap_thread()
+Date:   Fri,  9 Oct 2020 12:50:24 -0700
+Message-Id: <20201009195033.3208459-50-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -81,55 +81,67 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Ira Weiny <ira.weiny@intel.com>
 
-This kmap() call is localized to a single thread.  To avoid the over
+These kmap() calls are localized to a single thread.  To avoid the over
 head of global PKRS updates use the new kmap_thread() call.
 
-Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- kernel/kexec_core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
-index c19c0dad1ebe..272a9920c0d6 100644
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -815,7 +815,7 @@ static int kimage_load_normal_segment(struct kimage *image,
- 		if (result < 0)
- 			goto out;
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index 8531ae781195..f308abb8ad03 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -343,7 +343,7 @@ static int qp_memcpy_to_queue_iter(struct vmci_queue *queue,
+ 		size_t to_copy;
  
--		ptr = kmap(page);
-+		ptr = kmap_thread(page);
- 		/* Start with a clear page */
- 		clear_page(ptr);
- 		ptr += maddr & ~PAGE_MASK;
-@@ -828,7 +828,7 @@ static int kimage_load_normal_segment(struct kimage *image,
- 			memcpy(ptr, kbuf, uchunk);
+ 		if (kernel_if->host)
+-			va = kmap(kernel_if->u.h.page[page_index]);
++			va = kmap_thread(kernel_if->u.h.page[page_index]);
  		else
- 			result = copy_from_user(ptr, buf, uchunk);
--		kunmap(page);
-+		kunmap_thread(page);
- 		if (result) {
- 			result = -EFAULT;
- 			goto out;
-@@ -879,7 +879,7 @@ static int kimage_load_crash_segment(struct kimage *image,
- 			goto out;
+ 			va = kernel_if->u.g.vas[page_index + 1];
+ 			/* Skip header. */
+@@ -357,12 +357,12 @@ static int qp_memcpy_to_queue_iter(struct vmci_queue *queue,
+ 		if (!copy_from_iter_full((u8 *)va + page_offset, to_copy,
+ 					 from)) {
+ 			if (kernel_if->host)
+-				kunmap(kernel_if->u.h.page[page_index]);
++				kunmap_thread(kernel_if->u.h.page[page_index]);
+ 			return VMCI_ERROR_INVALID_ARGS;
  		}
- 		arch_kexec_post_alloc_pages(page_address(page), 1, 0);
--		ptr = kmap(page);
-+		ptr = kmap_thread(page);
- 		ptr += maddr & ~PAGE_MASK;
- 		mchunk = min_t(size_t, mbytes,
- 				PAGE_SIZE - (maddr & ~PAGE_MASK));
-@@ -895,7 +895,7 @@ static int kimage_load_crash_segment(struct kimage *image,
+ 		bytes_copied += to_copy;
+ 		if (kernel_if->host)
+-			kunmap(kernel_if->u.h.page[page_index]);
++			kunmap_thread(kernel_if->u.h.page[page_index]);
+ 	}
+ 
+ 	return VMCI_SUCCESS;
+@@ -391,7 +391,7 @@ static int qp_memcpy_from_queue_iter(struct iov_iter *to,
+ 		int err;
+ 
+ 		if (kernel_if->host)
+-			va = kmap(kernel_if->u.h.page[page_index]);
++			va = kmap_thread(kernel_if->u.h.page[page_index]);
  		else
- 			result = copy_from_user(ptr, buf, uchunk);
- 		kexec_flush_icache_page(page);
--		kunmap(page);
-+		kunmap_thread(page);
- 		arch_kexec_pre_free_pages(page_address(page), 1);
- 		if (result) {
- 			result = -EFAULT;
+ 			va = kernel_if->u.g.vas[page_index + 1];
+ 			/* Skip header. */
+@@ -405,12 +405,12 @@ static int qp_memcpy_from_queue_iter(struct iov_iter *to,
+ 		err = copy_to_iter((u8 *)va + page_offset, to_copy, to);
+ 		if (err != to_copy) {
+ 			if (kernel_if->host)
+-				kunmap(kernel_if->u.h.page[page_index]);
++				kunmap_thread(kernel_if->u.h.page[page_index]);
+ 			return VMCI_ERROR_INVALID_ARGS;
+ 		}
+ 		bytes_copied += to_copy;
+ 		if (kernel_if->host)
+-			kunmap(kernel_if->u.h.page[page_index]);
++			kunmap_thread(kernel_if->u.h.page[page_index]);
+ 	}
+ 
+ 	return VMCI_SUCCESS;
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

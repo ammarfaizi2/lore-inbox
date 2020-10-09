@@ -4,36 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20BF3C8302A
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1A84C9DC9D
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB7F622475
-	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:53:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6BA622B48
+	for <io-uring@archiver.kernel.org>; Fri,  9 Oct 2020 19:54:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389974AbgJITxX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 15:53:23 -0400
-Received: from mga14.intel.com ([192.55.52.115]:15570 "EHLO mga14.intel.com"
+        id S2391294AbgJITyO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 9 Oct 2020 15:54:14 -0400
+Received: from mga14.intel.com ([192.55.52.115]:15724 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391073AbgJITxW (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 9 Oct 2020 15:53:22 -0400
-IronPort-SDR: 7KkidwkDSmKI3kwWlMria/Sju91b/R21i0w1kLrwQYSn3K4W1EsDTLeZ7OuYero5ReiYzcFEEs
- JOGLzwSLgu9Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="164744016"
+        id S2391245AbgJITyG (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 9 Oct 2020 15:54:06 -0400
+IronPort-SDR: 7qaDjl2/ZxevUxp9SIgeuOAu8od3VQFfONS9RP6IrIk3xZmTXRvkzFi7/Qwdz+i1yGXcanWplh
+ jXuBSYf4vxRQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="164744163"
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="164744016"
+   d="scan'208";a="164744163"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:09 -0700
-IronPort-SDR: FciD93oXa6TN5PQF74JzeuCyRYkWBlT2lC/7ncntBELjkiuqMo1u2JSAhMViBtfJLu9YdFEYCB
- Wo/5PMHidIaw==
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:04 -0700
+IronPort-SDR: NEiErKYZfPZGqrWyxIZ0z43ef9+IKjrcXd9NJIRckxXQwdDEMd5poh/dknsqhifod6Ym/UoaZd
+ Mu4h9c7DJvbA==
 X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; 
-   d="scan'208";a="317147397"
+   d="scan'208";a="462301216"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:53:08 -0700
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 12:54:03 -0700
 From:   ira.weiny@intel.com
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -66,9 +66,9 @@ Cc:     Ira Weiny <ira.weiny@intel.com>, x86@kernel.org,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
         samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
-Subject: [PATCH RFC PKS/PMEM 39/58] fs/jffs2: Utilize new kmap_thread()
-Date:   Fri,  9 Oct 2020 12:50:14 -0700
-Message-Id: <20201009195033.3208459-40-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 56/58] dax: Stray access protection for dax_direct_access()
+Date:   Fri,  9 Oct 2020 12:50:31 -0700
+Message-Id: <20201009195033.3208459-57-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -80,34 +80,42 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Ira Weiny <ira.weiny@intel.com>
 
-These kmap() calls are localized to a single thread.  To avoid the over head of
-global PKRS updates use the new kmap_thread() call.
+dax_direct_access() is a special case of accessing pmem via a page
+offset and without a struct page.
+
+Because the dax driver is well aware of the special protections it has
+mapped memory with, call dev_access_[en|dis]able() directly instead of
+the unnecessary overhead of trying to get a page to kmap.
+
+Similar to kmap, we leverage existing functions, dax_read_[un]lock(),
+because they are already required to surround the use of the memory
+returned from dax_direct_access().
 
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- fs/jffs2/file.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dax/super.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
-index 3e6d54f9b011..14dd2b18cc16 100644
---- a/fs/jffs2/file.c
-+++ b/fs/jffs2/file.c
-@@ -287,13 +287,13 @@ static int jffs2_write_end(struct file *filp, struct address_space *mapping,
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index e84070b55463..0ddb3ee73e36 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -30,6 +30,7 @@ static DEFINE_SPINLOCK(dax_host_lock);
  
- 	/* In 2.4, it was already kmapped by generic_file_write(). Doesn't
- 	   hurt to do it again. The alternative is ifdefs, which are ugly. */
--	kmap(pg);
-+	kmap_thread(pg);
+ int dax_read_lock(void)
+ {
++	dev_access_enable(false);
+ 	return srcu_read_lock(&dax_srcu);
+ }
+ EXPORT_SYMBOL_GPL(dax_read_lock);
+@@ -37,6 +38,7 @@ EXPORT_SYMBOL_GPL(dax_read_lock);
+ void dax_read_unlock(int id)
+ {
+ 	srcu_read_unlock(&dax_srcu, id);
++	dev_access_disable(false);
+ }
+ EXPORT_SYMBOL_GPL(dax_read_unlock);
  
- 	ret = jffs2_write_inode_range(c, f, ri, page_address(pg) + aligned_start,
- 				      (pg->index << PAGE_SHIFT) + aligned_start,
- 				      end - aligned_start, &writtenlen);
- 
--	kunmap(pg);
-+	kunmap_thread(pg);
- 
- 	if (ret) {
- 		/* There was an error writing. */
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 

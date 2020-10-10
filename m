@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1008EC433E7
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D777C433DF
 	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D337B20760
+	by mail.kernel.org (Postfix) with ESMTP id 02820207FB
 	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CA111z+6"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jgS/vyhJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389447AbgJJWzm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S2389441AbgJJWzm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sat, 10 Oct 2020 18:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34714 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731266AbgJJTFU (ORCPT
+        with ESMTP id S1731269AbgJJTFU (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:05:20 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF27DC08EAE0
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:17 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id h5so3631656wrv.7
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:17 -0700 (PDT)
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6129C08EBB4
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:23 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id h7so13739407wre.4
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=jqz5SmSTDwwfqyARoxTCWKo/0K8KU3ICbaLX4P2M8f8=;
-        b=CA111z+6hTUoCvHweQcEk4VScW6+BrLhqYSns7tbqSWGLm6RZiHBuRAFrVAPzNHqGN
-         ehpz9jqBdHWuOnfwCaHWQrw47GhCglAtVxSg2U+3Js5z4L0T5Azaa008dfHsr9TSbORB
-         iZMOXzzhRBeY7KyCVlG7czkpPFC+t/U+JfXdVocMefltuly5WKYxeUdZZ/sJohCGZbUZ
-         oHNqJGH53NNiB9flOmMVSNvEOeAMWr0ayjX8C+LYVsGVzZ7f9CpfHqhU1XQOn0uE287b
-         edmrYuwHcFoXF0ykk3pG+4T97WI3+pOzEY8PvKTlwLbzOqOyK+NhD/4nKjb9v93BwMNe
-         RH8Q==
+        bh=Rc6NRiK/DSb9atUjmXunq0MGhvdovdcGEJ2qcjHNWHU=;
+        b=jgS/vyhJhfqJCQBhL9QHjKnEQo50U9wfvEyQVFZIezNITDpL16YSfAD6erGys7TA7M
+         25rXnBTLjrx1H7mbqpHv+EUfIXJLV4ttVMAuV1Gf39k9vY+zWDT33E505lxInGMxVvH7
+         hMiBaWLEVSJuPsxcDSDcM36Gs2ENXlklgilxuRvqRAobziUhX9L1Oopi9vlViLA4rTu8
+         u/uP1SnTs6Vjy7nIjBgYR8A+vG9hAAzgjq+v0mX282xYhTAzgVuBxNIOLzqtQk8Pagp8
+         zu9LyXz6v133+lLk6zu4kTkwlBHrg1sa/LJOh2cHiGHBUvxbJxMqbm+tmwqGedp0Fy9e
+         okNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jqz5SmSTDwwfqyARoxTCWKo/0K8KU3ICbaLX4P2M8f8=;
-        b=M0ibh8E9ravZR+ellWN6+6dIaCXWA9mfTgsSFS/BRWpFz86kJMXyS6TyFJ7AcB6Sh8
-         SyYL02DUPgXOZp9mTapiAaRHuB85qmjp4YEdZq8VfpOhxeLUbTN4Ok8BFehMDZx+3nGT
-         vmMl62YxejfUo44JVGdC0xbqdb9rHcnBuPuwmnnyvcrLcNgjHLpvs7vUS6RYwm80NJmq
-         fPpn1noXnRU3dTALT5b27eYm8T3ISszEzHQojIVHUnzEdKMyUCaEEEDXXEyekUBuR0oX
-         mcVXD/d/dg9q0CqwPZq1XirNoDUE3smbFG1t9qNOUNNT/iKb1gbqm/kJmcX2c4PiPMIO
-         numA==
-X-Gm-Message-State: AOAM531F1iLPFKIlwSNYqB3xs2eFnRDqOI7QTSJE7Z+A73eBEP4YGcfH
-        2rwl/Iyd+4Ua5AOOicuv55U=
-X-Google-Smtp-Source: ABdhPJzpDo562g9YVMuihppOqgHz5X+4Y8f/EyNZaYw1UQZvgqyKeRyc6B5TZjQ2Rg4sTk1ysoXQqQ==
-X-Received: by 2002:adf:e849:: with SMTP id d9mr11726530wrn.25.1602351436413;
-        Sat, 10 Oct 2020 10:37:16 -0700 (PDT)
+        bh=Rc6NRiK/DSb9atUjmXunq0MGhvdovdcGEJ2qcjHNWHU=;
+        b=H2d0zKEMVORh1AWz/EacpJ+1EuNxkMmHrXTnO9ZLutOS5Z6c6xLtQyEDcLR2R1yVKw
+         8yr7Ux5KZHKPG4qESTj2U52xHVHFNTvsi01RdvL9gjm4GvtInCDtIqdBuiStOOD9GQYT
+         YkgCMIbGvNPIvCQHgc1JDylmaz7RlI7AFc2CICplSwBITX4ijw7Bww2ysg8aaClPvseI
+         T+RsOxlDFx7+DI7neT8TlNdaflfPdLLjpW3CPcZkvUp2A05USRK9QENg1w6Ot41lcWPY
+         +TSdzszdA96HWilxruOcQaNNSJnPXfuGcMOZkaF/oTHqaaikvq4Ii+g959c9zQJ56Y/W
+         Jbiw==
+X-Gm-Message-State: AOAM5305m04AK0S7RAPsB0jjj3kvH5PVkLznR3poi8ooPHBqALt4b1V2
+        EBhUcfe8qiZ6GS+4ZPzSpF0=
+X-Google-Smtp-Source: ABdhPJzNtCxVKVRrbjvbZhl7ub8Gwy/6gXhLPNmjG7wOR5gOHhfrzuWxrMnvPlnteB9fjVoC4Mt7hg==
+X-Received: by 2002:adf:e8cf:: with SMTP id k15mr20801874wrn.262.1602351442367;
+        Sat, 10 Oct 2020 10:37:22 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.15
+        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2020 10:37:15 -0700 (PDT)
+        Sat, 10 Oct 2020 10:37:21 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 05/12] io_uring: improve submit_state.ios_left accounting
-Date:   Sat, 10 Oct 2020 18:34:09 +0100
-Message-Id: <b16b486d3eaafa271e9a7c4877d7105cd3d2f85c.1602350806.git.asml.silence@gmail.com>
+Subject: [PATCH 11/12] io_uring: refactor *files_register()'s error paths
+Date:   Sat, 10 Oct 2020 18:34:15 +0100
+Message-Id: <d3bd3012b7686ae7e6135652d97dceb09e4ef9ee.1602350806.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1602350805.git.asml.silence@gmail.com>
 References: <cover.1602350805.git.asml.silence@gmail.com>
@@ -72,59 +72,143 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-state->ios_left isn't decremented for requests that don't need a file,
-so it might be larger than number of SQEs left. That in some
-circumstances makes us to grab more files that is needed so imposing
-extra put.
-Deaccount one ios_left for each request.
+Don't keep repeating cleaning sequences in error paths, write it once
+in the and use labels. It's less error prone and looks cleaner.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 78 +++++++++++++++++++++------------------------------
+ 1 file changed, 32 insertions(+), 46 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ffdaea55e820..250eefbe13cb 100644
+index c3ca82f20f3d..fc4ef725ae09 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2581,7 +2581,6 @@ static struct file *__io_file_get(struct io_submit_state *state, int fd)
- 	if (state->file) {
- 		if (state->fd == fd) {
- 			state->has_refs--;
--			state->ios_left--;
- 			return state->file;
- 		}
- 		__io_state_file_put(state);
-@@ -2591,8 +2590,7 @@ static struct file *__io_file_get(struct io_submit_state *state, int fd)
- 		return NULL;
- 
- 	state->fd = fd;
--	state->ios_left--;
--	state->has_refs = state->ios_left;
-+	state->has_refs = state->ios_left - 1;
- 	return state->file;
- }
- 
-@@ -6386,7 +6384,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 		       struct io_submit_state *state)
+@@ -7282,10 +7282,9 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 				 unsigned nr_args)
  {
- 	unsigned int sqe_flags;
--	int id;
-+	int id, ret;
+ 	__s32 __user *fds = (__s32 __user *) arg;
+-	unsigned nr_tables;
++	unsigned nr_tables, i;
+ 	struct file *file;
+-	int fd, ret = 0;
+-	unsigned i;
++	int fd, ret = -ENOMEM;
+ 	struct fixed_file_ref_node *ref_node;
+ 	struct fixed_file_data *file_data;
  
- 	req->opcode = READ_ONCE(sqe->opcode);
- 	req->user_data = READ_ONCE(sqe->user_data);
-@@ -6432,7 +6430,9 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (!io_op_defs[req->opcode].needs_file)
- 		return 0;
+@@ -7307,45 +7306,32 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(file_data->table),
+ 				   GFP_KERNEL);
+-	if (!file_data->table) {
+-		kfree(file_data);
+-		return -ENOMEM;
+-	}
++	if (!file_data->table)
++		goto out_free;
  
--	return io_req_set_file(state, req, READ_ONCE(sqe->fd));
-+	ret = io_req_set_file(state, req, READ_ONCE(sqe->fd));
-+	state->ios_left--;
+ 	if (percpu_ref_init(&file_data->refs, io_file_ref_kill,
+-				PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
+-		kfree(file_data->table);
+-		kfree(file_data);
+-		return -ENOMEM;
+-	}
++				PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
++		goto out_free;
+ 
+-	if (io_sqe_alloc_file_tables(file_data, nr_tables, nr_args)) {
+-		percpu_ref_exit(&file_data->refs);
+-		kfree(file_data->table);
+-		kfree(file_data);
+-		return -ENOMEM;
+-	}
++	if (io_sqe_alloc_file_tables(file_data, nr_tables, nr_args))
++		goto out_ref;
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
+ 		struct fixed_file_table *table;
+ 		unsigned index;
+ 
+-		ret = -EFAULT;
+-		if (copy_from_user(&fd, &fds[i], sizeof(fd)))
+-			break;
++		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
++			ret = -EFAULT;
++			goto out_fput;
++		}
+ 		/* allow sparse sets */
+-		if (fd == -1) {
+-			ret = 0;
++		if (fd == -1)
+ 			continue;
+-		}
+ 
+-		table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+-		index = i & IORING_FILE_TABLE_MASK;
+ 		file = fget(fd);
+-
+ 		ret = -EBADF;
+ 		if (!file)
+-			break;
++			goto out_fput;
+ 
+ 		/*
+ 		 * Don't allow io_uring instances to be registered. If UNIX
+@@ -7356,28 +7342,13 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		 */
+ 		if (file->f_op == &io_uring_fops) {
+ 			fput(file);
+-			break;
++			goto out_fput;
+ 		}
+-		ret = 0;
++		table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
++		index = i & IORING_FILE_TABLE_MASK;
+ 		table->files[index] = file;
+ 	}
+ 
+-	if (ret) {
+-		for (i = 0; i < ctx->nr_user_files; i++) {
+-			file = io_file_from_index(ctx, i);
+-			if (file)
+-				fput(file);
+-		}
+-		for (i = 0; i < nr_tables; i++)
+-			kfree(file_data->table[i].files);
+-
+-		percpu_ref_exit(&file_data->refs);
+-		kfree(file_data->table);
+-		kfree(file_data);
+-		ctx->nr_user_files = 0;
+-		return ret;
+-	}
+-
+ 	ctx->file_data = file_data;
+ 	ret = io_sqe_files_scm(ctx);
+ 	if (ret) {
+@@ -7397,6 +7368,21 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	spin_unlock(&file_data->lock);
+ 	percpu_ref_get(&file_data->refs);
+ 	return ret;
++out_fput:
++	for (i = 0; i < ctx->nr_user_files; i++) {
++		file = io_file_from_index(ctx, i);
++		if (file)
++			fput(file);
++	}
++	for (i = 0; i < nr_tables; i++)
++		kfree(file_data->table[i].files);
++	ctx->nr_user_files = 0;
++out_ref:
++	percpu_ref_exit(&file_data->refs);
++out_free:
++	kfree(file_data->table);
++	kfree(file_data);
 +	return ret;
  }
  
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
 -- 
 2.24.0
 

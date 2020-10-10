@@ -2,113 +2,99 @@ Return-Path: <SRS0=O7YS=DR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53223C433E7
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D600C43457
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1ABB72075E
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D72D20760
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L3BjK7FE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kmp6GpVc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389419AbgJJWzk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S2389412AbgJJWzk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sat, 10 Oct 2020 18:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731250AbgJJTFM (ORCPT
+        with ESMTP id S1731245AbgJJTFM (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:05:12 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B0AC08EBB1
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:20 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id e18so13699115wrw.9
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:20 -0700 (PDT)
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC5BC08EADB
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:12 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 13so12920015wmf.0
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=1ifgpFrjpQM4ci+JQJAx0+XCorFF0b5h0bX5cdG9IOk=;
-        b=L3BjK7FEuTqUEi0GQgkT8paF5nuYlw8LXqrOeyTpUq78dnxKZnwYySTgpSULD03KOW
-         QkdvLj5woxzfJBv50ECfpPpgsv+0r0OB9D9yvhp4fuNbgM5ubVDGNmLWlzZDHEV5F6BE
-         xvqzPKBHc7g/hfmbY0f92OmRF1w/dtFo5v8yPjJf6d4BkyoIKTbADDMYPq/l/esE57pg
-         3R/cZgiDyjK0dXJJyH2/wvwkXMdSLpyXgkcDQnZ4muE8hVdd3xJDVTBv1SKn6S0dQ/l/
-         QO0Uk1bGvx4I3Xv1Ll6UJSTCiInstVadZL9i1oNUfhMxke8rZgnkT49SnvnBs98+bkNB
-         oMeA==
+        bh=VL6j6YSMb4UExyJgLJzWW8xTGFSNORehDfl/DyQluMI=;
+        b=kmp6GpVcKRVM1AhZj5OU+z2K6p1Mbp8q9hCZxfUMGctgPCufzSzMlq54dF4WJF+AYz
+         gk3lLd7JKCdhLHLg7aE/5UXBNfqTQVum58eD12lrqDevS2EiW+2b3R1SsWNBeJsTagiW
+         EE7aI/EPGI1FGt6oqTS0pOzAqDQUkozkutOoKTF635MrkaZAKQ9V3QoanzhqCzUTu+uw
+         EGEMw0w5tpEYouvkZA+qkf8DTC1WNKo2d3vU4ksEF0rOgOqAY5yNofe3gE1290g4zcQv
+         bKrVTvP3ZurJo3Ui6BsYtOR07BjA0m74eBZNL9OBDyHDfR7s3Jh7DV0yx43NdAt21ZSA
+         dvug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=1ifgpFrjpQM4ci+JQJAx0+XCorFF0b5h0bX5cdG9IOk=;
-        b=OhTZAe65hNqX07rG+qw6z0yZ15YJe2ko72VFmhtmb2Ew/NbFYSNMnRfl0MRNS9/M18
-         Bm/aW3dwbyrNoxADQXvqv4LwER7KBWTKs5jfdPR0ni63yQSy5VKiqW04nw/juBw2ODlj
-         UvoSEmY6r9C4yiG6Q9u7yyUu+kdI1ESC3nwvn0qylCUwjJhG8/YZUjUZMI6QR7+afbqG
-         4PUKKr5BIGuJMh9uRu4yazt7EsytYhskhIxulLIi0OHnNOfCnZGgqvJBVbpGmCv+bTTi
-         Bw8NuPndMyMn6InVcG9gmagwHoyJAD0OYgY/yj7/6UrANj4PGn6vrSm3ZO5rDwdkI4UL
-         DGpw==
-X-Gm-Message-State: AOAM533YndIWLGnGWcoScvBK4NAsAeEfv0GtG6jpCRZcdtxWzfza/h8u
-        A0buhbKyTa89Yt3ObInxTEY=
-X-Google-Smtp-Source: ABdhPJzLFjV5WBy09e/3ZuASZnT/0wQVeWZoJ3IlcWfJeowetNaIKELmbXk+gd/iFJxMPXtoeB+59Q==
-X-Received: by 2002:a5d:4709:: with SMTP id y9mr21063633wrq.59.1602351439379;
-        Sat, 10 Oct 2020 10:37:19 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VL6j6YSMb4UExyJgLJzWW8xTGFSNORehDfl/DyQluMI=;
+        b=DY+zEaA7ZpeAYwn51nQqPV2TSqU05B1Baqz+2R130WH6PjzF0vgL0bM/xzvgSChOAJ
+         QKxV4IqTKbkCqZqURiYub/K/Un4VHjRGRKgdNfCZHJAHgXWZUSKSUHre/2KBwAjVPcXq
+         XbCwq2g2FE386BYFZb5uPHOec8X3jngCmXECJ6gC9gQGQdQX3L7kuSEEDA/mQ+M2sQ77
+         SQ9GNxrxBNFDY0tryZkLQ3W/dqJLZQtURXjDCmFEZixymq5pPIe7olxUofhYVTtT5iZd
+         7lEn9whqOzcoZwU++TbY7UUIxHMbNpRv+/ruxJNhp5Q7Wqho0Zfu+HP99TkWFvSLDKoH
+         ZkRA==
+X-Gm-Message-State: AOAM5324kLOHWMizYXQfBE8YWGWrsbRDXxiVRIQghLboPSWEXpLBwhwO
+        F6hbI/EBJ+HHfPe6xSiU+Bz2NYegSz4Pag==
+X-Google-Smtp-Source: ABdhPJy4efy38Wt+eT4pOCy/yBx1KeZY/LeRVfPIiA99C+njkbICOPhMY16pGD29pWVYHE6dUlw9UQ==
+X-Received: by 2002:a1c:63c3:: with SMTP id x186mr3680548wmb.66.1602351431457;
+        Sat, 10 Oct 2020 10:37:11 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.18
+        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2020 10:37:18 -0700 (PDT)
+        Sat, 10 Oct 2020 10:37:10 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/12] io_uring: clean leftovers after splitting issue
-Date:   Sat, 10 Oct 2020 18:34:12 +0100
-Message-Id: <58b23b922d087ea9b92d9103b10b493200f57f99.1602350806.git.asml.silence@gmail.com>
+Subject: [PATCH 00/12] bundled cleanups and improvements
+Date:   Sat, 10 Oct 2020 18:34:04 +0100
+Message-Id: <cover.1602350805.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1602350805.git.asml.silence@gmail.com>
-References: <cover.1602350805.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Kill extra if in io_issue_sqe() and place send/recv[msg] calls
-appropriately under switch's cases.
+Only [1] considerably affects performance (as by Roman Gershman), others
+are rather cleanups.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+[1-2] are on the surface cleanups following ->files changes.
+[3-5] address ->file grabbing
+[6-7] are some preparations around timeouts
+[8,9] are independent cleanups
+[10-12] toss around files_register() bits
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3ce72d48eb21..2e0105c373ae 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5831,18 +5831,16 @@ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
- 		ret = io_sync_file_range(req, force_nonblock);
- 		break;
- 	case IORING_OP_SENDMSG:
-+		ret = io_sendmsg(req, force_nonblock, cs);
-+		break;
- 	case IORING_OP_SEND:
--		if (req->opcode == IORING_OP_SENDMSG)
--			ret = io_sendmsg(req, force_nonblock, cs);
--		else
--			ret = io_send(req, force_nonblock, cs);
-+		ret = io_send(req, force_nonblock, cs);
- 		break;
- 	case IORING_OP_RECVMSG:
-+		ret = io_recvmsg(req, force_nonblock, cs);
-+		break;
- 	case IORING_OP_RECV:
--		if (req->opcode == IORING_OP_RECVMSG)
--			ret = io_recvmsg(req, force_nonblock, cs);
--		else
--			ret = io_recv(req, force_nonblock, cs);
-+		ret = io_recv(req, force_nonblock, cs);
- 		break;
- 	case IORING_OP_TIMEOUT:
- 		ret = io_timeout(req);
+Pavel Begunkov (12):
+  io_uring: don't io_prep_async_work() linked reqs
+  io_uring: clean up ->files grabbing
+  io_uring: kill extra check in fixed io_file_get()
+  io_uring: simplify io_file_get()
+  io_uring: improve submit_state.ios_left accounting
+  io_uring: use a separate struct for timeout_remove
+  io_uring: remove timeout.list after hrtimer cancel
+  io_uring: clean leftovers after splitting issue
+  io_uring: don't delay io_init_req() error check
+  io_uring: clean file_data access in files_register
+  io_uring: refactor *files_register()'s error paths
+  io_uring: keep a pointer ref_node in file_data
+
+ fs/io_uring.c | 275 ++++++++++++++++++++------------------------------
+ 1 file changed, 107 insertions(+), 168 deletions(-)
+
 -- 
 2.24.0
 

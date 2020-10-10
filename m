@@ -4,131 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24114C43457
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A6BC43467
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF02420760
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D58420760
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="fV2CRHhh"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="MRRY2S33"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389491AbgJJWzo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S2389475AbgJJWzo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sat, 10 Oct 2020 18:55:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732138AbgJJTkT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:40:19 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B6DC08E935
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 09:53:47 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id r21so6638468pgj.5
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 09:53:47 -0700 (PDT)
+        with ESMTP id S1731391AbgJJTRx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:17:53 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B9BC0613BD
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 12:17:44 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id l18so1101768pgg.0
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 12:17:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=U5tstZmbDyXUeuyJdKt9QDTRSJ8ywOxt/350RTralow=;
-        b=fV2CRHhh/jZjFZgK1JZuqdHlALHsMbDSgonO53L3hZcF/PBA+ICKWfJkPo3keOU4hs
-         HQPwmPc/yBBPsyQRlgbiwL4BH+znU5JatWtHIroIGIs96L4fYlo9m28zkxA9iHn3cNKA
-         yEGWqWdG2ve28AgxSbipJv1NR5+3HwVoX4oqmA5wAgFJSg9XEkxmkwBtQXGCg1q40V29
-         VSDXj/Ono/DPDFSiyyqiqfVUS0WmTj+Cv0EqL597Vj8BhVNqKg39PvRntNY+1a64prAE
-         Rc2S2CZDVgUUFyNLe3uA7vgnVyOMqNmKSBciIXUX4mCr+zpXTLmXblcIhwR2PhgJtpjj
-         /gkg==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=rNxjTadVUnT9PUmXBaYZ0yyb+TLBMZ3qgtb35bVLsHM=;
+        b=MRRY2S33WYX/koM/uMpuEIICAmwLMEVmC+Dh2yuhY2pq6Tsth54jVifTaG3DVHpWI6
+         rbuMfcQKWbiZxNI2OoyV+Ga0bO9qLmvprNoBEPav3V82wEc19Xj3nXsT5eJiGeVtkWd+
+         bLH92thnytI2X+Tn4PLJLbr+hAWpI0gN0DUFkiRXzbyL4QRIsXpKVw9gGPSyt8TAN57W
+         lPMsy+FbIZPMA54bUEyNXXGQxcErcE0gW82hk/0PT8InsUrFznUAu4Eo47bjL1XP2hGO
+         5BQ2drI/H9uuEtZLQlg6mdlZgpYY34OaS1ROV8rh6hasVZgO8QjUyxhY6yA8N3RXPu9C
+         GryA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=U5tstZmbDyXUeuyJdKt9QDTRSJ8ywOxt/350RTralow=;
-        b=FBlzNFz8KC0DwyXdTkkOrPvRiGnAZL66AmK5/0vAFYUvMeL5lEzz9yC9Et7hzGEY4i
-         SjgYUAN0zrBn+miDHIopZCttu5z69ma4pOezg/IRoipZUvd9oIY4p1zIwWXOBwqWNEeH
-         jAX+KP7fzO7UMok6jJk3kG8uZQ3eQCIgPaSJzhnfQAI16Y32IRiLK+IF2UVmNtAkZml+
-         dSGCkCu5xrOemBI3IL2wJHAXZrxyf7r0ywR0v6qSXFOW3SA5IJ1jkG9lYDCOe+G2aLac
-         21Q1OkotoHNgSwnF2c7a1gHYFaszEZsED7Pzh4Tu/d5X9AFojN45HK8Z9MhO3PNl1VyI
-         sU/A==
-X-Gm-Message-State: AOAM532nrOAU2r7aKG8VxTBCXAPk0hTu7K5iZEo7FIcO8wUJXgrCpvi1
-        iF4zv55ePcMrsWTnJ64lbVdyVQ==
-X-Google-Smtp-Source: ABdhPJyx7x8Hz+dyaDtDo4bWS5tG2lI8kBMcU772SoKNz7qVPfAHzTMep5GdpnoIgKhgRgKeqJ8TdA==
-X-Received: by 2002:a17:90a:62c2:: with SMTP id k2mr10477618pjs.78.1602348826635;
-        Sat, 10 Oct 2020 09:53:46 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id m34sm14606722pgl.94.2020.10.10.09.53.44
+        bh=rNxjTadVUnT9PUmXBaYZ0yyb+TLBMZ3qgtb35bVLsHM=;
+        b=cUOu5itqW6sRoFmcBrpS+ZvXf7k+DagN2KYnsUT89F0O0ZWWaIV5z2TYgNCZFm2/97
+         U65TWKbGumrkVMCgHnpQ50N6Wjh5BKOK5PhnX2EUk5m1uF6kqOKe3k6FJK+pQJBG6I5U
+         VqcMex42rtBSOgYPD8gcDuIH313OqX6jWdgM4Pd/qaUx5dz1nP/E4ZddQ9rNkOhKesna
+         aJ2KNEbehJPrQvy0yDsj7ziWy/PfPT2SWtByGQBAUCU3aDnB3Zz7GIAWKYYiW2Dqn6oA
+         Jhwwqp5B4JdAMRI0xazew0ghFiXw/mzyuE22jsXbvKvo+5r2FFAF+JlIA8coUePuwm+Z
+         ND3A==
+X-Gm-Message-State: AOAM532YgUfUOGhKdR83sP1m/Sxcc557EBRk085HZRVr/DGThWidJJNP
+        omyZt4RmDpgXKvZ+l8DRLxqn4Pl6g1XedA==
+X-Google-Smtp-Source: ABdhPJyUXSCHganiFTiHBY+wWnJMY74Wo71HQFsYwn/uEudixxip5OG7k3r7xpVYivrQM20GSZpiXQ==
+X-Received: by 2002:a63:524a:: with SMTP id s10mr8121301pgl.40.1602357462958;
+        Sat, 10 Oct 2020 12:17:42 -0700 (PDT)
+Received: from ?IPv6:2620:10d:c085:21c1::1171? ([2620:10d:c090:400::5:2695])
+        by smtp.gmail.com with ESMTPSA id ep11sm16026203pjb.55.2020.10.10.12.17.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 10 Oct 2020 09:53:45 -0700 (PDT)
-Subject: Re: [PATCHSET RFC v3 0/6] Add support for TIF_NOTIFY_SIGNAL
+        Sat, 10 Oct 2020 12:17:42 -0700 (PDT)
+Subject: Re: [Question] testing results of support async buffered reads
+ feature
+To:     Hao_Xu <haoxu@linux.alibaba.com>, io-uring@vger.kernel.org
+References: <f810df0d-e920-3183-f0eb-dbb17c60f157@linux.alibaba.com>
 From:   Jens Axboe <axboe@kernel.dk>
-To:     Miroslav Benes <mbenes@suse.cz>, Oleg Nesterov <oleg@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        peterz@infradead.org, tglx@linutronix.de,
-        live-patching@vger.kernel.org
-References: <20201005150438.6628-1-axboe@kernel.dk>
- <20201008145610.GK9995@redhat.com>
- <alpine.LSU.2.21.2010090959260.23400@pobox.suse.cz>
- <e33ec671-3143-d720-176b-a8815996fd1c@kernel.dk>
-Message-ID: <9a01ab10-3140-3fa6-0fcf-07d3179973f2@kernel.dk>
-Date:   Sat, 10 Oct 2020 10:53:44 -0600
+Message-ID: <1d99941e-d980-10c3-d27d-c18fa5ff2d67@kernel.dk>
+Date:   Sat, 10 Oct 2020 13:17:40 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <e33ec671-3143-d720-176b-a8815996fd1c@kernel.dk>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <f810df0d-e920-3183-f0eb-dbb17c60f157@linux.alibaba.com>
+Content-Type: text/plain; charset=gbk
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 10/9/20 9:21 AM, Jens Axboe wrote:
-> On 10/9/20 2:01 AM, Miroslav Benes wrote:
->> On Thu, 8 Oct 2020, Oleg Nesterov wrote:
->>
->>> On 10/05, Jens Axboe wrote:
->>>>
->>>> Hi,
->>>>
->>>> The goal is this patch series is to decouple TWA_SIGNAL based task_work
->>>> from real signals and signal delivery.
->>>
->>> I think TIF_NOTIFY_SIGNAL can have more users. Say, we can move
->>> try_to_freeze() from get_signal() to tracehook_notify_signal(), kill
->>> fake_signal_wake_up(), and remove freezing() from recalc_sigpending().
->>>
->>> Probably the same for TIF_PATCH_PENDING, klp_send_signals() can use
->>> set_notify_signal() rather than signal_wake_up().
->>
->> Yes, that was my impression from the patch set too, when I accidentally 
->> noticed it.
->>
->> Jens, could you CC our live patching ML when you submit v4, please? It 
->> would be a nice cleanup.
-> 
-> Definitely, though it'd be v5 at this point. But we really need to get
-> all archs supporting TIF_NOTIFY_SIGNAL first. Once we have that, there's
-> a whole slew of cleanups that'll fall out naturally:
-> 
-> - Removal of JOBCTL_TASK_WORK
-> - Removal of special path for TWA_SIGNAL in task_work
-> - TIF_PATCH_PENDING can be converted and then removed
-> - try_to_freeze() cleanup that Oleg mentioned
-> 
-> And probably more I'm not thinking of right now :-)
+On 10/10/20 3:39 AM, Hao_Xu wrote:
+> Hi Jens,
+> I've done some testing for io_uring async buffered reads with fio. But I 
+> found something strange to me.
+> - when readahead is exactly turned off, the async buffered reads feature 
+> appears to be worse than the io-wq method in terms of IOPS.
+> - when readahead is on, async buffered reads works better but the 
+> optimization rate seems to be related with the size of readahead.
+> I'm wondering why.
 
-Here's the current series, I took a stab at converting all archs to
-support TIF_NOTIFY_SIGNAL so we have a base to build on top of. Most
-of them were straight forward, but I need someone to fixup powerpc,
-verify arm and s390.
+I don't think these are necessarily unexpected. By and large, the async
+buffered reads are faster, have lower latencies, and are a lot more
+efficient in terms of CPU usage. But there are cases where the old
+thread offload will be quicker, as you're essentially spreading the
+copying over more cores and can get higher bandwidth that way.
 
-But it's a decent start I think, and means that we can drop various
-bits as is done at the end of the series. I could swap things around
-a bit and avoid having the intermediate step, but I envision that
-getting this in all archs will take a bit longer than just signing off
-on the generic/x86 bits. So probably best to keep the series as it is
-for now, and work on getting the arch bits verified/fixed/tested.
-
-https://git.kernel.dk/cgit/linux-block/log/?h=tif-task_work
+If you're utilizing a single ring for your application, then there might
+be gains to be had at the higher end of the IOPS or bandwidth spectrum
+by selectively using IOSQE_ASYNC for a (small) subset of the issued
+reads. 
 
 -- 
 Jens Axboe

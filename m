@@ -2,99 +2,121 @@ Return-Path: <SRS0=O7YS=DR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D600C43457
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FB21C433DF
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D72D20760
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 685CB20760
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kmp6GpVc"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="He9c8tEh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389412AbgJJWzk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 10 Oct 2020 18:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34670 "EHLO
+        id S2389406AbgJJWzj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 10 Oct 2020 18:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731245AbgJJTFM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:05:12 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC5BC08EADB
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:12 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id 13so12920015wmf.0
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:12 -0700 (PDT)
+        with ESMTP id S1731220AbgJJTEj (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:04:39 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94DBC08EBB0
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:19 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id i1so7586372wro.1
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=VL6j6YSMb4UExyJgLJzWW8xTGFSNORehDfl/DyQluMI=;
-        b=kmp6GpVcKRVM1AhZj5OU+z2K6p1Mbp8q9hCZxfUMGctgPCufzSzMlq54dF4WJF+AYz
-         gk3lLd7JKCdhLHLg7aE/5UXBNfqTQVum58eD12lrqDevS2EiW+2b3R1SsWNBeJsTagiW
-         EE7aI/EPGI1FGt6oqTS0pOzAqDQUkozkutOoKTF635MrkaZAKQ9V3QoanzhqCzUTu+uw
-         EGEMw0w5tpEYouvkZA+qkf8DTC1WNKo2d3vU4ksEF0rOgOqAY5yNofe3gE1290g4zcQv
-         bKrVTvP3ZurJo3Ui6BsYtOR07BjA0m74eBZNL9OBDyHDfR7s3Jh7DV0yx43NdAt21ZSA
-         dvug==
+        bh=pMRBN1/yDUm504Nb9ckekej3Oj3/ck3OWfiJrcb/0hQ=;
+        b=He9c8tEhtmdAyPCWMDifpej2rCEYO5tYtAdEEZ+IZ6UC9g+5DK+0LNnYnlQSFbnSDd
+         M5nH1WnFef9DwdmGhbGQTe0sjYJHZPaJ3yFTQ3LBXDNhcJf85N9t2l3jL7nwLmvhUrPG
+         0aEyEoSV5NKPaArUwb4HTp+JkCweq26mi9LWKG8z4rfPLf68cGvwBesQJDGS0l42Sk+x
+         /cre0x5dIx15phiAvvoYzPyjqpzLlCYyxwHR/T7rbkBlehpo5aSOKuJo1CjSnAOftuTv
+         1Jn9jhpjoW59mwPwTa+gsWYZtvv4cZ6Jn2pjWuYY3aXPxU9MGgKt8BbrN8wQkqGClqsY
+         647w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VL6j6YSMb4UExyJgLJzWW8xTGFSNORehDfl/DyQluMI=;
-        b=DY+zEaA7ZpeAYwn51nQqPV2TSqU05B1Baqz+2R130WH6PjzF0vgL0bM/xzvgSChOAJ
-         QKxV4IqTKbkCqZqURiYub/K/Un4VHjRGRKgdNfCZHJAHgXWZUSKSUHre/2KBwAjVPcXq
-         XbCwq2g2FE386BYFZb5uPHOec8X3jngCmXECJ6gC9gQGQdQX3L7kuSEEDA/mQ+M2sQ77
-         SQ9GNxrxBNFDY0tryZkLQ3W/dqJLZQtURXjDCmFEZixymq5pPIe7olxUofhYVTtT5iZd
-         7lEn9whqOzcoZwU++TbY7UUIxHMbNpRv+/ruxJNhp5Q7Wqho0Zfu+HP99TkWFvSLDKoH
-         ZkRA==
-X-Gm-Message-State: AOAM5324kLOHWMizYXQfBE8YWGWrsbRDXxiVRIQghLboPSWEXpLBwhwO
-        F6hbI/EBJ+HHfPe6xSiU+Bz2NYegSz4Pag==
-X-Google-Smtp-Source: ABdhPJy4efy38Wt+eT4pOCy/yBx1KeZY/LeRVfPIiA99C+njkbICOPhMY16pGD29pWVYHE6dUlw9UQ==
-X-Received: by 2002:a1c:63c3:: with SMTP id x186mr3680548wmb.66.1602351431457;
-        Sat, 10 Oct 2020 10:37:11 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=pMRBN1/yDUm504Nb9ckekej3Oj3/ck3OWfiJrcb/0hQ=;
+        b=derh8hFmm1HDqz7Ta7FddpsbIkJ2YW4JtmUX+4gXMfom/++UpauJ+X3L3AlT2KoJlK
+         Nb/ifv22nTJxEFGQtbw9WTBqck/bH9HQhHWUvR+er6MCAOLsUOUjoMlQZrs6GidIOZ9e
+         IHyFFdo/RnTRCfxkfT+rhQJKv+PEbwHQknGByaYcSLSsdKk45jmAXEC39vCjcN5XMgla
+         lFMEosMYRilb0Kbl940FtIcMOev/3wlraMHEMtv/CZ4upnLMU0rb493rUycOdbQxKQ4s
+         Xv515gtUk+1iB8qJOKPcBMCezlN5Mj924LXksoYJ97sM9qfQSQGiU803MCPZNSg4vtUq
+         7YeQ==
+X-Gm-Message-State: AOAM531qjOwHRajUr27b0yuzbPc6Xbdxd1yYi3ySEENychKdmXhHNyP9
+        yoVPTsNmrX7f6cT/s9XaZESPmzoc7Dm4zg==
+X-Google-Smtp-Source: ABdhPJzqlXFk2FqbyLjMfk38I3iUGm83hwmCro9aT4wDOWHIasiWPAj40uWiJ/iJ4SWK1RkGuMIeOA==
+X-Received: by 2002:a5d:410a:: with SMTP id l10mr18396449wrp.274.1602351438538;
+        Sat, 10 Oct 2020 10:37:18 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.09
+        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2020 10:37:10 -0700 (PDT)
+        Sat, 10 Oct 2020 10:37:17 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 00/12] bundled cleanups and improvements
-Date:   Sat, 10 Oct 2020 18:34:04 +0100
-Message-Id: <cover.1602350805.git.asml.silence@gmail.com>
+Subject: [PATCH 07/12] io_uring: remove timeout.list after hrtimer cancel
+Date:   Sat, 10 Oct 2020 18:34:11 +0100
+Message-Id: <e3b00372178f905e1ee5e103155314222c3052ca.1602350806.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1602350805.git.asml.silence@gmail.com>
+References: <cover.1602350805.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Only [1] considerably affects performance (as by Roman Gershman), others
-are rather cleanups.
+Remove timeouts from ctx->timeout_list after hrtimer_try_to_cancel()
+successfully cancels it. With this we don't need to care whether there
+was a race and it was removed in io_timeout_fn(), and that will be handy
+for following patches.
 
-[1-2] are on the surface cleanups following ->files changes.
-[3-5] address ->file grabbing
-[6-7] are some preparations around timeouts
-[8,9] are independent cleanups
-[10-12] toss around files_register() bits
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-Pavel Begunkov (12):
-  io_uring: don't io_prep_async_work() linked reqs
-  io_uring: clean up ->files grabbing
-  io_uring: kill extra check in fixed io_file_get()
-  io_uring: simplify io_file_get()
-  io_uring: improve submit_state.ios_left accounting
-  io_uring: use a separate struct for timeout_remove
-  io_uring: remove timeout.list after hrtimer cancel
-  io_uring: clean leftovers after splitting issue
-  io_uring: don't delay io_init_req() error check
-  io_uring: clean file_data access in files_register
-  io_uring: refactor *files_register()'s error paths
-  io_uring: keep a pointer ref_node in file_data
-
- fs/io_uring.c | 275 ++++++++++++++++++++------------------------------
- 1 file changed, 107 insertions(+), 168 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 09b8f2c9ae7e..3ce72d48eb21 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5301,16 +5301,10 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
++	list_del_init(&req->timeout.list);
+ 	atomic_set(&req->ctx->cq_timeouts,
+ 		atomic_read(&req->ctx->cq_timeouts) + 1);
+ 
+-	/*
+-	 * We could be racing with timeout deletion. If the list is empty,
+-	 * then timeout lookup already found it and will be handling it.
+-	 */
+-	if (!list_empty(&req->timeout.list))
+-		list_del_init(&req->timeout.list);
+-
+ 	io_cqring_fill_event(req, -ETIME);
+ 	io_commit_cqring(ctx);
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+@@ -5326,11 +5320,10 @@ static int __io_timeout_cancel(struct io_kiocb *req)
+ 	struct io_timeout_data *io = req->async_data;
+ 	int ret;
+ 
+-	list_del_init(&req->timeout.list);
+-
+ 	ret = hrtimer_try_to_cancel(&io->timer);
+ 	if (ret == -1)
+ 		return -EALREADY;
++	list_del_init(&req->timeout.list);
+ 
+ 	req_set_fail_links(req);
+ 	req->flags |= REQ_F_COMP_LOCKED;
 -- 
 2.24.0
 

@@ -2,104 +2,96 @@ Return-Path: <SRS0=O7YS=DR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1ABDC433E7
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC51C4363A
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F67A20760
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D9EA2078B
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GOuT4W1M"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="0vFVms3T"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730550AbgJJWzi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 10 Oct 2020 18:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34604 "EHLO
+        id S1730298AbgJJWzg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 10 Oct 2020 18:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731227AbgJJTEZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 15:04:25 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B641C08EBB2
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:21 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id x7so5113472wrl.3
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 10:37:21 -0700 (PDT)
+        with ESMTP id S1730325AbgJJSt6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 14:49:58 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D226C05BD39
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 11:49:53 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id 34so10118485pgo.13
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 11:49:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=n4oUvCPLuuIu/xqFd+qmRFtDIDyqoEIvemsmP/FM6CA=;
-        b=GOuT4W1MX0Moz9mugyqozHAC0vj54ElTsJC3nJtyfwuNS/jufQcdyCzApIoI5rVBR4
-         2SjmkLaKZbWieGgylu+z0PZTZYiMQy1hbElTEsgTGp5g2cskD5RgRWkhk6gla4XmA+NB
-         9urD64OlDPiitgIsC+8kKJbIu4YQZuHyHErfUbXSj5ACQKQ1m4gmr0zHIpZelU7E5mfq
-         d1gILynNYxi5M2wWs+HYSgMm7BUdC+OJWYTSh7l7hNpzP2uRCZPeIIdcjXHWIM2gAVw6
-         kWtRMqlbKGSltcgCsSyQ9dSLOoTNs8TntL9zgolpEyXMrlTNaibg0r/sM54zD5wda5Zk
-         OEMw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=BysODuNQoR0TQQ9MOChKMm3d+TeWdeGngEJ/MiHdwQg=;
+        b=0vFVms3TqGaWU/x1vZklAiYSy59yMCc5avtcbXMNCW2ebjW8eU3OoNwm9e2nLzTLpA
+         5Bs5UTy39Kuyk3cmZgGBS1QVtyCoj4J+bi9YWO9oo/84UiqnoSvf5JL/JhP6fSxndaFw
+         oHlj2URxhSsVOtn5M8EvRlCCO2bCu6PiLk48OQ001/Bpm1cflq25Y+XUJZVnvx6DsSK0
+         0FayqHHk+kL8i32Le4itCWYhEwlDGADc2S9sTj4BtngHdPJrXn8sd5UQ2+1SDZh4Zd4f
+         sC7IXJpuSmZwLChYGykZpS+coTniim4Yk3/R+4HgPSU16xRuUGTRwyPdWjhI+cy0pOYo
+         6neg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=n4oUvCPLuuIu/xqFd+qmRFtDIDyqoEIvemsmP/FM6CA=;
-        b=VtKSWlJJMd9k5ExYVZbSs6laUCiUiXi3Y4r7ax62rUolPxjrDr5bD1l/yMsx2hnF4d
-         JTbEPwbpFZictlQGwl04BiSdd+DoTTcSFYujwI7d1qb6RyDZGGZMq68OUg58r5WpNjmg
-         KF4U+6h6vldZuxtYov8U0sw8OdpP/tgBDIb59yBwIm3YJ/iWnu4/H91gP8C4R8Ybjtnn
-         apBhISoy1ENppz5zP29LOOT6gTL6BHJBdI6Cj2TdyXtVuwO/n7EmNW0qFJ0NaLv+ljZf
-         JOgz8DFFeUZHI/IlQLCVoruzZiFDTHFq7TIkiHMZIemvBCpQcdUot5Y1U8VZ0yUviS4v
-         +OEQ==
-X-Gm-Message-State: AOAM532hA+yKb7TUn7Jiz678pInvX+cNPYS7ep6bargAB4vNPr82ZeCz
-        /x0tGvXW4JqG5bSoSYDfQtA6UrV9J+Swjg==
-X-Google-Smtp-Source: ABdhPJwuk/bCZbLW5421NLGy2Lh7VeWd7CZtJv1orBqoIOr6TiHLng0noG+AaumcMF+sZRgb/2v6oQ==
-X-Received: by 2002:adf:a354:: with SMTP id d20mr4539028wrb.29.1602351440234;
-        Sat, 10 Oct 2020 10:37:20 -0700 (PDT)
-Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id t16sm17269005wmi.18.2020.10.10.10.37.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2020 10:37:19 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 09/12] io_uring: don't delay io_init_req() error check
-Date:   Sat, 10 Oct 2020 18:34:13 +0100
-Message-Id: <98920d5293ac3ecb048442ae4cfe6f4dd732b3db.1602350806.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1602350805.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=BysODuNQoR0TQQ9MOChKMm3d+TeWdeGngEJ/MiHdwQg=;
+        b=dUS+hn+xMTlBsLzaHTF7vCJDXTQLwYnfjOlebEhFnDAOTgRpf/a4uYycCZyIdu8ez+
+         6eVyNYtbTUixMkU2DT5Y/srbjwl6o04vFdFvXNwlW2F2E4oKg02VBBkjCzUiajFBuL1f
+         dqxNOEq5tXhYYO+gjSUYVGQ1gaPAztn1Ppa8mTF1nASgZl4TmgYJMJNM57Q5f2cAos7c
+         Vhv68PO6VVprp5cPahieaaRywjdB/fXO78ePJIJZb77h5QzzpTEs/4wFsa1H0Ta37H0t
+         HPE6zVTpEENRULClEOrCHB0INxHbSyH7CzPrRjv/GFs1JgbBb9x1HoC75vSbnqLy8whH
+         6G5g==
+X-Gm-Message-State: AOAM533dn7NIEP4iHWRg0Ksxc5vhO2G5L442a5dwo9vyRVAXryIZs2r5
+        g/M2nF2/r4VErP8eVpCWt6V/CQ==
+X-Google-Smtp-Source: ABdhPJxSlE+CLHlZoMaFBnpn+A0//iloOZZtN7C8iUDJxwzu7N65VaAvE9ULFRbaZAdG6VBL9JFVBw==
+X-Received: by 2002:a05:6a00:887:b029:142:2501:396f with SMTP id q7-20020a056a000887b02901422501396fmr17424278pfj.52.1602355792643;
+        Sat, 10 Oct 2020 11:49:52 -0700 (PDT)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id f12sm8629313pju.18.2020.10.10.11.49.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 10 Oct 2020 11:49:52 -0700 (PDT)
+Subject: Re: [PATCH 01/12] io_uring: don't io_prep_async_work() linked reqs
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     "Reported-by : Roman Gershman" <romger@amazon.com>
 References: <cover.1602350805.git.asml.silence@gmail.com>
+ <26fb33734fee5294f3d20b8be9cf52848056a630.1602350805.git.asml.silence@gmail.com>
+ <4b92981a-5469-615f-02e6-6f3f75d7ff3f@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <0100dd0b-41fa-08c0-7644-5a06b9553a1e@kernel.dk>
+Date:   Sat, 10 Oct 2020 12:49:51 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <4b92981a-5469-615f-02e6-6f3f75d7ff3f@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't postpone io_init_req() error checks and do that right after
-calling it. There is no control-flow statements or dependencies with
-sqe/submitted accounting, so do those earlier, that makes the code flow
-a bit more natural.
+On 10/10/20 12:45 PM, Pavel Begunkov wrote:
+> On 10/10/2020 18:34, Pavel Begunkov wrote:
+>> There is no real reason left for preparing io-wq work context for linked
+>> requests in advance, remove it as this might become a bottleneck in some
+>> cases.
+>>
+>> Reported-by: Reported-by: Roman Gershman <romger@amazon.com>
+> 
+> It looks like "Reported-by:" got duplicated.
+> 
+> s/Reported-by: Reported-by:/Reported-by:/
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+I fixed it up.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2e0105c373ae..22d1fb9cc80f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6466,12 +6466,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 				submitted = -EAGAIN;
- 			break;
- 		}
--
--		err = io_init_req(ctx, req, sqe, &state);
- 		io_consume_sqe(ctx);
- 		/* will complete beyond this point, count as submitted */
- 		submitted++;
- 
-+		err = io_init_req(ctx, req, sqe, &state);
- 		if (unlikely(err)) {
- fail_req:
- 			io_put_req(req);
 -- 
-2.24.0
+Jens Axboe
 

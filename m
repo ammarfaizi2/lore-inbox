@@ -2,154 +2,139 @@ Return-Path: <SRS0=O7YS=DR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A12F0C433E7
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 03:11:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC26CC433DF
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 04:50:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46446221FF
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 03:11:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="IKFTIVFz";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="BgjiTham"
+	by mail.kernel.org (Postfix) with ESMTP id 971A22073A
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 04:50:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730603AbgJJDKu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 9 Oct 2020 23:10:50 -0400
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:40742 "EHLO
-        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730577AbgJJDI0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 9 Oct 2020 23:08:26 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 2492A8EE25D;
-        Fri,  9 Oct 2020 19:43:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1602297797;
-        bh=H8TP93foEqN1ktQ8Zvn50X/i2mF1Mo+G3bAPl3laMS8=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=IKFTIVFzGPRTOXbvF4guFV0idy0d2c5GY0pNpauMNCD265o/8xML504AQiHNNKINI
-         03VTbsdpTlx1IvRxmapAuFqbOyRLRkynjYBLceWgnAFSazyacAGjs/kfFiiin3dxCG
-         9/K3u5C/d7R0kHrIFRdMX77E7sQ6OOI7DSaYWfn4=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 3vw63n_vJBCB; Fri,  9 Oct 2020 19:43:16 -0700 (PDT)
-Received: from jarvis (c-73-35-198-56.hsd1.wa.comcast.net [73.35.198.56])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 0DE4F8EE120;
-        Fri,  9 Oct 2020 19:43:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1602297796;
-        bh=H8TP93foEqN1ktQ8Zvn50X/i2mF1Mo+G3bAPl3laMS8=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=BgjiThamK3sRChTIWem3VqlcTVcZOY3Z2GNJyIwpezgtDJLGW3IszUxOTE+yoCAWv
-         V48K29iXWIdEyZfVjEsU0FSlh3cTrvJt0EqAPo1Ll9Jsfhk5OlUorelNGWOoKpuPOj
-         SS1Y94jSiSEug+8lBRnZGZxsf1hZ1ZG8/+ovIeYw=
-Message-ID: <95d137992900152a0453f7ba37771cb9025121fa.camel@HansenPartnership.com>
-Subject: Re: [PATCH RFC PKS/PMEM 22/58] fs/f2fs: Utilize new kmap_thread()
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Eric Biggers <ebiggers@kernel.org>, ira.weiny@intel.com
+        id S1726619AbgJJEpt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 10 Oct 2020 00:45:49 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:59176 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726886AbgJJEn7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 00:43:59 -0400
+X-Greylist: delayed 3548 seconds by postgrey-1.27 at vger.kernel.org; Sat, 10 Oct 2020 00:43:28 EDT
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out01.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1kR5ma-003qSe-1R; Fri, 09 Oct 2020 21:42:56 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1kR5mZ-0002tO-03; Fri, 09 Oct 2020 21:42:55 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     ira.weiny@intel.com
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, linux-aio@kvack.org,
-        linux-efi@vger.kernel.org, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-mmc@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
         Dave Hansen <dave.hansen@linux.intel.com>,
-        dri-devel@lists.freedesktop.org, linux-mm@kvack.org,
-        target-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-kselftest@vger.kernel.org, samba-technical@lists.samba.org,
-        ceph-devel@vger.kernel.org, drbd-dev@lists.linbit.com,
-        devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-nvdimm@lists.01.org, linux-rdma@vger.kernel.org,
-        x86@kernel.org, amd-gfx@lists.freedesktop.org,
-        linux-afs@lists.infradead.org, cluster-devel@redhat.com,
-        linux-cachefs@redhat.com, intel-wired-lan@lists.osuosl.org,
-        xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
-        Fenghua Yu <fenghua.yu@intel.com>, ecryptfs@vger.kernel.org,
-        linux-um@lists.infradead.org, intel-gfx@lists.freedesktop.org,
-        linux-erofs@lists.ozlabs.org, reiserfs-devel@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
         Dan Williams <dan.j.williams@intel.com>,
-        io-uring@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-ntfs-dev@lists.sourceforge.net, netdev@vger.kernel.org,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Fenghua Yu <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-kselftest@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
+        kexec@lists.infradead.org, linux-bcache@vger.kernel.org,
+        linux-mtd@lists.infradead.org, devel@driverdev.osuosl.org,
+        linux-efi@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-um@lists.infradead.org, linux-ntfs-dev@lists.sourceforge.net,
+        reiserfs-devel@vger.kernel.org,
         linux-f2fs-devel@lists.sourceforge.net,
-        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-btrfs@vger.kernel.org
-Date:   Fri, 09 Oct 2020 19:43:13 -0700
-In-Reply-To: <20201009213434.GA839@sol.localdomain>
+        linux-nilfs@vger.kernel.org, cluster-devel@redhat.com,
+        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-afs@lists.infradead.org,
+        linux-rdma@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
+        samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
-         <20201009195033.3208459-23-ira.weiny@intel.com>
-         <20201009213434.GA839@sol.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+        <20201009195033.3208459-52-ira.weiny@intel.com>
+Date:   Fri, 09 Oct 2020 22:43:15 -0500
+In-Reply-To: <20201009195033.3208459-52-ira.weiny@intel.com> (ira weiny's
+        message of "Fri, 9 Oct 2020 12:50:26 -0700")
+Message-ID: <87k0vysq3w.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-XM-SPF: eid=1kR5mZ-0002tO-03;;;mid=<87k0vysq3w.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+M6Nwc1eevosTTnX6IxBw6BnHTGm05YjI=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH RFC PKS/PMEM 51/58] kernel: Utilize new kmap_thread()
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Fri, 2020-10-09 at 14:34 -0700, Eric Biggers wrote:
-> On Fri, Oct 09, 2020 at 12:49:57PM -0700, ira.weiny@intel.com wrote:
-> > From: Ira Weiny <ira.weiny@intel.com>
-> > 
-> > The kmap() calls in this FS are localized to a single thread.  To
-> > avoid the over head of global PKRS updates use the new
-> > kmap_thread() call.
-> > 
-> > Cc: Jaegeuk Kim <jaegeuk@kernel.org>
-> > Cc: Chao Yu <chao@kernel.org>
-> > Signed-off-by: Ira Weiny <ira.weiny@intel.com>
-> > ---
-> >  fs/f2fs/f2fs.h | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-> > index d9e52a7f3702..ff72a45a577e 100644
-> > --- a/fs/f2fs/f2fs.h
-> > +++ b/fs/f2fs/f2fs.h
-> > @@ -2410,12 +2410,12 @@ static inline struct page
-> > *f2fs_pagecache_get_page(
-> >  
-> >  static inline void f2fs_copy_page(struct page *src, struct page
-> > *dst)
-> >  {
-> > -	char *src_kaddr = kmap(src);
-> > -	char *dst_kaddr = kmap(dst);
-> > +	char *src_kaddr = kmap_thread(src);
-> > +	char *dst_kaddr = kmap_thread(dst);
-> >  
-> >  	memcpy(dst_kaddr, src_kaddr, PAGE_SIZE);
-> > -	kunmap(dst);
-> > -	kunmap(src);
-> > +	kunmap_thread(dst);
-> > +	kunmap_thread(src);
-> >  }
-> 
-> Wouldn't it make more sense to switch cases like this to
-> kmap_atomic()?
-> The pages are only mapped to do a memcpy(), then they're immediately
-> unmapped.
+ira.weiny@intel.com writes:
 
-On a VIPT/VIVT architecture, this is horrendously wasteful.  You're
-taking something that was mapped at colour c_src mapping it to a new
-address src_kaddr, which is likely a different colour and necessitates
-flushing the original c_src, then you copy it to dst_kaddr, which is
-also likely a different colour from c_dst, so dst_kaddr has to be
-flushed on kunmap and c_dst has to be invalidated on kmap.  What we
-should have is an architectural primitive for doing this, something
-like kmemcopy_arch(dst, src).  PIPT architectures can implement it as
-the above (possibly losing kmap if they don't need it) but VIPT/VIVT
-architectures can set up a correctly coloured mapping so they can
-simply copy from c_src to c_dst without any need to flush and the data
-arrives cache hot at c_dst.
+> From: Ira Weiny <ira.weiny@intel.com>
+>
+> This kmap() call is localized to a single thread.  To avoid the over
+> head of global PKRS updates use the new kmap_thread() call.
 
-James
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-
+>
+> Cc: Eric Biederman <ebiederm@xmission.com>
+> Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+> ---
+>  kernel/kexec_core.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+> index c19c0dad1ebe..272a9920c0d6 100644
+> --- a/kernel/kexec_core.c
+> +++ b/kernel/kexec_core.c
+> @@ -815,7 +815,7 @@ static int kimage_load_normal_segment(struct kimage *image,
+>  		if (result < 0)
+>  			goto out;
+>  
+> -		ptr = kmap(page);
+> +		ptr = kmap_thread(page);
+>  		/* Start with a clear page */
+>  		clear_page(ptr);
+>  		ptr += maddr & ~PAGE_MASK;
+> @@ -828,7 +828,7 @@ static int kimage_load_normal_segment(struct kimage *image,
+>  			memcpy(ptr, kbuf, uchunk);
+>  		else
+>  			result = copy_from_user(ptr, buf, uchunk);
+> -		kunmap(page);
+> +		kunmap_thread(page);
+>  		if (result) {
+>  			result = -EFAULT;
+>  			goto out;
+> @@ -879,7 +879,7 @@ static int kimage_load_crash_segment(struct kimage *image,
+>  			goto out;
+>  		}
+>  		arch_kexec_post_alloc_pages(page_address(page), 1, 0);
+> -		ptr = kmap(page);
+> +		ptr = kmap_thread(page);
+>  		ptr += maddr & ~PAGE_MASK;
+>  		mchunk = min_t(size_t, mbytes,
+>  				PAGE_SIZE - (maddr & ~PAGE_MASK));
+> @@ -895,7 +895,7 @@ static int kimage_load_crash_segment(struct kimage *image,
+>  		else
+>  			result = copy_from_user(ptr, buf, uchunk);
+>  		kexec_flush_icache_page(page);
+> -		kunmap(page);
+> +		kunmap_thread(page);
+>  		arch_kexec_pre_free_pages(page_address(page), 1);
+>  		if (result) {
+>  			result = -EFAULT;

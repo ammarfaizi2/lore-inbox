@@ -2,156 +2,334 @@ Return-Path: <SRS0=O7YS=DR=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD6E8C433DF
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05B58C43457
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A438120760
-	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B90632078B
+	for <io-uring@archiver.kernel.org>; Sat, 10 Oct 2020 23:12:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="glDvi59x"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fFl+sWZ6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389376AbgJJWzf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 10 Oct 2020 18:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730273AbgJJSs2 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 14:48:28 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD7AC05BD39
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 11:48:27 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id 13so13083527wmf.0
-        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 11:48:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3rspjLQxKPHJzGlIl/ut6SgMbLbRfVbs/HZUSE6GqvE=;
-        b=glDvi59xAEvBorOtupDu8h2CX2VKVeZ7uPHltrUyENFzh9st7WEBZwEocC2vHqWhjs
-         /BPqYx0Ro/Qf8uRZ4pUC3UcBIMoFC7EDYEmQXiYOHD9cFfM9Rgp7krIA0LNuqHb2lBRE
-         Cai+IGPbpLBbho7n6IuV3vlA/nHQu0BWuaAiCLeDp9tVcQ4KHneK3j+FL4r5Zsy7grz8
-         OK5idziahQC3ONXmSYSdInYFxFH+HNrzCCE+K+/6at5z+dLuH4UCM80kClDXVJXSM9lT
-         mhS+GB+e3pIMbcXmmnjuDyhxaiFTIzRBdD5uEsp34hWhxs03STzcZbcy1fgxlOfJXlhc
-         OFwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=3rspjLQxKPHJzGlIl/ut6SgMbLbRfVbs/HZUSE6GqvE=;
-        b=e0Fs7dNdbOoRENHP8Qu1Qk17xLMb+SxTNGWZrwuQbvjobyCpBXhldYkSLQiQDChrxJ
-         LQI18n70qihAltJA31734r0zp9rxlkvH2rB4WbeSRJQS4xkMcADxg4SXmD4YkXG2Kv4W
-         5A+BBGf6cLp+65XvilB4QvdOKv7iXv3W9dKamFijYk62fRwY01Ihe+jgZpxxt4tgjM3C
-         FJoHuytV31ZmNby9+iVuoNVaoINEmn1ITeIloAY4fuu8wL9LNgV2I306lSzv0h56R4uG
-         0azpyGvPDmDLr+HTYpTIcdLuTIdDxWFvi0UOFMhGvzZOijKFa2ov5iqK1/D3xn1xxuJJ
-         U7cA==
-X-Gm-Message-State: AOAM530ZZxq8KwoPWUCmi/0qQqHOC9OBYU8Kfn23T3DmMZjGaNR9dJvO
-        u1WFu7tyNZMmj4POl1AiMq0=
-X-Google-Smtp-Source: ABdhPJyCczvKpXIAvkYilTC5jnkhZZdmoVQvnP7s8Bsmejb/BL4vhhgm17Wfkw/nxnLV0HnoCeXIjg==
-X-Received: by 2002:a1c:60d5:: with SMTP id u204mr805255wmb.46.1602355705966;
-        Sat, 10 Oct 2020 11:48:25 -0700 (PDT)
-Received: from [192.168.1.79] (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id z6sm11890971wrs.2.2020.10.10.11.48.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 10 Oct 2020 11:48:25 -0700 (PDT)
-Subject: Re: [PATCH 01/12] io_uring: don't io_prep_async_work() linked reqs
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     "Reported-by : Roman Gershman" <romger@amazon.com>
-References: <cover.1602350805.git.asml.silence@gmail.com>
- <26fb33734fee5294f3d20b8be9cf52848056a630.1602350805.git.asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Message-ID: <4b92981a-5469-615f-02e6-6f3f75d7ff3f@gmail.com>
-Date:   Sat, 10 Oct 2020 19:45:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        id S1729470AbgJJWze (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 10 Oct 2020 18:55:34 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36308 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729545AbgJJSsR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Oct 2020 14:48:17 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09ABWvji162390
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 07:36:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=in-reply-to : subject :
+ from : to : cc : date : mime-version : references :
+ content-transfer-encoding : content-type : message-id; s=pp1;
+ bh=NiDLo4pOxkTOHNh379y2lMt59tGJeK9BGhibE+AHe30=;
+ b=fFl+sWZ60CJNW5vj7Uw0QdIFBZaJLDIK+TmFY7+uXdPQEExbAUVKU05YhKg5dS5u6J9M
+ gRTcbWK1ehAiHgiW0QiEErv4vh+5MOV1iJMmz3AgZqVrCWi+Nh1nNGlGLl5qNxYu9TT3
+ rsErWvzJTnT/TvD/yGmIkQ5cIJnW2dxyfP5KEerqQF50430xLTdRCdzrzGOBj/IVBjpb
+ ZIGntFQpbgC01amsKXwfy1cB65UwCiqnbdgLT6Z6Qd+CSe7yV4n3BXy+qSd8xdiYdQTK
+ an7SA2yY6csjDSnstIEkYdPhg6mYvKJGwGGY1NoLkcuzdqKyvDxx/5UGYpv3tzPn6Oq9 ZA== 
+Received: from smtp.notes.na.collabserv.com (smtp.notes.na.collabserv.com [192.155.248.91])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 343bxtr8yj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <io-uring@vger.kernel.org>; Sat, 10 Oct 2020 07:36:56 -0400
+Received: from localhost
+        by smtp.notes.na.collabserv.com with smtp.notes.na.collabserv.com ESMTP
+        for <io-uring@vger.kernel.org> from <BMT@zurich.ibm.com>;
+        Sat, 10 Oct 2020 11:36:55 -0000
+Received: from us1a3-smtp05.a3.dal06.isc4sb.com (10.146.71.159)
+        by smtp.notes.na.collabserv.com (10.106.227.143) with smtp.notes.na.collabserv.com ESMTP;
+        Sat, 10 Oct 2020 11:36:50 -0000
+Received: from us1a3-mail162.a3.dal06.isc4sb.com ([10.146.71.4])
+          by us1a3-smtp05.a3.dal06.isc4sb.com
+          with ESMTP id 2020101011364991-175970 ;
+          Sat, 10 Oct 2020 11:36:49 +0000 
+In-Reply-To: <20201009195033.3208459-11-ira.weiny@intel.com>
+Subject: Re: [PATCH RFC PKS/PMEM 10/58] drivers/rdma: Utilize new kmap_thread()
+From:   "Bernard Metzler" <BMT@zurich.ibm.com>
+To:     ira.weiny@intel.com
+Cc:     "Andrew Morton" <akpm@linux-foundation.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Mike Marciniszyn" <mike.marciniszyn@intel.com>,
+        "Dennis Dalessandro" <dennis.dalessandro@intel.com>,
+        "Doug Ledford" <dledford@redhat.com>,
+        "Jason Gunthorpe" <jgg@ziepe.ca>,
+        "Faisal Latif" <faisal.latif@intel.com>,
+        "Shiraz Saleem" <shiraz.saleem@intel.com>, x86@kernel.org,
+        "Dave Hansen" <dave.hansen@linux.intel.com>,
+        "Dan Williams" <dan.j.williams@intel.com>,
+        "Fenghua Yu" <fenghua.yu@intel.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-kselftest@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
+        kexec@lists.infradead.org, linux-bcache@vger.kernel.org,
+        linux-mtd@lists.infradead.org, devel@driverdev.osuosl.org,
+        linux-efi@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-um@lists.infradead.org, linux-ntfs-dev@lists.sourceforge.net,
+        reiserfs-devel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-nilfs@vger.kernel.org, cluster-devel@redhat.com,
+        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-afs@lists.infradead.org,
+        linux-rdma@vger.kernel.org, amd-gfx@lists.freed.esktop.org,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        drbd-dev@tron.linbit.com, linux-block@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-cachefs@redhat.com,
+        samba-technical@lists.samba.org, intel-wired-lan@lists.osuosl.org
+Date:   Sat, 10 Oct 2020 11:36:49 +0000
 MIME-Version: 1.0
-In-Reply-To: <26fb33734fee5294f3d20b8be9cf52848056a630.1602350805.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Sensitivity: 
+Importance: Normal
+X-Priority: 3 (Normal)
+References: <20201009195033.3208459-11-ira.weiny@intel.com>,<20201009195033.3208459-1-ira.weiny@intel.com>
+X-Mailer: IBM iNotes ($HaikuForm 1054.1) | IBM Domino Build
+ SCN1812108_20180501T0841_FP65 April 15, 2020 at 09:48
+X-LLNOutbound: False
+X-Disclaimed: 59823
+X-TNEFEvaluated: 1
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+x-cbid: 20101011-2475-0000-0000-0000044A0339
+X-IBM-SpamModules-Scores: BY=0.233045; FL=0; FP=0; FZ=0; HX=0; KW=0; PH=0;
+ SC=0.421684; ST=0; TS=0; UL=0; ISC=; MB=0.000000
+X-IBM-SpamModules-Versions: BY=3.00013982; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000295; SDB=6.01447073; UDB=6.00777937; IPR=6.01229775;
+ MB=3.00034472; MTD=3.00000008; XFM=3.00000015; UTC=2020-10-10 11:36:54
+X-IBM-AV-DETECTION: SAVI=unsuspicious REMOTE=unsuspicious XFE=unused
+X-IBM-AV-VERSION: SAVI=2020-10-10 06:57:40 - 6.00011937
+x-cbparentid: 20101011-2476-0000-0000-0000DAA5035B
+Message-Id: <OF849D92D8.F4735ECA-ON002585FD.003F5F27-002585FD.003FCBD6@notes.na.collabserv.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-10_07:2020-10-09,2020-10-10 signatures=0
+X-Proofpoint-Spam-Reason: orgsafe
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 10/10/2020 18:34, Pavel Begunkov wrote:
-> There is no real reason left for preparing io-wq work context for linked
-> requests in advance, remove it as this might become a bottleneck in some
-> cases.
-> 
-> Reported-by: Reported-by: Roman Gershman <romger@amazon.com>
+-----ira.weiny@intel.com wrote: -----
 
-It looks like "Reported-by:" got duplicated.
+>To: "Andrew Morton" <akpm@linux-foundation.org>, "Thomas Gleixner"
+><tglx@linutronix.de>, "Ingo Molnar" <mingo@redhat.com>, "Borislav
+>Petkov" <bp@alien8.de>, "Andy Lutomirski" <luto@kernel.org>, "Peter
+>Zijlstra" <peterz@infradead.org>
+>From: ira.weiny@intel.com
+>Date: 10/09/2020 09:52PM
+>Cc: "Ira Weiny" <ira.weiny@intel.com>, "Mike Marciniszyn"
+><mike.marciniszyn@intel.com>, "Dennis Dalessandro"
+><dennis.dalessandro@intel.com>, "Doug Ledford" <dledford@redhat.com>,
+>"Jason Gunthorpe" <jgg@ziepe.ca>, "Faisal Latif"
+><faisal.latif@intel.com>, "Shiraz Saleem" <shiraz.saleem@intel.com>,
+>"Bernard Metzler" <bmt@zurich.ibm.com>, x86@kernel.org, "Dave Hansen"
+><dave.hansen@linux.intel.com>, "Dan Williams"
+><dan.j.williams@intel.com>, "Fenghua Yu" <fenghua.yu@intel.com>,
+>linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+>linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+>linux-mm@kvack.org, linux-kselftest@vger.kernel.org,
+>linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+>netdev@vger.kernel.org, bpf@vger.kernel.org,
+>kexec@lists.infradead.org, linux-bcache@vger.kernel.org,
+>linux-mtd@lists.infradead.org, devel@driverdev.osuosl.org,
+>linux-efi@vger.kernel.org, linux-mmc@vger.kernel.org,
+>linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+>linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+>linux-ext4@vger.kernel.org, linux-aio@kvack.org,
+>io-uring@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+>linux-um@lists.infradead.org, linux-ntfs-dev@lists.sourceforge.net,
+>reiserfs-devel@vger.kernel.org,
+>linux-f2fs-devel@lists.sourceforge.net, linux-nilfs@vger.kernel.org,
+>cluster-devel@redhat.com, ecryptfs@vger.kernel.org,
+>linux-cifs@vger.kernel.org, linux-btrfs@vger.kernel.org,
+>linux-afs@lists.infradead.org, linux-rdma@vger.kernel.org,
+>amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+>intel-gfx@lists.freedesktop.org, drbd-dev@tron.linbit.com,
+>linux-block@vger.kernel.org, xen-devel@lists.xenproject.org,
+>linux-cachefs@redhat.com, samba-technical@lists.samba.org,
+>intel-wired-lan@lists.osuosl.org
+>Subject: [EXTERNAL] [PATCH RFC PKS/PMEM 10/58] drivers/rdma: Utilize
+>new kmap=5Fthread()
+>
+>From: Ira Weiny <ira.weiny@intel.com>
+>
+>The kmap() calls in these drivers are localized to a single thread.
+>To
+>avoid the over head of global PKRS updates use the new kmap=5Fthread()
+>call.
+>
+>Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
+>Cc: Dennis Dalessandro <dennis.dalessandro@intel.com>
+>Cc: Doug Ledford <dledford@redhat.com>
+>Cc: Jason Gunthorpe <jgg@ziepe.ca>
+>Cc: Faisal Latif <faisal.latif@intel.com>
+>Cc: Shiraz Saleem <shiraz.saleem@intel.com>
+>Cc: Bernard Metzler <bmt@zurich.ibm.com>
+>Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+>---
+> drivers/infiniband/hw/hfi1/sdma.c      |  4 ++--
+> drivers/infiniband/hw/i40iw/i40iw=5Fcm.c | 10 +++++-----
+> drivers/infiniband/sw/siw/siw=5Fqp=5Ftx.c  | 14 +++++++-------
+> 3 files changed, 14 insertions(+), 14 deletions(-)
+>
+>diff --git a/drivers/infiniband/hw/hfi1/sdma.c
+>b/drivers/infiniband/hw/hfi1/sdma.c
+>index 04575c9afd61..09d206e3229a 100644
+>--- a/drivers/infiniband/hw/hfi1/sdma.c
+>+++ b/drivers/infiniband/hw/hfi1/sdma.c
+>@@ -3130,7 +3130,7 @@ int ext=5Fcoal=5Fsdma=5Ftx=5Fdescs(struct hfi1=5Fdev=
+data
+>*dd, struct sdma=5Ftxreq *tx,
+> 		}
+>=20
+> 		if (type =3D=3D SDMA=5FMAP=5FPAGE) {
+>-			kvaddr =3D kmap(page);
+>+			kvaddr =3D kmap=5Fthread(page);
+> 			kvaddr +=3D offset;
+> 		} else if (WARN=5FON(!kvaddr)) {
+> 			=5F=5Fsdma=5Ftxclean(dd, tx);
+>@@ -3140,7 +3140,7 @@ int ext=5Fcoal=5Fsdma=5Ftx=5Fdescs(struct hfi1=5Fdev=
+data
+>*dd, struct sdma=5Ftxreq *tx,
+> 		memcpy(tx->coalesce=5Fbuf + tx->coalesce=5Fidx, kvaddr, len);
+> 		tx->coalesce=5Fidx +=3D len;
+> 		if (type =3D=3D SDMA=5FMAP=5FPAGE)
+>-			kunmap(page);
+>+			kunmap=5Fthread(page);
+>=20
+> 		/* If there is more data, return */
+> 		if (tx->tlen - tx->coalesce=5Fidx)
+>diff --git a/drivers/infiniband/hw/i40iw/i40iw=5Fcm.c
+>b/drivers/infiniband/hw/i40iw/i40iw=5Fcm.c
+>index a3b95805c154..122d7a5642a1 100644
+>--- a/drivers/infiniband/hw/i40iw/i40iw=5Fcm.c
+>+++ b/drivers/infiniband/hw/i40iw/i40iw=5Fcm.c
+>@@ -3721,7 +3721,7 @@ int i40iw=5Faccept(struct iw=5Fcm=5Fid *cm=5Fid, str=
+uct
+>iw=5Fcm=5Fconn=5Fparam *conn=5Fparam)
+> 		ibmr->device =3D iwpd->ibpd.device;
+> 		iwqp->lsmm=5Fmr =3D ibmr;
+> 		if (iwqp->page)
+>-			iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap(iwqp->page);
+>+			iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap=5Fthread(iwqp->page);
+> 		dev->iw=5Fpriv=5Fqp=5Fops->qp=5Fsend=5Flsmm(&iwqp->sc=5Fqp,
+> 							iwqp->ietf=5Fmem.va,
+> 							(accept.size + conn=5Fparam->private=5Fdata=5Flen),
+>@@ -3729,12 +3729,12 @@ int i40iw=5Faccept(struct iw=5Fcm=5Fid *cm=5Fid,
+>struct iw=5Fcm=5Fconn=5Fparam *conn=5Fparam)
+>=20
+> 	} else {
+> 		if (iwqp->page)
+>-			iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap(iwqp->page);
+>+			iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap=5Fthread(iwqp->page);
+> 		dev->iw=5Fpriv=5Fqp=5Fops->qp=5Fsend=5Flsmm(&iwqp->sc=5Fqp, NULL, 0, 0);
+> 	}
+>=20
+> 	if (iwqp->page)
+>-		kunmap(iwqp->page);
+>+		kunmap=5Fthread(iwqp->page);
+>=20
+> 	iwqp->cm=5Fid =3D cm=5Fid;
+> 	cm=5Fnode->cm=5Fid =3D cm=5Fid;
+>@@ -4102,10 +4102,10 @@ static void i40iw=5Fcm=5Fevent=5Fconnected(struct
+>i40iw=5Fcm=5Fevent *event)
+> 	i40iw=5Fcm=5Finit=5Ftsa=5Fconn(iwqp, cm=5Fnode);
+> 	read0 =3D (cm=5Fnode->send=5Frdma0=5Fop =3D=3D SEND=5FRDMA=5FREAD=5FZERO=
+);
+> 	if (iwqp->page)
+>-		iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap(iwqp->page);
+>+		iwqp->sc=5Fqp.qp=5Fuk.sq=5Fbase =3D kmap=5Fthread(iwqp->page);
+> 	dev->iw=5Fpriv=5Fqp=5Fops->qp=5Fsend=5Frtt(&iwqp->sc=5Fqp, read0);
+> 	if (iwqp->page)
+>-		kunmap(iwqp->page);
+>+		kunmap=5Fthread(iwqp->page);
+>=20
+> 	memset(&attr, 0, sizeof(attr));
+> 	attr.qp=5Fstate =3D IB=5FQPS=5FRTS;
+>diff --git a/drivers/infiniband/sw/siw/siw=5Fqp=5Ftx.c
+>b/drivers/infiniband/sw/siw/siw=5Fqp=5Ftx.c
+>index d19d8325588b..4ed37c328d02 100644
+>--- a/drivers/infiniband/sw/siw/siw=5Fqp=5Ftx.c
+>+++ b/drivers/infiniband/sw/siw/siw=5Fqp=5Ftx.c
+>@@ -76,7 +76,7 @@ static int siw=5Ftry=5F1seg(struct siw=5Fiwarp=5Ftx *c=
+=5Ftx,
+>void *paddr)
+> 			if (unlikely(!p))
+> 				return -EFAULT;
+>=20
+>-			buffer =3D kmap(p);
+>+			buffer =3D kmap=5Fthread(p);
+>=20
+> 			if (likely(PAGE=5FSIZE - off >=3D bytes)) {
+> 				memcpy(paddr, buffer + off, bytes);
+>@@ -84,7 +84,7 @@ static int siw=5Ftry=5F1seg(struct siw=5Fiwarp=5Ftx *c=
+=5Ftx,
+>void *paddr)
+> 				unsigned long part =3D bytes - (PAGE=5FSIZE - off);
+>=20
+> 				memcpy(paddr, buffer + off, part);
+>-				kunmap(p);
+>+				kunmap=5Fthread(p);
+>=20
+> 				if (!mem->is=5Fpbl)
+> 					p =3D siw=5Fget=5Fupage(mem->umem,
+>@@ -96,10 +96,10 @@ static int siw=5Ftry=5F1seg(struct siw=5Fiwarp=5Ftx
+>*c=5Ftx, void *paddr)
+> 				if (unlikely(!p))
+> 					return -EFAULT;
+>=20
+>-				buffer =3D kmap(p);
+>+				buffer =3D kmap=5Fthread(p);
+> 				memcpy(paddr + part, buffer, bytes - part);
+> 			}
+>-			kunmap(p);
+>+			kunmap=5Fthread(p);
+> 		}
+> 	}
+> 	return (int)bytes;
+>@@ -505,7 +505,7 @@ static int siw=5Ftx=5Fhdt(struct siw=5Fiwarp=5Ftx *c=
+=5Ftx,
+>struct socket *s)
+> 				page=5Farray[seg] =3D p;
+>=20
+> 				if (!c=5Ftx->use=5Fsendpage) {
+>-					iov[seg].iov=5Fbase =3D kmap(p) + fp=5Foff;
+>+					iov[seg].iov=5Fbase =3D kmap=5Fthread(p) + fp=5Foff;
 
-s/Reported-by: Reported-by:/Reported-by:/
+This misses a corresponding kunmap=5Fthread() in siw=5Funmap=5Fpages()
+(pls change line 403 in siw=5Fqp=5Ftx.c as well)
 
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  fs/io_uring.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 09494ca1b990..272abe03a79e 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -5672,9 +5672,6 @@ static int io_req_defer_prep(struct io_kiocb *req,
->  	ret = io_prep_work_files(req);
->  	if (unlikely(ret))
->  		return ret;
-> -
-> -	io_prep_async_work(req);
-> -
->  	return io_req_prep(req, sqe);
->  }
->  
-> 
+Thanks,
+Bernard.
 
--- 
-Pavel Begunkov
+> 					iov[seg].iov=5Flen =3D plen;
+>=20
+> 					/* Remember for later kunmap() */
+>@@ -518,9 +518,9 @@ static int siw=5Ftx=5Fhdt(struct siw=5Fiwarp=5Ftx *c=
+=5Ftx,
+>struct socket *s)
+> 							plen);
+> 				} else if (do=5Fcrc) {
+> 					crypto=5Fshash=5Fupdate(c=5Ftx->mpa=5Fcrc=5Fhd,
+>-							    kmap(p) + fp=5Foff,
+>+							    kmap=5Fthread(p) + fp=5Foff,
+> 							    plen);
+>-					kunmap(p);
+>+					kunmap=5Fthread(p);
+> 				}
+> 			} else {
+> 				u64 va =3D sge->laddr + sge=5Foff;
+>--=20
+>2.28.0.rc0.12.gb6a658bd00c9
+>
+>
+

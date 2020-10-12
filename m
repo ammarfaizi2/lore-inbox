@@ -2,70 +2,92 @@ Return-Path: <SRS0=lCIw=DT=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 785E7C2D0A1
-	for <io-uring@archiver.kernel.org>; Mon, 12 Oct 2020 14:04:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40B8CC433DF
+	for <io-uring@archiver.kernel.org>; Mon, 12 Oct 2020 14:24:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F0CD2074D
-	for <io-uring@archiver.kernel.org>; Mon, 12 Oct 2020 14:04:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E18F6208FE
+	for <io-uring@archiver.kernel.org>; Mon, 12 Oct 2020 14:24:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="rDqNIIj/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390824AbgJLOEb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 12 Oct 2020 10:04:31 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:49861 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730766AbgJLODo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Oct 2020 10:03:44 -0400
-Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <colin.king@canonical.com>)
-        id 1kRyQP-0003fj-Cq; Mon, 12 Oct 2020 14:03:41 +0000
-From:   Colin King <colin.king@canonical.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>,
+        id S2388833AbgJLOYp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 12 Oct 2020 10:24:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389328AbgJLOYo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Oct 2020 10:24:44 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3F3C0613D0
+        for <io-uring@vger.kernel.org>; Mon, 12 Oct 2020 07:24:44 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id t7so14876947ilf.10
+        for <io-uring@vger.kernel.org>; Mon, 12 Oct 2020 07:24:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=KXjyEZ75Pe4z4wSYrGbLTLW5aWcGXSPk3cloYXZRaQ4=;
+        b=rDqNIIj/4RCVrCTL8/M7nsY1rbeEAMaUOaH858YqkKmjLup7HNaJas+bWUE8scDgMY
+         WRgvGnWGk9gwIlxRrR1MKsaI1xyQbLtdsyiTaBFxunHI6UD73d/WqpJlABKqG9B8R1GX
+         yttwsR7L2CXJ6PmPLUUCC3VNQ3704dbZ+fRx+ZpTJjhIKHGAvPOeKJ+nemH8b8zWVnYm
+         AxPjX3mq06Z731A5VzfA2BLMaHqLrtUibfXqQtf32Zh1c7YkNJ/tEApnlk3dfDlTQ82l
+         vIiwKheyCCeFVuWiON8Gq9fRnzlG8AziqZW4w/LBoSgyTcVHf6bAm63v6uoixd2JZxSZ
+         75kQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=KXjyEZ75Pe4z4wSYrGbLTLW5aWcGXSPk3cloYXZRaQ4=;
+        b=O92GfbiNQPu2T5bkVNQbCDGaCw3yQUGacWbKhNZpP9zTmXmCnggM67mzZATkh/poFv
+         jUoCr2j2j5AVTWk9tpZ62u2HLCobhhnyb4VWhHSWxEhYhVKuUip+YFx3w5rCznkbKQOf
+         VsGXwFJQX8kRXuNEQqLnGflBuzBBKeJgOZlyx2AivioXwvSvATHwZAw1nxh4tthd6OnA
+         1LmyLv4RVz3SYn/9PCIvVhRBpMYveZm0U40DxWN/xBds3DFVphNuCEMORKqbDNxifG3Z
+         vrLdzGTg5NB4HuhwAiy+53VZkXU45em72QrLTuHu+ZYC25R/6GUSro/XgcWc9GHD+e3w
+         KCyg==
+X-Gm-Message-State: AOAM532M0g4r8nUToHOU3HZ6OtFFHLRXsWszcmQDfv3KnyaD+QYyqi/0
+        CwzVBGckpFOvjWNY3Vk2jJTFow==
+X-Google-Smtp-Source: ABdhPJznZRNU9a15R8WfJMyAoMmQCUgRYZZ8MpyOl67bGNCEGVilcETpNqOifTaQIWKqwq05Rl0odw==
+X-Received: by 2002:a92:ae0a:: with SMTP id s10mr19507476ilh.289.1602512683984;
+        Mon, 12 Oct 2020 07:24:43 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id c2sm7405690ioc.29.2020.10.12.07.24.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Oct 2020 07:24:43 -0700 (PDT)
+Subject: Re: [PATCH][next] io_uring: Fix sizeof() mismatch
+To:     Colin King <colin.king@canonical.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         Pavel Begunkov <asml.silence@gmail.com>,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
 Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][next] io_uring: Fix sizeof() mismatch
-Date:   Mon, 12 Oct 2020 15:03:41 +0100
-Message-Id: <20201012140341.77412-1-colin.king@canonical.com>
-X-Mailer: git-send-email 2.27.0
+References: <20201012140341.77412-1-colin.king@canonical.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <871e585c-06ca-17cb-f082-fec576bb75e1@kernel.dk>
+Date:   Mon, 12 Oct 2020 08:24:42 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201012140341.77412-1-colin.king@canonical.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On 10/12/20 8:03 AM, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> An incorrect sizeof() is being used, sizeof(file_data->table) is not
+> correct, it should be sizeof(*file_data->table).
 
-An incorrect sizeof() is being used, sizeof(file_data->table) is not
-correct, it should be sizeof(*file_data->table).
+Thanks, should be a no-op, which is why KASAN didn't complain in my
+testing. I'll queue this up, thanks.
 
-Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
-Fixes: 5398ae698525 ("io_uring: clean file_data access in files_register")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b58169240c77..6b30670fffbd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7306,7 +7306,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	spin_lock_init(&file_data->lock);
- 
- 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
--	file_data->table = kcalloc(nr_tables, sizeof(file_data->table),
-+	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
- 				   GFP_KERNEL);
- 	if (!file_data->table)
- 		goto out_free;
 -- 
-2.27.0
+Jens Axboe
 

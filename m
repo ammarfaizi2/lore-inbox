@@ -2,95 +2,114 @@ Return-Path: <SRS0=R86o=DV=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EBAFC433DF
-	for <io-uring@archiver.kernel.org>; Wed, 14 Oct 2020 09:24:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70342C433DF
+	for <io-uring@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 16C4F20B1F
-	for <io-uring@archiver.kernel.org>; Wed, 14 Oct 2020 09:24:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0035820B1F
+	for <io-uring@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="4PY7LNBo";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="irnr61Ml"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="PHkhpxNO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727589AbgJNJYh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 14 Oct 2020 05:24:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39962 "EHLO
+        id S1726365AbgJNJa0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:30:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730796AbgJNJUK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Oct 2020 05:20:10 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4603C08EC3E;
-        Tue, 13 Oct 2020 16:50:26 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1602633025;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=nCUoUR6+uxjkAbOY3zTEcQ6IAUO/zrzgTWOr/0AWWRs=;
-        b=4PY7LNBoRXqxj/FvQ2UuL4sn4aIV+c3iuZJqB4xkKktMBpwAnMOCIsjezj03IbYj49ZA87
-        YBapabkSVlWCImVTcoKY6dFTNmXN4qaCitNodjmsL3bymobul0l0nyk52Sn/POPJLGwnGS
-        j9EatuVJHhxRPGiSibJAuq/5/lR6paH+KleQ4Rpz7XPqCjsyk9T18v3Z55fWwFUHN7lnpy
-        8rTIki7XjVuCTR4cl9KO98lWE039/ctMMv/Xk0j4FZsWZJiPujg/8U5EOEqA14mjMQkWbA
-        PSGc0iP1QlMKOqxR9rmdbSglCdQOakIQNyKeKhD7pdiktx1Kf+jKlrLy4iCwZg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1602633025;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=nCUoUR6+uxjkAbOY3zTEcQ6IAUO/zrzgTWOr/0AWWRs=;
-        b=irnr61MlGns1BMSW3/RQ4H0MBJXOfrzsYMZRxGkM5Nj1ruoXIAg/oSfWWBC5GsZ8tEOsM8
-        Y9RWNGK19xda56CA==
-To:     Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
+        with ESMTP id S1729320AbgJNJTj (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Oct 2020 05:19:39 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A25DC08EBB4
+        for <io-uring@vger.kernel.org>; Tue, 13 Oct 2020 16:46:00 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id o8so787630pll.4
+        for <io-uring@vger.kernel.org>; Tue, 13 Oct 2020 16:46:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Q17Q7ktlNhaXKY65m0KUKSOOR+9TcrtRgolKl3qJcfE=;
+        b=PHkhpxNOAvRkgVrDqONoYBYXObf8ngZR0j4/P7nnssklPxBVA8loBCzAmxX3hE1JH2
+         OX60jBe8wRs21OYODQxGq+x4G+tZHwfFg/kka8IUNo60oykxymzSprxVkuSBsXij+XHU
+         vbIaeMWwoB/vgAkWjGghD9ONJR43j2IuF/lorwoMoQZuV1IyfbU/ByVRqcLkVrJb0mEc
+         6aEdvoDQp2hs7Zkd3aaB882RCC48J3Z9n3O/u3H+Z0UtgJdw16hgN8S4mVsuv1dVg4ha
+         UtM8rHdeZ5rNyskewlRZftleEErGLbFBVkr+zxOH7L9+kLteYdR3pi/xJ9S9RCsHQ4Vg
+         7bEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Q17Q7ktlNhaXKY65m0KUKSOOR+9TcrtRgolKl3qJcfE=;
+        b=oLwbgu5nCKBpOumGS16Ecd+M8/1zkcNCVCx3TQZiZiH1fmxt2FLhWSm9Nc3C4cVhxE
+         EQTk0i/H3jeOb+pU+0KDTlEGu2l3+K1nZ6jy4FK1kzbHB8y9/E+SDPU64ANUP2l0lZI7
+         S5udC9b+MkMZX690YY2WFslXsRDL3DQ8aK4KrdSNFPnmM1lvqnD+PG5d4KheYpXvIb0n
+         e1slkAcU9aGah9TwXvt9PnwTaWTlT8TM2BQDbNot0dwvY/VDNCDL9L7/WvftbxHBAYl5
+         fgdv3f1eUqR85SBpRCEHPgKIx6vnwtMEsPtg92+h0/8sF0pooHUbiPJG1Iy0B/zOsY+9
+         YQtQ==
+X-Gm-Message-State: AOAM532hQZgGnnBLZJ+J8GiXFeSE/iPGN0VP+Y6EJtp3/rIRWGHLboxR
+        HBAeE3X8eCLdC3+B+QA/06MrAexYFVBzdalw
+X-Google-Smtp-Source: ABdhPJyZF8vBZZV9RVyjy7KiAqYs9zYIr6oaLx/hTtuS8cK+eB3uoFljOHpht0SFKCleu+sVCS9Y7w==
+X-Received: by 2002:a17:902:b089:b029:d4:d5c6:fed0 with SMTP id p9-20020a170902b089b02900d4d5c6fed0mr2103378plr.9.1602632760084;
+        Tue, 13 Oct 2020 16:46:00 -0700 (PDT)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id w4sm368023pjh.50.2020.10.13.16.45.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Oct 2020 16:45:59 -0700 (PDT)
+Subject: Re: [PATCH 3/4] kernel: add support for TIF_NOTIFY_SIGNAL
+To:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
         io-uring@vger.kernel.org
-Cc:     peterz@infradead.org, oleg@redhat.com,
-        Jens Axboe <axboe@kernel.dk>,
-        Roman Gershman <romger@amazon.com>
-Subject: Re: [PATCH 4/4] task_work: use TIF_NOTIFY_SIGNAL if available
-In-Reply-To: <20201008152752.218889-5-axboe@kernel.dk>
-References: <20201008152752.218889-1-axboe@kernel.dk> <20201008152752.218889-5-axboe@kernel.dk>
-Date:   Wed, 14 Oct 2020 01:50:25 +0200
-Message-ID: <87362hd6ta.fsf@nanos.tec.linutronix.de>
+Cc:     peterz@infradead.org, oleg@redhat.com
+References: <20201008152752.218889-1-axboe@kernel.dk>
+ <20201008152752.218889-4-axboe@kernel.dk>
+ <878sc9d75u.fsf@nanos.tec.linutronix.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <5ae0077a-d215-82a0-49d4-d715714e2219@kernel.dk>
+Date:   Tue, 13 Oct 2020 17:45:57 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <878sc9d75u.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Oct 08 2020 at 09:27, Jens Axboe wrote:
-> +/*
-> + * TWA_SIGNAL signaling - use TIF_NOTIFY_SIGNAL, if available, as it's faster
-> + * than TIF_SIGPENDING as there's no dependency on ->sighand. The latter is
-> + * shared for threads, and can cause contention on sighand->lock. Even for
-> + * the non-threaded case TIF_NOTIFY_SIGNAL is more efficient, as no locking
-> + * or IRQ disabling is involved for notification (or running) purposes.
-> + */
-> +static void task_work_notify_signal(struct task_struct *task)
-> +{
-> +#ifdef TIF_NOTIFY_SIGNAL
-> +	set_notify_signal(task);
-> +#else
-> +	unsigned long flags;
-> +
-> +	/*
-> +	 * Only grab the sighand lock if we don't already have some
-> +	 * task_work pending. This pairs with the smp_store_mb()
-> +	 * in get_signal(), see comment there.
-> +	 */
-> +	if (!(READ_ONCE(task->jobctl) & JOBCTL_TASK_WORK) &&
-> +	    lock_task_sighand(task, &flags)) {
-> +		task->jobctl |= JOBCTL_TASK_WORK;
-> +		signal_wake_up(task, 0);
-> +		unlock_task_sighand(task, &flags);
-> +	}
-> +#endif
+On 10/13/20 5:42 PM, Thomas Gleixner wrote:
+> On Thu, Oct 08 2020 at 09:27, Jens Axboe wrote:
+>> This adds TIF_NOTIFY_SIGNAL handling in the generic code, which if set,
+>> will return true if signal_pending() is used in a wait loop. That causes
+>> an exit of the loop so that notify_signal tracehooks can be run. If the
+>> wait loop is currently inside a system call, the system call is restarted
+>> once task_work has been processed.
+>>
+>> x86 is using the generic entry code, add the necessary TIF_NOTIFY_SIGNAL
+>> definitions for it.
+> 
+> Can you please split that into core changes and a patch which adds
+> support for x86?
 
-Same #ifdeffery comment as before.
+Sure, I'll split it into generic and then x86 after that.
 
-Thanks,
+>>  static inline int signal_pending(struct task_struct *p)
+>>  {
+>> +#ifdef TIF_NOTIFY_SIGNAL
+> 
+> As I said in the other thread, plase make this
+> 
+> #if defined(CONFIG_GENERIC_ENTRY) && defined(TIF_NOTIFY_SIGNAL)
 
-        tglx
+Thanks, I'll make those tweaks.
+
+> Other than that, this approach of using arch_do_signal() addresses my
+> earlier concerns about the syscall restart machinery.
+
+Great! Thanks for taking a look.
+
+-- 
+Jens Axboe
 

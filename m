@@ -2,82 +2,59 @@ Return-Path: <SRS0=ly1X=DW=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DD9C433DF
-	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 16:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE2FEC433DF
+	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 16:25:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93C0D22210
-	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 16:11:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="Zq8zrijK"
+	by mail.kernel.org (Postfix) with ESMTP id 46E4B22240
+	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 16:25:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388461AbgJOQLH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 15 Oct 2020 12:11:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
+        id S2389414AbgJOQZN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 15 Oct 2020 12:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388357AbgJOQLH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Oct 2020 12:11:07 -0400
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C50AC061755
-        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 09:11:05 -0700 (PDT)
-Received: by mail-il1-x12d.google.com with SMTP id w17so4822370ilg.8
-        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 09:11:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=1S5KDbQ1p20CuPkNhd9MKTHki1OPIcARm5C3GR0zXlE=;
-        b=Zq8zrijKaBjlJIqXOZzNPwiOQ9G/7La1BsbjF7IqpZPkWKIe97wo9qAFp03jKt1P28
-         sqwc04YE5+eoJuV5xmUpB/yPvXd1kSg5kDcSELxUO7ilZEUxdUqTeCYER3QHOZwiLLGh
-         0WmxMcpxX3li3eg/SqayPvfCkMYRaiKFEOX7/ru/28Lg5ChVQoTZ8UXPz/KCUZ4xutzu
-         +AQ04Xl9llpQeLxOP6ewOBAjyQDt8FnAsMXCKLs/wNwETneWCwYzHAmXFRBWXG6YCNQJ
-         D/8eXoAd5OwNXTE4FFqPLAA0g6hzJs2cOgDgvRql2b9HL4d/VvMmBxiRVuRHgak8OlSW
-         d68g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=1S5KDbQ1p20CuPkNhd9MKTHki1OPIcARm5C3GR0zXlE=;
-        b=jaymnD9kHGxkOAXhzK/dnFJ1IF7o+4g0dz+RWIFrAEFHdvJ+uVjx7SWX68uJ0GDWo8
-         TW9lzebvkOU+I7RLMPf2vLUrEsa4kaR8OEvdHE+F9Nd+U0dAtanuGpGuWm29q36Y6kQb
-         fXY4drucBHLPYQmybrH/S9BBnYPi7NwnhlLIOgqvOLEZva1P1I1dlmQM368WNPCIrT9G
-         MJMwDZNQnbWt7KIYwlpStgVVun2crJ1/eJPuslnskoS8B42V6aG3GTfgFwwJ2/QdZu6+
-         aoKjZJ7z4kphGwT4XWNeghteCiK7TBvaDXx/mbmWK1t5eMA1ULoq9fx4B6Yi5p4t4/Tj
-         /UyQ==
-X-Gm-Message-State: AOAM532Jzdg1xTqqvLQPMC52TOevZON0S86VgFCGIPZhYZeKHlRiZNFj
-        pXJKq708fGCZ3fs6lFTLK3U9R34Ye6/P+A==
-X-Google-Smtp-Source: ABdhPJywT1dPbYXSPNPCysISCZWsIoG0QWgcMNxp4OrxB4SlOsRK3TVM3NJj4VFya2zY21eKYe6CgA==
-X-Received: by 2002:a92:ca92:: with SMTP id t18mr3771565ilo.287.1602778264469;
-        Thu, 15 Oct 2020 09:11:04 -0700 (PDT)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id d6sm2880757iln.26.2020.10.15.09.11.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Oct 2020 09:11:03 -0700 (PDT)
-Subject: Re: Samba with multichannel and io_uring
-To:     Stefan Metzmacher <metze@samba.org>,
-        Samba Technical <samba-technical@lists.samba.org>,
+        with ESMTP id S2388357AbgJOQZM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Oct 2020 12:25:12 -0400
+X-Greylist: delayed 2390 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 15 Oct 2020 09:25:12 PDT
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A02EC061755
+        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 09:25:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Message-ID:Cc:To:From:Date;
+        bh=ceAEBaTxUCtZN1qgp7gk4jzdWlaDdtYET229UZzIWmc=; b=Wao0acLll1cpB8XzbCJurOns6/
+        GWuA39o/1sbUO0Iqku46NuRPZUQnZsC1qshNBnTUFqSRuoPMnBNwYJ7zU77wYcaEXTrmINYlCOVhh
+        zZJ9DD87iJ5OpqEnyxc0K57ww0/9WVW9rRUb/coCbckHAXWHzIIYjqy87cZ9S+VCLcKB0/7ChL6Y1
+        ovUYQsiCA+HlnvKjQxFeGvTYOedP1qZykF8XnG7zqrbTG0SohcBR9WnixfdK2lfpDx/ghbIWe6k4+
+        dPtihuPQ2vSJx4xHbF0U7Df9QHhti/CXnUNisPLwNBJT5LH+OdnKg9Vir686jnxHOmSl8BrxM6Whs
+        quQI06MCouQwHHjbXdjJk7WMp3d4r8MVM3rMA8UpfhKd87s2bnQZsiAeXFoBotbLHJw7JO9R2/dRT
+        MtBZavVsBLxajXjCnjJDdLxWWrSgfVUrd/YkDGRTtgHoNNCJ6N/E9lKA7bjHmCgBKgkm5lhmJmhHm
+        HcS50vaUOZDLq4uC9vpmcP3q;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1kT5RO-0001Dy-Ry; Thu, 15 Oct 2020 15:45:19 +0000
+Date:   Thu, 15 Oct 2020 08:45:16 -0700
+From:   Jeremy Allison <jra@samba.org>
+To:     Stefan Metzmacher <metze@samba.org>
+Cc:     Samba Technical <samba-technical@lists.samba.org>,
         io-uring <io-uring@vger.kernel.org>
+Subject: Re: Samba with multichannel and io_uring
+Message-ID: <20201015154516.GA3767349@jeremy-acer>
+Reply-To: Jeremy Allison <jra@samba.org>
 References: <53d63041-5931-c5f2-2f31-50b5cbe09ec8@samba.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <efb8b619-ca06-5c6b-e052-0c40b64b9904@kernel.dk>
-Date:   Thu, 15 Oct 2020 10:11:02 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <53d63041-5931-c5f2-2f31-50b5cbe09ec8@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 10/15/20 3:58 AM, Stefan Metzmacher wrote:
+On Thu, Oct 15, 2020 at 11:58:00AM +0200, Stefan Metzmacher via samba-technical wrote:
 > Hi,
 > 
 > related to my talk at the virtual storage developer conference
@@ -202,28 +179,9 @@ On 10/15/20 3:58 AM, Stefan Metzmacher wrote:
 > 
 > Later SMB-Direct should be able to reduce the cpu load of the io_wqe_work threads (pipe to socket)...
 
-Thanks for sending this, very interesting! As per this email, I took a
-look at the NUMA bindings. If you can, please try this one-liner below.
-I'd be interested to know if that removes the fluctuations you're seeing
-due to bad locality.
+Fantastic results Metze, thanks a *LOT* for sharing this data
+and also the patches you used to reproduce.
 
-Looks like kthread_create_on_node() doesn't actually do anything (at
-least in terms of binding).
+Cheers,
 
-
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 74b84e8562fb..7bebb198b3df 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -676,6 +676,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 		kfree(worker);
- 		return false;
- 	}
-+	kthread_bind_mask(worker->task, cpumask_of_node(wqe->node));
- 
- 	raw_spin_lock_irq(&wqe->lock);
- 	hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
-
--- 
-Jens Axboe
-
+Jeremy.

@@ -7,63 +7,64 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51772C43457
-	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 13:17:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6D20C43467
+	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 13:17:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE74822268
-	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 13:17:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59C7A2225C
+	for <io-uring@archiver.kernel.org>; Thu, 15 Oct 2020 13:17:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="p2zoKyk3"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="cuMDln4J"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727921AbgJONRL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 15 Oct 2020 09:17:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
+        id S1729009AbgJONRM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 15 Oct 2020 09:17:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728521AbgJONRK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Oct 2020 09:17:10 -0400
+        with ESMTP id S1728884AbgJONRL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Oct 2020 09:17:11 -0400
 Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E724C0613D5
-        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 06:17:09 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id t12so4028562ilh.3
-        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 06:17:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38361C0613D2
+        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 06:17:11 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id p9so4049873ilr.1
+        for <io-uring@vger.kernel.org>; Thu, 15 Oct 2020 06:17:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gcXNClmvNGT0ZcZm/PYa3YKMmvRI86wf/VrdveKe5Mw=;
-        b=p2zoKyk3R6z74d2ZY5D871Cu1F02mngcKJyOWn17rMhYy5EiMaVsG4JqN6BMDvUkyi
-         MW1ntb2dtVwNaHwRmLvPS0Kwr6RJxASfuWcMx17kduWHnPamufK/xEzNypxHnXnTSJLU
-         HaYMAbkZFgeqYohoFCnLvOHF+VIu7QbdFU5Im9afMOsn43+ttk5z5Sn0guB66mXR13/V
-         Rjtarkfx0E4sHMCkBHW17HI82TKlGVXZfrQHgqS3NW5P/ez5JMITSEJDdwE/DcqOtR/4
-         yq6mh/+D48mxwri70hGcSPx9DHdNhge9o9jzuvZYweDGlqnw03Zo0dJmdar1wK1VqJ8T
-         L3OA==
+        bh=ySJmiV6pZ66encLr0ACqPd40Yi3LeN6xjC4l1TOnISo=;
+        b=cuMDln4JOHqPAw7CdzjmLn/iTyTCZbvI5OegfIljamRYynOsZJF258Zo0WBgr5B3Gl
+         9xOANGq9UC19YEd5vBqsLBAWr7JlgX2gJfO1YD2YOIdv0XefWlkFZoSaGI9VLKYLAs1q
+         MfJpT0dYe3ccWLqx/S+sQrSMgdSr2dqmLsvRnJHffDvp7XwFgnpkPfX49cJPLyQPgU7W
+         aJ19G08YWvThbbLaNk4PghTaIxcFNPcgxFKlfDu2m+lRgkmiyftPEI8bXukbVFgrPMLM
+         SF53F4yxeaOtzaegMSW6xCuAS1E/vX7Izqvu1Mww2zHNcZJqPsTmjXPJkZwW7Q76QwbU
+         7UQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gcXNClmvNGT0ZcZm/PYa3YKMmvRI86wf/VrdveKe5Mw=;
-        b=j+LpkVPVzmq1RD0zjHjGr2li2X4uO8U+Eq0V26UxU0Kl1y+F6zNKXDldws5/o6iL3o
-         cDJn5nt5sByAtfzAHQjvdrALMBuXCw/P783qbzbCTxS8FaqYIdQq0xA/ixf3RLdWWb0K
-         +Tb2VN7YpV+u66I7KtipvbFKjTgdfiRGVUwqKSQMzt812/uN3w7GlMWoWPSDfG5+Sv4T
-         koFFQThCoPqN+f0UP1x7ogP4LBwEYO1H9XE0AoPNnBdQumTA1d9o6rkfLFAFnjouWVsC
-         D9HwPmCWLmjK8W1m/MaVs+s5/GDuALdCwpVzxYECN4GzsvaHgF3pID241TJeQaFJTrS1
-         xLJw==
-X-Gm-Message-State: AOAM533xWPe+SPulJrT8ETeftdXg5bHgD/zK74YRzeGiC992XH3U3eEF
-        JYvxFSAcbF8ZKPrxl8Thm/gu+Q==
-X-Google-Smtp-Source: ABdhPJxBC5rES6GTgDbiJXq/23LwRSUv6LcM0o2cMCuuEo5j5D/RP8V783dkwu/3FOnDOFdyDUoN8A==
-X-Received: by 2002:a05:6e02:cf:: with SMTP id r15mr885977ilq.90.1602767828325;
-        Thu, 15 Oct 2020 06:17:08 -0700 (PDT)
+        bh=ySJmiV6pZ66encLr0ACqPd40Yi3LeN6xjC4l1TOnISo=;
+        b=TpLJsoW0jkqCY98+OHSzbbQbOQv4OI8CIoRM3rNKRLggoP+KgeinzbQblFykp5q5mW
+         m636b6VgnagRH7fqGA3FUBuTf0KsplvVK4bHgEiRzv/AyEP6Rsop+aeEgKX04dVmuX3p
+         rgB9iuKnqAS+cqml/a6PTev893RETh15GIgkzKyj0uEOMVPdMUNzp+QR+9S4BNdpeJPK
+         InrwuPGf0tQFgGaEVlLhps0ThBxgRMnH7B2ZL69EHtT6R/+dc5hzOZneDwZUNCXZTo+7
+         YKTRLhjBPBYqUHCcYb1Q6euS05pobq3bDQu+ROpzXAuwS9PnKz5EiNLi+/NnKEsW0eQx
+         +s0Q==
+X-Gm-Message-State: AOAM532Kyjw8IypiEEoGGkh/YqH4gmT9gGu59UDv8bN4qOKNIbCmn9i2
+        go593G/oa/1fZwUayYk4/o6Ihw==
+X-Google-Smtp-Source: ABdhPJwtRjttjEB+sPxJzGX2aecJn5FFPN8CcvG60eskaRhV1o/QypGaIs2YvQvfCMBXx6nji1dUVw==
+X-Received: by 2002:a05:6e02:d01:: with SMTP id g1mr2901622ilj.246.1602767830328;
+        Thu, 15 Oct 2020 06:17:10 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m13sm2486736ioo.9.2020.10.15.06.17.07
+        by smtp.gmail.com with ESMTPSA id m13sm2486736ioo.9.2020.10.15.06.17.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2020 06:17:07 -0700 (PDT)
+        Thu, 15 Oct 2020 06:17:09 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
 Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 3/5] kernel: add support for TIF_NOTIFY_SIGNAL
-Date:   Thu, 15 Oct 2020 07:16:59 -0600
-Message-Id: <20201015131701.511523-4-axboe@kernel.dk>
+        Jens Axboe <axboe@kernel.dk>,
+        Roman Gershman <romger@amazon.com>
+Subject: [PATCH 5/5] task_work: use TIF_NOTIFY_SIGNAL if available
+Date:   Thu, 15 Oct 2020 07:17:01 -0600
+Message-Id: <20201015131701.511523-6-axboe@kernel.dk>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201015131701.511523-1-axboe@kernel.dk>
 References: <20201015131701.511523-1-axboe@kernel.dk>
@@ -73,191 +74,135 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This adds TIF_NOTIFY_SIGNAL handling in the generic code, which if set,
-will return true if signal_pending() is used in a wait loop. That causes
-an exit of the loop so that notify_signal tracehooks can be run. If the
-wait loop is currently inside a system call, the system call is restarted
-once task_work has been processed.
+If the arch supports TIF_NOTIFY_SIGNAL, then use that for TWA_SIGNAL as
+it's more efficient than using the signal delivery method. This is
+especially true on threaded applications, where ->sighand is shared
+across threads, but it's also lighter weight on non-shared cases.
 
+io_uring is a heavy consumer of TWA_SIGNAL based task_work. On my test
+box, even just using 16 threads shows a nice improvement running an
+io_uring based echo server.
+
+stock kernel:
+0.01% <= 0.1 milliseconds
+95.86% <= 0.2 milliseconds
+98.27% <= 0.3 milliseconds
+99.71% <= 0.4 milliseconds
+100.00% <= 0.5 milliseconds
+100.00% <= 0.6 milliseconds
+100.00% <= 0.7 milliseconds
+100.00% <= 0.8 milliseconds
+100.00% <= 0.9 milliseconds
+100.00% <= 1.0 milliseconds
+100.00% <= 1.1 milliseconds
+100.00% <= 2 milliseconds
+100.00% <= 3 milliseconds
+100.00% <= 3 milliseconds
+1378930.00 requests per second
+~1600% CPU
+
+1.38M requests/second, and all 16 CPUs are maxed out.
+
+patched kernel:
+0.01% <= 0.1 milliseconds
+98.24% <= 0.2 milliseconds
+99.47% <= 0.3 milliseconds
+99.99% <= 0.4 milliseconds
+100.00% <= 0.5 milliseconds
+100.00% <= 0.6 milliseconds
+100.00% <= 0.7 milliseconds
+100.00% <= 0.8 milliseconds
+100.00% <= 0.9 milliseconds
+100.00% <= 1.2 milliseconds
+1666111.38 requests per second
+~1450% CPU
+
+1.67M requests/second, and we're no longer just hammering on the sighand
+lock. The original reporter states:
+
+"For 5.7.15 my benchmark achieves 1.6M qps and system cpu is at ~80%.
+ for 5.7.16 or later it achieves only 1M qps and the system cpu is is
+ at ~100%"
+
+with the only difference there being that TWA_SIGNAL is used
+unconditionally in 5.7.16, since we need it to be able to solve an
+inability to run task_work if the application is waiting in the kernel
+already on an event that needs task_work run to be satisfied. Also
+see commit 0ba9c9edcd15.
+
+Reported-by: Roman Gershman <romger@amazon.com>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- arch/x86/kernel/signal.c     |  2 +-
- include/linux/entry-common.h |  9 +++++++--
- include/linux/entry-kvm.h    |  4 ++--
- include/linux/sched/signal.h | 11 ++++++++++-
- include/linux/tracehook.h    | 27 +++++++++++++++++++++++++++
- kernel/entry/common.c        |  6 +++---
- kernel/entry/kvm.c           |  3 +++
- 7 files changed, 53 insertions(+), 9 deletions(-)
+ kernel/task_work.c | 41 +++++++++++++++++++++++++++++------------
+ 1 file changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index be0d7d4152ec..d18304e84c09 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -804,7 +804,7 @@ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
-  * want to handle. Thus you cannot kill init even with a SIGKILL even by
-  * mistake.
-  */
--void arch_do_signal(struct pt_regs *regs)
-+void arch_do_signal(struct pt_regs *regs, unsigned long ti_work)
- {
- 	struct ksignal ksig;
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 613b2d634af8..81163b946224 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -5,6 +5,34 @@
  
-diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
-index 159c7476b11b..42e899b3b4a1 100644
---- a/include/linux/entry-common.h
-+++ b/include/linux/entry-common.h
-@@ -37,6 +37,10 @@
- # define _TIF_UPROBE			(0)
- #endif
+ static struct callback_head work_exited; /* all we need is ->next == NULL */
  
-+#ifndef _TIF_NOTIFY_SIGNAL
-+# define _TIF_NOTIFY_SIGNAL		(0)
-+#endif
-+
- /*
-  * TIF flags handled in syscall_enter_from_usermode()
-  */
-@@ -69,7 +73,7 @@
- 
- #define EXIT_TO_USER_MODE_WORK						\
- 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |		\
--	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING |			\
-+	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING | _TIF_NOTIFY_SIGNAL |	\
- 	 ARCH_EXIT_TO_USER_MODE_WORK)
- 
- /**
-@@ -261,10 +265,11 @@ static __always_inline void arch_exit_to_user_mode(void) { }
- /**
-  * arch_do_signal -  Architecture specific signal delivery function
-  * @regs:	Pointer to currents pt_regs
-+ * @ti_work:	task thread info work flags
-  *
-  * Invoked from exit_to_user_mode_loop().
-  */
--void arch_do_signal(struct pt_regs *regs);
-+void arch_do_signal(struct pt_regs *regs, unsigned long ti_work);
- 
- /**
-  * arch_syscall_exit_tracehook - Wrapper around tracehook_report_syscall_exit()
-diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
-index 0cef17afb41a..9b93f8584ff7 100644
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -11,8 +11,8 @@
- # define ARCH_XFER_TO_GUEST_MODE_WORK	(0)
- #endif
- 
--#define XFER_TO_GUEST_MODE_WORK					\
--	(_TIF_NEED_RESCHED | _TIF_SIGPENDING |			\
-+#define XFER_TO_GUEST_MODE_WORK						\
-+	(_TIF_NEED_RESCHED | _TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL |	\
- 	 _TIF_NOTIFY_RESUME | ARCH_XFER_TO_GUEST_MODE_WORK)
- 
- struct kvm_vcpu;
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 404145dc536e..b2ecc34284b0 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -360,6 +360,15 @@ static inline int task_sigpending(struct task_struct *p)
- 
- static inline int signal_pending(struct task_struct *p)
- {
++/*
++ * TWA_SIGNAL signaling - use TIF_NOTIFY_SIGNAL, if available, as it's faster
++ * than TIF_SIGPENDING as there's no dependency on ->sighand. The latter is
++ * shared for threads, and can cause contention on sighand->lock. Even for
++ * the non-threaded case TIF_NOTIFY_SIGNAL is more efficient, as no locking
++ * or IRQ disabling is involved for notification (or running) purposes.
++ */
++static void task_work_notify_signal(struct task_struct *task)
++{
 +#if defined(CONFIG_GENERIC_ENTRY) && defined(TIF_NOTIFY_SIGNAL)
++	set_notify_signal(task);
++#else
++	unsigned long flags;
++
 +	/*
-+	 * TIF_NOTIFY_SIGNAL isn't really a signal, but it requires the same
-+	 * behavior in terms of ensuring that we break out of wait loops
-+	 * so that notify signal callbacks can be processed.
++	 * Only grab the sighand lock if we don't already have some
++	 * task_work pending. This pairs with the smp_store_mb()
++	 * in get_signal(), see comment there.
 +	 */
-+	if (unlikely(test_tsk_thread_flag(p, TIF_NOTIFY_SIGNAL)))
-+		return 1;
++	if (!(READ_ONCE(task->jobctl) & JOBCTL_TASK_WORK) &&
++	    lock_task_sighand(task, &flags)) {
++		task->jobctl |= JOBCTL_TASK_WORK;
++		signal_wake_up(task, 0);
++		unlock_task_sighand(task, &flags);
++	}
 +#endif
- 	return task_sigpending(p);
- }
- 
-@@ -507,7 +516,7 @@ extern int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize);
- static inline void restore_saved_sigmask_unless(bool interrupted)
++}
++
+ /**
+  * task_work_add - ask the @task to execute @work->func()
+  * @task: the task which should run the callback
+@@ -28,7 +56,6 @@ int
+ task_work_add(struct task_struct *task, struct callback_head *work, int notify)
  {
- 	if (interrupted)
--		WARN_ON(!test_thread_flag(TIF_SIGPENDING));
-+		WARN_ON(!signal_pending(current));
- 	else
- 		restore_saved_sigmask();
- }
-diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
-index b480e1a07ed8..0a5bb866e7a6 100644
---- a/include/linux/tracehook.h
-+++ b/include/linux/tracehook.h
-@@ -198,4 +198,31 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
- 	blkcg_maybe_throttle_current();
- }
+ 	struct callback_head *head;
+-	unsigned long flags;
  
-+/*
-+ * called by exit_to_user_mode_loop() if ti_work & _TIF_NOTIFY_SIGNAL. This
-+ * is currently used by TWA_SIGNAL based task_work, which requires breaking
-+ * wait loops to ensure that task_work is noticed and run.
-+ */
-+static inline void tracehook_notify_signal(void)
-+{
-+#if defined(CONFIG_GENERIC_ENTRY) && defined(TIF_NOTIFY_SIGNAL)
-+	clear_thread_flag(TIF_NOTIFY_SIGNAL);
-+	smp_mb__after_atomic();
-+	if (current->task_works)
-+		task_work_run();
-+#endif
-+}
-+
-+/*
-+ * Called when we have work to process from exit_to_user_mode_loop()
-+ */
-+static inline void set_notify_signal(struct task_struct *task)
-+{
-+#if defined(CONFIG_GENERIC_ENTRY) && defined(TIF_NOTIFY_SIGNAL)
-+	if (!test_and_set_tsk_thread_flag(task, TIF_NOTIFY_SIGNAL) &&
-+	    !wake_up_state(task, TASK_INTERRUPTIBLE))
-+		kick_process(task);
-+#endif
-+}
-+
- #endif	/* <linux/tracehook.h> */
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index d20ab4ac7183..bd3cf6279e94 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -135,7 +135,7 @@ static __always_inline void exit_to_user_mode(void)
- }
- 
- /* Workaround to allow gradual conversion of architecture code */
--void __weak arch_do_signal(struct pt_regs *regs) { }
-+void __weak arch_do_signal(struct pt_regs *regs, unsigned long ti_work) { }
- 
- static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 					    unsigned long ti_work)
-@@ -157,8 +157,8 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		if (ti_work & _TIF_PATCH_PENDING)
- 			klp_update_patch_state(current);
- 
--		if (ti_work & _TIF_SIGPENDING)
--			arch_do_signal(regs);
-+		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
-+			arch_do_signal(regs, ti_work);
- 
- 		if (ti_work & _TIF_NOTIFY_RESUME) {
- 			tracehook_notify_resume(regs);
-diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
-index b6678a5e3cf6..49972ee99aff 100644
---- a/kernel/entry/kvm.c
-+++ b/kernel/entry/kvm.c
-@@ -8,6 +8,9 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
  	do {
- 		int ret;
+ 		head = READ_ONCE(task->task_works);
+@@ -42,17 +69,7 @@ task_work_add(struct task_struct *task, struct callback_head *work, int notify)
+ 		set_notify_resume(task);
+ 		break;
+ 	case TWA_SIGNAL:
+-		/*
+-		 * Only grab the sighand lock if we don't already have some
+-		 * task_work pending. This pairs with the smp_store_mb()
+-		 * in get_signal(), see comment there.
+-		 */
+-		if (!(READ_ONCE(task->jobctl) & JOBCTL_TASK_WORK) &&
+-		    lock_task_sighand(task, &flags)) {
+-			task->jobctl |= JOBCTL_TASK_WORK;
+-			signal_wake_up(task, 0);
+-			unlock_task_sighand(task, &flags);
+-		}
++		task_work_notify_signal(task);
+ 		break;
+ 	}
  
-+		if (ti_work & _TIF_NOTIFY_SIGNAL)
-+			tracehook_notify_signal();
-+
- 		if (ti_work & _TIF_SIGPENDING) {
- 			kvm_handle_signal_exit(vcpu);
- 			return -EINTR;
 -- 
 2.28.0
 

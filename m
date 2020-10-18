@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D36DC43467
-	for <io-uring@archiver.kernel.org>; Sun, 18 Oct 2020 09:20:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06D8BC433E7
+	for <io-uring@archiver.kernel.org>; Sun, 18 Oct 2020 09:20:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 003222137B
-	for <io-uring@archiver.kernel.org>; Sun, 18 Oct 2020 09:20:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9C2721D41
+	for <io-uring@archiver.kernel.org>; Sun, 18 Oct 2020 09:20:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JAot48dN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="psTaUbss"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726182AbgJRJUr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 18 Oct 2020 05:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53698 "EHLO
+        id S1726258AbgJRJUt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 18 Oct 2020 05:20:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725298AbgJRJUq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 18 Oct 2020 05:20:46 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0938C061755
-        for <io-uring@vger.kernel.org>; Sun, 18 Oct 2020 02:20:46 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id a72so7413769wme.5
-        for <io-uring@vger.kernel.org>; Sun, 18 Oct 2020 02:20:46 -0700 (PDT)
+        with ESMTP id S1725298AbgJRJUs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 18 Oct 2020 05:20:48 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93222C061755
+        for <io-uring@vger.kernel.org>; Sun, 18 Oct 2020 02:20:48 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id h7so8095590wre.4
+        for <io-uring@vger.kernel.org>; Sun, 18 Oct 2020 02:20:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=LPqBk+sH3WBUxPPrehH1uaB7khKr8H+b/FPEx71/Oys=;
-        b=JAot48dN+29sEvAuN6+tDZbo3F4eRr504m9WusakrIU3jj50F85fuDtqyoNNI2RyEJ
-         i7rX3uPySCC5jnWgZd9zu+lIKfGn9UOj7I2I+L9zXUvAXsVG+kG3yn1r/uiac2+XcqUH
-         csxwhJUAy5zGpueADwmLm0biE9jZ9RL1Bzsw3lwpPBI0aX1uoXtNPUeqUk7Bd700vXCA
-         B7XJSU/g8EOmMRUnT5JbWkpZ0ly0It29FTiaSuooIGbqLQnuVKPaOheC9zS+OAV5ed6a
-         AIVQZRm9116A4k8hlVnVCbqkfd7IoOCC83cUAOixNzZJek+0y3PRVdMdUZXH3auBPkhg
-         lR7Q==
+        bh=UNhUCo2rMuzvjyB/GCW1QnYbiXZVEemfm+BuYi2gV5g=;
+        b=psTaUbss360a/Tt1zaVcCXb9S1WJFpv/FwLETkHPj0R4qxM+u1CAA9IB2eyiQu//u0
+         QC4iNLx5O0kPdIH//4mNLgmdlWBhUV3uNYRiee1To5E7MdF8KpH6/myhl1VcPK8z3fwa
+         t7+7XOKUqzayHcKO/b+iEf0mLOyYh1YoRspRiIHn++zjngk6X/lip2H5LMqXUxkPN7PQ
+         iG1VBAtuJdKwg74N8sNDDJXK5WUByqQDIoDtF+2yhyaOF7cgkfyjuS5Bh6jl/Tc38EIX
+         IVwALXL3FalwV0Z6Sb2BeRuvcueH9/SnLD5BSP1wQPdqdGOfXLmFGBcs01IWjLD13Ymz
+         BAjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LPqBk+sH3WBUxPPrehH1uaB7khKr8H+b/FPEx71/Oys=;
-        b=obYIZ8oGu8goeBEDzQ7txKG5Z4CigBtubL10FJk0/w+mlSbtesihATOy+KjgaeSH23
-         VMGBLSeQg98E9ccYewZjxX0l86d1y93DbIMQ0oID+0MmTOje/1fMKGH9zSS2Lyh5BL/f
-         q5YyUQJxNrRQG4psvORoia7YORDS239wUk/+5mxrpAMKRbRl1qDoGpJKRq6pGfIqKhGX
-         KkIIrBNANaDugvYug335aXmTKJ/Nklmdn2KQnZkBKD9gVotVfO3RtsxUAR2WshHsKPJd
-         35RuKUASzTfMvPL/HFjkDJlJDIJUmZQ7a0ufwQcYUe1iq/6GMRBosZ0RLMCJaG+FRY5M
-         98pQ==
-X-Gm-Message-State: AOAM532DK/wZE5k1r6Y9+7Y8wsJYEUFoz/Ol3wfzvXogKMGLvWpSSyDt
-        lGPawKbh/IJmMYGeUKxSmByiRXBoCLK7KA==
-X-Google-Smtp-Source: ABdhPJzDTVW2nhONlODw+HSpoETgr5SXLVgxFM9BKWhBOqB7JhupC8E75gEOq/vTgNTbiB1UOwDY9Q==
-X-Received: by 2002:a7b:c394:: with SMTP id s20mr12011889wmj.176.1603012845353;
-        Sun, 18 Oct 2020 02:20:45 -0700 (PDT)
+        bh=UNhUCo2rMuzvjyB/GCW1QnYbiXZVEemfm+BuYi2gV5g=;
+        b=Ea+Nbkbuh3qPhUDR6fZ2Ud6BuhnjNcNL8rkhf+D7iiT6r4tCQUb1NdFxohfC6SyDHL
+         0E5ARr5T3fqIjPF1mF7CwfhEhqnxbNqAucfG6K4iYtPRpgOsFznsV+v9U9hvD1rN+3VK
+         NneviEZWYi23e/OUI2RJhEC/RKz3DXZa0qkb0X4Y3nXuhg6x698oEaIJCTAEdbpG6xP1
+         aABnsQ74p7VoJcXkF8aoU92FKyWdR8Af04dChlAqNkt2wXuXdUEDOjJmNEJhG0bszFmx
+         qSyPNCYuohF2Q7e6NQ4PSAcQDzsDOAqmUKahuzzmIFW39IFrpeRa/SO0OKT/Y/9kA3Xi
+         fSTw==
+X-Gm-Message-State: AOAM530o56ixhFRIt4Ni4bCWqH7cvhGTg+hcNmS3ByMmEDzRXzG3Na29
+        lYI6omU5zsMklO6MSWwXvmmaGL8ar0FmGA==
+X-Google-Smtp-Source: ABdhPJzzQKOvCObEVjIFoCsmaUMOrR1uC7SkG3FrXfN2bJ2YdTpvKH+WflPTCYm93gNQRuEGjQpJyQ==
+X-Received: by 2002:adf:f101:: with SMTP id r1mr14907756wro.392.1603012847370;
+        Sun, 18 Oct 2020 02:20:47 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-164.range109-152.btcentralplus.com. [109.152.100.164])
-        by smtp.gmail.com with ESMTPSA id w11sm12782984wrs.26.2020.10.18.02.20.44
+        by smtp.gmail.com with ESMTPSA id w11sm12782984wrs.26.2020.10.18.02.20.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2020 02:20:44 -0700 (PDT)
+        Sun, 18 Oct 2020 02:20:46 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/7] io_uring: kill ref get/drop in personality init
-Date:   Sun, 18 Oct 2020 10:17:38 +0100
-Message-Id: <3a6b087088de6b9fbc1694201a20f8c0951536de.1603011899.git.asml.silence@gmail.com>
+Subject: [PATCH 4/7] io_uring: make cached_cq_overflow non atomic_t
+Date:   Sun, 18 Oct 2020 10:17:40 +0100
+Message-Id: <fe7201d945acd0174a178f75cd6d07c8315afb03.1603011899.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1603011899.git.asml.silence@gmail.com>
 References: <cover.1603011899.git.asml.silence@gmail.com>
@@ -72,60 +72,59 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't take an identity on personality/creds init only to drop it a few
-lines after. Extract a function which prepares req->work but leaves it
-without identity.
-
-Note: it's safe to not check REQ_F_WORK_INITIALIZED there because it's
-nobody had a chance to init it before io_init_req().
+ctx->cached_cq_overflow is changed only under completion_lock. Convert
+it from atomic_t to just int, and mark all places when it's read without
+lock with READ_ONCE, which guarantees atomicity (relaxed ordering).
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ fs/io_uring.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fd2fc72c312c..048db9d3002c 100644
+index 43c92a3088d8..c7ccd2500597 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1070,6 +1070,12 @@ static void io_init_identity(struct io_identity *id)
- 	refcount_set(&id->count, 1);
- }
+@@ -277,7 +277,7 @@ struct io_ring_ctx {
+ 		unsigned		sq_mask;
+ 		unsigned		sq_thread_idle;
+ 		unsigned		cached_sq_dropped;
+-		atomic_t		cached_cq_overflow;
++		unsigned		cached_cq_overflow;
+ 		unsigned long		sq_check_overflow;
  
-+static inline void __io_req_init_async(struct io_kiocb *req)
-+{
-+	memset(&req->work, 0, sizeof(req->work));
-+	req->flags |= REQ_F_WORK_INITIALIZED;
-+}
-+
- /*
-  * Note: must call io_req_init_async() for the first time you
-  * touch any members of io_wq_work.
-@@ -1081,8 +1087,7 @@ static inline void io_req_init_async(struct io_kiocb *req)
- 	if (req->flags & REQ_F_WORK_INITIALIZED)
- 		return;
+ 		struct list_head	defer_list;
+@@ -1179,7 +1179,7 @@ static bool req_need_defer(struct io_kiocb *req, u32 seq)
+ 		struct io_ring_ctx *ctx = req->ctx;
  
--	memset(&req->work, 0, sizeof(req->work));
--	req->flags |= REQ_F_WORK_INITIALIZED;
-+	__io_req_init_async(req);
+ 		return seq != ctx->cached_cq_tail
+-				+ atomic_read(&ctx->cached_cq_overflow);
++				+ READ_ONCE(ctx->cached_cq_overflow);
+ 	}
  
- 	/* Grab a ref if this isn't our static identity */
- 	req->work.identity = tctx->identity;
-@@ -6497,12 +6502,12 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (id) {
- 		struct io_identity *iod;
+ 	return false;
+@@ -1624,8 +1624,9 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 			WRITE_ONCE(cqe->res, req->result);
+ 			WRITE_ONCE(cqe->flags, req->compl.cflags);
+ 		} else {
++			ctx->cached_cq_overflow++;
+ 			WRITE_ONCE(ctx->rings->cq_overflow,
+-				atomic_inc_return(&ctx->cached_cq_overflow));
++				   ctx->cached_cq_overflow);
+ 		}
+ 	}
  
--		io_req_init_async(req);
- 		iod = idr_find(&ctx->personality_idr, id);
- 		if (unlikely(!iod))
- 			return -EINVAL;
- 		refcount_inc(&iod->count);
--		io_put_identity(current->io_uring, req);
-+
-+		__io_req_init_async(req);
- 		get_cred(iod->creds);
- 		req->work.identity = iod;
- 		req->work.flags |= IO_WQ_WORK_CREDS;
+@@ -1667,8 +1668,8 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
+ 		 * then we cannot store the request for later flushing, we need
+ 		 * to drop it on the floor.
+ 		 */
+-		WRITE_ONCE(ctx->rings->cq_overflow,
+-				atomic_inc_return(&ctx->cached_cq_overflow));
++		ctx->cached_cq_overflow++;
++		WRITE_ONCE(ctx->rings->cq_overflow, ctx->cached_cq_overflow);
+ 	} else {
+ 		if (list_empty(&ctx->cq_overflow_list)) {
+ 			set_bit(0, &ctx->sq_check_overflow);
 -- 
 2.24.0
 

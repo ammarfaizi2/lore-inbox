@@ -7,63 +7,62 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9AE8C388F9
-	for <io-uring@archiver.kernel.org>; Thu, 22 Oct 2020 22:24:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA17BC388F9
+	for <io-uring@archiver.kernel.org>; Thu, 22 Oct 2020 22:24:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8752A24650
-	for <io-uring@archiver.kernel.org>; Thu, 22 Oct 2020 22:24:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F17B24650
+	for <io-uring@archiver.kernel.org>; Thu, 22 Oct 2020 22:24:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="w92yuiWg"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="x1jjTTGb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S372765AbgJVWYz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 22 Oct 2020 18:24:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50508 "EHLO
+        id S372766AbgJVWY6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 22 Oct 2020 18:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S372761AbgJVWYz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 22 Oct 2020 18:24:55 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435D2C0613CE
-        for <io-uring@vger.kernel.org>; Thu, 22 Oct 2020 15:24:53 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id 10so2167159pfp.5
-        for <io-uring@vger.kernel.org>; Thu, 22 Oct 2020 15:24:53 -0700 (PDT)
+        with ESMTP id S372761AbgJVWY4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 22 Oct 2020 18:24:56 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C28C0613CE
+        for <io-uring@vger.kernel.org>; Thu, 22 Oct 2020 15:24:55 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id o9so1713517plx.10
+        for <io-uring@vger.kernel.org>; Thu, 22 Oct 2020 15:24:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=PinDMonzaC9Fo1dIXndOoyioe1Vf0FgHAWoXMyqb5sI=;
-        b=w92yuiWgdLDYwhZIfAX73cWtY5Z0M1TJafr71DAUqwRwvM5ZS3LaI4OSTRhUjarPgS
-         VC/j0BvmrkYsh6ECZUTJBSPaR+Wz6Cff2/uKeF/KK/Lfvl/er7V8HaMPdKUZE39TV0da
-         6DclO1EGjNIAc6u0fE7taCB3Siw9Hw3l0wEcMOqzRghsbfcaiQThE9H2ezj5zAjMQ0sW
-         KMQYn2fipJ0ZP+d2kDm6+KCy4IKZXl/dgmDFJwODWOU9CncxX5jWGYpIPX8dVD8EPhYQ
-         sCuEpjl+kkdQbRjWw9css880fJD3RXrlgN0JHE5fBvOHEGlZ/BPimCE8ZIRf1aB0DRNf
-         xcQA==
+        bh=2LtcIpK4Q4iLBP2w7UhfR96BPjR+fhgUZtzjipu+IWI=;
+        b=x1jjTTGbEkEGWjLHpK1oEot1ck5vwR6n4umtPERuv90ETEKvTJ07X1KrDZ/j8V7kcP
+         qqA1XGfPy2VdevqKQl9zNpL1nnp8pyiZ6y1ZC0iJhreEBKTudT7vhNEeo4tR7oS7p/Yd
+         MhIuHqf6P0FkDQwC+ARNH4lXWwayPwusj4GU6Vn7F0lil/p6mmbYkKNRH97esY9ndXG/
+         JN0UO2Pr6NZgI94vvVECaeT/HVE8hgzpjySa79F9hatB4sbwL9139XiPj60oG8Lj0dkI
+         V/65UAAKcjvcH6vwUJm/fZote/GuENG6Rt5nhWt8diqSXKbcNtymSBxJDUMejh5tSuFM
+         AUkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PinDMonzaC9Fo1dIXndOoyioe1Vf0FgHAWoXMyqb5sI=;
-        b=HgeNk9T4j5vrAjrQc55+EAwaVJq0/SRZj5OlpZCHrQMvy2AuQ19vpzl/9ym14RSX4k
-         bLvZ6ikUoHLhJCiRRFJ836EyAxRvICxZjJ2KMB4AxmjOoKme257ZKRLXPhIkSGW9p4Iw
-         jS1cmyA1Hk0T0DoYJgNEPw0DFgMc4hoCRNucGuonLyE8EYeS39b7vIk4o9LhFir/SD1I
-         QtMLGOoHnudeOBF5TfLrKzSwtUCpdK0n01vFgBIsyjISrN9A4mm/FgHNy3YR62PUgj9g
-         Bt2f/F8oeZPCVXbET3abUMtE7IbGBQVAZk4ffs8Y+0idxmKrSF5476ODu1px9wNsF+mA
-         cDkA==
-X-Gm-Message-State: AOAM530LzJM+rvpv2uOr/KeGxYiDHt/EHClh1yDkHFQ35QRfbRjziJhT
-        Z7zAnak02OoIxq5tLOySsdJ/FHlVaAkZdw==
-X-Google-Smtp-Source: ABdhPJzUFIw2QqAM1pEtVda16wfRJCbggQcJjzuvQxDdw3Jd3Gz9vgJMZlJxZf26zgvX8thG5QGa4w==
-X-Received: by 2002:a63:fd08:: with SMTP id d8mr4141029pgh.406.1603405492565;
-        Thu, 22 Oct 2020 15:24:52 -0700 (PDT)
+        bh=2LtcIpK4Q4iLBP2w7UhfR96BPjR+fhgUZtzjipu+IWI=;
+        b=dtrGq6/PbKZJ3vxXijOSbH8GQk8B52cP4z655UBQRHxleu2+xqaGkEd5omemH/eFl4
+         VTaqi6kgmVSjycSeTCVkVbcYAVTGMumtu3C0kQR2fPj++ES7Xm5exuwx05+G3icltehu
+         71ZC6T7kXrm57YMntaNrixw74vioXV8mb1mDHt9E6wjQRc6BACVd/pNiEstN7REuyn8k
+         qAHT3WauOqYHv/S1p4gW52YJfr0XZBPpETvy0t7GlGrKuebsVmehx1SlyvRBSCHi+zTs
+         JHeb9CxW/T8nCPm99ahqXfqcjld2bzE07lse0c6pSTTF0XjEwk6pStEaW406njvz/rLV
+         0YmQ==
+X-Gm-Message-State: AOAM530Eckxtnz5VYB8vUxMOgXi6wifytm09gKk9aXHQBp+lFw8pmE5C
+        7R9OzptzUbmprqeG1iDH0ewiS3AnH5Unww==
+X-Google-Smtp-Source: ABdhPJzw5e6uqrPkBO8wEowt15ICNXoB0taSqwl6ooSEYanSwvDnYQBYEDyYT/7YXjtUGySdmVkczA==
+X-Received: by 2002:a17:902:8508:b029:d5:af79:8b40 with SMTP id bj8-20020a1709028508b02900d5af798b40mr4534268plb.28.1603405494641;
+        Thu, 22 Oct 2020 15:24:54 -0700 (PDT)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id e5sm3516437pfl.216.2020.10.22.15.24.51
+        by smtp.gmail.com with ESMTPSA id e5sm3516437pfl.216.2020.10.22.15.24.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2020 15:24:52 -0700 (PDT)
+        Thu, 22 Oct 2020 15:24:54 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Zhang Qiang <qiang.zhang@windriver.com>
-Subject: [PATCH 2/4] io-wq: re-set NUMA node affinities if CPUs come online
-Date:   Thu, 22 Oct 2020 16:24:45 -0600
-Message-Id: <20201022222447.62020-3-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4/4] splice: change exported internal do_splice() helper to take kernel offset
+Date:   Thu, 22 Oct 2020 16:24:47 -0600
+Message-Id: <20201022222447.62020-5-axboe@kernel.dk>
 X-Mailer: git-send-email 2.29.0
 In-Reply-To: <20201022222447.62020-1-axboe@kernel.dk>
 References: <20201022222447.62020-1-axboe@kernel.dk>
@@ -73,132 +72,149 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We correctly set io-wq NUMA node affinities when the io-wq context is
-setup, but if an entire node CPU set is offlined and then brought back
-online, the per node affinities are broken. Ensure that we set them
-again whenever a CPU comes online. This ensures that we always track
-the right node affinity. The usual cpuhp notifiers are used to drive it.
+With the set_fs change, we can no longer rely on copy_{to,from}_user()
+accepting a kernel pointer. Clean this up and change the internal helper
+that io_uring uses to deal with kernel pointers instead. This puts the
+offset copy in/out in __do_splice() instead, which just calls the same
+helper.
 
-Reported-by: Zhang Qiang <qiang.zhang@windriver.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 54 insertions(+), 4 deletions(-)
+ fs/splice.c            | 63 +++++++++++++++++++++++++++++++++---------
+ include/linux/splice.h |  4 +--
+ 2 files changed, 52 insertions(+), 15 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 4012ff541b7b..d3165ce339c2 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -19,6 +19,7 @@
- #include <linux/task_work.h>
- #include <linux/blk-cgroup.h>
- #include <linux/audit.h>
-+#include <linux/cpu.h>
- 
- #include "io-wq.h"
- 
-@@ -123,9 +124,13 @@ struct io_wq {
- 	refcount_t refs;
- 	struct completion done;
- 
-+	struct hlist_node cpuhp_node;
-+
- 	refcount_t use_refs;
- };
- 
-+static enum cpuhp_state io_wq_online;
-+
- static bool io_worker_get(struct io_worker *worker)
+diff --git a/fs/splice.c b/fs/splice.c
+index 70cc52af780b..d9305af930d8 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -1107,9 +1107,8 @@ static int splice_pipe_to_pipe(struct pipe_inode_info *ipipe,
+ /*
+  * Determine where to splice to/from.
+  */
+-long do_splice(struct file *in, loff_t __user *off_in,
+-		struct file *out, loff_t __user *off_out,
+-		size_t len, unsigned int flags)
++long do_splice(struct file *in, loff_t *off_in, struct file *out,
++	       loff_t *off_out, size_t len, unsigned int flags)
  {
- 	return refcount_inc_not_zero(&worker->ref);
-@@ -1091,10 +1096,12 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 		return ERR_PTR(-ENOMEM);
+ 	struct pipe_inode_info *ipipe;
+ 	struct pipe_inode_info *opipe;
+@@ -1143,8 +1142,7 @@ long do_splice(struct file *in, loff_t __user *off_in,
+ 		if (off_out) {
+ 			if (!(out->f_mode & FMODE_PWRITE))
+ 				return -EINVAL;
+-			if (copy_from_user(&offset, off_out, sizeof(loff_t)))
+-				return -EFAULT;
++			offset = *off_out;
+ 		} else {
+ 			offset = out->f_pos;
+ 		}
+@@ -1165,8 +1163,8 @@ long do_splice(struct file *in, loff_t __user *off_in,
  
- 	wq->wqes = kcalloc(nr_node_ids, sizeof(struct io_wqe *), GFP_KERNEL);
--	if (!wq->wqes) {
--		kfree(wq);
--		return ERR_PTR(-ENOMEM);
--	}
-+	if (!wq->wqes)
-+		goto err_wq;
-+
-+	ret = cpuhp_state_add_instance_nocalls(io_wq_online, &wq->cpuhp_node);
-+	if (ret)
-+		goto err_wqes;
+ 		if (!off_out)
+ 			out->f_pos = offset;
+-		else if (copy_to_user(off_out, &offset, sizeof(loff_t)))
+-			ret = -EFAULT;
++		else
++			*off_out = offset;
  
- 	wq->free_work = data->free_work;
- 	wq->do_work = data->do_work;
-@@ -1102,6 +1109,7 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 	/* caller must already hold a reference to this */
- 	wq->user = data->user;
+ 		return ret;
+ 	}
+@@ -1177,8 +1175,7 @@ long do_splice(struct file *in, loff_t __user *off_in,
+ 		if (off_in) {
+ 			if (!(in->f_mode & FMODE_PREAD))
+ 				return -EINVAL;
+-			if (copy_from_user(&offset, off_in, sizeof(loff_t)))
+-				return -EFAULT;
++			offset = *off_in;
+ 		} else {
+ 			offset = in->f_pos;
+ 		}
+@@ -1202,8 +1199,8 @@ long do_splice(struct file *in, loff_t __user *off_in,
+ 			wakeup_pipe_readers(opipe);
+ 		if (!off_in)
+ 			in->f_pos = offset;
+-		else if (copy_to_user(off_in, &offset, sizeof(loff_t)))
+-			ret = -EFAULT;
++		else
++			*off_in = offset;
  
-+	ret = -ENOMEM;
- 	for_each_node(node) {
- 		struct io_wqe *wqe;
- 		int alloc_node = node;
-@@ -1145,9 +1153,12 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 	ret = PTR_ERR(wq->manager);
- 	complete(&wq->done);
- err:
-+	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
- 	for_each_node(node)
- 		kfree(wq->wqes[node]);
-+err_wqes:
- 	kfree(wq->wqes);
-+err_wq:
- 	kfree(wq);
- 	return ERR_PTR(ret);
+ 		return ret;
+ 	}
+@@ -1211,6 +1208,46 @@ long do_splice(struct file *in, loff_t __user *off_in,
+ 	return -EINVAL;
  }
-@@ -1164,6 +1175,8 @@ static void __io_wq_destroy(struct io_wq *wq)
- {
- 	int node;
  
-+	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
-+
- 	set_bit(IO_WQ_BIT_EXIT, &wq->state);
- 	if (wq->manager)
- 		kthread_stop(wq->manager);
-@@ -1191,3 +1204,40 @@ struct task_struct *io_wq_get_task(struct io_wq *wq)
- {
- 	return wq->manager;
- }
-+
-+static bool io_wq_worker_affinity(struct io_worker *worker, void *data)
++static long __do_splice(struct file *in, loff_t __user *off_in,
++			struct file *out, loff_t __user *off_out,
++			size_t len, unsigned int flags)
 +{
-+	struct task_struct *task = worker->task;
-+	unsigned long flags;
++	struct pipe_inode_info *ipipe;
++	struct pipe_inode_info *opipe;
++	loff_t offset, *__off_in = NULL, *__off_out = NULL;
++	long ret;
 +
-+	raw_spin_lock_irqsave(&task->pi_lock, flags);
-+	do_set_cpus_allowed(task, cpumask_of_node(worker->wqe->node));
-+	task->flags |= PF_NO_SETAFFINITY;
-+	raw_spin_unlock_irqrestore(&task->pi_lock, flags);
-+	return false;
-+}
++	ipipe = get_pipe_info(in, true);
++	opipe = get_pipe_info(out, true);
 +
-+static int io_wq_cpu_online(unsigned int cpu, struct hlist_node *node)
-+{
-+	struct io_wq *wq = hlist_entry_safe(node, struct io_wq, cpuhp_node);
-+	int i;
++	if (ipipe && off_in)
++		return -ESPIPE;
++	if (opipe && off_out)
++		return -ESPIPE;
 +
-+	rcu_read_lock();
-+	for_each_node(i)
-+		io_wq_for_each_worker(wq->wqes[i], io_wq_worker_affinity, NULL);
-+	rcu_read_unlock();
-+	return 0;
-+}
++	if (off_out) {
++		if (copy_from_user(&offset, off_out, sizeof(loff_t)))
++			return -EFAULT;
++		__off_out = &offset;
++	}
++	if (off_in) {
++		if (copy_from_user(&offset, off_in, sizeof(loff_t)))
++			return -EFAULT;
++		__off_in = &offset;
++	}
 +
-+static __init int io_wq_init(void)
-+{
-+	int ret;
-+
-+	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "io-wq/online",
-+					io_wq_cpu_online, NULL);
++	ret = do_splice(in, __off_in, out, __off_out, len, flags);
 +	if (ret < 0)
 +		return ret;
-+	io_wq_online = ret;
-+	return 0;
++
++	if (__off_out && copy_to_user(off_out, __off_out, sizeof(loff_t)))
++		return -EFAULT;
++	if (__off_in && copy_to_user(off_in, __off_in, sizeof(loff_t)))
++		return -EFAULT;
++
++	return ret;
 +}
-+subsys_initcall(io_wq_init);
++
+ static int iter_to_pipe(struct iov_iter *from,
+ 			struct pipe_inode_info *pipe,
+ 			unsigned flags)
+@@ -1405,8 +1442,8 @@ SYSCALL_DEFINE6(splice, int, fd_in, loff_t __user *, off_in,
+ 	if (in.file) {
+ 		out = fdget(fd_out);
+ 		if (out.file) {
+-			error = do_splice(in.file, off_in, out.file, off_out,
+-					  len, flags);
++			error = __do_splice(in.file, off_in, out.file, off_out,
++						len, flags);
+ 			fdput(out);
+ 		}
+ 		fdput(in);
+diff --git a/include/linux/splice.h b/include/linux/splice.h
+index 5c47013f708e..a55179fd60fc 100644
+--- a/include/linux/splice.h
++++ b/include/linux/splice.h
+@@ -78,8 +78,8 @@ extern ssize_t add_to_pipe(struct pipe_inode_info *,
+ 			      struct pipe_buffer *);
+ extern ssize_t splice_direct_to_actor(struct file *, struct splice_desc *,
+ 				      splice_direct_actor *);
+-extern long do_splice(struct file *in, loff_t __user *off_in,
+-		      struct file *out, loff_t __user *off_out,
++extern long do_splice(struct file *in, loff_t *off_in,
++		      struct file *out, loff_t *off_out,
+ 		      size_t len, unsigned int flags);
+ 
+ extern long do_tee(struct file *in, struct file *out, size_t len,
 -- 
 2.29.0
 

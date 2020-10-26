@@ -2,286 +2,311 @@ Return-Path: <SRS0=TtV4=EB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA894C4363A
-	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 19:54:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2444AC388F9
+	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 20:32:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6955B2084C
-	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 19:54:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C17E920709
+	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 20:32:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hpHspJvx"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="ZrMaxfsj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726226AbgJZTyT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 26 Oct 2020 15:54:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52028 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726207AbgJZTyR (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 26 Oct 2020 15:54:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603742055;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=M+ygbaZYTXSBgEc08s3LTYIAJjy/tB9+jiaQvyHg/KA=;
-        b=hpHspJvxv3sOU4JVhEP27IHkk6c+02+vI2zgYQhCHPeyYPjxWSuU86N2xKgCuWGDM2au97
-        Gk0d5Rqf/o2EL8O70mj5w3ZRbw5r6VIfjFHUehrifkbbVs3wpS6k0qGH/Wt2+CM16vIVI3
-        TpVBySLXxI5HVuiD+RcdUmuYLGhLXsA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-261-fspvHgfcO5iTjScUXMHpuw-1; Mon, 26 Oct 2020 15:54:05 -0400
-X-MC-Unique: fspvHgfcO5iTjScUXMHpuw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 58C276409F;
-        Mon, 26 Oct 2020 19:54:04 +0000 (UTC)
-Received: from localhost (unknown [10.18.25.174])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6957210013C0;
-        Mon, 26 Oct 2020 19:54:00 +0000 (UTC)
-Date:   Mon, 26 Oct 2020 14:53:35 -0400
-From:   Mike Snitzer <snitzer@redhat.com>
-To:     JeffleXu <jefflexu@linux.alibaba.com>
-Cc:     axboe@kernel.dk, linux-block@vger.kernel.org, dm-devel@redhat.com,
-        joseph.qi@linux.alibaba.com, xiaoguang.wang@linux.alibaba.com,
-        haoxu@linux.alibaba.com, io-uring@vger.kernel.org
-Subject: Re: [RFC 0/3] Add support of iopoll for dm device
-Message-ID: <20201026185334.GA8463@redhat.com>
-References: <20201020065420.124885-1-jefflexu@linux.alibaba.com>
- <20201021203906.GA10896@redhat.com>
- <da936cfa-93a8-d6ec-bd88-c0fad6c67c8b@linux.alibaba.com>
+        id S1732107AbgJZUci (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 26 Oct 2020 16:32:38 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:34425 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732010AbgJZUch (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 26 Oct 2020 16:32:37 -0400
+Received: by mail-io1-f67.google.com with SMTP id z5so11879530iob.1
+        for <io-uring@vger.kernel.org>; Mon, 26 Oct 2020 13:32:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=4AnPuyy7/gG6oYUyQdb//jqNqAKJYACguXA57jzvo6k=;
+        b=ZrMaxfsj4jXNi0My0rzGOwASqziLAJjL5ICTZqYmfUtVHbqU22nxSHQuIAc3vzZub1
+         oJ17AVXFdDutpyqb7jPptxQiGbj6/T9g9E9zkZkCcHe9w8pszAl9wo6dER9HTpnt9uby
+         2PTanA+zAYSzX0M0JtVUGErHeOq8cdd8kQUvX/kqtNF9hJkRCeG3PS3NSo0dCFfc7Ao0
+         tQMFPzpECzTReVyt319jpixVUcBq0oOpTqxCTGxFVpPepjzn/tr3UmKv6w30IbsevRKs
+         6HOtztkd0zcrJzos/HX3+o+NsIIIFVt9SAwNcHWF8AD20/HNcjVqyoNQDfAA2VJRMijY
+         MseA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=4AnPuyy7/gG6oYUyQdb//jqNqAKJYACguXA57jzvo6k=;
+        b=Rh+VRC0j7rn/T6HAiF9tQuyLxNdFZuR7jnzxi4CBsguMATY23KqUAFtAGwmMdwikc+
+         tRo4UnGVcqNjlizheEzBMBUU5nY9fLC+Rqtxjtn5xfEv+7kGSjCmRuvtxwql+vmjWw5+
+         ML6p1U5XHMxSfldQV7xFQs38YRDNg8EOQKh0QG8mUrmQEzmNpDL5TehZGcRSIYj47oBk
+         FIfXxAQsBAC9415QfdrKXP6qyUyjDk5JqjSaatt6HybxTf4sw3ca0ROvKZgaRJHjBh8H
+         JTCFadX1DIzc3kAl6bsPpz5NftWmMoP6P5wth5HMNW0vDdMl1KVIkshqcOdwbLoqkvNW
+         dmeA==
+X-Gm-Message-State: AOAM532fdn/JB7ULzKFm/mg+vjHaBqdojMmUc+inaINVaWyUVrUZSXJz
+        mnANzcsAQBd5xSVt0VUM7oMdOQ==
+X-Google-Smtp-Source: ABdhPJwDLhFZaUYCOla3VLJx8AvpXlwnt/ECI5tpjVTlfcJcU7BtXAhblTOL48Lg4PXyOlY5Aecltg==
+X-Received: by 2002:a05:6638:613:: with SMTP id g19mr12945855jar.44.1603744355695;
+        Mon, 26 Oct 2020 13:32:35 -0700 (PDT)
+Received: from p1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id e12sm6770373ilq.65.2020.10.26.13.32.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Oct 2020 13:32:35 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
+Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/4] kernel: add support for TIF_NOTIFY_SIGNAL
+Date:   Mon, 26 Oct 2020 14:32:28 -0600
+Message-Id: <20201026203230.386348-3-axboe@kernel.dk>
+X-Mailer: git-send-email 2.29.0
+In-Reply-To: <20201026203230.386348-1-axboe@kernel.dk>
+References: <20201026203230.386348-1-axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <da936cfa-93a8-d6ec-bd88-c0fad6c67c8b@linux.alibaba.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Oct 22 2020 at  1:28am -0400,
-JeffleXu <jefflexu@linux.alibaba.com> wrote:
+This adds TIF_NOTIFY_SIGNAL handling in the generic code, which if set,
+will return true if signal_pending() is used in a wait loop. That causes
+an exit of the loop so that notify_signal tracehooks can be run. If the
+wait loop is currently inside a system call, the system call is restarted
+once task_work has been processed.
 
-> 
-> On 10/22/20 4:39 AM, Mike Snitzer wrote:
-> 
-> >What you've _done_ could serve as a stop-gap but I'd really rather we
-> >get it properly designed from the start.
-> 
-> Indeed I totally agree with you that the design should be done
-> nicely at the very beginning. And this
-> 
-> is indeed the purpose of this RFC patch.
-> 
-> 
-> >>This patch set adds support of iopoll for dm device.
-> >>
-> >>This is only an RFC patch. I'm really looking forward getting your
-> >>feedbacks on if you're interested in supporting iopoll for dm device,
-> >>or if there's a better design to implement that.
-> >>
-> >>Thanks.
-> >>
-> >>
-> >>[Purpose]
-> >>IO polling is an important mode of io_uring. Currently only mq devices
-> >>support iopoll. As for dm devices, only dm-multipath is request-base,
-> >>while others are all bio-based and have no support for iopoll.
-> >>Supporting iopoll for dm devices can be of great meaning when the
-> >>device seen by application is dm device such as dm-linear/dm-stripe,
-> >>in which case iopoll is not usable for io_uring.
-> >I appreciate you taking the initiative on this; polling support is on my
-> >TODO so your work serves as a nice reminder to pursue this more
-> >urgently.
-> 
-> It's a good news that iopoll for DM is meaningful.
-> 
-> 
-> >but we cannot avoid properly mapping a cookie to each
-> >split bio.  Otherwise you resort to inefficiently polling everything.
-> 
-> Yes. At the very beginning  I tried to build the mapping a cookie to
-> each bio, but I failed with several
-> 
-> blocking design issues. By the way maybe we could clarify these
-> design issues here, if you'd like.
+In preparation for only having arch_do_signal() handle syscall restarts
+if _TIF_SIGPENDING isn't set, rename it to arch_do_signal_or_restart().
+Pass in a boolean that tells the arch signal handler if it should attempt
+to get a signal, or just process a potential syscall restart.
 
-Biggest issue I'm seeing is that block core's bio-based IO submission
-implementation really never seriously carried the blk_qc_t changes
-through. The cookie return from __submit_bio is thrown away when
-recursion occurs in __submit_bio_noacct -- last bio submission's cookie
-is what is returned back to caller.  That cookie could be very far
-removed from all the others returned earlier in the recursion.
+For !CONFIG_GENERIC_ENTRY archs, we add the TIF_NOTIFY_SIGNAL handling
+to get_signal(). This is done to minimize the needed arch changes to
+support this feature.
 
-Fixing this would require quite some design and cleanup.
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ arch/x86/kernel/signal.c     |  4 ++--
+ include/linux/entry-common.h | 11 ++++++++---
+ include/linux/entry-kvm.h    |  4 ++--
+ include/linux/sched/signal.h | 11 ++++++++++-
+ include/linux/tracehook.h    | 27 +++++++++++++++++++++++++++
+ kernel/entry/common.c        | 14 +++++++++++---
+ kernel/entry/kvm.c           |  3 +++
+ kernel/signal.c              | 14 ++++++++++++++
+ 8 files changed, 77 insertions(+), 11 deletions(-)
 
-> >Seems your attempt to have the cookie point to a dm_io object was likely
-> >too coarse-grained (when bios are split they get their own dm_io on
-> >recursive re-entry to DM core from ->submit_bio); but isn't having a
-> >list of cookies still too imprecise for polling purposes?  You could
-> >easily have a list that translates to many blk-mq queues.  Possibly
-> >better than your current approach of polling everything -- but not
-> >much.
-> 
-> To make the discussion more specific, assume that dm0 is mapped to
-> dm1/2/3, while dm1 mapped to
-> 
-> nvme1, dm2 mapped to dm2, etc..
-> 
->                     dm0
-> 
-> dm1             dm2            dm3
-> 
-> nvme1        nvme2        nvme3
-> 
-> 
-> Then the returned cookie of dm0 could be pointer pointing to dm_io
-> object of dm0.
-> 
-> struct dm_io {  // the returned cookie points to dm_io object
-> 	...
-> +	struct list_head cookies;
-> };
-> 
-> struct dm_target_io {
-> 	...
-> 	/*
-> 	 * The corresponding polling hw queue if submitted to mq device (such as nvme1/2/3),
-> 	 * NULL if submitted to dm device (such as dm1/2/3)
-> 	 */
-> +	struct blk_mq_hw_ctx *hctx;
-> +	struct list_head      node;  // add to @cookies list
-> };
-> 
-> The @cookies list of dm_io object could maintain all dm_target_io objects
-> of all **none-dm** devices, that is, all hw queues that we should poll on.
-> 
-> 
-> returned  ->  @cookies list	
-> cookie	      of dm_io object of dm0
-> 		   |
-> 		   +--> dm_target_io	 ->  dm_target_io     ->  dm_target_io
-> 			object of nvme1      object of nvme2	  object of nvme3
-> 
-> When polling returned cookie of dm0, actually we're polling @cookies
-> list. Once one of the dm_target_io
-> 
-> completed (e.g. nvme2), it should be removed from the @cookies
-> list., and thus we should only focus on
-> 
-> hw queues that have not completed.
-
-What you detailed there isn't properly modeling what it needs to.
-A given dm_target_io could result in quite a few bios (e.g. for
-dm-striped we clone each bio for each of N stripes).  So the fan-out,
-especially if then stacked on N layers of stacked devices, to all the
-various hctx at the lowest layers is like herding cats.
-
-But the recursion in block core's submit_bio path makes that challenging
-to say the least.  So much so that any solution related to enabling
-proper bio-based IO polling is going to need a pretty significant
-investment in fixing block core (storing __submit_bio()'s cookie during
-recursion, possibly storing to driver provided memory location,
-e.g. DM initialized bio->submit_cookie pointer to a blk_qc_t within a DM
-clone bio's per-bio-data).
-
-SO __submit_bio_noacct would become:
-
-   retp = &ret; 
-   if (bio->submit_cookie)
-          retp = bio->submit_cookie;
-   *retp = __submit_bio(bio);
-
-> >>[Design Notes]
-> >>
-> >>cookie
-> >>------
-> >>Let's start from cookie. Cookie is one important concept in iopoll. It
-> >>is used to identify one specific request in one specific hardware queue.
-> >>The concept of cookie is initially designed as a per-bio concept, and
-> >>thus it doesn't work well when bio-split involved. When bio is split,
-> >>the returned cookie is indeed the cookie of one of the split bio, and
-> >>the following polling on this returned cookie can only guarantee the
-> >>completion of this specific split bio, while the other split bios may
-> >>be still uncompleted. Bio-split is also resolved for dm device, though
-> >>in another form, in which case the original bio submitted to the dm
-> >>device may be split into multiple bios submitted to the underlying
-> >>devices.
-> >>
-> >>In previous discussion, Lei Ming has suggested that iopoll should be
-> >>disabled for bio-split. This works for the normal bio-split (done in
-> >>blk_mq_submit_bio->__blk_queue_split), while iopoll will never be
-> >>usable for dm devices if this also applies for dm device.
-> >>
-> >>So come back to the design of the cookie for dm devices. At the very
-> >>beginning I want to refactor the design of cookie, from 'unsigned int'
-> >>type to the pointer type for dm device, so that cookie can point to
-> >>something, e.g. a list containing all cookies of one original bio,
-> >>something like this:
-> >>
-> >>struct dm_io { // the returned cookie points to dm_io
-> >>	...
-> >>	struct list_head cookies;
-> >>};
-> >>
-> >>In this design, we can fetch all cookies of one original bio, but the
-> >>implementation can be difficult and buggy. For example, the
-> >>'struct dm_io' structure may be already freed when the returned cookie
-> >>is used in blk_poll(). Then what if maintain a refcount in struct dm_io
-> >>so that 'struct dm_io' structure can not be freed until blk_poll()
-> >>called? Then the 'struct dm_io' structure will never be freed if the
-> >>IO polling is not used at all.
-> >I'd have to look closer at the race in the code you wrote (though you
-> >didn't share it);
-> 
-> I worried that dm_target_io/dm_io objects could have been freed
-> before/when we are polling on them,
-> 
-> and thus could cause use-after-free when accessing @cookies list in
-> dm_target_io. It could happen
-> 
-> when there are multiple polling instance. io_uring has implemented
-> per-instance polling thread. If
-> 
-> there are two bios submitted to dm0, please consider the following
-> race sequence:
-
-The lifetime of the bios should be fine given that the cloning nature of
-DM requires that all clones complete before the origin may complete.
-
-I think you probably just got caught out by the recursive nature of the bio
-submission path -- makes creating a graph of submitted bios and their
-associated per-bio-data and generated cookies a mess to track (again,
-like herding cats).
-
-Could also be you didn't quite understand the DM code's various
-structures.
-
-In any case, the block core changes needed to make bio-based IO polling
-work is the main limiting factor right now.
-
-Not sure it is worth the investment... but I could be persuaded to try
-harder! ;)
-
-But then once block core is fixed to allow this, we _still_ need to link
-all the various 'struct dm_poll_data' structures to allow blk_poll()
-to call DM specific method to walk all in the list to calling blk_poll()
-for stored cookie and request_queue*, e.g.:
-
-struct dm_poll_data {
-       blk_qc_t cookie;
-       struct request_queue *queue;
-       struct list_head list;
-};
-
-Again, it is the recursive nature of submit_bio() that makes this
-challenging.
-
-Mike
+diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
+index be0d7d4152ec..ea794a083c44 100644
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -804,11 +804,11 @@ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
+  * want to handle. Thus you cannot kill init even with a SIGKILL even by
+  * mistake.
+  */
+-void arch_do_signal(struct pt_regs *regs)
++void arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal)
+ {
+ 	struct ksignal ksig;
+ 
+-	if (get_signal(&ksig)) {
++	if (has_signal && get_signal(&ksig)) {
+ 		/* Whee! Actually deliver the signal.  */
+ 		handle_signal(&ksig, regs);
+ 		return;
+diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
+index 474f29638d2c..b9711e813ec2 100644
+--- a/include/linux/entry-common.h
++++ b/include/linux/entry-common.h
+@@ -37,6 +37,10 @@
+ # define _TIF_UPROBE			(0)
+ #endif
+ 
++#ifndef _TIF_NOTIFY_SIGNAL
++# define _TIF_NOTIFY_SIGNAL		(0)
++#endif
++
+ /*
+  * TIF flags handled in syscall_enter_from_user_mode()
+  */
+@@ -69,7 +73,7 @@
+ 
+ #define EXIT_TO_USER_MODE_WORK						\
+ 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |		\
+-	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING |			\
++	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING | _TIF_NOTIFY_SIGNAL |	\
+ 	 ARCH_EXIT_TO_USER_MODE_WORK)
+ 
+ /**
+@@ -259,12 +263,13 @@ static __always_inline void arch_exit_to_user_mode(void) { }
+ #endif
+ 
+ /**
+- * arch_do_signal -  Architecture specific signal delivery function
++ * arch_do_signal_or_restart -  Architecture specific signal delivery function
+  * @regs:	Pointer to currents pt_regs
++ * @has_signal:	actual signal to handle
+  *
+  * Invoked from exit_to_user_mode_loop().
+  */
+-void arch_do_signal(struct pt_regs *regs);
++void arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal);
+ 
+ /**
+  * arch_syscall_exit_tracehook - Wrapper around tracehook_report_syscall_exit()
+diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
+index 0cef17afb41a..9b93f8584ff7 100644
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -11,8 +11,8 @@
+ # define ARCH_XFER_TO_GUEST_MODE_WORK	(0)
+ #endif
+ 
+-#define XFER_TO_GUEST_MODE_WORK					\
+-	(_TIF_NEED_RESCHED | _TIF_SIGPENDING |			\
++#define XFER_TO_GUEST_MODE_WORK						\
++	(_TIF_NEED_RESCHED | _TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL |	\
+ 	 _TIF_NOTIFY_RESUME | ARCH_XFER_TO_GUEST_MODE_WORK)
+ 
+ struct kvm_vcpu;
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index 404145dc536e..bd5afa076189 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -360,6 +360,15 @@ static inline int task_sigpending(struct task_struct *p)
+ 
+ static inline int signal_pending(struct task_struct *p)
+ {
++#if defined(TIF_NOTIFY_SIGNAL)
++	/*
++	 * TIF_NOTIFY_SIGNAL isn't really a signal, but it requires the same
++	 * behavior in terms of ensuring that we break out of wait loops
++	 * so that notify signal callbacks can be processed.
++	 */
++	if (unlikely(test_tsk_thread_flag(p, TIF_NOTIFY_SIGNAL)))
++		return 1;
++#endif
+ 	return task_sigpending(p);
+ }
+ 
+@@ -507,7 +516,7 @@ extern int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize);
+ static inline void restore_saved_sigmask_unless(bool interrupted)
+ {
+ 	if (interrupted)
+-		WARN_ON(!test_thread_flag(TIF_SIGPENDING));
++		WARN_ON(!signal_pending(current));
+ 	else
+ 		restore_saved_sigmask();
+ }
+diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
+index b480e1a07ed8..f7d82e4fafd6 100644
+--- a/include/linux/tracehook.h
++++ b/include/linux/tracehook.h
+@@ -198,4 +198,31 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
+ 	blkcg_maybe_throttle_current();
+ }
+ 
++/*
++ * called by exit_to_user_mode_loop() if ti_work & _TIF_NOTIFY_SIGNAL. This
++ * is currently used by TWA_SIGNAL based task_work, which requires breaking
++ * wait loops to ensure that task_work is noticed and run.
++ */
++static inline void tracehook_notify_signal(void)
++{
++#if defined(TIF_NOTIFY_SIGNAL)
++	clear_thread_flag(TIF_NOTIFY_SIGNAL);
++	smp_mb__after_atomic();
++	if (current->task_works)
++		task_work_run();
++#endif
++}
++
++/*
++ * Called when we have work to process from exit_to_user_mode_loop()
++ */
++static inline void set_notify_signal(struct task_struct *task)
++{
++#if defined(TIF_NOTIFY_SIGNAL)
++	if (!test_and_set_tsk_thread_flag(task, TIF_NOTIFY_SIGNAL) &&
++	    !wake_up_state(task, TASK_INTERRUPTIBLE))
++		kick_process(task);
++#endif
++}
++
+ #endif	/* <linux/tracehook.h> */
+diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+index 2b8366693d5c..54c07d386aeb 100644
+--- a/kernel/entry/common.c
++++ b/kernel/entry/common.c
+@@ -135,7 +135,15 @@ static __always_inline void exit_to_user_mode(void)
+ }
+ 
+ /* Workaround to allow gradual conversion of architecture code */
+-void __weak arch_do_signal(struct pt_regs *regs) { }
++void __weak arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal) { }
++
++static void handle_signal_work(struct pt_regs *regs, unsigned long ti_work)
++{
++	if (ti_work & _TIF_NOTIFY_SIGNAL)
++		tracehook_notify_signal();
++
++	arch_do_signal_or_restart(regs, ti_work & _TIF_SIGPENDING);
++}
+ 
+ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+ 					    unsigned long ti_work)
+@@ -157,8 +165,8 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+ 		if (ti_work & _TIF_PATCH_PENDING)
+ 			klp_update_patch_state(current);
+ 
+-		if (ti_work & _TIF_SIGPENDING)
+-			arch_do_signal(regs);
++		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
++			handle_signal_work(regs, ti_work);
+ 
+ 		if (ti_work & _TIF_NOTIFY_RESUME) {
+ 			tracehook_notify_resume(regs);
+diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
+index b6678a5e3cf6..49972ee99aff 100644
+--- a/kernel/entry/kvm.c
++++ b/kernel/entry/kvm.c
+@@ -8,6 +8,9 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
+ 	do {
+ 		int ret;
+ 
++		if (ti_work & _TIF_NOTIFY_SIGNAL)
++			tracehook_notify_signal();
++
+ 		if (ti_work & _TIF_SIGPENDING) {
+ 			kvm_handle_signal_exit(vcpu);
+ 			return -EINTR;
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 9f86246a8637..f67ea9a08ac0 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2529,6 +2529,20 @@ bool get_signal(struct ksignal *ksig)
+ 	struct signal_struct *signal = current->signal;
+ 	int signr;
+ 
++	/*
++	 * For non-generic architectures, check for TIF_NOTIFY_SIGNAL so
++	 * that the arch handlers don't all have to do it. If we get here
++	 * without TIF_SIGPENDING, just exit after running signal work.
++	 */
++#ifdef TIF_NOTIFY_SIGNAL
++	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY)) {
++		if (test_thread_flag(TIF_NOTIFY_SIGNAL))
++			tracehook_notify_signal();
++		if (!task_sigpending(current))
++			return false;
++	}
++#endif
++
+ 	if (unlikely(uprobe_deny_signal()))
+ 		return false;
+ 
+-- 
+2.29.0
 

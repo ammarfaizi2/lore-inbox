@@ -2,85 +2,92 @@ Return-Path: <SRS0=TtV4=EB=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C36EC4363A
-	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 20:33:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD094C2D0A3
+	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 22:55:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3B1820809
-	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 20:33:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 778E220B1F
+	for <io-uring@archiver.kernel.org>; Mon, 26 Oct 2020 22:55:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="vc/H70RY"
+	dkim=pass (2048-bit key) header.d=kylehuey.com header.i=@kylehuey.com header.b="JQw5fA5c"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732472AbgJZUdP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 26 Oct 2020 16:33:15 -0400
-Received: from mail-il1-f177.google.com ([209.85.166.177]:47012 "EHLO
-        mail-il1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731933AbgJZUcf (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 26 Oct 2020 16:32:35 -0400
-Received: by mail-il1-f177.google.com with SMTP id a20so9877260ilk.13
-        for <io-uring@vger.kernel.org>; Mon, 26 Oct 2020 13:32:34 -0700 (PDT)
+        id S2394913AbgJZWz1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 26 Oct 2020 18:55:27 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:40777 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2394898AbgJZWz0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 26 Oct 2020 18:55:26 -0400
+Received: by mail-ed1-f66.google.com with SMTP id p93so1048906edd.7
+        for <io-uring@vger.kernel.org>; Mon, 26 Oct 2020 15:55:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ej2GMD3juW/HPbjlUpE3qDooC5R+I0d7dBs1GT637cs=;
-        b=vc/H70RYyC5V5F5lu6wLgt7+9bIn1CccBQcJHwMeViRuDSFz1rhLmAjcbeeAq54dWx
-         oX0uBJiR2QvZSRMlLdeJiXZujRIE0xfM4u+PoaTHljw5MEB/kanXgmfE2XRvtcIjKNU5
-         ZSAwdNgrXvI1c4lN5xFvMO4WgVIoRl49ciHu47462Tcyeg+SXr1SxxofrjylXVRgmI0Q
-         K/LLrlg0SV1PECUo0yLIXdiESvvnXfO0iWiz9OHYopQk9HpSifZkCsOp5SB+L7cBw1Eg
-         tzjbGDjHelpJ72CVaA5mXiMWzoRFBVYInm5Z78csw0eaKn29OxZQ1rLYjVMG5b10+QXJ
-         vacg==
+        d=kylehuey.com; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=J/+n1x0TPOHJCTfSVoXlG/q+OLrGnnNxrysZ0ZyIy+Y=;
+        b=JQw5fA5cqXZCTLCd2xkURV07bnYrA8gTT/8l9H7r6P+PgM37GQ7tblZcETghImepsU
+         AcI0oUILLNpw7+Lob5wOxm8oxXKZgdxlvk1iOdkoLk31eLVc1crb3sEhxCSb6bD2V31l
+         b7OGa6zHv0zDl28Z8OMcIxY0WvmVK7pWJSrW3Zs4sWifuxNiQ2iEW7pkdOAgHIEek3Fp
+         L3yESbOX+0gb8ueK46K6rtDj34b55Vtmz8U4fPoQ/Dv2vqBsFOJNMTpbG7mznOfR5TaL
+         kpOlREDICaBo0Xi3+x/a4pHYfGgO73EI5dQFmBZNKgKh2ry9/Y+FL54IAgbsbpnA0Xzm
+         BeOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ej2GMD3juW/HPbjlUpE3qDooC5R+I0d7dBs1GT637cs=;
-        b=DDf6r/UHHldwS8rg8KHeV/+Uhadxjc0gTjdPYZk9NN+n7cz8KkJdJWt52qdn+QPh0W
-         cYnUpQP5xBZeaprwRKOuHLVhBPBHoXIaG6rsck53zhRWR01mtgSzApLEFSHRg/1kv1gs
-         LOhnTbVPlRjOSkymvW330mrWuYVfhJ0aFoxWydL52Hgi+m69pue+UviLZeC3AhMaNBtm
-         P8Gu3qelBrBzdjMBr+0xek4vt9NnkqJMx6wZx9oTw5CyKiIixQOfBjo6Fccda5NRw0B6
-         RDJWE0e1yszl8l3ScNrNqobD/fH61JT3bhLiJZ6RYwLO6zPpqj0fiR5l6zVj1lSd2DNa
-         xqzQ==
-X-Gm-Message-State: AOAM531WB4zjg1vB+c1rAhZAgrbH/lfFWHugYFbbdO6O1ysdhielryZD
-        TXyo8rljHGByUerToYvminVEclFDyiXsBg==
-X-Google-Smtp-Source: ABdhPJwKMl5RhS+cjY9T42TGF/AeVTmX/CoaoNgStOF3T6iQ+IDDnrcU1dRHfbZSsdlfaGFgHUSS5w==
-X-Received: by 2002:a05:6e02:f0e:: with SMTP id x14mr11787434ilj.307.1603744353856;
-        Mon, 26 Oct 2020 13:32:33 -0700 (PDT)
-Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id e12sm6770373ilq.65.2020.10.26.13.32.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 13:32:33 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
-Cc:     peterz@infradead.org, oleg@redhat.com, tglx@linutronix.de
-Subject: [PATCHSET v6a 0/4] Add support for TIF_NOTIFY_SIGNAL
-Date:   Mon, 26 Oct 2020 14:32:26 -0600
-Message-Id: <20201026203230.386348-1-axboe@kernel.dk>
-X-Mailer: git-send-email 2.29.0
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=J/+n1x0TPOHJCTfSVoXlG/q+OLrGnnNxrysZ0ZyIy+Y=;
+        b=QHyHWUEFQACY7jNl/IUhUWsl48p2r5Dg9e9Zvl/HHCPEPYpJ9asgpPoz7h7FgL/fgM
+         QzSPxsbvNRowwiaKL3TzIH3BRUkyY2gy7Z8cQTUPA2D+IAAS/PZ1fGU1qNQSpwlQ9Bgu
+         dycjG5TsYDHMSU7A3SqzNwIlWuBh9152/ucyTs/PjifGD1YOa42lJmQxsOlO9JfsnT+S
+         j1FZzeKYSGa/Tt0vhT8B4PcStPfACiqnXJixQhkXw9toU2gfGiOcCIGAtNAsQgunxaN+
+         bV5aSRKE8LCqw4X68xJ++KtMdi7GnlvFog9ndKL5kFCsJLk1pYrca/dGVpt2iO8XohY3
+         tlGA==
+X-Gm-Message-State: AOAM5325Bn1LPHq2kJ2kUPAaue9h5zEi5SOgj26eBGU6E2XVK8Libqbn
+        ktcHzTD6QahKQ8W/9CMNQVIEz0ClXNgvQS324YNFPw==
+X-Google-Smtp-Source: ABdhPJyAci+5cM2zXs7C2dh5O8VDIKXSp+LVa6rVM/MPlgy6tZLvyXi43c6iWM9w5BW9l3CIsdr5O5Od75OK4rN9ByQ=
+X-Received: by 2002:aa7:d9ce:: with SMTP id v14mr12828586eds.203.1603752924617;
+ Mon, 26 Oct 2020 15:55:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Kyle Huey <me@kylehuey.com>
+Date:   Mon, 26 Oct 2020 15:55:13 -0700
+Message-ID: <CAP045Aqrsb=CXHDHx4nS-pgg+MUDj14r-kN8_Jcbn-NAUziVag@mail.gmail.com>
+Subject: [REGRESSION] mm: process_vm_readv testcase no longer works after
+ compat_prcoess_vm_readv removed
+To:     open list <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     "Robert O'Callahan" <robert@ocallahan.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>,
+        David Howells <dhowells@redhat.com>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-scsi@vger.kernel.org,
+        "open list:FILESYSTEMS (VFS and infrastructure)" 
+        <linux-fsdevel@vger.kernel.org>, linux-aio@kvack.org,
+        io-uring@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, netdev@vger.kernel.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+A test program from the rr[0] test suite, vm_readv_writev[1], no
+longer works on 5.10-rc1 when compiled as a 32 bit binary and executed
+on a 64 bit kernel. The first process_vm_readv call (on line 35) now
+fails with EFAULT. I have bisected this to
+c3973b401ef2b0b8005f8074a10e96e3ea093823.
 
-The goal is this patch series is to decouple TWA_SIGNAL based task_work
-from real signals and signal delivery. The motivation is speeding up
-TWA_SIGNAL based task_work, particularly for threaded setups where
-->sighand is shared across threads. See the last patch for numbers.
+It should be fairly straightforward to extract the test case from our
+repository into a standalone program.
 
-On top of this I have an arch series that wires up TIF_NOTIFY_SIGNAL
-for all archs, and then procedes to kill off the legacy TWA_SIGNAL path,
-and the code associated with it.
+- Kyle
 
-Changes since v6:
-- Rebase to 5.10-rc1
-
--- 
-Jens Axboe
-
-
+[0] https://rr-project.org/
+[1] https://github.com/mozilla/rr/blob/master/src/test/vm_readv_writev.c

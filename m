@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 236A2C6369E
-	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 01:47:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F37F9C55178
+	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 01:47:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CEC282245B
-	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 01:47:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1E4222202
+	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 01:47:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V9x+eZC8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kd1QC9IL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726127AbgJ1Bif (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 27 Oct 2020 21:38:35 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33833 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1833007AbgJ0X2s (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 27 Oct 2020 19:28:48 -0400
-Received: by mail-wr1-f66.google.com with SMTP id i1so3770950wro.1
-        for <io-uring@vger.kernel.org>; Tue, 27 Oct 2020 16:28:45 -0700 (PDT)
+        id S1726111AbgJ1Bie (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 27 Oct 2020 21:38:34 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:40709 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1833005AbgJ0X2p (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 27 Oct 2020 19:28:45 -0400
+Received: by mail-wm1-f67.google.com with SMTP id k18so3077470wmj.5
+        for <io-uring@vger.kernel.org>; Tue, 27 Oct 2020 16:28:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=L6eSCPG6vRHu6NGNBlsUyBbOII3JqJwfhehdvXTugPc=;
-        b=V9x+eZC8MUrKecZTlIEMHyt7QrmTBHphAiuTJBJm6CXqV7lLikMwMfeD/nrSKqyTDg
-         tOlO5GJLIkH6JwzQogzafMgH2o/uhAW9YExZwnL7A3KcTzepdb66E7X2NC1UPAtdRZFb
-         6Y31m+ceDeWecGRLM34bJjcveVutnAppa2ByiGjKMds4pXfnmYGtiMD+IwgJKrDjxGxM
-         JyDVlrlocH8bqjCs+Y8vAwKLTBFZG/YibVbyvGGN4XOCgX2ZQl+uLpk48wGkafkMmqaQ
-         EvNYe7Y+WQphDp5jdLjJ7NfMwqyTov6S4bJWklIIXbzg1FxUztWy4bLINhQTnguTnhm8
-         ekHg==
+        bh=WygRRE9LqGQls6VN8n+uTO9nLrmULEP19L6yWVTmF8w=;
+        b=kd1QC9ILHpGGEY5hGvt8nIYeW5ikQ6pmpns0lRv4qZyoiaaZlRX8wrYcAhfmXpSF1q
+         DjlgNilo4tnC7y/dcnMKyk9AUdS7C/+Nr4brn6C8YzOeQ2+I2TlQ0gB7UikvFHav/Wca
+         cL1l/M7ka9LOHxBPbUzqPmGM4l9OYRxncscfuigAzco0q2ivCWRfH7ujgi8GSZlKrVpG
+         A1VOm/8lUnyZWd5wmFyQ5Iz/b2PIPdczZeqwCzV50gTouBYC9He5thBkN6zPUfcz3Ex6
+         DiPq/InKCXGO1ONulgwj7cVKW8W5sd80XLKfmckrQ+jik5zMuDIhcGYSekU2OVXyEqQr
+         8qWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=L6eSCPG6vRHu6NGNBlsUyBbOII3JqJwfhehdvXTugPc=;
-        b=LvHdAUFAh8XeASk+n8d5z/0bZJF0S5z2FDJbN7wI6EWbd8Wip7GKW9BtAV3bIJ6zLq
-         UEjKZayZlqPy39KvNNeQjL8HNNuz8IpfNkuwQL4PNK4yDTi0ySveV171Pu/aJS7V774h
-         4+DDH74NVvkyUs8Tq8UTYmVNkzt2v84e1SsDzsw2WEJaxQ5KFH3VQ7aioGmkRGV6vgrs
-         KFqHqkwovBVPLCGwzDFsThlechV+OFrBErySWsc29DJwCvi5VKYDykuDcBttH+fduYnQ
-         8366yLKEpNTDgW4smXmcnCEAqQ0CShVo2RES75kEpu33O8+hzDXW8Yv41sNatoxVCceu
-         Ewkw==
-X-Gm-Message-State: AOAM531lAC7A8GnQhEMgkbAYpvEsyckUH5+9tDGBBeZGS4N26Rgnr1UC
-        CN3hGIkm4WR4TTG8veuAkp+is3URSoVBMw==
-X-Google-Smtp-Source: ABdhPJyqklZiEm2f7TOlzZy5/vQmrkjvr8/WwgC67GzguUbX6tQiJP/dA+nAqADThxgluYUyATkrVw==
-X-Received: by 2002:a5d:448b:: with SMTP id j11mr5337691wrq.129.1603841324792;
-        Tue, 27 Oct 2020 16:28:44 -0700 (PDT)
+        bh=WygRRE9LqGQls6VN8n+uTO9nLrmULEP19L6yWVTmF8w=;
+        b=a3JjfCdTnu/I7vJOZamCmU6SmjdggvOqQP6z/3GX0sOEtid8LrHT6lRsPBFwln8STe
+         kO/dJ7TwE9EyGPfJeuXY8DQgMzzEednlS+5ALt6A+8Pq9vm+7Av4sCBbzCfb0A0xysvd
+         2f5r2AGM1sedRZJttDJ7GAJxvPMHVQPfKciR2SdiUZfpZZRimi+cWsHvBPtriqTcmGfX
+         bfuCbHhbav9F+ByYi7L/nIwcltHUYIiRWCgAS5RM0DKZBNASnbHFlk5tqUFOD84dXgJn
+         Dn8tbq11tPXVrSnMkWy5VvvaXfeKB1xgKNE9TXgP0IBZatkS8DE5pQS6jKi2VsXiUP1b
+         e8fA==
+X-Gm-Message-State: AOAM531k/gDBm3WM+2spZuAFQxjbtUxW2BGkcsMJQ4zyMPv4lfIsHFYz
+        q+8q3OimXHPvRTYHu4jFrHnJP4heFWmvyA==
+X-Google-Smtp-Source: ABdhPJwrVxIIFlw4K2pYaDSjyoyTO+pu7PCmaRYYHDA/hB4jq2/qwpBfkRzlnuVUG2v+qRskdpIVbQ==
+X-Received: by 2002:a7b:ce85:: with SMTP id q5mr4987361wmj.35.1603841323170;
+        Tue, 27 Oct 2020 16:28:43 -0700 (PDT)
 Received: from localhost.localdomain (host109-152-100-164.range109-152.btcentralplus.com. [109.152.100.164])
-        by smtp.gmail.com with ESMTPSA id a15sm4336990wrp.90.2020.10.27.16.28.44
+        by smtp.gmail.com with ESMTPSA id a15sm4336990wrp.90.2020.10.27.16.28.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2020 16:28:44 -0700 (PDT)
+        Tue, 27 Oct 2020 16:28:42 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 4/4] io_uring: toss io_kiocb fields for better caching
-Date:   Tue, 27 Oct 2020 23:25:38 +0000
-Message-Id: <3433e27c9d3222522225a9c698ef71785d449f6d.1603840701.git.asml.silence@gmail.com>
+Subject: [PATCH 2/4] io_uring: track link timeout's master explicitly
+Date:   Tue, 27 Oct 2020 23:25:36 +0000
+Message-Id: <cf4f525fd7717775a8fd230205dd15d248dc557a.1603840701.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1603840701.git.asml.silence@gmail.com>
 References: <cover.1603840701.git.asml.silence@gmail.com>
@@ -69,35 +69,87 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We've got extra 8 bytes in the 2nd cacheline, put ->fixed_file_refs
-there, so inline execution path mostly doesn't touch the 3rd cacheline
-for fixed_file requests as well.
+In preparation for converting singly linked lists for chaining requests,
+make linked timeouts save requests that they're responsible for and not
+count on doubly linked list for back referencing.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/io_uring.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b8b5131dd017..4298396028cc 100644
+index ce092d6cab73..4eb1cb8a8bf8 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -687,14 +687,13 @@ struct io_kiocb {
- 	u64				user_data;
+@@ -445,6 +445,8 @@ struct io_timeout {
+ 	u32				off;
+ 	u32				target_seq;
+ 	struct list_head		list;
++	/* head of the link, used by linked timeouts only */
++	struct io_kiocb			*head;
+ };
  
- 	struct io_kiocb			*link;
-+	struct percpu_ref		*fixed_file_refs;
+ struct io_timeout_rem {
+@@ -1871,6 +1873,7 @@ static void io_kill_linked_timeout(struct io_kiocb *req)
+ 		int ret;
+ 
+ 		list_del_init(&link->link_list);
++		link->timeout.head = NULL;
+ 		ret = hrtimer_try_to_cancel(&io->timer);
+ 		if (ret != -1) {
+ 			io_cqring_fill_event(link, -ECANCELED);
+@@ -6084,26 +6087,22 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ {
+ 	struct io_timeout_data *data = container_of(timer,
+ 						struct io_timeout_data, timer);
+-	struct io_kiocb *req = data->req;
++	struct io_kiocb *prev, *req = data->req;
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	struct io_kiocb *prev = NULL;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
++	prev = req->timeout.head;
++	req->timeout.head = NULL;
  
  	/*
- 	 * 1. used with ctx->iopoll_list with reads/writes
- 	 * 2. to track reqs with ->files (see io_op_def::file_table)
+ 	 * We don't expect the list to be empty, that will only happen if we
+ 	 * race with the completion of the linked work.
  	 */
- 	struct list_head		inflight_entry;
+-	if (!list_empty(&req->link_list)) {
+-		prev = list_entry(req->link_list.prev, struct io_kiocb,
+-				  link_list);
+-		if (refcount_inc_not_zero(&prev->refs))
+-			list_del_init(&req->link_list);
+-		else
+-			prev = NULL;
+-	}
 -
--	struct percpu_ref		*fixed_file_refs;
- 	struct callback_head		task_work;
- 	/* for polled requests, i.e. IORING_OP_POLL_ADD and async armed poll */
- 	struct hlist_node		hash_node;
++	if (prev && refcount_inc_not_zero(&prev->refs))
++		list_del_init(&req->link_list);
++	else
++		prev = NULL;
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 	if (prev) {
+@@ -6122,7 +6121,7 @@ static void __io_queue_linked_timeout(struct io_kiocb *req)
+ 	 * If the list is now empty, then our linked request finished before
+ 	 * we got a chance to setup the timer
+ 	 */
+-	if (!list_empty(&req->link_list)) {
++	if (req->timeout.head) {
+ 		struct io_timeout_data *data = req->async_data;
+ 
+ 		data->timer.function = io_link_timeout_fn;
+@@ -6157,6 +6156,7 @@ static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req)
+ 	if (!nxt || nxt->opcode != IORING_OP_LINK_TIMEOUT)
+ 		return NULL;
+ 
++	nxt->timeout.head = req;
+ 	nxt->flags |= REQ_F_LTIMEOUT_ACTIVE;
+ 	req->flags |= REQ_F_LINK_TIMEOUT;
+ 	return nxt;
 -- 
 2.24.0
 

@@ -2,303 +2,103 @@ Return-Path: <SRS0=pbB/=EC=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D26DBC388F9
-	for <io-uring@archiver.kernel.org>; Tue, 27 Oct 2020 11:08:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D94CC55178
+	for <io-uring@archiver.kernel.org>; Tue, 27 Oct 2020 13:35:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D33421655
-	for <io-uring@archiver.kernel.org>; Tue, 27 Oct 2020 11:08:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC05021556
+	for <io-uring@archiver.kernel.org>; Tue, 27 Oct 2020 13:35:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="fUAGAyTs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898976AbgJ0LIJ convert rfc822-to-8bit (ORCPT
-        <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 27 Oct 2020 07:08:09 -0400
-Received: from de-smtp-delivery-103.mimecast.com ([51.163.158.103]:47580 "EHLO
-        de-smtp-delivery-103.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2898975AbgJ0LII (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 27 Oct 2020 07:08:08 -0400
-X-Greylist: delayed 396 seconds by postgrey-1.27 at vger.kernel.org; Tue, 27 Oct 2020 07:08:05 EDT
-Received: from vistrexch4.vi.vector.int (vistrannat0.vector-informatik.com
- [217.89.139.174]) (Using TLS) by relay.mimecast.com with ESMTP id
- de-mta-29-soiJiehCMoSsdKkIZjMfWA-1; Tue, 27 Oct 2020 12:01:26 +0100
-X-MC-Unique: soiJiehCMoSsdKkIZjMfWA-1
-From:   "Frederich, Jens" <Jens.Frederich@vector.com>
-To:     "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>
-Subject: Question about the optimal receiving TCP streams via io_uring
-Thread-Topic: Question about the optimal receiving TCP streams via io_uring
-Thread-Index: AdasTOgblLwO26ydRFujff30ATQR6w==
-Date:   Tue, 27 Oct 2020 11:01:25 +0000
-Message-ID: <73bd83cd579246acb1f15bb38f5dc90e@vector.com>
-Accept-Language: de-DE, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.255.77.26]
-x-g-data-mailsecurity-for-exchange-state: 0
-x-g-data-mailsecurity-for-exchange-error: 0
-x-g-data-mailsecurity-for-exchange-sender: 23
-x-g-data-mailsecurity-for-exchange-server: e312ed88-0b29-4eb3-8405-66bbc4e212d4
+        id S1752262AbgJ0NfC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 27 Oct 2020 09:35:02 -0400
+Received: from mail-il1-f177.google.com ([209.85.166.177]:35927 "EHLO
+        mail-il1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752261AbgJ0NfC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 27 Oct 2020 09:35:02 -0400
+Received: by mail-il1-f177.google.com with SMTP id p10so1515761ile.3
+        for <io-uring@vger.kernel.org>; Tue, 27 Oct 2020 06:35:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rXqxuhCPhInDJFWMwIOJySkG+GwelVIGToJrk2cMB18=;
+        b=fUAGAyTsFkZOo34w1RJd30qc33lBq6mgjy75wt8giheCNdkRN8fhcfu2ixO0WSP/ZD
+         xz//LGxwt3B+bxU5kToi0HgT3LKJQF1D9Hqg1v00W9F/+N1il/j1DIemFKBbNw6GnV50
+         59zNnum0+eVt5pMQfJQmoCRd3jfZ4slJqrvfpOu5owdjq6stvPBTt0qS0WIV6/wNzfgR
+         Ww2DcbruLzZC+DQphnM+8x7fUNEOI36I+uYy0XHOYL2xwOTneL8VWpBZL0PZC5kboL+G
+         TI4AfBJuS9sdALwz+FgwLqoN4KcvxrmWtQIZrC/iEfaWNhtwV4j6jRSGuqSlQh7LmsM8
+         LmiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rXqxuhCPhInDJFWMwIOJySkG+GwelVIGToJrk2cMB18=;
+        b=KdkL1fGJXW3PNs3Ug/ptAg2zPXQFOUWwKfUInpFTQK1onookMCFcWH6fnXwad7OWDE
+         lgVkS8D1iZ08Rmv3g2VuRVknG4qh74RyyLSInGq//vOzUele6tWMb1IfVaiozfrcSPZv
+         LFNoHrTE0/zzsU5GLNxfRceFkWIZkz1M3ccTyBCu82halkuuHRzGnVCO5tPXVDVJJxEf
+         oZ5ArCzZ/g400FA3v6kF7aZFFV255QDGe3CUq5LfPFxF3SpNfEt/CFkFCBZRcOeqPoTq
+         5ftBI9wERIMLBpy4GD+fl9slBnTDQfJhuRSuSVmwD9CANXCg7CsLjGqg2ZPE/R01urZb
+         Kj2A==
+X-Gm-Message-State: AOAM533anY5sBJmgABH3WfK49mmPOSvlou8YX5BR3joEznOsXKP/yqr5
+        qKwwEc5EuOe1Bb5WytJfzOdllg==
+X-Google-Smtp-Source: ABdhPJwa1/KUPLFMW7T9PlmRH/3K5oKDpxdIOfmOJKQnhLpI6i7I9eT5ixf16Qipiuy7WkY4DWrixA==
+X-Received: by 2002:a92:3590:: with SMTP id c16mr2029804ilf.286.1603805701310;
+        Tue, 27 Oct 2020 06:35:01 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id 186sm1057735ile.4.2020.10.27.06.35.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Oct 2020 06:35:00 -0700 (PDT)
+Subject: Re: [PATCH] io-wq: set task TASK_INTERRUPTIBLE state before
+ schedule_timeout
+To:     qiang.zhang@windriver.com
+Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20201027030911.16596-1-qiang.zhang@windriver.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <bc138db4-4609-b8e6-717a-489cf2027fc0@kernel.dk>
+Date:   Tue, 27 Oct 2020 07:35:00 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CDE3A201 smtp.mailfrom=jens.frederich@vector.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: vector.com
+In-Reply-To: <20201027030911.16596-1-qiang.zhang@windriver.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+On 10/26/20 9:09 PM, qiang.zhang@windriver.com wrote:
+> From: Zqiang <qiang.zhang@windriver.com>
+> 
+> In 'io_wqe_worker' thread, if the work which in 'wqe->work_list' be
+> finished, the 'wqe->work_list' is empty, and after that the
+> '__io_worker_idle' func return false, the task state is TASK_RUNNING,
+> need to be set TASK_INTERRUPTIBLE before call schedule_timeout func.
 
-I would like to receive n 10 Gbps TCP or UDP streams (jumbo frames) as fast as possible and write each socket stream to a file on a fast XFS storage. How can I optimally implement this with io_uring? I want to use io_uring for network and file IO and the CPU load should keeping low. I would like to know your opinions. My first naive implementation looks like this, But I can't get more than 1Gbps through by one TCP stream:
+I don't think that's safe - what if someone added work right before you
+call schedule_timeout_interruptible? Something ala:
 
-#include <errno.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
-#include "liburing.h"
+io_wq_enqueue()
+			set_current_state(TASK_INTERRUPTIBLE();
+			schedule_timeout(WORKER_IDLE_TIMEOUT);
 
-#define MAX_CONNECTIONS     4096
-#define BACKLOG             512
-#define MAX_MESSAGE_LEN     9000
-#define BUFFERS_COUNT       MAX_CONNECTIONS
+then we'll have work added and the task state set to running, but the
+worker itself just sets us to non-running and will hence wait
+WORKER_IDLE_TIMEOUT before the work is processed.
 
-struct Stream_Server {
-    int port;
-    struct io_uring_params ring_params;
-    struct io_uring ring;
-    int socket_listen_fd;
-    struct sockaddr_in next_client_address;
-    socklen_t next_client_address_size;
-    uint64_t total_cqe_count;
+The current situation will do one extra loop for this case, as the
+schedule_timeout() just ends up being a nop and we go around again
+checking for work. Since we already unused the mm, the next iteration
+will go to sleep properly unless new work came in.
 
-    struct Data_Analyzer *data_analyzer;
-};
-
-enum {
-    ACCEPT,
-    READ,
-    WRITE,
-    PROVIDE_BUFFERS,
-};
-
-typedef struct conn_info {
-    __u32 fd;
-    __u16 type;
-    __u16 bid;
-} conn_info;
-
-char bufs[BUFFERS_COUNT][MAX_MESSAGE_LEN] = {0};
-int socket_buffers_group_id = 1337;
-int mdf_file_buffers_group_id = 1338;
-
-void make_accept_sqe_and_submit(struct io_uring *ring, int fd, struct sockaddr *client_address, socklen_t *client_address_size, __u8 flags) {
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_accept(sqe, fd, client_address, client_address_size, 0);
-    io_uring_sqe_set_flags(sqe, flags);
-
-    conn_info *conn_i = (conn_info *)&sqe->user_data;
-    conn_i->fd = fd;
-    conn_i->type = ACCEPT;
-    conn_i->bid = 0;
-}
-
-void make_socket_read_sqe_and_submit(struct io_uring *ring, int fd, unsigned gid, size_t message_size, __u8 flags) {
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_recv(sqe, fd, NULL, message_size, 0);
-    io_uring_sqe_set_flags(sqe, flags);
-    sqe->buf_group = gid;
-
-    conn_info *conn_i = (conn_info *)&sqe->user_data;
-    conn_i->fd = fd;
-    conn_i->type = READ;
-    conn_i->bid = 0;
-}
-
-void make_socket_write_sqe_and_submit(struct io_uring *ring, int fd, __u16 bid, size_t message_size, __u8 flags) {
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_send(sqe, fd, &bufs[bid], message_size, 0);
-    io_uring_sqe_set_flags(sqe, flags);
-
-    conn_info *conn_i = (conn_info *)&sqe->user_data;
-    conn_i->fd = fd;
-    conn_i->type = WRITE;
-    conn_i->bid = bid;
-}
-
-// @Temporary:  support n file streams
-int outfd = -1;
-off_t file_offset = 0;
-int file_index = 0;
-
-void make_file_write_sqe_and_submit(struct io_uring *ring, int socket_fd, __u16 bid, size_t message_size, off_t file_offset, __u8 flags) {
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_write(sqe, outfd, &bufs[bid], message_size, file_offset);
-    io_uring_sqe_set_flags(sqe, flags);
-
-    conn_info *conn_i = (conn_info *)&sqe->user_data;
-    conn_i->fd = socket_fd;
-    conn_i->type = WRITE;
-    conn_i->bid = bid;
-}
-
-void make_provide_buffers_sqe_and_submit(struct io_uring *ring, __u16 bid, unsigned gid) {
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_provide_buffers(sqe, bufs[bid], MAX_MESSAGE_LEN, 1, gid, bid);
-
-    conn_info *conn_i = (conn_info *)&sqe->user_data;
-    conn_i->fd = 0;
-    conn_i->type = PROVIDE_BUFFERS;
-    conn_i->bid = 0;
-}
-
-struct Stream_Server *stream_server = NULL;
-
-void main_loop_process_cqes() {
-    struct io_uring_cqe *cqe;
-    unsigned head;
-    stream_server->total_cqe_count = 0;
-
-    while (1) {
-        uint64_t cqe_count = 0;
-
-        io_uring_submit_and_wait(&stream_server->ring, 1);
-        //io_uring_submit(&stream_server->ring);
-
-        io_uring_for_each_cqe(&stream_server->ring, head, cqe) {
-            cqe_count += 1;
-
-            conn_info *conn_i = (conn_info *)&cqe->user_data;
-
-            if (cqe->res == -ENOBUFS) {
-                fprintf(stdout, "bufs in automatic buffer selection empty, this should not happen...\n");
-                fflush(stdout);
-                exit(1);
-            } else if (conn_i->type == PROVIDE_BUFFERS) {
-                if (cqe->res < 0) {
-                    printf("cqe->res = %d\n", cqe->res);
-                    exit(1);
-                }
-            } else if (conn_i->type == ACCEPT) {
-                int sock_conn_fd = cqe->res;
-                if (sock_conn_fd >= 0) {
-                    outfd = open("/brick_storage/test_io_file.out", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                    if (outfd < 0) {
-                        perror("open outfile");
-                        exit(1);
-                    }
-
-                    make_socket_read_sqe_and_submit(&stream_server->ring, sock_conn_fd, socket_buffers_group_id, MAX_MESSAGE_LEN, IOSQE_BUFFER_SELECT);
-                }
-
-                // new connected client; read data from socket and re-add accept to monitor for new connections
-                make_accept_sqe_and_submit(&stream_server->ring, stream_server->socket_listen_fd, (struct sockaddr *)&stream_server->next_client_address, &stream_server->next_client_address_size, 0);
-            } else if (conn_i->type == READ) {
-                int bytes_read = cqe->res;
-                if (cqe->res <= 0) {
-                    // connection closed or error
-                    shutdown(conn_i->fd, SHUT_RDWR);
-                } else {
-                    // bytes have been read into bufs, now add write to socket sqe
-                    int bid = cqe->flags >> 16;
-
-                    /*
-                      int *data = (int *)&bufs[bid];
-                      int *count = (int *) data;
-                      int *id = (int *) data + 1;
-                      printf("read cqe: bid %d, fd %d, count %d, id %d, bytes_read %d\n", bid, conn_i->fd, *count, *id, bytes_read);
-                    */
-
-                    file_index += 1;
-                    file_offset += bytes_read;
-                    make_file_write_sqe_and_submit(&stream_server->ring, conn_i->fd, bid, bytes_read, file_offset, 0);
-                }
-            } else if (conn_i->type == WRITE) {
-                // write has been completed, first re-add the buffer
-                make_provide_buffers_sqe_and_submit(&stream_server->ring, conn_i->bid, socket_buffers_group_id);
-
-                // @Speed: Too late? What's the optimal way to keep receiving socket data as fast as possible?
-                make_socket_read_sqe_and_submit(&stream_server->ring, conn_i->fd, socket_buffers_group_id, MAX_MESSAGE_LEN, IOSQE_BUFFER_SELECT);
-            }
-        }
-
-        io_uring_cq_advance(&stream_server->ring, cqe_count);
-        stream_server->total_cqe_count += cqe_count;
-    }
-}
-
-int stream_server_proc(struct Stream_Server *_stream_server) {
-    stream_server = _stream_server;
-    stream_server->next_client_address_size = sizeof(stream_server->next_client_address);
-
-    struct sockaddr_in serv_addr = { 0 };
-
-    stream_server->socket_listen_fd = socket(AF_INET, SOCK_STREAM /* | SOCK_NONBLOCK */, 0);
-    const int val = 1;
-    setsockopt(stream_server->socket_listen_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(stream_server->port);
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(stream_server->socket_listen_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        perror("Error binding socket...\n");
-        exit(1);
-    }
-    if (listen(stream_server->socket_listen_fd, BACKLOG) < 0) {
-        perror("Error listening on socket...\n");
-        exit(1);
-    }
-    printf("listening for connections on port: %d\n", stream_server->port);
-
-    memset(&stream_server->ring_params, 0, sizeof(stream_server->ring_params));
-
-    if (io_uring_queue_init_params(2048, &stream_server->ring, &stream_server->ring_params) < 0) {
-        perror("io_uring_init_failed...\n");
-        exit(1);
-    }
-
-    struct io_uring_probe *probe;
-    probe = io_uring_get_probe_ring(&stream_server->ring);
-    if (!probe || !io_uring_opcode_supported(probe, IORING_OP_PROVIDE_BUFFERS)) {
-        printf("Buffer select not supported, skipping...\n");
-        exit(0);
-    }
-    free(probe);
-
-    // first time, register buffers for buffer selection
-    {
-        struct io_uring_sqe *sqe;
-        struct io_uring_cqe *cqe;
-
-        sqe = io_uring_get_sqe(&stream_server->ring);
-        io_uring_prep_provide_buffers(sqe, bufs, MAX_MESSAGE_LEN, BUFFERS_COUNT, socket_buffers_group_id, 0);
-
-        io_uring_submit(&stream_server->ring);
-        io_uring_wait_cqe(&stream_server->ring, &cqe);
-        if (cqe->res < 0) {
-            printf("cqe->res = %d\n", cqe->res);
-            exit(1);
-        }
-        io_uring_cqe_seen(&stream_server->ring, cqe);
-    }
-
-    // add first accept SQE to monitor for new incoming connections
-    make_accept_sqe_and_submit(&stream_server->ring, stream_server->socket_listen_fd, (struct sockaddr *)&stream_server->next_client_address, &stream_server->next_client_address_size, 0);
-
-    main_loop_process_cqes();
-}
-
-Grüße / Regards
-Jens Frederich
+-- 
+Jens Axboe
 

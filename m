@@ -2,128 +2,197 @@ Return-Path: <SRS0=6TZJ=ED=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,
-	CHARSET_FARAWAY_HEADER,DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_06_12,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED20C56201
-	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 21:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 582EBC56201
+	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 22:00:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0800024754
-	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 21:58:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E794E2473C
+	for <io-uring@archiver.kernel.org>; Wed, 28 Oct 2020 22:00:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=windriversystems.onmicrosoft.com header.i=@windriversystems.onmicrosoft.com header.b="nvOY36Eh"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="A3ic9+qb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbgJ1V6a (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 28 Oct 2020 17:58:30 -0400
-Received: from mail-bn8nam11on2061.outbound.protection.outlook.com ([40.107.236.61]:17589
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728802AbgJ1V63 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Wed, 28 Oct 2020 17:58:29 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WUk6gJLJLuDvDG+45r+qG6dXqZYiXitHi0S1l3RO3DFs/Y5KQvx85KhV+FKiU+9L4WjGgmlTwSAmubOpRan34kP+fKh/f1xZZkR506BTVZ/g3gl1yES4NLaZ/LtbmP8ndnR/4JQYmThJIOLhcwCTQQwT43VlpchCkq888+qR5zYgxPHOGd0VKfg22D3IJBbtOlYL6c+dCuAFi+NYHBCrsJeI2/1AujkP+0yFZJIaSsbykYk2OK2EHOCk9N8qhnsyJKE7JdlIuXwu8u688cR0UlZrKbYPMFIO/mpk0VcpAxuRQo/9Jky1aVagDCB4vyVa7orFHxV1QNtbH92tiXw8Lw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UuVywQtfSgvvNzElvBrO1UvcAUxUw9DemPCrIucXMkg=;
- b=hYd1kxhX1AXq2qALBGU4bHudaczau7aE0CKjBc2kbbDqibhtdf/ZSVIU87CxYVk72A6iikDyk5KWin5+UohhpY3bHxdQNUUSTQ74/VDblRp8tvvJFvJH3eiRRgUeiee/X6gNrWpkXbVsY8fGTMjPtw6wNiY5GmrHpIbjz5ITuTV5LbQ3ydbjEW9wj+mAMgSLBpp0+Fl+eplyB8EnEmVRZZoDdZ2m2NvFm/sQX7V+LzaBPIsAMdU1cTqTGX5oh69G5Z5DHRfc/neHus5iC42FWBO/JTA7BtpsPSBdadLebJe9rwh3DEAD3KIsVEhki8PscXBh0t5CWwbWMiYxbzDZAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=windriver.com; dmarc=pass action=none
- header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+        id S1729440AbgJ1WAh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:00:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729465AbgJ1WAg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 28 Oct 2020 18:00:36 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC513C0613CF
+        for <io-uring@vger.kernel.org>; Wed, 28 Oct 2020 15:00:36 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id s7so1097546iol.12
+        for <io-uring@vger.kernel.org>; Wed, 28 Oct 2020 15:00:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=windriversystems.onmicrosoft.com;
- s=selector2-windriversystems-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UuVywQtfSgvvNzElvBrO1UvcAUxUw9DemPCrIucXMkg=;
- b=nvOY36EhGou9en4GRAGwCFoEMOoTrNYUUf4XcLPhgBUCwcCa2OiK3228lFVnqfsLNH3iVFz4wzPmCh47E6TvrsPtqRTroazT6QZwke05mz4HYneGETbzbdTW6YFRVwRHwz+/xymaF5mETgv/Od2gCPB5lTa+fWfeeHNhOLOihIw=
-Received: from BYAPR11MB2632.namprd11.prod.outlook.com (2603:10b6:a02:c4::17)
- by SJ0PR11MB5184.namprd11.prod.outlook.com (2603:10b6:a03:2d5::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.18; Wed, 28 Oct
- 2020 02:47:54 +0000
-Received: from BYAPR11MB2632.namprd11.prod.outlook.com
- ([fe80::80e9:e002:eeff:4d05]) by BYAPR11MB2632.namprd11.prod.outlook.com
- ([fe80::80e9:e002:eeff:4d05%3]) with mapi id 15.20.3455.030; Wed, 28 Oct 2020
- 02:47:53 +0000
-From:   "Zhang, Qiang" <Qiang.Zhang@windriver.com>
-To:     Jens Axboe <axboe@kernel.dk>
-CC:     "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: =?gb2312?B?u9i4tDogW1BBVENIXSBpby13cTogc2V0IHRhc2sgVEFTS19JTlRFUlJVUFRJ?=
- =?gb2312?Q?BLE_state_before_schedule=5Ftimeout?=
-Thread-Topic: [PATCH] io-wq: set task TASK_INTERRUPTIBLE state before
- schedule_timeout
-Thread-Index: AQHWrA6So/PefgDq40imjt0Gr/M086mrc9IAgADN/6k=
-Date:   Wed, 28 Oct 2020 02:47:53 +0000
-Message-ID: <BYAPR11MB2632A45DB4DA30E34D412528FF170@BYAPR11MB2632.namprd11.prod.outlook.com>
-References: <20201027030911.16596-1-qiang.zhang@windriver.com>,<bc138db4-4609-b8e6-717a-489cf2027fc0@kernel.dk>
-In-Reply-To: <bc138db4-4609-b8e6-717a-489cf2027fc0@kernel.dk>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: kernel.dk; dkim=none (message not signed)
- header.d=none;kernel.dk; dmarc=none action=none header.from=windriver.com;
-x-originating-ip: [60.247.85.82]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 5b2dc80c-9a92-46ea-4498-08d87aebde3c
-x-ms-traffictypediagnostic: SJ0PR11MB5184:
-x-microsoft-antispam-prvs: <SJ0PR11MB5184DA12F8C35736CA6CF491FF170@SJ0PR11MB5184.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Y7wx/mlwmD2OtPMBr+HTu87E+nwVT/f9EvXz4GvaeVFViPOalDpJPd2EwJtsdR8Uh2H63zgeDTefNJa+zj9QSr9OZiv64I4EiBffmha+PDxFkMUxmaQhPZpp7J2Qkxk3c9KI+atc8mWct1yFzWYeaYk2dfGYTktMYT57Zco5pSOKOAvZ8tdkY77LBEuu2MtYbGrX61DCwtQc8B6GMNAP5EgEJXYdhkJuL7mFVkk2WdHWsf3KkMurC/MdhWsGKQqgv3YdgHybyPIpCpuMXjrwelP9EHkmxG3IVQqWPZPIno41dhHe1Z1jkTBK9h6xLDQ9HoesoowZghp21zCrOThXzg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB2632.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(39850400004)(366004)(376002)(346002)(2906002)(8936002)(91956017)(9686003)(55016002)(224303003)(478600001)(4326008)(26005)(186003)(53546011)(54906003)(316002)(7696005)(52536014)(6506007)(66946007)(33656002)(76116006)(66446008)(66556008)(66476007)(64756008)(71200400001)(86362001)(6916009)(5660300002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: cdO5OiIS65WcCBemq2rI7cbDts26d7jXtrzS23xEz6flg7TDWH6DAE51KpPTLmB0jH/L3i9sFMdWe8Xw/cs9s3YPP+VMQPhxCg2smc5yKrH4LcOzIFC1qx+d3C823f4o4qXkMfys6t28zCBpTy98Y/iXZdIV9HxsaQYGkxqZgFEGOeiY92jzle/GP89oejoJPQfM7+oVN+I6IytnLhslK+MwBfs/rHzts8FGuKvEe9Xzx+y8033adbFk8cdtokHbYq1RNPiw8fpZDylvKee/0FcRS/B4SHTwa6uimbY8C5T0cxbk6uGYpONZHhtab0t1QYesTiXpB9+n12blOATb8TRsQbWKZpwDfyVLG/8hmMWHGOUhKcOoIGiJCKGtCjjoL5TmUz/EnD3NcMLpZys4XqJWdu3yJHrj0sgNTbH3WFAwS+Ljm3BjgMnWGPqsTKQ6t6ko7ipXzruvHXd0M8hdA1Ay0rwwl4h7jpbfBXRnPySoTuQhwxAQW5EONeG/zueCjHJr1P1xwgU9qriTzTcYPGtTPeLdt/2v5Ttqg0HyVAaWgIv3sgJG31WC4SVkllYfjVPz3qcrFemGRBu4i1qhD8s0LMcLB0Eim959UGEzwoVJeIajSt31yOv+/KbiDxL50/LiraCB6+NJvtPLzdbZ2A==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=oIiMKyVH7I+11bBb7ij4oT5WaaLdVWTb2tVtmKofqAc=;
+        b=A3ic9+qbk2hF99lu50qNUbuo9o0fgKoyGXr+S0XgbGU7HH1DvJMiAlKKKkV63UNskk
+         SwbWxTz31a3DPWlj025PI8L+/viYOoSNIGBorHWmWMKBZPyGOrOsbV/9b4hea6+8FGkX
+         3TbRnwG3C2/99pVjHEr+ZnE8/GzYy4QR4kyBeOuZCFeuy85VsArycx81Sjm4AqyVmuCB
+         dNdzd8DmaEmKxk2IpYn+DkCn/Exl6vi0yZSprorBLadFuqbiov1rZ23nYZogR/0Cbn+I
+         lUhZefHY9Tij9/KMSCx9LwCgb2Q8oUoXe9X19/A+vxOkXQQMBXx1ik1Te4aIXWhZXjad
+         yIDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=oIiMKyVH7I+11bBb7ij4oT5WaaLdVWTb2tVtmKofqAc=;
+        b=jH3gJW1Pytn3VAbmLe22EFkVgGF7Mc7SYLhNvWTPdKNeHpk6UXkT/CxeX3u/5RSb30
+         VvNpEZ6Ktv9T3HmJRnJd8w/2y+xfFZ6fKj5rln4oafm04UNGaVxhnB1H3i/CGdZd5E3L
+         mVwnEzGUOymGFjD1mzlWVm71rCwTubdQyQKi0/9FQIOlt8l05litG9XnAzDHwZKEDEQw
+         U8EeudyZFtS6WSrfYhfAsbLjwDNF7vSLaVnmy0z8Ped+EnJfGwF8bwf+CT9IKqcRLuER
+         hNr1b79h2p/DiRf7BM3ch4ea+p4LveMW0IRhKxBltlES9eEhHXhdgkdsQGKn23xk/n5z
+         J3yw==
+X-Gm-Message-State: AOAM532qT58+XLEAik7R+vMk/pNIQQAREnvX5C+7tWEbhjMfJY9dpC9U
+        VpEZCuxz2LCx9ZI2zUjEernbfFGIOc4fsg==
+X-Google-Smtp-Source: ABdhPJwCM0F3ebmakzxAOxH9YuruySETqFz4ndGZtJrChFe4fuHDG3PboI9UeOS3VWlhFwBo56F//Q==
+X-Received: by 2002:a6b:b5c2:: with SMTP id e185mr6399266iof.106.1603897851585;
+        Wed, 28 Oct 2020 08:10:51 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id b1sm493673iog.14.2020.10.28.08.10.50
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Oct 2020 08:10:50 -0700 (PDT)
+To:     io-uring <io-uring@vger.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH] io_uring: only plug when appropriate
+Message-ID: <54b696f3-0808-dbb3-084c-49d3d2d5f888@kernel.dk>
+Date:   Wed, 28 Oct 2020 09:10:50 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB2632.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5b2dc80c-9a92-46ea-4498-08d87aebde3c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Oct 2020 02:47:53.4751
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1O7OlhOiD7b18B6NpcMY03eTaDHW1NCH74rqWnrMFGAD26+MDOuWAKfjHAqKE0aSM4bDcqG0O7PuekmGJy+5S2N9KgiQKZffs4/OQFqJ9vA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB5184
-X-OriginatorOrg: windriver.com
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCreivP7IyzogSmVucyBB
-eGJvZSA8YXhib2VAa2VybmVsLmRrPgq3osvNyrG85DogMjAyMMTqMTDUwjI3yNUgMjE6MzUKytW8
-/sjLOiBaaGFuZywgUWlhbmcKs63LzTogaW8tdXJpbmdAdmdlci5rZXJuZWwub3JnOyBsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnCtb3zOI6IFJlOiBbUEFUQ0hdIGlvLXdxOiBzZXQgdGFzayBU
-QVNLX0lOVEVSUlVQVElCTEUgc3RhdGUgYmVmb3JlIHNjaGVkdWxlX3RpbWVvdXQKCk9uIDEwLzI2
-LzIwIDk6MDkgUE0sIHFpYW5nLnpoYW5nQHdpbmRyaXZlci5jb20gd3JvdGU6Cj4gRnJvbTogWnFp
-YW5nIDxxaWFuZy56aGFuZ0B3aW5kcml2ZXIuY29tPgo+Cj4gSW4gJ2lvX3dxZV93b3JrZXInIHRo
-cmVhZCwgaWYgdGhlIHdvcmsgd2hpY2ggaW4gJ3dxZS0+d29ya19saXN0JyBiZQo+IGZpbmlzaGVk
-LCB0aGUgJ3dxZS0+d29ya19saXN0JyBpcyBlbXB0eSwgYW5kIGFmdGVyIHRoYXQgdGhlCj4gJ19f
-aW9fd29ya2VyX2lkbGUnIGZ1bmMgcmV0dXJuIGZhbHNlLCB0aGUgdGFzayBzdGF0ZSBpcyBUQVNL
-X1JVTk5JTkcsCj4gbmVlZCB0byBiZSBzZXQgVEFTS19JTlRFUlJVUFRJQkxFIGJlZm9yZSBjYWxs
-IHNjaGVkdWxlX3RpbWVvdXQgZnVuYy4KPgo+SSBkb24ndCB0aGluayB0aGF0J3Mgc2FmZSAtIHdo
-YXQgaWYgc29tZW9uZSBhZGRlZCB3b3JrIHJpZ2h0IGJlZm9yZSB5b3UKPmNhbGwgc2NoZWR1bGVf
-dGltZW91dF9pbnRlcnJ1cHRpYmxlPyBTb21ldGhpbmcgYWxhOgo+Cj4KPmlvX3dxX2VucXVldWUo
-KQo+ICAgICAgICAgICAgICAgICAgICAgICAgc2V0X2N1cnJlbnRfc3RhdGUoVEFTS19JTlRFUlJV
-UFRJQkxFKCk7Cj4gICAgICAgICAgICAgICAgICAgICAgICBzY2hlZHVsZV90aW1lb3V0KFdPUktF
-Ul9JRExFX1RJTUVPVVQpOwo+Cj50aGVuIHdlJ2xsIGhhdmUgd29yayBhZGRlZCBhbmQgdGhlIHRh
-c2sgc3RhdGUgc2V0IHRvIHJ1bm5pbmcsIGJ1dCB0aGUKPndvcmtlciBpdHNlbGYganVzdCBzZXRz
-IHVzIHRvIG5vbi1ydW5uaW5nIGFuZCB3aWxsIGhlbmNlIHdhaXQKPldPUktFUl9JRExFX1RJTUVP
-VVQgYmVmb3JlIHRoZSB3b3JrIGlzIHByb2Nlc3NlZC4KPgo+VGhlIGN1cnJlbnQgc2l0dWF0aW9u
-IHdpbGwgZG8gb25lIGV4dHJhIGxvb3AgZm9yIHRoaXMgY2FzZSwgYXMgdGhlCj5zY2hlZHVsZV90
-aW1lb3V0KCkganVzdCBlbmRzIHVwIGJlaW5nIGEgbm9wIGFuZCB3ZSBnbyBhcm91bmQgYWdhaW4K
-CmFsdGhvdWdoIHRoZSB3b3JrZXIgdGFzayBzdGF0ZSBpcyBydW5uaW5nLCAgZHVlIHRvIHRoZSBj
-YWxsIHNjaGVkdWxlX3RpbWVvdXQsIHRoZSAKY3VycmVudCB3b3JrZXIgc3RpbGwgcG9zc2libGUg
-dG8gYmUgc3dpdGNoZWQgb3V0LgppZiBzZXQgY3VycmVudCB3b3JrZXIgdGFzayBpcyBuby1ydW5u
-aW5nLCB0aGUgY3VycmVudCB3b3JrZXIgYmUgc3dpdGNoZWQgb3V0LCBidXQKdGhlIHNjaGVkdWxl
-IHdpbGwgY2FsbCBpb193cV93b3JrZXJfc2xlZXBpbmcgZnVuYyAgdG8gd2FrZSB1cCBmcmVlIHdv
-cmtlciB0YXNrLCBpZiAKd3FlLT5mcmVlX2xpc3QgaXMgbm90IGVtcHR5LiAgCgo+Y2hlY2tpbmcg
-Zm9yIHdvcmsuIFNpbmNlIHdlIGFscmVhZHkgdW51c2VkIHRoZSBtbSwgdGhlIG5leHQgaXRlcmF0
-aW9uCj53aWxsIGdvIHRvIHNsZWVwIHByb3Blcmx5IHVubGVzcyBuZXcgd29yayBjYW1lIGluLgo+
-Cj4tLQo+SmVucyBBeGJvZQoK
+We unconditionally call blk_start_plug() when starting the IO
+submission, but we only really should do that if we have more than 1
+request to submit AND we're potentially dealing with block based storage
+underneath. For any other type of request, it's just a waste of time to
+do so.
+
+Add a ->plug bit to io_op_def and set it for read/write requests. We
+could make this more precise and check the file itself as well, but it
+doesn't matter that much and would quickly become more expensive.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+---
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 3e1774d3187c..60cd740e5e3e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -748,6 +748,8 @@ struct io_submit_state {
+ 	void			*reqs[IO_IOPOLL_BATCH];
+ 	unsigned int		free_reqs;
+ 
++	bool			plug_started;
++
+ 	/*
+ 	 * Batch completion logic
+ 	 */
+@@ -780,6 +782,8 @@ struct io_op_def {
+ 	unsigned		buffer_select : 1;
+ 	/* must always have async data allocated */
+ 	unsigned		needs_async_data : 1;
++	/* should block plug */
++	unsigned		plug : 1;
+ 	/* size of async data needed, if any */
+ 	unsigned short		async_size;
+ 	unsigned		work_flags;
+@@ -793,6 +797,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollin			= 1,
+ 		.buffer_select		= 1,
+ 		.needs_async_data	= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+@@ -802,6 +807,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
+ 		.needs_async_data	= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+ 						IO_WQ_WORK_FSIZE,
+@@ -814,6 +820,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollin			= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_BLKCG | IO_WQ_WORK_MM,
+ 	},
+@@ -822,6 +829,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.hash_reg_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_BLKCG | IO_WQ_WORK_FSIZE |
+ 						IO_WQ_WORK_MM,
+@@ -905,6 +913,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.unbound_nonreg_file	= 1,
+ 		.pollin			= 1,
+ 		.buffer_select		= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+@@ -912,6 +921,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
++		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+ 						IO_WQ_WORK_FSIZE,
+@@ -6534,7 +6544,8 @@ static void io_submit_state_end(struct io_submit_state *state)
+ {
+ 	if (!list_empty(&state->comp.list))
+ 		io_submit_flush_completions(&state->comp);
+-	blk_finish_plug(&state->plug);
++	if (state->plug_started)
++		blk_finish_plug(&state->plug);
+ 	io_state_file_put(state);
+ 	if (state->free_reqs)
+ 		kmem_cache_free_bulk(req_cachep, state->free_reqs, state->reqs);
+@@ -6546,7 +6557,7 @@ static void io_submit_state_end(struct io_submit_state *state)
+ static void io_submit_state_start(struct io_submit_state *state,
+ 				  struct io_ring_ctx *ctx, unsigned int max_ios)
+ {
+-	blk_start_plug(&state->plug);
++	state->plug_started = false;
+ 	state->comp.nr = 0;
+ 	INIT_LIST_HEAD(&state->comp.list);
+ 	state->comp.ctx = ctx;
+@@ -6688,6 +6699,16 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	/* same numerical values with corresponding REQ_F_*, safe to copy */
+ 	req->flags |= sqe_flags;
+ 
++	/*
++	 * Plug now if we have more than 1 IO left after this, and the target
++	 * is potentially a read/write to block based storage.
++	 */
++	if (!state->plug_started && state->ios_left > 1 &&
++	    io_op_defs[req->opcode].plug) {
++		blk_start_plug(&state->plug);
++		state->plug_started = true;
++	}
++
+ 	if (!io_op_defs[req->opcode].needs_file)
+ 		return 0;
+ 
+-- 
+Jens Axboe
+

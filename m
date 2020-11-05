@@ -2,95 +2,153 @@ Return-Path: <SRS0=dlsy=EL=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 525E2C4742C
-	for <io-uring@archiver.kernel.org>; Thu,  5 Nov 2020 14:03:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B838DC4741F
+	for <io-uring@archiver.kernel.org>; Thu,  5 Nov 2020 14:09:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D694320759
-	for <io-uring@archiver.kernel.org>; Thu,  5 Nov 2020 14:03:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D00922203
+	for <io-uring@archiver.kernel.org>; Thu,  5 Nov 2020 14:09:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="twZPPsBJ"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="N2syPlJX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730687AbgKEODK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 5 Nov 2020 09:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
+        id S1727275AbgKEOJY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 5 Nov 2020 09:09:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730501AbgKEODK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Nov 2020 09:03:10 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE2CC0613CF
-        for <io-uring@vger.kernel.org>; Thu,  5 Nov 2020 06:03:10 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id u4so1483521pgr.9
-        for <io-uring@vger.kernel.org>; Thu, 05 Nov 2020 06:03:10 -0800 (PST)
+        with ESMTP id S1726067AbgKEOJX (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 5 Nov 2020 09:09:23 -0500
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33346C0613CF
+        for <io-uring@vger.kernel.org>; Thu,  5 Nov 2020 06:09:22 -0800 (PST)
+Received: by mail-io1-xd2d.google.com with SMTP id s24so1873202ioj.13
+        for <io-uring@vger.kernel.org>; Thu, 05 Nov 2020 06:09:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=IlLitVLc0Gpfef8neL0GP8FKNziHQyytZeUORoHGQ44=;
-        b=twZPPsBJd9NeaRhe0yAovLR3vXA62FUhRJFNi2QRRtFfaG+MNcBfkYe8JDFnoCORRN
-         lvhbe6KS4I+LLHzHJ2EN2Mhjdzeb3ZsxFDSqv0qn+1LcLRxWaEaHN5DfI0S8E52j/Vsz
-         x0I4hHN53t/QfIwCnAuFOODzy5xet83S7NYFtVpikRsYFPPg7m7gjHaawPvaofPFc47J
-         tz1slXg/AAU+YI7W7F3Hl/gYHVJz5ryuha0ADYi+w30rNrUhlp6skbqNg+gwlP8mR8lt
-         PB0mGswwDA6luHKeLwPT0KGPRX7vgp/xLA/7nSyUWAcmAMzXyhVuI9U6VzVxll56J006
-         SWQA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=VZA/J1Tvui2qTb89P7Ipq2V8epA23peMfNOB//cuO4g=;
+        b=N2syPlJXh4GQVBtmHAMmFnOB8FbBhjsHXOrAjd7Cck3OXs8wn7WJK9loFlUUzb1TNS
+         xpUrdpZn3jtNfaHYEE2+p8jlW/h3tky7s9WiR0YXfgTI+xG+/+QHI70UubAMa3WNHawb
+         rkG9V+tOczfTdxnEGnqEMVf1PuXK3H4SBgWrjW0MScwGE+OXUP2DhXqXMVR8Q3X6lufw
+         1pFKo6iMeGcWJo1C6Fe5kCt4nxxFUtLN8EikXz3vOt1MH4WmDnW0JWqD9mvK78eNVVqs
+         4jarRoAMuCi2oEneI9tjFy5BAOe+Gjgxqj+UWsC2d5vjKSrL2g48c97jjJvER9mYQb3X
+         Kulw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=IlLitVLc0Gpfef8neL0GP8FKNziHQyytZeUORoHGQ44=;
-        b=Nlp6OYbowtIorraR7qkbfCkiUOwlF6N5LQmF7ATSXvq6fRgobPP8k0mjOUCe7mY3qO
-         ODIkU0cNYe5/tgBg3RrVi+IOnfbI15RvIkeIEyaWBxFE9Lpun9FHXeeN0fAxnv6iaM+b
-         daIKjewTmNv+ywEgvktTYe5+8LUwcltZI1JLDBGO5Jka9Hqqy3M8nsffRfVttLjOhoWf
-         4ekC1JRLoElp68flUxZZcPC7D7kmhxyo7480jANH/vs6A6rLf3virJbBsM6iKMLcGPIA
-         h4b+gBTgVyHCjOo+PE7YVvMrUqxaSbuoTqs+WtjT+GIj5vKjgk7/sfOlfW/CL0z8G68Z
-         2BAA==
-X-Gm-Message-State: AOAM530tgyg6StN9TpQUu67lslxonRNRj+ZRCx40p5GMTzQtuTaWXVwh
-        i/RXuOpI7NKvjKhiR4+h+pph+lOKEUg=
-X-Google-Smtp-Source: ABdhPJz1XYuw6U9CMBgh0ecqseeBZiZfyBJGOqte3hjrVpmWn5zxqhE94REzEwggZp3K/QondtPQnw==
-X-Received: by 2002:a63:5644:: with SMTP id g4mr2651842pgm.145.1604584989385;
-        Thu, 05 Nov 2020 06:03:09 -0800 (PST)
-Received: from mita-MS-7A45.lan ([240f:34:212d:1:9ff6:8e52:79cf:ec2d])
-        by smtp.gmail.com with ESMTPSA id d18sm2420800pgg.41.2020.11.05.06.03.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2020 06:03:07 -0800 (PST)
-From:   Akinobu Mita <akinobu.mita@gmail.com>
-To:     io-uring@vger.kernel.org
-Cc:     Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH] remove zero-size array in io_uring.h
-Date:   Thu,  5 Nov 2020 23:02:51 +0900
-Message-Id: <20201105140251.8035-1-akinobu.mita@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        bh=VZA/J1Tvui2qTb89P7Ipq2V8epA23peMfNOB//cuO4g=;
+        b=G5Q6aa20MAe8VdLfes0cOnTgw5Xlkz3sjxFXrA8+suW2MKZV0KPV01j4cP64IB535w
+         +QWMuBVV5lr6RSpTOBDWZPx9qlI55piiTjllGiXDvGCb66Vy7IZPi1NzNUjvyA3X8gzJ
+         6P32xZHVsJEp8BShjYuhSDmGl+3JysN9qIWp5oTtIXz1yleQEGhPIGxflQIEkRfkaDnF
+         +Q5EaI5HEQiAueFbCcFY4lbTvryqGkhVoLGLkj+E8qPFTSoMug5Qm1+GxLYfQurhwXQR
+         2KlhkkqkUUGauXq/BuozFwDRQa9LX5afc80jSNBykv0FpcqNCr5+YAZQs3EqsvnzmZLA
+         4VAQ==
+X-Gm-Message-State: AOAM5329AP39VKvFGJukB7Nxj88fjjiCIOsDoE7ERwmycQHnGoc8dBaV
+        50xyJjuUZKhICKSGtlJrE9nHkkzq0TtTnA==
+X-Google-Smtp-Source: ABdhPJx9KlXPzL5+KcQX5sOX3355WpXlz7PnOteM0H3fltvg/eIJPuIGIz+YINM5octLakULs3tzPg==
+X-Received: by 2002:a5d:8e12:: with SMTP id e18mr1621911iod.99.1604585361301;
+        Thu, 05 Nov 2020 06:09:21 -0800 (PST)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id r14sm1326700ilc.78.2020.11.05.06.09.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Nov 2020 06:09:20 -0800 (PST)
+Subject: Re: relative openat dirfd reference on submit
+To:     Stefan Metzmacher <metze@samba.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Vito Caputo <vcaputo@pengaru.com>, io-uring@vger.kernel.org
+References: <20201102205259.qsbp6yea3zfrqwuk@shells.gnugeneration.com>
+ <d57e6cb2-9a2c-86a4-7d64-05816b3eab54@kernel.dk>
+ <0532ec03-1dd2-a6ce-2a58-9e45d66435b5@gmail.com>
+ <c7130e35-6340-5e0b-f0d9-3c8465d0eaf9@kernel.dk>
+ <efe65885-6bf3-a3d1-5c67-dc7b34dd96c2@gmail.com>
+ <c97e1b84-9c48-fe91-7c79-57de98c7fc0a@kernel.dk>
+ <d7850258-1d18-9eae-97f5-c96c6a8a6dd3@samba.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <f7de9e9a-9f19-5824-01a9-9e143b801d92@kernel.dk>
+Date:   Thu, 5 Nov 2020 07:09:20 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d7850258-1d18-9eae-97f5-c96c6a8a6dd3@samba.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This fixes compilation with -Werror=pedantic.
+On 11/5/20 1:45 AM, Stefan Metzmacher wrote:
+> Am 05.11.20 um 00:43 schrieb Jens Axboe:
+>> On 11/2/20 5:41 PM, Pavel Begunkov wrote:
+>>> On 03/11/2020 00:34, Jens Axboe wrote:
+>>>> On 11/2/20 5:17 PM, Pavel Begunkov wrote:
+>>>>> On 03/11/2020 00:05, Jens Axboe wrote:
+>>>>>> On 11/2/20 1:52 PM, Vito Caputo wrote:
+>>>>>>> Hello list,
+>>>>>>>
+>>>>>>> I've been tinkering a bit with some async continuation passing style
+>>>>>>> IO-oriented code employing liburing.  This exposed a kind of awkward
+>>>>>>> behavior I suspect could be better from an ergonomics perspective.
+>>>>>>>
+>>>>>>> Imagine a bunch of OPENAT SQEs have been prepared, and they're all
+>>>>>>> relative to a common dirfd.  Once io_uring_submit() has consumed all
+>>>>>>> these SQEs across the syscall boundary, logically it seems the dirfd
+>>>>>>> should be safe to close, since these dirfd-dependent operations have
+>>>>>>> all been submitted to the kernel.
+>>>>>>>
+>>>>>>> But when I attempted this, the subsequent OPENAT CQE results were all
+>>>>>>> -EBADFD errors.  It appeared the submit didn't add any references to
+>>>>>>> the dependent dirfd.
+>>>>>>>
+>>>>>>> To work around this, I resorted to stowing the dirfd and maintaining a
+>>>>>>> shared refcount in the closures associated with these SQEs and
+>>>>>>> executed on their CQEs.  This effectively forced replicating the
+>>>>>>> batched relationship implicit in the shared parent dirfd, where I
+>>>>>>> otherwise had zero need to.  Just so I could defer closing the dirfd
+>>>>>>> until once all these closures had run on their respective CQE arrivals
+>>>>>>> and the refcount for the batch had reached zero.
+>>>>>>>
+>>>>>>> It doesn't seem right.  If I ensure sufficient queue depth and
+>>>>>>> explicitly flush all the dependent SQEs beforehand
+>>>>>>> w/io_uring_submit(), it seems like I should be able to immediately
+>>>>>>> close(dirfd) and have the close be automagically deferred until the
+>>>>>>> last dependent CQE removes its reference from the kernel side.
+>>>>>>
+>>>>>> We pass the 'dfd' straight on, and only the async part acts on it.
+>>>>>> Which is why it needs to be kept open. But I wonder if we can get
+>>>>>> around it by just pinning the fd for the duration. Since you didn't
+>>>>>> include a test case, can you try with this patch applied? Totally
+>>>>>> untested...
+>>>>>
+>>>>> afaik this doesn't pin an fd in a file table, so the app closes and
+>>>>> dfd right after submit and then do_filp_open() tries to look up
+>>>>> closed dfd. Doesn't seem to work, and we need to pass that struct
+>>>>> file to do_filp_open().
+>>>>
+>>>> Yeah, I just double checked, and it's just referenced, but close() will
+>>>> still make it NULL in the file table. So won't work... We'll have to
+>>>> live with it for now, I'm afraid.
+>>>
+>>> Is there a problem with passing in a struct file? Apart from it
+>>> being used deep in open callchains?
+>>
+>> No technical problems as far as I can tell, just needs doing...
+> 
+> That would also allow fixed files to be used as dirfd, correct?
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
----
- src/include/liburing/io_uring.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Correct
 
-diff --git a/src/include/liburing/io_uring.h b/src/include/liburing/io_uring.h
-index e52ad2d..8555de9 100644
---- a/src/include/liburing/io_uring.h
-+++ b/src/include/liburing/io_uring.h
-@@ -308,7 +308,7 @@ struct io_uring_probe {
- 	__u8 ops_len;	/* length of ops[] array below */
- 	__u16 resv;
- 	__u32 resv2[3];
--	struct io_uring_probe_op ops[0];
-+	struct io_uring_probe_op ops[];
- };
- 
- struct io_uring_restriction {
+> If that's the case it would be great to have a way to install the resulting
+> fd also (or maybe only) as fixed file.
+
+That might be handy, yes.
+
 -- 
-2.25.1
+Jens Axboe
 

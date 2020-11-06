@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A460C2D0A3
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B62A2C55ABD
+	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4866206F4
+	by mail.kernel.org (Postfix) with ESMTP id 56A7B207F7
 	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N0eWwiSJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GxaDQ/h4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbgKFNDr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1727343AbgKFNDr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Fri, 6 Nov 2020 08:03:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727345AbgKFNDq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 08:03:46 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0D1C0613CF
-        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 05:03:46 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id p1so1228888wrf.12
-        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 05:03:46 -0800 (PST)
+        with ESMTP id S1727314AbgKFNDn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 08:03:43 -0500
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF99C0613CF
+        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 05:03:42 -0800 (PST)
+Received: by mail-wm1-x343.google.com with SMTP id c16so1267751wmd.2
+        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 05:03:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=cMsbN1cXUOhDnKA9vLFqVPAMTnB7NDJm50LxYgeXtBI=;
-        b=N0eWwiSJmtqfO+uv3Hcn6VD0v/DunhZQ4WpLlUPEK3yOQuKZosp9+bS073xCeysJLy
-         oVgr82lEHmCf/7WRY5osP1GGovjsaBq1qKm2RTMCAhhSGDUoQpOfYq0oFSYOxExNvdu/
-         SY536dj9VhR8nTqYdneL1cj/9zYzlWsstv6B2n5SisuIVj1Kgv51Ub+ZwXkZcoEkoWWZ
-         0KC0jrn36OptPv/bYZuNU86AJPk2ihPMh8oumZPz1KJ7088vH1Rgp/Kp3uVTmzri0m1a
-         T8Ll70JH3OS/+4ft/Jlf90uZbBBAHQFDQsw2fAbd77ivit6VZNq1VrdFlIKVzTFthshL
-         EGeQ==
+        bh=i+iOu1q/eMXYH22dRLcknqvk+0dhZOxGvUAoXbY8KzE=;
+        b=GxaDQ/h4InSugtwq8Jr2kbUWyMt+nRhwn05w7T0DbqixBVAwLAfJ7rotrYJLSGaChf
+         9UgXtgEQXJMs944QLmKmgXVVt1VZFhfoxrqDQIxWVBpgIA+b1y8D00sBQqmmkghYIUjK
+         A75OFcYFzU432WFMRSbmob068Cn+mwr9TtxLM8CBBEptweANCrVMpOduHjWQL86gR9M0
+         s0M1x5H3ZmcHYDqKzYdj6DvOJ13e4Sw8wjMlbc3ogCWhKT0TDTodwmTlI5024Iv2J8f5
+         92By3WX5aFnINhVO+Ae0/bn8/fAL62mrYAb5FUKnV20umYtvdhED/AzskUuy/gZUw4Mr
+         4DPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cMsbN1cXUOhDnKA9vLFqVPAMTnB7NDJm50LxYgeXtBI=;
-        b=gnymYOZ8Dugx8wekLgvnHB4MfAds/3IGNFYGgEIRYaqwn4pDcAmw2K7hEDvFe5PqEa
-         VyTsXyFx9+GqS/AosK5sp2Ksehys7Bb/ykgQXu4WJdedVqpcfps+h3Metwn67AOADQH/
-         9BUL2daorpJObo+xayQVQq5xAXhnE8ueKqtbiFe/0SZVFpA0P6AkWRJg5mcENSimQO6m
-         nCi5F7Jveuruf2tSlAxB1R/aJ3EcmukIA4dlM1LsfrY85RJ5P02UQIQR0BcIrqgRha3A
-         P/axcmJe/uWPrNy2ZZAIAWRsP/tkDN4jqa5fchmzPxRBazsJAe/lFvH4RBbQArHuf/At
-         8F8w==
-X-Gm-Message-State: AOAM532ESM2jCknKkf/IELLLNoTwYV0Mqemx+xGsuWkWw5hRWVmnBDql
-        reMTGLGRa8feR64QU6TKgEA=
-X-Google-Smtp-Source: ABdhPJyWOyu9v6W9bnj8uYqfYrfuz5WLhjD/PPGdVL0ZYMBBziMtpPgv6lUB2L2NQpia4g1GqmkYgA==
-X-Received: by 2002:adf:93e1:: with SMTP id 88mr2481227wrp.37.1604667825112;
-        Fri, 06 Nov 2020 05:03:45 -0800 (PST)
+        bh=i+iOu1q/eMXYH22dRLcknqvk+0dhZOxGvUAoXbY8KzE=;
+        b=eGnh7ou5BCWd/fwFD7tA3MP63pa8uLTI3YTP4aEIPPK7QNB6LRrNyAxcLAxNN2I6Is
+         dtJfC3h4nMU4OQI5PbOnGUjNkYPCBpdhAWb2i4bnjauj9GtIEjMkbj8D5/rRQEZO3ifB
+         SwjY1LpjVzUQlqf9Ey3yVjE4tcLFeCIHaQHmZ1g+SFyLQAfYj0b/4IxH+VP5wmwjtIzE
+         mdb46lduxw5psZAg1TvQo1d25E1PWYY5BciA7uF2K+hNFRaiWx3Z1payKdEly/LCMzss
+         k8l19r/NCrk05tSTbVsi/2OpoBHZiq7IWbcARUOEqzU+Qu1UpRiWn14HHfCYlLufZSem
+         Bn/w==
+X-Gm-Message-State: AOAM531x+SfJwSTCOd+FHpwflMuGCtaFoO0A2Pt+0G2YfzwzrBZeAXVy
+        dYWJr26jN+kTKqz2qz8vfTA=
+X-Google-Smtp-Source: ABdhPJxQyjgM0J74zZt6dMGaAtedNmT8rbNnDBxToO+g8nM8f6eZI74QPWAT6gCQmbcIL7SyDFT3Sw==
+X-Received: by 2002:a7b:ce0e:: with SMTP id m14mr2348622wmc.111.1604667821683;
+        Fri, 06 Nov 2020 05:03:41 -0800 (PST)
 Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id e5sm1931839wrw.93.2020.11.06.05.03.44
+        by smtp.gmail.com with ESMTPSA id e5sm1931839wrw.93.2020.11.06.05.03.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 05:03:44 -0800 (PST)
+        Fri, 06 Nov 2020 05:03:41 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5/6] io_uring: pass files into kill timeouts/poll
-Date:   Fri,  6 Nov 2020 13:00:25 +0000
-Message-Id: <223ca90aa569d0f9f166634cef520f14202b8124.1604667122.git.asml.silence@gmail.com>
+Subject: [PATCH 2/6] io_uring: add a {task,files} pair matching helper
+Date:   Fri,  6 Nov 2020 13:00:22 +0000
+Message-Id: <e6b9817bd9db1a4f51fd20261452f4340c929c37.1604667122.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1604667122.git.asml.silence@gmail.com>
 References: <cover.1604667122.git.asml.silence@gmail.com>
@@ -72,77 +72,93 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Make io_poll_remove_all() and io_kill_timeouts() to match against files
-as well. A preparation patch, effectively not used by now.
+Add io_match_task() that matches both task and files.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ fs/io_uring.c | 48 ++++++++++++++++++++++--------------------------
+ 1 file changed, 22 insertions(+), 26 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 22ac3ce57819..c93060149087 100644
+index 74bb5cb9697c..14e671c909ed 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1588,14 +1588,15 @@ static bool io_task_match(struct io_kiocb *req, struct task_struct *tsk)
- /*
-  * Returns true if we found and killed one or more timeouts
-  */
--static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
-+			     struct files_struct *files)
+@@ -1037,6 +1037,26 @@ static inline void io_clean_op(struct io_kiocb *req)
+ 		__io_clean_op(req);
+ }
+ 
++static bool io_match_task(struct io_kiocb *head,
++			  struct task_struct *task,
++			  struct files_struct *files)
++{
++	struct io_kiocb *req;
++
++	if (task && head->task != task)
++		return false;
++	if (!files)
++		return true;
++
++	io_for_each_link(req, head) {
++		if ((req->flags & REQ_F_WORK_INITIALIZED) &&
++		    (req->work.flags & IO_WQ_WORK_FILES) &&
++		    req->work.identity->files == files)
++			return true;
++	}
++	return false;
++}
++
+ static void io_sq_thread_drop_mm_files(void)
  {
- 	struct io_kiocb *req, *tmp;
- 	int canceled = 0;
+ 	struct files_struct *files = current->files;
+@@ -1686,27 +1706,6 @@ static void io_cqring_mark_overflow(struct io_ring_ctx *ctx)
+ 	}
+ }
+ 
+-static inline bool __io_match_files(struct io_kiocb *req,
+-				    struct files_struct *files)
+-{
+-	return ((req->flags & REQ_F_WORK_INITIALIZED) &&
+-	        (req->work.flags & IO_WQ_WORK_FILES)) &&
+-		req->work.identity->files == files;
+-}
+-
+-static bool io_match_files(struct io_kiocb *head, struct files_struct *files)
+-{
+-	struct io_kiocb *req;
+-
+-	if (!files)
+-		return true;
+-	io_for_each_link(req, head) {
+-		if (__io_match_files(req, files))
+-			return true;
+-	}
+-	return false;
+-}
+-
+ /* Returns true if there are no backlogged entries after the flush */
+ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 				     struct task_struct *tsk,
+@@ -1734,9 +1733,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 
+ 	cqe = NULL;
+ 	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
+-		if (tsk && req->task != tsk)
+-			continue;
+-		if (!io_match_files(req, files))
++		if (!io_match_task(req, tsk, files))
+ 			continue;
+ 
+ 		cqe = io_get_cqring(ctx);
+@@ -8776,8 +8773,7 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
  
  	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
--		if (io_task_match(req, tsk)) {
-+		if (io_match_task(req, tsk, files)) {
- 			io_kill_timeout(req);
- 			canceled++;
- 		}
-@@ -5469,7 +5470,8 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- /*
-  * Returns true if we found and killed one or more poll requests
-  */
--static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
-+			       struct files_struct *files)
- {
- 	struct hlist_node *tmp;
- 	struct io_kiocb *req;
-@@ -5481,7 +5483,7 @@ static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
- 
- 		list = &ctx->cancel_hash[i];
- 		hlist_for_each_entry_safe(req, tmp, list, hash_node) {
--			if (io_task_match(req, tsk))
-+			if (io_match_task(req, tsk, files))
- 				posted += io_poll_remove_one(req);
- 		}
- 	}
-@@ -8615,8 +8617,8 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 	percpu_ref_kill(&ctx->refs);
- 	mutex_unlock(&ctx->uring_lock);
- 
--	io_kill_timeouts(ctx, NULL);
--	io_poll_remove_all(ctx, NULL);
-+	io_kill_timeouts(ctx, NULL, NULL);
-+	io_poll_remove_all(ctx, NULL, NULL);
- 
- 	if (ctx->io_wq)
- 		io_wq_cancel_all(ctx->io_wq);
-@@ -8847,8 +8849,8 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 			}
- 		}
- 
--		ret |= io_poll_remove_all(ctx, task);
--		ret |= io_kill_timeouts(ctx, task);
-+		ret |= io_poll_remove_all(ctx, task, NULL);
-+		ret |= io_kill_timeouts(ctx, task, NULL);
- 		if (!ret)
+ 	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
+-		if (io_task_match(de->req, task) &&
+-		    io_match_files(de->req, files)) {
++		if (io_match_task(de->req, task, files)) {
+ 			list_cut_position(&list, &ctx->defer_list, &de->list);
  			break;
- 		io_run_task_work();
+ 		}
 -- 
 2.24.0
 

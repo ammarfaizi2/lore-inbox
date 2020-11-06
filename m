@@ -2,163 +2,117 @@ Return-Path: <SRS0=29Fy=EM=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5FE5C55178
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:08:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4F10C2D0A3
+	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:50:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 885CF206DC
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:08:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 352BC2072E
+	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:50:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="toh0iMum"
+	dkim=pass (1024-bit key) header.d=luisgerhorst.de header.i=@luisgerhorst.de header.b="otpzeVPw";
+	dkim=temperror (0-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YcOHEfb+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726621AbgKFKIH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 6 Nov 2020 05:08:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726415AbgKFKIG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 05:08:06 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20DD2C0613CF
-        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 02:08:05 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id 126so1115674lfi.8
-        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 02:08:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=GbzzshkzRr+lGPbbHp3UIh4O45Aa72enWtS1Ov7TaxY=;
-        b=toh0iMumfabIcRkjYol1OX0OJhYCs9RwgWzXr9WuG5u88hTG/avojOQezub18xs3HT
-         R7FvBOPjUIUpcKdU3ncyiDSUevaaX2cRNHHc59TTRAO789WtTdTK7O3mpC6v0lV4QNLs
-         SkjV2l9vJBnQEwBWoYAv8itCZBDXztISYAmUV4csH8eeJUIHofPKsIQbwd5dFcV8Psdg
-         5pLjGQOTZi/vPk6YVfh++9dzBqLe8XzhPH+7r3JHFJRF1jr8TjH4kZSwx3BkobKQJHq4
-         bJTJMfme3LzSzLa8xF3SuFCq/YBrFTfTeaPskpI7QR9JASecQngMKW8YxJQ372Xy3231
-         GS3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=GbzzshkzRr+lGPbbHp3UIh4O45Aa72enWtS1Ov7TaxY=;
-        b=kZGXk5xhqswADdB7fDh3wZaWczRDBjKYzKxwAuR7Z9R7TAVAqg/bP4HFixRZ/3vsuy
-         7971KjGFqrVsBE//vKUV7hDO7JLFYdCcUGSql7s+xh/HKURI8aA6Hz0zhELXyfpD4EoD
-         GOY3o+jLf8/D7fRR3pCx5l+itPAx0hCzc6GARe/9G7orqNIvsq+SpF8CltlF+VgkM3/J
-         +qHQwfiqLkht2ziXzX9lMW3F00IZnvKfXgsCgDC+qGfzRhERdQdhcrGXopgDFjtKNKNm
-         JuytbWuxWYmfig9sk4irIdb3a+eJbwu/NyBj0S7KbUiBMBrKGTcIFKJtOI+EQ0ETMuct
-         j6QA==
-X-Gm-Message-State: AOAM533ny/uZlyFOpGiQ5B7rEwuEmff0yawwI/s9tJlw9KCFxgKURWwG
-        DctXgl7tGKtXNxPK+hHxlDs=
-X-Google-Smtp-Source: ABdhPJx2PVJtSJEOu/J54AjQNM7Lxjl8th6orN5VFxMxTXnycx/at2ZmTc3CR1X2EktYKrYX1YAsnw==
-X-Received: by 2002:a19:4b0a:: with SMTP id y10mr639083lfa.570.1604657283623;
-        Fri, 06 Nov 2020 02:08:03 -0800 (PST)
-Received: from carbon.v ([94.143.149.146])
-        by smtp.gmail.com with ESMTPSA id m132sm107356lfa.34.2020.11.06.02.08.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 02:08:02 -0800 (PST)
-Date:   Fri, 6 Nov 2020 17:08:00 +0700
-From:   Dmitry Kadashev <dkadashev@gmail.com>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: Re: Use of disowned struct filename after 3c5499fa56f5?
-Message-ID: <20201106100800.GA3431563@carbon.v>
-References: <CAOKbgA5ojRs0xuor9TEtBEHUfhEj5sJewDoNgsbAYruhrFmPQw@mail.gmail.com>
- <1c1cd326-d99a-b15b-ab73-d5ee437db0fa@gmail.com>
- <7db39583-8839-ac9e-6045-5f6e2f4f9f4b@gmail.com>
- <97810ccb-2f85-9547-e7c1-ce1af562924d@kernel.dk>
- <38141659-e902-73c6-a320-33b8bf2af0a5@gmail.com>
- <361ab9fb-a67b-5579-3e7b-2a09db6df924@kernel.dk>
- <9b52b4b1-a243-4dc0-99ce-d6596ca38a58@gmail.com>
- <266e0d85-42ed-e0f8-3f0b-84bcda0af912@kernel.dk>
- <ae71b04d-b490-7055-900b-ebdbe389c744@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ae71b04d-b490-7055-900b-ebdbe389c744@gmail.com>
+        id S1727092AbgKFKua (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 6 Nov 2020 05:50:30 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:32989 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727080AbgKFKua (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 05:50:30 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 9C8841347;
+        Fri,  6 Nov 2020 05:50:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Fri, 06 Nov 2020 05:50:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=luisgerhorst.de;
+         h=content-type:mime-version:subject:from:in-reply-to:date:cc
+        :content-transfer-encoding:message-id:references:to; s=mesmtp;
+         bh=o3ylYpjz4ImHuuosfUblUCMr9jLzoTQmkRh2wF+lUAk=; b=otpzeVPwCS8A
+        akEklYH0+WyIUreJoPSvW3j1IXcoiReAz4go3QVv0urLWkShi23KOgY25jAVVVM9
+        L8HzEipFiw+lsqan2ImGL/WEK2YhrFPITBYR4JqahEOa3JNUUFGDsGLkKpRHSvO+
+        UXg5MEhM80orOdgojq8wnbOAEUQPtT4=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=o3ylYpjz4ImHuuosfUblUCMr9jLzoTQmkRh2wF+lU
+        Ak=; b=YcOHEfb+YLhUztJSlunpAbKoahu0CCeTYBkDZDPLYdKEx0nvQv8JIhwVM
+        P137nIsM9yomd2eor2/n9dB3QDleTsn5A0O6l5hG3kMiwFGmlxkDoyaGTO84l28a
+        /OMNicV6RuMxwGGH1/fu4z7DptLVAmaeLIIsIWpgvmAJf94HtGGaaFncEZs/gCSg
+        BtFkaOw1Tng/eZMOX3hQk6Ptv9EjVy/x9mAdkjxB4y659KHnjVHlripY68Jk5ZBy
+        gX+3LK/O/ibgJX67T9iIzl7cTJ3SmSgpSqI0Uv/K6+fzZE1XD6Q5/KPnF8Y7j+G6
+        RtSaaxUzvZ2t8mAje2G1aqQSNLhHw==
+X-ME-Sender: <xms:dCqlX2XaH5CS8nPC5kea6sEC0hazO4Y_q49cuteUihhVUmKfG0HjTA>
+    <xme:dCqlXynX2C6Mg0CExzKc837K16lb4bs24Lh62FMN0sjaQoiugRyBNFPdXfdp4ORD3
+    a32SlZ5TkclAAbGDA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtledgvdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpegtggfuhfgjfffgkfhfvffosehtqh
+    hmtdhhtddvnecuhfhrohhmpehlihhnuhigqdhkvghrnhgvlheslhhuihhsghgvrhhhohhr
+    shhtrdguvgenucggtffrrghtthgvrhhnpefhveegtdekheeuleeukeeguefhieduheefve
+    egheehteevvdfgvefftefghfeuveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhg
+    ihhthhhusgdrtghomhenucfkphepleehrdeltddrvddvtddrieehnecuvehluhhsthgvrh
+    fuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheplhhinhhugidqkhgvrhhnvghl
+    sehluhhishhgvghrhhhorhhsthdruggv
+X-ME-Proxy: <xmx:dCqlX6bKzqLKWwYqvH3qwq5FPGo3-Va7EU36GRVMlXgfirCCJby5rQ>
+    <xmx:dCqlX9XYCCba-YZsrkzmIxy0-O46ZnnYkdOuWvWmM-Zahm2GCfdBTQ>
+    <xmx:dCqlXwl1M_vwKsDlYSgLA_xHoiw0J8zGct8knSbLe0Qh26cbtlS7fA>
+    <xmx:dSqlX1y6apVLS0sspg7PItw-wM5t__1snIdFswuIGv5m7fDIRbBzjA>
+Received: from [192.168.0.160] (ip5f5adc41.dynamic.kabel-deutschland.de [95.90.220.65])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 89F8E328037B;
+        Fri,  6 Nov 2020 05:50:27 -0500 (EST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Integrating eBPF into io-uring
+From:   linux-kernel@luisgerhorst.de
+In-Reply-To: <m2ft5m69z4.fsf@luisgerhorst.de>
+Date:   Fri, 6 Nov 2020 11:50:26 +0100
+Cc:     axboe@kernel.dk, io-uring@vger.kernel.org, metze@samba.org,
+        carter.li@eoitek.com
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <1AD7207C-831D-4CA7-A759-67913129E555@luisgerhorst.de>
+References: <m2ft5m69z4.fsf@luisgerhorst.de>
+To:     asml.silence@gmail.com
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Nov 05, 2020 at 08:57:43PM +0000, Pavel Begunkov wrote:
-> On 05/11/2020 20:49, Jens Axboe wrote:
-> > On 11/5/20 1:35 PM, Pavel Begunkov wrote:
-> >> On 05/11/2020 20:26, Jens Axboe wrote:
-> >>> On 11/5/20 1:04 PM, Pavel Begunkov wrote:
-> >>>> On 05/11/2020 19:37, Jens Axboe wrote:
-> >>>>> On 11/5/20 7:55 AM, Pavel Begunkov wrote:
-> >>>>>> On 05/11/2020 14:22, Pavel Begunkov wrote:
-> >>>>>>> On 05/11/2020 12:36, Dmitry Kadashev wrote:
-> >>>>>> Hah, basically filename_parentat() returns back the passed in filename if not
-> >>>>>> an error, so @oldname and @from are aliased, then in the end for retry path
-> >>>>>> it does.
-> >>>>>>
-> >>>>>> ```
-> >>>>>> put(from);
-> >>>>>> goto retry;
-> >>>>>> ```
-> >>>>>>
-> >>>>>> And continues to use oldname. The same for to/newname.
-> >>>>>> Looks buggy to me, good catch!
-> >>>>>
-> >>>>> How about we just cleanup the return path? We should only put these names
-> >>>>> when we're done, not for the retry path. Something ala the below - untested,
-> >>>>> I'll double check, test, and see if it's sane.
-> >>>>
-> >>>> Retry should work with a comment below because it uses @oldname
-> >>>> knowing that it aliases to @from, which still have a refcount, but I
-> >>>> don't like this implicit ref passing. If someone would change
-> >>>> filename_parentat() to return a new filename, that would be a nasty
-> >>>> bug.
-> >>>
-> >>> Not a huge fan of how that works either, but I'm not in this to rewrite
-> >>> namei.c...
-> >>
-> >> There are 6 call sites including do_renameat2(), a separate patch would
-> >> change just ~15-30 lines, doesn't seem like a big rewrite.
-> > 
-> > It just seems like an utterly pointless exercise to me, something you'd
-> > go through IFF you're changing filename_parentat() to return a _new_
-> > entry instead of just the same one. And given that this isn't the only
-> > callsite, there's precedence there for it working like that. I'd
-> > essentially just be writing useless code.
-> > 
-> > I can add a comment about it, but again, there are 6 other call sites.
-> 
-> Ok, but that's how things get broken. There is one more idea then,
-> instead of keeping both oldname and from, just have from. May make
-> the whole thing easier.
-> 
-> int do_renameat2(struct filename *from)
-> {
-> ...
-> retry:
->     from = filename_parentat(from, ...);
-> ...
-> exit:
->     if (!IS_ERR(from))
->         putname(from);
-> }
+Forgot subject, sorry.
 
-That's pretty much what do_unlinkat() does btw. Thanks Pavel for looking
-into this!
+> On 6. Nov 2020, at 11:44, Luis Gerhorst <linux-kernel@luisgerhorst.de> =
+wrote:
+>=20
+> Hello Pavel,
+>=20
+> I'm from a university and am searching for a project to work on in the
+> upcoming year. I am looking into allowing userspace to run multiple
+> system calls interleaved with application-specific logic using a =
+single
+> context switch.
+>=20
+> I noticed that you, Jens Axboe, and Carter Li discussed the =
+possibility
+> of integrating eBPF into io_uring earlier this year [1, 2, 3]. Is =
+there
+> any WIP on this topic?
+>=20
+> If not I am considering to implement this. Besides the fact that AOT
+> eBPF is only supported for priviledged processes, are there any issues
+> you are aware of or reasons why this was not implemented yet?
+>=20
+> Best,
+> Luis
+>=20
+> [1] =
+https://lore.kernel.org/io-uring/67b28e66-f2f8-99a1-dfd1-14f753d11f7a@gmai=
+l.com/
+> [2] =
+https://lore.kernel.org/io-uring/8b3f182c-7c4b-da41-7ec8-bb4f22429ed1@kern=
+el.dk/
+> [3] https://github.com/axboe/liburing/issues/58
 
-Can I pick your brain some more? do_mkdirat() case is slightly
-different:
-
-static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
-{
-	struct dentry *dentry;
-	struct path path;
-	int error;
-	unsigned int lookup_flags = LOOKUP_DIRECTORY;
-
-retry:
-	dentry = user_path_create(dfd, pathname, &path, lookup_flags);
-
-If we just change @pathname to struct filename, then user_path_create
-can be swapped for filename_create(). But the same problem on retry
-arises. Is there some more or less "idiomatic" way to solve this?
-
--- 
-Dmitry

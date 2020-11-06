@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B62A2C55ABD
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAD98C55179
+	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56A7B207F7
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A1A0206F4
+	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 13:03:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GxaDQ/h4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QxVSW3lA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727343AbgKFNDr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 6 Nov 2020 08:03:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58582 "EHLO
+        id S1727351AbgKFNDs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 6 Nov 2020 08:03:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727314AbgKFNDn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 08:03:43 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF99C0613CF
-        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 05:03:42 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id c16so1267751wmd.2
-        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 05:03:42 -0800 (PST)
+        with ESMTP id S1727345AbgKFNDs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 08:03:48 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83C1C0613CF
+        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 05:03:47 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id w1so1251619wrm.4
+        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 05:03:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=i+iOu1q/eMXYH22dRLcknqvk+0dhZOxGvUAoXbY8KzE=;
-        b=GxaDQ/h4InSugtwq8Jr2kbUWyMt+nRhwn05w7T0DbqixBVAwLAfJ7rotrYJLSGaChf
-         9UgXtgEQXJMs944QLmKmgXVVt1VZFhfoxrqDQIxWVBpgIA+b1y8D00sBQqmmkghYIUjK
-         A75OFcYFzU432WFMRSbmob068Cn+mwr9TtxLM8CBBEptweANCrVMpOduHjWQL86gR9M0
-         s0M1x5H3ZmcHYDqKzYdj6DvOJ13e4Sw8wjMlbc3ogCWhKT0TDTodwmTlI5024Iv2J8f5
-         92By3WX5aFnINhVO+Ae0/bn8/fAL62mrYAb5FUKnV20umYtvdhED/AzskUuy/gZUw4Mr
-         4DPQ==
+        bh=pd8NHZqCX1Ko7mkwWtNRfcNp48zDaPxNvYyTCF64Zdo=;
+        b=QxVSW3lApfIJ0x4X3SoHdZcijuYfB8WJx3HiHxGuSkhUxxgIaZVG6MpyuQhcpdaux5
+         dScqcxB5EaUsE1CmaRfvoRsX0uLWFdI4jZKFpkpQtQipGXcigwwBeZfC19DmVc4efp15
+         GciBIPaBLbrdUV3wuRXwpHnVJclhVbGTNXndwVqFRpN4Ehgk69rbnuCZWoIgji6YfY2A
+         hYAuVY1sStmdByRaZ3XtmMUZc1shcpfH9XMB5ulOcCkn2wTKpXJt0/JOhT8uxHnniQFt
+         tO1qaawSWF0WcexvzliVb/73UO0zexZVn0IzyMTbu5EUCX92239/22GEdSE2+qDpxQ5J
+         Sh3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=i+iOu1q/eMXYH22dRLcknqvk+0dhZOxGvUAoXbY8KzE=;
-        b=eGnh7ou5BCWd/fwFD7tA3MP63pa8uLTI3YTP4aEIPPK7QNB6LRrNyAxcLAxNN2I6Is
-         dtJfC3h4nMU4OQI5PbOnGUjNkYPCBpdhAWb2i4bnjauj9GtIEjMkbj8D5/rRQEZO3ifB
-         SwjY1LpjVzUQlqf9Ey3yVjE4tcLFeCIHaQHmZ1g+SFyLQAfYj0b/4IxH+VP5wmwjtIzE
-         mdb46lduxw5psZAg1TvQo1d25E1PWYY5BciA7uF2K+hNFRaiWx3Z1payKdEly/LCMzss
-         k8l19r/NCrk05tSTbVsi/2OpoBHZiq7IWbcARUOEqzU+Qu1UpRiWn14HHfCYlLufZSem
-         Bn/w==
-X-Gm-Message-State: AOAM531x+SfJwSTCOd+FHpwflMuGCtaFoO0A2Pt+0G2YfzwzrBZeAXVy
-        dYWJr26jN+kTKqz2qz8vfTA=
-X-Google-Smtp-Source: ABdhPJxQyjgM0J74zZt6dMGaAtedNmT8rbNnDBxToO+g8nM8f6eZI74QPWAT6gCQmbcIL7SyDFT3Sw==
-X-Received: by 2002:a7b:ce0e:: with SMTP id m14mr2348622wmc.111.1604667821683;
-        Fri, 06 Nov 2020 05:03:41 -0800 (PST)
+        bh=pd8NHZqCX1Ko7mkwWtNRfcNp48zDaPxNvYyTCF64Zdo=;
+        b=b98HdXinSFasuFESafas9GkdNppaBsz3qQbgqsOHTtNFsgKAvzsz29XGiJwRP86y0w
+         TfddgiuysdmN4tWO1BxD/WIZjSbvKl6AevTWgK00QSmnhT01JyKIV3W70fgq4mXOFpCs
+         xjRGaq5LbIbIDLLiVRo5kc16p+BNSK6jCGUxx6DOIviZli+Yu02qenoaa4tyJtnzuPjq
+         /jvJ2IBn8AVt0VIZgpwWKnRsqRJ9mvdKOKZiehV4LXXWHC3Kz4PH0+ZkykNzm6JiyxZ6
+         7ab30xSxGmsj6J3F5AhPiCAZhcsbVrhPNp3/G8HOZfRYeWz5UBEfntYKWQogp1T+PCM1
+         e8Iw==
+X-Gm-Message-State: AOAM5310sD6ljxpVuq09wrOkUdsCKIwqwT3n3ENa8f8JWlQsOz1dTvFm
+        gKrmf4290aiASY+WFxI0+600kP7EK+0=
+X-Google-Smtp-Source: ABdhPJzocEWKcA91qaRabWtLStLD95CC4mpzqnQ6OvT/fMnqdsMUcTNkEmub5XcnGDJUSy6eqhzHTQ==
+X-Received: by 2002:a5d:4e10:: with SMTP id p16mr2638978wrt.191.1604667826457;
+        Fri, 06 Nov 2020 05:03:46 -0800 (PST)
 Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
-        by smtp.gmail.com with ESMTPSA id e5sm1931839wrw.93.2020.11.06.05.03.40
+        by smtp.gmail.com with ESMTPSA id e5sm1931839wrw.93.2020.11.06.05.03.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 05:03:41 -0800 (PST)
+        Fri, 06 Nov 2020 05:03:45 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/6] io_uring: add a {task,files} pair matching helper
-Date:   Fri,  6 Nov 2020 13:00:22 +0000
-Message-Id: <e6b9817bd9db1a4f51fd20261452f4340c929c37.1604667122.git.asml.silence@gmail.com>
+Subject: [PATCH 6/6] io_uring: always batch cancel in *cancel_files()
+Date:   Fri,  6 Nov 2020 13:00:26 +0000
+Message-Id: <0b3e36b099576602432c6f8ad84b2abf73cd1660.1604667122.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1604667122.git.asml.silence@gmail.com>
 References: <cover.1604667122.git.asml.silence@gmail.com>
@@ -72,93 +72,259 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add io_match_task() that matches both task and files.
+Instead of iterating over each request and cancelling it individually in
+io_uring_cancel_files(), try to cancel all matching requests and use
+->inflight_list only to check if there anything left.
+
+In many cases it should be faster, and we can reuse a lot of code from
+task cancellation.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 48 ++++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 26 deletions(-)
+ fs/io-wq.c    |  10 ----
+ fs/io-wq.h    |   1 -
+ fs/io_uring.c | 135 ++++++++------------------------------------------
+ 3 files changed, 21 insertions(+), 125 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 74bb5cb9697c..14e671c909ed 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1037,6 +1037,26 @@ static inline void io_clean_op(struct io_kiocb *req)
- 		__io_clean_op(req);
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index b53c055bea6a..f72d53848dcb 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -1078,16 +1078,6 @@ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ 	return IO_WQ_CANCEL_NOTFOUND;
  }
  
-+static bool io_match_task(struct io_kiocb *head,
-+			  struct task_struct *task,
-+			  struct files_struct *files)
-+{
-+	struct io_kiocb *req;
-+
-+	if (task && head->task != task)
-+		return false;
-+	if (!files)
-+		return true;
-+
-+	io_for_each_link(req, head) {
-+		if ((req->flags & REQ_F_WORK_INITIALIZED) &&
-+		    (req->work.flags & IO_WQ_WORK_FILES) &&
-+		    req->work.identity->files == files)
-+			return true;
-+	}
-+	return false;
-+}
-+
- static void io_sq_thread_drop_mm_files(void)
+-static bool io_wq_io_cb_cancel_data(struct io_wq_work *work, void *data)
+-{
+-	return work == data;
+-}
+-
+-enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork)
+-{
+-	return io_wq_cancel_cb(wq, io_wq_io_cb_cancel_data, (void *)cwork, false);
+-}
+-
+ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
  {
- 	struct files_struct *files = current->files;
-@@ -1686,27 +1706,6 @@ static void io_cqring_mark_overflow(struct io_ring_ctx *ctx)
+ 	int ret = -ENOMEM, node;
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index cba36f03c355..069496c6d4f9 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -129,7 +129,6 @@ static inline bool io_wq_is_hashed(struct io_wq_work *work)
+ }
+ 
+ void io_wq_cancel_all(struct io_wq *wq);
+-enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork);
+ 
+ typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
+ 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c93060149087..a4146b1f50ef 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1576,15 +1576,6 @@ static void io_kill_timeout(struct io_kiocb *req)
  	}
  }
  
--static inline bool __io_match_files(struct io_kiocb *req,
--				    struct files_struct *files)
+-static bool io_task_match(struct io_kiocb *req, struct task_struct *tsk)
 -{
--	return ((req->flags & REQ_F_WORK_INITIALIZED) &&
--	        (req->work.flags & IO_WQ_WORK_FILES)) &&
--		req->work.identity->files == files;
+-	struct io_ring_ctx *ctx = req->ctx;
+-
+-	if (!tsk || req->task == tsk)
+-		return true;
+-	return (ctx->flags & IORING_SETUP_SQPOLL);
 -}
 -
--static bool io_match_files(struct io_kiocb *head, struct files_struct *files)
+ /*
+  * Returns true if we found and killed one or more timeouts
+  */
+@@ -8656,108 +8647,31 @@ static int io_uring_release(struct inode *inode, struct file *file)
+ 	return 0;
+ }
+ 
+-/*
+- * Returns true if 'preq' is the link parent of 'req'
+- */
+-static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
 -{
--	struct io_kiocb *req;
+-	struct io_kiocb *link;
 -
--	if (!files)
--		return true;
--	io_for_each_link(req, head) {
--		if (__io_match_files(req, files))
+-	io_for_each_link(link, preq->link) {
+-		if (link == req)
 -			return true;
 -	}
 -	return false;
 -}
 -
- /* Returns true if there are no backlogged entries after the flush */
- static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
- 				     struct task_struct *tsk,
-@@ -1734,9 +1733,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+-/*
+- * We're looking to cancel 'req' because it's holding on to our files, but
+- * 'req' could be a link to another request. See if it is, and cancel that
+- * parent request if so.
+- */
+-static bool io_poll_remove_link(struct io_ring_ctx *ctx, struct io_kiocb *req)
+-{
+-	struct hlist_node *tmp;
+-	struct io_kiocb *preq;
+-	bool found = false;
+-	int i;
+-
+-	spin_lock_irq(&ctx->completion_lock);
+-	for (i = 0; i < (1U << ctx->cancel_hash_bits); i++) {
+-		struct hlist_head *list;
+-
+-		list = &ctx->cancel_hash[i];
+-		hlist_for_each_entry_safe(preq, tmp, list, hash_node) {
+-			found = io_match_link(preq, req);
+-			if (found) {
+-				io_poll_remove_one(preq);
+-				break;
+-			}
+-		}
+-	}
+-	spin_unlock_irq(&ctx->completion_lock);
+-	return found;
+-}
+-
+-static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
+-				   struct io_kiocb *req)
+-{
+-	struct io_kiocb *preq;
+-	bool found = false;
+-
+-	spin_lock_irq(&ctx->completion_lock);
+-	list_for_each_entry(preq, &ctx->timeout_list, timeout.list) {
+-		found = io_match_link(preq, req);
+-		if (found) {
+-			__io_timeout_cancel(preq);
+-			break;
+-		}
+-	}
+-	spin_unlock_irq(&ctx->completion_lock);
+-	return found;
+-}
++struct io_task_cancel {
++	struct task_struct *task;
++	struct files_struct *files;
++};
  
- 	cqe = NULL;
- 	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
--		if (tsk && req->task != tsk)
--			continue;
--		if (!io_match_files(req, files))
-+		if (!io_match_task(req, tsk, files))
- 			continue;
+-static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
++static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+ {
+ 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
++	struct io_task_cancel *cancel = data;
+ 	bool ret;
  
- 		cqe = io_get_cqring(ctx);
-@@ -8776,8 +8773,7 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+-	if (req->flags & REQ_F_LINK_TIMEOUT) {
++	if (cancel->files && (req->flags & REQ_F_LINK_TIMEOUT)) {
+ 		unsigned long flags;
+ 		struct io_ring_ctx *ctx = req->ctx;
  
- 	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
--		if (io_task_match(de->req, task) &&
--		    io_match_files(de->req, files)) {
-+		if (io_match_task(de->req, task, files)) {
- 			list_cut_position(&list, &ctx->defer_list, &de->list);
+ 		/* protect against races with linked timeouts */
+ 		spin_lock_irqsave(&ctx->completion_lock, flags);
+-		ret = io_match_link(req, data);
++		ret = io_match_task(req, cancel->task, cancel->files);
+ 		spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 	} else {
+-		ret = io_match_link(req, data);
++		ret = io_match_task(req, cancel->task, cancel->files);
+ 	}
+ 	return ret;
+ }
+ 
+-static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
+-{
+-	enum io_wq_cancel cret;
+-
+-	/* cancel this particular work, if it's running */
+-	cret = io_wq_cancel_work(ctx->io_wq, &req->work);
+-	if (cret != IO_WQ_CANCEL_NOTFOUND)
+-		return;
+-
+-	/* find links that hold this pending, cancel those */
+-	cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_link_cb, req, true);
+-	if (cret != IO_WQ_CANCEL_NOTFOUND)
+-		return;
+-
+-	/* if we have a poll link holding this pending, cancel that */
+-	if (io_poll_remove_link(ctx, req))
+-		return;
+-
+-	/* final option, timeout link is holding this req pending */
+-	io_timeout_remove_link(ctx, req);
+-}
+-
+ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 				  struct task_struct *task,
+ 				  struct files_struct *files)
+@@ -8789,8 +8703,10 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
+ {
+ 	while (!list_empty_careful(&ctx->inflight_list)) {
+-		struct io_kiocb *cancel_req = NULL, *req;
++		struct io_task_cancel cancel = { .task = task, .files = NULL, };
++		struct io_kiocb *req;
+ 		DEFINE_WAIT(wait);
++		bool found = false;
+ 
+ 		spin_lock_irq(&ctx->inflight_lock);
+ 		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
+@@ -8798,23 +8714,21 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 			    (req->work.flags & IO_WQ_WORK_FILES) &&
+ 			    req->work.identity->files != files)
+ 				continue;
+-			/* req is being completed, ignore */
+-			if (!refcount_inc_not_zero(&req->refs))
+-				continue;
+-			cancel_req = req;
++			found = true;
  			break;
  		}
+-		if (cancel_req)
++		if (found)
+ 			prepare_to_wait(&ctx->inflight_wait, &wait,
+ 						TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(&ctx->inflight_lock);
+ 
+ 		/* We need to keep going until we don't find a matching req */
+-		if (!cancel_req)
++		if (!found)
+ 			break;
+-		/* cancel this request, or head link requests */
+-		io_attempt_cancel(ctx, cancel_req);
+-		io_put_req(cancel_req);
++
++		io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
++		io_poll_remove_all(ctx, task, files);
++		io_kill_timeouts(ctx, task, files);
+ 		/* cancellations _may_ trigger task work */
+ 		io_run_task_work();
+ 		schedule();
+@@ -8822,22 +8736,15 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 	}
+ }
+ 
+-static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+-{
+-	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
+-	struct task_struct *task = data;
+-
+-	return io_task_match(req, task);
+-}
+-
+ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 					    struct task_struct *task)
+ {
+ 	while (1) {
++		struct io_task_cancel cancel = { .task = task, .files = NULL, };
+ 		enum io_wq_cancel cret;
+ 		bool ret = false;
+ 
+-		cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, task, true);
++		cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
+ 		if (cret != IO_WQ_CANCEL_NOTFOUND)
+ 			ret = true;
+ 
 -- 
 2.24.0
 

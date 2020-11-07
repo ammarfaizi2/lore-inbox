@@ -1,98 +1,92 @@
-Return-Path: <SRS0=29Fy=EM=vger.kernel.org=io-uring-owner@kernel.org>
+Return-Path: <SRS0=5JAm=EN=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,MISSING_SUBJECT,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29B00C2D0A3
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:44:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEFF6C2D0A3
+	for <io-uring@archiver.kernel.org>; Sat,  7 Nov 2020 00:51:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 811BF20704
-	for <io-uring@archiver.kernel.org>; Fri,  6 Nov 2020 10:44:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2A6E206E3
+	for <io-uring@archiver.kernel.org>; Sat,  7 Nov 2020 00:51:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=luisgerhorst.de header.i=@luisgerhorst.de header.b="B5G5lk/Z";
-	dkim=temperror (0-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ELXRAtzT"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ddbbMrns"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726422AbgKFKoc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 6 Nov 2020 05:44:32 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:42593 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726010AbgKFKoc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 05:44:32 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id F2FB512D8;
-        Fri,  6 Nov 2020 05:44:30 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 06 Nov 2020 05:44:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=luisgerhorst.de;
-         h=from:to:cc:message-id:date:mime-version:content-type; s=
-        mesmtp; bh=5G+T/V0WCUhcJscek/9OEUGZHCZrMrYv3GbUjokHwsU=; b=B5G5l
-        k/ZMfBr8iKfLwuXLOWVelDwVsuGPM7lGf5jBThJ/DA+K7asZCmQj7+A7IzqEenhD
-        /ja0FDDMSK/no4Bxx4nDNFscOnCZNB+lPvTbvGzDfX4/iFQix0VZInQOXCKxiyCL
-        1pU/akq//z03Fh42BEoQZheSEMP+v+79gQjmhM=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:message-id
-        :mime-version:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=5G+T/V0WCUhcJscek/9OEUGZHCZrMrYv3GbUjokHw
-        sU=; b=ELXRAtzT1XTweZtPkfHRl231HCduuz2ZvPFNxR6BxRJ1DaBT5Qc8EZYOt
-        z528dFBIEWpURFiEtV3OrWUb5y+GrbiHK58RQlSPryNujy/X2fDdDuySxxHuD5Y3
-        +1o9njCcYHEoV/NjSKwMh/2lr7U4VpZ7pOAsC0ljVhnF1Lj5Y4DBuSuYO7pS+WoM
-        q7jYdeAREnuraGtsv6M8HaVLU9ddKInrKLaeL3PzP5tGmPNIlXV1vBLtwBStKGVq
-        6SO6OK/WZtm7b6kyZ9Xyigc5D9GKNiPJTLS4yuHY9sfl8nz4HRDmBnu84FnlIpod
-        WFowucUI3bum4+z1Gleq8Mu0oTbIQ==
-X-ME-Sender: <xms:DSmlXzyUuVCKf0Abb01dlwGjXbtoJbMyxyn0fUBw-qzcdVILRfe2uQ>
-    <xme:DSmlX7QheBEZqX6IFB9EsSCte2NAktwHEl-iufnt-4gTgumcsiUdeT2U7PIV5m2Ff
-    Ge8TxZScfLyUEBskQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtledgvddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucfgmhhpthihuchsuhgsjhgvtghtucdluddtmdenuc
-    fjughrpefhvffkffggtgesthdtredttddttdenucfhrhhomhepnfhuihhsucfivghrhhho
-    rhhsthcuoehlihhnuhigqdhkvghrnhgvlheslhhuihhsghgvrhhhohhrshhtrdguvgeqne
-    cuggftrfgrthhtvghrnhepieefkeelveegieetjeehheetjedtgeevgeeltdfgffejjeeg
-    uedugeegkeekveefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpghhithhhuhgsrd
-    gtohhmnecukfhppeelhedrledtrddvvddtrdeiheenucevlhhushhtvghrufhiiigvpedt
-    necurfgrrhgrmhepmhgrihhlfhhrohhmpehlihhnuhigqdhkvghrnhgvlheslhhuihhsgh
-    gvrhhhohhrshhtrdguvg
-X-ME-Proxy: <xmx:DSmlX9Vpvn9HAVrWoOnZxn_3cIeWlBzqbkgkl6l3PtKJbQQfquwxWQ>
-    <xmx:DSmlX9jZZwLvNHa99CyfXhw8q32ZWPCYquM9WiNvmlf7tv-iWpD7Pw>
-    <xmx:DSmlX1CVU7NQwX9qxw0c6qFvl5O9L1sKJbVsy6BfFjLTWA0D6Q-fKA>
-    <xmx:DimlX4P83QhhNNR1TZdBiYilTBOa5Qw_53lqHr1Br6RI_Uaoq20cXQ>
-Received: from luis-mbp.fastmail.com (ip5f5adc41.dynamic.kabel-deutschland.de [95.90.220.65])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C76A0306005E;
-        Fri,  6 Nov 2020 05:44:28 -0500 (EST)
-From:   Luis Gerhorst <linux-kernel@luisgerhorst.de>
-To:     asml.silence@gmail.com
-Cc:     axboe@kernel.dk, io-uring@vger.kernel.org, metze@samba.org,
-        carter.li@eoitek.com
-Message-ID: <m2ft5m69z4.fsf@luisgerhorst.de>
-Date:   Fri, 06 Nov 2020 11:44:27 +0100
+        id S1727257AbgKGAvs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 6 Nov 2020 19:51:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727178AbgKGAvs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 6 Nov 2020 19:51:48 -0500
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6CDC0613CF
+        for <io-uring@vger.kernel.org>; Fri,  6 Nov 2020 16:51:47 -0800 (PST)
+Received: by mail-qk1-x72e.google.com with SMTP id t191so1675733qka.4
+        for <io-uring@vger.kernel.org>; Fri, 06 Nov 2020 16:51:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MidwcJtEuz6EP2nXlGHsa+y3NJw740xoS40pVjjYvk0=;
+        b=ddbbMrnsXecAPJYlUgKXbtoGlYHfo6iB0X3wLUgRioeDrqtLE2m/d/c36t3IsPLf50
+         dxXQV1VlcIbvayIMgxsOSmeO69PdPcmIfI7CrrYUOAUDAFvUhx2Z0SMJE52LBdJuzKSz
+         pJwfb2BVmHLovH8W9Lhy6lrcw5cqcActYUlwc1/0yOQFbY9kE3C9cpj1VUBxwn7A2uOf
+         dr402WxqWY0I9RmPH+yDe3dXjWbQdh3cJC9s4+HzN7L1OQicz6s6vxA+g/zNiiE0q0XD
+         gVa9Kv9oVbw7BSldPpjTA04/C0wbRxK/aUFK8wCfYm/4VQvoyI2Y2QdEcf6/krjuPW9e
+         XurA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MidwcJtEuz6EP2nXlGHsa+y3NJw740xoS40pVjjYvk0=;
+        b=qmvQRL2nW8hrjVlSF5alFNHEdcGzn5GLNuxckSNP1crh4vvEBeEmE+AuKTWtWhUF1a
+         gFsXk1ucOiqnbTDAw9c4+1EO/EHRSb9/tejJA3vMc7P4Kt7ZO3XWJ7DCeDmay1cfXNOo
+         EobVNe3yhWBUFYkP/TA7cQ5zPhc7iYzHYs+74uomI46qdaO5f4bPmt4BshfmOClKHxZX
+         lCl90eLsgY690HZt/NmG8MHtuCDbKZbZSAdOneU0AtA6S4npIS12pZP+cmaWpi0RNCo3
+         waKICzHv0eMQ2DTSXGS9xHlB+hXkNMasPQumDSlVRUmUJD0bN7bzezUMPdV0dXIViFJJ
+         qdpQ==
+X-Gm-Message-State: AOAM531tw7FgD0cSlAF9PlSewwJpsi+H+pC2M7pyEYHgDJrwMD/f49iY
+        VnG/UcRqfN6qS5E5lbOkcGlwKEpAtQavMA7uNM8=
+X-Google-Smtp-Source: ABdhPJznWT/622fpVqt2Gsy3Ljgp9iq7IK8X7U4+Zu9u++v3B+dfH7nZM7WMoClwx4oYExuxxw/zqGtAPWtzsaaR1eE=
+X-Received: by 2002:a05:620a:24ce:: with SMTP id m14mr4272639qkn.399.1604710305908;
+ Fri, 06 Nov 2020 16:51:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <CAAss7+pgQN7uPFaLakd+K4yZH6TRcMHELQV0wAA2NUxPpYEL_Q@mail.gmail.com>
+In-Reply-To: <CAAss7+pgQN7uPFaLakd+K4yZH6TRcMHELQV0wAA2NUxPpYEL_Q@mail.gmail.com>
+From:   Josef <josef.grieb@gmail.com>
+Date:   Sat, 7 Nov 2020 01:51:35 +0100
+Message-ID: <CAAss7+rt_mkHhGY=kkduDK58jVZy73yZx8qFYEPOU9JjGaCs=g@mail.gmail.com>
+Subject: Re: Using SQPOLL for-5.11/io_uring kernel NULL pointer dereference
+To:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>
+Cc:     norman@apache.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello Pavel,
+On Sat, 7 Nov 2020 at 01:45, Josef <josef.grieb@gmail.com> wrote:
+>
+> Hi,
+>
+> I came across some strange behaviour in some netty-io_uring tests when
+> using SQPOLL which seems like a bug to me, however I don't know how to
+> reproduce it, as the error occurs randomly which leads to a kernel
+> "freeze",  I spend all day trying to figure out how to reproduce this
+> error...any idea what the cause is?
+>
+> branch: for-5.11/io_uring
+> last commit 34f98f655639b32f28c30c27dbbea57f8c304d9c
+>
+> (please don't waste your time as I'll take a look on the weekend)
+>
+> ---
+> Josef Grieb
 
-I'm from a university and am searching for a project to work on in the
-upcoming year. I am looking into allowing userspace to run multiple
-system calls interleaved with application-specific logic using a single
-context switch.
+I forgot to mention that same cores are running at 100% cpu usage,
+when error occurs
 
-I noticed that you, Jens Axboe, and Carter Li discussed the possibility
-of integrating eBPF into io_uring earlier this year [1, 2, 3]. Is there
-any WIP on this topic?
-
-If not I am considering to implement this. Besides the fact that AOT
-eBPF is only supported for priviledged processes, are there any issues
-you are aware of or reasons why this was not implemented yet?
-
-Best,
-Luis
-
-[1] https://lore.kernel.org/io-uring/67b28e66-f2f8-99a1-dfd1-14f753d11f7a@gmail.com/
-[2] https://lore.kernel.org/io-uring/8b3f182c-7c4b-da41-7ec8-bb4f22429ed1@kernel.dk/
-[3] https://github.com/axboe/liburing/issues/58
+----
+Josef Grieb

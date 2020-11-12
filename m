@@ -8,357 +8,321 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BE1FC5519F
-	for <io-uring@archiver.kernel.org>; Thu, 12 Nov 2020 23:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 239F7C388F7
+	for <io-uring@archiver.kernel.org>; Thu, 12 Nov 2020 23:01:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B46C022201
-	for <io-uring@archiver.kernel.org>; Thu, 12 Nov 2020 23:01:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C22C020B80
+	for <io-uring@archiver.kernel.org>; Thu, 12 Nov 2020 23:01:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="npzfTsOe"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="cF7oDJO2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726146AbgKLXBM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 12 Nov 2020 18:01:12 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:53192 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726063AbgKLXBM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 12 Nov 2020 18:01:12 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0ACMtq9Z078975;
-        Thu, 12 Nov 2020 23:01:09 GMT
+        id S1726231AbgKLXBN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 12 Nov 2020 18:01:13 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:47478 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726050AbgKLXBN (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 12 Nov 2020 18:01:13 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0ACMrsVc085773;
+        Thu, 12 Nov 2020 23:01:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=4jcVc8ZUl5XpJ2DOXJAzNy4ErTqjZSoJqVa8VyQVaFQ=;
- b=npzfTsOeQ/PfY+BO36FN81ICzrSU5SZJCzO6BIe8DbzZZy4izh5ToWYtJq54WSlEgOQP
- 22RZBZiWuchpVrIXSd/42XLHwsI2wHaxh40cBh9tbc2ZIL8pXIpIVDRfSfH/bUcUBWdG
- 3/6qWZBMH3d0G2LLAioQdgJ2zfq/87InGsG01YOK5c++5EKsbpftOj03kM7x/pTJKBjr
- MyYC4fNu9BTsSm1MOY785XLTpkPv9vu/FJwas3S88ZMgOVhMUU1RB9+AL1i10tKV4SAW
- Rv7TocKNt8v8vaxt4M+qidK2cjUl+uYVrSB5y1x44KRsGWgZmG5/lHBEpSU3yDzINxDn Bw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 34p72ex9cw-1
+ bh=QANwoDpzkeITJ9LQJKH7byY7tA2MsnkgLJttNjjIuZY=;
+ b=cF7oDJO2h7sXknqAcKzev9faLcQOjNYpreoq7BDS+LRLAh3/2F+YsDC4tKtz00uiH//u
+ jjQV+GPb3y37edHW0KWbuJm2wkKYnKTs4+hLejKv5wj83PGiy8II25ItMeZ0bXuQz+hK
+ ZqUSb3LjbJ1uC3lxxItHwZrgqPgjZgoiuMip293aljboPJj5o3nEtJStJ8OJPcr7Uy5I
+ ChJ0SMwubcNrscJNAEEKoZlYgRWG0fHi/4ri2T4GNwZ39q6uiVGVaizEAX1RIVoJYJFO
+ L5eWFz3cD3sxiOuEQmfLGAzkxjfcMxqVArcpHPDg0LnD/1AocP99zDW/QafoQu2va56u xQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 34nkhm82bf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 12 Nov 2020 23:01:09 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0ACMpChL047888;
-        Thu, 12 Nov 2020 23:01:09 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 34rt56tv2p-1
+        Thu, 12 Nov 2020 23:01:10 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0ACMpLXT120259;
+        Thu, 12 Nov 2020 23:01:10 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 34p55s1e46-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Nov 2020 23:01:09 +0000
+        Thu, 12 Nov 2020 23:01:10 +0000
 Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0ACN17e7015711;
-        Thu, 12 Nov 2020 23:01:07 GMT
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0ACN19Ae011928;
+        Thu, 12 Nov 2020 23:01:09 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 12 Nov 2020 15:01:07 -0800
+        with ESMTP ; Thu, 12 Nov 2020 15:01:09 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org
-Subject: [PATCH 1/8] io_uring: modularize io_sqe_buffer_register
-Date:   Thu, 12 Nov 2020 15:00:35 -0800
-Message-Id: <1605222042-44558-2-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH 8/8] io_uring: support buffer registration sharing
+Date:   Thu, 12 Nov 2020 15:00:42 -0800
+Message-Id: <1605222042-44558-9-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1605222042-44558-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1605222042-44558-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9803 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 mlxscore=0
- mlxlogscore=999 suspectscore=3 adultscore=0 phishscore=0 malwarescore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0 phishscore=0
+ mlxlogscore=999 mlxscore=0 malwarescore=0 bulkscore=0 suspectscore=3
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2011120129
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9803 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 suspectscore=3 lowpriorityscore=0 adultscore=0 phishscore=0
- priorityscore=1501 spamscore=0 impostorscore=0 clxscore=1015
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 priorityscore=1501
+ mlxscore=0 suspectscore=3 mlxlogscore=999 lowpriorityscore=0 spamscore=0
+ malwarescore=0 adultscore=0 clxscore=1015 bulkscore=0 impostorscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2011120129
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Split io_sqe_buffer_register into two routines:
+Implement buffer sharing among multiple rings.
 
-- io_sqe_buffer_register() registers a single buffer
-- io_sqe_buffers_register iterates over all user specified buffers
+A ring shares its (future) buffer registrations at setup time with
+IORING_SETUP_SHARE_BUF. A ring attaches to another ring's buffer
+registration at setup time with IORING_SETUP_ATTACH_BUF, after
+authenticating with the buffer registration owner's fd. Any updates to
+the owner's buffer registrations become immediately available to the
+attached rings.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 210 ++++++++++++++++++++++++++++++----------------------------
- 1 file changed, 107 insertions(+), 103 deletions(-)
+ fs/io_uring.c                 | 140 +++++++++++++++++++++++++++++++++++-------
+ include/uapi/linux/io_uring.h |   2 +
+ 2 files changed, 119 insertions(+), 23 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c2688b6..29aa3e1 100644
+index 12c4144..aab7649 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8144,7 +8144,7 @@ static unsigned long ring_pages(unsigned sq_entries, unsigned cq_entries)
- 	return pages;
+@@ -8332,6 +8332,12 @@ static void io_buffers_map_free(struct io_ring_ctx *ctx)
+ 	ctx->nr_user_bufs = 0;
  }
  
--static int io_sqe_buffer_unregister(struct io_ring_ctx *ctx)
-+static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
- {
- 	int i, j;
- 
-@@ -8262,14 +8262,103 @@ static int io_buffer_account_pin(struct io_ring_ctx *ctx, struct page **pages,
- 	return ret;
- }
- 
--static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
--				  unsigned nr_args)
-+static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
-+				  struct io_mapped_ubuf *imu,
-+				  struct page **last_hpage)
- {
- 	struct vm_area_struct **vmas = NULL;
- 	struct page **pages = NULL;
-+	unsigned long off, start, end, ubuf;
-+	size_t size;
-+	int ret, pret, nr_pages, i;
-+
-+	ubuf = (unsigned long) iov->iov_base;
-+	end = (ubuf + iov->iov_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	start = ubuf >> PAGE_SHIFT;
-+	nr_pages = end - start;
-+
-+	ret = -ENOMEM;
-+
-+	pages = kvmalloc_array(nr_pages, sizeof(struct page *), GFP_KERNEL);
-+	if (!pages)
-+		goto done;
-+
-+	vmas = kvmalloc_array(nr_pages, sizeof(struct vm_area_struct *),
-+			      GFP_KERNEL);
-+	if (!vmas)
-+		goto done;
-+
-+	imu->bvec = kvmalloc_array(nr_pages, sizeof(struct bio_vec),
-+				   GFP_KERNEL);
-+	if (!imu->bvec)
-+		goto done;
-+
-+	ret = 0;
-+	mmap_read_lock(current->mm);
-+	pret = pin_user_pages(ubuf, nr_pages, FOLL_WRITE | FOLL_LONGTERM,
-+			      pages, vmas);
-+	if (pret == nr_pages) {
-+		/* don't support file backed memory */
-+		for (i = 0; i < nr_pages; i++) {
-+			struct vm_area_struct *vma = vmas[i];
-+
-+			if (vma->vm_file &&
-+			    !is_file_hugepages(vma->vm_file)) {
-+				ret = -EOPNOTSUPP;
-+				break;
-+			}
-+		}
-+	} else {
-+		ret = pret < 0 ? pret : -EFAULT;
-+	}
-+	mmap_read_unlock(current->mm);
-+	if (ret) {
-+		/*
-+		 * if we did partial map, or found file backed vmas,
-+		 * release any pages we did get
-+		 */
-+		if (pret > 0)
-+			unpin_user_pages(pages, pret);
-+		kvfree(imu->bvec);
-+		goto done;
-+	}
-+
-+	ret = io_buffer_account_pin(ctx, pages, pret, imu, last_hpage);
-+	if (ret) {
-+		unpin_user_pages(pages, pret);
-+		kvfree(imu->bvec);
-+		goto done;
-+	}
-+
-+	off = ubuf & ~PAGE_MASK;
-+	size = iov->iov_len;
-+	for (i = 0; i < nr_pages; i++) {
-+		size_t vec_len;
-+
-+		vec_len = min_t(size_t, size, PAGE_SIZE - off);
-+		imu->bvec[i].bv_page = pages[i];
-+		imu->bvec[i].bv_len = vec_len;
-+		imu->bvec[i].bv_offset = off;
-+		off = 0;
-+		size -= vec_len;
-+	}
-+	/* store original address for later verification */
-+	imu->ubuf = ubuf;
-+	imu->len = iov->iov_len;
-+	imu->nr_bvecs = nr_pages;
-+	ret = 0;
-+done:
-+	kvfree(pages);
-+	kvfree(vmas);
-+	return ret;
++static void io_detach_buf_data(struct io_ring_ctx *ctx)
++{
++	percpu_ref_put(&ctx->buf_data->refs);
++	ctx->buf_data = NULL;
 +}
 +
-+static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
-+				   unsigned int nr_args)
+ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+ {
+ 	struct fixed_rsrc_data *data = ctx->buf_data;
+@@ -8340,6 +8346,12 @@ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+ 	if (!data)
+ 		return -ENXIO;
+ 
++	if (ctx->flags & IORING_SETUP_ATTACH_BUF) {
++		io_detach_buf_data(ctx);
++		ctx->nr_user_bufs = 0;
++		return 0;
++	}
++
+ 	spin_lock(&data->lock);
+ 	if (!list_empty(&data->ref_list))
+ 		ref_node = list_first_entry(&data->ref_list,
+@@ -8586,46 +8598,67 @@ static int io_alloc_buf_tables(struct fixed_rsrc_data *buf_data,
+ 	return 1;
+ }
+ 
++static struct fixed_rsrc_data *io_alloc_buf_data(struct io_ring_ctx *ctx)
 +{
-+	int i, ret;
-+	struct iovec iov;
- 	struct page *last_hpage = NULL;
--	int i, j, got_pages = 0;
--	int ret = -EINVAL;
++	struct fixed_rsrc_data *buf_data;
++
++	buf_data = kzalloc(sizeof(*buf_data), GFP_KERNEL);
++	if (!buf_data)
++		return ERR_PTR(-ENOMEM);
++
++	buf_data->ctx = ctx;
++	init_completion(&buf_data->done);
++	INIT_LIST_HEAD(&buf_data->ref_list);
++	spin_lock_init(&buf_data->lock);
++
++	if (percpu_ref_init(&buf_data->refs, io_rsrc_ref_kill,
++			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
++		kfree(buf_data);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	return buf_data;
++}
++
++static void io_free_buf_data(struct io_ring_ctx *ctx)
++{
++	percpu_ref_exit(&ctx->buf_data->refs);
++	kfree(ctx->buf_data->table);
++	kfree(ctx->buf_data);
++}
++
+ static struct fixed_rsrc_data *io_buffers_map_alloc(struct io_ring_ctx *ctx,
+ 						    unsigned int nr_args)
+ {
+-	unsigned nr_tables;
+ 	struct fixed_rsrc_data *buf_data;
++	unsigned nr_tables;
+ 	int ret = -ENOMEM;
  
- 	if (ctx->user_bufs)
- 		return -EBUSY;
-@@ -8283,14 +8372,10 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
+-	if (ctx->buf_data)
++	if (ctx->nr_user_bufs)
+ 		return ERR_PTR(-EBUSY);
+ 	if (!nr_args || nr_args > IORING_MAX_FIXED_BUFS)
+ 		return ERR_PTR(-EINVAL);
  
- 	for (i = 0; i < nr_args; i++) {
- 		struct io_mapped_ubuf *imu = &ctx->user_bufs[i];
--		unsigned long off, start, end, ubuf;
--		int pret, nr_pages;
--		struct iovec iov;
--		size_t size;
+-	buf_data = kzalloc(sizeof(*ctx->buf_data), GFP_KERNEL);
+-	if (!buf_data)
+-		return ERR_PTR(-ENOMEM);
+-	buf_data->ctx = ctx;
+-	init_completion(&buf_data->done);
+-	INIT_LIST_HEAD(&buf_data->ref_list);
+-	spin_lock_init(&buf_data->lock);
++	if (ctx->buf_data)
++		buf_data = ctx->buf_data;
++	else {
++		buf_data = io_alloc_buf_data(ctx);
++		if (IS_ERR(buf_data))
++			return buf_data;
++	}
  
- 		ret = io_copy_iov(ctx, &iov, arg, i);
- 		if (ret)
--			goto err;
-+			break;
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_BUFS_TABLE);
+-	buf_data->table = kcalloc(nr_tables, sizeof(buf_data->table),
++	buf_data->table = kcalloc(nr_tables, sizeof(struct fixed_rsrc_table),
+ 				  GFP_KERNEL);
+ 	if (!buf_data->table)
+-		goto out_free;
+-
+-	if (percpu_ref_init(&buf_data->refs, io_rsrc_ref_kill,
+-			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
+-		goto out_free;
++		goto out;
  
- 		/*
- 		 * Don't impose further limits on the size and buffer
-@@ -8299,103 +8384,22 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 		 */
- 		ret = -EFAULT;
- 		if (!iov.iov_base || !iov.iov_len)
--			goto err;
-+			break;
+ 	if (io_alloc_buf_tables(buf_data, nr_tables, nr_args))
+-		goto out_ref;
++		goto out;
  
- 		/* arbitrary limit, but we need something */
- 		if (iov.iov_len > SZ_1G)
--			goto err;
+ 	return buf_data;
 -
--		ubuf = (unsigned long) iov.iov_base;
--		end = (ubuf + iov.iov_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
--		start = ubuf >> PAGE_SHIFT;
--		nr_pages = end - start;
--
--		ret = 0;
--		if (!pages || nr_pages > got_pages) {
--			kvfree(vmas);
--			kvfree(pages);
--			pages = kvmalloc_array(nr_pages, sizeof(struct page *),
--						GFP_KERNEL);
--			vmas = kvmalloc_array(nr_pages,
--					sizeof(struct vm_area_struct *),
--					GFP_KERNEL);
--			if (!pages || !vmas) {
--				ret = -ENOMEM;
--				goto err;
--			}
--			got_pages = nr_pages;
--		}
--
--		imu->bvec = kvmalloc_array(nr_pages, sizeof(struct bio_vec),
--						GFP_KERNEL);
--		ret = -ENOMEM;
--		if (!imu->bvec)
--			goto err;
--
--		ret = 0;
--		mmap_read_lock(current->mm);
--		pret = pin_user_pages(ubuf, nr_pages,
--				      FOLL_WRITE | FOLL_LONGTERM,
--				      pages, vmas);
--		if (pret == nr_pages) {
--			/* don't support file backed memory */
--			for (j = 0; j < nr_pages; j++) {
--				struct vm_area_struct *vma = vmas[j];
--
--				if (vma->vm_file &&
--				    !is_file_hugepages(vma->vm_file)) {
--					ret = -EOPNOTSUPP;
--					break;
--				}
--			}
--		} else {
--			ret = pret < 0 ? pret : -EFAULT;
--		}
--		mmap_read_unlock(current->mm);
--		if (ret) {
--			/*
--			 * if we did partial map, or found file backed vmas,
--			 * release any pages we did get
--			 */
--			if (pret > 0)
--				unpin_user_pages(pages, pret);
--			kvfree(imu->bvec);
--			goto err;
--		}
--
--		ret = io_buffer_account_pin(ctx, pages, pret, imu, &last_hpage);
--		if (ret) {
--			unpin_user_pages(pages, pret);
--			kvfree(imu->bvec);
--			goto err;
--		}
-+			break;
+-out_ref:
+-	percpu_ref_exit(&buf_data->refs);
+-out_free:
+-	kfree(buf_data->table);
+-	kfree(buf_data);
++out:
++	io_free_buf_data(ctx);
+ 	return ERR_PTR(ret);
+ }
  
--		off = ubuf & ~PAGE_MASK;
--		size = iov.iov_len;
--		for (j = 0; j < nr_pages; j++) {
--			size_t vec_len;
--
--			vec_len = min_t(size_t, size, PAGE_SIZE - off);
--			imu->bvec[j].bv_page = pages[j];
--			imu->bvec[j].bv_len = vec_len;
--			imu->bvec[j].bv_offset = off;
--			off = 0;
--			size -= vec_len;
--		}
--		/* store original address for later verification */
--		imu->ubuf = ubuf;
--		imu->len = iov.iov_len;
--		imu->nr_bvecs = nr_pages;
-+		ret = io_sqe_buffer_register(ctx, &iov, imu, &last_hpage);
-+		if (ret)
-+			break;
+@@ -8713,9 +8746,17 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	struct fixed_rsrc_ref_node *ref_node;
+ 	struct fixed_rsrc_data *buf_data;
  
- 		ctx->nr_user_bufs++;
++	if (ctx->flags & IORING_SETUP_ATTACH_BUF) {
++		if (!ctx->buf_data)
++			return -EFAULT;
++		ctx->nr_user_bufs = ctx->buf_data->ctx->nr_user_bufs;
++		return 0;
++	}
++
+ 	buf_data = io_buffers_map_alloc(ctx, nr_args);
+ 	if (IS_ERR(buf_data))
+ 		return PTR_ERR(buf_data);
++	ctx->buf_data = buf_data;
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_bufs++) {
+ 		struct fixed_rsrc_table *table;
+@@ -8743,7 +8784,6 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 			break;
  	}
--	kvfree(pages);
--	kvfree(vmas);
--	return 0;
--err:
--	kvfree(pages);
--	kvfree(vmas);
--	io_sqe_buffer_unregister(ctx);
-+
-+	if (ret)
-+		io_sqe_buffers_unregister(ctx);
-+
+ 
+-	ctx->buf_data = buf_data;
+ 	if (ret) {
+ 		io_sqe_buffers_unregister(ctx);
+ 		return ret;
+@@ -9784,6 +9824,55 @@ static int io_uring_get_fd(struct io_ring_ctx *ctx)
  	return ret;
  }
  
-@@ -8449,7 +8453,7 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
++static int io_attach_buf_data(struct io_ring_ctx *ctx,
++			      struct io_uring_params *p)
++{
++	struct io_ring_ctx *ctx_attach;
++	struct fd f;
++
++	f = fdget(p->wq_fd);
++	if (!f.file)
++		return -EBADF;
++	if (f.file->f_op != &io_uring_fops) {
++		fdput(f);
++		return -EINVAL;
++	}
++
++	ctx_attach = f.file->private_data;
++	if (!ctx_attach->buf_data) {
++		fdput(f);
++		return -EINVAL;
++	}
++	ctx->buf_data = ctx_attach->buf_data;
++
++	percpu_ref_get(&ctx->buf_data->refs);
++	fdput(f);
++	return 0;
++}
++
++static int io_init_buf_data(struct io_ring_ctx *ctx, struct io_uring_params *p)
++{
++	if ((p->flags & (IORING_SETUP_SHARE_BUF | IORING_SETUP_ATTACH_BUF)) ==
++	    (IORING_SETUP_SHARE_BUF | IORING_SETUP_ATTACH_BUF))
++		return -EINVAL;
++
++	if (p->flags & IORING_SETUP_SHARE_BUF) {
++		struct fixed_rsrc_data *buf_data;
++
++		buf_data = io_alloc_buf_data(ctx);
++		if (IS_ERR(buf_data))
++			return PTR_ERR(buf_data);
++
++		ctx->buf_data = buf_data;
++		return 0;
++	}
++
++	if (p->flags & IORING_SETUP_ATTACH_BUF)
++		return io_attach_buf_data(ctx, p);
++
++	return 0;
++}
++
+ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 			   struct io_uring_params __user *params)
  {
- 	io_finish_async(ctx);
--	io_sqe_buffer_unregister(ctx);
-+	io_sqe_buffers_unregister(ctx);
+@@ -9898,6 +9987,10 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	if (ret)
+ 		goto err;
  
- 	if (ctx->sqo_task) {
- 		put_task_struct(ctx->sqo_task);
-@@ -9743,13 +9747,13 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
++	ret = io_init_buf_data(ctx, p);
++	if (ret)
++		goto err;
++
+ 	ret = io_sq_offload_create(ctx, p);
+ 	if (ret)
+ 		goto err;
+@@ -9969,6 +10062,7 @@ static long io_uring_setup(u32 entries, struct io_uring_params __user *params)
+ 	if (p.flags & ~(IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL |
+ 			IORING_SETUP_SQ_AFF | IORING_SETUP_CQSIZE |
+ 			IORING_SETUP_CLAMP | IORING_SETUP_ATTACH_WQ |
++			IORING_SETUP_SHARE_BUF | IORING_SETUP_ATTACH_BUF |
+ 			IORING_SETUP_R_DISABLED))
+ 		return -EINVAL;
  
- 	switch (opcode) {
- 	case IORING_REGISTER_BUFFERS:
--		ret = io_sqe_buffer_register(ctx, arg, nr_args);
-+		ret = io_sqe_buffers_register(ctx, arg, nr_args);
- 		break;
- 	case IORING_UNREGISTER_BUFFERS:
- 		ret = -EINVAL;
- 		if (arg || nr_args)
- 			break;
--		ret = io_sqe_buffer_unregister(ctx);
-+		ret = io_sqe_buffers_unregister(ctx);
- 		break;
- 	case IORING_REGISTER_FILES:
- 		ret = io_sqe_files_register(ctx, arg, nr_args);
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 41da59c..1d5cd02 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -101,6 +101,8 @@ enum {
+ #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
+ #define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
+ #define IORING_SETUP_R_DISABLED	(1U << 6)	/* start with ring disabled */
++#define IORING_SETUP_SHARE_BUF	(1U << 7)	/* share buffer registration */
++#define IORING_SETUP_ATTACH_BUF	(1U << 8)	/* attach buffer registration */
+ 
+ enum {
+ 	IORING_OP_NOP,
 -- 
 1.8.3.1
 

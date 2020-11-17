@@ -7,76 +7,115 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B35AC2D0E4
-	for <io-uring@archiver.kernel.org>; Tue, 17 Nov 2020 06:18:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03F25C2D0E4
+	for <io-uring@archiver.kernel.org>; Tue, 17 Nov 2020 07:57:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D437F2072C
-	for <io-uring@archiver.kernel.org>; Tue, 17 Nov 2020 06:18:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B8FC2083E
+	for <io-uring@archiver.kernel.org>; Tue, 17 Nov 2020 07:57:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726289AbgKQGRk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 17 Nov 2020 01:17:40 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:44271 "EHLO
+        id S1726249AbgKQH43 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 17 Nov 2020 02:56:29 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:44135 "EHLO
         out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726385AbgKQGRk (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 17 Nov 2020 01:17:40 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UFfrlDC_1605593844;
-Received: from localhost(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0UFfrlDC_1605593844)
+        by vger.kernel.org with ESMTP id S1726315AbgKQH43 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 17 Nov 2020 02:56:29 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UFgXvU5_1605599785;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UFgXvU5_1605599785)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 17 Nov 2020 14:17:24 +0800
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-To:     io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
-Subject: [PATCH 5.11 1/2] io_uring: keep a pointer ref_node in io_kiocb
-Date:   Tue, 17 Nov 2020 14:17:22 +0800
-Message-Id: <20201117061723.18131-2-xiaoguang.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.17.2
-In-Reply-To: <20201117061723.18131-1-xiaoguang.wang@linux.alibaba.com>
-References: <20201117061723.18131-1-xiaoguang.wang@linux.alibaba.com>
+          Tue, 17 Nov 2020 15:56:25 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     axboe@kernel.dk, hch@infradead.org, ming.lei@redhat.com
+Cc:     linux-block@vger.kernel.org, io-uring@vger.kernel.org,
+        joseph.qi@linux.alibaba.com
+Subject: [PATCH v4 1/2] block: disable iopoll for split bio
+Date:   Tue, 17 Nov 2020 15:56:24 +0800
+Message-Id: <20201117075625.46118-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201117075625.46118-1-jefflexu@linux.alibaba.com>
+References: <20201117075625.46118-1-jefflexu@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Basically no functional changes in this patch, just a preparation
-for later patch.
+iopoll is initially for small size, latency sensitive IO. It doesn't
+work well for big IO, especially when it needs to be split to multiple
+bios. In this case, the returned cookie of __submit_bio_noacct_mq() is
+indeed the cookie of the last split bio. The completion of *this* last
+split bio done by iopoll doesn't mean the whole original bio has
+completed. Callers of iopoll still need to wait for completion of other
+split bios.
 
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Besides bio splitting may cause more trouble for iopoll which isn't
+supposed to be used in case of big IO.
+
+iopoll for split bio may cause potential race if CPU migration happens
+during bio submission. Since the returned cookie is that of the last
+split bio, polling on the corresponding hardware queue doesn't help
+complete other split bios, if these split bios are enqueued into
+different hardware queues. Since interrupts are disabled for polling
+queues, the completion of these other split bios depends on timeout
+mechanism, thus causing a potential hang.
+
+iopoll for split bio may also cause hang for sync polling. Currently
+both the blkdev and iomap-based fs (ext4/xfs, etc) support sync polling
+in direct IO routine. These routines will submit bio without REQ_NOWAIT
+flag set, and then start sync polling in current process context. The
+process may hang in blk_mq_get_tag() if the submitted bio has to be
+split into multiple bios and can rapidly exhaust the queue depth. The
+process are waiting for the completion of the previously allocated
+requests, which should be reaped by the following polling, and thus
+causing a deadlock.
+
+To avoid these subtle trouble described above, just disable iopoll for
+split bio.
+
+Suggested-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ block/blk-merge.c | 7 +++++++
+ block/blk-mq.c    | 6 ++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index edfd7c3b8de6..219609c38e48 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -714,7 +714,7 @@ struct io_kiocb {
- 	u64				user_data;
- 
- 	struct io_kiocb			*link;
--	struct percpu_ref		*fixed_file_refs;
-+	struct fixed_file_ref_node      *ref_node;
- 
- 	/*
- 	 * 1. used with ctx->iopoll_list with reads/writes
-@@ -1927,7 +1927,7 @@ static inline void io_put_file(struct io_kiocb *req, struct file *file,
- 			  bool fixed)
- {
- 	if (fixed)
--		percpu_ref_put(req->fixed_file_refs);
-+		percpu_ref_put(&req->ref_node->refs);
- 	else
- 		fput(file);
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index bcf5e4580603..53ad781917a2 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -279,6 +279,13 @@ static struct bio *blk_bio_segment_split(struct request_queue *q,
+ 	return NULL;
+ split:
+ 	*segs = nsegs;
++
++	/*
++	 * bio splitting may cause subtle trouble such as hang when doing iopoll,
++	 * not to mention iopoll isn't supposed to be used in case of big IO.
++	 */
++	bio->bi_opf &= ~REQ_HIPRI;
++
+ 	return bio_split(bio, sectors, GFP_NOIO, bs);
  }
-@@ -6344,8 +6344,8 @@ static struct file *io_file_get(struct io_submit_state *state,
- 		fd = array_index_nospec(fd, ctx->nr_user_files);
- 		file = io_file_from_index(ctx, fd);
- 		if (file) {
--			req->fixed_file_refs = &ctx->file_data->node->refs;
--			percpu_ref_get(req->fixed_file_refs);
-+			req->ref_node = ctx->file_data->node;
-+			percpu_ref_get(&req->ref_node->refs);
- 		}
- 	} else {
- 		trace_io_uring_file_get(ctx, fd);
+ 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 55bcee5dc032..6d10652a7ed0 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3853,11 +3853,13 @@ int blk_poll(struct request_queue *q, blk_qc_t cookie, bool spin)
+ 	    !test_bit(QUEUE_FLAG_POLL, &q->queue_flags))
+ 		return 0;
+ 
++	hctx = q->queue_hw_ctx[blk_qc_t_to_queue_num(cookie)];
++	if (hctx->type != HCTX_TYPE_POLL)
++		return 0;
++
+ 	if (current->plug)
+ 		blk_flush_plug_list(current->plug, false);
+ 
+-	hctx = q->queue_hw_ctx[blk_qc_t_to_queue_num(cookie)];
+-
+ 	/*
+ 	 * If we sleep, have the caller restart the poll loop to reset
+ 	 * the state. Like for the other success return cases, the
 -- 
-2.17.2
+2.27.0
 

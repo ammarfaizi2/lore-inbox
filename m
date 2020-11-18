@@ -2,228 +2,307 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB38DC64E90
-	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 03:29:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3AB8C56202
+	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 09:17:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93EC3246BB
-	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 03:29:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50E752467A
+	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 09:17:28 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dmI+dt/D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727550AbgKRD3G (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 17 Nov 2020 22:29:06 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:58395 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725808AbgKRD3F (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 17 Nov 2020 22:29:05 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UFlQ429_1605670141;
-Received: from 30.225.32.174(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0UFlQ429_1605670141)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 18 Nov 2020 11:29:01 +0800
-Subject: Re: INFO: task can't die in io_sq_thread_stop
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-To:     syzbot <syzbot+03beeb595f074db9cfd1@syzkaller.appspotmail.com>,
-        axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-References: <00000000000038569805b4211287@google.com>
- <39be8d01-6550-ee8a-5a8d-2707b372b711@linux.alibaba.com>
-Message-ID: <d57f9c10-e640-08f5-4c20-2553768aff65@linux.alibaba.com>
-Date:   Wed, 18 Nov 2020 11:27:42 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.3
+        id S1726949AbgKRJR1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 18 Nov 2020 04:17:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbgKRJR1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Nov 2020 04:17:27 -0500
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B4C1C0613D4
+        for <io-uring@vger.kernel.org>; Wed, 18 Nov 2020 01:17:27 -0800 (PST)
+Received: by mail-wr1-x443.google.com with SMTP id 23so1399598wrc.8
+        for <io-uring@vger.kernel.org>; Wed, 18 Nov 2020 01:17:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=aq1fSiAguBAPI74l6bcLoMA5eScD5a0NHxtUTYFN1FM=;
+        b=dmI+dt/DO+ncrhR+0av+essXbWxAC0VYGA+eyt88cH5/NBbn6w0jFqnM4OTX3wpMjz
+         zVa3+Ue6xLL+EcIXL4XA2CKw7VIvmwqxD7UhQX97MKZkYwH31/l1psqk8x7JZidSJsnL
+         ZvCfdaJl6JRARyjUi9Z/Wfnj4hLP6RH+Ao4z+cQlVNbHhqCpMbQgdPm4gDrepll6dFvF
+         G0EhjdD/e+5OY8Lzc/wDEAVMq6+fELDe65Iw/8WVQ+2kVqrNnpb9Qi8Jf+vFqgkViELc
+         ngiCY7QKdmaIUtE50UvebgeW73ktqFceIVe6RNu0IW2fAFMsRiSb6dTYupdNh2cA5GDb
+         awNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=aq1fSiAguBAPI74l6bcLoMA5eScD5a0NHxtUTYFN1FM=;
+        b=ZNj1vMp2k2yNonLYQUZ1gfalEHtmExHFfI7HcD7G3daZXT8LDQWr3nkkynD9ysWpqL
+         Bppog98YRnVkpizdOE3+vwuVXHj4KeASiURr+HeIu/xZ4PhLxIPY1MiFZRXnc9o9g3pu
+         G/ogFSRsUi+ESK+1HameKSwT5ABCVjJhbZz+hgf6OJGwvXfQPUhJNFYZemGn5xOw0S9q
+         2zs75YPPJqNOabHPBbcX8BQXGdpcDd0eYjswj9dRoCBWV6FlXQfDYpIM0kO65I7rvOJb
+         VbKyz//2Nnf2ZtxBI6tRaAfttswiUemC9buBc1DZHvL9OrbSHM8IBrylT8Fueu/fGPlH
+         pWRw==
+X-Gm-Message-State: AOAM532qDRP2urh28cA1UfQmiO3JVAPbM9lzayK4wZPko5zdrJyzLJUf
+        vZYXsUgj4trzqeV5/x5ts13kzlMc+K/SaQ==
+X-Google-Smtp-Source: ABdhPJwRxmPoOK0JTyh1y+iYj2MbLWW/gY3TWFZDakDPjGPlmNG3cEiAUZ52kxcxR59P2kugLwkDdg==
+X-Received: by 2002:adf:a39e:: with SMTP id l30mr3589944wrb.195.1605691045470;
+        Wed, 18 Nov 2020 01:17:25 -0800 (PST)
+Received: from [192.168.1.58] (host109-152-100-135.range109-152.btcentralplus.com. [109.152.100.135])
+        by smtp.gmail.com with ESMTPSA id f11sm31441234wrs.70.2020.11.18.01.17.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 Nov 2020 01:17:25 -0800 (PST)
+To:     Bijan Mottahedeh <bijan.mottahedeh@oracle.com>, axboe@kernel.dk
+Cc:     io-uring@vger.kernel.org
+References: <1605222042-44558-1-git-send-email-bijan.mottahedeh@oracle.com>
+ <1605222042-44558-8-git-send-email-bijan.mottahedeh@oracle.com>
+ <d8c1c348-7806-ce54-c683-0c08e44d4590@gmail.com>
+ <0bf865dc-14d3-9521-26d9-c91873535146@oracle.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Subject: Re: [PATCH 7/8] io_uring: support readv/writev with fixed buffers
+Message-ID: <10aa4c0f-eaf5-29df-e7b1-6a8d1e52ec15@gmail.com>
+Date:   Wed, 18 Nov 2020 09:14:17 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <39be8d01-6550-ee8a-5a8d-2707b372b711@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <0bf865dc-14d3-9521-26d9-c91873535146@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-hi,
+On 17/11/2020 22:59, Bijan Mottahedeh wrote:
+>>> Support readv/writev with fixed buffers, and introduce IOSQE_FIXED_BUFFER,
+>>> consistent with fixed files.
+>>
+>> I don't like it at all, see issues below. The actual implementation would
+>> be much uglier.
+>>
+>> I propose you to split the series and push separately. Your first 6 patches
+>> first, I don't have conceptual objections to them. Then registration sharing
+>> (I still need to look it up). And then we can return to this, if you're not
+>> yet convinced.
+> 
+> Ok.  The sharing patch is actually the highest priority for us so it'd be great to know if you think it's in the right direction.
+> 
+> Should I submit them as they are or address your fixed_file_ref comments in Patch 4/8 as well?  Would I need your prep patch beforehand?
 
-A gentle reminder, in case you overlooked this syzbot report.
+I remembered one more thing that I need to do for your patches to work.
+I'll ping you afterwards
 
-Regards,
-Xiaoguang Wang
+> 
+>>> +static ssize_t io_import_iovec_fixed(int rw, struct io_kiocb *req, void *buf,
+>>> +                     unsigned segs, unsigned fast_segs,
+>>> +                     struct iovec **iovec,
+>>> +                     struct iov_iter *iter)
+>>> +{
+>>> +    struct io_ring_ctx *ctx = req->ctx;
+>>> +    struct io_mapped_ubuf *imu;
+>>> +    struct iovec *iov;
+>>> +    u16 index, buf_index;
+>>> +    ssize_t ret;
+>>> +    unsigned long seg;
+>>> +
+>>> +    if (unlikely(!ctx->buf_data))
+>>> +        return -EFAULT;
+>>> +
+>>> +    ret = import_iovec(rw, buf, segs, fast_segs, iovec, iter);
+>>
+>> Did you test it? import_iovec() does access_ok() against each iov_base,
+>> which in your case are an index.
+> 
+> I used liburing:test/file-{register,update} as models for the equivalent buffer tests and they seem to work.  I can send out the tests and the liburing changes if you want.
 
-> hi jens,
+Hmm, seems access_ok() is no-op for many architectures.
+Still IIRC it's not portable.
+
 > 
->> Hello,
->>
->> syzbot found the following issue on:
->>
->> HEAD commit:    6dd65e60 Add linux-next specific files for 20201110
->> git tree:       linux-next
->> console output: https://syzkaller.appspot.com/x/log.txt?x=14727d42500000
->> kernel config:  https://syzkaller.appspot.com/x/.config?x=4fab43daf5c54712
->> dashboard link: https://syzkaller.appspot.com/bug?extid=03beeb595f074db9cfd1
->> compiler:       gcc (GCC) 10.1.0-syz 20200507
->>
->> Unfortunately, I don't have any reproducer for this issue yet.
->>
->> IMPORTANT: if you fix the issue, please add the following tag to the commit:
->> Reported-by: syzbot+03beeb595f074db9cfd1@syzkaller.appspotmail.com
->>
->> INFO: task syz-executor.2:12399 can't die for more than 143 seconds.
->> task:syz-executor.2  state:D stack:28744 pid:12399 ppid:  8504 flags:0x00004004
->> Call Trace:
->>   context_switch kernel/sched/core.c:3773 [inline]
->>   __schedule+0x893/0x2170 kernel/sched/core.c:4522
->>   schedule+0xcf/0x270 kernel/sched/core.c:4600
->>   schedule_timeout+0x1d8/0x250 kernel/time/timer.c:1847
->>   do_wait_for_common kernel/sched/completion.c:85 [inline]
->>   __wait_for_common kernel/sched/completion.c:106 [inline]
->>   wait_for_common kernel/sched/completion.c:117 [inline]
->>   wait_for_completion+0x163/0x260 kernel/sched/completion.c:138
->>   kthread_stop+0x17a/0x720 kernel/kthread.c:596
->>   io_put_sq_data fs/io_uring.c:7193 [inline]
->>   io_sq_thread_stop+0x452/0x570 fs/io_uring.c:7290
->>   io_finish_async fs/io_uring.c:7297 [inline]
->>   io_sq_offload_create fs/io_uring.c:8015 [inline]
->>   io_uring_create fs/io_uring.c:9433 [inline]
->>   io_uring_setup+0x19b7/0x3730 fs/io_uring.c:9507
->>   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
->>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> I also don't have a reproducer yet, but seems that there is a race
-> in current codes:                  |
-> => io_put_sq_data                  |
-> ==> kthread_park(sqd->thread);     |
->                                     | T1: sq thread is parked now.
-> ==> kthread_stop(sqd->thread);     |
-> ===> kthread_unpark(k);            |
->                                     | T2: sq thread is now unpared, can run again
->                                     |
->                                     | T3: sq thread is now preempted out.
->                                     |
-> ===> wake_up_process(k);           |
->                                     |
->                                     | T4: Since sqd ctx list is empty, needs_sched will be true,
->                                     | then sq thread sets task state to TASK_INTERRUPTIBLE,
->                                     | and schedule, now sq thread will never be waken up.
-> ===> wait_for_completion           |
+> The fixed io test registers an empty iov table first:
 > 
-> I have artificially used mdelay() to simulate above race, will get same stack like
-> this syzbot report.
+>     ret = io_uring_register_buffers(ring, iovs, UIO_MAXIOV);
 > 
-> -               if (kthread_should_park())
-> +               if (kthread_should_park()) {
->                          kthread_parkme();
-> +                       if (kthread_should_stop())
-> +                               break;
-> +               }
-> this diff can fix this issue, and if ctx_list is empty, we don't need to call schedule().
+> It next updates the table with two actual buffers at offset 768:
 > 
-> Regards,
-> Xiaoguang Wang
+>         ret = io_uring_register_buffers_update(ring, 768, ups, 2);
+> 
+> It later uses the buffer at index 768 for writev similar to the file-register test (IOSQE_FIXED_BUFFER instead of IOSQE_FIXED_FILE):
+> 
+>         iovs[768].iov_base = (void *)768;
+>         iovs[768].iov_len = pagesize;
 > 
 > 
->> RIP: 0033:0x45deb9
->> Code: Unable to access opcode bytes at RIP 0x45de8f.
->> RSP: 002b:00007f174e51ac78 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
->> RAX: ffffffffffffffda RBX: 0000000000008640 RCX: 000000000045deb9
->> RDX: 0000000000000000 RSI: 0000000020000140 RDI: 00000000000050e5
->> RBP: 000000000118bf58 R08: 0000000000000000 R09: 0000000000000000
->> R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118bf2c
->> R13: 00007ffed9ca723f R14: 00007f174e51b9c0 R15: 000000000118bf2c
->> INFO: task syz-executor.2:12399 blocked for more than 143 seconds.
->>        Not tainted 5.10.0-rc3-next-20201110-syzkaller #0
->> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
->> task:syz-executor.2  state:D stack:28744 pid:12399 ppid:  8504 flags:0x00004004
->> Call Trace:
->>   context_switch kernel/sched/core.c:3773 [inline]
->>   __schedule+0x893/0x2170 kernel/sched/core.c:4522
->>   schedule+0xcf/0x270 kernel/sched/core.c:4600
->>   schedule_timeout+0x1d8/0x250 kernel/time/timer.c:1847
->>   do_wait_for_common kernel/sched/completion.c:85 [inline]
->>   __wait_for_common kernel/sched/completion.c:106 [inline]
->>   wait_for_common kernel/sched/completion.c:117 [inline]
->>   wait_for_completion+0x163/0x260 kernel/sched/completion.c:138
->>   kthread_stop+0x17a/0x720 kernel/kthread.c:596
->>   io_put_sq_data fs/io_uring.c:7193 [inline]
->>   io_sq_thread_stop+0x452/0x570 fs/io_uring.c:7290
->>   io_finish_async fs/io_uring.c:7297 [inline]
->>   io_sq_offload_create fs/io_uring.c:8015 [inline]
->>   io_uring_create fs/io_uring.c:9433 [inline]
->>   io_uring_setup+0x19b7/0x3730 fs/io_uring.c:9507
->>   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
->>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
->> RIP: 0033:0x45deb9
->> Code: Unable to access opcode bytes at RIP 0x45de8f.
->> RSP: 002b:00007f174e51ac78 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
->> RAX: ffffffffffffffda RBX: 0000000000008640 RCX: 000000000045deb9
->> RDX: 0000000000000000 RSI: 0000000020000140 RDI: 00000000000050e5
->> RBP: 000000000118bf58 R08: 0000000000000000 R09: 0000000000000000
->> R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118bf2c
->> R13: 00007ffed9ca723f R14: 00007f174e51b9c0 R15: 000000000118bf2c
+>         io_uring_prep_writev(sqe, fd, iovs, 1, 0);
+>         sqe->flags |= IOSQE_FIXED_BUFFER;
+> 
+>         ret = io_uring_submit(ring);
+> 
+> Below is the iovec returned from
+> 
+> io_import_iovec_fixed()
+> -> io_import_vec()
+> 
+> {iov_base = 0x300 <dm_early_create+412>, iov_len = 4096}
+> 
+>>> +    if (ret < 0)
+>>> +        return ret;
+>>> +
+>>> +    iov = (struct iovec *)iter->iov;
+>>> +
+>>> +    for (seg = 0; seg < iter->nr_segs; seg++) {
+>>> +        buf_index = *(u16 *)(&iov[seg].iov_base);
 >>
->> Showing all locks held in the system:
->> 1 lock held by khungtaskd/1653:
->>   #0: ffffffff8b3386a0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6253
->> 1 lock held by systemd-journal/4873:
->> 1 lock held by in:imklog/8167:
->>   #0: ffff88801c86e0f0 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:932
+>> That's ugly, and also not consistent with rw_fixed, because iov_base is
+>> used to calculate offset.
+> 
+> Would offset be applicable when using readv/writev?
+
+Not sure what you mean. You can register a huge chunk of memory,
+but with buf_index alone you can't select a subchunk. E.g.
+
+void *buf = alloc(4G);
+idx = io_uring_register_buf(buf);
+uring_read_fixed(reg_buf=idx, 
+		data=buf+100, // offset 100
+		size=sz);
+
+This writes [buf+100, buf+100+sz]. Without passing @buf you
+wouldn't be able to specify an offset. Alternatively, the
+API could have been accepting an offset directly, but this
+option was chosen.
+
+There is no such a problem with non-registered versions, it
+just writes/reads all iov.
+
+> 
+> My thinkig was that for those cases, each iovec should be used exactly as registered.
+
+It may be confusing, but read/write_fixed use iov_base to calculate offset.
+i.e.
+
+imu = ctx->bufs[req->buffer_index];
+if (iov_base not in range(imu->original_addr, imu->len))
+	fail;
+offset = iov_base - imu->original_addr;
+
+> 
 >>
->> =============================================
+>>> +        if (unlikely(buf_index < 0 || buf_index >= ctx->nr_user_bufs))
+>>> +            return -EFAULT;
+>>> +
+>>> +        index = array_index_nospec(buf_index, ctx->nr_user_bufs);
+>>> +        imu = io_buf_from_index(ctx, index);
+>>> +        if (!imu->ubuf || !imu->len)
+>>> +            return -EFAULT;
+>>> +        if (iov[seg].iov_len > imu->len)
+>>> +            return -EFAULT;
+>>> +
+>>> +        iov[seg].iov_base = (void *)imu->ubuf;
 >>
->> NMI backtrace for cpu 1
->> CPU: 1 PID: 1653 Comm: khungtaskd Not tainted 5.10.0-rc3-next-20201110-syzkaller #0
->> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->> Call Trace:
->>   __dump_stack lib/dump_stack.c:77 [inline]
->>   dump_stack+0x107/0x163 lib/dump_stack.c:118
->>   nmi_cpu_backtrace.cold+0x44/0xd7 lib/nmi_backtrace.c:105
->>   nmi_trigger_cpumask_backtrace+0x1b3/0x230 lib/nmi_backtrace.c:62
->>   trigger_all_cpu_backtrace include/linux/nmi.h:147 [inline]
->>   check_hung_uninterruptible_tasks kernel/hung_task.c:253 [inline]
->>   watchdog+0xd89/0xf30 kernel/hung_task.c:338
->>   kthread+0x3af/0x4a0 kernel/kthread.c:292
->>   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
->> Sending NMI from CPU 1 to CPUs 0:
->> NMI backtrace for cpu 0
->> CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.0-rc3-next-20201110-syzkaller #0
->> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->> Workqueue: events nsim_dev_trap_report_work
->> RIP: 0010:mark_lock+0x30/0x24c0 kernel/locking/lockdep.c:4371
->> Code: 41 54 41 89 d4 48 ba 00 00 00 00 00 fc ff df 55 53 48 81 ec 18 01 00 00 48 8d 5c 24 38 48 89 3c 24 48 c7 44 24 38 b3 8a b5 41 <48> c1 eb 03 48 c7 44 24 40 30 1b c6 8a 48 8d 04 13 48 c7 44 24 48
->> RSP: 0018:ffffc90000ca7988 EFLAGS: 00000096
->> RAX: 0000000000000004 RBX: ffffc90000ca79c0 RCX: ffffffff8155b947
->> RDX: dffffc0000000000 RSI: ffff888010d20918 RDI: ffff888010d20000
->> RBP: 0000000000000006 R08: 0000000000000000 R09: ffffffff8ebb477f
->> R10: fffffbfff1d768ef R11: 000000004fb6aa4b R12: 0000000000000006
->> R13: dffffc0000000000 R14: ffff888010d20918 R15: 0000000000000022
->> FS:  0000000000000000(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 00007f8ffcf99000 CR3: 000000001b2e7000 CR4: 00000000001506f0
->> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->> Call Trace:
->>   mark_held_locks+0x9f/0xe0 kernel/locking/lockdep.c:4011
->>   __trace_hardirqs_on_caller kernel/locking/lockdep.c:4037 [inline]
->>   lockdep_hardirqs_on_prepare kernel/locking/lockdep.c:4097 [inline]
->>   lockdep_hardirqs_on_prepare+0x28b/0x400 kernel/locking/lockdep.c:4049
->>   trace_hardirqs_on+0x5b/0x1c0 kernel/trace/trace_preemptirq.c:49
->>   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:160 [inline]
->>   _raw_spin_unlock_irqrestore+0x42/0x50 kernel/locking/spinlock.c:191
->>   extract_crng drivers/char/random.c:1026 [inline]
->>   _get_random_bytes+0x229/0x670 drivers/char/random.c:1562
->>   nsim_dev_trap_skb_build drivers/net/netdevsim/dev.c:538 [inline]
->>   nsim_dev_trap_report drivers/net/netdevsim/dev.c:568 [inline]
->>   nsim_dev_trap_report_work+0x740/0xbd0 drivers/net/netdevsim/dev.c:609
->>   process_one_work+0x933/0x15a0 kernel/workqueue.c:2272
->>   worker_thread+0x64c/0x1120 kernel/workqueue.c:2418
->>   kthread+0x3af/0x4a0 kernel/kthread.c:292
->>   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+>> Nope, that's not different from non registered version.
+>> What import_fixed actually do is setting up the iter argument to point
+>> to a bvec (a vector of struct page *).
+> 
+> So in fact, the buffers end up being pinned again because they are not being as bvecs?
+
+right, it just passes iov with userspace virtual addresses in your case
+and layer below don't know that they're pinned. And as they're virtual
+in most cases they have to be translated to physical (that's solved by
+having a vector of pages).
+
+> 
 >>
+>> So it either would need to keep a vector of bvecs, that's a vector of vectors,
+>> that's not supported by iter, etc., so you'll also need to iterate over them
+>> in io_read/write and so on. Or flat 2D structure into 1D, but that's still ugly.
+> 
+> So you're saying there's no clean way to create a readv/writev + fixed buffers API?  It would've been nice to have a consistent API between files and buffers.
+
+I guess you can register an iov as a single bvec by flatting out the structure
+to a single vector (bvec). Though, we'd need to drop an assumption that all
+but first and last entries are page sized.
+
+Or do that online with extra overhead + allocations.
+
+> 
+> 
+>>> @@ -5692,7 +5743,7 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
+>>>   {
+>>>       if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+>>>           return -EINVAL;
+>>> -    if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+>>> +    if (unlikely(req->flags & (REQ_F_FIXED_RSRC | REQ_F_BUFFER_SELECT)))
 >>
->> ---
->> This report is generated by a bot. It may contain errors.
->> See https://goo.gl/tpsmEJ for more information about syzbot.
->> syzbot engineers can be reached at syzkaller@googlegroups.com.
+>> Why it's here?
 >>
->> syzbot will keep track of this issue. See:
->> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+>> #define REQ_F_FIXED_RSRC    (REQ_F_FIXED_FILE | REQ_F_FIXED_BUFFER)
+>> So, why do you | with REQ_F_BUFFER_SELECT again here?
+> 
+> I thought to group fixed files/buffers but distinguish them from selected buffers.
+
+Ah, I've got this one wrong.
+
+> 
+>>> @@ -87,6 +88,8 @@ enum {
+>>>   #define IOSQE_ASYNC        (1U << IOSQE_ASYNC_BIT)
+>>>   /* select buffer from sqe->buf_group */
+>>>   #define IOSQE_BUFFER_SELECT    (1U << IOSQE_BUFFER_SELECT_BIT)
+>>> +/* use fixed buffer set */
+>>> +#define IOSQE_FIXED_BUFFER    (1U << IOSQE_FIXED_BUFFER_BIT)
 >>
+>> Unfortenatuly, we're almost out of flags bits -- it's a 1 byte
+>> field and 6 bits are already taken. Let's not use it.
+
+-- 
+Pavel Begunkov

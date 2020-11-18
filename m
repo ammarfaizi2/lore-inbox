@@ -2,172 +2,89 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85F24C6379F
-	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 14:59:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BC77C6369E
+	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 15:16:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6C8B24727
-	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 14:59:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B80C24752
+	for <io-uring@archiver.kernel.org>; Wed, 18 Nov 2020 15:16:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tr1Ayoae"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="LaOj1AEl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727061AbgKRO7n (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 18 Nov 2020 09:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43674 "EHLO
+        id S1726195AbgKRPPw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 18 Nov 2020 10:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726894AbgKRO7n (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Nov 2020 09:59:43 -0500
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1371C0613D4;
-        Wed, 18 Nov 2020 06:59:42 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id p8so2516575wrx.5;
-        Wed, 18 Nov 2020 06:59:42 -0800 (PST)
+        with ESMTP id S1725943AbgKRPPv (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Nov 2020 10:15:51 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D12B0C0613D4
+        for <io-uring@vger.kernel.org>; Wed, 18 Nov 2020 07:15:51 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id 10so1609358pfp.5
+        for <io-uring@vger.kernel.org>; Wed, 18 Nov 2020 07:15:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=RecmvriZefh9IAaF/p+NfEBGaalcfKqonpY00oHO/X4=;
-        b=Tr1AyoaeEsDX31h37eXlRJ8GT6nzuQJuCuvYVAJ9XNSt+Q1Jj6A4MUmCIuUdQ2CN7q
-         1/CWqZ90EoPeQ2FqbFZwR84uIVpH4+opYfucCeBuUBXVjbO8ytRm3YGF/98atZlk0Ppr
-         xbbucmv/U7phJeWFAeUNwzbL/SfcyR75qCdbOJ5+OWAOQXTNj+1KSaQk80yjjAIH+8WQ
-         HLVn2NKrLs3b9iVum1pyzfCLhSFaoA56s2IXg9hfuUOAjp8grAESgTtuQXNgZRkIEimR
-         VYzVPAAwZrORQQBHO3w/EBFQqZYBPzxXe3cF0F5WYkm+F7Sh+qZ1FiBYCtLk52aKiQsd
-         nzxg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=E+EuxLUyTZu9ZxlCmvWfUmHuJbO5Efo+cAXXJRc1FIU=;
+        b=LaOj1AElo0KG11pLzmne3JL90rD5L1XbI+RexYEr0msJ9+x2uiVU/uYSUI/WLbkxCY
+         mv4yejy1XHZWB4ERf0MEoegeNzgHIF4cQVlqWsR/it9wxO6nlA2bxMNsJGO+47HyVFsJ
+         7fonUK50aZyhPv8unHjjd1JPyW0spmka6cAadiBJWeAqRPlyIH2aHk81GqkpmLSZGNmA
+         Vy7oVRWGVwiOjptD2w305cMuU6odJJ7tqhWVL6tpnHQmUQDMdNf9u/Kp1a9dudMGxqBs
+         aNsNozfVnkvRu2jTEwRDfzO+OOKgaqFQBZLvDmMIighliq25D6vprwVHgBQ1SKc5uYxi
+         Pz/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=RecmvriZefh9IAaF/p+NfEBGaalcfKqonpY00oHO/X4=;
-        b=HDx3sdNLdZdvpEt9CWIb4QsKrE3PG9/rU/5CdllaA3BRB8fjQjerxA1e1Ok2RyHJTq
-         aUbX9AHZUBSgiYT5JsUYhgtntABAH1IX1lWVzFdBHazO/ae2IEr8uG8OxV+dFs8th/OI
-         VJIzmPWyOuBCH5lNk3j0Ifn+xtz5z7bmtMDnvoHfSfIk7Tnt+nqnlLeThX9SSAPN1KD/
-         dWkN5uCSsdpHeNyhpbMiDcuKkMuDpQ/xhMDBgK04xsCn2CSGD+2g21k5QcRT/Lt1ldYk
-         JTJryPrecaF97J8RbWgVGfFtoMNuOO57t6OZOc7DzjdsDLPN///K1u5qgGYdxkaD9VFz
-         Rh8w==
-X-Gm-Message-State: AOAM532i3sRrHYIqz4kjxxzrC74luQV2oG8QXgeqFx956gLXtukewORe
-        n/Z0GbAT5KC5A/6I65/a15k6CNpEvkMdBA==
-X-Google-Smtp-Source: ABdhPJxU/1VWXN+2tlRILE+VRqI29hxtOEpASqf7grVBJIq5XYfFtyDa8yRmDKpIg3aE4ytTaOFJoQ==
-X-Received: by 2002:a5d:488f:: with SMTP id g15mr5197926wrq.151.1605711581732;
-        Wed, 18 Nov 2020 06:59:41 -0800 (PST)
-Received: from localhost.localdomain (host109-152-100-189.range109-152.btcentralplus.com. [109.152.100.189])
-        by smtp.gmail.com with ESMTPSA id c4sm13222939wrd.30.2020.11.18.06.59.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2020 06:59:41 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: order refnode recycling
-Date:   Wed, 18 Nov 2020 14:56:26 +0000
-Message-Id: <3ba9d7672a62ad23acd9e55c1a912e619daafbcb.1605710178.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1605710178.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=E+EuxLUyTZu9ZxlCmvWfUmHuJbO5Efo+cAXXJRc1FIU=;
+        b=PxLI6eRKVCl7Cnk0rcnzBSKd9tJhV05AWypcNC1MomURNJOuVWIRt3xDROPnYpJs4g
+         CPdsh1SiSVYfTPiJvk0bF/4eeazF9HP/mFUxjDJQrll0Oq6MvADKPLl6TmrgUcthuTmQ
+         iDH/hH15QQupi8PN74bqKU+/tvSqSysRBCyfGs1npB8FZOhGIfhybUuzixOCM0TccTjo
+         /JiwMmnyPucZsIqPIkedXrKoUwjlOYY5qXgCsKXvwuQH8aAziJeiaLZTjtfLA0HW3mn6
+         rs9BhkUm5qQymQpfo7r5YuLq1aVJG4W06Hd/8bbVSo1zXOIzOViEFTf6HCjffxDTbacT
+         0Wig==
+X-Gm-Message-State: AOAM533xkKdVrjGDpTNOhqBjmdpcXece8EBZxGF6x76Y0EzcpjatXLPg
+        2Fr1HvsJV14yExqV+ao04cSaQmFE9O8XDQ==
+X-Google-Smtp-Source: ABdhPJy75kNjZVcGNIyfkhnYlFA9hTYTs3722SzsZqvE9i43S+khJJPXX3uW7UiZrvzgsgyLVp81Tg==
+X-Received: by 2002:a65:4945:: with SMTP id q5mr8202492pgs.83.1605712551161;
+        Wed, 18 Nov 2020 07:15:51 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id 143sm16505236pgh.57.2020.11.18.07.15.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 Nov 2020 07:15:50 -0800 (PST)
+Subject: Re: [PATCH 5.10 0/2] order fixed files refnode recycling
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 References: <cover.1605710178.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <986c720e-65ce-0343-a410-c1ae8b53067e@kernel.dk>
+Date:   Wed, 18 Nov 2020 08:15:50 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1605710178.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't recycle a refnode until we're done with all requests of nodes
-ejected before.
+On 11/18/20 7:56 AM, Pavel Begunkov wrote:
+> Pavel Begunkov (2):
+>   io_uring: get an active ref_node from files_data
+>   io_uring: order refnode recycling
+> 
+>  fs/io_uring.c | 37 ++++++++++++++++++++++++-------------
+>  1 file changed, 24 insertions(+), 13 deletions(-)
 
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 33 +++++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+LGTM, thanks Pavel.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5cb194ca4fce..7d4b755ab451 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -205,6 +205,7 @@ struct fixed_file_ref_node {
- 	struct list_head		file_list;
- 	struct fixed_file_data		*file_data;
- 	struct llist_node		llist;
-+	bool				done;
- };
- 
- struct fixed_file_data {
-@@ -7323,10 +7324,6 @@ static void __io_file_put_work(struct fixed_file_ref_node *ref_node)
- 		kfree(pfile);
- 	}
- 
--	spin_lock(&file_data->lock);
--	list_del(&ref_node->node);
--	spin_unlock(&file_data->lock);
--
- 	percpu_ref_exit(&ref_node->refs);
- 	kfree(ref_node);
- 	percpu_ref_put(&file_data->refs);
-@@ -7353,17 +7350,32 @@ static void io_file_put_work(struct work_struct *work)
- static void io_file_data_ref_zero(struct percpu_ref *ref)
- {
- 	struct fixed_file_ref_node *ref_node;
-+	struct fixed_file_data *data;
- 	struct io_ring_ctx *ctx;
--	bool first_add;
-+	bool first_add = false;
- 	int delay = HZ;
- 
- 	ref_node = container_of(ref, struct fixed_file_ref_node, refs);
--	ctx = ref_node->file_data->ctx;
-+	data = ref_node->file_data;
-+	ctx = data->ctx;
-+
-+	spin_lock(&data->lock);
-+	ref_node->done = true;
-+
-+	while (!list_empty(&data->ref_list)) {
-+		ref_node = list_first_entry(&data->ref_list,
-+					struct fixed_file_ref_node, node);
-+		/* recycle ref nodes in order */
-+		if (!ref_node->done)
-+			break;
-+		list_del(&ref_node->node);
-+		first_add |= llist_add(&ref_node->llist, &ctx->file_put_llist);
-+	}
-+	spin_unlock(&data->lock);
- 
--	if (percpu_ref_is_dying(&ctx->file_data->refs))
-+	if (percpu_ref_is_dying(&data->refs))
- 		delay = 0;
- 
--	first_add = llist_add(&ref_node->llist, &ctx->file_put_llist);
- 	if (!delay)
- 		mod_delayed_work(system_wq, &ctx->file_put_work, 0);
- 	else if (first_add)
-@@ -7387,6 +7399,7 @@ static struct fixed_file_ref_node *alloc_fixed_file_ref_node(
- 	INIT_LIST_HEAD(&ref_node->node);
- 	INIT_LIST_HEAD(&ref_node->file_list);
- 	ref_node->file_data = ctx->file_data;
-+	ref_node->done = false;
- 	return ref_node;
- }
- 
-@@ -7482,7 +7495,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 
- 	file_data->node = ref_node;
- 	spin_lock(&file_data->lock);
--	list_add(&ref_node->node, &file_data->ref_list);
-+	list_add_tail(&ref_node->node, &file_data->ref_list);
- 	spin_unlock(&file_data->lock);
- 	percpu_ref_get(&file_data->refs);
- 	return ret;
-@@ -7641,7 +7654,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
- 		spin_lock(&data->lock);
--		list_add(&ref_node->node, &data->ref_list);
-+		list_add_tail(&ref_node->node, &data->ref_list);
- 		data->node = ref_node;
- 		spin_unlock(&data->lock);
- 		percpu_ref_get(&ctx->file_data->refs);
 -- 
-2.24.0
+Jens Axboe
 

@@ -2,72 +2,73 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F72CC63697
-	for <io-uring@archiver.kernel.org>; Thu, 26 Nov 2020 15:50:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A52DFC56202
+	for <io-uring@archiver.kernel.org>; Thu, 26 Nov 2020 17:39:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3E8E21D46
-	for <io-uring@archiver.kernel.org>; Thu, 26 Nov 2020 15:50:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5548B2075A
+	for <io-uring@archiver.kernel.org>; Thu, 26 Nov 2020 17:39:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="WwzcKF4A"
+	dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="kdB69Qjm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730602AbgKZPuo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 26 Nov 2020 10:50:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50478 "EHLO
+        id S2391549AbgKZRjD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 26 Nov 2020 12:39:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730181AbgKZPuo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 26 Nov 2020 10:50:44 -0500
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C925AC0613D4
-        for <io-uring@vger.kernel.org>; Thu, 26 Nov 2020 07:50:42 -0800 (PST)
-Received: by mail-pf1-x443.google.com with SMTP id b10so560681pfo.4
-        for <io-uring@vger.kernel.org>; Thu, 26 Nov 2020 07:50:42 -0800 (PST)
+        with ESMTP id S2391424AbgKZRjD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 26 Nov 2020 12:39:03 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47792C0613D4
+        for <io-uring@vger.kernel.org>; Thu, 26 Nov 2020 09:39:02 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id s21so2182232pfu.13
+        for <io-uring@vger.kernel.org>; Thu, 26 Nov 2020 09:39:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=OD2EMTPaGGm/mYAb215ZYSuofHWvtFuOQ+vzgwQAqfM=;
-        b=WwzcKF4Ai0j9+UEYvuQWxux+zjUUuKU+zy8uWYlt63SMAzfpUpMRSrfNfAwsT0l70u
-         SDC26csOUZUQDzj2e2Q0v7X3/9iohwD+Dr8Xg/3v5sgNNOFuNqbbGM3WbKRKVNR9wyK7
-         puNazy9ySOIOCrMoasy4/WCBrzhaXtU02OiRJ/Z0FGSNrA2+6jdxH/iZp5pQPZyc6Fi9
-         tRR7+LBIFviN1BbTY/cD/MFxS+eyIojQGHLcgcMUZlYEA+GIaCSE6q/mJCGsGYymh2cb
-         LkG3T3EamWb2juy2uqGwYMYQJ4ys1afFMohR/kYDebVLWB8AJdCn2bL0MSHVQwufrIQ/
-         P9zA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Jwtkwy/3WeoJ7c8VJ+T4nhh5tXo72+tyQjjVhj3vQ64=;
+        b=kdB69QjmIzcQn81LtrPA3p/DY0TguVWavZAZq65jSOWdrRE0a5G9BSwm/ERB6zXUKE
+         jOyIqcga3E3Cp3fCsOgR5v6st8peyoog/1wLpy/FYUZpAGB04wg4KD82NQBk2g7A8DT/
+         yw3n8R6cACPbnWZJ3hy9HbU8u65te3Sfyttq2jRRhJJQKc86C0TW+1cxcRWKqGozi4jv
+         hrlNJAkPOo9yERmdViWZxCFcoQKprBBX1Arnk9IjB0MGUlzLiu1S/bc/wm6f2uakjGvy
+         5mC6f1OScl6StgKL9omZLtZouO5FWlNelO+K+Gzw1z2A9mHjPHXVQSxQJA60lvWTttF/
+         DVzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=OD2EMTPaGGm/mYAb215ZYSuofHWvtFuOQ+vzgwQAqfM=;
-        b=PPgti1cHttvP8Rys+XJxFyGg95VYLOvh6h7c8cMyk6+PJdwH4dBpTvwnYrRU78o7DO
-         KXwLyvapZMYh6l6pKCW0r6H36AWXnGfxqyiJPnIGxrUnhgpQN+HDguf/a0tSySNbWcFo
-         uYj/Ix4DsCyXSf16VA6wT3IXJiHAHKclLGD9djrdBgJEcP+YHQdo3xDOn6f9aeczlc4u
-         +LfayKuZmCJ0pZcDkAPRPLvcEEhBjQTDQ3yQ0ydY7yWox0i30Q3/qQ7McmMQQ5K/2+4I
-         7c3rRJqNHmWw/zuFvfj90adbY1KsAZ6/SsX0mMNxjdjQ+e33Fry44nfK02yG+PG6bdwQ
-         wlHw==
-X-Gm-Message-State: AOAM530JrslsN+Y+Z0+4lIUt8kZ8BMjuTRAVA0nOJks1vqFSOGDUOgK+
-        f84D06nRuD7w0TX/Q9LfEaqAa7+sm+/4rg==
-X-Google-Smtp-Source: ABdhPJyDmHV+kZ/4Q/4RAU8WBXf1FeF1uUhgPwZnqCzBhOCx7OuZH+48Grb2L1bS9tFnDrL8g6qYYg==
-X-Received: by 2002:a62:8608:0:b029:18b:a8e:ee9 with SMTP id x8-20020a6286080000b029018b0a8e0ee9mr3137533pfd.65.1606405842014;
-        Thu, 26 Nov 2020 07:50:42 -0800 (PST)
-Received: from ?IPv6:2605:e000:100e:8c61:386d:cd15:142f:9ec0? ([2605:e000:100e:8c61:386d:cd15:142f:9ec0])
-        by smtp.gmail.com with ESMTPSA id z5sm4952038pgv.53.2020.11.26.07.50.41
+        bh=Jwtkwy/3WeoJ7c8VJ+T4nhh5tXo72+tyQjjVhj3vQ64=;
+        b=V7KYSTtaD6QvnWKZ5hF0iYmcR0BvMzqrvwyleklTHcCeNouCwydaICnft26qqiVMH1
+         EXcuMtn71HX58QxEMq9ZQER0r1qqxed0SmDKf3f5DJ4OLWIuHInhfrEwCCNyY7jw+r0Z
+         pscWKtyGsLBrBa0nbx1ujc99ZaOtVlzL3frGUhpS9m2PRaG4VDpy4ldA41jmlOEYin9z
+         R1o/aR/PUu1g7/T6mktsqgXOl+96xaiCVm6Z4USryvbhH6hrmXIJod7edObJNwbclnHk
+         I8Eb4U9LbRJ+YeXai5kEXUTJNOQENOojW5ukkO/HeEnwMNRU3SvD4hNiK+/Utv/rys4j
+         XFeA==
+X-Gm-Message-State: AOAM532BaXo5mIcvPyyeBt7KKJMAWLdtrJRMfwRLij6VT+lYdEAJsCYv
+        p0SdTfu438qCpE0KLzvn8iKd3kKufmi5yg==
+X-Google-Smtp-Source: ABdhPJytw3LAEy9wqGk4qbNE0877b+ft+dhqJNXxO0yolie9QbiriN72v3AdupC2bcnTgem+q4E2+g==
+X-Received: by 2002:a63:db09:: with SMTP id e9mr3355732pgg.60.1606412341711;
+        Thu, 26 Nov 2020 09:39:01 -0800 (PST)
+Received: from ?IPv6:2605:e000:100e:8c61:6526:b582:2933:53f4? ([2605:e000:100e:8c61:6526:b582:2933:53f4])
+        by smtp.gmail.com with ESMTPSA id w12sm5047049pfn.136.2020.11.26.09.39.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Nov 2020 07:50:41 -0800 (PST)
-Subject: Re: [PATCH 5.10] io_uring: fix files grab/cancel race
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <687c411007d0ec6a2be092ddc0274046898e43b5.1606329549.git.asml.silence@gmail.com>
+        Thu, 26 Nov 2020 09:39:01 -0800 (PST)
+Subject: Re: [PATCH] test/timeout-new: test for timeout feature
+To:     Hao Xu <haoxu@linux.alibaba.com>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <1606115273-164396-1-git-send-email-haoxu@linux.alibaba.com>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <d9e0e4f1-372a-7bba-760d-c2a1f1272b03@kernel.dk>
-Date:   Thu, 26 Nov 2020 08:50:42 -0700
+Message-ID: <2562fb6f-fb84-07d7-39dc-597683773e12@kernel.dk>
+Date:   Thu, 26 Nov 2020 10:39:01 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <687c411007d0ec6a2be092ddc0274046898e43b5.1606329549.git.asml.silence@gmail.com>
+In-Reply-To: <1606115273-164396-1-git-send-email-haoxu@linux.alibaba.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -75,20 +76,19 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/25/20 11:41 AM, Pavel Begunkov wrote:
-> When one task is in io_uring_cancel_files() and another is doing
-> io_prep_async_work() a race may happen. That's because after accounting
-> a request inflight in first call to io_grab_identity() it still may fail
-> and go to io_identity_cow(), which migh briefly keep dangling
-> work.identity and not only.
+On 11/23/20 12:07 AM, Hao Xu wrote:
+> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+> ---
 > 
-> Grab files last, so io_prep_async_work() won't fail if it did get into
-> ->inflight_list.
-> 
-> note: the bug shouldn't exist after making io_uring_cancel_files() not
-> poking into other tasks' requests.
+> Hi Jens,
+> This is a simple test for the new getevent timeout feature. Sorry for
+> the delay.
 
-Applied, thanks.
+We need a lot more in this test case, to be honest. Maybe test that
+it returns around 1 second? Test that if we have an event it doesn't
+wait, etc. This is as bare bones as it gets, a test case for a new
+addition/change really should test all the interesting cases around
+it.
 
 -- 
 Jens Axboe

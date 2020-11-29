@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D3EC64E7D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 934DDC64E90
 	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0EBDC20885
+	by mail.kernel.org (Postfix) with ESMTP id 538D220885
 	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G3hsakiV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="chVcc+Rp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbgK2Aut (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40756 "EHLO
+        id S1729997AbgK2Auu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:50:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729997AbgK2Aus (ORCPT
+        with ESMTP id S1729979AbgK2Aus (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:48 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544B1C061A4B;
-        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id y7so7722010pfq.11;
-        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31737C061A49;
+        Sat, 28 Nov 2020 16:50:07 -0800 (PST)
+Received: by mail-pg1-x543.google.com with SMTP id w16so7364796pga.9;
+        Sat, 28 Nov 2020 16:50:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=5QXUDMJ+aPqSy8td8tfFhwAmuSfL9+BIWKOUS4q4alQ=;
-        b=G3hsakiVpY40laKPeaMBGblNZ3/Zv13HPBuBXoETeShJXDPLMTOeJZRHHTOM18hfAV
-         N5EsJJJs12sXwBIIe2t7dCzTW+0jG3qjq2wGugWW5WKWcHDvgW01N0sCRM6LBOLTIwwH
-         VBlv4RABSeG4oSGot4PdjE5ECNCby9hztUDbPk4ssPY9yCyp5dzwW3NwvbnM2mft5MdO
-         Mb43rvrz6Ve8DhFxto4GmSt8hJ/KQbbC59JO1agJ1H2kMYjIv10J4gKNyS3MVtId0NgG
-         eBbpVBkcGEBLgK9KGZR1YnOpmLZkrKsOn2+d0S8p0WoOHwMH6ZgrrRvNyp3G1B07DNRc
-         iSyg==
+        bh=59KWJ3/vJ6HvjVKPPNnRXw2pLzvj6jPJhqf+PHsK5Lk=;
+        b=chVcc+RpWELrdHQJX2hhDn+8PahEbwgiDiSXx20aZXuf2vwweeyvQsVqF3iGR8DfL1
+         flZOboyW8fvAK96YKsrOIp/mQbHi6+IapaGz213Q765F25rS71WgumelVtRDsOZsZepS
+         DciB0vTY3vQDe9CkU1T/CrRFGbnKK4C7FBn8qExI5wuat6Wh/wfDurQrI4m5EXnyjLjv
+         3ETHzqUR4ywd33HwE7d2SLOw5jjwpmOUI+1/jJuJKO3woWIR+/HcCMt8dKXjLGtX9CWs
+         vC0kKUd3PEe7tvDkDQD9iDp7/l792lBgAlVajXVNcnUug0xhWpieS5R8FZIUauJVWSVX
+         OwJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=5QXUDMJ+aPqSy8td8tfFhwAmuSfL9+BIWKOUS4q4alQ=;
-        b=iPx61xyKO5Pg2fPH5AtYEOrYmt0ajH9hLrsXxIUHger9F5EX0v70xahzmRHRAFAmax
-         rR0JhFnKpPBgH3ldjRcuSX91HcxWlIZSPOmBjtwxZRqiSNNUAJEdZwdmbBRaIWCDvkAO
-         kyt9Te8F2/QedlzpFWGPr7m3xZT8i1ioW8OUWVqG0WeVZuEFzMSpY09rJudj2lIzJmDc
-         4pnMO4d19b+6E92kgQqVckCpsrEbrnU/B8id6RSrWPpL20bYmX/bwV+Zc8zVbH8GVdwr
-         uNwjTFIXMHlE6XX2W3eQnz5qD4JH3WJvNuCM/nK1VJ/unFTomPmP5g7ETan658n11xA/
-         bJPg==
-X-Gm-Message-State: AOAM533pfgbnxBNPT4q+5tq3E/mq3S1EATuoyK5sRGFbhphuAcLHmlk/
-        MZDwT5RP+ExeIOR7VEwpx+hoY7o5M8/UmQ==
-X-Google-Smtp-Source: ABdhPJxVhJfV3O16FYglVnrkLi5gbMDPamTFnwrPU8EwzqqxD10/vPYsQAVmhLJ4S4ZOOIwGbmraeA==
-X-Received: by 2002:a17:90a:6393:: with SMTP id f19mr18811358pjj.227.1606611009301;
-        Sat, 28 Nov 2020 16:50:09 -0800 (PST)
+        bh=59KWJ3/vJ6HvjVKPPNnRXw2pLzvj6jPJhqf+PHsK5Lk=;
+        b=IKvlfNV3yhAuVH8jiMFF8hUTMtRQqeoSfyrTuPTq8Q/X8B91o9Ejb8ha5hY/lX+RKk
+         JyfnAShF/HX1X8+mS5JupYWjQH9GwM3ccORURNk0mSyhzXtZwIMb5TpB8sTi4jsiY3Ac
+         YMC5oNKmBFQj4ZHkRo0OXXcCg+AcDuYoKSohaKdXE7fqNkC6AA8hqDPYBCpls6EAI5La
+         dZx87YwqWa2c6gI/swdgZkQZRDDGkm94+oNqTqSfLO0PGF8F1aXAgyRK8JTkf6GR8o4e
+         eYczFcVVLJpXdSd16n0iYFe4vC0JKTyS5lJBUwvvv2VyAopD3AkH+2arjuozJ7Pj32x0
+         WTNw==
+X-Gm-Message-State: AOAM5311mBkeY1wqaTQdhmL1FLiV8tN7kcEoDJDwUo5K7OqsheMYJp6k
+        rfnZ0Z0i9qD7rr4eIXG2ycAg6syph8588w==
+X-Google-Smtp-Source: ABdhPJyWiKvysa3Yocv9eCzmz/ID0fXaV6ox++urR807pZiDVfoy48giSjx/iyE9N0Gfs7uI/Rzs5g==
+X-Received: by 2002:a17:90b:4595:: with SMTP id hd21mr18568326pjb.127.1606611006164;
+        Sat, 28 Nov 2020 16:50:06 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.07
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:50:08 -0800 (PST)
+        Sat, 28 Nov 2020 16:50:05 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
@@ -67,9 +67,9 @@ Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 10/13] fs/userfaultfd: add write_iter() interface
-Date:   Sat, 28 Nov 2020 16:45:45 -0800
-Message-Id: <20201129004548.1619714-11-namit@vmware.com>
+Subject: [RFC PATCH 08/13] fs/userfaultfd: complete reads asynchronously
+Date:   Sat, 28 Nov 2020 16:45:43 -0800
+Message-Id: <20201129004548.1619714-9-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
 References: <20201129004548.1619714-1-namit@vmware.com>
@@ -81,20 +81,30 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-In order to use userfaultfd with io-uring, there are two options for
-extensions: support userfaultfd ioctls or provide similar functionality
-through the "write" interface. The latter approach seems more compelling
-as it does not require io-uring changes, and keeps all the logic of
-userfaultfd where it should be. In addition it allows to provide
-asynchronous completions by performing the copying/zeroing in the
-faulting thread (which will be done in a later patch).
+Complete reads asynchronously to allow io_uring to complete reads
+asynchronously.
 
-This patch enhances the userfaultfd API to provide write interface to
-perform similar operations for copy/zero. The lower bits of the position
-(smaller than PAGE_SHIFT) are being used to encode the required
-operation: zero/copy/wake/write-protect. In the case of zeroing, the
-source data is ignored and only the length is being used to determine
-the size of the data that needs to be zeroed.
+Reads, which report page-faults and events, can only be performed
+asynchronously if the read is performed into a kernel buffer, and
+therefore guarantee that no page-fault would occur during the completion
+of the read. Otherwise, we would have needed to handle nested
+page-faults or do expensive pinning/unpinning of the pages into which
+the read is performed.
+
+Userfaultfd holds in its context the kiocb and iov_iter that would be
+used for the next asynchronous read (can be extended later into a list
+to hold more than a single enqueued read).  If such a buffer is
+available and a fault occurs, the fault is reported to the user and the
+fault is added to the fault workqueue instead of the pending-fault
+workqueue.
+
+There is a need to prevent a race between synchronous and asynchronous
+reads, so reads will first use buffers that were previous enqueued and
+only later pending-faults and events. For this matter a new
+"notification" lock is introduced that is held while enqueuing new
+events and pending faults and during event reads. It may be possible to
+use the fd_wqh.lock instead, but having a separate lock for the matter
+seems cleaner.
 
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
@@ -106,189 +116,447 @@ Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
 Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- fs/userfaultfd.c                 | 96 +++++++++++++++++++++++++++++++-
- include/uapi/linux/userfaultfd.h | 14 ++++-
- 2 files changed, 107 insertions(+), 3 deletions(-)
+ fs/userfaultfd.c | 265 +++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 235 insertions(+), 30 deletions(-)
 
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 7bbee2a00d37..eae6ac303951 100644
+index 6333b4632742..db1a963f6ae2 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -1140,6 +1140,34 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+@@ -44,9 +44,10 @@ enum userfaultfd_state {
+  *
+  * Locking order:
+  *	fd_wqh.lock
+- *		fault_pending_wqh.lock
+- *			fault_wqh.lock
+- *		event_wqh.lock
++ *		notification_lock
++ *			fault_pending_wqh.lock
++ *				fault_wqh.lock
++ *			event_wqh.lock
+  *
+  * To avoid deadlocks, IRQs must be disabled when taking any of the above locks,
+  * since fd_wqh.lock is taken by aio_poll() while it's holding a lock that's
+@@ -79,6 +80,16 @@ struct userfaultfd_ctx {
+ 	struct mm_struct *mm;
+ 	/* controlling process files as they might be different than current */
+ 	struct files_struct *files;
++	/*
++	 * lock for sync and async userfaultfd reads, which must be held when
++	 * enqueueing into fault_pending_wqh or event_wqh, upon userfaultfd
++	 * reads and on accesses of iocb_callback and to.
++	 */
++	spinlock_t notification_lock;
++	/* kiocb struct that is used for the next asynchronous read */
++	struct kiocb *iocb_callback;
++	/* the iterator that is used for the next asynchronous read */
++	struct iov_iter to;
+ };
  
- static const struct file_operations userfaultfd_fops;
+ struct userfaultfd_fork_ctx {
+@@ -356,6 +367,53 @@ static inline long userfaultfd_get_blocking_state(unsigned int flags)
+ 	return TASK_UNINTERRUPTIBLE;
+ }
  
-+/* Open-coded version of anon_inode_getfd() to setup FMODE_PWRITE */
-+static int userfaultfd_getfd(const char *name, const struct file_operations *fops,
-+		     void *priv, int flags)
++static bool userfaultfd_get_async_complete_locked(struct userfaultfd_ctx *ctx,
++				struct kiocb **iocb, struct iov_iter *iter)
 +{
-+	int error, fd;
-+	struct file *file;
++	if (!ctx->released)
++		lockdep_assert_held(&ctx->notification_lock);
 +
-+	error = get_unused_fd_flags(flags);
-+	if (error < 0)
-+		return error;
-+	fd = error;
++	if (ctx->iocb_callback == NULL)
++		return false;
 +
-+	file = anon_inode_getfile(name, fops, priv, flags);
++	*iocb = ctx->iocb_callback;
++	*iter = ctx->to;
 +
-+	if (IS_ERR(file)) {
-+		error = PTR_ERR(file);
-+		goto err_put_unused_fd;
-+	}
-+	file->f_mode |= FMODE_PWRITE;
-+	fd_install(fd, file);
-+
-+	return fd;
-+
-+err_put_unused_fd:
-+	put_unused_fd(fd);
-+	return error;
++	ctx->iocb_callback = NULL;
++	ctx->to.kvec = NULL;
++	return true;
 +}
 +
- static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
- 				  struct userfaultfd_ctx *new,
- 				  struct uffd_msg *msg)
-@@ -1161,7 +1189,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
- 		task_unlock(current);
++static bool userfaultfd_get_async_complete(struct userfaultfd_ctx *ctx,
++				struct kiocb **iocb, struct iov_iter *iter)
++{
++	bool r;
++
++	spin_lock_irq(&ctx->notification_lock);
++	r = userfaultfd_get_async_complete_locked(ctx, iocb, iter);
++	spin_unlock_irq(&ctx->notification_lock);
++	return r;
++}
++
++static void userfaultfd_copy_async_msg(struct kiocb *iocb,
++				       struct iov_iter *iter,
++				       struct uffd_msg *msg,
++				       int ret)
++{
++
++	const struct kvec *kvec = iter->kvec;
++
++	if (ret == 0)
++		ret = copy_to_iter(msg, sizeof(*msg), iter);
++
++	/* Should never fail as we guarantee that we use a kernel buffer */
++	WARN_ON_ONCE(ret != sizeof(*msg));
++	iocb->ki_complete(iocb, ret, 0);
++
++	kfree(kvec);
++	iter->kvec = NULL;
++}
++
+ /*
+  * The locking rules involved in returning VM_FAULT_RETRY depending on
+  * FAULT_FLAG_ALLOW_RETRY, FAULT_FLAG_RETRY_NOWAIT and
+@@ -380,6 +438,10 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	bool must_wait;
+ 	long blocking_state;
+ 	bool poll;
++	bool async = false;
++	struct kiocb *iocb;
++	struct iov_iter iter;
++	wait_queue_head_t *wqh;
+ 
+ 	/*
+ 	 * We don't do userfault handling for the final child pid update.
+@@ -489,12 +551,29 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 
+ 	blocking_state = userfaultfd_get_blocking_state(vmf->flags);
+ 
+-	spin_lock_irq(&ctx->fault_pending_wqh.lock);
++	/*
++	 * Abuse fd_wqh.lock to protect against concurrent reads to avoid a
++	 * scenario in which a fault/event is queued, and read returns
++	 * -EIOCBQUEUED.
++	 */
++	spin_lock_irq(&ctx->notification_lock);
++	async = userfaultfd_get_async_complete_locked(ctx, &iocb, &iter);
++	wqh = &ctx->fault_pending_wqh;
++
++	if (async)
++		wqh = &ctx->fault_wqh;
++
+ 	/*
+ 	 * After the __add_wait_queue the uwq is visible to userland
+ 	 * through poll/read().
+ 	 */
+-	__add_wait_queue(&ctx->fault_pending_wqh, &uwq.wq);
++	spin_lock(&wqh->lock);
++
++	__add_wait_queue(wqh, &uwq.wq);
++
++	/* Ensure it is queued before userspace is informed. */
++	smp_wmb();
++
+ 	/*
+ 	 * The smp_mb() after __set_current_state prevents the reads
+ 	 * following the spin_unlock to happen before the list_add in
+@@ -504,7 +583,15 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	if (!poll)
+ 		set_current_state(blocking_state);
+ 
+-	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
++	spin_unlock(&wqh->lock);
++	spin_unlock_irq(&ctx->notification_lock);
++
++	/*
++	 * Do the copy after the lock is relinquished to avoid circular lock
++	 * dependencies.
++	 */
++	if (async)
++		userfaultfd_copy_async_msg(iocb, &iter, &uwq.msg, 0);
+ 
+ 	if (!is_vm_hugetlb_page(vmf->vma))
+ 		must_wait = userfaultfd_must_wait(ctx, vmf->address, vmf->flags,
+@@ -516,7 +603,9 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	mmap_read_unlock(mm);
+ 
+ 	if (likely(must_wait && !READ_ONCE(ctx->released))) {
+-		wake_up_poll(&ctx->fd_wqh, EPOLLIN);
++		if (!async)
++			wake_up_poll(&ctx->fd_wqh, EPOLLIN);
++
+ 		if (poll) {
+ 			while (!READ_ONCE(uwq.waken) && !READ_ONCE(ctx->released) &&
+ 			       !signal_pending(current)) {
+@@ -544,13 +633,21 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	 * kernel stack can be released after the list_del_init.
+ 	 */
+ 	if (!list_empty_careful(&uwq.wq.entry)) {
+-		spin_lock_irq(&ctx->fault_pending_wqh.lock);
++		local_irq_disable();
++		if (!async)
++			spin_lock(&ctx->fault_pending_wqh.lock);
++		spin_lock(&ctx->fault_wqh.lock);
++
+ 		/*
+ 		 * No need of list_del_init(), the uwq on the stack
+ 		 * will be freed shortly anyway.
+ 		 */
+ 		list_del(&uwq.wq.entry);
+-		spin_unlock_irq(&ctx->fault_pending_wqh.lock);
++
++		spin_unlock(&ctx->fault_wqh.lock);
++		if (!async)
++			spin_unlock(&ctx->fault_pending_wqh.lock);
++		local_irq_enable();
  	}
  
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
-+	fd = userfaultfd_getfd("[userfaultfd]", &userfaultfd_fops, new,
- 			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
+ 	/*
+@@ -563,10 +660,17 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	return ret;
+ }
  
- 	if (files != NULL) {
-@@ -1496,6 +1524,69 @@ static __always_inline int validate_range(struct mm_struct *mm,
++
++static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
++				  struct userfaultfd_ctx *new,
++				  struct uffd_msg *msg);
++
+ static void userfaultfd_event_wait_completion(struct userfaultfd_ctx *ctx,
+ 					      struct userfaultfd_wait_queue *ewq)
+ {
+ 	struct userfaultfd_ctx *release_new_ctx;
++	struct iov_iter iter;
++	struct kiocb *iocb;
+ 
+ 	if (WARN_ON_ONCE(current->flags & PF_EXITING))
+ 		goto out;
+@@ -575,12 +679,42 @@ static void userfaultfd_event_wait_completion(struct userfaultfd_ctx *ctx,
+ 	init_waitqueue_entry(&ewq->wq, current);
+ 	release_new_ctx = NULL;
+ 
+-	spin_lock_irq(&ctx->event_wqh.lock);
++retry:
++	spin_lock_irq(&ctx->notification_lock);
++
+ 	/*
+-	 * After the __add_wait_queue the uwq is visible to userland
+-	 * through poll/read().
++	 * Submit asynchronously when needed, and release the notification lock
++	 * as soon as the event is either queued on the work queue or an entry
++	 * is taken.
++	 */
++	if (userfaultfd_get_async_complete_locked(ctx, &iocb, &iter)) {
++		int r = 0;
++
++		spin_unlock_irq(&ctx->notification_lock);
++		if (ewq->msg.event == UFFD_EVENT_FORK) {
++			struct userfaultfd_ctx *new =
++				(struct userfaultfd_ctx *)(unsigned long)
++					ewq->msg.arg.reserved.reserved1;
++
++			r = resolve_userfault_fork(ctx, new, &ewq->msg);
++		}
++		userfaultfd_copy_async_msg(iocb, &iter, &ewq->msg, r);
++
++		if (r != 0)
++			goto retry;
++
++		goto out;
++	}
++
++	spin_lock(&ctx->event_wqh.lock);
++	/*
++	 * After the __add_wait_queue or the call to ki_complete the uwq is
++	 * visible to userland through poll/read().
+ 	 */
+ 	__add_wait_queue(&ctx->event_wqh, &ewq->wq);
++
++	spin_unlock(&ctx->notification_lock);
++
+ 	for (;;) {
+ 		set_current_state(TASK_KILLABLE);
+ 		if (ewq->msg.event == 0)
+@@ -683,6 +817,7 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+ 		ctx->features = octx->features;
+ 		ctx->released = false;
+ 		ctx->mmap_changing = false;
++		ctx->iocb_callback = NULL;
+ 		ctx->mm = vma->vm_mm;
+ 		mmgrab(ctx->mm);
+ 
+@@ -854,6 +989,15 @@ void userfaultfd_unmap_complete(struct mm_struct *mm, struct list_head *uf)
+ 	}
+ }
+ 
++static void userfaultfd_cancel_async_reads(struct userfaultfd_ctx *ctx)
++{
++	struct iov_iter iter;
++	struct kiocb *iocb;
++
++	while (userfaultfd_get_async_complete(ctx, &iocb, &iter))
++		userfaultfd_copy_async_msg(iocb, &iter, NULL, -EBADF);
++}
++
+ static int userfaultfd_release(struct inode *inode, struct file *file)
+ {
+ 	struct userfaultfd_ctx *ctx = file->private_data;
+@@ -912,6 +1056,8 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, &range);
+ 	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 
++	userfaultfd_cancel_async_reads(ctx);
++
+ 	/* Flush pending events that may still wait on event_wqh */
+ 	wake_up_all(&ctx->event_wqh);
+ 
+@@ -1032,8 +1178,39 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
  	return 0;
  }
  
-+ssize_t userfaultfd_write_iter(struct kiocb *iocb, struct iov_iter *from)
+-static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
+-				    struct uffd_msg *msg)
++static ssize_t userfaultfd_enqueue(struct kiocb *iocb,
++				   struct userfaultfd_ctx *ctx,
++				   struct iov_iter *to)
 +{
-+	struct file *file = iocb->ki_filp;
-+	struct userfaultfd_wake_range range;
-+	struct userfaultfd_ctx *ctx = file->private_data;
-+	size_t len = iov_iter_count(from);
-+	__u64 dst = iocb->ki_pos & PAGE_MASK;
-+	unsigned long mode = iocb->ki_pos & ~PAGE_MASK;
-+	bool zeropage;
-+	__s64 ret;
++	lockdep_assert_irqs_disabled();
 +
-+	BUG_ON(len == 0);
++	if (!to)
++		return -EAGAIN;
 +
-+	zeropage = mode & UFFDIO_WRITE_MODE_ZEROPAGE;
++	if (is_sync_kiocb(iocb) ||
++	    (!iov_iter_is_bvec(to) && !iov_iter_is_kvec(to)))
++		return -EAGAIN;
 +
-+	ret = -EINVAL;
-+	if (mode & ~(UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP |
-+		     UFFDIO_WRITE_MODE_ZEROPAGE))
-+		goto out;
-+
-+	mode = mode & (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP);
++	/* Check again if there are pending events */
++	if (waitqueue_active(&ctx->fault_pending_wqh) ||
++	    waitqueue_active(&ctx->event_wqh))
++		return -EAGAIN;
 +
 +	/*
-+	 * Keep compatibility with zeropage ioctl, which does not allow
-+	 * write-protect and dontwake.
++	 * Check that there is no other callback already registered, as
++	 * we only support one at the moment.
 +	 */
-+	if (zeropage &&
-+	    (mode & (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP)) ==
-+	     (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP))
-+		goto out;
++	if (ctx->iocb_callback)
++		return -EAGAIN;
 +
-+	ret = -EAGAIN;
-+	if (READ_ONCE(ctx->mmap_changing))
-+		goto out;
-+
-+	ret = validate_range(ctx->mm, &dst, len);
-+	if (ret)
-+		goto out;
-+
-+	if (mmget_not_zero(ctx->mm)) {
-+		if (zeropage)
-+			ret = mfill_zeropage(ctx->mm, dst, from,
-+					     &ctx->mmap_changing);
-+		else
-+			ret = mcopy_atomic(ctx->mm, dst, from,
-+					   &ctx->mmap_changing, mode);
-+		mmput(ctx->mm);
-+	} else {
-+		return -ESRCH;
-+	}
-+	if (ret < 0)
-+		goto out;
-+
-+	/* len == 0 would wake all */
-+	range.len = ret;
-+	if (!(mode & UFFDIO_COPY_MODE_DONTWAKE)) {
-+		range.start = dst;
-+		wake_userfault(ctx, &range);
-+	}
-+out:
-+	return ret;
++	ctx->iocb_callback = iocb;
++	ctx->to = *to;
++	return -EIOCBQUEUED;
 +}
 +
- static inline bool vma_can_userfault(struct vm_area_struct *vma,
- 				     unsigned long vm_flags)
++static ssize_t userfaultfd_ctx_read(struct kiocb *iocb,
++				    struct userfaultfd_ctx *ctx, int no_wait,
++				    struct uffd_msg *msg, struct iov_iter *to)
  {
-@@ -2197,6 +2288,7 @@ static const struct file_operations userfaultfd_fops = {
- 	.release	= userfaultfd_release,
- 	.poll		= userfaultfd_poll,
- 	.read_iter	= userfaultfd_read_iter,
-+	.write_iter	= userfaultfd_write_iter,
- 	.unlocked_ioctl = userfaultfd_ioctl,
- 	.compat_ioctl	= compat_ptr_ioctl,
- 	.llseek		= noop_llseek,
-@@ -2248,7 +2340,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	ssize_t ret;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -1051,6 +1228,7 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
+ 	/* always take the fd_wqh lock before the fault_pending_wqh lock */
+ 	spin_lock_irq(&ctx->fd_wqh.lock);
+ 	__add_wait_queue(&ctx->fd_wqh, &wait);
++	spin_lock(&ctx->notification_lock);
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_lock(&ctx->fault_pending_wqh.lock);
+@@ -1122,21 +1300,23 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
+ 			ret = 0;
+ 		}
+ 		spin_unlock(&ctx->event_wqh.lock);
+-		if (!ret)
+-			break;
  
- 	ctx->files = get_files_struct(current);
- 
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
-+	fd = userfaultfd_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
- 			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
- 	if (fd < 0) {
- 		mmdrop(ctx->mm);
-diff --git a/include/uapi/linux/userfaultfd.h b/include/uapi/linux/userfaultfd.h
-index 4eeba4235afe..943e50b41742 100644
---- a/include/uapi/linux/userfaultfd.h
-+++ b/include/uapi/linux/userfaultfd.h
-@@ -28,7 +28,8 @@
- 			   UFFD_FEATURE_MISSING_SHMEM |		\
- 			   UFFD_FEATURE_SIGBUS |		\
- 			   UFFD_FEATURE_THREAD_ID |		\
--			   UFFD_FEATURE_POLL)
-+			   UFFD_FEATURE_POLL |			\
-+			   UFFD_FEATURE_WRITE)
- 
- #define UFFD_API_IOCTLS				\
- 	((__u64)1 << _UFFDIO_REGISTER |		\
-@@ -177,6 +178,9 @@ struct uffdio_api {
- 	 * UFFD_FEATURE_POLL polls upon page-fault if the feature is requested
- 	 * instead of descheduling. This feature should only be enabled for
- 	 * low-latency handlers and when CPUs are not overcomitted.
-+	 *
-+	 * UFFD_FEATURE_WRITE allows to use the write interface for copy and
-+	 * zeroing of pages in addition to the ioctl interface.
- 	 */
- #define UFFD_FEATURE_PAGEFAULT_FLAG_WP		(1<<0)
- #define UFFD_FEATURE_EVENT_FORK			(1<<1)
-@@ -188,6 +192,7 @@ struct uffdio_api {
- #define UFFD_FEATURE_SIGBUS			(1<<7)
- #define UFFD_FEATURE_THREAD_ID			(1<<8)
- #define UFFD_FEATURE_POLL			(1<<9)
-+#define UFFD_FEATURE_WRITE			(1<<10)
- 	__u64 features;
- 
- 	__u64 ioctls;
-@@ -264,4 +269,11 @@ struct uffdio_writeprotect {
- 	__u64 mode;
- };
- 
-+/*
-+ * Write modes to be use with UFFDIO_SET_WRITE_MODE ioctl.
-+ */
-+#define UFFDIO_WRITE_MODE_DONTWAKE		UFFDIO_COPY_MODE_DONTWAKE
-+#define UFFDIO_WRITE_MODE_WP			UFFDIO_COPY_MODE_WP
-+#define UFFDIO_WRITE_MODE_ZEROPAGE		((__u64)1<<2)
+-		if (signal_pending(current)) {
++		if (ret == -EAGAIN && signal_pending(current))
+ 			ret = -ERESTARTSYS;
 +
- #endif /* _LINUX_USERFAULTFD_H */
++		if (ret == -EAGAIN && no_wait)
++			ret = userfaultfd_enqueue(iocb, ctx, to);
++
++		if (no_wait || ret != -EAGAIN)
+ 			break;
+-		}
+-		if (no_wait) {
+-			ret = -EAGAIN;
+-			break;
+-		}
++
++		spin_unlock(&ctx->notification_lock);
+ 		spin_unlock_irq(&ctx->fd_wqh.lock);
+ 		schedule();
+ 		spin_lock_irq(&ctx->fd_wqh.lock);
++		spin_lock(&ctx->notification_lock);
+ 	}
++	spin_unlock(&ctx->notification_lock);
+ 	__remove_wait_queue(&ctx->fd_wqh, &wait);
+ 	__set_current_state(TASK_RUNNING);
+ 	spin_unlock_irq(&ctx->fd_wqh.lock);
+@@ -1202,20 +1382,38 @@ static ssize_t userfaultfd_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	ssize_t _ret, ret = 0;
+ 	struct uffd_msg msg;
+ 	int no_wait = file->f_flags & O_NONBLOCK;
++	struct iov_iter _to, *async_to = NULL;
+ 
+-	if (ctx->state == UFFD_STATE_WAIT_API)
++	if (ctx->state == UFFD_STATE_WAIT_API || READ_ONCE(ctx->released))
+ 		return -EINVAL;
+ 
++	/* Duplicate before taking the lock */
++	if (no_wait && !is_sync_kiocb(iocb) &&
++	    (iov_iter_is_bvec(to) || iov_iter_is_kvec(to))) {
++		async_to = &_to;
++		dup_iter(async_to, to, GFP_KERNEL);
++	}
++
+ 	for (;;) {
+-		if (iov_iter_count(to) < sizeof(msg))
+-			return ret ? ret : -EINVAL;
+-		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg);
+-		if (_ret < 0)
+-			return ret ? ret : _ret;
++		if (iov_iter_count(to) < sizeof(msg)) {
++			if (!ret)
++				ret = -EINVAL;
++			break;
++		}
++		_ret = userfaultfd_ctx_read(iocb, ctx, no_wait, &msg, async_to);
++		if (_ret < 0) {
++			if (ret == 0)
++				ret = _ret;
++			break;
++		}
++		async_to = NULL;
+ 
+ 		_ret = copy_to_iter(&msg, sizeof(msg), to);
+-		if (_ret != sizeof(msg))
+-			return ret ? ret : -EINVAL;
++		if (_ret != sizeof(msg)) {
++			if (ret == 0)
++				ret = -EINVAL;
++			break;
++		}
+ 
+ 		ret += sizeof(msg);
+ 
+@@ -1225,6 +1423,11 @@ static ssize_t userfaultfd_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 		 */
+ 		no_wait = O_NONBLOCK;
+ 	}
++
++	if (ret != -EIOCBQUEUED && async_to != NULL)
++		kfree(async_to->kvec);
++
++	return ret;
+ }
+ 
+ static void __wake_userfault(struct userfaultfd_ctx *ctx,
+@@ -1997,6 +2200,7 @@ static void init_once_userfaultfd_ctx(void *mem)
+ 	init_waitqueue_head(&ctx->event_wqh);
+ 	init_waitqueue_head(&ctx->fd_wqh);
+ 	seqcount_spinlock_init(&ctx->refile_seq, &ctx->fault_pending_wqh.lock);
++	spin_lock_init(&ctx->notification_lock);
+ }
+ 
+ SYSCALL_DEFINE1(userfaultfd, int, flags)
+@@ -2027,6 +2231,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	ctx->released = false;
+ 	ctx->mmap_changing = false;
+ 	ctx->mm = current->mm;
++	ctx->iocb_callback = NULL;
+ 	/* prevent the mm struct to be freed */
+ 	mmgrab(ctx->mm);
+ 
 -- 
 2.25.1
 

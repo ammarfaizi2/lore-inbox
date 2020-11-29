@@ -2,76 +2,77 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9F5C64E7B
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81140C83011
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4883620731
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51E5C20731
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bCpV6Igt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GziQO65x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728891AbgK2AuU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40660 "EHLO
+        id S1726841AbgK2Au1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:50:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726021AbgK2AuU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:20 -0500
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CDC2C0613D1;
-        Sat, 28 Nov 2020 16:49:55 -0800 (PST)
-Received: by mail-pl1-x642.google.com with SMTP id u2so4493025pls.10;
-        Sat, 28 Nov 2020 16:49:55 -0800 (PST)
+        with ESMTP id S1729393AbgK2AuY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:24 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C286CC0613D4;
+        Sat, 28 Nov 2020 16:49:59 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id 34so7361490pgp.10;
+        Sat, 28 Nov 2020 16:49:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=83/pAMCHdug8q8KigZ36pmo9dSTEa8sHBk2e7NUwP3o=;
-        b=bCpV6IgtHQXk2QH2Zlsg3vh2B7/GfpfNHPlsnAma2TRGOcvHcbjlz+xl7io++EOCWk
-         jdLLzMbmhRktYiF/6eME+TN8jJuGMsxFMDFibSsOpxO9SMC2Q1cGds5hrDAGfW4Z14wU
-         fNU7LsprK26F1GnVYtoKHv8mpt0IxTA0A2CTkx9Ob4JKAQ5EQ7zwW0ipW6JDzXyNcHae
-         CdweGA+A3jU+sEHEmYlbZo/t3Y7A6eCl1mh5scSrAfb0VwzMb9bys+e3mdDNKpAA2MV/
-         PTgyilLJa2jm3vdaPgOua3PVsz/wY7F6wgB+XeV3AEuh9T7zQeuRAFdb136eWDZRC41y
-         niMw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=D/z5ByovhoEdVL8szr+fSEwF5ZNkk28Asd+MEkdD3Ag=;
+        b=GziQO65x+u6+WDoZ+XN9JcohGtqXWOJB/8548oruYWdOlTqqFPBl9BOvrXP6yjikxi
+         WBeU7LZiVpLv/RPCN6vQAx7JQEBFD7Znjv0EIbOdHYXbdRlYANazPi4waUhUVlvIh88m
+         Q8HguvIVtgJGhFjl5CRq5b6n0ktK0tMI59BRDIfaxO8hpYFVjvJk7wD/9gR2LLvfb/Ee
+         cvt/Uy8Wcy0eFMX34cPqt5c3oPNHvDO17d+eZVvJD1aRe6YbN7bDZEbYmNjSQUKqGRJi
+         +d99YpQ7fcQFDZVBCy1y+/hzuY9kQCkbk6RG2sLp2JbLY8njbQFAKac7o5BMBlKwbuQm
+         Nnqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=83/pAMCHdug8q8KigZ36pmo9dSTEa8sHBk2e7NUwP3o=;
-        b=QMXpSiHwD4vz2KjJISZokpBjCQt1Iy/g1n6oDn0dC9a6qszFLUpdpCqKrNcvcfkkyQ
-         0OJ49g/v70Ui7D0qYan+IVXe8l9Qcw6ABBivJ3JZuLXgyVhosg+qReRaIsLOk0PiAV6F
-         NR0Otl0tt+3WOnQnXVVGb1/Xd8TaFCS1sLMkRWHGgKJwzd+K3SHIbWgiw9kBoDxVOWyB
-         ssLmvaLfeFuHYoogzPE2mDheM7+gpFTQxHgK5Y9vmCDVwCCMnQdvcf+0m8Dhv9gHmJz6
-         jP57K5okn3XKvyRcPWjCOV6t6dtV1cQIR7Xxt+W2gQ4wzwp4+Y+7B5u1HOG1LUr/6hJ0
-         bhew==
-X-Gm-Message-State: AOAM533tQLILIHoB80BJJsnS8dH54Ow/BN07rMI85dQwV+uMyeN8gZpe
-        5N+78bQ/TliKadRDBEWyT9UV4ik4mJaF0w==
-X-Google-Smtp-Source: ABdhPJwssGQhlhKBeDInAf63q82cFfSyhEr5h2dKa38xdU3BGUUE7ohK+TqMxjkvOwaD6/IEaP4B/g==
-X-Received: by 2002:a17:902:bd8c:b029:d8:db1d:2a35 with SMTP id q12-20020a170902bd8cb02900d8db1d2a35mr12843288pls.66.1606610994387;
-        Sat, 28 Nov 2020 16:49:54 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=D/z5ByovhoEdVL8szr+fSEwF5ZNkk28Asd+MEkdD3Ag=;
+        b=QB4PSAIJP5ntvbedyGRXnTuhDL47wMl6Ai6TlsGdm5vEDGKykxctDPpWy9Ur5XAV8b
+         2Mcy++P5qiWeoDzpNQXLCGlqx2XCaOMbG0NlzPC8ASv6XCTbanIQ7Z6SDiFlV1c2bmSU
+         SJi7YJpadFlmfqjqKGRyfI8mfdGZr6fKdptGEM5/yTFKXo5LyIdJwUcglZPQ8gSvfCVo
+         jM8bnwm3XRKUdZgUMl50Qj1Qb7SSwT/a3p5Lh4/HSwxCLd24gZZbc6I/rPQyZgHz5I3k
+         bwLjAfhAq4kmHJraJdX8liAZ3L3aXxFH8+7JJDGdHT4bAQgQO+FAHhCTW0bJ+XaHLJF1
+         ULlg==
+X-Gm-Message-State: AOAM533uEabqtyz0WsFUk2SzuonJySWR8pF72sNaM3/eX7/gQiD59BAh
+        NjTNw2AV+6OVRRSxvM7WQgChmMnAr/cibw==
+X-Google-Smtp-Source: ABdhPJx5I5FhNnaPnDfa9lHm0Zbkp/wck0FGO+VujxBdT+kZFIITcdBhelWGIcdFEAHPv5tn7RTRdA==
+X-Received: by 2002:a63:ca4d:: with SMTP id o13mr12226852pgi.116.1606610998789;
+        Sat, 28 Nov 2020 16:49:58 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.49.52
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.49.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:49:53 -0800 (PST)
+        Sat, 28 Nov 2020 16:49:58 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
+Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Peter Xu <peterx@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 00/13] fs/userfaultfd: support iouring and polling
-Date:   Sat, 28 Nov 2020 16:45:35 -0800
-Message-Id: <20201129004548.1619714-1-namit@vmware.com>
+Subject: [RFC PATCH 03/13] selftests/vm/userfaultfd: wake after copy failure
+Date:   Sat, 28 Nov 2020 16:45:38 -0800
+Message-Id: <20201129004548.1619714-4-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
+References: <20201129004548.1619714-1-namit@vmware.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -80,47 +81,30 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-While the overhead of userfaultfd is usually reasonable, this overhead
-can still be prohibitive for low-latency backing storage, such as RDMA,
-persistent memory or in-memory compression. In such cases the overhead
-of scheduling and entering/exiting the kernel becomes dominant.
+When userfaultfd copy-ioctl fails since the PTE already exists, an
+-EEXIST error is returned and the faulting thread is not woken. The
+current userfaultfd test does not wake the faulting thread in such case.
+The assumption is presumably that another thread set the PTE through
+copy/wp ioctl and would wake the faulting thread or that alternatively
+the fault handler would realize there is no need to "must_wait" and
+continue. This is not necessarily true.
 
-The natural solution for this problem is to use iouring with
-userfaultfd. But besides one bug, this does not provide sufficient
-performance improvement and the use of ioctls for zero/copy limits the
-use of iouring for synchronous "reads" (reporting of faults/events).
-This patch-set provides four solutions for this overhead:
+There is an assumption that the "must_wait" tests in handle_userfault()
+are sufficient to provide definitive answer whether the offending PTE is
+populated or not. However, userfaultfd_must_wait() test is lockless.
+Consequently, concurrent calls to ptep_modify_prot_start(), for
+instance, can clear the PTE and can cause userfaultfd_must_wait()
+to wrongly assume it is not populated and a wait is needed.
 
-1. Userfaultfd "polling" mode, in which the faulting thread polls after
-reporting the fault instead of being de-scheduled. This fits cases in
-which the handler is expected to poll for page-faults on a different
-thread.
+There are therefore 3 options:
+(1) Change the tests to wake on copy failure.
+(2) Wake faulting thread unconditionally on zero/copy ioctls before
+    returning -EEXIST.
+(3) Change the userfaultfd_must_wait() to hold locks.
 
-2. Asynchronous-reads, in which the faulting thread reports page-faults
-(and other events) directly to the userspace handler thread. For this
-matter asynchronous read completions are being introduced.
+This patch took the first approach, but the others are valid solutions
+with different tradeoffs.
 
-3. Write interface, which provides similar services to the zero/copy
-ioctls. This allows the use of iouring for zero/copy without changing
-the iouring code or making it to be userfaultfd-aware. The low bits of
-the "position" are being used to encode the requested operation
-(zero/cop/wp/etc).
-
-4. Async-writes, in which the zero/copy is performed by the faulting
-thread instead of the iouring thread. This reduces caching effects as
-the data is likely to be used by the faulting thread and find_vma()
-cannot use its cache on the iouring worker.
-
-I will provide some benchmark results later, but some initial results
-show that these patches reduce the overhead of handling a user
-page-fault by over 50%.
-
-The patches require a bit more cleanup but seem to pass the tests.
-
-Note that the first three patches are bug fixes. I did not Cc them to
-stable yet.
-
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Peter Xu <peterx@redhat.com>
@@ -129,38 +113,42 @@ Cc: io-uring@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
+Signed-off-by: Nadav Amit <namit@vmware.com>
+---
+ tools/testing/selftests/vm/userfaultfd.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-Nadav Amit (13):
-  fs/userfaultfd: fix wrong error code on WP & !VM_MAYWRITE
-  fs/userfaultfd: fix wrong file usage with iouring
-  selftests/vm/userfaultfd: wake after copy failure
-  fs/userfaultfd: simplify locks in userfaultfd_ctx_read
-  fs/userfaultfd: introduce UFFD_FEATURE_POLL
-  iov_iter: support atomic copy_page_from_iter_iovec()
-  fs/userfaultfd: support read_iter to use io_uring
-  fs/userfaultfd: complete reads asynchronously
-  fs/userfaultfd: use iov_iter for copy/zero
-  fs/userfaultfd: add write_iter() interface
-  fs/userfaultfd: complete write asynchronously
-  fs/userfaultfd: kmem-cache for wait-queue objects
-  selftests/vm/userfaultfd: iouring and polling tests
-
- fs/userfaultfd.c                         | 740 ++++++++++++++++----
- include/linux/hugetlb.h                  |   4 +-
- include/linux/mm.h                       |   6 +-
- include/linux/shmem_fs.h                 |   2 +-
- include/linux/uio.h                      |   3 +
- include/linux/userfaultfd_k.h            |  10 +-
- include/uapi/linux/userfaultfd.h         |  21 +-
- lib/iov_iter.c                           |  23 +-
- mm/hugetlb.c                             |  12 +-
- mm/memory.c                              |  36 +-
- mm/shmem.c                               |  17 +-
- mm/userfaultfd.c                         |  96 ++-
- tools/testing/selftests/vm/Makefile      |   2 +-
- tools/testing/selftests/vm/userfaultfd.c | 835 +++++++++++++++++++++--
- 14 files changed, 1506 insertions(+), 301 deletions(-)
-
+diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
+index 9b0912a01777..f7e6cf43db71 100644
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -484,6 +484,18 @@ static void retry_copy_page(int ufd, struct uffdio_copy *uffdio_copy,
+ 	}
+ }
+ 
++static void wake_range(int ufd, unsigned long addr, unsigned long len)
++{
++	struct uffdio_range uffdio_wake;
++
++	uffdio_wake.start = addr;
++	uffdio_wake.len = len;
++
++	if (ioctl(ufd, UFFDIO_WAKE, &uffdio_wake))
++		fprintf(stderr, "error waking %lu\n",
++			addr), exit(1);
++}
++
+ static int __copy_page(int ufd, unsigned long offset, bool retry)
+ {
+ 	struct uffdio_copy uffdio_copy;
+@@ -507,6 +519,7 @@ static int __copy_page(int ufd, unsigned long offset, bool retry)
+ 				uffdio_copy.copy);
+ 			exit(1);
+ 		}
++		wake_range(ufd, uffdio_copy.dst, page_size);
+ 	} else if (uffdio_copy.copy != page_size) {
+ 		fprintf(stderr, "UFFDIO_COPY unexpected copy %Ld\n",
+ 			uffdio_copy.copy); exit(1);
 -- 
 2.25.1
 

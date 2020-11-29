@@ -8,69 +8,68 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF977C71156
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21805C83011
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7A9D220731
+	by mail.kernel.org (Postfix) with ESMTP id E1A9220885
 	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dJQyQEm4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bqu6Pfmd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730084AbgK2Auu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40754 "EHLO
+        id S1727175AbgK2AvL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:51:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729994AbgK2Aus (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:48 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3CAC061A4A;
-        Sat, 28 Nov 2020 16:50:08 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id l4so1305526pgu.5;
-        Sat, 28 Nov 2020 16:50:08 -0800 (PST)
+        with ESMTP id S1730049AbgK2Auu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:50 -0500
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA84C061A4C;
+        Sat, 28 Nov 2020 16:50:11 -0800 (PST)
+Received: by mail-pl1-x641.google.com with SMTP id x15so4513267pll.2;
+        Sat, 28 Nov 2020 16:50:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=X5zZtbdH284IqbpK8B6kvHiDlmI2ESe79oqrn5JS6ws=;
-        b=dJQyQEm4sbZgkQ4dENWnDByIiLsTUQLCpMn5lFiv6hGj9EI1tZ4FMxvfCLdL+g0ioX
-         sNpqOIAo54usFcPJkhE/5+EKX1U+OXbzitT1KPARw35ovpJB1LkcQe6eSCi2yn/2yd8M
-         w+JUPpNieEFZrQU9JDCyMiTxjFgeaS0mD0pLkq3bgUyw+03j1mW3GUagC9xeT9lWZuxX
-         E8g7xRNusPLmO2O+80rMKf0VDQEUNROsxwHOvHoQqMN6P8scQWY/gc8Y7K56oH8xEY48
-         cZNDg9fWACRtrDawGTR5NKZeacfSf5hzViiKmfwCoZoSdhemW0wX5eXlTR3oR7AI6pPm
-         fKsw==
+        bh=xqX7ZWv7N0o6d8T7ArFqBDvDLs/vhVsNNfcfh2sV6d4=;
+        b=Bqu6PfmdYpAwLOI36dJGWuALJ8poPGDVLzvx6sF7LNUCet79TXUNGiwJHjE3bcM/7X
+         ZhFLzP+AxBQYX4Xw8V9aN7tvFIA2z8QABFsb1Pqjb5g9y1cc4iSmiEsuESLK1vpZAWrE
+         3AiuUuKRQ3rOMgUUU0kEGY6cS/+7HBUrka8E3TyHRpb0k18Qg4zJkewQsYfW+xSF9RaR
+         +A6WtTfELdgs4fv3IpvriktBCCUFL1L6kvG1nXMWrDJ64nQ0sgZjJOFJC9Ry/iKvCoOi
+         kBHiK2AzjXrHyLVruG5mgURdCEW/mgvu5K1z9IuZ+lDe3uS1DQutVJVy/T9jrzR0dF7B
+         Kjcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=X5zZtbdH284IqbpK8B6kvHiDlmI2ESe79oqrn5JS6ws=;
-        b=NBbWUMTaLqpaoHh3mIefhrbdT/jB13txj6CEr/nxEQ2J2otqyrmTIdII0u5VE6todZ
-         Ro6FoCRgSdetaDPdD4PDGHv5xc3eDANA+TH2aip5KjBjOhzee09cT30jefzpa5/kYbO4
-         ZVI7Pljd0Ro9Ulsmk6+i927mIBnxiUyrGuihpu2rmFsLcBY+7ykch9MnnYWgp2lwCQCF
-         BT8D/fBFs9t99LHk3OHhtSnAAlUT7YiNk4WckDYGfQJd6g3F2EU66QZO34gCXvht8k/G
-         T1zngv07GJ5K5k0RIQVCc5RrFIUbZHZS0uycHyTO2LnMhAjdJmwoFF5j14RchD554GpV
-         1VWQ==
-X-Gm-Message-State: AOAM531GuVUpWXHp+Thl1qCfqaq7PX6fUcOcTEv9qoByiViAogfVW/qy
-        OusjzYHoqxpb+H1QB9d+EOKhkrQXO6G79A==
-X-Google-Smtp-Source: ABdhPJwS/77yFW8lfb4leVTCpQ0K/Hm99fjNxOrtp24akvAml+w8CeCJ4JKC9KwiKvJ2AvDSfCyHTg==
-X-Received: by 2002:a17:90a:ead3:: with SMTP id ev19mr2775582pjb.106.1606611007873;
-        Sat, 28 Nov 2020 16:50:07 -0800 (PST)
+        bh=xqX7ZWv7N0o6d8T7ArFqBDvDLs/vhVsNNfcfh2sV6d4=;
+        b=XSJ4i0S5Ka6KShjGs6DIw0kZ5tzRagtiFgEjtCCABafUyAd5lWXavkpZueNSpmqTjQ
+         IRwiYqPTnxQ1XR65cAvFjUqoX+PmyAVEt08A2mb0F8HhA+Z5gfe8SBcTeLGg1Lj/Bm7f
+         +2FZsOUszZWLklGgRO0fs8c6YK9eLmQNWjJ2kFLcFFUeX6mgEuzn++xn8w4LmcRl2K0e
+         n3ubNfVnAdBk+eSLjJPCKAj4twwR7Jc8cS4voWRQLv7V3fx6dRy2JR9YZhPuzmJ6KrMh
+         PzxgVQ0uT8DMqArUSCEppJVAI1hJr/Jv3z37Uajm976g3BZR4qbokutThRSpVwahdb+2
+         2ppg==
+X-Gm-Message-State: AOAM532o4NNIbtexCzkfU4P18ivg+z9mE2pfSh4x4BpVbTumeHPLYZ/K
+        OGqR1tf280+OL4uD01MJWHMcQZ7TC7+9bw==
+X-Google-Smtp-Source: ABdhPJyT8I5dTLwv/3QSl7Rx+wXOtsCXJJY3CfRg+hLftJlxcMOI6HlkMPUp+e+RDj7OSIEegdvkfQ==
+X-Received: by 2002:a17:902:bd98:b029:d9:7b0:e1e5 with SMTP id q24-20020a170902bd98b02900d907b0e1e5mr12728725pls.77.1606611010840;
+        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.06
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:50:07 -0800 (PST)
+        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Peter Xu <peterx@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 09/13] fs/userfaultfd: use iov_iter for copy/zero
-Date:   Sat, 28 Nov 2020 16:45:44 -0800
-Message-Id: <20201129004548.1619714-10-namit@vmware.com>
+Subject: [RFC PATCH 11/13] fs/userfaultfd: complete write asynchronously
+Date:   Sat, 28 Nov 2020 16:45:46 -0800
+Message-Id: <20201129004548.1619714-12-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
 References: <20201129004548.1619714-1-namit@vmware.com>
@@ -82,17 +81,26 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-Use iov_iter for copy and zero ioctls. This is done in preparation to
-support a write_iter() interface that would provide similar services as
-UFFDIO_COPY/ZERO.
+Userfaultfd writes can now be used for copy/zeroing. When using iouring
+with userfaultfd, performing the copying/zeroing on the faulting thread
+instead of the handler/iouring thread has several advantages:
 
-In the case of UFFDIO_ZERO, the iov_iter is not really used for any
-purpose other than providing the length of the range that is zeroed.
+(1) The data of the faulting thread will be available on the local
+caches, which would make subsequent memory accesses faster.
 
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+(2) find_vma() would be able to use the vma-cache, which cannot be done
+from a different process or io-uring kernel thread.
+
+(3) The page is more likely to be allocated on the correct NUMA node.
+
+To do so, userfaultfd work queue structs are extended to hold the
+information that is required for the faulting thread to copy/zero. The
+handler wakes one of the faulting threads to perform the copy/zero and
+that thread wakes the other threads after the zero/copy is done.
+
+Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Peter Xu <peterx@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: io-uring@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org
@@ -100,588 +108,481 @@ Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
 Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- fs/userfaultfd.c              | 21 ++++++--
- include/linux/hugetlb.h       |  4 +-
- include/linux/mm.h            |  6 +--
- include/linux/shmem_fs.h      |  2 +-
- include/linux/userfaultfd_k.h | 10 ++--
- mm/hugetlb.c                  | 12 +++--
- mm/memory.c                   | 36 ++++++-------
- mm/shmem.c                    | 17 +++----
- mm/userfaultfd.c              | 96 +++++++++++++++++------------------
- 9 files changed, 102 insertions(+), 102 deletions(-)
+ fs/userfaultfd.c | 241 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 178 insertions(+), 63 deletions(-)
 
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index db1a963f6ae2..7bbee2a00d37 100644
+index eae6ac303951..5c22170544e3 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -1914,6 +1914,8 @@ static int userfaultfd_copy(struct userfaultfd_ctx *ctx,
- 	struct uffdio_copy uffdio_copy;
- 	struct uffdio_copy __user *user_uffdio_copy;
- 	struct userfaultfd_wake_range range;
-+	struct iov_iter iter;
-+	struct iovec iov;
+@@ -105,58 +105,71 @@ struct userfaultfd_unmap_ctx {
+ 	struct list_head list;
+ };
  
- 	user_uffdio_copy = (struct uffdio_copy __user *) arg;
++struct userfaultfd_wake_info {
++	__u64 mode;
++	struct kiocb *iocb_callback;
++	struct iov_iter from;
++	unsigned long start;
++	unsigned long len;
++	bool copied;
++};
++
+ struct userfaultfd_wait_queue {
+ 	struct uffd_msg msg;
+ 	wait_queue_entry_t wq;
+ 	struct userfaultfd_ctx *ctx;
++	struct userfaultfd_wake_info wake_info;
+ 	bool waken;
+ };
  
-@@ -1940,10 +1942,15 @@ static int userfaultfd_copy(struct userfaultfd_ctx *ctx,
+-struct userfaultfd_wake_range {
+-	unsigned long start;
+-	unsigned long len;
+-};
++
+ 
+ static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
+ 				     int wake_flags, void *key)
+ {
+-	struct userfaultfd_wake_range *range = key;
+-	int ret;
++	struct userfaultfd_wake_info *wake_info = key;
+ 	struct userfaultfd_wait_queue *uwq;
+ 	unsigned long start, len;
++	int ret = 0;
+ 
+ 	uwq = container_of(wq, struct userfaultfd_wait_queue, wq);
+-	ret = 0;
+ 	/* len == 0 means wake all */
+-	start = range->start;
+-	len = range->len;
++	start = wake_info->start;
++	len = wake_info->len;
+ 	if (len && (start > uwq->msg.arg.pagefault.address ||
+ 		    start + len <= uwq->msg.arg.pagefault.address))
  		goto out;
- 	if (uffdio_copy.mode & ~(UFFDIO_COPY_MODE_DONTWAKE|UFFDIO_COPY_MODE_WP))
- 		goto out;
+ 
+-	smp_store_mb(uwq->waken, true);
++	uwq->wake_info = *wake_info;
 +
-+	ret = import_single_range(READ, (__force void __user *)uffdio_copy.src,
-+				  uffdio_copy.len, &iov, &iter);
-+	if (unlikely(ret))
-+		return ret;
++	if (wake_info->iocb_callback)
++		wake_info->copied = true;
 +
- 	if (mmget_not_zero(ctx->mm)) {
--		ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, uffdio_copy.src,
--				   uffdio_copy.len, &ctx->mmap_changing,
--				   uffdio_copy.mode);
-+		ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, &iter,
-+				   &ctx->mmap_changing, uffdio_copy.mode);
- 		mmput(ctx->mm);
- 	} else {
- 		return -ESRCH;
-@@ -1971,6 +1978,8 @@ static int userfaultfd_zeropage(struct userfaultfd_ctx *ctx,
- 	struct uffdio_zeropage uffdio_zeropage;
- 	struct uffdio_zeropage __user *user_uffdio_zeropage;
- 	struct userfaultfd_wake_range range;
-+	struct iov_iter iter;
-+	struct iovec iov;
- 
- 	user_uffdio_zeropage = (struct uffdio_zeropage __user *) arg;
- 
-@@ -1992,10 +2001,12 @@ static int userfaultfd_zeropage(struct userfaultfd_ctx *ctx,
- 	if (uffdio_zeropage.mode & ~UFFDIO_ZEROPAGE_MODE_DONTWAKE)
- 		goto out;
- 
-+	ret = import_single_range(READ, (__force void __user *)0,
-+				  uffdio_zeropage.range.len, &iov, &iter);
++	/* Ensure uwq->wake_info is visible to handle_userfault() before waken */
++	smp_wmb();
 +
- 	if (mmget_not_zero(ctx->mm)) {
- 		ret = mfill_zeropage(ctx->mm, uffdio_zeropage.range.start,
--				     uffdio_zeropage.range.len,
--				     &ctx->mmap_changing);
-+				     &iter, &ctx->mmap_changing);
- 		mmput(ctx->mm);
- 	} else {
- 		return -ESRCH;
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index ebca2ef02212..2f3452e0bb84 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -137,7 +137,7 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
- int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm, pte_t *dst_pte,
- 				struct vm_area_struct *dst_vma,
- 				unsigned long dst_addr,
--				unsigned long src_addr,
-+				struct iov_iter *iter,
- 				struct page **pagep);
- int hugetlb_reserve_pages(struct inode *inode, long from, long to,
- 						struct vm_area_struct *vma,
-@@ -312,7 +312,7 @@ static inline int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 						pte_t *dst_pte,
- 						struct vm_area_struct *dst_vma,
- 						unsigned long dst_addr,
--						unsigned long src_addr,
-+						struct iov_iter *iter,
- 						struct page **pagep)
- {
- 	BUG();
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index db6ae4d3fb4e..1f183c441d89 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3085,10 +3085,10 @@ extern void copy_user_huge_page(struct page *dst, struct page *src,
- 				unsigned long addr_hint,
- 				struct vm_area_struct *vma,
- 				unsigned int pages_per_huge_page);
--extern long copy_huge_page_from_user(struct page *dst_page,
--				const void __user *usr_src,
-+extern long copy_huge_page_from_iter(struct page *dst_page,
-+				size_t offset, struct iov_iter *iter,
- 				unsigned int pages_per_huge_page,
--				bool allow_pagefault);
-+				bool atomic);
- 
- /**
-  * vma_is_special_huge - Are transhuge page-table entries considered special?
-diff --git a/include/linux/shmem_fs.h b/include/linux/shmem_fs.h
-index a5a5d1d4d7b1..1973bb1c6a10 100644
---- a/include/linux/shmem_fs.h
-+++ b/include/linux/shmem_fs.h
-@@ -122,7 +122,7 @@ extern void shmem_uncharge(struct inode *inode, long pages);
- extern int shmem_mcopy_atomic_pte(struct mm_struct *dst_mm, pmd_t *dst_pmd,
- 				  struct vm_area_struct *dst_vma,
- 				  unsigned long dst_addr,
--				  unsigned long src_addr,
-+				  struct iov_iter *iter,
- 				  struct page **pagep);
- extern int shmem_mfill_zeropage_pte(struct mm_struct *dst_mm,
- 				    pmd_t *dst_pmd,
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index a8e5f3ea9bb2..b5c1be67b0d7 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -35,12 +35,10 @@ extern int sysctl_unprivileged_userfaultfd;
- extern vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason);
- 
- extern ssize_t mcopy_atomic(struct mm_struct *dst_mm, unsigned long dst_start,
--			    unsigned long src_start, unsigned long len,
--			    bool *mmap_changing, __u64 mode);
--extern ssize_t mfill_zeropage(struct mm_struct *dst_mm,
--			      unsigned long dst_start,
--			      unsigned long len,
--			      bool *mmap_changing);
-+			    struct iov_iter *iter, bool *mmap_changing,
-+			    __u64 mode);
-+extern ssize_t mfill_zeropage(struct mm_struct *dst_mm, unsigned long dst_start,
-+			      struct iov_iter *iter, bool *mmap_changing);
- extern int mwriteprotect_range(struct mm_struct *dst_mm,
- 			       unsigned long start, unsigned long len,
- 			       bool enable_wp, bool *mmap_changing);
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 37f15c3c24dc..3aa779123dfe 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4603,7 +4603,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 			    pte_t *dst_pte,
- 			    struct vm_area_struct *dst_vma,
- 			    unsigned long dst_addr,
--			    unsigned long src_addr,
-+			    struct iov_iter *iter,
- 			    struct page **pagep)
- {
- 	struct address_space *mapping;
-@@ -4622,13 +4622,15 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 		if (IS_ERR(page))
- 			goto out;
- 
--		ret = copy_huge_page_from_user(page,
--						(const void __user *) src_addr,
--						pages_per_huge_page(h), false);
-+		pagefault_disable();
-+
-+		ret = copy_huge_page_from_iter(page, 0, iter,
-+						pages_per_huge_page(h), true);
-+
-+		pagefault_enable();
- 
- 		/* fallback to copy_from_user outside mmap_lock */
- 		if (unlikely(ret)) {
--			ret = -ENOENT;
- 			*pagep = page;
- 			/* don't free the page */
- 			goto out;
-diff --git a/mm/memory.c b/mm/memory.c
-index c48f8df6e502..650f1ba19812 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5178,33 +5178,29 @@ void copy_user_huge_page(struct page *dst, struct page *src,
- 	process_huge_page(addr_hint, pages_per_huge_page, copy_subpage, &arg);
- }
- 
--long copy_huge_page_from_user(struct page *dst_page,
--				const void __user *usr_src,
--				unsigned int pages_per_huge_page,
--				bool allow_pagefault)
-+long copy_huge_page_from_iter(struct page *dst_page,
-+			      size_t offset,
-+			      struct iov_iter *iter,
-+			      unsigned int pages_per_huge_page,
-+			      bool atomic)
- {
--	void *src = (void *)usr_src;
--	void *page_kaddr;
- 	unsigned long i, rc = 0;
- 	unsigned long ret_val = pages_per_huge_page * PAGE_SIZE;
-+	unsigned long of_in_page = offset_in_page(offset);
- 
--	for (i = 0; i < pages_per_huge_page; i++) {
--		if (allow_pagefault)
--			page_kaddr = kmap(dst_page + i);
--		else
--			page_kaddr = kmap_atomic(dst_page + i);
--		rc = copy_from_user(page_kaddr,
--				(const void __user *)(src + i * PAGE_SIZE),
--				PAGE_SIZE);
--		if (allow_pagefault)
--			kunmap(dst_page + i);
--		else
--			kunmap_atomic(page_kaddr);
-+	for (i = offset / PAGE_SIZE; i < pages_per_huge_page; i++) {
-+		size_t bytes = PAGE_SIZE - of_in_page;
-+
-+		rc = __copy_page_from_iter(dst_page + i, of_in_page,
-+					   bytes, iter, atomic);
- 
--		ret_val -= (PAGE_SIZE - rc);
--		if (rc)
-+		ret_val -= rc;
-+
-+		if (rc != bytes)
- 			break;
- 
-+		of_in_page = 0;
-+
- 		cond_resched();
- 	}
- 	return ret_val;
-diff --git a/mm/shmem.c b/mm/shmem.c
-index 537c137698f8..77232cf8bd49 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2361,7 +2361,7 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
- 				  pmd_t *dst_pmd,
- 				  struct vm_area_struct *dst_vma,
- 				  unsigned long dst_addr,
--				  unsigned long src_addr,
-+				  struct iov_iter *iter,
- 				  bool zeropage,
- 				  struct page **pagep)
- {
-@@ -2371,7 +2371,6 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
- 	gfp_t gfp = mapping_gfp_mask(mapping);
- 	pgoff_t pgoff = linear_page_index(dst_vma, dst_addr);
- 	spinlock_t *ptl;
--	void *page_kaddr;
- 	struct page *page;
- 	pte_t _dst_pte, *dst_pte;
- 	int ret;
-@@ -2387,18 +2386,14 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
- 			goto out_unacct_blocks;
- 
- 		if (!zeropage) {	/* mcopy_atomic */
--			page_kaddr = kmap_atomic(page);
--			ret = copy_from_user(page_kaddr,
--					     (const void __user *)src_addr,
--					     PAGE_SIZE);
--			kunmap_atomic(page_kaddr);
-+			ret = __copy_page_from_iter(page, 0, PAGE_SIZE, iter, true);
- 
- 			/* fallback to copy_from_user outside mmap_lock */
- 			if (unlikely(ret)) {
- 				*pagep = page;
- 				shmem_inode_unacct_blocks(inode, 1);
- 				/* don't free the page */
--				return -ENOENT;
-+				return ret;
- 			}
- 		} else {		/* mfill_zeropage_atomic */
- 			clear_highpage(page);
-@@ -2484,11 +2479,11 @@ int shmem_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 			   pmd_t *dst_pmd,
- 			   struct vm_area_struct *dst_vma,
- 			   unsigned long dst_addr,
--			   unsigned long src_addr,
-+			   struct iov_iter *iter,
- 			   struct page **pagep)
- {
- 	return shmem_mfill_atomic_pte(dst_mm, dst_pmd, dst_vma,
--				      dst_addr, src_addr, false, pagep);
-+				      dst_addr, iter, false, pagep);
- }
- 
- int shmem_mfill_zeropage_pte(struct mm_struct *dst_mm,
-@@ -2499,7 +2494,7 @@ int shmem_mfill_zeropage_pte(struct mm_struct *dst_mm,
- 	struct page *page = NULL;
- 
- 	return shmem_mfill_atomic_pte(dst_mm, dst_pmd, dst_vma,
--				      dst_addr, 0, true, &page);
-+				      dst_addr, NULL, true, &page);
- }
- 
- #ifdef CONFIG_TMPFS
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 9a3d451402d7..ee77fb229185 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -15,6 +15,7 @@
- #include <linux/mmu_notifier.h>
- #include <linux/hugetlb.h>
- #include <linux/shmem_fs.h>
-+#include <linux/uio.h>
- #include <asm/tlbflush.h>
- #include "internal.h"
- 
-@@ -48,17 +49,20 @@ struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
- 	return dst_vma;
- }
- 
-+/*
-+ * mcopy_atomic_pte() -Returns error of the number of bytes that were not
-+ * copied.
-+ */
- static int mcopy_atomic_pte(struct mm_struct *dst_mm,
- 			    pmd_t *dst_pmd,
- 			    struct vm_area_struct *dst_vma,
- 			    unsigned long dst_addr,
--			    unsigned long src_addr,
-+			    struct iov_iter *iter,
- 			    struct page **pagep,
- 			    bool wp_copy)
- {
- 	pte_t _dst_pte, *dst_pte;
- 	spinlock_t *ptl;
--	void *page_kaddr;
- 	int ret;
- 	struct page *page;
- 	pgoff_t offset, max_off;
-@@ -70,17 +74,13 @@ static int mcopy_atomic_pte(struct mm_struct *dst_mm,
- 		if (!page)
- 			goto out;
- 
--		page_kaddr = kmap_atomic(page);
--		ret = copy_from_user(page_kaddr,
--				     (const void __user *) src_addr,
--				     PAGE_SIZE);
--		kunmap_atomic(page_kaddr);
-+		ret = __copy_page_from_iter(page, 0, PAGE_SIZE, iter, true);
- 
- 		/* fallback to copy_from_user outside mmap_lock */
--		if (unlikely(ret)) {
--			ret = -ENOENT;
-+		if (unlikely(ret != PAGE_SIZE)) {
- 			*pagep = page;
- 			/* don't free the page */
-+			ret = PAGE_SIZE - ret;
- 			goto out;
- 		}
- 	} else {
-@@ -205,7 +205,7 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, unsigned long address)
- static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 					      struct vm_area_struct *dst_vma,
- 					      unsigned long dst_start,
--					      unsigned long src_start,
-+					      struct iov_iter *iter,
- 					      unsigned long len,
- 					      bool zeropage)
- {
-@@ -213,7 +213,7 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 	int vm_shared = dst_vma->vm_flags & VM_SHARED;
- 	ssize_t err;
- 	pte_t *dst_pte;
--	unsigned long src_addr, dst_addr;
-+	unsigned long dst_addr;
- 	long copied;
- 	struct page *page;
- 	unsigned long vma_hpagesize;
-@@ -232,7 +232,6 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 		return -EINVAL;
- 	}
- 
--	src_addr = src_start;
- 	dst_addr = dst_start;
- 	copied = 0;
- 	page = NULL;
-@@ -272,7 +271,7 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 			goto out_unlock;
- 	}
- 
--	while (src_addr < src_start + len) {
-+	while (iov_iter_count(iter) > 0) {
- 		pte_t dst_pteval;
- 
- 		BUG_ON(dst_addr >= dst_start + len);
-@@ -306,7 +305,7 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 		}
- 
- 		err = hugetlb_mcopy_atomic_pte(dst_mm, dst_pte, dst_vma,
--						dst_addr, src_addr, &page);
-+						dst_addr, iter, &page);
- 
- 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 		i_mmap_unlock_read(mapping);
-@@ -314,14 +313,14 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 
- 		cond_resched();
- 
--		if (unlikely(err == -ENOENT)) {
-+		if (unlikely(err > 0)) {
-+			size_t offset = vma_hpagesize - err;
-+
- 			mmap_read_unlock(dst_mm);
- 			BUG_ON(!page);
- 
--			err = copy_huge_page_from_user(page,
--						(const void __user *)src_addr,
--						vma_hpagesize / PAGE_SIZE,
--						true);
-+			err = copy_huge_page_from_iter(page, offset, iter,
-+						vma_hpagesize / PAGE_SIZE, false);
- 			if (unlikely(err)) {
- 				err = -EFAULT;
- 				goto out;
-@@ -330,12 +329,12 @@ static __always_inline ssize_t __mcopy_atomic_hugetlb(struct mm_struct *dst_mm,
- 
- 			dst_vma = NULL;
- 			goto retry;
--		} else
--			BUG_ON(page);
-+		} else {
-+			BUG_ON(err != 0 && page);
-+		}
- 
- 		if (!err) {
- 			dst_addr += vma_hpagesize;
--			src_addr += vma_hpagesize;
- 			copied += vma_hpagesize;
- 
- 			if (fatal_signal_pending(current))
-@@ -415,7 +414,7 @@ static __always_inline ssize_t mfill_atomic_pte(struct mm_struct *dst_mm,
- 						pmd_t *dst_pmd,
- 						struct vm_area_struct *dst_vma,
- 						unsigned long dst_addr,
--						unsigned long src_addr,
-+						struct iov_iter *iter,
- 						struct page **page,
- 						bool zeropage,
- 						bool wp_copy)
-@@ -435,7 +434,7 @@ static __always_inline ssize_t mfill_atomic_pte(struct mm_struct *dst_mm,
- 	if (!(dst_vma->vm_flags & VM_SHARED)) {
- 		if (!zeropage)
- 			err = mcopy_atomic_pte(dst_mm, dst_pmd, dst_vma,
--					       dst_addr, src_addr, page,
-+					       dst_addr, iter, page,
- 					       wp_copy);
- 		else
- 			err = mfill_zeropage_pte(dst_mm, dst_pmd,
-@@ -445,30 +444,34 @@ static __always_inline ssize_t mfill_atomic_pte(struct mm_struct *dst_mm,
- 		if (!zeropage)
- 			err = shmem_mcopy_atomic_pte(dst_mm, dst_pmd,
- 						     dst_vma, dst_addr,
--						     src_addr, page);
-+						     iter, page);
- 		else
- 			err = shmem_mfill_zeropage_pte(dst_mm, dst_pmd,
- 						       dst_vma, dst_addr);
- 	}
- 
-+	if (zeropage && err >= 0)
-+		iov_iter_advance(iter, PAGE_SIZE - err);
-+
- 	return err;
- }
- 
- static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
- 					      unsigned long dst_start,
--					      unsigned long src_start,
--					      unsigned long len,
-+					      struct iov_iter *iter,
- 					      bool zeropage,
- 					      bool *mmap_changing,
- 					      __u64 mode)
- {
-+	unsigned long len = iov_iter_count(iter);
- 	struct vm_area_struct *dst_vma;
- 	ssize_t err;
- 	pmd_t *dst_pmd;
--	unsigned long src_addr, dst_addr;
-+	unsigned long dst_addr;
- 	long copied;
- 	struct page *page;
- 	bool wp_copy;
-+	unsigned long remaining = iov_iter_count(iter);
++	WRITE_ONCE(uwq->waken, true);
  
  	/*
- 	 * Sanitize the command parameters:
-@@ -477,10 +480,8 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
- 	BUG_ON(len & ~PAGE_MASK);
- 
- 	/* Does the address range wrap, or is the span zero-sized? */
--	BUG_ON(src_start + len <= src_start);
- 	BUG_ON(dst_start + len <= dst_start);
- 
--	src_addr = src_start;
- 	dst_addr = dst_start;
- 	copied = 0;
- 	page = NULL;
-@@ -527,7 +528,7 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
+ 	 * The Program-Order guarantees provided by the scheduler
+ 	 * ensure uwq->waken is visible before the task is woken.
  	 */
- 	if (is_vm_hugetlb_page(dst_vma))
- 		return  __mcopy_atomic_hugetlb(dst_mm, dst_vma, dst_start,
--						src_start, len, zeropage);
-+						iter, len, zeropage);
- 
- 	if (!vma_is_anonymous(dst_vma) && !vma_is_shmem(dst_vma))
- 		goto out_unlock;
-@@ -542,10 +543,10 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
- 	    unlikely(anon_vma_prepare(dst_vma)))
- 		goto out_unlock;
- 
--	while (src_addr < src_start + len) {
-+	while (remaining > 0) {
- 		pmd_t dst_pmdval;
- 
--		BUG_ON(dst_addr >= dst_start + len);
-+		BUG_ON(dst_addr >= dst_start + remaining);
- 
- 		dst_pmd = mm_alloc_pmd(dst_mm, dst_addr);
- 		if (unlikely(!dst_pmd)) {
-@@ -577,31 +578,29 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
- 		BUG_ON(pmd_trans_huge(*dst_pmd));
- 
- 		err = mfill_atomic_pte(dst_mm, dst_pmd, dst_vma, dst_addr,
--				       src_addr, &page, zeropage, wp_copy);
-+				       iter, &page, zeropage, wp_copy);
- 		cond_resched();
- 
--		if (unlikely(err == -ENOENT)) {
--			void *page_kaddr;
-+		if (unlikely(err > 0)) {
-+			size_t bytes = err;
-+			size_t offset = PAGE_SIZE - bytes;
- 
- 			mmap_read_unlock(dst_mm);
- 			BUG_ON(!page);
- 
--			page_kaddr = kmap(page);
--			err = copy_from_user(page_kaddr,
--					     (const void __user *) src_addr,
--					     PAGE_SIZE);
--			kunmap(page);
-+			err = copy_page_from_iter(page, offset, bytes, iter);
- 			if (unlikely(err)) {
- 				err = -EFAULT;
- 				goto out;
- 			}
- 			goto retry;
- 		} else
--			BUG_ON(page);
-+			BUG_ON(err != 0 && page);
+ 	ret = wake_up_state(wq->private, mode);
+-	if (ret) {
+-		/*
+-		 * Wake only once, autoremove behavior.
+-		 *
+-		 * After the effect of list_del_init is visible to the other
+-		 * CPUs, the waitqueue may disappear from under us, see the
+-		 * !list_empty_careful() in handle_userfault().
+-		 *
+-		 * try_to_wake_up() has an implicit smp_mb(), and the
+-		 * wq->private is read before calling the extern function
+-		 * "wake_up_state" (which in turns calls try_to_wake_up).
+-		 */
+-		list_del_init(&wq->entry);
+-	}
 +
-+		remaining = iov_iter_count(iter);
- 
- 		if (!err) {
- 			dst_addr += PAGE_SIZE;
--			src_addr += PAGE_SIZE;
- 			copied += PAGE_SIZE;
- 
- 			if (fatal_signal_pending(current))
-@@ -623,17 +622,16 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
++	/*
++	 * Wake only once, autoremove behavior.
++	 *
++	 * After the effect of list_del_init is visible to the other
++	 * CPUs, the waitqueue may disappear from under us, see the
++	 * !list_empty_careful() in handle_userfault().
++	 *
++	 * try_to_wake_up() has an implicit smp_mb(), and the
++	 * wq->private is read before calling the extern function
++	 * "wake_up_state" (which in turns calls try_to_wake_up).
++	 */
++	list_del_init(&wq->entry);
+ out:
+-	return ret;
++	return ret || wake_info->copied;
  }
  
- ssize_t mcopy_atomic(struct mm_struct *dst_mm, unsigned long dst_start,
--		     unsigned long src_start, unsigned long len,
--		     bool *mmap_changing, __u64 mode)
-+		     struct iov_iter *iter, bool *mmap_changing, __u64 mode)
+ /**
+@@ -384,6 +397,9 @@ static bool userfaultfd_get_async_complete_locked(struct userfaultfd_ctx *ctx,
+ 	return true;
+ }
+ 
++static __always_inline void wake_userfault(struct userfaultfd_ctx *ctx,
++					   struct userfaultfd_wake_info *wake_info);
++
+ static bool userfaultfd_get_async_complete(struct userfaultfd_ctx *ctx,
+ 				struct kiocb **iocb, struct iov_iter *iter)
  {
--	return __mcopy_atomic(dst_mm, dst_start, src_start, len, false,
--			      mmap_changing, mode);
-+	return __mcopy_atomic(dst_mm, dst_start, iter, false, mmap_changing,
-+			      mode);
+@@ -414,6 +430,43 @@ static void userfaultfd_copy_async_msg(struct kiocb *iocb,
+ 	iter->kvec = NULL;
  }
  
- ssize_t mfill_zeropage(struct mm_struct *dst_mm, unsigned long start,
--		       unsigned long len, bool *mmap_changing)
-+		       struct iov_iter *iter, bool *mmap_changing)
++static void userfaultfd_complete_write(struct userfaultfd_ctx *ctx,
++					       struct userfaultfd_wait_queue *uwq)
++{
++	struct kiocb *iocb = uwq->wake_info.iocb_callback;
++	const struct kvec *kvec = uwq->wake_info.from.kvec;
++	bool zeropage = uwq->wake_info.mode & UFFDIO_WRITE_MODE_ZEROPAGE;
++	u64 mode = uwq->wake_info.mode &
++		(UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP);
++	int r;
++
++	if (zeropage)
++		r = mfill_zeropage(ctx->mm, uwq->wake_info.start,
++			&uwq->wake_info.from, &ctx->mmap_changing);
++	else
++		r = mcopy_atomic(ctx->mm, uwq->wake_info.start,
++			&uwq->wake_info.from, &ctx->mmap_changing, mode);
++
++	/*
++	 * If we failed, do not wake the others, but if there was a partial
++	 * write, still wake others.
++	 */
++	if (r < 0)
++		goto out;
++
++	/* The callees should not do any copying */
++	uwq->wake_info.iocb_callback = NULL;
++	uwq->wake_info.from.kvec = NULL;
++	wake_userfault(ctx, &uwq->wake_info);
++out:
++	/*
++	 * Complete the operation only after waking the other threads as done
++	 * in the synchronous case.
++	 */
++	iocb->ki_complete(iocb, r, 0);
++	kfree(kvec);
++}
++
+ /*
+  * The locking rules involved in returning VM_FAULT_RETRY depending on
+  * FAULT_FLAG_ALLOW_RETRY, FAULT_FLAG_RETRY_NOWAIT and
+@@ -548,6 +601,7 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 			ctx->features);
+ 	uwq.ctx = ctx;
+ 	uwq.waken = false;
++	uwq.wake_info.iocb_callback = NULL;
+ 
+ 	blocking_state = userfaultfd_get_blocking_state(vmf->flags);
+ 
+@@ -569,7 +623,11 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 	 */
+ 	spin_lock(&wqh->lock);
+ 
+-	__add_wait_queue(wqh, &uwq.wq);
++	/* Exclusive on the fault_wqh, not on the fault_pending_wqh */
++	if (async)
++		__add_wait_queue_exclusive(wqh, &uwq.wq);
++	else
++		__add_wait_queue(wqh, &uwq.wq);
+ 
+ 	/* Ensure it is queued before userspace is informed. */
+ 	smp_wmb();
+@@ -612,6 +670,11 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 				cpu_relax();
+ 				cond_resched();
+ 			}
++			/*
++			 * Ensure writes from userfaultfd_wake_function into uwq
++			 * are visible.
++			 */
++			smp_rmb();
+ 		} else
+ 			schedule();
+ 	}
+@@ -650,6 +713,10 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 		local_irq_enable();
+ 	}
+ 
++	/* Complete copy/zero after the entry is no longer on the queue. */
++	if (uwq.wake_info.iocb_callback)
++		userfaultfd_complete_write(ctx, &uwq);
++
+ 	/*
+ 	 * ctx may go away after this if the userfault pseudo fd is
+ 	 * already released.
+@@ -1004,7 +1071,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	struct mm_struct *mm = ctx->mm;
+ 	struct vm_area_struct *vma, *prev;
+ 	/* len == 0 means wake all */
+-	struct userfaultfd_wake_range range = { .len = 0, };
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	unsigned long new_flags;
+ 
+ 	WRITE_ONCE(ctx->released, true);
+@@ -1052,8 +1119,8 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	 * the fault_*wqh.
+ 	 */
+ 	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+-	__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL, &range);
+-	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, &range);
++	__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL, &wake_info);
++	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 0, &wake_info);
+ 	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 
+ 	userfaultfd_cancel_async_reads(ctx);
+@@ -1294,7 +1361,7 @@ static ssize_t userfaultfd_ctx_read(struct kiocb *iocb,
+ 			 * anyway.
+ 			 */
+ 			list_del(&uwq->wq.entry);
+-			add_wait_queue(&ctx->fault_wqh, &uwq->wq);
++			add_wait_queue_exclusive(&ctx->fault_wqh, &uwq->wq);
+ 
+ 			write_seqcount_end(&ctx->refile_seq);
+ 
+@@ -1459,20 +1526,20 @@ static ssize_t userfaultfd_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ }
+ 
+ static void __wake_userfault(struct userfaultfd_ctx *ctx,
+-			     struct userfaultfd_wake_range *range)
++			     struct userfaultfd_wake_info *wake_info)
  {
--	return __mcopy_atomic(dst_mm, start, 0, len, true, mmap_changing, 0);
-+	return __mcopy_atomic(dst_mm, start, iter, true, mmap_changing, 0);
+ 	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 	/* wake all in the range and autoremove */
+ 	if (waitqueue_active(&ctx->fault_pending_wqh))
+ 		__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL,
+-				     range);
++				     wake_info);
+ 	if (waitqueue_active(&ctx->fault_wqh))
+-		__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, range);
++		__wake_up(&ctx->fault_wqh, TASK_NORMAL, 0, wake_info);
+ 	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
  }
  
- int mwriteprotect_range(struct mm_struct *dst_mm, unsigned long start,
+ static __always_inline void wake_userfault(struct userfaultfd_ctx *ctx,
+-					   struct userfaultfd_wake_range *range)
++					   struct userfaultfd_wake_info *wake_info)
+ {
+ 	unsigned seq;
+ 	bool need_wakeup;
+@@ -1499,7 +1566,7 @@ static __always_inline void wake_userfault(struct userfaultfd_ctx *ctx,
+ 		cond_resched();
+ 	} while (read_seqcount_retry(&ctx->refile_seq, seq));
+ 	if (need_wakeup)
+-		__wake_userfault(ctx, range);
++		__wake_userfault(ctx, wake_info);
+ }
+ 
+ static __always_inline int validate_range(struct mm_struct *mm,
+@@ -1524,14 +1591,57 @@ static __always_inline int validate_range(struct mm_struct *mm,
+ 	return 0;
+ }
+ 
++static int userfaultfd_remote_mcopy(struct kiocb *iocb, __u64 dst,
++				    struct iov_iter *from, __u64 mode)
++{
++	struct file *file = iocb->ki_filp;
++	struct userfaultfd_ctx *ctx = file->private_data;
++	struct userfaultfd_wake_info wake_info = {
++		.iocb_callback = iocb,
++		.mode = mode,
++		.start = dst,
++		.len = iov_iter_count(from),
++		.copied = false,
++	};
++	int ret = -EAGAIN;
++
++	if (mode & UFFDIO_COPY_MODE_DONTWAKE)
++		goto out;
++
++	if (!iov_iter_is_bvec(from) && !iov_iter_is_kvec(from))
++		goto out;
++
++	/*
++	 * Check without a lock. If we are mistaken, the mcopy would be
++	 * performed locally.
++	 */
++	if (!waitqueue_active(&ctx->fault_wqh))
++		goto out;
++
++	dup_iter(&wake_info.from, from, GFP_KERNEL);
++
++	/* wake one in the range and autoremove */
++	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, &wake_info);
++
++	if (!wake_info.copied) {
++		kfree(wake_info.from.kvec);
++		goto out;
++	}
++
++	ret = -EIOCBQUEUED;
++out:
++	return ret;
++}
++
+ ssize_t userfaultfd_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ {
+ 	struct file *file = iocb->ki_filp;
+-	struct userfaultfd_wake_range range;
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	struct userfaultfd_ctx *ctx = file->private_data;
+ 	size_t len = iov_iter_count(from);
+ 	__u64 dst = iocb->ki_pos & PAGE_MASK;
+ 	unsigned long mode = iocb->ki_pos & ~PAGE_MASK;
++	int no_wait = file->f_flags & O_NONBLOCK;
+ 	bool zeropage;
+ 	__s64 ret;
+ 
+@@ -1563,25 +1673,30 @@ ssize_t userfaultfd_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (ret)
+ 		goto out;
+ 
+-	if (mmget_not_zero(ctx->mm)) {
++	if (!mmget_not_zero(ctx->mm))
++		return -ESRCH;
++
++	ret = -EAGAIN;
++	if (no_wait && !is_sync_kiocb(iocb))
++		ret = userfaultfd_remote_mcopy(iocb, dst, from, mode);
++	if (ret == -EAGAIN) {
+ 		if (zeropage)
+ 			ret = mfill_zeropage(ctx->mm, dst, from,
+ 					     &ctx->mmap_changing);
+ 		else
+ 			ret = mcopy_atomic(ctx->mm, dst, from,
+ 					   &ctx->mmap_changing, mode);
+-		mmput(ctx->mm);
+-	} else {
+-		return -ESRCH;
+ 	}
++	mmput(ctx->mm);
++
+ 	if (ret < 0)
+ 		goto out;
+ 
+ 	/* len == 0 would wake all */
+-	range.len = ret;
++	wake_info.len = ret;
+ 	if (!(mode & UFFDIO_COPY_MODE_DONTWAKE)) {
+-		range.start = dst;
+-		wake_userfault(ctx, &range);
++		wake_info.start = dst;
++		wake_userfault(ctx, &wake_info);
+ 	}
+ out:
+ 	return ret;
+@@ -1916,7 +2031,7 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
+ 			 * permanently and it avoids userland to call
+ 			 * UFFDIO_WAKE explicitly.
+ 			 */
+-			struct userfaultfd_wake_range range;
++			struct userfaultfd_wake_info range;
+ 			range.start = start;
+ 			range.len = vma_end - start;
+ 			wake_userfault(vma->vm_userfaultfd_ctx.ctx, &range);
+@@ -1971,7 +2086,7 @@ static int userfaultfd_wake(struct userfaultfd_ctx *ctx,
+ {
+ 	int ret;
+ 	struct uffdio_range uffdio_wake;
+-	struct userfaultfd_wake_range range;
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	const void __user *buf = (void __user *)arg;
+ 
+ 	ret = -EFAULT;
+@@ -1982,16 +2097,16 @@ static int userfaultfd_wake(struct userfaultfd_ctx *ctx,
+ 	if (ret)
+ 		goto out;
+ 
+-	range.start = uffdio_wake.start;
+-	range.len = uffdio_wake.len;
++	wake_info.start = uffdio_wake.start;
++	wake_info.len = uffdio_wake.len;
+ 
+ 	/*
+ 	 * len == 0 means wake all and we don't want to wake all here,
+ 	 * so check it again to be sure.
+ 	 */
+-	VM_BUG_ON(!range.len);
++	VM_BUG_ON(!wake_info.len);
+ 
+-	wake_userfault(ctx, &range);
++	wake_userfault(ctx, &wake_info);
+ 	ret = 0;
+ 
+ out:
+@@ -2004,7 +2119,7 @@ static int userfaultfd_copy(struct userfaultfd_ctx *ctx,
+ 	__s64 ret;
+ 	struct uffdio_copy uffdio_copy;
+ 	struct uffdio_copy __user *user_uffdio_copy;
+-	struct userfaultfd_wake_range range;
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	struct iov_iter iter;
+ 	struct iovec iov;
+ 
+@@ -2052,12 +2167,12 @@ static int userfaultfd_copy(struct userfaultfd_ctx *ctx,
+ 		goto out;
+ 	BUG_ON(!ret);
+ 	/* len == 0 would wake all */
+-	range.len = ret;
++	wake_info.len = ret;
+ 	if (!(uffdio_copy.mode & UFFDIO_COPY_MODE_DONTWAKE)) {
+-		range.start = uffdio_copy.dst;
+-		wake_userfault(ctx, &range);
++		wake_info.start = uffdio_copy.dst;
++		wake_userfault(ctx, &wake_info);
+ 	}
+-	ret = range.len == uffdio_copy.len ? 0 : -EAGAIN;
++	ret = wake_info.len == uffdio_copy.len ? 0 : -EAGAIN;
+ out:
+ 	return ret;
+ }
+@@ -2068,7 +2183,7 @@ static int userfaultfd_zeropage(struct userfaultfd_ctx *ctx,
+ 	__s64 ret;
+ 	struct uffdio_zeropage uffdio_zeropage;
+ 	struct uffdio_zeropage __user *user_uffdio_zeropage;
+-	struct userfaultfd_wake_range range;
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	struct iov_iter iter;
+ 	struct iovec iov;
+ 
+@@ -2108,12 +2223,12 @@ static int userfaultfd_zeropage(struct userfaultfd_ctx *ctx,
+ 		goto out;
+ 	/* len == 0 would wake all */
+ 	BUG_ON(!ret);
+-	range.len = ret;
++	wake_info.len = ret;
+ 	if (!(uffdio_zeropage.mode & UFFDIO_ZEROPAGE_MODE_DONTWAKE)) {
+-		range.start = uffdio_zeropage.range.start;
+-		wake_userfault(ctx, &range);
++		wake_info.start = uffdio_zeropage.range.start;
++		wake_userfault(ctx, &wake_info);
+ 	}
+-	ret = range.len == uffdio_zeropage.range.len ? 0 : -EAGAIN;
++	ret = wake_info.len == uffdio_zeropage.range.len ? 0 : -EAGAIN;
+ out:
+ 	return ret;
+ }
+@@ -2124,7 +2239,7 @@ static int userfaultfd_writeprotect(struct userfaultfd_ctx *ctx,
+ 	int ret;
+ 	struct uffdio_writeprotect uffdio_wp;
+ 	struct uffdio_writeprotect __user *user_uffdio_wp;
+-	struct userfaultfd_wake_range range;
++	struct userfaultfd_wake_info wake_info = { 0 };
+ 	bool mode_wp, mode_dontwake;
+ 
+ 	if (READ_ONCE(ctx->mmap_changing))
+@@ -2158,9 +2273,9 @@ static int userfaultfd_writeprotect(struct userfaultfd_ctx *ctx,
+ 		return ret;
+ 
+ 	if (!mode_wp && !mode_dontwake) {
+-		range.start = uffdio_wp.range.start;
+-		range.len = uffdio_wp.range.len;
+-		wake_userfault(ctx, &range);
++		wake_info.start = uffdio_wp.range.start;
++		wake_info.len = uffdio_wp.range.len;
++		wake_userfault(ctx, &wake_info);
+ 	}
+ 	return ret;
+ }
 -- 
 2.25.1
 

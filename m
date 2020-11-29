@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F9A3C64E7B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D3EC64E7D
 	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E127620731
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0EBDC20885
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lsz3W7Eo"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G3hsakiV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729819AbgK2Auq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
+        id S1730017AbgK2Aut (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:50:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727183AbgK2Aup (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:45 -0500
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97081C061A04;
-        Sat, 28 Nov 2020 16:50:02 -0800 (PST)
-Received: by mail-pf1-x444.google.com with SMTP id 131so7732415pfb.9;
-        Sat, 28 Nov 2020 16:50:02 -0800 (PST)
+        with ESMTP id S1729997AbgK2Aus (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:48 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544B1C061A4B;
+        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id y7so7722010pfq.11;
+        Sat, 28 Nov 2020 16:50:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gF437dYZ7jdLwMEZ7tinhd91PTaHOyGZ1bS4Ys+9sbE=;
-        b=lsz3W7Eo6rNaH9lJHydIzJMFNyroHGWOYBcGBrThiveADagHW1sODxWZKkeaSi1VC7
-         zLQZB+Ua3lMMfGNhgBXE4MzHHfya8W0dlJgtLfLZa0WZZDqH7VSucoOi7I3mktfr1TVk
-         V1IbKNnHF5YIZtjZM0NFkJ4iYvTZ1W17FJZ1z89/Q4E17kk3XyPI2hW3dh9Ekuv8VlFV
-         xNjcWGBA3WiziRHvYQu275NQjRrlQAnRRFD/qQ11Vl9/L59G+sp+i3WgSMLiTuU1Yn1X
-         zWljhsVdOMGwRMqTk+DbE5nMO7w004wAWe6dZs/QSEmC1uKuT0Mdy5htd4XQ9D4odrjk
-         HTow==
+        bh=5QXUDMJ+aPqSy8td8tfFhwAmuSfL9+BIWKOUS4q4alQ=;
+        b=G3hsakiVpY40laKPeaMBGblNZ3/Zv13HPBuBXoETeShJXDPLMTOeJZRHHTOM18hfAV
+         N5EsJJJs12sXwBIIe2t7dCzTW+0jG3qjq2wGugWW5WKWcHDvgW01N0sCRM6LBOLTIwwH
+         VBlv4RABSeG4oSGot4PdjE5ECNCby9hztUDbPk4ssPY9yCyp5dzwW3NwvbnM2mft5MdO
+         Mb43rvrz6Ve8DhFxto4GmSt8hJ/KQbbC59JO1agJ1H2kMYjIv10J4gKNyS3MVtId0NgG
+         eBbpVBkcGEBLgK9KGZR1YnOpmLZkrKsOn2+d0S8p0WoOHwMH6ZgrrRvNyp3G1B07DNRc
+         iSyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gF437dYZ7jdLwMEZ7tinhd91PTaHOyGZ1bS4Ys+9sbE=;
-        b=dkt6YZq6BOv7qmbBSGmSzWqCDS5iWpU82TFkpGBDCYdcxtdfxkKoIdwBQXVBGzVDQw
-         eknzGc2oYBqAezlvFVnNhpHTeTi9lKujiR8798+DiHD6k4+u4PQ4jgJXocWnvce1S4uw
-         hQ9J2y94yJl6PJlsddiCw0loUeppj3qjB4M2DQ+njMYKAXarYUkpHvnBMNbTa3Z7/kxH
-         7lwrA3CX2ouw/ClGa7m+nmy3vv7yAlVAw+IvYbEq1KkIlhDnj+i9oB+IKwbdekV9A0az
-         i59xb2/OXUGb+gauMJf96rBGtzYQejaqiWlUPro848dgsoc3H3Gh4AYC++hC5OAniwbe
-         5SdQ==
-X-Gm-Message-State: AOAM533kxGUz8NiMFfNLoWhkpiwa32Tnsp7odUZJia0Iesis5Y34Aej7
-        76K8nFkMDI/NCysnspGg8HMe3W1H7E7/2Q==
-X-Google-Smtp-Source: ABdhPJyVHHI5kxSoiEdetWfo5TY0LHVXJyWXpUXKSK5uyIxAkcnig+Tzt6Rc0pwKm2cocbCFg6qDig==
-X-Received: by 2002:a63:68f:: with SMTP id 137mr923738pgg.361.1606611001687;
-        Sat, 28 Nov 2020 16:50:01 -0800 (PST)
+        bh=5QXUDMJ+aPqSy8td8tfFhwAmuSfL9+BIWKOUS4q4alQ=;
+        b=iPx61xyKO5Pg2fPH5AtYEOrYmt0ajH9hLrsXxIUHger9F5EX0v70xahzmRHRAFAmax
+         rR0JhFnKpPBgH3ldjRcuSX91HcxWlIZSPOmBjtwxZRqiSNNUAJEdZwdmbBRaIWCDvkAO
+         kyt9Te8F2/QedlzpFWGPr7m3xZT8i1ioW8OUWVqG0WeVZuEFzMSpY09rJudj2lIzJmDc
+         4pnMO4d19b+6E92kgQqVckCpsrEbrnU/B8id6RSrWPpL20bYmX/bwV+Zc8zVbH8GVdwr
+         uNwjTFIXMHlE6XX2W3eQnz5qD4JH3WJvNuCM/nK1VJ/unFTomPmP5g7ETan658n11xA/
+         bJPg==
+X-Gm-Message-State: AOAM533pfgbnxBNPT4q+5tq3E/mq3S1EATuoyK5sRGFbhphuAcLHmlk/
+        MZDwT5RP+ExeIOR7VEwpx+hoY7o5M8/UmQ==
+X-Google-Smtp-Source: ABdhPJxVhJfV3O16FYglVnrkLi5gbMDPamTFnwrPU8EwzqqxD10/vPYsQAVmhLJ4S4ZOOIwGbmraeA==
+X-Received: by 2002:a17:90a:6393:: with SMTP id f19mr18811358pjj.227.1606611009301;
+        Sat, 28 Nov 2020 16:50:09 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.00
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:50:01 -0800 (PST)
+        Sat, 28 Nov 2020 16:50:08 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
@@ -67,9 +67,9 @@ Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 05/13] fs/userfaultfd: introduce UFFD_FEATURE_POLL
-Date:   Sat, 28 Nov 2020 16:45:40 -0800
-Message-Id: <20201129004548.1619714-6-namit@vmware.com>
+Subject: [RFC PATCH 10/13] fs/userfaultfd: add write_iter() interface
+Date:   Sat, 28 Nov 2020 16:45:45 -0800
+Message-Id: <20201129004548.1619714-11-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
 References: <20201129004548.1619714-1-namit@vmware.com>
@@ -81,17 +81,20 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-Add a feature UFFD_FEATURE_POLL that makes the faulting thread spin
-while waiting for the page-fault to be handled.
+In order to use userfaultfd with io-uring, there are two options for
+extensions: support userfaultfd ioctls or provide similar functionality
+through the "write" interface. The latter approach seems more compelling
+as it does not require io-uring changes, and keeps all the logic of
+userfaultfd where it should be. In addition it allows to provide
+asynchronous completions by performing the copying/zeroing in the
+faulting thread (which will be done in a later patch).
 
-Users of this feature should be wise by setting the page-fault handling
-thread on another physical CPU and to potentially ensure that there are
-available cores to run the handler, as otherwise they will see
-performance degradation.
-
-We can later enhance it by setting one or two timeouts: one timeout
-until the page-fault is handled and another until the handler was
-woken.
+This patch enhances the userfaultfd API to provide write interface to
+perform similar operations for copy/zero. The lower bits of the position
+(smaller than PAGE_SHIFT) are being used to encode the required
+operation: zero/copy/wake/write-protect. In the case of zeroing, the
+source data is ignored and only the length is being used to determine
+the size of the data that needs to be zeroed.
 
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
@@ -103,109 +106,189 @@ Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
 Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- fs/userfaultfd.c                 | 24 ++++++++++++++++++++----
- include/uapi/linux/userfaultfd.h |  9 ++++++++-
- 2 files changed, 28 insertions(+), 5 deletions(-)
+ fs/userfaultfd.c                 | 96 +++++++++++++++++++++++++++++++-
+ include/uapi/linux/userfaultfd.h | 14 ++++-
+ 2 files changed, 107 insertions(+), 3 deletions(-)
 
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index fedf7c1615d5..b6a04e526025 100644
+index 7bbee2a00d37..eae6ac303951 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -122,7 +122,9 @@ static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
- 	if (len && (start > uwq->msg.arg.pagefault.address ||
- 		    start + len <= uwq->msg.arg.pagefault.address))
- 		goto out;
--	WRITE_ONCE(uwq->waken, true);
-+
-+	smp_store_mb(uwq->waken, true);
-+
- 	/*
- 	 * The Program-Order guarantees provided by the scheduler
- 	 * ensure uwq->waken is visible before the task is woken.
-@@ -377,6 +379,7 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 	vm_fault_t ret = VM_FAULT_SIGBUS;
- 	bool must_wait;
- 	long blocking_state;
-+	bool poll;
+@@ -1140,6 +1140,34 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
  
- 	/*
- 	 * We don't do userfault handling for the final child pid update.
-@@ -410,6 +413,8 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 	if (ctx->features & UFFD_FEATURE_SIGBUS)
- 		goto out;
+ static const struct file_operations userfaultfd_fops;
  
-+	poll = ctx->features & UFFD_FEATURE_POLL;
++/* Open-coded version of anon_inode_getfd() to setup FMODE_PWRITE */
++static int userfaultfd_getfd(const char *name, const struct file_operations *fops,
++		     void *priv, int flags)
++{
++	int error, fd;
++	struct file *file;
 +
- 	/*
- 	 * If it's already released don't get it. This avoids to loop
- 	 * in __get_user_pages if userfaultfd_release waits on the
-@@ -495,7 +500,10 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 	 * following the spin_unlock to happen before the list_add in
- 	 * __add_wait_queue.
- 	 */
--	set_current_state(blocking_state);
++	error = get_unused_fd_flags(flags);
++	if (error < 0)
++		return error;
++	fd = error;
 +
-+	if (!poll)
-+		set_current_state(blocking_state);
++	file = anon_inode_getfile(name, fops, priv, flags);
 +
- 	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- 
- 	if (!is_vm_hugetlb_page(vmf->vma))
-@@ -509,10 +517,18 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 
- 	if (likely(must_wait && !READ_ONCE(ctx->released))) {
- 		wake_up_poll(&ctx->fd_wqh, EPOLLIN);
--		schedule();
-+		if (poll) {
-+			while (!READ_ONCE(uwq.waken) && !READ_ONCE(ctx->released) &&
-+			       !signal_pending(current)) {
-+				cpu_relax();
-+				cond_resched();
-+			}
-+		} else
-+			schedule();
++	if (IS_ERR(file)) {
++		error = PTR_ERR(file);
++		goto err_put_unused_fd;
++	}
++	file->f_mode |= FMODE_PWRITE;
++	fd_install(fd, file);
++
++	return fd;
++
++err_put_unused_fd:
++	put_unused_fd(fd);
++	return error;
++}
++
+ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+ 				  struct userfaultfd_ctx *new,
+ 				  struct uffd_msg *msg)
+@@ -1161,7 +1189,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+ 		task_unlock(current);
  	}
  
--	__set_current_state(TASK_RUNNING);
-+	if (!poll)
-+		__set_current_state(TASK_RUNNING);
+-	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
++	fd = userfaultfd_getfd("[userfaultfd]", &userfaultfd_fops, new,
+ 			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
  
- 	/*
- 	 * Here we race with the list_del; list_add in
+ 	if (files != NULL) {
+@@ -1496,6 +1524,69 @@ static __always_inline int validate_range(struct mm_struct *mm,
+ 	return 0;
+ }
+ 
++ssize_t userfaultfd_write_iter(struct kiocb *iocb, struct iov_iter *from)
++{
++	struct file *file = iocb->ki_filp;
++	struct userfaultfd_wake_range range;
++	struct userfaultfd_ctx *ctx = file->private_data;
++	size_t len = iov_iter_count(from);
++	__u64 dst = iocb->ki_pos & PAGE_MASK;
++	unsigned long mode = iocb->ki_pos & ~PAGE_MASK;
++	bool zeropage;
++	__s64 ret;
++
++	BUG_ON(len == 0);
++
++	zeropage = mode & UFFDIO_WRITE_MODE_ZEROPAGE;
++
++	ret = -EINVAL;
++	if (mode & ~(UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP |
++		     UFFDIO_WRITE_MODE_ZEROPAGE))
++		goto out;
++
++	mode = mode & (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP);
++
++	/*
++	 * Keep compatibility with zeropage ioctl, which does not allow
++	 * write-protect and dontwake.
++	 */
++	if (zeropage &&
++	    (mode & (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP)) ==
++	     (UFFDIO_WRITE_MODE_DONTWAKE | UFFDIO_WRITE_MODE_WP))
++		goto out;
++
++	ret = -EAGAIN;
++	if (READ_ONCE(ctx->mmap_changing))
++		goto out;
++
++	ret = validate_range(ctx->mm, &dst, len);
++	if (ret)
++		goto out;
++
++	if (mmget_not_zero(ctx->mm)) {
++		if (zeropage)
++			ret = mfill_zeropage(ctx->mm, dst, from,
++					     &ctx->mmap_changing);
++		else
++			ret = mcopy_atomic(ctx->mm, dst, from,
++					   &ctx->mmap_changing, mode);
++		mmput(ctx->mm);
++	} else {
++		return -ESRCH;
++	}
++	if (ret < 0)
++		goto out;
++
++	/* len == 0 would wake all */
++	range.len = ret;
++	if (!(mode & UFFDIO_COPY_MODE_DONTWAKE)) {
++		range.start = dst;
++		wake_userfault(ctx, &range);
++	}
++out:
++	return ret;
++}
++
+ static inline bool vma_can_userfault(struct vm_area_struct *vma,
+ 				     unsigned long vm_flags)
+ {
+@@ -2197,6 +2288,7 @@ static const struct file_operations userfaultfd_fops = {
+ 	.release	= userfaultfd_release,
+ 	.poll		= userfaultfd_poll,
+ 	.read_iter	= userfaultfd_read_iter,
++	.write_iter	= userfaultfd_write_iter,
+ 	.unlocked_ioctl = userfaultfd_ioctl,
+ 	.compat_ioctl	= compat_ptr_ioctl,
+ 	.llseek		= noop_llseek,
+@@ -2248,7 +2340,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 
+ 	ctx->files = get_files_struct(current);
+ 
+-	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
++	fd = userfaultfd_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
+ 			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
 diff --git a/include/uapi/linux/userfaultfd.h b/include/uapi/linux/userfaultfd.h
-index e7e98bde221f..4eeba4235afe 100644
+index 4eeba4235afe..943e50b41742 100644
 --- a/include/uapi/linux/userfaultfd.h
 +++ b/include/uapi/linux/userfaultfd.h
-@@ -27,7 +27,9 @@
- 			   UFFD_FEATURE_MISSING_HUGETLBFS |	\
+@@ -28,7 +28,8 @@
  			   UFFD_FEATURE_MISSING_SHMEM |		\
  			   UFFD_FEATURE_SIGBUS |		\
--			   UFFD_FEATURE_THREAD_ID)
-+			   UFFD_FEATURE_THREAD_ID |		\
-+			   UFFD_FEATURE_POLL)
-+
+ 			   UFFD_FEATURE_THREAD_ID |		\
+-			   UFFD_FEATURE_POLL)
++			   UFFD_FEATURE_POLL |			\
++			   UFFD_FEATURE_WRITE)
+ 
  #define UFFD_API_IOCTLS				\
  	((__u64)1 << _UFFDIO_REGISTER |		\
- 	 (__u64)1 << _UFFDIO_UNREGISTER |	\
-@@ -171,6 +173,10 @@ struct uffdio_api {
- 	 *
- 	 * UFFD_FEATURE_THREAD_ID pid of the page faulted task_struct will
- 	 * be returned, if feature is not requested 0 will be returned.
+@@ -177,6 +178,9 @@ struct uffdio_api {
+ 	 * UFFD_FEATURE_POLL polls upon page-fault if the feature is requested
+ 	 * instead of descheduling. This feature should only be enabled for
+ 	 * low-latency handlers and when CPUs are not overcomitted.
 +	 *
-+	 * UFFD_FEATURE_POLL polls upon page-fault if the feature is requested
-+	 * instead of descheduling. This feature should only be enabled for
-+	 * low-latency handlers and when CPUs are not overcomitted.
++	 * UFFD_FEATURE_WRITE allows to use the write interface for copy and
++	 * zeroing of pages in addition to the ioctl interface.
  	 */
  #define UFFD_FEATURE_PAGEFAULT_FLAG_WP		(1<<0)
  #define UFFD_FEATURE_EVENT_FORK			(1<<1)
-@@ -181,6 +187,7 @@ struct uffdio_api {
- #define UFFD_FEATURE_EVENT_UNMAP		(1<<6)
+@@ -188,6 +192,7 @@ struct uffdio_api {
  #define UFFD_FEATURE_SIGBUS			(1<<7)
  #define UFFD_FEATURE_THREAD_ID			(1<<8)
-+#define UFFD_FEATURE_POLL			(1<<9)
+ #define UFFD_FEATURE_POLL			(1<<9)
++#define UFFD_FEATURE_WRITE			(1<<10)
  	__u64 features;
  
  	__u64 ioctls;
+@@ -264,4 +269,11 @@ struct uffdio_writeprotect {
+ 	__u64 mode;
+ };
+ 
++/*
++ * Write modes to be use with UFFDIO_SET_WRITE_MODE ioctl.
++ */
++#define UFFDIO_WRITE_MODE_DONTWAKE		UFFDIO_COPY_MODE_DONTWAKE
++#define UFFDIO_WRITE_MODE_WP			UFFDIO_COPY_MODE_WP
++#define UFFDIO_WRITE_MODE_ZEROPAGE		((__u64)1<<2)
++
+ #endif /* _LINUX_USERFAULTFD_H */
 -- 
 2.25.1
 

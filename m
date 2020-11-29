@@ -5,59 +5,59 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 925D6C64E8A
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 436B2C83019
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A03320731
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1136820885
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lqD/tU0t"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eC3DpPsm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730151AbgK2Auu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40750 "EHLO
+        id S1730166AbgK2Auv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:50:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729806AbgK2Aus (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:48 -0500
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EA6C061A48;
-        Sat, 28 Nov 2020 16:50:05 -0800 (PST)
-Received: by mail-pf1-x442.google.com with SMTP id w202so7733123pff.10;
-        Sat, 28 Nov 2020 16:50:05 -0800 (PST)
+        with ESMTP id S1730090AbgK2Auu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:50 -0500
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61819C061A4F;
+        Sat, 28 Nov 2020 16:50:13 -0800 (PST)
+Received: by mail-pl1-x641.google.com with SMTP id u2so4493232pls.10;
+        Sat, 28 Nov 2020 16:50:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=m3T85bPGe5F+Y++Xanv5e+8tOU25N4OYONQwuoq/1Bg=;
-        b=lqD/tU0tDTQCtA7PjLcc+V2DExVFb+xzSTUWJkOWg05/7ncV1krxldnwCAwNQbKtIr
-         kX0ubA1jlwnfeL7wh0sqxAOpWkxq6I/TnUH6ydeF7C+k8P3OHNwR+eD/nKEpa4J7LeCL
-         JWYXvxCkL2N/912drcMK3sw2tRkl5oG4zGYGl+BKn1JjigqIF4L0hzgTzZPkYJA8Ztij
-         Tobt70TN3tvcPduGuqriyeun8JBv3Ug4E5Ly8fsoQJU5ucEGZ4aCTsRsZWsQVyuFQezp
-         x5QPByemKbVvEKcYrYjn8Dds29j1cFTbc+13wyA1fSneWSwsfWrKOdioadcv+plh9kha
-         1gZg==
+        bh=2gj0ON+mqEUUZ94wbfZ2SPBrPmWh8UceI9pRzYBaMVs=;
+        b=eC3DpPsmAFqst6vx/VtYKnLaTIHx6GWUVnqSCxBRrvlUOZvovFESHTW5HZ9+baVS2H
+         aUynSRiETakIQ9Ae2SSNTphPna9C18q26+JOVvWrhhGZBu4yq7h9lZKK+E8cp5eggbqq
+         hvcZGYEY4oYpC7Y6iP8urzGMKWN7oWS8qgzAqB7EsrM0CaGnDfVcm4A19KRs+pon+bg0
+         CYYoKtx9EsP3/hlU40fVqCxBGxEgL6Qgac0iCUGbfXk4JcM4O7Ca+h0LuN4oN7LDrZY5
+         xS4iBzrJpSy5P+urdX7lEFbQX7WaxgIKqt9weRNRVsA/3apQFIk8RuMJIHDn86zKYk+2
+         qcIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=m3T85bPGe5F+Y++Xanv5e+8tOU25N4OYONQwuoq/1Bg=;
-        b=is2tYOGv2piW7Q20MNAlsuA+kKsaNZruaPildJX1ClG/sTmDnXG5Xt4YX0armO8PNI
-         Nj9JcC87da/NArJfJ/igajMGcEJzIJcoo8+nnYV8PDqR1B8N7RX+DVz2iOJ0wZHGAXRk
-         5Ro+e24bVD3GD8lP+1RoO0NgwLtBioUpYSgFHDzVnJFUh86CGfZaZBb1q7kMn2GfoYFY
-         GAA/dJAZt6U5WqnmmgLpmpJaux2wKP3CxIIjrw+61Pui9dupoitaeEgh/SK+Lx27bTSd
-         VsprHiR6VVhGGJvlOzPhINwbdlTIgvxNyLR0DHdMCX7PPAsruGv1giHUchgXVEa8J7z2
-         I/sg==
-X-Gm-Message-State: AOAM532eEE4TXOGN7MZYPQZk56wLWnL3L6NZIo0N9joq9I0hnksJqQyP
-        UZxs3yZszJ5N0vWp/QEZ+1lLRPGWLroguQ==
-X-Google-Smtp-Source: ABdhPJwysR6pHHiIU7NpGqTX7WAlLbdiNThKHFXvrC9AzG3R2hvHHnbX1oMJ/YdkgURbzNUeOoVjCg==
-X-Received: by 2002:a17:90a:5b10:: with SMTP id o16mr18898825pji.142.1606611004639;
-        Sat, 28 Nov 2020 16:50:04 -0800 (PST)
+        bh=2gj0ON+mqEUUZ94wbfZ2SPBrPmWh8UceI9pRzYBaMVs=;
+        b=eiBKFxcvrw5vRn9Vpb0sZGADjPW4jhGp5kmxmQtvNbCK+Nq1zCkrDg6Lg7XQ/60hsE
+         vxUrFIQDjljBP9/JDw9TKCWirm4XNJ2KTRMyJTwkrZUaOGMsSpI6hM5EQflXmkoIF/H8
+         w1Q4TLTQ9xmlq3ML1g27nEqD9awvPP8xceinjI0wtYNCa4a7o1yjRh2LsvWUW8giizbj
+         M8M3LSwmCU8hTGsxbzZKdCfzVsxKpTRNBXkvn6Low936jpc+t12iPzDR+5jZcZ63UjE+
+         Mxrv/vZMbDayCeG0s22zPZJ+WuFJPrYnSSvXhJiLducQ0bJyP+TM7G4Uc7A6q1pRLUp4
+         rbnA==
+X-Gm-Message-State: AOAM533GoSdXmzv4Nh8pT894TYJv+c90O81hoZpujyuK2cLmOFNklQNW
+        6fwWehPrC3CYSHIcJWhCJRkGTeevK8NihQ==
+X-Google-Smtp-Source: ABdhPJyzRjZi7nWDgmeoE5ZA6p2uor3N06OR99UdPtUey4z1BqHNg8yllIz15XS1Cj7BvlaZBdNFbw==
+X-Received: by 2002:a17:902:ec03:b029:d7:c7c2:145a with SMTP id l3-20020a170902ec03b02900d7c7c2145amr12949791pld.33.1606611012417;
+        Sat, 28 Nov 2020 16:50:12 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.03
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:50:03 -0800 (PST)
+        Sat, 28 Nov 2020 16:50:11 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
@@ -67,9 +67,9 @@ Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 07/13] fs/userfaultfd: support read_iter to use io_uring
-Date:   Sat, 28 Nov 2020 16:45:42 -0800
-Message-Id: <20201129004548.1619714-8-namit@vmware.com>
+Subject: [RFC PATCH 12/13] fs/userfaultfd: kmem-cache for wait-queue objects
+Date:   Sat, 28 Nov 2020 16:45:47 -0800
+Message-Id: <20201129004548.1619714-13-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
 References: <20201129004548.1619714-1-namit@vmware.com>
@@ -81,12 +81,14 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-iouring with userfaultfd cannot currently be used fixed buffers since
-userfaultfd does not provide read_iter(). This is required to allow
-asynchronous (queued) reads from userfaultfd.
+Allocating work-queue objects on the stack has usually negative
+performance side-effects. First, it is hard to ensure alignment to
+cache-lines without increasing the stack size. Second, it might cause
+false sharing. Third, it is more likely to encounter TLB misses as
+objects are more likely reside on different pages.
 
-To support async-reads of userfaultfd provide read_iter() instead of
-read().
+Allocate userfaultfd wait-queue objects on the heap using kmem-cache for
+better performance.
 
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
@@ -98,58 +100,146 @@ Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
 Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- fs/userfaultfd.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ fs/userfaultfd.c | 60 +++++++++++++++++++++++++++++-------------------
+ 1 file changed, 36 insertions(+), 24 deletions(-)
 
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index b6a04e526025..6333b4632742 100644
+index 5c22170544e3..224b595ec758 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -1195,9 +1195,9 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
- 	return ret;
+@@ -32,6 +32,7 @@
+ int sysctl_unprivileged_userfaultfd __read_mostly = 1;
+ 
+ static struct kmem_cache *userfaultfd_ctx_cachep __read_mostly;
++static struct kmem_cache *userfaultfd_wait_queue_cachep __read_mostly;
+ 
+ enum userfaultfd_state {
+ 	UFFD_STATE_WAIT_API,
+@@ -904,14 +905,15 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+ static void dup_fctx(struct userfaultfd_fork_ctx *fctx)
+ {
+ 	struct userfaultfd_ctx *ctx = fctx->orig;
+-	struct userfaultfd_wait_queue ewq;
++	struct userfaultfd_wait_queue *ewq = kmem_cache_zalloc(userfaultfd_wait_queue_cachep, GFP_KERNEL);
+ 
+-	msg_init(&ewq.msg);
++	msg_init(&ewq->msg);
+ 
+-	ewq.msg.event = UFFD_EVENT_FORK;
+-	ewq.msg.arg.reserved.reserved1 = (unsigned long)fctx->new;
++	ewq->msg.event = UFFD_EVENT_FORK;
++	ewq->msg.arg.reserved.reserved1 = (unsigned long)fctx->new;
+ 
+-	userfaultfd_event_wait_completion(ctx, &ewq);
++	userfaultfd_event_wait_completion(ctx, ewq);
++	kmem_cache_free(userfaultfd_wait_queue_cachep, ewq);
  }
  
--static ssize_t userfaultfd_read(struct file *file, char __user *buf,
--				size_t count, loff_t *ppos)
-+static ssize_t userfaultfd_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ void dup_userfaultfd_complete(struct list_head *fcs)
+@@ -951,7 +953,7 @@ void mremap_userfaultfd_complete(struct vm_userfaultfd_ctx *vm_ctx,
+ 				 unsigned long len)
  {
-+	struct file *file = iocb->ki_filp;
- 	struct userfaultfd_ctx *ctx = file->private_data;
- 	ssize_t _ret, ret = 0;
- 	struct uffd_msg msg;
-@@ -1207,16 +1207,18 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 		return -EINVAL;
+ 	struct userfaultfd_ctx *ctx = vm_ctx->ctx;
+-	struct userfaultfd_wait_queue ewq;
++	struct userfaultfd_wait_queue *ewq = kmem_cache_zalloc(userfaultfd_wait_queue_cachep, GFP_KERNEL);
  
- 	for (;;) {
--		if (count < sizeof(msg))
-+		if (iov_iter_count(to) < sizeof(msg))
- 			return ret ? ret : -EINVAL;
- 		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg);
- 		if (_ret < 0)
- 			return ret ? ret : _ret;
--		if (copy_to_user((__u64 __user *) buf, &msg, sizeof(msg)))
--			return ret ? ret : -EFAULT;
+ 	if (!ctx)
+ 		return;
+@@ -961,14 +963,15 @@ void mremap_userfaultfd_complete(struct vm_userfaultfd_ctx *vm_ctx,
+ 		return;
+ 	}
+ 
+-	msg_init(&ewq.msg);
++	msg_init(&ewq->msg);
+ 
+-	ewq.msg.event = UFFD_EVENT_REMAP;
+-	ewq.msg.arg.remap.from = from;
+-	ewq.msg.arg.remap.to = to;
+-	ewq.msg.arg.remap.len = len;
++	ewq->msg.event = UFFD_EVENT_REMAP;
++	ewq->msg.arg.remap.from = from;
++	ewq->msg.arg.remap.to = to;
++	ewq->msg.arg.remap.len = len;
+ 
+-	userfaultfd_event_wait_completion(ctx, &ewq);
++	userfaultfd_event_wait_completion(ctx, ewq);
++	kmem_cache_free(userfaultfd_wait_queue_cachep, ewq);
+ }
+ 
+ bool userfaultfd_remove(struct vm_area_struct *vma,
+@@ -976,23 +979,25 @@ bool userfaultfd_remove(struct vm_area_struct *vma,
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	struct userfaultfd_ctx *ctx;
+-	struct userfaultfd_wait_queue ewq;
++	struct userfaultfd_wait_queue *ewq;
+ 
+ 	ctx = vma->vm_userfaultfd_ctx.ctx;
+ 	if (!ctx || !(ctx->features & UFFD_FEATURE_EVENT_REMOVE))
+ 		return true;
+ 
++	ewq = kmem_cache_zalloc(userfaultfd_wait_queue_cachep, GFP_KERNEL);
+ 	userfaultfd_ctx_get(ctx);
+ 	WRITE_ONCE(ctx->mmap_changing, true);
+ 	mmap_read_unlock(mm);
+ 
+-	msg_init(&ewq.msg);
++	msg_init(&ewq->msg);
+ 
+-	ewq.msg.event = UFFD_EVENT_REMOVE;
+-	ewq.msg.arg.remove.start = start;
+-	ewq.msg.arg.remove.end = end;
++	ewq->msg.event = UFFD_EVENT_REMOVE;
++	ewq->msg.arg.remove.start = start;
++	ewq->msg.arg.remove.end = end;
+ 
+-	userfaultfd_event_wait_completion(ctx, &ewq);
++	userfaultfd_event_wait_completion(ctx, ewq);
++	kmem_cache_free(userfaultfd_wait_queue_cachep, ewq);
+ 
+ 	return false;
+ }
+@@ -1040,20 +1045,21 @@ int userfaultfd_unmap_prep(struct vm_area_struct *vma,
+ void userfaultfd_unmap_complete(struct mm_struct *mm, struct list_head *uf)
+ {
+ 	struct userfaultfd_unmap_ctx *ctx, *n;
+-	struct userfaultfd_wait_queue ewq;
++	struct userfaultfd_wait_queue *ewq = kmem_cache_zalloc(userfaultfd_wait_queue_cachep, GFP_KERNEL);
+ 
+ 	list_for_each_entry_safe(ctx, n, uf, list) {
+-		msg_init(&ewq.msg);
++		msg_init(&ewq->msg);
+ 
+-		ewq.msg.event = UFFD_EVENT_UNMAP;
+-		ewq.msg.arg.remove.start = ctx->start;
+-		ewq.msg.arg.remove.end = ctx->end;
++		ewq->msg.event = UFFD_EVENT_UNMAP;
++		ewq->msg.arg.remove.start = ctx->start;
++		ewq->msg.arg.remove.end = ctx->end;
+ 
+-		userfaultfd_event_wait_completion(ctx->ctx, &ewq);
++		userfaultfd_event_wait_completion(ctx->ctx, ewq);
+ 
+ 		list_del(&ctx->list);
+ 		kfree(ctx);
+ 	}
++	kmem_cache_free(userfaultfd_wait_queue_cachep, ewq);
+ }
+ 
+ static void userfaultfd_cancel_async_reads(struct userfaultfd_ctx *ctx)
+@@ -2471,6 +2477,12 @@ static int __init userfaultfd_init(void)
+ 						0,
+ 						SLAB_HWCACHE_ALIGN|SLAB_PANIC,
+ 						init_once_userfaultfd_ctx);
 +
-+		_ret = copy_to_iter(&msg, sizeof(msg), to);
-+		if (_ret != sizeof(msg))
-+			return ret ? ret : -EINVAL;
-+
- 		ret += sizeof(msg);
--		buf += sizeof(msg);
--		count -= sizeof(msg);
-+
- 		/*
- 		 * Allow to read more than one fault at time but only
- 		 * block if waiting for the very first one.
-@@ -1980,7 +1982,7 @@ static const struct file_operations userfaultfd_fops = {
- #endif
- 	.release	= userfaultfd_release,
- 	.poll		= userfaultfd_poll,
--	.read		= userfaultfd_read,
-+	.read_iter	= userfaultfd_read_iter,
- 	.unlocked_ioctl = userfaultfd_ioctl,
- 	.compat_ioctl	= compat_ptr_ioctl,
- 	.llseek		= noop_llseek,
++	userfaultfd_wait_queue_cachep = kmem_cache_create("userfaultfd_wait_queue_cache",
++						sizeof(struct userfaultfd_wait_queue),
++						0,
++						SLAB_HWCACHE_ALIGN|SLAB_PANIC,
++						NULL);
+ 	return 0;
+ }
+ __initcall(userfaultfd_init);
 -- 
 2.25.1
 

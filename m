@@ -5,73 +5,71 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 492F7C83016
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 925D6C64E8A
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A7B020885
-	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:50:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A03320731
+	for <io-uring@archiver.kernel.org>; Sun, 29 Nov 2020 00:51:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B6+nMYKw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lqD/tU0t"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729180AbgK2AuX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 28 Nov 2020 19:50:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
+        id S1730151AbgK2Auu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 28 Nov 2020 19:50:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726021AbgK2AuV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:21 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B0AC0613D2;
-        Sat, 28 Nov 2020 16:49:56 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id w6so7767805pfu.1;
-        Sat, 28 Nov 2020 16:49:56 -0800 (PST)
+        with ESMTP id S1729806AbgK2Aus (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 28 Nov 2020 19:50:48 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EA6C061A48;
+        Sat, 28 Nov 2020 16:50:05 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id w202so7733123pff.10;
+        Sat, 28 Nov 2020 16:50:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=l/Z8FKlQx4uPsR2N2TmU0wX19nThj5BIa2agvJuzNHs=;
-        b=B6+nMYKwKJ4hMGar1ZDhLuHnwmrkqzZ1MImfumwqd2HseKfQ5iE6w4aXKmat5EOLN2
-         ZgtFyypw79nA5lB+2B7b3FOLsq214EIQ73rgnlo7Bm+w8+aOagMI36mmeu0c/OEo6umq
-         WKJmEokmFR3+kgrNkiPI9mVwklCmL7CBFt0cX2L6ltEtkbzs0y3hEwQTLyTuuC3f2xMl
-         TvhSoE7YajZWGu40VmH3ezKqZCIE5TqIo1ZMpNsE0UaLl4QNx24hhOd1VmfCsILiADwN
-         8ZRzzuKUD8EDfBacEoKs2dzJzuKkklRM7htDJlz3hxhXr5UAV2iw78MokJXHycR3+0cS
-         aoyQ==
+        bh=m3T85bPGe5F+Y++Xanv5e+8tOU25N4OYONQwuoq/1Bg=;
+        b=lqD/tU0tDTQCtA7PjLcc+V2DExVFb+xzSTUWJkOWg05/7ncV1krxldnwCAwNQbKtIr
+         kX0ubA1jlwnfeL7wh0sqxAOpWkxq6I/TnUH6ydeF7C+k8P3OHNwR+eD/nKEpa4J7LeCL
+         JWYXvxCkL2N/912drcMK3sw2tRkl5oG4zGYGl+BKn1JjigqIF4L0hzgTzZPkYJA8Ztij
+         Tobt70TN3tvcPduGuqriyeun8JBv3Ug4E5Ly8fsoQJU5ucEGZ4aCTsRsZWsQVyuFQezp
+         x5QPByemKbVvEKcYrYjn8Dds29j1cFTbc+13wyA1fSneWSwsfWrKOdioadcv+plh9kha
+         1gZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=l/Z8FKlQx4uPsR2N2TmU0wX19nThj5BIa2agvJuzNHs=;
-        b=MLWmO3BqklF9WSWeFmMBA9C8CzPKjAOiWGBzI47HixUQAOpgv9rWSJOCe2RzAyjhNv
-         ZlGDwdkh6KVuzKGjAwYlQU7m6bP3YdYoQfhPEJxqSowWE8I3Ou8Q9vwmzOKEoAXkgwl1
-         9OoGJhuGvF5Arhi8/+jZclVl0atB6S3S1Q40+p0C1PmXGYD07j90OIO9wV4/wKQc3vI4
-         5u/9qlPH6xEzDo3ntZvWGrQhxB4L+KjxRXTUPIcVO+BmUbGFsU+91NpKTheqeBBtU709
-         xk0iZVBqseIM4hqLqrTdgltmHZUJNkCw8UhlwLDoUEFOqq87jK19ZJwyXIdDZqZHoZPW
-         weGg==
-X-Gm-Message-State: AOAM531bGvqhYNyBPT5wKFqfnvDjJTUolz0SHzB8XB4mooRELJAA8q5V
-        h3V710/MJKyZc/Yq3kgDly4BsILCZEQeAg==
-X-Google-Smtp-Source: ABdhPJywBaA7WF3l1QVlZ/0iev6HcvYcWxP1cEM+D4hAm7IrnJMAcUdTAhr+98nM4pSoy1jJk5U9Nw==
-X-Received: by 2002:aa7:9501:0:b029:155:3b11:d5c4 with SMTP id b1-20020aa795010000b02901553b11d5c4mr12958529pfp.76.1606610995913;
-        Sat, 28 Nov 2020 16:49:55 -0800 (PST)
+        bh=m3T85bPGe5F+Y++Xanv5e+8tOU25N4OYONQwuoq/1Bg=;
+        b=is2tYOGv2piW7Q20MNAlsuA+kKsaNZruaPildJX1ClG/sTmDnXG5Xt4YX0armO8PNI
+         Nj9JcC87da/NArJfJ/igajMGcEJzIJcoo8+nnYV8PDqR1B8N7RX+DVz2iOJ0wZHGAXRk
+         5Ro+e24bVD3GD8lP+1RoO0NgwLtBioUpYSgFHDzVnJFUh86CGfZaZBb1q7kMn2GfoYFY
+         GAA/dJAZt6U5WqnmmgLpmpJaux2wKP3CxIIjrw+61Pui9dupoitaeEgh/SK+Lx27bTSd
+         VsprHiR6VVhGGJvlOzPhINwbdlTIgvxNyLR0DHdMCX7PPAsruGv1giHUchgXVEa8J7z2
+         I/sg==
+X-Gm-Message-State: AOAM532eEE4TXOGN7MZYPQZk56wLWnL3L6NZIo0N9joq9I0hnksJqQyP
+        UZxs3yZszJ5N0vWp/QEZ+1lLRPGWLroguQ==
+X-Google-Smtp-Source: ABdhPJwysR6pHHiIU7NpGqTX7WAlLbdiNThKHFXvrC9AzG3R2hvHHnbX1oMJ/YdkgURbzNUeOoVjCg==
+X-Received: by 2002:a17:90a:5b10:: with SMTP id o16mr18898825pji.142.1606611004639;
+        Sat, 28 Nov 2020 16:50:04 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.49.54
+        by smtp.gmail.com with ESMTPSA id gg19sm16444871pjb.21.2020.11.28.16.50.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 16:49:55 -0800 (PST)
+        Sat, 28 Nov 2020 16:50:03 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-fsdevel@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
+Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Peter Xu <peterx@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-Subject: [RFC PATCH 01/13] fs/userfaultfd: fix wrong error code on WP & !VM_MAYWRITE
-Date:   Sat, 28 Nov 2020 16:45:36 -0800
-Message-Id: <20201129004548.1619714-2-namit@vmware.com>
+Subject: [RFC PATCH 07/13] fs/userfaultfd: support read_iter to use io_uring
+Date:   Sat, 28 Nov 2020 16:45:42 -0800
+Message-Id: <20201129004548.1619714-8-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201129004548.1619714-1-namit@vmware.com>
 References: <20201129004548.1619714-1-namit@vmware.com>
@@ -83,14 +81,13 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Nadav Amit <namit@vmware.com>
 
-It is possible to get an EINVAL error instead of EPERM if the following
-test vm_flags have VM_UFFD_WP but do not have VM_MAYWRITE, as "ret" is
-overwritten since commit cab350afcbc9 ("userfaultfd: hugetlbfs: allow
-registration of ranges containing huge pages").
+iouring with userfaultfd cannot currently be used fixed buffers since
+userfaultfd does not provide read_iter(). This is required to allow
+asynchronous (queued) reads from userfaultfd.
 
-Fix it.
+To support async-reads of userfaultfd provide read_iter() instead of
+read().
 
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Peter Xu <peterx@redhat.com>
@@ -99,24 +96,60 @@ Cc: io-uring@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
-Fixes: cab350afcbc9 ("userfaultfd: hugetlbfs: allow registration of ranges containing huge pages")
 Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- fs/userfaultfd.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/userfaultfd.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 000b457ad087..c8ed4320370e 100644
+index b6a04e526025..6333b4632742 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -1364,6 +1364,7 @@ static int userfaultfd_register(struct userfaultfd_ctx *ctx,
- 			if (end & (vma_hpagesize - 1))
- 				goto out_unlock;
- 		}
-+		ret = -EPERM;
- 		if ((vm_flags & VM_UFFD_WP) && !(cur->vm_flags & VM_MAYWRITE))
- 			goto out_unlock;
+@@ -1195,9 +1195,9 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
+ 	return ret;
+ }
  
+-static ssize_t userfaultfd_read(struct file *file, char __user *buf,
+-				size_t count, loff_t *ppos)
++static ssize_t userfaultfd_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ {
++	struct file *file = iocb->ki_filp;
+ 	struct userfaultfd_ctx *ctx = file->private_data;
+ 	ssize_t _ret, ret = 0;
+ 	struct uffd_msg msg;
+@@ -1207,16 +1207,18 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
+ 		return -EINVAL;
+ 
+ 	for (;;) {
+-		if (count < sizeof(msg))
++		if (iov_iter_count(to) < sizeof(msg))
+ 			return ret ? ret : -EINVAL;
+ 		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg);
+ 		if (_ret < 0)
+ 			return ret ? ret : _ret;
+-		if (copy_to_user((__u64 __user *) buf, &msg, sizeof(msg)))
+-			return ret ? ret : -EFAULT;
++
++		_ret = copy_to_iter(&msg, sizeof(msg), to);
++		if (_ret != sizeof(msg))
++			return ret ? ret : -EINVAL;
++
+ 		ret += sizeof(msg);
+-		buf += sizeof(msg);
+-		count -= sizeof(msg);
++
+ 		/*
+ 		 * Allow to read more than one fault at time but only
+ 		 * block if waiting for the very first one.
+@@ -1980,7 +1982,7 @@ static const struct file_operations userfaultfd_fops = {
+ #endif
+ 	.release	= userfaultfd_release,
+ 	.poll		= userfaultfd_poll,
+-	.read		= userfaultfd_read,
++	.read_iter	= userfaultfd_read_iter,
+ 	.unlocked_ioctl = userfaultfd_ioctl,
+ 	.compat_ioctl	= compat_ptr_ioctl,
+ 	.llseek		= noop_llseek,
 -- 
 2.25.1
 

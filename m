@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C94C4361B
-	for <io-uring@archiver.kernel.org>; Sun,  6 Dec 2020 12:55:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05D79C433FE
+	for <io-uring@archiver.kernel.org>; Sun,  6 Dec 2020 12:55:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 152962311B
-	for <io-uring@archiver.kernel.org>; Sun,  6 Dec 2020 12:55:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D25F32310E
+	for <io-uring@archiver.kernel.org>; Sun,  6 Dec 2020 12:55:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbgLFMzc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 6 Dec 2020 07:55:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
+        id S1727924AbgLFMz6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 6 Dec 2020 07:55:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727842AbgLFMzc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 6 Dec 2020 07:55:32 -0500
+        with ESMTP id S1727922AbgLFMzg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 6 Dec 2020 07:55:36 -0500
 Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3809C0613D3
-        for <io-uring@vger.kernel.org>; Sun,  6 Dec 2020 04:54:51 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id f190so11170464wme.1
-        for <io-uring@vger.kernel.org>; Sun, 06 Dec 2020 04:54:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C11C0613D1
+        for <io-uring@vger.kernel.org>; Sun,  6 Dec 2020 04:54:49 -0800 (PST)
+Received: by mail-wm1-x341.google.com with SMTP id h21so11151670wmb.2
+        for <io-uring@vger.kernel.org>; Sun, 06 Dec 2020 04:54:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=25AL+BHbbCH+Nz3jtE7beBNzqs4Zi2nRZ2QgNxVz4wc=;
-        b=NbRTPcbjuiTrKOLkY2CNkbmhbsw1J30TAhVdrrwsP43K5sdPp78JPKvP0z9LrbZZJo
-         4nrEXuCIuzvxEvnKgh4Cvkq3sAIEjfq0ODpUj9OJsD34ffiZBATK9b2uI4EJQyF+gRc4
-         pLToVvFWPqorKxQkwM932Cu2ulCD7e9wpL0GCs5WfYoPrOeyqqONs4vbXVyK8gGT+NYY
-         h6+ZUOvW9lNH2UxCvAJNrXc7Pl/kunQwIXSuYMBlxUEQb7ljw0mGtlu0MXYcBCOwa+pa
-         1DHe85YxwibAhNSmf+RcG5FGPX1A96drczaqfyg9AS/SG99a9agPh2yjGlyaFKFrnTPw
-         vV6g==
+        bh=shGEQZvpWocLAHt1893SfkClceVcJawlXvrYVNhrJns=;
+        b=f0eqEkauba86SyJttxoqNSdFpOeivfMcoJ7/GMEgRq92xg7U8aPPV7uLcSo85+ybdX
+         cTZcsNUPCMkg//Ntppk+SVvsaOnHTtIekRhS2qs0m7sa5cBHELKUmtq/Dh7OFwGQhn4E
+         x5kX7IzR3Lmo8d0JR5hAGGeH0HJOcoBb/wduTDrdINzkZJogVKEybRM6fQyD43ytb6AR
+         LUMBIeifI2eASvOyGJ06/SO63QfcfUwIp4z+hDzvA48p9bfxnGF1+0z9DrgYjf1ReVzV
+         IKSYm3upV0oFRc0ZMLG6a2FdOAaFs4SlSkq4p93ZyfGCCWZKRimTd6c4tdTPWCcMKM/T
+         m2Dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=25AL+BHbbCH+Nz3jtE7beBNzqs4Zi2nRZ2QgNxVz4wc=;
-        b=I6clGiQzdVSMhFoB2h+RPgiTxPyoGGYKZ+Wv6IN+Sr3Lx8OQas6EQNj6wcMqltKdEK
-         o1c8/eF5hwWXvarpmchcc4PrbbVT7zqmc53uox8q2NhLlvjiQmtXgvoU0Z0Nus+gg7Ez
-         p8KPf+0u8Ih7fbFmPHBkw59e/+QhaAkwsIFVAYMqBYrCqEKdvIFlIm5ZByTghGsWLYMo
-         lzdZib6+pjOGzac9HflA+j1VLFajQPPXXHDNT/BPdiSJRMp7MdFQHRZFxXqfjHSODy0h
-         B5osBvu3+aqU8MHhzSrtCyxuH3jqrDIljzKL+HoLT6WCto4t5A3UtCWellBRpl35z5B1
-         W9ng==
-X-Gm-Message-State: AOAM533ucBfpqlDaKB4EjG6sT/K/SiSECbxO6AfCiMP5+FHqyTIdHpDu
-        XFtHwHSFlU59vZ1+GnifdPR76N/gNuGvHw==
-X-Google-Smtp-Source: ABdhPJz7zoK9JnZhbg+Pb283LOgohKJpk7uFUMmNohRJZbHK46tP5WnOwQh13glD+el9JsBEgqxRwA==
-X-Received: by 2002:a1c:3b85:: with SMTP id i127mr13982809wma.150.1607259290516;
-        Sun, 06 Dec 2020 04:54:50 -0800 (PST)
+        bh=shGEQZvpWocLAHt1893SfkClceVcJawlXvrYVNhrJns=;
+        b=cCg6R2E+q1fPMOU1duUfr7384OSsm1a/M76ZPyFicmm67R0Ry7ZoRWUzWr54kIxxin
+         D0tIE9SNUnGBpe5dI7sFTCSGA6s31YvklNUHEAQD55QoT01okc8CoyQ9WWPTIR0ts/7C
+         ngJt31M6v4ZD8gKdLR0cA9yPYHe/fCQjLh+Eye4ZMH3mY+y3vGOjZLzao0SL7JAk2PCI
+         LaltjQzvJ671eGilqVH71HeQAvFcbEDJC6WQ7/9eT4k/08dKrGIx9FlSXLmsQWhVbm2V
+         qQpGxQ+49Qym7h2RLuz2meeLNZeWhWrk0gxauYrp3vLwUERlx056vHzA0XuzFW+UCD6o
+         eOjg==
+X-Gm-Message-State: AOAM531PdExRdl6DYqXXJmYFTlBOmSfQF4mhlVUvvwSbr2ZwMPvrA2Ir
+        t1iQsNHb1A1+cI6NwHb5JnmdYYlW3LZFRA==
+X-Google-Smtp-Source: ABdhPJwhdUI9c1uLu1/4KCnLOd692TVie2qpVdGNTTdPVnzPvltyXgSxdI2N8CrNZsbw53qUtcPRrQ==
+X-Received: by 2002:a1c:99d7:: with SMTP id b206mr6853538wme.12.1607259288701;
+        Sun, 06 Dec 2020 04:54:48 -0800 (PST)
 Received: from localhost.localdomain ([185.69.145.45])
-        by smtp.gmail.com with ESMTPSA id j14sm10590632wrs.49.2020.12.06.04.54.49
+        by smtp.gmail.com with ESMTPSA id j14sm10590632wrs.49.2020.12.06.04.54.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Dec 2020 04:54:50 -0800 (PST)
+        Sun, 06 Dec 2020 04:54:48 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH liburing 3/3] test/rw: test reg bufs with non-align sizes/offset
-Date:   Sun,  6 Dec 2020 12:51:23 +0000
-Message-Id: <a3d2736e27a0762fbbdf64b46a296670e4b7c6bf.1607258973.git.asml.silence@gmail.com>
+Subject: [PATCH liburing 1/3] test/rw: name flags for clearness
+Date:   Sun,  6 Dec 2020 12:51:21 +0000
+Message-Id: <d90c51d04ad52c887f1a2c06be93d99129423999.1607258973.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1607258973.git.asml.silence@gmail.com>
 References: <cover.1607258973.git.asml.silence@gmail.com>
@@ -70,170 +70,47 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Broaden registered buffers coverage with registering buffers with
-non-aligned random offsets and sizes. That in particular test how we're
-setting and advancing in-kernel bvecs.
-
-Pass exp_len==-1 for that, so it compares against iov_len with which it
-was initialised. Also, direct IO requires alignment, so do it in
-buffered mode.
+Replace obscure v1-v6 with more readable flag names.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- test/read-write.c | 71 +++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 65 insertions(+), 6 deletions(-)
+ test/read-write.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
 diff --git a/test/read-write.c b/test/read-write.c
-index 2399c32..84ea3a2 100644
+index 3bea26f..d47bebb 100644
 --- a/test/read-write.c
 +++ b/test/read-write.c
-@@ -37,6 +37,23 @@ static int create_buffers(void)
- 	return 0;
- }
+@@ -696,18 +696,19 @@ int main(int argc, char *argv[])
+ 		nr = 32;
  
-+static int create_nonaligned_buffers(void)
-+{
-+	int i;
-+
-+	vecs = malloc(BUFFERS * sizeof(struct iovec));
-+	for (i = 0; i < BUFFERS; i++) {
-+		char *p = malloc(3 * BS);
-+
-+		if (!p)
-+			return 1;
-+		vecs[i].iov_base = p + (rand() % BS);
-+		vecs[i].iov_len = 1 + (rand() % BS);
-+	}
-+
-+	return 0;
-+}
-+
- static int create_file(const char *file)
- {
- 	ssize_t ret;
-@@ -155,6 +172,7 @@ static int __test_io(const char *file, struct io_uring *ring, int write,
- 			}
- 
- 		}
-+		sqe->user_data = i;
- 		if (sqthread)
- 			sqe->flags |= IOSQE_FIXED_FILE;
- 		if (buf_select) {
-@@ -162,7 +180,6 @@ static int __test_io(const char *file, struct io_uring *ring, int write,
- 				sqe->addr = 0;
- 			sqe->flags |= IOSQE_BUFFER_SELECT;
- 			sqe->buf_group = buf_select;
--			sqe->user_data = i;
- 		}
- 		if (seq)
- 			offset += BS;
-@@ -187,6 +204,14 @@ static int __test_io(const char *file, struct io_uring *ring, int write,
- 				warned = 1;
- 				no_read = 1;
- 			}
-+		} else if (exp_len == -1) {
-+			int iov_len = vecs[cqe->user_data].iov_len;
-+
-+			if (cqe->res != iov_len) {
-+				fprintf(stderr, "cqe res %d, wanted %d\n",
-+					cqe->res, iov_len);
-+				goto err;
-+			}
- 		} else if (cqe->res != exp_len) {
- 			fprintf(stderr, "cqe res %d, wanted %d\n", cqe->res, exp_len);
- 			goto err;
-@@ -238,7 +263,7 @@ err:
- 	return 1;
- }
- static int test_io(const char *file, int write, int buffered, int sqthread,
--		   int fixed, int nonvec)
-+		   int fixed, int nonvec, int exp_len)
- {
- 	struct io_uring ring;
- 	int ret, ring_flags;
-@@ -263,7 +288,7 @@ static int test_io(const char *file, int write, int buffered, int sqthread,
- 	}
- 
- 	ret = __test_io(file, &ring, write, buffered, sqthread, fixed, nonvec,
--			0, 0, BS);
-+			0, 0, exp_len);
- 
- 	io_uring_queue_exit(&ring);
- 	return ret;
-@@ -593,14 +618,15 @@ static int test_write_efbig(void)
- 	struct io_uring_sqe *sqe;
- 	struct io_uring_cqe *cqe;
- 	struct io_uring ring;
--	struct rlimit rlim;
-+	struct rlimit rlim, old_rlim;
- 	int i, fd, ret;
- 	loff_t off;
- 
--	if (getrlimit(RLIMIT_FSIZE, &rlim) < 0) {
-+	if (getrlimit(RLIMIT_FSIZE, &old_rlim) < 0) {
- 		perror("getrlimit");
- 		return 1;
- 	}
-+	rlim = old_rlim;
- 	rlim.rlim_cur = 64 * 1024;
- 	rlim.rlim_max = 64 * 1024;
- 	if (setrlimit(RLIMIT_FSIZE, &rlim) < 0) {
-@@ -660,6 +686,11 @@ static int test_write_efbig(void)
- 	io_uring_queue_exit(&ring);
- 	close(fd);
- 	unlink(".efbig");
-+
-+	if (setrlimit(RLIMIT_FSIZE, &old_rlim) < 0) {
-+		perror("setrlimit");
-+		return 1;
-+	}
- 	return 0;
- err:
- 	if (fd != -1)
-@@ -698,7 +729,8 @@ int main(int argc, char *argv[])
- 		int fixed = (i & 8) != 0;
- 		int nonvec = (i & 16) != 0;
- 
--		ret = test_io(fname, write, buffered, sqthread, fixed, nonvec);
-+		ret = test_io(fname, write, buffered, sqthread, fixed, nonvec,
-+			      BS);
- 		if (ret) {
- 			fprintf(stderr, "test_io failed %d/%d/%d/%d/%d\n",
- 				write, buffered, sqthread, fixed, nonvec);
-@@ -754,6 +786,33 @@ int main(int argc, char *argv[])
- 		goto err;
- 	}
- 
-+	srand((unsigned)time(NULL));
-+	if (create_nonaligned_buffers()) {
-+		fprintf(stderr, "file creation failed\n");
-+		goto err;
-+	}
-+
-+	/* test fixed bufs with non-aligned len/offset */
-+	for (i = 0; i < nr; i++) {
+ 	for (i = 0; i < nr; i++) {
+-		int v1, v2, v3, v4, v5, v6;
+-
+-		v1 = (i & 1) != 0;
+-		v2 = (i & 2) != 0;
+-		v3 = (i & 4) != 0;
+-		v4 = (i & 8) != 0;
+-		v5 = (i & 16) != 0;
+-		v6 = (i & 32) != 0;
+-		ret = test_io(fname, v1, v2, v3, v4, v5, v6);
 +		int write = (i & 1) != 0;
 +		int buffered = (i & 2) != 0;
 +		int sqthread = (i & 4) != 0;
 +		int fixed = (i & 8) != 0;
-+		int nonvec = (i & 16) != 0;
++		int mixed_fixed = (i & 16) != 0;
++		int nonvec = (i & 32) != 0;
 +
-+		/* direct IO requires alignment, skip it */
-+		if (!buffered || !fixed || nonvec)
-+			continue;
-+
-+		ret = test_io(fname, write, buffered, sqthread, fixed, nonvec,
-+			      -1);
-+		if (ret) {
-+			fprintf(stderr, "test_io failed %d/%d/%d/%d/%d\n",
-+				write, buffered, sqthread, fixed, nonvec);
-+			goto err;
-+		}
-+	}
-+
- 	if (fname != argv[1])
- 		unlink(fname);
- 	return 0;
++		ret = test_io(fname, write, buffered, sqthread, fixed,
++			      mixed_fixed, nonvec);
+ 		if (ret) {
+ 			fprintf(stderr, "test_io failed %d/%d/%d/%d/%d/%d\n",
+-					v1, v2, v3, v4, v5, v6);
++					write, buffered, sqthread, fixed,
++					mixed_fixed, nonvec);
+ 			goto err;
+ 		}
+ 	}
 -- 
 2.24.0
 

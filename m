@@ -8,51 +8,51 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D79CCC2BBCA
-	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:17:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFF57C433FE
+	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:19:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2D54239D1
-	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:17:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD1252396F
+	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:19:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728067AbgLGWQ4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 7 Dec 2020 17:16:56 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:58762 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727824AbgLGWQv (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Dec 2020 17:16:51 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7M9GqL111917;
-        Mon, 7 Dec 2020 22:16:07 GMT
+        id S1726069AbgLGWSu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 7 Dec 2020 17:18:50 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:43694 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726231AbgLGWSt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Dec 2020 17:18:49 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7M9q3c132248;
+        Mon, 7 Dec 2020 22:18:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=0svNSEm2U5jVom2WL+v6/mqvVph8Q52Yu/mcx7/ELb4=;
- b=lgfqeRx/6X8Hgt8JGOP/fENlVemTX+8hhV19WFrxGQEYcpwNvu2YYkmsFYl417Z4PEOs
- kZL+8iW+Aq9wBsv3sH2XPkYBbXoIN7IDMDms8ubzk07dt9gNf7YmhU/Vy+z4OyZyuFKc
- /bT8U8X1fPLcbXsDIHVSFl02Bf8K5Domc4Qy950ytRV1WZFvUXGUI6kZBkqqtuyG14PK
- N5f9W3SkRdWvAvZ/D2UDHQuq6If7iDUyT0JlHS64ueJ9YvvPyrlqx1LoI1/3w4J6Hqfa
- R5FOLRO/1EZKjhFxPjFI4tjUPnFLudJ5dzi/x0B8RAgIHcZy+CbS1txBE4B8nWaGOvFP 7A== 
+ bh=5yaruAs6fD3AgQoTwQLInNq0UME1OflyJpRbvZZeyz4=;
+ b=QYC0cqiyTh+hhJdYdq0L+OUMPczmIhPs5VQh0tPTWQiRXFZDB8GCntgzrEo3hvH5ACZF
+ +pE0maEbvmKFqgV3vz5vIyL+/BgxrxWA8GNjuRzpYplempwtYn4z3APPEFLLmpZnMLG1
+ hJvaMm53rcyVUnmFtBtI9vDVLlceBz/jyDm54TFbV37LkoKfgKdEHCmZ0LUKhoafHrLC
+ fGUPaM+P33d/SrDhebjHAdRIF/iag7QHl0Hib5l9HmlUX32EVTBFCQS9GQWQtSIfqq7i
+ vX/B7DI3DrwnMxTSKVCO6yDisoiZQ9lELtp+8dXffmGWVwHEaA081kojPVIK+PnmSwGF 2A== 
 Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2130.oracle.com with ESMTP id 357yqbr17c-1
+        by userp2130.oracle.com with ESMTP id 3581mqqvbk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 07 Dec 2020 22:16:07 +0000
+        Mon, 07 Dec 2020 22:18:07 +0000
 Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7MAVi0064038;
-        Mon, 7 Dec 2020 22:16:07 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3020.oracle.com with ESMTP id 358m3wxb9x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 07 Dec 2020 22:16:07 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0B7MG6gO017227;
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7MAV9a064039;
         Mon, 7 Dec 2020 22:16:06 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 358m3wxb9c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 07 Dec 2020 22:16:06 +0000
+Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0B7MG54C004824;
+        Mon, 7 Dec 2020 22:16:05 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 07 Dec 2020 14:16:06 -0800
+        with ESMTP ; Mon, 07 Dec 2020 14:16:04 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v2 10/13] io_uring: generalize files_update functionlity to rsrc_update
-Date:   Mon,  7 Dec 2020 14:15:49 -0800
-Message-Id: <1607379352-68109-11-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v2 04/13] io_uring: rename fixed_file variables to fixed_rsrc
+Date:   Mon,  7 Dec 2020 14:15:43 -0800
+Message-Id: <1607379352-68109-5-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1607379352-68109-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1607379352-68109-1-git-send-email-bijan.mottahedeh@oracle.com>
@@ -63,169 +63,83 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwa
  definitions=main-2012070145
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9828 signatures=668682
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxlogscore=999
- clxscore=1015 malwarescore=0 bulkscore=0 phishscore=0 adultscore=0
- spamscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 phishscore=0 spamscore=0 impostorscore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2009150000 definitions=main-2012070145
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Generalize files_update functionality to rsrc_update in order to leverage
-it for buffers updates.
+Change fixed_file_refs names to fixed_rsrc_refs, and change
+set_resource_node() to io_get_fixed_rsrc_ref() to make its function
+more clear.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c                 | 45 ++++++++++++++++++++++++++-----------------
- include/uapi/linux/io_uring.h | 10 ++++++++++
- 2 files changed, 37 insertions(+), 18 deletions(-)
+ fs/io_uring.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 384ff3c..1108682 100644
+index 2b42049..33b2ff6 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -517,7 +517,7 @@ struct io_open {
- 	unsigned long			nofile;
- };
+@@ -733,7 +733,7 @@ struct io_kiocb {
+ 	u64				user_data;
  
--struct io_files_update {
-+struct io_rsrc_update {
- 	struct file			*file;
- 	u64				arg;
- 	u32				nr_args;
-@@ -711,7 +711,7 @@ struct io_kiocb {
- 		struct io_sr_msg	sr_msg;
- 		struct io_open		open;
- 		struct io_close		close;
--		struct io_files_update	files_update;
-+		struct io_rsrc_update	rsrc_update;
- 		struct io_fadvise	fadvise;
- 		struct io_madvise	madvise;
- 		struct io_epoll		epoll;
-@@ -1026,7 +1026,7 @@ static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
- static void __io_queue_linked_timeout(struct io_kiocb *req);
- static void io_queue_linked_timeout(struct io_kiocb *req);
- static int __io_sqe_files_update(struct io_ring_ctx *ctx,
--				 struct io_uring_files_update *ip,
-+				 struct io_uring_rsrc_update *ip,
- 				 unsigned nr_args);
- static void __io_clean_op(struct io_kiocb *req);
- static struct file *io_file_get(struct io_submit_state *state,
-@@ -5962,8 +5962,8 @@ static int io_async_cancel(struct io_kiocb *req)
- 	return 0;
+ 	struct io_kiocb			*link;
+-	struct percpu_ref		*fixed_file_refs;
++	struct percpu_ref		*fixed_rsrc_refs;
+ 
+ 	/*
+ 	 * 1. used with ctx->iopoll_list with reads/writes
+@@ -1060,13 +1060,13 @@ static inline void io_clean_op(struct io_kiocb *req)
+ 		__io_clean_op(req);
  }
  
--static int io_files_update_prep(struct io_kiocb *req,
--				const struct io_uring_sqe *sqe)
-+static int io_rsrc_update_prep(struct io_kiocb *req,
-+			       const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_SQPOLL))
- 		return -EINVAL;
-@@ -5972,29 +5972,32 @@ static int io_files_update_prep(struct io_kiocb *req,
- 	if (sqe->ioprio || sqe->rw_flags)
- 		return -EINVAL;
- 
--	req->files_update.offset = READ_ONCE(sqe->off);
--	req->files_update.nr_args = READ_ONCE(sqe->len);
--	if (!req->files_update.nr_args)
-+	req->rsrc_update.offset = READ_ONCE(sqe->off);
-+	req->rsrc_update.nr_args = READ_ONCE(sqe->len);
-+	if (!req->rsrc_update.nr_args)
- 		return -EINVAL;
--	req->files_update.arg = READ_ONCE(sqe->addr);
-+	req->rsrc_update.arg = READ_ONCE(sqe->addr);
- 	return 0;
- }
- 
--static int io_files_update(struct io_kiocb *req, bool force_nonblock,
--			   struct io_comp_state *cs)
-+static int io_rsrc_update(struct io_kiocb *req, bool force_nonblock,
-+			  struct io_comp_state *cs,
-+			  int (*update)(struct io_ring_ctx *ctx,
-+					struct io_uring_rsrc_update *up,
-+					unsigned nr_args))
+-static inline void io_set_resource_node(struct io_kiocb *req)
++static inline void io_get_fixed_rsrc_ref(struct io_kiocb *req)
  {
  	struct io_ring_ctx *ctx = req->ctx;
--	struct io_uring_files_update up;
-+	struct io_uring_rsrc_update up;
- 	int ret;
  
- 	if (force_nonblock)
- 		return -EAGAIN;
- 
--	up.offset = req->files_update.offset;
--	up.fds = req->files_update.arg;
-+	up.offset = req->rsrc_update.offset;
-+	up.rsrc = req->rsrc_update.arg;
- 
- 	mutex_lock(&ctx->uring_lock);
--	ret = __io_sqe_files_update(ctx, &up, req->files_update.nr_args);
-+	ret = (*update)(ctx, &up, req->rsrc_update.nr_args);
- 	mutex_unlock(&ctx->uring_lock);
- 
- 	if (ret < 0)
-@@ -6003,6 +6006,12 @@ static int io_files_update(struct io_kiocb *req, bool force_nonblock,
- 	return 0;
+-	if (!req->fixed_file_refs) {
+-		req->fixed_file_refs = &ctx->file_data->node->refs;
+-		percpu_ref_get(req->fixed_file_refs);
++	if (!req->fixed_rsrc_refs) {
++		req->fixed_rsrc_refs = &ctx->file_data->node->refs;
++		percpu_ref_get(req->fixed_rsrc_refs);
+ 	}
  }
  
-+static int io_files_update(struct io_kiocb *req, bool force_nonblock,
-+			   struct io_comp_state *cs)
-+{
-+	return io_rsrc_update(req, force_nonblock, cs, __io_sqe_files_update);
-+}
-+
- static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	switch (req->opcode) {
-@@ -6049,7 +6058,7 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	case IORING_OP_CLOSE:
- 		return io_close_prep(req, sqe);
- 	case IORING_OP_FILES_UPDATE:
--		return io_files_update_prep(req, sqe);
-+		return io_rsrc_update_prep(req, sqe);
- 	case IORING_OP_STATX:
- 		return io_statx_prep(req, sqe);
- 	case IORING_OP_FADVISE:
-@@ -7929,7 +7938,7 @@ static void switch_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node,
+@@ -1964,8 +1964,8 @@ static void io_dismantle_req(struct io_kiocb *req)
+ 		kfree(req->async_data);
+ 	if (req->file)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
+-	if (req->fixed_file_refs)
+-		percpu_ref_put(req->fixed_file_refs);
++	if (req->fixed_rsrc_refs)
++		percpu_ref_put(req->fixed_rsrc_refs);
+ 	io_req_clean_work(req);
  }
  
- static int __io_sqe_files_update(struct io_ring_ctx *ctx,
--				 struct io_uring_files_update *up,
-+				 struct io_uring_rsrc_update *up,
- 				 unsigned nr_args)
- {
- 	struct fixed_rsrc_data *data = ctx->file_data;
-@@ -8014,7 +8023,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
- 			       unsigned nr_args)
- {
--	struct io_uring_files_update up;
-+	struct io_uring_rsrc_update up;
- 
- 	if (!ctx->file_data)
- 		return -ENXIO;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index d31a2a1..ba5deff 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -291,6 +291,16 @@ struct io_uring_files_update {
- 	__aligned_u64 /* __s32 * */ fds;
- };
- 
-+struct io_uring_rsrc_update {
-+	__u32 offset;
-+	__u32 resv;
-+	union {
-+		__aligned_u64 /* __s32 * */ fds;
-+		__aligned_u64 /* __s32 * */ iovs;
-+		__aligned_u64 /* __s32 * */ rsrc;
-+	};
-+};
-+
- #define IO_URING_OP_SUPPORTED	(1U << 0)
- 
- struct io_uring_probe_op {
+@@ -6397,7 +6397,7 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 			return NULL;
+ 		fd = array_index_nospec(fd, ctx->nr_user_files);
+ 		file = io_file_from_index(ctx, fd);
+-		io_set_resource_node(req);
++		io_get_fixed_rsrc_ref(req);
+ 	} else {
+ 		trace_io_uring_file_get(ctx, fd);
+ 		file = __io_file_get(state, fd);
+@@ -6766,7 +6766,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	req->ctx = ctx;
+ 	req->flags = 0;
+ 	req->link = NULL;
+-	req->fixed_file_refs = NULL;
++	req->fixed_rsrc_refs = NULL;
+ 	/* one is dropped after submission, the other at completion */
+ 	refcount_set(&req->refs, 2);
+ 	req->task = current;
 -- 
 1.8.3.1
 

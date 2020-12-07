@@ -2,226 +2,137 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 088ABC4167B
-	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43512C4361B
+	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 23:41:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4EEA239D3
-	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 22:19:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14F3223998
+	for <io-uring@archiver.kernel.org>; Mon,  7 Dec 2020 23:41:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727468AbgLGWSv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 7 Dec 2020 17:18:51 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:44520 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726231AbgLGWSu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Dec 2020 17:18:50 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7M9O3h072116;
-        Mon, 7 Dec 2020 22:18:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
- date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=dH9W4JY2SqCWXoGqDLYcHW8jIYk1bwaaZzIZi+5Z+/A=;
- b=HL022oU9YvxC/DNMmFDGQiTphceKGdl3/28drYkUCjivs4ovWyRAK6VCHYDL07qnKVGO
- brqOJgSWnmKWyL9X9suRx1tU4m0YkKZ1p+C5sIqLGxB8qoBbov+WXb0tRgejAL8WNClT
- R2vwLDYVARhIZqAE+TlKoUv/0UW8lVvg3lLJIely37/mrqWgIdkFtbRS0Lm5F2nabhmc
- 8ggsZSL/4CBEHApvHZSA9FYVOmrHexMbVIgKjoPcgJjkbtBqWXvHVShzxKLTs47B4bCN
- 3vUeUtfZb1iQ2E0N7LN6bnQdxZl/JjDH6EIuXsDbySVo7pzOjr5vToX4CT6F/HxTcphy JQ== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 35825kyw7d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 07 Dec 2020 22:18:08 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B7MAj30082837;
-        Mon, 7 Dec 2020 22:16:08 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 358ksmsam3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 07 Dec 2020 22:16:08 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0B7MG7D0006746;
-        Mon, 7 Dec 2020 22:16:07 GMT
-Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 07 Dec 2020 14:16:07 -0800
-From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v2 12/13] io_uring: create common fixed_rsrc_data allocation routines.
-Date:   Mon,  7 Dec 2020 14:15:51 -0800
-Message-Id: <1607379352-68109-13-git-send-email-bijan.mottahedeh@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1607379352-68109-1-git-send-email-bijan.mottahedeh@oracle.com>
-References: <1607379352-68109-1-git-send-email-bijan.mottahedeh@oracle.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9828 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 suspectscore=2
- bulkscore=0 malwarescore=0 phishscore=0 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012070145
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9828 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 adultscore=0 bulkscore=0
- phishscore=0 mlxlogscore=999 clxscore=1015 priorityscore=1501 mlxscore=0
- spamscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012070145
+        id S1727062AbgLGXlV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 7 Dec 2020 18:41:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41642 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728000AbgLGXlV (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 7 Dec 2020 18:41:21 -0500
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DC1C061794
+        for <io-uring@vger.kernel.org>; Mon,  7 Dec 2020 15:40:41 -0800 (PST)
+Received: by mail-pg1-x543.google.com with SMTP id e23so10450412pgk.12
+        for <io-uring@vger.kernel.org>; Mon, 07 Dec 2020 15:40:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=njww8wdOAs3c2LJAiwttGgPqgreyJHyS7l0+MnjKLfw=;
+        b=2MyHFSN/4n9ghMXwGSk+drV4HoRHvG3jFFMhxmHoX9Roy4R3puhAlLcleYaQQpeNha
+         Eor4ohgQW+pNG95rcJIUeza7tPuaXEMZ5KvqcsmjF++ujbLTN9fIr7w+/cNQ5c1gf5iL
+         /eG/i8cAa8kN8x2yNbE2SNhSEJ/Wl5ublphFILO2kJ0iTOLLoCRgFKGlVWLUd5VacE50
+         JOcZ2B2XxqvhOKRFfnJnlTpjekeMxH1UQsQtShXd1Wp0Gh2bN9YTe+RKpb5KkdNaneOZ
+         ajzt7NA1c361/UYAbnf6quvvli90vFWM8H4XvOQwv/42p7Ocw9F1ol8dsFbJDOYl41xc
+         3Cfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=njww8wdOAs3c2LJAiwttGgPqgreyJHyS7l0+MnjKLfw=;
+        b=SttMkf9Yq6CYfmhbPS6e3LthIzjmh4jUZQZc1arSTdWKXJyKxiMVlTBlI4gBcI2cK6
+         DdncWmD/1bSu4vPyxouPHk5JTNGJ6sgzki7tGYRBrqhIzQAH5uO893tWKoeIBl/YAEvx
+         kdi17kQUXHesI/7VJ5Qv+yIqDer/RrILFjs3nR3m0Hn+IdE9JD8EeGM8m4WfXmfJXe2k
+         kpXGbWjKHm0gVe0IqnH5Idu2opbQ2sd74ghNG0stF4+2LNOt+yLJ4ObNbOmPqTZq0hwD
+         UOgONJqmPYKJisSBgTNO1yXRIb1l1RF1mFrUheRDqr6frbMRNkXqvbzjP3nNHgpInAgR
+         PwLg==
+X-Gm-Message-State: AOAM532JN1wI9OCgEtXWySNpZbtCqI7kQC75C4TJPNNfSe6sjMzxm3Ux
+        ctUf+oHAaYDhEMArdX9d7JMWnes5LELTuQ==
+X-Google-Smtp-Source: ABdhPJynO9TVJizpThFZTWdx29BIYKEgLvpOxoRfTornfAohoa5Jfi06PhwTenU216+aeedn4KBSoQ==
+X-Received: by 2002:a17:902:b783:b029:da:6567:f244 with SMTP id e3-20020a170902b783b02900da6567f244mr18251809pls.45.1607384440797;
+        Mon, 07 Dec 2020 15:40:40 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id h17sm5098063pgk.25.2020.12.07.15.40.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Dec 2020 15:40:40 -0800 (PST)
+Subject: Re: [PATCH v3 RESEND] iomap: set REQ_NOWAIT according to IOCB_NOWAIT
+ in Direct IO
+To:     Dave Chinner <david@fromorbit.com>,
+        Hao Xu <haoxu@linux.alibaba.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        linux-fsdevel@vger.kernel.org,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <1607075096-94235-1-git-send-email-haoxu@linux.alibaba.com>
+ <20201207022130.GC4170059@dread.disaster.area>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <3b33a9e3-0f03-38cc-d484-3f355f75df73@kernel.dk>
+Date:   Mon, 7 Dec 2020 16:40:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20201207022130.GC4170059@dread.disaster.area>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Create common alloc/free fixed_rsrc_data routines for both files and
-buffers.
+On 12/6/20 7:21 PM, Dave Chinner wrote:
+> On Fri, Dec 04, 2020 at 05:44:56PM +0800, Hao Xu wrote:
+>> Currently, IOCB_NOWAIT is ignored in Direct IO, REQ_NOWAIT is only set
+>> when IOCB_HIPRI is set. But REQ_NOWAIT should be set as well when
+>> IOCB_NOWAIT is set.
+>>
+>> Suggested-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+>> Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+>> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+>> ---
+>>
+>> Hi all,
+>> I tested fio io_uring direct read for a file on ext4 filesystem on a
+>> nvme ssd. I found that IOCB_NOWAIT is ignored in iomap layer, which
+>> means REQ_NOWAIT is not set in bio->bi_opf.
+> 
+> What iomap is doing is correct behaviour. IOCB_NOWAIT applies to the
+> filesystem behaviour, not the block device.
+> 
+> REQ_NOWAIT can result in partial IO failures because the error is
+> only reported to the iomap layer via IO completions. Hence we can
+> split a DIO into multiple bios and have random bios in that IO fail
+> with EAGAIN because REQ_NOWAIT is set. This error will
+> get reported to the submitter via completion, and it will override
+> any of the partial IOs that actually completed.
+> 
+> Hence, like the recently reported multi-mapping IOCB_NOWAIT bug
+> reported by Jens and fixed in commit 883a790a8440 ("xfs: don't allow
+> NOWAIT DIO across extent boundaries") we'll get silent partial
+> writes occurring because the second submitted bio in an IO can
+> trigger EAGAIN errors with partial IO completion having already
+> occurred.
+> 
+> Further, we don't allow partial IO completion for DIO on XFS at all.
+> DIO must be completely submitted and completed or return an error
+> without having issued any IO at all.  Hence using REQ_NOWAIT for
+> DIO bios is incorrect and not desirable.
 
-Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
----
- fs/io_uring.c | 79 ++++++++++++++++++++++++++++++++---------------------------
- 1 file changed, 43 insertions(+), 36 deletions(-)
+What you say makes total sense for a user using RWF_NOWAIT, but it
+doesn't make a lot of sense for io_uring where we really want
+IOCB_NOWAIT to be what it suggests it is - don't wait for other IO to
+complete, if avoidable. One of the things that really suck with
+aio/libai is the "yeah it's probably async, but lol, might not be"
+aspect of it.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b7a1f65..479a6b9 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7331,6 +7331,33 @@ static void io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
- 	wait_for_completion(&data->done);
- }
- 
-+static struct fixed_rsrc_data *alloc_fixed_rsrc_data(struct io_ring_ctx *ctx)
-+{
-+	struct fixed_rsrc_data *data;
-+
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return ERR_PTR(-ENOMEM);
-+
-+	data->ctx = ctx;
-+	init_completion(&data->done);
-+
-+	if (percpu_ref_init(&data->refs, io_rsrc_ref_kill,
-+			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
-+		kfree(data);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	return data;
-+}
-+
-+static void free_fixed_rsrc_data(struct fixed_rsrc_data *data)
-+{
-+	percpu_ref_exit(&data->refs);
-+	kfree(data->table);
-+	kfree(data);
-+}
-+
- static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- {
- 	struct fixed_rsrc_data *data = ctx->file_data;
-@@ -7345,9 +7372,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- 	nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
- 	for (i = 0; i < nr_tables; i++)
- 		kfree(data->table[i].files);
--	kfree(data->table);
--	percpu_ref_exit(&data->refs);
--	kfree(data);
-+	free_fixed_rsrc_data(ctx->file_data);
- 	ctx->file_data = NULL;
- 	ctx->nr_user_files = 0;
- 	return 0;
-@@ -7797,11 +7822,9 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	if (nr_args > IORING_MAX_FIXED_FILES)
- 		return -EMFILE;
- 
--	file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
--	if (!file_data)
--		return -ENOMEM;
--	file_data->ctx = ctx;
--	init_completion(&file_data->done);
-+	file_data = alloc_fixed_rsrc_data(ctx);
-+	if (IS_ERR(file_data))
-+		return PTR_ERR(ref_node);
- 
- 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
- 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
-@@ -7809,12 +7832,8 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	if (!file_data->table)
- 		goto out_free;
- 
--	if (percpu_ref_init(&file_data->refs, io_rsrc_ref_kill,
--				PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
--		goto out_free;
--
- 	if (io_sqe_alloc_file_tables(file_data, nr_tables, nr_args))
--		goto out_ref;
-+		goto out_free;
- 	ctx->file_data = file_data;
- 
- 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
-@@ -7873,11 +7892,8 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	for (i = 0; i < nr_tables; i++)
- 		kfree(file_data->table[i].files);
- 	ctx->nr_user_files = 0;
--out_ref:
--	percpu_ref_exit(&file_data->refs);
- out_free:
--	kfree(file_data->table);
--	kfree(file_data);
-+	free_fixed_rsrc_data(ctx->file_data);
- 	ctx->file_data = NULL;
- 	return ret;
- }
-@@ -8635,41 +8651,32 @@ static int io_alloc_buf_tables(struct fixed_rsrc_data *buf_data,
- static struct fixed_rsrc_data *io_buffers_map_alloc(struct io_ring_ctx *ctx,
- 						    unsigned int nr_args)
- {
--	unsigned nr_tables;
- 	struct fixed_rsrc_data *buf_data;
-+	unsigned nr_tables;
- 	int ret = -ENOMEM;
- 
--	if (ctx->buf_data)
-+	if (ctx->nr_user_bufs)
- 		return ERR_PTR(-EBUSY);
- 	if (!nr_args || nr_args > IORING_MAX_FIXED_BUFS)
- 		return ERR_PTR(-EINVAL);
- 
--	buf_data = kzalloc(sizeof(*ctx->buf_data), GFP_KERNEL);
--	if (!buf_data)
--		return ERR_PTR(-ENOMEM);
--	buf_data->ctx = ctx;
--	init_completion(&buf_data->done);
-+	buf_data = alloc_fixed_rsrc_data(ctx);
-+	if (IS_ERR(buf_data))
-+		return buf_data;
- 
- 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_BUFS_TABLE);
- 	buf_data->table = kcalloc(nr_tables, sizeof(*buf_data->table),
- 				  GFP_KERNEL);
- 	if (!buf_data->table)
--		goto out_free;
--
--	if (percpu_ref_init(&buf_data->refs, io_rsrc_ref_kill,
--			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
--		goto out_free;
-+		goto out;
- 
- 	if (io_alloc_buf_tables(buf_data, nr_tables, nr_args))
--		goto out_ref;
-+		goto out;
- 
- 	return buf_data;
--
--out_ref:
--	percpu_ref_exit(&buf_data->refs);
--out_free:
--	kfree(buf_data->table);
--	kfree(buf_data);
-+out:
-+	free_fixed_rsrc_data(ctx->buf_data);
-+	ctx->buf_data = NULL;
- 	return ERR_PTR(ret);
- }
- 
+For io_uring, if we do get -EAGAIN, we'll retry without NOWAIT set. So
+the concern about fractured/short writes doesn't bubble up to the
+application. Hence we really want an IOCB_NOWAIT_REALLY on that side,
+instead of the poor mans IOCB_MAYBE_NOWAIT semantics.
+
 -- 
-1.8.3.1
+Jens Axboe
 

@@ -2,136 +2,98 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A356C433FE
-	for <io-uring@archiver.kernel.org>; Fri, 11 Dec 2020 20:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8383CC4361B
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 01:00:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBEC92311A
-	for <io-uring@archiver.kernel.org>; Fri, 11 Dec 2020 20:01:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56CD023A33
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 01:00:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405806AbgLKSZO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 11 Dec 2020 13:25:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52692 "EHLO
+        id S2391203AbgLKOJp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 11 Dec 2020 09:09:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405042AbgLKSYq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 11 Dec 2020 13:24:46 -0500
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CF7C0613CF
-        for <io-uring@vger.kernel.org>; Fri, 11 Dec 2020 10:24:05 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id k10so8330381wmi.3
-        for <io-uring@vger.kernel.org>; Fri, 11 Dec 2020 10:24:05 -0800 (PST)
+        with ESMTP id S2389690AbgLKOJh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 11 Dec 2020 09:09:37 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EB0C0613CF
+        for <io-uring@vger.kernel.org>; Fri, 11 Dec 2020 06:08:56 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id b9so12548381ejy.0
+        for <io-uring@vger.kernel.org>; Fri, 11 Dec 2020 06:08:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=8kST9Zrgi0LRe6FZFVzx0WrQeqYXNbKRcg/2tCZ9aMM=;
-        b=eh4aldIcHNRnI87X7iw+vstkp6rD+86lHJRIhtl2uh6dX8MhgNGKbmNBdwRkv7D6ll
-         q8YG6YSIQEkX1fd31CpIka8zyiH8I8Gd3TLlpesc8KlRv25+pcAcE10ccOd3e933DmUq
-         0AMA4IhQ87vFrH7EWbk3oEWUep6MQeisOFynMv4EUa77cMsXU85jMNZaUZB8kSLdGjI4
-         evOswWiW3c5aiZ8GKGc32CyafSY/IFbE8BoZ+qY19VIespc1Bn6SDBdbQiuKGBpgTtvR
-         E/FEpuGWK+KN7Gkezoe/SizBwTISoPK47u5ncoWLdzWLimCxdsrGJfKYQLvk2LevCRo5
-         1brQ==
+        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=aF3Mh+MA2q+ZpkL8xg5nd4+KjM1FTv7S2GkjkszOwBM=;
+        b=i6YXb/kx1K+ZBNheDvASX0oKCecbflSu+fyZ2fjKhwHBwFR4vTEmwXKgPT0qc764hc
+         qewaFUeRaEtQMg4y/IoQVBFWvYZgkKHgyPd0hX4njbbbc7ZIqLfu5zOpaeWkQf9WL/YY
+         gK4YXTSVzLt6ykV4YXpOlzQE2kLyT/GEE8ZicFgOtOByVhSdmNRn25qGctI7sVs67bMM
+         g71vZ5z1eKErNtAJkJsFWO6CAtctbdgFlqO3i2yYIu2B89QgS0bwMVUcc7u83MGSWI/p
+         irIp0IQm6+JQBAc2JE7Gcyj+oiIYQTctJxugvD6aHDhN70KKyCr4Vg/HLjfLLlUIbrcR
+         cO5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=8kST9Zrgi0LRe6FZFVzx0WrQeqYXNbKRcg/2tCZ9aMM=;
-        b=UI51Nk9awR3pOrmBLcWLDU1x8Tq0XSvPinSRwdjb7qFufRQQbCrQUzMVEmX7XXQXqF
-         aIm30qw++pKUdkCROPd6xEb9xEGZX5zW5p8Sf7iFZgRu8rNKoqv7LioLVbafBDJXCiAW
-         +f9WcFAzjqaH8YRin3F11ywTk94eKRQWxlSAdZVh3MJ7cik2wBYbR83+wcTmQtOCPWvf
-         p8pWTvDLLqD/GkNKGWga12MBMXfeccmGiYSa/60zaJORGnnnjt6rPiGMSAAal9zJ9poZ
-         QZAWntfS6Kt4CSdR964JyvLXW1wkDr9VADNZ5K1OL1gsxQeqUiDoDmue4OcYZuIJjS/R
-         57LQ==
-X-Gm-Message-State: AOAM531oyCgrU0RNQmt3jXHs7h2ZA7kzYvVWXE5oWrPxCeDBSUl+xNRV
-        QKe1MRBQa6d/Y/4tMJ7hEOrQfIF/CGZg4w==
-X-Google-Smtp-Source: ABdhPJzbtT+6IlulV5saFKuyQO+y0alRDYk3SKEcLi6o2An7gDEZ4jIiu3NCHdwjSVwCb9UZgmQAWA==
-X-Received: by 2002:a7b:cbd0:: with SMTP id n16mr15055507wmi.162.1607711044356;
-        Fri, 11 Dec 2020 10:24:04 -0800 (PST)
-Received: from [192.168.8.123] ([85.255.234.121])
-        by smtp.gmail.com with ESMTPSA id o23sm5364597wro.57.2020.12.11.10.24.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Dec 2020 10:24:03 -0800 (PST)
-To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
-References: <20201202113151.1680-1-xiaoguang.wang@linux.alibaba.com>
- <c4fa3437-49c2-4dce-471a-930ceca3aec3@gmail.com>
- <1249ded8-335a-b441-0207-db943b8a93c8@linux.alibaba.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
- bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
- 6uqVkK1OMb7qRvKH0i7HYP4WJzYbEWVyLiAxUj611mC9tgd73oqZ2pLYzGTqF2j6a/obaqha
- +hXuWTvpDQXqcOZJXIW43atprH03G1tQs7VwR21Q1eq6Yvy2ESLdc38EqCszBfQRMmKy+cfp
- W3U9Mb1w0L680pXrONcnlDBCN7/sghGeMHjGKfNANjPc+0hzz3rApPxpoE7HC1uRiwC4et83
- CKnncH1l7zgeBT9Oa3qEiBlaa1ZCBqrA4dY+z5fWJYjMpwI1SNp37RtF8fKXbKQg+JuUjAa9
- Y6oXeyEvDHMyJYMcinl6xCqCBAXPHnHmawkMMgjr3BBRzODmMr+CPVvnYe7BFYfoajzqzq+h
- EyXSl3aBf0IDPTqSUrhbmjj5OEOYgRW5p+mdYtY1cXeK8copmd+fd/eTkghok5li58AojCba
- jRjp7zVOLOjDlpxxiKhuFmpV4yWNh5JJaTbwCRSd04sCcDNlJj+TehTr+o1QiORzc2t+N5iJ
- NbILft19Izdn8U39T5oWiynqa1qCLgbuFtnYx1HlUq/HvAm+kwARAQABtDFQYXZlbCBCZWd1
- bmtvdiAoc2lsZW5jZSkgPGFzbWwuc2lsZW5jZUBnbWFpbC5jb20+iQJOBBMBCAA4FiEE+6Ju
- PTjTbx479o3OWt5b1Glr+6UFAlmKBOQCGwMFCwkIBwIGFQgJCgsCBBYCAwECHgECF4AACgkQ
- Wt5b1Glr+6WxZA//QueaKHzgdnOikJ7NA/Vq8FmhRlwgtP0+E+w93kL+ZGLzS/cUCIjn2f4Q
- Mcutj2Neg0CcYPX3b2nJiKr5Vn0rjJ/suiaOa1h1KzyNTOmxnsqE5fmxOf6C6x+NKE18I5Jy
- xzLQoktbdDVA7JfB1itt6iWSNoOTVcvFyvfe5ggy6FSCcP+m1RlR58XxVLH+qlAvxxOeEr/e
- aQfUzrs7gqdSd9zQGEZo0jtuBiB7k98t9y0oC9Jz0PJdvaj1NZUgtXG9pEtww3LdeXP/TkFl
- HBSxVflzeoFaj4UAuy8+uve7ya/ECNCc8kk0VYaEjoVrzJcYdKP583iRhOLlZA6HEmn/+Gh9
- 4orG67HNiJlbFiW3whxGizWsrtFNLsSP1YrEReYk9j1SoUHHzsu+ZtNfKuHIhK0sU07G1OPN
- 2rDLlzUWR9Jc22INAkhVHOogOcc5ajMGhgWcBJMLCoi219HlX69LIDu3Y34uIg9QPZIC2jwr
- 24W0kxmK6avJr7+n4o8m6sOJvhlumSp5TSNhRiKvAHB1I2JB8Q1yZCIPzx+w1ALxuoWiCdwV
- M/azguU42R17IuBzK0S3hPjXpEi2sK/k4pEPnHVUv9Cu09HCNnd6BRfFGjo8M9kZvw360gC1
- reeMdqGjwQ68o9x0R7NBRrtUOh48TDLXCANAg97wjPoy37dQE7e5Ag0EWYoE5AEQAMWS+aBV
- IJtCjwtfCOV98NamFpDEjBMrCAfLm7wZlmXy5I6o7nzzCxEw06P2rhzp1hIqkaab1kHySU7g
- dkpjmQ7Jjlrf6KdMP87mC/Hx4+zgVCkTQCKkIxNE76Ff3O9uTvkWCspSh9J0qPYyCaVta2D1
- Sq5HZ8WFcap71iVO1f2/FEHKJNz/YTSOS/W7dxJdXl2eoj3gYX2UZNfoaVv8OXKaWslZlgqN
- jSg9wsTv1K73AnQKt4fFhscN9YFxhtgD/SQuOldE5Ws4UlJoaFX/yCoJL3ky2kC0WFngzwRF
- Yo6u/KON/o28yyP+alYRMBrN0Dm60FuVSIFafSqXoJTIjSZ6olbEoT0u17Rag8BxnxryMrgR
- dkccq272MaSS0eOC9K2rtvxzddohRFPcy/8bkX+t2iukTDz75KSTKO+chce62Xxdg62dpkZX
- xK+HeDCZ7gRNZvAbDETr6XI63hPKi891GeZqvqQVYR8e+V2725w+H1iv3THiB1tx4L2bXZDI
- DtMKQ5D2RvCHNdPNcZeldEoJwKoA60yg6tuUquvsLvfCwtrmVI2rL2djYxRfGNmFMrUDN1Xq
- F3xozA91q3iZd9OYi9G+M/OA01husBdcIzj1hu0aL+MGg4Gqk6XwjoSxVd4YT41kTU7Kk+/I
- 5/Nf+i88ULt6HanBYcY/+Daeo/XFABEBAAGJAjYEGAEIACAWIQT7om49ONNvHjv2jc5a3lvU
- aWv7pQUCWYoE5AIbDAAKCRBa3lvUaWv7pfmcEACKTRQ28b1y5ztKuLdLr79+T+LwZKHjX++P
- 4wKjEOECCcB6KCv3hP+J2GCXDOPZvdg/ZYZafqP68Yy8AZqkfa4qPYHmIdpODtRzZSL48kM8
- LRzV8Rl7J3ItvzdBRxf4T/Zseu5U6ELiQdCUkPGsJcPIJkgPjO2ROG/ZtYa9DvnShNWPlp+R
- uPwPccEQPWO/NP4fJl2zwC6byjljZhW5kxYswGMLBwb5cDUZAisIukyAa8Xshdan6C2RZcNs
- rB3L7vsg/R8UCehxOH0C+NypG2GqjVejNZsc7bgV49EOVltS+GmGyY+moIzxsuLmT93rqyII
- 5rSbbcTLe6KBYcs24XEoo49Zm9oDA3jYvNpeYD8rDcnNbuZh9kTgBwFN41JHOPv0W2FEEWqe
- JsCwQdcOQ56rtezdCJUYmRAt3BsfjN3Jn3N6rpodi4Dkdli8HylM5iq4ooeb5VkQ7UZxbCWt
- UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
- m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
- OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH] io_uring: always let io_iopoll_complete() complete polled
- io.
-Message-ID: <03c631cd-e8c6-35be-4b04-5340f693e88b@gmail.com>
-Date:   Fri, 11 Dec 2020 18:20:46 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=aF3Mh+MA2q+ZpkL8xg5nd4+KjM1FTv7S2GkjkszOwBM=;
+        b=eZ6TUrpc7xXG6ssvQrPgXiiYzWSUeOMXt1T2XDnFH3Ij+jpFWo8zJWa5YM2qMjh+Lm
+         ldd5j2wtpgaAmDeLvkbRzFb11OUDF6FD0ZvXG4b1cWk36N7KHj8sz3qHpcoqyz01pE0k
+         LFskA+aeiHD6bOcvF6HrkSURJmy24FxOwL7FNAAu0wSht6Wk93vRcDWYN3gAbIt8Kzca
+         nxNeNZU7564j/B4qEqwKmBiq0y6l4iq/pXv8B6sUcetkS63Tt5YCsEQJ+25FYoyKn+dj
+         PIsAsoOD9+1+86SJ0SBPBfPsr3HTcvlKODYdNq+XRMkUWU0lGqYLzgNcDCIutvbbYb9a
+         zdFg==
+X-Gm-Message-State: AOAM5328E3t2n3863T6dRkR/gE01mVOfnv/klMRzj37sK8Y3qixXojxN
+        dljQDGo4dgce2KypWyfnJbdgzA==
+X-Google-Smtp-Source: ABdhPJyMudGT3oM0ZWZIivI28u4XfQD8nzeth0kSRM1OzeZjoSv9S67hiN2S0oEkgM7dAVinTklXtQ==
+X-Received: by 2002:a17:906:a244:: with SMTP id bi4mr11127201ejb.59.1607695735452;
+        Fri, 11 Dec 2020 06:08:55 -0800 (PST)
+Received: from localhost ([2620:10d:c093:400::5:ee7a])
+        by smtp.gmail.com with ESMTPSA id rs27sm7106637ejb.21.2020.12.11.06.08.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Dec 2020 06:08:38 -0800 (PST)
+Date:   Fri, 11 Dec 2020 15:06:22 +0100
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH 2/2] block: no-copy bvec for direct IO
+Message-ID: <20201211140622.GA286014@cmpxchg.org>
+References: <cover.1607477897.git.asml.silence@gmail.com>
+ <51905c4fcb222e14a1d5cb676364c1b4f177f582.1607477897.git.asml.silence@gmail.com>
+ <20201209084005.GC21968@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <1249ded8-335a-b441-0207-db943b8a93c8@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201209084005.GC21968@infradead.org>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/12/2020 14:59, Xiaoguang Wang wrote:
-> Sorry for late, I had saw you and jens' discussion in previous mail. I was just
-> busy recently, did't have time to look into this issue. Now I have time to handle
-> it, will have a look at it tomorrow, thanks.
+On Wed, Dec 09, 2020 at 08:40:05AM +0000, Christoph Hellwig wrote:
+> > +	/*
+> > +	 * In practice groups of pages tend to be accessed/reclaimed/refaulted
+> > +	 * together. To not go over bvec for those who didn't set BIO_WORKINGSET
+> > +	 * approximate it by looking at the first page and inducing it to the
+> > +	 * whole bio
+> > +	 */
+> > +	if (unlikely(PageWorkingset(iter->bvec->bv_page)))
+> > +		bio_set_flag(bio, BIO_WORKINGSET);
+> 
+> IIRC the feedback was that we do not need to deal with BIO_WORKINGSET
+> at all for direct I/O.
 
-All cool, as Jens dropped it and decided to do that for 5.11 we're not in hurry,
-just wanted to point out stuff to look after! You could also look for a similar
-problem with io_cqring_events() if you're interested.
+Yes, this hunk is incorrect. We must not use this flag for direct IO.
+It's only for paging IO, when you bring in the data at page->mapping +
+page->index. Otherwise you tell the pressure accounting code that you
+are paging in a thrashing page, when really you're just reading new
+data into a page frame that happens to be hot.
 
-One more thing to ponder is failing -EAGAIN'ed requests in io_iopoll_complete()
-if NOWAIT is set.
-
--- 
-Pavel Begunkov
+(As per the other thread, bio_add_page() currently makes that same
+mistake for direct IO. I'm fixing that.)

@@ -2,348 +2,91 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15910C433FE
-	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 04:52:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CA93C433FE
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CB156238E3
-	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 04:52:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B9B7222B3
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438236AbgLLEvV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 11 Dec 2020 23:51:21 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:46449 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2438229AbgLLEvC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 11 Dec 2020 23:51:02 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UIICc2F_1607748579;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UIICc2F_1607748579)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 12 Dec 2020 12:49:50 +0800
-From:   Hao Xu <haoxu@linux.alibaba.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH liburing v2 RESEND] test/timeout-new: test for timeout feature
-Date:   Sat, 12 Dec 2020 12:49:39 +0800
-Message-Id: <1607748579-92734-1-git-send-email-haoxu@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <20201211101121.uk5i75uw2fln3zdh@steredhat>
-References: <20201211101121.uk5i75uw2fln3zdh@steredhat>
+        id S2393689AbgLLPce (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 12 Dec 2020 10:32:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36810 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393277AbgLLPc3 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 12 Dec 2020 10:32:29 -0500
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B019C061793
+        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:49 -0800 (PST)
+Received: by mail-ej1-x643.google.com with SMTP id jx16so16476252ejb.10
+        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nametag.social; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=AcrMK4/n37JI/DMV0HjZEiX27NSebyROaT8OWAvMNBw=;
+        b=vtSV1iHT0efi46wPfoJpuFg1nK2bdC/VzZA6MRjeXr1xW4qXgjpUGnl/2DfzffR/6/
+         2RhvKNb8QtR1MQiK1sL0gmZqgPriuym2CnvE/h1lFPPG8zMZBiTcOQnmNwaGq2+42B97
+         /sZmH6KbGt5e+O+Xe/2iNo4yC4+jTEEUR/+CHdTVe+UzwPGha3xnIieQKElNxosqMSg5
+         feiWxe713A0J2j5iiz6vS6hCjZ+yLdoi1SDMZV4jP2trxmdxtC9qqWdATGs7mAEZXtYx
+         aPqbSA8VtDjqFsdQj/hezVvJbpVenDkJjT2ZZM2ntHE1SPYMDsJaEm5/vg2vBge2y4RP
+         +Y3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=AcrMK4/n37JI/DMV0HjZEiX27NSebyROaT8OWAvMNBw=;
+        b=U7NzwMks+H6Ke4E7gsjPqDNo6SwoEVMzZR4jV36PMptpKtWZmqYcb0HMhsaGS5QTm7
+         LYoziSt+VgtLYB1UQeB+0DtIpZoAFaqVZzQVI28XvIK4kOZJ4y+DBTv3nRkbWTYQNRAn
+         bBRwl6kvNtsYSOVRgLgByEGxYbW9iSY3qc+ULagOirc6WxFPb8u+3JgktCYPFnxlJZ60
+         VMIyscBFnWWs68jy2YXWNH4RKlItOpE6tX0RQ1gvINJm0TxdgaWYuT5bURsnvfh0tkdN
+         21lQ+KKB6TWfmJz9WJkeKBKh7T/RqY4EwhNQH1fsf5uoLG+mEs1mluDVBb0mtXdddlw4
+         PWlA==
+X-Gm-Message-State: AOAM530YE/JuKkkuRKt6EDpKY/3ZVnxjd3lDgVS+8sxSNwIKKhaW7+gK
+        VUCbYg0pGjo+y8f4mksgZ+c156bVEZ8JHeUe7ofD8rQB9BKYxY50
+X-Google-Smtp-Source: ABdhPJzdlRnKPfltvgEaKD8UIUmf7/DVijDULyHyNuR0R44sfbTuQ/Mi4ZzCT2fxkH8xmbbhZjQAC8DNvtrD5zyXVEg=
+X-Received: by 2002:a17:906:40d3:: with SMTP id a19mr15228361ejk.98.1607787107557;
+ Sat, 12 Dec 2020 07:31:47 -0800 (PST)
+MIME-Version: 1.0
+From:   Victor Stewart <v@nametag.social>
+Date:   Sat, 12 Dec 2020 15:31:36 +0000
+Message-ID: <CAM1kxwgKVrpV-4UV5wKyEGbh61N1Bb1s0=pkK8kSp6Z-i3zTKg@mail.gmail.com>
+Subject: [PATCH 1/3] add PROTO_CMSG_DATA_ONLY to __sys_sendmsg_sock
+To:     io-uring <io-uring@vger.kernel.org>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        netdev <netdev@vger.kernel.org>,
+        Stefan Metzmacher <metze@samba.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Tests for the new timeout feature. It covers:
-    - wake up when timeout, sleeping time calculated as well
-    - wake up by a cqe before timeout
-    - the above two in sqpoll thread mode
-    - multi child-threads wake up by a cqe issuing in main thread before
-      timeout
+add PROTO_CMSG_DATA_ONLY whitelisting to __sys_sendmsg_sock
 
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+Signed-off by: Victor Stewart <v@nametag.social>
 ---
- .gitignore         |   1 +
- test/Makefile      |   3 +
- test/timeout-new.c | 246 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 250 insertions(+)
- create mode 100644 test/timeout-new.c
+ net/socket.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/.gitignore b/.gitignore
-index c85a49ba6a85..360064a25228 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -108,6 +108,7 @@
- /test/submit-reuse
- /test/teardowns
- /test/timeout
-+/test/timeout-new
- /test/timeout-overflow
- /test/unlink
- /test/wakeup-hang
-diff --git a/test/Makefile b/test/Makefile
-index dbbb485ded79..6aa1788f486b 100644
---- a/test/Makefile
-+++ b/test/Makefile
-@@ -103,6 +103,7 @@ test_targets += \
- 	submit-reuse \
- 	teardowns \
- 	timeout \
-+	timeout-new \
- 	timeout-overflow \
- 	unlink \
- 	wakeup-hang \
-@@ -225,6 +226,7 @@ test_srcs := \
- 	stdout.c \
- 	submit-reuse.c \
- 	teardowns.c \
-+	timeout-new.c \
- 	timeout-overflow.c \
- 	timeout.c \
- 	unlink.c \
-@@ -245,6 +247,7 @@ across-fork: XCFLAGS = -lpthread
- ce593a6c480a-test: XCFLAGS = -lpthread
- wakeup-hang: XCFLAGS = -lpthread
- pipe-eof: XCFLAGS = -lpthread
-+timeout-new: XCFLAGS = -lpthread
- 
- install: $(test_targets) runtests.sh runtests-loop.sh
- 	$(INSTALL) -D -d -m 755 $(datadir)/liburing-test/
-diff --git a/test/timeout-new.c b/test/timeout-new.c
-new file mode 100644
-index 000000000000..45b9a149ae11
---- /dev/null
-+++ b/test/timeout-new.c
-@@ -0,0 +1,246 @@
-+/* SPDX-License-Identifier: MIT */
-+/*
-+ * Description: tests for getevents timeout
-+ *
-+ */
-+#include <stdio.h>
-+#include <sys/time.h>
-+#include <unistd.h>
-+#include <pthread.h>
-+#include "liburing.h"
-+
-+#define TIMEOUT_MSEC	200
-+#define TIMEOUT_SEC	10
-+
-+int thread_ret0, thread_ret1;
-+int cnt = 0;
-+pthread_mutex_t mutex;
-+
-+static void msec_to_ts(struct __kernel_timespec *ts, unsigned int msec)
-+{
-+	ts->tv_sec = msec / 1000;
-+	ts->tv_nsec = (msec % 1000) * 1000000;
-+}
-+
-+static unsigned long long mtime_since(const struct timeval *s,
-+				      const struct timeval *e)
-+{
-+	long long sec, usec;
-+
-+	sec = e->tv_sec - s->tv_sec;
-+	usec = (e->tv_usec - s->tv_usec);
-+	if (sec > 0 && usec < 0) {
-+		sec--;
-+		usec += 1000000;
-+	}
-+
-+	sec *= 1000;
-+	usec /= 1000;
-+	return sec + usec;
-+}
-+
-+static unsigned long long mtime_since_now(struct timeval *tv)
-+{
-+	struct timeval end;
-+
-+	gettimeofday(&end, NULL);
-+	return mtime_since(tv, &end);
-+}
-+
-+
-+static int test_return_before_timeout(struct io_uring *ring)
-+{
-+	struct io_uring_cqe *cqe;
-+	struct io_uring_sqe *sqe;
-+	int ret;
-+	struct __kernel_timespec ts;
-+
-+	sqe = io_uring_get_sqe(ring);
-+	if (!sqe) {
-+		fprintf(stderr, "%s: get sqe failed\n", __FUNCTION__);
-+		return 1;
-+	}
-+
-+	io_uring_prep_nop(sqe);
-+
-+	ret = io_uring_submit(ring);
-+	if (ret <= 0) {
-+		fprintf(stderr, "%s: sqe submit failed: %d\n", __FUNCTION__, ret);
-+		return 1;
-+	}
-+
-+	msec_to_ts(&ts, TIMEOUT_MSEC);
-+	ret = io_uring_wait_cqe_timeout(ring, &cqe, &ts);
-+	if (ret < 0) {
-+		fprintf(stderr, "%s: timeout error: %d\n", __FUNCTION__, ret);
-+		return 1;
-+	}
-+
-+	io_uring_cqe_seen(ring, cqe);
-+	return 0;
-+}
-+
-+static int test_return_after_timeout(struct io_uring *ring)
-+{
-+	struct io_uring_cqe *cqe;
-+	int ret;
-+	struct __kernel_timespec ts;
-+	struct timeval tv;
-+	unsigned long long exp;
-+
-+	msec_to_ts(&ts, TIMEOUT_MSEC);
-+	gettimeofday(&tv, NULL);
-+	ret = io_uring_wait_cqe_timeout(ring, &cqe, &ts);
-+	exp = mtime_since_now(&tv);
-+	if (ret != -ETIME) {
-+		fprintf(stderr, "%s: timeout error: %d\n", __FUNCTION__, ret);
-+		return 1;
-+	}
-+
-+	if (exp < TIMEOUT_MSEC / 2 || exp > (TIMEOUT_MSEC  * 3) / 2) {
-+		fprintf(stderr, "%s: Timeout seems wonky (got %llu)\n", __FUNCTION__, exp);
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+int __reap_thread_fn(void *data) {
-+	struct io_uring *ring = (struct io_uring *)data;
-+	struct io_uring_cqe *cqe;
-+	struct __kernel_timespec ts;
-+
-+	msec_to_ts(&ts, TIMEOUT_SEC);
-+	pthread_mutex_lock(&mutex);
-+	cnt++;
-+	pthread_mutex_unlock(&mutex);
-+	return io_uring_wait_cqe_timeout(ring, &cqe, &ts);
-+}
-+
-+void *reap_thread_fn0(void *data) {
-+	thread_ret0 = __reap_thread_fn(data);
-+	return NULL;
-+}
-+
-+void *reap_thread_fn1(void *data) {
-+	thread_ret1 = __reap_thread_fn(data);
-+	return NULL;
-+}
-+
-+/*
-+ * This is to test issuing a sqe in main thread and reaping it in two child-thread
-+ * at the same time. To see if timeout feature works or not.
-+ */
-+int test_multi_threads_timeout() {
-+	struct io_uring ring;
-+	int ret;
-+	bool both_wait = false;
-+	pthread_t reap_thread0, reap_thread1;
-+	struct io_uring_sqe *sqe;
-+
-+	ret = io_uring_queue_init(8, &ring, 0);
-+	if (ret) {
-+		fprintf(stderr, "%s: ring setup failed: %d\n", __FUNCTION__, ret);
-+		return 1;
-+	}
-+
-+	pthread_create(&reap_thread0, NULL, reap_thread_fn0, &ring);
-+	pthread_create(&reap_thread1, NULL, reap_thread_fn1, &ring);
-+
-+	/*
-+	 * make two threads both enter io_uring_wait_cqe_timeout() before issuing the sqe
-+	 * as possible as we can. So that there are two threads in the ctx->wait queue.
-+	 * In this way, we can test if a cqe wakes up two threads at the same time.
-+	 */
-+	while(!both_wait) {
-+		pthread_mutex_lock(&mutex);
-+		if (cnt == 2)
-+			both_wait = true;
-+		pthread_mutex_unlock(&mutex);
-+		sleep(1);
-+	}
-+
-+	sqe = io_uring_get_sqe(&ring);
-+	if (!sqe) {
-+		fprintf(stderr, "%s: get sqe failed\n", __FUNCTION__);
-+		goto err;
-+	}
-+
-+	io_uring_prep_nop(sqe);
-+
-+	ret = io_uring_submit(&ring);
-+	if (ret <= 0) {
-+		fprintf(stderr, "%s: sqe submit failed: %d\n", __FUNCTION__, ret);
-+		goto err;
-+	}
-+
-+	pthread_join(reap_thread0, NULL);
-+	pthread_join(reap_thread1, NULL);
-+
-+	if ((thread_ret0 && thread_ret0 != -ETIME) || (thread_ret1 && thread_ret1 != -ETIME)) {
-+		fprintf(stderr, "%s: thread wait cqe timeout failed: %d %d\n",
-+				__FUNCTION__, thread_ret0, thread_ret1);
-+		goto err;
-+	}
-+
-+	return 0;
-+err:
-+	return 1;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	struct io_uring ring_normal, ring_sq;
-+	int ret;
-+
-+	if (argc > 1)
-+		return 0;
-+
-+	ret = io_uring_queue_init(8, &ring_normal, 0);
-+	if (ret) {
-+		fprintf(stderr, "ring_normal setup failed: %d\n", ret);
-+		return 1;
-+	}
-+	if (!(ring_normal.features & IORING_FEAT_EXT_ARG)) {
-+		fprintf(stderr, "feature IORING_FEAT_EXT_ARG not supported.\n");
-+		return 1;
-+	}
-+
-+	ret = test_return_before_timeout(&ring_normal);
-+	if (ret) {
-+		fprintf(stderr, "ring_normal: test_return_before_timeout failed\n");
-+		return ret;
-+	}
-+
-+	ret = test_return_after_timeout(&ring_normal);
-+	if (ret) {
-+		fprintf(stderr, "ring_normal: test_return_after_timeout failed\n");
-+		return ret;
-+	}
-+
-+	ret = io_uring_queue_init(8, &ring_sq, IORING_SETUP_SQPOLL);
-+	if (ret) {
-+		fprintf(stderr, "ring_sq setup failed: %d\n", ret);
-+		return 1;
-+	}
-+
-+	ret = test_return_before_timeout(&ring_sq);
-+	if (ret) {
-+		fprintf(stderr, "ring_sq: test_return_before_timeout failed\n");
-+		return ret;
-+	}
-+
-+	ret = test_return_after_timeout(&ring_sq);
-+	if (ret) {
-+		fprintf(stderr, "ring_sq: test_return_after_timeout failed\n");
-+		return ret;
-+	}
-+
-+	ret = test_multi_threads_timeout();
-+	if (ret) {
-+		fprintf(stderr, "test_multi_threads_timeout failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
--- 
-1.8.3.1
+diff --git a/net/socket.c b/net/socket.c
+index 6e6cccc2104f..6995835d6355 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2416,9 +2416,11 @@ static int ___sys_sendmsg(struct socket *sock,
+struct user_msghdr __user *msg,
+ long __sys_sendmsg_sock(struct socket *sock, struct msghdr *msg,
+                        unsigned int flags)
+ {
+-       /* disallow ancillary data requests from this path */
+-       if (msg->msg_control || msg->msg_controllen)
+-               return -EINVAL;
++       if (msg->msg_control || msg->msg_controllen) {
++               /* disallow ancillary data reqs unless cmsg is plain data */
++               if (!(sock->ops->flags & PROTO_CMSG_DATA_ONLY))
++                       return -EINVAL;
++       }
 
+        return ____sys_sendmsg(sock, msg, flags, NULL, 0);
+ }

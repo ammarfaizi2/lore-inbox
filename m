@@ -2,58 +2,58 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5FEFC433FE
-	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76469C4361B
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 343A1222B3
-	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 442B2223D6
+	for <io-uring@archiver.kernel.org>; Sat, 12 Dec 2020 15:33:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725550AbgLLPce (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 12 Dec 2020 10:32:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
+        id S2439274AbgLLPdS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 12 Dec 2020 10:33:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726151AbgLLPc3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 12 Dec 2020 10:32:29 -0500
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40D4C0613D3
-        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:43 -0800 (PST)
-Received: by mail-ej1-x644.google.com with SMTP id ce23so16484681ejb.8
-        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:43 -0800 (PST)
+        with ESMTP id S1728704AbgLLPdJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 12 Dec 2020 10:33:09 -0500
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A119C06179C
+        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:53 -0800 (PST)
+Received: by mail-ed1-x542.google.com with SMTP id q16so12531000edv.10
+        for <io-uring@vger.kernel.org>; Sat, 12 Dec 2020 07:31:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=nametag.social; s=google;
         h=mime-version:from:date:message-id:subject:to;
-        bh=aMMyJF+8p9QPej8J5CWrzbYkiGpmhZ+n45YrKy6JUhM=;
-        b=wjPCMKyWrDavbnmdu55/krszJNVEFRFwfEcaR1hxaXhPiw/cE6nBYzNBZH+XwM57IH
-         R1dAqFYgS6K4LnXnVFZ3n6upg7PX6kY7JR4wWIcv8hnCFEUcbG8W64nn/FxJg/M6q0LJ
-         yufLz6vM3qucJtgXMa+kZICRmxHqjplzbY3cnoKSaK2/4Sw9O+NJDSLu8QJiZ07665UV
-         pvNQz8F2BjC4exKH2QF9dVyNVsL70FIQ/6/2PueoEOYwbmoJQ0VcSfbxsNPMvkudFreb
-         Q/8pn73zuqiainyagWeLEk5c1+7q+94Rn6ICl75Ki883/+gl1VHVAM+4Js7V/lYDb3RI
-         AgbA==
+        bh=VSH9txC3VIcVOBiHlrdQM8uG2uXP61UxUJXLMpIkn8k=;
+        b=MwK30BhT3/LgCxR5KtDlavEnj2PUKLlAdifYMq7lKSoPQgt+/Vi9z3x0DnV00jJQGc
+         v/t89UoQbbBYh8HopS4P3559NzMn7UoVDmum9aQJwvLiun5XcoeqPZDt6sMWC3kCjOdp
+         rFKfBwPfTMyUp01mqA4r8e8Z5jV1qXMK+/BOVrlNlBo3D2Cgy5eumjKJ90lYrzwCeMUm
+         ChXw2h7YckMqYz6hQPhHCjXbARxgRKnrndl/TW8ixYuIY5KckzToJXgaCT6Hq9viCbNi
+         6fe3aJkNtk04rVFV2ntDPEfu+8yRUVMD27wO7QUwVkTnrF/ojzjg1YBLypc1lnxsXmsD
+         yYSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=aMMyJF+8p9QPej8J5CWrzbYkiGpmhZ+n45YrKy6JUhM=;
-        b=SkHELksbLkzuIDH1zcPhAo0ELxs/3fNW1dCeHp+/V14SpeIIx9Aqe80Len/F+dEgxz
-         YP8oSRmp6OhYm12JbQUwjHMMOM7ukd/9YZDSRfHMek17TiZJ3nq60TNIQzIiH8Ei6qtb
-         zzpuuvOmaSsT5faJenecTdaFbBCV3YOCU/UAGPOMdR3uMFwhsBj1I/s2fuRAKobwR78S
-         un5gBGAqXSgHH5NvLQ49/qFexQGXb71T7+k6ehQnDVHSjQG4lJxzcsWQuaWcUMEyQyWm
-         ttj3MvS+B5o7w9hnJHM7jyCJHONAxNFxyw3WCRqlyRg0Xanto4lPYApZMa+2p0UZGRPg
-         W2/w==
-X-Gm-Message-State: AOAM531IMvMjdj2K5J1Shod+mGElkMzuKfbCM789nKiMuHvTHSYu5VBs
-        fyVn/7M97qSHcbNrwDefcYGzHMqDpLLIm3sUt1Nvj6qU3JSPjfe5
-X-Google-Smtp-Source: ABdhPJyhggzsEk20gRi4OKpn78sVVGZIx/AMTRfn7B6QJpqXAL730Irnqzzjc69zTl1TKzkuTtd3ba9sFd1aNlxEJZA=
-X-Received: by 2002:a17:906:1e0c:: with SMTP id g12mr15850923ejj.214.1607787102060;
- Sat, 12 Dec 2020 07:31:42 -0800 (PST)
+        bh=VSH9txC3VIcVOBiHlrdQM8uG2uXP61UxUJXLMpIkn8k=;
+        b=IHjmKBdXiJymTxwCLfThF1Q/W+JIs26wxAmvXBnmWdnAuZOm9sO8BrGQ3HBRTUCtoA
+         oKoXbCyWHjlmqbeYfh8UqWyentR8mDyTEKFNJfp4/NHWwdkYfpVLYJBseozAXIrojvnH
+         4o8deE5EA+Z3PIHgK4coRQczNwl1yPW10NtuqCIe7jxuJ3yiLmXkAsns+4FAMe6j8kUy
+         nKGkvmYEBrrPnkqdg8lGhFRn4FiDLzUPwQnEnUFpbr4/I2BYqw4rGbmZD205PySFaCHj
+         PXx8O9L3NGE9TUDFCzd3jcnFeANU5gMwwXsaWUFe9Xp7yHYa4gLqMSPHM2TBaPeqD0uH
+         RWhw==
+X-Gm-Message-State: AOAM531c9PC8Y7+d67lFcF1XRGzN3GuUu2cOc6UbeONnL7tkwEDivPNr
+        arw485xJD2wDN53FKj76Zql7oH3UzyiNNmQ+XwwBqmcmkhQCQzrQ
+X-Google-Smtp-Source: ABdhPJxF6fTeF6AN58lmc2bRqPHd5BwYPdNgSu7oW0dohYF3m3xY8AVC/7H7sb0W5xqpSmTxeZ8vaoMm6ZnCJWRpUvs=
+X-Received: by 2002:aa7:c049:: with SMTP id k9mr16973431edo.49.1607787111890;
+ Sat, 12 Dec 2020 07:31:51 -0800 (PST)
 MIME-Version: 1.0
 From:   Victor Stewart <v@nametag.social>
-Date:   Sat, 12 Dec 2020 15:31:30 +0000
-Message-ID: <CAM1kxwgjCJwSvOtESxWwTC_qcXZEjbOSreXUQrG+bOOrPWdbqA@mail.gmail.com>
-Subject: [PATCH 0/3] PROTO_CMSG_DATA_ONLY for Datagram (UDP)
+Date:   Sat, 12 Dec 2020 15:31:41 +0000
+Message-ID: <CAM1kxwg0jAoiL9esvh-RKRPdP+8_8rrYE1Bn2eR_0NSOcqUOHg@mail.gmail.com>
+Subject: [PATCH 2/3] add PROTO_CMSG_DATA_ONLY to inet_dgram_ops
 To:     io-uring <io-uring@vger.kernel.org>,
         Soheil Hassas Yeganeh <soheil@google.com>,
         netdev <netdev@vger.kernel.org>,
@@ -63,22 +63,22 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-RE our conversation on the "[RFC 0/1] whitelisting UDP GSO and GRO
-cmsgs" thread...
+add PROTO_CMSG_DATA_ONLY to inet_dgram_ops
 
-https://lore.kernel.org/io-uring/CAM1kxwi5m6i8hrtkw7nZYoziPTD-Wp03+fcsUwh3CuSc=81kUQ@mail.gmail.com/
+Signed-off by: Victor Stewart <v@nametag.social>
+---
+net/ipv4/af_inet.c | 1 +
+1 file changed, 1 insertion(+)
 
-here are the patches we discussed.
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index b7260c8cef2e..c9fd5e7cfd6e 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1052,6 +1052,7 @@ EXPORT_SYMBOL(inet_stream_ops);
 
-Victor Stewart (3):
-   net/socket.c: add PROTO_CMSG_DATA_ONLY to __sys_sendmsg_sock
-   net/ipv4/af_inet.c: add PROTO_CMSG_DATA_ONLY to inet_dgram_ops
-   net/ipv6/af_inet6.c: add PROTO_CMSG_DATA_ONLY to inet6_dgram_ops
-
-   net/ipv4/af_inet.c
-     |   1 +
-   net/ipv6/af_inet6.c
-    |   1 +
-   net/socket.c
-       |   8 +-
-   3 files changed, 7 insertions(+), 3 deletions(-)
+ const struct proto_ops inet_dgram_ops = {
+        .family            = PF_INET,
++       .flags             = PROTO_CMSG_DATA_ONLY,
+        .owner             = THIS_MODULE,
+        .release           = inet_release,
+        .bind              = inet_bind,

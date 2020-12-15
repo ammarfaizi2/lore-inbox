@@ -2,162 +2,126 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34C75C2BB9A
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 14:12:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4042C2BBCA
+	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 16:22:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 036B1224BE
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 14:12:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1535224F4
+	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 16:22:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728283AbgLOOKW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 15 Dec 2020 09:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39296 "EHLO
+        id S1729936AbgLOQVi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 15 Dec 2020 11:21:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729275AbgLOOJn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Dec 2020 09:09:43 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9339AC061282;
-        Tue, 15 Dec 2020 06:08:57 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id a3so18612052wmb.5;
-        Tue, 15 Dec 2020 06:08:57 -0800 (PST)
+        with ESMTP id S1729877AbgLOQU6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Dec 2020 11:20:58 -0500
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE23DC0617A6
+        for <io-uring@vger.kernel.org>; Tue, 15 Dec 2020 08:20:09 -0800 (PST)
+Received: by mail-io1-xd41.google.com with SMTP id d9so21049994iob.6
+        for <io-uring@vger.kernel.org>; Tue, 15 Dec 2020 08:20:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=IJwMYXZybCxJT0UHVVdIgfuOq3K54a+9Y/EpPWFpv/0=;
-        b=eVXRaLFMJRqh7EtstSBOKNO6tJ4yUKa28N9ZGhkpLq+N+ciYCyvZRvn3XxjguI/U2M
-         EzZt0wjil3zjy86ENb0suvcWF41egiXxNos6lkx4QCtSIzo4fphc7B6cLdGqoEURVrFf
-         za8HjMp2ciqnBrlmRd8gaykyftQGs+vMA8Go7vb4SUIVu4sOI7GcY3QytCh5l9PbMxu4
-         IXiF1MbLfbZhMwd2CHQotw/NPedTmw+K35iWgewi5jT0ADKzvqeVB6WrbcrN/vsEOE/9
-         do9dykgLxRCJZEqKIYfezOahnF4eskXBTycj9Zja5KX+tsonMWdpgg1tL3kDBFiHWsl+
-         GPKQ==
+        bh=cepPKu2YWOPZxpSDeaZeJhoYzcrR4WvsyJobJwX+cEc=;
+        b=jQfglxdlcpjwlCFYyRKad59C0OEt5BWrVVeVe1DKWwGLkeZnvvjbLlJ7HInYMsaqFz
+         qtdpxVJVA1MTUBvDF80/01zIsS2bPvnUzS87uHhxvRdMT1vH3o5mnZ8KAQeKHZeK74LL
+         IySCLeVfBPSHbBMQTlS+3IJDhgC9C1sKTQWNC6DkTuv3PamR9RYYrqSul/AuqzAuiG44
+         zLYTzcHKR2l9PajGAA7vZmCbqSttLw3+6ExgtzBL3OG5El/rIsi/5TBc1Z1Pb4n3p6CN
+         nzGG8pdnoQ48GcrrrkFTCXPScfRELCKGaR/7DPx24KbvKwpL7qKxi82I24Ae/xMYz9Sq
+         5DvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=IJwMYXZybCxJT0UHVVdIgfuOq3K54a+9Y/EpPWFpv/0=;
-        b=cBBDxdIABrugYb1DlhDNFaVB+/WhUE+ifPlSO2SDdFwTCKdwBZerYlrvWo3Sb42zrX
-         CaUPWZXnWfAyyOTM/kEXr5IwpVlNn1vZSOGvDKCxfX+A+DL99RfyBYkfExkkclUh5PWO
-         /pPggCxE34x0DohPJCWC4hXa1aD4WDg0PEtndC+alYWAOSK1w/sMhFZF59AgtI2sT7xf
-         emqyzUmwrtzqtxKi/aqHUKcsuOGftKxnPbQB5a87Yv5yQ0lkNGk1e+0Q/n4HAeoWd56+
-         w8NPb3ZXIODzuGURZFVLIy2AVdGhBG9ytBalyDK/9QMualCr2oNXknpUYoh75kRlLgu8
-         +LvA==
-X-Gm-Message-State: AOAM531LPd61frw+jnHwDUON5F+JUd7MmWIHcFmAls7jU9h0qlbLMeSI
-        usXgg3NbqzU9KSRDNfrhnIrvzA4BAJ3/4J7Y
-X-Google-Smtp-Source: ABdhPJyWDj2cYrF/oujgWz5P30oSEMUlwkpU/DSaAHrYgy/IZqHJpoXuaMOofStO5CgxkDkwCZ5VpQ==
-X-Received: by 2002:a1c:220a:: with SMTP id i10mr32886712wmi.93.1608041336013;
-        Tue, 15 Dec 2020 06:08:56 -0800 (PST)
-Received: from [192.168.8.128] ([185.69.144.228])
-        by smtp.gmail.com with ESMTPSA id z8sm37038733wmg.17.2020.12.15.06.08.54
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cepPKu2YWOPZxpSDeaZeJhoYzcrR4WvsyJobJwX+cEc=;
+        b=ol2C/5b+QLolvNYG+vcSD3ZD21NhbT3jI4qrO2oWj2ZFeLAy3QtAt9wjMxxUkigC2t
+         fV6XEGIgzqyBqWzJFi2PK2GrAD9+VDR0yLbhrUmZOtm/Vx5pkbBVmBobO693suMJzwKU
+         mCKbdcEVAWZFlt8uALZoBMLg5Tgjax9q2tjG9a9xayUbiYTT+/eB+CoBem3Y16ZVvoH6
+         CXNek3rxqGaa+ZIuCeNgygSCnVs333bwdulFQ+rg2zIl2G+0k3k5xES4b8dUB94z74VZ
+         TB9YzBn0rbhlacb8tomULVfMXsDRIKLflYXZQ9yXeTW/3GEHnEB2PD57FtoPLCtCauAz
+         WALQ==
+X-Gm-Message-State: AOAM530uefJrx16lyH5iCTD6vabeDL3Ms9pSKOE23dOcMVl/VwuyKKhh
+        ih5xjgwQUYiHcKtU1iaNIyPOAIvzUU2xiw==
+X-Google-Smtp-Source: ABdhPJxrv7RdVYxK2HHPkxKa0iwCPR0qpoB0UlMbi1sTvAwnuTsoszvGvdwO9TJ1HOwagg8HsddCXw==
+X-Received: by 2002:a02:ce2f:: with SMTP id v15mr40055639jar.44.1608049209264;
+        Tue, 15 Dec 2020 08:20:09 -0800 (PST)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id t14sm1523148iof.23.2020.12.15.08.20.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Dec 2020 06:08:54 -0800 (PST)
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
-References: <cover.1607976425.git.asml.silence@gmail.com>
- <20201215014114.GA1777020@T590>
- <103235c1-e7d0-0b55-65d0-013d1a09304e@gmail.com>
- <20201215120357.GA1798021@T590>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH v1 0/6] no-copy bvec
-Message-ID: <e755fec3-4181-1414-0603-02e1a1f4e9eb@gmail.com>
-Date:   Tue, 15 Dec 2020 14:05:35 +0000
+        Tue, 15 Dec 2020 08:20:08 -0800 (PST)
+Subject: Re: [PATCH 0/2] io_uring: add mkdirat support
+To:     Dmitry Kadashev <dkadashev@gmail.com>, viro@zeniv.linux.org.uk
+Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20201116044529.1028783-1-dkadashev@gmail.com>
+ <X8oWEkb1Cb9ssxnx@carbon.v>
+ <CAOKbgA7MdAF1+MQePoZHALxNC5ye207ET=4JCqvdNcrGTcrkpw@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <faf1a897-3acf-dd82-474d-dadd9fa9a752@kernel.dk>
+Date:   Tue, 15 Dec 2020 09:20:08 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201215120357.GA1798021@T590>
+In-Reply-To: <CAOKbgA7MdAF1+MQePoZHALxNC5ye207ET=4JCqvdNcrGTcrkpw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 15/12/2020 12:03, Ming Lei wrote:
-> On Tue, Dec 15, 2020 at 11:14:20AM +0000, Pavel Begunkov wrote:
->> On 15/12/2020 01:41, Ming Lei wrote:
->>> On Tue, Dec 15, 2020 at 12:20:19AM +0000, Pavel Begunkov wrote:
->>>> Instead of creating a full copy of iter->bvec into bio in direct I/O,
->>>> the patchset makes use of the one provided. It changes semantics and
->>>> obliges users of asynchronous kiocb to track bvec lifetime, and [1/6]
->>>> converts the only place that doesn't.
->>>
->>> Just think of one corner case: iov_iter(BVEC) may pass bvec table with zero
->>> length bvec, which may not be supported by block layer or driver, so
->>> this patchset has to address this case first.
+On 12/15/20 4:43 AM, Dmitry Kadashev wrote:
+> On Fri, Dec 4, 2020 at 5:57 PM Dmitry Kadashev <dkadashev@gmail.com> wrote:
 >>
->> The easiest for me would be to fallback to copy if there are zero bvecs,
->> e.g. finding such during iov_iter_alignment(), but do we know from where
->> zero bvecs can came? As it's internals we may want to forbid them if
->> there is not too much hassle.
+>> On Mon, Nov 16, 2020 at 11:45:27AM +0700, Dmitry Kadashev wrote:
+>>> This adds mkdirat support to io_uring and is heavily based on recently
+>>> added renameat() / unlinkat() support.
+>>>
+>>> The first patch is preparation with no functional changes, makes
+>>> do_mkdirat accept struct filename pointer rather than the user string.
+>>>
+>>> The second one leverages that to implement mkdirat in io_uring.
+>>>
+>>> Based on for-5.11/io_uring.
+>>>
+>>> Dmitry Kadashev (2):
+>>>   fs: make do_mkdirat() take struct filename
+>>>   io_uring: add support for IORING_OP_MKDIRAT
+>>>
+>>>  fs/internal.h                 |  1 +
+>>>  fs/io_uring.c                 | 58 +++++++++++++++++++++++++++++++++++
+>>>  fs/namei.c                    | 20 ++++++++----
+>>>  include/uapi/linux/io_uring.h |  1 +
+>>>  4 files changed, 74 insertions(+), 6 deletions(-)
+>>>
+>>> --
+>>> 2.28.0
+>>>
+>>
+>> Hi Al Viro,
+>>
+>> Ping. Jens mentioned before that this looks fine by him, but you or
+>> someone from fsdevel should approve the namei.c part first.
 > 
-> You may find clue from the following link:
+> Another ping.
 > 
-> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg2262077.html
+> Jens, you've mentioned the patch looks good to you, and with quite
+> similar changes (unlinkat, renameat) being sent for 5.11 is there
+> anything that I can do to help this to be accepted (not necessarily
+> for 5.11 at this point)?
 
-Thanks for the link!
+Since we're aiming for 5.12 at this point, let's just hold off a bit and
+see if Al gets time to ack/review the VFS side of things. There's no
+immediate rush.
 
-Al, you mentioned "Zero-length segments are not disallowed", do you have
-a strong opinion on that? Apart from already diverged behaviour from the
-block layer and getting in the way of this series, without it we'd also be
-able to remove some extra ifs, e.g. in iterate_bvec()
+It's on my TODO list, so we'll get there eventually.
 
 -- 
-Pavel Begunkov
+Jens Axboe
+

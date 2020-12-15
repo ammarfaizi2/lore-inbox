@@ -5,57 +5,57 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8F31C2BB40
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 00:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC963C2BB40
+	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 00:29:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8625222258
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 00:28:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8EB8422258
+	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 00:29:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgLOAY5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Dec 2020 19:24:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53450 "EHLO
+        id S1727599AbgLOAYu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Dec 2020 19:24:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727535AbgLOAYs (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Dec 2020 19:24:48 -0500
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F1DC0617A7;
-        Mon, 14 Dec 2020 16:24:08 -0800 (PST)
-Received: by mail-wr1-x443.google.com with SMTP id a12so18140478wrv.8;
-        Mon, 14 Dec 2020 16:24:07 -0800 (PST)
+        with ESMTP id S1725976AbgLOAYp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Dec 2020 19:24:45 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D32DC06179C;
+        Mon, 14 Dec 2020 16:24:05 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id c5so14509321wrp.6;
+        Mon, 14 Dec 2020 16:24:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=jQVTvgGa1LjUWqvTxBIf73PGX5t0yWv/7jb/FOyHpnQ=;
-        b=MNxOq+/uE7DIwyNRUYewGw+cHYV3pClHNKkFNyBIVdI3EmUW/iPsPfP7yyzvq8u6HW
-         y+G5urnHOa4dHakH8fNwlven+K4tiRfbWXhhmxGgEeMzIgON/V/3KPvIIE1STFr4wlIj
-         SgeoTLBn1XPnx5Gw54WO9Ail0Pbu+qn1ntWpDgf7sX2nl46zzOUPoASz3AKqbQTRe5C8
-         qjhO3fZhfFlR+QPZhkUFrJzZojsifXm8XUJO1MGsQth6ATu4tYHY/Ma1viQrwsp2EP4o
-         7pb0PcP510viQINAxb0x6SwFrTsMMbzg0xzT5YV55QJkl2tVrPkM8FYFuof/4cC/EixF
-         gDtA==
+        bh=LOsfOtb4JF9iqyizeOjm4tVRPPo2GoTdvRn37AEB3XM=;
+        b=kG976mlGUAT54hMTsT4qHl3ePNNRWB9LFy2HmmL+t6mfRSKdk5umZ6WYomCULDQW9E
+         YuWby+j3W4gWivHpVQQOA/7aIwmkSSLngHeQdb6klQaCptqFG/YV5ejnTwIwlz9HFf2m
+         eDUwq7Rwt+h66HV9wnAS1sesppf+Fpl+3qYXxpDR3ZoWJ27/ZiY4pBb1I/35pIXw34kB
+         Lbi1nxTdy0WE+OGKwC0NKqucdKqyJIKuQSjNNW99pLcDkW/m1CtBI/gMiqbPxZ8kxwzH
+         aobpyU6IKfyxV7UT1aOSZWNXNJ0RQdHNyYaHbm5kYkm08wWJNvMk2ZyFR9EbrghRw0A9
+         lUHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jQVTvgGa1LjUWqvTxBIf73PGX5t0yWv/7jb/FOyHpnQ=;
-        b=J7JY5rXW+LgkCyM9vmy8ceYE1Ie5zjb1QzLInwkdkQ+4mDT1CaZvWxLwroq6RuI+a4
-         0fKrMddE6xUScoIbOKsAi/tPVR9D+R5n9gRNSavJCKmr0pXJ6Ui1d1Zx3bn5PEd0zx7A
-         BVlcoB7J/vPV9VJaDBK4rB6hbY3++rFzlD3iXlBekc/LZBMMd8YrAAJSFf6KDxF83L7w
-         VEFOzsOS6QhT2/VJCtRXU/YZH78GPViVz+axdSWlYey6S2hsZfHIsDb+Iogeuo1dwpKI
-         ddzzZ8tlQXp4O9j3eFJlG0WXyiit/4PHCYGmVjpzHBJuazbvVuOVcKaliluycZTkCLkZ
-         sv5A==
-X-Gm-Message-State: AOAM5315zvBDRXh8mizkM+XJoT+Go0B8je2Qh7SnW8L9wzO1FOgzGUR1
-        eP08cRZFgrI2xnY1e7gA+7jghzjQQ6OB0/ZV
-X-Google-Smtp-Source: ABdhPJzkeBXbuB0e70wPSfv0YNEY+IY3u+FsW+X1sRWABcHyKLngnn7Dx2/0Lsq9Kl4ceWUMiJY3iQ==
-X-Received: by 2002:adf:f590:: with SMTP id f16mr194470wro.40.1607991846606;
-        Mon, 14 Dec 2020 16:24:06 -0800 (PST)
+        bh=LOsfOtb4JF9iqyizeOjm4tVRPPo2GoTdvRn37AEB3XM=;
+        b=LyijsfZas5MN+fpGuiUTO2FGEottJJAESBvtic/a74zNus+hT0RmsfyFSUK/1AXLtt
+         BwgEPKOIqMUawCsaUeJe51wCCKbEmIToRqcdSeH2QD1JSSYG5p/YBvOxfjeSECtGAXq2
+         gaBQBFsBPryLWtXPTZAWW9n8eWtbZhDL/LkhpxirHRb5ht4e6rkIoXbqkS3yA8YQjJdd
+         bipuX84mikhLIsUMWpzLhPqdcBsjnQgpRyTwvGIdst0+EEX6rIR3gT1e9LBoNpQi/Hts
+         PnMYShvisPWzWcwRMaO2qozvZkWs5mgJ0KetUkMRSjTv5yD8I8wYmLbSgDK1+fwYNfrs
+         R8Kw==
+X-Gm-Message-State: AOAM5314kP+8hivUKxxpB6HXY4NsKLXshXfQw7XVXM4vuxIrcGrtOATG
+        Y7GlEtTcTvO6jv7s3urnRORnRks6gjzeGgEL
+X-Google-Smtp-Source: ABdhPJz/AygAoS74uaniu7lJWQGPmncFabpUEeaVcLaoDdNn4iTUPpmUbiF5aWlFvAES8KDtC5RTLg==
+X-Received: by 2002:a5d:4c4e:: with SMTP id n14mr31759423wrt.209.1607991843559;
+        Mon, 14 Dec 2020 16:24:03 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.163])
-        by smtp.gmail.com with ESMTPSA id b19sm5362012wmj.37.2020.12.14.16.24.05
+        by smtp.gmail.com with ESMTPSA id b19sm5362012wmj.37.2020.12.14.16.24.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Dec 2020 16:24:06 -0800 (PST)
+        Mon, 14 Dec 2020 16:24:03 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     linux-block@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>,
@@ -69,10 +69,11 @@ Cc:     Jens Axboe <axboe@kernel.dk>,
         Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH v1 3/6] bio: deduplicate adding a page into bio
-Date:   Tue, 15 Dec 2020 00:20:22 +0000
-Message-Id: <189cae47946fa49318f85678def738d358e8298b.1607976425.git.asml.silence@gmail.com>
+        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH v1 1/6] target/file: allocate the bvec array as part of struct target_core_file_cmd
+Date:   Tue, 15 Dec 2020 00:20:20 +0000
+Message-Id: <ea68179b3f896ed1800c0a315bb4276e0ac77f7d.1607976425.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1607976425.git.asml.silence@gmail.com>
 References: <cover.1607976425.git.asml.silence@gmail.com>
@@ -82,75 +83,74 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Both bio_add_hw_page() mimics bio_add_page() and has a hand-coded
-version of appending a page into bio's bvec. DRY
+From: Christoph Hellwig <hch@lst.de>
 
+This saves one memory allocation, and ensures the bvecs aren't freed
+before the AIO completion.  This will allow the lower level code to be
+optimized so that it can avoid allocating another bvec array.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- block/bio.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/target/target_core_file.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 1f2cc1fbe283..4a8f77bb3956 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -734,6 +734,22 @@ const char *bio_devname(struct bio *bio, char *buf)
- }
- EXPORT_SYMBOL(bio_devname);
+diff --git a/drivers/target/target_core_file.c b/drivers/target/target_core_file.c
+index b0cb5b95e892..cce455929778 100644
+--- a/drivers/target/target_core_file.c
++++ b/drivers/target/target_core_file.c
+@@ -241,6 +241,7 @@ struct target_core_file_cmd {
+ 	unsigned long	len;
+ 	struct se_cmd	*cmd;
+ 	struct kiocb	iocb;
++	struct bio_vec	bvecs[];
+ };
  
-+static void bio_add_page_noaccount(struct bio *bio, struct page *page,
-+				   unsigned int len, unsigned int off)
-+{
-+	struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt];
-+
-+	WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED));
-+	WARN_ON_ONCE(bio_full(bio, len));
-+
-+	bv->bv_page = page;
-+	bv->bv_offset = off;
-+	bv->bv_len = len;
-+
-+	bio->bi_iter.bi_size += len;
-+	bio->bi_vcnt++;
-+}
-+
- static inline bool page_is_mergeable(const struct bio_vec *bv,
- 		struct page *page, unsigned int len, unsigned int off,
- 		bool *same_page)
-@@ -818,12 +834,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
- 	if (bio->bi_vcnt >= queue_max_segments(q))
- 		return 0;
+ static void cmd_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
+@@ -268,29 +269,22 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
+ 	struct target_core_file_cmd *aio_cmd;
+ 	struct iov_iter iter = {};
+ 	struct scatterlist *sg;
+-	struct bio_vec *bvec;
+ 	ssize_t len = 0;
+ 	int ret = 0, i;
  
--	bvec = &bio->bi_io_vec[bio->bi_vcnt];
--	bvec->bv_page = page;
--	bvec->bv_len = len;
--	bvec->bv_offset = offset;
--	bio->bi_vcnt++;
--	bio->bi_iter.bi_size += len;
-+	bio_add_page_noaccount(bio, page, len, offset);
- 	return len;
- }
+-	aio_cmd = kmalloc(sizeof(struct target_core_file_cmd), GFP_KERNEL);
++	aio_cmd = kmalloc(struct_size(aio_cmd, bvecs, sgl_nents), GFP_KERNEL);
+ 	if (!aio_cmd)
+ 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
  
-@@ -903,18 +914,7 @@ EXPORT_SYMBOL_GPL(__bio_try_merge_page);
- void __bio_add_page(struct bio *bio, struct page *page,
- 		unsigned int len, unsigned int off)
- {
--	struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt];
+-	bvec = kcalloc(sgl_nents, sizeof(struct bio_vec), GFP_KERNEL);
+-	if (!bvec) {
+-		kfree(aio_cmd);
+-		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
+-	}
 -
--	WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED));
--	WARN_ON_ONCE(bio_full(bio, len));
+ 	for_each_sg(sgl, sg, sgl_nents, i) {
+-		bvec[i].bv_page = sg_page(sg);
+-		bvec[i].bv_len = sg->length;
+-		bvec[i].bv_offset = sg->offset;
++		aio_cmd->bvecs[i].bv_page = sg_page(sg);
++		aio_cmd->bvecs[i].bv_len = sg->length;
++		aio_cmd->bvecs[i].bv_offset = sg->offset;
+ 
+ 		len += sg->length;
+ 	}
+ 
+-	iov_iter_bvec(&iter, is_write, bvec, sgl_nents, len);
++	iov_iter_bvec(&iter, is_write, aio_cmd->bvecs, sgl_nents, len);
+ 
+ 	aio_cmd->cmd = cmd;
+ 	aio_cmd->len = len;
+@@ -307,8 +301,6 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
+ 	else
+ 		ret = call_read_iter(file, &aio_cmd->iocb, &iter);
+ 
+-	kfree(bvec);
 -
--	bv->bv_page = page;
--	bv->bv_offset = off;
--	bv->bv_len = len;
--
--	bio->bi_iter.bi_size += len;
--	bio->bi_vcnt++;
--
-+	bio_add_page_noaccount(bio, page, len, off);
- 	if (!bio_flagged(bio, BIO_WORKINGSET) && unlikely(PageWorkingset(page)))
- 		bio_set_flag(bio, BIO_WORKINGSET);
- }
+ 	if (ret != -EIOCBQUEUED)
+ 		cmd_rw_aio_complete(&aio_cmd->iocb, ret, 0);
+ 
 -- 
 2.24.0
 

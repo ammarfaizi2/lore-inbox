@@ -2,129 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88AF9C4361B
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 16:22:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B602C4361B
+	for <io-uring@archiver.kernel.org>; Wed, 16 Dec 2020 06:06:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4EC88207E8
-	for <io-uring@archiver.kernel.org>; Tue, 15 Dec 2020 16:22:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D86C32333E
+	for <io-uring@archiver.kernel.org>; Wed, 16 Dec 2020 06:06:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730958AbgLOQTk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 15 Dec 2020 11:19:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
+        id S1725902AbgLPGGd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Dec 2020 01:06:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730757AbgLOQSm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Dec 2020 11:18:42 -0500
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9049EC0617B0
-        for <io-uring@vger.kernel.org>; Tue, 15 Dec 2020 08:18:02 -0800 (PST)
-Received: by mail-il1-x143.google.com with SMTP id q1so19749278ilt.6
-        for <io-uring@vger.kernel.org>; Tue, 15 Dec 2020 08:18:02 -0800 (PST)
+        with ESMTP id S1725274AbgLPGGc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Dec 2020 01:06:32 -0500
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2E1C0613D6;
+        Tue, 15 Dec 2020 22:05:52 -0800 (PST)
+Received: by mail-il1-x12d.google.com with SMTP id q5so941703ilc.10;
+        Tue, 15 Dec 2020 22:05:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=diFiOdC7jji4ApRY/TN7q4luYnhO42+izDOiqW6c7fQ=;
-        b=hQiDU6yz9paRrn/W1FNtwDtULkqHPLtXCn25y/0+TcdmbJHBjmxRjJooAwo88AHHYo
-         GWlaKO9W1fmFP2jWgFhgh4aQn4igIqu5dcHf8kKhQsjTs5XaojT6fB0kfy5cCsjqBkMX
-         DaloqW6SHdXcFPT4+53Lv3NRDvv4kU6HfwNkKxQZASOb6WE2dhRYTCkZX3zaXwZu52oi
-         yu3YAcsq4yBnKbC9SYeQXEDN10LS7Kx7SjI4AH68SEWC93LRAX6hd4u4ZVTUHBWuJC3U
-         4zrCQ5SexpPVD8VIH+gae+aCEby/KtQ8ozpGagIWTz5lECzsZTv8IMfuw1M/BA+JcOqL
-         kb8A==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=P6Sg59zP5ptq5x2K8by0U8XXwiQHFOoVbiJ3Fi37iXw=;
+        b=S67YoxV9n23ZqrrblS/5Nup+FG7AyOTKzOim1I60JAAfBqrXAiDI1Z2Nbo2UtU/Hl4
+         hNB8LNLiBciaj5lQ3EuaLuia4g5D0M+Vu/12VIkGmM2TffzVi7a/Vi+8mit7yduMv90X
+         Iqg5INRAAUosZtjf7tC9SKWhZqb1+6jKuhmbcfVoJahp9K+naipFvqzU29HUJNKK20gd
+         zGD0IiWx6snzfqN/dN/wVnJDZ7Q5bKCVvPBpnr1VAIkYtdgfhQV0oKmP9tzi8Qa7pPDI
+         HlDZJ53G/ZI/cGpbaraS759rnSy1v+RfRryagK2FqelP8EMsmMyY/fwlIbvx1mN7KpB4
+         5GVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=diFiOdC7jji4ApRY/TN7q4luYnhO42+izDOiqW6c7fQ=;
-        b=k+W23fIGfgJEqCSmQ3LGlNT4rSfsybc8Dioo3gO5ZXJeWW3WosmRoa2s5nCdO177Nt
-         IXYJ1/sS/eoXmu/W5JqfBbyT+PuJ/1n2R36Oyd6jOnI45c1iimQl3/huSW1Xky/ynA3y
-         dVZMm7XWqy7lhBjiZ+pGRf/20v2uu7VuArZPL7e6i7mUYZDZ6/iQKcpXhYaGXwwQAm/7
-         UaTXGFL/8RW4XGZK5ZUuNkCYxuwwtXZfUo8hSNN013PCEX49AzZfEshW8ItD55Ih5uiQ
-         D/CAtbd3DES5VvhVTCyDd045lPVx5smV4FeW5MIdYz+FQUI0eeltsj8p1tH9GSP+n+Ry
-         TWgw==
-X-Gm-Message-State: AOAM533MX+sEUDzB35iKBHPDOkm2xzICrnDUYBCL/POwPp2wsUL7ehE4
-        moVY85zvolZCt9mpaGLI21eSKg==
-X-Google-Smtp-Source: ABdhPJyha0KEja10VFJnNgShAOa3IQYWTiFNHSiERzn5YuU3MU0Ys3JRHhSfLDy5+rZySGnWYXS+uw==
-X-Received: by 2002:a05:6e02:1185:: with SMTP id y5mr42582830ili.119.1608049081777;
-        Tue, 15 Dec 2020 08:18:01 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id r5sm13084632ile.80.2020.12.15.08.18.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Dec 2020 08:18:01 -0800 (PST)
-Subject: Re: Lockdep warning on io_file_data_ref_zero() with 5.10-rc5
-To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Nadav Amit <nadav.amit@gmail.com>
-Cc:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-References: <C3012989-5B09-4A88-B271-542C1ED91ABE@gmail.com>
- <c16232dd-5841-6e87-bbd0-0c18f0fc982b@gmail.com>
- <13baf2c4-a403-41fc-87ca-6f5cb7999692@kernel.dk>
- <e9f232a9-f28e-a987-c971-d8185c0060f5@linux.alibaba.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <8bb82057-1fdf-cb99-0549-2a1a27600d15@kernel.dk>
-Date:   Tue, 15 Dec 2020 09:18:00 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=P6Sg59zP5ptq5x2K8by0U8XXwiQHFOoVbiJ3Fi37iXw=;
+        b=tbdNcEd6/YDPawA0cwtceJUvOwU2PNCM1Ec21WmWLKW9TdinxB+yOj0gCUoGshOBZl
+         jPPH0iHuKYgsrcSKo0NoZtgO8pYBQsBM6F1Ayf3BhGvBQT6sJZfuXp+PgJgLwjZ+daJu
+         InLxcFoRQpfMLRLdsPuEjB27vWtxIex3SIw5jYwZECqL6p1CJDrb5JcCHxeR2yTzEPZS
+         pMW7Gl3TwV64DRAS6/OEMSILugicfvGtj8QfBY0gbX2TaEa0IVp8I7k7J413th6fx3lo
+         bYWa4RBnR06g+UrQJiNN6g8npz55DQ4M5IFO9cv8by76hthKKKLfQ8xrmZujom++N5DL
+         Jw6A==
+X-Gm-Message-State: AOAM530csCZ6zfaIsyYLtsVqvsLYzRKEZAXX3/E/vbogZ+1iFjb42vNY
+        7OyhjJLsAzvZk67dsF+Iz24c989rQiwP1TplphQ=
+X-Google-Smtp-Source: ABdhPJxkFEjPMeTtp8jY66KaeuBieLp+BWoFhm36itUGcJKrrFpceUCJoG9X2suKji0F8TrrsXuxiHC5hnDdcR6SWC8=
+X-Received: by 2002:a92:2912:: with SMTP id l18mr33420710ilg.173.1608098752016;
+ Tue, 15 Dec 2020 22:05:52 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <e9f232a9-f28e-a987-c971-d8185c0060f5@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20201116044529.1028783-1-dkadashev@gmail.com> <X8oWEkb1Cb9ssxnx@carbon.v>
+ <CAOKbgA7MdAF1+MQePoZHALxNC5ye207ET=4JCqvdNcrGTcrkpw@mail.gmail.com> <faf1a897-3acf-dd82-474d-dadd9fa9a752@kernel.dk>
+In-Reply-To: <faf1a897-3acf-dd82-474d-dadd9fa9a752@kernel.dk>
+From:   Dmitry Kadashev <dkadashev@gmail.com>
+Date:   Wed, 16 Dec 2020 13:05:41 +0700
+Message-ID: <CAOKbgA46PHvVW6h1s6U-kgVt2jdq0t+UXSiy7nn=JTonpXYAPQ@mail.gmail.com>
+Subject: Re: [PATCH 0/2] io_uring: add mkdirat support
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     viro@zeniv.linux.org.uk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 12/14/20 11:58 PM, Xiaoguang Wang wrote:
-> hi,
-> 
->> On 11/28/20 5:13 PM, Pavel Begunkov wrote:
->>> On 28/11/2020 23:59, Nadav Amit wrote:
->>>> Hello Pavel,
->>>>
->>>> I got the following lockdep splat while rebasing my work on 5.10-rc5 on the
->>>> kernel (based on 5.10-rc5+).
->>>>
->>>> I did not actually confirm that the problem is triggered without my changes,
->>>> as my iouring workload requires some kernel changes (not iouring changes),
->>>> yet IMHO it seems pretty clear that this is a result of your commit
->>>> e297822b20e7f ("io_uring: order refnode recycling”), that acquires a lock in
->>>> io_file_data_ref_zero() inside a softirq context.
->>>
->>> Yeah, that's true. It was already reported by syzkaller and fixed by Jens, but
->>> queued for 5.11. Thanks for letting know anyway!
->>>
->>> https://lore.kernel.org/io-uring/948d2d3b-5f36-034d-28e6-7490343a5b59@kernel.dk/T/#t
->>>
->>>
->>> Jens, I think it's for the best to add it for 5.10, at least so that lockdep
->>> doesn't complain.
->>
->> Yeah maybe, though it's "just" a lockdep issue, it can't trigger any
->> deadlocks. I'd rather just keep it in 5.11 and ensure it goes to stable.
->> This isn't new in this series.
-> Sorry, I'm not familiar with lockdep implementation, here I wonder why you say
-> it can't trigger any deadlocks, looking at that the syzbot report, seems that
-> the deadlock may happen.
+On Tue, Dec 15, 2020 at 11:20 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 12/15/20 4:43 AM, Dmitry Kadashev wrote:
+> > On Fri, Dec 4, 2020 at 5:57 PM Dmitry Kadashev <dkadashev@gmail.com> wrote:
+> >>
+> >> On Mon, Nov 16, 2020 at 11:45:27AM +0700, Dmitry Kadashev wrote:
+> >>> This adds mkdirat support to io_uring and is heavily based on recently
+> >>> added renameat() / unlinkat() support.
+> >>>
+> >>> The first patch is preparation with no functional changes, makes
+> >>> do_mkdirat accept struct filename pointer rather than the user string.
+> >>>
+> >>> The second one leverages that to implement mkdirat in io_uring.
+> >>>
+> >>> Based on for-5.11/io_uring.
+> >>>
+> >>> Dmitry Kadashev (2):
+> >>>   fs: make do_mkdirat() take struct filename
+> >>>   io_uring: add support for IORING_OP_MKDIRAT
+> >>>
+> >>>  fs/internal.h                 |  1 +
+> >>>  fs/io_uring.c                 | 58 +++++++++++++++++++++++++++++++++++
+> >>>  fs/namei.c                    | 20 ++++++++----
+> >>>  include/uapi/linux/io_uring.h |  1 +
+> >>>  4 files changed, 74 insertions(+), 6 deletions(-)
+> >>>
+> >>> --
+> >>> 2.28.0
+> >>>
+> >>
+> >> Hi Al Viro,
+> >>
+> >> Ping. Jens mentioned before that this looks fine by him, but you or
+> >> someone from fsdevel should approve the namei.c part first.
+> >
+> > Another ping.
+> >
+> > Jens, you've mentioned the patch looks good to you, and with quite
+> > similar changes (unlinkat, renameat) being sent for 5.11 is there
+> > anything that I can do to help this to be accepted (not necessarily
+> > for 5.11 at this point)?
+>
+> Since we're aiming for 5.12 at this point, let's just hold off a bit and
+> see if Al gets time to ack/review the VFS side of things. There's no
+> immediate rush.
 
-Because the only time the lock is actually grabbed in bh context is when
-it has dropped to zero and is no longer used. The classic deadlock for this
-is if regular use has both contexts, so you can get:
-
-CPU0			CPU1
-grab_lock()
-			bh context, grab_lock()
-
-deadlock. But this simply cannot happen here, as by the time we get to
-grabbing it from bh context, there can by definition be no other users
-of it left (or new ones).
+OK, sounds good, thanks.
 
 -- 
-Jens Axboe
-
+Dmitry Kadashev

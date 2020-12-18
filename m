@@ -8,354 +8,181 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABD3C4361B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD1E6C3526B
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:08:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 233BB23B54
+	by mail.kernel.org (Postfix) with ESMTP id 9A6DD23B70
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:08:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbgLRSIX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Dec 2020 13:08:23 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:37248 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725939AbgLRSIX (ORCPT
+        id S1726873AbgLRSIY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Dec 2020 13:08:24 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:41146 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726224AbgLRSIX (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Fri, 18 Dec 2020 13:08:23 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII4WbK147279;
-        Fri, 18 Dec 2020 18:07:39 GMT
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII40Dn126538;
+        Fri, 18 Dec 2020 18:07:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=pb0qB+fQ0cNB8eKRJJaLVz60SesMdWafX+KVM3Aeyro=;
- b=0cHR9HgbcRGYt8zn2lTFaI/+6/yeMq24VfDJg2ed1ZRhflylJeYTg/ODowek++5juvt0
- 12guIEaxml27Prf4WlXRYwGq2PU+Z8euq3hz0M9L4Mv4+NT8KOZSvYvwVGjR7VPXORvH
- 401RTbgY8wJ89u8YWHEWVwg88YSWcuor5MfZ5y2WGd8H14WE8EEiRI7fwHc3UL8ObF8B
- wqqJnQ4slYYFDI4bQKVh4lTEZy2vpfy77q5prZ+LAEVk4hN+wDUjh734rTggloyNw5sB
- 1BECyQXAhp5QlLM/m+srJOjgNy3sQ15Tk5sqw5JzsKe/Cqm4OaQ/9ozKGICr02d7eWro Yw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2130.oracle.com with ESMTP id 35cn9ruhv6-1
+ bh=vijrJT+A1NuvYAmf8wXztC/rajnxbTTTtxAuCKqhJTk=;
+ b=eeHokOC2BCCtbmjSLL3Ho7jMLsR3XTA//kgqDEmFybtqAb7aGAkeTiLvRYP1ZO1/UJTR
+ M47jg2EBqqIsiZ2ZpHMx0RUFQSzwWXy0uPysiXYfGelDWKAfUnTHqVJtXZWqHhriS2qt
+ /5PeJJ+ygh6gGqCCe/YFC8knLHKkt2KhhK38JP2DUyqVNyQe2QIOodtnNkWUp7RkQ/ih
+ 5GZs0ZqeHONDAFywBfQA09wwUaw4T6Y/AGnCUsjDFP5FsdATcc50PO3Xq/qCqyCql3oT
+ /DX/Mkt78MQeYSfpHMn/7qliuTBN6/Hs9Uv272+DQ97O1VJh4TYsJKaBecTn6H7mx4Z2 Nw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2130.oracle.com with ESMTP id 35ckcbuq8d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 18 Dec 2020 18:07:38 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII6LIO048109;
-        Fri, 18 Dec 2020 18:07:38 GMT
+        Fri, 18 Dec 2020 18:07:40 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII5NDx117222;
+        Fri, 18 Dec 2020 18:07:39 GMT
 Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 35d7t26pt0-1
+        by userp3020.oracle.com with ESMTP id 35g3rgfaxj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Dec 2020 18:07:38 +0000
+        Fri, 18 Dec 2020 18:07:39 +0000
 Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BII7bBe008652;
-        Fri, 18 Dec 2020 18:07:37 GMT
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BII7d7j008682;
+        Fri, 18 Dec 2020 18:07:39 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 18 Dec 2020 10:07:37 -0800
+        with ESMTP ; Fri, 18 Dec 2020 10:07:38 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v3 01/13] io_uring: modularize io_sqe_buffer_register
-Date:   Fri, 18 Dec 2020 10:07:16 -0800
-Message-Id: <1608314848-67329-2-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v3 05/13] io_uring: separate ref_list from fixed_rsrc_data
+Date:   Fri, 18 Dec 2020 10:07:20 -0800
+Message-Id: <1608314848-67329-6-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 mlxscore=0 suspectscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012180124
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012180124
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxlogscore=999
- impostorscore=0 lowpriorityscore=0 clxscore=1015 spamscore=0
- malwarescore=0 priorityscore=1501 phishscore=0 mlxscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 phishscore=0
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2009150000 definitions=main-2012180124
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Split io_sqe_buffer_register into two routines:
-
-- io_sqe_buffer_register() registers a single buffer
-- io_sqe_buffers_register iterates over all user specified buffers
+Uplevel ref_list and make it common to all resources.  This is to
+allow one common ref_list to be used for both files, and buffers
+in upcoming patches.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 210 ++++++++++++++++++++++++++++++----------------------------
- 1 file changed, 107 insertions(+), 103 deletions(-)
+ fs/io_uring.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bdfb473..7d6718a 100644
+index c47f2ac..28e178b 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8252,7 +8252,7 @@ static unsigned long ring_pages(unsigned sq_entries, unsigned cq_entries)
- 	return pages;
- }
+@@ -231,8 +231,6 @@ struct fixed_rsrc_data {
+ 	struct fixed_rsrc_ref_node	*node;
+ 	struct percpu_ref		refs;
+ 	struct completion		done;
+-	struct list_head		ref_list;
+-	spinlock_t			lock;
+ };
  
--static int io_sqe_buffer_unregister(struct io_ring_ctx *ctx)
-+static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
- {
- 	int i, j;
+ struct io_buffer {
+@@ -400,6 +398,8 @@ struct io_ring_ctx {
  
-@@ -8370,14 +8370,103 @@ static int io_buffer_account_pin(struct io_ring_ctx *ctx, struct page **pages,
- 	return ret;
- }
+ 	struct delayed_work		rsrc_put_work;
+ 	struct llist_head		rsrc_put_llist;
++	struct list_head		rsrc_ref_list;
++	spinlock_t			rsrc_ref_lock;
  
--static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
--				  unsigned nr_args)
-+static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
-+				  struct io_mapped_ubuf *imu,
-+				  struct page **last_hpage)
- {
- 	struct vm_area_struct **vmas = NULL;
- 	struct page **pages = NULL;
-+	unsigned long off, start, end, ubuf;
-+	size_t size;
-+	int ret, pret, nr_pages, i;
-+
-+	ubuf = (unsigned long) iov->iov_base;
-+	end = (ubuf + iov->iov_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	start = ubuf >> PAGE_SHIFT;
-+	nr_pages = end - start;
-+
-+	ret = -ENOMEM;
-+
-+	pages = kvmalloc_array(nr_pages, sizeof(struct page *), GFP_KERNEL);
-+	if (!pages)
-+		goto done;
-+
-+	vmas = kvmalloc_array(nr_pages, sizeof(struct vm_area_struct *),
-+			      GFP_KERNEL);
-+	if (!vmas)
-+		goto done;
-+
-+	imu->bvec = kvmalloc_array(nr_pages, sizeof(struct bio_vec),
-+				   GFP_KERNEL);
-+	if (!imu->bvec)
-+		goto done;
-+
-+	ret = 0;
-+	mmap_read_lock(current->mm);
-+	pret = pin_user_pages(ubuf, nr_pages, FOLL_WRITE | FOLL_LONGTERM,
-+			      pages, vmas);
-+	if (pret == nr_pages) {
-+		/* don't support file backed memory */
-+		for (i = 0; i < nr_pages; i++) {
-+			struct vm_area_struct *vma = vmas[i];
-+
-+			if (vma->vm_file &&
-+			    !is_file_hugepages(vma->vm_file)) {
-+				ret = -EOPNOTSUPP;
-+				break;
-+			}
-+		}
-+	} else {
-+		ret = pret < 0 ? pret : -EFAULT;
-+	}
-+	mmap_read_unlock(current->mm);
-+	if (ret) {
-+		/*
-+		 * if we did partial map, or found file backed vmas,
-+		 * release any pages we did get
-+		 */
-+		if (pret > 0)
-+			unpin_user_pages(pages, pret);
-+		kvfree(imu->bvec);
-+		goto done;
-+	}
-+
-+	ret = io_buffer_account_pin(ctx, pages, pret, imu, last_hpage);
-+	if (ret) {
-+		unpin_user_pages(pages, pret);
-+		kvfree(imu->bvec);
-+		goto done;
-+	}
-+
-+	off = ubuf & ~PAGE_MASK;
-+	size = iov->iov_len;
-+	for (i = 0; i < nr_pages; i++) {
-+		size_t vec_len;
-+
-+		vec_len = min_t(size_t, size, PAGE_SIZE - off);
-+		imu->bvec[i].bv_page = pages[i];
-+		imu->bvec[i].bv_len = vec_len;
-+		imu->bvec[i].bv_offset = off;
-+		off = 0;
-+		size -= vec_len;
-+	}
-+	/* store original address for later verification */
-+	imu->ubuf = ubuf;
-+	imu->len = iov->iov_len;
-+	imu->nr_bvecs = nr_pages;
-+	ret = 0;
-+done:
-+	kvfree(pages);
-+	kvfree(vmas);
-+	return ret;
-+}
-+
-+static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
-+				   unsigned int nr_args)
-+{
-+	int i, ret;
-+	struct iovec iov;
- 	struct page *last_hpage = NULL;
--	int i, j, got_pages = 0;
--	int ret = -EINVAL;
+ 	struct work_struct		exit_work;
+ 	struct io_restriction		restrictions;
+@@ -1325,6 +1325,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	INIT_LIST_HEAD(&ctx->timeout_list);
+ 	spin_lock_init(&ctx->inflight_lock);
+ 	INIT_LIST_HEAD(&ctx->inflight_list);
++	spin_lock_init(&ctx->rsrc_ref_lock);
++	INIT_LIST_HEAD(&ctx->rsrc_ref_list);
+ 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
+ 	init_llist_head(&ctx->rsrc_put_llist);
+ 	return ctx;
+@@ -7267,9 +7269,9 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	if (!data)
+ 		return -ENXIO;
  
- 	if (ctx->user_bufs)
- 		return -EBUSY;
-@@ -8391,14 +8480,10 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
+-	spin_lock_bh(&data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
+ 	ref_node = data->node;
+-	spin_unlock_bh(&data->lock);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 	if (ref_node)
+ 		percpu_ref_kill(&ref_node->refs);
  
- 	for (i = 0; i < nr_args; i++) {
- 		struct io_mapped_ubuf *imu = &ctx->user_bufs[i];
--		unsigned long off, start, end, ubuf;
--		int pret, nr_pages;
--		struct iovec iov;
--		size_t size;
+@@ -7647,11 +7649,11 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 	data = ref_node->rsrc_data;
+ 	ctx = data->ctx;
  
- 		ret = io_copy_iov(ctx, &iov, arg, i);
- 		if (ret)
--			goto err;
-+			break;
+-	spin_lock_bh(&data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
+ 	ref_node->done = true;
  
- 		/*
- 		 * Don't impose further limits on the size and buffer
-@@ -8407,103 +8492,22 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
- 		 */
- 		ret = -EFAULT;
- 		if (!iov.iov_base || !iov.iov_len)
--			goto err;
-+			break;
- 
- 		/* arbitrary limit, but we need something */
- 		if (iov.iov_len > SZ_1G)
--			goto err;
--
--		ubuf = (unsigned long) iov.iov_base;
--		end = (ubuf + iov.iov_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
--		start = ubuf >> PAGE_SHIFT;
--		nr_pages = end - start;
--
--		ret = 0;
--		if (!pages || nr_pages > got_pages) {
--			kvfree(vmas);
--			kvfree(pages);
--			pages = kvmalloc_array(nr_pages, sizeof(struct page *),
--						GFP_KERNEL);
--			vmas = kvmalloc_array(nr_pages,
--					sizeof(struct vm_area_struct *),
--					GFP_KERNEL);
--			if (!pages || !vmas) {
--				ret = -ENOMEM;
--				goto err;
--			}
--			got_pages = nr_pages;
--		}
--
--		imu->bvec = kvmalloc_array(nr_pages, sizeof(struct bio_vec),
--						GFP_KERNEL);
--		ret = -ENOMEM;
--		if (!imu->bvec)
--			goto err;
--
--		ret = 0;
--		mmap_read_lock(current->mm);
--		pret = pin_user_pages(ubuf, nr_pages,
--				      FOLL_WRITE | FOLL_LONGTERM,
--				      pages, vmas);
--		if (pret == nr_pages) {
--			/* don't support file backed memory */
--			for (j = 0; j < nr_pages; j++) {
--				struct vm_area_struct *vma = vmas[j];
--
--				if (vma->vm_file &&
--				    !is_file_hugepages(vma->vm_file)) {
--					ret = -EOPNOTSUPP;
--					break;
--				}
--			}
--		} else {
--			ret = pret < 0 ? pret : -EFAULT;
--		}
--		mmap_read_unlock(current->mm);
--		if (ret) {
--			/*
--			 * if we did partial map, or found file backed vmas,
--			 * release any pages we did get
--			 */
--			if (pret > 0)
--				unpin_user_pages(pages, pret);
--			kvfree(imu->bvec);
--			goto err;
--		}
--
--		ret = io_buffer_account_pin(ctx, pages, pret, imu, &last_hpage);
--		if (ret) {
--			unpin_user_pages(pages, pret);
--			kvfree(imu->bvec);
--			goto err;
--		}
-+			break;
- 
--		off = ubuf & ~PAGE_MASK;
--		size = iov.iov_len;
--		for (j = 0; j < nr_pages; j++) {
--			size_t vec_len;
--
--			vec_len = min_t(size_t, size, PAGE_SIZE - off);
--			imu->bvec[j].bv_page = pages[j];
--			imu->bvec[j].bv_len = vec_len;
--			imu->bvec[j].bv_offset = off;
--			off = 0;
--			size -= vec_len;
--		}
--		/* store original address for later verification */
--		imu->ubuf = ubuf;
--		imu->len = iov.iov_len;
--		imu->nr_bvecs = nr_pages;
-+		ret = io_sqe_buffer_register(ctx, &iov, imu, &last_hpage);
-+		if (ret)
-+			break;
- 
- 		ctx->nr_user_bufs++;
+-	while (!list_empty(&data->ref_list)) {
+-		ref_node = list_first_entry(&data->ref_list,
++	while (!list_empty(&ctx->rsrc_ref_list)) {
++		ref_node = list_first_entry(&ctx->rsrc_ref_list,
+ 					struct fixed_rsrc_ref_node, node);
+ 		/* recycle ref nodes in order */
+ 		if (!ref_node->done)
+@@ -7659,7 +7661,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 		list_del(&ref_node->node);
+ 		first_add |= llist_add(&ref_node->llist, &ctx->rsrc_put_llist);
  	}
--	kvfree(pages);
--	kvfree(vmas);
--	return 0;
--err:
--	kvfree(pages);
--	kvfree(vmas);
--	io_sqe_buffer_unregister(ctx);
-+
-+	if (ret)
-+		io_sqe_buffers_unregister(ctx);
-+
+-	spin_unlock_bh(&data->lock);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 
+ 	if (percpu_ref_is_dying(&data->refs))
+ 		delay = 0;
+@@ -7720,8 +7722,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return -ENOMEM;
+ 	file_data->ctx = ctx;
+ 	init_completion(&file_data->done);
+-	INIT_LIST_HEAD(&file_data->ref_list);
+-	spin_lock_init(&file_data->lock);
+ 
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
+@@ -7783,9 +7783,9 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	}
+ 
+ 	file_data->node = ref_node;
+-	spin_lock_bh(&file_data->lock);
+-	list_add_tail(&ref_node->node, &file_data->ref_list);
+-	spin_unlock_bh(&file_data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
++	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 	percpu_ref_get(&file_data->refs);
  	return ret;
- }
+ out_fput:
+@@ -7947,10 +7947,10 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
  
-@@ -8557,7 +8561,7 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- {
- 	io_finish_async(ctx);
--	io_sqe_buffer_unregister(ctx);
-+	io_sqe_buffers_unregister(ctx);
- 
- 	if (ctx->sqo_task) {
- 		put_task_struct(ctx->sqo_task);
-@@ -9853,13 +9857,13 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 
- 	switch (opcode) {
- 	case IORING_REGISTER_BUFFERS:
--		ret = io_sqe_buffer_register(ctx, arg, nr_args);
-+		ret = io_sqe_buffers_register(ctx, arg, nr_args);
- 		break;
- 	case IORING_UNREGISTER_BUFFERS:
- 		ret = -EINVAL;
- 		if (arg || nr_args)
- 			break;
--		ret = io_sqe_buffer_unregister(ctx);
-+		ret = io_sqe_buffers_unregister(ctx);
- 		break;
- 	case IORING_REGISTER_FILES:
- 		ret = io_sqe_files_register(ctx, arg, nr_args);
+ 	if (needs_switch) {
+ 		percpu_ref_kill(&data->node->refs);
+-		spin_lock_bh(&data->lock);
+-		list_add_tail(&ref_node->node, &data->ref_list);
++		spin_lock_bh(&ctx->rsrc_ref_lock);
++		list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
+ 		data->node = ref_node;
+-		spin_unlock_bh(&data->lock);
++		spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 		percpu_ref_get(&ctx->file_data->refs);
+ 	} else
+ 		destroy_fixed_rsrc_ref_node(ref_node);
 -- 
 1.8.3.1
 

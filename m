@@ -2,63 +2,63 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	UNPARSEABLE_RELAY,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD1E6C3526B
-	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:08:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0416EC3526E
+	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:08:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A6DD23B70
+	by mail.kernel.org (Postfix) with ESMTP id C95F923B70
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:08:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726873AbgLRSIY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1726224AbgLRSIY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Fri, 18 Dec 2020 13:08:24 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:41146 "EHLO
+Received: from aserp2130.oracle.com ([141.146.126.79]:41170 "EHLO
         aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726224AbgLRSIX (ORCPT
+        with ESMTP id S1727283AbgLRSIX (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Fri, 18 Dec 2020 13:08:23 -0500
 Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII40Dn126538;
-        Fri, 18 Dec 2020 18:07:40 GMT
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII3nOq110596;
+        Fri, 18 Dec 2020 18:07:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=vijrJT+A1NuvYAmf8wXztC/rajnxbTTTtxAuCKqhJTk=;
- b=eeHokOC2BCCtbmjSLL3Ho7jMLsR3XTA//kgqDEmFybtqAb7aGAkeTiLvRYP1ZO1/UJTR
- M47jg2EBqqIsiZ2ZpHMx0RUFQSzwWXy0uPysiXYfGelDWKAfUnTHqVJtXZWqHhriS2qt
- /5PeJJ+ygh6gGqCCe/YFC8knLHKkt2KhhK38JP2DUyqVNyQe2QIOodtnNkWUp7RkQ/ih
- 5GZs0ZqeHONDAFywBfQA09wwUaw4T6Y/AGnCUsjDFP5FsdATcc50PO3Xq/qCqyCql3oT
- /DX/Mkt78MQeYSfpHMn/7qliuTBN6/Hs9Uv272+DQ97O1VJh4TYsJKaBecTn6H7mx4Z2 Nw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 35ckcbuq8d-1
+ bh=1jZSFBlBr75t0SxSg8HCOZaeTmgy1pHgigUKggI8eM4=;
+ b=mX6X+eyvB1UbOStut9RuU1sR/EKFQW21W5gPDCphRyYY9SbWJRZwUgQKJMq7CQ4wYDhq
+ PZa7oJOe49clwuIUhdHDwE+jdQglXvm/dIahAI8KxCdrmcHYgMXM+PuxnA5eL0OQXd9A
+ AoUZbeNQmqnuBIgNVS87/Z0USnTN9Kcb+XO+yiXKBK9Li5b0je8UbQjZap9i7ZHUqsuM
+ vQJV4G2yJuakRS2WqqvHAzii+1hWG64eIa62h4efnn60opAP4XwbhovG0LLo78TFaQGG
+ rjShWZCULeiT1Ng6xos7mlsc32d3gEeWFLb5q/CZCvr9TQWqmIw3IJekxNaHIrazjOch Eg== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 35ckcbuq8h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
         Fri, 18 Dec 2020 18:07:40 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII5NDx117222;
-        Fri, 18 Dec 2020 18:07:39 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 35g3rgfaxj-1
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII5OrQ028478;
+        Fri, 18 Dec 2020 18:07:40 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 35d7eskjqe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Dec 2020 18:07:39 +0000
+        Fri, 18 Dec 2020 18:07:40 +0000
 Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BII7d7j008682;
-        Fri, 18 Dec 2020 18:07:39 GMT
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BII7esW016597;
+        Fri, 18 Dec 2020 18:07:40 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 18 Dec 2020 10:07:38 -0800
+        with ESMTP ; Fri, 18 Dec 2020 10:07:39 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v3 05/13] io_uring: separate ref_list from fixed_rsrc_data
-Date:   Fri, 18 Dec 2020 10:07:20 -0800
-Message-Id: <1608314848-67329-6-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v3 09/13] io_uring: create common fixed_rsrc_ref_node handling routines
+Date:   Fri, 18 Dec 2020 10:07:24 -0800
+Message-Id: <1608314848-67329-10-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
- spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 bulkscore=0
+ suspectscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 malwarescore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2012180124
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
@@ -71,118 +71,146 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Uplevel ref_list and make it common to all resources.  This is to
-allow one common ref_list to be used for both files, and buffers
-in upcoming patches.
+Create common routines to be used for both files/buffers registration.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 66 +++++++++++++++++++++++++++--------------------------------
+ 1 file changed, 30 insertions(+), 36 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c47f2ac..28e178b 100644
+index bac2813..7e1467c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -231,8 +231,6 @@ struct fixed_rsrc_data {
- 	struct fixed_rsrc_ref_node	*node;
- 	struct percpu_ref		refs;
- 	struct completion		done;
--	struct list_head		ref_list;
--	spinlock_t			lock;
- };
+@@ -7287,14 +7287,10 @@ static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
+ 	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ }
  
- struct io_buffer {
-@@ -400,6 +398,8 @@ struct io_ring_ctx {
+-static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
++static void io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
++				struct io_ring_ctx *ctx)
+ {
+-	struct fixed_rsrc_data *data = ctx->file_data;
+ 	struct fixed_rsrc_ref_node *ref_node = NULL;
+-	unsigned nr_tables, i;
+-
+-	if (!data)
+-		return -ENXIO;
  
- 	struct delayed_work		rsrc_put_work;
- 	struct llist_head		rsrc_put_llist;
-+	struct list_head		rsrc_ref_list;
-+	spinlock_t			rsrc_ref_lock;
+ 	io_rsrc_ref_lock(ctx);
+ 	ref_node = data->node;
+@@ -7307,6 +7303,17 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	/* wait for all refs nodes to complete */
+ 	flush_delayed_work(&ctx->rsrc_put_work);
+ 	wait_for_completion(&data->done);
++}
++
++static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
++{
++	struct fixed_rsrc_data *data = ctx->file_data;
++	unsigned nr_tables, i;
++
++	if (!data)
++		return -ENXIO;
++
++	io_rsrc_ref_quiesce(data, ctx);
  
- 	struct work_struct		exit_work;
- 	struct io_restriction		restrictions;
-@@ -1325,6 +1325,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_LIST_HEAD(&ctx->timeout_list);
- 	spin_lock_init(&ctx->inflight_lock);
- 	INIT_LIST_HEAD(&ctx->inflight_list);
-+	spin_lock_init(&ctx->rsrc_ref_lock);
-+	INIT_LIST_HEAD(&ctx->rsrc_ref_list);
- 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
- 	init_llist_head(&ctx->rsrc_put_llist);
- 	return ctx;
-@@ -7267,9 +7269,9 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	__io_sqe_files_unregister(ctx);
+ 	nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
+@@ -7739,6 +7746,17 @@ static void destroy_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node)
+ 	kfree(ref_node);
+ }
+ 
++static void add_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node,
++				    struct fixed_rsrc_data *data,
++				    struct io_ring_ctx *ctx)
++{
++	io_rsrc_ref_lock(ctx);
++	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
++	data->node = ref_node;
++	io_rsrc_ref_unlock(ctx);
++	percpu_ref_get(&data->refs);
++}
++
+ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 				 unsigned nr_args)
+ {
+@@ -7821,11 +7839,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return PTR_ERR(ref_node);
+ 	}
+ 
+-	file_data->node = ref_node;
+-	io_rsrc_ref_lock(ctx);
+-	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
+-	io_rsrc_ref_unlock(ctx);
+-	percpu_ref_get(&file_data->refs);
++	add_fixed_rsrc_ref_node(ref_node, file_data, ctx);
+ 	return ret;
+ out_fput:
+ 	for (i = 0; i < ctx->nr_user_files; i++) {
+@@ -7914,10 +7928,7 @@ static void switch_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node,
+ 				       struct io_ring_ctx *ctx)
+ {
+ 	percpu_ref_kill(&data->node->refs);
+-	io_rsrc_ref_lock(ctx);
+-	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
+-	data->node = ref_node;
+-	io_rsrc_ref_unlock(ctx);
++	add_fixed_rsrc_ref_node(ref_node, data, ctx);
+ }
+ 
+ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+@@ -7995,10 +8006,9 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 		up->offset++;
+ 	}
+ 
+-	if (needs_switch) {
++	if (needs_switch)
+ 		switch_fixed_rsrc_ref_node(ref_node, data, ctx);
+-		percpu_ref_get(&ctx->file_data->refs);
+-	} else
++	else
+ 		destroy_fixed_rsrc_ref_node(ref_node);
+ 
+ 	return done ? done : err;
+@@ -8361,23 +8371,11 @@ static void io_buffers_map_free(struct io_ring_ctx *ctx)
+ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+ {
+ 	struct fixed_rsrc_data *data = ctx->buf_data;
+-	struct fixed_rsrc_ref_node *ref_node = NULL;
+ 
  	if (!data)
  		return -ENXIO;
  
--	spin_lock_bh(&data->lock);
-+	spin_lock_bh(&ctx->rsrc_ref_lock);
- 	ref_node = data->node;
--	spin_unlock_bh(&data->lock);
-+	spin_unlock_bh(&ctx->rsrc_ref_lock);
- 	if (ref_node)
- 		percpu_ref_kill(&ref_node->refs);
+-	io_rsrc_ref_lock(ctx);
+-	ref_node = data->node;
+-	io_rsrc_ref_unlock(ctx);
+-	if (ref_node)
+-		percpu_ref_kill(&ref_node->refs);
+-
+-	percpu_ref_kill(&data->refs);
+-
+-	/* wait for all refs nodes to complete */
+-	flush_delayed_work(&ctx->rsrc_put_work);
+-	wait_for_completion(&data->done);
+-
++	io_rsrc_ref_quiesce(data, ctx);
+ 	io_buffers_unmap(ctx);
+ 	io_buffers_map_free(ctx);
  
-@@ -7647,11 +7649,11 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
- 	data = ref_node->rsrc_data;
- 	ctx = data->ctx;
- 
--	spin_lock_bh(&data->lock);
-+	spin_lock_bh(&ctx->rsrc_ref_lock);
- 	ref_node->done = true;
- 
--	while (!list_empty(&data->ref_list)) {
--		ref_node = list_first_entry(&data->ref_list,
-+	while (!list_empty(&ctx->rsrc_ref_list)) {
-+		ref_node = list_first_entry(&ctx->rsrc_ref_list,
- 					struct fixed_rsrc_ref_node, node);
- 		/* recycle ref nodes in order */
- 		if (!ref_node->done)
-@@ -7659,7 +7661,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
- 		list_del(&ref_node->node);
- 		first_add |= llist_add(&ref_node->llist, &ctx->rsrc_put_llist);
- 	}
--	spin_unlock_bh(&data->lock);
-+	spin_unlock_bh(&ctx->rsrc_ref_lock);
- 
- 	if (percpu_ref_is_dying(&data->refs))
- 		delay = 0;
-@@ -7720,8 +7722,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		return -ENOMEM;
- 	file_data->ctx = ctx;
- 	init_completion(&file_data->done);
--	INIT_LIST_HEAD(&file_data->ref_list);
--	spin_lock_init(&file_data->lock);
- 
- 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
- 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
-@@ -7783,9 +7783,9 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+@@ -8736,11 +8734,7 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return PTR_ERR(ref_node);
  	}
  
- 	file_data->node = ref_node;
--	spin_lock_bh(&file_data->lock);
--	list_add_tail(&ref_node->node, &file_data->ref_list);
--	spin_unlock_bh(&file_data->lock);
-+	spin_lock_bh(&ctx->rsrc_ref_lock);
-+	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
-+	spin_unlock_bh(&ctx->rsrc_ref_lock);
- 	percpu_ref_get(&file_data->refs);
- 	return ret;
- out_fput:
-@@ -7947,10 +7947,10 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+-	buf_data->node = ref_node;
+-	io_rsrc_ref_lock(ctx);
+-	list_add(&ref_node->node, &ctx->rsrc_ref_list);
+-	io_rsrc_ref_unlock(ctx);
+-	percpu_ref_get(&buf_data->refs);
++	add_fixed_rsrc_ref_node(ref_node, buf_data, ctx);
+ 	return 0;
+ }
  
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
--		spin_lock_bh(&data->lock);
--		list_add_tail(&ref_node->node, &data->ref_list);
-+		spin_lock_bh(&ctx->rsrc_ref_lock);
-+		list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
- 		data->node = ref_node;
--		spin_unlock_bh(&data->lock);
-+		spin_unlock_bh(&ctx->rsrc_ref_lock);
- 		percpu_ref_get(&ctx->file_data->refs);
- 	} else
- 		destroy_fixed_rsrc_ref_node(ref_node);
 -- 
 1.8.3.1
 

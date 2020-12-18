@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AD2DC2BBD5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A6E1C2D0E4
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:07:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9AF323B6C
+	by mail.kernel.org (Postfix) with ESMTP id 038BF23B70
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 18:07:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727302AbgLRSG4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Dec 2020 13:06:56 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:39634 "EHLO
+        id S1727981AbgLRSHG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Dec 2020 13:07:06 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:39780 "EHLO
         aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726752AbgLRSG4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Dec 2020 13:06:56 -0500
+        with ESMTP id S1727058AbgLRSHG (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Dec 2020 13:07:06 -0500
 Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII3pWt113382;
-        Fri, 18 Dec 2020 18:06:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII3wJo124623;
+        Fri, 18 Dec 2020 18:06:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=4/L/2P5bgo6c+P6d3H4cVXbs1FWTjcSn8VEr8zmowy8=;
- b=cEq3SPtHLEhim8wBubpX6ciiLrgzMBp0GMPzideMA8Pf9chgZv4nHA3UNoLrEKVzgPdC
- MssRW3hQTYQIMdBDHYRsanR3XOAgNeTD5vlm0ZxRR20Hyv1Kz0LaOvL9OIsb8gkYOGGF
- ph+rO/myIhp14T42LAQskt/M6EQSpaslieDKKyO5Ex1C42frgM4sAq0e1LUbWf3BPTWr
- PN5SghP1uR+OmfwfFdbr6K0KAgqZh4de5U26V5KyLycQZT5mLza7qhwdaQvloO4Xu1Nl
- 4467wMaGv74frEG/4EnHLBLFD9ENRNnF+0PliISQATTAq6yIe+q/6Ro6NsS5xOGGae5l cA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2130.oracle.com with ESMTP id 35ckcbuq2s-1
+ bh=Gm4RWMh9rzpZURntZt2KWq8+fMt+vANU/tQUH9Q9AgE=;
+ b=dUBAlpy5btKsg2/olWJ5+j4dkfMxNbbdOM22dMl0Q3Tmt7sDA+emWrAMA+0JFv5+9pZ7
+ eJIudfTwvNj3l0eSBqxUR49QCTzXUNDFIarI106imtxQ2B4cx3b781OAeKf8pRGoDVu0
+ Qq5yKi1XY8bjSQlRoXnQJ93c3PVJXrP0xia7sk1RS9rmLhtKvAdm3YGLbp8v70pGIQ4q
+ H0KBKH/QcqeghcoVZncqic0wH6Rd1J08RirRZUVzppl/UU+IKJzMrAkpeGMCjXUI/AEE
+ PMjZ7JkY5FXXXT3vTUdB1VgS0aFkj1JsQc9WhRV5W7zFdxrR3Bnu4n0hoyTFs6wsDPHN kw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2130.oracle.com with ESMTP id 35ckcbuq39-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 18 Dec 2020 18:06:12 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII5RkX095930;
-        Fri, 18 Dec 2020 18:06:12 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3020.oracle.com with ESMTP id 35e6ev0wbf-1
+        Fri, 18 Dec 2020 18:06:23 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BII5N5P117134;
+        Fri, 18 Dec 2020 18:06:22 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3020.oracle.com with ESMTP id 35g3rgf9u4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Dec 2020 18:06:12 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0BII6AIv002856;
-        Fri, 18 Dec 2020 18:06:10 GMT
+        Fri, 18 Dec 2020 18:06:22 +0000
+Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BII6Lw9015942;
+        Fri, 18 Dec 2020 18:06:21 GMT
 Received: from [10.154.184.112] (/10.154.184.112)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 18 Dec 2020 10:06:10 -0800
-Subject: Re: [PATCH v2 00/13] io_uring: buffer registration enhancements
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+        with ESMTP ; Fri, 18 Dec 2020 10:06:21 -0800
+Subject: Re: [PATCH v2 08/13] io_uring: implement fixed buffers registration
+ similar to fixed files
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     axboe@kernel.dk, io-uring@vger.kernel.org
 References: <1607379352-68109-1-git-send-email-bijan.mottahedeh@oracle.com>
- <e8afcd4c-37b8-f02e-c648-4cd14f12636a@oracle.com>
- <b9379af3-c7cc-03ca-8510-7803b54ae7e9@kernel.dk>
- <b6736e0e-157b-a5ee-a3fb-e40903343d2b@gmail.com>
+ <1607379352-68109-9-git-send-email-bijan.mottahedeh@oracle.com>
+ <d9b4abb9-61e2-4751-9350-99fc58b02aae@gmail.com>
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-Message-ID: <fb29933f-7451-40f9-45f0-7327c130ae32@oracle.com>
-Date:   Fri, 18 Dec 2020 10:06:08 -0800
+Message-ID: <b0af8ca3-4506-1f89-6f39-854d982d1abd@oracle.com>
+Date:   Fri, 18 Dec 2020 10:06:19 -0800
 User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.5.1
 MIME-Version: 1.0
-In-Reply-To: <b6736e0e-157b-a5ee-a3fb-e40903343d2b@gmail.com>
+In-Reply-To: <d9b4abb9-61e2-4751-9350-99fc58b02aae@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Antivirus: Avast (VPS 201217-2, 12/17/2020), Outbound message
 X-Antivirus-Status: Clean
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxscore=0 phishscore=0
- bulkscore=0 suspectscore=0 malwarescore=0 mlxlogscore=999 spamscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2012180124
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
@@ -83,17 +83,15 @@ List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
 
->> For your question, yes I think we could add sqe->update_flags (something
->> like that) and union it with the other flags, and add a flag that means
->> we're updating buffers instead of files. A bit iffy with the naming of
->> the opcode itself, but probably still a useful way to go.
+>> -static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+>> +static void io_buffer_unmap(struct io_ring_ctx *ctx, struct io_mapped_ubuf *imu)
 > 
-> #define OPCODE_UPDATE_RESOURCES OPCODE_UPDATE_FILES
+> I think this and some others from here can go into a separate patch, would
+> be cleaner.
 > 
-> With define + documenting that they're same IMHO should be fine.
 
-I tried to use a single opcode for files/buffers but ran into an
-issue since work_flags is different for files/buffers.  This should
-be ok for the most part since req->work.flags is ultimately examined;
-however, there are place where io_op_defs[opcode].work_flags is examined
-directly, and I wasn't sure what would the best way to handle that.
+I tried to break this up a few ways but it didn't work well because I 
+think most of the code changes depend on the io_uring structure changes.
+I've left it as is for now but if you have some idea on what you want to 
+do, we can do it next.
+

@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8519C2BBD4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D30E7C2BBCF
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 13:17:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6835823A79
+	by mail.kernel.org (Postfix) with ESMTP id 8F99A23A7B
 	for <io-uring@archiver.kernel.org>; Fri, 18 Dec 2020 13:17:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727647AbgLRNRW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1727648AbgLRNRW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Fri, 18 Dec 2020 08:17:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48888 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727645AbgLRNRV (ORCPT
+        with ESMTP id S1726279AbgLRNRV (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Fri, 18 Dec 2020 08:17:21 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612D8C061257
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31467C061248
         for <io-uring@vger.kernel.org>; Fri, 18 Dec 2020 05:16:07 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id t16so2117675wra.3
+Received: by mail-wm1-x32b.google.com with SMTP id g185so2517325wmf.3
         for <io-uring@vger.kernel.org>; Fri, 18 Dec 2020 05:16:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=jIs13uI2i1iQYEdulBBKmxz29PWYyu6kDSub7G6Hh+s=;
-        b=mEUznp8bL+VRncIAbf5zSUhJyoCWT1SqmYq83SqpRhGSgNETyqKPxBoiozDpKWwp6I
-         PNnKruEd/+w0OV++OuzbWofpZzBxoGrGlxNIAziMexyKGmRXidJ8Ronni7EB1guLZQb9
-         wlDzKOT58/Ym6J2ghHhVzOQPOE/aVe6nVBn43cU++S0T6f1tuj4yyViWy7PRIFccXKLg
-         FSpYwNEet1wDEP1u8sZjmfQkcUhgLKk0mKtPTLyhdb2/kzIgFJWmiH/d71q2qu2E+6S0
-         6vIVH6XR6CNxGZxXSXKp5TQAJEdmrZTSkEu02Xp0WzqwRC3s8LH7CsspGxxse9jrwmrY
-         aapg==
+        bh=7KvH11eCgjbAuPmRn/6GAVbXsD/rdwuQdebZEAB4z5A=;
+        b=uhpnyBwsqDB7T4JWp3Oz10maVyJOL8jJHQnZEzZtGidIzv0V0rvjdKQEU84dw3qDz1
+         NiEkMdAaVLFWRayIg3pfZVDeHM6Mj+gt7sC+pBRcOD1W+b+rs/Oerb+KQXNfl0YfkZeZ
+         enFs5LbbzfJHRQvvq7g9A4Jcw7M5U449TQM/CnC0fbJOKGTsOZbx5Dey4pnHfipX2tLx
+         b3byXHhh6JS9fvtDHIXj+lk8p0+SAE2GA7gl1SGoB9HzP3Wdt4lruBQP7X9XYQ6q246f
+         lryXjW4jlGB5QI/tLbevMDyM21yh3R1XgEXIEKWdrGFTcJQhc5gNB02fFGMJOlMvqf7f
+         WvoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jIs13uI2i1iQYEdulBBKmxz29PWYyu6kDSub7G6Hh+s=;
-        b=I67SGC0RTgh4zvc11ZVIyzsjxvTSQWXbAx2uNGspUs3DFPcIDTxFxkKiKU/lxsvIio
-         xm/aEI0pobDL6dOqs/SbAhyAwqUD1M8z/ZrHZJyCxkEckevy4+ukR+5ntf5s9xRWqFuM
-         tGW+nZ6zpKdzacL9J0TyfHKcKtQUKb0IVLJxcnYcQa7FnK/CNZA9dUOjls7bLoMbjLe6
-         JBFydNcIfkAxrZdQwBmn/Bhs86W34g/Mce1UE7CfyusRHElffbV7EbCATg7UXzFx7qiY
-         ooSipevYt2xut3i373RtTFfuqumqme2UF4ChnoXG5cWg6UIUrj64emldXD97/wOZu+zn
-         i9JA==
-X-Gm-Message-State: AOAM530RtfywB8OdAwQ0iuOFHzLGNBr9YoGV3IMicNPSybbUVww+J1ag
-        R+eNp3SxQbgu6N3nYd9V3ew=
-X-Google-Smtp-Source: ABdhPJywFve1fS4hUitAYk/gAhbE4GUWSDoDvQ81i0Ltd78AiOvHJz+4GQQDlfqqLA4xSuBHztGKYg==
-X-Received: by 2002:adf:9e4d:: with SMTP id v13mr4344065wre.135.1608297361292;
-        Fri, 18 Dec 2020 05:16:01 -0800 (PST)
+        bh=7KvH11eCgjbAuPmRn/6GAVbXsD/rdwuQdebZEAB4z5A=;
+        b=d/lW+eUyF9JX2C/5KNdu0/M1G2RKySGEEjy7HMDnxRP+ZOimNmETMzR1CGiH7LlRlq
+         hDHCisljz8HxeSlm4zpFODbvVN5zYQvuk3bI4Da8k0juV56ypWcn2iupJw3HwZUhpsZt
+         cu4HEE972mjw6LGOD5c/HTJ1PuFcANYaCbqlhlRNYehGDWtYugITGFwwmpNuVNeKQIQc
+         sRjUebUBvWYmqSjhG4EtXMmQ+EIp2MBcHSJNBJt+kouWKve87uXfu9VrHqXYpe9tvmET
+         GsaXKFiagAR9JkrZgSnkWX0HhKfyeiY8t96l1yUwuCurOI5YVp0tiD03WWA7YizXYVtW
+         jjsQ==
+X-Gm-Message-State: AOAM5317vujvsazJ/bizAVSDQuolRUrcrSdsrevOCRlBd6s6LjT0X0yc
+        kbK9Ozg7qbg2hzgQn/u7jtI=
+X-Google-Smtp-Source: ABdhPJyYU/Tr1B1Ur0lCxq1DZOgjoB1TMDw0+ZpLiNpxAefyJ4z8cH+mfhMUzQ771u8O1TbYBIjk9w==
+X-Received: by 2002:a1c:5fd4:: with SMTP id t203mr4092844wmb.15.1608297365267;
+        Fri, 18 Dec 2020 05:16:05 -0800 (PST)
 Received: from localhost.localdomain ([85.255.234.120])
-        by smtp.gmail.com with ESMTPSA id b9sm12778595wmd.32.2020.12.18.05.16.00
+        by smtp.gmail.com with ESMTPSA id b9sm12778595wmd.32.2020.12.18.05.16.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Dec 2020 05:16:00 -0800 (PST)
+        Fri, 18 Dec 2020 05:16:04 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/8] io_uring: further deduplicate #CQ events calc
-Date:   Fri, 18 Dec 2020 13:12:22 +0000
-Message-Id: <31f80f5046e939aafb9785cb54d3410784ceeea2.1608296656.git.asml.silence@gmail.com>
+Subject: [PATCH 6/8] io_uring: remove old files cancel mechanism
+Date:   Fri, 18 Dec 2020 13:12:26 +0000
+Message-Id: <0cf6c5d55ae30a75d877f3dd3b53e162eeb6a950.1608296656.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1608296656.git.asml.silence@gmail.com>
 References: <cover.1608296656.git.asml.silence@gmail.com>
@@ -70,60 +70,150 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Apparently, there is one more place hand coded calculation of number of
-CQ events in the ring. Use __io_cqring_events() helper in
-io_get_cqring() as well. Naturally, assembly stays identical.
+files cancellation is now based on counters, remove the old way we were
+doing that with keeping a list of such requests.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ fs/io_uring.c | 65 +++++++--------------------------------------------
+ 1 file changed, 9 insertions(+), 56 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b74957856e68..1401c1444e77 100644
+index d20a2a96c3f8..4bf709d9db32 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1664,21 +1664,25 @@ static inline bool io_sqring_full(struct io_ring_ctx *ctx)
- 	return READ_ONCE(r->sq.tail) - ctx->cached_sq_head == r->sq_ring_entries;
+@@ -379,7 +379,6 @@ struct io_ring_ctx {
+ 		bool			poll_multi_file;
+ 
+ 		spinlock_t		inflight_lock;
+-		struct list_head	inflight_list;
+ 	} ____cacheline_aligned_in_smp;
+ 
+ 	struct delayed_work		file_put_work;
+@@ -719,10 +718,7 @@ struct io_kiocb {
+ 	struct io_kiocb			*link;
+ 	struct percpu_ref		*fixed_file_refs;
+ 
+-	/*
+-	 * 1. used with ctx->iopoll_list with reads/writes
+-	 * 2. to track reqs with ->files (see io_op_def::file_table)
+-	 */
++	/* ctx->iopoll_list, tracks rw requests for iopoll_list */
+ 	struct list_head		inflight_entry;
+ 	struct callback_head		task_work;
+ 	/* for polled requests, i.e. IORING_OP_POLL_ADD and async armed poll */
+@@ -1308,7 +1304,6 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	INIT_LIST_HEAD(&ctx->defer_list);
+ 	INIT_LIST_HEAD(&ctx->timeout_list);
+ 	spin_lock_init(&ctx->inflight_lock);
+-	INIT_LIST_HEAD(&ctx->inflight_list);
+ 	INIT_DELAYED_WORK(&ctx->file_put_work, io_file_put_work);
+ 	init_llist_head(&ctx->file_put_llist);
+ 	return ctx;
+@@ -1498,7 +1493,6 @@ static bool io_grab_identity(struct io_kiocb *req)
+ 
+ 		spin_lock_irq(&ctx->inflight_lock);
+ 		atomic_inc(&current->io_uring->inflight_files);
+-		list_add(&req->inflight_entry, &ctx->inflight_list);
+ 		spin_unlock_irq(&ctx->inflight_lock);
+ 		req->work.flags |= IO_WQ_WORK_FILES;
+ 	}
+@@ -6101,7 +6095,6 @@ static void io_req_drop_files(struct io_kiocb *req)
+ 	put_files_struct(req->work.identity->files);
+ 	put_nsproxy(req->work.identity->nsproxy);
+ 	spin_lock_irqsave(&ctx->inflight_lock, flags);
+-	list_del(&req->inflight_entry);
+ 	atomic_dec(&tctx->inflight_files);
+ 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+ 	req->flags &= ~REQ_F_INFLIGHT;
+@@ -8739,48 +8732,12 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 	}
  }
  
-+static inline unsigned int __io_cqring_events(struct io_ring_ctx *ctx)
-+{
-+	return ctx->cached_cq_tail - READ_ONCE(ctx->rings->cq.head);
-+}
-+
- static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
- {
- 	struct io_rings *rings = ctx->rings;
- 	unsigned tail;
- 
--	tail = ctx->cached_cq_tail;
- 	/*
- 	 * writes to the cq entry need to come after reading head; the
- 	 * control dependency is enough as we're using WRITE_ONCE to
- 	 * fill the cq entry
- 	 */
--	if (tail - READ_ONCE(rings->cq.head) == rings->cq_ring_entries)
-+	if (__io_cqring_events(ctx) == rings->cq_ring_entries)
- 		return NULL;
- 
--	ctx->cached_cq_tail++;
-+	tail = ctx->cached_cq_tail++;
- 	return &rings->cqes[tail & ctx->cq_mask];
- }
- 
-@@ -1693,11 +1697,6 @@ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
- 	return io_wq_current_is_worker();
- }
- 
--static inline unsigned __io_cqring_events(struct io_ring_ctx *ctx)
+-static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+-				  struct task_struct *task,
+-				  struct files_struct *files)
 -{
--	return ctx->cached_cq_tail - READ_ONCE(ctx->rings->cq.head);
+-	while (!list_empty_careful(&ctx->inflight_list)) {
+-		struct io_task_cancel cancel = { .task = task, .files = files };
+-		struct io_kiocb *req;
+-		DEFINE_WAIT(wait);
+-		bool found = false;
+-
+-		spin_lock_irq(&ctx->inflight_lock);
+-		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
+-			if (req->task != task ||
+-			    req->work.identity->files != files)
+-				continue;
+-			found = true;
+-			break;
+-		}
+-		if (found)
+-			prepare_to_wait(&task->io_uring->wait, &wait,
+-					TASK_UNINTERRUPTIBLE);
+-		spin_unlock_irq(&ctx->inflight_lock);
+-
+-		/* We need to keep going until we don't find a matching req */
+-		if (!found)
+-			break;
+-
+-		io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
+-		io_poll_remove_all(ctx, task, files);
+-		io_kill_timeouts(ctx, task, files);
+-		/* cancellations _may_ trigger task work */
+-		io_run_task_work();
+-		schedule();
+-		finish_wait(&task->io_uring->wait, &wait);
+-	}
 -}
 -
- static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+-					    struct task_struct *task)
++					    struct task_struct *task,
++					    struct files_struct *files)
  {
- 	if (waitqueue_active(&ctx->wait))
+ 	while (1) {
+-		struct io_task_cancel cancel = { .task = task, .files = NULL, };
++		struct io_task_cancel cancel = { .task = task, .files = files };
+ 		enum io_wq_cancel cret;
+ 		bool ret = false;
+ 
+@@ -8789,18 +8746,18 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 			ret = true;
+ 
+ 		/* SQPOLL thread does its own polling */
+-		if (!(ctx->flags & IORING_SETUP_SQPOLL)) {
++		if (!(ctx->flags & IORING_SETUP_SQPOLL) && !files) {
+ 			while (!list_empty_careful(&ctx->iopoll_list)) {
+ 				io_iopoll_try_reap_events(ctx);
+ 				ret = true;
+ 			}
+ 		}
+ 
+-		ret |= io_poll_remove_all(ctx, task, NULL);
+-		ret |= io_kill_timeouts(ctx, task, NULL);
++		ret |= io_poll_remove_all(ctx, task, files);
++		ret |= io_kill_timeouts(ctx, task, files);
++		io_run_task_work();
+ 		if (!ret)
+ 			break;
+-		io_run_task_work();
+ 		cond_resched();
+ 	}
+ }
+@@ -8825,11 +8782,7 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 	io_ring_submit_lock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
+ 	io_cqring_overflow_flush(ctx, true, task, files);
+ 	io_ring_submit_unlock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
+-
+-	if (!files)
+-		__io_uring_cancel_task_requests(ctx, task);
+-	else
+-		io_uring_cancel_files(ctx, task, files);
++	__io_uring_cancel_task_requests(ctx, task, files);
+ 
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
+ 		atomic_dec(&task->io_uring->in_idle);
 -- 
 2.24.0
 

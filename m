@@ -2,80 +2,69 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F3A0C4361B
-	for <io-uring@archiver.kernel.org>; Sun, 20 Dec 2020 18:45:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E59DC433E0
+	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:50:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5239422AAF
-	for <io-uring@archiver.kernel.org>; Sun, 20 Dec 2020 18:45:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3719522CB2
+	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:50:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbgLTSp1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 20 Dec 2020 13:45:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58798 "EHLO
+        id S1726918AbgLUEuL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 20 Dec 2020 23:50:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbgLTSp1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 20 Dec 2020 13:45:27 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F7FC061282
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 10:44:46 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id g185so8632389wmf.3
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 10:44:46 -0800 (PST)
+        with ESMTP id S1726160AbgLUEuL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 20 Dec 2020 23:50:11 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B38F6C061285
+        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 20:49:30 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id h22so11065790lfu.2
+        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 20:49:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ErZWpzJqmCd5pKEO5YrX9RSK0K02bjtge4eJlG608GY=;
-        b=cqga+wia9xR9WM9yIhHw2b4YhqMwkZ5MVhduodlzNM3WIGN8ZelVNXOsF7bdCcWQLM
-         P3xU2DiyglfZ2I1H4+S4J8rpMy5IqcadSJ8Wg5Eppo3M1JokTzkn81EcxNzJ5h2QV082
-         f3MiY6IvcPc5mIhAwghxsFK/g+t7MC5vVNmysQe3La0xJWRpdiUMQdO+qQMEpsSpkhQq
-         nlh7ZX0qbdC0RV8Ea92yQvW5QWjuwiSgkSAJ25tUi3try9P3AkB6BIp5xrlKTUWUJ6za
-         XPq9pFKlugp7JnexVFGuSDrbioZKHif+D7oFWNgw3nFQQ969v+cLAcDHhoHZeUdYa7ji
-         ErNA==
+        bh=qS4JhjJK9b+6anRRtSXLaYqy9t7MN14PqtaTJja8PDM=;
+        b=huBX6qhH5HUTdZ81+XuQkOuGX+AmGTOEukd/TStzlQDwxxe/OL9kbvVeuDFHKwXGnW
+         k9a+sQ5P1goaj+Uq3iA7Df4Q5JKdJ7+ywL92kMcjJjRdZ0knUxrxTPx6z5JpJbGXWPW9
+         aL7eiVL7HGwzUpA+D4HJMBZD8lx/jmt+MhVMlSVaO272EmKhXnycq+lXEDstrA8ccVgh
+         hukzzLlBkganNst8bOLNtenuXvGIm26U1qxoofAYh3dfQzwR4rwnVe7hqaCYAT+Z+vbi
+         Tc/YODKY/wyfQ6YBfVL1DzfVfCrR2/DOgPCrLZdueMLfuyEzWGpT6rg737AiT37sTiPJ
+         Cuxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=ErZWpzJqmCd5pKEO5YrX9RSK0K02bjtge4eJlG608GY=;
-        b=UnaTXIDgSPoQHhewbno67aQllsTx5Q610LKsM/pWSp85XdqhQILWlqLTppfQnwepDd
-         MvXl4uOt4kLrsdJONZKjWD5+Ex4ESLApqv1EDk9yK3xAlv/qBZsITtxqLfJNFTL7Fdmt
-         IJJrbJit9eKFl6bDlh+0U92YQ/M7IQQCiowQncyj0LWgEKb6DEvTTAwy6kvU3E+pnlcy
-         Zy8gBMd/eRUIokZ/4H6GAgvcq5uIUd2wfe1GIIfXG1sv6NF3Y/W3w8uHRB2n3pitk+cG
-         SWPc3e1AVldG7ZQ7lflCZSjMH3iJI3B+V1nS7p62jLTXS8YiQe5uVs/RfKJgw1qgZWMD
-         bHuA==
-X-Gm-Message-State: AOAM5324yve9eSDJ3kGF1umUGUeAyRkfuy4u751IwiVBO6NwRUFYaal4
-        pWopi7ZglzDBxYXhFD2+0sEHo7j0IJ/htA==
-X-Google-Smtp-Source: ABdhPJzo77vwarb5PKAmN/q31wmf0deTWiRQ7FyEotjnkKwcCWopVrCZytEPrCqkUUCXhknl1xIjEQ==
-X-Received: by 2002:a1c:c305:: with SMTP id t5mr13260278wmf.63.1608489884869;
-        Sun, 20 Dec 2020 10:44:44 -0800 (PST)
-Received: from [192.168.8.141] ([85.255.237.164])
-        by smtp.gmail.com with ESMTPSA id v125sm19886722wme.42.2020.12.20.10.44.43
+        bh=qS4JhjJK9b+6anRRtSXLaYqy9t7MN14PqtaTJja8PDM=;
+        b=RV4Slsmun+dov0PfpIqaVJnO/fLquVD9FRrnBFP+RKycZtyq+dzE2JyQRdXJvm+m29
+         xvEk6wY0huAstEHZb2tk3becjlOWgzXnV57OWk5lNLWAVs9Y5at+9cQOoQE/ejIjmEpI
+         SkbSxs+lU3DUHcOYxqzXpc1QenWPxBKBDRQMX+qYNnMZBqVXa+9x39jnqRnfjZZukt5d
+         V4kfJnP/SuIcP8YmfC74se2eNgMa/JTjHaGecY2m958slJHyTCnpnKWRMYvyGCb94IEE
+         kC7JQAPtv+T7eIa8/+4Ap9sTDk0W2vVThjNo0XxCtC9jsgxKlWrGTAGULkgL6ybUngtE
+         xybA==
+X-Gm-Message-State: AOAM533Q9NMVcTh31jkDanLsLtwOxLeydwehdz02gdalnqaaGh09T0WQ
+        f/qgRphvg3X2CDZ6mrSA1b8q0v1W48SHkQ==
+X-Google-Smtp-Source: ABdhPJxy7kHqIcU54oG6VhtTfN0jQ3rg4EUoXL/PJjTM2tKmRgT73XBy5RWp4nSBa2O6r7uncYKJbA==
+X-Received: by 2002:a5d:488b:: with SMTP id g11mr15419689wrq.210.1608493166799;
+        Sun, 20 Dec 2020 11:39:26 -0800 (PST)
+Received: from [192.168.8.143] ([85.255.237.164])
+        by smtp.gmail.com with ESMTPSA id u66sm20489057wmg.30.2020.12.20.11.39.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 20 Dec 2020 10:44:44 -0800 (PST)
-To:     Josef <josef.grieb@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Norman Maurer <norman.maurer@googlemail.com>,
-        Dmitry Kadashev <dkadashev@gmail.com>,
-        io-uring <io-uring@vger.kernel.org>
-References: <4dc9c74b-249d-117c-debf-4bb9e0df2988@kernel.dk>
- <2B352D6C-4CA2-4B09-8751-D7BB8159072D@googlemail.com>
- <d9205a43-ebd7-9412-afc6-71fdcf517a32@kernel.dk>
- <CAAss7+ps4xC785yMjXC6u8NiH9PCCQQoPiH+AhZT7nMX7Q_uEw@mail.gmail.com>
- <0fe708e2-086b-94a8-def4-e4ebd6e0b709@kernel.dk>
- <614f8422-3e0e-25b9-4cc2-4f1c07705ab0@kernel.dk>
- <986c85af-bb77-60d4-8739-49b662554157@gmail.com>
- <e88403ad-e272-2028-4d7a-789086e12d8b@kernel.dk>
- <df79018a-0926-093f-b112-3ed3756f6363@gmail.com>
- <CAAss7+peDoeEf8PL_REiU6s_wZ+Z=ZPMcWNdYt0i-C8jUwtc4Q@mail.gmail.com>
- <0fb27d06-af82-2e1b-f8c5-3a6712162178@gmail.com>
- <ff816e37-ce0e-79c7-f9bf-9fa94d62484d@kernel.dk>
- <CAAss7+o7_FZtBFs5c2UOS6KSXuDBkDwi=okffh4JRmYieTF3LA@mail.gmail.com>
- <CAAss7+raikmW4jGMYk8vLTqm4Y4X-im6zzWiVZY3ikQ7DifKQA@mail.gmail.com>
+        Sun, 20 Dec 2020 11:39:26 -0800 (PST)
+Subject: Re: [PATCH] io_uring: hold uring_lock to complete faild polled io in
+ io_wq_submit_work()
 From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        io-uring@vger.kernel.org
+Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
+References: <20201214154941.10907-1-xiaoguang.wang@linux.alibaba.com>
+ <b82a6652-4895-4669-fb8f-167e5150e9e8@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -119,30 +108,90 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: "Cannot allocate memory" on ring creation (not RLIMIT_MEMLOCK)
-Message-ID: <31cf2c96-82a5-3c21-e413-3eccc772495c@gmail.com>
-Date:   Sun, 20 Dec 2020 18:41:23 +0000
+Message-ID: <27952c41-111c-b505-e7f1-78b299f4b786@gmail.com>
+Date:   Sun, 20 Dec 2020 19:36:06 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <CAAss7+raikmW4jGMYk8vLTqm4Y4X-im6zzWiVZY3ikQ7DifKQA@mail.gmail.com>
+In-Reply-To: <b82a6652-4895-4669-fb8f-167e5150e9e8@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 20/12/2020 18:23, Josef wrote:
->> It's io_uring-5.11 but I had some patches on top.
->> I regenerated it below for up to date Jens' io_uring-5.11
+On 20/12/2020 19:34, Pavel Begunkov wrote:
+> On 14/12/2020 15:49, Xiaoguang Wang wrote:
+>> io_iopoll_complete() does not hold completion_lock to complete polled
+>> io, so in io_wq_submit_work(), we can not call io_req_complete() directly,
+>> to complete polled io, otherwise there maybe concurrent access to cqring,
+>> defer_list, etc, which is not safe. Commit dad1b1242fd5 ("io_uring: always
+>> let io_iopoll_complete() complete polled io") has fixed this issue, but
+>> Pavel reported that IOPOLL apart from rw can do buf reg/unreg requests(
+>> IORING_OP_PROVIDE_BUFFERS or IORING_OP_REMOVE_BUFFERS), so the fix is
+>> not good.
+>>
+>> Given that io_iopoll_complete() is always called under uring_lock, so here
+>> for polled io, we can also get uring_lock to fix this issue.
 > 
-> Pavel I just tested your patch, it works :)
+> This returns it to the state it was before fixing + mutex locking for
+> IOPOLL, and it's much better than having it half-broken as it is now.
 
-Interesting, thanks a lot! Not sure how exactly it's related to
-eventfd, but maybe just because it was dragged through internal
-polling asynchronously or somewhat like that, and
-io_ring_ctx_wait_and_kill() haven't found it at first.
+btw, comments are over 80, but that's minor.
+
+> 
+> Cc: <stable@vger.kernel.org> # 5.5+
+> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+> 
+>>
+>> Fixes: dad1b1242fd5 ("io_uring: always let io_iopoll_complete() complete polled io")
+>> Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+>> ---
+>>  fs/io_uring.c | 25 +++++++++++++++----------
+>>  1 file changed, 15 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index f53356ced5ab..eab3d2b7d232 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -6354,19 +6354,24 @@ static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
+>>  	}
+>>  
+>>  	if (ret) {
+>> +		bool iopoll_enabled = req->ctx->flags & IORING_SETUP_IOPOLL;
+>> +
+>>  		/*
+>> -		 * io_iopoll_complete() does not hold completion_lock to complete
+>> -		 * polled io, so here for polled io, just mark it done and still let
+>> -		 * io_iopoll_complete() complete it.
+>> +		 * io_iopoll_complete() does not hold completion_lock to complete polled
+>> +		 * io, so here for polled io, we can not call io_req_complete() directly,
+>> +		 * otherwise there maybe concurrent access to cqring, defer_list, etc,
+>> +		 * which is not safe. Given that io_iopoll_complete() is always called
+>> +		 * under uring_lock, so here for polled io, we also get uring_lock to
+>> +		 * complete it.
+>>  		 */
+>> -		if (req->ctx->flags & IORING_SETUP_IOPOLL) {
+>> -			struct kiocb *kiocb = &req->rw.kiocb;
+>> +		if (iopoll_enabled)
+>> +			mutex_lock(&req->ctx->uring_lock);
+>>  
+>> -			kiocb_done(kiocb, ret, NULL);
+>> -		} else {
+>> -			req_set_fail_links(req);
+>> -			io_req_complete(req, ret);
+>> -		}
+>> +		req_set_fail_links(req);
+>> +		io_req_complete(req, ret);
+>> +
+>> +		if (iopoll_enabled)
+>> +			mutex_unlock(&req->ctx->uring_lock);
+>>  	}
+>>  
+>>  	return io_steal_work(req);
+>>
+> 
 
 -- 
 Pavel Begunkov

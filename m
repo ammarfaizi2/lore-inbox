@@ -8,63 +8,61 @@ X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E59DC433E0
-	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B69B9C433DB
+	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:54:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3719522CB2
-	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:50:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7247822B37
+	for <io-uring@archiver.kernel.org>; Mon, 21 Dec 2020 04:54:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726918AbgLUEuL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 20 Dec 2020 23:50:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
+        id S1728372AbgLUEyj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 20 Dec 2020 23:54:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726160AbgLUEuL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 20 Dec 2020 23:50:11 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B38F6C061285
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 20:49:30 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id h22so11065790lfu.2
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 20:49:30 -0800 (PST)
+        with ESMTP id S1728367AbgLUEyi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 20 Dec 2020 23:54:38 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB86AC0613D3;
+        Sun, 20 Dec 2020 20:53:57 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id a6so8699777wmc.2;
+        Sun, 20 Dec 2020 20:53:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qS4JhjJK9b+6anRRtSXLaYqy9t7MN14PqtaTJja8PDM=;
-        b=huBX6qhH5HUTdZ81+XuQkOuGX+AmGTOEukd/TStzlQDwxxe/OL9kbvVeuDFHKwXGnW
-         k9a+sQ5P1goaj+Uq3iA7Df4Q5JKdJ7+ywL92kMcjJjRdZ0knUxrxTPx6z5JpJbGXWPW9
-         aL7eiVL7HGwzUpA+D4HJMBZD8lx/jmt+MhVMlSVaO272EmKhXnycq+lXEDstrA8ccVgh
-         hukzzLlBkganNst8bOLNtenuXvGIm26U1qxoofAYh3dfQzwR4rwnVe7hqaCYAT+Z+vbi
-         Tc/YODKY/wyfQ6YBfVL1DzfVfCrR2/DOgPCrLZdueMLfuyEzWGpT6rg737AiT37sTiPJ
-         Cuxg==
+        bh=lX32/8Xuph8eHK0o6FlvjN3ViQPYOiihsp675ptbfAw=;
+        b=TqiXC4GG8qMgAuFnnSaFFBni/YcP/e7+y876Ug82Ki1OWZ0Kf7ZznRilzfcXqgPQIT
+         WuDzJoa4yQXBiWW61LM52ms1gOIIHTOSkbxttTu4SQqi+/3ahRzNVjY0KpX/E0wMnU6x
+         YslHHkHyzY5mDowedT1deD+5n9QOoUjCtjo4H9rdUmHDYqyFaPpaYbDBxBOooRQULl+Z
+         qVDi0ixfIoZT4jfWQXX5ChAMPpkfqgpEwaSvGAfrQ5CCCyI7PJkmAQO/P5nuK/SwPWOG
+         Rsbfr7gskb5P2LCX9gkUOpnYMjzrMORo8bSGu3CogcXprMPiKLaSGp6Y/h/H2NE8Carj
+         FEgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:cc:references:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=qS4JhjJK9b+6anRRtSXLaYqy9t7MN14PqtaTJja8PDM=;
-        b=RV4Slsmun+dov0PfpIqaVJnO/fLquVD9FRrnBFP+RKycZtyq+dzE2JyQRdXJvm+m29
-         xvEk6wY0huAstEHZb2tk3becjlOWgzXnV57OWk5lNLWAVs9Y5at+9cQOoQE/ejIjmEpI
-         SkbSxs+lU3DUHcOYxqzXpc1QenWPxBKBDRQMX+qYNnMZBqVXa+9x39jnqRnfjZZukt5d
-         V4kfJnP/SuIcP8YmfC74se2eNgMa/JTjHaGecY2m958slJHyTCnpnKWRMYvyGCb94IEE
-         kC7JQAPtv+T7eIa8/+4Ap9sTDk0W2vVThjNo0XxCtC9jsgxKlWrGTAGULkgL6ybUngtE
-         xybA==
-X-Gm-Message-State: AOAM533Q9NMVcTh31jkDanLsLtwOxLeydwehdz02gdalnqaaGh09T0WQ
-        f/qgRphvg3X2CDZ6mrSA1b8q0v1W48SHkQ==
-X-Google-Smtp-Source: ABdhPJxy7kHqIcU54oG6VhtTfN0jQ3rg4EUoXL/PJjTM2tKmRgT73XBy5RWp4nSBa2O6r7uncYKJbA==
-X-Received: by 2002:a5d:488b:: with SMTP id g11mr15419689wrq.210.1608493166799;
-        Sun, 20 Dec 2020 11:39:26 -0800 (PST)
-Received: from [192.168.8.143] ([85.255.237.164])
-        by smtp.gmail.com with ESMTPSA id u66sm20489057wmg.30.2020.12.20.11.39.25
+        bh=lX32/8Xuph8eHK0o6FlvjN3ViQPYOiihsp675ptbfAw=;
+        b=sIo3dzFITOLeIkdlelFT0yOyYU8vvnaBKNwCDAppGvZR91Sd+TTn9rtR/aJQiZh2t0
+         v36PeQVFJ2bJss9ga/izwLiUc3X8uyHWtejKCsbtPmeQ+bzQVNy28iL0XxBAPbO4jJ6u
+         A8EMXNaoo/G8G07RTe4PYozG+YYAvKDILOhOg3wdSIhg4SEoZSjg+aT3PmNzOzZOBom6
+         7hzvCavfSl+/j3kw9pbrWkW8ypIoaxqcZald3dSvqTLiDDKdt3tashcNgAEie/ByqOZT
+         EIgdmCVL6SZYA1tDOMVBkrxGsfOobiKA1ItZjIf/yI713D6FU7bucc0gk2BHDG8+snZh
+         ALlQ==
+X-Gm-Message-State: AOAM530qDnrLFGKWDkevLjXZkcytHr4oPYnSxIYNme1juai8dR4r2CV6
+        MVdOTcc82CIR5B9nC7S5PCoHL+u97kXDXw==
+X-Google-Smtp-Source: ABdhPJxTZliArfzYy9vO3j/qg6/aPevSm9akngxStZgZbAek13d+gqEq+mShTQGqsY3qng6y2mVFlQ==
+X-Received: by 2002:a1c:2b05:: with SMTP id r5mr13053926wmr.179.1608491906090;
+        Sun, 20 Dec 2020 11:18:26 -0800 (PST)
+Received: from [192.168.8.142] ([85.255.237.164])
+        by smtp.gmail.com with ESMTPSA id r7sm15802727wmh.2.2020.12.20.11.18.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 20 Dec 2020 11:39:26 -0800 (PST)
-Subject: Re: [PATCH] io_uring: hold uring_lock to complete faild polled io in
- io_wq_submit_work()
+        Sun, 20 Dec 2020 11:18:25 -0800 (PST)
+Subject: Re: [PATCH 1/1] io_uring: actively cancel poll/timeouts on exit
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
-References: <20201214154941.10907-1-xiaoguang.wang@linux.alibaba.com>
- <b82a6652-4895-4669-fb8f-167e5150e9e8@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
+        Dmitry Kadashev <dkadashev@gmail.com>
+References: <ea52c20eba8ab65ce1e716fe8627a1938a354268.1608491503.git.asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -108,12 +106,12 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <27952c41-111c-b505-e7f1-78b299f4b786@gmail.com>
-Date:   Sun, 20 Dec 2020 19:36:06 +0000
+Message-ID: <a195a207-db03-6e23-b642-0d04bf7777ec@gmail.com>
+Date:   Sun, 20 Dec 2020 19:15:05 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <b82a6652-4895-4669-fb8f-167e5150e9e8@gmail.com>
+In-Reply-To: <ea52c20eba8ab65ce1e716fe8627a1938a354268.1608491503.git.asml.silence@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -121,76 +119,110 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 20/12/2020 19:34, Pavel Begunkov wrote:
-> On 14/12/2020 15:49, Xiaoguang Wang wrote:
->> io_iopoll_complete() does not hold completion_lock to complete polled
->> io, so in io_wq_submit_work(), we can not call io_req_complete() directly,
->> to complete polled io, otherwise there maybe concurrent access to cqring,
->> defer_list, etc, which is not safe. Commit dad1b1242fd5 ("io_uring: always
->> let io_iopoll_complete() complete polled io") has fixed this issue, but
->> Pavel reported that IOPOLL apart from rw can do buf reg/unreg requests(
->> IORING_OP_PROVIDE_BUFFERS or IORING_OP_REMOVE_BUFFERS), so the fix is
->> not good.
->>
->> Given that io_iopoll_complete() is always called under uring_lock, so here
->> for polled io, we can also get uring_lock to fix this issue.
-> 
-> This returns it to the state it was before fixing + mutex locking for
-> IOPOLL, and it's much better than having it half-broken as it is now.
+On 20/12/2020 19:13, Pavel Begunkov wrote:
+> If io_ring_ctx_wait_and_kill() haven't killed all requests on the first
+> attempt, new timeouts or requests enqueued for polling may appear. They
+> won't be ever cancelled by io_ring_exit_work() unless we specifically
+> handle that case. That hangs of the exit work locking up grabbed by
+> io_uring resources.
 
-btw, comments are over 80, but that's minor.
-
-> 
+Josef and Dmitry, it would be great to have your Tested-by: <>
+ 
 > Cc: <stable@vger.kernel.org> # 5.5+
-> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+> Cc: Josef <josef.grieb@gmail.com>
+> Reported-by: Dmitry Kadashev <dkadashev@gmail.com>
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+>  fs/io_uring.c | 55 +++++++++++++++++++++++++++------------------------
+>  1 file changed, 29 insertions(+), 26 deletions(-)
 > 
->>
->> Fixes: dad1b1242fd5 ("io_uring: always let io_iopoll_complete() complete polled io")
->> Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
->> ---
->>  fs/io_uring.c | 25 +++++++++++++++----------
->>  1 file changed, 15 insertions(+), 10 deletions(-)
->>
->> diff --git a/fs/io_uring.c b/fs/io_uring.c
->> index f53356ced5ab..eab3d2b7d232 100644
->> --- a/fs/io_uring.c
->> +++ b/fs/io_uring.c
->> @@ -6354,19 +6354,24 @@ static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
->>  	}
->>  
->>  	if (ret) {
->> +		bool iopoll_enabled = req->ctx->flags & IORING_SETUP_IOPOLL;
->> +
->>  		/*
->> -		 * io_iopoll_complete() does not hold completion_lock to complete
->> -		 * polled io, so here for polled io, just mark it done and still let
->> -		 * io_iopoll_complete() complete it.
->> +		 * io_iopoll_complete() does not hold completion_lock to complete polled
->> +		 * io, so here for polled io, we can not call io_req_complete() directly,
->> +		 * otherwise there maybe concurrent access to cqring, defer_list, etc,
->> +		 * which is not safe. Given that io_iopoll_complete() is always called
->> +		 * under uring_lock, so here for polled io, we also get uring_lock to
->> +		 * complete it.
->>  		 */
->> -		if (req->ctx->flags & IORING_SETUP_IOPOLL) {
->> -			struct kiocb *kiocb = &req->rw.kiocb;
->> +		if (iopoll_enabled)
->> +			mutex_lock(&req->ctx->uring_lock);
->>  
->> -			kiocb_done(kiocb, ret, NULL);
->> -		} else {
->> -			req_set_fail_links(req);
->> -			io_req_complete(req, ret);
->> -		}
->> +		req_set_fail_links(req);
->> +		io_req_complete(req, ret);
->> +
->> +		if (iopoll_enabled)
->> +			mutex_unlock(&req->ctx->uring_lock);
->>  	}
->>  
->>  	return io_steal_work(req);
->>
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index fbf747803dbc..c1acc668fe96 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -8620,6 +8620,32 @@ static int io_remove_personalities(int id, void *p, void *data)
+>  	return 0;
+>  }
+>  
+> +static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+> +				  struct task_struct *task,
+> +				  struct files_struct *files)
+> +{
+> +	struct io_defer_entry *de = NULL;
+> +	LIST_HEAD(list);
+> +
+> +	spin_lock_irq(&ctx->completion_lock);
+> +	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
+> +		if (io_match_task(de->req, task, files)) {
+> +			list_cut_position(&list, &ctx->defer_list, &de->list);
+> +			break;
+> +		}
+> +	}
+> +	spin_unlock_irq(&ctx->completion_lock);
+> +
+> +	while (!list_empty(&list)) {
+> +		de = list_first_entry(&list, struct io_defer_entry, list);
+> +		list_del_init(&de->list);
+> +		req_set_fail_links(de->req);
+> +		io_put_req(de->req);
+> +		io_req_complete(de->req, -ECANCELED);
+> +		kfree(de);
+> +	}
+> +}
+> +
+>  static void io_ring_exit_work(struct work_struct *work)
+>  {
+>  	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
+> @@ -8633,6 +8659,8 @@ static void io_ring_exit_work(struct work_struct *work)
+>  	 */
+>  	do {
+>  		io_iopoll_try_reap_events(ctx);
+> +		io_poll_remove_all(ctx, NULL, NULL);
+> +		io_kill_timeouts(ctx, NULL, NULL);
+>  	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+>  	io_ring_ctx_free(ctx);
+>  }
+> @@ -8654,6 +8682,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+>  		io_cqring_overflow_flush(ctx, true, NULL, NULL);
+>  	mutex_unlock(&ctx->uring_lock);
+>  
+> +	io_cancel_defer_files(ctx, NULL, NULL);
+>  	io_kill_timeouts(ctx, NULL, NULL);
+>  	io_poll_remove_all(ctx, NULL, NULL);
+>  
+> @@ -8716,32 +8745,6 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+>  	return ret;
+>  }
+>  
+> -static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+> -				  struct task_struct *task,
+> -				  struct files_struct *files)
+> -{
+> -	struct io_defer_entry *de = NULL;
+> -	LIST_HEAD(list);
+> -
+> -	spin_lock_irq(&ctx->completion_lock);
+> -	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
+> -		if (io_match_task(de->req, task, files)) {
+> -			list_cut_position(&list, &ctx->defer_list, &de->list);
+> -			break;
+> -		}
+> -	}
+> -	spin_unlock_irq(&ctx->completion_lock);
+> -
+> -	while (!list_empty(&list)) {
+> -		de = list_first_entry(&list, struct io_defer_entry, list);
+> -		list_del_init(&de->list);
+> -		req_set_fail_links(de->req);
+> -		io_put_req(de->req);
+> -		io_req_complete(de->req, -ECANCELED);
+> -		kfree(de);
+> -	}
+> -}
+> -
+>  static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+>  				  struct task_struct *task,
+>  				  struct files_struct *files)
 > 
 
 -- 

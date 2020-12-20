@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C81A5C3526C
-	for <io-uring@archiver.kernel.org>; Sun, 20 Dec 2020 13:26:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00759C3526D
+	for <io-uring@archiver.kernel.org>; Sun, 20 Dec 2020 13:26:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97B71207BD
+	by mail.kernel.org (Postfix) with ESMTP id CE3C1206D5
 	for <io-uring@archiver.kernel.org>; Sun, 20 Dec 2020 13:26:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726813AbgLTN0K (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 20 Dec 2020 08:26:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38166 "EHLO
+        id S1726886AbgLTN0L (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 20 Dec 2020 08:26:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbgLTN0J (ORCPT
+        with ESMTP id S1726901AbgLTN0J (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sun, 20 Dec 2020 08:26:09 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61415C0617B0
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 05:25:15 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id 91so7996305wrj.7
-        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 05:25:15 -0800 (PST)
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA83C061285
+        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 05:25:17 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id m5so7968191wrx.9
+        for <io-uring@vger.kernel.org>; Sun, 20 Dec 2020 05:25:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Ck46iY/TYTKrxHFIPBNz7oGe+X6AYIj9eMrAELFHYGo=;
-        b=KuTYCsNNxzZG6EJCu5If7c495wmK4OYyxx/+3KsR6BR27Q4AvkkzMM1lVl4BW+P7Y/
-         71PtlpGi4r8oVI5JsZxjf5L2h+O+wxTtWeElpSk6qluci+qOueBRoIXngO2I0MR8e03t
-         zVD3/Wt2Vb98wm4WahjCw+Jvim2TZxMMw6YSuT+EBZDSRlL6FIqr+tvFlJgHMzbH8aQI
-         2j/EHb83grxjdvbvs/P/OjYfN/yt/b7daC0jakQnhqozC6g4Q04kMERrmC0UnA4kkVR8
-         qwkn7YYATU1E6thram7HBM/dSt2Nh9sg4gaEZsB+EaUxRgS+LcvUExNws9p9nVJSZRob
-         R9ng==
+        bh=7TED2wGm10Qq88wkje8CQFnYxVWaAq0DycRKS2IhW1w=;
+        b=WAcRaV/ucWjSZAsUK2xWBs1TiD0pHeIN0/MfuGjGh+zooOq8RBpjbJhCZaZKQT0eCr
+         +Z+zMpC0AoVXYMmsIbu0JWRaF2JqyuGPRVNiLQCLbL2XakieXD8vp9DmIJ4NQYxGLgh2
+         oLa/YPiyrzSynAE+qkkFheb8jNXr/lUC1w6T6iGVDjZQBojKFor6Sc7W6ZW8761koXgP
+         Agqsd4+AJmqu9wcf5zLcYcc/3+vXQlpYTl18ZYWmNSG7D3VyfRg5wxxuxuY8EAbnEBlN
+         5gR8mj6FgMaXNCSWoIV4Ge36c1quj1ypvOrZeDjUuiunRj/T2yWgjMAGFK2ifEgo1id4
+         kzsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Ck46iY/TYTKrxHFIPBNz7oGe+X6AYIj9eMrAELFHYGo=;
-        b=WxbA8B5dFdSxGxi5GEsSADJtYsCs2KIqtzpj/Dytg1uNuHcHSXQo0u3hWdVI03nknz
-         SBzCIPojXmsbdN46nx/p6UJrAjcRPbmsI85DEmbmNk73h/db3Ccj3waRfYaCo3XwQbc+
-         ufr+gwUM/f4W/CM4JZm99fJIpwDmV1FScC/apSi20wSpcTYwtA9+tqxId4Xo7zkmNQLv
-         KL01SEfBQOGtGpNjy2x0WcUVgyCr1ZfPbn0zgr521uDMrO1nh+1nZGzmQueLggsjRqZu
-         4o5S4tMDfwm0mZxqnUWtXmt8+daG3pb58RwUovlkpS1YNQp7wtlT27vn5QsanoB9wnJa
-         xE2g==
-X-Gm-Message-State: AOAM531BuYAOOqlT0tN5yOdDi7hh8FDCApcwv8SX6clzL16n2L5u9S1+
-        Fe+mnmhKEzeGXt76xRrd9Jw=
-X-Google-Smtp-Source: ABdhPJw9tGYkQeGsFblVLO8wDR7+Cs85v7xe9xaM96Ks0dImsZCiHaYO1JZ7HIOq0F7q/fYr80BJrw==
-X-Received: by 2002:adf:ee10:: with SMTP id y16mr13902861wrn.296.1608470714088;
-        Sun, 20 Dec 2020 05:25:14 -0800 (PST)
+        bh=7TED2wGm10Qq88wkje8CQFnYxVWaAq0DycRKS2IhW1w=;
+        b=snzJ7wUkj/+g8aeOQgTAksZqvyvFabpakiU5jYB20IaimzpuEp9qzlNfpf687K3374
+         fSuVw5sr5A7UA/FddGSgVWeDFtBN8ahCwnxVP6bf3YhiaH0vmc4xWTE1/ZHJdE0I5aUI
+         fsgfTxvT5hyGNx3DyqV7lXoq2rBL9KQnNjE7qF2/y9QrDwENiQps160dAgc5rDbR5YQq
+         ssifMWt3OPWs3KsuW1WDvRJEe21KL6OBMy7b/txEG2YfMgKWG9TRZxEp8OSzURzN+eIP
+         b937I6gYzeHAkZEYwwqwkEFn/kHMw9ijtA7ZZgDLNJsmdpKZQniZ56jdSzHJpgW7Gukd
+         3gsA==
+X-Gm-Message-State: AOAM531Rd3dal4X63LXonurhs2a9T49zcasLYI5szDZf4ldZZrO6F28n
+        X79Zd/aD5koccq4ZIGB2D1TkLV4XutdegA==
+X-Google-Smtp-Source: ABdhPJxaeBOdKZFSfR61OH9vI7z5h3Pqu3FOOp9Vd3VRH5J21s85e0Tr10jvC/f+4+Dk1lWqZF4s0A==
+X-Received: by 2002:a5d:4cd1:: with SMTP id c17mr13847084wrt.49.1608470716046;
+        Sun, 20 Dec 2020 05:25:16 -0800 (PST)
 Received: from localhost.localdomain ([85.255.237.164])
-        by smtp.gmail.com with ESMTPSA id l11sm22946519wrt.23.2020.12.20.05.25.13
+        by smtp.gmail.com with ESMTPSA id l11sm22946519wrt.23.2020.12.20.05.25.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Dec 2020 05:25:13 -0800 (PST)
+        Sun, 20 Dec 2020 05:25:15 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/3] io_uring: always progress task_work on task cancel
-Date:   Sun, 20 Dec 2020 13:21:43 +0000
-Message-Id: <7df05cd5492a204dade1c59d02fbd28b14893ee8.1608469706.git.asml.silence@gmail.com>
+Subject: [PATCH 3/3] io_uring: fix cancellation hangs
+Date:   Sun, 20 Dec 2020 13:21:45 +0000
+Message-Id: <f06b936c1a537828f4055a3673d05e82c846d77c.1608469706.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1608469706.git.asml.silence@gmail.com>
 References: <cover.1608469706.git.asml.silence@gmail.com>
@@ -70,29 +70,37 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Might happen that __io_uring_cancel_task_requests() cancels nothing but
-there are task_works pending. We need to always run them.
+We may enter files cancellation with requests that we want to cancel and
+that are currently enqueued as task_work. However, before that happens
+do_exit() sets PF_EXITING, disabling io_run_task_work() and so locking
+up cancellation.
+
+Also, if run between setting PF_EXITING and exit_task_work(), as the
+case exit_files() and so io_uring cancellation, task_work_add() might
+actually enqueue more task works.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f3690dfdd564..051461b5bf52 100644
+index 30edf47a8f1a..941fe9b64fd9 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8794,9 +8794,9 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+@@ -2357,12 +2357,6 @@ static inline unsigned int io_put_rw_kbuf(struct io_kiocb *req)
  
- 		ret |= io_poll_remove_all(ctx, task, NULL);
- 		ret |= io_kill_timeouts(ctx, task, NULL);
-+		ret |= io_run_task_work();
- 		if (!ret)
- 			break;
--		io_run_task_work();
- 		cond_resched();
- 	}
- }
+ static inline bool io_run_task_work(void)
+ {
+-	/*
+-	 * Not safe to run on exiting task, and the task_work handling will
+-	 * not add work to such a task.
+-	 */
+-	if (unlikely(current->flags & PF_EXITING))
+-		return false;
+ 	if (current->task_works) {
+ 		__set_current_state(TASK_RUNNING);
+ 		task_work_run();
 -- 
 2.24.0
 

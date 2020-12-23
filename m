@@ -7,29 +7,29 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7BABC433DB
-	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6596C433E6
+	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 937A2222F9
-	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ABF65223C8
+	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgLWL1N (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 23 Dec 2020 06:27:13 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:58222 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728529AbgLWL1M (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 23 Dec 2020 06:27:12 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UJXmaAa_1608722787;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UJXmaAa_1608722787)
+        id S1728329AbgLWL1J (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 23 Dec 2020 06:27:09 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:39417 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728435AbgLWL1I (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 23 Dec 2020 06:27:08 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UJWwKPG_1608722785;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UJWwKPG_1608722785)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 23 Dec 2020 19:26:27 +0800
+          Wed, 23 Dec 2020 19:26:25 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com
 Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         io-uring@vger.kernel.org
-Subject: [PATCH RFC 7/7] dm: add support for IO polling
-Date:   Wed, 23 Dec 2020 19:26:24 +0800
-Message-Id: <20201223112624.78955-8-jefflexu@linux.alibaba.com>
+Subject: [PATCH RFC 2/7] block: add helper function fetching gendisk from queue
+Date:   Wed, 23 Dec 2020 19:26:19 +0800
+Message-Id: <20201223112624.78955-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223112624.78955-1-jefflexu@linux.alibaba.com>
 References: <20201223112624.78955-1-jefflexu@linux.alibaba.com>
@@ -39,72 +39,65 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Enable iopoll when all underlying target devices supports iopoll.
+Sometimes we need to get the corresponding gendisk from request_queue.
+
+One such use case is that, the block device driver had ever stored the
+same private data both in queue->queuedata and gendisk->private_data,
+while nowadays gendisk->private_data is more preferable in such case,
+e.g. commit c4a59c4e5db3 ("dm: stop using ->queuedata"). So if only
+request_queue given, we need to get the corresponding gendisk from
+queue, to get the private data stored in gendisk.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- drivers/md/dm-table.c | 28 ++++++++++++++++++++++++++++
- drivers/md/dm.c       |  1 +
- 2 files changed, 29 insertions(+)
+ include/linux/blkdev.h       | 2 ++
+ include/trace/events/kyber.h | 6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 188f41287f18..b0cd5bf58c3c 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1791,6 +1791,31 @@ static bool dm_table_requires_stable_pages(struct dm_table *t)
- 	return false;
- }
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 070de09425ad..2303d06a5a82 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -691,6 +691,8 @@ static inline bool blk_account_rq(struct request *rq)
+ 	dma_map_page_attrs(dev, (bv)->bv_page, (bv)->bv_offset, (bv)->bv_len, \
+ 	(dir), (attrs))
  
-+static int device_supports_poll(struct dm_target *ti, struct dm_dev *dev,
-+				sector_t start, sector_t len, void *data)
-+{
-+	struct request_queue *q = bdev_get_queue(dev->bdev);
++#define queue_to_disk(q)	(dev_to_disk(kobj_to_dev((q)->kobj.parent)))
 +
-+	return q && test_bit(QUEUE_FLAG_POLL, &q->queue_flags);
-+}
-+
-+static bool dm_table_supports_poll(struct dm_table *t)
-+{
-+	struct dm_target *ti;
-+	unsigned int i;
-+
-+	/* Ensure that all targets support iopoll. */
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
-+
-+		if (!ti->type->iterate_devices ||
-+		    !ti->type->iterate_devices(ti, device_supports_poll, NULL))
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 			       struct queue_limits *limits)
+ static inline bool queue_is_mq(struct request_queue *q)
  {
-@@ -1883,6 +1908,9 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- #endif
+ 	return q->mq_ops;
+diff --git a/include/trace/events/kyber.h b/include/trace/events/kyber.h
+index c0e7d24ca256..f9802562edf6 100644
+--- a/include/trace/events/kyber.h
++++ b/include/trace/events/kyber.h
+@@ -30,7 +30,7 @@ TRACE_EVENT(kyber_latency,
+ 	),
  
- 	blk_queue_update_readahead(q);
-+
-+	if (dm_table_supports_poll(t))
-+		blk_queue_flag_set(QUEUE_FLAG_POLL, q);
- }
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 		strlcpy(__entry->type, type, sizeof(__entry->type));
+ 		__entry->percentile	= percentile;
+@@ -59,7 +59,7 @@ TRACE_EVENT(kyber_adjust,
+ 	),
  
- unsigned int dm_table_get_num_targets(struct dm_table *t)
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 03c2b867acaa..ffd2c5ead256 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -3049,6 +3049,7 @@ static const struct pr_ops dm_pr_ops = {
- };
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 		__entry->depth		= depth;
+ 	),
+@@ -81,7 +81,7 @@ TRACE_EVENT(kyber_throttled,
+ 	),
  
- static const struct block_device_operations dm_blk_dops = {
-+	.iopoll = blk_bio_poll,
- 	.submit_bio = dm_submit_bio,
- 	.open = dm_blk_open,
- 	.release = dm_blk_close,
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 	),
+ 
 -- 
 2.27.0
 

@@ -2,176 +2,159 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 383BCC433DB
-	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83614C4332B
+	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07506223C8
-	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D3D8222F9
+	for <io-uring@archiver.kernel.org>; Wed, 23 Dec 2020 11:27:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbgLWL1K (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 23 Dec 2020 06:27:10 -0500
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:44203 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728356AbgLWL1K (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 23 Dec 2020 06:27:10 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UJXS7XR_1608722786;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UJXS7XR_1608722786)
+        id S1728302AbgLWL1M (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 23 Dec 2020 06:27:12 -0500
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:54501 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728307AbgLWL1L (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 23 Dec 2020 06:27:11 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UJXl38r_1608722784;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UJXl38r_1608722784)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 23 Dec 2020 19:26:26 +0800
+          Wed, 23 Dec 2020 19:26:24 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com
 Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         io-uring@vger.kernel.org
-Subject: [PATCH RFC 5/7] dm: always return BLK_QC_T_NONE for bio-based device
-Date:   Wed, 23 Dec 2020 19:26:22 +0800
-Message-Id: <20201223112624.78955-6-jefflexu@linux.alibaba.com>
+Subject: [PATCH RFC 0/7] dm: add support of iopoll
+Date:   Wed, 23 Dec 2020 19:26:17 +0800
+Message-Id: <20201223112624.78955-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223112624.78955-1-jefflexu@linux.alibaba.com>
-References: <20201223112624.78955-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Currently the returned cookie of bio-based device is not used at all.
+This patch set adds support of iopoll for dm devices.
 
-In the following patches, bio-based device will actually return a
-pointer to a specific object as the returned cookie.
+Several months ago, I also sent a patch set adding support of iopoll
+for dm devices [1]. The old patch set implement this by polling all
+polling mode hardware queues of all underlying target devices
+unconditionally, no matter which hardware queue the bio is enqueued
+into.
 
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
----
- drivers/md/dm.c | 26 ++++++++++----------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+Ming Lei pointed out that this implementation may have performance
+issue. Mike Snitzer also discussed and helpt a lot on the design
+issue. At that time, we agreed that this feature should be
+implemented on the basis of split-bio tracking, since the bio to the
+dm device could be split into multiple split bios to the underlying
+target devices.
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 5b2f371ec4bb..03c2b867acaa 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1252,14 +1252,13 @@ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors)
- }
- EXPORT_SYMBOL_GPL(dm_accept_partial_bio);
- 
--static blk_qc_t __map_bio(struct dm_target_io *tio)
-+static void __map_bio(struct dm_target_io *tio)
- {
- 	int r;
- 	sector_t sector;
- 	struct bio *clone = &tio->clone;
- 	struct dm_io *io = tio->io;
- 	struct dm_target *ti = tio->ti;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 
- 	clone->bi_end_io = clone_endio;
- 
-@@ -1278,7 +1277,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 	case DM_MAPIO_REMAPPED:
- 		/* the bio has been remapped so dispatch it */
- 		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
--		ret = submit_bio_noacct(clone);
-+		submit_bio_noacct(clone);
- 		break;
- 	case DM_MAPIO_KILL:
- 		free_tio(tio);
-@@ -1292,8 +1291,6 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 		DMWARN("unimplemented target map return value: %d", r);
- 		BUG();
- 	}
--
--	return ret;
- }
- 
- static void bio_setup_sector(struct bio *bio, sector_t sector, unsigned len)
-@@ -1380,7 +1377,7 @@ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
- 	}
- }
- 
--static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
-+static void __clone_and_map_simple_bio(struct clone_info *ci,
- 					   struct dm_target_io *tio, unsigned *len)
- {
- 	struct bio *clone = &tio->clone;
-@@ -1391,7 +1388,7 @@ static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
- 	if (len)
- 		bio_setup_sector(clone, ci->sector, *len);
- 
--	return __map_bio(tio);
-+	__map_bio(tio);
- }
- 
- static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
-@@ -1405,7 +1402,7 @@ static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
- 
- 	while ((bio = bio_list_pop(&blist))) {
- 		tio = container_of(bio, struct dm_target_io, clone);
--		(void) __clone_and_map_simple_bio(ci, tio, len);
-+		__clone_and_map_simple_bio(ci, tio, len);
- 	}
- }
- 
-@@ -1450,7 +1447,7 @@ static int __clone_and_map_data_bio(struct clone_info *ci, struct dm_target *ti,
- 		free_tio(tio);
- 		return r;
- 	}
--	(void) __map_bio(tio);
-+	__map_bio(tio);
- 
- 	return 0;
- }
-@@ -1565,11 +1562,10 @@ static void init_clone_info(struct clone_info *ci, struct mapped_device *md,
- /*
-  * Entry point to split a bio into clones and submit them to the targets.
-  */
--static blk_qc_t __split_and_process_bio(struct mapped_device *md,
-+static void __split_and_process_bio(struct mapped_device *md,
- 					struct dm_table *map, struct bio *bio)
- {
- 	struct clone_info ci;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int error = 0;
- 
- 	init_clone_info(&ci, md, map, bio);
-@@ -1613,7 +1609,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 
- 				bio_chain(b, bio);
- 				trace_block_split(b, bio->bi_iter.bi_sector);
--				ret = submit_bio_noacct(bio);
-+				submit_bio_noacct(bio);
- 				break;
- 			}
- 		}
-@@ -1621,13 +1617,11 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 
- 	/* drop the extra reference count */
- 	dec_pending(ci.io, errno_to_blk_status(error));
--	return ret;
- }
- 
- static blk_qc_t dm_submit_bio(struct bio *bio)
- {
- 	struct mapped_device *md = bio->bi_disk->private_data;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int srcu_idx;
- 	struct dm_table *map;
- 
-@@ -1657,10 +1651,10 @@ static blk_qc_t dm_submit_bio(struct bio *bio)
- 	if (is_abnormal_io(bio))
- 		blk_queue_split(&bio);
- 
--	ret = __split_and_process_bio(md, map, bio);
-+	__split_and_process_bio(md, map, bio);
- out:
- 	dm_put_live_table(md, srcu_idx);
--	return ret;
-+	return BLK_QC_T_NONE;
- }
- 
- /*-----------------------------------------------------------------
+This patch set actually implement the split-bio tracking part.
+Regrettably this implementation is quite coarse and original. Quite
+code refactoring is introduced to the block core, since device mapper
+also calls methods provided by block core to split bios. The new
+fields are directly added into 'struct bio' structure. So this is
+just an RFC version and there may be quite a lot design issues be
+fronted on. I just implement a version quickly and would like to share
+with you my thoughts and problems at hand.
+
+This implementation works but has poor performance. Awkwardly the
+performance of direct 8k randread decreases ~20% on a 8k-striped
+dm-stripe device.
+
+The first 5 patches prepare the introduction of iopoll for dm device.
+Patch 6 is the core part and implements a mechanism of tracking split
+bios for bio-based device. Patch 7 just enables this feature.
+
+[1] https://patchwork.kernel.org/project/linux-block/cover/20201020065420.124885-1-jefflexu@linux.alibaba.com/
+
+
+[Design Notes]
+
+- recursive way or non-recursive way?
+
+The core of the split-bio tracking mechanism is that, a list is
+maintained in the top bio (the original bio submitted to the dm
+device), which is actually used to maintain all valid cookies of all
+split bios.
+
+This is actually a non-recursive way to implement the tracking
+mechanism. On the contrary, the recursive way is that, maintain the
+split bios at each dm layer. DM device can be build into a device
+stack. For example, considering the following device stack,
+
+```
+            dm0(bio 0)
+dm1(bio 1)             dm2(bio 2)
+nvme0(bio 3)           nvme1(bio 4)
+
+```
+
+The non-recursive way is that bio 3/4 are directly maintained as a
+list beneath bio 0. The recursive way is that, bio 3 is maintained
+as a list beneath bio 1 and bio 4 is maintained as a list beneath
+bio 2, while bio 1/2 are maintained as a list beneath bio 0.
+
+The reason why I choose the non-recursive way is that, we need call
+blk_bio_poll() or something recursively if it's implemented in the
+recursive way, and I worry this would consume up the stack space if
+the device stack is too deep. After all bio_list is used to prevent
+the dm device using up stack space when submitting bio. 
+
+
+- why embed new fields into struct bio directly?
+
+Mike Snitzer had ever suggested that the newly added fields could be
+integrated into the clone bio allocated by dm subsystem through
+bio_set. There're 3 reasons why I directly embed these fields into
+struct bio:
+
+1. The implementation difference of DM and MD
+DM subsystem indeed allocate clone bio itself, in which case we could
+allocate extra per-bio space for specific usage. However MD subsystem
+doesn't allocate extra clone bio, and just uses the bio structure
+originally submitted to MD device as the bio structure submitted to
+the underlying target device. (At least raid0 works in this way.)
+
+2. In the previously mentioned non-recursive way of iopoll, a list
+containing all valid cookies should be maintained. For convenience, I
+just put this list in the top bio (the original bio structure
+submitted to the dm device). This original bio structure is allocated
+by the upper layer, e.g. filesystem, and is out of control of DM
+subsystem. (Of course we could resolve this problem technically, e.g.,
+put these newlly added fields into the corresponding dm_io structure
+of the top bio.)
+
+3. As a quick implementation, I just put these fields into struct bio
+directly. Obviously more design issues need to be considered when it
+comes into the formal version.
+
+
+Jeffle Xu (7):
+  block: move definition of blk_qc_t to types.h
+  block: add helper function fetching gendisk from queue
+  block: add iopoll method for non-mq device
+  block: define blk_qc_t as uintptr_t
+  dm: always return BLK_QC_T_NONE for bio-based device
+  block: track cookies of split bios for bio-based device
+  dm: add support for IO polling
+
+ block/bio.c                  |   8 ++
+ block/blk-core.c             | 163 ++++++++++++++++++++++++++++++++++-
+ block/blk-mq.c               |  70 ++-------------
+ drivers/md/dm-table.c        |  28 ++++++
+ drivers/md/dm.c              |  27 +++---
+ include/linux/blk-mq.h       |   3 +
+ include/linux/blk_types.h    |  41 ++++++++-
+ include/linux/blkdev.h       |   3 +
+ include/linux/fs.h           |   2 +-
+ include/linux/types.h        |   3 +
+ include/trace/events/kyber.h |   6 +-
+ 11 files changed, 270 insertions(+), 84 deletions(-)
+
 -- 
 2.27.0
 

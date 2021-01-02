@@ -2,63 +2,131 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 520E0C433E6
-	for <io-uring@archiver.kernel.org>; Fri,  1 Jan 2021 21:26:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E7EC433E9
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 294CC22203
-	for <io-uring@archiver.kernel.org>; Fri,  1 Jan 2021 21:26:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F1DC022482
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbhAAV0T (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 1 Jan 2021 16:26:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54316 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727284AbhAAV0S (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 1 Jan 2021 16:26:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPS id 8A5B022203;
-        Fri,  1 Jan 2021 21:25:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609536338;
-        bh=cnjnFiaKtEx8yN4BjtJZvpgQh1OMesoRCQufY7FkRes=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=ijCUifY5b2oeTElWc7dn9KAo58cjFHco7uoDxXNFZ1jPI++OoMaehCe7Rota9gYib
-         hk+wF8flR5crO5fpvSSpqUXyxlLbXa1HKtsBKEbQ7cunion5E1a9Yr/rrQXMWTpDbt
-         JBxmQQLb1KNCZLoi2fEpowGSooSa709298OGyJ1XUXMRyui483MzR1ODRAhH9fSBlS
-         j/xygkOuC4nsbWnTcziL5mAgAuwvZV2tI3yCCfnJZhUzuklESoAHeKoldR4Lq7lK0b
-         eQ2PmZydEmEvJI8fQibpXhQsh81spNTT279FCN8a8doRyjqv3DG2h5h4XGtyG41p4t
-         62Ru0yMb9fe3Q==
-Subject: Re: [GIT PULL] io_uring fixes for 5.11-rc
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <aa1cf4b6-a24a-94b8-3f5f-0bad553d01bf@kernel.dk>
-References: <aa1cf4b6-a24a-94b8-3f5f-0bad553d01bf@kernel.dk>
-X-PR-Tracked-List-Id: <io-uring.vger.kernel.org>
-X-PR-Tracked-Message-Id: <aa1cf4b6-a24a-94b8-3f5f-0bad553d01bf@kernel.dk>
-X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/io_uring-5.11-2021-01-01
-X-PR-Tracked-Commit-Id: b1b6b5a30dce872f500dc43f067cba8e7f86fc7d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: dc3e24b214c50a2ac2dd3d2cc7fb88c9a1e842d4
-Message-Id: <160953633852.8778.3662430664424278170.pr-tracker-bot@kernel.org>
-Date:   Fri, 01 Jan 2021 21:25:38 +0000
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        io-uring <io-uring@vger.kernel.org>
+        id S1726699AbhABPWH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 2 Jan 2021 10:22:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726599AbhABPWF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Jan 2021 10:22:05 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08DFC0613C1;
+        Sat,  2 Jan 2021 07:21:24 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id 3so13738330wmg.4;
+        Sat, 02 Jan 2021 07:21:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=rf6BUzrBX0nFEremfE+E6aI01/qO5RAbaAeeEZzdEU8=;
+        b=b+W6Gio8PokvEN1p7hK+vmrtFsYuUXj5E1Pcurgm37QcJbo+IA1ctH7QYYoo7/bbAh
+         CN1Ig8NDcGJCRgskTeuCehCCc3ApampAkhSMSg2g/2YalrbDFo/CHnPDKFyTmy/+JAGB
+         WTZaFIVAU3/+edur0jyHbznCOvvLQgMzn3ycRPlQMd4vU60LafrpHS/ipZaf+XXm4IEX
+         tlsU6fQjwRt3P8URGU8LEebx6TQBAIvGZsZGQNF/fgCj0JpB0HUSXNMuJkKfSKZurWme
+         +ogJW22uQPLiT7k4Wy03Qa4DsVt11BbsmMtb4LQtIZN+IhFNvNGpiUgToKDkYZsoZrtD
+         h/wA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=rf6BUzrBX0nFEremfE+E6aI01/qO5RAbaAeeEZzdEU8=;
+        b=o9436OLd5iMQhXloxcW6OV5rTksWhfRDHs/57xqYcRN9PkZkzelgrVevr5DE0uSmFm
+         pZmQuA1YcjwbAz0JnU8YdgEuEJ9baQB73y5qbZyOzAYX1zfodX4xFVjSBPjUhO46cKNE
+         qPckybt7iqGRyqWiLxXSFnp7LlsZkvOxTGvwD16cxgVNonY5TlftG0FciKIfofW4oXFZ
+         Qqdgj98A2DgsTcr2MNaA5457OKmYffmB6toGKGZSKYtGFT0NDNVBDkorR4O9hOZk7D4J
+         7yWfPkJnBeMqzZ6f78wq7bWWXGIsxQA3cPq4JLnGQUZxF1OxL7fG02JPjN2F5H7TMl5w
+         waAA==
+X-Gm-Message-State: AOAM531FZTEFHN1OjV5hB0O+YNQjAfOH1YPncLb7GM5xtia2nE+NK2zX
+        9pxX0MtOoL0MOGBcH9wdq7QUV9f/ootjyw==
+X-Google-Smtp-Source: ABdhPJx/WYak/g3xVcVBFTivN/j7PYb09nrxUAu6QP88WHUxu/G0S/WDG8I7eQUPvioar/5dabMjRQ==
+X-Received: by 2002:a1c:ba44:: with SMTP id k65mr19751159wmf.188.1609600883202;
+        Sat, 02 Jan 2021 07:21:23 -0800 (PST)
+Received: from localhost.localdomain ([85.255.236.0])
+        by smtp.gmail.com with ESMTPSA id h13sm78671243wrm.28.2021.01.02.07.21.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 02 Jan 2021 07:21:22 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     linux-block@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: [PATCH v2 1/7] splice: don't generate zero-len segement bvecs
+Date:   Sat,  2 Jan 2021 15:17:33 +0000
+Message-Id: <ca14f80bf5156d83b38f543be2b9434a571474c9.1609461359.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1609461359.git.asml.silence@gmail.com>
+References: <cover.1609461359.git.asml.silence@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The pull request you sent on Fri, 1 Jan 2021 07:59:24 -0700:
+iter_file_splice_write() may spawn bvec segments with zero-length. In
+preparation for prohibiting them, filter out by hand at splice level.
 
-> git://git.kernel.dk/linux-block.git tags/io_uring-5.11-2021-01-01
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/splice.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/dc3e24b214c50a2ac2dd3d2cc7fb88c9a1e842d4
-
-Thank you!
-
+diff --git a/fs/splice.c b/fs/splice.c
+index 866d5c2367b2..7299330c3270 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -644,7 +644,6 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ 		ret = splice_from_pipe_next(pipe, &sd);
+ 		if (ret <= 0)
+ 			break;
+-
+ 		if (unlikely(nbufs < pipe->max_usage)) {
+ 			kfree(array);
+ 			nbufs = pipe->max_usage;
+@@ -662,12 +661,13 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ 
+ 		/* build the vector */
+ 		left = sd.total_len;
+-		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++, n++) {
++		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++) {
+ 			struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+ 			size_t this_len = buf->len;
+ 
+-			if (this_len > left)
+-				this_len = left;
++			if (!this_len)
++				continue;
++			this_len = min(this_len, left);
+ 
+ 			ret = pipe_buf_confirm(pipe, buf);
+ 			if (unlikely(ret)) {
+@@ -680,6 +680,7 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ 			array[n].bv_len = this_len;
+ 			array[n].bv_offset = buf->offset;
+ 			left -= this_len;
++			n++;
+ 		}
+ 
+ 		iov_iter_bvec(&from, WRITE, array, n, sd.total_len - left);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.24.0
+

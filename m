@@ -2,60 +2,60 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61384C4332B
-	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69657C4360C
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D5B6224D2
-	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44059224D2
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbhABPWV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 2 Jan 2021 10:22:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S1726934AbhABPWb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 2 Jan 2021 10:22:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726599AbhABPWK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Jan 2021 10:22:10 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B46DC06179E;
-        Sat,  2 Jan 2021 07:21:29 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id c133so13165857wme.4;
-        Sat, 02 Jan 2021 07:21:29 -0800 (PST)
+        with ESMTP id S1726692AbhABPWH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Jan 2021 10:22:07 -0500
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53661C0613CF;
+        Sat,  2 Jan 2021 07:21:26 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id e25so13776093wme.0;
+        Sat, 02 Jan 2021 07:21:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LOsfOtb4JF9iqyizeOjm4tVRPPo2GoTdvRn37AEB3XM=;
-        b=OLiALIisaOX66Ofzuml3kC66wCIP9u2t1hFkBs0dEBL0aE8EBdga0VD5prANc6xETp
-         TY9aUheJWJU6uSTxBN1daNkHXTUP8NPrlmGmVJdVYe26hS8drmoIrX5bVt+YOFOK7NS0
-         06iG4NlowbWLhJVZAv+YLXnsI8CN9SlFibCIW1Nsqv3OfI1Ox8k/kWFmOAfT8uxCMkSG
-         CjagviERoypCMSqVlCZv2T+vPztbjieZK6tfDQXtVy8OUNP6Nfux0P87TYecslC5aXw2
-         uHkgUOKe4hizjipjPcmVFUCvtLfvEZTcgKXJkIGHO4xWKdCj6r0iQb+tUxmLTZSFwh+q
-         WSEQ==
+        bh=XV9zM74CTwn4+eOGP/R29Owp4dxby4wP3b3oxVzvafI=;
+        b=SFOgPJzQdnQe9hMNyQxyQbgPlbohVEDn3pDwGhwgxKOSsT8dm8/2bAbej1/rjSTtri
+         ukGLApzLogZWfv11VeVtgIPhW6awxqXpE7QP3IlLTnYIPyP+iFk5IGsXXgmVvQOPQxZJ
+         TCphjgqog4CNIRgdfbE+pXjdH5B5VbGFy1aYwjG6mm7JM1Oh8PCoE4aQ4Y2EzwoFbFjI
+         E/6LmzLKTkRVgnRsa5HlcvVzmcRJ4wXrxPM54VS/zG84Nv8uYfyIOnG5YqTrIUPT+4+Q
+         x1zwgtU8+DEwQchxEcFpE1ikA3Qg3TbyJ0cGMNrqU3UEuyi35sfE5gXzZ3rw3LPWBlKi
+         a/+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LOsfOtb4JF9iqyizeOjm4tVRPPo2GoTdvRn37AEB3XM=;
-        b=gahcAZUpuy5xzI3niP5Bm+Tnnz0xCTtmvKttLE+HUEZQnwsxRcZqVTCHmpwbt46ysu
-         w+2khoW6X7V8/SeX5qT8GQl28c4PAEn8OlU3OQAAclMxOFLtmJqXD2211ePCCz5LoPla
-         qY/F51ZYaD5IeTXMZnQWijJKjjTXZIwDl0D0GCPKCEAOIrB5PMFwr1QaZTAQt17jXw25
-         iwwq7JqU4zuG/OzpWgxFpC9MqEbbWgn5FmoYWq8lqZcABdqw8/ElI3i1jJtb4wxxGCLn
-         JLsnqK3V49pRNpXj/AlpmxskFTEvO8vK8LU774GAVUKDp5mH6Q2wMja2+w353epGd4CB
-         6SEQ==
-X-Gm-Message-State: AOAM532wPq4MQkWEJ6wIOw0krZkGZaOg7dqYCZlbVS18WOsRh+lBlsk3
-        Fgu3h5iOsFTJadr6As7nyjNVJUlfOxxsTw==
-X-Google-Smtp-Source: ABdhPJwLJ+vihedFjGQ3PU8Cex40WtPYz+zy0eYCghrDXR8HINdOVHJnDEzOjzgkOrGDOmWYk/f8TQ==
-X-Received: by 2002:a1c:6055:: with SMTP id u82mr20245480wmb.61.1609600887976;
-        Sat, 02 Jan 2021 07:21:27 -0800 (PST)
+        bh=XV9zM74CTwn4+eOGP/R29Owp4dxby4wP3b3oxVzvafI=;
+        b=JHPvl42CtZQ+9ghptE4CRi99VwVCUQK5I/Wfua7wZuE+/AUhxngjFUsS7AklCo7Yix
+         kfnUUrJLCLvwQHbMkjGNfVOjIDrfEIB/p1wpNwWoShAl8nhp8OD/UgD+NxLbDWX9v1is
+         vsyxaPJhY0RdGDbVkj6p5IZ1ZclwP5U9+HuYRtw2rCpsPRG/HTuXAQL/jeLVwTqGqi14
+         bVOL6zVHnXvFHsimBYZZYO3W1gp+YR2oCZpEXT5KOXP+RNs2biIvaC1gJ2lgwxR85KBx
+         7qg4W75H2SQO0KcBRKEMJXzyaLYntN3Zky6I4q+2EA8CBFPB3eU5z9nJQwqXUsn5BcoH
+         6DqQ==
+X-Gm-Message-State: AOAM531OU0U/YorZBuev68TnwtEiny8QRgwVV0SrgUfWnWF8hKTWD48p
+        U05jOzAhiWfnz6xn8Vj7p7vUAr1NY2Ewfg==
+X-Google-Smtp-Source: ABdhPJxwu7FOcxfliyqioKGivmZLgq8xfpPKYLmREFyeGepQEsU4cSXXuM6gY2U1D8AB/l/odvpL3Q==
+X-Received: by 2002:a7b:c04c:: with SMTP id u12mr20318416wmc.185.1609600884854;
+        Sat, 02 Jan 2021 07:21:24 -0800 (PST)
 Received: from localhost.localdomain ([85.255.236.0])
-        by smtp.gmail.com with ESMTPSA id h13sm78671243wrm.28.2021.01.02.07.21.26
+        by smtp.gmail.com with ESMTPSA id h13sm78671243wrm.28.2021.01.02.07.21.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Jan 2021 07:21:27 -0800 (PST)
+        Sat, 02 Jan 2021 07:21:24 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     linux-block@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>,
@@ -69,11 +69,10 @@ Cc:     Jens Axboe <axboe@kernel.dk>,
         Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v2 4/7] target/file: allocate the bvec array as part of struct target_core_file_cmd
-Date:   Sat,  2 Jan 2021 15:17:36 +0000
-Message-Id: <20d31d34eb6fb8a10ac001e5e6c3812eddd24aa3.1609461359.git.asml.silence@gmail.com>
+        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: [PATCH v2 2/7] bvec/iter: disallow zero-length segment bvecs
+Date:   Sat,  2 Jan 2021 15:17:34 +0000
+Message-Id: <b46b8c1943bbefcb90ea5c4dd9beaad8bbc15448.1609461359.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1609461359.git.asml.silence@gmail.com>
 References: <cover.1609461359.git.asml.silence@gmail.com>
@@ -83,74 +82,46 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+zero-length bvec segments are allowed in general, but not handled by bio
+and down the block layer so filtered out. This inconsistency may be
+confusing and prevent from optimisations. As zero-length segments are
+useless and places that were generating them are patched, declare them
+not allowed.
 
-This saves one memory allocation, and ensures the bvecs aren't freed
-before the AIO completion.  This will allow the lower level code to be
-optimized so that it can avoid allocating another bvec array.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- drivers/target/target_core_file.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ Documentation/filesystems/porting.rst | 7 +++++++
+ lib/iov_iter.c                        | 2 --
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_file.c b/drivers/target/target_core_file.c
-index b0cb5b95e892..cce455929778 100644
---- a/drivers/target/target_core_file.c
-+++ b/drivers/target/target_core_file.c
-@@ -241,6 +241,7 @@ struct target_core_file_cmd {
- 	unsigned long	len;
- 	struct se_cmd	*cmd;
- 	struct kiocb	iocb;
-+	struct bio_vec	bvecs[];
- };
+diff --git a/Documentation/filesystems/porting.rst b/Documentation/filesystems/porting.rst
+index 867036aa90b8..c722d94f29ea 100644
+--- a/Documentation/filesystems/porting.rst
++++ b/Documentation/filesystems/porting.rst
+@@ -865,3 +865,10 @@ no matter what.  Everything is handled by the caller.
  
- static void cmd_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
-@@ -268,29 +269,22 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
- 	struct target_core_file_cmd *aio_cmd;
- 	struct iov_iter iter = {};
- 	struct scatterlist *sg;
--	struct bio_vec *bvec;
- 	ssize_t len = 0;
- 	int ret = 0, i;
- 
--	aio_cmd = kmalloc(sizeof(struct target_core_file_cmd), GFP_KERNEL);
-+	aio_cmd = kmalloc(struct_size(aio_cmd, bvecs, sgl_nents), GFP_KERNEL);
- 	if (!aio_cmd)
- 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- 
--	bvec = kcalloc(sgl_nents, sizeof(struct bio_vec), GFP_KERNEL);
--	if (!bvec) {
--		kfree(aio_cmd);
--		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
--	}
--
- 	for_each_sg(sgl, sg, sgl_nents, i) {
--		bvec[i].bv_page = sg_page(sg);
--		bvec[i].bv_len = sg->length;
--		bvec[i].bv_offset = sg->offset;
-+		aio_cmd->bvecs[i].bv_page = sg_page(sg);
-+		aio_cmd->bvecs[i].bv_len = sg->length;
-+		aio_cmd->bvecs[i].bv_offset = sg->offset;
- 
- 		len += sg->length;
- 	}
- 
--	iov_iter_bvec(&iter, is_write, bvec, sgl_nents, len);
-+	iov_iter_bvec(&iter, is_write, aio_cmd->bvecs, sgl_nents, len);
- 
- 	aio_cmd->cmd = cmd;
- 	aio_cmd->len = len;
-@@ -307,8 +301,6 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
- 	else
- 		ret = call_read_iter(file, &aio_cmd->iocb, &iter);
- 
--	kfree(bvec);
--
- 	if (ret != -EIOCBQUEUED)
- 		cmd_rw_aio_complete(&aio_cmd->iocb, ret, 0);
- 
+ clone_private_mount() returns a longterm mount now, so the proper destructor of
+ its result is kern_unmount() or kern_unmount_array().
++
++---
++
++**mandatory**
++
++zero-length bvec segments are disallowed, they must be filtered out before
++passed on to an iterator.
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index 1635111c5bd2..7de304269641 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -72,8 +72,6 @@
+ 	__start.bi_bvec_done = skip;			\
+ 	__start.bi_idx = 0;				\
+ 	for_each_bvec(__v, i->bvec, __bi, __start) {	\
+-		if (!__v.bv_len)			\
+-			continue;			\
+ 		(void)(STEP);				\
+ 	}						\
+ }
 -- 
 2.24.0
 

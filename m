@@ -2,60 +2,60 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E7EC433E9
-	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B26EC433DB
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1DC022482
-	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70A3922482
+	for <io-uring@archiver.kernel.org>; Sat,  2 Jan 2021 15:22:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726699AbhABPWH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 2 Jan 2021 10:22:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
+        id S1726775AbhABPWL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 2 Jan 2021 10:22:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726599AbhABPWF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Jan 2021 10:22:05 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08DFC0613C1;
-        Sat,  2 Jan 2021 07:21:24 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id 3so13738330wmg.4;
-        Sat, 02 Jan 2021 07:21:24 -0800 (PST)
+        with ESMTP id S1726766AbhABPWK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Jan 2021 10:22:10 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C29F1C0613ED;
+        Sat,  2 Jan 2021 07:21:27 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id 91so26566410wrj.7;
+        Sat, 02 Jan 2021 07:21:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=rf6BUzrBX0nFEremfE+E6aI01/qO5RAbaAeeEZzdEU8=;
-        b=b+W6Gio8PokvEN1p7hK+vmrtFsYuUXj5E1Pcurgm37QcJbo+IA1ctH7QYYoo7/bbAh
-         CN1Ig8NDcGJCRgskTeuCehCCc3ApampAkhSMSg2g/2YalrbDFo/CHnPDKFyTmy/+JAGB
-         WTZaFIVAU3/+edur0jyHbznCOvvLQgMzn3ycRPlQMd4vU60LafrpHS/ipZaf+XXm4IEX
-         tlsU6fQjwRt3P8URGU8LEebx6TQBAIvGZsZGQNF/fgCj0JpB0HUSXNMuJkKfSKZurWme
-         +ogJW22uQPLiT7k4Wy03Qa4DsVt11BbsmMtb4LQtIZN+IhFNvNGpiUgToKDkYZsoZrtD
-         h/wA==
+        bh=7FOerU/+uiaLOx8IjnYNL5LXRoiyAnmqji55A4AV5Zs=;
+        b=LBsSYTbjwdI3QmQu4IbgQ7olNGDMBAqElqxAyPsojxLe7NcTh8El+Pke0BmUM22eYb
+         AuZq9SBpNP53WKEFTQdHVDQPCC/8PDYsWLnhkSG7Q2av8EAE8APyACuUnwA3w3t7JqWh
+         R4mCXlk4y9W+n2bx+NU4V6SqSobRuYDWexgtwJuMlhnrLQQMDddC3lR9NTJlDYGo4U1G
+         Yntmje7tslRu50v12yeP/tlquNu8wXFd0g77n+FLG0DNgXfWPtBPtB8SMzz/3+rhpWhR
+         Epwmsr+CSoG9EWj2xUflykAOxhsPhi2ABMO72oHO7eo5cj09XjFAKrK+DFY/UA4J8N0y
+         OWaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=rf6BUzrBX0nFEremfE+E6aI01/qO5RAbaAeeEZzdEU8=;
-        b=o9436OLd5iMQhXloxcW6OV5rTksWhfRDHs/57xqYcRN9PkZkzelgrVevr5DE0uSmFm
-         pZmQuA1YcjwbAz0JnU8YdgEuEJ9baQB73y5qbZyOzAYX1zfodX4xFVjSBPjUhO46cKNE
-         qPckybt7iqGRyqWiLxXSFnp7LlsZkvOxTGvwD16cxgVNonY5TlftG0FciKIfofW4oXFZ
-         Qqdgj98A2DgsTcr2MNaA5457OKmYffmB6toGKGZSKYtGFT0NDNVBDkorR4O9hOZk7D4J
-         7yWfPkJnBeMqzZ6f78wq7bWWXGIsxQA3cPq4JLnGQUZxF1OxL7fG02JPjN2F5H7TMl5w
-         waAA==
-X-Gm-Message-State: AOAM531FZTEFHN1OjV5hB0O+YNQjAfOH1YPncLb7GM5xtia2nE+NK2zX
-        9pxX0MtOoL0MOGBcH9wdq7QUV9f/ootjyw==
-X-Google-Smtp-Source: ABdhPJx/WYak/g3xVcVBFTivN/j7PYb09nrxUAu6QP88WHUxu/G0S/WDG8I7eQUPvioar/5dabMjRQ==
-X-Received: by 2002:a1c:ba44:: with SMTP id k65mr19751159wmf.188.1609600883202;
-        Sat, 02 Jan 2021 07:21:23 -0800 (PST)
+        bh=7FOerU/+uiaLOx8IjnYNL5LXRoiyAnmqji55A4AV5Zs=;
+        b=H54ehalIm4pDyQ20WUtcI4FW9hSb/7osqZR9HBk+rzMD32OM0cWqAMMMZMfZA57Cf3
+         vQi8Sj5yv6SHhQS95nr2OUK1mjnpOtKZUG8PVsCw6PAvEy4fiUmny0scjRb6fl4SZsZy
+         o4b40qV+ruSi90OC0jZjPHrZI6g1T/dgX2Ugeb1HBzf4S7IUbhnmDMNmF/PFl5yVX7xm
+         4IclwqlzPwjK8Jg3lMyiNZjYTz12SBI0ZyCg2AAfZz7YYJAWa6rkZfXxuPDihImJn4Nu
+         Gq7GXbvd2PkE5TkzKNekGWANcuToq2oH/VBogzBNfn+XvvXfUT84qfH/bendRWDaRiUF
+         /zew==
+X-Gm-Message-State: AOAM532vVaNBSbbz8b10LLhrk1DTnnHmFPlkojsPahgQLncNsDl1DcF0
+        +NvOfaLIqM84eM+Qv+AfvBJCAsRBSy/3UQ==
+X-Google-Smtp-Source: ABdhPJzvzXyfPCTdTGrqpyWR+n7zH7gi0rGiGb6+ilO2BRa7Nk9Cv57P3HckjnOAEWjCCb1q8AjWLg==
+X-Received: by 2002:a5d:6789:: with SMTP id v9mr71303602wru.86.1609600886321;
+        Sat, 02 Jan 2021 07:21:26 -0800 (PST)
 Received: from localhost.localdomain ([85.255.236.0])
-        by smtp.gmail.com with ESMTPSA id h13sm78671243wrm.28.2021.01.02.07.21.21
+        by smtp.gmail.com with ESMTPSA id h13sm78671243wrm.28.2021.01.02.07.21.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Jan 2021 07:21:22 -0800 (PST)
+        Sat, 02 Jan 2021 07:21:25 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     linux-block@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>,
@@ -70,9 +70,9 @@ Cc:     Jens Axboe <axboe@kernel.dk>,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
         linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH v2 1/7] splice: don't generate zero-len segement bvecs
-Date:   Sat,  2 Jan 2021 15:17:33 +0000
-Message-Id: <ca14f80bf5156d83b38f543be2b9434a571474c9.1609461359.git.asml.silence@gmail.com>
+Subject: [PATCH v2 3/7] block/psi: remove PSI annotations from direct IO
+Date:   Sat,  2 Jan 2021 15:17:35 +0000
+Message-Id: <c77839347f1f3fdf917ac2bc251310f1c1f26044.1609461359.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1609461359.git.asml.silence@gmail.com>
 References: <cover.1609461359.git.asml.silence@gmail.com>
@@ -82,51 +82,62 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-iter_file_splice_write() may spawn bvec segments with zero-length. In
-preparation for prohibiting them, filter out by hand at splice level.
+Direct IO does not operate on the current working set of pages managed
+by the kernel, so it should not be accounted as memory stall to PSI
+infrastructure.
 
+The block layer and iomap direct IO use bio_iov_iter_get_pages()
+to build bios, and they are the only users of it, so to avoid PSI
+tracking for them clear out BIO_WORKINGSET flag. Do same for
+dio_bio_submit() because fs/direct_io constructs bios by hand directly
+calling bio_add_page().
+
+Reported-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/splice.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ block/bio.c    | 6 ++++++
+ fs/direct-io.c | 2 ++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 866d5c2367b2..7299330c3270 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -644,7 +644,6 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
- 		ret = splice_from_pipe_next(pipe, &sd);
- 		if (ret <= 0)
- 			break;
--
- 		if (unlikely(nbufs < pipe->max_usage)) {
- 			kfree(array);
- 			nbufs = pipe->max_usage;
-@@ -662,12 +661,13 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+diff --git a/block/bio.c b/block/bio.c
+index 1f2cc1fbe283..9f26984af643 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1099,6 +1099,9 @@ static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
+  * fit into the bio, or are requested in @iter, whatever is smaller. If
+  * MM encounters an error pinning the requested pages, it stops. Error
+  * is returned only if 0 pages could be pinned.
++ *
++ * It's intended for direct IO, so doesn't do PSI tracking, the caller is
++ * responsible for setting BIO_WORKINGSET if necessary.
+  */
+ int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ {
+@@ -1123,6 +1126,9 @@ int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
  
- 		/* build the vector */
- 		left = sd.total_len;
--		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++, n++) {
-+		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++) {
- 			struct pipe_buffer *buf = &pipe->bufs[tail & mask];
- 			size_t this_len = buf->len;
+ 	if (is_bvec)
+ 		bio_set_flag(bio, BIO_NO_PAGE_REF);
++
++	/* don't account direct I/O as memory stall */
++	bio_clear_flag(bio, BIO_WORKINGSET);
+ 	return bio->bi_vcnt ? 0 : ret;
+ }
+ EXPORT_SYMBOL_GPL(bio_iov_iter_get_pages);
+diff --git a/fs/direct-io.c b/fs/direct-io.c
+index d53fa92a1ab6..0e689233f2c7 100644
+--- a/fs/direct-io.c
++++ b/fs/direct-io.c
+@@ -426,6 +426,8 @@ static inline void dio_bio_submit(struct dio *dio, struct dio_submit *sdio)
+ 	unsigned long flags;
  
--			if (this_len > left)
--				this_len = left;
-+			if (!this_len)
-+				continue;
-+			this_len = min(this_len, left);
+ 	bio->bi_private = dio;
++	/* don't account direct I/O as memory stall */
++	bio_clear_flag(bio, BIO_WORKINGSET);
  
- 			ret = pipe_buf_confirm(pipe, buf);
- 			if (unlikely(ret)) {
-@@ -680,6 +680,7 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
- 			array[n].bv_len = this_len;
- 			array[n].bv_offset = buf->offset;
- 			left -= this_len;
-+			n++;
- 		}
- 
- 		iov_iter_bvec(&from, WRITE, array, n, sd.total_len - left);
+ 	spin_lock_irqsave(&dio->bio_lock, flags);
+ 	dio->refcount++;
 -- 
 2.24.0
 

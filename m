@@ -5,63 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B645CC433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0E1DC433E9
 	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 02:03:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84A1420936
+	by mail.kernel.org (Postfix) with ESMTP id B128E207B7
 	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 02:03:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727814AbhADCDo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1727810AbhADCDo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 3 Jan 2021 21:03:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57174 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727815AbhADCDl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 3 Jan 2021 21:03:41 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579ECC061796
-        for <io-uring@vger.kernel.org>; Sun,  3 Jan 2021 18:03:01 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id m5so30658403wrx.9
-        for <io-uring@vger.kernel.org>; Sun, 03 Jan 2021 18:03:01 -0800 (PST)
+        with ESMTP id S1727709AbhADCDk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 3 Jan 2021 21:03:40 -0500
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6594CC061794
+        for <io-uring@vger.kernel.org>; Sun,  3 Jan 2021 18:02:59 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id q75so17939402wme.2
+        for <io-uring@vger.kernel.org>; Sun, 03 Jan 2021 18:02:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=wuML8Vypd7iVsM2CZvQNj9M2GCjVfPufUjoOoJe/Aas=;
-        b=dlaz3xvGU05/Idxv6vqCBzjv/TQTVUySO/qxtG4zTSeqMpCF+n9B52uxEdBzxLl2/D
-         fK9suipFWqf7S+MSziyo9VryzW423FiPYhk59O4mQ+qp49OtjhTIuBet1kkQzuLv8uYi
-         MsGD5bdkeAfsnfnKP6FXPtM8uChZTaoo2oWZXhvnwA0lVmsgFKQ0SClLkVHEtkd30idm
-         Hr2D94yzP/Tp77fjab45xmgfz6vSZQqCY1ndBj9zKNJAdNE2ihjf4wN9olDuuVb56SJA
-         Dhm4aQ/jRuCQXu7jRXjK8ErUDNTImw0dGazICai7j/VfaPZtEIrQDFBQCT7TONQIvcD8
-         yHlA==
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=YpRnfTlMNEuKQfmQ5l5ez6viG/jsyZ67SweETcrPyfI=;
+        b=j4TdB4WvT6S6TFuEBWeh/mWVvC4q30DqFfpPO/QcZIBaYkadDA8yGyI17xt2+JVEIg
+         Sr+/J1giu/7JFYUGBMiGHKwGIAZv80tfu79Ju2OnDt3ptRMxsAe00dYcsU5aNUaOZTwk
+         tIDdcXRLVHpdslfUON+CwzlzEWkBYyvOg+QMT6N6CUeG3fk3qOOMxmn0r4yaCWm1rWlP
+         EBHgE66stZre5Xq4beVswefhMtkR9yXW/ZYjz1xXy3t+SAwCH8qn4qzohvc9F54zLZlG
+         A+uKIbW39uvq5NO3DH/P3yQ/T4Tah7tDq7kMby9pMHa+orbFjyNh1o17+wdHXFPkasnN
+         vlLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wuML8Vypd7iVsM2CZvQNj9M2GCjVfPufUjoOoJe/Aas=;
-        b=WkbIJLk4NjnyypfNj5aDRA8B/TQKtyUhce++KS4SmQmA2YPslgzm8Dc9dNo2tbB/uw
-         +TFHMxeKUFPIxHovxbPOzMAIIWb5PnjkduqqKitRkbmrm2ja7JrUpvHK1vtk7eY2re2f
-         48kw2N8fTtQkrrLNBp9idIiZD0Dh+YuugYyXBki6NpvQn3wRKdHIN9YdZ8HfKiY/1hNA
-         F25+gYD0VED3SZCu9Y8qGrbRW2FSPxAlsiqljrDQcUZsHR4EHz2upJhbu0pDur8+9m0G
-         ZAP5q2cQWM7DoaGwQcx7DYvBAOITz4HrkHBF7MmCNtROW7lflq2ZpLaXSi4PWYElmGdV
-         XGIg==
-X-Gm-Message-State: AOAM530eDS5Ls46vZJoEGiAhxefxG6Q46QY2ShFWYQKBSRwryUwLq5Zc
-        lFjRbphmL+aS23dTcIJXqjM=
-X-Google-Smtp-Source: ABdhPJxmy5Cq+0bx00JcGZYJOOOzJJEri4r6Gcc7xZCjYoI4CREFLf7IpIcdQzXc7xyKp65tDBIUQg==
-X-Received: by 2002:a5d:4241:: with SMTP id s1mr78055452wrr.269.1609725780199;
-        Sun, 03 Jan 2021 18:03:00 -0800 (PST)
+        bh=YpRnfTlMNEuKQfmQ5l5ez6viG/jsyZ67SweETcrPyfI=;
+        b=AoAhjJTzxyr9AYmIiIsw/H5Saj6dALXYrwyn4t3d66MlwJfMhJuxjXaKnbVmUertZt
+         ny8zImylZWtbK7Ap1LTR4VXIT/Y6sV0kC/U3H1n2J0qshLFssSV+ncq5iLTl3VpZZ44U
+         FDucNDksuPUSKbeh9ObO4T5r81iJFWD826v49pHEywWFSJqf0fRuWYIWV82VRpnMnuLY
+         bCkjMIhnMFnHHOJ7fFSetyUPA5eES9rVRlQjNs7ECEX468Cfm8cqSRax/mwthTR7RrXF
+         s8idBK+H7XZdEAPFm0w+qkApQ6C+ESxFw2Isv+qP1QT9aZ2UvupLfzzjPZ+YiIcMAHIE
+         3QOA==
+X-Gm-Message-State: AOAM5336UE2jriw/rnBePkw1LVNB1MP2vSaoSNX9MOXLnxq/o+5Wavmm
+        7QZP8T1tm2IYuWsBDWFPN5mbv9p47zAy2A==
+X-Google-Smtp-Source: ABdhPJziYwlMW8thXmVRbKDbN4wvdsAJ+v9qwPhmoGTttaCUek5FYqiHT/epbXkim++vlFa8bkQArA==
+X-Received: by 2002:a1c:a1c1:: with SMTP id k184mr24682490wme.101.1609725778120;
+        Sun, 03 Jan 2021 18:02:58 -0800 (PST)
 Received: from localhost.localdomain ([85.255.233.205])
-        by smtp.gmail.com with ESMTPSA id c4sm96632893wrw.72.2021.01.03.18.02.59
+        by smtp.gmail.com with ESMTPSA id c4sm96632893wrw.72.2021.01.03.18.02.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Jan 2021 18:02:59 -0800 (PST)
+        Sun, 03 Jan 2021 18:02:57 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     syzbot+91ca3f25bd7f795f019c@syzkaller.appspotmail.com
-Subject: [PATCH v2 4/6] io_uring: dont kill fasync under completion_lock
-Date:   Mon,  4 Jan 2021 01:59:17 +0000
-Message-Id: <bf17089a9bcf65375a70b527fce21f56620f8d1d.1609725418.git.asml.silence@gmail.com>
+Subject: [PATCH v2 2/6] io_uring: cancel more aggressively in exit_work
+Date:   Mon,  4 Jan 2021 01:59:15 +0000
+Message-Id: <ab26f494b29ad7df90bbee5595179bd4cb7b5f1b.1609725418.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1609725418.git.asml.silence@gmail.com>
 References: <cover.1609725418.git.asml.silence@gmail.com>
@@ -71,66 +70,53 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-      CPU0                    CPU1
-       ----                    ----
-  lock(&new->fa_lock);
-                               local_irq_disable();
-                               lock(&ctx->completion_lock);
-                               lock(&new->fa_lock);
-  <Interrupt>
-    lock(&ctx->completion_lock);
+While io_ring_exit_work() is running new requests of all sorts may be
+issued, so it should do a bit more to cancel them, otherwise they may
+just get stuck. e.g. in io-wq, in poll lists, etc.
 
- *** DEADLOCK ***
-
-Move kill_fasync() out of io_commit_cqring() to io_cqring_ev_posted(),
-so it doesn't hold completion_lock while doing it. That saves from the
-reported deadlock, and it's just nice to shorten the locking time and
-untangle nested locks (compl_lock -> wq_head::lock).
-
-Reported-by: syzbot+91ca3f25bd7f795f019c@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2beb1e72302d..9c554adf3993 100644
+index ee1beec7a04d..cacb14246dbb 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1345,11 +1345,6 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
+@@ -992,6 +992,9 @@ enum io_mem_account {
+ 	ACCT_PINNED,
+ };
  
- 	/* order cqe stores with ring update */
- 	smp_store_release(&rings->cq.tail, ctx->cached_cq_tail);
--
--	if (wq_has_sleeper(&ctx->cq_wait)) {
--		wake_up_interruptible(&ctx->cq_wait);
--		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
--	}
++static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
++					    struct task_struct *task);
++
+ static void destroy_fixed_file_ref_node(struct fixed_file_ref_node *ref_node);
+ static struct fixed_file_ref_node *alloc_fixed_file_ref_node(
+ 			struct io_ring_ctx *ctx);
+@@ -8663,7 +8666,7 @@ static void io_ring_exit_work(struct work_struct *work)
+ 	 * as nobody else will be looking for them.
+ 	 */
+ 	do {
+-		io_iopoll_try_reap_events(ctx);
++		__io_uring_cancel_task_requests(ctx, NULL);
+ 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+ 	io_ring_ctx_free(ctx);
  }
+@@ -8818,9 +8821,11 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 		enum io_wq_cancel cret;
+ 		bool ret = false;
  
- static void io_put_identity(struct io_uring_task *tctx, struct io_kiocb *req)
-@@ -1713,6 +1708,10 @@ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
- 		wake_up(&ctx->sq_data->wait);
- 	if (io_should_trigger_evfd(ctx))
- 		eventfd_signal(ctx->cq_ev_fd, 1);
-+	if (wq_has_sleeper(&ctx->cq_wait)) {
-+		wake_up_interruptible(&ctx->cq_wait);
-+		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
-+	}
- }
+-		cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
+-		if (cret != IO_WQ_CANCEL_NOTFOUND)
+-			ret = true;
++		if (ctx->io_wq) {
++			cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb,
++					       &cancel, true);
++			ret |= (cret != IO_WQ_CANCEL_NOTFOUND);
++		}
  
- static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
-@@ -1723,6 +1722,10 @@ static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
- 	}
- 	if (io_should_trigger_evfd(ctx))
- 		eventfd_signal(ctx->cq_ev_fd, 1);
-+	if (wq_has_sleeper(&ctx->cq_wait)) {
-+		wake_up_interruptible(&ctx->cq_wait);
-+		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
-+	}
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
+ 		/* SQPOLL thread does its own polling */
+ 		if (!(ctx->flags & IORING_SETUP_SQPOLL)) {
 -- 
 2.24.0
 

@@ -5,119 +5,91 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D17C1C433E6
-	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 23:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14290C433E0
+	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 23:48:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADBC22255F
-	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 23:46:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D6F872253D
+	for <io-uring@archiver.kernel.org>; Mon,  4 Jan 2021 23:48:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727410AbhADXqL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 4 Jan 2021 18:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32822 "EHLO
+        id S1726289AbhADXrx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 4 Jan 2021 18:47:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726026AbhADXqL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 4 Jan 2021 18:46:11 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A062C061796
-        for <io-uring@vger.kernel.org>; Mon,  4 Jan 2021 15:45:31 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id b73so29182292edf.13
-        for <io-uring@vger.kernel.org>; Mon, 04 Jan 2021 15:45:31 -0800 (PST)
+        with ESMTP id S1727646AbhADXrx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 4 Jan 2021 18:47:53 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C851FC061793
+        for <io-uring@vger.kernel.org>; Mon,  4 Jan 2021 15:47:12 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id g25so669092wmh.1
+        for <io-uring@vger.kernel.org>; Mon, 04 Jan 2021 15:47:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=biohuaz8qHAl2bwblz3F9N6jQTPf4tFievc4sERx/QQ=;
-        b=X7QUYaJGO3skhWod6GXQrJ/b9AHrzaOt3rBSxjuYempnSMBT88m2lZFkA6b7+ZZFhP
-         Zs/JCcXgetgYRu4TuBphjVKoMvN1izBUclBc1XSbd8Nw4k6FhNSkyK+/LVeIG7qEXMju
-         yRxucbFspp/19N5MUCRsHcZzrBQn8G5zBCwzEUZKSHGeV1B97yG99M1tzZ8SUZ3eyOrR
-         DN96reeqFI1yYJnVqUsWBwdLZX2BsEyFbxcbdRev8VjEaHNGqR8tBnazSWlflFqU5/ow
-         NVzdCepF8uY/0yFfLm0m7NRdO1Xe7IGM/F5ESkVMlHjk6Ql6nKavbNOuApJRxbtszyX1
-         PtUA==
+        bh=oh7D8D8tsbT2mtYO8coEmWQNiSDVkeAoddrrEeZ3uoo=;
+        b=F3s7dUo3CeBOkX3BFh9lYddjFClonh9a3hkMkP3G7kfvTqCc6ihimE4y+vqTtcgZxM
+         k3Y3PLQRV7wJB7wpB0ZW0FI2x2xKihZCRsqn1L3iAa3dfSwtUAa8xDqqjon/70ybBC64
+         R3SXSaYOC7RA7e8B+MunL1In251YI3O7pQiHzlneerrvZUj5WKx1OsJiFzs2ZFyFjBX4
+         2TwRq3XMY/Edu5zwdalj+TRZO3Glx5rGIUyOTD6HzBM4xVhXWWS3h0lZicqoZnFELOp1
+         CZPuJunVvUSMZmWZ2MHuTWGNYtjskevIfzxOFkTubJbIwH1+rlMRAH4+N/+V+u5Dh7UC
+         AFMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=biohuaz8qHAl2bwblz3F9N6jQTPf4tFievc4sERx/QQ=;
-        b=Khiu47Gb7zqEGt25BYzYdoGa+36GDGgOjA6bAcDwJJ8y+QGrQ8aaOiy3vC5U3zt3Y5
-         RH2/cynEJ8A2Lm7U/WTyIlP1rSPTf4XO054cLVKRG/YeM7wVg4Xdo6IcsZ8jU1ph+NVB
-         s9dTKisSQ+Ad8Rv06j/2Dbla7nEJ8P8HxfTXM6QT/HpYjD6aj0HLULIy21CcU2V0gVZX
-         rVYJ11wI91MnxBg+TIggtOW18G/UUPDmGGLCKRjU+BJe0RxS1xQp3ChD/RoGiFweGawy
-         EImmtNrQ+qA/ra0ezvKmH1XeyWfzZbC7vdWu6lDWssebCriy+H2CRUCRSvF04t5SAwfb
-         dyiQ==
-X-Gm-Message-State: AOAM531dv+1Sm+QRPP2osvmgdrKrJ062kH4qagVs2HAcTNY6SjkzkSNf
-        bXqsKBXRk45rxtt0jsbbZm5oTzg+Siza8g==
-X-Google-Smtp-Source: ABdhPJyKrpsrZ+VZQP/dS2ca3ByR8XnnxdJcegsgyfoWSrYLni5UZdrHLUP8DiicVsCEmBmUEyXIyQ==
-X-Received: by 2002:a5d:4f0e:: with SMTP id c14mr81373216wru.84.1609793227515;
-        Mon, 04 Jan 2021 12:47:07 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=oh7D8D8tsbT2mtYO8coEmWQNiSDVkeAoddrrEeZ3uoo=;
+        b=DnkmxQdPeqnWuj6y3LIgls2J4lmDE4M84l3dJgSxkv6bn+u4WfY5qMOG2kSk54h/x2
+         fXXnbf5vHIN8y+qMlm443a0RpZ6xfFxYTluu9n2QfT8OeYD+Rkgg6WRnwYc9G1FprXUI
+         MZsuOc5cnXZhI8AraX9UYD6KV9bxMjiExr3Oh09z7Henjqp5UryxvTq3hGJlGvCEAwt1
+         O02LT1nVE3Zgy5SnjEvIFbcdwt4awmWR7xORFitpiMIrZ7R5U6hLakkjtDVFiVL0PRyQ
+         IxBb0VePeFiDPhQBf9ResQicowan5Xi8+JE2/zelF800/AMq5/0jGePg64GrZRpFlRgJ
+         ECfA==
+X-Gm-Message-State: AOAM533LGDW6TBdOnsahqYHnApT6gXXzsC5YQhouGMqdDjcWG6X+CWFG
+        N9ZV7KLg3WQZCIAhpa311XANkl1dvlGSBA==
+X-Google-Smtp-Source: ABdhPJynVicQEBnS7PbNrzqaM70ox8oZLzX9EC/jOUNj0seRvXprySgsLlvslV1AJhKpukHZuD9iWw==
+X-Received: by 2002:a05:600c:3549:: with SMTP id i9mr506504wmq.89.1609792710170;
+        Mon, 04 Jan 2021 12:38:30 -0800 (PST)
 Received: from localhost.localdomain ([85.255.233.205])
-        by smtp.gmail.com with ESMTPSA id n16sm54715017wrj.26.2021.01.04.12.47.06
+        by smtp.gmail.com with ESMTPSA id z6sm97140749wrw.58.2021.01.04.12.38.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 12:47:07 -0800 (PST)
+        Mon, 04 Jan 2021 12:38:29 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH -v2 2/2] io_uring: cancel more aggressively in exit_work
-Date:   Mon,  4 Jan 2021 20:43:30 +0000
-Message-ID: <f241b61d3d04b668f186af0cd465b04699274696.1609792653.git.asml.silence@gmail.com>
+Subject: [PATCH liburing] tests: identify timed out tests correctly
+Date:   Mon,  4 Jan 2021 20:34:54 +0000
+Message-Id: <324adc3c4d04f890932cb7b2fd8a0ff183f9ff48.1609792468.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1609792653.git.asml.silence@gmail.com>
-References: <cover.1609792653.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
-Message-ID: <20210104204330.QQgfels17s9PUACtMa7zjAn02115khtDwvP-ps8zhUc@z>
 
-While io_ring_exit_work() is running new requests of all sorts may be
-issued, so it should do a bit more to cancel them, otherwise they may
-just get stuck. e.g. in io-wq, in poll lists, etc.
+We want to get a stable status (i.e. -124) when a test has timed out,
+but --preserve-status makes it to return whatever the process got.
+Remove the flag, it behaves same but if timed out passes back -124.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ test/runtests.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 85de42c42433..5bccb235271f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -992,6 +992,9 @@ enum io_mem_account {
- 	ACCT_PINNED,
- };
+diff --git a/test/runtests.sh b/test/runtests.sh
+index fa240f2..7ed8852 100755
+--- a/test/runtests.sh
++++ b/test/runtests.sh
+@@ -84,7 +84,7 @@ run_test()
+ 	fi
  
-+static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
-+					    struct task_struct *task);
-+
- static void destroy_fixed_file_ref_node(struct fixed_file_ref_node *ref_node);
- static struct fixed_file_ref_node *alloc_fixed_file_ref_node(
- 			struct io_ring_ctx *ctx);
-@@ -8675,7 +8678,7 @@ static void io_ring_exit_work(struct work_struct *work)
- 	 * as nobody else will be looking for them.
- 	 */
- 	do {
--		io_iopoll_try_reap_events(ctx);
-+		__io_uring_cancel_task_requests(ctx, NULL);
- 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
- 	io_ring_ctx_free(ctx);
- }
-@@ -8830,9 +8833,11 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 		enum io_wq_cancel cret;
- 		bool ret = false;
+ 	# Run the test
+-	timeout --preserve-status -s INT -k $TIMEOUT $TIMEOUT ./$test_name $dev
++	timeout -s INT -k $TIMEOUT $TIMEOUT ./$test_name $dev
+ 	local status=$?
  
--		cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
--		if (cret != IO_WQ_CANCEL_NOTFOUND)
--			ret = true;
-+		if (ctx->io_wq) {
-+			cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb,
-+					       &cancel, true);
-+			ret |= (cret != IO_WQ_CANCEL_NOTFOUND);
-+		}
- 
- 		/* SQPOLL thread does its own polling */
- 		if (!(ctx->flags & IORING_SETUP_SQPOLL)) {
+ 	# Check test status
 -- 
 2.24.0
 

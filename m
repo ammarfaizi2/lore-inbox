@@ -2,100 +2,160 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3923C433E0
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 19:49:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C930C433DB
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:40:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7A42A23132
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 19:49:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1078E23138
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:40:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726612AbhAFTt2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Jan 2021 14:49:28 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:47714 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726570AbhAFTt1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 14:49:27 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106JjPDp002802;
-        Wed, 6 Jan 2021 19:48:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=4+ZirJQr89JIznI6xACDmHSZ2OHFlnCpl8DrJEGYVKM=;
- b=XjM/aNHsaOhFWMlZCMyxSvD9nDR+4AmJ5MGIZPK4Rk0V1OSGCmKSv76CN4BIu1o2nIpJ
- HZ9m+Hm9l9hdVenksQ78v0RrGHzecsccaho6xil9Zu77E6+EWKhaf+8yEfZ4q0GXWHzn
- JyQAACnsVyVQNVRTtMJKFhU5eeairoKjUbTKbU3bVUNpkKCCLTl73iyYGYbknLlVRJmn
- e+MaQ1XJ6v0P0VPR5M2U5XeZtGRhkBoOab/cev1Rjh4KplF8VKmBEoFFkjznrwBwDyt4
- LZyr76qudIOZncgMcgOt4iJmMX2p01N/wwpwc9c4OHlluxcwzSm5xGaq1ayB8tn2PhWb DA== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 35wftx95gs-1
+        id S1727098AbhAFUkP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Jan 2021 15:40:15 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:54924 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727021AbhAFUkP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 15:40:15 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KYuL2052583;
+        Wed, 6 Jan 2021 20:39:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
+ date : message-id : in-reply-to : references; s=corp-2020-01-29;
+ bh=kyTUGx8lf3Dhds1HSXTPxArTCi+rzkh1Glb0CMEYLpE=;
+ b=Nl8tM8nuop094bIl8+jAzeK3Rd4njOGCkleDLSkZ6mUEWgrnGO21pk9dCtl8g4SKRkQ7
+ PamI6BJcPQD5oL5hNiRecsqhRsQAxnfq57xlD8AekkxFT+hxIRf+6mL0h5SL7UfhsID2
+ bsuw7YQ0IOw9wnNLfLJkgKSEnJVj2kwn/ugyOvhWMWclpJB7TaxcHQiSjNgkdQbSQUw1
+ d2EDHDsKR8DlJMPqmTW0ZGBpBY9eYULTzcqgff2WOgoOxH4mvm2dtZBM1Sv3MxulloFG
+ /gOc1am6OujaRSpJVFPEuzMAa2VYRR4MxWqOyiVJcQFLmswtIfhgimKv++ynuMWj8TU7 ew== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 35wepm9s2f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 06 Jan 2021 19:48:44 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106JiOll099160;
-        Wed, 6 Jan 2021 19:46:44 GMT
+        Wed, 06 Jan 2021 20:39:32 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KZZWm145358;
+        Wed, 6 Jan 2021 20:39:32 GMT
 Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 35w3qsexhg-1
+        by userp3030.oracle.com with ESMTP id 35w3g1jf15-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 06 Jan 2021 19:46:44 +0000
-Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 106Jkh5X018354;
-        Wed, 6 Jan 2021 19:46:43 GMT
-Received: from [10.154.148.218] (/10.154.148.218)
+        Wed, 06 Jan 2021 20:39:32 +0000
+Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 106KdVfI021568;
+        Wed, 6 Jan 2021 20:39:31 GMT
+Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 06 Jan 2021 19:46:43 +0000
-Subject: Re: [PATCH v3 01/13] io_uring: modularize io_sqe_buffer_register
-To:     Pavel Begunkov <asml.silence@gmail.com>, axboe@kernel.dk,
-        io-uring@vger.kernel.org
-References: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
- <1608314848-67329-2-git-send-email-bijan.mottahedeh@oracle.com>
- <9abd2dbd-94b3-bb50-5160-d565ed2f1e98@gmail.com>
+        with ESMTP ; Wed, 06 Jan 2021 20:39:31 +0000
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-Message-ID: <cff28b63-a2d7-4a5b-6b1b-6a644ea5fc02@oracle.com>
-Date:   Wed, 6 Jan 2021 11:46:42 -0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
-MIME-Version: 1.0
-In-Reply-To: <9abd2dbd-94b3-bb50-5160-d565ed2f1e98@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Antivirus: Avast (VPS 210101-4, 01/01/2021), Outbound message
-X-Antivirus-Status: Clean
+To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
+Subject: [PATCH v4 02/13] io_uring: modularize io_sqe_buffers_register
+Date:   Wed,  6 Jan 2021 12:39:11 -0800
+Message-Id: <1609965562-13569-3-git-send-email-bijan.mottahedeh@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1609965562-13569-1-git-send-email-bijan.mottahedeh@oracle.com>
+References: <1609965562-13569-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0 mlxscore=0
- spamscore=0 mlxlogscore=999 phishscore=0 bulkscore=0 suspectscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 adultscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101060111
+ definitions=main-2101060117
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 suspectscore=0 mlxscore=0
- bulkscore=0 priorityscore=1501 impostorscore=0 clxscore=1015
- lowpriorityscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 adultscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 mlxscore=0 malwarescore=0 clxscore=1015 mlxlogscore=999
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101060111
+ definitions=main-2101060117
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/4/2021 1:54 PM, Pavel Begunkov wrote:
-> On 18/12/2020 18:07, Bijan Mottahedeh wrote:
->> Split io_sqe_buffer_register into two routines:
->>
->> - io_sqe_buffer_register() registers a single buffer
->> - io_sqe_buffers_register iterates over all user specified buffers
-> 
-> It's a bit worse in terms of extra allocations, but not so hot to be
-> be a problem, and looks simpler.
-> 
-> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-> 
-> Jens, I suggest to take 1,2 while they still apply (3/13 does not).
-> I'll review others in a meanwhile.
+Move allocation of buffer management structures, and validation of
+buffers into separate routines.
 
-I rebased the patches and will send the version soon, so the rest should 
-apply as well.
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+---
+ fs/io_uring.c | 51 ++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 17 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2708409..ed90dbe 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8490,13 +8490,8 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
+ 	return ret;
+ }
+ 
+-static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+-				   unsigned int nr_args)
++static int io_buffers_map_alloc(struct io_ring_ctx *ctx, unsigned int nr_args)
+ {
+-	int i, ret;
+-	struct iovec iov;
+-	struct page *last_hpage = NULL;
+-
+ 	if (ctx->user_bufs)
+ 		return -EBUSY;
+ 	if (!nr_args || nr_args > UIO_MAXIOV)
+@@ -8507,6 +8502,37 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	if (!ctx->user_bufs)
+ 		return -ENOMEM;
+ 
++	return 0;
++}
++
++static int io_buffer_validate(struct iovec *iov)
++{
++	/*
++	 * Don't impose further limits on the size and buffer
++	 * constraints here, we'll -EINVAL later when IO is
++	 * submitted if they are wrong.
++	 */
++	if (!iov->iov_base || !iov->iov_len)
++		return -EFAULT;
++
++	/* arbitrary limit, but we need something */
++	if (iov->iov_len > SZ_1G)
++		return -EFAULT;
++
++	return 0;
++}
++
++static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
++				   unsigned int nr_args)
++{
++	int i, ret;
++	struct iovec iov;
++	struct page *last_hpage = NULL;
++
++	ret = io_buffers_map_alloc(ctx, nr_args);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < nr_args; i++) {
+ 		struct io_mapped_ubuf *imu = &ctx->user_bufs[i];
+ 
+@@ -8514,17 +8540,8 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		if (ret)
+ 			break;
+ 
+-		/*
+-		 * Don't impose further limits on the size and buffer
+-		 * constraints here, we'll -EINVAL later when IO is
+-		 * submitted if they are wrong.
+-		 */
+-		ret = -EFAULT;
+-		if (!iov.iov_base || !iov.iov_len)
+-			break;
+-
+-		/* arbitrary limit, but we need something */
+-		if (iov.iov_len > SZ_1G)
++		ret = io_buffer_validate(&iov);
++		if (ret)
+ 			break;
+ 
+ 		ret = io_sqe_buffer_register(ctx, &iov, imu, &last_hpage);
+-- 
+1.8.3.1
 

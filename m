@@ -2,84 +2,179 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B06B9C433DB
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 18:41:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 720A6C433DB
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 19:47:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8487E2312C
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 18:41:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3959423132
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 19:47:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725890AbhAFSlb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Jan 2021 13:41:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725789AbhAFSlb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 13:41:31 -0500
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2469AC061357
-        for <io-uring@vger.kernel.org>; Wed,  6 Jan 2021 10:40:51 -0800 (PST)
-Received: by mail-io1-xd30.google.com with SMTP id o6so3624466iob.10
-        for <io-uring@vger.kernel.org>; Wed, 06 Jan 2021 10:40:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=KZXmFaGJjRbITKxUn90tKihenoPGIZf2v+/o+706vpU=;
-        b=oIrW+lcHK10l0jNBJS6PtnPczl6QvIyiP/CIpbP/FeLqo7NrL0iAiN/Bf/f65SNvei
-         NM93WjHETUs3zKj7LBNUpIpYrO4Zw7HvmdSE/cHo5iPzsjHYJHuoxyWDFbl3DU+DuSHO
-         a9K4GdCzrfNXXlwq6cFLyIuiLb1YEX1AnUJd9YROc8Viyd+lWaPT3FmlXvaF/+JS4cqM
-         xnkVvDPizAsJjtTEgiAez53mkF3X5+51/5HhLCLqDhcSkmFqfQKd87xvOoIWBa/wE49I
-         jcnscn9fBwkQeQwC9oKfW6UGdOQkFNYPd5SO1YViCdEgYwsNfFBPvW2uBLBqriu9rmw0
-         cQVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KZXmFaGJjRbITKxUn90tKihenoPGIZf2v+/o+706vpU=;
-        b=ZVlDyiLAQ5ILbW8XRhlng7krHBb3ig1Ruru/vEQN7gytC0LHzxVYdMXSLHR6qFYjnb
-         HStZPanc4+zd9SdLRyU8XOjXczPSjaVaKAymsxEXDmjCi1Fgnk3Z1uX7sTJ6zIHe17i3
-         qkxIopKKeLzqcBdX0R7o1YsdyjtJhIpGEaQbmWnfn9L4zuquPhN4+JYjxKiC9wSWLPSn
-         p2sLADJ1oUjjubV+F5IBp+Z5o5Gqlc+D2AWkwCJswi6MJTem5P6czHKeopWMezBdQj3y
-         iN6bU1vT+wk8rqTOS0vkzXb+FTYtBVtdBH7zAR47S5OhTWQ1V/p4IQjANsw1lnPW1Gk3
-         z8DQ==
-X-Gm-Message-State: AOAM533H5KsIvgH5b4WYczBH5O3HztCYQxf/YgomgmL0uMfevAfkDjRp
-        ggPtMgAurFyvuGMdAHmOBu8wXEmpkXbUcA==
-X-Google-Smtp-Source: ABdhPJx41Edv6g9/vOlFnRY6Eh8DW2P5pbmDeIj8i0q5VRa0EriM2K04F/TjEuR7hVAM3TfFclVzXw==
-X-Received: by 2002:a02:b02:: with SMTP id 2mr4800100jad.15.1609958450276;
-        Wed, 06 Jan 2021 10:40:50 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o62sm1805264iof.5.2021.01.06.10.40.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Jan 2021 10:40:49 -0800 (PST)
-Subject: Re: [PATCH liburing] tests: identify timed out tests correctly
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <324adc3c4d04f890932cb7b2fd8a0ff183f9ff48.1609792468.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <174ba2e8-de1f-f40f-25d1-d41d4bb5d6a9@kernel.dk>
-Date:   Wed, 6 Jan 2021 11:40:49 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726498AbhAFTrd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Jan 2021 14:47:33 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:37216 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726298AbhAFTrd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 14:47:33 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106JjQZl117515;
+        Wed, 6 Jan 2021 19:46:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=IQK8bcAvGYflVyUeraT2XAHcoon/lXrogZfGSGOnRYg=;
+ b=RzhPKF+mnjljLovOliF73zPXX9A0o4DeRzsCDAoLvP6yluIZnfTkRh6g9cIWECsoVWpX
+ mx9CzKsUmlFipKOrjbsu45p28Q2TtPez7nEMFJ6KTLH5C+inS16JG2QheW7W9+/VIgJ2
+ WVzQoDtilukH7hzf173vQQmgi/pM1yBi9L0YSeXULdxicJlpBpzXL5ZXaeUIE88JWStP
+ 21xiYViorHWanC+Wa/ub7bnGbQ9MPTarMSnRk2JKqGNAt7cGrSd4WXc01iKBoqI0fk6G
+ yHEbbPKlJfZl62XEuJhNhtAZ46fXuPWKeyqd48c9jIH369C4H3u8/67yG7+IgUKz2kPI KQ== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2130.oracle.com with ESMTP id 35wcuxsxr6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 06 Jan 2021 19:46:51 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106JjQBA021013;
+        Wed, 6 Jan 2021 19:46:50 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3030.oracle.com with ESMTP id 35w3g1gr49-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 06 Jan 2021 19:46:50 +0000
+Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 106Jknxb023989;
+        Wed, 6 Jan 2021 19:46:49 GMT
+Received: from [10.154.148.218] (/10.154.148.218)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 06 Jan 2021 11:46:49 -0800
+Subject: Re: [PATCH v3 08/13] io_uring: implement fixed buffers registration
+ similar to fixed files
+To:     Pavel Begunkov <asml.silence@gmail.com>, axboe@kernel.dk,
+        io-uring@vger.kernel.org
+References: <1608314848-67329-1-git-send-email-bijan.mottahedeh@oracle.com>
+ <1608314848-67329-9-git-send-email-bijan.mottahedeh@oracle.com>
+ <f0bff3b0-f27e-80fe-9a58-dfeb347a7e61@gmail.com>
+From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+Message-ID: <c982a4ea-e39f-d8e0-1fc7-27086395ea9a@oracle.com>
+Date:   Wed, 6 Jan 2021 11:46:47 -0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-In-Reply-To: <324adc3c4d04f890932cb7b2fd8a0ff183f9ff48.1609792468.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <f0bff3b0-f27e-80fe-9a58-dfeb347a7e61@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Antivirus: Avast (VPS 210101-4, 01/01/2021), Outbound message
+X-Antivirus-Status: Clean
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 adultscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101060111
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 bulkscore=0
+ clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501 mlxscore=0
+ adultscore=0 mlxlogscore=999 lowpriorityscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101060111
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/4/21 1:34 PM, Pavel Begunkov wrote:
-> We want to get a stable status (i.e. -124) when a test has timed out,
-> but --preserve-status makes it to return whatever the process got.
-> Remove the flag, it behaves same but if timed out passes back -124.
+On 1/4/2021 6:43 PM, Pavel Begunkov wrote:
+> On 18/12/2020 18:07, Bijan Mottahedeh wrote:
+>> Apply fixed_rsrc functionality for fixed buffers support.
+> 
+> git generated a pretty messy diff...
 
-Applied, thanks.
+I had tried to break this up a few ways but it didn't work well because 
+I think most of the code changes depend on the io_uring structure 
+changes.  I can look again or if you some idea of how you want to split 
+it, I can do that.
 
--- 
-Jens Axboe
+> Because it's do quiesce, fixed read/write access buffers from asynchronous
+> contexts without synchronisation. That won't work anymore, so
+> 
+> 1. either we save it in advance, that would require extra req_async
+> allocation for linked fixed rw
+> 
+> 2. or synchronise whenever async. But that would mean that a request
+> may get and do IO on two different buffers, that's rotten.
+> 
+> 3. do mixed -- lazy, but if do IO then alloc.
+> 
+> 3.5 also "synchronise" there would mean uring_lock, that's not welcome,
+> but we can probably do rcu.
 
+Are you referring to a case where a fixed buffer request can be 
+submitted from async context while those buffers are being unregistered, 
+or something like that?
+
+> Let me think of a patch...
+
+Ok, will wait for it.
+
+>> @@ -8373,7 +8433,13 @@ static bool headpage_already_acct(struct io_ring_ctx *ctx, struct page **pages,
+>>   
+>>   	/* check previously registered pages */
+>>   	for (i = 0; i < ctx->nr_user_bufs; i++) {
+>> -		struct io_mapped_ubuf *imu = &ctx->user_bufs[i];
+>> +		struct fixed_rsrc_table *table;
+>> +		struct io_mapped_ubuf *imu;
+>> +		unsigned int index;
+>> +
+>> +		table = &ctx->buf_data->table[i >> IORING_BUF_TABLE_SHIFT];
+>> +		index = i & IORING_BUF_TABLE_MASK;
+>> +		imu = &table->bufs[index];
+> 
+> io_buf_from_index() may tak buf_data, so can be reused.
+
+Ok.
+
+>> +	for (i = 0; i < nr_tables; i++) {
+>> +		struct fixed_rsrc_table *table = &buf_data->table[i];
+>> +		unsigned int this_bufs;
+>> +
+>> +		this_bufs = min(nr_bufs, IORING_MAX_BUFS_TABLE);
+>> +		table->bufs = kcalloc(this_bufs, sizeof(struct io_mapped_ubuf),
+>> +				      GFP_KERNEL);
+>> +		if (!table->bufs)
+>> +			break;
+>> +		nr_bufs -= this_bufs;
+>> +	}
+>> +
+>> +	if (i == nr_tables)
+>> +		return 0;
+>> +
+>> +	io_free_buf_tables(buf_data, nr_tables);
+> 
+> Would work because kcalloc() zeroed buf_data->table, but
+> 
+> io_free_buf_tables(buf_data, __i__);
+
+Ok.
+
+>>   		ret = io_buffer_validate(&iov);
+>>   		if (ret)
+>>   			break;
+>>   
+>> +		table = &buf_data->table[i >> IORING_BUF_TABLE_SHIFT];
+> 
+> same, io_buf_from_index() can be reused
+> 
+>> +		index = i & IORING_BUF_TABLE_MASK;
+>> +		imu = &table->bufs[index];
+
+Ok.
+
+>> @@ -9854,6 +10023,7 @@ static bool io_register_op_must_quiesce(int op)
+>>   	switch (op) {
+>>   	case IORING_UNREGISTER_FILES:
+>>   	case IORING_REGISTER_FILES_UPDATE:
+>> +	case IORING_UNREGISTER_BUFFERS:
+> 
+> what about REGISTER_BUFFERS?
+
+I followed the FILES case, which deals with UNREGISTER and UPDATE only, 
+should I add REGISTER for buffers only?

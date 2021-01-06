@@ -2,166 +2,215 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26531C4321A
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:40:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8905CC4332B
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:42:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6B402311B
-	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:40:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CADB23138
+	for <io-uring@archiver.kernel.org>; Wed,  6 Jan 2021 20:42:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726794AbhAFUkO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 6 Jan 2021 15:40:14 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:54910 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726960AbhAFUkO (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 15:40:14 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KYwT5052622;
-        Wed, 6 Jan 2021 20:39:32 GMT
+        id S1726989AbhAFUmU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 6 Jan 2021 15:42:20 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:49484 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727641AbhAFUmT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 6 Jan 2021 15:42:19 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KXV9Q101844;
+        Wed, 6 Jan 2021 20:41:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
- date : message-id; s=corp-2020-01-29;
- bh=23jsOayRQJqNTySENyV1nvH3OCnrYJMGgN7zO42dQwI=;
- b=zShNuwJbVtlstn0FN8WqkrmFYiWEMuUrEDbYzlF/RWrn4TRVPYhTK2je7CM6MHpx+rnU
- tguhlNF3HMF9BrAgU0QhhpCfXDwVElqjBEgcc/fyTLBUqpSO/FMrRijp1EaT0TFUfes6
- X8aZT4ChOlh34FdcYx7eQMFm0UHc/K3PGDHKxar66cVJO6c/RqpDxvIqv4WyjG+SFokG
- KiqUjTD5Dfpu60Vtr8Yt4Q387clfvBler+l1XIbgjOvKsjfe5nc70x6OrTywqmj6Falw
- Q9ru+IRvn0lXtBYzmztmnrLwT7tBB57evt9BeVWgPjUUZm36tmuXab7XmzjmonWKp65S TA== 
+ date : message-id : in-reply-to : references; s=corp-2020-01-29;
+ bh=GI5gvzkAHCmamvPc8V72ebEaQPTefto0LxSlLKlWN1g=;
+ b=NvmFeA0NjydrCJFESiCq+Sao03ZnLtd1YbxPLZbjMzHlSwtawX79kSl9yqLJ3ScxouAZ
+ zfAUje6bcu9appNTTj7MPBv7cjA987SGifTSTz93jLKZtlvkAq5rAEP8pFyN4b2ZFtvG
+ QEG4nyz+AP/xx/zTfPWLwYUjOfNtMhdLunffjfp3Sv8U8ePIc6Ps28ZD83XpPHFW7t8Z
+ bIwK1a4m6af610jOlxgJN2RxxBdYJlAfexAF8cCx3wyy82ZBWVa0b0UAzE7+kdRTAnNy
+ Lt6m2IOf+1W5kWBxdKcQmEqGIdX+2pD2DdPHJKe3TBoS4RLxSSkN4NzuV+o7JXIgBPJy MA== 
 Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 35wepm9s2e-1
+        by userp2130.oracle.com with ESMTP id 35wftx9c1c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 06 Jan 2021 20:39:32 +0000
+        Wed, 06 Jan 2021 20:41:36 +0000
 Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KaUw6178140;
-        Wed, 6 Jan 2021 20:39:32 GMT
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 106KaTMs178119;
+        Wed, 6 Jan 2021 20:39:35 GMT
 Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3030.oracle.com with ESMTP id 35v4rd3tvq-1
+        by aserp3030.oracle.com with ESMTP id 35v4rd3tx4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 06 Jan 2021 20:39:31 +0000
+        Wed, 06 Jan 2021 20:39:35 +0000
 Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 106KdUZP021561;
-        Wed, 6 Jan 2021 20:39:30 GMT
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 106KdYGB021612;
+        Wed, 6 Jan 2021 20:39:34 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 06 Jan 2021 20:39:30 +0000
+        with ESMTP ; Wed, 06 Jan 2021 20:39:34 +0000
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v4 00/13] io_uring: buffer registration enhancements
-Date:   Wed,  6 Jan 2021 12:39:09 -0800
-Message-Id: <1609965562-13569-1-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v4 12/13] io_uring: create common fixed_rsrc_data allocation routines
+Date:   Wed,  6 Jan 2021 12:39:21 -0800
+Message-Id: <1609965562-13569-13-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1609965562-13569-1-git-send-email-bijan.mottahedeh@oracle.com>
+References: <1609965562-13569-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 mlxscore=0 bulkscore=0
  suspectscore=0 spamscore=0 adultscore=0 malwarescore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2101060117
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9856 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 bulkscore=0 spamscore=0
- impostorscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0
- priorityscore=1501 mlxscore=0 malwarescore=0 clxscore=1015 mlxlogscore=999
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 suspectscore=0 mlxscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2101060117
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-v4:
+Create common alloc/free fixed_rsrc_data routines for both files and
+buffers.
 
-- address v3 comments (TBD REGISTER_BUFFERS)
-- rebase
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+---
+ fs/io_uring.c | 75 ++++++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 41 insertions(+), 34 deletions(-)
 
-v3:
-
-- batch file->rsrc renames into a signle patch when possible
-- fix other review changes from v2
-- fix checkpatch warnings
-
-v2:
-
-- drop readv/writev with fixed buffers patch
-- handle ref_nodes both both files/buffers with a single ref_list
-- make file/buffer handling more unified
-
-This patchset implements a set of enhancements to buffer registration
-consistent with existing file registration functionality:
-
-- buffer registration updates		IORING_REGISTER_BUFFERS_UPDATE
-					IORING_OP_BUFFERS_UPDATE
-
-- buffer registration sharing		IORING_SETUP_SHARE_BUF
-					IORING_SETUP_ATTACH_BUF
-
-I have kept the original patchset unchanged for the most part to
-facilitate reviewing and so this set adds a number of additional patches
-mostly making file/buffer handling more unified.
-
-Patch 1-2 modularize existing buffer registration code.
-
-Patch 3-7 generalize fixed_file functionality to fixed_rsrc.
-
-Patch 8 applies fixed_rsrc functionality for fixed buffers support.
-
-Patch 9-10 generalize files_update functionality to rsrc_update.
-
-Patch 11 implements buffer registration update, and introduces
-IORING_REGISTER_BUFFERS_UPDATE and IORING_OP_BUFFERS_UPDATE, consistent
-with file registration update.
-
-Patch 12 generalizes fixed resource allocation 
-
-Patch 13 implements buffer sharing among multiple rings; it works as follows:
-
-- A new ring, A,  is setup. Since no buffers have been registered, the
-  registered buffer state is an empty set, Z. That's different from the
-  NULL state in current implementation.
-
-- Ring B is setup, attaching to Ring A. It's also attaching to it's
-  buffer registrations, now we have two references to the same empty
-  set, Z.
-
-- Ring A registers buffers into set Z, which is no longer empty.
-
-- Ring B sees this immediately, since it's already sharing that set.
-
-Testing
-
-I have used liburing file-{register,update} tests as models for
-buffer-{register,update,share}, tests and they run ok.
-
-TBD
-
-- I tried to use a single opcode for files/buffers but ran into an
-issue since work_flags is different for files/buffers.  This should
-be ok for the most part since req->work.flags is ultimately examined;
-however, there are place where io_op_defs[opcode].work_flags is examined
-directly, and I wasn't sure what would the best way to handle that.
-
-- Need to still address Pavel's comments about deadlocks. I figure
-to send out the set anyway since this is a last patch and may even be
-handled separately.
-
-Bijan Mottahedeh (13):
-  io_uring: modularize io_sqe_buffer_register
-  io_uring: modularize io_sqe_buffers_register
-  io_uring: rename file related variables to rsrc
-  io_uring: generalize io_queue_rsrc_removal
-  io_uring: separate ref_list from fixed_rsrc_data
-  io_uring: split alloc_fixed_file_ref_node
-  io_uring: add rsrc_ref locking routines
-  io_uring: implement fixed buffers registration similar to fixed files
-  io_uring: create common fixed_rsrc_ref_node handling routines
-  io_uring: generalize files_update functionlity to rsrc_update
-  io_uring: support buffer registration updates
-  io_uring: create common fixed_rsrc_data allocation routines
-  io_uring: support buffer registration sharing
-
- fs/io_uring.c                 | 1002 +++++++++++++++++++++++++++++------------
- include/uapi/linux/io_uring.h |   13 +-
- 2 files changed, 733 insertions(+), 282 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dcbf9b1..ea708ec 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7366,6 +7366,33 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
+ 	return 0;
+ }
+ 
++static struct fixed_rsrc_data *alloc_fixed_rsrc_data(struct io_ring_ctx *ctx)
++{
++	struct fixed_rsrc_data *data;
++
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return ERR_PTR(-ENOMEM);
++
++	data->ctx = ctx;
++	init_completion(&data->done);
++
++	if (percpu_ref_init(&data->refs, io_rsrc_ref_kill,
++			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
++		kfree(data);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	return data;
++}
++
++static void free_fixed_rsrc_data(struct fixed_rsrc_data *data)
++{
++	percpu_ref_exit(&data->refs);
++	kfree(data->table);
++	kfree(data);
++}
++
+ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ {
+ 	struct fixed_rsrc_data *data = ctx->file_data;
+@@ -7383,9 +7410,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
+ 	for (i = 0; i < nr_tables; i++)
+ 		kfree(data->table[i].files);
+-	kfree(data->table);
+-	percpu_ref_exit(&data->refs);
+-	kfree(data);
++	free_fixed_rsrc_data(ctx->file_data);
+ 	ctx->file_data = NULL;
+ 	ctx->nr_user_files = 0;
+ 	return 0;
+@@ -7827,11 +7852,9 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	if (nr_args > IORING_MAX_FIXED_FILES)
+ 		return -EMFILE;
+ 
+-	file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
+-	if (!file_data)
+-		return -ENOMEM;
+-	file_data->ctx = ctx;
+-	init_completion(&file_data->done);
++	file_data = alloc_fixed_rsrc_data(ctx);
++	if (IS_ERR(file_data))
++		return PTR_ERR(ref_node);
+ 
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
+@@ -7839,12 +7862,8 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	if (!file_data->table)
+ 		goto out_free;
+ 
+-	if (percpu_ref_init(&file_data->refs, io_rsrc_ref_kill,
+-				PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
+-		goto out_free;
+-
+ 	if (io_sqe_alloc_file_tables(file_data, nr_tables, nr_args))
+-		goto out_ref;
++		goto out_free;
+ 	ctx->file_data = file_data;
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
+@@ -7903,11 +7922,8 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	for (i = 0; i < nr_tables; i++)
+ 		kfree(file_data->table[i].files);
+ 	ctx->nr_user_files = 0;
+-out_ref:
+-	percpu_ref_exit(&file_data->refs);
+ out_free:
+-	kfree(file_data->table);
+-	kfree(file_data);
++	free_fixed_rsrc_data(ctx->file_data);
+ 	ctx->file_data = NULL;
+ 	return ret;
+ }
+@@ -8673,32 +8689,23 @@ static struct fixed_rsrc_data *io_buffers_map_alloc(struct io_ring_ctx *ctx,
+ 	if (!nr_args || nr_args > IORING_MAX_FIXED_BUFS)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	buf_data = kzalloc(sizeof(*ctx->buf_data), GFP_KERNEL);
+-	if (!buf_data)
+-		return ERR_PTR(-ENOMEM);
+-	buf_data->ctx = ctx;
+-	init_completion(&buf_data->done);
++	buf_data = alloc_fixed_rsrc_data(ctx);
++	if (IS_ERR(buf_data))
++		return buf_data;
+ 
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_BUFS_TABLE);
+ 	buf_data->table = kcalloc(nr_tables, sizeof(*buf_data->table),
+ 				  GFP_KERNEL);
+ 	if (!buf_data->table)
+-		goto out_free;
+-
+-	if (percpu_ref_init(&buf_data->refs, io_rsrc_ref_kill,
+-			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL))
+-		goto out_free;
++		goto out;
+ 
+ 	if (io_alloc_buf_tables(buf_data, nr_tables, nr_args))
+-		goto out_ref;
++		goto out;
+ 
+ 	return buf_data;
+-
+-out_ref:
+-	percpu_ref_exit(&buf_data->refs);
+-out_free:
+-	kfree(buf_data->table);
+-	kfree(buf_data);
++out:
++	free_fixed_rsrc_data(ctx->buf_data);
++	ctx->buf_data = NULL;
+ 	return ERR_PTR(ret);
+ }
+ 
 -- 
 1.8.3.1
 

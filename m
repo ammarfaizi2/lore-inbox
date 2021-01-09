@@ -2,128 +2,126 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08579C433DB
-	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 08:30:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBCC4C433E6
+	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:07:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B4A6E23A1C
-	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 08:30:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9A5423A1C
+	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:07:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726068AbhAII36 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 9 Jan 2021 03:29:58 -0500
-Received: from mail-il1-f197.google.com ([209.85.166.197]:38275 "EHLO
-        mail-il1-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725847AbhAII35 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Jan 2021 03:29:57 -0500
-Received: by mail-il1-f197.google.com with SMTP id e10so12581016ils.5
-        for <io-uring@vger.kernel.org>; Sat, 09 Jan 2021 00:29:41 -0800 (PST)
+        id S1726294AbhAIQH2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 9 Jan 2021 11:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37906 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726073AbhAIQH1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Jan 2021 11:07:27 -0500
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13106C06179F;
+        Sat,  9 Jan 2021 08:06:47 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id e25so11050762wme.0;
+        Sat, 09 Jan 2021 08:06:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=lGO3N0dJRSDXwKGKd9FDaeuDl4ejZglaZH9ZU4+s/tY=;
+        b=PNS20XMr5oY5wsCd5IWCatRGYgKhqOGRWD42cUzqU3npgYmGMzrjMlQaKrMuRzUyc8
+         7le18rv1rLvmFEUClV6PEHtvQK3aPEQ5Eavs+vj4yHGO7YyYQ6gOpjJRPPtMJXuCzzy7
+         0SMvGb+teD4g2KnZITU9ti3EZ5Z0APu7/3lwhMTAld3hg2khQV8kramlUuW9yuI/bIyk
+         rKQb1fd9HbjFeAz1LdRXFtgYiqhE3kSck9Y9NZIP08qyIULBtDjcvn9ateqYsZQmm8n5
+         0O4OxKK1lyWfrvqjIu713MV1I9fpuCZEVnKGze8Rz95P5bj+PaD4IIN8RriANInJtb5U
+         ifug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=eqtHRI6EKHUkmqQpqzOZc2xRSvZjjEKnnJC+bZZCVOE=;
-        b=UaQ11iwoUUZQgSo/Lkm4Iq/4YI/JwJqfsNpO1i5zS2+EOA6BYcHE4lZmy3iJ3tDnjK
-         ieBZgzTcoSAwVMKMCJ7NLQSP/dVWsUQAEBd7+7KMOWex5rS0jDmanJL2neeoW+//8sUV
-         0ldiP6NR+BStLtPR7GSJBn/2wyHWDFR7u592SQdEoNIScw85pfymn4WbXSAYxNy6VXkZ
-         RhjRlS6ichdbhzgGODwZWUM7fr///8GtzawSbW23AllfBj+cwbvEgouHY6rgSC5l80nf
-         qVMo+nhNhd9qxS33vApuMKnBi4Ilt7ZLbMtjDds7zCoVEp1toc7/oOiFoU53lhU1H9og
-         9DAA==
-X-Gm-Message-State: AOAM532GzCn45CZW4KRz6UZancRufEUD8/zlyJK0lzLYqe5JBDWw6iMt
-        K7X0+ofybl1Yve6RqjWnJXz3ehz9Q9xbVviGzBw3CfoqLx4m
-X-Google-Smtp-Source: ABdhPJyh94sxj0bQ8Vfsp8SY9JlbFRV5dPMTRzYKd61C12qMqS34mLDJe/vbgvaH6HXqdEPLvIbmmQIJvUezoBwXoNoq8XsqBmHi
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=lGO3N0dJRSDXwKGKd9FDaeuDl4ejZglaZH9ZU4+s/tY=;
+        b=BYYhz9CI58obEjQWt9TQLShaDMtO2DLRg1WGUD9Hg7fTo3yLksRCysBp151BEWVjK6
+         K6vJ1B6t5Lz3L/sByRAJvmxBa3bYNaPJaRT4sIa5t0k9jcxo+eMAt22Aa73gS7S+Xws4
+         sA0GVw8Wg0MKDik8yiGRf1G8wdWz6uKvsI1DUtPKEaNwd5myEzSnVBGn04OXkQvHcPqe
+         t4eEhfAxPxK8AX5F1yvEhBCtPfPjUJZQCRDOBLbbNWme5yHLZ2MBeV/iXuWK0FXPLkH9
+         gXSobW8qN9sqYknHG4bkc2014iAbwatWoNFYZfi9vfhFjUZNs9zvl+mSQW5AoI82Voi1
+         GBMg==
+X-Gm-Message-State: AOAM532YiM8OcP0W1YjUALKWfYLi3Y+ElhbQpp3c3/Pzx4jKIeXXA81s
+        s68rb5l1Dt6XnUoBMAzKQpJWaW9J7s45xnvG
+X-Google-Smtp-Source: ABdhPJyPJNi1iMc9SCE+oR3bxu64pyOQeD5A8QFIrcf1TR3/G6IczfLuhp47YWEuOLfIpgEf/eM15g==
+X-Received: by 2002:a1c:790f:: with SMTP id l15mr7831379wme.188.1610208405336;
+        Sat, 09 Jan 2021 08:06:45 -0800 (PST)
+Received: from localhost.localdomain ([185.69.144.125])
+        by smtp.gmail.com with ESMTPSA id j9sm17403866wrm.14.2021.01.09.08.06.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 09 Jan 2021 08:06:44 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     linux-block@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH v3 1/7] splice: don't generate zero-len segement bvecs
+Date:   Sat,  9 Jan 2021 16:02:57 +0000
+Message-Id: <bfaeb54c88f0c962461b75c6493103e11bb0b17b.1610170479.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1610170479.git.asml.silence@gmail.com>
+References: <cover.1610170479.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-X-Received: by 2002:a5e:8e05:: with SMTP id a5mr8282357ion.133.1610180956411;
- Sat, 09 Jan 2021 00:29:16 -0800 (PST)
-Date:   Sat, 09 Jan 2021 00:29:16 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000ee606405b873772a@google.com>
-Subject: general protection fault in io_sqe_files_unregister
-From:   syzbot <syzbot+9ec0395bc17f2b1e3cc1@syzkaller.appspotmail.com>
-To:     axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+iter_file_splice_write() may spawn bvec segments with zero-length. In
+preparation for prohibiting them, filter out by hand at splice level.
 
-syzbot found the following issue on:
-
-HEAD commit:    71c061d2 Merge tag 'for-5.11-rc2-tag' of git://git.kernel...
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=17ec3f67500000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=8aa30b9da402d224
-dashboard link: https://syzkaller.appspot.com/bug?extid=9ec0395bc17f2b1e3cc1
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+9ec0395bc17f2b1e3cc1@syzkaller.appspotmail.com
-
-general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 1 PID: 9107 Comm: syz-executor.2 Not tainted 5.11.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__list_add include/linux/list.h:71 [inline]
-RIP: 0010:list_add_tail include/linux/list.h:100 [inline]
-RIP: 0010:io_sqe_files_set_node fs/io_uring.c:7243 [inline]
-RIP: 0010:io_sqe_files_unregister+0x42a/0x770 fs/io_uring.c:7279
-Code: 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 07 03 00 00 4c 89 ea 4c 89 ad 88 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 f4 02 00 00 49 8d 7f 18 48 8d 85 80 00 00 00 48
-RSP: 0018:ffffc9000982fcf8 EFLAGS: 00010247
-RAX: dffffc0000000000 RBX: ffff88814763fe90 RCX: ffffc9000d28d000
-RDX: 0000000000000000 RSI: ffffffff81d82695 RDI: 0000000000000003
-RBP: ffff88814763fe00 R08: 0000000000000001 R09: 0000000000000001
-R10: ffffffff81d82684 R11: 0000000000000000 R12: 00000000fffffffc
-R13: 0000000000000004 R14: ffff88814763fe80 R15: fffffffffffffff4
-FS:  00007f6532203700(0000) GS:ffff8880b9f00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000200000d8 CR3: 0000000014ad5000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __io_uring_register fs/io_uring.c:9916 [inline]
- __do_sys_io_uring_register+0x1185/0x4080 fs/io_uring.c:10000
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45e219
-Code: 0d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f6532202c68 EFLAGS: 00000246 ORIG_RAX: 00000000000001ab
-RAX: ffffffffffffffda RBX: 0000000000000007 RCX: 000000000045e219
-RDX: 0000000000000000 RSI: 0000000000000003 RDI: 0000000000000003
-RBP: 00007f6532202ca0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00000000016afb5f R14: 00007f65322039c0 R15: 000000000119bf8c
-Modules linked in:
----[ end trace 6e4aada9e44ca3d1 ]---
-RIP: 0010:__list_add include/linux/list.h:71 [inline]
-RIP: 0010:list_add_tail include/linux/list.h:100 [inline]
-RIP: 0010:io_sqe_files_set_node fs/io_uring.c:7243 [inline]
-RIP: 0010:io_sqe_files_unregister+0x42a/0x770 fs/io_uring.c:7279
-Code: 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 07 03 00 00 4c 89 ea 4c 89 ad 88 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 f4 02 00 00 49 8d 7f 18 48 8d 85 80 00 00 00 48
-RSP: 0018:ffffc9000982fcf8 EFLAGS: 00010247
-RAX: dffffc0000000000 RBX: ffff88814763fe90 RCX: ffffc9000d28d000
-RDX: 0000000000000000 RSI: ffffffff81d82695 RDI: 0000000000000003
-RBP: ffff88814763fe00 R08: 0000000000000001 R09: 0000000000000001
-R10: ffffffff81d82684 R11: 0000000000000000 R12: 00000000fffffffc
-R13: 0000000000000004 R14: ffff88814763fe80 R15: fffffffffffffff4
-FS:  00007f6532203700(0000) GS:ffff8880b9f00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000200000d8 CR3: 0000000014ad5000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ fs/splice.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/fs/splice.c b/fs/splice.c
+index 866d5c2367b2..474fb8b5562a 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -662,12 +662,14 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ 
+ 		/* build the vector */
+ 		left = sd.total_len;
+-		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++, n++) {
++		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++) {
+ 			struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+ 			size_t this_len = buf->len;
+ 
+-			if (this_len > left)
+-				this_len = left;
++			/* zero-length bvecs are not supported, skip them */
++			if (!this_len)
++				continue;
++			this_len = min(this_len, left);
+ 
+ 			ret = pipe_buf_confirm(pipe, buf);
+ 			if (unlikely(ret)) {
+@@ -680,6 +682,7 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ 			array[n].bv_len = this_len;
+ 			array[n].bv_offset = buf->offset;
+ 			left -= this_len;
++			n++;
+ 		}
+ 
+ 		iov_iter_bvec(&from, WRITE, array, n, sd.total_len - left);
+-- 
+2.24.0
+

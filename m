@@ -5,57 +5,57 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B55C4361B
-	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:08:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5DFC43142
+	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:08:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFA4C23A1C
-	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:08:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2450E23A23
+	for <io-uring@archiver.kernel.org>; Sat,  9 Jan 2021 16:08:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726490AbhAIQHt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 9 Jan 2021 11:07:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37916 "EHLO
+        id S1726961AbhAIQIK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 9 Jan 2021 11:08:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726527AbhAIQH3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Jan 2021 11:07:29 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92BF5C0617A2;
-        Sat,  9 Jan 2021 08:06:48 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id g185so11020610wmf.3;
-        Sat, 09 Jan 2021 08:06:48 -0800 (PST)
+        with ESMTP id S1726527AbhAIQII (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 9 Jan 2021 11:08:08 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A73C0617A5;
+        Sat,  9 Jan 2021 08:06:52 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id k10so10197014wmi.3;
+        Sat, 09 Jan 2021 08:06:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=q8d8dG9UCf5e8vbipZsYPEj7r5MDYaj3bnreiQQXGps=;
-        b=flzNBu2Q3t3/ImhTptnUpWZq2eOx/8D444lV2HOdKskJiBvPeDRYD15kOiU4YWJuig
-         a2s3X5nS7c5Gu0oZ6799cSPGNNhYVL/DNuj6K8u45rZ2OSMGtpibL7htfny+gBGn1Ir7
-         2ChwG/1/1TCbzPQMHL+TfEpG3iCnbxF6sZ8AsQ/02eXp20D6QL3CKQRqDDmBkSVfC0SV
-         f6IuYJToioYrFrS8j23EyvK/Odm1iOgFzB2J7lVZzbO4RXL0oEFMFsAlNXU2n+23bBVy
-         YEfcRNr25KYQJTnYxjfV0xLx+bWyP/gAF04dZSua4crVLyAEMveSQ92gBaEVPLnZzdfo
-         HAFA==
+        bh=BfcAWicfY3ps8Cp/gsA4qs7Avo53ajYGpXmNYv+JbSY=;
+        b=AeQssdOPinNt7VEfPxpzOS0PFW0o40Y9EV+3MG63+Dd8wEjtQhPls6aUI/zqMC4gsv
+         IW3I6GjVy1dOi5SnlEp+YRA1/gtBdhH5asZs1Vc8BwgkTu/OQL9SiwZQeTeh6MEK9Ytx
+         oKJWgI/oCxvRIUq3vpAnYYeXiwoUDBD2DaSwvxqPoCeBCIOxe63PTPOjy+qnYmafOzLt
+         pOInVokeOb4fjqx5nf6WKgyOT4BJn7nKX37LNZAUETQywherYZWmn6EShmOq2aNMEzsS
+         +u1A8+eL2dHUF/rHQOXJTo6YWxB4tASlksAkwh8nvZUnfMoL5BQpSeLSg0/B3npBgBaE
+         OwzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=q8d8dG9UCf5e8vbipZsYPEj7r5MDYaj3bnreiQQXGps=;
-        b=fDhjNFVvismg2ilzciurJ1os2toxyyXDUDRyQrj3lhiDS6Mgc4yyuvotJ+H4tD9X2C
-         jg8TKJpfXXn/71+xqK5nY/ln//3Vws5Thbp7kxNw5cFt+VmBatb7iSNbbemAOWU86Hdm
-         XK4PtK8l3aSZ/uDYN4dQLNOTjUGMEfArn8WztcdwGVFnKe/vjU8cdqMkSsza4g1Op3PK
-         ojIfXcyFxs3yFwsVwT/yJEsIH0lDd4xXJcdbazOqn50Azzu7qKKD/i/HZodQ53I2DE0i
-         fMdynDTe3vFWXQziO8s4hAEPuRMe9PsA1Ud2pHtWpQa7SkoAWyE/bLF4VJZftYLry7XQ
-         CNvA==
-X-Gm-Message-State: AOAM533KEY5/uj+7F2C7l29RxQWtx+UIvDMu/PIMUZ8PUcinUtd/f9y8
-        GofKHMdX0rZGATXdSH8ntCCb1OjZHfgL47pS
-X-Google-Smtp-Source: ABdhPJzXFJcFemHVSsCyCdF3SY1fQfhQCrpun0BXv+Pm10PNgRweNCoNTn+FNvIFpVE+sVQIwpzbuQ==
-X-Received: by 2002:a05:600c:cc:: with SMTP id u12mr7982009wmm.42.1610208407039;
-        Sat, 09 Jan 2021 08:06:47 -0800 (PST)
+        bh=BfcAWicfY3ps8Cp/gsA4qs7Avo53ajYGpXmNYv+JbSY=;
+        b=BHGQA2UIqbpfCASUyFgEzop2pJwTum3A7MttmuA/MrYk2Y3Fziq9Bxy0/lqLKHk8zc
+         rmTsFH9Vfb8m96q1zpOJCLRfsPkZthPsR6OAgXBay6d/22KO0DS0yhZEb+Q4SI6RFFZH
+         G+pEqVuPrPfrrFloNkvEB8DItyqJbwtX/jL4sphIZwoEPXDZl9P6Tg7nXmOERVZgiliM
+         BpbYZEdabwzwe1QfRoKpDrbyVV6nkpslp4HXbWZriYkGIgeFk84UXfclgF1cSV1b8N6U
+         2BoSt0luBZm/j/zdFs1MkZA065atDw4ledBsvR2A6An6s9RYWPw4DVeyc+q1PrW+BDPP
+         Y2uQ==
+X-Gm-Message-State: AOAM531nrSjIY+5yn6vWpErUL/Le9z/2dp1MNepGCXcwuMNQQIwKYPUt
+        HVseCUtTEabpC7s8yQRqJaR90G0HzrRuyCZC
+X-Google-Smtp-Source: ABdhPJx4y4lbIa9CtCF5CrCkTJk2J7iIX4ikX7/zFLt/oXjOr5IOUBU+qaI+PSRkIWiQi2yqw+zLjA==
+X-Received: by 2002:a1c:4384:: with SMTP id q126mr7875358wma.84.1610208411272;
+        Sat, 09 Jan 2021 08:06:51 -0800 (PST)
 Received: from localhost.localdomain ([185.69.144.125])
-        by smtp.gmail.com with ESMTPSA id j9sm17403866wrm.14.2021.01.09.08.06.45
+        by smtp.gmail.com with ESMTPSA id j9sm17403866wrm.14.2021.01.09.08.06.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Jan 2021 08:06:46 -0800 (PST)
+        Sat, 09 Jan 2021 08:06:50 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     linux-block@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>,
@@ -71,9 +71,9 @@ Cc:     Jens Axboe <axboe@kernel.dk>,
         linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
         linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v3 2/7] bvec/iter: disallow zero-length segment bvecs
-Date:   Sat,  9 Jan 2021 16:02:58 +0000
-Message-Id: <4570836cc62137a9ee788d9c820f58ed8efe9b37.1610170479.git.asml.silence@gmail.com>
+Subject: [PATCH v3 5/7] iov_iter: optimise bvec iov_iter_advance()
+Date:   Sat,  9 Jan 2021 16:03:01 +0000
+Message-Id: <58552e3ba333650ccd425823cb9dc0b949350959.1610170479.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1610170479.git.asml.silence@gmail.com>
 References: <cover.1610170479.git.asml.silence@gmail.com>
@@ -83,61 +83,53 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-zero-length bvec segments are allowed in general, but not handled by bio
-and down the block layer so filtered out. This inconsistency may be
-confusing and prevent from optimisations. As zero-length segments are
-useless and places that were generating them are patched, declare them
-not allowed.
+iov_iter_advance() is heavily used, but implemented through generic
+means. For bvecs there is a specifically crafted function for that, so
+use bvec_iter_advance() instead, it's faster and slimmer.
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- Documentation/block/biovecs.rst       | 2 ++
- Documentation/filesystems/porting.rst | 7 +++++++
- lib/iov_iter.c                        | 2 --
- 3 files changed, 9 insertions(+), 2 deletions(-)
+ lib/iov_iter.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/Documentation/block/biovecs.rst b/Documentation/block/biovecs.rst
-index 36771a131b56..ddb867e0185b 100644
---- a/Documentation/block/biovecs.rst
-+++ b/Documentation/block/biovecs.rst
-@@ -40,6 +40,8 @@ normal code doesn't have to deal with bi_bvec_done.
-    There is a lower level advance function - bvec_iter_advance() - which takes
-    a pointer to a biovec, not a bio; this is used by the bio integrity code.
- 
-+As of 5.12 bvec segments with zero bv_len are not supported.
-+
- What's all this get us?
- =======================
- 
-diff --git a/Documentation/filesystems/porting.rst b/Documentation/filesystems/porting.rst
-index 867036aa90b8..c722d94f29ea 100644
---- a/Documentation/filesystems/porting.rst
-+++ b/Documentation/filesystems/porting.rst
-@@ -865,3 +865,10 @@ no matter what.  Everything is handled by the caller.
- 
- clone_private_mount() returns a longterm mount now, so the proper destructor of
- its result is kern_unmount() or kern_unmount_array().
-+
-+---
-+
-+**mandatory**
-+
-+zero-length bvec segments are disallowed, they must be filtered out before
-+passed on to an iterator.
 diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index 1635111c5bd2..7de304269641 100644
+index 7de304269641..9b1c109dc8a9 100644
 --- a/lib/iov_iter.c
 +++ b/lib/iov_iter.c
-@@ -72,8 +72,6 @@
- 	__start.bi_bvec_done = skip;			\
- 	__start.bi_idx = 0;				\
- 	for_each_bvec(__v, i->bvec, __bi, __start) {	\
--		if (!__v.bv_len)			\
--			continue;			\
- 		(void)(STEP);				\
- 	}						\
+@@ -1065,6 +1065,21 @@ static void pipe_advance(struct iov_iter *i, size_t size)
+ 	pipe_truncate(i);
  }
+ 
++static void iov_iter_bvec_advance(struct iov_iter *i, size_t size)
++{
++	struct bvec_iter bi;
++
++	bi.bi_size = i->count;
++	bi.bi_bvec_done = i->iov_offset;
++	bi.bi_idx = 0;
++	bvec_iter_advance(i->bvec, &bi, size);
++
++	i->bvec += bi.bi_idx;
++	i->nr_segs -= bi.bi_idx;
++	i->count = bi.bi_size;
++	i->iov_offset = bi.bi_bvec_done;
++}
++
+ void iov_iter_advance(struct iov_iter *i, size_t size)
+ {
+ 	if (unlikely(iov_iter_is_pipe(i))) {
+@@ -1075,6 +1090,10 @@ void iov_iter_advance(struct iov_iter *i, size_t size)
+ 		i->count -= size;
+ 		return;
+ 	}
++	if (iov_iter_is_bvec(i)) {
++		iov_iter_bvec_advance(i, size);
++		return;
++	}
+ 	iterate_and_advance(i, size, v, 0, 0, 0)
+ }
+ EXPORT_SYMBOL(iov_iter_advance);
 -- 
 2.24.0
 

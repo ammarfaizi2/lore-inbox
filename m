@@ -2,185 +2,206 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D12DFC433E0
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 17:06:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DEC8C433DB
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 21:35:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BFA423107
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 17:06:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA8642310F
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 21:35:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390793AbhALRGL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 12 Jan 2021 12:06:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387665AbhALRGK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 12:06:10 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B247C0617A5;
-        Tue, 12 Jan 2021 09:05:06 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id r3so3297587wrt.2;
-        Tue, 12 Jan 2021 09:05:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Xbha0bjtgmWAV8KMhvonjfsuNNBF+pMbi8XLxFXZpV4=;
-        b=BU9SRtiVu7oLwO/+fAIjbWo1tLwJTl8Q/EjTLuHcTLGrURyXGm/aLKuY9LQZjva4f/
-         ZIje5ym5UQjfiC5NU6mWjrpqY3lzjkb072ITkP0Ynl+W0ZABBDnmlN+wzFR6/3kzQICa
-         BKzYw16qvmBmdbV2rQhNFgEm+rlKj3FmTAgdGONCUygdBonP7rBUz9Qn+CO8ezt2IDfo
-         sfQENtb4h1nxAo44reyi2nCkf5wEf0CKC3EYC8CGSuWg0UlWT4rFIXlOeMbszKmjYzx2
-         t4/ophhrQvb+ZpAfFVVJbvGZhEwYbzK6oYFt+sV0i8OgGhOhyEgHRv4VW4Pyfu8wDcco
-         36cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Xbha0bjtgmWAV8KMhvonjfsuNNBF+pMbi8XLxFXZpV4=;
-        b=nbqEw3ulN8o6s4P46kS2dK4CBFuzFW5hGEel8lw2OFFAD2PxL27B/L60eCwsfViMt2
-         izvz9YCbF89kwfKz3WUqcjdfGOpUlBtjnSMbK6xbMd03p6urVaErtaH3m8ffHFpC8mjs
-         OiBIzl7psWFXl8yEMvIQJ9YM+peZLgy+zgxMZDfXxYxNp8A8xWkDLguT8lZ47porEJYv
-         ht7NQGR0xTzZ/xouXGg5dmlJKYwNJPPFfrFKueNcn61M6pAF7e4fktmwLJpD4OEglVAe
-         83PFg6PkjgehGkJ1RXFAzNBsVLi0OAoOhvnfzWpo0IX/kZNjWf9WiCqf6Pl+SqJmXnWm
-         z+1w==
-X-Gm-Message-State: AOAM532TlhoAG/ev1bYA+prdP7SoFvMwTGALEdy5LV00EnaCZP7wJIpl
-        yNshlHWYC1JcqDqCnWOaBj1HgBMtxSfUCQ==
-X-Google-Smtp-Source: ABdhPJylMb4/4/R4GXfDfFwv44Nj3Tb/z3VGHaeowbn4WXPUMjRVGPFZCeg6YwaANPwqMX5lv9raaQ==
-X-Received: by 2002:a5d:488b:: with SMTP id g11mr4259709wrq.5.1610471104977;
-        Tue, 12 Jan 2021 09:05:04 -0800 (PST)
-Received: from [192.168.8.120] ([85.255.235.134])
-        by smtp.gmail.com with ESMTPSA id h5sm6155795wrp.56.2021.01.12.09.05.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Jan 2021 09:05:04 -0800 (PST)
-To:     dsterba@suse.cz, Martin Raiber <martin@urbackup.org>,
-        linux-btrfs@vger.kernel.org, io-uring@vger.kernel.org
-References: <01020176df4d86ba-658b4ef1-1b4a-464f-afe4-fb69ca60e04e-000000@eu-west-1.amazonses.com>
- <20210112153606.GS6430@twin.jikos.cz>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH] btrfs: Prevent nowait or async read from doing sync IO
-Message-ID: <206bd726-e77c-da24-6560-69faee5281e0@gmail.com>
-Date:   Tue, 12 Jan 2021 17:01:30 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
-MIME-Version: 1.0
-In-Reply-To: <20210112153606.GS6430@twin.jikos.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S2406974AbhALVeM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 12 Jan 2021 16:34:12 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:39060 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406586AbhALVeK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:10 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLDpn7169296;
+        Tue, 12 Jan 2021 21:33:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
+ date : message-id : in-reply-to : references; s=corp-2020-01-29;
+ bh=kV6YlTfszGsvxtl3/jTgvtyIP56xm+UJpMvSQlOczNw=;
+ b=Kja1tTkx747Z7YKgqgcZHRbvKc8BJcInV+nSYJVvuB61wI8K6LCunYP+i3Pjjn/eUPSO
+ it67s9Z/7cMB0pW1ZkOApYKhzgKMODwnH9yUIQzw/07OgloYpdxt4eRKO3ZtfW39zhsz
+ pkuxhWyi8Zlyob8HXBbMDhMUV3a8I/71mD6taRcZbKoeTqLAez00jdW0LA0rjZ0oZVus
+ Sa6h0wVcJObQ8wx6xJE3WV4thK+j47ZxlyVbTFdmTRmkt0MWl+oyLXx/350SODmimZ1U
+ 8R7ddhUwZk/HD7MNPw24rnrjdTxX/a6De8kXLnJDZ4k8p5InYy8PugeMHKwt2utWTUv0 cQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 360kcyrkea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jan 2021 21:33:28 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLG3k6103836;
+        Tue, 12 Jan 2021 21:33:28 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3030.oracle.com with ESMTP id 360keyeu7j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jan 2021 21:33:28 +0000
+Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 10CLXQUD005148;
+        Tue, 12 Jan 2021 21:33:27 GMT
+Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 12 Jan 2021 13:33:26 -0800
+From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
+Subject: [PATCH v5 03/13] io_uring: separate ref_list from fixed_rsrc_data
+Date:   Tue, 12 Jan 2021 13:33:03 -0800
+Message-Id: <1610487193-21374-4-git-send-email-bijan.mottahedeh@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
+References: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ suspectscore=0 adultscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101120127
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0
+ impostorscore=0 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
+ lowpriorityscore=0 clxscore=1015 mlxlogscore=999 mlxscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101120127
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 12/01/2021 15:36, David Sterba wrote:
-> On Fri, Jan 08, 2021 at 12:02:48AM +0000, Martin Raiber wrote:
->> When reading from btrfs file via io_uring I get following
->> call traces:
-> 
-> Is there a way to reproduce by common tools (fio) or is a specialized
-> one needed?
+Uplevel ref_list and make it common to all resources.  This is to
+allow one common ref_list to be used for both files, and buffers
+in upcoming patches.
 
-I'm not familiar with this particular issue, but:
-should _probably_ be reproducible with fio with io_uring engine
-or fio/t/io_uring tool.
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+---
+ fs/io_uring.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-> 
->> [<0>] wait_on_page_bit+0x12b/0x270
->> [<0>] read_extent_buffer_pages+0x2ad/0x360
->> [<0>] btree_read_extent_buffer_pages+0x97/0x110
->> [<0>] read_tree_block+0x36/0x60
->> [<0>] read_block_for_search.isra.0+0x1a9/0x360
->> [<0>] btrfs_search_slot+0x23d/0x9f0
->> [<0>] btrfs_lookup_csum+0x75/0x170
->> [<0>] btrfs_lookup_bio_sums+0x23d/0x630
->> [<0>] btrfs_submit_data_bio+0x109/0x180
->> [<0>] submit_one_bio+0x44/0x70
->> [<0>] extent_readahead+0x37a/0x3a0
->> [<0>] read_pages+0x8e/0x1f0
->> [<0>] page_cache_ra_unbounded+0x1aa/0x1f0
->> [<0>] generic_file_buffered_read+0x3eb/0x830
->> [<0>] io_iter_do_read+0x1a/0x40
->> [<0>] io_read+0xde/0x350
->> [<0>] io_issue_sqe+0x5cd/0xed0
->> [<0>] __io_queue_sqe+0xf9/0x370
->> [<0>] io_submit_sqes+0x637/0x910
->> [<0>] __x64_sys_io_uring_enter+0x22e/0x390
->> [<0>] do_syscall_64+0x33/0x80
->> [<0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>
->> Prevent those by setting IOCB_NOIO before calling
->> generic_file_buffered_read.
->>
->> Async read has the same problem. So disable that by removing
->> FMODE_BUF_RASYNC. This was added with commit
->> 8730f12b7962b21ea9ad2756abce1e205d22db84 ("btrfs: flag files as
-> 
-> Oh yeah that's the commit that went to btrfs code out-of-band. I am not
-> familiar with the io_uring support and have no good idea what the new
-> flag was supposed to do.
-
-iirc, Jens did make buffered IO asynchronous by waiting on a page
-with wait_page_queue, but don't remember well enough.
-
-> 
->> supporting buffered async reads") with 5.9. Io_uring will read
->> the data via worker threads if it can't be read without sync IO
->> this way.
-> 
-> What are the implications of that? Like more context switching (due to
-> the worker threads) or other potential performance related problems?
-
-io_uring splits submission and completion steps and usually expect
-submissions to happen quick and not block (at least for long),
-otherwise it can't submit other requests, that reduces QD and so
-forth. In the worst case it can serialise it to QD1. I guess the
-same can be applied to AIO.
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 12eede8..158b53f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -231,8 +231,6 @@ struct fixed_rsrc_data {
+ 	struct fixed_rsrc_ref_node	*node;
+ 	struct percpu_ref		refs;
+ 	struct completion		done;
+-	struct list_head		ref_list;
+-	spinlock_t			lock;
+ };
+ 
+ struct io_buffer {
+@@ -400,6 +398,8 @@ struct io_ring_ctx {
+ 
+ 	struct delayed_work		rsrc_put_work;
+ 	struct llist_head		rsrc_put_llist;
++	struct list_head		rsrc_ref_list;
++	spinlock_t			rsrc_ref_lock;
+ 
+ 	struct work_struct		exit_work;
+ 	struct io_restriction		restrictions;
+@@ -1328,6 +1328,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	INIT_LIST_HEAD(&ctx->timeout_list);
+ 	spin_lock_init(&ctx->inflight_lock);
+ 	INIT_LIST_HEAD(&ctx->inflight_list);
++	spin_lock_init(&ctx->rsrc_ref_lock);
++	INIT_LIST_HEAD(&ctx->rsrc_ref_list);
+ 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
+ 	init_llist_head(&ctx->rsrc_put_llist);
+ 	return ctx;
+@@ -7258,13 +7260,14 @@ static void io_rsrc_ref_kill(struct percpu_ref *ref)
+ 	complete(&data->done);
+ }
+ 
+-static void io_sqe_rsrc_set_node(struct fixed_rsrc_data *rsrc_data,
++static void io_sqe_rsrc_set_node(struct io_ring_ctx *ctx,
++				 struct fixed_rsrc_data *rsrc_data,
+ 				 struct fixed_rsrc_ref_node *ref_node)
+ {
+-	spin_lock_bh(&rsrc_data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
+ 	rsrc_data->node = ref_node;
+-	list_add_tail(&ref_node->node, &rsrc_data->ref_list);
+-	spin_unlock_bh(&rsrc_data->lock);
++	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 	percpu_ref_get(&rsrc_data->refs);
+ }
+ 
+@@ -7281,9 +7284,9 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	if (!backup_node)
+ 		return -ENOMEM;
+ 
+-	spin_lock_bh(&data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
+ 	ref_node = data->node;
+-	spin_unlock_bh(&data->lock);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 	if (ref_node)
+ 		percpu_ref_kill(&ref_node->refs);
+ 
+@@ -7299,7 +7302,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 		if (ret < 0) {
+ 			percpu_ref_resurrect(&data->refs);
+ 			reinit_completion(&data->done);
+-			io_sqe_rsrc_set_node(data, backup_node);
++			io_sqe_rsrc_set_node(ctx, data, backup_node);
+ 			return ret;
+ 		}
+ 	} while (1);
+@@ -7673,11 +7676,11 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 	data = ref_node->rsrc_data;
+ 	ctx = data->ctx;
+ 
+-	spin_lock_bh(&data->lock);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
+ 	ref_node->done = true;
+ 
+-	while (!list_empty(&data->ref_list)) {
+-		ref_node = list_first_entry(&data->ref_list,
++	while (!list_empty(&ctx->rsrc_ref_list)) {
++		ref_node = list_first_entry(&ctx->rsrc_ref_list,
+ 					struct fixed_rsrc_ref_node, node);
+ 		/* recycle ref nodes in order */
+ 		if (!ref_node->done)
+@@ -7685,7 +7688,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 		list_del(&ref_node->node);
+ 		first_add |= llist_add(&ref_node->llist, &ctx->rsrc_put_llist);
+ 	}
+-	spin_unlock_bh(&data->lock);
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ 
+ 	if (percpu_ref_is_dying(&data->refs))
+ 		delay = 0;
+@@ -7746,8 +7749,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return -ENOMEM;
+ 	file_data->ctx = ctx;
+ 	init_completion(&file_data->done);
+-	INIT_LIST_HEAD(&file_data->ref_list);
+-	spin_lock_init(&file_data->lock);
+ 
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
+@@ -7808,7 +7809,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return PTR_ERR(ref_node);
+ 	}
+ 
+-	io_sqe_rsrc_set_node(file_data, ref_node);
++	io_sqe_rsrc_set_node(ctx, file_data, ref_node);
+ 	return ret;
+ out_fput:
+ 	for (i = 0; i < ctx->nr_user_files; i++) {
+@@ -7969,7 +7970,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 
+ 	if (needs_switch) {
+ 		percpu_ref_kill(&data->node->refs);
+-		io_sqe_rsrc_set_node(data, ref_node);
++		io_sqe_rsrc_set_node(ctx, data, ref_node);
+ 	} else
+ 		destroy_fixed_rsrc_ref_node(ref_node);
+ 
 -- 
-Pavel Begunkov
+1.8.3.1
+

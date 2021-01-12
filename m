@@ -8,51 +8,51 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E40C433E9
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F0D6C43381
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFE99221FF
+	by mail.kernel.org (Postfix) with ESMTP id D3387223E0
 	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbhALWAz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 12 Jan 2021 17:00:55 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:47084 "EHLO
+        id S1730508AbhALWA6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 12 Jan 2021 17:00:58 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:47082 "EHLO
         aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437183AbhALVeP (ORCPT
+        with ESMTP id S2437178AbhALVeP (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:15 -0500
 Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLXXoa114953;
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLXXke114952;
         Tue, 12 Jan 2021 21:33:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=lnOu16bjKKAkYFQiBWyPSBXV51RsYyhzwEbyq5ijBIM=;
- b=KUUQdrn72L4Z6xyA3BOPqDuziZBiEZAo3z56rIV8Qbh00c7MMsf6X6eJ7Jhj+pDzKx9C
- QP8h88uFrOZBPQg72mU3d1mNfr/wcDSDTNSzWE99IYl4/fQKTiYmcMSBtU0Uwp2AKzXg
- 6JAX7vJnHWWL8SSvlqGez3OSHKqfsldnAXv+Ca0C+1c5UY60stkKnxHoTD4NzjSt0of4
- VOvqo/FWjMoNK6MriGtLpiFB7MP36mTsOCwx6YnLtGrh1atvWmbujVnV67gUuRisxgpK
- DrLfCUF5k/vftOaml0Tk90UG6JsHlEwHHbtYkzWGXZTb9JrMkGjmqg7KeXoBqqpCiL+7 Lw== 
+ bh=NyT7SDn3wlmsLtqvmzkyu+PnYYERjOGKVWcfMKdlIcc=;
+ b=nx2EzDvSgvpN9lcPkDWNPhz/lySSUv0fxYlT7+dlN8wmwXm7tR1XkaI5qnOYR/Eq+5wf
+ YoboI9dPLKZ63DyWiUJYc8v6tTmPX9oa18FFfdfX3IqV0C/nXpErcbGlze2ygNMdGU42
+ U5faXuvcjxuG07jyuQj7mbRaRpg9beAXb2u2HYsGMiHzT1mXbrgd+ccRSFplZ0FxhRzM
+ mfmxcOjGjRzgVTYhXvw6/zjFMYYMxuDSTBmJyT465e5Qgj4S73LCFwJcoh61tjcy1ysv
+ rU4fGbWxfmo4eBO2sMelVFpWygMSUruTfZ9UzfCleLWgvk6GmcGctd1Af69/YBi3rKkt KQ== 
 Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2130.oracle.com with ESMTP id 360kg1rk02-1
+        by aserp2130.oracle.com with ESMTP id 360kg1rk07-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Tue, 12 Jan 2021 21:33:33 +0000
 Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLEcS1105365;
-        Tue, 12 Jan 2021 21:33:27 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 360kehsfww-1
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLEbnl105255;
+        Tue, 12 Jan 2021 21:33:29 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 360kehsfxs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jan 2021 21:33:27 +0000
+        Tue, 12 Jan 2021 21:33:29 +0000
 Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXQBk011344;
-        Tue, 12 Jan 2021 21:33:26 GMT
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXSW5023064;
+        Tue, 12 Jan 2021 21:33:28 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 12 Jan 2021 13:33:26 -0800
+        with ESMTP ; Tue, 12 Jan 2021 13:33:28 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v5 02/13] io_uring: generalize io_queue_rsrc_removal
-Date:   Tue, 12 Jan 2021 13:33:02 -0800
-Message-Id: <1610487193-21374-3-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v5 08/13] io_uring: generalize files_update functionlity to rsrc_update
+Date:   Tue, 12 Jan 2021 13:33:08 -0800
+Message-Id: <1610487193-21374-9-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
@@ -71,107 +71,85 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Generalize io_queue_rsrc_removal to handle both files and buffers.
+Generalize files_update functionality to rsrc_update in order to
+leverage it for buffers updates.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ fs/io_uring.c                 | 19 ++++++++++++++-----
+ include/uapi/linux/io_uring.h |  6 +++++-
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 195ba12..12eede8 100644
+index 6ebfe1f..f9f458c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -195,13 +195,22 @@ struct io_mapped_ubuf {
- 	unsigned long	acct_pages;
- };
- 
-+struct io_ring_ctx;
-+
- struct io_rsrc_put {
- 	struct list_head list;
--	struct file *file;
-+	union {
-+		void *rsrc;
-+		struct file *file;
-+		struct io_mapped_ubuf *buf;
-+	};
- };
- 
- struct fixed_rsrc_table {
--	struct file		**files;
-+	union {
-+		struct file		**files;
-+		struct io_mapped_ubuf	*bufs;
-+	};
- };
- 
- struct fixed_rsrc_ref_node {
-@@ -209,6 +218,8 @@ struct fixed_rsrc_ref_node {
- 	struct list_head		node;
- 	struct list_head		rsrc_list;
- 	struct fixed_rsrc_data		*rsrc_data;
-+	void				(*rsrc_put)(struct io_ring_ctx *ctx,
-+						    struct io_rsrc_put *prsrc);
- 	struct llist_node		llist;
- 	bool				done;
- };
-@@ -7552,8 +7563,9 @@ static int io_sqe_alloc_file_tables(struct fixed_rsrc_data *file_data,
- 	return 1;
+@@ -5954,7 +5954,7 @@ static int io_async_cancel(struct io_kiocb *req)
  }
  
--static void io_ring_file_put(struct io_ring_ctx *ctx, struct file *file)
-+static void io_ring_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
+ static int io_rsrc_update_prep(struct io_kiocb *req,
+-				const struct io_uring_sqe *sqe)
++			       const struct io_uring_sqe *sqe)
  {
-+	struct file *file = prsrc->file;
- #if defined(CONFIG_UNIX)
- 	struct sock *sock = ctx->ring_sock->sk;
- 	struct sk_buff_head list, *head = &sock->sk_receive_queue;
-@@ -7622,7 +7634,7 @@ static void __io_rsrc_put_work(struct fixed_rsrc_ref_node *ref_node)
- 
- 	list_for_each_entry_safe(prsrc, tmp, &ref_node->rsrc_list, list) {
- 		list_del(&prsrc->list);
--		io_ring_file_put(ctx, prsrc->file);
-+		ref_node->rsrc_put(ctx, prsrc);
- 		kfree(prsrc);
- 	}
- 
-@@ -7701,6 +7713,7 @@ static struct fixed_rsrc_ref_node *alloc_fixed_file_ref_node(
- 	INIT_LIST_HEAD(&ref_node->node);
- 	INIT_LIST_HEAD(&ref_node->rsrc_list);
- 	ref_node->rsrc_data = ctx->file_data;
-+	ref_node->rsrc_put = io_ring_file_put;
- 	ref_node->done = false;
- 	return ref_node;
- }
-@@ -7858,8 +7871,7 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
- #endif
- }
- 
--static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
--				 struct file *rsrc)
-+static int io_queue_rsrc_removal(struct fixed_rsrc_data *data, void *rsrc)
- {
- 	struct io_rsrc_put *prsrc;
- 	struct fixed_rsrc_ref_node *ref_node = data->node;
-@@ -7868,7 +7880,7 @@ static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
- 	if (!prsrc)
- 		return -ENOMEM;
- 
--	prsrc->file = rsrc;
-+	prsrc->rsrc = rsrc;
- 	list_add(&prsrc->list, &ref_node->rsrc_list);
- 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_SQPOLL))
+ 		return -EINVAL;
+@@ -5971,8 +5971,11 @@ static int io_rsrc_update_prep(struct io_kiocb *req,
  	return 0;
-@@ -7877,7 +7889,7 @@ static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
- static inline int io_queue_file_removal(struct fixed_rsrc_data *data,
- 					struct file *file)
- {
--	return io_queue_rsrc_removal(data, file);
-+	return io_queue_rsrc_removal(data, (void *)file);
  }
  
- static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+-static int io_files_update(struct io_kiocb *req, bool force_nonblock,
+-			   struct io_comp_state *cs)
++static int io_rsrc_update(struct io_kiocb *req, bool force_nonblock,
++			  struct io_comp_state *cs,
++			  int (*update)(struct io_ring_ctx *ctx,
++					struct io_uring_rsrc_update *up,
++					unsigned int nr_args))
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct io_uring_rsrc_update up;
+@@ -5982,10 +5985,10 @@ static int io_files_update(struct io_kiocb *req, bool force_nonblock,
+ 		return -EAGAIN;
+ 
+ 	up.offset = req->rsrc_update.offset;
+-	up.fds = req->rsrc_update.arg;
++	up.rsrc = req->rsrc_update.arg;
+ 
+ 	mutex_lock(&ctx->uring_lock);
+-	ret = __io_sqe_files_update(ctx, &up, req->rsrc_update.nr_args);
++	ret = (*update)(ctx, &up, req->rsrc_update.nr_args);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+ 	if (ret < 0)
+@@ -5994,6 +5997,12 @@ static int io_files_update(struct io_kiocb *req, bool force_nonblock,
+ 	return 0;
+ }
+ 
++static int io_files_update(struct io_kiocb *req, bool force_nonblock,
++			   struct io_comp_state *cs)
++{
++	return io_rsrc_update(req, force_nonblock, cs, __io_sqe_files_update);
++}
++
+ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	switch (req->opcode) {
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 77de7c0..f51190b 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -288,7 +288,11 @@ enum {
+ struct io_uring_rsrc_update {
+ 	__u32 offset;
+ 	__u32 resv;
+-	__aligned_u64 /* __s32 * */ fds;
++	union {
++		__aligned_u64 /* __s32 * */ fds;
++		__aligned_u64 /* __s32 * */ iovs;
++		__aligned_u64 /* __s32 * */ rsrc;
++	};
+ };
+ 
+ #define io_uring_files_update	io_uring_rsrc_update
 -- 
 1.8.3.1
 

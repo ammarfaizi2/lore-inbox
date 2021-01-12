@@ -2,119 +2,123 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54639C4332D
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CD6BC433E9
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B268221F5
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32D76221F5
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393798AbhALWA7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 12 Jan 2021 17:00:59 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:47080 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437168AbhALVeP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:15 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLXX17114941;
-        Tue, 12 Jan 2021 21:33:33 GMT
+        id S1726499AbhALWB0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 12 Jan 2021 17:01:26 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:37088 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406976AbhALVeN (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:13 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLFKtk009382;
+        Tue, 12 Jan 2021 21:33:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=+3NEJ2o0r/C6z4qPpv4KTJgpxktL3gHewVCaZGQ1bHI=;
- b=gJq4pRJM4kT7wR7k94BJexXsFfvKeYvniZFqisfBTXLn8uQ7rE6TrYIRFwW49nJ7pFhz
- ITPrTLpBkgXuMxJ38KC+JKJH3II9aQmqPOZzqz1Mrg/eXLBzLK7e4zCsfCBFX5+QUEsD
- 85RGdUZJUlsNHAWtMzhRoSB+KX6XA228JizB/RNhv/JgUUebwJv1DTDXzG0ayk77DPQ5
- VJrApyXmipEVtKOqUD7D+jGA7Km/4GW/zp5g45TEknPJ0W1EleBxJ7PP57OKWkpnZh7c
- yCSJOFD3uYTVIxEtI8jSD/ewlXg01w0KBNkDpnpxBF6siJ5targ8p4RmjPjPGRY8NyxX bw== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 360kg1rk06-1
+ bh=4Ns1PxAXCf28O4OdaBch2T6XvXYQFJ4GLqyKvCB9RLw=;
+ b=EvNN6/HII35Aa++IH5I07MoLfPsXlZFc6wcL1oLvRlrtaNlfeczMIyt3vwb1t6mMAq60
+ YyAED/+J53+B3C0FlFEZjHeStHoSSTmTbaxu/IfEcjcHaS9FoipcpQdWep7yg75u8Dk2
+ 7mlcHt6o0zmseCH0VHT85QICqfS1emYmwnQbTZbgyCJHepvm23Uyn5T9GceKVX5HI0OX
+ 94MwcMmajnN9EarJtu6sSyc2vk+5Mkc7nZhIveAU7MWmb8wwExglOyXbmJfHZ5/a1VKQ
+ 948gb2QC2Lmq79cTDEb11u14tvLPGmEHf9oTTO6vAHck4OmuWqDWKyjVNpGYQUT8eSRk Ug== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 360kvk0g2b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jan 2021 21:33:32 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLG3dL103685;
-        Tue, 12 Jan 2021 21:33:28 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3030.oracle.com with ESMTP id 360keyeu7s-1
+        Tue, 12 Jan 2021 21:33:30 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLFbEr131513;
+        Tue, 12 Jan 2021 21:33:29 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3020.oracle.com with ESMTP id 360ke76qt1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jan 2021 21:33:28 +0000
+        Tue, 12 Jan 2021 21:33:29 +0000
 Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXR2l023052;
-        Tue, 12 Jan 2021 21:33:27 GMT
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXTCn011390;
+        Tue, 12 Jan 2021 21:33:29 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 12 Jan 2021 13:33:27 -0800
+        with ESMTP ; Tue, 12 Jan 2021 13:33:29 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v5 04/13] io_uring: split alloc_fixed_file_ref_node
-Date:   Tue, 12 Jan 2021 13:33:04 -0800
-Message-Id: <1610487193-21374-5-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v5 11/13] io_uring: make percpu_ref_release names consistent
+Date:   Tue, 12 Jan 2021 13:33:11 -0800
+Message-Id: <1610487193-21374-12-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
- suspectscore=0 adultscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0 spamscore=0
+ mlxlogscore=999 malwarescore=0 bulkscore=0 mlxscore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2101120127
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 suspectscore=0
- clxscore=1015 impostorscore=0 spamscore=0 priorityscore=1501 mlxscore=0
- phishscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101120128
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 impostorscore=0 spamscore=0 mlxscore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101120127
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Split alloc_fixed_file_ref_node into resource generic/specific parts,
-to be leveraged for fixed buffers.
+Make the percpu ref release function names consistent between rsrc data
+and nodes.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 158b53f..d0bc4c8 100644
+index 96f760e..5ab0ff1 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7699,7 +7699,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
- 		queue_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
+@@ -7297,7 +7297,7 @@ static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ #endif
  }
  
--static struct fixed_rsrc_ref_node *alloc_fixed_file_ref_node(
-+static struct fixed_rsrc_ref_node *alloc_fixed_rsrc_ref_node(
- 			struct io_ring_ctx *ctx)
+-static void io_rsrc_ref_kill(struct percpu_ref *ref)
++static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ {
+ 	struct fixed_rsrc_data *data;
+ 
+@@ -7376,7 +7376,7 @@ static struct fixed_rsrc_data *alloc_fixed_rsrc_data(struct io_ring_ctx *ctx)
+ 	data->ctx = ctx;
+ 	init_completion(&data->done);
+ 
+-	if (percpu_ref_init(&data->refs, io_rsrc_ref_kill,
++	if (percpu_ref_init(&data->refs, io_rsrc_data_ref_zero,
+ 			    PERCPU_REF_ALLOW_REINIT, GFP_KERNEL)) {
+ 		kfree(data);
+ 		return ERR_PTR(-ENOMEM);
+@@ -7759,7 +7759,7 @@ static void io_rsrc_put_work(struct work_struct *work)
+ 	}
+ }
+ 
+-static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
++static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
  {
  	struct fixed_rsrc_ref_node *ref_node;
-@@ -7715,9 +7715,21 @@ static struct fixed_rsrc_ref_node *alloc_fixed_file_ref_node(
- 	}
- 	INIT_LIST_HEAD(&ref_node->node);
- 	INIT_LIST_HEAD(&ref_node->rsrc_list);
-+	ref_node->done = false;
-+	return ref_node;
-+}
-+
-+static struct fixed_rsrc_ref_node *alloc_fixed_file_ref_node(
-+			struct io_ring_ctx *ctx)
-+{
-+	struct fixed_rsrc_ref_node *ref_node;
-+
-+	ref_node = alloc_fixed_rsrc_ref_node(ctx);
-+	if (!ref_node)
-+		return NULL;
-+
- 	ref_node->rsrc_data = ctx->file_data;
- 	ref_node->rsrc_put = io_ring_file_put;
--	ref_node->done = false;
- 	return ref_node;
- }
+ 	struct fixed_rsrc_data *data;
+@@ -7803,7 +7803,7 @@ static struct fixed_rsrc_ref_node *alloc_fixed_rsrc_ref_node(
+ 	if (!ref_node)
+ 		return ERR_PTR(-ENOMEM);
  
+-	if (percpu_ref_init(&ref_node->refs, io_rsrc_data_ref_zero,
++	if (percpu_ref_init(&ref_node->refs, io_rsrc_node_ref_zero,
+ 			    0, GFP_KERNEL)) {
+ 		kfree(ref_node);
+ 		return ERR_PTR(-ENOMEM);
 -- 
 1.8.3.1
 

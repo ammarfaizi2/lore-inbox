@@ -8,319 +8,137 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E05BAC4332E
-	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32ABCC4332D
+	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E416221F5
+	by mail.kernel.org (Postfix) with ESMTP id EFD05221F5
 	for <io-uring@archiver.kernel.org>; Tue, 12 Jan 2021 22:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730091AbhALWBi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 12 Jan 2021 17:01:38 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:39084 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2406704AbhALVeN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:13 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLE2jP169463;
-        Tue, 12 Jan 2021 21:33:30 GMT
+        id S1727380AbhALWBm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 12 Jan 2021 17:01:42 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:37072 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406812AbhALVeM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 12 Jan 2021 16:34:12 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLFYE4009535;
+        Tue, 12 Jan 2021 21:33:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
  date : message-id : in-reply-to : references; s=corp-2020-01-29;
- bh=j+4/rWJxk6GI9Pgv1DWN+cyZfkoglA6WQ3TJL94AT7o=;
- b=W+kEx0LUCm9Emb731R8Y0sW337P0qO1Jor/MuwcUQ5gz9jnB2a9w5GRnVEEQOQcOk6IB
- B8nMv+zob0nYRBnJKzRx8W6fFEnxHrRQbXPyNmhU4bZUKWTqnoOm2MWj0pFNCWU81qdL
- jKQPPW8HVu9KDxz6FqJLgH4wdljj+mHnX9zakvSA3pjPJbKnj51vWmeUHqxoCz09AsS3
- MRx3ci08Zw8ZlTUcqGlyciesWSWViln6OqwavUYSIKnlDzOopwPx0WYf1Fff0gqYuhii
- KUW8TBat+Z5bG4cXUafSbQKnWLi8ejFqeOvf7QfTh4lvWlhKJuP/YqlAGeQWZNo2wptn Bw== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2120.oracle.com with ESMTP id 360kcyrkee-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jan 2021 21:33:30 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLFbEk131537;
-        Tue, 12 Jan 2021 21:33:29 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 360ke76qsx-1
+ bh=jd80kfM42Wg2JvpHRugzml+zZOas3E8TWSDeSnqaFVk=;
+ b=iBA9SuztZJcJAS4n3U3+VaWqgsKGvFVV+YRbQYqULbUNQeAnvv27d63O5izny1Em1Dhl
+ HgHl5gLcgonOri34sL6oM3w2582pEja264C9ro9Xa5xRociVry33fLciW40QjO8nIAcl
+ WLotA8liqNXn1IGZaWlNblNe0nuYLdJdVoeCTlSQxSZRavhIPtaJISXaPpsJ+eyz1stA
+ rG464/0jVP3UazVKZelQXGDWzHEufxnkRc2BXvLw3Ha89TV10aLAiCqDqo+mtBFa/CNE
+ b/+8sKacGockTcxuVudPWRRK+1mRe1Z5KoQY50eNGDh2QwEVSMiuNS97Ue8gDHU7rjZK iw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2130.oracle.com with ESMTP id 360kvk0g29-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Tue, 12 Jan 2021 21:33:29 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXSMo023068;
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10CLG2A0103630;
         Tue, 12 Jan 2021 21:33:28 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3030.oracle.com with ESMTP id 360keyeu7w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jan 2021 21:33:28 +0000
+Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10CLXRHN023056;
+        Tue, 12 Jan 2021 21:33:27 GMT
 Received: from ca-ldom147.us.oracle.com (/10.129.68.131)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 12 Jan 2021 13:33:28 -0800
+        with ESMTP ; Tue, 12 Jan 2021 13:33:27 -0800
 From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
-Subject: [PATCH v5 09/13] io_uring: support buffer registration updates
-Date:   Tue, 12 Jan 2021 13:33:09 -0800
-Message-Id: <1610487193-21374-10-git-send-email-bijan.mottahedeh@oracle.com>
+Subject: [PATCH v5 05/13] io_uring: add rsrc_ref locking routines
+Date:   Tue, 12 Jan 2021 13:33:05 -0800
+Message-Id: <1610487193-21374-6-git-send-email-bijan.mottahedeh@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
 References: <1610487193-21374-1-git-send-email-bijan.mottahedeh@oracle.com>
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0 spamscore=0
- mlxlogscore=999 malwarescore=0 bulkscore=0 mlxscore=0 phishscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ suspectscore=0 adultscore=0 spamscore=0 mlxlogscore=983 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2101120127
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9862 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0
- impostorscore=0 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 mlxlogscore=999 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=998 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 impostorscore=0 spamscore=0 mlxscore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2009150000 definitions=main-2101120127
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Introduce IORING_REGISTER_BUFFERS_UPDATE and IORING_OP_BUFFERS_UPDATE,
-consistent with file registration update.
+Encapsulate resource reference locking into separate routines.
 
 Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 ---
- fs/io_uring.c                 | 128 +++++++++++++++++++++++++++++++++++++++++-
- include/uapi/linux/io_uring.h |   2 +
- 2 files changed, 128 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f9f458c..d3a6185 100644
+index d0bc4c8..c5e3269 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1008,6 +1008,9 @@ struct io_op_def {
- 		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_FILES |
- 						IO_WQ_WORK_FS | IO_WQ_WORK_BLKCG,
- 	},
-+	[IORING_OP_BUFFERS_UPDATE] = {
-+		.work_flags		= IO_WQ_WORK_MM,
-+	},
- };
- 
- enum io_mem_account {
-@@ -1033,6 +1036,9 @@ static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
- static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				 struct io_uring_rsrc_update *ip,
- 				 unsigned nr_args);
-+static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
-+				   struct io_uring_rsrc_update *up,
-+				   unsigned int nr_args);
- static void __io_clean_op(struct io_kiocb *req);
- static struct file *io_file_get(struct io_submit_state *state,
- 				struct io_kiocb *req, int fd, bool fixed);
-@@ -6003,6 +6009,12 @@ static int io_files_update(struct io_kiocb *req, bool force_nonblock,
- 	return io_rsrc_update(req, force_nonblock, cs, __io_sqe_files_update);
+@@ -7260,14 +7260,24 @@ static void io_rsrc_ref_kill(struct percpu_ref *ref)
+ 	complete(&data->done);
  }
  
-+static int io_buffers_update(struct io_kiocb *req, bool force_nonblock,
-+			     struct io_comp_state *cs)
++static inline void io_rsrc_ref_lock(struct io_ring_ctx *ctx)
 +{
-+	return io_rsrc_update(req, force_nonblock, cs, __io_sqe_buffers_update);
++	spin_lock_bh(&ctx->rsrc_ref_lock);
 +}
 +
- static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
++{
++	spin_unlock_bh(&ctx->rsrc_ref_lock);
++}
++
+ static void io_sqe_rsrc_set_node(struct io_ring_ctx *ctx,
+ 				 struct fixed_rsrc_data *rsrc_data,
+ 				 struct fixed_rsrc_ref_node *ref_node)
  {
- 	switch (req->opcode) {
-@@ -6074,11 +6086,13 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 		return io_renameat_prep(req, sqe);
- 	case IORING_OP_UNLINKAT:
- 		return io_unlinkat_prep(req, sqe);
-+	case IORING_OP_BUFFERS_UPDATE:
-+		return io_rsrc_update_prep(req, sqe);
+-	spin_lock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_lock(ctx);
+ 	rsrc_data->node = ref_node;
+ 	list_add_tail(&ref_node->node, &ctx->rsrc_ref_list);
+-	spin_unlock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_unlock(ctx);
+ 	percpu_ref_get(&rsrc_data->refs);
+ }
+ 
+@@ -7284,9 +7294,9 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	if (!backup_node)
+ 		return -ENOMEM;
+ 
+-	spin_lock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_lock(ctx);
+ 	ref_node = data->node;
+-	spin_unlock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_unlock(ctx);
+ 	if (ref_node)
+ 		percpu_ref_kill(&ref_node->refs);
+ 
+@@ -7676,7 +7686,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 	data = ref_node->rsrc_data;
+ 	ctx = data->ctx;
+ 
+-	spin_lock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_lock(ctx);
+ 	ref_node->done = true;
+ 
+ 	while (!list_empty(&ctx->rsrc_ref_list)) {
+@@ -7688,7 +7698,7 @@ static void io_rsrc_data_ref_zero(struct percpu_ref *ref)
+ 		list_del(&ref_node->node);
+ 		first_add |= llist_add(&ref_node->llist, &ctx->rsrc_put_llist);
  	}
+-	spin_unlock_bh(&ctx->rsrc_ref_lock);
++	io_rsrc_ref_unlock(ctx);
  
- 	printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
- 			req->opcode);
--	return-EINVAL;
-+	return -EINVAL;
- }
- 
- static int io_req_defer_prep(struct io_kiocb *req,
-@@ -6333,6 +6347,9 @@ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
- 	case IORING_OP_UNLINKAT:
- 		ret = io_unlinkat(req, force_nonblock);
- 		break;
-+	case IORING_OP_BUFFERS_UPDATE:
-+		ret = io_buffers_update(req, force_nonblock, cs);
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		break;
-@@ -8036,8 +8053,9 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
- 		io_sqe_rsrc_set_node(ctx, data, ref_node);
--	} else
-+	} else {
- 		destroy_fixed_rsrc_ref_node(ref_node);
-+	}
- 
- 	return done ? done : err;
- }
-@@ -8370,6 +8388,7 @@ static void io_buffer_unmap(struct io_ring_ctx *ctx, struct io_mapped_ubuf *imu)
- 	if (imu->acct_pages)
- 		io_unaccount_mem(ctx, imu->nr_bvecs, ACCT_PINNED);
- 	kvfree(imu->bvec);
-+	imu->bvec = NULL;
- 	imu->nr_bvecs = 0;
- }
- 
-@@ -8573,6 +8592,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
- 		if (pret > 0)
- 			unpin_user_pages(pages, pret);
- 		kvfree(imu->bvec);
-+		imu->bvec = NULL;
- 		goto done;
- 	}
- 
-@@ -8701,6 +8721,8 @@ static int io_buffer_validate(struct iovec *iov)
- static void io_ring_buf_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
- {
- 	io_buffer_unmap(ctx, prsrc->buf);
-+	kvfree(prsrc->buf);
-+	prsrc->buf = NULL;
- }
- 
- static struct fixed_rsrc_ref_node *alloc_fixed_buf_ref_node(
-@@ -8768,6 +8790,104 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
- 	return 0;
- }
- 
-+static inline int io_queue_buffer_removal(struct fixed_rsrc_data *data,
-+					  struct io_mapped_ubuf *imu)
-+{
-+	return io_queue_rsrc_removal(data, (void *)imu);
-+}
-+
-+static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
-+				   struct io_uring_rsrc_update *up,
-+				   unsigned int nr_args)
-+{
-+	struct fixed_rsrc_data *data = ctx->buf_data;
-+	struct fixed_rsrc_ref_node *ref_node;
-+	struct io_mapped_ubuf *imu;
-+	struct iovec iov;
-+	struct iovec __user *iovs;
-+	struct page *last_hpage = NULL;
-+	__u32 done;
-+	int i, err;
-+	bool needs_switch = false;
-+
-+	if (check_add_overflow(up->offset, nr_args, &done))
-+		return -EOVERFLOW;
-+	if (done > ctx->nr_user_bufs)
-+		return -EINVAL;
-+
-+	ref_node = alloc_fixed_buf_ref_node(ctx);
-+	if (IS_ERR(ref_node))
-+		return PTR_ERR(ref_node);
-+
-+	done = 0;
-+	iovs = u64_to_user_ptr(up->iovs);
-+	while (nr_args) {
-+		struct fixed_rsrc_table *table;
-+		unsigned int index;
-+
-+		err = 0;
-+		if (copy_from_user(&iov, &iovs[done], sizeof(iov))) {
-+			err = -EFAULT;
-+			break;
-+		}
-+		i = array_index_nospec(up->offset, ctx->nr_user_bufs);
-+		table = &ctx->buf_data->table[i >> IORING_BUF_TABLE_SHIFT];
-+		index = i & IORING_BUF_TABLE_MASK;
-+		imu = &table->bufs[index];
-+		if (table->bufs[index].ubuf) {
-+			struct io_mapped_ubuf *dup;
-+
-+			dup = kmemdup(imu, sizeof(*imu), GFP_KERNEL);
-+			if (!dup) {
-+				err = -ENOMEM;
-+				break;
-+			}
-+			err = io_queue_buffer_removal(data, dup);
-+			if (err)
-+				break;
-+			memset(imu, 0, sizeof(*imu));
-+			needs_switch = true;
-+		}
-+		if (!io_buffer_validate(&iov)) {
-+			err = io_sqe_buffer_register(ctx, &iov, imu,
-+						     &last_hpage);
-+			if (err) {
-+				memset(imu, 0, sizeof(*imu));
-+				break;
-+			}
-+		}
-+		nr_args--;
-+		done++;
-+		up->offset++;
-+	}
-+
-+	if (needs_switch) {
-+		percpu_ref_kill(&data->node->refs);
-+		io_sqe_rsrc_set_node(ctx, data, ref_node);
-+	} else {
-+		destroy_fixed_rsrc_ref_node(ref_node);
-+	}
-+
-+	return done ? done : err;
-+}
-+
-+static int io_sqe_buffers_update(struct io_ring_ctx *ctx, void __user *arg,
-+				 unsigned int nr_args)
-+{
-+	struct io_uring_rsrc_update up;
-+
-+	if (!ctx->buf_data)
-+		return -ENXIO;
-+	if (!nr_args)
-+		return -EINVAL;
-+	if (copy_from_user(&up, arg, sizeof(up)))
-+		return -EFAULT;
-+	if (up.resv)
-+		return -EINVAL;
-+
-+	return __io_sqe_buffers_update(ctx, &up, nr_args);
-+}
-+
- static int io_eventfd_register(struct io_ring_ctx *ctx, void __user *arg)
- {
- 	__s32 __user *fds = arg;
-@@ -10076,6 +10196,7 @@ static bool io_register_op_must_quiesce(int op)
- 	case IORING_UNREGISTER_FILES:
- 	case IORING_REGISTER_FILES_UPDATE:
- 	case IORING_UNREGISTER_BUFFERS:
-+	case IORING_REGISTER_BUFFERS_UPDATE:
- 	case IORING_REGISTER_PROBE:
- 	case IORING_REGISTER_PERSONALITY:
- 	case IORING_UNREGISTER_PERSONALITY:
-@@ -10151,6 +10272,9 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 			break;
- 		ret = io_sqe_buffers_unregister(ctx);
- 		break;
-+	case IORING_REGISTER_BUFFERS_UPDATE:
-+		ret = io_sqe_buffers_update(ctx, arg, nr_args);
-+		break;
- 	case IORING_REGISTER_FILES:
- 		ret = io_sqe_files_register(ctx, arg, nr_args);
- 		break;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index f51190b..b289ef8 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -137,6 +137,7 @@ enum {
- 	IORING_OP_SHUTDOWN,
- 	IORING_OP_RENAMEAT,
- 	IORING_OP_UNLINKAT,
-+	IORING_OP_BUFFERS_UPDATE,
- 
- 	/* this goes last, obviously */
- 	IORING_OP_LAST,
-@@ -280,6 +281,7 @@ enum {
- 	IORING_UNREGISTER_PERSONALITY		= 10,
- 	IORING_REGISTER_RESTRICTIONS		= 11,
- 	IORING_REGISTER_ENABLE_RINGS		= 12,
-+	IORING_REGISTER_BUFFERS_UPDATE		= 13,
- 
- 	/* this goes last */
- 	IORING_REGISTER_LAST
+ 	if (percpu_ref_is_dying(&data->refs))
+ 		delay = 0;
 -- 
 1.8.3.1
 

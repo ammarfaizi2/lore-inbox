@@ -2,152 +2,171 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C3AFC433DB
-	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 17:03:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45DCFC43381
+	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 17:42:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25ABE2313E
-	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 17:03:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12E9423A9D
+	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 17:42:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbhAORCy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 15 Jan 2021 12:02:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
+        id S1729403AbhAORmS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 15 Jan 2021 12:42:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725923AbhAORCy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Jan 2021 12:02:54 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED62C061757
-        for <io-uring@vger.kernel.org>; Fri, 15 Jan 2021 09:02:14 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id w18so19461236iot.0
-        for <io-uring@vger.kernel.org>; Fri, 15 Jan 2021 09:02:14 -0800 (PST)
+        with ESMTP id S1728176AbhAORmS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Jan 2021 12:42:18 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E3DC061793
+        for <io-uring@vger.kernel.org>; Fri, 15 Jan 2021 09:41:37 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id c124so8117635wma.5
+        for <io-uring@vger.kernel.org>; Fri, 15 Jan 2021 09:41:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=8LOlWUeLUBDB6RiKlP5UStWt6QlHYiEMhjVHGsbCwps=;
-        b=PWz9kJ32pY4sLSCA9FUpl/Kcqf2I1Z6zgBVPgl9Q3nd4+jwy2FuhsSAEK58/U4EBjX
-         oSgj/aF0pT7vxsTe6Jw+ioRAqoKAF2yKJp8NdSt6PF/wiQW11IYHKVpxpB8D69Tx1b+2
-         R8MToSUJCX8hnGeS9rQf8AbBo/UNh6KxHcHV0eq1lOag6Fru/2VFpwmMdgFOmKChw6UA
-         js7T2boosO3ZsbOKG9KNZCL9itGvOZrm10WAmt2khfY14WDQy/bztzmNuM48npvIv8PX
-         TQPFys24lkOD0/Z950doTN28+UZrmnYexucy77UR1M4qx9MJ2OnVxgXHceImqXzK/luY
-         pwEA==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=RXmBz5ODd7DL0wFR6SAUmZbIGDnf5Y70w7ecWnf4Fc0=;
+        b=NFLipTdx9S6asg3zztu65J9rcI9G5SfKw8c2F/JFccFqC44N1aetiRiEScjQ0h6FUu
+         RV/mNSObX+f5bfpWxfRNxPpy3giQftZ3JUz9ImZRhpXZDpb/sLq8IklB3xNspJ3YTBYt
+         BNLPvIqVHodILoFO1tqFpTpUHfX752ctYDEOxc5/SjemmlMUyaBoSD42uNpcRoyiSYOq
+         a95IPU+saAFVAPU6748Egh5zg7J+uisQ6CdzY55R+/GMOLMiJJ80/fOtCuV14PuFpwpi
+         7ijA8HLlDwkAVPN5MiHQAeITHUmWlS2p46TtAd113bmKvQLyzDGhiBCULiTvFlCIf3/T
+         ZbDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=8LOlWUeLUBDB6RiKlP5UStWt6QlHYiEMhjVHGsbCwps=;
-        b=NGeGc+I+oahnti/s2UNcJq2crUDYY9tKpIkFmBzvPBZsLzmRAcqbV5i4JtqK1dUP13
-         HYMHeTvH3MFn/GSamQPgZGbvJ/9ZJZPIBkGO/LmgNGTKoc16RPN/RWurDR/Ugtfx1Dn2
-         5ShLlqz7BCbXLqVrIGySbVd+BUY5HkK20j9Q+oFAxtK8P0LRtS9N3c0b0PNfKGL2tGUQ
-         i2F4ZjrJKwR8KS1xtV6WTfNBbkd6x5GIFgsFGetkiqbkwuBEjJzY2kqNZesOYu80VRQV
-         fiwSRMOFBOJ/a+7EeN7j2yP5HOJPoxeTgwuvCcGw02O19ozcEPl5cxU/8GlStzZUp4aZ
-         f/tg==
-X-Gm-Message-State: AOAM533K16GPA9edsqIGKsZKcMiL3rXgHl4oAG1BJ+RgKrGLonnFr9VE
-        X1wZoI9kdACPmUykdwLSpIXSKAJfMce/EQ==
-X-Google-Smtp-Source: ABdhPJyHXtUgDquTA3CH0kE0+2fk/slXO1dCSCKjop2fTeQbWww8kgzCt2KzDpfnFhkTaiMPdOFVOQ==
-X-Received: by 2002:a05:6e02:11a6:: with SMTP id 6mr9852672ilj.87.1610730133199;
-        Fri, 15 Jan 2021 09:02:13 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id v4sm1743457ilh.23.2021.01.15.09.02.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Jan 2021 09:02:12 -0800 (PST)
-Subject: Re: [PATCH v4 0/1] io_uring: fix skipping of old timeout events
-To:     Marcelo Diop-Gonzalez <marcelo827@gmail.com>,
-        asml.silence@gmail.com
-Cc:     io-uring@vger.kernel.org
-References: <20210115165440.12170-1-marcelo827@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <7b70938a-3726-ccc0-049d-4a617c9d2298@kernel.dk>
-Date:   Fri, 15 Jan 2021 10:02:12 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=RXmBz5ODd7DL0wFR6SAUmZbIGDnf5Y70w7ecWnf4Fc0=;
+        b=bDkp7r7zc1uGw7d9w68h5yN3eGNca5IbGrWLtv640cLc67J7UxhX1bJXF4cNQPzDSj
+         9pUV6GAnkWA3lXeSdFdvfvyHEBP753gSmHfu8uBi2tUHMLR8e2m2gH0vQuKnnQbxjeTW
+         yjR0VMcshhfhOLXGGLt0P4iWtYtUH5QNN/UyeRAoHIyJn64yK58nIiKSsCk+aQqWjKCc
+         m/9yajyMRc7c1J5rDBh6z1/OBMkWkmdyRCUQdm2183kyMqjtdYAaktzhRdJ2qI2Us5ej
+         UtgG2MWcl1EdtNoz0qjgz318czFyt084qxQyIg78tfyyGVFFG2FQs2d1PPr9sXVEFSAA
+         AbdQ==
+X-Gm-Message-State: AOAM531ywc2tHVJu7uNOM9e9jao2fZM7Ghx6XYXb5hEJ69IH8ct7sSZp
+        HEd3DRxpfaNuygDe3MsxHjY=
+X-Google-Smtp-Source: ABdhPJxzV221Be9IgraORANFFcrkjhgyyl1BDj47K0dzcRr+KYIPVWqB7JFXgCPgxrKaUL5j1ijtFw==
+X-Received: by 2002:a1c:3c0b:: with SMTP id j11mr9797636wma.90.1610732496409;
+        Fri, 15 Jan 2021 09:41:36 -0800 (PST)
+Received: from localhost.localdomain ([85.255.233.192])
+        by smtp.gmail.com with ESMTPSA id f7sm2060426wmg.43.2021.01.15.09.41.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jan 2021 09:41:35 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+Subject: [PATCH 2/9] io_uring: generalize io_queue_rsrc_removal
+Date:   Fri, 15 Jan 2021 17:37:45 +0000
+Message-Id: <9ae39f72238058ae3e7bcce1ae2d7bba7523484b.1610729503.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1610729502.git.asml.silence@gmail.com>
+References: <cover.1610729502.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210115165440.12170-1-marcelo827@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/15/21 9:54 AM, Marcelo Diop-Gonzalez wrote:
-> This patch tries to fix a problem with IORING_OP_TIMEOUT events
-> not being flushed if they should already have expired. The test below
-> hangs before this change (unless you run with $ ./a.out ~/somefile 1):
-> 
-> #include <fcntl.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <string.h>
-> #include <unistd.h>
-> 
-> #include <liburing.h>
-> 
-> int main(int argc, char **argv) {
-> 	if (argc < 2)
-> 		return 1;
-> 
-> 	int fd = open(argv[1], O_RDONLY);
-> 	if (fd < 0) {
-> 		perror("open");
-> 		return 1;
-> 	}
-> 
-> 	struct io_uring ring;
-> 	io_uring_queue_init(4, &ring, 0);
-> 
-> 	struct io_uring_sqe *sqe = io_uring_get_sqe(&ring);
-> 
-> 	struct __kernel_timespec ts = { .tv_sec = 9999999 };
-> 	io_uring_prep_timeout(sqe, &ts, 1, 0);
-> 	sqe->user_data = 123;
-> 	int ret = io_uring_submit(&ring);
-> 	if (ret < 0) {
-> 		fprintf(stderr, "submit(timeout_sqe): %d\n", ret);
-> 		return 1;
-> 	}
-> 
-> 	int n = 2;
-> 	if (argc > 2)
-> 		n = atoi(argv[2]);
-> 
-> 	char buf;
-> 	for (int i = 0; i < n; i++) {
-> 		sqe = io_uring_get_sqe(&ring);
-> 		if (!sqe) {
-> 			fprintf(stderr, "too many\n");
-> 			exit(1);
-> 		}
-> 		io_uring_prep_read(sqe, fd, &buf, 1, 0);
-> 	}
-> 	ret = io_uring_submit(&ring);
-> 	if (ret < 0) {
-> 		fprintf(stderr, "submit(read_sqe): %d\n", ret);
-> 		exit(1);
-> 	}
-> 
-> 	struct io_uring_cqe *cqe;
-> 	for (int i = 0; i < n+1; i++) {
-> 		struct io_uring_cqe *cqe;
-> 		int ret = io_uring_wait_cqe(&ring, &cqe);
-> 		if (ret < 0) {
-> 			fprintf(stderr, "wait_cqe(): %d\n", ret);
-> 			return 1;
-> 		}
-> 		if (cqe->user_data == 123)
-> 			printf("timeout found\n");
-> 		io_uring_cqe_seen(&ring, cqe);
-> 	}
-> }
+From: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 
-Can you turn this into a test case for liburing? I'll apply the
-associated patch, thanks (and to Pavel for review as well).
+Generalize io_queue_rsrc_removal to handle both files and buffers.
 
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+[remove io_mapped_ubuf from rsrc tables/etc. for now]
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 183a761fd9ae..35b4440ca7f0 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -195,9 +195,14 @@ struct io_mapped_ubuf {
+ 	unsigned long	acct_pages;
+ };
+ 
++struct io_ring_ctx;
++
+ struct io_rsrc_put {
+ 	struct list_head list;
+-	struct file *file;
++	union {
++		void *rsrc;
++		struct file *file;
++	};
+ };
+ 
+ struct fixed_rsrc_table {
+@@ -209,6 +214,8 @@ struct fixed_rsrc_ref_node {
+ 	struct list_head		node;
+ 	struct list_head		rsrc_list;
+ 	struct fixed_rsrc_data		*rsrc_data;
++	void				(*rsrc_put)(struct io_ring_ctx *ctx,
++						    struct io_rsrc_put *prsrc);
+ 	struct llist_node		llist;
+ 	bool				done;
+ };
+@@ -7570,8 +7577,9 @@ static int io_sqe_alloc_file_tables(struct fixed_rsrc_data *file_data,
+ 	return 1;
+ }
+ 
+-static void io_ring_file_put(struct io_ring_ctx *ctx, struct file *file)
++static void io_ring_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
+ {
++	struct file *file = prsrc->file;
+ #if defined(CONFIG_UNIX)
+ 	struct sock *sock = ctx->ring_sock->sk;
+ 	struct sk_buff_head list, *head = &sock->sk_receive_queue;
+@@ -7640,7 +7648,7 @@ static void __io_rsrc_put_work(struct fixed_rsrc_ref_node *ref_node)
+ 
+ 	list_for_each_entry_safe(prsrc, tmp, &ref_node->rsrc_list, list) {
+ 		list_del(&prsrc->list);
+-		io_ring_file_put(ctx, prsrc->file);
++		ref_node->rsrc_put(ctx, prsrc);
+ 		kfree(prsrc);
+ 	}
+ 
+@@ -7719,6 +7727,7 @@ static struct fixed_rsrc_ref_node *alloc_fixed_file_ref_node(
+ 	INIT_LIST_HEAD(&ref_node->node);
+ 	INIT_LIST_HEAD(&ref_node->rsrc_list);
+ 	ref_node->rsrc_data = ctx->file_data;
++	ref_node->rsrc_put = io_ring_file_put;
+ 	ref_node->done = false;
+ 	return ref_node;
+ }
+@@ -7876,8 +7885,7 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
+ #endif
+ }
+ 
+-static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
+-				 struct file *rsrc)
++static int io_queue_rsrc_removal(struct fixed_rsrc_data *data, void *rsrc)
+ {
+ 	struct io_rsrc_put *prsrc;
+ 	struct fixed_rsrc_ref_node *ref_node = data->node;
+@@ -7886,7 +7894,7 @@ static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
+ 	if (!prsrc)
+ 		return -ENOMEM;
+ 
+-	prsrc->file = rsrc;
++	prsrc->rsrc = rsrc;
+ 	list_add(&prsrc->list, &ref_node->rsrc_list);
+ 
+ 	return 0;
+@@ -7895,7 +7903,7 @@ static int io_queue_rsrc_removal(struct fixed_rsrc_data *data,
+ static inline int io_queue_file_removal(struct fixed_rsrc_data *data,
+ 					struct file *file)
+ {
+-	return io_queue_rsrc_removal(data, file);
++	return io_queue_rsrc_removal(data, (void *)file);
+ }
+ 
+ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
 -- 
-Jens Axboe
+2.24.0
 

@@ -5,26 +5,26 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BFCDC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FEC4C4332B
 	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 15:09:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 40CB9238EF
+	by mail.kernel.org (Postfix) with ESMTP id 6B3052388B
 	for <io-uring@archiver.kernel.org>; Fri, 15 Jan 2021 15:09:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729489AbhAOPJX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 15 Jan 2021 10:09:23 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:34028 "EHLO raptor.unsafe.ru"
+        id S1728533AbhAOPJY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 15 Jan 2021 10:09:24 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:34044 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728020AbhAOPJX (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 15 Jan 2021 10:09:23 -0500
+        id S1728879AbhAOPJY (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 15 Jan 2021 10:09:24 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-89-103-122-167.net.upcbroadband.cz [89.103.122.167])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 304C220A1C;
-        Fri, 15 Jan 2021 14:59:12 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 4CD0220A25;
+        Fri, 15 Jan 2021 14:59:14 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -38,195 +38,241 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [RFC PATCH v3 4/8] Move RLIMIT_MSGQUEUE counter to ucounts
-Date:   Fri, 15 Jan 2021 15:57:25 +0100
-Message-Id: <d823db215431bf161fb3c9b8bb8f0ac1592919c2.1610722474.git.gladkov.alexey@gmail.com>
+Subject: [RFC PATCH v3 8/8] kselftests: Add test to check for rlimit changes in different user namespaces
+Date:   Fri, 15 Jan 2021 15:57:29 +0100
+Message-Id: <3102e17576584b3bfa5854f457073a42574dec8c.1610722474.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <cover.1610722473.git.gladkov.alexey@gmail.com>
 References: <cover.1610722473.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Fri, 15 Jan 2021 14:59:12 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Fri, 15 Jan 2021 14:59:14 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+The testcase runs few instances of the program with RLIMIT_NPROC=1 from
+user uid=60000, in different user namespaces.
+
 Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
 ---
- include/linux/sched/user.h     |  4 ----
- include/linux/user_namespace.h |  1 +
- ipc/mqueue.c                   | 29 +++++++++++++++--------------
- kernel/fork.c                  |  1 +
- kernel/ucount.c                |  1 +
- kernel/user_namespace.c        |  1 +
- 6 files changed, 19 insertions(+), 18 deletions(-)
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/rlimits/.gitignore    |   2 +
+ tools/testing/selftests/rlimits/Makefile      |   6 +
+ tools/testing/selftests/rlimits/config        |   1 +
+ .../selftests/rlimits/rlimits-per-userns.c    | 161 ++++++++++++++++++
+ 5 files changed, 171 insertions(+)
+ create mode 100644 tools/testing/selftests/rlimits/.gitignore
+ create mode 100644 tools/testing/selftests/rlimits/Makefile
+ create mode 100644 tools/testing/selftests/rlimits/config
+ create mode 100644 tools/testing/selftests/rlimits/rlimits-per-userns.c
 
-diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
-index d33d867ad6c1..8a34446681aa 100644
---- a/include/linux/sched/user.h
-+++ b/include/linux/sched/user.h
-@@ -18,10 +18,6 @@ struct user_struct {
- #endif
- #ifdef CONFIG_EPOLL
- 	atomic_long_t epoll_watches; /* The number of file descriptors currently watched */
--#endif
--#ifdef CONFIG_POSIX_MQUEUE
--	/* protected by mq_lock	*/
--	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
- #endif
- 	unsigned long locked_shm; /* How many pages of mlocked shm ? */
- 	unsigned long unix_inflight;	/* How many files in flight in unix sockets */
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index bca6d28c85ce..ff96a906d7da 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -51,6 +51,7 @@ enum ucount_type {
- 	UCOUNT_INOTIFY_WATCHES,
- #endif
- 	UCOUNT_RLIMIT_NPROC,
-+	UCOUNT_RLIMIT_MSGQUEUE,
- 	UCOUNT_COUNTS,
- };
- 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index beff0cfcd1e8..05fcf067131f 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -144,7 +144,7 @@ struct mqueue_inode_info {
- 	struct pid *notify_owner;
- 	u32 notify_self_exec_id;
- 	struct user_namespace *notify_user_ns;
--	struct user_struct *user;	/* user who created, for accounting */
-+	struct ucounts *ucounts;	/* user who created, for accounting */
- 	struct sock *notify_sock;
- 	struct sk_buff *notify_cookie;
- 
-@@ -292,7 +292,6 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
- 		struct ipc_namespace *ipc_ns, umode_t mode,
- 		struct mq_attr *attr)
- {
--	struct user_struct *u = current_user();
- 	struct inode *inode;
- 	int ret = -ENOMEM;
- 
-@@ -309,6 +308,8 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
- 	if (S_ISREG(mode)) {
- 		struct mqueue_inode_info *info;
- 		unsigned long mq_bytes, mq_treesize;
-+		struct ucounts *ucounts;
-+		bool overlimit;
- 
- 		inode->i_fop = &mqueue_file_operations;
- 		inode->i_size = FILENT_SIZE;
-@@ -321,7 +322,7 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
- 		info->notify_owner = NULL;
- 		info->notify_user_ns = NULL;
- 		info->qsize = 0;
--		info->user = NULL;	/* set when all is ok */
-+		info->ucounts = NULL;	/* set when all is ok */
- 		info->msg_tree = RB_ROOT;
- 		info->msg_tree_rightmost = NULL;
- 		info->node_cache = NULL;
-@@ -371,19 +372,19 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
- 		if (mq_bytes + mq_treesize < mq_bytes)
- 			goto out_inode;
- 		mq_bytes += mq_treesize;
-+		ucounts = current_ucounts();
- 		spin_lock(&mq_lock);
--		if (u->mq_bytes + mq_bytes < u->mq_bytes ||
--		    u->mq_bytes + mq_bytes > rlimit(RLIMIT_MSGQUEUE)) {
-+		overlimit = inc_rlimit_ucounts_and_test(ucounts, UCOUNT_RLIMIT_MSGQUEUE,
-+				mq_bytes, rlimit(RLIMIT_MSGQUEUE));
-+		if (overlimit) {
-+			dec_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
- 			spin_unlock(&mq_lock);
- 			/* mqueue_evict_inode() releases info->messages */
- 			ret = -EMFILE;
- 			goto out_inode;
- 		}
--		u->mq_bytes += mq_bytes;
- 		spin_unlock(&mq_lock);
--
--		/* all is ok */
--		info->user = get_uid(u);
-+		info->ucounts = get_ucounts(ucounts);
- 	} else if (S_ISDIR(mode)) {
- 		inc_nlink(inode);
- 		/* Some things misbehave if size == 0 on a directory */
-@@ -497,7 +498,7 @@ static void mqueue_free_inode(struct inode *inode)
- static void mqueue_evict_inode(struct inode *inode)
- {
- 	struct mqueue_inode_info *info;
--	struct user_struct *user;
-+	struct ucounts *ucounts;
- 	struct ipc_namespace *ipc_ns;
- 	struct msg_msg *msg, *nmsg;
- 	LIST_HEAD(tmp_msg);
-@@ -520,8 +521,8 @@ static void mqueue_evict_inode(struct inode *inode)
- 		free_msg(msg);
- 	}
- 
--	user = info->user;
--	if (user) {
-+	ucounts = info->ucounts;
-+	if (ucounts) {
- 		unsigned long mq_bytes, mq_treesize;
- 
- 		/* Total amount of bytes accounted for the mqueue */
-@@ -533,7 +534,7 @@ static void mqueue_evict_inode(struct inode *inode)
- 					  info->attr.mq_msgsize);
- 
- 		spin_lock(&mq_lock);
--		user->mq_bytes -= mq_bytes;
-+		dec_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
- 		/*
- 		 * get_ns_from_inode() ensures that the
- 		 * (ipc_ns = sb->s_fs_info) is either a valid ipc_ns
-@@ -543,7 +544,7 @@ static void mqueue_evict_inode(struct inode *inode)
- 		if (ipc_ns)
- 			ipc_ns->mq_queues_count--;
- 		spin_unlock(&mq_lock);
--		free_uid(user);
-+		put_ucounts(ucounts);
- 	}
- 	if (ipc_ns)
- 		put_ipc_ns(ipc_ns);
-diff --git a/kernel/fork.c b/kernel/fork.c
-index ef7936daeeda..f61a5a3dc02f 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -824,6 +824,7 @@ void __init fork_init(void)
- 	}
- 
- 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
-+	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
- 
- #ifdef CONFIG_VMAP_STACK
- 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
-diff --git a/kernel/ucount.c b/kernel/ucount.c
-index ee683cc088af..daeb657d4989 100644
---- a/kernel/ucount.c
-+++ b/kernel/ucount.c
-@@ -75,6 +75,7 @@ static struct ctl_table user_table[] = {
- 	UCOUNT_ENTRY("max_inotify_instances"),
- 	UCOUNT_ENTRY("max_inotify_watches"),
- #endif
-+	{ },
- 	{ },
- 	{ }
- };
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 974f10da072c..9ace2a45a25d 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -122,6 +122,7 @@ int create_user_ns(struct cred *new)
- 		ns->ucount_max[i] = INT_MAX;
- 	}
- 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
-+	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
- 	ns->ucounts = ucounts;
- 
- 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index afbab4aeef3c..4dbeb5686f7b 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -46,6 +46,7 @@ TARGETS += proc
+ TARGETS += pstore
+ TARGETS += ptrace
+ TARGETS += openat2
++TARGETS += rlimits
+ TARGETS += rseq
+ TARGETS += rtc
+ TARGETS += seccomp
+diff --git a/tools/testing/selftests/rlimits/.gitignore b/tools/testing/selftests/rlimits/.gitignore
+new file mode 100644
+index 000000000000..091021f255b3
+--- /dev/null
++++ b/tools/testing/selftests/rlimits/.gitignore
+@@ -0,0 +1,2 @@
++# SPDX-License-Identifier: GPL-2.0-only
++rlimits-per-userns
+diff --git a/tools/testing/selftests/rlimits/Makefile b/tools/testing/selftests/rlimits/Makefile
+new file mode 100644
+index 000000000000..03aadb406212
+--- /dev/null
++++ b/tools/testing/selftests/rlimits/Makefile
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: GPL-2.0-or-later
++
++CFLAGS += -Wall -O2 -g
++TEST_GEN_PROGS := rlimits-per-userns
++
++include ../lib.mk
+diff --git a/tools/testing/selftests/rlimits/config b/tools/testing/selftests/rlimits/config
+new file mode 100644
+index 000000000000..416bd53ce982
+--- /dev/null
++++ b/tools/testing/selftests/rlimits/config
+@@ -0,0 +1 @@
++CONFIG_USER_NS=y
+diff --git a/tools/testing/selftests/rlimits/rlimits-per-userns.c b/tools/testing/selftests/rlimits/rlimits-per-userns.c
+new file mode 100644
+index 000000000000..26dc949e93ea
+--- /dev/null
++++ b/tools/testing/selftests/rlimits/rlimits-per-userns.c
+@@ -0,0 +1,161 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Author: Alexey Gladkov <gladkov.alexey@gmail.com>
++ */
++#define _GNU_SOURCE
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <sys/time.h>
++#include <sys/resource.h>
++#include <sys/prctl.h>
++#include <sys/stat.h>
++
++#include <unistd.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <sched.h>
++#include <signal.h>
++#include <limits.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <err.h>
++
++#define NR_CHILDS 2
++
++static char *service_prog;
++static uid_t user   = 60000;
++static uid_t group  = 60000;
++
++static void setrlimit_nproc(rlim_t n)
++{
++	pid_t pid = getpid();
++	struct rlimit limit = {
++		.rlim_cur = n,
++		.rlim_max = n
++	};
++
++	warnx("(pid=%d): Setting RLIMIT_NPROC=%ld", pid, n);
++
++	if (setrlimit(RLIMIT_NPROC, &limit) < 0)
++		err(EXIT_FAILURE, "(pid=%d): setrlimit(RLIMIT_NPROC)", pid);
++}
++
++static pid_t fork_child(void)
++{
++	pid_t pid = fork();
++
++	if (pid < 0)
++		err(EXIT_FAILURE, "fork");
++
++	if (pid > 0)
++		return pid;
++
++	pid = getpid();
++
++	warnx("(pid=%d): New process starting ...", pid);
++
++	if (prctl(PR_SET_PDEATHSIG, SIGKILL) < 0)
++		err(EXIT_FAILURE, "(pid=%d): prctl(PR_SET_PDEATHSIG)", pid);
++
++	signal(SIGUSR1, SIG_DFL);
++
++	warnx("(pid=%d): Changing to uid=%d, gid=%d", pid, user, group);
++
++	if (setgid(group) < 0)
++		err(EXIT_FAILURE, "(pid=%d): setgid(%d)", pid, group);
++	if (setuid(user) < 0)
++		err(EXIT_FAILURE, "(pid=%d): setuid(%d)", pid, user);
++
++	warnx("(pid=%d): Service running ...", pid);
++
++	warnx("(pid=%d): Unshare user namespace", pid);
++	if (unshare(CLONE_NEWUSER) < 0)
++		err(EXIT_FAILURE, "unshare(CLONE_NEWUSER)");
++
++	char *const argv[] = { "service", NULL };
++	char *const envp[] = { "I_AM_SERVICE=1", NULL };
++
++	warnx("(pid=%d): Executing real service ...", pid);
++
++	execve(service_prog, argv, envp);
++	err(EXIT_FAILURE, "(pid=%d): execve", pid);
++}
++
++int main(int argc, char **argv)
++{
++	size_t i;
++	pid_t child[NR_CHILDS];
++	int wstatus[NR_CHILDS];
++	int childs = NR_CHILDS;
++	pid_t pid;
++
++	if (getenv("I_AM_SERVICE")) {
++		pause();
++		exit(EXIT_SUCCESS);
++	}
++
++	service_prog = argv[0];
++	pid = getpid();
++
++	warnx("(pid=%d) Starting testcase", pid);
++
++	/*
++	 * This rlimit is not a problem for root because it can be exceeded.
++	 */
++	setrlimit_nproc(1);
++
++	for (i = 0; i < NR_CHILDS; i++) {
++		child[i] = fork_child();
++		wstatus[i] = 0;
++		usleep(250000);
++	}
++
++	while (1) {
++		for (i = 0; i < NR_CHILDS; i++) {
++			if (child[i] <= 0)
++				continue;
++
++			errno = 0;
++			pid_t ret = waitpid(child[i], &wstatus[i], WNOHANG);
++
++			if (!ret || (!WIFEXITED(wstatus[i]) && !WIFSIGNALED(wstatus[i])))
++				continue;
++
++			if (ret < 0 && errno != ECHILD)
++				warn("(pid=%d): waitpid(%d)", pid, child[i]);
++
++			child[i] *= -1;
++			childs -= 1;
++		}
++
++		if (!childs)
++			break;
++
++		usleep(250000);
++
++		for (i = 0; i < NR_CHILDS; i++) {
++			if (child[i] <= 0)
++				continue;
++			kill(child[i], SIGUSR1);
++		}
++	}
++
++	for (i = 0; i < NR_CHILDS; i++) {
++		if (WIFEXITED(wstatus[i]))
++			warnx("(pid=%d): pid %d exited, status=%d",
++				pid, -child[i], WEXITSTATUS(wstatus[i]));
++		else if (WIFSIGNALED(wstatus[i]))
++			warnx("(pid=%d): pid %d killed by signal %d",
++				pid, -child[i], WTERMSIG(wstatus[i]));
++
++		if (WIFSIGNALED(wstatus[i]) && WTERMSIG(wstatus[i]) == SIGUSR1)
++			continue;
++
++		warnx("(pid=%d): Test failed", pid);
++		exit(EXIT_FAILURE);
++	}
++
++	warnx("(pid=%d): Test passed", pid);
++	exit(EXIT_SUCCESS);
++}
 -- 
 2.29.2
 

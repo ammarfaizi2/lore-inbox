@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47338C4360C
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87C2AC4321A
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B93520DD4
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BE392313B
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391344AbhASOzg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:55:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41456 "EHLO
+        id S2391762AbhASOzo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:55:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394422AbhASNhx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:37:53 -0500
+        with ESMTP id S2394463AbhASNiF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:38:05 -0500
 Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C870C0613ED
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:40 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id y187so16750335wmd.3
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B96C061795
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:43 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id c124so16483805wma.5
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=sUJZi99MjphBnXUx6N3uI4Z+aZ/NI8itmkbUzyTZPHg=;
-        b=uKEijIPFRfGhlgqdKLuTfYEE8hs5XWDM73LNGeyfGNBH4u0OX9RZoEVwmD5n6mXIYw
-         v6QDINE8pQmwWJsL+pkvs2Ch7zjpxh4wSO+iZZ7Uegy8F432pINovCDOjwCtcgf100TF
-         bzpDNvo3tTVwXTZ8i94KQHe5fyKHEYquTfAWJ1926RjmvXm6UjQoVQLr+/SIFBXyF2vU
-         dmsVz7uPHMKU0pL6T26Or25pOvAuyaJrrbISL+IyFeTwV0hZ29KwvJvv/pKXO58mAG14
-         L2br/RXS+QJQsCDNYeDIvBoKMKmbae+og9fVk+h8UfKVH0wVccLA+D6BCjxWKWyAJgdl
-         1dNQ==
+        bh=Y+CUjGduMtmbcDyNvW6X2Kezn910c3L4r1bKCai2S4A=;
+        b=cItWf7mHhUuoarKT5Rplj22xdGqdP7Zke0a68ZfErhIER7Ar3zAucQNJeDIUOlkYFR
+         vkUx5CU9eHmPCYbR1qZgjiG+wDlVegmjz9im6LC82NeurL6FD6BUyoFZGU3gZwAhge0G
+         /l8xZJzzfOk3O5f/sOqP51RxURpCfS8g1Vi3zkpR9ASPevGqYoClpYWUxiAu3l8TjjE7
+         jfHV5ItD9Oaa9X2pIMnN0b4LbApM7zfpbt4Oaqce09+W3Da/T4ltZibqel7OH9RfC8mU
+         4c1oKbsKsHUdjJLIjT9i1qV25gp1BkP8u28JGGNv6oSV0D3G8LDlIC9Pjor4mv8FwYhT
+         er4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sUJZi99MjphBnXUx6N3uI4Z+aZ/NI8itmkbUzyTZPHg=;
-        b=FiKqEHbTBU2HQg835C5WspPNxirj3mV+yXKbDqfUpOusdrcdzNL0apTJUFow9juSC1
-         s4AYdRboDH9U+UXYnMwlU7fve+pWnno1u54YyInV0c+5U2+vtigsfdEH93rN6qr8UYgB
-         TRBzovi02lGmCRhhf3IIJ32GpXuG9szBZhinfJFuQyQgwacX6bu9TxTU3zV05T7pm32K
-         O6NABePihq+dA6cQDsyCw+9vEURNRh0cyGpy7NgI3eL6y+sjdeXwJVlhTGpieC9Ia0EP
-         griOqsYEaKCFJntY+vLOiZN0Z7nG8Q/2I7FjuSLzDQj8ParZ6yc/wXIleF4nW4r2eSll
-         QPjw==
-X-Gm-Message-State: AOAM532RiCZ0hBsjJ1a4L/xxPZm0/1q8VHhtgoM5xI5g4ToahuX0OJho
-        kqiEAL2M/qqlsX5/1edxXmA=
-X-Google-Smtp-Source: ABdhPJznbrB7feWl8E731yxaCVkSkiCTYrSNvlioXb1uLH7zAcrnoXh+FoH3/7LxfJpUmfZb0rCbpQ==
-X-Received: by 2002:a7b:ce17:: with SMTP id m23mr4136979wmc.178.1611063398879;
-        Tue, 19 Jan 2021 05:36:38 -0800 (PST)
+        bh=Y+CUjGduMtmbcDyNvW6X2Kezn910c3L4r1bKCai2S4A=;
+        b=LNLQQyUmOmOs+/shtohNlTMZy7Ybz+ywzsTd7XWsw5AJhmo3GpKohhe3wDarJu+xB/
+         yqVhWcm4KrXBQ3BDbLrU1akfVpSprI/NrG7l8RLsutoznj3QduSq9AHLdLQPCrfq9AqE
+         XDPpkSRlz8MIx6lTlPu5PRwG1swiLzmxPab7OcTBL/VBNPROvCuHnRXz3c/TRIPDtvZv
+         W7s/iSyfb1IKo5Y69RzZ+nSUR7o0jpmg2saMYJza0lbDJolUYEh6TfBZzlsUJ8CGcXit
+         3ckVi2E/n7SCUOg0H1BovBcO8E/enbUSkFqJpuYUWP5H1hAQ7fRz64fMxABqGj82T5H5
+         YBVw==
+X-Gm-Message-State: AOAM532BDchEUn33f2LBQBPI+AFP4Gb5fdCcoe36QNzfCHmhXIHXzOCA
+        E1apOh7LHkZL2pnoeeV/bDfOTup3glQzkw==
+X-Google-Smtp-Source: ABdhPJz7t2ZtcdGRgvDNl6RznEIXzw6c9qsl+1SJpOGv/G8m1jYdCzkGIWC92SLeDBd11r3dqRxR5Q==
+X-Received: by 2002:a05:600c:20c6:: with SMTP id y6mr4076575wmm.97.1611063402306;
+        Tue, 19 Jan 2021 05:36:42 -0800 (PST)
 Received: from localhost.localdomain ([85.255.234.152])
-        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.38
+        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 05:36:38 -0800 (PST)
+        Tue, 19 Jan 2021 05:36:41 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/14] io_uring: simplify io_alloc_req()
-Date:   Tue, 19 Jan 2021 13:32:40 +0000
-Message-Id: <f1c14fb26ef6651872a168b3f74d9eedbc577d01.1611062505.git.asml.silence@gmail.com>
+Subject: [PATCH 11/14] io_uring: add a helper timeout mode calculation
+Date:   Tue, 19 Jan 2021 13:32:44 +0000
+Message-Id: <94cb8adc214f838b69175cbe678cdd9994c47f59.1611062505.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1611062505.git.asml.silence@gmail.com>
 References: <cover.1611062505.git.asml.silence@gmail.com>
@@ -70,36 +70,62 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Get rid of a label in io_alloc_req(), it's cleaner to do return
-directly.
+Deduplicates translation of timeout flags into hrtimer_mode.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/io_uring.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b05d0b94e334..d1ced93c1ea3 100644
+index 9720e38b5b97..a004102fbbde 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1963,7 +1963,7 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx,
- 		if (unlikely(ret <= 0)) {
- 			state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
- 			if (!state->reqs[0])
--				goto fallback;
-+				return io_get_fallback_req(ctx);
- 			ret = 1;
- 		}
- 		state->free_reqs = ret;
-@@ -1971,8 +1971,6 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx,
- 
- 	state->free_reqs--;
- 	return state->reqs[state->free_reqs];
--fallback:
--	return io_get_fallback_req(ctx);
+@@ -5744,6 +5744,12 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
+ 	return 0;
  }
  
- static inline void io_put_file(struct io_kiocb *req, struct file *file,
++static inline enum hrtimer_mode io_translate_timeout_mode(unsigned int flags)
++{
++	return (flags & IORING_TIMEOUT_ABS) ? HRTIMER_MODE_ABS
++					    : HRTIMER_MODE_REL;
++}
++
+ /*
+  * Remove or update an existing timeout command
+  */
+@@ -5754,14 +5760,11 @@ static int io_timeout_remove(struct io_kiocb *req)
+ 	int ret;
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+-	if (req->timeout_rem.flags & IORING_TIMEOUT_UPDATE) {
+-		enum hrtimer_mode mode = (tr->flags & IORING_TIMEOUT_ABS)
+-					? HRTIMER_MODE_ABS : HRTIMER_MODE_REL;
+-
+-		ret = io_timeout_update(ctx, tr->addr, &tr->ts, mode);
+-	} else {
++	if (!(req->timeout_rem.flags & IORING_TIMEOUT_UPDATE))
+ 		ret = io_timeout_cancel(ctx, tr->addr);
+-	}
++	else
++		ret = io_timeout_update(ctx, tr->addr, &tr->ts,
++					io_translate_timeout_mode(tr->flags));
+ 
+ 	io_cqring_fill_event(req, ret);
+ 	io_commit_cqring(ctx);
+@@ -5801,11 +5804,7 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	if (get_timespec64(&data->ts, u64_to_user_ptr(sqe->addr)))
+ 		return -EFAULT;
+ 
+-	if (flags & IORING_TIMEOUT_ABS)
+-		data->mode = HRTIMER_MODE_ABS;
+-	else
+-		data->mode = HRTIMER_MODE_REL;
+-
++	data->mode = io_translate_timeout_mode(flags);
+ 	hrtimer_init(&data->timer, CLOCK_MONOTONIC, data->mode);
+ 	return 0;
+ }
 -- 
 2.24.0
 

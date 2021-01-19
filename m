@@ -2,150 +2,97 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 311B4C43333
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7130AC4361A
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F81423138
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4AA0822DFB
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391863AbhASOzs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:55:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41546 "EHLO
+        id S2389055AbhASOys (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:54:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389412AbhASNik (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:38:40 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0979EC061799
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:46 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id m187so10241019wme.2
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:45 -0800 (PST)
+        with ESMTP id S2394337AbhASNhP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:37:15 -0500
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280BDC061574
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:33 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id a9so16303028wrt.5
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=S9BbKmM1G1kDOSSNGFqpsD26mfeCSV1FG6c7uGUAYko=;
-        b=fZhmDyI+WqvfM0u71mBuTmifh+akpVCZwTFHeKXqdlD4u+vz33VfEv+odLG86ktLxd
-         Kn8M3tbwab+Y0WR815tZMaYtZ99WUPOhoiOZIXJB7Af0mFawLRaUPmGM+4FJzeEsg5kT
-         bhSAYhKMxFMOi2pmclZPW1lv5Jbt4VYQ7B0XenJxPzv1Uf4PLNQDolK5ulIj6ZXZ/qQZ
-         nQRXsx7r06JLOkHntvHvBOTDn9V4TeXI2uQ9/h63DCs5nJCuLCyp2QocTPhjD5VK7Yh5
-         C/EmRo1Ob6+VfdrpgnG1GjyTOXjUGzCpf4sw5ZsHtfz202lIkTjSbB3htNShAhk/bs0y
-         1+Vg==
+        bh=eyz3VFs4aTiI7SNOFjPvb/ivy1WHVtVpgYf+xO6AC70=;
+        b=iekY81YaDS2WgdPmljjqwtFg6KOCev2uCrb8N2ybKyVcsBFlB6p7hSrj5t/RTBZGIN
+         8b7vybcfuFh3o7+WPT8aJoYQWLY3L2f5dI5Mmyl1U3bgUtApO8/VeLmNp15J4eiR53WD
+         iCg4iyOdg7l0GBiisviD8IT8d3OlwksVBjp1RxGjSWDlQFJdmVj6A7WG3Jgu4duOXZ09
+         y4NUDpUCXN4GWtXYnFt1LMSw4Ub6lWvt7nBsa9fmXwHB+SplKpWwFiNUuRdPBug4cknd
+         NBTT6GvwrWDmU5WwqKLORc4H9zHxTrT9MUgirxVw3koRkz/JH42cdlQKJnqmrU16NB6W
+         oVxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=S9BbKmM1G1kDOSSNGFqpsD26mfeCSV1FG6c7uGUAYko=;
-        b=qF5VuWSBugyW0GYmFdqXm2b6T5SvMXGFmCp6Wzu/QA0VxfuNbo6g+j4jQaEaMZNmP6
-         b8jmiQv8bRvukeK3bsKWsM7kZPsfBkeczkCQg6HUKJ5+stFeCCYe1mRKe2iz3614NR/V
-         FsV/0p7h3HwAxy7ud8bNrF5fc0HOf2oUC1wINkmNxtuVIwVNGhQsckv3NuAc9wGvmud8
-         5qWdduCupJeCp/s1kmSZAZPbcArDAIQHur/3KRv2Q4K9kz+FhOrZfce/Z8dEwesCkboG
-         7G0wYXZ0XGoFVXVG5wc/wY5eBEOoQz/OnyA/RiFNjj3/7/qY8uowbMDY7YDi2IqNyvCE
-         DFeQ==
-X-Gm-Message-State: AOAM53356tRRdXKzyBgwpk8DtnDG8hIHqcf1GboBrFnpj+140rZweWDG
-        GJUgnUp807BSyR+q2vvKEds=
-X-Google-Smtp-Source: ABdhPJw9AGpvUrNVFn2qHZVOP7gOeSqmT+tD3arZQN+dnTcJclrg6GRapuhpKJrkd7enuSXVGoTK4g==
-X-Received: by 2002:a1c:f619:: with SMTP id w25mr4113785wmc.179.1611063404807;
-        Tue, 19 Jan 2021 05:36:44 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eyz3VFs4aTiI7SNOFjPvb/ivy1WHVtVpgYf+xO6AC70=;
+        b=aYP5dgDXM5OvKseWG63Uv1wa52SJaJI01jJQthfSI/og6IsVdGJT6AZoTSxxCLHOAr
+         iL4l9K5SyUEkRMa7W6UY8lFuh52jo3TiC/phkVGwT8cDulFMOc4iKZkpkukab0x+qoaI
+         GvCjAWcBpkIRxgb9yilyvKPEVzCUC1uTiZl3bQBBS+HmyL7/xCzLNwHTGdR1NH610U0A
+         9H04pDwC9XDdwgCBzujSMtTOmH9lMEkqcPw76+NimbM5mBvrxLMs+he9pZjoan2l5WSz
+         MFDIWLCqa+HR8rDSXhVr0bH8irUWOID78wOhBFQ525WNYwei8B/nY1vTopSGNuFI8faA
+         nBiw==
+X-Gm-Message-State: AOAM530SI7cqgPiLjCNZ8T+O9GeNVTuGO/PkMWUTVptY3RdB9WeEDm38
+        RWSMOWLm9AhgxB+8et3EkHU=
+X-Google-Smtp-Source: ABdhPJyTBaJPKnaBzYXoX9SMHGS7mvFdMI4PWPPBq2kBwviyTl4sWqFVcBrT816BtHwe9aBymTT0+Q==
+X-Received: by 2002:adf:f511:: with SMTP id q17mr1411403wro.264.1611063391981;
+        Tue, 19 Jan 2021 05:36:31 -0800 (PST)
 Received: from localhost.localdomain ([85.255.234.152])
-        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.44
+        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 05:36:44 -0800 (PST)
+        Tue, 19 Jan 2021 05:36:31 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 14/14] io_uring: save atomic dec for inline executed reqs
-Date:   Tue, 19 Jan 2021 13:32:47 +0000
-Message-Id: <300674e8a1a53566f4ed10b0cafb44faf595d1be.1611062505.git.asml.silence@gmail.com>
+Subject: [PATCH for-next 00/14] mostly cleanups for 5.12
+Date:   Tue, 19 Jan 2021 13:32:33 +0000
+Message-Id: <cover.1611062505.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1611062505.git.asml.silence@gmail.com>
-References: <cover.1611062505.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-When a request is completed with comp_state, its completion reference
-put is deferred to io_submit_flush_completions(), but the submission
-is put not far from there, so do it together to save one atomic dec per
-request. That targets requests that complete inline, e.g. buffered rw,
-send/recv.
+Easy patches that should not conflict with other stuff, actually based
+on 5.11 because it has more essential changes, but I'll rebase if
+doesn't apply after rc4 and 5.12 rebase/merge.
 
-Proper benchmarking haven't been conducted but for nops(batch=32) it was
-around 7901 vs 8117 KIOPS (~2.7%), or ~4% per perf profiling.
+1-11 are easy mostly cleanups, and 12-14 are optimisations that
+may end up to be preps.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+Pavel Begunkov (14):
+  io_uring: optimise io_rw_reissue()
+  io_uring: refactor io_resubmit_prep()
+  io_uring: cleanup personalities under uring_lock
+  io_uring: inline io_async_submit()
+  io_uring: inline __io_commit_cqring()
+  io_uring: further deduplicate #CQ events calc
+  io_uring: simplify io_alloc_req()
+  io_uring: remove __io_state_file_put
+  io_uring: deduplicate failing task_work_add
+  io_uring: don't block resource recycle by oveflows
+  io_uring: add a helper timeout mode calculation
+  io_uring: help inlining of io_req_complete()
+  io_uring: don't flush CQEs deep down the stack
+  io_uring: save atomic dec for inline executed reqs
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1e46d471aa76..fb4e2a97e4f3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -618,6 +618,7 @@ enum {
- 	REQ_F_NO_FILE_TABLE_BIT,
- 	REQ_F_WORK_INITIALIZED_BIT,
- 	REQ_F_LTIMEOUT_ACTIVE_BIT,
-+	REQ_F_COMPLETE_INLINE_BIT,
- 
- 	/* not a real bit, just to check we're not overflowing the space */
- 	__REQ_F_LAST_BIT,
-@@ -661,6 +662,8 @@ enum {
- 	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
- 	/* linked timeout is active, i.e. prepared by link's head */
- 	REQ_F_LTIMEOUT_ACTIVE	= BIT(REQ_F_LTIMEOUT_ACTIVE_BIT),
-+	/* completion is deferred through io_comp_state */
-+	REQ_F_COMPLETE_INLINE	= BIT(REQ_F_COMPLETE_INLINE_BIT),
- };
- 
- struct async_poll {
-@@ -1899,14 +1902,15 @@ static void io_submit_flush_completions(struct io_comp_state *cs)
- 		 * io_free_req() doesn't care about completion_lock unless one
- 		 * of these flags is set. REQ_F_WORK_INITIALIZED is in the list
- 		 * because of a potential deadlock with req->work.fs->lock
-+		 * We defer both, completion and submission refs.
- 		 */
- 		if (req->flags & (REQ_F_FAIL_LINK|REQ_F_LINK_TIMEOUT
- 				 |REQ_F_WORK_INITIALIZED)) {
- 			spin_unlock_irq(&ctx->completion_lock);
--			io_put_req(req);
-+			io_double_put_req(req);
- 			spin_lock_irq(&ctx->completion_lock);
- 		} else {
--			io_put_req(req);
-+			io_double_put_req(req);
- 		}
- 	}
- 	io_commit_cqring(ctx);
-@@ -1922,8 +1926,7 @@ static void io_req_complete_state(struct io_kiocb *req, long res,
- 	io_clean_op(req);
- 	req->result = res;
- 	req->compl.cflags = cflags;
--	list_add_tail(&req->compl.list, &cs->list);
--	cs->nr++;
-+	req->flags |= REQ_F_COMPLETE_INLINE;
- }
- 
- static inline void __io_req_complete(struct io_kiocb *req, long res,
-@@ -6537,9 +6540,9 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
- 			io_queue_linked_timeout(linked_timeout);
- 	} else if (likely(!ret)) {
- 		/* drop submission reference */
--		if (cs) {
--			io_put_req(req);
--			if (cs->nr >= 32)
-+		if (req->flags & REQ_F_COMPLETE_INLINE) {
-+			list_add_tail(&req->compl.list, &cs->list);
-+			if (++cs->nr >= 32)
- 				io_submit_flush_completions(cs);
- 			req = NULL;
- 		} else {
+ fs/io_uring.c | 222 +++++++++++++++++++++++---------------------------
+ 1 file changed, 104 insertions(+), 118 deletions(-)
+
 -- 
 2.24.0
 

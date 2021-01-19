@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87C2AC4321A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 311B4C43333
 	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6BE392313B
+	by mail.kernel.org (Postfix) with ESMTP id 0F81423138
 	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:57:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391762AbhASOzo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:55:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
+        id S2391863AbhASOzs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:55:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394463AbhASNiF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:38:05 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B96C061795
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:43 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id c124so16483805wma.5
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:43 -0800 (PST)
+        with ESMTP id S2389412AbhASNik (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:38:40 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0979EC061799
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:46 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id m187so10241019wme.2
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 05:36:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Y+CUjGduMtmbcDyNvW6X2Kezn910c3L4r1bKCai2S4A=;
-        b=cItWf7mHhUuoarKT5Rplj22xdGqdP7Zke0a68ZfErhIER7Ar3zAucQNJeDIUOlkYFR
-         vkUx5CU9eHmPCYbR1qZgjiG+wDlVegmjz9im6LC82NeurL6FD6BUyoFZGU3gZwAhge0G
-         /l8xZJzzfOk3O5f/sOqP51RxURpCfS8g1Vi3zkpR9ASPevGqYoClpYWUxiAu3l8TjjE7
-         jfHV5ItD9Oaa9X2pIMnN0b4LbApM7zfpbt4Oaqce09+W3Da/T4ltZibqel7OH9RfC8mU
-         4c1oKbsKsHUdjJLIjT9i1qV25gp1BkP8u28JGGNv6oSV0D3G8LDlIC9Pjor4mv8FwYhT
-         er4Q==
+        bh=S9BbKmM1G1kDOSSNGFqpsD26mfeCSV1FG6c7uGUAYko=;
+        b=fZhmDyI+WqvfM0u71mBuTmifh+akpVCZwTFHeKXqdlD4u+vz33VfEv+odLG86ktLxd
+         Kn8M3tbwab+Y0WR815tZMaYtZ99WUPOhoiOZIXJB7Af0mFawLRaUPmGM+4FJzeEsg5kT
+         bhSAYhKMxFMOi2pmclZPW1lv5Jbt4VYQ7B0XenJxPzv1Uf4PLNQDolK5ulIj6ZXZ/qQZ
+         nQRXsx7r06JLOkHntvHvBOTDn9V4TeXI2uQ9/h63DCs5nJCuLCyp2QocTPhjD5VK7Yh5
+         C/EmRo1Ob6+VfdrpgnG1GjyTOXjUGzCpf4sw5ZsHtfz202lIkTjSbB3htNShAhk/bs0y
+         1+Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Y+CUjGduMtmbcDyNvW6X2Kezn910c3L4r1bKCai2S4A=;
-        b=LNLQQyUmOmOs+/shtohNlTMZy7Ybz+ywzsTd7XWsw5AJhmo3GpKohhe3wDarJu+xB/
-         yqVhWcm4KrXBQ3BDbLrU1akfVpSprI/NrG7l8RLsutoznj3QduSq9AHLdLQPCrfq9AqE
-         XDPpkSRlz8MIx6lTlPu5PRwG1swiLzmxPab7OcTBL/VBNPROvCuHnRXz3c/TRIPDtvZv
-         W7s/iSyfb1IKo5Y69RzZ+nSUR7o0jpmg2saMYJza0lbDJolUYEh6TfBZzlsUJ8CGcXit
-         3ckVi2E/n7SCUOg0H1BovBcO8E/enbUSkFqJpuYUWP5H1hAQ7fRz64fMxABqGj82T5H5
-         YBVw==
-X-Gm-Message-State: AOAM532BDchEUn33f2LBQBPI+AFP4Gb5fdCcoe36QNzfCHmhXIHXzOCA
-        E1apOh7LHkZL2pnoeeV/bDfOTup3glQzkw==
-X-Google-Smtp-Source: ABdhPJz7t2ZtcdGRgvDNl6RznEIXzw6c9qsl+1SJpOGv/G8m1jYdCzkGIWC92SLeDBd11r3dqRxR5Q==
-X-Received: by 2002:a05:600c:20c6:: with SMTP id y6mr4076575wmm.97.1611063402306;
-        Tue, 19 Jan 2021 05:36:42 -0800 (PST)
+        bh=S9BbKmM1G1kDOSSNGFqpsD26mfeCSV1FG6c7uGUAYko=;
+        b=qF5VuWSBugyW0GYmFdqXm2b6T5SvMXGFmCp6Wzu/QA0VxfuNbo6g+j4jQaEaMZNmP6
+         b8jmiQv8bRvukeK3bsKWsM7kZPsfBkeczkCQg6HUKJ5+stFeCCYe1mRKe2iz3614NR/V
+         FsV/0p7h3HwAxy7ud8bNrF5fc0HOf2oUC1wINkmNxtuVIwVNGhQsckv3NuAc9wGvmud8
+         5qWdduCupJeCp/s1kmSZAZPbcArDAIQHur/3KRv2Q4K9kz+FhOrZfce/Z8dEwesCkboG
+         7G0wYXZ0XGoFVXVG5wc/wY5eBEOoQz/OnyA/RiFNjj3/7/qY8uowbMDY7YDi2IqNyvCE
+         DFeQ==
+X-Gm-Message-State: AOAM53356tRRdXKzyBgwpk8DtnDG8hIHqcf1GboBrFnpj+140rZweWDG
+        GJUgnUp807BSyR+q2vvKEds=
+X-Google-Smtp-Source: ABdhPJw9AGpvUrNVFn2qHZVOP7gOeSqmT+tD3arZQN+dnTcJclrg6GRapuhpKJrkd7enuSXVGoTK4g==
+X-Received: by 2002:a1c:f619:: with SMTP id w25mr4113785wmc.179.1611063404807;
+        Tue, 19 Jan 2021 05:36:44 -0800 (PST)
 Received: from localhost.localdomain ([85.255.234.152])
-        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.41
+        by smtp.gmail.com with ESMTPSA id f68sm4988443wmf.6.2021.01.19.05.36.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 05:36:41 -0800 (PST)
+        Tue, 19 Jan 2021 05:36:44 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 11/14] io_uring: add a helper timeout mode calculation
-Date:   Tue, 19 Jan 2021 13:32:44 +0000
-Message-Id: <94cb8adc214f838b69175cbe678cdd9994c47f59.1611062505.git.asml.silence@gmail.com>
+Subject: [PATCH 14/14] io_uring: save atomic dec for inline executed reqs
+Date:   Tue, 19 Jan 2021 13:32:47 +0000
+Message-Id: <300674e8a1a53566f4ed10b0cafb44faf595d1be.1611062505.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1611062505.git.asml.silence@gmail.com>
 References: <cover.1611062505.git.asml.silence@gmail.com>
@@ -70,62 +70,82 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Deduplicates translation of timeout flags into hrtimer_mode.
+When a request is completed with comp_state, its completion reference
+put is deferred to io_submit_flush_completions(), but the submission
+is put not far from there, so do it together to save one atomic dec per
+request. That targets requests that complete inline, e.g. buffered rw,
+send/recv.
+
+Proper benchmarking haven't been conducted but for nops(batch=32) it was
+around 7901 vs 8117 KIOPS (~2.7%), or ~4% per perf profiling.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ fs/io_uring.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9720e38b5b97..a004102fbbde 100644
+index 1e46d471aa76..fb4e2a97e4f3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5744,6 +5744,12 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
- 	return 0;
- }
+@@ -618,6 +618,7 @@ enum {
+ 	REQ_F_NO_FILE_TABLE_BIT,
+ 	REQ_F_WORK_INITIALIZED_BIT,
+ 	REQ_F_LTIMEOUT_ACTIVE_BIT,
++	REQ_F_COMPLETE_INLINE_BIT,
  
-+static inline enum hrtimer_mode io_translate_timeout_mode(unsigned int flags)
-+{
-+	return (flags & IORING_TIMEOUT_ABS) ? HRTIMER_MODE_ABS
-+					    : HRTIMER_MODE_REL;
-+}
-+
- /*
-  * Remove or update an existing timeout command
-  */
-@@ -5754,14 +5760,11 @@ static int io_timeout_remove(struct io_kiocb *req)
- 	int ret;
+ 	/* not a real bit, just to check we're not overflowing the space */
+ 	__REQ_F_LAST_BIT,
+@@ -661,6 +662,8 @@ enum {
+ 	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
+ 	/* linked timeout is active, i.e. prepared by link's head */
+ 	REQ_F_LTIMEOUT_ACTIVE	= BIT(REQ_F_LTIMEOUT_ACTIVE_BIT),
++	/* completion is deferred through io_comp_state */
++	REQ_F_COMPLETE_INLINE	= BIT(REQ_F_COMPLETE_INLINE_BIT),
+ };
  
- 	spin_lock_irq(&ctx->completion_lock);
--	if (req->timeout_rem.flags & IORING_TIMEOUT_UPDATE) {
--		enum hrtimer_mode mode = (tr->flags & IORING_TIMEOUT_ABS)
--					? HRTIMER_MODE_ABS : HRTIMER_MODE_REL;
--
--		ret = io_timeout_update(ctx, tr->addr, &tr->ts, mode);
--	} else {
-+	if (!(req->timeout_rem.flags & IORING_TIMEOUT_UPDATE))
- 		ret = io_timeout_cancel(ctx, tr->addr);
--	}
-+	else
-+		ret = io_timeout_update(ctx, tr->addr, &tr->ts,
-+					io_translate_timeout_mode(tr->flags));
- 
- 	io_cqring_fill_event(req, ret);
+ struct async_poll {
+@@ -1899,14 +1902,15 @@ static void io_submit_flush_completions(struct io_comp_state *cs)
+ 		 * io_free_req() doesn't care about completion_lock unless one
+ 		 * of these flags is set. REQ_F_WORK_INITIALIZED is in the list
+ 		 * because of a potential deadlock with req->work.fs->lock
++		 * We defer both, completion and submission refs.
+ 		 */
+ 		if (req->flags & (REQ_F_FAIL_LINK|REQ_F_LINK_TIMEOUT
+ 				 |REQ_F_WORK_INITIALIZED)) {
+ 			spin_unlock_irq(&ctx->completion_lock);
+-			io_put_req(req);
++			io_double_put_req(req);
+ 			spin_lock_irq(&ctx->completion_lock);
+ 		} else {
+-			io_put_req(req);
++			io_double_put_req(req);
+ 		}
+ 	}
  	io_commit_cqring(ctx);
-@@ -5801,11 +5804,7 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (get_timespec64(&data->ts, u64_to_user_ptr(sqe->addr)))
- 		return -EFAULT;
- 
--	if (flags & IORING_TIMEOUT_ABS)
--		data->mode = HRTIMER_MODE_ABS;
--	else
--		data->mode = HRTIMER_MODE_REL;
--
-+	data->mode = io_translate_timeout_mode(flags);
- 	hrtimer_init(&data->timer, CLOCK_MONOTONIC, data->mode);
- 	return 0;
+@@ -1922,8 +1926,7 @@ static void io_req_complete_state(struct io_kiocb *req, long res,
+ 	io_clean_op(req);
+ 	req->result = res;
+ 	req->compl.cflags = cflags;
+-	list_add_tail(&req->compl.list, &cs->list);
+-	cs->nr++;
++	req->flags |= REQ_F_COMPLETE_INLINE;
  }
+ 
+ static inline void __io_req_complete(struct io_kiocb *req, long res,
+@@ -6537,9 +6540,9 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 			io_queue_linked_timeout(linked_timeout);
+ 	} else if (likely(!ret)) {
+ 		/* drop submission reference */
+-		if (cs) {
+-			io_put_req(req);
+-			if (cs->nr >= 32)
++		if (req->flags & REQ_F_COMPLETE_INLINE) {
++			list_add_tail(&req->compl.list, &cs->list);
++			if (++cs->nr >= 32)
+ 				io_submit_flush_completions(cs);
+ 			req = NULL;
+ 		} else {
 -- 
 2.24.0
 

@@ -2,65 +2,31 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42754C433E0
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 08:08:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59A9EC433E6
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:54:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 042CA20773
-	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 08:08:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 271A82312E
+	for <io-uring@archiver.kernel.org>; Tue, 19 Jan 2021 14:54:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729993AbhASIID (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 03:08:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53826 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731402AbhASIBF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 03:01:05 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2509AC061573
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 00:00:18 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id my11so1095999pjb.1
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 00:00:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=nsE+qBnaiv3GVfViCouGJKwaHzzogENhZgaw5giCy5Q=;
-        b=eBrOu2ZcjFG18zpkquMs+5qDnAjaSQQiqT5EJKnRDU0+4BSUJzmCgw9gn+4pu6L3yK
-         +esQ+BqcQc8Kjy/5ptEBHN0gVwjwlkeb3ERGZfGmXEE27qCyawBClHSIDE9FZ6PRAlT0
-         pULwzujyK67I/NdDmchpSj8X/SuLYxLAxnFM0kueqcz6JXOxzcPRXV0px+1QVhA3w9iM
-         CffZnIhbVDvMLL8Q17w+cHr/331SLpSUb8jpHr1PNqXSp2HIxfnf/N/Te5piDnyvKigl
-         16HaY8MEMQ2IoIDfPVkRA1CPK/32ogwK1uU6d0boke1D02QnznLathBJn91BGEg5A13D
-         Im+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nsE+qBnaiv3GVfViCouGJKwaHzzogENhZgaw5giCy5Q=;
-        b=p/rB4alXWR0EECDnqvIKNFqNt4Hs/ooTeF+Zod9Jxxg+i3Srt0gMF2Gio6RbTk/kWB
-         L7yDpZy7dpLz2Oj2l0M60ShgJ4WSZ3PYkPBcQcLa8LzNxbuZUpRwzdffZggsA/04RSHD
-         ehbl4XT+wxTCvgw2E/u/1hmmtA1Qa1iZs2b3ek47tegfBYNtmzjBlzo2BbsTxrXJU7wD
-         jYeFsPkue3bOr/ngcGHjL1XQ+S4Zwq9QqGDk18U9Wz31bDETv4KcGoMNNkcBxJ/LwrrN
-         xmfvspiopaacav9z5xXb1cp92jI7QO93lxchvYhfECX8cED6VQ9oWKHqbTbP7Gm9/9Uc
-         uXag==
-X-Gm-Message-State: AOAM533GRQINEcVVM7yJzKW9JSQmCBsQPon4cWb8/zDpjPqHmCMMlwax
-        OLXOwBhuSOT/U21LlB1zKKy5JdU+Ds0=
-X-Google-Smtp-Source: ABdhPJxq0szm9natawEQVLVqnIgN1F5tiYclZQ/O/JduUI4WnErf33N7LDUYwajEPaDJWsxBQ6Y/VA==
-X-Received: by 2002:a17:90a:1a10:: with SMTP id 16mr3927264pjk.42.1611043217733;
-        Tue, 19 Jan 2021 00:00:17 -0800 (PST)
-Received: from B-D1K7ML85-0059.local ([47.89.83.82])
-        by smtp.gmail.com with ESMTPSA id k15sm18297879pfp.115.2021.01.19.00.00.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jan 2021 00:00:17 -0800 (PST)
+        id S2389698AbhASOyo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:54:44 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:42398 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404321AbhASNW5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 08:22:57 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UMEzLvV_1611061941;
+Received: from B-D1K7ML85-0059.local(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0UMEzLvV_1611061941)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 19 Jan 2021 21:12:21 +0800
 Subject: Re: [PATCH] io_uring: fix NULL pointer dereference for async cancel
  close
 To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>
+        Joseph Qi <jiangqi903@gmail.com>, Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org,
         Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 References: <1610963424-27129-1-git-send-email-joseph.qi@linux.alibaba.com>
@@ -68,13 +34,15 @@ References: <1610963424-27129-1-git-send-email-joseph.qi@linux.alibaba.com>
  <ae6fa12a-155b-cf43-7702-b8bb5849a858@gmail.com>
  <58b25063-7047-e656-18df-c1240fab3f8d@linux.alibaba.com>
  <164dff2a-7f23-4baf-bcb5-975b1f5edf9b@gmail.com>
-From:   Joseph Qi <jiangqi903@gmail.com>
-Message-ID: <17125fd3-1d0e-1c71-374a-9a7a7382c8fc@gmail.com>
-Date:   Tue, 19 Jan 2021 16:00:13 +0800
+ <17125fd3-1d0e-1c71-374a-9a7a7382c8fc@gmail.com>
+ <3572b340-ce74-765f-c6bd-0179b3756a1b@gmail.com>
+From:   Joseph Qi <joseph.qi@linux.alibaba.com>
+Message-ID: <f202d3da-0b84-9d35-5da6-d0b7f31d740d@linux.alibaba.com>
+Date:   Tue, 19 Jan 2021 21:12:21 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.6.1
 MIME-Version: 1.0
-In-Reply-To: <164dff2a-7f23-4baf-bcb5-975b1f5edf9b@gmail.com>
+In-Reply-To: <3572b340-ce74-765f-c6bd-0179b3756a1b@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -84,33 +52,41 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 
 
-On 1/19/21 10:38 AM, Pavel Begunkov wrote:
-> On 19/01/2021 01:58, Joseph Qi wrote:
->>> Hmm, I hastened, for files we need IO_WQ_WORK_FILES,
->>> +IO_WQ_WORK_BLKCG for same reasons. needs_file would make 
->>> it to grab a struct file, that is wrong.
->>> Probably worked out because it just grabbed fd=0/stdin.
->>>
+On 1/19/21 7:45 PM, Pavel Begunkov wrote:
+> On 19/01/2021 08:00, Joseph Qi wrote:
 >>
->> I think IO_WQ_WORK_FILES can work since it will acquire
->> files when initialize async cancel request.
+>>
+>> On 1/19/21 10:38 AM, Pavel Begunkov wrote:
+>>> On 19/01/2021 01:58, Joseph Qi wrote:
+>>>>> Hmm, I hastened, for files we need IO_WQ_WORK_FILES,
+>>>>> +IO_WQ_WORK_BLKCG for same reasons. needs_file would make 
+>>>>> it to grab a struct file, that is wrong.
+>>>>> Probably worked out because it just grabbed fd=0/stdin.
+>>>>>
+>>>>
+>>>> I think IO_WQ_WORK_FILES can work since it will acquire
+>>>> files when initialize async cancel request.
+>>>
+>>> That the one controlling files in the first place, need_file
+>>> just happened to grab them submission.
+>>>
+>>>> Don't quite understand why we should have IO_WQ_WORK_BLKCG.
+>>>
+>>> Because it's set for IORING_OP_CLOSE, and similar situation
+>>> may happen but with async_cancel from io-wq.
+>>>
+>> So how about do switch and restore in io_run_cancel(), seems it can
+>> take care of direct request, sqthread and io-wq cases.
 > 
-> That the one controlling files in the first place, need_file
-> just happened to grab them submission.
+> It will get ugly pretty quickly, + this nesting of io-wq handlers
+> async_handler() -> io_close() is not great...
 > 
->> Don't quite understand why we should have IO_WQ_WORK_BLKCG.
+> I'm more inclined to skip them in io_wqe_cancel_pending_work()
+> to not execute inline. That may need to do some waiting on the
+> async_cancel side though to not change the semantics. Can you
+> try out this direction?
 > 
-> Because it's set for IORING_OP_CLOSE, and similar situation
-> may happen but with async_cancel from io-wq.
-> 
-So how about do switch and restore in io_run_cancel(), seems it can
-take care of direct request, sqthread and io-wq cases.
+Sure, I'll try this way and send v2.
 
 Thanks,
 Joseph
-
-> Actually, it's even nastier than that, and neither of io_op_def
-> flags would work because for io-wq case you can end up doing
-> close() with different from original files. I'll think how it
-> can be done tomorrow.
->

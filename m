@@ -2,88 +2,138 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE9EAC433DB
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:13:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6624C433DB
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:22:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 922992310D
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:13:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A246823109
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:22:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731012AbhATDNt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 22:13:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
+        id S1726317AbhATDVu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 22:21:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730790AbhATDNq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 22:13:46 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC88C061757
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 19:13:06 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id m6so13638703pfk.1
-        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 19:13:06 -0800 (PST)
+        with ESMTP id S1732091AbhATCg6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 21:36:58 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15921C0613CF
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 18:36:12 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id y17so21616635wrr.10
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 18:36:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=dC1DtbWQxAc1Od6ES9ySL7nn2zxr4gaai95fsXX4yNw=;
-        b=PJtdKdhGqdnuQCMH93nfXRqeoPIBobOeBgeYVqUf1QJApiKP/pim74qwQ7SwZHwdXr
-         uOwfBDc3I31xY6x5lm65nns9DKguL6ExRRrXluEls9JyLw/D4oek9K0HCL11ikJF+VGN
-         QwVbwfMlI82blfkZh9kLNLcpoVFazVgwRK8eV+1BRxQcIZQs+wwUNSwWtJEM0xpa0UXn
-         EEFFJtV7/ZKm8wIhlKrb7mmKrd2ewSCJyzC7McH+OmtGfb7gUuMUxNXjjWtmtcFahtPB
-         /n5gbZ4hMYGw3RTfzERtgasnIuG1PY82G6taj+izLABzEsdM+Ufz2lfXM7bHZRR/Vka7
-         Sc5g==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=gFv5SzEKELQP7zLKT3+YpOZpTwxUmvYl0uWhQtmURps=;
+        b=oN98o4Htz00+gBI8kpViFX24jWJjDvMfPbBnXPDCRC8jigdsgzVX5ZDKdkSq2u+6sT
+         7DJMDJc5fMTovq5+CdRPIp4Pf0P1H2gCD71H46LoH5/mUQE87MSxA10xuPaBBFn4oz9Q
+         r3H7h5hqDPB4FzFvC4ogDh2lANQbvKRpYWsDnPqYk2exWP+gq1GXIBs8E23y72gcHtDU
+         Oqu/RzmcZFylc8B2Y2NQrEteumoShXaXy+vN2mZny+IvW0StHx9IA25mj+Ia4t6EZbIJ
+         cdIT3YBPYLOVkwOe3N5AG5uRLAkVLw90W6iaf55+8ENc+d5od44Kent1LIsHfq+L8ZJY
+         sylQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=dC1DtbWQxAc1Od6ES9ySL7nn2zxr4gaai95fsXX4yNw=;
-        b=RpMgnnmJx6/V0R6aTiV+sxSNWd48ToWdtwQOkQNXqMKyz3B9vZfw2ck5uiFi804tS1
-         t40Pv3r11fHgHMN7bYtPJfpJJraOnQjGPbot+sLOnEHxNklYF2mmCC8NXkCMufZqWQu9
-         uATJ/6Ewog6oXTFtGyzb8KUd9XcUntM1QW8ZWalLfJ58ubsVzvfLIWTpqmJy8anLysAq
-         g9faX1uPftnRGSPvwMJULSoVvIzMSLNbirBpPkAyHz+xvI/QEUXGFFrQb0MBgQUd55bg
-         PpcbSRvkaiPGye87H5+/8sD/O6A2lCRD7W02tFcAfDBydfC6AY3D9csSMvJS7dQ3tGL6
-         DXcw==
-X-Gm-Message-State: AOAM530K45zYJD58og/jjQHmmw8Aj0Ez04Z5ahERduKMIapdxkNLBfdp
-        p4NUhlgICR6sxaLqyLkUit8CzfnPYwNiIQ==
-X-Google-Smtp-Source: ABdhPJyBS3SUDc/O/T4jZPYfG2QORiF+HO8MQhWlh8Dz6g9wo5ClaLODT70o0AhY81s95hneSliBMA==
-X-Received: by 2002:aa7:86cc:0:b029:1b8:c490:13e6 with SMTP id h12-20020aa786cc0000b02901b8c49013e6mr7143689pfo.78.1611112385553;
-        Tue, 19 Jan 2021 19:13:05 -0800 (PST)
-Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id mv17sm337467pjb.17.2021.01.19.19.13.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jan 2021 19:13:04 -0800 (PST)
-Subject: Re: [PATCH 0/3] files cancellation cleanup
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1611109718.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <403f676f-552f-5c54-c6b4-68a114691bbb@kernel.dk>
-Date:   Tue, 19 Jan 2021 20:13:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=gFv5SzEKELQP7zLKT3+YpOZpTwxUmvYl0uWhQtmURps=;
+        b=Ut8L0B9QEG6I3VdTsKo8bg8d6R9SPqPQiOEp7GGn8QCpsgwNtlY5I0gJFnJrQN0qdJ
+         2Rg6DGkYrEOdJBxrb5j1xnUeU8bwM48973EmUsChFos9CvSLzYeZNynjJgUUejkcXfzH
+         3rJi3Ic727w4JZrmQHjfYlBHIMQS0gSALq6CasAhrUsaL4IR09DvnCD5caJKr4kccFLU
+         D9gnB38k1gpiFimgFa8rISqmRLBCLcOBZx6fst6SODfQJOLDOamG8FlS3x6oSSQ+d+wG
+         DIp6tPozhonHmyMcEwLvIs8qxQu5gJ3Cw4ymtrx370SIO/rEmCNP9HUNWdxhHgdlUWvJ
+         nIPA==
+X-Gm-Message-State: AOAM531yNrXd8hMZMaTKJYWyV5U6K5arP+2m3Gba5N78bPkuUR5QE2Zs
+        v+242i4Hi1D4NxZWn0p4i6BC/P4QLdoWlA==
+X-Google-Smtp-Source: ABdhPJzsJtlLoPfKWhigYX8Br0eFJx9G/04IxgbLhmneLsObKGUdjy1mxys1U4RtInLs75uN8XnSrg==
+X-Received: by 2002:adf:fb52:: with SMTP id c18mr6839947wrs.186.1611110170873;
+        Tue, 19 Jan 2021 18:36:10 -0800 (PST)
+Received: from localhost.localdomain ([85.255.234.152])
+        by smtp.gmail.com with ESMTPSA id v20sm1082767wra.19.2021.01.19.18.36.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jan 2021 18:36:10 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 2/3] io_uring: cleanup iowq cancellation files matching
+Date:   Wed, 20 Jan 2021 02:32:24 +0000
+Message-Id: <40dbd3122a332596887a0b1390e85a4c128e497d.1611109718.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1611109718.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <cover.1611109718.git.asml.silence@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/19/21 7:32 PM, Pavel Begunkov wrote:
-> Carefully remove leftovers from removing cancellations by files
-> 
-> Pavel Begunkov (3):
->   io_uring: remove cancel_files and inflight tracking
->   io_uring: cleanup iowq cancellation files matching
->   io_uring: don't pass files for cancellation
+Clean up io_cancel_task_cb() and related io-wq cancellation after
+renouncing from files cancellations. No need to drag files anymore, just
+pass task directly.
 
-This is exactly what I was thinking as the 5.12 cleanup on top of the
-5.11 changes! Looks good to me, thanks.
+io_match_task() guarantees to not walk through linked request when
+files==NULL, so we can also get rid of ugly conditional synchronisation
+there.
 
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 24 +++---------------------
+ 1 file changed, 3 insertions(+), 21 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0c886ef49920..8d181ef44398 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8850,29 +8850,12 @@ static int io_uring_release(struct inode *inode, struct file *file)
+ 	return 0;
+ }
+ 
+-struct io_task_cancel {
+-	struct task_struct *task;
+-	struct files_struct *files;
+-};
+-
+ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+ {
+ 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
+-	struct io_task_cancel *cancel = data;
+-	bool ret;
+-
+-	if (cancel->files && (req->flags & REQ_F_LINK_TIMEOUT)) {
+-		unsigned long flags;
+-		struct io_ring_ctx *ctx = req->ctx;
++	struct task_struct *tsk = data;
+ 
+-		/* protect against races with linked timeouts */
+-		spin_lock_irqsave(&ctx->completion_lock, flags);
+-		ret = io_match_task(req, cancel->task, cancel->files);
+-		spin_unlock_irqrestore(&ctx->completion_lock, flags);
+-	} else {
+-		ret = io_match_task(req, cancel->task, cancel->files);
+-	}
+-	return ret;
++	return io_match_task(req, tsk, NULL);
+ }
+ 
+ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+@@ -8905,13 +8888,12 @@ static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 					    struct task_struct *task)
+ {
+ 	while (1) {
+-		struct io_task_cancel cancel = { .task = task, .files = NULL, };
+ 		enum io_wq_cancel cret;
+ 		bool ret = false;
+ 
+ 		if (ctx->io_wq) {
+ 			cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb,
+-					       &cancel, true);
++					       task, true);
+ 			ret |= (cret != IO_WQ_CANCEL_NOTFOUND);
+ 		}
+ 
 -- 
-Jens Axboe
+2.24.0
 

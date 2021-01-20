@@ -5,66 +5,65 @@ X-Spam-Level:
 X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69E3DC433E0
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:27:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4E62C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:36:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27EEB2310D
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:27:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79EC123119
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:36:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729235AbhATD1O (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 22:27:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
+        id S1725968AbhATDfM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 22:35:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732154AbhATCa3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 21:30:29 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF4DC0613CF;
-        Tue, 19 Jan 2021 18:29:48 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id a9so18151408wrt.5;
-        Tue, 19 Jan 2021 18:29:48 -0800 (PST)
+        with ESMTP id S1731932AbhATC3a (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 21:29:30 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3644BC06179B
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 18:29:01 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id 7so14348427wrz.0
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 18:29:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
+        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0cGIhhFp+Y5wqhKMECSQp9mWWwANlw8iORzC/rpgsbY=;
-        b=a7ZmaMRgBnzDAbiXd3otx0z51ThOop0Zlx5bV59eQZjB2OAVezyO+6o+ShBRd+ohnF
-         VG6XpV35t6nDePgtjjbZeUT4N1RMjly71K/I4DERDV3k+xaL1xks+jgVWrBDOLFkCVb4
-         rbJKKqNBxxLZLb5i6AqxYX4FpT4ZqsigfO8YdHPwBXvb13GPe8633SiPTVRIWJQ+4NEo
-         sIyQcgq377Nik/oeQkU5aM66Fdc3MkaChklCyO1Kk/EpC9tIwSbjJOXwx3CzcIi92miG
-         PKWdaf7yI028/XpXYObYDDPQD83/0gyWuTr7vI09KpFtEGkQZ6TByjpyxTsFSB5bN3cp
-         v01g==
+        bh=6/HUceZM/wHwYiRM0HAS3aBL/W3aTdMl0firuskkEbA=;
+        b=N6ABEn1/6LJbwJwuXhmMy9GwwO6zj2bJcmzGzypln9rA1Jyoc+0QQF3No1hG0F+Y1L
+         TcIgqs/Y69NhptXki/AIpEg1bIKSNs6ZpOoYRNjFqGkSVHim2EFFAWbn1DHDNHIS5yxn
+         CFjlh9wkWzOsxVzrmsQsFZYjAEpjD6uxtHWCa8zPv9pNK6NTVWZ9ymD+BhmE9DRh75U8
+         7Wyjk6qHqHJHdylx3tYUEjAT7s+G3WX+5sdJ4/VthtV/wA9tHYvUJrom0ldwuMtjnLL8
+         IYKhiU2+5yO8p1MUkqObYWuaKr9mbGcA1OlI8v0l1WkOgAAcQelkW0SXcNZ/sQOoMK1k
+         9kiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
+        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=0cGIhhFp+Y5wqhKMECSQp9mWWwANlw8iORzC/rpgsbY=;
-        b=V+g9E/BHoYfPMYH7PYJtC8TvDBipusWaYig2XdYTqb+LEX3IkWOLfu62XRQP++2G9i
-         UNbZXSzkdxjPgMwKVbPnToP/Zx3RKU88yn79VGrvejjqpvwbfDHcTMKEWow6wJ/5PyQ+
-         kGQzu9d4e31Mbm8pVWDWbsIVbRB+XUgIug6o5BR+RiQ+f+ngrRje7+ia/sUM3syDPLMF
-         jPzozxY6yRnUA8nqvIOI1OvIdr3sSjsz+mguIl3Ro0tlh44CA0+lvNHknqbQ4Z2E6Kbh
-         hS2Dv0yP/MmeSEx/q0xrYwlweQpexpEnQhYIboBdt3ZxKeybY0nO8r4doIGa8IYYDlww
-         B8ig==
-X-Gm-Message-State: AOAM533jKE3rK2OPSHMTjJ8Zodo6DA54JGZdSv2FMUjPD7gGCzB7/iTT
-        hd2ntrxIZNpf4owJe9vn6vnFOwlzMe6mNQ==
-X-Google-Smtp-Source: ABdhPJw46QfDw82/hD+J/PYzaMTShx0EMSYaAs5KR9aU4JtKp4wk+QnL092emEPh2og8zNnVxHNQYQ==
-X-Received: by 2002:a05:6000:1088:: with SMTP id y8mr7079023wrw.380.1611109787406;
-        Tue, 19 Jan 2021 18:29:47 -0800 (PST)
+        bh=6/HUceZM/wHwYiRM0HAS3aBL/W3aTdMl0firuskkEbA=;
+        b=jfcyFORIkh3asDXA1knfBezuzAxxucdAYjSZQOKAQ9TAG/pEw1erc7rAAWWkZs9deJ
+         pAfjUDmXNDXK24toNIBG+pgykWPsPm5CrV0rGo7eEScGrwY81UEfxRbEx2+J51kituNd
+         zoq5Zhml4P4euNDpctvMfcowbTnlEKKoQbzF6Gy6tAjhriIAkN532FsPwM2ZE27rhiq0
+         f+9GO+cdjrxUk4WVHBX1MjEzOnhZsL/LEs+d0bEwY/F9U/C14AFLWQhj7D3tTfj2X0JP
+         HtQm0MlEovq1hum/zdwJITyyBGDhxhVFwoiyyx8ejclouJEX2jmM5ZihTaNgs1TPpmHV
+         +qjQ==
+X-Gm-Message-State: AOAM5304YDCDtqeADYx7kf7UayB/wnAEpsBeG4yRUzQlj165pvJ90oZc
+        rQpWdr93ioL6KE44wCKQh7yNepBbFv0Zuw==
+X-Google-Smtp-Source: ABdhPJzj/xqODvIzJy3/GiQr4fsRmCwf2VBkHOvXLAgrEYRFaTsMWw8rRpzgccrV5UyKUdVRPOOqNg==
+X-Received: by 2002:adf:9b92:: with SMTP id d18mr734797wrc.170.1611109740009;
+        Tue, 19 Jan 2021 18:29:00 -0800 (PST)
 Received: from [192.168.8.137] ([85.255.234.152])
-        by smtp.gmail.com with ESMTPSA id z15sm977549wrv.67.2021.01.19.18.29.46
+        by smtp.gmail.com with ESMTPSA id n9sm988755wrq.41.2021.01.19.18.28.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jan 2021 18:29:46 -0800 (PST)
-Subject: Re: [PATCH] io_uring: simplify io_remove_personalities()
+        Tue, 19 Jan 2021 18:28:59 -0800 (PST)
+To:     Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        io-uring <io-uring@vger.kernel.org>
+Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+References: <e1617bdf-3b4f-f598-a0ad-13ad68bb1e42@kernel.dk>
+ <7c176c50-0f62-6753-eeef-bbb7a803febf@linux.alibaba.com>
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Yejune Deng <yejune.deng@gmail.com>, viro@zeniv.linux.org.uk,
-        axboe@kernel.dk
-Cc:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1608778940-16049-1-git-send-email-yejune.deng@gmail.com>
- <2c9df437-b5e9-51a8-1ccb-a16f5ed4fae6@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -108,98 +107,76 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <34904908-cfcf-a7f7-0039-83c6d16c8d6b@gmail.com>
-Date:   Wed, 20 Jan 2021 02:26:10 +0000
+Subject: Re: [PATCH] io_uring: fix SQPOLL IORING_OP_CLOSE cancelation state
+Message-ID: <6faaeee6-c8f1-b0c4-ef07-fc1bd8b9d87f@gmail.com>
+Date:   Wed, 20 Jan 2021 02:25:23 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <2c9df437-b5e9-51a8-1ccb-a16f5ed4fae6@gmail.com>
+In-Reply-To: <7c176c50-0f62-6753-eeef-bbb7a803febf@linux.alibaba.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 02/01/2021 19:25, Pavel Begunkov wrote:
-> On 24/12/2020 03:02, Yejune Deng wrote:
->> The function io_remove_personalities() is very similar to
->> io_unregister_personality(),so implement io_remove_personalities()
->> calling io_unregister_personality().
-> 
-> Please, don't forget to specify a version in the subject, e.g.
-> [PATCH v2], add a changelog after "---" and add tags from previous
-> threads if any.
-> 
-> Looks good
-> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-
-up
-
-> 
+On 20/01/2021 02:07, Joseph Qi wrote:
+[...]
+>> Fix this by moving the IO_WQ_WORK_NO_CANCEL until _after_ we've modified
+>> the fdtable. Canceling before this point is totally fine, and running
+>> it in the io-wq context _after_ that point is also fine.
 >>
->> Signed-off-by: Yejune Deng <yejune.deng@gmail.com>
+>> For 5.12, we'll handle this internally and get rid of the no-cancel
+>> flag, as IORING_OP_CLOSE is the only user of it.
+>>
+>> Fixes: 14587a46646d ("io_uring: enable file table usage for SQPOLL rings")
+> 
+> As discussed with Pavel, this can not only happen in case sqpoll, but
+> also in case async cancel is from io-wq.
+
+Right, and it's handled because execution-during-cancellation can't
+anymore get into close_fd_get_file(), either it was already done or
+we didn't yet set IO_WQ_WORK_NO_CANCEL. And blkcg is not a problem.
+
+> 
+>> Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+> 
+> In fact, it is reported by "Abaci <abaci@linux.alibaba.com>"
+> 
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> 
+> Reviewed-and-tested-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+
+Thanks!
+
+>>
 >> ---
->>  fs/io_uring.c | 28 +++++++++++-----------------
->>  1 file changed, 11 insertions(+), 17 deletions(-)
+>>
+>> Joseph, can you test this patch and see if this fixes it for you?
 >>
 >> diff --git a/fs/io_uring.c b/fs/io_uring.c
->> index b749578..dc913fa 100644
+>> index b76bb50f18c7..5f6f1e48954e 100644
 >> --- a/fs/io_uring.c
 >> +++ b/fs/io_uring.c
->> @@ -8608,9 +8608,8 @@ static int io_uring_fasync(int fd, struct file *file, int on)
->>  	return fasync_helper(fd, file, on, &ctx->cq_fasync);
->>  }
+>> @@ -4472,7 +4472,6 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+>>  	 * io_wq_work.flags, so initialize io_wq_work firstly.
+>>  	 */
+>>  	io_req_init_async(req);
+>> -	req->work.flags |= IO_WQ_WORK_NO_CANCEL;
 >>  
->> -static int io_remove_personalities(int id, void *p, void *data)
->> +static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
->>  {
->> -	struct io_ring_ctx *ctx = data;
->>  	struct io_identity *iod;
+>>  	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+>>  		return -EINVAL;
+>> @@ -4505,6 +4504,8 @@ static int io_close(struct io_kiocb *req, bool force_nonblock,
 >>  
->>  	iod = idr_remove(&ctx->personality_idr, id);
->> @@ -8618,7 +8617,17 @@ static int io_remove_personalities(int id, void *p, void *data)
->>  		put_cred(iod->creds);
->>  		if (refcount_dec_and_test(&iod->count))
->>  			kfree(iod);
->> +		return 0;
->>  	}
->> +
->> +	return -EINVAL;
->> +}
->> +
->> +static int io_remove_personalities(int id, void *p, void *data)
->> +{
->> +	struct io_ring_ctx *ctx = data;
->> +
->> +	io_unregister_personality(ctx, id);
->>  	return 0;
->>  }
->>  
->> @@ -9679,21 +9688,6 @@ static int io_register_personality(struct io_ring_ctx *ctx)
->>  	return ret;
->>  }
->>  
->> -static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
->> -{
->> -	struct io_identity *iod;
->> -
->> -	iod = idr_remove(&ctx->personality_idr, id);
->> -	if (iod) {
->> -		put_cred(iod->creds);
->> -		if (refcount_dec_and_test(&iod->count))
->> -			kfree(iod);
->> -		return 0;
->> -	}
->> -
->> -	return -EINVAL;
->> -}
->> -
->>  static int io_register_restrictions(struct io_ring_ctx *ctx, void __user *arg,
->>  				    unsigned int nr_args)
->>  {
+>>  	/* if the file has a flush method, be safe and punt to async */
+>>  	if (close->put_file->f_op->flush && force_nonblock) {
+>> +		/* not safe to cancel at this point */
+>> +		req->work.flags |= IO_WQ_WORK_NO_CANCEL;
+>>  		/* was never set, but play safe */
+>>  		req->flags &= ~REQ_F_NOWAIT;
+>>  		/* avoid grabbing files - we don't need the files */
 >>
-> 
 
 -- 
 Pavel Begunkov

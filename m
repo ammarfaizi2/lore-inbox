@@ -2,143 +2,86 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3251C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 02:29:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85D98C433DB
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:12:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 725232250E
-	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 02:29:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FD3E2310B
+	for <io-uring@archiver.kernel.org>; Wed, 20 Jan 2021 03:12:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732009AbhATC3p (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:29:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730082AbhATB2h (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7379323357;
-        Wed, 20 Jan 2021 01:26:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106016;
-        bh=xdzNkLEH3zCwrxG009T3Crurf4ry+SI4WtpFGzT8TkQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0Hwy9l0/mxT1mMl0hIURsg2ZuSGcki6Snidhowl5MsRgFS5AOlcgDYwVQOqusVYm
-         CDIuK9Az7prJA5M/K7FJeHzmKDdUoQ7WJrS/+Ougy6assO26/0c1i4aIx1/gNb4i6L
-         Kkv2EVApctFO2tLr3aiwyAdmix1wFTHOFjzGuxS/5aVCrLAb4fK6+hO3n0HMMgaYGb
-         p9vcy/pzPwwui5QgATcV7w+NBTx8dDqKGo+Xy+3RrZ3ULm8j/hwiHfbcRhIzycqSsd
-         bPmUw2NbHSZUkZxBtAMAyxR7ZU9DOnN7kYpWgeUkOMWlZUzzaKQ1iIHreakmMmOicq
-         UfKv1+YlWmWCw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcelo Diop-Gonzalez <marcelo827@gmail.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 41/45] io_uring: flush timeouts that should already have expired
-Date:   Tue, 19 Jan 2021 20:25:58 -0500
-Message-Id: <20210120012602.769683-41-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
-References: <20210120012602.769683-1-sashal@kernel.org>
+        id S1729276AbhATDMK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Jan 2021 22:12:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726317AbhATDLl (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Jan 2021 22:11:41 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C94C061575
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 19:11:01 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id w14so4584467pfi.2
+        for <io-uring@vger.kernel.org>; Tue, 19 Jan 2021 19:11:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=DJ7XLKWlkPXD3hRutcH+411CcW7f8fn1Apf/TFX89uA=;
+        b=lNUCoQViRzGuh6jKsWAzmnRrTFVj8FaI+RmSvEKeOqpQNqL+coeLelbc7QPrB81ffs
+         /SHtZ0eLd9eUvUGjGpo5wZDieRsr54igM+nPnLypNyH+0unv+9f8GyTNzmXryHjVEJ4y
+         /Sm0+PQ4okVCc+rxlZ2OjU0G94I6HBew1v0TuQ2RlyXaYVGI4kZV8CmQIJOTFtGf0Dwo
+         jeB5ZadFgKtnyduj8uAo9JVuVCfwqRVMBiWE9hqElf47AYFSTX7wXwl/AWf19fcphB9S
+         n869dHEANQD4EcmffxxtNiVjUC7n7HlYrsXnMSv1JrqY1o8iRlsip762z2y+kJMe4H9Y
+         nVEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=DJ7XLKWlkPXD3hRutcH+411CcW7f8fn1Apf/TFX89uA=;
+        b=F7Ypop5QwnW/ZYX5K0fkqAgBik3XBWckTxij3vogpTie42KvRcKa6AelE2XDaQz05x
+         QTVLVsocXVgUBBwWD+FYmjapxFRcMzeBuHeEt96PflEKb6z2eJ1q0ye7gFZshOLjm9Rq
+         Gy90ii3C54RbPD/cFTLabm3StQsDCibepV2jsCC9kKhPKineCkNO/JlmhyZVfgKo3ylv
+         iKbLO9bVo+6i/DGv7mfwtqSqBryToMlAineFE3Woq+oljrk7bb3gztJJ5xP2OEJKBRfW
+         LUs9amvX3Jd/FqxzD7IKOmZkhtbjtnfJqZvADg4WmEbFaVzCbUS4ref4QhHPo7cKnY2O
+         sUTw==
+X-Gm-Message-State: AOAM530DqmUN73EIRZ6Uf7n4K+eBAppYa4msoeMlT8iO5c+jDrUYApsw
+        lTXvaDxWqjTGwrLdfvYbSE7AXw==
+X-Google-Smtp-Source: ABdhPJxeKtSKenYlvVIjoXQ2Pog2P9WrLBf8HMAK6fCOzN9XrkXHXHeVVZygom50poJgkL2fBgCW+A==
+X-Received: by 2002:aa7:8eda:0:b029:19e:c8c3:ed74 with SMTP id b26-20020aa78eda0000b029019ec8c3ed74mr7151710pfr.66.1611112260742;
+        Tue, 19 Jan 2021 19:11:00 -0800 (PST)
+Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id w11sm403915pge.28.2021.01.19.19.10.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Jan 2021 19:11:00 -0800 (PST)
+Subject: Re: [PATCH] io_uring: simplify io_remove_personalities()
+To:     Yejune Deng <yejune.deng@gmail.com>, viro@zeniv.linux.org.uk
+Cc:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1608778940-16049-1-git-send-email-yejune.deng@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <5f1d4f0f-9f1e-b532-6970-cfe0805205be@kernel.dk>
+Date:   Tue, 19 Jan 2021 20:10:58 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1608778940-16049-1-git-send-email-yejune.deng@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Marcelo Diop-Gonzalez <marcelo827@gmail.com>
+On 12/23/20 8:02 PM, Yejune Deng wrote:
+> The function io_remove_personalities() is very similar to
+> io_unregister_personality(),so implement io_remove_personalities()
+> calling io_unregister_personality().
 
-[ Upstream commit f010505b78a4fa8d5b6480752566e7313fb5ca6e ]
+Better late than never, applied for 5.12. Thanks.
 
-Right now io_flush_timeouts() checks if the current number of events
-is equal to ->timeout.target_seq, but this will miss some timeouts if
-there have been more than 1 event added since the last time they were
-flushed (possible in io_submit_flush_completions(), for example). Fix
-it by recording the last sequence at which timeouts were flushed so
-that the number of events seen can be compared to the number of events
-needed without overflow.
-
-Signed-off-by: Marcelo Diop-Gonzalez <marcelo827@gmail.com>
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/io_uring.c | 34 ++++++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4833b68f1a1cc..7e7103c57ec26 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -353,6 +353,7 @@ struct io_ring_ctx {
- 		unsigned		cq_entries;
- 		unsigned		cq_mask;
- 		atomic_t		cq_timeouts;
-+		unsigned		cq_last_tm_flush;
- 		unsigned long		cq_check_overflow;
- 		struct wait_queue_head	cq_wait;
- 		struct fasync_struct	*cq_fasync;
-@@ -1519,19 +1520,38 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
- 
- static void io_flush_timeouts(struct io_ring_ctx *ctx)
- {
--	while (!list_empty(&ctx->timeout_list)) {
-+	u32 seq;
-+
-+	if (list_empty(&ctx->timeout_list))
-+		return;
-+
-+	seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
-+
-+	do {
-+		u32 events_needed, events_got;
- 		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
- 						struct io_kiocb, timeout.list);
- 
- 		if (io_is_timeout_noseq(req))
- 			break;
--		if (req->timeout.target_seq != ctx->cached_cq_tail
--					- atomic_read(&ctx->cq_timeouts))
-+
-+		/*
-+		 * Since seq can easily wrap around over time, subtract
-+		 * the last seq at which timeouts were flushed before comparing.
-+		 * Assuming not more than 2^31-1 events have happened since,
-+		 * these subtractions won't have wrapped, so we can check if
-+		 * target is in [last_seq, current_seq] by comparing the two.
-+		 */
-+		events_needed = req->timeout.target_seq - ctx->cq_last_tm_flush;
-+		events_got = seq - ctx->cq_last_tm_flush;
-+		if (events_got < events_needed)
- 			break;
- 
- 		list_del_init(&req->timeout.list);
- 		io_kill_timeout(req);
--	}
-+	} while (!list_empty(&ctx->timeout_list));
-+
-+	ctx->cq_last_tm_flush = seq;
- }
- 
- static void io_commit_cqring(struct io_ring_ctx *ctx)
-@@ -5580,6 +5600,12 @@ static int io_timeout(struct io_kiocb *req)
- 	tail = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
- 	req->timeout.target_seq = tail + off;
- 
-+	/* Update the last seq here in case io_flush_timeouts() hasn't.
-+	 * This is safe because ->completion_lock is held, and submissions
-+	 * and completions are never mixed in the same ->completion_lock section.
-+	 */
-+	ctx->cq_last_tm_flush = tail;
-+
- 	/*
- 	 * Insertion sort, ensuring the first entry in the list is always
- 	 * the one we need first.
 -- 
-2.27.0
+Jens Axboe
 

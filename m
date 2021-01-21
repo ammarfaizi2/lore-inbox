@@ -2,102 +2,86 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8738C433DB
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:09:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92136C433E6
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:45:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A03323975
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:09:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FF7F23A1C
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:45:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbhAUMJS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 21 Jan 2021 07:09:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
+        id S1729920AbhAUMoG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 21 Jan 2021 07:44:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730917AbhAUMFU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Jan 2021 07:05:20 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87CDCC0613C1;
-        Thu, 21 Jan 2021 04:05:04 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id 7so1493875wrz.0;
-        Thu, 21 Jan 2021 04:05:04 -0800 (PST)
+        with ESMTP id S1731414AbhAUMmg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 21 Jan 2021 07:42:36 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 717CCC061575
+        for <io-uring@vger.kernel.org>; Thu, 21 Jan 2021 04:41:56 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id j12so1404173pfj.12
+        for <io-uring@vger.kernel.org>; Thu, 21 Jan 2021 04:41:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AS44Rkt96UHiyPOxzRje4xpFE3MFKfgU7cCzpEQimRo=;
-        b=raFEO/3+zFUgcz+a7PrzLQ26+O7kzxZ+qd/ZrCdwHWhbkmTphQ2KfbdWeR9dIHEriB
-         3xWVWBrrwTAuH7h68iKZZPhKhgZdJW2iptd9lzagGYmat8JjuJIw1uQTeDstuYRWTzkN
-         GVCe+H+xMKhtvyliT2N5ZD58bJkMUWDj5j+58d/zikP+mRW9DIcpO5GZHbuFsk1P/PpR
-         cJs9Uj7jUtMbc630H+wReLaos9Dy5C/rGEw31u2nEFGHFzgc+NEzq3oT5p83OMd53soX
-         hanve0e2KF3tiVwrMgqC5HHrtiAZ9aGzLJXzuH+vquLom5+PulQbZ5+vDcr9fTeDO8kz
-         8PSw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=dA7zANsaygFdbSr2Swz2dYvuIIf4Skowa5Aocwr2e7A=;
+        b=WZsb9WuctKbC+Y6+LdTbWFYnz/OZwT4VPhRQ49yTCeD6+TivqhMGoxk4Dip21dyboi
+         vZvw/+r6g1ouIh8lBkP6NEemwMFlr8aqSvPlzqlKq0iNW+aFddz4YMltLaXBlN5eixrb
+         DOPY96conj+ZkyiTQemhJjj+xilXFnz89j4uxWospSpcgWZ12AwLwb+PH2rjP6QIWVs4
+         rGLgvyiLzlLH86SzviB8eOyFbaHhqOSX8xRW7o9hf9UC83i+BcT2mCxq+WCbraiXha4d
+         GH4cjuEs1fQ/ZrW9vd8pyqx52nEYD5GXUc6Rea4aGy9h9sAnSx5HLI7e/aLCpZ4g2xFI
+         N6Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=AS44Rkt96UHiyPOxzRje4xpFE3MFKfgU7cCzpEQimRo=;
-        b=aTPKVGLmFTglm/qPqEpX/zOzMwIf3KUZkqpRsuivzz18faoMvapcIzzd2DyHLiBRQo
-         G5K3HnHLDMpjewdFzKwokCdrRRUmiYtw4eQ8TtYaAD7ZzV1jfuoe9Qf4YTde5SIctPcv
-         nHW22OLnrg5Tjs5EdU9QqNo4bDeB86Rg4apsuTmQPD2XiAA3jpJXd3rc2lVYuqK3i9L3
-         4UHhm0iTA4RNrtO04ULNeYMJMJixKt3mPRDFMn7oaVYhwEDre5ECx6OMUhc2Jeh7lbc9
-         yQAcwdGdEmYvk8hJrYMsRrckctmh/7eUNRYccYNjckDVaTYWKab4tZ4GnVD+c8v7Azz/
-         /ycg==
-X-Gm-Message-State: AOAM533fDOvdRH2ov8rfKScSrzronSfs4uWkLkPbmrD6A9D+ZncLhdXA
-        bdeet+f1HUnjveUw4qPVuzk5PYPccio=
-X-Google-Smtp-Source: ABdhPJzPKZBcLlAOxD1ng03CkL8NwemUOm0JT64RSng7IKG3Ldgt1QpAA8nX7h1EjcElVYegQkRNRg==
-X-Received: by 2002:adf:a319:: with SMTP id c25mr14205135wrb.262.1611230703372;
-        Thu, 21 Jan 2021 04:05:03 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.228])
-        by smtp.gmail.com with ESMTPSA id s19sm9505401wrf.72.2021.01.21.04.05.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 04:05:02 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+        bh=dA7zANsaygFdbSr2Swz2dYvuIIf4Skowa5Aocwr2e7A=;
+        b=Q1A8hFUw+Qk2GbguLbttVE+D9rwVO6ZvR5YV1X7Wum2thNdQubxJdBdmarb5R7fKid
+         A6SplnzXj1NU+Jd4bql3R1jXZQNtJsCmboNr76SQntoaY9GNrcvmEx6MqHX1vjCc+se/
+         TjVxtri2fnjkBLnj3JvIsXuwfDRdj+qdqCv4sc6r4iv+Y2PgiFOPnejBk6cv36LDeERy
+         yFGX8WHghw8A4qDOIogGdi3q/lc0xoHJJzlf8blnrNRIAOgy15AadxjhTk7sVBaerTM+
+         fLvx7VMDpGaAE3GvCpEput6y7na8ojGUqJE5pShJqwE48WNW5lwwGE3IWUokwQSkPakF
+         6BWQ==
+X-Gm-Message-State: AOAM530To4D3P09z3UVlb8za0nYEqc/bydoRlOYFAhyNoKseq5us3eET
+        jR4CCds9hyUEeeSFREg+i7qsCs4KeWGgZQ==
+X-Google-Smtp-Source: ABdhPJz5zkFH9t+SB5tPN6QE1MCSTC3KiJxRWJD3JUYyHN1Vi8W/tBzMVtTfuZdUeV2Z6cZALjjrVA==
+X-Received: by 2002:a62:18c5:0:b029:1b7:d777:e7bd with SMTP id 188-20020a6218c50000b02901b7d777e7bdmr13995977pfy.22.1611232915961;
+        Thu, 21 Jan 2021 04:41:55 -0800 (PST)
+Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id q2sm5714367pfg.190.2021.01.21.04.41.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Jan 2021 04:41:55 -0800 (PST)
+Subject: Re: [PATCH v2] io_uring: fix short read retries for non-reg files
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: [PATCH v2] io_uring: fix short read retries for non-reg files
-Date:   Thu, 21 Jan 2021 12:01:08 +0000
-Message-Id: <99c647189104206e8391419d8267a82753883bbb.1611230356.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+References: <99c647189104206e8391419d8267a82753883bbb.1611230356.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <f618d487-91a7-ff90-d9b4-51b8e163e487@kernel.dk>
+Date:   Thu, 21 Jan 2021 05:41:53 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <99c647189104206e8391419d8267a82753883bbb.1611230356.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Sockets and other non-regular files may actually expect short reads to
-happen, don't retry reads for them. Because non-reg files don't set
-FMODE_BUF_RASYNC and so it won't do second/retry do_read, we can filter
-out those cases after first do_read() attempt with ret>0.
+On 1/21/21 5:01 AM, Pavel Begunkov wrote:
+> Sockets and other non-regular files may actually expect short reads to
+> happen, don't retry reads for them. Because non-reg files don't set
+> FMODE_BUF_RASYNC and so it won't do second/retry do_read, we can filter
+> out those cases after first do_read() attempt with ret>0.
 
-Cc: stable@vger.kernel.org # 5.9+
-Suggested-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+Applied, thanks.
 
-v2: essentially same, but a bit cleaner check placement and
-    extended commit message
-
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5f6f1e48954e..18920f9785d2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3552,7 +3552,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 
- 	/* read it all, or we did blocking attempt. no retry. */
- 	if (!iov_iter_count(iter) || !force_nonblock ||
--	    (req->file->f_flags & O_NONBLOCK))
-+	    (req->file->f_flags & O_NONBLOCK) || !(req->flags & REQ_F_ISREG))
- 		goto done;
- 
- 	io_size -= ret;
 -- 
-2.24.0
+Jens Axboe
 

@@ -2,66 +2,70 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8079CC433E0
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:40:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACDDC433DB
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:42:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24D442389A
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:40:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F03523437
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:42:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726266AbhAUDhu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 Jan 2021 22:37:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
+        id S1727859AbhAUDkt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 20 Jan 2021 22:40:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404451AbhATXy5 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Jan 2021 18:54:57 -0500
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F213DC0613D3;
-        Wed, 20 Jan 2021 15:54:14 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id 6so60926wri.3;
-        Wed, 20 Jan 2021 15:54:14 -0800 (PST)
+        with ESMTP id S1728735AbhAUCFU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Jan 2021 21:05:20 -0500
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB1BC061757
+        for <io-uring@vger.kernel.org>; Wed, 20 Jan 2021 18:04:35 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id c124so168862wma.5
+        for <io-uring@vger.kernel.org>; Wed, 20 Jan 2021 18:04:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=eKZIfNtKnKJpdNT8iivx2NSa9qVmvjjOpdScE6fVStY=;
-        b=AeTUFRBPkELPRHa9vDedTKhX9CSkMau9PkmNp1/AKCLk8box0kDzHfPGUytRVzfWX9
-         gTiNQkJwZvSHiBRNiXZxX0m61mWKaYM92Is4vzmTgtA5A5PkxrM3jl2LLUXzevG0AXNX
-         FrgvTH5LLZ7w2YJZVqvJHd3bBCq1T+GGZs8DlYAPhGpHbEQEp2IUXonJ55pfVrUUFr5J
-         vUMVMGoCkbua/oNhtg2yUPP3sxNvJKYaOkzh3f7LBNJnjM43/0lnRg4eUzcO/lPkPJ7O
-         e/EJ0Z53faCd/mqLHZvrsmlUMSFrWB2ZPQ7kw1bZIHx97g83MVvKbzoludY+QROF6tPt
-         yofw==
+        bh=Vx2A5e3jUNPeegDaybjpiQRfkGl2uFKyG0BNvUS7vpQ=;
+        b=uO7mngCzmhtnF1m9fztNTMr+g5yaHgF6kcaPL67NfjRWnreDwKVJTcSsELRML8xy3a
+         SeVsrHlIDGa8IIirYk4LNW+hNpaAbwnToo3El8mIApCFSjYWjxrmycfVD59iOW6QwVMw
+         so4Lhm0qQMjT1zGrettoZ1CXQUXmawQ7VkXp1DeR6OqHMuOiavhobGWgS7eqqUIzalWM
+         dza9VWtvPD3KpNzW8lP/Rj4s8VGGqYWIwq/VmckzXzB019LXTUYfWhZqSCtsanJ+9Aqt
+         0/sMxuxUgia5GjMai1R/mVwzk7yKgUseaCQrQUP/O2EoDxFBQT9dzzv5Si5+lUq7ThvS
+         W37Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=eKZIfNtKnKJpdNT8iivx2NSa9qVmvjjOpdScE6fVStY=;
-        b=P72Jpt3LLkT7JDYM7TKQrC6yIRzOv7qykJYVxKDoxGUM3qwpD4zcyZzv0zso3n4TOx
-         Z2Y5kqT51Er3045AvZZ3jAWk2hEy9L8fGZ/qXhDup9KTvijKoSuO3hJMISrLj/z4E0+S
-         G3sC2uWADxUD6KJT7dMQgdwTwgWesapqs77iBcimtEefUSFIXhR/UUF10FGe4ltvF2y+
-         QRKnl4OHWePl9N59CyBTyRfLbKOg0Gi/jJ9Proh0hMnbai/5oNNd6BU9surl4rYxuhHH
-         rUM1CSeOTjpCCdRojgyVXrgNuN86bHvUDiM/MQPsp1aUqG+Uk2cE+usjvDUKJVblPa/E
-         lGLg==
-X-Gm-Message-State: AOAM5323lG7T/2dH2E2GiCOz7pd9dXmUcos15lTVI0StbaykSWU2sf3j
-        cOl48wSYoPerWYaVcQEsh9+IvgoODqw=
-X-Google-Smtp-Source: ABdhPJxK2XsriQzvnfsMWKSE7tetTN+plcI9NT3n4ppTka7pztVb225dbueml5oNnULcn8RlFgX/dw==
-X-Received: by 2002:adf:9526:: with SMTP id 35mr4996051wrs.399.1611186853436;
-        Wed, 20 Jan 2021 15:54:13 -0800 (PST)
+        bh=Vx2A5e3jUNPeegDaybjpiQRfkGl2uFKyG0BNvUS7vpQ=;
+        b=qiD8vao/+le4z/VXxwBWTNMXql3P4Y+ZKzWzqylU0u/mG49NL1BAIP8oZJL0Qn5ELY
+         EnbUzaokqbMSN1JGj+N6Xxthe7H+uxxye1Xg2sA0o6vwD3AyKXcDlOX8U88dlqxsK7Xz
+         uZigOWfDkd5ygJG4ftcbFxCX4QKzRkfu9fYPVjAEC6FKTrPsFZCZ48689RoRiy47k1a/
+         uyOs/Vom46p9x8tGY0LN0NbfCg1HNJ0nKRFD4jPi++iNe/jNMafERgFAwhDVu3v9YwuZ
+         67Cyaht+I9yqcO2YbSXWUQM0D2qWAx+suo5WUWBAIaXKLaVZOByZibqaituup86EF1h0
+         ER7g==
+X-Gm-Message-State: AOAM533Q/h1ZyYiUUe4Vyu0qujztrgaJJ5UsbUrz1RXspA3pbq0Ru5Xd
+        h+2sQRq3Xc4QUHFDZYnXIfVUI5v+kR0=
+X-Google-Smtp-Source: ABdhPJwsSYZ7oV0vSsdVL2WQoaQoDWwTLC7e9LcIT5gBJ4TPn9Y9FibvijaU8CeSkYMnWO9U+EZqhg==
+X-Received: by 2002:a1c:a7c5:: with SMTP id q188mr6657588wme.108.1611194673981;
+        Wed, 20 Jan 2021 18:04:33 -0800 (PST)
 Received: from [192.168.8.143] ([148.252.129.228])
-        by smtp.gmail.com with ESMTPSA id d30sm7470507wrc.92.2021.01.20.15.54.12
+        by smtp.gmail.com with ESMTPSA id k16sm6391208wmj.45.2021.01.20.18.04.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Jan 2021 15:54:12 -0800 (PST)
-Subject: Re: [PATCH 1/1] io_uring: fix short read retries for non-reg files
+        Wed, 20 Jan 2021 18:04:33 -0800 (PST)
+Subject: Re: [PATCH] io_uring: leave clean req to be done in flush overflow
+To:     Joseph Qi <jiangqi903@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+References: <1611130310-108105-1-git-send-email-joseph.qi@linux.alibaba.com>
+ <62fdcc48-ccb2-2a51-a69f-9ead1ff1ea59@gmail.com>
+ <0de4ca7e-fd6b-2821-00cd-6c69deb1d9e0@gmail.com>
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <096d4c7e2615704c08786fe793e91ad8b22cb9f9.1611184076.git.asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
  bdwSHrhOWdW61pmfMbDYbTj6ZvGRvhoLWfGkzujB2wjNcbNTXIoOzJEGISHaPf6E2IQx1ik9
@@ -105,12 +109,12 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Message-ID: <93cb73a4-7dee-eaa1-58bb-0ec6fffa0f9e@gmail.com>
-Date:   Wed, 20 Jan 2021 23:50:35 +0000
+Message-ID: <f20150ed-b201-7653-1295-7c78e6c1d763@gmail.com>
+Date:   Thu, 21 Jan 2021 02:00:56 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <096d4c7e2615704c08786fe793e91ad8b22cb9f9.1611184076.git.asml.silence@gmail.com>
+In-Reply-To: <0de4ca7e-fd6b-2821-00cd-6c69deb1d9e0@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -118,36 +122,81 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 20/01/2021 23:09, Pavel Begunkov wrote:
-> Sockets and other non-regular files may actually expect short reads to
-> happen, don't retry reads for them.
+On 21/01/2021 01:37, Joseph Qi wrote:
+> 
+> 
+> On 1/20/21 8:35 PM, Pavel Begunkov wrote:
+>> On 20/01/2021 08:11, Joseph Qi wrote:
+>>> Abaci reported the following BUG:
+>>>
+>>> [   27.629441] BUG: sleeping function called from invalid context at fs/file.c:402
+>>> [   27.631317] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1012, name: io_wqe_worker-0
+>>> [   27.633220] 1 lock held by io_wqe_worker-0/1012:
+>>> [   27.634286]  #0: ffff888105e26c98 (&ctx->completion_lock){....}-{2:2}, at: __io_req_complete.part.102+0x30/0x70
+>>> [   27.636487] irq event stamp: 66658
+>>> [   27.637302] hardirqs last  enabled at (66657): [<ffffffff8144ba02>] kmem_cache_free+0x1f2/0x3b0
+>>> [   27.639211] hardirqs last disabled at (66658): [<ffffffff82003a77>] _raw_spin_lock_irqsave+0x17/0x50
+>>> [   27.641196] softirqs last  enabled at (64686): [<ffffffff824003c5>] __do_softirq+0x3c5/0x5aa
+>>> [   27.643062] softirqs last disabled at (64681): [<ffffffff8220108f>] asm_call_irq_on_stack+0xf/0x20
+>>> [   27.645029] CPU: 1 PID: 1012 Comm: io_wqe_worker-0 Not tainted 5.11.0-rc4+ #68
+>>> [   27.646651] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
+>>> [   27.649249] Call Trace:
+>>> [   27.649874]  dump_stack+0xac/0xe3
+>>> [   27.650666]  ___might_sleep+0x284/0x2c0
+>>> [   27.651566]  put_files_struct+0xb8/0x120
+>>> [   27.652481]  __io_clean_op+0x10c/0x2a0
+>>> [   27.653362]  __io_cqring_fill_event+0x2c1/0x350
+>>> [   27.654399]  __io_req_complete.part.102+0x41/0x70
+>>> [   27.655464]  io_openat2+0x151/0x300
+>>> [   27.656297]  io_issue_sqe+0x6c/0x14e0
+>>> [   27.657170]  ? lock_acquire+0x31a/0x440
+>>> [   27.658068]  ? io_worker_handle_work+0x24e/0x8a0
+>>> [   27.659119]  ? find_held_lock+0x28/0xb0
+>>> [   27.660026]  ? io_wq_submit_work+0x7f/0x240
+>>> [   27.660991]  io_wq_submit_work+0x7f/0x240
+>>> [   27.661915]  ? trace_hardirqs_on+0x46/0x110
+>>> [   27.662890]  io_worker_handle_work+0x501/0x8a0
+>>> [   27.663917]  ? io_wqe_worker+0x135/0x520
+>>> [   27.664836]  io_wqe_worker+0x158/0x520
+>>> [   27.665719]  ? __kthread_parkme+0x96/0xc0
+>>> [   27.666663]  ? io_worker_handle_work+0x8a0/0x8a0
+>>> [   27.667726]  kthread+0x134/0x180
+>>> [   27.668506]  ? kthread_create_worker_on_cpu+0x90/0x90
+>>> [   27.669641]  ret_from_fork+0x1f/0x30
+>>>
+>>> It blames we call cond_resched() with completion_lock when clean
+>>> request. In fact we will do it during flush overflow and it seems we
+>>> have no reason to do it before. So just remove io_clean_op() in
+>>> __io_cqring_fill_event() to fix this BUG.
+>>
+>> Nope, it would be broken. You may override, e.g. iov pointer
+>> that is dynamically allocated, and the function makes sure all
+>> those are deleted and freed. Most probably there will be problems
+>> on flush side as well.
+>>
+>> Looks like the problem is that we do spin_lock_irqsave() in
+>> __io_req_complete() and then just spin_lock() for put_files_struct().
+>> Jens, is it a real problem?
+>>
+> From the code, it is because it might sleep in close_files():
 
-Works well with a quick test, but I think I may have missed a case,
-please don't take it yet
+Makes sense. The diff should handle it, but let's see if
+it would ever be applicable after some other bug fixes.
 
 > 
-> Cc: stable@vger.kernel.org # 5.9+
-> Suggested-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  fs/io_uring.c | 3 +++
->  1 file changed, 3 insertions(+)
+> ...
+> if (file) {
+> 	filp_close(file, files);
+> 	cond_resched();
+> }
 > 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 5f6f1e48954e..544d711b2ef0 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -3557,6 +3557,9 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
->  
->  	io_size -= ret;
->  copy_iov:
-> +	if (!(req->flags & REQ_F_ISREG) && ret > 0)
-> +		goto done;
-> +
->  	ret2 = io_setup_async_rw(req, iovec, inline_vecs, iter, true);
->  	if (ret2) {
->  		ret = ret2;
 > 
+> Thanks,
+> Joseph
+> 
+>> At least for 5.12 there is a cleanup as below, moving drop_files()
+>> into io_req_clean_work/io_free_req(), which is out of locks. Depends
+>> on that don't-cancel-by-files patch, but I guess can be for 5.11
 
 -- 
 Pavel Begunkov

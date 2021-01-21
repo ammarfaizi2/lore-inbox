@@ -2,149 +2,130 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-0.7 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BDB5C433E9
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:42:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3BD1C433E9
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:09:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0127E23437
-	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 03:42:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84E312395A
+	for <io-uring@archiver.kernel.org>; Thu, 21 Jan 2021 12:09:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726499AbhAUDk1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 20 Jan 2021 22:40:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391630AbhAUBiZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 20 Jan 2021 20:38:25 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79834C061575
-        for <io-uring@vger.kernel.org>; Wed, 20 Jan 2021 17:37:45 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id 30so265846pgr.6
-        for <io-uring@vger.kernel.org>; Wed, 20 Jan 2021 17:37:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=M4zx81qy1YTuIE5AZRew/GPoQyMNGInnSA+Of1bHKws=;
-        b=ZFdcv0z74umuFPxvnurxzbYu8rYtRnt76zeUlNBqiQKmHJlAuyw8gcPZJ57KuuKCsF
-         zM5BLwOo5xFPSKjEUoCrXpTlUyFG+2D0o244Qg9B1jxYKBQRZanPA0OewdkA5cnwvDIY
-         17TDXsqMckA1hs3DxK5Rn85lIMrXNjvXf7NqexyG2dmURLRHrdEvNpl23KdJS216u+dc
-         8otnc3DKe3JC/dsLMYe3OeQhouGSu/Ean2yEhEqmsu/ilCtG2njihc9Ymm2eXdiP1x23
-         /rtbikVk1pV3e1360Xf2xqeMzhRMKY2nq5CtPkmHKJpH0CLIHYyDP5o82u54ao1KCb6w
-         dvig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=M4zx81qy1YTuIE5AZRew/GPoQyMNGInnSA+Of1bHKws=;
-        b=GtbDfI+27857ximhMa3J3nmHLeIR80meP89caVIQ7T0QWPa2Vs51atFLGEj0MZVKPt
-         Gik3EH4OH3Ch7hFa2ij2Fe37fOjCiI5A2hH7mp2olzdCBaFYQjJVWL7X+lvdf8wwcSVn
-         ORob4L6T494XgiFeMJhJ4cAClC6FkFRFLNizJ/wcbyZEKXk3F1n7Go50mS9X5/y5RN3J
-         Sfxvy1jE7wGO2z1wxnLz0/WwMgOreCZGwBH7moATPeLiQo+rxXZmSxTezOuAX5q7lp/a
-         CeJK3dcEHOdRmuJCLCf764OdMd6M+THIpUaW5I8ehwzLCxJM95L9ciozmA/nR7xFmE8Y
-         2Omw==
-X-Gm-Message-State: AOAM5339Dz8ogMh8jRoPggYQ3Kbp/m6Pk3/cLspmDGKKaZC14UFn6dVn
-        5kL94vd/6IRojzReFkkjPXPXWeciMzQ=
-X-Google-Smtp-Source: ABdhPJyieJb/fAvxzvPf7snhjBfFMckNVq7ABvtMd1U6yjZiZHIfq+CPVxQe1yFxxo/d1ekHDm2Hsg==
-X-Received: by 2002:a63:d149:: with SMTP id c9mr12173517pgj.351.1611193064072;
-        Wed, 20 Jan 2021 17:37:44 -0800 (PST)
-Received: from B-D1K7ML85-0059.local ([47.89.83.81])
-        by smtp.gmail.com with ESMTPSA id s23sm3455211pgj.29.2021.01.20.17.37.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Jan 2021 17:37:43 -0800 (PST)
-Subject: Re: [PATCH] io_uring: leave clean req to be done in flush overflow
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-References: <1611130310-108105-1-git-send-email-joseph.qi@linux.alibaba.com>
- <62fdcc48-ccb2-2a51-a69f-9ead1ff1ea59@gmail.com>
-From:   Joseph Qi <jiangqi903@gmail.com>
-Message-ID: <0de4ca7e-fd6b-2821-00cd-6c69deb1d9e0@gmail.com>
-Date:   Thu, 21 Jan 2021 09:37:39 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.6.1
+        id S1728219AbhAUMGl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 21 Jan 2021 07:06:41 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:33590 "EHLO raptor.unsafe.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730975AbhAUMGX (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Thu, 21 Jan 2021 07:06:23 -0500
+Received: from example.org (ip-94-112-41-137.net.upcbroadband.cz [94.112.41.137])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 8DBD220459;
+        Thu, 21 Jan 2021 12:04:38 +0000 (UTC)
+Date:   Thu, 21 Jan 2021 13:04:27 +0100
+From:   Alexey Gladkov <gladkov.alexey@gmail.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [RFC PATCH v3 1/8] Use refcount_t for ucounts reference counting
+Message-ID: <20210121120427.iiggfmw3tpsmyzeb@example.org>
+References: <cover.1610722473.git.gladkov.alexey@gmail.com>
+ <116c7669744404364651e3b380db2d82bb23f983.1610722473.git.gladkov.alexey@gmail.com>
+ <CAHk-=wjsg0Lgf1Mh2UiJE4sqBDDo0VhFVBUbhed47ot2CQQwfQ@mail.gmail.com>
+ <20210118194551.h2hrwof7b3q5vgoi@example.org>
+ <CAHk-=wiNpc5BS2BfZhdDqofJx1G=uasBa2Q1eY4cr8O59Rev2A@mail.gmail.com>
+ <20210118205629.zro2qkd3ut42bpyq@example.org>
+ <87eeig74kv.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-In-Reply-To: <62fdcc48-ccb2-2a51-a69f-9ead1ff1ea59@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87eeig74kv.fsf@x220.int.ebiederm.org>
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Thu, 21 Jan 2021 12:05:05 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-
-
-On 1/20/21 8:35 PM, Pavel Begunkov wrote:
-> On 20/01/2021 08:11, Joseph Qi wrote:
->> Abaci reported the following BUG:
->>
->> [   27.629441] BUG: sleeping function called from invalid context at fs/file.c:402
->> [   27.631317] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1012, name: io_wqe_worker-0
->> [   27.633220] 1 lock held by io_wqe_worker-0/1012:
->> [   27.634286]  #0: ffff888105e26c98 (&ctx->completion_lock){....}-{2:2}, at: __io_req_complete.part.102+0x30/0x70
->> [   27.636487] irq event stamp: 66658
->> [   27.637302] hardirqs last  enabled at (66657): [<ffffffff8144ba02>] kmem_cache_free+0x1f2/0x3b0
->> [   27.639211] hardirqs last disabled at (66658): [<ffffffff82003a77>] _raw_spin_lock_irqsave+0x17/0x50
->> [   27.641196] softirqs last  enabled at (64686): [<ffffffff824003c5>] __do_softirq+0x3c5/0x5aa
->> [   27.643062] softirqs last disabled at (64681): [<ffffffff8220108f>] asm_call_irq_on_stack+0xf/0x20
->> [   27.645029] CPU: 1 PID: 1012 Comm: io_wqe_worker-0 Not tainted 5.11.0-rc4+ #68
->> [   27.646651] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
->> [   27.649249] Call Trace:
->> [   27.649874]  dump_stack+0xac/0xe3
->> [   27.650666]  ___might_sleep+0x284/0x2c0
->> [   27.651566]  put_files_struct+0xb8/0x120
->> [   27.652481]  __io_clean_op+0x10c/0x2a0
->> [   27.653362]  __io_cqring_fill_event+0x2c1/0x350
->> [   27.654399]  __io_req_complete.part.102+0x41/0x70
->> [   27.655464]  io_openat2+0x151/0x300
->> [   27.656297]  io_issue_sqe+0x6c/0x14e0
->> [   27.657170]  ? lock_acquire+0x31a/0x440
->> [   27.658068]  ? io_worker_handle_work+0x24e/0x8a0
->> [   27.659119]  ? find_held_lock+0x28/0xb0
->> [   27.660026]  ? io_wq_submit_work+0x7f/0x240
->> [   27.660991]  io_wq_submit_work+0x7f/0x240
->> [   27.661915]  ? trace_hardirqs_on+0x46/0x110
->> [   27.662890]  io_worker_handle_work+0x501/0x8a0
->> [   27.663917]  ? io_wqe_worker+0x135/0x520
->> [   27.664836]  io_wqe_worker+0x158/0x520
->> [   27.665719]  ? __kthread_parkme+0x96/0xc0
->> [   27.666663]  ? io_worker_handle_work+0x8a0/0x8a0
->> [   27.667726]  kthread+0x134/0x180
->> [   27.668506]  ? kthread_create_worker_on_cpu+0x90/0x90
->> [   27.669641]  ret_from_fork+0x1f/0x30
->>
->> It blames we call cond_resched() with completion_lock when clean
->> request. In fact we will do it during flush overflow and it seems we
->> have no reason to do it before. So just remove io_clean_op() in
->> __io_cqring_fill_event() to fix this BUG.
+On Tue, Jan 19, 2021 at 07:57:36PM -0600, Eric W. Biederman wrote:
+> Alexey Gladkov <gladkov.alexey@gmail.com> writes:
 > 
-> Nope, it would be broken. You may override, e.g. iov pointer
-> that is dynamically allocated, and the function makes sure all
-> those are deleted and freed. Most probably there will be problems
-> on flush side as well.
+> > On Mon, Jan 18, 2021 at 12:34:29PM -0800, Linus Torvalds wrote:
+> >> On Mon, Jan 18, 2021 at 11:46 AM Alexey Gladkov
+> >> <gladkov.alexey@gmail.com> wrote:
+> >> >
+> >> > Sorry about that. I thought that this code is not needed when switching
+> >> > from int to refcount_t. I was wrong.
+> >> 
+> >> Well, you _may_ be right. I personally didn't check how the return
+> >> value is used.
+> >> 
+> >> I only reacted to "it certainly _may_ be used, and there is absolutely
+> >> no comment anywhere about why it wouldn't matter".
+> >
+> > I have not found examples where checked the overflow after calling
+> > refcount_inc/refcount_add.
+> >
+> > For example in kernel/fork.c:2298 :
+> >
+> >    current->signal->nr_threads++;                           
+> >    atomic_inc(&current->signal->live);                      
+> >    refcount_inc(&current->signal->sigcnt);  
+> >
+> > $ semind search signal_struct.sigcnt
+> > def include/linux/sched/signal.h:83  		refcount_t		sigcnt;
+> > m-- kernel/fork.c:723 put_signal_struct 		if (refcount_dec_and_test(&sig->sigcnt))
+> > m-- kernel/fork.c:1571 copy_signal 		refcount_set(&sig->sigcnt, 1);
+> > m-- kernel/fork.c:2298 copy_process 				refcount_inc(&current->signal->sigcnt);
+> >
+> > It seems to me that the only way is to use __refcount_inc and then compare
+> > the old value with REFCOUNT_MAX
+> >
+> > Since I have not seen examples of such checks, I thought that this is
+> > acceptable. Sorry once again. I have not tried to hide these changes.
 > 
-> Looks like the problem is that we do spin_lock_irqsave() in
-> __io_req_complete() and then just spin_lock() for put_files_struct().
-> Jens, is it a real problem?
+> The current ucount code does check for overflow and fails the increment
+> in every case.
 > 
-From the code, it is because it might sleep in close_files():
+> So arguably it will be a regression and inferior error handling behavior
+> if the code switches to the ``better'' refcount_t data structure.
+> 
+> I originally didn't use refcount_t because silently saturating and not
+> bothering to handle the error makes me uncomfortable.
+> 
+> Not having to acquire the ucounts_lock every time seems nice.  Perhaps
+> the path forward would be to start with stupid/correct code that always
+> takes the ucounts_lock for every increment of ucounts->count, that is
+> later replaced with something more optimal.
+> 
+> Not impacting performance in the non-namespace cases and having good
+> performance in the other cases is a fundamental requirement of merging
+> code like this.
 
-...
-if (file) {
-	filp_close(file, files);
-	cond_resched();
-}
+Did I understand your suggestion correctly that you suggest to use
+spin_lock for atomic_read and atomic_inc ?
 
+If so, then we are already incrementing the counter under ucounts_lock.
 
-Thanks,
-Joseph
+	...
+	if (atomic_read(&ucounts->count) == INT_MAX)
+		ucounts = NULL;
+	else
+		atomic_inc(&ucounts->count);
+	spin_unlock_irq(&ucounts_lock);
+	return ucounts;
 
-> At least for 5.12 there is a cleanup as below, moving drop_files()
-> into io_req_clean_work/io_free_req(), which is out of locks. Depends
-> on that don't-cancel-by-files patch, but I guess can be for 5.11
+something like this ?
+
+-- 
+Rgrds, legion
+

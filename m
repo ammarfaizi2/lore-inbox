@@ -2,251 +2,122 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2486FC433E0
-	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:10:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D6BC433E0
+	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 14:45:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9465206A4
-	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:10:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41D0D23444
+	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 14:45:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbhAVNDy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 Jan 2021 08:03:54 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:52628 "EHLO raptor.unsafe.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727533AbhAVNB5 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 22 Jan 2021 08:01:57 -0500
-Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-112-41-137.net.upcbroadband.cz [94.112.41.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 2416320A19;
-        Fri, 22 Jan 2021 13:00:53 +0000 (UTC)
-From:   Alexey Gladkov <gladkov.alexey@gmail.com>
-To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        linux-mm@kvack.org
-Cc:     Alexey Gladkov <legion@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v4 4/7] Move RLIMIT_SIGPENDING counter to ucounts
-Date:   Fri, 22 Jan 2021 14:00:13 +0100
-Message-Id: <2b0224ee0b3c9fa54543b96d899b20e344a8e6ad.1611320161.git.gladkov.alexey@gmail.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <cover.1611320161.git.gladkov.alexey@gmail.com>
-References: <cover.1611320161.git.gladkov.alexey@gmail.com>
+        id S1728807AbhAVOng (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 22 Jan 2021 09:43:36 -0500
+Received: from mail-io1-f72.google.com ([209.85.166.72]:57270 "EHLO
+        mail-io1-f72.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728812AbhAVOnH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 22 Jan 2021 09:43:07 -0500
+Received: by mail-io1-f72.google.com with SMTP id m2so8985296iow.23
+        for <io-uring@vger.kernel.org>; Fri, 22 Jan 2021 06:42:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=fE5kJzZFX6LHuXma+wdOzaWCPrGgoY6ccmowLSXJbw8=;
+        b=Zr74D7/oLIuUQOCcXilcPoq7c5ZK3bzQZDQXHF6vSW2tV3CK3hMb1xUdq2pCr8dE8j
+         duDlLruc8v/eEhNLutJmxcE5qD5N0cLrcW6sBVNvlLZyRsn9GieFEPMswT8EJOjsLNHX
+         G87oKGiidYN5yhPFJm1G3SXzUYxZaql89N2ntQe8QLM36+LYIMgE/BxMCvq2d+eGWqOt
+         T+9If3rFxUtXYNsRQjwRsrH4CYCYc5qYPtrE+DrMySzE5wAA9O2lkWDHGJiJOxcEf5gj
+         Zen7Mi7EHm53Vzjy3HXazn80K7Aq5Sdhs4ffOwydb5R2Wj6siS9e3RYNe1dGYeXQqCzs
+         FLHA==
+X-Gm-Message-State: AOAM530vA71xTI8br99CibSaql/UXLCik7GJlc+jDtvdNXI7Ozy67RBt
+        az9LqpYKpVfb+8wL/68O1vTA0a4vU9XE4o1EJB1VcVGf2j0J
+X-Google-Smtp-Source: ABdhPJy7sTfsf/GJiCetI3voox1xPReGN1JRyYVuh7bfA3ZkebO6Ez0+j85tSElA8UsaBeIl2Xmle4DRPKaQBnwwcqRpdfQTkxhZ
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Fri, 22 Jan 2021 13:00:53 +0000 (UTC)
+X-Received: by 2002:a5d:944a:: with SMTP id x10mr3644441ior.30.1611326546207;
+ Fri, 22 Jan 2021 06:42:26 -0800 (PST)
+Date:   Fri, 22 Jan 2021 06:42:26 -0800
+In-Reply-To: <000000000000f054d005b8f87274@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000676bd105b97e329a@google.com>
+Subject: Re: WARNING in io_disable_sqo_submit
+From:   syzbot <syzbot+2f5d1785dc624932da78@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, davem@davemloft.net,
+        hdanton@sina.com, io-uring@vger.kernel.org,
+        johannes.berg@intel.com, johannes@sipsolutions.net,
+        kuba@kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+        viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
----
- fs/proc/array.c                |  2 +-
- include/linux/sched/user.h     |  1 -
- include/linux/signal_types.h   |  4 ++-
- include/linux/user_namespace.h |  1 +
- kernel/fork.c                  |  1 +
- kernel/signal.c                | 53 ++++++++++++++--------------------
- kernel/ucount.c                |  1 +
- kernel/user.c                  |  1 -
- kernel/user_namespace.c        |  1 +
- 9 files changed, 30 insertions(+), 35 deletions(-)
+syzbot has found a reproducer for the following issue on:
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index bb87e4d89cd8..74b0ea4b7e38 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -284,7 +284,7 @@ static inline void task_sig(struct seq_file *m, struct task_struct *p)
- 		collect_sigign_sigcatch(p, &ignored, &caught);
- 		num_threads = get_nr_threads(p);
- 		rcu_read_lock();  /* FIXME: is this correct? */
--		qsize = atomic_read(&__task_cred(p)->user->sigpending);
-+		qsize = get_ucounts_value(task_ucounts(p), UCOUNT_RLIMIT_SIGPENDING);
- 		rcu_read_unlock();
- 		qlim = task_rlimit(p, RLIMIT_SIGPENDING);
- 		unlock_task_sighand(p, &flags);
-diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
-index 8a34446681aa..8ba9cec4fb99 100644
---- a/include/linux/sched/user.h
-+++ b/include/linux/sched/user.h
-@@ -12,7 +12,6 @@
-  */
- struct user_struct {
- 	refcount_t __count;	/* reference count */
--	atomic_t sigpending;	/* How many pending signals does this user have? */
- #ifdef CONFIG_FANOTIFY
- 	atomic_t fanotify_listeners;
- #endif
-diff --git a/include/linux/signal_types.h b/include/linux/signal_types.h
-index 68e06c75c5b2..34cb28b8f16c 100644
---- a/include/linux/signal_types.h
-+++ b/include/linux/signal_types.h
-@@ -13,6 +13,8 @@ typedef struct kernel_siginfo {
- 	__SIGINFO;
- } kernel_siginfo_t;
- 
-+struct ucounts;
-+
- /*
-  * Real Time signals may be queued.
-  */
-@@ -21,7 +23,7 @@ struct sigqueue {
- 	struct list_head list;
- 	int flags;
- 	kernel_siginfo_t info;
--	struct user_struct *user;
-+	struct ucounts *ucounts;
- };
- 
- /* flags values. */
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 1766cf503d1b..26000aea53c4 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -52,6 +52,7 @@ enum ucount_type {
- #endif
- 	UCOUNT_RLIMIT_NPROC,
- 	UCOUNT_RLIMIT_MSGQUEUE,
-+	UCOUNT_RLIMIT_SIGPENDING,
- 	UCOUNT_COUNTS,
- };
- 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index f61a5a3dc02f..a7be5790392e 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -825,6 +825,7 @@ void __init fork_init(void)
- 
- 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
- 	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
-+	init_user_ns.ucount_max[UCOUNT_RLIMIT_SIGPENDING] = task_rlimit(&init_task, RLIMIT_SIGPENDING);
- 
- #ifdef CONFIG_VMAP_STACK
- 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 5736c55aaa1a..b01c2007a282 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -412,49 +412,40 @@ void task_join_group_stop(struct task_struct *task)
- static struct sigqueue *
- __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimit)
- {
--	struct sigqueue *q = NULL;
--	struct user_struct *user;
--	int sigpending;
-+	struct sigqueue *q = kmem_cache_alloc(sigqueue_cachep, flags);
- 
--	/*
--	 * Protect access to @t credentials. This can go away when all
--	 * callers hold rcu read lock.
--	 *
--	 * NOTE! A pending signal will hold on to the user refcount,
--	 * and we get/put the refcount only when the sigpending count
--	 * changes from/to zero.
--	 */
--	rcu_read_lock();
--	user = __task_cred(t)->user;
--	sigpending = atomic_inc_return(&user->sigpending);
--	if (sigpending == 1)
--		get_uid(user);
--	rcu_read_unlock();
-+	if (likely(q != NULL)) {
-+		bool overlimit;
- 
--	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
--		q = kmem_cache_alloc(sigqueue_cachep, flags);
--	} else {
--		print_dropped_signal(sig);
--	}
--
--	if (unlikely(q == NULL)) {
--		if (atomic_dec_and_test(&user->sigpending))
--			free_uid(user);
--	} else {
- 		INIT_LIST_HEAD(&q->list);
- 		q->flags = 0;
--		q->user = user;
-+
-+		/*
-+		 * Protect access to @t credentials. This can go away when all
-+		 * callers hold rcu read lock.
-+		 */
-+		rcu_read_lock();
-+		q->ucounts = get_ucounts(task_ucounts(t));
-+		overlimit = inc_rlimit_ucounts_and_test(q->ucounts, UCOUNT_RLIMIT_SIGPENDING,
-+				1, task_rlimit(t, RLIMIT_SIGPENDING));
-+
-+		if (override_rlimit || likely(!overlimit)) {
-+			rcu_read_unlock();
-+			return q;
-+		}
-+		rcu_read_unlock();
- 	}
- 
--	return q;
-+	print_dropped_signal(sig);
-+	return NULL;
- }
- 
- static void __sigqueue_free(struct sigqueue *q)
- {
- 	if (q->flags & SIGQUEUE_PREALLOC)
- 		return;
--	if (atomic_dec_and_test(&q->user->sigpending))
--		free_uid(q->user);
-+	dec_rlimit_ucounts(q->ucounts, UCOUNT_RLIMIT_SIGPENDING, 1);
-+	put_ucounts(q->ucounts);
- 	kmem_cache_free(sigqueue_cachep, q);
- }
- 
-diff --git a/kernel/ucount.c b/kernel/ucount.c
-index 04934fcb4fe0..823dbe2364c6 100644
---- a/kernel/ucount.c
-+++ b/kernel/ucount.c
-@@ -75,6 +75,7 @@ static struct ctl_table user_table[] = {
- 	UCOUNT_ENTRY("max_inotify_instances"),
- 	UCOUNT_ENTRY("max_inotify_watches"),
- #endif
-+	{ },
- 	{ },
- 	{ },
- 	{ }
-diff --git a/kernel/user.c b/kernel/user.c
-index 7f5ff498207a..6737327f83be 100644
---- a/kernel/user.c
-+++ b/kernel/user.c
-@@ -98,7 +98,6 @@ static DEFINE_SPINLOCK(uidhash_lock);
- /* root_user.__count is 1, for init task cred */
- struct user_struct root_user = {
- 	.__count	= REFCOUNT_INIT(1),
--	.sigpending	= ATOMIC_INIT(0),
- 	.locked_shm     = 0,
- 	.uid		= GLOBAL_ROOT_UID,
- 	.ratelimit	= RATELIMIT_STATE_INIT(root_user.ratelimit, 0, 0),
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 9ace2a45a25d..eeff7f6d81c0 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -123,6 +123,7 @@ int create_user_ns(struct cred *new)
- 	}
- 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
- 	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
-+	ns->ucount_max[UCOUNT_RLIMIT_SIGPENDING] = rlimit(RLIMIT_SIGPENDING);
- 	ns->ucounts = ucounts;
- 
- 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
--- 
-2.29.2
+HEAD commit:    9f29bd8b Merge tag 'fs_for_v5.11-rc5' of git://git.kernel...
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=169f4e9f500000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=39701af622f054a9
+dashboard link: https://syzkaller.appspot.com/bug?extid=2f5d1785dc624932da78
+compiler:       gcc (GCC) 10.1.0-syz 20200507
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1156bd20d00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15ce819f500000
+
+The issue was bisected to:
+
+commit dcd479e10a0510522a5d88b29b8f79ea3467d501
+Author: Johannes Berg <johannes.berg@intel.com>
+Date:   Fri Oct 9 12:17:11 2020 +0000
+
+    mac80211: always wind down STA state
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=13b8b83b500000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=1078b83b500000
+console output: https://syzkaller.appspot.com/x/log.txt?x=17b8b83b500000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+2f5d1785dc624932da78@syzkaller.appspotmail.com
+Fixes: dcd479e10a05 ("mac80211: always wind down STA state")
+
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 8572 at fs/io_uring.c:8917 io_disable_sqo_submit+0x13d/0x180 fs/io_uring.c:8917
+Modules linked in:
+CPU: 1 PID: 8572 Comm: syz-executor518 Not tainted 5.11.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:io_disable_sqo_submit+0x13d/0x180 fs/io_uring.c:8917
+Code: e0 07 83 c0 03 38 d0 7c 04 84 d2 75 2e 83 8b 14 01 00 00 01 4c 89 e7 e8 d1 6d 25 07 5b 5d 41 5c e9 48 22 9b ff e8 43 22 9b ff <0f> 0b e9 00 ff ff ff e8 87 a1 dd ff e9 37 ff ff ff e8 4d a1 dd ff
+RSP: 0018:ffffc90001c17df0 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff88801c409000 RCX: 0000000000000000
+RDX: ffff8880287e8040 RSI: ffffffff81d7aa8d RDI: ffff88801c4090d0
+RBP: ffff8880198a1780 R08: 0000000000000000 R09: 0000000012c8a801
+R10: ffffffff81d7ad45 R11: 0000000000000001 R12: ffff88801c409000
+R13: ffff888012c8a801 R14: ffff88801c409040 R15: ffff88801c4090d0
+FS:  00007f60e950b700(0000) GS:ffff8880b9f00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f60e950adb8 CR3: 0000000015b41000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ io_uring_flush+0x28b/0x3a0 fs/io_uring.c:9134
+ filp_close+0xb4/0x170 fs/open.c:1280
+ do_dup2+0x294/0x520 fs/file.c:1024
+ ksys_dup3+0x22f/0x360 fs/file.c:1136
+ __do_sys_dup2 fs/file.c:1162 [inline]
+ __se_sys_dup2 fs/file.c:1150 [inline]
+ __x64_sys_dup2+0x71/0x3a0 fs/file.c:1150
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x447019
+Code: e8 0c e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db 06 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f60e950ace8 EFLAGS: 00000246 ORIG_RAX: 0000000000000021
+RAX: ffffffffffffffda RBX: 00000000006dbc38 RCX: 0000000000447019
+RDX: 0000000000447019 RSI: 0000000000000003 RDI: 0000000000000005
+RBP: 00000000006dbc30 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006dbc3c
+R13: 00007ffc5b18d21f R14: 00007f60e950b9c0 R15: 00000000006dbc30
 

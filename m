@@ -8,23 +8,23 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47DD1C433E0
-	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:02:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BEC5C433E0
+	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:04:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1264A235F9
-	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:02:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C298B23437
+	for <io-uring@archiver.kernel.org>; Fri, 22 Jan 2021 13:04:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727519AbhAVNCC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 22 Jan 2021 08:02:02 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:52542 "EHLO raptor.unsafe.ru"
+        id S1727972AbhAVNDf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 22 Jan 2021 08:03:35 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:53188 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727214AbhAVNBv (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Fri, 22 Jan 2021 08:01:51 -0500
+        id S1727774AbhAVNC4 (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 22 Jan 2021 08:02:56 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-112-41-137.net.upcbroadband.cz [94.112.41.137])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 90B81209D4;
-        Fri, 22 Jan 2021 13:00:51 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id A946720A1C;
+        Fri, 22 Jan 2021 13:00:53 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -38,262 +38,404 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v4 1/7] Add a reference to ucounts for each cred
-Date:   Fri, 22 Jan 2021 14:00:10 +0100
-Message-Id: <f9f3f666119296d000c6d112398ccb63f69bcf79.1611320161.git.gladkov.alexey@gmail.com>
+Subject: [PATCH v4 5/7] Move RLIMIT_MEMLOCK counter to ucounts
+Date:   Fri, 22 Jan 2021 14:00:14 +0100
+Message-Id: <980166281a0a2548caf5ba4ce4438ac93001a131.1611320161.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <cover.1611320161.git.gladkov.alexey@gmail.com>
 References: <cover.1611320161.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Fri, 22 Jan 2021 13:00:51 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Fri, 22 Jan 2021 13:00:54 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For RLIMIT_NPROC and some other rlimits the user_struct that holds the
-global limit is kept alive for the lifetime of a process by keeping it
-in struct cred.  Add a ucounts reference to struct cred, so that
-RLIMIT_NPROC can switch from using a per user limit to using a per user
-per user namespace limit.
-
 Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
 ---
- include/linux/cred.h           |  1 +
- include/linux/user_namespace.h |  7 ++++--
- kernel/cred.c                  | 20 +++++++++++++--
- kernel/ucount.c                | 46 ++++++++++++++++++++++++++--------
+ fs/hugetlbfs/inode.c           | 17 ++++++++---------
+ include/linux/hugetlb.h        |  3 +--
+ include/linux/mm.h             |  4 ++--
+ include/linux/shmem_fs.h       |  2 +-
+ include/linux/user_namespace.h |  1 +
+ ipc/shm.c                      | 31 ++++++++++++++++--------------
+ kernel/fork.c                  |  1 +
+ kernel/ucount.c                |  1 +
  kernel/user_namespace.c        |  1 +
- 5 files changed, 61 insertions(+), 14 deletions(-)
+ mm/memfd.c                     |  4 +---
+ mm/mlock.c                     | 35 +++++++++++++---------------------
+ mm/mmap.c                      |  3 +--
+ mm/shmem.c                     |  8 ++++----
+ 13 files changed, 52 insertions(+), 59 deletions(-)
 
-diff --git a/include/linux/cred.h b/include/linux/cred.h
-index 18639c069263..307744fcc387 100644
---- a/include/linux/cred.h
-+++ b/include/linux/cred.h
-@@ -144,6 +144,7 @@ struct cred {
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index b5c109703daa..82298412f020 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1451,34 +1451,35 @@ static int get_hstate_idx(int page_size_log)
+  * otherwise hugetlb_reserve_pages reserves one less hugepages than intended.
+  */
+ struct file *hugetlb_file_setup(const char *name, size_t size,
+-				vm_flags_t acctflag, struct user_struct **user,
++				vm_flags_t acctflag,
+ 				int creat_flags, int page_size_log)
+ {
+ 	struct inode *inode;
+ 	struct vfsmount *mnt;
+ 	int hstate_idx;
+ 	struct file *file;
++	const struct cred *cred;
+ 
+ 	hstate_idx = get_hstate_idx(page_size_log);
+ 	if (hstate_idx < 0)
+ 		return ERR_PTR(-ENODEV);
+ 
+-	*user = NULL;
+ 	mnt = hugetlbfs_vfsmount[hstate_idx];
+ 	if (!mnt)
+ 		return ERR_PTR(-ENOENT);
+ 
+ 	if (creat_flags == HUGETLB_SHMFS_INODE && !can_do_hugetlb_shm()) {
+-		*user = current_user();
+-		if (user_shm_lock(size, *user)) {
++		cred = current_cred();
++		if (user_shm_lock(size, cred)) {
+ 			task_lock(current);
+ 			pr_warn_once("%s (%d): Using mlock ulimits for SHM_HUGETLB is deprecated\n",
+ 				current->comm, current->pid);
+ 			task_unlock(current);
+ 		} else {
+-			*user = NULL;
+ 			return ERR_PTR(-EPERM);
+ 		}
++	} else {
++		cred = NULL;
+ 	}
+ 
+ 	file = ERR_PTR(-ENOSPC);
+@@ -1503,10 +1504,8 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
+ 
+ 	iput(inode);
+ out:
+-	if (*user) {
+-		user_shm_unlock(size, *user);
+-		*user = NULL;
+-	}
++	if (cred)
++		user_shm_unlock(size, cred);
+ 	return file;
+ }
+ 
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index ebca2ef02212..fbd36c452648 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -434,8 +434,7 @@ static inline struct hugetlbfs_inode_info *HUGETLBFS_I(struct inode *inode)
+ extern const struct file_operations hugetlbfs_file_operations;
+ extern const struct vm_operations_struct hugetlb_vm_ops;
+ struct file *hugetlb_file_setup(const char *name, size_t size, vm_flags_t acct,
+-				struct user_struct **user, int creat_flags,
+-				int page_size_log);
++				int creat_flags, int page_size_log);
+ 
+ static inline bool is_file_hugepages(struct file *file)
+ {
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ecdf8a8cd6ae..30a37aef1ab9 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1628,8 +1628,8 @@ extern bool can_do_mlock(void);
+ #else
+ static inline bool can_do_mlock(void) { return false; }
  #endif
- 	struct user_struct *user;	/* real user ID subscription */
- 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
-+	struct ucounts *ucounts;
- 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
- 	/* RCU deletion */
- 	union {
+-extern int user_shm_lock(size_t, struct user_struct *);
+-extern void user_shm_unlock(size_t, struct user_struct *);
++extern int user_shm_lock(size_t, const struct cred *);
++extern void user_shm_unlock(size_t, const struct cred *);
+ 
+ /*
+  * Parameter block passed down to zap_pte_range in exceptional cases.
+diff --git a/include/linux/shmem_fs.h b/include/linux/shmem_fs.h
+index d82b6f396588..10f50b1c4e0e 100644
+--- a/include/linux/shmem_fs.h
++++ b/include/linux/shmem_fs.h
+@@ -65,7 +65,7 @@ extern struct file *shmem_file_setup_with_mnt(struct vfsmount *mnt,
+ extern int shmem_zero_setup(struct vm_area_struct *);
+ extern unsigned long shmem_get_unmapped_area(struct file *, unsigned long addr,
+ 		unsigned long len, unsigned long pgoff, unsigned long flags);
+-extern int shmem_lock(struct file *file, int lock, struct user_struct *user);
++extern int shmem_lock(struct file *file, int lock, const struct cred *cred);
+ #ifdef CONFIG_SHMEM
+ extern const struct address_space_operations shmem_aops;
+ static inline bool shmem_mapping(struct address_space *mapping)
 diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 64cf8ebdc4ec..4cf93f9f93a6 100644
+index 26000aea53c4..9f8ecf3063dd 100644
 --- a/include/linux/user_namespace.h
 +++ b/include/linux/user_namespace.h
-@@ -85,7 +85,7 @@ struct user_namespace {
- 	struct ctl_table_header *sysctls;
- #endif
- 	struct ucounts		*ucounts;
--	int ucount_max[UCOUNT_COUNTS];
-+	long ucount_max[UCOUNT_COUNTS];
- } __randomize_layout;
- 
- struct ucounts {
-@@ -93,7 +93,7 @@ struct ucounts {
- 	struct user_namespace *ns;
- 	kuid_t uid;
- 	int count;
--	atomic_t ucount[UCOUNT_COUNTS];
-+	atomic_long_t ucount[UCOUNT_COUNTS];
+@@ -53,6 +53,7 @@ enum ucount_type {
+ 	UCOUNT_RLIMIT_NPROC,
+ 	UCOUNT_RLIMIT_MSGQUEUE,
+ 	UCOUNT_RLIMIT_SIGPENDING,
++	UCOUNT_RLIMIT_MEMLOCK,
+ 	UCOUNT_COUNTS,
  };
  
- extern struct user_namespace init_user_ns;
-@@ -102,6 +102,9 @@ bool setup_userns_sysctls(struct user_namespace *ns);
- void retire_userns_sysctls(struct user_namespace *ns);
- struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
- void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
-+struct ucounts *get_ucounts(struct ucounts *ucounts);
-+void put_ucounts(struct ucounts *ucounts);
-+void set_cred_ucounts(struct cred *cred, struct user_namespace *ns, kuid_t uid);
+diff --git a/ipc/shm.c b/ipc/shm.c
+index febd88daba8c..40c566cd6f7a 100644
+--- a/ipc/shm.c
++++ b/ipc/shm.c
+@@ -60,7 +60,7 @@ struct shmid_kernel /* private to the kernel */
+ 	time64_t		shm_ctim;
+ 	struct pid		*shm_cprid;
+ 	struct pid		*shm_lprid;
+-	struct user_struct	*mlock_user;
++	const struct cred	*mlock_cred;
  
- #ifdef CONFIG_USER_NS
+ 	/* The task created the shm object.  NULL if the task is dead. */
+ 	struct task_struct	*shm_creator;
+@@ -286,10 +286,10 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
+ 	shm_rmid(ns, shp);
+ 	shm_unlock(shp);
+ 	if (!is_file_hugepages(shm_file))
+-		shmem_lock(shm_file, 0, shp->mlock_user);
+-	else if (shp->mlock_user)
++		shmem_lock(shm_file, 0, shp->mlock_cred);
++	else if (shp->mlock_cred)
+ 		user_shm_unlock(i_size_read(file_inode(shm_file)),
+-				shp->mlock_user);
++				shp->mlock_cred);
+ 	fput(shm_file);
+ 	ipc_update_pid(&shp->shm_cprid, NULL);
+ 	ipc_update_pid(&shp->shm_lprid, NULL);
+@@ -625,7 +625,7 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
  
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 421b1149c651..9473e71e784c 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -119,6 +119,8 @@ static void put_cred_rcu(struct rcu_head *rcu)
- 	if (cred->group_info)
- 		put_group_info(cred->group_info);
- 	free_uid(cred->user);
-+	if (cred->ucounts)
-+		put_ucounts(cred->ucounts);
- 	put_user_ns(cred->user_ns);
- 	kmem_cache_free(cred_jar, cred);
- }
-@@ -144,6 +146,9 @@ void __put_cred(struct cred *cred)
- 	BUG_ON(cred == current->cred);
- 	BUG_ON(cred == current->real_cred);
+ 	shp->shm_perm.key = key;
+ 	shp->shm_perm.mode = (shmflg & S_IRWXUGO);
+-	shp->mlock_user = NULL;
++	shp->mlock_cred = NULL;
  
-+	if (cred->ucounts)
-+		BUG_ON(cred->ucounts->ns != cred->user_ns);
-+
- 	if (cred->non_rcu)
- 		put_cred_rcu(&cred->rcu);
- 	else
-@@ -270,6 +275,7 @@ struct cred *prepare_creds(void)
- 	get_group_info(new->group_info);
- 	get_uid(new->user);
- 	get_user_ns(new->user_ns);
-+	get_ucounts(new->ucounts);
- 
- #ifdef CONFIG_KEYS
- 	key_get(new->session_keyring);
-@@ -363,6 +369,7 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
- 		ret = create_user_ns(new);
- 		if (ret < 0)
- 			goto error_put;
-+		set_cred_ucounts(new, new->user_ns, new->euid);
+ 	shp->shm_perm.security = NULL;
+ 	error = security_shm_alloc(&shp->shm_perm);
+@@ -650,8 +650,9 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+ 		if (shmflg & SHM_NORESERVE)
+ 			acctflag = VM_NORESERVE;
+ 		file = hugetlb_file_setup(name, hugesize, acctflag,
+-				  &shp->mlock_user, HUGETLB_SHMFS_INODE,
++				HUGETLB_SHMFS_INODE,
+ 				(shmflg >> SHM_HUGE_SHIFT) & SHM_HUGE_MASK);
++		shp->mlock_cred = current_cred();
+ 	} else {
+ 		/*
+ 		 * Do not allow no accounting for OVERCOMMIT_NEVER, even
+@@ -663,8 +664,10 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+ 		file = shmem_kernel_file_setup(name, size, acctflag);
  	}
- 
- #ifdef CONFIG_KEYS
-@@ -485,8 +492,11 @@ int commit_creds(struct cred *new)
- 	 * in set_user().
- 	 */
- 	alter_cred_subscribers(new, 2);
--	if (new->user != old->user)
--		atomic_inc(&new->user->processes);
-+	if (new->user != old->user || new->user_ns != old->user_ns) {
-+		if (new->user != old->user)
-+			atomic_inc(&new->user->processes);
-+		set_cred_ucounts(new, new->user_ns, new->euid);
+ 	error = PTR_ERR(file);
+-	if (IS_ERR(file))
++	if (IS_ERR(file)) {
++		shp->mlock_cred = NULL;
+ 		goto no_file;
 +	}
- 	rcu_assign_pointer(task->real_cred, new);
- 	rcu_assign_pointer(task->cred, new);
- 	if (new->user != old->user)
-@@ -661,6 +671,11 @@ void __init cred_init(void)
- 	/* allocate a slab in which we can store credentials */
- 	cred_jar = kmem_cache_create("cred_jar", sizeof(struct cred), 0,
- 			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_ACCOUNT, NULL);
-+	/*
-+	 * This is needed here because this is the first cred and there is no
-+	 * ucount reference to copy.
-+	 */
-+	set_cred_ucounts(&init_cred, &init_user_ns, GLOBAL_ROOT_UID);
- }
  
- /**
-@@ -704,6 +719,7 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
- 	get_uid(new->user);
- 	get_user_ns(new->user_ns);
- 	get_group_info(new->group_info);
-+	get_ucounts(new->ucounts);
+ 	shp->shm_cprid = get_pid(task_tgid(current));
+ 	shp->shm_lprid = NULL;
+@@ -698,8 +701,8 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+ no_id:
+ 	ipc_update_pid(&shp->shm_cprid, NULL);
+ 	ipc_update_pid(&shp->shm_lprid, NULL);
+-	if (is_file_hugepages(file) && shp->mlock_user)
+-		user_shm_unlock(size, shp->mlock_user);
++	if (is_file_hugepages(file) && shp->mlock_cred)
++		user_shm_unlock(size, shp->mlock_cred);
+ 	fput(file);
+ 	ipc_rcu_putref(&shp->shm_perm, shm_rcu_free);
+ 	return error;
+@@ -1105,12 +1108,12 @@ static int shmctl_do_lock(struct ipc_namespace *ns, int shmid, int cmd)
+ 		goto out_unlock0;
  
- #ifdef CONFIG_KEYS
- 	new->session_keyring = NULL;
+ 	if (cmd == SHM_LOCK) {
+-		struct user_struct *user = current_user();
++		const struct cred *cred = current_cred();
+ 
+-		err = shmem_lock(shm_file, 1, user);
++		err = shmem_lock(shm_file, 1, cred);
+ 		if (!err && !(shp->shm_perm.mode & SHM_LOCKED)) {
+ 			shp->shm_perm.mode |= SHM_LOCKED;
+-			shp->mlock_user = user;
++			shp->mlock_cred = cred;
+ 		}
+ 		goto out_unlock0;
+ 	}
+@@ -1118,9 +1121,9 @@ static int shmctl_do_lock(struct ipc_namespace *ns, int shmid, int cmd)
+ 	/* SHM_UNLOCK */
+ 	if (!(shp->shm_perm.mode & SHM_LOCKED))
+ 		goto out_unlock0;
+-	shmem_lock(shm_file, 0, shp->mlock_user);
++	shmem_lock(shm_file, 0, shp->mlock_cred);
+ 	shp->shm_perm.mode &= ~SHM_LOCKED;
+-	shp->mlock_user = NULL;
++	shp->mlock_cred = NULL;
+ 	get_file(shm_file);
+ 	ipc_unlock_object(&shp->shm_perm);
+ 	rcu_read_unlock();
+diff --git a/kernel/fork.c b/kernel/fork.c
+index a7be5790392e..8104870f67c0 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -826,6 +826,7 @@ void __init fork_init(void)
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_SIGPENDING] = task_rlimit(&init_task, RLIMIT_SIGPENDING);
++	init_user_ns.ucount_max[UCOUNT_RLIMIT_MEMLOCK] = task_rlimit(&init_task, RLIMIT_MEMLOCK);
+ 
+ #ifdef CONFIG_VMAP_STACK
+ 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
 diff --git a/kernel/ucount.c b/kernel/ucount.c
-index 11b1596e2542..8d3cf7369ee7 100644
+index 823dbe2364c6..3f5445d25167 100644
 --- a/kernel/ucount.c
 +++ b/kernel/ucount.c
-@@ -125,7 +125,7 @@ static struct ucounts *find_ucounts(struct user_namespace *ns, kuid_t uid, struc
- 	return NULL;
- }
- 
--static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
-+static struct ucounts *__get_ucounts(struct user_namespace *ns, kuid_t uid)
- {
- 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
- 	struct ucounts *ucounts, *new;
-@@ -160,7 +160,7 @@ static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
- 	return ucounts;
- }
- 
--static void put_ucounts(struct ucounts *ucounts)
-+void put_ucounts(struct ucounts *ucounts)
- {
- 	unsigned long flags;
- 
-@@ -175,14 +175,40 @@ static void put_ucounts(struct ucounts *ucounts)
- 	kfree(ucounts);
- }
- 
--static inline bool atomic_inc_below(atomic_t *v, int u)
-+struct ucounts *get_ucounts(struct ucounts *ucounts)
- {
--	int c, old;
--	c = atomic_read(v);
-+	unsigned long flags;
-+
-+	if (ucounts) {
-+		spin_lock_irqsave(&ucounts_lock, flags);
-+		if (ucounts->count == INT_MAX)
-+			WARN_ONCE(1, "ucounts: counter has reached its maximum value");
-+		else
-+			ucounts->count += 1;
-+		spin_unlock_irqrestore(&ucounts_lock, flags);
-+	}
-+
-+	return ucounts;
-+}
-+
-+void set_cred_ucounts(struct cred *cred, struct user_namespace *ns, kuid_t uid)
-+{
-+	struct ucounts *old = cred->ucounts;
-+	if (old && old->ns == ns && uid_eq(old->uid, uid))
-+		return;
-+	cred->ucounts = __get_ucounts(ns, uid);
-+	if (old)
-+		put_ucounts(old);
-+}
-+
-+static inline bool atomic_long_inc_below(atomic_long_t *v, int u)
-+{
-+	long c, old;
-+	c = atomic_long_read(v);
- 	for (;;) {
- 		if (unlikely(c >= u))
- 			return false;
--		old = atomic_cmpxchg(v, c, c+1);
-+		old = atomic_long_cmpxchg(v, c, c+1);
- 		if (likely(old == c))
- 			return true;
- 		c = old;
-@@ -194,19 +220,19 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
- {
- 	struct ucounts *ucounts, *iter, *bad;
- 	struct user_namespace *tns;
--	ucounts = get_ucounts(ns, uid);
-+	ucounts = __get_ucounts(ns, uid);
- 	for (iter = ucounts; iter; iter = tns->ucounts) {
- 		int max;
- 		tns = iter->ns;
- 		max = READ_ONCE(tns->ucount_max[type]);
--		if (!atomic_inc_below(&iter->ucount[type], max))
-+		if (!atomic_long_inc_below(&iter->ucount[type], max))
- 			goto fail;
- 	}
- 	return ucounts;
- fail:
- 	bad = iter;
- 	for (iter = ucounts; iter != bad; iter = iter->ns->ucounts)
--		atomic_dec(&iter->ucount[type]);
-+		atomic_long_dec(&iter->ucount[type]);
- 
- 	put_ucounts(ucounts);
- 	return NULL;
-@@ -216,7 +242,7 @@ void dec_ucount(struct ucounts *ucounts, enum ucount_type type)
- {
- 	struct ucounts *iter;
- 	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
--		int dec = atomic_dec_if_positive(&iter->ucount[type]);
-+		int dec = atomic_long_dec_if_positive(&iter->ucount[type]);
- 		WARN_ON_ONCE(dec < 0);
- 	}
- 	put_ucounts(ucounts);
+@@ -78,6 +78,7 @@ static struct ctl_table user_table[] = {
+ 	{ },
+ 	{ },
+ 	{ },
++	{ },
+ 	{ }
+ };
+ #endif /* CONFIG_SYSCTL */
 diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index af612945a4d0..4b8a4468d391 100644
+index eeff7f6d81c0..a634ce74988c 100644
 --- a/kernel/user_namespace.c
 +++ b/kernel/user_namespace.c
-@@ -1280,6 +1280,7 @@ static int userns_install(struct nsset *nsset, struct ns_common *ns)
+@@ -124,6 +124,7 @@ int create_user_ns(struct cred *new)
+ 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
+ 	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
+ 	ns->ucount_max[UCOUNT_RLIMIT_SIGPENDING] = rlimit(RLIMIT_SIGPENDING);
++	ns->ucount_max[UCOUNT_RLIMIT_MEMLOCK] = rlimit(RLIMIT_MEMLOCK);
+ 	ns->ucounts = ucounts;
  
- 	put_user_ns(cred->user_ns);
- 	set_cred_user_ns(cred, get_user_ns(user_ns));
-+	set_cred_ucounts(cred, user_ns, cred->euid);
+ 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
+diff --git a/mm/memfd.c b/mm/memfd.c
+index 2647c898990c..9f80f162791a 100644
+--- a/mm/memfd.c
++++ b/mm/memfd.c
+@@ -297,9 +297,7 @@ SYSCALL_DEFINE2(memfd_create,
+ 	}
  
- 	return 0;
+ 	if (flags & MFD_HUGETLB) {
+-		struct user_struct *user = NULL;
+-
+-		file = hugetlb_file_setup(name, 0, VM_NORESERVE, &user,
++		file = hugetlb_file_setup(name, 0, VM_NORESERVE,
+ 					HUGETLB_ANONHUGE_INODE,
+ 					(flags >> MFD_HUGE_SHIFT) &
+ 					MFD_HUGE_MASK);
+diff --git a/mm/mlock.c b/mm/mlock.c
+index 55b3b3672977..2d49d1afd7e0 100644
+--- a/mm/mlock.c
++++ b/mm/mlock.c
+@@ -812,15 +812,10 @@ SYSCALL_DEFINE0(munlockall)
+ 	return ret;
  }
+ 
+-/*
+- * Objects with different lifetime than processes (SHM_LOCK and SHM_HUGETLB
+- * shm segments) get accounted against the user_struct instead.
+- */
+-static DEFINE_SPINLOCK(shmlock_user_lock);
+-
+-int user_shm_lock(size_t size, struct user_struct *user)
++int user_shm_lock(size_t size, const struct cred *cred)
+ {
+ 	unsigned long lock_limit, locked;
++	bool overlimit;
+ 	int allowed = 0;
+ 
+ 	locked = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+@@ -828,22 +823,18 @@ int user_shm_lock(size_t size, struct user_struct *user)
+ 	if (lock_limit == RLIM_INFINITY)
+ 		allowed = 1;
+ 	lock_limit >>= PAGE_SHIFT;
+-	spin_lock(&shmlock_user_lock);
+-	if (!allowed &&
+-	    locked + user->locked_shm > lock_limit && !capable(CAP_IPC_LOCK))
+-		goto out;
+-	get_uid(user);
+-	user->locked_shm += locked;
+-	allowed = 1;
+-out:
+-	spin_unlock(&shmlock_user_lock);
+-	return allowed;
++
++	overlimit = inc_rlimit_ucounts_and_test(cred->ucounts, UCOUNT_RLIMIT_MEMLOCK,
++			locked, lock_limit);
++
++	if (!allowed && overlimit && !capable(CAP_IPC_LOCK)) {
++		dec_rlimit_ucounts(cred->ucounts, UCOUNT_RLIMIT_MEMLOCK, locked);
++		return 0;
++	}
++	return 1;
+ }
+ 
+-void user_shm_unlock(size_t size, struct user_struct *user)
++void user_shm_unlock(size_t size, const struct cred *cred)
+ {
+-	spin_lock(&shmlock_user_lock);
+-	user->locked_shm -= (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+-	spin_unlock(&shmlock_user_lock);
+-	free_uid(user);
++	dec_rlimit_ucounts(cred->ucounts, UCOUNT_RLIMIT_MEMLOCK, (size + PAGE_SIZE - 1) >> PAGE_SHIFT);
+ }
+diff --git a/mm/mmap.c b/mm/mmap.c
+index dc7206032387..e7980e2c18e8 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1607,7 +1607,6 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
+ 			goto out_fput;
+ 		}
+ 	} else if (flags & MAP_HUGETLB) {
+-		struct user_struct *user = NULL;
+ 		struct hstate *hs;
+ 
+ 		hs = hstate_sizelog((flags >> MAP_HUGE_SHIFT) & MAP_HUGE_MASK);
+@@ -1623,7 +1622,7 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
+ 		 */
+ 		file = hugetlb_file_setup(HUGETLB_ANON_FILE, len,
+ 				VM_NORESERVE,
+-				&user, HUGETLB_ANONHUGE_INODE,
++				HUGETLB_ANONHUGE_INODE,
+ 				(flags >> MAP_HUGE_SHIFT) & MAP_HUGE_MASK);
+ 		if (IS_ERR(file))
+ 			return PTR_ERR(file);
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 7c6b6d8f6c39..de9bf6866f51 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2225,7 +2225,7 @@ static struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
+ }
+ #endif
+ 
+-int shmem_lock(struct file *file, int lock, struct user_struct *user)
++int shmem_lock(struct file *file, int lock, const struct cred *cred)
+ {
+ 	struct inode *inode = file_inode(file);
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+@@ -2237,13 +2237,13 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	 * no serialization needed when called from shm_destroy().
+ 	 */
+ 	if (lock && !(info->flags & VM_LOCKED)) {
+-		if (!user_shm_lock(inode->i_size, user))
++		if (!user_shm_lock(inode->i_size, cred))
+ 			goto out_nomem;
+ 		info->flags |= VM_LOCKED;
+ 		mapping_set_unevictable(file->f_mapping);
+ 	}
+-	if (!lock && (info->flags & VM_LOCKED) && user) {
+-		user_shm_unlock(inode->i_size, user);
++	if (!lock && (info->flags & VM_LOCKED) && cred) {
++		user_shm_unlock(inode->i_size, cred);
+ 		info->flags &= ~VM_LOCKED;
+ 		mapping_clear_unevictable(file->f_mapping);
+ 	}
 -- 
 2.29.2
 

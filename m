@@ -2,319 +2,96 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1A49C433E0
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:55:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CD4FC433DB
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 23:43:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 92F0921D94
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:55:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3027A2080D
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 23:42:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733024AbhAYVs4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Jan 2021 16:48:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
+        id S1732720AbhAYXmo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Jan 2021 18:42:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732831AbhAYVia (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 16:38:30 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AFD2C06178C
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:26 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id jx18so444417pjb.5
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:26 -0800 (PST)
+        with ESMTP id S1732689AbhAYXkk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 18:40:40 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA03AC061573
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 15:39:59 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id b26so20286212lff.9
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 15:39:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=RR9cpc0li7Cy+iCgVs2UGz+g/+/e/QO8xrsdnQqT/gg=;
-        b=wii1ffPVA3hIzWmH5KIsG1GQDdIuO8KDZKbOfoQPdGUcgsJGiUHVtBbVmfkOkAxh+W
-         O+t4/wSGF85iniqlxD3JAtkmtDd7AdVYYUB/ZRPDX3s9E67C2kDpWrNvCBTpmpla4djB
-         vcLr525VjgEYKFhXAvKodhKxT9clEB6uSHBSJuQmwBcZ/I64M98g0E7s8i5JG/7MAFyg
-         XG/KsoSRfrS3KINnWh7R/5SfShRFSsO+pbLXdZeJVtgDSTp0GM/Hz15CiBPcbvmtBJph
-         V26UaI0H9obAUwiGAv+8kRvgj1ByXlrQHaeB+ttp/m89lByMO7fv69XbI7eDn9NB+qC2
-         DMMg==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PiYaXaNdLHDYRJIbb9dUizilUpJDQTQluxxh3E1CnUc=;
+        b=I+ueePi/OTkpWkk3KvHO4ZUfd6VE8k+je/vIAF65q7O3aMJcrFow5YJqnHJBaBSla2
+         /YqaTgrY5SoI4BHMFfm1roUMjae9/AzbH7iC2wuoP59BeVDx+fpq6rWrz+k72DnJZYev
+         RMcAs8hXJNDPHbhiLGY2VDo2p1YXfL/n1he3s=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=RR9cpc0li7Cy+iCgVs2UGz+g/+/e/QO8xrsdnQqT/gg=;
-        b=a0bQtEcQrvncOG/C56Levp15mo2Cr/Ve8p7+zLwdKQg07mFsxJBPbLhpjJpbW805Yd
-         6Gd1pfVgnr/8eOXp4ZajPbSUZ5KmuvZfJ2LlatvzGFF4v7EVbCR3uun3RZejldMShjoR
-         LdEjfvOQyij73UMVFeAWZ3WEs0mHNuglyy025drXMCXSxkCTbw4ClGIWZjVXXgIpP7XF
-         vNGSdtSoVIIE9sy7SIlHM1/ZRx7r2ExIk3N1QKkXuEO9Qrq+pPqynfYPIgK2uptAHAtE
-         6P4+tSlDByZoX0U9aUFkD+GLEQ9LwHkf1W2eW0O4cCCCQHf1kmtduPcvokQJGEiEXiQA
-         ijSA==
-X-Gm-Message-State: AOAM532JxZwxjbU7kkfxmTNFhLNRZW+5+Olva81xfKlA0/tAgs71GKVm
-        qZHJdhqLJQuRyA7KPvfPhe0Mug==
-X-Google-Smtp-Source: ABdhPJwYgfaMvJqHezZ5Re+AtxEPtis0t9QhAKBCdB3riDe/w3lTbIOWOlI5/VjPObLr0DN3Lehrtg==
-X-Received: by 2002:a17:90a:db4c:: with SMTP id u12mr2219251pjx.14.1611610586167;
-        Mon, 25 Jan 2021 13:36:26 -0800 (PST)
-Received: from localhost.localdomain (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id i3sm9638913pfq.194.2021.01.25.13.36.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 13:36:25 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/3] fs: ensure that ->getattr() honors AT_STATX_CACHED
-Date:   Mon, 25 Jan 2021 14:36:13 -0700
-Message-Id: <20210125213614.24001-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125213614.24001-1-axboe@kernel.dk>
-References: <20210125213614.24001-1-axboe@kernel.dk>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PiYaXaNdLHDYRJIbb9dUizilUpJDQTQluxxh3E1CnUc=;
+        b=N+L7Kir3D8DLp/4yqwqtdGJpQjseBwGFwtZWky+pLEnVh0zpxrx4vHmaHjvZcDqbFI
+         MIBaYBNsQXEByq5PjOQdLKTnz8Yz4V8tMV86VjIIbMyifAuQXhREkW+hvuSYGHrevz+y
+         17tJpoMR3dMm+GVOykCQ4Un77vAOTQRd7tSHVZXMZUAI4RNg8yLJ78lbILArxo25OhRl
+         9LWFWQF5sER04gMHmr2m2LjMzqXSFX0qPd2A8lHzFOv8Ofqhvl1fCWsvXKmFyg4n6a3I
+         ZZBdRmYavkU7yCZsbNzqrXpJRgHcg0gCxdu3McGvRT7/tGP+tJIDiW7Ig7ep2MOgDaRr
+         qGCA==
+X-Gm-Message-State: AOAM530xuGGaUBc9KX54emLOm4CZIdGXlgtrjmZJqdZ7/ZUWgFWTCaD7
+        MNr21vDbCUucWnghG08fxsNdZmNgs8WGtg==
+X-Google-Smtp-Source: ABdhPJyTMN7qDf8e5sH0rYyX9VBEH4+Ll2RmMj7e8gW1YWAwA7FYJPGt6qAPHA8DR5uriwbFCX8Kmg==
+X-Received: by 2002:ac2:598c:: with SMTP id w12mr1213391lfn.526.1611617997955;
+        Mon, 25 Jan 2021 15:39:57 -0800 (PST)
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com. [209.85.167.48])
+        by smtp.gmail.com with ESMTPSA id d24sm2185619lfc.225.2021.01.25.15.39.56
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Jan 2021 15:39:57 -0800 (PST)
+Received: by mail-lf1-f48.google.com with SMTP id q12so20293513lfo.12
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 15:39:56 -0800 (PST)
+X-Received: by 2002:ac2:4436:: with SMTP id w22mr1249767lfl.41.1611617996447;
+ Mon, 25 Jan 2021 15:39:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210125213614.24001-1-axboe@kernel.dk>
+In-Reply-To: <20210125213614.24001-1-axboe@kernel.dk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 25 Jan 2021 15:39:40 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whh=+nkoZFqb1zztY9kUo-Ua75+zY16HeU_3j1RV4JR0Q@mail.gmail.com>
+Message-ID: <CAHk-=whh=+nkoZFqb1zztY9kUo-Ua75+zY16HeU_3j1RV4JR0Q@mail.gmail.com>
+Subject: Re: [PATCHSET RFC] support RESOLVE_CACHED for statx
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For filesystems that provide a private ->getattr() implementation, some of
-them need to do IO to satisfy the request. If we need to block off
-->getattr() and AT_STATX_CACHED is set, then return -EAGAIN and have the
-caller retry.
+On Mon, Jan 25, 2021 at 1:36 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+>     Patch 2 is the
+> mostly ugly part, but not sure how we can do this any better - we need
+> to ensure that any sort of revalidation or sync in ->getattr() honors
+> it too.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/9p/vfs_inode.c   | 2 ++
- fs/afs/inode.c      | 3 +++
- fs/ceph/inode.c     | 2 ++
- fs/cifs/inode.c     | 3 +++
- fs/coda/inode.c     | 7 ++++++-
- fs/ecryptfs/inode.c | 3 +++
- fs/fuse/dir.c       | 2 ++
- fs/gfs2/inode.c     | 2 ++
- fs/kernfs/inode.c   | 8 +++++++-
- fs/nfs/inode.c      | 3 +++
- fs/ocfs2/file.c     | 3 +++
- fs/orangefs/inode.c | 3 +++
- fs/ubifs/dir.c      | 7 ++++++-
- fs/udf/symlink.c    | 3 +++
- fs/vboxsf/utils.c   | 4 ++++
- 15 files changed, 52 insertions(+), 3 deletions(-)
+Yeah, that's not pretty, but I agree - it looks like this just
+requires the filesystem to check whether it needs to revalidate or
+not.
 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 4a937fac1acb..291d74bcf582 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -1030,6 +1030,8 @@ v9fs_vfs_getattr(const struct path *path, struct kstat *stat,
- 		generic_fillattr(d_inode(dentry), stat);
- 		return 0;
- 	}
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
- 	fid = v9fs_fid_lookup(dentry);
- 	if (IS_ERR(fid))
- 		return PTR_ERR(fid);
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index b0d7b892090d..19ba728ff18f 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -743,6 +743,9 @@ int afs_getattr(const struct path *path, struct kstat *stat,
- 
- 	_enter("{ ino=%lu v=%u }", inode->i_ino, inode->i_generation);
- 
-+	if (query_flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	do {
- 		read_seqbegin_or_lock(&vnode->cb_lock, &seq);
- 		generic_fillattr(inode, stat);
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index adc8fc3c5d85..997f380646fd 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -2378,6 +2378,8 @@ int ceph_getattr(const struct path *path, struct kstat *stat,
- 
- 	/* Skip the getattr altogether if we're asked not to sync */
- 	if (!(flags & AT_STATX_DONT_SYNC)) {
-+		if (flags & AT_STATX_CACHED)
-+			return -EAGAIN;
- 		err = ceph_do_getattr(inode,
- 				statx_to_caps(request_mask, inode->i_mode),
- 				flags & AT_STATX_FORCE_SYNC);
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index a83b3a8ffaac..1f8007caa27c 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2379,6 +2379,9 @@ int cifs_getattr(const struct path *path, struct kstat *stat,
- 	struct inode *inode = d_inode(dentry);
- 	int rc;
- 
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	/*
- 	 * We need to be sure that all dirty pages are written and the server
- 	 * has actual ctime, mtime and file length.
-diff --git a/fs/coda/inode.c b/fs/coda/inode.c
-index b1c70e2b9b1e..444f1ef97b08 100644
---- a/fs/coda/inode.c
-+++ b/fs/coda/inode.c
-@@ -254,7 +254,12 @@ static void coda_evict_inode(struct inode *inode)
- int coda_getattr(const struct path *path, struct kstat *stat,
- 		 u32 request_mask, unsigned int flags)
- {
--	int err = coda_revalidate_inode(d_inode(path->dentry));
-+	int err;
-+
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
-+	err = coda_revalidate_inode(d_inode(path->dentry));
- 	if (!err)
- 		generic_fillattr(d_inode(path->dentry), stat);
- 	return err;
-diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
-index e23752d9a79f..61fdb5a0dbdc 100644
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -980,6 +980,9 @@ static int ecryptfs_getattr_link(const struct path *path, struct kstat *stat,
- 		char *target;
- 		size_t targetsiz;
- 
-+		if (flags & AT_STATX_CACHED)
-+			return -EAGAIN;
-+
- 		target = ecryptfs_readlink_lower(dentry, &targetsiz);
- 		if (!IS_ERR(target)) {
- 			kfree(target);
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 78f9f209078c..638722d3c1ed 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -1084,6 +1084,8 @@ static int fuse_update_get_attr(struct inode *inode, struct file *file,
- 		sync = time_before64(fi->i_time, get_jiffies_64());
- 
- 	if (sync) {
-+		if (flags & AT_STATX_CACHED)
-+			return -EAGAIN;
- 		forget_all_cached_acls(inode);
- 		err = fuse_do_getattr(inode, stat, file);
- 	} else if (stat) {
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index c1b77e8d6b1c..3d485d9f1afe 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -2032,6 +2032,8 @@ static int gfs2_getattr(const struct path *path, struct kstat *stat,
- 
- 	gfs2_holder_mark_uninitialized(&gh);
- 	if (gfs2_glock_is_locked_by_me(ip->i_gl) == NULL) {
-+		if (flags & AT_STATX_CACHED)
-+			return -EAGAIN;
- 		error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, LM_FLAG_ANY, &gh);
- 		if (error)
- 			return error;
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index fc2469a20fed..2193b3c0b9cd 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -189,7 +189,13 @@ int kernfs_iop_getattr(const struct path *path, struct kstat *stat,
- 	struct inode *inode = d_inode(path->dentry);
- 	struct kernfs_node *kn = inode->i_private;
- 
--	mutex_lock(&kernfs_mutex);
-+	if (query_flags & AT_STATX_CACHED) {
-+		if (!mutex_trylock(&kernfs_mutex))
-+			return -EAGAIN;
-+	} else {
-+		mutex_lock(&kernfs_mutex);
-+	}
-+
- 	kernfs_refresh_inode(kn, inode);
- 	mutex_unlock(&kernfs_mutex);
- 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 522aa10a1a3e..1eb167c14884 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -799,6 +799,9 @@ int nfs_getattr(const struct path *path, struct kstat *stat,
- 
- 	trace_nfs_getattr_enter(inode);
- 
-+	if (query_flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	if ((query_flags & AT_STATX_DONT_SYNC) && !force_sync) {
- 		nfs_readdirplus_parent_cache_hit(path->dentry);
- 		goto out_no_update;
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index 85979e2214b3..e48d0c33fb46 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1306,6 +1306,9 @@ int ocfs2_getattr(const struct path *path, struct kstat *stat,
- 	struct ocfs2_super *osb = sb->s_fs_info;
- 	int err;
- 
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	err = ocfs2_inode_revalidate(path->dentry);
- 	if (err) {
- 		if (err != -ENOENT)
-diff --git a/fs/orangefs/inode.c b/fs/orangefs/inode.c
-index 48f0547d4850..4864334e40e8 100644
---- a/fs/orangefs/inode.c
-+++ b/fs/orangefs/inode.c
-@@ -900,6 +900,9 @@ int orangefs_getattr(const struct path *path, struct kstat *stat,
- 		     "orangefs_getattr: called on %pd mask %u\n",
- 		     path->dentry, request_mask);
- 
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	ret = orangefs_inode_getattr(inode,
- 	    request_mask & STATX_SIZE ? ORANGEFS_GETATTR_SIZE : 0);
- 	if (ret == 0) {
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 9a6b8660425a..c199b260c50c 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1573,7 +1573,12 @@ int ubifs_getattr(const struct path *path, struct kstat *stat,
- 	struct inode *inode = d_inode(path->dentry);
- 	struct ubifs_inode *ui = ubifs_inode(inode);
- 
--	mutex_lock(&ui->ui_mutex);
-+	if (flags & AT_STATX_CACHED) {
-+		if (!mutex_trylock(&ui->ui_mutex))
-+			return -EAGAIN;
-+	} else {
-+		mutex_lock(&ui->ui_mutex);
-+	}
- 
- 	if (ui->flags & UBIFS_APPEND_FL)
- 		stat->attributes |= STATX_ATTR_APPEND;
-diff --git a/fs/udf/symlink.c b/fs/udf/symlink.c
-index c973db239604..0edd973b8a43 100644
---- a/fs/udf/symlink.c
-+++ b/fs/udf/symlink.c
-@@ -159,6 +159,9 @@ static int udf_symlink_getattr(const struct path *path, struct kstat *stat,
- 	struct inode *inode = d_backing_inode(dentry);
- 	struct page *page;
- 
-+	if (flags & AT_STATX_CACHED)
-+		return -EAGAIN;
-+
- 	generic_fillattr(inode, stat);
- 	page = read_mapping_page(inode->i_mapping, 0, NULL);
- 	if (IS_ERR(page))
-diff --git a/fs/vboxsf/utils.c b/fs/vboxsf/utils.c
-index 018057546067..dc93cd59290d 100644
---- a/fs/vboxsf/utils.c
-+++ b/fs/vboxsf/utils.c
-@@ -228,6 +228,10 @@ int vboxsf_getattr(const struct path *path, struct kstat *kstat,
- 		sf_i->force_restat = 1;
- 		fallthrough;
- 	default:
-+		if (flags & AT_STATX_CACHED) {
-+			err = -EAGAIN;
-+			break;
-+		}
- 		err = vboxsf_inode_revalidate(dentry);
- 	}
- 	if (err)
--- 
-2.30.0
+But I think that patch could do better than what your patch does. Some
+of them are "filesystems could decide to be more finegrained") -  your
+cifs patch comes to mind - but some of your "return -EAGAIN if cached"
+seem to be just plain pointless.
 
+In afs, for example, you return -EAGAIN instead of just doing the
+read-seqlock thing. That's a really cheap CPU-only operation. We're
+talking "cheaper than a spinlock" sequence.
+
+           Linus

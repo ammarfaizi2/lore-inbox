@@ -2,177 +2,102 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0310C433E0
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB18C433E9
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC6ED22B3B
+	by mail.kernel.org (Postfix) with ESMTP id E7E4022B2C
 	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbhAZFKV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:10:21 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:51282 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727875AbhAYMPa (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:15:30 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UMpgSO-_1611576822;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UMpgSO-_1611576822)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 25 Jan 2021 20:13:42 +0800
-From:   Jeffle Xu <jefflexu@linux.alibaba.com>
-To:     snitzer@redhat.com
-Cc:     joseph.qi@linux.alibaba.com, dm-devel@redhat.com,
-        linux-block@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH v2 4/6] dm: always return BLK_QC_T_NONE for bio-based device
-Date:   Mon, 25 Jan 2021 20:13:38 +0800
-Message-Id: <20210125121340.70459-5-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210125121340.70459-1-jefflexu@linux.alibaba.com>
-References: <20210125121340.70459-1-jefflexu@linux.alibaba.com>
+        id S1725961AbhAZFKO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:10:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727775AbhAYMKU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:10:20 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729A0C0611BD
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:22 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id d16so11362958wro.11
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=s9/qaY/Nb9LsSoZDXsPlKfu77GSe2ww9TcdetCVUIVU=;
+        b=MthzNxeOxJPbhkhgd2P/3tRUltfH7YktGqSFn1PocDCiSQKchO0/iwiAJiz45GRkEc
+         D5FFFhKio5RtwuWzqu+F53N7pRrzXM8I6vKj6MvhzqP9hK7573WL42Q4qJEwh40kVbUB
+         UGJ0yGmDMH+29guohWDQGIMHlFE3jtudfVY2cqqaKtk8mLOfVMTtEC1fI+2DhvZkmkI/
+         ksIgrxjvrMi1C3Obu+/UpVeOzziLQg8kqn1J5JijAjLOq5I6f1Iqqx/IaP57oWfq8ruv
+         xcERRSS9VNuI3m/uDeTJ4K8cJcdoXpRLMU3WDUXYs/AejRKJTeJpFj5d1RCTBxbVUzyO
+         019g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=s9/qaY/Nb9LsSoZDXsPlKfu77GSe2ww9TcdetCVUIVU=;
+        b=qR6mgEQmjYVl8H6+2Cmnnysdl2ruIz9jHC+gZZ3nXTS1rvj7ZEB8xWkr+YpIeILMSL
+         c2LRGhS16zuDReKQ96Tj2BFekorggCCUjNvUxbtv1SUfMRi59Nf/tA7a7zy9u8xtTp80
+         OScTXHS5m5xTvdhKbOzRscM7w+nujohXUPOYyo7FOf4o/N2krQHTDMUj9Tu8FfzcONLM
+         +oyhsfa8+yr34Aaw8rlRHpAQDbc9V0tdW37/uZwj6ZC1VMvYMfwSyeXs1lbajhVGoVI9
+         K1I+8cK9OPXgfYP1UnNZ/I56dJyI14mHq/3q93OUHDmrw50h1rBWwzO8APHuXiru4Ygm
+         4Yjw==
+X-Gm-Message-State: AOAM531kwxPAs0H84NkQ/zYYO7Z2S5lYZ28pfp58TyVeuiNUQ/K7nazc
+        GEVE6ZruB7UxaFOkUoc2Y/Y=
+X-Google-Smtp-Source: ABdhPJwhS3PPBqb01t7eT5LnG5X1CL00hcPor6Vxysv1kLfPnSz8okl6WWRlQDKowQqWgix57WGVwg==
+X-Received: by 2002:adf:ee0d:: with SMTP id y13mr512463wrn.228.1611575181249;
+        Mon, 25 Jan 2021 03:46:21 -0800 (PST)
+Received: from localhost.localdomain ([85.255.234.11])
+        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Jan 2021 03:46:20 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 8/8] io_uring: keep interrupts on on submit completion
+Date:   Mon, 25 Jan 2021 11:42:27 +0000
+Message-Id: <1645f7f935aa833231ebaad974bc37890ad9a2e3.1611573970.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1611573970.git.asml.silence@gmail.com>
+References: <cover.1611573970.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Currently the returned cookie of bio-based device is not used at all.
+We don't call io_submit_flush_completions() in interrupt context, no
+need to use irq* versions of spinlock.
 
-In the following patch, bio-based device will actually return a
-pointer to a specific object as the returned cookie.
-
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- drivers/md/dm.c | 26 ++++++++++----------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 7bac564f3faa..46ca3b739396 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1252,14 +1252,13 @@ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors)
- }
- EXPORT_SYMBOL_GPL(dm_accept_partial_bio);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7a720995e24f..d5baf7a0d4e7 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2291,13 +2291,13 @@ static void io_submit_flush_completions(struct io_comp_state *cs,
+ 	struct req_batch rb;
  
--static blk_qc_t __map_bio(struct dm_target_io *tio)
-+static void __map_bio(struct dm_target_io *tio)
- {
- 	int r;
- 	sector_t sector;
- 	struct bio *clone = &tio->clone;
- 	struct dm_io *io = tio->io;
- 	struct dm_target *ti = tio->ti;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 
- 	clone->bi_end_io = clone_endio;
- 
-@@ -1278,7 +1277,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 	case DM_MAPIO_REMAPPED:
- 		/* the bio has been remapped so dispatch it */
- 		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
--		ret = submit_bio_noacct(clone);
-+		submit_bio_noacct(clone);
- 		break;
- 	case DM_MAPIO_KILL:
- 		free_tio(tio);
-@@ -1292,8 +1291,6 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 		DMWARN("unimplemented target map return value: %d", r);
- 		BUG();
+ 	io_init_req_batch(&rb);
+-	spin_lock_irq(&ctx->completion_lock);
++	spin_lock(&ctx->completion_lock);
+ 	for (i = 0; i < nr; i++) {
+ 		req = cs->reqs[i];
+ 		__io_cqring_fill_event(req, req->result, req->compl.cflags);
  	}
--
--	return ret;
- }
+ 	io_commit_cqring(ctx);
+-	spin_unlock_irq(&ctx->completion_lock);
++	spin_unlock(&ctx->completion_lock);
  
- static void bio_setup_sector(struct bio *bio, sector_t sector, unsigned len)
-@@ -1380,7 +1377,7 @@ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
- 	}
- }
- 
--static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
-+static void __clone_and_map_simple_bio(struct clone_info *ci,
- 					   struct dm_target_io *tio, unsigned *len)
- {
- 	struct bio *clone = &tio->clone;
-@@ -1391,7 +1388,7 @@ static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
- 	if (len)
- 		bio_setup_sector(clone, ci->sector, *len);
- 
--	return __map_bio(tio);
-+	__map_bio(tio);
- }
- 
- static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
-@@ -1405,7 +1402,7 @@ static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
- 
- 	while ((bio = bio_list_pop(&blist))) {
- 		tio = container_of(bio, struct dm_target_io, clone);
--		(void) __clone_and_map_simple_bio(ci, tio, len);
-+		__clone_and_map_simple_bio(ci, tio, len);
- 	}
- }
- 
-@@ -1450,7 +1447,7 @@ static int __clone_and_map_data_bio(struct clone_info *ci, struct dm_target *ti,
- 		free_tio(tio);
- 		return r;
- 	}
--	(void) __map_bio(tio);
-+	__map_bio(tio);
- 
- 	return 0;
- }
-@@ -1565,11 +1562,10 @@ static void init_clone_info(struct clone_info *ci, struct mapped_device *md,
- /*
-  * Entry point to split a bio into clones and submit them to the targets.
-  */
--static blk_qc_t __split_and_process_bio(struct mapped_device *md,
-+static void __split_and_process_bio(struct mapped_device *md,
- 					struct dm_table *map, struct bio *bio)
- {
- 	struct clone_info ci;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int error = 0;
- 
- 	init_clone_info(&ci, md, map, bio);
-@@ -1613,7 +1609,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 
- 				bio_chain(b, bio);
- 				trace_block_split(b, bio->bi_iter.bi_sector);
--				ret = submit_bio_noacct(bio);
-+				submit_bio_noacct(bio);
- 				break;
- 			}
- 		}
-@@ -1621,13 +1617,11 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 
- 	/* drop the extra reference count */
- 	dec_pending(ci.io, errno_to_blk_status(error));
--	return ret;
- }
- 
- static blk_qc_t dm_submit_bio(struct bio *bio)
- {
- 	struct mapped_device *md = bio->bi_disk->private_data;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int srcu_idx;
- 	struct dm_table *map;
- 
-@@ -1657,10 +1651,10 @@ static blk_qc_t dm_submit_bio(struct bio *bio)
- 	if (is_abnormal_io(bio))
- 		blk_queue_split(&bio);
- 
--	ret = __split_and_process_bio(md, map, bio);
-+	__split_and_process_bio(md, map, bio);
- out:
- 	dm_put_live_table(md, srcu_idx);
--	return ret;
-+	return BLK_QC_T_NONE;
- }
- 
- /*-----------------------------------------------------------------
+ 	io_cqring_ev_posted(ctx);
+ 	for (i = 0; i < nr; i++) {
 -- 
-2.27.0
+2.24.0
 

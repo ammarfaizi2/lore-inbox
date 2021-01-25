@@ -2,131 +2,97 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E0FC433E0
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9709C433DB
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 16:01:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEE9D21D81
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:13:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 869C022583
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 16:01:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727813AbhAYMM1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Jan 2021 07:12:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42878 "EHLO
+        id S1728927AbhAYQAW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Jan 2021 11:00:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727822AbhAYMKU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:10:20 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755A7C0611C2
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:19 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id 6so12044547wri.3
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:19 -0800 (PST)
+        with ESMTP id S1730595AbhAYP7X (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 10:59:23 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B9EC06178A
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 07:58:43 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id u4so8990503pjn.4
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 07:58:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=jkdARpvwgW6N1HyOGAj26/H0wiqdeffUL78JhEUYqao=;
-        b=X4Ye8V6HjNZEX9f8c5Qeisks2vXJQy5/o17pGSmPnp0rHg1oHlAmVRRut1gmAvwgpP
-         wgpNjxiqfWgoYS9YoI4tTOGXaF0Nb5+zIsCBs76KNlFmIOhr9OT5PyKKhTrytNdjm7sr
-         bN56Zg8QVGhSaCp1FJhB6YKpoPfJPIzUts18QnA9v4PadJ8Q6hWUVradZ738lTdRZBlW
-         BViFOfd6XDvP8VIJEVezkrOvD8Vfzef6kQUv9LNGckkUeAsFfLy+B7qKHP6NWsrR9txM
-         sq2xDZTaJIskn09Vrocavb68WGhcnR+/jc5a16wlYyE/7OgteBntM8Mj2Jn8gwbNSLL6
-         XwTw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ydjA7lxNDcY9m5HH4n1Isbc66o3HKVgUPIygbXwoUMM=;
+        b=bI02x67oVJOucPOxKOB9n3X6KcNxCqIpxk5n0fxC4X/uFlQaaUy+xP+qcDK0qgJA7t
+         mWFK2tKkiqtuWxZJvB44mpmemEF/S+YGxTW9vjz8KWnzcutGYJEs+vjezSfpdlvaat30
+         NrMsLYnxAPDb/60yNPxEjnOGe2XeZLZa2qteFs3BDDpQq8v+NYEA0j27JKKvD8Jo9hGB
+         m1FubjB+dKRDuIvGoJ5Krq3haj3y4rnOv+TQTyR+lsKZVtOzTkhokVPN9B3vqb9Kf/tF
+         OgnBEzoTN7wXg3qcCOF4/ajnPQb9aZOpN8ShjkT8r+GX28FyVyVD2Nsgv5WX9h7sZf9A
+         iVhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=jkdARpvwgW6N1HyOGAj26/H0wiqdeffUL78JhEUYqao=;
-        b=sFJPnMsmATBPjL8D6MwtcO6Wk18vtDkm/MadC+1FDUzNZVC7D/YXI4K0OV6KoQPhpD
-         iBZPxQseOA+lWMBsLo58E5Au5zPt092UCUtuyOS4R+ATdGrCOXSCq55WrlB0/U2snsTz
-         1tXguhciy3+n2hpIklf5RO0rknxw1+xwQSxScdvM3pig3fNG2JypEtyHNgHADm97GGPc
-         FiGP3bVbqbNmnsyWft6Wo43FbXC5ddeRqXf+SADtC+nbcT1976ncrmG+hfrzn6NOItGj
-         EOb3oN1BOr0z5sUEcpACTBbI9UfXcazOBtr6ADRp8ejAg2sExD+74j+E6j4em0Fm/1BF
-         KjsA==
-X-Gm-Message-State: AOAM530r/MyqM60P1tKMki2Va+Cl+SXwTEXHw3bYrxnZQskwAsN1A9jx
-        7wDF0ebE8sGiRXOfmni/LJE=
-X-Google-Smtp-Source: ABdhPJzmLMv44gl6EzAACJfbf/OrKuNii+WXuIpCQ7IdaETbtRKE0kP4exBtz2r0hp8GTJSJ9VkcrQ==
-X-Received: by 2002:a5d:560c:: with SMTP id l12mr436194wrv.417.1611575178295;
-        Mon, 25 Jan 2021 03:46:18 -0800 (PST)
-Received: from localhost.localdomain ([85.255.234.11])
-        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 03:46:17 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5/8] io_uring: don't reinit submit state every time
-Date:   Mon, 25 Jan 2021 11:42:24 +0000
-Message-Id: <e717707a7e971590ba6517e961819eca060bb3a9.1611573970.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1611573970.git.asml.silence@gmail.com>
-References: <cover.1611573970.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ydjA7lxNDcY9m5HH4n1Isbc66o3HKVgUPIygbXwoUMM=;
+        b=rse7v9PJRqaSpY9YGDjQcNXHxfnHcfvvHkOALJ6DjAe1TVWa9KuoDmw3kRZBFrMsA/
+         nl+o7J3bJSjWEUkOKnNRUQfP971QP3xcx3gNT7fKZPt3cdTssJbSrfQziMN8Q9V4WfzV
+         TKfaBKVEOSpPd58uYtusVfRVO07K82wEIoOUdOEhujf0tyTRwSaTRKS0oKqyy4UkynX/
+         63oOFMb2LkWz7rOKlx91NfWWj/xJONRKFSIGh3eKB9JXVH64R0+Hi9a+Ni+ZfCYRKDkb
+         zjuYTGO8UrXKoMcaFQ9FUy33Mg0jp3XDrqNHwGGYXXRiZ7jrssDVSX60bbXNDl4aLqMQ
+         zLsw==
+X-Gm-Message-State: AOAM532xYZROSDB59NOvADrXAeLJq/8xUwXL6XDt3qTAJEch33kTRJZe
+        716qUszsrhxxYiS8SMWFR7QCyg==
+X-Google-Smtp-Source: ABdhPJxvYFudM0/t7uvN4OEM1XLPVgOQbMzfZischKww36TwjmQpcH3dkzLr1QJ1pvzT7oKrjCpfaw==
+X-Received: by 2002:a17:90a:6f05:: with SMTP id d5mr843071pjk.145.1611590322691;
+        Mon, 25 Jan 2021 07:58:42 -0800 (PST)
+Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id i25sm16942011pgb.33.2021.01.25.07.58.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Jan 2021 07:58:41 -0800 (PST)
+Subject: Re: [PATCH v3 0/7] no-copy bvec
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        linux-block@vger.kernel.org
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org
+References: <cover.1610170479.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <b1d0ae2a-a4ca-2b41-b8df-4c8036afe781@kernel.dk>
+Date:   Mon, 25 Jan 2021 08:58:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1610170479.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As now submit_state is retained across syscalls, we can save ourself
-from initialising it from ground up for each io_submit_sqes(). Set some
-fields during ctx allocation, and just keep them always consistent.
+On 1/9/21 9:02 AM, Pavel Begunkov wrote:
+> Currently, when iomap and block direct IO gets a bvec based iterator
+> the bvec will be copied, with all other accounting that takes much
+> CPU time and causes additional allocation for larger bvecs. The
+> patchset makes it to reuse the passed in iter bvec.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+Applied, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7d811cf0c27b..08d0c8b60c2a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1284,6 +1284,7 @@ static inline bool io_is_timeout_noseq(struct io_kiocb *req)
- 
- static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- {
-+	struct io_submit_state *submit_state;
- 	struct io_ring_ctx *ctx;
- 	int hash_bits;
- 
-@@ -1335,6 +1336,12 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_LIST_HEAD(&ctx->rsrc_ref_list);
- 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
- 	init_llist_head(&ctx->rsrc_put_llist);
-+
-+	submit_state = &ctx->submit_state;
-+	INIT_LIST_HEAD(&submit_state->comp.list);
-+	submit_state->comp.nr = 0;
-+	submit_state->file_refs = 0;
-+	submit_state->free_reqs = 0;
- 	return ctx;
- err:
- 	if (ctx->fallback_req)
-@@ -6703,8 +6710,10 @@ static void io_submit_state_end(struct io_submit_state *state,
- 	if (state->plug_started)
- 		blk_finish_plug(&state->plug);
- 	io_state_file_put(state);
--	if (state->free_reqs)
-+	if (state->free_reqs) {
- 		kmem_cache_free_bulk(req_cachep, state->free_reqs, state->reqs);
-+		state->free_reqs = 0;
-+	}
- }
- 
- /*
-@@ -6714,10 +6723,6 @@ static void io_submit_state_start(struct io_submit_state *state,
- 				  unsigned int max_ios)
- {
- 	state->plug_started = false;
--	state->comp.nr = 0;
--	INIT_LIST_HEAD(&state->comp.list);
--	state->free_reqs = 0;
--	state->file_refs = 0;
- 	state->ios_left = max_ios;
- }
- 
 -- 
-2.24.0
+Jens Axboe
 

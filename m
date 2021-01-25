@@ -2,130 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B5E8C433DB
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 17:05:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5362C433E6
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3C3222513
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 17:05:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B96CF22510
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729157AbhAYRFS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Jan 2021 12:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49456 "EHLO
+        id S1733016AbhAYVsz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Jan 2021 16:48:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729891AbhAYRBc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 12:01:32 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5211C061786
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 09:00:22 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id q7so13566270wre.13
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 09:00:22 -0800 (PST)
+        with ESMTP id S1732828AbhAYVia (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 16:38:30 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739F7C06178A
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:24 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id h15so5988231pli.8
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=is52ncoUt00/0LlJ8Kgi3mx4aEE0Sg4AqOE7Mcu6Y2I=;
-        b=a0uXgRJiAjIgBe3cDJnpWBAn8foCGWiKRH3eQi1kjwnTdsyCQ49D0vuk2jo2Xzd5j+
-         yg06wQ+CSrEP19dypan34+uEmMhR0pABux0cj5twbW0ZjnfI0jZvZOHy2zqxWKHqwrlA
-         Xcc05ROZvVC6XggCb3Q5VwNmy0p3xTjVnch7+AkxrI7IKTq1k8QBitoeQpAFpF5T0OB4
-         nTY/BtevUlY7HP+h9/8XMjw0oEYz+/1kGT3rWijXDFUANpCqPtU8NSh0+jZI0hrVHFup
-         TVph61U8aleqlvZsB5LZFzDxRbLohB3Elq6oj+eeUJP29sWqKnoyNVWKSVzt4PRDE5Wz
-         K7vQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=lupDZJ10NzXK0b+10r3QRAsNyJ1iziPajhNPR3b8z7I=;
+        b=d12kqnlV/PdD1QoL93339vQ/NhDc07chPyumWparJtDUSffDW9gpxP4E6Wt5PpvQQC
+         z/BwEah+DMT/sG5h/7UWU5DlFxvCe9DU9h8SxB4KgeAhFr8qJadIbRHC+oO3EFLVQ8zP
+         Itdf9wPXzSXR6dnGdH4cjGalX7hFWqg+uk4EYSRdzKpgMAOlR3hlnjSP6sZ+A13edqx5
+         FaujeA8ntFuyqE5ftoF8u88wyKZSPZSWKHLF9JiGVzxrOkZeJrnOhwNPz/gErwTC+MBF
+         jGNIdRdBFI4RbRPvI6UxRrF58CkdsRyr7OCVr0VsVmmYGgGQmmm0tHgLAheXe1PrvKUU
+         XpkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=is52ncoUt00/0LlJ8Kgi3mx4aEE0Sg4AqOE7Mcu6Y2I=;
-        b=kEjutvHFlT4h5GPu2SeiHEDcBQdAYQsofzNubvIM3dRn5pJx1C4cWEck3RaX8X4t4r
-         bleZ3NNq0vjHEmEam0AKcKv10/Ps+XDNIhxnA/48PI90JN8VymPighCJMofXEWyKub19
-         usuXKLirPLUp2M3ba8/wVRNvFsRodb53WqCLcAXJh7Os994MRPZoOUdUGtqgm9vO5naZ
-         gYZVBrKoVSpwMl0dH5zqIbSDs5A1Wq2/wIdJcb82sxcxmihvsS224GGiUY3rs40wYZHr
-         tIO5ni1Xi6CrDFBjKnsKjDXcCDP0VmyJMcBWVU79XRwlp1p0EI7LIcI8cUrDZMqJCCUG
-         Db2A==
-X-Gm-Message-State: AOAM530mANdiuioLm/BiWFab4sxXmP0iSTThQhl/ijaRRVN955fbFTWV
-        mZqliR+D1LmEE8dOuHBsgfP99W7IZd77vg==
-X-Google-Smtp-Source: ABdhPJzrxtWPPIKfKZTlkR+OUsjq0PiymRt1Q0dsidKMX2Zf6hHSbvPMQdWYFWG6eFDseISwioq+5g==
-X-Received: by 2002:a5d:4b50:: with SMTP id w16mr2007669wrs.391.1611594021381;
-        Mon, 25 Jan 2021 09:00:21 -0800 (PST)
-Received: from [192.168.8.154] ([85.255.234.28])
-        by smtp.gmail.com with ESMTPSA id b18sm23803897wrm.57.2021.01.25.09.00.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Jan 2021 09:00:20 -0800 (PST)
-Subject: Re: [PATCH 0/8] second part of 5.12 patches
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <cover.1611573970.git.asml.silence@gmail.com>
- <f10dc4a5-9b2c-da65-bb62-00352aff3926@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Message-ID: <5b3cfdda-b16c-5dca-da9a-1c034571f91f@gmail.com>
-Date:   Mon, 25 Jan 2021 16:56:41 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=lupDZJ10NzXK0b+10r3QRAsNyJ1iziPajhNPR3b8z7I=;
+        b=bTgaUnC0+Me1sydstVuYxoWKhuNgOsrQCivc1/gtscGYjXJv4DRB3NHoHMjq03XjiF
+         zPyvvoMWDP9aN3BRwppUK++NCP1Md3pK1WpKoc7AzhUocvIEJTNc0CyqpwL7CpwO/irp
+         vDoHezbUJksoJB/MPelemZuh/wDd9drdk/e56oepbV42nXklWCfe0yjPAJQEMjdzHLrM
+         BQBsnwJ6YLgdh3dbgysc5mnz17MEnVhjU2ZodtehSPRCiCrnpMmIQClpvU/QIVU9nzJu
+         MbUdpo1WpAYeUmhtCCIa2IriZ7skIe5PCAqBcBAcmm0iBieC10CEDD2532aJQppncIrr
+         RHgA==
+X-Gm-Message-State: AOAM532988A1FnPdlGMEA04hQ1HDvZkPVKtWOBP+ra0vY8IPBcxthSea
+        CsYy6dYZ74HSpI8TCVXAsZ8BEA==
+X-Google-Smtp-Source: ABdhPJwgQlObIjxIV+ehpprZT8QZloV083Ib+KV4YRhMfTNnw2wtlro4yRXNXnpXdWU5EPRce++sXQ==
+X-Received: by 2002:a17:902:ec83:b029:df:e942:93c0 with SMTP id x3-20020a170902ec83b02900dfe94293c0mr2606319plg.55.1611610584026;
+        Mon, 25 Jan 2021 13:36:24 -0800 (PST)
+Received: from localhost.localdomain (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id i3sm9638913pfq.194.2021.01.25.13.36.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Jan 2021 13:36:23 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/3] fs: add support for AT_STATX_CACHED
+Date:   Mon, 25 Jan 2021 14:36:12 -0700
+Message-Id: <20210125213614.24001-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210125213614.24001-1-axboe@kernel.dk>
+References: <20210125213614.24001-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <f10dc4a5-9b2c-da65-bb62-00352aff3926@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 25/01/2021 16:08, Jens Axboe wrote:
-> On 1/25/21 4:42 AM, Pavel Begunkov wrote:
-> 
-> Applied 1-2 for now. Maybe the context state is workable for the
-> state, if the numbers are looking this good. I'll try and run
-> it here too and see what I find.
+Since we now have LOOKUP_CACHED to only perform a fast lookup of the
+dentry cache for path resolution, expose this as AT_STATX_CACHED to
+provide the same functionality on the statx side.
 
-I believe I've seen it jumping from ~9.5M to 14M with turbo boost
-and not so strict environment, but this claim is not very reliable.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/stat.c                  | 4 +++-
+ include/uapi/linux/fcntl.h | 2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/fs/stat.c b/fs/stat.c
+index dacecdda2e79..f42d6fa1ec20 100644
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -171,7 +171,7 @@ static int vfs_statx(int dfd, const char __user *filename, int flags,
+ 	int error;
+ 
+ 	if (flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT | AT_EMPTY_PATH |
+-		      AT_STATX_SYNC_TYPE))
++		      AT_STATX_SYNC_TYPE | AT_STATX_CACHED))
+ 		return -EINVAL;
+ 
+ 	if (!(flags & AT_SYMLINK_NOFOLLOW))
+@@ -180,6 +180,8 @@ static int vfs_statx(int dfd, const char __user *filename, int flags,
+ 		lookup_flags |= LOOKUP_AUTOMOUNT;
+ 	if (flags & AT_EMPTY_PATH)
+ 		lookup_flags |= LOOKUP_EMPTY;
++	if (flags & AT_STATX_CACHED)
++		lookup_flags |= LOOKUP_CACHED;
+ 
+ retry:
+ 	error = user_path_at(dfd, filename, lookup_flags, &path);
+diff --git a/include/uapi/linux/fcntl.h b/include/uapi/linux/fcntl.h
+index 2f86b2ad6d7e..19d5059393e7 100644
+--- a/include/uapi/linux/fcntl.h
++++ b/include/uapi/linux/fcntl.h
+@@ -111,4 +111,6 @@
+ 
+ #define AT_RECURSIVE		0x8000	/* Apply to the entire subtree */
+ 
++#define AT_STATX_CACHED		0x10000 /* Only succeeds if inode/dentry is already cached */
++
+ #endif /* _UAPI_LINUX_FCNTL_H */
 -- 
-Pavel Begunkov
+2.30.0
+

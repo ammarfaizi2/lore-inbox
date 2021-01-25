@@ -2,65 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACF1AC433E6
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:12:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E0FC433E0
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:13:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B67E22EBF
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:12:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEE9D21D81
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 12:13:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727756AbhAYMME (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Jan 2021 07:12:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S1727813AbhAYMM1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Jan 2021 07:12:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727803AbhAYMKU (ORCPT
+        with ESMTP id S1727822AbhAYMKU (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:10:20 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB5AC0611BC
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:21 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id g10so12058661wrx.1
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:21 -0800 (PST)
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755A7C0611C2
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:19 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id 6so12044547wri.3
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=jDk96/cb1BKygJ8fG3IrH5uzwae6v8GlmEl+pGJrmjM=;
-        b=npNh2erCMhmdYeYEUMCn1tOoxOoQtTpTds7fW39IondVHPVPGEHyup0Ndce+BFMRyq
-         7ly7gzCYoSp4zw8Iwu+L805zuGGkPCkCA2x1R550kJfVd0djVhj69tpEHFqyhaHpwu97
-         vIf2vnInzObtIAemm/LeRsFxrL8arinp/BS5f5W+e2RMArN+tyVxLPO+bKsLbUv2nqtq
-         5IBxkh8+4XiIbtP6821GIgseuLdkNNTy2HY7ULOSkMez6o0IsAiHs6AfEULpEoXqfmY2
-         A1vVWIuH462YJZ4lYb0Rs1ABB7/756+qwYN8MpHlP8pHSqw6HQ05IzGcWVat8ZhpKfZT
-         DMSQ==
+        bh=jkdARpvwgW6N1HyOGAj26/H0wiqdeffUL78JhEUYqao=;
+        b=X4Ye8V6HjNZEX9f8c5Qeisks2vXJQy5/o17pGSmPnp0rHg1oHlAmVRRut1gmAvwgpP
+         wgpNjxiqfWgoYS9YoI4tTOGXaF0Nb5+zIsCBs76KNlFmIOhr9OT5PyKKhTrytNdjm7sr
+         bN56Zg8QVGhSaCp1FJhB6YKpoPfJPIzUts18QnA9v4PadJ8Q6hWUVradZ738lTdRZBlW
+         BViFOfd6XDvP8VIJEVezkrOvD8Vfzef6kQUv9LNGckkUeAsFfLy+B7qKHP6NWsrR9txM
+         sq2xDZTaJIskn09Vrocavb68WGhcnR+/jc5a16wlYyE/7OgteBntM8Mj2Jn8gwbNSLL6
+         XwTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jDk96/cb1BKygJ8fG3IrH5uzwae6v8GlmEl+pGJrmjM=;
-        b=kQSH9uZx4HXTcfsQQHvvShkWerF3qrydI5f3Gn31BgAN0tYbSKn8koo57XVQrblQzP
-         7Tvd4eZ9bA9InLbyD5O8idQn+55aF6b4SjChG3U5j5BQ5smJVxl58Z3Ho77tyUzx66Ls
-         8z0WMPDX2lB0qWazgDJtwyMV/os4UPrAvOduKU9niAzKjbI7FhdIOu2Hf/F6sPkfylSI
-         iLbJciDbIuI0SNL/SNBQnfVumCqvTW4w/IohBB3cWd967NWULunQrdzhywTSiTf64Z8u
-         St+2oqflugbIcTlox/iujx0oWW2DJ7eYtNPYodIrKNzlDCZ6uriWNtWViigrZPjj3kQa
-         dosg==
-X-Gm-Message-State: AOAM532pj6/nGfLZNfI2eCaVotcS0qgTVvmV04sYi2F2IzlVAdcwEZth
-        9LzFR+9ZDPerUCTDAsdTnnc=
-X-Google-Smtp-Source: ABdhPJxVarYXYFgIe6lUPPlFcoyqxWfV+pySqk/3HsZFc/WQnhjPc+2ckTnp4kbFa9S46/HPYjqs/A==
-X-Received: by 2002:a5d:5411:: with SMTP id g17mr522350wrv.54.1611575180349;
-        Mon, 25 Jan 2021 03:46:20 -0800 (PST)
+        bh=jkdARpvwgW6N1HyOGAj26/H0wiqdeffUL78JhEUYqao=;
+        b=sFJPnMsmATBPjL8D6MwtcO6Wk18vtDkm/MadC+1FDUzNZVC7D/YXI4K0OV6KoQPhpD
+         iBZPxQseOA+lWMBsLo58E5Au5zPt092UCUtuyOS4R+ATdGrCOXSCq55WrlB0/U2snsTz
+         1tXguhciy3+n2hpIklf5RO0rknxw1+xwQSxScdvM3pig3fNG2JypEtyHNgHADm97GGPc
+         FiGP3bVbqbNmnsyWft6Wo43FbXC5ddeRqXf+SADtC+nbcT1976ncrmG+hfrzn6NOItGj
+         EOb3oN1BOr0z5sUEcpACTBbI9UfXcazOBtr6ADRp8ejAg2sExD+74j+E6j4em0Fm/1BF
+         KjsA==
+X-Gm-Message-State: AOAM530r/MyqM60P1tKMki2Va+Cl+SXwTEXHw3bYrxnZQskwAsN1A9jx
+        7wDF0ebE8sGiRXOfmni/LJE=
+X-Google-Smtp-Source: ABdhPJzmLMv44gl6EzAACJfbf/OrKuNii+WXuIpCQ7IdaETbtRKE0kP4exBtz2r0hp8GTJSJ9VkcrQ==
+X-Received: by 2002:a5d:560c:: with SMTP id l12mr436194wrv.417.1611575178295;
+        Mon, 25 Jan 2021 03:46:18 -0800 (PST)
 Received: from localhost.localdomain ([85.255.234.11])
-        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.19
+        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 03:46:19 -0800 (PST)
+        Mon, 25 Jan 2021 03:46:17 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 7/8] io_uring: submit-completion free batching
-Date:   Mon, 25 Jan 2021 11:42:26 +0000
-Message-Id: <5137090db5cbd8a3808cffe3879bc8cd0ff24a12.1611573970.git.asml.silence@gmail.com>
+Subject: [PATCH 5/8] io_uring: don't reinit submit state every time
+Date:   Mon, 25 Jan 2021 11:42:24 +0000
+Message-Id: <e717707a7e971590ba6517e961819eca060bb3a9.1611573970.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1611573970.git.asml.silence@gmail.com>
 References: <cover.1611573970.git.asml.silence@gmail.com>
@@ -70,82 +70,63 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_submit_flush_completions() does completion batching, but may also use
-free batching as iopoll does. The main beneficiaries should be buffered
-reads/writes and send/recv.
+As now submit_state is retained across syscalls, we can save ourself
+from initialising it from ground up for each io_submit_sqes(). Set some
+fields during ctx allocation, and just keep them always consistent.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 49 +++++++++++++++++++++++++++++--------------------
- 1 file changed, 29 insertions(+), 20 deletions(-)
+ fs/io_uring.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fcd8df43b6bf..7a720995e24f 100644
+index 7d811cf0c27b..08d0c8b60c2a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1898,26 +1898,6 @@ static void io_req_complete_nostate(struct io_kiocb *req, long res,
- 	io_put_req(req);
- }
+@@ -1284,6 +1284,7 @@ static inline bool io_is_timeout_noseq(struct io_kiocb *req)
  
--static void io_submit_flush_completions(struct io_comp_state *cs,
--					struct io_ring_ctx *ctx)
--{
--	int i, nr = cs->nr;
--
--	spin_lock_irq(&ctx->completion_lock);
--	for (i = 0; i < nr; i++) {
--		struct io_kiocb *req = cs->reqs[i];
--
--		__io_cqring_fill_event(req, req->result, req->compl.cflags);
--	}
--	io_commit_cqring(ctx);
--	spin_unlock_irq(&ctx->completion_lock);
--
--	io_cqring_ev_posted(ctx);
--	for (i = 0; i < nr; i++)
--		io_double_put_req(cs->reqs[i]);
--	cs->nr = 0;
--}
--
- static void io_req_complete_state(struct io_kiocb *req, long res,
- 				  unsigned int cflags, struct io_comp_state *cs)
+ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
  {
-@@ -2303,6 +2283,35 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
- 		__io_req_free_batch_flush(req->ctx, rb);
++	struct io_submit_state *submit_state;
+ 	struct io_ring_ctx *ctx;
+ 	int hash_bits;
+ 
+@@ -1335,6 +1336,12 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	INIT_LIST_HEAD(&ctx->rsrc_ref_list);
+ 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
+ 	init_llist_head(&ctx->rsrc_put_llist);
++
++	submit_state = &ctx->submit_state;
++	INIT_LIST_HEAD(&submit_state->comp.list);
++	submit_state->comp.nr = 0;
++	submit_state->file_refs = 0;
++	submit_state->free_reqs = 0;
+ 	return ctx;
+ err:
+ 	if (ctx->fallback_req)
+@@ -6703,8 +6710,10 @@ static void io_submit_state_end(struct io_submit_state *state,
+ 	if (state->plug_started)
+ 		blk_finish_plug(&state->plug);
+ 	io_state_file_put(state);
+-	if (state->free_reqs)
++	if (state->free_reqs) {
+ 		kmem_cache_free_bulk(req_cachep, state->free_reqs, state->reqs);
++		state->free_reqs = 0;
++	}
  }
  
-+static void io_submit_flush_completions(struct io_comp_state *cs,
-+					struct io_ring_ctx *ctx)
-+{
-+	int i, nr = cs->nr;
-+	struct io_kiocb *req;
-+	struct req_batch rb;
-+
-+	io_init_req_batch(&rb);
-+	spin_lock_irq(&ctx->completion_lock);
-+	for (i = 0; i < nr; i++) {
-+		req = cs->reqs[i];
-+		__io_cqring_fill_event(req, req->result, req->compl.cflags);
-+	}
-+	io_commit_cqring(ctx);
-+	spin_unlock_irq(&ctx->completion_lock);
-+
-+	io_cqring_ev_posted(ctx);
-+	for (i = 0; i < nr; i++) {
-+		req = cs->reqs[i];
-+
-+		/* submission and completion refs */
-+		if (refcount_sub_and_test(2, &req->refs))
-+			io_req_free_batch(&rb, req);
-+	}
-+
-+	io_req_free_batch_finish(ctx, &rb);
-+	cs->nr = 0;
-+}
-+
  /*
-  * Drop reference to request, return next in chain (if there is one) if this
-  * was the last reference to this request.
+@@ -6714,10 +6723,6 @@ static void io_submit_state_start(struct io_submit_state *state,
+ 				  unsigned int max_ios)
+ {
+ 	state->plug_started = false;
+-	state->comp.nr = 0;
+-	INIT_LIST_HEAD(&state->comp.list);
+-	state->free_reqs = 0;
+-	state->file_refs = 0;
+ 	state->ios_left = max_ios;
+ }
+ 
 -- 
 2.24.0
 

@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5362C433E6
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF655C433DB
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B96CF22510
-	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BBE9E21BE5
+	for <io-uring@archiver.kernel.org>; Mon, 25 Jan 2021 21:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733016AbhAYVsz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Jan 2021 16:48:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53620 "EHLO
+        id S1732829AbhAYVtA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Jan 2021 16:49:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732828AbhAYVia (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 16:38:30 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739F7C06178A
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:24 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id h15so5988231pli.8
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:24 -0800 (PST)
+        with ESMTP id S1732833AbhAYVib (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 16:38:31 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10EA0C061794
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:28 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id 31so8455171plb.10
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 13:36:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=lupDZJ10NzXK0b+10r3QRAsNyJ1iziPajhNPR3b8z7I=;
-        b=d12kqnlV/PdD1QoL93339vQ/NhDc07chPyumWparJtDUSffDW9gpxP4E6Wt5PpvQQC
-         z/BwEah+DMT/sG5h/7UWU5DlFxvCe9DU9h8SxB4KgeAhFr8qJadIbRHC+oO3EFLVQ8zP
-         Itdf9wPXzSXR6dnGdH4cjGalX7hFWqg+uk4EYSRdzKpgMAOlR3hlnjSP6sZ+A13edqx5
-         FaujeA8ntFuyqE5ftoF8u88wyKZSPZSWKHLF9JiGVzxrOkZeJrnOhwNPz/gErwTC+MBF
-         jGNIdRdBFI4RbRPvI6UxRrF58CkdsRyr7OCVr0VsVmmYGgGQmmm0tHgLAheXe1PrvKUU
-         XpkQ==
+        bh=d8wjGfx6VBL20ZT4nFGhgu4zRLg6ZpeJjDuu01CJdF0=;
+        b=gOcdnsXidS3ash8MqdQyVE7+0MmiMNyRyaUJsQMLS7dt8oEGCFe5h9p7GEm76JSWCZ
+         DWC/I82fTO46Akvtdl2CYpNxlr7d+UFR4uiHvGhhQF1yS06Sq3FFgyRX8cdZhlHiekbx
+         t1gnxsyBb5DaQSN6OXeg8JiccqOsqXgHtCMwtrMAfKUIGDeHZf51lRBrEIKbUAebg58K
+         w6tjN8ZMaBGRHl+iW5hkNW+DLvmvZ5GCpppJKCbCvQ+SqT4ZKZrN6mI2SnDaeBtz+w4/
+         wvsY/Fcer9qj6aTt/vMTAJoOqknvg/V8t0eVpn1SEtJRF/Z6ibpWeODxKRQav+3j5V0i
+         dyOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=lupDZJ10NzXK0b+10r3QRAsNyJ1iziPajhNPR3b8z7I=;
-        b=bTgaUnC0+Me1sydstVuYxoWKhuNgOsrQCivc1/gtscGYjXJv4DRB3NHoHMjq03XjiF
-         zPyvvoMWDP9aN3BRwppUK++NCP1Md3pK1WpKoc7AzhUocvIEJTNc0CyqpwL7CpwO/irp
-         vDoHezbUJksoJB/MPelemZuh/wDd9drdk/e56oepbV42nXklWCfe0yjPAJQEMjdzHLrM
-         BQBsnwJ6YLgdh3dbgysc5mnz17MEnVhjU2ZodtehSPRCiCrnpMmIQClpvU/QIVU9nzJu
-         MbUdpo1WpAYeUmhtCCIa2IriZ7skIe5PCAqBcBAcmm0iBieC10CEDD2532aJQppncIrr
-         RHgA==
-X-Gm-Message-State: AOAM532988A1FnPdlGMEA04hQ1HDvZkPVKtWOBP+ra0vY8IPBcxthSea
-        CsYy6dYZ74HSpI8TCVXAsZ8BEA==
-X-Google-Smtp-Source: ABdhPJwgQlObIjxIV+ehpprZT8QZloV083Ib+KV4YRhMfTNnw2wtlro4yRXNXnpXdWU5EPRce++sXQ==
-X-Received: by 2002:a17:902:ec83:b029:df:e942:93c0 with SMTP id x3-20020a170902ec83b02900dfe94293c0mr2606319plg.55.1611610584026;
-        Mon, 25 Jan 2021 13:36:24 -0800 (PST)
+        bh=d8wjGfx6VBL20ZT4nFGhgu4zRLg6ZpeJjDuu01CJdF0=;
+        b=osT3Jpihy+0AigTemU+0Z+tjkcy0EFjPstuADLvWLkpbn7INukg/wAt/GEQ20Oco7M
+         YJ7D+JMqEQGxnXWyILLlydKW8ibomcbZeHuKmTPCPfFBVFv4wPoQA08C3JG4hZFYgOiv
+         VX7scWDSTweDMRZrCa9vT5fEsUx4QF3NGL0wELEZMhI+D5AN/SPdeP8F8VA9eri+PWmu
+         VDypb1PwUZX3P1RpFhcwCVT7nlS8aWd1kNhqSxQbw4N3nlkbZ0Ok6CwYhcWs9LMr8Xdh
+         W3EXwrO/7mM7E3foJ9LiIYwl1HF0k2T8maJkCnXCQJBTs5Pm7uqYxt0jMJG7p3kHvQNx
+         hkBw==
+X-Gm-Message-State: AOAM532H7Fu8EBR4J1NJjRTcgLxv149Otshg47QIi5PJQXzJlaGNs4F6
+        S680ERLYCejP1Kx7gFfRsoUZ9g==
+X-Google-Smtp-Source: ABdhPJxtwEGOltI6AlPmhbLRUVDEPWQPQlh6vKdL9M+quHpeFAAjq+v7+YRNQS9qmOsSV9ywcID8CA==
+X-Received: by 2002:a17:902:9f8b:b029:e0:a90:b62 with SMTP id g11-20020a1709029f8bb02900e00a900b62mr2466674plq.70.1611610587617;
+        Mon, 25 Jan 2021 13:36:27 -0800 (PST)
 Received: from localhost.localdomain (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id i3sm9638913pfq.194.2021.01.25.13.36.22
+        by smtp.gmail.com with ESMTPSA id i3sm9638913pfq.194.2021.01.25.13.36.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 13:36:23 -0800 (PST)
+        Mon, 25 Jan 2021 13:36:27 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/3] fs: add support for AT_STATX_CACHED
-Date:   Mon, 25 Jan 2021 14:36:12 -0700
-Message-Id: <20210125213614.24001-2-axboe@kernel.dk>
+Subject: [PATCH 3/3] io_uring: use AT_STATX_CACHED for IORING_OP_STATX fast path
+Date:   Mon, 25 Jan 2021 14:36:14 -0700
+Message-Id: <20210125213614.24001-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125213614.24001-1-axboe@kernel.dk>
 References: <20210125213614.24001-1-axboe@kernel.dk>
@@ -71,49 +71,54 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Since we now have LOOKUP_CACHED to only perform a fast lookup of the
-dentry cache for path resolution, expose this as AT_STATX_CACHED to
-provide the same functionality on the statx side.
+Instead of always going async, we can now attempt a cached attempt by
+using AT_STATX_CACHED. This turns into LOOKUP_CACHED, and ensures that
+we'll only do a fast path dentry lookup for path resolution.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/stat.c                  | 4 +++-
- include/uapi/linux/fcntl.h | 2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/stat.c b/fs/stat.c
-index dacecdda2e79..f42d6fa1ec20 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -171,7 +171,7 @@ static int vfs_statx(int dfd, const char __user *filename, int flags,
- 	int error;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c246df2f95a4..99799cc5a42e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4394,20 +4394,27 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ static int io_statx(struct io_kiocb *req, bool force_nonblock)
+ {
+ 	struct io_statx *ctx = &req->statx;
++	bool cached_set;
+ 	int ret;
  
- 	if (flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT | AT_EMPTY_PATH |
--		      AT_STATX_SYNC_TYPE))
-+		      AT_STATX_SYNC_TYPE | AT_STATX_CACHED))
- 		return -EINVAL;
+-	if (force_nonblock) {
+-		/* only need file table for an actual valid fd */
+-		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
+-			req->flags |= REQ_F_NO_FILE_TABLE;
+-		return -EAGAIN;
+-	}
++	cached_set = ctx->flags & AT_STATX_CACHED;
++	if (force_nonblock)
++		ctx->flags |= AT_STATX_CACHED;
  
- 	if (!(flags & AT_SYMLINK_NOFOLLOW))
-@@ -180,6 +180,8 @@ static int vfs_statx(int dfd, const char __user *filename, int flags,
- 		lookup_flags |= LOOKUP_AUTOMOUNT;
- 	if (flags & AT_EMPTY_PATH)
- 		lookup_flags |= LOOKUP_EMPTY;
-+	if (flags & AT_STATX_CACHED)
-+		lookup_flags |= LOOKUP_CACHED;
+ 	ret = do_statx(ctx->dfd, ctx->filename, ctx->flags, ctx->mask,
+ 		       ctx->buffer);
  
- retry:
- 	error = user_path_at(dfd, filename, lookup_flags, &path);
-diff --git a/include/uapi/linux/fcntl.h b/include/uapi/linux/fcntl.h
-index 2f86b2ad6d7e..19d5059393e7 100644
---- a/include/uapi/linux/fcntl.h
-+++ b/include/uapi/linux/fcntl.h
-@@ -111,4 +111,6 @@
- 
- #define AT_RECURSIVE		0x8000	/* Apply to the entire subtree */
- 
-+#define AT_STATX_CACHED		0x10000 /* Only succeeds if inode/dentry is already cached */
-+
- #endif /* _UAPI_LINUX_FCNTL_H */
+-	if (ret < 0)
++	if (ret < 0) {
++		/* only retry if nonblock wasn't set */
++		if (ret == -EAGAIN && (!cached_set && force_nonblock)) {
++			/* only need file table for an actual valid fd */
++			if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
++				req->flags |= REQ_F_NO_FILE_TABLE;
++			ctx->flags &= ~AT_STATX_CACHED;
++			return -EAGAIN;
++		}
+ 		req_set_fail_links(req);
++	}
+ 	io_req_complete(req, ret);
+ 	return 0;
+ }
 -- 
 2.30.0
 

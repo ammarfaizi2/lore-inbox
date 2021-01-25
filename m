@@ -2,103 +2,98 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02E23C433DB
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:37:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB4C9C433DB
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B746D22228
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:37:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A40E422B2C
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727046AbhAZFKX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:10:23 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:59155 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727871AbhAYMPd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:15:33 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UMqjSkp_1611576821;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UMqjSkp_1611576821)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 25 Jan 2021 20:13:41 +0800
-From:   Jeffle Xu <jefflexu@linux.alibaba.com>
-To:     snitzer@redhat.com
-Cc:     joseph.qi@linux.alibaba.com, dm-devel@redhat.com,
-        linux-block@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH v2 2/6] block: add queue_to_disk() to get gendisk from request_queue
-Date:   Mon, 25 Jan 2021 20:13:36 +0800
-Message-Id: <20210125121340.70459-3-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210125121340.70459-1-jefflexu@linux.alibaba.com>
-References: <20210125121340.70459-1-jefflexu@linux.alibaba.com>
+        id S1726780AbhAZFKT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:10:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727772AbhAYMKU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:10:20 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF20C0611C0
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:18 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id p15so5394470wrq.8
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=MxeJplOd6aFIYBt+YHr+ru8j9ko6pPCAGNUPmqPm2hE=;
+        b=mzRgN1XTzV0TXqpuf284PD5t2K4UWSm/veTDn382gg6iFGm0764jmv8ZiT3nK040Sp
+         ukyV7+TGYw3VuIjF8YcPAlRz7LtPldUhzciee0sPKZ5ssWMhrCItWtwN59oi0cCmfag6
+         ydBLmfdx72XYNggiuCCRGSHpO7hcZZVHTm4fC8oD4hXuPVjIU3P4YMkMLt8ZxHygXz9A
+         dhXfSs5BMvlsWP+GaAuKx6UOlJy+y3xr7mYDoxGR0ayjT5Mhq7vNl9tA0HBW6z8sxB5y
+         MwGqN7rJQkHMJBTmvw781EMW7E/Nfc+TiGbxNSoidGr96xRz9++nZmbl/zPS4XfIkWPJ
+         3BxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=MxeJplOd6aFIYBt+YHr+ru8j9ko6pPCAGNUPmqPm2hE=;
+        b=p80shrhqKQbVk1CiAwpERswORHJGvJaGxIsBGoyj4IhMCe48ZTr+INQSjGn964MMzQ
+         ckQQhe6dvBXLHiOlcfIvRi/YTOlXZYEB3+3E32ek8KViv8oUOLPhQc11sctJf+vvie7S
+         8p/dezuvhRMzYRZYdyAIvXac1FwzLCOtTqiz37TG79LJ0hKCpvhAueGc4/EdGSU3pStl
+         uHTGV1MiBtVuRSqi5FXuq9s/LqZSxYDqe+IvWb2NZDuoMNVQa60ZeCyMivSLmbMgLezX
+         b+uWFDPxiRyOQ7QlFRAfh9Psm7sw9b2eFICY/XLR4+Kodyg5vn43HFenmye4eD3QL13X
+         OAJg==
+X-Gm-Message-State: AOAM531g8dxWiyuAv/FRuPka1cMRa33cWGn2l9CDtMoy0YPpnCHaETnU
+        3Dy3szCy9HRnjC6Oy/HQH6hZ9W88mj8=
+X-Google-Smtp-Source: ABdhPJxyhU+sgl02m/+GW7I0XmVMjAAsq8rEyUn7LhbBuQ+3CkQfsYZs4aCniX3hq+o4Dep555dMNg==
+X-Received: by 2002:adf:ba49:: with SMTP id t9mr476176wrg.183.1611575174708;
+        Mon, 25 Jan 2021 03:46:14 -0800 (PST)
+Received: from localhost.localdomain ([85.255.234.11])
+        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Jan 2021 03:46:14 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/8] io_uring: ensure only sqo_task has file notes
+Date:   Mon, 25 Jan 2021 11:42:20 +0000
+Message-Id: <14e7c16f3dd6153fe7868b9065aeb60cd637272e.1611573970.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1611573970.git.asml.silence@gmail.com>
+References: <cover.1611573970.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Sometimes we need to get the corresponding gendisk from request_queue.
+For SQPOLL io_urnig we want to have only one file note held by
+sqo_task. Add a warning to make sure it holds. It's deep in
+io_uring_add_task_file() out of hot path, so shouldn't hurt.
 
-It is preferred that block drivers store private data in
-gendisk->private_data rather than request_queue->queuedata, e.g. see:
-commit c4a59c4e5db3 ("dm: stop using ->queuedata").
-
-So if only request_queue is given, we need to get its corresponding
-gendisk to get the private data stored in that gendisk.
-
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Review-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- include/linux/blkdev.h       | 2 ++
- include/trace/events/kyber.h | 6 +++---
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index f94ee3089e01..2a802e011a95 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -687,6 +687,8 @@ static inline bool blk_account_rq(struct request *rq)
- 	dma_map_page_attrs(dev, (bv)->bv_page, (bv)->bv_offset, (bv)->bv_len, \
- 	(dir), (attrs))
- 
-+#define queue_to_disk(q)	(dev_to_disk(kobj_to_dev((q)->kobj.parent)))
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7a17c947e64b..8be7b4c6d304 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -9074,6 +9074,10 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
+ 				fput(file);
+ 				return ret;
+ 			}
 +
- static inline bool queue_is_mq(struct request_queue *q)
- {
- 	return q->mq_ops;
-diff --git a/include/trace/events/kyber.h b/include/trace/events/kyber.h
-index c0e7d24ca256..f9802562edf6 100644
---- a/include/trace/events/kyber.h
-+++ b/include/trace/events/kyber.h
-@@ -30,7 +30,7 @@ TRACE_EVENT(kyber_latency,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 		strlcpy(__entry->type, type, sizeof(__entry->type));
- 		__entry->percentile	= percentile;
-@@ -59,7 +59,7 @@ TRACE_EVENT(kyber_adjust,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 		__entry->depth		= depth;
- 	),
-@@ -81,7 +81,7 @@ TRACE_EVENT(kyber_throttled,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 	),
- 
++			/* one and only SQPOLL file note, held by sqo_task */
++			WARN_ON_ONCE((ctx->flags & IORING_SETUP_SQPOLL) &&
++				     current != ctx->sqo_task);
+ 		}
+ 		tctx->last = file;
+ 	}
 -- 
-2.27.0
+2.24.0
 

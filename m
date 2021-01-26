@@ -2,121 +2,188 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86554C433DB
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 23:03:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 330DCC433DB
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:45:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4FBB720684
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 23:03:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3D6B2070E
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:45:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731625AbhAZXDO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 18:03:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
+        id S239527AbhA0EpT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 23:45:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405545AbhAZUZ3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 15:25:29 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26276C061786;
-        Tue, 26 Jan 2021 12:24:49 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id d4so10416762plh.5;
-        Tue, 26 Jan 2021 12:24:49 -0800 (PST)
+        with ESMTP id S1728833AbhA0AUH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 19:20:07 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2A5C0698C2;
+        Tue, 26 Jan 2021 15:41:00 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id r12so90315ejb.9;
+        Tue, 26 Jan 2021 15:41:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1cudNhAMfB/FNnO4Nfbnzqpu5VBUIwtW0BBCCWOr4ao=;
-        b=okEnGG//pva3FMm7+RQuqg3HjT6TuPB9G/HWJYN4D7a69egyS0VYX+j2NcX0rtqfMx
-         1wZ66PW1Lp/QBlFLsjTh6++IQ/YzkyKnsqgZK5oPJU4DLZbZJK8ICOq9t3lZDdpkB1pO
-         fajg2mPDaxDO8So+orz5lAgMXf6vEeSwW8KgrA+vmH4gNw33RVKwMG2y4uQzH/R7g2Ym
-         /0fOM4XSuQz9a8/FSx39lySghSLAwNhk90EgWrpfB+c5OmrKqEfKhqxs/XXnCC4azjTL
-         p8t61CcwzLqdmMv+Ke8sFeYU6PPsetdA1QzuB0X9TFIsLKUHFXEphvYwtjyPldGJ3oPu
-         JWlA==
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=xuTN9aZIYreTv1ji2Tqw+quSeWAQAiHw/YoS4yo7cuw=;
+        b=g3kKbX1RvhEDw37pYXd0R+MCmkFJt+KRbSRytPVIQR9iABf/S8QU4xcU5RKupZ8+JJ
+         /a0/kad0wwV+n66+2a7bkHRRyv6F2fGaydbSNauan1TaZqR/q9S6bJDwPE1722tDyo5v
+         G9m0h5Nz9A2lQxowCkCO7IP/GWd7Qv9VuIujPSA2DS0+yOW5FlBBxvu8nLteCHWSoUYp
+         VhQ3Ekt1xbsR91llHpelTZv/Ral6PPmITadH5HnDr0WB04UsDsDQEmwgfSrE4nJujwfE
+         fz1arx/aSzSfoI1DHq2CeSERop/xEUOqqagqogww4qprOl6KH88KloQ4RQhoWl3WsEh8
+         69mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1cudNhAMfB/FNnO4Nfbnzqpu5VBUIwtW0BBCCWOr4ao=;
-        b=ncJQtqGe/OMI2ZpeBBOxFePTmsBh+xZCJQ2C5xxAxzUmdAw7gxYgBzw7ZjHuOgtJNh
-         /j7qJh9NDAbuA797tRi5pe6pIuHPrMHYw0SJWe2eY7xgxYzuDfNMl/01mzp3Si5iIrab
-         B9/Yq/TYHv19ibaYtu4hz10x/Jzl5ixgYVPgMdhssO1R7fMU4Ip9xsb5KxVcBWfUF+93
-         EacgkNs6+DNNkZdBwye8lSRl103B4RugCuPC9Pw+CwQNVp7NIXR+xGZzYw9Hx82LXZbd
-         /Ux99yFlDImGh6t0kVcc5kYBIb9ZI8cDnDqOTtfRbpCIF5UysF8ldwhfJGuqyP6nxQkV
-         JDLQ==
-X-Gm-Message-State: AOAM5335IAExN276ILR55mKIVe3aHVIdbCjsHbMXdWMm2y98a/2CfMd1
-        mMuTC22b+gjA6xYz1j7Uen8=
-X-Google-Smtp-Source: ABdhPJzK7Kn4mm8q2nP95CoOy5hXdg0H+PpAN9AJ0CABoyuge53sptw7H1bXl1bPLLzeM8G/GYhKsw==
-X-Received: by 2002:a17:902:778e:b029:de:b475:c430 with SMTP id o14-20020a170902778eb02900deb475c430mr7872809pll.53.1611692688717;
-        Tue, 26 Jan 2021 12:24:48 -0800 (PST)
-Received: from localhost.localdomain (c-73-241-149-213.hsd1.ca.comcast.net. [73.241.149.213])
-        by smtp.googlemail.com with ESMTPSA id u12sm18697124pgi.91.2021.01.26.12.24.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 12:24:48 -0800 (PST)
-From:   noah <goldstein.w.n@gmail.com>
-Cc:     axboe@kernel.dk, viro@zeniv.linux.org.uk, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        goldstein.w.n@gmail.com
-Subject: [PATCH] io_uring: Add skip option for __io_sqe_files_update
-Date:   Tue, 26 Jan 2021 15:23:28 -0500
-Message-Id: <20210126202326.3143037-1-goldstein.w.n@gmail.com>
-X-Mailer: git-send-email 2.29.2
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=xuTN9aZIYreTv1ji2Tqw+quSeWAQAiHw/YoS4yo7cuw=;
+        b=Pg3JKwN/7QSywk5bBhsKe38stI+MPJN0pyEoU/5C50nJ7pD7gB6VDmwljrpRruSus/
+         AusWJAW2LHeilGGMLhPWzheqpJQqzXCEnlKWZMQym37QaSNDhBTa6qhzqUQzENatZgz0
+         NH2PCNt6ptLZHXfFTlex9hcvjp407+dggk+rt79px1MDHdFPP7WLxYpuAO83XvGGT9yE
+         pj06PXB1b4aq96hturOOEKMVhiclqHWUVxT3bZWvXqKtItjszgI56OdN4JtAOr23wncI
+         BkZEizkiH9ia0J3b7XvL17IVbp+EWp4ZAtXvK6dgDmI37VSvk5hpeZDVfecPLyL9vuw6
+         cjcg==
+X-Gm-Message-State: AOAM532QrptaDfLCydnFsUDYcQsUI9UmonO3o6Ap+97jDw0ZN1NkYxFl
+        nbDDnRCp4Pq9OiPcGpL3/5M=
+X-Google-Smtp-Source: ABdhPJzIUbICSpYS5cgjOF6o4WAsQGHo4YCTdECJPHLW8idAhIr/eZdqVTPmpJ/i0COuEr9DriiLMA==
+X-Received: by 2002:a17:906:538c:: with SMTP id g12mr4931202ejo.248.1611704458964;
+        Tue, 26 Jan 2021 15:40:58 -0800 (PST)
+Received: from [192.168.8.159] ([148.252.129.161])
+        by smtp.gmail.com with ESMTPSA id x5sm166992edi.35.2021.01.26.15.40.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Jan 2021 15:40:58 -0800 (PST)
+Subject: Re: [PATCH 5.11] io_uring: fix wqe->lock/completion_lock deadlock
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <9c4f7eb623ae774f3f17afbc1702749480ee19be.1611703952.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <edc3eca8-e1b7-bae2-8870-08e68b1905d8@gmail.com>
+Date:   Tue, 26 Jan 2021 23:37:18 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <9c4f7eb623ae774f3f17afbc1702749480ee19be.1611703952.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This patch adds support for skipping a file descriptor when using
-IORING_REGISTER_FILES_UPDATE.  __io_sqe_files_update will skip fds set
-to IORING_REGISTER_FILES_SKIP. IORING_REGISTER_FILES_SKIP is inturn
-added as a #define in io_uring.h
+On 26/01/2021 23:35, Pavel Begunkov wrote:
+> Joseph reports following deadlock:
+> 
+> CPU0:
+> ...
+> io_kill_linked_timeout  // &ctx->completion_lock
+> io_commit_cqring
+> __io_queue_deferred
+> __io_queue_async_work
+> io_wq_enqueue
+> io_wqe_enqueue  // &wqe->lock
+> 
+> CPU1:
+> ...
+> __io_uring_files_cancel
+> io_wq_cancel_cb
+> io_wqe_cancel_pending_work  // &wqe->lock
+> io_cancel_task_cb  // &ctx->completion_lock
+> 
+> Only __io_queue_deferred() calls queue_async_work() while holding
+> ctx->completion_lock, enqueue drained requests via io_req_task_queue()
+> instead.
 
-Signed-off-by: noah <goldstein.w.n@gmail.com>
----
-Supporting documentation and tests in liburing can be added in PR284
-(https://github.com/axboe/liburing/pull/284) if this patch is applied.
-    
- fs/io_uring.c                 | 3 +++
- include/uapi/linux/io_uring.h | 7 +++++++
- 2 files changed, 10 insertions(+)
+Joseph, can you try it out? would much appreciate
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2c307dea162b..03748faa5295 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8039,6 +8039,9 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 			err = -EFAULT;
- 			break;
- 		}
-+		if (fd == IORING_REGISTER_FILES_SKIP)
-+			continue;
-+
- 		i = array_index_nospec(up->offset + done, ctx->nr_user_files);
- 		table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
- 		index = i & IORING_FILE_TABLE_MASK;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index f9f106c54d90..e8b481040fb3 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -298,6 +298,13 @@ struct io_uring_rsrc_update {
- 	__aligned_u64 data;
- };
- 
-+/*
-+ * fd value in *((__s32 *)io_uring_rsrc_update->data)
-+ */
-+
-+/* Skip updating fd indexes set to this value */
-+#define IORING_REGISTER_FILES_SKIP  (-2)
-+
- #define IO_URING_OP_SUPPORTED	(1U << 0)
- 
- struct io_uring_probe_op {
+> 
+> Cc: stable@vger.kernel.org # 5.9+
+> Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+>  fs/io_uring.c | 10 ++--------
+>  1 file changed, 2 insertions(+), 8 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index bb0270eeb8cb..c218deaf73a9 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -1026,6 +1026,7 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+>  			     const struct iovec *fast_iov,
+>  			     struct iov_iter *iter, bool force);
+>  static void io_req_drop_files(struct io_kiocb *req);
+> +static void io_req_task_queue(struct io_kiocb *req);
+>  
+>  static struct kmem_cache *req_cachep;
+>  
+> @@ -1634,18 +1635,11 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
+>  	do {
+>  		struct io_defer_entry *de = list_first_entry(&ctx->defer_list,
+>  						struct io_defer_entry, list);
+> -		struct io_kiocb *link;
+>  
+>  		if (req_need_defer(de->req, de->seq))
+>  			break;
+>  		list_del_init(&de->list);
+> -		/* punt-init is done before queueing for defer */
+> -		link = __io_queue_async_work(de->req);
+> -		if (link) {
+> -			__io_queue_linked_timeout(link);
+> -			/* drop submission reference */
+> -			io_put_req_deferred(link, 1);
+> -		}
+> +		io_req_task_queue(de->req);
+>  		kfree(de);
+>  	} while (!list_empty(&ctx->defer_list));
+>  }
+> 
+
 -- 
-2.29.2
-
+Pavel Begunkov

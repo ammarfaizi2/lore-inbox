@@ -8,55 +8,56 @@ X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77509C433DB
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7676EC43331
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3870820731
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3524C2072C
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S314276AbhAZXDA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 18:03:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57240 "EHLO
+        id S314271AbhAZXCx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 18:02:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732428AbhAZTox (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 14:44:53 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F37AC0617AA;
-        Tue, 26 Jan 2021 11:43:39 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id c6so21233910ede.0;
-        Tue, 26 Jan 2021 11:43:39 -0800 (PST)
+        with ESMTP id S1729372AbhAZRZR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 12:25:17 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05632C061352;
+        Tue, 26 Jan 2021 09:24:22 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id d22so20744104edy.1;
+        Tue, 26 Jan 2021 09:24:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=AxTMxke2lBh+WLw3QfOLyv1jNxFqDD9riUuo8aSpxYY=;
-        b=A5qvFcktY1QEDsqUgMoUk1st9UaKimIOebQt1cKwkRsreXQeNMhxVkGCusaa/9xzle
-         3sISO8eOSAB0t2mL9BzBA9dcFNTk0r/EZuCAMcYOQj3Dk4AYvDGN5kIBuY/MIZhx9YZ9
-         MiO190KQyX94aJPmagXJvt7Hse2Dsg8ANNfJJcub+S80sJVUxoIS0hm/6qGqIi0hNB92
-         /KksQyuiaHTK9NsABtpi5FdrmDnvDCQ4Dpth6bJ2v24c6KfUYo2FVfO4WIfnAsXfebRb
-         W1mR/7FoQhdJqeNuw4cjPOwXh2Xz3i0jeKpPzxe4WgYMMgBGATde0ixN+zyhg4F1LQMp
-         kt3A==
+        bh=rXdrRsGhj1nVaU/LhEQmWVDqTDKRL6AiUbAzoR14U/Q=;
+        b=dssj/O/2ZBdNudvVz5W2VrCqJcBSQ3WkMa/+yX8XkxKJcyARtjRQEFL65tsJVgBXYG
+         34TxH0xv5IjzWW8eFUPGws3aTV2FTUDr5KOUsRBci+cUnKoMh/GL/sNzLRZg2f3QiSEu
+         lUFPfHCcgqJUQwlGkPS2H7LPA27SmThY6QddfHbVASPkQcnIjqm/tly4GImiMa8uQSML
+         HFgSX+77QiMHqfBihlBOmjdtMTHDGyjDSmx4G2urhkqM6vmKVYlMbcNeBHQKgOlbsM5k
+         hNIAFTpV7Ck02mO6na+o3js9WJL6zqScpHg59J/lZ6EbgDhLcDOoBDXvU1az+AzD6qyG
+         Yz9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=AxTMxke2lBh+WLw3QfOLyv1jNxFqDD9riUuo8aSpxYY=;
-        b=fxJOEV714fG5GsiFDg2+4hjPGneihHZ20nqNDhXwR+Mu0KRxTUcafoHdQbG2TT0iw0
-         8bUpOrecJhPn3qGhX527gCPYtOPr0W2HMbZnYuCab/wzu0BMyl3UY8LcLKlZO0RlXu3U
-         lSxPOLSrqPTeHO2RGYgWb6jKDOyVJxRRLTMhsKYjZ3Sma+sIk35p9H7MHZobMK7H8LNJ
-         AtX3e1fwGZixq3m3pA4OJw/y+EfewgcyArWdHZhMcr+IlLULXHjZR9GJE1Ou75LrnogQ
-         79v1LX0L0HHLFTyWLfjT6vzHfHZ4U7mFRR78K+FD5DlOGLQmIJs4vMHR3DwsFGQyHmmm
-         h+WQ==
-X-Gm-Message-State: AOAM530fp23nOt/FYFMyoKSnm9LU48rt/Pj3mDdDF4mvvF28aoG2g1Rc
-        J6KB60CGc15BUu2uyEJpvH2EoFss+j8=
-X-Google-Smtp-Source: ABdhPJye22x56SYv8V1fS0kq93JtrPT26+RVrJENtrh+aje7PTCWZuIdZD8V2oe5i3GTbtjNcyLJ0A==
-X-Received: by 2002:a05:6402:318e:: with SMTP id di14mr5811765edb.223.1611690218044;
-        Tue, 26 Jan 2021 11:43:38 -0800 (PST)
+        bh=rXdrRsGhj1nVaU/LhEQmWVDqTDKRL6AiUbAzoR14U/Q=;
+        b=D7Xvfyt1KzN3NqH7D+138A4JQl3flI5FCt4SZq0YE/JE3+O6cVWFF1SGjilHTZ2ryv
+         R/Hs2+rMB7EePOqIydVDko7CRFleAE2EmQ19kpOFD99kS/T0ZAj43AwmOIGwya0opOCo
+         aH1R9rncB4jIfGFjKB9QGSJJ1xjF9DM3tGS1/9VJ8p8Yql8Pp7xSHlhVgkWCMN91RUuh
+         jtHdySf9BDSsKrCG6cjNYjdZh5nSmIyGvbbw+VcO/qFVD5S4/9S7Ob8C9Tg9pCrEJ+At
+         VmH1i21hzkzniADjyqpzenqZqvliYgHUwyvVE8QW9Xr/M0SKjAxjLejXbck7zzkrSDRt
+         lDDg==
+X-Gm-Message-State: AOAM532f2pHfXWXErK7heI3D/Gp1D+ZoXKZXET51e05Gk3Y681rsJE+v
+        +IEb71Zfp4iBHwdJt1m1YiA1xxqoosY=
+X-Google-Smtp-Source: ABdhPJzrksf33ja4yDHmx6t7wrasuKi8/7n1ukCKJ5v6U1Qc1Ambq9leA3x6YXmqidQkBSFL158/4A==
+X-Received: by 2002:aa7:dcc9:: with SMTP id w9mr5334384edu.22.1611681860554;
+        Tue, 26 Jan 2021 09:24:20 -0800 (PST)
 Received: from [192.168.8.158] ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id co6sm13003633edb.96.2021.01.26.11.43.36
+        by smtp.gmail.com with ESMTPSA id o13sm12666412edt.64.2021.01.26.09.24.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Jan 2021 11:43:36 -0800 (PST)
+        Tue, 26 Jan 2021 09:24:19 -0800 (PST)
+Subject: Re: [PATCH] fs: io_uring.c: Add skip option for __io_sqe_files_update
 To:     Noah Goldstein <goldstein.w.n@gmail.com>
 Cc:     noah <goldstein.n@wustl.edu>, Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -69,8 +70,6 @@ References: <20201220065025.116516-1-goldstein.w.n@gmail.com>
  <20201222021043.GA139782@gmail.com>
  <32c9ce7e-569d-3f94-535e-00e072de772e@gmail.com>
  <CAFUsyf+m8SseZ1NzZoYJe4KSH30v-XJeP5P9FvtxQT_5bvsK9Q@mail.gmail.com>
- <792d56e4-b258-65b4-d0b5-dbfd728d5a02@gmail.com>
- <CAFUsyfK8OSDzfNCCwVPD8O=Fp0XSHWQ+HRCiC36BA-rH+c9D7g@mail.gmail.com>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -115,58 +114,44 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH] fs: io_uring.c: Add skip option for __io_sqe_files_update
-Message-ID: <ce9aed17-3dfc-6b8d-49f8-136f03241914@gmail.com>
-Date:   Tue, 26 Jan 2021 19:39:55 +0000
+Message-ID: <792d56e4-b258-65b4-d0b5-dbfd728d5a02@gmail.com>
+Date:   Tue, 26 Jan 2021 17:20:38 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <CAFUsyfK8OSDzfNCCwVPD8O=Fp0XSHWQ+HRCiC36BA-rH+c9D7g@mail.gmail.com>
+In-Reply-To: <CAFUsyf+m8SseZ1NzZoYJe4KSH30v-XJeP5P9FvtxQT_5bvsK9Q@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 26/01/2021 18:43, Noah Goldstein wrote:
-> On Tue, Jan 26, 2021 at 12:24 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
+On 26/01/2021 17:14, Noah Goldstein wrote:
+> On Tue, Jan 26, 2021 at 7:29 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
 >>
->> On 26/01/2021 17:14, Noah Goldstein wrote:
->>> On Tue, Jan 26, 2021 at 7:29 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
+>> On 22/12/2020 02:10, Noah Goldstein wrote:
+>>> On Sun, Dec 20, 2020 at 03:18:05PM +0000, Pavel Begunkov wrote:
+>>>> On 20/12/2020 06:50, noah wrote:> From: noah <goldstein.n@wustl.edu>
+>>>>>
+>>>>> This patch makes it so that specify a file descriptor value of -2 will
+>>>>> skip updating the corresponding fixed file index.
+>>>>>
+>>>>> This will allow for users to reduce the number of syscalls necessary
+>>>>> to update a sparse file range when using the fixed file option.
 >>>>
->>>> On 22/12/2020 02:10, Noah Goldstein wrote:
->>>>> On Sun, Dec 20, 2020 at 03:18:05PM +0000, Pavel Begunkov wrote:
->>>>>> On 20/12/2020 06:50, noah wrote:> From: noah <goldstein.n@wustl.edu>
->>>>>>>
->>>>>>> This patch makes it so that specify a file descriptor value of -2 will
->>>>>>> skip updating the corresponding fixed file index.
->>>>>>>
->>>>>>> This will allow for users to reduce the number of syscalls necessary
->>>>>>> to update a sparse file range when using the fixed file option.
->>>>>>
->>>>>> Answering the github thread -- it's indeed a simple change, I had it the
->>>>>> same day you posted the issue. See below it's a bit cleaner. However, I
->>>>>> want to first review "io_uring: buffer registration enhancements", and
->>>>>> if it's good, for easier merging/etc I'd rather prefer to let it go
->>>>>> first (even if partially).
->>>>
->>>> Noah, want to give it a try? I've just sent a prep patch, with it you
->>>> can implement it cleaner with one continue.
->>>
->>>  Absolutely. Will get on it ASAP.
+>>>> Answering the github thread -- it's indeed a simple change, I had it the
+>>>> same day you posted the issue. See below it's a bit cleaner. However, I
+>>>> want to first review "io_uring: buffer registration enhancements", and
+>>>> if it's good, for easier merging/etc I'd rather prefer to let it go
+>>>> first (even if partially).
 >>
->> Perfect. Even better if you add a liburing test
+>> Noah, want to give it a try? I've just sent a prep patch, with it you
+>> can implement it cleaner with one continue.
 > 
-> Do you think the return value should not include files skipped?
-> 
-> i.e register fds[1, 2, 3, -1] with no errors returns 4. should fds[1,
-> 2, -2, -1] return 3 or 4 do you think?
-> 
-> Personally think the latter makes more sense. Thoughts?
+>  Absolutely. Will get on it ASAP.
 
-Let's just return @done, 4 in your case. Because otherwise locating which
-index has failed would be hell. And it's consistent with delete (i.e. -1).
+Perfect. Even better if you add a liburing test
 
 -- 
 Pavel Begunkov

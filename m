@@ -2,132 +2,111 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6C3EC433DB
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 09:56:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD279C43381
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8788D2072E
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 09:56:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 848812072C
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:21:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235705AbhA0JzI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 27 Jan 2021 04:55:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41432 "EHLO
+        id S314274AbhAZXC5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 18:02:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235125AbhA0Jwq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 04:52:46 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C77BEC061786
-        for <io-uring@vger.kernel.org>; Wed, 27 Jan 2021 01:52:04 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id d22so1679674edy.1
-        for <io-uring@vger.kernel.org>; Wed, 27 Jan 2021 01:52:04 -0800 (PST)
+        with ESMTP id S2393932AbhAZSoG (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 13:44:06 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0CBAC061573;
+        Tue, 26 Jan 2021 10:43:26 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id u4so2762377pjn.4;
+        Tue, 26 Jan 2021 10:43:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:references:from:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=J1sqKthrtDk9qvMNTWpQIA8zgJ7f72N82ypS6x6glnE=;
-        b=ck0dZpM3wUkMebJtM7qtUIBk66xtZ025rvZTG9Ls66lCU05Rjs4bC3CV21YhMeNqBq
-         lgiCyxnR7aD1pkIV2DR1Wrqf0VHIVoEMOMsiYgRITW1i/nYuYgouoMQkY8zOLaEMcjZr
-         l3c5XoXPbSGOJc5Y2So9Nk++L6zK5K23tTKgHetoGJQniEj40hNO5OIPCbIIcimNGlB9
-         moRTQrNIg3QVxZUz4fln1YRjx5/Nz1hlf9CXDPz2LEtsP/0pMJGfZyUcc+Eoar1UIDhV
-         8IlZw4XTB6XwPcLVPdtnfJvNyTLxk7emMq3lIaBo8aKYyyLiplWL4GNeNuxqTamxbWwE
-         Dkcg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=U3RPz+yz5AMp3COYBrptJ7ltjHtzj0/cdcpauOw8WBU=;
+        b=X9aY9/+Zz6rhHUHSCZi31LIkXY402OPSNF3bjd6GPjxm8bY4WDKzggONJr69N4Ix4L
+         Nw05q4kEsfsEsKecwQFLcm/cWozvVyRgoOUk+RmDk+SS9UdPE8/VkxMkr4YemvykFzhn
+         V++o1omImUL9IBmeNUXQiWL0QpbIUR1m5g+aBGI7qdyCK2BFQ5NuQ4cfrd/Vp5/Rb3g5
+         7L3OosH1bkTXY+Z1GyobTc6ag2rF+3FS7tf9gi8OEPZvMjhxjYWmVnKuOs8CPx1Fg37I
+         nHGaWfVRVZrgD0qABG2SByGBi9iTMPRViI25LYaHCAWuHNyRMAEPBAbd/bzDGglCFYib
+         8buw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=J1sqKthrtDk9qvMNTWpQIA8zgJ7f72N82ypS6x6glnE=;
-        b=myXiP29iUul+nDn9/wV0Xk/VPHU3QapKNnYNGeMXWWMJCAz0XPW/Bqf8cfIdqKUhJg
-         /1m8bBNdBircJdWIQ/i1l/h86+EloLT2bcvI8I7C7FveccYFrvySbCxqbBornu5gP6nF
-         pI1Uoe44Q4ZyCUivizeVfaXME6f50NQVuM4SsdIX4r/cBGGv0rpfX3ys/twY69yjMDk3
-         7cylRII/7nVKHq3D2nJL+KsjRQip+7AzUDhAi8CWgIZ3IlKHYoLVCiJLdmIU6aMyAVWM
-         2f2MSiPf2bdz69vsWWxq+rgoXn2fRAJ7E4Js9Z2sdBGxrskrbIHxiPB7JpEjx87yY1HK
-         VOCg==
-X-Gm-Message-State: AOAM532XObS7vKa9m79CCHb4LXxcDQ2RFaF7n2XdL4+i1ej+KbMOLbWt
-        HnCGBo6D74+bur/raTseIZ31jA28f+g=
-X-Google-Smtp-Source: ABdhPJxxr7pvHUaQKx0HyaSEx05yEFguzggKE0Lp1FyrnPJN92a7X7iwyOvF2xHfIDZmkOdX9D0fAw==
-X-Received: by 2002:a05:6402:1341:: with SMTP id y1mr8152718edw.273.1611741123368;
-        Wed, 27 Jan 2021 01:52:03 -0800 (PST)
-Received: from [192.168.8.159] ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id u3sm552582eje.63.2021.01.27.01.52.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Jan 2021 01:52:02 -0800 (PST)
-Subject: Re: [PATCH v2] MAINTAINERS: update io_uring section
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <4a6a96702bfef97cb5e6c8e7b5f05074d001a484.1611710680.git.asml.silence@gmail.com>
- <37700cc3-88ef-4b57-2ad4-004c136dc68f@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Message-ID: <20cd91a7-f72f-2bac-4e6d-12e0e0163fb7@gmail.com>
-Date:   Wed, 27 Jan 2021 09:48:22 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=U3RPz+yz5AMp3COYBrptJ7ltjHtzj0/cdcpauOw8WBU=;
+        b=QZOoKaDOLjsMHc0kakWYcUMlU0saYRzAO8ztke9/eVRnRGjYiUDG4/lYUdqUyzGjXb
+         BinCkJ/fV6QOSg6a8yNdD9cCzgzNC68BS0kv/X5oohQSCuCI0FhhBvZcnB6Z4I7bRwXW
+         1onkHEfdYpi6hShIw00qz2zTFDo1wdnDX8Z7p92FxsV5V1h496cVfsYE9ltLBR90itgP
+         qwp35yI994ADTafGPp2ZSj8A1v+1NR3YeYOYpLkgLqUuxhHfon/4N8qFD7NfeezSvrxO
+         giAvyWx3jlrjTQuIKoMS5R3p8n79N6I64sK6rfB3H05B+iNPiC0MxzFmtJHwTqbrF7UD
+         IOTw==
+X-Gm-Message-State: AOAM531LKOUpdAb+6G4t8pj71pWFxLo8w7R5qSHLQ7CsUHfUuFmocHnJ
+        cKDSkTJCXxxUH/nDaJiSV+DaXYP/3F7wRIM1n5M=
+X-Google-Smtp-Source: ABdhPJz0urdgQobV9Pm2eFglcydn6H6KKBed1DlnJTCPTUYjCfBAxGqjD4LQfmC85lP4UALqC0O4vD4il/DeUkg3UrI=
+X-Received: by 2002:a17:90b:716:: with SMTP id s22mr1156878pjz.223.1611686606310;
+ Tue, 26 Jan 2021 10:43:26 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <37700cc3-88ef-4b57-2ad4-004c136dc68f@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20201220065025.116516-1-goldstein.w.n@gmail.com>
+ <0cdf2aac-6364-742d-debb-cfd58b4c6f2b@gmail.com> <20201222021043.GA139782@gmail.com>
+ <32c9ce7e-569d-3f94-535e-00e072de772e@gmail.com> <CAFUsyf+m8SseZ1NzZoYJe4KSH30v-XJeP5P9FvtxQT_5bvsK9Q@mail.gmail.com>
+ <792d56e4-b258-65b4-d0b5-dbfd728d5a02@gmail.com>
+In-Reply-To: <792d56e4-b258-65b4-d0b5-dbfd728d5a02@gmail.com>
+From:   Noah Goldstein <goldstein.w.n@gmail.com>
+Date:   Tue, 26 Jan 2021 13:43:15 -0500
+Message-ID: <CAFUsyfK8OSDzfNCCwVPD8O=Fp0XSHWQ+HRCiC36BA-rH+c9D7g@mail.gmail.com>
+Subject: Re: [PATCH] fs: io_uring.c: Add skip option for __io_sqe_files_update
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     noah <goldstein.n@wustl.edu>, Jens Axboe <axboe@kernel.dk>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "open list:IO_URING" <io-uring@vger.kernel.org>,
+        "open list:FILESYSTEMS (VFS and infrastructure)" 
+        <linux-fsdevel@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 27/01/2021 04:08, Jens Axboe wrote:
-> On 1/26/21 6:25 PM, Pavel Begunkov wrote:
->> - add a missing file
->> - add a reviewer
->> - don't spam fsdevel
-> 
-> Applied, with an actual commit message :-)
+On Tue, Jan 26, 2021 at 12:24 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
+>
+> On 26/01/2021 17:14, Noah Goldstein wrote:
+> > On Tue, Jan 26, 2021 at 7:29 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
+> >>
+> >> On 22/12/2020 02:10, Noah Goldstein wrote:
+> >>> On Sun, Dec 20, 2020 at 03:18:05PM +0000, Pavel Begunkov wrote:
+> >>>> On 20/12/2020 06:50, noah wrote:> From: noah <goldstein.n@wustl.edu>
+> >>>>>
+> >>>>> This patch makes it so that specify a file descriptor value of -2 will
+> >>>>> skip updating the corresponding fixed file index.
+> >>>>>
+> >>>>> This will allow for users to reduce the number of syscalls necessary
+> >>>>> to update a sparse file range when using the fixed file option.
+> >>>>
+> >>>> Answering the github thread -- it's indeed a simple change, I had it the
+> >>>> same day you posted the issue. See below it's a bit cleaner. However, I
+> >>>> want to first review "io_uring: buffer registration enhancements", and
+> >>>> if it's good, for easier merging/etc I'd rather prefer to let it go
+> >>>> first (even if partially).
+> >>
+> >> Noah, want to give it a try? I've just sent a prep patch, with it you
+> >> can implement it cleaner with one continue.
+> >
+> >  Absolutely. Will get on it ASAP.
+>
+> Perfect. Even better if you add a liburing test
+>
+> --
+> Pavel Begunkov
 
-I admit, my message was terrible. But now we have a funny
-commit where I talk about myself in a third-person way.
+Do you think the return value should not include files skipped?
 
--- 
-Pavel Begunkov
+i.e register fds[1, 2, 3, -1] with no errors returns 4. should fds[1,
+2, -2, -1] return 3 or 4 do you think?
 
+Personally think the latter makes more sense. Thoughts?

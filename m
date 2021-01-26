@@ -2,264 +2,168 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AF6DC433E6
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DBFC433E6
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 23:03:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3BB722B3F
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:38:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB08F20663
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 23:03:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726819AbhAZFKV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:10:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727774AbhAYMKU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 07:10:20 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D77C061226
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:17 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id d16so11362631wro.11
-        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 03:46:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=E7Kb/DvOca0pgAeCKEcd9WG8kVkAt5KYzWbyP/P1aJI=;
-        b=lXYu/ltqqXol3N4GR0Yc0AleVgagf8YUBVQqJDjjm7nrsUklydGYMX7PoBc1SNvU6T
-         SIbi7i7oNM4GSPNTBiIVxiltmZ8A1ps9oDcOI+dWZTgiAQ804CU++VzPJGpdryBPkLvz
-         y6b41ed10N/m8LxUMtHnzxxSbN9nIhtxCcTbhRdP/7ILhbZ+50OEh7w2fB9zrWsvTx8F
-         KODto7BhXt63d3VEjspBySIYyUrojbgAIjvLaYZvAsynX4/aO3Q57eYlVWfpptQRqyvT
-         XRqMQkEBAK1YwSrwl8u5gq8mi5eX9Eqt+6JNlHC8X/traj6+FaGzj4cBGhU4tQ0c4HP9
-         LpSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=E7Kb/DvOca0pgAeCKEcd9WG8kVkAt5KYzWbyP/P1aJI=;
-        b=FHCoV7O3f30cbwlwXmwjiZaNNPXxDDLFcyOsM9+v6eiH9tcwv4w5bZDw1DMmrO0fcQ
-         n4iO7EmS7PUfOi9HXW8zQG22cb8KJ0ygUoEoPnlhf+uKKP883Sir+D8jQksFODeNMy6X
-         4LnVEVkTB5Fvxn2Pgb82+GF2zIxNfMr7MPrUmtPvHfShtQPvbRvb4/hdFkqE2DJpgWrS
-         ilhsnHaIp89K7wD/FQndVVHtgG/0YqR+zhBDf8yj1PXGp4bACcsaLbmA5KH2Ag/He9Tu
-         6Hd4wK0ELvPWafyYJdjL1Y5PnH5OjLbYJDVpF1vueMM/zWheKjHOfS+zz5SJJm/+/mRv
-         3mkQ==
-X-Gm-Message-State: AOAM531AIy+jLA66sILC0mLvnTV4B07AnYRA13jq4SgYLziKyb5s0Irz
-        ISjxG3lnkhOM3eAHh2iJrrg=
-X-Google-Smtp-Source: ABdhPJzHNIlWcxYlOFvEqkYLiAuF6PufDVQ5Pn3QF3VgJGwQ92iGSgJ5YZ4EDREmkSA5w+FadDQs+g==
-X-Received: by 2002:adf:f452:: with SMTP id f18mr476985wrp.11.1611575176455;
-        Mon, 25 Jan 2021 03:46:16 -0800 (PST)
-Received: from localhost.localdomain ([85.255.234.11])
-        by smtp.gmail.com with ESMTPSA id a6sm12571433wru.66.2021.01.25.03.46.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 03:46:16 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 3/8] io_uring: don't keep submit_state on stack
-Date:   Mon, 25 Jan 2021 11:42:22 +0000
-Message-Id: <dc52b7b5761ad78f0883ec7ca433c0a8d7089285.1611573970.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1611573970.git.asml.silence@gmail.com>
-References: <cover.1611573970.git.asml.silence@gmail.com>
+        id S1731600AbhAZXCp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 18:02:45 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:53360 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730253AbhAZFcE (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 00:32:04 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10Q5VD8A099735;
+        Tue, 26 Jan 2021 05:31:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : from : to :
+ references : message-id : date : mime-version : in-reply-to : content-type
+ : content-transfer-encoding; s=corp-2020-01-29;
+ bh=U6S0BEfLyRX9mbZv9vZ7WTP9bSA8SofsjlQKO1MQKqQ=;
+ b=lXjfxJOIsWHyYfjxQwwZw0y/oTSsbiO8fgYSPLhnoaFzujwmQLru7pUQwPLpddHAZeSK
+ Jx5+JvRZoSVcPrF/DWhcxzKaxWIGbx1rqp8R7WjPjy5tHO6FKKY74V3QxY3uzIm3Os9H
+ 4RQt1lViWVpl2N4hT+ZgbVdTm0+qvFMQY2Zk6Mp4t4JqCiJ7IMqheD0HM1bvanKBtISD
+ a0FLa2/Q10FO84xrrlpDZDn0Ev1HZzuFsU0QctpllV/OcS8chApm5lp6EALz/5kj7P6x
+ kja8C1e6QR+oxUhh49eOi861NHTAsdVzUaMxhi4/AaUFol9PaDhD/LzHAbDKZwhm7R/I vg== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 368brkgdrw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Jan 2021 05:31:13 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10Q5UV90010238;
+        Tue, 26 Jan 2021 05:31:12 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3020.oracle.com with ESMTP id 368wpxh6xt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Jan 2021 05:31:12 +0000
+Received: from abhmp0009.oracle.com (abhmp0009.oracle.com [141.146.116.15])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 10Q5VBTD032234;
+        Tue, 26 Jan 2021 05:31:11 GMT
+Received: from [10.154.187.70] (/10.154.187.70)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 25 Jan 2021 21:31:11 -0800
+Subject: Re: [PATCH v6 0/5] io_uring: buffer registration enhancements
+From:   Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+To:     axboe@kernel.dk, asml.silence@gmail.com, io-uring@vger.kernel.org
+References: <1611274976-44074-1-git-send-email-bijan.mottahedeh@oracle.com>
+Message-ID: <88cb72b0-5b3c-cea3-a72a-23ddf00ef3f1@oracle.com>
+Date:   Mon, 25 Jan 2021 21:31:10 -0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1611274976-44074-1-git-send-email-bijan.mottahedeh@oracle.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Antivirus: Avast (VPS 210113-0, 01/12/2021), Outbound message
+X-Antivirus-Status: Clean
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9875 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 mlxscore=0 spamscore=0
+ adultscore=0 bulkscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101260028
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9875 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 impostorscore=0
+ phishscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999
+ lowpriorityscore=0 spamscore=0 mlxscore=0 suspectscore=0 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101260028
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-struct io_submit_state is quite big (168 bytes) and going to grow. It's
-better to not keep it on stack as it is now. Move it to context, it's
-always protected by uring_lock, so it's fine to have only one instance
-of it.
+Gentle reminder to please review this next version.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 90 ++++++++++++++++++++++++++-------------------------
- 1 file changed, 46 insertions(+), 44 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fa421555ab8b..9ba33ee08d2a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -259,6 +259,39 @@ struct io_sq_data {
- 	unsigned		sq_thread_idle;
- };
- 
-+#define IO_IOPOLL_BATCH			8
-+
-+struct io_comp_state {
-+	unsigned int		nr;
-+	struct list_head	list;
-+	struct io_ring_ctx	*ctx;
-+};
-+
-+struct io_submit_state {
-+	struct blk_plug		plug;
-+
-+	/*
-+	 * io_kiocb alloc cache
-+	 */
-+	void			*reqs[IO_IOPOLL_BATCH];
-+	unsigned int		free_reqs;
-+
-+	bool			plug_started;
-+
-+	/*
-+	 * Batch completion logic
-+	 */
-+	struct io_comp_state	comp;
-+
-+	/*
-+	 * File reference cache
-+	 */
-+	struct file		*file;
-+	unsigned int		fd;
-+	unsigned int		file_refs;
-+	unsigned int		ios_left;
-+};
-+
- struct io_ring_ctx {
- 	struct {
- 		struct percpu_ref	refs;
-@@ -401,6 +434,7 @@ struct io_ring_ctx {
- 
- 	struct work_struct		exit_work;
- 	struct io_restriction		restrictions;
-+	struct io_submit_state		submit_state;
- };
- 
- /*
-@@ -752,39 +786,6 @@ struct io_defer_entry {
- 	u32			seq;
- };
- 
--#define IO_IOPOLL_BATCH			8
--
--struct io_comp_state {
--	unsigned int		nr;
--	struct list_head	list;
--	struct io_ring_ctx	*ctx;
--};
--
--struct io_submit_state {
--	struct blk_plug		plug;
--
--	/*
--	 * io_kiocb alloc cache
--	 */
--	void			*reqs[IO_IOPOLL_BATCH];
--	unsigned int		free_reqs;
--
--	bool			plug_started;
--
--	/*
--	 * Batch completion logic
--	 */
--	struct io_comp_state	comp;
--
--	/*
--	 * File reference cache
--	 */
--	struct file		*file;
--	unsigned int		fd;
--	unsigned int		file_refs;
--	unsigned int		ios_left;
--};
--
- struct io_op_def {
- 	/* needs req->file assigned */
- 	unsigned		needs_file : 1;
-@@ -1965,9 +1966,10 @@ static struct io_kiocb *io_get_fallback_req(struct io_ring_ctx *ctx)
- 	return NULL;
- }
- 
--static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx,
--				     struct io_submit_state *state)
-+static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
- {
-+	struct io_submit_state *state = &ctx->submit_state;
-+
- 	if (!state->free_reqs) {
- 		gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 		size_t sz;
-@@ -6800,9 +6802,9 @@ static inline bool io_check_restriction(struct io_ring_ctx *ctx,
- 				IOSQE_BUFFER_SELECT)
- 
- static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
--		       const struct io_uring_sqe *sqe,
--		       struct io_submit_state *state)
-+		       const struct io_uring_sqe *sqe)
- {
-+	struct io_submit_state *state;
- 	unsigned int sqe_flags;
- 	int id, ret;
- 
-@@ -6854,6 +6856,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 
- 	/* same numerical values with corresponding REQ_F_*, safe to copy */
- 	req->flags |= sqe_flags;
-+	state = &ctx->submit_state;
- 
- 	/*
- 	 * Plug now if we have more than 1 IO left after this, and the target
-@@ -6881,7 +6884,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- {
--	struct io_submit_state state;
- 	struct io_submit_link link;
- 	int i, submitted = 0;
- 
-@@ -6900,7 +6902,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 	percpu_counter_add(&current->io_uring->inflight, nr);
- 	refcount_add(nr, &current->usage);
- 
--	io_submit_state_start(&state, ctx, nr);
-+	io_submit_state_start(&ctx->submit_state, ctx, nr);
- 	link.head = NULL;
- 
- 	for (i = 0; i < nr; i++) {
-@@ -6913,7 +6915,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 			io_consume_sqe(ctx);
- 			break;
- 		}
--		req = io_alloc_req(ctx, &state);
-+		req = io_alloc_req(ctx);
- 		if (unlikely(!req)) {
- 			if (!submitted)
- 				submitted = -EAGAIN;
-@@ -6923,7 +6925,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 		/* will complete beyond this point, count as submitted */
- 		submitted++;
- 
--		err = io_init_req(ctx, req, sqe, &state);
-+		err = io_init_req(ctx, req, sqe);
- 		if (unlikely(err)) {
- fail_req:
- 			io_put_req(req);
-@@ -6933,7 +6935,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 
- 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
- 					true, ctx->flags & IORING_SETUP_SQPOLL);
--		err = io_submit_sqe(req, sqe, &link, &state.comp);
-+		err = io_submit_sqe(req, sqe, &link, &ctx->submit_state.comp);
- 		if (err)
- 			goto fail_req;
- 	}
-@@ -6948,8 +6950,8 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 		put_task_struct_many(current, unused);
- 	}
- 	if (link.head)
--		io_queue_link_head(link.head, &state.comp);
--	io_submit_state_end(&state);
-+		io_queue_link_head(link.head, &ctx->submit_state.comp);
-+	io_submit_state_end(&ctx->submit_state);
- 
- 	 /* Commit SQ ring head once we've consumed and submitted all SQEs */
- 	io_commit_sqring(ctx);
--- 
-2.24.0
+> v6:
+> 
+> - address v5 comments
+> - rebase on Pavel's rsrc generalization changes
+> - see also TBD section below
+> 
+> v5:
+> 
+> - call io_get_fixed_rsrc_ref for buffers
+> - make percpu_ref_release names consistent
+> - rebase on for-5.12/io_uring
+> - see also TBD section below
+> 
+> v4:
+> 
+> - address v3 comments (TBD REGISTER_BUFFERS)
+> - rebase
+> 
+> v3:
+> 
+> - batch file->rsrc renames into a signle patch when possible
+> - fix other review changes from v2
+> - fix checkpatch warnings
+> 
+> v2:
+> 
+> - drop readv/writev with fixed buffers patch
+> - handle ref_nodes both both files/buffers with a single ref_list
+> - make file/buffer handling more unified
+> 
+> This patchset implements a set of enhancements to buffer registration
+> consistent with existing file registration functionality:
+> 
+> - buffer registration updates		IORING_REGISTER_BUFFERS_UPDATE
+> 					IORING_OP_BUFFERS_UPDATE
+> 
+> - buffer registration sharing		IORING_SETUP_SHARE_BUF
+> 					IORING_SETUP_ATTACH_BUF
+> 
+> Patch 1 calls io_get_fixed_rsrc_ref() for buffers as well as files.
+> 
+> Patch 2 applies fixed_rsrc functionality for fixed buffers support.
+> 
+> Patch 3 generalize files_update functionality to rsrc_update.
+> 
+> Patch 4 implements buffer registration update, and introduces
+> IORING_REGISTER_BUFFERS_UPDATE and IORING_OP_BUFFERS_UPDATE, consistent
+> with file registration update.
+> 
+> Patch 5 implements buffer sharing among multiple rings; it works as follows:
+> 
+> - A new ring, A,  is setup. Since no buffers have been registered, the
+>    registered buffer state is an empty set, Z. That's different from the
+>    NULL state in current implementation.
+> 
+> - Ring B is setup, attaching to Ring A. It's also attaching to it's
+>    buffer registrations, now we have two references to the same empty
+>    set, Z.
+> 
+> - Ring A registers buffers into set Z, which is no longer empty.
+> 
+> - Ring B sees this immediately, since it's already sharing that set.
+> 
+> Testing
+> 
+> I have used liburing file-{register,update} tests as models for
+> buffer-{register,update,share}, tests and they run ok. Liburing test/self
+> fails but seems unrelated to these changes.
+> 
+> TBD
+> 
+> - Need a patch from Pavel to address a race between fixed IO from async
+> context and buffer unregister, or force buffer registration ops to do
+> full quiesce.
+> 
+> Bijan Mottahedeh (5):
+>    io_uring: call io_get_fixed_rsrc_ref for buffers
+>    io_uring: implement fixed buffers registration similar to fixed files
+>    io_uring: generalize files_update functionlity to rsrc_update
+>    io_uring: support buffer registration updates
+>    io_uring: support buffer registration sharing
+> 
+>   fs/io_uring.c                 | 448 +++++++++++++++++++++++++++++++++++++-----
+>   include/uapi/linux/io_uring.h |   4 +
+>   2 files changed, 403 insertions(+), 49 deletions(-)
+> 
 

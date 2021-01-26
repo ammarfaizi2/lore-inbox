@@ -2,183 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EF04C4332E
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 16:12:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1C32C43333
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:36:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32A0621E92
-	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 16:12:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C3EF230FC
+	for <io-uring@archiver.kernel.org>; Tue, 26 Jan 2021 20:36:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392639AbhAZPdE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 10:33:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59320 "EHLO
+        id S1727712AbhAZFK3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:10:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391346AbhAZPc5 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 10:32:57 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52BE8C061D7F;
-        Tue, 26 Jan 2021 07:32:17 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id d2so16699925edz.3;
-        Tue, 26 Jan 2021 07:32:17 -0800 (PST)
+        with ESMTP id S1729457AbhAZBhB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Jan 2021 20:37:01 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF00C061A2E
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 17:06:40 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id d4so8755749plh.5
+        for <io-uring@vger.kernel.org>; Mon, 25 Jan 2021 17:06:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=GlM/movGaLFp+dEaGV7dcqUKDgwCIxEsQty8vxNBGnE=;
-        b=n7RcP8YxwZau1CrcXBd8w9k5du264UU7PtLt2nj1tmH3rsJc7xOcP5ixxaO+UQhBRa
-         Jl/S0exWO5UffUORVmqbJArsN6hVG5ok/3DL4qPDWGW5U8Me780EqOGNnzWSIjL7J+eH
-         6MZtQcmFONK85sMwnYnGph+tfzeF9nCN0U8fCP4SjEDUK6uwSClXpkM4hJoUilpnxcmn
-         X/4g9Pgpzs6oDiFtUYvS4ZRl+vjhvo0IR+xDEw6tvW6QxYAXmLZ6DBEmkx1xSUg/ychn
-         Wpg3/LN9a3tmRYg56rEeAbF+rqKMFsf7o/4e3e0CYftT9SoZA+ArG0r2jL8vR/3EhVYD
-         qQIg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=msNczVLXjgZZSNqJoDtvCOSNDEGSyBHHraGpFvbxsO8=;
+        b=qu8NDQz9VIDYiiE+aX4ycUqTy/qPzyCGH4pAmy3kZ2zMz6MWC6r6cojPzJdHIR3csa
+         MaISDZJmS6S2TBiiGBMhJmQZ6ZrPBD3E1O7zf0WneYK1zBOiM2KSHiWx9lIcmYTpNap7
+         VnuZBzgYBZ3it6ikTptigMLPEilU8/9wer2z+y6ZOQBp2S4hEUA7App9rv1Vk1vhRhcl
+         aOrbzeYSoUDkaBqPgIKnJfd4pSRF44cN6DG7oxegu82S1wBHrhHwzfciulkHpkwkVtaW
+         YpVbT/LTn7rujFQaZnDoacr+ggbX1coXmHfuYHQtoNu0veRNBPW9s+JZNn62BzMOzPig
+         v6dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=GlM/movGaLFp+dEaGV7dcqUKDgwCIxEsQty8vxNBGnE=;
-        b=mMKpoDvkBkKvpZKO/4J8z+7cuiOCrdnFrED4UjBN+RPjy1ckQHb6U2/fCzbKyZkXty
-         PjFP5Q5RaiBRtnL1DCiUqfsgLDobTnF2HpVxIMCFeKB5BEtY/Vz3D7AY1J3ViaE094+e
-         26jp4F7s1YVjUGJMII/SOPtvKmDCb8wtZTwE9VriSmzzFBKQ+NvGh6bMrcNsjmm53+9J
-         u/zrcIjS+vTxpEzrb5PvRWv70GY6t6ZUKyEZHPu1n064pTVvEmeHMzQl33SB08XBI1OP
-         +Zb6ju4qcNIsQom4RtCmOiXsdzBt5mToOEy7SpsbUcWjbZtdJTof6jRSj3+yDVjZM8TZ
-         eR+g==
-X-Gm-Message-State: AOAM531FLR/uQuDW/M90f+6r6jhcMcUU8FvH2aGroN1snY7HoMEvkJIY
-        e4SJA2nSd9dIg9PvJg5M6I1r1TXs5tQ=
-X-Google-Smtp-Source: ABdhPJx06Ziww/HcjlLcNhTDWDIdao3VTZ5cKhxz/FujEKolPwCfpy5zM+2YxTYuZsKBt9BmE7p5jg==
-X-Received: by 2002:a05:6402:424a:: with SMTP id g10mr4970525edb.236.1611675136145;
-        Tue, 26 Jan 2021 07:32:16 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id k22sm12888978edv.33.2021.01.26.07.32.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 07:32:15 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        syzbot+f655445043a26a7cfab8@syzkaller.appspotmail.com
-Subject: [PATCH 2/2] io_uring: fix cancellation taking mutex while TASK_UNINTERRUPTIBLE
-Date:   Tue, 26 Jan 2021 15:28:27 +0000
-Message-Id: <70fb7f91ecc0aeff3427c215ec7f46ceb77f88ef.1611674535.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1611674535.git.asml.silence@gmail.com>
-References: <cover.1611674535.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=msNczVLXjgZZSNqJoDtvCOSNDEGSyBHHraGpFvbxsO8=;
+        b=r3YJ5e4q/a63Bc3TrDAhwMyLIAkBuMuz0m1F8uiX01T6Y+Y+cpltu4zwmHFk7MKNyC
+         t5UXIGIiJvAIfd5x9plvDIOBn8ver+PumO/eNUb5ZsMYahCoNXmiBRZZbzstKOvqgH9N
+         Xt1Cbv/Jwgr8825QG22DTwiCw4JPREmD5HaRkvAcuBSpndHMYXqmq5PFwuNSeG36Mvh1
+         xQreN8V/9P7T1KoM58e7Wg95TQPRaMH/cnI4Q+gP7XwUaphBqfLOjzqzrzU2fKs083/z
+         uSsicZ0Nbad1pYvPqc2qbAl5awMqouksBTIG/As1r1u/6iVzfZSAebNj8cvWKCSwRk/8
+         hYpg==
+X-Gm-Message-State: AOAM532DbsnU0UHMcoMyCOgqLSGd5lz5um2FDLvsKDJLtNuwjx38eS3t
+        AoNfrAilSBD3MCCVN39e9nfKLQ==
+X-Google-Smtp-Source: ABdhPJxLR4WaVP7ydKbvxGwxKdMW7OWiG7vw/sEckwoQPDiWDTzXBBWQyNj2Y7YPMQW+nDbM5uWJzg==
+X-Received: by 2002:a17:902:9d8b:b029:df:fab3:48ef with SMTP id c11-20020a1709029d8bb02900dffab348efmr3179862plq.79.1611623199765;
+        Mon, 25 Jan 2021 17:06:39 -0800 (PST)
+Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id 6sm7712362pfo.139.2021.01.25.17.06.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Jan 2021 17:06:38 -0800 (PST)
+Subject: Re: [PATCHSET RFC] support RESOLVE_CACHED for statx
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+References: <20210125213614.24001-1-axboe@kernel.dk>
+ <CAHk-=whh=+nkoZFqb1zztY9kUo-Ua75+zY16HeU_3j1RV4JR0Q@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <4bd713e8-58e7-e961-243e-dbbdc2a1f60c@kernel.dk>
+Date:   Mon, 25 Jan 2021 18:06:37 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHk-=whh=+nkoZFqb1zztY9kUo-Ua75+zY16HeU_3j1RV4JR0Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-do not call blocking ops when !TASK_RUNNING; state=2 set at
-	[<00000000ced9dbfc>] prepare_to_wait+0x1f4/0x3b0
-	kernel/sched/wait.c:262
-WARNING: CPU: 1 PID: 19888 at kernel/sched/core.c:7853
-	__might_sleep+0xed/0x100 kernel/sched/core.c:7848
-RIP: 0010:__might_sleep+0xed/0x100 kernel/sched/core.c:7848
-Call Trace:
- __mutex_lock_common+0xc4/0x2ef0 kernel/locking/mutex.c:935
- __mutex_lock kernel/locking/mutex.c:1103 [inline]
- mutex_lock_nested+0x1a/0x20 kernel/locking/mutex.c:1118
- io_wq_submit_work+0x39a/0x720 fs/io_uring.c:6411
- io_run_cancel fs/io-wq.c:856 [inline]
- io_wqe_cancel_pending_work fs/io-wq.c:990 [inline]
- io_wq_cancel_cb+0x614/0xcb0 fs/io-wq.c:1027
- io_uring_cancel_files fs/io_uring.c:8874 [inline]
- io_uring_cancel_task_requests fs/io_uring.c:8952 [inline]
- __io_uring_files_cancel+0x115d/0x19e0 fs/io_uring.c:9038
- io_uring_files_cancel include/linux/io_uring.h:51 [inline]
- do_exit+0x2e6/0x2490 kernel/exit.c:780
- do_group_exit+0x168/0x2d0 kernel/exit.c:922
- get_signal+0x16b5/0x2030 kernel/signal.c:2770
- arch_do_signal_or_restart+0x8e/0x6a0 arch/x86/kernel/signal.c:811
- handle_signal_work kernel/entry/common.c:147 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
- exit_to_user_mode_prepare+0xac/0x1e0 kernel/entry/common.c:201
- __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
- syscall_exit_to_user_mode+0x48/0x190 kernel/entry/common.c:302
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+On 1/25/21 4:39 PM, Linus Torvalds wrote:
+> On Mon, Jan 25, 2021 at 1:36 PM Jens Axboe <axboe@kernel.dk> wrote:
+>>
+>>     Patch 2 is the
+>> mostly ugly part, but not sure how we can do this any better - we need
+>> to ensure that any sort of revalidation or sync in ->getattr() honors
+>> it too.
+> 
+> Yeah, that's not pretty, but I agree - it looks like this just
+> requires the filesystem to check whether it needs to revalidate or
+> not.
+> 
+> But I think that patch could do better than what your patch does. Some
+> of them are "filesystems could decide to be more finegrained") -  your
+> cifs patch comes to mind - but some of your "return -EAGAIN if cached"
+> seem to be just plain pointless.
 
-Rewrite io_uring_cancel_files() to mimic __io_uring_task_cancel()'s
-counting scheme, so it does all the heavy work before setting
-TASK_UNINTERRUPTIBLE.
+Which ones in particular? Outside of the afs one you looked a below,
+the rest should all be of the "need to do IO of some sort" and hence
+-EAGAIN is reasonable.
 
-Cc: stable@vger.kernel.org # 5.9+
-Reported-by: syzbot+f655445043a26a7cfab8@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 41 ++++++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 17 deletions(-)
+cifs could be cleaner, but that'd require more checking in there. I
+just tried to keep it simple, and leave the harder work for the
+file system developers if they care. If not, it'll still work just
+like it does today, we're no worse off there than before (at least
+from an io_uring POV).
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 09aada153a71..f3f2b37e7021 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8873,30 +8873,33 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
- 	}
- }
- 
-+static int io_uring_count_inflight(struct io_ring_ctx *ctx,
-+				   struct task_struct *task,
-+				   struct files_struct *files)
-+{
-+	struct io_kiocb *req;
-+	int cnt = 0;
-+
-+	spin_lock_irq(&ctx->inflight_lock);
-+	list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
-+		if (!io_match_task(req, task, files))
-+			cnt++;
-+	}
-+	spin_unlock_irq(&ctx->inflight_lock);
-+	return cnt;
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct task_struct *task,
- 				  struct files_struct *files)
- {
- 	while (!list_empty_careful(&ctx->inflight_list)) {
- 		struct io_task_cancel cancel = { .task = task, .files = files };
--		struct io_kiocb *req;
- 		DEFINE_WAIT(wait);
--		bool found = false;
-+		int inflight;
- 
--		spin_lock_irq(&ctx->inflight_lock);
--		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
--			if (!io_match_task(req, task, files))
--				continue;
--			found = true;
--			break;
--		}
--		if (found)
--			prepare_to_wait(&task->io_uring->wait, &wait,
--					TASK_UNINTERRUPTIBLE);
--		spin_unlock_irq(&ctx->inflight_lock);
--
--		/* We need to keep going until we don't find a matching req */
--		if (!found)
-+		inflight = io_uring_count_inflight(ctx, task, files);
-+		if (!inflight)
- 			break;
- 
- 		io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
-@@ -8905,7 +8908,11 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 		io_cqring_overflow_flush(ctx, true, task, files);
- 		/* cancellations _may_ trigger task work */
- 		io_run_task_work();
--		schedule();
-+
-+		prepare_to_wait(&task->io_uring->wait, &wait,
-+				TASK_UNINTERRUPTIBLE);
-+		if (inflight == io_uring_count_inflight(ctx, task, files))
-+			schedule();
- 		finish_wait(&task->io_uring->wait, &wait);
- 	}
- }
+But I can go ahead and makes eg cifs more accurate in that regard,
+if that's what you're objecting to.
+
+> In afs, for example, you return -EAGAIN instead of just doing the
+> read-seqlock thing. That's a really cheap CPU-only operation. We're
+> talking "cheaper than a spinlock" sequence.
+
+Yep agree on that one, that looks silly and should just go away. I've
+killed it.
+
 -- 
-2.24.0
+Jens Axboe
 

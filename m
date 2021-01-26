@@ -2,65 +2,66 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15A49C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C2B2C4332E
 	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:49:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3A662070E
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:49:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3825F2070E
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:49:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239529AbhA0EpU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 23:45:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        id S234658AbhA0EpS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 23:45:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404725AbhA0B3u (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 20:29:50 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E6FC061756
-        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 17:28:51 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id s11so404979edd.5
-        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 17:28:51 -0800 (PST)
+        with ESMTP id S2390099AbhA0API (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 19:15:08 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B1CC0698C1;
+        Tue, 26 Jan 2021 15:38:59 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id kg20so117813ejc.4;
+        Tue, 26 Jan 2021 15:38:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=VloOxVTWTXqWDaDylYaDP6r9O9mwm1VBZ94Z+gINwqA=;
-        b=XEy53taEyqzQuMRBHhDnDB/pDNW0NKm74zPRsRYKmbZ2l1jtp5CWX4H0BIpBrXFkag
-         9OfKNoTQKI/Y+aBZlRTSDIzEdOVu1omv51iGOzberDPe34KQL+n8poqxNJUg4Bksu0j2
-         UwKxwA9z19AgBzObCqXiAAvj8F0wIApVbdX3zOfK1juLtzwgjhIwNSkD0HIjdcRVj2CT
-         TdWHnEK6M5V6Xtg0rjQU3khplZAP9iZLXtF92VNx7M27f8FMcahye/pz25j9iZnaFPic
-         QkeQRtFj5Zlgbj+ePUN/8Ahy9v5/DYtjqQojtp/Sfg0S4fa9POvNZ+HLLB0bt4gzpTMM
-         xOug==
+        bh=f6wYZ5gozgmr79/ArNYUttVMN0pjTGFLRYTG3emhLAY=;
+        b=EBWlaA0UUJQMFEhsodslv9Qj1+IzpVXbXvUaExI9gt3oxdlKhM7K3oAXyG6zbbTS6x
+         mq1a5eZOzeYVGCAqD7SKSL81JOS3XeX4D2+1nwOnGJm0a9YvZKya7JjITZv5bPROrkph
+         zftsCZ9gQCv1rH3bdnKuwoU2jQlQMDW9Jp0imPFaHXxZHNL3TG4tbVugg6QBoa1Hycg4
+         1mANcFEfg+cwl1uHbHhQiIHYqoFl1ecSF48XrOyjpxnG6V4fOxXhDr1sO5Unhsy77sKN
+         OADLEm/pMD2kfZGYSiWPvu7qM0gyndeldc5QqyoKWARt8fpE12OZkXUoRDx+Gx83UXCn
+         dCxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=VloOxVTWTXqWDaDylYaDP6r9O9mwm1VBZ94Z+gINwqA=;
-        b=ceI4NAniSqjfBKhZw+X3ZgbaK0Y59bd295hTrhz5aEsJTqVJ5Ez/yJCfrxxa9xzCs9
-         R9SG6ywPp1lK00UJE3wisJcB8unKULupFD1O4zzVN7MH+pqA96HuCYPX5TL9jeqGo+Jo
-         OBg5PhaAVAK2nc9MTGKKYf+zw/7dU3NMequNIVNOOfoa38rgNwjg8BJEdHuUwavl4/ih
-         9eHiY8NSeD/bkwdu8DgULEs4pHFqGG4v8dti9BL8X++O5XtPDH+U0TGhF6Ecw6xQAu54
-         EVVUwjIM1f7wLEoTqO2Thevd1o9hmaIWSFKeE9D/szK15doIMUFJprpcOZWpGnudwTxz
-         KVtw==
-X-Gm-Message-State: AOAM530WMETn8agl/HFmR21sJfsZLEVCEp32rRscaMJeNE/cIskBDFzC
-        th55cvNoXdHkuLoE4hbkt90=
-X-Google-Smtp-Source: ABdhPJxmvQiH7Qlgq2lvuUFblJrxKU2zw8wivzM/ipM0OTPPIr704qDgqM+95d/RM/wQFiTu9G6W4g==
-X-Received: by 2002:a05:6402:60a:: with SMTP id n10mr6580361edv.230.1611710930563;
-        Tue, 26 Jan 2021 17:28:50 -0800 (PST)
+        bh=f6wYZ5gozgmr79/ArNYUttVMN0pjTGFLRYTG3emhLAY=;
+        b=Tq72UetgqWV00NM+jTq88GDyQ8Eitw+pk5S5B9uGwNXJUNpQr2w08/BxkmTwhy/vzy
+         QISRdU9QQyeeNvn1yDJCQt+4WSu0Fs0b/Ihm+sdoRLgk+3MNehNk0AGZ4OIYydbM3y7F
+         blLBwIeB2/or2LIWWHlejd8YncX8kmtHpjZBP9G8K7IU+fuBQTBbCGJ08me2d/YeLM0e
+         zPylbnzzhn59zLbu/K5XEbJ42q4MpUvU5baAz+3s7fiqrhpxc/kO3YurzIYBG0TlH3gJ
+         56Y067ReSXMMTVSweTs3oUVgGkrYvWbgukQALmsfI7Ewk7rGX7Y41h2i/J6S5KWI3Npx
+         aPtA==
+X-Gm-Message-State: AOAM533HI5/+ZS1wFb1jJ+k2uG//vH/xsn2MCvIoTzKVR7SaOIG+W3Gb
+        iPjX/JQIKV2h2Rgj/lccDyDq3PqGBvA=
+X-Google-Smtp-Source: ABdhPJymKhqSk7Hx9KHpzj4i70ePJ3ElFCuteOSHtgS10XMEOBcKiszosg9NGNVzKU3q9nxUFGZYUQ==
+X-Received: by 2002:a17:906:d295:: with SMTP id ay21mr5004144ejb.400.1611704337847;
+        Tue, 26 Jan 2021 15:38:57 -0800 (PST)
 Received: from localhost.localdomain ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id dh14sm291760edb.11.2021.01.26.17.28.49
+        by smtp.gmail.com with ESMTPSA id zg24sm54287ejb.120.2021.01.26.15.38.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 17:28:50 -0800 (PST)
+        Tue, 26 Jan 2021 15:38:57 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2] MAINTAINERS: update io_uring section
-Date:   Wed, 27 Jan 2021 01:25:04 +0000
-Message-Id: <4a6a96702bfef97cb5e6c8e7b5f05074d001a484.1611710680.git.asml.silence@gmail.com>
+Cc:     stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH 5.11] io_uring: fix wqe->lock/completion_lock deadlock
+Date:   Tue, 26 Jan 2021 23:35:10 +0000
+Message-Id: <9c4f7eb623ae774f3f17afbc1702749480ee19be.1611703952.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -68,45 +69,67 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-- add a missing file
-- add a reviewer
-- don't spam fsdevel
+Joseph reports following deadlock:
 
+CPU0:
+...
+io_kill_linked_timeout  // &ctx->completion_lock
+io_commit_cqring
+__io_queue_deferred
+__io_queue_async_work
+io_wq_enqueue
+io_wqe_enqueue  // &wqe->lock
+
+CPU1:
+...
+__io_uring_files_cancel
+io_wq_cancel_cb
+io_wqe_cancel_pending_work  // &wqe->lock
+io_cancel_task_cb  // &ctx->completion_lock
+
+Only __io_queue_deferred() calls queue_async_work() while holding
+ctx->completion_lock, enqueue drained requests via io_req_task_queue()
+instead.
+
+Cc: stable@vger.kernel.org # 5.9+
+Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- MAINTAINERS | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/io_uring.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 992fe3b0900a..e49b9c5ee49f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6862,6 +6862,9 @@ F:	include/linux/fs.h
- F:	include/linux/fs_types.h
- F:	include/uapi/linux/fs.h
- F:	include/uapi/linux/openat2.h
-+X:	fs/io-wq.c
-+X:	fs/io-wq.h
-+X:	fs/io_uring.c
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index bb0270eeb8cb..c218deaf73a9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1026,6 +1026,7 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+ 			     const struct iovec *fast_iov,
+ 			     struct iov_iter *iter, bool force);
+ static void io_req_drop_files(struct io_kiocb *req);
++static void io_req_task_queue(struct io_kiocb *req);
  
- FINTEK F75375S HARDWARE MONITOR AND FAN CONTROLLER DRIVER
- M:	Riku Voipio <riku.voipio@iki.fi>
-@@ -9297,6 +9300,7 @@ F:	include/uapi/linux/iommu.h
+ static struct kmem_cache *req_cachep;
  
- IO_URING
- M:	Jens Axboe <axboe@kernel.dk>
-+R:	Pavel Begunkov <asml.silence@gmail.com>
- L:	io-uring@vger.kernel.org
- S:	Maintained
- T:	git git://git.kernel.dk/linux-block
-@@ -9304,6 +9308,7 @@ T:	git git://git.kernel.dk/liburing
- F:	fs/io-wq.c
- F:	fs/io-wq.h
- F:	fs/io_uring.c
-+F:	include/linux/io_uring.h
- F:	include/uapi/linux/io_uring.h
+@@ -1634,18 +1635,11 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
+ 	do {
+ 		struct io_defer_entry *de = list_first_entry(&ctx->defer_list,
+ 						struct io_defer_entry, list);
+-		struct io_kiocb *link;
  
- IPMI SUBSYSTEM
+ 		if (req_need_defer(de->req, de->seq))
+ 			break;
+ 		list_del_init(&de->list);
+-		/* punt-init is done before queueing for defer */
+-		link = __io_queue_async_work(de->req);
+-		if (link) {
+-			__io_queue_linked_timeout(link);
+-			/* drop submission reference */
+-			io_put_req_deferred(link, 1);
+-		}
++		io_req_task_queue(de->req);
+ 		kfree(de);
+ 	} while (!list_empty(&ctx->defer_list));
+ }
 -- 
 2.24.0
 

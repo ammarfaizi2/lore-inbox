@@ -4,182 +4,281 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7421AC433DB
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 15:06:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59817C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 15:33:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 400BB20825
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 15:06:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 022D9207B3
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 15:33:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235591AbhA0PFk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 27 Jan 2021 10:05:40 -0500
-Received: from mailout3.samsung.com ([203.254.224.33]:47646 "EHLO
-        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235381AbhA0PCV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 10:02:21 -0500
+        id S234993AbhA0PFv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 27 Jan 2021 10:05:51 -0500
+Received: from mailout4.samsung.com ([203.254.224.34]:49401 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235248AbhA0PCm (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 10:02:42 -0500
 Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20210127150136epoutp033cfa6d5daf33c12ce4bf335516e924a8~eHueD5el62214422144epoutp03e
-        for <io-uring@vger.kernel.org>; Wed, 27 Jan 2021 15:01:36 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20210127150136epoutp033cfa6d5daf33c12ce4bf335516e924a8~eHueD5el62214422144epoutp03e
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20210127150158epoutp048d87e7d1ee739ef3bef92f69ea360c2e~eHuyg0zCp2026120261epoutp04s
+        for <io-uring@vger.kernel.org>; Wed, 27 Jan 2021 15:01:58 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20210127150158epoutp048d87e7d1ee739ef3bef92f69ea360c2e~eHuyg0zCp2026120261epoutp04s
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1611759696;
-        bh=/y/wC+y+qAXvjcOOetUDXeKAPN6Gfevzpc0/eSbAaYk=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=Ej2CTDdmb4UwfaKiSQ7mmkEl6psEF0Ta4Guixvtmt4LiLfKmh5vWlAcDm223t6lkA
-         VHD9GRngMuXbUX+ilmtvxxe7SeHiYRiE+TI6Wl8u+g9S+CCt7DCvq28PnT+UFFKpkQ
-         FUNgoY1NyPrO1cF7WEheUWgvKqgp1gXP80IwoslY=
-Received: from epsmges5p3new.samsung.com (unknown [182.195.42.75]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20210127150135epcas5p4e4d14fb8a4d32d2b8b20fe6d06583ff5~eHuc_L6aS1817018170epcas5p4q;
-        Wed, 27 Jan 2021 15:01:35 +0000 (GMT)
+        s=mail20170921; t=1611759718;
+        bh=0gfCy33qDEILaikTsVpNdHgQG//hPVXr1zKS9lJ2+lM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mH3qrHltsUXxctt9TuMsM42UN+wXnA+9h/qL/yHikvzkhnL8V1kcqPIVDuj5dyP6A
+         eBZWhJ9k+Zi337tyFFCAaUzoZImI8AdOWvPCjJfD0/csvbTNM7y5TWM0dOZFCep+hV
+         bbyTrDaa++//c9unV1fThbvSRMamih5MLNBAPfig=
+Received: from epsmges5p1new.samsung.com (unknown [182.195.42.73]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20210127150157epcas5p10c74d59d5147c8ae69cd52d0ca1af048~eHux-ULYP1681116811epcas5p1h;
+        Wed, 27 Jan 2021 15:01:57 +0000 (GMT)
 Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        76.A0.33964.E4081106; Thu, 28 Jan 2021 00:01:35 +0900 (KST)
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        4A.33.15682.56081106; Thu, 28 Jan 2021 00:01:57 +0900 (KST)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
         epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210127150134epcas5p251fc1de3ff3581dd4c68b3fbe0b9dd91~eHucR5GAU2309923099epcas5p2g;
-        Wed, 27 Jan 2021 15:01:34 +0000 (GMT)
+        20210127150156epcas5p26cdf368e4ff6bffb132fa1c7f9430653~eHuxC96l12309923099epcas5p2V;
+        Wed, 27 Jan 2021 15:01:56 +0000 (GMT)
 Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
         epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210127150134epsmtrp29f12da6ad6b5258d68b481385c0eaded~eHucQ-enw0989109891epsmtrp2m;
-        Wed, 27 Jan 2021 15:01:34 +0000 (GMT)
-X-AuditID: b6c32a4b-ea1ff700000184ac-7d-6011804e2981
+        20210127150156epsmtrp2b3e6a2ea496e87079ef8aae2d23b59fb~eHuxCMdYZ0982109821epsmtrp29;
+        Wed, 27 Jan 2021 15:01:56 +0000 (GMT)
+X-AuditID: b6c32a49-8bfff70000013d42-f3-60118065e8c6
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
         epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        CA.05.13470.E4081106; Thu, 28 Jan 2021 00:01:34 +0900 (KST)
+        A7.25.13470.46081106; Thu, 28 Jan 2021 00:01:56 +0900 (KST)
 Received: from localhost.localdomain (unknown [107.110.206.5]) by
         epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20210127150132epsmtip21a0aa87a0d2e31bc0b2c9e4ff286fdaf~eHuaSkOnQ2273022730epsmtip22;
-        Wed, 27 Jan 2021 15:01:32 +0000 (GMT)
+        20210127150154epsmtip236c48b897466958e02c98eba663efa3d~eHuu2rr2J1918419184epsmtip25;
+        Wed, 27 Jan 2021 15:01:54 +0000 (GMT)
 From:   Kanchan Joshi <joshi.k@samsung.com>
 To:     axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me
 Cc:     linux-nvme@lists.infradead.org, io-uring@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         javier.gonz@samsung.com, nj.shetty@samsung.com,
-        selvakuma.s1@samsung.com, Kanchan Joshi <joshi.k@samsung.com>
-Subject: [RFC PATCH 0/4] Asynchronous passthrough ioctl
-Date:   Wed, 27 Jan 2021 20:30:25 +0530
-Message-Id: <20210127150029.13766-1-joshi.k@samsung.com>
+        selvakuma.s1@samsung.com, Kanchan Joshi <joshi.k@samsung.com>,
+        Anuj Gupta <anuj20.g@samsung.com>
+Subject: [RFC PATCH 4/4] io_uring: add async passthrough ioctl support
+Date:   Wed, 27 Jan 2021 20:30:29 +0530
+Message-Id: <20210127150029.13766-5-joshi.k@samsung.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210127150029.13766-1-joshi.k@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrOKsWRmVeSWpSXmKPExsWy7bCmpq5/g2CCwaMlTBa/p09htVh9t5/N
-        YuXqo0wW71rPsVg8vvOZ3eLo/7dsFpMOXWO02LP3JIvF5V1z2CzmL3vKbrHt93xmiytTFjFb
-        rHv9nsXi9Y+TbA58HufvbWTxuHy21GPTqk42j81L6j1232xg8+jbsorR4/MmuQD2KC6blNSc
-        zLLUIn27BK6MKRsOMhdcEKs4PN2vgbFXqIuRk0NCwERix59ZLF2MXBxCArsZJba9usME4Xxi
-        lLjftZAVwvnGKPHv1zs2mJZfvSugqvYySkxZ9hiq/zOjRG/3ceYuRg4ONgFNiQuTS0EaRARc
-        JC78PsAOUsMs8I5R4vy9LYwgCWEBc4lXPx+C2SwCqhJTdm5jBbF5BSwk7m2awwKxTV5i5qXv
-        7BBxQYmTM5+AxZmB4s1bZzODDJUQ6OSQeP8YokgCaNvzqS9ZIWxhiVfHt0DFpSQ+v9sL9UKx
-        xK87R6GaOxglrjfMhNpmL3Fxz18mkA+YgT5Yv0sfYhmfRO/vJ2BhCQFeiY42aOApStyb9BRq
-        lbjEwxlLoGwPiW+3doGtEhKIlZhzdSr7BEa5WUhemIXkhVkIyxYwMq9ilEwtKM5NTy02LTDO
-        Sy3XK07MLS7NS9dLzs/dxAhOS1reOxgfPfigd4iRiYPxEKMEB7OSCK+dgmCCEG9KYmVValF+
-        fFFpTmrxIUZpDhYlcd4dBg/ihQTSE0tSs1NTC1KLYLJMHJxSDUzrmGKjvY1VXvvqTdCc3bMw
-        53pn9crYCzsmybtM0ft+wuxf6G+LFIF5Se7fP+s9qhF4w7bUuW7GJSF+4Zk6+p6nn9UmXkua
-        VNAwb/Iu7zWTjmYwHf+mt3lLwRRWk6sHb0SU+fxQc/RInuY98RbXs63nj0y1Z93JGfFzW//U
-        ZiXHH9m3ov4J/d5qe7XrLoP4wUy+ZHb+kICg+vI7jxTlI5QqkgPVBLQNVHkuPdvjdcm8rkQh
-        Rn9aWnNaYeehxYFP1jrG1bGp5tSsauVQdjhttYhtj1FYmpvbq98BUwstdzrnqnl4Zx7QLNPd
-        l3pPTG1BxcPSeqGTH6fd2WjOWD41fsKzxPY1EsESZ76VvtWXVmIpzkg01GIuKk4EAKIkCGy6
-        AwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrOLMWRmVeSWpSXmKPExsWy7bCSvK5fg2CCwaJ7Aha/p09htVh9t5/N
-        YuXqo0wW71rPsVg8vvOZ3eLo/7dsFpMOXWO02LP3JIvF5V1z2CzmL3vKbrHt93xmiytTFjFb
-        rHv9nsXi9Y+TbA58HufvbWTxuHy21GPTqk42j81L6j1232xg8+jbsorR4/MmuQD2KC6blNSc
-        zLLUIn27BK6MKRsOMhdcEKs4PN2vgbFXqIuRk0NCwETiV+8KJhBbSGA3o8Ttq5YQcXGJ5ms/
-        2CFsYYmV/54D2VxANR8ZJWa+/Q/UwMHBJqApcWFyKYgpIuAlsW2pIUgJs8A3Rok1a0+xgvQK
-        C5hLvPr5kBHEZhFQlZiycxtYnFfAQuLepjksEPPlJWZe+s4OEReUODnzCVicGSjevHU28wRG
-        vllIUrOQpBYwMq1ilEwtKM5Nzy02LDDMSy3XK07MLS7NS9dLzs/dxAgOey3NHYzbV33QO8TI
-        xMF4iFGCg1lJhNdOQTBBiDclsbIqtSg/vqg0J7X4EKM0B4uSOO+FrpPxQgLpiSWp2ampBalF
-        MFkmDk6pBiZmPX3T50d+53ma8ggwR15vn8A+OUjkjtVrGUejXUFxB0PzpjC5SMmmX7s7XeqG
-        hfX3T1Jy5YcVK2/1rnss0eK8LaRCnkVl59ff6V7ZmVsf3q52vM64w1Wyz/5imNjRfR9WzVaV
-        WWbPf2RbuvLlQ8ahjQL+b1bp6qtdyUsRj4jldlbt7mSa2/Vy+8yGoHNRvnNb139f48Oj3PCt
-        livsf8MPdofKNAEDlj/Fiz7YrCquiF50o7NfUXnK7TAVF46iX3MKZXLXiV32PLmw/Kmi8a7v
-        jcfZRWXWvmTQrxZ5eWH5M85XBv+0b95Jswj6rMwyVzZ8/6VlkdNXqVzttpu9QWn/42uqukJS
-        1uWsx+8yKLEUZyQaajEXFScCAOnBizvqAgAA
-X-CMS-MailID: 20210127150134epcas5p251fc1de3ff3581dd4c68b3fbe0b9dd91
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrFKsWRmVeSWpSXmKPExsWy7bCmpm5qg2CCwaU2dYvf06ewWjRN+Mts
+        sfpuP5vFytVHmSzetZ5jsXh85zO7xdH/b9ksJh26xmixZ+9JFovLu+awWcxf9pTdYtvv+cwW
+        V6YsYrZY9/o9i8XrHyfZHPg9zt/byOJx+Wypx6ZVnWwem5fUe+y+2cDm0bdlFaPH501yAexR
+        XDYpqTmZZalF+nYJXBlfZs9jKtisXrFw0T3mBsZD8l2MnBwSAiYSjb0n2LsYuTiEBHYzSkz7
+        18wK4XxilPi3diczhPONUeLugutsMC2/n26HSuxllOjo64JyPjNKdF1Zw9TFyMHBJqApcWFy
+        KUiDiICLxIXfB8B2MAtMZJL49qKXCSQhLOAmcX/ucrCpLAKqEofWX2YHsXkFLCROrG9hgtgm
+        LzHz0newOKeApcSVbZtYIWoEJU7OfMICYjMD1TRvnQ12hITAFg6Jq4f+skM0u0ic/fwaapCw
+        xKvjW6DiUhKf3+2FeqdY4tedo1DNHYwS1xtmskAk7CUu7vkL9g0z0Dfrd+lDLOOT6P39BCws
+        IcAr0dEmBFGtKHFv0lNWCFtc4uGMJVC2h0TPu7XQAO4Bhum+nSwTGOVnIflhFpIfZiFsW8DI
+        vIpRMrWgODc9tdi0wDAvtVyvODG3uDQvXS85P3cTIzh5aXnuYLz74IPeIUYmDsZDjBIczEoi
+        vHYKgglCvCmJlVWpRfnxRaU5qcWHGKU5WJTEeXcYPIgXEkhPLEnNTk0tSC2CyTJxcEo1MM3Y
+        Pm250c5jq7SkPXIYWBdz9M5ilcjmkuTaYF7L/qOKV3+HXuycvPdznrVZ9Xly3Vr1bE4Z939l
+        wcIrKy+cMX5Qtyay/PQu78VVix0c8kUXbti19lp8jKmhzgEVw/6UN6EpD95EntI3lW06W9Ej
+        Wnl42tk9ls2S8hN5K5xMF4rXLnj9tahaJYmVN/XjvLnrf86sVk9W1tKMmcTu17dql3GdChs7
+        d+WtTa+zHxw8esjsjJi+U3CN3CEdPa/M9HfhdXpyk+1UDFTkyxKt1s96eGl/6L//zLvOR7S9
+        eDr9eFTrlHi5qnuWRpqzp83f+HFPsgjv27+3lYs2Gdz7YjGP9cfiOmvZyvkXF+f7rWpXVWIp
+        zkg01GIuKk4EAJ8ENC3NAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKLMWRmVeSWpSXmKPExsWy7bCSvG5Kg2CCwfrPyha/p09htWia8JfZ
+        YvXdfjaLlauPMlm8az3HYvH4zmd2i6P/37JZTDp0jdFiz96TLBaXd81hs5i/7Cm7xbbf85kt
+        rkxZxGyx7vV7FovXP06yOfB7nL+3kcXj8tlSj02rOtk8Ni+p99h9s4HNo2/LKkaPz5vkAtij
+        uGxSUnMyy1KL9O0SuDK+zJ7HVLBZvWLhonvMDYyH5LsYOTkkBEwkfj/dztzFyMUhJLCbUeJw
+        zyVmiIS4RPO1H+wQtrDEyn/P2SGKPjJKTD12namLkYODTUBT4sLkUhBTRMBLYttSQ5ByZoHZ
+        TBKNvyJBbGEBN4n7c5ezgdgsAqoSh9ZfBhvJK2AhcWJ9CxPEeHmJmZe+g8U5BSwlrmzbxApi
+        CwHVvJ/wkA2iXlDi5MwnLBDz5SWat85mnsAoMAtJahaS1AJGplWMkqkFxbnpucWGBYZ5qeV6
+        xYm5xaV56XrJ+bmbGMExo6W5g3H7qg96hxiZOBgPMUpwMCuJ8NopCCYI8aYkVlalFuXHF5Xm
+        pBYfYpTmYFES573QdTJeSCA9sSQ1OzW1ILUIJsvEwSnVwHSCxffG2z1Jf54rb+GZ7DaHY62/
+        sc/+n7y1815ZPzA7KjbBzUg8evLcehYZpdy52in3rSuPNF5bydN5imvDqb1Cb52eJFeFWTtV
+        elw44iCx9gxn/pZXHmleDbK9N6f3X/vgwOb4fEvZyucdl00yROMKWe35Xjq8WcixTCfry1wJ
+        gSnbmU7VeT+8cbIn5aFoxsVN6Z0tbzd/vyq+KGf3b5mfCyq2T46L2310dlTJc9c1yZzO8oK7
+        fjkbVgbf2PvrmU/QpSe2HGcij69hmVZr0j5rt9esBU+vu95/01AUpaS77aZRU/391ugTO3m8
+        5rE2vN75lENqblHHkdQNt3ekczQ+e8nr3nsg5dq1lgXOpj+UWIozEg21mIuKEwGBbgBiCAMA
+        AA==
+X-CMS-MailID: 20210127150156epcas5p26cdf368e4ff6bffb132fa1c7f9430653
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 CMS-TYPE: 105P
-X-CMS-RootMailID: 20210127150134epcas5p251fc1de3ff3581dd4c68b3fbe0b9dd91
-References: <CGME20210127150134epcas5p251fc1de3ff3581dd4c68b3fbe0b9dd91@epcas5p2.samsung.com>
+X-CMS-RootMailID: 20210127150156epcas5p26cdf368e4ff6bffb132fa1c7f9430653
+References: <20210127150029.13766-1-joshi.k@samsung.com>
+        <CGME20210127150156epcas5p26cdf368e4ff6bffb132fa1c7f9430653@epcas5p2.samsung.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This RFC patchset adds asynchronous ioctl capability for NVMe devices.
-Purpose of RFC is to get the feedback and optimize the path.
+Introduce IORING_OP_IOCTL_PT for async ioctl. It skips entering into
+block-layer and reaches to underlying block-driver managing the
+block-device. This is done by calling newly introduced "async_ioctl"
+block-device operation.
+The requested operation may be completed synchronously, and in that case
+CQE is updated on the fly. For asynchronous update, lower-layer calls
+the completion-callback supplied by io-uring.
 
-At the uppermost io-uring layer, a new opcode IORING_OP_IOCTL_PT is
-presented to user-space applications. Like regular-ioctl, it takes
-ioctl opcode and an optional argument (ioctl-specific input/output
-parameter). Unlike regular-ioctl, it is made to skip the block-layer
-and reach directly to the underlying driver (nvme in the case of this
-patchset). This path between io-uring and nvme is via a newly
-introduced block-device operation "async_ioctl". This operation
-expects io-uring to supply a callback function which can be used to
-report completion at later stage.
+Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
+Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
+---
+ fs/io_uring.c                 | 77 +++++++++++++++++++++++++++++++++++
+ include/uapi/linux/io_uring.h |  7 +++-
+ 2 files changed, 83 insertions(+), 1 deletion(-)
 
-For a regular ioctl, NVMe driver submits the command to the device and
-the submitter (task) is made to wait until completion arrives. For
-async-ioctl, completion is decoupled from submission. Submitter goes
-back to its business without waiting for nvme-completion. When
-nvme-completion arrives, it informs io-uring via the registered
-completion-handler. But some ioctls may require updating certain
-ioctl-specific fields which can be accessed only in context of the
-submitter task. For that reason, NVMe driver uses task-work infra for
-that ioctl-specific update. Since task-work is not exported, it cannot
-be referenced when nvme is compiled as a module. Therefore, one of the
-patch exports task-work API.
-
-Here goes example of usage (pseudo-code).
-Actual nvme-cli source, modified to issue all ioctls via this opcode
-is present at-
-https://github.com/joshkan/nvme-cli/commit/a008a733f24ab5593e7874cfbc69ee04e88068c5
-
-With regular ioctl-
-int nvme_submit_passthru(int fd, unsigned long ioctl_cmd,
-                         struct nvme_passthru_cmd *cmd)
-{
-	return ioctl(fd, ioctl_cmd, cmd);
-}
-
-With uring passthru ioctl-
-int nvme_submit_passthru(int fd, unsigned long ioctl_cmd,
-                         struct nvme_passthru_cmd *cmd)
-{
-	return uring_ioctl(fd, ioctl_cmd, cmd);
-}
-int uring_ioctl(int fd, unsinged long cmd, u64 arg)
-{
-	sqe = io_uring_get_sqe(ring);
-
-	/* prepare sqe */
-	sqe->fd = fd;
-	sqe->opcode = IORING_OP_IOCTL_PT;
-	sqe->ioctl_cmd = cmd;
-	sqe->ioctl_arg = arg;
-
-	/* submit sqe */
-	io_uring_submit(ring);
-
-	/* reap completion and obtain result */
-	io_uring_wait_cqe(ring, &cqe);
-	printf("ioctl result =%d\n", cqe->res)
-}
-
-Kanchan Joshi (4):
-  block: introduce async ioctl operation
-  kernel: export task_work_add
-  nvme: add async ioctl support
-  io_uring: add async passthrough ioctl support
-
- drivers/nvme/host/core.c      | 347 +++++++++++++++++++++++++++-------
- fs/io_uring.c                 |  77 ++++++++
- include/linux/blkdev.h        |  12 ++
- include/uapi/linux/io_uring.h |   7 +-
- kernel/task_work.c            |   2 +-
- 5 files changed, 376 insertions(+), 69 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 985a9e3f976d..c15852dfb727 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -468,6 +468,19 @@ struct io_rw {
+ 	u64				len;
+ };
+ 
++/*
++ * passthru ioctl skips block-layer and reaches to block device driver via
++ * async_ioctl() block-dev operation.
++ */
++struct io_pt_ioctl {
++	struct file			*file;
++	/* arg and cmd like regular ioctl */
++	u64				arg;
++	u32				cmd;
++	/* defined by block layer */
++	struct pt_ioctl_ctx		ioctx;
++};
++
+ struct io_connect {
+ 	struct file			*file;
+ 	struct sockaddr __user		*addr;
+@@ -699,6 +712,7 @@ struct io_kiocb {
+ 		struct io_shutdown	shutdown;
+ 		struct io_rename	rename;
+ 		struct io_unlink	unlink;
++		struct io_pt_ioctl	ptioctl;
+ 		/* use only after cleaning per-op data, see io_clean_op() */
+ 		struct io_completion	compl;
+ 	};
+@@ -824,6 +838,10 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 		.work_flags		= IO_WQ_WORK_BLKCG,
+ 	},
++	[IORING_OP_IOCTL_PT] = {
++		.needs_file		= 1,
++		.work_flags		= IO_WQ_WORK_MM,
++	},
+ 	[IORING_OP_READ_FIXED] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+@@ -3704,6 +3722,60 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
+ 	return ret;
+ }
+ 
++static int io_pt_ioctl_prep(struct io_kiocb *req,
++			    const struct io_uring_sqe *sqe)
++{
++	unsigned int cmd = READ_ONCE(sqe->ioctl_cmd);
++	unsigned long arg = READ_ONCE(sqe->ioctl_arg);
++	struct io_ring_ctx *ctx = req->ctx;
++	struct block_device *bdev = I_BDEV(req->file->f_mapping->host);
++	struct gendisk *disk = NULL;
++
++	disk = bdev->bd_disk;
++	if (!disk || !disk->fops || !disk->fops->async_ioctl)
++		return -EOPNOTSUPP;
++	/* for sqpoll, use sqo_task */
++	if (ctx->flags & IORING_SETUP_SQPOLL)
++		req->ptioctl.ioctx.task = ctx->sqo_task;
++	else
++		req->ptioctl.ioctx.task = current;
++
++	req->ptioctl.arg = arg;
++	req->ptioctl.cmd = cmd;
++	return 0;
++}
++
++void pt_complete(struct pt_ioctl_ctx *ptioc, long ret)
++{
++	struct io_kiocb *req = container_of(ptioc, struct io_kiocb, ptioctl.ioctx);
++
++	if (ret < 0)
++		req_set_fail_links(req);
++	io_req_complete(req, ret);
++}
++
++static int io_pt_ioctl(struct io_kiocb *req, bool force_nonblock)
++{
++	long ret = 0;
++	struct block_device *bdev = I_BDEV(req->file->f_mapping->host);
++	fmode_t mode = req->file->f_mode;
++	struct gendisk *disk = NULL;
++
++	disk = bdev->bd_disk;
++	/* set up callback for async */
++	req->ptioctl.ioctx.pt_complete = pt_complete;
++
++	ret = disk->fops->async_ioctl(bdev, mode, req->ptioctl.cmd,
++				req->ptioctl.arg, &req->ptioctl.ioctx);
++	if (ret == -EIOCBQUEUED) /*async completion */
++		return 0;
++	if (ret < 0)
++		req_set_fail_links(req);
++
++	io_req_complete(req, ret);
++	return 0;
++}
++
+ static int io_renameat_prep(struct io_kiocb *req,
+ 			    const struct io_uring_sqe *sqe)
+ {
+@@ -6078,6 +6150,8 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 		return io_renameat_prep(req, sqe);
+ 	case IORING_OP_UNLINKAT:
+ 		return io_unlinkat_prep(req, sqe);
++	case IORING_OP_IOCTL_PT:
++		return io_pt_ioctl_prep(req, sqe);
+ 	}
+ 
+ 	printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
+@@ -6337,6 +6411,9 @@ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
+ 	case IORING_OP_UNLINKAT:
+ 		ret = io_unlinkat(req, force_nonblock);
+ 		break;
++	case IORING_OP_IOCTL_PT:
++		ret = io_pt_ioctl(req, force_nonblock);
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index d31a2a1e8ef9..60671e2b00ba 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -22,12 +22,16 @@ struct io_uring_sqe {
+ 	union {
+ 		__u64	off;	/* offset into file */
+ 		__u64	addr2;
++		__u64	ioctl_arg;
+ 	};
+ 	union {
+ 		__u64	addr;	/* pointer to buffer or iovecs */
+ 		__u64	splice_off_in;
+ 	};
+-	__u32	len;		/* buffer size or number of iovecs */
++	union {
++		__u32	len;	/* buffer size or number of iovecs */
++		__u32	ioctl_cmd;
++	};
+ 	union {
+ 		__kernel_rwf_t	rw_flags;
+ 		__u32		fsync_flags;
+@@ -137,6 +141,7 @@ enum {
+ 	IORING_OP_SHUTDOWN,
+ 	IORING_OP_RENAMEAT,
+ 	IORING_OP_UNLINKAT,
++	IORING_OP_IOCTL_PT,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 -- 
 2.25.1
 

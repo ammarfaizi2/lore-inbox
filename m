@@ -2,138 +2,91 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ED13C433DB
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:22:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 632D4C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 11:10:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97BD920731
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 10:22:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CD1120729
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 11:10:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S313388AbhAZXCu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 18:02:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52656 "EHLO
+        id S236535AbhA0LKV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 27 Jan 2021 06:10:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389536AbhAZRPD (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 12:15:03 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DE7C06178A;
-        Tue, 26 Jan 2021 09:14:32 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id jx18so2590226pjb.5;
-        Tue, 26 Jan 2021 09:14:32 -0800 (PST)
+        with ESMTP id S236217AbhA0LHh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 06:07:37 -0500
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACD8C061756;
+        Wed, 27 Jan 2021 03:06:57 -0800 (PST)
+Received: by mail-il1-x135.google.com with SMTP id e1so1351341ilu.0;
+        Wed, 27 Jan 2021 03:06:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9RUQDUCB4nEFZH/9cXs5GJzrckaItKmxCSraWMnirXk=;
-        b=j3fMrSOEhbc64LKIGw9LoA5TX2A1MwYsnXX/wxqp5wCvR4f8+ezNT6wIaiEiNotTDF
-         RlpLsvybHJnsnPtzk4FI/S974NL47u+bIjWabBSNRi2h7IoAZaoE92RRFZSqVEtaX6gx
-         7U1+MXIHKskmB7XhcFLRy1mw1XDXCDxzXKQRdagTRclfQQtFFwJMGYngT/umYZ3hqxNL
-         8rOXGMJ+3SeQ3PSZiXr1VV+cRbHqvAnuDtjM9Pbh12UE2RrfUlmBO1qxEq0DTJGovjaC
-         t3cUkK9ZWenlRhQoi3gKdcWroQfpT5RLX79dquBmnGhgc6x8GxTyrefUipo8eSQfgkNE
-         IQ/g==
+        bh=Y76FNPqB9qWS75pfeBmMezT/zILd26EsKHMVCZMEbb4=;
+        b=JQCZfEN9pcGV+drUZVNwHoHfm1XathLlLOpF2qZM/OtnwwklrRgs0enCU0qUidLx4Z
+         SPM6bm93Rsx0lNeFav/S6Va8t8zKVVsE21b0iCgpWkfPv0Kr4Xu5ajpZc16D+U2YIpaz
+         zMQdXLiPmawtXdpaH47GmPWIqfvUUyAubxIe/+gRFmK07JgDbYBNyTVYgJH3IhmfOIPO
+         KqeAZYWW1baAqdEW9pIxa2ShUIGI/K4Lx+xHzj07sFA9bLeXGLWG4SwUKr9ZX10ZtvH+
+         X6ayHLr6nV86ke+HRC3bXNgR2E7+3Ecg3K3eBnjlbV07xf6ffbJnMGCli3t1vBIaRcLg
+         P8jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9RUQDUCB4nEFZH/9cXs5GJzrckaItKmxCSraWMnirXk=;
-        b=qqzf+Zn4HKqWUIEan4NJX+h2iB7veofJUsyPk4qt0brqOagMsup40emXKCX0/E5vtJ
-         QeOpc0MzPF7455clEPObCCteLZQnOsD0b/cFylxpIWkqXFZMvVa+oGNOX0rGBRo2xCvG
-         tGumwLRd6DnoxfeBAoHxYQLK43GSG7FBCCHkLmcNO7bQpmQjNjO/gqQr7kqRgSujYI1r
-         QNipA3rW7ep8rpQluV7JK4NEsqUcfzS1AV3hfLpKVNGXapdigmT0iU87D9gDMnb1UCXg
-         adg4LJVuESypOzqdaFtRvxq6HUIFtTSBTPP8WapPK/BIeRVZktaT7xVIN1k6vxOMK34c
-         Z5jw==
-X-Gm-Message-State: AOAM533mS99g/x9hNyF8hkcY4cW2Ht9H6fwOWhXnLmgXqUHUeHGzaXA4
-        hFYAkNLqbpymlziiPgBaY7wwdcQqJarn5sW32zo=
-X-Google-Smtp-Source: ABdhPJzYTKb9IEjRqjI7iyOcJZliWbdlre5eibcyLPnCNHKpuHHBAeMONkMRXQZEIX3rszJM5SLxXQ2HSlQ3BpSFjUE=
-X-Received: by 2002:a17:90b:716:: with SMTP id s22mr763424pjz.223.1611681272019;
- Tue, 26 Jan 2021 09:14:32 -0800 (PST)
+        bh=Y76FNPqB9qWS75pfeBmMezT/zILd26EsKHMVCZMEbb4=;
+        b=c034nVLu6Y7qFziJ6qZeif6CKbOCaCcEuMYD17X3iTLr7Sxua+XxC9qpGgPASAI5g/
+         Z4y7DKfBO2kfC+ZnuKT4+G8/E3eRLhxF5ucSEVaNb33O298uQv5F1VL7kDo0IZynK8dm
+         stuxIXhgHC94rZvsfthPoZIclh6ifIg7ydHIIp3rmWKRiClYueTcpfwc4Ht96019EfIq
+         u/ApkfOQtY7fUNefJOSDkkugJe4JM5FaVB6s1proe0iwbo2nUlV9D6lsoI0qCXzNK1KK
+         +Ba3FwxqGzk8Nmjs9PwONXHDfvgvda9Pau4QU2SRo8UV/QWThNqeFsQur2slwgNkFSG/
+         mLPQ==
+X-Gm-Message-State: AOAM530nZQaeGOR0mmuAycUp+HTElK3eUPOBxznJUhas9JaayMJgVELw
+        o/PYeyJYOsTPJP4KPPxJrD2/vTcxvxgqe1bZAfvBXAKKFhw=
+X-Google-Smtp-Source: ABdhPJwV1a8E/rXC3MwyJdqeGhovuK4D9G5C8ZCtkz5mpiaoNHhPcmpoOiEsefYRK1iQUbRK0wZ01fRKJ/1qEvG+1qk=
+X-Received: by 2002:a92:c6cb:: with SMTP id v11mr1371562ilm.238.1611745616429;
+ Wed, 27 Jan 2021 03:06:56 -0800 (PST)
 MIME-Version: 1.0
-References: <20201220065025.116516-1-goldstein.w.n@gmail.com>
- <0cdf2aac-6364-742d-debb-cfd58b4c6f2b@gmail.com> <20201222021043.GA139782@gmail.com>
- <32c9ce7e-569d-3f94-535e-00e072de772e@gmail.com>
-In-Reply-To: <32c9ce7e-569d-3f94-535e-00e072de772e@gmail.com>
-From:   Noah Goldstein <goldstein.w.n@gmail.com>
-Date:   Tue, 26 Jan 2021 12:14:21 -0500
-Message-ID: <CAFUsyf+m8SseZ1NzZoYJe4KSH30v-XJeP5P9FvtxQT_5bvsK9Q@mail.gmail.com>
-Subject: Re: [PATCH] fs: io_uring.c: Add skip option for __io_sqe_files_update
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     noah <goldstein.n@wustl.edu>, Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        "open list:IO_URING" <io-uring@vger.kernel.org>,
-        "open list:FILESYSTEMS (VFS and infrastructure)" 
-        <linux-fsdevel@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
+References: <20201116044529.1028783-1-dkadashev@gmail.com> <3bb5781b-8e48-e4db-a832-333c01dba8ab@kernel.dk>
+In-Reply-To: <3bb5781b-8e48-e4db-a832-333c01dba8ab@kernel.dk>
+From:   Dmitry Kadashev <dkadashev@gmail.com>
+Date:   Wed, 27 Jan 2021 18:06:44 +0700
+Message-ID: <CAOKbgA6CAe22WknmGC7-bYDkwHRLBVqm9vUq6tz7Qp9ZECztpQ@mail.gmail.com>
+Subject: Re: [PATCH 0/2] io_uring: add mkdirat support
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring <io-uring@vger.kernel.org>, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 7:29 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
+On Wed, Jan 27, 2021 at 5:35 AM Jens Axboe <axboe@kernel.dk> wrote:
 >
-> On 22/12/2020 02:10, Noah Goldstein wrote:
-> > On Sun, Dec 20, 2020 at 03:18:05PM +0000, Pavel Begunkov wrote:
-> >> On 20/12/2020 06:50, noah wrote:> From: noah <goldstein.n@wustl.edu>
-> >>>
-> >>> This patch makes it so that specify a file descriptor value of -2 will
-> >>> skip updating the corresponding fixed file index.
-> >>>
-> >>> This will allow for users to reduce the number of syscalls necessary
-> >>> to update a sparse file range when using the fixed file option.
-> >>
-> >> Answering the github thread -- it's indeed a simple change, I had it the
-> >> same day you posted the issue. See below it's a bit cleaner. However, I
-> >> want to first review "io_uring: buffer registration enhancements", and
-> >> if it's good, for easier merging/etc I'd rather prefer to let it go
-> >> first (even if partially).
+> On 11/15/20 9:45 PM, Dmitry Kadashev wrote:
+> > This adds mkdirat support to io_uring and is heavily based on recently
+> > added renameat() / unlinkat() support.
+> >
+> > The first patch is preparation with no functional changes, makes
+> > do_mkdirat accept struct filename pointer rather than the user string.
+> >
+> > The second one leverages that to implement mkdirat in io_uring.
+> >
+> > Based on for-5.11/io_uring.
 >
-> Noah, want to give it a try? I've just sent a prep patch, with it you
-> can implement it cleaner with one continue.
->
+> I want to tentatively queue this up. Do you have the liburing support
+> and test case(s) for it as well that you can send?
 
- Absolutely. Will get on it ASAP.
+I do, I've sent it in the past, here it is:
+https://lore.kernel.org/io-uring/20201116051005.1100302-1-dkadashev@gmail.com/
 
-> >>
-> >> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> >> index 941fe9b64fd9..b3ae9d5da17e 100644
-> >> --- a/fs/io_uring.c
-> >> +++ b/fs/io_uring.c
-> >> @@ -7847,9 +7847,8 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
-> >>      if (IS_ERR(ref_node))
-> >>              return PTR_ERR(ref_node);
-> >>
-> >> -    done = 0;
-> >>      fds = u64_to_user_ptr(up->fds);
-> >> -    while (nr_args) {
-> >> +    for (done = 0; done < nr_args; done++) {
-> >>              struct fixed_file_table *table;
-> >>              unsigned index;
-> >>
-> >> @@ -7858,7 +7857,10 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
-> >>                      err = -EFAULT;
-> >>                      break;
-> >>              }
-> >> -            i = array_index_nospec(up->offset, ctx->nr_user_files);
-> >> +            if (fd == IORING_REGISTER_FILES_SKIP)
-> >> +                    continue;
-> >> +
-> >> +            i = array_index_nospec(up->offset + done, ctx->nr_user_files);
-> >>              table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
-> >>              index = i & IORING_FILE_TABLE_MASK;
-> >>              if (table->files[index]) {
-> >> @@ -7896,9 +7898,6 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
-> >>                              break;
-> >>                      }
-> >>              }
-> >> -            nr_args--;
-> >> -            done++;
-> >> -            up->offset++;
-> >>      }
-> >>
-> >>      if (needs_switch) {
->
-> --
-> Pavel Begunkov
+I need to (figure out the way to) fix the kernel / namei side after Al's
+comments though.
+
+-- 
+Dmitry Kadashev

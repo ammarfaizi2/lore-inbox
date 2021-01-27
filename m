@@ -7,31 +7,31 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AF50C433E6
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 07:12:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12E94C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 07:18:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69F5E2072C
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 07:12:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAD1B20729
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 07:18:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233058AbhA0HLg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 27 Jan 2021 02:11:36 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:46184 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232997AbhA0HIh (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 02:08:37 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UN0sed8_1611731204;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UN0sed8_1611731204)
+        id S232555AbhA0HRh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 27 Jan 2021 02:17:37 -0500
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:34156 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233527AbhA0HPc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 02:15:32 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UN11FwU_1611731649;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UN11FwU_1611731649)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 27 Jan 2021 15:06:51 +0800
+          Wed, 27 Jan 2021 15:14:16 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH RESEND] io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
-Date:   Wed, 27 Jan 2021 15:06:44 +0800
-Message-Id: <1611731204-171460-1-git-send-email-haoxu@linux.alibaba.com>
+Subject: [PATCH RESEND RESEND] io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
+Date:   Wed, 27 Jan 2021 15:14:09 +0800
+Message-Id: <1611731649-174664-1-git-send-email-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1611729900-161892-1-git-send-email-haoxu@linux.alibaba.com>
-References: <1611729900-161892-1-git-send-email-haoxu@linux.alibaba.com>
+In-Reply-To: <1611731204-171460-1-git-send-email-haoxu@linux.alibaba.com>
+References: <1611731204-171460-1-git-send-email-haoxu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
@@ -95,7 +95,6 @@ TASK_INTERRUPTIBLE
 
 Reported-by: Abaci <abaci@linux.alibaba.com>
 Fixes: 6c503150ae33 ("io_uring: patch up IOPOLL overflow_flush sync")
-Cc: stable@vger.kernel.org # 5.11+
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
  fs/io_uring.c | 8 ++++++--

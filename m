@@ -2,134 +2,151 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C2B2C4332E
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:49:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D30EEC432C3
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 06:52:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3825F2070E
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:49:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA4E620734
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 06:52:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234658AbhA0EpS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 23:45:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390099AbhA0API (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 19:15:08 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B1CC0698C1;
-        Tue, 26 Jan 2021 15:38:59 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id kg20so117813ejc.4;
-        Tue, 26 Jan 2021 15:38:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=f6wYZ5gozgmr79/ArNYUttVMN0pjTGFLRYTG3emhLAY=;
-        b=EBWlaA0UUJQMFEhsodslv9Qj1+IzpVXbXvUaExI9gt3oxdlKhM7K3oAXyG6zbbTS6x
-         mq1a5eZOzeYVGCAqD7SKSL81JOS3XeX4D2+1nwOnGJm0a9YvZKya7JjITZv5bPROrkph
-         zftsCZ9gQCv1rH3bdnKuwoU2jQlQMDW9Jp0imPFaHXxZHNL3TG4tbVugg6QBoa1Hycg4
-         1mANcFEfg+cwl1uHbHhQiIHYqoFl1ecSF48XrOyjpxnG6V4fOxXhDr1sO5Unhsy77sKN
-         OADLEm/pMD2kfZGYSiWPvu7qM0gyndeldc5QqyoKWARt8fpE12OZkXUoRDx+Gx83UXCn
-         dCxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=f6wYZ5gozgmr79/ArNYUttVMN0pjTGFLRYTG3emhLAY=;
-        b=Tq72UetgqWV00NM+jTq88GDyQ8Eitw+pk5S5B9uGwNXJUNpQr2w08/BxkmTwhy/vzy
-         QISRdU9QQyeeNvn1yDJCQt+4WSu0Fs0b/Ihm+sdoRLgk+3MNehNk0AGZ4OIYydbM3y7F
-         blLBwIeB2/or2LIWWHlejd8YncX8kmtHpjZBP9G8K7IU+fuBQTBbCGJ08me2d/YeLM0e
-         zPylbnzzhn59zLbu/K5XEbJ42q4MpUvU5baAz+3s7fiqrhpxc/kO3YurzIYBG0TlH3gJ
-         56Y067ReSXMMTVSweTs3oUVgGkrYvWbgukQALmsfI7Ewk7rGX7Y41h2i/J6S5KWI3Npx
-         aPtA==
-X-Gm-Message-State: AOAM533HI5/+ZS1wFb1jJ+k2uG//vH/xsn2MCvIoTzKVR7SaOIG+W3Gb
-        iPjX/JQIKV2h2Rgj/lccDyDq3PqGBvA=
-X-Google-Smtp-Source: ABdhPJymKhqSk7Hx9KHpzj4i70ePJ3ElFCuteOSHtgS10XMEOBcKiszosg9NGNVzKU3q9nxUFGZYUQ==
-X-Received: by 2002:a17:906:d295:: with SMTP id ay21mr5004144ejb.400.1611704337847;
-        Tue, 26 Jan 2021 15:38:57 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id zg24sm54287ejb.120.2021.01.26.15.38.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 15:38:57 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 5.11] io_uring: fix wqe->lock/completion_lock deadlock
-Date:   Tue, 26 Jan 2021 23:35:10 +0000
-Message-Id: <9c4f7eb623ae774f3f17afbc1702749480ee19be.1611703952.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S231277AbhA0Gvh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 27 Jan 2021 01:51:37 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:46522 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232221AbhA0GsF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 27 Jan 2021 01:48:05 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UN0qjXs_1611729900;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UN0qjXs_1611729900)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 27 Jan 2021 14:45:08 +0800
+From:   Hao Xu <haoxu@linux.alibaba.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH] io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
+Date:   Wed, 27 Jan 2021 14:45:00 +0800
+Message-Id: <1611729900-161892-1-git-send-email-haoxu@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Joseph reports following deadlock:
+Abaci reported the follow warning:
 
-CPU0:
-...
-io_kill_linked_timeout  // &ctx->completion_lock
-io_commit_cqring
-__io_queue_deferred
-__io_queue_async_work
-io_wq_enqueue
-io_wqe_enqueue  // &wqe->lock
+[   27.073425] do not call blocking ops when !TASK_RUNNING; state=1 set
+at [] prepare_to_wait_exclusive+0x3a/0xc0
+[   27.075805] WARNING: CPU: 0 PID: 951 at kernel/sched/core.c:7853
+__might_sleep+0x80/0xa0
+[   27.077604] Modules linked in:
+[   27.078379] CPU: 0 PID: 951 Comm: a.out Not tainted 5.11.0-rc3+ #1
+[   27.079637] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   27.080852] RIP: 0010:__might_sleep+0x80/0xa0
+[   27.081835] Code: 65 48 8b 04 25 80 71 01 00 48 8b 90 c0 15 00 00 48
+8b 70 18 48 c7 c7 08 39 95 82 c6 05 f9 5f de 08 01 48 89 d1 e8 00 c6 fa
+ff  0b eb bf 41 0f b6 f5 48 c7 c7 40 23 c9 82 e8 f3 48 ec 00 eb a7
+[   27.084521] RSP: 0018:ffffc90000fe3ce8 EFLAGS: 00010286
+[   27.085350] RAX: 0000000000000000 RBX: ffffffff82956083 RCX:
+0000000000000000
+[   27.086348] RDX: ffff8881057a0000 RSI: ffffffff8118cc9e RDI:
+ffff88813bc28570
+[   27.087598] RBP: 00000000000003a7 R08: 0000000000000001 R09:
+0000000000000001
+[   27.088819] R10: ffffc90000fe3e00 R11: 00000000fffef9f0 R12:
+0000000000000000
+[   27.089819] R13: 0000000000000000 R14: ffff88810576eb80 R15:
+ffff88810576e800
+[   27.091058] FS:  00007f7b144cf740(0000) GS:ffff88813bc00000(0000)
+knlGS:0000000000000000
+[   27.092775] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   27.093796] CR2: 00000000022da7b8 CR3: 000000010b928002 CR4:
+00000000003706f0
+[   27.094778] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[   27.095780] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[   27.097011] Call Trace:
+[   27.097685]  __mutex_lock+0x5d/0xa30
+[   27.098565]  ? prepare_to_wait_exclusive+0x71/0xc0
+[   27.099412]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.100441]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
+[   27.101537]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
+[   27.102656]  ? trace_hardirqs_on+0x46/0x110
+[   27.103459]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.104317]  io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.105113]  io_cqring_wait+0x36e/0x4d0
+[   27.105770]  ? find_held_lock+0x28/0xb0
+[   27.106370]  ? io_uring_remove_task_files+0xa0/0xa0
+[   27.107076]  __x64_sys_io_uring_enter+0x4fb/0x640
+[   27.107801]  ? rcu_read_lock_sched_held+0x59/0xa0
+[   27.108562]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
+[   27.109684]  ? syscall_enter_from_user_mode+0x26/0x70
+[   27.110731]  do_syscall_64+0x2d/0x40
+[   27.111296]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   27.112056] RIP: 0033:0x7f7b13dc8239
+[   27.112663] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00
+48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f
+   05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
+[   27.115113] RSP: 002b:00007ffd6d7f5c88 EFLAGS: 00000286 ORIG_RAX:
+00000000000001aa
+[   27.116562] RAX: ffffffffffffffda RBX: 0000000000000000 RCX:
+00007f7b13dc8239
+[   27.117961] RDX: 000000000000478e RSI: 0000000000000000 RDI:
+0000000000000003
+[   27.118925] RBP: 00007ffd6d7f5cb0 R08: 0000000020000040 R09:
+0000000000000008
+[   27.119773] R10: 0000000000000001 R11: 0000000000000286 R12:
+0000000000400480
+[   27.120614] R13: 00007ffd6d7f5d90 R14: 0000000000000000 R15:
+0000000000000000
+[   27.121490] irq event stamp: 5635
+[   27.121946] hardirqs last  enabled at (5643): []
+console_unlock+0x5c4/0x740
+[   27.123476] hardirqs last disabled at (5652): []
+console_unlock+0x4e7/0x740
+[   27.125192] softirqs last  enabled at (5272): []
+__do_softirq+0x3c5/0x5aa
+[   27.126430] softirqs last disabled at (5267): []
+asm_call_irq_on_stack+0xf/0x20
+[   27.127634] ---[ end trace 289d7e28fa60f928 ]---
 
-CPU1:
-...
-__io_uring_files_cancel
-io_wq_cancel_cb
-io_wqe_cancel_pending_work  // &wqe->lock
-io_cancel_task_cb  // &ctx->completion_lock
+This is caused by calling io_cqring_overflow_flush() which may sleep
+after calling prepare_to_wait_exclusive() which set task state to
+TASK_INTERRUPTIBLE
 
-Only __io_queue_deferred() calls queue_async_work() while holding
-ctx->completion_lock, enqueue drained requests via io_req_task_queue()
-instead.
-
-Cc: stable@vger.kernel.org # 5.9+
-Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io_uring.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ fs/io_uring.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bb0270eeb8cb..c218deaf73a9 100644
+index c07913ec0cca..3ca69a425182 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1026,6 +1026,7 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
- 			     const struct iovec *fast_iov,
- 			     struct iov_iter *iter, bool force);
- static void io_req_drop_files(struct io_kiocb *req);
-+static void io_req_task_queue(struct io_kiocb *req);
- 
- static struct kmem_cache *req_cachep;
- 
-@@ -1634,18 +1635,11 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
- 	do {
- 		struct io_defer_entry *de = list_first_entry(&ctx->defer_list,
- 						struct io_defer_entry, list);
--		struct io_kiocb *link;
- 
- 		if (req_need_defer(de->req, de->seq))
+@@ -7266,14 +7266,18 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 						TASK_INTERRUPTIBLE);
+ 		/* make sure we run task_work before checking for signals */
+ 		ret = io_run_task_work_sig();
+-		if (ret > 0)
++		if (ret > 0) {
++			finish_wait(&ctx->wait, &iowq.wq);
+ 			continue;
++		}
+ 		else if (ret < 0)
  			break;
- 		list_del_init(&de->list);
--		/* punt-init is done before queueing for defer */
--		link = __io_queue_async_work(de->req);
--		if (link) {
--			__io_queue_linked_timeout(link);
--			/* drop submission reference */
--			io_put_req_deferred(link, 1);
--		}
-+		io_req_task_queue(de->req);
- 		kfree(de);
- 	} while (!list_empty(&ctx->defer_list));
- }
+ 		if (io_should_wake(&iowq))
+ 			break;
+-		if (test_bit(0, &ctx->cq_check_overflow))
++		if (test_bit(0, &ctx->cq_check_overflow)) {
++			finish_wait(&ctx->wait, &iowq.wq);
+ 			continue;
++		}
+ 		if (uts) {
+ 			timeout = schedule_timeout(timeout);
+ 			if (timeout == 0) {
 -- 
-2.24.0
+1.8.3.1
 

@@ -2,109 +2,84 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76BCFC433E0
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:45:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D0AAC433DB
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:48:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 258152070E
-	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:45:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73EEB2070E
+	for <io-uring@archiver.kernel.org>; Wed, 27 Jan 2021 04:48:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239531AbhA0EpW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 26 Jan 2021 23:45:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47464 "EHLO
+        id S239537AbhA0Epe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 26 Jan 2021 23:45:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404881AbhA0BaH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 20:30:07 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A02C061573
-        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 17:21:03 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id bl23so360338ejb.5
-        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 17:21:02 -0800 (PST)
+        with ESMTP id S238211AbhA0EIy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 26 Jan 2021 23:08:54 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BF3C061574
+        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 20:08:14 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id e9so322382plh.3
+        for <io-uring@vger.kernel.org>; Tue, 26 Jan 2021 20:08:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=E1J5IbK1qJkJLAPW4JmpxIn448hVPrPljrY0olmejHU=;
-        b=FTpueQ/OmBNFsCvdDYpcKI45VJiKFWM4slkiJPvyG2kphTlyD/UI2aeYv07kcJyUoh
-         RS9+QkW9lpqvIgIEu3FbSEwrpW1gNBjRZ9I3+1cRLyFWhhqFPonCoQQdCehUZGiRH7Ig
-         RJIMu729tbe9Ivg20Lk1aTMrk+1UAYbYpfOUb3tJGQAyMGFqFPqbrsbo+pp8ZhN73gtO
-         NX9e2lsUV1qOHqsNDgTbRK9DQVo+0kF6hIZ7qgVmLFeFcQze/u6VlDLl/EP4ebdT8FME
-         DCr1WX+LMJDbVP6wIjPaOtP5xVofwJILsLlK2QcKoPhjPbTErD80WorfE4A+iZEAqWTA
-         BEOg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=dLyCfl6iCIIkk0yBY2vHqjGKZ31t4a/+Ul/7AnsPjts=;
+        b=Ien0qjbDATPCECLDNRvKnU3Ap3haj23K7w/Zo67Ju+ri1XOr6Xqr79NkYvXKzOZe2i
+         p5VkmH4NrvMa7kJDpEj5zwJ1RqFwKVNyVTY4SUGKAESJeG6X9RjE/ix0zw5cH68OJpaH
+         223l0HD8N7CZd2ZlmVlFKoGskBKkvjPL2wnNEsK3tg9J3VXGD17I0eXxzc3jHL5ntcaW
+         fs7oBOHV9aeDFvzGgRvUePVMivys/nl6ZrQ37IULcRWsMqYrjbni5QYL7vH/oTrIb1nQ
+         S6m+uJKWNTYTMLfetkonVmfiBQo3cf8mxVGuRQ4nKI2kStCwRe1zSoi94QzDY0ktIFgw
+         rcUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=E1J5IbK1qJkJLAPW4JmpxIn448hVPrPljrY0olmejHU=;
-        b=THRiDRBH03q/9dItKfJkLho8Y/3FBwwxmFUoBrMTmmLpek2x71JNfRj4OtwUxi+AqX
-         Ie9hLiD4QhufnvcU6l+WSgJ5ufLIcF7t9nbdblNWVP59ia0RW1473/Jf7IQREgMA1hbx
-         jCdQJya3S7dsvOHkbtkCYJ5QPjc7O0p8yXvxa7GDZ/PRjQhjFBd5efpbLZl71p/mrFbc
-         D5GJdZ6tYt9eiJDl5YEnCfw3K2LIn+TTYyeDHHp76LgWyAgSZaf5Ft8lxDXdygTQr8vU
-         3M3/GSwR/aB7RTeY4y81s46Cha2VdWkcneCQsHi5h3nJEbW/Ywx0h6EMQrEeTXSaanti
-         FfZg==
-X-Gm-Message-State: AOAM533lfnHPom8aTFc8J0BKg3r7TbU3/Gz9gkRuDPzvpNTVB7xpbJGU
-        vQFuT8DMQluRNVseyyWwv4I=
-X-Google-Smtp-Source: ABdhPJwNiXU8i1yYXoQSwGGKacLqSzpsGyBSO6XG2+3Y7aN3m4Nae8waaQwxAspDvLeMhGv9SO7Alw==
-X-Received: by 2002:a17:906:6d0e:: with SMTP id m14mr4990593ejr.285.1611710461821;
-        Tue, 26 Jan 2021 17:21:01 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id i26sm278933eds.55.2021.01.26.17.21.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 17:21:01 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH] MAINTAINERS: update io_uring section
-Date:   Wed, 27 Jan 2021 01:17:13 +0000
-Message-Id: <4f7860f785c308d7341302b70a0e8a975586f611.1611710197.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=dLyCfl6iCIIkk0yBY2vHqjGKZ31t4a/+Ul/7AnsPjts=;
+        b=nWuJefLQpmwYo+VBQUN8K24tCYc/RPZhET/hzSMBbEtnwmnfc8ncy4vAF82hiO906Z
+         b0DZHigd0I7wUpvsDtLk0g8d6qItK6ZoIhKYspXgKxZJkCiVQBAVzPpZ42Sb7WEsdmnB
+         D0WheDHxpPqwQvMEhREmtic0iRK0yGhyEkFXSKh7m41Q7+fmHFb5lM1H4YGGPQk79avX
+         QSMzkZp1omdbjOcQnqCGbQyZmyhPK/3dX78ESZNdKrtqFBOJ5r251QftUmgeHPybhKC+
+         7pUP7yae5kkw0WM12bTjNdsYYxj3NOL6XfA8k7Obv/YGNiB5osL7iNWjJmPMAVpYMb5I
+         C+IQ==
+X-Gm-Message-State: AOAM533YBetRiy6vfnwRHyDDtHq9ADmYSdrGPKWXl8DEWi6yH9si4i15
+        pLSebvkVQqeiL9IV1j59lyoOrkYMMD+wwg==
+X-Google-Smtp-Source: ABdhPJzONkPoL+kKcLX7Brz2eobmqAhsoCBYoL5X5XHnxmCBKlYH1o8KNYRG6N7evXab/1LKaO6wrA==
+X-Received: by 2002:a17:90a:4803:: with SMTP id a3mr3589425pjh.122.1611720493694;
+        Tue, 26 Jan 2021 20:08:13 -0800 (PST)
+Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id b6sm447734pgt.69.2021.01.26.20.08.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Jan 2021 20:08:12 -0800 (PST)
+Subject: Re: [PATCH v2] MAINTAINERS: update io_uring section
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <4a6a96702bfef97cb5e6c8e7b5f05074d001a484.1611710680.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <37700cc3-88ef-4b57-2ad4-004c136dc68f@kernel.dk>
+Date:   Tue, 26 Jan 2021 21:08:11 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <4a6a96702bfef97cb5e6c8e7b5f05074d001a484.1611710680.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-- add a missing file
-- add a reviewer
-- don't spam fsdevel
+On 1/26/21 6:25 PM, Pavel Begunkov wrote:
+> - add a missing file
+> - add a reviewer
+> - don't spam fsdevel
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- MAINTAINERS | 3 +++
- 1 file changed, 3 insertions(+)
+Applied, with an actual commit message :-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 992fe3b0900a..f3accf0f63f9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6858,6 +6858,7 @@ M:	Alexander Viro <viro@zeniv.linux.org.uk>
- L:	linux-fsdevel@vger.kernel.org
- S:	Maintained
- F:	fs/*
-+X:	fs/io_uring.c
- F:	include/linux/fs.h
- F:	include/linux/fs_types.h
- F:	include/uapi/linux/fs.h
-@@ -9297,6 +9298,7 @@ F:	include/uapi/linux/iommu.h
- 
- IO_URING
- M:	Jens Axboe <axboe@kernel.dk>
-+R:	Pavel Begunkov <asml.silence@gmail.com>
- L:	io-uring@vger.kernel.org
- S:	Maintained
- T:	git git://git.kernel.dk/linux-block
-@@ -9304,6 +9306,7 @@ T:	git git://git.kernel.dk/liburing
- F:	fs/io-wq.c
- F:	fs/io-wq.h
- F:	fs/io_uring.c
-+F:	include/linux/io_uring.h
- F:	include/uapi/linux/io_uring.h
- 
- IPMI SUBSYSTEM
 -- 
-2.24.0
+Jens Axboe
 

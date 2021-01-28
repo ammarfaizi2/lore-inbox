@@ -2,184 +2,173 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B2C4C433E9
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:33:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A58C433E0
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 18:39:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EA40F64E10
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:33:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36E3164E01
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 18:39:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbhA1Rdq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Jan 2021 12:33:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233083AbhA1R0X (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 12:26:23 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DB4C061793
-        for <io-uring@vger.kernel.org>; Thu, 28 Jan 2021 09:25:42 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id g15so4729052pjd.2
-        for <io-uring@vger.kernel.org>; Thu, 28 Jan 2021 09:25:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=5yVwM4UHL0nLSJMEu4SR8QYX3bM5QYXnhGMceAQjA6U=;
-        b=uZS+4qQAtMzCLRNFXkB4Y07EZcr5oJ3ZhhYS7dcVJzZG4PUEEvOr7HO+4VeObyABDa
-         SIo8usrHRJS+oiRB2N1I4Cfd5eRKwcYMDG0nJR2jzbRMSrvLCLucI0T3bGjbM5D9nxtH
-         /V2swBq5IFsFwQScP+3fgFkidqE92r5DpIcZZeNsyT7nm7ufu7DUemWeetEWSc5S45aV
-         10juggFzX/uRCiEoHNEIMlZqrsdWmf2lpDIXlqJRv0c4LJCkvt7O6QURlUhQPy04cAp8
-         FhIENlLUoe6EPPnAcmLdIIwx/dNVU8q2t2SpLA+sWnHqjZsrdsxwobwbNQXw03+eIjZZ
-         FF1w==
+        id S231956AbhA1SjK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Jan 2021 13:39:10 -0500
+Received: from mail-pj1-f47.google.com ([209.85.216.47]:33104 "EHLO
+        mail-pj1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231531AbhA1Sh0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 13:37:26 -0500
+Received: by mail-pj1-f47.google.com with SMTP id lw17so5174959pjb.0
+        for <io-uring@vger.kernel.org>; Thu, 28 Jan 2021 10:37:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=5yVwM4UHL0nLSJMEu4SR8QYX3bM5QYXnhGMceAQjA6U=;
-        b=Kn9KlPs6VSmESsKSJdilzuqVLCAmjISrtXof/IEG8vQhkUjP0E32N1l3msCVy2DVPp
-         yVLeoe5b3mAgGU1lIT5C3oRFBYMooZ+jJhGv38YysVceDCH69kv5+fUCa0RLG+bxazJH
-         IEoIrRkWCnqVWqglvMkyysXOgd+sFKQASVP+4yZP1rgZieE+yVZqk0kvm+uv+sx/cYNQ
-         +RmfXYPVcxw28wyTjNBFLm2JvGiqG6Wzn42VzsN6QocekZH1rfAzFHdvjaZLRR/tG0+3
-         kn4ua3NxotkYkIID3e6w0w6e38+ic41A5mOKowOpfjcHDvAqn0j5dzGVtzTxEvMrDj3C
-         /XIg==
-X-Gm-Message-State: AOAM530+DOb/oTEZIMofeGrETrgoeJeD7Pl+GQYVXO/hkcRTdwwDf0xc
-        5FtMD/yFnz1W3rB9bM7UcB07rw==
-X-Google-Smtp-Source: ABdhPJyCkrcPDvEyZjpYU7mZ6x+GvZJaOPMDuA4z7M/0GhU0CEAhIcu2N5Or42HVk5YqHxXymjDi6g==
-X-Received: by 2002:a17:902:6543:b029:e1:1758:649f with SMTP id d3-20020a1709026543b02900e11758649fmr580270pln.38.1611854741667;
-        Thu, 28 Jan 2021 09:25:41 -0800 (PST)
-Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id z29sm6300607pfk.67.2021.01.28.09.25.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 09:25:41 -0800 (PST)
-Subject: Re: BUG: corrupted list in io_file_get
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        syzbot <syzbot+6879187cf57845801267@syzkaller.appspotmail.com>,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
-        viro@zeniv.linux.org.uk
-References: <000000000000ab74fb05b9f8cb0a@google.com>
- <944c4b9b-9c83-3167-fd43-d5118fdc2e0e@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <7dfb62b3-0821-5203-b34f-4400e0b1152d@kernel.dk>
-Date:   Thu, 28 Jan 2021 10:25:39 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        bh=g5YFZge2ATjblIIwSQhf82b4H7N6/Rm5PzpjONcfd7w=;
+        b=EywVP6dg11oHXKjMgXajX3/2YgNBdoRC7r/E4Lk3EnFcoC4xUFFg3kh+r83JpzVh9Y
+         yYeHVQNTDy0S08HD1lliLEW/UCi2f7xgrzmN1hgCjY4gt5HVPKoeLreIyaahfivKLx21
+         YsHHfbMd9RFMKCSVoTFQtJQRiaTHWikDLplHeLtvUurf497WD3Cg8bIFxEZNRpu85XQZ
+         Kd7WuKCTtv1VkfV8s+RAL2dP9eU/AW4qRmXrM4fzSyO26+dPTErz6QMHTiA1jBLBFdsg
+         J4Rbu3D6Zaa+pkEI6fakl64pqH022DQNyCwIieyy2BZsJzsHkkEh3ruH1DE4rKk8cpyg
+         2Y5g==
+X-Gm-Message-State: AOAM533i3LiGbEMzgtdtzTvvmSu+VLHPeLSyY6lA/3Y7AMvQBrgJqXq7
+        1jMxWrnG8IBcdjQnqqhTbSb8Tu6T8fk=
+X-Google-Smtp-Source: ABdhPJwgj8i8NXOljLaGzp7ayB/K/oaIN3mKrYCuqgANYMOQifM7A2VoLWs/uQl8asuCaGrUiIH7xw==
+X-Received: by 2002:a17:90a:9302:: with SMTP id p2mr649884pjo.213.1611859005426;
+        Thu, 28 Jan 2021 10:36:45 -0800 (PST)
+Received: from asus.hsd1.ca.comcast.net ([2601:647:4000:d7:7c24:d56f:a477:c88a])
+        by smtp.gmail.com with ESMTPSA id a20sm6441954pfo.104.2021.01.28.10.36.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Jan 2021 10:36:44 -0800 (PST)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH] io_uring: Optimize and improve the hot path
+Date:   Thu, 28 Jan 2021 10:36:37 -0800
+Message-Id: <20210128183637.7188-1-bvanassche@acm.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-In-Reply-To: <944c4b9b-9c83-3167-fd43-d5118fdc2e0e@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 1/28/21 10:12 AM, Pavel Begunkov wrote:
-> On 28/01/2021 16:58, syzbot wrote:
->> Hello,
->>
->> syzbot found the following issue on:
->>
->> HEAD commit:    76c057c8 Merge branch 'parisc-5.11-2' of git://git.kernel...
->> git tree:       upstream
->> console output: https://syzkaller.appspot.com/x/log.txt?x=11959454d00000
->> kernel config:  https://syzkaller.appspot.com/x/.config?x=96b123631a6700e9
->> dashboard link: https://syzkaller.appspot.com/bug?extid=6879187cf57845801267
->> compiler:       gcc (GCC) 10.1.0-syz 20200507
->> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12a3872cd00000
->> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16ab17a4d00000
->>
->> The issue was bisected to:
->>
->> commit 02a13674fa0e8dd326de8b9f4514b41b03d99003
->> Author: Jens Axboe <axboe@kernel.dk>
->> Date:   Sat Jan 23 22:49:31 2021 +0000
->>
->>     io_uring: account io_uring internal files as REQ_F_INFLIGHT
->>
->> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=14d1bf44d00000
->> final oops:     https://syzkaller.appspot.com/x/report.txt?x=16d1bf44d00000
->> console output: https://syzkaller.appspot.com/x/log.txt?x=12d1bf44d00000
->>
->> IMPORTANT: if you fix the issue, please add the following tag to the commit:
->> Reported-by: syzbot+6879187cf57845801267@syzkaller.appspotmail.com
->> Fixes: 02a13674fa0e ("io_uring: account io_uring internal files as REQ_F_INFLIGHT")
->>
->> list_add double add: new=ffff888017eaa080, prev=ffff88801a9cb520, next=ffff888017eaa080.
->> ------------[ cut here ]------------
->> kernel BUG at lib/list_debug.c:29!
->> invalid opcode: 0000 [#1] PREEMPT SMP KASAN
->> CPU: 0 PID: 8481 Comm: syz-executor556 Not tainted 5.11.0-rc5-syzkaller #0
->> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->> RIP: 0010:__list_add_valid.cold+0x26/0x3c lib/list_debug.c:29
->> Code: 04 c3 fb fa 4c 89 e1 48 c7 c7 e0 de 9e 89 e8 9e 43 f3 ff 0f 0b 48 89 f2 4c 89 e1 48 89 ee 48 c7 c7 20 e0 9e 89 e8 87 43 f3 ff <0f> 0b 48 89 f1 48 c7 c7 a0 df 9e 89 4c 89 e6 e8 73 43 f3 ff 0f 0b
->> RSP: 0018:ffffc90000fef938 EFLAGS: 00010086
->> RAX: 0000000000000058 RBX: ffff888017eaa000 RCX: 0000000000000000
->> RDX: ffff88801f3ed340 RSI: ffffffff815b6285 RDI: fffff520001fdf19
->> RBP: ffff888017eaa080 R08: 0000000000000058 R09: 0000000000000000
->> R10: ffffffff815af45e R11: 0000000000000000 R12: ffff888017eaa080
->> R13: ffff888014901900 R14: ffff88801a9cb000 R15: ffff88801a9cb520
->> FS:  0000000002395880(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 00007ff04f95b6c0 CR3: 000000001a4f2000 CR4: 0000000000350ef0
->> Call Trace:
->>  __list_add include/linux/list.h:67 [inline]
->>  list_add include/linux/list.h:86 [inline]
->>  io_file_get+0x8cc/0xdb0 fs/io_uring.c:6466
->>  __io_splice_prep+0x1bc/0x530 fs/io_uring.c:3866
->>  io_splice_prep fs/io_uring.c:3920 [inline]
->>  io_req_prep+0x3546/0x4e80 fs/io_uring.c:6081
->>  io_queue_sqe+0x609/0x10d0 fs/io_uring.c:6628
->>  io_submit_sqe fs/io_uring.c:6705 [inline]
->>  io_submit_sqes+0x1495/0x2720 fs/io_uring.c:6953
->>  __do_sys_io_uring_enter+0x107d/0x1f30 fs/io_uring.c:9353
->>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
->>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->> RIP: 0033:0x440569
->> Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
->> RSP: 002b:00007ffe38c5c5a8 EFLAGS: 00000246 ORIG_RAX: 00000000000001aa
->> RAX: ffffffffffffffda RBX: 0000000000401e00 RCX: 0000000000440569
->> RDX: 0000000000000000 RSI: 000000000000450c RDI: 0000000000000004
->> RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
->> R10: 0000000000000002 R11: 0000000000000246 R12: 0000000000401d70
->> R13: 0000000000401e00 R14: 0000000000000000 R15: 0000000000000000
->> Modules linked in:
->> ---[ end trace 3c68392a0f24e7a0 ]---
->> RIP: 0010:__list_add_valid.cold+0x26/0x3c lib/list_debug.c:29
->> Code: 04 c3 fb fa 4c 89 e1 48 c7 c7 e0 de 9e 89 e8 9e 43 f3 ff 0f 0b 48 89 f2 4c 89 e1 48 89 ee 48 c7 c7 20 e0 9e 89 e8 87 43 f3 ff <0f> 0b 48 89 f1 48 c7 c7 a0 df 9e 89 4c 89 e6 e8 73 43 f3 ff 0f 0b
->> RSP: 0018:ffffc90000fef938 EFLAGS: 00010086
->> RAX: 0000000000000058 RBX: ffff888017eaa000 RCX: 0000000000000000
->> RDX: ffff88801f3ed340 RSI: ffffffff815b6285 RDI: fffff520001fdf19
->> RBP: ffff888017eaa080 R08: 0000000000000058 R09: 0000000000000000
->> R10: ffffffff815af45e R11: 0000000000000000 R12: ffff888017eaa080
->> R13: ffff888014901900 R14: ffff88801a9cb000 R15: ffff88801a9cb520
->> FS:  0000000002395880(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 00007ff04f95b6c0 CR3: 000000001a4f2000 CR4: 0000000000350ef0
-> 
-> This one is simple
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index ae388cc52843..39ae1f821cef 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -6460,7 +6460,8 @@ static struct file *io_file_get(struct io_submit_state *state,
->  		file = __io_file_get(state, fd);
->  	}
->  
-> -	if (file && file->f_op == &io_uring_fops) {
-> +	if (file && file->f_op == &io_uring_fops &&
-> +	    !(req->flags & REQ_F_INFLIGHT)) {
->  		io_req_init_async(req);
->  		req->flags |= REQ_F_INFLIGHT;
+The improvements in this patch are as follows:
+- Change several memory barriers into load acquire / store release
+  instructions since the latter are faster.
+- Ensure that the completion has been reaped from use space by
+  using smp_load_acquire() in __io_cqring_events(). Preceding
+  __io_cqring_events() with smp_rmb() is not sufficient because the CPU
+  may reorder READ_ONCE() in __io_cqring_events() with later memory
+  accesses.
+- Fix a race between the WRITE_ONCE(req->iopoll_completed, 1) in
+  io_complete_rw_iopoll() and req->iopoll_completed = 0 in
+  io_sqring_entries() by reading req->iopoll_completed before comparing
+  req->result with -EAGAIN.
 
-Curious, how is it marked in-flight already? Ah it's splice... Pavel,
-can you send the fix for this one?
+This patch has been tested by running the liburing test suite.
 
--- 
-Jens Axboe
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ fs/io_uring.c | 32 +++++++++++---------------------
+ 1 file changed, 11 insertions(+), 21 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c07913ec0cca..2fff7250f0b1 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1727,9 +1727,9 @@ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+ 	return io_wq_current_is_worker();
+ }
+ 
+-static inline unsigned __io_cqring_events(struct io_ring_ctx *ctx)
++static inline unsigned io_cqring_events(struct io_ring_ctx *ctx)
+ {
+-	return ctx->cached_cq_tail - READ_ONCE(ctx->rings->cq.head);
++	return ctx->cached_cq_tail - smp_load_acquire(&ctx->rings->cq.head);
+ }
+ 
+ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+@@ -1778,7 +1778,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 	bool all_flushed;
+ 	LIST_HEAD(list);
+ 
+-	if (!force && __io_cqring_events(ctx) == rings->cq_ring_entries)
++	if (!force && io_cqring_events(ctx) == rings->cq_ring_entries)
+ 		return false;
+ 
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
+@@ -2385,13 +2385,6 @@ static void io_double_put_req(struct io_kiocb *req)
+ 		io_free_req(req);
+ }
+ 
+-static unsigned io_cqring_events(struct io_ring_ctx *ctx)
+-{
+-	/* See comment at the top of this file */
+-	smp_rmb();
+-	return __io_cqring_events(ctx);
+-}
+-
+ static inline unsigned int io_sqring_entries(struct io_ring_ctx *ctx)
+ {
+ 	struct io_rings *rings = ctx->rings;
+@@ -2457,15 +2450,13 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 	struct io_kiocb *req;
+ 	LIST_HEAD(again);
+ 
+-	/* order with ->result store in io_complete_rw_iopoll() */
+-	smp_rmb();
+-
+ 	io_init_req_batch(&rb);
+ 	while (!list_empty(done)) {
+ 		int cflags = 0;
+ 
+ 		req = list_first_entry(done, struct io_kiocb, inflight_entry);
+-		if (READ_ONCE(req->result) == -EAGAIN) {
++		if (smp_load_acquire(&req->iopoll_completed) &&
++		    req->result == -EAGAIN) {
+ 			req->result = 0;
+ 			req->iopoll_completed = 0;
+ 			list_move_tail(&req->inflight_entry, &again);
+@@ -2514,7 +2505,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 		 * If we find a request that requires polling, break out
+ 		 * and complete those lists first, if we have entries there.
+ 		 */
+-		if (READ_ONCE(req->iopoll_completed)) {
++		if (smp_load_acquire(&req->iopoll_completed)) {
+ 			list_move_tail(&req->inflight_entry, &done);
+ 			continue;
+ 		}
+@@ -2526,7 +2517,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 			break;
+ 
+ 		/* iopoll may have completed current req */
+-		if (READ_ONCE(req->iopoll_completed))
++		if (smp_load_acquire(&req->iopoll_completed))
+ 			list_move_tail(&req->inflight_entry, &done);
+ 
+ 		if (ret && spin)
+@@ -2767,10 +2758,9 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
+ 	if (res != -EAGAIN && res != req->result)
+ 		req_set_fail_links(req);
+ 
+-	WRITE_ONCE(req->result, res);
+-	/* order with io_poll_complete() checking ->result */
+-	smp_wmb();
+-	WRITE_ONCE(req->iopoll_completed, 1);
++	req->result = res;
++	/* order with io_poll_complete() checking ->iopoll_completed */
++	smp_store_release(&req->iopoll_completed, 1);
+ }
+ 
+ /*
+@@ -2803,7 +2793,7 @@ static void io_iopoll_req_issued(struct io_kiocb *req, bool in_async)
+ 	 * For fast devices, IO may have already completed. If it has, add
+ 	 * it to the front so we find it first.
+ 	 */
+-	if (READ_ONCE(req->iopoll_completed))
++	if (smp_load_acquire(&req->iopoll_completed))
+ 		list_add(&req->inflight_entry, &ctx->iopoll_list);
+ 	else
+ 		list_add_tail(&req->inflight_entry, &ctx->iopoll_list);

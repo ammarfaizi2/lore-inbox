@@ -2,118 +2,161 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AA66C433DB
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A62F9C433DB
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:17:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC11D64DE5
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:07:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FFEB64DA1
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 17:17:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232578AbhA1RGn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Jan 2021 12:06:43 -0500
-Received: from mail-il1-f200.google.com ([209.85.166.200]:41204 "EHLO
-        mail-il1-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbhA1RAH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 12:00:07 -0500
-Received: by mail-il1-f200.google.com with SMTP id g14so5232982ilk.8
-        for <io-uring@vger.kernel.org>; Thu, 28 Jan 2021 08:59:51 -0800 (PST)
+        id S232673AbhA1RRG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Jan 2021 12:17:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49318 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232237AbhA1ROj (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 12:14:39 -0500
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98780C06178A;
+        Thu, 28 Jan 2021 09:13:55 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id j18so4920615wmi.3;
+        Thu, 28 Jan 2021 09:13:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7SlUdwnPEQ27NCqhpgbYeyZWdUr/hbFxWqlJ+t74Kk8=;
+        b=ZC610tgYYf3cXDd+K9835SRwKWS9h9WUHGCpEUZ6linSddg1wSPgVUjUNMN6mpS1Xm
+         c4RrThuc6ArJUvlpnCsDOLiTLXxwP4gT29yqtbht4QP3gi5mE1lN6atmRBYG5NOiIKd1
+         UhbGMFx8WThSp9iqxgoxo/aLM4qGLH8FwsrhUGC7qHZZCD6xm1tQMuyj2HAydcxCz3uI
+         zskopGXRLz1XCgVbA2eQnIP2B5tmj8BCKRe8kXTgUz3M5QuORrsxvnYibguygGOosJF4
+         8a6/v6PxOY926xVk3IVjtF+tjo+vcHysccUiuGX/6NIZCEvi7yotZrDMKGZbLUbe4IFg
+         I9PA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=gQFohrmbf+cd0YVpsCNOhBWiIWwJx9a6ZCiwkwVvh8Y=;
-        b=rVURn39pOYIlGKk2Yj4hccZj5yoKFRINE25MIXGpKHXiDjhJOZnrDQT8De26FyjmKx
-         iF91tamz588ZqHrazoXer8nJKjtPdF53kl7CUphNTUUXBjE2FymB07B91MkuUx9Fxcuk
-         w7Tr/2go1AE108oFlW53wolB/hTh0NEe4ct8G1cBWUikdp0pXC9IxjZdL1yazFWPmIkn
-         M8kDm5vEpofQzJEsp5jsvQgwKu/9i3MPuEo9N+1GIAkbUsUTD6heiTv2Cfd0CAWJC4a8
-         N2vNGmITvARS2qZkXA3WGWYsKz6HHWP7pG1ox41Q3h5s/Ue7HVaonFPUqqHRdpMsSKDV
-         BYuw==
-X-Gm-Message-State: AOAM533TCw7q3PevzVXEZ5HYLaRVfmVdruRXzr5z61QSDbhiFZoQrLJM
-        d4LRR/2dfQfezqF/+CtEKiaCLqTczaGcv4butkylXPebA+3Z
-X-Google-Smtp-Source: ABdhPJxMRMYhF4gC5o3nvyulFZ6GHNErteB7j8tLv50pS7pZvIbbn0xI4qZ9smkYlQYHqD2gtavpw02Jla+Qir5Hpr63RuZvWHIV
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7SlUdwnPEQ27NCqhpgbYeyZWdUr/hbFxWqlJ+t74Kk8=;
+        b=FDUgEWyyvfydp0FdVc+3MX2rp5wGM+BOfQLAvVfTI/t3ulYktL0RwFaOklv8m4dokA
+         ldIRNngS2Jq86oi3jJS9aEt0Zi2r/x+NzvwTv4DyDuq5azv1UMPzYP+QJunWuagjn2zt
+         b5oynm1l74gvSvX1/7cf3DXwf9d9e0LsRwBXnEFtAVN3AR4AwfSf4D8wEdWIXB5h1Ti5
+         SAxWn6chQIH4ANaHd2sUaQkDYVsElxHgUgsxkmjqXxDmYz2fnoBXrkZl0ICz/sm0T7aX
+         folWqigcFSRgNmdgm/6bbduEzT5UhEW8sE4AbRpaMC32tppaUfLz812vQ0IPQfKgVfW9
+         V/qw==
+X-Gm-Message-State: AOAM533VN/m670ub4v+5GrO9w6OAkhKLdCeJSpMKkm/JA5Bi2syhhrTc
+        p+zqCZZ3+J4ZS/pRPDytFrQNC5adui4STnY8/JUvnGiIyIY=
+X-Google-Smtp-Source: ABdhPJxXfXzFAr81U6woMH6ZlFCnx3rqdBDQvkZZfBp9Z6iPwsJ146GcYd//CXg+XfSzjLO8DPOg85PKnI4yVDcLSOo=
+X-Received: by 2002:a1c:5f54:: with SMTP id t81mr233174wmb.25.1611854034115;
+ Thu, 28 Jan 2021 09:13:54 -0800 (PST)
 MIME-Version: 1.0
-X-Received: by 2002:a6b:6e0c:: with SMTP id d12mr437951ioh.74.1611853165860;
- Thu, 28 Jan 2021 08:59:25 -0800 (PST)
-Date:   Thu, 28 Jan 2021 08:59:25 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000619ae405b9f8cf6e@google.com>
-Subject: WARNING in io_uring_cancel_task_requests
-From:   syzbot <syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com>
-To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <CGME20210127150134epcas5p251fc1de3ff3581dd4c68b3fbe0b9dd91@epcas5p2.samsung.com>
+ <20210127150029.13766-1-joshi.k@samsung.com> <489691ce-3b1e-30ce-9f72-d32389e33901@gmail.com>
+ <a287bd9e-3474-83a4-e5c2-98df17214dc7@gmail.com> <CA+1E3rJHHFyjwv7Kp32E9H-cf5ksh0pOHSVdGoTpktQrB8SE6A@mail.gmail.com>
+ <2d37d0ca-5853-4bb6-1582-551b9044040c@kernel.dk>
+In-Reply-To: <2d37d0ca-5853-4bb6-1582-551b9044040c@kernel.dk>
+From:   Kanchan Joshi <joshiiitr@gmail.com>
+Date:   Thu, 28 Jan 2021 22:43:26 +0530
+Message-ID: <CA+1E3rKeqaLXBuvpMcjZ37XH9RqJHjPnTFObJj0T-u8K9Otw-w@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/4] Asynchronous passthrough ioctl
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Kanchan Joshi <joshi.k@samsung.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, sagi@grimberg.me,
+        linux-nvme@lists.infradead.org, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Javier Gonzalez <javier.gonz@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Selvakumar S <selvakuma.s1@samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+On Thu, Jan 28, 2021 at 8:08 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 1/28/21 5:04 AM, Kanchan Joshi wrote:
+> > On Wed, Jan 27, 2021 at 9:32 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
+> >>
+> >> On 27/01/2021 15:42, Pavel Begunkov wrote:
+> >>> On 27/01/2021 15:00, Kanchan Joshi wrote:
+> >>>> This RFC patchset adds asynchronous ioctl capability for NVMe devices.
+> >>>> Purpose of RFC is to get the feedback and optimize the path.
+> >>>>
+> >>>> At the uppermost io-uring layer, a new opcode IORING_OP_IOCTL_PT is
+> >>>> presented to user-space applications. Like regular-ioctl, it takes
+> >>>> ioctl opcode and an optional argument (ioctl-specific input/output
+> >>>> parameter). Unlike regular-ioctl, it is made to skip the block-layer
+> >>>> and reach directly to the underlying driver (nvme in the case of this
+> >>>> patchset). This path between io-uring and nvme is via a newly
+> >>>> introduced block-device operation "async_ioctl". This operation
+> >>>> expects io-uring to supply a callback function which can be used to
+> >>>> report completion at later stage.
+> >>>>
+> >>>> For a regular ioctl, NVMe driver submits the command to the device and
+> >>>> the submitter (task) is made to wait until completion arrives. For
+> >>>> async-ioctl, completion is decoupled from submission. Submitter goes
+> >>>> back to its business without waiting for nvme-completion. When
+> >>>> nvme-completion arrives, it informs io-uring via the registered
+> >>>> completion-handler. But some ioctls may require updating certain
+> >>>> ioctl-specific fields which can be accessed only in context of the
+> >>>> submitter task. For that reason, NVMe driver uses task-work infra for
+> >>>> that ioctl-specific update. Since task-work is not exported, it cannot
+> >>>> be referenced when nvme is compiled as a module. Therefore, one of the
+> >>>> patch exports task-work API.
+> >>>>
+> >>>> Here goes example of usage (pseudo-code).
+> >>>> Actual nvme-cli source, modified to issue all ioctls via this opcode
+> >>>> is present at-
+> >>>> https://github.com/joshkan/nvme-cli/commit/a008a733f24ab5593e7874cfbc69ee04e88068c5
+> >>>
+> >>> see https://git.kernel.dk/cgit/linux-block/log/?h=io_uring-fops
+> >>>
+> >>> Looks like good time to bring that branch/discussion back
+> >>
+> >> a bit more context:
+> >> https://github.com/axboe/liburing/issues/270
+> >
+> > Thanks, it looked good. It seems key differences (compared to
+> > uring-patch that I posted) are -
+> > 1. using file-operation instead of block-dev operation.
+>
+> Right, it's meant to span wider than just block devices.
+>
+> > 2. repurpose the sqe memory for ioctl-cmd. If an application does
+> > ioctl with <=40 bytes of cmd, it does not have to allocate ioctl-cmd.
+> > That's nifty. We still need to support passing larger-cmd (e.g.
+> > nvme-passthru ioctl takes 72 bytes) but that shouldn't get too
+> > difficult I suppose.
+>
+> It's actually 48 bytes in the as-posted version, and I've bumped it to
+> 56 bytes in the latest branch. So not quite enough for everything,
+> nothing ever will be, but should work for a lot of cases without
+> requiring per-command allocations just for the actual command.
 
-syzbot found the following issue on:
+Agreed. But if I got it right, you are open to support both in-the-sqe
+command (<= 56 bytes) and out-of-sqe command (> 56 bytes) with this
+interface.
+Driver processing the ioctl can fetch the cmd from user-space in one
+case (as it does now), and skips in another.
 
-HEAD commit:    d03154e8 Add linux-next specific files for 20210128
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=159d08a0d00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=6953ffb584722a1
-dashboard link: https://syzkaller.appspot.com/bug?extid=3e3d9bd0c6ce9efbc3ef
-compiler:       gcc (GCC) 10.1.0-syz 20200507
+> > And for some ioctls, driver may still need to use task-work to update
+> > the user-space pointers (embedded in uring/ioctl cmd) during
+> > completion.
+> >
+> > @Jens - will it be fine if I start looking at plumbing nvme-part of
+> > this series on top of your work?
+>
+> Sure, go ahead. Just beware that things are still changing, so you might
+> have to adapt it a few times. It's still early days, but I do think
+> that's the way forward in providing controlled access to what is
+> basically async ioctls.
 
-Unfortunately, I don't have any reproducer for this issue yet.
+Sounds good, I will start with the latest branch that you posted. Thanks.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 21359 at fs/io_uring.c:9042 io_uring_cancel_task_requests+0xe55/0x10c0 fs/io_uring.c:9042
-Modules linked in:
-CPU: 0 PID: 21359 Comm: syz-executor.0 Not tainted 5.11.0-rc5-next-20210128-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:io_uring_cancel_task_requests+0xe55/0x10c0 fs/io_uring.c:9042
-Code: 00 00 e9 1c fe ff ff 48 8b 7c 24 18 e8 f4 b4 da ff e9 f2 fc ff ff 48 8b 7c 24 18 e8 e5 b4 da ff e9 64 f2 ff ff e8 eb 16 97 ff <0f> 0b e9 ed f2 ff ff e8 df b4 da ff e9 c8 f5 ff ff 4c 89 ef e8 52
-RSP: 0018:ffffc9000c5a7950 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff88806e79f000 RCX: 0000000000000000
-RDX: ffff88806c9d5400 RSI: ffffffff81dbfe65 RDI: ffff88806e79f0d0
-RBP: ffff88806e79f0e8 R08: 0000000000000000 R09: ffff88806c9d5407
-R10: ffffffff81dbf0df R11: 0000000000000000 R12: ffff88806e79f000
-R13: ffff88806c9d5400 R14: ffff88801cdbb800 R15: ffff88802a151018
-FS:  0000000000000000(0000) GS:ffff8880b9f00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000749138 CR3: 0000000011ffd000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- io_uring_flush+0x47b/0x6e0 fs/io_uring.c:9227
- filp_close+0xb4/0x170 fs/open.c:1295
- close_files fs/file.c:403 [inline]
- put_files_struct fs/file.c:418 [inline]
- put_files_struct+0x1cc/0x350 fs/file.c:415
- exit_files+0x7e/0xa0 fs/file.c:435
- do_exit+0xc22/0x2ae0 kernel/exit.c:820
- do_group_exit+0x125/0x310 kernel/exit.c:922
- get_signal+0x427/0x20f0 kernel/signal.c:2773
- arch_do_signal_or_restart+0x2a8/0x1eb0 arch/x86/kernel/signal.c:811
- handle_signal_work kernel/entry/common.c:147 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
- exit_to_user_mode_prepare+0x148/0x250 kernel/entry/common.c:201
- __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
- syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:302
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45e219
-Code: Unable to access opcode bytes at RIP 0x45e1ef.
-RSP: 002b:00007f33ed289be8 EFLAGS: 00000206 ORIG_RAX: 00000000000001a9
-RAX: 0000000000000004 RBX: 0000000020000200 RCX: 000000000045e219
-RDX: 0000000020ff8000 RSI: 0000000020000200 RDI: 0000000000002d38
-RBP: 000000000119c080 R08: 00000000200002c0 R09: 00000000200002c0
-R10: 0000000020000280 R11: 0000000000000206 R12: 0000000020ff8000
-R13: 0000000020ff1000 R14: 00000000200002c0 R15: 0000000020000280
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+-- 
+Kanchan

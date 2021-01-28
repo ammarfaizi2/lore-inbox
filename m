@@ -2,116 +2,110 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B499C433E9
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 18:46:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 043BFC433DB
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 22:18:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C8FC064E25
-	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 18:46:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFCCF64DEE
+	for <io-uring@archiver.kernel.org>; Thu, 28 Jan 2021 22:18:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231545AbhA1SqL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Jan 2021 13:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbhA1Sn4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 13:43:56 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC77C0613D6;
-        Thu, 28 Jan 2021 10:43:16 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id q7so6416717wre.13;
-        Thu, 28 Jan 2021 10:43:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=yP0udIqQ5N4s/ns7Vr5zMHUty7fjICCtXowNGmke6wI=;
-        b=CBcHSFFkDRsULzX1kuYr9rG2UQ5CS30IXB92gl9WMzYgKJKr3hs7teNApQAVLRtXyc
-         e+JnA5HVT9ZUrJa9qzrKsOD6vomNmg5fWbGokNeOp0svaZutdzAUBnp3FRxnrZXbQoXm
-         tyIlo1DbJ4r9nAk7l0KZvl6VBaBUshVSIeQf/bnNQoFJ/Qm1vnGbGbvQtciW1vHmr5t5
-         331SKw3UsPv5TtBWtbM7eYZ9WKoqhY9mMlwinFJ6Et9XkEN8ft7ZI3IO/vxIFDvHlnEW
-         GP6r+WMfuQLI0ovISLlg8xpPIa7xQXcH3xfYGkM/8TqQEZLi2gwtHRndZn0NBLnfQUyA
-         T/NA==
+        id S231196AbhA1WSD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Jan 2021 17:18:03 -0500
+Received: from mail-il1-f199.google.com ([209.85.166.199]:34745 "EHLO
+        mail-il1-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231174AbhA1WSB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Jan 2021 17:18:01 -0500
+Received: by mail-il1-f199.google.com with SMTP id c16so5992521ile.1
+        for <io-uring@vger.kernel.org>; Thu, 28 Jan 2021 14:17:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=yP0udIqQ5N4s/ns7Vr5zMHUty7fjICCtXowNGmke6wI=;
-        b=pEr2nrwqIDT45G3mvQ6iI635weAcOS7e318NpeWXXWvKrNFFEypS/dmU1hog2jmLxp
-         gLPHC66rdNVhVtORa//RC/dlbssU95cHD0dyCOQyJilC5VCDAi99TOR+A81ibVHzKMn2
-         CYYTxsYa6YyGSX8jTdd4ItKQNtCRQjO01IOPPdBKpCNf4a4toRfWzsgYT88yxWclrp+X
-         7GqeTu1PgRjH2OkbtQxm0FTmFVIOQM5hE02LyDAdVEf2QNfZjKFnz6P61qcyF6OblZNK
-         AvnJwAHV+4EuFqeCWxDjCpFL88C7v/xM24zvQH94kUcJPR6v7SUNv10HHvoMSLMUCS/X
-         cphA==
-X-Gm-Message-State: AOAM531TA2LDYHWRZd2HgLwUzZJYIc073d6rB8pfYjAR+RqjitoY/uAu
-        BRue8HBjfFv3mXPk3MlFZ0I=
-X-Google-Smtp-Source: ABdhPJxXxlr9TCNrRr80JXY/UhTCoiNZZrk2BxI1aBdoR3FRiOSkWYl6pz/I+N5JStBIMa0fPegyhQ==
-X-Received: by 2002:a05:6000:104f:: with SMTP id c15mr441512wrx.239.1611859395083;
-        Thu, 28 Jan 2021 10:43:15 -0800 (PST)
-Received: from localhost.localdomain ([148.252.132.131])
-        by smtp.gmail.com with ESMTPSA id y18sm7916386wrt.19.2021.01.28.10.43.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Jan 2021 10:43:14 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        syzbot+6879187cf57845801267@syzkaller.appspotmail.com
-Subject: [PATCH 1/2] io_uring: fix list corruption for splice file_get
-Date:   Thu, 28 Jan 2021 18:39:24 +0000
-Message-Id: <8cf8339c34948e837fc5236d75cd816e0931fe9b.1611859042.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1611859042.git.asml.silence@gmail.com>
-References: <cover.1611859042.git.asml.silence@gmail.com>
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=bm4A13bleoXfQHPA/Yuh/7a94hxryJfoV2u5z8MqU6A=;
+        b=pcTxZiqVz+KviVRNZaCEgUXjhmTLphDJ3e/MPOHjSY95/ufE+wCmbZiZKIVD5wSqvC
+         Tgir5dPRzhGR4cQvumptdpdfdmnJ7UWREYuShxrro6akci/nA4KGNs8t0CVZKuWXOuWL
+         PcCrV1Dv11Ob4/R7cxd3qdwp6ek46n0j6F+EoRJrVbImfw7bB+YYpXnAgnxeGi4RGP4I
+         oIUTqEIa7J19TtcV8lOWirkqEXnATPaoBWmKEfajs7+c3NM8r/gTS7tXh2u+rijeQcLn
+         h6ZfrKGbcvEfuHYhHbpY0z9ioUyUBLeC12Dm5q4Iw0sBP315Jlrv0Owg+EKVFty/yDEN
+         0a3g==
+X-Gm-Message-State: AOAM530ZyuT+wy4inXE1eXsVsIba1deK9k0nSYHNyP2fHGTg7H2q9x/A
+        ZZlE9PNdF3xz6XTGnKuLwMIC8vSmu/gI6dgFUHgBmnkcRsxd
+X-Google-Smtp-Source: ABdhPJzox9IHQNM9RKt/w1c5aG0r9TYJ0H6v4wDyngK2Y1JDEVK5QloPJZ3ViPBDfCzBJp8kcBLhaKFb36fOUd3sa05hyFGPsOAt
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6602:2e14:: with SMTP id o20mr1292331iow.179.1611872240011;
+ Thu, 28 Jan 2021 14:17:20 -0800 (PST)
+Date:   Thu, 28 Jan 2021 14:17:20 -0800
+In-Reply-To: <000000000000619ae405b9f8cf6e@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000004a0f5305b9fd40b9@google.com>
+Subject: Re: WARNING in io_uring_cancel_task_requests
+From:   syzbot <syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-kernel BUG at lib/list_debug.c:29!
+syzbot has found a reproducer for the following issue on:
+
+HEAD commit:    d03154e8 Add linux-next specific files for 20210128
+git tree:       linux-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=12e976e8d00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=6953ffb584722a1
+dashboard link: https://syzkaller.appspot.com/bug?extid=3e3d9bd0c6ce9efbc3ef
+compiler:       gcc (GCC) 10.1.0-syz 20200507
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=163f0fc8d00000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com
+
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 11283 at fs/io_uring.c:9042 io_uring_cancel_task_requests+0xe55/0x10c0 fs/io_uring.c:9042
+Modules linked in:
+CPU: 0 PID: 11283 Comm: syz-executor.4 Not tainted 5.11.0-rc5-next-20210128-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:io_uring_cancel_task_requests+0xe55/0x10c0 fs/io_uring.c:9042
+Code: 00 00 e9 1c fe ff ff 48 8b 7c 24 18 e8 f4 b4 da ff e9 f2 fc ff ff 48 8b 7c 24 18 e8 e5 b4 da ff e9 64 f2 ff ff e8 eb 16 97 ff <0f> 0b e9 ed f2 ff ff e8 df b4 da ff e9 c8 f5 ff ff 4c 89 ef e8 52
+RSP: 0018:ffffc90002b8f950 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff88801849d000 RCX: 0000000000000000
+RDX: ffff8880277d0000 RSI: ffffffff81dbfe65 RDI: ffff88801849d0d0
+RBP: ffff88801849d0e8 R08: 0000000000000000 R09: ffff8880277d0007
+R10: ffffffff81dbf0df R11: 0000000000000000 R12: ffff88801849d000
+R13: ffff8880277d0000 R14: ffff88803d874400 R15: ffff888028d0e018
+FS:  0000000000000000(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f40244ffdb8 CR3: 0000000019c59000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- __list_add include/linux/list.h:67 [inline]
- list_add include/linux/list.h:86 [inline]
- io_file_get+0x8cc/0xdb0 fs/io_uring.c:6466
- __io_splice_prep+0x1bc/0x530 fs/io_uring.c:3866
- io_splice_prep fs/io_uring.c:3920 [inline]
- io_req_prep+0x3546/0x4e80 fs/io_uring.c:6081
- io_queue_sqe+0x609/0x10d0 fs/io_uring.c:6628
- io_submit_sqe fs/io_uring.c:6705 [inline]
- io_submit_sqes+0x1495/0x2720 fs/io_uring.c:6953
- __do_sys_io_uring_enter+0x107d/0x1f30 fs/io_uring.c:9353
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ io_uring_flush+0x47b/0x6e0 fs/io_uring.c:9227
+ filp_close+0xb4/0x170 fs/open.c:1295
+ close_files fs/file.c:403 [inline]
+ put_files_struct fs/file.c:418 [inline]
+ put_files_struct+0x1cc/0x350 fs/file.c:415
+ exit_files+0x7e/0xa0 fs/file.c:435
+ do_exit+0xc22/0x2ae0 kernel/exit.c:820
+ do_group_exit+0x125/0x310 kernel/exit.c:922
+ get_signal+0x427/0x20f0 kernel/signal.c:2773
+ arch_do_signal_or_restart+0x2a8/0x1eb0 arch/x86/kernel/signal.c:811
+ handle_signal_work kernel/entry/common.c:147 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+ exit_to_user_mode_prepare+0x148/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:302
  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-io_file_get() may be called from splice, and so REQ_F_INFLIGHT may
-already be set.
-
-Fixes: 02a13674fa0e8 ("io_uring: account io_uring internal files as REQ_F_INFLIGHT")
-Cc: stable@vger.kernel.org # 5.9+
-Reported-by: syzbot+6879187cf57845801267@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ae388cc52843..39ae1f821cef 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6460,7 +6460,8 @@ static struct file *io_file_get(struct io_submit_state *state,
- 		file = __io_file_get(state, fd);
- 	}
- 
--	if (file && file->f_op == &io_uring_fops) {
-+	if (file && file->f_op == &io_uring_fops &&
-+	    !(req->flags & REQ_F_INFLIGHT)) {
- 		io_req_init_async(req);
- 		req->flags |= REQ_F_INFLIGHT;
- 
--- 
-2.24.0
+RIP: 0033:0x45e219
+Code: Unable to access opcode bytes at RIP 0x45e1ef.
+RSP: 002b:00007f0355608cf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
+RAX: fffffffffffffe00 RBX: 000000000119bf88 RCX: 000000000045e219
+RDX: 0000000000000000 RSI: 0000000000000080 RDI: 000000000119bf88
+RBP: 000000000119bf80 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000119bf8c
+R13: 00007fff5130821f R14: 00007f03556099c0 R15: 000000000119bf8c
 

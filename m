@@ -2,116 +2,167 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B570C433E0
-	for <io-uring@archiver.kernel.org>; Sun, 31 Jan 2021 09:20:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E8B1C433DB
+	for <io-uring@archiver.kernel.org>; Sun, 31 Jan 2021 15:37:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8BD164E1F
-	for <io-uring@archiver.kernel.org>; Sun, 31 Jan 2021 09:20:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1BFDC64E4E
+	for <io-uring@archiver.kernel.org>; Sun, 31 Jan 2021 15:37:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbhAaJTu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 31 Jan 2021 04:19:50 -0500
-Received: from rydia.net ([173.255.253.96]:39839 "EHLO mail.rydia.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230029AbhAaJTZ (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Sun, 31 Jan 2021 04:19:25 -0500
-X-Greylist: delayed 469 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 Jan 2021 04:19:24 EST
-Received: from dry.lan (104-9-122-4.lightspeed.sntcca.sbcglobal.net [104.9.122.4])
-        by mail.rydia.net (Postfix) with ESMTPA id D01B44A69
-        for <io-uring@vger.kernel.org>; Sun, 31 Jan 2021 01:10:31 -0800 (PST)
-Date:   Sun, 31 Jan 2021 01:10:27 -0800 (PST)
-From:   dormando <dormando@rydia.net>
-To:     io-uring <io-uring@vger.kernel.org>
-Subject: tcp short writes / write ordering / etc
-Message-ID: <855d3bc1-f694-e42e-283e-f8ee8f9c8e6e@rydia.net>
+        id S231920AbhAaPhQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 31 Jan 2021 10:37:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41958 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232249AbhAaM6H (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 31 Jan 2021 07:58:07 -0500
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58843C061573
+        for <io-uring@vger.kernel.org>; Sun, 31 Jan 2021 04:54:49 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id u14so10318754wml.4
+        for <io-uring@vger.kernel.org>; Sun, 31 Jan 2021 04:54:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=xrqc79MULhInEi8i5xGGNHFuIF7xLOhZNQ9HcylQbT4=;
+        b=WIh1MF0LaFjL5FLR3rZir3/9YYjzZ/b1Y/goRilw0ULYcTjUhuTil8e+ZFCZgn79Lg
+         G8RooHp+LkYc2epfOAsTTeZaXndrZediOgXfmzqtxOhNfwpKVlGw2MaF6HVLrxnsqeTP
+         kmHBbziuz8t3H8hjSk360DgV+K8V5jIySnfEwXzDJ3JCUWly/g2fM7gLZONXso8zVybq
+         eqEk1Hls9Gd59YFBwDd+9+uMrra+cstGu9LVtxMSpfHcsonBlUFKJMKQzH6xBpfH7Zxc
+         YXnzAAujGAnj7XJVBS5UL0+BfNSTY6i/f4eaqbDqapUh71vNgIh2BeKrhCgqtCY19pmQ
+         e6bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=xrqc79MULhInEi8i5xGGNHFuIF7xLOhZNQ9HcylQbT4=;
+        b=p9SYXiJDYfsUtaQTOTgWi9dZqOqDhjNO4sN1JwWa2oEIfR5YjsY+kvv930bHpgjq09
+         Cu5VAwyyqpUoys7eRvt/OFEVhoJrgQbJs5D77bK09+m4dTZ525kxpz4rWYzBDWx0d1oE
+         q/EIx4X09v0R/VzSjnTBSspH105XrIjHvMmfDyWpTOvqJc/TQrqmhZHgszevgxzNwJ7w
+         mgQCsdq/gROGBmd/pKF/+nPOxIHwx9zwvkUrzib7x/pKurtTDn56Xt8/qwPg9W/nBXwI
+         sM8dlThvc/oPhLerZ/Dusl6u8qskfRu6wyf3JzjIUkuWwyvZhw6Xip/aQ2YH59WXbune
+         N5Zg==
+X-Gm-Message-State: AOAM532uvZ/Z/9utnVbKBlNlYXMKDNAXalPihdFcnXOSE7tqXtELVhG9
+        CYWVxZxex70rVlzoOKLK1zdwKJRzvgBA+g==
+X-Google-Smtp-Source: ABdhPJzlNNLLu5+ZIauYvaBvx0OpT9CAi3ZhClElSHywVAmiFrprMS+nTCuQUVGa0dcAZbc303zlnA==
+X-Received: by 2002:a05:600c:28b:: with SMTP id 11mr11076636wmk.69.1612097687922;
+        Sun, 31 Jan 2021 04:54:47 -0800 (PST)
+Received: from [192.168.8.164] ([148.252.128.5])
+        by smtp.gmail.com with ESMTPSA id z1sm17879369wrp.62.2021.01.31.04.54.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 31 Jan 2021 04:54:47 -0800 (PST)
+To:     Hao Xu <haoxu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <1611942122-83391-1-git-send-email-haoxu@linux.alibaba.com>
+ <1611942813-89187-1-git-send-email-haoxu@linux.alibaba.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Subject: Re: [PATCH v2] io_uring: check kthread parked flag before sqthread
+ goes to sleep
+Message-ID: <69b64dc4-7201-ba05-748c-901a9a1069f7@gmail.com>
+Date:   Sun, 31 Jan 2021 12:51:05 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1611942813-89187-1-git-send-email-haoxu@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hey,
+On 29/01/2021 17:53, Hao Xu wrote:
+> 
+> So check if sqthread gets park flag right before schedule().
+> since ctx_list is always empty when this problem happens, here I put
+> kthread_should_park() before setting the wakeup flag(ctx_list is empty
+> so this for loop is fast), where is close enough to schedule(). The
+> problem doesn't show again in my repro testing after this fix.
 
-I'm trying to puzzle out an architecture on top of io_uring for a tcp
-proxy I'm working on. I have a high level question, then I'll explain what
-I'm doing for context:
+Looks good, and I believe I saw syzbot reporting similar thing before.
+Two nits below
 
-- How (is?) order maintained for write()'s to the same FD from different
-SQE's to a network socket? ie; I get request A and queue a write(), later
-request B comes in and gets queued, A finishes short. There was no chance
-to IOSQE_LINK A to B. Does B cancel? This makes sense for disk IO but I
-can't wrap my head around it for network sockets.
+> 
+> Reported-by: Abaci <abaci@linux.alibaba.com>
+> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+> ---
+>  fs/io_uring.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index c07913ec0cca..444dc993157e 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -7132,6 +7132,9 @@ static int io_sq_thread(void *data)
+>  			}
+>  		}
 
-The setup:
+How about killing btw a kthread_should_park() check few lines
+above before prepare_to_wait? Parking is fairly rare, so we
+don't need fast path for it.
 
-- N per-core worker threads. Each thread handles X client sockets.
-- Y backend sockets in a global shared pool. These point to storage
-servers (or other proxyes/anything).
+>  
+> +		if (kthread_should_park())
+> +			needs_sched = false;
+> +
+>  		if (needs_sched) {
 
-- client sockets wake up with requests for an arbitrary number of keys (1
-to 100 or so).
-  - each key is mapped to a backend (like keyhash % Y).
-  - new requests are dispatched for each key to each backend socket.
-  - the results are put back into order and returned to the client.
+if (needs_sched && !kthread_should_park())
 
-The workers are designed such that they should not have to wait for a
-large request set before processing the next ready client socket. ie;
-thread N1 gets a request for 100 keys; it queues that work off, and then
-starts on a request for a single key. it picks up the results of the
-original request later and returns it. Else we get poor long tail latency.
+Looks cleaner to me
 
-I've been working out a test program to mock this new backend. I have mock
-worker threads that submit batches of work from fake connections, and then
-have libevent or io_uring handle things.
+>  			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+>  				io_ring_set_wakeup_flag(ctx);
+> 
 
-In libevent/epoll mode:
- - workers can directly call write() to backend sockets while holding a
-lock around a descriptive structure. this ensures order.
- - OR workers submit stacks to one or more threads which the backends
-sockets are striped across. These threads lock and write(). this mode
-helps with latency pileup.
- - a dedicated thread sits in epoll_wait() on EPOLLIN for each backend
-socket. This avoids repeated calls to epoll_add()/mod/etc. As responses
-are parsed, completed sets of requests are shipped back to the worker
-threads.
-
-In uring mode:
- - workers should submit to a single (or few) threads which have a private
-ring. sqe's are stacked and submit()'ed in a batch. Ideally saving all of
-the overhead of write()'ing to a bunch of sockets. (not working yet)
- - a dedicated thread with its own ring is sitting on recv() for each
-backend socket. It handles the same as epoll mode, except after each read
-I have to re-submit a new SQE for the next read.
-
-(I have everything sharing the same WQ, for what it's worth)
-
-I'm trying to figure out uring mode's single submission thread, but
-figuring out the IO ordering issues is blanking my mind. Requests can come
-in interleaved as the backends are shared, and waiting for a batch to
-complete before submitting the next one defeats the purpose (I think).
-
-What would be super nice but I'm pretty sure is impossible:
-
-- M (possibly 1) thread(s) sitting on recv() in its own ring
-- N client handling worker threads with independent rings on the same WQ
- - SQE's with writes to the same backend FD are serialized by a magical
-unicorn.
-
-Then:
-- worker with a request for 100 keys makes and submits the SQE's itself,
-  then moves on to the next client connection.
-- recv() thread gathers responses and signals worker when the batch is
-complete.
-
-If I can avoid issues with short/colliding writes I can still make this
-work as my protocol can allow for out of order responses, but it's not the
-default mode so I need both to work anyway.
-
-Apologies if this isn't clear or was answered recently; I did try to read
-archives/code/etc.
-
-Thanks,
--Dormando
+-- 
+Pavel Begunkov

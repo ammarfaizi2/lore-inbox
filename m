@@ -2,76 +2,184 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78182C433E0
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 05:38:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E47B4C433E6
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 08:26:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38F9164EDC
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 05:38:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A990D64D99
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 08:26:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbhBBFiI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 2 Feb 2021 00:38:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54522 "EHLO
+        id S232676AbhBBI0F (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 2 Feb 2021 03:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbhBBFiH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Feb 2021 00:38:07 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2682C061794
-        for <io-uring@vger.kernel.org>; Mon,  1 Feb 2021 21:37:07 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id c2so21486691edr.11
-        for <io-uring@vger.kernel.org>; Mon, 01 Feb 2021 21:37:07 -0800 (PST)
+        with ESMTP id S232649AbhBBIZs (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Feb 2021 03:25:48 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14471C06174A;
+        Tue,  2 Feb 2021 00:25:07 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id p21so26699670lfu.11;
+        Tue, 02 Feb 2021 00:25:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nametag.social; s=google;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=jx5w0a1LBef0Tcg+q5ejYdIu/avv96ApVQo2ehYae7w=;
-        b=fGp4+WdRJs1J2nsJoiF3BfX3RcYikGPetqYBrdfP4aArGe/q4wVVqxgErk17ava0s4
-         vZMBBSRKSNtgWLPt7y7i4HFbvO3ksoBh2cQtlBI2URTStJwjN1McyEORj6VLRrr7DT0R
-         QIpmsyfkRNzzi5cKo/fy70TXWkJARqg7XVlMDAscCSOOmFy25Us88TlIc2FNmepuIq9q
-         ivbTCQbtQQqiHXmL/9JbWXAViUPvBifvkhC6IbmxJXWJSyBwX9jhAyJldEsSUKZsrrX8
-         B7PPahF7QNW31bWBH7clA+kOyC+AFdOOtn0achzL+RuGf8ouzTcETPqSDvaaPZZNEsiB
-         GisQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=lFdu/ZokN33D/jhCZc3HT0HiT7qadN9okxjTgLv9qVs=;
+        b=UVO5ZEkSSMEwsZ11MPl3c4coTIc4PhkWh4f+9Dyqccii8EuII2qfX295s2V7tzkEco
+         0QYRo2GONAspiiM6WPGdcTPVUjX+CAassy66vuk/TeTUBafQSZJGF04vzmpKcwZ1nn2N
+         3aTIaxsymzXx0fA3CgMUTP1mUwXhQZwDlQPcieXfmfkaghZ7y14NEJSkNoUJUwXAu5bW
+         CEGZY4D8OqzC3sYJWnGqAavg3Z+Kj5SMAamK88BtDc9UWy+Z/6U92z2B9FElkRkbHY6+
+         SjvLhmFMmr51LSGT31tOWAvuj/NRboMNBIuYGfPlZIpnnfkR8CxeiQzZCwpL69kAmBjH
+         P4FQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=jx5w0a1LBef0Tcg+q5ejYdIu/avv96ApVQo2ehYae7w=;
-        b=AcDo0I8Sva5A8AU12hGSvf7qqrzI/Bwg/4vVMMHV2h1lQbPouKNOSQjGhKNg6kT2M0
-         xjQgBrEqN6LzT4FBuqo63QpQxviChCoIvr5dDfsiakFzTVtj+ax0/E5G+g3tDAN86AIm
-         EVz1au+kR4Ec0f8CMLkkf3GF6J2VIt8NS2Rcnl3cHWP6OePdhkTnpG9eCxkSTg9QgaBN
-         3256+IRtebJWduYxUt8a73o+eFoVG37i0WI0eXUQDfV1p12bfSH5n0CfjVRT0YofpBsO
-         J06oAvD2cq7HcbLihNZsYgiLxoczscgzyYHFITO/vo363+D4eLa+0hl++BKSERsXNSON
-         eXQg==
-X-Gm-Message-State: AOAM5318qYeE8Y7g4sjyT3DiNTwamU9KgfdZnOkgxxdwh//gAWO3hxWT
-        +b0Wpr0xmqcJ6JQEgqRrD8G+FPQmy2fT0BUdqR6JDxzaOZdiPg==
-X-Google-Smtp-Source: ABdhPJxKdPu83h7j1o87/c+NtAOBuC2MNZvR231xmYitqymVkzvrkcSHjXWBMRaAPus3fSyGp+IoHJaOen/xqj6dnwQ=
-X-Received: by 2002:a05:6402:50ca:: with SMTP id h10mr21951477edb.181.1612244226292;
- Mon, 01 Feb 2021 21:37:06 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=lFdu/ZokN33D/jhCZc3HT0HiT7qadN9okxjTgLv9qVs=;
+        b=e86OWLLVNgGuEhnzyxj++6fjV6+xrZtKEq2J7YyxzHyyM9POU7qatj6BOXYuYc+2rQ
+         21pjAqqqAFX3/u/d6dEo/LAW8mGQaWDsBMlTAhFksKBciIIkJbpA6ObIaa+PA7ui9Yrg
+         1jJsbhhOS5QDETvsIyXzB3LGw8WediM/DO5ewSxsZlDuD7Z2436eWffo+sWLp9fr40E/
+         yJulRnX0G2nEjAY1RGVASJaVyIzXGfuuGNq8IgV+eBRVtAsZ/gR3gqR7fXiKc5S0K/+U
+         siYp7YCiPZaLw2hhvSgbwpOkHxbuxIJCFNixfzN+5IY9aGOMgLRZeJbNRlQT9TKAdRz9
+         DLvw==
+X-Gm-Message-State: AOAM531WjryXFtufK/S3Ub/Rlr5630MPmBxDDqXXho/aJlMuw5aFHkO2
+        JaOca3QMrdE44iuz0lwdKyo=
+X-Google-Smtp-Source: ABdhPJz6Hk3zVrX0A4kRRBBZUQEkAGPe+te2e7VMrfjcDmq55GTh75XYDT+9bG98oOR24wNiIjZk9Q==
+X-Received: by 2002:ac2:550c:: with SMTP id j12mr9900000lfk.619.1612254305619;
+        Tue, 02 Feb 2021 00:25:05 -0800 (PST)
+Received: from carbon.v ([94.143.149.146])
+        by smtp.googlemail.com with ESMTPSA id t6sm4195857ljd.112.2021.02.02.00.25.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Feb 2021 00:25:05 -0800 (PST)
+From:   Dmitry Kadashev <dkadashev@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        Dmitry Kadashev <dkadashev@gmail.com>
+Subject: [PATCH v2 1/2] fs: make do_mkdirat() take struct filename
+Date:   Tue,  2 Feb 2021 15:23:52 +0700
+Message-Id: <20210202082353.2152271-2-dkadashev@gmail.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210202082353.2152271-1-dkadashev@gmail.com>
+References: <20210202082353.2152271-1-dkadashev@gmail.com>
 MIME-Version: 1.0
-From:   Victor Stewart <v@nametag.social>
-Date:   Tue, 2 Feb 2021 00:36:57 -0500
-Message-ID: <CAM1kxwhCXpTCRjZ5tc_TPADTK3EFeWHD369wr8WV4nH8+M_thg@mail.gmail.com>
-Subject: bug with fastpoll accept and sqpoll + IOSQE_FIXED_FILE
-To:     io-uring <io-uring@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-started experimenting with sqpoll and my fastpoll accepts started
-failing. was banging my head against the wall for a few hours... wrote
-this test case below....
+Pass in the struct filename pointers instead of the user string, and
+update the three callers to do the same. This is heavily based on
+commit dbea8d345177 ("fs: make do_renameat2() take struct filename").
 
-basically fastpoll accept only works without sqpoll, and without
-adding IOSQE_FIXED_FILE to the sqe. fails with both, fails with
-either. these must be bugs?
+This behaves like do_unlinkat() and do_renameat2().
 
-I'm running Clear Linux 5.10.10-1017.native.
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
+---
+ fs/internal.h |  1 +
+ fs/namei.c    | 25 +++++++++++++++++++------
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
-i hope no one here is allergic to C++, haha. compilation command
-commented in the gist, just replace the two paths. and I can fold
-these checks if needed into a liburing PR later.
+diff --git a/fs/internal.h b/fs/internal.h
+index c6c85f6ad598..b10005dfaa48 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -76,6 +76,7 @@ long do_unlinkat(int dfd, struct filename *name);
+ int may_linkat(struct path *link);
+ int do_renameat2(int olddfd, struct filename *oldname, int newdfd,
+ 		 struct filename *newname, unsigned int flags);
++long do_mkdirat(int dfd, struct filename *name, umode_t mode);
+ 
+ /*
+  * namespace.c
+diff --git a/fs/namei.c b/fs/namei.c
+index 4cae88733a5c..3657bdf1aafc 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3431,7 +3431,7 @@ struct file *do_file_open_root(struct dentry *dentry, struct vfsmount *mnt,
+ 	return file;
+ }
+ 
+-static struct dentry *filename_create(int dfd, struct filename *name,
++static struct dentry *__filename_create(int dfd, struct filename *name,
+ 				struct path *path, unsigned int lookup_flags)
+ {
+ 	struct dentry *dentry = ERR_PTR(-EEXIST);
+@@ -3487,7 +3487,6 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 		error = err2;
+ 		goto fail;
+ 	}
+-	putname(name);
+ 	return dentry;
+ fail:
+ 	dput(dentry);
+@@ -3502,6 +3501,16 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 	return dentry;
+ }
+ 
++static inline struct dentry *filename_create(int dfd, struct filename *name,
++				struct path *path, unsigned int lookup_flags)
++{
++	struct dentry *res = __filename_create(dfd, name, path, lookup_flags);
++
++	if (!IS_ERR(res))
++		putname(name);
++	return res;
++}
++
+ struct dentry *kern_path_create(int dfd, const char *pathname,
+ 				struct path *path, unsigned int lookup_flags)
+ {
+@@ -3654,15 +3663,18 @@ int vfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+ }
+ EXPORT_SYMBOL(vfs_mkdir);
+ 
+-static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
++long do_mkdirat(int dfd, struct filename *name, umode_t mode)
+ {
+ 	struct dentry *dentry;
+ 	struct path path;
+ 	int error;
+ 	unsigned int lookup_flags = LOOKUP_DIRECTORY;
+ 
++	if (IS_ERR(name))
++		return PTR_ERR(name);
++
+ retry:
+-	dentry = user_path_create(dfd, pathname, &path, lookup_flags);
++	dentry = __filename_create(dfd, name, &path, lookup_flags);
+ 	if (IS_ERR(dentry))
+ 		return PTR_ERR(dentry);
+ 
+@@ -3676,17 +3688,18 @@ static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
+ 		lookup_flags |= LOOKUP_REVAL;
+ 		goto retry;
+ 	}
++	putname(name);
+ 	return error;
+ }
+ 
+ SYSCALL_DEFINE3(mkdirat, int, dfd, const char __user *, pathname, umode_t, mode)
+ {
+-	return do_mkdirat(dfd, pathname, mode);
++	return do_mkdirat(dfd, getname(pathname), mode);
+ }
+ 
+ SYSCALL_DEFINE2(mkdir, const char __user *, pathname, umode_t, mode)
+ {
+-	return do_mkdirat(AT_FDCWD, pathname, mode);
++	return do_mkdirat(AT_FDCWD, getname(pathname), mode);
+ }
+ 
+ int vfs_rmdir(struct inode *dir, struct dentry *dentry)
+-- 
+2.30.0
 
-https://gist.github.com/victorstewart/98814b65ed702c33480487c05b40eb56

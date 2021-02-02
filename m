@@ -2,99 +2,83 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE9DFC433E6
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 17:50:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1CFBC433DB
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 17:53:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8C55264DCC
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 17:50:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7AC4164F8D
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 17:53:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237743AbhBBRue (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 2 Feb 2021 12:50:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41554 "EHLO
+        id S237915AbhBBRx3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 2 Feb 2021 12:53:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237821AbhBBRp4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Feb 2021 12:45:56 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007A2C06178C
-        for <io-uring@vger.kernel.org>; Tue,  2 Feb 2021 09:45:14 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id y18so6572000edw.13
-        for <io-uring@vger.kernel.org>; Tue, 02 Feb 2021 09:45:14 -0800 (PST)
+        with ESMTP id S234026AbhBBRvM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Feb 2021 12:51:12 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FB8C061786
+        for <io-uring@vger.kernel.org>; Tue,  2 Feb 2021 09:50:32 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id p20so11977527ejb.6
+        for <io-uring@vger.kernel.org>; Tue, 02 Feb 2021 09:50:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=nametag.social; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=WbFmGTnrxBJNCCauQQKDevM3dgTzqjXTq2+Nr98IxRc=;
-        b=DmQk7W3FUbV3DjrUbXgnM9lb6t53/liiza8pdtZWfrMSK6M2gk4I5BLYI1TqLk8v/4
-         6raIWH/h8xZ0p2hhcw/aSeEMez9InxWtnmqdm2JKpouGS/IO4HQDDaXw22jhOba9NpUV
-         zcuOtSa9xhInyXKwdsW7kNFkpaADAI4C8awNHgqpKZce4XS9UhOTR0cYTvyrK5BA3rUR
-         441d259eHkbFo8EPFvQiqZr6TwL/U89ssqMWaQi59PNynR4sOb8/jCsh6HXEFrjjB8BU
-         AEa9PH/DJUmKSSC7yt/mg+Q8rUfYv15lfrnDi85DsUE6UsceTLph984cNMtglA7beHxF
-         GpDg==
+        bh=Q7b/5RMtkxFfK48Fs0uXkc+wVXmOkWkDGx2P6aNVSBY=;
+        b=3adaXgzDp1Tjz/8eZ3bLey54hZKyDnVBiQfbF13dPoj2QNFcIXNJN59PsebH8ePSLi
+         D7b1w2MO4n/UzbldPPr1ldSvUAJnzgC0TR5UUHM6uR7pk8P/RlcvYUu5kmHiJyFmWv9n
+         bkUrx1ULMiVglmhellqf3NBVnFbYOaqeIMonVl6RkN3j1jf46qT0iPrcoBKAK/0H5dGl
+         TKAv1ArPjRbleZ7kii2YBdG9+C9gZ02szggASdXZNe6AMvnklYDQTAjwbw8NFSakDC8M
+         MMlEXr4zkS8JfIHwWY9SNvpjvJQnpR0Kfaytb+d++jXdd1O/qzdc8/vC33qzQiEJ8FqC
+         gZHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=WbFmGTnrxBJNCCauQQKDevM3dgTzqjXTq2+Nr98IxRc=;
-        b=CHN8l9Smpc+7eIJbKDZV43kDgMd7cK/u6G82X1iPRsIjo+0fWDfxPsziHS0fbF3qnS
-         q/6KfJeun87pQEHSR2qQQ/vmuzjpWgtF8Yf4xc7sb6zDRNRegpsARX92zD5AXkGESa21
-         g1O366NOJ/cszfcBdBWKoSMibuUbCp/e2WMBpHoxqDL0mxTHehuQz4EG4cUrdkD6c4MI
-         3YJMCtfFG5Et15S5ycHSBqt8XC/8ftHBz/B4pMaMWVVYZWJIT4GKj4gLuqOuT0IKu6h/
-         uo68CwXQ8Pvw9m3xMymn05DGPaMJI1BVs+T+LzzWtkvSYU4vrc49iCNXNbk94MVzmcyX
-         2yQA==
-X-Gm-Message-State: AOAM533VzcR71d7o9KVJe3QPL+cumLmyUYOyJJPf3CQJqXBSN2y0MWt8
-        GJzqioRzsY8FYstS2vna8bJJ6uezWbvKnlYa6ZmIqaKEALg=
-X-Google-Smtp-Source: ABdhPJxKF319zvcxIud8NisE6jUoEAGeIck0tTAzhpqfcxG7t8skEP2Pb0dhshmJFzA7jLYakC8LXAj00OF7FagOYT8=
-X-Received: by 2002:a05:6402:50ca:: with SMTP id h10mr58271edb.181.1612287913725;
- Tue, 02 Feb 2021 09:45:13 -0800 (PST)
+        bh=Q7b/5RMtkxFfK48Fs0uXkc+wVXmOkWkDGx2P6aNVSBY=;
+        b=K0i8en50d7zJrmz7UTChKu30dBpFSQAo5wXK+UZVO+HB9P3xBvgX0HoLROqAZ4kztH
+         E0orJHGILdTBVNIeVQrgwqa7evB5hRc4vGY6B9QNgNgrOoKk7I5yIbYtTa7NtZxzhUrn
+         Rmcw5iACiAQcw7s439+CM33vdGoJcwDYLlE+eaLXwszpBtqS831T3lygG8IfWXbZW18h
+         9pmzWgVLePUhWvy8tIis/sZNpqYn670TbLD8Bw4B7xHsORX5vnaAONuyiYYQ34etkynI
+         h7FZ2+cW+HOiDmcfBC+R0nzQSTfKMDxtILramfEhnAISERHMsKtTtTK8aqyXl822kr2W
+         +6FQ==
+X-Gm-Message-State: AOAM533leBUhFTA2R75sVDFc5bXZa3l+IoPdaIykpV4O0dwYetbzLj+i
+        5qdVxmS5q2YzXy1LupEGQHZXJOszeX0OmICSGGqnzA==
+X-Google-Smtp-Source: ABdhPJwS4vkqyzhtGwAnnXT0ZE8f3XBRnYonycLCnx8CCV+WefHuzvtwW4qGYkxgh5lmzSalYq79EE+ppYMYHDZz4Pk=
+X-Received: by 2002:a17:906:1c13:: with SMTP id k19mr23670591ejg.338.1612288230765;
+ Tue, 02 Feb 2021 09:50:30 -0800 (PST)
 MIME-Version: 1.0
 References: <CAM1kxwhCXpTCRjZ5tc_TPADTK3EFeWHD369wr8WV4nH8+M_thg@mail.gmail.com>
  <49743b61-3777-f152-e1d5-128a53803bcd@gmail.com> <c41e9907-d530-5d2a-7e1f-cf262d86568c@gmail.com>
  <CAM1kxwj6Cdqi0hJFNtGFvK=g=KoNRPMmLVoxtahFKZsjOkcTKQ@mail.gmail.com>
- <8a3ba4fc-6e60-a3e7-69f4-0394799e7fd7@gmail.com> <CAM1kxwgOwWhv=O_vOpyQfca-9Vjo4+SrmxPR5MxTGf_9pE4_Gg@mail.gmail.com>
-In-Reply-To: <CAM1kxwgOwWhv=O_vOpyQfca-9Vjo4+SrmxPR5MxTGf_9pE4_Gg@mail.gmail.com>
+ <CAM1kxwg7wkB7Sj8CDi9RkssM5DwFXEFWeUcakUkpKtKVCOUSJQ@mail.gmail.com>
+ <4b44f4e1-c039-a6b6-711f-22952ce1abfb@kernel.dk> <CAM1kxwgPW5Up-YqQWdh_cG4jvc5RWsD4UYNWN-jRRbWq5ide5g@mail.gmail.com>
+ <06ceae30-7221-80e9-13e3-148cdf5e3c9f@kernel.dk> <1baf259f-5a78-3044-c061-2c08c37f7d58@kernel.dk>
+In-Reply-To: <1baf259f-5a78-3044-c061-2c08c37f7d58@kernel.dk>
 From:   Victor Stewart <v@nametag.social>
-Date:   Tue, 2 Feb 2021 12:45:02 -0500
-Message-ID: <CAM1kxwhDyU3u-j8KB+GfTBhi8cKxxaQ9-bb_6uMOQR0B7YR9UQ@mail.gmail.com>
+Date:   Tue, 2 Feb 2021 12:50:19 -0500
+Message-ID: <CAM1kxwg7X=MzAiKs44Wx+5J2__rO7Er6892MyENRN0mwxOP_xA@mail.gmail.com>
 Subject: Re: bug with fastpoll accept and sqpoll + IOSQE_FIXED_FILE
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     io-uring <io-uring@vger.kernel.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring <io-uring@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-side note question on optimal sqpoll topology, assume a single
-threaded application, if you're going to pin the application thread
-and the sqpoll thread to the same logical cpu... is that stupid? maybe
-they'll just back and forth preempt each other? because either your
-application is doing work, or you're waiting on io_uring in the kernel
-to deliver it more work to do, not a scenario where there's idleness
-to be exploited with parallelism.
+> Alright, so you're doing ACCEPT with 5.10 and you cannot do ACCEPT
+> with SQPOLL as it needs access to the file table. That works in 5.11
+> and newer, NOT in 5.10. Same goes or eg open/close and those kinds
+> of requests.
 
-the only advantage that comes to my mind would be, take a network
-server example, reducing the latency of submitted packets getting out
-by time sharing the work of pushing those packets out with application
-work constructing the next ones.
+okay i must have missed that point somewhere. perfect i'll just avoid
+sqpoll until using 5.11. at least this exercise exposed some other
+issue pavel wanted to look into!
 
-On Tue, Feb 2, 2021 at 12:30 PM Victor Stewart <v@nametag.social> wrote:
+> --
+> Jens Axboe
 >
-> > There is a change of behaviour, if IORING_FEAT_EXT_ARG is set it
-> > won't submit (IIRC, since 5.12) -- it's pretty important for some
-> > multi-threaded cases.
-> >
-> > So... where in particular does it say that? In case your liburing
-> > is up to date and we forgot to remove such a comment.
->
-> https://github.com/axboe/liburing/blob/c96202546bd9d7420d97bc05e73c7144d0924e8a/src/queue.c#L269
->
-> "For kernels without IORING_FEAT_EXT_ARG (5.10 and older), if 'ts' is
-> specified, the application need not call io_uring_submit() before
-> calling this function, as we will do that on its behalf."
->
-> and I'm using the latest Clear Linux kernel which is 5.10, so that's
-> why I wasn't submitting.

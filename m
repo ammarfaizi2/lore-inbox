@@ -2,121 +2,89 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67318C433DB
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 00:26:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F5CEC433E0
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 00:26:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2DF0F64D87
-	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 00:26:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37BF064E8D
+	for <io-uring@archiver.kernel.org>; Tue,  2 Feb 2021 00:26:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbhBBA0V (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 1 Feb 2021 19:26:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44210 "EHLO
+        id S230258AbhBBA0R (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 1 Feb 2021 19:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230122AbhBBA0U (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Feb 2021 19:26:20 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B4FAC061573
-        for <io-uring@vger.kernel.org>; Mon,  1 Feb 2021 16:25:40 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id v15so18596692wrx.4
-        for <io-uring@vger.kernel.org>; Mon, 01 Feb 2021 16:25:40 -0800 (PST)
+        with ESMTP id S230122AbhBBA0Q (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Feb 2021 19:26:16 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56EF9C06174A
+        for <io-uring@vger.kernel.org>; Mon,  1 Feb 2021 16:25:36 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id 7so18581911wrz.0
+        for <io-uring@vger.kernel.org>; Mon, 01 Feb 2021 16:25:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=89HK5/jlI+y6ZuAAaTISzxZLDIPIT1N+s0fBQAaJATs=;
-        b=q942/AOXMueHPbJBDWipBXkXCY/v9FgoVxX05jXnfOlZTZeiFgLEsvqTHpl3kSYn99
-         y/CcnEfRc3fE0PgCZA8nx6A3eEi7tWzsx7Aw0pW2/joA3TP/aGTEAK5otphIegdnRSjF
-         X3W/gXMNJhbSAwKaXdGNENskI4BxNdB2Dovai8CYxiTu51sJ7fNQZZp4FVu3Rkc7g+3d
-         t6PH5tHdorpmpbQ2XoxSg56lvNcJB3PxXFN5HOM3UfFAcic2vCm4RQRfKJrLb8pbo8T3
-         RCu8D+6/b6HbLB+9un2ZuIKdz/5fCeuyBLQDr5f1miIa1LoRZMW/gVBsV5eu2s/iaA+y
-         xU8w==
+        bh=9guHaK55BB+TqtObhgxuIsZzmX9M3WGkXfCkN9GLzX0=;
+        b=jljjvu+4JQU8Zszsd5TdCG44iT4RLfc4yJrhAG0+THUbZUx2p+Em5Bbiq5opS/HLE8
+         1MgWSda84887k+NSc2pcYaCDLqdMIBF9tsO8Y2RgcAD+vJFm7QlM3Hpp4JJxhzw1uWnN
+         gdxognVUOon7oOgg6gQ6SF1QCYKa/lSwcYEw7Wc+9xb3GvmRpkuGGXFj9xBighJVWlYj
+         GrFARmt39j/cBWCthkZUee2dJwOfbAirdzK0vLFeVCWpRyOYo3+0R5Xod5m0IMwFwgsC
+         8UD6hzHC/tPDC84b9a/8dej2Gmp/HHplbVD2PDxztmLf2O2+i5vPXGkEpsfZyNzTl/Is
+         nKDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=89HK5/jlI+y6ZuAAaTISzxZLDIPIT1N+s0fBQAaJATs=;
-        b=jLv5aAx3vXsBCLRtz6q2KCL5WeRPSZcxgfzvYeYJQkS9N84oFARSUx2dMJM+rUxQfL
-         j1e3fQ29fFb0seS2JehfCYkQASZkFxw8OvRQJ4TtMxyoXo7uQRtVTCtN7sszMMmCiUWb
-         x2XDVsChKwqxSUIqIwMwdYlvzo9nxqs8ubNYStW6uxHGAl/XPDiZKlvZtMuSdRz8fmtM
-         dxrnTX/dIUSchlbIldhUOxzS9vtDbKacJ8FA1W4NhNi/xFdNVn1MQxf1KupCykOKShq2
-         UErEHYg8qBmI52E21As3t2AJsvgRGY4yG6W891uqv3Adapss/Q/O0jRu99XinQOA7fBP
-         KpmQ==
-X-Gm-Message-State: AOAM530xBvBpjhxoHrbJ8Kxl0MYdpAVwHcZgMbW/nqYo80Mwbmfafa4+
-        74dKGIW4GPHGVL5rxHJqFmA=
-X-Google-Smtp-Source: ABdhPJxEFZ+zp71730lRtq4SSEymu5z4z6OgegK5LZ1K1cw/acO2y50sAgvWCFteZZ3I3PyrHUp3AQ==
-X-Received: by 2002:a5d:4a50:: with SMTP id v16mr20854636wrs.241.1612225539010;
-        Mon, 01 Feb 2021 16:25:39 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9guHaK55BB+TqtObhgxuIsZzmX9M3WGkXfCkN9GLzX0=;
+        b=b/Vpz0eNF0+XHsRHY6a4nLPoGig+s9vFLMSJvBe1k6n2jv89WonGcVr1VO2kCl7vbh
+         7ZnF+Dn/WjY1xoIg/6cnqnyfESrlvFI2FNe4FhveWKBnJNyxRdsVUMb89tdJrtAt2ed2
+         czqaW3iLyvREsyedjBJPTp8WRQxMjEYybTJwhgxX/H85kCGDfGIHVoNaaYboSiU3JiTm
+         pS5LiGE8HzWItWiXQ0HLp8Pa+pocgwamP3HYFDq/s8UU1p1eOmpAaBaU+VpUH/ZjmdUe
+         idrlrr5hsoHOFXYGG52Y9uY6XQxq0JX+mOs0jl7/x9/ZS4NTzLyup739MjwXlE0+Yr68
+         N+Bg==
+X-Gm-Message-State: AOAM532k8hNAz91IS1xE+TMEbDZneBruYGOZy9pwCGWrY9TjQucY2pVa
+        RmO1U2oo9G2CePxWBU1GbsLRc1Usrfc=
+X-Google-Smtp-Source: ABdhPJyyyEjs0WBC2OHWVFjGSLX9/LbsjImSvb8+T0sr2mSFCqsV+hbe73pIHko3HG52rxLBprhRxQ==
+X-Received: by 2002:adf:d085:: with SMTP id y5mr21273808wrh.41.1612225535144;
+        Mon, 01 Feb 2021 16:25:35 -0800 (PST)
 Received: from localhost.localdomain ([185.69.145.241])
-        by smtp.gmail.com with ESMTPSA id n187sm851740wmf.29.2021.02.01.16.25.38
+        by smtp.gmail.com with ESMTPSA id n187sm851740wmf.29.2021.02.01.16.25.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 16:25:38 -0800 (PST)
+        Mon, 01 Feb 2021 16:25:34 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 4/8] io_uring: refactor io_read for unsupported nowait
-Date:   Tue,  2 Feb 2021 00:21:42 +0000
-Message-Id: <144560906a019b5239947f64fd9f0f9848e46edb.1612223954.git.asml.silence@gmail.com>
+Subject: [PATCH 0/8] a second pack of 5.12 cleanups
+Date:   Tue,  2 Feb 2021 00:21:38 +0000
+Message-Id: <cover.1612223953.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1612223953.git.asml.silence@gmail.com>
-References: <cover.1612223953.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-!io_file_supports_async() case of io_read() is hard to read, it jumps
-somewhere in the middle of the function just to do async setup and fail
-on a similar check. Call io_setup_async_rw() directly for this case,
-it's much easier to follow.
+Those are a bit harder to look through.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+4-8 are trying to simplify io_read(). 7/8 looks like a real problem, but
+not sure if even can happen with this IOCB_WAITQ set.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index dcb9e937daa3..866e0ea83dbe 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3506,7 +3506,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	struct iov_iter __iter, *iter = &__iter;
- 	struct io_async_rw *rw = req->async_data;
- 	ssize_t io_size, ret, ret2;
--	bool no_async;
- 
- 	if (rw) {
- 		iter = &rw->iter;
-@@ -3527,9 +3526,12 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 		kiocb->ki_flags |= IOCB_NOWAIT;
- 
- 	/* If the file doesn't support async, just async punt */
--	no_async = force_nonblock && !io_file_supports_async(req->file, READ);
--	if (no_async)
--		goto copy_iov;
-+	if (force_nonblock && !io_file_supports_async(req->file, READ)) {
-+		ret = io_setup_async_rw(req, iovec, inline_vecs, iter, true);
-+		if (!ret)
-+			return -EAGAIN;
-+		goto out_free;
-+	}
- 
- 	ret = rw_verify_area(READ, req->file, io_kiocb_ppos(kiocb), io_size);
- 	if (unlikely(ret))
-@@ -3568,8 +3570,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 		ret = ret2;
- 		goto out_free;
- 	}
--	if (no_async)
--		return -EAGAIN;
- 	rw = req->async_data;
- 	/* it's copied and will be cleaned with ->io */
- 	iovec = NULL;
+Pavel Begunkov (8):
+  io_uring: deduplicate core cancellations sequence
+  io_uring: refactor scheduling in io_cqring_wait
+  io_uring: refactor io_cqring_wait
+  io_uring: refactor io_read for unsupported nowait
+  io_uring: further simplify do_read error parsing
+  io_uring: let io_setup_async_rw take care of iovec
+  io_uring: don't forget to adjust io_size
+  io_uring: inline io_read()'s iovec freeing
+
+ fs/io_uring.c | 215 +++++++++++++++++++++++---------------------------
+ 1 file changed, 97 insertions(+), 118 deletions(-)
+
 -- 
 2.24.0
 

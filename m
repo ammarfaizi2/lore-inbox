@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA615C433DB
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6F4CC433DB
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86D4564F51
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DCB964F51
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236518AbhBDN7d (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 08:59:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S236521AbhBDN7g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 08:59:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236533AbhBDN51 (ORCPT
+        with ESMTP id S236538AbhBDN51 (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:57:27 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988E2C061786
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:10 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id g10so3636879wrx.1
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:10 -0800 (PST)
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED61BC061353
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:14 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id m1so3072964wml.2
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=F88b5mnDsyXtt4b8Q2NFp50PmGHfcr+0s001yB65DM8=;
-        b=LxI6/OshR8oFTr9z33fBjtCtG/28SM8/+u/dVNQpNT1lZMg+idbxt59AYTqZLlWnfr
-         vOd6tr8NrGPQZ7CbtFDm5FU/5KyLQfFX6amESy+eProAF5Ctz0JxVhQUpUhzeZhyhpaP
-         NjbF2YpXklBL+W/plaOyTsgXP8lRyjWiq9Np2D8S0l0SJTwLjkn5LhOUiua+Kjrq90oV
-         DchVkv4uglZqRKniwmTQudPD/YjTYfXnqC55aRbBtY7cE3rE7iLmvrMw4ausieoTeuwI
-         7xf/Ivgf8AnjCWch8iZBU0R2Mcc7USFNdZI2yNYv4n33g0PePHnBpVOaYLroX5bXa5ld
-         CtYw==
+        bh=AuBZBrVWaAmNt8cFRYQbQKzSDE4eLRO1oQUrE/dDkgg=;
+        b=irhGI1KPE160YMlA7ZR+Su5jPh7xusirBTNW/bn7po/HekJXtgw6UNZ9Bcqs2GwnW3
+         UJ3sWceg6ly3S5D15nKuby3QIOAj830unwq7upVCxoeGxoeH5j8jcvONCWRcwL4kfn+8
+         JJk+SBNhry/SazOwad00+CGJdjHZ8Gg4RQ1BilLuTOhd5PcTpzZHqzvffDUQC0MUHGyF
+         spOBImxzt+ZmhbWhNiVr7cmGUnRyDCJcrZ6b91RIZ/KVa9oowwVMFSNLi0eXn+UTkGXj
+         OovwERsVtafnE30ukPb98BoNrrl0qpJQR8/tDqlgT09AbF5K0Y/l9GHpEOJqY6cwKsns
+         7iYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=F88b5mnDsyXtt4b8Q2NFp50PmGHfcr+0s001yB65DM8=;
-        b=bv/OJC8Lkhg6sk847wqQ0BGv3WAt2qogKydXspgKh0RC0W0egE+TJ07y4dnayCqaDl
-         JHcb6RSOxstYlyvFPOWveUxrHyoMKfS3mrrl6bL7q05QF2UsCgNvUkU03ucqTc/FxvM0
-         fz1AHjrOn55d1sfm2RDR33k25y8UDSiKAJ38kYlsdXnd7YAZ4lGPLghyDO3liwGE0lej
-         qXsStQg28S9PF6ZIpw8Irscqhy17sW+TcRT3dxpacfQEzUgrulOGT9D/eZwdqeV/ZIHV
-         WxfYJJ2WQs3WhOyf7ZIr6m+rxPcLonAYvlTd2KcleaiZ+j+1x6hMsm8xcKj4+IAEEdhA
-         xpzA==
-X-Gm-Message-State: AOAM532n2yIe6CGQnvoH+8CEl2kl88BZh8kqTA4QIIx/wdmXEeV3TMbv
-        DJTEI/2zEFBSNfe8Li0uB6o=
-X-Google-Smtp-Source: ABdhPJz8JPHKNrsX/GGdrdNe4jNLJF8mLng3h1gScj8QBevvWrNz/TXgxwCN41IzQpJyPTp1kLiNyA==
-X-Received: by 2002:a05:6000:1a8c:: with SMTP id f12mr9365234wry.173.1612446969426;
-        Thu, 04 Feb 2021 05:56:09 -0800 (PST)
+        bh=AuBZBrVWaAmNt8cFRYQbQKzSDE4eLRO1oQUrE/dDkgg=;
+        b=j8iOMHlqIPyce9SKY3MD1g6fEoPXqZuuFXtbnsrp7XBYrUBeD4N2+ud6sprMu6rgoh
+         g4UJ0ZH8wt90mTIMSjmT6r1h50ByfwRyU9HZFA0vITwoSW5uuSI3LOl7t4t1k7S4ICIs
+         LRyd5CxfkrrVvJOWX0dfdmw+q7qek0RzGtdMq/kSl9q1S0EqG8mqJQzrARLreqBsUNGB
+         bKczCCSCjic007s2ecoGTFXg09M0HtJ9qX6hpX48kdrrIjFmSjn6FYmVqTbGVCD99+DR
+         Q6LNu9WK65OzzpxXCOwkIQhMe2ZPHd85GdoO8/x2voXVDpqveVxrGaptWvhxfyBkXtUh
+         HjUw==
+X-Gm-Message-State: AOAM530kwgxn9EhcZ9IC9EyRP+LHeXvKI8r3EJckAa6ThtVcVZU9kRrH
+        /QQROe62ecnZY/C3UIAH0h8=
+X-Google-Smtp-Source: ABdhPJw/YDiXeY3L1NtSjo9KFsO5QbK4spPL6e9zQC/ltlNWuvYSy66R3XwgshcbhX29KWJxL0a5/w==
+X-Received: by 2002:a1c:e903:: with SMTP id q3mr7635961wmc.100.1612446973723;
+        Thu, 04 Feb 2021 05:56:13 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.08
+        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 05:56:08 -0800 (PST)
+        Thu, 04 Feb 2021 05:56:13 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 09/13] io_uring: highlight read-retry loop
-Date:   Thu,  4 Feb 2021 13:52:04 +0000
-Message-Id: <18608b73f7f9810a974bf518c07afa4701fdfa17.1612446019.git.asml.silence@gmail.com>
+Subject: [PATCH v2 12/13] io_uring: deduplicate file table slot calculation
+Date:   Thu,  4 Feb 2021 13:52:07 +0000
+Message-Id: <0281a308eb5a98a46654eaa2ea2e2ed5ec2ebeef.1612446019.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612446019.git.asml.silence@gmail.com>
 References: <cover.1612446019.git.asml.silence@gmail.com>
@@ -70,67 +70,130 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We already have implicit do-while for read-retries but with goto in the
-end. Convert it to an actual do-while, it highlights it so making a
-bit more understandable and is cleaner in general.
+Extract a helper io_fixed_file_slot() returning a place in our fixed
+files table, so we don't hand-code it three times in the code.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 40 ++++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ fs/io_uring.c | 41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 35ad889afaec..bbf8ea8370d6 100644
+index 24cc00ff7155..5ee6a9273fca 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3566,27 +3566,27 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	rw = req->async_data;
- 	/* now use our persistent iterator, if we aren't already */
- 	iter = &rw->iter;
--retry:
--	io_size -= ret;
--	rw->bytes_done += ret;
--	/* if we can retry, do so with the callbacks armed */
--	if (!io_rw_should_retry(req)) {
--		kiocb->ki_flags &= ~IOCB_WAITQ;
--		return -EAGAIN;
--	}
+@@ -7740,6 +7740,15 @@ static void io_rsrc_put_work(struct work_struct *work)
+ 	}
+ }
  
--	/*
--	 * Now retry read with the IOCB_WAITQ parts set in the iocb. If we
--	 * get -EIOCBQUEUED, then we'll get a notification when the desired
--	 * page gets unlocked. We can also get a partial read here, and if we
--	 * do, then just retry at the new offset.
--	 */
--	ret = io_iter_do_read(req, iter);
--	if (ret == -EIOCBQUEUED)
--		return 0;
--	/* we got some bytes, but not all. retry. */
--	if (ret > 0 && ret < io_size)
--		goto retry;
-+	do {
-+		io_size -= ret;
-+		rw->bytes_done += ret;
-+		/* if we can retry, do so with the callbacks armed */
-+		if (!io_rw_should_retry(req)) {
-+			kiocb->ki_flags &= ~IOCB_WAITQ;
-+			return -EAGAIN;
-+		}
++static struct file **io_fixed_file_slot(struct fixed_rsrc_data *file_data,
++					unsigned i)
++{
++	struct fixed_rsrc_table *table;
 +
-+		/*
-+		 * Now retry read with the IOCB_WAITQ parts set in the iocb. If
-+		 * we get -EIOCBQUEUED, then we'll get a notification when the
-+		 * desired page gets unlocked. We can also get a partial read
-+		 * here, and if we do, then just retry at the new offset.
-+		 */
-+		ret = io_iter_do_read(req, iter);
-+		if (ret == -EIOCBQUEUED)
-+			return 0;
-+		/* we got some bytes, but not all. retry. */
-+	} while (ret > 0 && ret < io_size);
- done:
- 	kiocb_done(kiocb, ret, cs);
- 	return 0;
++	table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
++	return &table->files[i & IORING_FILE_TABLE_MASK];
++}
++
+ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ {
+ 	struct fixed_rsrc_ref_node *ref_node;
+@@ -7808,6 +7817,7 @@ static void destroy_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node)
+ 	kfree(ref_node);
+ }
+ 
++
+ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 				 unsigned nr_args)
+ {
+@@ -7840,9 +7850,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		goto out_free;
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
+-		struct fixed_rsrc_table *table;
+-		unsigned index;
+-
+ 		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
+ 			ret = -EFAULT;
+ 			goto out_fput;
+@@ -7867,9 +7874,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 			fput(file);
+ 			goto out_fput;
+ 		}
+-		table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+-		index = i & IORING_FILE_TABLE_MASK;
+-		table->files[index] = file;
++		*io_fixed_file_slot(file_data, i) = file;
+ 	}
+ 
+ 	ret = io_sqe_files_scm(ctx);
+@@ -7972,7 +7977,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ {
+ 	struct fixed_rsrc_data *data = ctx->file_data;
+ 	struct fixed_rsrc_ref_node *ref_node;
+-	struct file *file;
++	struct file *file, **file_slot;
+ 	__s32 __user *fds;
+ 	int fd, i, err;
+ 	__u32 done;
+@@ -7990,9 +7995,6 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 
+ 	fds = u64_to_user_ptr(up->data);
+ 	for (done = 0; done < nr_args; done++) {
+-		struct fixed_rsrc_table *table;
+-		unsigned index;
+-
+ 		err = 0;
+ 		if (copy_from_user(&fd, &fds[done], sizeof(fd))) {
+ 			err = -EFAULT;
+@@ -8002,14 +8004,13 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 			continue;
+ 
+ 		i = array_index_nospec(up->offset + done, ctx->nr_user_files);
+-		table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+-		index = i & IORING_FILE_TABLE_MASK;
+-		if (table->files[index]) {
+-			file = table->files[index];
+-			err = io_queue_file_removal(data, file);
++		file_slot = io_fixed_file_slot(ctx->file_data, i);
++
++		if (*file_slot) {
++			err = io_queue_file_removal(data, *file_slot);
+ 			if (err)
+ 				break;
+-			table->files[index] = NULL;
++			*file_slot = NULL;
+ 			needs_switch = true;
+ 		}
+ 		if (fd != -1) {
+@@ -8031,13 +8032,12 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				err = -EBADF;
+ 				break;
+ 			}
+-			table->files[index] = file;
+ 			err = io_sqe_file_register(ctx, file, i);
+ 			if (err) {
+-				table->files[index] = NULL;
+ 				fput(file);
+ 				break;
+ 			}
++			*file_slot = file;
+ 		}
+ 	}
+ 
+@@ -9488,11 +9488,8 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
+ 	seq_printf(m, "SqThreadCpu:\t%d\n", sq ? task_cpu(sq->thread) : -1);
+ 	seq_printf(m, "UserFiles:\t%u\n", ctx->nr_user_files);
+ 	for (i = 0; has_lock && i < ctx->nr_user_files; i++) {
+-		struct fixed_rsrc_table *table;
+-		struct file *f;
++		struct file *f = *io_fixed_file_slot(ctx->file_data, i);
+ 
+-		table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
+-		f = table->files[i & IORING_FILE_TABLE_MASK];
+ 		if (f)
+ 			seq_printf(m, "%5u: %s\n", i, file_dentry(f)->d_iname);
+ 		else
 -- 
 2.24.0
 

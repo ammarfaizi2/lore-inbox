@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 851ABC433DB
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AC28C433DB
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F07164F51
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E44E464F51
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236531AbhBDN7t (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 08:59:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47254 "EHLO
+        id S236517AbhBDN7v (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 08:59:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236546AbhBDN5n (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:57:43 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B566C061352
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:13 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id t142so1025943wmt.1
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:13 -0800 (PST)
+        with ESMTP id S236530AbhBDN5P (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:57:15 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45749C0617AA
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:08 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id u14so3625035wri.3
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=gaHPV73rRnUDt98JYixAH4NXNQoJ7mGeZnGHKCExkx0=;
-        b=KVlLrC1ZkuXqHaABAj34Ecyjd1m4Cy6CES7YlPU/CRoHeZIPmVvGrXnx4pdZ0XToD/
-         YOKm72aBP+2zpSZVNBkkL1DjG+CnDyK/M0oxCr1oJMT6lmYxy9rLng14DjUh0Ov8kSyL
-         uTXzqgzzJyDLNfdGZBm6B3cePnQRdcC6vJePtRE2xpA5QyjswQI+sJKfUS3Mp6PqQrHX
-         UObnuaymD8XQ6LWY0h++XC6eOiHpinuNtwtFaqxZ0Al51A+afNHwoXv+zFdcKPjtOost
-         p9tPlWsMm9GPUHnYgxP2ZkaNVBPN4NXZcx4WEh4crWQPzz7rpaStmEnWELx8ntUOm+c+
-         VVIw==
+        bh=u2sZsuA1gwqrwzhYkW+iThgq2wcXwxju3aV6Q0zgH9g=;
+        b=XPqO4K2XEyxS9Ekdp4M6phq3E8MHK6vSe7CRZxfXPCZrN/DKEBOSZ3rY/JBywEwzL/
+         +dHPHf2wRPHZH8RrnuG/KMtxW0Ljh+R8aysU58f9BW2KHrpfC1OX2gLYIzeaMz4jUkQj
+         aAijDBSqJ8+6y/aCKql0iBa9Dj8ECV92WGinraUCOrVu3yBqrdCt4lv5lecQ/EUy5c1B
+         8UUDOoSWrDZtV3Ozocid/b0YlHjNFqP1SqXXvfx6ehMBLFtG5CyenvnQ9r2BTEQ5U+KJ
+         Z48d0BDtZ29Hptv6nmb05as216ww6RtEklSzlumY90YwgdLS0oIrX9y4WPVObIfwwLh+
+         0Y/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gaHPV73rRnUDt98JYixAH4NXNQoJ7mGeZnGHKCExkx0=;
-        b=T6gNfBLsSBfiFr/nt0BzV71O4PC7GK5lKSHeaK3TVY1xssqbZp8E/+MnRaH3ghdxmg
-         bSO5cz5i9AEJzbqz3B4jOz+dIy/wU4wMSpXbq4+XzTtRmf68IadhQh1CyhkzCiXmLRjI
-         iB2ybSKQ730l6htmH1XdeqBjJrq9uwV4T271F6b2z10n4jTePxzAkeCQP5oL7ABXYy09
-         6lY4SHAkXJcEmJfh0DOVVmT7YOQMaKBqlZfc26gRHSckC9OSl0jaSP7Gn7CW9iLYjfW1
-         fN03nIVW5bVBEHUvybJJt2sz5a5QqvZCJr+LkAY+OCnlYxwBKrE4qOKbMbeF81zKlNht
-         Xorw==
-X-Gm-Message-State: AOAM533fQB3joYEcIpP50IunMVunW0wVcjIYF2wCPyakg1gumEKoErt2
-        GLhFLmYcLZ9aKsTffy8TKw4=
-X-Google-Smtp-Source: ABdhPJyAKSCgEjruKSNojOxhJ5O2lP7fzpVrJMhdvVJMrVAw+vIt0WIMElXsPmkwOriUh4dQa5skSw==
-X-Received: by 2002:a1c:4904:: with SMTP id w4mr7624491wma.180.1612446972374;
-        Thu, 04 Feb 2021 05:56:12 -0800 (PST)
+        bh=u2sZsuA1gwqrwzhYkW+iThgq2wcXwxju3aV6Q0zgH9g=;
+        b=gaU9n/FDpz6QfDhK9yQ1vnFBi56tbgw6xELXNVGZS83ywjKaPXTejSuhvpM7Fajof/
+         p/Uh4aOyCi3h/gLnvUNwpSDkl1Zb1/yZrBin+tSrB+GQbJ1WSUEb3yHUwhCm/J9qs60R
+         xWN2GcT6jtR74eeZ0vCXDk7zV/Gnha48oZazIjYtRCF4IYTNRm8jUJU7gL7z5ub2EzT9
+         VleatRtKBMKmtATqFU5GgmcfKqROWphuTWcSRUz9nMQMdaQ/OVKUCCehP/0dkwLXieME
+         TxeMCvxE7/SdIMHksbfc7s9n0nvGTuE/8Fwi4lCFOZYsqAoJgFyNTN5P3KaGV1Hq9bMO
+         HHWw==
+X-Gm-Message-State: AOAM5305ponUrHlEbE7eHyJFLorMnHSEvPt635rZOy7RTXx8G0SSwtj4
+        iNsLOb+X0ONDQt1DMyZVj3E=
+X-Google-Smtp-Source: ABdhPJwq5ewpWQsFWp1FCglyhDxohGlX+4tJqurXM32MamGLWWD3nI3geZa60yCXb9bRmZNfFPK+7Q==
+X-Received: by 2002:a5d:5283:: with SMTP id c3mr9278377wrv.319.1612446967046;
+        Thu, 04 Feb 2021 05:56:07 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.11
+        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 05:56:11 -0800 (PST)
+        Thu, 04 Feb 2021 05:56:06 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 11/13] io_uring: io_import_iovec return type cleanup
-Date:   Thu,  4 Feb 2021 13:52:06 +0000
-Message-Id: <7318e2fe57d6c5319bf28caca6924a06d999e605.1612446019.git.asml.silence@gmail.com>
+Subject: [PATCH v2 07/13] io_uring: don't forget to adjust io_size
+Date:   Thu,  4 Feb 2021 13:52:02 +0000
+Message-Id: <d681bfe1971f9034e9b381df4da3e9016fe81a64.1612446019.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612446019.git.asml.silence@gmail.com>
 References: <cover.1612446019.git.asml.silence@gmail.com>
@@ -70,111 +70,53 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_import_iovec() doesn't return IO size anymore, only error code. Make
-it more apparent by returning int instead of ssize and clean up
-leftovers.
+We have invariant in io_read() of how much we're trying to read spilled
+into an iter and io_size variable. The last one controls decision making
+about whether to do read-retries. However, io_size is modified only
+after the first read attempt, so if we happen to go for a third retry in
+a single call to io_read(), we will get io_size greater than in the
+iterator, so may lead to various side effects up to live-locking.
+
+Modify io_size each time.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 30 +++++++++++-------------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
+ fs/io_uring.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ce2ea3f55f65..24cc00ff7155 100644
+index f8492d62b6a1..25fffff27c76 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1030,9 +1030,8 @@ static struct file *io_file_get(struct io_submit_state *state,
- static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs);
- static void io_rsrc_put_work(struct work_struct *work);
- 
--static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
--			       struct iovec **iovec, struct iov_iter *iter,
--			       bool needs_lock);
-+static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
-+			   struct iov_iter *iter, bool needs_lock);
- static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
- 			     const struct iovec *fast_iov,
- 			     struct iov_iter *iter, bool force);
-@@ -2693,9 +2692,8 @@ static void io_complete_rw_common(struct kiocb *kiocb, long res,
- static bool io_resubmit_prep(struct io_kiocb *req)
- {
- 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
--	ssize_t ret = -ECANCELED;
-+	int rw, ret = -ECANCELED;
- 	struct iov_iter iter;
--	int rw;
- 
- 	/* already prepared */
- 	if (req->async_data)
-@@ -3004,8 +3002,7 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
- 		io_rw_done(kiocb, ret);
- }
- 
--static ssize_t io_import_fixed(struct io_kiocb *req, int rw,
--			       struct iov_iter *iter)
-+static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	size_t len = req->rw.len;
-@@ -3069,7 +3066,7 @@ static ssize_t io_import_fixed(struct io_kiocb *req, int rw,
- 		}
+@@ -3548,16 +3548,11 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		/* some cases will consume bytes even on error returns */
+ 		iov_iter_revert(iter, io_size - iov_iter_count(iter));
+ 		ret = 0;
+-	} else if (ret <= 0 || ret == io_size) {
+-		/* make sure -ERESTARTSYS -> -EINTR is done */
++	} else if (ret <= 0 || ret == io_size || !force_nonblock ||
++		   (req->file->f_flags & O_NONBLOCK) ||
++		   !(req->flags & REQ_F_ISREG)) {
++		/* read all, failed, already did sync or don't want to retry */
+ 		goto done;
+-	} else {
+-		/* we did blocking attempt. no retry. */
+-		if (!force_nonblock || (req->file->f_flags & O_NONBLOCK) ||
+-		    !(req->flags & REQ_F_ISREG))
+-			goto done;
+-
+-		io_size -= ret;
  	}
  
--	return len;
-+	return 0;
- }
- 
- static void io_ring_submit_unlock(struct io_ring_ctx *ctx, bool needs_lock)
-@@ -3210,16 +3207,14 @@ static ssize_t io_iov_buffer_select(struct io_kiocb *req, struct iovec *iov,
- 	return __io_iov_buffer_select(req, iov, needs_lock);
- }
- 
--static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
--				 struct iovec **iovec, struct iov_iter *iter,
--				 bool needs_lock)
-+static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
-+			   struct iov_iter *iter, bool needs_lock)
- {
- 	void __user *buf = u64_to_user_ptr(req->rw.addr);
- 	size_t sqe_len = req->rw.len;
-+	u8 opcode = req->opcode;
- 	ssize_t ret;
--	u8 opcode;
- 
--	opcode = req->opcode;
- 	if (opcode == IORING_OP_READ_FIXED || opcode == IORING_OP_WRITE_FIXED) {
- 		*iovec = NULL;
- 		return io_import_fixed(req, rw, iter);
-@@ -3244,10 +3239,8 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
- 
- 	if (req->flags & REQ_F_BUFFER_SELECT) {
- 		ret = io_iov_buffer_select(req, *iovec, needs_lock);
--		if (!ret) {
--			ret = (*iovec)->iov_len;
--			iov_iter_init(iter, rw, *iovec, 1, ret);
--		}
-+		if (!ret)
-+			iov_iter_init(iter, rw, *iovec, 1, (*iovec)->iov_len);
- 		*iovec = NULL;
- 		return ret;
- 	}
-@@ -3379,7 +3372,7 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
- {
- 	struct io_async_rw *iorw = req->async_data;
- 	struct iovec *iov = iorw->fast_iov;
--	ssize_t ret;
-+	int ret;
- 
- 	ret = io_import_iovec(rw, req, &iov, &iorw->iter, false);
- 	if (unlikely(ret < 0))
-@@ -3518,7 +3511,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 	}
- 	io_size = iov_iter_count(iter);
- 	req->result = io_size;
--	ret = 0;
- 
- 	/* Ensure we clear previously set non-block flag */
- 	if (!force_nonblock)
+ 	ret2 = io_setup_async_rw(req, iovec, inline_vecs, iter, true);
+@@ -3570,6 +3565,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 	/* now use our persistent iterator, if we aren't already */
+ 	iter = &rw->iter;
+ retry:
++	io_size -= ret;
+ 	rw->bytes_done += ret;
+ 	/* if we can retry, do so with the callbacks armed */
+ 	if (!io_rw_should_retry(req)) {
 -- 
 2.24.0
 

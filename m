@@ -7,59 +7,61 @@ X-Spam-Status: No, score=-4.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65E30C433DB
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 16:27:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD6E9C433E6
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 16:53:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AC1A64F4E
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 16:27:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD26D64F44
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 16:53:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbhBDQ06 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 11:26:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
+        id S237133AbhBDQxk (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 11:53:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237023AbhBDPC6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 10:02:58 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9743C06121D
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 07:00:34 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id p15so3840541wrq.8
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 07:00:34 -0800 (PST)
+        with ESMTP id S238192AbhBDQwi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 11:52:38 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35118C0613D6
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 08:51:58 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id v15so4342669wrx.4
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 08:51:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:references:from:autocrypt:subject:message-id:date:user-agent
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=mKgL+6nR7ayMAHLgMxUYEgveEc8Kcliye/W2K9qpAT8=;
-        b=JwhQFBYmunhP6zzSNZ0Szhze6hZR0MrLlqjtQtl8OSi8bPq13Gh6eB1AAXbohP0TB3
-         kAC9c8r1GnfChL5X0D5/0o+Pcsb6BohGH2bSx3G5jmhXBfePUr4cLFsQKViAIOqpGTCX
-         I3AlwQtrxlwUQOYRSD/zD06AXeZ74QVeGitlMuA8VUeWy2liZRdhslNobaZlssbiz3ZK
-         9jib7tBjH4hH962qs8w5OEFMBHC4XpG5DDbs+ZwAPx3iRcRIWs5kCOQMHPovUaAlaJ4i
-         Bw791RrdSXD0EdimBnCSEyzanP0GAbwUeH+tTzQpCYr2ZGmG7dQBh0z2qEie8BPTt1MQ
-         Ol4g==
+        bh=hHsVyvfLdYO91mdKh8vfyno0dUQF8KrgzEVOarEyeIc=;
+        b=j1b9rPTGi1P8wct43UxlQ+jDurknl4YM8gR8xfYWm01IToNfePH4VlGRocss2pej10
+         zqp4A1eW7qYXWjo0vivhAjQFyQCL94wS2yaETxvtBbZfZdN38p72nJVomjjuAyw0XBEG
+         lzcP2tyPh7tK2VaUY/ncVEfzbCLa3xm6wrZPL9ttUPnFbXEd56HSlLGeFCv3gQGdxCFg
+         LCUlNkGyeqq0QKCUgcaHJ85klHqyAQZLZ1bXniiM0U9UHwYwQZv39QqrZBr3nAAbskTm
+         g6fcIkXR1DMYxhsYNKYZf3eW1oX552v3pemRDB2EVKs2G/J98aex21wJpg+k3Csg2Cqk
+         IUAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:autocrypt:subject:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=mKgL+6nR7ayMAHLgMxUYEgveEc8Kcliye/W2K9qpAT8=;
-        b=JPoqcPzlsup624tgRFBE18Ek4of1VkkDPRIlRD3ay5y1F5QiZJ0UxCnMTafxMrktF+
-         4KMplC0JmZhKm/ieN6itfqrk2zk00w0x3+j/mb/FZaSNHqpvP3QR/Kz41Cbqry7ijpbm
-         Pb2ZCyZKs4GOUqTNepiV/qOUoShs78dzEfbdBfXH58VVyXL5pUZa9EPd7Le00FVF5o85
-         Tv8b3lvtNUdetNXpjxEnfrnVFYuIgBdekL0zovOxFMZYo/bRJGNHnvj1Vf2IlJc9Auv8
-         VklfOEtM7lN63VLGSQuOkTgumC4qWxy94X3FOUlkq/kSBNfnPkVGwRMT/yaKvuzZvJiY
-         2Mmw==
-X-Gm-Message-State: AOAM530vytlm6GVKHkk0cLhqdrgD/JUTyLi8CF4XiLCAffKChYPrq11y
-        YKi2BaA4mq+i+s9c8CbW3ycF6jWnqFaxww==
-X-Google-Smtp-Source: ABdhPJyyw/GEH9n0BjqGzjq9Nm4AS6If07KhF/jga7ZPmz2DEoSe7pKHggY/CKrgSTyZE1CKvDvjjQ==
-X-Received: by 2002:adf:c413:: with SMTP id v19mr9847701wrf.158.1612450832927;
-        Thu, 04 Feb 2021 07:00:32 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=hHsVyvfLdYO91mdKh8vfyno0dUQF8KrgzEVOarEyeIc=;
+        b=VBjqWtxOyISdNHb41bYpLkuESyqMTHFtT2TvBWprLruwYkOx0ywR3v3hGU5QWypX9P
+         y46yuTf0M05iTQcuQgWZK84N1eCIuhg53yGAfFI2Q5YMq1Iw/MvbIcFLCO5eLFm2LUF6
+         eJ56+iuqRApDcqxflpr8y3VRjtz+vyFwFyWEYBUc5U2IyK46h+6baxylEBeeJ1hKScri
+         GDThgYsffmMkrL8gTWPfROeoWU/Sjr+MIaUdi4c8+31ivYu9EA+dVCLqZIeGci0Va01J
+         jV0oE/RN7TnET62HZjOdLevcUXeHYMDGCVF8JrY0oKhM/rL5vK7BKPAXcGK85sKid3rk
+         FkLw==
+X-Gm-Message-State: AOAM530jgJW5fXrPG8jiOpM1uecBSckHT9Sk7s7pEnVb5voiCoJyOr5C
+        lrzIi/DLW4pCj9Yj3G1ofqQ=
+X-Google-Smtp-Source: ABdhPJzw4DH5sUx8PEWK0AEsI8TMAt8SCMXEMONbzLJkJUaan5WnV567bRfse5V1+e0Im9jOWyCdwA==
+X-Received: by 2002:a05:6000:10cd:: with SMTP id b13mr221832wrx.163.1612457517004;
+        Thu, 04 Feb 2021 08:51:57 -0800 (PST)
 Received: from [192.168.8.175] ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id x13sm1171710wmc.27.2021.02.04.07.00.28
+        by smtp.gmail.com with ESMTPSA id y18sm8897158wrt.19.2021.02.04.08.51.55
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Feb 2021 07:00:29 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <cover.1612446019.git.asml.silence@gmail.com>
- <014eff28b71c8e5da5edaa4ad9d142916317c839.1612446019.git.asml.silence@gmail.com>
- <8acbd513-531c-0a12-ea3f-ecf0cd94c9e2@kernel.dk>
+        Thu, 04 Feb 2021 08:51:56 -0800 (PST)
+Subject: Re: [PATCH] io_uring: fix possible deadlock in io_uring_poll
+To:     Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <1612295573-221587-1-git-send-email-haoxu@linux.alibaba.com>
+ <9d60270f-993b-ba83-29a0-ce6582c383e0@gmail.com>
+ <5f0db9bc-700a-e0f5-a77c-9acfe4e56783@kernel.dk>
 From:   Pavel Begunkov <asml.silence@gmail.com>
 Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  mQINBFmKBOQBEAC76ZFxLAKpDw0bKQ8CEiYJRGn8MHTUhURL02/7n1t0HkKQx2K1fCXClbps
@@ -104,43 +106,40 @@ Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
  UVMKkOCdFhutRmYp0mbv2e87IK4erwNHQRkHUkzbsuym8RVpAZbLzLPIYK/J3RTErL6Z99N2
  m3J6pjwSJY/zNwuFPs9zGEnRO4g0BUbwGdbuvDzaq6/3OJLKohr5eLXNU3JkT+3HezydWm3W
  OPhauth7W0db74Qd49HXK0xe/aPrK+Cp+kU1HRactyNtF8jZQbhMCC8vMGukZtWaAwpjWiiH bA==
-Subject: Re: [PATCH v2 13/13] io_uring/io-wq: return 2-step work swap scheme
-Message-ID: <cdce2630-ddc8-a912-4937-147395a6ff54@gmail.com>
-Date:   Thu, 4 Feb 2021 14:56:45 +0000
+Message-ID: <0c7cfa8b-5c32-7b00-e312-936df68553a2@gmail.com>
+Date:   Thu, 4 Feb 2021 16:48:13 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <8acbd513-531c-0a12-ea3f-ecf0cd94c9e2@kernel.dk>
+In-Reply-To: <5f0db9bc-700a-e0f5-a77c-9acfe4e56783@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 04/02/2021 14:52, Jens Axboe wrote:
-> On 2/4/21 6:52 AM, Pavel Begunkov wrote:
->> Saving one lock/unlock for io-wq is not super important, but adds some
->> ugliness in the code. More important, atomic decs not turning it to zero
->> for some archs won't give the right ordering/barriers so the
->> io_steal_work() may pretty easily get subtly and completely broken.
+On 03/02/2021 01:48, Jens Axboe wrote:
+> On 2/2/21 5:04 PM, Pavel Begunkov wrote:
+>> On 02/02/2021 19:52, Hao Xu wrote:
+>>> This might happen if we do epoll_wait on a uring fd while reading/writing
+>>> the former epoll fd in a sqe in the former uring instance.
+>>> So let's don't flush cqring overflow list when we fail to get the uring
+>>> lock. This leads to less accuracy, but is still ok.
 >>
->> Return back 2-step io-wq work exchange and clean it up.
+>> if (io_cqring_events(ctx) || test_bit(0, &ctx->cq_check_overflow))
+>>         mask |= EPOLLIN | EPOLLRDNORM;
+>>
+>> Instead of flushing. It'd make sense if we define poll as "there might
+>> be something, go do your peek/wait with overflow checks". Jens, is that
+>> documented anywhere?
 > 
-> IIRC, this wasn't done to skip the lock/unlock exchange, which I agree
-> doesn't matter, but to ensure that a link would not need another io-wq
-> punt. And that is a big deal, it's much faster to run it from that
-> same thread, rather than needing a new async queue and new thread grab
-> to get there.
+> Nope - I actually think that the approach chosen here is pretty good,
+> it'll force the app to actually check and hence do what it needs to do.
 
-Right, we just refer to different patches and moments. This one is fine
-in that regard, it just moves returning link from ->do_work() to
-->free_work().
+Ok, seems we agree on that.
 
-> 
-> Just want to make sure that's on your mind... Maybe it's still fine
-> as-is, didn't look too closely yet or test it.
-> 
+Hao, can you send an updated patch?
 
 -- 
 Pavel Begunkov

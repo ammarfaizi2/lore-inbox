@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6F4CC433DB
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A7C1C433DB
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DCB964F51
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55CFE64F51
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236521AbhBDN7g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 08:59:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46996 "EHLO
+        id S236413AbhBDN7i (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 08:59:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236538AbhBDN51 (ORCPT
+        with ESMTP id S236532AbhBDN51 (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:57:27 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED61BC061353
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:14 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id m1so3072964wml.2
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:14 -0800 (PST)
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8695BC061351
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:12 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id i9so3074163wmq.1
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=AuBZBrVWaAmNt8cFRYQbQKzSDE4eLRO1oQUrE/dDkgg=;
-        b=irhGI1KPE160YMlA7ZR+Su5jPh7xusirBTNW/bn7po/HekJXtgw6UNZ9Bcqs2GwnW3
-         UJ3sWceg6ly3S5D15nKuby3QIOAj830unwq7upVCxoeGxoeH5j8jcvONCWRcwL4kfn+8
-         JJk+SBNhry/SazOwad00+CGJdjHZ8Gg4RQ1BilLuTOhd5PcTpzZHqzvffDUQC0MUHGyF
-         spOBImxzt+ZmhbWhNiVr7cmGUnRyDCJcrZ6b91RIZ/KVa9oowwVMFSNLi0eXn+UTkGXj
-         OovwERsVtafnE30ukPb98BoNrrl0qpJQR8/tDqlgT09AbF5K0Y/l9GHpEOJqY6cwKsns
-         7iYw==
+        bh=2wWCtLxp198SoW00TGPa5sMcyBJEKQnt27XqwVR48fo=;
+        b=gBstv9Mrx8j73VxzYCVmgjB3RPKSWvefOs0OleaHAq3NiMDz2GIA0lvDnosh3EzYsJ
+         2ll/QYxdTlPP1rz+0p3NGXqm8u8DqFVkvp9mjxStagxXHfhGqkVZzzxG664aEgNZDkgv
+         AlIOHbqNnHpXTUZqJVGpyPary9IUGzP5TtYbUT+nJ7rlPX/migRh6p2/gPlhmaoOCdpZ
+         2/LheqJ9fzx9+oIa3htkeZWXRLKH4N/rhmBBhQ68SHJd8FKLESXzun/lD40KLAXpit3G
+         cwfrn+LGykwash7nCOEhCaFY9Wf8uiGNvp08G+nc3W+X639zlgHRG6VNAQjyYoC/jzbg
+         S1eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AuBZBrVWaAmNt8cFRYQbQKzSDE4eLRO1oQUrE/dDkgg=;
-        b=j8iOMHlqIPyce9SKY3MD1g6fEoPXqZuuFXtbnsrp7XBYrUBeD4N2+ud6sprMu6rgoh
-         g4UJ0ZH8wt90mTIMSjmT6r1h50ByfwRyU9HZFA0vITwoSW5uuSI3LOl7t4t1k7S4ICIs
-         LRyd5CxfkrrVvJOWX0dfdmw+q7qek0RzGtdMq/kSl9q1S0EqG8mqJQzrARLreqBsUNGB
-         bKczCCSCjic007s2ecoGTFXg09M0HtJ9qX6hpX48kdrrIjFmSjn6FYmVqTbGVCD99+DR
-         Q6LNu9WK65OzzpxXCOwkIQhMe2ZPHd85GdoO8/x2voXVDpqveVxrGaptWvhxfyBkXtUh
-         HjUw==
-X-Gm-Message-State: AOAM530kwgxn9EhcZ9IC9EyRP+LHeXvKI8r3EJckAa6ThtVcVZU9kRrH
-        /QQROe62ecnZY/C3UIAH0h8=
-X-Google-Smtp-Source: ABdhPJw/YDiXeY3L1NtSjo9KFsO5QbK4spPL6e9zQC/ltlNWuvYSy66R3XwgshcbhX29KWJxL0a5/w==
-X-Received: by 2002:a1c:e903:: with SMTP id q3mr7635961wmc.100.1612446973723;
-        Thu, 04 Feb 2021 05:56:13 -0800 (PST)
+        bh=2wWCtLxp198SoW00TGPa5sMcyBJEKQnt27XqwVR48fo=;
+        b=XvvFxP0Cm0Q6BgF49Yqd8MEitMSMJ9FzTcjEogvhEtQzOtq9cWkgmQHGpGs5lNQ8/2
+         W7/9jNTQSLHsT+O6uMEqafWvVfJ/OdUsDYadZcKjlEJDTi+Wej6DgcqQCBA3T/8nelpS
+         L5lxJr76N5FzeYiqnhGXOTjQRZi3piET4erxxbGFBkY1lDVi3o4S8FlBFGLVaR17pUDi
+         74T/fNH+hJnRdQa3D+GoHhNfBLa3WbEnJf1wHHmQQ0SX/pWXDanIbiOddSa6KeINrD+q
+         BHT85O2FIfFmZHvV58obJqZjy40bgjgC5Q/Rws/oRfsm1EcNrISJ6SAHJMqFwV3GUNtF
+         j3YA==
+X-Gm-Message-State: AOAM532NklimVAS4Jyd/ydweoBieiZtMPkvihRywsHOkznjdvlAT0AhS
+        Sly847zJR0weD+oyK63u+EGEvVOxWb0QVg==
+X-Google-Smtp-Source: ABdhPJxO7w2P41xnS5tgt7DGDagAfDL69GO8l+OdFVGNQamHqTWjuNe7CZKdszpsx4Y6j3l4wwLRXA==
+X-Received: by 2002:a05:600c:2742:: with SMTP id 2mr7590420wmw.7.1612446971253;
+        Thu, 04 Feb 2021 05:56:11 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.12
+        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 05:56:13 -0800 (PST)
+        Thu, 04 Feb 2021 05:56:10 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 12/13] io_uring: deduplicate file table slot calculation
-Date:   Thu,  4 Feb 2021 13:52:07 +0000
-Message-Id: <0281a308eb5a98a46654eaa2ea2e2ed5ec2ebeef.1612446019.git.asml.silence@gmail.com>
+Subject: [PATCH v2 10/13] io_uring: treat NONBLOCK and RWF_NOWAIT similarly
+Date:   Thu,  4 Feb 2021 13:52:05 +0000
+Message-Id: <d8067f0604f06dbda96dca028acd170d024abe52.1612446019.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612446019.git.asml.silence@gmail.com>
 References: <cover.1612446019.git.asml.silence@gmail.com>
@@ -70,130 +70,104 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Extract a helper io_fixed_file_slot() returning a place in our fixed
-files table, so we don't hand-code it three times in the code.
+Make decision making of whether we need to retry read/write similar for
+O_NONBLOCK and RWF_NOWAIT. Set REQ_F_NOWAIT when either is specified and
+use it for all relevant checks. Also fix resubmitting NOWAIT requests
+via io_rw_reissue().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 41 +++++++++++++++++++----------------------
- 1 file changed, 19 insertions(+), 22 deletions(-)
+ fs/io_uring.c | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 24cc00ff7155..5ee6a9273fca 100644
+index bbf8ea8370d6..ce2ea3f55f65 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7740,6 +7740,15 @@ static void io_rsrc_put_work(struct work_struct *work)
+@@ -2734,7 +2734,9 @@ static bool io_rw_reissue(struct io_kiocb *req, long res)
+ 	if (res != -EAGAIN && res != -EOPNOTSUPP)
+ 		return false;
+ 	mode = file_inode(req->file)->i_mode;
+-	if ((!S_ISBLK(mode) && !S_ISREG(mode)) || io_wq_current_is_worker())
++	if (!S_ISBLK(mode) && !S_ISREG(mode))
++		return false;
++	if ((req->flags & REQ_F_NOWAIT) || io_wq_current_is_worker())
+ 		return false;
+ 
+ 	lockdep_assert_held(&req->ctx->uring_lock);
+@@ -2907,16 +2909,17 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct kiocb *kiocb = &req->rw.kiocb;
++	struct file *file = req->file;
+ 	unsigned ioprio;
+ 	int ret;
+ 
+-	if (S_ISREG(file_inode(req->file)->i_mode))
++	if (S_ISREG(file_inode(file)->i_mode))
+ 		req->flags |= REQ_F_ISREG;
+ 
+ 	kiocb->ki_pos = READ_ONCE(sqe->off);
+-	if (kiocb->ki_pos == -1 && !(req->file->f_mode & FMODE_STREAM)) {
++	if (kiocb->ki_pos == -1 && !(file->f_mode & FMODE_STREAM)) {
+ 		req->flags |= REQ_F_CUR_POS;
+-		kiocb->ki_pos = req->file->f_pos;
++		kiocb->ki_pos = file->f_pos;
  	}
- }
+ 	kiocb->ki_hint = ki_hint_validate(file_write_hint(kiocb->ki_filp));
+ 	kiocb->ki_flags = iocb_flags(kiocb->ki_filp);
+@@ -2924,6 +2927,10 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (unlikely(ret))
+ 		return ret;
  
-+static struct file **io_fixed_file_slot(struct fixed_rsrc_data *file_data,
-+					unsigned i)
-+{
-+	struct fixed_rsrc_table *table;
++	/* don't allow async punt for O_NONBLOCK or RWF_NOWAIT */
++	if ((kiocb->ki_flags & IOCB_NOWAIT) || (file->f_flags & O_NONBLOCK))
++		req->flags |= REQ_F_NOWAIT;
 +
-+	table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
-+	return &table->files[i & IORING_FILE_TABLE_MASK];
-+}
-+
- static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
- {
- 	struct fixed_rsrc_ref_node *ref_node;
-@@ -7808,6 +7817,7 @@ static void destroy_fixed_rsrc_ref_node(struct fixed_rsrc_ref_node *ref_node)
- 	kfree(ref_node);
- }
+ 	ioprio = READ_ONCE(sqe->ioprio);
+ 	if (ioprio) {
+ 		ret = ioprio_check_cap(ioprio);
+@@ -2934,10 +2941,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	} else
+ 		kiocb->ki_ioprio = get_current_ioprio();
  
-+
- static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 				 unsigned nr_args)
- {
-@@ -7840,9 +7850,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		goto out_free;
- 
- 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
--		struct fixed_rsrc_table *table;
--		unsigned index;
+-	/* don't allow async punt if RWF_NOWAIT was requested */
+-	if (kiocb->ki_flags & IOCB_NOWAIT)
+-		req->flags |= REQ_F_NOWAIT;
 -
- 		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
- 			ret = -EFAULT;
- 			goto out_fput;
-@@ -7867,9 +7874,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 			fput(file);
- 			goto out_fput;
- 		}
--		table = &file_data->table[i >> IORING_FILE_TABLE_SHIFT];
--		index = i & IORING_FILE_TABLE_MASK;
--		table->files[index] = file;
-+		*io_fixed_file_slot(file_data, i) = file;
+ 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+ 		if (!(kiocb->ki_flags & IOCB_DIRECT) ||
+ 		    !kiocb->ki_filp->f_op->iopoll)
+@@ -3546,15 +3549,14 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		/* IOPOLL retry should happen for io-wq threads */
+ 		if (!force_nonblock && !(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 			goto done;
+-		/* no retry on NONBLOCK marked file */
+-		if (req->file->f_flags & O_NONBLOCK)
++		/* no retry on NONBLOCK nor RWF_NOWAIT */
++		if (req->flags & REQ_F_NOWAIT)
+ 			goto done;
+ 		/* some cases will consume bytes even on error returns */
+ 		iov_iter_revert(iter, io_size - iov_iter_count(iter));
+ 		ret = 0;
+ 	} else if (ret <= 0 || ret == io_size || !force_nonblock ||
+-		   (req->file->f_flags & O_NONBLOCK) ||
+-		   !(req->flags & REQ_F_ISREG)) {
++		   (req->flags & REQ_F_NOWAIT) || !(req->flags & REQ_F_ISREG)) {
+ 		/* read all, failed, already did sync or don't want to retry */
+ 		goto done;
  	}
- 
- 	ret = io_sqe_files_scm(ctx);
-@@ -7972,7 +7977,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- {
- 	struct fixed_rsrc_data *data = ctx->file_data;
- 	struct fixed_rsrc_ref_node *ref_node;
--	struct file *file;
-+	struct file *file, **file_slot;
- 	__s32 __user *fds;
- 	int fd, i, err;
- 	__u32 done;
-@@ -7990,9 +7995,6 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 
- 	fds = u64_to_user_ptr(up->data);
- 	for (done = 0; done < nr_args; done++) {
--		struct fixed_rsrc_table *table;
--		unsigned index;
--
- 		err = 0;
- 		if (copy_from_user(&fd, &fds[done], sizeof(fd))) {
- 			err = -EFAULT;
-@@ -8002,14 +8004,13 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 			continue;
- 
- 		i = array_index_nospec(up->offset + done, ctx->nr_user_files);
--		table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
--		index = i & IORING_FILE_TABLE_MASK;
--		if (table->files[index]) {
--			file = table->files[index];
--			err = io_queue_file_removal(data, file);
-+		file_slot = io_fixed_file_slot(ctx->file_data, i);
-+
-+		if (*file_slot) {
-+			err = io_queue_file_removal(data, *file_slot);
- 			if (err)
- 				break;
--			table->files[index] = NULL;
-+			*file_slot = NULL;
- 			needs_switch = true;
- 		}
- 		if (fd != -1) {
-@@ -8031,13 +8032,12 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				err = -EBADF;
- 				break;
- 			}
--			table->files[index] = file;
- 			err = io_sqe_file_register(ctx, file, i);
- 			if (err) {
--				table->files[index] = NULL;
- 				fput(file);
- 				break;
- 			}
-+			*file_slot = file;
- 		}
- 	}
- 
-@@ -9488,11 +9488,8 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 	seq_printf(m, "SqThreadCpu:\t%d\n", sq ? task_cpu(sq->thread) : -1);
- 	seq_printf(m, "UserFiles:\t%u\n", ctx->nr_user_files);
- 	for (i = 0; has_lock && i < ctx->nr_user_files; i++) {
--		struct fixed_rsrc_table *table;
--		struct file *f;
-+		struct file *f = *io_fixed_file_slot(ctx->file_data, i);
- 
--		table = &ctx->file_data->table[i >> IORING_FILE_TABLE_SHIFT];
--		f = table->files[i & IORING_FILE_TABLE_MASK];
- 		if (f)
- 			seq_printf(m, "%5u: %s\n", i, file_dentry(f)->d_iname);
- 		else
+@@ -3675,8 +3677,8 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
+ 	 */
+ 	if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
+ 		ret2 = -EAGAIN;
+-	/* no retry on NONBLOCK marked file */
+-	if (ret2 == -EAGAIN && (req->file->f_flags & O_NONBLOCK))
++	/* no retry on NONBLOCK nor RWF_NOWAIT */
++	if (ret2 == -EAGAIN && (req->flags & REQ_F_NOWAIT))
+ 		goto done;
+ 	if (!force_nonblock || ret2 != -EAGAIN) {
+ 		/* IOPOLL retry should happen for io-wq threads */
 -- 
 2.24.0
 

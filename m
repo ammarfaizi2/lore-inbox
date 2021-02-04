@@ -2,127 +2,100 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 327A8C433E0
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 619BBC433E0
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E551B64F51
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2E17364F51
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236564AbhBDN6e (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 08:58:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47064 "EHLO
+        id S236516AbhBDN6i (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 08:58:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236516AbhBDN4w (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:56:52 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF2FC061794
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:01 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id z6so3563730wrq.10
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:01 -0800 (PST)
+        with ESMTP id S236461AbhBDN4q (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:56:46 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889D4C0613D6
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:55:59 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id c12so3576198wrc.7
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:55:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=zzXH2dUcSc6tPQjcDzuISAM1640PU3c18zS4EiqrSMk=;
-        b=Cmin0+NyPC4JiUTupN+ZdnJT8t3zRICZh03JzS38TMPPgR9Wi0J9PHY1z+btcnG5dz
-         7huwU4/DIARaG9nxYQJGCK6Kcg/HMJFA7ZjsDjsoKvmExIxU3b3tWf7JhBL5MG8j/Mg9
-         vFCOpX0rGz9PdzMA9MdwsaT7h8CzwhechFm0teVN+8otqwRUKcCgPtwY2OEeWMc6+wsP
-         ffTdszme2y1r1GdiRWsbsg73oflkD7/z87xRjLEZJUGrSw+or95qAmAzfVWNDfHKKEKq
-         GeBAxfm21rVxQ9PdzyXgEpbLTAoEU37lgd0C9sOpZAOS1rb99anb937799wYJUtmWwJp
-         btSQ==
+        bh=Qki3CnTEpkNyMdIhcAvX5K5YrpNaRHZ/PzBv6u+9W0A=;
+        b=pxWNvI9yNVdLd4x7iRbhm30MsXo69/2k/dnjbOgAAFQA6vLr9G1p1DltPg7sniXjZh
+         AAqn0I5TbLUCvryqFxoz7vzFGTYpnnPpBnHQvGr6eW1+kEJXv4u8BuARsqt1BuyLCFJW
+         XgQcqmR4Gdsyt2LtjtISh36VmB9dof9Ta1DaRJSLoY9kYPBte13Wnr9j+Yzz62C5jZwG
+         /emp44XKqDMQI4i2ZPECqQtOmU8g2uNdrYDqJrsx79Ka5Y/RNlQEnMAAya3l1jQY4hKn
+         ZVRPMmIi+lez8As/ejLd6mHLATQsOxVP8HC1SPNRMYqHX+qTRPgfRfItf3R4Ios18AJa
+         5QMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zzXH2dUcSc6tPQjcDzuISAM1640PU3c18zS4EiqrSMk=;
-        b=Qe1Akxvsq8B4iNgakMyTdGQSB6PRg45XrYmKNE0iMJ9JocUwM4xBkAozmFj7LCHqnD
-         De5UCLy/84GLmj/K46CXgEOulE6hMHu9VW/uKynJACeJ1QlI35JDwT4PM5WXQRgoEDiA
-         sra6XvjP4q0JLFo7z1SCo7Q3L7Io31Vf2QqsaXvAMdnVSQAXBijcZLyTLTzfWvwXrxKe
-         wZXlXoC3ET7UhncxTvJOs2NpNu8ovrubwo/iiYN54oJUiy1iVbrGsdba11aKO7AvoIho
-         F5oREsN1O6E0q9XnEvDUfrsuCQKuxjZfGwpLV9zie9yUHk01jGXXCnxJmNkWwJDWQu95
-         gsvg==
-X-Gm-Message-State: AOAM532rJRh2yvKGZ9O3BCci6wkV+QOe82/TA0QFCEs5G1p3nsWgmFoy
-        mAj/hpsvQiL+YGkFvHvaaeqDqsdhYQ+CmQ==
-X-Google-Smtp-Source: ABdhPJwTe6kSFy8wLakUz2HoznZK8auCdCkEOvwCuMtew+LDb/BCms7ZFrtFFyGW1t7eizNJ6TnmPA==
-X-Received: by 2002:adf:fc88:: with SMTP id g8mr9248101wrr.259.1612446960484;
-        Thu, 04 Feb 2021 05:56:00 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Qki3CnTEpkNyMdIhcAvX5K5YrpNaRHZ/PzBv6u+9W0A=;
+        b=tiq94Sz09aFNY5Hk5nWlJU8tpFVmQnkeyeA/0Xw6WhMQ3z3QYID6eX5+ByFgI73+bx
+         57p9uKXBOEgxxdF6bAAXzRS9avLqk4aMBemZouflmxUjnWPHc2pVcRSNrsTBSXwor3zB
+         QwfqTHY1VfOi7zppiAv2EgnlWD8nemchzcz0uBPGKHcuShm0uLqhsV5yZOiO4ZusNDoY
+         PNmRLHe6Er/GDkElpav6LgXK+bVOInboK5ETn/vjfLrpb92AsaA3ia0hB6BIxjUVV5nT
+         GGhkdOdKr2fc6+QWlKI6TRQbvfL9FJVqysm/IAAPfyN1QTxgM3Bu3GK/wUp8stkVWQbD
+         vkRw==
+X-Gm-Message-State: AOAM531tOORM5dq4fMH3OWpoEKJzCVQed1aMQey3K6B6M9gql2ZhK0yx
+        G4Es/AJdjxkKtI8gsTHJVmPtdVl77CKmCw==
+X-Google-Smtp-Source: ABdhPJzOPavUIPfn60haxwSktT369BCQ8R7XHdot2Z9ucP36WlIhBA34AxQm124iohmQywedpXKv3Q==
+X-Received: by 2002:a5d:6b0a:: with SMTP id v10mr3133935wrw.183.1612446958357;
+        Thu, 04 Feb 2021 05:55:58 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.55.59
+        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.55.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 05:56:00 -0800 (PST)
+        Thu, 04 Feb 2021 05:55:57 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 02/13] io_uring: refactor scheduling in io_cqring_wait
-Date:   Thu,  4 Feb 2021 13:51:57 +0000
-Message-Id: <5e57cb0908b3b94f0ea74d8f9bb31e708f68a975.1612446019.git.asml.silence@gmail.com>
+Subject: [PATCH v2 5.12 00/13] a second pack of 5.12 cleanups
+Date:   Thu,  4 Feb 2021 13:51:55 +0000
+Message-Id: <cover.1612446019.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1612446019.git.asml.silence@gmail.com>
-References: <cover.1612446019.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-schedule_timeout() with timeout=MAX_SCHEDULE_TIMEOUT is guaranteed to
-work just as schedule(), so instead of hand-coding it based on arguments
-always use the timeout version and simplify code.
+Bunch of random cleanups, noticeable part of which (4-9/13) refactor
+io_read(), which is currently not in the best shape and is hard to
+understand.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+7/13 may actually fix a problem.
+10/13 should make NOWAIT and NONBLOCK to work right
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a750c504366d..5b735635b8f0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7213,9 +7213,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 		.to_wait	= min_events,
- 	};
- 	struct io_rings *rings = ctx->rings;
--	struct timespec64 ts;
--	signed long timeout = 0;
--	int ret = 0;
-+	signed long timeout = MAX_SCHEDULE_TIMEOUT;
-+	int ret;
- 
- 	do {
- 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
-@@ -7239,6 +7238,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	}
- 
- 	if (uts) {
-+		struct timespec64 ts;
-+
- 		if (get_timespec64(&ts, uts))
- 			return -EFAULT;
- 		timeout = timespec64_to_jiffies(&ts);
-@@ -7264,14 +7265,10 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 			finish_wait(&ctx->wait, &iowq.wq);
- 			continue;
- 		}
--		if (uts) {
--			timeout = schedule_timeout(timeout);
--			if (timeout == 0) {
--				ret = -ETIME;
--				break;
--			}
--		} else {
--			schedule();
-+		timeout = schedule_timeout(timeout);
-+		if (timeout == 0) {
-+			ret = -ETIME;
-+			break;
- 		}
- 	} while (1);
- 	finish_wait(&ctx->wait, &iowq.wq);
+v2: add 9-13/13
+
+Pavel Begunkov (13):
+  io_uring: deduplicate core cancellations sequence
+  io_uring: refactor scheduling in io_cqring_wait
+  io_uring: refactor io_cqring_wait
+  io_uring: refactor io_read for unsupported nowait
+  io_uring: further simplify do_read error parsing
+  io_uring: let io_setup_async_rw take care of iovec
+  io_uring: don't forget to adjust io_size
+  io_uring: inline io_read()'s iovec freeing
+  io_uring: highlight read-retry loop
+  io_uring: treat NONBLOCK and RWF_NOWAIT similarly
+  io_uring: io_import_iovec return type cleanup
+  io_uring: deduplicate file table slot calculation
+  io_uring/io-wq: return 2-step work swap scheme
+
+ fs/io-wq.c    |  16 +--
+ fs/io-wq.h    |   4 +-
+ fs/io_uring.c | 366 ++++++++++++++++++++++----------------------------
+ 3 files changed, 166 insertions(+), 220 deletions(-)
+
 -- 
 2.24.0
 

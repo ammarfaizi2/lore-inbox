@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5160C433E0
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEBDCC433E0
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9231964E3F
-	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96AAA64E3F
+	for <io-uring@archiver.kernel.org>; Thu,  4 Feb 2021 13:59:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236461AbhBDN7C (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 08:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47066 "EHLO
+        id S236508AbhBDN71 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 08:59:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236517AbhBDN4w (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:56:52 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15C4C061797
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:02 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id u14so3056826wmq.4
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:02 -0800 (PST)
+        with ESMTP id S236518AbhBDN45 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 08:56:57 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B468C0617AB
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 05:56:09 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id q7so3537477wre.13
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 05:56:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=/jsxEFi3mexEE8IxhV1JI/eXfgYmjPJFqnHdB5iAOnM=;
-        b=Hieu2/bIXdWMH2tMknlZWJfZuQPtTNUo4mzFRPPtkTKUq789DBe8aYjHZ4lpmpAytX
-         pZQ7NBq/4cdWZl9AhZn6K4EsIYoIObe7QRx031+GDfkS7AgumEPG1o5VRhuqFmi3tF9N
-         5pCIClhA9BzpylSvj1bqOzyrjhnmjZAyk+fpgu+RduUpqFUJGr+qgwOvNinmzriM00RD
-         Bi6PqpefwWjXkfyK/n5+D+yJaPdxOLRqAC1OCpUNzwvspR/Z28XGgQD5268BJhgHIZUs
-         sdi4ztX1Al2iAQsG+Ti3+w1Yenw+y4814r1dMQlwHPQrxVstozjAOIj401z2g4QQvi58
-         cs6Q==
+        bh=PJaKFrT21lsGDpJ/SAeHllDzmSUJ5V17en8CIYJJJ58=;
+        b=RQn7HdP9k22D1U8gkCvtwvnzAkDl5y/yocJi8H1CinhPvSdp+A5DmO2DQ71m/lwsQw
+         aGUzX+kVrhQ0ctMk2ftPpw7nQ3IpXHE39Op5/0PiwsSE7jx76nlWGYkpijmG8o+DLv46
+         YMl4M+0m/W2yQiaqQ+83is+0nT8uMvfVklrosSvsis57bp1kK774jRGzUmcZkE1X1E4T
+         RhgSv2ejmIKbrRcKzMYP1pj2UNo4qij/n8zrOlMHve9c+YlpmuJfLT86Nd1iVANPu+CS
+         CVizS2g7iVNiHyuog53S21UBQS/pC70eB57pc6gPLjLt+nZwxjORY/evWkyfSzJAjFHl
+         4D+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/jsxEFi3mexEE8IxhV1JI/eXfgYmjPJFqnHdB5iAOnM=;
-        b=nMa93smfwk+J9mpRZTk2XB5ut4qFslXUqbqYk+/Wa3gjqnpBIxIR0qxr4abPeMLCOu
-         cmd6BVBhmyu66a5ij3U5KgOeMoQiToaph8qfnPAWTP6tMRreTpp5SKbKV9BlW2wqYsSV
-         MEs7EzxvxkJgEgXofXzl9UOX2S8GbtbHkwWJIuPPnZ/MhZDlrXLKfQaSLbAlUKg3TLJe
-         1oTdkJdbfJbyRrTvdczK2awpi7MKTHtttfhpb+Fm/QPDcKkHV5K8YvizpBXw1+Bw8op+
-         OBlmBXmey3UqkbeJ5H+MmuEPjnIRRbFjTN8wbilv64BaBdCe9ONh6Nbds467gwPb+pR+
-         30zA==
-X-Gm-Message-State: AOAM5316xvySMCFR8oqyGCNiPhQQB3Ga8JCPeF9fHup17fy/6fShf8X+
-        utVG7eGHpUnP9JXvV9XJUiM=
-X-Google-Smtp-Source: ABdhPJzTmPCqccFaK1e2fU1q4OJXq/aNFMu+ZqqlzQgh1dCnZbW2ywAHtGkm6QogZUWH8dqmKPRzkw==
-X-Received: by 2002:a7b:cc16:: with SMTP id f22mr7432781wmh.131.1612446961771;
-        Thu, 04 Feb 2021 05:56:01 -0800 (PST)
+        bh=PJaKFrT21lsGDpJ/SAeHllDzmSUJ5V17en8CIYJJJ58=;
+        b=EYsPNmr+jlQBxl5mYR2UMsrBnoyQkMIslaDcARa/3v5+B5rgWaJpEaLP9UjA/Is++X
+         yIyf/STlvIm4Q5xpy32Ym5amjg+wHjmIbfdufRWopM1lUCY0rtRGKEaDzFtsSB2zhtCV
+         2vCw8W+rqghxZahWE7C4B4hOGKQaOLfxmvnM4BfPD878A+5NoxbtmfR1GCNWPzSQXZKz
+         6udJx6NvG0Cq5h7xxmqWyEQXTcGeiNKMVDjAtmNOjM2DMmxVz4qm9wVI6mFvaGsyTF8l
+         4/+cKtWFnOtFF7DrzfadSKnWHSy2utHtzD/ohCT3NKaf8QxlhgdrMwAjeWYFpYyCZFHk
+         NzRA==
+X-Gm-Message-State: AOAM531l/5U9DKctg6+bwShq72n5zYFDfEhzITW6hs1I+4WJGPxYrLLn
+        WEDbyTx75osWpHzrWlbBD4Usp1uqwKJJJw==
+X-Google-Smtp-Source: ABdhPJw8IpdTqbOjsOpuEEnG4MkW5nxb6DedXTIIqNip9VjSg1zcBj/ANdqrdFM2dGkQ4P6eryqaEg==
+X-Received: by 2002:adf:f843:: with SMTP id d3mr9424259wrq.172.1612446968320;
+        Thu, 04 Feb 2021 05:56:08 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.00
+        by smtp.gmail.com with ESMTPSA id k4sm8910561wrm.53.2021.02.04.05.56.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 05:56:01 -0800 (PST)
+        Thu, 04 Feb 2021 05:56:07 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 03/13] io_uring: refactor io_cqring_wait
-Date:   Thu,  4 Feb 2021 13:51:58 +0000
-Message-Id: <fa9fc611b6c0001e5deb77188bbe48c8f38fcd5e.1612446019.git.asml.silence@gmail.com>
+Subject: [PATCH v2 08/13] io_uring: inline io_read()'s iovec freeing
+Date:   Thu,  4 Feb 2021 13:52:03 +0000
+Message-Id: <1d9c617d54657299adcdb40e4e2b638f7a64cb19.1612446019.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612446019.git.asml.silence@gmail.com>
 References: <cover.1612446019.git.asml.silence@gmail.com>
@@ -70,78 +70,80 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It's easy to make a mistake in io_cqring_wait() because for all
-break/continue clauses we need to watch for prepare/finish_wait to be
-used correctly. Extract all those into a new helper
-io_cqring_wait_schedule(), and transforming the loop into simple series
-of func calls: prepare(); check_and_schedule(); finish();
+io_read() has not the simpliest control flow with a lot of jumps and
+it's hard to read. One of those is a out_free: label, which frees iovec.
+However, from the middle of io_read() iovec is NULL'ed and so
+kfree(iovec) is no-op, it leaves us with two place where we can inline
+it and further clean up the code.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 43 ++++++++++++++++++++++---------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ fs/io_uring.c | 31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5b735635b8f0..dcb9e937daa3 100644
+index 25fffff27c76..35ad889afaec 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7195,6 +7195,25 @@ static int io_run_task_work_sig(void)
- 	return -EINTR;
+@@ -3530,14 +3530,18 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 	}
+ 
+ 	ret = rw_verify_area(READ, req->file, io_kiocb_ppos(kiocb), io_size);
+-	if (unlikely(ret))
+-		goto out_free;
++	if (unlikely(ret)) {
++		kfree(iovec);
++		return ret;
++	}
+ 
+ 	ret = io_iter_do_read(req, iter);
+ 
+ 	if (ret == -EIOCBQUEUED) {
+-		ret = 0;
+-		goto out_free;
++		/* it's faster to check here then delegate to kfree */
++		if (iovec)
++			kfree(iovec);
++		return 0;
+ 	} else if (ret == -EAGAIN) {
+ 		/* IOPOLL retry should happen for io-wq threads */
+ 		if (!force_nonblock && !(req->ctx->flags & IORING_SETUP_IOPOLL))
+@@ -3560,8 +3564,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		return ret2;
+ 
+ 	rw = req->async_data;
+-	/* it's copied and will be cleaned with ->io */
+-	iovec = NULL;
+ 	/* now use our persistent iterator, if we aren't already */
+ 	iter = &rw->iter;
+ retry:
+@@ -3580,21 +3582,14 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 	 * do, then just retry at the new offset.
+ 	 */
+ 	ret = io_iter_do_read(req, iter);
+-	if (ret == -EIOCBQUEUED) {
+-		ret = 0;
+-		goto out_free;
+-	} else if (ret > 0 && ret < io_size) {
+-		/* we got some bytes, but not all. retry. */
++	if (ret == -EIOCBQUEUED)
++		return 0;
++	/* we got some bytes, but not all. retry. */
++	if (ret > 0 && ret < io_size)
+ 		goto retry;
+-	}
+ done:
+ 	kiocb_done(kiocb, ret, cs);
+-	ret = 0;
+-out_free:
+-	/* it's reportedly faster than delegating the null check to kfree() */
+-	if (iovec)
+-		kfree(iovec);
+-	return ret;
++	return 0;
  }
  
-+/* when returns >0, the caller should retry */
-+static inline int io_cqring_wait_schedule(struct io_ring_ctx *ctx,
-+					  struct io_wait_queue *iowq,
-+					  signed long *timeout)
-+{
-+	int ret;
-+
-+	/* make sure we run task_work before checking for signals */
-+	ret = io_run_task_work_sig();
-+	if (ret || io_should_wake(iowq))
-+		return ret;
-+	/* let the caller flush overflows, retry */
-+	if (test_bit(0, &ctx->cq_check_overflow))
-+		return 1;
-+
-+	*timeout = schedule_timeout(*timeout);
-+	return !*timeout ? -ETIME : 1;
-+}
-+
- /*
-  * Wait until events become available, if we don't already have some. The
-  * application must reap them itself, as they reside on the shared cq ring.
-@@ -7251,27 +7270,9 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
--		/* make sure we run task_work before checking for signals */
--		ret = io_run_task_work_sig();
--		if (ret > 0) {
--			finish_wait(&ctx->wait, &iowq.wq);
--			continue;
--		}
--		else if (ret < 0)
--			break;
--		if (io_should_wake(&iowq))
--			break;
--		if (test_bit(0, &ctx->cq_check_overflow)) {
--			finish_wait(&ctx->wait, &iowq.wq);
--			continue;
--		}
--		timeout = schedule_timeout(timeout);
--		if (timeout == 0) {
--			ret = -ETIME;
--			break;
--		}
--	} while (1);
--	finish_wait(&ctx->wait, &iowq.wq);
-+		ret = io_cqring_wait_schedule(ctx, &iowq, &timeout);
-+		finish_wait(&ctx->wait, &iowq.wq);
-+	} while (ret > 0);
- 
- 	restore_saved_sigmask_unless(ret == -EINTR);
- 
+ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 -- 
 2.24.0
 

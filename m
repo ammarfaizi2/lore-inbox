@@ -2,298 +2,260 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06E27C433DB
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 22:56:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2021C433E0
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 23:23:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B02DD64E02
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 22:56:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7719E64FDE
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 23:23:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231788AbhBEW41 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 5 Feb 2021 17:56:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60178 "EHLO
+        id S229751AbhBEXXQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 5 Feb 2021 18:23:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231921AbhBEMul (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Feb 2021 07:50:41 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31B0C061786
-        for <io-uring@vger.kernel.org>; Fri,  5 Feb 2021 04:49:57 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id v15so7569355wrx.4
-        for <io-uring@vger.kernel.org>; Fri, 05 Feb 2021 04:49:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3DJdX6bRVV97dMnba7dy5xmVdJfTEwvUkprfGzXoEhQ=;
-        b=uMRWm0o6PhPUGcNzAbYsC1P6GxPicDLmxGPH8xmAHuayGi7WdAXwvqfmhqJdT6/QIg
-         GqJD2AZ8VMKm+7HfiGK1f1pt6fb204AktgpQwlr7+SA1wG85vPPjFzDqlQ+Z1SY/dbFH
-         OLj95F/sAw4QS516YstK2B9UOcmx7Cur2g6CMebpU91wvlI+4hCNBts/ikuZleC0MS/v
-         Oax/UHf47g+6LTi7+IlVV6pfeo8cg6qEBwCyZh2C4gDQibp1Q/FHjiTMF/hwTUHvhXtA
-         163JOeGTM1gkSe3DAFH2zSxArsK52/7jkae55ybnIAwzVu22D21yDu4q+RT5odgif0tI
-         +mfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=3DJdX6bRVV97dMnba7dy5xmVdJfTEwvUkprfGzXoEhQ=;
-        b=smzg4c7NTtknXWlXTZSSE6AVITjGk3cV32LYcIaiU2WOJFy9Mwdv5FVujreNkvKQis
-         BGSzKix3j+n79AYz+/vuJoJ0Sb6lLNyBPrnI66YPFS6r4z6kkhxv4cU5w/gHOjBVIhdC
-         YUPx31Q1BowB5BuBmw65iXVEKNzRM2SlnkbUvONEvohccbko3QHzTVuVA2mTPnEwzTNe
-         4cp1xa7brKqnV/+Qyot6xwzPLbizyeNaBhmUfW6k3NXLMLGg36M77/eCMi/SWr7HgcgA
-         HIR6qfsdKHMtdo9g+1zsZxU5ZC93+OPHu8DRy4yZ0G9oelIRhC7tSA7srXojzueCkBxq
-         WhrQ==
-X-Gm-Message-State: AOAM533caAa5Nez6jsOOgxj7P8HMJ5+6oIF1vYGpOg2JOsMiSZseQW3Q
-        OgOdlG2wT1Vmr96brkSQOj61oMBFJqqVcQ==
-X-Google-Smtp-Source: ABdhPJzg0i6SjDP/BSYjKy3fTOPoF3Pk+I/95S1Eoj3f1MLVRMfkw05Gk6AvsuOd9ZY+oLjDuLtwiw==
-X-Received: by 2002:a05:6000:2aa:: with SMTP id l10mr4873649wry.368.1612529396392;
-        Fri, 05 Feb 2021 04:49:56 -0800 (PST)
-Received: from [192.168.8.177] ([85.255.234.187])
-        by smtp.gmail.com with ESMTPSA id r16sm11881509wrt.68.2021.02.05.04.49.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Feb 2021 04:49:55 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, Victor Stewart <v@nametag.social>
-Cc:     io-uring <io-uring@vger.kernel.org>
-References: <CAM1kxwhCXpTCRjZ5tc_TPADTK3EFeWHD369wr8WV4nH8+M_thg@mail.gmail.com>
- <49743b61-3777-f152-e1d5-128a53803bcd@gmail.com>
- <c41e9907-d530-5d2a-7e1f-cf262d86568c@gmail.com>
- <CAM1kxwj6Cdqi0hJFNtGFvK=g=KoNRPMmLVoxtahFKZsjOkcTKQ@mail.gmail.com>
- <CAM1kxwg7wkB7Sj8CDi9RkssM5DwFXEFWeUcakUkpKtKVCOUSJQ@mail.gmail.com>
- <4b44f4e1-c039-a6b6-711f-22952ce1abfb@kernel.dk>
- <CAM1kxwgPW5Up-YqQWdh_cG4jvc5RWsD4UYNWN-jRRbWq5ide5g@mail.gmail.com>
- <06ceae30-7221-80e9-13e3-148cdf5e3c9f@kernel.dk>
- <8d75bf78-7361-0649-e5a3-1288fea1197f@gmail.com>
- <bb75dec2-2700-58ed-065e-a533994d3df7@gmail.com>
- <725fa06a-da7e-9918-49b4-7489672ff0b4@kernel.dk>
- <5c3d084f-88e4-3e86-3560-95d90bb9ffcd@gmail.com>
- <39bc0ff3-db02-8fc7-da5c-b2f5f0fc715e@gmail.com>
- <ab870cb5-513d-420e-6438-b918f9f6c453@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: bug with fastpoll accept and sqpoll + IOSQE_FIXED_FILE
-Message-ID: <c9550dcf-ce53-c214-8c4b-6165ad6605a9@gmail.com>
-Date:   Fri, 5 Feb 2021 12:46:11 +0000
+        with ESMTP id S230355AbhBEJ7D (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Feb 2021 04:59:03 -0500
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A74C0613D6
+        for <io-uring@vger.kernel.org>; Fri,  5 Feb 2021 01:58:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:To:CC;
+        bh=YRO6NFJkwwaBsMcfOTjrZj78NAmiG/R9d12G4x2q9ck=; b=worSeGdOMEBK5joug9sXRZIWaQ
+        G5Kvl3d04cY/x6kCpqKfRWZo9jmG9a6EKwbzAnfOYj2rmaeEDjtBspiGJ+uBObAtm3n9ETCyB4Fei
+        /eDltmJwUU10/e68MdcYSNnkoThx1z4KgvYUiq8yRcZ2u8MjFOox5Rw3kvxDSqSKsCEXP6DD5pZE9
+        Pk6i8G/ds5j4/svoqfRtUZ9SdKkrVJiHeDzBQBUwGVG08lZ28VtjuvW68vkSsUkU3XsWgLdjM+dqF
+        y5bO7l8OaT63QQzLC7LhdI/W7eweLSGaK0iYdyOJIgbymc9SxgS9SK2NmIUfG7idnRsmYIAiLcKMB
+        sKy0NgSBLuBzGcz10MTPmgR0F0tjdXE3lIOOFciEwCc4lbyrZiWTnCyzSxX6W8lx1dRchNVjbU5+S
+        fH3LMngS8bTQBSfusZ6iPV/tIFEBIn52TTjfidkxp4M95A1wB7VFl8xcFHjvxrJ30/hgd7cP/1p44
+        U1tClwupkeke7ZNo4YUR79n1;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1l7xsa-00037o-RX; Fri, 05 Feb 2021 09:58:20 +0000
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+References: <cover.1612486458.git.asml.silence@gmail.com>
+ <ac7dc756e811000751c9cc8fba5d03cc73da314a.1612486458.git.asml.silence@gmail.com>
+ <e8bb9ad9-d4ad-8215-fdef-2fb136ae5a41@samba.org>
+ <3aae2e7d-0405-7f5b-9062-5eca9df13e74@gmail.com>
+From:   Stefan Metzmacher <metze@samba.org>
+Autocrypt: addr=metze@samba.org; prefer-encrypt=mutual; keydata=
+ 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
+ uAMlsTqBMFOwuvAcYAj2bwl7QQU6yhU=
+Subject: Re: [PATCH 3/3] io_uring: refactor sendmsg/recvmsg iov managing
+Message-ID: <526757c3-49e4-33e6-5295-378a6b8c8df7@samba.org>
+Date:   Fri, 5 Feb 2021 10:58:16 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <ab870cb5-513d-420e-6438-b918f9f6c453@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3aae2e7d-0405-7f5b-9062-5eca9df13e74@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="BIV9l2DE3fCy6pstd9JXBywUR5CRrZcwJ"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 04/02/2021 16:50, Jens Axboe wrote:
-> On 2/3/21 4:49 AM, Pavel Begunkov wrote:
->> On 02/02/2021 20:56, Pavel Begunkov wrote:
->>> On 02/02/2021 20:48, Jens Axboe wrote:
->>>> On 2/2/21 1:34 PM, Pavel Begunkov wrote:
->>>>> On 02/02/2021 17:41, Pavel Begunkov wrote:
->>>>>> On 02/02/2021 17:24, Jens Axboe wrote:
->>>>>>> On 2/2/21 10:10 AM, Victor Stewart wrote:
->>>>>>>>> Can you send the updated test app?
->>>>>>>>
->>>>>>>> https://gist.github.com/victorstewart/98814b65ed702c33480487c05b40eb56
->>>>>>>>
->>>>>>>> same link i just updated the same gist
->>>>>>>
->>>>>>> And how are you running it?
->>>>>>
->>>>>> with SQPOLL    with    FIXED FLAG -> FAILURE: failed with error = ???
->>>>>> 	-> io_uring_wait_cqe_timeout() strangely returns -1, (-EPERM??)
->>>>>
->>>>> Ok, _io_uring_get_cqe() is just screwed twice
->>>>>
->>>>> TL;DR
->>>>> we enter into it with submit=0, do an iteration, which decrements it,
->>>>> then a second iteration passes submit=-1, which is returned back by
->>>>> the kernel as a result and propagated back from liburing...
->>>>
->>>> Yep, that's what I came up with too. We really just need a clear way
->>>> of knowing when to break out, and when to keep going. Eg if we've
->>>> done a loop and don't end up calling the system call, then there's
->>>> no point in continuing.
->>>
->>> We can bodge something up (and forget about it), and do much cleaner
->>> for IORING_FEAT_EXT_ARG, because we don't have LIBURING_UDATA_TIMEOUT
->>> reqs for it and so can remove peek and so on.
->>
->> This version looks reasonably simple, and even passes tests and all
->> issues found by Victor's test. Didn't test it yet, but should behave
->> similarly in regard of internal timeouts (pre IORING_FEAT_EXT_ARG).
->>
->> static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_ptr,
->> 			     struct get_data *data)
->> {
->> 	struct io_uring_cqe *cqe = NULL;
->> 	int ret = 0, err;
->>
->> 	do {
->> 		unsigned flags = 0;
->> 		unsigned nr_available;
->> 		bool enter = false;
->>
->> 		err = __io_uring_peek_cqe(ring, &cqe, &nr_available);
->> 		if (err)
->> 			break;
->>
->> 		/* IOPOLL won't proceed when there're not reaped CQEs */
->> 		if (cqe && (ring->flags & IORING_SETUP_IOPOLL))
->> 			data->wait_nr = 0;
->>
->> 		if (data->wait_nr > nr_available || cq_ring_needs_flush(ring)) {
->> 			flags = IORING_ENTER_GETEVENTS | data->get_flags;
->> 			enter = true;
->> 		}
->> 		if (data->submit) {
->> 			sq_ring_needs_enter(ring, &flags);
->> 			enter = true;
->> 		}
->> 		if (!enter)
->> 			break;
->>
->> 		ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
->> 					    data->wait_nr, flags, data->arg,
->> 					    data->sz);
->> 		if (ret < 0) {
->> 			err = -errno;
->> 			break;
->> 		}
->> 		data->submit -= ret;
->> 	} while (1);
->>
->> 	*cqe_ptr = cqe;
->> 	return err;
->> }
-> 
-> So here's my take on this - any rewrite of _io_uring_get_cqe() is going
-> to end up adding special cases, that's unfortunately just the nature of
-> the game. And since we're going to be doing a new liburing release very
-> shortly, this isn't a great time to add a rewrite of it. It'll certainly
-> introduce more bugs than it solves, and hence regressions, no matter how
-> careful we are.
-> 
-> Hence my suggestion is to just patch this in a trivial kind of fashion,
-> even if it doesn't really make the function any prettier. But it'll be
-> safer for a release, and then we can rework the function after.
-> 
-> With that in mind, here's my suggestion. The premise is if we go through
-> the loop and don't do io_uring_enter(), then there's no point in
-> continuing. That's the trivial fix.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--BIV9l2DE3fCy6pstd9JXBywUR5CRrZcwJ
+Content-Type: multipart/mixed; boundary="XHgriQxcmczX18s7Kxc5H8FxGZZ1OATNP";
+ protected-headers="v1"
+From: Stefan Metzmacher <metze@samba.org>
+To: Pavel Begunkov <asml.silence@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+ io-uring@vger.kernel.org
+Message-ID: <526757c3-49e4-33e6-5295-378a6b8c8df7@samba.org>
+Subject: Re: [PATCH 3/3] io_uring: refactor sendmsg/recvmsg iov managing
+References: <cover.1612486458.git.asml.silence@gmail.com>
+ <ac7dc756e811000751c9cc8fba5d03cc73da314a.1612486458.git.asml.silence@gmail.com>
+ <e8bb9ad9-d4ad-8215-fdef-2fb136ae5a41@samba.org>
+ <3aae2e7d-0405-7f5b-9062-5eca9df13e74@gmail.com>
+In-Reply-To: <3aae2e7d-0405-7f5b-9062-5eca9df13e74@gmail.com>
 
-Your idea but imho cleaner below.
-+1 comment inline
+--XHgriQxcmczX18s7Kxc5H8FxGZZ1OATNP
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-> diff --git a/src/queue.c b/src/queue.c
-> index 94f791e..4161aa7 100644
-> --- a/src/queue.c
-> +++ b/src/queue.c
-> @@ -89,12 +89,13 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
->  {
->  	struct io_uring_cqe *cqe = NULL;
->  	const int to_wait = data->wait_nr;
-> -	int ret = 0, err;
-> +	int err;
->  
->  	do {
->  		bool cq_overflow_flush = false;
->  		unsigned flags = 0;
->  		unsigned nr_available;
-> +		int ret = -2;
->  
->  		err = __io_uring_peek_cqe(ring, &cqe, &nr_available);
->  		if (err)
-> @@ -117,7 +118,9 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
->  			ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
->  					data->wait_nr, flags, data->arg,
->  					data->sz);
-> -		if (ret < 0) {
-> +		if (ret == -2) {
-> +			break;
+Hi Pavel,
 
-peek/wait_cqe expect that cqe_ptr is filled on return=0. Looks we need
-to return an error or hack up those functions.
+>>>  static int io_sendmsg_copy_hdr(struct io_kiocb *req,
+>>>  			       struct io_async_msghdr *iomsg)
+>>>  {
+>>> -	iomsg->iov =3D iomsg->fast_iov;
+>>>  	iomsg->msg.msg_name =3D &iomsg->addr;
+>>> +	iomsg->free_iov =3D iomsg->fast_iov;
+>>
+>> Why this? Isn't the idea of this patch that free_iov is never =3D=3D f=
+ast_iov?
+>=20
+> That's a part of __import_iovec() and sendmsg_copy_msghdr() API, you pa=
+ss
+> fast_iov as such and get back NULL or a newly allocated one in it.
+I think that should at least get a comment to make this clear and
+maybe a temporary variable like this:
 
-> +		} else if (ret < 0) {
->  			err = -errno;
->  		} else if (ret == (int)data->submit) {
->  			data->submit = 0;
-> 
+tmp_iov =3D iomsg->fast_iov;
+__import_iovec(..., &tmp_iov, ...);
+iomsg->free_iov =3D tmp_iov;
+
+>>> @@ -4872,8 +4867,8 @@ static int io_recvmsg(struct io_kiocb *req, boo=
+l force_nonblock,
+>>> =20
+>>>  	if (req->flags & REQ_F_BUFFER_SELECTED)
+>>>  		cflags =3D io_put_recv_kbuf(req);
+>>> -	if (kmsg->iov !=3D kmsg->fast_iov)
+>>> -		kfree(kmsg->iov);
+>>> +	if (kmsg->free_iov)
+>>> +		kfree(kmsg->free_iov);
+>>
+>> kfree() handles NULL, or is this a hot path and we want to avoid a fun=
+ction call?
+>=20
+> Yes, the hot path here is not having iov allocated, and Jens told befor=
+e
+> that he had observed overhead for a similar place in io_[read,write].
+
+Ok, a comment would also help here...
+
+metze
 
 
-diff --git a/src/queue.c b/src/queue.c
-index 94f791e..7d6f31d 100644
---- a/src/queue.c
-+++ b/src/queue.c
-@@ -112,11 +112,15 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
- 			flags = IORING_ENTER_GETEVENTS | data->get_flags;
- 		if (data->submit)
- 			sq_ring_needs_enter(ring, &flags);
--		if (data->wait_nr > nr_available || data->submit ||
--		    cq_overflow_flush)
--			ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
--					data->wait_nr, flags, data->arg,
--					data->sz);
-+
-+		if (data->wait_nr <= nr_available && !data->submit &&
-+		    !cq_overflow_flush) {
-+			err = ?;
-+			break;
-+		}
-+		ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
-+				data->wait_nr, flags, data->arg,
-+				data->sz);
- 		if (ret < 0) {
- 			err = -errno;
- 		} else if (ret == (int)data->submit) {
 
--- 
-Pavel Begunkov
+--XHgriQxcmczX18s7Kxc5H8FxGZZ1OATNP--
+
+--BIV9l2DE3fCy6pstd9JXBywUR5CRrZcwJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEfFbGo3YXpfgryIw9DbX1YShpvVYFAmAdFrgACgkQDbX1YShp
+vVZxoQ/8CEOhUvaO3JRGQd5ZqAKtJrOfDUbxsvWzhfNztaydYolKqqLwZokaPwk5
+DQlJpitWFPzc+ig9J2HzW6N0y9ja7uhrWbfOeKijHiCohHIU0ArEyO2CDps6+THy
+577ovwnviXz9ph3TdxT8icYc/4QRA+DMrCXJDNP8EY0dZyuDieoDBwqQ2FoIPZiF
+BDt07VskKmvjV40S6V/GTSV68UM8+afgwDgioFIBl8YzP/GyMmWhUkLHvCrffl3D
+PB7MOTrnHym5hGH5LrGu+sCpe0IHOHESeRtzQvB+7RFANcOej8RaKAJGlSgkfM80
+r0Ulfwj6hh5pAqYK0PwCXBqLVs9/741yokO2L4Spf3jrsWKQgCqJjyLpo1fYaqHP
+wZB1LQieV7YqyA2tMiEpRf3gV2DWmRdSb/iVBVGg7ofua80DUuy4jTkDJ3LUY9zl
+1S9GoAzy/WwvWKO92SOSHOUmLMLmI8t55Okk5h0eaVbNP3T0/yhc0yKXHIiqom9P
+OYJOyExh5bo3BthIenBrZJKAFElda9iePeNSG6jKARK+lx5W0gOUAUV5M9Nm/cKi
+PnnuaKWfna8EZ0ie4IdZCrNUSlM2WHU1cfwwdInBnFwA+BiA9SsL3UNcsB+2erJQ
+FfhIwYPR7hVfiY8rJsT8dbwmKwFhQNtku5JdQvmI7rOVHdZ0Jrw=
+=tGRh
+-----END PGP SIGNATURE-----
+
+--BIV9l2DE3fCy6pstd9JXBywUR5CRrZcwJ--

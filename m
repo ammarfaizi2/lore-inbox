@@ -2,81 +2,122 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D94FC433E9
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 01:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D9A2C433DB
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 01:03:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DECB64F3D
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 01:02:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F025864F3D
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 01:03:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232439AbhBEBCi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Feb 2021 20:02:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
+        id S232466AbhBEBCl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Feb 2021 20:02:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232466AbhBEBCd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 20:02:33 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28266C0613D6
-        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 17:01:53 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id z6so5703058wrq.10
-        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 17:01:53 -0800 (PST)
+        with ESMTP id S232475AbhBEBCg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Feb 2021 20:02:36 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A3FC06178A
+        for <io-uring@vger.kernel.org>; Thu,  4 Feb 2021 17:01:55 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id p15so5708688wrq.8
+        for <io-uring@vger.kernel.org>; Thu, 04 Feb 2021 17:01:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=HtffqKsebUbk0XJjMOXbTRXjI2CzFlr7I1M4mWzQYzs=;
-        b=Ba2fxFy1Q3bpSfKqWdcnrrpyY0e+IPio39O8E7zBydkV1BQKVPpr9BNy1x4rhWAKz/
-         61JUc3EiC1SLHgVRqVX3uu4VXSHgCMGRqHzWxj9SXyrLuD90zskuEXgpqzE+PoZvHApz
-         JPfegmpv23ttWT0KmRuzd266NvoA18HHYgofEKgon0L7DWWDNOm3KelmBmbjKgNCnjFk
-         OAouUrFpodeArr1sqhJb1hrh3dM9BzkYrUqcZ9QUIwYhphBjpZFUGkD8PT+RbMNoc0gg
-         GQUDyww927rcpAdoyQkAS1yvNmPH+nbCCD5nI2X95MfvKRUWLPSLq3uz497bU4pYUkhf
-         ELSw==
+        bh=iU8RgkbjaidScL5FmNO5qxugyn2l8qV1L/AOm98Zz6Y=;
+        b=gpJA6N8quXuIL38hHApcv0JeL2DOBi/D/Wnz48ER9slAmhyWQjKZHL92BlNoaK7/AM
+         b41L+uuKs6mVWpmnouJOl7b6bs0JZsze5WUy4aaak2NJ9wnDj/YkgLhRL7uQwJjUBNsP
+         9VwCbpExtvP2ahEDj8cWpy11uLXbLoLIgPrzwXC6QPg2UlkE9uAQta6mTxUabLPFFHR1
+         ukb774wD91d/NZTXYp8SPBdT7sSfKwkEJ5itVxtpGqgq1czAtKB8WcEQQGcH5yDkej3J
+         I3LAs9SpyIdEvToziBB3Gy6NDDD1MSo7K0huvlMQm/Fo1Wm0EfXyFiFb8gT2zDEK6sg5
+         ixoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=HtffqKsebUbk0XJjMOXbTRXjI2CzFlr7I1M4mWzQYzs=;
-        b=WD+bf8XgsuiKrT+65Vlj0qce2CknXIqLTYOqdFeQWgREqp095ADGvWoojEabPo93Nd
-         +4hee4KeJpTUMhSafFNW/YyKEdXl3mZy0zHSiiIB0vF6SC2zt2P6om/ASyr6HO+Xq0Af
-         hU4fkbCBgtmh1KfJZOL8hqbrVnNX1kTs0fuSNZKQSEr2AF3Hzl/5ahsKadNG6e4CHcfD
-         yiTujYWelkV5gEeJA7ogYRRLxAENHsrf002D3xKVxS8s+exsLYwNNaqU7AkQoore6vpv
-         lLykMSuZe4DJPKMyidzbWPhNnNeIMuA5IJtOnZkHPNzvsN+l3qYRig6M/JvfdHwveUoJ
-         V4lw==
-X-Gm-Message-State: AOAM531ZQLNe23d2Ez7ovpMXjhkucW3+ODZjhmToH8WXP1Ja530ZiJ7V
-        feYAENtrvM2Za3SsNxpNl563CMyqAfNQhg==
-X-Google-Smtp-Source: ABdhPJxalbDds1Dpowq88pU3wrLTUGzyP5zPtbdKNGKOitPlX2vuHGbKN8xqt5nI8SUuEyBrKSsH1Q==
-X-Received: by 2002:a05:6000:1082:: with SMTP id y2mr1965370wrw.27.1612486911909;
-        Thu, 04 Feb 2021 17:01:51 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=iU8RgkbjaidScL5FmNO5qxugyn2l8qV1L/AOm98Zz6Y=;
+        b=YbzKCo5KyD1KJRVUKujYE2pqfXaljiVs24FfLv08JFZastACuJRbJu9ocd1RN4iWy2
+         Mpkdfbr5ezi3y4/0fsc6mZxZ7PYm9VySXB0N0m+EZMcjSWQ4/neuMPGyuBFCrxk0h3bo
+         4YvFrB0VPvISz6egm7dPxRf7Xx6zyCr47zZHUBnZ2zcBqG3Nklc76d2s4byx2k3vq2pA
+         i/mQbUaK40DAJ/7NtnYGbkP962Iz4Vv9JILEVT4dIM+fWUVwWNpTn+pxR7uzB5Wf5IJy
+         QuywpGaPfJ+X3Z4s5FHF2+kQytABNa7ZJ7nh3SIMUoUs9+4zUxVr5wwdSPJRnbuCdLGH
+         Tm/A==
+X-Gm-Message-State: AOAM532lgc/BNIPUDhnp2Xi+Zv2lAucOwFqaqgtJc0ItZKJ6h6JWVFLU
+        yHCPmbyAPE/KM+3c0smJdqQFfA4xkLbRgA==
+X-Google-Smtp-Source: ABdhPJwnKWCVgz6tzDGigSwgONSnvRmNhDflTCT+1J/eepm31wUWUhWm9eK3fXDL2ssatYu5Z6FhIA==
+X-Received: by 2002:a5d:62c1:: with SMTP id o1mr1955227wrv.275.1612486914448;
+        Thu, 04 Feb 2021 17:01:54 -0800 (PST)
 Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id i18sm10853199wrn.29.2021.02.04.17.01.50
+        by smtp.gmail.com with ESMTPSA id i18sm10853199wrn.29.2021.02.04.17.01.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 17:01:51 -0800 (PST)
+        Thu, 04 Feb 2021 17:01:53 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH for-next 0/3] sendmsg/recvmsg cleanup
-Date:   Fri,  5 Feb 2021 00:57:57 +0000
-Message-Id: <cover.1612486458.git.asml.silence@gmail.com>
+Subject: [PATCH 2/3] io_uring: clean iov usage for recvmsg buf select
+Date:   Fri,  5 Feb 2021 00:57:59 +0000
+Message-Id: <9d2ee25d701a37533d84f2d79b966330dc51a5ac.1612486458.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1612486458.git.asml.silence@gmail.com>
+References: <cover.1612486458.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Reincarnated cleanups of sendmsg/recvmsg managing and copying of iov.
+Don't pretend we don't know that REQ_F_BUFFER_SELECT for recvmsg always
+uses fast_iov -- clean up confusing intermixing kmsg->iov and
+kmsg->fast_iov for buffer select.
 
-Pavel Begunkov (3):
-  io_uring: set msg_name on msg fixup
-  io_uring: clean iov usage for recvmsg buf select
-  io_uring: refactor sendmsg/recvmsg iov managing
+Also don't init iter with garbage in __io_recvmsg_copy_hdr() only for it
+to be set shortly after in io_recvmsg().
 
- fs/io_uring.c | 68 +++++++++++++++++++++++----------------------------
- 1 file changed, 30 insertions(+), 38 deletions(-)
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 39bc1df9bb64..e07a7fa15cfa 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4701,11 +4701,9 @@ static int __io_recvmsg_copy_hdr(struct io_kiocb *req,
+ 	if (req->flags & REQ_F_BUFFER_SELECT) {
+ 		if (iov_len > 1)
+ 			return -EINVAL;
+-		if (copy_from_user(iomsg->iov, uiov, sizeof(*uiov)))
++		if (copy_from_user(iomsg->fast_iov, uiov, sizeof(*uiov)))
+ 			return -EFAULT;
+-		sr->len = iomsg->iov[0].iov_len;
+-		iov_iter_init(&iomsg->msg.msg_iter, READ, iomsg->iov, 1,
+-				sr->len);
++		sr->len = iomsg->fast_iov[0].iov_len;
+ 		iomsg->iov = NULL;
+ 	} else {
+ 		ret = __import_iovec(READ, uiov, iov_len, UIO_FASTIOV,
+@@ -4748,7 +4746,6 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
+ 		if (clen < 0)
+ 			return -EINVAL;
+ 		sr->len = clen;
+-		iomsg->iov[0].iov_len = clen;
+ 		iomsg->iov = NULL;
+ 	} else {
+ 		ret = __import_iovec(READ, (struct iovec __user *)uiov, len,
+@@ -4855,7 +4852,8 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
+ 		if (IS_ERR(kbuf))
+ 			return PTR_ERR(kbuf);
+ 		kmsg->fast_iov[0].iov_base = u64_to_user_ptr(kbuf->addr);
+-		iov_iter_init(&kmsg->msg.msg_iter, READ, kmsg->iov,
++		kmsg->fast_iov[0].iov_len = req->sr_msg.len;
++		iov_iter_init(&kmsg->msg.msg_iter, READ, kmsg->fast_iov,
+ 				1, req->sr_msg.len);
+ 	}
+ 
 -- 
 2.24.0
 

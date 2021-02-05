@@ -2,108 +2,186 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8CF1C433DB
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 07:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43F21C433E0
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 07:51:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D81564FB8
-	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 07:24:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E145564E12
+	for <io-uring@archiver.kernel.org>; Fri,  5 Feb 2021 07:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230489AbhBEHX5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 5 Feb 2021 02:23:57 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:52951 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230486AbhBEHXz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Feb 2021 02:23:55 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UNwaEfj_1612509662;
-Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UNwaEfj_1612509662)
+        id S230448AbhBEHvT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 5 Feb 2021 02:51:19 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:56096 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231167AbhBEHvS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Feb 2021 02:51:18 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UNwO9BW_1612511389;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UNwO9BW_1612511389)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 05 Feb 2021 15:21:03 +0800
-Subject: Re: Queston about io_uring_flush
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring <io-uring@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-References: <63d16aae-1ca7-8939-1c8a-89c600be8462@linux.alibaba.com>
- <51499dcc-5991-e177-98c4-8cc8a909da70@gmail.com>
+          Fri, 05 Feb 2021 15:49:55 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
-Message-ID: <21456ca2-f5e6-9c93-b42b-697aba82cce7@linux.alibaba.com>
-Date:   Fri, 5 Feb 2021 15:21:02 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
-MIME-Version: 1.0
-In-Reply-To: <51499dcc-5991-e177-98c4-8cc8a909da70@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH v2] io_uring: fix possible deadlock in io_uring_poll
+Date:   Fri,  5 Feb 2021 15:49:48 +0800
+Message-Id: <1612511388-153658-1-git-send-email-haoxu@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-在 2021/2/4 下午7:00, Pavel Begunkov 写道:
-> On 04/02/2021 09:31, Hao Xu wrote:
->> Hi all,
->> Sorry for disturb all of you. Here comes my question.
->> When we close a uring file, we go into io_uring_flush(),
->> there is codes at the end:
->>
->> if (!(ctx->flags & IORING_SETUP_SQPOLL) || ctx->sqo_task == current)
->>     io_uring_del_task_file(file);
->>
->> My understanding, this is to delete the ctx(associated with the uring
->> file) from current->io_uring->xa.
->> I'm thinking of this scenario: the task to close uring file is not the
->> one which created the uring file.
->> Then it doesn't make sense to delete the uring file from current->io_uring->xa. It should be "delete uring file from
->> ctx->sqo_task->io_uring->xa" instead.
-> 
-> 1. It's not only about created or not, look for
-> io_uring_add_task_file() call sites.
-> 
-> 2. io_uring->xa is basically a map from task to used by it urings.
-> Every user task should clean only its own context (SQPOLL task is
-> a bit different), it'll be hell bunch of races otherwise.
-> 
-> 3. If happens that it's closed by a task that has nothing to do
-> with this ctx, then it won't find anything in its
-> task->io_uring->xa, and so won't delete anything, and that's ok.
-> io_uring->xa of sqo_task will be cleaned by sqo_task, either
-> on another close() or on exit() (see io_uring_files_cancel).
-> 
-> 4. There is a bunch of cases where that scheme doesn't behave
-> nice, but at least should not leak/fault when all related tasks
-> are killed.
-> 
-Thank you Pavel for the detail explanation. I got it, basically
-just delay the clean work to sqo_task.
-I have this question since I'm looking into the tctx->inflight, it 
-puzzles me a little bit. When a task exit(), it finally calls
-  __io_uring_task_cancel(), where we wait until tctx->inflight is 0.
-What does tctx->inflight actually mean? I thought it stands for all
-the inflight reqs of ctxs of this task. But in tctx_inflight():
+Abaci reported follow issue:
 
-   /*
-    * If we have SQPOLL rings, then we need to iterate and find them, and
-    * add the pending count for those.
-    */
-   xa_for_each(&tctx->xa, index, file) {
-           struct io_ring_ctx *ctx = file->private_data;
+[   30.615891] ======================================================
+[   30.616648] WARNING: possible circular locking dependency detected
+[   30.617423] 5.11.0-rc3-next-20210115 #1 Not tainted
+[   30.618035] ------------------------------------------------------
+[   30.618914] a.out/1128 is trying to acquire lock:
+[   30.619520] ffff88810b063868 (&ep->mtx){+.+.}-{3:3}, at: __ep_eventpoll_poll+0x9f/0x220
+[   30.620505]
+[   30.620505] but task is already holding lock:
+[   30.621218] ffff88810e952be8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_enter+0x3f0/0x5b0
+[   30.622349]
+[   30.622349] which lock already depends on the new lock.
+[   30.622349]
+[   30.623289]
+[   30.623289] the existing dependency chain (in reverse order) is:
+[   30.624243]
+[   30.624243] -> #1 (&ctx->uring_lock){+.+.}-{3:3}:
+[   30.625263]        lock_acquire+0x2c7/0x390
+[   30.625868]        __mutex_lock+0xae/0x9f0
+[   30.626451]        io_cqring_overflow_flush.part.95+0x6d/0x70
+[   30.627278]        io_uring_poll+0xcb/0xd0
+[   30.627890]        ep_item_poll.isra.14+0x4e/0x90
+[   30.628531]        do_epoll_ctl+0xb7e/0x1120
+[   30.629122]        __x64_sys_epoll_ctl+0x70/0xb0
+[   30.629770]        do_syscall_64+0x2d/0x40
+[   30.630332]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.631187]
+[   30.631187] -> #0 (&ep->mtx){+.+.}-{3:3}:
+[   30.631985]        check_prevs_add+0x226/0xb00
+[   30.632584]        __lock_acquire+0x1237/0x13a0
+[   30.633207]        lock_acquire+0x2c7/0x390
+[   30.633740]        __mutex_lock+0xae/0x9f0
+[   30.634258]        __ep_eventpoll_poll+0x9f/0x220
+[   30.634879]        __io_arm_poll_handler+0xbf/0x220
+[   30.635462]        io_issue_sqe+0xa6b/0x13e0
+[   30.635982]        __io_queue_sqe+0x10b/0x550
+[   30.636648]        io_queue_sqe+0x235/0x470
+[   30.637281]        io_submit_sqes+0xcce/0xf10
+[   30.637839]        __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   30.638465]        do_syscall_64+0x2d/0x40
+[   30.638999]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.639643]
+[   30.639643] other info that might help us debug this:
+[   30.639643]
+[   30.640618]  Possible unsafe locking scenario:
+[   30.640618]
+[   30.641402]        CPU0                    CPU1
+[   30.641938]        ----                    ----
+[   30.642664]   lock(&ctx->uring_lock);
+[   30.643425]                                lock(&ep->mtx);
+[   30.644498]                                lock(&ctx->uring_lock);
+[   30.645668]   lock(&ep->mtx);
+[   30.646321]
+[   30.646321]  *** DEADLOCK ***
+[   30.646321]
+[   30.647642] 1 lock held by a.out/1128:
+[   30.648424]  #0: ffff88810e952be8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_enter+0x3f0/0x5b0
+[   30.649954]
+[   30.649954] stack backtrace:
+[   30.650592] CPU: 1 PID: 1128 Comm: a.out Not tainted 5.11.0-rc3-next-20210115 #1
+[   30.651554] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   30.652290] Call Trace:
+[   30.652688]  dump_stack+0xac/0xe3
+[   30.653164]  check_noncircular+0x11e/0x130
+[   30.653747]  ? check_prevs_add+0x226/0xb00
+[   30.654303]  check_prevs_add+0x226/0xb00
+[   30.654845]  ? add_lock_to_list.constprop.49+0xac/0x1d0
+[   30.655564]  __lock_acquire+0x1237/0x13a0
+[   30.656262]  lock_acquire+0x2c7/0x390
+[   30.656788]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.657379]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.658014]  __mutex_lock+0xae/0x9f0
+[   30.658524]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.659112]  ? mark_held_locks+0x5a/0x80
+[   30.659648]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.660229]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
+[   30.660885]  ? trace_hardirqs_on+0x46/0x110
+[   30.661471]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.662102]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.662696]  __ep_eventpoll_poll+0x9f/0x220
+[   30.663273]  ? __ep_eventpoll_poll+0x220/0x220
+[   30.663875]  __io_arm_poll_handler+0xbf/0x220
+[   30.664463]  io_issue_sqe+0xa6b/0x13e0
+[   30.664984]  ? __lock_acquire+0x782/0x13a0
+[   30.665544]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.666170]  ? __io_queue_sqe+0x10b/0x550
+[   30.666725]  __io_queue_sqe+0x10b/0x550
+[   30.667252]  ? __fget_files+0x131/0x260
+[   30.667791]  ? io_req_prep+0xd8/0x1090
+[   30.668316]  ? io_queue_sqe+0x235/0x470
+[   30.668868]  io_queue_sqe+0x235/0x470
+[   30.669398]  io_submit_sqes+0xcce/0xf10
+[   30.669931]  ? xa_load+0xe4/0x1c0
+[   30.670425]  __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   30.671051]  ? lockdep_hardirqs_on_prepare+0xde/0x180
+[   30.671719]  ? syscall_enter_from_user_mode+0x2b/0x80
+[   30.672380]  do_syscall_64+0x2d/0x40
+[   30.672901]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.673503] RIP: 0033:0x7fd89c813239
+[   30.673962] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
+[   30.675920] RSP: 002b:00007ffc65a7c628 EFLAGS: 00000217 ORIG_RAX: 00000000000001aa
+[   30.676791] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd89c813239
+[   30.677594] RDX: 0000000000000000 RSI: 0000000000000014 RDI: 0000000000000003
+[   30.678678] RBP: 00007ffc65a7c720 R08: 0000000000000000 R09: 0000000003000000
+[   30.679492] R10: 0000000000000000 R11: 0000000000000217 R12: 0000000000400ff0
+[   30.680282] R13: 00007ffc65a7c840 R14: 0000000000000000 R15: 0000000000000000
 
-           if (ctx->flags & IORING_SETUP_SQPOLL) {
-                   struct io_uring_task *__tctx = ctx->sqo_task->io_uring;
+This might happen if we do epoll_wait on a uring fd while reading/writing
+the former epoll fd in a sqe in the former uring instance.
+So let's don't flush cqring overflow list, just do a simple check.
 
-                   inflight += percpu_counter_sum(&__tctx->inflight);
-           }
-   }
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Fixes: 6c503150ae33 ("io_uring: patch up IOPOLL overflow_flush sync")
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+---
 
-Why it adds ctx->sqo_task->io_uring->inflight.
-In a scenario like this:
-	taskA->tctx:    ctx0    ctx1
-		     sqpoll     normal
+I think we should put a note somewhere, otherwise users may think there
+is nothing when they didn't get EPOLLIN | EPOLLRDNORM, they may
+consider this as "there is definitely nothing" and aren't aware of
+doing overflow flush then.
 
-Since ctx0->sqo_task is taskA, so isn't taskA->io_uring->inflight 
-calculated twice?
-In another hand, count of requests submited by sqthread will be added to 
-sqthread->io_uring, do we ommit this part？with that being said, should 
-taskA wait for sqes/reqs created by taskA but handled by sqthread?
+ fs/io_uring.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 38c6cbe1ab38..fd7ea089a4c0 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8718,8 +8718,15 @@ static __poll_t io_uring_poll(struct file *file, poll_table *wait)
+ 	smp_rmb();
+ 	if (!io_sqring_full(ctx))
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+-	io_cqring_overflow_flush(ctx, false, NULL, NULL);
+-	if (io_cqring_events(ctx))
++
++	/*
++	 * Don't flush cqring overflow list here, just do a simple check.
++	 * Otherwise there could possible be ABBA deadlock.
++	 * Users may get EPOLLIN meanwhile seeing nothing in cqring, this
++	 * pushs them to do the flush.
++	 * More info in commit log.
++	 */
++	if (io_cqring_events(ctx) || test_bit(0, &ctx->cq_check_overflow))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 
+ 	return mask; 
+-- 
+1.8.3.1
+

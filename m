@@ -8,59 +8,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FABC433DB
-	for <io-uring@archiver.kernel.org>; Sun,  7 Feb 2021 23:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C29C433E9
+	for <io-uring@archiver.kernel.org>; Sun,  7 Feb 2021 23:37:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 898E564E31
+	by mail.kernel.org (Postfix) with ESMTP id D526264E31
 	for <io-uring@archiver.kernel.org>; Sun,  7 Feb 2021 23:37:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbhBGXgu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Feb 2021 18:36:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49326 "EHLO
+        id S229581AbhBGXgx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 7 Feb 2021 18:36:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbhBGXgu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Feb 2021 18:36:50 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC128C061756
-        for <io-uring@vger.kernel.org>; Sun,  7 Feb 2021 15:36:09 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id z6so15089010wrq.10
-        for <io-uring@vger.kernel.org>; Sun, 07 Feb 2021 15:36:09 -0800 (PST)
+        with ESMTP id S229537AbhBGXgv (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Feb 2021 18:36:51 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852B8C06178A
+        for <io-uring@vger.kernel.org>; Sun,  7 Feb 2021 15:36:11 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id a16so11212523wmm.0
+        for <io-uring@vger.kernel.org>; Sun, 07 Feb 2021 15:36:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=S/mDO6WyuLYdb26GNXf5JDDyXhBvGZ7LOiBRQ8SZW2U=;
-        b=bCYIKcS1lMawJhHTQxPTOVEXqZqxZLN+7CSzL5HfDdYKfkAcmP23MUnxOTlHnmEt9r
-         TtxXbzmGJnZ5Hogf0gjiwIgFeZQ64FkhNg7ElzvDeMSypKTR5tX86qACc8GLxVUlVQ5/
-         LB7clfYtogkiWkv+uZPyUNcmZWuYy9x0hwq+m9pOC3InRGbLmoTeaVzgXeMW5oEL1gEM
-         3f/4RhrydSoI7UZj9quJ03efnfk0zse8I6R4T8Lnomo2VozFcWMJoAVOoU6z38d/u82N
-         m3XOyN7609sE3mt+0rXu6K0IZPkAzcmt6BdrMLSwBQTvk9NuiSH5CXoDpWkNED0VhNkn
-         yrgw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=pJuC1ZDeL8m4ieq9PzDYGXq1hHvSdJdK+FmO18tqrQI=;
+        b=dKcqeNXKAaNv+R+e2yPard7xUUBRCJju0VmvxT3EW4McyUmk1pj5FivHcbgVstu5ON
+         HsWfkSMA5juxR8gwfwuDobxctVMe3HB69g0nHXLEKHCZRmTP0tuWFGMKgPSJaUPk/a86
+         kbGP3Dr50L9AvdABqEa9MtZVbri6G8f+4Gp6/uX0k2K4YPmm67+ciUHs87teNAndUUBZ
+         IzjBj3j3TZCvDxHpNi12FL8aGdw1nplfhYCCim311QeMfaHEgINBCiU2mPWBD2khaBWa
+         R/37nsCE3e7yOKrfuTioIgnfMFP1f/EhqeWqxBrawGh4v3fCkjSoMh4R8PMzXJGQ6nE5
+         4WUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=S/mDO6WyuLYdb26GNXf5JDDyXhBvGZ7LOiBRQ8SZW2U=;
-        b=e6sHjJ88MMVRErPTu2s317e/Y6x4PvRQ6Sf+kSRkm5KC7Qamm2n3FM/Gfnb8Y+Tkn9
-         ZoHpQsswjhwptQ2drxpEaCBFlOiOJnhy6hAC25VuIcWoL5Qogg9L+OXr+/Dzkg4C3XTb
-         JmHeSutbE/5QQvrY1Xi27v8xGka/187Tt+P2Cnwle4jHTFCPzfAU8cqlGPtLowsF4cv0
-         vA3y+Hab9yD1myjNhEWoVgA+vvnEIiwSWwRcB4GJeZleCQIxC7YBOr2IU3EjesLwbSK0
-         Z8ghww0M4n7sViHnkUKxgso/Tve7K1+FnDfty9mxLrZca4Agh7tT4DgGq2dlvSc+uoDg
-         Wblg==
-X-Gm-Message-State: AOAM530/LS0IKGgZzNbcBCIPiY5FP6Ds2HTr0rM6W4c6yyLrFv9ncjgP
-        GdtlFhInsTlFpkERoQP+FFEZcylJ3Wk=
-X-Google-Smtp-Source: ABdhPJxu3A0lk3YglgpbAEfUUnDTv1YqzQ/XPhCRSa8lDWVlUTHMJ43qZeKCQI/ZXG/TtcyvIRGEKg==
-X-Received: by 2002:a5d:51cf:: with SMTP id n15mr16556116wrv.303.1612740968416;
-        Sun, 07 Feb 2021 15:36:08 -0800 (PST)
+        bh=pJuC1ZDeL8m4ieq9PzDYGXq1hHvSdJdK+FmO18tqrQI=;
+        b=Gm3+o/gojs6ZctjEZMhqyVXvLZ3CF3NK27wlHV5GIwqqpBEwR3zyxPnyq4EoiXdFdU
+         JTMpWni9S25dHo7ea6PY+bvfo4LHBjMYhuJOk9KdmIyCQHTr8iXpffl4xCwDDxG3b8lv
+         OgJgc0jH3VWzeBilmHT6rasaGuOpL0Z/4na79tezx3D8P2iVZ9Lz230kufgBnRfDd2lC
+         bX9sOvjWgPgkiLxLwbvia1NT8rVhdOGnIDzPFKtgUg2mY528xOKg3Kyk2y0LSuKxakT8
+         pblTIPvUtEBjLUsWHPm60BQe4K5lY8Mvs92/U7FAPJrZL3ZK/tgliUunhkdFjl9dxSNP
+         gFJw==
+X-Gm-Message-State: AOAM531F8Wc9xNKhmvVcwSGfpzFVQo6SrTP9xOsXpE6yt8CocK3ZvVad
+        mzdt5AFwumWm6ven38aMKl0=
+X-Google-Smtp-Source: ABdhPJztpVF+2UKUC6tngTOlVj2O3Z6Eg9hRihwehhUD9NRw0VJCinBMmDcE9CIwIiAkSDCUBkYWjg==
+X-Received: by 2002:a1c:c904:: with SMTP id f4mr12672698wmb.14.1612740970376;
+        Sun, 07 Feb 2021 15:36:10 -0800 (PST)
 Received: from localhost.localdomain ([148.252.128.244])
-        by smtp.gmail.com with ESMTPSA id l10sm25453380wro.4.2021.02.07.15.36.07
+        by smtp.gmail.com with ESMTPSA id l10sm25453380wro.4.2021.02.07.15.36.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Feb 2021 15:36:07 -0800 (PST)
+        Sun, 07 Feb 2021 15:36:09 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH liburing 1/3] src/queue: don't wait for less than expected
-Date:   Sun,  7 Feb 2021 23:32:15 +0000
-Message-Id: <eb1de92f946deab354df626a8efff6b9c1a78844.1612740655.git.asml.silence@gmail.com>
+Cc:     Victor Stewart <v@nametag.social>
+Subject: [PATCH liburing 3/3] src/queue: don't loop when don't enter
+Date:   Sun,  7 Feb 2021 23:32:17 +0000
+Message-Id: <39bc4096ded4d4d0e8f8059bff52a51d16617213.1612740655.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612740655.git.asml.silence@gmail.com>
 References: <cover.1612740655.git.asml.silence@gmail.com>
@@ -70,29 +71,54 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-__io_uring_peek_cqe() doesn't consume cqe it returns, no need to
-decrease wait_nr because we check against the number in CQ as well as
-the kernel do. One exception for that behaviour is IOPOLL, but that
-kernel will return if there is anything in CQ, so will work just fine.
+_io_uring_get_cqe() can live-lock in some cases, always return if we're
+not going to do __sys_io_uring_enter().
 
+Reported-by: Victor Stewart <v@nametag.social>
+Suggested-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- src/queue.c | 2 --
- 1 file changed, 2 deletions(-)
+ src/queue.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/src/queue.c b/src/queue.c
-index 94f791e..dd1df2a 100644
+index be461c6..8c394dd 100644
 --- a/src/queue.c
 +++ b/src/queue.c
-@@ -106,8 +106,6 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
- 			}
- 			cq_overflow_flush = true;
- 		}
--		if (data->wait_nr && cqe)
--			data->wait_nr--;
- 		if (data->wait_nr || cq_overflow_flush)
+@@ -89,12 +89,13 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
+ {
+ 	struct io_uring_cqe *cqe = NULL;
+ 	const int to_wait = data->wait_nr;
+-	int ret = 0, err;
++	int err;
+ 
+ 	do {
+ 		bool cq_overflow_flush = false;
+ 		unsigned flags = 0;
+ 		unsigned nr_available;
++		int ret;
+ 
+ 		err = __io_uring_peek_cqe(ring, &cqe, &nr_available);
+ 		if (err)
+@@ -110,11 +111,13 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
  			flags = IORING_ENTER_GETEVENTS | data->get_flags;
  		if (data->submit)
+ 			sq_ring_needs_enter(ring, &flags);
+-		if (data->wait_nr > nr_available || data->submit ||
+-		    cq_overflow_flush)
+-			ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
+-					data->wait_nr, flags, data->arg,
+-					data->sz);
++		if (data->wait_nr <= nr_available && !data->submit &&
++		    !cq_overflow_flush)
++			break;
++
++		ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
++				data->wait_nr, flags, data->arg,
++				data->sz);
+ 		if (ret < 0) {
+ 			err = -errno;
+ 			break;
 -- 
 2.24.0
 

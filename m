@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10142C43381
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:57:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD770C433DB
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:58:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B778164E8B
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:57:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 843CC64E7E
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:58:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbhBHI4Z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Feb 2021 03:56:25 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:35915 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230362AbhBHIxi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 03:53:38 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UO9soA7_1612774373;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UO9soA7_1612774373)
+        id S230126AbhBHI4o (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Feb 2021 03:56:44 -0500
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:41110 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230408AbhBHIxp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 03:53:45 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UOAeIP5_1612774375;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UOAeIP5_1612774375)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 08 Feb 2021 16:52:53 +0800
+          Mon, 08 Feb 2021 16:52:56 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com, axboe@kernel.dk
 Cc:     joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com, hch@lst.de,
         linux-block@vger.kernel.org, dm-devel@redhat.com,
         io-uring@vger.kernel.org
-Subject: [PATCH v3 09/11] dm: support IO polling for bio-based dm device
-Date:   Mon,  8 Feb 2021 16:52:41 +0800
-Message-Id: <20210208085243.82367-10-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 11/11] dm: fastpath of bio-based polling
+Date:   Mon,  8 Feb 2021 16:52:43 +0800
+Message-Id: <20210208085243.82367-12-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
 References: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
@@ -40,166 +40,139 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-DM will iterate and poll all polling hardware queues of all target mq
-devices when polling IO for dm device. To mitigate the race introduced
-by iterating all target hw queues, a per-hw-queue flag is maintained
-to indicate whether this polling hw queue currently being polled on or
-not. Every polling hw queue is exclusive to one polling instance, i.e.,
-the polling instance will skip this polling hw queue if this hw queue
-currently is being polled by another polling instance, and start
-polling on the next hw queue.
+Offer one fastpath of bio-based polling when bio submitted to dm device
+is not split.
 
-IO polling is enabled when all underlying target devices are capable
-of IO polling. The sanity check supports the stacked device model, in
-which one dm device may be build upon another dm device. In this case,
-the mapped device will check if the underlying dm target device
-supports IO polling.
+In this case, there will be only one bio submitted to only one polling
+hw queue of one underlying mq device, and thus we don't need to track
+all split bios or iterate through all polling hw queues. The pointer to
+the polling hw queue the bio submitted to is returned here as the
+returned cookie. In this case, the polling routine will call
+mq_ops->poll() directly with the hw queue converted from the input
+cookie.
+
+If the original bio submitted to dm device is split to multiple bios and
+thus submitted to multiple polling hw queues, the bio submission routine
+will return BLK_QC_T_BIO_MULTI, while the polling routine will fall
+back to iterating all hw queues (in polling mode) of all underlying mq
+devices.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- drivers/md/dm-table.c         | 26 ++++++++++++++
- drivers/md/dm.c               | 64 +++++++++++++++++++++++++++++++++++
- include/linux/device-mapper.h |  1 +
- 3 files changed, 91 insertions(+)
+ block/blk-core.c          | 33 +++++++++++++++++++++++++++++++--
+ include/linux/blk_types.h |  8 ++++++++
+ include/linux/types.h     |  2 +-
+ 3 files changed, 40 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index aa37f3e82238..b090b4c9692d 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1764,6 +1764,19 @@ static int device_requires_stable_pages(struct dm_target *ti,
- 	return blk_queue_stable_writes(q);
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 37aa513da5f2..cb24b33a4870 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -956,11 +956,19 @@ static blk_qc_t __submit_bio(struct bio *bio)
+  * bio_list_on_stack[0] contains bios submitted by the current ->submit_bio.
+  * bio_list_on_stack[1] contains bios that were submitted before the current
+  *	->submit_bio_bio, but that haven't been processed yet.
++ *
++ * Return:
++ *   - BLK_QC_T_NONE, no need for IO polling.
++ *   - BLK_QC_T_BIO_MULTI, @bio gets split and enqueued into multi hw queues.
++ *   - Otherwise, @bio is not split, returning the pointer to the corresponding
++ *     hw queue that the bio enqueued into as the returned cookie.
+  */
+ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ {
+ 	struct bio_list bio_list_on_stack[2];
+ 	blk_qc_t ret = BLK_QC_T_NONE;
++	struct request_queue *top_q = bio->bi_disk->queue;
++	bool poll_on = test_bit(QUEUE_FLAG_POLL, &top_q->queue_flags);
+ 
+ 	BUG_ON(bio->bi_next);
+ 
+@@ -968,6 +976,7 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 	current->bio_list = bio_list_on_stack;
+ 
+ 	do {
++		blk_qc_t cookie;
+ 		struct request_queue *q = bio->bi_disk->queue;
+ 		struct bio_list lower, same;
+ 
+@@ -980,7 +989,20 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 		bio_list_on_stack[1] = bio_list_on_stack[0];
+ 		bio_list_init(&bio_list_on_stack[0]);
+ 
+-		ret = __submit_bio(bio);
++		cookie = __submit_bio(bio);
++
++		if (poll_on &&
++		    blk_qc_t_bio_valid(ret) && blk_qc_t_valid(cookie)) {
++			unsigned int queue_num = blk_qc_t_to_queue_num(cookie);
++			struct blk_mq_hw_ctx *hctx = q->queue_hw_ctx[queue_num];
++
++			cookie = (blk_qc_t)hctx;
++
++			if (!blk_qc_t_valid(ret)) /* set initial value */
++				ret = cookie;
++			else if (ret != cookie)   /* bio got split */
++				ret = BLK_QC_T_BIO_MULTI;
++		}
+ 
+ 		/*
+ 		 * Sort new bios into those for a lower level and those for the
+@@ -1003,6 +1025,7 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
+ 
+ 	current->bio_list = NULL;
++
+ 	return ret;
  }
  
-+static int device_not_poll_capable(struct dm_target *ti, struct dm_dev *dev,
-+				   sector_t start, sector_t len, void *data)
-+{
-+	struct request_queue *q = bdev_get_queue(dev->bdev);
-+
-+	return !test_bit(QUEUE_FLAG_POLL, &q->queue_flags);
-+}
-+
-+int dm_table_supports_poll(struct dm_table *t)
-+{
-+	return dm_table_all_devs_attr(t, device_not_poll_capable, NULL);
-+}
-+
- /*
-  * type->iterate_devices() should be called when the sanity check needs to
-  * iterate and check all underlying data devices. iterate_devices() will
-@@ -1875,6 +1888,19 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- #endif
+@@ -1142,7 +1165,13 @@ static int blk_bio_poll(struct request_queue *q, blk_qc_t cookie, bool spin)
+ 	do {
+ 		int ret;
  
- 	blk_queue_update_readahead(q);
+-		ret = disk->fops->poll(q, cookie);
++		if (blk_qc_t_bio_valid(cookie)) {
++			struct blk_mq_hw_ctx *hctx = (struct blk_mq_hw_ctx *)cookie;
++			struct request_queue *target_q = hctx->queue;
 +
-+	/*
-+	 * Check for request-based device is remained to
-+	 * dm_mq_init_request_queue()->blk_mq_init_allocated_queue().
-+	 * For bio-based device, only set QUEUE_FLAG_POLL when all underlying
-+	 * devices supporting polling.
-+	 */
-+	if (__table_type_bio_based(t->type)) {
-+		if (dm_table_supports_poll(t))
-+			blk_queue_flag_set(QUEUE_FLAG_POLL, q);
-+		else
-+			blk_queue_flag_clear(QUEUE_FLAG_POLL, q);
-+	}
++			ret = blk_mq_poll_hctx(target_q, hctx);
++		} else
++			ret = disk->fops->poll(q, cookie);
+ 		if (ret > 0) {
+ 			__set_current_state(TASK_RUNNING);
+ 			return ret;
+diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+index 2e05244fc16d..4173754532c0 100644
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -557,6 +557,14 @@ static inline bool blk_qc_t_is_internal(blk_qc_t cookie)
+ 	return (cookie & BLK_QC_T_INTERNAL) != 0;
  }
  
- unsigned int dm_table_get_num_targets(struct dm_table *t)
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index c2945c90745e..8423f1347bb8 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1657,6 +1657,68 @@ static blk_qc_t dm_submit_bio(struct bio *bio)
- 	return BLK_QC_T_NONE;
- }
++/* Macros for blk_qc_t used for bio-based polling */
++#define BLK_QC_T_BIO_MULTI	-2U
++
++static inline bool blk_qc_t_bio_valid(blk_qc_t cookie)
++{
++	return cookie != BLK_QC_T_BIO_MULTI;
++}
++
+ struct blk_rq_stat {
+ 	u64 mean;
+ 	u64 min;
+diff --git a/include/linux/types.h b/include/linux/types.h
+index da5ca7e1bea9..f6301014a459 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -126,7 +126,7 @@ typedef u64 sector_t;
+ typedef u64 blkcnt_t;
  
-+static int dm_poll_one_md(struct mapped_device *md);
-+
-+static int dm_poll_one_dev(struct dm_target *ti, struct dm_dev *dev,
-+				sector_t start, sector_t len, void *data)
-+{
-+	int i, *count = data;
-+	struct request_queue *q = bdev_get_queue(dev->bdev);
-+	struct blk_mq_hw_ctx *hctx;
-+
-+	if (queue_is_mq(q)) {
-+		if (!percpu_ref_tryget(&q->q_usage_counter))
-+			return 0;
-+
-+		queue_for_each_poll_hw_ctx(q, hctx, i)
-+			*count += blk_mq_poll_hctx(q, hctx);
-+
-+		percpu_ref_put(&q->q_usage_counter);
-+	} else
-+		*count += dm_poll_one_md(dev->bdev->bd_disk->private_data);
-+
-+	return 0;
-+}
-+
-+static int dm_poll_one_md(struct mapped_device *md)
-+{
-+	int i, srcu_idx, ret = 0;
-+	struct dm_table *t;
-+	struct dm_target *ti;
-+
-+	t = dm_get_live_table(md, &srcu_idx);
-+
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
-+		ti->type->iterate_devices(ti, dm_poll_one_dev, &ret);
-+	}
-+
-+	dm_put_live_table(md, srcu_idx);
-+
-+	return ret;
-+}
-+
-+static int dm_bio_poll(struct request_queue *q, blk_qc_t cookie)
-+{
-+	struct gendisk *disk = queue_to_disk(q);
-+	struct mapped_device *md = disk->private_data;
-+
-+	return dm_poll_one_md(md);
-+}
-+
-+static bool dm_bio_poll_capable(struct gendisk *disk)
-+{
-+	int ret, srcu_idx;
-+	struct mapped_device *md = disk->private_data;
-+	struct dm_table *t;
-+
-+	t = dm_get_live_table(md, &srcu_idx);
-+	ret = dm_table_supports_poll(t);
-+	dm_put_live_table(md, srcu_idx);
-+
-+	return ret;
-+}
-+
- /*-----------------------------------------------------------------
-  * An IDR is used to keep track of allocated minor numbers.
-  *---------------------------------------------------------------*/
-@@ -3049,6 +3111,8 @@ static const struct pr_ops dm_pr_ops = {
- };
- 
- static const struct block_device_operations dm_blk_dops = {
-+	.poll = dm_bio_poll,
-+	.poll_capable = dm_bio_poll_capable,
- 	.submit_bio = dm_submit_bio,
- 	.open = dm_blk_open,
- 	.release = dm_blk_close,
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index 61a66fb8ebb3..6a9de3fd0087 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -515,6 +515,7 @@ unsigned int dm_table_get_num_targets(struct dm_table *t);
- fmode_t dm_table_get_mode(struct dm_table *t);
- struct mapped_device *dm_table_get_md(struct dm_table *t);
- const char *dm_table_device_name(struct dm_table *t);
-+int dm_table_supports_poll(struct dm_table *t);
+ /* cookie used for IO polling */
+-typedef unsigned int blk_qc_t;
++typedef uintptr_t blk_qc_t;
  
  /*
-  * Trigger an event.
+  * The type of an index into the pagecache.
 -- 
 2.27.0
 

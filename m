@@ -2,474 +2,155 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C44F2C433DB
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:59:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1890DC433DB
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 13:39:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7042164E7E
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:59:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D018E64DE9
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 13:39:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230477AbhBHI7Z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Feb 2021 03:59:25 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:45179 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230365AbhBHIxv (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 03:53:51 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UO9soA-_1612774372;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UO9soA-_1612774372)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 08 Feb 2021 16:52:52 +0800
-From:   Jeffle Xu <jefflexu@linux.alibaba.com>
-To:     snitzer@redhat.com, axboe@kernel.dk
-Cc:     joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com, hch@lst.de,
-        linux-block@vger.kernel.org, dm-devel@redhat.com,
+        id S229752AbhBHNjf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Feb 2021 08:39:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60210 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229611AbhBHNje (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 08:39:34 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27748C061786
+        for <io-uring@vger.kernel.org>; Mon,  8 Feb 2021 05:38:54 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id r21so929204wrr.9
+        for <io-uring@vger.kernel.org>; Mon, 08 Feb 2021 05:38:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=AAArKBVeC4Y2NjQOLaTdAbNOSSeMC+nunrDoJYaxHFM=;
+        b=I2fz9FvPpuJ2TIKG27zcU4FSdbKXR7+sdAv9NdLR6p4SV/OCehPkQMBfTsSao/n7/I
+         uZ1o6r6unBmG5gbF7vjcOFIynR4nJb/ma//fvQPe41t5nrr6EnnI1y+d+9Ia+4HCm/0l
+         cQcL8tdMSr7BzswlSYvu6R+/7ipDuxIFMppN8DRebA4PNR7RvPonsmOVXqlCgxkP7NO4
+         TWag8F4iZsC0Vs437m2Er2McHSuyQNf5Sr0NVbOq+QpMwoVlIiz5LPUprhpDsmFIG1SH
+         ffcfinbAztgT36bOrpWYPYE9k8rxjOGANOEVQSBYkR+8ahJrXDeeTphRr83xnG0K+cVm
+         NghQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=AAArKBVeC4Y2NjQOLaTdAbNOSSeMC+nunrDoJYaxHFM=;
+        b=nUndSQW0OQoHJrpsty+b2BdD6+6EV0+GYj+TdW7pQ3mjdUI3BmszeFX4YDjl/uTDtK
+         U1kP+6tU1hu0qrvPfEjllBF5ntjOK7XoIoeuDWARXRIeUgX/v/MVMnEMzdWTyxggCpd9
+         MfPkp9PCyfoioDOGJe4pTfZqmJ7h2ODj0I5eE97N1SbnbHva5TjZqF5TxDCjcJrVphoH
+         vfjZN9tTEBnbzY4AaIVpf9MStJWojrafyXiicgaAKiRNOlX8Imp34HzqNmupn9bYOge7
+         X2mScL5B2y/FZSrkFECU/9m4gNGXxwUh+z2cE5UlJDUOjzaew/IZAA9poYWOlTFtIV9e
+         yqcg==
+X-Gm-Message-State: AOAM5312eUydolNsWgeGpMINwwjh2HeGwtSl1rWZXI4uzkDMum+OzAHY
+        GBlPzyIiTgGNPmmQ0xzUmq6gWWcEw3c=
+X-Google-Smtp-Source: ABdhPJzHj9+a7fHtwEimDpfgMzaISbpM35xdSdNGUIF2gMiNQQFCq7l1wlQ+TFSfwhQUOqCgHyeCxg==
+X-Received: by 2002:adf:902a:: with SMTP id h39mr19921798wrh.147.1612791532940;
+        Mon, 08 Feb 2021 05:38:52 -0800 (PST)
+Received: from [192.168.8.179] ([148.252.128.244])
+        by smtp.gmail.com with ESMTPSA id e16sm4062324wrt.36.2021.02.08.05.38.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Feb 2021 05:38:52 -0800 (PST)
+Subject: Re: [PATCH] io_uring: don't issue reqs in iopoll mode when ctx is
+ dying
+To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
         io-uring@vger.kernel.org
-Subject: [PATCH v3 08/11] dm: fix iterate_device sanity check
-Date:   Mon,  8 Feb 2021 16:52:40 +0800
-Message-Id: <20210208085243.82367-9-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
-References: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
+Cc:     axboe@kernel.dk, joseph.qi@linux.alibaba.com
+References: <20210206150006.1945-1-xiaoguang.wang@linux.alibaba.com>
+ <e4220bf0-2d60-cdd8-c738-cf48236073fa@gmail.com>
+ <3e3cb8da-d925-7ebd-11a0-f9e145861962@linux.alibaba.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <f3081423-bdee-e7e4-e292-aa001f0937d1@gmail.com>
+Date:   Mon, 8 Feb 2021 13:35:07 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
+In-Reply-To: <3e3cb8da-d925-7ebd-11a0-f9e145861962@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-According to the definition of dm_iterate_devices_fn:
- * This function must iterate through each section of device used by the
- * target until it encounters a non-zero return code, which it then returns.
- * Returns zero if no callout returned non-zero.
+On 08/02/2021 02:50, Xiaoguang Wang wrote:
+>>> The io_identity's count is underflowed. It's because in io_put_identity,
+>>> first argument tctx comes from req->task->io_uring, the second argument
+>>> comes from the task context that calls io_req_init_async, so the compare
+>>> in io_put_identity maybe meaningless. See below case:
+>>>      task context A issue one polled req, then req->task = A.
+>>>      task context B do iopoll, above req returns with EAGAIN error.
+>>>      task context B re-issue req, call io_queue_async_work for req.
+>>>      req->task->io_uring will set to task context B's identity, or cow new one.
+>>> then for above case, in io_put_identity(), the compare is meaningless.
+>>>
+>>> IIUC, req->task should indicates the initial task context that issues req,
+>>> then if it gets EAGAIN error, we'll call io_prep_async_work() in req->task
+>>> context, but iopoll reqs seems special, they maybe issued successfully and
+>>> got re-issued in other task context because of EAGAIN error.
+>>
+>> Looks as you say, but the patch doesn't solve the issue completely.
+>> 1. We must not do io_queue_async_work() under a different task context,
+>> because of it potentially uses a different set of resources. So, I just
+>> thought that it would be better to punt it to the right task context
+>> via task_work. But...
+>>
+>> 2. ...iovec import from io_resubmit_prep() might happen after submit ends,
+>> i.e. when iovec was freed in userspace. And that's not great at all.
+> Yes, agree, that's why I say we neeed to re-consider the io identity codes
+> more in commit message :) I'll have a try to prepare a better one.
 
-For some target type (e.g., dm-stripe), one call of iterate_devices()
-may iterate multiple underlying devices internally, in which case a
-non-zero return code returned by iterate_devices_callout_fn will stop
-the iteration in advance.
+I'd vote for dragging -AGAIN'ed reqs that don't need io_import_iovec()
+through task_work for resubmission, and fail everything else. Not great,
+but imho better than always setting async_data.
 
-Thus if we want to ensure that _all_ underlying devices support some
-kind of attribute, the iteration structure like
-dm_table_supports_nowait() should be used, while the input
-iterate_devices_callout_fn should handle the 'not support' semantics.
-On the opposite, the iteration structure like dm_table_any_dev_attr()
-should be used if _any_ underlying device supporting this attibute is
-sufficient. In this case, the input iterate_devices_callout_fn should
-handle the 'support' semantics.
-
-Besides, remove the unnecessary NULL pointer check for request_queue,
-since the request_queue pointer returned from bdev_get_queue() shall
-never be NULL according to commit ff9ea323816d ("block, bdi: an active
-gendisk always has a request_queue associated with it").
-
-Fixes: 545ed20e6df6 ("dm: add infrastructure for DAX support")
-Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
-Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
----
- drivers/md/dm-table.c | 195 +++++++++++++++++++-----------------------
- drivers/md/dm.c       |   2 +-
- drivers/md/dm.h       |   2 +-
- 3 files changed, 91 insertions(+), 108 deletions(-)
-
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 4acf2342f7ad..aa37f3e82238 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -820,24 +820,24 @@ void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
- EXPORT_SYMBOL_GPL(dm_table_set_type);
- 
- /* validate the dax capability of the target device span */
--int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
--			sector_t start, sector_t len, void *data)
-+int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
-+			   sector_t start, sector_t len, void *data)
- {
- 	int blocksize = *(int *) data, id;
- 	bool rc;
- 
- 	id = dax_read_lock();
--	rc = dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
-+	rc = !dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
- 	dax_read_unlock(id);
- 
- 	return rc;
- }
- 
- /* Check devices support synchronous DAX */
--static int device_dax_synchronous(struct dm_target *ti, struct dm_dev *dev,
--				  sector_t start, sector_t len, void *data)
-+static int device_not_dax_sync_capable(struct dm_target *ti, struct dm_dev *dev,
-+				       sector_t start, sector_t len, void *data)
- {
--	return dev->dax_dev && dax_synchronous(dev->dax_dev);
-+	return !dev->dax_dev || !dax_synchronous(dev->dax_dev);
- }
- 
- bool dm_table_supports_dax(struct dm_table *t,
-@@ -854,7 +854,7 @@ bool dm_table_supports_dax(struct dm_table *t,
- 			return false;
- 
- 		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, iterate_fn, blocksize))
-+		    ti->type->iterate_devices(ti, iterate_fn, blocksize))
- 			return false;
- 	}
- 
-@@ -925,7 +925,7 @@ static int dm_table_determine_type(struct dm_table *t)
- verify_bio_based:
- 		/* We must use this table as bio-based */
- 		t->type = DM_TYPE_BIO_BASED;
--		if (dm_table_supports_dax(t, device_supports_dax, &page_size) ||
-+		if (dm_table_supports_dax(t, device_not_dax_capable, &page_size) ||
- 		    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
- 			t->type = DM_TYPE_DAX_BIO_BASED;
- 		}
-@@ -1331,13 +1331,49 @@ bool dm_table_has_no_data_devices(struct dm_table *table)
- 	return true;
- }
- 
--static int device_is_zoned_model(struct dm_target *ti, struct dm_dev *dev,
--				 sector_t start, sector_t len, void *data)
-+/*
-+ * Cases requiring _any_ underlying device supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_any_dev_attr(), or call
-+ * it directly. @func should handle semantics of positive examples, e.g.,
-+ * capable of something.
-+ */
-+static bool dm_table_any_dev_attr(struct dm_table *t,
-+				  iterate_devices_callout_fn func, void *data)
-+{
-+	struct dm_target *ti;
-+	unsigned int i;
-+
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
-+
-+		if (ti->type->iterate_devices &&
-+		    ti->type->iterate_devices(ti, func, data))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/*
-+ * Cases requiring _all_ underlying devices supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_supports_nowait(), or call
-+ * dm_table_all_devs_attr() directly. @anti_func should handle semantics of
-+ * counter examples, e.g., not capable of something.
-+ */
-+static inline bool dm_table_all_devs_attr(struct dm_table *t,
-+					  iterate_devices_callout_fn anti_func,
-+					  void *data)
-+{
-+	return !dm_table_any_dev_attr(t, anti_func, data);
-+}
-+
-+static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
-+				  sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	enum blk_zoned_model *zoned_model = data;
- 
--	return q && blk_queue_zoned_model(q) == *zoned_model;
-+	return blk_queue_zoned_model(q) != *zoned_model;
- }
- 
- static bool dm_table_supports_zoned_model(struct dm_table *t,
-@@ -1354,37 +1390,20 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
- 			return false;
- 
- 		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, device_is_zoned_model, &zoned_model))
-+		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
- 			return false;
- 	}
- 
- 	return true;
- }
- 
--static int device_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
--				       sector_t start, sector_t len, void *data)
-+static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
-+					   sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	unsigned int *zone_sectors = data;
- 
--	return q && blk_queue_zone_sectors(q) == *zone_sectors;
--}
--
--static bool dm_table_matches_zone_sectors(struct dm_table *t,
--					  unsigned int zone_sectors)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, device_matches_zone_sectors, &zone_sectors))
--			return false;
--	}
--
--	return true;
-+	return blk_queue_zone_sectors(q) != *zone_sectors;
- }
- 
- static int validate_hardware_zoned_model(struct dm_table *table,
-@@ -1404,7 +1423,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
- 	if (!zone_sectors || !is_power_of_2(zone_sectors))
- 		return -EINVAL;
- 
--	if (!dm_table_matches_zone_sectors(table, zone_sectors)) {
-+	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
- 		DMERR("%s: zone sectors is not consistent across all devices",
- 		      dm_device_name(table->md));
- 		return -EINVAL;
-@@ -1533,7 +1552,7 @@ static int device_flush_capable(struct dm_target *ti, struct dm_dev *dev,
- 	unsigned long flush = (unsigned long) data;
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && (q->queue_flags & flush);
-+	return (q->queue_flags & flush);
- }
- 
- static bool dm_table_supports_flush(struct dm_table *t, unsigned long flush)
-@@ -1578,54 +1597,20 @@ static int device_dax_write_cache_enabled(struct dm_target *ti,
- 	return false;
- }
- 
--static int dm_table_supports_dax_write_cache(struct dm_table *t)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (ti->type->iterate_devices &&
--		    ti->type->iterate_devices(ti,
--				device_dax_write_cache_enabled, NULL))
--			return true;
--	}
--
--	return false;
--}
--
--static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
--			    sector_t start, sector_t len, void *data)
-+static int device_is_rot(struct dm_target *ti, struct dm_dev *dev,
-+			 sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && blk_queue_nonrot(q);
-+	return !blk_queue_nonrot(q);
- }
- 
- static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
--			     sector_t start, sector_t len, void *data)
-+				sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !blk_queue_add_random(q);
--}
--
--static bool dm_table_all_devices_attribute(struct dm_table *t,
--					   iterate_devices_callout_fn func)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, func, NULL))
--			return false;
--	}
--
--	return true;
-+	return !blk_queue_add_random(q);
- }
- 
- static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
-@@ -1633,7 +1618,7 @@ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *de
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !q->limits.max_write_same_sectors;
-+	return !q->limits.max_write_same_sectors;
- }
- 
- static bool dm_table_supports_write_same(struct dm_table *t)
-@@ -1660,7 +1645,7 @@ static int device_not_write_zeroes_capable(struct dm_target *ti, struct dm_dev *
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !q->limits.max_write_zeroes_sectors;
-+	return !q->limits.max_write_zeroes_sectors;
- }
- 
- static bool dm_table_supports_write_zeroes(struct dm_table *t)
-@@ -1687,7 +1672,7 @@ static int device_not_nowait_capable(struct dm_target *ti, struct dm_dev *dev,
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !blk_queue_nowait(q);
-+	return !blk_queue_nowait(q);
- }
- 
- static bool dm_table_supports_nowait(struct dm_table *t)
-@@ -1714,7 +1699,7 @@ static int device_not_discard_capable(struct dm_target *ti, struct dm_dev *dev,
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !blk_queue_discard(q);
-+	return !blk_queue_discard(q);
- }
- 
- static bool dm_table_supports_discards(struct dm_table *t)
-@@ -1748,7 +1733,7 @@ static int device_not_secure_erase_capable(struct dm_target *ti,
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !blk_queue_secure_erase(q);
-+	return !blk_queue_secure_erase(q);
- }
- 
- static bool dm_table_supports_secure_erase(struct dm_table *t)
-@@ -1776,30 +1761,23 @@ static int device_requires_stable_pages(struct dm_target *ti,
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && blk_queue_stable_writes(q);
-+	return blk_queue_stable_writes(q);
- }
- 
- /*
-- * If any underlying device requires stable pages, a table must require
-- * them as well.  Only targets that support iterate_devices are considered:
-- * don't want error, zero, etc to require stable pages.
-+ * type->iterate_devices() should be called when the sanity check needs to
-+ * iterate and check all underlying data devices. iterate_devices() will
-+ * iterate all underlying data devices until it encounters a non-zero return
-+ * code, returned by whether the input iterate_devices_callout_fn, or
-+ * iterate_devices() itself internally.
-+ *
-+ * For some target type (e.g., dm-stripe), one call of iterate_devices() may
-+ * iterate multiple underlying devices internally, in which case a non-zero
-+ * return code returned by iterate_devices_callout_fn will stop the iteration
-+ * in advance.
-+ * Thus users should call dm_table_any_dev_attr() or dm_table_all_devs_attr()
-+ * directly if possible. See comments of these two functions for more details.
-  */
--static bool dm_table_requires_stable_pages(struct dm_table *t)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (ti->type->iterate_devices &&
--		    ti->type->iterate_devices(ti, device_requires_stable_pages, NULL))
--			return true;
--	}
--
--	return false;
--}
--
- void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 			       struct queue_limits *limits)
- {
-@@ -1837,22 +1815,22 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	}
- 	blk_queue_write_cache(q, wc, fua);
- 
--	if (dm_table_supports_dax(t, device_supports_dax, &page_size)) {
-+	if (dm_table_supports_dax(t, device_not_dax_capable, &page_size)) {
- 		blk_queue_flag_set(QUEUE_FLAG_DAX, q);
--		if (dm_table_supports_dax(t, device_dax_synchronous, NULL))
-+		if (dm_table_supports_dax(t, device_not_dax_sync_capable, NULL))
- 			set_dax_synchronous(t->md->dax_dev);
- 	}
- 	else
- 		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
- 
--	if (dm_table_supports_dax_write_cache(t))
-+	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled, NULL))
- 		dax_write_cache(t->md->dax_dev, true);
- 
- 	/* Ensure that all underlying devices are non-rotational. */
--	if (dm_table_all_devices_attribute(t, device_is_nonrot))
--		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
--	else
-+	if (dm_table_any_dev_attr(t, device_is_rot, NULL))
- 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
-+	else
-+		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
- 
- 	if (!dm_table_supports_write_same(t))
- 		q->limits.max_write_same_sectors = 0;
-@@ -1864,8 +1842,11 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	/*
- 	 * Some devices don't use blk_integrity but still want stable pages
- 	 * because they do their own checksumming.
-+	 * If any underlying device requires stable pages, a table must require
-+	 * them as well.  Only targets that support iterate_devices are considered:
-+	 * don't want error, zero, etc to require stable pages.
- 	 */
--	if (dm_table_requires_stable_pages(t))
-+	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
- 		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
- 	else
- 		blk_queue_flag_clear(QUEUE_FLAG_STABLE_WRITES, q);
-@@ -1876,8 +1857,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
- 	 * have it set.
- 	 */
--	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
-+	if (dm_table_any_dev_attr(t, device_is_not_random, NULL))
- 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
-+	else
-+		blk_queue_flag_set(QUEUE_FLAG_ADD_RANDOM, q);
- 
- 	/*
- 	 * For a zoned target, the number of zones should be updated for the
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 46ca3b739396..c2945c90745e 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1128,7 +1128,7 @@ static bool dm_dax_supported(struct dax_device *dax_dev, struct block_device *bd
- 	if (!map)
- 		goto out;
- 
--	ret = dm_table_supports_dax(map, device_supports_dax, &blocksize);
-+	ret = dm_table_supports_dax(map, device_not_dax_capable, &blocksize);
- 
- out:
- 	dm_put_live_table(md, srcu_idx);
-diff --git a/drivers/md/dm.h b/drivers/md/dm.h
-index fffe1e289c53..b441ad772c18 100644
---- a/drivers/md/dm.h
-+++ b/drivers/md/dm.h
-@@ -73,7 +73,7 @@ void dm_table_free_md_mempools(struct dm_table *t);
- struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t);
- bool dm_table_supports_dax(struct dm_table *t, iterate_devices_callout_fn fn,
- 			   int *blocksize);
--int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
-+int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
- 			   sector_t start, sector_t len, void *data);
- 
- void dm_lock_md_type(struct mapped_device *md);
 -- 
-2.27.0
-
+Pavel Begunkov

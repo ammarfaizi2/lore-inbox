@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED040C433DB
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:56:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEAF3C433DB
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:57:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DCD564E7A
-	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:56:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 835CF64E99
+	for <io-uring@archiver.kernel.org>; Mon,  8 Feb 2021 08:57:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbhBHI4R (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Feb 2021 03:56:17 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:46123 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230101AbhBHIxc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 03:53:32 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UO8W.Q._1612774365;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UO8W.Q._1612774365)
+        id S230510AbhBHI4h (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Feb 2021 03:56:37 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:49761 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230126AbhBHIxg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Feb 2021 03:53:36 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R411e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UOAH3JG_1612774370;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UOAH3JG_1612774370)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 08 Feb 2021 16:52:46 +0800
+          Mon, 08 Feb 2021 16:52:50 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com, axboe@kernel.dk
 Cc:     joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com, hch@lst.de,
         linux-block@vger.kernel.org, dm-devel@redhat.com,
         io-uring@vger.kernel.org
-Subject: [PATCH v3 02/11] block: add queue_to_disk() to get gendisk from request_queue
-Date:   Mon,  8 Feb 2021 16:52:34 +0800
-Message-Id: <20210208085243.82367-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 06/11] block/mq: add iterator for polling hw queues
+Date:   Mon,  8 Feb 2021 16:52:38 +0800
+Message-Id: <20210208085243.82367-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
 References: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
@@ -40,66 +40,32 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Sometimes we need to get the corresponding gendisk from request_queue.
-
-It is preferred that block drivers store private data in
-gendisk->private_data rather than request_queue->queuedata, e.g. see:
-commit c4a59c4e5db3 ("dm: stop using ->queuedata").
-
-So if only request_queue is given, we need to get its corresponding
-gendisk to get the private data stored in that gendisk.
+Add one helper function for iterating all hardware queues in polling
+mode.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Mike Snitzer <snitzer@redhat.com>
 ---
- include/linux/blkdev.h       | 2 ++
- include/trace/events/kyber.h | 6 +++---
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ include/linux/blk-mq.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index f94ee3089e01..2a802e011a95 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -687,6 +687,8 @@ static inline bool blk_account_rq(struct request *rq)
- 	dma_map_page_attrs(dev, (bv)->bv_page, (bv)->bv_offset, (bv)->bv_len, \
- 	(dir), (attrs))
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index cf1910c6d5ae..0c511555ec16 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -574,6 +574,13 @@ static inline void *blk_mq_rq_to_pdu(struct request *rq)
+ 	for ((i) = 0; (i) < (q)->nr_hw_queues &&			\
+ 	     ({ hctx = (q)->queue_hw_ctx[i]; 1; }); (i)++)
  
-+#define queue_to_disk(q)	(dev_to_disk(kobj_to_dev((q)->kobj.parent)))
++#define queue_for_each_poll_hw_ctx(q, hctx, i)				\
++	for ((i) = 0; ((q)->tag_set->nr_maps > HCTX_TYPE_POLL) &&	\
++	     (i) < (q)->tag_set->map[HCTX_TYPE_POLL].nr_queues &&	\
++	     ({ int __idx = (q)->tag_set->map[HCTX_TYPE_POLL].queue_offset + (i); \
++	     hctx = (q)->queue_hw_ctx[__idx]; 1; }); \
++	     (i)++)
 +
- static inline bool queue_is_mq(struct request_queue *q)
- {
- 	return q->mq_ops;
-diff --git a/include/trace/events/kyber.h b/include/trace/events/kyber.h
-index c0e7d24ca256..f9802562edf6 100644
---- a/include/trace/events/kyber.h
-+++ b/include/trace/events/kyber.h
-@@ -30,7 +30,7 @@ TRACE_EVENT(kyber_latency,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 		strlcpy(__entry->type, type, sizeof(__entry->type));
- 		__entry->percentile	= percentile;
-@@ -59,7 +59,7 @@ TRACE_EVENT(kyber_adjust,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 		__entry->depth		= depth;
- 	),
-@@ -81,7 +81,7 @@ TRACE_EVENT(kyber_throttled,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
-+		__entry->dev		= disk_devt(queue_to_disk(q));
- 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
- 	),
- 
+ #define hctx_for_each_ctx(hctx, ctx, i)					\
+ 	for ((i) = 0; (i) < (hctx)->nr_ctx &&				\
+ 	     ({ ctx = (hctx)->ctxs[(i)]; 1; }); (i)++)
 -- 
 2.27.0
 

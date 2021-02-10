@@ -2,87 +2,96 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBCB1C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86969C433DB
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C0B264E7C
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38EFB64E7C
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbhBJPRM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Feb 2021 10:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51702 "EHLO
+        id S230148AbhBJPRb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Feb 2021 10:17:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231894AbhBJPRI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Feb 2021 10:17:08 -0500
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3B8C06178A
-        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:06 -0800 (PST)
-Received: by mail-io1-xd2a.google.com with SMTP id q7so2244473iob.0
-        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:06 -0800 (PST)
+        with ESMTP id S231959AbhBJPRO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Feb 2021 10:17:14 -0500
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F78C06178C
+        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:08 -0800 (PST)
+Received: by mail-il1-x12f.google.com with SMTP id w1so965845ilm.12
+        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uTi32Hsqx1DwK1Nv0hSsoqcKWrJlxgz0ET7X2DmtW7o=;
-        b=eOzrRwcd6AhimHmE84A1jkGPAuzV/hnvQ+BJbtx5ZptAjBDGOQU3wHEe2IopuC59fL
-         MJ/bAuUl5gX/rOkszmO1JIx2VHdGeRnnGbFba3qVVjvcO3DWl1dqsouL+c54tEZPvwmF
-         0Bev3Dyuh9M4zoKZLyOoTORc46Su1fv++xHlrEQzH9a1mFIigDgMKe745shjNGeHkQBH
-         1VoBvcWMdacwzjW9tODtdeBjGUosKYXG3c+ZB9h2lynaqUK4dOzu/fpMBdckxBZI4xSI
-         qqXYl4DdiXms5pbtPr82TDE9Bo0T9AqD0jfiYml2M0YWZoUDi1WawRUQRQcekB/rgX2k
-         8sMA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=7KiSNvL09Qg07F+J0VuAZLLTmylaAuVEq99QmL67X4w=;
+        b=0gZCuosqF6Wla36MlPRFEH4SPJbQdmtnq+Y8vaOL2EjVtQgxe/2xsdL5S0z8k3y/xS
+         B/Az1PKADDn++vbv7acO4k9iMRfD9tW8c3xGtDJX9utGx8LJM4WvzhUZZH/+bLFe84ek
+         OaUfXCnDvdViTxNdLuAnROQk8awE/raARCyonwIBGhA9ZvblJJ/XS5b2g6SZIhIfS7sf
+         NtrW/YJAugGo9nXvWEfOMP7L881JMu+wABYIskyXGQVv8xIwtqzSwWZ5zF39iyiWyf9A
+         WSoCfgCgjrUGulP8RGYa4XGq+MuM/giTaYYMXpKGskhFgc7j3uxflWpzh1gKhw8DeIiv
+         8kUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uTi32Hsqx1DwK1Nv0hSsoqcKWrJlxgz0ET7X2DmtW7o=;
-        b=H8MzT90rlPe5AmkONJG2Dvpg/5XijjF5AA3o3xCHh97PqsXvk743CEVlLLOp5nV3fO
-         voC6B1OHtuTt3Kb41MYIDvBp/UixKTZQyoXfYae1SI5TnIeTMfh0KYwp2YCrpYcodB1C
-         71LlgGMt44V9aoKfNfbUstSzwDI3kBM5/90OXqAFwUB3qzSUeU9oINe1XZuX0BTlojK3
-         aqshCBwHJgi8jkqzr37USMxdcyOTT7jDOqvBTOurRhHucbnkTwy8/Nv7GFmsQXlL4sxh
-         HyuDbZMHBaoWpQgKP5pfYhmG0eJ24VcRCGqYd63wjnLG4I22RULJ5IQ9/Vxsng/zS78a
-         8R4w==
-X-Gm-Message-State: AOAM532Y9rDVtJp3OstCmauPZXvVlmrM7Szw+jFXyHUTtMjpoSHd9mNF
-        xI2I6+z0duBMdQqNLDK9fh9YqMSeFlfyoQWC
-X-Google-Smtp-Source: ABdhPJxTeWhs6KEJHrHLG8ApuljJfj3sk0wEzaA8PZ9NBAjBYOPayP/0G4NruzXnJut+OP3mwaTlhw==
-X-Received: by 2002:a02:6953:: with SMTP id e80mr3793245jac.111.1612970166199;
-        Wed, 10 Feb 2021 07:16:06 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=7KiSNvL09Qg07F+J0VuAZLLTmylaAuVEq99QmL67X4w=;
+        b=FL8gAMtzImzJVH/UpvvuXwuTL8oXH8THaB0HePaFhDhxXMFcvbUPnQEcepg77VIt0f
+         RbwdrXPZmJnQUOEKGvGEmRSG4ERYSO6nF/M7bcvYEpVQbJagd3Lc3KqmW1+m7Ixj6v0n
+         ilmswl1p00o+Ynx9hwJQ6b/rutALSWJvmzUKnSm54wI2NrSTeKucwNIHFoHhCaTWyMoZ
+         jq9KWo6BljyOAIQxAa45uuUrVBvYKAzm2JCmWet8E0lY5OLfhGqr18lr2UxDQ4mX4wHA
+         dFrPJl7FV7s7peaPigCsxjEn8r4nQ6yCka1L2QwAnUeOle1qLOonsp09KGyz07mbUDBV
+         2fmw==
+X-Gm-Message-State: AOAM533U6lyU5ZR/se9S/6M94Gh8zevDyXS2E/R2/OMdaFkhhEBkl9lT
+        stncTIiuEIFpVJs5pmy7UC4POF2ro1ZME9D2
+X-Google-Smtp-Source: ABdhPJzdOqaysdTAGUZQ4nlHIFS5hsb84ElxrX4M0mD3RpMR8DdjqOjPYsWbCK+RKfMDpS/WslAxBg==
+X-Received: by 2002:a05:6e02:1c8d:: with SMTP id w13mr1476813ill.301.1612970167493;
+        Wed, 10 Feb 2021 07:16:07 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id e23sm1027952ioc.34.2021.02.10.07.16.05
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id e23sm1027952ioc.34.2021.02.10.07.16.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 07:16:05 -0800 (PST)
+        Wed, 10 Feb 2021 07:16:07 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Subject: [PATCHES 0/3] Mem accounting and IRQ req cache
-Date:   Wed, 10 Feb 2021 08:16:01 -0700
-Message-Id: <20210210151604.498311-1-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/3] io_uring: enable kmemcg account for io_uring requests
+Date:   Wed, 10 Feb 2021 08:16:03 -0700
+Message-Id: <20210210151604.498311-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210210151604.498311-1-axboe@kernel.dk>
+References: <20210210151604.498311-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+This puts io_uring under the memory cgroups accounting and limits for
+requests.
 
-This builds on the stuff that Pavel and I have been tossing around:
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Patch 1: Enable req cache for the last class of requests, those that end
-	 up completing from IRQ context. That's regular file/bdev reads
-	 and writes.
-
-Patch 2: Enable SLAB_ACCOUNT/memcg accounting for requests
-
-Patch 3: Use memcg for the ring array accounting as well. That moves it
-	 outside of rlimit memlock, though we retain memlock accounting
-	 for registered buffers.
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2c7ff0b1b086..bffed6aa5722 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -10350,7 +10350,8 @@ static int __init io_uring_init(void)
+ 
+ 	BUILD_BUG_ON(ARRAY_SIZE(io_op_defs) != IORING_OP_LAST);
+ 	BUILD_BUG_ON(__REQ_F_LAST_BIT >= 8 * sizeof(int));
+-	req_cachep = KMEM_CACHE(io_kiocb, SLAB_HWCACHE_ALIGN | SLAB_PANIC);
++	req_cachep = KMEM_CACHE(io_kiocb, SLAB_HWCACHE_ALIGN | SLAB_PANIC |
++				SLAB_ACCOUNT);
+ 	return 0;
+ };
+ __initcall(io_uring_init);
 -- 
-Jens Axboe
-
-
+2.30.0
 

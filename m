@@ -2,65 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81CE6C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:20:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7474FC433DB
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:21:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 365BA64E2A
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:20:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3972464E4E
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:21:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235055AbhBJAU0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 9 Feb 2021 19:20:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54628 "EHLO
+        id S234010AbhBJAUi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 9 Feb 2021 19:20:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234010AbhBJALL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:11:11 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B55BC061356
-        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:30 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id 190so326340wmz.0
-        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:30 -0800 (PST)
+        with ESMTP id S234475AbhBJALY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:11:24 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E10C06121D
+        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:32 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id j21so339327wmj.0
+        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=5WdLqMSzMk14UeQwMOZaifw18/D7emd1xYdPamRV7Kw=;
-        b=Jwnr0olc51ilYaofYhZ+8XKNhwJ9l4kcMhJb7YzHxftR78nVe84kFAUwvFzVuvhbbk
-         rNz0/TXV/rwCrKNWMOhPqztk8Emukrm6p55hjUDjxBQcfg8GljoMPlenSDUhxwg10oXS
-         GkCKs0FIlKGAZpOp8wpmq/t5kjYGZ0MIociQLXJfB6JdxdTZa3K7rubYuZv8/9n49T8s
-         YaR0bGMTFRefeZfnQuBZFSmKuYtrMq601QoG+aqJ4y0PaXn0Ii9YhBc7AU2OsdUuOeeZ
-         8SPj1Fl1Ev6DDNlQ2nEnkVompF1263dc8OnoUtHwFgUTcpccNJbHT0H8mFqc4UzlfWNM
-         TKrw==
+        bh=apD0RU9ZXGOYeix8ngPPkcssR8+S/nnzKkWylVumhMk=;
+        b=VAU+5EAViCIUtuOQ8ea4riHEpRujtG9M7Obv6IYEpmg4nLFwwBo/OXnWBqa0ud92i+
+         7lKAlMlhHxK/v4NsD9SUDFNH3NkZyGclxMfozBIgJsp7+hOF/5uj5pK4GpO3T9I6N9ae
+         gtgXpnhMAxT9fJTH8cYNBNMFctsQp8hab9KsJiszPVL52B5YldVD8PryTE/gW6M6VXyV
+         kzQeCpoFJCO+Hm+SIDdQpMs5bk0J/s7QZE/3q8Wv39FBgDtVYPcUBbNJbKfyBFGDTxRg
+         27K6W4k97X0wqVDTTCp2FhH6oGegxVPbLK4BniKLEjyUcdX4lVI702vBWy4EeYRdwQQO
+         hg6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=5WdLqMSzMk14UeQwMOZaifw18/D7emd1xYdPamRV7Kw=;
-        b=VXotoh/yNLbQ3LWPDfnpVseChEpWiSVOtqVrkY7OTIPRs4BbBPWs+fv0TwGOTdx3W4
-         7kwgSzvDYr3hjfL3VAGTzd0WR2M8UufEeQiEpIYATiBz6o3lWnLUQ3SaFVWisF6Dlyze
-         6/TrtxbmHCkKWiVCg9I5FdiU8UjkcBOTJ+/CnwHPn2703kzbhJln0x6pto/VFFivitAF
-         ETQ2vzE/ifPF7x2h9Mnf/TTvhrMCSNiVwXaYRzHc64gJP7xL/Lp9H23h2jpD0BDALbpZ
-         NBkKGZ7fUsD3UfS58qj65KPPhBEwRSGbUc61vrgWuXZm3NPG8dwWc0fpqvwtPmG9RV5o
-         iUcQ==
-X-Gm-Message-State: AOAM531q1W9Bkbupz+IwD4kioky8fLboMExLhcXSyXq456CNYhdC/H3w
-        ts2wKSOD7QFk286BHqxH2PK/lj0x7+xfZQ==
-X-Google-Smtp-Source: ABdhPJzq0CdMfzzih3+ejGZR+X9xuYf3DRp8WcY2yOLWS5r0t2BtxHboLcMFNEHuhZkGksuj+lI4Rw==
-X-Received: by 2002:a05:600c:4ec7:: with SMTP id g7mr465881wmq.56.1612915648868;
-        Tue, 09 Feb 2021 16:07:28 -0800 (PST)
+        bh=apD0RU9ZXGOYeix8ngPPkcssR8+S/nnzKkWylVumhMk=;
+        b=a5zdXJMxQrczERMXf0H1iUMkbjb7KEMmtQHaKcgjRBv8Qu7/ADk2FalzbzTlX4stRn
+         ynFnR9kpRL1iXEjOcQ/1kiaMqZAMW8fOInZS64kcdMphRvVtYsVjU3NNNRl2EBSmu5Ca
+         f4zdg/UBcr1mTa+CJfVhd2QnuvVVVHy9Ok9g5kHLo+AKRWs+UtJbb7qt9KaY5Nf6smcy
+         F7AnmWNdgsL6RKlMrZZDrsH075VKyMOPH43aLSUx1fV86hZJeC/QY+H7HuWALK/IDfU3
+         YshqlOU7+UxyRMXjeurvitwaArHsMlqSpayDrI5bRN951ui6NcKSCMvlb7CVwhYZsEwH
+         GAFw==
+X-Gm-Message-State: AOAM530tk6Kt8OLv/qOqxE43KW0AbCmdO59vyosRc4qUDTBUZs/Pkl7i
+        ujNhyjEl88OauetqCoF4hI0=
+X-Google-Smtp-Source: ABdhPJwq2Qn6XoyIIrZ+UXGRllek+OZY8v2GF7nYt5wnQoZWeiEVzbz10XlBjYo6acVQ1of52fl/zA==
+X-Received: by 2002:a1c:7910:: with SMTP id l16mr489956wme.34.1612915651114;
+        Tue, 09 Feb 2021 16:07:31 -0800 (PST)
 Received: from localhost.localdomain ([148.252.132.126])
-        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.27
+        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Feb 2021 16:07:28 -0800 (PST)
+        Tue, 09 Feb 2021 16:07:30 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 14/17] io_uring: provide FIFO ordering for task_work
-Date:   Wed, 10 Feb 2021 00:03:20 +0000
-Message-Id: <5c6b2f10b98c56abd3e4f78cd77f688feedad5ce.1612915326.git.asml.silence@gmail.com>
+Subject: [PATCH 16/17] io_uring: take comp_state from ctx
+Date:   Wed, 10 Feb 2021 00:03:22 +0000
+Message-Id: <3a53fc00ebc913e7d25b6d88034843cf5e642d91.1612915326.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612915326.git.asml.silence@gmail.com>
 References: <cover.1612915326.git.asml.silence@gmail.com>
@@ -70,251 +70,153 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+__io_queue_sqe() is always called with a non-NULL comp_state, which is
+taken directly from context. Don't pass it around but infer from ctx.
 
-task_work is a LIFO list, due to how it's implemented as a lockless
-list. For long chains of task_work, this can be problematic as the
-first entry added is the last one processed. Similarly, we'd waste
-a lot of CPU cycles reversing this list.
-
-Wrap the task_work so we have a single task_work entry per task per
-ctx, and use that to run it in the right order.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io-wq.h               |   9 ----
- fs/io_uring.c            | 101 ++++++++++++++++++++++++++++++++++++---
- include/linux/io_uring.h |  14 ++++++
- 3 files changed, 108 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 37 ++++++++++++++++++-------------------
+ 1 file changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index e37a0f217cc8..096f1021018e 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -27,15 +27,6 @@ enum io_wq_cancel {
- 	IO_WQ_CANCEL_NOTFOUND,	/* work not found */
- };
- 
--struct io_wq_work_node {
--	struct io_wq_work_node *next;
--};
--
--struct io_wq_work_list {
--	struct io_wq_work_node *first;
--	struct io_wq_work_node *last;
--};
--
- static inline void wq_list_add_after(struct io_wq_work_node *node,
- 				     struct io_wq_work_node *pos,
- 				     struct io_wq_work_list *list)
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 58f150680c05..1d55ff827242 100644
+index f58a5459d6e3..64d3f3e2e93d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -721,6 +721,11 @@ struct async_poll {
- 	struct io_poll_iocb	*double_poll;
- };
+@@ -1042,7 +1042,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ static void __io_clean_op(struct io_kiocb *req);
+ static struct file *io_file_get(struct io_submit_state *state,
+ 				struct io_kiocb *req, int fd, bool fixed);
+-static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs);
++static void __io_queue_sqe(struct io_kiocb *req);
+ static void io_rsrc_put_work(struct work_struct *work);
  
-+struct io_task_work {
-+	struct io_wq_work_node	node;
-+	task_work_func_t	func;
-+};
-+
- /*
-  * NOTE! Each of the iocb union members has the file pointer
-  * as the first entry in their struct definition. So you can
-@@ -779,7 +784,10 @@ struct io_kiocb {
- 	 * 2. to track reqs with ->files (see io_op_def::file_table)
- 	 */
- 	struct list_head		inflight_entry;
--	struct callback_head		task_work;
-+	union {
-+		struct io_task_work	io_task_work;
-+		struct callback_head	task_work;
-+	};
- 	/* for polled requests, i.e. IORING_OP_POLL_ADD and async armed poll */
- 	struct hlist_node		hash_node;
- 	struct async_poll		*apoll;
-@@ -2130,6 +2138,81 @@ static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
- 	return __io_req_find_next(req);
+ static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
+@@ -2301,7 +2301,7 @@ static void __io_req_task_submit(struct io_kiocb *req)
+ 	if (!ctx->sqo_dead &&
+ 	    !__io_sq_thread_acquire_mm(ctx) &&
+ 	    !__io_sq_thread_acquire_files(ctx))
+-		__io_queue_sqe(req, &ctx->submit_state.comp);
++		__io_queue_sqe(req);
+ 	else
+ 		__io_req_task_cancel(req, -EFAULT);
+ 	mutex_unlock(&ctx->uring_lock);
+@@ -6558,14 +6558,12 @@ static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req)
+ 	return nxt;
  }
  
-+static bool __tctx_task_work(struct io_uring_task *tctx)
-+{
-+	struct io_wq_work_list list;
-+	struct io_wq_work_node *node;
-+
-+	if (wq_list_empty(&tctx->task_list))
-+		return false;
-+
-+	spin_lock(&tctx->task_lock);
-+	list = tctx->task_list;
-+	INIT_WQ_LIST(&tctx->task_list);
-+	spin_unlock(&tctx->task_lock);
-+
-+	node = list.first;
-+	while (node) {
-+		struct io_wq_work_node *next = node->next;
-+		struct io_kiocb *req;
-+
-+		req = container_of(node, struct io_kiocb, io_task_work.node);
-+		req->task_work.func(&req->task_work);
-+		node = next;
-+	}
-+
-+	return list.first != NULL;
-+}
-+
-+static void tctx_task_work(struct callback_head *cb)
-+{
-+	struct io_uring_task *tctx = container_of(cb, struct io_uring_task, task_work);
-+
-+	while (__tctx_task_work(tctx))
-+		cond_resched();
-+
-+	clear_bit(0, &tctx->task_state);
-+}
-+
-+static int io_task_work_add(struct task_struct *tsk, struct io_kiocb *req,
-+			    enum task_work_notify_mode notify)
-+{
-+	struct io_uring_task *tctx = tsk->io_uring;
-+	struct io_wq_work_node *node, *prev;
+-static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
++static void __io_queue_sqe(struct io_kiocb *req)
+ {
+ 	struct io_kiocb *linked_timeout;
+ 	const struct cred *old_creds = NULL;
+-	int ret, issue_flags = IO_URING_F_NONBLOCK;
 +	int ret;
-+
-+	WARN_ON_ONCE(!tctx);
-+
-+	spin_lock(&tctx->task_lock);
-+	wq_list_add_tail(&req->io_task_work.node, &tctx->task_list);
-+	spin_unlock(&tctx->task_lock);
-+
-+	/* task_work already pending, we're done */
-+	if (test_bit(0, &tctx->task_state) ||
-+	    test_and_set_bit(0, &tctx->task_state))
-+		return 0;
-+
-+	if (!task_work_add(tsk, &tctx->task_work, notify))
-+		return 0;
-+
-+	/*
-+	 * Slow path - we failed, find and delete work. if the work is not
-+	 * in the list, it got run and we're fine.
-+	 */
-+	ret = 0;
-+	spin_lock(&tctx->task_lock);
-+	wq_list_for_each(node, prev, &tctx->task_list) {
-+		if (&req->io_task_work.node == node) {
-+			wq_list_del(&tctx->task_list, node, prev);
-+			ret = 1;
-+			break;
-+		}
-+	}
-+	spin_unlock(&tctx->task_lock);
-+	clear_bit(0, &tctx->task_state);
-+	return ret;
-+}
-+
- static int io_req_task_work_add(struct io_kiocb *req)
- {
- 	struct task_struct *tsk = req->task;
-@@ -2150,7 +2233,7 @@ static int io_req_task_work_add(struct io_kiocb *req)
- 	if (!(ctx->flags & IORING_SETUP_SQPOLL))
- 		notify = TWA_SIGNAL;
  
--	ret = task_work_add(tsk, &req->task_work, notify);
-+	ret = io_task_work_add(tsk, req, notify);
- 	if (!ret)
- 		wake_up_process(tsk);
+-	if (cs)
+-		issue_flags |= IO_URING_F_COMPLETE_DEFER;
+ again:
+ 	linked_timeout = io_prep_linked_timeout(req);
  
-@@ -2158,7 +2241,7 @@ static int io_req_task_work_add(struct io_kiocb *req)
- }
+@@ -6580,7 +6578,7 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 			old_creds = override_creds(req->work.identity->creds);
+ 	}
  
- static void io_req_task_work_add_fallback(struct io_kiocb *req,
--					  void (*cb)(struct callback_head *))
-+					  task_work_func_t cb)
- {
- 	struct task_struct *tsk = io_wq_get_task(req->ctx->io_wq);
- 
-@@ -2217,7 +2300,7 @@ static void io_req_task_queue(struct io_kiocb *req)
- {
- 	int ret;
- 
--	init_task_work(&req->task_work, io_req_task_submit);
-+	req->task_work.func = io_req_task_submit;
- 	percpu_ref_get(&req->ctx->refs);
- 
- 	ret = io_req_task_work_add(req);
-@@ -2348,7 +2431,7 @@ static void io_free_req_deferred(struct io_kiocb *req)
- {
- 	int ret;
- 
--	init_task_work(&req->task_work, io_put_req_deferred_cb);
-+	req->task_work.func = io_put_req_deferred_cb;
- 	ret = io_req_task_work_add(req);
- 	if (unlikely(ret))
- 		io_req_task_work_add_fallback(req, io_put_req_deferred_cb);
-@@ -3393,7 +3476,7 @@ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
- 	req->rw.kiocb.ki_flags &= ~IOCB_WAITQ;
- 	list_del_init(&wait->entry);
- 
--	init_task_work(&req->task_work, io_req_task_submit);
-+	req->task_work.func = io_req_task_submit;
- 	percpu_ref_get(&req->ctx->refs);
- 
- 	/* submit ref gets dropped, acquire a new one */
-@@ -5090,7 +5173,7 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
- 	list_del_init(&poll->wait.entry);
- 
- 	req->result = mask;
--	init_task_work(&req->task_work, func);
-+	req->task_work.func = func;
- 	percpu_ref_get(&req->ctx->refs);
+-	ret = io_issue_sqe(req, issue_flags);
++	ret = io_issue_sqe(req, IO_URING_F_NONBLOCK|IO_URING_F_COMPLETE_DEFER);
  
  	/*
-@@ -8093,6 +8176,10 @@ static int io_uring_alloc_task_context(struct task_struct *task)
- 	io_init_identity(&tctx->__identity);
- 	tctx->identity = &tctx->__identity;
- 	task->io_uring = tctx;
-+	spin_lock_init(&tctx->task_lock);
-+	INIT_WQ_LIST(&tctx->task_list);
-+	tctx->task_state = 0;
-+	init_task_work(&tctx->task_work, tctx_task_work);
- 	return 0;
+ 	 * We async punt it if the file wasn't marked NOWAIT, or if the file
+@@ -6600,9 +6598,12 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 	} else if (likely(!ret)) {
+ 		/* drop submission reference */
+ 		if (req->flags & REQ_F_COMPLETE_INLINE) {
++			struct io_ring_ctx *ctx = req->ctx;
++			struct io_comp_state *cs = &ctx->submit_state.comp;
++
+ 			cs->reqs[cs->nr++] = req;
+ 			if (cs->nr == IO_COMPL_BATCH)
+-				io_submit_flush_completions(cs, req->ctx);
++				io_submit_flush_completions(cs, ctx);
+ 			req = NULL;
+ 		} else {
+ 			req = io_put_req_find_next(req);
+@@ -6628,8 +6629,7 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 		revert_creds(old_creds);
  }
  
-diff --git a/include/linux/io_uring.h b/include/linux/io_uring.h
-index 35b2d845704d..2eb6d19de336 100644
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -22,6 +22,15 @@ struct io_identity {
- 	refcount_t			count;
+-static void io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+-			 struct io_comp_state *cs)
++static void io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	int ret;
+ 
+@@ -6654,18 +6654,17 @@ static void io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 			if (unlikely(ret))
+ 				goto fail_req;
+ 		}
+-		__io_queue_sqe(req, cs);
++		__io_queue_sqe(req);
+ 	}
+ }
+ 
+-static inline void io_queue_link_head(struct io_kiocb *req,
+-				      struct io_comp_state *cs)
++static inline void io_queue_link_head(struct io_kiocb *req)
+ {
+ 	if (unlikely(req->flags & REQ_F_FAIL_LINK)) {
+ 		io_put_req(req);
+ 		io_req_complete(req, -ECANCELED);
+ 	} else
+-		io_queue_sqe(req, NULL, cs);
++		io_queue_sqe(req, NULL);
+ }
+ 
+ struct io_submit_link {
+@@ -6674,7 +6673,7 @@ struct io_submit_link {
  };
  
-+struct io_wq_work_node {
-+	struct io_wq_work_node *next;
-+};
-+
-+struct io_wq_work_list {
-+	struct io_wq_work_node *first;
-+	struct io_wq_work_node *last;
-+};
-+
- struct io_uring_task {
- 	/* submission side */
- 	struct xarray		xa;
-@@ -32,6 +41,11 @@ struct io_uring_task {
- 	struct io_identity	*identity;
- 	atomic_t		in_idle;
- 	bool			sqpoll;
-+
-+	spinlock_t		task_lock;
-+	struct io_wq_work_list	task_list;
-+	unsigned long		task_state;
-+	struct callback_head	task_work;
- };
+ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+-			 struct io_submit_link *link, struct io_comp_state *cs)
++			 struct io_submit_link *link)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	int ret;
+@@ -6712,7 +6711,7 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
  
- #if defined(CONFIG_IO_URING)
+ 		/* last request of a link, enqueue the link */
+ 		if (!(req->flags & (REQ_F_LINK | REQ_F_HARDLINK))) {
+-			io_queue_link_head(head, cs);
++			io_queue_link_head(head);
+ 			link->head = NULL;
+ 		}
+ 	} else {
+@@ -6727,7 +6726,7 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 			link->head = req;
+ 			link->last = req;
+ 		} else {
+-			io_queue_sqe(req, sqe, cs);
++			io_queue_sqe(req, sqe);
+ 		}
+ 	}
+ 
+@@ -6968,7 +6967,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+ 
+ 		trace_io_uring_submit_sqe(ctx, req->opcode, req->user_data,
+ 					true, ctx->flags & IORING_SETUP_SQPOLL);
+-		err = io_submit_sqe(req, sqe, &link, &ctx->submit_state.comp);
++		err = io_submit_sqe(req, sqe, &link);
+ 		if (err)
+ 			goto fail_req;
+ 	}
+@@ -6983,7 +6982,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+ 		put_task_struct_many(current, unused);
+ 	}
+ 	if (link.head)
+-		io_queue_link_head(link.head, &ctx->submit_state.comp);
++		io_queue_link_head(link.head);
+ 	io_submit_state_end(&ctx->submit_state, ctx);
+ 
+ 	 /* Commit SQ ring head once we've consumed and submitted all SQEs */
 -- 
 2.24.0
 

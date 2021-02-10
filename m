@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F19E6C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAA5DC433DB
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C253664E85
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B88A464E40
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234518AbhBJAS5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 9 Feb 2021 19:18:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54178 "EHLO
+        id S234074AbhBJATJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 9 Feb 2021 19:19:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234139AbhBJAJJ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:09:09 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE3CC06178B
-        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:21 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id u14so438086wri.3
-        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:21 -0800 (PST)
+        with ESMTP id S234379AbhBJAJO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:09:14 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A774C061793
+        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:23 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id m13so373487wro.12
+        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=4dry6CCaIBUkMu2F1ipz/+c4RFHwg1uG9hT57nTkRjE=;
-        b=VEwWTX5uA1ZXcugen2f0VbHF8BGxDoSDwGafNr2tOMb6mi4vosh0qcPQrzJy5blgDy
-         iDcTIfJxjOjN6cUGrkUr/E46WmsbbF5qTbuMXG72uu+1u2Al31WpdcfMBLg3jXJqtwWh
-         ZOY8A8LgLA4ozUWTzjalYXoggX1mpR+7JRTd+gVi9THT21Js3FhG3XKAaXrhhbqcT1nx
-         yuWMWnpORmOJoiy//Ko4eUfuLXg90GswKJ1EiGuGEdSwudr0yjQDqu8Jxo5lyKXQqp6n
-         +OiN1Q38bJk++BlUdmTnqUhdqHO91fV/JMCkiYL9ionzayA7AeNbAESEuiDIxLpotNyF
-         9fPw==
+        bh=32d/zOmgE/7XKvVRcNKfLOwdQDPHLOFlD4i/XrM1WF4=;
+        b=O7jty1tLpJngVEW6rPxpck/8r52FRCfdNzm6e1qXXdDghSAge9hQpaYzOorCUrmS7Q
+         8ptGuNzFkqst8IThCfSRMwEEkwMOPAqjSoK4OT0ITZjGvHQPiy/5RM5e1/RlMtSKfZTi
+         bmlk88dwGd7tT4ImpuhFimUf4SqHNacNUqIY/f45gzv1IIWPILFQvq5mzPJyItWMtmVg
+         cyGyMAZRKxMA05S6Ia+OqFNSi83kz/8+L+0YYXQbohlAm4cdyyT3nyT92pbVAAGPObAk
+         XC71vthmkZSQqgPqGmeR9e5UYlpLGsw957altyPyN4yTsRD9Q4w+4Buu3XQBRfdXcp34
+         GCWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4dry6CCaIBUkMu2F1ipz/+c4RFHwg1uG9hT57nTkRjE=;
-        b=uVZ65TwY3jg1TMN4+/c+SboceJMUfE9Lbxh7C7MEcRapqTydHWoqgMsHmXhDj3/fp1
-         wH8M9cO9IU4oLRt4kBEJDZYqDpnDFMr6+XVxHLM4tsGSMgVGD2miBWU/zNtyceF1I6mx
-         Bgbit96YmZt3SwYle9DBbvUNOmtWfygrFnMqE6+D2nPyl5crkT2md0XKgTU9EJzsjblR
-         Tal+JwRI88BxPzkWLjo5bICRWo9shWxhh93PY+hLXyKbaIYnleE7+YCZNU4C8VXgvMJU
-         2ih0IHN3gLEq6tgccj28IN1wF1hszEC9NE8PAzK58K9lr5H1IavEXaoZnSE8kZwAc6lD
-         ZPcA==
-X-Gm-Message-State: AOAM531G9/EDN3nYTmzoVRbkeL7/4YDzTm1ubii7H/TfFRUGR9s90Sn9
-        60EDAMktESyAt2JDllvWPhrX0E2yuZrrxw==
-X-Google-Smtp-Source: ABdhPJzhGoq/ETV1QWvnpl9UuZO0iu2AULEsKBuGrbwq0MplxkOvSIUh8N/eBtkYeSFDozAvUpLBbA==
-X-Received: by 2002:a5d:460e:: with SMTP id t14mr589892wrq.68.1612915640112;
-        Tue, 09 Feb 2021 16:07:20 -0800 (PST)
+        bh=32d/zOmgE/7XKvVRcNKfLOwdQDPHLOFlD4i/XrM1WF4=;
+        b=WvemBEDMW/FhojT5TZB+hNiCv4O940MyRHQZ43YRiHv1KVos7GU4H7R4mn3xlcAPZm
+         k0gc0UKaHfTOmVT20nMCgEQsrNnX1WrtunZSPEly2X0T9PN2BJSPGySqzbZTLKqnjloo
+         1UevY3thVahPK1Vbt3h/QTRFUWd86U8qpEYng0xDT0CrMrMhxfZ5iMRe34dQ2f9e543Q
+         +vckvxBoHjkEd8dpXjuDrhLvIrSUP71VwriLTvzu8JEW+jt56Utk+b9/CK8SX+P3h3Ve
+         pBg/hMmrkAHXH15McInkTe3V4o5Ue3hd3uC4PR1o52YAykaxO+4JjNLCiyF20bacnOvz
+         gRuA==
+X-Gm-Message-State: AOAM533vrMbiHxiJG503RoPk45A0J+BuBt2hPNifmOhRnZAPcnA7A5Dw
+        cghO+uIWioFKu7y9kAQE+kCLdbOTsRrM3Q==
+X-Google-Smtp-Source: ABdhPJzqSiIiua+WBlYW/kcCgUDguDlCgyDs1TL6fVSRrBCnSK84ZK5OSXMhZXCDR3+On6TQKeIsFA==
+X-Received: by 2002:adf:82d3:: with SMTP id 77mr518201wrc.385.1612915642009;
+        Tue, 09 Feb 2021 16:07:22 -0800 (PST)
 Received: from localhost.localdomain ([148.252.132.126])
-        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.19
+        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Feb 2021 16:07:19 -0800 (PST)
+        Tue, 09 Feb 2021 16:07:21 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 05/17] io_uring: remove ctx from comp_state
-Date:   Wed, 10 Feb 2021 00:03:11 +0000
-Message-Id: <c30b6ba7652d6a4befef24a38d3cefa64c1abd73.1612915326.git.asml.silence@gmail.com>
+Subject: [PATCH 07/17] io_uring: replace list with array for compl batch
+Date:   Wed, 10 Feb 2021 00:03:13 +0000
+Message-Id: <328e1394d5f910015d0f197cfc8059cb49b83b9f.1612915326.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612915326.git.asml.silence@gmail.com>
 References: <cover.1612915326.git.asml.silence@gmail.com>
@@ -70,94 +70,104 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-completion state is closely bound to ctx, we don't need to store ctx
-inside as we always have it around to pass to flush.
+Reincarnation of an old patch that replaces a list in struct
+io_compl_batch with an array. It's needed to avoid hooking requests via
+their compl.list, because it won't be always available in the future.
+
+It's also nice to split io_submit_flush_completions() to avoid free
+under locks and remove unlock/lock with a long comment describing when
+it can be done.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 35 +++++++++++------------------------
+ 1 file changed, 11 insertions(+), 24 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0606fa5f9eb0..f0cc5ccd6fe4 100644
+index 7076564aa944..8c5fd348cac5 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -269,7 +269,6 @@ struct io_sq_data {
+@@ -265,10 +265,11 @@ struct io_sq_data {
+ };
+ 
+ #define IO_IOPOLL_BATCH			8
++#define IO_COMPL_BATCH			32
+ 
  struct io_comp_state {
  	unsigned int		nr;
- 	struct list_head	list;
--	struct io_ring_ctx	*ctx;
+-	struct list_head	list;
++	struct io_kiocb		*reqs[IO_COMPL_BATCH];
  };
  
  struct io_submit_state {
-@@ -1924,10 +1923,9 @@ static inline void io_req_complete_nostate(struct io_kiocb *req, long res,
- 	io_put_req(req);
+@@ -1348,7 +1349,6 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	init_llist_head(&ctx->rsrc_put_llist);
+ 
+ 	submit_state = &ctx->submit_state;
+-	INIT_LIST_HEAD(&submit_state->comp.list);
+ 	submit_state->comp.nr = 0;
+ 	submit_state->file_refs = 0;
+ 	submit_state->free_reqs = 0;
+@@ -1933,33 +1933,20 @@ static inline void io_req_complete_nostate(struct io_kiocb *req, long res,
+ static void io_submit_flush_completions(struct io_comp_state *cs,
+ 					struct io_ring_ctx *ctx)
+ {
++	int i, nr = cs->nr;
++
+ 	spin_lock_irq(&ctx->completion_lock);
+-	while (!list_empty(&cs->list)) {
+-		struct io_kiocb *req;
++	for (i = 0; i < nr; i++) {
++		struct io_kiocb *req = cs->reqs[i];
+ 
+-		req = list_first_entry(&cs->list, struct io_kiocb, compl.list);
+-		list_del(&req->compl.list);
+ 		__io_cqring_fill_event(req, req->result, req->compl.cflags);
+-
+-		/*
+-		 * io_free_req() doesn't care about completion_lock unless one
+-		 * of these flags is set. REQ_F_WORK_INITIALIZED is in the list
+-		 * because of a potential deadlock with req->work.fs->lock
+-		 * We defer both, completion and submission refs.
+-		 */
+-		if (req->flags & (REQ_F_FAIL_LINK|REQ_F_LINK_TIMEOUT
+-				 |REQ_F_WORK_INITIALIZED)) {
+-			spin_unlock_irq(&ctx->completion_lock);
+-			io_double_put_req(req);
+-			spin_lock_irq(&ctx->completion_lock);
+-		} else {
+-			io_double_put_req(req);
+-		}
+ 	}
+ 	io_commit_cqring(ctx);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+ 	io_cqring_ev_posted(ctx);
++	for (i = 0; i < nr; i++)
++		io_double_put_req(cs->reqs[i]);
+ 	cs->nr = 0;
  }
  
--static void io_submit_flush_completions(struct io_comp_state *cs)
-+static void io_submit_flush_completions(struct io_comp_state *cs,
-+					struct io_ring_ctx *ctx)
- {
--	struct io_ring_ctx *ctx = cs->ctx;
--
- 	spin_lock_irq(&ctx->completion_lock);
- 	while (!list_empty(&cs->list)) {
- 		struct io_kiocb *req;
-@@ -6526,7 +6524,7 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+@@ -6529,8 +6516,8 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 	} else if (likely(!ret)) {
+ 		/* drop submission reference */
  		if (req->flags & REQ_F_COMPLETE_INLINE) {
- 			list_add_tail(&req->compl.list, &cs->list);
- 			if (++cs->nr >= 32)
--				io_submit_flush_completions(cs);
-+				io_submit_flush_completions(cs, req->ctx);
+-			list_add_tail(&req->compl.list, &cs->list);
+-			if (++cs->nr >= 32)
++			cs->reqs[cs->nr++] = req;
++			if (cs->nr == IO_COMPL_BATCH)
+ 				io_submit_flush_completions(cs, req->ctx);
  			req = NULL;
  		} else {
- 			req = io_put_req_find_next(req);
-@@ -6661,10 +6659,11 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- /*
-  * Batched submission is done, ensure local IO is flushed out.
-  */
--static void io_submit_state_end(struct io_submit_state *state)
-+static void io_submit_state_end(struct io_submit_state *state,
-+				struct io_ring_ctx *ctx)
+@@ -6669,7 +6656,7 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ static void io_submit_state_end(struct io_submit_state *state,
+ 				struct io_ring_ctx *ctx)
  {
- 	if (!list_empty(&state->comp.list))
--		io_submit_flush_completions(&state->comp);
-+		io_submit_flush_completions(&state->comp, ctx);
+-	if (!list_empty(&state->comp.list))
++	if (state->comp.nr)
+ 		io_submit_flush_completions(&state->comp, ctx);
  	if (state->plug_started)
  		blk_finish_plug(&state->plug);
- 	io_state_file_put(state);
-@@ -6676,12 +6675,11 @@ static void io_submit_state_end(struct io_submit_state *state)
-  * Start submission side cache.
-  */
- static void io_submit_state_start(struct io_submit_state *state,
--				  struct io_ring_ctx *ctx, unsigned int max_ios)
-+				  unsigned int max_ios)
- {
- 	state->plug_started = false;
- 	state->comp.nr = 0;
- 	INIT_LIST_HEAD(&state->comp.list);
--	state->comp.ctx = ctx;
- 	state->free_reqs = 0;
- 	state->file_refs = 0;
- 	state->ios_left = max_ios;
-@@ -6865,7 +6863,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 	percpu_counter_add(&current->io_uring->inflight, nr);
- 	refcount_add(nr, &current->usage);
- 
--	io_submit_state_start(&ctx->submit_state, ctx, nr);
-+	io_submit_state_start(&ctx->submit_state, nr);
- 	link.head = NULL;
- 
- 	for (i = 0; i < nr; i++) {
-@@ -6914,7 +6912,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 	}
- 	if (link.head)
- 		io_queue_link_head(link.head, &ctx->submit_state.comp);
--	io_submit_state_end(&ctx->submit_state);
-+	io_submit_state_end(&ctx->submit_state, ctx);
- 
- 	 /* Commit SQ ring head once we've consumed and submitted all SQEs */
- 	io_commit_sqring(ctx);
 -- 
 2.24.0
 

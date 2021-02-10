@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64819C433DB
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30CA1C433E6
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2DEFE64E7C
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EEAB664E85
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 15:17:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbhBJPRf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Feb 2021 10:17:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        id S231978AbhBJPRh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Feb 2021 10:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231894AbhBJPRO (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Feb 2021 10:17:14 -0500
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B312C06178B
-        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:07 -0800 (PST)
-Received: by mail-il1-x12f.google.com with SMTP id e7so2138131ile.7
-        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:07 -0800 (PST)
+        with ESMTP id S231971AbhBJPRS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Feb 2021 10:17:18 -0500
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB161C061793
+        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:08 -0800 (PST)
+Received: by mail-io1-xd2c.google.com with SMTP id q7so2244591iob.0
+        for <io-uring@vger.kernel.org>; Wed, 10 Feb 2021 07:16:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=B26h7t5jOWGb4Al77/xqJVozxoNu1g70oR6Gt+u27Bc=;
-        b=HqCgBLXp9O/V/Pxfway0/uJJrscHPAsl3zSIkkIHKnDjNgtYdCsYe/UXf5VN2+Fc9h
-         KL4ztjjaPJHBGvxXXsf/bn50Iyf6CfN6R8YGUYoaYvDPmkl2xTkZDzoeeEbrbIgL6YvB
-         DHvxx/l5QFgKpBYbHEg8nZJ+RFfFTx9pnC5YWR7NPS5fa32Cy/+MhzTRDhVyfcW8GwFQ
-         6XZc6O6613q9HA7QckVYlRDSQ5gmPgsB2fwFk8HKuxVJEW/5+iqetzJmfVoduGIomm8+
-         v8hYACnHsBlhtDwCSo0H2kYxejR0OtO4vf+C3miBJcdmnexdVdOxjQp99AmHF/smeyne
-         kNhQ==
+        bh=/dxS3BEh6jt+UUS0xgw/ymlQtIOq7FAG8NfWREenwo0=;
+        b=aaoLSaTPGDwEtokOz1fRWDNWkix1kkm3fAwiHnPReWtuwoSUDSMfWNBm/M1l8ahvpi
+         H8peHb8V3ldO/6AZh8Xy5h9kKHbN5nURzm3VmGcXd+ve+/sZHbnkvD3rx4cID6CC/zPR
+         q1WAfxHOD0VPk3QNmfNDiO/l/+K2y+9vfHkEaGANB4LllsfeR2hUiemvRZTg9EcE3O3k
+         pBxMNoawmLpe4TS8EQCBwQ+1DhPyI+swtP7rnUVl5qhZnHkqknX2Hn2r0badyRWHgu0H
+         VKsmGPPop1OquxtvoKwwTBaDcEMefT2axOFgH59AKCAoL68an6Y4czxd4lSOUfdGePuA
+         sL+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=B26h7t5jOWGb4Al77/xqJVozxoNu1g70oR6Gt+u27Bc=;
-        b=G87GlbOvSvtwqOHb2NLtr7TVSGQHJvk50GHZNREcJVtLl0yJ99Kc5fO5Rom3twlm8s
-         udAU0QUjw9SDHXN1WdPwJfpD+pgdH7kLQp7gLZ33/SX8tMBPT/fU4cuNtkFP7J6032Tx
-         hOe4Enp40yIxRoouw1iu6cJYRFmlFf5LG9/DLSB4LT5UCX7EN3BAhEOdbQuqwrOlCTBM
-         wXni5jb19I6JWcfaliT4MsEV1Oe7bL8O0jdzNaTiCQs5lW5ddelYmvorHwxRK5fDCrRk
-         KIgtHJu6QrY62IYXNibi76jWnMSyPps0iJNs+Jqyevopbww/ZzUjb+StuWCK9K7LFisN
-         JGpg==
-X-Gm-Message-State: AOAM530qoqH5PsJA9nzaNqBrFWix15rpPWwTIBUqZfu217+92olDo4Ib
-        HySMijJoiVLrfjTvXWFAyajuk14/Az531C4U
-X-Google-Smtp-Source: ABdhPJy6VtoBL0Mbk9MiX1KSAnWz1PlxH5jaLbjlnlDoa0iOyur9ybQ5MhpyhHNI/Mwffs1Bkjb/hg==
-X-Received: by 2002:a92:c941:: with SMTP id i1mr1514561ilq.258.1612970166774;
-        Wed, 10 Feb 2021 07:16:06 -0800 (PST)
+        bh=/dxS3BEh6jt+UUS0xgw/ymlQtIOq7FAG8NfWREenwo0=;
+        b=JVfdV1xpg/6GDE2IDOWFHw3tM+fRhzjd4uIOLxj9UCU/1ScHgwgYDZNiMevPrpSxbl
+         jF+4KM+Tk4pAzsrexQOsXV6iUCXbZA/X6VV4wdHJWz7SQe66AVSGiApQqfaP97lmgblG
+         8p1B6XRXJ3EIvnbfyGP+UL2LoFNp26u3LJBHgPyxEo7xoA6lr9tGtwyOkAVG9ZdmgO5G
+         KXlagfPaqni5jHO2ZTBp4RM3U3OKeXhh2DI2TvmqiP2pWs9Z7RZCIf8yOmNl3JLy5lUu
+         7wm7fMS5NCVmnqUZCoMHcpBGrTLpxV7VLIS5lbYITgItyZz82o6FWbSw+9vr00nwbSzu
+         xQGA==
+X-Gm-Message-State: AOAM531Gp60QSH83HtsykjQn/quKTacrLhEJ7MJNSmzoqdKtq+8r4Rae
+        DMsHbvWOOWSa6Ip5odNXFqrtXtLoEiSpGhKC
+X-Google-Smtp-Source: ABdhPJwHm90Co1SU4ZtLwR3yIjqlIs012y7wwlVgTMCEm2YmA8/NTlU5DpXArFlzri5syeMHqV1dog==
+X-Received: by 2002:a05:6638:34a1:: with SMTP id t33mr734889jal.23.1612970168107;
+        Wed, 10 Feb 2021 07:16:08 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id e23sm1027952ioc.34.2021.02.10.07.16.06
+        by smtp.gmail.com with ESMTPSA id e23sm1027952ioc.34.2021.02.10.07.16.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 07:16:06 -0800 (PST)
+        Wed, 10 Feb 2021 07:16:07 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/3] io_uring: enable req cache for IRQ driven IO
-Date:   Wed, 10 Feb 2021 08:16:02 -0700
-Message-Id: <20210210151604.498311-2-axboe@kernel.dk>
+Subject: [PATCH 3/3] io_uring: place ring SQ/CQ arrays under memcg memory limits
+Date:   Wed, 10 Feb 2021 08:16:04 -0700
+Message-Id: <20210210151604.498311-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210210151604.498311-1-axboe@kernel.dk>
 References: <20210210151604.498311-1-axboe@kernel.dk>
@@ -70,170 +70,195 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is the last class of requests that cannot utilize the req alloc
-cache. Add a per-ctx req cache that is protected by the completion_lock,
-and refill our submit side cache when it gets over our batch count.
+Instead of imposing rlimit memlock limits for the rings themselves,
+ensure that we account them properly under memcg with __GFP_ACCOUNT.
+We retain rlimit memlock for registered buffers, this is just for the
+ring arrays themselves.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 71 ++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 51 insertions(+), 20 deletions(-)
+ fs/io_uring.c | 85 ++++++---------------------------------------------
+ 1 file changed, 10 insertions(+), 75 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e73ca37c6a3b..2c7ff0b1b086 100644
+index bffed6aa5722..7a1e4ecf5f94 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -272,7 +272,11 @@ struct io_sq_data {
- struct io_comp_state {
- 	struct io_kiocb		*reqs[IO_COMPL_BATCH];
- 	unsigned int		nr;
-+	unsigned int		locked_free_nr;
-+	/* inline/task_work completion list, under ->uring_lock */
- 	struct list_head	free_list;
-+	/* IRQ completion list, under ->completion_lock */
-+	struct list_head	locked_free_list;
+@@ -1017,11 +1017,6 @@ static const struct io_op_def io_op_defs[] = {
+ 	},
  };
  
- struct io_submit_state {
-@@ -1033,6 +1037,9 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res);
- static void io_put_req(struct io_kiocb *req);
- static void io_put_req_deferred(struct io_kiocb *req, int nr);
- static void io_double_put_req(struct io_kiocb *req);
-+static void io_dismantle_req(struct io_kiocb *req);
-+static void io_put_task(struct task_struct *task, int nr);
-+static void io_queue_next(struct io_kiocb *req);
- static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req);
- static void __io_queue_linked_timeout(struct io_kiocb *req);
- static void io_queue_linked_timeout(struct io_kiocb *req);
-@@ -1353,6 +1360,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
- 	init_llist_head(&ctx->rsrc_put_llist);
- 	INIT_LIST_HEAD(&ctx->submit_state.comp.free_list);
-+	INIT_LIST_HEAD(&ctx->submit_state.comp.locked_free_list);
- 	return ctx;
- err:
- 	kfree(ctx->cancel_hash);
-@@ -1908,8 +1916,8 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res)
- 	__io_cqring_fill_event(req, res, 0);
+-enum io_mem_account {
+-	ACCT_LOCKED,
+-	ACCT_PINNED,
+-};
+-
+ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+ 					 struct task_struct *task,
+ 					 struct files_struct *files);
+@@ -8355,25 +8350,16 @@ static inline int __io_account_mem(struct user_struct *user,
+ 	return 0;
  }
  
--static void io_req_complete_post(struct io_kiocb *req, long res,
--				 unsigned int cflags)
-+static inline void io_req_complete_post(struct io_kiocb *req, long res,
-+					unsigned int cflags)
+-static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages,
+-			     enum io_mem_account acct)
++static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
  {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	unsigned long flags;
-@@ -1917,16 +1925,26 @@ static void io_req_complete_post(struct io_kiocb *req, long res,
- 	spin_lock_irqsave(&ctx->completion_lock, flags);
- 	__io_cqring_fill_event(req, res, cflags);
- 	io_commit_cqring(ctx);
-+	/*
-+	 * If we're the last reference to this request, add to our locked
-+	 * free_list cache.
-+	 */
-+	if (refcount_dec_and_test(&req->refs)) {
-+		struct io_comp_state *cs = &ctx->submit_state.comp;
-+
-+		io_dismantle_req(req);
-+		io_put_task(req->task, 1);
-+		list_add(&req->compl.list, &cs->locked_free_list);
-+		cs->locked_free_nr++;
-+	} else
-+		req = NULL;
- 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 	if (ctx->limit_mem)
+ 		__io_unaccount_mem(ctx->user, nr_pages);
  
- 	io_cqring_ev_posted(ctx);
+-	if (ctx->mm_account) {
+-		if (acct == ACCT_LOCKED) {
+-			mmap_write_lock(ctx->mm_account);
+-			ctx->mm_account->locked_vm -= nr_pages;
+-			mmap_write_unlock(ctx->mm_account);
+-		}else if (acct == ACCT_PINNED) {
+-			atomic64_sub(nr_pages, &ctx->mm_account->pinned_vm);
+-		}
+-	}
++	if (ctx->mm_account)
++		atomic64_sub(nr_pages, &ctx->mm_account->pinned_vm);
+ }
+ 
+-static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages,
+-			  enum io_mem_account acct)
++static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
+ {
+ 	int ret;
+ 
+@@ -8383,15 +8369,8 @@ static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages,
+ 			return ret;
+ 	}
+ 
+-	if (ctx->mm_account) {
+-		if (acct == ACCT_LOCKED) {
+-			mmap_write_lock(ctx->mm_account);
+-			ctx->mm_account->locked_vm += nr_pages;
+-			mmap_write_unlock(ctx->mm_account);
+-		} else if (acct == ACCT_PINNED) {
+-			atomic64_add(nr_pages, &ctx->mm_account->pinned_vm);
+-		}
+-	}
++	if (ctx->mm_account)
++		atomic64_add(nr_pages, &ctx->mm_account->pinned_vm);
+ 
+ 	return 0;
+ }
+@@ -8411,7 +8390,7 @@ static void io_mem_free(void *ptr)
+ static void *io_mem_alloc(size_t size)
+ {
+ 	gfp_t gfp_flags = GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN | __GFP_COMP |
+-				__GFP_NORETRY;
++				__GFP_NORETRY | __GFP_ACCOUNT;
+ 
+ 	return (void *) __get_free_pages(gfp_flags, get_order(size));
+ }
+@@ -8445,18 +8424,6 @@ static unsigned long rings_size(unsigned sq_entries, unsigned cq_entries,
+ 	return off;
+ }
+ 
+-static unsigned long ring_pages(unsigned sq_entries, unsigned cq_entries)
+-{
+-	size_t pages;
+-
+-	pages = (size_t)1 << get_order(
+-		rings_size(sq_entries, cq_entries, NULL));
+-	pages += (size_t)1 << get_order(
+-		array_size(sizeof(struct io_uring_sqe), sq_entries));
+-
+-	return pages;
 -}
 -
--static inline void io_req_complete_nostate(struct io_kiocb *req, long res,
--					   unsigned int cflags)
--{
--	io_req_complete_post(req, res, cflags);
--	io_put_req(req);
-+	if (req) {
-+		io_queue_next(req);
-+		percpu_ref_put(&ctx->refs);
-+	}
- }
- 
- static void io_req_complete_state(struct io_kiocb *req, long res,
-@@ -1944,7 +1962,7 @@ static inline void __io_req_complete(struct io_kiocb *req, unsigned issue_flags,
- 	if (issue_flags & IO_URING_F_COMPLETE_DEFER)
- 		io_req_complete_state(req, res, cflags);
- 	else
--		io_req_complete_nostate(req, res, cflags);
-+		io_req_complete_post(req, res, cflags);
- }
- 
- static inline void io_req_complete(struct io_kiocb *req, long res)
-@@ -1952,12 +1970,26 @@ static inline void io_req_complete(struct io_kiocb *req, long res)
- 	__io_req_complete(req, 0, res, 0);
- }
- 
--static bool io_flush_cached_reqs(struct io_submit_state *state)
-+static bool io_flush_cached_reqs(struct io_ring_ctx *ctx)
+ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
  {
-+	struct io_submit_state *state = &ctx->submit_state;
-+	struct io_comp_state *cs = &state->comp;
- 	struct io_kiocb *req = NULL;
+ 	int i, j;
+@@ -8471,7 +8438,7 @@ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+ 			unpin_user_page(imu->bvec[j].bv_page);
  
--	while (!list_empty(&state->comp.free_list)) {
--		req = list_first_entry(&state->comp.free_list, struct io_kiocb,
-+	/*
-+	 * If we have more than a batch's worth of requests in our IRQ side
-+	 * locked cache, grab the lock and move them over to our submission
-+	 * side cache.
-+	 */
-+	if (READ_ONCE(cs->locked_free_nr) > IO_COMPL_BATCH) {
-+		spin_lock_irq(&ctx->completion_lock);
-+		list_splice_init(&cs->locked_free_list, &cs->free_list);
-+		cs->locked_free_nr = 0;
-+		spin_unlock_irq(&ctx->completion_lock);
-+	}
-+
-+	while (!list_empty(&cs->free_list)) {
-+		req = list_first_entry(&cs->free_list, struct io_kiocb,
- 					compl.list);
- 		list_del(&req->compl.list);
- 		state->reqs[state->free_reqs++] = req;
-@@ -1978,7 +2010,7 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
- 		gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 		int ret;
- 
--		if (io_flush_cached_reqs(state))
-+		if (io_flush_cached_reqs(ctx))
- 			goto got_req;
- 
- 		ret = kmem_cache_alloc_bulk(req_cachep, gfp, IO_REQ_ALLOC_BATCH,
-@@ -8748,14 +8780,12 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
- 	idr_destroy(&ctx->io_buffer_idr);
- }
- 
--static void io_req_cache_free(struct io_ring_ctx *ctx)
-+static void io_req_cache_free(struct list_head *list)
- {
--	struct io_comp_state *cs = &ctx->submit_state.comp;
--
--	while (!list_empty(&cs->free_list)) {
-+	while (!list_empty(list)) {
- 		struct io_kiocb *req;
- 
--		req = list_first_entry(&cs->free_list, struct io_kiocb, compl.list);
-+		req = list_first_entry(list, struct io_kiocb, compl.list);
- 		list_del(&req->compl.list);
- 		kmem_cache_free(req_cachep, req);
+ 		if (imu->acct_pages)
+-			io_unaccount_mem(ctx, imu->acct_pages, ACCT_PINNED);
++			io_unaccount_mem(ctx, imu->acct_pages);
+ 		kvfree(imu->bvec);
+ 		imu->nr_bvecs = 0;
  	}
-@@ -8803,7 +8833,8 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	free_uid(ctx->user);
- 	put_cred(ctx->creds);
- 	kfree(ctx->cancel_hash);
--	io_req_cache_free(ctx);
-+	io_req_cache_free(&ctx->submit_state.comp.free_list);
-+	io_req_cache_free(&ctx->submit_state.comp.locked_free_list);
- 	kfree(ctx);
- }
+@@ -8569,7 +8536,7 @@ static int io_buffer_account_pin(struct io_ring_ctx *ctx, struct page **pages,
+ 	if (!imu->acct_pages)
+ 		return 0;
  
+-	ret = io_account_mem(ctx, imu->acct_pages, ACCT_PINNED);
++	ret = io_account_mem(ctx, imu->acct_pages);
+ 	if (ret)
+ 		imu->acct_pages = 0;
+ 	return ret;
+@@ -8949,14 +8916,6 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	/* if we failed setting up the ctx, we might not have any rings */
+ 	io_iopoll_try_reap_events(ctx);
+ 
+-	/*
+-	 * Do this upfront, so we won't have a grace period where the ring
+-	 * is closed but resources aren't reaped yet. This can cause
+-	 * spurious failure in setting up a new ring.
+-	 */
+-	io_unaccount_mem(ctx, ring_pages(ctx->sq_entries, ctx->cq_entries),
+-			 ACCT_LOCKED);
+-
+ 	INIT_WORK(&ctx->exit_work, io_ring_exit_work);
+ 	/*
+ 	 * Use system_unbound_wq to avoid spawning tons of event kworkers
+@@ -9780,7 +9739,6 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	struct user_struct *user = NULL;
+ 	struct io_ring_ctx *ctx;
+ 	struct file *file;
+-	bool limit_mem;
+ 	int ret;
+ 
+ 	if (!entries)
+@@ -9821,26 +9779,14 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	}
+ 
+ 	user = get_uid(current_user());
+-	limit_mem = !capable(CAP_IPC_LOCK);
+-
+-	if (limit_mem) {
+-		ret = __io_account_mem(user,
+-				ring_pages(p->sq_entries, p->cq_entries));
+-		if (ret) {
+-			free_uid(user);
+-			return ret;
+-		}
+-	}
+ 
+ 	ctx = io_ring_ctx_alloc(p);
+ 	if (!ctx) {
+-		if (limit_mem)
+-			__io_unaccount_mem(user, ring_pages(p->sq_entries,
+-								p->cq_entries));
+ 		free_uid(user);
+ 		return -ENOMEM;
+ 	}
+ 	ctx->compat = in_compat_syscall();
++	ctx->limit_mem = !capable(CAP_IPC_LOCK);
+ 	ctx->user = user;
+ 	ctx->creds = get_current_cred();
+ #ifdef CONFIG_AUDIT
+@@ -9876,17 +9822,6 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 		goto err;
+ 	}
+ #endif
+-
+-	/*
+-	 * Account memory _before_ installing the file descriptor. Once
+-	 * the descriptor is installed, it can get closed at any time. Also
+-	 * do this before hitting the general error path, as ring freeing
+-	 * will un-account as well.
+-	 */
+-	io_account_mem(ctx, ring_pages(p->sq_entries, p->cq_entries),
+-		       ACCT_LOCKED);
+-	ctx->limit_mem = limit_mem;
+-
+ 	ret = io_allocate_scq_urings(ctx, p);
+ 	if (ret)
+ 		goto err;
 -- 
 2.30.0
 

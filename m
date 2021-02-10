@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A521C433E6
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9D8DC433E0
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:20:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2559564E50
-	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:19:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB8FD64E50
+	for <io-uring@archiver.kernel.org>; Wed, 10 Feb 2021 00:20:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbhBJATU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 9 Feb 2021 19:19:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54498 "EHLO
+        id S234379AbhBJATo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 9 Feb 2021 19:19:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235106AbhBJAKh (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:10:37 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4565DC061794
-        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:24 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id z6so385803wrq.10
-        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:24 -0800 (PST)
+        with ESMTP id S235107AbhBJAKi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Feb 2021 19:10:38 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49221C0617A7
+        for <io-uring@vger.kernel.org>; Tue,  9 Feb 2021 16:07:26 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id 190so326260wmz.0
+        for <io-uring@vger.kernel.org>; Tue, 09 Feb 2021 16:07:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=CBPe2QVkpoFJlPceE6q2Te0mqdyEU9UBWarRLTGKLM0=;
-        b=DMVDk3Ojz/EL6mW3bgQRfyEMtMIf3OQRHn0o0+IOYl+LgQOss3nvczslXMrT2vpPkN
-         qOUs9dR8O7rZmVbOMvrOEUfW3u0w0dLP7W8/emWpDHxLNDZJXp4bsRZ+kjnSifcbK4kl
-         sEAaTc0LTLAiA9iDNU/c2wblC5yYP/BQwnjnHC/nT/w1cFN3/Q0ze9QBSSC1FYYqDkO4
-         Ex7e7kdeoyTKCHr9t0YqCmom7selNuTnLiBDjXDb+NjLk+QXhlmeXeGsxug6yy47EiKJ
-         82Y9uuVUi4jlMgjFiyE/PHOykZKgPD0H7Eqe9eqc5Cg1RJAS+WU10Av3dyhU9xBwiqbq
-         S+Fg==
+        bh=1u+U17K4y8WRRzrpJ7Epz2p6YfUDqOszhUKsm/4BsMI=;
+        b=Q5lNd6TKQk3p1HJctx1/Akl55Cf6vPSTtgQrTiqTHiwcud1NZ9sEMK7GHQUT8Uz8xt
+         640hnDEnvQgT/4jTTwBzDxAdXUtng8kO13WgSTOlWuay1WsfbMmM9OkE3ddOUL8LaPzg
+         D9JjVm1DLTehEPSHR+L/7N3nA+VPo6OGMe5CWdSStNMzVU6WciKxYVpPhQcsZhQv1IdB
+         vD9/J1Aw7ECmD8eJkN8e4fHzQzKXMm10Zy9Vman+4a2wx3cAzrrjNsGrttrou8z77Von
+         VG2eByMP649+47EluGRokk/Lq8gzW3pnHfEiHzrBHxkjVewdKAQFKoNek4kA+RZ12EZQ
+         paMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=CBPe2QVkpoFJlPceE6q2Te0mqdyEU9UBWarRLTGKLM0=;
-        b=lMuaChQ94g5seQfzbarRcd8KqqrZM9oYXRY/1G3mkYRBmiOQO0Pj2baxoR9SXlIGHt
-         EF8uezr1AFvIpa/HvL03aEf9SvYYsTUqarmpIibekaIWdbR/iXoVrGgRGmUdLIPPYY+t
-         uarC932zaN9nLOjqGiC5L6OLMKY4s0L9ca6EXsLDvzomgFB5vuyevCJ+UfSIgoxSuWfq
-         SiLSSWUOoPRHW+BUiiXcgCno0BpF3EjzoWVf0pjBoSCzcLW9guVTRVARTjxdej4oQibW
-         lcS6YEhqWZC0OcziXXPKmaRANziY3AgKdwSkh1NYZv6yD9acVK4scnc26d16G0CU3z3p
-         3KRw==
-X-Gm-Message-State: AOAM5302hLWrjYAZkVJstVqTXLZVoKMsWnlXzi+iPtdRjg/BmXi8dziD
-        IbkymbTaiWTyJo3l/+TzSRs=
-X-Google-Smtp-Source: ABdhPJzDm/3TnP8yezMiJlimPTCLUAcG3a3eR49sPAooBrYE5KjaNrn9tFFMpbXeHSiOg5+z3pQ9Ow==
-X-Received: by 2002:a5d:4386:: with SMTP id i6mr504648wrq.411.1612915643003;
-        Tue, 09 Feb 2021 16:07:23 -0800 (PST)
+        bh=1u+U17K4y8WRRzrpJ7Epz2p6YfUDqOszhUKsm/4BsMI=;
+        b=krTITyyK4iZOZlpxFupqkyuNRfCigQKt1/w/t7n4jkZrRHHbhzoKkX7eaWL0btDVJP
+         Bu9AxPHmMdF7xkTJE5Bpxuij14JgOq7l7iDoA3GYICvjo7I3wuejXeG34V1Q9yGYPTUE
+         rwC1D/Mf7uK88dxVnob6fevoouRkMYmGL/5e9RhYJkUKfAMUa+JXdxSgRme/smUzquqh
+         ltfKAHyOEREsVkKM6TW+Qj84YOZNBnG4vlAbL4pINP3Pte53qaun+mys6pmCnjzl+VHV
+         NmjbW6hKYsgtIUSIwoiiep7Gw1Nn+FXNGq9Mvr8cAqiPS9f2H2DHP3Yeq6mHhJKVlRHv
+         a/hw==
+X-Gm-Message-State: AOAM531bQAM98DJhXjeIpE861bGTcjc5oTvDd3VJvA1EhMbOum/XDKng
+        vIt8XBgUS2fveHbTHOjOK5s=
+X-Google-Smtp-Source: ABdhPJx/JoEU+lIWG4TP45M5DbJKgsqlyon6y9cm7V1tXzl8B6NRdnaQXD1gi1h2WCNniRAdTjWygA==
+X-Received: by 2002:a05:600c:1909:: with SMTP id j9mr485089wmq.42.1612915645057;
+        Tue, 09 Feb 2021 16:07:25 -0800 (PST)
 Received: from localhost.localdomain ([148.252.132.126])
-        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.22
+        by smtp.gmail.com with ESMTPSA id n15sm391082wrx.2.2021.02.09.16.07.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Feb 2021 16:07:22 -0800 (PST)
+        Tue, 09 Feb 2021 16:07:24 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/17] io_uring: submit-completion free batching
-Date:   Wed, 10 Feb 2021 00:03:14 +0000
-Message-Id: <7b87800d74ccbaed1945ed035df3ee2e98782430.1612915326.git.asml.silence@gmail.com>
+Subject: [PATCH 10/17] io_uring: count ctx refs separately from reqs
+Date:   Wed, 10 Feb 2021 00:03:16 +0000
+Message-Id: <8138f044ce407f8abaf26a08c0399903803fcc38.1612915326.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612915326.git.asml.silence@gmail.com>
 References: <cover.1612915326.git.asml.silence@gmail.com>
@@ -70,82 +70,60 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_submit_flush_completions() does completion batching, but may also use
-free batching as iopoll does. The main beneficiaries should be buffered
-reads/writes and send/recv.
+Currently batch free handles request memory freeing and ctx ref putting
+together. Separate them and use different counters, that will be needed
+for reusing reqs memory.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 49 +++++++++++++++++++++++++++++--------------------
- 1 file changed, 29 insertions(+), 20 deletions(-)
+ fs/io_uring.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8c5fd348cac5..ed4c92f64d96 100644
+index be940db96fb8..c1f7dd17a62f 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1930,26 +1930,6 @@ static inline void io_req_complete_nostate(struct io_kiocb *req, long res,
- 	io_put_req(req);
- }
+@@ -2233,6 +2233,7 @@ static void io_free_req(struct io_kiocb *req)
+ struct req_batch {
+ 	void *reqs[IO_IOPOLL_BATCH];
+ 	int to_free;
++	int ctx_refs;
  
--static void io_submit_flush_completions(struct io_comp_state *cs,
--					struct io_ring_ctx *ctx)
--{
--	int i, nr = cs->nr;
--
--	spin_lock_irq(&ctx->completion_lock);
--	for (i = 0; i < nr; i++) {
--		struct io_kiocb *req = cs->reqs[i];
--
--		__io_cqring_fill_event(req, req->result, req->compl.cflags);
--	}
--	io_commit_cqring(ctx);
--	spin_unlock_irq(&ctx->completion_lock);
--
--	io_cqring_ev_posted(ctx);
--	for (i = 0; i < nr; i++)
--		io_double_put_req(cs->reqs[i]);
--	cs->nr = 0;
--}
--
- static void io_req_complete_state(struct io_kiocb *req, long res,
- 				  unsigned int cflags)
+ 	struct task_struct	*task;
+ 	int			task_refs;
+@@ -2242,6 +2243,7 @@ static inline void io_init_req_batch(struct req_batch *rb)
  {
-@@ -2335,6 +2315,35 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
- 		__io_req_free_batch_flush(req->ctx, rb);
+ 	rb->to_free = 0;
+ 	rb->task_refs = 0;
++	rb->ctx_refs = 0;
+ 	rb->task = NULL;
  }
  
-+static void io_submit_flush_completions(struct io_comp_state *cs,
-+					struct io_ring_ctx *ctx)
-+{
-+	int i, nr = cs->nr;
-+	struct io_kiocb *req;
-+	struct req_batch rb;
-+
-+	io_init_req_batch(&rb);
-+	spin_lock_irq(&ctx->completion_lock);
-+	for (i = 0; i < nr; i++) {
-+		req = cs->reqs[i];
-+		__io_cqring_fill_event(req, req->result, req->compl.cflags);
-+	}
-+	io_commit_cqring(ctx);
-+	spin_unlock_irq(&ctx->completion_lock);
-+
-+	io_cqring_ev_posted(ctx);
-+	for (i = 0; i < nr; i++) {
-+		req = cs->reqs[i];
-+
-+		/* submission and completion refs */
-+		if (refcount_sub_and_test(2, &req->refs))
-+			io_req_free_batch(&rb, req);
-+	}
-+
-+	io_req_free_batch_finish(ctx, &rb);
-+	cs->nr = 0;
-+}
-+
- /*
-  * Drop reference to request, return next in chain (if there is one) if this
-  * was the last reference to this request.
+@@ -2249,7 +2251,6 @@ static void __io_req_free_batch_flush(struct io_ring_ctx *ctx,
+ 				      struct req_batch *rb)
+ {
+ 	kmem_cache_free_bulk(req_cachep, rb->to_free, rb->reqs);
+-	percpu_ref_put_many(&ctx->refs, rb->to_free);
+ 	rb->to_free = 0;
+ }
+ 
+@@ -2262,6 +2263,8 @@ static void io_req_free_batch_finish(struct io_ring_ctx *ctx,
+ 		io_put_task(rb->task, rb->task_refs);
+ 		rb->task = NULL;
+ 	}
++	if (rb->ctx_refs)
++		percpu_ref_put_many(&ctx->refs, rb->ctx_refs);
+ }
+ 
+ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+@@ -2275,6 +2278,7 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
+ 		rb->task_refs = 0;
+ 	}
+ 	rb->task_refs++;
++	rb->ctx_refs++;
+ 
+ 	io_dismantle_req(req);
+ 	rb->reqs[rb->to_free++] = req;
 -- 
 2.24.0
 

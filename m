@@ -2,92 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 950E5C433E6
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 19:57:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6FDCC433E0
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:12:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 57A9864E44
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 19:57:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B745F64E3D
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:12:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbhBKT5E (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Feb 2021 14:57:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53696 "EHLO
+        id S229683AbhBKXMx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 11 Feb 2021 18:12:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231522AbhBKT4F (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 14:56:05 -0500
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41377C061574
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 11:55:24 -0800 (PST)
-Received: by mail-il1-x129.google.com with SMTP id d20so1457351ilo.4
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 11:55:24 -0800 (PST)
+        with ESMTP id S229714AbhBKXMw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 18:12:52 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23432C0613D6
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:12 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id 7so5886553wrz.0
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=5x04JyRgnS8VojaUuPFxA+wY9K5CX8AvtnDmQRBgeBE=;
-        b=ESsCoBSzYTwhp+aPzR5kCcVpd5A4M7y0kidfh0NCRPOkYzmBoy4ky1wsTU1u8NQ/tQ
-         TP3IpsrJDuZ3RLSCREdfz/2UKx+GtcMQZKLbKAAmwOYn01neuzLyTFWJfpqlakdYJzfP
-         KwXv2sSB0yRCwnPMQN6a9WTOrDGkj/1K2Op1PCiwoam4ZFR9iyA+4AGEW/+zP9vcDTwX
-         54lTmzOw/WVcYqLSANjFVtm9Tf/7xIVZ3s7OePsEz8Z0cJHIWbROjUgwzi3AuA4BBXsM
-         ZsP6Ni69rNTOuxKdj11Q+iKJ8x0EaleaSneXMh/CzpuwMEgJBqF1HgD4UEt626+Jcnii
-         GESg==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=3tPmssEfOuJHJnTdOYJ46w4gxZbEJQd/9lMMjr+YY3U=;
+        b=epIX+mS+rS2wBINF4s/f+k4xMqKguO7E6zmvwco50iaSeNRw4CngP0UjBLFy0GdgCp
+         7BHUk6PWBP4u1b273NF1l+zLa1dSACoBZpFDq7ZnNkMrI8mokT4BiGPUHnX/VG693qzi
+         v/vpMeMT5XoRh/EpAWPRCPkZTI33cSDohqr/WbrKgdNSHas4Qg8oFmTWBlX22NeBJIgS
+         6m1T0KLeffnxoQVbjRgv5q6HI2odOvPnWNlkxbWBwLEBRhGBgIHdRIw3DIvEyRV4DvWt
+         OpZuJ69NJ2G3vRt6FWPnuir7y4ew9iLyEvHWoYlkroV4vhNFPuB1NhYzm+0YIb7m7FMk
+         Vweg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5x04JyRgnS8VojaUuPFxA+wY9K5CX8AvtnDmQRBgeBE=;
-        b=Ggq4s24Q5ng36JuNdj+tPpSMEl+KrGMUENiQWM1H9HV3VaS/+7qhBTvEf8M5SPFqaf
-         l1Ao37lteL7LDSEn8ZPK8blU+/zSYsaOGJ3X7QJlgFAP5nsLz3IFHm8YikYn5C8Ihn9P
-         jTiDnBpVUsHf9MVkexgLQ12d3D66Zi3cu1zjfDvsjyNb2Ew7U+l/ywUoXDSlpt15CGe/
-         iSPBvHjRuRRBs1PVtZf7NHKRO+6Hkc+H37T6BDn01gE96fTEqDETBCpo7AIygq7K5S48
-         nVyyL/BmL45rI5wEViMGXHCiA3JZrVgpkrZVzvJujRn7wRgovk+grOpA2qIo0AW7abeU
-         G+oQ==
-X-Gm-Message-State: AOAM531x7P/aqk6A5lTfvuFaQT98MRxlR1R1KxRw8uwjJIyi5le6yVn6
-        owDzmhm5Bp84ZEMShbkxqT3Y5iZwPyz7R/Nr
-X-Google-Smtp-Source: ABdhPJzBtPy9cuCgFkkSq4pQUXMT1JBbYnwoI7eS5K0uWChxdTwgLjkKlZ7QY8yZl+lLK29mHfoezg==
-X-Received: by 2002:a92:660d:: with SMTP id a13mr6890585ilc.268.1613073323168;
-        Thu, 11 Feb 2021 11:55:23 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id i4sm3053366ioa.30.2021.02.11.11.55.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Feb 2021 11:55:22 -0800 (PST)
-Subject: Re: [PATCH for-next 0/4] complete cleanups
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1613067782.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <637a899f-b6b9-2775-0c19-827842f60d37@kernel.dk>
-Date:   Thu, 11 Feb 2021 12:55:22 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=3tPmssEfOuJHJnTdOYJ46w4gxZbEJQd/9lMMjr+YY3U=;
+        b=b6a1CR8YTOyuk7eHPeSs0TBbDCOyKC5uO+3tah0S1pIVe86ddkNVZD3Z0vVMbRlyiC
+         YFEhd6goTDionRN63kiKYI0MJ4x03FUfxXi5lateWRsvse6D8ujUR+DszrQnrPpOOYxV
+         sXUuzVEYnZ+gXcY0LGcFGiA/DGRH1T9fIwzJZwAy/OsDYcMlhDilxYYWP4q/OdCqq0Mg
+         lU2TQPhYOqQtLBGg/r3U4jhbcRMe5sV6uU38rQR3nTERMqZEkMUr9WgIm3fkDGwdmqbM
+         XmkegJyyJ43rNEkA6fubHUA9TZDIWBsPtzo9on1KCe4bXKP0EyM5agSmkAJL3Cxmove+
+         96EA==
+X-Gm-Message-State: AOAM532ZphY3ukvfm45eTog27n1pmCGBDrCJO3pRDVP4jHlDe3FysE5W
+        Qut4smhSGGuKDZ94ZNLTKsA=
+X-Google-Smtp-Source: ABdhPJz3iU+7EcQds2n9k+3+2KPD2c7ULiWRripC+H+oz9N2+OPnJU6S2/ztKOxkxwdRQWsMuRDH/g==
+X-Received: by 2002:a05:6000:c7:: with SMTP id q7mr131912wrx.364.1613085130781;
+        Thu, 11 Feb 2021 15:12:10 -0800 (PST)
+Received: from localhost.localdomain ([185.69.144.228])
+        by smtp.gmail.com with ESMTPSA id d9sm7271184wrq.74.2021.02.11.15.12.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Feb 2021 15:12:10 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH liburing 2/5] src/queue: control kernel enter with a var
+Date:   Thu, 11 Feb 2021 23:08:13 +0000
+Message-Id: <0ce4c042da621e8f305ad8063e548192ffbea7a0.1613084222.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1613084222.git.asml.silence@gmail.com>
+References: <cover.1613084222.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <cover.1613067782.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 2/11/21 11:28 AM, Pavel Begunkov wrote:
-> Random cleanups for iopoll and generic completions, just for shedding
-> some lines and overhead.
-> 
-> Pavel Begunkov (4):
->   io_uring: clean up io_req_free_batch_finish()
->   io_uring: simplify iopoll reissuing
->   io_uring: move res check out of io_rw_reissue()
->   io_uring: inline io_complete_rw_common()
-> 
->  fs/io_uring.c | 67 +++++++++++++++------------------------------------
->  1 file changed, 20 insertions(+), 47 deletions(-)
+We check twice for all entering conditions in _io_uring_get_cqe(), first
+to set flags, and the second to potentially break the loop. Save it into
+a need_enter var.
 
-Good cleanups, thanks.
+Also, don't set IORING_ENTER_GETEVENTS when there is already enough of
+events in the CQ.
 
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ src/queue.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/src/queue.c b/src/queue.c
+index c2facfd..4fb4ea7 100644
+--- a/src/queue.c
++++ b/src/queue.c
+@@ -92,6 +92,7 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
+ 	int err;
+ 
+ 	do {
++		bool need_enter = false;
+ 		bool cq_overflow_flush = false;
+ 		unsigned flags = 0;
+ 		unsigned nr_available;
+@@ -107,12 +108,15 @@ static int _io_uring_get_cqe(struct io_uring *ring, struct io_uring_cqe **cqe_pt
+ 			}
+ 			cq_overflow_flush = true;
+ 		}
+-		if (data->wait_nr || cq_overflow_flush)
++		if (data->wait_nr > nr_available || cq_overflow_flush) {
+ 			flags = IORING_ENTER_GETEVENTS | data->get_flags;
+-		if (data->submit)
++			need_enter = true;
++		}
++		if (data->submit) {
+ 			sq_ring_needs_enter(ring, &flags);
+-		if (data->wait_nr <= nr_available && !data->submit &&
+-		    !cq_overflow_flush)
++			need_enter = true;
++		}
++		if (!need_enter)
+ 			break;
+ 
+ 		ret = __sys_io_uring_enter2(ring->ring_fd, data->submit,
 -- 
-Jens Axboe
+2.24.0
 

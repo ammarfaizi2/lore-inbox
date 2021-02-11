@@ -2,102 +2,93 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F023AC433E0
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:12:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1055DC433E0
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:13:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B855F64E30
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:12:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1C9764E3D
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 23:12:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbhBKXMz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Feb 2021 18:12:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39490 "EHLO
+        id S230154AbhBKXMw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 11 Feb 2021 18:12:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbhBKXMy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 18:12:54 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912A6C061788
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:13 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id o24so7293904wmh.5
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:13 -0800 (PST)
+        with ESMTP id S229707AbhBKXMu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 18:12:50 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3CCC061574
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:10 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id g10so5885915wrx.1
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 15:12:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=FQnundIDPSJ5zP1cDSj4ZTrcp5+brNfXp0SE0k15vlA=;
-        b=g27IXdTaPEEXUixJMFU39GzGlrHakbs6iDQr/6TFYVX7e+Ln/U0WXl94IMbFuQRov6
-         tEjoeFY9TiMtliBTsuEqzhH1KKcJ4/xq45b2N49fTPU8dVqW9UY+EoHbDEJ0ALrmW8pL
-         TtXb6K3pb+oMNw7IHLcVNFH0fwWIe7u4aC8EYlwIWJlxuN9m7Wx7S2ZloN7QDZ824t3r
-         dEKrngViulOTFUY3tlQesh0b+RUZEc9IeITvnsiKTVcfq6bshfy2euwy94E2fcKvJnga
-         6wr9o5lF5+899blxSC83j5Q3t3b4q9DAPeY+k8+77dgg3S7iuqswYAsk13+0tzk2v8P6
-         kaaw==
+        bh=suf6oHJVWZVM/E6wJhhWXC2RQwhEb7BDp9MGiCVkRbU=;
+        b=RZfvpp53lxbKR9sUyodLoXDlly7FFrHbBaO69+lg9d0lKiDvAuUr7D7Fdq1dV5LC5T
+         x3v5qYRpcZV0/Yz7Fjuj6bsRjp2sBMlbU/YrHM4GJIoeI0bARCSAje1rd4MGsUeNpBnZ
+         gmmhqkScOjWQwtI5BMLP31gQfcTkh4U+r2PQ08TroYalR0cFanSPZYPPBpv/D18Chffx
+         MUwDKEagRpvF7n145a2WePwUjzlVHDTczEKodxcVbn3OmaynI6wNb8BfH6zGNGCvHHcV
+         gUjZts/3cU0Ha8phST655DeenuaGT+IYb4PdkGKhbtWl8kQxXutYpzOm/34KgI5ZXi4A
+         /9kA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FQnundIDPSJ5zP1cDSj4ZTrcp5+brNfXp0SE0k15vlA=;
-        b=dRAtf4IpkeMaCdbA4SH6M3pbIUTbdBZK7gX1BbG5qxfnAWTK9Mv4zU9EYpjBfpUA5V
-         VHPv+fy/VgdQVLEGAVl3HC9W/my7JbZtZHPMztJqY1oRvw7XQYLtx2gql/yigJEaSgdH
-         BDQT7OYMDvTBB/N6s++UEr79+fZ8aBtU17FD3yX6o8w637O1R3pzcA2AKidaX0ZIlJ4U
-         4oMFg3JWxOswSSW98GWIwtbgFJy36v1QDL/JXufGvoMZorePXk9PCJCL50/WopfluzyB
-         C2zcC/fbnVtXz2Ob81iM+roE3c5EKyA2EkB+riL4aH3ZDirVa1UN2ODK68pYV6paASn6
-         R48A==
-X-Gm-Message-State: AOAM533qjd09U+Sy7qct21gPwkMrs+0uSnVoit14WUEpyjUcw0b0e3Yw
-        xEVvpfhIFV4agj7L+ak76d0=
-X-Google-Smtp-Source: ABdhPJy7igkvUU5+R7sVuVhgRnvI3H5SkKNDuA/DWfMqs0I/pcxOT4XNTCcuxAZyMH+zZej6vEiMIg==
-X-Received: by 2002:a05:600c:2351:: with SMTP id 17mr257074wmq.2.1613085132433;
-        Thu, 11 Feb 2021 15:12:12 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=suf6oHJVWZVM/E6wJhhWXC2RQwhEb7BDp9MGiCVkRbU=;
+        b=SuY++LmFLGBbiXjIBI0RIOlCHz0SbXDckoEUkYIdsbjQbpnAQQreh+hYXiVU3VZPaT
+         U6h8xE49n4dPDTue1pFPFN9+NmKjS+QMXg0Mqram2cCQRkhAMvub7RsI/FYOV+z6RQqw
+         3Y1y0S8GD5xlDWJ1FL4K5xS2P50dG/jfHgf50R1Lh2x59fqg8Ds0fkWdWkwhGIGsAlmR
+         O8PdM4d0pz/90yHj9bqMKyeB5Cg6XPT6Gp3Bzk9blLi0jx2o6Q7EOO0+8I03B4UU9W9q
+         lDnwGzr3GU/NMwzNlWlyvm9KOlgIlSp5yAO5D6V9zRAZMF7/gwmhj0fPlAyuYrXIyGk3
+         tECg==
+X-Gm-Message-State: AOAM533lSazzRBRbzMTUkWgcd4YFs9te5qENWGaHl8BqbAlhyu/4q0aN
+        JeTD8xqALiqu/gfhn+QsUJarMVZAPvIiAw==
+X-Google-Smtp-Source: ABdhPJwdssXtR48MIHvU0vUiePh9UJICo9h3Ykoshp5nKq3JhmTWoxMAn+cmzs1751VfoSHEzJS6Fw==
+X-Received: by 2002:a5d:6509:: with SMTP id x9mr112653wru.229.1613085129213;
+        Thu, 11 Feb 2021 15:12:09 -0800 (PST)
 Received: from localhost.localdomain ([185.69.144.228])
-        by smtp.gmail.com with ESMTPSA id d9sm7271184wrq.74.2021.02.11.15.12.11
+        by smtp.gmail.com with ESMTPSA id d9sm7271184wrq.74.2021.02.11.15.12.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Feb 2021 15:12:12 -0800 (PST)
+        Thu, 11 Feb 2021 15:12:08 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH liburing 4/5] test/sq-poll-share: don't ignore wait errors
-Date:   Thu, 11 Feb 2021 23:08:15 +0000
-Message-Id: <3423f7d9c689456d3b506186ad939f7f444b4f3c.1613084222.git.asml.silence@gmail.com>
+Subject: [PATCH liburing 0/5] segfault and not only fixes
+Date:   Thu, 11 Feb 2021 23:08:11 +0000
+Message-Id: <cover.1613084222.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613084222.git.asml.silence@gmail.com>
-References: <cover.1613084222.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Check io_uring_wait_cqe() result, it's not safe to poke into cqe on
-error.
+First 4 should be good and simple. 5/5 is my shot on the segfaults,
+take it with a grain of salt.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- test/sq-poll-share.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+link-timeout failure is a separate beast, it's from the old times,
+and comes from the kernel's io_async_find_and_cancel() failing with
+ENOENT(?) when a linked-timeout sees its master but fails to cancel
+it, e.g. when the master is in IRQ or posting CQE.
+Maybe we just need to fix the test.
 
-diff --git a/test/sq-poll-share.c b/test/sq-poll-share.c
-index 0f25389..02b008e 100644
---- a/test/sq-poll-share.c
-+++ b/test/sq-poll-share.c
-@@ -60,7 +60,14 @@ static int wait_io(struct io_uring *ring, int nr_ios)
- 	struct io_uring_cqe *cqe;
- 
- 	while (nr_ios) {
--		io_uring_wait_cqe(ring, &cqe);
-+		int ret = io_uring_wait_cqe(ring, &cqe);
-+
-+		if (ret == -EAGAIN) {
-+			continue;
-+		} else if (ret) {
-+			fprintf(stderr, "io_uring_wait_cqe failed %i\n", ret);
-+			return 1;
-+		}
- 		if (cqe->res != BS) {
- 			fprintf(stderr, "Unexpected ret %d\n", cqe->res);
- 			return 1;
+Pavel Begunkov (5):
+  src/queue: don't re-wait for CQEs
+  src/queue: control kernel enter with a var
+  test/link-timeout: close pipes after yourself
+  test/sq-poll-share: don't ignore wait errors
+  src/queue: fix no-error with NULL cqe
+
+ src/include/liburing.h |  4 +++-
+ src/queue.c            | 22 +++++++++-------------
+ test/link-timeout.c    |  2 ++
+ test/sq-poll-share.c   |  9 ++++++++-
+ 4 files changed, 22 insertions(+), 15 deletions(-)
+
 -- 
 2.24.0
 

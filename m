@@ -2,136 +2,92 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50A7AC433E0
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 18:51:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 950E5C433E6
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 19:57:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1448C64E62
-	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 18:51:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57A9864E44
+	for <io-uring@archiver.kernel.org>; Thu, 11 Feb 2021 19:57:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbhBKSfR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Feb 2021 13:35:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35836 "EHLO
+        id S231670AbhBKT5E (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 11 Feb 2021 14:57:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232838AbhBKSdF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 13:33:05 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3185EC06178A
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 10:32:19 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id w4so6420194wmi.4
-        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 10:32:19 -0800 (PST)
+        with ESMTP id S231522AbhBKT4F (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Feb 2021 14:56:05 -0500
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41377C061574
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 11:55:24 -0800 (PST)
+Received: by mail-il1-x129.google.com with SMTP id d20so1457351ilo.4
+        for <io-uring@vger.kernel.org>; Thu, 11 Feb 2021 11:55:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=mvJVHvc4Rf/OGlrj0a0cLFD4kicIcMgleLXrm7242gg=;
-        b=uOQjsdyqEYO2f3GCQyge8lA3oLKKBmHd46+3KbqsIc4uZQgi3gkVT+tRqcbRTCinN1
-         cn4wqDTC7WvCKnXz7uPV/4EAmMmAQ+lV0SATyEn1M6m0fPzi3u9YZyzEMRu5jX4NvnLJ
-         mXXL8iG0W1384dWseV2PbZVWF1GRAJnkExgtYHCPjlaXrPjF3ab4KWsXYUG/6jD6wrfZ
-         /ERGzmXv/L6zpVSbgMIqZXj5ENN5z6xURmA35Qj/swZaWRLbYpq6Rqrs/KhexjT7ax3J
-         fvgCkbODw54lusUKBlkv0l907FbFuVXBzPJcqUzacuAc9gOl7TvBMNyvpAMmROAdKVpB
-         BiRA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=5x04JyRgnS8VojaUuPFxA+wY9K5CX8AvtnDmQRBgeBE=;
+        b=ESsCoBSzYTwhp+aPzR5kCcVpd5A4M7y0kidfh0NCRPOkYzmBoy4ky1wsTU1u8NQ/tQ
+         TP3IpsrJDuZ3RLSCREdfz/2UKx+GtcMQZKLbKAAmwOYn01neuzLyTFWJfpqlakdYJzfP
+         KwXv2sSB0yRCwnPMQN6a9WTOrDGkj/1K2Op1PCiwoam4ZFR9iyA+4AGEW/+zP9vcDTwX
+         54lTmzOw/WVcYqLSANjFVtm9Tf/7xIVZ3s7OePsEz8Z0cJHIWbROjUgwzi3AuA4BBXsM
+         ZsP6Ni69rNTOuxKdj11Q+iKJ8x0EaleaSneXMh/CzpuwMEgJBqF1HgD4UEt626+Jcnii
+         GESg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mvJVHvc4Rf/OGlrj0a0cLFD4kicIcMgleLXrm7242gg=;
-        b=tXUwWt0klLx5cYFZs9CAuF7u5r/4W92QYqgYlmU4J++xzlQN3j/YrSA7F/DbKoo2zY
-         DaXvTrjrZCLZsgocnbGBciMh2oDXTEvtby0t5c0ItG2ntgfN5iyqq3b05sWcNGzRQHEU
-         itvEDoC+Vx9MquUdNFlEr0bAfS6GQzmdu+B1FyhWW0AH5/UFKdOq+Wy9M/1JQWba10Oe
-         41EM44PCzET94YOAIxqSlSk9bl5duoMKVrqAA2663PJK10AwsS9uOYDyc8ic3twqvxfc
-         pEVqc53sZTC+2SpBf1yxPvASHtT80UggArUj9pQZSMhah2FgnZOHr8kamJiOicBPwtFq
-         RDxA==
-X-Gm-Message-State: AOAM533ilSF6fczCOudtFMI56yh70bJjRxd7MUIoSULn44XWWfCnnAA0
-        hXASogP717uZ97tbSC7/qPLNSZTZA0cD/A==
-X-Google-Smtp-Source: ABdhPJzFQ1CPtD3n7zdu1ZtcbDMV/JpJERVYbmAQokSjrRotlUtrekyeoO2ZuFAOs03aDGsYLDVN8A==
-X-Received: by 2002:a1c:20cf:: with SMTP id g198mr6154129wmg.173.1613068337962;
-        Thu, 11 Feb 2021 10:32:17 -0800 (PST)
-Received: from localhost.localdomain ([185.69.144.228])
-        by smtp.gmail.com with ESMTPSA id a17sm6501595wrx.63.2021.02.11.10.32.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Feb 2021 10:32:17 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 3/4] io_uring: move res check out of io_rw_reissue()
-Date:   Thu, 11 Feb 2021 18:28:22 +0000
-Message-Id: <790e018b34e448fa8fc6201c853becbc2cf8bf8a.1613067783.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613067782.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=5x04JyRgnS8VojaUuPFxA+wY9K5CX8AvtnDmQRBgeBE=;
+        b=Ggq4s24Q5ng36JuNdj+tPpSMEl+KrGMUENiQWM1H9HV3VaS/+7qhBTvEf8M5SPFqaf
+         l1Ao37lteL7LDSEn8ZPK8blU+/zSYsaOGJ3X7QJlgFAP5nsLz3IFHm8YikYn5C8Ihn9P
+         jTiDnBpVUsHf9MVkexgLQ12d3D66Zi3cu1zjfDvsjyNb2Ew7U+l/ywUoXDSlpt15CGe/
+         iSPBvHjRuRRBs1PVtZf7NHKRO+6Hkc+H37T6BDn01gE96fTEqDETBCpo7AIygq7K5S48
+         nVyyL/BmL45rI5wEViMGXHCiA3JZrVgpkrZVzvJujRn7wRgovk+grOpA2qIo0AW7abeU
+         G+oQ==
+X-Gm-Message-State: AOAM531x7P/aqk6A5lTfvuFaQT98MRxlR1R1KxRw8uwjJIyi5le6yVn6
+        owDzmhm5Bp84ZEMShbkxqT3Y5iZwPyz7R/Nr
+X-Google-Smtp-Source: ABdhPJzBtPy9cuCgFkkSq4pQUXMT1JBbYnwoI7eS5K0uWChxdTwgLjkKlZ7QY8yZl+lLK29mHfoezg==
+X-Received: by 2002:a92:660d:: with SMTP id a13mr6890585ilc.268.1613073323168;
+        Thu, 11 Feb 2021 11:55:23 -0800 (PST)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id i4sm3053366ioa.30.2021.02.11.11.55.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Feb 2021 11:55:22 -0800 (PST)
+Subject: Re: [PATCH for-next 0/4] complete cleanups
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 References: <cover.1613067782.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <637a899f-b6b9-2775-0c19-827842f60d37@kernel.dk>
+Date:   Thu, 11 Feb 2021 12:55:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1613067782.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We pass return code into io_rw_reissue() for it to check for -EAGAIN.
-It's not the cleaniest approach and may prevent inlining of the
-non-EAGAIN fast path, so do it at call sites.
+On 2/11/21 11:28 AM, Pavel Begunkov wrote:
+> Random cleanups for iopoll and generic completions, just for shedding
+> some lines and overhead.
+> 
+> Pavel Begunkov (4):
+>   io_uring: clean up io_req_free_batch_finish()
+>   io_uring: simplify iopoll reissuing
+>   io_uring: move res check out of io_rw_reissue()
+>   io_uring: inline io_complete_rw_common()
+> 
+>  fs/io_uring.c | 67 +++++++++++++++------------------------------------
+>  1 file changed, 20 insertions(+), 47 deletions(-)
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+Good cleanups, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3df27ce5938c..81f674f7a97a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1026,7 +1026,7 @@ static struct fixed_rsrc_ref_node *alloc_fixed_rsrc_ref_node(
- static void init_fixed_file_ref_node(struct io_ring_ctx *ctx,
- 				     struct fixed_rsrc_ref_node *ref_node);
- 
--static bool io_rw_reissue(struct io_kiocb *req, long res);
-+static bool io_rw_reissue(struct io_kiocb *req);
- static void io_cqring_fill_event(struct io_kiocb *req, long res);
- static void io_put_req(struct io_kiocb *req);
- static void io_put_req_deferred(struct io_kiocb *req, int nr);
-@@ -2575,7 +2575,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 
- 		if (READ_ONCE(req->result) == -EAGAIN) {
- 			req->iopoll_completed = 0;
--			if (io_rw_reissue(req, -EAGAIN))
-+			if (io_rw_reissue(req))
- 				continue;
- 		}
- 
-@@ -2809,15 +2809,12 @@ static bool io_resubmit_prep(struct io_kiocb *req)
- }
- #endif
- 
--static bool io_rw_reissue(struct io_kiocb *req, long res)
-+static bool io_rw_reissue(struct io_kiocb *req)
- {
- #ifdef CONFIG_BLOCK
--	umode_t mode;
-+	umode_t mode = file_inode(req->file)->i_mode;
- 	int ret;
- 
--	if (res != -EAGAIN && res != -EOPNOTSUPP)
--		return false;
--	mode = file_inode(req->file)->i_mode;
- 	if (!S_ISBLK(mode) && !S_ISREG(mode))
- 		return false;
- 	if ((req->flags & REQ_F_NOWAIT) || io_wq_current_is_worker())
-@@ -2840,8 +2837,10 @@ static bool io_rw_reissue(struct io_kiocb *req, long res)
- static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
- 			     unsigned int issue_flags)
- {
--	if (!io_rw_reissue(req, res))
--		io_complete_rw_common(&req->rw.kiocb, res, issue_flags);
-+	if ((res == -EAGAIN || res == -EOPNOTSUPP) && io_rw_reissue(req))
-+		return;
-+
-+	io_complete_rw_common(&req->rw.kiocb, res, issue_flags);
- }
- 
- static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
 -- 
-2.24.0
+Jens Axboe
 

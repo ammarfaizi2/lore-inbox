@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2B7DC433DB
-	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:43:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9873DC433E0
+	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:43:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8047064DC3
-	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:43:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E50964DEC
+	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:43:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbhBOMn0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Feb 2021 07:43:26 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:54650 "EHLO raptor.unsafe.ru"
+        id S230010AbhBOMn2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Feb 2021 07:43:28 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:54820 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229802AbhBOMnY (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Mon, 15 Feb 2021 07:43:24 -0500
+        id S229895AbhBOMn0 (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Mon, 15 Feb 2021 07:43:26 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 255A020460;
-        Mon, 15 Feb 2021 12:42:23 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 0416220A1D;
+        Mon, 15 Feb 2021 12:42:42 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -38,151 +38,200 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v6 0/7] Count rlimits in each user namespace
-Date:   Mon, 15 Feb 2021 13:41:07 +0100
-Message-Id: <cover.1613392826.git.gladkov.alexey@gmail.com>
+Subject: [PATCH v6 4/7] Reimplement RLIMIT_MSGQUEUE on top of ucounts
+Date:   Mon, 15 Feb 2021 13:41:11 +0100
+Message-Id: <8a3c7bc4c0f45d9b8313ef395f3fa180eef01d67.1613392826.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1613392826.git.gladkov.alexey@gmail.com>
+References: <cover.1613392826.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 15 Feb 2021 12:42:40 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 15 Feb 2021 12:42:43 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Preface
--------
-These patches are for binding the rlimit counters to a user in user namespace.
-This patch set can be applied on top of:
+The rlimit counter is tied to uid in the user_namespace. This allows
+rlimit values to be specified in userns even if they are already
+globally exceeded by the user. However, the value of the previous
+user_namespaces cannot be exceeded.
 
-git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git v5.11
+Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
+---
+ include/linux/sched/user.h     |  4 ----
+ include/linux/user_namespace.h |  1 +
+ ipc/mqueue.c                   | 29 +++++++++++++++--------------
+ kernel/fork.c                  |  1 +
+ kernel/ucount.c                |  1 +
+ kernel/user_namespace.c        |  1 +
+ 6 files changed, 19 insertions(+), 18 deletions(-)
 
-Problem
--------
-The RLIMIT_NPROC, RLIMIT_MEMLOCK, RLIMIT_SIGPENDING, RLIMIT_MSGQUEUE rlimits
-implementation places the counters in user_struct [1]. These limits are global
-between processes and persists for the lifetime of the process, even if
-processes are in different user namespaces.
-
-To illustrate the impact of rlimits, let's say there is a program that does not
-fork. Some service-A wants to run this program as user X in multiple containers.
-Since the program never fork the service wants to set RLIMIT_NPROC=1.
-
-service-A
- \- program (uid=1000, container1, rlimit_nproc=1)
- \- program (uid=1000, container2, rlimit_nproc=1)
-
-The service-A sets RLIMIT_NPROC=1 and runs the program in container1. When the
-service-A tries to run a program with RLIMIT_NPROC=1 in container2 it fails
-since user X already has one running process.
-
-The problem is not that the limit from container1 affects container2. The
-problem is that limit is verified against the global counter that reflects
-the number of processes in all containers.
-
-This problem can be worked around by using different users for each container
-but in this case we face a different problem of uid mapping when transferring
-files from one container to another.
-
-Eric W. Biederman mentioned this issue [2][3].
-
-Introduced changes
-------------------
-To address the problem, we bind rlimit counters to user namespace. Each counter
-reflects the number of processes in a given uid in a given user namespace. The
-result is a tree of rlimit counters with the biggest value at the root (aka
-init_user_ns). The limit is considered exceeded if it's exceeded up in the tree.
-
-[1] https://lore.kernel.org/containers/87imd2incs.fsf@x220.int.ebiederm.org/
-[2] https://lists.linuxfoundation.org/pipermail/containers/2020-August/042096.html
-[3] https://lists.linuxfoundation.org/pipermail/containers/2020-October/042524.html
-
-Changelog
----------
-v6:
-* Fixed issues found by lkp-tests project.
-* Rebased onto v5.11.
-
-v5:
-* Split the first commit into two commits: change ucounts.count type to atomic_long_t
-  and add ucounts to cred. These commits were merged by mistake during the rebase.
-* The __get_ucounts() renamed to alloc_ucounts().
-* The cred.ucounts update has been moved from commit_creds() as it did not allow
-  to handle errors.
-* Added error handling of set_cred_ucounts().
-
-v4:
-* Reverted the type change of ucounts.count to refcount_t.
-* Fixed typo in the kernel/cred.c
-
-v3:
-* Added get_ucounts() function to increase the reference count. The existing
-  get_counts() function renamed to __get_ucounts().
-* The type of ucounts.count changed from atomic_t to refcount_t.
-* Dropped 'const' from set_cred_ucounts() arguments.
-* Fixed a bug with freeing the cred structure after calling cred_alloc_blank().
-* Commit messages have been updated.
-* Added selftest.
-
-v2:
-* RLIMIT_MEMLOCK, RLIMIT_SIGPENDING and RLIMIT_MSGQUEUE are migrated to ucounts.
-* Added ucounts for pair uid and user namespace into cred.
-* Added the ability to increase ucount by more than 1.
-
-v1:
-* After discussion with Eric W. Biederman, I increased the size of ucounts to
-  atomic_long_t.
-* Added ucount_max to avoid the fork bomb.
-
---
-
-Alexey Gladkov (7):
-  Increase size of ucounts to atomic_long_t
-  Add a reference to ucounts for each cred
-  Reimplement RLIMIT_NPROC on top of ucounts
-  Reimplement RLIMIT_MSGQUEUE on top of ucounts
-  Reimplement RLIMIT_SIGPENDING on top of ucounts
-  Reimplement RLIMIT_MEMLOCK on top of ucounts
-  kselftests: Add test to check for rlimit changes in different user
-    namespaces
-
- fs/exec.c                                     |   6 +-
- fs/hugetlbfs/inode.c                          |  16 +-
- fs/io-wq.c                                    |  22 ++-
- fs/io-wq.h                                    |   2 +-
- fs/io_uring.c                                 |   2 +-
- fs/proc/array.c                               |   2 +-
- include/linux/cred.h                          |   4 +
- include/linux/hugetlb.h                       |   4 +-
- include/linux/mm.h                            |   4 +-
- include/linux/sched/user.h                    |   7 -
- include/linux/shmem_fs.h                      |   2 +-
- include/linux/signal_types.h                  |   4 +-
- include/linux/user_namespace.h                |  24 ++-
- ipc/mqueue.c                                  |  29 ++--
- ipc/shm.c                                     |  30 ++--
- kernel/cred.c                                 |  50 +++++-
- kernel/exit.c                                 |   2 +-
- kernel/fork.c                                 |  18 +-
- kernel/signal.c                               |  53 +++---
- kernel/sys.c                                  |  14 +-
- kernel/ucount.c                               | 120 +++++++++++--
- kernel/user.c                                 |   3 -
- kernel/user_namespace.c                       |   9 +-
- mm/memfd.c                                    |   5 +-
- mm/mlock.c                                    |  35 ++--
- mm/mmap.c                                     |   4 +-
- mm/shmem.c                                    |   8 +-
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/rlimits/.gitignore    |   2 +
- tools/testing/selftests/rlimits/Makefile      |   6 +
- tools/testing/selftests/rlimits/config        |   1 +
- .../selftests/rlimits/rlimits-per-userns.c    | 161 ++++++++++++++++++
- 32 files changed, 495 insertions(+), 155 deletions(-)
- create mode 100644 tools/testing/selftests/rlimits/.gitignore
- create mode 100644 tools/testing/selftests/rlimits/Makefile
- create mode 100644 tools/testing/selftests/rlimits/config
- create mode 100644 tools/testing/selftests/rlimits/rlimits-per-userns.c
-
+diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
+index d33d867ad6c1..8a34446681aa 100644
+--- a/include/linux/sched/user.h
++++ b/include/linux/sched/user.h
+@@ -18,10 +18,6 @@ struct user_struct {
+ #endif
+ #ifdef CONFIG_EPOLL
+ 	atomic_long_t epoll_watches; /* The number of file descriptors currently watched */
+-#endif
+-#ifdef CONFIG_POSIX_MQUEUE
+-	/* protected by mq_lock	*/
+-	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
+ #endif
+ 	unsigned long locked_shm; /* How many pages of mlocked shm ? */
+ 	unsigned long unix_inflight;	/* How many files in flight in unix sockets */
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 0a27cd049404..52453143fe23 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -51,6 +51,7 @@ enum ucount_type {
+ 	UCOUNT_INOTIFY_WATCHES,
+ #endif
+ 	UCOUNT_RLIMIT_NPROC,
++	UCOUNT_RLIMIT_MSGQUEUE,
+ 	UCOUNT_COUNTS,
+ };
+ 
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index beff0cfcd1e8..05fcf067131f 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -144,7 +144,7 @@ struct mqueue_inode_info {
+ 	struct pid *notify_owner;
+ 	u32 notify_self_exec_id;
+ 	struct user_namespace *notify_user_ns;
+-	struct user_struct *user;	/* user who created, for accounting */
++	struct ucounts *ucounts;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+ 	struct sk_buff *notify_cookie;
+ 
+@@ -292,7 +292,6 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		struct ipc_namespace *ipc_ns, umode_t mode,
+ 		struct mq_attr *attr)
+ {
+-	struct user_struct *u = current_user();
+ 	struct inode *inode;
+ 	int ret = -ENOMEM;
+ 
+@@ -309,6 +308,8 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 	if (S_ISREG(mode)) {
+ 		struct mqueue_inode_info *info;
+ 		unsigned long mq_bytes, mq_treesize;
++		struct ucounts *ucounts;
++		bool overlimit;
+ 
+ 		inode->i_fop = &mqueue_file_operations;
+ 		inode->i_size = FILENT_SIZE;
+@@ -321,7 +322,7 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		info->notify_owner = NULL;
+ 		info->notify_user_ns = NULL;
+ 		info->qsize = 0;
+-		info->user = NULL;	/* set when all is ok */
++		info->ucounts = NULL;	/* set when all is ok */
+ 		info->msg_tree = RB_ROOT;
+ 		info->msg_tree_rightmost = NULL;
+ 		info->node_cache = NULL;
+@@ -371,19 +372,19 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		if (mq_bytes + mq_treesize < mq_bytes)
+ 			goto out_inode;
+ 		mq_bytes += mq_treesize;
++		ucounts = current_ucounts();
+ 		spin_lock(&mq_lock);
+-		if (u->mq_bytes + mq_bytes < u->mq_bytes ||
+-		    u->mq_bytes + mq_bytes > rlimit(RLIMIT_MSGQUEUE)) {
++		overlimit = inc_rlimit_ucounts_and_test(ucounts, UCOUNT_RLIMIT_MSGQUEUE,
++				mq_bytes, rlimit(RLIMIT_MSGQUEUE));
++		if (overlimit) {
++			dec_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
+ 			spin_unlock(&mq_lock);
+ 			/* mqueue_evict_inode() releases info->messages */
+ 			ret = -EMFILE;
+ 			goto out_inode;
+ 		}
+-		u->mq_bytes += mq_bytes;
+ 		spin_unlock(&mq_lock);
+-
+-		/* all is ok */
+-		info->user = get_uid(u);
++		info->ucounts = get_ucounts(ucounts);
+ 	} else if (S_ISDIR(mode)) {
+ 		inc_nlink(inode);
+ 		/* Some things misbehave if size == 0 on a directory */
+@@ -497,7 +498,7 @@ static void mqueue_free_inode(struct inode *inode)
+ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+-	struct user_struct *user;
++	struct ucounts *ucounts;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -520,8 +521,8 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
+ 
+-	user = info->user;
+-	if (user) {
++	ucounts = info->ucounts;
++	if (ucounts) {
+ 		unsigned long mq_bytes, mq_treesize;
+ 
+ 		/* Total amount of bytes accounted for the mqueue */
+@@ -533,7 +534,7 @@ static void mqueue_evict_inode(struct inode *inode)
+ 					  info->attr.mq_msgsize);
+ 
+ 		spin_lock(&mq_lock);
+-		user->mq_bytes -= mq_bytes;
++		dec_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
+ 		/*
+ 		 * get_ns_from_inode() ensures that the
+ 		 * (ipc_ns = sb->s_fs_info) is either a valid ipc_ns
+@@ -543,7 +544,7 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		if (ipc_ns)
+ 			ipc_ns->mq_queues_count--;
+ 		spin_unlock(&mq_lock);
+-		free_uid(user);
++		put_ucounts(ucounts);
+ 	}
+ 	if (ipc_ns)
+ 		put_ipc_ns(ipc_ns);
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 812b023ecdce..0a939332efcc 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -823,6 +823,7 @@ void __init fork_init(void)
+ 		init_user_ns.ucount_max[i] = max_threads/2;
+ 
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
++	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
+ 
+ #ifdef CONFIG_VMAP_STACK
+ 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 2f42d2ee6e27..6fb2ebdef0bc 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -81,6 +81,7 @@ static struct ctl_table user_table[] = {
+ 	UCOUNT_ENTRY("max_inotify_instances"),
+ 	UCOUNT_ENTRY("max_inotify_watches"),
+ #endif
++	{ },
+ 	{ },
+ 	{ }
+ };
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index 2434b13b02e5..cc90d5203acf 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -122,6 +122,7 @@ int create_user_ns(struct cred *new)
+ 		ns->ucount_max[i] = INT_MAX;
+ 	}
+ 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
++	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
+ 	ns->ucounts = ucounts;
+ 
+ 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
 -- 
 2.29.2
 

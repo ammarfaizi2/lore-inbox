@@ -8,23 +8,23 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08BDCC433E0
-	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:44:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3763C433DB
+	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:44:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCE4E64E51
+	by mail.kernel.org (Postfix) with ESMTP id ABE5064DA8
 	for <io-uring@archiver.kernel.org>; Mon, 15 Feb 2021 12:44:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbhBOMoM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Feb 2021 07:44:12 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:56056 "EHLO raptor.unsafe.ru"
+        id S230243AbhBOMoL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Feb 2021 07:44:11 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:56018 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230101AbhBOMoJ (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        id S230182AbhBOMoJ (ORCPT <rfc822;io-uring@vger.kernel.org>);
         Mon, 15 Feb 2021 07:44:09 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id B80FC20A20;
-        Mon, 15 Feb 2021 12:42:44 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 8434F20A1E;
+        Mon, 15 Feb 2021 12:42:43 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -38,241 +38,220 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v6 7/7] kselftests: Add test to check for rlimit changes in different user namespaces
-Date:   Mon, 15 Feb 2021 13:41:14 +0100
-Message-Id: <05e78234f30d38e8d1b140a066cd2d124a4b39a0.1613392826.git.gladkov.alexey@gmail.com>
+Subject: [PATCH v6 5/7] Reimplement RLIMIT_SIGPENDING on top of ucounts
+Date:   Mon, 15 Feb 2021 13:41:12 +0100
+Message-Id: <361d25388400b794abe2414a56a0f65f3f4739aa.1613392826.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <cover.1613392826.git.gladkov.alexey@gmail.com>
 References: <cover.1613392826.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 15 Feb 2021 12:42:45 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 15 Feb 2021 12:42:43 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The testcase runs few instances of the program with RLIMIT_NPROC=1 from
-user uid=60000, in different user namespaces.
+The rlimit counter is tied to uid in the user_namespace. This allows
+rlimit values to be specified in userns even if they are already
+globally exceeded by the user. However, the value of the previous
+user_namespaces cannot be exceeded.
 
 Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
 ---
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/rlimits/.gitignore    |   2 +
- tools/testing/selftests/rlimits/Makefile      |   6 +
- tools/testing/selftests/rlimits/config        |   1 +
- .../selftests/rlimits/rlimits-per-userns.c    | 161 ++++++++++++++++++
- 5 files changed, 171 insertions(+)
- create mode 100644 tools/testing/selftests/rlimits/.gitignore
- create mode 100644 tools/testing/selftests/rlimits/Makefile
- create mode 100644 tools/testing/selftests/rlimits/config
- create mode 100644 tools/testing/selftests/rlimits/rlimits-per-userns.c
+ fs/proc/array.c                |  2 +-
+ include/linux/sched/user.h     |  1 -
+ include/linux/signal_types.h   |  4 ++-
+ include/linux/user_namespace.h |  1 +
+ kernel/fork.c                  |  1 +
+ kernel/signal.c                | 53 ++++++++++++++--------------------
+ kernel/ucount.c                |  1 +
+ kernel/user.c                  |  1 -
+ kernel/user_namespace.c        |  1 +
+ 9 files changed, 30 insertions(+), 35 deletions(-)
 
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index 8a917cb4426a..a6d3fde4a617 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -46,6 +46,7 @@ TARGETS += proc
- TARGETS += pstore
- TARGETS += ptrace
- TARGETS += openat2
-+TARGETS += rlimits
- TARGETS += rseq
- TARGETS += rtc
- TARGETS += seccomp
-diff --git a/tools/testing/selftests/rlimits/.gitignore b/tools/testing/selftests/rlimits/.gitignore
-new file mode 100644
-index 000000000000..091021f255b3
---- /dev/null
-+++ b/tools/testing/selftests/rlimits/.gitignore
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+rlimits-per-userns
-diff --git a/tools/testing/selftests/rlimits/Makefile b/tools/testing/selftests/rlimits/Makefile
-new file mode 100644
-index 000000000000..03aadb406212
---- /dev/null
-+++ b/tools/testing/selftests/rlimits/Makefile
-@@ -0,0 +1,6 @@
-+# SPDX-License-Identifier: GPL-2.0-or-later
+diff --git a/fs/proc/array.c b/fs/proc/array.c
+index bb87e4d89cd8..74b0ea4b7e38 100644
+--- a/fs/proc/array.c
++++ b/fs/proc/array.c
+@@ -284,7 +284,7 @@ static inline void task_sig(struct seq_file *m, struct task_struct *p)
+ 		collect_sigign_sigcatch(p, &ignored, &caught);
+ 		num_threads = get_nr_threads(p);
+ 		rcu_read_lock();  /* FIXME: is this correct? */
+-		qsize = atomic_read(&__task_cred(p)->user->sigpending);
++		qsize = get_ucounts_value(task_ucounts(p), UCOUNT_RLIMIT_SIGPENDING);
+ 		rcu_read_unlock();
+ 		qlim = task_rlimit(p, RLIMIT_SIGPENDING);
+ 		unlock_task_sighand(p, &flags);
+diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
+index 8a34446681aa..8ba9cec4fb99 100644
+--- a/include/linux/sched/user.h
++++ b/include/linux/sched/user.h
+@@ -12,7 +12,6 @@
+  */
+ struct user_struct {
+ 	refcount_t __count;	/* reference count */
+-	atomic_t sigpending;	/* How many pending signals does this user have? */
+ #ifdef CONFIG_FANOTIFY
+ 	atomic_t fanotify_listeners;
+ #endif
+diff --git a/include/linux/signal_types.h b/include/linux/signal_types.h
+index 68e06c75c5b2..34cb28b8f16c 100644
+--- a/include/linux/signal_types.h
++++ b/include/linux/signal_types.h
+@@ -13,6 +13,8 @@ typedef struct kernel_siginfo {
+ 	__SIGINFO;
+ } kernel_siginfo_t;
+ 
++struct ucounts;
 +
-+CFLAGS += -Wall -O2 -g
-+TEST_GEN_PROGS := rlimits-per-userns
+ /*
+  * Real Time signals may be queued.
+  */
+@@ -21,7 +23,7 @@ struct sigqueue {
+ 	struct list_head list;
+ 	int flags;
+ 	kernel_siginfo_t info;
+-	struct user_struct *user;
++	struct ucounts *ucounts;
+ };
+ 
+ /* flags values. */
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 52453143fe23..f84b68832c56 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -52,6 +52,7 @@ enum ucount_type {
+ #endif
+ 	UCOUNT_RLIMIT_NPROC,
+ 	UCOUNT_RLIMIT_MSGQUEUE,
++	UCOUNT_RLIMIT_SIGPENDING,
+ 	UCOUNT_COUNTS,
+ };
+ 
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 0a939332efcc..99b10b9fe4b6 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -824,6 +824,7 @@ void __init fork_init(void)
+ 
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
++	init_user_ns.ucount_max[UCOUNT_RLIMIT_SIGPENDING] = task_rlimit(&init_task, RLIMIT_SIGPENDING);
+ 
+ #ifdef CONFIG_VMAP_STACK
+ 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 5ad8566534e7..a37dd66f9358 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -412,49 +412,40 @@ void task_join_group_stop(struct task_struct *task)
+ static struct sigqueue *
+ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimit)
+ {
+-	struct sigqueue *q = NULL;
+-	struct user_struct *user;
+-	int sigpending;
++	struct sigqueue *q = kmem_cache_alloc(sigqueue_cachep, flags);
+ 
+-	/*
+-	 * Protect access to @t credentials. This can go away when all
+-	 * callers hold rcu read lock.
+-	 *
+-	 * NOTE! A pending signal will hold on to the user refcount,
+-	 * and we get/put the refcount only when the sigpending count
+-	 * changes from/to zero.
+-	 */
+-	rcu_read_lock();
+-	user = __task_cred(t)->user;
+-	sigpending = atomic_inc_return(&user->sigpending);
+-	if (sigpending == 1)
+-		get_uid(user);
+-	rcu_read_unlock();
++	if (likely(q != NULL)) {
++		bool overlimit;
+ 
+-	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
+-		q = kmem_cache_alloc(sigqueue_cachep, flags);
+-	} else {
+-		print_dropped_signal(sig);
+-	}
+-
+-	if (unlikely(q == NULL)) {
+-		if (atomic_dec_and_test(&user->sigpending))
+-			free_uid(user);
+-	} else {
+ 		INIT_LIST_HEAD(&q->list);
+ 		q->flags = 0;
+-		q->user = user;
 +
-+include ../lib.mk
-diff --git a/tools/testing/selftests/rlimits/config b/tools/testing/selftests/rlimits/config
-new file mode 100644
-index 000000000000..416bd53ce982
---- /dev/null
-+++ b/tools/testing/selftests/rlimits/config
-@@ -0,0 +1 @@
-+CONFIG_USER_NS=y
-diff --git a/tools/testing/selftests/rlimits/rlimits-per-userns.c b/tools/testing/selftests/rlimits/rlimits-per-userns.c
-new file mode 100644
-index 000000000000..26dc949e93ea
---- /dev/null
-+++ b/tools/testing/selftests/rlimits/rlimits-per-userns.c
-@@ -0,0 +1,161 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Author: Alexey Gladkov <gladkov.alexey@gmail.com>
-+ */
-+#define _GNU_SOURCE
-+#include <sys/types.h>
-+#include <sys/wait.h>
-+#include <sys/time.h>
-+#include <sys/resource.h>
-+#include <sys/prctl.h>
-+#include <sys/stat.h>
++		/*
++		 * Protect access to @t credentials. This can go away when all
++		 * callers hold rcu read lock.
++		 */
++		rcu_read_lock();
++		q->ucounts = get_ucounts(task_ucounts(t));
++		overlimit = inc_rlimit_ucounts_and_test(q->ucounts, UCOUNT_RLIMIT_SIGPENDING,
++				1, task_rlimit(t, RLIMIT_SIGPENDING));
 +
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <sched.h>
-+#include <signal.h>
-+#include <limits.h>
-+#include <fcntl.h>
-+#include <errno.h>
-+#include <err.h>
-+
-+#define NR_CHILDS 2
-+
-+static char *service_prog;
-+static uid_t user   = 60000;
-+static uid_t group  = 60000;
-+
-+static void setrlimit_nproc(rlim_t n)
-+{
-+	pid_t pid = getpid();
-+	struct rlimit limit = {
-+		.rlim_cur = n,
-+		.rlim_max = n
-+	};
-+
-+	warnx("(pid=%d): Setting RLIMIT_NPROC=%ld", pid, n);
-+
-+	if (setrlimit(RLIMIT_NPROC, &limit) < 0)
-+		err(EXIT_FAILURE, "(pid=%d): setrlimit(RLIMIT_NPROC)", pid);
-+}
-+
-+static pid_t fork_child(void)
-+{
-+	pid_t pid = fork();
-+
-+	if (pid < 0)
-+		err(EXIT_FAILURE, "fork");
-+
-+	if (pid > 0)
-+		return pid;
-+
-+	pid = getpid();
-+
-+	warnx("(pid=%d): New process starting ...", pid);
-+
-+	if (prctl(PR_SET_PDEATHSIG, SIGKILL) < 0)
-+		err(EXIT_FAILURE, "(pid=%d): prctl(PR_SET_PDEATHSIG)", pid);
-+
-+	signal(SIGUSR1, SIG_DFL);
-+
-+	warnx("(pid=%d): Changing to uid=%d, gid=%d", pid, user, group);
-+
-+	if (setgid(group) < 0)
-+		err(EXIT_FAILURE, "(pid=%d): setgid(%d)", pid, group);
-+	if (setuid(user) < 0)
-+		err(EXIT_FAILURE, "(pid=%d): setuid(%d)", pid, user);
-+
-+	warnx("(pid=%d): Service running ...", pid);
-+
-+	warnx("(pid=%d): Unshare user namespace", pid);
-+	if (unshare(CLONE_NEWUSER) < 0)
-+		err(EXIT_FAILURE, "unshare(CLONE_NEWUSER)");
-+
-+	char *const argv[] = { "service", NULL };
-+	char *const envp[] = { "I_AM_SERVICE=1", NULL };
-+
-+	warnx("(pid=%d): Executing real service ...", pid);
-+
-+	execve(service_prog, argv, envp);
-+	err(EXIT_FAILURE, "(pid=%d): execve", pid);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	size_t i;
-+	pid_t child[NR_CHILDS];
-+	int wstatus[NR_CHILDS];
-+	int childs = NR_CHILDS;
-+	pid_t pid;
-+
-+	if (getenv("I_AM_SERVICE")) {
-+		pause();
-+		exit(EXIT_SUCCESS);
-+	}
-+
-+	service_prog = argv[0];
-+	pid = getpid();
-+
-+	warnx("(pid=%d) Starting testcase", pid);
-+
-+	/*
-+	 * This rlimit is not a problem for root because it can be exceeded.
-+	 */
-+	setrlimit_nproc(1);
-+
-+	for (i = 0; i < NR_CHILDS; i++) {
-+		child[i] = fork_child();
-+		wstatus[i] = 0;
-+		usleep(250000);
-+	}
-+
-+	while (1) {
-+		for (i = 0; i < NR_CHILDS; i++) {
-+			if (child[i] <= 0)
-+				continue;
-+
-+			errno = 0;
-+			pid_t ret = waitpid(child[i], &wstatus[i], WNOHANG);
-+
-+			if (!ret || (!WIFEXITED(wstatus[i]) && !WIFSIGNALED(wstatus[i])))
-+				continue;
-+
-+			if (ret < 0 && errno != ECHILD)
-+				warn("(pid=%d): waitpid(%d)", pid, child[i]);
-+
-+			child[i] *= -1;
-+			childs -= 1;
++		if (override_rlimit || likely(!overlimit)) {
++			rcu_read_unlock();
++			return q;
 +		}
-+
-+		if (!childs)
-+			break;
-+
-+		usleep(250000);
-+
-+		for (i = 0; i < NR_CHILDS; i++) {
-+			if (child[i] <= 0)
-+				continue;
-+			kill(child[i], SIGUSR1);
-+		}
-+	}
-+
-+	for (i = 0; i < NR_CHILDS; i++) {
-+		if (WIFEXITED(wstatus[i]))
-+			warnx("(pid=%d): pid %d exited, status=%d",
-+				pid, -child[i], WEXITSTATUS(wstatus[i]));
-+		else if (WIFSIGNALED(wstatus[i]))
-+			warnx("(pid=%d): pid %d killed by signal %d",
-+				pid, -child[i], WTERMSIG(wstatus[i]));
-+
-+		if (WIFSIGNALED(wstatus[i]) && WTERMSIG(wstatus[i]) == SIGUSR1)
-+			continue;
-+
-+		warnx("(pid=%d): Test failed", pid);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	warnx("(pid=%d): Test passed", pid);
-+	exit(EXIT_SUCCESS);
-+}
++		rcu_read_unlock();
+ 	}
+ 
+-	return q;
++	print_dropped_signal(sig);
++	return NULL;
+ }
+ 
+ static void __sigqueue_free(struct sigqueue *q)
+ {
+ 	if (q->flags & SIGQUEUE_PREALLOC)
+ 		return;
+-	if (atomic_dec_and_test(&q->user->sigpending))
+-		free_uid(q->user);
++	dec_rlimit_ucounts(q->ucounts, UCOUNT_RLIMIT_SIGPENDING, 1);
++	put_ucounts(q->ucounts);
+ 	kmem_cache_free(sigqueue_cachep, q);
+ }
+ 
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 6fb2ebdef0bc..2ac969fba668 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -81,6 +81,7 @@ static struct ctl_table user_table[] = {
+ 	UCOUNT_ENTRY("max_inotify_instances"),
+ 	UCOUNT_ENTRY("max_inotify_watches"),
+ #endif
++	{ },
+ 	{ },
+ 	{ },
+ 	{ }
+diff --git a/kernel/user.c b/kernel/user.c
+index 7f5ff498207a..6737327f83be 100644
+--- a/kernel/user.c
++++ b/kernel/user.c
+@@ -98,7 +98,6 @@ static DEFINE_SPINLOCK(uidhash_lock);
+ /* root_user.__count is 1, for init task cred */
+ struct user_struct root_user = {
+ 	.__count	= REFCOUNT_INIT(1),
+-	.sigpending	= ATOMIC_INIT(0),
+ 	.locked_shm     = 0,
+ 	.uid		= GLOBAL_ROOT_UID,
+ 	.ratelimit	= RATELIMIT_STATE_INIT(root_user.ratelimit, 0, 0),
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index cc90d5203acf..df1bed32dd48 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -123,6 +123,7 @@ int create_user_ns(struct cred *new)
+ 	}
+ 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
+ 	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
++	ns->ucount_max[UCOUNT_RLIMIT_SIGPENDING] = rlimit(RLIMIT_SIGPENDING);
+ 	ns->ucounts = ucounts;
+ 
+ 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
 -- 
 2.29.2
 

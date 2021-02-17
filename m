@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9738C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 17 Feb 2021 12:42:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 836B3C433DB
+	for <io-uring@archiver.kernel.org>; Wed, 17 Feb 2021 12:42:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C25CD64E45
-	for <io-uring@archiver.kernel.org>; Wed, 17 Feb 2021 12:42:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B8CC64E45
+	for <io-uring@archiver.kernel.org>; Wed, 17 Feb 2021 12:42:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232783AbhBQMms (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 17 Feb 2021 07:42:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53754 "EHLO
+        id S232788AbhBQMmz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 17 Feb 2021 07:42:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232785AbhBQMmp (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Feb 2021 07:42:45 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67AB8C0613D6
-        for <io-uring@vger.kernel.org>; Wed, 17 Feb 2021 04:42:04 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id g6so17221938wrs.11
-        for <io-uring@vger.kernel.org>; Wed, 17 Feb 2021 04:42:04 -0800 (PST)
+        with ESMTP id S232787AbhBQMmy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Feb 2021 07:42:54 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C92C061786
+        for <io-uring@vger.kernel.org>; Wed, 17 Feb 2021 04:42:13 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id v15so17255751wrx.4
+        for <io-uring@vger.kernel.org>; Wed, 17 Feb 2021 04:42:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=5x8n83gPYOt7SmyWSGXUskXg6MirfQUnIDYaX2n5/NA=;
-        b=iKRXPSpGXbrRIZ9YzQyiEpzuvyQCW3ITcXTTx5aqT0eWMfivo9ZGCXM5iDWlO5zmxA
-         qf5ToZeZVn8dRUqAtVUkPSheWDQ2Onble3pZS7lmHoVJcn13Xz+uRiULjF4ZC5gHHuzx
-         uUfZ85Ci8fqODKwG1lf2/EMTgvsJCQ6ClWv6yuk88kfszMJk9dfJ0lgY+Aj5Ff1WzI14
-         MvfuHViaMouzuOkj6rwWQq4jkJuPLwDnU/lAAshp+Imr2AfqhUOOhB/ZzeMdDDPUFumj
-         pm9vUgqWTVPeagcFJSs6w+FSbh2nP8XHnnf8d74G9uOw/UbSsAqmyfKpjdHZvIf2u9Hl
-         0eQg==
+        bh=rVgINE9+2XqaMOucWOivnn8FlQ0rJ0Zbjy7AzDSrz9Q=;
+        b=izVwSIzT7se4mrQGf/OY6vcXiyzh4FZDsjnWRvA6F9cXtFmgQmeOmNAfz91IIQyuzG
+         HeqpV04jutuSglLIIYJ2qRXfqEQ8L3xGjY2NRm5kkp5MPqpV7pNPwNms2WzhaO+wyjmg
+         qoFGaA9LjzTwaJWOY3akJ01w0E/ueOkMEqsTxQ/BlT2Q2qHBVSnKzkrw5s2UeQc6aVjV
+         TT6IPg12SfhsqEuYgTH4UJkDE7w/VtNNTeWOxGcMwSJdyqUWupdvZBi2U/TjbwlDijLc
+         b/by19GmORehmv9inNrYCfSEx7CVsiuG+sGbNmzwuycroyPymKo+qs0CNkl3ooh9Mnfp
+         9qDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=5x8n83gPYOt7SmyWSGXUskXg6MirfQUnIDYaX2n5/NA=;
-        b=oi8il48lPY1blp0ZccQK3TLfqfsneI2UXh1C+Zvx9STCu647LtVbVsYlVHVzDBLI/A
-         +DcgoBVs5MyB+hJXDs9WeC7o0vuMvqZyJnArg+WEDW3AvU9yt43LyJ6IpJ6SuNhc5rmY
-         OS50n2OiKeYdwkKdAn9jzqQIebBgWbv2JhXhABR+S7dp0okT1D7qiwkh7EseQYDplMf0
-         VZpU3Xh2GPy+oTzEAejxX1MDm6fUwarsFWwuY08V4Cyv7nqhZGF38zoRVvhPp2r8XxTn
-         7Q86BG9bqbUmyFwBWDMZNcjtY4iaCWJtGcin2yfnlPxNAxqUimkLsP36AFWGSpwwHz7N
-         yqVA==
-X-Gm-Message-State: AOAM530GECOKgQv/PV9Rckc5lqtYvQ2H2hevDRYCDNiUechv366Xt73f
-        NVryv98/BQ6ePkcIBDkHod6L9OCRut6FxQ==
-X-Google-Smtp-Source: ABdhPJyCtavif7/F9QkARSuXXASDwIwY7q2KzuojEgT9yyAHlVnPmHVACRsDtMV4nQlfDlVXUctXiw==
-X-Received: by 2002:a5d:4a0c:: with SMTP id m12mr28953954wrq.274.1613565723197;
-        Wed, 17 Feb 2021 04:42:03 -0800 (PST)
+        bh=rVgINE9+2XqaMOucWOivnn8FlQ0rJ0Zbjy7AzDSrz9Q=;
+        b=tBT95V2a3M3IzZU2V13aKcux7dr95+y+ISVBJPrgji1QfwDbMOFIDuEw335xu6llHL
+         bSvaq5kTfYveBKyn8l8CWPE+rKylo/3GlFbZ8j/EQUTqajFPJJChJ/Grs6iyro+VfwmY
+         KgvG2WKmPEm+Hw+j24gc9YHFV4ZE1IE2BBi4ypsdvjoVQpRbD8eUW0Il/pie1nazRf3k
+         n9F3pOYMTr1k3SZkEGm+Jv0O7jc+3lxnwDJsHMn6uL+6f71HW9fEh0EcJB0t+P1I4JX4
+         5Smps9a+B8UEefM3y+3Xtf160iLpsQVnmERv06Wd8dyyawNglUQ2FGYGC8+zknffnJx4
+         Hn1A==
+X-Gm-Message-State: AOAM5320Knut/7cbpqdrHJ7k5H6jY/KHlGJz5HECjgSnpbPFfUIfcYfB
+        IeRj6sCa4PXD8MpIDUgdAl4=
+X-Google-Smtp-Source: ABdhPJzPDhriotuPsSgs3gOku6NcTZmnsXBVYQq/SKxsut1yJCdnmArCFwnsJpvIQM3kYcIQ+8V69Q==
+X-Received: by 2002:a5d:47ae:: with SMTP id 14mr28553967wrb.378.1613565732023;
+        Wed, 17 Feb 2021 04:42:12 -0800 (PST)
 Received: from localhost.localdomain ([85.255.235.13])
-        by smtp.gmail.com with ESMTPSA id t9sm3589979wrw.76.2021.02.17.04.42.02
+        by smtp.gmail.com with ESMTPSA id t9sm3589979wrw.76.2021.02.17.04.42.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Feb 2021 04:42:02 -0800 (PST)
+        Wed, 17 Feb 2021 04:42:11 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/4] io_uring: implement bpf prog registration
-Date:   Wed, 17 Feb 2021 12:38:04 +0000
-Message-Id: <0d9eb836f8af66caf03e6af3f569a5514dd737f1.1613563964.git.asml.silence@gmail.com>
+Subject: [PATCH 4/4] io_uring: enable BPF to submit SQEs
+Date:   Wed, 17 Feb 2021 12:38:06 +0000
+Message-Id: <9afcb448b11633b82a910d36d981b97f36781632.1613563964.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1613563964.git.asml.silence@gmail.com>
 References: <cover.1613563964.git.asml.silence@gmail.com>
@@ -70,154 +70,151 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-[de]register BPF programs through io_uring_register() with new
-IORING_ATTACH_BPF and IORING_DETACH_BPF commands.
+Add a BPF_FUNC_iouring_queue_sqe BPF function as a demonstration of
+submmiting a new request by a BPF request.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c                 | 80 +++++++++++++++++++++++++++++++++++
- include/uapi/linux/io_uring.h |  2 +
- 2 files changed, 82 insertions(+)
+ fs/io_uring.c            | 79 ++++++++++++++++++++++++++++++++++++----
+ include/uapi/linux/bpf.h |  1 +
+ 2 files changed, 72 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2c8904bee386..524cf1eb1cec 100644
+index 716881ca0b48..2c63a3e68938 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -82,6 +82,7 @@
- #include <linux/io_uring.h>
- #include <linux/blk-cgroup.h>
- #include <linux/audit.h>
-+#include <linux/bpf.h>
- 
- #define CREATE_TRACE_POINTS
- #include <trace/events/io_uring.h>
-@@ -249,6 +250,10 @@ struct io_restriction {
- 	bool registered;
+@@ -845,8 +845,14 @@ struct io_op_def {
+ 	unsigned		work_flags;
  };
  
-+struct io_bpf_prog {
-+	struct bpf_prog *prog;
++struct io_submit_link {
++	struct io_kiocb *head;
++	struct io_kiocb *last;
 +};
-+
- struct io_sq_data {
- 	refcount_t		refs;
- 	struct mutex		lock;
-@@ -388,6 +393,10 @@ struct io_ring_ctx {
- 	unsigned		nr_user_bufs;
- 	struct io_mapped_ubuf	*user_bufs;
  
-+	/* bpf programs */
-+	struct io_bpf_prog	*bpf_progs;
-+	unsigned		nr_bpf_progs;
-+
- 	struct user_struct	*user;
+ struct io_bpf_ctx {
++	struct io_ring_ctx 		*ctx;
++	struct io_submit_link		link;
+ };
  
- 	const struct cred	*creds;
-@@ -8694,6 +8703,67 @@ static void io_req_cache_free(struct list_head *list)
- 	}
+ static const struct io_op_def io_op_defs[] = {
+@@ -6716,11 +6722,6 @@ static inline void io_queue_link_head(struct io_kiocb *req)
+ 		io_queue_sqe(req, NULL);
  }
  
-+static int io_bpf_detach(struct io_ring_ctx *ctx)
+-struct io_submit_link {
+-	struct io_kiocb *head;
+-	struct io_kiocb *last;
+-};
+-
+ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 			 struct io_submit_link *link)
+ {
+@@ -6951,7 +6952,8 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			ret = -EBADF;
+ 	}
+ 
+-	state->ios_left--;
++	if (state->ios_left > 1)
++		state->ios_left--;
+ 	return ret;
+ }
+ 
+@@ -10312,10 +10314,63 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	return ret;
+ }
+ 
++static int io_ebpf_prep_req(struct io_bpf_ctx *bpf_ctx,
++			    const struct io_uring_sqe *sqe)
 +{
-+	int i;
++	struct io_ring_ctx *ctx = bpf_ctx->ctx;
++	struct io_kiocb *req = io_alloc_req(ctx);
++	int ret;
 +
-+	if (!ctx->nr_bpf_progs)
-+		return -ENXIO;
-+
-+	for (i = 0; i < ctx->nr_bpf_progs; ++i) {
-+		struct bpf_prog *prog = ctx->bpf_progs[i].prog;
-+
-+		if (prog)
-+			bpf_prog_put(prog);
-+	}
-+	kfree(ctx->bpf_progs);
-+	ctx->bpf_progs = NULL;
-+	ctx->nr_bpf_progs = 0;
-+	return 0;
-+}
-+
-+static int io_bpf_attach(struct io_ring_ctx *ctx, void __user *arg,
-+			 unsigned int nr_args)
-+{
-+	u32 __user *fds = arg;
-+	int i, ret = 0;
-+
-+	if (!nr_args || nr_args > 100)
-+		return -EINVAL;
-+	if (ctx->nr_bpf_progs)
-+		return -EBUSY;
-+
-+	ctx->bpf_progs = kcalloc(nr_args, sizeof(ctx->bpf_progs[0]),
-+				 GFP_KERNEL);
-+	if (!ctx->bpf_progs)
++	if (unlikely(!req))
 +		return -ENOMEM;
-+
-+	for (i = 0; i < nr_args; ++i) {
-+		struct bpf_prog *prog;
-+		u32 fd;
-+
-+		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+		if (fd == -1)
-+			continue;
-+
-+		prog = bpf_prog_get_type(fd, BPF_PROG_TYPE_IOURING);
-+		if (IS_ERR(prog)) {
-+			ret = PTR_ERR(prog);
-+			break;
-+		}
-+
-+		ctx->bpf_progs[i].prog = prog;
++	if (!percpu_ref_tryget_many(&ctx->refs, 1)) {
++		kmem_cache_free(req_cachep, req);
++		return -EAGAIN;
 +	}
++	percpu_counter_add(&current->io_uring->inflight, 1);
++	refcount_add(1, &current->usage);
 +
-+	ctx->nr_bpf_progs = i;
-+	if (ret)
-+		io_bpf_detach(ctx);
++	ret = io_init_req(ctx, req, sqe);
++	if (unlikely(ret))
++		goto fail_req;
++
++	ret = io_submit_sqe(req, sqe, &bpf_ctx->link);
++	if (!ret)
++		return 0;
++fail_req:
++	io_double_put_req(req);
 +	return ret;
 +}
 +
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
++BPF_CALL_3(bpf_io_uring_queue_sqe, void *, ctx, const void *, psqe, u32, len)
++{
++	const struct io_uring_sqe *sqe = psqe;
++	struct io_bpf_ctx *bpf_ctx = ctx;
++
++	if (len != sizeof(struct io_uring_sqe))
++		return -EINVAL;
++
++	return io_ebpf_prep_req(bpf_ctx, sqe);
++}
++
++const struct bpf_func_proto bpf_io_uring_queue_sqe_proto = {
++	.func = bpf_io_uring_queue_sqe,
++	.gpl_only = false,
++	.ret_type = RET_INTEGER,
++	.arg1_type = ARG_PTR_TO_CTX,
++	.arg2_type = ARG_PTR_TO_MEM,
++	.arg3_type = ARG_CONST_SIZE,
++};
++
+ static const struct bpf_func_proto *
+ io_bpf_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
  {
- 	struct io_submit_state *submit_state = &ctx->submit_state;
-@@ -8708,6 +8778,7 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+-	return bpf_base_func_proto(func_id);
++	switch (func_id) {
++	case BPF_FUNC_iouring_queue_sqe:
++		return &bpf_io_uring_queue_sqe_proto;
++	default:
++		return bpf_base_func_proto(func_id);
++	}
+ }
  
- 	io_finish_async(ctx);
- 	io_sqe_buffers_unregister(ctx);
-+	io_bpf_detach(ctx);
+ static bool io_bpf_is_valid_access(int off, int size,
+@@ -10345,8 +10400,16 @@ static void io_bpf_run(struct io_kiocb *req)
+ 		return;
+ 	}
  
- 	if (ctx->sqo_task) {
- 		put_task_struct(ctx->sqo_task);
-@@ -10151,6 +10222,15 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 	case IORING_REGISTER_RESTRICTIONS:
- 		ret = io_register_restrictions(ctx, arg, nr_args);
- 		break;
-+	case IORING_ATTACH_BPF:
-+		ret = io_bpf_attach(ctx, arg, nr_args);
-+		break;
-+	case IORING_DETACH_BPF:
-+		ret = -EINVAL;
-+		if (arg || nr_args)
-+			break;
-+		ret = io_bpf_detach(ctx);
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		break;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index ac4e1738a9af..d95e04d6d316 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -280,6 +280,8 @@ enum {
- 	IORING_UNREGISTER_PERSONALITY		= 10,
- 	IORING_REGISTER_RESTRICTIONS		= 11,
- 	IORING_REGISTER_ENABLE_RINGS		= 12,
-+	IORING_ATTACH_BPF			= 13,
-+	IORING_DETACH_BPF			= 14,
+-	memset(&bpf_ctx, 0, sizeof(bpf_ctx));
++	io_submit_state_start(&ctx->submit_state, 1);
++	bpf_ctx.ctx = ctx;
++	bpf_ctx.link.head = NULL;
++
+ 	BPF_PROG_RUN(req->bpf.prog, &bpf_ctx);
++
++	if (bpf_ctx.link.head)
++		io_queue_link_head(bpf_ctx.link.head);
++	io_submit_state_end(&ctx->submit_state, ctx);
++
+ 	io_req_complete(req, 0);
+ }
  
- 	/* this goes last */
- 	IORING_REGISTER_LAST
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 2f1c0ab097d8..8c7c8f4ad044 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -3996,6 +3996,7 @@ union bpf_attr {
+ 	FN(ktime_get_coarse_ns),	\
+ 	FN(ima_inode_hash),		\
+ 	FN(sock_from_file),		\
++	FN(iouring_queue_sqe),		\
+ 	/* */
+ 
+ /* integer value in 'imm' field of BPF_CALL instruction selects which helper
 -- 
 2.24.0
 

@@ -2,97 +2,106 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8211BC43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB594C433E9
 	for <io-uring@archiver.kernel.org>; Thu, 18 Feb 2021 18:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35F7964EBA
+	by mail.kernel.org (Postfix) with ESMTP id 7898764EB8
 	for <io-uring@archiver.kernel.org>; Thu, 18 Feb 2021 18:52:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232683AbhBRSwE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 18 Feb 2021 13:52:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
+        id S232564AbhBRSwJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 18 Feb 2021 13:52:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232564AbhBRSf5 (ORCPT
+        with ESMTP id S232682AbhBRSf5 (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Thu, 18 Feb 2021 13:35:57 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 431BBC0617A9
-        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:48 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id m1so4837350wml.2
-        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:48 -0800 (PST)
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F16BFC061797
+        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:46 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id v14so4059533wro.7
+        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=c+wuPJApSiVBfvYrgq0FV+GSQpnWzdHpkUAhK1/oSho=;
-        b=s5U/zqc7dXiaZG7IaNvx2NNY42XfskY/BXO3MAPsQAhg/GXFBnzo/PoMvD6mb7DnbD
-         0/B0uAA6i9joRnCiv5rWXtNmcDAB5jUF2UaWfSCGxUcF42a8ap30+sVCbbL58GFybrw9
-         FK2BuZNBZerfFOdXG7e2SFGbZlLrjvzgqxodWqn9S5jXur66St0gY/jYIzYaCkCzeKzS
-         5USaL05wUY4KrspPutoCgUAMNNDMVvoKgllvgPvNF4LafCR4c33L3MbRYdJX0MnSBA1S
-         3H8TATZwiMpWRprP69rezYuj02vPDr5uXgy21d73vm6UPM0zoLMOxjubTHK9qqBulRmn
-         rerw==
+        bh=XQ1KGF4URDOGBeMkdA3olcFI4RQnOCKSVr7UfJ+Eg18=;
+        b=MmJ3QumOI7uSob1nbHLKN0cqMy+YNmC+qBUbbjrgYUCUsUasc18barOBjdRCGL48h6
+         S+uWFGpJ08397BBQ/68OMCyYqfKzl2T/vbY6XN/KL3CJ+q4AAM1wWG27QQqlJhlBkfcd
+         NYlpxKeYDprI+YVlBos8fhIfphN8EbC8p/7ti/sQ/PQoDPzwJlgZ/5Ps+5lXqD0ihoxh
+         f10ybY1jNlRlsfbgh74eT8S2TQEAjQIwAM1k7bprO/fwko5tZNQ6Uk3zHyFA9ha5GYXW
+         ozPILL4q5p0sFZJBGD3Bsab7OEa9hMjTvNNTsUNuhkzVJ+/0CtDgy1xAxIAt8x1jKGf9
+         fIrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=c+wuPJApSiVBfvYrgq0FV+GSQpnWzdHpkUAhK1/oSho=;
-        b=VEEdZtyEZxJhPDjucZynID9eBfExbMoEOnlWjQsZKlVaE3/NeciFNoE3L6TXlexv13
-         D/e6BzoUGIJ6fyFU1Ny623PLPs9rw2jr/ixwWbzwmOV1LY3PiQxoZ+2SlWrK9EHShyf7
-         96iW0iQ9r54WkXAKOPb1kddScDVB83VNajl1pm5Db3kLN2XhfwTvhDq5E1oUw0+khIdA
-         qqgXyg5wmu1ZH6J9eFnbzI1MvtYE1JiVpzS7kh5+3HYQvx2AJQLJGTH8/mG0OAX+rwer
-         SpOjvz28fyDaEI8VwaLodijxgZ7kG9EULtvjfzqxgFDKVrusBPnorCLZ1Zm4HAUlP74L
-         5n+g==
-X-Gm-Message-State: AOAM530XDma00y77w/+iV4MwKOZw5/ebNrCqGP6ihm73Ws4uW4p9ZPyT
-        gZa0PI2/NK2yi6cRTL7wEC4=
-X-Google-Smtp-Source: ABdhPJzBfC/C2nCxMXSyoKkQ3NTMgkeJsnJ40XJpzfLC/fiMjdnQTCTEXJY97ip1yaddMUMlcpPb7w==
-X-Received: by 2002:a05:600c:230c:: with SMTP id 12mr4814679wmo.30.1613673227025;
-        Thu, 18 Feb 2021 10:33:47 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XQ1KGF4URDOGBeMkdA3olcFI4RQnOCKSVr7UfJ+Eg18=;
+        b=Kxj49o2cCY2Wnfrj7mRbE2H2BFKwCUWAdMdUMsiTpJS0sZ1eoOKIH3Gw7vlzAk0sYK
+         7Us5UW5akqjEs4onUYFohlxVoB0s5ryywHWggSDV+HLI5LT+obao4lD6sTLDKvQp/Asw
+         a7hefLS1MVFqB/rTbziAe2M6WCF9HUVmVa7yl+CUUZX98bZtDKcOx8jnSC5+UsdjaSQN
+         fdhibTILeCG3kxtGI8uwbbYyXo+JWvUC1r+s714fAsQV4TH7eoYs0eHFmNLM+XdhkCfO
+         ts7voAMP1DQAApDEYGaGil2EaSXkESc02K54nOEdrNQdDqO04Z9oQcMv1GK3i7uL74GS
+         DnsA==
+X-Gm-Message-State: AOAM53250i53JB7UO1WecrKtjfP/Yo43bfUDDB/fX7vNegIM7vV9qlUM
+        SkDQX2sRmi6rSuaWyWQDrOR4NoRfKNRZQQ==
+X-Google-Smtp-Source: ABdhPJy4PqG6OxamjE12YJkyJ/HT67/nMvH9kvwbLZov3lHMMJa8+XoVRDY+v+1dWF9dkQMSH7aSUg==
+X-Received: by 2002:adf:b342:: with SMTP id k2mr5556244wrd.264.1613673224100;
+        Thu, 18 Feb 2021 10:33:44 -0800 (PST)
 Received: from localhost.localdomain ([85.255.236.139])
-        by smtp.gmail.com with ESMTPSA id 36sm4034459wrh.94.2021.02.18.10.33.46
+        by smtp.gmail.com with ESMTPSA id 36sm4034459wrh.94.2021.02.18.10.33.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Feb 2021 10:33:46 -0800 (PST)
+        Thu, 18 Feb 2021 10:33:43 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 03/11] io_uring: don't duplicate ->file check in sfr
-Date:   Thu, 18 Feb 2021 18:29:39 +0000
-Message-Id: <7b00c461161bc8e1a2708f74c4700fcc52684c13.1613671791.git.asml.silence@gmail.com>
+Subject: [PATCH 00/11] submission path cleanups and optimisation
+Date:   Thu, 18 Feb 2021 18:29:36 +0000
+Message-Id: <cover.1613671791.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613671791.git.asml.silence@gmail.com>
-References: <cover.1613671791.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-IORING_OP_SYNC_FILE_RANGE is marked as .needs_file, so the common path
-will take care of assigning and validating req->file, no need to
-duplicate it in io_sfr_prep().
+Refactor how we do io_req_prep(), which is currently spilled across
+multiple ifs and functions, that's a mess which is hard to validate.
+It also cuts down amount of work we're doing during submission, where
+nops(batch=32) test shows 15217 vs 16830 KIOPS, before and after
+respectively.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 ---
- 1 file changed, 3 deletions(-)
+1-6 are easy and should change nothing functionally.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index adb5cd4b760d..db6680bb02d3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4599,9 +4599,6 @@ static int io_sfr_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	if (!req->file)
--		return -EBADF;
--
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
+7/11 cancels all the link, where currently it can be partially executed.
+That happens only in some cases, and currently is not consistent. That
+change alters the user visible behaviour and breaks one liburing test,
+but looks like the right thing to do. (IMHO, the test is buggy in that
+regard).
+
+8/11 makes us to do one more opcode switch for where we previously
+were doing io_req_defer_prep(). That includes all links, but the total
+performance win, removing an extra async setup in 10/11, and just making
+all the thing cleaner justifies it well enough.
+
+Pavel Begunkov (11):
+  io_uring: kill fictitious submit iteration index
+  io_uring: keep io_*_prep() naming consistent
+  io_uring: don't duplicate ->file check in sfr
+  io_uring: move io_init_req()'s definition
+  io_uring: move io_init_req() into io_submit_sqe()
+  io_uring: move req link into submit_state
+  io_uring: don't submit link on error
+  io_uring: split sqe-prep and async setup
+  io_uring: do io_*_prep() early in io_submit_sqe()
+  io_uring: don't do async setup for links' heads
+  io_uring: fail links more in io_submit_sqe()
+
+ fs/io_uring.c | 460 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 228 insertions(+), 232 deletions(-)
+
 -- 
 2.24.0
 

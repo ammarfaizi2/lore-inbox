@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58269C433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD37BC4332D
 	for <io-uring@archiver.kernel.org>; Thu, 18 Feb 2021 18:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A1D064EB7
-	for <io-uring@archiver.kernel.org>; Thu, 18 Feb 2021 18:52:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A24EC64EBA
+	for <io-uring@archiver.kernel.org>; Thu, 18 Feb 2021 18:52:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231391AbhBRSvw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 18 Feb 2021 13:51:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41518 "EHLO
+        id S233369AbhBRSwL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 18 Feb 2021 13:52:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232683AbhBRSf5 (ORCPT
+        with ESMTP id S232686AbhBRSf5 (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Thu, 18 Feb 2021 13:35:57 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D37BC0617AA
-        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:49 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id o10so3304100wmc.1
-        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:49 -0800 (PST)
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627FCC0617A7
+        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:47 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id n10so4842843wmq.0
+        for <io-uring@vger.kernel.org>; Thu, 18 Feb 2021 10:33:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=2iQCZQQZpDVXpoQzIJilWCaJe/zryqZnTflKK4fnN5g=;
-        b=TL6ikVEUKYTsN8663HDkuOLQYo7oQAzQ0v8WW3b3zDhcWOTUEKzRhKwA+uo9zhGJ+l
-         KLQ3GpUDZjy7IdAHXP2zq2+a8LBCg9g7sBhOiUpdM2eoGMxy0Y1XYVEtDU62hCwOmV72
-         T5LVL4Ksi4p02WCCgHrQ5eRqafAmk3RjPip6HoKlnNNuJTZGaaZsy3XKv5wO+WQK0Cpv
-         DKmuy0VOZRWaFz51Jglu4h61crKR9mXdInCTZ8J/cGeOecYPqxXho7zlPXUhYA2Dkd7g
-         piTZhhIbtMwaOFI1VAGSCKobiaz7mgzfj6+xfmioTkLWTbYP4XSm4zJNBs+IDr8G2jpf
-         oJGA==
+        bh=E22oZ3xO+5P3r1eEWOlsAQRLFuYc2i7++E0WWA1bMPU=;
+        b=RzMpQxGGi1HcBS9chPhzMRuUCH4YfCtdC42Ezsd+UFkP+e+ah6HuaEE2EXkGZXVnrc
+         JBCfsPkJBnhVNFN5wsXtqm03WJsu2bNBP3mc2e5XJf0PoWoqzKsvBiLjrGXsY98XtmBo
+         RyZVbT9v9z2zHjmawPo3xHLZ8InqAU2BPM2S29V3l71jdT40WnKp4NDkjKgp2ZEBrv9E
+         7pebI9R9HuXUpqITVER3dxVqDVoTMX8Jl0pkxdkJUvqACNyJ+VpR0RPecC6dRHf5596c
+         8PROmrLgTZ/dJkyBTYtqNPhngpviy8SgYwYL/h1YlnKQdA93W55SJ4PGVu6h+W1sQlUW
+         JV/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2iQCZQQZpDVXpoQzIJilWCaJe/zryqZnTflKK4fnN5g=;
-        b=DfA61PqzV1ishwkM7x31zDFO3l6iuHFvx4sx6FuEzgRm0D2qUjYO2BPF9RaT2xQ85v
-         FbEVYFWUhA8I0UqM7F6bDEaDa/7FROQ5I0mvU0nOfI+257JyBZl6OdQhPi9Bzm2O0ffu
-         W6XshaiBeqeTUnnPEabMLnD0DcMHvzCMAgywsxNeeu3nhEOAN11cMH1iQuvGLsnIxsbe
-         68PRmfPltgqlbrZdV891y4rmsQssCR1yXl39u0q99SofrdxXrvDsRSGaxjkiyuZ01fDA
-         QLl2rnUG/AsAEezh3Vkup2CLeepH3BGmCf70TMGBkiNhSdhqn5zHEx45L/BmO5JRaOsV
-         rjSA==
-X-Gm-Message-State: AOAM531084U+GFUDhcz8MX0WhPnGlHpt92B3/r8MKtTi0TaCsrg564+N
-        c9y7hrgLmNycWTA8ajv0ZMg=
-X-Google-Smtp-Source: ABdhPJw7737Bicsvlwyx6jh/hxtDg2uzg/IQUHIZcOvCBGTUQVgpvVFQsbujqe/VXlwMB/SFOwK30Q==
-X-Received: by 2002:a05:600c:4eca:: with SMTP id g10mr229596wmq.149.1613673227978;
-        Thu, 18 Feb 2021 10:33:47 -0800 (PST)
+        bh=E22oZ3xO+5P3r1eEWOlsAQRLFuYc2i7++E0WWA1bMPU=;
+        b=GtlxEeBDpLX8XeHiARSuBbuZnoPjYTPxb1hYydQDK7PKxwBr5HJTe1ZPKlpgY38MqF
+         NWMr8DpX9nzu/EQ/gTs0WsgjaDhN679ALMVsDfSjfRzMMfsnmzkXgHaB9xrO2d3GnVa4
+         GdElFhzcKKQaU80yGUdFhhYuBBcE8c4bwHznqlRQxJ+im3HcnM+yHHb2qMWNJzSTG7OW
+         FJHpCWTVFYr46PAF9GSNXcwhMrbGjTvNBsiTPv7m7ZaLPotwPF+qQwIhoNDBubnEOvDT
+         7wY2MzFTSJgmOPmSoQNluYYESwAcIEac6Cw1xil0PY+kSjtUszISPaVpPvRcNVcBBR/K
+         unWQ==
+X-Gm-Message-State: AOAM530hefC9c+xHueD/rH0W2njsjEprrk8R0WJVmseXAlBBA5lv/CP8
+        O9+u8/73l2sY5LJfrEa+ZqicbPSIv9C+eg==
+X-Google-Smtp-Source: ABdhPJyUzJA1pRVTvInJqcbxV1OQWQHHR3Lnu9gMVONPqCvOGcV5UH4wSmhbbxTNKHepbsxx9yooUA==
+X-Received: by 2002:a7b:c2aa:: with SMTP id c10mr4764910wmk.101.1613673226165;
+        Thu, 18 Feb 2021 10:33:46 -0800 (PST)
 Received: from localhost.localdomain ([85.255.236.139])
-        by smtp.gmail.com with ESMTPSA id 36sm4034459wrh.94.2021.02.18.10.33.47
+        by smtp.gmail.com with ESMTPSA id 36sm4034459wrh.94.2021.02.18.10.33.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Feb 2021 10:33:47 -0800 (PST)
+        Thu, 18 Feb 2021 10:33:45 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 04/11] io_uring: move io_init_req()'s definition
-Date:   Thu, 18 Feb 2021 18:29:40 +0000
-Message-Id: <aeec2162f68527ba8016201f4dc984d8ec8d8230.1613671791.git.asml.silence@gmail.com>
+Subject: [PATCH 02/11] io_uring: keep io_*_prep() naming consistent
+Date:   Thu, 18 Feb 2021 18:29:38 +0000
+Message-Id: <6a317da20c80788cd97a10883773aa09c3192a08.1613671791.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1613671791.git.asml.silence@gmail.com>
 References: <cover.1613671791.git.asml.silence@gmail.com>
@@ -70,255 +70,48 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-A preparation patch, symbol to symbol move io_init_req() +
-io_check_restriction() a bit up. The submission path is pretty settled
-down, so don't worry about backports and move the functions instead of
-relying on forward declarations in the future.
+Follow io_*_prep() naming pattern, there are only fsync and sfr that
+don't do that.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 214 +++++++++++++++++++++++++-------------------------
- 1 file changed, 107 insertions(+), 107 deletions(-)
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index db6680bb02d3..1563853caac5 100644
+index 32a6c89e69b1..adb5cd4b760d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -104,6 +104,10 @@
- #define IORING_MAX_RESTRICTIONS	(IORING_RESTRICTION_LAST + \
- 				 IORING_REGISTER_LAST + IORING_OP_LAST)
- 
-+#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
-+				IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
-+				IOSQE_BUFFER_SELECT)
-+
- struct io_uring {
- 	u32 head ____cacheline_aligned_in_smp;
- 	u32 tail ____cacheline_aligned_in_smp;
-@@ -6639,6 +6643,109 @@ static inline void io_queue_link_head(struct io_kiocb *req)
- 		io_queue_sqe(req, NULL);
+@@ -4008,7 +4008,7 @@ static int io_nop(struct io_kiocb *req, unsigned int issue_flags)
+ 	return 0;
  }
  
-+/*
-+ * Check SQE restrictions (opcode and flags).
-+ *
-+ * Returns 'true' if SQE is allowed, 'false' otherwise.
-+ */
-+static inline bool io_check_restriction(struct io_ring_ctx *ctx,
-+					struct io_kiocb *req,
-+					unsigned int sqe_flags)
-+{
-+	if (!ctx->restricted)
-+		return true;
-+
-+	if (!test_bit(req->opcode, ctx->restrictions.sqe_op))
-+		return false;
-+
-+	if ((sqe_flags & ctx->restrictions.sqe_flags_required) !=
-+	    ctx->restrictions.sqe_flags_required)
-+		return false;
-+
-+	if (sqe_flags & ~(ctx->restrictions.sqe_flags_allowed |
-+			  ctx->restrictions.sqe_flags_required))
-+		return false;
-+
-+	return true;
-+}
-+
-+static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
-+		       const struct io_uring_sqe *sqe)
-+{
-+	struct io_submit_state *state;
-+	unsigned int sqe_flags;
-+	int id, ret = 0;
-+
-+	req->opcode = READ_ONCE(sqe->opcode);
-+	/* same numerical values with corresponding REQ_F_*, safe to copy */
-+	req->flags = sqe_flags = READ_ONCE(sqe->flags);
-+	req->user_data = READ_ONCE(sqe->user_data);
-+	req->async_data = NULL;
-+	req->file = NULL;
-+	req->ctx = ctx;
-+	req->link = NULL;
-+	req->fixed_rsrc_refs = NULL;
-+	/* one is dropped after submission, the other at completion */
-+	refcount_set(&req->refs, 2);
-+	req->task = current;
-+	req->result = 0;
-+
-+	/* enforce forwards compatibility on users */
-+	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
-+		return -EINVAL;
-+
-+	if (unlikely(req->opcode >= IORING_OP_LAST))
-+		return -EINVAL;
-+
-+	if (unlikely(io_sq_thread_acquire_mm_files(ctx, req)))
-+		return -EFAULT;
-+
-+	if (unlikely(!io_check_restriction(ctx, req, sqe_flags)))
-+		return -EACCES;
-+
-+	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
-+	    !io_op_defs[req->opcode].buffer_select)
-+		return -EOPNOTSUPP;
-+
-+	id = READ_ONCE(sqe->personality);
-+	if (id) {
-+		struct io_identity *iod;
-+
-+		iod = idr_find(&ctx->personality_idr, id);
-+		if (unlikely(!iod))
-+			return -EINVAL;
-+		refcount_inc(&iod->count);
-+
-+		__io_req_init_async(req);
-+		get_cred(iod->creds);
-+		req->work.identity = iod;
-+		req->work.flags |= IO_WQ_WORK_CREDS;
-+	}
-+
-+	state = &ctx->submit_state;
-+
-+	/*
-+	 * Plug now if we have more than 1 IO left after this, and the target
-+	 * is potentially a read/write to block based storage.
-+	 */
-+	if (!state->plug_started && state->ios_left > 1 &&
-+	    io_op_defs[req->opcode].plug) {
-+		blk_start_plug(&state->plug);
-+		state->plug_started = true;
-+	}
-+
-+	if (io_op_defs[req->opcode].needs_file) {
-+		bool fixed = req->flags & REQ_F_FIXED_FILE;
-+
-+		req->file = io_file_get(state, req, READ_ONCE(sqe->fd), fixed);
-+		if (unlikely(!req->file))
-+			ret = -EBADF;
-+	}
-+
-+	state->ios_left--;
-+	return ret;
-+}
-+
- struct io_submit_link {
- 	struct io_kiocb *head;
- 	struct io_kiocb *last;
-@@ -6771,113 +6878,6 @@ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
- 	return NULL;
- }
- 
--/*
-- * Check SQE restrictions (opcode and flags).
-- *
-- * Returns 'true' if SQE is allowed, 'false' otherwise.
-- */
--static inline bool io_check_restriction(struct io_ring_ctx *ctx,
--					struct io_kiocb *req,
--					unsigned int sqe_flags)
--{
--	if (!ctx->restricted)
--		return true;
--
--	if (!test_bit(req->opcode, ctx->restrictions.sqe_op))
--		return false;
--
--	if ((sqe_flags & ctx->restrictions.sqe_flags_required) !=
--	    ctx->restrictions.sqe_flags_required)
--		return false;
--
--	if (sqe_flags & ~(ctx->restrictions.sqe_flags_allowed |
--			  ctx->restrictions.sqe_flags_required))
--		return false;
--
--	return true;
--}
--
--#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
--				IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
--				IOSQE_BUFFER_SELECT)
--
--static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
--		       const struct io_uring_sqe *sqe)
--{
--	struct io_submit_state *state;
--	unsigned int sqe_flags;
--	int id, ret = 0;
--
--	req->opcode = READ_ONCE(sqe->opcode);
--	/* same numerical values with corresponding REQ_F_*, safe to copy */
--	req->flags = sqe_flags = READ_ONCE(sqe->flags);
--	req->user_data = READ_ONCE(sqe->user_data);
--	req->async_data = NULL;
--	req->file = NULL;
--	req->ctx = ctx;
--	req->link = NULL;
--	req->fixed_rsrc_refs = NULL;
--	/* one is dropped after submission, the other at completion */
--	refcount_set(&req->refs, 2);
--	req->task = current;
--	req->result = 0;
--
--	/* enforce forwards compatibility on users */
--	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
--		return -EINVAL;
--
--	if (unlikely(req->opcode >= IORING_OP_LAST))
--		return -EINVAL;
--
--	if (unlikely(io_sq_thread_acquire_mm_files(ctx, req)))
--		return -EFAULT;
--
--	if (unlikely(!io_check_restriction(ctx, req, sqe_flags)))
--		return -EACCES;
--
--	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
--	    !io_op_defs[req->opcode].buffer_select)
--		return -EOPNOTSUPP;
--
--	id = READ_ONCE(sqe->personality);
--	if (id) {
--		struct io_identity *iod;
--
--		iod = idr_find(&ctx->personality_idr, id);
--		if (unlikely(!iod))
--			return -EINVAL;
--		refcount_inc(&iod->count);
--
--		__io_req_init_async(req);
--		get_cred(iod->creds);
--		req->work.identity = iod;
--		req->work.flags |= IO_WQ_WORK_CREDS;
--	}
--
--	state = &ctx->submit_state;
--
--	/*
--	 * Plug now if we have more than 1 IO left after this, and the target
--	 * is potentially a read/write to block based storage.
--	 */
--	if (!state->plug_started && state->ios_left > 1 &&
--	    io_op_defs[req->opcode].plug) {
--		blk_start_plug(&state->plug);
--		state->plug_started = true;
--	}
--
--	if (io_op_defs[req->opcode].needs_file) {
--		bool fixed = req->flags & REQ_F_FIXED_FILE;
--
--		req->file = io_file_get(state, req, READ_ONCE(sqe->fd), fixed);
--		if (unlikely(!req->file))
--			ret = -EBADF;
--	}
--
--	state->ios_left--;
--	return ret;
--}
--
- static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+-static int io_prep_fsync(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static int io_fsync_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  {
- 	struct io_submit_link link;
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+@@ -4595,7 +4595,7 @@ static int io_close(struct io_kiocb *req, unsigned int issue_flags)
+ 	return 0;
+ }
+ 
+-static int io_prep_sfr(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static int io_sfr_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+@@ -6081,9 +6081,9 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	case IORING_OP_POLL_REMOVE:
+ 		return io_poll_remove_prep(req, sqe);
+ 	case IORING_OP_FSYNC:
+-		return io_prep_fsync(req, sqe);
++		return io_fsync_prep(req, sqe);
+ 	case IORING_OP_SYNC_FILE_RANGE:
+-		return io_prep_sfr(req, sqe);
++		return io_sfr_prep(req, sqe);
+ 	case IORING_OP_SENDMSG:
+ 	case IORING_OP_SEND:
+ 		return io_sendmsg_prep(req, sqe);
 -- 
 2.24.0
 

@@ -2,220 +2,216 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 217BCC433E0
-	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 16:39:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52BCBC433E0
+	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:10:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E77E664DED
-	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 16:39:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB59364EB1
+	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:10:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbhBSQjN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 11:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
+        id S229644AbhBSRKf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 12:10:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbhBSQjH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 11:39:07 -0500
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B4EC06178C
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 08:37:48 -0800 (PST)
-Received: by mail-il1-x135.google.com with SMTP id g9so4994802ilc.3
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 08:37:48 -0800 (PST)
+        with ESMTP id S229555AbhBSRKe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:10:34 -0500
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225A4C061786
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:19 -0800 (PST)
+Received: by mail-il1-x129.google.com with SMTP id o7so5088782ils.2
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QopIIrFF742BKqlOh4+TqmLjkxOTaJiQM9hc+/gnVxg=;
-        b=xldRnNMtCqOBtzAdSkbWqDWK1ZbBF6xEYQZCfkn3Y7jcOIl3VVDqypJDMNaSi54KE1
-         w5LVCAGlgEGfzdrZ86fr6IYN3EPax5C50K8P9YGyH/PbZ8Zx/hY+CcxcvvcchvODNXc2
-         WyorXES1uKg5brfvrOuCQ9Ht4vWMeJGjFEO4hmvtMwWoEPHyuh1tfidic+3IF3ctBVet
-         KDCu+30h/EzmrPC3/j8Sqjhcru3Z1CLS3vGB5FZryibLYYvzatBb7tPPkHfEUXFkobqm
-         Q4nit8t2eBFzFSSdjciLL3gsu9vjwjHTERF2kHJrZViI4kb20kuxpp0LRFLcw/GBHMaD
-         BUZQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=glcflFMTPo+V4pr96KJi9y0ST7SMUT2v/hO8M62Kfuw=;
+        b=x0W2Xv00uAwlc7DVMTPUw1Fr8dR2FvtQLMfbImp6MqQDtHZPtmnjj0UEy6HK4icXeC
+         8pRq511Xlna8ZdfK06iYHU7gSEEuS/vaOKBKNMFC44+nabgKTN5VioA4I5iddeSSLnf0
+         +Jsk+OV5PwCYy1Qsc4wpK6Q3Y+ubOvHvJrmoA3BH3sgwehu/XY1luTMXy3xRor+upU2i
+         t0NF4xdg54DKi/Pu1QOUNTKB80pygOaeXJg3r25xrSakDnuUEZcBF9r2fF3u1kYvYvAx
+         ZM4wsA3mxEAV5ogJ1SI1d4QKS2uzmgCfRdJH0tQ7XzLfvGqKZ254iqv8l7nD+IxpoUMW
+         p4vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QopIIrFF742BKqlOh4+TqmLjkxOTaJiQM9hc+/gnVxg=;
-        b=cTNH215yTheB5Ir6QAGkxsaJrbryx8/0GEHiVlKuwqhv74HNrkNnQbGMRbXo0dsH7J
-         E8mBuY3uYria1wim9OYx4zQqH5zByBPyQkDNILOyfkfvFsBbFKYHRfmf1alldjUPSgCt
-         WNfZJI3AsyG9q81MzLIfqgRMlY4qv8tb313CNpGM1o/6earndl0YxQQY2T96bgaZAge9
-         gOSfIm1t4f53DnRJ0xmbq2Db7QaFbAg1mQAUoOce6felyz7TVtlFD0wntbEBdoS6YL2+
-         IKT8ghiPn3IPGKbemfkYp+CybVMMoFuAF6+99BYvID37aqoMZVPYZ72boM9/NqeMalMm
-         t3Fg==
-X-Gm-Message-State: AOAM5334TbJ7VVc7jMDkl9M8pD4VaZQp6RN7pJvOGQRQa4LNXHa3IGya
-        Peywz7PGrFpBL2BSuuK/ERSxHg==
-X-Google-Smtp-Source: ABdhPJxaKeetAYFXJydsPreGczSfycYq3Pg3RINKEm67oHsdXLXdiZ/SpgwXBek/ZmbU589cfA+RMQ==
-X-Received: by 2002:a05:6e02:13eb:: with SMTP id w11mr4524720ilj.103.1613752667719;
-        Fri, 19 Feb 2021 08:37:47 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g3sm6741393ile.10.2021.02.19.08.37.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Feb 2021 08:37:47 -0800 (PST)
-Subject: Re: [next]: fs/io_uring.c:6171:10: error: implicit declaration of
- function 'io_sendmsg_prep_async'; did you mean 'io_req_prep_async'?
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux-mips@vger.kernel.org,
-        Linux-Next Mailing List <linux-next@vger.kernel.org>,
-        io-uring@vger.kernel.org, open list <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        lkft-triage@lists.linaro.org
-Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
-        Pavel Begunkov <asml.silence@gmail.com>
-References: <CA+G9fYt1Bk=DW1VoPgWe9ZHHoHu+6OyZi7ndMJHmoR14uJePyQ@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=glcflFMTPo+V4pr96KJi9y0ST7SMUT2v/hO8M62Kfuw=;
+        b=MMGxU+59YdZiaJGkuwlXLsMe1YeZ24q2pCgLVqNTIDAGi0KnhS56/rRaDAT28WeVJp
+         cNzlwBfWm18LZ4ngt/z7x9H1Nphi+7889fWn9m2Ei2xPLXoeql3cnQGDFH4pH3BzfiQD
+         WYwMhvjqUwsc9X0Udah6Tl9fg0SJkH7xe3pJ1zgB9HuxugO6KQOallbZhEDJzE4v2uxW
+         Vj1JkJuJT6JI8BfyBMLnpiD2WOGbjd5NO5mTw5yJPgpCLLzk4lTlSda/4trhrjjHyPYa
+         OyMQukFRlBJ/Z7REsHJyPipyYhEQ6/AcSx5XfL/sZQgJK0Lk+cjsRgKaTJMMAgQAo5EG
+         3okg==
+X-Gm-Message-State: AOAM530/bSi7t9hnp2u42dgo2uDdgz8lgOhWMZWO25n7Jj04B3ec1nt3
+        Ewfj0c0FKHFFzOENkzhZilPWVC2Ss/V7nMYY
+X-Google-Smtp-Source: ABdhPJxWA4xrsHT6Jo8uo8bL8rel7irL9qwzl7JQLSCvcjivTGWJZELwJhbLbbFx2lPQ7rghMoUL9A==
+X-Received: by 2002:a92:d80d:: with SMTP id y13mr4455184ilm.299.1613754618364;
+        Fri, 19 Feb 2021 09:10:18 -0800 (PST)
+Received: from p1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Feb 2021 09:10:17 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b4c660b0-ab0e-ec4c-2771-346ca164bf92@kernel.dk>
-Date:   Fri, 19 Feb 2021 09:37:46 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     io-uring@vger.kernel.org
+Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
+        torvalds@linux-foundation.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 01/18] io_uring: remove the need for relying on an io-wq fallback worker
+Date:   Fri, 19 Feb 2021 10:09:53 -0700
+Message-Id: <20210219171010.281878-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210219171010.281878-1-axboe@kernel.dk>
+References: <20210219171010.281878-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <CA+G9fYt1Bk=DW1VoPgWe9ZHHoHu+6OyZi7ndMJHmoR14uJePyQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 2/19/21 9:08 AM, Naresh Kamboju wrote:
-> Linux next tag 20210219 arm and mips builds failed due to below error.
-> 
-> Following build configs failed
-> arm (s3c6400_defconfig) with gcc-8
-> arm (s3c6400_defconfig) with gcc-9
-> arm (s3c6400_defconfig) with gcc-10
-> 
-> mips (e55_defconfig) with gcc-8
-> mips (e55_defconfig) with gcc-9
-> mips (e55_defconfig) with gcc-10
-> 
-> fs/io_uring.c:6171:10: error: implicit declaration of function
-> 'io_sendmsg_prep_async'; did you mean 'io_req_prep_async'?
-> [-Werror=implicit-function-declaration]
->    return io_sendmsg_prep_async(req);
->           ^~~~~~~~~~~~~~~~~~~~~
->           io_req_prep_async
-> 
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+We hit this case when the task is exiting, and we need somewhere to
+do background cleanup of requests. Instead of relying on the io-wq
+task manager to do this work for us, just stuff it somewhere where
+we can safely run it ourselves directly.
 
-This should fix it, cleaning it up a bit at the same time.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io-wq.c    | 12 ------------
+ fs/io-wq.h    |  2 --
+ fs/io_uring.c | 38 +++++++++++++++++++++++++++++++++++---
+ 3 files changed, 35 insertions(+), 17 deletions(-)
 
-
-commit b1c892df32ebf6f30c995e23dcafeae2392ad1bc
-Author: Jens Axboe <axboe@kernel.dk>
-Date:   Fri Feb 19 09:35:19 2021 -0700
-
-    io_uring: make the !CONFIG_NET helpers a bit more robust
-    
-    With the prep and prep async split, we now have potentially 3 helpers
-    that need to be defined for !CONFIG_NET. Add some helpers to do just
-    that.
-    
-    Fixes the following compile error on !CONFIG_NET:
-    
-    fs/io_uring.c:6171:10: error: implicit declaration of function
-    'io_sendmsg_prep_async'; did you mean 'io_req_prep_async'?
-    [-Werror=implicit-function-declaration]
-       return io_sendmsg_prep_async(req);
-                 ^~~~~~~~~~~~~~~~~~~~~
-                 io_req_prep_async
-    
-    Fixes: 93642ef88434 ("io_uring: split sqe-prep and async setup")
-    Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-    Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index c36bbcd823ce..800b299f9772 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -16,7 +16,6 @@
+ #include <linux/kthread.h>
+ #include <linux/rculist_nulls.h>
+ #include <linux/fs_struct.h>
+-#include <linux/task_work.h>
+ #include <linux/blk-cgroup.h>
+ #include <linux/audit.h>
+ #include <linux/cpu.h>
+@@ -775,9 +774,6 @@ static int io_wq_manager(void *data)
+ 	complete(&wq->done);
+ 
+ 	while (!kthread_should_stop()) {
+-		if (current->task_works)
+-			task_work_run();
+-
+ 		for_each_node(node) {
+ 			struct io_wqe *wqe = wq->wqes[node];
+ 			bool fork_worker[2] = { false, false };
+@@ -800,9 +796,6 @@ static int io_wq_manager(void *data)
+ 		schedule_timeout(HZ);
+ 	}
+ 
+-	if (current->task_works)
+-		task_work_run();
+-
+ out:
+ 	if (refcount_dec_and_test(&wq->refs)) {
+ 		complete(&wq->done);
+@@ -1160,11 +1153,6 @@ void io_wq_destroy(struct io_wq *wq)
+ 		__io_wq_destroy(wq);
+ }
+ 
+-struct task_struct *io_wq_get_task(struct io_wq *wq)
+-{
+-	return wq->manager;
+-}
+-
+ static bool io_wq_worker_affinity(struct io_worker *worker, void *data)
+ {
+ 	struct task_struct *task = worker->task;
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 096f1021018e..a1610702f222 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -124,8 +124,6 @@ typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
+ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ 					void *data, bool cancel_all);
+ 
+-struct task_struct *io_wq_get_task(struct io_wq *wq);
+-
+ #if defined(CONFIG_IO_WQ)
+ extern void io_wq_worker_sleeping(struct task_struct *);
+ extern void io_wq_worker_running(struct task_struct *);
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b7bae301744b..c9a5c498dc3b 100644
+index d951acb95117..bbd1ec7aa9e9 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5127,56 +5127,32 @@ static int io_connect(struct io_kiocb *req, unsigned int issue_flags)
- 	return 0;
- }
- #else /* !CONFIG_NET */
--static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_send(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_recvmsg_prep(struct io_kiocb *req,
--			   const struct io_uring_sqe *sqe)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_accept(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
--{
--	return -EOPNOTSUPP;
--}
--
--static int io_connect(struct io_kiocb *req, unsigned int issue_flags)
--{
--	return -EOPNOTSUPP;
--}
-+#define IO_NETOP_FN(op)							\
-+static int io_##op(struct io_kiocb *req, unsigned int issue_flags)	\
-+{									\
-+	return -EOPNOTSUPP;						\
-+}
-+
-+#define IO_NETOP_PREP(op)						\
-+IO_NETOP_FN(op)								\
-+static int io_##op##_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe) \
-+{									\
-+	return -EOPNOTSUPP;						\
-+}									\
-+
-+#define IO_NETOP_PREP_ASYNC(op)						\
-+IO_NETOP_PREP(op)							\
-+static int io_##op##_prep_async(struct io_kiocb *req)			\
-+{									\
-+	return -EOPNOTSUPP;						\
-+}
-+
-+IO_NETOP_PREP_ASYNC(sendmsg);
-+IO_NETOP_PREP_ASYNC(recvmsg);
-+IO_NETOP_PREP_ASYNC(connect);
-+IO_NETOP_PREP(accept);
-+IO_NETOP_FN(send);
-+IO_NETOP_FN(recv);
- #endif /* CONFIG_NET */
+@@ -455,6 +455,9 @@ struct io_ring_ctx {
  
- struct io_poll_table {
-
+ 	struct io_restriction		restrictions;
+ 
++	/* exit task_work */
++	struct callback_head		*exit_task_work;
++
+ 	/* Keep this last, we don't need it for the fast path */
+ 	struct work_struct		exit_work;
+ };
+@@ -2313,11 +2316,14 @@ static int io_req_task_work_add(struct io_kiocb *req)
+ static void io_req_task_work_add_fallback(struct io_kiocb *req,
+ 					  task_work_func_t cb)
+ {
+-	struct task_struct *tsk = io_wq_get_task(req->ctx->io_wq);
++	struct io_ring_ctx *ctx = req->ctx;
++	struct callback_head *head;
+ 
+ 	init_task_work(&req->task_work, cb);
+-	task_work_add(tsk, &req->task_work, TWA_NONE);
+-	wake_up_process(tsk);
++	do {
++		head = ctx->exit_task_work;
++		req->task_work.next = head;
++	} while (cmpxchg(&ctx->exit_task_work, head, &req->task_work) != head);
+ }
+ 
+ static void __io_req_task_cancel(struct io_kiocb *req, int error)
+@@ -9258,6 +9264,30 @@ void __io_uring_task_cancel(void)
+ 	io_uring_remove_task_files(tctx);
+ }
+ 
++static void io_run_ctx_fallback(struct io_ring_ctx *ctx)
++{
++	struct callback_head *work, *head, *next;
++
++	do {
++		do {
++			head = NULL;
++			work = READ_ONCE(ctx->exit_task_work);
++			if (!work)
++				break;
++		} while (cmpxchg(&ctx->exit_task_work, work, head) != work);
++
++		if (!work)
++			break;
++
++		do {
++			next = work->next;
++			work->func(work);
++			work = next;
++			cond_resched();
++		} while (work);
++	} while (1);
++}
++
+ static int io_uring_flush(struct file *file, void *data)
+ {
+ 	struct io_uring_task *tctx = current->io_uring;
+@@ -9268,6 +9298,8 @@ static int io_uring_flush(struct file *file, void *data)
+ 		io_req_caches_free(ctx, current);
+ 	}
+ 
++	io_run_ctx_fallback(ctx);
++
+ 	if (!tctx)
+ 		return 0;
+ 
 -- 
-Jens Axboe
+2.30.0
 

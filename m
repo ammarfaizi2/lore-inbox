@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82C47C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95546C4332D
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 624DF60235
+	by mail.kernel.org (Postfix) with ESMTP id 798B564EB8
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbhBSRLN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 12:11:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49778 "EHLO
+        id S229867AbhBSRLR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 12:11:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229849AbhBSRLG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:06 -0500
+        with ESMTP id S229726AbhBSRLH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:07 -0500
 Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD03C0617AA
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:25 -0800 (PST)
-Received: by mail-il1-x130.google.com with SMTP id w1so5056567ilm.12
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73869C061356
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:27 -0800 (PST)
+Received: by mail-il1-x130.google.com with SMTP id q9so5093906ilo.1
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=dQGlowyq6zwdQ9oCBoVfhLlTaumq7FVSF0ara59osYE=;
-        b=P8zH7r60KloNaWpj45hrxMfvEM9FvhlwFBb1Jl7ka+mcWJcaYvZQm1mzdZurdr/cio
-         oTbnG9m9IDjpz/3d6+zabXEITscsdtIbUEF5BsbmVJmkKUwaT813sMvPi3HaOLQHuez1
-         Y6JdUmXQTP7//w4qeSNqfqOyueE7JU7/ObWlhISkhNUnb9vgOkxgWYxKBzLELHXA54dH
-         KxwVhvObentNh2NqJu42EMojb6Lq+R9wrZJeoCgtoiHgKvL3QEWhvQl4LRXiuj2qCSuP
-         faTBMXvFnRhAQLVAxWOFkV93RDv7YTNSHpKWmebD9raqf2zCkikwM35+lfrSLHSb/Gca
-         GuXw==
+        bh=2qFV4bOZadw8fjv6Hbm0w1BAyg72mMv6lEgh1wTRHvA=;
+        b=ouKlrW4Lxl0OIAaKEmjqtUpvNxGp46tt2dE+gsia+N1IIxe0s4Of4xTnpwlONPysAT
+         5nuoHepBMDRRPz+YWejMCwAPS2ENjRxkSnhHBMpvFL8La9bJWC8HgC6lhRT1+2emgexU
+         m3xE62QuclQggzUC3Rrl4plK0dB9JaOv29W4l5vyVMVZPHrdx3WQBimAnxY2gGYaqklC
+         QwrH6hLY5XGtOj18FeU4rRnuCWdtsKZLyplSYW/Fk5a0yZgK8Sx0+hGKl8/+pEmERTKS
+         jNI4L1BpoGuZDTPuAyY9P0HFI7u6kSNctgoookdvyytaNG//XFEsP7mPpxOkGG3LPhVX
+         NvuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dQGlowyq6zwdQ9oCBoVfhLlTaumq7FVSF0ara59osYE=;
-        b=cynVjRYKeYtSVVAKxmDAEQv9OxVXKKmbYx6+68FMpXhf2EKbmwP2H9UX7fj5RHv5kM
-         P+bAe1XQny+zOdtmUTUEEwgT5GCQXT1IM59aXnKFw4ApV35uKsUr2srcNaJNwl7x3tDL
-         aV7hop04yaVcfOhj1aG8tgv/q3XLV8Y1gRzyPnpoOhuY0uY5U6hLXsnY71HjKC7g/Ckz
-         BWHzy0psY/+fLkoRTw7LxX1GaIEg0mBWfEJJBhpC7j+INjaFIlh1v4zUzZaEAtmxG+tw
-         hLG1G0KP63PAi/jsB7QXQyR3A4C3nDXoUQ8hEcqrsGwaAHoe7NhMpBuGKsTpwmb02JWP
-         pk1g==
-X-Gm-Message-State: AOAM532exrWCLbyVAf/MX3kPm+7z6IX5Y6b0n0kKwcXOP1ltqkiFTn9/
-        bFl9VSVfkG4yxuWxulMg0CLKmUVYTrZk4haQ
-X-Google-Smtp-Source: ABdhPJx0OBnhqAo0ekSXoR56exyt83VHILQJ+UOhGtAKRVfNRyVJRPVDE7HDOcmEoaDVAjdQHYQUNA==
-X-Received: by 2002:a92:d0d:: with SMTP id 13mr4708010iln.36.1613754624846;
-        Fri, 19 Feb 2021 09:10:24 -0800 (PST)
+        bh=2qFV4bOZadw8fjv6Hbm0w1BAyg72mMv6lEgh1wTRHvA=;
+        b=NjkE5sA2wSDQSB1RKH9Orwa221NXdv0jXZRDyUdFAhDcVmfk+RjjtR6lN+JRZfPLif
+         01Nmq8jjfmIICfMXTuBLnQjK0m2RzOsNmGR6B0uQblAxYR0O7+N8KXdj9nwdVezGajiG
+         jLzFrD6Gv5RbrPfSU03jla5748lKaV15NentIC0TyY5cdWiADox8sPh6HCJv/64CpZ9L
+         mSXqQPPg6s4z7+AmBlk00+w7SEmKS0D9e8TrJ3hBK7TuTU/N0mUHf9rYA5nYlwy9WE9X
+         85AdIRnZAjRtTfOIz6t8JCkOpKaYjwKNMwLl/lKJhDKXoVJAoBnkkO+wghkk2OxELSlY
+         E1jw==
+X-Gm-Message-State: AOAM5318dpMZjgPz+CjRXxCu82OcprmvDd0Oh+Lki7/zQvobbO6Xq2XB
+        cszfDZnhX97pF3civKYiUzE4owqsWQoFtC4X
+X-Google-Smtp-Source: ABdhPJx+TfDgGOQrCwwJ67znRXnpTPiNSZ8Zm+BYyPYH+ifj0zN+flIkyaNVtrZ58hLBNRZfvC3+zA==
+X-Received: by 2002:a05:6e02:1bec:: with SMTP id y12mr4593167ilv.214.1613754626571;
+        Fri, 19 Feb 2021 09:10:26 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.24
+        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 09:10:24 -0800 (PST)
+        Fri, 19 Feb 2021 09:10:26 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
         torvalds@linux-foundation.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 09/18] io-wq: fork worker threads from original task
-Date:   Fri, 19 Feb 2021 10:10:01 -0700
-Message-Id: <20210219171010.281878-10-axboe@kernel.dk>
+Subject: [PATCH 11/18] io_uring: remove any grabbing of context
+Date:   Fri, 19 Feb 2021 10:10:03 -0700
+Message-Id: <20210219171010.281878-12-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210219171010.281878-1-axboe@kernel.dk>
 References: <20210219171010.281878-1-axboe@kernel.dk>
@@ -71,548 +71,458 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Instead of using regular kthread kernel threads, create kernel threads
-that are like a real thread that the task would create. This ensures that
-we get all the context that we need, without having to carry that state
-around. This greatly reduces the code complexity, and the risk of missing
-state for a given request type.
-
-With the move away from kthread, we can also dump everything related to
-assigned state to the new threads.
+The async workers are siblings of the task itself, so by definition we
+have all the state that we need. Remove any of the state grabbing that
+we have, and requests flagging what they need.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c            | 301 +++++++++++++++---------------------------
- fs/io_uring.c         |   7 +
- include/linux/sched.h |   3 +
- 3 files changed, 114 insertions(+), 197 deletions(-)
+ fs/io-wq.h    |   7 --
+ fs/io_uring.c | 215 ++------------------------------------------------
+ 2 files changed, 7 insertions(+), 215 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index ec7f1106b659..b53f569b5b4e 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -13,12 +13,9 @@
- #include <linux/sched/mm.h>
- #include <linux/percpu.h>
- #include <linux/slab.h>
--#include <linux/kthread.h>
- #include <linux/rculist_nulls.h>
--#include <linux/fs_struct.h>
--#include <linux/blk-cgroup.h>
--#include <linux/audit.h>
- #include <linux/cpu.h>
-+#include <linux/tracehook.h>
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index d2cf284b4641..ab8029bf77b8 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -11,13 +11,6 @@ enum {
+ 	IO_WQ_WORK_UNBOUND	= 4,
+ 	IO_WQ_WORK_CONCURRENT	= 16,
  
- #include "../kernel/sched/sched.h"
- #include "io-wq.h"
-@@ -57,13 +54,6 @@ struct io_worker {
- 	spinlock_t lock;
+-	IO_WQ_WORK_FILES	= 32,
+-	IO_WQ_WORK_FS		= 64,
+-	IO_WQ_WORK_MM		= 128,
+-	IO_WQ_WORK_CREDS	= 256,
+-	IO_WQ_WORK_BLKCG	= 512,
+-	IO_WQ_WORK_FSIZE	= 1024,
+-
+ 	IO_WQ_HASH_SHIFT	= 24,	/* upper 8 bits are used for hash key */
+ };
  
- 	struct rcu_head rcu;
--	struct mm_struct *mm;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b0a7a2d3ab4f..872d2f1c6ea5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -837,7 +837,6 @@ struct io_op_def {
+ 	unsigned		plug : 1;
+ 	/* size of async data needed, if any */
+ 	unsigned short		async_size;
+-	unsigned		work_flags;
+ };
+ 
+ static const struct io_op_def io_op_defs[] = {
+@@ -850,7 +849,6 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_async_data	= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_WRITEV] = {
+ 		.needs_file		= 1,
+@@ -860,12 +858,9 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_async_data	= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+-						IO_WQ_WORK_FSIZE,
+ 	},
+ 	[IORING_OP_FSYNC] = {
+ 		.needs_file		= 1,
+-		.work_flags		= IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_READ_FIXED] = {
+ 		.needs_file		= 1,
+@@ -873,7 +868,6 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollin			= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_BLKCG | IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_WRITE_FIXED] = {
+ 		.needs_file		= 1,
+@@ -882,8 +876,6 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollout		= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_BLKCG | IO_WQ_WORK_FSIZE |
+-						IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_POLL_ADD] = {
+ 		.needs_file		= 1,
+@@ -892,7 +884,6 @@ static const struct io_op_def io_op_defs[] = {
+ 	[IORING_OP_POLL_REMOVE] = {},
+ 	[IORING_OP_SYNC_FILE_RANGE] = {
+ 		.needs_file		= 1,
+-		.work_flags		= IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_SENDMSG] = {
+ 		.needs_file		= 1,
+@@ -900,8 +891,6 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollout		= 1,
+ 		.needs_async_data	= 1,
+ 		.async_size		= sizeof(struct io_async_msghdr),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+-						IO_WQ_WORK_FS,
+ 	},
+ 	[IORING_OP_RECVMSG] = {
+ 		.needs_file		= 1,
+@@ -910,29 +899,23 @@ static const struct io_op_def io_op_defs[] = {
+ 		.buffer_select		= 1,
+ 		.needs_async_data	= 1,
+ 		.async_size		= sizeof(struct io_async_msghdr),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+-						IO_WQ_WORK_FS,
+ 	},
+ 	[IORING_OP_TIMEOUT] = {
+ 		.needs_async_data	= 1,
+ 		.async_size		= sizeof(struct io_timeout_data),
+-		.work_flags		= IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_TIMEOUT_REMOVE] = {
+ 		/* used by timeout updates' prep() */
+-		.work_flags		= IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_ACCEPT] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollin			= 1,
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_FILES,
+ 	},
+ 	[IORING_OP_ASYNC_CANCEL] = {},
+ 	[IORING_OP_LINK_TIMEOUT] = {
+ 		.needs_async_data	= 1,
+ 		.async_size		= sizeof(struct io_timeout_data),
+-		.work_flags		= IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_CONNECT] = {
+ 		.needs_file		= 1,
+@@ -940,25 +923,17 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollout		= 1,
+ 		.needs_async_data	= 1,
+ 		.async_size		= sizeof(struct io_async_connect),
+-		.work_flags		= IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_FALLOCATE] = {
+ 		.needs_file		= 1,
+-		.work_flags		= IO_WQ_WORK_BLKCG | IO_WQ_WORK_FSIZE,
+ 	},
+ 	[IORING_OP_OPENAT] = {
+-		.work_flags		= IO_WQ_WORK_FILES | IO_WQ_WORK_BLKCG |
+-						IO_WQ_WORK_FS | IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_CLOSE] = {
+-		.work_flags		= IO_WQ_WORK_FILES | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_FILES_UPDATE] = {
+-		.work_flags		= IO_WQ_WORK_FILES | IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_STATX] = {
+-		.work_flags		= IO_WQ_WORK_FILES | IO_WQ_WORK_MM |
+-						IO_WQ_WORK_FS | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_READ] = {
+ 		.needs_file		= 1,
+@@ -967,7 +942,6 @@ static const struct io_op_def io_op_defs[] = {
+ 		.buffer_select		= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_WRITE] = {
+ 		.needs_file		= 1,
+@@ -975,42 +949,32 @@ static const struct io_op_def io_op_defs[] = {
+ 		.pollout		= 1,
+ 		.plug			= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG |
+-						IO_WQ_WORK_FSIZE,
+ 	},
+ 	[IORING_OP_FADVISE] = {
+ 		.needs_file		= 1,
+-		.work_flags		= IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_MADVISE] = {
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_SEND] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollout		= 1,
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_RECV] = {
+ 		.needs_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.pollin			= 1,
+ 		.buffer_select		= 1,
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_OPENAT2] = {
+-		.work_flags		= IO_WQ_WORK_FILES | IO_WQ_WORK_FS |
+-						IO_WQ_WORK_BLKCG | IO_WQ_WORK_MM,
+ 	},
+ 	[IORING_OP_EPOLL_CTL] = {
+ 		.unbound_nonreg_file	= 1,
+-		.work_flags		= IO_WQ_WORK_FILES,
+ 	},
+ 	[IORING_OP_SPLICE] = {
+ 		.needs_file		= 1,
+ 		.hash_reg_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+-		.work_flags		= IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_PROVIDE_BUFFERS] = {},
+ 	[IORING_OP_REMOVE_BUFFERS] = {},
+@@ -1023,12 +987,8 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 	},
+ 	[IORING_OP_RENAMEAT] = {
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_FILES |
+-						IO_WQ_WORK_FS | IO_WQ_WORK_BLKCG,
+ 	},
+ 	[IORING_OP_UNLINKAT] = {
+-		.work_flags		= IO_WQ_WORK_MM | IO_WQ_WORK_FILES |
+-						IO_WQ_WORK_FS | IO_WQ_WORK_BLKCG,
+ 	},
+ };
+ 
+@@ -1126,8 +1086,7 @@ static bool io_match_task(struct io_kiocb *head,
+ 			continue;
+ 		if (req->file && req->file->f_op == &io_uring_fops)
+ 			return true;
+-		if ((req->work.flags & IO_WQ_WORK_FILES) &&
+-		    req->work.identity->files == files)
++		if (req->work.identity->files == files)
+ 			return true;
+ 	}
+ 	return false;
+@@ -1204,20 +1163,15 @@ static int __io_sq_thread_acquire_mm(struct io_ring_ctx *ctx)
+ static int __io_sq_thread_acquire_mm_files(struct io_ring_ctx *ctx,
+ 					   struct io_kiocb *req)
+ {
+-	const struct io_op_def *def = &io_op_defs[req->opcode];
+ 	int ret;
+ 
+-	if (def->work_flags & IO_WQ_WORK_MM) {
+-		ret = __io_sq_thread_acquire_mm(ctx);
+-		if (unlikely(ret))
+-			return ret;
+-	}
++	ret = __io_sq_thread_acquire_mm(ctx);
++	if (unlikely(ret))
++		return ret;
+ 
+-	if (def->needs_file || (def->work_flags & IO_WQ_WORK_FILES)) {
+-		ret = __io_sq_thread_acquire_files(ctx);
+-		if (unlikely(ret))
+-			return ret;
+-	}
++	ret = __io_sq_thread_acquire_files(ctx);
++	if (unlikely(ret))
++		return ret;
+ 
+ 	return 0;
+ }
+@@ -1401,28 +1355,6 @@ static void io_req_clean_work(struct io_kiocb *req)
+ 	if (!(req->flags & REQ_F_WORK_INITIALIZED))
+ 		return;
+ 
+-	if (req->work.flags & IO_WQ_WORK_MM)
+-		mmdrop(req->work.identity->mm);
 -#ifdef CONFIG_BLK_CGROUP
--	struct cgroup_subsys_state *blkcg_css;
+-	if (req->work.flags & IO_WQ_WORK_BLKCG)
+-		css_put(req->work.identity->blkcg_css);
 -#endif
--	const struct cred *cur_creds;
--	const struct cred *saved_creds;
--	struct nsproxy *restore_nsproxy;
- };
+-	if (req->work.flags & IO_WQ_WORK_CREDS)
+-		put_cred(req->work.identity->creds);
+-	if (req->work.flags & IO_WQ_WORK_FS) {
+-		struct fs_struct *fs = req->work.identity->fs;
+-
+-		spin_lock(&req->work.identity->fs->lock);
+-		if (--fs->users)
+-			fs = NULL;
+-		spin_unlock(&req->work.identity->fs->lock);
+-		if (fs)
+-			free_fs_struct(fs);
+-	}
+-	if (req->work.flags & IO_WQ_WORK_FILES) {
+-		put_files_struct(req->work.identity->files);
+-		put_nsproxy(req->work.identity->nsproxy);
+-	}
+ 	if (req->flags & REQ_F_INFLIGHT) {
+ 		struct io_ring_ctx *ctx = req->ctx;
+ 		struct io_uring_task *tctx = req->task->io_uring;
+@@ -1437,56 +1369,9 @@ static void io_req_clean_work(struct io_kiocb *req)
+ 	}
  
- #if BITS_PER_LONG == 64
-@@ -122,6 +112,8 @@ struct io_wq {
- 	struct completion done;
- 
- 	struct hlist_node cpuhp_node;
-+
-+	pid_t task_pid;
- };
- 
- static enum cpuhp_state io_wq_online;
-@@ -137,61 +129,6 @@ static void io_worker_release(struct io_worker *worker)
- 		wake_up_process(worker->task);
+ 	req->flags &= ~REQ_F_WORK_INITIALIZED;
+-	req->work.flags &= ~(IO_WQ_WORK_MM | IO_WQ_WORK_BLKCG | IO_WQ_WORK_FS |
+-			     IO_WQ_WORK_CREDS | IO_WQ_WORK_FILES);
+ 	io_put_identity(req->task->io_uring, req);
  }
  
 -/*
-- * Note: drops the wqe->lock if returning true! The caller must re-acquire
-- * the lock in that case. Some callers need to restart handling if this
-- * happens, so we can't just re-acquire the lock on behalf of the caller.
+- * Create a private copy of io_identity, since some fields don't match
+- * the current context.
 - */
--static bool __io_worker_unuse(struct io_wqe *wqe, struct io_worker *worker)
+-static bool io_identity_cow(struct io_kiocb *req)
 -{
--	bool dropped_lock = false;
+-	struct io_uring_task *tctx = current->io_uring;
+-	const struct cred *creds = NULL;
+-	struct io_identity *id;
 -
--	if (worker->saved_creds) {
--		revert_creds(worker->saved_creds);
--		worker->cur_creds = worker->saved_creds = NULL;
+-	if (req->work.flags & IO_WQ_WORK_CREDS)
+-		creds = req->work.identity->creds;
+-
+-	id = kmemdup(req->work.identity, sizeof(*id), GFP_KERNEL);
+-	if (unlikely(!id)) {
+-		req->work.flags |= IO_WQ_WORK_CANCEL;
+-		return false;
 -	}
--
--	if (current->files) {
--		__acquire(&wqe->lock);
--		raw_spin_unlock_irq(&wqe->lock);
--		dropped_lock = true;
--
--		task_lock(current);
--		current->files = NULL;
--		current->nsproxy = worker->restore_nsproxy;
--		task_unlock(current);
--	}
--
--	if (current->fs)
--		current->fs = NULL;
 -
 -	/*
--	 * If we have an active mm, we need to drop the wq lock before unusing
--	 * it. If we do, return true and let the caller retry the idle loop.
+-	 * We can safely just re-init the creds we copied  Either the field
+-	 * matches the current one, or we haven't grabbed it yet. The only
+-	 * exception is ->creds, through registered personalities, so handle
+-	 * that one separately.
 -	 */
--	if (worker->mm) {
--		if (!dropped_lock) {
--			__acquire(&wqe->lock);
--			raw_spin_unlock_irq(&wqe->lock);
--			dropped_lock = true;
--		}
--		__set_current_state(TASK_RUNNING);
--		kthread_unuse_mm(worker->mm);
--		mmput(worker->mm);
--		worker->mm = NULL;
--	}
+-	io_init_identity(id);
+-	if (creds)
+-		id->creds = creds;
 -
+-	/* add one for this request */
+-	refcount_inc(&id->count);
+-
+-	/* drop tctx and req identity references, if needed */
+-	if (tctx->identity != &tctx->__identity &&
+-	    refcount_dec_and_test(&tctx->identity->count))
+-		kfree(tctx->identity);
+-	if (req->work.identity != &tctx->__identity &&
+-	    refcount_dec_and_test(&req->work.identity->count))
+-		kfree(req->work.identity);
+-
+-	req->work.identity = id;
+-	tctx->identity = id;
+-	return true;
+-}
+-
+ static void io_req_track_inflight(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+@@ -1501,79 +1386,6 @@ static void io_req_track_inflight(struct io_kiocb *req)
+ 	}
+ }
+ 
+-static bool io_grab_identity(struct io_kiocb *req)
+-{
+-	const struct io_op_def *def = &io_op_defs[req->opcode];
+-	struct io_identity *id = req->work.identity;
+-
+-	if (def->work_flags & IO_WQ_WORK_FSIZE) {
+-		if (id->fsize != rlimit(RLIMIT_FSIZE))
+-			return false;
+-		req->work.flags |= IO_WQ_WORK_FSIZE;
+-	}
 -#ifdef CONFIG_BLK_CGROUP
--	if (worker->blkcg_css) {
--		kthread_associate_blkcg(NULL);
--		worker->blkcg_css = NULL;
--	}
--#endif
--	if (current->signal->rlim[RLIMIT_FSIZE].rlim_cur != RLIM_INFINITY)
--		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
--	return dropped_lock;
--}
--
- static inline struct io_wqe_acct *io_work_get_acct(struct io_wqe *wqe,
- 						   struct io_wq_work *work)
- {
-@@ -237,10 +174,6 @@ static void io_worker_exit(struct io_worker *worker)
- 	raw_spin_lock_irq(&wqe->lock);
- 	hlist_nulls_del_rcu(&worker->nulls_node);
- 	list_del_rcu(&worker->all_list);
--	if (__io_worker_unuse(wqe, worker)) {
--		__release(&wqe->lock);
--		raw_spin_lock_irq(&wqe->lock);
--	}
- 	acct->nr_workers--;
- 	raw_spin_unlock_irq(&wqe->lock);
- 
-@@ -323,14 +256,7 @@ static void io_wqe_dec_running(struct io_worker *worker)
- 
- static void io_worker_start(struct io_worker *worker)
- {
--	allow_kernel_signal(SIGINT);
--
--	current->flags |= PF_IO_WORKER;
--	current->fs = NULL;
--	current->files = NULL;
--
- 	worker->flags |= (IO_WORKER_F_UP | IO_WORKER_F_RUNNING);
--	worker->restore_nsproxy = current->nsproxy;
- 	io_wqe_inc_running(worker);
- }
- 
-@@ -387,7 +313,7 @@ static bool __io_worker_idle(struct io_wqe *wqe, struct io_worker *worker)
- 		hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
- 	}
- 
--	return __io_worker_unuse(wqe, worker);
-+	return false;
- }
- 
- static inline unsigned int io_get_work_hash(struct io_wq_work *work)
-@@ -426,96 +352,23 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
- 	return NULL;
- }
- 
--static void io_wq_switch_mm(struct io_worker *worker, struct io_wq_work *work)
-+static void io_flush_signals(void)
- {
--	if (worker->mm) {
--		kthread_unuse_mm(worker->mm);
--		mmput(worker->mm);
--		worker->mm = NULL;
-+	if (unlikely(test_tsk_thread_flag(current, TIF_NOTIFY_SIGNAL))) {
-+		if (current->task_works)
-+			task_work_run();
-+		clear_tsk_thread_flag(current, TIF_NOTIFY_SIGNAL);
- 	}
--
--	if (mmget_not_zero(work->identity->mm)) {
--		kthread_use_mm(work->identity->mm);
--		worker->mm = work->identity->mm;
--		return;
--	}
--
--	/* failed grabbing mm, ensure work gets cancelled */
--	work->flags |= IO_WQ_WORK_CANCEL;
--}
--
--static inline void io_wq_switch_blkcg(struct io_worker *worker,
--				      struct io_wq_work *work)
--{
--#ifdef CONFIG_BLK_CGROUP
--	if (!(work->flags & IO_WQ_WORK_BLKCG))
--		return;
--	if (work->identity->blkcg_css != worker->blkcg_css) {
--		kthread_associate_blkcg(work->identity->blkcg_css);
--		worker->blkcg_css = work->identity->blkcg_css;
--	}
--#endif
--}
--
--static void io_wq_switch_creds(struct io_worker *worker,
--			       struct io_wq_work *work)
--{
--	const struct cred *old_creds = override_creds(work->identity->creds);
--
--	worker->cur_creds = work->identity->creds;
--	if (worker->saved_creds)
--		put_cred(old_creds); /* creds set by previous switch */
--	else
--		worker->saved_creds = old_creds;
--}
--
--static void io_impersonate_work(struct io_worker *worker,
--				struct io_wq_work *work)
--{
--	if ((work->flags & IO_WQ_WORK_FILES) &&
--	    current->files != work->identity->files) {
--		task_lock(current);
--		current->files = work->identity->files;
--		current->nsproxy = work->identity->nsproxy;
--		task_unlock(current);
--		if (!work->identity->files) {
--			/* failed grabbing files, ensure work gets cancelled */
--			work->flags |= IO_WQ_WORK_CANCEL;
+-	if (!(req->work.flags & IO_WQ_WORK_BLKCG) &&
+-	    (def->work_flags & IO_WQ_WORK_BLKCG)) {
+-		rcu_read_lock();
+-		if (id->blkcg_css != blkcg_css()) {
+-			rcu_read_unlock();
+-			return false;
 -		}
+-		/*
+-		 * This should be rare, either the cgroup is dying or the task
+-		 * is moving cgroups. Just punt to root for the handful of ios.
+-		 */
+-		if (css_tryget_online(id->blkcg_css))
+-			req->work.flags |= IO_WQ_WORK_BLKCG;
+-		rcu_read_unlock();
 -	}
--	if ((work->flags & IO_WQ_WORK_FS) && current->fs != work->identity->fs)
--		current->fs = work->identity->fs;
--	if ((work->flags & IO_WQ_WORK_MM) && work->identity->mm != worker->mm)
--		io_wq_switch_mm(worker, work);
--	if ((work->flags & IO_WQ_WORK_CREDS) &&
--	    worker->cur_creds != work->identity->creds)
--		io_wq_switch_creds(worker, work);
--	if (work->flags & IO_WQ_WORK_FSIZE)
--		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = work->identity->fsize;
--	else if (current->signal->rlim[RLIMIT_FSIZE].rlim_cur != RLIM_INFINITY)
--		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
--	io_wq_switch_blkcg(worker, work);
--#ifdef CONFIG_AUDIT
--	current->loginuid = work->identity->loginuid;
--	current->sessionid = work->identity->sessionid;
 -#endif
- }
- 
- static void io_assign_current_work(struct io_worker *worker,
- 				   struct io_wq_work *work)
- {
- 	if (work) {
--		/* flush pending signals before assigning new work */
--		if (signal_pending(current))
--			flush_signals(current);
-+		io_flush_signals();
- 		cond_resched();
- 	}
- 
--#ifdef CONFIG_AUDIT
--	current->loginuid = KUIDT_INIT(AUDIT_UID_UNSET);
--	current->sessionid = AUDIT_SID_UNSET;
--#endif
--
- 	spin_lock_irq(&worker->lock);
- 	worker->cur_work = work;
- 	spin_unlock_irq(&worker->lock);
-@@ -556,7 +409,6 @@ static void io_worker_handle_work(struct io_worker *worker)
- 			unsigned int hash = io_get_work_hash(work);
- 
- 			next_hashed = wq_next_work(work);
--			io_impersonate_work(worker, work);
- 			wq->do_work(work);
- 			io_assign_current_work(worker, NULL);
- 
-@@ -608,10 +460,11 @@ static int io_wqe_worker(void *data)
- 			goto loop;
- 		}
- 		raw_spin_unlock_irq(&wqe->lock);
--		if (signal_pending(current))
--			flush_signals(current);
-+		io_flush_signals();
- 		if (schedule_timeout(WORKER_IDLE_TIMEOUT))
- 			continue;
-+		if (fatal_signal_pending(current))
-+			break;
- 		/* timed out, exit unless we're the fixed worker */
- 		if (test_bit(IO_WQ_BIT_EXIT, &wq->state) ||
- 		    !(worker->flags & IO_WORKER_F_FIXED))
-@@ -635,8 +488,10 @@ static int io_wqe_worker(void *data)
-  */
- void io_wq_worker_running(struct task_struct *tsk)
- {
--	struct io_worker *worker = kthread_data(tsk);
-+	struct io_worker *worker = tsk->pf_io_worker;
- 
-+	if (!worker)
-+		return;
- 	if (!(worker->flags & IO_WORKER_F_UP))
- 		return;
- 	if (worker->flags & IO_WORKER_F_RUNNING)
-@@ -652,9 +507,10 @@ void io_wq_worker_running(struct task_struct *tsk)
-  */
- void io_wq_worker_sleeping(struct task_struct *tsk)
- {
--	struct io_worker *worker = kthread_data(tsk);
--	struct io_wqe *wqe = worker->wqe;
-+	struct io_worker *worker = tsk->pf_io_worker;
- 
-+	if (!worker)
-+		return;
- 	if (!(worker->flags & IO_WORKER_F_UP))
- 		return;
- 	if (!(worker->flags & IO_WORKER_F_RUNNING))
-@@ -662,32 +518,27 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
- 
- 	worker->flags &= ~IO_WORKER_F_RUNNING;
- 
--	raw_spin_lock_irq(&wqe->lock);
-+	raw_spin_lock_irq(&worker->wqe->lock);
- 	io_wqe_dec_running(worker);
--	raw_spin_unlock_irq(&wqe->lock);
-+	raw_spin_unlock_irq(&worker->wqe->lock);
- }
- 
--static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
-+static int task_thread(void *data, int index)
- {
-+	struct io_worker *worker = data;
-+	struct io_wqe *wqe = worker->wqe;
- 	struct io_wqe_acct *acct = &wqe->acct[index];
--	struct io_worker *worker;
-+	struct io_wq *wq = wqe->wq;
-+	char buf[TASK_COMM_LEN];
- 
--	worker = kzalloc_node(sizeof(*worker), GFP_KERNEL, wqe->node);
--	if (!worker)
--		return false;
-+	sprintf(buf, "iou-wrk-%d", wq->task_pid);
-+	set_task_comm(current, buf);
- 
--	refcount_set(&worker->ref, 1);
--	worker->nulls_node.pprev = NULL;
--	worker->wqe = wqe;
--	spin_lock_init(&worker->lock);
-+	current->pf_io_worker = worker;
-+	worker->task = current;
- 
--	worker->task = kthread_create_on_node(io_wqe_worker, worker, wqe->node,
--				"io_wqe_worker-%d/%d", index, wqe->node);
--	if (IS_ERR(worker->task)) {
--		kfree(worker);
--		return false;
+-	if (!(req->work.flags & IO_WQ_WORK_CREDS)) {
+-		if (id->creds != current_cred())
+-			return false;
+-		get_cred(id->creds);
+-		req->work.flags |= IO_WQ_WORK_CREDS;
 -	}
--	kthread_bind_mask(worker->task, cpumask_of_node(wqe->node));
-+	set_cpus_allowed_ptr(current, cpumask_of_node(wqe->node));
-+	current->flags |= PF_NO_SETAFFINITY;
- 
- 	raw_spin_lock_irq(&wqe->lock);
- 	hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
-@@ -703,8 +554,58 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 	if (index == IO_WQ_ACCT_UNBOUND)
- 		atomic_inc(&wq->user->processes);
- 
-+	io_wqe_worker(data);
-+	do_exit(0);
-+}
-+
-+static int task_thread_bound(void *data)
-+{
-+	return task_thread(data, IO_WQ_ACCT_BOUND);
-+}
-+
-+static int task_thread_unbound(void *data)
-+{
-+	return task_thread(data, IO_WQ_ACCT_UNBOUND);
-+}
-+
-+static pid_t fork_thread(int (*fn)(void *), void *arg)
-+{
-+	unsigned long flags = CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|
-+				CLONE_IO|SIGCHLD;
-+	struct kernel_clone_args args = {
-+		.flags		= ((lower_32_bits(flags) | CLONE_VM |
-+				    CLONE_UNTRACED) & ~CSIGNAL),
-+		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
-+		.stack		= (unsigned long)fn,
-+		.stack_size	= (unsigned long)arg,
-+	};
-+
-+	return kernel_clone(&args);
-+}
-+
-+static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
-+{
-+	struct io_worker *worker;
-+	pid_t pid;
-+
-+	worker = kzalloc_node(sizeof(*worker), GFP_KERNEL, wqe->node);
-+	if (!worker)
-+		return false;
-+
-+	refcount_set(&worker->ref, 1);
-+	worker->nulls_node.pprev = NULL;
-+	worker->wqe = wqe;
-+	spin_lock_init(&worker->lock);
-+
-+	if (index == IO_WQ_ACCT_BOUND)
-+		pid = fork_thread(task_thread_bound, worker);
-+	else
-+		pid = fork_thread(task_thread_unbound, worker);
-+	if (pid < 0) {
-+		kfree(worker);
-+		return false;
-+	}
- 	refcount_inc(&wq->refs);
--	wake_up_process(worker->task);
- 	return true;
- }
- 
-@@ -756,12 +657,17 @@ static bool io_wq_worker_wake(struct io_worker *worker, void *data)
- static int io_wq_manager(void *data)
- {
- 	struct io_wq *wq = data;
-+	char buf[TASK_COMM_LEN];
- 	int node;
- 
--	refcount_set(&wq->refs, 1);
-+	sprintf(buf, "iou-mgr-%d", wq->task_pid);
-+	set_task_comm(current, buf);
-+	current->flags |= PF_IO_WORKER;
-+	wq->manager = current;
-+
- 	complete(&wq->done);
- 
--	while (!kthread_should_stop()) {
-+	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
- 		for_each_node(node) {
- 			struct io_wqe *wqe = wq->wqes[node];
- 			bool fork_worker[2] = { false, false };
-@@ -782,11 +688,13 @@ static int io_wq_manager(void *data)
- 		}
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout(HZ);
-+		if (fatal_signal_pending(current))
-+			set_bit(IO_WQ_BIT_EXIT, &wq->state);
- 	}
- 
- 	if (refcount_dec_and_test(&wq->refs)) {
- 		complete(&wq->done);
--		return 0;
-+		do_exit(0);
- 	}
- 	/* if ERROR is set and we get here, we have workers to wake */
- 	if (test_bit(IO_WQ_BIT_ERROR, &wq->state)) {
-@@ -795,7 +703,7 @@ static int io_wq_manager(void *data)
- 			io_wq_for_each_worker(wq->wqes[node], io_wq_worker_wake, NULL);
- 		rcu_read_unlock();
- 	}
--	return 0;
-+	do_exit(0);
- }
- 
- static bool io_wq_can_queue(struct io_wqe *wqe, struct io_wqe_acct *acct,
-@@ -919,7 +827,7 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
- 	spin_lock_irqsave(&worker->lock, flags);
- 	if (worker->cur_work &&
- 	    match->fn(worker->cur_work, match->data)) {
--		send_sig(SIGINT, worker->task, 1);
-+		set_notify_signal(worker->task);
- 		match->nr_running++;
- 	}
- 	spin_unlock_irqrestore(&worker->lock, flags);
-@@ -1075,22 +983,21 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 		INIT_LIST_HEAD(&wqe->all_list);
- 	}
- 
-+	wq->task_pid = current->pid;
- 	init_completion(&wq->done);
-+	refcount_set(&wq->refs, 1);
- 
--	wq->manager = kthread_create(io_wq_manager, wq, "io_wq_manager");
--	if (!IS_ERR(wq->manager)) {
--		wake_up_process(wq->manager);
-+	current->flags |= PF_IO_WORKER;
-+	ret = fork_thread(io_wq_manager, wq);
-+	current->flags &= ~PF_IO_WORKER;
-+	if (ret >= 0) {
- 		wait_for_completion(&wq->done);
--		if (test_bit(IO_WQ_BIT_ERROR, &wq->state)) {
--			ret = -ENOMEM;
--			goto err;
+-#ifdef CONFIG_AUDIT
+-	if (!uid_eq(current->loginuid, id->loginuid) ||
+-	    current->sessionid != id->sessionid)
+-		return false;
+-#endif
+-	if (!(req->work.flags & IO_WQ_WORK_FS) &&
+-	    (def->work_flags & IO_WQ_WORK_FS)) {
+-		if (current->fs != id->fs)
+-			return false;
+-		spin_lock(&id->fs->lock);
+-		if (!id->fs->in_exec) {
+-			id->fs->users++;
+-			req->work.flags |= IO_WQ_WORK_FS;
+-		} else {
+-			req->work.flags |= IO_WQ_WORK_CANCEL;
 -		}
- 		reinit_completion(&wq->done);
- 		return wq;
+-		spin_unlock(&current->fs->lock);
+-	}
+-	if (!(req->work.flags & IO_WQ_WORK_FILES) &&
+-	    (def->work_flags & IO_WQ_WORK_FILES) &&
+-	    !(req->flags & REQ_F_NO_FILE_TABLE)) {
+-		if (id->files != current->files ||
+-		    id->nsproxy != current->nsproxy)
+-			return false;
+-		atomic_inc(&id->files->count);
+-		get_nsproxy(id->nsproxy);
+-		req->work.flags |= IO_WQ_WORK_FILES;
+-		io_req_track_inflight(req);
+-	}
+-	if (!(req->work.flags & IO_WQ_WORK_MM) &&
+-	    (def->work_flags & IO_WQ_WORK_MM)) {
+-		if (id->mm != current->mm)
+-			return false;
+-		mmgrab(id->mm);
+-		req->work.flags |= IO_WQ_WORK_MM;
+-	}
+-
+-	return true;
+-}
+-
+ static void io_prep_async_work(struct io_kiocb *req)
+ {
+ 	const struct io_op_def *def = &io_op_defs[req->opcode];
+@@ -1591,17 +1403,6 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 	}
+-
+-	/* if we fail grabbing identity, we must COW, regrab, and retry */
+-	if (io_grab_identity(req))
+-		return;
+-
+-	if (!io_identity_cow(req))
+-		return;
+-
+-	/* can't fail at this point */
+-	if (!io_grab_identity(req))
+-		WARN_ON(1);
+ }
+ 
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -6592,7 +6393,6 @@ static void __io_queue_sqe(struct io_kiocb *req)
+ 	int ret;
+ 
+ 	if ((req->flags & REQ_F_WORK_INITIALIZED) &&
+-	    (req->work.flags & IO_WQ_WORK_CREDS) &&
+ 	    req->work.identity->creds != current_cred())
+ 		old_creds = override_creds(req->work.identity->creds);
+ 
+@@ -6732,7 +6532,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 		__io_req_init_async(req);
+ 		get_cred(iod->creds);
+ 		req->work.identity = iod;
+-		req->work.flags |= IO_WQ_WORK_CREDS;
  	}
  
--	ret = PTR_ERR(wq->manager);
--	complete(&wq->done);
-+	if (refcount_dec_and_test(&wq->refs))
-+		complete(&wq->done);
- err:
- 	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
- 	for_each_node(node)
-@@ -1110,7 +1017,7 @@ void io_wq_destroy(struct io_wq *wq)
- 
- 	set_bit(IO_WQ_BIT_EXIT, &wq->state);
- 	if (wq->manager)
--		kthread_stop(wq->manager);
-+		wake_up_process(wq->manager);
- 
- 	rcu_read_lock();
- 	for_each_node(node)
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6ad3e1df6504..b0a7a2d3ab4f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1618,6 +1618,9 @@ static struct io_kiocb *__io_queue_async_work(struct io_kiocb *req)
- 	struct io_kiocb *link = io_prep_linked_timeout(req);
- 	struct io_uring_task *tctx = req->task->io_uring;
- 
-+	BUG_ON(!tctx);
-+	BUG_ON(!tctx->io_wq);
-+
- 	trace_io_uring_queue_async_work(ctx, io_wq_is_hashed(&req->work), req,
- 					&req->work, req->flags);
- 	io_wq_enqueue(tctx->io_wq, &req->work);
-@@ -9266,6 +9269,10 @@ static int io_uring_flush(struct file *file, void *data)
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_ring_ctx *ctx = file->private_data;
- 
-+	/* Ignore helper thread files exit */
-+	if (current->flags & PF_IO_WORKER)
-+		return 0;
-+
- 	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
- 		io_uring_cancel_task_requests(ctx, NULL);
- 		io_req_caches_free(ctx, current);
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 6e3a5eeec509..a6a9f0323102 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -895,6 +895,9 @@ struct task_struct {
- 	/* CLONE_CHILD_CLEARTID: */
- 	int __user			*clear_child_tid;
- 
-+	/* PF_IO_WORKER */
-+	void				*pf_io_worker;
-+
- 	u64				utime;
- 	u64				stime;
- #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+ 	state = &ctx->submit_state;
 -- 
 2.30.0
 

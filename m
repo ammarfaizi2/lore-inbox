@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B56C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39FE1C433DB
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C2A164EB4
+	by mail.kernel.org (Postfix) with ESMTP id 0D6EE64EB4
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229812AbhBSRLL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 12:11:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49768 "EHLO
+        id S229809AbhBSRLJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 12:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229828AbhBSRLF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:05 -0500
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB71EC0617A9
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:24 -0800 (PST)
-Received: by mail-io1-xd31.google.com with SMTP id a7so6323353iok.12
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:24 -0800 (PST)
+        with ESMTP id S229812AbhBSRLD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:03 -0500
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 523F7C061797
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:23 -0800 (PST)
+Received: by mail-il1-x130.google.com with SMTP id y15so5051002ilj.11
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=0Nuy6DGNVyeU/ob27XmuAMzQKnXoxMp8mmTUNN0gjKQ=;
-        b=qAgrns30dyvU3LmabqxdZ1bAgLrPoM43yVSFJB4zmm9B6HjsHcZqCaTXYvrXssYZcH
-         WvAtfuyQcd8xKItCCpEeSvRHDPLOzljjlEPwRvQY6upV+ckKrPcnD9nfKEEzGvIbOqjh
-         4kgWkHJINU2veLQhKd9AD0ZgARJ+FdNK2ui4sq05NRYRH/Z8twmSnNf/B5rFWB3iu+Ay
-         u547tKgvmu0Oagxd47QEfX7CBvF4y6pn13q+1sn3D888XBiGNsbyreafJVGOmnW789g0
-         rAhIJ2YbtuD6wV3wXs1t1pCVOlruaFW3PxvreLG6iJ3O6PNFQDyw3WVCCJnp7mRFqrcn
-         HoQA==
+        bh=4PjVZNSi3YexjijgewJtnbSJnMA1mIMeY/9mx+zhauw=;
+        b=ht/1xlDHtxtPaQOj9wK31QgmcVMH0BKGd9y7Tx6TVyaMaXSFdH4/VcLwc7F29gP63n
+         a1BVx+ZPYrqtICd7kl//O9w0+RhdyLxhFYh3sOkOIAO7oeSMUDhIlhfcNJhSd0EFDbMJ
+         GvnAxteX32O1jzqiZyYDr9xGPCiO4TrD79JfoMnycvGKkFsR6Xiwcz3YL6eJwFiUfvFL
+         ZJj9lH7tXoHsIhJgLNMUlWJA92mwqqPbDxDHbzfzDCgEGSHcWnwmVLu77+sfENvmWkXR
+         aYJCJnJI/HCPJVIlwak/zNcV/NXr8L3QbBVCvWwPnyCQ0i9sF5jHAQR3b2XRyggqWiyp
+         Jviw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=0Nuy6DGNVyeU/ob27XmuAMzQKnXoxMp8mmTUNN0gjKQ=;
-        b=PWJfLx5qhwfFXrSX004N2OI1VeQzJ+aZ9cSfXFBgvQM862LsFg82nbtFCtWhTAH6UH
-         IM+xxTwcxkAt4/MPXnQU0EoYsiBM68BmYGoUqMbGPA75a++RvGKWgFHry++FmljxNTD+
-         0RDJ4Lk0tLg2f7MPmOuX6bUndcMA7JicGdZ0qeQFW7n3aWZUxQtVMfgNJRUy28KR5aNp
-         pycsOqv66u8PrcgJwArjKeYxqTx7dQLjSmoTzT3Gz8gqQxesf0DOZ8uWBwhAjXFIrMFS
-         9YD/SzySbfeGGCTNMbg/zVyxEo9FYhgdlYXFZ8cKj/Z1+iTF+1XoA649KdKdd5lGlUs5
-         redg==
-X-Gm-Message-State: AOAM532nElZRGu+832FCV/iOLK5JArazL7e4+8Nf+VS8v0CV03s5/P2S
-        qi6RlblWphYNvMgHtdWPNCM/Cad6AmegPUPa
-X-Google-Smtp-Source: ABdhPJzjwYNl4HORkcgaXRBi5gO7rtY3SzEB9j2vStyxSNkrCZOjXC4cd+BB0q6ud5gjZaC3LfXjtA==
-X-Received: by 2002:a5e:9612:: with SMTP id a18mr4747674ioq.13.1613754623981;
-        Fri, 19 Feb 2021 09:10:23 -0800 (PST)
+        bh=4PjVZNSi3YexjijgewJtnbSJnMA1mIMeY/9mx+zhauw=;
+        b=LQWVWmqahAI84FtQ6XKrYGNS6GO4xb/JHQCodYfJ5ZjLHNj2vPLQ/kyy7Cs6FmS3w3
+         ZaK0BeaISsamR/oPcbR+fYRQp8LESYxGoZsYc0hQtZ042ge/TogH1bBMV5BdlhZIZgeJ
+         CKi5qmBjPdOeGF8uF3b2SwMEko6fnXeWmhhLk+E2SbGZGrTx35owsJeVombddn4d2Zm9
+         mHnDy8tQiD0f5dJbSisuNynRq+X0uaRpDz1tJxmZpMc6/z0T4PZVKblh/B4h8uiADk1G
+         X0tzQAd0speUbrNNLDcAKYd+GUMVa+G4HCwci20sdhWWFXxVt+aPdYNiFZ18YXssjz2Q
+         OQKw==
+X-Gm-Message-State: AOAM531ELQY2lD2xjAf2gjZ3L0IwRaw86pxiTMO5OCuXIAolRK86YNcx
+        o1mVqHOYQ9FrGt62v87AekXLe0VIM73PtakV
+X-Google-Smtp-Source: ABdhPJxkULlW05j2p2064QLC+ElWz2S8dFZQz8fG3WkmKlrQZUa8Y4WTO0bCDpDE6ZQhxg9Ls3T2EQ==
+X-Received: by 2002:a05:6e02:1bee:: with SMTP id y14mr4794052ilv.256.1613754622485;
+        Fri, 19 Feb 2021 09:10:22 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.23
+        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 09:10:23 -0800 (PST)
+        Fri, 19 Feb 2021 09:10:22 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
         torvalds@linux-foundation.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/18] kernel: treat PF_IO_WORKER like PF_KTHREAD for ptrace/signals
-Date:   Fri, 19 Feb 2021 10:10:00 -0700
-Message-Id: <20210219171010.281878-9-axboe@kernel.dk>
+Subject: [PATCH 06/18] io-wq: don't pass 'wqe' needlessly around
+Date:   Fri, 19 Feb 2021 10:09:58 -0700
+Message-Id: <20210219171010.281878-7-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210219171010.281878-1-axboe@kernel.dk>
 References: <20210219171010.281878-1-axboe@kernel.dk>
@@ -71,47 +71,130 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+Just grab it from the worker itself, which we're already passing in.
+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- kernel/ptrace.c | 2 +-
- kernel/signal.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/io-wq.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 61db50f7ca86..821cf1723814 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -375,7 +375,7 @@ static int ptrace_attach(struct task_struct *task, long request,
- 	audit_ptrace(task);
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 0c47febfed9b..ec7f1106b659 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -201,9 +201,10 @@ static inline struct io_wqe_acct *io_work_get_acct(struct io_wqe *wqe,
+ 	return &wqe->acct[IO_WQ_ACCT_BOUND];
+ }
  
- 	retval = -EPERM;
--	if (unlikely(task->flags & PF_KTHREAD))
-+	if (unlikely(task->flags & (PF_KTHREAD | PF_IO_WORKER)))
- 		goto out;
- 	if (same_thread_group(task, current))
- 		goto out;
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 5ad8566534e7..ba4d1ef39a9e 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -91,7 +91,7 @@ static bool sig_task_ignored(struct task_struct *t, int sig, bool force)
- 		return true;
+-static inline struct io_wqe_acct *io_wqe_get_acct(struct io_wqe *wqe,
+-						  struct io_worker *worker)
++static inline struct io_wqe_acct *io_wqe_get_acct(struct io_worker *worker)
+ {
++	struct io_wqe *wqe = worker->wqe;
++
+ 	if (worker->flags & IO_WORKER_F_BOUND)
+ 		return &wqe->acct[IO_WQ_ACCT_BOUND];
  
- 	/* Only allow kernel generated signals to this kthread */
--	if (unlikely((t->flags & PF_KTHREAD) &&
-+	if (unlikely((t->flags & (PF_KTHREAD | PF_IO_WORKER)) &&
- 		     (handler == SIG_KTHREAD_KERNEL) && !force))
- 		return true;
- 
-@@ -1096,7 +1096,7 @@ static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struc
- 	/*
- 	 * Skip useless siginfo allocation for SIGKILL and kernel threads.
- 	 */
--	if ((sig == SIGKILL) || (t->flags & PF_KTHREAD))
-+	if ((sig == SIGKILL) || (t->flags & (PF_KTHREAD | PF_IO_WORKER)))
- 		goto out_set;
+@@ -213,7 +214,7 @@ static inline struct io_wqe_acct *io_wqe_get_acct(struct io_wqe *wqe,
+ static void io_worker_exit(struct io_worker *worker)
+ {
+ 	struct io_wqe *wqe = worker->wqe;
+-	struct io_wqe_acct *acct = io_wqe_get_acct(wqe, worker);
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
  
  	/*
+ 	 * If we're not at zero, someone else is holding a brief reference
+@@ -303,23 +304,24 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
+ 		wake_up_process(wqe->wq->manager);
+ }
+ 
+-static void io_wqe_inc_running(struct io_wqe *wqe, struct io_worker *worker)
++static void io_wqe_inc_running(struct io_worker *worker)
+ {
+-	struct io_wqe_acct *acct = io_wqe_get_acct(wqe, worker);
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
+ 
+ 	atomic_inc(&acct->nr_running);
+ }
+ 
+-static void io_wqe_dec_running(struct io_wqe *wqe, struct io_worker *worker)
++static void io_wqe_dec_running(struct io_worker *worker)
+ 	__must_hold(wqe->lock)
+ {
+-	struct io_wqe_acct *acct = io_wqe_get_acct(wqe, worker);
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
++	struct io_wqe *wqe = worker->wqe;
+ 
+ 	if (atomic_dec_and_test(&acct->nr_running) && io_wqe_run_queue(wqe))
+ 		io_wqe_wake_worker(wqe, acct);
+ }
+ 
+-static void io_worker_start(struct io_wqe *wqe, struct io_worker *worker)
++static void io_worker_start(struct io_worker *worker)
+ {
+ 	allow_kernel_signal(SIGINT);
+ 
+@@ -329,7 +331,7 @@ static void io_worker_start(struct io_wqe *wqe, struct io_worker *worker)
+ 
+ 	worker->flags |= (IO_WORKER_F_UP | IO_WORKER_F_RUNNING);
+ 	worker->restore_nsproxy = current->nsproxy;
+-	io_wqe_inc_running(wqe, worker);
++	io_wqe_inc_running(worker);
+ }
+ 
+ /*
+@@ -354,7 +356,7 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 	worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
+ 	work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
+ 	if (worker_bound != work_bound) {
+-		io_wqe_dec_running(wqe, worker);
++		io_wqe_dec_running(worker);
+ 		if (work_bound) {
+ 			worker->flags |= IO_WORKER_F_BOUND;
+ 			wqe->acct[IO_WQ_ACCT_UNBOUND].nr_workers--;
+@@ -366,7 +368,7 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 			wqe->acct[IO_WQ_ACCT_BOUND].nr_workers--;
+ 			atomic_inc(&wqe->wq->user->processes);
+ 		}
+-		io_wqe_inc_running(wqe, worker);
++		io_wqe_inc_running(worker);
+ 	 }
+ }
+ 
+@@ -589,7 +591,7 @@ static int io_wqe_worker(void *data)
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+ 
+-	io_worker_start(wqe, worker);
++	io_worker_start(worker);
+ 
+ 	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+@@ -634,14 +636,13 @@ static int io_wqe_worker(void *data)
+ void io_wq_worker_running(struct task_struct *tsk)
+ {
+ 	struct io_worker *worker = kthread_data(tsk);
+-	struct io_wqe *wqe = worker->wqe;
+ 
+ 	if (!(worker->flags & IO_WORKER_F_UP))
+ 		return;
+ 	if (worker->flags & IO_WORKER_F_RUNNING)
+ 		return;
+ 	worker->flags |= IO_WORKER_F_RUNNING;
+-	io_wqe_inc_running(wqe, worker);
++	io_wqe_inc_running(worker);
+ }
+ 
+ /*
+@@ -662,7 +663,7 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
+ 	worker->flags &= ~IO_WORKER_F_RUNNING;
+ 
+ 	raw_spin_lock_irq(&wqe->lock);
+-	io_wqe_dec_running(wqe, worker);
++	io_wqe_dec_running(worker);
+ 	raw_spin_unlock_irq(&wqe->lock);
+ }
+ 
 -- 
 2.30.0
 

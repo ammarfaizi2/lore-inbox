@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5999BC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82C47C4332B
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27A1D64EB8
+	by mail.kernel.org (Postfix) with ESMTP id 624DF60235
 	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbhBSRLK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 12:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49764 "EHLO
+        id S229819AbhBSRLN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 12:11:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229819AbhBSRLE (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:04 -0500
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79779C0617A7
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:24 -0800 (PST)
-Received: by mail-il1-x12f.google.com with SMTP id z18so5058211ile.9
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:24 -0800 (PST)
+        with ESMTP id S229849AbhBSRLG (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:11:06 -0500
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD03C0617AA
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:25 -0800 (PST)
+Received: by mail-il1-x130.google.com with SMTP id w1so5056567ilm.12
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nqfF2Qn6vR84Z+N8/LbWyLQ8z7l2KLx6Nz2dh11g1mc=;
-        b=Nryma7zhR2qX54vyMj9TBo9aXWMxw+6ZmYQGrxWd3U2wqfWvGYmBH6c224rnZ9ZIXY
-         qrAIYjSlZtmgAx/RCQKUGUlIB3LgobLtWxNkI2CCTuB4VwDYmnSlawpJMgkiPirvilr6
-         Cecpk5bNyzgrM1aC8jJ/clli2yDVrJcWqbtoHL2FsPXZK38MEOWxDaYanKCXvQdRLpji
-         5LMMe+XTevC3SHua4hNNbRRP0e8GHnP/wx4jpTR2DV0n44Yj79C7Kp1GFT6DfHUNycqN
-         SGWdjgsyMTS0lLODF5gSWLzgzSTnwibe9NvO9akXhhSkBnrA6XKDJW/Do8MWotdxvSZ+
-         BD3Q==
+        bh=dQGlowyq6zwdQ9oCBoVfhLlTaumq7FVSF0ara59osYE=;
+        b=P8zH7r60KloNaWpj45hrxMfvEM9FvhlwFBb1Jl7ka+mcWJcaYvZQm1mzdZurdr/cio
+         oTbnG9m9IDjpz/3d6+zabXEITscsdtIbUEF5BsbmVJmkKUwaT813sMvPi3HaOLQHuez1
+         Y6JdUmXQTP7//w4qeSNqfqOyueE7JU7/ObWlhISkhNUnb9vgOkxgWYxKBzLELHXA54dH
+         KxwVhvObentNh2NqJu42EMojb6Lq+R9wrZJeoCgtoiHgKvL3QEWhvQl4LRXiuj2qCSuP
+         faTBMXvFnRhAQLVAxWOFkV93RDv7YTNSHpKWmebD9raqf2zCkikwM35+lfrSLHSb/Gca
+         GuXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nqfF2Qn6vR84Z+N8/LbWyLQ8z7l2KLx6Nz2dh11g1mc=;
-        b=VwETU1+6ANJhPdU1SxF5SveDJwPCLl9REsqZbg4SXILW0/ic8nXBN0eLBzwLZnx28J
-         R1VvmVPMRo3Zx/TfRJFuqPywdGP2EbdxYr43h5gr8S85G5v8nAP7p8A3AnX7VjRiuika
-         dc4jRECjrKJWMkoQavTi2XN1n4KjTdlyteEsBqeeeMF3lPQIxn/e+FauuR/dXmGIeOBe
-         6I0Q0NmAiFeMHL5FQE3V51Br9pERDe7N1K/8ZO4yj2by5Ej/7fB1C5YHeuloQxHcHv+5
-         EMU+9toP9WrdecL3EkGT5ZtL8wQ2+GPiXFdu4xNNB/hNGtNZr7cw3Ok6AOxnURH9L6DV
-         DWAw==
-X-Gm-Message-State: AOAM532FiKUX2JLPPqoMS849igqxdO/72nDZQOs/scRzm8NIdodnOip1
-        DVgvpk2pvmg7hTLSkDmRkXjGAF1l0q3bRk8D
-X-Google-Smtp-Source: ABdhPJxCbkQZ99U4P907Hzye0dqojRGM3Y5NYJArI8rUbSzD8hAr8PY5WGNTYI/XRl1r7eOvHspPyA==
-X-Received: by 2002:a92:6b0f:: with SMTP id g15mr4989606ilc.144.1613754623390;
-        Fri, 19 Feb 2021 09:10:23 -0800 (PST)
+        bh=dQGlowyq6zwdQ9oCBoVfhLlTaumq7FVSF0ara59osYE=;
+        b=cynVjRYKeYtSVVAKxmDAEQv9OxVXKKmbYx6+68FMpXhf2EKbmwP2H9UX7fj5RHv5kM
+         P+bAe1XQny+zOdtmUTUEEwgT5GCQXT1IM59aXnKFw4ApV35uKsUr2srcNaJNwl7x3tDL
+         aV7hop04yaVcfOhj1aG8tgv/q3XLV8Y1gRzyPnpoOhuY0uY5U6hLXsnY71HjKC7g/Ckz
+         BWHzy0psY/+fLkoRTw7LxX1GaIEg0mBWfEJJBhpC7j+INjaFIlh1v4zUzZaEAtmxG+tw
+         hLG1G0KP63PAi/jsB7QXQyR3A4C3nDXoUQ8hEcqrsGwaAHoe7NhMpBuGKsTpwmb02JWP
+         pk1g==
+X-Gm-Message-State: AOAM532exrWCLbyVAf/MX3kPm+7z6IX5Y6b0n0kKwcXOP1ltqkiFTn9/
+        bFl9VSVfkG4yxuWxulMg0CLKmUVYTrZk4haQ
+X-Google-Smtp-Source: ABdhPJx0OBnhqAo0ekSXoR56exyt83VHILQJ+UOhGtAKRVfNRyVJRPVDE7HDOcmEoaDVAjdQHYQUNA==
+X-Received: by 2002:a92:d0d:: with SMTP id 13mr4708010iln.36.1613754624846;
+        Fri, 19 Feb 2021 09:10:24 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.22
+        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 09:10:22 -0800 (PST)
+        Fri, 19 Feb 2021 09:10:24 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
         torvalds@linux-foundation.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 07/18] arch: setup PF_IO_WORKER threads like PF_KTHREAD
-Date:   Fri, 19 Feb 2021 10:09:59 -0700
-Message-Id: <20210219171010.281878-8-axboe@kernel.dk>
+Subject: [PATCH 09/18] io-wq: fork worker threads from original task
+Date:   Fri, 19 Feb 2021 10:10:01 -0700
+Message-Id: <20210219171010.281878-10-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210219171010.281878-1-axboe@kernel.dk>
 References: <20210219171010.281878-1-axboe@kernel.dk>
@@ -71,336 +71,548 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-PF_IO_WORKER are kernel threads too, but they aren't PF_KTHREAD in the
-sense that we don't assign ->set_child_tid with our own structure. Just
-ensure that every arch sets up the PF_IO_WORKER threads like kthreads.
+Instead of using regular kthread kernel threads, create kernel threads
+that are like a real thread that the task would create. This ensures that
+we get all the context that we need, without having to carry that state
+around. This greatly reduces the code complexity, and the risk of missing
+state for a given request type.
+
+With the move away from kthread, we can also dump everything related to
+assigned state to the new threads.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- arch/alpha/kernel/process.c      | 2 +-
- arch/arc/kernel/process.c        | 2 +-
- arch/arm/kernel/process.c        | 2 +-
- arch/arm64/kernel/process.c      | 2 +-
- arch/c6x/kernel/process.c        | 2 +-
- arch/csky/kernel/process.c       | 2 +-
- arch/h8300/kernel/process.c      | 2 +-
- arch/hexagon/kernel/process.c    | 2 +-
- arch/ia64/kernel/process.c       | 2 +-
- arch/m68k/kernel/process.c       | 2 +-
- arch/microblaze/kernel/process.c | 2 +-
- arch/mips/kernel/process.c       | 2 +-
- arch/nds32/kernel/process.c      | 2 +-
- arch/nios2/kernel/process.c      | 2 +-
- arch/openrisc/kernel/process.c   | 2 +-
- arch/riscv/kernel/process.c      | 2 +-
- arch/s390/kernel/process.c       | 2 +-
- arch/sh/kernel/process_32.c      | 2 +-
- arch/sparc/kernel/process_32.c   | 2 +-
- arch/sparc/kernel/process_64.c   | 2 +-
- arch/um/kernel/process.c         | 2 +-
- arch/x86/kernel/process.c        | 2 +-
- arch/xtensa/kernel/process.c     | 2 +-
- 23 files changed, 23 insertions(+), 23 deletions(-)
+ fs/io-wq.c            | 301 +++++++++++++++---------------------------
+ fs/io_uring.c         |   7 +
+ include/linux/sched.h |   3 +
+ 3 files changed, 114 insertions(+), 197 deletions(-)
 
-diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
-index 6c71554206cc..5112ab996394 100644
---- a/arch/alpha/kernel/process.c
-+++ b/arch/alpha/kernel/process.c
-@@ -249,7 +249,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 	childti->pcb.ksp = (unsigned long) childstack;
- 	childti->pcb.flags = 1;	/* set FEN, clear everything else */
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index ec7f1106b659..b53f569b5b4e 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -13,12 +13,9 @@
+ #include <linux/sched/mm.h>
+ #include <linux/percpu.h>
+ #include <linux/slab.h>
+-#include <linux/kthread.h>
+ #include <linux/rculist_nulls.h>
+-#include <linux/fs_struct.h>
+-#include <linux/blk-cgroup.h>
+-#include <linux/audit.h>
+ #include <linux/cpu.h>
++#include <linux/tracehook.h>
  
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* kernel thread */
- 		memset(childstack, 0,
- 			sizeof(struct switch_stack) + sizeof(struct pt_regs));
-diff --git a/arch/arc/kernel/process.c b/arch/arc/kernel/process.c
-index 37f724ad5e39..d838d0d57696 100644
---- a/arch/arc/kernel/process.c
-+++ b/arch/arc/kernel/process.c
-@@ -191,7 +191,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 	childksp[0] = 0;			/* fp */
- 	childksp[1] = (unsigned long)ret_from_fork; /* blink */
+ #include "../kernel/sched/sched.h"
+ #include "io-wq.h"
+@@ -57,13 +54,6 @@ struct io_worker {
+ 	spinlock_t lock;
  
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(c_regs, 0, sizeof(struct pt_regs));
+ 	struct rcu_head rcu;
+-	struct mm_struct *mm;
+-#ifdef CONFIG_BLK_CGROUP
+-	struct cgroup_subsys_state *blkcg_css;
+-#endif
+-	const struct cred *cur_creds;
+-	const struct cred *saved_creds;
+-	struct nsproxy *restore_nsproxy;
+ };
  
- 		c_callee->r13 = kthread_arg;
-diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-index ee3aee69e444..5199a2bb4111 100644
---- a/arch/arm/kernel/process.c
-+++ b/arch/arm/kernel/process.c
-@@ -243,7 +243,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
- 	thread->cpu_domain = get_domain();
- #endif
+ #if BITS_PER_LONG == 64
+@@ -122,6 +112,8 @@ struct io_wq {
+ 	struct completion done;
  
--	if (likely(!(p->flags & PF_KTHREAD))) {
-+	if (likely(!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))) {
- 		*childregs = *current_pt_regs();
- 		childregs->ARM_r0 = 0;
- 		if (stack_start)
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 6616486a58fe..05f001b401a5 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -398,7 +398,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+ 	struct hlist_node cpuhp_node;
++
++	pid_t task_pid;
+ };
  
- 	ptrauth_thread_init_kernel(p);
+ static enum cpuhp_state io_wq_online;
+@@ -137,61 +129,6 @@ static void io_worker_release(struct io_worker *worker)
+ 		wake_up_process(worker->task);
+ }
  
--	if (likely(!(p->flags & PF_KTHREAD))) {
-+	if (likely(!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))) {
- 		*childregs = *current_pt_regs();
- 		childregs->regs[0] = 0;
- 
-diff --git a/arch/c6x/kernel/process.c b/arch/c6x/kernel/process.c
-index 9f4fd6a40a10..403ad4ce3db0 100644
---- a/arch/c6x/kernel/process.c
-+++ b/arch/c6x/kernel/process.c
-@@ -112,7 +112,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 
- 	childregs = task_pt_regs(p);
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* case of  __kernel_thread: we return to supervisor space */
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		childregs->sp = (unsigned long)(childregs + 1);
-diff --git a/arch/csky/kernel/process.c b/arch/csky/kernel/process.c
-index 69af6bc87e64..3d0ca22cd0e2 100644
---- a/arch/csky/kernel/process.c
-+++ b/arch/csky/kernel/process.c
-@@ -49,7 +49,7 @@ int copy_thread(unsigned long clone_flags,
- 	/* setup thread.sp for switch_to !!! */
- 	p->thread.sp = (unsigned long)childstack;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		childstack->r15 = (unsigned long) ret_from_kernel_thread;
- 		childstack->r10 = kthread_arg;
-diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
-index bc1364db58fe..46b1342ce515 100644
---- a/arch/h8300/kernel/process.c
-+++ b/arch/h8300/kernel/process.c
-@@ -112,7 +112,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 
- 	childregs = (struct pt_regs *) (THREAD_SIZE + task_stack_page(p)) - 1;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		childregs->retpc = (unsigned long) ret_from_kernel_thread;
- 		childregs->er4 = topstk; /* arg */
-diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
-index 6a980cba7b29..c61165c99ae0 100644
---- a/arch/hexagon/kernel/process.c
-+++ b/arch/hexagon/kernel/process.c
-@@ -73,7 +73,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 						    sizeof(*ss));
- 	ss->lr = (unsigned long)ret_from_fork;
- 	p->thread.switch_sp = ss;
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		/* r24 <- fn, r25 <- arg */
- 		ss->r24 = usp;
-diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
-index 4ebbfa076a26..7e1a1525e202 100644
---- a/arch/ia64/kernel/process.c
-+++ b/arch/ia64/kernel/process.c
-@@ -338,7 +338,7 @@ copy_thread(unsigned long clone_flags, unsigned long user_stack_base,
- 
- 	ia64_drop_fpu(p);	/* don't pick up stale state from a CPU's fph */
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		if (unlikely(!user_stack_base)) {
- 			/* fork_idle() called us */
- 			return 0;
-diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
-index 08359a6e058f..da83cc83e791 100644
---- a/arch/m68k/kernel/process.c
-+++ b/arch/m68k/kernel/process.c
-@@ -157,7 +157,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 	 */
- 	p->thread.fs = get_fs().seg;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* kernel thread */
- 		memset(frame, 0, sizeof(struct fork_frame));
- 		frame->regs.sr = PS_S;
-diff --git a/arch/microblaze/kernel/process.c b/arch/microblaze/kernel/process.c
-index 657c2beb665e..62aa237180b6 100644
---- a/arch/microblaze/kernel/process.c
-+++ b/arch/microblaze/kernel/process.c
-@@ -59,7 +59,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 	struct pt_regs *childregs = task_pt_regs(p);
- 	struct thread_info *ti = task_thread_info(p);
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* if we're creating a new kernel thread then just zeroing all
- 		 * the registers. That's OK for a brand new thread.*/
- 		memset(childregs, 0, sizeof(struct pt_regs));
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index d7e288f3a1e7..f69434015be7 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -135,7 +135,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 	/*  Put the stack after the struct pt_regs.  */
- 	childksp = (unsigned long) childregs;
- 	p->thread.cp0_status = (read_c0_status() & ~(ST0_CU2|ST0_CU1)) | ST0_KERNEL_CUMASK;
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* kernel thread */
- 		unsigned long status = p->thread.cp0_status;
- 		memset(childregs, 0, sizeof(struct pt_regs));
-diff --git a/arch/nds32/kernel/process.c b/arch/nds32/kernel/process.c
-index e01ad5d17224..c1327e552ec6 100644
---- a/arch/nds32/kernel/process.c
-+++ b/arch/nds32/kernel/process.c
-@@ -156,7 +156,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
- 
- 	memset(&p->thread.cpu_context, 0, sizeof(struct cpu_context));
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		/* kernel thread fn */
- 		p->thread.cpu_context.r6 = stack_start;
-diff --git a/arch/nios2/kernel/process.c b/arch/nios2/kernel/process.c
-index 50b4eb19a6cc..c5f916ca6845 100644
---- a/arch/nios2/kernel/process.c
-+++ b/arch/nios2/kernel/process.c
-@@ -109,7 +109,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 	struct switch_stack *childstack =
- 		((struct switch_stack *)childregs) - 1;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childstack, 0,
- 			sizeof(struct switch_stack) + sizeof(struct pt_regs));
- 
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index 3c98728cce24..83fba4ee4453 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -167,7 +167,7 @@ copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 	sp -= sizeof(struct pt_regs);
- 	kregs = (struct pt_regs *)sp;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(kregs, 0, sizeof(struct pt_regs));
- 		kregs->gpr[20] = usp; /* fn, kernel thread */
- 		kregs->gpr[22] = arg;
-diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-index dd5f985b1f40..06d326caa7d8 100644
---- a/arch/riscv/kernel/process.c
-+++ b/arch/riscv/kernel/process.c
-@@ -112,7 +112,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 	struct pt_regs *childregs = task_pt_regs(p);
- 
- 	/* p->thread holds context to be restored by __switch_to() */
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* Kernel thread */
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		childregs->gp = gp_in_global;
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index bc3ca54edfb4..ac7a06d5e230 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -114,7 +114,7 @@ int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
- 	frame->sf.gprs[9] = (unsigned long) frame;
- 
- 	/* Store access registers to kernel stack of new process. */
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		/* kernel thread */
- 		memset(&frame->childregs, 0, sizeof(struct pt_regs));
- 		frame->childregs.psw.mask = PSW_KERNEL_BITS | PSW_MASK_DAT |
-diff --git a/arch/sh/kernel/process_32.c b/arch/sh/kernel/process_32.c
-index 80a5d1c66a51..1aa508eb0823 100644
---- a/arch/sh/kernel/process_32.c
-+++ b/arch/sh/kernel/process_32.c
-@@ -114,7 +114,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- 
- 	childregs = task_pt_regs(p);
- 	p->thread.sp = (unsigned long) childregs;
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		p->thread.pc = (unsigned long) ret_from_kernel_thread;
- 		childregs->regs[4] = arg;
-diff --git a/arch/sparc/kernel/process_32.c b/arch/sparc/kernel/process_32.c
-index a02363735915..0f9c606e1e78 100644
---- a/arch/sparc/kernel/process_32.c
-+++ b/arch/sparc/kernel/process_32.c
-@@ -309,7 +309,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
- 	ti->ksp = (unsigned long) new_stack;
- 	p->thread.kregs = childregs;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		extern int nwindows;
- 		unsigned long psr;
- 		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
-diff --git a/arch/sparc/kernel/process_64.c b/arch/sparc/kernel/process_64.c
-index 6f8c7822fc06..7afd0a859a78 100644
---- a/arch/sparc/kernel/process_64.c
-+++ b/arch/sparc/kernel/process_64.c
-@@ -597,7 +597,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
- 				       sizeof(struct sparc_stackf));
- 	t->fpsaved[0] = 0;
- 
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(child_trap_frame, 0, child_stack_sz);
- 		__thread_flag_byte_ptr(t)[TI_FLAG_BYTE_CWP] = 
- 			(current_pt_regs()->tstate + 1) & TSTATE_CWP;
-diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
-index 81d508daf67c..c5011064b5dd 100644
---- a/arch/um/kernel/process.c
-+++ b/arch/um/kernel/process.c
-@@ -157,7 +157,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
- 		unsigned long arg, struct task_struct * p, unsigned long tls)
+-/*
+- * Note: drops the wqe->lock if returning true! The caller must re-acquire
+- * the lock in that case. Some callers need to restart handling if this
+- * happens, so we can't just re-acquire the lock on behalf of the caller.
+- */
+-static bool __io_worker_unuse(struct io_wqe *wqe, struct io_worker *worker)
+-{
+-	bool dropped_lock = false;
+-
+-	if (worker->saved_creds) {
+-		revert_creds(worker->saved_creds);
+-		worker->cur_creds = worker->saved_creds = NULL;
+-	}
+-
+-	if (current->files) {
+-		__acquire(&wqe->lock);
+-		raw_spin_unlock_irq(&wqe->lock);
+-		dropped_lock = true;
+-
+-		task_lock(current);
+-		current->files = NULL;
+-		current->nsproxy = worker->restore_nsproxy;
+-		task_unlock(current);
+-	}
+-
+-	if (current->fs)
+-		current->fs = NULL;
+-
+-	/*
+-	 * If we have an active mm, we need to drop the wq lock before unusing
+-	 * it. If we do, return true and let the caller retry the idle loop.
+-	 */
+-	if (worker->mm) {
+-		if (!dropped_lock) {
+-			__acquire(&wqe->lock);
+-			raw_spin_unlock_irq(&wqe->lock);
+-			dropped_lock = true;
+-		}
+-		__set_current_state(TASK_RUNNING);
+-		kthread_unuse_mm(worker->mm);
+-		mmput(worker->mm);
+-		worker->mm = NULL;
+-	}
+-
+-#ifdef CONFIG_BLK_CGROUP
+-	if (worker->blkcg_css) {
+-		kthread_associate_blkcg(NULL);
+-		worker->blkcg_css = NULL;
+-	}
+-#endif
+-	if (current->signal->rlim[RLIMIT_FSIZE].rlim_cur != RLIM_INFINITY)
+-		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+-	return dropped_lock;
+-}
+-
+ static inline struct io_wqe_acct *io_work_get_acct(struct io_wqe *wqe,
+ 						   struct io_wq_work *work)
  {
- 	void (*handler)(void);
--	int kthread = current->flags & PF_KTHREAD;
-+	int kthread = current->flags & (PF_KTHREAD | PF_IO_WORKER);
- 	int ret = 0;
+@@ -237,10 +174,6 @@ static void io_worker_exit(struct io_worker *worker)
+ 	raw_spin_lock_irq(&wqe->lock);
+ 	hlist_nulls_del_rcu(&worker->nulls_node);
+ 	list_del_rcu(&worker->all_list);
+-	if (__io_worker_unuse(wqe, worker)) {
+-		__release(&wqe->lock);
+-		raw_spin_lock_irq(&wqe->lock);
+-	}
+ 	acct->nr_workers--;
+ 	raw_spin_unlock_irq(&wqe->lock);
  
- 	p->thread = (struct thread_struct) INIT_THREAD;
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 145a7ac0c19a..9c214d7085a4 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -161,7 +161,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
- #endif
+@@ -323,14 +256,7 @@ static void io_wqe_dec_running(struct io_worker *worker)
  
- 	/* Kernel thread ? */
--	if (unlikely(p->flags & PF_KTHREAD)) {
-+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		kthread_frame_init(frame, sp, arg);
- 		return 0;
-diff --git a/arch/xtensa/kernel/process.c b/arch/xtensa/kernel/process.c
-index 397a7de56377..9534ef515d74 100644
---- a/arch/xtensa/kernel/process.c
-+++ b/arch/xtensa/kernel/process.c
-@@ -217,7 +217,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
+ static void io_worker_start(struct io_worker *worker)
+ {
+-	allow_kernel_signal(SIGINT);
+-
+-	current->flags |= PF_IO_WORKER;
+-	current->fs = NULL;
+-	current->files = NULL;
+-
+ 	worker->flags |= (IO_WORKER_F_UP | IO_WORKER_F_RUNNING);
+-	worker->restore_nsproxy = current->nsproxy;
+ 	io_wqe_inc_running(worker);
+ }
  
- 	p->thread.sp = (unsigned long)childregs;
+@@ -387,7 +313,7 @@ static bool __io_worker_idle(struct io_wqe *wqe, struct io_worker *worker)
+ 		hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
+ 	}
  
--	if (!(p->flags & PF_KTHREAD)) {
-+	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		struct pt_regs *regs = current_pt_regs();
- 		unsigned long usp = usp_thread_fn ?
- 			usp_thread_fn : regs->areg[1];
+-	return __io_worker_unuse(wqe, worker);
++	return false;
+ }
+ 
+ static inline unsigned int io_get_work_hash(struct io_wq_work *work)
+@@ -426,96 +352,23 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
+ 	return NULL;
+ }
+ 
+-static void io_wq_switch_mm(struct io_worker *worker, struct io_wq_work *work)
++static void io_flush_signals(void)
+ {
+-	if (worker->mm) {
+-		kthread_unuse_mm(worker->mm);
+-		mmput(worker->mm);
+-		worker->mm = NULL;
++	if (unlikely(test_tsk_thread_flag(current, TIF_NOTIFY_SIGNAL))) {
++		if (current->task_works)
++			task_work_run();
++		clear_tsk_thread_flag(current, TIF_NOTIFY_SIGNAL);
+ 	}
+-
+-	if (mmget_not_zero(work->identity->mm)) {
+-		kthread_use_mm(work->identity->mm);
+-		worker->mm = work->identity->mm;
+-		return;
+-	}
+-
+-	/* failed grabbing mm, ensure work gets cancelled */
+-	work->flags |= IO_WQ_WORK_CANCEL;
+-}
+-
+-static inline void io_wq_switch_blkcg(struct io_worker *worker,
+-				      struct io_wq_work *work)
+-{
+-#ifdef CONFIG_BLK_CGROUP
+-	if (!(work->flags & IO_WQ_WORK_BLKCG))
+-		return;
+-	if (work->identity->blkcg_css != worker->blkcg_css) {
+-		kthread_associate_blkcg(work->identity->blkcg_css);
+-		worker->blkcg_css = work->identity->blkcg_css;
+-	}
+-#endif
+-}
+-
+-static void io_wq_switch_creds(struct io_worker *worker,
+-			       struct io_wq_work *work)
+-{
+-	const struct cred *old_creds = override_creds(work->identity->creds);
+-
+-	worker->cur_creds = work->identity->creds;
+-	if (worker->saved_creds)
+-		put_cred(old_creds); /* creds set by previous switch */
+-	else
+-		worker->saved_creds = old_creds;
+-}
+-
+-static void io_impersonate_work(struct io_worker *worker,
+-				struct io_wq_work *work)
+-{
+-	if ((work->flags & IO_WQ_WORK_FILES) &&
+-	    current->files != work->identity->files) {
+-		task_lock(current);
+-		current->files = work->identity->files;
+-		current->nsproxy = work->identity->nsproxy;
+-		task_unlock(current);
+-		if (!work->identity->files) {
+-			/* failed grabbing files, ensure work gets cancelled */
+-			work->flags |= IO_WQ_WORK_CANCEL;
+-		}
+-	}
+-	if ((work->flags & IO_WQ_WORK_FS) && current->fs != work->identity->fs)
+-		current->fs = work->identity->fs;
+-	if ((work->flags & IO_WQ_WORK_MM) && work->identity->mm != worker->mm)
+-		io_wq_switch_mm(worker, work);
+-	if ((work->flags & IO_WQ_WORK_CREDS) &&
+-	    worker->cur_creds != work->identity->creds)
+-		io_wq_switch_creds(worker, work);
+-	if (work->flags & IO_WQ_WORK_FSIZE)
+-		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = work->identity->fsize;
+-	else if (current->signal->rlim[RLIMIT_FSIZE].rlim_cur != RLIM_INFINITY)
+-		current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+-	io_wq_switch_blkcg(worker, work);
+-#ifdef CONFIG_AUDIT
+-	current->loginuid = work->identity->loginuid;
+-	current->sessionid = work->identity->sessionid;
+-#endif
+ }
+ 
+ static void io_assign_current_work(struct io_worker *worker,
+ 				   struct io_wq_work *work)
+ {
+ 	if (work) {
+-		/* flush pending signals before assigning new work */
+-		if (signal_pending(current))
+-			flush_signals(current);
++		io_flush_signals();
+ 		cond_resched();
+ 	}
+ 
+-#ifdef CONFIG_AUDIT
+-	current->loginuid = KUIDT_INIT(AUDIT_UID_UNSET);
+-	current->sessionid = AUDIT_SID_UNSET;
+-#endif
+-
+ 	spin_lock_irq(&worker->lock);
+ 	worker->cur_work = work;
+ 	spin_unlock_irq(&worker->lock);
+@@ -556,7 +409,6 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 			unsigned int hash = io_get_work_hash(work);
+ 
+ 			next_hashed = wq_next_work(work);
+-			io_impersonate_work(worker, work);
+ 			wq->do_work(work);
+ 			io_assign_current_work(worker, NULL);
+ 
+@@ -608,10 +460,11 @@ static int io_wqe_worker(void *data)
+ 			goto loop;
+ 		}
+ 		raw_spin_unlock_irq(&wqe->lock);
+-		if (signal_pending(current))
+-			flush_signals(current);
++		io_flush_signals();
+ 		if (schedule_timeout(WORKER_IDLE_TIMEOUT))
+ 			continue;
++		if (fatal_signal_pending(current))
++			break;
+ 		/* timed out, exit unless we're the fixed worker */
+ 		if (test_bit(IO_WQ_BIT_EXIT, &wq->state) ||
+ 		    !(worker->flags & IO_WORKER_F_FIXED))
+@@ -635,8 +488,10 @@ static int io_wqe_worker(void *data)
+  */
+ void io_wq_worker_running(struct task_struct *tsk)
+ {
+-	struct io_worker *worker = kthread_data(tsk);
++	struct io_worker *worker = tsk->pf_io_worker;
+ 
++	if (!worker)
++		return;
+ 	if (!(worker->flags & IO_WORKER_F_UP))
+ 		return;
+ 	if (worker->flags & IO_WORKER_F_RUNNING)
+@@ -652,9 +507,10 @@ void io_wq_worker_running(struct task_struct *tsk)
+  */
+ void io_wq_worker_sleeping(struct task_struct *tsk)
+ {
+-	struct io_worker *worker = kthread_data(tsk);
+-	struct io_wqe *wqe = worker->wqe;
++	struct io_worker *worker = tsk->pf_io_worker;
+ 
++	if (!worker)
++		return;
+ 	if (!(worker->flags & IO_WORKER_F_UP))
+ 		return;
+ 	if (!(worker->flags & IO_WORKER_F_RUNNING))
+@@ -662,32 +518,27 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
+ 
+ 	worker->flags &= ~IO_WORKER_F_RUNNING;
+ 
+-	raw_spin_lock_irq(&wqe->lock);
++	raw_spin_lock_irq(&worker->wqe->lock);
+ 	io_wqe_dec_running(worker);
+-	raw_spin_unlock_irq(&wqe->lock);
++	raw_spin_unlock_irq(&worker->wqe->lock);
+ }
+ 
+-static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
++static int task_thread(void *data, int index)
+ {
++	struct io_worker *worker = data;
++	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wqe_acct *acct = &wqe->acct[index];
+-	struct io_worker *worker;
++	struct io_wq *wq = wqe->wq;
++	char buf[TASK_COMM_LEN];
+ 
+-	worker = kzalloc_node(sizeof(*worker), GFP_KERNEL, wqe->node);
+-	if (!worker)
+-		return false;
++	sprintf(buf, "iou-wrk-%d", wq->task_pid);
++	set_task_comm(current, buf);
+ 
+-	refcount_set(&worker->ref, 1);
+-	worker->nulls_node.pprev = NULL;
+-	worker->wqe = wqe;
+-	spin_lock_init(&worker->lock);
++	current->pf_io_worker = worker;
++	worker->task = current;
+ 
+-	worker->task = kthread_create_on_node(io_wqe_worker, worker, wqe->node,
+-				"io_wqe_worker-%d/%d", index, wqe->node);
+-	if (IS_ERR(worker->task)) {
+-		kfree(worker);
+-		return false;
+-	}
+-	kthread_bind_mask(worker->task, cpumask_of_node(wqe->node));
++	set_cpus_allowed_ptr(current, cpumask_of_node(wqe->node));
++	current->flags |= PF_NO_SETAFFINITY;
+ 
+ 	raw_spin_lock_irq(&wqe->lock);
+ 	hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
+@@ -703,8 +554,58 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ 	if (index == IO_WQ_ACCT_UNBOUND)
+ 		atomic_inc(&wq->user->processes);
+ 
++	io_wqe_worker(data);
++	do_exit(0);
++}
++
++static int task_thread_bound(void *data)
++{
++	return task_thread(data, IO_WQ_ACCT_BOUND);
++}
++
++static int task_thread_unbound(void *data)
++{
++	return task_thread(data, IO_WQ_ACCT_UNBOUND);
++}
++
++static pid_t fork_thread(int (*fn)(void *), void *arg)
++{
++	unsigned long flags = CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|
++				CLONE_IO|SIGCHLD;
++	struct kernel_clone_args args = {
++		.flags		= ((lower_32_bits(flags) | CLONE_VM |
++				    CLONE_UNTRACED) & ~CSIGNAL),
++		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
++		.stack		= (unsigned long)fn,
++		.stack_size	= (unsigned long)arg,
++	};
++
++	return kernel_clone(&args);
++}
++
++static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
++{
++	struct io_worker *worker;
++	pid_t pid;
++
++	worker = kzalloc_node(sizeof(*worker), GFP_KERNEL, wqe->node);
++	if (!worker)
++		return false;
++
++	refcount_set(&worker->ref, 1);
++	worker->nulls_node.pprev = NULL;
++	worker->wqe = wqe;
++	spin_lock_init(&worker->lock);
++
++	if (index == IO_WQ_ACCT_BOUND)
++		pid = fork_thread(task_thread_bound, worker);
++	else
++		pid = fork_thread(task_thread_unbound, worker);
++	if (pid < 0) {
++		kfree(worker);
++		return false;
++	}
+ 	refcount_inc(&wq->refs);
+-	wake_up_process(worker->task);
+ 	return true;
+ }
+ 
+@@ -756,12 +657,17 @@ static bool io_wq_worker_wake(struct io_worker *worker, void *data)
+ static int io_wq_manager(void *data)
+ {
+ 	struct io_wq *wq = data;
++	char buf[TASK_COMM_LEN];
+ 	int node;
+ 
+-	refcount_set(&wq->refs, 1);
++	sprintf(buf, "iou-mgr-%d", wq->task_pid);
++	set_task_comm(current, buf);
++	current->flags |= PF_IO_WORKER;
++	wq->manager = current;
++
+ 	complete(&wq->done);
+ 
+-	while (!kthread_should_stop()) {
++	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
+ 		for_each_node(node) {
+ 			struct io_wqe *wqe = wq->wqes[node];
+ 			bool fork_worker[2] = { false, false };
+@@ -782,11 +688,13 @@ static int io_wq_manager(void *data)
+ 		}
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout(HZ);
++		if (fatal_signal_pending(current))
++			set_bit(IO_WQ_BIT_EXIT, &wq->state);
+ 	}
+ 
+ 	if (refcount_dec_and_test(&wq->refs)) {
+ 		complete(&wq->done);
+-		return 0;
++		do_exit(0);
+ 	}
+ 	/* if ERROR is set and we get here, we have workers to wake */
+ 	if (test_bit(IO_WQ_BIT_ERROR, &wq->state)) {
+@@ -795,7 +703,7 @@ static int io_wq_manager(void *data)
+ 			io_wq_for_each_worker(wq->wqes[node], io_wq_worker_wake, NULL);
+ 		rcu_read_unlock();
+ 	}
+-	return 0;
++	do_exit(0);
+ }
+ 
+ static bool io_wq_can_queue(struct io_wqe *wqe, struct io_wqe_acct *acct,
+@@ -919,7 +827,7 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ 	spin_lock_irqsave(&worker->lock, flags);
+ 	if (worker->cur_work &&
+ 	    match->fn(worker->cur_work, match->data)) {
+-		send_sig(SIGINT, worker->task, 1);
++		set_notify_signal(worker->task);
+ 		match->nr_running++;
+ 	}
+ 	spin_unlock_irqrestore(&worker->lock, flags);
+@@ -1075,22 +983,21 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 		INIT_LIST_HEAD(&wqe->all_list);
+ 	}
+ 
++	wq->task_pid = current->pid;
+ 	init_completion(&wq->done);
++	refcount_set(&wq->refs, 1);
+ 
+-	wq->manager = kthread_create(io_wq_manager, wq, "io_wq_manager");
+-	if (!IS_ERR(wq->manager)) {
+-		wake_up_process(wq->manager);
++	current->flags |= PF_IO_WORKER;
++	ret = fork_thread(io_wq_manager, wq);
++	current->flags &= ~PF_IO_WORKER;
++	if (ret >= 0) {
+ 		wait_for_completion(&wq->done);
+-		if (test_bit(IO_WQ_BIT_ERROR, &wq->state)) {
+-			ret = -ENOMEM;
+-			goto err;
+-		}
+ 		reinit_completion(&wq->done);
+ 		return wq;
+ 	}
+ 
+-	ret = PTR_ERR(wq->manager);
+-	complete(&wq->done);
++	if (refcount_dec_and_test(&wq->refs))
++		complete(&wq->done);
+ err:
+ 	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
+ 	for_each_node(node)
+@@ -1110,7 +1017,7 @@ void io_wq_destroy(struct io_wq *wq)
+ 
+ 	set_bit(IO_WQ_BIT_EXIT, &wq->state);
+ 	if (wq->manager)
+-		kthread_stop(wq->manager);
++		wake_up_process(wq->manager);
+ 
+ 	rcu_read_lock();
+ 	for_each_node(node)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6ad3e1df6504..b0a7a2d3ab4f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1618,6 +1618,9 @@ static struct io_kiocb *__io_queue_async_work(struct io_kiocb *req)
+ 	struct io_kiocb *link = io_prep_linked_timeout(req);
+ 	struct io_uring_task *tctx = req->task->io_uring;
+ 
++	BUG_ON(!tctx);
++	BUG_ON(!tctx->io_wq);
++
+ 	trace_io_uring_queue_async_work(ctx, io_wq_is_hashed(&req->work), req,
+ 					&req->work, req->flags);
+ 	io_wq_enqueue(tctx->io_wq, &req->work);
+@@ -9266,6 +9269,10 @@ static int io_uring_flush(struct file *file, void *data)
+ 	struct io_uring_task *tctx = current->io_uring;
+ 	struct io_ring_ctx *ctx = file->private_data;
+ 
++	/* Ignore helper thread files exit */
++	if (current->flags & PF_IO_WORKER)
++		return 0;
++
+ 	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
+ 		io_uring_cancel_task_requests(ctx, NULL);
+ 		io_req_caches_free(ctx, current);
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6e3a5eeec509..a6a9f0323102 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -895,6 +895,9 @@ struct task_struct {
+ 	/* CLONE_CHILD_CLEARTID: */
+ 	int __user			*clear_child_tid;
+ 
++	/* PF_IO_WORKER */
++	void				*pf_io_worker;
++
+ 	u64				utime;
+ 	u64				stime;
+ #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
 -- 
 2.30.0
 

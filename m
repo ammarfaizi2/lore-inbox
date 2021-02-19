@@ -2,112 +2,136 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E763C4332E
-	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:10:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A57BC433E0
+	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E19264E60
-	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:10:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE62164E60
+	for <io-uring@archiver.kernel.org>; Fri, 19 Feb 2021 17:11:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbhBSRKx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 12:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49642 "EHLO
+        id S229774AbhBSRLA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 12:11:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbhBSRKw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:10:52 -0500
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B69DC061222
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:33 -0800 (PST)
-Received: by mail-io1-xd33.google.com with SMTP id q7so6391079iob.0
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:33 -0800 (PST)
+        with ESMTP id S229726AbhBSRK6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 12:10:58 -0500
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4002FC061756
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:18 -0800 (PST)
+Received: by mail-io1-xd30.google.com with SMTP id u20so6325171iot.9
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 09:10:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=S6aXReAOH/r1zkhoTxhRzRN8MMOH917AAspm2AbvCr8=;
-        b=ysuhE1MnF0aK4xjQwf0VgZWjv5B2VdctL/id7qEC5CTMuJmIcgSHPz1cXWvQylvQla
-         B3ZIwidJ21Qgxit/wHWtZO4MEIxOAvPFCakb9zm7Eznb2Z9l7is3/e+AV/EnmyeZ4ER7
-         2cPNgKecjEOF1BtehTCzdiA4WT20AMKHJKmN2wutgLf/GKitUssVfbJEacIXn5ZbJEEp
-         e0H06d9DcCu3I6qrUcNCwNqWrnk2SumYD2yeLPPXD7g88vZasWstKFw6CGkMvVL/Fnrq
-         YA/tA69aR1ILjTNmDOJunbUzbHvTCDUWskAzyCQ/Ix33ISh2ouvj9lmsleFd9toLB36N
-         JCBg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=he34C2TLSTH+Bn8thVkbSPiLn7w4ciDeWWJWi1oA//o=;
+        b=yeqmqaNU6yumCkDXMDtRR1eAzojyAEKlOjdPvUQMfODSGY93VOxgPfC1TGz7g+alCB
+         Am41VpbmGOrID+E5nBqylsaIuBqzuA5MwhBNmXpT4T+8XSz4YCt2qFka1KRhTRivGA9U
+         z0+Vzp1dthAZMpwYbyGUDrO5swnK/Hqm6yKk9rHymsPq5JxdGSrMTxFdmlJyAmLN6Nb9
+         FSpoV/BBlxdwO6FVC48E2sTUmQhK7wblT8erJ3F3RKCkOwCwgG5FfH9glOzeyTskcHYH
+         fxma9VtpKllv/KW9P9fUkmvsJoHU0FtNFf04YK6rYDaGW/3jvk3RjIiNfVxZ74F5c+54
+         wHCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=S6aXReAOH/r1zkhoTxhRzRN8MMOH917AAspm2AbvCr8=;
-        b=hJT7U2QDxIsXdoNbwa9/mDKnskqL60T2mMV9oaizs6Xaryx9qVHZQ07XZd8CF4/3Xr
-         DyqYLtxIam5oKWIq9htduLmpOdbH7WoSpSG/2iXFUmpEf9VoKQqUwBOnsSAMnplkRlpl
-         MR+i+SOnCAKTxwx8Nw83Y4xWiu/sCdMnceQKgJM8+KOrdCzvhtu8NOkC162vId+FIzfd
-         5JW9mpCE6xCah8m7r5RRaxworQno0OBZ7Yqwh2RddN/YDsG7o+J88FPLeomvXb13KeGA
-         PqC8s5Um4YeuN2c/TwkHVqEL9en1NEedWnD78MuC1kLrLrbk9vbVKzkbgdTZW8RV6rpH
-         OzBw==
-X-Gm-Message-State: AOAM530nDpIAXpybEogFeZEKkbqDhKHC3hry3Q7UE+TMlmtT2yP7dbTE
-        e9hTg9VFeo+l59ePS0tJTUIdsq1LhQgCBHI7
-X-Google-Smtp-Source: ABdhPJxSog2zX1NGySdl9mk35Cg9VVs6Mql7KS0GgK9lklTlux21N+iK5cewMb/XO951qQsjfhdkVA==
-X-Received: by 2002:a05:6638:2683:: with SMTP id o3mr10904259jat.8.1613754631706;
-        Fri, 19 Feb 2021 09:10:31 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=he34C2TLSTH+Bn8thVkbSPiLn7w4ciDeWWJWi1oA//o=;
+        b=rRP3e0BaQwCaLCUH6C67OfsNxuchM0jC/gaQ0op5E8ftE3v5k6UmbeI9JHa+f70gMV
+         dMyIrhG74zoyRg2AY6vuu/jFbx0jWpEqCWyUQWQqbC7aLPu8tvP0TtQwYuRkuIFgb2qy
+         7FmIqeWmwPMvvIQ86RlB3GxTBxBWha3/96hcrEncPboZol6SLV27rf/ED2dP3BfrleRR
+         3Dj8cUFN9u5JeSUV6EG3AZknXICqB3i4brT+2coX64cdKoCeUSP+N6Hv5HF2hM/U3pF9
+         I/MxmFT26fD6SaWv3zMY+J5QsCxDHYbhnMTLu9V5QxoG6WH4sj7XFARtGj/H02snarz9
+         j33w==
+X-Gm-Message-State: AOAM530O6hzMv6xDuA3PhfB5cOnb+HQpFIkOzjFZeoP7ZWKcxUqYUDea
+        QPR/Ko3Qr8MYUSUSpOY/C6kpJYDMq9NNdoiF
+X-Google-Smtp-Source: ABdhPJyBZ7airr2rA+XeLmXpIaZttZUhyeq/Mwf9hVKixPVG9VbaCvJDEYGTP51j4s458LrsU/FnlQ==
+X-Received: by 2002:a05:6638:3803:: with SMTP id i3mr10610664jav.26.1613754617375;
+        Fri, 19 Feb 2021 09:10:17 -0800 (PST)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.31
+        by smtp.gmail.com with ESMTPSA id o17sm4805431ilo.73.2021.02.19.09.10.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 09:10:31 -0800 (PST)
+        Fri, 19 Feb 2021 09:10:17 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
-        torvalds@linux-foundation.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 18/18] net: remove cmsg restriction from io_uring based send/recvmsg calls
-Date:   Fri, 19 Feb 2021 10:10:10 -0700
-Message-Id: <20210219171010.281878-19-axboe@kernel.dk>
+        torvalds@linux-foundation.org
+Subject: [PATCHSET RFC 0/18] Remove kthread usage from io_uring
+Date:   Fri, 19 Feb 2021 10:09:52 -0700
+Message-Id: <20210219171010.281878-1-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210219171010.281878-1-axboe@kernel.dk>
-References: <20210219171010.281878-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-No need to restrict these anymore, as the worker threads are direct
-clones of the original task. Hence we know for a fact that we can
-support anything that the regular task can.
+Hi,
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- net/socket.c | 10 ----------
- 1 file changed, 10 deletions(-)
+tldr - instead of using kthreads that assume the identity of the original
+tasks for work that needs offloading to a thread, setup these workers as
+threads of the original task.
 
-diff --git a/net/socket.c b/net/socket.c
-index 33e8b6c4e1d3..71fb2af118f5 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2408,10 +2408,6 @@ static int ___sys_sendmsg(struct socket *sock, struct user_msghdr __user *msg,
- long __sys_sendmsg_sock(struct socket *sock, struct msghdr *msg,
- 			unsigned int flags)
- {
--	/* disallow ancillary data requests from this path */
--	if (msg->msg_control || msg->msg_controllen)
--		return -EINVAL;
--
- 	return ____sys_sendmsg(sock, msg, flags, NULL, 0);
- }
- 
-@@ -2620,12 +2616,6 @@ long __sys_recvmsg_sock(struct socket *sock, struct msghdr *msg,
- 			struct user_msghdr __user *umsg,
- 			struct sockaddr __user *uaddr, unsigned int flags)
- {
--	if (msg->msg_control || msg->msg_controllen) {
--		/* disallow ancillary data reqs unless cmsg is plain data */
--		if (!(sock->ops->flags & PROTO_CMSG_DATA_ONLY))
--			return -EINVAL;
--	}
--
- 	return ____sys_recvmsg(sock, msg, umsg, uaddr, flags, 0);
- }
- 
+Here's a first cut of moving away from kthreads for io_uring. It passes
+the test suite and various other testing I've done with it. It also
+performs better, both for workloads actually using the async offload, but
+also in general as we slim down structures and kill code from the hot path.
+
+The series is roughly split into these parts:
+
+- Patches 1-6, io_uring/io-wq prep patches
+- Patches 7-8, Minor arch/kernel support
+- Patches 9-15, switch from kthread to thread, remove state only needed
+  for kthreads
+- Patches 16-18, remove now dead/unneeded PF_IO_WORKER restrictions
+
+Comments/suggestions welcome. I'm pretty happy with the series at this
+point, and particularly with how we end up cutting a lot of code while
+also unifying how sync vs async is presented.
+
+If you prefer browsing this on cgit, find it here:
+
+https://git.kernel.dk/cgit/linux-block/log/?h=io_uring-worker.v2
+
+ arch/alpha/kernel/process.c      |   2 +-
+ arch/arc/kernel/process.c        |   2 +-
+ arch/arm/kernel/process.c        |   2 +-
+ arch/arm64/kernel/process.c      |   2 +-
+ arch/c6x/kernel/process.c        |   2 +-
+ arch/csky/kernel/process.c       |   2 +-
+ arch/h8300/kernel/process.c      |   2 +-
+ arch/hexagon/kernel/process.c    |   2 +-
+ arch/ia64/kernel/process.c       |   2 +-
+ arch/m68k/kernel/process.c       |   2 +-
+ arch/microblaze/kernel/process.c |   2 +-
+ arch/mips/kernel/process.c       |   2 +-
+ arch/nds32/kernel/process.c      |   2 +-
+ arch/nios2/kernel/process.c      |   2 +-
+ arch/openrisc/kernel/process.c   |   2 +-
+ arch/riscv/kernel/process.c      |   2 +-
+ arch/s390/kernel/process.c       |   2 +-
+ arch/sh/kernel/process_32.c      |   2 +-
+ arch/sparc/kernel/process_32.c   |   2 +-
+ arch/sparc/kernel/process_64.c   |   2 +-
+ arch/um/kernel/process.c         |   2 +-
+ arch/x86/kernel/process.c        |   2 +-
+ arch/xtensa/kernel/process.c     |   2 +-
+ fs/io-wq.c                       | 393 +++++--------
+ fs/io-wq.h                       |  14 +-
+ fs/io_uring.c                    | 917 ++++++++++---------------------
+ fs/proc/self.c                   |   7 -
+ fs/proc/thread_self.c            |   7 -
+ include/linux/io_uring.h         |  20 +-
+ include/linux/sched.h            |   3 +
+ kernel/ptrace.c                  |   2 +-
+ kernel/signal.c                  |   4 +-
+ net/socket.c                     |  10 -
+ 33 files changed, 451 insertions(+), 972 deletions(-)
+
 -- 
-2.30.0
+Jens Axboe
+
 

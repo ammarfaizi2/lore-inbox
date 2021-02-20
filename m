@@ -2,99 +2,80 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13527C433DB
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D23BBC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3E9164ED5
+	by mail.kernel.org (Postfix) with ESMTP id 9AB5264E86
 	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbhBTBod (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 20:44:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
+        id S229762AbhBTBob (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 20:44:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229745AbhBTBoc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 20:44:32 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DCEC061786
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:52 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id l12so11205558wry.2
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:52 -0800 (PST)
+        with ESMTP id S229745AbhBTBoa (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 20:44:30 -0500
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2BBC061574
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:50 -0800 (PST)
+Received: by mail-wm1-x32d.google.com with SMTP id m1so9190786wml.2
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=bpr7bcwv8IF7eBdQSjpooIpsgH7POu4TY/zR4rLnSNg=;
-        b=aftkySGTa6EhCmZsBezmzVEcN8TgoKARQSPKf0GItUSSuTuCtRLNwUL3YeGCEAhY/i
-         k4mkwwuuWO0ZEUIyjUQwEycmVgrhnv9nttroUezI5avKOqn1hs8yfcMiRzPGZfrJ+laU
-         Vq/H9R0+303rFaCjlKif5hXcR0Els1pD3QNR6FbOLKZSllMWI5cPncbq9BL8S1yeppDL
-         AGdiQHwsubiw9BVmaunB0UIRPGXRElBwC+/ZctQ2OE4o2NeMUXTBzImak6cTuHSYP5f7
-         bkQPIDrBOA4oJMHXAS/Vfsrz0lclPbgRU10xfYwcXiMbD1VefkKjceib2ju2RubNI50H
-         yxEw==
+        bh=2gmT8o5uWuByRsBgaqh/64/L4u8MjA5Bckrlwo9yiew=;
+        b=bTCkfXni52uAUUkPMi62d+li+NFSuLHcn6dKYkaqcHMgUBeN42S1ofvctORrXe/ql6
+         ITmvsfCbrJDmp5iv2coqpSw/r1vzDaBRFCptl3gmie11Ht6njfDiMNtqjxLjrvjx7EDz
+         G3nyz+p1fJ3rSo/al1hLljyEJ1TrKF2MQGheFvcqf6fPl4s6l01srszbGh/5BhT/fERJ
+         2Xb/bi4/IAakZY74ZBisERi2kiWBjemXLoqI4mHe9XqqNk8Fr8X7fwGJeM2SBKKfTvWQ
+         0/6Z35CqAkdRJTD/p20n/UT9zqWsrfcDq4d+x4vnRH98tdchyYmlxmCJ9LrOJlqbA0xH
+         Vk9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bpr7bcwv8IF7eBdQSjpooIpsgH7POu4TY/zR4rLnSNg=;
-        b=VteKP8kl3Dcb7ZAPbCDmm33+1tsPNhUwvaVzIlPxsgnv1GjZdKM0v7H5eGhLtmB1Mq
-         naFTTkN0IeWC6Lb+UamS+SU1W5XCsTE6MjTYsvuWfaGqRp0MXnpKYzrG7jN9u9c4Pyzh
-         4MIWFlpu/u31/ss2iSmh5R/+ZPEBw42cJgWT6JFf8JfqSk/c8KXIRpUx65VNuYYG7rpk
-         ki89EdnS2Js1ksh+ThvkZDMsz15DSkP0WhIjCm487mX42J5o9oeU7LxKlAIiZNy+lU5c
-         TaSkK4MJbb9IEAsYFPrlAy2PVS4EkigNHCPmCegVtXeR6vnq/jn+BcteufgcCH5PSHZc
-         rDBQ==
-X-Gm-Message-State: AOAM533G4uJIntULr4FSDd1wjGbRolLjV1WNye2Ni9PZxpNrAPaiz5ix
-        p9aOQVanZ73g3aJ45/j6KgY=
-X-Google-Smtp-Source: ABdhPJy/bfTCQods06HoF+I10ziCedly6ymAT169WEUFBX/S04x4a6LOCbKfZ7lOiAKlpGsZBBjQMg==
-X-Received: by 2002:a5d:58ce:: with SMTP id o14mr10538389wrf.424.1613785431333;
-        Fri, 19 Feb 2021 17:43:51 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2gmT8o5uWuByRsBgaqh/64/L4u8MjA5Bckrlwo9yiew=;
+        b=QJ10Zx6u6j5IylUwCwWGVOx++cjdiom5Bvd/ETan+gX/i1hI4d+ir+hEPreFM5jSnj
+         ytEALLjvVHd4R3UWEu1BggKTHKVfqJ/cv+XbcB8MdML5bcWT1xLg+Iu3EgbJFzQmS9ok
+         28QVT6CHkyw7CPKYbquBe4XL9KtwjuLcgubXTcolFAaB63jtMwvoqRCLS+hOotFWiaJS
+         C74WswI8YZjyWp44QAPIakpzaZDBOK+rPqq88Jg/ZHYvmK2NYep/2Nm49moWBUOOhRUV
+         72ep6sA09xzYHEl9ZW76WF/HDbUpm+CVwLKivst+0G29GtylDM5wyxcSFmnNMskQ6Ui0
+         Ovgg==
+X-Gm-Message-State: AOAM531ROW8HPZHlQJ6oDW3XGHvxYzBbU/Qc5vYJO/pyxKrA2xiItfEa
+        0RDEios1xuXaY4dIwSP9RKekspOKCSzBug==
+X-Google-Smtp-Source: ABdhPJz/eJ9lFeR28tqf4gzQCNpn2wATYSharnGD3B8Pd2i4Bfd5DfHNlX134wEugsjSKqm2J1MgTA==
+X-Received: by 2002:a05:600c:2301:: with SMTP id 1mr8176879wmo.166.1613785429193;
+        Fri, 19 Feb 2021 17:43:49 -0800 (PST)
 Received: from localhost.localdomain ([85.255.236.139])
-        by smtp.gmail.com with ESMTPSA id f7sm16056595wrm.92.2021.02.19.17.43.50
+        by smtp.gmail.com with ESMTPSA id f7sm16056595wrm.92.2021.02.19.17.43.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 17:43:51 -0800 (PST)
+        Fri, 19 Feb 2021 17:43:48 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: fix leaving invalid req->flags
-Date:   Sat, 20 Feb 2021 01:39:53 +0000
-Message-Id: <67c634daf96050926d32cf9c692e53b9144e6f79.1613785076.git.asml.silence@gmail.com>
+Subject: [PATCH 0/2] random fixes
+Date:   Sat, 20 Feb 2021 01:39:51 +0000
+Message-Id: <cover.1613785076.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613785076.git.asml.silence@gmail.com>
-References: <cover.1613785076.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-sqe->flags are subset of req flags, so incorrectly copied may span into
-in-kernel flags and wreck havoc, e.g. by setting REQ_F_INFLIGHT.
+Just two unrelated fixes batched together.
 
-Fixes: 5be9ad1e4287e ("io_uring: optimise io_init_req() flags setting")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Pavel Begunkov (2):
+  io_uring: wait potential ->release() on resurrect
+  io_uring: fix leaving invalid req->flags
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ce5fccf00367..2bd10f89b837 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6687,8 +6687,10 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	req->result = 0;
- 
- 	/* enforce forwards compatibility on users */
--	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
-+	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS)) {
-+		req->flags = 0;
- 		return -EINVAL;
-+	}
- 
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
- 		return -EINVAL;
+ fs/io_uring.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
 -- 
 2.24.0
 

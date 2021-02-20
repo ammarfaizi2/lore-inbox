@@ -2,103 +2,126 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1B6BC43381
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 17:26:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC283C433E0
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 17:45:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A02A364EE2
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 17:26:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70F1364EB4
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 17:45:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbhBTR0S (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 20 Feb 2021 12:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48576 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229817AbhBTR0R (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Feb 2021 12:26:17 -0500
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D3E0C06178A;
-        Sat, 20 Feb 2021 09:25:36 -0800 (PST)
-Received: by mail-wr1-x42f.google.com with SMTP id f7so13156394wrt.12;
-        Sat, 20 Feb 2021 09:25:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=54AnpaWMyfYuq/h7VqmVoWY2kNLRu6ylLPSweeYy4a8=;
-        b=e034LxaN7MUAh6vgSF32HG5qyXDILqvpkRkQnEqjUwPLDEjJwmokamAyovpCkpdwJg
-         htxTsMcWjeFC7Hc2PVumLnvCvt1VIvoMpaulpWfcoX+aWnvV0JdqQffVGrKddaqGCnRA
-         EaOUH7j2wF8n3QUUeFN4hXKAtdNybzX5LZdh1OY3LqKDTOR6Map3R4Ic1FFGmKXAIiHl
-         EEhcEgBty+Sjb00zfuf93pKCcckBGYYcRDVow09vNTEgTzFD/GMXWf+AfS8VIhnXXk23
-         oh1cg/OXsRK4/3OTX5ECbKnS5tfdhkXnUv01GjUJIcybYT8jmOkt9YwPiLdIxlfta1nY
-         WbJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=54AnpaWMyfYuq/h7VqmVoWY2kNLRu6ylLPSweeYy4a8=;
-        b=hx56jVUa8/r3Eq/h0JMcfOQb0Uowhr+wANM/1LgoXarAl3bRmcTAmKWlfmWsFfzhn1
-         EtZ3ucUpbB2OXEm5gpkV+nz4E/uC0qXDuKcY3iduT32n3ZvPBekpyb43hnQl1rqQjYxl
-         JJQjbh7D0M3PqT2JZr4Z48oOL3vXW62YJWthLhfQoFpz1FMcdR6xql+32i4xTQ3WJOWu
-         TbKFIJY5i+lskgANpRj1B901m3vJ9qZILXcAKye7mNhCmu26lF2ZBFLPGW0twLaY3iij
-         eNnVI9pTPTToUmv1YgC59n5W8V3SUC9/bDgeZY7ObyHgAklZCmRO9oE1UIjoEF62ZvF0
-         dTkA==
-X-Gm-Message-State: AOAM5322/d4LZ22TAdMcRK4dTHpz3BoyzIhyAwPi4nOChbspV5BT2KMb
-        /5PoFj9cwedKjnfw9RmJJtyvgYwLNBfftA==
-X-Google-Smtp-Source: ABdhPJxGLx1M7n9iCvU8Q9ZOiYMbFCgAOxSTkhsu1zHNs3TnnGMGuVnrJUCd8aLC3c4Q4AoNyJJCBQ==
-X-Received: by 2002:a5d:4b50:: with SMTP id w16mr6445740wrs.34.1613841935229;
-        Sat, 20 Feb 2021 09:25:35 -0800 (PST)
-Received: from localhost.localdomain ([148.252.132.56])
-        by smtp.gmail.com with ESMTPSA id r1sm19908520wrl.95.2021.02.20.09.25.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Feb 2021 09:25:34 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: wait for ->release() on rsrc resurrect
-Date:   Sat, 20 Feb 2021 17:21:36 +0000
-Message-Id: <73ff1722a3cc15deb79be163eddcbe44db047981.1613841429.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613841429.git.asml.silence@gmail.com>
-References: <cover.1613841429.git.asml.silence@gmail.com>
+        id S229828AbhBTRpr convert rfc822-to-8bit (ORCPT
+        <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 20 Feb 2021 12:45:47 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:48058 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229810AbhBTRpq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Feb 2021 12:45:46 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-261-9s6Dn3PkOTySVu2_pMSh9w-1; Sat, 20 Feb 2021 17:44:07 +0000
+X-MC-Unique: 9s6Dn3PkOTySVu2_pMSh9w-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Sat, 20 Feb 2021 17:44:06 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Sat, 20 Feb 2021 17:44:06 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Lennert Buytenhek' <buytenh@wantstofly.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>
+CC:     Matthew Wilcox <willy@infradead.org>
+Subject: RE: [PATCH v3 0/2] io_uring: add support for IORING_OP_GETDENTS
+Thread-Topic: [PATCH v3 0/2] io_uring: add support for IORING_OP_GETDENTS
+Thread-Index: AQHXBfFRAjVxpRid2k+E4G2FbTp65qphUAow
+Date:   Sat, 20 Feb 2021 17:44:06 +0000
+Message-ID: <247d154f2ba549b88a77daf29ec1791f@AcuMS.aculab.com>
+References: <20210218122640.GA334506@wantstofly.org>
+In-Reply-To: <20210218122640.GA334506@wantstofly.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As with ctx refs, on resurrect wait for potentially concurrently running
-->release().
+From: Lennert Buytenhek
+> Sent: 18 February 2021 12:27
+> 
+> These patches add support for IORING_OP_GETDENTS, which is a new io_uring
+> opcode that more or less does an lseek(sqe->fd, sqe->off, SEEK_SET)
+> followed by a getdents64(sqe->fd, (void *)sqe->addr, sqe->len).
+> 
+> A dumb test program for IORING_OP_GETDENTS is available here:
+> 
+> 	https://krautbox.wantstofly.org/~buytenh/uringfind-v2.c
+> 
+> This test program does something along the lines of what find(1) does:
+> it scans recursively through a directory tree and prints the names of
+> all directories and files it encounters along the way -- but then using
+> io_uring.  (The io_uring version prints the names of encountered files and
+> directories in an order that's determined by SQE completion order, which
+> is somewhat nondeterministic and likely to differ between runs.)
+> 
+> On a directory tree with 14-odd million files in it that's on a
+> six-drive (spinning disk) btrfs raid, find(1) takes:
+> 
+> 	# echo 3 > /proc/sys/vm/drop_caches
+> 	# time find /mnt/repo > /dev/null
+> 
+> 	real    24m7.815s
+> 	user    0m15.015s
+> 	sys     0m48.340s
+> 	#
+> 
+> And the io_uring version takes:
+> 
+> 	# echo 3 > /proc/sys/vm/drop_caches
+> 	# time ./uringfind /mnt/repo > /dev/null
+> 
+> 	real    10m29.064s
+> 	user    0m4.347s
+> 	sys     0m1.677s
+> 	#
 
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+While there may be uses for IORING_OP_GETDENTS are you sure your
+test is comparing like with like?
+The underlying work has to be done in either case, so you are
+swapping system calls for code complexity.
+I suspect that find is actually doing a stat() call on every
+directory entry and that your io_uring example is just believing
+the 'directory' flag returned in the directory entry for most
+modern filesystems.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6ea4633e5ed5..c08d32523f79 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7368,13 +7368,11 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
- 		flush_delayed_work(&ctx->rsrc_put_work);
- 
- 		ret = wait_for_completion_interruptible(&data->done);
--		if (!ret)
-+		if (!ret || !io_refs_resurrect(&data->refs, &data->done))
- 			break;
- 
--		percpu_ref_resurrect(&data->refs);
- 		io_sqe_rsrc_set_node(ctx, data, backup_node);
- 		backup_node = NULL;
--		reinit_completion(&data->done);
- 		mutex_unlock(&ctx->uring_lock);
- 		ret = io_run_task_work_sig();
- 		mutex_lock(&ctx->uring_lock);
--- 
-2.24.0
+If you write a program that does openat(), readdir(), close()
+for each directory and with a long enough buffer (mostly) do
+one readdir() per directory you'll get a much better comparison.
+
+You could even write a program with 2 threads, one does all the
+open/readdir/close system calls and the other does the printing
+and generating the list of directories to process.
+That should get the equivalent overlapping that io_uring gives
+without much of the complexity.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 

@@ -2,105 +2,87 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 233A9C433E6
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8D6CC433E0
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 03:41:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1AB964EE4
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7868664EE1
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 03:41:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229745AbhBTBod (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 20:44:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46340 "EHLO
+        id S229934AbhBTDla (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 22:41:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229766AbhBTBod (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 20:44:33 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAED6C06178A;
-        Fri, 19 Feb 2021 17:43:52 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id l17so8509368wmq.2;
-        Fri, 19 Feb 2021 17:43:52 -0800 (PST)
+        with ESMTP id S229765AbhBTDla (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 22:41:30 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D662BC061786
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 19:40:49 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id e9so4444366plh.3
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 19:40:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FYBarikwV1Yze5t65acElvgiT8V84oWK6ytr04KyxP0=;
-        b=MH8aAhcGXY7DqSh7aoWco8F4EKL/RSRsQegjuDYdk1T0fw7/94mRrUFROU2VF1oJyz
-         v5ciOw0k+hMNFCxQVxhpZCio5UsfNVXA3Fg+Jk+Okx0tpxAbooESc37DXJsrPftxZqPy
-         vlAcWJBee5FkLunbYMJgxZ6keqXm0GfG1Jw4OYRqm4LyJekgMPmyBX6BeyoqZ9fAOWBB
-         rxp8lqFgCszFKwj6sEIR0PUSg1Yziq8oXHI4V6j2HKh/i9s5Mr6QqhXH2oFbLRwh+twS
-         GMRRe8ltZ44AHRg5kkN2D2r5w/yhiTl1jxYAmQKuR9n8YIfZh6KEpGFc3nS/8+O03DAm
-         MsUQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=6jt3gbYErGCzVqXwrw0j1MDwi/V+DbPwPhbFBvdatBQ=;
+        b=QI5McYwyk5IxzUIodb0NsvibxF0lPDxPVuLZalTge8OpQMDC12Pf3nhM9tq8NanqF9
+         jSZzBKl2HVechPMkcqtaco8yMZ2iphW88WZX1sxIoQkag2lbuDMKzhamw5ifULchy/ik
+         2kK3NkUDTFgJS2Yp5XSVqbsI6KDvG+GH9CYx/gGCMcclTUfC8fbpI9rwcgDMY6DpApZy
+         QYg28l0P1Slc3M/6OxQA2BOzn8vepmjawRxaHVfC9n1NlkShkiX3rEQmxa/FmVeZbv9I
+         m+kHaebKsh6s95fZkJM3wE1Q00ONWXhDmcsTcsjEYBNTBiWiwvbLpKBY1vSqr6TcTIst
+         CElg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FYBarikwV1Yze5t65acElvgiT8V84oWK6ytr04KyxP0=;
-        b=pYRO2JqPMerlZeaoozUyhekOtfrKsgKutjwiGZ+tBF7ZDXkIGJMn1LE1u4SbTTgKW6
-         DcaefRXWYsSX/38Jp38VTRyWtdyRzlO6YlpWFP/48Ma77vExHckUXj+5gF+D/hh9nxaU
-         F+sZ1wmJfQvPNz+MnRcE58Bdp16K4UWZwf1Ce6B3OYjwsVjBydOZc0HpBg9ElhSQhVN8
-         MJb8SVyo+mzL5S4R5OmjS4z7e5S/UAys5wGt1ONk30I6WTh8X0Lfu88nz8RGZtNaV645
-         Dj+7lGOMdedVS4XnoCOFj8JnSFm2UJakuQLqG/LogYVoFjqwMRF/smV8oFcBteaIKsC6
-         oECg==
-X-Gm-Message-State: AOAM5322k5hbtbY7aRh5Ej/1f2448RWBVmMEbZca84K8NloYYpYomoBr
-        nwykMv9ExsR0ce3FDGJFVK3aTPQrqC8vDQ==
-X-Google-Smtp-Source: ABdhPJzCIDNZccAD7IJ/7I2Ojod1e26nzwZ6MYJ/LBaSO9u0RMs5wFrq5iMKRsgmFlklZLtQ13cM7A==
-X-Received: by 2002:a05:600c:1991:: with SMTP id t17mr10535446wmq.118.1613785430366;
-        Fri, 19 Feb 2021 17:43:50 -0800 (PST)
-Received: from localhost.localdomain ([85.255.236.139])
-        by smtp.gmail.com with ESMTPSA id f7sm16056595wrm.92.2021.02.19.17.43.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 17:43:50 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=6jt3gbYErGCzVqXwrw0j1MDwi/V+DbPwPhbFBvdatBQ=;
+        b=SHLAGU7OW8IsyR4hBOqwZt/NyUPfhiB78LhbE2xtH9yQfIuP2YKeDmzTB070GrsK8X
+         fSqIwnMoKG/ETqunF5UjAHfCGmEe9Ir3E2MV1ZlYC73p5m3YSX/O3tejg3mX0WAlv2MQ
+         9wGp0JBjLAZaHho6acGJA/CYLCHSUvhSEzwHclPSF2WPm8Vv7+p4h+hO7GhU9+upBJ20
+         W0xnXY1Y9nFHZKoSeRGsZKS/v3F1z6BMU/VOMgR7HVFulqBgjN0sbQjZb4ODNKbPqDeQ
+         boTLFFqr9itU2My+ll5bJ+kOK8hUR9Vvc9rvrEriy/p8f94AsIC7MeUAmerg/CwfZDJ2
+         exzw==
+X-Gm-Message-State: AOAM533lt2OA8je0KZIGK5f5JxzBVVV8piAIhILnsSkUglEVOJ37YotG
+        TYEA5UloHJt7Mntxcd2VPir9Bw==
+X-Google-Smtp-Source: ABdhPJyRfz7ie9+qo2jZoSEjRvqrzJTBXcAo3gAKbhmJKB0GRGOVP/0SqXAnUkUV+BF9iixr+xriEg==
+X-Received: by 2002:a17:90b:224f:: with SMTP id hk15mr12194864pjb.31.1613792449316;
+        Fri, 19 Feb 2021 19:40:49 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y23sm10837002pfo.50.2021.02.19.19.40.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Feb 2021 19:40:48 -0800 (PST)
+Subject: Re: [PATCH 1/2] io_uring: wait potential ->release() on resurrect
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: [PATCH 1/2] io_uring: wait potential ->release() on resurrect
-Date:   Sat, 20 Feb 2021 01:39:52 +0000
-Message-Id: <75e1c94aff46a5bc409f50e50207f4d9a01ff9a0.1613785076.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613785076.git.asml.silence@gmail.com>
 References: <cover.1613785076.git.asml.silence@gmail.com>
+ <75e1c94aff46a5bc409f50e50207f4d9a01ff9a0.1613785076.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <914848f1-f30e-4d3a-ab40-9db78e1321b7@kernel.dk>
+Date:   Fri, 19 Feb 2021 20:40:46 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <75e1c94aff46a5bc409f50e50207f4d9a01ff9a0.1613785076.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There is a short window where percpu_refs are already turned zero, but
-we try to do resurrect(). Play nicer and wait for all users to leave RCU
-section.
+On 2/19/21 6:39 PM, Pavel Begunkov wrote:
+> There is a short window where percpu_refs are already turned zero, but
+> we try to do resurrect(). Play nicer and wait for all users to leave RCU
+> section.
 
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+We need to do something better than synchronize_rcu() here, that can
+take a long time on a loaded box. I'll try and think about this one.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f3af499b12a9..ce5fccf00367 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7351,6 +7351,7 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
- 			break;
- 
- 		percpu_ref_resurrect(&data->refs);
-+		synchronize_rcu();
- 		io_sqe_rsrc_set_node(ctx, data, backup_node);
- 		reinit_completion(&data->done);
- 		mutex_unlock(&ctx->uring_lock);
-@@ -10089,6 +10090,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 
- 		if (ret) {
- 			percpu_ref_resurrect(&ctx->refs);
-+			synchronize_rcu();
- 			goto out_quiesce;
- 		}
- 	}
 -- 
-2.24.0
+Jens Axboe
 

@@ -2,90 +2,99 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70BABC433DB
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 00:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13527C433DB
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F0A764EDB
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 00:29:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3E9164ED5
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 01:44:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbhBTA3l (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Feb 2021 19:29:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58590 "EHLO
+        id S229802AbhBTBod (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Feb 2021 20:44:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229745AbhBTA3k (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 19:29:40 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69DCC061221
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 16:28:45 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id t11so6238340pgu.8
-        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 16:28:45 -0800 (PST)
+        with ESMTP id S229745AbhBTBoc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Feb 2021 20:44:32 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DCEC061786
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:52 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id l12so11205558wry.2
+        for <io-uring@vger.kernel.org>; Fri, 19 Feb 2021 17:43:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=kT2kE803nTH/o5x5uN2IT13c/TKzi4P9HlbUULtB0SY=;
-        b=uwcZ12EIRIGfrtn1IDQOCaOGNiN9UKPyzTGd5GqllbWU3HvaljAX2Rd4Ji6MFC8rm0
-         +yAw5YxYMULjvgmM0QHFHBSNneROvv3Ik/Jrr1+NL3OLd8L8qzWYvyboZpxqyaD0QrXc
-         1KUZ/XdA476iIQTSusZXl5p8stM/O1Xc/aPI+7dMQtAE5HHzRf8TizGDCqx2quLWuWL1
-         A+YkFwD3kYIECEy0d4cw+uZzkRN5nxlv+Q+fkznGjEA6a+I6DPAzU/0xrIcrB6IojL4z
-         g1DWY2t3tDwsBOrO8PRgxVrJTAW8PS12G4Te6cKoYIuKnR3gWdL+gDFgRz2mEry47Fg0
-         Bs4w==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=bpr7bcwv8IF7eBdQSjpooIpsgH7POu4TY/zR4rLnSNg=;
+        b=aftkySGTa6EhCmZsBezmzVEcN8TgoKARQSPKf0GItUSSuTuCtRLNwUL3YeGCEAhY/i
+         k4mkwwuuWO0ZEUIyjUQwEycmVgrhnv9nttroUezI5avKOqn1hs8yfcMiRzPGZfrJ+laU
+         Vq/H9R0+303rFaCjlKif5hXcR0Els1pD3QNR6FbOLKZSllMWI5cPncbq9BL8S1yeppDL
+         AGdiQHwsubiw9BVmaunB0UIRPGXRElBwC+/ZctQ2OE4o2NeMUXTBzImak6cTuHSYP5f7
+         bkQPIDrBOA4oJMHXAS/Vfsrz0lclPbgRU10xfYwcXiMbD1VefkKjceib2ju2RubNI50H
+         yxEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kT2kE803nTH/o5x5uN2IT13c/TKzi4P9HlbUULtB0SY=;
-        b=GAgFjQAdiIqG1Xaj3/HQDn65Ksqwxq5eDVeaSYsV4nMhd4rwST0AlZrz0Zej45KgQG
-         01MYMnrqW8s6MNg0IYYq/oKWvOjQ65dHmeUPYh2ub4zWbh0L1oJKKXfx7qYgys9Cy6NL
-         8T4Ar+hzRlH71So2jrEt884QVyu0hL3FJoZ74C1bAaGikOHMRx5AEsyIIw9I+ETQr7ft
-         +QUJRQ0fJ8401lQ2/Fy2Ap3dtFmBqWk3jSaxASqpQQSpDhHTbod7Dj0g6P2EMCbOr+7E
-         NX3ihTooCku+sx+osRk7VAnwgAkkObNeRmqfGHl8XJvyVi++pTprPls0qF4IIQnBUiFM
-         SJow==
-X-Gm-Message-State: AOAM530QLQ8Lb/DaCb+ntEaYgE+gXm0a7ja658gLPZmudlYIthZpIf6v
-        kuy56QXdPfE2vPFxRHbtMuNwtayne6SGkQ==
-X-Google-Smtp-Source: ABdhPJykGa5PpA2taXbVzK/xHNzFjqX/fMkkNKWgVIR0gN1SwvcNiW4IBLMrrCkWeyltFI48peHujg==
-X-Received: by 2002:a63:1c08:: with SMTP id c8mr10603768pgc.228.1613780924838;
-        Fri, 19 Feb 2021 16:28:44 -0800 (PST)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id u15sm10620310pfm.130.2021.02.19.16.28.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Feb 2021 16:28:44 -0800 (PST)
-Subject: Re: [PATCH 0/3] rsrc quiesce fixes/hardening
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1613767375.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <9fa77894-8213-af7d-8b9d-8aa29dfe54ee@kernel.dk>
-Date:   Fri, 19 Feb 2021 17:28:43 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=bpr7bcwv8IF7eBdQSjpooIpsgH7POu4TY/zR4rLnSNg=;
+        b=VteKP8kl3Dcb7ZAPbCDmm33+1tsPNhUwvaVzIlPxsgnv1GjZdKM0v7H5eGhLtmB1Mq
+         naFTTkN0IeWC6Lb+UamS+SU1W5XCsTE6MjTYsvuWfaGqRp0MXnpKYzrG7jN9u9c4Pyzh
+         4MIWFlpu/u31/ss2iSmh5R/+ZPEBw42cJgWT6JFf8JfqSk/c8KXIRpUx65VNuYYG7rpk
+         ki89EdnS2Js1ksh+ThvkZDMsz15DSkP0WhIjCm487mX42J5o9oeU7LxKlAIiZNy+lU5c
+         TaSkK4MJbb9IEAsYFPrlAy2PVS4EkigNHCPmCegVtXeR6vnq/jn+BcteufgcCH5PSHZc
+         rDBQ==
+X-Gm-Message-State: AOAM533G4uJIntULr4FSDd1wjGbRolLjV1WNye2Ni9PZxpNrAPaiz5ix
+        p9aOQVanZ73g3aJ45/j6KgY=
+X-Google-Smtp-Source: ABdhPJy/bfTCQods06HoF+I10ziCedly6ymAT169WEUFBX/S04x4a6LOCbKfZ7lOiAKlpGsZBBjQMg==
+X-Received: by 2002:a5d:58ce:: with SMTP id o14mr10538389wrf.424.1613785431333;
+        Fri, 19 Feb 2021 17:43:51 -0800 (PST)
+Received: from localhost.localdomain ([85.255.236.139])
+        by smtp.gmail.com with ESMTPSA id f7sm16056595wrm.92.2021.02.19.17.43.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Feb 2021 17:43:51 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 2/2] io_uring: fix leaving invalid req->flags
+Date:   Sat, 20 Feb 2021 01:39:53 +0000
+Message-Id: <67c634daf96050926d32cf9c692e53b9144e6f79.1613785076.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1613785076.git.asml.silence@gmail.com>
+References: <cover.1613785076.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <cover.1613767375.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 2/19/21 1:45 PM, Pavel Begunkov wrote:
-> 1/3 addresses new races in io_rsrc_ref_quiesce(), others are hardenings.
-> 
-> Pavel Begunkov (3):
->   io_uring: zero ref_node after killing it
->   io_uring: fix io_rsrc_ref_quiesce races
->   io_uring: keep generic rsrc infra generic
-> 
->  fs/io_uring.c | 65 +++++++++++++++++----------------------------------
->  1 file changed, 21 insertions(+), 44 deletions(-)
+sqe->flags are subset of req flags, so incorrectly copied may span into
+in-kernel flags and wreck havoc, e.g. by setting REQ_F_INFLIGHT.
 
-Looks (and tests) good to me, applied.
+Fixes: 5be9ad1e4287e ("io_uring: optimise io_init_req() flags setting")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index ce5fccf00367..2bd10f89b837 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6687,8 +6687,10 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	req->result = 0;
+ 
+ 	/* enforce forwards compatibility on users */
+-	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS))
++	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS)) {
++		req->flags = 0;
+ 		return -EINVAL;
++	}
+ 
+ 	if (unlikely(req->opcode >= IORING_OP_LAST))
+ 		return -EINVAL;
 -- 
-Jens Axboe
+2.24.0
 

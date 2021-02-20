@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBDF4C433DB
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 11:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE692C433DB
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 11:08:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4B7364EDE
-	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 11:07:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89F8864EDE
+	for <io-uring@archiver.kernel.org>; Sat, 20 Feb 2021 11:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbhBTLHo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 20 Feb 2021 06:07:44 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:44072 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229802AbhBTLH1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Feb 2021 06:07:27 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UP1BfWE_1613819203;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UP1BfWE_1613819203)
+        id S229842AbhBTLHq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 20 Feb 2021 06:07:46 -0500
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:16394 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229828AbhBTLHj (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Feb 2021 06:07:39 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UP1O7pW_1613819207;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UP1O7pW_1613819207)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 20 Feb 2021 19:06:44 +0800
+          Sat, 20 Feb 2021 19:06:47 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com, axboe@kernel.dk
 Cc:     hch@lst.de, ming.lei@redhat.com, linux-block@vger.kernel.org,
         dm-devel@redhat.com, io-uring@vger.kernel.org,
         joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com
-Subject: [PATCH v4 06/12] blk-mq: add iterator for polling hw queues
-Date:   Sat, 20 Feb 2021 19:06:31 +0800
-Message-Id: <20210220110637.50305-7-jefflexu@linux.alibaba.com>
+Subject: [PATCH v4 09/12] nvme/pci: don't wait for locked polling queue
+Date:   Sat, 20 Feb 2021 19:06:34 +0800
+Message-Id: <20210220110637.50305-10-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210220110637.50305-1-jefflexu@linux.alibaba.com>
 References: <20210220110637.50305-1-jefflexu@linux.alibaba.com>
@@ -40,32 +40,38 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add one helper function for iterating all hardware queues in polling
-mode.
+There's no sense waiting for the hw queue when it currently has been
+locked by another polling instance. The polling instance currently
+occupying the hw queue will help reap the completion events.
+
+It shall be safe to surrender the hw queue, as long as we could reapply
+for polling later. For Synchronous polling, blk_poll() will reapply for
+polling, since @spin is always True in this case. While For asynchronous
+polling, i.e. io_uring itself will reapply for polling when the previous
+polling returns 0.
+
+Besides, it shall do no harm to the polling performance of mq devices.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- include/linux/blk-mq.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/nvme/host/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index cf1910c6d5ae..0c511555ec16 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -574,6 +574,13 @@ static inline void *blk_mq_rq_to_pdu(struct request *rq)
- 	for ((i) = 0; (i) < (q)->nr_hw_queues &&			\
- 	     ({ hctx = (q)->queue_hw_ctx[i]; 1; }); (i)++)
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 81e6389b2042..db164fcd04e2 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1106,7 +1106,9 @@ static int nvme_poll(struct blk_mq_hw_ctx *hctx)
+ 	if (!nvme_cqe_pending(nvmeq))
+ 		return 0;
  
-+#define queue_for_each_poll_hw_ctx(q, hctx, i)				\
-+	for ((i) = 0; ((q)->tag_set->nr_maps > HCTX_TYPE_POLL) &&	\
-+	     (i) < (q)->tag_set->map[HCTX_TYPE_POLL].nr_queues &&	\
-+	     ({ int __idx = (q)->tag_set->map[HCTX_TYPE_POLL].queue_offset + (i); \
-+	     hctx = (q)->queue_hw_ctx[__idx]; 1; }); \
-+	     (i)++)
+-	spin_lock(&nvmeq->cq_poll_lock);
++	if (!spin_trylock(&nvmeq->cq_poll_lock))
++		return 0;
 +
- #define hctx_for_each_ctx(hctx, ctx, i)					\
- 	for ((i) = 0; (i) < (hctx)->nr_ctx &&				\
- 	     ({ ctx = (hctx)->ctxs[(i)]; 1; }); (i)++)
+ 	found = nvme_process_cq(nvmeq);
+ 	spin_unlock(&nvmeq->cq_poll_lock);
+ 
 -- 
 2.27.0
 

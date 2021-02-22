@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB185C433E9
-	for <io-uring@archiver.kernel.org>; Mon, 22 Feb 2021 09:58:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B39FFC433DB
+	for <io-uring@archiver.kernel.org>; Mon, 22 Feb 2021 09:58:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8BD1364E13
-	for <io-uring@archiver.kernel.org>; Mon, 22 Feb 2021 09:58:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68AA864E92
+	for <io-uring@archiver.kernel.org>; Mon, 22 Feb 2021 09:58:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhBVJ6H (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 22 Feb 2021 04:58:07 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:51250 "EHLO raptor.unsafe.ru"
+        id S230224AbhBVJ6J (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 22 Feb 2021 04:58:09 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:51338 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230189AbhBVJ6D (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Mon, 22 Feb 2021 04:58:03 -0500
+        id S230209AbhBVJ6F (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Mon, 22 Feb 2021 04:58:05 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 283CB209FA;
-        Mon, 22 Feb 2021 09:56:46 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 991C020A0A;
+        Mon, 22 Feb 2021 09:57:12 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -37,156 +37,347 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v7 0/7] Count rlimits in each user namespace
-Date:   Mon, 22 Feb 2021 10:56:25 +0100
-Message-Id: <cover.1613987704.git.gladkov.alexey@gmail.com>
+        Oleg Nesterov <oleg@redhat.com>,
+        kernel test robot <oliver.sang@intel.com>
+Subject: [PATCH v7 2/7] Add a reference to ucounts for each cred
+Date:   Mon, 22 Feb 2021 10:56:27 +0100
+Message-Id: <8495980367f9d7ba7cf7a95d3886f8cbf76c0d6c.1613987704.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1613987704.git.gladkov.alexey@gmail.com>
+References: <cover.1613987704.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 22 Feb 2021 09:57:11 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.1 (raptor.unsafe.ru [5.9.43.93]); Mon, 22 Feb 2021 09:57:13 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Preface
--------
-These patches are for binding the rlimit counters to a user in user namespace.
-This patch set can be applied on top of:
+For RLIMIT_NPROC and some other rlimits the user_struct that holds the
+global limit is kept alive for the lifetime of a process by keeping it
+in struct cred. Adding a pointer to ucounts in the struct cred will
+allow to track RLIMIT_NPROC not only for user in the system, but for
+user in the user_namespace.
 
-git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git v5.11
-
-Problem
--------
-The RLIMIT_NPROC, RLIMIT_MEMLOCK, RLIMIT_SIGPENDING, RLIMIT_MSGQUEUE rlimits
-implementation places the counters in user_struct [1]. These limits are global
-between processes and persists for the lifetime of the process, even if
-processes are in different user namespaces.
-
-To illustrate the impact of rlimits, let's say there is a program that does not
-fork. Some service-A wants to run this program as user X in multiple containers.
-Since the program never fork the service wants to set RLIMIT_NPROC=1.
-
-service-A
- \- program (uid=1000, container1, rlimit_nproc=1)
- \- program (uid=1000, container2, rlimit_nproc=1)
-
-The service-A sets RLIMIT_NPROC=1 and runs the program in container1. When the
-service-A tries to run a program with RLIMIT_NPROC=1 in container2 it fails
-since user X already has one running process.
-
-The problem is not that the limit from container1 affects container2. The
-problem is that limit is verified against the global counter that reflects
-the number of processes in all containers.
-
-This problem can be worked around by using different users for each container
-but in this case we face a different problem of uid mapping when transferring
-files from one container to another.
-
-Eric W. Biederman mentioned this issue [2][3].
-
-Introduced changes
-------------------
-To address the problem, we bind rlimit counters to user namespace. Each counter
-reflects the number of processes in a given uid in a given user namespace. The
-result is a tree of rlimit counters with the biggest value at the root (aka
-init_user_ns). The limit is considered exceeded if it's exceeded up in the tree.
-
-[1] https://lore.kernel.org/containers/87imd2incs.fsf@x220.int.ebiederm.org/
-[2] https://lists.linuxfoundation.org/pipermail/containers/2020-August/042096.html
-[3] https://lists.linuxfoundation.org/pipermail/containers/2020-October/042524.html
+Updating ucounts may require memory allocation which may fail. So, we
+cannot change cred.ucounts in the commit_creds() because this function
+cannot fail and it should always return 0. For this reason, we modify
+cred.ucounts before calling the commit_creds().
 
 Changelog
----------
-v7:
-* Fixed issues found by lkp-tests project in the patch that Reimplements
-  RLIMIT_MEMLOCK on top of ucounts.
 
 v6:
-* Fixed issues found by lkp-tests project.
-* Rebased onto v5.11.
+* Fix null-ptr-deref in is_ucounts_overlimit() detected by trinity. This
+  error was caused by the fact that cred_alloc_blank() left the ucounts
+  pointer empty.
 
-v5:
-* Split the first commit into two commits: change ucounts.count type to atomic_long_t
-  and add ucounts to cred. These commits were merged by mistake during the rebase.
-* The __get_ucounts() renamed to alloc_ucounts().
-* The cred.ucounts update has been moved from commit_creds() as it did not allow
-  to handle errors.
-* Added error handling of set_cred_ucounts().
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
+---
+ fs/exec.c                      |  4 ++++
+ include/linux/cred.h           |  2 ++
+ include/linux/user_namespace.h |  4 ++++
+ kernel/cred.c                  | 40 ++++++++++++++++++++++++++++++++++
+ kernel/fork.c                  |  6 +++++
+ kernel/sys.c                   | 12 ++++++++++
+ kernel/ucount.c                | 40 +++++++++++++++++++++++++++++++---
+ kernel/user_namespace.c        |  3 +++
+ 8 files changed, 108 insertions(+), 3 deletions(-)
 
-v4:
-* Reverted the type change of ucounts.count to refcount_t.
-* Fixed typo in the kernel/cred.c
-
-v3:
-* Added get_ucounts() function to increase the reference count. The existing
-  get_counts() function renamed to __get_ucounts().
-* The type of ucounts.count changed from atomic_t to refcount_t.
-* Dropped 'const' from set_cred_ucounts() arguments.
-* Fixed a bug with freeing the cred structure after calling cred_alloc_blank().
-* Commit messages have been updated.
-* Added selftest.
-
-v2:
-* RLIMIT_MEMLOCK, RLIMIT_SIGPENDING and RLIMIT_MSGQUEUE are migrated to ucounts.
-* Added ucounts for pair uid and user namespace into cred.
-* Added the ability to increase ucount by more than 1.
-
-v1:
-* After discussion with Eric W. Biederman, I increased the size of ucounts to
-  atomic_long_t.
-* Added ucount_max to avoid the fork bomb.
-
---
-
-Alexey Gladkov (7):
-  Increase size of ucounts to atomic_long_t
-  Add a reference to ucounts for each cred
-  Reimplement RLIMIT_NPROC on top of ucounts
-  Reimplement RLIMIT_MSGQUEUE on top of ucounts
-  Reimplement RLIMIT_SIGPENDING on top of ucounts
-  Reimplement RLIMIT_MEMLOCK on top of ucounts
-  kselftests: Add test to check for rlimit changes in different user
-    namespaces
-
- fs/exec.c                                     |   6 +-
- fs/hugetlbfs/inode.c                          |  16 +-
- fs/io-wq.c                                    |  22 ++-
- fs/io-wq.h                                    |   2 +-
- fs/io_uring.c                                 |   2 +-
- fs/proc/array.c                               |   2 +-
- include/linux/cred.h                          |   4 +
- include/linux/hugetlb.h                       |   4 +-
- include/linux/mm.h                            |   4 +-
- include/linux/sched/user.h                    |   7 -
- include/linux/shmem_fs.h                      |   2 +-
- include/linux/signal_types.h                  |   4 +-
- include/linux/user_namespace.h                |  24 ++-
- ipc/mqueue.c                                  |  41 ++---
- ipc/shm.c                                     |  26 +--
- kernel/cred.c                                 |  50 +++++-
- kernel/exit.c                                 |   2 +-
- kernel/fork.c                                 |  18 +-
- kernel/signal.c                               |  57 +++----
- kernel/sys.c                                  |  14 +-
- kernel/ucount.c                               | 120 +++++++++++--
- kernel/user.c                                 |   3 -
- kernel/user_namespace.c                       |   9 +-
- mm/memfd.c                                    |   4 +-
- mm/mlock.c                                    |  20 ++-
- mm/mmap.c                                     |   4 +-
- mm/shmem.c                                    |   8 +-
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/rlimits/.gitignore    |   2 +
- tools/testing/selftests/rlimits/Makefile      |   6 +
- tools/testing/selftests/rlimits/config        |   1 +
- .../selftests/rlimits/rlimits-per-userns.c    | 161 ++++++++++++++++++
- 32 files changed, 502 insertions(+), 144 deletions(-)
- create mode 100644 tools/testing/selftests/rlimits/.gitignore
- create mode 100644 tools/testing/selftests/rlimits/Makefile
- create mode 100644 tools/testing/selftests/rlimits/config
- create mode 100644 tools/testing/selftests/rlimits/rlimits-per-userns.c
-
+diff --git a/fs/exec.c b/fs/exec.c
+index 5d4d52039105..0371a3400be5 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1360,6 +1360,10 @@ int begin_new_exec(struct linux_binprm * bprm)
+ 	WRITE_ONCE(me->self_exec_id, me->self_exec_id + 1);
+ 	flush_signal_handlers(me, 0);
+ 
++	retval = set_cred_ucounts(bprm->cred);
++	if (retval < 0)
++		goto out_unlock;
++
+ 	/*
+ 	 * install the new credentials for this executable
+ 	 */
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+index 18639c069263..ad160e5fe5c6 100644
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -144,6 +144,7 @@ struct cred {
+ #endif
+ 	struct user_struct *user;	/* real user ID subscription */
+ 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
++	struct ucounts *ucounts;
+ 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
+ 	/* RCU deletion */
+ 	union {
+@@ -170,6 +171,7 @@ extern int set_security_override_from_ctx(struct cred *, const char *);
+ extern int set_create_files_as(struct cred *, struct inode *);
+ extern int cred_fscmp(const struct cred *, const struct cred *);
+ extern void __init cred_init(void);
++extern int set_cred_ucounts(struct cred *);
+ 
+ /*
+  * check for validity of credentials
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 0bb833fd41f4..f71b5a4a3e74 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -97,11 +97,15 @@ struct ucounts {
+ };
+ 
+ extern struct user_namespace init_user_ns;
++extern struct ucounts init_ucounts;
+ 
+ bool setup_userns_sysctls(struct user_namespace *ns);
+ void retire_userns_sysctls(struct user_namespace *ns);
+ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
+ void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
++struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
++struct ucounts *get_ucounts(struct ucounts *ucounts);
++void put_ucounts(struct ucounts *ucounts);
+ 
+ #ifdef CONFIG_USER_NS
+ 
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 421b1149c651..58a8a9e24347 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -60,6 +60,7 @@ struct cred init_cred = {
+ 	.user			= INIT_USER,
+ 	.user_ns		= &init_user_ns,
+ 	.group_info		= &init_groups,
++	.ucounts		= &init_ucounts,
+ };
+ 
+ static inline void set_cred_subscribers(struct cred *cred, int n)
+@@ -119,6 +120,8 @@ static void put_cred_rcu(struct rcu_head *rcu)
+ 	if (cred->group_info)
+ 		put_group_info(cred->group_info);
+ 	free_uid(cred->user);
++	if (cred->ucounts)
++		put_ucounts(cred->ucounts);
+ 	put_user_ns(cred->user_ns);
+ 	kmem_cache_free(cred_jar, cred);
+ }
+@@ -222,6 +225,7 @@ struct cred *cred_alloc_blank(void)
+ #ifdef CONFIG_DEBUG_CREDENTIALS
+ 	new->magic = CRED_MAGIC;
+ #endif
++	new->ucounts = get_ucounts(&init_ucounts);
+ 
+ 	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+@@ -284,6 +288,11 @@ struct cred *prepare_creds(void)
+ 
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
++
++	new->ucounts = get_ucounts(new->ucounts);
++	if (!new->ucounts)
++		goto error;
++
+ 	validate_creds(new);
+ 	return new;
+ 
+@@ -363,6 +372,8 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
+ 		ret = create_user_ns(new);
+ 		if (ret < 0)
+ 			goto error_put;
++		if (set_cred_ucounts(new) < 0)
++			goto error_put;
+ 	}
+ 
+ #ifdef CONFIG_KEYS
+@@ -653,6 +664,31 @@ int cred_fscmp(const struct cred *a, const struct cred *b)
+ }
+ EXPORT_SYMBOL(cred_fscmp);
+ 
++int set_cred_ucounts(struct cred *new)
++{
++	struct task_struct *task = current;
++	const struct cred *old = task->real_cred;
++	struct ucounts *old_ucounts = new->ucounts;
++
++	if (new->user == old->user && new->user_ns == old->user_ns)
++		return 0;
++
++	/*
++	 * This optimization is needed because alloc_ucounts() uses locks
++	 * for table lookups.
++	 */
++	if (old_ucounts && old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->euid))
++		return 0;
++
++	if (!(new->ucounts = alloc_ucounts(new->user_ns, new->euid)))
++		return -EAGAIN;
++
++	if (old_ucounts)
++		put_ucounts(old_ucounts);
++
++	return 0;
++}
++
+ /*
+  * initialise the credentials stuff
+  */
+@@ -719,6 +755,10 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
++	new->ucounts = get_ucounts(new->ucounts);
++	if (!new->ucounts)
++		goto error;
++
+ 	put_cred(old);
+ 	validate_creds(new);
+ 	return new;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d66cd1014211..40a5da7d3d70 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2957,6 +2957,12 @@ int ksys_unshare(unsigned long unshare_flags)
+ 	if (err)
+ 		goto bad_unshare_cleanup_cred;
+ 
++	if (new_cred) {
++		err = set_cred_ucounts(new_cred);
++		if (err)
++			goto bad_unshare_cleanup_cred;
++	}
++
+ 	if (new_fs || new_fd || do_sysvsem || new_cred || new_nsproxy) {
+ 		if (do_sysvsem) {
+ 			/*
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 51f00fe20e4d..373def7debe8 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -553,6 +553,10 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
++
+ 	return commit_creds(new);
+ 
+ error:
+@@ -611,6 +615,10 @@ long __sys_setuid(uid_t uid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
++
+ 	return commit_creds(new);
+ 
+ error:
+@@ -686,6 +694,10 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
++
+ 	return commit_creds(new);
+ 
+ error:
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 04c561751af1..50cc1dfb7d28 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -8,6 +8,12 @@
+ #include <linux/kmemleak.h>
+ #include <linux/user_namespace.h>
+ 
++struct ucounts init_ucounts = {
++	.ns    = &init_user_ns,
++	.uid   = GLOBAL_ROOT_UID,
++	.count = 1,
++};
++
+ #define UCOUNTS_HASHTABLE_BITS 10
+ static struct hlist_head ucounts_hashtable[(1 << UCOUNTS_HASHTABLE_BITS)];
+ static DEFINE_SPINLOCK(ucounts_lock);
+@@ -125,7 +131,15 @@ static struct ucounts *find_ucounts(struct user_namespace *ns, kuid_t uid, struc
+ 	return NULL;
+ }
+ 
+-static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
++static void hlist_add_ucounts(struct ucounts *ucounts)
++{
++	struct hlist_head *hashent = ucounts_hashentry(ucounts->ns, ucounts->uid);
++	spin_lock_irq(&ucounts_lock);
++	hlist_add_head(&ucounts->node, hashent);
++	spin_unlock_irq(&ucounts_lock);
++}
++
++struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
+ {
+ 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
+ 	struct ucounts *ucounts, *new;
+@@ -160,7 +174,26 @@ static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
+ 	return ucounts;
+ }
+ 
+-static void put_ucounts(struct ucounts *ucounts)
++struct ucounts *get_ucounts(struct ucounts *ucounts)
++{
++	unsigned long flags;
++
++	if (!ucounts)
++		return NULL;
++
++	spin_lock_irqsave(&ucounts_lock, flags);
++	if (ucounts->count == INT_MAX) {
++		WARN_ONCE(1, "ucounts: counter has reached its maximum value");
++		ucounts = NULL;
++	} else {
++		ucounts->count += 1;
++	}
++	spin_unlock_irqrestore(&ucounts_lock, flags);
++
++	return ucounts;
++}
++
++void put_ucounts(struct ucounts *ucounts)
+ {
+ 	unsigned long flags;
+ 
+@@ -194,7 +227,7 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+ {
+ 	struct ucounts *ucounts, *iter, *bad;
+ 	struct user_namespace *tns;
+-	ucounts = get_ucounts(ns, uid);
++	ucounts = alloc_ucounts(ns, uid);
+ 	for (iter = ucounts; iter; iter = tns->ucounts) {
+ 		long max;
+ 		tns = iter->ns;
+@@ -237,6 +270,7 @@ static __init int user_namespace_sysctl_init(void)
+ 	BUG_ON(!user_header);
+ 	BUG_ON(!setup_userns_sysctls(&init_user_ns));
+ #endif
++	hlist_add_ucounts(&init_ucounts);
+ 	return 0;
+ }
+ subsys_initcall(user_namespace_sysctl_init);
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index af612945a4d0..516db53166ab 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -1281,6 +1281,9 @@ static int userns_install(struct nsset *nsset, struct ns_common *ns)
+ 	put_user_ns(cred->user_ns);
+ 	set_cred_user_ns(cred, get_user_ns(user_ns));
+ 
++	if (set_cred_ucounts(cred) < 0)
++		return -EINVAL;
++
+ 	return 0;
+ }
+ 
 -- 
 2.29.2
 

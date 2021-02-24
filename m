@@ -2,100 +2,129 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F43BC433E0
-	for <io-uring@archiver.kernel.org>; Wed, 24 Feb 2021 03:19:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24F01C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 24 Feb 2021 03:26:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C37864E6B
-	for <io-uring@archiver.kernel.org>; Wed, 24 Feb 2021 03:19:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D6E6B64E6C
+	for <io-uring@archiver.kernel.org>; Wed, 24 Feb 2021 03:26:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230174AbhBXDTe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 23 Feb 2021 22:19:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53234 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231890AbhBXDTe (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Feb 2021 22:19:34 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CED5C061574
-        for <io-uring@vger.kernel.org>; Tue, 23 Feb 2021 19:18:48 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id w18so325150plc.12
-        for <io-uring@vger.kernel.org>; Tue, 23 Feb 2021 19:18:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=hh9IATp/DDOYwxGml/h+lxGT8Y8XN8qLxrt4S8OIiZ0=;
-        b=0wOiVeRkiGD5TDqebVyHeWKNc4uxroVPG27uhw8D7PwIVr2ngY23K6NXyUK+sIE+f9
-         fz9F2ukTGhNV71VtedwnqnxmxNQGQnqAqFowA3OpkxrDrIU/IxVlfgojcs2oY9TKFL9T
-         LZ5rLsrBGuoCGhZ71RgqGKnU7Miu/ydqzrTnBTY4iFQaDtP52JfyRD1Dwnt3JlrZpuUe
-         Uqnq9ARiT2Mt7wrDGD98li6pCDcS9O+Wy9IttHnpI7fLLUG0xhk+nj6djKRQSqtxss9B
-         frg/nTS40+MbzEjgi0BNPsLgWGmZIXnB4rFbQhFLKl5FPKAGX0Ye+QmJUDGGnQVIQyri
-         3AZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=hh9IATp/DDOYwxGml/h+lxGT8Y8XN8qLxrt4S8OIiZ0=;
-        b=iPwQ2CoNXUgYuWgCvcr3OTAd3xkV/dxolIbevZ0koetv8MVeN5MjqpQhdJ8Wk8mQPE
-         Rzujrs6ld+gxQbqY0duT4am8Lm7WPbXpv6mKHkr0OSJdhz0D6zvuijQcoO4nMtDoXorL
-         6G3JOHMBM9eaWDTRcFLOt3STnXio3vgzPKxppURw83YCtdq2i9rCYLSn3GK2Ktpj/nwK
-         mvXvbIkzvLgmFOki+Qv7EKSHNZuIiGraR1q8WhQu3tsKvoMJs636+ploZjg1/vvM2EjN
-         6Dj6ZUT4r9uFF0nzMrd8gc3HY4CtHfrardi/tX050zjgz14PT2WXDFkrdieYsSE84twk
-         OXPw==
-X-Gm-Message-State: AOAM532DW8DBJ0hmW6Z3HjkKCTFJ8zBEeymGGJYJu77m96Kuaeij8lYp
-        Z2x5x/Ndo4/He2NmU5TWgb3jxGJ3M1QLag==
-X-Google-Smtp-Source: ABdhPJyn1zBBziVe1sSE3RITjInRla6otTys++FJoMPKeTOU+Nwo9hdcup667AzooCsBsJvFQ6WYkA==
-X-Received: by 2002:a17:90a:650b:: with SMTP id i11mr2018793pjj.130.1614136727475;
-        Tue, 23 Feb 2021 19:18:47 -0800 (PST)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id z137sm542568pfc.172.2021.02.23.19.18.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Feb 2021 19:18:47 -0800 (PST)
-Subject: Re: [PATCH v2 1/1] io_uring: allocate memory for overflowed CQEs
-To:     Hao Xu <haoxu@linux.alibaba.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring@vger.kernel.org
-References: <a5e833abf8f7a55a38337e5c099f7d0f0aa8746d.1614083504.git.asml.silence@gmail.com>
- <f57545fb-a109-0881-ff14-f371d1a9d811@linux.alibaba.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <fda005e8-d16d-6563-d526-440deb7737f6@kernel.dk>
-Date:   Tue, 23 Feb 2021 20:18:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S233043AbhBXD0W (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 23 Feb 2021 22:26:22 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37135 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233020AbhBXD0W (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Feb 2021 22:26:22 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 4E394D1B;
+        Tue, 23 Feb 2021 22:25:16 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 23 Feb 2021 22:25:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
+        date:from:to:cc:subject:message-id:mime-version:content-type; s=
+        fm3; bh=SkwlrF64/sU/n0bpXsKe1Ej7QHljL5ym5FUC6TaGUOc=; b=eqWp1lAz
+        p/CzO1tYyVkzt8rmS+GJMqrD3/cJkADlyHR7shEy5c3SaNLXe7/Zi4mbHDmpV87E
+        5LEibcb9m/1Wm9lsXjNol2rPepyiaW1HG2yiwciGw4rx/YYP3kNT33idd9Xb+B3r
+        XvjRS0SLCQqeLHE965lj/zSPmrpXI/ruIo5wUJUiWoKwaWimJcoSVHNraB07/kZ7
+        LbdaMPJ8kf9qQQayNZDwS55WzfGTF3SgaNLN5x+QtAaBDMN+eqiz1lrzluQJqgCs
+        FoGcW2BR7LcIxiClnE7ZDvKRzyqy0EBKNXiJ8Hgdg+uxYIJW67kA31QJgz9uPdkV
+        4ZVMuAXVOEySwA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:message-id
+        :mime-version:subject:to:x-me-proxy:x-me-proxy:x-me-sender
+        :x-me-sender:x-sasl-enc; s=fm2; bh=SkwlrF64/sU/n0bpXsKe1Ej7QHljL
+        5ym5FUC6TaGUOc=; b=Qk6Eq1Ah4n4oisGjnBTafzWCR3ucZWeVuwQxeLI+KACxb
+        b95edWVuy3qbYLYgXycRbZeIjK2qbIXSF7IN6VLkwHvnJ3eFbrFICudN0pLGNucl
+        vH+rKu50AW6qDwFMBarrk4zrHzTVUv2FamxeWP1Ecl7EXIhX11vrjUA8DaDyLSif
+        GA2mU8F8nABxxTSy/B1GyC/Zbt8YodJQcwLjhIX9AafgtVsJm09kGW/WcMGzC33H
+        y+kNY2Th5ulye8mJEW/J2IUYacTlUmBVQHtwcgOPa2GAv9DZScv5iBjsgcrSbPAn
+        LlF0oiRex03uY2sHya9ojrrT2EomakaatYlEV3T3Q==
+X-ME-Sender: <xms:G8c1YERkHhTkYmi4Q4eJ1vbmwl6kYF1Mdl1EtLrsjlAIao3sJ7QD2A>
+    <xme:G8c1YBzlq43Obpmx1fdpBFEiWp4rbMh-WzsfMhnDegmJaI8ExQDLAY2qr1hf1XOjA
+    g4B6rzo3qhv8Y-uKw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrkeeigdehhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkgggtugesthdtredttddtvdenucfhrhhomheptehnughrvghsucfh
+    rhgvuhhnugcuoegrnhgurhgvshesrghnrghrrgiivghlrdguvgeqnecuggftrfgrthhtvg
+    hrnhepiedvieelgeeuuedtfeduhfefteehhfevvdeljeetgfeugfdtledtudetvdehkeff
+    necukfhppeeijedrudeitddrvddujedrvdehtdenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpegrnhgurhgvshesrghnrghrrgiivghlrdguvg
+X-ME-Proxy: <xmx:G8c1YB0NODfZUgHiyg95ABiomyZkNjgsNVvbR89_N43wKEjaBk6Rdw>
+    <xmx:G8c1YIAPRWDux6K5frPv9kLnG9gx1DDb9w3T4hX97BJI-jT09n1RUg>
+    <xmx:G8c1YNhdmI-8jmSSv-BqWu1yS7-eXAxxdssMEty6IVVrUNGQ71chpQ>
+    <xmx:G8c1YHcfRfd8UJMd__DfQHj3O2fQCatiU4J9x7S7ycdnM9iAV-95Sg>
+Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 63DDB24005B;
+        Tue, 23 Feb 2021 22:25:15 -0500 (EST)
+Date:   Tue, 23 Feb 2021 19:25:14 -0800
+From:   Andres Freund <andres@anarazel.de>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org
+Subject: io_uring_enter() returns EAGAIN after child exit in 5.12
+Message-ID: <20210224032514.emataeyir7d2kxkx@alap3.anarazel.de>
 MIME-Version: 1.0
-In-Reply-To: <f57545fb-a109-0881-ff14-f371d1a9d811@linux.alibaba.com>
-Content-Type: text/plain; charset=gbk
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 2/23/21 8:06 PM, Hao Xu wrote:
-> ÔÚ 2021/2/23 ÏÂÎç8:40, Pavel Begunkov Ð´µÀ:
->> Instead of using a request itself for overflowed CQE stashing, allocate
->> a separate entry. The disadvantage is that the allocation may fail and
->> it will be accounted as lost (see rings->cq_overflow), so we lose
->> reliability in case of memory pressure. However, it opens a way for for
->> multiple CQEs per an SQE and even generating SQE-less CQEs >
->> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
->> ---
-> Hi Pavel,
-> Allow me to ask a stupid question, why do we need to support multiple 
-> CQEs per SQE or even SQE-less CQEs in the future?
+Hi,
 
-Not a stupid question at all, since it's not something we've done
-before. There's been discussion about this in the past, in the presence
-of the zero copy IO where we ideally want to post two CQEs for an SQE.
-Most recently I've been playing with multishot poll support, where a
-POLL_ADD will stay active after triggering. Hence you could be posting
-many CQEs for that SQE, over the life time of the request.
+commit 41be53e94fb04cc69fdf2f524c2a05d8069e047b (HEAD, refs/bisect/bad)
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   2021-02-13 09:11:04 -0700
 
--- 
-Jens Axboe
+    io_uring: kill cached requests from exiting task closing the ring
 
+    Be nice and prune these upfront, in case the ring is being shared and
+    one of the tasks is going away. This is a bit more important now that
+    we account the allocations.
+
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+
+causes EAGAIN to be returned by io_uring_enter() after a child
+exits. The existing liburing test across-fork.c repros the issue after
+applying the patch below.
+
+Retrying the submission twice seems to make it succeed most of the
+time...
+
+Greetings,
+
+Andres Freund
+
+diff --git a/test/across-fork.c b/test/across-fork.c
+index 14ee93a..2b19f39 100644
+--- a/test/across-fork.c
++++ b/test/across-fork.c
+@@ -220,6 +220,13 @@ int main(int argc, char *argv[])
+                if (wait_cqe(&shmem->ring, "p cqe 2"))
+                        goto errcleanup;
+ 
++               /* check that IO still works after the child exited */
++               if (submit_write(&shmem->ring, shared_fd, "parent: after child exit\n", 0))
++                       goto errcleanup;
++
++               if (wait_cqe(&shmem->ring, "p cqe 3"))
++                       goto errcleanup;
++
+                break;
+        }
+        case 0: {
+@@ -260,7 +267,8 @@ int main(int argc, char *argv[])
+        if (verify_file(tmpdir, "shared",
+                         "before fork: write shared fd\n"
+                         "parent: write shared fd\n"
+-                        "child: write shared fd\n") ||
++                        "child: write shared fd\n"
++                        "parent: after child exit\n") ||
+            verify_file(tmpdir, "parent1", "parent: write parent fd 1\n") ||
+            verify_file(tmpdir, "parent2", "parent: write parent fd 2\n") ||
+            verify_file(tmpdir, "child", "child: write child fd\n"))

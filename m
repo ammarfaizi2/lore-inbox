@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FC6AC4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C19D1C4332E
 	for <io-uring@archiver.kernel.org>; Sun, 28 Feb 2021 22:40:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5764464E38
+	by mail.kernel.org (Postfix) with ESMTP id 8A5F564DA3
 	for <io-uring@archiver.kernel.org>; Sun, 28 Feb 2021 22:40:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbhB1Wkq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 28 Feb 2021 17:40:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34232 "EHLO
+        id S231605AbhB1Wkr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 28 Feb 2021 17:40:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231613AbhB1Wkn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Feb 2021 17:40:43 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BB3C0617A7
-        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:28 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id n22so1947836wmc.2
-        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:28 -0800 (PST)
+        with ESMTP id S231615AbhB1Wkp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Feb 2021 17:40:45 -0500
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49E1C0617AA
+        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:30 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id u11so6511722wmq.5
+        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=P12uktK+JhVBdPSOHzjJLgOwc1sp73GyWGXVagEH77A=;
-        b=UE/If+4v6kgsXPOBFaesczhKFXJq1u55qTjASVanxfwPUq4JrBMa9tnFaf2cePC8EE
-         d0LBs6z6Z1YlHb1GBpO1keUqH7U4TTLJXxSLykEYPvNGtVIGxukVOpolOqG3vC69Aan8
-         K6G94zn6xhDdp/swFQvJ6HjeGG2PbLIDR0Kl2vhtKfaddW9SoTiwqh7Rz1cUpiEah4qP
-         y/p8CTh4NpaHMF4J93Vo7cXGTyAHpWLbAuiD6WqW5SfjTNCcpDyh+GxUhnlUav5VtSHU
-         ++e7KdmmAUIRi7WftLLZwC+5EFjhEkXqiZaLtSrWWi2scvyHyN+ED//MLhNBDHeJ5jeW
-         hFqw==
+        bh=PNVVZaRHwIzXbj+35nVD2QkU3OA3ylxhaJn7nFJ1/3k=;
+        b=Y6U53M5OYZKMPWnznsIYFAyRUoK1CXpWuR8ZU/p2nlQBUHZ4jktFsZSXoxyEbRL/yv
+         eh4FI93N/1qSZlRJWEzCA1ASygzmKkdRRWZ/r0MeTqYVpBX/ScbABPr3+U1KwuAoMZUT
+         YonLJK6sweaXl6e6IsuNrB/UJNrzYgR0tFCz8EmEaqkvJIIzOqUejC/7ZP07Z+8JYlGF
+         jaGjYElGWWjhTrQGaNbjR571CsaBQAupBP6NgEElYVAcnWMQE5w4CwdTrDBs/gxaezr4
+         XGkov2MioRL977B14XRzUcIKu24BpXIFmHIUayqSvrUxHENem0o+ae80T4LO0Ji7GUrt
+         +7tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=P12uktK+JhVBdPSOHzjJLgOwc1sp73GyWGXVagEH77A=;
-        b=ASt5L5lD5iHJ4rbz+BYUAX6r/4R1IOXqoAK9f4+iTLW0OZHQ9BDmURDoU7sxQCaLNs
-         eMWYVBgLFu8Fequuxbn1eJU7B9jW+EYrJo6NvbsVpe1IVBIXd8agGDfsvrxoMuIQRZsd
-         caBL6ooRnMecAWFTgd8nkBkHa03U2uLOCRKAYjjKtR+2YMXuPUFssypECOCyPywt35i4
-         aGKCBJP6xjji4oOPghnEY3BDhvo14Moh7IKBxn6fgflZ18K5lQ8XJf6eUq8ADkQgT7tK
-         9/+vmNgM0P2+tfyQ1efqpyxkLjdU5kun3ytwE5NQUG5FZFcAqqIUcagHFkzBoyYYa7eu
-         hIFw==
-X-Gm-Message-State: AOAM531/FHJK6QMnbmgCL0NTPeWV+0KO9pXkOXXvhDUhe31ep1ewvsuh
-        i5mI3uC8tGYnVr8O2YhIqssOU6y4BRwwxQ==
-X-Google-Smtp-Source: ABdhPJyXJMNMz2sR/Dm+47uk8ANgIMc0WenbB5BkA8U9RX/iINpQjq1Bh2Lc36fQoSOQXa4T2MC0iA==
-X-Received: by 2002:a1c:bc82:: with SMTP id m124mr12863866wmf.118.1614551967784;
-        Sun, 28 Feb 2021 14:39:27 -0800 (PST)
+        bh=PNVVZaRHwIzXbj+35nVD2QkU3OA3ylxhaJn7nFJ1/3k=;
+        b=K6GkmMOlpfryFg+2WwSm7RNq6YbudQ5Atbx6lqqXbBW9B1KfvgFYhjM6BjY4zkIrZ8
+         7tFWOTwKsp9EiUr81GOpkiqgb1JDx0maHdAc0WrV9dJIHw/k24+2jw2m7OF1wnCxpMCx
+         tMmYA8+gbP3aZ5HfQhSRXAWjTC4SlKZpB1xtJYFqHA82IXbBIp8oof5JR6cpQO5Wm6ul
+         0sq9mFmeuLmvfAtIaBKdJji/yFOe615n2hTgyLscmAXo3nztvARwlR5pBNkFZIUB51Rc
+         5+vUYUmgZspoKcHXLVfKBID/klZPgpQnNuozZRHkF6kn4PyG/wXWRNAvLuBLyB7rvE3n
+         enVw==
+X-Gm-Message-State: AOAM530tmolIadvXA9Q+l/oXZ04oFTHUiBD+TjYa4z4x8QscMldPliEh
+        ptWf2668FcoUPMzFYadzYiUKL5L/ubAF0w==
+X-Google-Smtp-Source: ABdhPJxQ3hRna768e/Trwg7JupFV8Vb5MeYczbabMbR8Jj9iNYjey0sJCOstbzSVJvOjyGDV4aYDgg==
+X-Received: by 2002:a7b:cbc1:: with SMTP id n1mr12976883wmi.30.1614551969410;
+        Sun, 28 Feb 2021 14:39:29 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.38])
-        by smtp.gmail.com with ESMTPSA id y62sm22832576wmy.9.2021.02.28.14.39.27
+        by smtp.gmail.com with ESMTPSA id y62sm22832576wmy.9.2021.02.28.14.39.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Feb 2021 14:39:27 -0800 (PST)
+        Sun, 28 Feb 2021 14:39:29 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 10/12] io_uring: rethink def->needs_async_data
-Date:   Sun, 28 Feb 2021 22:35:18 +0000
-Message-Id: <6bf96f6507645bc417e7752ccf2a5f171d429685.1614551467.git.asml.silence@gmail.com>
+Subject: [PATCH 12/12] io_uring: simplify io_resubmit_prep()
+Date:   Sun, 28 Feb 2021 22:35:20 +0000
+Message-Id: <d58fcfe96e8f5f6b9eaac0fede115e494b246030.1614551467.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1614551467.git.asml.silence@gmail.com>
 References: <cover.1614551467.git.asml.silence@gmail.com>
@@ -70,128 +70,75 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-needs_async_data controls allocation of async_data, and used in two
-cases. 1) when async setup requires it (by io_req_prep_async() or
-handler themselves), and 2) when op always needs additional space to
-operate, like timeouts do.
-
-Opcode preps already don't bother about the second case and do
-allocation unconditionally, restrict needs_async_data to the first case
-only and rename it into needs_async_setup.
+If not for async_data NULL check, io_resubmit_prep() is already an rw
+specific version of io_req_prep_async(), but slower because 1) it always
+goes through io_import_iovec() even if following io_setup_async_rw() the
+result 2) instead of initialising iovec/iter in-place it does it
+on-stack and then copies with io_setup_async_rw().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 29 +++++++++++------------------
- 1 file changed, 11 insertions(+), 18 deletions(-)
+ fs/io_uring.c | 37 +++----------------------------------
+ 1 file changed, 3 insertions(+), 34 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bfc795e8258f..c9ab7ee5d500 100644
+index 0bdaf5105d11..61697acf3717 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -833,8 +833,8 @@ struct io_op_def {
- 	unsigned		pollout : 1;
- 	/* op supports buffer selection */
- 	unsigned		buffer_select : 1;
--	/* must always have async data allocated */
--	unsigned		needs_async_data : 1;
-+	/* do prep async if is going to be punted */
-+	unsigned		needs_async_setup : 1;
- 	/* should block plug */
- 	unsigned		plug : 1;
- 	/* size of async data needed, if any */
-@@ -848,7 +848,7 @@ static const struct io_op_def io_op_defs[] = {
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 		.buffer_select		= 1,
--		.needs_async_data	= 1,
-+		.needs_async_setup	= 1,
- 		.plug			= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
-@@ -857,7 +857,7 @@ static const struct io_op_def io_op_defs[] = {
- 		.hash_reg_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
--		.needs_async_data	= 1,
-+		.needs_async_setup	= 1,
- 		.plug			= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
-@@ -891,7 +891,7 @@ static const struct io_op_def io_op_defs[] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
--		.needs_async_data	= 1,
-+		.needs_async_setup	= 1,
- 		.async_size		= sizeof(struct io_async_msghdr),
- 	},
- 	[IORING_OP_RECVMSG] = {
-@@ -899,11 +899,10 @@ static const struct io_op_def io_op_defs[] = {
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 		.buffer_select		= 1,
--		.needs_async_data	= 1,
-+		.needs_async_setup	= 1,
- 		.async_size		= sizeof(struct io_async_msghdr),
- 	},
- 	[IORING_OP_TIMEOUT] = {
--		.needs_async_data	= 1,
- 		.async_size		= sizeof(struct io_timeout_data),
- 	},
- 	[IORING_OP_TIMEOUT_REMOVE] = {
-@@ -916,14 +915,13 @@ static const struct io_op_def io_op_defs[] = {
- 	},
- 	[IORING_OP_ASYNC_CANCEL] = {},
- 	[IORING_OP_LINK_TIMEOUT] = {
--		.needs_async_data	= 1,
- 		.async_size		= sizeof(struct io_timeout_data),
- 	},
- 	[IORING_OP_CONNECT] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
--		.needs_async_data	= 1,
-+		.needs_async_setup	= 1,
- 		.async_size		= sizeof(struct io_async_connect),
- 	},
- 	[IORING_OP_FALLOCATE] = {
-@@ -3073,7 +3071,7 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
- 			     const struct iovec *fast_iov,
- 			     struct iov_iter *iter, bool force)
+@@ -1014,14 +1014,10 @@ static struct file *io_file_get(struct io_submit_state *state,
+ static void __io_queue_sqe(struct io_kiocb *req);
+ static void io_rsrc_put_work(struct work_struct *work);
+ 
+-static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
+-			   struct iov_iter *iter, bool needs_lock);
+-static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+-			     const struct iovec *fast_iov,
+-			     struct iov_iter *iter, bool force);
+ static void io_req_task_queue(struct io_kiocb *req);
+ static void io_submit_flush_completions(struct io_comp_state *cs,
+ 					struct io_ring_ctx *ctx);
++static int io_req_prep_async(struct io_kiocb *req);
+ 
+ static struct kmem_cache *req_cachep;
+ 
+@@ -2404,35 +2400,8 @@ static void kiocb_end_write(struct io_kiocb *req)
+ #ifdef CONFIG_BLOCK
+ static bool io_resubmit_prep(struct io_kiocb *req)
  {
--	if (!force && !io_op_defs[req->opcode].needs_async_data)
-+	if (!force && !io_op_defs[req->opcode].needs_async_setup)
- 		return 0;
- 	if (!req->async_data) {
- 		if (io_alloc_async_data(req)) {
-@@ -5738,12 +5736,8 @@ static int io_req_prep_async(struct io_kiocb *req)
- {
- 	switch (req->opcode) {
- 	case IORING_OP_READV:
+-	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+-	int rw, ret;
+-	struct iov_iter iter;
+-
+-	/* already prepared */
+-	if (req->async_data)
+-		return true;
+-
+-	switch (req->opcode) {
+-	case IORING_OP_READV:
 -	case IORING_OP_READ_FIXED:
 -	case IORING_OP_READ:
- 		return io_rw_prep_async(req, READ);
- 	case IORING_OP_WRITEV:
+-		rw = READ;
+-		break;
+-	case IORING_OP_WRITEV:
 -	case IORING_OP_WRITE_FIXED:
 -	case IORING_OP_WRITE:
- 		return io_rw_prep_async(req, WRITE);
- 	case IORING_OP_SENDMSG:
- 		return io_sendmsg_prep_async(req);
-@@ -5757,11 +5751,10 @@ static int io_req_prep_async(struct io_kiocb *req)
+-		rw = WRITE;
+-		break;
+-	default:
+-		printk_once(KERN_WARNING "io_uring: bad opcode in resubmit %d\n",
+-				req->opcode);
+-		return false;
+-	}
+-
+-	ret = io_import_iovec(rw, req, &iovec, &iter, false);
+-	if (ret < 0)
+-		return false;
+-	return !io_setup_async_rw(req, iovec, inline_vecs, &iter, false);
++	/* either already prepared or successfully done */
++	return req->async_data || !io_req_prep_async(req);
+ }
+ #endif
  
- static int io_req_defer_prep(struct io_kiocb *req)
- {
--	if (!io_op_defs[req->opcode].needs_async_data)
--		return 0;
--	/* some opcodes init it during the inital prep */
--	if (req->async_data)
-+	if (!io_op_defs[req->opcode].needs_async_setup)
- 		return 0;
-+	if (WARN_ON_ONCE(req->async_data))
-+		return -EFAULT;
- 	if (io_alloc_async_data(req))
- 		return -EAGAIN;
- 	return io_req_prep_async(req);
 -- 
 2.24.0
 

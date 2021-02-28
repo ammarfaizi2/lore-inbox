@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A20DC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A451DC4332D
 	for <io-uring@archiver.kernel.org>; Sun, 28 Feb 2021 22:40:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1641A64E38
+	by mail.kernel.org (Postfix) with ESMTP id 6BF8F64E07
 	for <io-uring@archiver.kernel.org>; Sun, 28 Feb 2021 22:40:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231614AbhB1Wkn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 28 Feb 2021 17:40:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
+        id S231612AbhB1Wkq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 28 Feb 2021 17:40:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231605AbhB1Wkm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Feb 2021 17:40:42 -0500
+        with ESMTP id S231605AbhB1Wkp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Feb 2021 17:40:45 -0500
 Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D73C061793
-        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:26 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id o7-20020a05600c4fc7b029010a0247d5f0so2130952wmq.1
-        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E92C0617A9
+        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:29 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id m1so12674673wml.2
+        for <io-uring@vger.kernel.org>; Sun, 28 Feb 2021 14:39:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=pLUQ3S58RPtJQqueaRWhq0vyEXBqA2EPtQpjuW3BPug=;
-        b=rdmlA1kAsow961pV/Tajsgvh6+2I6ipmxgI1ywRGSxtr+BuynvVW06uGeQCnSJr9Wg
-         HfPwRf2EbCgSKwu0X57Z8TbUBdCMVtGy/EF4fbvEkqj2YhaVPs+DsTQ6IhxPSj17ElM3
-         TngMzUMs00vG/z/AoA5foMNQM7yq7kj/mg1asGwWmXApNdqAF3EY0a59opRYQgrQMAJT
-         U7lqIK1vk8L6jM+0igFDiMEVO9CoGrbrPx67o66/wqrOBYFUoZ+nEPhuAi9Q+ExNZGWP
-         dTAwp2aBP+Jgyj8y5Id5dCyqphmVZQX8qS8pOMFj2BRIBJOgfB8bmEXgCYk91RuWGS4Y
-         sFLA==
+        bh=8l+BF2+V42z6QbPe+IEtvndmpE3B9uvk2DGGksWlZJU=;
+        b=dRb8CzUyaZe2QJagm5uiPwnOgfW4bPa/mJo7JGSN2xiSNgBP4cyzT1J0BzSGQKqWDK
+         6NJjZOEvZugVKEDc2/GGc3LdkNbEj7dInQtbcMH1IjxyaNOTk4c/Rk9kSZtbuNW2Vvhx
+         VnqDZNCnE8P2VuF1D+iqkWyTQBHgLbq94e280odvvohoI2ZdqRKgEArCKT/Gx9h2kmjT
+         FVavVCpSUh+6MNQnDeW4lx7ugP5we9fjtws9XkhOi5lk8KNZxVg2rPsk8HFtz2kj6pm+
+         pKKYEV4QQBE5riZJB0InrUzn5jT2OwxtIb1rEArunaewy3Q+fTM4ypmvpxzGG9fYBgJX
+         YnNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pLUQ3S58RPtJQqueaRWhq0vyEXBqA2EPtQpjuW3BPug=;
-        b=q6CANxhAaIIZCfBAccsZK7ihsJeOseq0yA3YA26WaTwGNL5sE22rIISsObAoLIZ0Py
-         sHbV4V534Z+/XYZfNAHeijecxIhSgcFECKBcCoMkY+nkNfLbAnTjptfLolNGrfOBdG+9
-         FoZASDf9/J7s7n8nHzvOPPWjDFZyVQZMmAfzdPhNalQPZvE+jLEBGIftb4DBAtW+9O59
-         LjdJBf1orupttruoeYzXzpN/5imOE5pcqNT+lMsLfmhMiDMI43kXSAFYVntYo2Itpi6l
-         CO5JAq4RTWxijZPT9NvrhQteewKV8G9bttNFkvGjh6p5RstrS/8oAQUkkQOppuQE4KYK
-         bDVg==
-X-Gm-Message-State: AOAM530GRjUGSekVk5a+2Ef/vrtgaLXtCSNBrzqTCodM5C41ms0sv8WY
-        LQOHs9eQqY48fQ7Lg6cYcBPg7GYjsjsK5g==
-X-Google-Smtp-Source: ABdhPJwZnSOHli4jaSGcLeTd55rAcVJf4yBTWaMEb5UsZdjrj+z3f5Zi5ZhGPO1Dnm56rSdU2HvYnQ==
-X-Received: by 2002:a1c:b687:: with SMTP id g129mr12941485wmf.165.1614551965067;
-        Sun, 28 Feb 2021 14:39:25 -0800 (PST)
+        bh=8l+BF2+V42z6QbPe+IEtvndmpE3B9uvk2DGGksWlZJU=;
+        b=ZhpPvsny4s2pvRgiEOs9T4NW11HHFeuEQEg6kEExqTd5wU4/c8kGcTNEl56LRUPsKb
+         UHHk+n2bupaoCw1UrT15sYryxSc8aacYFUNlO2WRiwLlfkx05Qhx/z2PAfZ8qUo2PVpp
+         89bJ0ydOe2jaxACky5qscPKl8gKmBCObIsl7o6Ai0VCj00aLBntYHUqpX8+T90qLVg1n
+         gOwynDlMzbR1BV6RwAmWv2QI0uLaO8AaCldY4SeWU1Ma4+p+XSzORNYu4yIE7HTIj4cn
+         MuMz8D7m719O4PE8U3lzOE09pVieH5BYUEP58gPMJANeDrQwVlAdtvjMZkZTq8vmi2lN
+         VhVw==
+X-Gm-Message-State: AOAM533OEJZCGFlHcyDUtLdoNasHmsHTYQp2TB+tRO+ECTx+wY037/iC
+        hkRxE/R8Jqlfl+D2T0Cnw2I=
+X-Google-Smtp-Source: ABdhPJxa8hPCRAwFtgA5L3F9WNxymNgUu0MV7qOd4dGvbq5gQriqkjL/CINHXR6WdtJt08+p5gnppA==
+X-Received: by 2002:a1c:df8a:: with SMTP id w132mr12816149wmg.53.1614551968571;
+        Sun, 28 Feb 2021 14:39:28 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.38])
-        by smtp.gmail.com with ESMTPSA id y62sm22832576wmy.9.2021.02.28.14.39.24
+        by smtp.gmail.com with ESMTPSA id y62sm22832576wmy.9.2021.02.28.14.39.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Feb 2021 14:39:24 -0800 (PST)
+        Sun, 28 Feb 2021 14:39:28 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/12] io_uring: use better types for cflags
-Date:   Sun, 28 Feb 2021 22:35:15 +0000
-Message-Id: <7faf8f279f47355614d6c23b847568cc2bc075e1.1614551467.git.asml.silence@gmail.com>
+Subject: [PATCH 11/12] io_uring: merge defer_prep() and prep_async()
+Date:   Sun, 28 Feb 2021 22:35:19 +0000
+Message-Id: <ca85c69810b09b134e0b097366b7fb1548fbd53c.1614551467.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1614551467.git.asml.silence@gmail.com>
 References: <cover.1614551467.git.asml.silence@gmail.com>
@@ -70,38 +70,81 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-__io_cqring_fill_event() takes cflags as long to squeeze it into u32 in
-an CQE, awhile all users pass int or unsigned. Replace it with unsigned
-int and store it as u32 in struct io_completion to match CQE.
+Merge two function and do renaming in favour of the second one, it
+relays the meaning better.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5b1b43c091c8..049a8fbd7792 100644
+index c9ab7ee5d500..0bdaf5105d11 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -646,7 +646,7 @@ struct io_unlink {
- struct io_completion {
- 	struct file			*file;
- 	struct list_head		list;
--	int				cflags;
-+	u32				cflags;
- };
+@@ -5734,6 +5734,13 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
- struct io_async_connect {
-@@ -1498,7 +1498,8 @@ static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ static int io_req_prep_async(struct io_kiocb *req)
+ {
++	if (!io_op_defs[req->opcode].needs_async_setup)
++		return 0;
++	if (WARN_ON_ONCE(req->async_data))
++		return -EFAULT;
++	if (io_alloc_async_data(req))
++		return -EAGAIN;
++
+ 	switch (req->opcode) {
+ 	case IORING_OP_READV:
+ 		return io_rw_prep_async(req, READ);
+@@ -5746,18 +5753,9 @@ static int io_req_prep_async(struct io_kiocb *req)
+ 	case IORING_OP_CONNECT:
+ 		return io_connect_prep_async(req);
  	}
+-	return 0;
+-}
+-
+-static int io_req_defer_prep(struct io_kiocb *req)
+-{
+-	if (!io_op_defs[req->opcode].needs_async_setup)
+-		return 0;
+-	if (WARN_ON_ONCE(req->async_data))
+-		return -EFAULT;
+-	if (io_alloc_async_data(req))
+-		return -EAGAIN;
+-	return io_req_prep_async(req);
++	printk_once(KERN_WARNING "io_uring: prep_async() bad opcode %d\n",
++		    req->opcode);
++	return -EFAULT;
  }
  
--static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
-+static void __io_cqring_fill_event(struct io_kiocb *req, long res,
-+				   unsigned int cflags)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct io_uring_cqe *cqe;
+ static u32 io_get_sequence(struct io_kiocb *req)
+@@ -5790,7 +5788,7 @@ static int io_req_defer(struct io_kiocb *req)
+ 	if (!req_need_defer(req, seq) && list_empty_careful(&ctx->defer_list))
+ 		return 0;
+ 
+-	ret = io_req_defer_prep(req);
++	ret = io_req_prep_async(req);
+ 	if (ret)
+ 		return ret;
+ 	io_prep_async_link(req);
+@@ -6216,7 +6214,7 @@ static void io_queue_sqe(struct io_kiocb *req)
+ 			io_req_complete_failed(req, ret);
+ 		}
+ 	} else if (req->flags & REQ_F_FORCE_ASYNC) {
+-		ret = io_req_defer_prep(req);
++		ret = io_req_prep_async(req);
+ 		if (unlikely(ret))
+ 			goto fail_req;
+ 		io_queue_async_work(req);
+@@ -6362,7 +6360,7 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			head->flags |= REQ_F_IO_DRAIN;
+ 			ctx->drain_next = 1;
+ 		}
+-		ret = io_req_defer_prep(req);
++		ret = io_req_prep_async(req);
+ 		if (unlikely(ret))
+ 			goto fail_req;
+ 		trace_io_uring_link(ctx, req, head);
 -- 
 2.24.0
 

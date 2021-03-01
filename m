@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B98AC433E9
-	for <io-uring@archiver.kernel.org>; Mon,  1 Mar 2021 18:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98DE5C433E0
+	for <io-uring@archiver.kernel.org>; Mon,  1 Mar 2021 18:30:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C0B264F2A
-	for <io-uring@archiver.kernel.org>; Mon,  1 Mar 2021 18:30:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62A8C64F57
+	for <io-uring@archiver.kernel.org>; Mon,  1 Mar 2021 18:30:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239303AbhCAS3d (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 1 Mar 2021 13:29:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33808 "EHLO
+        id S239814AbhCAS3z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 1 Mar 2021 13:29:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234815AbhCAS0j (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Mar 2021 13:26:39 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712A7C061797
-        for <io-uring@vger.kernel.org>; Mon,  1 Mar 2021 10:24:48 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id d15so1961425wrv.5
-        for <io-uring@vger.kernel.org>; Mon, 01 Mar 2021 10:24:48 -0800 (PST)
+        with ESMTP id S239854AbhCAS1Q (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Mar 2021 13:27:16 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1E2C0617AA
+        for <io-uring@vger.kernel.org>; Mon,  1 Mar 2021 10:24:51 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id n4so158146wmq.3
+        for <io-uring@vger.kernel.org>; Mon, 01 Mar 2021 10:24:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=1elmTManS8EJhtqYAj2p48WpqAFInfdzdbKldXVjWIQ=;
-        b=VxNymRE9z5uandSXgls99GjnKAjKyejeiP6lMFMb3f35xiT5/EOHajaESTp2ClbBFo
-         LjLI2ngwx9ouiHtsZz3ZEz9tGRQPrPVaTZat8apZtCMQxmVaGIq0dtNN2MT5ucLx//RW
-         VXmFGAD/iJh0kZVpI00iURZg1P0gc4tuAyBUPtz16joAuzPG+mbrLX6oMSG8unqckKb1
-         l1xLB6iUX3zVCt8I1qhncXOahv9qvJBuoDfppS6cQ8HgYO58NxFrIgVz4jleSesdh9oe
-         s8Om6rFaHdzLpXOEhNcOvPF7jTvGPGJ2x12+3czCsgMpDSeYBrH3VD/cqWjfv8feeN93
-         jJ4w==
+        bh=4Z+Sd0Zti0Hp79FYi9p0x5GGPq9frrpGunjs66QWsYk=;
+        b=GRjOPUPrqPhfCaYiGrRGuk4J6vih80RCBu0WYHKCFCYUR9vRbVsk3nxk/RhQMcrUBE
+         qHN9DGLjfG07A3WXC/8CiWQ7YFJqQM0J612qoViqsbF6RbvBGXeQMfjkGxY7zzUElpcA
+         dxw9vRjFmo514NBdXsV5L1DCWfQTDmlgfiBKvys82A7vn/OFTMrtRW++SDmGzcrMmu9A
+         Q5bbS0fe8Nz4eh54EwWW0EX4KDMIkxuN5TJS6Ps8fo9/AOGcWAP0VCRRe6QeBkinHq1q
+         46uyn82vsV6JRH2Yt+wR+v52VSxzxtJajRRezyPzt+M7XeQPhcOH1xDRwEBVVFKs1YY0
+         8CGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1elmTManS8EJhtqYAj2p48WpqAFInfdzdbKldXVjWIQ=;
-        b=A0JZr96eNh2oeNYMtIqMQinI8uELbyDvfmy70GGxDjd25L6MemrQECiprM9gOIewaz
-         dzgbRhMXaxaqb/eAvIgStCO531mGLdvykvrnSAfZjWJi7HRbB7hNLgstwqq2cD7ivMYK
-         6o7fCfkskqpDmCawePTTiJM/xu7F9Rdznwq7eUTxqTQAXCCQ76CZB/kXLxmJKdxf0Yna
-         sS/dlak15S0CAFXF+KL0DBU0OnLZxwpi6r3y0cQck+iHV4jPh+JuMWDhDgPExlbgVOGU
-         q21iu8/kff9ax9f90qpkZrMCR8nSgJAd79Dtk+hogXS5HVgezX1lbg0UKNsp5PMDWPq/
-         srpw==
-X-Gm-Message-State: AOAM531Induk+h0b75CdFJizt1QAhkF1OjvkDepvp8HVXPHM9Qf0AOzG
-        VZ5btZURdw1YE0dKvUMWdCT7LoZUkTBQxw==
-X-Google-Smtp-Source: ABdhPJx4W08Lv3oFj8oWCtlOCtgsuPgMK5bj5UjI4Ta6B4kJWFRx9H10n0vQeIxELsuZwuV2E1h7LQ==
-X-Received: by 2002:a5d:5149:: with SMTP id u9mr18659979wrt.348.1614623087291;
-        Mon, 01 Mar 2021 10:24:47 -0800 (PST)
+        bh=4Z+Sd0Zti0Hp79FYi9p0x5GGPq9frrpGunjs66QWsYk=;
+        b=soYwM9Knx1Artke21gH5NN+1tALkNz8h2T43ExSp+/IIUtgGmcsVfxjTHZQWyM+Tdo
+         3E48EVM41vH1aC+JdAGSbVIanSQ1qeJcN6Hb//Oez5gJ68nDVUiyzFeSCazA2cx+vwb3
+         dufXZf/+UKXSf1yFuN7Qq+UGvKwbUVj5Pi1wrhSvn06LnD4czmN3NyhQ68pvrF6ZzyqI
+         Q13CxLV6uP35YYjMJJ5M6UFCGHWff2WUWtTisDGOXP9eH8N/oE3E6KHtM3g2YxA39t8L
+         VfiCtRHBFNrQajoU8fd2zbvqT8kRc6ZkieanGJRfCH1P3y6quvFyR8mzRHDYeRM8hdmW
+         md1Q==
+X-Gm-Message-State: AOAM533C46l+KEbZyNuleFzNl2WXQhHDGvZ9Lr4CHE5GCZi8RdshMWus
+        qw1WB9UfzL/JuUR0qYQbeP4=
+X-Google-Smtp-Source: ABdhPJzzOTNT47vbPVynsfuXMnhk7mo5ZFDOU4exkulQGXSDQEuRCvUNOqSXOXXQ08wwO9drxsFxOw==
+X-Received: by 2002:a1c:b70b:: with SMTP id h11mr210907wmf.10.1614623090398;
+        Mon, 01 Mar 2021 10:24:50 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.35])
-        by smtp.gmail.com with ESMTPSA id q25sm125146wmq.15.2021.03.01.10.24.46
+        by smtp.gmail.com with ESMTPSA id q25sm125146wmq.15.2021.03.01.10.24.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 10:24:46 -0800 (PST)
+        Mon, 01 Mar 2021 10:24:50 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: choose right tctx->io_wq for try cancel
-Date:   Mon,  1 Mar 2021 18:20:45 +0000
-Message-Id: <095c880d18a0338dc5f57435c6f91ca3666d8b90.1614622683.git.asml.silence@gmail.com>
+Subject: [PATCH 4/4] io_uring: remove extra in_idle wake up
+Date:   Mon,  1 Mar 2021 18:20:48 +0000
+Message-Id: <ec4616bacc4f4928eb34fe64ef162978eacbd62f.1614622683.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1614622683.git.asml.silence@gmail.com>
 References: <cover.1614622683.git.asml.silence@gmail.com>
@@ -70,29 +70,40 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-When we cancel SQPOLL, @task in io_uring_try_cancel_requests() will
-differ from current. Use the right tctx from passed in @task, and don't
-forget that it can be NULL when the io_uring ctx exits.
+io_dismantle_req() is always followed by io_put_task(), which already do
+proper in_idle wake ups, so we can skip waking the owner task in
+io_dismantle_req(). The rules are simpler now, do io_put_task() shortly
+after ending a request, and it will be fine.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0c363529a836..34d0fd4a933b 100644
+index 411323dc43bb..e9215477426d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8615,7 +8615,8 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 					 struct files_struct *files)
- {
- 	struct io_task_cancel cancel = { .task = task, .files = files, };
--	struct io_uring_task *tctx = current->io_uring;
-+	struct task_struct *tctx_task = task ?: current;
-+	struct io_uring_task *tctx = tctx_task->io_uring;
+@@ -1649,18 +1649,16 @@ static void io_dismantle_req(struct io_kiocb *req)
  
- 	while (1) {
- 		enum io_wq_cancel cret;
+ 	if (req->flags & REQ_F_INFLIGHT) {
+ 		struct io_ring_ctx *ctx = req->ctx;
+-		struct io_uring_task *tctx = req->task->io_uring;
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&ctx->inflight_lock, flags);
+ 		list_del(&req->inflight_entry);
+ 		spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+ 		req->flags &= ~REQ_F_INFLIGHT;
+-		if (atomic_read(&tctx->in_idle))
+-			wake_up(&tctx->wait);
+ 	}
+ }
+ 
++/* must to be called somewhat shortly after putting a request */
+ static inline void io_put_task(struct task_struct *task, int nr)
+ {
+ 	struct io_uring_task *tctx = task->io_uring;
 -- 
 2.24.0
 

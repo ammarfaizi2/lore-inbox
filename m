@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A553C001C7
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 208E6C43333
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26F4064E68
+	by mail.kernel.org (Postfix) with ESMTP id DB32064E68
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376996AbhCDAYK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:10 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:35837 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1442186AbhCCL6e (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:34 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQFBO9Y_1614772670;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQFBO9Y_1614772670)
+        id S1382081AbhCDAYE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:24:04 -0500
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:48743 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1442099AbhCCL62 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:28 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQFn1HQ_1614772662;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQFn1HQ_1614772662)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 03 Mar 2021 19:57:50 +0800
+          Wed, 03 Mar 2021 19:57:43 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     msnitzer@redhat.com, axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org, dm-devel@redhat.com,
         linux-block@vger.kernel.org, mpatocka@redhat.com,
         caspar@linux.alibaba.com, joseph.qi@linux.alibaba.com
-Subject: [PATCH v5 09/12] nvme/pci: don't wait for locked polling queue
-Date:   Wed,  3 Mar 2021 19:57:37 +0800
-Message-Id: <20210303115740.127001-10-jefflexu@linux.alibaba.com>
+Subject: [PATCH v5 02/12] block: add queue_to_disk() to get gendisk from request_queue
+Date:   Wed,  3 Mar 2021 19:57:30 +0800
+Message-Id: <20210303115740.127001-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
 References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
@@ -40,37 +40,65 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There's no sense waiting for the hw queue when it currently has been
-locked by another polling instance. The polling instance currently
-occupying the hw queue will help reap the completion events.
+Sometimes we need to get the corresponding gendisk from request_queue.
 
-It shall be safe to surrender the hw queue, as long as we could reapply
-for polling later. For Synchronous polling, blk_poll() will reapply for
-polling, since @spin is always True in this case. While For asynchronous
-polling, i.e. io_uring itself will reapply for polling when the previous
-polling returns 0.
+It is preferred that block drivers store private data in
+gendisk->private_data rather than request_queue->queuedata, e.g. see:
+commit c4a59c4e5db3 ("dm: stop using ->queuedata").
 
-Besides, it shall do no harm to the polling performance of mq devices.
+So if only request_queue is given, we need to get its corresponding
+gendisk to get the private data stored in that gendisk.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Mike Snitzer <snitzer@redhat.com>
 ---
- drivers/nvme/host/pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/blkdev.h       | 2 ++
+ include/trace/events/kyber.h | 6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 38b0d694dfc9..150e56ed6d15 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1106,7 +1106,9 @@ static int nvme_poll(struct blk_mq_hw_ctx *hctx)
- 	if (!nvme_cqe_pending(nvmeq))
- 		return 0;
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index c032cfe133c7..b81a9fe015ab 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -687,6 +687,8 @@ static inline bool blk_account_rq(struct request *rq)
+ 	dma_map_page_attrs(dev, (bv)->bv_page, (bv)->bv_offset, (bv)->bv_len, \
+ 	(dir), (attrs))
  
--	spin_lock(&nvmeq->cq_poll_lock);
-+	if (!spin_trylock(&nvmeq->cq_poll_lock))
-+		return 0;
++#define queue_to_disk(q)	(dev_to_disk(kobj_to_dev((q)->kobj.parent)))
 +
- 	found = nvme_process_cq(nvmeq);
- 	spin_unlock(&nvmeq->cq_poll_lock);
+ static inline bool queue_is_mq(struct request_queue *q)
+ {
+ 	return q->mq_ops;
+diff --git a/include/trace/events/kyber.h b/include/trace/events/kyber.h
+index c0e7d24ca256..f9802562edf6 100644
+--- a/include/trace/events/kyber.h
++++ b/include/trace/events/kyber.h
+@@ -30,7 +30,7 @@ TRACE_EVENT(kyber_latency,
+ 	),
+ 
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 		strlcpy(__entry->type, type, sizeof(__entry->type));
+ 		__entry->percentile	= percentile;
+@@ -59,7 +59,7 @@ TRACE_EVENT(kyber_adjust,
+ 	),
+ 
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 		__entry->depth		= depth;
+ 	),
+@@ -81,7 +81,7 @@ TRACE_EVENT(kyber_throttled,
+ 	),
+ 
+ 	TP_fast_assign(
+-		__entry->dev		= disk_devt(dev_to_disk(kobj_to_dev(q->kobj.parent)));
++		__entry->dev		= disk_devt(queue_to_disk(q));
+ 		strlcpy(__entry->domain, domain, sizeof(__entry->domain));
+ 	),
  
 -- 
 2.27.0

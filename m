@@ -2,171 +2,96 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C69C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0321C4321A
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A9F764EC0
+	by mail.kernel.org (Postfix) with ESMTP id 8D39164E12
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344961AbhCDAYX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:23 -0500
-Received: from mail-io1-f71.google.com ([209.85.166.71]:51231 "EHLO
-        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376661AbhCCWYr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 17:24:47 -0500
-Received: by mail-io1-f71.google.com with SMTP id i19so12311087ioh.18
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 14:24:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=U0pQ8UeY3jjvyGIA/GmTExIy024e3Gh7t6G65nu29TY=;
-        b=Db+BoNMgBGeLcMUlSPwfuAAogcBZRR5dIHLOwPb7TN0MDdiGsjguh/PHah8anqUtW7
-         hNUk8v2mRtTmEnU5YISRN64pmpQ3s3MxLmvnSkLHTm4W6MVfwXeWefqRpiIZJz24qAR5
-         t3zfPenoCIq0W32YPKJoR5DrMJ44/FRWYAfhKrmUalPiSRqRhPa3AjzuwLtmJfa1td15
-         p7CkV8nkFfdT3EUrcEHYuLm+8EYnCBK1I4faqvB3WXaTjyJ31JwJ3rEoWUgus88myM1b
-         /h5p5v2iqtNX7KC3oAG4GAXOgDrfc9goFCoTP45tq2S0CRn+sCYITKGMfp7D8Npxck/F
-         V1Zg==
-X-Gm-Message-State: AOAM530+bPqyqZkibOyWnKbNkgWfM59VvW1VwzFF1MXlMoGSXX0lgZzT
-        iHsFs1D8DEFGNbsKIHvjTRUNUCINUREuFBVBXFPEuiQp9o1U
-X-Google-Smtp-Source: ABdhPJw4wmNgJQkCl6BM6noRm3a60twCGn3jXdUuhUeeSuXi0iHyQM9FNOTjoTNW5NkzTsNZj8+dmfwxjES+1f2WGoX+VbJ9PlWC
+        id S1359272AbhCDAYD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:24:03 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:35497 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1442100AbhCCL60 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQGMHlb_1614772661;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQGMHlb_1614772661)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 03 Mar 2021 19:57:41 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     msnitzer@redhat.com, axboe@kernel.dk
+Cc:     io-uring@vger.kernel.org, dm-devel@redhat.com,
+        linux-block@vger.kernel.org, mpatocka@redhat.com,
+        caspar@linux.alibaba.com, joseph.qi@linux.alibaba.com
+Subject: [PATCH v5 01/12] block: move definition of blk_qc_t to types.h
+Date:   Wed,  3 Mar 2021 19:57:29 +0800
+Message-Id: <20210303115740.127001-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
+References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:c7:: with SMTP id r7mr1408691ilq.288.1614810244587;
- Wed, 03 Mar 2021 14:24:04 -0800 (PST)
-Date:   Wed, 03 Mar 2021 14:24:04 -0800
-In-Reply-To: <af143fa7-cff3-48eb-5abc-94e3685d0955@kernel.dk>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000002261d05bca94f7b@google.com>
-Subject: Re: memory leak in io_submit_sqes (2)
-From:   syzbot <syzbot+91b4b56ead187d35c9d3@syzkaller.appspotmail.com>
-To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+So that kiocb.ki_cookie can be defined as blk_qc_t, which will enforce
+the encapsulation.
 
-syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-memory leak in io_submit_sqes
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Mike Snitzer <snitzer@redhat.com>
+---
+ include/linux/blk_types.h | 2 +-
+ include/linux/fs.h        | 2 +-
+ include/linux/types.h     | 3 +++
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-BUG: memory leak
-unreferenced object 0xffff88811043cc00 (size 232):
-  comm "syz-executor.0", pid 10595, jiffies 4294944973 (age 10.850s)
-  hex dump (first 32 bytes):
-    00 f0 40 10 81 88 ff ff 00 00 00 00 00 00 00 00  ..@.............
-    00 7a 5f 81 ff ff ff ff 00 00 00 00 00 00 00 00  .z_.............
-  backtrace:
-    [<000000005cfa592c>] io_alloc_req fs/io_uring.c:1610 [inline]
-    [<000000005cfa592c>] io_submit_sqes+0x7ae/0x22f0 fs/io_uring.c:6518
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-BUG: memory leak
-unreferenced object 0xffff888124dd1300 (size 256):
-  comm "syz-executor.0", pid 10595, jiffies 4294944973 (age 10.850s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000099ea7aac>] kmalloc include/linux/slab.h:559 [inline]
-    [<0000000099ea7aac>] __io_alloc_async_data fs/io_uring.c:3060 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw fs/io_uring.c:3079 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw+0xa3/0x1e0 fs/io_uring.c:3072
-    [<0000000002d951db>] io_read+0x1fe/0x560 fs/io_uring.c:3257
-    [<00000000ca56953d>] io_issue_sqe+0x18d/0x23e0 fs/io_uring.c:5933
-    [<00000000a5a737fd>] __io_queue_sqe+0x9a/0x4f0 fs/io_uring.c:6200
-    [<00000000af920b23>] io_queue_sqe+0x361/0x560 fs/io_uring.c:6253
-    [<00000000deecb73d>] io_submit_sqe fs/io_uring.c:6417 [inline]
-    [<00000000deecb73d>] io_submit_sqes+0x1fc1/0x22f0 fs/io_uring.c:6531
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-BUG: memory leak
-unreferenced object 0xffff88810d21fa00 (size 232):
-  comm "syz-executor.0", pid 10613, jiffies 4294944997 (age 10.610s)
-  hex dump (first 32 bytes):
-    00 47 b1 11 81 88 ff ff 00 00 00 00 00 00 00 00  .G..............
-    00 7a 5f 81 ff ff ff ff 00 00 00 00 00 00 00 00  .z_.............
-  backtrace:
-    [<000000005cfa592c>] io_alloc_req fs/io_uring.c:1610 [inline]
-    [<000000005cfa592c>] io_submit_sqes+0x7ae/0x22f0 fs/io_uring.c:6518
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-BUG: memory leak
-unreferenced object 0xffff888124e98500 (size 256):
-  comm "syz-executor.0", pid 10613, jiffies 4294944997 (age 10.610s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000099ea7aac>] kmalloc include/linux/slab.h:559 [inline]
-    [<0000000099ea7aac>] __io_alloc_async_data fs/io_uring.c:3060 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw fs/io_uring.c:3079 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw+0xa3/0x1e0 fs/io_uring.c:3072
-    [<0000000002d951db>] io_read+0x1fe/0x560 fs/io_uring.c:3257
-    [<00000000ca56953d>] io_issue_sqe+0x18d/0x23e0 fs/io_uring.c:5933
-    [<00000000a5a737fd>] __io_queue_sqe+0x9a/0x4f0 fs/io_uring.c:6200
-    [<00000000af920b23>] io_queue_sqe+0x361/0x560 fs/io_uring.c:6253
-    [<00000000deecb73d>] io_submit_sqe fs/io_uring.c:6417 [inline]
-    [<00000000deecb73d>] io_submit_sqes+0x1fc1/0x22f0 fs/io_uring.c:6531
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-BUG: memory leak
-unreferenced object 0xffff88810edcff00 (size 232):
-  comm "syz-executor.0", pid 10633, jiffies 4294945010 (age 10.480s)
-  hex dump (first 32 bytes):
-    00 99 b3 11 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-    00 7a 5f 81 ff ff ff ff 00 00 00 00 00 00 00 00  .z_.............
-  backtrace:
-    [<000000005cfa592c>] io_alloc_req fs/io_uring.c:1610 [inline]
-    [<000000005cfa592c>] io_submit_sqes+0x7ae/0x22f0 fs/io_uring.c:6518
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-BUG: memory leak
-unreferenced object 0xffff888124c06300 (size 256):
-  comm "syz-executor.0", pid 10633, jiffies 4294945010 (age 10.480s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000099ea7aac>] kmalloc include/linux/slab.h:559 [inline]
-    [<0000000099ea7aac>] __io_alloc_async_data fs/io_uring.c:3060 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw fs/io_uring.c:3079 [inline]
-    [<0000000099ea7aac>] io_setup_async_rw+0xa3/0x1e0 fs/io_uring.c:3072
-    [<0000000002d951db>] io_read+0x1fe/0x560 fs/io_uring.c:3257
-    [<00000000ca56953d>] io_issue_sqe+0x18d/0x23e0 fs/io_uring.c:5933
-    [<00000000a5a737fd>] __io_queue_sqe+0x9a/0x4f0 fs/io_uring.c:6200
-    [<00000000af920b23>] io_queue_sqe+0x361/0x560 fs/io_uring.c:6253
-    [<00000000deecb73d>] io_submit_sqe fs/io_uring.c:6417 [inline]
-    [<00000000deecb73d>] io_submit_sqes+0x1fc1/0x22f0 fs/io_uring.c:6531
-    [<00000000bffe23f4>] __do_sys_io_uring_enter+0x857/0x10c0 fs/io_uring.c:9108
-    [<000000002e2222f2>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000005e5fec34>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-
-
-Tested on:
-
-commit:         4f766d6f io_uring: ensure that threads freeze on suspend
-git tree:       git://git.kernel.dk/linux-block io_uring-5.12
-console output: https://syzkaller.appspot.com/x/log.txt?x=143ce02ad00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=c43bda1f1543d72b
-dashboard link: https://syzkaller.appspot.com/bug?extid=91b4b56ead187d35c9d3
-compiler:       
+diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+index db026b6ec15a..fb429daaa909 100644
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -505,7 +505,7 @@ static inline int op_stat_group(unsigned int op)
+ 	return op_is_write(op);
+ }
+ 
+-typedef unsigned int blk_qc_t;
++/* Macros for blk_qc_t */
+ #define BLK_QC_T_NONE		-1U
+ #define BLK_QC_T_SHIFT		16
+ #define BLK_QC_T_INTERNAL	(1U << 31)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index ec8f3ddf4a6a..8b14dacf618d 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -332,7 +332,7 @@ struct kiocb {
+ 	u16			ki_hint;
+ 	u16			ki_ioprio; /* See linux/ioprio.h */
+ 	union {
+-		unsigned int		ki_cookie; /* for ->iopoll */
++		blk_qc_t		ki_cookie; /* for ->iopoll */
+ 		struct wait_page_queue	*ki_waitq; /* for async buffered IO */
+ 	};
+ 
+diff --git a/include/linux/types.h b/include/linux/types.h
+index ac825ad90e44..52a54ed6ffac 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -125,6 +125,9 @@ typedef s64			int64_t;
+ typedef u64 sector_t;
+ typedef u64 blkcnt_t;
+ 
++/* cookie used for IO polling */
++typedef unsigned int blk_qc_t;
++
+ /*
+  * The type of an index into the pagecache.
+  */
+-- 
+2.27.0
 

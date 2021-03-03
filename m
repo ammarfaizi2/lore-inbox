@@ -2,151 +2,238 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 600CDC4332D
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC32DC4332B
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34A3364F14
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9317F64E12
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238660AbhCDAYB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:01 -0500
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:3950 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231976AbhCCISz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 03:18:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1614759533; x=1646295533;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=soYDRWLl0HHrEGC18buOWlBqxgRLTopf3jSsB90/2fI=;
-  b=MQwOPNPcs0FC/ULKTCp0blutS7mM0hivJZ06fSDseR1pXG0GIkEH2GwI
-   bI/V7LnT1tvCJPtOxA+Nxo5i8VptmCjvzYfEMRLZ7+VskaS50qUWzsdrw
-   hynaDNerYvt0CHT8ZYe4ssyserJkQLZzAnCke0jXg2Zdrj2ix1lzCqa0e
-   JjNsW2VszDVd7VUFxjoYnaVYXYQebqT3rJVVld19XYDzREyror1+iK6EO
-   vNU+J9VpnyVXpIaFGIPYf1hsEsXienzMEU9aaTXXpCtz0uSx8AyULGHFn
-   IraFnZ+Z5hUH+x3FwHtGNvRYwYmWnIfhV2VnPis9ehIYe+Ql3Rr4KJSXt
-   A==;
-IronPort-SDR: atrET6+azEHppVjA/w0wf4/E0qY0/51g3Ym5tb8HhqobcDL/ePgi2ETd6Dsc7B5V9pM+o0RW9i
- mug3gG1KRcmADO+sxucgMIQJmKwj2KZfVJ+09xydL9WqWDeYECdz8XoZPdTua60uCCP17BR1hk
- L1MsptcoACcic/dZiPRvPTk8E1AT+Ee8P98qBbz3HhiJqiO0KZsiBbt6wuT4HnlzvqAz2mK1vL
- tnmrsXdPSP64QDLgDUYj0EMvc1WA9h+OuOAGgbiVtDEnesNPgN+3vozQ7CJDIVnhgDbuiB26y/
- Bxo=
-X-IronPort-AV: E=Sophos;i="5.81,219,1610380800"; 
-   d="scan'208";a="165713438"
-Received: from mail-bn8nam12lp2177.outbound.protection.outlook.com (HELO NAM12-BN8-obe.outbound.protection.outlook.com) ([104.47.55.177])
-  by ob1.hgst.iphmx.com with ESMTP; 03 Mar 2021 15:35:42 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NqLFRU+E7Mdme3+HSl/qdSiy6zbodr9KaRFds36lZCPCPVojhN8HxA441kpXm8bzexwIldndAZNsMLcGAuCDv/5IIhCeoxLN+FtYA6oPj6gzctandNG6vy9ihgMpfXBVadLRlsM1WtEIa5/eD7nM+h4cTDpxOIuSNHGMROE4BN8+uzgpo86ykNeolSbp+2VEkzGJpRH4cBxgacrlwRyre9e9MqCxDNnxu6jM6mn3ReEbt+qSKR7bHJAR9GaTn9KskHtW8NTARxTe/SXjl994Y8h85AArAvyvOsApjAK1KerQ+y0aA0xgilHZnETwtJ0Gp/1t0fQjMbjk+2Rb/9hi0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LML9dFmYNDfi1EYJPtgWMnHgM3u/u+tjeMaZGZTbrko=;
- b=W958qUD8ku+tqGHXb5nkZm3HIGrTq/ro/HT145eB+BM+xX0TbkatO3DVDmqyXtBUYxyfLGDLWuzzRp5619qpe0mZX/SXza0gn0J0R7IryQluKpr0trQr1YqjRWathRIuob6kd9zkBO1ozBDioXxb8+XMM7mZWCtT8XQJAu0CdnYNS864qGku2hcTLbVt43wsaNxqpIGQI6+CYVGc0FU4mbDKutLmNiRsKO59LKxFtD25VexTD7uAo0gb54fnJDF1uz7NF7xlWmOsygFKqr2QhbtzqrDursoMMDfornPG7Wh9z4KGvhrqoIAviXAhP/DzbaqPdY9tS8T3mkQp7udbHA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
+        id S1379014AbhCDAYQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383014AbhCCNjp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 08:39:45 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1FEC06178C
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 05:39:01 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id m6so16320048pfk.1
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 05:39:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LML9dFmYNDfi1EYJPtgWMnHgM3u/u+tjeMaZGZTbrko=;
- b=sAlN0rlDL/7xY9oTSL0m3xF+1w9p5igAqLDatI/qefIsjoO52eC9NUd9w1VAWPYQpgEOaRtmZrsl5e1kEI8SIbFr0/jYyfz+EjWY04ejpxDB8KOwzTfud3z5bnwmqmfnAttDk5JQ+5VEuJgEWrguJcbcR8AeB1l2sDght188fyU=
-Received: from BYAPR04MB4965.namprd04.prod.outlook.com (2603:10b6:a03:4d::25)
- by BYAPR04MB4870.namprd04.prod.outlook.com (2603:10b6:a03:4a::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3912.17; Wed, 3 Mar
- 2021 07:35:41 +0000
-Received: from BYAPR04MB4965.namprd04.prod.outlook.com
- ([fe80::c897:a1f8:197a:706b]) by BYAPR04MB4965.namprd04.prod.outlook.com
- ([fe80::c897:a1f8:197a:706b%5]) with mapi id 15.20.3890.029; Wed, 3 Mar 2021
- 07:35:41 +0000
-From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
-To:     Kanchan Joshi <joshi.k@samsung.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>, "hch@lst.de" <hch@lst.de>,
-        "kbusch@kernel.org" <kbusch@kernel.org>
-CC:     "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
-        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-        "anuj20.g@samsung.com" <anuj20.g@samsung.com>,
-        "javier.gonz@samsung.com" <javier.gonz@samsung.com>
-Subject: Re: [RFC 3/3] nvme: wire up support for async passthrough
-Thread-Topic: [RFC 3/3] nvme: wire up support for async passthrough
-Thread-Index: AQHXD/4Dj/1BYoXHfUas1RoZk+MM2w==
-Date:   Wed, 3 Mar 2021 07:35:40 +0000
-Message-ID: <BYAPR04MB4965E07D8D106CE6565DFB7386989@BYAPR04MB4965.namprd04.prod.outlook.com>
-References: <20210302160734.99610-1-joshi.k@samsung.com>
- <CGME20210302161010epcas5p4da13d3f866ff4ed45c04fb82929d1c83@epcas5p4.samsung.com>
- <20210302160734.99610-4-joshi.k@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: samsung.com; dkim=none (message not signed)
- header.d=none;samsung.com; dmarc=none action=none header.from=wdc.com;
-x-originating-ip: [199.255.45.62]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 0d602d4b-d912-457e-a133-08d8de16f271
-x-ms-traffictypediagnostic: BYAPR04MB4870:
-x-microsoft-antispam-prvs: <BYAPR04MB4870FAB6C164429CD1BD781886989@BYAPR04MB4870.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:4303;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: YbnpwApkNTwN+utqVR63iVn9cSJ1JcOjamc91GjXCgSjSvxzrIoO6Dh9JYPk2kuaQWDtvW8zQNLi6CdzzMItasrgTPHK26l6INGdv29aCrDTP7tX3MQ6zf6NvGhJ6/0F9+ThuO7EeCxdhzkwLd7dNYai96BF6WVw7y5x1LBgqoRTl7PoJ5XNeu1hZBnACQsgtdvTTH0mzLGnQ3fNXjOV7gftVXojfFBb4HICU39SaRGDKjgSkumds+F7ZANdPP74fCTVaBiqs4fp6oNxYMv1G1b1kQXSCRweI2IxU1c+JgvXIrwHca6+3Ck4TMdtMSBobC0TznThOQJf3CuccaylidcpssiHisxDYNYRO97vn91d6VuGgSWPlXKSTFMVrA3PNCExIIlS1EMaqWRW8u/XeID8Nd1hTlFTOCfJWxliKcyoLBCpEpGjQdcH6krPeq+r+fx4+giao9EFgFs+/fvOqZ+zgRzgHT15Me8iNXBfw4tO68UkG8iwNnQ/Cs4v3Jk4rsp2+YhTWheaXsZW4k2GNQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR04MB4965.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(346002)(136003)(39860400002)(376002)(366004)(5660300002)(4326008)(66556008)(66476007)(66946007)(66446008)(8936002)(33656002)(64756008)(478600001)(2906002)(558084003)(186003)(26005)(86362001)(71200400001)(54906003)(6506007)(7696005)(8676002)(53546011)(9686003)(316002)(52536014)(55016002)(76116006)(110136005);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?lSSdmN50cj/zENjugP4X/thdZvrSOkHzvEBl0fxEnzRbu5AlZUP4v/HqE4AE?=
- =?us-ascii?Q?ERh0ghLyKP7m6q5GOZbd8h6ORulMx22suklc4l42hdhXIr/B1kvasxP/HeoE?=
- =?us-ascii?Q?vhnuBoQ6Ru02pt3gHWr4hJFIBHg8c9XiYd09dsTrgIlNsZjRHRmDN/IiDO80?=
- =?us-ascii?Q?Ktew009iVZ99THVsGQdjIRz3fXkGNgENTQGJPXzCLM6tYmzXdkGEKcyCnFXr?=
- =?us-ascii?Q?DnC3RmSP+jSZRTkvIjQ+Fu8TYk0AtN6AA3pH4kl+hyY/UMwsRu7Kfh/aPRdG?=
- =?us-ascii?Q?MTQKOlwN8o372yLdBPBiYngN2DtAzEbdS/bpzT3XqoiQ3IhTFNOlSBxXB0+6?=
- =?us-ascii?Q?Cdv+fsIQUdAO+VUfGhHZVTyCjTTsv6tftKS1FJ/p4uCv9FLUxci2ITOTOB++?=
- =?us-ascii?Q?Ado/DVombcX9Lo7oMjm3Faca7/rFMOt4aL9EW2e/xmXvaa9qSNNRDbjTyZuW?=
- =?us-ascii?Q?Ti/PPaBpsKVZcL/0FbNONHbdtIheyVQTw7CVd7iM83WKPiTPHitzMRWRdepX?=
- =?us-ascii?Q?z+yNdUcLd/3UuhWiGX1jsdVNgJP2iC4SiVcGM1hbs6H+kvHc4LwIjFwjQOoO?=
- =?us-ascii?Q?9tI29Xq4Ingi1sO7VVKHWTriyiJdcD2Nxu+RgTAyp1MrvSENrOjH8WRUT9Kw?=
- =?us-ascii?Q?oMEoW+HK+UnlJ3TLhOZIWZ0G30dXBjnNmvqHF9+3R2MRsq0zRWo1V3/iySKz?=
- =?us-ascii?Q?NX6joi6xZSnympkdJuQmPfDslKjvuQjt1S/UnrlTVOrC5GTXot4FZ5FiJ02H?=
- =?us-ascii?Q?FnnpomysbevTmEc5zON9C3nd9wQIyxe2DSQktqsgjrFiJBhrVmdcwY3/Dv8K?=
- =?us-ascii?Q?XOjWa6qNBuyJ89Y3rUUyXtEhX+QwKbtDh3QnCsHKng/OunmHIIozinb+5fnc?=
- =?us-ascii?Q?a250LzKFcTRNkXry0QR5D7i/pMUi3sIkV3iMz7kzc7JY5w3Jjlrc/e8vZaid?=
- =?us-ascii?Q?c56GDMwj1sKCq6G+hIIq90wC1DwFM8lId9VcHBWE2egig49bQ60kQRiGNclE?=
- =?us-ascii?Q?MSQd9VjNb0reHNAtH1G7m3g7lrEASIV6CgG05YLCDJKMnWLSJ8g2uER/DMi9?=
- =?us-ascii?Q?VMOzeseWuEUwo9Fk9isxNe21v6JX4S9jBIhRVogOw21N3hJj/7g5OEvLsIwM?=
- =?us-ascii?Q?zfrz9uLpRloDJoEZap31RkcsBAhj37w9zkQnVkZvu48XhYMO0YS4XuLd0iiq?=
- =?us-ascii?Q?JTVZp5vFGfzg4A8Ha7W4Spu+3SlkDdhBMSi7hnc9VkzqYqstPPY+vHFrRHR7?=
- =?us-ascii?Q?OSHQq9YYDEPhE1bD6FdxcwL5MXUBIxLBIavQE/20UktXeQIOenW1sKRIGuzP?=
- =?us-ascii?Q?bS+ZxiYdThIlJBORvQiI3frn?=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=sdhrJGZid5mivManhqm8jfbYhoV6GMjSvozJvC0qrHU=;
+        b=1NMzupzNtaEjVHH9pb9ijIJyV7FoHFUtd9Z/80FiqGzI8FTIaVLli9GICSGvoVadET
+         vAkipuSnAWoYMiYkPQFhZXM8NEZQYObpi28M+wniJWN0RQ2Msfbox2cbZ0WDYhzoQUxF
+         25lv+QodqOkdqfGYNQJY1duY22dG0KUmv7Rg1G4cno2OVpFtMMsbDvOLkujiukd6nqhW
+         MWEHDUzOkHJYNQHnHwhAWjJyoCO7+tLfHX6pSHMTu6vDmwxHVOrThdQhcK2g4DWt0tJw
+         mK5tHdPxgv1qi4YLHK0p1BCKX2kP9TrqKhfuK9JkbDU3d5zZjkhCSc1GrQNPd/ceH8bD
+         81ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=sdhrJGZid5mivManhqm8jfbYhoV6GMjSvozJvC0qrHU=;
+        b=lFY7PTTzQs0gZC9YpBxY9Q/AP8pDYCAq4ZESDJdaLLiBeJJppLKHB5YuycOWMchYKP
+         /91DuEYQjT5WofrYJu8hQRIRHZw1M0D/rZtDxy/bGIMwoEaBCwFCnloKScHUvsSFXBTz
+         4H2e8jKU3wQ4KVDH+JbV1NMYktuR3PicDFH35z/B6LKB4+/SJHAj1UqNUXltIHQCfcE+
+         7WW275sE5LJpp4wFoVGP8iRySBOcS7NX5LPVxgE9sQVsHaXNk7c1t1uA8Dp36UqZ2Vg2
+         mnKEspHw5vwaC4z2GvWwZFNvRT8txsgG4mLMTqO47X8HsdfURd91T4thEI49EaMC98LO
+         mRQA==
+X-Gm-Message-State: AOAM532Z9pYPFSBrH/NmjM+lXEEtOBCMFB0Nh+/5oGi2XcaQ5jcjRNox
+        IGzc7K55qRxCxDfNt6ixJsBTB08/V+Co7w==
+X-Google-Smtp-Source: ABdhPJyh3dK0WitJz08MnAgSaosA4leJ7YbUnT8JKdqgTn7Deq1uNBUpg7Z0iVDD2NqlvcbQVaKTGQ==
+X-Received: by 2002:a62:8c05:0:b029:1d8:7f36:bcd8 with SMTP id m5-20020a628c050000b02901d87f36bcd8mr3352300pfd.43.1614778741225;
+        Wed, 03 Mar 2021 05:39:01 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id j20sm6941638pjn.27.2021.03.03.05.39.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 03 Mar 2021 05:39:00 -0800 (PST)
+Subject: Re: possible deadlock in io_poll_double_wake (2)
+To:     Hillf Danton <hdanton@sina.com>,
+        syzbot <syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com>
+Cc:     asml.silence@gmail.com, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <586d357d-8c4c-8875-3a1c-0599a0a64da0@kernel.dk>
+ <20210303065231.1589-1-hdanton@sina.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ae9bf2e1-8a29-672d-88eb-2367374df9f5@kernel.dk>
+Date:   Wed, 3 Mar 2021 06:39:00 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR04MB4965.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0d602d4b-d912-457e-a133-08d8de16f271
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2021 07:35:40.9975
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IUMown3Rpdb11S+dffAWFW4PD/Vfrhv5xVlm9iD2pEvAmmzib5MiAIyNNevXS41YSX80omrmJ99JL6vp74DpWqGbM1BbJ4FiLqkjNAIh7JY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB4870
+In-Reply-To: <20210303065231.1589-1-hdanton@sina.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/2/21 23:22, Kanchan Joshi wrote:=0A=
-> +	switch (bcmd->ioctl_cmd) {=0A=
-> +	case NVME_IOCTL_IO_CMD:=0A=
-> +		ret =3D nvme_user_cmd(ns->ctrl, ns, argp, ioucmd);=0A=
-> +		break;=0A=
-> +	default:=0A=
-> +		ret =3D -ENOTTY;=0A=
-> +	}=0A=
-Switch for one case ? why not use if else ?=0A=
+On 3/2/21 11:52 PM, Hillf Danton wrote:
+> Tue, 02 Mar 2021 10:59:05 -0800
+>> Hello,
+>>
+>> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+>> possible deadlock in io_poll_double_wake
+>>
+>> ============================================
+>> WARNING: possible recursive locking detected
+>> 5.12.0-rc1-syzkaller #0 Not tainted
+>> --------------------------------------------
+>> syz-executor.4/10454 is trying to acquire lock:
+>> ffff8880343cc130 (&runtime->sleep){..-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
+>> ffff8880343cc130 (&runtime->sleep){..-.}-{2:2}, at: io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4925
+>>
+>> but task is already holding lock:
+>> ffff888034e3b130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
+>>
+>> other info that might help us debug this:
+>>  Possible unsafe locking scenario:
+>>
+>>        CPU0
+>>        ----
+>>   lock(&runtime->sleep);
+>>   lock(&runtime->sleep);
+>>
+>>  *** DEADLOCK ***
+>>
+>>  May be due to missing lock nesting notation
+>>
+>> 4 locks held by syz-executor.4/10454:
+>>  #0: ffff888018cc8128 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0x1146/0x2200 fs/io_uring.c:9113
+>>  #1: ffff888021692440 (&runtime->oss.params_lock){+.+.}-{3:3}, at: snd_pcm_oss_change_params sound/core/oss/pcm_oss.c:1087 [inline]
+>>  #1: ffff888021692440 (&runtime->oss.params_lock){+.+.}-{3:3}, at: snd_pcm_oss_make_ready+0xc7/0x1b0 sound/core/oss/pcm_oss.c:1149
+>>  #2: ffff888020273908 (&group->lock){..-.}-{2:2}, at: _snd_pcm_stream_lock_irqsave+0x9f/0xd0 sound/core/pcm_native.c:170
+>>  #3: ffff888034e3b130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
+>>
+>> stack backtrace:
+>> CPU: 0 PID: 10454 Comm: syz-executor.4 Not tainted 5.12.0-rc1-syzkaller #0
+>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>> Call Trace:
+>>  <IRQ>
+>>  __dump_stack lib/dump_stack.c:79 [inline]
+>>  dump_stack+0xfa/0x151 lib/dump_stack.c:120
+>>  print_deadlock_bug kernel/locking/lockdep.c:2829 [inline]
+>>  check_deadlock kernel/locking/lockdep.c:2872 [inline]
+>>  validate_chain kernel/locking/lockdep.c:3661 [inline]
+>>  __lock_acquire.cold+0x14c/0x3b4 kernel/locking/lockdep.c:4900
+>>  lock_acquire kernel/locking/lockdep.c:5510 [inline]
+>>  lock_acquire+0x1ab/0x730 kernel/locking/lockdep.c:5475
+>>  __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+>>  _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
+>>  spin_lock include/linux/spinlock.h:354 [inline]
+>>  io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4925
+>>  __wake_up_common+0x147/0x650 kernel/sched/wait.c:108
+>>  __wake_up_common_lock+0xd0/0x130 kernel/sched/wait.c:138
+>>  snd_pcm_update_state+0x46a/0x540 sound/core/pcm_lib.c:203
+>>  snd_pcm_update_hw_ptr0+0xa75/0x1a50 sound/core/pcm_lib.c:464
+>>  snd_pcm_period_elapsed+0x160/0x250 sound/core/pcm_lib.c:1805
+>>  dummy_hrtimer_callback+0x94/0x1b0 sound/drivers/dummy.c:378
+>>  __run_hrtimer kernel/time/hrtimer.c:1519 [inline]
+>>  __hrtimer_run_queues+0x609/0xe40 kernel/time/hrtimer.c:1583
+>>  hrtimer_run_softirq+0x17b/0x360 kernel/time/hrtimer.c:1600
+>>  __do_softirq+0x29b/0x9f6 kernel/softirq.c:345
+>>  invoke_softirq kernel/softirq.c:221 [inline]
+>>  __irq_exit_rcu kernel/softirq.c:422 [inline]
+>>  irq_exit_rcu+0x134/0x200 kernel/softirq.c:434
+>>  sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1100
+>>  </IRQ>
+>>  asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:632
+>> RIP: 0010:unwind_next_frame+0xde0/0x2000 arch/x86/kernel/unwind_orc.c:611
+>> Code: 48 b8 00 00 00 00 00 fc ff df 4c 89 fa 48 c1 ea 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e 83 0f 00 00 41 3b 2f 0f 84 c1 05 00 00 <bf> 01 00 00 00 e8 16 95 1b 00 b8 01 00 00 00 65 8b 15 ca a8 cf 7e
+>> RSP: 0018:ffffc9000b447168 EFLAGS: 00000287
+>> RAX: ffffc9000b448001 RBX: 1ffff92001688e35 RCX: 1ffff92001688e01
+>> RDX: ffffc9000b447ae8 RSI: ffffc9000b447ab0 RDI: ffffc9000b447250
+>> RBP: ffffc9000b447ae0 R08: ffffffff8dac0810 R09: 0000000000000001
+>> R10: 0000000000084087 R11: 0000000000000001 R12: ffffc9000b440000
+>> R13: ffffc9000b447275 R14: ffffc9000b447290 R15: ffffc9000b447240
+>>  arch_stack_walk+0x7d/0xe0 arch/x86/kernel/stacktrace.c:25
+>>  stack_trace_save+0x8c/0xc0 kernel/stacktrace.c:121
+>>  kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+>>  kasan_set_track+0x1c/0x30 mm/kasan/common.c:46
+>>  kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:357
+>>  ____kasan_slab_free mm/kasan/common.c:360 [inline]
+>>  ____kasan_slab_free mm/kasan/common.c:325 [inline]
+>>  __kasan_slab_free+0xf5/0x130 mm/kasan/common.c:367
+>>  kasan_slab_free include/linux/kasan.h:199 [inline]
+>>  slab_free_hook mm/slub.c:1562 [inline]
+>>  slab_free_freelist_hook+0x72/0x1b0 mm/slub.c:1600
+>>  slab_free mm/slub.c:3161 [inline]
+>>  kfree+0xe5/0x7b0 mm/slub.c:4213
+>>  snd_pcm_hw_param_near.constprop.0+0x7b0/0x8f0 sound/core/oss/pcm_oss.c:438
+>>  snd_pcm_oss_change_params_locked+0x18c6/0x39a0 sound/core/oss/pcm_oss.c:936
+>>  snd_pcm_oss_change_params sound/core/oss/pcm_oss.c:1090 [inline]
+>>  snd_pcm_oss_make_ready+0xe7/0x1b0 sound/core/oss/pcm_oss.c:1149
+>>  snd_pcm_oss_set_trigger.isra.0+0x30f/0x6e0 sound/core/oss/pcm_oss.c:2057
+>>  snd_pcm_oss_poll+0x661/0xb10 sound/core/oss/pcm_oss.c:2841
+>>  vfs_poll include/linux/poll.h:90 [inline]
+>>  __io_arm_poll_handler+0x354/0xa20 fs/io_uring.c:5073
+>>  io_arm_poll_handler fs/io_uring.c:5142 [inline]
+>>  __io_queue_sqe+0x6ef/0xc40 fs/io_uring.c:6213
+>>  io_queue_sqe+0x60d/0xf60 fs/io_uring.c:6259
+>>  io_submit_sqe fs/io_uring.c:6423 [inline]
+>>  io_submit_sqes+0x519a/0x6320 fs/io_uring.c:6537
+>>  __do_sys_io_uring_enter+0x1152/0x2200 fs/io_uring.c:9114
+>>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+>>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+>> RIP: 0033:0x465ef9
+>> Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+>> RSP: 002b:00007f818e00e188 EFLAGS: 00000246 ORIG_RAX: 00000000000001aa
+>> RAX: ffffffffffffffda RBX: 000000000056c008 RCX: 0000000000465ef9
+>> RDX: 0000000000000000 RSI: 0000000000002039 RDI: 0000000000000004
+>> RBP: 00000000004bcd1c R08: 0000000000000000 R09: 0000000000000000
+>> R10: 0000000000000000 R11: 0000000000000246 R12: 000000000056c008
+>> R13: 0000000000a9fb1f R14: 00007f818e00e300 R15: 0000000000022000
+>>
+>>
+>> Tested on:
+>>
+>> commit:         c9387501 sound: name fiddling
+>> git tree:       git://git.kernel.dk/linux-block syzbot-test
+>> console output: https://syzkaller.appspot.com/x/log.txt?x=16a51856d00000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=fa0e4e0c3e0cf6e0
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=28abd693db9e92c160d8
+>> compiler:       
+>>
+> 
+> Walk around recursive lock before adding fix to io_poll_get_single().
+> 
+> --- x/fs/io_uring.c
+> +++ y/fs/io_uring.c
+> @@ -4945,6 +4945,7 @@ static int io_poll_double_wake(struct wa
+>  			       int sync, void *key)
+>  {
+>  	struct io_kiocb *req = wait->private;
+> +	struct io_poll_iocb *self = container_of(wait, struct io_poll_iocb, wait); 
+>  	struct io_poll_iocb *poll = io_poll_get_single(req);
+>  	__poll_t mask = key_to_poll(key);
+>  
+> @@ -4954,7 +4955,7 @@ static int io_poll_double_wake(struct wa
+>  
+>  	list_del_init(&wait->entry);
+>  
+> -	if (poll && poll->head) {
+> +	if (poll && poll->head && poll->head != self->head) {
+>  		bool done;
+>  
+>  		spin_lock(&poll->head->lock);
+
+The trace and the recent test shows that they are different, this
+case is already caught when we arm the double poll handling:
+
+https://git.kernel.dk/cgit/linux-block/commit/?h=io_uring-5.12&id=9e27652c987541aa7cc062e59343e321fff539ae
+
+I don't think there's a real issue here, I'm just poking to see why
+syzbot/lockdep thinks there is.
+
+-- 
+Jens Axboe
+

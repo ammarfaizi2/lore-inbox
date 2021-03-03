@@ -2,112 +2,164 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 705F9C43603
-	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93682C433DB
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2556564EBA
-	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 596AA64E12
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351138AbhCCGof (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 01:44:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43676 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449722AbhCCECb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Mar 2021 23:02:31 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D917CC061224
-        for <io-uring@vger.kernel.org>; Tue,  2 Mar 2021 20:01:48 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id m6so15331822pfk.1
-        for <io-uring@vger.kernel.org>; Tue, 02 Mar 2021 20:01:48 -0800 (PST)
+        id S1357031AbhCDAX6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:23:58 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:42069 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1835980AbhCCID2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 03:03:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1614758607; x=1646294607;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=LPdKwje1OJBtPzVj5Vvoa4x0DoKQGl2ckXgGKUNk0Iw=;
+  b=VWuQT0lxSAcpwSDEj4RQUGhTQk93IxOAFPCZTSirHh+7My/U7snmAPT4
+   2VWaYl9cFEU6Tvn32PdnHUdtTQG6coqUwq2IHHgbTIPFayJciVDOyRLsv
+   UOCA/2LCSxruPjYtWMKkKBgwJT0ptvyvrz9jJ1LLootKbucs9Omu6PX6k
+   UDkrBiqaNN7pm04LaEvKDHJEc3A4i2MX9qp/8YxuxVfR4ldjuazjVNI2v
+   Z8rMUFXeyNNQ7eJ555I6sVfJs2X4NcHcvddYJHVZzlgBNfiJ+KZfHNtTT
+   GbasQcGJnXFPXVbFNanT685jSQThfE7O8Qc0wGuWEaGYv34COG7IpFOWG
+   Q==;
+IronPort-SDR: 0jL64WkUn4Sp646ZbUJR0obbamZQIcoO8MbDu7P8kq3+XihWABmWKQFpXCApk0Kqug6e3Yp1R7
+ VdB1r7+/wcCSrSRc9cqqiPZzzmkJXTY69rkqq0IYIQ6dbryTXFXoeWCyujHRZjw+S+nqFjlJ7X
+ bImoX0aMIIDVURq4KA2gbDjRO48UCs9m+E6H7GM8XxHNNycKauA9RDxX7lwthSoCMv3ONgv7PT
+ CQu5AJQOfQCCz8z5s3EJmUgGW2HesrfNa+8x0+u37anl+jwTcVoxMtUZxsP+EeWwLHgYFPAdKk
+ ruE=
+X-IronPort-AV: E=Sophos;i="5.81,219,1610380800"; 
+   d="scan'208";a="162400658"
+Received: from mail-co1nam11lp2175.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.175])
+  by ob1.hgst.iphmx.com with ESMTP; 03 Mar 2021 15:52:06 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=X9eyENc3jTyR3RNyh9ETTRxRXI3KXM4HbLC9xdojEd+cXdwkUce3FpE16TieiAqo4l0AZJ9C8Qfo8dyu3hiarQkfFroGYEznhfHmmzXUgmJ30XxTDFQCY74bkiM0AnG4XwqRK/O+E+sTqnW3wVXMdn/5qFcEqiT8sBDL5DMKGXEpVLgNflRbxOoj/zanohaUAzGmEEOvPmsv6/WyXuBd2nYRZ2usY3oITnXU6/gTNbFZFzQow11p5oMfTyyAKKg4F586C+80cQ+uvXu4Slo3SGHZfnhLGaQuNCBthzkU0UZm71hK/WWKwhM3ssf+6Q5g/IQ2QWaCUCenm/3zJhFdzQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NLlQJC5dLUFsKG8FEV3jIK91JbxOiIKZyUwm9A2D3XE=;
+ b=GZW1MLDbore6ca8KP1bsArGhzBoABeXzfgBJvviVZVjHQC483OREAVyLUc3YK5J+GEY1FZg0nuWI+Qll6GPOkrFZwcIi/UVyEAyjfSdjAmE0Un2ZzUrKYRWU3daWwg3Nd+j9UsWH4c116qkMWlW+b0GHf3WzZejqQwQX87Yxry9m2OCuolQIYe15HoHDM7N/UttNEO91emwkKATx0Gc6/QG7kyNKg27WjXuadOpJ3SGFgwNI/WXbtNVkSrKiGJ+ts1p+JYRlZxcWLcwaSFvH+Gt9M1N3cmJHtm9gSmtbYCNyxa2ulcng69DP3rvHG7ugPQUScrPDRsV+TyqebQA0PA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=C+8aSxAix6GjFrfY/hP+1D1nUsbFIPsru7pSJjHkC8s=;
-        b=XiHexSnRLXUibZdmdLCk9F45MzW4UsjYA5hRjjqbkZDE2MBNMG1zWPesqrCtaSyY1m
-         IrgW06ZL1o13jgHWxlfNzlzfQQgvspQLyJFJv9tAX3xd9/BPHFsfk+OsjT9Ukh2JT1FD
-         t/5shXZnN8rMw0btxj2Pr16+JwteSAdio+Wqt8YFCOoIIzsR0PRh7QCvhWvZvd+BzQZC
-         eFpzklmp1mXZEIISeAo9JgWVqmYbdNWfQriHE/FzMwIKXGrPvyzi9K/vDNkgVuGdGIGL
-         JnAzcDRDoSgxh2mg6eDgsSPYSxF9Kibw5sDFTRjh+qtdJt7PHNGVplhGOW4oIKngH/z9
-         aC2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=C+8aSxAix6GjFrfY/hP+1D1nUsbFIPsru7pSJjHkC8s=;
-        b=ndN6+CjYcwC8hXV+rjEZzgkBpIzEiytBW++R7LLO+Mw4eogXkcCq5VvnuC5ideDWUM
-         /AJ3pL+grEChAx1pAymGjhbsoS6nxHV8rY28PQnA+d2328kuIQpmdQF/obgRjuVPYWhR
-         zEHUR9JvZa5XroK+wkHXLAOQwZ9w862vyFffTNZucOwv+Cb+Kz0TS7KhStAMPd0XuH97
-         zW1ieDn89xSK8NI9CZfGT8g9+7h8SbXMD0rgYxfX6P9SW9ZMSDAfSTzQuh6OL0/qdjL5
-         D4SJINKIsp0GQBOoe9HL29WL1D2g//qhI9W2Q51tT3or2L9o7xV6RujNAfA9blFkqrpe
-         Wq5A==
-X-Gm-Message-State: AOAM530peT2QC/Pbl4yUyotEXtSZYEQEKFhs374mrhbJQ/WJLLobcSvN
-        0XWCB/Cm5OKl9RbnwTpo2wX4lw==
-X-Google-Smtp-Source: ABdhPJz/lkInWkGXi5xNkZQiSZvVukmfQRl+TJb5xsQeZBc98cclT/FjzP3shu37PJUFwC3ouQ0myQ==
-X-Received: by 2002:aa7:80cc:0:b029:1da:689d:2762 with SMTP id a12-20020aa780cc0000b02901da689d2762mr6400115pfn.3.1614744108375;
-        Tue, 02 Mar 2021 20:01:48 -0800 (PST)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id b15sm21078349pgj.84.2021.03.02.20.01.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Mar 2021 20:01:47 -0800 (PST)
-Subject: Re: possible deadlock in io_poll_double_wake (2)
-To:     syzbot <syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com>,
-        asml.silence@gmail.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-References: <00000000000017349305bc9254f4@google.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <f83bda00-251c-af17-1073-05fd4da80f59@kernel.dk>
-Date:   Tue, 2 Mar 2021 21:01:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <00000000000017349305bc9254f4@google.com>
-Content-Type: text/plain; charset=utf-8
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NLlQJC5dLUFsKG8FEV3jIK91JbxOiIKZyUwm9A2D3XE=;
+ b=DUhbUVt6+ShMGrQHtoB7eNI6CeLkCcMfWqsPQbtDbvha0qDYMOTghNKMJFz2HRtbVzxZPeFqwF6eM8daBooQemAHjrSZpOjUSmWR6kEv7duVlQli/+dWkWuwT8Be1rka4TALWyu++6mugY94o5DvGAXqXseeBumoGViLgYuQVow=
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com (2603:10b6:a03:4d::25)
+ by BYAPR04MB5254.namprd04.prod.outlook.com (2603:10b6:a03:c2::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.28; Wed, 3 Mar
+ 2021 07:52:01 +0000
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::c897:a1f8:197a:706b]) by BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::c897:a1f8:197a:706b%5]) with mapi id 15.20.3890.029; Wed, 3 Mar 2021
+ 07:52:01 +0000
+From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+To:     Kanchan Joshi <joshi.k@samsung.com>
+CC:     "axboe@kernel.dk" <axboe@kernel.dk>, "hch@lst.de" <hch@lst.de>,
+        "kbusch@kernel.org" <kbusch@kernel.org>,
+        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        "anuj20.g@samsung.com" <anuj20.g@samsung.com>,
+        "javier.gonz@samsung.com" <javier.gonz@samsung.com>
+Subject: Re: [RFC 2/3] nvme: passthrough helper with callback
+Thread-Topic: [RFC 2/3] nvme: passthrough helper with callback
+Thread-Index: AQHXD/4EOPP4CH9isESsU82uWJlGPw==
+Date:   Wed, 3 Mar 2021 07:52:01 +0000
+Message-ID: <BYAPR04MB496566944851825B251CA93686989@BYAPR04MB4965.namprd04.prod.outlook.com>
+References: <20210302160734.99610-1-joshi.k@samsung.com>
+ <CGME20210302161005epcas5p23f28fe21bab5a3e07b9b382dd2406fdc@epcas5p2.samsung.com>
+ <20210302160734.99610-3-joshi.k@samsung.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: samsung.com; dkim=none (message not signed)
+ header.d=none;samsung.com; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [199.255.45.62]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: a8465f80-c233-4f61-4d8d-08d8de193ae7
+x-ms-traffictypediagnostic: BYAPR04MB5254:
+x-microsoft-antispam-prvs: <BYAPR04MB52548E0E6713A9C145A7FF1786989@BYAPR04MB5254.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:4714;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 80eEKVWaSFrV+kv1SLg7/kqfx3ozZ+uP2OfWOCXFz3VXqkDCGInTVnO9p4vEXeGKpveRYkLm93l7AYT4rzYHlymv/Ss+5Cv3jytwgx4Zy7L0eUVtJOiaUb9I2qKqhdC9qyIngxzxAAPTNTj8rAQbwHjUkFWNW8fBEFd0+VdZSzqxSSUerj/bDUOJsla59rNwsTH1LO4E2Ga/jzp5YWr5kwxF5Zb3DCtzP3KIOkWsHabShiXgZNC4LK1mh77/RZ3r+PDRNV8ktGLzJT9Wx7Xm5SFdVmEXur1bLcXOjLpyWhdBiYJZjL9a2EGt5NbU4XmSXbmvGWckiysX5Se6bvUNq0nd1TnraO+sdrzGiqmCUBDkI6CFdr3jJRllcavwsLCQFhT7X6ePRQTd1XwOaV7996ICO6yFSGjrUOYC3QBp5hu1Y8IWkBvsvXY3kDLbxQFMPCjE5GVuEzLdI+PM3N5oU6D+fZcXA4j4ofqc0taqAudRtSLkE9txYk6Z58VykXiqMHUZ7GD/mTVJkyTGRDUZrQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR04MB4965.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(396003)(136003)(376002)(39860400002)(346002)(66946007)(52536014)(54906003)(8676002)(55016002)(66446008)(4326008)(5660300002)(4744005)(64756008)(26005)(76116006)(6916009)(33656002)(316002)(478600001)(8936002)(91956017)(66556008)(66476007)(71200400001)(83380400001)(7696005)(6506007)(9686003)(186003)(2906002)(86362001)(53546011);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?ZbaKr2lX+m7k+xcb+peFp78oNZrPrBcMnxlkheUkNikvHgW4L94uYHomfydJ?=
+ =?us-ascii?Q?Ec7MkJlVQpM56ZILrOiyLK8E7JL98oTSgFPoodsX2RJNYZMUiA1AG/bxCVzx?=
+ =?us-ascii?Q?5vgnUNjwfuFqGC4WuY8DWjKbNjY++qzzJb0n5N8mu3Xd3MV05swLsC+fQUXg?=
+ =?us-ascii?Q?fnXvZi/txHKUPLxltOZzoXOVOU0vGvq1r3CB42+W695IKuF0d0qzRcVUwqmj?=
+ =?us-ascii?Q?H4qrVzwTzk3AWvaKnXPiOJOVPkUYOGV39eTzo3vSAJ/D9NjvjeVuFeKYxiik?=
+ =?us-ascii?Q?5PCIsQsTpa8YM0dtah8gsIk7OOl04c4qrShTYDDo1dXwnjT4MEgUdzvyGuBA?=
+ =?us-ascii?Q?R8u0x7BlXvj8dAx9dTrPFIVYFxkzv009Bq68PFqmTChU3QcFpYjMxkEm1toT?=
+ =?us-ascii?Q?DI42tbk4H9gRvHgFByOnA5kHsP8o+sv3QSuub8SQy4evq+QJM+5A4hu+EBYX?=
+ =?us-ascii?Q?bxLb4yCmyQ82dYi8WnLAYAxRmpZXJiQVUScXNr8yU0GTIYoMKBB3f0O9dSfH?=
+ =?us-ascii?Q?+xMyEUVNOPbYlrEYE3FdNfT5Yl/NoFQMKHyJa8CITnXz4L0Dh1t8rFPenF6+?=
+ =?us-ascii?Q?O+ER1BQzDS/s0pRZKElY0XbWranaSrehdHxBb0XBSZnRGSIhQCFyIgbPJc83?=
+ =?us-ascii?Q?hEIPd65zaJ1X2CIAhPCYbZifP2z2sIKXSIC4NYiKVYSrDvc4LI4Cduv5eurY?=
+ =?us-ascii?Q?oUB2S/4Y0yEVsR0JeMFjrVCF2KJ93VsPNSr+Y8nmDPejCmMWtvYwBxEAXiqc?=
+ =?us-ascii?Q?1gwSebTwjSox+9zRuz+JKZ5wCwcF2cWHxGZU/VMFNikayxTu9U4kSWUZWPo/?=
+ =?us-ascii?Q?3qwRQgLdGraUeFyyO8/4vhJyxju7Yg1O0o7kpfnRpQFIjztUhjMSVI26t8xa?=
+ =?us-ascii?Q?C+Nne0SSkCDVH+bR+gs63QcjjYP/g1zGKbbAIcThOk9s6wshlkViulrXXlUn?=
+ =?us-ascii?Q?8uMouu7M5AWEjIlqJbYvByfegVgCjomlDBaHfM5WlBT9PLZA0UOPUHOZX2fY?=
+ =?us-ascii?Q?TRq39qL1KFRqvtk8smv2jdF87R7PVZrMVQruNvdPcZW57Iemp4E+VGIKXzmt?=
+ =?us-ascii?Q?1MEmAIHuowLjgWsdESX6Xx/V0S+1xkQmCT4xKf75Sz013FUJAWPicHrRuXAr?=
+ =?us-ascii?Q?WuDMYZpSfXquomkvHDBVNWMeFnyRL9BPeIznkUsfFTyJOq4rO8n4EsAncvqm?=
+ =?us-ascii?Q?RuTF86nguZZxMcg6tSfa50l6CtiEgM2Jv24KHVAna5jI4L8GlaYGWABbyWP9?=
+ =?us-ascii?Q?8gGZuYgRL8VJilGo4Cg5e7VE2f6VP3dKVCXqCP+AsmPgAKYgOPIKIl1BaE4l?=
+ =?us-ascii?Q?/62kdxWZrJsI+BnMsnnlQuA/?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR04MB4965.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a8465f80-c233-4f61-4d8d-08d8de193ae7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2021 07:52:01.5531
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Pf2XWMN9ngjrqb53MO+BM1tpeu5yov7DD3hVSCPJXBzz8bt/2Yp3e/tsmCc9hKq6D+2bNICtFcc1hGKUELAM7EiUI/TirftRUYJOA2GopJg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB5254
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/2/21 11:59 AM, syzbot wrote:
-> Hello,
-> 
-> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-> possible deadlock in io_poll_double_wake
-> 
-> ============================================
-> WARNING: possible recursive locking detected
-> 5.12.0-rc1-syzkaller #0 Not tainted
-> --------------------------------------------
-> syz-executor.4/10454 is trying to acquire lock:
-> ffff8880343cc130 (&runtime->sleep){..-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
-> ffff8880343cc130 (&runtime->sleep){..-.}-{2:2}, at: io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4925
-> 
-> but task is already holding lock:
-> ffff888034e3b130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
-> 
-> other info that might help us debug this:
->  Possible unsafe locking scenario:
-> 
->        CPU0
->        ----
->   lock(&runtime->sleep);
->   lock(&runtime->sleep);
-
-This still makes no sense to me - naming is the same, but address of waitqueue_head
-is not (which is what matters). Unless I'm missing something obvious here.
-
-Anyway, added some debug printks, so let's try again.
-
-#syz test: git://git.kernel.dk/linux-block syzbot-test
-
--- 
-Jens Axboe
-
+On 3/2/21 23:22, Kanchan Joshi wrote:=0A=
+> -void nvme_execute_passthru_rq(struct request *rq)=0A=
+> +void nvme_execute_passthru_rq_common(struct request *rq,=0A=
+> +			rq_end_io_fn *done)=0A=
+>  {=0A=
+>  	struct nvme_command *cmd =3D nvme_req(rq)->cmd;=0A=
+>  	struct nvme_ctrl *ctrl =3D nvme_req(rq)->ctrl;=0A=
+> @@ -1135,9 +1136,17 @@ void nvme_execute_passthru_rq(struct request *rq)=
+=0A=
+>  	u32 effects;=0A=
+>  =0A=
+>  	effects =3D nvme_passthru_start(ctrl, ns, cmd->common.opcode);=0A=
+> -	blk_execute_rq(disk, rq, 0);=0A=
+> +	if (!done)=0A=
+> +		blk_execute_rq(disk, rq, 0);=0A=
+> +	else=0A=
+> +		blk_execute_rq_nowait(disk, rq, 0, done);=0A=
+>  	nvme_passthru_end(ctrl, effects);=0A=
+=0A=
+This needs a detailed explanation in order to prove the correctness.=0A=
+=0A=
+=0A=

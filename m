@@ -2,42 +2,44 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29ABBC4361A
-	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6258C432C3
+	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBA1564E75
+	by mail.kernel.org (Postfix) with ESMTP id 939BB64EA4
 	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350272AbhCCGo3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 01:44:29 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:52290 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244144AbhCCDD1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Mar 2021 22:03:27 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UQAbNuR_1614740007;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQAbNuR_1614740007)
+        id S1346663AbhCCGoK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 01:44:10 -0500
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:43674 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238752AbhCCCKz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Mar 2021 21:10:55 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UQ9w27U_1614736537;
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQ9w27U_1614736537)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 03 Mar 2021 10:53:27 +0800
-Subject: Re: [dm-devel] [PATCH 4/4] dm: support I/O polling
-To:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <msnitzer@redhat.com>,
-        Heinz Mauelshagen <heinzm@redhat.com>, axboe@kernel.dk,
-        caspar@linux.alibaba.com, io-uring@vger.kernel.org,
-        linux-block@vger.kernel.org, joseph.qi@linux.alibaba.com,
-        dm-devel@redhat.com, hch@lst.de
-References: <20210302190555.201228400@debian-a64.vm>
+          Wed, 03 Mar 2021 09:55:38 +0800
+Subject: Re: [dm-devel] [PATCH v3 11/11] dm: fastpath of bio-based polling
+To:     Mikulas Patocka <mpatocka@redhat.com>
+Cc:     axboe@kernel.dk, snitzer@redhat.com, caspar@linux.alibaba.com,
+        io-uring@vger.kernel.org, linux-block@vger.kernel.org,
+        joseph.qi@linux.alibaba.com, dm-devel@redhat.com, hch@lst.de
+References: <20210208085243.82367-1-jefflexu@linux.alibaba.com>
+ <20210208085243.82367-12-jefflexu@linux.alibaba.com>
+ <alpine.LRH.2.02.2102191351200.10545@file01.intranet.prod.int.rdu2.redhat.com>
+ <af9223b9-8960-1ed4-799a-bcd56299c587@linux.alibaba.com>
+ <alpine.LRH.2.02.2103021353490.9353@file01.intranet.prod.int.rdu2.redhat.com>
 From:   JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <33fa121a-88a8-5c27-0a43-a7efc9b5b3e3@linux.alibaba.com>
-Date:   Wed, 3 Mar 2021 10:53:27 +0800
+Message-ID: <3ce93e18-190a-fb63-3efa-9d0d7119920c@linux.alibaba.com>
+Date:   Wed, 3 Mar 2021 09:55:37 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <20210302190555.201228400@debian-a64.vm>
+In-Reply-To: <alpine.LRH.2.02.2103021353490.9353@file01.intranet.prod.int.rdu2.redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -47,45 +49,67 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 
 
-On 3/3/21 3:05 AM, Mikulas Patocka wrote:
-
-> Support I/O polling if submit_bio_noacct_mq_direct returned non-empty
-> cookie.
+On 3/3/21 3:03 AM, Mikulas Patocka wrote:
 > 
-> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 > 
-> ---
->  drivers/md/dm.c |    5 +++++
->  1 file changed, 5 insertions(+)
+> On Fri, 26 Feb 2021, JeffleXu wrote:
 > 
-> Index: linux-2.6/drivers/md/dm.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/md/dm.c	2021-03-02 19:26:34.000000000 +0100
-> +++ linux-2.6/drivers/md/dm.c	2021-03-02 19:26:34.000000000 +0100
-> @@ -1682,6 +1682,11 @@ static void __split_and_process_bio(stru
->  		}
->  	}
->  
-> +	if (ci.poll_cookie != BLK_QC_T_NONE) {
-> +		while (atomic_read(&ci.io->io_count) > 1 &&
-> +		       blk_poll(ci.poll_queue, ci.poll_cookie, true)) ;
-> +	}
-> +
->  	/* drop the extra reference count */
->  	dec_pending(ci.io, errno_to_blk_status(error));
->  }
+>>
+>>
+>> On 2/20/21 3:38 AM, Mikulas Patocka wrote:
+>>>
+>>>
+>>> On Mon, 8 Feb 2021, Jeffle Xu wrote:
+>>>
+>>>> Offer one fastpath of bio-based polling when bio submitted to dm device
+>>>> is not split.
+>>>>
+>>>> In this case, there will be only one bio submitted to only one polling
+>>>> hw queue of one underlying mq device, and thus we don't need to track
+>>>> all split bios or iterate through all polling hw queues. The pointer to
+>>>> the polling hw queue the bio submitted to is returned here as the
+>>>> returned cookie.
+>>>
+>>> This doesn't seem safe - note that between submit_bio() and blk_poll(), no 
+>>> locks are held - so the device mapper device may be reconfigured 
+>>> arbitrarily. When you call blk_poll() with a pointer returned by 
+>>> submit_bio(), the pointer may point to a stale address.
+>>>
+>>
+>> Thanks for the feedback. Indeed maybe it's not a good idea to directly
+>> return a 'struct blk_mq_hw_ctx *' pointer as the returned cookie.
+>>
+>> Currently I have no idea to fix it, orz... The
+>> blk_get_queue()/blk_put_queue() tricks may not work in this case.
+>> Because the returned cookie may not be used at all. Before calling
+>> blk_poll(), the polling routine may find that the corresponding IO has
+>> already completed, and thus won't call blk_poll(), in which case we have
+>> no place to put the refcount.
+>>
+>> But I really don't want to drop this optimization, since this
+>> optimization is quite intuitive when dm device maps to a lot of
+>> underlying devices. Though this optimization doesn't actually achieve
+>> reasonable performance gain in my test, maybe because there are at most
+>> seven nvme devices in my test machine.
+>>
+>> Any thoughts?
+>>
+>> Thanks,
+>> Jeffle
+> 
+> Hi
+> 
+> I reworked device mapper polling, so that we poll in the function 
+> __split_and_process_bio. The pointer to a queue and the polling cookie is 
+> passed only inside device mapper code, it never leaves it.
+> 
+> I'll send you my patches - try them and tell me how does it perform 
+> compared to your patchset.
+> 
 
-It seems that the general idea of your design is to
-1) submit *one* split bio
-2) blk_poll(), waiting the previously submitted split bio complets
+Thanks. Be glad to hear that you're also working on this. I'm glad to
+give some comments on your patch set.
 
-and then submit next split bio, repeating the above process. I'm afraid
-the performance may be an issue here, since the batch every time
-blk_poll() reaps may decrease.
-
-
-Besides, the submitting routine and polling routine is bound together
-here, i.e., polling is always synchronous.
 
 -- 
 Thanks,

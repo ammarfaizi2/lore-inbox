@@ -2,99 +2,89 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69DE1C4321A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F10E7C4360C
 	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 31C7364E75
+	by mail.kernel.org (Postfix) with ESMTP id BF2F764EBA
 	for <io-uring@archiver.kernel.org>; Wed,  3 Mar 2021 06:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345338AbhCCGn4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 01:43:56 -0500
-Received: from smtp02.tmcz.cz ([93.153.104.113]:47295 "EHLO smtp02.tmcz.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1581890AbhCBT2p (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Tue, 2 Mar 2021 14:28:45 -0500
-Received: from leontynka.twibright.com (109-183-129-149.customers.tmcz.cz [109.183.129.149])
-        by smtp02.tmcz.cz (Postfix) with ESMTPS id 01629405E0;
-        Tue,  2 Mar 2021 20:05:54 +0100 (CET)
-Received: from debian-a64.vm ([192.168.208.2])
-        by leontynka.twibright.com with smtp (Exim 4.92)
-        (envelope-from <mpatocka@redhat.com>)
-        id 1lHALA-0003k7-OQ; Tue, 02 Mar 2021 20:05:53 +0100
-Received: by debian-a64.vm (sSMTP sendmail emulation); Tue, 02 Mar 2021 20:05:51 +0100
-Message-Id: <20210302190551.473015400@debian-a64.vm>
-User-Agent: quilt/0.65
-Date:   Tue, 02 Mar 2021 20:05:14 +0100
-From:   Mikulas Patocka <mpatocka@redhat.com>
-To:     JeffleXu <jefflexu@linux.alibaba.com>,
+        id S1348050AbhCCGoW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 01:44:22 -0500
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:40116 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235594AbhCCCXS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 2 Mar 2021 21:23:18 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UQADoLL_1614738083;
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQADoLL_1614738083)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 03 Mar 2021 10:21:24 +0800
+Subject: Re: [dm-devel] [PATCH 2/4] block: dont clear REQ_HIPRI for bio-based
+ drivers
+To:     Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <msnitzer@redhat.com>,
         Heinz Mauelshagen <heinzm@redhat.com>, axboe@kernel.dk,
         caspar@linux.alibaba.com, io-uring@vger.kernel.org,
         linux-block@vger.kernel.org, joseph.qi@linux.alibaba.com,
         dm-devel@redhat.com, hch@lst.de
-Cc:     Mikulas Patocka <mpatocka@redhat.com>
-Subject: [PATCH 1/4] block: introduce a function submit_bio_noacct_mq_direct
+References: <20210302190552.715551440@debian-a64.vm>
+From:   JeffleXu <jefflexu@linux.alibaba.com>
+Message-ID: <3e8b3b2e-f1f4-e946-4858-d2c78e2a8825@linux.alibaba.com>
+Date:   Wed, 3 Mar 2021 10:21:23 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline; filename=block-submit-bio-mq-direct.patch
+In-Reply-To: <20210302190552.715551440@debian-a64.vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Introduce a function that submits bio to a request-based device driver.
-The function doesn't offload requests to current->bio_list. It is expected
-to be called from device mapper, where current->bio_list is already set
-up.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 
----
- block/blk-core.c       |   16 ++++++++++++++++
- include/linux/blkdev.h |    1 +
- 2 files changed, 17 insertions(+)
+On 3/3/21 3:05 AM, Mikulas Patocka wrote:
+> Don't clear REQ_HIPRI for bio-based drivers. Device mapper will need to
+> see this flag in order to support polling.
+> 
+> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+> 
+> ---
+>  block/blk-core.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6/block/blk-core.c
+> ===================================================================
+> --- linux-2.6.orig/block/blk-core.c	2021-03-02 10:43:28.000000000 +0100
+> +++ linux-2.6/block/blk-core.c	2021-03-02 10:53:50.000000000 +0100
 
-Index: linux-2.6/block/blk-core.c
-===================================================================
---- linux-2.6.orig/block/blk-core.c	2021-03-01 19:47:27.000000000 +0100
-+++ linux-2.6/block/blk-core.c	2021-03-02 10:43:28.000000000 +0100
-@@ -992,6 +992,22 @@ static blk_qc_t __submit_bio_noacct(stru
- 	return ret;
- }
- 
-+blk_qc_t submit_bio_noacct_mq_direct(struct bio *bio)
-+{
-+	struct gendisk *disk = bio->bi_bdev->bd_disk;
-+
-+	if (unlikely(bio_queue_enter(bio) != 0))
-+		return BLK_QC_T_NONE;
-+	
-+	if (!blk_crypto_bio_prep(&bio)) {
-+		blk_queue_exit(disk->queue);
-+		return BLK_QC_T_NONE;
-+	}
-+
-+	return blk_mq_submit_bio(bio);
-+}
-+EXPORT_SYMBOL(submit_bio_noacct_mq_direct);
-+
- static blk_qc_t __submit_bio_noacct_mq(struct bio *bio)
- {
- 	struct bio_list bio_list[2] = { };
-Index: linux-2.6/include/linux/blkdev.h
-===================================================================
---- linux-2.6.orig/include/linux/blkdev.h	2021-03-01 19:47:29.000000000 +0100
-+++ linux-2.6/include/linux/blkdev.h	2021-03-02 10:44:04.000000000 +0100
-@@ -912,6 +912,7 @@ static inline void rq_flush_dcache_pages
- 
- extern int blk_register_queue(struct gendisk *disk);
- extern void blk_unregister_queue(struct gendisk *disk);
-+blk_qc_t submit_bio_noacct_mq_direct(struct bio *bio);
- blk_qc_t submit_bio_noacct(struct bio *bio);
- extern void blk_rq_init(struct request_queue *q, struct request *rq);
- extern void blk_put_request(struct request *);
+I notice that the diff header indicates that the code base is from
+linux-2.6. Or it's just the name of your directory, while the code base
+is for the latest upstream 5.12?
 
+
+> @@ -836,7 +836,7 @@ static noinline_for_stack bool submit_bi
+>  		}
+>  	}
+>  
+> -	if (!test_bit(QUEUE_FLAG_POLL, &q->queue_flags))
+> +	if (!test_bit(QUEUE_FLAG_POLL, &q->queue_flags) && !bdev->bd_disk->fops->submit_bio)
+>  		bio->bi_opf &= ~REQ_HIPRI;
+>  
+>  	switch (bio_op(bio)) {
+> 
+> --
+
+What if dm device is built upon mq devices that are not capable of
+polling, i.e., mq devices without QUEUE_FLAG_POLL set? Then this dm
+device shall not support polling.
+
+
+-- 
+Thanks,
+Jeffle

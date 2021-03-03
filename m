@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CABAEC43333
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50D8EC4332E
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B630C64EBA
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1BF1864EC0
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383522AbhCDAYN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:13 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:52275 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1442134AbhCCL67 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:59 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R411e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQFCWmG_1614772668;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQFCWmG_1614772668)
+        id S1382495AbhCDAYL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:24:11 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:50429 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1442252AbhCCL6m (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:42 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQGHkCe_1614772672;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQGHkCe_1614772672)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 03 Mar 2021 19:57:49 +0800
+          Wed, 03 Mar 2021 19:57:52 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     msnitzer@redhat.com, axboe@kernel.dk
 Cc:     io-uring@vger.kernel.org, dm-devel@redhat.com,
         linux-block@vger.kernel.org, mpatocka@redhat.com,
         caspar@linux.alibaba.com, joseph.qi@linux.alibaba.com
-Subject: [PATCH v5 08/12] dm: always return BLK_QC_T_NONE for bio-based device
-Date:   Wed,  3 Mar 2021 19:57:36 +0800
-Message-Id: <20210303115740.127001-9-jefflexu@linux.alibaba.com>
+Subject: [PATCH v5 11/12] block: sub-fastpath for bio-based polling
+Date:   Wed,  3 Mar 2021 19:57:39 +0800
+Message-Id: <20210303115740.127001-12-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
 References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
@@ -40,139 +40,157 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Currently the returned cookie of bio-based device is not used at all.
+Offer one sub-fastpath for bio-based polling when bio submitted to dm
+device gets split and enqueued into multiple hw queues, while the IO
+submission process has not been migrated to another CPU.
 
-Cookie of bio-based device will be refactored in the following patch.
+In this case, the IO submission routine will return the CPU number on
+which the IO submission happened as the returned cookie, while the
+polling routine will only iterate and poll on hw queues that this CPU
+number maps, instead of iterating *all* hw queues.
+
+This optimization can dramatically reduce cache ping-pong and thus
+improve the polling performance, when multiple hw queues in polling mode
+per device could be reserved when there are multiple polling processes.
+
+It will fall back to iterating all hw queues in polling mode, once the
+process has ever been migrated to another CPU during the IO submission
+phase.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Mike Snitzer <snitzer@redhat.com>
 ---
- drivers/md/dm.c | 26 ++++++++++----------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+ block/blk-core.c          | 18 ++++++++++++++++--
+ include/linux/blk_types.h | 38 ++++++++++++++++++++++++++++++++++----
+ 2 files changed, 50 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 50b693d776d6..f1b76203b3c7 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1294,14 +1294,13 @@ static noinline void __set_swap_bios_limit(struct mapped_device *md, int latch)
- 	mutex_unlock(&md->swap_bios_lock);
- }
+diff --git a/block/blk-core.c b/block/blk-core.c
+index e5cd4ff08f5c..5479fd74d3be 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -948,7 +948,8 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 	struct bio_list bio_list_on_stack[2];
+ 	blk_qc_t ret = BLK_QC_T_NONE;
+ 	struct request_queue *top_q;
+-	bool poll_on;
++	bool orig_poll_on, poll_on;
++	u64 old_nr_migrations;
  
--static blk_qc_t __map_bio(struct dm_target_io *tio)
-+static void __map_bio(struct dm_target_io *tio)
- {
- 	int r;
- 	sector_t sector;
- 	struct bio *clone = &tio->clone;
- 	struct dm_io *io = tio->io;
- 	struct dm_target *ti = tio->ti;
--	blk_qc_t ret = BLK_QC_T_NONE;
+ 	BUG_ON(bio->bi_next);
  
- 	clone->bi_end_io = clone_endio;
+@@ -958,6 +959,8 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 	top_q = bio->bi_bdev->bd_disk->queue;
+ 	poll_on = test_bit(QUEUE_FLAG_POLL, &top_q->queue_flags) &&
+ 		  (bio->bi_opf & REQ_HIPRI);
++	orig_poll_on = poll_on;
++	old_nr_migrations = READ_ONCE(current->se.nr_migrations);
  
-@@ -1328,7 +1327,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 	case DM_MAPIO_REMAPPED:
- 		/* the bio has been remapped so dispatch it */
- 		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
--		ret = submit_bio_noacct(clone);
-+		submit_bio_noacct(clone);
- 		break;
- 	case DM_MAPIO_KILL:
- 		if (unlikely(swap_bios_limit(ti, clone))) {
-@@ -1350,8 +1349,6 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 		DMWARN("unimplemented target map return value: %d", r);
- 		BUG();
- 	}
--
--	return ret;
- }
- 
- static void bio_setup_sector(struct bio *bio, sector_t sector, unsigned len)
-@@ -1438,7 +1435,7 @@ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
- 	}
- }
- 
--static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
-+static void __clone_and_map_simple_bio(struct clone_info *ci,
- 					   struct dm_target_io *tio, unsigned *len)
- {
- 	struct bio *clone = &tio->clone;
-@@ -1449,7 +1446,7 @@ static blk_qc_t __clone_and_map_simple_bio(struct clone_info *ci,
- 	if (len)
- 		bio_setup_sector(clone, ci->sector, *len);
- 
--	return __map_bio(tio);
-+	__map_bio(tio);
- }
- 
- static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
-@@ -1463,7 +1460,7 @@ static void __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
- 
- 	while ((bio = bio_list_pop(&blist))) {
- 		tio = container_of(bio, struct dm_target_io, clone);
--		(void) __clone_and_map_simple_bio(ci, tio, len);
-+		__clone_and_map_simple_bio(ci, tio, len);
- 	}
- }
- 
-@@ -1507,7 +1504,7 @@ static int __clone_and_map_data_bio(struct clone_info *ci, struct dm_target *ti,
- 		free_tio(tio);
- 		return r;
- 	}
--	(void) __map_bio(tio);
-+	__map_bio(tio);
- 
- 	return 0;
- }
-@@ -1622,11 +1619,10 @@ static void init_clone_info(struct clone_info *ci, struct mapped_device *md,
- /*
-  * Entry point to split a bio into clones and submit them to the targets.
-  */
--static blk_qc_t __split_and_process_bio(struct mapped_device *md,
-+static void __split_and_process_bio(struct mapped_device *md,
- 					struct dm_table *map, struct bio *bio)
- {
- 	struct clone_info ci;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int error = 0;
- 
- 	init_clone_info(&ci, md, map, bio);
-@@ -1670,7 +1666,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 
- 				bio_chain(b, bio);
- 				trace_block_split(b, bio->bi_iter.bi_sector);
--				ret = submit_bio_noacct(bio);
-+				submit_bio_noacct(bio);
- 				break;
+ 	do {
+ 		blk_qc_t cookie;
+@@ -987,7 +990,7 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 				ret = cookie;
+ 			} else if (ret != cookie) {
+ 				/* bio gets split and enqueued to multi hctxs */
+-				ret = BLK_QC_T_BIO_POLL_ALL;
++				ret = blk_qc_t_get_by_cpu();
+ 				poll_on = false;
  			}
  		}
-@@ -1678,13 +1674,11 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
+@@ -1014,6 +1017,17 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
  
- 	/* drop the extra reference count */
- 	dec_pending(ci.io, errno_to_blk_status(error));
--	return ret;
+ 	current->bio_list = NULL;
+ 
++	/*
++	 * For cases when bio gets split and enqueued into multi hctxs, return
++	 * the corresponding CPU number when current process has not been
++	 * migrated to another CPU. Return BLK_QC_T_BIO_POLL_ALL otherwise,
++	 * falling back to iterating and polling on all hw queues, since split
++	 * bios are submitted to different CPUs in this case.
++	 */
++	if (orig_poll_on != poll_on &&
++	    old_nr_migrations != READ_ONCE(current->se.nr_migrations))
++		ret = BLK_QC_T_BIO_POLL_ALL;
++
+ 	return ret;
  }
  
- static blk_qc_t dm_submit_bio(struct bio *bio)
+diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+index 8f970e026be9..32de4fb79eff 100644
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -555,8 +555,21 @@ static inline bool blk_qc_t_is_internal(blk_qc_t cookie)
+  *                         ^
+  *                         reserved for compatibility with mq
+  *
+- * 2. When @bio gets split and enqueued into multi hw queues, the returned
+- *    cookie is just BLK_QC_T_BIO_POLL_ALL flag.
++ * 2. When @bio gets split and enqueued into multi hw queues, and current
++ *    process has *not* been migrated to another CPU, the returned cookie
++ *    actually stores the corresponding CPU number on which the IO submission
++ *    happened. Also with BLK_QC_T_BIO_POLL_CPU flag set.
++ *
++ * 63                    31                         0 (bit)
++ * +----------------------+-----------------------+-+
++ * |          cpu         |                       |1|
++ * +----------------------+-----------------------+-+
++ *                                                 ^
++ *                                                 BLK_QC_T_BIO_POLL_CPU
++ *
++ * 3. When @bio gets split and enqueued into multi hw queues, and current
++ *    process has ever been migrated to another CPU, the returned cookie is just
++ *    BLK_QC_T_BIO_POLL_ALL flag.
+  *
+  * 63                                              0 (bit)
+  * +----------------------------------------------+-+
+@@ -565,7 +578,7 @@ static inline bool blk_qc_t_is_internal(blk_qc_t cookie)
+  *                                                 ^
+  *                                                 BLK_QC_T_BIO_POLL_ALL
+  *
+- * 3. Otherwise, return BLK_QC_T_NONE as the cookie.
++ * 4. Otherwise, return BLK_QC_T_NONE as the cookie.
+  *
+  * 63                                              0 (bit)
+  * +-----------------------------------------------+
+@@ -574,12 +587,18 @@ static inline bool blk_qc_t_is_internal(blk_qc_t cookie)
+  */
+ #define BLK_QC_T_HIGH_SHIFT	32
+ #define BLK_QC_T_BIO_POLL_ALL	1U
++#define BLK_QC_T_BIO_POLL_CPU	2U
+ 
+ static inline unsigned int blk_qc_t_to_devt(blk_qc_t cookie)
  {
- 	struct mapped_device *md = bio->bi_bdev->bd_disk->private_data;
--	blk_qc_t ret = BLK_QC_T_NONE;
- 	int srcu_idx;
- 	struct dm_table *map;
- 
-@@ -1714,10 +1708,10 @@ static blk_qc_t dm_submit_bio(struct bio *bio)
- 	if (is_abnormal_io(bio))
- 		blk_queue_split(&bio);
- 
--	ret = __split_and_process_bio(md, map, bio);
-+	__split_and_process_bio(md, map, bio);
- out:
- 	dm_put_live_table(md, srcu_idx);
--	return ret;
-+	return BLK_QC_T_NONE;
+ 	return cookie >> BLK_QC_T_HIGH_SHIFT;
  }
  
- /*-----------------------------------------------------------------
++static inline unsigned int blk_qc_t_to_cpu(blk_qc_t cookie)
++{
++	return cookie >> BLK_QC_T_HIGH_SHIFT;
++}
++
+ static inline blk_qc_t blk_qc_t_get_by_devt(unsigned int dev,
+ 					    unsigned int queue_num)
+ {
+@@ -587,9 +606,20 @@ static inline blk_qc_t blk_qc_t_get_by_devt(unsigned int dev,
+ 	       (queue_num << BLK_QC_T_SHIFT);
+ }
+ 
++static inline blk_qc_t blk_qc_t_get_by_cpu(void)
++{
++	return ((blk_qc_t)raw_smp_processor_id() << BLK_QC_T_HIGH_SHIFT) |
++	       BLK_QC_T_BIO_POLL_CPU;
++}
++
+ static inline bool blk_qc_t_is_poll_multi(blk_qc_t cookie)
+ {
+-	return cookie & BLK_QC_T_BIO_POLL_ALL;
++	return cookie & (BLK_QC_T_BIO_POLL_ALL | BLK_QC_T_BIO_POLL_CPU);
++}
++
++static inline bool blk_qc_t_is_poll_cpu(blk_qc_t cookie)
++{
++	return cookie & BLK_QC_T_BIO_POLL_CPU;
+ }
+ 
+ struct blk_rq_stat {
 -- 
 2.27.0
 

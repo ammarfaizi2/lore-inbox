@@ -2,81 +2,70 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2359CC4361A
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7AE6C433DB
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E7CA164E12
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACB9164EC0
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 00:24:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbhCDAYY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448762AbhCCWwB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 17:52:01 -0500
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84660C061763
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 14:51:10 -0800 (PST)
-Received: by mail-io1-xd29.google.com with SMTP id n14so27639217iog.3
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 14:51:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=jkzaHDmTkBHODt1WjVbgPR48CKiEaxtUsO+VNZNhYrg=;
-        b=ntt3x+/5daP2OHMLRkxesZxOn5fFMYhrAVnDEELfsLfjchH1bwaNvRb6a+5j23sPdH
-         eoMwJzQa0VySN5WvrGKcunWxWJ0VlcXNpEkp14cq0IU+p/cdGEW0905qVkPLseEdeO6w
-         nTig+SbDfWlJfcGlx13qtyahwexv94CMu+itWU7UBnQbgzlqKMAVBOtEEqib26qBCzjr
-         R309t8UVXPOOi4S8Bu6lkDtbn0WZ1WQEOu2nyOZw9KHHTSIrxVfdFiIy5CMxgkOnwXcE
-         kZyNmOeZb1BW+kFFsFUxs9TZNTeB4LFhlbmQN2uglFzmeH5oApt5uFvQot496kGoReL0
-         b+6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=jkzaHDmTkBHODt1WjVbgPR48CKiEaxtUsO+VNZNhYrg=;
-        b=toep6b5oN8ITbpd/wELAstaKRBdqG6eW8BcA0E8RjMsAQreff5Cl2FZd8KOe0OascD
-         e/svL6oTqqQp9dqLpxKe3SAhZk217M5cN3otJ8PmfPLU+2wrqudo8N+D11aR5ZFTL58F
-         WeapAsOct4bI2xgNBU/EFEcfMVSiK7bctUzJuxj846ZyhssDsqLLR5i76ZrCVH0KGA3S
-         wwYl3hPz3yiJY5bqavVG/vJ2/v2QA+gVlSNDrBZiYLV1X8etNArwz5ELAYVJaEcqcyZ6
-         opBHcgzFq15+89AnpZPFh593W2zp59AeV8p4Wse4nWwltyqiczrvhWEVwDDFCjtSVtH7
-         43hQ==
-X-Gm-Message-State: AOAM533JGI1UVECyF1xHguE1+dGH+nM7SxkJQpfYQKZOBMdqsxeyIaXb
-        qZhpssxyNbqSsrvIVmVJeRJ4aQ==
-X-Google-Smtp-Source: ABdhPJxcT/1+ki8D/dqM2vDVIGQ7Q7c9/G0PwbdOblR9vU7tZmdRZByv7K8+Rwqo1s7ZunQKRwELZA==
-X-Received: by 2002:a02:a889:: with SMTP id l9mr1234532jam.1.1614811869882;
-        Wed, 03 Mar 2021 14:51:09 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id y18sm3170152ili.16.2021.03.03.14.51.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Mar 2021 14:51:09 -0800 (PST)
-Subject: Re: memory leak in io_submit_sqes (2)
-To:     syzbot <syzbot+91b4b56ead187d35c9d3@syzkaller.appspotmail.com>,
-        asml.silence@gmail.com, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-References: <00000000000002261d05bca94f7b@google.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <8494c673-180e-e0b9-4db7-04aed2aee791@kernel.dk>
-Date:   Wed, 3 Mar 2021 15:51:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1383218AbhCDAYM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:24:12 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:37438 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1442109AbhCCL6n (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 06:58:43 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UQFn1I4_1614772666;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQFn1I4_1614772666)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 03 Mar 2021 19:57:47 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     msnitzer@redhat.com, axboe@kernel.dk
+Cc:     io-uring@vger.kernel.org, dm-devel@redhat.com,
+        linux-block@vger.kernel.org, mpatocka@redhat.com,
+        caspar@linux.alibaba.com, joseph.qi@linux.alibaba.com
+Subject: [PATCH v5 06/12] blk-mq: add iterator for polling hw queues
+Date:   Wed,  3 Mar 2021 19:57:34 +0800
+Message-Id: <20210303115740.127001-7-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
+References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <00000000000002261d05bca94f7b@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-#syz test: git://git.kernel.dk/linux-block leak
+Add one helper function for iterating all hardware queues in polling
+mode.
 
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ include/linux/blk-mq.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index b406cab347d6..d22269b3dbe9 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -582,6 +582,13 @@ static inline void *blk_mq_rq_to_pdu(struct request *rq)
+ 	for ((i) = 0; (i) < (q)->nr_hw_queues &&			\
+ 	     ({ hctx = (q)->queue_hw_ctx[i]; 1; }); (i)++)
+ 
++#define queue_for_each_poll_hw_ctx(q, hctx, i)				\
++	for ((i) = 0; ((q)->tag_set->nr_maps > HCTX_TYPE_POLL) &&	\
++	     (i) < (q)->tag_set->map[HCTX_TYPE_POLL].nr_queues &&	\
++	     ({ int __idx = (q)->tag_set->map[HCTX_TYPE_POLL].queue_offset + (i); \
++	     hctx = (q)->queue_hw_ctx[__idx]; 1; }); \
++	     (i)++)
++
+ #define hctx_for_each_ctx(hctx, ctx, i)					\
+ 	for ((i) = 0; (i) < (hctx)->nr_ctx &&				\
+ 	     ({ ctx = (hctx)->ctxs[(i)]; 1; }); (i)++)
 -- 
-Jens Axboe
+2.27.0
 

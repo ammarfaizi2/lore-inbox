@@ -2,87 +2,155 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FA66C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F162BC43381
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F1AE64F4B
+	by mail.kernel.org (Postfix) with ESMTP id BA41064EEC
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233704AbhCDBJu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:09:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50056 "EHLO
+        id S236248AbhCDBJ4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:09:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345919AbhCDAap (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:30:45 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B581C0613DE
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:06 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id w18so17535680pfu.9
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:06 -0800 (PST)
+        with ESMTP id S1355471AbhCDAa4 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:30:56 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA14C0613E2
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:08 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id a24so15030499plm.11
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rUlDKm98LYnvgifuHwaKtoVeZS21r8yakiJTkn1tOQU=;
-        b=rG9wAOUqKjWEwDvvB31DPxlS3QwmLFTEX2Vm+G2Rv1sK1qTA27R4SzNnl6GFnXlsMu
-         +gwWI+MlX2aSi3qxn1/WI6TSH7Q3re55mt5ahn0blUyZcDOUc+UQe+tP+9cacnJXkXQr
-         CYeYOKG6Ainir5Wx+7yEOkOtwixNU0Wuwmj/P3cudelCZ2Gt3GAnl0oiKlQJF8LxB8GD
-         kU/oI3ylbe1DrpIIk3X3shfetHUpLNIdMNl7Vx9iWaYjOWZ9M2CDuORAzEXTynNB/VKy
-         97/LlHrbKuat0ZfsayfHzt+P+Sr8PT+a9VeEqBOgeCCuf8lnIN6UM3I4ZAy/HtTUm3GG
-         ln9w==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=e+tLZiEVBIwRW/C4OxeE8TZ/VQ3jHzJ+EiIqUJa98HQ=;
+        b=ZA1kQxIFCksYFR+FWcsUh5AKtL8OjrYgVr3JlWg8znCefKQZkDom31n3siql9SlgID
+         QAiajj+vyBSWPsS0r3xVqkKQTzYIT9zqEK4QxzBRurP2TlF4STyCM7nmXjnKboIauENp
+         eLIvh3NR4NPSMlEhbbkiMZNdNxqL/bWfsfI9azhmZMqcX42o7+a5hFdMbhmmp6s8Lqbj
+         FVrY6xdyj/Q+WxQ8BIsJaKnsLEVnyTrI9D1iBfU+FqnqeO3u6YFQKLIee+lkv3OFtWij
+         i+JljuQXunN07DGBcEb4MHVOrL5RbA/OJl0Qv9Qv6XnEYrRbVfIfVD945Y8su79erQWJ
+         7oLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rUlDKm98LYnvgifuHwaKtoVeZS21r8yakiJTkn1tOQU=;
-        b=f5W7XSGDu5rL3jdxkzd/CHdcpJmNfj42/5T25Y577TyAxNi1MnSSxGBP5WYoz7N5CK
-         0Z/zplnR7AKNK/0JUgUY6Ns0h7XM3ekCqW3bzyqxorD0XJJ7mUJbFybC2069UnH5LZQz
-         4lhS1DDDLXXf5Mr1Smqj5eeQdlT8/nBCxGUjM2z4/bFun5UzvejeSqFfOH14nySQxe3M
-         Thv4jDNjnYuutEHE/HnLZYsQydfgnmlAmVxebNwXRZ9bXDdmgEXHgoMmDpeJRQ8a3GdS
-         0fyjC7gurSb5A7gB/cQryc8uRRJhtwnjeBdTL5ZrJDHjMDgLQgcFj7SdGTps3ZvywSRS
-         yKKw==
-X-Gm-Message-State: AOAM532h7WhHPUr+/EQIw54PwrvF3UUYhyDZ9o0JChnVguczLuklGGYJ
-        Y9H07wo6RGR/m4OW0XBU9+tDsMUFYwvglGey
-X-Google-Smtp-Source: ABdhPJwQpbxEX27glscqH7yxY17xM44xIdoAjjjk2CZS8JswBAiaIaQQpFP00aWurgjqPBKEOd8YzQ==
-X-Received: by 2002:a63:1505:: with SMTP id v5mr1386980pgl.95.1614817625451;
-        Wed, 03 Mar 2021 16:27:05 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=e+tLZiEVBIwRW/C4OxeE8TZ/VQ3jHzJ+EiIqUJa98HQ=;
+        b=tSsfQupvFMMGVJV5CwzEB2uP1Gh6w2oi0BI259dH7lqfyE7DsoXICoVg6BhWXo3EEi
+         RbZJcXZqXr8qEjYEf0v6kRgVXd2Vr3qGI8g8P91HSluGvjQqdaJuuRN1fkqeS7MtjaVR
+         RBZuc7kReFEmgok2okILmAQtWkYN0L3yZ+TmRr16vYFKyJvfS7OI/F6sdoprmkirHjnn
+         AunniCpEXfAGjXKcuXXleyVWN3LhoYZCwwLq46ws5JwyFMcO3R1MHzIWt4IlaZGNZpbX
+         LADMrJPvcsKyvrODZV5Qv67O+iAJs/cBO1VunEYYYFtOfT6MzEnYM9BWAZxURjazkMxY
+         gEXQ==
+X-Gm-Message-State: AOAM530j5TiZFHG4dSY6aNYI7G7BflLniwZKy4SBfFMaCtLpiU+5xyTG
+        Lsg2Ln0BB+bGAmks2yRqGoa4vn+TQxHMNRAB
+X-Google-Smtp-Source: ABdhPJwTloi67xQCpWmNGkvme5deBjRnsDt8zmeH9yTa+qacBkJERgaDg3yweMP09zZjVoCot2Tstw==
+X-Received: by 2002:a17:90a:5206:: with SMTP id v6mr1695763pjh.22.1614817627929;
+        Wed, 03 Mar 2021 16:27:07 -0800 (PST)
 Received: from localhost.localdomain ([2600:380:7540:52b5:3f01:150c:3b2:bf47])
-        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.04
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 16:27:05 -0800 (PST)
+        Wed, 03 Mar 2021 16:27:07 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Subject: [PATCHSET 0/33] Fixes queued up for 5.12
-Date:   Wed,  3 Mar 2021 17:26:27 -0700
-Message-Id: <20210304002700.374417-1-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 02/33] io-wq: have manager wait for all workers to exit
+Date:   Wed,  3 Mar 2021 17:26:29 -0700
+Message-Id: <20210304002700.374417-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210304002700.374417-1-axboe@kernel.dk>
+References: <20210304002700.374417-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+Instead of having to wait separately on workers and manager, just have
+the manager wait on the workers. We use an atomic_t for the reference
+here, as we need to start at 0 and allow increment from that. Since the
+number of workers is naturally capped by the allowed nr of processes,
+and that uses an int, there is no risk of overflow.
 
-This is what is queued up for 5.12 so far. Mostly cleanups and removals
-now enabled by the worker change, but also of course fixes for that late
-change.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io-wq.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
- fs/io-wq.c               | 158 ++++++++++------
- fs/io-wq.h               |   4 +-
- fs/io_uring.c            | 400 ++++++++++++++++-----------------------
- include/linux/io_uring.h |  11 +-
- kernel/cred.c            |   2 +
- kernel/fork.c            |   2 +
- 6 files changed, 280 insertions(+), 297 deletions(-)
-
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 965022fe9961..a61f867f98f4 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -120,6 +120,9 @@ struct io_wq {
+ 	refcount_t refs;
+ 	struct completion done;
+ 
++	atomic_t worker_refs;
++	struct completion worker_done;
++
+ 	struct hlist_node cpuhp_node;
+ 
+ 	pid_t task_pid;
+@@ -189,7 +192,8 @@ static void io_worker_exit(struct io_worker *worker)
+ 	raw_spin_unlock_irq(&wqe->lock);
+ 
+ 	kfree_rcu(worker, rcu);
+-	io_wq_put(wqe->wq);
++	if (atomic_dec_and_test(&wqe->wq->worker_refs))
++		complete(&wqe->wq->worker_done);
+ }
+ 
+ static inline bool io_wqe_run_queue(struct io_wqe *wqe)
+@@ -648,14 +652,15 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ 	init_completion(&worker->ref_done);
+ 	init_completion(&worker->started);
+ 
+-	refcount_inc(&wq->refs);
++	atomic_inc(&wq->worker_refs);
+ 
+ 	if (index == IO_WQ_ACCT_BOUND)
+ 		pid = io_wq_fork_thread(task_thread_bound, worker);
+ 	else
+ 		pid = io_wq_fork_thread(task_thread_unbound, worker);
+ 	if (pid < 0) {
+-		io_wq_put(wq);
++		if (atomic_dec_and_test(&wq->worker_refs))
++			complete(&wq->worker_done);
+ 		kfree(worker);
+ 		return false;
+ 	}
+@@ -753,6 +758,9 @@ static int io_wq_manager(void *data)
+ 	} while (!test_bit(IO_WQ_BIT_EXIT, &wq->state));
+ 
+ 	io_wq_check_workers(wq);
++	/* we might not ever have created any workers */
++	if (atomic_read(&wq->worker_refs))
++		wait_for_completion(&wq->worker_done);
+ 	wq->manager = NULL;
+ 	io_wq_put(wq);
+ 	do_exit(0);
+@@ -796,6 +804,7 @@ static int io_wq_fork_manager(struct io_wq *wq)
+ 	if (wq->manager)
+ 		return 0;
+ 
++	reinit_completion(&wq->worker_done);
+ 	clear_bit(IO_WQ_BIT_EXIT, &wq->state);
+ 	refcount_inc(&wq->refs);
+ 	current->flags |= PF_IO_WORKER;
+@@ -1050,6 +1059,9 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 	init_completion(&wq->done);
+ 	refcount_set(&wq->refs, 1);
+ 
++	init_completion(&wq->worker_done);
++	atomic_set(&wq->worker_refs, 0);
++
+ 	ret = io_wq_fork_manager(wq);
+ 	if (!ret)
+ 		return wq;
 -- 
-Jens Axboe
-
+2.30.1
 

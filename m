@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9632EC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1589C43381
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 18:58:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7209464F65
+	by mail.kernel.org (Postfix) with ESMTP id D27C764F65
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 18:58:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232942AbhCDS5z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S234714AbhCDS5z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Thu, 4 Mar 2021 13:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235735AbhCDS5r (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 13:57:47 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BDDC061763
-        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 10:56:32 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id v15so28853162wrx.4
-        for <io-uring@vger.kernel.org>; Thu, 04 Mar 2021 10:56:32 -0800 (PST)
+        with ESMTP id S235745AbhCDS5s (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 13:57:48 -0500
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A1DC061765
+        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 10:56:34 -0800 (PST)
+Received: by mail-wm1-x336.google.com with SMTP id h7so1400135wmf.3
+        for <io-uring@vger.kernel.org>; Thu, 04 Mar 2021 10:56:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=mR48xWHpDX7ltzGgcEAv78XVKr35NFmXYNVn5nCqtnM=;
-        b=HZdsmtzCkQW+wAYTNOmdoLXBH1tI1njXufOp4NRZFhrnIpdBBG9Cid7Q4LvXRU9bXR
-         DtjloNVaQ5LycPs8Mhlt/mX2fJDRQAUMy80IJO4soKaXg+z+cPiwXTDRm2XK2DFhBSOe
-         y3GcR2BTHT0xLgzDWGWXeUc5r0185h3ST0blts37dvGgePAc8orykaMwj6X3KnwL5CVG
-         vZQUPDx7IHgYE4q9mTslb9HPVZd3SglZCaflQyHde8/vGp510jh6LggsB5uvNDQduuOp
-         NSRM0dPywtsnKWNVHNXzTBwOUg0XR1GBitr0UaJzTrm4XHAnU66GrF4BokWxPMruNWBe
-         Rjeg==
+        bh=0KK8fVMBS+gwvpRC8+iZ8nhCxsk3C6HmhNwn/ebTShQ=;
+        b=WbNcUPaPEwf/1Qd7tTX5gTtxOT0gSzmnBE5VRTnF+dhj+Hxuwm3VUhYHhml6vc6p1a
+         UrSmJL+6FSzkE9FGCbhu8Iy7J54JLid7f8s/FxwRcI/md0Y8WYRWpfwAD3UYK33v1BxC
+         mYxIt6Q+fqy/YlOOk2F9JZhEoqmtxe/ulMx+uveebTmRRKGG6ImQP3q7nrzMCXnCmVSE
+         R+WuQKhcpGnrjGtiSq10Owxn2ikKpDPWJHk7xc0broS+yUUqM94k2fbmggy6/8T3OBX2
+         2n8mtDSLKOBf/QzdB9devnocsaWGePNbM1vnipGalKq8E5SsyTAZ6D59MYeYtvgITV+c
+         KSYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mR48xWHpDX7ltzGgcEAv78XVKr35NFmXYNVn5nCqtnM=;
-        b=DPdBEug+r8ZHsHlUGS+phqcj71yS2vt++4m+LF/KJsQWRuwkuDwzmDkqOiyiB880xi
-         0DBMwG+z3QwAwbCHgLEXK5t3Zz4dj/edkDHu4RABLeiDMj19JV9vaTCyDtAahAz6y5+x
-         9vuAEgUZcimhMZQLPxnd7LIl7FAU6apQt9E4EVnkCsufJvk4LOU16vJ0Ib9HOigDGw7A
-         0QGWkOcKfXTNtdczpn9Cw1b7BkugrYJVpYiRuwdqwIhPL4ehZpL2Mma9cteO0w1DI+1/
-         HlZ4MX40dRUEucCdVO5EOfAqK3kyd4MXWSseYAIVnum4HpJq5VQtDPvI36YARTM4zHU0
-         n/6w==
-X-Gm-Message-State: AOAM531BQ5HwIVh1yr4BRo02b6LTu8R9PTHkWy214V2dEPbyd1jlfWEa
-        DqxwtutcJTeLuS2U+jXNkFASwDz0vuEBeg==
-X-Google-Smtp-Source: ABdhPJyg5mtv1r/U9QJV/YHZLeD6Cih1FZcmU73GlTwEY4rGPJL+S5wku94ynE5AMmCQDkBCbZWxzg==
-X-Received: by 2002:adf:a1ce:: with SMTP id v14mr5645722wrv.228.1614884191601;
-        Thu, 04 Mar 2021 10:56:31 -0800 (PST)
+        bh=0KK8fVMBS+gwvpRC8+iZ8nhCxsk3C6HmhNwn/ebTShQ=;
+        b=Adg2mUmUGj7C4g2Kr2sRQYjs67rYsCxs3sNNymxpyeZXKKoM+pkdPevz3pRopOl/PD
+         TC3lbVOGtpuaJ+b1h875U4o0UgEEck7hlrsTKLXpN7cQypCYpH6QzUILCPERdapNw0DE
+         RqqmpaQGJolom4FRpD3MJUyBDOt/hndDjS1Ks3cABV2oLNgzfZxjkyTjhzLSjJ4UPx9z
+         4zlXufoU+dGr4+txml+AVXI6Pwvv/AJ3UNWgUKwXoobQOiKcZgjmV2Ae/r9uwvsNADI+
+         Nc7G0STBj6QjtG62jbaMY8ea1vow90lM5+mJJBfvzJ3zRwGPPanO7w6kKxmoViNkWqaQ
+         eSSg==
+X-Gm-Message-State: AOAM533fz42mZ62JmvJU7qaIoDRXIKn7ef1Un8HoF72rwSkVwxIbvFqN
+        NRJOp3xUzRWKz5vDjfAJEY5VXUZxfF/CZw==
+X-Google-Smtp-Source: ABdhPJwAo5KvhpPJ9nDyfKDTSxVGFCBuw5jQ1dUZ3r4cajPXKwk7qn1540Nx7w9KD/+kq5W099/VcQ==
+X-Received: by 2002:a7b:c119:: with SMTP id w25mr5200098wmi.127.1614884193570;
+        Thu, 04 Mar 2021 10:56:33 -0800 (PST)
 Received: from localhost.localdomain ([148.252.129.216])
-        by smtp.gmail.com with ESMTPSA id k11sm575800wmj.1.2021.03.04.10.56.30
+        by smtp.gmail.com with ESMTPSA id k11sm575800wmj.1.2021.03.04.10.56.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Mar 2021 10:56:31 -0800 (PST)
+        Thu, 04 Mar 2021 10:56:33 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 06/11] io_uring: abolish old io_put_file()
-Date:   Thu,  4 Mar 2021 18:52:20 +0000
-Message-Id: <aa6ea85fc2cd105c3de8ea69559ae953d6df01ca.1614883424.git.asml.silence@gmail.com>
+Subject: [PATCH 08/11] io_uring: set req->work closer to all other fields
+Date:   Thu,  4 Mar 2021 18:52:22 +0000
+Message-Id: <14c67683bf06ff66f8885767b51ed61265fa89ea.1614883424.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1614883423.git.asml.silence@gmail.com>
 References: <cover.1614883423.git.asml.silence@gmail.com>
@@ -70,74 +70,38 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_put_file() doesn't do a good job at generating a good code. Inline
-it, so we can check REQ_F_FIXED_FILE first, prioritising FIXED_FILE case
-over requests without files, and saving a memory load in that case.
+Keep req->work init close to setting all other fields, it's in
+io_init_req() anyway.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c4ebdf1f759f..94b080c3cc65 100644
+index 9ebc447456ab..da5d8d962bff 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1661,10 +1661,9 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
- 	return state->reqs[state->free_reqs];
- }
+@@ -6271,6 +6271,9 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	atomic_set(&req->refs, 2);
+ 	req->task = current;
+ 	req->result = 0;
++	req->work.list.next = NULL;
++	req->work.flags = 0;
++	req->work.personality = READ_ONCE(sqe->personality);
  
--static inline void io_put_file(struct io_kiocb *req, struct file *file,
--			  bool fixed)
-+static inline void io_put_file(struct file *file)
- {
--	if (!fixed)
-+	if (file)
- 		fput(file);
- }
+ 	/* enforce forwards compatibility on users */
+ 	if (unlikely(sqe_flags & ~SQE_VALID_FLAGS)) {
+@@ -6288,9 +6291,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	    !io_op_defs[req->opcode].buffer_select)
+ 		return -EOPNOTSUPP;
  
-@@ -1672,8 +1671,8 @@ static void io_dismantle_req(struct io_kiocb *req)
- {
- 	unsigned int flags = req->flags;
+-	req->work.list.next = NULL;
+-	req->work.flags = 0;
+-	req->work.personality = READ_ONCE(sqe->personality);
+ 	state = &ctx->submit_state;
  
--	if (req->file)
--		io_put_file(req, req->file, (flags & REQ_F_FIXED_FILE));
-+	if (!(flags & REQ_F_FIXED_FILE))
-+		io_put_file(req->file);
- 	if (flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED |
- 		     REQ_F_INFLIGHT)) {
- 		io_clean_op(req);
-@@ -3572,7 +3571,8 @@ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
- 	if (sp->len)
- 		ret = do_tee(in, out, sp->len, flags);
- 
--	io_put_file(req, in, (sp->flags & SPLICE_F_FD_IN_FIXED));
-+	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
-+		io_put_file(in);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
- 
- 	if (ret != sp->len)
-@@ -3608,7 +3608,8 @@ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
- 	if (sp->len)
- 		ret = do_splice(in, poff_in, out, poff_out, sp->len, flags);
- 
--	io_put_file(req, in, (sp->flags & SPLICE_F_FD_IN_FIXED));
-+	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
-+		io_put_file(in);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
- 
- 	if (ret != sp->len)
-@@ -5852,8 +5853,8 @@ static void io_clean_op(struct io_kiocb *req)
- 			}
- 		case IORING_OP_SPLICE:
- 		case IORING_OP_TEE:
--			io_put_file(req, req->splice.file_in,
--				    (req->splice.flags & SPLICE_F_FD_IN_FIXED));
-+			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
-+				io_put_file(req->splice.file_in);
- 			break;
- 		case IORING_OP_OPENAT:
- 		case IORING_OP_OPENAT2:
+ 	/*
 -- 
 2.24.0
 

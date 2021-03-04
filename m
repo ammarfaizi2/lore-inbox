@@ -2,107 +2,105 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B52FC433E0
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 13:21:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B10C43381
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 14:05:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E0C8B64F2B
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 13:21:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C22D264F23
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 14:05:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236205AbhCDNUv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Mar 2021 08:20:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47798 "EHLO
+        id S237393AbhCDOEf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Mar 2021 09:04:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241212AbhCDNUc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 08:20:32 -0500
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C5BC061574
-        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 05:19:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:From:Cc:To;
-        bh=G5ZYZdsmz4gWAk0kCK0XI/OSjbxrqyYPQT+C3oD7KE0=; b=a2Be2fgdJ9RvwlCtdm3zn33KDg
-        K6qkVMLwL+9fNdiERcdFrvo4zAuB2TpWEDoP9TyqQdgE+saGZScPBqUXO6JraEcs5dk7m9ePHEcV0
-        6E6XmlGEh8AMZbLSwKubEZ/74IpER1y1Kg9eyalw6Z2igSCwHRCKlsCoLcgpZAao70ZtrxY1m7cNB
-        xkBmuePzU17fOu5dqnil/OwV5cDcRYNpWaZ2gbqcWyO5OGSXac/D7mgMqiRhR85a6FQf1kzijsHEi
-        Rj2hi4KaYPkHXDHrIIaEk64e+YXxbZPg/WWmbrbN5N7OLjlMGQOUj1BDnaJfioCUdeC7FmxFX1Yta
-        sVrW1yQjLZu8m9GgdUZaA3nwG3LvzQmhgMkMpngnsTnynIE7cjU9ELj4/eGXpD4bANqSwwzGaunwi
-        LV6ocC8KpMqHwfNUv+N3FXd62afKuq3xPYzrzlpf9JEMiSW5TwIy7Zj5mQzM5OB7+BRIOqAiqXfsj
-        kJ9rtBnUGA/FlqHi+0e3acp+;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lHntN-0005vQ-1k; Thu, 04 Mar 2021 13:19:49 +0000
+        with ESMTP id S237583AbhCDOER (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 09:04:17 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E63C061761
+        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 06:03:36 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id h98so27744728wrh.11
+        for <io-uring@vger.kernel.org>; Thu, 04 Mar 2021 06:03:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=nwFt3bEY7CR79i67G8c499ytIqZvxFdqr8Fzfscpxt0=;
+        b=OXxYvpH6qKsccY4+c3mIhHKPck8gtjekr0iacvem0jry3BZSPMdBXY020ZRzGkHgUx
+         tYOvKkl71B0J8xGX/3yH2CEyBonEytvn5AQ1lIfm1kM1m7oex5o8C+A7OYC3erxaU7c9
+         fywM1D3KmzlJumdMNjTvXDQqIC5pJMYaasJpNV/Jk6FNkzrk/tdxf6bRwzBsd3skzzK7
+         y667hkX0hVWvk9rkvNI8X2WoEP0vXRf6vWLrG0DU03OGI/sXd5tAp8pYQI0QWg5FgbHD
+         fvCqmDQBuaaRbRQYxR+VQSFMj9dDuRDDO3reade6OkCKRg0AMw+0I19oymek4cNVfx8Z
+         Hgdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nwFt3bEY7CR79i67G8c499ytIqZvxFdqr8Fzfscpxt0=;
+        b=Xg6xFb3EA7revZmy8+WX6qcOrHCnHn0DDmdf/P9lnqB/bAGDTYQ/Q1NdvcUu/uGab5
+         oT0pIBAc5UCjtfxWOv5+YH6XB0a0V9OfJ42VP/auWJpazwsE5PZVZwqYLRYCGUDy7BUf
+         G3N9PfB2PrABQGoT37+yQ4VBCn7EJMfj/kSQySbRvnutIB7P6bL62rvJaNKZ+rv3JKYq
+         OR4tFlh5aVra8cRxlaRgwI4kHnCPSfKDugMnGotOorPtsS/w+8oYF5wYAkHUyc8fYLse
+         f6/l315e1RLgeo28qE12sZfk1ZwIHEXJzBiuFziKKWy8+jzvMdQASuQrYF+iF92OeX7w
+         Yckg==
+X-Gm-Message-State: AOAM5300gkc1N45TZ00oMkV7n+OZq8Eu67yl70tjTsZGAI3AThF41j/G
+        SFqOVz/sHFLN4ctwYThHNAA=
+X-Google-Smtp-Source: ABdhPJz7K5aIksl5WwO3hlmwruo1HY4EzX+GfVsuOexzZVmiiYyC8Lm90XNrJlef2VIc4gH+qI8AZw==
+X-Received: by 2002:adf:f148:: with SMTP id y8mr4079998wro.107.1614866615386;
+        Thu, 04 Mar 2021 06:03:35 -0800 (PST)
+Received: from localhost.localdomain ([148.252.129.216])
+        by smtp.gmail.com with ESMTPSA id o124sm9975488wmo.41.2021.03.04.06.03.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Mar 2021 06:03:34 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     ebiederm@xmission.com, viro@zeniv.linux.org.uk,
-        torvalds@linux-foundation.org
-References: <20210219171010.281878-1-axboe@kernel.dk>
- <20210219171010.281878-10-axboe@kernel.dk>
- <85bc236d-94af-6878-928b-c69dbdcd46f9@samba.org>
- <d9704b9e-ae5e-0795-ba2e-029293f89616@kernel.dk>
-From:   Stefan Metzmacher <metze@samba.org>
-Subject: Re: [PATCH 09/18] io-wq: fork worker threads from original task
-Message-ID: <a9f58269-b260-6281-4e83-43cb5e881d25@samba.org>
-Date:   Thu, 4 Mar 2021 14:19:48 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+Subject: [PATCH 1/8] io_uring: cancel-match based on flags
+Date:   Thu,  4 Mar 2021 13:59:24 +0000
+Message-Id: <4157ce297803d38e560cbb257cc6dbf81e2d530c.1614866085.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1614866085.git.asml.silence@gmail.com>
+References: <cover.1614866085.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <d9704b9e-ae5e-0795-ba2e-029293f89616@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Jens,
+Instead of going into request internals, like checking req->file->f_op,
+do match them based on REQ_F_INFLIGHT, it's set only when we want it to
+be reliably cancelled.
 
->> Can you please explain why CLONE_SIGHAND is used here?
-> 
-> We can't have CLONE_THREAD without CLONE_SIGHAND... The io-wq workers
-> don't really care about signals, we don't use them internally.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I'm 100% sure, but I heard rumors that in some situations signals get
-randomly delivered to any thread of a userspace process.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7cf8d4a99d91..c340d7ba40a2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -703,7 +703,7 @@ enum {
+ 
+ 	/* fail rest of links */
+ 	REQ_F_FAIL_LINK		= BIT(REQ_F_FAIL_LINK_BIT),
+-	/* on inflight list */
++	/* on inflight list, should be cancelled and waited on exit reliably */
+ 	REQ_F_INFLIGHT		= BIT(REQ_F_INFLIGHT_BIT),
+ 	/* read/write uses file position */
+ 	REQ_F_CUR_POS		= BIT(REQ_F_CUR_POS_BIT),
+@@ -1069,7 +1069,7 @@ static bool io_match_task(struct io_kiocb *head,
+ 		return true;
+ 
+ 	io_for_each_link(req, head) {
+-		if (req->file && req->file->f_op == &io_uring_fops)
++		if (req->flags & REQ_F_INFLIGHT)
+ 			return true;
+ 		if (req->task->files == files)
+ 			return true;
+-- 
+2.24.0
 
-My fear was that the related logic may select a kernel thread if they
-share the same signal handlers.
-
->> Will the userspace signal handlers executed from the kernel thread?
-> 
-> No
-
-Good.
-
-Are these threads immutable against signals from userspace?
-
->> Will SIGCHLD be posted to the userspace signal handlers in a userspace
->> process? Will wait() from userspace see the exit of a thread?
-> 
-> Currently actually it does, but I think that's just an oversight. As far
-> as I can tell, we want to add something like the below. Untested... I'll
-> give this a spin in a bit.
-> 
-> diff --git a/kernel/signal.c b/kernel/signal.c
-> index ba4d1ef39a9e..e5db1d8f18e5 100644
-> --- a/kernel/signal.c
-> +++ b/kernel/signal.c
-> @@ -1912,6 +1912,10 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
->  	bool autoreap = false;
->  	u64 utime, stime;
->  
-> +	/* Don't notify a parent task if an io_uring worker exits */
-> +	if (tsk->flags & PF_IO_WORKER)
-> +		return true;
-> +
->  	BUG_ON(sig == -1);
->  
->   	/* do_notify_parent_cldstop should have been called instead.  */
-> 
-
-Ok, thanks!
-
-metze

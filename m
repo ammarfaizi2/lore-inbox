@@ -7,62 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D074C001C7
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C7DAC15500
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1ED5B64F5C
+	by mail.kernel.org (Postfix) with ESMTP id 2D8D764ED4
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240128AbhCDBKH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S240295AbhCDBKH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Wed, 3 Mar 2021 20:10:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51050 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353860AbhCDAeL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:34:11 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B08C0610CF
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:30 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id o188so10882337pfg.2
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:30 -0800 (PST)
+        with ESMTP id S1348307AbhCDAeT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:34:19 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53C25C0610D1
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:32 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id t25so17636223pga.2
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=2okANeocaKJ1gfmTgxLGOyCGOrOFLcR/DL5JU2mAQHw=;
-        b=KMaMlfGO159sSVUgMTpb483yg1T14t/ke1nQBOAzlw/xBq7Ud2tx/eaZ4zyiwE8KlQ
-         vVNMLryNB9YG53ZVJWGzOivrtb1Viql8iH3iiTdt82l0NOBPYrsYszxEu7h5S0TjGAOx
-         8xiZga9zTp+drwtwBkNkv6v9M1ajrJe4Podj6a42WuS8+q2hk81QPPGxlJzW9jw5TtQ2
-         0oik+5utc1q/gX03TFiW9OxOXwAD0I1GX2kfsgQzHiLJP09KBJ9T0cSQOD0alUQSavQ3
-         x3Nj9bkpbmEvTU/KdtR7uOAOd9tP5P5aLM7oWgyBtpLetB8XUIx2YSKJxSfw9zxlq5Bt
-         RSsg==
+        bh=quGGxWRUU5Ngr3MwgYz4rt2wAlYR60hVCCfV4qzouk0=;
+        b=v/SnGptkzop4vsBFWaIZsTigViIsXjiSyi4z/l21q3g2zHzBVlMKo6/CSMc6A/1qtv
+         9H/ojZbIyjM24YPUYVhV8o1njV2umLPXBJhMxMuXqAU7h0MWCqaWsV41vQsLGm38RWLK
+         XTlpYsqL/hwqY9yU1tXFIs1uePUKaxkNxtafDmFwPvso0RDllQAB4TMoco3Lwqdz+0LP
+         QBCLDowIpkKO+32NcdKWFLKTjj1aj8FsiRPiab+/SzRoW9i2u/6t6Tkhs4EEfOBBGIGY
+         R785WCQ/QL7QN26hEJbpkbz9FqjD4l6UsY36wvNIBJIg3U601ZVH8CqlImgiXueIJ6+f
+         SsuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2okANeocaKJ1gfmTgxLGOyCGOrOFLcR/DL5JU2mAQHw=;
-        b=AjiC7hoxiyck+PKvVbZNVZvKW8PfPKQuTKtAxfSCaQBYKJFY+z8IwIt4QTNPuabqVx
-         X1I/NyuVp1mhxjP2HWTGRLDJdVndgJ8xNJNRtcdYBIDXfrJhljdTimBAHAy2ORd7hvwP
-         LlwozKTlyhl/lA+ADH0ROwajIuYcShGMXgjHbcgKY8qb/hiQQBxc8yyICxednWNagSXT
-         Gj2G4XmbdAVySvFF+O82l0/7YjlgrNDNDbbonFB6jbe2BPUTgbnzHmGCAvXmkBoKB9gj
-         U7Uc/FZLkG+6WFHdIIXMujAgPlRT4HsZie3DSEdUYj8HoR6bNWSPXMayIy5aMJhrDm/n
-         uy7A==
-X-Gm-Message-State: AOAM533YE5gHTpbTZ/f314IxMDHjzx77Q/RRaKjGjR63eOLD8XZvx7S4
-        sXPccYjxaj1uiq6enZt/aVnc/NyqozXiDl9S
-X-Google-Smtp-Source: ABdhPJxleznXIsBTocUp1wS53ucgWRRrAZgR1UpnkKe8y5OVmBxPUqVrIYgw1z56vGcZY4N1tdXkvw==
-X-Received: by 2002:a63:1a07:: with SMTP id a7mr1300542pga.167.1614817649307;
-        Wed, 03 Mar 2021 16:27:29 -0800 (PST)
+        bh=quGGxWRUU5Ngr3MwgYz4rt2wAlYR60hVCCfV4qzouk0=;
+        b=YFcgzytGUCon0Hwot8R/pKJQRqKbY/XgJCrDiqjbwqmW350CKXa3dKGKxAQmOtS7jt
+         5N0e7ml/Xuenq73ceXxfe7UOU4kD+mkjzIUnZ8BHkAnzFc7N5VCWzktXP1tG9eUBamSU
+         P2ppVS+Bl81X5eags302nFI9cgXuBphGTtiQoY8SRvfuE+cjeAWL3jSi2HInkh65Q1gW
+         hLIRYEgFTemb+haFrFNHnneAqp/f7ArotYQDJz8Zcca/P7VU4+D6uaQSg52h2dup9Z0O
+         J2ZctREUnE/KMWUno823DRW6InSOhP2ouIsRqicqHs3oALxCSrJCNGuVjnkKMS2kZfKB
+         klvg==
+X-Gm-Message-State: AOAM532GQx3k8hGkhhYdnOdhCzsYCZNz4wmENsAI6dUrWYRBh+SKEO0M
+        FuLNryANfUVzaZnnEHe7oGwhL0zLguWTN7lm
+X-Google-Smtp-Source: ABdhPJyj9MX2BzbGBpidThMnU+kmPnOvQCqjCXXnen2Oy6iTtZahust6opC+OpVdGTwqp1fQEVcyDw==
+X-Received: by 2002:a63:905:: with SMTP id 5mr1291888pgj.337.1614817651619;
+        Wed, 03 Mar 2021 16:27:31 -0800 (PST)
 Received: from localhost.localdomain ([2600:380:7540:52b5:3f01:150c:3b2:bf47])
-        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.28
+        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 16:27:28 -0800 (PST)
+        Wed, 03 Mar 2021 16:27:31 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        syzbot+a157ac7c03a56397f553@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 20/33] io_uring: fix __tctx_task_work() ctx race
-Date:   Wed,  3 Mar 2021 17:26:47 -0700
-Message-Id: <20210304002700.374417-21-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        syzbot+fb5458330b4442f2090d@syzkaller.appspotmail.com
+Subject: [PATCH 22/33] io_uring: ensure that SQPOLL thread is started for exit
+Date:   Wed,  3 Mar 2021 17:26:49 -0700
+Message-Id: <20210304002700.374417-23-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210304002700.374417-1-axboe@kernel.dk>
 References: <20210304002700.374417-1-axboe@kernel.dk>
@@ -72,105 +71,97 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+If we create it in a disabled state because IORING_SETUP_R_DISABLED is
+set on ring creation, we need to ensure that we've kicked the thread if
+we're exiting before it's been explicitly disabled. Otherwise we can run
+into a deadlock where exit is waiting go park the SQPOLL thread, but the
+SQPOLL thread itself is waiting to get a signal to start.
 
-There is an unlikely but possible race using a freed context. That's
-because req->task_work.func() can free a request, but we won't
-necessarily find a completion in submit_state.comp and so all ctx refs
-may be put by the time we do mutex_lock(&ctx->uring_ctx);
+That results in the below trace of both tasks hung, waiting on each other:
 
-There are several reasons why it can miss going through
-submit_state.comp: 1) req->task_work.func() didn't complete it itself,
-but punted to iowq (e.g. reissue) and it got freed later, or a similar
-situation with it overflowing and getting flushed by someone else, or
-being submitted to IRQ completion, 2) As we don't hold the uring_lock,
-someone else can do io_submit_flush_completions() and put our ref.
-3) Bugs and code obscurities, e.g. failing to propagate issue_flags
-properly.
+INFO: task syz-executor458:8401 blocked for more than 143 seconds.
+      Not tainted 5.11.0-next-20210226-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor458 state:D stack:27536 pid: 8401 ppid:  8400 flags:0x00004004
+Call Trace:
+ context_switch kernel/sched/core.c:4324 [inline]
+ __schedule+0x90c/0x21a0 kernel/sched/core.c:5075
+ schedule+0xcf/0x270 kernel/sched/core.c:5154
+ schedule_timeout+0x1db/0x250 kernel/time/timer.c:1868
+ do_wait_for_common kernel/sched/completion.c:85 [inline]
+ __wait_for_common kernel/sched/completion.c:106 [inline]
+ wait_for_common kernel/sched/completion.c:117 [inline]
+ wait_for_completion+0x168/0x270 kernel/sched/completion.c:138
+ io_sq_thread_park fs/io_uring.c:7115 [inline]
+ io_sq_thread_park+0xd5/0x130 fs/io_uring.c:7103
+ io_uring_cancel_task_requests+0x24c/0xd90 fs/io_uring.c:8745
+ __io_uring_files_cancel+0x110/0x230 fs/io_uring.c:8840
+ io_uring_files_cancel include/linux/io_uring.h:47 [inline]
+ do_exit+0x299/0x2a60 kernel/exit.c:780
+ do_group_exit+0x125/0x310 kernel/exit.c:922
+ __do_sys_exit_group kernel/exit.c:933 [inline]
+ __se_sys_exit_group kernel/exit.c:931 [inline]
+ __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x43e899
+RSP: 002b:00007ffe89376d48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+RAX: ffffffffffffffda RBX: 00000000004af2f0 RCX: 000000000043e899
+RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000000
+RBP: 0000000000000000 R08: ffffffffffffffc0 R09: 0000000010000000
+R10: 0000000000008011 R11: 0000000000000246 R12: 00000000004af2f0
+R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
+INFO: task iou-sqp-8401:8402 can't die for more than 143 seconds.
+task:iou-sqp-8401    state:D stack:30272 pid: 8402 ppid:  8400 flags:0x00004004
+Call Trace:
+ context_switch kernel/sched/core.c:4324 [inline]
+ __schedule+0x90c/0x21a0 kernel/sched/core.c:5075
+ schedule+0xcf/0x270 kernel/sched/core.c:5154
+ schedule_timeout+0x1db/0x250 kernel/time/timer.c:1868
+ do_wait_for_common kernel/sched/completion.c:85 [inline]
+ __wait_for_common kernel/sched/completion.c:106 [inline]
+ wait_for_common kernel/sched/completion.c:117 [inline]
+ wait_for_completion+0x168/0x270 kernel/sched/completion.c:138
+ io_sq_thread+0x27d/0x1ae0 fs/io_uring.c:6717
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+INFO: task iou-sqp-8401:8402 blocked for more than 143 seconds.
 
-One example is as follows
-
-  CPU1                                  |  CPU2
-=======================================================================
-@req->task_work.func()                  |
-  -> @req overflwed,                    |
-     so submit_state.comp,nr==0         |
-                                        | flush overflows, and free @req
-                                        | ctx refs == 0, free it
-ctx is dead, but we do                  |
-	lock + flush + unlock           |
-
-So take a ctx reference for each new ctx we see in __tctx_task_work(),
-and do release it until we do all our flushing.
-
-Fixes: 65453d1efbd2 ("io_uring: enable req cache for task_work items")
-Reported-by: syzbot+a157ac7c03a56397f553@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-[axboe: fold in my one-liner and fix ref mismatch]
+Reported-by: syzbot+fb5458330b4442f2090d@syzkaller.appspotmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ fs/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f6bc0254cd01..befa0f4dd575 100644
+index 5bd039aa97bb..549a5c5ee0b5 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1800,6 +1800,18 @@ static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
- 	return __io_req_find_next(req);
- }
- 
-+static void ctx_flush_and_put(struct io_ring_ctx *ctx)
-+{
-+	if (!ctx)
-+		return;
-+	if (ctx->submit_state.comp.nr) {
-+		mutex_lock(&ctx->uring_lock);
-+		io_submit_flush_completions(&ctx->submit_state.comp, ctx);
-+		mutex_unlock(&ctx->uring_lock);
-+	}
-+	percpu_ref_put(&ctx->refs);
-+}
-+
- static bool __tctx_task_work(struct io_uring_task *tctx)
+@@ -7916,6 +7916,7 @@ static void io_sq_offload_start(struct io_ring_ctx *ctx)
  {
- 	struct io_ring_ctx *ctx = NULL;
-@@ -1817,30 +1829,20 @@ static bool __tctx_task_work(struct io_uring_task *tctx)
- 	node = list.first;
- 	while (node) {
- 		struct io_wq_work_node *next = node->next;
--		struct io_ring_ctx *this_ctx;
- 		struct io_kiocb *req;
+ 	struct io_sq_data *sqd = ctx->sq_data;
  
- 		req = container_of(node, struct io_kiocb, io_task_work.node);
--		this_ctx = req->ctx;
--		req->task_work.func(&req->task_work);
--		node = next;
++	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+ 	if (ctx->flags & IORING_SETUP_SQPOLL)
+ 		complete(&sqd->startup);
+ }
+@@ -8692,6 +8693,8 @@ static void io_disable_sqo_submit(struct io_ring_ctx *ctx)
+ {
+ 	mutex_lock(&ctx->uring_lock);
+ 	ctx->sqo_dead = 1;
++	if (ctx->flags & IORING_SETUP_R_DISABLED)
++		io_sq_offload_start(ctx);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+ 	/* make sure callers enter the ring to get error */
+@@ -9659,10 +9662,7 @@ static int io_register_enable_rings(struct io_ring_ctx *ctx)
+ 	if (ctx->restrictions.registered)
+ 		ctx->restricted = 1;
+ 
+-	ctx->flags &= ~IORING_SETUP_R_DISABLED;
 -
--		if (!ctx) {
--			ctx = this_ctx;
--		} else if (ctx != this_ctx) {
--			mutex_lock(&ctx->uring_lock);
--			io_submit_flush_completions(&ctx->submit_state.comp, ctx);
--			mutex_unlock(&ctx->uring_lock);
--			ctx = this_ctx;
-+		if (req->ctx != ctx) {
-+			ctx_flush_and_put(ctx);
-+			ctx = req->ctx;
-+			percpu_ref_get(&ctx->refs);
- 		}
--	}
- 
--	if (ctx && ctx->submit_state.comp.nr) {
--		mutex_lock(&ctx->uring_lock);
--		io_submit_flush_completions(&ctx->submit_state.comp, ctx);
--		mutex_unlock(&ctx->uring_lock);
-+		req->task_work.func(&req->task_work);
-+		node = next;
- 	}
- 
-+	ctx_flush_and_put(ctx);
- 	return list.first != NULL;
+ 	io_sq_offload_start(ctx);
+-
+ 	return 0;
  }
  
 -- 

@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5486CC4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82D5CC4332D
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21A7064ED4
+	by mail.kernel.org (Postfix) with ESMTP id 5F64664F5C
 	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231893AbhCDBJ5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:09:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
+        id S236787AbhCDBJ6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:09:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348570AbhCDAbi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:31:38 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D64AC0613B6
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:10 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id ba1so15068281plb.1
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:10 -0800 (PST)
+        with ESMTP id S1384530AbhCDAby (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:31:54 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B99AC0613B9
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:14 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id z5so2200644plg.3
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=h+4EutnHIq5OGGuXo0Sb205EKv6pcfjm7AKrSAdrd+4=;
-        b=vzWfTnNjqRxvhOnz9VSfypVjZfeWJ5rbHJxpf+nFEu/iXqV8jzpTJx1rW3jJnyb9z9
-         GywI6GhE117EZJCTdw4JvZBvwiKZNgYDzA8pAyWqLoVzB3/hEEfopu3JqG3tp9tB8Xm7
-         /we9g5g+JVNle3KbclKWf2Ua31cqzKYMVtSX0CAhFP1OnCehnajNyF4n2DltJQsP4HH4
-         TYZTcN1n0ZHIkxsLTPlxiLWaMbMf1TYTpyI1xEH2gmpOBOtvYPCmndbrtIEmV2Yj8aic
-         moAq/k9a3gmOHT3L1TS33A8M2lrKFCRYeEGI5xScGzEMb2MiI5OB76jRhWqlZO+Vn3to
-         FfKA==
+        bh=0DigGaSiDnIBYosyMZyiyF8o1ntXs5aszaJlII/X9As=;
+        b=pPe+0OqlPubbQEPP+2EbKqAsw4QzvbJtLwEzk/w81IJohzx1BOu2csS2w7ae1zbmgX
+         rGLGOqv/3qf+hSb1H9CZdwPVO76CQzuv4uk+1qZHRgErPLIHX1uQlPsU6lvHU/sCgRmd
+         aig2bu0Zr3++7+sWKJtdCY6w88Di9Z1uc0eopFzuYnZvM+PbpdP3xeJ5vqnjAj0mvPi4
+         hSfGCevsEUaIALzkQnxSMPeBGk09CjnvuH+dBzG11mVVO9gofTH6o/rn56gjxXfIbKen
+         51Ax84QyO1Jr5FYUx1xc5uMzQUbY+mpMbggu2fsAP1i0sF8rjZ67OfLSTQypqeD/JvAN
+         VP5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=h+4EutnHIq5OGGuXo0Sb205EKv6pcfjm7AKrSAdrd+4=;
-        b=Ds7Oa5hWxyA8rZ65jZM4AuFXeaihTyrtkhqbbPDB1rrFGW2TLrusp0g3xAm09iRs3w
-         ISgrbgEj2qzGAPCoJvr3ExmJOhv3QyGLfT+KtjL7gUljV4ufsE099uJngQNY9CZiWNLw
-         Y4ydsYKHD265BTbKJGitmz/l1yGRXZU7UCOfBVbq6uhf7vjk6GP87rrN7++JBLyg8pdr
-         9rn1+5p3z4+sn6QzYPgGINbarsrA6Yv/hwmXdSnXxOZWxBcEFDL9CCA7IyXMeocr7di1
-         hPTCmTmXhbdCJ/Y7/Opcz2hVhI/MugpV4RtL75fLlbSt2goy+aRXDbbRi0B35/owrlmg
-         5hdQ==
-X-Gm-Message-State: AOAM530z1NPswMyhIvRIcdHPQd3glXY7HzjGEYBZopLqqzNkDjwu1zaQ
-        3m4jgJw5IOPaJzCd3MnKW3YEHxNuFz5Ap5Yf
-X-Google-Smtp-Source: ABdhPJxwnB51BebuoBzlQx5Z3/jnE12AMkO5I+NdhGV9ReVuBIywMsmclLKv0TknEcYA4n3+zZUemA==
-X-Received: by 2002:a17:902:f68a:b029:e5:b17f:9154 with SMTP id l10-20020a170902f68ab02900e5b17f9154mr1497922plg.28.1614817629329;
-        Wed, 03 Mar 2021 16:27:09 -0800 (PST)
+        bh=0DigGaSiDnIBYosyMZyiyF8o1ntXs5aszaJlII/X9As=;
+        b=C8Q+heV3Qd3s99dyDZqCGzMZR73rPmBTF58ypwJqBLguUCIIo/cluzT7M29vrZNUHQ
+         7FmsOPn0hkHBAew4ClM3V8PYC2JYccAtMQO7BXrSpabA78hL1JRMf5oHMSKiy4F2Bdwu
+         kBZZBR2qgQ5MTgCHJx+JYU9vYxYPbKifP38dJC93Ao/Ib/MRILZwKt2gmW6BvlGUyVBC
+         RZZKVTm6Sh2/Lnai8UnLnZsOgqRgHa0DGvpQQuZEYstKGu862OzOScFuSElJ8l3T9VZX
+         VL/Jqoe3TNCdtN9GQAIbaEGhMyUWDgmSKtwVD5k5KZgtUsbt6+kxjD3lzuVfen9ItmmX
+         LRcA==
+X-Gm-Message-State: AOAM531RB7znRZklGO4FfsjfwxRcNOvPJ+++kZV0A2pn6mPO39XtStwU
+        wUlzjqP38rpafoqaHRFki6AMkEn3XR3+zYQZ
+X-Google-Smtp-Source: ABdhPJxnpjcATcHBK8MqYBDjDzUYrEEw/UVfzh8Jtp+CYq6UcXFxS2UfyBmqvK2FOOTqNBqTtvnMYQ==
+X-Received: by 2002:a17:90a:ba16:: with SMTP id s22mr1737727pjr.88.1614817633857;
+        Wed, 03 Mar 2021 16:27:13 -0800 (PST)
 Received: from localhost.localdomain ([2600:380:7540:52b5:3f01:150c:3b2:bf47])
-        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.08
+        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 16:27:09 -0800 (PST)
+        Wed, 03 Mar 2021 16:27:13 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 03/33] io-wq: don't ask for a new worker if we're exiting
-Date:   Wed,  3 Mar 2021 17:26:30 -0700
-Message-Id: <20210304002700.374417-4-axboe@kernel.dk>
+Subject: [PATCH 07/33] io_uring: SQPOLL stop error handling fixes
+Date:   Wed,  3 Mar 2021 17:26:34 -0700
+Message-Id: <20210304002700.374417-8-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210304002700.374417-1-axboe@kernel.dk>
 References: <20210304002700.374417-1-axboe@kernel.dk>
@@ -70,27 +70,71 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If we're in the process of shutting down the async context, then don't
-create new workers if we already have at least the fixed one.
+If we fail to fork an SQPOLL worker, we can hit cancel, and hence
+attempted thread stop, with the thread already being stopped. Ensure
+we check for that.
+
+Also guard thread stop fully by the sqd mutex, just like we do for
+park.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/io_uring.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index a61f867f98f4..d2b55ac817ef 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -673,6 +673,8 @@ static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
- {
- 	struct io_wqe_acct *acct = &wqe->acct[index];
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4a088581b0f2..d55c9ab6314a 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6793,9 +6793,9 @@ static int io_sq_thread(void *data)
+ 		ctx->sqo_exec = 1;
+ 		io_ring_set_wakeup_flag(ctx);
+ 	}
+-	mutex_unlock(&sqd->lock);
  
-+	if (acct->nr_workers && test_bit(IO_WQ_BIT_EXIT, &wqe->wq->state))
-+		return false;
- 	/* if we have available workers or no work, no need */
- 	if (!hlist_nulls_empty(&wqe->free_list) || !io_wqe_run_queue(wqe))
- 		return false;
+ 	complete(&sqd->exited);
++	mutex_unlock(&sqd->lock);
+ 	do_exit(0);
+ }
+ 
+@@ -7118,13 +7118,19 @@ static bool io_sq_thread_park(struct io_sq_data *sqd)
+ 
+ static void io_sq_thread_stop(struct io_sq_data *sqd)
+ {
+-	if (!sqd->thread)
++	if (test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state))
+ 		return;
+-
+-	set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+-	WARN_ON_ONCE(test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state));
+-	wake_up_process(sqd->thread);
+-	wait_for_completion(&sqd->exited);
++	mutex_lock(&sqd->lock);
++	if (sqd->thread) {
++		set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
++		WARN_ON_ONCE(test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state));
++		wake_up_process(sqd->thread);
++		mutex_unlock(&sqd->lock);
++		wait_for_completion(&sqd->exited);
++		WARN_ON_ONCE(sqd->thread);
++	} else {
++		mutex_unlock(&sqd->lock);
++	}
+ }
+ 
+ static void io_put_sq_data(struct io_sq_data *sqd)
+@@ -8867,6 +8873,11 @@ static void io_uring_cancel_sqpoll(struct io_ring_ctx *ctx)
+ 	if (!io_sq_thread_park(sqd))
+ 		return;
+ 	tctx = ctx->sq_data->thread->io_uring;
++	/* can happen on fork/alloc failure, just ignore that state */
++	if (!tctx) {
++		io_sq_thread_unpark(sqd);
++		return;
++	}
+ 
+ 	atomic_inc(&tctx->in_idle);
+ 	do {
 -- 
 2.30.1
 

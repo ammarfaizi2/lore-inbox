@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB2CC15504
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32BE5C4361B
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 561DB64F9D
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A3A964F9B
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241408AbhCDBKV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:10:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
+        id S240138AbhCDBKH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:10:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448897AbhCDAfr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:35:47 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E46C0604DE
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:41 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id t25so17636477pga.2
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:41 -0800 (PST)
+        with ESMTP id S1353717AbhCDAeL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:34:11 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E534BC061793
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:24 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id x29so9388423pgk.6
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Ba1tt3w/TPLLg8VHaWsW0mQIjXsxDaiLtrs4B1JW5kc=;
-        b=XkK31q71Le2ZZy8FQ8kplnxcUkT1MZiTKpZhuX3d/l6KaSib+cmZg+HR3lftid7Ypz
-         753sWqVJFKW8VfWmJuPOWPkQY2d7YOjPFrCS9t5dLLCpg0BgX/JoBu/x9J6tyVSMJpzO
-         AOlvEIUKFHnBYzv/dzSY6i0jR0y+OA3jyvcC71bEVVPDINQlUqCNXc7jMuMx9/DwxtxO
-         kD5dwXlGMc7Uy6CrKLKw9q/W+eVARHqS2QgrRbxn/uOCsIFGnqQP7/RQKBRrBfd4Jx7a
-         AP2UQbRjxCfK5HwzxOcsHDToXsgtm8Qf6H3zJjkolrjrt8oxsm9Y2ohCH+G6qSTMUGkd
-         xKrw==
+        bh=qVsdHqyA5sRPlDOthTDEy4/N/HIDTBHc2aVguOxt15k=;
+        b=B1fkpgNevdigjFLp0PZWRJd4p7O6H9AWHAEG99xNo+tlNDE+32BRuhdTst0c0z/xlu
+         i5di/uWkoNNfzVWYtriWpqHC42w4CSltWFcQcxUUhe4GAdMiUar4w3+4YMVNM55DzjCg
+         wj5GVmFeVZn/l2/gcFPV2DUVgk0u+mua/s0iXtabpAaZ7650NbdYYiAvAYrlJV/8R6aQ
+         5IJOeBvIu6tsV0i9iWPqzGjQl9g8XHMUWuWhtmN5W3pnQ8a1c9yUfc9HALt+8QxWQFCq
+         CC3A0xDzSiE1vHKYvBaAU0stQ7M+pSLHHt+CHXSOtldw8m1B3MtB6iRYQy1TMhx8Awe+
+         Ju/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Ba1tt3w/TPLLg8VHaWsW0mQIjXsxDaiLtrs4B1JW5kc=;
-        b=JHNVlMP2pgb2hW2TSUwNdQdYxm77mJ1WC7PmrHiKK2hsWmzj0noBMzyQcYJv35R0xd
-         QTED9sQOILLMgycB1IQv3tXWrl55I5tKPPRofNJvL4zj52LOQvqFW8TQ0LTedas1c9yN
-         ghVyiASiQUaFVqMT2YBRuqNgGsKkCee57aAUjX85gkcnlyy9wGczVxaNrV5Qywt258pr
-         Wuy4+w4ODbhz6inKGiTCBWhN9t9TSaHuMAQfP37jNG61L6KDYuV8K3A0hLmAwfeAo1oi
-         Kc0D3LOen0FTU8lE/CR6NFVYLICUIA6vWKJoxyvu3bMPPvcw7iZAwEHyBXY02p+ivxXv
-         nlxQ==
-X-Gm-Message-State: AOAM530nGM4IL73JmxXV3vis9CesnugpjdkOsTj1DBOT7F4UJvf4+Set
-        gkzTjCVVip60Q8LcOGZrvnpjtShvpadRDe0n
-X-Google-Smtp-Source: ABdhPJwTFD0eHHRnOTNvb7oP1t9MH8SJ6Q/IS9trlDVZw2B2kKT5qzq6Hph0WP+8/42vyPdl1ydnsw==
-X-Received: by 2002:aa7:9711:0:b029:1ee:b2c7:ecfe with SMTP id a17-20020aa797110000b02901eeb2c7ecfemr1257161pfg.58.1614817661207;
-        Wed, 03 Mar 2021 16:27:41 -0800 (PST)
+        bh=qVsdHqyA5sRPlDOthTDEy4/N/HIDTBHc2aVguOxt15k=;
+        b=N7p8kUGWS06U6qxk6OK0JeMagqzZqkRSzvrwfoniakiydan0JJP8W2rtPmfRRDxG4o
+         h9ixwGtKwu4TIi8mVZvc5BrC8YSZhckAt4Vat7U7Thdx7eRjgeyqACr6dLU3JnJ2Gxf5
+         lEPEvl+uAXGHqAv1rURn1Freug5xTdz8Lt4ERS4614xm9b+CBRE5Cu697+ZmWGYGto5o
+         fJ2sEnaVQvKkolo76GOOndg4xCxzAfQ5meXf0m2p7X9BDt31dFHbwP4dtNe1SUQIGs/5
+         C82CbHqVLxi8FL0QoWkF8W/Vqe6VNWf/ga/GX5Xot2RQm4afJIPMfYJRTsn/OLHPuWPn
+         im9w==
+X-Gm-Message-State: AOAM533teQt4xKsqnYqktUCH5QBImx6/3TlEutZxJFqZcfLNZQvP8PQ0
+        AeVK/cNOA4R3SxWbyQeKrl+nTgeRBZUCGZxj
+X-Google-Smtp-Source: ABdhPJyO6QDMBsVgDypdFDykEoy91cy17rgEFR0NYQmuApBF4GJYE6falQiPrsm99lmGxQNoA72NlA==
+X-Received: by 2002:a63:1c19:: with SMTP id c25mr1328876pgc.374.1614817644274;
+        Wed, 03 Mar 2021 16:27:24 -0800 (PST)
 Received: from localhost.localdomain ([2600:380:7540:52b5:3f01:150c:3b2:bf47])
-        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.40
+        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 16:27:40 -0800 (PST)
+        Wed, 03 Mar 2021 16:27:23 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 30/33] io_uring: inline __io_queue_async_work()
-Date:   Wed,  3 Mar 2021 17:26:57 -0700
-Message-Id: <20210304002700.374417-31-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 16/33] io_uring: kill unnecessary REQ_F_WORK_INITIALIZED checks
+Date:   Wed,  3 Mar 2021 17:26:43 -0700
+Message-Id: <20210304002700.374417-17-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210304002700.374417-1-axboe@kernel.dk>
 References: <20210304002700.374417-1-axboe@kernel.dk>
@@ -71,50 +70,44 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+We're no longer checking anything that requires the work item to be
+initialized, as we're not carrying any file related state there.
 
-__io_queue_async_work() is only called from io_queue_async_work(),
-inline it.
-
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ef6f225762e4..7ae413736c04 100644
+index fa5b589b4516..3bd9198c5a86 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1205,7 +1205,7 @@ static void io_prep_async_link(struct io_kiocb *req)
- 		io_prep_async_work(cur);
- }
+@@ -1080,8 +1080,6 @@ static bool io_match_task(struct io_kiocb *head,
+ 		return true;
  
--static struct io_kiocb *__io_queue_async_work(struct io_kiocb *req)
-+static void io_queue_async_work(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct io_kiocb *link = io_prep_linked_timeout(req);
-@@ -1216,18 +1216,9 @@ static struct io_kiocb *__io_queue_async_work(struct io_kiocb *req)
+ 	io_for_each_link(req, head) {
+-		if (!(req->flags & REQ_F_WORK_INITIALIZED))
+-			continue;
+ 		if (req->file && req->file->f_op == &io_uring_fops)
+ 			return true;
+ 		if (req->task->files == files)
+@@ -1800,15 +1798,7 @@ static void io_fail_links(struct io_kiocb *req)
+ 		trace_io_uring_fail_link(req, link);
+ 		io_cqring_fill_event(link, -ECANCELED);
  
- 	trace_io_uring_queue_async_work(ctx, io_wq_is_hashed(&req->work), req,
- 					&req->work, req->flags);
--	io_wq_enqueue(tctx->io_wq, &req->work);
--	return link;
--}
--
--static void io_queue_async_work(struct io_kiocb *req)
--{
--	struct io_kiocb *link;
--
- 	/* init ->work of the whole link before punting */
- 	io_prep_async_link(req);
--	link = __io_queue_async_work(req);
--
-+	io_wq_enqueue(tctx->io_wq, &req->work);
- 	if (link)
- 		io_queue_linked_timeout(link);
- }
+-		/*
+-		 * It's ok to free under spinlock as they're not linked anymore,
+-		 * but avoid REQ_F_WORK_INITIALIZED because it may deadlock on
+-		 * work.fs->lock.
+-		 */
+-		if (link->flags & REQ_F_WORK_INITIALIZED)
+-			io_put_req_deferred(link, 2);
+-		else
+-			io_double_put_req(link);
++		io_put_req_deferred(link, 2);
+ 		link = nxt;
+ 	}
+ 	io_commit_cqring(ctx);
 -- 
 2.30.1
 

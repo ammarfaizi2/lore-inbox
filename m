@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B263C43142
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B2FC15502
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EDFB264F44
-	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E53A264F80
+	for <io-uring@archiver.kernel.org>; Thu,  4 Mar 2021 01:10:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239721AbhCDBKG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:10:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
+        id S240724AbhCDBKM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:10:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352749AbhCDAeA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:34:00 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FA5C061A2D
-        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:28 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id q204so16481084pfq.10
-        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:28 -0800 (PST)
+        with ESMTP id S1377138AbhCDAfD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 3 Mar 2021 19:35:03 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26579C0610E0
+        for <io-uring@vger.kernel.org>; Wed,  3 Mar 2021 16:27:37 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id z7so15044535plk.7
+        for <io-uring@vger.kernel.org>; Wed, 03 Mar 2021 16:27:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=NlFW/o8bHDawd4Q2GokKmFPsvWi9xf+cUFLT3aycZ5o=;
-        b=zYk0Hdhdj9u0JMLD4serkJgMMhDh2dff6D7BS6yTc7u1BxxC2s06nfzGZy5jkv+YR/
-         u5YUBsQW7a61He3XOxs/p2edsAim31ScudAj9wsNwf7CHOLNE/jglQE7QcVKwpR/4NGU
-         tTzRqkk8Jod8l9MnYY0zvYREgVq2ug0VcDrsMwSP5RwVo1dNO+0cLJzIZ6YNNjgBsssC
-         G+2al28fQXOuNov9LXKho8q0TS/Jz3BqgjuIbU9s1iQ+vS2+w8Mhexbw+y9t0vCXPvjp
-         aGS9cgvlmABkngSKAXgoUxCw8kA76Rq2zVjDI4vsplFWov1GX8nYEnrDVU4NU3TBr1Hq
-         eszw==
+        bh=hKyJL1p5U6a8GBPc3zymuRaeKCn2V/ojqFcL8O0vZL0=;
+        b=fQm1FnMZlBCgU4dlav4vkOswOteoqyvN1RHJCcetVX9gQnDshBwT/t07wQyzvX8qUS
+         CuvlH7on0StuOAadBbClQwbsXh1wcr5XjISMqYfrdRWziLedmM9lxezBe5YUKcvu0iqX
+         fuHOVdc26KzXfos17XXy/o7rEySu6by+k+cBX7LBWHlIWOToLu7WsoTUv3eqQAl5N9OK
+         h7L3TTo+NA52tz2S0WcWrWcm8cWVDnMe0CPRevAwPjzyzCRauV4jod/Nxehu27Y5UzMm
+         FY6gfwPe1Xmbn9njyHOOfJiU2uX61orOE4Dk3ggqLNSscx1W/pwm5UYl1pSMIS7dlAXI
+         cJCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=NlFW/o8bHDawd4Q2GokKmFPsvWi9xf+cUFLT3aycZ5o=;
-        b=lKqnnGRDgVnyjsfbXXyVA++8EqO7G9/4tAlj2FDsgSGNbE1V/A/q5M5ggt6BEM/yyJ
-         WmUCmAZNeaOV/iQqN6WpY2I8bBIN5qzJjWpdY7b3V8BJjk/sJNIX2wW48VFANwgBcjK5
-         lfiW25cFKuhU86YaCKeuAzeZIJWQBMUR1vCEwiGZwx76XecvQKbxbHPuGgsRY8VnUTwU
-         5RF7LHdTdCYEGxznvi7yNVv73l3eeVEhbElTyMhMbzS0GKkPBGnFx5BVLSNs+oS9Bw+b
-         GYglvEGakBFImf7h0p0lqDrsbSVXKqKA1JaU15KVeG77aPIKePUvH7/qtfdlcAJmwoKQ
-         ADJQ==
-X-Gm-Message-State: AOAM531V5A8UL4kdD5IdMGIdnAQQPKpfwXSMexoDsH5+deacNgD4FLsE
-        QujFTbrGr9/tw9LK1BurJGYDcyqDC2nEAXNP
-X-Google-Smtp-Source: ABdhPJx7Ie/SzgpAhEvgqQ6hom1GK+K/Wj6l1yRSlMj8Xqrm/nh0rauldxi/P9RNRDEfi5BZ7OGiog==
-X-Received: by 2002:a62:3c4:0:b029:1ee:9771:2621 with SMTP id 187-20020a6203c40000b02901ee97712621mr1220790pfd.47.1614817647953;
-        Wed, 03 Mar 2021 16:27:27 -0800 (PST)
+        bh=hKyJL1p5U6a8GBPc3zymuRaeKCn2V/ojqFcL8O0vZL0=;
+        b=SZ+WVnabd3V6UxKJRgCFJMgZzuwLHPERxrqh5fm+Gaq5Hlz3NSxYRafxFr+c1DR1SJ
+         1VY9iOb8iLF06fPlSPRyVn+NUTwV8sJpkzKABz1DILvB0r5CEhxBvdc64joZzmTYO4r1
+         d1QApTNwCfMOaGvDGQtHxHQ+6yvMAAd41QOiN9lylVinfSQzAhaSAyTT3tfFb7ZFJ4F0
+         yvTYZwJNCX+K/udvrbjrRJSNsr3X1favHEv8UIQFpYs8zLoUgh2qDOvp0sj9raHVjW0T
+         8OrO6YxVQMQqAB9IewhsLcLngbP+eUfVvDljYJGgUYDF3JO6f0d5dQ5qaAkJkDl0cp1w
+         m/Xg==
+X-Gm-Message-State: AOAM533amGE6q4JFmrFmWCwl41dyL5T3LKd7lD7tUFaZHmfLo9k3OAuq
+        lzioIpGqtHumF7SnzmZqwHGle19e+B7hVm7W
+X-Google-Smtp-Source: ABdhPJwpssmOInsP6xw0iDNJhTer7OzsRfAe6iljhtaM+vJQq+aQMEfXhEgPYgFeBNy8lLFBkkCzGA==
+X-Received: by 2002:a17:90a:9ea:: with SMTP id 97mr1684570pjo.84.1614817656462;
+        Wed, 03 Mar 2021 16:27:36 -0800 (PST)
 Received: from localhost.localdomain ([2600:380:7540:52b5:3f01:150c:3b2:bf47])
-        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.27
+        by smtp.gmail.com with ESMTPSA id b6sm23456983pgt.69.2021.03.03.16.27.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 16:27:27 -0800 (PST)
+        Wed, 03 Mar 2021 16:27:36 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 19/33] io_uring: kill io_uring_flush()
-Date:   Wed,  3 Mar 2021 17:26:46 -0700
-Message-Id: <20210304002700.374417-20-axboe@kernel.dk>
+Subject: [PATCH 26/33] io-wq: fix error path leak of buffered write hash map
+Date:   Wed,  3 Mar 2021 17:26:53 -0700
+Message-Id: <20210304002700.374417-27-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210304002700.374417-1-axboe@kernel.dk>
 References: <20210304002700.374417-1-axboe@kernel.dk>
@@ -70,79 +70,29 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This was always a weird work-around or file referencing, and we don't
-need it anymore. Get rid of it.
+The 'err' path should include the hash put, we already grabbed a reference
+once we get that far.
 
+Fixes: e941894eae31 ("io-wq: make buffered file write hashed work map per-ctx")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 47 -----------------------------------------------
- 1 file changed, 47 deletions(-)
+ fs/io-wq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index def9da1ddc3c..f6bc0254cd01 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8932,52 +8932,6 @@ void __io_uring_unshare(void)
- 	}
- }
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 327e390bc0c2..1fdb2b621b51 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -1047,8 +1047,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 	if (!ret)
+ 		return wq;
  
--static int io_uring_flush(struct file *file, void *data)
--{
--	struct io_uring_task *tctx = current->io_uring;
--	struct io_ring_ctx *ctx = file->private_data;
--
--	/* Ignore helper thread files exit */
--	if (current->flags & PF_IO_WORKER)
--		return 0;
--
--	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
--		io_uring_cancel_task_requests(ctx, NULL);
--		io_req_caches_free(ctx);
--	}
--
--	io_run_ctx_fallback(ctx);
--
--	if (!tctx)
--		return 0;
--
--	/* we should have cancelled and erased it before PF_EXITING */
--	WARN_ON_ONCE((current->flags & PF_EXITING) &&
--		     xa_load(&tctx->xa, (unsigned long)file));
--
--	/*
--	 * fput() is pending, will be 2 if the only other ref is our potential
--	 * task file note. If the task is exiting, drop regardless of count.
--	 */
--	if (atomic_long_read(&file->f_count) != 2)
--		return 0;
--
--	if (ctx->flags & IORING_SETUP_SQPOLL) {
--		/* there is only one file note, which is owned by sqo_task */
--		WARN_ON_ONCE(ctx->sqo_task != current &&
--			     xa_load(&tctx->xa, (unsigned long)file));
--		/* sqo_dead check is for when this happens after cancellation */
--		WARN_ON_ONCE(ctx->sqo_task == current && !ctx->sqo_dead &&
--			     !xa_load(&tctx->xa, (unsigned long)file));
--
--		io_disable_sqo_submit(ctx);
--	}
--
--	if (!(ctx->flags & IORING_SETUP_SQPOLL) || ctx->sqo_task == current)
--		io_uring_del_task_file(file);
--	return 0;
--}
--
- static void *io_uring_validate_mmap_request(struct file *file,
- 					    loff_t pgoff, size_t sz)
- {
-@@ -9313,7 +9267,6 @@ static void io_uring_show_fdinfo(struct seq_file *m, struct file *f)
- 
- static const struct file_operations io_uring_fops = {
- 	.release	= io_uring_release,
--	.flush		= io_uring_flush,
- 	.mmap		= io_uring_mmap,
- #ifndef CONFIG_MMU
- 	.get_unmapped_area = io_uring_nommu_get_unmapped_area,
+-	io_wq_put_hash(data->hash);
+ err:
++	io_wq_put_hash(data->hash);
+ 	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
+ 	for_each_node(node)
+ 		kfree(wq->wqes[node]);
 -- 
 2.30.1
 

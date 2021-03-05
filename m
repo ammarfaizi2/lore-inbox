@@ -2,132 +2,76 @@ Return-Path: <SRS0=1ts2=ID=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51D4AC433DB
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 19:01:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47220C433DB
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 19:08:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3B4964F4C
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 19:01:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12465650A1
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 19:08:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229701AbhCETA4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 5 Mar 2021 14:00:56 -0500
-Received: from out03.mta.xmission.com ([166.70.13.233]:36916 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229758AbhCETAz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Mar 2021 14:00:55 -0500
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lIFgx-00CiFB-SR; Fri, 05 Mar 2021 12:00:52 -0700
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lIFgw-004vC7-Kp; Fri, 05 Mar 2021 12:00:51 -0700
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Stefan Metzmacher <metze@samba.org>, io-uring@vger.kernel.org,
-        viro@zeniv.linux.org.uk, torvalds@linux-foundation.org
-References: <20210219171010.281878-1-axboe@kernel.dk>
-        <20210219171010.281878-10-axboe@kernel.dk>
-        <85bc236d-94af-6878-928b-c69dbdcd46f9@samba.org>
-        <d9704b9e-ae5e-0795-ba2e-029293f89616@kernel.dk>
-Date:   Fri, 05 Mar 2021 13:00:51 -0600
-In-Reply-To: <d9704b9e-ae5e-0795-ba2e-029293f89616@kernel.dk> (Jens Axboe's
-        message of "Thu, 4 Mar 2021 06:05:31 -0700")
-Message-ID: <m1h7lp1l3w.fsf@fess.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S229951AbhCETID (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 5 Mar 2021 14:08:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229749AbhCETIA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Mar 2021 14:08:00 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073FFC061574
+        for <io-uring@vger.kernel.org>; Fri,  5 Mar 2021 11:08:00 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id h10so4088783edl.6
+        for <io-uring@vger.kernel.org>; Fri, 05 Mar 2021 11:07:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=kC7T6RizfgECMp+Qirh9BJz6aKhWXNB9fhVsyPRJjXA=;
+        b=m9r6AlK+gGV2+QGOq6MPSoTtVV6xGZkajhM16Nq61qpKKcTDxBVKQXuz5NfHPfTVXu
+         ggHf7zQFaYlPKOQjFtppa1+qObWUDzzZptvwJDuqiMeIiDBQ9vwOCri3qOTWQBdT7t5Z
+         eEkYMxHJg097XUG/7LexTnIYgfvsyBV5Oyig7xcZhmz9BgeI9Rls24kdcTphNYZm8JVh
+         2n1OkRYWiS00aO+5xSxPet+bGVE28TQijDY2X+xNt2HyxAyKK8tie4N9nEzGoNbXX+Q8
+         +z1bSzmkS1OrwV1rYUbnJWjskSVTIfHW9tTqtfaCDPA7F8NvqWk4F0Oez3bt7cfUH0O5
+         CkQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=kC7T6RizfgECMp+Qirh9BJz6aKhWXNB9fhVsyPRJjXA=;
+        b=CL20hL4t0289eth9p2vtI8cm+nD5Vz/lNuZQ+d6VyKjz21jhQs6hC+woYCZymo23xk
+         AoB7h+eXZdnEGJKF5ysVJ6lkaIQ8/9q4l4iRzD1UHxDLuER8ETQ1Je0UL1/coWaoGxWh
+         sBXEswBWhoQ7gEJCeMa5YquiWPHneKFlezqekCGTWFt8TXW1MTfdhztTm8AuAUYSzrWv
+         l3RVPXd731Mxwt92myjYrTZ/NwZpXogfgYxdvAV7dJYtp9/7ImgPrn/H0NbmDexrpCTJ
+         yfZSDfyG1um873kHRTtkrBJnfOCMjjAyFVjPTTSOGTZXU8Sq7qd7URdu9eoD7IsOdv/e
+         9Zdw==
+X-Gm-Message-State: AOAM531xMbGFnRjPj6CtjW6yJziPANZcPENuAJbA9mkP9MO+IwaZ/xcB
+        M+C6DnfZoCv5IhaYJLm60hCS/n19uu/U1RJzbK76uXIwMS64HMyv
+X-Google-Smtp-Source: ABdhPJx2pyw+W95u3B8BRxne2XYelyLgNTSzrT2QNMRU00dVWkH681AAjaVDd7BnTWcY928Y0JoiPtmPlLORCGTsVJM=
+X-Received: by 2002:a50:bf47:: with SMTP id g7mr10401808edk.323.1614971278147;
+ Fri, 05 Mar 2021 11:07:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1lIFgw-004vC7-Kp;;;mid=<m1h7lp1l3w.fsf@fess.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+2dXJjit4ktSlvoUKLDcVx4NQMdMxkyxA=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 09/18] io-wq: fork worker threads from original task
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+From:   Ryan Sharpelletti <sharpelletti@google.com>
+Date:   Fri, 5 Mar 2021 14:07:47 -0500
+Message-ID: <CA+9Y6nzQ8M++uMjJV8_LbB+HwvSZOO3kzKoRO-OaMggdU+xXTA@mail.gmail.com>
+Subject: Potential corner case in release 5.8
+To:     io-uring@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Jens Axboe <axboe@kernel.dk> writes:
+Hi,
 
-> On 3/4/21 5:23 AM, Stefan Metzmacher wrote:
->> 
->> Hi Jens,
->> 
->>> +static pid_t fork_thread(int (*fn)(void *), void *arg)
->>> +{
->>> +	unsigned long flags = CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|
->>> +				CLONE_IO|SIGCHLD;
->>> +	struct kernel_clone_args args = {
->>> +		.flags		= ((lower_32_bits(flags) | CLONE_VM |
->>> +				    CLONE_UNTRACED) & ~CSIGNAL),
->>> +		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
->>> +		.stack		= (unsigned long)fn,
->>> +		.stack_size	= (unsigned long)arg,
->>> +	};
->>> +
->>> +	return kernel_clone(&args);
->>> +}
->> 
->> Can you please explain why CLONE_SIGHAND is used here?
->
-> We can't have CLONE_THREAD without CLONE_SIGHAND... The io-wq workers
-> don't really care about signals, we don't use them internally.
->
->> Will the userspace signal handlers executed from the kernel thread?
->
-> No
->
->> Will SIGCHLD be posted to the userspace signal handlers in a userspace
->> process? Will wait() from userspace see the exit of a thread?
->
-> Currently actually it does, but I think that's just an oversight. As far
-> as I can tell, we want to add something like the below. Untested... I'll
-> give this a spin in a bit.
+I suspect there is a corner case for io_uring in release 5.8.
 
-How do you mean?  Where do you see do_notify_parent being called?
+Can you please explain where the associated mmdrop/kthread_unuse_mm
+calls for io_sq_thread_acquire_mm in io_init_req(...) are?
+Specifically, what would happen if there was an error after calling
+io_sq_thread_acquire_mm (for example, the -EINVAL a few lines after)?
 
-It should not happen in exit_notify, as the new threads should
-be neither ptraced nor the thread_group_leader.  Nor should
-do_notify_parent be called from wait_task_zombie as PF_IO_WORKERS
-are not ptraceable.  Nor should do_notify_parent be called
-reparent_leader as the PF_IO_WORKER is not the thread_group_leader.
-Non-leader threads always autoreap and their exit_state is either 0
-or EXIT_DEAD.
+From what I can understand, it looks like the kthread_unuse_mm and
+mmput might be handled in the call to io_sq_thread_acquire_mm in
+io_sq_thread. However, I am not seeing where mmdrop might be called.
 
-Which leaves calling do_notify_parent in release_task which is perfectly
-appropriate if the io_worker is the last thread in the thread_group.
-
-I can see modifying eligible_child so __WCLONE will not cause wait to
-show the kernel thread.  I don't think wait_task_stopped or
-wait_task_continued will register on PF_IO_WORKER thread if it does not
-process signals but I just skimmed those two functions when I was
-looking.
-
-It definitely looks like it would be worth modifying do_signal_stop so
-that the PF_IO_WORKERs are not included.  Or else modifying the
-PF_IO_WORKER threads to stop with the rest of the process in that case.
-
-Eric
-
-> diff --git a/kernel/signal.c b/kernel/signal.c
-> index ba4d1ef39a9e..e5db1d8f18e5 100644
-> --- a/kernel/signal.c
-> +++ b/kernel/signal.c
-> @@ -1912,6 +1912,10 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
->  	bool autoreap = false;
->  	u64 utime, stime;
->  
-> +	/* Don't notify a parent task if an io_uring worker exits */
-> +	if (tsk->flags & PF_IO_WORKER)
-> +		return true;
-> +
->  	BUG_ON(sig == -1);
->  
->   	/* do_notify_parent_cldstop should have been called instead.  */
+Thanks,
+Ryan

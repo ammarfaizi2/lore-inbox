@@ -2,119 +2,55 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DDB8C43331
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 13:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D778C433DB
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 13:18:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D28E764F73
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 13:03:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3078B64F60
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 13:18:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbhCENDG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 5 Mar 2021 08:03:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230184AbhCENCp (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 5 Mar 2021 08:02:45 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DE2C061574
-        for <io-uring@vger.kernel.org>; Fri,  5 Mar 2021 05:02:44 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id i9so1378660wml.0
-        for <io-uring@vger.kernel.org>; Fri, 05 Mar 2021 05:02:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=72Con7c/l/YWuWFaky1WYBcstZNDGg/iYgHhg2KKpzk=;
-        b=UkV8c3ZUFwFfi9zlkOySFGvfTtbEbakU9n/ZSH6x+ZVPuYre2SB8U7n/h6UfPHnYhi
-         SptNqrXrBLjK0pkH0eEFdnnMWiRVDVQYJNNJaPsPrGToxUQuwgFo83Nsj1gvIXWg2fIG
-         zVskZ6iWdn6As2vBVUghrKK9Jz8DDXOctLpK4l44jYGct3K03g18OYkRiwbPgQ02PPsi
-         AkAmrce1a1ec72Hw2PdTYuWbirrAGkMP6xi8pp9IiYICtoqDq40nr4ojvUL5Hf84Oth+
-         fl4gidj2DFyju3XW4m8qzi+d60D+g4pwaRxTbHhXBOaeIsgri/odkMspto2iBkOFUg45
-         Qt9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=72Con7c/l/YWuWFaky1WYBcstZNDGg/iYgHhg2KKpzk=;
-        b=hzzk6JsLEnyjRyInkJAZzMpns0QSjTc5qp4KvQEp+PHKdVqwDQXk7z7UhpN1rntCSJ
-         o4ZZvfp+4K5NWC4eGvgpd3Eag/CEevGny3dNC/kqLU45POA6Mb/79SEnDZhPAclaciF0
-         nDCYhMmiugZO3FZfddb2uCuhuh+eox6YK23n+aB5ACD3/+axng7PMqNL9M1raMWprCqR
-         xoL66RggHMCCDMS0+KEyUQY47sPmtqI9UcZRSGe7EDabTq/OM8NEtYtKLnqCUko8znqB
-         AEB+8GUqw1uOZSA7In77C3jGKJAW9RlVaLtCW5Zc9Y0lWIxC8oNg6+8SxTeD5qYfkURi
-         VK0g==
-X-Gm-Message-State: AOAM530kbj1HgvKgTwG3ZIWe3cvcdssXWRQ6/j+gRHgIL/sYuXYu4cSi
-        andRzb3erMvQN86vltEEFTTg4lFnO4M8cA==
-X-Google-Smtp-Source: ABdhPJycTJouFpLJz/PEgRGdazThXD5rExxpJyoS0R5awD+f/DsnVPiBPvDyPjRE3BfUylfGe9t+rQ==
-X-Received: by 2002:a1c:cc14:: with SMTP id h20mr8927256wmb.180.1614949363542;
-        Fri, 05 Mar 2021 05:02:43 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.216])
-        by smtp.gmail.com with ESMTPSA id h20sm4345385wmm.19.2021.03.05.05.02.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Mar 2021 05:02:42 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v3 1/6] io_uring: make del_task_file more forgiving
-Date:   Fri,  5 Mar 2021 12:58:36 +0000
-Message-Id: <1612f92861f7e5595f8a5fbdedc376e91b8f5faf.1614942979.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1614942979.git.asml.silence@gmail.com>
-References: <cover.1614942979.git.asml.silence@gmail.com>
+        id S229672AbhCENR3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 5 Mar 2021 08:17:29 -0500
+Received: from verein.lst.de ([213.95.11.211]:46663 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230051AbhCENRO (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 5 Mar 2021 08:17:14 -0500
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id E6C3368B05; Fri,  5 Mar 2021 14:17:11 +0100 (CET)
+Date:   Fri, 5 Mar 2021 14:17:11 +0100
+From:   "hch@lst.de" <hch@lst.de>
+To:     Keith Busch <kbusch@kernel.org>
+Cc:     Kanchan Joshi <joshiiitr@gmail.com>,
+        Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
+        Kanchan Joshi <joshi.k@samsung.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>, "hch@lst.de" <hch@lst.de>,
+        "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        "anuj20.g@samsung.com" <anuj20.g@samsung.com>,
+        "javier.gonz@samsung.com" <javier.gonz@samsung.com>
+Subject: Re: [RFC 3/3] nvme: wire up support for async passthrough
+Message-ID: <20210305131711.GA9557@lst.de>
+References: <20210302160734.99610-1-joshi.k@samsung.com> <CGME20210302161010epcas5p4da13d3f866ff4ed45c04fb82929d1c83@epcas5p4.samsung.com> <20210302160734.99610-4-joshi.k@samsung.com> <BYAPR04MB496501DAED24CC28347A283086989@BYAPR04MB4965.namprd04.prod.outlook.com> <CA+1E3rLvrC4s2o3qDgHfRWN0JhnB5ZacHK572kjP+-5NmOPBhw@mail.gmail.com> <20210305024133.GD32558@redsun51.ssa.fujisawa.hgst.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210305024133.GD32558@redsun51.ssa.fujisawa.hgst.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Rework io_uring_del_task_file(), so it accepts an index to delete, and
-it's not necessarily have to be in the ->xa. Infer file from xa_erase()
-to maintain a single origin of truth.
+On Fri, Mar 05, 2021 at 11:41:33AM +0900, Keith Busch wrote:
+> I'll need to think on this to consider if the memory cost is worth it
+> (8b to 64b), but you could replace nvme_request's 'struct nvme_command'
+> pointer with the struct itself and not have to allocate anything per IO.
+> An added bonus is that sync and async handling become more the same.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 99e37f9688bf..bcf2c08fc12e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8779,15 +8779,18 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- /*
-  * Remove this io_uring_file -> task mapping.
-  */
--static void io_uring_del_task_file(struct file *file)
-+static void io_uring_del_task_file(unsigned long index)
- {
- 	struct io_uring_task *tctx = current->io_uring;
-+	struct file *file;
-+
-+	file = xa_erase(&tctx->xa, index);
-+	if (!file)
-+		return;
- 
- 	if (tctx->last == file)
- 		tctx->last = NULL;
--	file = xa_erase(&tctx->xa, (unsigned long)file);
--	if (file)
--		fput(file);
-+	fput(file);
- }
- 
- static void io_uring_clean_tctx(struct io_uring_task *tctx)
-@@ -8796,7 +8799,7 @@ static void io_uring_clean_tctx(struct io_uring_task *tctx)
- 	unsigned long index;
- 
- 	xa_for_each(&tctx->xa, index, file)
--		io_uring_del_task_file(file);
-+		io_uring_del_task_file(index);
- 	if (tctx->io_wq) {
- 		io_wq_put_and_exit(tctx->io_wq);
- 		tctx->io_wq = NULL;
--- 
-2.24.0
-
+This would solve a lot of mess with the async passthrough, and also
+more closely match what is done in SCSI.  In theory we could use a
+cut down version without the data and metadata pointers (just 40 bytes),
+but I'm not sure that is really worth it given that we then need to
+rearrange things in the I/O path.

@@ -2,204 +2,91 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B2C3C433E6
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 04:22:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1D7BC433DB
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 04:25:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21F4065014
-	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 04:22:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6C2F76500C
+	for <io-uring@archiver.kernel.org>; Fri,  5 Mar 2021 04:25:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbhCEEWa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 4 Mar 2021 23:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S229562AbhCEEZc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 4 Mar 2021 23:25:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbhCEEWa (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 23:22:30 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5B2C061574
-        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 20:22:29 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id e23so240432wmh.3
-        for <io-uring@vger.kernel.org>; Thu, 04 Mar 2021 20:22:29 -0800 (PST)
+        with ESMTP id S229478AbhCEEZb (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 4 Mar 2021 23:25:31 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1829C061574
+        for <io-uring@vger.kernel.org>; Thu,  4 Mar 2021 20:25:30 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id d11so727724plo.8
+        for <io-uring@vger.kernel.org>; Thu, 04 Mar 2021 20:25:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=a1GEpy9kgUCjNwbzDzpfFm4GGJZ4eXdACf42WCHO/7o=;
-        b=oRn6dTBXq/HfUwMFfuFPp7wqEh7EJBVo7r0Z+nZiyuYhsCMWO9KJFWMA/cvModzjMa
-         W5i9k0r+lkk/b//jfINhQ4/YssTNowGF7/3JfBIwpglSzMwxc1y/LaXorFTP9kDw/0fn
-         OVsFViVVHncEtdrqws2sGj7X0o+Jb03PPajOkZzY/J/b9hJKQefi+qyG/RTNmMR7+a3O
-         DF88NDHe480UOH3LFbOI75Uyek557DBwfQ54aRD5RP2ASnaW+Xcj5pmUUuTxQIemLiFa
-         74sfDwCnJKZ+c8+IjVtVc3Dpmng0aq4reDqRbdo9CdRw/Cnwf3TRAzwo1grRwXzZJ8zC
-         ocPQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=w1pkYGQHeC+/JUnUlnHqIjzCe5SI2Q0MKWKJkdyiidw=;
+        b=MIrv6bfzlwdEtAu7KdN947noIw181nkaEdPxRvdSdR8uqxpZ2k8nBgGLfYtP9aInxs
+         NuW++B8ukDR4EG02r78oGUiRQpHKFweKVx26YPlyH6utFg5Wyvtwn/9RG5seDqY2p/MF
+         9IYabhoAfBrinfx7WF+ejzlcphwwjFlyQX/nN1gr53AHnCIcHa+8iEjspuLV9aBzuJPH
+         86ipNSIlo1BeWZVZbspw+L+3h/qcrc5qi4Nto1jbpoocW6kQ0baqbs6Cmp75o4+rQOXQ
+         yUqqCkDjhW35M+LsmWkJFtzVe7doozl1L4tz/7L7ZTno3Zrr64IVYOUFv1XbXo8BHe2c
+         X4Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=a1GEpy9kgUCjNwbzDzpfFm4GGJZ4eXdACf42WCHO/7o=;
-        b=elfCycz/O8KJc9ZLya7QlxwQf2CPSJ42r8fPtyTt9GMcvEgOM1QtfnoR2YAUEbMA6w
-         gMzqxJSAJ2hFuuAl4MxvzrxW3NBLle5pS5MaDfC++pnXcluCqJ1GwfhcwQJf538a1fi6
-         6ycTZT4Oa2JGGOheONnq6WQyJ/DpCd+xmS5gDCk1Mk/ShUpZ0+rqWzCWsQtLp/1bMbg9
-         OmQznxvuvtApRd1yLBqNIkevZE1VSEJodyRIK9Ttc5jE6tXNj01FFbZOaqi2oA0Xb37O
-         uykT9UDlh5dNsmPRp8ilXTIRPPLEot5Zv/aZsNm2wmHWvExjBuJZ1tgSej50/d7HqmXv
-         O9fQ==
-X-Gm-Message-State: AOAM530Dg5KnfTeXeotE9YhYfPDomUuQdF6e8tYnqe6yydwmQ4oPu4UD
-        5vCPiM8J/+3rlMv/9b+/itc=
-X-Google-Smtp-Source: ABdhPJzIC590OK/eGrnIoas6hrHwAqS8aVdUrpgYXauzNzpQ4LT2MMYPFfbj+fPpAqZbeI7/E8iWcA==
-X-Received: by 2002:a1c:e041:: with SMTP id x62mr6617311wmg.95.1614918148494;
-        Thu, 04 Mar 2021 20:22:28 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.216])
-        by smtp.gmail.com with ESMTPSA id z3sm2170446wrs.55.2021.03.04.20.22.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Mar 2021 20:22:28 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 5/6] io_uring: index io_uring->xa by ctx not file
-Date:   Fri,  5 Mar 2021 04:18:23 +0000
-Message-Id: <bc85580c4dbb8cfb14ab492d034e38248cd8b49f.1614917790.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1614917790.git.asml.silence@gmail.com>
-References: <cover.1614917790.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=w1pkYGQHeC+/JUnUlnHqIjzCe5SI2Q0MKWKJkdyiidw=;
+        b=QodUjBia8QZvkGcW+zAczj/bbZcUr1jXX8j2zwfkkjiFrWHltPJsjfu+lJ4hQMep/7
+         5d4sEkgLetPAS81q/ZJ1HbzSvS/mpYQmxvXJ8Law/CIATOx+dY+1BXum0+XEmjop6T87
+         3VHiebR8Jq8Vfw4toTqtB/tYAoLvjyXZdq6j2Dyxx/gouKD7ahu38sCgSjb0GaGbHHsp
+         +27wpjlE5pO/xA+S3H8Mf/oXkeJK2c6OfSsm/EaBb8oizlEICSK13ByNY+iPIOEgzzMZ
+         xT43kg5wzXg8PUHTjvay6TngOhHp3AFGPsy8ABfoRp2zUuoU3bT8k57SdX3jcweztGxQ
+         Vovw==
+X-Gm-Message-State: AOAM531WLsQNO2YRMzR38HHOKXC4MVe1QZ+sBw4DMbFpPsZ0Hb4lQ3ce
+        2f13t8R3OjHyTdmKQIaM27t0YeozZeDnOA==
+X-Google-Smtp-Source: ABdhPJwKnoyd0uYYalEk3XUONfQUQp42xq2wqaDpxA+Mntsb0fPUhF84i9YrhPVOp8bJGWQ9OShRKQ==
+X-Received: by 2002:a17:902:ed88:b029:e3:6b9f:9ac3 with SMTP id e8-20020a170902ed88b02900e36b9f9ac3mr7138150plj.72.1614918329996;
+        Thu, 04 Mar 2021 20:25:29 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id x1sm668452pje.40.2021.03.04.20.25.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Mar 2021 20:25:29 -0800 (PST)
+Subject: Re: [PATCH 8/8] io_uring: warn when ring exit takes too long
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <cover.1614866085.git.asml.silence@gmail.com>
+ <4bc9b29f2f5b7952b313be604f43b131a2dfe277.1614866085.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <2eed01be-1148-86da-b4ea-dcb349f04476@kernel.dk>
+Date:   Thu, 4 Mar 2021 21:25:28 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <4bc9b29f2f5b7952b313be604f43b131a2dfe277.1614866085.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We don't use task file notes anymore, and no need left in indexing
-task->io_uring->xa by file, and replace it with ctx. It's better
-design-wise, especially since we keep a dangling file, and so have to
-keep an eye on not dereferencing it.
+On 3/4/21 6:59 AM, Pavel Begunkov wrote:
+> We use system_unbound_wq to run io_ring_exit_work(), so it's hard to
+> monitor whether removal hang or not. Add WARN_ONCE to catch hangs.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c            | 24 +++++++++++-------------
- include/linux/io_uring.h |  2 +-
- 2 files changed, 12 insertions(+), 14 deletions(-)
+Minor nit, but I'd just use jiffies for this. Ala:
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d819d389f4ee..92ba3034de64 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -809,7 +809,6 @@ struct io_kiocb {
- struct io_tctx_node {
- 	struct list_head	ctx_node;
- 	struct task_struct	*task;
--	struct file		*file;
- 	struct io_ring_ctx	*ctx;
- };
- 
-@@ -8532,7 +8531,7 @@ static bool io_run_ctx_fallback(struct io_ring_ctx *ctx)
- struct io_tctx_exit {
- 	struct callback_head		task_work;
- 	struct completion		completion;
--	unsigned long			index;
-+	struct io_ring_ctx		*ctx;
- };
- 
- static void io_tctx_exit_cb(struct callback_head *cb)
-@@ -8546,7 +8545,7 @@ static void io_tctx_exit_cb(struct callback_head *cb)
- 	 * node. It'll be removed by the end of cancellation, just ignore it.
- 	 */
- 	if (!atomic_read(&tctx->in_idle))
--		io_uring_del_task_file(work->index);
-+		io_uring_del_task_file((unsigned long)work->ctx);
- 	complete(&work->completion);
- }
- 
-@@ -8571,7 +8570,7 @@ static void io_ring_exit_work(struct work_struct *work)
- 	while (!list_empty(&ctx->tctx_list)) {
- 		node = list_first_entry(&ctx->tctx_list, struct io_tctx_node,
- 					ctx_node);
--		exit.index = (unsigned long)node->file;
-+		exit.ctx = ctx;
- 		init_completion(&exit.completion);
- 		init_task_work(&exit.task_work, io_tctx_exit_cb);
- 		ret = task_work_add(node->task, &exit.task_work, TWA_SIGNAL);
-@@ -8792,7 +8791,7 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- /*
-  * Note that this task has used io_uring. We use it for cancelation purposes.
-  */
--static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
-+static int io_uring_add_task_file(struct io_ring_ctx *ctx)
- {
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_tctx_node *node;
-@@ -8804,18 +8803,17 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- 			return ret;
- 		tctx = current->io_uring;
- 	}
--	if (tctx->last != file) {
--		void *old = xa_load(&tctx->xa, (unsigned long)file);
-+	if (tctx->last != ctx) {
-+		void *old = xa_load(&tctx->xa, (unsigned long)ctx);
- 
- 		if (!old) {
- 			node = kmalloc(sizeof(*node), GFP_KERNEL);
- 			if (!node)
- 				return -ENOMEM;
- 			node->ctx = ctx;
--			node->file = file;
- 			node->task = current;
- 
--			ret = xa_err(xa_store(&tctx->xa, (unsigned long)file,
-+			ret = xa_err(xa_store(&tctx->xa, (unsigned long)ctx,
- 						node, GFP_KERNEL));
- 			if (ret) {
- 				kfree(node);
-@@ -8826,7 +8824,7 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- 			list_add(&node->ctx_node, &ctx->tctx_list);
- 			mutex_unlock(&ctx->uring_lock);
- 		}
--		tctx->last = file;
-+		tctx->last = ctx;
- 	}
- 
- 	/*
-@@ -8861,7 +8859,7 @@ static void io_uring_del_task_file(unsigned long index)
- 	list_del(&node->ctx_node);
- 	mutex_unlock(&node->ctx->uring_lock);
- 
--	if (tctx->last == node->file)
-+	if (tctx->last == node->ctx)
- 		tctx->last = NULL;
- 	kfree(node);
- }
-@@ -9163,7 +9161,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		}
- 		submitted = to_submit;
- 	} else if (to_submit) {
--		ret = io_uring_add_task_file(ctx, f.file);
-+		ret = io_uring_add_task_file(ctx);
- 		if (unlikely(ret))
- 			goto out;
- 		mutex_lock(&ctx->uring_lock);
-@@ -9372,7 +9370,7 @@ static int io_uring_install_fd(struct io_ring_ctx *ctx, struct file *file)
- 	if (fd < 0)
- 		return fd;
- 
--	ret = io_uring_add_task_file(ctx, file);
-+	ret = io_uring_add_task_file(ctx);
- 	if (ret) {
- 		put_unused_fd(fd);
- 		return ret;
-diff --git a/include/linux/io_uring.h b/include/linux/io_uring.h
-index 7cb7bd0e334c..9761a0ec9f95 100644
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -18,7 +18,7 @@ struct io_uring_task {
- 	/* submission side */
- 	struct xarray		xa;
- 	struct wait_queue_head	wait;
--	struct file		*last;
-+	void			*last;
- 	void			*io_wq;
- 	struct percpu_counter	inflight;
- 	atomic_t		in_idle;
+unsigned long timeout = jiffies + 60 * HZ;
+
+if (time_after(jiffies, timeout))
+    complain();
+
+That's a well known idiom, and we don't need better precision than that.
+
 -- 
-2.24.0
+Jens Axboe
 

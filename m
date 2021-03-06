@@ -2,204 +2,220 @@ Return-Path: <SRS0=wTqX=IE=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,FUZZY_CREDIT,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 369B6C4332B
-	for <io-uring@archiver.kernel.org>; Sat,  6 Mar 2021 11:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 997D7C433E0
+	for <io-uring@archiver.kernel.org>; Sat,  6 Mar 2021 16:26:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01B616501E
-	for <io-uring@archiver.kernel.org>; Sat,  6 Mar 2021 11:07:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 625D565018
+	for <io-uring@archiver.kernel.org>; Sat,  6 Mar 2021 16:26:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbhCFLHH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 6 Mar 2021 06:07:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44954 "EHLO
+        id S230216AbhCFQ0Q (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 6 Mar 2021 11:26:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbhCFLG0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 6 Mar 2021 06:06:26 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DCDC061762
-        for <io-uring@vger.kernel.org>; Sat,  6 Mar 2021 03:06:25 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id t5-20020a1c77050000b029010e62cea9deso828790wmi.0
-        for <io-uring@vger.kernel.org>; Sat, 06 Mar 2021 03:06:25 -0800 (PST)
+        with ESMTP id S230507AbhCFQZ3 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 6 Mar 2021 11:25:29 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643AFC06174A
+        for <io-uring@vger.kernel.org>; Sat,  6 Mar 2021 08:25:29 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id n10so3478532pgl.10
+        for <io-uring@vger.kernel.org>; Sat, 06 Mar 2021 08:25:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=W1su2/Ie7YNzP7FkMPjA61uBEdl9wIbiGqtwGwi6py4=;
-        b=H1Uz8du+hIzWGGtJ1SNTsopzeg4hunPYT96sQlJp3l8UhA/eaYUxKO0utxFlT0oILi
-         hg1IyNZArFVg937VXtIvBhtMXUDwnwBGb4qhY0/SLpqFbCBOy8C29pZsxcDrc0wRtjRm
-         tdva6hHBh9Vs4GRwVAwpHDGKn3cvKVo+BkrWAQOjRKavSFiOokxTJgoDJ7rEfJ34aIac
-         kt1zdyJT9gAVArwjgtddqe8cpAU0keVwxjJ1vEgSDGEAW4nJ7Y6PJUMqXnu5uCtEfF5z
-         iHFBvY5y8bQQuS1qNC0ESZNPIUllKoIYskRdlM0I3sP7t8cEMxNP7oqEjRpwpjfNSNDh
-         XPbQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rm635SpkGSUVHgxbqNHdfyq6j2luo26U7Mb8pfiWIwM=;
+        b=BUbFW+MMBrQ1XcvmNXKBeSYzbx/jwMOZIgJIZbDLEFpqSUB3Qd/4HqDBl/CCRAuKNQ
+         bwKZd/+yPoIbrKbB8OE9LVrc2hudrqAzbrQTmwuem6OWVgVGsYD+WLV8ZRCu/e1bbWuX
+         KK/vzvllf3xoM7EQ1L/FNppLqpqXJnOfdtoqIwOPgJAqyUqZZz0HvepCmy/qqpTCQyeE
+         vIuqcuHwuMUqEQnznkb4L3uMCjVKgg11xBG9edKiPCP0KZNWCiPUyhdcwXL30IspLM09
+         e3P2PVAOWe09AI5MII14WKIisLRHczDsH1tUDYT1BNOg4WWvjYPiqG+5XwJXZ/pRvQ1c
+         K82Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=W1su2/Ie7YNzP7FkMPjA61uBEdl9wIbiGqtwGwi6py4=;
-        b=A/Vd5CtROYfk38oJQkkdpFm+Y49JHz4Csjdyjavs0F31OtemGP0P5ZZohkfAXgtazf
-         m5fms9yZ9inhee2gjN1EmWJ2Rjnt6lqdVOziexPlCEkHBSmoqSZXvywIWE1DFyQPkaZH
-         7Aa1e7Bf2NW/4OyMsLC7LgvxgGIsicEBILzBOrBxykKApuCW+yu/kiDFf+x86sie9FJ/
-         a/2pV1RbpsM9W7EuNMhWFJDw6Mhm0refTdTQYraR5fLMlHc3aT/BJ52DmQmX1QY293n3
-         PTGaa/3oEG/uzLqWL378Vr+4muEuQBH+7zvjcHrAE2xmSSIqiYnceJ+AV+hIolTb3rw7
-         ERSg==
-X-Gm-Message-State: AOAM53000O5ZE21V9yR6hkNu8UeB0+IwmV5haSgQOu1ZXpBvFPHaC1QE
-        L+4I98BPNzDnORV5W0J7P2m39ivA5mwjrg==
-X-Google-Smtp-Source: ABdhPJzb/6mN9HnwbWJfQHMRnyrRx4Xz6cRTin+ZSAPf2vTbrAz7j+CFsAbhBltUaBX6kNv6biNxMg==
-X-Received: by 2002:a1c:e388:: with SMTP id a130mr13335692wmh.187.1615028784495;
-        Sat, 06 Mar 2021 03:06:24 -0800 (PST)
-Received: from localhost.localdomain ([148.252.133.8])
-        by smtp.gmail.com with ESMTPSA id h2sm9442365wrq.81.2021.03.06.03.06.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Mar 2021 03:06:23 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 5/8] io_uring: index io_uring->xa by ctx not file
-Date:   Sat,  6 Mar 2021 11:02:15 +0000
-Message-Id: <0c7ca04dca59ff15b607aa7c628f2bdd736b73e9.1615028377.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1615028377.git.asml.silence@gmail.com>
-References: <cover.1615028377.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rm635SpkGSUVHgxbqNHdfyq6j2luo26U7Mb8pfiWIwM=;
+        b=tUbuQixMzKB0/I6eUY5316DtL6+q73bHE24VA1mTRYkx0eYpBzG3Cmb92jO8s1VDc8
+         UWu6UoGVgbA312B5dd1qocuHX35uXjlStNPegmK86CUv5Lqlx70pQbAoaqKW4rVDThwe
+         z20gcjiCV98GlPRG1aXLy2sdw8ED9x5HVRTujvmU9shC4HBc3YZvqaTyiaZZgo0lQU7e
+         52BV6qxs1NcFg3q6tKGPde6BBH6SAIfPsFQSLwK6CdasKDaUYjynQnkZimHVGpchKTu/
+         jnQKcWcb7aHxwJhcORfoURte9cU38+wfkeYuLBcqjtuU0L25ie4+FAtE8vDE9niwZjjd
+         +RQg==
+X-Gm-Message-State: AOAM530408Peic7CyyjOB3SBeFGnfF9+a7Lo4WfphhcGQhbKWxZwZgYO
+        Yfv9sp2eyKUx7AoXfNZctZM/b0u8T/mBiQ==
+X-Google-Smtp-Source: ABdhPJzqp3RN8Pcd1Km1E1qkaCyciNVD6Pzsz79Fxkzf3b3OTpdC7CmQgSy1wFI7HjJG8tx3PSJuSw==
+X-Received: by 2002:a63:d618:: with SMTP id q24mr13246607pgg.283.1615047928534;
+        Sat, 06 Mar 2021 08:25:28 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y8sm6183715pfe.36.2021.03.06.08.25.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 06 Mar 2021 08:25:27 -0800 (PST)
+Subject: Re: [GIT PULL] io_uring fixes for 5.12-rc2
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     io-uring <io-uring@vger.kernel.org>
+References: <88ef6732-3800-a563-868d-8c1e5545c8fa@kernel.dk>
+ <CAHk-=wjAASE-FhpGqrDoa-u5gktgW0=4q2V9+i7B93HTEf3cbg@mail.gmail.com>
+ <7018071c-6f63-1e8c-3874-8ad643bad155@kernel.dk>
+ <CAHk-=whjh_cow+gCQMCnS0NdxTqumtCgEDth+QLTjpYpOaOETQ@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <31785b03-93dd-d204-dcf6-dd6b6546cbb6@kernel.dk>
+Date:   Sat, 6 Mar 2021 09:25:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHk-=whjh_cow+gCQMCnS0NdxTqumtCgEDth+QLTjpYpOaOETQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We don't use task file notes anymore, and no need left in indexing
-task->io_uring->xa by file, and replace it with ctx. It's better
-design-wise, especially since we keep a dangling file, and so have to
-keep an eye on not dereferencing it.
+On 3/5/21 4:03 PM, Linus Torvalds wrote:
+> On Fri, Mar 5, 2021 at 1:58 PM Jens Axboe <axboe@kernel.dk> wrote:
+>>
+>> But it pertains to the problem in general, which is how do we handle
+>> when the original task sets up a ring and then goes and does
+>> unshare(FILES) or whatever. It then submits a new request that just
+>> happens to go async, which is oblivious to this fact. Same thing that
+>> would happen in userspace if you created a thread pool and then did
+>> unshare, and then had your existing threads handle work for you. Except
+>> here it just kind of happens implicitly, and I can see how that would be
+>> confusing or even problematic.
+> 
+> Honestly, I'd aim for a "keep a cred per request".  And if that means
+> that then the async worker thread has to check that it matches the
+> cred it already has, then so be it.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c            | 24 +++++++++++-------------
- include/linux/io_uring.h |  2 +-
- 2 files changed, 12 insertions(+), 14 deletions(-)
+Agree, which is actually not that bad and can be done without having
+io-wq deal with it. See below.
 
+> Otherwise, you'll always have odd situations where "synchronous
+> completion gets different results than something that was kicked off
+> to an async thread".
+
+Exactly, that was my main concern. It violates the principle of least
+surprise, and I didn't like it.
+
+> But I don't think this has anything to do with unshare() per se. I
+> think this is a generic "hey, the process can change creds between
+> ring creation - and thread creation - and submission of an io_ring
+> command".
+> 
+> No? Or am I misunderstanding what you're thinking of?
+
+You're not, but creds is just one part of it. But I think we're OK
+saying "If you do unshare(CLONE_FILES) or CLONE_FS, then it's not
+going to impact async offload for your io_uring". IOW, you really
+should do that before setting up your ring(s).
+
+
+commit 6169c4a517317ff729553b66d55957bf03912dc4
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Sat Mar 6 09:22:27 2021 -0700
+
+    io-wq: always track creds for async issue
+    
+    If we go async with a request, grab the creds that the task currently has
+    assigned and make sure that the async side switches to them. This is
+    handled in the same way that we do for registered personalities.
+    
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 5fbf7997149e..1ac2f3248088 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -79,8 +79,8 @@ static inline void wq_list_del(struct io_wq_work_list *list,
+ 
+ struct io_wq_work {
+ 	struct io_wq_work_node list;
++	const struct cred *creds;
+ 	unsigned flags;
+-	unsigned short personality;
+ };
+ 
+ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a4e5acb058d2..c5436b24d221 100644
+index 92c25b5f1349..d51c6ba9268b 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -809,7 +809,6 @@ struct io_kiocb {
- struct io_tctx_node {
- 	struct list_head	ctx_node;
- 	struct task_struct	*task;
--	struct file		*file;
- 	struct io_ring_ctx	*ctx;
- };
+@@ -1183,6 +1183,9 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 	const struct io_op_def *def = &io_op_defs[req->opcode];
+ 	struct io_ring_ctx *ctx = req->ctx;
  
-@@ -8535,7 +8534,7 @@ static bool io_run_ctx_fallback(struct io_ring_ctx *ctx)
- struct io_tctx_exit {
- 	struct callback_head		task_work;
- 	struct completion		completion;
--	unsigned long			index;
-+	struct io_ring_ctx		*ctx;
- };
++	if (!req->work.creds)
++		req->work.creds = get_current_cred();
++
+ 	if (req->flags & REQ_F_FORCE_ASYNC)
+ 		req->work.flags |= IO_WQ_WORK_CONCURRENT;
  
- static void io_tctx_exit_cb(struct callback_head *cb)
-@@ -8549,7 +8548,7 @@ static void io_tctx_exit_cb(struct callback_head *cb)
- 	 * node. It'll be removed by the end of cancellation, just ignore it.
- 	 */
- 	if (!atomic_read(&tctx->in_idle))
--		io_uring_del_task_file(work->index);
-+		io_uring_del_task_file((unsigned long)work->ctx);
- 	complete(&work->completion);
- }
+@@ -1648,6 +1651,10 @@ static void io_dismantle_req(struct io_kiocb *req)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
+ 	if (req->fixed_rsrc_refs)
+ 		percpu_ref_put(req->fixed_rsrc_refs);
++	if (req->work.creds) {
++		put_cred(req->work.creds);
++		req->work.creds = NULL;
++	}
  
-@@ -8574,7 +8573,7 @@ static void io_ring_exit_work(struct work_struct *work)
- 	while (!list_empty(&ctx->tctx_list)) {
- 		node = list_first_entry(&ctx->tctx_list, struct io_tctx_node,
- 					ctx_node);
--		exit.index = (unsigned long)node->file;
-+		exit.ctx = ctx;
- 		init_completion(&exit.completion);
- 		init_task_work(&exit.task_work, io_tctx_exit_cb);
- 		ret = task_work_add(node->task, &exit.task_work, TWA_SIGNAL);
-@@ -8793,7 +8792,7 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- /*
-  * Note that this task has used io_uring. We use it for cancelation purposes.
-  */
--static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
-+static int io_uring_add_task_file(struct io_ring_ctx *ctx)
+ 	if (req->flags & REQ_F_INFLIGHT) {
+ 		struct io_ring_ctx *ctx = req->ctx;
+@@ -5916,18 +5923,8 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 	const struct cred *creds = NULL;
+ 	int ret;
+ 
+-	if (req->work.personality) {
+-		const struct cred *new_creds;
+-
+-		if (!(issue_flags & IO_URING_F_NONBLOCK))
+-			mutex_lock(&ctx->uring_lock);
+-		new_creds = idr_find(&ctx->personality_idr, req->work.personality);
+-		if (!(issue_flags & IO_URING_F_NONBLOCK))
+-			mutex_unlock(&ctx->uring_lock);
+-		if (!new_creds)
+-			return -EINVAL;
+-		creds = override_creds(new_creds);
+-	}
++	if (req->work.creds && req->work.creds != current_cred())
++		creds = override_creds(req->work.creds);
+ 
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
+@@ -6291,7 +6288,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
  {
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_tctx_node *node;
-@@ -8805,18 +8804,17 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- 			return ret;
- 		tctx = current->io_uring;
- 	}
--	if (tctx->last != file) {
--		void *old = xa_load(&tctx->xa, (unsigned long)file);
-+	if (tctx->last != ctx) {
-+		void *old = xa_load(&tctx->xa, (unsigned long)ctx);
+ 	struct io_submit_state *state;
+ 	unsigned int sqe_flags;
+-	int ret = 0;
++	int personality, ret = 0;
  
- 		if (!old) {
- 			node = kmalloc(sizeof(*node), GFP_KERNEL);
- 			if (!node)
- 				return -ENOMEM;
- 			node->ctx = ctx;
--			node->file = file;
- 			node->task = current;
+ 	req->opcode = READ_ONCE(sqe->opcode);
+ 	/* same numerical values with corresponding REQ_F_*, safe to copy */
+@@ -6324,8 +6321,16 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 		return -EOPNOTSUPP;
  
--			ret = xa_err(xa_store(&tctx->xa, (unsigned long)file,
-+			ret = xa_err(xa_store(&tctx->xa, (unsigned long)ctx,
- 						node, GFP_KERNEL));
- 			if (ret) {
- 				kfree(node);
-@@ -8827,7 +8825,7 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- 			list_add(&node->ctx_node, &ctx->tctx_list);
- 			mutex_unlock(&ctx->uring_lock);
- 		}
--		tctx->last = file;
-+		tctx->last = ctx;
- 	}
+ 	req->work.list.next = NULL;
++	personality = READ_ONCE(sqe->personality);
++	if (personality) {
++		req->work.creds = idr_find(&ctx->personality_idr, personality);
++		if (!req->work.creds)
++			return -EINVAL;
++		get_cred(req->work.creds);
++	} else {
++		req->work.creds = NULL;
++	}
+ 	req->work.flags = 0;
+-	req->work.personality = READ_ONCE(sqe->personality);
+ 	state = &ctx->submit_state;
  
  	/*
-@@ -8862,7 +8860,7 @@ static void io_uring_del_task_file(unsigned long index)
- 	list_del(&node->ctx_node);
- 	mutex_unlock(&node->ctx->uring_lock);
- 
--	if (tctx->last == node->file)
-+	if (tctx->last == node->ctx)
- 		tctx->last = NULL;
- 	kfree(node);
- }
-@@ -9161,7 +9159,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		}
- 		submitted = to_submit;
- 	} else if (to_submit) {
--		ret = io_uring_add_task_file(ctx, f.file);
-+		ret = io_uring_add_task_file(ctx);
- 		if (unlikely(ret))
- 			goto out;
- 		mutex_lock(&ctx->uring_lock);
-@@ -9370,7 +9368,7 @@ static int io_uring_install_fd(struct io_ring_ctx *ctx, struct file *file)
- 	if (fd < 0)
- 		return fd;
- 
--	ret = io_uring_add_task_file(ctx, file);
-+	ret = io_uring_add_task_file(ctx);
- 	if (ret) {
- 		put_unused_fd(fd);
- 		return ret;
-diff --git a/include/linux/io_uring.h b/include/linux/io_uring.h
-index 7cb7bd0e334c..9761a0ec9f95 100644
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -18,7 +18,7 @@ struct io_uring_task {
- 	/* submission side */
- 	struct xarray		xa;
- 	struct wait_queue_head	wait;
--	struct file		*last;
-+	void			*last;
- 	void			*io_wq;
- 	struct percpu_counter	inflight;
- 	atomic_t		in_idle;
+
 -- 
-2.24.0
+Jens Axboe
 

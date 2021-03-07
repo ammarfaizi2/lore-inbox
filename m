@@ -2,134 +2,124 @@ Return-Path: <SRS0=uPvv=IF=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 087CAC433DB
-	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 09:50:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EA92C433DB
+	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 10:56:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BFB3065136
-	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 09:50:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ECBD564F98
+	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 10:56:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231467AbhCGJtl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Mar 2021 04:49:41 -0500
-Received: from mail-il1-f198.google.com ([209.85.166.198]:42767 "EHLO
-        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbhCGJtW (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Mar 2021 04:49:22 -0500
-Received: by mail-il1-f198.google.com with SMTP id i16so5362205ila.9
-        for <io-uring@vger.kernel.org>; Sun, 07 Mar 2021 01:49:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=V07qsaGEoHXexYmfa3BXedCZSaCtnYmBs8rqfZyeYlI=;
-        b=ArylnujVLa49h+Spsd4r8YwuHL9JyLIpXWWkBTcoDBnMC5jIdDI2mNyHCnocrbwlqg
-         XpGctWZJ7i7poxNWJtxVPxz/J0TYCSLirCLdgxUmbinT95wn3PYTLWTWGLr2EgF3BROu
-         y3XRJLpjCUIeIlnTLfbLOEUPkUXbwwiwPFmdbjaBkirnWwOto76WgZCep5c2UVytAg0L
-         8Mvoll8NJUgRzE8RaNnn6Od43/KcjQYxKw0TYduYPqYNgk+FCQGSh1F0BY/S2sQczQsF
-         DFRUrKUWQS3ncsbIgumIXfXJ3DoYLlKNpIQhy+GlPCRadWjxFzXKgiaMW+Al46t+cO9M
-         4OVQ==
-X-Gm-Message-State: AOAM533Ov8eQ/WcKw4QZOwPlP85Z8BbJZHmfOubJBBgrUuZnQnY2maNd
-        h8CB51oPOgyuNtZSR00VZ1VexBhAVGO/3YplDmem20y4UorB
-X-Google-Smtp-Source: ABdhPJwkMgrO8DdTP9D02PdvTssCcIDOHdhMWUcL6D8tNcsYsyvMCXFxrbUITUzQjhzJDzcuxmb9r/VYn5+q4srYatU+tzgtMvom
+        id S231561AbhCGKzg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 7 Mar 2021 05:55:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40418 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231558AbhCGKza (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Mar 2021 05:55:30 -0500
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB562C06175F
+        for <io-uring@vger.kernel.org>; Sun,  7 Mar 2021 02:55:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Message-Id:Date:Cc:To:From;
+        bh=Q1YuyqZQYy0iTuYqkShRErpF5SjoIGIKQ7OuVCR5m6c=; b=DIXHPQRJ2MWaigfckfL0mmBgR7
+        TsQvVpmPMIibzRaqSb5tSx9M6Ee1IwB5nVXp5wPVomOgQ4qHAphLAdKMLDSvsV+w06TM/tGoBZUvP
+        yiMOv5wvGqKTZbh5yeK5qVNrYzBAADKRJZnZE0onEIq5WQ3pX+JZSsDcKrPazdnh7L8rFOkEiXEdD
+        /CjHAURWyi+pIjRnpqMV0ZrikqQLQRzNaqexgwWXPFM6s8G2lJBu4lTgPy5nRKkZDsPC3t6wdP3Jq
+        689HpAgkAz/eqRcfSIkjif9v0FM6Ss8OdeUE8pec1EIM0YC3KQD7sSslQ3S9xLuG1fcxGl2uBfbqW
+        ynOKywmboFFvF3igC6X5UbtrczqQCd4piWNH8dgWiwAxpW7HBJ6Acx1cj+rjQ/x5Zx7CM1W1wtbAJ
+        6q43gk2EFdsHawh47ddSEj+QkDLxfvQugFggJDA0MJzmvZTM9AzJ17+G7s85NKHtfqEJu50yV27HX
+        WKnNwvjwSmUDbCK82/HSzc8L;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lIr48-0000O0-1P; Sun, 07 Mar 2021 10:55:16 +0000
+From:   Stefan Metzmacher <metze@samba.org>
+To:     io-uring@vger.kernel.org
+Cc:     Stefan Metzmacher <metze@samba.org>
+Subject: [PATCH 2/2] io_uring: kill io_sq_thread_fork() and return -EOWNERDEAD if the sq_thread is gone
+Date:   Sun,  7 Mar 2021 11:54:29 +0100
+Message-Id: <20210307105429.3565442-3-metze@samba.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210307105429.3565442-1-metze@samba.org>
+References: <20210307105429.3565442-1-metze@samba.org>
 MIME-Version: 1.0
-X-Received: by 2002:a02:1702:: with SMTP id 2mr18006148jah.43.1615110561007;
- Sun, 07 Mar 2021 01:49:21 -0800 (PST)
-Date:   Sun, 07 Mar 2021 01:49:21 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000430bf505bcef3b00@google.com>
-Subject: [syzbot] possible deadlock in io_sq_thread_finish
-From:   syzbot <syzbot+ac39856cb1b332dbbdda@syzkaller.appspotmail.com>
-To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    a38fd874 Linux 5.12-rc2
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=143ee02ad00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=db9c6adb4986f2f2
-dashboard link: https://syzkaller.appspot.com/bug?extid=ac39856cb1b332dbbdda
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+ac39856cb1b332dbbdda@syzkaller.appspotmail.com
-
-============================================
-WARNING: possible recursive locking detected
-5.12.0-rc2-syzkaller #0 Not tainted
---------------------------------------------
-kworker/u4:7/7615 is trying to acquire lock:
-ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_stop fs/io_uring.c:7099 [inline]
-ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_put_sq_data fs/io_uring.c:7115 [inline]
-ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_finish+0x408/0x650 fs/io_uring.c:7139
-
-but task is already holding lock:
-ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_park fs/io_uring.c:7088 [inline]
-ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_park+0x63/0xc0 fs/io_uring.c:7082
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&sqd->lock);
-  lock(&sqd->lock);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-3 locks held by kworker/u4:7/7615:
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:616 [inline]
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:643 [inline]
- #0: ffff888010469138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2246
- #1: ffffc900023a7da8 ((work_completion)(&ctx->exit_work)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2250
- #2: ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_park fs/io_uring.c:7088 [inline]
- #2: ffff888144a02870 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread_park+0x63/0xc0 fs/io_uring.c:7082
-
-stack backtrace:
-CPU: 1 PID: 7615 Comm: kworker/u4:7 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events_unbound io_ring_exit_work
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- print_deadlock_bug kernel/locking/lockdep.c:2829 [inline]
- check_deadlock kernel/locking/lockdep.c:2872 [inline]
- validate_chain kernel/locking/lockdep.c:3661 [inline]
- __lock_acquire.cold+0x14c/0x3b4 kernel/locking/lockdep.c:4900
- lock_acquire kernel/locking/lockdep.c:5510 [inline]
- lock_acquire+0x1ab/0x740 kernel/locking/lockdep.c:5475
- __mutex_lock_common kernel/locking/mutex.c:946 [inline]
- __mutex_lock+0x139/0x1120 kernel/locking/mutex.c:1093
- io_sq_thread_stop fs/io_uring.c:7099 [inline]
- io_put_sq_data fs/io_uring.c:7115 [inline]
- io_sq_thread_finish+0x408/0x650 fs/io_uring.c:7139
- io_ring_ctx_free fs/io_uring.c:8408 [inline]
- io_ring_exit_work+0x82/0x9a0 fs/io_uring.c:8539
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ fs/io_uring.c | 31 +++----------------------------
+ 1 file changed, 3 insertions(+), 28 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 133b52a9a768..6487f9b2c3a7 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -336,7 +336,6 @@ struct io_ring_ctx {
+ 		unsigned int		drain_next: 1;
+ 		unsigned int		eventfd_async: 1;
+ 		unsigned int		restricted: 1;
+-		unsigned int		sqo_exec: 1;
+ 
+ 		/*
+ 		 * Ring buffer of indices into array of io_uring_sqe, which is
+@@ -6786,7 +6785,6 @@ static int io_sq_thread(void *data)
+ 
+ 	sqd->thread = NULL;
+ 	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
+-		ctx->sqo_exec = 1;
+ 		io_ring_set_wakeup_flag(ctx);
+ 	}
+ 
+@@ -7844,26 +7842,6 @@ void __io_uring_free(struct task_struct *tsk)
+ 	tsk->io_uring = NULL;
+ }
+ 
+-static int io_sq_thread_fork(struct io_sq_data *sqd, struct io_ring_ctx *ctx)
+-{
+-	struct task_struct *tsk;
+-	int ret;
+-
+-	clear_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+-	reinit_completion(&sqd->parked);
+-	ctx->sqo_exec = 0;
+-	sqd->task_pid = current->pid;
+-	tsk = create_io_thread(io_sq_thread, sqd, NUMA_NO_NODE);
+-	if (IS_ERR(tsk))
+-		return PTR_ERR(tsk);
+-	ret = io_uring_alloc_task_context(tsk, ctx);
+-	if (ret)
+-		set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+-	sqd->thread = tsk;
+-	wake_up_new_task(tsk);
+-	return ret;
+-}
+-
+ static int io_sq_offload_create(struct io_ring_ctx *ctx,
+ 				struct io_uring_params *p)
+ {
+@@ -9197,13 +9175,10 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
+ 
+-		if (unlikely(ctx->sqo_exec)) {
+-			ret = io_sq_thread_fork(ctx->sq_data, ctx);
+-			if (ret)
+-				goto out;
+-			ctx->sqo_exec = 0;
+-		}
+ 		ret = -EOWNERDEAD;
++		if (unlikely(ctx->sq_data->thread == NULL)) {
++			goto out;
++		}
+ 		if (flags & IORING_ENTER_SQ_WAKEUP)
+ 			wake_up(&ctx->sq_data->wait);
+ 		if (flags & IORING_ENTER_SQ_WAIT) {
+-- 
+2.25.1
+

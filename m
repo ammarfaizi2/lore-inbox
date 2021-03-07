@@ -2,65 +2,88 @@ Return-Path: <SRS0=uPvv=IF=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CF90C433E9
-	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 10:56:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF039C433E6
+	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 11:35:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1802065179
-	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 10:56:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DFA265109
+	for <io-uring@archiver.kernel.org>; Sun,  7 Mar 2021 11:35:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbhCGKzg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 7 Mar 2021 05:55:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
+        id S229791AbhCGLe5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 7 Mar 2021 06:34:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230111AbhCGKz3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Mar 2021 05:55:29 -0500
+        with ESMTP id S230215AbhCGLer (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 7 Mar 2021 06:34:47 -0500
 Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72C9C06174A
-        for <io-uring@vger.kernel.org>; Sun,  7 Mar 2021 02:55:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA79C06174A;
+        Sun,  7 Mar 2021 03:34:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Message-Id:Date:To:From:CC;
-        bh=539ySbCpIx7enFJDL9vE/KK0P2k7DrS6QFpWrlNLVPE=; b=ZnC96LmzZmCfyYlJxUK9G/xi9z
-        jI7O+1ryl2vZFa3eKQAhEXE//aTybMGusZjNjKgu1dvxk65qCgk5r9MfIryEQPVOUq/5aaB6xp+E8
-        ULN8SgVlLZO2+dqqaG9TD5L/RQ3RmJbb6WJQ6rGkwjpEmyZKiblnwdUhgLdu9xrD957ds0OhJ2VNt
-        E4eNE+sCedN+B1p/MHpIAga22aSBDaPyVOOU48OQAb4vta5xfi6IO49RmYLxZe3V/qkgK3Ni0H35N
-        ze//zFtarY8mG3x0PwxiKAp5qZKHjg+XxnUZIcwkWmdR/qJev5ETlZaK/5SddFcOGVQPIqEM66k6a
-        5NEZZaFDcsAKLuq3By/cf9iOtqg0B1MOHeVnWR3tmWj1C+NpP7wrtuAbL+thUj9alsC2nEUjAhbjX
-        eJwMPjgCUa44uqWPi0sUw2nNxXaWwdQDYpgubV3ll9C5vSyR1eLgi+vRSb6fx0Kefr4v0wrNNKF+L
-        Dw1mwpT6sDl79kcicOvw5/J9;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=ex6BOrd2HXnCZrTmgz0TFR9fOgFEggpFA2E0Mod1QZ8=; b=MCcC1vKHip2w+lnHBTpl9dfHd6
+        Xj8OWzLknA3UT7wBhAQcU8BVsmApkl88UW5NB0ydbsHa6sf71zUefLQgYgh6JwiA5eC3AwSKvkgGm
+        DFyfdjrB5vurxoFjBxgt3iultGMPoFZYca0uRlS5jwd9Th9RpavYKKWz4rWLC5Je9TtYvyJvM/7HJ
+        Aw9EK9KCCaliI5c7hvswoJhYQ2pFbZq8ttOt0EdRAX5SVUJyJBKTUdy/3AJt1pYQwwWXPl9PSfu/8
+        8TOoJsZPt8kQ3qiGRVjyJYxicy9DxIRYF6j8zP2XKVrXDbiUV0OHw4g/XMM2iGARhPBCzFFIyz6t9
+        ooGj5SJC9k4Cs92JtxUrOm0OAgj8Hqf8ag2OLvLd//d/dAiDBGFYaMw+x8BTH4ZfZCUBBQl5EjsUh
+        nrOr5H3/3c1elVj6bzBHFUNqxYIg1ZDpLwo4DUoZigUOe55XeRkxdyXxsWPVcnmBX9+YiI9MRpZ/m
+        ZuloOvuM2svUzee9gNCTtyhb;
 Received: from [127.0.0.2] (localhost [127.0.0.1])
         by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
         (Exim)
-        id 1lIr46-0000O0-TT
-        for io-uring@vger.kernel.org; Sun, 07 Mar 2021 10:55:15 +0000
+        id 1lIrgH-0000YF-2Q; Sun, 07 Mar 2021 11:34:41 +0000
+To:     =?UTF-8?Q?Andr=c3=a9_Almeida?= <andrealmeid@collabora.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     kernel@collabora.com, krisman@collabora.com,
+        pgriffais@valvesoftware.com, z.figura12@gmail.com,
+        joel@joelfernandes.org, malteskarupke@fastmail.fm,
+        linux-api@vger.kernel.org, fweimer@redhat.com,
+        libc-alpha@sourceware.org, linux-kselftest@vger.kernel.org,
+        shuah@kernel.org, acme@kernel.org, corbet@lwn.net,
+        io-uring <io-uring@vger.kernel.org>
+References: <20210304004219.134051-1-andrealmeid@collabora.com>
 From:   Stefan Metzmacher <metze@samba.org>
-To:     io-uring@vger.kernel.org
-Subject: [PATCH 5.12 0/2] Restore sq_thread 5.11 behavior
-Date:   Sun,  7 Mar 2021 11:54:27 +0100
-Message-Id: <20210307105429.3565442-1-metze@samba.org>
-X-Mailer: git-send-email 2.25.1
+Subject: Re: [RFC PATCH v2 00/13] Add futex2 syscall
+Message-ID: <ecbed98e-882a-0c0e-d4e1-bd33960f3674@samba.org>
+Date:   Sun, 7 Mar 2021 12:34:40 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20210304004219.134051-1-andrealmeid@collabora.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Jens,
 
-I guess on top of your "io-wq: always track creds for async issue"
-we want to following to patches in order to restore the sq_thread
-behavior of 5.11 (and older) with IORING_SETUP_ATTACH_WQ.
+Hi André,
+>  ** The wait on multiple problem
+> 
+>  The use case lies in the Wine implementation of the Windows NT interface
+>  WaitMultipleObjects. This Windows API function allows a thread to sleep
+>  waiting on the first of a set of event sources (mutexes, timers, signal,
+>  console input, etc) to signal.  
 
-- io_uring: run __io_sq_thread() with the initial creds
-- io_uring: kill io_sq_thread_fork() and return -EOWNERDEAD
-- io_
-I've not tested them, but they compile and as far as I read the
-5.11 code, they should restore the old behavior.
+With that in mind would it be good to have some interaction with epoll (and similar calls)?
+
+Instead of having a blocked futex_waitv() waiting on an fd (maybe a generic eventfd() or a new futex2fd())
+would be a better interface?
+
+Or instead introduce an IORING_OP_FUTEX2_WAITV? Then the futex_waitv logic wait
+in an io-wq kernel thread...
+
+I guess the io_uring way would mean we could have that in mind as future addition, which can be implemented
+later...
 
 metze
-

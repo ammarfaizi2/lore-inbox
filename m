@@ -2,155 +2,77 @@ Return-Path: <SRS0=bkXR=IG=vger.kernel.org=io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C33CC433DB
-	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 13:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0C7C433E6
+	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 13:58:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 595C5651C3
-	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 13:25:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39DE1651D3
+	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 13:58:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbhCHNZO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Mar 2021 08:25:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42954 "EHLO
+        id S229737AbhCHN6R (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Mar 2021 08:58:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbhCHNY7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Mar 2021 08:24:59 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AEEC06174A
-        for <io-uring@vger.kernel.org>; Mon,  8 Mar 2021 05:24:59 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id r10-20020a05600c35cab029010c946c95easo3791400wmq.4
-        for <io-uring@vger.kernel.org>; Mon, 08 Mar 2021 05:24:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GXE8lUxoiImKaRDpBenRCSL8RCuWfQAP0hc6uJ+1tzM=;
-        b=pyu98tD98HIrM92gDE+9P30QCSIiyTyXQEGl7q1PQVbJBC5oCRPue3ILKS2GRpefRy
-         dxQGINvKlda5JvktGiBGNhcAHQAXkPM6TEgPf54i3VPlz/2KzmnwMWq5BkGnbR1TVPju
-         kCzxM40tqByua21CsKJultBJ00zPjonA+H/WrUrGxM9rTVuHHuQjsxJZDy/XHnokNBLp
-         PytXcIEzTczk8alUg3Ruk3Ux+0ZyFf7SXFIyiLPeJJCEhbVs67AOHB1bUSItytm5jP+n
-         MXYSgvTEW3EBB5T6iRRGUlKLqkgJBMnQNK3k5v9i0mN+ys51wTQ7rgYsZdP9dOi0R5EL
-         oRBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GXE8lUxoiImKaRDpBenRCSL8RCuWfQAP0hc6uJ+1tzM=;
-        b=ZR+ur4mzDyJN0vIhD6NwvEbpJeYw5DIdgYyQPDX8XGlfaOn3mZHbYxgy9G+gEhMSTb
-         zYWU+B4NNpMFHAH9mwbr26gmqPtwuR9S0J3LBv2shSY8iMqpP8sJ6OwXM11MGh8IXfMX
-         0U3ETRJxPic9pVRemeqXlWBj0D8dVa3ZcHjFdnK5W7ITKyRJa9f/osVvi3N1rMjzO4bG
-         ceXrHYYVONvKuWrWumUvdXYQP2aGFuQoSwXpu9xHLQkZ7B1W3+wV98Y4dwlEF6GgIcZ9
-         E463uMIVtndjRyqScoWslC7N11GuxiR6oHodDuASSACf852M609dFYGocm0NfeGecsfZ
-         yHkw==
-X-Gm-Message-State: AOAM533onAqBgyuD4LcOZSeBJPeSJPnQTvCmIw/Ym6YaYzHkdsr60xZ1
-        lRNksOJP7ucUx77VZPyT4083rhra8r+48w==
-X-Google-Smtp-Source: ABdhPJxU5ZUQU9J1xOByg0roNVtGYtAa0UvVbuVcsnUBVvUaTBRkw3iYvPXnJ+fgKfWSgVVsxnAtUw==
-X-Received: by 2002:a1c:61c5:: with SMTP id v188mr21646438wmb.20.1615209897968;
-        Mon, 08 Mar 2021 05:24:57 -0800 (PST)
-Received: from localhost.localdomain ([148.252.132.144])
-        by smtp.gmail.com with ESMTPSA id s8sm19571070wrn.97.2021.03.08.05.24.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Mar 2021 05:24:57 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5.12] io_uring: clean R_DISABLED startup mess
-Date:   Mon,  8 Mar 2021 13:20:57 +0000
-Message-Id: <057d200d7cc938d10b2f648a4a143a17e99b295f.1615209636.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        with ESMTP id S229697AbhCHN57 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Mar 2021 08:57:59 -0500
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54DAC06174A
+        for <io-uring@vger.kernel.org>; Mon,  8 Mar 2021 05:57:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=tP2rQWsowyaryoX8mX2RLsPe4tlmF+ZPuEoX+XLXe6c=; b=FjHPDToZFkgcIR4I4K+WGj6k6D
+        qOHodYw/j0mXV6kgCAYZa57WU9bzJ3J8qqujW/fpbS6l5CO3KB8SojBFzaQXmILHQKKOVXSePDYgA
+        XTiMamKw3Y2yJfbj2fEWVQM5SabQ3zIFTKYsQXXo4eNQtfE5Edbah2fuvxFBbW6YxVv5/i7+PdYpd
+        yW2Mwv6w+l/B0ldu3NlJ1Jjn/yM4Hr+be+4k2LmdohvgFPonIK12A5m1Cw6gafZrMo/H+AAAKQ2m7
+        oe4Q3g7n1w1yes6gJBeJwDRXRSjzy4izVjT+k2N9SutNYWC/EEvzF7U1Gaua3MT6J0TfGdH2khJD0
+        7b8QMp4Kz8CC9F7kDGVd/zyJjJdH0G7+cqIX5ASNw+/KnLaoetkdAtIPgUp+dA7Yzkstzolyh8jlH
+        n+qy/0nyfofjl5zFgvFH7b9gZ25mDVP6/3sFy+rUzeGUVeWxXfP6BQvfu/To26S6pPX9hrYTzblFN
+        rIKSpcriaYyRWKP+mX624YNV;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lJGOP-0001gK-G9; Mon, 08 Mar 2021 13:57:53 +0000
+Subject: Re: [PATCH 1/2] io_uring: fix UAF for personality_idr
+To:     Matthew Wilcox <willy@infradead.org>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     yangerkun <yangerkun@huawei.com>, axboe@kernel.dk,
+        io-uring@vger.kernel.org, yi.zhang@huawei.com
+References: <20210308065903.2228332-1-yangerkun@huawei.com>
+ <e4b79f4d-c777-103d-e87e-d72dc49cb440@gmail.com>
+ <20210308132001.GA3479805@casper.infradead.org>
+From:   Stefan Metzmacher <metze@samba.org>
+Message-ID: <6c7a534e-6823-eb70-8788-0cb48eab10d6@samba.org>
+Date:   Mon, 8 Mar 2021 14:57:53 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210308132001.GA3479805@casper.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are enough of problems with IORING_SETUP_R_DISABLED, including the
-burden of checking and kicking off the SQO task all over the codebase --
-for exit/cancel/etc.
 
-Rework it, always start the thread but don't do submit unless the flag
-is gone, that's much easier.
+Hi Matthew,
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+> -	ret = idr_alloc_cyclic(&ctx->personality_idr, (void *) creds, 1,
+> -				USHRT_MAX, GFP_KERNEL);
+> -	if (ret < 0)
+> -		put_cred(creds);
+> +	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)creds,
+> +			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
+> +	if (!ret)
+> +		return id;
+> +	put_cred(creds);
+>  	return ret;
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5c6a54520be0..5ef9f836cccc 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6607,7 +6607,8 @@ static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
- 		if (!list_empty(&ctx->iopoll_list))
- 			io_do_iopoll(ctx, &nr_events, 0);
- 
--		if (to_submit && likely(!percpu_ref_is_dying(&ctx->refs)))
-+		if (to_submit && likely(!percpu_ref_is_dying(&ctx->refs)) &&
-+		    !(ctx->flags & IORING_SETUP_R_DISABLED))
- 			ret = io_submit_sqes(ctx, to_submit);
- 		mutex_unlock(&ctx->uring_lock);
- 	}
-@@ -7865,6 +7866,7 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
- 		wake_up_new_task(tsk);
- 		if (ret)
- 			goto err;
-+		complete(&sqd->startup);
- 	} else if (p->flags & IORING_SETUP_SQ_AFF) {
- 		/* Can't have SQ_AFF without SQPOLL */
- 		ret = -EINVAL;
-@@ -7877,15 +7879,6 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
- 	return ret;
- }
- 
--static void io_sq_offload_start(struct io_ring_ctx *ctx)
--{
--	struct io_sq_data *sqd = ctx->sq_data;
--
--	ctx->flags &= ~IORING_SETUP_R_DISABLED;
--	if (ctx->flags & IORING_SETUP_SQPOLL)
--		complete(&sqd->startup);
--}
--
- static inline void __io_unaccount_mem(struct user_struct *user,
- 				      unsigned long nr_pages)
- {
-@@ -8746,11 +8739,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 	struct task_struct *task = current;
- 
- 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
--		/* never started, nothing to cancel */
--		if (ctx->flags & IORING_SETUP_R_DISABLED) {
--			io_sq_offload_start(ctx);
--			return;
--		}
- 		io_sq_thread_park(ctx->sq_data);
- 		task = ctx->sq_data->thread;
- 		if (task)
-@@ -9453,9 +9441,6 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
- 	if (ret)
- 		goto err;
- 
--	if (!(p->flags & IORING_SETUP_R_DISABLED))
--		io_sq_offload_start(ctx);
--
- 	memset(&p->sq_off, 0, sizeof(p->sq_off));
- 	p->sq_off.head = offsetof(struct io_rings, sq.head);
- 	p->sq_off.tail = offsetof(struct io_rings, sq.tail);
-@@ -9672,7 +9657,9 @@ static int io_register_enable_rings(struct io_ring_ctx *ctx)
- 	if (ctx->restrictions.registered)
- 		ctx->restricted = 1;
- 
--	io_sq_offload_start(ctx);
-+	ctx->flags &= ~IORING_SETUP_R_DISABLED;
-+	if (ctx->sq_data && wq_has_sleeper(&ctx->sq_data->wait))
-+		wake_up(&ctx->sq_data->wait);
- 	return 0;
- }
- 
--- 
-2.24.0
+I guess this should be XA_LIMIT(1, USHRT_MAX) instead?
+'0' should not be a valid id.
 
+metze

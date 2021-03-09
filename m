@@ -2,99 +2,208 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E6E5C433DB
-	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 21:06:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3A0BC433E0
+	for <io-uring@archiver.kernel.org>; Tue,  9 Mar 2021 00:43:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0E7D64EF2
-	for <io-uring@archiver.kernel.org>; Mon,  8 Mar 2021 21:06:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BEBCF65275
+	for <io-uring@archiver.kernel.org>; Tue,  9 Mar 2021 00:43:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbhCHVGZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 8 Mar 2021 16:06:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58918 "EHLO
+        id S231920AbhCIAma (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Mar 2021 19:42:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229757AbhCHVFz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Mar 2021 16:05:55 -0500
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520C7C06174A
-        for <io-uring@vger.kernel.org>; Mon,  8 Mar 2021 13:05:55 -0800 (PST)
-Received: by mail-io1-xd2c.google.com with SMTP id n14so11557837iog.3
-        for <io-uring@vger.kernel.org>; Mon, 08 Mar 2021 13:05:55 -0800 (PST)
+        with ESMTP id S231852AbhCIAmF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Mar 2021 19:42:05 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5CEC06174A
+        for <io-uring@vger.kernel.org>; Mon,  8 Mar 2021 16:42:04 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id b2-20020a7bc2420000b029010be1081172so4890126wmj.1
+        for <io-uring@vger.kernel.org>; Mon, 08 Mar 2021 16:42:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=cdjl+wCJUi5cKCNeWlSr+GoV2W+UCiWXNnZr5SlQkco=;
-        b=D7Mx+rOvzJp5jTSb1yb+k5yhqB0AAnXRuqwBCQd923tztSI7VUSLbDd2SfLlNpSxGr
-         IL1I76wYnCRGpYuanvak9YBs285OpszOwoYo0DT/MLHoKgwEEAfySCj3seb4GSU6mr3k
-         I9MJwLEGTwi0jS1E03Gneu2+aa9Bmxd618zbapVpfaXWizVtQI1X09+ygg+fj1IlIxrF
-         QaS/4VAwycaAMMuo6PDd1gxAJBWit0Kva2ZquKnLof3Vm3yw8Mj3Ej5EYbvwj4Ihfzg3
-         Jgzq4t8dkwxJ0CPMiMzvIbYLShsr3ESbpgYdzx80LaPLmET3tFvAlFr/zmt0IKjtAtx5
-         6mfQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=baJszLHKaZ3rZD2bLMvWzcxOe+f6tkrNTbQAfHeTdGM=;
+        b=c1EURPIZQfSXfWV2GKF4sDb4njM5s8PHtz8/X4TjGTkPepRNTLAQjb5Yp7m/nj531W
+         QUYjSddN7BKwtO/+9g7x+7jUzKKfWD89kK8znsmqGhSEr/um8E6OKEC4KgnTgVtCNn7/
+         rENrgTY7sVO+nhtVD3jND5S766TC+ZgeTD/ABvzVNKufKJcGltcsSEeFMX92RrTfNw1n
+         NAYsr4w3ITrlwYWlzpoVnydfEW61LbMJG+r/NDEHCErzlPbY7vPwQW/wNiFmLzB1MIUk
+         PaoPZZsh85Be63GxWxBdlmpzyKdo9M7zpJ8npJthSKDEiMvdcU/MzZPR/oDio01buhWV
+         d4mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=cdjl+wCJUi5cKCNeWlSr+GoV2W+UCiWXNnZr5SlQkco=;
-        b=qmu+8zbTaecYp68FILoHDKP6WyfEwaobpFTSNJzYelhOZ7fJdftRIhGIfKBzZ2bCrq
-         TcblesmB7B8Kwo1ACuowUv4ChzSOetfe8KxvMATzL0O+tvQmT1xQmymK1YE5crM1LeVj
-         F98Da8nmCr6j4i7IDWOUPLl3MQWB/oqoR1A4VRGiF8zBvIc3FP+IrIM0IUFyuKP1r5cx
-         UZ2hVNklAqZuhN0dLnuf+dXF+bB8WanH5bWHS+DXm/TGan35oSsJEOHqjJgl9CDFN1TK
-         EpgaJ0qMjxOE9Sg0S8/Hm5qy0IAgyqJ2BpG5AnfSbukgmCsHuTvwj5PDrFOjdCy6M/G8
-         43Tw==
-X-Gm-Message-State: AOAM531qxFI/5BbGnCKKYqh5/S6rcIZpHqk8fYnrLaSjMNbr6gepx9Hi
-        ndXAcfgdcBoZ+jmZH6W8hBcD1hftCS8Fwg==
-X-Google-Smtp-Source: ABdhPJxw4zq2WueU8xAuM5+/XNpINZ/ASsiEkKWpkx6tQbEbE5XKbTe8my4kyLiLcpVrEr+GdCTY2g==
-X-Received: by 2002:a5d:80d5:: with SMTP id h21mr7772128ior.11.1615237554511;
-        Mon, 08 Mar 2021 13:05:54 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id y20sm6871088ilc.18.2021.03.08.13.05.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Mar 2021 13:05:54 -0800 (PST)
-Subject: Re: [PATCH v4 5.12 0/8] remove task file notes
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1615028377.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <9fd26154-d491-0963-52a1-407963af6855@kernel.dk>
-Date:   Mon, 8 Mar 2021 14:05:53 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=baJszLHKaZ3rZD2bLMvWzcxOe+f6tkrNTbQAfHeTdGM=;
+        b=L7kA6zZjRaknorRf29n42PMd+B44FJpX72reUOotwzvsqfSV/Vf46j36OPp8fAGYuj
+         RV2AY2exbrPnhc8Ho3ir7qfCpS33fcplMA84ixGsNFAnPbCA9ZYzxYBFSGaA/6MqBQDz
+         1qMHpE1161WgT9tqePk8Kajrqfau1y9GpyN8l2xOQIG6vKDvEPlF88OaIv8Iks6JGcKJ
+         t3HfdQZ5rfsx7biTu+vb2ssi9kWMJGV5ic1zzLWkzF1VvdnivSSBaetTBemOSurSL6is
+         rsRYNKW6e026JvW5F1RaCe/eXmeVYNla+VqkUnd4UNQMGCM/BwyVR1bkDMZCQpY4HePi
+         J/1w==
+X-Gm-Message-State: AOAM531kikaheYGWQesbuPwxS+r3ah+a7BjwkmKsZQDXNr0fHaZU7E/c
+        Z/KWGFcBMklBdnkj8fNmGm2mdLVSCSEy+g==
+X-Google-Smtp-Source: ABdhPJxAgGhOK5taRYQE+jji18HrCocCcFa8rKiWupe8eBI7ZfeDSPDp1HQsLQ64x2B2zCOsZrTimw==
+X-Received: by 2002:a1c:dc42:: with SMTP id t63mr1181874wmg.153.1615250523504;
+        Mon, 08 Mar 2021 16:42:03 -0800 (PST)
+Received: from localhost.localdomain ([148.252.132.144])
+        by smtp.gmail.com with ESMTPSA id 3sm23918131wry.72.2021.03.08.16.42.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Mar 2021 16:42:03 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/2] io_uring: add io_disarm_next() helper
+Date:   Tue,  9 Mar 2021 00:37:58 +0000
+Message-Id: <44ecff68d6b47e1c4e6b891bdde1ddc08cfc3590.1615250156.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1615250156.git.asml.silence@gmail.com>
+References: <cover.1615250156.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <cover.1615028377.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/6/21 4:02 AM, Pavel Begunkov wrote:
-> Introduce a mapping from ctx to all tctx, and using that removes
-> file notes, i.e. taking a io_uring file note previously stored in
-> task->io_uring->xa. It's needed because we don't free io_uring ctx
-> until all submitters die/exec, and it became worse after killing
->  ->flush(). There are rough corner in a form of not behaving nicely,
-> I'll address in follow-up patches. Also use it to do cancellations
-> right.
-> 
-> The torture is as simple as below. It will get OOM in no time. Also,
-> I plan to use it to fix recently broken cancellations.
-> 
-> while (1) {
-> 	assert(!io_uring_queue_init(8, &ring, 0));
-> 	io_uring_queue_exit(&ring);
-> }
-> 
-> WARNING: hangs without reverting sq park refactoring
+A preparation patch placing all preparations before extracting a next
+request into a separate helper io_disarm_next().
 
-Got fixed separately - forgot to write that this series is applied,
-thanks!
+Also, don't spuriously do ev_posted in a rare case where REQ_F_FAIL_LINK
+is set but there are no requests linked (i.e. after cancelling a linked
+timeout or setting IOSQE_IO_LINK on a last request of a submission
+batch).
 
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 68 ++++++++++++++++++++++++++-------------------------
+ 1 file changed, 35 insertions(+), 33 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5ca3c70e6640..b4fa6fb371c5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1706,15 +1706,11 @@ static inline void io_remove_next_linked(struct io_kiocb *req)
+ 	nxt->link = NULL;
+ }
+ 
+-static void io_kill_linked_timeout(struct io_kiocb *req)
++static bool io_kill_linked_timeout(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
+ {
+-	struct io_ring_ctx *ctx = req->ctx;
+-	struct io_kiocb *link;
++	struct io_kiocb *link = req->link;
+ 	bool cancelled = false;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ctx->completion_lock, flags);
+-	link = req->link;
+ 
+ 	/*
+ 	 * Can happen if a linked timeout fired and link had been like
+@@ -1729,50 +1725,48 @@ static void io_kill_linked_timeout(struct io_kiocb *req)
+ 		ret = hrtimer_try_to_cancel(&io->timer);
+ 		if (ret != -1) {
+ 			io_cqring_fill_event(link, -ECANCELED);
+-			io_commit_cqring(ctx);
++			io_put_req_deferred(link, 1);
+ 			cancelled = true;
+ 		}
+ 	}
+ 	req->flags &= ~REQ_F_LINK_TIMEOUT;
+-	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+-
+-	if (cancelled) {
+-		io_cqring_ev_posted(ctx);
+-		io_put_req(link);
+-	}
++	return cancelled;
+ }
+ 
+-
+ static void io_fail_links(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
+ {
+-	struct io_kiocb *link, *nxt;
+-	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned long flags;
++	struct io_kiocb *nxt, *link = req->link;
+ 
+-	spin_lock_irqsave(&ctx->completion_lock, flags);
+-	link = req->link;
+ 	req->link = NULL;
+-
+ 	while (link) {
+ 		nxt = link->link;
+ 		link->link = NULL;
+ 
+ 		trace_io_uring_fail_link(req, link);
+ 		io_cqring_fill_event(link, -ECANCELED);
+-
+ 		io_put_req_deferred(link, 2);
+ 		link = nxt;
+ 	}
+-	io_commit_cqring(ctx);
+-	spin_unlock_irqrestore(&ctx->completion_lock, flags);
++}
+ 
+-	io_cqring_ev_posted(ctx);
++static bool io_disarm_next(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
++{
++	bool posted = false;
++
++	if (likely(req->flags & REQ_F_LINK_TIMEOUT))
++		posted = io_kill_linked_timeout(req);
++	if (unlikely(req->flags & REQ_F_FAIL_LINK)) {
++		posted |= (req->link != NULL);
++		io_fail_links(req);
++	}
++	return posted;
+ }
+ 
+ static struct io_kiocb *__io_req_find_next(struct io_kiocb *req)
+ {
+-	if (req->flags & REQ_F_LINK_TIMEOUT)
+-		io_kill_linked_timeout(req);
++	struct io_kiocb *nxt;
+ 
+ 	/*
+ 	 * If LINK is set, we have dependent requests in this chain. If we
+@@ -1780,14 +1774,22 @@ static struct io_kiocb *__io_req_find_next(struct io_kiocb *req)
+ 	 * dependencies to the next request. In case of failure, fail the rest
+ 	 * of the chain.
+ 	 */
+-	if (likely(!(req->flags & REQ_F_FAIL_LINK))) {
+-		struct io_kiocb *nxt = req->link;
++	if (req->flags & (REQ_F_LINK_TIMEOUT | REQ_F_FAIL_LINK)) {
++		struct io_ring_ctx *ctx = req->ctx;
++		unsigned long flags;
++		bool posted;
+ 
+-		req->link = NULL;
+-		return nxt;
++		spin_lock_irqsave(&ctx->completion_lock, flags);
++		posted = io_disarm_next(req);
++		if (posted)
++			io_commit_cqring(req->ctx);
++		spin_unlock_irqrestore(&ctx->completion_lock, flags);
++		if (posted)
++			io_cqring_ev_posted(ctx);
+ 	}
+-	io_fail_links(req);
+-	return NULL;
++	nxt = req->link;
++	req->link = NULL;
++	return nxt;
+ }
+ 
+ static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
 -- 
-Jens Axboe
+2.24.0
 

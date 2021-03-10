@@ -8,21 +8,21 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05172C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C075C433E6
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B723164FE8
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1ED2C64FF1
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbhCJMCK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 07:02:10 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:56056 "EHLO raptor.unsafe.ru"
+        id S232096AbhCJMCL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 07:02:11 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:56126 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230512AbhCJMBo (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Wed, 10 Mar 2021 07:01:44 -0500
+        id S231272AbhCJMBp (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Wed, 10 Mar 2021 07:01:45 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id 59AD640DB8;
-        Wed, 10 Mar 2021 12:01:42 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id A860540EF6;
+        Wed, 10 Mar 2021 12:01:43 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -36,104 +36,156 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v8 1/8] Increase size of ucounts to atomic_long_t
-Date:   Wed, 10 Mar 2021 13:01:26 +0100
-Message-Id: <18b439960a2de06e9352c36b8d04fb149a024a86.1615372955.git.gladkov.alexey@gmail.com>
+Subject: [PATCH v8 3/8] Use atomic_t for ucounts reference counting
+Date:   Wed, 10 Mar 2021 13:01:28 +0100
+Message-Id: <59ee3289194cd97d70085cce701bc494bfcb4fd2.1615372955.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <cover.1615372955.git.gladkov.alexey@gmail.com>
 References: <cover.1615372955.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.4 (raptor.unsafe.ru [0.0.0.0]); Wed, 10 Mar 2021 12:01:42 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.4 (raptor.unsafe.ru [0.0.0.0]); Wed, 10 Mar 2021 12:01:44 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-RLIMIT_MSGQUEUE and RLIMIT_MEMLOCK use unsigned long to store their
-counters. As a preparation for moving rlimits based on ucounts, we need
-to increase the size of the variable to long.
+The current implementation of the ucounts reference counter requires the
+use of spin_lock. We're going to use get_ucounts() in more performance
+critical areas like a handling of RLIMIT_SIGPENDING.
+
+Now we need to use spin_lock only if we want to change the hashtable.
 
 Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
 ---
- include/linux/user_namespace.h |  4 ++--
- kernel/ucount.c                | 16 ++++++++--------
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ include/linux/user_namespace.h |  4 +--
+ kernel/ucount.c                | 60 +++++++++++++++-------------------
+ 2 files changed, 28 insertions(+), 36 deletions(-)
 
 diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 64cf8ebdc4ec..0bb833fd41f4 100644
+index f71b5a4a3e74..d84cc2c0b443 100644
 --- a/include/linux/user_namespace.h
 +++ b/include/linux/user_namespace.h
-@@ -85,7 +85,7 @@ struct user_namespace {
- 	struct ctl_table_header *sysctls;
- #endif
- 	struct ucounts		*ucounts;
--	int ucount_max[UCOUNT_COUNTS];
-+	long ucount_max[UCOUNT_COUNTS];
- } __randomize_layout;
- 
- struct ucounts {
-@@ -93,7 +93,7 @@ struct ucounts {
+@@ -92,7 +92,7 @@ struct ucounts {
+ 	struct hlist_node node;
  	struct user_namespace *ns;
  	kuid_t uid;
- 	int count;
--	atomic_t ucount[UCOUNT_COUNTS];
-+	atomic_long_t ucount[UCOUNT_COUNTS];
+-	int count;
++	atomic_t count;
+ 	atomic_long_t ucount[UCOUNT_COUNTS];
  };
  
- extern struct user_namespace init_user_ns;
+@@ -104,7 +104,7 @@ void retire_userns_sysctls(struct user_namespace *ns);
+ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
+ void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
+ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
+-struct ucounts *get_ucounts(struct ucounts *ucounts);
++struct ucounts * __must_check get_ucounts(struct ucounts *ucounts);
+ void put_ucounts(struct ucounts *ucounts);
+ 
+ #ifdef CONFIG_USER_NS
 diff --git a/kernel/ucount.c b/kernel/ucount.c
-index 11b1596e2542..04c561751af1 100644
+index 50cc1dfb7d28..bb3203039b5e 100644
 --- a/kernel/ucount.c
 +++ b/kernel/ucount.c
-@@ -175,14 +175,14 @@ static void put_ucounts(struct ucounts *ucounts)
- 	kfree(ucounts);
+@@ -11,7 +11,7 @@
+ struct ucounts init_ucounts = {
+ 	.ns    = &init_user_ns,
+ 	.uid   = GLOBAL_ROOT_UID,
+-	.count = 1,
++	.count = ATOMIC_INIT(1),
+ };
+ 
+ #define UCOUNTS_HASHTABLE_BITS 10
+@@ -139,6 +139,22 @@ static void hlist_add_ucounts(struct ucounts *ucounts)
+ 	spin_unlock_irq(&ucounts_lock);
  }
  
--static inline bool atomic_inc_below(atomic_t *v, int u)
-+static inline bool atomic_long_inc_below(atomic_long_t *v, int u)
++/* 127: arbitrary random number, small enough to assemble well */
++#define refcount_zero_or_close_to_overflow(ucounts) \
++	((unsigned int) atomic_read(&ucounts->count) + 127u <= 127u)
++
++struct ucounts *get_ucounts(struct ucounts *ucounts)
++{
++	if (ucounts) {
++		if (refcount_zero_or_close_to_overflow(ucounts)) {
++			WARN_ONCE(1, "ucounts: counter has reached its maximum value");
++			return NULL;
++		}
++		atomic_inc(&ucounts->count);
++	}
++	return ucounts;
++}
++
+ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
  {
--	int c, old;
--	c = atomic_read(v);
-+	long c, old;
-+	c = atomic_long_read(v);
- 	for (;;) {
- 		if (unlikely(c >= u))
- 			return false;
--		old = atomic_cmpxchg(v, c, c+1);
-+		old = atomic_long_cmpxchg(v, c, c+1);
- 		if (likely(old == c))
- 			return true;
- 		c = old;
-@@ -196,17 +196,17 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
- 	struct user_namespace *tns;
- 	ucounts = get_ucounts(ns, uid);
- 	for (iter = ucounts; iter; iter = tns->ucounts) {
--		int max;
-+		long max;
- 		tns = iter->ns;
- 		max = READ_ONCE(tns->ucount_max[type]);
--		if (!atomic_inc_below(&iter->ucount[type], max))
-+		if (!atomic_long_inc_below(&iter->ucount[type], max))
- 			goto fail;
- 	}
- 	return ucounts;
- fail:
- 	bad = iter;
- 	for (iter = ucounts; iter != bad; iter = iter->ns->ucounts)
--		atomic_dec(&iter->ucount[type]);
-+		atomic_long_dec(&iter->ucount[type]);
+ 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
+@@ -155,7 +171,7 @@ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
  
- 	put_ucounts(ucounts);
- 	return NULL;
-@@ -216,7 +216,7 @@ void dec_ucount(struct ucounts *ucounts, enum ucount_type type)
- {
- 	struct ucounts *iter;
- 	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
--		int dec = atomic_dec_if_positive(&iter->ucount[type]);
-+		long dec = atomic_long_dec_if_positive(&iter->ucount[type]);
- 		WARN_ON_ONCE(dec < 0);
+ 		new->ns = ns;
+ 		new->uid = uid;
+-		new->count = 0;
++		atomic_set(&new->count, 1);
+ 
+ 		spin_lock_irq(&ucounts_lock);
+ 		ucounts = find_ucounts(ns, uid, hashent);
+@@ -163,33 +179,12 @@ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
+ 			kfree(new);
+ 		} else {
+ 			hlist_add_head(&new->node, hashent);
+-			ucounts = new;
++			spin_unlock_irq(&ucounts_lock);
++			return new;
+ 		}
  	}
- 	put_ucounts(ucounts);
+-	if (ucounts->count == INT_MAX)
+-		ucounts = NULL;
+-	else
+-		ucounts->count += 1;
+ 	spin_unlock_irq(&ucounts_lock);
+-	return ucounts;
+-}
+-
+-struct ucounts *get_ucounts(struct ucounts *ucounts)
+-{
+-	unsigned long flags;
+-
+-	if (!ucounts)
+-		return NULL;
+-
+-	spin_lock_irqsave(&ucounts_lock, flags);
+-	if (ucounts->count == INT_MAX) {
+-		WARN_ONCE(1, "ucounts: counter has reached its maximum value");
+-		ucounts = NULL;
+-	} else {
+-		ucounts->count += 1;
+-	}
+-	spin_unlock_irqrestore(&ucounts_lock, flags);
+-
++	ucounts = get_ucounts(ucounts);
+ 	return ucounts;
+ }
+ 
+@@ -197,15 +192,12 @@ void put_ucounts(struct ucounts *ucounts)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&ucounts_lock, flags);
+-	ucounts->count -= 1;
+-	if (!ucounts->count)
++	if (atomic_dec_and_test(&ucounts->count)) {
++		spin_lock_irqsave(&ucounts_lock, flags);
+ 		hlist_del_init(&ucounts->node);
+-	else
+-		ucounts = NULL;
+-	spin_unlock_irqrestore(&ucounts_lock, flags);
+-
+-	kfree(ucounts);
++		spin_unlock_irqrestore(&ucounts_lock, flags);
++		kfree(ucounts);
++	}
+ }
+ 
+ static inline bool atomic_long_inc_below(atomic_long_t *v, int u)
 -- 
 2.29.2
 

@@ -2,229 +2,366 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82285C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E0EBC433E9
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 23:19:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 625A764FC9
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 206B464FCA
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 23:19:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbhCJWpL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 17:45:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232828AbhCJWop (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:45 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E948EC061765
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:22 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id w7so5746244pll.8
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=qcVOeUQhRs/9vWtpN/zYBknfy9jeviMZsnGOob8rcX4=;
-        b=yiXwR/3w9+Ml2acRSMw8w5Mr6U2neEOITa+jqNqUZtftkkeuSfSI/siF4XCX+JN0l2
-         MWQ3YopnNFb98vFlx/xQKCCcxuEaC/l1miaeg3KOqixLp1fnmcZ9xZ051Z4FNvKUJq1k
-         uwzLgbV8PvxpidlYezJ2OMRu89sfu7ZzpHDM381BNvApYgqk5HXQ+qpEzkrZd1Ob3J1V
-         dZvL5F+8KbcCxaEalhHBIG5r0mLWm7t23DEkumTge+NvrcRtKaszzo1L1zpBlREwsyXm
-         S1gxbI+HTZ2MTxAWV06W7X9laX2m7udDFeOTWzS9BQyilJ0gkkaTgWX48IrxU2d5qzt5
-         dUSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=qcVOeUQhRs/9vWtpN/zYBknfy9jeviMZsnGOob8rcX4=;
-        b=YZwP5cEZYUg1mpAIto7xCnM4nbL67M+y02WPoUJfRnJW4RQvo96EPm/6drp5V+9L+z
-         ZFC9wYSsu3xuWAHnxpVcoxk9nD39SeduNPwgK1+V/QC/TlB9oOgZFoQp35mbgAFr6e73
-         JwHsygoDN51LzVdHypFZXT8xU8Ue6eo7m1LslPG+3+D1rdbdK8SRZ1bG8570gz/vOGZM
-         XCX0u6Ik2nlP0pSxmTVg5/vWk7gp1xX07pexE9FpbuqYU1rgY2p//5bcJ+UCS5RYqtdR
-         bFx5LAtqQ7uRDyP3WOI14FhZeVInS+Oxv2NrypjukkxnPDmY459wM2ev44GvdImopO0g
-         8q0g==
-X-Gm-Message-State: AOAM533LNEYytII+RLC18r/NzxjimyIjKvUFsCqYIGnSizl/DF5G9q++
-        nds0VGEtb1dPaarVGB4D1gatoSgC3MYj6A==
-X-Google-Smtp-Source: ABdhPJwqRwsOmJkIDjqqLdWhQpNQV5jxrL++3lxgfzWHnlwDzeisv/ldet+Sbgo8tfTVSwtC/2yXqA==
-X-Received: by 2002:a17:902:cec8:b029:e4:a497:da8d with SMTP id d8-20020a170902cec8b02900e4a497da8dmr5115754plg.16.1615416260794;
-        Wed, 10 Mar 2021 14:44:20 -0800 (PST)
-Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:20 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 16/27] io_uring: Convert personality_idr to XArray
-Date:   Wed, 10 Mar 2021 15:43:47 -0700
-Message-Id: <20210310224358.1494503-17-axboe@kernel.dk>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
-References: <20210310224358.1494503-1-axboe@kernel.dk>
+        id S233699AbhCJXSg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 18:18:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40949 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232933AbhCJXSR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 18:18:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615418296;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=uQa2y2z0XvsRj129MhvdBh9Jiis+7gxwF1yLINcwOYQ=;
+        b=NZiwRkl5Mv55AnsUi59fZlHEHSFJmEiWlLGFFaKHoKIlKudhXz4WakGlOAR2hQTJ5pI8Fd
+        /jn6FD99GA7svzsYk5DNvwHOmVeK1CZeSO1wU4HLgxplPs3gnKSlqc/eL4pO+jYpJleLAI
+        Y34nRoppZ/MgT5ukDJxswWIgt4IbXZY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-469-E5v-o-OuOiaI18dHgGKnWQ-1; Wed, 10 Mar 2021 18:18:14 -0500
+X-MC-Unique: E5v-o-OuOiaI18dHgGKnWQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C872A1005D4C;
+        Wed, 10 Mar 2021 23:18:12 +0000 (UTC)
+Received: from localhost (unknown [10.18.25.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3CDE05D6D7;
+        Wed, 10 Mar 2021 23:18:08 +0000 (UTC)
+Date:   Wed, 10 Mar 2021 18:18:08 -0500
+From:   Mike Snitzer <snitzer@redhat.com>
+To:     Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc:     axboe@kernel.dk, io-uring@vger.kernel.org, dm-devel@redhat.com,
+        linux-block@vger.kernel.org, mpatocka@redhat.com,
+        caspar@linux.alibaba.com, joseph.qi@linux.alibaba.com
+Subject: Re: [PATCH v5 10/12] block: fastpath for bio-based polling
+Message-ID: <20210310231808.GD23410@redhat.com>
+References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
+ <20210303115740.127001-11-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210303115740.127001-11-jefflexu@linux.alibaba.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+On Wed, Mar 03 2021 at  6:57am -0500,
+Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
 
-You can't call idr_remove() from within a idr_for_each() callback,
-but you can call xa_erase() from an xa_for_each() loop, so switch the
-entire personality_idr from the IDR to the XArray.  This manifests as a
-use-after-free as idr_for_each() attempts to walk the rest of the node
-after removing the last entry from it.
+> Offer one fastpath for bio-based polling when bio submitted to dm
+> device is not split.
+> 
+> In this case, there will be only one bio submitted to only one polling
+> hw queue of one underlying mq device, and thus we don't need to track
+> all split bios or iterate through all polling hw queues. The pointer to
+> the polling hw queue the bio submitted to is returned here as the
+> returned cookie. In this case, the polling routine will call
+> mq_ops->poll() directly with the hw queue converted from the input
+> cookie.
+> 
+> If the original bio submitted to dm device is split to multiple bios and
+> thus submitted to multiple polling hw queues, the polling routine will
+> fall back to iterating all hw queues (in polling mode) of all underlying
+> mq devices.
+> 
+> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+> ---
+>  block/blk-core.c          | 73 +++++++++++++++++++++++++++++++++++++--
+>  include/linux/blk_types.h | 66 +++++++++++++++++++++++++++++++++--
+>  include/linux/types.h     |  2 +-
+>  3 files changed, 135 insertions(+), 6 deletions(-)
+> 
+> diff --git a/block/blk-core.c b/block/blk-core.c
+> index 6d7d53030d7c..e5cd4ff08f5c 100644
+> --- a/block/blk-core.c
+> +++ b/block/blk-core.c
+> @@ -947,14 +947,22 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+>  {
+>  	struct bio_list bio_list_on_stack[2];
+>  	blk_qc_t ret = BLK_QC_T_NONE;
+> +	struct request_queue *top_q;
+> +	bool poll_on;
+>  
+>  	BUG_ON(bio->bi_next);
+>  
+>  	bio_list_init(&bio_list_on_stack[0]);
+>  	current->bio_list = bio_list_on_stack;
+>  
+> +	top_q = bio->bi_bdev->bd_disk->queue;
+> +	poll_on = test_bit(QUEUE_FLAG_POLL, &top_q->queue_flags) &&
+> +		  (bio->bi_opf & REQ_HIPRI);
+> +
+>  	do {
+> -		struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+> +		blk_qc_t cookie;
+> +		struct block_device *bdev = bio->bi_bdev;
+> +		struct request_queue *q = bdev->bd_disk->queue;
+>  		struct bio_list lower, same;
+>  
+>  		if (unlikely(bio_queue_enter(bio) != 0))
+> @@ -966,7 +974,23 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+>  		bio_list_on_stack[1] = bio_list_on_stack[0];
+>  		bio_list_init(&bio_list_on_stack[0]);
+>  
+> -		ret = __submit_bio(bio);
+> +		cookie = __submit_bio(bio);
+> +
+> +		if (poll_on && blk_qc_t_valid(cookie)) {
+> +			unsigned int queue_num = blk_qc_t_to_queue_num(cookie);
+> +			unsigned int devt = bdev_whole(bdev)->bd_dev;
+> +
+> +			cookie = blk_qc_t_get_by_devt(devt, queue_num);
 
-Fixes: 071698e13ac6 ("io_uring: allow registering credentials")
-Cc: stable@vger.kernel.org # 5.6+
-Reported-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-[Pavel: rebased (creds load was moved into io_init_req())]
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/7ccff36e1375f2b0ebf73d957f037b43becc0dde.1615212806.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 47 ++++++++++++++++++++++++-----------------------
- 1 file changed, 24 insertions(+), 23 deletions(-)
+The need to rebuild the cookie here is pretty awkward.  This
+optimization living in block core may be worthwhile but the duality of
+block core conditionally overriding the driver's returned cookie (that
+is meant to be opaque to upper layer) is not great.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3f6db813d670..84eb499368a4 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -406,7 +406,8 @@ struct io_ring_ctx {
- 
- 	struct idr		io_buffer_idr;
- 
--	struct idr		personality_idr;
-+	struct xarray		personalities;
-+	u32			pers_next;
- 
- 	struct {
- 		unsigned		cached_cq_tail;
-@@ -1137,7 +1138,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	init_completion(&ctx->ref_comp);
- 	init_completion(&ctx->sq_thread_comp);
- 	idr_init(&ctx->io_buffer_idr);
--	idr_init(&ctx->personality_idr);
-+	xa_init_flags(&ctx->personalities, XA_FLAGS_ALLOC1);
- 	mutex_init(&ctx->uring_lock);
- 	init_waitqueue_head(&ctx->wait);
- 	spin_lock_init(&ctx->completion_lock);
-@@ -6337,7 +6338,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	req->work.list.next = NULL;
- 	personality = READ_ONCE(sqe->personality);
- 	if (personality) {
--		req->work.creds = idr_find(&ctx->personality_idr, personality);
-+		req->work.creds = xa_load(&ctx->personalities, personality);
- 		if (!req->work.creds)
- 			return -EINVAL;
- 		get_cred(req->work.creds);
-@@ -8355,7 +8356,6 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	mutex_unlock(&ctx->uring_lock);
- 	io_eventfd_unregister(ctx);
- 	io_destroy_buffers(ctx);
--	idr_destroy(&ctx->personality_idr);
- 
- #if defined(CONFIG_UNIX)
- 	if (ctx->ring_sock) {
-@@ -8420,7 +8420,7 @@ static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
- {
- 	const struct cred *creds;
- 
--	creds = idr_remove(&ctx->personality_idr, id);
-+	creds = xa_erase(&ctx->personalities, id);
- 	if (creds) {
- 		put_cred(creds);
- 		return 0;
-@@ -8429,14 +8429,6 @@ static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
- 	return -EINVAL;
- }
- 
--static int io_remove_personalities(int id, void *p, void *data)
--{
--	struct io_ring_ctx *ctx = data;
--
--	io_unregister_personality(ctx, id);
--	return 0;
--}
--
- static bool io_run_ctx_fallback(struct io_ring_ctx *ctx)
- {
- 	struct callback_head *work, *next;
-@@ -8526,13 +8518,17 @@ static void io_ring_exit_work(struct work_struct *work)
- 
- static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- {
-+	unsigned long index;
-+	struct creds *creds;
-+
- 	mutex_lock(&ctx->uring_lock);
- 	percpu_ref_kill(&ctx->refs);
- 	/* if force is set, the ring is going away. always drop after that */
- 	ctx->cq_overflow_flushed = 1;
- 	if (ctx->rings)
- 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
--	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
-+	xa_for_each(&ctx->personalities, index, creds)
-+		io_unregister_personality(ctx, index);
- 	mutex_unlock(&ctx->uring_lock);
- 
- 	io_kill_timeouts(ctx, NULL, NULL);
-@@ -9162,10 +9158,9 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- }
- 
- #ifdef CONFIG_PROC_FS
--static int io_uring_show_cred(int id, void *p, void *data)
-+static int io_uring_show_cred(struct seq_file *m, unsigned int id,
-+		const struct cred *cred)
- {
--	const struct cred *cred = p;
--	struct seq_file *m = data;
- 	struct user_namespace *uns = seq_user_ns(m);
- 	struct group_info *gi;
- 	kernel_cap_t cap;
-@@ -9233,9 +9228,13 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
- 						(unsigned int) buf->len);
- 	}
--	if (has_lock && !idr_is_empty(&ctx->personality_idr)) {
-+	if (has_lock && !xa_empty(&ctx->personalities)) {
-+		unsigned long index;
-+		const struct cred *cred;
-+
- 		seq_printf(m, "Personalities:\n");
--		idr_for_each(&ctx->personality_idr, io_uring_show_cred, m);
-+		xa_for_each(&ctx->personalities, index, cred)
-+			io_uring_show_cred(m, index, cred);
- 	}
- 	seq_printf(m, "PollList:\n");
- 	spin_lock_irq(&ctx->completion_lock);
-@@ -9564,14 +9563,16 @@ static int io_probe(struct io_ring_ctx *ctx, void __user *arg, unsigned nr_args)
- static int io_register_personality(struct io_ring_ctx *ctx)
- {
- 	const struct cred *creds;
-+	u32 id;
- 	int ret;
- 
- 	creds = get_current_cred();
- 
--	ret = idr_alloc_cyclic(&ctx->personality_idr, (void *) creds, 1,
--				USHRT_MAX, GFP_KERNEL);
--	if (ret < 0)
--		put_cred(creds);
-+	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)creds,
-+			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
-+	if (!ret)
-+		return id;
-+	put_cred(creds);
- 	return ret;
- }
- 
--- 
-2.30.2
+> +
+> +			if (!blk_qc_t_valid(ret)) {
+> +				/* set initial value */
+> +				ret = cookie;
+> +			} else if (ret != cookie) {
+> +				/* bio gets split and enqueued to multi hctxs */
+> +				ret = BLK_QC_T_BIO_POLL_ALL;
+> +				poll_on = false;
+> +			}
+> +		}
+>  
+>  		/*
+>  		 * Sort new bios into those for a lower level and those for the
+> @@ -989,6 +1013,7 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+>  	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
+>  
+>  	current->bio_list = NULL;
+> +
+>  	return ret;
+>  }
+
+Nit: Not seeing need to alter white space here.
+
+>  
+> @@ -1119,6 +1144,44 @@ blk_qc_t submit_bio(struct bio *bio)
+>  }
+>  EXPORT_SYMBOL(submit_bio);
+>  
+> +static int blk_poll_bio(blk_qc_t cookie)
+> +{
+> +	unsigned int devt = blk_qc_t_to_devt(cookie);
+> +	unsigned int queue_num = blk_qc_t_to_queue_num(cookie);
+> +	struct block_device *bdev;
+> +	struct request_queue *q;
+> +	struct blk_mq_hw_ctx *hctx;
+> +	int ret;
+> +
+> +	bdev = blkdev_get_no_open(devt);
+
+As you pointed out to me in private, but for the benefit of others,
+blkdev_get_no_open()'s need to take inode lock is not ideal here.
+
+> +
+> +	/*
+> +	 * One such case is that dm device has reloaded table and the original
+> +	 * underlying device the bio submitted to has been detached. When
+> +	 * reloading table, dm will ensure that previously submitted IOs have
+> +	 * all completed, thus return directly here.
+> +	 */
+> +	if (!bdev)
+> +		return 1;
+> +
+> +	q = bdev->bd_disk->queue;
+> +	hctx = q->queue_hw_ctx[queue_num];
+> +
+> +	/*
+> +	 * Similar to the case described in the above comment, that dm device
+> +	 * has reloaded table and the original underlying device the bio
+> +	 * submitted to has been detached. Thus the dev_t stored in cookie may
+> +	 * be reused by another blkdev, and if that's the case, return directly
+> +	 * here.
+> +	 */
+> +	if (hctx->type != HCTX_TYPE_POLL)
+> +		return 1;
+
+These checks really aren't authoritative or safe enough.  If the bdev
+may have changed then it may not have queue_num hctxs (so you'd access
+out-of-bounds). Similarly, a new bdev may have queue_num hctxs and may
+just so happen to have its type be HCTX_TYPE_POLL.. but in reality it
+isn't the same bdev the cookie was generated from.
+
+And I'm now curious how blk-mq's polling code isn't subject to async io
+polling tripping over the possibility of the underlying device having
+been changed out from under it -- meaning should this extra validation
+be common to bio and request-based?  If not, why not?
+
+> +
+> +	ret = blk_mq_poll_hctx(q, hctx);
+> +
+> +	blkdev_put_no_open(bdev);
+> +	return ret;
+> +}
+>  
+>  static int blk_bio_poll(struct request_queue *q, blk_qc_t cookie, bool spin)
+>  {
+> @@ -1129,7 +1192,11 @@ static int blk_bio_poll(struct request_queue *q, blk_qc_t cookie, bool spin)
+>  	do {
+>  		int ret;
+>  
+> -		ret = disk->fops->poll(q, cookie);
+> +		if (unlikely(blk_qc_t_is_poll_multi(cookie)))
+> +			ret = disk->fops->poll(q, cookie);
+> +		else
+> +			ret = blk_poll_bio(cookie);
+> +
+
+Again, this just seems too limiting. Would rather always call into
+disk->fops->poll and have it optimize for single hctx based on cookie it
+established.
+
+Not seeing why all this needs to be driven by block core _yet_.
+Could be I'm just wanting some flexibility for the design to harden (and
+potential for optimization left as a driver concern.. as I mentioned in
+my reply to the 0th patch header for this v5 patchset).
+
+>  		if (ret > 0) {
+>  			__set_current_state(TASK_RUNNING);
+>  			return ret;
+> diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+> index fb429daaa909..8f970e026be9 100644
+> --- a/include/linux/blk_types.h
+> +++ b/include/linux/blk_types.h
+> @@ -505,10 +505,19 @@ static inline int op_stat_group(unsigned int op)
+>  	return op_is_write(op);
+>  }
+>  
+> -/* Macros for blk_qc_t */
+> +/*
+> + * blk_qc_t for request-based mq devices.
+> + * 63                    31 30          15          0 (bit)
+> + * +----------------------+-+-----------+-----------+
+> + * |      reserved        | | queue_num |    tag    |
+> + * +----------------------+-+-----------+-----------+
+> + *                         ^
+> + *                         BLK_QC_T_INTERNAL
+> + */
+>  #define BLK_QC_T_NONE		-1U
+>  #define BLK_QC_T_SHIFT		16
+>  #define BLK_QC_T_INTERNAL	(1U << 31)
+> +#define BLK_QC_T_QUEUE_NUM_SIZE	15
+>  
+>  static inline bool blk_qc_t_valid(blk_qc_t cookie)
+>  {
+> @@ -517,7 +526,8 @@ static inline bool blk_qc_t_valid(blk_qc_t cookie)
+>  
+>  static inline unsigned int blk_qc_t_to_queue_num(blk_qc_t cookie)
+>  {
+> -	return (cookie & ~BLK_QC_T_INTERNAL) >> BLK_QC_T_SHIFT;
+> +	return (cookie >> BLK_QC_T_SHIFT) &
+> +	       ((1u << BLK_QC_T_QUEUE_NUM_SIZE) - 1);
+>  }
+>  
+>  static inline unsigned int blk_qc_t_to_tag(blk_qc_t cookie)
+> @@ -530,6 +540,58 @@ static inline bool blk_qc_t_is_internal(blk_qc_t cookie)
+>  	return (cookie & BLK_QC_T_INTERNAL) != 0;
+>  }
+>  
+> +/*
+> + * blk_qc_t for bio-based devices.
+> + *
+> + * 1. When @bio is not split, the returned cookie has following format.
+> + *    @dev_t specifies the dev_t number of the underlying device the bio
+> + *    submitted to, while @queue_num specifies the hw queue the bio submitted
+> + *    to.
+> + *
+> + * 63                    31 30          15          0 (bit)
+> + * +----------------------+-+-----------+-----------+
+> + * |        dev_t         | | queue_num |  reserved |
+> + * +----------------------+-+-----------+-----------+
+> + *                         ^
+> + *                         reserved for compatibility with mq
+> + *
+> + * 2. When @bio gets split and enqueued into multi hw queues, the returned
+> + *    cookie is just BLK_QC_T_BIO_POLL_ALL flag.
+> + *
+> + * 63                                              0 (bit)
+> + * +----------------------------------------------+-+
+> + * |                                              |1|
+> + * +----------------------------------------------+-+
+> + *                                                 ^
+> + *                                                 BLK_QC_T_BIO_POLL_ALL
+> + *
+> + * 3. Otherwise, return BLK_QC_T_NONE as the cookie.
+> + *
+> + * 63                                              0 (bit)
+> + * +-----------------------------------------------+
+> + * |                  BLK_QC_T_NONE                |
+> + * +-----------------------------------------------+
+> + */
+> +#define BLK_QC_T_HIGH_SHIFT	32
+> +#define BLK_QC_T_BIO_POLL_ALL	1U
+
+Pulling on same thread I raised above, the cookie is meant to be
+opaque.  Pinning down how the cookie is (ab)used in block core seems to
+undermine the intended flexibility.
+
+I'd much rather these details be pushed into drivers/md/bio-poll.h or
+something for the near-term.  We can always elevate it to block core
+if/when there is sufficient justification.
+
+Just feels we're getting too constraining too quickly.
+
+Mike
+
+
+> +
+> +static inline unsigned int blk_qc_t_to_devt(blk_qc_t cookie)
+> +{
+> +	return cookie >> BLK_QC_T_HIGH_SHIFT;
+> +}
+> +
+> +static inline blk_qc_t blk_qc_t_get_by_devt(unsigned int dev,
+> +					    unsigned int queue_num)
+> +{
+> +	return ((blk_qc_t)dev << BLK_QC_T_HIGH_SHIFT) |
+> +	       (queue_num << BLK_QC_T_SHIFT);
+> +}
+> +
+> +static inline bool blk_qc_t_is_poll_multi(blk_qc_t cookie)
+> +{
+> +	return cookie & BLK_QC_T_BIO_POLL_ALL;
+> +}
+> +
+>  struct blk_rq_stat {
+>  	u64 mean;
+>  	u64 min;
+> diff --git a/include/linux/types.h b/include/linux/types.h
+> index 52a54ed6ffac..7ff4bb96e0ea 100644
+> --- a/include/linux/types.h
+> +++ b/include/linux/types.h
+> @@ -126,7 +126,7 @@ typedef u64 sector_t;
+>  typedef u64 blkcnt_t;
+>  
+>  /* cookie used for IO polling */
+> -typedef unsigned int blk_qc_t;
+> +typedef u64 blk_qc_t;
+>  
+>  /*
+>   * The type of an index into the pagecache.
+> -- 
+> 2.27.0
+> 
 

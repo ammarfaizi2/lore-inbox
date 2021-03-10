@@ -2,145 +2,138 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 694C9C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 04:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05172C433E0
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F34A64FE7
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 04:13:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B723164FE8
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbhCJEM3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 9 Mar 2021 23:12:29 -0500
-Received: from mail-il1-f200.google.com ([209.85.166.200]:43797 "EHLO
-        mail-il1-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232209AbhCJEMF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 9 Mar 2021 23:12:05 -0500
-Received: by mail-il1-f200.google.com with SMTP id b4so11863140ilj.10
-        for <io-uring@vger.kernel.org>; Tue, 09 Mar 2021 20:12:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=5OqF6VJ+CXLAAtRQ+kLi1XLegd503eawwJIvdTcetWc=;
-        b=mOvLo2u9u3tfFyPFCAUIjCj9tltgHpUta89hdjza2cRs55SHK8ZZJUCAC5pt1D4CF1
-         1v9PBdXt0AhI7wrtv80a19B3/bnyx43VswyWouuK4hWdEq+X+HxPSyB5S4frs0WMqtCv
-         sPB5hpA+ra8I3SI9jImS7EPsFcwJzgsSPmbfpnA2Poyu6FUZ9gUAPBN+GsE/ToBc5gE0
-         N3vjsVGB+z+yH6rqM9El9QRLze02qnN9IXKTptxLb1SobH37dYzXTGMn/03z9V37MXo0
-         lAEP6ZkXEdNfAMGC1fMRkanpLZuKvk36WvngQYU6JyX6RO++LKh7TsseTS1qSsLe5Fpx
-         ClIw==
-X-Gm-Message-State: AOAM5325MQdioczm1Lb2tovg667x5GFifjXL2RCpWgnE6rhxL7Y1jL0r
-        HAfRBS6jvuAEMCLWOXn8qRrEzlOVRSjlU+W3sV5tyyq+mRLy
-X-Google-Smtp-Source: ABdhPJxd1ttW8Ue+EVOOjJOW6RWy649Eb+T3iGy63L+9AJlmZhWiN5hNB2ipvFSKjsz7Mqc8vElwXx1F7jIzsXjsezjwmF9I4EE+
+        id S232073AbhCJMCK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 07:02:10 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:56056 "EHLO raptor.unsafe.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230512AbhCJMBo (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Wed, 10 Mar 2021 07:01:44 -0500
+Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id 59AD640DB8;
+        Wed, 10 Mar 2021 12:01:42 +0000 (UTC)
+From:   Alexey Gladkov <gladkov.alexey@gmail.com>
+To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        linux-mm@kvack.org
+Cc:     Alexey Gladkov <legion@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>
+Subject: [PATCH v8 1/8] Increase size of ucounts to atomic_long_t
+Date:   Wed, 10 Mar 2021 13:01:26 +0100
+Message-Id: <18b439960a2de06e9352c36b8d04fb149a024a86.1615372955.git.gladkov.alexey@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1615372955.git.gladkov.alexey@gmail.com>
+References: <cover.1615372955.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
-X-Received: by 2002:a02:ce8d:: with SMTP id y13mr1396469jaq.29.1615349524740;
- Tue, 09 Mar 2021 20:12:04 -0800 (PST)
-Date:   Tue, 09 Mar 2021 20:12:04 -0800
-In-Reply-To: <7dff5f11-817d-228a-5623-1df17b05402b@kernel.dk>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000009c3d4505bd26de32@google.com>
-Subject: Re: [syzbot] possible deadlock in io_sq_thread_finish
-From:   syzbot <syzbot+ac39856cb1b332dbbdda@syzkaller.appspotmail.com>
-To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.4 (raptor.unsafe.ru [0.0.0.0]); Wed, 10 Mar 2021 12:01:42 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+RLIMIT_MSGQUEUE and RLIMIT_MEMLOCK use unsigned long to store their
+counters. As a preparation for moving rlimits based on ucounts, we need
+to increase the size of the variable to long.
 
-syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-KASAN: use-after-free Read in io_sq_thread
+Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
+---
+ include/linux/user_namespace.h |  4 ++--
+ kernel/ucount.c                | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
-==================================================================
-BUG: KASAN: use-after-free in __lock_acquire+0x3e6f/0x54c0 kernel/locking/lockdep.c:4770
-Read of size 8 at addr ffff88801d418c78 by task iou-sqp-10269/10271
-
-CPU: 1 PID: 10271 Comm: iou-sqp-10269 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- __lock_acquire+0x3e6f/0x54c0 kernel/locking/lockdep.c:4770
- lock_acquire kernel/locking/lockdep.c:5510 [inline]
- lock_acquire+0x1ab/0x740 kernel/locking/lockdep.c:5475
- down_write+0x92/0x150 kernel/locking/rwsem.c:1406
- io_sq_thread+0x1220/0x1b10 fs/io_uring.c:6754
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Allocated by task 10269:
- kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:46 [inline]
- set_alloc_info mm/kasan/common.c:427 [inline]
- ____kasan_kmalloc mm/kasan/common.c:506 [inline]
- ____kasan_kmalloc mm/kasan/common.c:465 [inline]
- __kasan_kmalloc+0x99/0xc0 mm/kasan/common.c:515
- kmalloc include/linux/slab.h:554 [inline]
- kzalloc include/linux/slab.h:684 [inline]
- io_get_sq_data fs/io_uring.c:7153 [inline]
- io_sq_offload_create fs/io_uring.c:7827 [inline]
- io_uring_create fs/io_uring.c:9443 [inline]
- io_uring_setup+0x154b/0x2940 fs/io_uring.c:9523
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Freed by task 9:
- kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
- kasan_set_track+0x1c/0x30 mm/kasan/common.c:46
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:357
- ____kasan_slab_free mm/kasan/common.c:360 [inline]
- ____kasan_slab_free mm/kasan/common.c:325 [inline]
- __kasan_slab_free+0xf5/0x130 mm/kasan/common.c:367
- kasan_slab_free include/linux/kasan.h:199 [inline]
- slab_free_hook mm/slub.c:1562 [inline]
- slab_free_freelist_hook+0x92/0x210 mm/slub.c:1600
- slab_free mm/slub.c:3161 [inline]
- kfree+0xe5/0x7f0 mm/slub.c:4213
- io_put_sq_data fs/io_uring.c:7095 [inline]
- io_sq_thread_finish+0x48e/0x5b0 fs/io_uring.c:7113
- io_ring_ctx_free fs/io_uring.c:8355 [inline]
- io_ring_exit_work+0x333/0xcf0 fs/io_uring.c:8525
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-The buggy address belongs to the object at ffff88801d418c00
- which belongs to the cache kmalloc-512 of size 512
-The buggy address is located 120 bytes inside of
- 512-byte region [ffff88801d418c00, ffff88801d418e00)
-The buggy address belongs to the page:
-page:00000000311e6f59 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1d418
-head:00000000311e6f59 order:2 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head)
-raw: 00fff00000010200 dead000000000100 dead000000000122 ffff88800fc41c80
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88801d418b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88801d418b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88801d418c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                                ^
- ffff88801d418c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88801d418d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-
-Tested on:
-
-commit:         dc5c40fb io_uring: always wait for sqd exited when stoppin..
-git tree:       git://git.kernel.dk/linux-block io_uring-5.12
-console output: https://syzkaller.appspot.com/x/log.txt?x=111d175cd00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b3c6cab008c50864
-dashboard link: https://syzkaller.appspot.com/bug?extid=ac39856cb1b332dbbdda
-compiler:       
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 64cf8ebdc4ec..0bb833fd41f4 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -85,7 +85,7 @@ struct user_namespace {
+ 	struct ctl_table_header *sysctls;
+ #endif
+ 	struct ucounts		*ucounts;
+-	int ucount_max[UCOUNT_COUNTS];
++	long ucount_max[UCOUNT_COUNTS];
+ } __randomize_layout;
+ 
+ struct ucounts {
+@@ -93,7 +93,7 @@ struct ucounts {
+ 	struct user_namespace *ns;
+ 	kuid_t uid;
+ 	int count;
+-	atomic_t ucount[UCOUNT_COUNTS];
++	atomic_long_t ucount[UCOUNT_COUNTS];
+ };
+ 
+ extern struct user_namespace init_user_ns;
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 11b1596e2542..04c561751af1 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -175,14 +175,14 @@ static void put_ucounts(struct ucounts *ucounts)
+ 	kfree(ucounts);
+ }
+ 
+-static inline bool atomic_inc_below(atomic_t *v, int u)
++static inline bool atomic_long_inc_below(atomic_long_t *v, int u)
+ {
+-	int c, old;
+-	c = atomic_read(v);
++	long c, old;
++	c = atomic_long_read(v);
+ 	for (;;) {
+ 		if (unlikely(c >= u))
+ 			return false;
+-		old = atomic_cmpxchg(v, c, c+1);
++		old = atomic_long_cmpxchg(v, c, c+1);
+ 		if (likely(old == c))
+ 			return true;
+ 		c = old;
+@@ -196,17 +196,17 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+ 	struct user_namespace *tns;
+ 	ucounts = get_ucounts(ns, uid);
+ 	for (iter = ucounts; iter; iter = tns->ucounts) {
+-		int max;
++		long max;
+ 		tns = iter->ns;
+ 		max = READ_ONCE(tns->ucount_max[type]);
+-		if (!atomic_inc_below(&iter->ucount[type], max))
++		if (!atomic_long_inc_below(&iter->ucount[type], max))
+ 			goto fail;
+ 	}
+ 	return ucounts;
+ fail:
+ 	bad = iter;
+ 	for (iter = ucounts; iter != bad; iter = iter->ns->ucounts)
+-		atomic_dec(&iter->ucount[type]);
++		atomic_long_dec(&iter->ucount[type]);
+ 
+ 	put_ucounts(ucounts);
+ 	return NULL;
+@@ -216,7 +216,7 @@ void dec_ucount(struct ucounts *ucounts, enum ucount_type type)
+ {
+ 	struct ucounts *iter;
+ 	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
+-		int dec = atomic_dec_if_positive(&iter->ucount[type]);
++		long dec = atomic_long_dec_if_positive(&iter->ucount[type]);
+ 		WARN_ON_ONCE(dec < 0);
+ 	}
+ 	put_ucounts(ucounts);
+-- 
+2.29.2
 

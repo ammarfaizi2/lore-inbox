@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD890C28CFB
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06743C4161F
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB15464FE2
+	by mail.kernel.org (Postfix) with ESMTP id EB0F564FCD
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233941AbhCJWop (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 17:44:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54130 "EHLO
+        id S233889AbhCJWoq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 17:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233960AbhCJWoa (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:30 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D56C061760
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:08 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id q2-20020a17090a2e02b02900bee668844dso8055848pjd.3
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:08 -0800 (PST)
+        with ESMTP id S233981AbhCJWob (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:31 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A219C061574
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:31 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id y13so9694697pfr.0
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=dksuXgEypiZFfREPo4ZVzsAQw7R8F4EWY0Nu2gThQow=;
-        b=hUvXxXrkWgbUtPfYM+zb+iSpb4nrXa0L9lz2GsC7OzpFbbHafSvLAje8Bl7MKhQuIW
-         mor4Hdt0Sb8ZpKUxbn+HQVAz9Ypk1nWmUKeISBZu8TTznvhsGrxjunX7Lt8c+ZpBSxZ0
-         Nc1LJOJSdgRZGvs/IvA1rr6o9bcATSI8fdafJ5a6hi9u+NsTbeZ6YqTUbqWLyaN+VoR0
-         DNat6mRmwgmBL2BPnogZcl7SzamXsrBqkB2FH9v6cQ8Eqm7Bp+WNlQtUbtGriHsTZg4j
-         7/f4Ilel7xtjCgQFXa+qfqH7Lfh3i9M7oTt190qFHdfXMrbtooqpynHplqffU7vAddl3
-         4rjQ==
+        bh=wnlWTmvZzR454d3YCmWjC6EBvh1B1ejWi+vO/YNiOn4=;
+        b=ZroTEFeaL4NLQtJQTjtRIIdlFPDON05cwfCwAgYpSK7YJ0luZ/6qCaxtrJ3plgWqCY
+         dBGqHjNHxM9M0405YvysJrUHWUYvx2jobROarlB+RB2hIE41Unw6kxlhTfQtV5jn0jrF
+         MTQgK4aMUnseH/bkXs2erpYMs0e+rDGq+0Myu8Cv2yJ5FJ6XFoTYvMG+FiBD270CGy4o
+         DCJ4HzhZcoVvH7yF2X/Tm2xdygjtNOAmWx9JWxVRJ7xll8wDpvsGKrGBPMTS3vROLQgR
+         BQwUVjXilT64QL18a27oOoLr2+YwCAM+onZ/mPn+rnuEzU+JWfU4Zb6ThPI98f6+OSEB
+         YDGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dksuXgEypiZFfREPo4ZVzsAQw7R8F4EWY0Nu2gThQow=;
-        b=UGMIaMlTdtd3eRgVPPGA0fdGyqtwDY/uKyY/mWH2iP90K6HEZShJm8AifCCJwQYrct
-         MTUBzItVM8iD+pUApvUtN6AxU3rcLtQyEaaderO9xFrUx0iqFM5UuAkVhO7wsJeV3FiM
-         vMiKuIceRfjXMfjk75cAFuwhErMiF2dARFf5r9jfBw58rXYe2Pw5Fy5nFAV8fQw6LkPP
-         mtABqsT/yJRk8uwKGJpqgnsDPEMLN/TYcacUXeWJvb6Q9vTnWqR94tWVZUXhR9tQQ62B
-         bJIHa1pDfNTSq2h+YtpH56axUTLmfPVtXyO/vlaW93x9VntJWzONWUeBFoTAoZax0/18
-         4aKA==
-X-Gm-Message-State: AOAM530XNx4QezYzy+UVTCRYQPaudY1wXVKuDMMUQOjUzHmFNHNLnJFG
-        60dXdwcC5h9OIwES5Et3Sy4PgrlY8f+njg==
-X-Google-Smtp-Source: ABdhPJwLFoaNmqs/yD8O0DDUyP2ROvt7QfkZ/k6I0X3GMgumd+PnpD6OeHZ/vgMFpVLSdyfigaMYPA==
-X-Received: by 2002:a17:902:bb83:b029:e5:dacc:9035 with SMTP id m3-20020a170902bb83b02900e5dacc9035mr4993891pls.80.1615416247801;
-        Wed, 10 Mar 2021 14:44:07 -0800 (PST)
+        bh=wnlWTmvZzR454d3YCmWjC6EBvh1B1ejWi+vO/YNiOn4=;
+        b=l9za8/jvHNmViqMNRTAD3vfJFUdpafcZoy0iU+V7R1evyyy4Q4069d8ghJ2wnMqSjy
+         aw2Qf4M5Uh81SRwsLQIqVCRt35F6jSA4X8/AsF7vNR2qCeR9uNQzjoeQj84f1qgGREJI
+         XeMdrXyX6F4a1NVzrpRuwespy3WaydWynETpDks44vwzQU+6cE3uhRvuy3AFZjbvO4p3
+         E0dD/7FjKcQ7Bs2T/0EE+IKRMVrfctaAD3AALUKPHtOmT9v3xpcjZNkv3XrUT7yQwX70
+         U1ULMxYyJl1/Gxq1c+2Cw+dN0T+L3ht6KTDqWiPos0G4/Dz5SZC+W5JKExNeC3JCzsGC
+         mfxA==
+X-Gm-Message-State: AOAM533XD5P28OXh09tKaBKCktyjAWQ5d6OMx3rZHwS8cWxyrdvmAkMA
+        ZVSGvDckgjXt+y33PTFATL0JbI4InXd47A==
+X-Google-Smtp-Source: ABdhPJyMAtChRaLkEJnqDG0mnTAk5ohgMoch9yktCaXeiOoiYgHPEX/z8iPK4h1HtwIl0rzIZd2BnQ==
+X-Received: by 2002:a63:c248:: with SMTP id l8mr4699864pgg.136.1615416270332;
+        Wed, 10 Mar 2021 14:44:30 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.06
+        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:07 -0800 (PST)
+        Wed, 10 Mar 2021 14:44:30 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 03/27] io_uring: make del_task_file more forgiving
-Date:   Wed, 10 Mar 2021 15:43:34 -0700
-Message-Id: <20210310224358.1494503-4-axboe@kernel.dk>
+Subject: [PATCH 26/27] io_uring: fix invalid ctx->sq_thread_idle
+Date:   Wed, 10 Mar 2021 15:43:57 -0700
+Message-Id: <20210310224358.1494503-27-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
 References: <20210310224358.1494503-1-axboe@kernel.dk>
@@ -73,52 +73,38 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-Rework io_uring_del_task_file(), so it accepts an index to delete, and
-it's not necessarily have to be in the ->xa. Infer file from xa_erase()
-to maintain a single origin of truth.
+We have to set ctx->sq_thread_idle before adding a ring to an SQ task,
+otherwise sqd races for seeing zero and accounting it as such.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d51c6ba9268b..00a736867b76 100644
+index 14165e18020c..7072c0eb22c1 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8785,15 +8785,18 @@ static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
- /*
-  * Remove this io_uring_file -> task mapping.
-  */
--static void io_uring_del_task_file(struct file *file)
-+static void io_uring_del_task_file(unsigned long index)
- {
- 	struct io_uring_task *tctx = current->io_uring;
-+	struct file *file;
+@@ -7829,14 +7829,14 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
+ 
+ 		ctx->sq_creds = get_current_cred();
+ 		ctx->sq_data = sqd;
+-		io_sq_thread_park(sqd);
+-		list_add(&ctx->sqd_list, &sqd->ctx_new_list);
+-		io_sq_thread_unpark(sqd);
+-
+ 		ctx->sq_thread_idle = msecs_to_jiffies(p->sq_thread_idle);
+ 		if (!ctx->sq_thread_idle)
+ 			ctx->sq_thread_idle = HZ;
+ 
++		io_sq_thread_park(sqd);
++		list_add(&ctx->sqd_list, &sqd->ctx_new_list);
++		io_sq_thread_unpark(sqd);
 +
-+	file = xa_erase(&tctx->xa, index);
-+	if (!file)
-+		return;
+ 		if (sqd->thread)
+ 			return 0;
  
- 	if (tctx->last == file)
- 		tctx->last = NULL;
--	file = xa_erase(&tctx->xa, (unsigned long)file);
--	if (file)
--		fput(file);
-+	fput(file);
- }
- 
- static void io_uring_clean_tctx(struct io_uring_task *tctx)
-@@ -8802,7 +8805,7 @@ static void io_uring_clean_tctx(struct io_uring_task *tctx)
- 	unsigned long index;
- 
- 	xa_for_each(&tctx->xa, index, file)
--		io_uring_del_task_file(file);
-+		io_uring_del_task_file(index);
- 	if (tctx->io_wq) {
- 		io_wq_put_and_exit(tctx->io_wq);
- 		tctx->io_wq = NULL;
 -- 
 2.30.2
 

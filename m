@@ -5,24 +5,24 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C075C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1444C43381
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1ED2C64FF1
+	by mail.kernel.org (Postfix) with ESMTP id 96B6164FE8
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 12:02:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232096AbhCJMCL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 07:02:11 -0500
-Received: from raptor.unsafe.ru ([5.9.43.93]:56126 "EHLO raptor.unsafe.ru"
+        id S232147AbhCJMCM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 07:02:12 -0500
+Received: from raptor.unsafe.ru ([5.9.43.93]:56182 "EHLO raptor.unsafe.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231272AbhCJMBp (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Wed, 10 Mar 2021 07:01:45 -0500
+        id S231339AbhCJMBq (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Wed, 10 Mar 2021 07:01:46 -0500
 Received: from comp-core-i7-2640m-0182e6.redhat.com (ip-94-113-225-162.net.upcbroadband.cz [94.113.225.162])
-        by raptor.unsafe.ru (Postfix) with ESMTPSA id A860540EF6;
-        Wed, 10 Mar 2021 12:01:43 +0000 (UTC)
+        by raptor.unsafe.ru (Postfix) with ESMTPSA id C3A2840F00;
+        Wed, 10 Mar 2021 12:01:44 +0000 (UTC)
 From:   Alexey Gladkov <gladkov.alexey@gmail.com>
 To:     LKML <linux-kernel@vger.kernel.org>, io-uring@vger.kernel.org,
         Kernel Hardening <kernel-hardening@lists.openwall.com>,
@@ -36,156 +36,200 @@ Cc:     Alexey Gladkov <legion@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH v8 3/8] Use atomic_t for ucounts reference counting
-Date:   Wed, 10 Mar 2021 13:01:28 +0100
-Message-Id: <59ee3289194cd97d70085cce701bc494bfcb4fd2.1615372955.git.gladkov.alexey@gmail.com>
+Subject: [PATCH v8 5/8] Reimplement RLIMIT_MSGQUEUE on top of ucounts
+Date:   Wed, 10 Mar 2021 13:01:30 +0100
+Message-Id: <d7e6e17742c6c957fcf71ee391ebd1eac7516f76.1615372955.git.gladkov.alexey@gmail.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <cover.1615372955.git.gladkov.alexey@gmail.com>
 References: <cover.1615372955.git.gladkov.alexey@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.4 (raptor.unsafe.ru [0.0.0.0]); Wed, 10 Mar 2021 12:01:44 +0000 (UTC)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.4 (raptor.unsafe.ru [0.0.0.0]); Wed, 10 Mar 2021 12:01:45 +0000 (UTC)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The current implementation of the ucounts reference counter requires the
-use of spin_lock. We're going to use get_ucounts() in more performance
-critical areas like a handling of RLIMIT_SIGPENDING.
-
-Now we need to use spin_lock only if we want to change the hashtable.
+The rlimit counter is tied to uid in the user_namespace. This allows
+rlimit values to be specified in userns even if they are already
+globally exceeded by the user. However, the value of the previous
+user_namespaces cannot be exceeded.
 
 Signed-off-by: Alexey Gladkov <gladkov.alexey@gmail.com>
 ---
- include/linux/user_namespace.h |  4 +--
- kernel/ucount.c                | 60 +++++++++++++++-------------------
- 2 files changed, 28 insertions(+), 36 deletions(-)
+ include/linux/sched/user.h     |  4 ----
+ include/linux/user_namespace.h |  1 +
+ ipc/mqueue.c                   | 41 ++++++++++++++++++----------------
+ kernel/fork.c                  |  1 +
+ kernel/ucount.c                |  1 +
+ kernel/user_namespace.c        |  1 +
+ 6 files changed, 26 insertions(+), 23 deletions(-)
 
+diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
+index d33d867ad6c1..8a34446681aa 100644
+--- a/include/linux/sched/user.h
++++ b/include/linux/sched/user.h
+@@ -18,10 +18,6 @@ struct user_struct {
+ #endif
+ #ifdef CONFIG_EPOLL
+ 	atomic_long_t epoll_watches; /* The number of file descriptors currently watched */
+-#endif
+-#ifdef CONFIG_POSIX_MQUEUE
+-	/* protected by mq_lock	*/
+-	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
+ #endif
+ 	unsigned long locked_shm; /* How many pages of mlocked shm ? */
+ 	unsigned long unix_inflight;	/* How many files in flight in unix sockets */
 diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index f71b5a4a3e74..d84cc2c0b443 100644
+index 9d1ca370c201..d0fea0306394 100644
 --- a/include/linux/user_namespace.h
 +++ b/include/linux/user_namespace.h
-@@ -92,7 +92,7 @@ struct ucounts {
- 	struct hlist_node node;
- 	struct user_namespace *ns;
- 	kuid_t uid;
--	int count;
-+	atomic_t count;
- 	atomic_long_t ucount[UCOUNT_COUNTS];
+@@ -51,6 +51,7 @@ enum ucount_type {
+ 	UCOUNT_INOTIFY_WATCHES,
+ #endif
+ 	UCOUNT_RLIMIT_NPROC,
++	UCOUNT_RLIMIT_MSGQUEUE,
+ 	UCOUNT_COUNTS,
  };
  
-@@ -104,7 +104,7 @@ void retire_userns_sysctls(struct user_namespace *ns);
- struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
- void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
- struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
--struct ucounts *get_ucounts(struct ucounts *ucounts);
-+struct ucounts * __must_check get_ucounts(struct ucounts *ucounts);
- void put_ucounts(struct ucounts *ucounts);
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index beff0cfcd1e8..75dba8780c80 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -144,7 +144,7 @@ struct mqueue_inode_info {
+ 	struct pid *notify_owner;
+ 	u32 notify_self_exec_id;
+ 	struct user_namespace *notify_user_ns;
+-	struct user_struct *user;	/* user who created, for accounting */
++	struct ucounts *ucounts;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+ 	struct sk_buff *notify_cookie;
  
- #ifdef CONFIG_USER_NS
+@@ -292,7 +292,6 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		struct ipc_namespace *ipc_ns, umode_t mode,
+ 		struct mq_attr *attr)
+ {
+-	struct user_struct *u = current_user();
+ 	struct inode *inode;
+ 	int ret = -ENOMEM;
+ 
+@@ -321,7 +320,7 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		info->notify_owner = NULL;
+ 		info->notify_user_ns = NULL;
+ 		info->qsize = 0;
+-		info->user = NULL;	/* set when all is ok */
++		info->ucounts = NULL;	/* set when all is ok */
+ 		info->msg_tree = RB_ROOT;
+ 		info->msg_tree_rightmost = NULL;
+ 		info->node_cache = NULL;
+@@ -371,19 +370,24 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+ 		if (mq_bytes + mq_treesize < mq_bytes)
+ 			goto out_inode;
+ 		mq_bytes += mq_treesize;
+-		spin_lock(&mq_lock);
+-		if (u->mq_bytes + mq_bytes < u->mq_bytes ||
+-		    u->mq_bytes + mq_bytes > rlimit(RLIMIT_MSGQUEUE)) {
++		info->ucounts = get_ucounts(current_ucounts());
++		if (info->ucounts) {
++			bool overlimit;
++
++			spin_lock(&mq_lock);
++			overlimit = inc_rlimit_ucounts_and_test(info->ucounts, UCOUNT_RLIMIT_MSGQUEUE,
++					mq_bytes, rlimit(RLIMIT_MSGQUEUE));
++			if (overlimit) {
++				dec_rlimit_ucounts(info->ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
++				spin_unlock(&mq_lock);
++				put_ucounts(info->ucounts);
++				info->ucounts = NULL;
++				/* mqueue_evict_inode() releases info->messages */
++				ret = -EMFILE;
++				goto out_inode;
++			}
+ 			spin_unlock(&mq_lock);
+-			/* mqueue_evict_inode() releases info->messages */
+-			ret = -EMFILE;
+-			goto out_inode;
+ 		}
+-		u->mq_bytes += mq_bytes;
+-		spin_unlock(&mq_lock);
+-
+-		/* all is ok */
+-		info->user = get_uid(u);
+ 	} else if (S_ISDIR(mode)) {
+ 		inc_nlink(inode);
+ 		/* Some things misbehave if size == 0 on a directory */
+@@ -497,7 +501,6 @@ static void mqueue_free_inode(struct inode *inode)
+ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+-	struct user_struct *user;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -520,8 +523,7 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
+ 
+-	user = info->user;
+-	if (user) {
++	if (info->ucounts) {
+ 		unsigned long mq_bytes, mq_treesize;
+ 
+ 		/* Total amount of bytes accounted for the mqueue */
+@@ -533,7 +535,7 @@ static void mqueue_evict_inode(struct inode *inode)
+ 					  info->attr.mq_msgsize);
+ 
+ 		spin_lock(&mq_lock);
+-		user->mq_bytes -= mq_bytes;
++		dec_rlimit_ucounts(info->ucounts, UCOUNT_RLIMIT_MSGQUEUE, mq_bytes);
+ 		/*
+ 		 * get_ns_from_inode() ensures that the
+ 		 * (ipc_ns = sb->s_fs_info) is either a valid ipc_ns
+@@ -543,7 +545,8 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		if (ipc_ns)
+ 			ipc_ns->mq_queues_count--;
+ 		spin_unlock(&mq_lock);
+-		free_uid(user);
++		put_ucounts(info->ucounts);
++		info->ucounts = NULL;
+ 	}
+ 	if (ipc_ns)
+ 		put_ipc_ns(ipc_ns);
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 812b023ecdce..0a939332efcc 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -823,6 +823,7 @@ void __init fork_init(void)
+ 		init_user_ns.ucount_max[i] = max_threads/2;
+ 
+ 	init_user_ns.ucount_max[UCOUNT_RLIMIT_NPROC] = task_rlimit(&init_task, RLIMIT_NPROC);
++	init_user_ns.ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = task_rlimit(&init_task, RLIMIT_MSGQUEUE);
+ 
+ #ifdef CONFIG_VMAP_STACK
+ 	cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "fork:vm_stack_cache",
 diff --git a/kernel/ucount.c b/kernel/ucount.c
-index 50cc1dfb7d28..bb3203039b5e 100644
+index 8df7c37bdf10..f2360a630ea1 100644
 --- a/kernel/ucount.c
 +++ b/kernel/ucount.c
-@@ -11,7 +11,7 @@
- struct ucounts init_ucounts = {
- 	.ns    = &init_user_ns,
- 	.uid   = GLOBAL_ROOT_UID,
--	.count = 1,
-+	.count = ATOMIC_INIT(1),
+@@ -81,6 +81,7 @@ static struct ctl_table user_table[] = {
+ 	UCOUNT_ENTRY("max_inotify_instances"),
+ 	UCOUNT_ENTRY("max_inotify_watches"),
+ #endif
++	{ },
+ 	{ },
+ 	{ }
  };
- 
- #define UCOUNTS_HASHTABLE_BITS 10
-@@ -139,6 +139,22 @@ static void hlist_add_ucounts(struct ucounts *ucounts)
- 	spin_unlock_irq(&ucounts_lock);
- }
- 
-+/* 127: arbitrary random number, small enough to assemble well */
-+#define refcount_zero_or_close_to_overflow(ucounts) \
-+	((unsigned int) atomic_read(&ucounts->count) + 127u <= 127u)
-+
-+struct ucounts *get_ucounts(struct ucounts *ucounts)
-+{
-+	if (ucounts) {
-+		if (refcount_zero_or_close_to_overflow(ucounts)) {
-+			WARN_ONCE(1, "ucounts: counter has reached its maximum value");
-+			return NULL;
-+		}
-+		atomic_inc(&ucounts->count);
-+	}
-+	return ucounts;
-+}
-+
- struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
- {
- 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
-@@ -155,7 +171,7 @@ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
- 
- 		new->ns = ns;
- 		new->uid = uid;
--		new->count = 0;
-+		atomic_set(&new->count, 1);
- 
- 		spin_lock_irq(&ucounts_lock);
- 		ucounts = find_ucounts(ns, uid, hashent);
-@@ -163,33 +179,12 @@ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
- 			kfree(new);
- 		} else {
- 			hlist_add_head(&new->node, hashent);
--			ucounts = new;
-+			spin_unlock_irq(&ucounts_lock);
-+			return new;
- 		}
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index 2434b13b02e5..cc90d5203acf 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -122,6 +122,7 @@ int create_user_ns(struct cred *new)
+ 		ns->ucount_max[i] = INT_MAX;
  	}
--	if (ucounts->count == INT_MAX)
--		ucounts = NULL;
--	else
--		ucounts->count += 1;
- 	spin_unlock_irq(&ucounts_lock);
--	return ucounts;
--}
--
--struct ucounts *get_ucounts(struct ucounts *ucounts)
--{
--	unsigned long flags;
--
--	if (!ucounts)
--		return NULL;
--
--	spin_lock_irqsave(&ucounts_lock, flags);
--	if (ucounts->count == INT_MAX) {
--		WARN_ONCE(1, "ucounts: counter has reached its maximum value");
--		ucounts = NULL;
--	} else {
--		ucounts->count += 1;
--	}
--	spin_unlock_irqrestore(&ucounts_lock, flags);
--
-+	ucounts = get_ucounts(ucounts);
- 	return ucounts;
- }
+ 	ns->ucount_max[UCOUNT_RLIMIT_NPROC] = rlimit(RLIMIT_NPROC);
++	ns->ucount_max[UCOUNT_RLIMIT_MSGQUEUE] = rlimit(RLIMIT_MSGQUEUE);
+ 	ns->ucounts = ucounts;
  
-@@ -197,15 +192,12 @@ void put_ucounts(struct ucounts *ucounts)
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&ucounts_lock, flags);
--	ucounts->count -= 1;
--	if (!ucounts->count)
-+	if (atomic_dec_and_test(&ucounts->count)) {
-+		spin_lock_irqsave(&ucounts_lock, flags);
- 		hlist_del_init(&ucounts->node);
--	else
--		ucounts = NULL;
--	spin_unlock_irqrestore(&ucounts_lock, flags);
--
--	kfree(ucounts);
-+		spin_unlock_irqrestore(&ucounts_lock, flags);
-+		kfree(ucounts);
-+	}
- }
- 
- static inline bool atomic_long_inc_below(atomic_long_t *v, int u)
+ 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
 -- 
 2.29.2
 

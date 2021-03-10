@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1FCC43332
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E58CC43331
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EFA6664FD3
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B78764FC3
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233784AbhCJWom (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 17:44:42 -0500
+        id S233367AbhCJWol (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 17:44:41 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233818AbhCJWoP (ORCPT
+        with ESMTP id S233829AbhCJWoP (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:15 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AED3C061761
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E462C061761
         for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:15 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id bt4so2448114pjb.5
+Received: by mail-pf1-x42b.google.com with SMTP id a188so13165654pfb.4
         for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=EGTjW5hEVNNXIdwm1Ylkp9MYUFGzZlAUTbBtL7EtUXw=;
-        b=xLJxOfb5II2jWrw91+sS3DWTylzMTmFLnrWQ3tsakZ0Y3PTK0fChvrBswEFAYfZLvi
-         9flHjqt1RBAUCRmNsXjqc3IghnOG1cYncJToXrBfS5eO9rQT1FCa3D93gn+ODbfw9xSZ
-         i1bupSM5bwBnadEA00qJtbcA9X20L7PSajB/zznMVEh7ZRwHVv7Y0bsI3TD0bC+5l1B5
-         I4ubsAL5jwyKPDefbx6xK69fsxzu6gB7O9rIdYaKvkiyF+rI1GyPBKO6RVpN4im7vzLP
-         GNFkOhIzvEDrUENB42e42fyRX8hh93OraFpVDVmG0THRpkQdZwYGJmJ5l+g0MlfP2WYD
-         Ck5Q==
+        bh=ff8262sXYdAs5eFjlJhBLMb7k29k1R9YL06T/WsbgL8=;
+        b=pkN6GeGPOSnpP76lEfH03ntfag49oleOtxAVKLMgXlft2e6O9KDBz8PVVH6uzN/eDF
+         U6YoT3ERwlKUT5B//Jqj6a9V2U9eOfIiuQvZhETfAwDA0aDstP/7q8Kf0SUmyEoCDAQd
+         TPzn7dc5n7BekfWKkg17QtDjdMWFw8LZb1F6iz3gImsgpPKXgBIlYa3W3I1D3K6jKQiF
+         mzGHXEXxe5sVvZMcDTFFoUuaHX3kmKt+k55MqFEowZyYtjuWLzQBzZg677szFHLWuKLa
+         6HOPOK3eWXh9xDmSf6N68pe7ZB+qTZJ/2tGk91H0c/C0AETI/fjeRbWuzMICejvChMF+
+         FMyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=EGTjW5hEVNNXIdwm1Ylkp9MYUFGzZlAUTbBtL7EtUXw=;
-        b=PMNTcTd6I6sovjsU9QAAeZioeSlJyDk5n5O8SwWIKHU6a//fjgx/VGkN22T1z+V4IP
-         8DzPLCuI+I/wHRGAeKF2AW1hKTrIQrbRd6hfK1Rkzcqly+6ZFi5qNI5F+eDzTPav4Lui
-         mbKWsR8iJyDYG2SFxJpcO1ImBdE7RZuHlHBLccrmwdpuRxvsBK7d7oFuO3+JtVuYd32p
-         o11Iq+2kq4a/QZL4yGmV34AKTx/3ITCE3N7WIe1uIycb6KFP5m6+jma+khUchYzkPCEd
-         Ralw9LFM/lZe4Sq/rUZm9n+8RMd+vD/V7waH/dxkN+BWilb+BEil6lvwC+wbI46NGbCZ
-         CXHQ==
-X-Gm-Message-State: AOAM531KHR86lUvlV5vpZOhOAYgZVDP2I/Hmd3ykuZ3TOocvUWF24npO
-        IST2dT++8qpdGsk4A3GzU6ZYd81sxf2smA==
-X-Google-Smtp-Source: ABdhPJwjSJVjUMZA05QruzDBKP6CbIdq+/yZPUEkxuATr22kNc4PHpHWsu/ZpI+aEzrztybKBeJLWA==
-X-Received: by 2002:a17:902:7249:b029:e4:358a:1d47 with SMTP id c9-20020a1709027249b02900e4358a1d47mr5433931pll.8.1615416252871;
-        Wed, 10 Mar 2021 14:44:12 -0800 (PST)
+        bh=ff8262sXYdAs5eFjlJhBLMb7k29k1R9YL06T/WsbgL8=;
+        b=nAgOKIA8Q/07trCFkqytt5deaL9MqZgIUL4BdpDInt4NJbwC8SZmRr1H8tZ/t72VjM
+         I7bYmk+7I9y9ccZ5Dwfr85EOeRXaVFhF3nh69qMQe4v/i/EZutgV92mnheYCS25bDoH4
+         iS0XXtC5uZ1C6uXwd5PzOMMedBTON2DjeLH3j/6UP+njarGWs6yWfk/S906VPh8CYS8B
+         RlPPztf2BqKiktLIxNpLv3rLQ5N1Gu+XD/PpndkuapUK0sJzCCK53UangMzLgL8mcKA4
+         cwPph9mOwblqZg9Cm7FhLejwpzdIFYgXMbJUedUI0Gd+nLuyB6+pOsumLqUSVfQ6EMSx
+         EPNg==
+X-Gm-Message-State: AOAM530mRkHp4TwEQr0e5tZfvs9ptg2nb1sBNpl2GENNzYMnZq0R66IM
+        yByYPRgxb3p+DIbaMlKc7h24CDb6HUDqpQ==
+X-Google-Smtp-Source: ABdhPJw5HKUI81tw5m/0l/DqNnEO9WRYb40RU35yaAfSogO9M7lrh+hj/MSgk6GkB0O17/qcAv9D8g==
+X-Received: by 2002:a62:c301:0:b029:1ed:c3d5:54d6 with SMTP id v1-20020a62c3010000b02901edc3d554d6mr4861760pfg.18.1615416254753;
+        Wed, 10 Mar 2021 14:44:14 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.12
+        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:12 -0800 (PST)
+        Wed, 10 Mar 2021 14:44:14 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/27] io_uring: warn when ring exit takes too long
-Date:   Wed, 10 Mar 2021 15:43:39 -0700
-Message-Id: <20210310224358.1494503-9-axboe@kernel.dk>
+Subject: [PATCH 10/27] io-wq: warn on creating manager while exiting
+Date:   Wed, 10 Mar 2021 15:43:41 -0700
+Message-Id: <20210310224358.1494503-11-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
 References: <20210310224358.1494503-1-axboe@kernel.dk>
@@ -73,42 +73,29 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-We use system_unbound_wq to run io_ring_exit_work(), so it's hard to
-monitor whether removal hang or not. Add WARN_ONCE to catch hangs.
+Add a simple warning making sure that nobody tries to create a new
+manager while we're under IO_WQ_BIT_EXIT. That can potentially happen
+due to racy work submission after final put.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/io-wq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 01a7fa4a4889..945e54690b81 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8560,6 +8560,7 @@ static void io_tctx_exit_cb(struct callback_head *cb)
- static void io_ring_exit_work(struct work_struct *work)
- {
- 	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx, exit_work);
-+	unsigned long timeout = jiffies + HZ * 60 * 5;
- 	struct io_tctx_exit exit;
- 	struct io_tctx_node *node;
- 	int ret;
-@@ -8572,10 +8573,14 @@ static void io_ring_exit_work(struct work_struct *work)
- 	 */
- 	do {
- 		io_uring_try_cancel_requests(ctx, NULL, NULL);
-+
-+		WARN_ON_ONCE(time_after(jiffies, timeout));
- 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 1bfdb86336e4..1ab9324e602f 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -774,6 +774,8 @@ static int io_wq_fork_manager(struct io_wq *wq)
+ 	if (wq->manager)
+ 		return 0;
  
- 	mutex_lock(&ctx->uring_lock);
- 	while (!list_empty(&ctx->tctx_list)) {
-+		WARN_ON_ONCE(time_after(jiffies, timeout));
++	WARN_ON_ONCE(test_bit(IO_WQ_BIT_EXIT, &wq->state));
 +
- 		node = list_first_entry(&ctx->tctx_list, struct io_tctx_node,
- 					ctx_node);
- 		exit.ctx = ctx;
+ 	init_completion(&wq->worker_done);
+ 	atomic_set(&wq->worker_refs, 1);
+ 	tsk = create_io_thread(io_wq_manager, wq, NUMA_NO_NODE);
 -- 
 2.30.2
 

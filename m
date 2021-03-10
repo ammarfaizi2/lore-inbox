@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 715B0C43603
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89827C4361A
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51AB164FDE
+	by mail.kernel.org (Postfix) with ESMTP id 61F7B64FCE
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233829AbhCJWon (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 17:44:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+        id S232181AbhCJWom (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 17:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233952AbhCJWoY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:24 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14611C061762
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:24 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so8061557pjc.2
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:24 -0800 (PST)
+        with ESMTP id S233925AbhCJWoS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:18 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B94A6C061761
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:18 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id x29so12377249pgk.6
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=6/72Omk7XNlOINOMaKerKQpk/LQfvlQHjvqr0dn8rQo=;
-        b=U9ivY1dSIqONeF9FWenjoK2tP2JMGDp4D0gbfAuzvWq99tfqtDrwcABRtR1EyXHCUR
-         OPnZJr97d4QjEBDkTRlwqRbK49LmG1ZvFkVOIkCmcPZy3/YTmTtH2IX4A8DAawqf9Z3t
-         epX48VZDpIq99hgYPlB5dC8ztg2wbWVRgtc1x1UKdD5ytlNIvGe/IcRPhvnWJZpOhWd4
-         UnvtjpuRQuRpC3JrfUmyi3d8qhLGF6IqwLph0ut2HW0eSEIy+JjCS8PMqHHiyu9lm6xp
-         XKH1f6ywTPjqAGj+Bay+PyEK7g1nSIK6LSLfBBqwdeGAfsio7uYM8OcUsOi7mlAIgVdE
-         SeGg==
+        bh=d+YxrujXhhT3g0BBV59F9wflxh5ZMWDQNI/4CLio9FI=;
+        b=E7Csl+NrhoFsdBHHAm0VqXnliXhDCpm8uA1S3ekyavzHf6zr7+WkRlL9HWLNZygxrK
+         //5ASIU8PQu38IqqZPbs0AUWTZ9BAXg6Zl2LyMA1bwzPOxpOxfa6ZHmKhtzH7kbbsMcn
+         RYat883J9csXGXqSxFsaNRa4FpZHBCqVSqclcah06rLKubiCgkSlkC/+SfKmaI0GNfWK
+         vZPcKTp4tJGz1flHV7+J40o3hNY/OSBFaibV2rNQMa9L5LscLt0KBcHQFeYTx9CEB+t3
+         h42ZgzsGk05yDlbKiqLp4dfKiH499r8alznt0sGZHTmE2K8PaH5yFkVeKpFayIlarkky
+         cVtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6/72Omk7XNlOINOMaKerKQpk/LQfvlQHjvqr0dn8rQo=;
-        b=TvO6UeqV3LBnX/pfWJHkhKPBxJlU/JoXGQiLCrtngEqFXae4QBGUdh9R2qmTC4cKNC
-         O6M8RKUAhisKI7KFyQ5O3kLQtQ+jtdgL0fPrp1oFdE/8iZJGGkrkLAIG9FIhcU6VTe5t
-         g/FvY4ucqUdwMuvkBIcf5/ax9thb5XeH+QJekegzcag+njOpfLkNwK82UYUyyar1lEAs
-         2X/4egR5uwtCSqZyzvRTOqoJAWrMQYZPTfGNRNfxuUr1g6Ffy7SNTkpBKp+3b+FZefza
-         bxBMsWxfeCqSug2hqtTyOT6mikXq4a5Isw/u/gCTTpsnbSXW5VWa3O4mw7hwYGKpWRKl
-         +Gdw==
-X-Gm-Message-State: AOAM532vAXB1bR656Gt69AyntH2/usMzepZ4/mUf+v2AaDyycPZHWcTE
-        EZIWibFzpIIVt6Np2WMy1sIXHVhadbZqtg==
-X-Google-Smtp-Source: ABdhPJxF69rCt/Ql+RHtDgKUW3QHKylpBXDi9sr8oO2DtX6E/C4cOtWae6GWaBaWdaWWSVhfyfXNxg==
-X-Received: by 2002:a17:90a:67cf:: with SMTP id g15mr5734007pjm.208.1615416263367;
-        Wed, 10 Mar 2021 14:44:23 -0800 (PST)
+        bh=d+YxrujXhhT3g0BBV59F9wflxh5ZMWDQNI/4CLio9FI=;
+        b=g/XMaglQ3Nqs/I6r6hVcMaF3UTij455Eja4e8YdC6bulvGXtjrfPZN2BUmU/SqRFUY
+         TP9yOTVgwiVnu/UkDPv30AiVRwQDh8lXXR2nOT7m1xPy8UY7s4aYBkW2Kntj4QsNTyyS
+         EDXbMOc902vVp+n2YfRBOHY8Lr/7eiRPR7LPDKn8qYjnsyfS5AdTO+P04ApXLaxR9oP0
+         qZ2rnCHotQkWZP93UvRroEKzW9E02MCIu9OsnEgS/GNrN5R5qdArSq3couFzq3dhpXpz
+         xO3p7BvD/NE5DnW0V1aGL8wDUhBDuMaEOjSAR+0OAHnPELDyUv1wrzJQyJgg/T/DPNBy
+         YuWQ==
+X-Gm-Message-State: AOAM533ZDwXVjFFk993slpPXeZg4OaP3UbWa+kyMEHKeaeO+VFYw71/m
+        LMKJXZF6lqCJdVP2tXCzeHz7+HTMHkjwag==
+X-Google-Smtp-Source: ABdhPJzIbidKG8pOznAFGEyuOiwC/mNq95caKJH1F4RIBgCGJNldBw6H9ie2HH1CeXlqGR36e3vREA==
+X-Received: by 2002:a63:fd0a:: with SMTP id d10mr4479204pgh.405.1615416257859;
+        Wed, 10 Mar 2021 14:44:17 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.22
+        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:23 -0800 (PST)
+        Wed, 10 Mar 2021 14:44:17 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 19/27] io_uring: add io_disarm_next() helper
-Date:   Wed, 10 Mar 2021 15:43:50 -0700
-Message-Id: <20210310224358.1494503-20-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 13/27] io_uring: SQPOLL parking fixes
+Date:   Wed, 10 Mar 2021 15:43:44 -0700
+Message-Id: <20210310224358.1494503-14-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
 References: <20210310224358.1494503-1-axboe@kernel.dk>
@@ -71,144 +70,277 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+We keep running into weird dependency issues between the sqd lock and
+the parking state. Disentangle the SQPOLL thread from the last bits of
+the kthread parking inheritance, and just replace the parking state,
+and two associated locks, with a single rw mutex. The SQPOLL thread
+keeps the mutex for read all the time, except if someone has marked us
+needing to park. Then we drop/re-acquire and try again.
 
-A preparation patch placing all preparations before extracting a next
-request into a separate helper io_disarm_next().
+This greatly simplifies the parking state machine (by just getting rid
+of it), and makes it a lot more obvious how it works - if you need to
+modify the ctx list, then you simply park the thread which will grab
+the lock for writing.
 
-Also, don't spuriously do ev_posted in a rare case where REQ_F_FAIL_LINK
-is set but there are no requests linked (i.e. after cancelling a linked
-timeout or setting IOSQE_IO_LINK on a last request of a submission
-batch).
+Fold in fix from Hillf Danton on not setting STOP on a fatal signal.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/44ecff68d6b47e1c4e6b891bdde1ddc08cfc3590.1615250156.git.asml.silence@gmail.com
+Fixes: e54945ae947f ("io_uring: SQPOLL stop error handling fixes")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 68 ++++++++++++++++++++++++++-------------------------
- 1 file changed, 35 insertions(+), 33 deletions(-)
+ fs/io_uring.c | 133 +++++++++++++-------------------------------------
+ 1 file changed, 34 insertions(+), 99 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3299807894ec..cc9a2cc95608 100644
+index 7cf96be691d8..2a3542b487ff 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1705,15 +1705,11 @@ static inline void io_remove_next_linked(struct io_kiocb *req)
- 	nxt->link = NULL;
+@@ -258,12 +258,11 @@ enum {
+ 
+ struct io_sq_data {
+ 	refcount_t		refs;
+-	struct mutex		lock;
++	struct rw_semaphore	rw_lock;
+ 
+ 	/* ctx's that are using this sqd */
+ 	struct list_head	ctx_list;
+ 	struct list_head	ctx_new_list;
+-	struct mutex		ctx_lock;
+ 
+ 	struct task_struct	*thread;
+ 	struct wait_queue_head	wait;
+@@ -274,7 +273,6 @@ struct io_sq_data {
+ 
+ 	unsigned long		state;
+ 	struct completion	startup;
+-	struct completion	parked;
+ 	struct completion	exited;
+ };
+ 
+@@ -6638,45 +6636,6 @@ static void io_sqd_init_new(struct io_sq_data *sqd)
+ 	io_sqd_update_thread_idle(sqd);
  }
  
--static void io_kill_linked_timeout(struct io_kiocb *req)
-+static bool io_kill_linked_timeout(struct io_kiocb *req)
-+	__must_hold(&req->ctx->completion_lock)
- {
--	struct io_ring_ctx *ctx = req->ctx;
--	struct io_kiocb *link;
-+	struct io_kiocb *link = req->link;
- 	bool cancelled = false;
--	unsigned long flags;
+-static bool io_sq_thread_should_stop(struct io_sq_data *sqd)
+-{
+-	return test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+-}
 -
--	spin_lock_irqsave(&ctx->completion_lock, flags);
--	link = req->link;
- 
- 	/*
- 	 * Can happen if a linked timeout fired and link had been like
-@@ -1728,50 +1724,48 @@ static void io_kill_linked_timeout(struct io_kiocb *req)
- 		ret = hrtimer_try_to_cancel(&io->timer);
- 		if (ret != -1) {
- 			io_cqring_fill_event(link, -ECANCELED);
--			io_commit_cqring(ctx);
-+			io_put_req_deferred(link, 1);
- 			cancelled = true;
- 		}
- 	}
- 	req->flags &= ~REQ_F_LINK_TIMEOUT;
--	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+-static bool io_sq_thread_should_park(struct io_sq_data *sqd)
+-{
+-	return test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+-}
 -
--	if (cancelled) {
--		io_cqring_ev_posted(ctx);
--		io_put_req(link);
+-static void io_sq_thread_parkme(struct io_sq_data *sqd)
+-{
+-	for (;;) {
+-		/*
+-		 * TASK_PARKED is a special state; we must serialize against
+-		 * possible pending wakeups to avoid store-store collisions on
+-		 * task->state.
+-		 *
+-		 * Such a collision might possibly result in the task state
+-		 * changin from TASK_PARKED and us failing the
+-		 * wait_task_inactive() in kthread_park().
+-		 */
+-		set_special_state(TASK_PARKED);
+-		if (!test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state))
+-			break;
+-
+-		/*
+-		 * Thread is going to call schedule(), do not preempt it,
+-		 * or the caller of kthread_park() may spend more time in
+-		 * wait_task_inactive().
+-		 */
+-		preempt_disable();
+-		complete(&sqd->parked);
+-		schedule_preempt_disabled();
+-		preempt_enable();
 -	}
-+	return cancelled;
- }
- 
+-	__set_current_state(TASK_RUNNING);
+-}
 -
- static void io_fail_links(struct io_kiocb *req)
-+	__must_hold(&req->ctx->completion_lock)
+ static int io_sq_thread(void *data)
  {
--	struct io_kiocb *link, *nxt;
--	struct io_ring_ctx *ctx = req->ctx;
--	unsigned long flags;
-+	struct io_kiocb *nxt, *link = req->link;
+ 	struct io_sq_data *sqd = data;
+@@ -6697,17 +6656,16 @@ static int io_sq_thread(void *data)
  
--	spin_lock_irqsave(&ctx->completion_lock, flags);
--	link = req->link;
- 	req->link = NULL;
--
- 	while (link) {
- 		nxt = link->link;
- 		link->link = NULL;
+ 	wait_for_completion(&sqd->startup);
  
- 		trace_io_uring_fail_link(req, link);
- 		io_cqring_fill_event(link, -ECANCELED);
--
- 		io_put_req_deferred(link, 2);
- 		link = nxt;
- 	}
--	io_commit_cqring(ctx);
--	spin_unlock_irqrestore(&ctx->completion_lock, flags);
-+}
- 
--	io_cqring_ev_posted(ctx);
-+static bool io_disarm_next(struct io_kiocb *req)
-+	__must_hold(&req->ctx->completion_lock)
-+{
-+	bool posted = false;
+-	while (!io_sq_thread_should_stop(sqd)) {
++	down_read(&sqd->rw_lock);
 +
-+	if (likely(req->flags & REQ_F_LINK_TIMEOUT))
-+		posted = io_kill_linked_timeout(req);
-+	if (unlikely(req->flags & REQ_F_FAIL_LINK)) {
-+		posted |= (req->link != NULL);
-+		io_fail_links(req);
-+	}
-+	return posted;
++	while (!test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state)) {
+ 		int ret;
+ 		bool cap_entries, sqt_spin, needs_sched;
+ 
+-		/*
+-		 * Any changes to the sqd lists are synchronized through the
+-		 * thread parking. This synchronizes the thread vs users,
+-		 * the users are synchronized on the sqd->ctx_lock.
+-		 */
+-		if (io_sq_thread_should_park(sqd)) {
+-			io_sq_thread_parkme(sqd);
++		if (test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state)) {
++			up_read(&sqd->rw_lock);
++			cond_resched();
++			down_read(&sqd->rw_lock);
+ 			continue;
+ 		}
+ 		if (unlikely(!list_empty(&sqd->ctx_new_list))) {
+@@ -6752,12 +6710,14 @@ static int io_sq_thread(void *data)
+ 			}
+ 		}
+ 
+-		if (needs_sched && !io_sq_thread_should_park(sqd)) {
++		if (needs_sched && !test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state)) {
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 				io_ring_set_wakeup_flag(ctx);
+ 
++			up_read(&sqd->rw_lock);
+ 			schedule();
+ 			try_to_freeze();
++			down_read(&sqd->rw_lock);
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 				io_ring_clear_wakeup_flag(ctx);
+ 		}
+@@ -6768,28 +6728,16 @@ static int io_sq_thread(void *data)
+ 
+ 	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 		io_uring_cancel_sqpoll(ctx);
++	up_read(&sqd->rw_lock);
+ 
+ 	io_run_task_work();
+ 
+-	/*
+-	 * Ensure that we park properly if racing with someone trying to park
+-	 * while we're exiting. If we fail to grab the lock, check park and
+-	 * park if necessary. The ordering with the park bit and the lock
+-	 * ensures that we catch this reliably.
+-	 */
+-	if (!mutex_trylock(&sqd->lock)) {
+-		if (io_sq_thread_should_park(sqd))
+-			io_sq_thread_parkme(sqd);
+-		mutex_lock(&sqd->lock);
+-	}
+-
++	down_write(&sqd->rw_lock);
+ 	sqd->thread = NULL;
+-	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
++	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 		io_ring_set_wakeup_flag(ctx);
+-	}
+-
++	up_write(&sqd->rw_lock);
+ 	complete(&sqd->exited);
+-	mutex_unlock(&sqd->lock);
+ 	do_exit(0);
  }
  
- static struct io_kiocb *__io_req_find_next(struct io_kiocb *req)
+@@ -7088,44 +7036,40 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ }
+ 
+ static void io_sq_thread_unpark(struct io_sq_data *sqd)
+-	__releases(&sqd->lock)
++	__releases(&sqd->rw_lock)
  {
--	if (req->flags & REQ_F_LINK_TIMEOUT)
--		io_kill_linked_timeout(req);
-+	struct io_kiocb *nxt;
- 
- 	/*
- 	 * If LINK is set, we have dependent requests in this chain. If we
-@@ -1779,14 +1773,22 @@ static struct io_kiocb *__io_req_find_next(struct io_kiocb *req)
- 	 * dependencies to the next request. In case of failure, fail the rest
- 	 * of the chain.
- 	 */
--	if (likely(!(req->flags & REQ_F_FAIL_LINK))) {
--		struct io_kiocb *nxt = req->link;
-+	if (req->flags & (REQ_F_LINK_TIMEOUT | REQ_F_FAIL_LINK)) {
-+		struct io_ring_ctx *ctx = req->ctx;
-+		unsigned long flags;
-+		bool posted;
- 
--		req->link = NULL;
--		return nxt;
-+		spin_lock_irqsave(&ctx->completion_lock, flags);
-+		posted = io_disarm_next(req);
-+		if (posted)
-+			io_commit_cqring(req->ctx);
-+		spin_unlock_irqrestore(&ctx->completion_lock, flags);
-+		if (posted)
-+			io_cqring_ev_posted(ctx);
- 	}
--	io_fail_links(req);
--	return NULL;
-+	nxt = req->link;
-+	req->link = NULL;
-+	return nxt;
+ 	if (sqd->thread == current)
+ 		return;
+ 	clear_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+-	if (sqd->thread)
+-		wake_up_state(sqd->thread, TASK_PARKED);
+-	mutex_unlock(&sqd->lock);
++	up_write(&sqd->rw_lock);
  }
  
- static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
+ static void io_sq_thread_park(struct io_sq_data *sqd)
+-	__acquires(&sqd->lock)
++	__acquires(&sqd->rw_lock)
+ {
+ 	if (sqd->thread == current)
+ 		return;
+ 	set_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+-	mutex_lock(&sqd->lock);
+-	if (sqd->thread) {
++	down_write(&sqd->rw_lock);
++	/* set again for consistency, in case concurrent parks are happening */
++	set_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
++	if (sqd->thread)
+ 		wake_up_process(sqd->thread);
+-		wait_for_completion(&sqd->parked);
+-	}
+ }
+ 
+ static void io_sq_thread_stop(struct io_sq_data *sqd)
+ {
+ 	if (test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state))
+ 		return;
+-	mutex_lock(&sqd->lock);
+-	if (sqd->thread) {
+-		set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+-		WARN_ON_ONCE(test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state));
+-		wake_up_process(sqd->thread);
+-		mutex_unlock(&sqd->lock);
+-		wait_for_completion(&sqd->exited);
+-		WARN_ON_ONCE(sqd->thread);
+-	} else {
+-		mutex_unlock(&sqd->lock);
++	down_write(&sqd->rw_lock);
++	if (!sqd->thread) {
++		up_write(&sqd->rw_lock);
++		return;
+ 	}
++	set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
++	wake_up_process(sqd->thread);
++	up_write(&sqd->rw_lock);
++	wait_for_completion(&sqd->exited);
+ }
+ 
+ static void io_put_sq_data(struct io_sq_data *sqd)
+@@ -7142,18 +7086,13 @@ static void io_sq_thread_finish(struct io_ring_ctx *ctx)
+ 
+ 	if (sqd) {
+ 		complete(&sqd->startup);
+-		if (sqd->thread) {
++		if (sqd->thread)
+ 			wait_for_completion(&ctx->sq_thread_comp);
+-			io_sq_thread_park(sqd);
+-		}
+ 
+-		mutex_lock(&sqd->ctx_lock);
++		io_sq_thread_park(sqd);
+ 		list_del(&ctx->sqd_list);
+ 		io_sqd_update_thread_idle(sqd);
+-		mutex_unlock(&sqd->ctx_lock);
+-
+-		if (sqd->thread)
+-			io_sq_thread_unpark(sqd);
++		io_sq_thread_unpark(sqd);
+ 
+ 		io_put_sq_data(sqd);
+ 		ctx->sq_data = NULL;
+@@ -7202,11 +7141,9 @@ static struct io_sq_data *io_get_sq_data(struct io_uring_params *p)
+ 	refcount_set(&sqd->refs, 1);
+ 	INIT_LIST_HEAD(&sqd->ctx_list);
+ 	INIT_LIST_HEAD(&sqd->ctx_new_list);
+-	mutex_init(&sqd->ctx_lock);
+-	mutex_init(&sqd->lock);
++	init_rwsem(&sqd->rw_lock);
+ 	init_waitqueue_head(&sqd->wait);
+ 	init_completion(&sqd->startup);
+-	init_completion(&sqd->parked);
+ 	init_completion(&sqd->exited);
+ 	return sqd;
+ }
+@@ -7880,9 +7817,7 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
+ 		ctx->sq_creds = get_current_cred();
+ 		ctx->sq_data = sqd;
+ 		io_sq_thread_park(sqd);
+-		mutex_lock(&sqd->ctx_lock);
+ 		list_add(&ctx->sqd_list, &sqd->ctx_new_list);
+-		mutex_unlock(&sqd->ctx_lock);
+ 		io_sq_thread_unpark(sqd);
+ 
+ 		ctx->sq_thread_idle = msecs_to_jiffies(p->sq_thread_idle);
 -- 
 2.30.2
 

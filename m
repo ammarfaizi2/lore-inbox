@@ -7,60 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ADDFC4321A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD63BC43142
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CC8264FCD
+	by mail.kernel.org (Postfix) with ESMTP id AA85B64FD5
 	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233905AbhCJWon (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S233933AbhCJWon (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Wed, 10 Mar 2021 17:44:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbhCJWoW (ORCPT
+        with ESMTP id S233937AbhCJWoW (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:22 -0500
 Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A1BC061763
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:22 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id u18so9214385plc.12
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A92C061762
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:21 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id n17so5678793plc.7
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=XOMAq/oxzmWsD5x+J1237ergaI5C/YWGcY56phEQ/fs=;
-        b=BXUs06Jv//HRi/u6j2//wI2NkUiP+Sh0OQp60klBUol0i5vpSB9AxTGA5mYJaKH9l5
-         2BYNH/S0wwFRp0XPUaBAOIBpKDpqlYEb9iSIQWjzD4aj7UJpf3voN/bO95dZHNKsmUjE
-         5LE0kUCNqu2AGXpoH113jS2ovzEQX9vQr3Jr70jlZNltXdeYF/7Nux33q2Ki+Z2vRrWA
-         ci71MOCmS4tcAi4GOogOpCevBSyB9p9hC/Tw704pkfxhUUAjd38vwlQzBR/ccmExD/E3
-         6pPQuI3TFSX520izV8iLjCNKWU1CBAjGHKuinucW0qrbLm/pzS420RbuCXpJdYEcB1GA
-         vIUw==
+        bh=59YkVLHv9p4gDp+PspYIzvk09Z0rD1LrFtUWdlBVLaA=;
+        b=YfurdH5po3utSwvVL1T8o6Q2VyLLK3DFesPuGJ+lQvepc24hU/BzH968wt5mvdSuwH
+         QzHTiZJuamaQs5OSaOaifiJobTuPvygZ3ph9B8tvTX1KyW6GtIl1oRCnehQY+r8r4C2N
+         fwUqpZLytUoQmSknDltMKvGEiFqs/g/3EY5H0VWIj19NtpQpTk/qSeSC1kYrooz8q5VO
+         U3yg+UQeFvUY8/FmOJFQgKdyZ/6y/K5LfqmKZwtr9YdR6hX+Dk3QR1mN1SiNJ++adSvl
+         NUHk335F43uIPq/ggBUufEfJ0JXiK3s/MVIwD/EcMVU2GmqvR2N4rQMbwf+gSgQAn2Rz
+         Rx5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=XOMAq/oxzmWsD5x+J1237ergaI5C/YWGcY56phEQ/fs=;
-        b=PLCbFpiE4s+qEAgY6Ns/KoLoDt/n+lGMtYYIGRL2rgmzcQRHbC3rgqJzbEbjihPt5U
-         q6X//izU3VktNa0C01F0f16VBuCE0Ng/8rH0e2ogpPWGrRfPqD8UmSgnUv5KRy3ZePFe
-         UIJQ5qoX1+FILnoUumNGku0LhPn7IHlbGK8KQNQCYM86VLeAmafVTXfnpPeQXbzb52gt
-         DEs4NIdGpWcIKnWKD93QYIUEPEh2sfBaSYh2cvnxUj5UEmnfaoUDvkjVURUZdDKA1XUi
-         dnZqdFH+RWabpCFNTtfOE1snV9LPsPaBIennVKdmHlKHIHoDpYrvTDw38E7Dz8lBJhEu
-         fGOg==
-X-Gm-Message-State: AOAM531Dl8YFKluYuhg2c+S3HKyGdkBHIFSm2JUSHO05qMThBoy2f5IQ
-        7R/WGvyal13EhUcR8ALTaVTzsg4dFdZ7Ag==
-X-Google-Smtp-Source: ABdhPJyO0Em3dic1nYcHsMdxAILNj8jSrsVSoHd+RMvHWnAnflZH1M7qcLGDcmTr4YXQtxWf/ogpMA==
-X-Received: by 2002:a17:902:ee82:b029:e5:fd49:ca09 with SMTP id a2-20020a170902ee82b02900e5fd49ca09mr5182937pld.55.1615416261570;
-        Wed, 10 Mar 2021 14:44:21 -0800 (PST)
+        bh=59YkVLHv9p4gDp+PspYIzvk09Z0rD1LrFtUWdlBVLaA=;
+        b=C8zUqRxWTvdBtawQPBL/2zxcVgb4A6uh+lUnwoVjWyFf08vP7fKt8VjrcHkz8DUejC
+         lb6RW5X8kuEQhJrcpAWMggjSlCkmasqvTDE6muNIcXfUf5qQFq25uA1H3O2Zf9irbM4I
+         irO2l+LhJ9vvzp53ZxJxa7tEmnhNN6Og6aFDcZE4hBvXRlAYS4nVZKBadVbutamResv7
+         cnpw4RakLK2HmPSU7/hoxuveV3gLL+TZTkOE6ctm9mMGqprJh4pX5DlMZW6E279TgjqS
+         7cgVTsUZmXtpGcHyTp38ec87StEYIf8AcVJp+O7m+y2Z5W0UL4xu/EIqDEh9QXmoGi2D
+         B3cg==
+X-Gm-Message-State: AOAM533T75sUop5MvCKPK76gkLdH1KO9BjdTRQ6Av1vMhSeGSyKquvNw
+        mDBDxLuzT8AL5xxnT5aopmCIUygYoaevLg==
+X-Google-Smtp-Source: ABdhPJxGiQma0+8a6Ges+1MFo+TrH07glM/OQFYQpcv707UC7ARlgRv//8T6v8EOdQiNyJEYvgKONg==
+X-Received: by 2002:a17:902:a617:b029:e5:b41e:4d7b with SMTP id u23-20020a170902a617b02900e5b41e4d7bmr5224024plq.33.1615416259770;
+        Wed, 10 Mar 2021 14:44:19 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.20
+        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:21 -0800 (PST)
+        Wed, 10 Mar 2021 14:44:19 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 17/27] io-wq: remove unused 'user' member of io_wq
-Date:   Wed, 10 Mar 2021 15:43:48 -0700
-Message-Id: <20210310224358.1494503-18-axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 15/27] io_uring: clean R_DISABLED startup mess
+Date:   Wed, 10 Mar 2021 15:43:46 -0700
+Message-Id: <20210310224358.1494503-16-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
 References: <20210310224358.1494503-1-axboe@kernel.dk>
@@ -70,25 +71,91 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Previous patches killed the last user of this, now it's just a dead member
-in the struct. Get rid of it.
+From: Pavel Begunkov <asml.silence@gmail.com>
 
+There are enough of problems with IORING_SETUP_R_DISABLED, including the
+burden of checking and kicking off the SQO task all over the codebase --
+for exit/cancel/etc.
+
+Rework it, always start the thread but don't do submit unless the flag
+is gone, that's much easier.
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/io_uring.c | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 1ab9324e602f..c2e7031f6d09 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -110,7 +110,6 @@ struct io_wq {
- 	io_wq_work_fn *do_work;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d4f018f5838d..3f6db813d670 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6606,7 +6606,8 @@ static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
+ 		if (!list_empty(&ctx->iopoll_list))
+ 			io_do_iopoll(ctx, &nr_events, 0);
  
- 	struct task_struct *manager;
--	struct user_struct *user;
+-		if (to_submit && likely(!percpu_ref_is_dying(&ctx->refs)))
++		if (to_submit && likely(!percpu_ref_is_dying(&ctx->refs)) &&
++		    !(ctx->flags & IORING_SETUP_R_DISABLED))
+ 			ret = io_submit_sqes(ctx, to_submit);
+ 		mutex_unlock(&ctx->uring_lock);
+ 	}
+@@ -7861,6 +7862,7 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
+ 		wake_up_new_task(tsk);
+ 		if (ret)
+ 			goto err;
++		complete(&sqd->startup);
+ 	} else if (p->flags & IORING_SETUP_SQ_AFF) {
+ 		/* Can't have SQ_AFF without SQPOLL */
+ 		ret = -EINVAL;
+@@ -7873,15 +7875,6 @@ static int io_sq_offload_create(struct io_ring_ctx *ctx,
+ 	return ret;
+ }
  
- 	struct io_wq_hash *hash;
+-static void io_sq_offload_start(struct io_ring_ctx *ctx)
+-{
+-	struct io_sq_data *sqd = ctx->sq_data;
+-
+-	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+-	if (ctx->flags & IORING_SETUP_SQPOLL)
+-		complete(&sqd->startup);
+-}
+-
+ static inline void __io_unaccount_mem(struct user_struct *user,
+ 				      unsigned long nr_pages)
+ {
+@@ -8742,11 +8735,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 	struct task_struct *task = current;
+ 
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
+-		/* never started, nothing to cancel */
+-		if (ctx->flags & IORING_SETUP_R_DISABLED) {
+-			io_sq_offload_start(ctx);
+-			return;
+-		}
+ 		io_sq_thread_park(ctx->sq_data);
+ 		task = ctx->sq_data->thread;
+ 		if (task)
+@@ -9449,9 +9437,6 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	if (ret)
+ 		goto err;
+ 
+-	if (!(p->flags & IORING_SETUP_R_DISABLED))
+-		io_sq_offload_start(ctx);
+-
+ 	memset(&p->sq_off, 0, sizeof(p->sq_off));
+ 	p->sq_off.head = offsetof(struct io_rings, sq.head);
+ 	p->sq_off.tail = offsetof(struct io_rings, sq.tail);
+@@ -9668,7 +9653,9 @@ static int io_register_enable_rings(struct io_ring_ctx *ctx)
+ 	if (ctx->restrictions.registered)
+ 		ctx->restricted = 1;
+ 
+-	io_sq_offload_start(ctx);
++	ctx->flags &= ~IORING_SETUP_R_DISABLED;
++	if (ctx->sq_data && wq_has_sleeper(&ctx->sq_data->wait))
++		wake_up(&ctx->sq_data->wait);
+ 	return 0;
+ }
  
 -- 
 2.30.2

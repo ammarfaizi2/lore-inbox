@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 412B8C28D17
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF517C28D13
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D41164FD4
-	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB0BA64FD9
+	for <io-uring@archiver.kernel.org>; Wed, 10 Mar 2021 22:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbhCJWor (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 10 Mar 2021 17:44:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54178 "EHLO
+        id S233781AbhCJWoo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 10 Mar 2021 17:44:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233988AbhCJWoi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:38 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5058C061761
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:20 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id d23so6023352plq.2
-        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:20 -0800 (PST)
+        with ESMTP id S232828AbhCJWo2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 10 Mar 2021 17:44:28 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FACEC061574
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:06 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id kr3-20020a17090b4903b02900c096fc01deso8326300pjb.4
+        for <io-uring@vger.kernel.org>; Wed, 10 Mar 2021 14:44:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=r9XFkReTLkzFRXIBuwwNwR484zcFdJuoSDjnAE+1n/s=;
-        b=ezpbd5wUR6IuEmG7GmW9PJfsSeiOUjb3brHKmMtudZMhoPE6jZnhkw0Q3ffUFnTuiR
-         qryfpCbYQEwQQRizba0etH3OVeNcFbm7NtGSvGNF8geBJbGwnjzZV6yaIdleX58E5KSQ
-         2au+OJA6m5qEc7blsT4nVZyQOmiMN+FfzVAPKRNfinaMhC+K4jYOm25yh7lLCuvIcfxi
-         RMimYZQRPHbe1tjFBwghN4uFUkWAh95svk6BmazvSvKaQbfdXEdNxMZIAkDQLjVGoTe7
-         oM4ckblD0HtySVYO6Epk1WID0Q0JbfrrkD/ngDNrc5oCkhNt+zzSwWyoZm9pC+wl/uz8
-         7sjg==
+        bh=1qQ1cxUfw5ggWUx/8N12SPJ6urhXZ55AxTN/3i6nQbA=;
+        b=nEEFLt1wKtSl+LIO5dkwkOF9xs7Z5bciTVW1OrqP8TURtgh5i54+Nmljytbf9YSI/Q
+         rOZ97nC9NdcTU87roJ8aAIfJ+0VrWhfkpi7dD1WHso2vEskgXW6OUKq9xy9RFuSWT6MI
+         wE3Fqw9qogn3vXpyOcU31TEd25yj/KTlXfG5xCsdhq8ZvfIIYHeIqJ45bfbDinR2FvqI
+         33sRWDCMosbO2g/v9MCZ1WKmqNLaZN57Owou7v6lx6CBr7BuLwAzYo/Hg6NE0isiQvXI
+         4VqIfFnYNJsLzp5CoeV32A+l3mxmkz8xPWTY6gEEgdQUNMhCuy7ZDeNYF9SJJwqEBFgP
+         aRTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=r9XFkReTLkzFRXIBuwwNwR484zcFdJuoSDjnAE+1n/s=;
-        b=DYExgC+CjZhYRpSixDlOliT/14vFc9YnhtuBkwOVp4NHFLJanSS/WC4Vz3EZcVSKqW
-         w+p5g5kznEASeDIwp6APyzmuta/9UyhvUDUwv4QyFcxlbOQLhoSHDMMPFI+PqZ1JwlyI
-         zeH3ZjBQ6B/ZEbNXt4eh4XyPY4SU16WsmkeREcVC462xMNtMctEIyyvw8mdGbI0wXK+t
-         jsfzYWWoisLsfrW7CtzoiGoNj+ceKRqQ8d0ejaQiWUFVvO3huD/Z3n/UGcHNQjX0SN+k
-         kIb99Bx0XrS0ZHSGg15bsv+u0UqA/M4hlWWO9Ebh58sxQ+HWDwiIEfbQqjIF978d1sQE
-         RGBw==
-X-Gm-Message-State: AOAM531QbC+Gi4YmYwjxeGJBE+WxUZ94vBc7fEeXv/0vQY9lWHnnUNoP
-        tZcya2WtUkJPoOGL1lGp6zkVuZn42ahDQw==
-X-Google-Smtp-Source: ABdhPJyBUZkR/eo85P6KXZqCoQDEGylWNZiZroFr2Zp7SXNn+Q5YgR3OZT3InmqjCPZeKGC4DpWCzA==
-X-Received: by 2002:a17:903:1cb:b029:e5:f712:c13c with SMTP id e11-20020a17090301cbb02900e5f712c13cmr4931447plh.22.1615416258761;
-        Wed, 10 Mar 2021 14:44:18 -0800 (PST)
+        bh=1qQ1cxUfw5ggWUx/8N12SPJ6urhXZ55AxTN/3i6nQbA=;
+        b=MdgnBuFuqWO+cgHmeUNr8hABeRdkhYO5jXE94ksY9VgvP0fof3xw/YIZR2rLftADrg
+         meRD1iVa2KMV1pG/5Zsh2pOWIGKS+5rZxB8YloN/fXsFt2kUzq+Qz0Fc7SfgCxHGg9YS
+         ZdoKlowOdN+H/6eqsaJS+aMeF2pxHPH4dFCBuwpdZWpcTplNiPwJrwSAPMOaJEBtUDZt
+         9N/gM+8g2Z9NKNkNKRyiwuj/3tVzE9lj3yrHrx7eDsuvzuxYKepJ/QpMtl/aTAGnzm84
+         /a9VNuzYZgD6ABC5Lyzk9maX287vvZvdnwxXe/yM8EChIO+HZEqd/fTM3dr/R9sC81pr
+         BaUg==
+X-Gm-Message-State: AOAM533+LZFUbSGY5hZv3iJExs2uqn//IG5J8JuM9xPuF6Ril2ZAhILt
+        QVIbXvK+mGu+UE5tyQODj+6CBCd/DIutjw==
+X-Google-Smtp-Source: ABdhPJxbecLZWRKmLlUfwxvw77dJ0622nM+ObRt2igWpDmyfCrZMURwudQYpERE13rc1osgC69sDwQ==
+X-Received: by 2002:a17:902:8217:b029:e6:2875:b1d9 with SMTP id x23-20020a1709028217b02900e62875b1d9mr5081732pln.70.1615416245814;
+        Wed, 10 Mar 2021 14:44:05 -0800 (PST)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.18
+        by smtp.gmail.com with ESMTPSA id j23sm475783pfn.94.2021.03.10.14.44.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 14:44:18 -0800 (PST)
+        Wed, 10 Mar 2021 14:44:05 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 14/27] io_uring: fix unrelated ctx reqs cancellation
-Date:   Wed, 10 Mar 2021 15:43:45 -0700
-Message-Id: <20210310224358.1494503-15-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 01/27] io-wq: fix race in freeing 'wq' and worker access
+Date:   Wed, 10 Mar 2021 15:43:32 -0700
+Message-Id: <20210310224358.1494503-2-axboe@kernel.dk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310224358.1494503-1-axboe@kernel.dk>
 References: <20210310224358.1494503-1-axboe@kernel.dk>
@@ -71,66 +70,119 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+Ran into a use-after-free on the main io-wq struct, wq. It has a worker
+ref and completion event, but the manager itself isn't holding a
+reference. This can lead to a race where the manager thinks there are
+no workers and exits, but a worker is being added. That leads to the
+following trace:
 
-io-wq now is per-task, so cancellations now should match against
-request's ctx.
+BUG: KASAN: use-after-free in io_wqe_worker+0x4c0/0x5e0
+Read of size 8 at addr ffff888108baa8a0 by task iou-wrk-3080422/3080425
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+CPU: 5 PID: 3080425 Comm: iou-wrk-3080422 Not tainted 5.12.0-rc1+ #110
+Hardware name: Micro-Star International Co., Ltd. MS-7C60/TRX40 PRO 10G (MS-7C60), BIOS 1.60 05/13/2020
+Call Trace:
+ dump_stack+0x90/0xbe
+ print_address_description.constprop.0+0x67/0x28d
+ ? io_wqe_worker+0x4c0/0x5e0
+ kasan_report.cold+0x7b/0xd4
+ ? io_wqe_worker+0x4c0/0x5e0
+ __asan_load8+0x6d/0xa0
+ io_wqe_worker+0x4c0/0x5e0
+ ? io_worker_handle_work+0xc00/0xc00
+ ? recalc_sigpending+0xe5/0x120
+ ? io_worker_handle_work+0xc00/0xc00
+ ? io_worker_handle_work+0xc00/0xc00
+ ret_from_fork+0x1f/0x30
+
+Allocated by task 3080422:
+ kasan_save_stack+0x23/0x60
+ __kasan_kmalloc+0x80/0xa0
+ kmem_cache_alloc_node_trace+0xa0/0x480
+ io_wq_create+0x3b5/0x600
+ io_uring_alloc_task_context+0x13c/0x380
+ io_uring_add_task_file+0x109/0x140
+ __x64_sys_io_uring_enter+0x45f/0x660
+ do_syscall_64+0x32/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Freed by task 3080422:
+ kasan_save_stack+0x23/0x60
+ kasan_set_track+0x20/0x40
+ kasan_set_free_info+0x24/0x40
+ __kasan_slab_free+0xe8/0x120
+ kfree+0xa8/0x400
+ io_wq_put+0x14a/0x220
+ io_wq_put_and_exit+0x9a/0xc0
+ io_uring_clean_tctx+0x101/0x140
+ __io_uring_files_cancel+0x36e/0x3c0
+ do_exit+0x169/0x1340
+ __x64_sys_exit+0x34/0x40
+ do_syscall_64+0x32/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Have the manager itself hold a reference, and now both drop points drop
+and complete if we hit zero, and the manager can unconditionally do a
+wait_for_completion() instead of having a race between reading the ref
+count and waiting if it was non-zero.
+
+Fixes: fb3a1f6c745c ("io-wq: have manager wait for all workers to exit")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ fs/io-wq.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2a3542b487ff..d4f018f5838d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5573,22 +5573,30 @@ static int io_timeout(struct io_kiocb *req, unsigned int issue_flags)
- 	return 0;
- }
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 28868eb4cd09..1bfdb86336e4 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -722,9 +722,9 @@ static int io_wq_manager(void *data)
+ 		io_wq_for_each_worker(wq->wqes[node], io_wq_worker_wake, NULL);
+ 	rcu_read_unlock();
  
-+struct io_cancel_data {
-+	struct io_ring_ctx *ctx;
-+	u64 user_data;
-+};
+-	/* we might not ever have created any workers */
+-	if (atomic_read(&wq->worker_refs))
+-		wait_for_completion(&wq->worker_done);
++	if (atomic_dec_and_test(&wq->worker_refs))
++		complete(&wq->worker_done);
++	wait_for_completion(&wq->worker_done);
+ 
+ 	spin_lock_irq(&wq->hash->wait.lock);
+ 	for_each_node(node)
+@@ -774,7 +774,8 @@ static int io_wq_fork_manager(struct io_wq *wq)
+ 	if (wq->manager)
+ 		return 0;
+ 
+-	reinit_completion(&wq->worker_done);
++	init_completion(&wq->worker_done);
++	atomic_set(&wq->worker_refs, 1);
+ 	tsk = create_io_thread(io_wq_manager, wq, NUMA_NO_NODE);
+ 	if (!IS_ERR(tsk)) {
+ 		wq->manager = get_task_struct(tsk);
+@@ -782,6 +783,9 @@ static int io_wq_fork_manager(struct io_wq *wq)
+ 		return 0;
+ 	}
+ 
++	if (atomic_dec_and_test(&wq->worker_refs))
++		complete(&wq->worker_done);
 +
- static bool io_cancel_cb(struct io_wq_work *work, void *data)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
-+	struct io_cancel_data *cd = data;
- 
--	return req->user_data == (unsigned long) data;
-+	return req->ctx == cd->ctx && req->user_data == cd->user_data;
+ 	return PTR_ERR(tsk);
  }
  
--static int io_async_cancel_one(struct io_uring_task *tctx, void *sqe_addr)
-+static int io_async_cancel_one(struct io_uring_task *tctx, u64 user_data,
-+			       struct io_ring_ctx *ctx)
- {
-+	struct io_cancel_data data = { .ctx = ctx, .user_data = user_data, };
- 	enum io_wq_cancel cancel_ret;
- 	int ret = 0;
+@@ -1018,13 +1022,9 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 	init_completion(&wq->exited);
+ 	refcount_set(&wq->refs, 1);
  
--	if (!tctx->io_wq)
-+	if (!tctx || !tctx->io_wq)
- 		return -ENOENT;
- 
--	cancel_ret = io_wq_cancel_cb(tctx->io_wq, io_cancel_cb, sqe_addr, false);
-+	cancel_ret = io_wq_cancel_cb(tctx->io_wq, io_cancel_cb, &data, false);
- 	switch (cancel_ret) {
- 	case IO_WQ_CANCEL_OK:
- 		ret = 0;
-@@ -5611,8 +5619,7 @@ static void io_async_find_and_cancel(struct io_ring_ctx *ctx,
- 	unsigned long flags;
- 	int ret;
- 
--	ret = io_async_cancel_one(req->task->io_uring,
--					(void *) (unsigned long) sqe_addr);
-+	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
- 	if (ret != -ENOENT) {
- 		spin_lock_irqsave(&ctx->completion_lock, flags);
- 		goto done;
+-	init_completion(&wq->worker_done);
+-	atomic_set(&wq->worker_refs, 0);
+-
+ 	ret = io_wq_fork_manager(wq);
+ 	if (!ret)
+ 		return wq;
+-
+ err:
+ 	io_wq_put_hash(data->hash);
+ 	cpuhp_state_remove_instance_nocalls(io_wq_online, &wq->cpuhp_node);
 -- 
 2.30.2
 

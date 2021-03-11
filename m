@@ -2,113 +2,135 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFE7C433E0
-	for <io-uring@archiver.kernel.org>; Thu, 11 Mar 2021 18:47:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9A9FC433DB
+	for <io-uring@archiver.kernel.org>; Thu, 11 Mar 2021 23:34:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7653264FD4
-	for <io-uring@archiver.kernel.org>; Thu, 11 Mar 2021 18:47:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6EAD64F92
+	for <io-uring@archiver.kernel.org>; Thu, 11 Mar 2021 23:34:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbhCKSrO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Mar 2021 13:47:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58780 "EHLO
+        id S229488AbhCKXeS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 11 Mar 2021 18:34:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230076AbhCKSqt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Mar 2021 13:46:49 -0500
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97254C061574
-        for <io-uring@vger.kernel.org>; Thu, 11 Mar 2021 10:46:49 -0800 (PST)
-Received: by mail-il1-x12c.google.com with SMTP id p10so240163ils.9
-        for <io-uring@vger.kernel.org>; Thu, 11 Mar 2021 10:46:49 -0800 (PST)
+        with ESMTP id S229526AbhCKXdn (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Mar 2021 18:33:43 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB65C061574
+        for <io-uring@vger.kernel.org>; Thu, 11 Mar 2021 15:33:42 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id w11so3768497wrr.10
+        for <io-uring@vger.kernel.org>; Thu, 11 Mar 2021 15:33:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=P+SMdHkWjNske5F9ITT8zL7uXv1IJqgB3DJOVsHPtL8=;
-        b=VQmM9b2YT0YbNw8vrHICogVsuuKiVYoWx6rfeosh0ECY78oSRy+DRBCGWRdRAiPF+n
-         zHU1iOmcxLyatk20Xr3TeLeZ1eZEbLGLWndCg07zIJ7RRR5cbFmUOqRAVwnGRmXHkrTC
-         hxjgyJn9x2ZsM20DNeF859J2lnz6IQWm1mw0c2V6fENjjiAHrJJi3i3WjQcrmGVS7qfT
-         aWYm9YF8vK1TEBhay8lFQkZhr1Yu+fz2ReTcL5uyOVm1Pte2JtMtyTpzgAB/OvZ58xT/
-         Ox/YOOWMSHc4pMD5TFWqEPX/pkpx8eJdGPB0pFoxXRBVRBaFHOd/Wk01j6wtHeG2mpNH
-         Aknw==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=03/BhKPKd2WMgdHLg79p/+l8A8CgJ4LF7Z0M8IhAC9Q=;
+        b=eL9k72nJsMUSPah7U+/vVFyDqRN+XaODkG9ZIFfEulW5q2eOP1xDo5ZUQfkP1YTNd3
+         ri8v5CG3nb/6fCmCp5G0S84aw/RfBc0RM60kCc/wVBIphEMt5WiwGSHlJEur4etE8eLx
+         MsFypKN5K1JPHEIihOrD20yUEMi+ux6GwXsNWknV+sjIpbcu1xiDDAixnaxskz5rwOlM
+         jaSuUrfIGq6DU+cW0nTU9IfitGi4uD7H0ipTLbM/9nAp9Jr4Pcj1q7Fubq93nXcyub6M
+         itQXVWEmHC2gffErwBCjV4Tr7odVGnhiILrL7isJWu2DJPn3t+6blfzjAJZTxCPQBMmM
+         6bOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=P+SMdHkWjNske5F9ITT8zL7uXv1IJqgB3DJOVsHPtL8=;
-        b=M9OwA8uk82w7OPOoCMlbJIGAOugHA+y15H6WFmLhvwPk+zTkTcI1N1shDDAdD39Wc+
-         c+B796gO3aGkA6CSQHIQAMNxfzU6NvJ/Lu4/W4ydzK0oVGLXNU0Js0D7uyfyI1MSRErz
-         1aOm8QnroatZngDYKkQCHrduqWFr44yYsyzXZUBsKTOJYl4oBnTQlOcpGtjkZJ5mOrhx
-         Tku8a4c6vS7R0cL4jX2dpBdTQ3rcMzqzosxntp1Rs06fDqMaFGQSI+KlNgPQOS2Ppq51
-         5JxPs9ZBwuoIg+TY7/7xNtNX5iMxGXuDRm7OL9e1o+rpi07KXi6OObqwLxSm4lrIeQtV
-         dMaQ==
-X-Gm-Message-State: AOAM533dFXXFsusN9CjxfPwxJN1V9EF2nPR3qie0C9FLqUUXupK1yE2p
-        JmHT07g9Q1YJ3P/FK+Pr7fyyCzk92fcRGQ==
-X-Google-Smtp-Source: ABdhPJzsMiSn9hDO3lHG6cLLos+RzezamQRoeQT7fUtY70OoH1OkWkQUrlamKBFCmZETR1nibJWZZQ==
-X-Received: by 2002:a92:c641:: with SMTP id 1mr8396927ill.94.1615488408809;
-        Thu, 11 Mar 2021 10:46:48 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g11sm1701772iom.23.2021.03.11.10.46.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Mar 2021 10:46:48 -0800 (PST)
-Subject: Re: Backporting to stable... Re: [GIT PULL] io_uring thread worker
- change
-To:     Stefan Metzmacher <metze@samba.org>, torvalds@linux-foundation.org
-Cc:     io-uring@vger.kernel.org
-References: <0c142458-9473-9df3-535f-34c06957d464@kernel.dk>
- <adb0cce8-0533-b7b0-d12c-9beb9e28f81a@samba.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <78f5accb-1b4a-6a30-fa1b-a675c8aec469@kernel.dk>
-Date:   Thu, 11 Mar 2021 11:46:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=03/BhKPKd2WMgdHLg79p/+l8A8CgJ4LF7Z0M8IhAC9Q=;
+        b=BNcugPt7Ter1aSQdYcsONwWXUJenWml992JBUlYcrLUxLZ2KjWvDtduJAV8DS2nuDY
+         gAh35UYpJQjz7aIQR71qmNJglG5+vHmPKslVmbJIrIs7kcDaYpMaGSckeJ8wpvU295El
+         qpk+Xcavug7cHzI49tUo+vB3P3ActwSzxaOovrRI8Tn6mccHYZtWoGYVwp1+qeubH+20
+         Bo4JjVIjz7G74LPMOV/NMqKW1DxpKhftG0pMfT5UC/Q3KWceWWl6E4acPHtVelAP2sFi
+         gSYvEndI87jn8zGJuSkoj0whGaV7KfWqVBLCYmVp075+j4J+OfUL0HyBKZ2b0JvqWm8F
+         XsJw==
+X-Gm-Message-State: AOAM531D/Y/SDrV9dCiw2wR1tsiQK4C81+CScj28htr0lA2VQLQNL033
+        Y5eioVH+rtO5xdu4OFIrHsMr1Gtl/ynICA==
+X-Google-Smtp-Source: ABdhPJzAkfyPNvIEVv89AAOHjGj0P1cFjngVe+bDPBPLh4fX5ALkNQlel2/E33v3vrgscEgRdCbBNw==
+X-Received: by 2002:a5d:6c66:: with SMTP id r6mr11090848wrz.407.1615505621285;
+        Thu, 11 Mar 2021 15:33:41 -0800 (PST)
+Received: from localhost.localdomain ([185.69.144.148])
+        by smtp.gmail.com with ESMTPSA id m11sm5828062wrz.40.2021.03.11.15.33.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Mar 2021 15:33:40 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH 1/4] io_uring: cancel deferred requests in try_cancel
+Date:   Thu, 11 Mar 2021 23:29:35 +0000
+Message-Id: <eec6865904ef898d16bcb2f44e060c9e0e8e321f.1615504663.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1615504663.git.asml.silence@gmail.com>
+References: <cover.1615504663.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <adb0cce8-0533-b7b0-d12c-9beb9e28f81a@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/11/21 3:43 AM, Stefan Metzmacher wrote:
-> Hi Jens,
-> 
->> I'm sure we're going to find little things to patch up after this
->> series, but testing has been pretty thorough, from the usual regression
->> suite to production. Any issue that may crop up should be manageable.
->> There's also a nice series of further reductions we can do on top of
->> this, but I wanted to get the meat of it out sooner rather than later.
->> The general worry here isn't that it's fundamentally broken. Most of the
->> little issues we've found over the last week have been related to just
->> changes in how thread startup/exit is done, since that's the main
->> difference between using kthreads and these kinds of threads. In fact,
->> if all goes according to plan, I want to get this into the 5.10 and 5.11
->> stable branches as well.
-> 
-> That would mean that IORING_FEAT_SQPOLL_NONFIXED would be implicitly
-> be backported from 5.11 to 5.10, correct?
+As io_uring_cancel_files() and others let SQO to run between
+io_uring_try_cancel_requests(), SQO may generate new deferred requests,
+so it's safer to try to cancel them in it.
 
-Right, that would happen by default if we moved the new worker code back
-to 5.10 and 5.11.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-> I'm wondering if I can advice people to move to 5.10 (as it's an lts
-> release) in order to get a kernel that is most likely very useful to
-> use in combination with Samba's drafted usage of io_uring, where I'd
-> like to use IORING_FEAT_SQPOLL_NONFIXED and IORING_FEAT_NATIVE_WORKERS
-> in order to use SENDMSG/RECVMSG with msg_control buffers (where the
-> control buffers may reference file descriptors).
-
-Understandable! It's worth nothing that 5.10 would also need a backport
-of the TIF_NOTIFY_SIGNAL change - could be done without, but then we'd
-have diverging code bases to some degree, which would be something I'd
-love to avoid.
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 49f85f49e1c3..56f3d8f408c9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8577,11 +8577,11 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+ 	return ret;
+ }
+ 
+-static void io_cancel_defer_files(struct io_ring_ctx *ctx,
++static bool io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 				  struct task_struct *task,
+ 				  struct files_struct *files)
+ {
+-	struct io_defer_entry *de = NULL;
++	struct io_defer_entry *de;
+ 	LIST_HEAD(list);
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+@@ -8592,6 +8592,8 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 		}
+ 	}
+ 	spin_unlock_irq(&ctx->completion_lock);
++	if (list_empty(&list))
++		return false;
+ 
+ 	while (!list_empty(&list)) {
+ 		de = list_first_entry(&list, struct io_defer_entry, list);
+@@ -8601,6 +8603,7 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 		io_req_complete(de->req, -ECANCELED);
+ 		kfree(de);
+ 	}
++	return true;
+ }
+ 
+ static bool io_cancel_ctx_cb(struct io_wq_work *work, void *data)
+@@ -8666,6 +8669,7 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+ 			}
+ 		}
+ 
++		ret |= io_cancel_defer_files(ctx, task, files);
+ 		ret |= io_poll_remove_all(ctx, task, files);
+ 		ret |= io_kill_timeouts(ctx, task, files);
+ 		ret |= io_run_task_work();
+@@ -8734,8 +8738,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 			atomic_inc(&task->io_uring->in_idle);
+ 	}
+ 
+-	io_cancel_defer_files(ctx, task, files);
+-
+ 	io_uring_cancel_files(ctx, task, files);
+ 	if (!files)
+ 		io_uring_try_cancel_requests(ctx, task, NULL);
 -- 
-Jens Axboe
+2.24.0
 

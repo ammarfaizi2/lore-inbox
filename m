@@ -2,154 +2,101 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19A9EC433DB
-	for <io-uring@archiver.kernel.org>; Fri, 12 Mar 2021 02:27:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3224C433E0
+	for <io-uring@archiver.kernel.org>; Fri, 12 Mar 2021 15:36:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CEF1C64F87
-	for <io-uring@archiver.kernel.org>; Fri, 12 Mar 2021 02:27:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 896A965005
+	for <io-uring@archiver.kernel.org>; Fri, 12 Mar 2021 15:36:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbhCLC0d (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 11 Mar 2021 21:26:33 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:47331 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229569AbhCLC03 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 11 Mar 2021 21:26:29 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R371e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0URYCgK-_1615515984;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0URYCgK-_1615515984)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 12 Mar 2021 10:26:25 +0800
-Subject: Re: [dm-devel] [PATCH v5 10/12] block: fastpath for bio-based polling
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-To:     Mike Snitzer <snitzer@redhat.com>
-Cc:     axboe@kernel.dk, caspar@linux.alibaba.com,
-        linux-block@vger.kernel.org, joseph.qi@linux.alibaba.com,
-        dm-devel@redhat.com, mpatocka@redhat.com, io-uring@vger.kernel.org
-References: <20210303115740.127001-1-jefflexu@linux.alibaba.com>
- <20210303115740.127001-11-jefflexu@linux.alibaba.com>
- <20210310231808.GD23410@redhat.com>
- <b6f0799a-1a11-3778-9b8a-702c3c103db5@linux.alibaba.com>
-Message-ID: <99a31346-0720-d586-4e9f-ba6ee855f9b5@linux.alibaba.com>
-Date:   Fri, 12 Mar 2021 10:26:24 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
+        id S232287AbhCLPf2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 12 Mar 2021 10:35:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45058 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232182AbhCLPfL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 12 Mar 2021 10:35:11 -0500
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D95AC061574
+        for <io-uring@vger.kernel.org>; Fri, 12 Mar 2021 07:35:11 -0800 (PST)
+Received: by mail-il1-x12c.google.com with SMTP id e7so2911857ile.7
+        for <io-uring@vger.kernel.org>; Fri, 12 Mar 2021 07:35:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=UxzvUOjJYdEYU2eBntdKYBuhHyZ+x0453Ml4IqA7G5U=;
+        b=YKlsrInCDAzrYP4kXVFtrAdV5Cj73i0bGkaDiRYjMcbQ6NXaaLeBlBXwlwdYPSnz2p
+         KzFP4WDMW1wSzrJ5sutGZNyiMButHmcbKrCh/NKG/2xiglsw/ud6IHqJelhGEDWcaf2+
+         cRrOCPOyAQuG8OrW089136fCtRwN4l5HEIsbHbtLg3ejow4pn7B/dVXv9TLPHvfNRD9J
+         4WUXiJzuP1ruy5HG3ubcbnNxDZ+rKR1cR4hv+AEhQ1+HXjUVBUJHS8+36BDWO9N9ZhH1
+         5CRImTyIzrdqEDTL2KTZTXx/U4iQGQyFXm5V063OVUhcEI8NE8QuqAxgI7AShifkrGAb
+         f0Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=UxzvUOjJYdEYU2eBntdKYBuhHyZ+x0453Ml4IqA7G5U=;
+        b=Gb+YekdAIYQi6I4RiUyEfgitea+gEqa1h1ZdL4pxojVbJ6jYPI73Az2PTb4IkCSbW5
+         A3xGvF3E4GKQkMUUK5aMzHoWlHBZMRceCQEE9gTVVaRoEl/WMxD4xA2ikTsm4JgiatVa
+         lxWK2Uo8r3z3gRVvWWFrT1IGZgqRWt974tyOyY46zSbsdTIPb0YUDmrmFLEX7LcjE5Mm
+         VXeRIoFwz/nuM4SJIzDCmxpnDopaUrgPacgYuqYKjcex/sKurT2NgylAOdekAizW8vqM
+         4jSyYCHsgTuJsH4Otyx+NXsYJbTpSzzUJIZz4iqu6Zg7tj2hr+p+MeeRHzUuiLOxjn8o
+         ZksA==
+X-Gm-Message-State: AOAM530lbYkMTwIyAIMajRlz29ciNEfTsZqG3p0Pw10ZigBX5h/M/2Uw
+        yM7t/07YwwaXawoSeoAFrtXL3qmwbPhBhw==
+X-Google-Smtp-Source: ABdhPJxfsQ5MQo8s6JAbLdzY3AvA1piqWBEQGAiKQNIUuxvdojUAPAtIVnW6L/T8KjfeJM7G4RQb3A==
+X-Received: by 2002:a92:4a0e:: with SMTP id m14mr3263790ilf.117.1615563310422;
+        Fri, 12 Mar 2021 07:35:10 -0800 (PST)
+Received: from p1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id v4sm3060863ilo.26.2021.03.12.07.35.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Mar 2021 07:35:10 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/2] io_uring: don't check for io_uring_fops for fixed files
+Date:   Fri, 12 Mar 2021 08:35:04 -0700
+Message-Id: <20210312153505.1791868-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210312153505.1791868-1-axboe@kernel.dk>
+References: <20210312153505.1791868-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <b6f0799a-1a11-3778-9b8a-702c3c103db5@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+We don't allow them at registration time, so limit the check for needing
+inflight tracking in io_file_get() to the non-fixed path.
 
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-On 3/11/21 2:36 PM, JeffleXu wrote:
-> 
-> 
-> On 3/11/21 7:18 AM, Mike Snitzer wrote:
->> On Wed, Mar 03 2021 at  6:57am -0500,
->> Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
->>
->>> Offer one fastpath for bio-based polling when bio submitted to dm
->>> device is not split.
->>>
->>> In this case, there will be only one bio submitted to only one polling
->>> hw queue of one underlying mq device, and thus we don't need to track
->>> all split bios or iterate through all polling hw queues. The pointer to
->>> the polling hw queue the bio submitted to is returned here as the
->>> returned cookie. In this case, the polling routine will call
->>> mq_ops->poll() directly with the hw queue converted from the input
->>> cookie.
->>>
->>> If the original bio submitted to dm device is split to multiple bios and
->>> thus submitted to multiple polling hw queues, the polling routine will
->>> fall back to iterating all hw queues (in polling mode) of all underlying
->>> mq devices.
->>>
->>> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
->>> ---
->>>  block/blk-core.c          | 73 +++++++++++++++++++++++++++++++++++++--
->>>  include/linux/blk_types.h | 66 +++++++++++++++++++++++++++++++++--
->>>  include/linux/types.h     |  2 +-
->>>  3 files changed, 135 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/block/blk-core.c b/block/blk-core.c
->>> index 6d7d53030d7c..e5cd4ff08f5c 100644
->>> --- a/block/blk-core.c
->>> +++ b/block/blk-core.c
->>> @@ -947,14 +947,22 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
->>>  {
->>>  	struct bio_list bio_list_on_stack[2];
->>>  	blk_qc_t ret = BLK_QC_T_NONE;
->>> +	struct request_queue *top_q;
->>> +	bool poll_on;
->>>  
->>>  	BUG_ON(bio->bi_next);
->>>  
->>>  	bio_list_init(&bio_list_on_stack[0]);
->>>  	current->bio_list = bio_list_on_stack;
->>>  
->>> +	top_q = bio->bi_bdev->bd_disk->queue;
->>> +	poll_on = test_bit(QUEUE_FLAG_POLL, &top_q->queue_flags) &&
->>> +		  (bio->bi_opf & REQ_HIPRI);
->>> +
->>>  	do {
->>> -		struct request_queue *q = bio->bi_bdev->bd_disk->queue;
->>> +		blk_qc_t cookie;
->>> +		struct block_device *bdev = bio->bi_bdev;
->>> +		struct request_queue *q = bdev->bd_disk->queue;
->>>  		struct bio_list lower, same;
->>>  
->>>  		if (unlikely(bio_queue_enter(bio) != 0))
->>> @@ -966,7 +974,23 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
->>>  		bio_list_on_stack[1] = bio_list_on_stack[0];
->>>  		bio_list_init(&bio_list_on_stack[0]);
->>>  
->>> -		ret = __submit_bio(bio);
->>> +		cookie = __submit_bio(bio);
->>> +
->>> +		if (poll_on && blk_qc_t_valid(cookie)) {
->>> +			unsigned int queue_num = blk_qc_t_to_queue_num(cookie);
->>> +			unsigned int devt = bdev_whole(bdev)->bd_dev;
->>> +
->>> +			cookie = blk_qc_t_get_by_devt(devt, queue_num);
->>
->> The need to rebuild the cookie here is pretty awkward.  This
->> optimization living in block core may be worthwhile but the duality of
->> block core conditionally overriding the driver's returned cookie (that
->> is meant to be opaque to upper layer) is not great.
-> 
-> I agree that currently this design pattern has caused blk-core and dm
-> being tightly coupled together. Maybe it's the most serous problem of
-> this patchset, personally.
-> 
-> I can explain it though... Since the nature of the IO path of dm, dm
-> itself doesn't know if the original bio be split to multiple split bios
-> and thus submitted to multiple underlying devices or not. Currently I
-> can only get this information in __submit_bio_noacct(), and that's why
-> there's so much logic specific to dm is coupled with blk-core here.
-> 
-
-I didn't point out the most important part of that. dm can't get the
-(really valid) cookie returned by mq. Suppose one dm device is built
-upon one nvme, then dm_submit_bio() only remaps and the remapped bio is
-actually *buffered* in the bio_list. In fact, he remapped bio is later
-submitted in __submit_bio_noacct(). So dm doesn't know the cookie
-(returned by underlying mq), while blk-core does.
-
-dm could "predict" the cookie of following submitted IO to mq (dev_t and
-index of hw queue), and return it (built by dev_t and hw queue index) in
-advance, but this "prediction" is quite fragile, since the IO submitting
-process could be migrated to another CPU, or the hw queue mapping of the
-underlying mq device could change before __submit_bio_noacct() really
-submits the IO.
-
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6c62a3c95c1a..c386f72ff73b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6113,10 +6113,12 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 	} else {
+ 		trace_io_uring_file_get(ctx, fd);
+ 		file = __io_file_get(state, fd);
++
++		/* we don't allow fixed io_uring files */
++		if (file && unlikely(file->f_op == &io_uring_fops))
++			io_req_track_inflight(req);
+ 	}
+ 
+-	if (file && unlikely(file->f_op == &io_uring_fops))
+-		io_req_track_inflight(req);
+ 	return file;
+ }
+ 
 -- 
-Thanks,
-Jeffle
+2.30.2
+
